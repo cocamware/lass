@@ -266,9 +266,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_H
-
-
-
+#pragma once
 
 #include "prim_common.h"
 #include "point_2d.h"

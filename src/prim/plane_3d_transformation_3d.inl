@@ -25,30 +25,46 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
 #pragma once
 
+
+
 #include "prim_common.h"
-#include "plane_3d.h"
-#include "ray_3d.h"
+#include "plane_3d_transformation_3d.h"
 
 
 
 namespace lass
 {
-
 namespace prim
 {
 
-template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
-Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
-                 const Ray3D<T, NPRay, PPRay>& iRay, 
-                 T& oT);
+/** apply transformation to cartesian plane 
+ */
+template<typename T, class NP>
+Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Cartesian, NP>& iPlane);
+
+/** apply transformation to parametric plane 
+ */
+template<typename T, class NP>
+Plane3D<T, Parametric, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Parametric, NP>& iPlane)
+{
+    return Plane3D<T, Parametric, NP>(iTransformation * iPlane.support(), 
+                                      iTransformation * iPlane.directionU(), 
+                                      iTransformation * iPlane.directionV());
 }
+
+/** apply transformation to combined plane 
+ */
+template<typename T, class NP>
+Plane3D<T, Combined, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Combined, NP>& iPlane);
 
 }
 
-#include "plane_3d_ray_3d.inl"
+}
+
+#include "plane_3d_transformation_3d.inl"
 
 #endif

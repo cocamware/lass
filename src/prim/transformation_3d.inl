@@ -53,6 +53,13 @@ Transformation3D<T>::Transformation3D()
 
 
 
+template <typename T>
+Transformation3D<T>::Transformation3D(bool iDontInitialise)
+{
+}
+
+
+
 template <typename T> inline
 typename util::CallTraits<T>::TConstReference
 Transformation3D<T>::operator()(TSize iRow, TSize iColumn) const
@@ -91,12 +98,85 @@ Transformation3D<T>::at(TSize iRow, TSize iColumn)
 
 
 
-template <typename T> inline
-Transformation3D<T>& 
-Transformation3D<T>::operator*=(const Transformation3D<T>& iOther)
+template <typename T>
+const Transformation3D<T>
+Transformation3D<T>::inverse() const
 {
-    *this = (*this * iOther);
-    return *this;
+    Transformation3D<T> result;
+
+    const TValue v1015 = v_[10] * v_[15];
+    const TValue v1411 = v_[14] * v_[11];
+    const TValue v0615 = v_[ 6] * v_[15];
+    const TValue v1407 = v_[14] * v_[ 7];
+    const TValue v0611 = v_[ 6] * v_[11];
+    const TValue v1007 = v_[10] * v_[ 7];
+    const TValue v0215 = v_[ 2] * v_[15];
+    const TValue v1403 = v_[14] * v_[ 3];
+    const TValue v0211 = v_[ 2] * v_[11];
+    const TValue v1003 = v_[10] * v_[ 3];
+    const TValue v0207 = v_[ 2] * v_[ 7];
+    const TValue v0603 = v_[ 6] * v_[ 3];
+
+    result.v_[0] =  v1015 * v_[ 5] + v1407 * v_[ 9] + v0611 * v_[13];
+    result.v_[0] -= v1411 * v_[ 5] + v0615 * v_[ 9] + v1007 * v_[13];
+    result.v_[1] =  v1411 * v_[ 1] + v0215 * v_[ 9] + v1003 * v_[13];
+    result.v_[1] -= v1015 * v_[ 1] + v1403 * v_[ 9] + v0211 * v_[13];
+    result.v_[2] =  v0615 * v_[ 1] + v1403 * v_[ 5] + v0207 * v_[13];
+    result.v_[2] -= v1407 * v_[ 1] + v0215 * v_[ 5] + v0603 * v_[13];
+    result.v_[3] =  v1007 * v_[ 1] + v0211 * v_[ 5] + v0603 * v_[ 9];
+    result.v_[3] -= v0611 * v_[ 1] + v1003 * v_[ 5] + v0207 * v_[ 9];
+    result.v_[4] =  v1411 * v_[ 4] + v0615 * v_[ 8] + v1007 * v_[12];
+    result.v_[4] -= v1015 * v_[ 4] + v1407 * v_[ 8] + v0611 * v_[12];
+    result.v_[5] =  v1015 * v_[ 0] + v1403 * v_[ 8] + v0211 * v_[12];
+    result.v_[5] -= v1411 * v_[ 0] + v0215 * v_[ 8] + v1003 * v_[12];
+    result.v_[6] =  v1407 * v_[ 0] + v0215 * v_[ 4] + v0603 * v_[12];
+    result.v_[6] -= v0615 * v_[ 0] + v1403 * v_[ 4] + v0207 * v_[12];
+    result.v_[7] =  v0611 * v_[ 0] + v1003 * v_[ 4] + v0207 * v_[ 8];
+    result.v_[7] -= v1007 * v_[ 0] + v0211 * v_[ 4] + v0603 * v_[ 8];
+
+    const TValue v0813 = v_[ 8] * v_[13];
+    const TValue v1209 = v_[12] * v_[ 9];
+    const TValue v0413 = v_[ 4] * v_[13];
+    const TValue v1205 = v_[12] * v_[ 5];
+    const TValue v0409 = v_[ 4] * v_[ 9];
+    const TValue v0805 = v_[ 8] * v_[ 5];
+    const TValue v0013 = v_[ 0] * v_[13];
+    const TValue v1201 = v_[12] * v_[ 1];
+    const TValue v0009 = v_[ 0] * v_[ 9];
+    const TValue v0801 = v_[ 8] * v_[ 1];
+    const TValue v0005 = v_[ 0] * v_[ 5];
+    const TValue v0401 = v_[ 4] * v_[ 1];
+
+    result.v_[ 8]  = v0813 * v_[ 7] + v1205 * v_[11] + v0409 * v_[15];
+    result.v_[ 8] -= v1209 * v_[ 7] + v0413 * v_[11] + v0805 * v_[15];
+    result.v_[ 9]  = v1209 * v_[ 3] + v0013 * v_[11] + v0801 * v_[15];
+    result.v_[ 9] -= v0813 * v_[ 3] + v1201 * v_[11] + v0009 * v_[15];
+    result.v_[10]  = v0413 * v_[ 3] + v1201 * v_[ 7] + v0005 * v_[15];
+    result.v_[10] -= v1205 * v_[ 3] + v0013 * v_[ 7] + v0401 * v_[15];
+    result.v_[11]  = v0805 * v_[ 3] + v0009 * v_[ 7] + v0401 * v_[11];
+    result.v_[11] -= v0409 * v_[ 3] + v0801 * v_[ 7] + v0005 * v_[11];
+    result.v_[12]  = v0413 * v_[10] + v0805 * v_[14] + v1209 * v_[ 6];
+    result.v_[12] -= v0409 * v_[14] + v0813 * v_[ 6] + v1205 * v_[10];
+    result.v_[13]  = v0009 * v_[14] + v0813 * v_[ 2] + v1201 * v_[10];
+    result.v_[13] -= v0013 * v_[10] + v0801 * v_[14] + v1209 * v_[ 2];
+    result.v_[14]  = v0013 * v_[ 6] + v0401 * v_[14] + v1205 * v_[ 2];
+    result.v_[14] -= v0005 * v_[14] + v0413 * v_[ 2] + v1201 * v_[ 6];
+    result.v_[15]  = v0005 * v_[10] + v0409 * v_[ 2] + v0801 * v_[ 6];
+    result.v_[15] -= v0009 * v_[ 6] + v0401 * v_[10] + v0805 * v_[ 2];
+  
+    const TValue det = v_[0] * result.v_[0] + v_[4] * result.v_[1] + v_[8] * result.v_[2] + v_[12] * result.v_[3];
+    if (det == TNumTraits::zero)
+    {
+        LASS_THROW("transformation not invertible");
+    }
+
+    const TValue invDet = num::inv(det);
+    for (unsigned j = 0; j < 16; j++)
+    {
+        result.v_[j] *= invDet;
+    }
+
+    return result;
 }
 
 
@@ -125,9 +205,22 @@ Transformation3D<T>::data()
 
 // --- private -------------------------------------------------------------------------------------
 
-template <typename T>
-Transformation3D<T>::Transformation3D(bool iDontInitialise)
+template <typename T> inline
+const typename Transformation3D<T>::TValue 
+Transformation3D<T>::determinant() const
 {
+    return v_[ 0] * (v_[ 5] * v_[10] * v_[15] - v_[ 7] * v_[10] * v_[13] + 
+                    v_[ 6] * v_[11] * v_[13] - v_[ 5] * v_[11] * v_[14] + 
+                    v_[ 7] * v_[ 9] * v_[14] - v_[ 6] * v_[ 9] * v_[15])
+         - v_[ 1] * (v_[ 4] * v_[10] * v_[15] - v_[ 7] * v_[10] * v_[12] + 
+                    v_[ 6] * v_[11] * v_[12] - v_[ 4] * v_[11] * v_[14] + 
+                    v_[ 7] * v_[ 8] * v_[14] - v_[ 6] * v_[ 8] * v_[15])
+         + v_[2] * (v_[ 4] * v_[ 9] * v_[15] - v_[ 7] * v_[ 9] * v_[12] + 
+                    v_[ 5] * v_[11] * v_[12] - v_[ 4] * v_[11] * v_[13] + 
+                    v_[ 7] * v_[ 8] * v_[13] - v_[ 5] * v_[ 8] * v_[15])
+         + v_[3] * (v_[ 4] * v_[ 9] * v_[14] - v_[ 6] * v_[ 9] * v_[12] + 
+                    v_[ 5] * v_[10] * v_[12] - v_[ 4] * v_[10] * v_[13] + 
+                    v_[ 6] * v_[ 8] * v_[13] - v_[ 5] * v_[ 8] * v_[14]);
 }
 
 

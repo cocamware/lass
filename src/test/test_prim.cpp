@@ -38,6 +38,7 @@
 #include "test_prim_ray.inl"
 #include "test_prim_sphere_3d.inl"
 //#include "test_prim_simple_polygon_2d.inl"
+#include "test_prim_transformation_3d.inl"
 #include "test_prim_vectors.inl"
 #include "test_prim_xml.inl"
 
@@ -67,6 +68,7 @@
     /*result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::NoDegenerate>)));\
     result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::StrictNoDegenerate>)));\
     result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::AllowDegenerate>)));*/\
+    result->add(BOOST_TEST_CASE(testPrimTransformation3D<Type__>));\
     result->add(BOOST_TEST_CASE(testPrimVector2D<Type__>));\
 	result->add(BOOST_TEST_CASE(testPrimVector3D<Type__>));\
 	result->add(BOOST_TEST_CASE(testPrimVector4D<Type__>));\

@@ -35,9 +35,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_H
-
-
-
+#pragma once
 
 #include "prim_common.h"
 #include "parameter_policy.h"

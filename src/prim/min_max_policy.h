@@ -50,8 +50,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_MIN_MAX_POLICY_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_MIN_MAX_POLICY_H
-
-
+#pragma once
 
 namespace lass
 {

@@ -83,7 +83,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -173,7 +173,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -261,7 +261,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -362,7 +362,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -409,6 +409,16 @@
 						AdditionalOptions="">
 						<IntelOptions 
 							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
+					</Tool>
+				</FileConfiguration>
+				<FileConfiguration 
+					Name="win32_vc71_d|Win32">
+					<Tool 
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
+						<IntelOptions 
+							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"
 							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
@@ -560,6 +570,9 @@
 				RelativePath=".\test_prim_sphere_3d.inl">
 			</File>
 			<File 
+				RelativePath=".\test_prim_transformation_3d.inl">
+			</File>
+			<File 
 				RelativePath="test_prim_vectors.inl">
 			</File>
 			<File 
@@ -617,9 +630,22 @@
 							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
+				<FileConfiguration 
+					Name="win32_vc71_d|Win32">
+					<Tool 
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
+						<IntelOptions 
+							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"
+							MSOriginalAdditionalOptions=""/>
+					</Tool>
+				</FileConfiguration>
 			</File>
 			<File 
 				RelativePath="test_util_callback.tmpl.inl">
+			</File>
+			<File 
+				RelativePath=".\test_util_clock.inl">
 			</File>
 			<File 
 				RelativePath=".\test_util_clone_factory.inl">

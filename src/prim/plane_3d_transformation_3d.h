@@ -25,30 +25,37 @@
 
 
 
-/** @namespace lass::io
- *	@brief streams, binary streams, vrmlstreams, ...
- *	@author BdG
- *	@date 2003
- */
-
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_H
 
 
 
 
-#include "../lass_common.h"
+#include "prim_common.h"
+#include "plane_3d.h"
+#include "transformation_3d.h"
 
-/** name of library for io part
- */
-#define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
-//#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
 
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
-#   pragma comment(lib, LASS_LIB_IO)
-#endif
 
+namespace lass
+{
+
+namespace prim
+{
+
+template<typename T, class NP>
+Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Cartesian, NP>& iPlane);
+
+template<typename T, class NP>
+Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Parametric, NP>& iPlane);
+
+template<typename T, class NP>
+Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Combined, NP>& iPlane);
+
+}
+
+}
+
+#include "plane_3d_transformation_3d.inl"
 
 #endif

@@ -72,6 +72,7 @@ public:
 	Matrix();
 	explicit Matrix(TSize iRows, TSize iCols);
     explicit Matrix(const TStorage& iStorage);
+    template <typename T2, typename S2> Matrix(const Matrix<T2, S2>& iOther);
 
 	template <typename T2, typename S2> Matrix<T, S>& operator=(const Matrix<T2, S2>& iOther);
 
@@ -122,7 +123,7 @@ const Matrix<T, impl::MAdd<T, S1, S2> > operator+(const Matrix<T, S1>& iA, const
 template <typename T, typename S1, typename S2> 
 const Matrix<T, impl::MSub<T, S1, S2> > operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
 template <typename T, typename S1, typename S2> 
-const Matrix<T, impl::MMul<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+const Matrix<T, impl::MProd<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
 
 template <typename T, typename S> 
 const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> > operator+(const T& iA, const Matrix<T, S>& iB);

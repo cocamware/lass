@@ -63,20 +63,21 @@ public:
 	};
 
     Transformation3D();
+    explicit Transformation3D(bool iDontInitialise);
 
     TConstReference operator()(TSize iRow, TSize iCol) const;
     TReference operator()(TSize iRow, TSize iCol);
     TConstReference at(TSize iRow, TSize iCol) const;
     TReference at(TSize iRow, TSize iCol);
 
-    Transformation3D<T>& operator*=(const Transformation3D<T>& iOther);
+    const Transformation3D<T> inverse() const;
 
     const TValue* data() const;
     TValue* data();
 
 private:
 
-    Transformation3D<T>(bool iDontInitialise);
+    const TValue determinant() const;
 
     TValue v_[16];
 };

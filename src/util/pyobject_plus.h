@@ -85,12 +85,12 @@ namespace lass
 			PyObjectPlus* PyPlus_INCREF(void);// incref method
 			PyObjectPlus* PyPlus_DECREF(void);// decref method
 			
-			static void __dealloc(PyObject *P);
+            static void __dealloc(PyObject *P);
 
-			static  PyObject*	__repr(PyObject *PyObj);
+            static  PyObject*	__repr(PyObject *PyObj);
 			virtual std::string	pyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
 
-			static  PyObject*	__str(PyObject *PyObj);
+            static  PyObject*	__str(PyObject *PyObj);
 			virtual std::string	pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
 
         protected:

@@ -51,12 +51,9 @@ public:
 	typedef size_t TSize;
 
     MStorage(): storage_(), rows_(0), cols_(0) {}
-    MStorage(TSize iRows, TSize iCols): storage_(iRows * iCols, T()), 
-rows_(iRows), cols_(iCols) {}
-    TConstReference operator()(TSize iI, TSize iJ) const { return 
-storage_[iI * cols_ + iJ]; }
-    TReference operator()(TSize iI, TSize iJ) { return storage_[iI * cols_ + 
-iJ]; }
+    MStorage(TSize iRows, TSize iCols): storage_(iRows * iCols, T()), rows_(iRows), cols_(iCols) {}
+    TConstReference operator()(TSize iI, TSize iJ) const { return storage_[iI * cols_ + iJ]; }
+    TReference operator()(TSize iI, TSize iJ) { return storage_[iI * cols_ + iJ]; }
     TSize rows() const { return rows_; }
     TSize columns() const { return cols_; }
 
@@ -91,8 +88,7 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef size_t TSize;
 
-	MScalar(TParam iValue, TSize iRows, TSize iCols): value_(iValue), 
-rows_(iRows), cols_(iCols) {}
+	MScalar(TParam iValue, TSize iRows, TSize iCols): value_(iValue), rows_(iRows), cols_(iCols) {}
 	TParam operator()(TSize iI, TSize iJ) const
     {
         LASS_ASSERT(iI < rows_ && iJ < cols_);

@@ -25,30 +25,45 @@
 
 
 
-/** @namespace lass::io
- *	@brief streams, binary streams, vrmlstreams, ...
- *	@author BdG
- *	@date 2003
- */
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_CLOCK_IMPL_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_CLOCK_IMPL_H
 
+#include "../util_common.h"
 
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
-
-
-
-
-#include "../lass_common.h"
-
-/** name of library for io part
- */
-#define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
-//#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
-
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
-#   pragma comment(lib, LASS_LIB_IO)
+// check platform support
+//
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	define LASS_UTIL_CLOCK_WIN32
+#   define LASS_UTIL_CLOCK_TICK num::Tint64
+#   include "../../num/num_common.h"
+#else
+#	define LASS_UTIL_CLOCK_STANDARD_C
+#   define LASS_UTIL_CLOCK_TICK ::clock_t
+#   include <time.h>
 #endif
 
+#include <windows.h>
+
+namespace lass
+{
+namespace util
+{
+namespace impl
+{
+
+struct ClockImpl
+{
+    typedef LASS_UTIL_CLOCK_TICK TTick;
+    static const TTick frequency();
+    static const TTick tick();
+};
+
+}
+
+}
+
+}
 
 #endif
+
+// EOF

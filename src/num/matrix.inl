@@ -94,6 +94,31 @@ Matrix<T, S>::Matrix(const TStorage& iStorage):
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
+Matrix<T, S>::Matrix(const Matrix<T2, S2>& iOther):
+    storage_(iOther.rows(), iOther.columns())
+{
+    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+
+    const S2& other = iOther.storage();
+    const TSize m = rows();
+    const TSize n = columns();
+	for (TSize i = 0; i < m; ++i)
+	{
+        for (TSize j = 0; j < n; ++j)
+        {
+		    storage_(i, j) = other(i, j);
+        }
+	}
+}
+
+
+
+/** assign storage/expression matrix to this (this should be a storage matrix).
+ *  THIS MUST BE LVALUE (storage matrix).
+ *  Exception safety: basic guarentee.
+ */
+template <typename T, typename S>
+template <typename T2, typename S2>
 Matrix<T, S>& Matrix<T, S>::operator=(const Matrix<T2, S2>& iOther)
 {
     LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
@@ -514,14 +539,14 @@ bool Matrix<T, S>::inverse()
     std::vector<size_t> index;
     int d;
 
-	if (!impl::cludecomp(lu, index, d))
+	if (!impl::ludecomp(lu, index, d))
     {
         setZero(0, 0);
         return false; // empty solution
     }
 
 	setIdentity(rows());
-    impl::clusolve(lu, index, *this);
+    impl::lusolve(lu, index, *this);
     return true;
 }
 

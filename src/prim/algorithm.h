@@ -24,6 +24,7 @@
  */
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
+#pragma once
 
 #include "prim_common.h"
 #include "simple_polygon_2d.h"

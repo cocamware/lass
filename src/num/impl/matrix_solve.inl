@@ -82,7 +82,7 @@ bool ludecomp(Matrix<T>& ioA,
 	typedef typename TNumTraits::baseType TBase;
 	typedef NumTraits<TBase> TBaseTraits;
 
-	const TBase epsilon(1e-20);
+	const TBase epsilon = static_cast<TBase>(1e-20);
     const TSize n = ioA.rows();
 
     oIndex.resize(n);

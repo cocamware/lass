@@ -32,6 +32,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_H
+#pragma once
 
 #include "prim_common.h"
 #include "vector_4d.h"
@@ -113,23 +114,23 @@ private:
 	static const ColorRGBA doMap(TParam iValue, const ColorRGBA* iMap, int iMapSize);
 };
 
-ColorRGBA operator+( const ColorRGBA& iA, const ColorRGBA& iB );
-ColorRGBA operator-( const ColorRGBA& iA, const ColorRGBA& iB );
-ColorRGBA operator*( const ColorRGBA& iA, const ColorRGBA& iB );
-ColorRGBA operator/( const ColorRGBA& iA, const ColorRGBA& iB );
-ColorRGBA operator+( ColorRGBA::TParam iA, const ColorRGBA& iB );
-ColorRGBA operator-( ColorRGBA::TParam iA, const ColorRGBA& iB );
-ColorRGBA operator*( ColorRGBA::TParam iA, const ColorRGBA& iB );
-ColorRGBA operator/( ColorRGBA::TParam iA, const ColorRGBA& iB );
-ColorRGBA operator+( const ColorRGBA& iA, ColorRGBA::TParam iB );
-ColorRGBA operator-( const ColorRGBA& iA, ColorRGBA::TParam iB );
-ColorRGBA operator*( const ColorRGBA& iA, ColorRGBA::TParam iB );
-ColorRGBA operator/( const ColorRGBA& iA, ColorRGBA::TParam iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator+( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator-( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator*( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator/( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator+( ColorRGBA::TParam iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator-( ColorRGBA::TParam iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator*( ColorRGBA::TParam iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator/( ColorRGBA::TParam iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator+( const ColorRGBA& iA, ColorRGBA::TParam iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator-( const ColorRGBA& iA, ColorRGBA::TParam iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator*( const ColorRGBA& iA, ColorRGBA::TParam iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL operator/( const ColorRGBA& iA, ColorRGBA::TParam iB );
 
-ColorRGBA under( const ColorRGBA& iA, const ColorRGBA& iB );
-ColorRGBA through( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL under( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA LASS_CALL through( const ColorRGBA& iA, const ColorRGBA& iB );
 
-ColorRGBA::TValue distance( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL_EXPORT ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorRGBA& iB );
 
 }
 

@@ -419,6 +419,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\plane_3d_ray_3d.inl">
 			</File>
 			<File 
+				RelativePath=".\plane_3d_transformation_3d.inl">
+			</File>
+			<File 
 				RelativePath=".\point_2d.inl">
 			</File>
 			<File 
@@ -597,6 +600,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\plane_3d_ray_3d.h">
 			</File>
 			<File 
+				RelativePath=".\plane_3d_transformation_3d.h">
+			</File>
+			<File 
 				RelativePath=".\point_2d.h">
 			</File>
 			<File 
@@ -622,6 +628,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\ray_3d_sphere_3d.h">
+			</File>
+			<File 
+				RelativePath=".\ray_3d_transformation_3d.h">
 			</File>
 			<File 
 				RelativePath=".\result.h">

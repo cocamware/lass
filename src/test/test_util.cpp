@@ -30,6 +30,7 @@
 #include "test_util.h"
 
 #include "test_util_callback.inl"
+#include "test_util_clock.inl"
 #include "test_util_clone_factory.inl"
 #include "test_util_dictionary.inl"
 #include "test_util_exception.inl"
@@ -50,6 +51,8 @@ boost::unit_test_framework::test_suite* testUtil()
     boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::util test suite");
 
 	result->add(BOOST_TEST_CASE(testUtilCallback));
+
+	result->add(BOOST_TEST_CASE(testUtilClock));
 
 	result->add(BOOST_TEST_CASE(testUtilCloneFactory));
 

@@ -25,30 +25,56 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_H
-#pragma once
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CLOCK_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_CLOCK_H
 
-#include "prim_common.h"
-#include "plane_3d.h"
-#include "ray_3d.h"
-
-
+#include "util_common.h"
+#include "impl/clock_impl.h"
+#include "../num/num_traits.h"
 
 namespace lass
 {
-
-namespace prim
+namespace util
 {
 
-template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
-Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
-                 const Ray3D<T, NPRay, PPRay>& iRay, 
-                 T& oT);
-}
+class Clock
+{
+public:
+
+    typedef double TTime;
+    typedef impl::ClockImpl::TTick TTick;
+
+    explicit Clock(TTime iStartTime = 0) 
+    { 
+        frequency_ = impl::ClockImpl::frequency();
+        resolution_ = num::NumTraits<TTime>::one / frequency_;
+        reset(iStartTime);
+    }
+
+    void reset(TTime iStartTime = 0) 
+    { 
+        startTick_ = impl::ClockImpl::tick(); 
+        startTime_ = iStartTime; 
+    }
+
+    const TTime time() const { return startTime_ + resolution_ * this->tick(); }
+    const TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
+
+    const TTick frequency() const { return frequency_; }
+    const TTime resolution() const { return resolution_; }
+
+private:
+
+    TTime startTime_;
+    TTime resolution_;
+    TTick startTick_;
+    TTick frequency_;
+};
 
 }
 
-#include "plane_3d_ray_3d.inl"
+}
 
 #endif
+
+// EOF

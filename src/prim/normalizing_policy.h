@@ -71,9 +71,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_NORMALIZING_POLICY_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_NORMALIZING_POLICY_H
-
-
-
+#pragma once
 
 #include "prim_common.h"
 

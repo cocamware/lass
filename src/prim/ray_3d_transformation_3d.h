@@ -25,30 +25,36 @@
 
 
 
-/** @namespace lass::io
- *	@brief streams, binary streams, vrmlstreams, ...
- *	@author BdG
- *	@date 2003
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_H
+
+
+
+
+#include "prim_common.h"
+#include "ray_3d.h"
+#include "transformation_3d.h"
+
+
+
+namespace lass
+{
+
+namespace prim
+{
+
+/** apply transformation to ray
  */
+template<typename T, class NP, class PP>
+Ray3D<T, NP, PP> operator*(const Transformation3D<T>& iTransformation, const Ray3D<T, NP, PP>& iRay)
+{
+    return Ray3D<T, NP, PP>(iTransformation * iRay.support(), iTransformation * iRay.direction());
+}
 
+}
 
+}
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
-
-
-
-
-#include "../lass_common.h"
-
-/** name of library for io part
- */
-#define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
-//#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
-
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
-#   pragma comment(lib, LASS_LIB_IO)
-#endif
-
+#include "ray_3d_transformation_3d.inl"
 
 #endif

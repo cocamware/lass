@@ -26,6 +26,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_ORIENTATION_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_ORIENTATION_H
+#pragma once
 
 #include "prim_common.h"
 
