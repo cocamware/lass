@@ -25,34 +25,21 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORMS_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORMS_H
-
-#define LASS_PLATFORM_TYPE_WIN32 1
-#define LASS_PLATFORM_TYPE_LINUX 2
-#define LASS_PLATFORM_TYPE_CYGWIN 3
-
-#if defined(linux) || defined(__linux) || defined(__linux__)
-// linux:
-#	include "platform_linux.h"
-
-#elif defined(__CYGWIN__)
-// cygwin:
-#	include "platform_cygwin.h"
-
-#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-// win32:
-#	include "platform_win32.h"
-
-#else
-#	error "Unknown platform - please configure and report the results to the LASS team"
-#endif
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_CYGWIN_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_CYGWIN_H
 
 
+#define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_CYGWIN
+#define LASS_PLATFORM "Cygwin"
+#define LASS_LIB_PLATFORM "Cygwin"
+#define LASS_LITTLE_ENDIAN	1
+#define LASS_BIG_ENDIAN	
 
-#ifndef LASS_LIB_PLATFORM
-#	define LASS_LIB_PLATFORM "default"
-#endif
+namespace lass
+{
 
+const int bitsPerByte = 8;
+
+}
 
 #endif
