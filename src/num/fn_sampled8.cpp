@@ -55,7 +55,32 @@ namespace lass
 		const FNSampled8 NumTraits< FNSampled8 >::sqrtPi = FNSampled8( NumTraits< FNSampled8::TBaseType >::sqrtPi );
 
 		LASS_NUM_DEFINE_NUMTRAITS_FNSAMPLED
-		
+
+		lass::io::BinaryOStream& FNSampled8::write( lass::io::BinaryOStream& os) const
+		{
+			int i;
+			for (i=0;i<4;++i)
+			{
+				os << alpha_[i].inf();
+				os << alpha_[i].sup();
+			}
+			return os;
+		}
+
+		lass::io::BinaryIStream& FNSampled8::read( lass::io::BinaryIStream& is)
+		{
+			int i;
+			for (i=0;i<4;++i)
+			{
+				lass::num::FNSampled8::TBaseType inf,sup;
+				is >> inf;
+				is >> sup;
+				alpha_[i].set(inf,sup);
+			}
+			return is;
+		}
+
+
 		/** complex extensions.  To avoid some cast of a float to a full object ... */
 		std::complex<FNSampled8 >&	operator*=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
 		{
@@ -102,30 +127,6 @@ namespace lass
 				temp += "," + str( iObj.alpha_[i].sup() );
 			temp += "]";
 			return temp;
-		}
-
-		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const FNSampled8& sfn)
-		{
-			int i;
-			for (i=0;i<4;++i)
-			{
-				os << sfn.alpha_[i].inf();
-				os << sfn.alpha_[i].sup();
-			}
-			return os;
-		}
-
-		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, FNSampled8& sfn)
-		{
-			int i;
-			for (i=0;i<4;++i)
-			{
-				FNSampled8::TBaseType inf,sup;
-				is >> inf;
-				is >> sup;
-				sfn.alpha_[i].set(inf,sup);
-			}
-			return is;
 		}
 
 		FNSampled8::FNSampled8(util::CallTraits<FNSampled8::TBaseType>::TParam iV)
@@ -419,6 +420,23 @@ namespace lass
 			}
 			return true;
 		}
+
+		bool FNSampled8::operator==(int iV) const
+		{
+			for (int i=0;i<4;++i)
+				if ((alpha_[i].sup()!=iV) || (alpha_[i].inf()!=iV))
+					return false;
+			return true;
+		}
+
+		bool FNSampled8::operator<(int iV) const
+		{
+			for (int i=0;i<4;++i)
+				if ((alpha_[i].sup()>=iV) || (alpha_[i].inf()>=iV))
+					return false;
+			return true;
+		}
+
 
 		bool FNSampled8::operator!=(const FNSampled8& sfn)	const
 		{
@@ -920,5 +938,18 @@ namespace lass
 			return Py_BuildValue("O", t );
 		}
 
+		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn)
+		{
+			return sfn.write(os);
+		}
+
+		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn)
+		{
+			return sfn.read(is);
+		}
+
+
 	}
 }
+
+

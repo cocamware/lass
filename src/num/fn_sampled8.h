@@ -77,7 +77,14 @@ namespace lass
 			*	standard STL implementation is used, this may cause some problems with
 			*	the complex class, but nothing that can't be quickly solved by explicitely
 			*	casting the used int's there with the available template argument.
+			*
+			*   One such place is in the MSVC 2003 implementation of std::complex.  The
+			*   default constructor fills in 0 as default.  To accomplish this the
+			*   MSVC implementation uses default arguments for a two-valued constructor.
+			*   A general default constructor is missing.  The ISO standard however does
+			*	not demand such a constructor.
 			*/
+			FNSampled8(int sV) : FNSampled8(TBaseType(sV)) {}
 			explicit FNSampled8(util::CallTraits<TBaseType>::TParam iV);
 			FNSampled8(const FNSampled8& sV) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
 			~FNSampled8();
@@ -118,7 +125,7 @@ namespace lass
 			/** certainly less than */
 			bool operator<(const FNSampled8& sfn)	const;
 			/** certainly equal */
-					bool	operator==(const FNSampled8& sfn)	const;
+			bool	operator==(const FNSampled8& sfn)	const;
 			/** certainly not equal */
 			bool	operator!=(const FNSampled8& sfn)	const;
 			/** certainly less than or equal */
@@ -127,6 +134,11 @@ namespace lass
 			bool	operator>(const FNSampled8& sfn)	const;
 			/** certainly greater than or equal */
 			bool	operator>=(const FNSampled8& sfn)	const;
+
+			/** certainly equal (provided to break as less code as possible, fi std::complex */
+			bool operator==(int i) const;
+			/** certainly less than (provided to break as less code as possible, fi std::complex */
+			bool operator<(int i) const;
 
 			/** possibly equal */
 			bool pe(const FNSampled8& sfn) const;
@@ -190,8 +202,8 @@ namespace lass
 
 			friend	std::string str(const FNSampled8& iObj);
 
-			friend lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const FNSampled8& sfn);
-			friend lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, FNSampled8& sfn);
+			lass::io::BinaryOStream& write(lass::io::BinaryOStream& os) const;
+			lass::io::BinaryIStream& read(lass::io::BinaryIStream& is);
 
 			friend void events(const FNSampled8& sfn1,const FNSampled8& sfn2,std::vector<FNSampled8::TBaseType>& outEvents);
 		};
@@ -266,6 +278,9 @@ namespace lass
 		std::complex<FNSampled8 >& operator/=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 		std::complex<FNSampled8 >& operator+=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 		std::complex<FNSampled8 >& operator-=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
+
+		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
+		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
 
 	}
 
