@@ -86,7 +86,7 @@ DistributionUniform<T, RG, RT>::DistributionUniform(TGenerator& ioGenerator,
 	generator_(&ioGenerator),
 	inf_(iInf),
 	sup_(iSup),
-	scale_(static_cast<TValue>(iSup - iInf) / TGenerator::max)
+	scale_(static_cast<long double>(iSup - iInf) / TGenerator::max)
 {
 }
 
@@ -99,7 +99,7 @@ DistributionUniform<T, RG, RT>::operator()() const
 	TValue result;
 	do
 	{
-		result = inf_ + scale_ * (*generator_)();
+		result = inf_ + static_cast<TValue>(scale_ * (*generator_)());
 	}
 	while (!impl::RangePolicy<RT>::isInRange(result, inf_, sup_));
 	return result;

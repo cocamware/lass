@@ -193,9 +193,9 @@ void Avi::frame(const prim::ColorRGBA* iFrame)
 	
 	for (int i = 0; i < size; ++i)
 	{
-		buffer_[i] = (static_cast<TRaw32>(iFrame[i].r() * 255.0f) << 16) +
-					 (static_cast<TRaw32>(iFrame[i].g() * 255.0f) << 8) +
-					 (static_cast<TRaw32>(iFrame[i].b() * 255.0f));
+		buffer_[i] = (static_cast<TRaw32>(iFrame[i].r * 255.0f) << 16) +
+					 (static_cast<TRaw32>(iFrame[i].g * 255.0f) << 8) +
+					 (static_cast<TRaw32>(iFrame[i].b * 255.0f));
 	}
 	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->addFrame(buffer_.get());
 }

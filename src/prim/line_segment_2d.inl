@@ -281,8 +281,8 @@ template<typename T, class PP>
 lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream, const LineSegment2D<T, PP>& iLineSegment)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = line(";
-	oOStream << "[" << iLineSegment.tail().x() << "," << iLineSegment.head().x() << "],";
-	oOStream << "[" << iLineSegment.tail().y() << "," << iLineSegment.head().y() << "],";
+	oOStream << "[" << iLineSegment.tail().x << "," << iLineSegment.head().x << "],";
+	oOStream << "[" << iLineSegment.tail().y << "," << iLineSegment.head().y << "],";
 	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;
 	return oOStream;
 }

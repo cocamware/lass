@@ -150,8 +150,8 @@
 
 // --- the name of the game ---
 
-#pragma LASS_NOTE("LASS_PLATFORM: " LASS_PLATFORM)
-#pragma LASS_NOTE("LASS_COMPILER: " LASS_COMPILER)
+//#pragma LASS_NOTE("LASS_PLATFORM: " LASS_PLATFORM)
+//#pragma LASS_NOTE("LASS_COMPILER: " LASS_COMPILER)
 
 
 #endif

@@ -120,6 +120,7 @@ public:
         TNeighbourhood& oNeighbourhood) const;
 
     void swap(TSelf& iOther);
+	const bool isEmpty() const;
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 	void diagnostics();
@@ -152,7 +153,6 @@ private:
     TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
     void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
 	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
-	size_t findBoundingParentNode(const TPoint& iTarget, size_t iChildNode, TParam iRadius) const;
 
 	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
     void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,

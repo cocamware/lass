@@ -50,6 +50,13 @@ std::basic_string<Char, Traits, Alloc>
 toupper(const std::basic_string<Char, Traits, Alloc>& iString, 
         const std::locale& iLocale = std::locale());
 
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc> 
+replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
+            const std::basic_string<Char, Traits, Alloc>& iToBeReplaced,
+            const std::basic_string<Char, Traits, Alloc>& iReplacement);
+
+
 }
 
 }

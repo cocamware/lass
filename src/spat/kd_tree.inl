@@ -98,11 +98,14 @@ template <typename O, template <class> class OT>
 typename KdTree<O, OT>::Neighbour
 KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
 {
+	if (isEmpty())
+	{
+		LASS_THROW("can't locate nearest neighbour in empty KdTree");
+	}
+
 	const size_t deepNode = findNode(iTarget, 0);
 	const TPoint deepPivot = TObjectTraits::position(heap_[deepNode]);
 	const TValue maxSqrRadius = this->squaredDistance(iTarget, deepPivot);
-#pragma LASS_TODO("use boundingNode once available")
-	//const size_t boundingNode = findBoundingParentNode(iTarget, deepNode, num::sqrt(maxSqrRadius));
 	Neighbour result(heap_[deepNode], maxSqrRadius);
 	doNearestNeighbour(iTarget, result, 0);
 	return result;
@@ -115,6 +118,11 @@ typename KdTree<O, OT>::TValue
 KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMaxCount,
 						   TNeighbourhood& oNeighbourhood) const
 {
+	if (isEmpty())
+	{
+		LASS_THROW("can't perform range search in empty KdTree");
+	}
+
     LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
     LASS_ASSERT(iMaxCount > 0);
 
@@ -124,6 +132,14 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 
     doRangeSearch(iTarget, squaredRadius, iMaxCount, oNeighbourhood, 0);
     return oNeighbourhood.empty() ? TValue() : oNeighbourhood.front().squaredDistance();
+}
+
+
+
+template <typename O, template <class> class OT>
+const bool KdTree<O, OT>::isEmpty() const
+{
+	return heap_.empty();
 }
 
 
@@ -296,33 +312,6 @@ size_t KdTree<O, OT>::findNode(const TPoint& iTarget, size_t iStartNode) const
 	const bool isLeftSide = delta < TValue();
 	const size_t result = findNode(iTarget, 2 * iStartNode + (isLeftSide ? 1 : 2));
 	return result != size ? result : iStartNode;
-}
-
-
-
-#pragma LASS_FIXME("this function is broken!")
-template <typename O, template <class> class OT>
-size_t KdTree<O, OT>::findBoundingParentNode(const TPoint& iTarget, size_t iChildNode, 
-											 TParam iRadius) const
-{
-	if (iChildNode == 0)
-	{
-		return 0;
-	}
-
-	const size_t parentNode = (iChildNode - 1) / 2;
-    const TAxis split = splits_[parentNode];
-	LASS_ASSERT(split != dummyAxis_);
-    const TPoint pivot = TObjectTraits::position(heap_[parentNode]);
-    const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
-	if (num::abs(delta) > iRadius)
-	{
-		return parentNode;
-	}
-	else
-	{
-		return findBoundingParentNode(iTarget, parentNode, iRadius);
-	}
 }
 
 

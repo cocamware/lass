@@ -249,14 +249,14 @@ const Side Aabb2D<T, MMP>::classify(const TPoint& iPoint) const
 {
 	LASS_ASSERT(isValid());
 
-	if (iPoint.x() > min_.x() && iPoint.x() < max_.x() &&
-		iPoint.y() > min_.y() && iPoint.y() < max_.y())
+	if (iPoint.x > min_.x && iPoint.x < max_.x &&
+		iPoint.y > min_.y && iPoint.y < max_.y)
 	{
 		return sInside;
 	}
 	
-	if (iPoint.x() < min_.x() || iPoint.x() > max_.x() ||
-		iPoint.y() < min_.y() || iPoint.y() > max_.y())
+	if (iPoint.x < min_.x || iPoint.x > max_.x ||
+		iPoint.y < min_.y || iPoint.y > max_.y)
 	{
 		return sOutside;
 	}
@@ -273,8 +273,8 @@ template <typename T, class MMP>
 const bool Aabb2D<T, MMP>::contains(const TPoint& iPoint) const
 {
 	LASS_ASSERT(isValid());
-	return  iPoint.x() >= min_.x() && iPoint.x() <= max_.x() &&
-			iPoint.y() >= min_.y() && iPoint.y() <= max_.y();
+	return  iPoint.x >= min_.x && iPoint.x <= max_.x &&
+			iPoint.y >= min_.y && iPoint.y <= max_.y;
 }
 
 
@@ -289,8 +289,8 @@ template <class MMP2>
 const bool Aabb2D<T, MMP>::contains(const Aabb2D<T, MMP2>& iOther) const
 {
 	LASS_ASSERT(isValid() && iOther.isValid());
-	return iOther.min().x() >= min_.x() && iOther.max().x() <= max_.x() 
-		&& iOther.min().y() >= min_.y() && iOther.max().y() <= max_.y();
+	return iOther.min().x >= min_.x && iOther.max().x <= max_.x 
+		&& iOther.min().y >= min_.y && iOther.max().y <= max_.y;
 }
 
 
@@ -405,7 +405,7 @@ template <typename T, class MMP>
 const bool Aabb2D<T, MMP>::isEmpty() const
 {
 	LASS_ASSERT(isValid());
-	return min_.x() > max_.x();
+	return min_.x > max_.x;
 }
 
 
@@ -424,8 +424,8 @@ const bool Aabb2D<T, MMP>::isEmpty() const
 template <typename T, class MMP>
 const bool Aabb2D<T, MMP>::isValid() const
 {
-	return (min_.x() <= max_.x() && min_.y() <= max_.y()) 
-		|| (min_.x() > max_.x() && min_.y() > max_.y());
+	return (min_.x <= max_.x && min_.y <= max_.y) 
+		|| (min_.x > max_.x && min_.y > max_.y);
 }
 
 

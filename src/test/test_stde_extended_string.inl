@@ -40,7 +40,11 @@ namespace test
 void testStdeExtendedString()
 {
 	const std::string testString = "This IS a MiXed CaSE stRINg";
+    
+    const std::string lower = stde::tolower(testString);
 	BOOST_CHECK_EQUAL(stde::tolower(testString), "this is a mixed case string");
+	BOOST_CHECK_EQUAL(stde::toupper(testString), "THIS IS A MIXED CASE STRING");
+	BOOST_CHECK_EQUAL(stde::replace_all(testString, "IS", "was"), "This was a MiXed CaSE stRINg");
 }
 
 }

@@ -76,6 +76,28 @@ toupper(const std::basic_string<Char, Traits, Alloc>& iString,
     return result;
 }
 
+/** @ingroup extended_string
+ *  replace all instance of @a iToBeReplaced in @a iInput by @a iReplacement.
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc> 
+replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
+            const std::basic_string<Char, Traits, Alloc>& iToBeReplaced,
+            const std::basic_string<Char, Traits, Alloc>& iReplacement)
+{
+    typedef std::basic_string<Char, Traits, Alloc> TString;
+    typename TString::size_type sizeToBeReplaced = iToBeReplaced.size();
+    typename TString::size_type sizeReplacement = iReplacement.size();
+    TString result(iInput);
+
+	std::string::size_type i = result.find(iToBeReplaced);
+	while (i != std::string::npos)
+	{
+		result.replace(i, sizeToBeReplaced, iReplacement);
+		i = result.find(iToBeReplaced, i + sizeReplacement);
+	}
+    return result;
+}
 
 }
 

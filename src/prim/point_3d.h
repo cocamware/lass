@@ -50,7 +50,7 @@ namespace prim
 {
 
 template<typename T>
-class Point3D
+struct Point3D
 {
 public:
 
@@ -71,33 +71,25 @@ public:
         typedef Point3D<U> Type;
     };
 
+    TValue x;
+    TValue y;
+    TValue z;
+
 	Point3D();
 	Point3D(TParam iX, TParam iY, TParam iZ);
 	template <typename U> explicit Point3D(const Point3D<U>& iOther);
 	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector);
 
-	const TVector& position() const;
+	const TVector position() const;
 	TConstReference operator[](unsigned iIndex) const;
-	TConstReference at(signed iIndex) const;
-	TConstReference x() const;
-	TConstReference y() const;
-	TConstReference z() const;
-
-	TVector& position();
 	TReference operator[](unsigned iIndex);
+	TConstReference at(signed iIndex) const;
 	TReference at(signed iIndex);
-	TReference x();
-	TReference y();
-	TReference z();
 
 	Point3D<T>& operator+=(const Vector3D<T>& iOffset);
 	Point3D<T>& operator-=(const Vector3D<T>& iOffset);
 
 	const bool isZero() const;
-
-private:
-
-	TVector position_;
 };
 
 template<typename T> bool operator==(const Point3D<T>& iA, const Point3D<T>& iB);

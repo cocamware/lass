@@ -42,7 +42,7 @@ namespace prim
 {
 
 template<typename T>
-class Point2DH
+struct Point2DH
 {
 public:
 
@@ -64,24 +64,20 @@ public:
         typedef Point2DH<U> Type;
     };
 
+    TValue x;
+    TValue y;
+    TValue z;
+
 	Point2DH();
 	Point2DH(TParam iX, TParam iY, TParam iZ = TNumTraits::one);
 	Point2DH(const TPoint& iAffinePoint);
 	explicit Point2DH(const TVector& iPositionVector);
 
-	const TVector& position() const;
+	const TVector position() const;
 	TConstReference operator[](unsigned iIndex) const;
-	TConstReference at(signed iIndex) const;
-	TConstReference x() const;
-	TConstReference y() const;
-	TConstReference z() const;
-
-	TVector& position();
 	TReference operator[](unsigned iIndex);
+	TConstReference at(signed iIndex) const;
 	TReference at(signed iIndex);
-	TReference x();
-	TReference y();
-	TReference z();
 
 	const Point2DH<T>& operator+() const;
 	const Point2DH<T> operator-() const;
@@ -98,10 +94,6 @@ public:
 	const Point2D<T> affine() const;
 
 	void homogenize();
-
-private:
-
-	TVector position_;
 };
 
 template<typename T> bool operator==(const Point2DH<T>& iA, const Point2DH<T>& iB);

@@ -70,31 +70,24 @@ public:
         typedef typename Point2D<U> Type;
     };
 
+    TValue x;
+    TValue y;
+
 	Point2D();
 	Point2D(TParam iX, TParam iY);
 	template <typename U> explicit Point2D(const Point2D<U>& iOther);
 	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector);
 
-	const TVector& position() const;
-	TConstReference operator[](unsigned iIndex) const;
-	TConstReference at(signed iIndex) const;
-	TConstReference x() const;
-	TConstReference y() const;
-
-	TVector& position();
+    const TVector position() const;
+    TConstReference operator[](unsigned iIndex) const;
 	TReference operator[](unsigned iIndex);
+	TConstReference at(signed iIndex) const;
 	TReference at(signed iIndex);
-	TReference x();
-	TReference y();
 
 	Point2D<T>& operator+=(const Vector2D<T>& iOffset);
 	Point2D<T>& operator-=(const Vector2D<T>& iOffset);
 
 	const bool isZero() const;
-
-public:
-
-	TVector position_;
 };
 
 template<typename T> bool operator==(const Point2D<T>& iA, const Point2D<T>& iB);

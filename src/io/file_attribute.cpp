@@ -71,8 +71,8 @@ bool fileDoesExist(const std::string& iFileName)
  */
 std::string fileExtension(const std::string& iFileName)
 {
-	std::string::size_type dot = iFileName.rfind('.');
-	return dot != std::string::npos ? iFileName.substr(dot + 1) : "";
+	std::string::size_type lastDot = iFileName.rfind('.');
+	return lastDot!= std::string::npos ? iFileName.substr(lastDot + 1) : "";
 }
 
 
@@ -85,8 +85,35 @@ std::string fileExtension(const std::string& iFileName)
  */
 std::string fileWithoutExtension(const std::string& iFileName)
 {
-	std::string::size_type dot = iFileName.rfind('.');
-	return dot != std::string::npos ? iFileName.substr(0, dot) : "";
+	return iFileName.substr(0, iFileName.rfind('.'));
+}
+
+
+
+/** @ingroup FileAttribute
+ *  return the part of the file name before the last (back)slash.
+ *  return an empty string if there's no (back)slash.
+ *  e.g. @e foo returns an empty string, @e foo/bar returns @e foo, 
+ *  @e foo/bar/fun returns @e foo/bar.
+ */
+std::string filePath(const std::string& iFileName)
+{
+	std::string::size_type lastSlash = iFileName.find_last_of("/\\");
+	return lastSlash != std::string::npos ? iFileName.substr(0, lastSlash) : "";
+}
+
+
+
+/** @ingroup FileAttribute
+ *  return the part of the file name behind the last (back)slash.
+ *  return the original string if there's no (back)slash.
+ *  e.g. @e foo returns @e foo, @e foo/bar returns @e bar,
+ *  @e foo/bar/fun returns @e fun .
+ */
+std::string fileWithoutPath(const std::string& iFileName)
+{
+	std::string::size_type lastSlash = iFileName.find_last_of("/\\");
+	return lastSlash != std::string::npos ? iFileName.substr(lastSlash + 1) : iFileName;
 }
 
 

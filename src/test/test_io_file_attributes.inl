@@ -58,6 +58,32 @@ void testIoFileAttributes()
 	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar"), "foo");
 	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar."), "foo.bar");	
 	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar.fun"), "foo.bar");	
+
+	BOOST_CHECK_EQUAL(io::filePath(""), "");
+	BOOST_CHECK_EQUAL(io::filePath("foo"), "");
+	BOOST_CHECK_EQUAL(io::filePath("foo/"), "foo");
+	BOOST_CHECK_EQUAL(io::filePath("foo/bar"), "foo");
+	BOOST_CHECK_EQUAL(io::filePath("foo/bar/"), "foo/bar");	
+	BOOST_CHECK_EQUAL(io::filePath("foo/bar/fun"), "foo/bar");	
+	BOOST_CHECK_EQUAL(io::filePath(""), "");
+	BOOST_CHECK_EQUAL(io::filePath("foo"), "");
+	BOOST_CHECK_EQUAL(io::filePath("foo\\"), "foo");
+	BOOST_CHECK_EQUAL(io::filePath("foo\\bar"), "foo");
+	BOOST_CHECK_EQUAL(io::filePath("foo\\bar\\"), "foo\\bar");	
+	BOOST_CHECK_EQUAL(io::filePath("foo\\bar\\fun"), "foo\\bar");	
+
+	BOOST_CHECK_EQUAL(io::fileWithoutPath(""), "");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/"), "");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar"), "bar");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/"), "");	
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/fun"), "fun");	
+	BOOST_CHECK_EQUAL(io::fileWithoutPath(""), "");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\"), "");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar"), "bar");
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\"), "");	
+	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\fun"), "fun");	
 }
 
 }

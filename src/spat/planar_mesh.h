@@ -404,10 +404,10 @@ namespace spat
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::PlanarMesh( const prim::Aabb2D<T>& iAabb )
 	{
-		TPoint2D	topleft(iAabb.min().x(), iAabb.max().y());
-		TPoint2D	topright(iAabb.max().x(), iAabb.max().y());
-		TPoint2D	bottomleft(iAabb.min().x(), iAabb.min().y());
-		TPoint2D	bottomright(iAabb.max().x(), iAabb.min().y());
+		TPoint2D	topleft(iAabb.min().x, iAabb.max().y);
+		TPoint2D	topright(iAabb.max().x, iAabb.max().y);
+		TPoint2D	bottomleft(iAabb.min().x, iAabb.min().y);
+		TPoint2D	bottomright(iAabb.max().x, iAabb.min().y);
 		init4(topleft, bottomleft, bottomright, topright);
 	}
 	
@@ -530,13 +530,13 @@ namespace spat
 	
 		if (t1>t2)
 		{
-			T rx = (T(1)-t)*a.x() + t*b.x();
-			T ry = (T(1)-t)*a.y() + t*b.y();
+			T rx = (T(1)-t)*a.x + t*b.x;
+			T ry = (T(1)-t)*a.y + t*b.y;
 			return TPoint2D(rx,ry);
 		}
 
-		T rx = (T(1)-t)*b.x() + t*a.x();
-		T ry = (T(1)-t)*b.y() + t*a.y();
+		T rx = (T(1)-t)*b.x + t*a.x;
+		T ry = (T(1)-t)*b.y + t*a.y;
 		return TPoint2D(rx,ry);
 	}
 

@@ -73,26 +73,21 @@ public:
         typedef Point3DH<U> Type;
     };
 
+    TValue x;
+    TValue y;
+    TValue z;
+    TValue w;
+
 	Point3DH();
 	Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW = TNumTraits::one);
 	Point3DH(const TPoint& iAffinePoint);
 	explicit Point3DH(const TVector& iPositionVector);
 
-	const TVector& position() const;
+	const TVector position() const;
 	TConstReference operator[](unsigned iIndex) const;
-	TConstReference at(signed iIndex) const;
-	TConstReference x() const;
-	TConstReference y() const;
-	TConstReference z() const;
-	TConstReference w() const;
-
-	TVector& position();
 	TReference operator[](unsigned iIndex);
+	TConstReference at(signed iIndex) const;
 	TReference at(signed iIndex);
-	TReference x();
-	TReference y();
-	TReference z();
-	TReference w();
 
 	const Point3DH<T>& operator+() const;
 	const Point3DH<T> operator-() const;
@@ -109,10 +104,6 @@ public:
 	const TPoint affine() const;
 
 	void homogenize();
-
-private:
-
-	TVector position_;
 };
 
 template<typename T> bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB);

@@ -35,16 +35,20 @@ namespace prim
 
 template <typename T> inline 
 Point2DH<T>::Point2DH():
-	position_()
+	x(TNumTraits::zero),
+	y(TNumTraits::zero)
+	z(TNumTraits::zero)
 {
-	LASS_ASSERT(position_.isZero());
+	LASS_ASSERT(isZero());
 }
 
 
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(TParam iX, TParam iY, TParam iZ):
-	position_(iX, iY, iZ)
+	x(iX),
+	y(iY),
+	z(iZ)
 {
 }
 
@@ -52,7 +56,9 @@ Point2DH<T>::Point2DH(TParam iX, TParam iY, TParam iZ):
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(const TPoint& iAffinePoint):
-	position_(iAffinePoint.x(), iAffinePoint.y(), TNumTraits::one)
+	x(iAffinePoint.x),
+	y(iAffinePoint.y),
+    z(TNumTraits::one)
 {
 }
 
@@ -60,17 +66,19 @@ Point2DH<T>::Point2DH(const TPoint& iAffinePoint):
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(const TVector& iPositionVector):
-	position_(iPositionVector)
+	x(iPositionVector.x),
+	y(iPositionVector.y),
+	z(iPositionVector.z)
 {
 }
 
 
 
 template <typename T> inline
-typename const Point2DH<T>::TVector&
+typename const Point2DH<T>::TVector
 Point2DH<T>::position() const
 {
-	return position_;
+	return TVector(x, y, z);
 }
 
 
@@ -79,7 +87,18 @@ template<typename T> inline
 typename Point2DH<T>::TConstReference 
 Point2DH<T>::operator[](unsigned iIndex) const
 {
-	return position_[iIndex];
+    LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TReference 
+Point2DH<T>::operator[](unsigned iIndex)
+{
+    LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -90,52 +109,7 @@ template<typename T> inline
 typename Point2DH<T>::TConstReference 
 Point2DH<T>::at(signed iIndex) const
 {
-	return position_.at(iIndex);
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TConstReference 
-Point2DH<T>::x() const
-{
-	return position_.x;
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TConstReference 
-Point2DH<T>::y() const
-{
-	return position_.y;
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TConstReference 
-Point2DH<T>::z() const
-{
-	return position_.z;
-}
-
-
-
-template <typename T> inline
-typename Point2DH<T>::TVector&
-Point2DH<T>::position()
-{
-	return position_;
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TReference 
-Point2DH<T>::operator[](unsigned iIndex)
-{
-	return position_[iIndex];
+    return *(&x + num::mod(iIndex, dimension));
 }
 
 
@@ -146,34 +120,7 @@ template<typename T> inline
 typename Point2DH<T>::TReference 
 Point2DH<T>::at(signed iIndex)
 {
-	return position_.at(iIndex);
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TReference 
-Point2DH<T>::x()
-{
-	return position_.x;
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TReference 
-Point2DH<T>::y()
-{
-	return position_.y;
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TReference 
-Point2DH<T>::z()
-{
-	return position_.z;
+    return *(&x + num::mod(iIndex, dimension));
 }
 
 
@@ -188,45 +135,54 @@ const Point2DH<T>& Point2DH<T>::operator+() const
 
 
 
-template<typename T> inline 
+template<typename T> 
 const Point2DH<T> Point2DH<T>::operator-() const
 {
-	return Point2DH(-position_);
+    return Poin2DH(-x, -y, -z);
 }
 
 
 
-template<typename T> inline 
+template<typename T> 
 Point2DH<T>& Point2DH<T>::operator+=(const Point2DH<T>& iB) 
 {
-	position_ += iB.position_;
+	x += iB.x;
+    y += iB.y;
+    z += iB.z;
 	return *this;
 }
 
 
 
-template<typename T> inline 
+template<typename T> 
 Point2DH<T>& Point2DH<T>::operator-=(const Point2DH<T>& iB)
 {
-	position_ -= iB.position_;
+	x -= iB.x;
+    y -= iB.y;
+    z -= iB.z;
 	return *this;
 }
 
 
 
-template<typename T> inline 
+template<typename T> 
 Point2DH<T>& Point2DH<T>::operator*=(TParam iB)
 {
-	position_ *= iB;
+	x *= iB;
+    y *= iB;
+    z *= iB;
 	return *this;
 }
 
 
 
-template<typename T> inline 
+template<typename T> 
 Point2DH<T>& Point2DH<T>::operator/=(TParam iB)
 {
-	position_ /= iB;
+    const TValue invB = TNumTraits::one / iB;
+	x *= invB;
+    y *= invB;
+    z *= invB;
 	return *this;
 }
 
@@ -235,30 +191,30 @@ Point2DH<T>& Point2DH<T>::operator/=(TParam iB)
 /** Return true if point is origin (0, 0, z).  
  *	z may be 0 but doesn't has to be.
  */
-template<typename T> inline 
+template<typename T> 
 const bool Point2DH<T>::isZero() const
 {
-	return position_.x == TNumTraits::zero && position_.y == TNumTraits::zero;
+	return x == TNumTraits::zero && y == TNumTraits::zero;
 }
 
 
 
 /** Return true if point is at infinite distance of origin.  test if z == 0.
  */
-template<typename T> inline 
+template<typename T> 
 const bool Point2DH<T>::isInfinite() const
 {
-	return position_.z == TNumTraits::zero;
+	return z == TNumTraits::zero;
 }
 
 
 
 /** Return true if point is valid.	test if point != (0, 0, 0)
  */
-template<typename T> inline 
+template<typename T> 
 const bool Point2DH<T>::isValid() const
 {
-	return !position_.isZero();
+    return x != TNumTraits::zero || y != TNumTraits::zero || z != TNumTraits::zero;
 }
 
 
@@ -268,7 +224,7 @@ const bool Point2DH<T>::isValid() const
 template<typename T> inline 
 typename const Point2DH<T>::TValue Point2DH<T>::weight() const
 {
-	return position_.z;
+	return z;
 }
 
 
@@ -281,18 +237,20 @@ const Point2D<T> Point2DH<T>::affine() const
 {
 	Point2DH<T> result(*this);
 	result.homogenize();
-	return Point2D<T>(result.x(), result.y());
+	return Point2D<T>(result.x, result.y);
 }
 
 
 
 /** Rescale point so that weight is 1.
  */
-template<typename T> inline
+template<typename T>
 void Point2DH<T>::homogenize()
 {
-	position_ /= position_.z;
-	position_.z = TNumTraits::one;
+    const TValue invZ = TNumTraits::one / z;
+    x *= invZ;
+    y *= invZ;
+	z = TNumTraits::one;
 }
 
 
@@ -301,10 +259,10 @@ void Point2DH<T>::homogenize()
 
 /** @relates lass::prim::Point2DH
  */
-template<typename T> inline 
+template<typename T> 
 bool operator==(const Point2DH<T>& iA, const Point2DH<T>& iB)
 {
-	return iA.position() == iB.position();
+    return iA.x == iB.x && iA.y == iB.y && iA.z == iB.z;
 }
 
 
@@ -420,7 +378,7 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2DH<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Point2DH>" << iB.x() << " " << iB.y() << " " << iB.z() << "</Point2DH>\n";
+		<< "<Point2DH>" << iB.x << " " << iB.y << " " << iB.z << "</Point2DH>\n";
 	return oOStream;
 }
 
@@ -429,9 +387,11 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2DH<T>& iB)
 /** @relates lass::prim::Point2DH
  */
 template<typename T>
-std::istream& operator>>(std::istream& ioIStream, Point2DH<T>& iB)
+std::istream& operator>>(std::istream& ioIStream, Point2DH<T>& oB)
 {
-	LASS_ENFORCE(ioIStream) >> iB.position();
+    Vector3D<T> temp;
+	LASS_ENFORCE(ioIStream) >> temp;
+    oB = Point2DH<T> temp;
 	return ioIStream;
 }
 

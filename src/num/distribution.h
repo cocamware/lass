@@ -80,7 +80,7 @@ private:
 	TGenerator* generator_;
 	TValue inf_;
 	TValue sup_;
-	double scale_;
+	long double scale_;
 };
 
 

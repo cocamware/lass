@@ -142,10 +142,10 @@ public:
 template<typename T, typename PI>
 LinearMeshInterpolator<T,PI>::LinearMeshInterpolator( const TAabb2D& iAabb, const PI& iValueOutside ) : MeshInterpolator<T,PI>( iAabb ) 
 {
-	TPoint2D topleft( iAabb.min().x(), iAabb.max().y() );
-	TPoint2D topright( iAabb.max().x(), iAabb.max().y() );
-	TPoint2D bottomleft( iAabb.min().x(), iAabb.min().y() );
-	TPoint2D bottomright( iAabb.max().x(), iAabb.min().y() );
+	TPoint2D topleft( iAabb.min().x, iAabb.max().y );
+	TPoint2D topright( iAabb.max().x, iAabb.max().y );
+	TPoint2D bottomleft( iAabb.min().x, iAabb.min().y );
+	TPoint2D bottomright( iAabb.max().x, iAabb.min().y );
 
 	TPlanarMesh::TEdge*	e;
 

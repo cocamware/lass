@@ -198,11 +198,25 @@ PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
-    if (pyGetSimpleObject(iValue, oV.position()) != 0)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("Point2D");
+		impl::addMessageHeader("Point3D");
 		return 1;
 	}
+    prim::Point2D<T> result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	{
+		impl::addMessageHeader("Point3D: x");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	{
+		impl::addMessageHeader("Point3D: y");
+		return 1;
+	}
+
+	oV = result;
 	return 0;
 }
 
@@ -224,11 +238,30 @@ PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 {
-    if (pyGetSimpleObject(iValue, oV.position()) != 0)
+	if (!impl::checkTupleSize(iValue, 3))
 	{
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
+    prim::Point3D<T> result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	{
+		impl::addMessageHeader("Point3D: x");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	{
+		impl::addMessageHeader("Point3D: y");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
+	{
+		impl::addMessageHeader("Point3D: z");
+		return 1;
+	}
+
+	oV = result;
 	return 0;
 }
 

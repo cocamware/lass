@@ -42,6 +42,8 @@ namespace io
 bool fileDoesExist(const std::string& iFileName);
 std::string fileExtension(const std::string& iFileName);
 std::string fileWithoutExtension(const std::string& iFileName);
+std::string filePath(const std::string& iFileName);
+std::string fileWithoutPath(const std::string& iFileName);
 
 }
 

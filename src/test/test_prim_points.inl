@@ -53,8 +53,8 @@ template <typename T> void testPrimPoint2D()
 	
 	p = Point2D<T>(a.x, a.y);
 	BOOST_CHECK_EQUAL(p.position(), a);
-	BOOST_CHECK_EQUAL(p.x(), a.x);
-	BOOST_CHECK_EQUAL(p.y(), a.y);
+	BOOST_CHECK_EQUAL(p.x, a.x);
+	BOOST_CHECK_EQUAL(p.y, a.y);
 
 	Point2D<T> q(b);
 	BOOST_CHECK_EQUAL(q.position(), b);
@@ -78,9 +78,9 @@ template <typename T> void testPrimPoint3D()
 	
 	p = Point3D<T>(a.x, a.y, a.z);
 	BOOST_CHECK_EQUAL(p.position(), a);
-	BOOST_CHECK_EQUAL(p.x(), a.x);
-	BOOST_CHECK_EQUAL(p.y(), a.y);
-	BOOST_CHECK_EQUAL(p.z(), a.z);
+	BOOST_CHECK_EQUAL(p.x, a.x);
+	BOOST_CHECK_EQUAL(p.y, a.y);
+	BOOST_CHECK_EQUAL(p.z, a.z);
 
 	Point3D<T> q(b);
 	BOOST_CHECK_EQUAL(q.position(), b);

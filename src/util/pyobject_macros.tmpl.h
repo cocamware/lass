@@ -34,9 +34,10 @@
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_STRING  "not string"
 
 
-/* This macro is only used in the PyObjectPlus class and is for internal LASS
-*  use.  Do not use in custom objects... DON'T! 
-*/
+/** @internal
+ *	This macro is only used in the PyObjectPlus class and is for internal LASS
+ *	use.  Do not use in custom objects... DON'T! 
+ */
 #define PY_HEADER_INTERNAL \
 	public: \
 		static char*		  PythonClassName;\
@@ -48,7 +49,7 @@
 		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
 		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return 0;}*/
 
-/* Place as first line of your Pythonized class.  For ParentClass use the 
+/** Place as first line of your Pythonized class.  For ParentClass use the 
 *  C++ class from which you wish the python object inherits.  ParentClass
 *  must also be a Pythonized class or use lass::python::PyObjectPlus as default.
 *  @remark Any declarations coming after this macro are public!
