@@ -337,6 +337,10 @@ struct RunTimeFinder<TypeList<HeadType, TailType> >
 
 }
 
+/** returns index of type in typelist at runtime, or -1 if not present
+ *
+ *  @sa TypeList
+ */
 template <typename TypeListType> int find(const util::TypeInfo& iType)
 {
 	return impl::RunTimeFinder<TypeListType>::result(iType);

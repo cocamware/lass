@@ -115,10 +115,11 @@
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	define LASS_IO_AVI_WIN32
 #else
-#	pragma LASS_NOTE("COMPATIBILTY PROBLEM: lass::io::Avi is not supported on this platform")
+#	pragma LASS_IO_AVI_NO_SUPPORT
+#	pragma LASS_NOTE("COMPATIBILTY WARNING: lass::io::Avi is not supported on this platform")
 #endif
 
-
+#if !defined(LASS_IO_AVI_NO_SUPPORT)
 
 namespace lass
 {
@@ -173,6 +174,8 @@ private:
 }
 
 }
+
+#endif
 
 #endif
 
