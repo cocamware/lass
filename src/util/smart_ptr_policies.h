@@ -93,6 +93,7 @@
  *
  *  - lass::util::ObjectStorage: simple storage policy for objects allocated by @c new.
  *  - lass::util::ArrayStorage: simple storage policy for arrays allocated by @c new[].
+ *  - lass::util::ComStorage: storage policy for COM interfaces.
  *
  *  @section CounterPolicy
  *

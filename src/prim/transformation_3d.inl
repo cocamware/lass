@@ -312,7 +312,7 @@ Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iT
 	return Vector3D<T>(
 		mat[ 0] * iSubject.x + mat[ 1] * iSubject.y + mat[ 2] * iSubject.z,
 		mat[ 4] * iSubject.x + mat[ 5] * iSubject.y + mat[ 6] * iSubject.z,
-		mat[ 8] * iSubject.x + mat[ 9] * iSubject.y + imatrix[10] * iSubject.z);
+		mat[ 8] * iSubject.x + mat[ 9] * iSubject.y + mat[10] * iSubject.z);
 }
 
 

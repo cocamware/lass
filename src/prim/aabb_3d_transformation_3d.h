@@ -23,11 +23,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
+#pragma once
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRANSFORMATION_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRANSFORMATION_3D_H
 
 #include "prim_common.h"
-#include "plane_3d.h"
+#include "aabb_3d.h"
 #include "transformation_3d.h"
 
 namespace lass
@@ -36,23 +37,15 @@ namespace lass
 namespace prim
 {
 
-template<typename T, class NP>
-Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
-									const Transformation3D<T>& iTransformation);
-
-template<typename T, class NP>
-Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
-									 const Transformation3D<T>& iTransformation);
-
-template<typename T, class NP>
-Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
-								   const Transformation3D<T>& iTransformation);
+template<typename T, class MMP>
+Aabb3D<T, MMP> transform(const Aabb3D<T, MMP>& iSubject, 
+						 const Transformation3D<T>& iTransformation);
 
 }
 
 }
 
-#include "plane_3d_transformation_3d.inl"
+#include "aabb_3d_transformation_3d.inl"
 
 #endif
 

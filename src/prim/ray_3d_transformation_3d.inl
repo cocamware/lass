@@ -23,37 +23,32 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
+#pragma once
 
 #include "prim_common.h"
-#include "plane_3d.h"
-#include "transformation_3d.h"
+#include "ray_3d_transformation_3d.h"
 
 namespace lass
 {
-
 namespace prim
 {
 
-template<typename T, class NP>
-Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
-									const Transformation3D<T>& iTransformation);
-
-template<typename T, class NP>
-Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
-									 const Transformation3D<T>& iTransformation);
-
-template<typename T, class NP>
-Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
-								   const Transformation3D<T>& iTransformation);
-
+/** apply transformation to ray
+ *  @relates Transformation3D
+ */
+template<typename T, class NP, class PP>
+Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, 
+						   const Transformation3D<T>& iTransformation)
+{
+	return Ray3D<T, NP, PP>(
+		transform(iRay.support(), iTransformation)
+		transform(iRay.direction(), iTransformation));
 }
 
 }
 
-#include "plane_3d_transformation_3d.inl"
+}
 
 #endif
-
-// EOF

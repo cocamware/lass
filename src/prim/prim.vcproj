@@ -398,6 +398,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="aabb_3d.inl">
 			</File>
 			<File 
+				RelativePath=".\aabb_3d_transformation_3d.inl">
+			</File>
+			<File 
 				RelativePath="color_rgba.cpp">
 			</File>
 			<File 
@@ -490,6 +493,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\ray_3d_sphere_3d.inl">
 			</File>
 			<File 
+				RelativePath=".\ray_3d_transformation_3d.inl">
+			</File>
+			<File 
 				RelativePath="simple_polygon_2d.inl">
 			</File>
 			<File 
@@ -556,6 +562,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath="aabb_3d.h">
+			</File>
+			<File 
+				RelativePath=".\aabb_3d_transformation_3d.h">
 			</File>
 			<File 
 				RelativePath=".\algorithm.h">

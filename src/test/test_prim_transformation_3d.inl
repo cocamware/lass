@@ -35,7 +35,8 @@
 #include "../num/random.h"
 #include "../num/distribution.h"
 
-#define LASS_TEST_PRIM_TRANSFORMATION_3D_EPSILON 1e-5
+#include "../prim/aabb_3d.h"
+#include "../util/stop_watch.h"
 
 namespace lass
 {
@@ -48,12 +49,12 @@ template
 > 
 void testPrimTransformation3D()
 {
+    const T epsilon = static_cast<T>(1e-3);
+
     typedef prim::Transformation3D<T> TTransformation;
     typedef prim::Point3D<T> TPoint;
     typedef prim::Vector3D<T> TVector;
     typedef num::NumTraits<T> TNumTraits;
-
-    const T epsilon = T(LASS_TEST_PRIM_RAY_EPSILON);
 
     TTransformation identity;
     TTransformation transfo;
@@ -75,13 +76,37 @@ void testPrimTransformation3D()
 			const T* b = identity.matrix();
             for (unsigned i = 0; i < 16; ++i)
             {
-				BOOST_CHECK(num::abs(a[i] - b[i]) < 1e-3f);
+				BOOST_CHECK(num::abs(a[i] - b[i]) < epsilon);
             }
         }
         catch (...)
         {
         }
     }
+
+	util::Clock clock;
+	util::StopWatch stopWatch(clock);
+
+	stopWatch.start();
+	stopWatch.stop();
+	stopWatch.reset();
+	stopWatch.start();
+	const double correction = -stopWatch.stop();
+
+	prim::Aabb3D<T, prim::UncheckedMinMax> aabb = prim::Aabb3D<T, prim::AutoMinMax>(
+		prim::Point3D<T>(distribution(), distribution(), distribution()),
+		prim::Point3D<T>(distribution(), distribution(), distribution()));
+	T mat[16];
+	std::generate(mat, mat + 16, distribution);
+	transfo = TTransformation(mat, mat + 16);
+
+	const unsigned n = 1000000;
+    stopWatch.start();
+	for (unsigned k = 0; k < n; ++k)
+    {
+		transform(aabb, transfo);
+	}
+	LASS_COUT << "time: " << ((stopWatch.stop() + correction) / n) << "\n";
 }   
 
 }

@@ -23,37 +23,49 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRANSFORMATION_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRANSFORMATION_3D_INL
+#pragma once
 
 #include "prim_common.h"
-#include "plane_3d.h"
-#include "transformation_3d.h"
+#include "aabb_3d_transformation_3d.h"
 
 namespace lass
 {
-
 namespace prim
 {
 
-template<typename T, class NP>
-Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
-									const Transformation3D<T>& iTransformation);
+/** apply transformation to axis aligned bounding box
+ *  @relates Transformation3D
+ */
+template<typename T, class MMP>
+Aabb3D<T, MMP> transform(const Aabb3D<T, MMP>& iSubject, 
+						 const Transformation3D<T>& iTransformation)
+{
+	typedef Aabb3D<T, MMP> TAabb;
+	typedef typename TAabb::TPoint TPoint;
+	typedef typename TAabb::TVector TVector;
 
-template<typename T, class NP>
-Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
-									 const Transformation3D<T>& iTransformation);
+	const TVector delta = iSubject.size();
+	const TPoint p0 = transform(iSubject.min(), iTransformation);
+	const TPoint px = p0 + transform(TVector(delta.x, 0, 0), iTransformation);
+	const TVector dy = transform(TVector(0, delta.y, 0), iTransformation);
+	const TVector dz = transform(TVector(0, 0, delta.z), iTransformation);
 
-template<typename T, class NP>
-Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
-								   const Transformation3D<T>& iTransformation);
+	TAabb result(p0, px);
+	result += (p0 + dy);
+	result += (px + dy);
+	result += (p0 + dz);
+	result += (px + dz);
+	const TVector dyz = dy + dz;
+	result += (p0 + dyz);
+	result += (px + dyz);
 
+	return result;
 }
 
 }
 
-#include "plane_3d_transformation_3d.inl"
+}
 
 #endif
-
-// EOF

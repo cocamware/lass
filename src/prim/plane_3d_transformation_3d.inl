@@ -23,18 +23,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRANSFORMATION_3D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_TRANSFORMATION_3D_INL
 #pragma once
-
-
 
 #include "prim_common.h"
 #include "plane_3d_transformation_3d.h"
-
-
 
 namespace lass
 {
@@ -42,6 +36,7 @@ namespace prim
 {
 
 /** apply transformation to cartesian plane
+ *  @relates Transformation3D
  */
 template<typename T, class NP>
 Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
@@ -52,7 +47,10 @@ Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane,
 	return Plane3D<T, Cartesian, NP>(result.first, result.second);
 }
 
+
+
 /** apply transformation to parametric plane
+ *  @relates Transformation3D
  */
 template<typename T, class NP>
 Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
@@ -63,7 +61,10 @@ Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane,
 									  transform(iPlane.directionV()));
 }
 
+
+
 /** apply transformation to combined plane
+ *  @relates Transformation3D
  */
 template<typename T, class NP>
 Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
@@ -78,6 +79,6 @@ Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane,
 
 }
 
-#include "plane_3d_transformation_3d.inl"
-
 #endif
+
+// EOF
