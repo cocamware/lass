@@ -143,6 +143,7 @@ public:
 	void remove(const TKey& iKey, const TValue& iValue);
 	void setDefault(const TKey& iKey, const TValue& iValue);
 	void clearDefault();
+	bool hasDefault() const;
 
 	const TValue& operator[](TKeyParam iKey) const;
 	const TKey& key(TValueParam iValue) const;
@@ -152,6 +153,9 @@ public:
 
 	TKeys keys(TValueParam iValue) const;
 	TValues values(TKeyParam iKey) const;
+
+	bool isKey(TKeyParam iKey) const;
+	bool isValue(TValueParam iValue) const;
 
 private:
 

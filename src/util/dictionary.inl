@@ -109,6 +109,16 @@ void Dictionary<K, V>::clearDefault()
 
 
 
+/** return true if dictionary has value
+ */
+template <typename K, typename V>
+bool Dictionary<K, V>::clearDefault() const
+{
+	return hasDefault_
+}
+
+
+
 /** look up a value by key
  *  @return 
  *		- the value that belongs to the key.
@@ -234,6 +244,33 @@ Dictionary<K, V>::values(TKeyParam iKey) const
 		result.insert(i->second);
 	}
 	return result;
+}
+
+
+
+/** return true if @a iKey is a key of dictionary
+ */
+template <typename K, typename V>
+bool Dictionary<K, V>::isKey(TKeyParam iKey) const
+{
+	return map_.find(iKey) != map_.end();
+}
+
+
+
+/** return true if @a iValue is a value of dictionary
+ */
+template <typename K, typename V>
+bool Dictionary<K, V>::isValue(TValueParam iValue) const
+{
+	for (TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
+	{
+		if (i->second == iValue)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
