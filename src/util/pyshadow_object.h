@@ -90,9 +90,8 @@ private:
         {
 			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
 			{
-	#pragma LASS_FIXME("attempt for safe casting")
-				PyErr_Format(PyExc_TypeError,"not castable to %s",U::PythonClassName);
-				LASS_THROW("bad cast");
+                LASS_THROW("'" << iPyObject->ob_type->tp_name << "' is not castable to '" 
+                    << U::PythonClassName << "'.");
 			}
             return static_cast<U*>(iPyObject);
         };
@@ -110,9 +109,8 @@ private:
         {
 			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
 			{
-	#pragma LASS_FIXME("attempt for safe casting")
-				PyErr_Format(PyExc_TypeError,"not castable to %s",U::PythonClassName);
-				LASS_THROW("bad cast");
+                LASS_THROW("'" << iPyObject->ob_type->tp_name << "' is not castable to '" 
+                    << U::PythonClassName << "'.");
 			}
 
             return static_cast<TCppClass*>(static_cast<U*>(iPyObject)->cppObject()); 

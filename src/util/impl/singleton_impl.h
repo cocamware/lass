@@ -45,7 +45,7 @@ typedef Mutex TSingletonLock;
 
 /** @internal
  */
-LASS_DLL void LASS_CALL singletonCleanUp() 
+LASS_DLL void LASS_CALL singletonCleanUp(); 
 
 /** base class of all singletons.
  *  @internal

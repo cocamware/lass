@@ -319,8 +319,8 @@
 		/** @ingroup Python
 		 */
 		template<class C> 
-		inline int pyGetSimpleObject( PyObject* iValue, 
-									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
+		int pyGetSimpleObject( PyObject* iValue, 
+                               util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
 		{
 			const bool isNone = (iValue == Py_None );
 			if (isNone)

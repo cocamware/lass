@@ -229,6 +229,7 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
+        template <typename T> int pyGetSimpleObject( PyObject* iValue, T*& oV );
 
         inline PyObject* pyBuildSimpleObject( bool iV );
 		inline PyObject* pyBuildSimpleObject( signed char iV );
