@@ -647,6 +647,18 @@ namespace lass
 			sfn = std::complex<FNSampled8>( temp, FNSampled8(0.0) );
 		}
 
+		void inpinv(std::complex<FNSampled8>& sfn)
+		{
+			int i;
+			for (i=3;i>=0;--i)
+			{
+				FNSampled8::TInterval alphaNorm = sfn.real().alpha_[i]*sfn.real().alpha_[i]+sfn.imag().alpha_[i]*sfn.imag().alpha_[i];
+				sfn.real().alpha_[i] /= alphaNorm;
+				sfn.imag().alpha_[i] /= -alphaNorm;
+			}
+		}
+
+
 		FNSampled8	operator+(const FNSampled8& sfn1,const FNSampled8& sfn2)
 		{
 			FNSampled8	tmp = sfn1;
@@ -933,6 +945,13 @@ namespace lass
 		{
 			PyObject* t = new lass::num::PyFNSampled8(iV);
 			return Py_BuildValue("O", t );
+		}
+
+		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV )
+		{
+			PyObject* tR = new lass::num::PyFNSampled8(iV.real());
+			PyObject* tI = new lass::num::PyFNSampled8(iV.imag());
+			return Py_BuildValue("(O,O)", tR, tI);
 		}
 
 	}

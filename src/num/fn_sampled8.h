@@ -84,7 +84,7 @@ namespace lass
 			*   A general default constructor is missing.  The ISO standard however does
 			*	not demand such a constructor.
 			*/
-			explicit FNSampled8(util::CallTraits<TBaseType>::TParam iV);
+			FNSampled8(util::CallTraits<TBaseType>::TParam iV);
 			FNSampled8(const FNSampled8& sV) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
 			~FNSampled8();
 
@@ -283,6 +283,7 @@ namespace lass
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
 		int pyParseObject( PyObject *args, lass::num::FNSampled8*& oObj);
 		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
+		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
 	}
 
 	namespace io
