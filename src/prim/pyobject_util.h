@@ -54,19 +54,19 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 {
 	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("prim::Vector2D");
+		impl::addMessageHeader("Vector2D");
 		return 1;
 	}
     prim::Vector2D<T> result;
 
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		impl::addMessageHeader("prim::Vector2D: x");
+		impl::addMessageHeader("Vector2D: x");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
-		impl::addMessageHeader("prim::Vector2D: y");
+		impl::addMessageHeader("Vector2D: y");
 		return 1;
 	}
 
@@ -98,24 +98,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 {
 	if (!impl::checkTupleSize(iValue, 3))
 	{
-		impl::addMessageHeader("prim::Vector3D");
+		impl::addMessageHeader("Vector3D");
 		return 1;
 	}
     prim::Vector3D<T> result;
 
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		impl::addMessageHeader("prim::Vector3D: x");
+		impl::addMessageHeader("Vector3D: x");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
-		impl::addMessageHeader("prim::Vector3D: y");
+		impl::addMessageHeader("Vector3D: y");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
 	{
-		impl::addMessageHeader("prim::Vector3D: z");
+		impl::addMessageHeader("Vector3D: z");
 		return 1;
 	}
 
@@ -148,29 +148,29 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 {
 	if (!impl::checkTupleSize(iValue, 4))
 	{
-		impl::addMessageHeader("prim::Vector4D");
+		impl::addMessageHeader("Vector4D");
 		return 1;
 	}
     prim::Vector4D<T> result;
 
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		impl::addMessageHeader("prim::Vector4D: x");
+		impl::addMessageHeader("Vector4D: x");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
-		impl::addMessageHeader("prim::Vector4D: y");
+		impl::addMessageHeader("Vector4D: y");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
 	{
-		impl::addMessageHeader("prim::Vector4D: z");
+		impl::addMessageHeader("Vector4D: z");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.z) != 0)
 	{
-		impl::addMessageHeader("prim::Vector4D: w");
+		impl::addMessageHeader("Vector4D: w");
 		return 1;
 	}
 
@@ -200,7 +200,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
     if (pyGetSimpleObject(iValue, oV.position) != 0)
 	{
-		impl::addMessageHeader("prim::Point2D");
+		impl::addMessageHeader("Point2D");
 		return 1;
 	}
 }
@@ -225,7 +225,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 {
     if (pyGetSimpleObject(iValue, oV.position) != 0)
 	{
-		impl::addMessageHeader("prim::Point3D");
+		impl::addMessageHeader("Point3D");
 		return 1;
 	}
 }
@@ -256,21 +256,21 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	typedef prim::Aabb2D<T, MMP> TAabb;
 	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("prim::Aabb2D");
+		impl::addMessageHeader("Aabb2D");
 		return 1;
 	}
 
 	TAabb::TPoint min;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
 	{
-		impl::addMessageHeader("prim::Aabb2D: min");
+		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
 	TAabb::TPoint max;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
 	{
-		impl::addMessageHeader("prim::Aabb2D: max");
+		impl::addMessageHeader("Aabb2D: max");
 		return 1;
 	}
 
@@ -281,7 +281,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	catch (util::Exception& error)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::Aabb2D: " << error.message();
+		buffer << "Aabb2D: " << error.message();
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return 1;
 	}
@@ -310,21 +310,21 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	typedef prim::Aabb3D<T, MMP> TAabb;
 	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("prim::Aabb3D");
+		impl::addMessageHeader("Aabb3D");
 		return 1;
 	}
 
 	TAabb::TPoint min;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
 	{
-		impl::addMessageHeader("prim::Aabb3D: min");
+		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
 	TAabb::TPoint max;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
 	{
-		impl::addMessageHeader("prim::Aabb3D: max");
+		impl::addMessageHeader("Aabb3D: max");
 		return 1;
 	}
 
@@ -335,7 +335,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	catch (util::Exception& error)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::Aabb3D: " << error.message();
+		buffer << "Aabb3D: " << error.message();
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return 1;
 	}
@@ -368,21 +368,21 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	typedef prim::LineSegment2D<T, PP> TLineSegment;
 	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("prim::LineSegment2D");
+		impl::addMessageHeader("LineSegment2D");
 		return 1;
 	}
 
 	TLineSegment::TPoint tail;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
 	{
-		impl::addMessageHeader("prim::LineSegment2D: tail");
+		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
 	{
-		impl::addMessageHeader("prim::LineSegment2D: head");
+		impl::addMessageHeader("LineSegment2D: head");
 		return 1;
 	}
 
@@ -412,21 +412,21 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	typedef prim::LineSegment3D<T, PP> TLineSegment;
 	if (!impl::checkTupleSize(iValue, 2))
 	{
-		impl::addMessageHeader("prim::LineSegment3D");
+		impl::addMessageHeader("LineSegment3D");
 		return 1;
 	}
 
 	TLineSegment::TPoint tail;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
 	{
-		impl::addMessageHeader("prim::LineSegment3D: tail");
+		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
 	{
-		impl::addMessageHeader("prim::LineSegment3D: head");
+		impl::addMessageHeader("LineSegment3D: head");
 		return 1;
 	}
 
@@ -455,7 +455,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 	std::string axis;
 	if (pyGetSimpleObject(iValue, axis) != 0)
 	{
-		impl::addMessageHeader("prim::XY");
+		impl::addMessageHeader("XY");
 	}
 
 	try
@@ -465,7 +465,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 	catch (util::Exception& error)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::XY: " << error.message();
+		buffer << "XY: " << error.message();
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str();
 		return 1;
 	}
@@ -491,7 +491,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
 	std::string axis;
 	if (pyGetSimpleObject(iValue, axis) != 0)
 	{
-		impl::addMessageHeader("prim::XYZ");
+		impl::addMessageHeader("XYZ");
 	}
 
 	try
@@ -501,7 +501,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
 	catch (util::Exception& error)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::XYZ: " << error.message();
+		buffer << "XYZ: " << error.message();
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return 1;
 	}
@@ -527,7 +527,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 	std::string axis;
 	if (pyGetSimpleObject(iValue, axis) != 0)
 	{
-		impl::addMessageHeader("prim::XYZW");
+		impl::addMessageHeader("XYZW");
 	}
 
 	try
@@ -537,7 +537,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 	catch (util::Exception& error)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::XYZW: " << error.message();
+		buffer << "XYZW: " << error.message();
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return 1;
 	}
@@ -566,40 +566,40 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 {
 	if (!PyTuple_Check(iValue))
 	{
-		PyErr_SetString(PyExc_TypeError, "prim::ColorRGBA: is not a tuple");
+		PyErr_SetString(PyExc_TypeError, "ColorRGBA: is not a tuple");
 		return 1;
 	}
 	const int size = PyTuple_Size(iValue);
 	if (size != 3 && size != 4)
 	{
 		std::ostringstream buffer;
-		buffer << "prim::ColorRGBA: tuple is not of expected size 3 or 4 (size is "
+		buffer << "ColorRGBA: tuple is not of expected size 3 or 4 (size is "
 			<< size << ")";
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return false;
 	}
-	ColorRGBA result;
+	prim::ColorRGBA result;
 
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.r) != 0)
 	{
-		impl::addMessageHeader("prim::ColorRGBA: r");
+		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.g) != 0)
 	{
-		impl::addMessageHeader("prim::ColorRGBA: g");
+		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
 	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.b) != 0)
 	{
-		impl::addMessageHeader("prim::ColorRGBA: b");
+		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
 		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.a) != 0)
 		{
-			impl::addMessageHeader("prim::ColorRGBA: a");
+			impl::addMessageHeader("ColorRGBA: a");
 			return 1;
 		}
 	}

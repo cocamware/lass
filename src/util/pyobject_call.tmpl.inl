@@ -84,7 +84,7 @@ bool pyGetArguments( PyObject* iArgs, $( typename lass::util::CallTraits<P$x>::T
 
     $(if (pyGetSimpleObject( p$x, oP$x ) != 0)
     {
-		impl::addMessageHeader("Bad Argument (pos $x)");
+		impl::addMessageHeader("Bad Argument on $xth position");
         return false;
 	}
     )$
