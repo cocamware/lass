@@ -56,7 +56,7 @@
  *  LASS_META_ASSERT(1 + 1 == 3, it_s_the_end_of_the_world);
  *
  *  // MSVC 7.0 compiler error:
- *  // error C2087: 'LASS_META_ERROR_it_s_the_end_of_the_world' : missing subscript
+ *  // error C2087: 'LASS_META_ASSERT_FAILURE_it_s_the_end_of_the_world' : missing subscript
  *
  *  // Intel 700 compiler error:
  *  // error: an array may not have elements of this type LASS_META_ASSERT(1 + 1 == 3, it_s_the_end_of_the_world);
@@ -86,23 +86,25 @@ namespace meta
 namespace impl
 {
 
-template<int> struct MetaAssertor;
-template<> struct MetaAssertor<true> {};
+template<bool x> struct MetaAssertor;
+template<> struct MetaAssertor<false> {};
 
+template<int x> struct MetaAssertTest {};
+ 
 }
 }
 }
-
-#define LASS_META_ASSERT(expression__, message__) \
-{\
-	lass::meta::impl::MetaAssertor<((expression__) != 0)> ERROR_##message__;\
-	(void)ERROR_##message__;\
-} 
-
+//*
+#define LASS_META_ASSERT(expression__, message__)\
+	typedef lass::meta::impl::MetaAssertTest<\
+		sizeof(lass::meta::impl::MetaAssertor<((expression__) == 0)>)>\
+	LASS_META_ASSERT_##message__
+	
+/**/
 /*
-#define LASS_META_ASSERT(iExpression, iMessage) \
-	typedef char LASS_META_ERROR_##iMessage[1][(iExpression)]
-*/
+#define LASS_META_ASSERT(expression__, message__) \
+	typedef char LASS_META_ASSERT_FAILURE_##message__[1][(expression__)]
+/**/
 
 #endif
 

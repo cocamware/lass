@@ -56,6 +56,8 @@
 #   define LASS_COMPILER_VERSION 700
 #endif
 
+// use __int8 and friends
+#define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
 
 
 #define LASS_DLL_IMPORT   __declspec( dllimport )

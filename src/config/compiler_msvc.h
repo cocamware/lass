@@ -28,9 +28,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_MSVC_H
 #define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_MSVC_H
 
-
 // identify the compiler
-
+//
 #if _MSC_VER == 1200
 #	define LASS_COMPILER_VERSION 6.0
 #	define LASS_LIB_COMPILER "vc6"
@@ -49,22 +48,21 @@
 
 
 // warnings en errors
-
+//
 #include "pragmas_msvc.h"
 #pragma warning(4: 4061)	// enumerate 'identifier' in switch of enum 'enumeration' is not 
 							// explicitly handled by a case label
 #pragma warning(4: 4710)	// inline function was not inlined
 #pragma warning(4: 4251)    // class needs to have dll-interface to be used by clients of class 'type2'
 
-
-
-
 // broken compilers ...
+//
 #if _MSC_VER <= 1300 // 1300 == 7.0
-
-#define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
+#	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #endif
+
+// use __int8, __int16, ...
+#define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
 
 
 
