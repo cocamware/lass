@@ -144,11 +144,6 @@ PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 }
 }
 
-PY_SHADOW_CLASS(ShadowSpam, Spam)
-PY_SHADOW_CLASS_DERIVED(ShadowHam, Ham, ShadowSpam)
-PY_SHADOW_CLASS_DERIVED(ShadowBacon, Bacon, ShadowHam)
-PY_SHADOW_CLASS_DERIVED(ShadowEggs, Eggs, ShadowSpam)
-PY_SHADOW_CASTERS(lass::test::ShadowSpam)
 
 // --- shadow classes ------------------------------------------------------------------------------
 
@@ -156,25 +151,38 @@ namespace lass
 {
 namespace test
 {
+PY_SHADOW_CLASS(PySpam, Spam)
+PY_SHADOW_CLASS_DERIVED(PyHam, Ham, PySpam)
+PY_SHADOW_CLASS_DERIVED(PyBacon, Bacon, PyHam)
+PY_SHADOW_CLASS_DERIVED(PyEggs, Eggs, PySpam)
+}
+}
 
-PY_DECLARE_CLASS_EX(ShadowSpam, "Spam")
-PY_CLASS_METHOD(ShadowSpam, who)
-PY_CLASS_MEMBER_R(ShadowSpam, "address", address)
-PY_INJECT_CLASS_IN_MODULE(ShadowSpam, embedding, "shadow spam")
+PY_SHADOW_CASTERS(lass::test::PySpam)
 
-PY_DECLARE_CLASS_EX(ShadowHam, "Ham")
-PY_CLASS_CONSTRUCTOR_0(ShadowHam)
-PY_CLASS_STATIC_METHOD(ShadowHam, say)
-PY_INJECT_CLASS_IN_MODULE(ShadowHam, embedding, "shadow ham");
+namespace lass
+{
+namespace test
+{
 
-PY_DECLARE_CLASS_EX(ShadowBacon, "Bacon")
-PY_CLASS_CONSTRUCTOR_0(ShadowBacon)
-PY_INJECT_CLASS_IN_MODULE(ShadowBacon, embedding, "shadow bacon");
+PY_DECLARE_CLASS_EX(PySpam, "Spam")
+PY_CLASS_METHOD(PySpam, who)
+PY_CLASS_MEMBER_R(PySpam, "address", address)
+PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam")
 
-PY_DECLARE_CLASS_EX(ShadowEggs, "Eggs")
-PY_CLASS_CONSTRUCTOR_1(ShadowEggs, int)
-PY_CLASS_MEMBER_RW(ShadowEggs, "number", number, setNumber)
-PY_INJECT_CLASS_IN_MODULE(ShadowEggs, embedding, "shadow eggs");
+PY_DECLARE_CLASS_EX(PyHam, "Ham")
+PY_CLASS_CONSTRUCTOR_0(PyHam)
+PY_CLASS_STATIC_METHOD(PyHam, say)
+PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");
+
+PY_DECLARE_CLASS_EX(PyBacon, "Bacon")
+PY_CLASS_CONSTRUCTOR_0(PyBacon)
+PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
+
+PY_DECLARE_CLASS_EX(PyEggs, "Eggs")
+PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
+PY_CLASS_MEMBER_RW(PyEggs, "number", number, setNumber)
+PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");
 
 }
 }

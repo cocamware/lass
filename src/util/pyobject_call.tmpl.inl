@@ -33,24 +33,19 @@
 #include "../meta/select.h"
 #include "../meta/type_list.h"
 
-#define LASS_UTIL_PYOBJECT_CALL_TRY_EX(statement__, errorResult__)\
+#define LASS_UTIL_PYOBJECT_CALL_TRY_EX(e_expression, v_errorReturnValue)\
     try\
     {\
-        statement__;\
+        e_expression;\
     }\
     catch (std::exception& error)\
     {\
         PyErr_SetString(PyExc_Exception, error.what());\
-        return errorResult__;\
-    }\
-    catch (...)\
-    {\
-        PyErr_SetString(PyExc_Exception, "Unknown C++ exception");\
-        return errorResult__;\
+        return v_errorReturnValue;\
     }
 
-#define LASS_UTIL_PYOBJECT_CALL_TRY(statement__)\
-    LASS_UTIL_PYOBJECT_CALL_TRY_EX(statement__, 0)
+#define LASS_UTIL_PYOBJECT_CALL_TRY(e_expression)\
+    LASS_UTIL_PYOBJECT_CALL_TRY_EX(e_expression, 0)
     
 namespace lass
 {

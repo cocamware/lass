@@ -311,6 +311,7 @@
 
 		/** @ingroup Python
 		 */
+#pragma LASS_FIXME("dangerous!  what if iValue is not compatible with C*???")
 		template<class C> 
 		inline int pyGetSimpleObject( PyObject* iValue, 
 									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
@@ -323,14 +324,6 @@
 			    oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
 			return 0;
 		}
-
-        /** @ingroup Python
-		 *//* IS IT USED?  AND SHOULD IT BE USED THIS WAY?
-		inline PyObject* pyBuildSimpleObject( PyObject& iV )
-		{
-			PyObject*	newOne = new PyObject( iV );
-			return pyBuildSimpleObject( newOne );
-		}*/
 
 		/** @ingroup Python
 		 */

@@ -229,7 +229,6 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
-		//template <class C> PyObject* pyGetSimpleObject( PyObject* iValue, util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV );
 
         inline PyObject* pyBuildSimpleObject( bool iV );
 		inline PyObject* pyBuildSimpleObject( signed char iV );
@@ -246,8 +245,6 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( const char* iV );
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
 		inline PyObject* pyBuildSimpleObject( PyObject* iV );
-		//inline PyObject* pyBuildSimpleObject( PyObject& iV );
-		//template <class C> PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV );
 
 		#include "pyobject_plus.inl"
 	}

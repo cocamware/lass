@@ -132,133 +132,125 @@ public:
 
 }
 
-#define PY_SHADOW_CLASS_IMPL(PyObjectShadowClass__, CppClass__, PyObjectBase__, PyObjectParent__, PyClassName__)\
-    class PyObjectShadowClass__: public PyObjectBase__\
+#define PY_SHADOW_CLASS_EX(i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
+    class i_PyObjectShadowClass: public t_PyObjectBase\
     {\
-        PY_HEADER(PyObjectParent__)\
+        PY_HEADER(t_PyObjectParent)\
     public:\
-        typedef CppClass__ TCppClass;\
-        PyObjectShadowClass__(const TCppClass& iByCopy):\
-            PyObjectBase__(&Type, new TCppClass(iByCopy), oOwner) {}\
-        PyObjectShadowClass__(TCppClass* iByBorrowedPointer):\
-            PyObjectBase__(&Type, iByBorrowedPointer, oBorrowed) {}\
-        PyObjectShadowClass__(std::auto_ptr<TCppClass> iBySinkedPointer):\
-            PyObjectBase__(&Type, iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
+        typedef t_CppClass TCppClass;\
+        i_PyObjectShadowClass(const TCppClass& iByCopy):\
+            t_PyObjectBase(&Type, new TCppClass(iByCopy), oOwner) {}\
+        i_PyObjectShadowClass(TCppClass* iByBorrowedPointer):\
+            t_PyObjectBase(&Type, iByBorrowedPointer, oBorrowed) {}\
+        i_PyObjectShadowClass(std::auto_ptr<TCppClass> iBySinkedPointer):\
+            t_PyObjectBase(&Type, iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
     protected:\
-        PyObjectShadowClass__(PyTypeObject* iType, TCppClass* iValue, Ownership iOwnership):\
-            PyObjectBase__(iType, iValue, iOwnership) {}\
+        i_PyObjectShadowClass(PyTypeObject* iType, TCppClass* iValue, Ownership iOwnership):\
+            t_PyObjectBase(iType, iValue, iOwnership) {}\
     };\
 
-#define PY_SHADOW_CLASS_EX(PyObjectShadowClass__, CppClass__, PyClassName__)\
-    PY_SHADOW_CLASS_IMPL(\
-        PyObjectShadowClass__, CppClass__, ::lass::python::impl::PyShadowBase<CppClass__>,\
-        ::lass::python::PyObjectPlus, PyClassName__)
+#define PY_SHADOW_CLASS(i_PyObjectShadowClass, t_CppClass)\
+    PY_SHADOW_CLASS_EX(\
+		i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBase<t_CppClass>,\
+		::lass::python::PyObjectPlus)
 
-#define PY_SHADOW_CLASS(PyObjectShadowClass__, CppClass__)\
-    PY_SHADOW_CLASS_EX(PyObjectShadowClass__, CppClass__, LASS_STRINGIFY(CppClass__))
-
-#define PY_SHADOW_CLASS_DERIVED_EX(PyObjectShadowClass__, CppClass__, PyObjectShadowParent__, PyClassName__)\
-    PY_SHADOW_CLASS_IMPL(\
-        PyObjectShadowClass__, CppClass__, PyObjectShadowParent__, PyObjectShadowParent__,\
-        PyClassName__)
-
-#define PY_SHADOW_CLASS_DERIVED(PyObjectShadowClass__, CppClass__, PyObjectShadowParent__)\
-    PY_SHADOW_CLASS_DERIVED_EX(\
-        PyObjectShadowClass__, CppClass__, PyObjectShadowParent__, LASS_STRINGIFY(CppClass__))
+#define PY_SHADOW_CLASS_DERIVED(i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
+    PY_SHADOW_CLASS_EX(\
+        i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
 
 
 
-#define PY_SHADOW_CASTERS(ShadowObject__)\
+#define PY_SHADOW_CASTERS(t_ShadowObject)\
 namespace lass\
 {\
 namespace python\
 {\
 namespace impl\
 {\
-template <> struct ArgumentTraits<ShadowObject__::TCppClass>\
+template <> struct ArgumentTraits<t_ShadowObject::TCppClass>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<const ShadowObject__::TCppClass>\
+template <> struct ArgumentTraits<const t_ShadowObject::TCppClass>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<ShadowObject__::TCppClass&>\
+template <> struct ArgumentTraits<t_ShadowObject::TCppClass&>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<const ShadowObject__::TCppClass&>\
+template <> struct ArgumentTraits<const t_ShadowObject::TCppClass&>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<ShadowObject__::TCppClass*>\
+template <> struct ArgumentTraits<t_ShadowObject::TCppClass*>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static TCppClass* arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<const ShadowObject__::TCppClass*>\
+template <> struct ArgumentTraits<const t_ShadowObject::TCppClass*>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static const TCppClass* arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<ShadowObject__::TCppClass* const>\
+template <> struct ArgumentTraits<t_ShadowObject::TCppClass* const>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static TCppClass* const arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
-template <> struct ArgumentTraits<const ShadowObject__::TCppClass* const>\
+template <> struct ArgumentTraits<const t_ShadowObject::TCppClass* const>\
 {\
-    typedef ShadowObject__::TCppClass TCppClass;\
+    typedef t_ShadowObject::TCppClass TCppClass;\
     typedef PyObject* TStorage;\
     static const TCppClass* const arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
     }\
 };\
 }\
-inline PyObject* pyBuildSimpleObject( const ShadowObject__::TCppClass& iByCopy )\
+inline PyObject* pyBuildSimpleObject( const t_ShadowObject::TCppClass& iByCopy )\
 {\
-    return new ShadowObject__( iByCopy );\
+    return new t_ShadowObject( iByCopy );\
 }\
-inline PyObject* pyBuildSimpleObject( ShadowObject__::TCppClass* iByBorrowedPointer )\
+inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPointer )\
 {\
-    return new ShadowObject__( iByBorrowedPointer );\
+    return new t_ShadowObject( iByBorrowedPointer );\
 }\
-inline PyObject* pyBuildSimpleObject( std::auto_ptr<ShadowObject__::TCppClass> iBySinkedPointer )\
+inline PyObject* pyBuildSimpleObject( std::auto_ptr<t_ShadowObject::TCppClass> iBySinkedPointer )\
 {\
-    return new ShadowObject__( iBySinkedPointer );\
+    return new t_ShadowObject( iBySinkedPointer );\
 }\
 }\
 }
