@@ -938,6 +938,9 @@ namespace lass
 			return Py_BuildValue("O", t );
 		}
 
+	}
+	namespace io
+	{
 		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn)
 		{
 			return sfn.write(os);

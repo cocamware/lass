@@ -84,7 +84,6 @@ namespace lass
 			*   A general default constructor is missing.  The ISO standard however does
 			*	not demand such a constructor.
 			*/
-			FNSampled8(int sV) : FNSampled8(TBaseType(sV)) {}
 			explicit FNSampled8(util::CallTraits<TBaseType>::TParam iV);
 			FNSampled8(const FNSampled8& sV) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
 			~FNSampled8();
@@ -279,9 +278,6 @@ namespace lass
 		std::complex<FNSampled8 >& operator+=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 		std::complex<FNSampled8 >& operator-=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 
-		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
-		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
-
 	}
 
 	namespace python
@@ -289,6 +285,12 @@ namespace lass
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
 		int pyParseObject( PyObject *args, lass::num::FNSampled8*& oObj);
 		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
+	}
+
+	namespace io
+	{
+		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
+		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
 	}
 }
 
