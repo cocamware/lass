@@ -65,7 +65,7 @@ BinaryIStream::~BinaryIStream()
 void BinaryIStream::open(const std::string& iFileName)
 {
 	close();
-	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "r"));
+	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "rb"));
 }
 
 void BinaryIStream::close()

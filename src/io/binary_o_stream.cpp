@@ -61,7 +61,7 @@ BinaryOStream::~BinaryOStream()
 void BinaryOStream::open(const std::string& iFileName)
 {
 	close();
-	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "w"));
+	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "wb"));
 }
 
 void BinaryOStream::close()
