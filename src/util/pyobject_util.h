@@ -166,7 +166,7 @@ namespace lass
 				impl::addMessageHeader("complex: real");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), c ) != 0)
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), i ) != 0)
 			{
 				impl::addMessageHeader("complex: imag");
 				return 1;

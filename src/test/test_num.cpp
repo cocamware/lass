@@ -56,6 +56,7 @@ boost::unit_test_framework::test_suite* testNum()
     result->add(BOOST_TEST_CASE(testNumSolve<std::complex<double> >));
 
     result->add(BOOST_TEST_CASE(testNumRandomMersenne));
+    result->add(BOOST_TEST_CASE(testNumDistributions));
 
     result->add(BOOST_TEST_CASE(testNumTriBool));
 

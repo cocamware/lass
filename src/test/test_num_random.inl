@@ -32,6 +32,7 @@
 #include "test_common.h"
 
 #include "../num/random.h"
+#include "../num/distribution.h"
 
 namespace lass
 {
@@ -66,6 +67,117 @@ void testNumRandomMersenne()
     BOOST_CHECK(output.match_pattern());            
 }
 
+
+
+void testNumDistributions()
+{
+	typedef double TValue;
+	typedef num::NumTraits<TValue> TNumTraits;
+
+	enum { testSize = 10000 };
+	const double tolerance = .05;
+
+	num::RandomMT19937 random;
+	unsigned i;
+	TValue mean, variance;
+
+	// unit uniform distribution
+	//
+	num::DistributionUniform<double, num::RandomMT19937, num::rtOpen> distUnitUniform(random);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distUnitUniform();
+		BOOST_CHECK(draw > 0 && draw < 1);
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK_CLOSE(mean, 0.5, 100 * tolerance);
+	BOOST_CHECK_CLOSE(variance, 1. / 12., 100 * tolerance);
+
+	// uniform distribution
+	//
+	num::DistributionUniform<double, num::RandomMT19937, num::rtOpen> distUniform(random, -100., 200.);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distUniform();
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK_CLOSE(mean, 50., 100 * tolerance);
+	BOOST_CHECK_CLOSE(variance, 300. * 300. / 12., 100 * tolerance);
+
+	// unit exponential distribution
+	//
+	num::DistributionExponential<double, num::RandomMT19937> distUnitExponential(random);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distUnitExponential();
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK_CLOSE(mean, 1., 100 * tolerance);
+	BOOST_CHECK_CLOSE(variance, 1., 100 * tolerance);
+
+	// exponential distribution
+	//
+	num::DistributionExponential<double, num::RandomMT19937> distExponential(random, 100.);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distExponential();
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK_CLOSE(mean, 1. / 100., 100 * tolerance);
+	BOOST_CHECK_CLOSE(variance, 1. / (100. * 100.), 100 * tolerance);
+
+	// normal distribution
+	//
+	num::DistributionNormal<double, num::RandomMT19937> distUnitNormal(random);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distUnitNormal();
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK(mean < tolerance);
+	BOOST_CHECK_CLOSE(variance, 1., 100 * tolerance);
+
+	// normal distribution
+	//
+	num::DistributionNormal<double, num::RandomMT19937> distNormal(random, 200., 100.);
+	mean = TNumTraits::zero;
+	variance = TNumTraits::zero;
+	for (i = 0; i < testSize; ++i)
+	{
+		const TValue draw = distNormal();
+		mean += draw;
+		variance += draw * draw;
+	}
+	mean /= testSize;
+	variance = variance / testSize - mean * mean;
+	BOOST_CHECK_CLOSE(mean, 200., 100 * tolerance);
+	BOOST_CHECK_CLOSE(variance, 100. * 100., 100 * tolerance);
+}
 
 
 }

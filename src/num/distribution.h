@@ -43,16 +43,23 @@ namespace lass
 namespace num
 {
 
+enum RangeType
+{
+	rtClosed	= 0x0,	// range is closed on both sides: [inf, sup]
+	rtRightOpen	= 0x1,	// range is open to the right: [inf, sup)
+	rtLeftOpen	= 0x2,	// range is open to the left: (inf, sup]
+	rtOpen		= 0x3,	// range is open to both sides: (inf, sup)
+};
+
 /** @ingroup Distribution
  *  a uniform distribution mapper.
  *
  *  template arguments:
  *  @arg @a T result type
  *  @arg @a RandomGenerator type of random number generator, see @ref Random.
- *  @arg @a leftOpen true if output range must be open to the left: (min, max].
- *  @arg @a rightOpen true if output range must be open to the right: [min, max).
+ *  @arg @a rangeType value of RangeType declaring if the range must be open or closed.
  */
-template <typename T, class RandomGenerator, bool leftOpen = false, bool rightOpen = false>
+template <typename T, class RandomGenerator, RangeType rangeType = rtClosed>
 class DistributionUniform
 {
 public:
@@ -64,18 +71,96 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
 
 	DistributionUniform(TGenerator& ioGenerator, 
-						TParam iMin = TNumTraits::zero, TParam iMax = TNumTraits::one);
+		TParam iInfimum = TNumTraits::zero, TParam iSupremum = TNumTraits::one);
 
-	TValue operator()();
+	TValue operator()() const;
 
 private:
 
 	TGenerator* generator_;
-	TValue min_;
-	TValue max_;
+	TValue inf_;
+	TValue sup_;
 	double scale_;
 };
 
+
+
+/** @ingroup Distribution
+ *  an exponential distribution mapper.
+ *
+ *  template arguments:
+ *  @arg @a T result type
+ *  @arg @a RandomGenerator type of random number generator, see @ref Random.
+ *
+ *  reference: Numerical Recipes in C: The Art of Scientific Computing, section 7.2
+ */
+template <typename T, class RandomGenerator>
+class DistributionExponential
+{
+public:
+
+	typedef RandomGenerator TGenerator;						///< generator type
+
+	typedef num::NumTraits<T> TNumTraits;					///< numeric traits of value type
+	typedef typename util::CallTraits<T>::TValue TValue;	///< value type
+	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
+
+	DistributionExponential(TGenerator& ioGenerator, 
+		TParam iRateOfChange = TNumTraits::one);
+
+	TValue operator()() const;
+
+private:
+
+	TGenerator* generator_;
+	TValue rateOfChange_;
+};
+
+
+
+/** @ingroup Distribution
+ *  a normal distribution mapper (aka guassian distribution)
+ *
+ *  template arguments:
+ *  @arg @a T result type
+ *  @arg @a RandomGenerator type of random number generator, see @ref Random.
+ *
+ *  reference: Numerical Recipes in C: The Art of Scientific Computing, section 7.2
+ */
+template <typename T, class RandomGenerator>
+class DistributionNormal
+{
+public:
+
+	typedef RandomGenerator TGenerator;						///< generator type
+
+	typedef num::NumTraits<T> TNumTraits;					///< numeric traits of value type
+	typedef typename util::CallTraits<T>::TValue TValue;	///< value type
+	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
+
+	DistributionNormal(TGenerator& ioGenerator, 
+		TParam iMean = TNumTraits::zero, TParam iStdDev = TNumTraits::one);
+
+	TValue operator()() const;
+
+private:
+
+	TGenerator* generator_;
+	TValue mean_;
+	TValue stdDev_;
+	mutable TValue gset_;
+	mutable bool iset_;
+};
+
+
+
+// backwards compatibility functions
+
+template<class RG, class T> T uniform(RG& iGenerator);
+template<class RG, class T> T unitGauss(RG& iGenerator);
+template<class RG, class T> T gauss(RG& iGenerator, 
+									typename util::CallTraits<T>::TParam iMean, 
+									typename util::CallTraits<T>::TParam iStdDev);
 
 
 }

@@ -387,7 +387,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	}
 
 	oV = TLineSegment(tail, head);
-	return error;
+	return 0;
 }
 
 #   endif
@@ -431,7 +431,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	}
 
 	oV = TLineSegment(tail, head);
-	return error;
+	return 0;
 }
 
 #   endif
@@ -466,7 +466,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 	{
 		std::ostringstream buffer;
 		buffer << "XY: " << error.message();
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return 1;
 	}
 	return 0;
