@@ -59,7 +59,7 @@ KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
     end_(iEnd)
 {
-    const size_t size = static_cast<size_t>(end_ - begin_);
+	const size_t size = std::distance(begin_, end_);
     heap_.resize(size, end_);
     splits_.resize(size, dummyAxis_);
 
@@ -79,17 +79,6 @@ void KdTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 {
     TSelf temp(iBegin, iEnd);
     swap(temp);
-}
-
-
-
-template <class O, class OT>
-void KdTree<O, OT>::swap(TSelf& iOther)
-{
-    std::swap(begin_, iOther.begin_);
-    std::swap(end_, iOther.end_);
-    heap_.swap(iOther.heap_);
-    splits_.swap(iOther.splits_);
 }
 
 
@@ -137,9 +126,29 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 
 
 template <class O, class OT>
+void KdTree<O, OT>::swap(TSelf& iOther)
+{
+    std::swap(begin_, iOther.begin_);
+    std::swap(end_, iOther.end_);
+    heap_.swap(iOther.heap_);
+    splits_.swap(iOther.splits_);
+}
+
+
+
+template <class O, class OT>
 const bool KdTree<O, OT>::isEmpty() const
 {
 	return heap_.empty();
+}
+
+
+
+template <class O, class OT>
+void KdTree<O, OT>::clear()
+{
+    TSelf temp;
+	swap(temp);
 }
 
 

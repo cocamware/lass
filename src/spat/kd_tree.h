@@ -115,6 +115,7 @@ public:
 
     void swap(TSelf& iOther);
 	const bool isEmpty() const;
+	void clear();
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 	void diagnostics();
