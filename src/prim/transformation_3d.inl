@@ -101,6 +101,24 @@ Transformation3D<T>::operator*=(const Transformation3D<T>& iOther)
 
 
 
+template <typename T> inline
+const typename Transformation3D<T>::TValue*
+Transformation3D<T>::data() const
+{
+    return v_;
+}
+
+
+
+template <typename T> inline
+typename Transformation3D<T>::TValue*
+Transformation3D<T>::data()
+{
+    return v_;
+}
+
+
+
 // --- protected -----------------------------------------------------------------------------------
 
 

@@ -71,6 +71,9 @@ public:
 
     Transformation3D<T>& operator*=(const Transformation3D<T>& iOther);
 
+    const TValue* data() const;
+    TValue* data();
+
 private:
 
     Transformation3D<T>(bool iDontInitialise);
