@@ -72,32 +72,6 @@ CriticalSectionLocker::~CriticalSectionLocker()
 	m_criticalsection.unlock();
 }
 
-Condition::Condition(void)
-{
-	m_internal = new ConditionInternal;
-}
-Condition::~Condition(void)
-{
-	delete m_internal;
-}
-void Condition::wait()
-{	
-	(void)m_internal->wait(INFINITE);
-}
-bool Condition::wait(unsigned long sec,unsigned long nsec)
-{
-	return m_internal->wait(sec*1000 + nsec/1000000);
-}
-void Condition::signal()
-{
-	m_internal->signal();
-}
-void Condition::broadcast()
-{
-	m_internal->broadcast();
-}
-
-
 
 }
 }

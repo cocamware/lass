@@ -28,6 +28,7 @@
 #if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_UNIX)
 
 #include <pthread.h>
+#include <time.h>
 
 #pragma error("No full support for multi threading in UNIX implemented")
 namespace lass
@@ -128,6 +129,75 @@ CriticalSectionError CriticalSection::tryLock()
 void CriticalSection::unlock()
 {
     pthread_mutex_unlock(&m_internal->m_mutex);
+}
+
+
+
+class ConditionInternal
+{
+    pthread_cond_t condition_;
+	pthread_mutex_t mutex_;
+public:
+	ConditionInternal()
+	{
+		if ( !pthread_cond_init(&condition_,NULL) ||
+			 !pthread_mutex_init(&mutex_,NULL))
+            LASS_LOG("Can not create condition");
+    }
+	void wait()
+	{
+		pthread_cond_wait(&condition_,&mutex_);
+	}
+
+	bool wait(long iSec,long iNSec)
+    {
+		struct timespec timeToWaitTo;
+		clock_gettime(CLOCK_REALTIME,&timeToWaitTo);
+		timeToWaitTo.tv_sec+=iSec;
+		timeToWaitTo.tv_nsec+=iNSec;
+		int ret=pthread_cond_timedwait(&condition_,&mutex_,&timeToWaitTo);
+        return !ret;
+    }
+	void signal()
+    {
+		pthread_cond_signal(&condition_);
+    }
+	void broadcast()
+    {
+		pthread_cond_broadcast(condtion_);
+    }
+    virtual  ~ConditionInternal()
+    {
+		if (!pthread_mutex_destroy(&mutex_) || 
+			!pthread_cond_destroy(&condition_))
+			LASS_LOG("could not destroy condition")
+    }
+};
+
+
+Condition::Condition(void)
+{
+	m_internal = new ConditionInternal;
+}
+Condition::~Condition(void)
+{
+	delete m_internal;
+}
+void Condition::wait()
+{	
+	m_internal->wait();
+}
+bool Condition::wait(unsigned long sec,unsigned long nsec)
+{
+	return m_internal->wait(sec,nsec);
+}
+void Condition::signal()
+{
+	m_internal->signal();
+}
+void Condition::broadcast()
+{
+	m_internal->broadcast();
 }
 
 
