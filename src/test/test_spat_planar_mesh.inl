@@ -230,7 +230,9 @@ void doTestPlanarMesh()
 	BOOST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
 
 	/* test insertion of constrained edges */
-	testMesh2.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(70.0,59.0) ) );
+	testMesh.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(70.0,59.0) ) );
+	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
 }
 
 }

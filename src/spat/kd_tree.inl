@@ -178,7 +178,6 @@ template <typename O, template <class> class OT>
 void KdTree<O, OT>::diagnostics()
 {
 	typedef typename meta::If<dimension == 2, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;
-	
 	class Visitor
 	{
 	public:
@@ -188,16 +187,19 @@ void KdTree<O, OT>::diagnostics()
 			heap_(iHeap),
 			splits_(iSplits)
 		{
+			using lass::prim::operator<<;
 			xml_ << "<kdtree>" << std::endl;
 		}
 
 		~Visitor()
 		{
+			using lass::prim::operator<<;
 			xml_ << "</kdtree>" << std::endl;
 		}
 
 		void visit(unsigned iIndex, const TAabb& iAabb)
 		{
+			using lass::prim::operator<<;
 			xml_ << iAabb;
 
 			if (iIndex >= heap_.size() || heap_[iIndex] == dummy_)

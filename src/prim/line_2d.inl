@@ -160,7 +160,7 @@ Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
 	const TValue denominator = -perpDot(dirA, dirB);
 	if (denominator == TNumTraits::zero)
 	{
-		switch (iA.classify(iB))
+		switch (iA.classify(iB.support()))
 		{
 		case sFront:
 		case sBack:

@@ -31,8 +31,8 @@
 
 #include "test_spat_kd_tree.inl"
 #include "test_spat_quad_tree.inl"
-//#include "test_spat_planar_mesh.inl"
-//#include "test_spat_mesh_interpolator.inl"
+#include "test_spat_planar_mesh.inl"
+#include "test_spat_mesh_interpolator.inl"
 
 namespace lass
 {
@@ -44,9 +44,9 @@ boost::unit_test_framework::test_suite* testSpat()
     boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::spat test suite");
 
     result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));
-	LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
-    //result->add(BOOST_TEST_CASE(doTestPlanarMesh));
-    //result->add(BOOST_TEST_CASE(doTestMeshInterpolator));
+	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
+    result->add(BOOST_TEST_CASE(doTestPlanarMesh));
+    result->add(BOOST_TEST_CASE(doTestMeshInterpolator));
     result->add(BOOST_TEST_CASE(doTestQuadTree));
     result->add(BOOST_TEST_CASE(doTestOctTree));
 
