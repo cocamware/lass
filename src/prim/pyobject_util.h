@@ -64,7 +64,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 		impl::addMessageHeader("prim::Vector2D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("prim::Vector2D: y");
 		return 1;
@@ -108,12 +108,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 		impl::addMessageHeader("prim::Vector3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("prim::Vector3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("prim::Vector3D: z");
 		return 1;
@@ -158,17 +158,17 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 		impl::addMessageHeader("prim::Vector4D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("prim::Vector4D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("prim::Vector4D: z");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.z) != 0)
 	{
 		impl::addMessageHeader("prim::Vector4D: w");
 		return 1;
@@ -380,7 +380,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), head) != 0)
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("prim::LineSegment2D: head");
 		return 1;
@@ -424,7 +424,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), head) != 0)
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("prim::LineSegment3D: head");
 		return 1;
@@ -580,24 +580,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	ColorRGBA result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("prim::ColorRGBA: r");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("prim::ColorRGBA: g");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("prim::ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("prim::ColorRGBA: a");
 			return 1;

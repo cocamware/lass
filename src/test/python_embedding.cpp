@@ -120,12 +120,9 @@ namespace test
 	// expose member methods of object instances
 	PY_CLASS_METHOD( Bar, aMoreComplexFunction )
 	PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
-	//PY_CLASS_METHOD( Bar, complexArguments );
-	//PY_CLASS_METHOD( Bar, primArguments );
+	PY_CLASS_METHOD( Bar, complexArguments );
+	PY_CLASS_METHOD( Bar, primArguments );
 	
-//	PY_CLASS_DECLARE_OVERLOADED_METHOD( Bar, tester)
-//	PY_CLASS_OVERLOADED_METHOD( Bar, tester, complexArguments )
-//	PY_CLASS_OVERLOADED_METHOD( Bar, tester, primArguments )
 	PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 	PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 	PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )

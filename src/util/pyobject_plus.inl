@@ -69,6 +69,108 @@
 			private:
 				const char* name_;
 			};
+
+			/** @note range of In should fully contain range of Out.
+			 */
+			template <typename In, typename Out>
+			int pyNumericCast( In iIn, Out& oV )
+			{
+				typedef num::NumTraits<Out> TNumTraits;
+				if (iIn < static_cast<In>(TNumTraits::min))
+				{
+					std::ostringstream buffer;
+					buffer << "not a " << TNumTraits::name() << ": underflow: " 
+						<< iIn << " < " << TNumTraits::min;
+					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+					return 1;
+				}
+				if (iIn > static_cast<In>(TNumTraits::max))
+				{
+					std::ostringstream buffer;
+					buffer << "not a " << TNumTraits::name() << ": overflow: " 
+						<< iIn << " > " << TNumTraits::max;
+					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+					return 1;
+				}
+				oV = static_cast<Out>(iIn);
+				return 0;
+			}
+
+			template <typename Integer>
+			int pyGetSignedObject( PyObject* iValue, Integer& oV )
+			{
+				if (PyInt_Check(iValue))
+				{
+					long temp = PyInt_AS_LONG(iValue);
+					return pyNumericCast( temp, oV );
+				}
+				if (PyLong_Check(iValue))
+				{
+					long temp = PyLong_AsLong(iValue);
+					if (PyErr_Occurred())
+					{
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+							num::NumTraits<Integer>::name().c_str());
+						return 1;
+					}
+					return pyNumericCast( temp, oV );
+				}
+				PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
+				return 1;
+			}
+
+			template <typename Integer>
+			int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
+			{
+				if (PyInt_Check(iValue))
+				{
+					long temp = PyInt_AS_LONG(iValue);
+					return pyNumericCast( temp, oV );
+				}
+				if (PyLong_Check(iValue))
+				{
+					unsigned long temp = PyLong_AsUnsignedLong(iValue);
+					if (PyErr_Occurred())
+					{
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+							num::NumTraits<Integer>::name().c_str());
+						return 1;
+					}
+					return pyNumericCast( temp, oV );
+				}
+				PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
+				return 1;
+			}
+
+			template <typename Float>
+			int pyGetFloatObject( PyObject* iValue, Float& oV )
+			{
+				if (PyFloat_Check(iValue))
+				{
+					double temp = PyFloat_AS_DOUBLE(iValue);
+					return pyNumericCast( temp, oV );
+				}
+				if (PyInt_Check(iValue))
+				{
+					long temp = PyInt_AS_LONG(iValue);
+					oV = static_cast<Float>( temp );
+					return 0;
+				}
+				if (PyLong_Check(iValue))
+				{
+					double temp = PyLong_AsDouble(iValue);
+					if (PyErr_Occurred())
+					{
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+							num::NumTraits<Float>::name().c_str());
+						return 1;
+					}
+					return pyNumericCast( temp, oV );
+				}
+				PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Float>::name().c_str());
+				return 1;
+			}
+
 		}
 
 		/** @ingroup Python
@@ -104,100 +206,91 @@
 		 */
 		inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 		{
-			if (!PyInt_Check(iValue))
+			int result = PyObject_IsTrue(iValue);
+			if (result == -1)
 			{
 				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL); 
 				return 1;
 			}
-			long temp;
-			temp = PyInt_AS_LONG( iValue );
-			oV = (temp!=0);
-			return 0; 
+			oV = (result != 0);
+			return 0;
 		}
 
 		/** @ingroup Python
 		 */
-		inline int pyGetSimpleObject( PyObject* iValue, int& oV )
+		inline int pyGetSimpleObject( PyObject* iValue, signed char& oV )
 		{
-			if (!PyInt_Check(iValue))
-			{
-				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_INT ); 
-				return 1;
-			}
-			oV = PyInt_AS_LONG( iValue );
-			return 0; // ok
+			return impl::pyGetSignedObject( iValue, oV );
 		}
- 
-		/** @ingroup Python
-		 */
-       inline int pyGetSimpleObject( PyObject* iValue, unsigned& oV )
-        {
-            int value;
-            const int result = pyGetSimpleObject( iValue, value );
-            if (!result)
-            {
-                oV = (unsigned) value;
-            }
-            return result;
-        }
 
 		/** @ingroup Python
 		 */
-		inline int pyGetSimpleObject( PyObject* iValue, long& oV )
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned char& oV )
 		{
-			if (!PyInt_Check(iValue))
-			{
-				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_LONG ); 
-				return 1;
-			}
-			oV = PyInt_AS_LONG( iValue );
-			return 0; // ok
+			return impl::pyGetUnsignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, signed short& oV )
+		{
+			return impl::pyGetSignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned short& oV )
+		{
+			return impl::pyGetUnsignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, signed int& oV )
+		{
+			return impl::pyGetSignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned int& oV )
+		{
+			return impl::pyGetUnsignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, signed long& oV )
+		{
+			return impl::pyGetSignedObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV )
+		{
+			return impl::pyGetUnsignedObject( iValue, oV );
 		}
 
 		/** @ingroup Python
 		 */
 		inline int pyGetSimpleObject( PyObject* iValue, float& oV )
 		{
-			if (PyFloat_Check(iValue))
-			{
-				oV = static_cast<float>(PyFloat_AsDouble( iValue ));
-				return 0;
-			}
-			if (PyInt_Check(iValue))
-			{
-				oV = static_cast<float>(PyInt_AsLong( iValue ));
-				return 0;
-			}
-			if (PyLong_Check(iValue))
-			{
-				oV = static_cast<float>(PyLong_AsDouble( iValue ));
-				return 0;
-			}
-			PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_FLOAT ); 
-			return 1; // failure
+			return impl::pyGetFloatObject( iValue, oV );
 		}
 
 		/** @ingroup Python
 		 */
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV )
 		{
-			if (PyFloat_Check(iValue))
-			{
-				oV = static_cast<double>(PyFloat_AsDouble( iValue ));
-				return 0;
-			}
-			if (PyInt_Check(iValue))
-			{
-				oV = static_cast<double>(PyInt_AsLong( iValue ));
-				return 0;
-			}
-			if (PyLong_Check(iValue))
-			{
-				oV = static_cast<double>(PyLong_AsDouble( iValue ));
-				return 0;
-			}
-			PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE ); 
-			return 1; // failure
+			return impl::pyGetFloatObject( iValue, oV );
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, long double& oV )
+		{
+			return impl::pyGetFloatObject( iValue, oV );
 		}
 
 		/** @ingroup Python
@@ -246,49 +339,112 @@
 		 */
 		inline PyObject* pyBuildSimpleObject( bool iV )
 		{
-			return Py_BuildValue("i",(int)(iV!=0));
+			return PyInt_FromLong(static_cast<long>(iV));
 		}
 
 		/** @ingroup Python
 		 */
-		inline PyObject* pyBuildSimpleObject( long iV )
+		inline PyObject* pyBuildSimpleObject( signed char iV )
 		{
-			return Py_BuildValue("i",iV);
+			return PyInt_FromLong(static_cast<long>(iV));
 		}
 
 		/** @ingroup Python
 		 */
-		inline PyObject* pyBuildSimpleObject( int iV )
+		inline PyObject* pyBuildSimpleObject( unsigned char iV )
 		{
-			return Py_BuildValue("i",iV);
+			return PyInt_FromLong(static_cast<long>(iV));
 		}
 
 		/** @ingroup Python
 		 */
-		inline PyObject* pyBuildSimpleObject( unsigned iV )
+		inline PyObject* pyBuildSimpleObject( signed short iV )
 		{
-			return pyBuildSimpleObject( (int) iV );
+			return PyInt_FromLong(static_cast<long>(iV));
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( unsigned short iV )
+		{
+			return PyInt_FromLong(static_cast<long>(iV));
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( signed int iV )
+		{
+			return PyInt_FromLong(static_cast<long>(iV));
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( unsigned int iV )
+		{
+			if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
+			{
+				return PyInt_FromLong(static_cast<long>(iV));
+			}
+			else
+			{
+				return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
+			}
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( signed long iV )
+		{
+			return PyInt_FromLong(static_cast<long>(iV));
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( unsigned long iV )
+		{
+			if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
+			{
+				return PyInt_FromLong(static_cast<long>(iV));
+			}
+			else
+			{
+				return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
+			}
 		}
 
 		/** @ingroup Python
 		 */
 		inline PyObject* pyBuildSimpleObject( float iV )
 		{
-			return Py_BuildValue("f",iV);
+			return PyFloat_FromDouble(static_cast<double>(iV));
 		}
 
 		/** @ingroup Python
 		 */
 		inline PyObject* pyBuildSimpleObject( double iV )
 		{
-			return Py_BuildValue("f",iV);
+			return PyFloat_FromDouble(iV);
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( long double iV )
+		{
+			return PyFloat_FromDouble(static_cast<long double>(iV));
+		}
+
+		/** @ingroup Python
+		 */
+		inline PyObject* pyBuildSimpleObject( const char* iV )
+		{
+			return PyString_FromString(iV);
 		}
 
 		/** @ingroup Python
 		 */
 		inline PyObject* pyBuildSimpleObject( const std::string& iV )
 		{
-			return Py_BuildValue("s",iV.c_str());
+			return PyString_FromString(iV.c_str());
 		}
 
 		/*

@@ -43,6 +43,7 @@
 #include "../meta/bool.h"
 #include "../meta/type_2_type.h"
 #include "../meta/int_2_type.h"
+#include "../num/num_traits.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
 #include "pyobject_util.h"
@@ -208,21 +209,34 @@ namespace lass
 		*/
 		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, bool& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, int& oV );
-        inline int pyGetSimpleObject( PyObject* iValue, unsigned& oV);
-		inline int pyGetSimpleObject( PyObject* iValue, long& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, signed char& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned char& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, signed short& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned short& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, signed int& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned int& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, signed long& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, float& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
 
 		inline PyObject* pyBuildSimpleObject( PyObject* iV );
 		inline PyObject* pyBuildSimpleObject( PyObject& iV );
 		inline PyObject* pyBuildSimpleObject( bool iV );
-		inline PyObject* pyBuildSimpleObject( int iV );
-        inline PyObject* pyBuildSimpleObject( unsigned iV );
-		inline PyObject* pyBuildSimpleObject( long iV );
+		inline PyObject* pyBuildSimpleObject( signed char iV );
+		inline PyObject* pyBuildSimpleObject( unsigned char iV );
+		inline PyObject* pyBuildSimpleObject( signed short iV );
+		inline PyObject* pyBuildSimpleObject( unsigned short iV );
+		inline PyObject* pyBuildSimpleObject( signed int iV );
+		inline PyObject* pyBuildSimpleObject( unsigned int iV );
+		inline PyObject* pyBuildSimpleObject( signed long iV );
+		inline PyObject* pyBuildSimpleObject( unsigned long iV );
 		inline PyObject* pyBuildSimpleObject( float iV );
 		inline PyObject* pyBuildSimpleObject( double iV );
+		inline PyObject* pyBuildSimpleObject( long double iV );
+		inline PyObject* pyBuildSimpleObject( const char* iV );
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
 
 		#include "pyobject_plus.inl"

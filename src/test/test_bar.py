@@ -105,13 +105,13 @@ print "\n***\n"
 temp = dir(test)
 
 # more complex arguments
-#test.complexArguments('a string')
+test.complexArguments('a string')
 box = ((10, 20, 30), (100, 200, 300))
-#print test.primArguments(box, "y")
+print test.primArguments(box, "y")
 
 # testing custom built objects as arguments
 
-footest = embedding.PythonFoo(6, "world")
+footest = embedding.PythonFoo(6, "world!")
 
 print "foo member of bar = ", test.foo
 test.foo = footest
