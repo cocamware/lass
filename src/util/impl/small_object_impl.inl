@@ -1,37 +1,37 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *	@par original code by Andrei Alexandrescu:
- *	The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *	This code (Loki) accompanies the book:\n
- *	Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied". 
- *	Copyright (c) 2001. Addison-Wesley.\n
- *	<i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is 
- *	hereby granted without fee, provided that the above copyright notice appear in all copies and 
- *	that both that copyright notice and this permission notice appear in supporting documentation.\n
- *	The author or Addison-Wesley Longman make no representations about the suitability of this 
- *	software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
+ *  @par original code by Andrei Alexandrescu:
+ *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
+ *  This code (Loki) accompanies the book:\n
+ *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
+ *  Copyright (c) 2001. Addison-Wesley.\n
+ *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
+ *  hereby granted without fee, provided that the above copyright notice appear in all copies and
+ *  that both that copyright notice and this permission notice appear in supporting documentation.\n
+ *  The author or Addison-Wesley Longman make no representations about the suitability of this
+ *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SMALL_OBJECT_IMPL_INL
@@ -315,7 +315,7 @@ void* FixedAllocator<A>::Chunk::allocate(std::size_t iBlockSize)
 
 
 
-/** deallocates a block from a chunk 
+/** deallocates a block from a chunk
  */
 template <typename A>
 void FixedAllocator<A>::Chunk::deallocate(void* iPointer, std::size_t iBlockSize)
@@ -323,7 +323,7 @@ void FixedAllocator<A>::Chunk::deallocate(void* iPointer, std::size_t iBlockSize
 	LASS_ASSERT(iPointer >= data_);
 	TAtom* toRelease = static_cast<TAtom*>(iPointer);
 	LASS_ASSERT((toRelease - data_) % iBlockSize == 0); // alignment check
-		
+
 	*toRelease = firstAvailableBlock_;
 	firstAvailableBlock_ = static_cast<TAtom>((toRelease - data_) / iBlockSize);
 	LASS_ASSERT(firstAvailableBlock_ == (toRelease - data_) / iBlockSize);
@@ -347,7 +347,7 @@ SmallObjectAllocator<CS, MOS, A>::SmallObjectAllocator():
 template <std::size_t CS, std::size_t MOS, typename A>
 void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
 {
-	if (iSize > maxObjectSize_) 
+	if (iSize > maxObjectSize_)
 	{
 		return operator new(iSize);
 	}
@@ -357,7 +357,7 @@ void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
 		return lastAllocate_->allocate();
 	}
 
-	typename TPool::iterator i = 
+	typename TPool::iterator i =
 		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
 
 	if (i == pool_.end() || (*i)->blockSize() != iSize)
@@ -375,23 +375,23 @@ void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
 template <std::size_t CS, std::size_t MOS, typename A>
 void SmallObjectAllocator<CS, MOS, A>::deallocate(void* iPointer, std::size_t iSize)
 {
-    if (iSize > maxObjectSize_) 
+	if (iSize > maxObjectSize_)
 	{
 		return operator delete(iPointer);
 	}
 
-    if (lastDeallocate_ && lastDeallocate_->blockSize() == iSize)
-    {
-        lastDeallocate_->deallocate(iPointer);
-        return;
-    }
+	if (lastDeallocate_ && lastDeallocate_->blockSize() == iSize)
+	{
+		lastDeallocate_->deallocate(iPointer);
+		return;
+	}
 
-    typename TPool::iterator pit = 
+	typename TPool::iterator pit =
 		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
-    LASS_ASSERT(pit != pool_.end());
-    LASS_ASSERT((*pit)->blockSize() == iSize);
-    lastDeallocate_ = pit->get();
-    lastDeallocate_->deallocate(iPointer);
+	LASS_ASSERT(pit != pool_.end());
+	LASS_ASSERT((*pit)->blockSize() == iSize);
+	lastDeallocate_ = pit->get();
+	lastDeallocate_->deallocate(iPointer);
 }
 
 

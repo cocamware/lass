@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -47,25 +47,25 @@ class Triangle2D
 {
 public:
 
-    typedef Triangle2D<T> TSelf;
+	typedef Triangle2D<T> TSelf;
 
 	typedef Point2D<T> TPoint;
 	typedef Point2DH<T> TPointH;
-    typedef typename TPoint::TVector TVector;
+	typedef typename TPoint::TVector TVector;
 	typedef LineSegment2D<T> TLineSegment;
-	
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
+
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
 	typedef typename TPoint::TNumTraits TNumTraits;
 
-    enum { dimension = TPoint::dimension };	/**< number of dimensions */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions */
 
-    template <typename U> struct Rebind
-    {
-        typedef Triangle2D<U> Type;
-    };
+	template <typename U> struct Rebind
+	{
+		typedef Triangle2D<U> Type;
+	};
 
 	Triangle2D();
 	Triangle2D(const TPoint& iA, const TPoint& iB, const TPoint& iC);
@@ -78,7 +78,7 @@ public:
 	const TVector vector(int iIndexOfTailVertex) const;
 
 	const bool isEmpty() const;
-    const int size() const;
+	const int size() const;
 
 	const TValue signedArea() const;
 	const TValue area() const;
@@ -96,8 +96,8 @@ private:
 
 	const bool isInRange(int iIndexOfVertex) const;
 
-    enum { size_ = 3 };
-	
+	enum { size_ = 3 };
+
 	TPoint vertices_[size_];
 };
 

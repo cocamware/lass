@@ -4,8 +4,8 @@ namespace prim
 {
 
 
-template<typename T, class DegeneratePolicy> 
-bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon, 
+template<typename T, class DegeneratePolicy>
+bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon,
 				 std::vector<Triangle2D<T> >& oTriangles)
 {
 	oTriangles.clear();
@@ -20,7 +20,7 @@ bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon,
 
 	// we implement the easiest algorithm: ear clipping
 	// we try to find a non-reflex vertex and then clip it
-	
+
 	SimplePolygon2D<T, DegenerationPolicy> temp(iPolygon);
 	while (temp.size()>3)
 	{

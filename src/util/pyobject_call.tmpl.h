@@ -1,12 +1,12 @@
-/** 
+/**
 *   @author Bram de Greve (bramz@users.sourceforge.net)
 *   @author Tom De Muer (tomdemuer@users.sourceforge.net)
 *
-*	Distributed under the terms of the GPL (GNU Public License)
+*   Distributed under the terms of the GPL (GNU Public License)
 *
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
+*   The LASS License:
+*
+*   Copyright 2004 Bram de Greve and Tom De Muer
 *
 *   LASS is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 #define PY_CALLABLE_FILEMETHOD_EX( function, pyFunction, pyName )\
 	inline PyObject* pyFunction( PyObject* iIgnore, PyObject* iArgs )\
 	{\
-        return lass::python::impl::pyCallFunction( iArgs, function );\
+		return lass::python::impl::pyCallFunction( iArgs, function );\
 	}\
 	PY_EXPORTFILEMETHOD( pyFunction, pyName )
 

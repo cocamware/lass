@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -48,7 +48,7 @@ namespace util
 template<typename T>
 void setBit(T& a_bits, unsigned a_bit)
 {
-    a_bits |= (1 << a_bit);
+	a_bits |= (1 << a_bit);
 }
 
 
@@ -62,7 +62,7 @@ void setBit(T& a_bits, unsigned a_bit)
 template<typename T>
 void clearBit(T& a_bits, unsigned a_bit)
 {
-    a_bits &= ~(1 << a_bit);
+	a_bits &= ~(1 << a_bit);
 }
 
 
@@ -76,7 +76,7 @@ void clearBit(T& a_bits, unsigned a_bit)
 template<typename T>
 void flipBit(T& a_bits, unsigned a_bit)
 {
-    a_bits ^= (1 << a_bit);
+	a_bits ^= (1 << a_bit);
 }
 
 
@@ -91,7 +91,7 @@ void flipBit(T& a_bits, unsigned a_bit)
 template<typename T>
 void setBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 {
-    setMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	setMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
 
 
@@ -106,7 +106,7 @@ void setBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 template<typename T>
 void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 {
-    clearMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	clearMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
 
 
@@ -121,7 +121,7 @@ void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 template<typename T>
 void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 {
-    flipMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	flipMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
 
 
@@ -136,8 +136,8 @@ void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 template<typename T>
 void setBitTo(T& a_bits, unsigned a_bit, bool a_state)
 {
-    clearBit(a_bits, a_bit);
-    setBitIf(a_bits, a_bit, a_state);
+	clearBit(a_bits, a_bit);
+	setBitIf(a_bits, a_bit, a_state);
 }
 
 
@@ -151,7 +151,7 @@ void setBitTo(T& a_bits, unsigned a_bit, bool a_state)
 template<typename T>
 bool checkBit(T a_bits, unsigned a_bit)
 {
-    return a_bits & (1 << a_bit);
+	return a_bits & (1 << a_bit);
 }
 
 
@@ -169,7 +169,7 @@ bool checkBit(T a_bits, unsigned a_bit)
 template<typename T>
 void setMasked(T& a_bits, const T& a_mask)
 {
-    a_bits |= a_mask;
+	a_bits |= a_mask;
 }
 
 
@@ -186,7 +186,7 @@ void setMasked(T& a_bits, const T& a_mask)
 template<typename T>
 void clearMasked(T& a_bits, const T& a_mask)
 {
-    a_bits &= ~a_mask;
+	a_bits &= ~a_mask;
 }
 
 
@@ -203,7 +203,7 @@ void clearMasked(T& a_bits, const T& a_mask)
 template<typename T>
 void flipMasked(T& a_bits, const T& a_mask)
 {
-    a_bits ^= a_mask;
+	a_bits ^= a_mask;
 }
 
 
@@ -221,7 +221,7 @@ void flipMasked(T& a_bits, const T& a_mask)
 template<typename T>
 void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-    setBit(a_bits, a_condition ? a_mask : 0);
+	setBit(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -239,7 +239,7 @@ void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-    clearBit(a_bits, a_condition ? a_mask : 0);
+	clearBit(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -257,7 +257,7 @@ void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-    flipBit(a_bits, a_condition ? a_mask : 0);
+	flipBit(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -275,8 +275,8 @@ void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void setMaskedTo(T& a_bits, const T& a_mask, bool a_state)
 {
-    clearBit(a_bits, a_mask);
-    setBitIf(a_bits, a_mask, a_state);
+	clearBit(a_bits, a_mask);
+	setBitIf(a_bits, a_mask, a_state);
 }
 
 
@@ -295,7 +295,7 @@ void setMaskedTo(T& a_bits, const T& a_mask, bool a_state)
 template<typename T>
 bool checkMaskedAll(T a_bits, const T& a_mask)
 {
-    return (a_bits & a_mask) == a_mask;
+	return (a_bits & a_mask) == a_mask;
 }
 
 
@@ -313,7 +313,7 @@ bool checkMaskedAll(T a_bits, const T& a_mask)
 template<typename T>
 bool checkMaskedSome(T a_bits, const T& a_mask)
 {
-    return (a_bits & a_mask) != 0;
+	return (a_bits & a_mask) != 0;
 }
 
 

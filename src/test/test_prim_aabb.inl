@@ -1,27 +1,27 @@
-/**	@file
+/** @file
  *  @internal
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -39,7 +39,7 @@ namespace lass
 namespace test
 {
 
-template <typename T> 
+template <typename T>
 void testPrimAabb2D()
 {
 	typedef prim::Aabb2D<T, prim::StrictMinMax> TAabbStrict;
@@ -112,7 +112,7 @@ void testPrimAabb2D()
 	BOOST_CHECK(aabbStrict.contains(aabbAuto));
 	BOOST_CHECK(aabbAuto.contains(aabbStrict));
 
-	// addition 
+	// addition
 
 	aabbStrict += TPoint(50, 10);  // (10, 10)-(1000, 10000)
 	BOOST_CHECK(aabbStrict.contains(m));
@@ -134,39 +134,39 @@ void testPrimAabb2D()
 	BOOST_CHECK(aabbStrict.contains(aabbAuto));
 	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
 
-    // distance and intersection
+	// distance and intersection
 
-    TAabbStrict a(TPoint(0, 0), TPoint(10, 10));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), 10);
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), 10);
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(T(200)));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(T(200)));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), 0);
+	TAabbStrict a(TPoint(0, 0), TPoint(10, 10));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), 10);
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), 10);
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(T(200)));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(T(200)));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), 0);
 
-    TAabbStrict b(TPoint(100, 100), TPoint(1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10), TPoint(100, 100)));
+	TAabbStrict b(TPoint(100, 100), TPoint(1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10), TPoint(100, 100)));
 
-    TAabbStrict c(TPoint(6, 66), TPoint(666, 6666));
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-    BOOST_CHECK(c.isEmpty());
+	TAabbStrict c(TPoint(6, 66), TPoint(666, 6666));
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	BOOST_CHECK(c.isEmpty());
 
-    b = TAabbStrict(TPoint(100, 5), TPoint(1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
-    c = TAabbStrict(TPoint(6, 66), TPoint(666, 6666));
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-    BOOST_CHECK(c.isEmpty());
+	b = TAabbStrict(TPoint(100, 5), TPoint(1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
+	c = TAabbStrict(TPoint(6, 66), TPoint(666, 6666));
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	BOOST_CHECK(c.isEmpty());
 
-    b = TAabbStrict(TPoint(5, 5), TPoint(1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5));
-    BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10));
+	b = TAabbStrict(TPoint(5, 5), TPoint(1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5));
+	BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10));
 
 	// growing and scaling
-    TAabbStrict d(TPoint(0, 0), TPoint(10, 10));
+	TAabbStrict d(TPoint(0, 0), TPoint(10, 10));
 	d.grow(10);
 	BOOST_CHECK(d.isValid());
 	BOOST_CHECK(!d.isEmpty());
@@ -178,7 +178,7 @@ void testPrimAabb2D()
 
 
 
-template <typename T> 
+template <typename T>
 void testPrimAabb3D()
 {
 	typedef prim::Aabb3D<T, prim::StrictMinMax> TAabbStrict;
@@ -242,7 +242,7 @@ void testPrimAabb3D()
 	BOOST_CHECK(aabbStrict.contains(aabbAuto));
 	BOOST_CHECK(aabbAuto.contains(aabbStrict));
 
-	// addition 
+	// addition
 
 	aabbStrict += TPoint(50, 10, 20);  // (10, 10, 20)-(1000, 10000, 20000)
 	BOOST_CHECK(aabbStrict.contains(m));
@@ -252,8 +252,8 @@ void testPrimAabb3D()
 	BOOST_CHECK(aabbStrict.contains(aabbAuto));
 	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
 
-	aabbStrict += TAabbAuto(TPoint(50, 50, 100), TPoint(10000, 0, 0)); 
-    // (10, 0, 0)-(10000, 10000, 20000)
+	aabbStrict += TAabbAuto(TPoint(50, 50, 100), TPoint(10000, 0, 0));
+	// (10, 0, 0)-(10000, 10000, 20000)
 	BOOST_CHECK(aabbStrict.contains(m));
 	BOOST_CHECK(aabbStrict.contains(M));
 	BOOST_CHECK(aabbStrict.contains(TPoint(50, 10, 20)));
@@ -265,36 +265,36 @@ void testPrimAabb3D()
 	BOOST_CHECK(aabbStrict.contains(aabbAuto));
 	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
 
-    // distance and intersection
+	// distance and intersection
 
-    TAabbStrict a(TPoint(0, 0, 0), TPoint(10, 10, 10));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)));
-    BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
+	TAabbStrict a(TPoint(0, 0, 0), TPoint(10, 10, 10));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)));
+	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
 
-    TAabbStrict b(TPoint(100, 100, 100), TPoint(1000, 1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10, 10), TPoint(100, 100, 100)));
+	TAabbStrict b(TPoint(100, 100, 100), TPoint(1000, 1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10, 10), TPoint(100, 100, 100)));
 
-    TAabbStrict c(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-    BOOST_CHECK(c.isEmpty());
+	TAabbStrict c(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	BOOST_CHECK(c.isEmpty());
 
-    b = TAabbStrict(TPoint(100, 5, 5), TPoint(1000, 1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
-    c = TAabbStrict(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-    BOOST_CHECK(c.isEmpty());
+	b = TAabbStrict(TPoint(100, 5, 5), TPoint(1000, 1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
+	c = TAabbStrict(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	BOOST_CHECK(c.isEmpty());
 
-    b = TAabbStrict(TPoint(5, 5, 5), TPoint(1000, 1000, 1000));
-    BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
-    BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
-    BOOST_CHECK(!c.isEmpty());
-    BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5, 5));
-    BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10, 10));
+	b = TAabbStrict(TPoint(5, 5, 5), TPoint(1000, 1000, 1000));
+	BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
+	BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
+	BOOST_CHECK(!c.isEmpty());
+	BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5, 5));
+	BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10, 10));
 }
 
 

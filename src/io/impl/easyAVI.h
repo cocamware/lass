@@ -1,48 +1,48 @@
-/**	@file
+/** @file
  *  @author originally written by Thomas Erich Ludwig (thomasludwig@telkomsa.net)
- *	@author modified by Bram de Greve (bramz@users.sourceforge.net)
- *	@author modified by Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author modified by Bram de Greve (bramz@users.sourceforge.net)
+ *  @author modified by Tom De Muer (tomdemuer@users.sourceforge.net)
  *
  *  [Bramz] This file is origally written by Thomas Ludwig and is kindly provided by him so
  *  we can include AVI support in lass.  see lass::io::Avi.
 
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @class lass::io::impl::easyAVI
  *  @brief pimpl for lass::io::Avi.
- *  @author originally written by Thomas Erich Ludwig (thomasludwig@telkomsa.net, 
+ *  @author originally written by Thomas Erich Ludwig (thomasludwig@telkomsa.net,
  *          http://www.lycium.cfxweb.net)
  *  @author modified by Bram de Greve [Bramz]
  *
  *  [Bramz] This class is origally written by Thomas Ludwig and is kindly provided by him so
  *  we can include AVI support in lass.  I adapted this file a little to be better absorbed
- *  by the lass library.  
- *  
+ *  by the lass library.
+ *
  *  @warning This class is @e only to be included by lass/io/avi.cpp.  It is to be seen as an
- *  implementation of the class lass::io::Avi (hence the namespace impl :).  lass::io::Avi 
- *  uses the pimpl idiom to use this easyAVI class. i.e. lass::io::Avi completely encapsulates 
- *  easyAVI, and nothing in the interface (header) of lass::io::Avi gives access to this 
+ *  implementation of the class lass::io::Avi (hence the namespace impl :).  lass::io::Avi
+ *  uses the pimpl idiom to use this easyAVI class. i.e. lass::io::Avi completely encapsulates
+ *  easyAVI, and nothing in the interface (header) of lass::io::Avi gives access to this
  *  file.  In short: don't include this file yourself, but use lass::io::Avi instead.
  *
  *  Things that I have changed:
@@ -182,7 +182,7 @@ void easyAVI::addFrame(unsigned int *frame)
 
 	for (int y = 0; y < yres; y++)
 	{
-        const int x0 = (yres - y - 1) * xres; // added by [Bramz]
+		const int x0 = (yres - y - 1) * xres; // added by [Bramz]
 		for (int x = 0; x < xres; x++)
 		{
 			img1p[y * alignedsize + x * 3] = frame[x0 + x] & 0x000000ff;

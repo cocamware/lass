@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -41,13 +41,13 @@ namespace world_3d
 
 // --- BASE ITERATOR -----------------------------------------------------------
 
-/** Default constructor 
+/** Default constructor
  */
 template <typename T>
 Pair3DIteratorBase<T>::Pair3DIteratorBase():
-    beginPair_(0),
-    currentPair_(0),
-    polarity_(positive)
+	beginPair_(0),
+	currentPair_(0),
+	polarity_(positive)
 {
 }
 
@@ -57,9 +57,9 @@ Pair3DIteratorBase<T>::Pair3DIteratorBase():
  */
 template <typename T>
 Pair3DIteratorBase<T>::Pair3DIteratorBase(const TPair* iBeginPair, Polarity iPolarity):
-    polarity_(0)
+	polarity_(0)
 {
-    reset(iBeginPair, iPolarity);
+	reset(iBeginPair, iPolarity);
 }
 
 
@@ -79,9 +79,9 @@ Pair3DIteratorBase<T>::~Pair3DIteratorBase()
 template <typename T>
 void Pair3DIteratorBase<T>::reset(const TPair* iBeginPair, Polarity iPolarity)
 {
-    beginPair_ = iBeginPair;
-    currentPair_ = iBeginPair;
-    polarity_ = iPolarity;
+	beginPair_ = iBeginPair;
+	currentPair_ = iBeginPair;
+	polarity_ = iPolarity;
 }
 
 
@@ -91,7 +91,7 @@ void Pair3DIteratorBase<T>::reset(const TPair* iBeginPair, Polarity iPolarity)
 template <typename T>
 const TPair* Pair3DIteratorBase<T>::get() const
 {
-    return currentPair_;
+	return currentPair_;
 }
 
 
@@ -101,7 +101,7 @@ const TPair* Pair3DIteratorBase<T>::get() const
 template <typename T>
 bool Pair3DIteratorBase<T>::isEnd() const
 {
-    return currentPair_ == 0;
+	return currentPair_ == 0;
 }
 
 
@@ -111,7 +111,7 @@ bool Pair3DIteratorBase<T>::isEnd() const
 template <typename T>
 const TPair* Pair3DIteratorBase<T>::operator->() const
 {
-    return get();
+	return get();
 }
 
 
@@ -121,8 +121,8 @@ const TPair* Pair3DIteratorBase<T>::operator->() const
 template <typename T>
 const TPair& Pair3DIteratorBase<T>::operator*() const
 {
-    LASS_ASSERT(get());
-    return *get();
+	LASS_ASSERT(get());
+	return *get();
 }
 
 
@@ -132,7 +132,7 @@ const TPair& Pair3DIteratorBase<T>::operator*() const
 template <typename T>
 bool Pair3DIteratorBase<T>::operator==(const TPair* iPair) const
 {
-    return currentPair_ == iPair;
+	return currentPair_ == iPair;
 }
 
 
@@ -142,18 +142,18 @@ bool Pair3DIteratorBase<T>::operator==(const TPair* iPair) const
 template <typename T>
 bool Pair3DIteratorBase<T>::operator!=(const TPair* iPair) const
 {
-    return currentPair_ != iPair;
+	return currentPair_ != iPair;
 }
 
 
 
 // --- CLOCK ITERATOR ----------------------------------------------------------
 
-/** Default constructor 
+/** Default constructor
  */
 template <typename T>
 Pair3DClockIterator<T>::Pair3DClockIterator():
-    Pair3DIteratorBase()
+	Pair3DIteratorBase()
 {
 }
 
@@ -163,7 +163,7 @@ Pair3DClockIterator<T>::Pair3DClockIterator():
  */
 template <typename T>
 Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, Polarity iFacePolarity):
-    Pair3DIteratorBase(iBeginPair, iFacePolarity)
+	Pair3DIteratorBase(iBeginPair, iFacePolarity)
 {
 }
 
@@ -175,7 +175,7 @@ Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, Polarity iF
 template <typename T>
 Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, const Cell3* iCell)
 {
-    reset(iBeginPair, iCell);
+	reset(iBeginPair, iCell);
 }
 
 
@@ -186,7 +186,7 @@ Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, const Cell3
 template <typename T>
 Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, const Point3& iPoint)
 {
-    reset(iBeginPair, iPoint);
+	reset(iBeginPair, iPoint);
 }
 
 
@@ -197,7 +197,7 @@ Pair3DClockIterator<T>::Pair3DClockIterator(const TPair* iBeginPair, const Point
 template <typename T>
 void Pair3DClockIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iCell));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iCell));
 }
 
 
@@ -208,7 +208,7 @@ void Pair3DClockIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 template <typename T>
 void Pair3DClockIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iPoint));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iPoint));
 }
 
 
@@ -218,16 +218,16 @@ void Pair3DClockIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint
 template <typename T>
 const Pair3DClockIterator& Pair3DClockIterator<T>::operator++()
 {
-    if (currentPair_)
-    {
-        currentPair_ = currentPair_->clock(polarity_);
-        if (currentPair_ == beginPair_)
-        {
-            currentPair_ = 0;
-        }
-    }
+	if (currentPair_)
+	{
+		currentPair_ = currentPair_->clock(polarity_);
+		if (currentPair_ == beginPair_)
+		{
+			currentPair_ = 0;
+		}
+	}
 
-    return *this;
+	return *this;
 }
 
 
@@ -237,20 +237,20 @@ const Pair3DClockIterator& Pair3DClockIterator<T>::operator++()
 template <typename T>
 Pair3DClockIterator Pair3DClockIterator<T>::operator++(int)
 {
-    Pair3DClockIterator temp = *this;
-    ++(*this);
-    return temp;
+	Pair3DClockIterator temp = *this;
+	++(*this);
+	return temp;
 }
 
 
 
 // --- COUNTERCLOCK ITERATOR ---------------------------------------------------
 
-/** Default constructor 
+/** Default constructor
  */
 template <typename T>
 Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator():
-    Pair3DIteratorBase()
+	Pair3DIteratorBase()
 {
 }
 
@@ -259,9 +259,9 @@ Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator():
 /** Constructor.
  */
 template <typename T>
-Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair, 
-                                                          Polarity iFacePolarity):
-    Pair3DIteratorBase(iBeginPair, iFacePolarity)
+Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair,
+														  Polarity iFacePolarity):
+	Pair3DIteratorBase(iBeginPair, iFacePolarity)
 {
 }
 
@@ -271,10 +271,10 @@ Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPai
  *  with correct polarity by iCell.
  */
 template <typename T>
-Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair, 
+Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair,
 														  const Cell3* iCell)
 {
-    reset(iBeginPair, iCell);
+	reset(iBeginPair, iCell);
 }
 
 
@@ -283,10 +283,10 @@ Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPai
  *  with correct polarity by iPoint.
  */
 template <typename T>
-Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair, 
+Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPair,
 														  const Point3& iPoint)
 {
-    reset(iBeginPair, iPoint);
+	reset(iBeginPair, iPoint);
 }
 
 
@@ -297,7 +297,7 @@ Pair3DCounterClockIterator<T>::Pair3DCounterClockIterator(const TPair* iBeginPai
 template <typename T>
 void Pair3DCounterClockIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iCell));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iCell));
 }
 
 
@@ -308,7 +308,7 @@ void Pair3DCounterClockIterator<T>::reset(const TPair* iBeginPair, const Cell3* 
 template <typename T>
 void Pair3DCounterClockIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iPoint));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->facePolarity(iPoint));
 }
 
 
@@ -316,43 +316,43 @@ void Pair3DCounterClockIterator<T>::reset(const TPair* iBeginPair, const Point3&
 /** Prefix counter clock.  counter clock and return result.
  */
 template <typename T>
-const Pair3DCounterClockIterator& 
+const Pair3DCounterClockIterator&
 Pair3DCounterClockIterator<T>::operator++()
 {
-    if (currentPair_)
-    {
-        currentPair_ = currentPair_->counterClock(polarity_);
-        if (currentPair_ == beginPair_)
-        {
-            currentPair_ = 0;
-        }
-    }
+	if (currentPair_)
+	{
+		currentPair_ = currentPair_->counterClock(polarity_);
+		if (currentPair_ == beginPair_)
+		{
+			currentPair_ = 0;
+		}
+	}
 
-    return *this;
+	return *this;
 }
 
 
 
-/** Postfix counter clock.  counter clock and return situation before 
+/** Postfix counter clock.  counter clock and return situation before
  *  counter clock.
  */
 template <typename T>
 Pair3DCounterClockIterator Pair3DCounterClockIterator<T>::operator++(int)
 {
-    Pair3DCounterClockIterator temp = *this;
-    ++(*this);
-    return temp;
+	Pair3DCounterClockIterator temp = *this;
+	++(*this);
+	return temp;
 }
 
 
 
 // --- SPIN ITERATOR -----------------------------------------------------------
 
-/** Default constructor 
+/** Default constructor
  */
 template <typename T>
 Pair3DSpinIterator<T>::Pair3DSpinIterator():
-    Pair3DIteratorBase()
+	Pair3DIteratorBase()
 {
 }
 
@@ -362,7 +362,7 @@ Pair3DSpinIterator<T>::Pair3DSpinIterator():
  */
 template <typename T>
 Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, Polarity a_edgePolarity):
-    Pair3DIteratorBase(iBeginPair, a_edgePolarity)
+	Pair3DIteratorBase(iBeginPair, a_edgePolarity)
 {
 }
 
@@ -374,7 +374,7 @@ Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, Polarity a_ed
 template <typename T>
 Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, const Cell3* iCell)
 {
-    reset(iBeginPair, iCell);
+	reset(iBeginPair, iCell);
 }
 
 
@@ -385,7 +385,7 @@ Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, const Cell3* 
 template <typename T>
 Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, const Point3& iPoint)
 {
-    reset(iBeginPair, iPoint);
+	reset(iBeginPair, iPoint);
 }
 
 
@@ -396,7 +396,7 @@ Pair3DSpinIterator<T>::Pair3DSpinIterator(const TPair* iBeginPair, const Point3&
 template <typename T>
 void Pair3DSpinIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iCell));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iCell));
 }
 
 
@@ -407,7 +407,7 @@ void Pair3DSpinIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 template <typename T>
 void Pair3DSpinIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iPoint));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iPoint));
 }
 
 
@@ -417,16 +417,16 @@ void Pair3DSpinIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint)
 template <typename T>
 const Pair3DSpinIterator& Pair3DSpinIterator<T>::operator++()
 {
-    if (currentPair_)
-    {
-        currentPair_ = currentPair_->spin(polarity_);
-        if (currentPair_ == beginPair_)
-        {
-            currentPair_ = 0;
-        }
-    }
+	if (currentPair_)
+	{
+		currentPair_ = currentPair_->spin(polarity_);
+		if (currentPair_ == beginPair_)
+		{
+			currentPair_ = 0;
+		}
+	}
 
-    return *this;
+	return *this;
 }
 
 
@@ -436,20 +436,20 @@ const Pair3DSpinIterator& Pair3DSpinIterator<T>::operator++()
 template <typename T>
 Pair3DSpinIterator Pair3DSpinIterator<T>::operator++(int)
 {
-    Pair3DSpinIterator temp = *this;
-    ++(*this);
-    return temp;
+	Pair3DSpinIterator temp = *this;
+	++(*this);
+	return temp;
 }
 
 
 
 // --- COUNTER SPIN ITERATOR ---------------------------------------------------
 
-/** Default constructor 
+/** Default constructor
  */
 template <typename T>
 Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator():
-    Pair3DIteratorBase()
+	Pair3DIteratorBase()
 {
 }
 
@@ -459,8 +459,8 @@ Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator():
  */
 template <typename T>
 Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
-                                                        Polarity a_edgePolarity):
-    Pair3DIteratorBase(iBeginPair, a_edgePolarity)
+														Polarity a_edgePolarity):
+	Pair3DIteratorBase(iBeginPair, a_edgePolarity)
 {
 }
 
@@ -470,10 +470,10 @@ Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
  *  with correct polarity by iCell.
  */
 template <typename T>
-Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair, 
+Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
 														const Cell3* iCell)
 {
-    reset(iBeginPair, iCell);
+	reset(iBeginPair, iCell);
 }
 
 
@@ -482,10 +482,10 @@ Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
  *  with correct polarity by iPoint.
  */
 template <typename T>
-Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair, 
+Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
 														const Point3& iPoint)
 {
-    reset(iBeginPair, iPoint);
+	reset(iBeginPair, iPoint);
 }
 
 
@@ -496,7 +496,7 @@ Pair3DCounterSpinIterator<T>::Pair3DCounterSpinIterator(const TPair* iBeginPair,
 template <typename T>
 void Pair3DCounterSpinIterator<T>::reset(const TPair* iBeginPair, const Cell3* iCell)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iCell));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iCell));
 }
 
 
@@ -507,7 +507,7 @@ void Pair3DCounterSpinIterator<T>::reset(const TPair* iBeginPair, const Cell3* i
 template <typename T>
 void Pair3DCounterSpinIterator<T>::reset(const TPair* iBeginPair, const Point3& iPoint)
 {
-    Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iPoint));
+	Pair3DIteratorBase<T>::reset(iBeginPair, iBeginPair->edgePolarity(iPoint));
 }
 
 
@@ -517,29 +517,29 @@ void Pair3DCounterSpinIterator<T>::reset(const TPair* iBeginPair, const Point3& 
 template <typename T>
 const Pair3DCounterSpinIterator& Pair3DCounterSpinIterator<T>::operator++()
 {
-    if (currentPair_)
-    {
-        currentPair_ = currentPair_->counterSpin(polarity_);
-        if (currentPair_ == beginPair_)
-        {
-            currentPair_ = 0;
-        }
-    }
+	if (currentPair_)
+	{
+		currentPair_ = currentPair_->counterSpin(polarity_);
+		if (currentPair_ == beginPair_)
+		{
+			currentPair_ = 0;
+		}
+	}
 
-    return *this;
+	return *this;
 }
 
 
 
-/** Postfix counter spin.  Counter spin and return situation before 
+/** Postfix counter spin.  Counter spin and return situation before
  *  counter spin.
  */
 template <typename T>
 Pair3DCounterSpinIterator Pair3DCounterSpinIterator<T>::operator++(int)
 {
-    Pair3DCounterSpinIterator temp = *this;
-    ++(*this);
-    return temp;
+	Pair3DCounterSpinIterator temp = *this;
+	++(*this);
+	return temp;
 }
 
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "util_common.h"
@@ -86,8 +86,8 @@ inline const char* TypeInfo::name() const
  *  @relates TypeInfo
  */
 inline bool operator==(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return (iA.type_info() == iB.type_info()) != 0; 
+{
+	return (iA.type_info() == iB.type_info()) != 0;
 }
 
 
@@ -96,8 +96,8 @@ inline bool operator==(const TypeInfo& iA, const TypeInfo& iB)
  *  @relates TypeInfo
  */
 inline bool operator!=(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return !(iA == iB); 
+{
+	return !(iA == iB);
 }
 
 
@@ -106,8 +106,8 @@ inline bool operator!=(const TypeInfo& iA, const TypeInfo& iB)
  *  @relates TypeInfo
  */
 inline bool operator<(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return iA.before(iB); 
+{
+	return iA.before(iB);
 }
 
 
@@ -116,10 +116,10 @@ inline bool operator<(const TypeInfo& iA, const TypeInfo& iB)
  *  @relates TypeInfo
  */
 inline bool operator>(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return iB < iA; 
+{
+	return iB < iA;
 }
-    
+
 
 
 /** return true if iB does not come before iA.
@@ -127,10 +127,10 @@ inline bool operator>(const TypeInfo& iA, const TypeInfo& iB)
  *  same as (iA comes before iB) or (iA and iB are identical).
  */
 inline bool operator<=(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return !(iB < iA); 
+{
+	return !(iB < iA);
 }
-  
+
 
 
 /** return true if iA does not come before iB.
@@ -138,8 +138,8 @@ inline bool operator<=(const TypeInfo& iA, const TypeInfo& iB)
  *  same as (iB comes before iA) or (iA and iB are identical).
  */
 inline bool operator>=(const TypeInfo& iA, const TypeInfo& iB)
-{ 
-	return !(iA < iB); 
+{
+	return !(iA < iB);
 }
 
 
@@ -148,8 +148,8 @@ inline bool operator>=(const TypeInfo& iA, const TypeInfo& iB)
  */
 inline std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo)
 {
-    iStream << iTypeInfo.name();
-    return iStream;
+	iStream << iTypeInfo.name();
+	return iStream;
 }
 
 

@@ -1,34 +1,34 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @struct lass::prim::Vector2D
- *	@brief 2D Vector
- *	@author BdG
- *	@date 2003
+ *  @brief 2D Vector
+ *  @author BdG
+ *  @date 2003
  */
 
 
@@ -53,7 +53,7 @@ namespace prim
 template<typename T>
 struct Vector2D
 {
-    typedef Vector2D<T> TSelf;
+	typedef Vector2D<T> TSelf;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -61,7 +61,7 @@ struct Vector2D
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef typename num::NumTraits<T> TNumTraits;
 
-	enum { dimension = 2 };	/**< number of dimensions of vector */
+	enum { dimension = 2 }; /**< number of dimensions of vector */
 
 	template <typename U> struct Rebind
 	{
@@ -69,7 +69,7 @@ struct Vector2D
 	};
 
 
-	// public data 
+	// public data
 
 	TValue x;
 	TValue y;
@@ -80,7 +80,7 @@ struct Vector2D
 	Vector2D();
 	Vector2D(TParam iX, TParam iY);
 	template <typename U> explicit Vector2D(const Vector2D<U>& iOther);
-    template <typename U> Vector2D(const U& iX, const U& iY);
+	template <typename U> Vector2D(const U& iX, const U& iY);
 
 	typename Vector2D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector2D::TReference operator[](unsigned iIndex);
@@ -103,14 +103,14 @@ struct Vector2D
 	const TValue norm() const;
 	const Vector2D<T> normal() const;
 	const Vector2D<T> reciprocal() const;
-    const Vector2D<T> perp() const;
+	const Vector2D<T> perp() const;
 	const Vector2D<T> project(const Vector2D<T>& iB) const;
 	const Vector2D<T> reject(const Vector2D<T>& iB) const;
-    const Vector2D<T> transform(T (*iOperator)(T)) const;
+	const Vector2D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 
-    template <class RandomGenerator> static Vector2D<T> random(RandomGenerator& ioGenerator);
+	template <class RandomGenerator> static Vector2D<T> random(RandomGenerator& ioGenerator);
 };
 
 template<typename T> typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB);
@@ -137,12 +137,12 @@ template<typename T> Vector2D<T> operator*(typename Vector2D<T>::TParam iA, cons
 template<typename T> Vector2D<T> pointwiseMin(const Vector2D<T>& iA, const Vector2D<T>& iB);
 template<typename T> Vector2D<T> pointwiseMax(const Vector2D<T>& iA, const Vector2D<T>& iB);
 
-template<typename T, typename Char, typename Traits> 
+template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(
-    std::basic_ostream<Char, Traits>& ioOStream, const Vector2D<T>& iB);
-template<typename T, typename Char, typename Traits> 
+	std::basic_ostream<Char, Traits>& ioOStream, const Vector2D<T>& iB);
+template<typename T, typename Char, typename Traits>
 std::basic_istream<Char, Traits>& operator>>(
-    std::basic_istream<Char, Traits>& ioIStream, Vector2D<T>& iB);
+	std::basic_istream<Char, Traits>& ioIStream, Vector2D<T>& iB);
 
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector2D<T>& iB);
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -46,34 +46,34 @@ class LASS_DLL_EXPORT XY
 public:
 
 
-    enum { dimension = 2 };
+	enum { dimension = 2 };
 
-    XY();
+	XY();
 	XY(char iAxis);
-    explicit XY(int iValue);
+	explicit XY(int iValue);
 	explicit XY(const std::string& iAxis);
 
 	const char axis() const;
-	operator int() const { return value_; } /**< convert axis to integer. 
-												        0 == @a x, 1 == @a y */
+	operator int() const { return value_; } /**< convert axis to integer.
+														0 == @a x, 1 == @a y */
 
-    XY& operator++();
-    XY& operator--();
-    XY operator++(int);
-    XY operator--(int);
+	XY& operator++();
+	XY& operator--();
+	XY operator++(int);
+	XY operator--(int);
 
-    XY& operator+=(int iOffset);
-    XY& operator-=(int iOffset);
+	XY& operator+=(int iOffset);
+	XY& operator-=(int iOffset);
 
 private:
 
-    typedef num::Modulo<2, int> TValue;
+	typedef num::Modulo<2, int> TValue;
 
-    friend LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const XY& iB);
+	friend LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const XY& iB);
 
-    void reset(char iAxis);
+	void reset(char iAxis);
 
-    TValue value_;
+	TValue value_;
 };
 
 LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const XY& iB);

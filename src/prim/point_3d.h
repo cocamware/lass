@@ -1,34 +1,34 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @struct lass::prim::Point3D
- *	@brief 3D Point
- *	@author BdG
- *	@date 2003
+ *  @brief 3D Point
+ *  @author BdG
+ *  @date 2003
  */
 
 
@@ -54,7 +54,7 @@ struct Point3D
 {
 public:
 
-    typedef Point3D<T> TSelf;
+	typedef Point3D<T> TSelf;
 
 	typedef Vector3D<T> TVector;
 
@@ -64,16 +64,16 @@ public:
 	typedef typename TVector::TConstReference TConstReference;
 	typedef typename TVector::TNumTraits TNumTraits;
 
-	enum { dimension = TVector::dimension };	/**< number of dimensions */
+	enum { dimension = TVector::dimension };    /**< number of dimensions */
 
-    template <typename U> struct Rebind
-    {
-        typedef Point3D<U> Type;
-    };
+	template <typename U> struct Rebind
+	{
+		typedef Point3D<U> Type;
+	};
 
-    TValue x;
-    TValue y;
-    TValue z;
+	TValue x;
+	TValue y;
+	TValue z;
 
 	Point3D();
 	Point3D(TParam iX, TParam iY, TParam iZ);

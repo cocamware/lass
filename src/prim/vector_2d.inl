@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -49,7 +49,7 @@ Vector2D<T>::Vector2D():
 }
 
 
-	
+
 template<typename T> inline
 Vector2D<T>::Vector2D(TParam iX, TParam iY):
 	x(iX),
@@ -60,9 +60,9 @@ Vector2D<T>::Vector2D(TParam iX, TParam iY):
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector2D<T>::Vector2D(const Vector2D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)), 
+	x(static_cast<TValue>(iOther.x)),
 	y(static_cast<TValue>(iOther.y))
 {
 }
@@ -70,9 +70,9 @@ Vector2D<T>::Vector2D(const Vector2D<U>& iOther):
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector2D<T>::Vector2D(const U& iX, const U& iY):
-	x(static_cast<TValue>(iX)), 
+	x(static_cast<TValue>(iX)),
 	y(static_cast<TValue>(iY))
 {
 }
@@ -97,7 +97,7 @@ typename Vector2D<T>::TReference Vector2D<T>::operator[](unsigned iIndex)
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
 template<typename T> inline
 typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
@@ -107,7 +107,7 @@ typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
 template<typename T> inline
 typename Vector2D<T>::TReference Vector2D<T>::at(signed iIndex)
@@ -117,7 +117,7 @@ typename Vector2D<T>::TReference Vector2D<T>::at(signed iIndex)
 
 
 
-/** A weird way to get back the same object 
+/** A weird way to get back the same object
  */
 template<typename T> inline
 const Vector2D<T>& Vector2D<T>::operator+() const
@@ -263,8 +263,8 @@ const typename Vector2D<T>::TValue Vector2D<T>::norm() const
 
 /** return a unit vector with same direction/sense as this vector.
  *
- * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1. 
- * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>, 
+ * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
+ * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
@@ -327,7 +327,7 @@ const Vector2D<T> Vector2D<T>::reject(const Vector2D<T>& iB) const
 template <typename T>
 const Vector2D<T> Vector2D<T>::transform(T (*iOperator)(T)) const
 {
-    return Vector2D<T>(iOperator(x), iOperator(y));
+	return Vector2D<T>(iOperator(x), iOperator(y));
 }
 
 
@@ -351,7 +351,7 @@ Vector2D<T> Vector2D<T>::random(RandomGenerator& ioGenerator)
 	num::DistributionUniform<T, RandomGenerator, num::rtRightOpen> distribution(
 		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
 	const TValue theta = distribution();
-    return Vector2D<T>(num::cos(theta), num::sin(theta));
+	return Vector2D<T>(num::cos(theta), num::sin(theta));
 }
 
 
@@ -370,11 +370,11 @@ typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB)
 /** perp dot product (cross product for 2D vectors).
  *  @relates lass::prim::Vector2D
  *
- *  <i>The "perp dot product" for <b>a</b> and <b>b</b> vectors in the plane is a modification of 
- *  the two-dimensional dot product in which a is replaced by the perpendicular vector rotated 90° 
+ *  <i>The "perp dot product" for <b>a</b> and <b>b</b> vectors in the plane is a modification of
+ *  the two-dimensional dot product in which a is replaced by the perpendicular vector rotated 90°
  *  to the left defined by Hill (1994)</i>, http://mathworld.wolfram.com/PerpDotProduct.html.
- *  
- *  It reminds a lot to the 3D cross product, as its result is equal to the z-value of the 
+ *
+ *  It reminds a lot to the 3D cross product, as its result is equal to the z-value of the
  *  cross product of iA and iB extended to 3D space by setting their z-value to 0:
  *  Vector3D<T> c = cross(Vector3D<T>(a.x, a.y, 0), Vector3D<T>(b.x, b.y, 0)).  We know of this
  *  that c.x and c.y are both zero, and that c.z equals the perp dot product between iA and iB.
@@ -574,9 +574,9 @@ Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
 
 /** @relates lass::prim::Vector2D
  */
-template<typename T, typename Char, typename Traits> 
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
-                                             const Vector2D<T>& iB)
+template<typename T, typename Char, typename Traits>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
+											 const Vector2D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y  << ")";
 
@@ -588,8 +588,8 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates lass::prim::Vector2D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-                                             Vector2D<T>& oB)
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
+											 Vector2D<T>& oB)
 {
 	Vector2D<T> result;
 
@@ -603,7 +603,7 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 
 	c = 0;
 	ioIStream >> result.x >> c;
-	
+
 	if (c != ',')
 	{
 		ioIStream.clear(std::ios::failbit);
@@ -629,7 +629,7 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector2D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(oOStream) 
+	LASS_ENFORCE_STREAM(oOStream)
 		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>\n";
 	return oOStream;
 }

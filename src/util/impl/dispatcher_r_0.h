@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_R_0_H
@@ -42,7 +42,7 @@ namespace impl
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template 
+template
 <
 	typename R
 >
@@ -50,12 +50,12 @@ class DispatcherR0: public SmallObject<>
 {
 public:
 
-    DispatcherR0() {}
-    virtual R operator()() const = 0;
+	DispatcherR0() {}
+	virtual R operator()() const = 0;
 
 private:
-    DispatcherR0(const DispatcherR0<R>& iOther);
-    DispatcherR0& operator=(const DispatcherR0<R>& iOther);
+	DispatcherR0(const DispatcherR0<R>& iOther);
+	DispatcherR0& operator=(const DispatcherR0<R>& iOther);
 };
 
 
@@ -74,20 +74,20 @@ class DispatcherR0Function: public DispatcherR0<R>
 {
 private:
 
-    typedef S (*TFunction) ();
-    TFunction function_;
+	typedef S (*TFunction) ();
+	TFunction function_;
 
 public:
 
-    DispatcherR0Function(TFunction iFunction):
-        function_(iFunction)
-    {
-    }
+	DispatcherR0Function(TFunction iFunction):
+		function_(iFunction)
+	{
+	}
 
-    R operator()() const
-    {
-        return (*function_)(); 
-    }
+	R operator()() const
+	{
+		return (*function_)();
+	}
 };
 
 
@@ -97,9 +97,9 @@ public:
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template 
+template
 <
-	class Object, 
+	class Object,
 	typename R,
 	typename S
 >
@@ -107,22 +107,22 @@ class DispatcherR0Method: public DispatcherR0<R>
 {
 private:
 
-    typedef S (Object::*TMethod) ();
-    Object* object_;
-    TMethod method_;
+	typedef S (Object::*TMethod) ();
+	Object* object_;
+	TMethod method_;
 
 public:
 
-    DispatcherR0Method(Object* iObject, TMethod iMethod): 
-        object_(iObject), 
-        method_(iMethod)
-    {
-    }
+	DispatcherR0Method(Object* iObject, TMethod iMethod):
+		object_(iObject),
+		method_(iMethod)
+	{
+	}
 
-    R operator()() const
-    {
-        return (object_->*method_)(); 
-    }
+	R operator()() const
+	{
+		return (object_->*method_)();
+	}
 };
 
 
@@ -132,9 +132,9 @@ public:
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template 
+template
 <
-	class Object, 
+	class Object,
 	typename R,
 	typename S
 >
@@ -142,22 +142,22 @@ class DispatcherR0ConstMethod: public DispatcherR0<R>
 {
 private:
 
-    typedef S (Object::*TConstMethod) () const;
-    Object* object_;
-    TConstMethod method_;
+	typedef S (Object::*TConstMethod) () const;
+	Object* object_;
+	TConstMethod method_;
 
 public:
 
-    DispatcherR0ConstMethod(Object* iObject, TConstMethod iMethod): 
-        object_(iObject), 
-        method_(iMethod)
-    {
-    }
+	DispatcherR0ConstMethod(Object* iObject, TConstMethod iMethod):
+		object_(iObject),
+		method_(iMethod)
+	{
+	}
 
-    R operator()() const
-    {
-        return (object_->*method_)(); 
-    }
+	R operator()() const
+	{
+		return (object_->*method_)();
+	}
 };
 
 

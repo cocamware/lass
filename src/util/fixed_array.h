@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -60,114 +60,114 @@ class FixedArray
 {
 public:
 
-    // type definitions
+	// type definitions
 
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
+	typedef T value_type;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
 	typedef value_type* pointer;
 	typedef const value_type* const_pointer;
 	typedef size_t size_type;
-    typedef ptrdiff_t difference_type;
-    typedef value_type* iterator;
-    typedef const value_type* const_iterator;
-	
+	typedef ptrdiff_t difference_type;
+	typedef value_type* iterator;
+	typedef const value_type* const_iterator;
+
 	// stlport thing to declare the std::reverse_iterator and std::const_reverse_iterator
 	//
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
-    // iterator support
+	// iterator support
 
-    iterator begin() { return holder_.begin(); }
-    iterator end() { return holder_.end(); }
+	iterator begin() { return holder_.begin(); }
+	iterator end() { return holder_.end(); }
 
-    const_iterator begin() const { return holder_.begin(); }
-    const_iterator end() const { return holder_.end(); }
+	const_iterator begin() const { return holder_.begin(); }
+	const_iterator end() const { return holder_.end(); }
 
-    reverse_iterator rbegin() { return reverse_iterator(holder_.end()); }
-    reverse_iterator rend() { return reverse_iterator(holder_.begin()); }
+	reverse_iterator rbegin() { return reverse_iterator(holder_.end()); }
+	reverse_iterator rend() { return reverse_iterator(holder_.begin()); }
 
-    const_reverse_iterator rbegin() const { return const_reverse_iterator(holder_.end()); }
-    const_reverse_iterator rend() const { return const_reverse_iterator(holder_.begin()); }
-
-
-    // direct element access
-
-    reference operator[](size_type iIndex) 
-    {
-        LASS_ASSERT(holder_[iIndex] != 0); 
-        return *holder_[iIndex]; 
-    }
-
-    const_reference operator[](size_type iIndex) const
-    {   
-        LASS_ASSERT(holder_[iIndex] != 0);
-        return *holder_[iIndex]; 
-    }
-
-    reference at(size_type iIndex) { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
-    const_reference at(size_type iIndex) const { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
-
-    reference front() { return this->operator[](0); }
-    reference back() { return this->operator[](size_ - 1); }
-    
-    const_reference front() const { return this->operator[](0); }
-    const_reference back() const { return this->operator[](size_ - 1); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(holder_.end()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(holder_.begin()); }
 
 
-    // general
+	// direct element access
 
-    size_type size() const { return size_; }
-    size_type max_size() const { return size_; }
-    bool empty() const { return size_ == 0; }
+	reference operator[](size_type iIndex)
+	{
+		LASS_ASSERT(holder_[iIndex] != 0);
+		return *holder_[iIndex];
+	}
+
+	const_reference operator[](size_type iIndex) const
+	{
+		LASS_ASSERT(holder_[iIndex] != 0);
+		return *holder_[iIndex];
+	}
+
+	reference at(size_type iIndex) { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
+	const_reference at(size_type iIndex) const { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
+
+	reference front() { return this->operator[](0); }
+	reference back() { return this->operator[](size_ - 1); }
+
+	const_reference front() const { return this->operator[](0); }
+	const_reference back() const { return this->operator[](size_ - 1); }
+
+
+	// general
+
+	size_type size() const { return size_; }
+	size_type max_size() const { return size_; }
+	bool empty() const { return size_ == 0; }
 
 private:
 
-    template<size_type size_> 
-    class Holder
-    { 
-    public:
-        iterator begin() { return array_; }
-        iterator end() { return array_ + size_; }
-        const_iterator begin() const { return array_; }
-        const_iterator end() const { return array_ + size_; }
-        T* operator[](size_type iIndex) 
-        { 
-            LASS_ASSERT(iIndex >= 0 && iIndex < size_);
-            return &array_[iIndex]; 
-        }
-        const T* operator[](size_type iIndex) const
-        { 
-            LASS_ASSERT(iIndex >= 0 && iIndex < size_);
-            return &array_[iIndex]; 
-        }
-    private:
-        value_type array_[size_];
-    };
+	template<size_type size_>
+	class Holder
+	{
+	public:
+		iterator begin() { return array_; }
+		iterator end() { return array_ + size_; }
+		const_iterator begin() const { return array_; }
+		const_iterator end() const { return array_ + size_; }
+		T* operator[](size_type iIndex)
+		{
+			LASS_ASSERT(iIndex >= 0 && iIndex < size_);
+			return &array_[iIndex];
+		}
+		const T* operator[](size_type iIndex) const
+		{
+			LASS_ASSERT(iIndex >= 0 && iIndex < size_);
+			return &array_[iIndex];
+		}
+	private:
+		value_type array_[size_];
+	};
 
-    template<> 
-    class Holder<0>
-    { 
-    public:
-        iterator begin() { return 0; }
-        iterator end() { return 0; }
-        const_iterator begin() const { return 0; }
-        const_iterator end() const { return 0; }
-        T* operator[](size_type iIndex) 
-        {
-            LASS_ASSERT(false); // you should never be in here!
-            return 0; 
-        }
-        const T* operator[](size_type iIndex) const 
-        {
-            LASS_ASSERT(false); // you should never be in here!
-            return 0; 
-        }
-    };
+	template<>
+	class Holder<0>
+	{
+	public:
+		iterator begin() { return 0; }
+		iterator end() { return 0; }
+		const_iterator begin() const { return 0; }
+		const_iterator end() const { return 0; }
+		T* operator[](size_type iIndex)
+		{
+			LASS_ASSERT(false); // you should never be in here!
+			return 0;
+		}
+		const T* operator[](size_type iIndex) const
+		{
+			LASS_ASSERT(false); // you should never be in here!
+			return 0;
+		}
+	};
 
-    Holder<size_> holder_;
+	Holder<size_> holder_;
 };
 
 

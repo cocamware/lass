@@ -1,34 +1,34 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @struct lass::prim::Vector4D
- *	@brief 4D Vector
- *	@author BdG
- *	@date 2003
+ *  @brief 4D Vector
+ *  @author BdG
+ *  @date 2003
  */
 
 
@@ -52,7 +52,7 @@ namespace prim
 template<typename T>
 struct Vector4D
 {
-    typedef Vector4D<T> TSelf;
+	typedef Vector4D<T> TSelf;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -60,7 +60,7 @@ struct Vector4D
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef typename num::NumTraits<T> TNumTraits;
 
-	enum { dimension = 4 };	/**< number of dimensions of vector */
+	enum { dimension = 4 }; /**< number of dimensions of vector */
 
 	template <typename U> struct Rebind
 	{
@@ -68,7 +68,7 @@ struct Vector4D
 	};
 
 
-	// public data 
+	// public data
 
 	TValue x;
 	TValue y;
@@ -80,8 +80,8 @@ struct Vector4D
 
 	Vector4D();
 	Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW);
-	template <typename U> explicit Vector4D(const Vector4D<U>& iOther); 
-    template <typename U> Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW);
+	template <typename U> explicit Vector4D(const Vector4D<U>& iOther);
+	template <typename U> Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW);
 
 	typename Vector4D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector4D::TReference operator[](unsigned iIndex) ;
@@ -106,7 +106,7 @@ struct Vector4D
 	const Vector4D<T> reciprocal() const;
 	const Vector4D<T> project(const Vector4D<T>& iB) const;
 	const Vector4D<T> reject(const Vector4D<T>& iB) const;
-    const Vector4D<T> transform(T (*iOperator)(T)) const;
+	const Vector4D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 };
@@ -134,12 +134,12 @@ template<typename T> Vector4D<T> operator*(typename Vector4D<T>::TParam iA, cons
 template<typename T> Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB);
 template<typename T> Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB);
 
-template<typename T, typename Char, typename Traits> 
+template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(
-    std::basic_ostream<Char, Traits>& ioOStream, const Vector4D<T>& iB);
-template<typename T, typename Char, typename Traits> 
+	std::basic_ostream<Char, Traits>& ioOStream, const Vector4D<T>& iB);
+template<typename T, typename Char, typename Traits>
 std::basic_istream<Char, Traits>& operator>>(
-    std::basic_istream<Char, Traits>& ioIStream, Vector4D<T>& iB);
+	std::basic_istream<Char, Traits>& ioIStream, Vector4D<T>& iB);
 
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector4D<T>& iB);
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -42,7 +42,7 @@
  *  this class will be a holder to a singleton object of Foo.  To use class Foo as a singleton
  *  is very straight forward, but can be done in a couple of ways:
  *
- *  1. The @e typedef way: With a typedef, you create a new type that will act as singleton holder 
+ *  1. The @e typedef way: With a typedef, you create a new type that will act as singleton holder
  *     for class @c Foo.  To access the singleton, you must now use the @c instance() method on
  *     that new type:
  *
@@ -54,13 +54,13 @@
  *
  *  2. The @e function way (@b prefered/b>): you write a nice little function that returns a pointer
  *     to the singleton.  To access the singleton, you simple call that function:
- * 
+ *
  *  @code
  *  Foo* foo()
  *  {
  *      return lass::util::Singleton<Foo>::instance();
  *  }
- *  
+ *
  *  foo()->bar(fun);
  *  @endcode
  *
@@ -72,14 +72,14 @@
  *    will return that same pointer.  This is the way how to control the order of construction:
  *    on first access.
  *
- *  - The order of destruction can be set by the @c DestructionPriority.  Singletons with a 
+ *  - The order of destruction can be set by the @c DestructionPriority.  Singletons with a
  *    smaller destruction priority will be destructed later than those with a higher destruction
  *    priority.  It's not specified in which order singletons with identical destruction priorities
  *    will be destructed (i.e. its not guaranteed for such singletons that the last one constructed
  *    will be the first to be destroyed).  You can set the destruction priority by the second
- *    template argument of @c Singleton: @c lass::util::Singleton<Foo,200> will specify the 
- *    singleton to have a destruction priority of 200.  The default destruction priority is set to 
- *    be 1000.  
+ *    template argument of @c Singleton: @c lass::util::Singleton<Foo,200> will specify the
+ *    singleton to have a destruction priority of 200.  The default destruction priority is set to
+ *    be 1000.
  *    @b warning: lass::io::proxyMan() is a proxy man that is needed for the implementation of
  *    all logging activities etc.  Its destruction priority is set to 0 and there should be
  *    no other singleton have a destruction priority lower or equal than this.
@@ -87,10 +87,10 @@
  *  - Requirements for the class @c Foo: Since it has to be constructed on the heap without any
  *    parameters in the neighbourhoud, it has to have a default constructor.
  *
- *  @b Reference: 
- *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns 
+ *  @b Reference:
+ *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns
  *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
- *  -# GAMMA E., HELM R., JOHNSON R. & VLISSIDES J. (1995), <i>Design Patters: Elements of 
+ *  -# GAMMA E., HELM R., JOHNSON R. & VLISSIDES J. (1995), <i>Design Patters: Elements of
  *     Reusable Object-Oriented Software</i>, Addison-Wesley.
  */
 
@@ -128,13 +128,13 @@ public:
 	typedef T TInstance;
 
 	Singleton();
-    virtual ~Singleton();
+	virtual ~Singleton();
 
-    static TInstance* LASS_CALL instance();
+	static TInstance* LASS_CALL instance();
 
 private:
 
-    static bool deadReference(bool iSetReferenceToDead = false);
+	static bool deadReference(bool iSetReferenceToDead = false);
 
 	ScopedPtr<TInstance> instance_;
 };

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -103,7 +103,7 @@ namespace lass
 
 
 		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&	operator*=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
+		std::complex<FNSampled8 >&  operator*=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
 		{
 			isfn.real() *= iN;
 			isfn.imag() *= iN;
@@ -112,7 +112,7 @@ namespace lass
 
 
 		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&	operator/=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
+		std::complex<FNSampled8 >&  operator/=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
 		{
 			isfn.real() /= iN;
 			isfn.imag() /= iN;
@@ -120,7 +120,7 @@ namespace lass
 		}
 
 		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&	operator+=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
+		std::complex<FNSampled8 >&  operator+=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
 		{
 			isfn.real() += iN;
 			isfn.imag() += iN;
@@ -129,14 +129,14 @@ namespace lass
 
 
 		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&	operator-=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
+		std::complex<FNSampled8 >&  operator-=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
 		{
 			isfn.real() -= iN;
 			isfn.imag() -= iN;
 			return isfn;
 		}
 
-		std::string	str(const FNSampled8& iObj)
+		std::string str(const FNSampled8& iObj)
 		{
 			std::string temp = "FNS8[";
 			int i;
@@ -191,48 +191,48 @@ namespace lass
 		}
 
 
-		/** produces a fuzzy number with a gaussian form.  Because the Gaussian distribution extends to 
-		*	infinity the alpha cut at zero actually represents the 3*sigma confidence interval.  This leads
-		*	to an error of only 0.3 %.  The mean is situated at the y-axis at 1.0 instead of 1/(stddev*sqrt(2*PI))
+		/** produces a fuzzy number with a gaussian form.  Because the Gaussian distribution extends to
+		*   infinity the alpha cut at zero actually represents the 3*sigma confidence interval.  This leads
+		*   to an error of only 0.3 %.  The mean is situated at the y-axis at 1.0 instead of 1/(stddev*sqrt(2*PI))
 
-			range CI 
-			sigma		0.6826895 
-			2*sigma		0.9544997 
-			3*sigma		0.9973002 
+			range CI
+			sigma       0.6826895
+			2*sigma     0.9544997
+			3*sigma     0.9973002
 		*/
 		void FNSampled8::makeGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation)
 		{
 			for (int i=0; i<4; ++i)
 			{
-				TBaseType	temp;
+				TBaseType   temp;
 				temp = num::sqrt( -((TBaseType)2.0/(TBaseType)num::log(2.7182818284590452353602874713527)) * num::log(std::max(static_cast<FNSampled8::TBaseType>(0.0015),(FNSampled8::alphaLevel_[i]))) );
 				alpha_[i].set(mean-temp*stddeviation,mean+temp*stddeviation);
 			}
 		}
 
 		/** constructs a gaussian which in the limit will have approximately the same uncertainty
-		*	as the probability counterpart
+		*   as the probability counterpart
 		*
 		*/
 		void FNSampled8::makeProbGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation)
 		{
 			for (int i=0; i<4; ++i)
 			{
-				TBaseType	temp;
+				TBaseType   temp;
 				temp = num::sqrt( -(TBaseType(2.0)/num::log(TBaseType(2.7182818284590452353602874713527))) * log(std::max(static_cast<FNSampled8::TBaseType>(0.0015),(pow(FNSampled8::alphaLevel_[i],static_cast<FNSampled8::TBaseType>(0.45))))) );
 				alpha_[i].set(mean-temp*stddeviation,mean+temp*stddeviation);
 			}
 		}
 
-		FNSampled8::TInterval FNSampled8::getSupport(util::CallTraits<TBaseType>::TParam iAlpha)	const
+		FNSampled8::TInterval FNSampled8::getSupport(util::CallTraits<TBaseType>::TParam iAlpha)    const
 		{
 			if ((iAlpha>TBaseType(1.0)) || (iAlpha<TBaseType(0.0)))
 				return TInterval::empty;
 
-			FNSampled8::TBaseType	prop;
+			FNSampled8::TBaseType   prop;
 
 			int i=0;
-			if (iAlpha>FNSampled8::alphaLevel_[1])	// i>0.33
+			if (iAlpha>FNSampled8::alphaLevel_[1])  // i>0.33
 			{
 				i = 1;
 				if (iAlpha>FNSampled8::alphaLevel_[2]) // i>0.66
@@ -243,7 +243,7 @@ namespace lass
 						if ( alphaLevel_[3] < 1.0 )
 						{
 							prop = iAlpha-FNSampled8::alphaLevel_[3] / (static_cast<FNSampled8::TBaseType>(1.0) - alphaLevel_[3]);
-							return TInterval(	alpha_[3].inf()+prop*(alpha_[3].mid()-alpha_[3].inf()),
+							return TInterval(   alpha_[3].inf()+prop*(alpha_[3].mid()-alpha_[3].inf()),
 											alpha_[3].sup()-prop*(alpha_[3].sup()-alpha_[3].mid()));
 						}
 						else
@@ -255,7 +255,7 @@ namespace lass
 
 			prop = (iAlpha-FNSampled8::alphaLevel_[i] ) / ( alphaLevel_[i+1] - alphaLevel_[i]);
 
-			return TInterval(	alpha_[i].inf()+prop*(alpha_[i+1].inf()-alpha_[i].inf()),
+			return TInterval(   alpha_[i].inf()+prop*(alpha_[i+1].inf()-alpha_[i].inf()),
 								alpha_[i].sup()-prop*(alpha_[i].sup()-alpha_[i+1].sup()));
 		}
 
@@ -263,11 +263,11 @@ namespace lass
 		/**
 		* @bug [VALIDATE] Needs to be checked if this is correct!
 		*/
-		FNSampled8::TBaseType	FNSampled8::getMembership(util::CallTraits<TBaseType>::TParam iX) const
+		FNSampled8::TBaseType   FNSampled8::getMembership(util::CallTraits<TBaseType>::TParam iX) const
 		{
 			if ((iX>=alpha_[0].sup()) || (iX<=alpha_[0].inf()))
 				return 0.0;
-			
+
 			int i=0;
 			if (alpha_[1].contains(iX))
 			{
@@ -294,25 +294,25 @@ namespace lass
 				return alphaLevel_[i] + prop * ( alphaLevel_[i+1] - alphaLevel_[i]) / ( alpha_[i+1].inf() - alpha_[i].inf() );
 			}
 			else
-			{	// right
+			{   // right
 				prop = alpha_[i].sup() - iX;
 				return alphaLevel_[i] + prop * ( alphaLevel_[i+1] - alphaLevel_[i]) / ( alpha_[i].sup() - alpha_[i+1].sup() );
 			}
 		}
 
 
-		/** @warning This value is dependent on the discretisation step which may yield counterintuitive results! 
+		/** @warning This value is dependent on the discretisation step which may yield counterintuitive results!
 		*/
-		FNSampled8::TBaseType	FNSampled8::getEntropy() const
+		FNSampled8::TBaseType   FNSampled8::getEntropy() const
 		{
 			return getNonspecificity()+getDiscord();
 		}
 
-		/** Returns the differential shannon entropy, before that the curve is normalized to a probability distribution 
-		*	to make a valid comparison possible.  The same discretisation of the entropy is used.  However now the 
-		*	integral is discretised and not the possibility curve.
+		/** Returns the differential shannon entropy, before that the curve is normalized to a probability distribution
+		*   to make a valid comparison possible.  The same discretisation of the entropy is used.  However now the
+		*   integral is discretised and not the possibility curve.
 		*/
-		FNSampled8::TBaseType	FNSampled8::getDifferentialEntropy() const
+		FNSampled8::TBaseType   FNSampled8::getDifferentialEntropy() const
 		{
 			int i;
 			TBaseType diffentropy = 0.0;
@@ -334,25 +334,25 @@ namespace lass
 				if ( p>0.0)
 					diffentropy += static_cast<TBaseType>(p * log(p));
 			}
-			diffentropy *= dx;		
+			diffentropy *= dx;
 
 			return diffentropy;
 		}
 
 
 		/** Nonspecificity is only defined on discrete sets.  So the continu set is first converted
-		*	to a discrete one by equidistant sampling of the domain and not the image because that
-		*	would yield the same value of the nonspecificity for all the fuzzy numbers.
+		*   to a discrete one by equidistant sampling of the domain and not the image because that
+		*   would yield the same value of the nonspecificity for all the fuzzy numbers.
 		*/
-		FNSampled8::TBaseType	FNSampled8::getNonspecificity() const
+		FNSampled8::TBaseType   FNSampled8::getNonspecificity() const
 		{
-			std::vector<FNSampled8::TBaseType>	poss;
+			std::vector<FNSampled8::TBaseType>  poss;
 			int i;
 			for (i=0;i<DISCRETISATION_OF_ENTROPY;++i)
 				poss.push_back(static_cast<FNSampled8::TBaseType>(getMembership(alpha_[0].inf()+alpha_[0].diam()*(((TBaseType)i)+static_cast<TBaseType>(0.5))/((TBaseType)DISCRETISATION_OF_ENTROPY) )));
 			std::sort(poss.begin(),poss.end());
-			
-			FNSampled8::TBaseType	temp=0.0;
+
+			FNSampled8::TBaseType   temp=0.0;
 			if (poss.front()>=1.0)
 				for (i=2;i<DISCRETISATION_OF_ENTROPY;++i)
 					temp += poss[i-1]*static_cast<FNSampled8::TBaseType>(log((FNSampled8::TBaseType)i/(FNSampled8::TBaseType)(i-1)))/static_cast<FNSampled8::TBaseType>(log(2.0));
@@ -363,15 +363,15 @@ namespace lass
 			return temp;
 		}
 
-		FNSampled8::TBaseType	FNSampled8::getDiscord() const
+		FNSampled8::TBaseType   FNSampled8::getDiscord() const
 		{
-			std::vector<FNSampled8::TBaseType>	poss;
+			std::vector<FNSampled8::TBaseType>  poss;
 			int i;
 			for (i=0;i<DISCRETISATION_OF_ENTROPY;++i)
 				poss.push_back(getMembership(alpha_[0].inf()+alpha_[0].diam()*(((TBaseType)i)+static_cast<TBaseType>(0.5))/((TBaseType)DISCRETISATION_OF_ENTROPY) ));
 			std::sort(poss.begin(),poss.end());
-			
-			FNSampled8::TBaseType	temp=0.0;
+
+			FNSampled8::TBaseType   temp=0.0;
 			for (i=1;i<DISCRETISATION_OF_ENTROPY;++i)
 			{
 				double t=0.0;
@@ -421,32 +421,32 @@ namespace lass
 		}
 
 
-		FNSampled8::TBaseType	FNSampled8::defuzzifyCentroid() const
+		FNSampled8::TBaseType   FNSampled8::defuzzifyCentroid() const
 		{
 			FNSampled8::TBaseType f = alphaLevel_[0] + static_cast<FNSampled8::TBaseType>(1.0 + 2.0 * ( alphaLevel_[1] + alphaLevel_[2] + alphaLevel_[3]));
 			f = static_cast<FNSampled8::TBaseType>(1.0)/f;
-			return  f *(	  ( alphaLevel_[0] +	alphaLevel_[1] ) * alpha_[0].mid()
+			return  f *(      ( alphaLevel_[0] +    alphaLevel_[1] ) * alpha_[0].mid()
 							+ ( alphaLevel_[1] + alphaLevel_[2] ) * alpha_[1].mid()
 							+ ( alphaLevel_[2] + alphaLevel_[3] ) * alpha_[2].mid()
-							+ ( alphaLevel_[3] + static_cast<FNSampled8::TBaseType>(1.0) )			* alpha_[3].mid() );
+							+ ( alphaLevel_[3] + static_cast<FNSampled8::TBaseType>(1.0) )          * alpha_[3].mid() );
 		}
 
-		FNSampled8::TBaseType	FNSampled8::defuzzifyMaxMembership() const
+		FNSampled8::TBaseType   FNSampled8::defuzzifyMaxMembership() const
 		{
 			return alpha_[3].mid();
 		}
 
-		FNSampled8	FNSampled8::operator-() const
+		FNSampled8  FNSampled8::operator-() const
 		{
 			return FNSampled8(-alpha_[0],-alpha_[1],-alpha_[2],-alpha_[3]);
 		}
 
-		bool FNSampled8::operator<(const FNSampled8& sfn)	const
+		bool FNSampled8::operator<(const FNSampled8& sfn)   const
 		{
 			return alpha_[0] < sfn.alpha_[0];
 		}
 
-		bool FNSampled8::operator==(const FNSampled8& sfn)	const
+		bool FNSampled8::operator==(const FNSampled8& sfn)  const
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -474,23 +474,23 @@ namespace lass
 		}
 
 
-		bool FNSampled8::operator!=(const FNSampled8& sfn)	const
+		bool FNSampled8::operator!=(const FNSampled8& sfn)  const
 		{
 			return !(*this==sfn);
 		}
 
-		bool FNSampled8::operator<=(const FNSampled8& sfn)	const
+		bool FNSampled8::operator<=(const FNSampled8& sfn)  const
 		{
 			return (*this<sfn) || (*this==sfn);
 		}
 
 
-		bool FNSampled8::operator>(const FNSampled8& sfn)	const
+		bool FNSampled8::operator>(const FNSampled8& sfn)   const
 		{
 			return alpha_[0] > sfn.alpha_[0];
 		}
 
-		bool FNSampled8::operator>=(const FNSampled8& sfn)	const
+		bool FNSampled8::operator>=(const FNSampled8& sfn)  const
 		{
 			return (*this>sfn) || (*this==sfn);
 		}
@@ -529,43 +529,43 @@ namespace lass
 		{
 			FNSampled8::TBaseType f = alphaLevel_[0] + TBaseType(1.0) + TBaseType(2.0) * ( alphaLevel_[1] + alphaLevel_[2] + alphaLevel_[3]);
 			f = TBaseType(1.0)/f;
-			return	f *  (		( alphaLevel_[0] + alphaLevel_[1] ) * alpha_[0].fe(sfn.alpha_[0])
-							+	( alphaLevel_[1] + alphaLevel_[2] ) * alpha_[1].fe(sfn.alpha_[1])
-							+	( alphaLevel_[2] + alphaLevel_[3] ) * alpha_[2].fe(sfn.alpha_[2])
-							+	( alphaLevel_[3] + TBaseType(1.0) )			  * alpha_[3].fe(sfn.alpha_[3]) );
+			return  f *  (      ( alphaLevel_[0] + alphaLevel_[1] ) * alpha_[0].fe(sfn.alpha_[0])
+							+   ( alphaLevel_[1] + alphaLevel_[2] ) * alpha_[1].fe(sfn.alpha_[1])
+							+   ( alphaLevel_[2] + alphaLevel_[3] ) * alpha_[2].fe(sfn.alpha_[2])
+							+   ( alphaLevel_[3] + TBaseType(1.0) )           * alpha_[3].fe(sfn.alpha_[3]) );
 		}
 
 		FNSampled8::TBaseType FNSampled8::fne(const FNSampled8& sfn) const
 		{
-			return	static_cast<FNSampled8::TBaseType>(1.0)-fe(sfn);
+			return  static_cast<FNSampled8::TBaseType>(1.0)-fe(sfn);
 		}
 
 		FNSampled8::TBaseType FNSampled8::fg(const FNSampled8& sfn) const
 		{
 			FNSampled8::TBaseType f = alphaLevel_[0] + TBaseType(1.0) + TBaseType(2.0) * ( alphaLevel_[1] + alphaLevel_[2] + alphaLevel_[3]);
 			f = TBaseType(1.0)/f;
-			return	f	* (		( alphaLevel_[0] + alphaLevel_[1] ) * alpha_[0].fg(sfn.alpha_[0])
+			return  f   * (     ( alphaLevel_[0] + alphaLevel_[1] ) * alpha_[0].fg(sfn.alpha_[0])
 							+   ( alphaLevel_[1] + alphaLevel_[2] ) * alpha_[1].fg(sfn.alpha_[1])
-							+	( alphaLevel_[2] + alphaLevel_[3] ) * alpha_[2].fg(sfn.alpha_[2])
-							+	( alphaLevel_[3] + TBaseType(1.0) )			  * alpha_[3].fg(sfn.alpha_[3]) );
+							+   ( alphaLevel_[2] + alphaLevel_[3] ) * alpha_[2].fg(sfn.alpha_[2])
+							+   ( alphaLevel_[3] + TBaseType(1.0) )           * alpha_[3].fg(sfn.alpha_[3]) );
 		}
 
 		FNSampled8::TBaseType FNSampled8::fge(const FNSampled8& sfn) const
 		{
-			return	std::max(fg(sfn),fe(sfn));
+			return  std::max(fg(sfn),fe(sfn));
 		}
 
 		FNSampled8::TBaseType FNSampled8::fl(const FNSampled8& sfn) const
 		{
-			return	static_cast<FNSampled8::TBaseType>(1.0)-fg(sfn);
+			return  static_cast<FNSampled8::TBaseType>(1.0)-fg(sfn);
 		}
 
 		FNSampled8::TBaseType FNSampled8::fle(const FNSampled8& sfn) const
 		{
-			return	std::max(fl(sfn),fe(sfn));
+			return  std::max(fl(sfn),fe(sfn));
 		}
 
-		FNSampled8&	FNSampled8::operator+=(const FNSampled8& sfn)
+		FNSampled8& FNSampled8::operator+=(const FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -573,7 +573,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator-=(const FNSampled8& sfn)
+		FNSampled8& FNSampled8::operator-=(const FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -581,7 +581,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator*=(const FNSampled8& sfn)
+		FNSampled8& FNSampled8::operator*=(const FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -589,7 +589,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator/=(const FNSampled8& sfn)
+		FNSampled8& FNSampled8::operator/=(const FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -597,7 +597,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator+=(util::CallTraits<TBaseType>::TParam n)
+		FNSampled8& FNSampled8::operator+=(util::CallTraits<TBaseType>::TParam n)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -605,7 +605,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator-=(util::CallTraits<TBaseType>::TParam n)
+		FNSampled8& FNSampled8::operator-=(util::CallTraits<TBaseType>::TParam n)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -613,7 +613,7 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator*=(util::CallTraits<TBaseType>::TParam n)
+		FNSampled8& FNSampled8::operator*=(util::CallTraits<TBaseType>::TParam n)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -621,44 +621,44 @@ namespace lass
 			return *this;
 		}
 
-		FNSampled8&	FNSampled8::operator/=(util::CallTraits<TBaseType>::TParam n)
+		FNSampled8& FNSampled8::operator/=(util::CallTraits<TBaseType>::TParam n)
 		{
 			int i;
-			TBaseType		t = static_cast<TBaseType>(1.0)/n;
+			TBaseType       t = static_cast<TBaseType>(1.0)/n;
 			for (i=3;i>=0;--i)
 				alpha_[i] *= t;
 			return *this;
 		}
 
-		void inpexp(FNSampled8&	sfn)
+		void inpexp(FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
 				inpexp(sfn.alpha_[i]);
 		}
 
-		void inplog(FNSampled8&	sfn)
+		void inplog(FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
 				inplog(sfn.alpha_[i]);
 		}
 
-		void inpsqr(FNSampled8&	sfn)
+		void inpsqr(FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
 				inpsqr(sfn.alpha_[i]);
 		}
 
-		void inpsqrt(FNSampled8&	sfn)
+		void inpsqrt(FNSampled8&    sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
 				inpsqrt(sfn.alpha_[i]);
 		}
 
-		void inpinv(FNSampled8&	sfn)
+		void inpinv(FNSampled8& sfn)
 		{
 			int i;
 			for (i=3;i>=0;--i)
@@ -699,59 +699,59 @@ namespace lass
 		}
 
 
-		FNSampled8	operator+(const FNSampled8& sfn1,const FNSampled8& sfn2)
+		FNSampled8  operator+(const FNSampled8& sfn1,const FNSampled8& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp += sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator-(const FNSampled8& sfn1,const FNSampled8& sfn2)
+		FNSampled8  operator-(const FNSampled8& sfn1,const FNSampled8& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp -= sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator*(const FNSampled8& sfn1,const FNSampled8& sfn2)
+		FNSampled8  operator*(const FNSampled8& sfn1,const FNSampled8& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp *= sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator/(const FNSampled8& sfn1,const FNSampled8& sfn2)
+		FNSampled8  operator/(const FNSampled8& sfn1,const FNSampled8& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp /= sfn2;
 			return tmp;
 		}
 
 
-		FNSampled8	operator+(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
+		FNSampled8  operator+(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp += sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator-(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
+		FNSampled8  operator-(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp -= sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator*(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
+		FNSampled8  operator*(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp *= sfn2;
 			return tmp;
 		}
 
-		FNSampled8	operator/(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
+		FNSampled8  operator/(const FNSampled8& sfn1,const FNSampled8::TBaseType& sfn2)
 		{
-			FNSampled8	tmp = sfn1;
+			FNSampled8  tmp = sfn1;
 			tmp /= sfn2;
 			return tmp;
 		}
@@ -763,7 +763,7 @@ namespace lass
 			int i,j;
 			int F[4] = {0,0,1,1};
 			int S[4] = {0,1,0,1};
-	 
+
 			for (j=0;j<4;++j)
 			{
 				outEvents.push_back( sfn1.alpha_[j].inf() );
@@ -797,56 +797,56 @@ namespace lass
 			}
 			std::sort( outEvents.begin(), outEvents.end() );
 		}
- 
-		
+
+
 		// in the global namespace
 		/* functions are provided for convenience, but should be used with care as they require a lot of memory traffic */
-		FNSampled8	log(const FNSampled8& sfn)
+		FNSampled8  log(const FNSampled8& sfn)
 		{
-			FNSampled8	temp=sfn;
+			FNSampled8  temp=sfn;
 			inplog(temp);
 			return temp;
 		}
 
-		FNSampled8	exp(const FNSampled8& sfn)
+		FNSampled8  exp(const FNSampled8& sfn)
 		{
-			FNSampled8	temp=sfn;
+			FNSampled8  temp=sfn;
 			inpexp(temp);
 			return temp;
 		}
 
-		num::FNSampled8	sqr(const FNSampled8& sfn)
+		num::FNSampled8 sqr(const FNSampled8& sfn)
 		{
-			num::FNSampled8	temp=sfn;
+			num::FNSampled8 temp=sfn;
 			num::inpsqr(temp);
 			return temp;
 		}
 
-		FNSampled8	sqrt(const FNSampled8& sfn)
+		FNSampled8  sqrt(const FNSampled8& sfn)
 		{
-			FNSampled8	temp=sfn;
+			FNSampled8  temp=sfn;
 			inpsqrt(temp);
 			return temp;
 		}
 
- 
-		FNSampled8	inv(const FNSampled8& sfn)
+
+		FNSampled8  inv(const FNSampled8& sfn)
 		{
-			num::FNSampled8	temp(sfn);
+			num::FNSampled8 temp(sfn);
 			num::inpinv(temp);
 			return temp;
 		}
 
 		FNSampled8 norm(const std::complex<FNSampled8 >& iComplSFN)
 		{
-			std::complex<FNSampled8 >	temp;
+			std::complex<FNSampled8 >   temp;
 			temp.real(iComplSFN.real());
 			temp.imag(iComplSFN.imag());
 			num::inpnorm( temp );
 			return temp.real();
 		}
 
-		std::string	FNSampled8::pyStr(void)
+		std::string FNSampled8::pyStr(void)
 		{
 			return str( *this );
 		}
@@ -871,12 +871,12 @@ namespace lass
 
 
 /*
-		std::string	PyFNSampled8::repr(void)
+		std::string PyFNSampled8::repr(void)
 		{
 			return str( value );
 		}
 
-		std::string	PyFNSampled8::pyStr(void)
+		std::string PyFNSampled8::pyStr(void)
 		{
 			return str( value );
 		}
@@ -893,8 +893,8 @@ namespace lass
 		}
 		PyObject* PyFNSampled8::pyMakeTriangular(PyObject *args)
 		{
-			std::vector<FNSampled8::TBaseType>	argVector;
-			PyObject*	pyTuplePtr;
+			std::vector<FNSampled8::TBaseType>  argVector;
+			PyObject*   pyTuplePtr;
 			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
 			if (!ok)
 				PyErr_BadArgument();
@@ -912,8 +912,8 @@ namespace lass
 		}
 		PyObject* PyFNSampled8::pyMakeGaussian(PyObject *args)
 		{
-			std::vector<FNSampled8::TBaseType>	argVector;
-			PyObject*	pyTuplePtr;
+			std::vector<FNSampled8::TBaseType>  argVector;
+			PyObject*   pyTuplePtr;
 			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
 			if (!ok)
 				PyErr_BadArgument();
@@ -931,8 +931,8 @@ namespace lass
 		}
 		PyObject* PyFNSampled8::pyMakeProbGaussian(PyObject *args)
 		{
-			std::vector<FNSampled8::TBaseType>	argVector;
-			PyObject*	pyTuplePtr;
+			std::vector<FNSampled8::TBaseType>  argVector;
+			PyObject*   pyTuplePtr;
 			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
 			if (!ok)
 				PyErr_BadArgument();
@@ -950,8 +950,8 @@ namespace lass
 		}
 		PyObject* PyFNSampled8::pyMakeTrapezoidal(PyObject *args)
 		{
-			std::vector<FNSampled8::TBaseType>	argVector;
-			PyObject*	pyTuplePtr;
+			std::vector<FNSampled8::TBaseType>  argVector;
+			PyObject*   pyTuplePtr;
 			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
 			if (!ok)
 				PyErr_BadArgument();

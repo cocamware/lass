@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -53,7 +53,7 @@ namespace lass
 						Py_DECREF(temp);
 					}
 				}
-                catch (const std::exception&)
+				catch (const std::exception&)
 				{
 				}
 				PyErr_Restore(type, value, traceback);
@@ -70,7 +70,7 @@ namespace lass
 				if (size != iExpectedSize)
 				{
 					std::ostringstream buffer;
-					buffer << "tuple/list is not of expected size " << iExpectedSize 
+					buffer << "tuple/list is not of expected size " << iExpectedSize
 						<< " (size is " << size << ")";
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return false;
@@ -104,13 +104,13 @@ namespace lass
 			}
 		}
 
-		template<class C> 
+		template<class C>
 		PyObject* pyBuildSimpleObject( const std::complex<C>& iV )
 		{
 			PyObject* newComplex = PyComplex_FromDoubles(iV.real(),iV.imag());
 			return newComplex;
 		}
-		template<class C1, class C2> 
+		template<class C1, class C2>
 		PyObject* pyBuildSimpleObject( const std::pair<C1, C2>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(2);
@@ -118,7 +118,7 @@ namespace lass
 			PyTuple_SetItem( newTuple, 1, pyBuildSimpleObject( iV.second ) );
 			return newTuple;
 		}
-		template<class C> 
+		template<class C>
 		PyObject* pyBuildSimpleObject( const std::vector<C>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(iV.size());
@@ -127,7 +127,7 @@ namespace lass
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
 			return newTuple;
 		}
-		template<class C> 
+		template<class C>
 		PyObject* pyBuildSimpleObject( const std::list<C>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(iV.size());
@@ -138,7 +138,7 @@ namespace lass
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( *it ) );
 			return newTuple;
 		}
-		template<class K, class V> 
+		template<class K, class V>
 		PyObject* pyBuildSimpleObject( const std::map<K,V>& iV )
 		{
 			PyObject* newDict = PyDict_New();
@@ -154,7 +154,7 @@ namespace lass
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
 			if (!PyComplex_Check( iValue ))
-			{	
+			{
 				impl::addMessageHeader("complex");
 				return 1;
 			}
@@ -185,19 +185,19 @@ namespace lass
 			return 0;
 		}
 
-		template<class C> 
+		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::vector<C>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
-		template<class C> 
+		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::list<C>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
-		template<class K,class D> 
+		template<class K,class D>
 		int pyGetSimpleObject( PyObject* iValue, std::map<K,D>& oV )
 		{
 			typedef std::map<K,D> TMap;
@@ -211,7 +211,7 @@ namespace lass
 			PyObject *pyKey, *pyData;
 			int pos = 0;
 
-			while (PyDict_Next(iValue, &pos, &pyKey, &pyData)) 
+			while (PyDict_Next(iValue, &pos, &pyKey, &pyData))
 			{
 				typename TMap::key_type cKey;
 				if (pyGetSimpleObject( pyKey , cKey ) != 0)

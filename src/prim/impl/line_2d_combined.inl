@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -44,8 +44,8 @@ namespace impl
  */
 template<typename T, class NP>
 Line2DCombined<T, NP>::Line2DCombined():
-    support_(),
-    direction_(),
+	support_(),
+	direction_(),
 	normal_(),
 	d_(TNumTraits::zero)
 {
@@ -63,12 +63,12 @@ Line2DCombined<T, NP>::Line2DCombined():
  */
 template<typename T, class NP>
 Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TPoint& iPoint):
-    support_(iSupport),
-    direction_(iPoint - iSupport)
+	support_(iSupport),
+	direction_(iPoint - iSupport)
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 	normal_ = direction_.perp();
-    d_ = -dot(normal_, iSupport.position());
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -81,12 +81,12 @@ Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TPoint& iPoi
  */
 template<typename T, class NP>
 Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TVector& iDirection):
-    support_(iSupport),
-    direction_(iDirection)
+	support_(iSupport),
+	direction_(iDirection)
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 	normal_ = direction_.perp();
-    d_ = -dot(normal_, iSupport.position());
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -99,7 +99,7 @@ Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TVector& iDi
  */
 template<typename T, class NP>
 Line2DCombined<T, NP>::Line2DCombined(const TVector& iNormal, const TPoint& iSupport):
-    support_(iSupport),
+	support_(iSupport),
 	normal_(iNormal)
 {
 	NP::normalize(normal_);
@@ -119,9 +119,9 @@ template<typename T, class NP>
 Line2DCombined<T, NP>::Line2DCombined(const TVector& iNormal, TParam iD):
 	support_(iNormal * (-iD / iNormal.squaredNorm())),
 	normal_(iNormal),
-    d_(iD)
+	d_(iD)
 {
-    NP::normalizeAndScale(normal_, d_);
+	NP::normalizeAndScale(normal_, d_);
 	direction_ = -normal_.perp();
 }
 
@@ -150,8 +150,8 @@ const typename Line2DCombined<T, NP>::TVector& Line2DCombined<T, NP>::direction(
 template<typename T, class NP>
 void Line2DCombined<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 {
-    oNormal = normal_;
-    oD = d_;
+	oNormal = normal_;
+	oD = d_;
 }
 
 
@@ -159,7 +159,7 @@ void Line2DCombined<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 template<typename T, class NP>
 const typename Line2DCombined<T, NP>::TVector& Line2DCombined<T, NP>::normal() const
 {
-    return normal_;
+	return normal_;
 }
 
 
@@ -167,7 +167,7 @@ const typename Line2DCombined<T, NP>::TVector& Line2DCombined<T, NP>::normal() c
 template<typename T, class NP>
 const typename Line2DCombined<T, NP>::TParam Line2DCombined<T, NP>::d() const
 {
-    return d_;
+	return d_;
 }
 
 
@@ -177,8 +177,8 @@ const typename Line2DCombined<T, NP>::TParam Line2DCombined<T, NP>::d() const
 template<typename T, class NP>
 const Side Line2DCombined<T, NP>::classify(const TPoint& iPoint) const
 {
-    const TValue eq = equation(iPoint);
-    return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+	const TValue eq = equation(iPoint);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
 }
 
 
@@ -186,10 +186,10 @@ const Side Line2DCombined<T, NP>::classify(const TPoint& iPoint) const
 /** Return value of point in equation.
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TValue 
-Line2DCombined<T, NP>::equation(const TPoint& iPoint) const                  
+const typename Line2DCombined<T, NP>::TValue
+Line2DCombined<T, NP>::equation(const TPoint& iPoint) const
 {
-    return dot(iPoint.position(), normal_) + d_;
+	return dot(iPoint.position(), normal_) + d_;
 }
 
 
@@ -198,10 +198,10 @@ Line2DCombined<T, NP>::equation(const TPoint& iPoint) const
  *  negative value means point is in the back.
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TValue 
+const typename Line2DCombined<T, NP>::TValue
 Line2DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
 {
-    return NP::divideByNorm(equation(iPoint), normal_);
+	return NP::divideByNorm(equation(iPoint), normal_);
 }
 
 
@@ -210,23 +210,23 @@ Line2DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
  *  iPoint == (almost) project(iPoint) + reject(iPoint)
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TVector 
+const typename Line2DCombined<T, NP>::TVector
 Line2DCombined<T, NP>::reject(const TPoint& iPoint) const
 {
-    return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
+	return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
 }
 
 
 
-/** return the part of iVector that is orthogonal to the line. 
+/** return the part of iVector that is orthogonal to the line.
  *  it's the vector that, if added to the PROJECTION of iVector, you get iVector again.
  *  iVector == (almost) project(iVector) + reject(iVector).
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TVector 
+const typename Line2DCombined<T, NP>::TVector
 Line2DCombined<T, NP>::reject(const TVector& iVector) const
 {
-    return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
+	return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
 }
 
 
@@ -234,7 +234,7 @@ Line2DCombined<T, NP>::reject(const TVector& iVector) const
 /** project a point orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TPoint 
+const typename Line2DCombined<T, NP>::TPoint
 Line2DCombined<T, NP>::project(const TPoint& iPoint) const
 {
 	return iPoint - reject(iPoint);
@@ -245,7 +245,7 @@ Line2DCombined<T, NP>::project(const TPoint& iPoint) const
 /** project a vector orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TVector 
+const typename Line2DCombined<T, NP>::TVector
 Line2DCombined<T, NP>::project(const TVector& iVector) const
 {
 	return iVector - reject(iVector);
@@ -256,7 +256,7 @@ Line2DCombined<T, NP>::project(const TVector& iVector) const
 /** reflect a point orthogonally into the line.
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TPoint 
+const typename Line2DCombined<T, NP>::TPoint
 Line2DCombined<T, NP>::reflect(const TPoint& iPoint) const
 {
 	return support_ + reflect(iPoint - support_);
@@ -267,7 +267,7 @@ Line2DCombined<T, NP>::reflect(const TPoint& iPoint) const
 /** reflect a vector orthogonally into the line
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TVector 
+const typename Line2DCombined<T, NP>::TVector
 Line2DCombined<T, NP>::reflect(const TVector& iVector) const
 {
 	return iVector - T(2) * reject(iVector);
@@ -278,7 +278,7 @@ Line2DCombined<T, NP>::reflect(const TVector& iVector) const
 /** return point by filling in the parametric equation: P(t) = S + t * U
  */
 template<typename T, class NP>
-const typename Line2DCombined<T, NP>::TPoint 
+const typename Line2DCombined<T, NP>::TPoint
 Line2DCombined<T, NP>::point(TParam iT) const
 {
 	return support_ + iT * direction_;
@@ -286,13 +286,13 @@ Line2DCombined<T, NP>::point(TParam iT) const
 
 
 
-/** return UV pair of parameters 
+/** return UV pair of parameters
  */
 template<typename T, class NP>
 const typename Line2DCombined<T, NP>::TValue
 Line2DCombined<T, NP>::t(const TPoint& iPoint) const
 {
-    return NP::divideBySquaredNorm(dot(direction_, iPoint - support_), direction_);
+	return NP::divideBySquaredNorm(dot(direction_, iPoint - support_), direction_);
 }
 
 
@@ -300,9 +300,9 @@ Line2DCombined<T, NP>::t(const TPoint& iPoint) const
 template <typename T, class NP>
 void Line2DCombined<T, NP>::flip()
 {
-    direction_ = -direction_;
-    normal_ = -normal_;
-    d_ = -d_;
+	direction_ = -direction_;
+	normal_ = -normal_;
+	d_ = -d_;
 }
 
 
@@ -312,7 +312,7 @@ void Line2DCombined<T, NP>::flip()
 template<typename T, class NP>
 const bool Line2DCombined<T, NP>::isValid() const
 {
-    return !normal_.isZero() && !direction_.isZero();
+	return !normal_.isZero() && !direction_.isZero();
 }
 
 
@@ -328,11 +328,11 @@ const bool Line2DCombined<T, NP>::isValid() const
 
 // --- free ----------------------------------------------------------------------------------------
 
-template<typename T, class NP> 
+template<typename T, class NP>
 std::ostream& operator<<(std::ostream& ioOStream, const Line2DCombined<T, NP>& iLine)
 {
 	LASS_ENFORCE(ioOStream) << "{S=" << iLine.support() << ", D=" << iLine.direction()
-        << ", N=" << iLine.normal() << ", d=" << iLine.d() << "}";
+		<< ", N=" << iLine.normal() << ", d=" << iLine.d() << "}";
 	return ioOStream;
 }
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -55,7 +55,7 @@ namespace impl
 template <typename T, class EquationPolicy, class NormalizingPolicy>
 struct Line2DImpl
 {
-    typedef Line2DCartesian<T, NormalizingPolicy> Type;
+	typedef Line2DCartesian<T, NormalizingPolicy> Type;
 };
 
 /** @internal
@@ -64,7 +64,7 @@ struct Line2DImpl
 template <typename T, class NormalizingPolicy>
 struct Line2DImpl<T, Parametric, NormalizingPolicy>
 {
-    typedef Line2DParametric<T, NormalizingPolicy> Type;
+	typedef Line2DParametric<T, NormalizingPolicy> Type;
 };
 
 /** @internal
@@ -73,7 +73,7 @@ struct Line2DImpl<T, Parametric, NormalizingPolicy>
 template <typename T, class NormalizingPolicy>
 struct Line2DImpl<T, Combined, NormalizingPolicy>
 {
-    typedef Line2DCombined<T, NormalizingPolicy> Type;
+	typedef Line2DCombined<T, NormalizingPolicy> Type;
 };
 
 
@@ -88,24 +88,24 @@ struct Line2DImpl<T, Combined, NormalizingPolicy>
 template <class EquationPolicy>
 struct Line2DImplBinder
 {
-    template <typename T, class NormalizingPolicy>
-    struct Bind
-    {
-        typedef Line2DCartesian<T, NormalizingPolicy> Type;
-    };
+	template <typename T, class NormalizingPolicy>
+	struct Bind
+	{
+		typedef Line2DCartesian<T, NormalizingPolicy> Type;
+	};
 };
 
 /** @internal
- *  ...  Furthermore we have the parametric implementation ... 
+ *  ...  Furthermore we have the parametric implementation ...
  */
 template <>
 struct Line2DImplBinder<Parametric>
 {
-    template <typename T, class NormalizingPolicy>
-    struct Bind
-    {
-        typedef Line2DParametric<T, NormalizingPolicy> Type;
-    };
+	template <typename T, class NormalizingPolicy>
+	struct Bind
+	{
+		typedef Line2DParametric<T, NormalizingPolicy> Type;
+	};
 };
 
 /** @internal
@@ -114,11 +114,11 @@ struct Line2DImplBinder<Parametric>
 template <>
 struct Line2DImplBinder<Combined>
 {
-    template <typename T, class NormalizingPolicy>
-    struct Bind
-    {
-        typedef Line2DCombined<T, NormalizingPolicy> Type;
-    };
+	template <typename T, class NormalizingPolicy>
+	struct Bind
+	{
+		typedef Line2DCombined<T, NormalizingPolicy> Type;
+	};
 };
 
 /** @internal
@@ -127,7 +127,7 @@ struct Line2DImplBinder<Combined>
 template <typename T, class EquationPolicy, class NormalizingPolicy>
 struct Line2DImpl
 {
-    typedef typename Line2DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
+	typedef typename Line2DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
 };
 
 #endif

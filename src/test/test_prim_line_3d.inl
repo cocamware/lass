@@ -1,27 +1,27 @@
-/**	@file
+/** @file
  *  @internal
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -41,61 +41,61 @@ namespace lass
 namespace test
 {
 
-template <typename T, class NormalizingPolicy> 
+template <typename T, class NormalizingPolicy>
 void testPrimLine3D()
 {
-    typedef prim::Line3D<T, NormalizingPolicy> TLine;
-    typedef prim::Point3D<T> TPoint;
-    typedef prim::Vector3D<T> TVector;
+	typedef prim::Line3D<T, NormalizingPolicy> TLine;
+	typedef prim::Point3D<T> TPoint;
+	typedef prim::Vector3D<T> TVector;
 
-    const T epsilon =T(LASS_TEST_PRIM_LINE_3D_EPSILON);
+	const T epsilon =T(LASS_TEST_PRIM_LINE_3D_EPSILON);
 
-    const bool isNormalized = meta::IsSameType<NormalizingPolicy, prim::Normalized>::value;
+	const bool isNormalized = meta::IsSameType<NormalizingPolicy, prim::Normalized>::value;
 
-    TLine line;
-    BOOST_CHECK(!line.isValid());
+	TLine line;
+	BOOST_CHECK(!line.isValid());
 
-    TPoint support(64, 37, 18);
-    TVector direction(15, 59, 67);
-    line = TLine(support, direction);
-    BOOST_CHECK(line.isValid());
-    BOOST_CHECK_EQUAL(line.support(), support);
-    BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	TPoint support(64, 37, 18);
+	TVector direction(15, 59, 67);
+	line = TLine(support, direction);
+	BOOST_CHECK(line.isValid());
+	BOOST_CHECK_EQUAL(line.support(), support);
+	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
-    support = TPoint(68, 46, 30);
-    line.support() = support;
-    BOOST_CHECK_EQUAL(line.support(), support);
-    BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	support = TPoint(68, 46, 30);
+	line.support() = support;
+	BOOST_CHECK_EQUAL(line.support(), support);
+	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
-    direction = TVector(38, 73, 68);
-    line.setDirection(direction);
-    BOOST_CHECK_EQUAL(line.support(), support);
-    BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	direction = TVector(38, 73, 68);
+	line.setDirection(direction);
+	BOOST_CHECK_EQUAL(line.support(), support);
+	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
-    TPoint lookAt(86, 15, 69);
-    line = TLine(support, lookAt);
-    BOOST_CHECK_EQUAL(line.support(), support);
-    BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	TPoint lookAt(86, 15, 69);
+	line = TLine(support, lookAt);
+	BOOST_CHECK_EQUAL(line.support(), support);
+	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
-    lookAt = TPoint(24, 93, 78);
-    line.lookAt(lookAt);
-    BOOST_CHECK_EQUAL(line.support(), support);
-    BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	lookAt = TPoint(24, 93, 78);
+	line.lookAt(lookAt);
+	BOOST_CHECK_EQUAL(line.support(), support);
+	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
-    TPoint p(83, 74, 38);
-    TPoint v(36, 91, 23);
-    LASS_CLOSE_VECTOR(line.project(p) + line.reject(p), p, 100 * epsilon);
-    LASS_CLOSE_VECTOR(line.project(v) + line.reject(v), v, 100 * epsilon);
-    LASS_CLOSE_VECTOR(line.reflect(line.reflect(p)), p, 100 * epsilon);
-    LASS_CLOSE_VECTOR(line.reflect(line.reflect(v)), v, 100 * epsilon);
+	TPoint p(83, 74, 38);
+	TPoint v(36, 91, 23);
+	LASS_CLOSE_VECTOR(line.project(p) + line.reject(p), p, 100 * epsilon);
+	LASS_CLOSE_VECTOR(line.project(v) + line.reject(v), v, 100 * epsilon);
+	LASS_CLOSE_VECTOR(line.reflect(line.reflect(p)), p, 100 * epsilon);
+	LASS_CLOSE_VECTOR(line.reflect(line.reflect(v)), v, 100 * epsilon);
 
-    BOOST_CHECK_EQUAL(line.point(T(0)), line.support());
-    BOOST_CHECK_EQUAL(line.point(T(1)), line.support() + line.direction()); 
-    BOOST_CHECK_EQUAL(line.point(T(-1)), line.support() - line.direction()); 
-    BOOST_CHECK_EQUAL(line.t(line.support()), T(0));
-    BOOST_CHECK_CLOSE(line.t(line.support() + line.direction()), T(1), 100 * epsilon);
-    BOOST_CHECK_CLOSE(line.t(line.support() - line.direction()), T(-1), 100 * epsilon);
-    LASS_CLOSE_VECTOR(line.project(p), line.point(line.t(p)), 100 * epsilon);
+	BOOST_CHECK_EQUAL(line.point(T(0)), line.support());
+	BOOST_CHECK_EQUAL(line.point(T(1)), line.support() + line.direction());
+	BOOST_CHECK_EQUAL(line.point(T(-1)), line.support() - line.direction());
+	BOOST_CHECK_EQUAL(line.t(line.support()), T(0));
+	BOOST_CHECK_CLOSE(line.t(line.support() + line.direction()), T(1), 100 * epsilon);
+	BOOST_CHECK_CLOSE(line.t(line.support() - line.direction()), T(-1), 100 * epsilon);
+	LASS_CLOSE_VECTOR(line.project(p), line.point(line.t(p)), 100 * epsilon);
 }
 
 }

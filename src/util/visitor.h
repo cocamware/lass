@@ -1,50 +1,50 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** @defgroup VisitorPattern Visitor
  *  @brief support for visitor pattern
  *  @author Bram de Greve
- *  @author (original code: Andrei Alexandrescu, 2001) 
+ *  @author (original code: Andrei Alexandrescu, 2001)
  *  @date 2004
  *
  *  This module is an implementation of the acyclic visitor pattern as described by Alexandrescu [1].
- *  It uses RTTI to visit all elements (what means some slow down on performance), but has the 
+ *  It uses RTTI to visit all elements (what means some slow down on performance), but has the
  *  benefit of a very low dependency between the visitor and the visited hierarchy.
  *
  *  @paroriginal code by Andrei Alexandrescu:
- *		<i>The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *		This code (Loki) accompanies the book:\n
- *		Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied". 
- *		Copyright (c) 2001. Addison-Wesley.\n
- *		Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is 
- *		hereby granted without fee, provided that the above copyright notice appear in all copies and 
- *		that both that copyright notice and this permission notice appear in supporting documentation.\n
- *		The author or Addison-Wesley Longman make no representations about the suitability of this 
- *		software (Loki) for any purpose. It is provided "as is" without express or implied warranty.\n</i>
+ *      <i>The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
+ *      This code (Loki) accompanies the book:\n
+ *      Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
+ *      Copyright (c) 2001. Addison-Wesley.\n
+ *      Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
+ *      hereby granted without fee, provided that the above copyright notice appear in all copies and
+ *      that both that copyright notice and this permission notice appear in supporting documentation.\n
+ *      The author or Addison-Wesley Longman make no representations about the suitability of this
+ *      software (Loki) for any purpose. It is provided "as is" without express or implied warranty.\n</i>
  *
- *	@section documentation
+ *  @section documentation
  *
  *  To use the visitor pattern, you go as following.  First, you must distinguish between the
  *  @e visited hierarchy and the @e visitor hierarchy.  Let's start what must be done with the
@@ -52,66 +52,66 @@
  *
  *  @subsection visitables
  *
- *  Suppose, we have some classes @c Foo and @c Bar to be visited, and both are are derived of 
+ *  Suppose, we have some classes @c Foo and @c Bar to be visited, and both are are derived of
  *  @c Spam.  You must derived @c Spam of VisitableBase, and invoke the macro
  *  LASS_UTIL_ACCEPT_VISITOR in the private part of each class of the hierarchy.
- * 
+ *
  *  @code
  *  class Spam: public lass::util::VisitableBase<>
  *  {
- *	private:
- *		LASS_UTIL_ACCEPT_VISITOR
+ *  private:
+ *      LASS_UTIL_ACCEPT_VISITOR
  *  };
  *
  *  class Foo: public Spam
  *  {
- *	private:
- *		LASS_UTIL_ACCEPT_VISITOR
+ *  private:
+ *      LASS_UTIL_ACCEPT_VISITOR
  *  };
  *
  *  class Bar: public Spam
  *  {
- *	private:
- *		LASS_UTIL_ACCEPT_VISITOR
+ *  private:
+ *      LASS_UTIL_ACCEPT_VISITOR
  *  };
  *  @endcode
  *
  *  that's easy isn't it?  LASS_UTIL_ACCEPT_VISITOR implements in each derived class the accept function
  *  that is needed to switch the visitor over the different visitables.  All it does is passing the
- *  call to the VisitableBase, but it's crucial for the pattern.  Instead of using 
+ *  call to the VisitableBase, but it's crucial for the pattern.  Instead of using
  *  LASS_UTIL_ACCEPT_VISITOR, you can also write your own acceptor if you want something fancier,
  *  e.g. to iterate over a list of child objects.  This acceptor should be called @c doAccept ...
  *
  *  @code
  *  class List: public Spam
  *  {
- *	public:
- *		void addChild(Spam* iChild): children_.push_back(iChild) {}
- *	private:
+ *  public:
+ *      void addChild(Spam* iChild): children_.push_back(iChild) {}
+ *  private:
  *      virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)
- *		{
- *			for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
- *			{
- *				(*i)->accept(iVisitor);
- *			}
- *			return doAcceptImpl(*this, iVisitor);
- *		}
+ *      {
+ *          for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
+ *          {
+ *              (*i)->accept(iVisitor);
+ *          }
+ *          return doAcceptImpl(*this, iVisitor);
+ *      }
  *
- *		typedef std::list<Spam*> TChildren;
- *		TChildren children_;
- *	};
+ *      typedef std::list<Spam*> TChildren;
+ *      TChildren children_;
+ *  };
  *  @endcode
  *
- *  if @c doAcceptImpl doesn't know how to accept the visitor (or the visitor doesn't know how to 
- *  visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is called.  
- *  @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default the 
- *  policy VisitNonStrict is used, what means the call is silently ignored and you can move on with 
- *  the visit. Another one is VisitStrict which will throw an exception on every unknown visit.  
+ *  if @c doAcceptImpl doesn't know how to accept the visitor (or the visitor doesn't know how to
+ *  visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is called.
+ *  @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default the
+ *  policy VisitNonStrict is used, what means the call is silently ignored and you can move on with
+ *  the visit. Another one is VisitStrict which will throw an exception on every unknown visit.
  *  What you want is your choice, and you can always write your own policy.
  *
  *  What about TVisitReturn?  We didn't talk about that one yet, did we?  Well, by default this will
- *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits 
- *  your needs, you could make it return something interesting.  That's when you can use 
+ *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits
+ *  your needs, you could make it return something interesting.  That's when you can use
  *  TVisitReturn.
  *
  *  @subsection visitors
@@ -122,13 +122,13 @@
  *
  *  @code
  *  class MyVisitor:
- *		public lass::util::VisitorBase<>,
- *		public lass::util::Visitor<Foo>,
- *		public lass::util::Visitor<Bar>
- *	{
+ *      public lass::util::VisitorBase<>,
+ *      public lass::util::Visitor<Foo>,
+ *      public lass::util::Visitor<Bar>
+ *  {
  *  private:
- *		virtual void doVisit(Foo& iFoo) { ... }
- *		virtual void doVisit(Bar& iBar) { ... }
+ *      virtual void doVisit(Foo& iFoo) { ... }
+ *      virtual void doVisit(Bar& iBar) { ... }
  *  };
  *  @endcode
  *
@@ -147,21 +147,21 @@
  *
  *  @code
  *  class Counter:
- *		public lass::util::VisitorBase<>,
- *		public lass::util::Visitor<Spam>
- *	{
+ *      public lass::util::VisitorBase<>,
+ *      public lass::util::Visitor<Spam>
+ *  {
  *  public:
  *      int count() const { return count_; }
  *  private:
- *		virtual void doVisit(Spam& iSpam) { ++count_; }
- *		int count_;
+ *      virtual void doVisit(Spam& iSpam) { ++count_; }
+ *      int count_;
  *  };
  *  @endcode.
  *
  *  @section calling
  *
  *  So, how do you visit a hierarchy?  Well, we didn't really tell yet, but it's very simple:
- *  
+ *
  *  @code
  *  visitable.accept(visitor);
  *  @endcode
@@ -171,7 +171,7 @@
  *
  *  @code
  *  List list;
- *	Foo foo;
+ *  Foo foo;
  *  list.addChild(&foo);
  *  Bar bar;
  *  list.addChild(&bar);
@@ -186,22 +186,22 @@
  *
  *  @code
  *  class Counter:
- *		public lass::util::VisitorBase<>,
- *		public lass::util::Visitor<Spam>
- *	{
+ *      public lass::util::VisitorBase<>,
+ *      public lass::util::Visitor<Spam>
+ *  {
  *  public:
- *		int operator()(Spam& iSpam)
- *		{
- *			count_ = 0;
- *			iSpam.accept(*this);
- *			return count_;
- *		}
+ *      int operator()(Spam& iSpam)
+ *      {
+ *          count_ = 0;
+ *          iSpam.accept(*this);
+ *          return count_;
+ *      }
  *  private:
- *		virtual void doVisit(Spam& iSpam) { ++count_; }
- *		int count_;
+ *      virtual void doVisit(Spam& iSpam) { ++count_; }
+ *      int count_;
  *  };
  *
- *	Counter counter;
+ *  Counter counter;
  *  std::cout << counter(list);
  *  @endcode.
  */
@@ -230,7 +230,7 @@ public:
 /** @ingroup VisitorPattern
  *  @brief a mix-in to provides a visitor capabilities to visit a class
  */
-template 
+template
 <
 	class VisitableType,
 	typename VisitReturnType = void
@@ -263,7 +263,7 @@ template
 <
 	class VisitableType,
 	typename VisitReturnType
->	
+>
 struct LASS_DLL_EXPORT VisitNonStrict
 {
 	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
@@ -283,7 +283,7 @@ template
 <
 	class VisitableType,
 	typename VisitReturnType
->	
+>
 struct LASS_DLL_EXPORT VisitStrict
 {
 	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -29,27 +29,27 @@
  *  @brief a wrapper around a std::map to translate keys in values and back.
  *  @author [Bramz]
  *
- *  This utility class has been written for the purpose of translating enumeration values to 
- *  strings.  Enumerations are a handy concept for the programmer to enumerate different options, 
- *  cases.  However, they only have names in code.  For the compiler these are just numbers, and if 
- *  you want to use these enumerations in your user interface you again stumble on the fact that 
+ *  This utility class has been written for the purpose of translating enumeration values to
+ *  strings.  Enumerations are a handy concept for the programmer to enumerate different options,
+ *  cases.  However, they only have names in code.  For the compiler these are just numbers, and if
+ *  you want to use these enumerations in your user interface you again stumble on the fact that
  *  these are nothing but fancy numbers.
  *
- *  This dictionary has been made to make it possible to translate these numbers to text.  Typically 
+ *  This dictionary has been made to make it possible to translate these numbers to text.  Typically
  *  you'd set up a dictionary that translates each enumeration to a string, and then you use this
  *  dictionary as an interface between your code and your user interface.  It is also possible to set
- *  a default key and value that must be returned in no match can be found during the lookup.  This 
+ *  a default key and value that must be returned in no match can be found during the lookup.  This
  *  default could indicate for an invalid state.
  *
  *  @code
  *  #include <lass/util/dictionary.h>
  *
- *  enum FooBar 
- *  { 
- *		fbInvalid, 
- *		fbEggs, 
- *		fbSpam, 
- *		fbHam 
+ *  enum FooBar
+ *  {
+ *      fbInvalid,
+ *      fbEggs,
+ *      fbSpam,
+ *      fbHam
  *  };
  *  typedef lass::util::Dictionary<std::string, FooBar> TFooBarDictionary;
  *
@@ -69,40 +69,40 @@
  *  std::string input;
  *  LASS_CIN >> input;
  *  fooBar = fooBarDictionary[input];
- *  if (fooBar == fbInvalid)  
+ *  if (fooBar == fbInvalid)
  *  {
- *		doSomethingSpecial();
+ *      doSomethingSpecial();
  *  }
  *  @endcode
  *
  *  To end this discussion, we have one more suggestion to make of this dictionary a singleton.
- *  You create a singleton accessor function and you init the dictionary by using 
+ *  You create a singleton accessor function and you init the dictionary by using
  *  LASS_EXECUTE_BEFORE_MAIN.
  *
  *  @code
  *  #include <lass/util/dictionary.h>
  *  #include <lass/util/singleton.h>
  *
- *  enum FooBar 
- *  { 
- *		fbInvalid, 
- *		fbEggs, 
- *		fbSpam, 
- *		fbHam 
+ *  enum FooBar
+ *  {
+ *      fbInvalid,
+ *      fbEggs,
+ *      fbSpam,
+ *      fbHam
  *  };
  *  typedef lass::util::Dictionary<std::string, FooBar> TFooBarDictionary;
  *
  *  TFooBarDictionary& fooBarDictionary()
  *  {
- *		return *lass::util::Singleton<TFooBarDictionary, 1>::instance();
+ *      return *lass::util::Singleton<TFooBarDictionary, 1>::instance();
  *  }
  *
  *  LASS_EXECUTE_BEFORE_MAIN
  *  (
- *		fooBarDictionary().add("eggs", fbEggs);
- *		fooBarDictionary().add("spam", fbSpam);
- *		fooBarDictionary().add("ham", fbHam);
- *		fooBarDictionary().setDefault("invalid", fbInvalid);
+ *      fooBarDictionary().add("eggs", fbEggs);
+ *      fooBarDictionary().add("spam", fbSpam);
+ *      fooBarDictionary().add("ham", fbHam);
+ *      fooBarDictionary().setDefault("invalid", fbInvalid);
  *  )
  *
  *  // ...

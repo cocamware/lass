@@ -1,34 +1,34 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @struct lass::prim::Vector3D
- *	@brief 3D Vector
- *	@author BdG
- *	@date 2003
+ *  @brief 3D Vector
+ *  @author BdG
+ *  @date 2003
  */
 
 
@@ -53,7 +53,7 @@ namespace prim
 template<typename T>
 struct Vector3D
 {
-    typedef Vector3D<T> TSelf;
+	typedef Vector3D<T> TSelf;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -61,7 +61,7 @@ struct Vector3D
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef num::NumTraits<T> TNumTraits;
 
-	enum { dimension = 3 };	/**< number of dimensions of vector */
+	enum { dimension = 3 }; /**< number of dimensions of vector */
 
 	template <typename U> struct Rebind
 	{
@@ -69,7 +69,7 @@ struct Vector3D
 	};
 
 
-	// public data 
+	// public data
 
 	TValue x;
 	TValue y;
@@ -81,7 +81,7 @@ struct Vector3D
 	Vector3D();
 	Vector3D(TParam iX, TParam iY, TParam iZ);
 	template <typename U> explicit Vector3D(const Vector3D<U>& iOther);
-    template <typename U> Vector3D(const U& iX, const U& iY, const U& iZ);
+	template <typename U> Vector3D(const U& iX, const U& iY, const U& iZ);
 
 	typename Vector3D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector3D::TReference operator[](unsigned iIndex) ;
@@ -106,11 +106,11 @@ struct Vector3D
 	const Vector3D<T> reciprocal() const;
 	const Vector3D<T> project(const Vector3D<T>& iB) const;
 	const Vector3D<T> reject(const Vector3D<T>& iB) const;
-    const Vector3D<T> transform(T (*iOperator)(T)) const;
+	const Vector3D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 
-    template <class RandomGenerator> static Vector3D<T> random(RandomGenerator& ioGenerator);
+	template <class RandomGenerator> static Vector3D<T> random(RandomGenerator& ioGenerator);
 };
 
 template<typename T> typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB);
@@ -137,12 +137,12 @@ template<typename T> Vector3D<T> operator*(typename Vector3D<T>::TParam iA, cons
 template<typename T> Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB);
 template<typename T> Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
-template<typename T, typename Char, typename Traits> 
+template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(
-    std::basic_ostream<Char, Traits>& ioOStream, const Vector3D<T>& iB);
-template<typename T, typename Char, typename Traits> 
+	std::basic_ostream<Char, Traits>& ioOStream, const Vector3D<T>& iB);
+template<typename T, typename Char, typename Traits>
 std::basic_istream<Char, Traits>& operator>>(
-    std::basic_istream<Char, Traits>& ioIStream, Vector3D<T>& iB);
+	std::basic_istream<Char, Traits>& ioIStream, Vector3D<T>& iB);
 
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector3D<T>& iB);
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -54,7 +54,7 @@ namespace prim
 
 template
 <
-	typename T, 
+	typename T,
 	class NormalizingPolicy = Normalized,
 	class ParameterPolicy = Bounded
 >
@@ -62,33 +62,33 @@ class Ray3D
 {
 public:
 
-    typedef Ray3D<T, NormalizingPolicy, ParameterPolicy> TSelf;
-    typedef NormalizingPolicy TNormalizingPolicy;
-    typedef ParameterPolicy TParameterPolicy;
+	typedef Ray3D<T, NormalizingPolicy, ParameterPolicy> TSelf;
+	typedef NormalizingPolicy TNormalizingPolicy;
+	typedef ParameterPolicy TParameterPolicy;
 
 	typedef Point3D<T> TPoint;
 	typedef typename TPoint::TVector TVector;
 
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
-    typedef typename TPoint::TNumTraits TNumTraits;
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
+	typedef typename TPoint::TNumTraits TNumTraits;
 
-	enum { dimension = TPoint::dimension };	/**< number of dimensions */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions */
 
-    template <typename U> struct Rebind
-    {
-        typedef Ray3D<U, NormalizingPolicy, ParameterPolicy> Type;
-    };
+	template <typename U> struct Rebind
+	{
+		typedef Ray3D<U, NormalizingPolicy, ParameterPolicy> Type;
+	};
 
-    // STRUCTORS
+	// STRUCTORS
 
-    Ray3D();
-    Ray3D(const TPoint& iSupport, const TVector& iDirection);
-    Ray3D(const TPoint& iSupport, const TPoint& iLookAt);
+	Ray3D();
+	Ray3D(const TPoint& iSupport, const TVector& iDirection);
+	Ray3D(const TPoint& iSupport, const TPoint& iLookAt);
 
-    // METHODS
+	// METHODS
 
 	const TPoint& support() const;
 	TPoint& support();
@@ -97,23 +97,23 @@ public:
 	void setDirection(const TVector& iDirection);
 	void lookAt(const TPoint& iLookAt);
 
-    const TPoint point(TParam a_t) const;
-    const TValue t(const TPoint& iPoint) const;
+	const TPoint point(TParam a_t) const;
+	const TValue t(const TPoint& iPoint) const;
 
-    const bool isValid() const;
+	const bool isValid() const;
 
 private:
 
-    TPoint support_;
-    TVector direction_;
+	TPoint support_;
+	TVector direction_;
 };
 
 
 
-template<typename T, class NP, class PP> 
+template<typename T, class NP, class PP>
 std::ostream& operator<<(std::ostream& oOStream, const Ray3D<T, NP, PP>& iB);
 
-template<typename T, class NP, class PP> 
+template<typename T, class NP, class PP>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB);
 
 

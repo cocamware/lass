@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -54,34 +54,34 @@ public:
 	typedef TVector::TConstReference TConstReference;
 	typedef TVector::TNumTraits TNumTraits;
 
-	enum { dimension = 4 };	/**< number of dimensions */
+	enum { dimension = 4 }; /**< number of dimensions */
 
-    TValue r;
-    TValue g;
-    TValue b;
-    TValue a;
+	TValue r;
+	TValue g;
+	TValue b;
+	TValue a;
 
 	ColorRGBA();
-	ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, 
-              TParam iAlpha = ColorRGBA::TNumTraits::one);
+	ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue,
+			  TParam iAlpha = ColorRGBA::TNumTraits::one);
 	explicit ColorRGBA(TParam iWhite, TParam iAlpha = ColorRGBA::TNumTraits::one);
-    explicit ColorRGBA(const TVector& iVector);
-	// HACK Yes, you have to use ColorRGBA::TNumTraits::one instead of TNumTraits::one because the 
+	explicit ColorRGBA(const TVector& iVector);
+	// HACK Yes, you have to use ColorRGBA::TNumTraits::one instead of TNumTraits::one because the
 	// MSVC7.0 doesn't understand the latter [BdG].
 
 	const TVector vector() const { return TVector(r, g, b, a); }
 	TConstReference operator[](unsigned iIndex) const { return *(&r + iIndex); }
 	TReference operator[](unsigned iIndex) { return *(&r + iIndex); }
-    TConstReference at(signed iIndex) const { return *(&r + num::mod(iIndex, dimension)); }
+	TConstReference at(signed iIndex) const { return *(&r + num::mod(iIndex, dimension)); }
 	TReference at(signed iIndex) { return *(&r + num::mod(iIndex, dimension)); }
 
-    const ColorRGBA& operator+() const;
-    const ColorRGBA operator-() const;
-    ColorRGBA& operator+=( const ColorRGBA& iOther );
+	const ColorRGBA& operator+() const;
+	const ColorRGBA operator-() const;
+	ColorRGBA& operator+=( const ColorRGBA& iOther );
 	ColorRGBA& operator-=( const ColorRGBA& iOther );
 	ColorRGBA& operator*=( const ColorRGBA& iOther );
 	ColorRGBA& operator/=( const ColorRGBA& iOther );
-    ColorRGBA& operator+=( TParam iWhite );
+	ColorRGBA& operator+=( TParam iWhite );
 	ColorRGBA& operator-=( TParam iWhite );
 	ColorRGBA& operator*=( TParam iWhite );
 	ColorRGBA& operator/=( TParam iWhite );
@@ -92,7 +92,7 @@ public:
 	const TValue clamp();
 	const TValue expose(TParam iTime);
 
-    const bool isZero() const;
+	const bool isZero() const;
 
 	// matlab colormaps
 	//
@@ -108,7 +108,7 @@ public:
 	static const ColorRGBA mapSpring(TParam iValue);
 	static const ColorRGBA mapSummer(TParam iValue);
 	static const ColorRGBA mapWinter(TParam iValue);
-    static const ColorRGBA mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap);
+	static const ColorRGBA mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap);
 private:
 
 	static const ColorRGBA doMap(TParam iValue, const ColorRGBA* iMap, int iMapSize);

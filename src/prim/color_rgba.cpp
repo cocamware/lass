@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -43,10 +43,10 @@ namespace prim
 /** construct an unexisting color (black with zero alpha)
  */
 ColorRGBA::ColorRGBA():
-    r(TNumTraits::zero),
-    g(TNumTraits::zero),
-    b(TNumTraits::zero),
-    a(TNumTraits::zero)
+	r(TNumTraits::zero),
+	g(TNumTraits::zero),
+	b(TNumTraits::zero),
+	a(TNumTraits::zero)
 {
 	LASS_ASSERT(isZero());
 }
@@ -57,9 +57,9 @@ ColorRGBA::ColorRGBA():
  */
 ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha):
 	r(iRed),
-    g(iGreen),
-    b(iBlue),
-    a(iAlpha)
+	g(iGreen),
+	b(iBlue),
+	a(iAlpha)
 {
 }
 
@@ -69,9 +69,9 @@ ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha):
  */
 ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha):
 	r(iWhite),
-    g(iWhite),
-    b(iWhite),
-    a(iAlpha)
+	g(iWhite),
+	b(iWhite),
+	a(iAlpha)
 {
 }
 
@@ -81,9 +81,9 @@ ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha):
  */
 ColorRGBA::ColorRGBA(const TVector& iVector):
 	r(iVector.x),
-    g(iVector.y),
-    b(iVector.z),
-    a(iVector.w)
+	g(iVector.y),
+	b(iVector.z),
+	a(iVector.w)
 {
 }
 
@@ -94,10 +94,10 @@ ColorRGBA::ColorRGBA(const TVector& iVector):
 ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& iOther)
 {
 	r += iOther.r;
-    g += iOther.g;
-    b += iOther.b;
-    a += iOther.a;
-    return *this;
+	g += iOther.g;
+	b += iOther.b;
+	a += iOther.a;
+	return *this;
 }
 
 
@@ -107,10 +107,10 @@ ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& iOther)
 ColorRGBA& ColorRGBA::operator-=(const ColorRGBA& iOther)
 {
 	r -= iOther.r;
-    g -= iOther.g;
-    b -= iOther.b;
-    a -= iOther.a;
-    return *this;
+	g -= iOther.g;
+	b -= iOther.b;
+	a -= iOther.a;
+	return *this;
 }
 
 
@@ -120,10 +120,10 @@ ColorRGBA& ColorRGBA::operator-=(const ColorRGBA& iOther)
 ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther)
 {
 	r *= iOther.r;
-    g *= iOther.g;
-    b *= iOther.b;
-    a *= iOther.a;
-    return *this;
+	g *= iOther.g;
+	b *= iOther.b;
+	a *= iOther.a;
+	return *this;
 }
 
 
@@ -133,10 +133,10 @@ ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther)
 ColorRGBA& ColorRGBA::operator/=(const ColorRGBA& iOther)
 {
 	r /= iOther.r;
-    g /= iOther.g;
-    b /= iOther.b;
-    a /= iOther.a;
-    return *this;
+	g /= iOther.g;
+	b /= iOther.b;
+	a /= iOther.a;
+	return *this;
 }
 
 
@@ -146,10 +146,10 @@ ColorRGBA& ColorRGBA::operator/=(const ColorRGBA& iOther)
 ColorRGBA& ColorRGBA::operator+=(TParam iWhite)
 {
 	r += iWhite;
-    g += iWhite;
-    b += iWhite;
-    a += iWhite;
-    return *this;
+	g += iWhite;
+	b += iWhite;
+	a += iWhite;
+	return *this;
 }
 
 
@@ -159,10 +159,10 @@ ColorRGBA& ColorRGBA::operator+=(TParam iWhite)
 ColorRGBA& ColorRGBA::operator-=(TParam iWhite)
 {
 	r -= iWhite;
-    g -= iWhite;
-    b -= iWhite;
-    a -= iWhite;
-    return *this;
+	g -= iWhite;
+	b -= iWhite;
+	a -= iWhite;
+	return *this;
 }
 
 
@@ -172,10 +172,10 @@ ColorRGBA& ColorRGBA::operator-=(TParam iWhite)
 ColorRGBA& ColorRGBA::operator*=(TParam iWhite)
 {
 	r *= iWhite;
-    g *= iWhite;
-    b *= iWhite;
-    a *= iWhite;
-    return *this;
+	g *= iWhite;
+	b *= iWhite;
+	a *= iWhite;
+	return *this;
 }
 
 
@@ -184,12 +184,12 @@ ColorRGBA& ColorRGBA::operator*=(TParam iWhite)
  */
 ColorRGBA& ColorRGBA::operator/=(TParam iWhite)
 {
-    const TValue invWhite = TNumTraits::one / iWhite;
+	const TValue invWhite = TNumTraits::one / iWhite;
 	r *= invWhite;
-    g *= invWhite;
-    b *= invWhite;
-    a *= invWhite;
-    return *this;
+	g *= invWhite;
+	b *= invWhite;
+	a *= invWhite;
+	return *this;
 }
 
 
@@ -241,8 +241,8 @@ const ColorRGBA::TValue ColorRGBA::clamp()
  */
 const ColorRGBA::TValue ColorRGBA::expose(TParam iTime)
 {
-    const TValue originalBrightness = brightness();
-    const TValue originalAlpha = a;
+	const TValue originalBrightness = brightness();
+	const TValue originalAlpha = a;
 
 	r = r > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * r) : TNumTraits::zero;
 	g = g > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * g) : TNumTraits::zero;
@@ -261,8 +261,8 @@ const ColorRGBA::TValue ColorRGBA::expose(TParam iTime)
  */
 const bool ColorRGBA::isZero() const
 {
-    return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero &&
-        a == TNumTraits::zero;
+	return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero &&
+		a == TNumTraits::zero;
 }
 
 
@@ -272,7 +272,7 @@ const bool ColorRGBA::isZero() const
 const ColorRGBA ColorRGBA::mapAutumn(TParam iValue)
 {
 	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-    return ColorRGBA(TNumTraits::one, iValue, TNumTraits::zero);
+	return ColorRGBA(TNumTraits::one, iValue, TNumTraits::zero);
 }
 
 
@@ -281,7 +281,7 @@ const ColorRGBA ColorRGBA::mapAutumn(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapBone(TParam iValue)
 {
-	const static ColorRGBA keys[] = 
+	const static ColorRGBA keys[] =
 	{
 		ColorRGBA(0.    , 0.    , 0.    ),
 		ColorRGBA(0.3194, 0.3194, 0.4444),
@@ -327,7 +327,7 @@ const ColorRGBA ColorRGBA::mapGray(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapHot(TParam iValue)
 {
-	const static ColorRGBA keys[] = 
+	const static ColorRGBA keys[] =
 	{
 		ColorRGBA(0.     , 0.     , 0.),
 		ColorRGBA(1. / 3., 0.     , 0.),
@@ -348,7 +348,7 @@ const ColorRGBA ColorRGBA::mapHot(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapHsv(TParam iValue)
 {
-	const static ColorRGBA keys[] = 
+	const static ColorRGBA keys[] =
 	{
 		ColorRGBA(1., 0., 0.),
 		ColorRGBA(1., 1., 0.),
@@ -367,7 +367,7 @@ const ColorRGBA ColorRGBA::mapHsv(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapJet(TParam iValue)
 {
-	const static ColorRGBA keys[] = 
+	const static ColorRGBA keys[] =
 	{
 		ColorRGBA(0., 0., .5),
 		ColorRGBA(0., 0., 1.),
@@ -389,7 +389,7 @@ const ColorRGBA ColorRGBA::mapJet(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapPink(TParam iValue)
 {
-	const static ColorRGBA keys[] = 
+	const static ColorRGBA keys[] =
 	{
 		ColorRGBA(0.    , 0.    , 0.    ),
 		ColorRGBA(0.2955, 0.1782, 0.1782),
@@ -448,7 +448,7 @@ const ColorRGBA ColorRGBA::mapWinter(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap)
 {
-    return doMap(iValue, &iColorMap[0], iColorMap.size());
+	return doMap(iValue, &iColorMap[0], iColorMap.size());
 }
 
 
@@ -634,12 +634,12 @@ ColorRGBA operator/(const ColorRGBA& iA, ColorRGBA::TParam iB)
  */
 ColorRGBA under(const ColorRGBA& iA, const ColorRGBA& iB)
 {
-    const ColorRGBA::TValue unfiltered = iA.a * (ColorRGBA::TNumTraits::one - iB.a);
+	const ColorRGBA::TValue unfiltered = iA.a * (ColorRGBA::TNumTraits::one - iB.a);
 	const ColorRGBA::TValue aResult = unfiltered + iB.a;
 	const ColorRGBA::TValue aResultInverse = ColorRGBA::TNumTraits::one / aResult;
 
 	ColorRGBA result(iA);
-	result *= (unfiltered * aResultInverse); 
+	result *= (unfiltered * aResultInverse);
 	result += iB * (iB.a * aResultInverse);
 	result.a = aResult;
 	return result;
@@ -648,8 +648,8 @@ ColorRGBA under(const ColorRGBA& iA, const ColorRGBA& iB)
 
 
 /** @a iA seen through color filter @a iB.
- *	alphaR = alphaA.
- *	alphaR * colorR = alphaA * (1 - alphaB) * colorA + alphaA * alphaB * colorA * colorB.
+ *  alphaR = alphaA.
+ *  alphaR * colorR = alphaA * (1 - alphaB) * colorA + alphaA * alphaB * colorA * colorB.
  */
 ColorRGBA through(const ColorRGBA& iA, const ColorRGBA& iB)
 {

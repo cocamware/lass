@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -51,7 +51,7 @@ Vector4D<T>::Vector4D() :
 }
 
 
-	
+
 template<typename T> inline
 Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) :
 	x(iX),
@@ -64,11 +64,11 @@ Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) :
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector4D<T>::Vector4D(const Vector4D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)), 
+	x(static_cast<TValue>(iOther.x)),
 	y(static_cast<TValue>(iOther.y)),
-	z(static_cast<TValue>(iOther.z)), 
+	z(static_cast<TValue>(iOther.z)),
 	w(static_cast<TValue>(iOther.w))
 {
 }
@@ -76,11 +76,11 @@ Vector4D<T>::Vector4D(const Vector4D<U>& iOther):
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector4D<T>::Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW):
-	x(static_cast<TValue>(iX)), 
+	x(static_cast<TValue>(iX)),
 	y(static_cast<TValue>(iY)),
-	z(static_cast<TValue>(iZ)), 
+	z(static_cast<TValue>(iZ)),
 	w(static_cast<TValue>(iW))
 {
 }
@@ -88,7 +88,7 @@ Vector4D<T>::Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW):
 
 
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const  
+typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -97,7 +97,7 @@ typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) c
 
 
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex) 
+typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -105,27 +105,27 @@ typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const 
+typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
 {
 	return *(&x + num::mod(iIndex, dimension));
 }
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex) 
+typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex)
 {
 	return *(&x + num::mod(iIndex, dimension));
 }
 
 
 
-/** A weird way to get back the same object 
+/** A weird way to get back the same object
  */
 template<typename T> inline
 const Vector4D<T>& Vector4D<T>::operator+() const
@@ -260,7 +260,7 @@ Vector4D<T>& Vector4D<T>::operator/=(TParam iB)
 template<typename T> inline
 const bool Vector4D<T>::isZero() const
 {
-	return	x == TNumTraits::zero && y == TNumTraits::zero &&
+	return  x == TNumTraits::zero && y == TNumTraits::zero &&
 			z == TNumTraits::zero && w == TNumTraits::zero;
 }
 
@@ -288,8 +288,8 @@ const typename  Vector4D<T>::TValue Vector4D<T>::norm() const
 
 /** return a unit vector with same direction/sense as this vector.
  *
- * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1. 
- * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>, 
+ * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
+ * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
@@ -305,7 +305,7 @@ const Vector4D<T> Vector4D<T>::normal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const 
+const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
 {
 	Vector4D<T> result;
 	result *= dot(iB, *this);
@@ -318,7 +318,7 @@ const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const 
+const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
 {
 	return iB - project(iB);
 }
@@ -330,7 +330,7 @@ const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
 template <typename T>
 const Vector4D<T> Vector4D<T>::transform(T (*iOperator)(T)) const
 {
-    return Vector4D<T>(iOperator(x), iOperator(y), iOperator(z), iOperator(w));
+	return Vector4D<T>(iOperator(x), iOperator(y), iOperator(z), iOperator(w));
 }
 
 
@@ -358,7 +358,7 @@ typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB)
 
 /** @relates lass::prim::Vector4D
  */
-template<typename T> inline 
+template<typename T> inline
 bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB)
 {
 	return iA.x == iB.x && iA.y == iB.y && iA.z == iB.z && iA.w == iB.w;
@@ -525,8 +525,8 @@ Vector4D<T> operator*(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB)
 template<typename T> inline
 Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB)
 {
-    return Vector4D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), 
-                       std::min(iA.z, iB.z), std::min(iA.w, iB.w));
+	return Vector4D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y),
+					   std::min(iA.z, iB.z), std::min(iA.w, iB.w));
 }
 
 
@@ -537,17 +537,17 @@ Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB)
 template<typename T> inline
 Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB)
 {
-    return Vector4D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), 
-                       std::max(iA.z, iB.z), std::max(iA.w, iB.w));
+	return Vector4D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y),
+					   std::max(iA.z, iB.z), std::max(iA.w, iB.w));
 }
 
 
 
 /** @relates lass::prim::Vector4D
  */
-template<typename T, typename Char, typename Traits> 
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
-                                             const Vector4D<T>& iB)
+template<typename T, typename Char, typename Traits>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
+											 const Vector4D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ", " << iB.w << ")";
 	return oOStream;
@@ -558,8 +558,8 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates lass::prim::Vector4D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-                                             Vector4D<T>& oB)
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
+											 Vector4D<T>& oB)
 {
 	Vector4D<T> result;
 
@@ -614,7 +614,7 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector4D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(oOStream) 
+	LASS_ENFORCE_STREAM(oOStream)
 		<< "<Vector4D>" << iB.x << " " << iB.y << " " << iB.z << " " << iB.w << "</Vector4D>\n";
 	return oOStream;
 }

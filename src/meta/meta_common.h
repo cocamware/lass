@@ -1,33 +1,33 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @namespace lass::meta
- *	@brief library for template meta programming
- * 
+ *  @brief library for template meta programming
+ *
  *  This library (and namespace) contains tools for meta programming.
  *
  *  @section overview
@@ -49,7 +49,7 @@
  *
  *  @subsection meta-functions
  *
- *  The result of a meta function can be a type or a value.  The former will be presented by 
+ *  The result of a meta function can be a type or a value.  The former will be presented by
  *  a @c typedef called @c Type.  The latter will be an @c enum called @c value.  Again, style
  *  rules are obeyed: types start with a capital, values don't.
  *
@@ -72,14 +72,14 @@
  *  @subscection traits
  *
  *  - TypeTraits: compile time information and operations on a single type
- *  
+ *
  *  @subsection macros
  *
  *  - @ref LASS_META_ASSERT: compile time assert
  *
  *  @note Currently, this libary is headers only.  This means no static library needs to be
  *        build.  Hence, the meta project is skipped by the build and the automatic link
- *        to the lib is commented. [BdG]		  
+ *        to the lib is commented. [BdG]
  */
 
 
@@ -92,7 +92,7 @@
 
 #include "../lass_common.h"
 
-// Since no static lib is build, we shouldn't try to link to it.  
+// Since no static lib is build, we shouldn't try to link to it.
 // Uncomment this if this changes [BdG]
 //
 ///** name of library

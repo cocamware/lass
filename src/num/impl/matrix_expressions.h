@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
- * 
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -43,38 +43,38 @@ template <typename T>
 class MStorage
 {
 public:
-    enum { lvalue = true };
+	enum { lvalue = true };
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef size_t TSize;
 
-    MStorage(): storage_(), rows_(0), cols_(0) {}
-    MStorage(TSize iRows, TSize iCols): storage_(iRows * iCols, T()), rows_(iRows), cols_(iCols) {}
-    TConstReference operator()(TSize iI, TSize iJ) const { return storage_[iI * cols_ + iJ]; }
-    TReference operator()(TSize iI, TSize iJ) { return storage_[iI * cols_ + iJ]; }
-    TSize rows() const { return rows_; }
-    TSize columns() const { return cols_; }
+	MStorage(): storage_(), rows_(0), cols_(0) {}
+	MStorage(TSize iRows, TSize iCols): storage_(iRows * iCols, T()), rows_(iRows), cols_(iCols) {}
+	TConstReference operator()(TSize iI, TSize iJ) const { return storage_[iI * cols_ + iJ]; }
+	TReference operator()(TSize iI, TSize iJ) { return storage_[iI * cols_ + iJ]; }
+	TSize rows() const { return rows_; }
+	TSize columns() const { return cols_; }
 
-    // special MStorage members:
-    //
-    void resize(TSize iRows, TSize iCols)
-    {
-        storage_.resize(iRows * iCols, T());
-        rows_ = iRows;
-        cols_ = iCols;
-    }
-    void swap(MStorage<T>& iOther)
-    {
-        storage_.swap(iOther.storage_);
-        std::swap(rows_, iOther.rows_);
-        std::swap(cols_, iOther.cols_);
-    }
+	// special MStorage members:
+	//
+	void resize(TSize iRows, TSize iCols)
+	{
+		storage_.resize(iRows * iCols, T());
+		rows_ = iRows;
+		cols_ = iCols;
+	}
+	void swap(MStorage<T>& iOther)
+	{
+		storage_.swap(iOther.storage_);
+		std::swap(rows_, iOther.rows_);
+		std::swap(cols_, iOther.cols_);
+	}
 private:
-    std::vector<T> storage_;
-    TSize rows_;
-    TSize cols_;
+	std::vector<T> storage_;
+	TSize rows_;
+	TSize cols_;
 };
 
 /** @internal
@@ -83,23 +83,23 @@ template <typename T>
 class MScalar
 {
 public:
-    enum { lvalue = false };
+	enum { lvalue = false };
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef size_t TSize;
 
 	MScalar(TParam iValue, TSize iRows, TSize iCols): value_(iValue), rows_(iRows), cols_(iCols) {}
 	TParam operator()(TSize iI, TSize iJ) const
-    {
-        LASS_ASSERT(iI < rows_ && iJ < cols_);
-        return value_;
-    }
+	{
+		LASS_ASSERT(iI < rows_ && iJ < cols_);
+		return value_;
+	}
 	TSize rows() const { return rows_; }
-    TSize columns() const { return cols_; }
+	TSize columns() const { return cols_; }
 private:
 	TValue value_;
 	TSize rows_;
-    TSize cols_;
+	TSize cols_;
 };
 
 
@@ -123,14 +123,14 @@ template <typename T, typename Operand1, typename Operand2>\
 class LASS_CONCATENATE(M, i_name)\
 {\
 public:\
-    enum { lvalue = false };\
+	enum { lvalue = false };\
 	typedef typename util::CallTraits<T>::TValue TValue;\
 	typedef size_t TSize;\
 	LASS_CONCATENATE(M, i_name)(const Operand1& iA, const Operand2& iB):\
 		operand1_(iA), operand2_(iB)\
 	{\
 		LASS_ASSERT(operand1_.rows() == operand2_.rows() &&\
-            operand1_.columns() == operand2_.columns());\
+			operand1_.columns() == operand2_.columns());\
 	}\
 	TValue operator()(TSize iI, TSize iJ) const\
 	{\
@@ -154,7 +154,7 @@ template <typename T, typename Operand1>\
 class LASS_CONCATENATE(M, i_name)\
 {\
 public:\
-    enum { lvalue = false };\
+	enum { lvalue = false };\
 	typedef typename util::CallTraits<T>::TValue TValue;\
 	typedef size_t TSize;\
 	LASS_CONCATENATE(M, i_name)(const Operand1& iA):\
@@ -183,7 +183,7 @@ template <typename T, typename Operand1, typename Operand2>
 class MProd
 {
 public:
-    enum { lvalue = false };
+	enum { lvalue = false };
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef size_t TSize;
 	MProd(const Operand1& iA, const Operand2& iB):
@@ -193,19 +193,19 @@ public:
 	}
 	TValue operator()(TSize iI, TSize iJ) const
 	{
-        TValue result = TValue();
-        for (TSize k = 0; k < loopSize_; ++k)
-        {
-            result += operand1_(iI, k) * operand2_(k, iJ);
-        }
-        return result;
+		TValue result = TValue();
+		for (TSize k = 0; k < loopSize_; ++k)
+		{
+			result += operand1_(iI, k) * operand2_(k, iJ);
+		}
+		return result;
 	}
 	TSize rows() const { return operand1_.rows(); }
 	TSize columns() const { return operand2_.columns(); }
 private:
 	typename MatrixExpressionTraits<Operand1>::TStorage operand1_;
 	typename MatrixExpressionTraits<Operand2>::TStorage operand2_;
-    TSize loopSize_;
+	TSize loopSize_;
 };
 
 
@@ -216,11 +216,11 @@ template <typename T, typename Operand1>
 class MTrans
 {
 public:
-    enum { lvalue = false };
+	enum { lvalue = false };
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef size_t TSize;
 	MTrans(const Operand1& iA): operand1_(iA) {}
-    TParam operator()(TSize iI, TSize iJ) const { return operand1_(iJ, iI); 
+	TParam operator()(TSize iI, TSize iJ) const { return operand1_(iJ, iI);
 }
 	TSize rows() const { return operand1_.columns(); }
 	TSize columns() const { return operand1_.rows(); }
@@ -237,13 +237,13 @@ template <typename T, typename Operand1>
 class MFun
 {
 public:
-    enum { lvalue = false };
+	enum { lvalue = false };
 	typedef T (*TOperator)(T);
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef size_t TSize;
-	MFun(const Operand1& iA, TOperator iOperator): operand1_(iA), 
+	MFun(const Operand1& iA, TOperator iOperator): operand1_(iA),
 operator_(iOperator) {}
-    TValue operator()(TSize iI, TSize iJ) const { return 
+	TValue operator()(TSize iI, TSize iJ) const { return
 operator_(operand1_(iI, iJ)); }
 	TSize rows() const { return operand1_.rows(); }\
 	TSize columns() const { return operand1_.columns(); }\

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -80,7 +80,7 @@ Aabb2D<T, MMP>::Aabb2D(const TPoint& iPoint):
 /** copy constructor.
  */
 template <typename T, class MMP>
-template <class MMP2> 
+template <class MMP2>
 Aabb2D<T, MMP>::Aabb2D(const Aabb2D<T, MMP2>& iOther):
 	min_(iOther.min()),
 	max_(iOther.max())
@@ -93,7 +93,7 @@ Aabb2D<T, MMP>::Aabb2D(const Aabb2D<T, MMP2>& iOther):
 /** return corner with smallest component values
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TPoint& 
+const typename Aabb2D<T, MMP>::TPoint&
 Aabb2D<T, MMP>::min() const
 {
 	LASS_ASSERT(isValid());
@@ -105,7 +105,7 @@ Aabb2D<T, MMP>::min() const
 /** Return corner with largest component values
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TPoint& 
+const typename Aabb2D<T, MMP>::TPoint&
 Aabb2D<T, MMP>::max() const
 {
 	LASS_ASSERT(isValid());
@@ -155,8 +155,8 @@ void Aabb2D<T, MMP>::setMax(const TPoint& iMax)
 /** assign one bounding box to another.
  */
 template <typename T, class MMP>
-template <class MMP2> 
-typename Aabb2D<T, MMP>::TSelf& 
+template <class MMP2>
+typename Aabb2D<T, MMP>::TSelf&
 Aabb2D<T, MMP>::operator=(const Aabb2D<T, MMP2>& iOther)
 {
 	TSelf temp(iOther);
@@ -169,7 +169,7 @@ Aabb2D<T, MMP>::operator=(const Aabb2D<T, MMP2>& iOther)
 /** Expand bounding box so it contains iPoint.
  */
 template <typename T, class MMP>
-typename Aabb2D<T, MMP>::TSelf& 
+typename Aabb2D<T, MMP>::TSelf&
 Aabb2D<T, MMP>::operator+=(const TPoint& iPoint)
 {
 	min_ = pointwiseMin(min_, iPoint);
@@ -183,8 +183,8 @@ Aabb2D<T, MMP>::operator+=(const TPoint& iPoint)
 /** Expand bounding box so it contains the other bounding box.
  */
 template <typename T, class MMP>
-template <class MMP2> 
-typename Aabb2D<T, MMP>::TSelf& 
+template <class MMP2>
+typename Aabb2D<T, MMP>::TSelf&
 Aabb2D<T, MMP>::operator+=(const Aabb2D<T, MMP2>& iOther)
 {
 	min_ = pointwiseMin(min_, iOther.min());
@@ -234,7 +234,7 @@ void Aabb2D<T, MMP>::scale(TParam iScale)
  *  by some types like integers)
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TPointH 
+const typename Aabb2D<T, MMP>::TPointH
 Aabb2D<T, MMP>::center() const
 {
 	LASS_ASSERT(isValid());
@@ -246,7 +246,7 @@ Aabb2D<T, MMP>::center() const
 /** Return size of bounding box per axis, max - min.
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TVector 
+const typename Aabb2D<T, MMP>::TVector
 Aabb2D<T, MMP>::size() const
 {
 	LASS_ASSERT(isValid());
@@ -258,7 +258,7 @@ Aabb2D<T, MMP>::size() const
 /** Returns perimeter of bounding box.
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TValue 
+const typename Aabb2D<T, MMP>::TValue
 Aabb2D<T, MMP>::perimeter() const
 {
 	LASS_ASSERT(isValid());
@@ -271,14 +271,14 @@ Aabb2D<T, MMP>::perimeter() const
 /** Returns area of bounding box.
  */
 template <typename T, class MMP>
-const typename Aabb2D<T, MMP>::TValue 
+const typename Aabb2D<T, MMP>::TValue
 Aabb2D<T, MMP>::area() const
 {
 	LASS_ASSERT(isValid());
 	const TVector result = size();
 	return result.x * result.y;
 }
-	
+
 
 /** Classify if a point is in or outside the bounding box, or on its surface
  *  @return sInside, sSurface, sOutside
@@ -293,16 +293,16 @@ const Side Aabb2D<T, MMP>::classify(const TPoint& iPoint) const
 	{
 		return sInside;
 	}
-	
+
 	if (iPoint.x < min_.x || iPoint.x > max_.x ||
 		iPoint.y < min_.y || iPoint.y > max_.y)
 	{
 		return sOutside;
 	}
-	
+
 	return sSurface;
 }
-	
+
 
 
 /** Returns true if point is inside bounding box or on its surface.
@@ -318,7 +318,7 @@ const bool Aabb2D<T, MMP>::contains(const TPoint& iPoint) const
 
 
 
-/** Returns true if the AABB iOther is inside (or on its surface) this AABB.  
+/** Returns true if the AABB iOther is inside (or on its surface) this AABB.
  *  - Is equivalent to this->contains(iOther.min()) && this->contains(iOther.max()).
  *  - if iOther is an empty AABB, it will always return true (an empty set is always a part of
  *    any other set).
@@ -328,7 +328,7 @@ template <class MMP2>
 const bool Aabb2D<T, MMP>::contains(const Aabb2D<T, MMP2>& iOther) const
 {
 	LASS_ASSERT(isValid() && iOther.isValid());
-	return iOther.min().x >= min_.x && iOther.max().x <= max_.x 
+	return iOther.min().x >= min_.x && iOther.max().x <= max_.x
 		&& iOther.min().y >= min_.y && iOther.max().y <= max_.y;
 }
 
@@ -339,14 +339,14 @@ const bool Aabb2D<T, MMP>::contains(const Aabb2D<T, MMP2>& iOther) const
  *          @arg true       intersection of the AABBs is not empty.
  *
  *  @par FAQ: What's the difference between @c this->intersects(iOther) and @c this->collides(iOther) ?
- *		When two AABB are touching each other (surface to surface), the intersection isn't empty.
- *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.  
+ *      When two AABB are touching each other (surface to surface), the intersection isn't empty.
+ *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.
  *      In that case, the intersection is a degenerated AABB though, one with @c area()==0.
- *		In collision detection however, you don't want this degenerated case of intersection to be 
- *		considered as a collision.  Two bodies may touch, but the must not have an overlap thas has a
- *		non-zero area.  That's why we have two methods: @c intersects returns true on touching 
- *		AABBs, @c collides will return false.  Of course, in the non-degenerate cases, they behave the
- *		same.
+ *      In collision detection however, you don't want this degenerated case of intersection to be
+ *      considered as a collision.  Two bodies may touch, but the must not have an overlap thas has a
+ *      non-zero area.  That's why we have two methods: @c intersects returns true on touching
+ *      AABBs, @c collides will return false.  Of course, in the non-degenerate cases, they behave the
+ *      same.
  *
  *  Use the seperating axis test to test if two AABB's do intersect:
  *  GOMEZ M. (1999), <i>Simple Intersection Tests For Games</i>, Gamasutra,
@@ -357,19 +357,19 @@ template <typename T, class MMP>
 template <class MMP2>
 const bool Aabb2D<T, MMP>::intersects(const Aabb2D<T, MMP2>& iOther) const
 {
-    LASS_ASSERT(isValid() && iOther.isValid());
+	LASS_ASSERT(isValid() && iOther.isValid());
 
 	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
 	// notice that the weight of the homogenous points iA.center() and iB.center() is two,
-	// so we can avond the division by two of doubleExtend.  
-    // that's why we also have to just take the sum of the sizes and not the half sum.
+	// so we can avond the division by two of doubleExtend.
+	// that's why we also have to just take the sum of the sizes and not the half sum.
 
 	LASS_ASSERT(center().weight() == 2 && iOther.center().weight() == 2);
 	const TPointH doubleCenterToCenter = center() - iOther.center();
 
-    LASS_ASSERT(doubleCenterToCenter.weight() == 0);
-	const typename TPointH::TVector doubleCenterDistance = 
-        doubleCenterToCenter.position().transform(num::abs);
+	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
+	const typename TPointH::TVector doubleCenterDistance =
+		doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
 	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y;
@@ -378,18 +378,18 @@ const bool Aabb2D<T, MMP>::intersects(const Aabb2D<T, MMP2>& iOther) const
 
 
 /** Check if two axis-aligned bounding boxes do dollide.
- *  @return @arg true		the AABBs do collide.
- *          @arg false		they don't.
+ *  @return @arg true       the AABBs do collide.
+ *          @arg false      they don't.
  *
  *  @par FAQ: What's the difference between @c this->intersects(iOther) and @c this->collides(iOther) ?
- *		When two AABB are touching each other (surface to surface), the intersection isn't empty.
- *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.  
+ *      When two AABB are touching each other (surface to surface), the intersection isn't empty.
+ *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.
  *      In that case, the intersection is a degenerated AABB though, one with @c area()==0.
- *		In collision detection however, you don't want this degenerated case of intersection to be 
- *		considered as a collision.  Two bodies may touch, but the must not have an overlap thas has a
- *		non-zero area.  That's why we have two methods: @c intersects returns true on touching 
- *		AABBs, @c collides will return false.  Of course, in the non-degenerate cases, they behave the
- *		same.
+ *      In collision detection however, you don't want this degenerated case of intersection to be
+ *      considered as a collision.  Two bodies may touch, but the must not have an overlap thas has a
+ *      non-zero area.  That's why we have two methods: @c intersects returns true on touching
+ *      AABBs, @c collides will return false.  Of course, in the non-degenerate cases, they behave the
+ *      same.
  *
  *  Use the seperating axis test to test if two AABB's do intersect:
  *  GOMEZ M. (1999), <i>Simple Intersection Tests For Games</i>, Gamasutra,
@@ -400,19 +400,19 @@ template <typename T, class MMP>
 template <class MMP2>
 const bool Aabb2D<T, MMP>::collides(const Aabb2D<T, MMP2>& iOther) const
 {
-    LASS_ASSERT(isValid() && iOther.isValid());
+	LASS_ASSERT(isValid() && iOther.isValid());
 
 	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
 	// notice that the weight of the homogenous points iA.center() and iB.center() is two,
-	// so we can avond the division by two of doubleExtend.  
-    // that's why we also have to just take the sum of the sizes and not the half sum.
+	// so we can avond the division by two of doubleExtend.
+	// that's why we also have to just take the sum of the sizes and not the half sum.
 
 	LASS_ASSERT(center().weight() == 2 && iOther.center().weight() == 2);
 	const TPointH doubleCenterToCenter = center() - iOther.center();
 
-    LASS_ASSERT(doubleCenterToCenter.weight() == 0);
-	const typename TPointH::TVector doubleCenterDistance = 
-        doubleCenterToCenter.position().transform(num::abs);
+	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
+	const typename TPointH::TVector doubleCenterDistance =
+		doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
 	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y;
@@ -429,10 +429,10 @@ Aabb2D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
 	LASS_ASSERT(isValid());
 	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
-    const TVector t(uniform(), uniform(), uniform());
-    const TPoint result(min_ + t * (max_ - min_));
-    LASS_ASSERT(contains(result));
-    return result;
+	const TVector t(uniform(), uniform(), uniform());
+	const TPoint result(min_ + t * (max_ - min_));
+	LASS_ASSERT(contains(result));
+	return result;
 }
 
 
@@ -468,8 +468,8 @@ const bool Aabb2D<T, MMP>::isEmpty() const
  *  @arg <tt>max_.x >= min_.x && max_.y >= min_.y</tt> which means the box is not empty.
  *  That gives us an invalid state as well:
  *  @arg <tt>max_.x >= min_.x && max_.y < min_.y</tt>.  This state would cause @c isEmpty() to yield
- *		false, while there's still nothing in it (there's no single point for which @c contains(p)
- *		would return true.
+ *      false, while there's still nothing in it (there's no single point for which @c contains(p)
+ *      would return true.
  *
  *  When the regular minmax policies are used (StrictMinMax and AutoMinMax), there's no way any AABB
  *  would become invalid, and this test counts as an invariant to the box.  However, when using the
@@ -486,7 +486,7 @@ const bool Aabb2D<T, MMP>::isValid() const
 /** swap two bounding boxes.
  */
 template <typename T, class MMP>
-template <typename MMP2> 
+template <typename MMP2>
 void Aabb2D<T, MMP>::swap(Aabb2D<T, MMP2>& iOther)
 {
 	std::swap(min_, iOther.min_);
@@ -509,15 +509,15 @@ template <typename T, class MMP> inline
 T distance(const Aabb2D<T, MMP>& iA, const Point2D<T>& iB)
 {
 	LASS_ASSERT(!iA.isEmpty());
-    typedef typename Point2D<T>::TVector TVector;
-    return pointwiseMax(pointwiseMax(iA.min() - iB, iB - iA.max()), TVector()).norm();
+	typedef typename Point2D<T>::TVector TVector;
+	return pointwiseMax(pointwiseMax(iA.min() - iB, iB - iA.max()), TVector()).norm();
 }
 
 
 
 /** distance between two AABBs
  *  @relates Aabb2D
- *  @param iA   AABB 
+ *  @param iA   AABB
  *  @param iB   AABB
  *  @return absolute distance.  If one AABB is completely inside the other, distance is 0.
  *  @pre @a iA and @a iB should not be empty.  Undefined behaviour if they are.
@@ -526,8 +526,8 @@ template <typename T, class MMPa, class MMPb> inline
 T distance(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB)
 {
 	LASS_ASSERT(!iA.isEmpty() && !iB.isEmpty());
-    typedef typename Point2D<T>::TVector TVector;
-    return pointwiseMax(pointwiseMax(iA.min() - iB.max(), iB.min() - iA.max()), TVector()).norm();
+	typedef typename Point2D<T>::TVector TVector;
+	return pointwiseMax(pointwiseMax(iA.min() - iB.max(), iB.min() - iA.max()), TVector()).norm();
 }
 
 
@@ -536,10 +536,10 @@ T distance(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB)
  *  @relates lass::prim::Aabb2D
  *  @param iA the first AABB :)
  *  @param iB the second AABB
- *  @param oResult the intersection of @a iA and @a iB.  In contrary to other intersection 
- *                 functions, this output argument will @e always be assigned, even if there's no 
- *                 result.  By no result we mean: the intersection is empty.  For most other 
- *                 intersection functions, we can't assign a meaning full value if there's no 
+ *  @param oResult the intersection of @a iA and @a iB.  In contrary to other intersection
+ *                 functions, this output argument will @e always be assigned, even if there's no
+ *                 result.  By no result we mean: the intersection is empty.  For most other
+ *                 intersection functions, we can't assign a meaning full value if there's no
  *                 intersection, so we don't.  However, in this case we can assign an @e empty AABB.
  *                 And that's exactly what we do.  So, the output argument is @e always valid, even
  *                 if the return value suggests otherwise (in fact, you don't have to bother the
@@ -552,9 +552,9 @@ T distance(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB)
 template <typename T, class MMPa, class MMPb, class MMPr>
 Result intersect(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB, Aabb2D<T, MMPr>& oResult)
 {
-    LASS_ASSERT(iA.isValid() && iB.isValid());
+	LASS_ASSERT(iA.isValid() && iB.isValid());
 
-    if (!iA.intersects(iB))
+	if (!iA.intersects(iB))
 	{
 		oResult = Aabb2D<T, MMPr>(); // empty box
 		return rNone;
@@ -562,7 +562,7 @@ Result intersect(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB, Aabb2D<T,
 
 	// by now, we're sure they are intersecting.  now, we only need the highest minimum
 	// and lowest maximum.
-    //
+	//
 	oResult = Aabb2D<T, MMPr>(pointwiseMax(iA.min(), iB.min()), pointwiseMin(iA.max(), iB.max()));
 	return rOne;
 }
@@ -582,10 +582,10 @@ std::ostream& operator<<(std::ostream& ioOStream, const Aabb2D<T, MMP>& iAabb)
 
 /** @relates lass::prim::Aabb2D
  */
-template<typename T, class MMP> 
+template<typename T, class MMP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb2D<T, MMP>& iAabb)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Aabb2D>\n"
 		<< "<min>" << iAabb.min() << "</min>\n"
 		<< "<max>" << iAabb.max() << "</max>\n"
@@ -605,7 +605,7 @@ io::MatlabOStream& operator<<(io::MatlabOStream& ioOStream, const Aabb2D<T, MMP>
 	const TPoint& min = iAabb.min();
 	const TPoint& max = iAabb.max();
 
-    ioOStream << "lasthandle = patch(";
+	ioOStream << "lasthandle = patch(";
 	ioOStream << "[" << min.x() << "," << max.x() << "," << max.x() << "," << min.x() << "],";
 	ioOStream << "[" << min.y() << "," << min.y() << "," << max.y() << "," << max.y() << "],";
 	ioOStream << ioOStream.color() << ",'EdgeColor'," << ioOStream.color() << ",";
@@ -619,8 +619,8 @@ io::MatlabOStream& operator<<(io::MatlabOStream& ioOStream, const Aabb2D<T, MMP>
 		ioOStream << "'FaceColor'," << ioOStream.color() << ",'FaceAlpha',0.25";
 	}
 	ioOStream << ");\n";
-   
-    return ioOStream;
+
+	return ioOStream;
 }
 
 

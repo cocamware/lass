@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -32,7 +32,7 @@
 
 // we only have to specialize if we're not boosting.
 //
-#ifndef LASS_UTIL_CALL_TRAITS_BOOST 
+#ifndef LASS_UTIL_CALL_TRAITS_BOOST
 
 namespace lass
 {
@@ -67,7 +67,7 @@ LASS_UTIL_CALL_TRAITS_BUILT_IN(long double);
 LASS_UTIL_CALL_TRAITS_BUILT_IN(bool);
 
 
-// here we enter the partial specialization realm.  
+// here we enter the partial specialization realm.
 // If you can't do it, and you don't want to boost, this is the end of the line for you.  Goodbye.
 // (PS. if you boost, you wouldn't be here anyway, check out call_traits.h :)
 #ifndef LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
@@ -124,7 +124,7 @@ private:
 
 public:
 
-   typedef const T* TValue;	// degrades array to pointer
+   typedef const T* TValue; // degrades array to pointer
    typedef TArray& TReference;
    typedef const TArray& TConstReference;
    typedef const T* const TParam;
@@ -143,7 +143,7 @@ private:
 
 public:
 
-   typedef const T* TValue;	// degrades array to pointer
+   typedef const T* TValue; // degrades array to pointer
    typedef TArray& TReference;
    typedef const TArray& TConstReference;
    typedef const T* const TParam;

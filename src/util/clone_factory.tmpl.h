@@ -1,28 +1,28 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *	$g
+ *  $g
  */
 
 
@@ -38,61 +38,61 @@
  *  class.  The base class is an @e abstract product and the derived classes are @e concrete
  *  products.  The factory let you decide what concrete product to create at @e runtime by
  *  using a specific @e identifier.  These identifiers can be integers or strings or any
- *  type you can use in a std::map.  
+ *  type you can use in a std::map.
  *
  *  Before you can create any products, you must @e subscribe @e prototypes and @e cloner methods
- *	to the factory.  A @e prototype is an object instance that will be cloned by the @e cloner 
- *  function.  Together, a pair of a @e prototype and a @e cloner function provides the 
- *  functionality of one @e maker function in the ObjectFactory.  
+ *  to the factory.  A @e prototype is an object instance that will be cloned by the @e cloner
+ *  function.  Together, a pair of a @e prototype and a @e cloner function provides the
+ *  functionality of one @e maker function in the ObjectFactory.
  *
- *	Again, all this @a cloners must have the same signature and should return a pointer to the 
+ *  Again, all this @a cloners must have the same signature and should return a pointer to the
  *  abstract product.  Their first argument will be a reference to the prototype being cloned.
  *  The following arguments will be filled by the @a iP1, @a iP2, @a iP3, ... that are provided to
  *  the make() method of the clone factory.
  *
  *  @code
- *	class Base
- *	{
- *	public:
- *		Base(const std::string& iName): name_(iName) {}
- *		virtual std::string who() const { return std::string("Base ") + name_; }
- *		virtual Base* clone() const { return new Base(*this); }
- *	protected:
- *		std::string name_;
- *	};
+ *  class Base
+ *  {
+ *  public:
+ *      Base(const std::string& iName): name_(iName) {}
+ *      virtual std::string who() const { return std::string("Base ") + name_; }
+ *      virtual Base* clone() const { return new Base(*this); }
+ *  protected:
+ *      std::string name_;
+ *  };
  *
- *	class Foo: public Base
- *	{
- *	public:
- *		Foo(const std::string& iName): Base(iName) {}
- *		virtual std::string who() const { return std::string("Foo ") + name_; }
- *		virtual Base* clone() const { return new Foo(*this); }
- *	};
+ *  class Foo: public Base
+ *  {
+ *  public:
+ *      Foo(const std::string& iName): Base(iName) {}
+ *      virtual std::string who() const { return std::string("Foo ") + name_; }
+ *      virtual Base* clone() const { return new Foo(*this); }
+ *  };
  *
- *	class Bar: public Base
- *	{
- *	public:
- *		Bar(const std::string& iName): Base(iName) {}
- *		virtual std::string who() const { return std::string("Bar ") + name_; }
- *		virtual Base* clone() const { return new Bar(*this); }
- *	};
+ *  class Bar: public Base
+ *  {
+ *  public:
+ *      Bar(const std::string& iName): Base(iName) {}
+ *      virtual std::string who() const { return std::string("Bar ") + name_; }
+ *      virtual Base* clone() const { return new Bar(*this); }
+ *  };
  *
- *	Base* clone(const Base& iPrototype) { return iPrototype.clone(); }
+ *  Base* clone(const Base& iPrototype) { return iPrototype.clone(); }
  *
   * typedef util::CloneFactory<clone_factory::Base, std::string> TFactory;
- *	typedef std::auto_ptr<clone_factory::Base> TBasePtr;
+ *  typedef std::auto_ptr<clone_factory::Base> TBasePtr;
  *
- *	TFactory factory(clone_factory::clone);
- *	factory.subscribe("Joe", TBasePtr(new clone_factory::Base("Joe")));
- *	factory.subscribe("Moe", TBasePtr(new clone_factory::Foo("Moe")));
- *	factory.subscribe("Doe", TBasePtr(new clone_factory::Bar("Doe")));
+ *  TFactory factory(clone_factory::clone);
+ *  factory.subscribe("Joe", TBasePtr(new clone_factory::Base("Joe")));
+ *  factory.subscribe("Moe", TBasePtr(new clone_factory::Foo("Moe")));
+ *  factory.subscribe("Doe", TBasePtr(new clone_factory::Bar("Doe")));
  *
- *	TBasePtr a(factory.make("Joe"));
- *	LASS_COUT << a->who() << "\n"; // Base Joe
- *	TBasePtr b(factory.make("Moe"));
- *	LASS_COUT << b->who() << "\n"; // Foo Moe
- *	TBasePtr c(factory.make("Doe"));
- *	LASS_COUT << c->who() << "\n"; // Bar Doe
+ *  TBasePtr a(factory.make("Joe"));
+ *  LASS_COUT << a->who() << "\n"; // Base Joe
+ *  TBasePtr b(factory.make("Moe"));
+ *  LASS_COUT << b->who() << "\n"; // Foo Moe
+ *  TBasePtr c(factory.make("Doe"));
+ *  LASS_COUT << c->who() << "\n"; // Bar Doe
  *  @endcode
  */
 
@@ -107,7 +107,7 @@ namespace lass
 namespace util
 {
 
-template 
+template
 <
 	class AbstractProduct,
 	class IdentifierType,
@@ -152,7 +152,7 @@ public:
 		typename TPrototypes::const_iterator i = prototypes_.find(iIdentifier);
 		if (i == prototypes_.end())
 		{
-			LASS_THROW("Unknown Product identifier '" << iIdentifier 
+			LASS_THROW("Unknown Product identifier '" << iIdentifier
 				<< "' passed to CloneFactory.");
 		}
 		return cloner_(*i->second);
@@ -162,13 +162,13 @@ public:
 	 *  only to be used if it can be mapped on @a iCloner function.
 	 */
 	template <$(typename P$x)$>
-	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier, 
+	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier,
 						  $(P$x& iP$x)$) const
 	{
 		typename TPrototypes::const_iterator i = prototypes_.find(iIdentifier);
 		if (i == prototypes_.end())
 		{
-			LASS_THROW("Unknown Product identifier '" << iIdentifier 
+			LASS_THROW("Unknown Product identifier '" << iIdentifier
 				<< "' passed to CloneFactory.");
 		}
 		return cloner_(*i->second, $(iP$x)$);

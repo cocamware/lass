@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -44,7 +44,7 @@ namespace prim
 {
 
 
-template<typename T> 
+template<typename T>
 Vector3D<T>::Vector3D():
 	x(TNumTraits::zero),
 	y(TNumTraits::zero),
@@ -54,7 +54,7 @@ Vector3D<T>::Vector3D():
 
 
 
-template<typename T> 
+template<typename T>
 Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 	x(iX),
 	y(iY),
@@ -65,9 +65,9 @@ Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)), 
+	x(static_cast<TValue>(iOther.x)),
 	y(static_cast<TValue>(iOther.y)),
 	z(static_cast<TValue>(iOther.z))
 {
@@ -76,9 +76,9 @@ Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
 
 
 template <typename T>
-template <typename U> 
+template <typename U>
 Vector3D<T>::Vector3D(const U& iX, const U& iY, const U& iZ):
-	x(static_cast<TValue>(iX)), 
+	x(static_cast<TValue>(iX)),
 	y(static_cast<TValue>(iY)),
 	z(static_cast<TValue>(iZ))
 {
@@ -86,7 +86,7 @@ Vector3D<T>::Vector3D(const U& iX, const U& iY, const U& iZ):
 
 
 
-template<typename T> 
+template<typename T>
 typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
@@ -95,7 +95,7 @@ typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) c
 
 
 
-template<typename T> 
+template<typename T>
 typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
@@ -104,9 +104,9 @@ typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
-template<typename T> 
+template<typename T>
 typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
  {
 	return *(&x + num::mod(iIndex, dimension));
@@ -114,9 +114,9 @@ typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
-template<typename T> 
+template<typename T>
 typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
 {
 	return *(&x + num::mod(iIndex, dimension));
@@ -124,9 +124,9 @@ typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
 
 
 
-/** A weird way to get back the same object 
+/** A weird way to get back the same object
  */
-template<typename T> 
+template<typename T>
 const Vector3D<T>& Vector3D<T>::operator+() const
 {
 	return *this;
@@ -134,7 +134,7 @@ const Vector3D<T>& Vector3D<T>::operator+() const
 
 
 
-template<typename T> 
+template<typename T>
 const Vector3D<T> Vector3D<T>::operator-() const
 {
 	return Vector3D(-x, -y, -z);
@@ -145,7 +145,7 @@ const Vector3D<T> Vector3D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB) 
+Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
 {
 	x += iB.x;
 	y += iB.y;
@@ -157,7 +157,7 @@ Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
 
 /** componentwise subtraction
  */
-template<typename T> 
+template<typename T>
 Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
 {
 	x -= iB.x;
@@ -249,7 +249,7 @@ Vector3D<T>& Vector3D<T>::operator/=(TParam iB)
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector3D<T>::isZero() const 
+const bool Vector3D<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
@@ -259,7 +259,7 @@ const bool Vector3D<T>::isZero() const
 /** Return squared norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const 
+const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const
 {
 	return dot(*this, *this);
 }
@@ -269,7 +269,7 @@ const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const
 /** Return norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::norm() const 
+const typename Vector3D<T>::TValue Vector3D<T>::norm() const
 {
 	return num::sqrt(squaredNorm());
 }
@@ -278,12 +278,12 @@ const typename Vector3D<T>::TValue Vector3D<T>::norm() const
 
 /** return a unit vector with same direction/sense as this vector.
  *
- * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1. 
- * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>, 
+ * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
+ * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::normal() const 
+const Vector3D<T> Vector3D<T>::normal() const
 {
 	Vector3D<T> result(*this);
 	result.normalize();
@@ -295,7 +295,7 @@ const Vector3D<T> Vector3D<T>::normal() const
 /** return the reciprocal version of this vector
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::reciprocal() const 
+const Vector3D<T> Vector3D<T>::reciprocal() const
 {
 	Vector3D<T> result(TNumTraits::one, TNumTraits::one, TNumTraits::one);
 	result /= *this;
@@ -307,7 +307,7 @@ const Vector3D<T> Vector3D<T>::reciprocal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const 
+const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 {
 	Vector3D<T> result;
 	result *= dot(iB, *this);
@@ -320,7 +320,7 @@ const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const 
+const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
 {
 	return iB - project(iB);
 }
@@ -332,7 +332,7 @@ const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
 template <typename T>
 const Vector3D<T> Vector3D<T>::transform(T (*iOperator)(T)) const
 {
-    return Vector3D<T>(iOperator(x), iOperator(y), iOperator(z));
+	return Vector3D<T>(iOperator(x), iOperator(y), iOperator(z));
 }
 
 
@@ -360,9 +360,9 @@ Vector3D<T> Vector3D<T>::random(RandomGenerator& ioGenerator)
 
 	num::DistributionUniform<TValue, RandomGenerator> thetaGenerator(
 		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
-    const TValue theta = thetaGenerator();
+	const TValue theta = thetaGenerator();
 
-    return Vector3D<T>(r * num::cos(theta), r * num::sin(theta), z);
+	return Vector3D<T>(r * num::cos(theta), r * num::sin(theta), z);
 }
 
 
@@ -384,8 +384,8 @@ typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB)
 template<typename T> inline
 Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB)
 {
-	return Vector3D<T>(iA.y * iB.z - iA.z * iB.y, 
-					   iA.z * iB.x - iA.x * iB.z, 
+	return Vector3D<T>(iA.y * iB.z - iA.z * iB.y,
+					   iA.z * iB.x - iA.x * iB.z,
 					   iA.x * iB.y - iA.y * iB.x);
 }
 
@@ -560,7 +560,7 @@ Vector3D<T> operator*(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB)
 template<typename T>
 inline Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB)
 {
-    return Vector3D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), std::min(iA.z, iB.z));
+	return Vector3D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), std::min(iA.z, iB.z));
 }
 
 
@@ -571,16 +571,16 @@ inline Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB)
 template<typename T>
 inline Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB)
 {
-    return Vector3D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), std::max(iA.z, iB.z));
+	return Vector3D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), std::max(iA.z, iB.z));
 }
 
 
 
 /** @relates lass::prim::Vector3D
  */
-template<typename T, typename Char, typename Traits> 
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
-                                             const Vector3D<T>& iB)
+template<typename T, typename Char, typename Traits>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
+											 const Vector3D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ")";
 	return oOStream;
@@ -590,9 +590,9 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 
 /** @relates lass::prim::Vector3D
  */
-template<typename T, typename Char, typename Traits> 
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-                                             Vector3D<T>& oB)
+template<typename T, typename Char, typename Traits>
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
+											 Vector3D<T>& oB)
 {
 	Vector3D<T> result;
 
@@ -639,7 +639,7 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector3D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(oOStream) 
+	LASS_ENFORCE_STREAM(oOStream)
 		<< "<Vector3D>" << iB.x << " " << iB.y << " " << iB.z << "</Vector3D>\n";
 	return oOStream;
 }

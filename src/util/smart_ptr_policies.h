@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** @defgroup SmartPtr Smart Pointers
@@ -43,7 +43,7 @@
  *
  *  @subsection StorageConcept concept of storage policy
  *
- *  All storage policies should implement the following interface.  Some functions like 
+ *  All storage policies should implement the following interface.  Some functions like
  *  @c at(size_t) should only be implemented for array-like pointees.  So they can safely be
  *  ommited if pointee does not act like an array.
  *
@@ -52,39 +52,39 @@
  *  class StoragePolicy
  *  {
  *  public:
- *  
+ *
  *      typedef ... TStorage;   // the type of the storage_ object (usually T*)
  *      typedef ... TPointer;   // return type of pointer() or operator-> (usually T*)
  *      typedef ... TReference; // return type of operator* or operator[] (usually T&)
- *  
+ *
  *      TStorage& storage();
  *      // return reference to storage object (usualy to a pointer)
  *
- *      const TStorage& storage() const; 
+ *      const TStorage& storage() const;
  *      // return const-reference to storage object
- *  
+ *
  *  protected:
  *
- *      StoragePolicy();  
+ *      StoragePolicy();
  *      // should initialize with default storage object (in most cases: NULL)
  *
  *      StoragePolicy(T* iPointee);
  *      // should initialize to store given pointee.
- *  
- *      TPointer pointer() const; 
+ *
+ *      TPointer pointer() const;
  *      // should return a pointer to the pointee
  *
- *      TReference at(size_t iIndex) const; 
- *      // for arrays only: should return reference to iIndex'th object in array 
+ *      TReference at(size_t iIndex) const;
+ *      // for arrays only: should return reference to iIndex'th object in array
  *      // (YOU CAN OMMIT THIS FOR NON-ARRAYS)
- *  
- *      void dispose(); 
+ *
+ *      void dispose();
  *      // deallocate the pointee (e.g. by a delete or delete [])
  *
- *      bool isNull() const; 
+ *      bool isNull() const;
  *      // return true if storage contains equivalent of NULL pointer.
  *
- *      void swap(StoragePolicy<T>& iOther); 
+ *      void swap(StoragePolicy<T>& iOther);
  *      // swap storage object with other policy.
  *  };
  *  @endcode
@@ -101,41 +101,41 @@
  *
  *  @subsection CounterConcept concept of counter policy
  *
- *  All counter policies should implement the following interface.  The template parameter 
+ *  All counter policies should implement the following interface.  The template parameter
  *  @c TStorage is of the same type as @c TStorage in the used storage policy.  It will useually
  *  be a pointer to the pointee.
  *
- *  @code 
+ *  @code
  *  class CounterPolicy
  *  {
  *  public:
- *  
+ *
  *      typedef ... TCount; // type of reference counter variable (should be an integer)
- *  
+ *
  *  protected:
- *  
+ *
  *      DefaultCounter(); // brings object in valid state without setting any counter.
  *
- *      template <typename TStorage> void init(TStorage& iPointee); 
+ *      template <typename TStorage> void init(TStorage& iPointee);
  *      // initialize reference count one one.  This is called on acquring of object by first owner
- *      // (increment isn't called for first owner). 
- *  
+ *      // (increment isn't called for first owner).
+ *
  *      template <typename TStorage> void dispose(TStorage& iPointee);
- *      // clean up the counter (not the pointee).  This is called when reference count drops to 
+ *      // clean up the counter (not the pointee).  This is called when reference count drops to
  *      // zero (thus on release by last owner).
- *      
+ *
  *      template <typename TStorage> void increment(TStorage& iPointee);
  *      // increment the reference count by one.  This is called on acquiring of object by any owner
  *      // except the first (the first one calls init(TStorage&) instead).
- *  
+ *
  *      template <typename TStorage> bool decrement(TStorage& iPointee);
- *      // decrement the reference count by one and returns true if it drops below one.  This is 
- *      // called on every release of the object by any owner.  It should return true if @e after 
+ *      // decrement the reference count by one and returns true if it drops below one.  This is
+ *      // called on every release of the object by any owner.  It should return true if @e after
  *      // the decrement the reference count turns out the be less than one (i.e. there are no more
  *      // owners, this was the last one), to indicate the pointee should be deallocated now.  In
  *      // all other cases, it should return false @e after the (i.e. if the reference count is
  *      // still non-zero after the decrement).
- *      
+ *
  *      template <typename TStorage> TCount count(TStorage& iPointee) const;
  *      // return the reference count, i.e. number of owners of the pointee
  *
@@ -190,14 +190,14 @@ protected:
 
 	TPointer pointer() const { return storage_; }
 
-	void dispose() 
+	void dispose()
 	{
-		delete storage_; 
-		storage_ = 0; 
+		delete storage_;
+		storage_ = 0;
 	}
 
-	bool isNull() const { return !storage_;	}
-	void swap(ObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
+	bool isNull() const { return !storage_; }
+	void swap(ObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_); }
 
 	static TStorage defaultStorage() { return 0; }
 
@@ -239,12 +239,12 @@ protected:
 
 	void dispose()
 	{
-		delete [] storage_; 
-		storage_ = 0; 
+		delete [] storage_;
+		storage_ = 0;
 	}
 
 	bool isNull() const { return !storage_; }
-    void swap(ArrayStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
+	void swap(ArrayStorage<T>& iOther) { std::swap(storage_, iOther.storage_);  }
 
 	static TStorage defaultStorage() { return 0; }
 
@@ -290,7 +290,7 @@ protected:
 		delete count_;
 		count_ = 0;
 	}
-	
+
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
 		LASS_ASSERT(count_);
@@ -303,14 +303,14 @@ protected:
 		--*count_;
 		return *count_ < 1;
 	}
-	
+
 	template <typename TStorage> TCount count(TStorage& iPointee) const
 	{
 		LASS_ASSERT(count_);
 		return *count_;
 	}
-	
-	void swap(DefaultCounter& iOther) {	std::swap(count_, iOther.count_); }
+
+	void swap(DefaultCounter& iOther) { std::swap(count_, iOther.count_); }
 
 private:
 
@@ -325,7 +325,7 @@ private:
  *  @ingroup SmartPtr
  *  @author Bram de Greve [Bramz]
  *
- *  This comes from "C++ Templates, The Complete Guide" by David Vandevoorde and 
+ *  This comes from "C++ Templates, The Complete Guide" by David Vandevoorde and
  *  Nicolai M. Josuttis.  See their @c MemberReferenceCount policy.
  *
  *  The DefaultCounter policy puts the reference counter outside the managed object.  That's great in
@@ -335,31 +335,31 @@ private:
  *  our SharedPtr.
  *
  *  @code
- *	struct Foo
- *	{
- *		std::string blablabla;
- *		int referenceCount;
- *	};
+ *  struct Foo
+ *  {
+ *      std::string blablabla;
+ *      int referenceCount;
+ *  };
  *
- *	typedef lass::util::SharedPtr
- *	<
- *		Foo, 
- *		lass::util::ObjectStorage, 
- *		lass::util::IntrusiveCounter
- *		<
- *			Foo,						// the managed type (containing the counter)
- *			int,						// type of the counter
- *			&Foo::referenceCount		// pointer to the counter
- *		> 
- *	>
+ *  typedef lass::util::SharedPtr
+ *  <
+ *      Foo,
+ *      lass::util::ObjectStorage,
+ *      lass::util::IntrusiveCounter
+ *      <
+ *          Foo,                        // the managed type (containing the counter)
+ *          int,                        // type of the counter
+ *          &Foo::referenceCount        // pointer to the counter
+ *      >
+ *  >
  *  TFooPtr;
  *
- *	TFooPtr foo(new Foo);
- *	@endcode
+ *  TFooPtr foo(new Foo);
+ *  @endcode
  */
-template 
+template
 <
-	typename T, 
+	typename T,
 	typename CounterType,
 	CounterType T::*referenceCounter
 >
@@ -380,7 +380,7 @@ protected:
 	template <typename TStorage> void dispose(TStorage& iPointee)
 	{
 	}
-	
+
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
 		LASS_ASSERT(iPointee);
@@ -393,14 +393,14 @@ protected:
 		--(iPointee->*referenceCounter);
 		return (iPointee->*referenceCounter) < 1;
 	}
-	
+
 	template <typename TStorage> TCount count(TStorage& iPointee) const
 	{
 		LASS_ASSERT(iPointee);
 		return iPointee->*referenceCounter;
 	}
-	
-	void swap(DefaultCounter& iOther) 
+
+	void swap(DefaultCounter& iOther)
 	{
 	}
 };

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -37,11 +37,11 @@
 
 namespace lass
 {
-	
+
 namespace prim
 {
 
-template<typename T> inline 
+template<typename T> inline
 Point3D<T>::Point3D() :
 	x(TNumTraits::zero),
 	y(TNumTraits::zero),
@@ -52,7 +52,7 @@ Point3D<T>::Point3D() :
 
 
 
-template<typename T> inline 
+template<typename T> inline
 Point3D<T>::Point3D(TParam iX, TParam iY, TParam iZ) :
 	x(iX),
 	y(iY),
@@ -104,75 +104,75 @@ Point3D<T>::position() const
 
 
 
-template<typename T> inline 
-typename Point3D<T>::TConstReference 
+template<typename T> inline
+typename Point3D<T>::TConstReference
 Point3D<T>::operator[](unsigned iIndex) const
 {
-    LASS_ASSERT(iIndex < dimension);
+	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
 }
 
 
 
-template<typename T> inline 
-typename Point3D<T>::TReference 
+template<typename T> inline
+typename Point3D<T>::TReference
 Point3D<T>::operator[](unsigned iIndex)
 {
-    LASS_ASSERT(iIndex < dimension);
+	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
 }
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
-template<typename T> inline 
-typename Point3D<T>::TConstReference 
+template<typename T> inline
+typename Point3D<T>::TConstReference
 Point3D<T>::at(signed iIndex) const
 {
-    return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
 
-/** Wrap index around range. 
+/** Wrap index around range.
  */
-template<typename T> inline 
-typename Point3D<T>::TReference 
+template<typename T> inline
+typename Point3D<T>::TReference
 Point3D<T>::at(signed iIndex)
 {
-    return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
 
 
-template<typename T> 
-Point3D<T>& Point3D<T>::operator+=(const TVector& iB) 
+template<typename T>
+Point3D<T>& Point3D<T>::operator+=(const TVector& iB)
 {
 	x += iB.x;
-    y += iB.y;
-    z += iB.z;
+	y += iB.y;
+	z += iB.z;
 	return *this;
 }
 
 
 
-template<typename T> 
-Point3D<T>& Point3D<T>::operator-=(const TVector& iB) 
+template<typename T>
+Point3D<T>& Point3D<T>::operator-=(const TVector& iB)
 {
 	x -= iB.x;
-    y -= iB.y;
-    z -= iB.z;
+	y -= iB.y;
+	z -= iB.z;
 	return *this;
 }
 
 
 
-template<typename T> 
+template<typename T>
 const bool Point3D<T>::isZero() const
 {
-    return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
+	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
 
 
@@ -181,8 +181,8 @@ const bool Point3D<T>::isZero() const
 
 /** @relates lass::prim::Point3D
  */
-template<typename T> 
-bool operator==(const Point3D<T>& iA, const Point3D<T>& iB) 
+template<typename T>
+bool operator==(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	return iA.x == iB.x && iA.y == iB.y && iA.z == iB.z;
 }
@@ -192,7 +192,7 @@ bool operator==(const Point3D<T>& iA, const Point3D<T>& iB)
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline
-bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB) 
+bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	return !(iA == iB);
 }
@@ -201,7 +201,7 @@ bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB)
 
 /** @relates lass::prim::Point3D
  */
-template<typename T> inline 
+template<typename T> inline
 Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB)
 {
 	Point3D<T> result(iA);
@@ -213,7 +213,7 @@ Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB)
 
 /** @relates lass::prim::Point3D
  */
-template<typename T> inline 
+template<typename T> inline
 Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB)
 {
 	Point3D<T> result(iA);
@@ -225,7 +225,7 @@ Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB)
 
 /** @relates lass::prim::Point3D
  */
-template<typename T> inline 
+template<typename T> inline
 Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB)
 {
 	Point3D<T> result(iB);
@@ -237,7 +237,7 @@ Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB)
 
 /** @relates lass::prim::Point3D
  */
-template<typename T> 
+template<typename T>
 Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	return Vector3D<T>(iA.x - iB.x, iA.y - iB.y, iA.z - iB.z);
@@ -248,16 +248,16 @@ Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB)
 /** return the distance between two points
  *  @relates lass::prim::Point3D
  */
-template<typename T> 
+template<typename T>
 typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	const Vector3D<T> difference = iA - iB;
 	return difference.norm();
 }
 
-/** @relates lass::prim::Point2D    
+/** @relates lass::prim::Point2D
  */
-template<typename T> 
+template<typename T>
 typename Point3D<T>::TValue squaredDistance(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	const Vector3D<T> difference = iA - iB;
@@ -269,10 +269,10 @@ typename Point3D<T>::TValue squaredDistance(const Point3D<T>& iA, const Point3D<
 /** return a point with, for each coordinate, the minimum value of iA and iB
  *  @relates lass::prim::Point3D
  */
-template<typename T> 
+template<typename T>
 Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB)
 {
-    return Point3D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), std::min(iA.z, iB.z));
+	return Point3D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), std::min(iA.z, iB.z));
 }
 
 
@@ -280,10 +280,10 @@ Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB)
 /** return a point with, for each coordinate, the maximum value of iA and iB
  *  @relates lass::prim::Point3D
  */
-template<typename T> 
+template<typename T>
 Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB)
 {
-    return Point3D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), std::max(iA.z, iB.z));
+	return Point3D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), std::max(iA.z, iB.z));
 }
 
 
@@ -304,7 +304,7 @@ std::ostream& operator<<(std::ostream& ioOStream, const Point3D<T>& iB)
 template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(oOStream) 
+	LASS_ENFORCE_STREAM(oOStream)
 		<< "<Point3D>" << iB.x << " " << iB.y << " " << iB.z << "</Point3D>\n";
 	return oOStream;
 }
@@ -315,9 +315,9 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB)
 template<typename T>
 std::istream& operator>>(std::istream& ioIStream, Point3D<T>& oB)
 {
-    Vector3D<T> temp;
+	Vector3D<T> temp;
 	LASS_ENFORCE_STREAM(ioIStream) >> temp;
-    oB = Point3D<T>(temp);
+	oB = Point3D<T>(temp);
 	return ioIStream;
 }
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -43,31 +43,31 @@ unsigned Cell3D<T>::currentVisitId_ = 0;
 
 // --- public --------------------------------------------------------------------------------------
 
-/** Constructor 
+/** Constructor
  */
 template <typename T>
 Cell3D<T>::Cell3D(const TWorld& iWorld, THandle iMedium):
-    world_(iWorld),
-    medium_(iMedium),
-    visitId_(0)
+	world_(iWorld),
+	medium_(iMedium),
+	visitId_(0)
 {
 }
 
 
 
-/** Delete a cell and its unshared faces.  it will try to also delete its faces, 
- *  but it can only delete those it doesn't share with other cells if this 
- *  cell is the front cell of such a face shared with another cell, this 
- *  destructor will set the other cell as front cell.  
+/** Delete a cell and its unshared faces.  it will try to also delete its faces,
+ *  but it can only delete those it doesn't share with other cells if this
+ *  cell is the front cell of such a face shared with another cell, this
+ *  destructor will set the other cell as front cell.
  */
 template <typename T>
 Cell3D<T>::~Cell3D()
 {
-    TFaces::iterator fit;
-    for (fit = faces_.begin(); fit != faces_.end(); ++fit)
-    {
-        deleteFace(*fit);
-    }
+	TFaces::iterator fit;
+	for (fit = faces_.begin(); fit != faces_.end(); ++fit)
+	{
+		deleteFace(*fit);
+	}
 }
 
 
@@ -77,7 +77,7 @@ Cell3D<T>::~Cell3D()
 template <typename T>
 const Cell3D<T>::TWorld& Cell3D<T>::world() const
 {
-    return world_;
+	return world_;
 }
 
 
@@ -87,7 +87,7 @@ const Cell3D<T>::TWorld& Cell3D<T>::world() const
 template <typename T>
 Cell3D<T>::THandle Cell3D<T>::medium() const
 {
-    return medium_;
+	return medium_;
 }
 
 
@@ -97,17 +97,17 @@ Cell3D<T>::THandle Cell3D<T>::medium() const
 template <typename T>
 void Cell3D<T>::addFace(TFace& iFace)
 {
-    faces_.push_back(&iFace);
+	faces_.push_back(&iFace);
 }
 
 
 
-/** Return the number of faces 
+/** Return the number of faces
  */
 template <typename T>
 Cell3D<T>::TFaces::size_type Cell3D<T>::sizeFaces() const
 {
-    return faces_.size();
+	return faces_.size();
 }
 
 
@@ -117,7 +117,7 @@ Cell3D<T>::TFaces::size_type Cell3D<T>::sizeFaces() const
 template <typename T>
 Cell3D<T>::TFaces::iterator Cell3D<T>::beginFace()
 {
-    return faces_.begin();
+	return faces_.begin();
 }
 
 
@@ -127,7 +127,7 @@ Cell3D<T>::TFaces::iterator Cell3D<T>::beginFace()
 template <typename T>
 Cell3D<T>::TFaces::const_iterator Cell3D<T>::beginFace() const
 {
-    return faces_.begin();
+	return faces_.begin();
 }
 
 
@@ -137,7 +137,7 @@ Cell3D<T>::TFaces::const_iterator Cell3D<T>::beginFace() const
 template <typename T>
 Cell3D<T>::TFaces::iterator Cell3D<T>::endFace()
 {
-    return faces_.end();
+	return faces_.end();
 }
 
 
@@ -147,7 +147,7 @@ Cell3D<T>::TFaces::iterator Cell3D<T>::endFace()
 template <typename T>
 Cell3D<T>::TFaces::const_iterator Cell3D<T>::endFace() const
 {
-    return faces_.end();
+	return faces_.end();
 }
 
 
@@ -157,9 +157,9 @@ Cell3D<T>::TFaces::const_iterator Cell3D<T>::endFace() const
 template <typename T>
 Cell3D<T>::TFaces::iterator Cell3D<T>::eraseFace(Cell3D<T>::TFaces::iterator iFace)
 {
-    LASS_ASSERT(std::find(faces_.begin(), faces_.end(), *iFace) == iFace);
-    deleteFace(*iFace);
-    return faces_.erase(iFace);
+	LASS_ASSERT(std::find(faces_.begin(), faces_.end(), *iFace) == iFace);
+	deleteFace(*iFace);
+	return faces_.erase(iFace);
 }
 
 
@@ -169,11 +169,11 @@ Cell3D<T>::TFaces::iterator Cell3D<T>::eraseFace(Cell3D<T>::TFaces::iterator iFa
 template <typename T>
 void Cell3D<T>::clearFaces()
 {
-    TFaces::iterator fit;
-    for (fit = faces_.begin(); fit != faces_.end();)
-    {
-        fit = eraseFace(fit);
-    }
+	TFaces::iterator fit;
+	for (fit = faces_.begin(); fit != faces_.end();)
+	{
+		fit = eraseFace(fit);
+	}
 }
 
 
@@ -183,7 +183,7 @@ void Cell3D<T>::clearFaces()
 template <typename T>
 void Cell3D<T>::clearFacePointers()
 {
-    faces_.clear();
+	faces_.clear();
 }
 
 
@@ -193,7 +193,7 @@ void Cell3D<T>::clearFacePointers()
 template <typename T>
 void Cell3D<T>::addObject(TObject& iObject)
 {
-    objects_.push_back(&iObject);
+	objects_.push_back(&iObject);
 }
 
 
@@ -219,12 +219,12 @@ bool Cell3D<T>::removeObject(TObject& iObject)
 
 
 
-/** Return the number of objects 
+/** Return the number of objects
  */
 template <typename T>
 Cell3D<T>::TObjects::size_type Cell3D<T>::sizeObjects() const
 {
-    return objects_.size();
+	return objects_.size();
 }
 
 
@@ -234,7 +234,7 @@ Cell3D<T>::TObjects::size_type Cell3D<T>::sizeObjects() const
 template <typename T>
 Cell3D<T>::TObjects::iterator Cell3D<T>::beginObject()
 {
-    return objects_.begin();
+	return objects_.begin();
 }
 
 
@@ -244,7 +244,7 @@ Cell3D<T>::TObjects::iterator Cell3D<T>::beginObject()
 template <typename T>
 Cell3D<T>::TObjects::const_iterator Cell3D<T>::beginObject() const
 {
-    return objects_.begin();
+	return objects_.begin();
 }
 
 
@@ -254,7 +254,7 @@ Cell3D<T>::TObjects::const_iterator Cell3D<T>::beginObject() const
 template <typename T>
 Cell3D<T>::TObjects::iterator Cell3D<T>::endObject()
 {
-    return objects_.end();
+	return objects_.end();
 }
 
 
@@ -264,7 +264,7 @@ Cell3D<T>::TObjects::iterator Cell3D<T>::endObject()
 template <typename T>
 Cell3D<T>::TObjects::const_iterator Cell3D<T>::endObject() const
 {
-    return objects_.end();
+	return objects_.end();
 }
 
 
@@ -274,7 +274,7 @@ Cell3D<T>::TObjects::const_iterator Cell3D<T>::endObject() const
 template <typename T>
 unsigned Cell3D<T>::visitId() const
 {
-    return visitId_;
+	return visitId_;
 }
 
 
@@ -284,7 +284,7 @@ unsigned Cell3D<T>::visitId() const
 template <typename T>
 void Cell3D<T>::setVisitId(unsigned iVisitId)
 {
-    visitId_ = iVisitId;
+	visitId_ = iVisitId;
 }
 
 
@@ -297,16 +297,16 @@ void Cell3D<T>::setVisitId(unsigned iVisitId)
 template <typename T>
 Cell3D<T>::TPointH Cell3D<T>::barycenter() const
 {
-    TPointH result;
+	TPointH result;
 
-    TFaces::const_iterator fit;
-    for (fit = faces_.begin(); fit != faces_.end(); ++fit)
-    {
-        result += (*fit)->barycenter();
-    }
-    
-    LASS_ASSERT(this->contains(result.affine()));
-    return result;
+	TFaces::const_iterator fit;
+	for (fit = faces_.begin(); fit != faces_.end(); ++fit)
+	{
+		result += (*fit)->barycenter();
+	}
+
+	LASS_ASSERT(this->contains(result.affine()));
+	return result;
 }
 
 
@@ -326,18 +326,18 @@ Cell3D<T>::TPointH Cell3D<T>::barycenter() const
 template <typename T>
 bool Cell3D<T>::contains(const TPoint& iPoint, TParam iSpacing) const
 {
-    TFaces::const_iterator fit;
-    for (fit = faces_.begin(); fit != faces_.end(); ++fit)
-    {
-        TFace* face = *fit;
-        const TValue result = face->plane(this).equation(iPoint);
-        if (result < iSpacing)
-        {
-            return false;
-        }
-    }
+	TFaces::const_iterator fit;
+	for (fit = faces_.begin(); fit != faces_.end(); ++fit)
+	{
+		TFace* face = *fit;
+		const TValue result = face->plane(this).equation(iPoint);
+		if (result < iSpacing)
+		{
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 
@@ -347,22 +347,22 @@ bool Cell3D<T>::contains(const TPoint& iPoint, TParam iSpacing) const
 template <typename T>
 void Cell3D<T>::eraseObsolete()
 {
-    TFaces tempFaces;
-    TFaces::iterator fit;
+	TFaces tempFaces;
+	TFaces::iterator fit;
 
-    for (fit = faces_.begin(); fit != faces_.end(); ++fit)
-    {
-        TFace* face = *fit;
-        if (face->pair() == 0)
-        {
-            deleteFace(face);
-        }
-        else
-        {
-            tempFaces.push_back(face);
-        }
-    }
-    std::swap(faces_, tempFaces);
+	for (fit = faces_.begin(); fit != faces_.end(); ++fit)
+	{
+		TFace* face = *fit;
+		if (face->pair() == 0)
+		{
+			deleteFace(face);
+		}
+		else
+		{
+			tempFaces.push_back(face);
+		}
+	}
+	std::swap(faces_, tempFaces);
 }
 
 
@@ -375,7 +375,7 @@ void Cell3D<T>::eraseObsolete()
 template <typename T>
 unsigned Cell3D<T>::newVisitID()
 {
-    return ++currentVisitId_;
+	return ++currentVisitId_;
 }
 
 
@@ -389,9 +389,9 @@ unsigned Cell3D<T>::newVisitID()
 /** Disconnect this cell from face; if this is the only cell left connected
  *  to face, then delete face.
  *  @warning This method does not get rid of the entry in faces_.  i.e. if you
- *           call this method to remove a face from the cell, this cell will 
- *           still remember the pointer to the face, even if the face is 
- *           deleted.  That's why we keep it private.  Anyway, the way we 
+ *           call this method to remove a face from the cell, this cell will
+ *           still remember the pointer to the face, even if the face is
+ *           deleted.  That's why we keep it private.  Anyway, the way we
  *           disconnect a cell from a face is by two possibilities: 1. there
  *           is a twinCell, then the face is still needed for the twincell and
  *           must not be deleted, we only have to remove in the face the pointer
@@ -402,15 +402,15 @@ unsigned Cell3D<T>::newVisitID()
 template <typename T>
 void Cell3D<T>::deleteFace(TFace& iFace)
 {
-    LASS_ASSERT(iFace.link(this));
-    if (iFace.twinCell(this))
-    {
-        iFace.replaceCell(this, 0);
-    }
-    else
-    {
-        delete &iFace;
-    }
+	LASS_ASSERT(iFace.link(this));
+	if (iFace.twinCell(this))
+	{
+		iFace.replaceCell(this, 0);
+	}
+	else
+	{
+		delete &iFace;
+	}
 }
 
 

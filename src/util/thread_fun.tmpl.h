@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** @defgroup ThreadFun ThreadFun
@@ -73,8 +73,8 @@
  *  b->wait();
  *  @endcode
  *
- *  Limitations: 
- *  - the functions can't have return values, or they are ignored (who should they pass it 
+ *  Limitations:
+ *  - the functions can't have return values, or they are ignored (who should they pass it
  *    through to, anyway?)
  *  - You can't have more than $x arguments (unless you tweak the prebuild ;)
  *
@@ -104,25 +104,25 @@ namespace util
 class ThreadFun0: public Thread
 {
 public:
-    ThreadFun0(const Callback0& iFun, ThreadKind iKind = THREAD_DETACHED);
-    virtual void* entry();
+	ThreadFun0(const Callback0& iFun, ThreadKind iKind = THREAD_DETACHED);
+	virtual void* entry();
 private:
-    Callback0 fun_;
+	Callback0 fun_;
 };
 
 ThreadFun0* threadFun(
-	void (*iFun)(), 
+	void (*iFun)(),
 	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj> 
+template <typename Obj>
 ThreadFun0* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)(), 
-    ThreadKind iKind = THREAD_DETACHED);
+	const Obj& iObj, void (Obj::*iMemFun)(),
+	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj> 
+template <typename Obj>
 ThreadFun0* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)() const, 
-    ThreadKind iKind = THREAD_DETACHED);
+	const Obj& iObj, void (Obj::*iMemFun)() const,
+	ThreadKind iKind = THREAD_DETACHED);
 
 
 
@@ -137,31 +137,31 @@ template <$(typename P$x)$>
 class ThreadFun$x: public Thread
 {
 public:
-    ThreadFun$x(const Callback$x<$(P$x)$>& iFun, 
-               $(typename CallTraits<P$x>::TParam iP$x)$, 
-               ThreadKind iKind = THREAD_DETACHED);
-    virtual void* entry();
+	ThreadFun$x(const Callback$x<$(P$x)$>& iFun,
+			   $(typename CallTraits<P$x>::TParam iP$x)$,
+			   ThreadKind iKind = THREAD_DETACHED);
+	virtual void* entry();
 private:
-    Callback$x<$(P$x)$> fun_;$(
+	Callback$x<$(P$x)$> fun_;$(
 	typename meta::TypeTraits<P$x>::TStorage p$x_;)$
 };
 
 template <$(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	void (*iFun)($(P$x)$), 
-	$(const Q$x& iQ$x)$, 
+	void (*iFun)($(P$x)$),
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$> 
+template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$), 
-	$(const Q$x& iQ$x)$, 
+	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$),
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$> 
+template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$) const, 
-	$(const Q$x& iQ$x)$, 
+	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$) const,
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind = THREAD_DETACHED);
 
 

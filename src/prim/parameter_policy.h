@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -31,7 +31,7 @@
  *  @date 2003
  *
  *  Of some primitives that can use a parameter to locate a point on its surface (like
- *  Line3D, Plane3D, ...), some will not have points for all possible values of the 
+ *  Line3D, Plane3D, ...), some will not have points for all possible values of the
  *  parameter (like Ray3D, LineSegment3D, ...).  For a Ray3D, only the parameters t >= 0
  *  are valid.  For LineSegment3D, only 0 <= t <= 1 is valid.
  */
@@ -112,9 +112,9 @@ struct Unbounded
  *  @throw std::exception if predicate fails.
  */
 #define LASS_PRIM_ENFORCE_RANGE(ParameterPolicy__, rangePredicate__)\
-    (*lass::util::impl::makeEnforcer<ParameterPolicy__, lass::prim::impl::ParameterRaiser>(\
-        (rangePredicate__),\
-        "Parameter out of range '" LASS_STRINGIFY(rangePredicate__) "' in '" LASS_HERE "'"))
+	(*lass::util::impl::makeEnforcer<ParameterPolicy__, lass::prim::impl::ParameterRaiser>(\
+		(rangePredicate__),\
+		"Parameter out of range '" LASS_STRINGIFY(rangePredicate__) "' in '" LASS_HERE "'"))
 
 
 
@@ -132,11 +132,11 @@ namespace impl
  */
 struct ParameterRaiser
 {
-    template <class T> 
+	template <class T>
 	static void raise(const T&, const std::string& iMessage, const char* iLocus)
-    {
-        LASS_THROW(iMessage << '\n' << iLocus);
-    }
+	{
+		LASS_THROW(iMessage << '\n' << iLocus);
+	}
 };
 
 }

@@ -1,52 +1,52 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  <b>Original header and license:</b>
  *
- *	Pragmas for use with Microsoft Visual C++ 5.0 and 6.0
+ *  Pragmas for use with Microsoft Visual C++ 5.0 and 6.0
  *
- *	See http://oakroadsystems.com/tech/msvc.htm for full discussion.
- *	Briefly, we need to compile at level 4 (/W4) because many important
- *	warnings, and even some errors, have been assigned the low level of
- *	4. But level 4 also contains many spurious warnings, so we want to
- *	compile at /W2 or /W3. The pragmas in this file promote many errors
- *	and warnings to level 2 or 3.
+ *  See http://oakroadsystems.com/tech/msvc.htm for full discussion.
+ *  Briefly, we need to compile at level 4 (/W4) because many important
+ *  warnings, and even some errors, have been assigned the low level of
+ *  4. But level 4 also contains many spurious warnings, so we want to
+ *  compile at /W2 or /W3. The pragmas in this file promote many errors
+ *  and warnings to level 2 or 3.
  *
- *	This file is http://oakroadsystems.com/tech/warnings.htm ,
- *	and it was last modified on 2000-06-05. This file is
+ *  This file is http://oakroadsystems.com/tech/warnings.htm ,
+ *  and it was last modified on 2000-06-05. This file is
  *
- *	      Copyright 1998,2000 by Stan Brown, Oak Road Systems
- *	                   http://oakroadsystems.com/
+ *        Copyright 1998,2000 by Stan Brown, Oak Road Systems
+ *                     http://oakroadsystems.com/
  *
- *	License is hereby granted to use this file (or a modified version
- *	of it) in any source code without payment of any license fee,
- *	provided this paragraph is retained in its entirety.
+ *  License is hereby granted to use this file (or a modified version
+ *  of it) in any source code without payment of any license fee,
+ *  provided this paragraph is retained in its entirety.
  *
- *	If you find this file useful, I'd appreciate your letting me know
- *	at the above e-mail address. If you find any errors, or have
- *	improvements to suggest, those will be gratefully received and
- *	acknowledged.
+ *  If you find this file useful, I'd appreciate your letting me know
+ *  at the above e-mail address. If you find any errors, or have
+ *  improvements to suggest, those will be gratefully received and
+ *  acknowledged.
  */
 
 #pragma warning(2:4032)     // function arg has different type from declaration

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -30,7 +30,7 @@
  *  @author Bram de Greve --- BDG ---
  *  @date 2002-2004
  *
- *  This is the templated (and slightly improved) version of the original @c World3 model 
+ *  This is the templated (and slightly improved) version of the original @c World3 model
  *  data structure of @c bass3 [1].  It includes the classes to represent the world model
  *  plus some extra algorithm objects to use on the model.
  *
@@ -91,82 +91,82 @@ public:
 
 	typedef World3D<T> TSelf;
 
-	typedef Cell3D<T> TCell;					
+	typedef Cell3D<T> TCell;
 	typedef Edge3D<T> TEdge;
 	typedef Face3D<T> TFace;
 	typedef Pair3D<T> TPair;
 	typedef Object3D<T> TObject;
 	typedef Vertex3D<T> TVertex;
-	typedef World3D<T> TWorld;					
+	typedef World3D<T> TWorld;
 	typedef void* THandle;
 
 	typedef prim::Plane3D<T> TPlane;
 	typedef prim::Point3D<T> TPoint;
-    typedef prim::Point3DH<T> TPointH;
+	typedef prim::Point3DH<T> TPointH;
 	typedef prim::Vector3D<T> TVector;
 
 	typedef util::CallTraits<T>::TValue TValue;
 	typedef util::CallTraits<T>::TParam TParam;
 
-    typedef std::vector<TEdge*>     TEdges;
-    typedef std::vector<TCell*>     TCells;
-    typedef std::vector<TVertex*>   TVertices;
-    typedef std::vector<TObject*>   TObjects;
+	typedef std::vector<TEdge*>     TEdges;
+	typedef std::vector<TCell*>     TCells;
+	typedef std::vector<TVertex*>   TVertices;
+	typedef std::vector<TObject*>   TObjects;
 
-    friend Cell3Merger;
-
-
-    // STRUCTORS
-
-    ~World3D();
+	friend Cell3Merger;
 
 
-    // METHODS
+	// STRUCTORS
 
-    TEdges::iterator beginEdge();
-    TEdges::iterator endEdge();
-    TCells::iterator beginCell();
-    TCells::iterator endCell();
-    TEdges::const_iterator beginEdge() const;
-    TEdges::const_iterator endEdge() const;
-    TCells::const_iterator beginCell() const;
-    TCells::const_iterator endCell() const;
+	~World3D();
 
-    TVertex* newVertex(const TPoint& a_position);
-    TEdge* newEdge(TVertex* a_tail, TVertex* a_head);
-    TPair* newPair(TFace* a_face, TEdge* a_edge, Polarity a_edgePolarity);
-    TFace* newFace(const TPlane& a_plane, TCell* a_frontCell, TCell* a_backCell, 
-                   THandle a_frontHandle,THandle a_backHandle, const TPoint& a_barycentre);
-    TCell* newCell(THandle a_cellMedium = 0);
-    TObject* newObject(const TPoint& a_position, THandle a_handle, TParam a_spacing = 0);
-    void deleteObject(TObject* a_object);
+
+	// METHODS
+
+	TEdges::iterator beginEdge();
+	TEdges::iterator endEdge();
+	TCells::iterator beginCell();
+	TCells::iterator endCell();
+	TEdges::const_iterator beginEdge() const;
+	TEdges::const_iterator endEdge() const;
+	TCells::const_iterator beginCell() const;
+	TCells::const_iterator endCell() const;
+
+	TVertex* newVertex(const TPoint& a_position);
+	TEdge* newEdge(TVertex* a_tail, TVertex* a_head);
+	TPair* newPair(TFace* a_face, TEdge* a_edge, Polarity a_edgePolarity);
+	TFace* newFace(const TPlane& a_plane, TCell* a_frontCell, TCell* a_backCell,
+				   THandle a_frontHandle,THandle a_backHandle, const TPoint& a_barycentre);
+	TCell* newCell(THandle a_cellMedium = 0);
+	TObject* newObject(const TPoint& a_position, THandle a_handle, TParam a_spacing = 0);
+	void deleteObject(TObject* a_object);
 	void moveObject(TObject*& a_object, const TPoint& a_newPosition, TParam a_spacing = 0);
 
-    void sortPairs();
-    void eraseObsolete();
+	void sortPairs();
+	void eraseObsolete();
 
-    unsigned sizeVertices() const;
-    unsigned sizeEdges() const;
-    unsigned sizePairs() const;
-    unsigned sizeFaces() const;
-    unsigned sizeCells() const;
-    unsigned sizeObjects() const;
-    std::string size() const;
+	unsigned sizeVertices() const;
+	unsigned sizeEdges() const;
+	unsigned sizePairs() const;
+	unsigned sizeFaces() const;
+	unsigned sizeCells() const;
+	unsigned sizeObjects() const;
+	std::string size() const;
 
-    void exportToMatlab(const std::string& a_filename, 
-                        bool a_wireframe = true,
-                        bool a_filled = false,
-                        bool a_noblack = true);
+	void exportToMatlab(const std::string& a_filename,
+						bool a_wireframe = true,
+						bool a_filled = false,
+						bool a_noblack = true);
 
 private:
-  
-    TVertices m_vertices;
-    TEdges m_edges;
-    TCells m_cells;
-    TObjects m_objects;
 
-    friend World3D_p;
-    unsigned m_instances;               
+	TVertices m_vertices;
+	TEdges m_edges;
+	TCells m_cells;
+	TObjects m_objects;
+
+	friend World3D_p;
+	unsigned m_instances;
 };
 
 
@@ -177,7 +177,7 @@ private:
 
 
 
-} 
+}
 
 }
 

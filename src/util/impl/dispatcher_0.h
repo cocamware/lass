@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_0_H
@@ -46,13 +46,13 @@ class Dispatcher0: public SmallObject<>
 {
 public:
 
-    Dispatcher0() {}
-    virtual void operator()() const = 0;
+	Dispatcher0() {}
+	virtual void operator()() const = 0;
 	virtual bool isEquivalent(const Dispatcher0* iOther) const = 0;
 
 private:
-    Dispatcher0(const Dispatcher0& iOther);
-    Dispatcher0& operator=(const Dispatcher0& iOther);
+	Dispatcher0(const Dispatcher0& iOther);
+	Dispatcher0& operator=(const Dispatcher0& iOther);
 };
 
 
@@ -66,20 +66,20 @@ class Dispatcher0Function: public Dispatcher0
 {
 private:
 
-    typedef void (*TFunction) ();
-    TFunction function_;
+	typedef void (*TFunction) ();
+	TFunction function_;
 
 public:
 
-    Dispatcher0Function(TFunction iFunction):
-        function_(iFunction)
-    {
-    }
+	Dispatcher0Function(TFunction iFunction):
+		function_(iFunction)
+	{
+	}
 
-    void operator()() const
-    {
-        (*function_)(); 
-    }
+	void operator()() const
+	{
+		(*function_)();
+	}
 
 	bool isEquivalent(const Dispatcher0* iOther) const
 	{
@@ -100,22 +100,22 @@ class Dispatcher0Method: public Dispatcher0
 {
 private:
 
-    typedef void (Object::*TMethod) ();
-    Object* object_;
-    TMethod method_;
+	typedef void (Object::*TMethod) ();
+	Object* object_;
+	TMethod method_;
 
 public:
 
-    Dispatcher0Method(Object* iObject, TMethod iMethod): 
-        object_(iObject), 
-        method_(iMethod)
-    {
-    }
+	Dispatcher0Method(Object* iObject, TMethod iMethod):
+		object_(iObject),
+		method_(iMethod)
+	{
+	}
 
-    void operator()() const
-    {
-        (object_->*method_)(); 
-    }
+	void operator()() const
+	{
+		(object_->*method_)();
+	}
 
 	bool isEquivalent(const Dispatcher0* iOther) const
 	{
@@ -136,22 +136,22 @@ class Dispatcher0ConstMethod: public Dispatcher0
 {
 private:
 
-    typedef void (Object::*TConstMethod) () const;
-    Object* object_;
-    TConstMethod method_;
+	typedef void (Object::*TConstMethod) () const;
+	Object* object_;
+	TConstMethod method_;
 
 public:
 
-    Dispatcher0ConstMethod(Object* iObject, TConstMethod iMethod): 
-        object_(iObject), 
-        method_(iMethod)
-    {
-    }
+	Dispatcher0ConstMethod(Object* iObject, TConstMethod iMethod):
+		object_(iObject),
+		method_(iMethod)
+	{
+	}
 
-    void operator()() const
-    {
-        (object_->*method_)(); 
-    }
+	void operator()() const
+	{
+		(object_->*method_)();
+	}
 
 	bool isEquivalent(const Dispatcher0* iOther) const
 	{

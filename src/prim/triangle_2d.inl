@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -126,7 +126,7 @@ const typename Triangle2D<T>::TVector Triangle2D<T>::vector(int iIndexOfTailVert
 
 /** @copydoc SimplePolygon2D::isEmpty
  *  @par Triangle specific:
- *		if all vertices are equal, we assume the triangle is empty
+ *      if all vertices are equal, we assume the triangle is empty
  */
 template <typename T>
 const bool Triangle2D<T>::isEmpty() const
@@ -152,7 +152,7 @@ template <typename T>
 const typename Triangle2D<T>::TValue Triangle2D<T>::signedArea() const
 {
 	LASS_ASSERT(size_ == 3);
-    return perpDot(vertices_[1] - vertices_[0], vertices_[2] - vertices_[0]) / 2;
+	return perpDot(vertices_[1] - vertices_[0], vertices_[2] - vertices_[0]) / 2;
 }
 
 
@@ -173,8 +173,8 @@ template <typename T>
 const typename Triangle2D<T>::TValue Triangle2D<T>::perimeter() const
 {
 	return distance(vertices_[0], vertices_[1]) +
-           distance(vertices_[1], vertices_[2]) +
-           distance(vertices_[2], vertices_[0]);
+		   distance(vertices_[1], vertices_[2]) +
+		   distance(vertices_[2], vertices_[0]);
 }
 
 
@@ -192,7 +192,7 @@ const typename Triangle2D<T>::TPointH Triangle2D<T>::center() const
 
 /** @copydoc SimplePolygon2D::isSimple
  *  @par Triangle specific:
- *		A triangle always is simple
+ *      A triangle always is simple
  */
 template <typename T>
 const bool Triangle2D<T>::isSimple() const
@@ -204,11 +204,11 @@ const bool Triangle2D<T>::isSimple() const
 
 /** @copydoc SimplePolygon2D::isConvex
  *  @par Triangle specific:
- *		A triangle always is convex
+ *      A triangle always is convex
  */
 template <typename T>
 const bool Triangle2D<T>::isConvex() const
-{	
+{
 	return true;
 }
 
@@ -238,7 +238,7 @@ const Orientation Triangle2D<T>::orientation() const
 
 /** @copydoc SimplePolygon2D::isReflex
  *  @par Triangle specific:
- *		triangles never have reflex vertices, so always returns false.
+ *      triangles never have reflex vertices, so always returns false.
  */
 template <typename T>
 const bool Triangle2D<T>::isReflex(int iIndexOfVertex) const

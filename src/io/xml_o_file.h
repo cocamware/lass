@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -33,31 +33,31 @@
  *
  *  @code
  *  {
- *		XmlOFile a("foo.xml");
- *		a << "spam\n"
+ *      XmlOFile a("foo.xml");
+ *      a << "spam\n"
  *  }
  *
  *  // foo.xml:
  *  // spam
  *
  *  {
- *		XmlOFile b("bar.xml, std::ios::trunc);
- *		b << "eggs\n"
+ *      XmlOFile b("bar.xml, std::ios::trunc);
+ *      b << "eggs\n"
  *  }
  *
  *  // bar.xml:
  *  // eggs
  *  @endcode
- *	
- *  However, if your second argument is the name of your root element, then a standard XML 
- *  declaration will be written to it and the root element will be opened.  When the file is 
+ *
+ *  However, if your second argument is the name of your root element, then a standard XML
+ *  declaration will be written to it and the root element will be opened.  When the file is
  *  closed, this root element will be closed automatically as well.
  *
  *  @code
- *	{
- *		XmlOFile c("fun.xml", "root");
- *		c << "ham\n"
- *	}
+ *  {
+ *      XmlOFile c("fun.xml", "root");
+ *      c << "ham\n"
+ *  }
  *
  *  // fun.xml:
  *  // <?xml version="1.0"?>
@@ -83,7 +83,7 @@ namespace lass
 namespace io
 {
 
-	
+
 class LASS_DLL_EXPORT XmlOFile: public XmlOStream
 {
 public:
@@ -110,7 +110,7 @@ public:
 
 	virtual XmlOFile& operator<<( char iIn );
 	virtual XmlOFile& operator<<( signed char iIn );
- 	virtual XmlOFile& operator<<( unsigned char iIn );
+	virtual XmlOFile& operator<<( unsigned char iIn );
 	virtual XmlOFile& operator<<( signed short iIn );
 	virtual XmlOFile& operator<<( unsigned short iIn );
 	virtual XmlOFile& operator<<( signed int iIn ) ;

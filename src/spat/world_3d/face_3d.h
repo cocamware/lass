@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -64,80 +64,80 @@ public:
 	template typename TWorld::TVector TVector;
 
 	Face3(const TPlane& iPlane, TCell* iFrontCell, TCell* iBackCell,
-          THandle iFrontHandle, THandle iBackHandle);
-    ~Face3();
+		  THandle iFrontHandle, THandle iBackHandle);
+	~Face3();
 
 
-    // METHODS
+	// METHODS
 
-    void setBackCell(TCell* iCell);
-    void replaceCell(const TCell* iOldCell, TCell* iNewCell);
-    TCell* frontCell() const;
-    TCell* backCell() const;
-    TCell* cell(const TPoint& iPoint) const;
-    TCell* twinCell(const TCell* iCell) const;
-    bool link(const TCell* iCell) const;
+	void setBackCell(TCell* iCell);
+	void replaceCell(const TCell* iOldCell, TCell* iNewCell);
+	TCell* frontCell() const;
+	TCell* backCell() const;
+	TCell* cell(const TPoint& iPoint) const;
+	TCell* twinCell(const TCell* iCell) const;
+	bool link(const TCell* iCell) const;
 	bool link(const TEdge* iEdge) const;
 
-    THandle frontHandle() const;
-    THandle backHandle() const;
-    THandle handle(const TCell* iCell) const;
+	THandle frontHandle() const;
+	THandle backHandle() const;
+	THandle handle(const TCell* iCell) const;
 
-    void setPair(TPair* iPair);
-    TPair* pair() const;
-    TPair::TCounterClockIterator beginPair(Polarity iFacePol = positive) const;
-    TPair::TCounterClockIterator beginPair(const TCell* iCell) const;
-    TPair::TCounterClockIterator beginPair(const TPoint& iPoint) const;
-    void clearPairs();
+	void setPair(TPair* iPair);
+	TPair* pair() const;
+	TPair::TCounterClockIterator beginPair(Polarity iFacePol = positive) const;
+	TPair::TCounterClockIterator beginPair(const TCell* iCell) const;
+	TPair::TCounterClockIterator beginPair(const TPoint& iPoint) const;
+	void clearPairs();
 
-    TPolygon3 polygon(Polarity iFacePolarity = positive) const;
-    TPolygon3 polygon(const TCell* iCell) const;
-    TPolygon3 polygon(const TPoint& iPoint) const;
-    TPlane plane(Polarity iFacePolarity = positive) const;
-    TPlane plane(const TCell* cell) const;
-    TPlane plane(const TPoint& iPoint) const;
-    TVector normal(Polarity iFacePolarity = positive) const;
-    TVector normal(const TCell* iCell) const;
-    TVector normal(const TPoint& iPoint) const;
-    TPoint barycenter() const;
+	TPolygon3 polygon(Polarity iFacePolarity = positive) const;
+	TPolygon3 polygon(const TCell* iCell) const;
+	TPolygon3 polygon(const TPoint& iPoint) const;
+	TPlane plane(Polarity iFacePolarity = positive) const;
+	TPlane plane(const TCell* cell) const;
+	TPlane plane(const TPoint& iPoint) const;
+	TVector normal(Polarity iFacePolarity = positive) const;
+	TVector normal(const TCell* iCell) const;
+	TVector normal(const TPoint& iPoint) const;
+	TPoint barycenter() const;
 
-    Polarity facePolarity(const TCell* iCell) const;
-    Polarity facePolarity(const TPoint& iPoint) const;
+	Polarity facePolarity(const TCell* iCell) const;
+	Polarity facePolarity(const TPoint& iPoint) const;
 
-    bool isBlack() const;
-    bool isBlack(const TCell* iCell) const;
-    bool isImmaterial() const;
-    bool isMidAir() const;
-    void setMidAirBit(bool a_midAir);
+	bool isBlack() const;
+	bool isBlack(const TCell* iCell) const;
+	bool isImmaterial() const;
+	bool isMidAir() const;
+	void setMidAirBit(bool a_midAir);
 
-    void flip();
-    void flip(const TCell* iCell);
-    int intersect(const TLineSegment& a_lineSeg, TReference a_t) const;
+	void flip();
+	void flip(const TCell* iCell);
+	int intersect(const TLineSegment& a_lineSeg, TReference a_t) const;
 
-    // STATIC METHODS
+	// STATIC METHODS
 
-    static THandle blackHandle();
+	static THandle blackHandle();
 
 private:
 
-    // DATA
+	// DATA
 
-    Plane3 plane_;
-    void* frontHandle_;
-    void* backHandle_;
-    Cell3* frontCell_;
-    Cell3* backCell_;
-    TPair* pair_;
-    bool midAir_;
+	Plane3 plane_;
+	void* frontHandle_;
+	void* backHandle_;
+	Cell3* frontCell_;
+	Cell3* backCell_;
+	TPair* pair_;
+	bool midAir_;
 
 
-    // PRIVATE STRUCTURES
+	// PRIVATE STRUCTURES
 
-    struct DummyHandle
-    {
-        unsigned dummy;
-        DummyHandle(): dummy(0x66666666) {}
-    };
+	struct DummyHandle
+	{
+		unsigned dummy;
+		DummyHandle(): dummy(0x66666666) {}
+	};
 };
 
 }

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 // --- float ---------------------------------------------------------------------------------------
@@ -120,30 +120,30 @@ double conj(const double iV) { return iV; }
 // --- int -----------------------------------------------------------------------------------------
 
 // TODO can some think of a better idea to implement pow of two integers? [BdG]
-int pow(int iX, int iY) 
-{ 
-	if (iY < 0) 
+int pow(int iX, int iY)
+{
+	if (iY < 0)
 	{
 		LASS_THROW("invalid paramater iY '" << iY << "'.");
 	}
-    if (iY < 32)
-    {
-        int result = 1;
-        for (int i = 0; i < iY; ++i)
-        {
-            result *= iY;
-        }
-        return result;
-    }
-    int result = 0;
-    int pow = 1;
-    for (int i = 0; i < sizeof(int) * lass::bitsPerByte; ++i)
+	if (iY < 32)
 	{
-        if (iY & (1 << i))
-        {
-            result += pow;
-        }
-        pow *= iX;
+		int result = 1;
+		for (int i = 0; i < iY; ++i)
+		{
+			result *= iY;
+		}
+		return result;
+	}
+	int result = 0;
+	int pow = 1;
+	for (int i = 0; i < sizeof(int) * lass::bitsPerByte; ++i)
+	{
+		if (iY & (1 << i))
+		{
+			result += pow;
+		}
+		pow *= iX;
 	}
 	return result;
 }
@@ -169,7 +169,7 @@ void compnorm(int iV, int& oV) { oV = iV*iV; }
 int norm(const int iV) { return iV*iV; }
 int conj(const int iV) { return iV; }
 
-int	mod(int iV,unsigned int iMod)
+int mod(int iV,unsigned int iMod)
 {
 	int intMod = (int)iMod;
 	int tempMod = iV%(intMod);
@@ -182,30 +182,30 @@ int	mod(int iV,unsigned int iMod)
 // --- long -----------------------------------------------------------------------------------------
 
 // TODO can some think of a better idea to implement pow of two integers? [BdG]
-long pow(long iX, long iY) 
-{ 
-	if (iY < 0) 
+long pow(long iX, long iY)
+{
+	if (iY < 0)
 	{
 		LASS_THROW("invalid paramater iY '" << iY << "'.");
 	}
-    if (iY < 32)
-    {
-        long result = 1;
-        for (long i = 0; i < iY; ++i)
-        {
-            result *= iY;
-        }
-        return result;
-    }
-    long result = 0;
-    long pow = 1;
-    for (long i = 0; i < sizeof(long) * lass::bitsPerByte; ++i)
+	if (iY < 32)
 	{
-        if (iY & (1 << i))
-        {
-            result += pow;
-        }
-        pow *= iX;
+		long result = 1;
+		for (long i = 0; i < iY; ++i)
+		{
+			result *= iY;
+		}
+		return result;
+	}
+	long result = 0;
+	long pow = 1;
+	for (long i = 0; i < sizeof(long) * lass::bitsPerByte; ++i)
+	{
+		if (iY & (1 << i))
+		{
+			result += pow;
+		}
+		pow *= iX;
 	}
 	return result;
 }
@@ -231,7 +231,7 @@ void compnorm(long iV, long& oV) { oV = iV*iV; }
 long norm(const long iV) { return iV*iV; }
 long conj(const long iV) { return iV; }
 
-long	mod(long iV,unsigned long iMod)
+long    mod(long iV,unsigned long iMod)
 {
 	long intMod = (long)iMod;
 	long tempMod = iV%(intMod);

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -28,16 +28,16 @@
  *  @brief Logs proxy streams to files.
  *  @date 2003
  *
- *  Construct a logger and subscribe it to proxy streams so it can log them.  All output to all proxy 
+ *  Construct a logger and subscribe it to proxy streams so it can log them.  All output to all proxy
  *  streams it is subscribed to will be saved to a file.  Per proxy stream you can set a filter
  *  of what messages should be logged.  The logger will unsubscribe itself on destruction.
  *
- *	@code
- *  Logger logger("logfile.txt");		// construct logger\n
- *  logger.subscribe(proxyOut());		// subsribe to the proxy out stream.\n
+ *  @code
+ *  Logger logger("logfile.txt");       // construct logger\n
+ *  logger.subscribe(proxyOut());       // subsribe to the proxy out stream.\n
  *  ...\n
  *  logger.unsubscribe(proxyOut());\n
- *	@endcode
+ *  @endcode
  */
 
 
@@ -65,8 +65,8 @@ public:
 
 	enum LogMode
 	{
-		lmAppend,	// append to existing file
-		lmClear		// on construction of the logger, clear the specified logfile
+		lmAppend,   // append to existing file
+		lmClear     // on construction of the logger, clear the specified logfile
 	};
 
 	typedef ProxyOStream::TMask TMask;

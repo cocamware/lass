@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -46,7 +46,7 @@ namespace num
 template
 <
 	typename T,
-    typename S = impl::VStorage<T>
+	typename S = impl::VStorage<T>
 >
 class Vector
 {
@@ -74,9 +74,9 @@ public:
 
 	template <typename T2, typename S2> Vector<T, S>& operator=(const Vector<T2, S2>& iOther);
 
-	const TSize size() const; 
+	const TSize size() const;
 
-    const TValue operator[](TSize iIndex) const;
+	const TValue operator[](TSize iIndex) const;
 	TReference operator[](TSize iIndex);
 	const TValue at(TSize iIndex) const;
 	TReference at(TSize iIndex);
@@ -102,12 +102,12 @@ public:
 	const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > normal() const;
 	const Vector<T, impl::VRec<T, S> > reciprocal() const;
 
-	template <typename S2> const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
-        project(const Vector<T, S2>& iB) const;
+	template <typename S2> const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
+		project(const Vector<T, S2>& iB) const;
 	template <typename S2> const Vector<T, impl::VSub<T, S2, impl::VMul<T, S, impl::VScalar<T> > > >
-        reject(const Vector<T, S2>& iB) const;
-    
-    const Vector<T, impl::VFun<T, S> > transform(T (*iOperator)(T));
+		reject(const Vector<T, S2>& iB) const;
+
+	const Vector<T, impl::VFun<T, S> > transform(T (*iOperator)(T));
 
 	void normalize();
 
@@ -120,48 +120,48 @@ private:
 	TStorage storage_;
 };
 
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 bool operator==(const Vector<T>& iA, const Vector<T>& iB);
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 inline bool operator!=(const Vector<T>& iA, const Vector<T>& iB);
 
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 const T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
 
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 const Vector<T, impl::VAdd<T, S1, S2> > operator+(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 const Vector<T, impl::VSub<T, S1, S2> > operator-(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 const Vector<T, impl::VMul<T, S1, S2> > operator*(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
-template <typename T, typename S1, typename S2> 
+template <typename T, typename S1, typename S2>
 const Vector<T, impl::VDiv<T, S1, S2> > operator/(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
 
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VAdd<T, impl::VScalar<T>, S> > operator+(const T& iA, const Vector<T, S>& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VSub<T, impl::VScalar<T>, S> > operator-(const T& iA, const Vector<T, S>& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VMul<T, impl::VScalar<T>, S> > operator*(const T& iA, const Vector<T, S>& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VDiv<T, impl::VScalar<T>, S> > operator/(const T& iA, const Vector<T, S>& iB);
 
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > > operator+(const Vector<T, S>& iA, const T& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VSub<T, S, impl::VScalar<T> > > operator-(const Vector<T, S>& iA, const T& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > operator*(const Vector<T, S>& iA, const T& iB);
-template <typename T, typename S> 
+template <typename T, typename S>
 const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > > operator/(const Vector<T, S>& iA, const T& iB);
 
 
-template <typename T, typename S, typename Char, typename Traits> 
-std::basic_ostream<Char, Traits>& 
+template <typename T, typename S, typename Char, typename Traits>
+std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& iS, const Vector<T, S>& iA);
 
-template <typename T, typename S, typename Char, typename Traits> 
-std::basic_istream<Char, Traits>& 
+template <typename T, typename S, typename Char, typename Traits>
+std::basic_istream<Char, Traits>&
 operator>>(std::basic_istream<Char, Traits>& iS, Vector<T>& iB);
 
 }

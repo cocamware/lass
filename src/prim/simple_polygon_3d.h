@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -30,11 +30,11 @@
  *  @author Bram de Greve [BdG]
  *
  *  @warning SimplePolygon3D only @e assumes it's simple.  there's no guarantee at any time.
- *           It's your own responsibility to keep it simple.  We do it this way because 
+ *           It's your own responsibility to keep it simple.  We do it this way because
  *           it's just to costly to check it at every access to the polygon.  However, we
  *           provide some methods to check it yourself.
  *
- *  @warning also, SimplePolygon3D only @e assumes it's flat!  It's up to you to feed it with 
+ *  @warning also, SimplePolygon3D only @e assumes it's flat!  It's up to you to feed it with
  *           vertices that are coplanar.  However ... We provide tools to "flatten" it.
  */
 
@@ -57,27 +57,27 @@ template <typename T>
 class SimplePolygon3D
 {
 public:
-    
-    typedef SimplePolygon3D<T> TSelf;
+
+	typedef SimplePolygon3D<T> TSelf;
 
 	typedef Point3D<T> TPoint;
 	typedef Point3DH<T> TPointH;
-    typedef typename TPoint::TVector TVector;
+	typedef typename TPoint::TVector TVector;
 	typedef LineSegment3D<T> TLineSegment;
 	typedef Plane3D<T, Cartesian, Normalized> TPlane;
-	
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
+
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
 	typedef typename TPoint::TNumTraits TNumTraits;
 
-    enum { dimension = TPoint::dimension };	/**< number of dimensions */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions */
 
-    template <typename U> struct Rebind
-    {
-        typedef SimplePolygon3D<U> Type;
-    };
+	template <typename U> struct Rebind
+	{
+		typedef SimplePolygon3D<U> Type;
+	};
 
 	SimplePolygon3D(const TPlane& iPlane);
 	SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC);
@@ -98,7 +98,7 @@ public:
 	void remove(int iIndexOfVertex);
 
 	const bool isEmpty() const;
-    const int size() const;
+	const int size() const;
 
 	const TValue signedArea() const;
 	const TValue area() const;
@@ -124,7 +124,7 @@ private:
 	const bool isInRange(int iIndexOfVertex) const;
 
 	typedef std::vector<TPoint> TVertices;
-	
+
 	TVertices vertices_;
 	TPlane plane_;
 };

@@ -1,46 +1,46 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @class lass::spat::QuadTree
- *	A spatial container for generic objects.  The object needs a traits class which
+ *  A spatial container for generic objects.  The object needs a traits class which
  *  contains the necessary functions to perform the quad tree management for the
  *  particular ObjectType.  The traits class needs as a basis the following interface:
- *	<tt> 
- *  	static TAabb aabb(const TSimplePolygon3D& iP);
- *  	static bool contains( const TSimplePolygon3D& iP, const TPoint& iPoint)
+ *  <tt>
+ *      static TAabb aabb(const TSimplePolygon3D& iP);
+ *      static bool contains( const TSimplePolygon3D& iP, const TPoint& iPoint)
  *  </tt>
  *  The above functions are only examples.  The dimensionality of the primitives must
- *  match but can be of any order.  So the quad tree can be used to classify in 
+ *  match but can be of any order.  So the quad tree can be used to classify in
  *  2 and 3 dimensions.  In three dimensions the more common name is OctTree.
- *  
+ *
  *  Higher level divisions can in theory be supported but the dimensional specific
  *  part must be reimplemented.  Altough this is only 2 functions and could be written
  *  generally this is not yet available.
- * 
+ *
  *  @brief a Quad tree for general objects
  *  @author Tom De Muer [TDM]
  */
@@ -59,26 +59,26 @@ namespace impl
 {
 	template<
 		int dimension,
-		class ObjectType, 
-	    template <class> class ObjectTraits
+		class ObjectType,
+		template <class> class ObjectTraits
 	>
 	struct
 	TreeSpatializer;
 }
 
-template 
+template
 <
-	class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 class QuadTree
 {
 public:
-    typedef ObjectType TObjectType;
-    typedef ObjectTraits<ObjectType> TObjectTraits;
+	typedef ObjectType TObjectType;
+	typedef ObjectTraits<ObjectType> TObjectTraits;
 
-    typedef typename ObjectTraits<ObjectType>::TPoint TPoint;
-	typedef typename ObjectTraits<ObjectType>::TPoint::TNumTraits::selfType	TBaseType;
+	typedef typename ObjectTraits<ObjectType>::TPoint TPoint;
+	typedef typename ObjectTraits<ObjectType>::TPoint::TNumTraits::selfType TBaseType;
 	typedef typename ObjectTraits<ObjectType>::TAabb TAabb;
 	typedef typename ObjectTraits<ObjectType>::TSeparator TSeparator;
 
@@ -88,61 +88,61 @@ public:
 private:
 	enum { dimension = TPoint::dimension };
 	static const int subNodeCount=1<<dimension;
-	typedef std::list< ObjectType >	TListType;
+	typedef std::list< ObjectType > TListType;
 	struct QuadNode
 	{
-		bool leaf;						/**< true for leaf nodes */
-		int	level;						/**< level in tree */
-		QuadNode *node[subNodeCount];	/**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
-		TPoint center;					/**< center of quadnode */
-		TVector extents;				/**< x = half of widht, y = half of height */
-		TListType data;					/**< the list containing the data */
-		int listSize;					/**< helping the std::list :) */
+		bool leaf;                      /**< true for leaf nodes */
+		int level;                      /**< level in tree */
+		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
+		TPoint center;                  /**< center of quadnode */
+		TVector extents;                /**< x = half of widht, y = half of height */
+		TListType data;                 /**< the list containing the data */
+		int listSize;                   /**< helping the std::list :) */
 
 		QuadNode();
 		QuadNode(const TPoint& aCenter, const TVector& aExtents);
 		~QuadNode();
-		
+
 		QuadNode* add(const TObjectType& an,int iMaxSize = 100,int iMaxLevel = 10);
-		
-		int objectCount() const;			/**< number of objects in this node and all its children */
-		int maxDepth() const;				/**< maximum depth of the child tree */
-		void decompose();					/**< split the current node into 4 children */
-		void absorb();						/**< absorb all children into the current node */
+
+		int objectCount() const;            /**< number of objects in this node and all its children */
+		int maxDepth() const;               /**< maximum depth of the child tree */
+		void decompose();                   /**< split the current node into 4 children */
+		void absorb();                      /**< absorb all children into the current node */
 
 		TAabb aabb() const;
 		int contains(const TPoint& ap, std::vector<ObjectType*>& oObjects) const;
 	};
 	friend struct impl::TreeSpatializer<dimension, ObjectType, ObjectTraits>;
 
-	QuadNode*	root_;
+	QuadNode*   root_;
 	QuadTree();
 public:
-	/** constructor.  
+	/** constructor.
 	*  @param iCenter       the center of the spatial tree
-	*  @param iExtents		the extents of the spatial tree in each direction, 
-	*						thus the total width of the tree is twice the extents
+	*  @param iExtents      the extents of the spatial tree in each direction,
+	*                       thus the total width of the tree is twice the extents
 	*/
 	QuadTree(const TPoint& iCenter, const TVector& iExtents);
-	/** constructor.  
-	*  @param iBox			the bounding box of the spatial tree
+	/** constructor.
+	*  @param iBox          the bounding box of the spatial tree
 	*/
 	QuadTree(const TAabb& iBox);
 	~QuadTree();
 
 	/** contains.  Returns the number of object that returned true on contains and _adds_ them
-	*   to the vector oObjects. 
+	*   to the vector oObjects.
 	*
-	* Required : 
+	* Required :
 	* <tt>static bool ObjectTypeTraits::contains( const Object& iObject, const TPoint& iPoint );</tt>
 	*/
-	int contains( const TPoint& iPoint, std::vector<ObjectType*>& oObjects ) const;	
+	int contains( const TPoint& iPoint, std::vector<ObjectType*>& oObjects ) const;
 
-	/** contains.  Returns the number of object that returned sFront on all the lines 
+	/** contains.  Returns the number of object that returned sFront on all the lines
 	*   provided in the iFrustum vector and _adds_ them to the vector oObjects.  An example
 	*   of use is frustum culling.
 	*
-	* Required : 
+	* Required :
 	*  <tt>static bool ObjectTypeTraits::contains( const Object& iObject, const TPoint& iPoint );</tt>
 	*/
 	int visible( const std::vector<TSeparator>& iFrustum, std::vector<ObjectType*>& oObjects ) const;
@@ -161,8 +161,8 @@ namespace impl
 {
 	template<
 		int dimension,
-		class ObjectType, 
-	    template <class> class ObjectTraits
+		class ObjectType,
+		template <class> class ObjectTraits
 	>
 	struct
 	TreeSpatializer
@@ -170,22 +170,22 @@ namespace impl
 	};
 
 	template<
-		class ObjectType, 
-	    template <class> class ObjectTraits
+		class ObjectType,
+		template <class> class ObjectTraits
 	>
 	struct
 	TreeSpatializer<2, ObjectType, ObjectTraits>
 	{
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
-    	typedef typename QuadTree<ObjectType,ObjectTraits>::TVector	TVector;
+		typedef typename QuadTree<ObjectType,ObjectTraits>::TVector TVector;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
-		
+
 		static void buildSubNodes(QuadNode* ioParentNode)
 		{
 			TVector newExtents(ioParentNode->extents);
 			newExtents*=0.5;
-				
+
 			const TValue cx = ioParentNode->center[0];
 			const TValue cy = ioParentNode->center[1];
 			const TValue ex = newExtents[0];
@@ -214,22 +214,22 @@ namespace impl
 
 
 	template<
-		class ObjectType, 
-	    template <class> class ObjectTraits
+		class ObjectType,
+		template <class> class ObjectTraits
 	>
 	struct
 	TreeSpatializer<3, ObjectType, ObjectTraits>
 	{
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
-    	typedef typename QuadTree<ObjectType,ObjectTraits>::TVector	TVector;
+		typedef typename QuadTree<ObjectType,ObjectTraits>::TVector TVector;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
-		
+
 		static void buildSubNodes(QuadNode* ioParentNode)
 		{
 			TVector newExtents(ioParentNode->extents);
 			newExtents*=0.5;
-				
+
 			const TValue cx = ioParentNode->center[0];
 			const TValue cy = ioParentNode->center[1];
 			const TValue cz = ioParentNode->center[2];
@@ -271,40 +271,40 @@ namespace impl
 };
 
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadTree()
 {
 	root_ = NULL;
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits>::~QuadTree()
 {
 	clear();
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits>::QuadTree(const TPoint& iCenter,const TVector& iExtents)
 {
 	root_ = new QuadNode(iCenter, iExtents);
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadTree(const TAabb& iBox)
 {
@@ -312,39 +312,39 @@ QuadTree< ObjectType, ObjectTraits >::QuadTree(const TAabb& iBox)
 	extents *= 0.5;
 	root_ = new QuadNode(iBox.center(), extents);
 }
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 void QuadTree< ObjectType, ObjectTraits >::clear()
 {
 	delete root_;
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::objectCount() const
 {
 	return root_->objectCount();
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode() : leaf(true), level(0), listSize(0)
 {
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode( const TPoint& iCenter, const TVector& iExtents) :
 	extents(iExtents), center(iCenter), leaf(true), listSize(0), level(0)
@@ -353,21 +353,21 @@ QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode( const TPoint& iCenter,
 		node[i] = NULL;
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
-QuadTree< ObjectType, ObjectTraits >::QuadNode::~QuadNode() 
+QuadTree< ObjectType, ObjectTraits >::QuadNode::~QuadNode()
 {
 	for (int i=0;i<subNodeCount;++i)
 		delete node[i];
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::QuadNode::objectCount() const
 {
@@ -380,10 +380,10 @@ int QuadTree< ObjectType, ObjectTraits >::QuadNode::objectCount() const
 	return cumulCount;
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 void QuadTree< ObjectType, ObjectTraits >::add(const ObjectType& iObject,int iMaxSize, int iMaxLevel)
 {
@@ -391,10 +391,10 @@ void QuadTree< ObjectType, ObjectTraits >::add(const ObjectType& iObject,int iMa
 		throw util::Exception( "Could not add object to QuadTree", "here" );
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, ObjectTraits >::QuadNode::add(const ObjectType& iObject,int iMaxSize, int iMaxLevel)
 {
@@ -427,7 +427,7 @@ typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, O
 		}
 		if (intersectionCount==1)
 		{
-			return node[lastIntersection]->add(iObject, iMaxSize, iMaxLevel); 
+			return node[lastIntersection]->add(iObject, iMaxSize, iMaxLevel);
 		}
 		if (intersectionCount>1)
 		{
@@ -440,10 +440,10 @@ typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, O
 
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 typename QuadTree< ObjectType, ObjectTraits >::TAabb QuadTree< ObjectType, ObjectTraits >::QuadNode::aabb() const
 {
@@ -456,10 +456,10 @@ typename QuadTree< ObjectType, ObjectTraits >::TAabb QuadTree< ObjectType, Objec
 	return TAabb(center-extents,center+extents);
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 {
@@ -473,7 +473,7 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 
 		typename TListType::iterator vit = data.begin();
 
-		TAabb nodeAabb[subNodeCount];		// cache node aabb
+		TAabb nodeAabb[subNodeCount];       // cache node aabb
 		for (int i=0;i<subNodeCount;++i)
 			nodeAabb[i] = node[i]->aabb();
 
@@ -482,7 +482,7 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 			typename TListType::iterator bit=vit;
 			++bit;
 			TAabb tempAabb = ObjectTraits<ObjectType>::aabb( *vit );
-			/* for each object we test wether it is contained in one of the 
+			/* for each object we test wether it is contained in one of the
 			*  subnodes of the quadnode.  If it is completely in one then move
 			*  the object down the tree, but only one level
 			*/
@@ -499,10 +499,10 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 	}
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 void QuadTree< ObjectType, ObjectTraits >::QuadNode::absorb()
 {
@@ -519,10 +519,10 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::absorb()
 	}
 }
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::QuadNode::maxDepth() const
 {
@@ -538,10 +538,10 @@ int QuadTree< ObjectType, ObjectTraits >::QuadNode::maxDepth() const
 }
 
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::maxDepth() const
 {
@@ -549,10 +549,10 @@ int QuadTree< ObjectType, ObjectTraits >::maxDepth() const
 }
 
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::QuadNode::contains(const TPoint& iPoint, std::vector<ObjectType*>& oObjects) const
 {
@@ -575,10 +575,10 @@ int QuadTree< ObjectType, ObjectTraits >::QuadNode::contains(const TPoint& iPoin
 }
 
 
-template 
+template
 <
-    class ObjectType, 
-    template <class> class ObjectTraits
+	class ObjectType,
+	template <class> class ObjectTraits
 >
 int QuadTree< ObjectType, ObjectTraits >::contains(const TPoint& iPoint, std::vector<ObjectType*>& oObjects) const
 {

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "io_common.h"
@@ -97,14 +97,14 @@ void Avi::open(const std::string& iFileName, int iFps, int iWidth, int iHeight, 
 
 	if (iFps <= 0 || iWidth <= 0 || iHeight <= 0)
 	{
-		LASS_THROW("Invalid parameters: one of the values iFps '" << iFps << "', iWidth '" 
+		LASS_THROW("Invalid parameters: one of the values iFps '" << iFps << "', iWidth '"
 			<< iWidth << "' or iHeight '" << iHeight << "' is less than or equal to zero.");
 	}
 	if (iBpp != 24)
 	{
 		LASS_THROW("Invalid parameter iBpp '" << iBpp << "': should be 24.");
 	}
-	
+
 	fps_ = fps_;
 	width_ = iWidth;
 	height_ = iHeight;
@@ -112,7 +112,7 @@ void Avi::open(const std::string& iFileName, int iFps, int iWidth, int iHeight, 
 
 	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->openAVI(
 		const_cast<char*>(iFileName.c_str()), iFps, iWidth, iHeight);
-}	
+}
 
 
 
@@ -191,7 +191,7 @@ void Avi::frame(const prim::ColorRGBA* iFrame)
 	{
 		buffer_.reset(new TRaw32[size]);
 	}
-	
+
 	for (int i = 0; i < size; ++i)
 	{
 		buffer_[i] = (static_cast<TRaw32>(iFrame[i].r * 255.0f) << 16) +

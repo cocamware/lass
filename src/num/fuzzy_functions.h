@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -38,8 +38,8 @@ namespace lass
 
 namespace num
 {
-	template<class C>	inline void createUnit( C& oValue );
-	template<class C>	inline void createZero( C& oValue );
+	template<class C>   inline void createUnit( C& oValue );
+	template<class C>   inline void createZero( C& oValue );
 
 #define NUM_LASS_GENERATE_FUZZY_FUNCTIONS_DECLARATIONS( TYPE )  \
 	void createGaussian( TYPE& oValue, util::CallTraits< NumTraits<TYPE>::baseType >::TParam iMean,\
@@ -51,20 +51,20 @@ namespace num
 																	  util::CallTraits< NumTraits<TYPE>::baseType >::TParam iB,\
 																	  util::CallTraits< NumTraits<TYPE>::baseType >::TParam iC,\
 																	  util::CallTraits< NumTraits<TYPE>::baseType >::TParam iD);\
-	NumTraits<TYPE>::supportType	support( const TYPE& iValue ); 	\
-	NumTraits<TYPE>::supportType	support( const TYPE& iValue, util::CallTraits< NumTraits<TYPE>::baseType >::TParam iAlpha );\
-	NumTraits<TYPE>::baseType		memberShip( const TYPE& iValue, util::CallTraits< NumTraits<TYPE>::baseType >::TParam iX );\
-	NumTraits<TYPE>::baseType		infinum( const TYPE& iValue ); 	\
-	NumTraits<TYPE>::baseType		supinum( const TYPE& iValue ); 	\
-	NumTraits<TYPE>::baseType		footprint( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		entropy( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		differentialEntropy( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		nonSpecificity( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		discord( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		bandwidth( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		bandwithRatio( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		maxMembership( const TYPE& iValue ); \
-	NumTraits<TYPE>::baseType		centroid( const TYPE& iValue ); 
+	NumTraits<TYPE>::supportType    support( const TYPE& iValue );  \
+	NumTraits<TYPE>::supportType    support( const TYPE& iValue, util::CallTraits< NumTraits<TYPE>::baseType >::TParam iAlpha );\
+	NumTraits<TYPE>::baseType       memberShip( const TYPE& iValue, util::CallTraits< NumTraits<TYPE>::baseType >::TParam iX );\
+	NumTraits<TYPE>::baseType       infinum( const TYPE& iValue );  \
+	NumTraits<TYPE>::baseType       supinum( const TYPE& iValue );  \
+	NumTraits<TYPE>::baseType       footprint( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       entropy( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       differentialEntropy( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       nonSpecificity( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       discord( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       bandwidth( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       bandwithRatio( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       maxMembership( const TYPE& iValue ); \
+	NumTraits<TYPE>::baseType       centroid( const TYPE& iValue );
 
 	#include "fuzzy_functions_default.inl"
 	#include "fuzzy_functions_float.inl"

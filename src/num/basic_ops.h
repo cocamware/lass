@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -135,15 +135,15 @@ inline double conj(const double iV);
 
 // int
 
-inline int	mod(int iV,unsigned int iMod);
-inline int	pow(int iX, int iY);
-inline int	sqr(int iV);
-inline int	sign(int iV);
-inline int	abs(int iV);
-inline int	floor(int iV);
-inline int	ceil(int iV);
-inline int	round(int iV);
-inline int	clamp(int iV, int iMin, int iMax);
+inline int  mod(int iV,unsigned int iMod);
+inline int  pow(int iX, int iY);
+inline int  sqr(int iV);
+inline int  sign(int iV);
+inline int  abs(int iV);
+inline int  floor(int iV);
+inline int  ceil(int iV);
+inline int  round(int iV);
+inline int  clamp(int iV, int iMin, int iMax);
 
 inline void inppow(int& iX, int iY);
 inline void inpsqr(int& ioV);
@@ -162,15 +162,15 @@ inline int conj(const int iV);
 
 // long
 
-inline long	mod(long iV,unsigned long iMod);
-inline long	pow(long iX, long iY);
-inline long	sqr(long iV);
-inline long	sign(long iV);
-inline long	abs(long iV);
-inline long	floor(long iV);
-inline long	ceil(long iV);
-inline long	round(long iV);
-inline long	clamp(long iV, long iMin, long iMax);
+inline long mod(long iV,unsigned long iMod);
+inline long pow(long iX, long iY);
+inline long sqr(long iV);
+inline long sign(long iV);
+inline long abs(long iV);
+inline long floor(long iV);
+inline long ceil(long iV);
+inline long round(long iV);
+inline long clamp(long iV, long iMin, long iMax);
 
 inline void inppow(long& iX, long iY);
 inline void inpsqr(long& ioV);
@@ -191,7 +191,7 @@ inline long conj(const long iV);
 
 template <typename T> inline std::complex<T> exp(const std::complex<T>& ioV);
 template <typename T> inline std::complex<T> log(const std::complex<T>& ioV);
-template <typename T> inline std::complex<T> pow(const std::complex<T>& iX, 
+template <typename T> inline std::complex<T> pow(const std::complex<T>& iX,
 												 const std::complex<T>& iY);
 template <typename T> inline std::complex<T> sqr(const std::complex<T>& ioV);
 template <typename T> inline std::complex<T> sqrt(const std::complex<T>& ioV);

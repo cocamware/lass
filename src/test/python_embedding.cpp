@@ -1,27 +1,27 @@
-/**	@file
+/** @file
  *  @internal
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -83,9 +83,9 @@ public:
 
 int test()
 {
-    int b = lass::python::impl::ShadowTraits< int >::isShadow ;
-    int c = lass::python::impl::ShadowTraits< lass::test::PythonFoo >::isShadow ;
-    int d = lass::python::impl::ShadowTraits< lass::test::Bar >::isShadow;
+	int b = lass::python::impl::ShadowTraits< int >::isShadow ;
+	int c = lass::python::impl::ShadowTraits< lass::test::PythonFoo >::isShadow ;
+	int d = lass::python::impl::ShadowTraits< lass::test::Bar >::isShadow;
 
 	std::cout << "int is shadow type : " << b << "\n";
 	std::cout << "python foo is shadow type : " << c << "\n";
@@ -105,22 +105,22 @@ int anotherFreeFunction( int i )
 
 void call0(const util::Callback0& iCallback)
 {
-    iCallback();
+	iCallback();
 }
 
 void call1(const util::Callback1<const std::string&>& iCallback)
 {
-    iCallback("Hello world!");
+	iCallback("Hello world!");
 }
 
 void callR0(const util::CallbackR0<std::string>& iCallback)
 {
-    std::cout << "Simon says: " << iCallback() << std::endl;
+	std::cout << "Simon says: " << iCallback() << std::endl;
 }
 
 void callR2(const util::CallbackR2<float, float, float>& iCallback)
 {
-    std::cout << "f(5, 6) = " << iCallback(5, 6) << std::endl;
+	std::cout << "f(5, 6) = " << iCallback(5, 6) << std::endl;
 }
 
 PY_DECLARE_MODULE( embedding )
@@ -151,25 +151,25 @@ PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
 		if (pyOverloadChain_gccTest)
 		{
 			PyObject* result = pyOverloadChain_gccTest(iObject, iArgs);
-            if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
-            {
-                PyErr_Clear();
-            }
-            else
-            {
-                return result;
-            }
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
+			{
+				PyErr_Clear();
+			}
+			else
+			{
+				return result;
+			}
 		}
-        typedef ::lass::python::impl::ShadowTraits<PythonFoo> TShadowTraits;
-        typedef TShadowTraits::TCppClass TCppClass;
-        PythonFoo* const cppObject = TShadowTraits::cppObject(iObject);
-        if (!cppObject)
-        {
-            return 0;
-        }
+		typedef ::lass::python::impl::ShadowTraits<PythonFoo> TShadowTraits;
+		typedef TShadowTraits::TCppClass TCppClass;
+		PythonFoo* const cppObject = TShadowTraits::cppObject(iObject);
+		if (!cppObject)
+		{
+			return 0;
+		}
 
-        return ::lass::python::impl::CallMethod<PythonFoo>::call<float, float, float>(
-            iArgs, cppObject, &PythonFoo::aFooMoreComplexFunction );
+		return ::lass::python::impl::CallMethod<PythonFoo>::call<float, float, float>(
+			iArgs, cppObject, &PythonFoo::aFooMoreComplexFunction );
 	}
 	PY_IMPL_SUBSCRIBE_CLASS_METHOD( PythonFoo, "aFooMoreComplexFunction", s_doc, gccTest )
 */
@@ -183,7 +183,7 @@ PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." 
 
 // declare a new pythonable class
 PY_DECLARE_CLASS( Bar )
-PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );	
+PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );
 PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
 PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 
@@ -198,9 +198,9 @@ PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
 
-PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );   
-PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );   
-PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );   
+PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );
+PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );
+PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 // inject the class in the module and provide documentation for it

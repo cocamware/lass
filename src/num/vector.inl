@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -58,7 +58,7 @@ Vector<T, S>::Vector():
 
 
 /** Construct a vector of dimension @a iDimension.
- *  @param iDimension the dimension of the vector to be created.  You can pass zero, but you 
+ *  @param iDimension the dimension of the vector to be created.  You can pass zero, but you
  *         shouldn't pass negative dimensions though.
  *  Exception safety: strong guarentee.
  */
@@ -74,7 +74,7 @@ Vector<T, S>::Vector(TSize iDimension):
  *  Exception safety: strong guarentee.
  */
 template <typename T, typename S>
-Vector<T, S>::Vector(const TStorage& iStorage): 
+Vector<T, S>::Vector(const TStorage& iStorage):
 	storage_(iStorage)
 {
 }
@@ -115,7 +115,7 @@ Vector<T, S>& Vector<T, S>::operator=(const Vector<T2, S2>& iOther)
 	}
 	return *this;
 }
-	
+
 
 
 /** return dimension of vector.
@@ -123,7 +123,7 @@ Vector<T, S>& Vector<T, S>::operator=(const Vector<T2, S2>& iOther)
  *  Exception safety: nofail.
  */
 template <typename T, typename S> inline
-const typename Vector<T, S>::TSize 
+const typename Vector<T, S>::TSize
 Vector<T, S>::size() const
 {
 	return storage_.size();
@@ -136,7 +136,7 @@ Vector<T, S>::size() const
  *  Exception safety: strong guarentee.
  */
 template <typename T, typename S> inline
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::operator[](TSize iIndex) const
 {
 	LASS_ASSERT(iIndex < size());
@@ -164,7 +164,7 @@ Vector<T, S>::operator[](TSize iIndex)
  *  Exception safety: strong guarentee.
  */
 template <typename T, typename S> inline
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::at(TSize iIndex) const
 {
 	return storage_[mod(iIndex, size())];
@@ -186,11 +186,11 @@ Vector<T, S>::at(TSize iIndex)
 
 
 
-/** A weird way to get back the same object 
+/** A weird way to get back the same object
  *  Exception safety: nofail guarentee.
  */
 template <typename T, typename S> inline
-const Vector<T, S>& 
+const Vector<T, S>&
 Vector<T, S>::operator+() const
 {
 	return *this;
@@ -199,11 +199,11 @@ Vector<T, S>::operator+() const
 
 
 /** return a vector with all components negated
- *  (-v)[i] == -(v[i]). 
+ *  (-v)[i] == -(v[i]).
  *  Exception safety: nofail.
  */
 template <typename T, typename S>
-const Vector<T, impl::VNeg<T, S> > 
+const Vector<T, impl::VNeg<T, S> >
 Vector<T, S>::operator-() const
 {
 	typedef impl::VNeg<T, S> TExpression;
@@ -370,8 +370,8 @@ const bool Vector<T, S>::isZero() const
 	const TSize n = size();
 	for (TSize i = 0; i < n; ++i)
 	{
-        // if you get your compiler error here, you'll be using a broken STLport version. Ask [Bramz].
-        //
+		// if you get your compiler error here, you'll be using a broken STLport version. Ask [Bramz].
+		//
 		if (storage_[i] != TNumTraits::zero)
 		{
 			return false;
@@ -385,7 +385,7 @@ const bool Vector<T, S>::isZero() const
 /** Return sum of all components of vector.
  */
 template <typename T, typename S>
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::sum() const
 {
 	const TSize n = size();
@@ -403,7 +403,7 @@ Vector<T, S>::sum() const
  *  O(N).
  */
 template <typename T, typename S>
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::min() const
 {
 	const TSize n = size();
@@ -425,7 +425,7 @@ Vector<T, S>::min() const
  *  O(N).
  */
 template <typename T, typename S>
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::max() const
 {
 	const TSize n = size();
@@ -447,7 +447,7 @@ Vector<T, S>::max() const
  *  @return dot(*this, *this)
  */
 template <typename T, typename S>
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::squaredNorm() const
 {
 	const TSize n = size();
@@ -465,7 +465,7 @@ Vector<T, S>::squaredNorm() const
  *  @return sqrt(this->squaredNorm())
  */
 template <typename T, typename S>
-const typename Vector<T, S>::TValue 
+const typename Vector<T, S>::TValue
 Vector<T, S>::norm() const
 {
 	return num::sqrt(squaredNorm());
@@ -475,14 +475,14 @@ Vector<T, S>::norm() const
 
 /** return a unit vector with same direction/sense as this vector.
  *
- * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1. 
- * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>, 
+ * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
+ * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
  * http://mathworld.wolfram.com/dimension_ormalizedVector.html.
  *
  * @return *this / this->norm()
  */
 template <typename T, typename S>
-const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
 Vector<T, S>::normal() const
 {
 	const TValue scale = TNumTraits::one / norm();
@@ -495,7 +495,7 @@ Vector<T, S>::normal() const
 /** return a vector with each component being the reciprocal value of this vector.
  */
 template <typename T, typename S>
-const Vector<T, impl::VRec<T, S> > 
+const Vector<T, impl::VRec<T, S> >
 Vector<T, S>::reciprocal() const
 {
 	typedef impl::VRec<T, S> TExpression;
@@ -508,7 +508,7 @@ Vector<T, S>::reciprocal() const
  */
 template <typename T, typename S>
 template <typename S2>
-const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
 Vector<T, S>::project(const Vector<T, S2>& iB) const
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
@@ -523,7 +523,7 @@ Vector<T, S>::project(const Vector<T, S2>& iB) const
  */
 template <typename T, typename S>
 template <typename S2>
-const Vector<T, impl::VSub<T, S2, impl::VMul<T, S, impl::VScalar<T> > > > 
+const Vector<T, impl::VSub<T, S2, impl::VMul<T, S, impl::VScalar<T> > > >
 Vector<T, S>::reject(const Vector<T, S2>& iB) const
 {
 	return iB - project(iB);
@@ -559,7 +559,7 @@ Vector<T, S>::storage()
 
 
 
-/** VECTOR MUST HAVE REAL STORAGE 
+/** VECTOR MUST HAVE REAL STORAGE
  */
 template <typename T, typename S>
 void Vector<T, S>::swap(Vector<T, S>& iOther)
@@ -635,7 +635,7 @@ const T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S1, typename S2>
-const Vector<T, impl::VAdd<T, S1, S2> > 
+const Vector<T, impl::VAdd<T, S1, S2> >
 operator+(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -649,7 +649,7 @@ operator+(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S1, typename S2>
-const Vector<T, impl::VSub<T, S1, S2> > 
+const Vector<T, impl::VSub<T, S1, S2> >
 operator-(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -663,7 +663,7 @@ operator-(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S1, typename S2>
-const Vector<T, impl::VMul<T, S1, S2> > 
+const Vector<T, impl::VMul<T, S1, S2> >
 operator*(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -677,7 +677,7 @@ operator*(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S1, typename S2>
-const Vector<T, impl::VDiv<T, S1, S2> > 
+const Vector<T, impl::VDiv<T, S1, S2> >
 operator/(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -691,7 +691,7 @@ operator/(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VAdd<T, impl::VScalar<T>, S> > 
+const Vector<T, impl::VAdd<T, impl::VScalar<T>, S> >
 operator+(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VAdd<T, impl::VScalar<T>, S> TExpression;
@@ -704,7 +704,7 @@ operator+(const T& iA, const Vector<T, S>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VSub<T, impl::VScalar<T>, S> > 
+const Vector<T, impl::VSub<T, impl::VScalar<T>, S> >
 operator-(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VSub<T, impl::VScalar<T>, S> TExpression;
@@ -717,7 +717,7 @@ operator-(const T& iA, const Vector<T, S>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VMul<T, impl::VScalar<T>, S> > 
+const Vector<T, impl::VMul<T, impl::VScalar<T>, S> >
 operator*(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VMul<T, impl::VScalar<T>, S> TExpression;
@@ -730,7 +730,7 @@ operator*(const T& iA, const Vector<T, S>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VDiv<T, impl::VScalar<T>, S> > 
+const Vector<T, impl::VDiv<T, impl::VScalar<T>, S> >
 operator/(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VDiv<T, impl::VScalar<T>, S> TExpression;
@@ -743,7 +743,7 @@ operator/(const T& iA, const Vector<T, S>& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > >
 operator+(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VAdd<T, S, impl::VScalar<T> > TExpression;
@@ -756,7 +756,7 @@ operator+(const Vector<T, S>& iA, const T& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VSub<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VSub<T, S, impl::VScalar<T> > >
 operator-(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VSub<T, S, impl::VScalar<T> > TExpression;
@@ -769,7 +769,7 @@ operator-(const Vector<T, S>& iA, const T& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
 operator*(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
@@ -782,7 +782,7 @@ operator*(const Vector<T, S>& iA, const T& iB)
  *  @relates lass::num::Vector
  */
 template <typename T, typename S>
-const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > > 
+const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > >
 operator/(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VDiv<T, S, impl::VScalar<T> > TExpression;
@@ -794,7 +794,7 @@ operator/(const Vector<T, S>& iA, const T& iB)
 /** @relates lass::prim::Vector
  */
 template <typename T, typename S, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
+std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& oOStream, const Vector<T, S>& iB)
 {
 	typedef typename Vector<T, S>::TSize TSize;
@@ -818,13 +818,13 @@ operator<<(std::basic_ostream<Char, Traits>& oOStream, const Vector<T, S>& iB)
 /** @relates lass::prim::Vector
  */
 template <typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& 
+std::basic_istream<Char, Traits>&
 operator>>(std::basic_istream<Char, Traits>& ioIStream, Vector<T>& oB)
 {
 	typedef typename Vector<T>::TValue TValue;
 	typedef typename Vector<T>::TSize TSize;
 	typedef typename Vector<T>::TStorage TStorage;
-	
+
 	TStorage buffer;
 	TValue value;
 	TSize size = 0;

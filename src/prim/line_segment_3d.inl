@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -62,7 +62,7 @@ LineSegment3D<T, PP>::LineSegment3D(const TPoint& iTail, const TPoint& iHead):
 
 
 template <typename T, class PP> inline
-const typename LineSegment3D<T, PP>::TPoint& 
+const typename LineSegment3D<T, PP>::TPoint&
 LineSegment3D<T, PP>::tail() const
 {
 	return tail_;
@@ -71,7 +71,7 @@ LineSegment3D<T, PP>::tail() const
 
 
 template <typename T, class PP> inline
-typename LineSegment3D<T, PP>::TPoint& 
+typename LineSegment3D<T, PP>::TPoint&
 LineSegment3D<T, PP>::tail()
 {
 	return tail_;
@@ -80,19 +80,19 @@ LineSegment3D<T, PP>::tail()
 
 
 template <typename T, class PP> inline
-const typename LineSegment3D<T, PP>::TPoint& 
+const typename LineSegment3D<T, PP>::TPoint&
 LineSegment3D<T, PP>::head() const
 {
-    return head_;
+	return head_;
 }
 
 
 
 template <typename T, class PP> inline
-typename LineSegment3D<T, PP>::TPoint& 
+typename LineSegment3D<T, PP>::TPoint&
 LineSegment3D<T, PP>::head()
 {
-    return head_;
+	return head_;
 }
 
 
@@ -101,11 +101,11 @@ LineSegment3D<T, PP>::head()
  *  @return origin + t * direction
  */
 template <typename T, class PP>
-const typename LineSegment3D<T, PP>::TPoint 
+const typename LineSegment3D<T, PP>::TPoint
 LineSegment3D<T, PP>::point(TParam iT) const
 {
 	LASS_PRIM_ENFORCE_RANGE(PP, iT >= TNumTraits::zero && iT <= TNumTraits::one);
-    return tail_ + iT * vector();
+	return tail_ + iT * vector();
 }
 
 
@@ -114,14 +114,14 @@ LineSegment3D<T, PP>::point(TParam iT) const
  *  @warning the result can be out of bound [0, 1] regardless the parameter policy used.
  */
 template <typename T, class PP>
-const typename LineSegment3D<T, PP>::TValue 
+const typename LineSegment3D<T, PP>::TValue
 LineSegment3D<T, PP>::t(const TPoint& iPoint) const
 {
 	const TVector v = vector();
 	const TValue t1 =  dot(iPoint - tail_, v);
 	const TValue t2 = -dot(iPoint - head_, v);
 	const TValue t = std::max(t1,t2) / (t1 + t2);
-	return t1 > t2 ? t : TNumTraits::one - t; 
+	return t1 > t2 ? t : TNumTraits::one - t;
 }
 
 
@@ -129,10 +129,10 @@ LineSegment3D<T, PP>::t(const TPoint& iPoint) const
 /** Return vector from tail to head.
  */
 template <typename T, class PP>
-const typename LineSegment3D<T, PP>::TVector 
+const typename LineSegment3D<T, PP>::TVector
 LineSegment3D<T, PP>::vector() const
 {
-    return head_ - tail_;
+	return head_ - tail_;
 }
 
 
@@ -140,18 +140,18 @@ LineSegment3D<T, PP>::vector() const
 /** Return length of line segment.
  */
 template <typename T, class PP>
-const typename LineSegment3D<T, PP>::TValue 
+const typename LineSegment3D<T, PP>::TValue
 LineSegment3D<T, PP>::length() const
 {
 	const TVector v = vector();
-    return v.norm();
+	return v.norm();
 }
 
 
 
 /** @relates lass::prim::LineSegment3D
  */
-template<typename T, class PP> 
+template<typename T, class PP>
 std::ostream& operator<<(std::ostream& ioOStream, const LineSegment3D<T, PP>& iLineSegment)
 {
 	LASS_ENFORCE_STREAM(ioOStream) << "{T=" << iLineSegment.tail() << ", H=" << iLineSegment.head() << "}";
@@ -162,10 +162,10 @@ std::ostream& operator<<(std::ostream& ioOStream, const LineSegment3D<T, PP>& iL
 
 /** @relates lass::prim::LineSegment3D
  */
-template<typename T, class PP> 
+template<typename T, class PP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const LineSegment3D<T, PP>& iLineSegment)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<LineSegment3D>\n"
 		<< "<tail>" << iLineSegment.tail() << "</tail>\n"
 		<< "<head>" << iLineSegment.head() << "</head>\n"

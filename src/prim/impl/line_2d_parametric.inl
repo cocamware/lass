@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -44,8 +44,8 @@ namespace impl
  */
 template<typename T, class NP>
 Line2DParametric<T, NP>::Line2DParametric():
-    support_(),
-    direction_()
+	support_(),
+	direction_()
 {
 	LASS_ASSERT(!isValid());
 }
@@ -59,10 +59,10 @@ Line2DParametric<T, NP>::Line2DParametric():
  */
 template<typename T, class NP>
 Line2DParametric<T, NP>::Line2DParametric(const TPoint& iSupport, const TPoint& iPoint):
-    support_(iSupport),
-    direction_(iPoint - iSupport)
+	support_(iSupport),
+	direction_(iPoint - iSupport)
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 }
 
 
@@ -73,10 +73,10 @@ Line2DParametric<T, NP>::Line2DParametric(const TPoint& iSupport, const TPoint& 
  */
 template<typename T, class NP>
 Line2DParametric<T, NP>::Line2DParametric(const TPoint& iSupport, const TVector& iDirection):
-    support_(iSupport),
-    direction_(iDirection)
+	support_(iSupport),
+	direction_(iDirection)
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 }
 
 
@@ -87,10 +87,10 @@ Line2DParametric<T, NP>::Line2DParametric(const TPoint& iSupport, const TVector&
  */
 template<typename T, class NP>
 Line2DParametric<T, NP>::Line2DParametric(const TVector& iNormal, const TPoint& iSupport):
-    support_(iSupport),
+	support_(iSupport),
 	direction_(-iNormal.perp())
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 }
 
 
@@ -104,7 +104,7 @@ Line2DParametric<T, NP>::Line2DParametric(const TVector& iNormal, TParam iD):
 	support_(iNormal * (-iD / iNormal.squaredNorm())),
 	direction_(-iNormal.perp())
 {
-    NP::normalize(direction_);
+	NP::normalize(direction_);
 }
 
 
@@ -133,7 +133,7 @@ template<typename T, class NP>
 void Line2DParametric<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 {
 	oNormal = direction_.perp();
-    oD = -dot(oNormal, support_.position());
+	oD = -dot(oNormal, support_.position());
 }
 
 
@@ -141,10 +141,10 @@ void Line2DParametric<T, NP>::getCartesian(TVector& oNormal, TReference oD) cons
 template<typename T, class NP>
 const typename Line2DParametric<T, NP>::TVector Line2DParametric<T, NP>::normal() const
 {
-    TVector normal;
-    TValue d;
-    getCartesian(normal, d);
-    return normal;
+	TVector normal;
+	TValue d;
+	getCartesian(normal, d);
+	return normal;
 }
 
 
@@ -152,10 +152,10 @@ const typename Line2DParametric<T, NP>::TVector Line2DParametric<T, NP>::normal(
 template<typename T, class NP>
 const typename Line2DParametric<T, NP>::TValue Line2DParametric<T, NP>::d() const
 {
-    TVector normal;
-    TValue d;
-    getCartesian(normal, d);
-    return d;
+	TVector normal;
+	TValue d;
+	getCartesian(normal, d);
+	return d;
 }
 
 
@@ -165,8 +165,8 @@ const typename Line2DParametric<T, NP>::TValue Line2DParametric<T, NP>::d() cons
 template<typename T, class NP>
 const Side Line2DParametric<T, NP>::classify(const TPoint& iPoint) const
 {
-    const TValue eq = equation(iPoint);
-    return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+	const TValue eq = equation(iPoint);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
 }
 
 
@@ -174,13 +174,13 @@ const Side Line2DParametric<T, NP>::classify(const TPoint& iPoint) const
 /** Return value of point in equation.
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TValue 
+const typename Line2DParametric<T, NP>::TValue
 Line2DParametric<T, NP>::equation(const TPoint& iPoint) const
 {
-    TVector normal;
-    TValue d;
-    getCartesian(normal, d);
-    return dot(iPoint.position(), normal) + d;
+	TVector normal;
+	TValue d;
+	getCartesian(normal, d);
+	return dot(iPoint.position(), normal) + d;
 }
 
 
@@ -189,10 +189,10 @@ Line2DParametric<T, NP>::equation(const TPoint& iPoint) const
  *  negative value means point is in the back.
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TValue 
+const typename Line2DParametric<T, NP>::TValue
 Line2DParametric<T, NP>::signedDistance(const TPoint& iPoint) const
 {
-    return NP::divideByNorm(equation(iPoint), normal());
+	return NP::divideByNorm(equation(iPoint), normal());
 }
 
 
@@ -201,24 +201,24 @@ Line2DParametric<T, NP>::signedDistance(const TPoint& iPoint) const
  *  iPoint == (almost) project(iPoint) + reject(iPoint)
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TVector 
+const typename Line2DParametric<T, NP>::TVector
 Line2DParametric<T, NP>::reject(const TPoint& iPoint) const
 {
-    return reject(iPoint - support_);
+	return reject(iPoint - support_);
 }
 
 
 
-/** return the part of iVector that is orthogonal to the line. 
+/** return the part of iVector that is orthogonal to the line.
  *  it's the vector that, if added to the PROJECTION of iVector, you get iVector again.
  *  iVector == (almost) project(iVector) + reject(iVector).
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TVector 
+const typename Line2DParametric<T, NP>::TVector
 Line2DParametric<T, NP>::reject(const TVector& iVector) const
 {
 
-    return iVector - project(iVector);
+	return iVector - project(iVector);
 }
 
 
@@ -226,7 +226,7 @@ Line2DParametric<T, NP>::reject(const TVector& iVector) const
 /** project a point orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TPoint 
+const typename Line2DParametric<T, NP>::TPoint
 Line2DParametric<T, NP>::project(const TPoint& iPoint) const
 {
 	return support_ + project(iPoint - support_);
@@ -237,7 +237,7 @@ Line2DParametric<T, NP>::project(const TPoint& iPoint) const
 /** project a vector orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TVector 
+const typename Line2DParametric<T, NP>::TVector
 Line2DParametric<T, NP>::project(const TVector& iVector) const
 {
 	return direction_ * NP::divideBySquaredNorm(dot(iVector, direction_), direction_);
@@ -248,7 +248,7 @@ Line2DParametric<T, NP>::project(const TVector& iVector) const
 /** reflect a point orthogonally into the line.
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TPoint 
+const typename Line2DParametric<T, NP>::TPoint
 Line2DParametric<T, NP>::reflect(const TPoint& iPoint) const
 {
 	return support_ + reflect(iPoint - support_);
@@ -259,7 +259,7 @@ Line2DParametric<T, NP>::reflect(const TPoint& iPoint) const
 /** reflect a vector orthogonally to the line
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TVector 
+const typename Line2DParametric<T, NP>::TVector
 Line2DParametric<T, NP>::reflect(const TVector& iVector) const
 {
 	return T(2) * project(iVector) - iVector;
@@ -270,7 +270,7 @@ Line2DParametric<T, NP>::reflect(const TVector& iVector) const
 /** return point by filling in the parametric equation: P(t) = S + t * U
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TPoint 
+const typename Line2DParametric<T, NP>::TPoint
 Line2DParametric<T, NP>::point(TParam iT) const
 {
 	return support_ + iT * direction_;
@@ -278,13 +278,13 @@ Line2DParametric<T, NP>::point(TParam iT) const
 
 
 
-/** return UV pair of parameters 
+/** return UV pair of parameters
  */
 template<typename T, class NP>
-const typename Line2DParametric<T, NP>::TValue 
+const typename Line2DParametric<T, NP>::TValue
 Line2DParametric<T, NP>::t(const TPoint& iPoint) const
 {
-    return NP::divideBySquaredNorm(dot(iPoint - support_, direction_), direction_);
+	return NP::divideBySquaredNorm(dot(iPoint - support_, direction_), direction_);
 }
 
 
@@ -292,7 +292,7 @@ Line2DParametric<T, NP>::t(const TPoint& iPoint) const
 template <typename T, class NP>
 void Line2DParametric<T, NP>::flip()
 {
-    direction_ = -direction_;
+	direction_ = -direction_;
 }
 
 
@@ -302,7 +302,7 @@ void Line2DParametric<T, NP>::flip()
 template<typename T, class NP>
 const bool Line2DParametric<T, NP>::isValid() const
 {
-    return !direction_.isZero();
+	return !direction_.isZero();
 }
 
 
@@ -318,7 +318,7 @@ const bool Line2DParametric<T, NP>::isValid() const
 
 // --- free ----------------------------------------------------------------------------------------
 
-template<typename T, class NP> 
+template<typename T, class NP>
 std::ostream& operator<<(std::ostream& ioOStream, const Line2DParametric<T, NP>& iLine)
 {
 	LASS_ENFORCE(ioOStream) << "{S=" << iLine.support() << ", D=" << iLine.direction() << "}";

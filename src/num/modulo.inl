@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -51,7 +51,7 @@ Modulo<N, T>::Modulo(TParam iValue):
 
 
 template <unsigned N, typename T> inline
-Modulo<N, T> Modulo<N, T>::operator+() const 
+Modulo<N, T> Modulo<N, T>::operator+() const
 {
 	return *this;
 }
@@ -59,7 +59,7 @@ Modulo<N, T> Modulo<N, T>::operator+() const
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator-() const 
+Modulo<N, T> Modulo<N, T>::operator-() const
 {
 	return Modulo<N, T>(-value_);
 }
@@ -67,7 +67,7 @@ Modulo<N, T> Modulo<N, T>::operator-() const
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator++() 
+Modulo<N, T>& Modulo<N, T>::operator++()
 {
 	++value_;
 	if (value_ == N)
@@ -75,7 +75,7 @@ Modulo<N, T>& Modulo<N, T>::operator++()
 		value_ = 0;
 	}
 	LASS_ASSERT(isInRange(value_));
-    return *this;
+	return *this;
 }
 
 
@@ -89,7 +89,7 @@ Modulo<N, T>& Modulo<N, T>::operator--()
 	}
 	--value_;
 	LASS_ASSERT(isInRange(value_));
-    return *this;
+	return *this;
 }
 
 
@@ -165,7 +165,7 @@ Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T> inline
-Modulo<N, T>::operator T() const 
+Modulo<N, T>::operator T() const
 {
 	return value_;
 }
@@ -244,7 +244,7 @@ bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
 
 
 
-template <unsigned N, typename T> 
+template <unsigned N, typename T>
 std::ostream& operator<<(std::ostream& oS, Modulo<N, T> iM)
 {
 	oS << iM.value();
@@ -253,7 +253,7 @@ std::ostream& operator<<(std::ostream& oS, Modulo<N, T> iM)
 
 
 
-template <unsigned N, typename T> 
+template <unsigned N, typename T>
 std::istream& operator>>(std::istream& iS, Modulo<N, T>& iM)
 {
 	int result;

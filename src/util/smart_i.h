@@ -1,12 +1,12 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License) 
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
- *   
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  The LASS License:
+ *
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
  *   LASS is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@
  *  @author Bram de Greve [Bramz]
  *
  *  @section interface_requirements Requirements for COM interface
- *  
+ *
  *  COM interface @a I must implement two methods @c AddRef() and @c Release():
  *  - @c AddRef() should increase reference count to interface
- *  - @c Release() should decrease reference count 
+ *  - @c Release() should decrease reference count
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_I_H
@@ -56,12 +56,12 @@ public:
 
 	typedef SmartI<I> TSelf;   /**< type of @c *this */
 
-    typedef I TInterface;
-    typedef I* TPointer;
-    typedef I** TAddress;
+	typedef I TInterface;
+	typedef I* TPointer;
+	typedef I** TAddress;
 
-    /** Rebind to another interface type.
-     */
+	/** Rebind to another interface type.
+	 */
 	template <typename I>
 	struct Rebind
 	{
@@ -72,47 +72,47 @@ public:
 
 	/** Default constructor initializes to NULL interface.
 	 */
-    SmartI(): 
-        interface_(0) 
-    {
-    } 
+	SmartI():
+		interface_(0)
+	{
+	}
 
 	/** Constructor won't do an extra AddRef() on construction but will Release() on destruction.
 	 */
-    explicit SmartI(TInterface* iInterface): 
-        interface_(iInterface) 
-    {
-    }
+	explicit SmartI(TInterface* iInterface):
+		interface_(iInterface)
+	{
+	}
 
 	/** Copy constructor performs AddRef() on interface.
 	 */
-    SmartI(const TSelf& iOther): 
-        interface_(iOther.interface_) 
-    { 
-        safeAddRef(); 
-    }
+	SmartI(const TSelf& iOther):
+		interface_(iOther.interface_)
+	{
+		safeAddRef();
+	}
 
 	/** Destructor performs Release() on interface.
-     */
-    ~SmartI() 
-    { 
-        safeRelease(); 
-    }
-
-    /** Reinitialize to NULL interface.
-     *  Performs Release() on old interface.
 	 */
-    void reset()
+	~SmartI()
 	{
-        TSelf temp;
-        swap(temp);
-    }
+		safeRelease();
+	}
+
+	/** Reinitialize to NULL interface.
+	 *  Performs Release() on old interface.
+	 */
+	void reset()
+	{
+		TSelf temp;
+		swap(temp);
+	}
 
 	/** Reinitialize to an interface, performs no AddRef on new interface, but will Release() it
-     *  in destructor.
-     *  Performs Release() on old interface.
-     */
-    void reset(TInterface* iInterface)
+	 *  in destructor.
+	 *  Performs Release() on old interface.
+	 */
+	void reset(TInterface* iInterface)
 	{
 		TSelf temp(iInterface);
 		swap(temp);
@@ -122,17 +122,17 @@ public:
 	 */
 	TSelf& operator=(const TSelf& iOther)
 	{
-        TSelf temp(iOther);
-        swap(temp);
-        return *this;
+		TSelf temp(iOther);
+		swap(temp);
+		return *this;
 	}
 
 	/** return pointer to interface
 	 */
-	TPointer get() const 
-    { 
-        return interface_; 
-    }
+	TPointer get() const
+	{
+		return interface_;
+	}
 
 	/** access pointee as a pointer
 	 */
@@ -178,29 +178,29 @@ public:
 	 */
 	void swap(TSelf& iOther)
 	{
-        std::swap(interface_, iOther.interface_);
+		std::swap(interface_, iOther.interface_);
 	}
 
 private:
 
-    void safeAddRef()
-    {
-        if (interface_)
-        {
-            interface_->AddRef();
-        }
-    }
+	void safeAddRef()
+	{
+		if (interface_)
+		{
+			interface_->AddRef();
+		}
+	}
 
-    void safeRelease()
-    {
-        if (interface_)
-        {
-            interface_->Release();
-            interface_ = 0;
-        }
-    }
+	void safeRelease()
+	{
+		if (interface_)
+		{
+			interface_->Release();
+			interface_ = 0;
+		}
+	}
 
-    TPointer interface_;
+	TPointer interface_;
 };
 
 }

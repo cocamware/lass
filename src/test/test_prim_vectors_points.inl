@@ -1,12 +1,12 @@
-/** 
+/**
 *   @author Bram de Greve (bramz@users.sourceforge.net)
 *   @author Tom De Muer (tomdemuer@users.sourceforge.net)
 *
-*	Distributed under the terms of the GPL (GNU Public License)
+*   Distributed under the terms of the GPL (GNU Public License)
 *
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
+*   The LASS License:
+*
+*   Copyright 2004 Bram de Greve and Tom De Muer
 *
 *   LASS is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ template <typename T> void testPrimPoint2D()
 
 	Vector2D<T> a(1, 2);
 	Vector2D<T> b(4, 5);
-	
+
 	p = Point2D<T>(a.x, a.y);
 	BOOST_CHECK_EQUAL(p.position, a);
 	BOOST_CHECK_EQUAL(p.x, a.x);
@@ -86,7 +86,7 @@ template <typename T> void testPrimPoint3D()
 
 	Vector3D<T> a(1, 2, 3);
 	Vector3D<T> b(4, 5, 6);
-	
+
 	p = Point3D<T>(a.x, a.y, a.z);
 	BOOST_CHECK_EQUAL(p.position, a);
 	BOOST_CHECK_EQUAL(p.x, a.x);

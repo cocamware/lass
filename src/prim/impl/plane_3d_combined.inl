@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -44,11 +44,11 @@ namespace impl
  */
 template<typename T, class NP>
 Plane3DCombined<T, NP>::Plane3DCombined():
-    support_(),
-    directionU_(),
-    directionV_(),
-    reciprocalU_(),
-    reciprocalV_(),
+	support_(),
+	directionU_(),
+	directionV_(),
+	reciprocalU_(),
+	reciprocalV_(),
 	normal_(),
 	d_(TNumTraits::zero)
 {
@@ -65,18 +65,18 @@ Plane3DCombined<T, NP>::Plane3DCombined():
  *  - value d is choosen so that the support point is indeed a point of the plane.
  */
 template<typename T, class NP>
-Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport, 
+Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport,
 										const TPoint& iPointU,
 										const TPoint& iPointV):
-    support_(iSupport),
-    directionU_(iPointU - iSupport),
-    directionV_(iPointV - iSupport)
+	support_(iSupport),
+	directionU_(iPointU - iSupport),
+	directionV_(iPointV - iSupport)
 {
-    Plane3DImplDetail::generateCartesian(support_, directionU_, directionV_, normal_, d_);
-    NP::normalize(directionU_);
-    NP::normalize(directionV_);
-    NP::normalizeAndScale(normal_, d_);
-    Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
+	Plane3DImplDetail::generateCartesian(support_, directionU_, directionV_, normal_, d_);
+	NP::normalize(directionU_);
+	NP::normalize(directionV_);
+	NP::normalizeAndScale(normal_, d_);
+	Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
 }
 
 
@@ -88,18 +88,18 @@ Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport,
  *  - value d is choosen so that the support point is indeed a point of the plane.
  */
 template<typename T, class NP>
-Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport, 
-									    const TVector& iDirectionU,
-									    const TVector& iDirectionV):
-    support_(iSupport),
-    directionU_(iDirectionU),
-    directionV_(iDirectionV)
+Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport,
+										const TVector& iDirectionU,
+										const TVector& iDirectionV):
+	support_(iSupport),
+	directionU_(iDirectionU),
+	directionV_(iDirectionV)
 {
-    Plane3DImplDetail::generateCartesian(support_, directionU_, directionV_, normal_, d_);
-    NP::normalize(directionU_);
-    NP::normalize(directionV_);
-    NP::normalizeAndScale(normal_, d_);
-    Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
+	Plane3DImplDetail::generateCartesian(support_, directionU_, directionV_, normal_, d_);
+	NP::normalize(directionU_);
+	NP::normalize(directionV_);
+	NP::normalizeAndScale(normal_, d_);
+	Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
 }
 
 
@@ -112,15 +112,15 @@ Plane3DCombined<T, NP>::Plane3DCombined(const TPoint& iSupport,
  */
 template<typename T, class NP>
 Plane3DCombined<T, NP>::Plane3DCombined(const TVector& iNormal, const TPoint& iSupport):
-    support_(iSupport),
+	support_(iSupport),
 	normal_(iNormal),
 	d_(-dot(iNormal, iSupport.position()))
 {
-    Plane3DImplDetail::generateDirections(normal_, directionU_, directionV_);
-    NP::normalize(directionU_);
-    NP::normalize(directionV_);
-    NP::normalizeAndScale(normal_, d_);
-    Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
+	Plane3DImplDetail::generateDirections(normal_, directionU_, directionV_);
+	NP::normalize(directionU_);
+	NP::normalize(directionV_);
+	NP::normalizeAndScale(normal_, d_);
+	Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
 }
 
 
@@ -135,13 +135,13 @@ template<typename T, class NP>
 Plane3DCombined<T, NP>::Plane3DCombined(const TVector& iNormal, TParam iD):
 	support_(iNormal * (-iD / iNormal.squaredNorm())),
 	normal_(iNormal),
-    d_(iD)
+	d_(iD)
 {
-    Plane3DImplDetail::generateDirections(normal_, directionU_, directionV_);
-    NP::normalize(directionU_);
-    NP::normalize(directionV_);
-    NP::normalizeAndScale(normal_, d_);
-    Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
+	Plane3DImplDetail::generateDirections(normal_, directionU_, directionV_);
+	NP::normalize(directionU_);
+	NP::normalize(directionV_);
+	NP::normalizeAndScale(normal_, d_);
+	Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
 }
 
 
@@ -161,8 +161,8 @@ const typename Plane3DCombined<T, NP>::TPoint& Plane3DCombined<T, NP>::support()
 template<typename T, class NP>
 void Plane3DCombined<T, NP>::getDirections(TVector& oDirectionU, TVector& oDirectionV) const
 {
-    oDirectionU = directionU_;
-    oDirectionV = directionV_;
+	oDirectionU = directionU_;
+	oDirectionV = directionV_;
 }
 
 
@@ -190,11 +190,11 @@ const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directio
 /** return reciprocal vectors for U and V direction vectors
  */
 template<typename T, class NP>
-void Plane3DCombined<T, NP>::getReciprocals(TVector& oReciprocalU, 
-                                            TVector& oReciprocalV) const
+void Plane3DCombined<T, NP>::getReciprocals(TVector& oReciprocalU,
+											TVector& oReciprocalV) const
 {
-    oReciprocalU = reciprocalU_;
-    oReciprocalV = reciprocalV_;
+	oReciprocalU = reciprocalU_;
+	oReciprocalV = reciprocalV_;
 }
 
 
@@ -222,8 +222,8 @@ const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciproc
 template<typename T, class NP>
 void Plane3DCombined<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 {
-    oNormal = normal_;
-    oD = d_;
+	oNormal = normal_;
+	oD = d_;
 }
 
 
@@ -231,7 +231,7 @@ void Plane3DCombined<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 template<typename T, class NP>
 const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::normal() const
 {
-    return normal_;
+	return normal_;
 }
 
 
@@ -239,7 +239,7 @@ const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::normal()
 template<typename T, class NP>
 const typename Plane3DCombined<T, NP>::TParam Plane3DCombined<T, NP>::d() const
 {
-    return d_;
+	return d_;
 }
 
 
@@ -249,8 +249,8 @@ const typename Plane3DCombined<T, NP>::TParam Plane3DCombined<T, NP>::d() const
 template<typename T, class NP>
 const Side Plane3DCombined<T, NP>::classify(const TPoint& iPoint) const
 {
-    const TValue eq = equation(iPoint);
-    return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+	const TValue eq = equation(iPoint);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
 }
 
 
@@ -258,10 +258,10 @@ const Side Plane3DCombined<T, NP>::classify(const TPoint& iPoint) const
 /** Return value of point in equation.
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TValue 
-Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const                  
+const typename Plane3DCombined<T, NP>::TValue
+Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const
 {
-    return dot(iPoint.position(), normal_) + d_;
+	return dot(iPoint.position(), normal_) + d_;
 }
 
 
@@ -270,10 +270,10 @@ Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const
  *  negative value means point is in the back.
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TValue 
+const typename Plane3DCombined<T, NP>::TValue
 Plane3DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
 {
-    return NP::divideByNorm(equation(iPoint), normal_);
+	return NP::divideByNorm(equation(iPoint), normal_);
 }
 
 
@@ -281,7 +281,7 @@ Plane3DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
 /** Return squared distance of point to plane.
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TValue 
+const typename Plane3DCombined<T, NP>::TValue
 Plane3DCombined<T, NP>::squaredDistance(const TPoint& iPoint) const
 {
 	return num::sqr(signedDistance(iPoint));
@@ -293,23 +293,23 @@ Plane3DCombined<T, NP>::squaredDistance(const TPoint& iPoint) const
  *  iPoint == (almost) project(iPoint) + reject(iPoint)
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector
 Plane3DCombined<T, NP>::reject(const TPoint& iPoint) const
 {
-    return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
+	return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
 }
 
 
 
-/** return the part of iVector that is orthogonal to the plane. 
+/** return the part of iVector that is orthogonal to the plane.
  *  it's the vector that, if added to the PROJECTION of iVector, you get iVector again.
  *  iVector == (almost) project(iVector) + reject(iVector).
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector
 Plane3DCombined<T, NP>::reject(const TVector& iVector) const
 {
-    return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
+	return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
 }
 
 
@@ -317,7 +317,7 @@ Plane3DCombined<T, NP>::reject(const TVector& iVector) const
 /** project a point orthogonally onto the plane
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint
 Plane3DCombined<T, NP>::project(const TPoint& iPoint) const
 {
 	return iPoint - reject(iPoint);
@@ -328,7 +328,7 @@ Plane3DCombined<T, NP>::project(const TPoint& iPoint) const
 /** project a vector orthogonally onto the plane
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector
 Plane3DCombined<T, NP>::project(const TVector& iVector) const
 {
 	return iVector - reject(iVector);
@@ -339,7 +339,7 @@ Plane3DCombined<T, NP>::project(const TVector& iVector) const
 /** reflect a point orthogonally into the plane.
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint
 Plane3DCombined<T, NP>::reflect(const TPoint& iPoint) const
 {
 	return iPoint - 2 * reject(iPoint);
@@ -350,7 +350,7 @@ Plane3DCombined<T, NP>::reflect(const TPoint& iPoint) const
 /** reflect a vector orthogonally into the plane
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector
 Plane3DCombined<T, NP>::reflect(const TVector& iVector) const
 {
 	return iVector - 2 * reject(iVector);
@@ -361,7 +361,7 @@ Plane3DCombined<T, NP>::reflect(const TVector& iVector) const
 /** return point by filling in the parametric equation: P(u, v) = S + u * U + v * V
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint
 Plane3DCombined<T, NP>::point(TParam iU, TParam iV) const
 {
 	return point(TIndex(iU, iV));
@@ -372,7 +372,7 @@ Plane3DCombined<T, NP>::point(TParam iU, TParam iV) const
 /** return point by filling in the parametric equation: P(u, v) = S + u * U + v * V
  */
 template<typename T, class NP>
-const typename Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint
 Plane3DCombined<T, NP>::point(const TUV& iUV) const
 {
 	return support_ + iUV.x * directionU_ + iUV.y * directionV_;
@@ -380,14 +380,14 @@ Plane3DCombined<T, NP>::point(const TUV& iUV) const
 
 
 
-/** return UV pair of parameters 
+/** return UV pair of parameters
  */
 template<typename T, class NP>
 const typename Plane3DCombined<T, NP>::TUV
 Plane3DCombined<T, NP>::uv(const TPoint& iPoint) const
 {
-    const TVector relative = iPoint - support_;
-    return TUV(dot(relative, reciprocalU_), dot(relative, reciprocalV_));
+	const TVector relative = iPoint - support_;
+	return TUV(dot(relative, reciprocalU_), dot(relative, reciprocalV_));
 }
 
 
@@ -395,10 +395,10 @@ Plane3DCombined<T, NP>::uv(const TPoint& iPoint) const
 template <typename T, class NP>
 void Plane3DCombined<T, NP>::flip()
 {
-    directionV_ = -directionV_;
-    normal_ = -normal_;
-    d_ = -d_;
-    Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
+	directionV_ = -directionV_;
+	normal_ = -normal_;
+	d_ = -d_;
+	Plane3DImplDetail::generateReciprocal(directionU_, directionV_, reciprocalU_, reciprocalV_);
 }
 
 
@@ -408,7 +408,7 @@ void Plane3DCombined<T, NP>::flip()
 template<typename T, class NP>
 const bool Plane3DCombined<T, NP>::isValid() const
 {
-    return !normal_.isZero() && !cross(directionU_, directionV_).isZero();
+	return !normal_.isZero() && !cross(directionU_, directionV_).isZero();
 }
 
 
@@ -424,11 +424,11 @@ const bool Plane3DCombined<T, NP>::isValid() const
 
 // --- free ----------------------------------------------------------------------------------------
 
-template<typename T, class NP> 
+template<typename T, class NP>
 std::ostream& operator<<(std::ostream& ioOStream, const Plane3DCombined<T, NP>& iPlane)
 {
 	LASS_ENFORCE(ioOStream) << "{S=" << iPlane.support() << ", U=" << iPlane.directionU() << ", V="
-        << iPlane.directionV() << ", N=" << iPlane.normal() << ", d=" << iPlane.d() << "}";
+		<< iPlane.directionV() << ", N=" << iPlane.normal() << ", d=" << iPlane.d() << "}";
 	return ioOStream;
 }
 

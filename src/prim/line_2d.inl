@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -43,7 +43,7 @@ namespace prim
 
 template<typename T, typename EP, typename NP>
 Line2D<T, EP, NP>::Line2D():
-    TImpl()
+	TImpl()
 {
 }
 
@@ -52,7 +52,7 @@ Line2D<T, EP, NP>::Line2D():
 
 template<typename T, typename EP, typename NP>
 Line2D<T, EP, NP>::Line2D(const TPoint& iSupport, const TPoint& iPoint):
-    TImpl(iSupport, iPoint)
+	TImpl(iSupport, iPoint)
 {
 }
 
@@ -60,7 +60,7 @@ Line2D<T, EP, NP>::Line2D(const TPoint& iSupport, const TPoint& iPoint):
 
 template<typename T, typename EP, typename NP>
 Line2D<T, EP, NP>::Line2D(const TPoint& iSupport, const TVector& iDirection):
-    TImpl(iSupport, iDirection)
+	TImpl(iSupport, iDirection)
 {
 }
 
@@ -68,7 +68,7 @@ Line2D<T, EP, NP>::Line2D(const TPoint& iSupport, const TVector& iDirection):
 
 template<typename T, typename EP, typename NP>
 Line2D<T, EP, NP>::Line2D(const TVector& iNormal, const TPoint& iSupport):
-    TImpl(iNormal, iSupport)
+	TImpl(iNormal, iSupport)
 {
 }
 
@@ -76,7 +76,7 @@ Line2D<T, EP, NP>::Line2D(const TVector& iNormal, const TPoint& iSupport):
 
 template<typename T, typename EP, typename NP>
 Line2D<T, EP, NP>::Line2D(const TVector& iNormal, TParam iD):
-    TImpl(iNormal, iD)
+	TImpl(iNormal, iD)
 {
 }
 
@@ -101,7 +101,7 @@ Line2D<T, EP, NP>::Line2D(const TVector& iNormal, TParam iD):
 template <typename T, class EP, class NP>
 T distance(const Point2D<T>& iA, const Line2D<T, EP, NP>& iB)
 {
-    return num::abs(iB.signedDistance(iA));
+	return num::abs(iB.signedDistance(iA));
 }
 
 
@@ -145,8 +145,8 @@ T distance(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB)
  *                          @a oTa and @a oTb are not assigned.
  */
 template <typename T, class EPa, class NPa, class EPb, class NPb>
-Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB, 
-                 T& oTa, T& oTb)
+Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
+				 T& oTa, T& oTb)
 {
 	LASS_ASSERT(iA.isValid() && iB.isValid());
 
@@ -186,7 +186,7 @@ Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
  *  @relates Line2D
  *  @param iA   line A
  *  @param iB   line B
- *  @param oPoint	intersection point
+ *  @param oPoint   intersection point
  *  @return @arg rNone      the lines don't intersect, they have no points in common.
  *                          @a oPoint is not assigned.
  *          @arg rOne       both lines have exactly one point in common.
@@ -195,8 +195,8 @@ Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
  *                          @a oPoint is not assigned.
  */
 template <typename T, class EPa, class NPa, class EPb, class NPb>
-Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB, 
-                 Point2D<T>& oPoint)
+Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
+				 Point2D<T>& oPoint)
 {
 	T tA;
 	T tB;
@@ -215,7 +215,7 @@ Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Cartesian>& iLine)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Line2D>\n"
 		<< "<normal>" << iLine.normal() << "</normal>\n"
 		<< "<d>" << iLine.d() << "</d>\n"
@@ -231,7 +231,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Cartesian>
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Parametric>& iLine)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Line2D>\n"
 		<< "<support>" << iLine.support() << "</support>\n"
 		<< "<direction>" << iLine.direction() << "</direction>\n"
@@ -247,7 +247,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Parametric
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Combined>& iLine)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Line2D>\n"
 		<< "<support>" << iLine.support() << "</support>\n"
 		<< "<direction>" << iLine.direction() << "</direction>\n"

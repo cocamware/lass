@@ -1,50 +1,50 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
-		inline void PyObjectPlus::__dealloc(PyObject *P)    
-		{  
-			delete ((PyObjectPlus *) P);  
+		inline void PyObjectPlus::__dealloc(PyObject *P)
+		{
+			delete ((PyObjectPlus *) P);
 		};
 
-		inline PyObject*	PyObjectPlus::__repr(PyObject *PyObj) 
-		{	
+		inline PyObject*    PyObjectPlus::__repr(PyObject *PyObj)
+		{
 			return pyBuildSimpleObject(((TSelf*)PyObj)->pyRepr());
 		}
 
-		inline PyObject*	PyObjectPlus::__str(PyObject *PyObj) 
-		{ 
-			return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr()); 
+		inline PyObject*    PyObjectPlus::__str(PyObject *PyObj)
+		{
+			return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr());
 		}
 
 
-		inline PyMethodDef createPyMethodDef(  char	*ml_name, 
+		inline PyMethodDef createPyMethodDef(  char *ml_name,
 										PyCFunction  ml_meth,
-                                        int		 ml_flags,
-                                        char	*ml_doc )
+										int      ml_flags,
+										char    *ml_doc )
 		{
 			PyMethodDef temp;
 			temp.ml_name = ml_name;
@@ -54,7 +54,7 @@
 			return temp;
 		}
 
-		inline PyGetSetDef createPyGetSetDef ( char* name, 
+		inline PyGetSetDef createPyGetSetDef ( char* name,
 											  getter get,
 											  setter set,
 											  char* doc,
@@ -71,17 +71,17 @@
 
 		namespace impl
 		{
-            /** @internal
-             *  predicate to check of a python method has the correct name.
-             */
+			/** @internal
+			 *  predicate to check of a python method has the correct name.
+			 */
 			class PyMethodEqual
 			{
 			public:
-				PyMethodEqual( const char* iName ): 
-					name_(iName) 
+				PyMethodEqual( const char* iName ):
+					name_(iName)
 				{
 				}
-				bool operator()(const PyMethodDef& iMethod) const 
+				bool operator()(const PyMethodDef& iMethod) const
 				{
 					return iMethod.ml_name && strcmp(iMethod.ml_name, name_) == 0;
 				}
@@ -90,39 +90,39 @@
 			};
 
 			/** @internal
-             *  casts one numerical value to another with range checking.
+			 *  casts one numerical value to another with range checking.
 			 *  implementation detail.
 			 *  @note range of In should fully contain range of Out.
 			 */
 			template <typename In, typename Out>
 			int pyNumericCast( In iIn, Out& oV )
 			{
-                LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
-                LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
+				LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
+				LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
 				if (iIn < static_cast<In>(num::NumTraits<Out>::min))
 				{
 					std::ostringstream buffer;
-					buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: " 
+					buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: "
 						<< iIn << " < " << num::NumTraits<Out>::min;
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return 1;
 				}
-                LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
+				LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
 				if (iIn > static_cast<In>(num::NumTraits<Out>::max))
 				{
 					std::ostringstream buffer;
-					buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: " 
+					buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
 						<< iIn << " > " << num::NumTraits<Out>::max;
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return 1;
 				}
 				oV = static_cast<Out>(iIn);
-                //LASS_ASSERT((oV < 0) == (iIn < 0));
+				//LASS_ASSERT((oV < 0) == (iIn < 0));
 				return 0;
 			}
 
 			/** @internal
-             *  convert a PyObject to an signed integer with range checking.
+			 *  convert a PyObject to an signed integer with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Integer>
@@ -138,7 +138,7 @@
 					long temp = PyLong_AsLong(iValue);
 					if (PyErr_Occurred())
 					{
-						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow",
 							num::NumTraits<Integer>::name().c_str());
 						return 1;
 					}
@@ -149,7 +149,7 @@
 			}
 
 			/** @internal
-             *  convert a PyObject to an unsigned integer with range checking.
+			 *  convert a PyObject to an unsigned integer with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Integer>
@@ -173,7 +173,7 @@
 					unsigned long temp = PyLong_AsUnsignedLong(iValue);
 					if (PyErr_Occurred())
 					{
-						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow",
 							num::NumTraits<Integer>::name().c_str());
 						return 1;
 					}
@@ -184,7 +184,7 @@
 			}
 
 			/** @internal
-             *  convert a PyObject to a floating point value with range checking.
+			 *  convert a PyObject to a floating point value with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Float>
@@ -206,7 +206,7 @@
 					double temp = PyLong_AsDouble(iValue);
 					if (PyErr_Occurred())
 					{
-						PyErr_Format(PyExc_TypeError, "not a %s: overflow", 
+						PyErr_Format(PyExc_TypeError, "not a %s: overflow",
 							num::NumTraits<Float>::name().c_str());
 						return 1;
 					}
@@ -225,7 +225,7 @@
 			int result = PyObject_IsTrue(iValue);
 			if (result == -1)
 			{
-				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL); 
+				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL);
 				return 1;
 			}
 			oV = (result != 0);
@@ -333,44 +333,44 @@
 				oV = iValue;
 				Py_INCREF( oV );
 			}
-			return 0; 
+			return 0;
 		}
 
 		/** @ingroup Python
 		 */
-		template<class C> 
-		int pyGetSimpleObject( PyObject* iValue, 
-                               util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
+		template<class C>
+		int pyGetSimpleObject( PyObject* iValue,
+							   util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
 		{
 			const bool isNone = (iValue == Py_None );
 			if (isNone)
 				oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
 			else
-			{                
+			{
 				if (!PyType_IsSubtype(iValue->ob_type , &C::Type ))
 				{
 					PyErr_Format(PyExc_TypeError,"not castable to %s",C::Type.tp_name);
 					return 1;
 				}
-			    oV = lass::python::fromPySharedPtrCast<C>(iValue);
+				oV = lass::python::fromPySharedPtrCast<C>(iValue);
 			}
 			return 0;
 		}
 
 		/** @ingroup Python
 		 */
-		inline int pyGetSimpleObject( PyObject* iValue, 
+		inline int pyGetSimpleObject( PyObject* iValue,
 									  util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV )
 		{
 			const bool isNone = (iValue == Py_None );
-            if (isNone)
-            {
-                oV = util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>();
-            }
-            else
-            {
-                oV = lass::python::fromPySharedPtrCast<PyObject>(iValue);
-            }
+			if (isNone)
+			{
+				oV = util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>();
+			}
+			else
+			{
+				oV = lass::python::fromPySharedPtrCast<PyObject>(iValue);
+			}
 			return 0;
 		}
 
@@ -519,11 +519,11 @@
 				oObj = pyObjPtr;
 			return ok;
 		}
-		
+
 
 		// pyParseString.  This function parses the function arguments assuming there is
-		//	only one and it is a string of length lower than 4096 characters.  This method
-		//	is not thread safe!
+		//  only one and it is a string of length lower than 4096 characters.  This method
+		//  is not thread safe!
 		//
 		inline int pyParseString( PyObject *args, std::string& oStr)
 		{

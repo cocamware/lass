@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  $g
  */
@@ -33,9 +33,9 @@
  *  @date 2002
  *  @author Bram de Greve [Bramz] (contact: bramz@users.sourceforge.net)
  *
- *  It's a single object that can hold a reference to a free function or an 
+ *  It's a single object that can hold a reference to a free function or an
  *  object/(const) method pair.  Once the callback is constructed, it works
- *  completely transparent.  All it shows to the client is a function that 
+ *  completely transparent.  All it shows to the client is a function that
  *  takes one parameter but gives no returnvalue.
  */
 
@@ -72,99 +72,99 @@ public:
 
 	typedef SharedPtr< impl::Dispatcher$x<$(P$x)$> > TDispatcher;
 
-    // STRUCTORS
-    
-    /** Default constructor, construct empty callback.
-     */
-    Callback$x()
-    {
-    }
+	// STRUCTORS
 
-    /** Construct function callback
-     */
-    template<$(typename Q$x)$>
+	/** Default constructor, construct empty callback.
+	 */
+	Callback$x()
+	{
+	}
+
+	/** Construct function callback
+	 */
+	template<$(typename Q$x)$>
 	explicit Callback$x(void (*iFunction)($(Q$x)$))
-    {
-        if (iFunction)
-        {
+	{
+		if (iFunction)
+		{
 			TDispatcher temp(new impl::Dispatcher$xFunction<$(P$x)$, $(Q$x)$>(iFunction));
 			dispatcher_ = temp;
-        }
-    }
-    
-    /** Construct object/method callback.
-     */
-    template<class Object, $(typename Q$x)$>
-    Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$))
-    {
-        if (iObject && iMethod) 
-        {
+		}
+	}
+
+	/** Construct object/method callback.
+	 */
+	template<class Object, $(typename Q$x)$>
+	Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$))
+	{
+		if (iObject && iMethod)
+		{
 			TDispatcher temp(new impl::Dispatcher$xMethod<Object, $(P$x)$, $(Q$x)$>(iObject, iMethod));
 			dispatcher_ = temp;
 		}
-    }
+	}
 
-    /** Construct object/method callback with const method.
-     */
-    template<class Object, $(typename Q$x)$>
-    Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$) const)
-    {
-        if (iObject && iMethod) 
-        {
+	/** Construct object/method callback with const method.
+	 */
+	template<class Object, $(typename Q$x)$>
+	Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$) const)
+	{
+		if (iObject && iMethod)
+		{
 			TDispatcher temp(new impl::Dispatcher$xConstMethod<Object, $(P$x)$, $(Q$x)$>(iObject, iMethod));
 			dispatcher_ = temp;
 		}
-    }
+	}
 
-    /** @internal
-     *  Construct from dispatcher, implementation detail
-     */
-    Callback$x(const TDispatcher& iDispatcher):
-        dispatcher_(iDispatcher)
-    {
-    }
-    
-    
-
-    // OPERATORS
-    
-    /** THE operator.  Executes the callback.
-     */
-    void operator()($(P$x iP$x)$) const 
-    {
-        if (!isEmpty()) 
-        {
-			(*dispatcher_)($(iP$x)$); 
-        }
-    }
+	/** @internal
+	 *  Construct from dispatcher, implementation detail
+	 */
+	Callback$x(const TDispatcher& iDispatcher):
+		dispatcher_(iDispatcher)
+	{
+	}
 
 
-    // METHODS
-    
-    /** Reset to empty callback.
-     */
-    void reset() 
-    {
-        dispatcher_.reset();
-    }
 
-    /** Returns true if no callback dispatcher is assigned to this object.
-     */
-    bool isEmpty() const
-    {
-        return dispatcher_.isEmpty();
-    }
+	// OPERATORS
 
-    /** Swaps the dispatcher of this callback with the dispatcher of another.
-     */
-    void swap(Callback$x<$(P$x)$>& iOther)
-    {
-        dispatcher_.swap(iOther.dispatcher_);
-    }
+	/** THE operator.  Executes the callback.
+	 */
+	void operator()($(P$x iP$x)$) const
+	{
+		if (!isEmpty())
+		{
+			(*dispatcher_)($(iP$x)$);
+		}
+	}
+
+
+	// METHODS
+
+	/** Reset to empty callback.
+	 */
+	void reset()
+	{
+		dispatcher_.reset();
+	}
+
+	/** Returns true if no callback dispatcher is assigned to this object.
+	 */
+	bool isEmpty() const
+	{
+		return dispatcher_.isEmpty();
+	}
+
+	/** Swaps the dispatcher of this callback with the dispatcher of another.
+	 */
+	void swap(Callback$x<$(P$x)$>& iOther)
+	{
+		dispatcher_.swap(iOther.dispatcher_);
+	}
 
 private:
 
-    TDispatcher dispatcher_;
+	TDispatcher dispatcher_;
 };
 
 

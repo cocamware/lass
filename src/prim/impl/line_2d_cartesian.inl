@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -95,7 +95,7 @@ template<typename T, class NP>
 Line2DCartesian<T, NP>::Line2DCartesian(const TVector& iNormal, const TPoint& iSupport):
 	normal_(iNormal)
 {
-    NP::normalize(normal_);
+	NP::normalize(normal_);
 	d_ = -dot(normal_, iSupport.position());
 }
 
@@ -110,9 +110,9 @@ Line2DCartesian<T, NP>::Line2DCartesian(const TVector& iNormal, const TPoint& iS
 template<typename T, class NP>
 Line2DCartesian<T, NP>::Line2DCartesian(const TVector& iNormal, TParam iD):
 	normal_(iNormal),
-    d_(iD)
+	d_(iD)
 {
-    NP::normalizeAndScale(normal_, d_);
+	NP::normalizeAndScale(normal_, d_);
 }
 
 
@@ -141,8 +141,8 @@ const typename Line2DCartesian<T, NP>::TVector Line2DCartesian<T, NP>::direction
 template<typename T, class NP>
 void Line2DCartesian<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 {
-    oNormal = normal_;
-    oD = d_;
+	oNormal = normal_;
+	oD = d_;
 }
 
 
@@ -150,7 +150,7 @@ void Line2DCartesian<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 template<typename T, class NP>
 const typename Line2DCartesian<T, NP>::TVector& Line2DCartesian<T, NP>::normal() const
 {
-    return normal_;
+	return normal_;
 }
 
 
@@ -158,7 +158,7 @@ const typename Line2DCartesian<T, NP>::TVector& Line2DCartesian<T, NP>::normal()
 template<typename T, class NP>
 const typename Line2DCartesian<T, NP>::TParam Line2DCartesian<T, NP>::d() const
 {
-    return d_;
+	return d_;
 }
 
 
@@ -168,8 +168,8 @@ const typename Line2DCartesian<T, NP>::TParam Line2DCartesian<T, NP>::d() const
 template<typename T, class NP>
 const Side Line2DCartesian<T, NP>::classify(const TPoint& iPoint) const
 {
-    const TValue eq = equation(iPoint);
-    return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+	const TValue eq = equation(iPoint);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
 }
 
 
@@ -177,10 +177,10 @@ const Side Line2DCartesian<T, NP>::classify(const TPoint& iPoint) const
 /** Return value of point in equation.
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TValue 
-Line2DCartesian<T, NP>::equation(const TPoint& iPoint) const                  
+const typename Line2DCartesian<T, NP>::TValue
+Line2DCartesian<T, NP>::equation(const TPoint& iPoint) const
 {
-    return dot(iPoint.position(), normal_) + d_;
+	return dot(iPoint.position(), normal_) + d_;
 }
 
 
@@ -189,10 +189,10 @@ Line2DCartesian<T, NP>::equation(const TPoint& iPoint) const
  *  negative value means point is in the back.
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TValue 
+const typename Line2DCartesian<T, NP>::TValue
 Line2DCartesian<T, NP>::signedDistance(const TPoint& iPoint) const
 {
-    return NP::divideByNorm(equation(iPoint), normal_);
+	return NP::divideByNorm(equation(iPoint), normal_);
 }
 
 
@@ -201,23 +201,23 @@ Line2DCartesian<T, NP>::signedDistance(const TPoint& iPoint) const
  *  iPoint == (almost) project(iPoint) + reject(iPoint)
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TVector 
+const typename Line2DCartesian<T, NP>::TVector
 Line2DCartesian<T, NP>::reject(const TPoint& iPoint) const
 {
-    return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
+	return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
 }
 
 
 
-/** return the part of iVector that is orthogonal to the line. 
+/** return the part of iVector that is orthogonal to the line.
  *  it's the vector that, if added to the PROJECTION of iVector, you get iVector again.
  *  iVector == (almost) project(iVector) + reject(iVector).
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TVector 
+const typename Line2DCartesian<T, NP>::TVector
 Line2DCartesian<T, NP>::reject(const TVector& iVector) const
 {
-    return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
+	return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
 }
 
 
@@ -225,7 +225,7 @@ Line2DCartesian<T, NP>::reject(const TVector& iVector) const
 /** project a point orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TPoint 
+const typename Line2DCartesian<T, NP>::TPoint
 Line2DCartesian<T, NP>::project(const TPoint& iPoint) const
 {
 	return iPoint - reject(iPoint);
@@ -236,7 +236,7 @@ Line2DCartesian<T, NP>::project(const TPoint& iPoint) const
 /** project a vector orthogonally onto the line
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TVector 
+const typename Line2DCartesian<T, NP>::TVector
 Line2DCartesian<T, NP>::project(const TVector& iVector) const
 {
 	return iVector - reject(iVector);
@@ -247,7 +247,7 @@ Line2DCartesian<T, NP>::project(const TVector& iVector) const
 /** reflect a point orthogonally into the line.
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TPoint 
+const typename Line2DCartesian<T, NP>::TPoint
 Line2DCartesian<T, NP>::reflect(const TPoint& iPoint) const
 {
 	return iPoint - T(2) * reject(iPoint);
@@ -258,7 +258,7 @@ Line2DCartesian<T, NP>::reflect(const TPoint& iPoint) const
 /** reflect a vector orthogonally into the line
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TVector 
+const typename Line2DCartesian<T, NP>::TVector
 Line2DCartesian<T, NP>::reflect(const TVector& iVector) const
 {
 	return iVector - T(2) * reject(iVector);
@@ -269,7 +269,7 @@ Line2DCartesian<T, NP>::reflect(const TVector& iVector) const
 /** return point by filling in parameter in @b generated parametric equation
  */
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TPoint 
+const typename Line2DCartesian<T, NP>::TPoint
 Line2DCartesian<T, NP>::point(TParam iT) const
 {
 	return support() + iT * direction();
@@ -277,13 +277,13 @@ Line2DCartesian<T, NP>::point(TParam iT) const
 
 
 
-/** return parameter along @b generated paremetric equation. 
+/** return parameter along @b generated paremetric equation.
  */
 template<typename T, class NP>
 const typename Line2DCartesian<T, NP>::TValue Line2DCartesian<T, NP>::t(const TPoint& iPoint) const
 {
 	const TVector dir = direction();
-    return NP::divideBySquaredNorm(dot(dir, iPoint - support()), dir);
+	return NP::divideBySquaredNorm(dot(dir, iPoint - support()), dir);
 }
 
 
@@ -291,8 +291,8 @@ const typename Line2DCartesian<T, NP>::TValue Line2DCartesian<T, NP>::t(const TP
 template <typename T, class NP>
 void Line2DCartesian<T, NP>::flip()
 {
-    normal_ = -normal_;
-    d_ = -d_;
+	normal_ = -normal_;
+	d_ = -d_;
 }
 
 
@@ -302,7 +302,7 @@ void Line2DCartesian<T, NP>::flip()
 template<typename T, class NP>
 const bool Line2DCartesian<T, NP>::isValid() const
 {
-    return !normal_.isZero();
+	return !normal_.isZero();
 }
 
 
@@ -318,7 +318,7 @@ const bool Line2DCartesian<T, NP>::isValid() const
 
 // --- free ----------------------------------------------------------------------------------------
 
-template<typename T, class NP> 
+template<typename T, class NP>
 std::ostream& operator<<(std::ostream& ioOStream, const Line2DCartesian<T, NP>& iLine)
 {
 	LASS_ENFORCE(ioOStream) << "{N=" << iLine.normal() << ", d=" << iLine.d() << "}";

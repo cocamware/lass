@@ -1,37 +1,37 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *	@par original code by Andrei Alexandrescu:
- *	The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *	This code (Loki) accompanies the book:\n
- *	Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied". 
- *	Copyright (c) 2001. Addison-Wesley.\n
- *	<i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is 
- *	hereby granted without fee, provided that the above copyright notice appear in all copies and 
- *	that both that copyright notice and this permission notice appear in supporting documentation.\n
- *	The author or Addison-Wesley Longman make no representations about the suitability of this 
- *	software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
+ *  @par original code by Andrei Alexandrescu:
+ *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
+ *  This code (Loki) accompanies the book:\n
+ *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
+ *  Copyright (c) 2001. Addison-Wesley.\n
+ *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
+ *  hereby granted without fee, provided that the above copyright notice appear in all copies and
+ *  that both that copyright notice and this permission notice appear in supporting documentation.\n
+ *  The author or Addison-Wesley Longman make no representations about the suitability of this
+ *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
 
@@ -61,23 +61,23 @@ namespace type_list
  */
 template
 <
-	typename T0 = NullType, typename T1 = NullType, typename T2 = NullType, 
-	typename T3 = NullType, typename T4 = NullType, typename T5 = NullType, 
-	typename T6 = NullType, typename T7 = NullType, typename T8 = NullType, 
-	typename T9 = NullType,	typename T10 = NullType, typename T11 = NullType,
-	typename T12 = NullType, typename T13 = NullType, typename T14 = NullType, 
-	typename T15 = NullType, typename T16 = NullType, typename T17 = NullType, 
+	typename T0 = NullType, typename T1 = NullType, typename T2 = NullType,
+	typename T3 = NullType, typename T4 = NullType, typename T5 = NullType,
+	typename T6 = NullType, typename T7 = NullType, typename T8 = NullType,
+	typename T9 = NullType, typename T10 = NullType, typename T11 = NullType,
+	typename T12 = NullType, typename T13 = NullType, typename T14 = NullType,
+	typename T15 = NullType, typename T16 = NullType, typename T17 = NullType,
 	typename T18 = NullType, typename T19 = NullType, typename T20 = NullType
 >
 struct Make
 {
 	typedef TypeList
 	<
-		T0, 
+		T0,
 		typename Make
 		<
-			T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, 
-            T12, T13, T14, T15, T16, T17, T18, T19, T20
+			T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+			T12, T13, T14, T15, T16, T17, T18, T19, T20
 		>::Type
 	>
 	Type;
@@ -99,13 +99,13 @@ template <typename TypeListType> struct Size;
 template <>
 struct Size<NullType>
 {
-    enum { value = 0 };
+	enum { value = 0 };
 };
 
 template <typename HeadType, typename TailType>
 struct Size<TypeList<HeadType, TailType> >
 {
-    enum { value = Size<TailType>::value + 1 };
+	enum { value = Size<TailType>::value + 1 };
 };
 
 
@@ -118,13 +118,13 @@ template <typename TypeListType, unsigned index> struct At;
 template <typename HeadType, typename TailType>
 struct At<TypeList<HeadType, TailType>, 0>
 {
-    typedef HeadType Type;
+	typedef HeadType Type;
 };
 
 template <typename HeadType, typename TailType, unsigned index>
 struct At<TypeList<HeadType, TailType>, index>
 {
-    typedef typename At<TailType, index - 1>::Type Type;
+	typedef typename At<TailType, index - 1>::Type Type;
 };
 
 
@@ -132,22 +132,22 @@ struct At<TypeList<HeadType, TailType>, index>
 /** same as type_list::At but returns a @c DefaultType if index is out of range.
  *  @sa TypeList
  */
-template <typename TypeListType, unsigned index, typename DefaultType = NullType> 
+template <typename TypeListType, unsigned index, typename DefaultType = NullType>
 struct AtNonStrict
 {
-    typedef DefaultType Type;
+	typedef DefaultType Type;
 };
 
 template <typename HeadType, typename TailType, typename DefaultType>
 struct AtNonStrict<TypeList<HeadType, TailType>, 0, DefaultType>
 {
-    typedef HeadType Type;
+	typedef HeadType Type;
 };
 
 template <typename HeadType, typename TailType, unsigned index, typename DefaultType>
 struct AtNonStrict<TypeList<HeadType, TailType>, index, DefaultType>
 {
-    typedef typename AtNonStrict<TailType, index - 1, DefaultType>::Type Type;
+	typedef typename AtNonStrict<TailType, index - 1, DefaultType>::Type Type;
 };
 
 
@@ -160,22 +160,22 @@ template <typename TypeListType, typename T> struct Find;
 template <typename T>
 struct Find<NullType, T>
 {
-    enum { value = -1 };
+	enum { value = -1 };
 };
 
 template <typename TailType, typename T>
 struct Find<TypeList<T, TailType>, T>
 {
-    enum { value = 0 };
+	enum { value = 0 };
 };
 
 template <typename HeadType, typename TailType, typename T>
 struct Find<TypeList<HeadType, TailType>, T>
 {
 private:
-    enum { temp = Find<TailType, T>::value };
+	enum { temp = Find<TailType, T>::value };
 public:
-    enum { value = temp == -1 ? -1 : temp + 1 };
+	enum { value = temp == -1 ? -1 : temp + 1 };
 };
 
 
@@ -188,25 +188,25 @@ template <typename TypeListType, typename T> struct Merge;
 template <>
 struct Merge<NullType, NullType>
 {
-    typedef NullType Type;
+	typedef NullType Type;
 };
 
 template <typename T>
 struct Merge<NullType, T>
 {
-    typedef TypeList<T, NullType> Type;
+	typedef TypeList<T, NullType> Type;
 };
 
 template <typename HeadType, typename TailType>
 struct Merge<NullType, TypeList<HeadType, TailType> >
 {
-    typedef TypeList<HeadType, TailType> Type;
+	typedef TypeList<HeadType, TailType> Type;
 };
 
 template <typename HeadType, typename TailType, typename T>
 struct Merge<TypeList<HeadType, TailType>, T>
 {
-    typedef TypeList<HeadType, typename Merge<TailType, T>::Type> Type;
+	typedef TypeList<HeadType, typename Merge<TailType, T>::Type> Type;
 };
 
 
@@ -219,19 +219,19 @@ template <typename TypeListType, typename T> struct Remove;
 template <typename T>
 struct Remove<NullType, T>
 {
-    typedef NullType Type;
+	typedef NullType Type;
 };
 
 template <typename TailType, typename T>
 struct Remove<TypeList<T, TailType>, T>
 {
-    typedef typename Remove<TailType, T>::Type Type;
+	typedef typename Remove<TailType, T>::Type Type;
 };
 
 template <typename HeadType, typename TailType, typename T>
 struct Remove<TypeList<HeadType, TailType>, T>
 {
-    typedef TypeList<HeadType, typename Remove<TailType, T>::Type> Type;
+	typedef TypeList<HeadType, typename Remove<TailType, T>::Type> Type;
 };
 
 
@@ -243,19 +243,19 @@ template <typename TypeListType, typename OldType, typename NewType> struct Repl
 template <typename OldType, typename NewType>
 struct Replace<NullType, OldType, NewType>
 {
-    typedef NullType Type;
+	typedef NullType Type;
 };
 
 template <typename TailType, typename OldType, typename NewType>
 struct Replace<TypeList<OldType, TailType>, OldType, NewType>
 {
-    typedef TypeList<NewType, typename Replace<TailType, OldType, NewType>::Type> Type;
+	typedef TypeList<NewType, typename Replace<TailType, OldType, NewType>::Type> Type;
 };
 
 template <typename HeadType, typename TailType, typename OldType, typename NewType>
 struct Replace<TypeList<HeadType, TailType>, OldType, NewType>
 {
-    typedef TypeList<HeadType, typename Replace<TailType, OldType, NewType>::Type> Type;
+	typedef TypeList<HeadType, typename Replace<TailType, OldType, NewType>::Type> Type;
 };
 
 
@@ -265,19 +265,19 @@ struct Replace<TypeList<HeadType, TailType>, OldType, NewType>
  */
 template <typename TypeListType> struct Unique;
 
-template <> 
+template <>
 struct Unique<NullType>
 {
-    typedef NullType Type;
+	typedef NullType Type;
 };
 
 template <typename HeadType, typename TailType>
 struct Unique<TypeList<HeadType, TailType> >
 {
 private:
-    typedef typename Remove<TailType, HeadType>::Type TStrippedTail;
+	typedef typename Remove<TailType, HeadType>::Type TStrippedTail;
 public:
-    typedef TypeList<HeadType, typename Unique<TStrippedTail>::Type> Type;
+	typedef TypeList<HeadType, typename Unique<TStrippedTail>::Type> Type;
 };
 
 
@@ -290,16 +290,16 @@ template <typename TypeList> struct Reverse;
 template <>
 struct Reverse<NullType>
 {
-    typedef NullType Type;
+	typedef NullType Type;
 };
 
 template <typename HeadType, typename TailType>
 struct Reverse<TypeList<HeadType, TailType> >
 {
 private:
-    typedef typename Reverse<TailType>::Type TTempHead;
+	typedef typename Reverse<TailType>::Type TTempHead;
 public:
-    typedef typename Merge<TTempHead, HeadType>::Type Type;
+	typedef typename Merge<TTempHead, HeadType>::Type Type;
 };
 
 
@@ -321,10 +321,10 @@ template <typename TypeListType> int find(const util::TypeInfo& iType)
 
 template <>
 struct RunTimeFinder<NullType>
-{ 
-	static int result(const util::TypeInfo& iType) 
-	{ 
-		return -1; 
+{
+	static int result(const util::TypeInfo& iType)
+	{
+		return -1;
 	}
 };
 

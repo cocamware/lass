@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -34,9 +34,9 @@
  *  (in this case a 2D rectangle), that is often used as a simple bounding volume of another
  *  primitive or data structure.
  *
- *  <i>"A form of a bounding box where the box is aligned to the axis therefore only 
- *  two points in space are needed to define it. AABB's are much faster to use, and 
- *  take up less memory, but are very limited in the sense that they can only be 
+ *  <i>"A form of a bounding box where the box is aligned to the axis therefore only
+ *  two points in space are needed to define it. AABB's are much faster to use, and
+ *  take up less memory, but are very limited in the sense that they can only be
  *  aligned to the axis."</i>, http://www.gamedev.net/dict/term.asp?TermID=525
  *
  *  The way an AABB handles its minima and maxima can be set by the @c MinMaxPolicy.
@@ -64,35 +64,35 @@ namespace lass
 namespace prim
 {
 
-template 
+template
 <
-    typename T, 
-    class MinMaxPolicy = StrictMinMax
+	typename T,
+	class MinMaxPolicy = StrictMinMax
 >
 class Aabb2D
 {
 public:
 
-    typedef Aabb2D<T, MinMaxPolicy> TSelf;
-    typedef MinMaxPolicy TMinMaxPolicy;
+	typedef Aabb2D<T, MinMaxPolicy> TSelf;
+	typedef MinMaxPolicy TMinMaxPolicy;
 
 	typedef Point2D<T> TPoint;
 	typedef Point2DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;
 
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
-    typedef typename TPoint::TNumTraits TNumTraits;
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
+	typedef typename TPoint::TNumTraits TNumTraits;
 
-	enum { dimension = TPoint::dimension };	/**< number of dimensions of vector */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions of vector */
 
-    template <typename U> struct Rebind
-    {
-        typedef Aabb2D<U, MinMaxPolicy> Type;
-    };
-	
+	template <typename U> struct Rebind
+	{
+		typedef Aabb2D<U, MinMaxPolicy> Type;
+	};
+
 	Aabb2D();
 	Aabb2D(const TPoint& iMin, const TPoint& iMax);
 	explicit Aabb2D(const TPoint& iPoint);
@@ -105,7 +105,7 @@ public:
 
 	template <class MMP2> TSelf& operator=(const Aabb2D<T, MMP2>& iOther);
 
-    TSelf& operator+=(const TPoint& iPoint);
+	TSelf& operator+=(const TPoint& iPoint);
 	template<class MMP2> TSelf& operator+=(const Aabb2D<T, MMP2>& iOther);
 	void grow(TParam iDistance);
 	void scale(TParam iScale);
@@ -116,12 +116,12 @@ public:
 	const TValue area() const;
 
 	const Side classify(const TPoint& iPoint) const;
-	const bool contains(const TPoint& iPoint) const; 
+	const bool contains(const TPoint& iPoint) const;
 	template <class MMP2> const bool contains(const Aabb2D<T, MMP2>& iOther) const;
 	template <class MMP2> const bool intersects(const Aabb2D<T, MMP2>& iOther) const;
 	template <class MMP2> const bool collides(const Aabb2D<T, MMP2>& iOther) const;
 
-    template <class RandomGenerator> const TPoint random(RandomGenerator& ioRandom) const;
+	template <class RandomGenerator> const TPoint random(RandomGenerator& ioRandom) const;
 
 	void clear();
 	const bool isEmpty() const;

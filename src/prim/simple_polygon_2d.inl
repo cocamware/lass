@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -41,7 +41,7 @@ namespace prim
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TPoint& 
+const typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex) const
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
@@ -53,7 +53,7 @@ SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex) const
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
 template <typename T, class DP>
-typename SimplePolygon2D<T, DP>::TPoint& 
+typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex)
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
@@ -67,11 +67,11 @@ SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex)
  *  @throw an exception is thrown if polygon is empty
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TPoint& 
+const typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex) const
 {
-    LASS_ENFORCE(!isEmpty());
-    const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	LASS_ENFORCE(!isEmpty());
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -83,10 +83,10 @@ SimplePolygon2D<T, DP>::at(int iIndexOfVertex) const
  *  @throw an exception is thrown if polygon is empty
  */
 template <typename T, class DP>
-typename SimplePolygon2D<T, DP>::TPoint& 
+typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex)
 {
-    LASS_ENFORCE(!isEmpty());
+	LASS_ENFORCE(!isEmpty());
 	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
 	LASS_ASSERT(isInRange(i));
 
@@ -99,10 +99,10 @@ SimplePolygon2D<T, DP>::at(int iIndexOfVertex)
  *  @throw an exception is thrown if polygon has less than two vertices
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TLineSegment 
+const typename SimplePolygon2D<T, DP>::TLineSegment
 SimplePolygon2D<T, DP>::edge(int iIndexOfTailVertex) const
 {
-    DP::enforceEdge(*this, iIndexOfTailVertex);
+	DP::enforceEdge(*this, iIndexOfTailVertex);
 	return TLineSegment(at(iIndexOfTailVertex), at(iIndexOfTailVertex + 1));
 }
 
@@ -111,17 +111,17 @@ SimplePolygon2D<T, DP>::edge(int iIndexOfTailVertex) const
 /** return the vector between vertices at(iIndex) and at(iIndex + 1)\
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TVector 
+const typename SimplePolygon2D<T, DP>::TVector
 SimplePolygon2D<T, DP>::vector(int iIndexOfTailVertex) const
 {
-    DP::enforceEdge(*this, iIndexOfTailVertex);
+	DP::enforceEdge(*this, iIndexOfTailVertex);
 	return at(iIndexOfTailVertex + 1) - at(iIndexOfTailVertex);
 }
 
 
 
 /** add a point at the "end" of the vertex list.
- *  this is almost the same as <tt>insert(0, iVertex)</tt> with the difference that 
+ *  this is almost the same as <tt>insert(0, iVertex)</tt> with the difference that
  *  <tt>add(iVertex)</tt> is also valid for empty polygons.
  */
 template <typename T, class DP>
@@ -136,7 +136,7 @@ void SimplePolygon2D<T, DP>::add(const TPoint& iVertex)
 template <typename T, class DP>
 void SimplePolygon2D<T, DP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
-    LASS_ENFORCE(!isEmpty());
+	LASS_ENFORCE(!isEmpty());
 
 	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
 	LASS_ASSERT(isInRange(i));
@@ -150,7 +150,7 @@ void SimplePolygon2D<T, DP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 template <typename T, class DP>
 void SimplePolygon2D<T, DP>::erase(int iIndexOfVertex)
 {
-    LASS_ENFORCE(!isEmpty());
+	LASS_ENFORCE(!isEmpty());
 	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.erase(vertices_.begin() + i);
@@ -173,7 +173,7 @@ const bool SimplePolygon2D<T, DP>::isEmpty() const
 template <typename T, class DP>
 const int SimplePolygon2D<T, DP>::size() const
 {
-    LASS_ASSERT(vertices_.size() >= 0);
+	LASS_ASSERT(vertices_.size() >= 0);
 	return static_cast<int>(vertices_.size());
 }
 
@@ -181,17 +181,17 @@ const int SimplePolygon2D<T, DP>::size() const
 
 /** return signed polygon area.
  *
- *  <i>The area of a convex polygon is defined to be positive if the points are arranged in a 
+ *  <i>The area of a convex polygon is defined to be positive if the points are arranged in a
  *  counterclockwise order, and negative if they are in clockwise order.</i>,
  *  http://mathworld.wolfram.com/PolygonArea.html
  *
  *  @warning polygon must be simple accoring degenerate policy.
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TValue 
+const typename SimplePolygon2D<T, DP>::TValue
 SimplePolygon2D<T, DP>::signedArea() const
 {
-    DP::enforceSimple(*this);
+	DP::enforceSimple(*this);
 
 	if (size() < 3)
 	{
@@ -199,7 +199,7 @@ SimplePolygon2D<T, DP>::signedArea() const
 	}
 
 	TValue result = TNumTraits::zero;
-    const int n = size();
+	const int n = size();
 	for (int i = 0; i < n; ++i)
 	{
 		result += perpDot(at(i).position, at(i + 1).position);
@@ -217,7 +217,7 @@ SimplePolygon2D<T, DP>::signedArea() const
  *  @warning polygon must be simple accoring @a DegeneratePolicy.
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TValue 
+const typename SimplePolygon2D<T, DP>::TValue
 SimplePolygon2D<T, DP>::area() const
 {
 	return num::abs(signedArea()); // DP::enforceSimple(*this);
@@ -232,10 +232,10 @@ SimplePolygon2D<T, DP>::area() const
 template <typename T, class DP>
 const Orientation SimplePolygon2D<T, DP>::orientation() const
 {
-    const TValue signArea = signedArea(); // DP::enforceSimple(*this);
-    LASS_PRIM_ENFORCE_NO_DEGENERATE(DP, signArea != TNumTraits::zero);
-    
-    return signArea < TNumTraits::zero ? oClockWise : oCounterClockWise;
+	const TValue signArea = signedArea(); // DP::enforceSimple(*this);
+	LASS_PRIM_ENFORCE_NO_DEGENERATE(DP, signArea != TNumTraits::zero);
+
+	return signArea < TNumTraits::zero ? oClockWise : oCounterClockWise;
 }
 
 
@@ -243,11 +243,11 @@ const Orientation SimplePolygon2D<T, DP>::orientation() const
 /** return sum of the lengths of all edges
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TValue 
+const typename SimplePolygon2D<T, DP>::TValue
 SimplePolygon2D<T, DP>::perimeter() const
 {
 	TValue result = TNumTraits::zero;
-    const int n = size();
+	const int n = size();
 	for (int i = 0; i < n; ++i)
 	{
 		result += distance(at(i), at(i + 1));
@@ -257,13 +257,13 @@ SimplePolygon2D<T, DP>::perimeter() const
 
 
 
-/** return the barycenter of all vertices.  
+/** return the barycenter of all vertices.
  *  The barycenter is the homogenous sum of all vertices.
  *
  *  @warning for non-convex polygons, it's NOT guaranteed that this center is inside the polygon.
  */
 template <typename T, class DP>
-const typename SimplePolygon2D<T, DP>::TPointH 
+const typename SimplePolygon2D<T, DP>::TPointH
 SimplePolygon2D<T, DP>::center() const
 {
 	TPointH result;;
@@ -278,8 +278,8 @@ SimplePolygon2D<T, DP>::center() const
 
 /** return true if polygon is simple, false if not.
  *
- *  <i>A polygon P is said to be simple (or Jordan) if the only points of the plane belonging to 
- *  two polygon edges of P are the polygon vertices of P. Such a polygon has a well defined 
+ *  <i>A polygon P is said to be simple (or Jordan) if the only points of the plane belonging to
+ *  two polygon edges of P are the polygon vertices of P. Such a polygon has a well defined
  *  interior and exterior. Simple polygons are topologically equivalent to a disk.</i>,
  *  http://mathworld.wolfram.com/SimplePolygon.html.
  *
@@ -292,16 +292,16 @@ template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isSimple() const
 {
 	const int n = size();
-    if (n < 4)
-    {
-        return true;
-    }
+	if (n < 4)
+	{
+		return true;
+	}
 
 	for (int i = 0; i < n; ++i)
 	{
 		const TLineSegment e = edge(i);
-        TValue t1;
-        TValue t2;
+		TValue t1;
+		TValue t2;
 		if (intersect(e, edge(i + 1), t1, t2) != rOne)
 		{
 			return false;
@@ -326,27 +326,27 @@ const bool SimplePolygon2D<T, DP>::isSimple() const
 
 /** return true if polygon is convex, false if not.
  *
- *  <i>A planar polygon is convex if it contains all the line segments connecting any pair of its 
- *  points. Thus, for example, a regular pentagon is convex, while an indented pentagon is not. 
+ *  <i>A planar polygon is convex if it contains all the line segments connecting any pair of its
+ *  points. Thus, for example, a regular pentagon is convex, while an indented pentagon is not.
  *  A planar polygon that is not convex is said to be a concave polygon</i>,
  *  http://mathworld.wolfram.com/ConvexPolygon.html.
  *
- *  A simple polygon is convex if all the cross products of adjacent edges will be the same sign 
- *  (we ignore zero cross products of colinear edges, only + or - are taken in account), a concave polygon 
- *  will have a mixture of cross product signs. 
+ *  A simple polygon is convex if all the cross products of adjacent edges will be the same sign
+ *  (we ignore zero cross products of colinear edges, only + or - are taken in account), a concave polygon
+ *  will have a mixture of cross product signs.
  *
  *  A polygon with less than three vertices is always convex.  A polygon with all coincident.
  *  vertices is considered convex if DegeneratePolicy allows this.
  *
- *  @warning polygon must be simple and should not have coincident vertices, according 
+ *  @warning polygon must be simple and should not have coincident vertices, according
  *           @a DegeneratePolicy.
  */
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isConvex() const
 {
-    DP::enforceSimple(*this);
-    
-    if (size() < 3) 
+	DP::enforceSimple(*this);
+
+	if (size() < 3)
 	{
 		return true;
 	}
@@ -358,11 +358,11 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 		const TValue s = num::sign(perpDot(vector(i - 1), vector(i))); // Ax(-B) = BxA
 		if (sign != s && s != TNumTraits::zero)
 		{
-            if (sign == TNumTraits::zero)
-            {
-                sign = s;
-            }
-            else
+			if (sign == TNumTraits::zero)
+			{
+				sign = s;
+			}
+			else
 			{
 				return false;
 			}
@@ -375,8 +375,8 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 
 
 /** return true if inner angle of vertex is reflex (is > 180 degrees).
- * 
- *	test if signedArea() and perdDot(...) have different sign.
+ *
+ *  test if signedArea() and perdDot(...) have different sign.
  *  if one of them is zero, it will return false by default.
  *
  *  @warning polygon must be simple accoring @a DegeneratePolicy.
@@ -384,10 +384,10 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
 {
-    DP::enforceSimple(*this);
+	DP::enforceSimple(*this);
 
 	const TValue pd = perpDot(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)); // Ax(-B) = BxA
-    LASS_ASSERT(!isEmpty()); // vector(i) should enforce this
+	LASS_ASSERT(!isEmpty()); // vector(i) should enforce this
 	return signedArea() * pd < TNumTraits::zero;
 }
 
@@ -407,19 +407,19 @@ const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 {
 	unsigned i, j;
 	const TVector& p = iP.position();
-    bool c = false;
+	bool c = false;
 	const unsigned npol = size();
-    for (i = 0, j = npol-1; i < npol; j = i++) 
+	for (i = 0, j = npol-1; i < npol; j = i++)
 	{
-        const TVector& a = vertices_[i].position();
-        const TVector& b = vertices_[j].position();
+		const TVector& a = vertices_[i].position();
+		const TVector& b = vertices_[j].position();
 		if (((a.y <= p.y && p.y < b.y) || (b.y <= p.y && p.y < a.y)) &&
 			p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x)
 		{
 			c = !c;
 		}
 	}
-    return c;
+	return c;
 }
 
 
@@ -427,7 +427,7 @@ const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 template <typename T, class DP>
 const Side SimplePolygon2D<T, DP>::classify(const TPoint& iP) const
 {
-    return contains(iP) ? sInside : sOutside;
+	return contains(iP) ? sInside : sOutside;
 }
 
 
@@ -437,7 +437,7 @@ const Side SimplePolygon2D<T, DP>::classify(const TPoint& iP) const
 template <typename T, class DP>
 void SimplePolygon2D<T, DP>::flip()
 {
-    std::reverse(vertices_.begin(), vertices_.end());
+	std::reverse(vertices_.begin(), vertices_.end());
 }
 
 
@@ -458,47 +458,47 @@ void SimplePolygon2D<T, DP>::flip()
 template <typename T, class DP>
 void SimplePolygon2D<T, DP>::fixDegenerate()
 {
-    // remove coincident vertices
-    //
-    int i = 0;
-    while (i < size())
-    {
-        if (at(i) == at(i + 1))
-        {
-            erase(i);
-        }
-        else
-        {
-            ++i;
-        }
-    }
+	// remove coincident vertices
+	//
+	int i = 0;
+	while (i < size())
+	{
+		if (at(i) == at(i + 1))
+		{
+			erase(i);
+		}
+		else
+		{
+			++i;
+		}
+	}
 
-    // merge colinear edges
-    //
-    while (size() > 2 && i < size())
-    {
-        if (perpDot(vector(i - 1), vector(i)) == TNumTraits::zero)
-        {
-            erase(i);
-        }
-        else
-        {
-            ++i;
-        }
-    }
+	// merge colinear edges
+	//
+	while (size() > 2 && i < size())
+	{
+		if (perpDot(vector(i - 1), vector(i)) == TNumTraits::zero)
+		{
+			erase(i);
+		}
+		else
+		{
+			++i;
+		}
+	}
 
-    // by now there are no coincident points that can trigger policy predicates in @c isSimple()
-    // so exceptions are not thrown before we get the change to fix it.
-    //
-    LASS_ENFORCE(isSimple());
+	// by now there are no coincident points that can trigger policy predicates in @c isSimple()
+	// so exceptions are not thrown before we get the change to fix it.
+	//
+	LASS_ENFORCE(isSimple());
 
-    // check zero area of polygons in two ways: literally, and by the knowledge that less than
-    // three vertices is zero area for sure.
-    //
-    if (size() < 3 || signedArea() == TNumTraits::zero)
-    {
-        vertices_.clear();
-    }
+	// check zero area of polygons in two ways: literally, and by the knowledge that less than
+	// three vertices is zero area for sure.
+	//
+	if (size() < 3 || signedArea() == TNumTraits::zero)
+	{
+		vertices_.clear();
+	}
 }
 
 
@@ -508,7 +508,7 @@ void SimplePolygon2D<T, DP>::fixDegenerate()
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isValid() const
 {
-    return size() >= 3 && isSimple() && signedArea() != TNumTraits::zero;
+	return size() >= 3 && isSimple() && signedArea() != TNumTraits::zero;
 }
 
 

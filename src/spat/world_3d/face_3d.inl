@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -41,26 +41,26 @@ namespace world_3d
 // --- public --------------------------------------------------------------------------------------
 
 template <typename T>
-Face3D<T>::Face3D(const TPlane& iPlane, 
-                  TCell* iFrontCell, 
-                  TCell* iBackCell,
-                  THandle iFrontHandle,
-                  THandle iBackHandle):
-    plane_(iPlane),
-    frontHandle_(iFrontHandle),
-    backHandle_(iBackHandle),
-    frontCell_(iFrontCell),
-    backCell_(iBackCell),
-    pair_(0),
-    midAir_(false)
+Face3D<T>::Face3D(const TPlane& iPlane,
+				  TCell* iFrontCell,
+				  TCell* iBackCell,
+				  THandle iFrontHandle,
+				  THandle iBackHandle):
+	plane_(iPlane),
+	frontHandle_(iFrontHandle),
+	backHandle_(iBackHandle),
+	frontCell_(iFrontCell),
+	backCell_(iBackCell),
+	pair_(0),
+	midAir_(false)
 {
-    LASS_ASSERT(iFrontCell);
-    iFrontCell->addFace(this);
+	LASS_ASSERT(iFrontCell);
+	iFrontCell->addFace(this);
 
-    if (iBackCell)
-    {
-        iBackCell->addFace(this);
-    }
+	if (iBackCell)
+	{
+		iBackCell->addFace(this);
+	}
 }
 
 
@@ -70,7 +70,7 @@ Face3D<T>::Face3D(const TPlane& iPlane,
 template <typename T>
 Face3D<T>::~Face3D()
 {
-    clearPairs();
+	clearPairs();
 }
 
 
@@ -80,8 +80,8 @@ Face3D<T>::~Face3D()
 template <typename T>
 void Face3D<T>::setBackCell(TCell* iCell)
 {
-    LASS_ASSERT(!backCell_ || !iCell); // don't assign twice, unless to zero
-    backCell_ = iCell;
+	LASS_ASSERT(!backCell_ || !iCell); // don't assign twice, unless to zero
+	backCell_ = iCell;
 }
 
 
@@ -89,7 +89,7 @@ void Face3D<T>::setBackCell(TCell* iCell)
 /** replace pointer to old cell by pointer to new cell.  See if old cell is
  *  front or back cell, and then assign new cell to that one.
  *  @warning a face at least need a front cell.  this has as consequence that if
- *           you replace the frontcell by a null pointer, the face will 
+ *           you replace the frontcell by a null pointer, the face will
  *           automatically be flipped so that the backcell becomes the front and
  *           the null pointer assigned as back.
  *  @warning this has as consequence that you may not set a front cell to the
@@ -98,65 +98,65 @@ void Face3D<T>::setBackCell(TCell* iCell)
 template <typename T>
 void Face3D<T>::replaceCell(const TCell* iOldCell, TCell* iNewCell)
 {
-    LASS_ASSERT(link(iOldCell));
-    if (frontCell_ == iOldCell)
-    {        
-        if (iNewCell == 0)
-        {
-            // we want to set the front cell to null, but we always need a 
-            // frontcell.  So, if we want to get rid of the front cell, we must
-            // have a backcell we can use as future frontCell by flipping the 
-            // face.  After that, we can safely set the backcell (our previous 
-            // frontcell, confusing huh? :) safely to null as requested.
-            LASS_ASSERT(backCell_);
-            flip();
-            backCell_ = 0;
-        }
-        else
-        {
-            frontCell_ = iNewCell;
-        }
-    }
-    else
-    {
-        backCell_ = iNewCell;
-    }
+	LASS_ASSERT(link(iOldCell));
+	if (frontCell_ == iOldCell)
+	{
+		if (iNewCell == 0)
+		{
+			// we want to set the front cell to null, but we always need a
+			// frontcell.  So, if we want to get rid of the front cell, we must
+			// have a backcell we can use as future frontCell by flipping the
+			// face.  After that, we can safely set the backcell (our previous
+			// frontcell, confusing huh? :) safely to null as requested.
+			LASS_ASSERT(backCell_);
+			flip();
+			backCell_ = 0;
+		}
+		else
+		{
+			frontCell_ = iNewCell;
+		}
+	}
+	else
+	{
+		backCell_ = iNewCell;
+	}
 
 
 }
 
 
 
-/** return the front cell of the face.  
+/** return the front cell of the face.
  *  @warning the face is supposed the have its normal to the frontcell.
  */
 template <typename T>
 Face3D<T>::TCell* Face3D<T>::frontCell() const
 {
-    return frontCell_;
+	return frontCell_;
 }
 
 
 
-/** return the back cell of the face.  
+/** return the back cell of the face.
  *  @warning the face is supposed the have its normal to the frontcell.
  */
 template <typename T>
 Face3D<T>::TCell* Face3D<T>::backCell() const
 {
-    return backCell_;
+	return backCell_;
 }
 
 
 
-/** return that face's cell that is at the same side of the face's plane as 
+/** return that face's cell that is at the same side of the face's plane as
  *  iPoint.
  *  if iPoint lays exactly on the face's plane, return the front cell.
  */
 template <typename T>
 Face3D<T>::TCell* Face3D<T>::cell(const TPoint& iPoint) const
 {
-    return facePolarity(iPoint) == positive ? frontCell_ : backCell_;
+	return facePolarity(iPoint) == positive ? frontCell_ : backCell_;
 }
 
 
@@ -168,7 +168,7 @@ Face3D<T>::TCell* Face3D<T>::cell(const TPoint& iPoint) const
 template <typename T>
 Face3D<T>::TCell* Face3D<T>::twinCell(const TCell* iCell) const
 {
-    return iCell == frontCell_ ? backCell_ : frontCell_;
+	return iCell == frontCell_ ? backCell_ : frontCell_;
 }
 
 
@@ -180,7 +180,7 @@ Face3D<T>::TCell* Face3D<T>::twinCell(const TCell* iCell) const
 template <typename T>
 bool Face3D<T>::link(const TCell* iCell) const
 {
-    return iCell == frontCell_ || iCell == backCell_;
+	return iCell == frontCell_ || iCell == backCell_;
 }
 
 
@@ -203,7 +203,7 @@ bool Face3D<T>::link(const TEdge* iEdge) const
 template <typename T>
 Face3D<T>::THandle Face3D<T>::frontHandle() const
 {
-    return frontHandle_;
+	return frontHandle_;
 }
 
 
@@ -213,7 +213,7 @@ Face3D<T>::THandle Face3D<T>::frontHandle() const
 template <typename T>
 Face3D<T>::THandle Face3D<T>::backHandle() const
 {
-    return backHandle_;
+	return backHandle_;
 }
 
 
@@ -223,8 +223,8 @@ Face3D<T>::THandle Face3D<T>::backHandle() const
 template <typename T>
 Face3D<T>::THandle Face3D<T>::handle(const TCell* iCell) const
 {
-    LASS_ASSERT(link(iCell));
-    return iCell == backCell_ ? backHandle_ : frontHandle_;
+	LASS_ASSERT(link(iCell));
+	return iCell == backCell_ ? backHandle_ : frontHandle_;
 }
 
 
@@ -236,7 +236,7 @@ Face3D<T>::THandle Face3D<T>::handle(const TCell* iCell) const
 template <typename T>
 void Face3D<T>::setPair(TPair* iPair)
 {
-    pair_ = iPair;
+	pair_ = iPair;
 }
 
 
@@ -248,7 +248,7 @@ void Face3D<T>::setPair(TPair* iPair)
 template <typename T>
 TPair* Face3D<T>::pair() const
 {
-    return pair_;
+	return pair_;
 }
 
 
@@ -259,7 +259,7 @@ TPair* Face3D<T>::pair() const
 template <typename T>
 Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(Polarity iFacePolarity) const
 {
-    return TPair::TCounterClockIterator(pair_, iFacePolarity);
+	return TPair::TCounterClockIterator(pair_, iFacePolarity);
 }
 
 
@@ -270,7 +270,7 @@ Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(Polarity iFacePolar
 template <typename T>
 Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(const TCell* iCell) const
 {
-    return beginPair(facePolarity(iCell));
+	return beginPair(facePolarity(iCell));
 }
 
 
@@ -281,7 +281,7 @@ Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(const TCell* iCell)
 template <typename T>
 Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(const TPoint& iPoint) const
 {
-    return beginPair(facePolarity(iPoint));
+	return beginPair(facePolarity(iPoint));
 }
 
 
@@ -291,19 +291,19 @@ Face3D<T>::TPair::TCounterClockIterator Face3D<T>::beginPair(const TPoint& iPoin
 template <typename T>
 void Face3D<T>::clearPairs()
 {
-    if (pair_)
-    {
-        // although pair_ gets deleted immediately, you can still use its
-        // original address to deal with the iterator.
-        TPair::TCounterClockIterator pit;
-        for (pit.reset(pair_); !pit.end(); )
-        {
-            TPair* pair = pit.get();
-            ++pit;
-            pair->edge()->erasePair(pair);
-        }
-        pair_ = 0;
-    }
+	if (pair_)
+	{
+		// although pair_ gets deleted immediately, you can still use its
+		// original address to deal with the iterator.
+		TPair::TCounterClockIterator pit;
+		for (pit.reset(pair_); !pit.end(); )
+		{
+			TPair* pair = pit.get();
+			++pit;
+			pair->edge()->erasePair(pair);
+		}
+		pair_ = 0;
+	}
 }
 
 
@@ -315,17 +315,17 @@ void Face3D<T>::clearPairs()
 template <typename T>
 Face3D<T>::TPointH Face3D<T>::barycenter() const
 {
-    TPointH result;
+	TPointH result;
 
-    LASS_ASSERT(pair_);
-    TPair::TCounterClockIterator pit;
-    for (pit.reset(pair_); !pit.end(); ++pit)
-    {
-        const TPoint& head = pit->head()->position();
-        result += head;
-    }
+	LASS_ASSERT(pair_);
+	TPair::TCounterClockIterator pit;
+	for (pit.reset(pair_); !pit.end(); ++pit)
+	{
+		const TPoint& head = pit->head()->position();
+		result += head;
+	}
 
-    return result;
+	return result;
 }
 
 
@@ -335,17 +335,17 @@ Face3D<T>::TPointH Face3D<T>::barycenter() const
 template <typename T>
 Face3D<T>::TPolygon Face3D<T>::polygon(Polarity iFacePolarity) const
 {
-    TPolygon result;
+	TPolygon result;
 
-    TPair::TCounterClockIterator pit;
-    for (pit.reset(pair_, iFacePolarity); !pit.end(); ++pit)
-    {
-        TPoint tail = pit->tail()->position();
-        result.addVertex(tail);
-    }
-    result.setPlane(plane_);
+	TPair::TCounterClockIterator pit;
+	for (pit.reset(pair_, iFacePolarity); !pit.end(); ++pit)
+	{
+		TPoint tail = pit->tail()->position();
+		result.addVertex(tail);
+	}
+	result.setPlane(plane_);
 
-    return result;
+	return result;
 }
 
 
@@ -355,7 +355,7 @@ Face3D<T>::TPolygon Face3D<T>::polygon(Polarity iFacePolarity) const
 template <typename T>
 Face3D<T>::TPolygon Face3D<T>::polygon(const TCell* iCell) const
 {
-    return polygon(facePolarity(iCell));
+	return polygon(facePolarity(iCell));
 }
 
 
@@ -365,7 +365,7 @@ Face3D<T>::TPolygon Face3D<T>::polygon(const TCell* iCell) const
 template <typename T>
 Face3D<T>::TPolygon Face3D<T>::polygon(const TPoint& iPoint) const
 {
-    return polygon(facePolarity(iPoint));
+	return polygon(facePolarity(iPoint));
 }
 
 
@@ -373,16 +373,16 @@ Face3D<T>::TPolygon Face3D<T>::polygon(const TPoint& iPoint) const
 template <typename T>
 Face3D<T>::TPlane Face3D<T>::plane(Polarity iFacePolarity) const
 {
-    if (iFacePolarity)
-    {
-        return plane_;
-    }
-    else
-    {
-        TPlane result = plane_;
-        result.flip();
-        return result;
-    }
+	if (iFacePolarity)
+	{
+		return plane_;
+	}
+	else
+	{
+		TPlane result = plane_;
+		result.flip();
+		return result;
+	}
 }
 
 
@@ -392,8 +392,8 @@ Face3D<T>::TPlane Face3D<T>::plane(Polarity iFacePolarity) const
 template <typename T>
 Face3D<T>::TPlane Face3D<T>::plane(const TCell* iCell) const
 {
-    LASS_ASSERT(link(iCell));
-    return plane(facePolarity(iCell));
+	LASS_ASSERT(link(iCell));
+	return plane(facePolarity(iCell));
 }
 
 
@@ -404,7 +404,7 @@ Face3D<T>::TPlane Face3D<T>::plane(const TCell* iCell) const
 template <typename T>
 Face3D<T>::TPlane Face3D<T>::plane(const TPoint& iPoint) const
 {
-    return plane(facePolarity(iPoint));
+	return plane(facePolarity(iPoint));
 }
 
 
@@ -414,7 +414,7 @@ Face3D<T>::TPlane Face3D<T>::plane(const TPoint& iPoint) const
 template <typename T>
 Face3D<T>::TVector Face3D<T>::normal(Polarity iFacePolarity) const
 {
-    return iFacePolarity ? plane_.normal() : -plane_.normal();
+	return iFacePolarity ? plane_.normal() : -plane_.normal();
 }
 
 
@@ -427,8 +427,8 @@ Face3D<T>::TVector Face3D<T>::normal(Polarity iFacePolarity) const
 template <typename T>
 Face3D<T>::TVector Face3D<T>::normal(const TCell* iCell) const
 {
-    LASS_ASSERT(link(iCell));
-    return normal(facePolarity(iCell));
+	LASS_ASSERT(link(iCell));
+	return normal(facePolarity(iCell));
 }
 
 
@@ -438,7 +438,7 @@ Face3D<T>::TVector Face3D<T>::normal(const TCell* iCell) const
 template <typename T>
 Face3D<T>::TVector Face3D<T>::normal(const TPoint& iPoint) const
 {
-    return normal(facePolarity(iPoint));
+	return normal(facePolarity(iPoint));
 }
 
 
@@ -446,16 +446,16 @@ Face3D<T>::TVector Face3D<T>::normal(const TPoint& iPoint) const
 /** Determine polarity of face against cell.
  *  - return negative if iCell is back cell of face
  *  - return positive if iCell is front cell.
- *  @warning this function will also return positive if iCell is nor the back 
- *           cell nor the front cell.  i.e. if it is not a cell that is linked 
- *           to the face at all.  Be carefull about that!  Use link() to check 
+ *  @warning this function will also return positive if iCell is nor the back
+ *           cell nor the front cell.  i.e. if it is not a cell that is linked
+ *           to the face at all.  Be carefull about that!  Use link() to check
  *           that.
  */
 template <typename T>
 Face3D<T>::Polarity Face3D<T>::facePolarity(const TCell* iCell) const
 {
-    LASS_ASSERT(link(iCell));
-    return iCell == frontCell_ ? positive : negative;
+	LASS_ASSERT(link(iCell));
+	return iCell == frontCell_ ? positive : negative;
 }
 
 
@@ -468,25 +468,25 @@ Face3D<T>::Polarity Face3D<T>::facePolarity(const TCell* iCell) const
 template <typename T>
 Polarity Face3D<T>::facePolarity(const TPoint& iPoint) const
 {
-    return plane_.side(iPoint) != psInBack ? positive : negative;
+	return plane_.side(iPoint) != psInBack ? positive : negative;
 }
 
 
 
-/** return true if BOTH SIDES OF THE FACE are isBlack.  Being isBlack means it 
+/** return true if BOTH SIDES OF THE FACE are isBlack.  Being isBlack means it
  *  absorbs everything: no reflection and no transmission.
  */
 template <typename T>
 bool Face3D<T>::isBlack() const
 {
-    return !backCell_ || (frontHandle_ == blackHandle() && backHandle_ == blackHandle());
+	return !backCell_ || (frontHandle_ == blackHandle() && backHandle_ == blackHandle());
 }
 
 
 
-/** return true if THIS SIDE OF THE FACE is isBlack.  Being isBlack means it 
+/** return true if THIS SIDE OF THE FACE is isBlack.  Being isBlack means it
  *  absorbs everything.  That means there is no reflection and no transmission.
- *  Only the side for the cell is checked!  It doesn't matter what the other 
+ *  Only the side for the cell is checked!  It doesn't matter what the other
  *  side tells.
  *  @warning we use a special handle for this: the blackHandle!  If you want
  *           a face to return true on this thest, you must set the (right)
@@ -495,8 +495,8 @@ bool Face3D<T>::isBlack() const
 template <typename T>
 bool Face3D<T>::isBlack(const TCell* iCell) const
 {
-    LASS_ASSERT(link(iCell));
-    return !backCell_ || handle(iCell) == blackHandle();
+	LASS_ASSERT(link(iCell));
+	return !backCell_ || handle(iCell) == blackHandle();
 }
 
 
@@ -509,8 +509,8 @@ bool Face3D<T>::isBlack(const TCell* iCell) const
 template <typename T>
 bool Face3D<T>::isImmaterial() const
 {
-    return backCell_ && !frontHandle_ && !backHandle_ && 
-        (frontCell_->medium() == backCell_->medium());
+	return backCell_ && !frontHandle_ && !backHandle_ &&
+		(frontCell_->medium() == backCell_->medium());
 }
 
 
@@ -520,7 +520,7 @@ bool Face3D<T>::isImmaterial() const
 template <typename T>
 bool Face3D<T>::isMidAir() const
 {
-    return midAir_;
+	return midAir_;
 }
 
 
@@ -530,7 +530,7 @@ bool Face3D<T>::isMidAir() const
 template <typename T>
 void Face3D<T>::setMidAirBit(bool iMidAir)
 {
-    midAir_ = iMidAir;
+	midAir_ = iMidAir;
 }
 
 
@@ -542,16 +542,16 @@ void Face3D<T>::setMidAirBit(bool iMidAir)
 template <typename T>
 void Face3D<T>::flip()
 {
-    LASS_ASSERT(backCell_);
-    std::swap(frontCell_, backCell_);
-    std::swap(frontHandle_, backHandle_);
-    plane_.flip();
+	LASS_ASSERT(backCell_);
+	std::swap(frontCell_, backCell_);
+	std::swap(frontHandle_, backHandle_);
+	plane_.flip();
 
-    TPair::TCounterClockIterator pit;
-    for (pit.reset(pair_); pit.get(); ++pit)
-    {
-        pit->flip();
-    }
+	TPair::TCounterClockIterator pit;
+	for (pit.reset(pair_); pit.get(); ++pit)
+	{
+		pit->flip();
+	}
 }
 
 
@@ -561,11 +561,11 @@ void Face3D<T>::flip()
 template <typename T>
 void Face3D<T>::flip(const TCell* iCell)
 {
-    LASS_ASSERT(link(iCell));
-    if (iCell == backCell_)
-    {
-        flip();
-    }
+	LASS_ASSERT(link(iCell));
+	if (iCell == backCell_)
+	{
+		flip();
+	}
 }
 
 
@@ -574,7 +574,7 @@ void Face3D<T>::flip(const TCell* iCell)
  *  parameter on linesegment via a_t.  The returnvalue of the function indicates
  *  the number of intersections:
  *  - 0: no intersection between linesegment and face.  a_t is invalid.
- *  - 1: exactly 1 intersection.  a_t is parameter of that intersection on the 
+ *  - 1: exactly 1 intersection.  a_t is parameter of that intersection on the
  *       linesegment.
  *  - -1: infinitely many intersections.  a_t is invalid.
  *
@@ -583,35 +583,35 @@ void Face3D<T>::flip(const TCell* iCell)
 template <typename T>
 int Face3D<T>::intersect(const LineSeg3& a_lineSeg, Real& a_t) const
 {
-    // first of all, line segment must intersect support plane.  
-    // if it doesn't, it can never intersect the polygon
-    if (plane_.intersect(a_lineSeg, a_t) != 1)
-    {
-        // -1 part?
-        return 0;
-    }
+	// first of all, line segment must intersect support plane.
+	// if it doesn't, it can never intersect the polygon
+	if (plane_.intersect(a_lineSeg, a_t) != 1)
+	{
+		// -1 part?
+		return 0;
+	}
 
-    // secondly, candidate must be part of polygon.  First I wanted to check
-    // directly if line goes through polygon instead of checking the candidate
-    // intersection point.  But I need to check out plucker coordinates for that
-    // first.  Instead I'm checking if the candidate is at the left of each 
-    // edge.  This is possible since the face is convex.
-    const TPoint candidate = a_lineSeg.point(a_t);
+	// secondly, candidate must be part of polygon.  First I wanted to check
+	// directly if line goes through polygon instead of checking the candidate
+	// intersection point.  But I need to check out plucker coordinates for that
+	// first.  Instead I'm checking if the candidate is at the left of each
+	// edge.  This is possible since the face is convex.
+	const TPoint candidate = a_lineSeg.point(a_t);
 
-    TPair::TCounterClockIterator pit;
-    for (pit.reset(pair_); !pit.end(); ++pit)
-    {
-        const TPoint edgeTail = pit->tail()->position();
-        const TPoint edgeHead = pit->head()->position();
+	TPair::TCounterClockIterator pit;
+	for (pit.reset(pair_); !pit.end(); ++pit)
+	{
+		const TPoint edgeTail = pit->tail()->position();
+		const TPoint edgeHead = pit->head()->position();
 
-        if (triple(normal(), edgeTail - candidate, edgeHead - candidate) < 0.0)
-        {
-            return 0;
-        }
-    }
+		if (triple(normal(), edgeTail - candidate, edgeHead - candidate) < 0.0)
+		{
+			return 0;
+		}
+	}
 
-    // it's ok, we have a winner.
-    return 1;
+	// it's ok, we have a winner.
+	return 1;
 }
 
 
@@ -621,8 +621,8 @@ int Face3D<T>::intersect(const LineSeg3& a_lineSeg, Real& a_t) const
 template <typename T>
 THandle Face3D<T>::blackHandle()
 {
-    static DummyHandle blackHandle;
-    return &blackHandle;
+	static DummyHandle blackHandle;
+	return &blackHandle;
 }
 
 

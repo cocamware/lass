@@ -3,7 +3,7 @@
  *  @brief interface for class bass3::PreprocessorSHP
  *  @author Bram de Greve --- BdG ---
  *  @date 2002-2003
- *  
+ *
  *  History:
  *  - 17/01/2003, BDG: creation of file
  */
@@ -51,36 +51,36 @@ class BASS3_LIB_API PreprocessorSHP
 {
 public:
 
-    // TYPEDEFS
-    
+	// TYPEDEFS
+
 	typedef lass::util::CallbackR1<Real, const Point2&> CBGetMapHeight;
-    typedef lass::util::CallbackR1<void*, const Point2&> CBGetMapHandle;
-    typedef lass::util::CallbackR1<Real, void*> CBGetHandleHeight;
+	typedef lass::util::CallbackR1<void*, const Point2&> CBGetMapHandle;
+	typedef lass::util::CallbackR1<Real, void*> CBGetHandleHeight;
 
 
-    // METHODS
+	// METHODS
 
-    void init(Triangulator* a_triangulator,
-              const CBGetMapHeight& a_getMapHeight,
-              const CBGetMapHandle& a_getMapHandle,
-              const CBGetHandleHeight& a_getHandleHeight,
-              Real a_zMin, Real a_zMax, Real a_aabbScale,
-              const Vector2& a_offset);    
-    World3_p process(const std::string& a_filename,
-                     const std::vector<ComposedCellHandle*> a_cellHandles);
+	void init(Triangulator* a_triangulator,
+			  const CBGetMapHeight& a_getMapHeight,
+			  const CBGetMapHandle& a_getMapHandle,
+			  const CBGetHandleHeight& a_getHandleHeight,
+			  Real a_zMin, Real a_zMax, Real a_aabbScale,
+			  const Vector2& a_offset);
+	World3_p process(const std::string& a_filename,
+					 const std::vector<ComposedCellHandle*> a_cellHandles);
 
 private:
 
-    // PRIVATE DATA
-    
-    Triangulator* m_triangulator;
-    CBGetMapHeight m_getMapHeight;
-    CBGetMapHandle m_getMapHandle;
-    CBGetHandleHeight m_getHandleHeight;
-    Real m_zMin;
-    Real m_zMax;
-    Real m_aabbScale;
-    Vector2 m_offset;
+	// PRIVATE DATA
+
+	Triangulator* m_triangulator;
+	CBGetMapHeight m_getMapHeight;
+	CBGetMapHandle m_getMapHandle;
+	CBGetHandleHeight m_getHandleHeight;
+	Real m_zMin;
+	Real m_zMax;
+	Real m_aabbScale;
+	Vector2 m_offset;
 };
 
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -38,22 +38,22 @@ namespace util
 
 // --- ThreadFun0 ----------------------------------------------------------------------------------
 
-inline 
+inline
 ThreadFun0::ThreadFun0(
-	const Callback0& iFun, 
+	const Callback0& iFun,
 	ThreadKind iKind):
 
-    Thread(iKind),
-    fun_(iFun)
+	Thread(iKind),
+	fun_(iFun)
 {
 }
 
 
 
-inline 
+inline
 void* ThreadFun0::entry()
 {
-    fun_();
+	fun_();
 	return 0;
 }
 
@@ -62,15 +62,15 @@ void* ThreadFun0::entry()
 /** @relates ThreadFun0
  *  @ingroup ThreadFun
  */
-inline 
+inline
 ThreadFun0* threadFun(
-	void (*iFun)(), 
+	void (*iFun)(),
 	ThreadKind iKind)
 {
-    ThreadFun0* result = new ThreadFun0(Callback0(iFun), iKind);
-    result->create();
-    result->run();
-    return result;
+	ThreadFun0* result = new ThreadFun0(Callback0(iFun), iKind);
+	result->create();
+	result->run();
+	return result;
 }
 
 
@@ -80,13 +80,13 @@ ThreadFun0* threadFun(
  */
 template <typename Obj>
 ThreadFun0* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)(), 
+	Obj* iObj, void (Obj::*iMemFun)(),
 	ThreadKind iKind)
 {
-    ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
-    result->create();
-    result->run();
-    return result;
+	ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
+	result->create();
+	result->run();
+	return result;
 }
 
 
@@ -96,13 +96,13 @@ ThreadFun0* threadFun(
  */
 template <typename Obj>
 ThreadFun0* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)() const, 
+	Obj* iObj, void (Obj::*iMemFun)() const,
 	ThreadKind iKind)
 {
-    ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
-    result->create();
-    result->run();
-    return result;
+	ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
+	result->create();
+	result->run();
+	return result;
 }
 
 
@@ -116,9 +116,9 @@ ThreadFun$x<$(P$x)$>::ThreadFun$x(
 	$(typename CallTraits<P$x>::TParam iP$x)$,
 	ThreadKind iKind):
 
-    Thread(iKind),
-    fun_(iFun),
-    $(p$x_(iP$x))$
+	Thread(iKind),
+	fun_(iFun),
+	$(p$x_(iP$x))$
 {
 }
 
@@ -127,7 +127,7 @@ ThreadFun$x<$(P$x)$>::ThreadFun$x(
 template <$(typename P$x)$>
 void* ThreadFun$x<$(P$x)$>::entry()
 {
-    fun_($(p$x_)$);
+	fun_($(p$x_)$);
 	return 0;
 }
 
@@ -138,15 +138,15 @@ void* ThreadFun$x<$(P$x)$>::entry()
  */
 template <$(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	void (*iFun)($(P$x)$), 
-	$(const Q$x& iQ$x)$, 
+	void (*iFun)($(P$x)$),
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind)
 {
-    ThreadFun$x<$(P$x)$>* result = 
+	ThreadFun$x<$(P$x)$>* result =
 		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFun), $(iQ$x)$, iKind);
-    result->create();
-    result->run();
-    return result;
+	result->create();
+	result->run();
+	return result;
 }
 
 
@@ -156,15 +156,15 @@ ThreadFun$x<$(P$x)$>* threadFun(
  */
 template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)($(P$x)$), 
-	$(const Q$x& iQ$x)$, 
+	Obj* iObj, void (Obj::*iMemFun)($(P$x)$),
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind)
 {
-    ThreadFun$x<$(P$x)$>* result = 
-        new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
-    result->create();
-    result->run();
-    return result;
+	ThreadFun$x<$(P$x)$>* result =
+		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
+	result->create();
+	result->run();
+	return result;
 }
 
 
@@ -174,15 +174,15 @@ ThreadFun$x<$(P$x)$>* threadFun(
  */
 template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
 ThreadFun$x<$(P$x)$>* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)($(P$x)$) const, 
-	$(const Q$x& iQ$x)$, 
+	Obj* iObj, void (Obj::*iMemFun)($(P$x)$) const,
+	$(const Q$x& iQ$x)$,
 	ThreadKind iKind)
 {
-    ThreadFun$x<$(P$x)$>* result = 
-        new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
-    result->create();
-    result->run();
-    return result;
+	ThreadFun$x<$(P$x)$>* result =
+		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
+	result->create();
+	result->run();
+	return result;
 }
 
 

@@ -1,27 +1,27 @@
-/**	@file
+/** @file
  *  @internal
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -43,17 +43,17 @@ int countCalls = 0;
 
 bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
 {
-	++countCalls; 
+	++countCalls;
 	return true;
 }
 
 bool CountCallsLong( ::lass::spat::PlanarMesh<long,int,int,int>::TEdge* e)
 {
-	++countCalls; 
+	++countCalls;
 	return true;
 }
 
-bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e) 
+bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
 {
 	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
 
@@ -74,7 +74,7 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 	}
 	BOOST_CHECK_EQUAL( e->sym(), e->rot()->rot() );
 	BOOST_CHECK_EQUAL( e->invRot(), e->rot()->rot()->rot() );
-	
+
 	BOOST_CHECK_EQUAL( e->lNext(), e->invRot()->oNext()->rot() );
 	BOOST_CHECK_EQUAL( e->rNext(), e->rot()->oNext()->invRot() );
 	BOOST_CHECK_EQUAL( e->dNext(), e->sym()->oNext()->sym() );
@@ -94,11 +94,11 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 		BOOST_CHECK_NO_THROW( TPlanarMesh::setPointHandle( e, 0 ) );
 		BOOST_CHECK_NO_THROW( TPlanarMesh::setEdgeHandle( e, 0 ) );
 		BOOST_CHECK_NO_THROW( TPlanarMesh::setFaceHandle( e, 0 ) );
-	
+
 
 		BOOST_WARN_MESSAGE( true, "PlanarMesh: no test for faceHandles" );
 		/*
-		std::auto_ptr<int>	tempHandle(new int(5));
+		std::auto_ptr<int>  tempHandle(new int(5));
 		TPlanarMesh::setFaceHandle( e, tempHandle.get() );
 
 		TPlanarMesh::TEdge* currentEdge = e;
@@ -126,15 +126,15 @@ void doTestPlanarMesh()
 	BOOST_MESSAGE("testing lass::spat::PlanarMesh<> ...");
 	using namespace spat;
 
-	typedef PlanarMesh<TestType, int, int, int >	TPlanarMesh;
-	typedef PlanarMesh<long , int, int, int >	TPlanarMeshLong;
-	typedef TPlanarMesh::TPoint2D	TPoint2D;
-	typedef TPlanarMesh::TEdge		TEdge;
-	typedef TPlanarMeshLong::TPoint2D	TPoint2DLong;
-	
-	TPlanarMesh		testMesh( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
-	TPlanarMesh		testMesh2( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
-	TPlanarMeshLong	testMesh3( TPoint2DLong(0,0), TPoint2DLong(100,0), TPoint2DLong(100,100), TPoint2DLong(0,100));
+	typedef PlanarMesh<TestType, int, int, int >    TPlanarMesh;
+	typedef PlanarMesh<long , int, int, int >   TPlanarMeshLong;
+	typedef TPlanarMesh::TPoint2D   TPoint2D;
+	typedef TPlanarMesh::TEdge      TEdge;
+	typedef TPlanarMeshLong::TPoint2D   TPoint2DLong;
+
+	TPlanarMesh     testMesh( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
+	TPlanarMesh     testMesh2( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
+	TPlanarMeshLong testMesh3( TPoint2DLong(0,0), TPoint2DLong(100,0), TPoint2DLong(100,100), TPoint2DLong(0,100));
 
 	TEdge* e = testMesh.startEdge();
 
@@ -142,14 +142,14 @@ void doTestPlanarMesh()
 		e = e->rot();
 
 	BOOST_CHECK_EQUAL( e, e->lNext()->lNext()->lNext() );
-	
+
 	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 
 	std::vector< TPoint2D > randomPoints;
 	std::vector< TPoint2DLong > randomPointsLong;
 	for (int i=0;i<20;++i)
 	{
-		double rx = (double)rand()/(double)RAND_MAX;		
+		double rx = (double)rand()/(double)RAND_MAX;
 		double ry = (double)rand()/(double)RAND_MAX;
 
 		randomPoints.push_back( TPoint2D( 10.0+rx*80.0, 10.0+ry*80.0 ) );
@@ -184,7 +184,7 @@ void doTestPlanarMesh()
 	testIo2.close();
 
 	randomPointsLong.clear();
-    for (long x=10;x<91;x+=10)
+	for (long x=10;x<91;x+=10)
 		for (long y=10;y<91;y+=10)
 		{
 			randomPointsLong.push_back( TPoint2DLong(x,y ) );
@@ -196,7 +196,7 @@ void doTestPlanarMesh()
 		testMesh3.insertSite( randomPointsLong[i], true );
 	}
 
-	
+
 	testIo2.open( "testPlanarMeshIO_sq_Delaunay.m" );
 	testIo2 << testMesh3;
 	testIo2.close();
@@ -215,7 +215,7 @@ void doTestPlanarMesh()
 	testMesh3.forAllPrimaryUndirectedEdges( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
 	std::cout << "Number of edges = " << countCalls << "\n";
 	countEdges = countCalls;
-	
+
 	countCalls = 0;
 	testMesh3.forAllVertices( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
 	std::cout << "Number of vertices = " << countCalls << "\n";
@@ -226,10 +226,10 @@ void doTestPlanarMesh()
 	std::cout << "Number of faces = " << countCalls << "\n";
 	countFaces = countCalls;
 
-	/* check euler relation	*/
+	/* check euler relation */
 	BOOST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
 
-	TPlanarMesh		testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
+	TPlanarMesh     testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 
 	for (int i=0;i<int(randomPoints.size());++i)
 		testMesh4.insertSite( randomPoints[i], true);

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -136,14 +136,14 @@ struct pair_traits
 };
 
 template <typename Iterator, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-print_sequence(std::basic_ostream<Char, Traits>& ostream, 
-              Iterator begin, Iterator end, 
-              const Char* opener, const Char* seperator, const Char* closer)
+std::basic_ostream<Char, Traits>&
+print_sequence(std::basic_ostream<Char, Traits>& ostream,
+			  Iterator begin, Iterator end,
+			  const Char* opener, const Char* seperator, const Char* closer)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
 	buffer.copyfmt(ostream);
-    buffer.width(0);
+	buffer.width(0);
 
 	buffer << opener;
 	for (Iterator i = begin; i != end; ++i)
@@ -161,14 +161,14 @@ print_sequence(std::basic_ostream<Char, Traits>& ostream,
 }
 
 template <typename Char, typename Traits, typename Iterator>
-std::basic_ostream<Char, Traits>& 
-printMap(std::basic_ostream<Char, Traits>& ostream, 
-         Iterator begin, Iterator end,
-         const Char* opener, const Char* seperator_1, const Char* seperator_2, const Char* closer)
+std::basic_ostream<Char, Traits>&
+printMap(std::basic_ostream<Char, Traits>& ostream,
+		 Iterator begin, Iterator end,
+		 const Char* opener, const Char* seperator_1, const Char* seperator_2, const Char* closer)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
 	buffer.copyfmt(ostream);
-    buffer.width(0);
+	buffer.width(0);
 
 	buffer << opener;
 	for (Iterator i = begin; i != end; ++i)
@@ -189,11 +189,11 @@ printMap(std::basic_ostream<Char, Traits>& ostream,
 template
 <
 	typename Pusher, typename Reader, typename T,
-	typename Char, typename Traits, 
+	typename Char, typename Traits,
 	typename Container
 >
-std::basic_istream<Char, Traits>& 
-readContainer(std::basic_istream<Char, Traits>& istream, Container& container, 
+std::basic_istream<Char, Traits>&
+readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 			 Char opener, Char inter_seperator, Char intra_seperator, Char closer)
 {
 	Container result;
@@ -208,7 +208,7 @@ readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 			T temp;
 			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
-			{        
+			{
 				Pusher::push(result, temp);
 			}
 		}
@@ -230,7 +230,7 @@ readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 			T temp;
 			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
-			{        
+			{
 				Pusher::push(result, temp);
 			}
 		}
@@ -269,13 +269,13 @@ namespace std
 /** @ingroup extended_io
  */
 template <typename T1, typename T2, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::pair<T1, T2>& x)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::pair<T1, T2>& x)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
 	buffer.copyfmt(ostream);
-    buffer.width(0);
+	buffer.width(0);
 	buffer << "(" << x.first << ", " << x.second << ")";
 	LASS_ENFORCE_STREAM(ostream) << buffer.str();
 	return ostream;
@@ -284,9 +284,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::vector<T, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::vector<T, Alloc>& container)
 {
 	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "[", ", ", "]");
@@ -295,9 +295,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::list<T, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::list<T, Alloc>& container)
 {
 	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "[", ", ", "]");
@@ -306,9 +306,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::deque<T, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::deque<T, Alloc>& container)
 {
 	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "[", ", ", "]");
@@ -317,9 +317,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::map<Key, Data, Comp, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::map<Key, Data, Comp, Alloc>& container)
 {
 	return lass::stde::impl::printMap<Char>(
 		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
@@ -328,9 +328,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::multimap<Key, Data, Comp, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::multimap<Key, Data, Comp, Alloc>& container)
 {
 	return lass::stde::impl::printMap<Char>(
 		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
@@ -339,20 +339,20 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::set<Key, Comp, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::set<Key, Comp, Alloc>& container)
 {
-    return lass::stde::impl::print_sequence(
+	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "{", ", ", "}");
 }
 
 /** @ingroup extended_io
  */
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::multiset<Key, Comp, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::multiset<Key, Comp, Alloc>& container)
 {
 	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "{", ", ", "}");
@@ -363,9 +363,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ostream, 
-           const std::slist<T, Alloc>& container)
+std::basic_ostream<Char, Traits>&
+operator<<(std::basic_ostream<Char, Traits>& ostream,
+		   const std::slist<T, Alloc>& container)
 {
 	return lass::stde::impl::print_sequence(
 		ostream, container.begin(), container.end(), "[", ", ", "]");
@@ -380,9 +380,9 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename T1, typename T2>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::pair<T1, T2>& oPair)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::pair<T1, T2>& oPair)
 {
 	using namespace lass::stde;
 
@@ -393,7 +393,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		{
 			std::pair<T1, T2> temp;
 			if (impl::pair_traits::read<Char>(istream, temp, ')', ',', ')'))
-			{        
+			{
 				oPair = temp;
 				istream.ignore();
 			}
@@ -417,9 +417,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::vector<T, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::vector<T, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
@@ -431,9 +431,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::list<T, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::list<T, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
@@ -445,9 +445,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::deque<T, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::deque<T, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
@@ -459,9 +459,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename Key, typename Data, typename Comp, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::map<Key, Data, Comp, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::map<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
@@ -473,9 +473,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename Key, typename Data, typename Comp, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::multimap<Key, Data, Comp, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::multimap<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
@@ -487,9 +487,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename Key, typename Comp, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::set<Key, Comp, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::set<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(
@@ -501,9 +501,9 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 /** @ingroup extended_io
  */
 template <typename Char, typename Traits, typename Key, typename Comp, typename Alloc>
-std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& istream, 
-           std::multiset<Key, Comp, Alloc>& container)
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& istream,
+		   std::multiset<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
 	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -36,7 +36,7 @@ namespace prim
 /** intializes iterator to @a x axis.
  */
 XYZW::XYZW():
-    value_(0)
+	value_(0)
 {
 }
 
@@ -46,7 +46,7 @@ XYZW::XYZW():
  */
 XYZW::XYZW(char iAxis)
 {
-    reset(iAxis);
+	reset(iAxis);
 }
 
 
@@ -55,7 +55,7 @@ XYZW::XYZW(char iAxis)
  *  ..., -1 == @a w, 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w, 4 == @a x...
  */
 XYZW::XYZW(int iValue):
-    value_(iValue)
+	value_(iValue)
 {
 }
 
@@ -78,7 +78,7 @@ XYZW::XYZW(const std::string& iAxis)
  */
 const char XYZW::axis() const
 {
-    LASS_ASSERT(value_ >= 0 && value_ < 4);
+	LASS_ASSERT(value_ >= 0 && value_ < 4);
 	const char axes[] = { 'x', 'y', 'z', 'w' };
 	return axes[value_];
 }
@@ -87,52 +87,52 @@ const char XYZW::axis() const
 
 XYZW& XYZW::operator++()
 {
-    LASS_ASSERT(value_ >= 0 && value_ < dimension);
-    ++value_;
-    return *this;
+	LASS_ASSERT(value_ >= 0 && value_ < dimension);
+	++value_;
+	return *this;
 }
 
 
 
 XYZW& XYZW::operator--()
 {
-    LASS_ASSERT(value_ >= 0 && value_ < dimension);
-    --value_;
-    return *this;
+	LASS_ASSERT(value_ >= 0 && value_ < dimension);
+	--value_;
+	return *this;
 }
 
 
 
 XYZW XYZW::operator++(int)
 {
-    XYZW result(*this);
-    ++*this;
-    return result;
+	XYZW result(*this);
+	++*this;
+	return result;
 }
 
 
 
 XYZW XYZW::operator--(int)
 {
-    XYZW result(*this);
-    --*this;
-    return result;
+	XYZW result(*this);
+	--*this;
+	return result;
 }
 
 
 
 XYZW& XYZW::operator+=(int iOffset)
 {
-    value_ += iOffset;
-    return *this;
+	value_ += iOffset;
+	return *this;
 }
 
 
 
 XYZW& XYZW::operator-=(int iOffset)
 {
-    value_ -= iOffset;
-    return *this;
+	value_ -= iOffset;
+	return *this;
 }
 
 
@@ -161,20 +161,20 @@ inline void XYZW::reset(char iAxis)
 		break;
 
 	case 2:
-    case 'z':
-    case 'Z':
-        value_ = 2;
+	case 'z':
+	case 'Z':
+		value_ = 2;
 		break;
 
 	case 3:
-    case 'w':
-    case 'W':
-        value_ = 3;
+	case 'w':
+	case 'W':
+		value_ = 3;
 		break;
 
 	default:
-		LASS_THROW("Invalid parameter iAxis '" << iAxis 
-            << "'.  Try 'x', 'X', 'y', 'Y', 'z', 'Z', 'w' or 'W'.");
+		LASS_THROW("Invalid parameter iAxis '" << iAxis
+			<< "'.  Try 'x', 'X', 'y', 'Y', 'z', 'Z', 'w' or 'W'.");
 	}
 }
 
@@ -186,7 +186,7 @@ inline void XYZW::reset(char iAxis)
  */
 bool operator==(const XYZW& iA, const XYZW& iB)
 {
-    return iA.value_ == iB.value_;
+	return iA.value_ == iB.value_;
 }
 
 
@@ -232,7 +232,7 @@ bool operator==(const std::string& iA, const XYZW& iB)
  */
 bool operator!=(const XYZW& iA, const XYZW& iB)
 {
-    return !(iA == iB);
+	return !(iA == iB);
 }
 
 
@@ -242,7 +242,7 @@ bool operator!=(const XYZW& iA, const XYZW& iB)
  */
 bool operator!=(const XYZW& iA, char iB)
 {
-    return !(iA == iB);
+	return !(iA == iB);
 }
 
 
@@ -252,7 +252,7 @@ bool operator!=(const XYZW& iA, char iB)
  */
 bool operator!=(char iA, const XYZW& iB)
 {
-    return !(iA == iB);
+	return !(iA == iB);
 }
 
 
@@ -262,7 +262,7 @@ bool operator!=(char iA, const XYZW& iB)
  */
 bool operator!=(const XYZW& iA, const std::string& iB)
 {
-    return !(iA == iB);
+	return !(iA == iB);
 }
 
 
@@ -272,7 +272,7 @@ bool operator!=(const XYZW& iA, const std::string& iB)
  */
 bool operator!=(const std::string& iA, const XYZW& iB)
 {
-    return !(iA == iB);
+	return !(iA == iB);
 }
 
 
@@ -281,9 +281,9 @@ bool operator!=(const std::string& iA, const XYZW& iB)
  */
 XYZW operator+(const XYZW& iA, int iOffset)
 {
-    XYZW result(iA);
-    result += iOffset;
-    return result;
+	XYZW result(iA);
+	result += iOffset;
+	return result;
 }
 
 
@@ -292,9 +292,9 @@ XYZW operator+(const XYZW& iA, int iOffset)
  */
 XYZW operator-(const XYZW& iA, int iOffset)
 {
-    XYZW result(iA);
-    result -= iOffset;
-    return result;
+	XYZW result(iA);
+	result -= iOffset;
+	return result;
 }
 
 

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -79,72 +79,72 @@ public:
 	typedef Pair3DConstClockIterator<T> TConstClockIterator;
 	typedef Pair3DConstCounterClockIterator<T> TConstCounterClockIterator;
 
-    // STRUCTORS
+	// STRUCTORS
 
-    Pair3D(TFace* a_face, TEdge* a_edge, Polarity a_edgePolarity);
+	Pair3D(TFace* a_face, TEdge* a_edge, Polarity a_edgePolarity);
 
 
-    // METHODS
+	// METHODS
 
-    TEdge* edge() const;
-    TFace* face() const;
-    TPair* clock(Polarity a_facePolarity = positive) const;
-    TPair* clock(const TCell* a_cell) const;
-    TPair* clock(const TPoint& a_point) const;
-    TPair* counterClock(Polarity a_facePolarity = positive) const;
-    TPair* counterClock(const TCell* a_cell) const;
-    TPair* counterClock(const TPoint& a_point) const;
-    TPair* spin(Polarity a_edgePolarity = positive) const;
-    TPair* spin(const TCell* a_cell) const;
-    TPair* spin(const TPoint& a_point) const;
-    TPair* counterSpin(Polarity a_edgePolarity = positive) const;
-    TPair* counterSpin(const TCell* a_cell) const;
-    TPair* counterSpin(const TPoint& a_point) const;
-    Polarity pairPolarity() const;
-    Polarity facePolarity(const TCell* a_cell) const;
-    Polarity facePolarity(const TPoint& a_point) const;
-    Polarity edgePolarity(Polarity a_facePolarity) const;
-    Polarity edgePolarity(const TCell* a_cell) const;
-    Polarity edgePolarity(const TPoint& a_point) const;
+	TEdge* edge() const;
+	TFace* face() const;
+	TPair* clock(Polarity a_facePolarity = positive) const;
+	TPair* clock(const TCell* a_cell) const;
+	TPair* clock(const TPoint& a_point) const;
+	TPair* counterClock(Polarity a_facePolarity = positive) const;
+	TPair* counterClock(const TCell* a_cell) const;
+	TPair* counterClock(const TPoint& a_point) const;
+	TPair* spin(Polarity a_edgePolarity = positive) const;
+	TPair* spin(const TCell* a_cell) const;
+	TPair* spin(const TPoint& a_point) const;
+	TPair* counterSpin(Polarity a_edgePolarity = positive) const;
+	TPair* counterSpin(const TCell* a_cell) const;
+	TPair* counterSpin(const TPoint& a_point) const;
+	Polarity pairPolarity() const;
+	Polarity facePolarity(const TCell* a_cell) const;
+	Polarity facePolarity(const TPoint& a_point) const;
+	Polarity edgePolarity(Polarity a_facePolarity) const;
+	Polarity edgePolarity(const TCell* a_cell) const;
+	Polarity edgePolarity(const TPoint& a_point) const;
 
-    void setFace(TFace* a_face);
-    void setClock(TPair* a_clock);
-    void setCounterClock(TPair* a_counterClock);
-    void setSpin(TPair* a_spin);
-    void setSpin(TCell* a_cell, TPair* a_spin);
-    void setCounterSpin(TPair* a_counterSpin);
+	void setFace(TFace* a_face);
+	void setClock(TPair* a_clock);
+	void setCounterClock(TPair* a_counterClock);
+	void setSpin(TPair* a_spin);
+	void setSpin(TCell* a_cell, TPair* a_spin);
+	void setCounterSpin(TPair* a_counterSpin);
 
-    TVertex* tail(Polarity a_facePolarity = positive) const;
-    TVertex* tail(const TCell* a_cell) const;
-    TVertex* tail(const TPoint& a_point) const;
-    TVertex* head(Polarity a_facePolarity = positive) const;
-    TVertex* head(const TCell* a_cell) const;
-    TVertex* head(const TPoint& a_point) const;
-    TVector vector(Polarity a_facePolarity = positive) const;
-    TVector vector(const TCell* a_cell) const;
-    TVector vector(const TPoint& a_point) const;
-    TLineSegment lineSeg(Polarity a_facePolarity = positive) const;
-    TLineSegment lineSeg(const TCell* a_cell) const;
-    TLineSegment lineSeg(const TPoint& a_point) const;
-    TPoint point(TParam a_t, Polarity a_facePolarity = positive) const;
-    TPoint point(TParam a_t, const TCell* a_cell) const;
-    TPoint point(TParam a_t, const TPoint& a_point) const;
+	TVertex* tail(Polarity a_facePolarity = positive) const;
+	TVertex* tail(const TCell* a_cell) const;
+	TVertex* tail(const TPoint& a_point) const;
+	TVertex* head(Polarity a_facePolarity = positive) const;
+	TVertex* head(const TCell* a_cell) const;
+	TVertex* head(const TPoint& a_point) const;
+	TVector vector(Polarity a_facePolarity = positive) const;
+	TVector vector(const TCell* a_cell) const;
+	TVector vector(const TPoint& a_point) const;
+	TLineSegment lineSeg(Polarity a_facePolarity = positive) const;
+	TLineSegment lineSeg(const TCell* a_cell) const;
+	TLineSegment lineSeg(const TPoint& a_point) const;
+	TPoint point(TParam a_t, Polarity a_facePolarity = positive) const;
+	TPoint point(TParam a_t, const TCell* a_cell) const;
+	TPoint point(TParam a_t, const TPoint& a_point) const;
 
-    void flip();
+	void flip();
 
 private:
 
-    // DATA
+	// DATA
 
-    TFace* m_face;
-    TEdge* m_edge;
+	TFace* m_face;
+	TEdge* m_edge;
 
-    TPair* m_clock;
-    TPair* m_counterClock;
-    TPair* m_spin;
-    TPair* m_counterSpin;
+	TPair* m_clock;
+	TPair* m_counterClock;
+	TPair* m_spin;
+	TPair* m_counterSpin;
 
-    Polarity m_pairPolarity;
+	Polarity m_pairPolarity;
 };
 
 

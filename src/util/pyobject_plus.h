@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** @defgroup Python
@@ -61,39 +61,39 @@ namespace lass
 	namespace python
 	{
 
-		inline PyMethodDef createPyMethodDef(  char	*ml_name, PyCFunction  ml_meth, int	ml_flags, char	*ml_doc );
+		inline PyMethodDef createPyMethodDef(  char *ml_name, PyCFunction  ml_meth, int ml_flags, char  *ml_doc );
 		inline PyGetSetDef createPyGetSetDef ( char* name, getter get, setter set = NULL, char* doc = NULL, void* closure = NULL );
 
-		/** PyObjectPlus.  Base class for pythonable objects.  
-		*	@ingroup Python
+		/** PyObjectPlus.  Base class for pythonable objects.
+		*   @ingroup Python
 		*   @author Tom De Muer
-		*	@date 2003
-		*	Usage:
-		*	The usage will be given by providing an example.  See the test case and look
-		*	for the files bar.h and bar.cpp.
+		*   @date 2003
+		*   Usage:
+		*   The usage will be given by providing an example.  See the test case and look
+		*   for the files bar.h and bar.cpp.
 		*/
-		class LASS_DLL_EXPORT PyObjectPlus : 
+		class LASS_DLL_EXPORT PyObjectPlus :
 			public PyObject
 		{
 			PY_HEADER_INTERNAL;
 		public:
-			typedef PyObjectPlus	TSelf;
+			typedef PyObjectPlus    TSelf;
 
 			PyObjectPlus(PyTypeObject *T);
 			virtual ~PyObjectPlus();
-			
+
 			PyObjectPlus* PyPlus_INCREF(void);// incref method
 			PyObjectPlus* PyPlus_DECREF(void);// decref method
-			
-            static void __dealloc(PyObject *P);
 
-            static  PyObject*	__repr(PyObject *PyObj);
-			virtual std::string	pyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
+			static void __dealloc(PyObject *P);
 
-            static  PyObject*	__str(PyObject *PyObj);
-			virtual std::string	pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
+			static  PyObject*   __repr(PyObject *PyObj);
+			virtual std::string pyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
 
-        protected:
+			static  PyObject*   __str(PyObject *PyObj);
+			virtual std::string pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
+
+		protected:
 
 			PyObjectPlus(const PyObjectPlus& iOther);
 			PyObjectPlus& operator=(const PyObjectPlus& iOther);
@@ -123,8 +123,8 @@ namespace lass
 			PyObjectStorage(T* iPointee): storage_(iPointee) {}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
-			bool isNull() const { return !storage_;	}
-			void swap(PyObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
+			bool isNull() const { return !storage_; }
+			void swap(PyObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);   }
 			static TStorage defaultStorage() { return 0; }
 		private:
 			TStorage storage_;
@@ -166,7 +166,7 @@ namespace lass
 		};
 
 		/** templated "typedef" to a python shared pointer
-		 *	@ingroup Python
+		 *  @ingroup Python
 		 */
 		template<class T>
 		struct PyObjectPtr
@@ -174,31 +174,31 @@ namespace lass
 			typedef util::SharedPtr<T, PyObjectStorage, PyObjectCounter> Type;
 		};
 
-		template<class T>	T*	PyPlus_INCREF(T* iObj)	{ return (T*)(iObj->PyPlus_INCREF()); }
-		template<class T>	T*	PyPlus_DECREF(T* iObj)	{ return (T*)(iObj->PyPlus_DECREF()); }
+		template<class T>   T*  PyPlus_INCREF(T* iObj)  { return (T*)(iObj->PyPlus_INCREF()); }
+		template<class T>   T*  PyPlus_DECREF(T* iObj)  { return (T*)(iObj->PyPlus_DECREF()); }
 
-		/** fromPySharedPtrCast.  
-		*	@ingroup Python
-		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr 
-		*	object for use in C++.  Reference counts are taken care of.
+		/** fromPySharedPtrCast.
+		*   @ingroup Python
+		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
+		*   object for use in C++.  Reference counts are taken care of.
 		*/
-		template<class T>	
-		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter> 
-		fromPySharedPtrCast(PyObject* iObj)	
-		{ 
+		template<class T>
+		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
+		fromPySharedPtrCast(PyObject* iObj)
+		{
 			Py_INCREF(iObj);
-			lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>	temp( static_cast<T*>(iObj) );
+			lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>    temp( static_cast<T*>(iObj) );
 			return temp;
 		}
 
-		/** toPySharedPtrCast.  
-		*	@ingroup Python
-		*	Helper function casting an object used in C++ for use in Python.  The key operation 
-		*	done here is to take care of the reference counting. Failing to use this function may 
-		*	yield unexpected reference count. 
+		/** toPySharedPtrCast.
+		*   @ingroup Python
+		*   Helper function casting an object used in C++ for use in Python.  The key operation
+		*   done here is to take care of the reference counting. Failing to use this function may
+		*   yield unexpected reference count.
 		*/
 		template<class T>
-		PyObject* 
+		PyObject*
 		toPySharedPtrCast(T& iObj)
 		{
 			if (iObj.get())
@@ -210,8 +210,8 @@ namespace lass
 			}
 		}
 
-		/** meta function to detect if a type is a PyObject-derived type 
-		*	@ingroup Python
+		/** meta function to detect if a type is a PyObject-derived type
+		*   @ingroup Python
 		*/
 		template <typename T>
 		struct IsPyObject
@@ -237,9 +237,9 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
-        template <typename T> int pyGetSimpleObject( PyObject* iValue, T*& oV );
+		template <typename T> int pyGetSimpleObject( PyObject* iValue, T*& oV );
 
-        inline PyObject* pyBuildSimpleObject( bool iV );
+		inline PyObject* pyBuildSimpleObject( bool iV );
 		inline PyObject* pyBuildSimpleObject( signed char iV );
 		inline PyObject* pyBuildSimpleObject( unsigned char iV );
 		inline PyObject* pyBuildSimpleObject( signed short iV );

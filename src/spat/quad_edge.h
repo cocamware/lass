@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -41,7 +41,7 @@ namespace spat
 		class Edge
 		{
 			friend class QuadEdge<EdgeHandle>;
-        public:
+		public:
 			Edge() : next_(NULL), edgeHandle_(NULL) {}
 			~Edge() {}
 
@@ -52,40 +52,40 @@ namespace spat
 			Edge* oPrev() { return rot()->oNext()->rot(); }
 			Edge* dNext() { return sym()->oNext()->sym(); }
 			Edge* dPrev() { return invRot()->oNext()->invRot(); }
-			Edge* lNext() { return invRot()->oNext()->rot(); }	
+			Edge* lNext() { return invRot()->oNext()->rot(); }
 			Edge* lPrev() { return oNext()->sym(); }
 			Edge* rNext() { return rot()->oNext()->invRot(); }
 			Edge* rPrev() { return sym()->oNext(); }
 
 			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
-			EdgeHandle*&	handle() { return edgeHandle_; }
+			EdgeHandle*&    handle() { return edgeHandle_; }
 			EdgeHandle const* const handle() const { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
 
-			int	index() const { return index_; }
+			int index() const { return index_; }
 		private:
-			Edge*			next_;
-			EdgeHandle*		edgeHandle_;
-			int				index_;
+			Edge*           next_;
+			EdgeHandle*     edgeHandle_;
+			int             index_;
 		};
 
 	public:
 		QuadEdge(bool makeConstrained=false);
 		~QuadEdge();
-		void	edgeConstrain();
-		void	edgeDeconstrain();
-		void	faceConstrain();
-		void	faceDeconstrain();
-		bool	isConstrained() const;
-		Edge*	edges();
+		void    edgeConstrain();
+		void    edgeDeconstrain();
+		void    faceConstrain();
+		void    faceDeconstrain();
+		bool    isConstrained() const;
+		Edge*   edges();
 
 		static void splice( Edge* a, Edge* b);
 
 	private:
 		// don't touch the position of the edges_, they must be the first data type in the POD or else you will be crucified!
-		Edge	edges_[4];
-		bool	edgeConstrained_;		/**< the edge is forced into the mesh, stay off! */
-		bool	faceConstrained_;		/**< the faces adjacent the edge have their handles set differently, cannot do stuff with the edge! */
+		Edge    edges_[4];
+		bool    edgeConstrained_;       /**< the edge is forced into the mesh, stay off! */
+		bool    faceConstrained_;       /**< the faces adjacent the edge have their handles set differently, cannot do stuff with the edge! */
 
 	};
 
@@ -145,7 +145,7 @@ namespace spat
 	{
 		return edgeConstrained_ || faceConstrained_;
 	}
-	template< typename EdgeHandle > typename QuadEdge<EdgeHandle>::Edge* QuadEdge<EdgeHandle>::edges() 
+	template< typename EdgeHandle > typename QuadEdge<EdgeHandle>::Edge* QuadEdge<EdgeHandle>::edges()
 	{
 		return edges_;
 	}

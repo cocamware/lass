@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -40,7 +40,7 @@ namespace prim
 
 template<typename T, typename EP, typename NP>
 Plane3D<T, EP, NP>::Plane3D():
-    TImpl()
+	TImpl()
 {
 }
 
@@ -48,20 +48,20 @@ Plane3D<T, EP, NP>::Plane3D():
 
 
 template<typename T, typename EP, typename NP>
-Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport, 
-                            const TPoint& iPointU, 
-                            const TPoint& iPointV):
-    TImpl(iSupport, iPointU, iPointV)
+Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport,
+							const TPoint& iPointU,
+							const TPoint& iPointV):
+	TImpl(iSupport, iPointU, iPointV)
 {
 }
 
 
 
 template<typename T, typename EP, typename NP>
-Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport, 
-                            const TVector& iDirU, 
-                            const TVector& iDirV):
-    TImpl(iSupport, iDirU, iDirV)
+Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport,
+							const TVector& iDirU,
+							const TVector& iDirV):
+	TImpl(iSupport, iDirU, iDirV)
 {
 }
 
@@ -69,7 +69,7 @@ Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport,
 
 template<typename T, typename EP, typename NP>
 Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, const TPoint& iSupport):
-    TImpl(iSupport, iNormal)
+	TImpl(iSupport, iNormal)
 {
 }
 
@@ -77,14 +77,14 @@ Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, const TPoint& iSupport):
 
 template<typename T, typename EP, typename NP>
 Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, TParam iD):
-    TImpl(iNormal, iD)
+	TImpl(iNormal, iD)
 {
 }
 
 
 
 /** determines the major axis of the normal vector.
- *  The major axis is the one with the largest (absolute) component value.  e.g. if the normal 
+ *  The major axis is the one with the largest (absolute) component value.  e.g. if the normal
  *  vector is (-1, 4, -8), this will be the @e z axis because abs(-8) > abs(4) > abs(-1).
  *  In case there's more than one major axis possible, the "highest" index is choosen.  e.g.
  *  if the normal vector is (1, 1, 0), then @e y axis will be choosen, because @e y has a higher
@@ -128,7 +128,7 @@ const XYZ Plane3D<T, EP, NP>::majorAxis() const
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Cartesian>& iPlane)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Plane3D>\n"
 		<< "<normal>" << iPlane.normal() << "</normal>\n"
 		<< "<d>" << iPlane.d() << "</d>\n"
@@ -144,7 +144,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Cartesian
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Parametric>& iPlane)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Plane3D>\n"
 		<< "<support>" << iPlane.support() << "</support>\n"
 		<< "<directionU>" << iPlane.directionU() << "</directionU>\n"
@@ -161,7 +161,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Parametri
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Combined>& iPlane)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
+	LASS_ENFORCE_STREAM(ioOStream)
 		<< "<Plane3D>\n"
 		<< "<support>" << iPlane.support() << "</support>\n"
 		<< "<directionU>" << iPlane.directionU() << "</directionU>\n"

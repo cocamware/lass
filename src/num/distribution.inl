@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -40,7 +40,7 @@ namespace impl
 
 template <RangeType rangeType> struct RangePolicy;
 
-template <> 
+template <>
 struct RangePolicy<rtClosed>
 {
 	template <typename T>
@@ -81,7 +81,7 @@ struct RangePolicy<rtOpen>
  *  @param iSup supremum of the output range: [inf, sup], or [inf, sup) if range is right open.
  */
 template <typename T, class RG, RangeType RT>
-DistributionUniform<T, RG, RT>::DistributionUniform(TGenerator& ioGenerator, 
+DistributionUniform<T, RG, RT>::DistributionUniform(TGenerator& ioGenerator,
 													TParam iInf, TParam iSup):
 	generator_(&ioGenerator),
 	inf_(iInf),
@@ -113,11 +113,11 @@ DistributionUniform<T, RG, RT>::operator()() const
  *  @param ioGenerator random number generator to be used as input.  Lifespan of @a ioGenerator must
  *                     be at least that of the distribution.
  *  @param iMean mean of distribution
- *  @param iStdDev standard deviation of 
+ *  @param iStdDev standard deviation of
  */
 template <typename T, class RG>
-DistributionExponential<T, RG>::DistributionExponential(TGenerator& ioGenerator, 
-                                                        TParam iRateOfChange):
+DistributionExponential<T, RG>::DistributionExponential(TGenerator& ioGenerator,
+														TParam iRateOfChange):
 	generator_(&ioGenerator),
 	rateOfChange_(iRateOfChange)
 {
@@ -146,10 +146,10 @@ DistributionExponential<T, RG>::operator()() const
  *  @param ioGenerator random number generator to be used as input.  Lifespan of @a ioGenerator must
  *                     be at least that of the distribution.
  *  @param iMean mean of distribution
- *  @param iStdDev standard deviation of 
+ *  @param iStdDev standard deviation of
  */
 template <typename T, class RG>
-DistributionNormal<T, RG>::DistributionNormal(TGenerator& ioGenerator, 
+DistributionNormal<T, RG>::DistributionNormal(TGenerator& ioGenerator,
 											  TParam iMean, TParam iStdDev):
 	generator_(&ioGenerator),
 	mean_(iMean),
@@ -177,10 +177,10 @@ DistributionNormal<T, RG>::operator()() const
 		v1 = scale * (*generator_)() - TNumTraits::one;
 		v2 = scale * (*generator_)() - TNumTraits::one;
 		rsq = v1 * v1 + v2 * v2;
-	} 
+	}
 	while (rsq >= 1.0 || rsq == 0.0);
 	const TValue fac = num::sqrt(-2 * num::log(rsq) / rsq);
-	
+
 	gset_ = v1 * fac;
 	iset_ = true;
 	return mean_ + stdDev_ * v2 * fac;
@@ -191,7 +191,7 @@ DistributionNormal<T, RG>::operator()() const
 // --- backwards compatibility ---------------------------------------------------------------------
 /* -- TEMPORARILY commented out for GCC test
 /** uniform.
- *	returns a uniform random sample from [0,1] 
+ *  returns a uniform random sample from [0,1]
  */
 template<class T,class RG> T uniform(RG& iGenerator)
 {
@@ -202,7 +202,7 @@ template<class T,class RG> T uniform(RG& iGenerator)
 
 
 /** unitGauss.
- *	@return a gaussian distributed (aka normal distributed) random with mean 0 and stddev 1 
+ *  @return a gaussian distributed (aka normal distributed) random with mean 0 and stddev 1
  */
 template<class T,class RG> T unitGauss(RG& iGenerator)
 {
@@ -213,11 +213,11 @@ template<class T,class RG> T unitGauss(RG& iGenerator)
 
 
 /** gauss.
- *	@return a gaussian distributed (aka normal distributed) random sample with @a iMean and 
- *		stddev @a iStdDev
+ *  @return a gaussian distributed (aka normal distributed) random sample with @a iMean and
+ *      stddev @a iStdDev
  */
-template<class T,class RG> T gauss(RG& iGenerator, 
-									typename util::CallTraits<T>::TParam iMean, 
+template<class T,class RG> T gauss(RG& iGenerator,
+									typename util::CallTraits<T>::TParam iMean,
 									typename util::CallTraits<T>::TParam iStdDev)
 {
 	DistributionNormal<T, RG> distribution(iGenerator, iMean, iStdDev);

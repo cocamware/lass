@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SINGLETON_IMPL_H
@@ -45,7 +45,7 @@ typedef Mutex TSingletonLock;
 
 /** @internal
  */
-LASS_DLL_EXPORT void LASS_CALL singletonCleanUp(); 
+LASS_DLL_EXPORT void LASS_CALL singletonCleanUp();
 
 /** base class of all singletons.
  *  @internal
@@ -61,7 +61,7 @@ public:
 	int destructionPriority() const;
 
 	static void initLock();  ///< do NOT call this yourself, implementation detail!
-	static void cleanLock();	///< do NOT call this yourself, implementation detail!
+	static void cleanLock();    ///< do NOT call this yourself, implementation detail!
 
 protected:
 
@@ -98,13 +98,13 @@ public:
  *  The singletons with the highest DestructionPriority will be killed first.  The order in which
  *  singletons of the same priority are destructed is undefined.
  *
- *	The system of using this destruction priority controlled by a guard that is destructed by 
+ *  The system of using this destruction priority controlled by a guard that is destructed by
  *  @c ::atexit() , is inspired by Alexandrescu's @e longevity singletons [1].
  *
  *  @warning you should never call @c killEmAll() yourself!
  *
- *  @b Reference: 
- *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns 
+ *  @b Reference:
+ *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns
  *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
 */
 class LASS_DLL_EXPORT SingletonGuard
@@ -130,7 +130,7 @@ private:
 
 }
 
-LASS_EXECUTE_BEFORE_MAIN_EX(lassUtilImplSingletonBase, 
+LASS_EXECUTE_BEFORE_MAIN_EX(lassUtilImplSingletonBase,
 							lass::util::impl::SingletonBase::initLock();)
 
 #endif

@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -74,7 +74,7 @@ Matrix<T, S>::Matrix():
  */
 template <typename T, typename S>
 Matrix<T, S>::Matrix(TSize iRows, TSize iColumns):
-    storage_(iRows, iColumns)
+	storage_(iRows, iColumns)
 {
 }
 
@@ -82,7 +82,7 @@ Matrix<T, S>::Matrix(TSize iRows, TSize iColumns):
 
 template <typename T, typename S>
 Matrix<T, S>::Matrix(const TStorage& iStorage):
-    storage_(iStorage)
+	storage_(iStorage)
 {
 }
 
@@ -95,19 +95,19 @@ Matrix<T, S>::Matrix(const TStorage& iStorage):
 template <typename T, typename S>
 template <typename T2, typename S2>
 Matrix<T, S>::Matrix(const Matrix<T2, S2>& iOther):
-    storage_(iOther.rows(), iOther.columns())
+	storage_(iOther.rows(), iOther.columns())
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 
-    const S2& other = iOther.storage();
-    const TSize m = rows();
-    const TSize n = columns();
+	const S2& other = iOther.storage();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
 	{
-        for (TSize j = 0; j < n; ++j)
-        {
-		    storage_(i, j) = other(i, j);
-        }
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) = other(i, j);
+		}
 	}
 }
 
@@ -121,18 +121,18 @@ template <typename T, typename S>
 template <typename T2, typename S2>
 Matrix<T, S>& Matrix<T, S>::operator=(const Matrix<T2, S2>& iOther)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 
-    const S2& other = iOther.storage();
-    const TSize m = other.rows();
-    const TSize n = other.columns();
+	const S2& other = iOther.storage();
+	const TSize m = other.rows();
+	const TSize n = other.columns();
 	storage_.resize(m, n);
 	for (TSize i = 0; i < m; ++i)
 	{
-        for (TSize j = 0; j < n; ++j)
-        {
-		    storage_(i, j) = other(i, j);
-        }
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) = other(i, j);
+		}
 	}
 	return *this;
 }
@@ -143,10 +143,10 @@ Matrix<T, S>& Matrix<T, S>::operator=(const Matrix<T2, S2>& iOther)
  *  should never return be a negative value.
  */
 template <typename T, typename S> inline
-const typename Matrix<T, S>::TSize 
+const typename Matrix<T, S>::TSize
 Matrix<T, S>::rows() const
 {
-    return storage_.rows();
+	return storage_.rows();
 }
 
 
@@ -155,7 +155,7 @@ Matrix<T, S>::rows() const
  *  should never return be a negative value.
  */
 template <typename T, typename S> inline
-const typename Matrix<T, S>::TSize 
+const typename Matrix<T, S>::TSize
 Matrix<T, S>::columns() const
 {
 	return storage_.columns();
@@ -164,21 +164,21 @@ Matrix<T, S>::columns() const
 
 
 /** return the component value at position (iRow, iColumn)
- *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless 
+ *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
  *  you're asking for trouble.
  */
 template <typename T, typename S> inline
-const typename Matrix<T, S>::TValue 
+const typename Matrix<T, S>::TValue
 Matrix<T, S>::operator()(TSize iRow, TSize iColumn) const
 {
-    LASS_ASSERT(iRow < rows() && iColumn < columns());
+	LASS_ASSERT(iRow < rows() && iColumn < columns());
 	return storage_(iRow, iColumn);
 }
 
 
 
 /** access the component value at position (iRow, iColumn)
- *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless 
+ *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
  *  you're asking for trouble.
  *  THIS MUST BE LVALUE (storage matrix).
  */
@@ -186,8 +186,8 @@ template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
 Matrix<T, S>::operator()(TSize iRow, TSize iColumn)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-    LASS_ASSERT(iRow < rows() && iColumn < columns());
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_ASSERT(iRow < rows() && iColumn < columns());
 	return storage_(iRow, iColumn);
 }
 
@@ -215,13 +215,13 @@ template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
 Matrix<T, S>::at(TSize iRow, TSize iColumn)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	return storage_(mod(iRow, rows()), mod(iColumn, columns()));
 }
 
 
 
-/** A weird way to get back the same object 
+/** A weird way to get back the same object
  */
 template <typename T, typename S> inline
 const Matrix<T, S>& Matrix<T, S>::operator+() const
@@ -232,10 +232,10 @@ const Matrix<T, S>& Matrix<T, S>::operator+() const
 
 
 /** return a vector with all components negated
- *  (-a)(i, j) == -(a(i, j)). 
+ *  (-a)(i, j) == -(a(i, j)).
  */
 template <typename T, typename S>
-const Matrix<T, impl::MNeg<T, S> > 
+const Matrix<T, impl::MNeg<T, S> >
 Matrix<T, S>::operator-() const
 {
 	typedef impl::VNeg<T, S> TExpression;
@@ -246,33 +246,33 @@ Matrix<T, S>::operator-() const
 
 /** componentswise addition assignment of two matrices
  *
- *  <i>Matrix Addition: Denote the sum of two matrices @n A and @n B (of the same dimensions) by 
- *  @n C=A+B. The sum is defined by adding entries with the same indices @n Cij=Aij+Bij over all 
+ *  <i>Matrix Addition: Denote the sum of two matrices @n A and @n B (of the same dimensions) by
+ *  @n C=A+B. The sum is defined by adding entries with the same indices @n Cij=Aij+Bij over all
  *  @n i and @n j.</i>
  *  http://mathworld.wolfram.com/MatrixAddition.html
  *
- *  This method implements the assignment addition what reduces to @n Aij+=Bij over all @n i and 
+ *  This method implements the assignment addition what reduces to @n Aij+=Bij over all @n i and
  *  @n j.
  *
  *  THIS MUST BE LVALUE (storage matrix).
- * 
+ *
  *  @throw an exception is thrown if @a *this and @a iB are not of the same dimensions
  */
 template <typename T, typename S>
 template <typename S2>
 Matrix<T, S>& Matrix<T, S>::operator+=(const Matrix<T, S2>& iB)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(*this, iB);
-    const S2& other = iB.storage();
-    const TSize m = rows();
-    const TSize n = columns();
+	const S2& other = iB.storage();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            storage_(i, j) += other(i, j);
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) += other(i, j);
+		}
 	}
 	return *this;
 }
@@ -285,24 +285,24 @@ Matrix<T, S>& Matrix<T, S>::operator+=(const Matrix<T, S2>& iB)
  *  @sa Matrix<T>::operator+=
  *
  *  THIS MUST BE LVALUE (storage matrix).
- * 
+ *
  *  @throw an exception is thrown if @a *this and @a iB are not of the same dimensions
  */
 template <typename T, typename S>
 template <typename S2>
 Matrix<T, S>& Matrix<T, S>::operator-=(const Matrix<T, S2>& iB)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(*this, iB);
-    const S2& other = iB.storage();
-    const TSize m = rows();
-    const TSize n = columns();
+	const S2& other = iB.storage();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            storage_(i, j) -= other(i, j);
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) -= other(i, j);
+		}
 	}
 	return *this;
 }
@@ -315,16 +315,16 @@ Matrix<T, S>& Matrix<T, S>::operator-=(const Matrix<T, S2>& iB)
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator*=(TParam iB)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	const TSize size = storage_.rows() * storage_.columns();
-    const TSize m = rows();
-    const TSize n = columns();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            storage_(i, j) *= iB;
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) *= iB;
+		}
 	}
 	return *this;
 }
@@ -337,15 +337,15 @@ Matrix<T, S>& Matrix<T, S>::operator*=(TParam iB)
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator /=(TParam iB)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-    const TSize m = rows();
-    const TSize n = columns();
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            storage_(i, j) /= iB;
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			storage_(i, j) /= iB;
+		}
 	}
 	return *this;
 }
@@ -359,14 +359,14 @@ Matrix<T, S>& Matrix<T, S>::operator /=(TParam iB)
 template <typename T, typename S>
 void Matrix<T, S>::setZero(TSize iRows, TSize iColumns)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-    storage_.resize(iRows, iColumns);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	storage_.resize(iRows, iColumns);
 	for (TSize i = 0; i < iRows; ++i)
-    {
-        for (TSize j = 0; j < iColumns; ++j)
-        {
-            storage_(i, j) = TNumTraits::zero;
-        }
+	{
+		for (TSize j = 0; j < iColumns; ++j)
+		{
+			storage_(i, j) = TNumTraits::zero;
+		}
 	}
 }
 
@@ -378,14 +378,14 @@ void Matrix<T, S>::setZero(TSize iRows, TSize iColumns)
 template <typename T, typename S>
 void Matrix<T, S>::setIdentity(TSize iSize)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-    storage_.resize(iSize, iSize);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	storage_.resize(iSize, iSize);
 	for (TSize i = 0; i < iSize; ++i)
-    {
-        for (TSize j = 0; j < iSize; ++j)
-        {
-            storage_(i, j) = i == j ? TNumTraits::one : TNumTraits::zero;
-        }
+	{
+		for (TSize j = 0; j < iSize; ++j)
+		{
+			storage_(i, j) = i == j ? TNumTraits::one : TNumTraits::zero;
+		}
 	}
 }
 
@@ -403,7 +403,7 @@ bool Matrix<T, S>::isEmpty() const
 
 /** test if this matrix equals a zero matrix.
  *
- *  <i>A zero matrix is an @n m×n matrix consisting of all 0s (MacDuffee 1943, p. 27), denoted @n 0.  
+ *  <i>A zero matrix is an @n m×n matrix consisting of all 0s (MacDuffee 1943, p. 27), denoted @n 0.
  *  Zero matrices are sometimes also known as null matrices (Akivis and Goldberg 1972, p. 71).</i>
  *  http://mathworld.wolfram.com/ZeroMatrix.html
  *
@@ -412,17 +412,17 @@ bool Matrix<T, S>::isEmpty() const
 template <typename T, typename S>
 bool Matrix<T, S>::isZero() const
 {
-    const TSize m = rows();
-    const TSize n = columns();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            if (storage_(i, j) != TNumTraits::zero)
-            {
-                return false;
-            }
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			if (storage_(i, j) != TNumTraits::zero)
+			{
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -431,11 +431,11 @@ bool Matrix<T, S>::isZero() const
 
 /** test if this matrix equals a identity matrix
  *
- *  <i>The identity matrix is a the simplest nontrivial diagonal matrix, defined such that @n I(X)=X 
+ *  <i>The identity matrix is a the simplest nontrivial diagonal matrix, defined such that @n I(X)=X
  *  for all vectors @n X. An identity matrix may be denoted @n 1, @n I, or @n E (the latter being an
- *  abbreviation for the German term "Einheitsmatrix"; Courant and Hilbert 1989, p. 7). Identity 
- *  matrices are sometimes also known as unit matrices (Akivis and Goldberg 1972, p. 71). The  
- *  @n n×n identity matrix is given explicitly by @n Iij=dij for @n i, @n j = 1, 2, ..., n, where 
+ *  abbreviation for the German term "Einheitsmatrix"; Courant and Hilbert 1989, p. 7). Identity
+ *  matrices are sometimes also known as unit matrices (Akivis and Goldberg 1972, p. 71). The
+ *  @n n×n identity matrix is given explicitly by @n Iij=dij for @n i, @n j = 1, 2, ..., n, where
  *  @n dij is the Kronecker delta.</i>
  *  http://mathworld.wolfram.com/IdentityMatrix.html
  *
@@ -448,17 +448,17 @@ bool Matrix<T, S>::isIdentity() const
 	{
 		return false;
 	}
-    const TSize m = rows();
-    const TSize n = columns();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            if (storage_(i, j) != ((i == j) ? TNumTraits::one : TNumTraits::zero))
-            {
-                return false;
-            }
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			if (storage_(i, j) != ((i == j) ? TNumTraits::one : TNumTraits::zero))
+			{
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -467,8 +467,8 @@ bool Matrix<T, S>::isIdentity() const
 
 /** test if this matrix is an diagonal matrix
  *
- *  <i>A diagonal matrix is a square matrix @n A of the form @n Aij=Ci*dij where @n dij is the 
- *  Kronecker delta, @n Ci are constants, and @n i, @n j = 1, 2, ..., n, with is no implied 
+ *  <i>A diagonal matrix is a square matrix @n A of the form @n Aij=Ci*dij where @n dij is the
+ *  Kronecker delta, @n Ci are constants, and @n i, @n j = 1, 2, ..., n, with is no implied
  *  summation over indices.</i>
  *  http://mathworld.wolfram.com/DiagonalMatrix.html
  *
@@ -481,17 +481,17 @@ bool Matrix<T, S>::isDiagonal() const
 	{
 		return false;
 	}
-    const TSize m = rows();
-    const TSize n = columns();
+	const TSize m = rows();
+	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
-    {
-        for (TSize j = 0; j < n; ++j)
-        {
-            if (i != j && storage_(i, j) != TNumTraits::zero)
-            {
-                return false;
-            }
-        }
+	{
+		for (TSize j = 0; j < n; ++j)
+		{
+			if (i != j && storage_(i, j) != TNumTraits::zero)
+			{
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -509,11 +509,11 @@ bool Matrix<T, S>::isSquare() const
 /** return transposed matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MTrans<T, S> > 
+const Matrix<T, impl::MTrans<T, S> >
 Matrix<T, S>::transpose() const
 {
-    typedef impl::MTrans<T, S> TExpression;
-    return Matrix<T, TExpression>(TExpression(storage_));
+	typedef impl::MTrans<T, S> TExpression;
+	return Matrix<T, TExpression>(TExpression(storage_));
 	Matrix<T> result(cols_, rows_, false);
 }
 
@@ -532,28 +532,28 @@ Matrix<T, S>::transpose() const
 template <typename T, typename S>
 bool Matrix<T, S>::inverse()
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_ENFORCE(isSquare());
-    
-    Matrix<T> lu(*this);
-    std::vector<size_t> index;
-    int d;
+
+	Matrix<T> lu(*this);
+	std::vector<size_t> index;
+	int d;
 
 	if (!impl::ludecomp(lu, index, d))
-    {
-        setZero(0, 0);
-        return false; // empty solution
-    }
+	{
+		setZero(0, 0);
+		return false; // empty solution
+	}
 
 	setIdentity(rows());
-    impl::lusolve(lu, index, *this);
-    return true;
+	impl::lusolve(lu, index, *this);
+	return true;
 }
 
 
 
 template <typename T, typename S> inline
-const typename Matrix<T, S>::TStorage& 
+const typename Matrix<T, S>::TStorage&
 Matrix<T, S>::storage() const
 {
 	return storage_;
@@ -567,8 +567,8 @@ Matrix<T, S>::storage() const
 template <typename T, typename S> inline
 void Matrix<T, S>::swap(Matrix<T, S>& iOther)
 {
-    LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-    storage_.swap(iOther.storage_);
+	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	storage_.swap(iOther.storage_);
 }
 
 
@@ -594,16 +594,16 @@ bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 	}
 	typedef typename Matrix<T, S1>::TSize TSize;
 	const TSize m = iA.rows();
-    const TSize n = iA.columns();
+	const TSize n = iA.columns();
 	for (TSize i = 0; i < m; ++i)
 	{
-        for (TSize j = 0; j < n; ++j)
-        {
-		    if (iA(i, j) != iB(i, j))
-		    {
-			    return false;
-		    }
-        }
+		for (TSize j = 0; j < n; ++j)
+		{
+			if (iA(i, j) != iB(i, j))
+			{
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -624,7 +624,7 @@ bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MAdd<T, S1, S2> > 
+const Matrix<T, impl::MAdd<T, S1, S2> >
 operator+(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 {
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -638,7 +638,7 @@ operator+(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MSub<T, S1, S2> > 
+const Matrix<T, impl::MSub<T, S1, S2> >
 operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 {
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(iA, iB);
@@ -652,18 +652,18 @@ operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
  *  @relates lass::num::Matrix
  *
  *  <i>The product @n C of two matrices @n A and @n B is defined by @n Cik=Aij*Bjk, where @n j is
- *  summed over for all possible values of @n i and @n k. The implied summation over repeated 
- *  indices without the presence of an explicit sum sign is called Einstein summation, and is 
+ *  summed over for all possible values of @n i and @n k. The implied summation over repeated
+ *  indices without the presence of an explicit sum sign is called Einstein summation, and is
  *  commonly used in both matrix and tensor analysis. Therefore, in order for matrix multiplication
  *  to be defined, the dimensions of the matrices must satisfy @n (n×m)*(m×p)=(n×p) where @n (a×b)
  *  denotes a matrix with @n a rows and @n b columns.</i>
  *  http://mathworld.wolfram.com/MatrixMultiplication.html
  *
- *  @throw an exception is throw in @a iA and @a iB don't meet the requirement 
+ *  @throw an exception is throw in @a iA and @a iB don't meet the requirement
  *         @n iA.columns()==iB.rows() .
  */
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MProd<T, S1, S2> > 
+const Matrix<T, impl::MProd<T, S1, S2> >
 operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 {
 	LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(iA, iB);
@@ -677,12 +677,12 @@ operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> > 
+const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> >
 operator+(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MAdd<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -691,12 +691,12 @@ operator+(const T& iA, const Matrix<T, S>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> > 
+const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> >
 operator-(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MSub<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -705,12 +705,12 @@ operator-(const T& iA, const Matrix<T, S>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> > 
+const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> >
 operator*(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MMul<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -719,12 +719,12 @@ operator*(const T& iA, const Matrix<T, S>& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > 
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
 operator+(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MAdd<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
 }
 
 
@@ -733,12 +733,12 @@ operator+(const Matrix<T, S>& iA, const T& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > 
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
 operator-(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MSub<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        iA.storage(), impl::MScalar(-iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar(-iB, iA.rows(), iA.cols())));
 }
 
 
@@ -747,12 +747,12 @@ operator-(const Matrix<T, S>& iA, const T& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > 
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
 operator*(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-        iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
 }
 
 
@@ -761,12 +761,12 @@ operator*(const Matrix<T, S>& iA, const T& iB)
  *  @relates lass::num::Matrix
  */
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > 
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
 operator/(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
-    return Matrix<T, TExpression>(TExpression(
-        iA.storage(), impl::MScalar(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
+	return Matrix<T, TExpression>(TExpression(
+		iA.storage(), impl::MScalar(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
 }
 
 
@@ -777,28 +777,28 @@ operator/(const Matrix<T, S>& iA, const T& iB)
  *
  *  @relates lass::num::Matrix
  *  @return true if solution is found, false if set has no solution.
- *  @throw an exception is thrown if dimensions don't match 
- *         (this->isSquare() && this->columns() == ioB.rows()) 
+ *  @throw an exception is thrown if dimensions don't match
+ *         (this->isSquare() && this->columns() == ioB.rows())
  */
 template <typename T, typename S, typename S2>
 bool solve(const Matrix<T, S> iA, Matrix<T, S2>& ioB)
 {
-    LASS_META_ASSERT(S2::lvalue, ioB_isnt_an_lvalue);
+	LASS_META_ASSERT(S2::lvalue, ioB_isnt_an_lvalue);
 	LASS_ENFORCE(iA.isSquare());
 	LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(iA, ioB);
-    
-    Matrix<T> lu(iA);
-    std::vector<size_t> index(iA.rows());
-    int d;
+
+	Matrix<T> lu(iA);
+	std::vector<size_t> index(iA.rows());
+	int d;
 
 	if (!impl::ludecomp(lu, index, d))
-    {
-        ioB.setZero(0, 0);
-        return false; // empty solution
-    }
+	{
+		ioB.setZero(0, 0);
+		return false; // empty solution
+	}
 
 	impl::lusolve(lu, index, ioB);
-    return true;
+	return true;
 }
 
 
@@ -806,7 +806,7 @@ bool solve(const Matrix<T, S> iA, Matrix<T, S2>& ioB)
 /** @relates lass::num::Matrix
  */
 template <typename T, typename S, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& 
+std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& oOStream, const Matrix<T, S>& iB)
 {
 	typedef typename Matrix<T, S>::TSize TSize;

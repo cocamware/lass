@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -37,10 +37,10 @@ namespace python
 // --- vectors -------------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_2D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Vector2D<T>& iV)
 {
 	PyObject* newTuple = PyTuple_New(2);
@@ -57,7 +57,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 		impl::addMessageHeader("Vector2D");
 		return 1;
 	}
-    prim::Vector2D<T> result;
+	prim::Vector2D<T> result;
 
 	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
@@ -74,16 +74,16 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_3D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV)
 {
 	PyObject* newTuple = PyTuple_New(3);
@@ -101,7 +101,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 		impl::addMessageHeader("Vector3D");
 		return 1;
 	}
-    prim::Vector3D<T> result;
+	prim::Vector3D<T> result;
 
 	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
@@ -123,16 +123,16 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_4D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV)
 {
 	PyObject* newTuple = PyTuple_New(4);
@@ -151,7 +151,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 		impl::addMessageHeader("Vector4D");
 		return 1;
 	}
-    prim::Vector4D<T> result;
+	prim::Vector4D<T> result;
 
 	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
@@ -178,7 +178,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
@@ -186,10 +186,10 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 // --- points --------------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_POINT_2D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV)
 {
 	return pyBuildSimpleObject(iV.position());
@@ -203,7 +203,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
-    prim::Point2D<T> result;
+	prim::Point2D<T> result;
 
 	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
@@ -220,16 +220,16 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_POINT_3D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV)
 {
 	return pyBuildSimpleObject(iV.position());
@@ -243,7 +243,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
-    prim::Point3D<T> result;
+	prim::Point3D<T> result;
 
 	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
@@ -265,7 +265,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
@@ -273,10 +273,10 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 // --- boxes ---------------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_AABB_2D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
 
-template <typename T, class MMP> 
+template <typename T, class MMP>
 PyObject* pyBuildSimpleObject(const prim::Aabb2D<T, MMP>& iV)
 {
 	PyObject* newTuple = PyTuple_New(2);
@@ -296,14 +296,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	}
 
 	TAabb::TPoint min;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
 	TAabb::TPoint max;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: max");
 		return 1;
@@ -323,14 +323,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_AABB_3D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
 
-template <typename T, class MMP> 
+template <typename T, class MMP>
 PyObject* pyBuildSimpleObject(const prim::Aabb3D<T, MMP>& iV)
 {
 	PyObject* newTuple = PyTuple_New(2);
@@ -350,14 +350,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	}
 
 	typename TAabb::TPoint min;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
 	typename TAabb::TPoint max;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: max");
 		return 1;
@@ -377,7 +377,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
@@ -385,10 +385,10 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 // --- line segments -------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_LINE_SEGMENT_2D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
 
-template <typename T, class PP> 
+template <typename T, class PP>
 PyObject* pyBuildSimpleObject(const prim::LineSegment2D<T, PP>& iV)
 {
 	PyObject* newTuple = PyTuple_New(2);
@@ -408,14 +408,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint tail;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: head");
 		return 1;
@@ -425,14 +425,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_LINE_SEGMENT_3D
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
 
-template <typename T, class PP> 
+template <typename T, class PP>
 PyObject* pyBuildSimpleObject(const prim::LineSegment3D<T, PP>& iV)
 {
 	PyObject* newTuple = PyTuple_New(2);
@@ -452,14 +452,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint tail;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: head");
 		return 1;
@@ -469,14 +469,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 // --- axis iterators ------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_XY
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
 
 inline
 PyObject* pyBuildSimpleObject(prim::XY iV)
@@ -507,12 +507,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_XYZ
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
 
 inline
 PyObject* pyBuildSimpleObject(prim::XYZ iV)
@@ -543,12 +543,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_XYZW
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
 
 inline
 PyObject* pyBuildSimpleObject(prim::XYZW iV)
@@ -579,7 +579,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 	return 0;
 }
 
-#   endif
+#	endif
 #endif
 
 
@@ -589,7 +589,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRANSFORMATION_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRANSFORMATION_3D
 
-template <typename T> 
+template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV)
 {
 	PyObject* matrix = PyTuple_New(4);
@@ -615,7 +615,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 		impl::addMessageHeader("Transformation3D");
 		return 1;
 	}
-    prim::Transformation3D<T> result;
+	prim::Transformation3D<T> result;
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		PyObject* row = PySequence_GetItem(iValue, i);
@@ -649,8 +649,8 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 // --- colors --------------------------------------------------------------------------------------
 
 #ifdef LASS_PRIM_PYOBJECT_UTIL_COLOR_RGBA
-#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
-#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
 
 inline
 PyObject* pyBuildSimpleObject(const prim::ColorRGBA& iV)

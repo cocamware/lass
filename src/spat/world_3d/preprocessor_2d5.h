@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -31,11 +31,11 @@
  *  @date 2002-2004
  *
  *  This preprocessor can build a world from a heightmap and 2.5D obstacles.
- *  
- *  2.5D obstacles have a 2D floorplan and a height.  These obstacles are 
- *  provided by a 2D polygon and some handles containing information about the 
+ *
+ *  2.5D obstacles have a 2D floorplan and a height.  These obstacles are
+ *  provided by a 2D polygon and some handles containing information about the
  *  obstacles: handles for the outside walls, inside walls, outside roof and
- *  inside roof.  The inside floor handle is obtained by using the map, as 
+ *  inside roof.  The inside floor handle is obtained by using the map, as
  *  for the floor altitude.
  *
  *  To create a world using this preprocessor, you must perform next steps:
@@ -87,69 +87,69 @@ public:
 	typedef prim::Polygon2D<T> TPolygon2D;
 
 	typedef util::CallbackR1<TValue, const TPoint2D&> CBGetMapHeight;
-    typedef util::CallbackR1<THandle, const TPoint2D&> CBGetMapHandle;
-    typedef util::CallbackR1<TValue, THandle> CBGetHandleHeight;
+	typedef util::CallbackR1<THandle, const TPoint2D&> CBGetMapHandle;
+	typedef util::CallbackR1<TValue, THandle> CBGetHandleHeight;
 
-    void init(const CBGetMapHeight& a_getMapHeight,
-              const CBGetMapHandle& a_getMapHandle,
-              const CBGetHandleHeight& a_getHandleHeight,
-              const TAabb3D& a_worldBoundary);
+	void init(const CBGetMapHeight& a_getMapHeight,
+			  const CBGetMapHandle& a_getMapHandle,
+			  const CBGetHandleHeight& a_getHandleHeight,
+			  const TAabb3D& a_worldBoundary);
 
-    void addObstacle(const TPolygon2D& a_obstacle, ComposedCellHandle* a_cellHandles);
+	void addObstacle(const TPolygon2D& a_obstacle, ComposedCellHandle* a_cellHandles);
 	void addGroundSite( const TPoint2D& iPoint );
 
-    TWorldPtr process();
+	TWorldPtr process();
 
 private:
 
-    // PRIVATE TYPEDEFS
+	// PRIVATE TYPEDEFS
 
 	typedef PlanarMesh<
 
-    typedef std::vector<Edge3*>             Edge3_pvector;
-    typedef std::vector<Object3*>           Object3_pvector;
-    typedef std::vector<Pair3*>             Pair3_pvector;
-    typedef std::multimap<Real, Vertex3*>   Vertex3_pmap;
-    typedef std::multimap<Real, Edge3*>     Edge3_pmap;
+	typedef std::vector<Edge3*>             Edge3_pvector;
+	typedef std::vector<Object3*>           Object3_pvector;
+	typedef std::vector<Pair3*>             Pair3_pvector;
+	typedef std::multimap<Real, Vertex3*>   Vertex3_pmap;
+	typedef std::multimap<Real, Edge3*>     Edge3_pmap;
 
 
-    // PRIVATE METHODS
+	// PRIVATE METHODS
 
-    // the big ones
-    void buildWorld(const Triangle2_pvector& a_triangles, 
-                    const Edge2_pvector& a_edges);
-    void buildCellsAndHorizontalFaces(const Triangle2_pvector& a_triangles);
-    void buildVerticalFaces(const Edge2_pvector& a_edges);
+	// the big ones
+	void buildWorld(const Triangle2_pvector& a_triangles,
+					const Edge2_pvector& a_edges);
+	void buildCellsAndHorizontalFaces(const Triangle2_pvector& a_triangles);
+	void buildVerticalFaces(const Edge2_pvector& a_edges);
 
-    // adding stuff
-    Face3* addFace(const Polygon3& a_poly, 
-                   Cell3* a_frontCell, 
-                   Cell3* a_backCell,
-                   void* a_frontHandle,
-                   void* a_backHandle);
-    Pair3_pvector addPair(Face3* a_face, 
-                          const Point3& a_tail, const Point3& a_head);
-    Edge3_pvector addEdge(const Point3& a_tail, const Point3& a_head);
-    Edge3_pvector addVerticalEdge(Vertex3*  a_tail, Vertex3*  a_head);
-    Edge3* addHorizontalEdge(Vertex3*  a_tail, Vertex3*  a_head);
-    Vertex3* addVertex(const Point3& a_position);
+	// adding stuff
+	Face3* addFace(const Polygon3& a_poly,
+				   Cell3* a_frontCell,
+				   Cell3* a_backCell,
+				   void* a_frontHandle,
+				   void* a_backHandle);
+	Pair3_pvector addPair(Face3* a_face,
+						  const Point3& a_tail, const Point3& a_head);
+	Edge3_pvector addEdge(const Point3& a_tail, const Point3& a_head);
+	Edge3_pvector addVerticalEdge(Vertex3*  a_tail, Vertex3*  a_head);
+	Edge3* addHorizontalEdge(Vertex3*  a_tail, Vertex3*  a_head);
+	Vertex3* addVertex(const Point3& a_position);
 
-    // finding stuff
-    Vertex3* findVertex(const Point3& a_position) const;
+	// finding stuff
+	Vertex3* findVertex(const Point3& a_position) const;
 
 
-    // PRIVATE DATA:
+	// PRIVATE DATA:
 
-    Triangulator* m_triangulator;
-    CBGetMapHeight m_getMapHeight;
-    CBGetMapHandle m_getMapHandle;
-    CBGetHandleHeight m_getHandleHeight;
-    AABB3 m_aabb;
+	Triangulator* m_triangulator;
+	CBGetMapHeight m_getMapHeight;
+	CBGetMapHandle m_getMapHandle;
+	CBGetHandleHeight m_getHandleHeight;
+	AABB3 m_aabb;
 
-    World3_p m_tempWorld;
-    Vertex3_pmap m_tempVertices;
-    Edge3_pmap m_tempEdges;
-    Object3_pvector m_tempReceivers;
+	World3_p m_tempWorld;
+	Vertex3_pmap m_tempVertices;
+	Edge3_pmap m_tempEdges;
+	Object3_pvector m_tempReceivers;
 };
 
 

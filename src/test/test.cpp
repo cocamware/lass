@@ -1,27 +1,27 @@
-/**	@file
+/** @file
  *  @internal
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -51,7 +51,7 @@
 
 int test_main(int argc, char* argv[])
 {
-    using namespace boost::unit_test_framework;
+	using namespace boost::unit_test_framework;
 
 	lass::io::proxyMan()->clog()->remove(&std::clog);
 
@@ -59,15 +59,15 @@ int test_main(int argc, char* argv[])
 	lass::io::ArgFlag argXml(parser, "x", "xml");
 	parser.parse(argc, argv);
 
-    test_suite testSuite("lass test suite");
-    
+	test_suite testSuite("lass test suite");
+
 	testSuite.add(lass::test::testIo());
-    testSuite.add(lass::test::testMeta());
-    testSuite.add(lass::test::testNum());
-    testSuite.add(lass::test::testPrim());
+	testSuite.add(lass::test::testMeta());
+	testSuite.add(lass::test::testNum());
+	testSuite.add(lass::test::testPrim());
 	testSuite.add(lass::test::testStde());
-    testSuite.add(lass::test::testUtil());
-    testSuite.add(lass::test::testSpat());
+	testSuite.add(lass::test::testUtil());
+	testSuite.add(lass::test::testSpat());
 
 	std::ofstream log;
 	if (argXml)
@@ -91,7 +91,7 @@ int test_main(int argc, char* argv[])
 
 	unit_test_result::instance().set_report_format("HRF");
 	unit_test_log::instance().set_log_stream(std::cout);
-    return 0;
+	return 0;
 }
 
 // EOF

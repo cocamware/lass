@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -34,7 +34,7 @@
  *  @warning The interface requires to have two direction vectors too, but of course, the cartesian
  *  equation does not provide this.  So, it has to generate two direction vectors on request.
  *  THESE ARE NOT NECESSARELY THE SAME AS THE ONE YOU'VE MIGHT TO USE TO SET THE PLANE.  i.e.
- *  if you go like this:  
+ *  if you go like this:
  *
  *  @code
  *  Vector3D<double> directionV(1, 2, 3);
@@ -43,9 +43,9 @@
  *  plane.getDirections(directionV, directionV);
  *  @endcode
  *
- *  then at the end, directionV and directionV will probably not be the same as at first.  This is because 
+ *  then at the end, directionV and directionV will probably not be the same as at first.  This is because
  *  the plane will only create a normal vector based on the direction vectors, and then forget about
- *  them.  If you ask to get the direction vectors, it has to create new ones.  
+ *  them.  If you ask to get the direction vectors, it has to create new ones.
  */
 
 
@@ -67,19 +67,19 @@ class Plane3DCartesian
 {
 public:
 
-    typedef NormalizingPolicy TNormalizingPolicy;
+	typedef NormalizingPolicy TNormalizingPolicy;
 
-    typedef Point3D<T> TPoint;
-    typedef typename TPoint::TVector TVector;
-    typedef Point2D<T> TUV;
+	typedef Point3D<T> TPoint;
+	typedef typename TPoint::TVector TVector;
+	typedef Point2D<T> TUV;
 
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
-    typedef typename TPoint::TNumTraits TNumTraits;
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
+	typedef typename TPoint::TNumTraits TNumTraits;
 
-    enum { dimension = TPoint::dimension };	/**< number of dimensions of vector */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions of vector */
 
 	Plane3DCartesian();
 	Plane3DCartesian(const TPoint& iSupport, const TPoint& iPointU, const TPoint& iPointV);
@@ -88,21 +88,21 @@ public:
 	Plane3DCartesian(const TVector& iNormal, TParam iD);
 
 	const TPoint support() const;
-    void getDirections(TVector& oDirectionU, TVector& oDirectionV) const;
-    const TVector directionU() const;
+	void getDirections(TVector& oDirectionU, TVector& oDirectionV) const;
+	const TVector directionU() const;
 	const TVector directionV() const;
 
-    void getReciprocals(TVector& oReciprocalU, TVector& oReciprocalV) const;
-    const TVector reciprocalU() const;
+	void getReciprocals(TVector& oReciprocalU, TVector& oReciprocalV) const;
+	const TVector reciprocalU() const;
 	const TVector reciprocalV() const;
 
-    void getCartesian(TVector& oNormal, TReference oD) const;
-    const TVector& normal() const;
+	void getCartesian(TVector& oNormal, TReference oD) const;
+	const TVector& normal() const;
 	const TParam d() const;
 
-    const Side classify(const TPoint& iPoint) const;
-    const TValue equation(const TPoint& iPoint) const;
-    const TValue signedDistance(const TPoint& iPoint) const;
+	const Side classify(const TPoint& iPoint) const;
+	const TValue equation(const TPoint& iPoint) const;
+	const TValue signedDistance(const TPoint& iPoint) const;
 	const TValue squaredDistance(const TPoint& iPoint) const;
 
 	const TVector reject(const TPoint& iPoint) const;
@@ -114,14 +114,14 @@ public:
 
 	const TPoint point(TParam iU, TParam iV) const;
 	const TPoint point(const TUV& iUV) const;
-    const TUV uv(const TPoint& iPoint) const;
+	const TUV uv(const TPoint& iPoint) const;
 
-    void flip();
-    const bool isValid() const;
+	void flip();
+	const bool isValid() const;
 
 private:
 
-    TVector normal_;
+	TVector normal_;
 	TValue d_;
 };
 

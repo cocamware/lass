@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -29,7 +29,7 @@
  *
  *  A set of distribution for random numbers
  *
- *	@ref DistributionUniform
+ *  @ref DistributionUniform
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_DISTRIBUTION_H
@@ -45,10 +45,10 @@ namespace num
 
 enum RangeType
 {
-	rtClosed	= 0x0,	// range is closed on both sides: [inf, sup]
-	rtRightOpen	= 0x1,	// range is open to the right: [inf, sup)
-	rtLeftOpen	= 0x2,	// range is open to the left: (inf, sup]
-	rtOpen		= 0x3,	// range is open to both sides: (inf, sup)
+	rtClosed    = 0x0,  // range is closed on both sides: [inf, sup]
+	rtRightOpen = 0x1,  // range is open to the right: [inf, sup)
+	rtLeftOpen  = 0x2,  // range is open to the left: (inf, sup]
+	rtOpen      = 0x3,  // range is open to both sides: (inf, sup)
 };
 
 /** @ingroup Distribution
@@ -64,13 +64,13 @@ class DistributionUniform
 {
 public:
 
-	typedef RandomGenerator TGenerator;						///< generator type
+	typedef RandomGenerator TGenerator;                     ///< generator type
 
-	typedef num::NumTraits<T> TNumTraits;					///< numeric traits of value type
-	typedef typename util::CallTraits<T>::TValue TValue;	///< value type
-	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
+	typedef num::NumTraits<T> TNumTraits;                   ///< numeric traits of value type
+	typedef typename util::CallTraits<T>::TValue TValue;    ///< value type
+	typedef typename util::CallTraits<T>::TParam TParam;    ///< parameter value type
 
-	DistributionUniform(TGenerator& ioGenerator, 
+	DistributionUniform(TGenerator& ioGenerator,
 		TParam iInfimum = TNumTraits::zero, TParam iSupremum = TNumTraits::one);
 
 	TValue operator()() const;
@@ -99,13 +99,13 @@ class DistributionExponential
 {
 public:
 
-	typedef RandomGenerator TGenerator;						///< generator type
+	typedef RandomGenerator TGenerator;                     ///< generator type
 
-	typedef num::NumTraits<T> TNumTraits;					///< numeric traits of value type
-	typedef typename util::CallTraits<T>::TValue TValue;	///< value type
-	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
+	typedef num::NumTraits<T> TNumTraits;                   ///< numeric traits of value type
+	typedef typename util::CallTraits<T>::TValue TValue;    ///< value type
+	typedef typename util::CallTraits<T>::TParam TParam;    ///< parameter value type
 
-	DistributionExponential(TGenerator& ioGenerator, 
+	DistributionExponential(TGenerator& ioGenerator,
 		TParam iRateOfChange = TNumTraits::one);
 
 	TValue operator()() const;
@@ -132,13 +132,13 @@ class DistributionNormal
 {
 public:
 
-	typedef RandomGenerator TGenerator;						///< generator type
+	typedef RandomGenerator TGenerator;                     ///< generator type
 
-	typedef num::NumTraits<T> TNumTraits;					///< numeric traits of value type
-	typedef typename util::CallTraits<T>::TValue TValue;	///< value type
-	typedef typename util::CallTraits<T>::TParam TParam;	///< parameter value type
+	typedef num::NumTraits<T> TNumTraits;                   ///< numeric traits of value type
+	typedef typename util::CallTraits<T>::TValue TValue;    ///< value type
+	typedef typename util::CallTraits<T>::TParam TParam;    ///< parameter value type
 
-	DistributionNormal(TGenerator& ioGenerator, 
+	DistributionNormal(TGenerator& ioGenerator,
 		TParam iMean = TNumTraits::zero, TParam iStdDev = TNumTraits::one);
 
 	TValue operator()() const;
@@ -158,8 +158,8 @@ private:
 
 template<class T,class RG> T uniform(RG& iGenerator);
 template<class T,class RG> T unitGauss(RG& iGenerator);
-template<class T,class RG> T gauss(RG& iGenerator, 
-									typename util::CallTraits<T>::TParam iMean, 
+template<class T,class RG> T gauss(RG& iGenerator,
+									typename util::CallTraits<T>::TParam iMean,
 									typename util::CallTraits<T>::TParam iStdDev);
 
 

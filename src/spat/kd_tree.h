@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -47,73 +47,73 @@ namespace spat
 template <typename ObjectType>
 struct KdTreeObjectTraits
 {
-    typedef const ObjectType* TObjectIterator;
-    typedef const ObjectType& TObjectReference;
-    typedef ObjectType TPoint;
-    typedef typename TPoint::TValue TValue;
-    typedef typename TPoint::TParam TParam;
-    typedef typename TPoint::TReference TReference;
-    typedef typename TPoint::TConstReference TConstReference;
+	typedef const ObjectType* TObjectIterator;
+	typedef const ObjectType& TObjectReference;
+	typedef ObjectType TPoint;
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TParam TParam;
+	typedef typename TPoint::TReference TReference;
+	typedef typename TPoint::TConstReference TConstReference;
 	enum { dimension = TPoint::dimension };
 
-    static const TPoint& position(TObjectIterator iObject) { return *iObject; }
+	static const TPoint& position(TObjectIterator iObject) { return *iObject; }
 };
 
 
 
-template 
+template
 <
-    class ObjectType, 
-    class ObjectTraits = KdTreeObjectTraits<ObjectType>
+	class ObjectType,
+	class ObjectTraits = KdTreeObjectTraits<ObjectType>
 >
 class KdTree
 {
 public:
 
-    typedef KdTree<ObjectType, ObjectTraits> TSelf;
+	typedef KdTree<ObjectType, ObjectTraits> TSelf;
 
-    typedef ObjectType TObject;
-    typedef ObjectTraits TObjectTraits;
+	typedef ObjectType TObject;
+	typedef ObjectTraits TObjectTraits;
 
-    typedef typename TObjectTraits::TObjectIterator TObjectIterator;
-    typedef typename TObjectTraits::TObjectReference TObjectReference;
-    typedef typename TObjectTraits::TPoint TPoint;
+	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+	typedef typename TObjectTraits::TObjectReference TObjectReference;
+	typedef typename TObjectTraits::TPoint TPoint;
 	typedef typename TObjectTraits::TValue TValue;
 	typedef typename TObjectTraits::TParam TParam;
 	typedef typename TObjectTraits::TParam TReference;
 	typedef typename TObjectTraits::TParam TConstReference;
 
-    enum { dimension = TObjectTraits::dimension };
+	enum { dimension = TObjectTraits::dimension };
 
-    class Neighbour
-    {
-    public:
-        Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
+	class Neighbour
+	{
+	public:
+		Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
 
-        TObjectIterator object() const;
+		TObjectIterator object() const;
 		TPoint position() const;
-        TValue squaredDistance() const;
+		TValue squaredDistance() const;
 
 		TObjectIterator operator->() const;
 		TObjectReference operator*() const;
-        bool operator<(const Neighbour& iOther) const;
-    private:
-        TObjectIterator object_;
-        TValue squaredDistance_;
-    };
+		bool operator<(const Neighbour& iOther) const;
+	private:
+		TObjectIterator object_;
+		TValue squaredDistance_;
+	};
 
-    typedef std::vector<Neighbour> TNeighbourhood;
+	typedef std::vector<Neighbour> TNeighbourhood;
 
-    KdTree();
+	KdTree();
 	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
-    void reset(TObjectIterator iBegin, TObjectIterator iEnd);
+	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
 	Neighbour nearestNeighbour(const TPoint& iLocation) const;
-    TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount, 
-        TNeighbourhood& oNeighbourhood) const;
+	TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
+		TNeighbourhood& oNeighbourhood) const;
 
-    void swap(TSelf& iOther);
+	void swap(TSelf& iOther);
 	const bool isEmpty() const;
 	void clear();
 
@@ -123,13 +123,13 @@ public:
 
 private:
 
-    typedef std::vector<TObjectIterator> TObjectIterators;
-    typedef typename TObjectIterators::iterator TIteratorIterator;
+	typedef std::vector<TObjectIterator> TObjectIterators;
+	typedef typename TObjectIterators::iterator TIteratorIterator;
 
-    typedef unsigned char TAxis;
-    typedef std::vector<TAxis> TAxes;
+	typedef unsigned char TAxis;
+	typedef std::vector<TAxis> TAxes;
 
-    enum { dummyAxis_ = TAxis(-1)} ;
+	enum { dummyAxis_ = TAxis(-1)} ;
 
 	class LessDim
 	{
@@ -144,21 +144,21 @@ private:
 	};
 
 	void buildHeap();
-    void balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd);
-    TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
-    void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
+	void balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd);
+	TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
+	void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
 	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
 
 	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
-    void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
-        TNeighbourhood& oNeighbourhood, size_t iNode) const;
+	void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
+		TNeighbourhood& oNeighbourhood, size_t iNode) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
 
 	TObjectIterators heap_;
-    TAxes splits_;
-    TObjectIterator begin_;
-    TObjectIterator end_;
+	TAxes splits_;
+	TObjectIterator begin_;
+	TObjectIterator end_;
 };
 
 

@@ -1,43 +1,43 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
 
 /** @class lass::io::ProxyOStream
- *	@brief A proxy output stream can distribute output to multiple destination streams.
- *	@author BdG
- *	@date 2003
+ *  @brief A proxy output stream can distribute output to multiple destination streams.
+ *  @author BdG
+ *  @date 2003
  *
  *  You can add multiple destination streams to a proxy stream, and all output to the
  *  proxy stream will be redirected to all these destinations.
  *
- *  You can also assign a filter to the proxy, and only messages with levels set in the 
- *  filter will pass.  e.g. if you set the filter of the proxy as 
- *  proxy.setFilter() = 0, then only messages of warning or error levels will 
+ *  You can also assign a filter to the proxy, and only messages with levels set in the
+ *  filter will pass.  e.g. if you set the filter of the proxy as
+ *  proxy.setFilter() = 0, then only messages of warning or error levels will
  *  pass.
- * 
+ *
  *  How do you tell what level your message has?  Simple, before you use the insertor,
  *  you call the function operator on the stream with the correct level.  This returns
  *  a lock on the proxy, and now you send the message to the lock (by the insertor)
@@ -50,7 +50,7 @@
  *  theWarning is passed to the lock.  At the end, the lock flushes te proxy.
  *
  *  If you don't use the function operator to set the message level, the level is implicit
- *  set to ProxyOStream::Note.  
+ *  set to ProxyOStream::Note.
  *
  *  OK, seriously, i have no longer any idea why we need this ... get rid of it?
  */
@@ -89,12 +89,12 @@ public:
 		 */
 		Lock( ProxyOStream* iProxy, TMask iMessage ): proxy_(iProxy), messageMask_(iMessage) {}
 
-		/** The copy constructor passes the lock on the proxy to the copy. 
+		/** The copy constructor passes the lock on the proxy to the copy.
 		 *  The pointer is passed to the copy, so that this copy can continue the job of the
-		 *  original.  Since the original looses it's proxy pointer, it won't flush it on 
+		 *  original.  Since the original looses it's proxy pointer, it won't flush it on
 		 *  destruction.
 		 *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
-		 *           doing.  But be warned: it might not do what you expect. 
+		 *           doing.  But be warned: it might not do what you expect.
 		 */
 		Lock( const ProxyOStream::Lock& iOther ): proxy_(iOther.proxy_), messageMask_(iOther.messageMask_)
 		{
@@ -158,7 +158,7 @@ public:
 
 
 	// structors & methods
-	
+
 	//ProxyOStream();
 	ProxyOStream( std::ostream* iDestination = &std::cout, TMask iFilterMask = acceptAll);
 
@@ -198,8 +198,8 @@ private:
 
 	friend class Lock;
 
-    typedef std::map<std::ostream*, TMask> TDestinations;
-    
+	typedef std::map<std::ostream*, TMask> TDestinations;
+
 	TDestinations destinations_;
 };
 

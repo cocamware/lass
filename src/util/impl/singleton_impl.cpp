@@ -1,26 +1,26 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- * 	The LASS License:
+ *  The LASS License:
  *
- *	Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004 Bram de Greve and Tom De Muer
  *
- *	LASS is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -50,7 +50,7 @@ TSingletonLock* SingletonBase::lock_ = 0;
  *  @relates SingletonGuard
  *
  *  @warning this isn't thread safe, but that's OK since it should only be called once from
- *      @c ::atexit.  How do we know this?  Well, for one thing we assume the user doesn't 
+ *      @c ::atexit.  How do we know this?  Well, for one thing we assume the user doesn't
  *      subscribe it to @c ::atexit himself.  Secondly, the function that does subscribe it
  *      to @c ::atexit is the constructor of SingletonGuard, and only one instance of this
  *      will be created, granted SingletonBase::subscribeInstance is thread safe and the only
@@ -107,7 +107,7 @@ void SingletonBase::cleanLock()
 
 
 
-/** Subscribe to the singleton guard.  
+/** Subscribe to the singleton guard.
  *  Do this only once for each singleton, and in fact, don't do it yourself at all
  *  since Singleton<> already does it :)
  *
@@ -122,7 +122,7 @@ void SingletonBase::subscribeInstance(int iDestructionPriority)
 	if (!singletonGuard)
 	{
 		singletonGuard = new SingletonGuard;
-        ::atexit(singletonCleanUp);
+		::atexit(singletonCleanUp);
 	}
 
 	singletonGuard->subscribe(this);
@@ -156,7 +156,7 @@ SingletonGuard::~SingletonGuard()
 		{
 			std::cerr << "WARNING: NULL pointer in lass SingletonGuard::deathRow_ detected\n";
 		}
-		
+
 		deathRow_.pop();
 		delete deadManWalking;
 	}
@@ -165,7 +165,7 @@ SingletonGuard::~SingletonGuard()
 
 
 
-/** @warning not thread safe but that's OK since we assue only 
+/** @warning not thread safe but that's OK since we assue only
  *      SingletonBase::subscribeInstance calls this, so the same reasoning applies.
  */
 void SingletonGuard::subscribe(SingletonBase* iSingleton)
