@@ -125,11 +125,15 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB)
 #include "ray_3d.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_H
-#include "plane_3d_ray_3d.h"
+#	include "plane_3d_ray_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
-#include "ray_3d_sphere_3d.h"
+#	include "ray_3d_sphere_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
+#	include "ray_3d_transformation_3d.h"
 #endif
 
 #endif

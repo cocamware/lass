@@ -103,6 +103,14 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const
 #	include "pyobject_util.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D
+#	include "plane_3d_transformation_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D
+#	include "ray_3d_transformation_3d.h"
+#endif
+
 #endif
 
 // EOF

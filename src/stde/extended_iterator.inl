@@ -41,7 +41,8 @@ namespace stde
 template <typename Iterator>
 Iterator next(Iterator iterator)
 {
-	return ++iterator;
+	++iterator;
+	return iterator;
 }
 
 /** @ingroup extended_iterator
@@ -49,7 +50,8 @@ Iterator next(Iterator iterator)
 template <typename Iterator>
 Iterator prior(Iterator iterator)
 {
-	return --iterator;
+	--iterator;
+	return iterator;
 }
 
 /** @ingroup extended_iterator

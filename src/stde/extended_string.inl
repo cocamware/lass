@@ -125,6 +125,92 @@ bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 
 
 
+/** @ingroup extended_string
+ *  Reflects the Python function @c split without seperator argument
+ * 
+ *  Return a vector of the words of the string @a to_be_split.  The second argument @a seperator 
+ *  specifies a string to be used as the word separator. The returned vector will then have one 
+ *  more item than the number of non-overlapping occurrences of the separator in the string. 
+ *
+ *  The optional third argument @a max_split defaults to 0.  If it is nonzero, at most 
+ *  @a max_split number of splits occur, and the remainder of the string is returned as the final 
+ *  element of the list (thus, the list will have at most @a max_split + 1 elements).
+ *
+ *  If @a to_be_split is empty, then the result will have an empty string as only element.
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::vector< std::basic_string<Char, Traits, Alloc> >
+split(const std::basic_string<Char, Traits, Alloc>& to_be_split)
+{
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	typedef typename string_type::size_type size_type;
+
+	const string_type seperators = " \t\n";
+	std::vector< std::basic_string<Char, Traits, Alloc> > result;
+    
+	size_type begin = 0;
+	size_type i = to_be_split.find_first_of(seperators);
+	while (i != string_type::npos)
+	{
+		result.push_back(to_be_split.substr(begin, i - begin));
+		begin = i + 1;
+		i = to_be_split.find_first_of(seperators);
+	}
+
+	result.push_back(to_be_split.substr(begin));
+	return result;
+}
+
+
+
+/** @ingroup extended_string
+ *  Reflects the Python function @c split without seperator argument
+ * 
+ *  Return a vector of the words of the string @a to_be_split.  The second argument @a seperator 
+ *  specifies a string to be used as the word separator. The returned vector will then have one 
+ *  more item than the number of non-overlapping occurrences of the separator in the string. 
+ *
+ *  The optional third argument @a max_split defaults to 0.  If it is nonzero, at most 
+ *  @a max_split number of splits occur, and the remainder of the string is returned as the final 
+ *  element of the list (thus, the list will have at most @a max_split + 1 elements).
+ *
+ *  If @a to_be_split is empty, then the result will have an empty string as only element.
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::vector< std::basic_string<Char, Traits, Alloc> >
+split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
+	  const std::basic_string<Char, Traits, Alloc>& seperator,
+	  size_t max_split)
+{
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	typedef typename string_type::size_type size_type;
+
+	std::vector< std::basic_string<Char, Traits, Alloc> > result;
+	if (max_split == 0)
+	{
+		max_split = result.max_size() - 1;
+	}
+    
+	const size_type seperator_size = seperator.size();
+	size_type begin = 0;
+	while (result.size() < max_split())
+	{
+		size_type i = to_be_split.find(seperator);
+		if (i == string_type::npos)
+		{
+			break;
+		}
+
+		result.push_back(to_be_split.substr(begin, i - begin));
+		begin = i + seperator_size;
+	}
+
+	result.push_back(to_be_split.substr(begin));
+	return result;
+}
+
+
+
 }
 
 }

@@ -128,7 +128,7 @@ bool ArgValue<T>::setValue(const std::string& iValue)
 			return false;
         }
 
-		LASS_LOG("parameter '" << names() << "' is set without value");
+		//LASS_LOG("parameter '" << names() << "' is set without value");
     }
     else
     {
@@ -156,7 +156,7 @@ bool ArgValue<T>::setValue(const std::string& iValue)
 				return false;
 			}
  
-			LASS_LOG("parameter '" << names() << "' is set, value == '" << values_.back() << "'");
+			//LASS_LOG("parameter '" << names() << "' is set, value == '" << values_.back() << "'");
 		}
     }
 

@@ -45,11 +45,14 @@ class slist: private Alloc
 {
 private:
 
-    struct node_t
+	struct node_base_t
+	{
+		node_base_t* next;
+	};
+
+	struct node_t: public node_base_t
     {
         T value;
-        node_t* next;
-        node_t(): next(0) {}
     };
 
 public:
@@ -78,8 +81,16 @@ public:
         typedef typename allocator_type::difference_type difference_type;
         typedef std::forward_iterator_tag iterator_category;
         iterator(): node_(0) {}
-        reference operator*() const { LASS_ASSERT(node_); return node_->value; }
-        pointer operator->() const { LASS_ASSERT(node_); return &node_->value; }
+        reference operator*() const 
+		{ 
+			LASS_ASSERT(node_); 
+			return static_cast<node_t* const>(node_)->value; 
+		}
+        pointer operator->() const 
+		{ 
+			LASS_ASSERT(node_); 
+			return &static_cast<node_t* const>(node_)->value; 
+		}
         iterator& operator++() { node_ = node_->next; return *this; }
         iterator operator++(int) { iterator& result(*this); ++(*this); return result; }
         bool operator==(const iterator& other) const { return node_ == other.node_; }
@@ -87,8 +98,8 @@ public:
     private:
         friend class slist<T, Alloc>;
         friend class const_iterator;
-        explicit iterator(node_t* node): node_(node) {}  
-        node_t* node_;
+        explicit iterator(node_base_t* node): node_(node) {}  
+        node_base_t* node_;
     };
 
     class const_iterator
@@ -102,16 +113,24 @@ public:
         typedef std::forward_iterator_tag iterator_category;
         const_iterator(): node_(0) {}
         const_iterator(iterator i): node_(i.node_) {}
-        const_reference operator*() const { LASS_ASSERT(node_); return node_->value; }
-        const_pointer operator->() const { LASS_ASSERT(node_); return &node_->value; }
+        const_reference operator*() const 
+		{ 
+			LASS_ASSERT(node_); 
+			return static_cast<const node_t* const>(node_)->value; 
+		}
+        const_pointer operator->() const 
+		{ 
+			LASS_ASSERT(node_); 
+			return &static_cast<const node_t* const>(node_)->value; 
+		}
         const_iterator& operator++() { node_ = node_->next; return *this; }
         const_iterator operator++(int) { const_iterator& result(*this); ++(*this); return result; }
         bool operator==(const const_iterator& other) const { return node_ == other.node_; }
         bool operator!=(const const_iterator& other) const { return !(*this == other); }
     private:
         friend class slist<T, Alloc>;
-        explicit const_iterator(const node_t* node): node_(node) {}  
-        const node_t* node_;
+        explicit const_iterator(const node_base_t* node): node_(node) {}  
+        const node_base_t* node_;
     };
 
     explicit slist(const Alloc& allocator = Alloc());
@@ -193,16 +212,17 @@ private:
     typedef typename allocator_type::template rebind<node_t>::other node_allocator_type;
 
     node_t* make_node(const T& value) const;
-	void unlink_and_destroy_after(node_t* position) const;
-	void link_after(node_t* position, node_t* node) const;
-    void splice_after(node_t* position, node_t* before_first, node_t* before_last) const;
+	void unlink_and_destroy_after(node_base_t* position) const;
+	void link_after(node_base_t* position, node_base_t* node) const;
+    void splice_after(node_base_t* position, node_base_t* before_first, 
+		node_base_t* before_last) const;
 
 	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
         InputIterator last, const meta::True& iterator_is_integral);
 	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
         InputIterator last, const meta::False& iterator_is_iterator);
    
-    node_t head_;
+    node_base_t head_;
 };
 
 template <typename T, class Alloc> 

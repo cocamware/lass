@@ -67,6 +67,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(const Alloc& allocator):
     Alloc(allocator)
 {
+	head_.next = 0;
 }
 
 
@@ -84,6 +85,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(size_type n, const T& value, const Alloc& allocator):
     Alloc(allocator)
 {
+	head_.next = 0;
     insert_after(before_begin(), n, value);
 }
 
@@ -103,6 +105,7 @@ template <typename InputIterator>
 slist<T, Alloc>::slist(InputIterator first, InputIterator last, const Alloc& allocator):
     Alloc(allocator)
 {
+	head_.next = 0;
 	insert_after(before_begin(), first, last);
 }
 
@@ -118,6 +121,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(const slist<T, Alloc>& other):
     Alloc(other.get_allocator())
 {
+	head_.next = 0;
     insert_after(before_begin(), other.begin(), other.end());
 }
 
@@ -392,7 +396,7 @@ typename slist<T, Alloc>::size_type
 slist<T, Alloc>::size() const
 {
     size_type n = 0;
-    for (node_t* i = head_.next; i != 0; i = i->next)
+    for (node_base_t* i = head_.next; i != 0; i = i->next)
     {
         ++n;
     }
@@ -430,7 +434,7 @@ slist<T, Alloc>::max_size() const
 template <typename T, class Alloc>
 void slist<T, Alloc>::resize(size_type n, const T& value)
 {
-    node_t* i = &head_;
+    node_base_t* i = &head_;
     while (i->next && n)
     {
         --n;
@@ -462,7 +466,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::reference 
 slist<T, Alloc>::front()
 {
-    return head_.next->value;
+    return static_cast<node_t*>(head_.next)->value;
 }
 
 
@@ -478,7 +482,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::const_reference 
 slist<T, Alloc>::front() const
 {
-    return head_.next->value;
+    return static_cast<node_t*>(head_.next)->value;
 }
 
 
@@ -495,7 +499,7 @@ slist<T, Alloc>::front() const
 template <typename T, class Alloc>
 void slist<T, Alloc>::push_front(const T& value)
 {
-    node_t* node = make_node(value);
+    node_base_t* node = make_node(value);
 	node->next = head_.next;
     head_.next = node;
 }
@@ -600,7 +604,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::iterator
 slist<T, Alloc>::insert_after(iterator position, const T& value)
 {
-	node_t* new_node = make_node(value);
+	node_base_t* new_node = make_node(value);
 	link_after(position.node_, new_node);
 	return iterator(new_node);
 }
@@ -620,7 +624,7 @@ slist<T, Alloc>::insert_after(iterator position, const T& value)
 template <typename T, class Alloc>
 void slist<T, Alloc>::insert_after(iterator position, size_type n, const T& value)
 {
-    node_t* node = position.node_;
+    node_base_t* node = position.node_;
 	for (size_type i = 0; i < n; ++i)
 	{
         node_t* new_node = make_node(value);
@@ -856,7 +860,7 @@ void slist<T, Alloc>::splice(iterator position, slist<T, Alloc>& other, iterator
 template <typename T, class Alloc>
 void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other)
 {
-    node_t* other_before_last = &other.head_;
+    node_base_t* other_before_last = &other.head_;
     while (other_before_last->next)
     {
         other_before_last = other_before_last->next;
@@ -915,10 +919,10 @@ void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other, it
 template <typename T, class Alloc>
 void slist<T, Alloc>::remove(const T& value)
 {
-    node_t* node = &head_;
+    node_base_t* node = &head_;
     while (node->next)
     {
-        if (node->next->value == value)
+        if (static_cast<node_t*>(node->next)->value == value)
         {
             unlink_and_destroy_after(node);
         }
@@ -941,10 +945,10 @@ template <typename T, class Alloc>
 template <class UnaryPredicate>
 void slist<T, Alloc>::remove_if(UnaryPredicate predicate)
 {
-    node_t* node = &head_;
+    node_base_t* node = &head_;
     while (node->next)
     {
-        if (predicate(node->next->value))
+        if (predicate(static_cast<node_t*>(node->next)->value))
         {
             unlink_and_destroy_after(node);
         }
@@ -967,14 +971,14 @@ void slist<T, Alloc>::remove_if(UnaryPredicate predicate)
 template <typename T, class Alloc>
 void slist<T, Alloc>::unique()
 {
-    node_t* node = head_.next;
+    node_base_t* node = head_.next;
     if (!node)
     {
         return;
     }
     while (node->next)
     {
-        if (node->value == node->next->value)
+        if (static_cast<node_t*>(node)->value == static_cast<node_t*>(node->next)->value)
         {
             unlink_and_destroy_after(node);
         }
@@ -1001,14 +1005,14 @@ template <typename T, class Alloc>
 template <class BinaryPredicate>
 void slist<T, Alloc>::unique(BinaryPredicate predicate)
 {
-    node_t* node = head_.next;
+    node_base_t* node = head_.next;
     if (!node)
     {
         return;
     }
     while (node->next)
     {
-        if (predicate(node->value, node->next->value))
+        if (predicate(static_cast<node_t*>(node)->value, static_cast<node_t*>(node->next)->value))
         {
             unlink_and_destroy_after(node);
         }
@@ -1059,10 +1063,11 @@ template <typename T, class Alloc>
 template <class BinaryPredicate>
 void slist<T, Alloc>::merge(slist<T, Alloc>& other, BinaryPredicate compare)
 {
-    node_t* node = &head_;
+    node_base_t* node = &head_;
     while (node->next && other.head_.next)
     {
-        if (compare(other.head_.next->value, node->next->value))
+        if (compare(static_cast<node_t*>(other.head_.next)->value, 
+					static_cast<node_t*>(node->next)->value))
         {
             splice_after(node, &other.head_, other.head_.next);
         }
@@ -1150,10 +1155,10 @@ void slist<T, Alloc>::sort(BinaryPredicate compare)
 template <typename T, class Alloc>
 void slist<T, Alloc>::reverse()
 {
-    node_t* begin = 0;
+    node_base_t* begin = 0;
     while (head_.next)
     {
-        node_t* node = head_.next;
+        node_base_t* node = head_.next;
         head_.next = node->next;
         node->next = begin;
         begin = node;
@@ -1195,17 +1200,17 @@ slist<T, Alloc>::make_node(const T& value) const
 /** @internal
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::unlink_and_destroy_after(node_t* before) const
+void slist<T, Alloc>::unlink_and_destroy_after(node_base_t* before) const
 {
     allocator_type allocator = get_allocator();
     node_allocator_type node_allocator = node_allocator_type(allocator);
 
     LASS_ASSERT(before && before->next);
 
-    node_t* node = before->next;
+    node_base_t* node = before->next;
     before->next = node->next;
-	allocator.destroy(&node->value);
-	node_allocator.deallocate(node, 1);
+	allocator.destroy(&static_cast<node_t*>(node)->value);
+	node_allocator.deallocate(static_cast<node_t*>(node), 1);
 }
 
 
@@ -1213,7 +1218,7 @@ void slist<T, Alloc>::unlink_and_destroy_after(node_t* before) const
 /** @internal
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::link_after(node_t* position, node_t* node) const
+void slist<T, Alloc>::link_after(node_base_t* position, node_base_t* node) const
 {
 	LASS_ASSERT(position && node);
 	node->next = position->next;
@@ -1225,12 +1230,13 @@ void slist<T, Alloc>::link_after(node_t* position, node_t* node) const
 /** @internal
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::splice_after(node_t* position, node_t* before_first, node_t* before_last) const
+void slist<T, Alloc>::splice_after(node_base_t* position, node_base_t* before_first, 
+								   node_base_t* before_last) const
 {
     LASS_ASSERT(before_first != before_last);
     if (position != before_first && position != before_last)
     {
-        node_t* const first = before_first->next;
+        node_base_t* const first = before_first->next;
         before_first->next = before_last->next;
         before_last->next = position->next;
         position->next = first;
@@ -1246,7 +1252,7 @@ template <typename IntegralType>
 void slist<T, Alloc>::insert_after(iterator position, IntegralType n, IntegralType value,
                                    const meta::True&)
 {
-    node_t* node = position.node_;
+    node_base_t* node = position.node_;
 	for (IntegralType i = 0; i < n; ++i)
 	{
         node_t* new_node = make_node(value);

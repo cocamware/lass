@@ -93,7 +93,6 @@
  *
  *  - lass::util::ObjectStorage: simple storage policy for objects allocated by @c new.
  *  - lass::util::ArrayStorage: simple storage policy for arrays allocated by @c new[].
- *  - lass::util::ComStorage: storage policy for COM interfaces.
  *
  *  @section CounterPolicy
  *
@@ -148,7 +147,7 @@
  *  @subsection CounterModels implemenated models of counter policy
  *
  *  - lass::util::DefaultCounter: allocates extra counter on heap to keep track of reference count.
- *  - lass::util::ComCounter: counter policy for COM interfaces, to be used with ComStorage
+ *  - lass::util::IntrusiveCounter: uses a member of the object as reference count.
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_PTR_POLICIES_H
@@ -316,6 +315,94 @@ protected:
 private:
 
 	TCount* count_;
+};
+
+
+
+
+/** @class IntrusiveCounter
+ *  @brief implementation of CounterPolicy concept, using a counter in the managed object itself.
+ *  @ingroup SmartPtr
+ *  @author Bram de Greve [Bramz]
+ *
+ *  This comes from "C++ Templates, The Complete Guide" by David Vandevoorde and 
+ *  Nicolai M. Josuttis.  See their @c MemberReferenceCount policy.
+ *
+ *  The DefaultCounter policy puts the reference counter outside the managed object.  That's great in
+ *  most cases, because that way, the managed type doesn't have to be designed to be used with our
+ *  SharedPtr.  However, in some cases it is more interesting to put the reference counter @e inside
+ *  the managed object.  You can use the IntrusiveCounter policy to use such a reference counter with
+ *  our SharedPtr.
+ *
+ *  @code
+ *	struct Foo
+ *	{
+ *		std::string blablabla;
+ *		int referenceCount;
+ *	};
+ *
+ *	typedef lass::util::SharedPtr
+ *	<
+ *		Foo, 
+ *		lass::util::ObjectStorage, 
+ *		lass::util::IntrusiveCounter
+ *		<
+ *			Foo,						// the managed type (containing the counter)
+ *			int,						// type of the counter
+ *			&Foo::referenceCount		// pointer to the counter
+ *		> 
+ *	>
+ *  TFooPtr;
+ *
+ *	TFooPtr foo(new Foo);
+ *	@endcode
+ */
+template 
+<
+	typename T, 
+	typename CounterType,
+	CounterType T::*referenceCounter
+>
+class IntrusiveCounter
+{
+public:
+
+	typedef CounterType TCount;
+
+protected:
+
+	template <typename TStorage> void init(TStorage& iPointee)
+	{
+		LASS_ASSERT(iPointee);
+		(iPointee->*referenceCounter) = 1;
+	}
+
+	template <typename TStorage> void dispose(TStorage& iPointee)
+	{
+	}
+	
+	template <typename TStorage> void increment(TStorage& iPointee)
+	{
+		LASS_ASSERT(iPointee);
+		++(iPointee->*referenceCounter);
+	}
+
+	template <typename TStorage> bool decrement(TStorage& iPointee)
+	{
+		LASS_ASSERT(iPointee);
+		--(iPointee->*referenceCounter);
+		return (iPointee->*referenceCounter) < 1;
+	}
+	
+	template <typename TStorage> TCount count(TStorage& iPointee) const
+	{
+		LASS_ASSERT(iPointee);
+		return iPointee->*referenceCounter;
+	}
+	
+	void swap(DefaultCounter& iOther) 
+	{
+	}
 };
 
 

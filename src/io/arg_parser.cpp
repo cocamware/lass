@@ -129,11 +129,7 @@ bool ArgParser::parse(const TArguments& iArguments, TArguments* oPositionals)
 bool ArgParser::parse(int iArgc, char* iArgv[], TArguments* oPositionals)
 {
 	TArguments arguments;
-	arguments.reserve(iArgc);
-	for (int i = 1; i < iArgc; ++i)
-	{
-		arguments.push_back(iArgv[i]);
-	}
+	std::copy(iArgv + 1, iArgv + iArgc, std::back_inserter(arguments));
 
 	return parse(arguments, oPositionals);
 }
@@ -152,7 +148,7 @@ bool ArgParser::parse(const std::string& iArguments, TArguments* oPositionals)
     const std::string quotes = "\"";
     const std::string escapes = "\\";
 	
-    LASS_EVAL(iArguments);
+    //LASS_EVAL(iArguments);
 
     TArguments result;
 
@@ -282,12 +278,13 @@ void ArgParser::subscribe(ArgParameter& iParameter)
 		LASS_THROW("Subscribing parameter failed because the long name isn't valid.");
     }
 
-	// both short and long names must be unique
+	// both short and long names must be unique (if their not zero length)
 	//
 	for (TParameters::const_iterator pit = parameters_.begin(); pit != parameters_.end(); ++pit)
 	{
         ArgParameter* param = *pit;
-		if (param->shortName() == shortName || param->longName() == longName)
+		if ((!shortName.empty() && param->shortName() == shortName) || 
+			(!longName.empty() && param->longName() == longName))
 		{
 			LASS_THROW("Subscribing parameter failed because there is already an parameter with "
                 "the same short or long name.");
@@ -639,7 +636,7 @@ std::string ArgParameter::format() const
 
 bool ArgParameter::setValue(const std::string& iValue)
 {
-	LASS_LOG("parameter '" << names() << "' is set.");
+	//LASS_LOG("parameter '" << names() << "' is set.");
     isSet_ = true;
 	return true;
 }
