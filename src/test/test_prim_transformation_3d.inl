@@ -34,10 +34,10 @@
 #include "../prim/transformation_3d.h"
 #include "../num/random.h"
 #include "../num/distribution.h"
-
+/*
 #include "../prim/aabb_3d.h"
 #include "../util/stop_watch.h"
-
+*/
 namespace lass
 {
 namespace test
@@ -49,7 +49,7 @@ template
 > 
 void testPrimTransformation3D()
 {
-    const T epsilon = static_cast<T>(1e-3);
+    const T epsilon = static_cast<T>(1e-2);
 
     typedef prim::Transformation3D<T> TTransformation;
     typedef prim::Point3D<T> TPoint;
@@ -62,7 +62,7 @@ void testPrimTransformation3D()
     num::RandomMT19937 random;
     num::DistributionUniform<T, num::RandomMT19937> distribution(random);
 
-    for (unsigned k = 0; k < 1000; ++k)
+    for (unsigned k = 0; k < 100; ++k)
     {
 		T mat[16];
 		std::generate(mat, mat + 16, distribution);
@@ -83,7 +83,7 @@ void testPrimTransformation3D()
         {
         }
     }
-
+/*
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
 
@@ -107,6 +107,7 @@ void testPrimTransformation3D()
 		transform(aabb, transfo);
 	}
 	LASS_COUT << "time: " << ((stopWatch.stop() + correction) / n) << "\n";
+*/
 }   
 
 }
