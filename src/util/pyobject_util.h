@@ -158,7 +158,7 @@ namespace lass
 				impl::addMessageHeader("complex");
 				return 1;
 			}
-			oV = std::complex(PyComplex_RealAsDouble( iValue ), PyComplex_ImagAsDouble( iValue ));
+			oV = std::complex<C>(PyComplex_RealAsDouble( iValue ), PyComplex_ImagAsDouble( iValue ));
 			return 0;
 		}
 
