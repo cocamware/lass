@@ -56,4 +56,12 @@
 #   define LASS_COMPILER_VERSION 700
 #endif
 
+
+
+#define LASS_DLL_IMPORT   __declspec( dllimport )
+#define LASS_DLL_EXPORT   __declspec( dllexport )
+#define LASS_CALL __cdecl
+#define LASS_DLL
+#define LASS_NO_INLINE   __declspec( noinline )
+
 #endif

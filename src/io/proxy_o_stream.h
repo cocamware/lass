@@ -196,7 +196,7 @@ public:
 
 private:
 
-	friend Lock;
+	friend class Lock;
 
     typedef std::map<std::ostream*, TMask> TDestinations;
     

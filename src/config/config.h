@@ -70,34 +70,4 @@
 
 
 
-#define LASS_DLL_IMPORT   __declspec( dllimport )
-#define LASS_DLL_EXPORT   __declspec( dllexport )
-
-// experimental
-#define LASS_CALL __cdecl
-#define LASS_DLL
-//
-
-#define LASS_NO_INLINE   __declspec( noinline )
- 
-
-
-// debug mode of STL port or not?
-//
-/*
-#ifdef _DEBUG
-#	define _STLP_DEBUG 1
-#else
-#	undef _STLP_DEBUG
-#endif
-/**/
-
-
-// windows specific defines
-#ifdef WIN32
-#	define NOMINMAX
-#endif
-
-
-
 #endif

@@ -30,9 +30,11 @@
 
 #define LASS_PLATFORM_TYPE_WIN32 1
 
+#if defined(linux) || defined(__linux) || defined(__linux__)
+// linux:
+#	include "platform_linux.h"
 
-
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 // win32:
 #	include "platform_win32.h"
 

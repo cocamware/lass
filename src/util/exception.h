@@ -55,6 +55,8 @@ public:
 		location_(iLocation)
 	{
 	}
+	
+	~Exception() throw() {}
 
 	/** return message in STL style
 	 */

@@ -25,42 +25,21 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
-
-#define LASS_COMPILER_TYPE_INTEL 1
-#define LASS_COMPILER_TYPE_MSVC 2
-#define LASS_COMPILER_TYPE_GCC 3
-
-#if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
-//  Intel
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_INTEL
-#	include "compiler_intel.h"
-
-# elif defined __GNUC__
-//  GNU C++:
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_GCC
-#	include "compiler_gcc.h"
-
-#elif defined _MSC_VER
-//  Microsoft Visual C++
-//
-//  Must remain the last #elif since some other vendors (Metrowerks, for
-//  example) also #define _MSC_VER
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_MSVC
-#	include "compiler_msvc.h"
-
-#else
-#	define LASS_COMPILER_TYPE 0
-#	error "Unknown compiler - please configure and report the results to the LASS team"
-#endif
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_LINUX_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_LINUX_H
 
 
+#define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_LINUX
+#define LASS_PLATFORM "Linux"
+#define LASS_LIB_PLATFORM "Linux"
+#define LASS_LITTLE_ENDIAN	1
+#define LASS_BIG_ENDIAN	
 
-#ifndef LASS_LIB_COMPILER
-#	define LASS_LIB_COMPILER "default"
-#endif
+namespace lass
+{
 
+const int bitsPerByte = 8;
 
+}
 
 #endif

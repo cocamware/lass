@@ -25,42 +25,25 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_GCC_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_GCC_H
 
-#define LASS_COMPILER_TYPE_INTEL 1
-#define LASS_COMPILER_TYPE_MSVC 2
-#define LASS_COMPILER_TYPE_GCC 3
-
-#if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
-//  Intel
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_INTEL
-#	include "compiler_intel.h"
-
-# elif defined __GNUC__
-//  GNU C++:
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_GCC
-#	include "compiler_gcc.h"
-
-#elif defined _MSC_VER
-//  Microsoft Visual C++
-//
-//  Must remain the last #elif since some other vendors (Metrowerks, for
-//  example) also #define _MSC_VER
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_MSVC
-#	include "compiler_msvc.h"
-
+#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
+#	define LASS_COMPILER_VERSION -1
+#elif __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 4)
+#	define LASS_COMPILER_VERSION -1
 #else
-#	define LASS_COMPILER_TYPE 0
-#	error "Unknown compiler - please configure and report the results to the LASS team"
+#	define LASS_COMPILER_VERSION __GNUC__.__GNUC_MINOR__ 
 #endif
 
 
+#define LASS_COMPILER "GNU C++ version " __VERSION__
+#define LASS_LIB_COMPILER "gcc" LASS_STRINGIFY(__GNUC__) LASS_STRINGIFY(__GNUC_MINOR__)
 
-#ifndef LASS_LIB_COMPILER
-#	define LASS_LIB_COMPILER "default"
-#endif
-
-
+#define LASS_DLL_IMPORT
+#define LASS_DLL_EXPORT
+#define LASS_CALL
+#define LASS_DLL
+#define LASS_NO_INLINE
 
 #endif
