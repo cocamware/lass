@@ -44,24 +44,16 @@ public:
     typedef double TTime;
     typedef impl::ClockImpl::TTick TTick;
 
-    explicit Clock(TTime iStartTime = 0) 
-    { 
-        frequency_ = impl::ClockImpl::frequency();
-        resolution_ = num::NumTraits<TTime>::one / frequency_;
-        reset(iStartTime);
-    }
-
-    void reset(TTime iStartTime = 0) 
-    { 
-        startTick_ = impl::ClockImpl::tick(); 
-        startTime_ = iStartTime; 
-    }
+    explicit Clock(TTime iStartTime = 0); 
+    void reset(TTime iStartTime = 0);
 
     const TTime time() const { return startTime_ + resolution_ * this->tick(); }
     const TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
 
     const TTick frequency() const { return frequency_; }
     const TTime resolution() const { return resolution_; }
+
+	const std::string humanize(const TTime& iTime);
 
 private:
 
