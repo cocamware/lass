@@ -322,7 +322,7 @@ template <typename T>
 template <class RandomGenerator>
 Vector2D<T> Vector2D<T>::random(RandomGenerator& ioGenerator)
 {
-	num::DistributionUniform<T, RandomGenerator, false, true> distribution(
+	num::DistributionUniform<T, RandomGenerator, num::rtRightOpen> distribution(
 		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
 	const TValue theta = distribution();
     return Vector2D<T>(num::cos(theta), num::sin(theta));
