@@ -621,7 +621,7 @@ const T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 	typedef typename Vector<T, S1>::TSize TSize;
 	const TSize n = iA.size();
 
-	TValue result = TNumTraits::zero;
+	T result = NumTraits<T>::zero;
 	for (TSize i = 0; i < n; ++i)
 	{
 		result += iA[i] * iB[i];
@@ -746,7 +746,7 @@ template <typename T, typename S>
 const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > > 
 operator+(const Vector<T, S>& iA, const T& iB)
 {
-	typedef impl::VAdd<T, S, impl::VScalar<T>> TExpression;
+	typedef impl::VAdd<T, S, impl::VScalar<T> > TExpression;
 	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iB, iA.size())));
 }
 
@@ -759,7 +759,7 @@ template <typename T, typename S>
 const Vector<T, impl::VSub<T, S, impl::VScalar<T> > > 
 operator-(const Vector<T, S>& iA, const T& iB)
 {
-	typedef impl::VSub<T, S, impl::VScalar<T>> TExpression;
+	typedef impl::VSub<T, S, impl::VScalar<T> > TExpression;
 	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iB, iA.size())));
 }
 
@@ -772,7 +772,7 @@ template <typename T, typename S>
 const Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
 operator*(const Vector<T, S>& iA, const T& iB)
 {
-	typedef impl::VMul<T, S, impl::VScalar<T>> TExpression;
+	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
 	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iB, iA.size())));
 }
 
@@ -785,7 +785,7 @@ template <typename T, typename S>
 const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > > 
 operator/(const Vector<T, S>& iA, const T& iB)
 {
-	typedef impl::VDiv<T, S, impl::VScalar<T>> TExpression;
+	typedef impl::VDiv<T, S, impl::VScalar<T> > TExpression;
 	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iB, iA.size())));
 }
 

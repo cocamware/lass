@@ -60,10 +60,10 @@ class Line3D
 {
 public:
 
-    typedef typename Line3D<T, NormalizingPolicy> TSelf;
+    typedef Line3D<T, NormalizingPolicy> TSelf;
     typedef NormalizingPolicy TNormalizingPolicy;
 
-    typedef typename Point3D<T> TPoint;
+    typedef Point3D<T> TPoint;
     typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;
@@ -79,7 +79,7 @@ public:
     template <typename U>
     struct Rebind
     {
-        typedef typename Line3D<U, NormalizingPolicy> Type;
+        typedef Line3D<U, NormalizingPolicy> Type;
     };
 
 	Line3D();

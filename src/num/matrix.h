@@ -66,7 +66,7 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Matrix<U, S> Type;
+		typedef Matrix<U, S> Type;
 	};
 
 	Matrix();

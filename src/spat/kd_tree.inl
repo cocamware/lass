@@ -442,7 +442,7 @@ void KdTree<O, OT>::diagnostics()
 
 		void visit(size_t iNode, const TAabb& iAabb)
 		{
-			using lass::prim::operator<<;
+			//using lass::prim::operator<<;
 			xml_ << iAabb;
 
 			if (iNode >= heap_.size() || heap_[iNode] == end_)

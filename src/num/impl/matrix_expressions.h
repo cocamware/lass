@@ -191,7 +191,7 @@ public:
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef size_t TSize;
 	MProd(const Operand1& iA, const Operand2& iB):
-		operand1_(iA), operand2_(iB), loopSize(iA.columns())
+		operand1_(iA), operand2_(iB), loopSize_(iA.columns())
 	{
 		LASS_ASSERT(operand1_.columns() == operand2_.rows());
 	}

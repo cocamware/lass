@@ -45,7 +45,45 @@ namespace prim
 namespace impl
 {
 
-/** default line implementation is the cartesian one
+// --- partial specialization ----------------------------------------------------------------------
+
+#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+
+/** @internal
+ *  Selects the cartesian equation as the default implemantation of a Line2D class.
+ */
+template <typename T, class EquationPolicy, class NormalizingPolicy>
+struct Line2DImpl
+{
+    typedef Line2DCartesian<T, NormalizingPolicy> Type;
+};
+
+/** @internal
+ *  specialization for the parametric equation as the default implemantation of a Line2D class.
+ */
+template <typename T, class NormalizingPolicy>
+struct Line2DImpl<T, Parametric, NormalizingPolicy>
+{
+    typedef Line2DCartesian<T, NormalizingPolicy> Type;
+};
+
+/** @internal
+ *  specialization for the combined equation as the default implemantation of a Line2D class.
+ */
+template <typename T, class NormalizingPolicy>
+struct Line2DImpl<T, Combined, NormalizingPolicy>
+{
+    typedef Line2DCombined<T, NormalizingPolicy> Type;
+};
+
+
+
+// --- no partial specialization -------------------------------------------------------------------
+
+#else
+
+/** @internal
+ *  default is cartesian equation ...
  */
 template <class EquationPolicy>
 struct Line2DImplBinder
@@ -57,9 +95,8 @@ struct Line2DImplBinder
     };
 };
 
-
-
-/** ...  Furthermore we have the parametric implementation ... 
+/** @internal
+ *  ...  Furthermore we have the parametric implementation ... 
  */
 template <>
 struct Line2DImplBinder<Parametric>
@@ -71,9 +108,8 @@ struct Line2DImplBinder<Parametric>
     };
 };
 
-
-
-/** ... and the combined implementation.
+/** @internal
+ *  ... and the combined implementation.
  */
 template <>
 struct Line2DImplBinder<Combined>
@@ -85,9 +121,8 @@ struct Line2DImplBinder<Combined>
     };
 };
 
-
-
-/** Selects the implemantation of a Line2D class.
+/** @internal
+ *  Selects the implemantation of a Line2D class.
  */
 template <typename T, class EquationPolicy, class NormalizingPolicy>
 struct Line2DImpl
@@ -95,7 +130,7 @@ struct Line2DImpl
     typedef typename Line2DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
 };
 
-
+#endif
 
 }
 

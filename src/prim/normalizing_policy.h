@@ -102,7 +102,7 @@ struct Normalized
     template<typename VectorType, typename ValueType> 
     static void normalizeAndScale(VectorType& ioSubject, ValueType& ioExtraValue)
     {
-		const VectorType::TValue norm = ioSubject.norm();
+		const typename VectorType::TValue norm = ioSubject.norm();
 		LASS_ASSERT(norm != VectorType::TNumTraits::zero);
 		ioExtraValue /= norm;
         ioSubject /= norm; 

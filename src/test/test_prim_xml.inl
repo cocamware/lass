@@ -91,7 +91,8 @@ void testPrimXml()
 	p2.add(Point2D<float>(0.f, 1.f));
 	xml << p2;
 
-	SimplePolygon3D<float> p3(Plane3D<float>(Vector3D<float>(0.f, 0.f, 1.f), -1.f));
+    Vector3D<float> n(0.f, 0.f, 1.f);
+	SimplePolygon3D<float> p3(Plane3D<float>(n, -1.f));
 	p3.add(Point3D<float>(0.f, 0.f, 1.f));
 	p3.add(Point3D<float>(1.f, 0.f, 1.f));
 	p3.add(Point3D<float>(1.f, 1.f, 1.f));

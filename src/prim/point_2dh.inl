@@ -75,7 +75,7 @@ Point2DH<T>::Point2DH(const TVector& iPositionVector):
 
 
 template <typename T> inline
-typename const Point2DH<T>::TVector
+const typename Point2DH<T>::TVector
 Point2DH<T>::position() const
 {
 	return TVector(x, y, z);
@@ -222,7 +222,7 @@ const bool Point2DH<T>::isValid() const
 /** Return weight of point.  weight = z.
  */
 template<typename T> inline 
-typename const Point2DH<T>::TValue Point2DH<T>::weight() const
+const typename Point2DH<T>::TValue Point2DH<T>::weight() const
 {
 	return z;
 }
@@ -391,7 +391,7 @@ std::istream& operator>>(std::istream& ioIStream, Point2DH<T>& oB)
 {
     Vector3D<T> temp;
 	LASS_ENFORCE(ioIStream) >> temp;
-    oB = Point2DH<T> temp;
+    oB = Point2DH<T>(temp);
 	return ioIStream;
 }
 

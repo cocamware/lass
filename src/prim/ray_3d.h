@@ -62,11 +62,11 @@ class Ray3D
 {
 public:
 
-    typedef typename Ray3D<T, NormalizingPolicy, ParameterPolicy> TSelf;
+    typedef Ray3D<T, NormalizingPolicy, ParameterPolicy> TSelf;
     typedef NormalizingPolicy TNormalizingPolicy;
     typedef ParameterPolicy TParameterPolicy;
 
-	typedef typename Point3D<T> TPoint;
+	typedef Point3D<T> TPoint;
 	typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;

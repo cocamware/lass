@@ -40,7 +40,8 @@ namespace spat
 	public:
 		class Edge
 		{
-			friend QuadEdge;
+#pragma LASS_TODO("check this")
+			friend class QuadEdge<EdgeHandle>;
         public:
 			Edge() : next_(NULL), edgeHandle_(NULL) {}
 			~Edge() {}

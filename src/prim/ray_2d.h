@@ -61,11 +61,11 @@ class Ray2D
 {
 public:
 
-    typedef typename Ray2D<T, NormalizingPolicy, ParameterPolicy> TSelf;
+    typedef Ray2D<T, NormalizingPolicy, ParameterPolicy> TSelf;
     typedef NormalizingPolicy TNormalizingPolicy;
     typedef ParameterPolicy TParameterPolicy;
 
-	typedef typename Point2D<T> TPoint;
+	typedef Point2D<T> TPoint;
 	typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;

@@ -75,7 +75,7 @@ Point2D<T>::Point2D(const Vector2D<U>& iPositionVector):
 
 
 template <typename T> inline
-typename const Point2D<T>::TVector
+const typename Point2D<T>::TVector
 Point2D<T>::position() const
 {
 	return TVector(x, y);
@@ -126,7 +126,7 @@ Point2D<T>::at(signed iIndex)
 
 
 template<typename T>
-typename Point2D<T>&
+Point2D<T>&
 Point2D<T>::operator+=(const Vector2D<T>& iB)
 {
 	x += iB.x;
@@ -137,7 +137,7 @@ Point2D<T>::operator+=(const Vector2D<T>& iB)
 
 
 template<typename T>
-typename Point2D<T>&
+Point2D<T>&
 Point2D<T>::operator-=(const Vector2D<T>& iB)
 {
 	x -= iB.x;

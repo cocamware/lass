@@ -57,12 +57,12 @@ class SimplePolygon2D
 {
 public:
 
-    typedef typename SimplePolygon2D<T, NoDegenerate> TSelf;
+    typedef SimplePolygon2D<T, NoDegenerate> TSelf;
 
-	typedef typename Point2D<T> TPoint;
-	typedef typename Point2DH<T> TPointH;
+	typedef Point2D<T> TPoint;
+	typedef Point2DH<T> TPointH;
     typedef typename TPoint::TVector TVector;
-	typedef typename LineSegment2D<T> TLineSegment;
+	typedef LineSegment2D<T> TLineSegment;
 	
     typedef typename TPoint::TValue TValue;
     typedef typename TPoint::TParam TParam;

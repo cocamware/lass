@@ -110,11 +110,11 @@ namespace spat
 		};
 
 	public:
-		typedef typename lass::spat::QuadEdge<ProxyHandle>		TQuadEdge;
+		typedef lass::spat::QuadEdge<ProxyHandle>		TQuadEdge;
 		typedef typename TQuadEdge::Edge	TEdge;
 		typedef std::list< TQuadEdge* >		TQuadEdgeList;
 		typedef std::list< ProxyHandle* >	TProxyHandleList;
-		typedef typename lass::util::CallbackR1<bool,TEdge*> TEdgeCallback;
+		typedef lass::util::CallbackR1<bool,TEdge*> TEdgeCallback;
 
 	public:
 		PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
@@ -222,7 +222,7 @@ namespace spat
 		class EdgeToMatlab
 		{
 		public:
-			typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		private:
 			lass::io::MatlabOStream& stream_;
 			TPlanarMesh* mesh_;
@@ -240,7 +240,7 @@ namespace spat
 			}
 			bool vertexToMatlab( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge )
 			{
-				typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+				typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 				if ( !mesh_->internalMarking( iEdge ) )
 					stream_ << TPlanarMesh::org(iEdge) << std::endl;
 				else
@@ -253,11 +253,11 @@ namespace spat
 		TEMPLATE_DEF
 		class EdgeGatherer
 		{
-			typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 			TPlanarMesh* mesh_;
 			T	lastArea_;
 		public:
-			typedef typename std::list< typename TPlanarMesh::TEdge* > TEdgeList;
+			typedef std::list< typename TPlanarMesh::TEdge* > TEdgeList;
 			TEdgeList	edgeList;
 
 			EdgeGatherer(  TPlanarMesh* iMesh ) : mesh_(iMesh), lastArea_(0) {}
@@ -298,11 +298,11 @@ namespace spat
 		TEMPLATE_DEF
 		class BrutePointLocator
 		{
-			typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 			typename TPlanarMesh::TPoint2D	point_;
 		public:
 			typename TPlanarMesh::TEdge*	edge;
-			BrutePointLocator( typename const TPlanarMesh::TPoint2D& iPoint ) : point_(iPoint), edge(NULL) {}
+			BrutePointLocator( const typename TPlanarMesh::TPoint2D& iPoint ) : point_(iPoint), edge(NULL) {}
 			bool findEdge( typename TPlanarMesh::TEdge*	e )
 			{
 				if (	( prim::doubleTriangleArea( TPlanarMesh::org(e), TPlanarMesh::dest(e), TPlanarMesh::org(e->lNext()) ) == 0 )
@@ -311,7 +311,7 @@ namespace spat
 					edge = e;
 					return false;
 				}
-				TPlanarMesh::TEdge* currentEdge = e;
+				typename TPlanarMesh::TEdge* currentEdge = e;
 				do
 				{
 					if (!prim::ccw( TPlanarMesh::org(e), TPlanarMesh::dest(e), TPlanarMesh::org(e->lNext()) ))
@@ -326,31 +326,32 @@ namespace spat
 	TEMPLATE_DEF
 	lass::io::MatlabOStream& operator<<( lass::io::MatlabOStream& ioOStream, PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>& iMesh )
 	{
-		typedef typename impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
-		typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+        typedef typename TPlanarMesh::TEdgeCallback TEdgeCallback;
 		impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle> matlabWriter(&iMesh, ioOStream);
 		TEdgeMarker	edgeMarker(  &iMesh, false );
-		iMesh.forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeMarker, TEdgeMarker::internalMark ) );
-		iMesh.forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &matlabWriter, impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::edgeToMatlab ) );
-		iMesh.forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeMarker, TEdgeMarker::internalMark ) );
-		iMesh.forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &matlabWriter, impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::vertexToMatlab ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, &impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::edgeToMatlab ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, &impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::vertexToMatlab ) );
 		return ioOStream;
 	}
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeMaximalConvexPolygon()
 	{
-		typedef typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
-		typedef typename impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
-		typedef typename impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 	
 		while (true)
 		{
 			TEdgeGatherer edgeGatherer( this );
 			TEdgeMarker	edgeMarker( this, false );
-			forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeMarker, TEdgeMarker::internalMark ) );
+			forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 			edgeGatherer.edgeList.clear();
-			forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeGatherer, TEdgeGatherer::makeConvexPolygon) );
+			forAllPrimaryEdges( TEdgeCallback( &edgeGatherer, &TEdgeGatherer::makeConvexPolygon) );
 			if (edgeGatherer.edgeList.size()>0)
 				deleteEdge( edgeGatherer.edgeList.front() );
 			else
@@ -420,7 +421,7 @@ namespace spat
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::~PlanarMesh( )
 	{
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			(*qIt)->edgeDeconstrain();
@@ -428,7 +429,7 @@ namespace spat
 			delete *qIt;
 		}
 
-		TProxyHandleList::iterator pIt;
+		typename TProxyHandleList::iterator pIt;
 		for (pIt = handleList_.begin(); pIt != handleList_.end(); ++pIt)
 			delete *pIt;
 	}
@@ -604,7 +605,7 @@ namespace spat
 	{
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator( iPoint );
-		const_cast<TPlanarMesh*>(this)->forAllFaces( TEdgeCallback( &bruteLocator, impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
+		const_cast<TPlanarMesh*>(this)->forAllFaces( TEdgeCallback( &bruteLocator, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
 		return bruteLocator.edge;
 	}
 
@@ -648,9 +649,9 @@ namespace spat
 				TRay2D	R3(org(e->lPrev()), org(e));
 				TPoint2D	p3 = R3.point( R3.t( iPoint ) );
 				
-				TPoint2D::TValue d1 = squaredDistance(iPoint,p1);
-				TPoint2D::TValue d2 = squaredDistance(iPoint,p2);
-				TPoint2D::TValue d3 = squaredDistance(iPoint,p3);
+				typename TPoint2D::TValue d1 = squaredDistance(iPoint,p1);
+				typename TPoint2D::TValue d2 = squaredDistance(iPoint,p2);
+				typename TPoint2D::TValue d3 = squaredDistance(iPoint,p3);
 
 				int s = 0;
 				if ((d1<d2) && (d1<d3))
@@ -1003,7 +1004,7 @@ namespace spat
 	}
 
 	TEMPLATE_DEF
-	typename const PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::org( TEdge* iEdge ) 
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::org( TEdge* iEdge ) 
 	{
 		if (!inPrimaryMesh( iEdge ))
 			throw std::runtime_error("PlanarMesh::org: edge not in primary mesh");
@@ -1011,7 +1012,7 @@ namespace spat
 	}
 
 	TEMPLATE_DEF
-	typename const PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( TEdge* iEdge ) 
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( TEdge* iEdge ) 
 	{
 		return org( iEdge->sym() );
 	}
@@ -1046,7 +1047,7 @@ namespace spat
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::onEdge( const TPoint2D& iPoint, TEdge* iEdge ) 
 	{
 		TRay2D eSeg( org(iEdge), dest(iEdge) );
-		TRay2D::TValue t = eSeg.t( iPoint );
+		typename TRay2D::TValue t = eSeg.t( iPoint );
 		if ( eSeg.point(t) == iPoint )
 			return (t>=0.0) && (t<=1.0);
 		else
@@ -1198,7 +1199,7 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryEdges( const TEdgeCallback& iCallback )
 	{
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			if (inPrimaryMesh( (*qIt)->edges() ) )
@@ -1217,7 +1218,7 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryUndirectedEdges( const TEdgeCallback& iCallback )
 	{
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			if (inPrimaryMesh( (*qIt)->edges() ) )
@@ -1234,7 +1235,7 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllDualEdges( const TEdgeCallback& iCallback )
 	{
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			if (inDualMesh( (*qIt)->edges() ) )
@@ -1253,7 +1254,7 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllEdges( const TEdgeCallback& iCallback ) 
 	{
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			if (!iCallback( (*qIt)->edges() )) return;
@@ -1270,9 +1271,9 @@ namespace spat
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		TEdgeMarker	edgeMarker( this, false );
-		forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeMarker, TEdgeMarker::internalMark ) );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			TEdge* baseEdge = (*qIt)->edges();
@@ -1300,9 +1301,9 @@ namespace spat
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		TEdgeMarker	edgeMarker( this, false );
-		forAllPrimaryEdges( TPlanarMesh::TEdgeCallback( &edgeMarker, TEdgeMarker::internalMark ) );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 
-		TQuadEdgeList::iterator qIt;
+		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			TEdge* baseEdge = (*qIt)->edges();

@@ -64,7 +64,7 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Vector<U, S> Type;
+		typedef Vector<U, S> Type;
 	};
 
 	Vector();

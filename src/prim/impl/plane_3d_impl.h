@@ -46,7 +46,45 @@ namespace prim
 namespace impl
 {
 
-/** default plane implementation is the cartesian one
+// --- partial specialization ----------------------------------------------------------------------
+
+#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+
+/** @internal
+ *  Selects the cartesian equation as the default implemantation of a Plane3D class.
+ */
+template <typename T, class EquationPolicy, class NormalizingPolicy>
+struct Plane3DImpl
+{
+    typedef Plane3DCartesian<T, NormalizingPolicy> Type;
+};
+
+/** @internal
+ *  specialization for the parametric equation as the default implemantation of a Plane3D class.
+ */
+template <typename T, class NormalizingPolicy>
+struct Plane3DImpl<T, Parametric, NormalizingPolicy>
+{
+    typedef Plane3DCartesian<T, NormalizingPolicy> Type;
+};
+
+/** @internal
+ *  specialization for the combined equation as the default implemantation of a Plane3D class.
+ */
+template <typename T, class NormalizingPolicy>
+struct Plane3DImpl<T, Combined, NormalizingPolicy>
+{
+    typedef Plane3DCombined<T, NormalizingPolicy> Type;
+};
+
+
+
+// --- no partial specialization -------------------------------------------------------------------
+
+#else
+
+/** @internal
+ *  default is cartesian equation ...
  */
 template <class EquationPolicy>
 struct Plane3DImplBinder
@@ -58,9 +96,8 @@ struct Plane3DImplBinder
     };
 };
 
-
-
-/** ...  Furthermore we have the parametric implementation ... 
+/** @internal
+ *  ...  Furthermore we have the parametric implementation ... 
  */
 template <>
 struct Plane3DImplBinder<Parametric>
@@ -72,9 +109,8 @@ struct Plane3DImplBinder<Parametric>
     };
 };
 
-
-
-/** ... and the combined implementation.
+/** @internal
+ *  ... and the combined implementation.
  */
 template <>
 struct Plane3DImplBinder<Combined>
@@ -86,9 +122,8 @@ struct Plane3DImplBinder<Combined>
     };
 };
 
-
-
-/** Selects the implemantation of a Plane3D class.
+/** @internal
+ *  Selects the implemantation of a Plane3D class.
  */
 template <typename T, class EquationPolicy, class NormalizingPolicy>
 struct Plane3DImpl
@@ -96,6 +131,7 @@ struct Plane3DImpl
     typedef typename Plane3DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
 };
 
+#endif
 
 
 }

@@ -224,7 +224,7 @@ const bool Vector2D<T>::isZero() const
 /** Return squared norm of vector.
  */
 template<typename T> inline
-typename const Vector2D<T>::TValue Vector2D<T>::squaredNorm() const
+const typename Vector2D<T>::TValue Vector2D<T>::squaredNorm() const
 {
 	return dot(*this, *this);
 }
@@ -234,7 +234,7 @@ typename const Vector2D<T>::TValue Vector2D<T>::squaredNorm() const
 /** Return norm of vector.
  */
 template<typename T> inline
-typename const Vector2D<T>::TValue Vector2D<T>::norm() const
+const typename Vector2D<T>::TValue Vector2D<T>::norm() const
 {
 	return num::sqrt(squaredNorm());
 }

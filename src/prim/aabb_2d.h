@@ -72,11 +72,11 @@ class Aabb2D
 {
 public:
 
-    typedef typename Aabb2D<T, MinMaxPolicy> TSelf;
+    typedef Aabb2D<T, MinMaxPolicy> TSelf;
     typedef MinMaxPolicy TMinMaxPolicy;
 
-	typedef typename Point2D<T> TPoint;
-	typedef typename Point2DH<T> TPointH;
+	typedef Point2D<T> TPoint;
+	typedef Point2DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;
@@ -89,7 +89,7 @@ public:
 
     template <typename U> struct Rebind
     {
-        typedef typename Aabb2D<U, MinMaxPolicy> Type;
+        typedef Aabb2D<U, MinMaxPolicy> Type;
     };
 	
 	Aabb2D();

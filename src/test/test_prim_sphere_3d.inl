@@ -52,16 +52,17 @@ void testPrimSphere3D()
     typedef num::NumTraits<T> TNumTraits;
 
     const T epsilon = T(LASS_TEST_PRIM_RAY_EPSILON);
+    const TPoint origin;
 
     TSphere sphere;
     BOOST_CHECK(sphere.isValid());
-    BOOST_CHECK_EQUAL(sphere.center(), TPoint());
+    BOOST_CHECK_EQUAL(sphere.center(), origin);
     BOOST_CHECK_EQUAL(sphere.radius(), 0);
     BOOST_CHECK_EQUAL(sphere.area(), 0);
     BOOST_CHECK_EQUAL(sphere.volume(), 0);
-    BOOST_CHECK_EQUAL(sphere.classify(TPoint()), prim::sSurface);
-    BOOST_CHECK_EQUAL(sphere.equation(TPoint()), 0);
-    BOOST_CHECK_EQUAL(sphere.signedDistance(TPoint()), 0);
+    BOOST_CHECK_EQUAL(sphere.classify(origin), prim::sSurface);
+    BOOST_CHECK_EQUAL(sphere.equation(origin), 0);
+    BOOST_CHECK_EQUAL(sphere.signedDistance(origin), 0);
 
     const TPoint center(1, 2, 3);
     const T radius = 4;

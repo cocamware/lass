@@ -291,7 +291,7 @@ template
 class Line2D: public impl::Line2DImpl<T, EquationPolicy, NormalizingPolicy>::Type
 {
 public:
-    typedef typename Line2D<T, EquationPolicy, NormalizingPolicy> TSelf;
+    typedef Line2D<T, EquationPolicy, NormalizingPolicy> TSelf;
     typedef typename impl::Line2DImpl<T, EquationPolicy, NormalizingPolicy>::Type TImpl;
 
 	typedef typename TImpl::TPoint	TPoint;

@@ -75,15 +75,15 @@ template<typename T, typename PI>
 class MeshInterpolator
 {
 protected:
-	typedef typename PlanarMesh<T, PI, void, void >	TPlanarMesh;
+	typedef PlanarMesh<T, PI, void, void >	TPlanarMesh;
 	MeshInterpolator() {}
 
 	TPlanarMesh mesh_;
-	typedef typename std::list<PI> TInfoList;	/**< type must support stable iterators */
+	typedef std::list<PI> TInfoList;	/**< type must support stable iterators */
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D	TPoint2D;
-	typedef typename prim::Aabb2D<T> TAabb2D;
+	typedef prim::Aabb2D<T> TAabb2D;
 
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
@@ -102,7 +102,7 @@ MeshInterpolator<T,PI>::MeshInterpolator( const TAabb2D& iAabb ) : mesh_( iAabb 
 template<typename T, typename PI>
 void MeshInterpolator<T,PI>::insertSite( const TPoint2D& iPoint, const PI& iPointInfo ) 
 {
-	TPlanarMesh::TEdge* e = mesh_.insertSite( iPoint );
+	typename TPlanarMesh::TEdge* e = mesh_.insertSite( iPoint );
 	e = mesh_.locate( iPoint );
 
 	LASS_ASSERT( TPlanarMesh::org(e) == iPoint );
@@ -147,7 +147,7 @@ LinearMeshInterpolator<T,PI>::LinearMeshInterpolator( const TAabb2D& iAabb, cons
 	TPoint2D bottomleft( iAabb.min().x, iAabb.min().y );
 	TPoint2D bottomright( iAabb.max().x, iAabb.min().y );
 
-	TPlanarMesh::TEdge*	e;
+	typename TPlanarMesh::TEdge*	e;
 
 	info_.push_back(iValueOutside);
 
@@ -172,7 +172,7 @@ LinearMeshInterpolator<T,PI>::LinearMeshInterpolator( const TAabb2D& iAabb, cons
 template<typename T, typename PI>
 PI LinearMeshInterpolator<T,PI>::interpolate( const TPoint2D& iQuery ) const
 {
-	TPlanarMesh::TEdge* e=mesh_.locate(iQuery);
+	typename TPlanarMesh::TEdge* e=mesh_.locate(iQuery);
 	if (!TPlanarMesh::hasLeftFace(e))
 		e = e->sym();
 

@@ -471,7 +471,7 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 			node[i]->level = level+1;
 		leaf = false;
 
-		TListType::iterator vit = data.begin();
+		typename TListType::iterator vit = data.begin();
 
 		TAabb nodeAabb[subNodeCount];		// cache node aabb
 		for (int i=0;i<subNodeCount;++i)
@@ -479,7 +479,7 @@ void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
 
 		while (vit!=data.end())
 		{
-			TListType::iterator bit=vit;
+			typename TListType::iterator bit=vit;
 			++bit;
 			TAabb tempAabb = ObjectTraits<ObjectType>::aabb( *vit );
 			/* for each object we test wether it is contained in one of the 
@@ -557,7 +557,7 @@ template
 int QuadTree< ObjectType, ObjectTraits >::QuadNode::contains(const TPoint& iPoint, std::vector<ObjectType*>& oObjects) const
 {
 	int hitCount=0;
-	TListType::const_iterator lIt = data.begin();
+	typename TListType::const_iterator lIt = data.begin();
 	for (;lIt!=data.end();++lIt)
 	{
 		if (ObjectTraits<ObjectType>::contains(*lIt,iPoint))

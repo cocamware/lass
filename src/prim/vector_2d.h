@@ -65,7 +65,7 @@ struct Vector2D
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Vector2D<U> Type;
+		typedef Vector2D<U> Type;
 	};
 
 

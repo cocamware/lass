@@ -528,7 +528,7 @@ bool Matrix<T, S>::inverse()
 
 
 template <typename T, typename S> inline
-typename const Matrix<T, S>::TStorage& 
+const typename Matrix<T, S>::TStorage& 
 Matrix<T, S>::storage() const
 {
 	return storage_;
@@ -590,7 +590,7 @@ bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 template <typename T, typename S1, typename S2>
 bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 {
-	return !(iA == iB)
+	return !(iA == iB);
 }
 
 
@@ -697,7 +697,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > 
 operator+(const Matrix<T, S>& iA, const T& iB)
 {
-	typedef impl::MAdd<T, S, impl::MScalar<T>> TExpression;
+	typedef impl::MAdd<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
         iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
 }
@@ -711,7 +711,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > 
 operator-(const Matrix<T, S>& iA, const T& iB)
 {
-	typedef impl::MSub<T, S, impl::MScalar<T>> TExpression;
+	typedef impl::MSub<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
         iA.storage(), impl::MScalar(-iB, iA.rows(), iA.cols())));
 }
@@ -725,7 +725,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > 
 operator*(const Matrix<T, S>& iA, const T& iB)
 {
-	typedef impl::MMul<T, S, impl::MScalar<T>> TExpression;
+	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
         iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
 }
@@ -739,7 +739,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > 
 operator/(const Matrix<T, S>& iA, const T& iB)
 {
-	typedef impl::MMul<T, S, impl::MScalar<T>> TExpression;
+	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
     return Matrix<T, TExpression>(TExpression(
         iA.storage(), impl::MScalar(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
 }

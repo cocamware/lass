@@ -514,9 +514,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			<File 
 				RelativePath="vector.inl">
 			</File>
-			<File 
-				RelativePath=".\vector_nd.inl">
-			</File>
 			<Filter 
 				Name="impl sources"
 				Filter="">

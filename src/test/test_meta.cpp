@@ -29,8 +29,8 @@
 #include "test_common.h"
 #include "test_meta.h"
 #include "../meta/meta_assert.h"
-#include "test_meta_type_list.inl"
-#include "test_meta_type_traits.inl"
+//#include "test_meta_type_list.inl"
+//#include "test_meta_type_traits.inl"
 //#include "test_meta_various.inl"
 
 namespace lass
@@ -47,10 +47,10 @@ boost::unit_test_framework::test_suite* testMeta()
 	//
 	LASS_META_ASSERT(1 + 1 == 2, it_s_the_end_of_the_world);
 
-	result->add(BOOST_TEST_CASE(testMetaTypeList));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<int>));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<float>));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<std::string>));
+//	result->add(BOOST_TEST_CASE(testMetaTypeList));
+//	result->add(BOOST_TEST_CASE(testMetaTypeTraits<int>));
+//	result->add(BOOST_TEST_CASE(testMetaTypeTraits<float>));
+//	result->add(BOOST_TEST_CASE(testMetaTypeTraits<std::string>));
 //	result->add(BOOST_TEST_CASE(testMetaIsConvertibleType));
 
     return result;

@@ -346,7 +346,7 @@ class Plane3D: public impl::Plane3DImpl<T, EquationPolicy, NormalizingPolicy>::T
 {
 public:
 
-    typedef typename Plane3D<T, EquationPolicy, NormalizingPolicy> TSelf;
+    typedef Plane3D<T, EquationPolicy, NormalizingPolicy> TSelf;
     typedef typename impl::Plane3DImpl<T, EquationPolicy, NormalizingPolicy>::Type TImpl;
 
 	typedef typename TImpl::TPoint	TPoint;

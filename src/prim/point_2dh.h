@@ -46,10 +46,10 @@ struct Point2DH
 {
 public:
 
-    typedef typename Point2DH<T> TSelf;
+    typedef Point2DH<T> TSelf;
 
-	typedef typename Point2D<T> TPoint;
-	typedef typename Vector3D<T> TVector;
+	typedef Point2D<T> TPoint;
+	typedef Vector3D<T> TVector;
 
 	typedef typename TVector::TValue TValue;
 	typedef typename TVector::TParam TParam;

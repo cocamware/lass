@@ -149,7 +149,7 @@ Plane3DCombined<T, NP>::Plane3DCombined(const TVector& iNormal, TParam iD):
 /** return support point.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TPoint& Plane3DCombined<T, NP>::support() const
+const typename Plane3DCombined<T, NP>::TPoint& Plane3DCombined<T, NP>::support() const
 {
 	return support_;
 }
@@ -170,7 +170,7 @@ void Plane3DCombined<T, NP>::getDirections(TVector& oDirectionU, TVector& oDirec
 /** return U direction vector.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directionU() const
+const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directionU() const
 {
 	return directionU_;
 }
@@ -180,7 +180,7 @@ typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directio
 /** return V direction vector.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directionV() const
+const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::directionV() const
 {
 	return directionV_;
 }
@@ -202,7 +202,7 @@ void Plane3DCombined<T, NP>::getReciprocals(TVector& oReciprocalU,
 /** return reciprocal for U direction vector.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciprocalU() const
+const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciprocalU() const
 {
 	return reciprocalU_;
 }
@@ -212,7 +212,7 @@ typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciproc
 /** return reciprocal for V direction vector.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciprocalV() const
+const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::reciprocalV() const
 {
 	return reciprocalV_;
 }
@@ -229,7 +229,7 @@ void Plane3DCombined<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 
 
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::normal() const
+const typename Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::normal() const
 {
     return normal_;
 }
@@ -237,7 +237,7 @@ typename const Plane3DCombined<T, NP>::TVector& Plane3DCombined<T, NP>::normal()
 
 
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TParam Plane3DCombined<T, NP>::d() const
+const typename Plane3DCombined<T, NP>::TParam Plane3DCombined<T, NP>::d() const
 {
     return d_;
 }
@@ -258,7 +258,7 @@ const Side Plane3DCombined<T, NP>::classify(const TPoint& iPoint) const
 /** Return value of point in equation.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TValue 
+const typename Plane3DCombined<T, NP>::TValue 
 Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const                  
 {
     return dot(iPoint.position, normal_) + d_;
@@ -270,10 +270,10 @@ Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const
  *  negative value means point is in the back.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TValue 
+const typename Plane3DCombined<T, NP>::TValue 
 Plane3DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
 {
-    return NP::divideByNorm<T, TVector>(equation(iPoint), normal_);
+    return NP::divideByNorm(equation(iPoint), normal_);
 }
 
 
@@ -281,7 +281,7 @@ Plane3DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
 /** Return squared distance of point to plane.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TValue 
+const typename Plane3DCombined<T, NP>::TValue 
 Plane3DCombined<T, NP>::squaredDistance(const TPoint& iPoint) const
 {
 	return num::sqr(signedDistance(iPoint));
@@ -293,7 +293,7 @@ Plane3DCombined<T, NP>::squaredDistance(const TPoint& iPoint) const
  *  iPoint == (almost) project(iPoint) + reject(iPoint)
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector 
 Plane3DCombined<T, NP>::reject(const TPoint& iPoint) const
 {
     return normal_ * NP::divideBySquaredNorm(equation(iPoint), normal_);
@@ -306,7 +306,7 @@ Plane3DCombined<T, NP>::reject(const TPoint& iPoint) const
  *  iVector == (almost) project(iVector) + reject(iVector).
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector 
 Plane3DCombined<T, NP>::reject(const TVector& iVector) const
 {
     return normal_ * NP::divideBySquaredNorm(dot(normal_, iVector), normal_);
@@ -317,7 +317,7 @@ Plane3DCombined<T, NP>::reject(const TVector& iVector) const
 /** project a point orthogonally onto the plane
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint 
 Plane3DCombined<T, NP>::project(const TPoint& iPoint) const
 {
 	return iPoint - reject(iPoint);
@@ -328,10 +328,10 @@ Plane3DCombined<T, NP>::project(const TPoint& iPoint) const
 /** project a vector orthogonally onto the plane
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector 
 Plane3DCombined<T, NP>::project(const TVector& iVector) const
 {
-	return iVector - reject(iVector));
+	return iVector - reject(iVector);
 }
 
 
@@ -339,7 +339,7 @@ Plane3DCombined<T, NP>::project(const TVector& iVector) const
 /** reflect a point orthogonally into the plane.
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint 
 Plane3DCombined<T, NP>::reflect(const TPoint& iPoint) const
 {
 	return iPoint - 2 * reject(iPoint);
@@ -350,7 +350,7 @@ Plane3DCombined<T, NP>::reflect(const TPoint& iPoint) const
 /** reflect a vector orthogonally into the plane
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TVector 
+const typename Plane3DCombined<T, NP>::TVector 
 Plane3DCombined<T, NP>::reflect(const TVector& iVector) const
 {
 	return iVector - 2 * reject(iVector);
@@ -361,7 +361,7 @@ Plane3DCombined<T, NP>::reflect(const TVector& iVector) const
 /** return point by filling in the parametric equation: P(u, v) = S + u * U + v * V
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint 
 Plane3DCombined<T, NP>::point(TParam iU, TParam iV) const
 {
 	return point(TIndex(iU, iV));
@@ -372,7 +372,7 @@ Plane3DCombined<T, NP>::point(TParam iU, TParam iV) const
 /** return point by filling in the parametric equation: P(u, v) = S + u * U + v * V
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TPoint 
+const typename Plane3DCombined<T, NP>::TPoint 
 Plane3DCombined<T, NP>::point(const TUV& iUV) const
 {
 	return support_ + iUV.x * directionU_ + iUV.y * directionV_;
@@ -383,7 +383,7 @@ Plane3DCombined<T, NP>::point(const TUV& iUV) const
 /** return UV pair of parameters 
  */
 template<typename T, class NP>
-typename const Plane3DCombined<T, NP>::TUV
+const typename Plane3DCombined<T, NP>::TUV
 Plane3DCombined<T, NP>::uv(const TPoint& iPoint) const
 {
     const TVector relative = iPoint - support_;

@@ -53,9 +53,9 @@ class Point2D
 {
 public:
 
-    typedef typename Point2D<T> TSelf;
+    typedef Point2D<T> TSelf;
 
-	typedef typename Vector2D<T> TVector;
+	typedef Vector2D<T> TVector;
 
 	typedef typename TVector::TValue TValue;
 	typedef typename TVector::TParam TParam;
@@ -67,7 +67,7 @@ public:
 
     template <typename U> struct Rebind
     {
-        typedef typename Point2D<U> Type;
+        typedef Point2D<U> Type;
     };
 
     TValue x;

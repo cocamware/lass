@@ -51,7 +51,7 @@ public:
 
     typedef NormalizingPolicy TNormalizingPolicy;
 
-    typedef typename Point2D<T> TPoint;
+    typedef Point2D<T> TPoint;
     typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;
