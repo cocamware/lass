@@ -46,9 +46,11 @@ namespace prim
 /** apply transformation to ray
  */
 template<typename T, class NP, class PP>
-Ray3D<T, NP, PP> operator*(const Transformation3D<T>& iTransformation, const Ray3D<T, NP, PP>& iRay)
+Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, const Transformation3D<T>& iTransformation)
 {
-	return Ray3D<T, NP, PP>(iTransformation * iRay.support(), iTransformation * iRay.direction());
+	return Ray3D<T, NP, PP>(
+		transform(iRay.support(), iTransformation)
+		transform(iRay.direction(), iTransformation));
 }
 
 }

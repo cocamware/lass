@@ -42,6 +42,7 @@ namespace test
 void testUtilClock()
 {
 	util::Clock deviceUnderTest;
+	LASS_COUT << "frequency: " << deviceUnderTest.frequency() << std::endl;
 	BOOST_CHECK_EQUAL(deviceUnderTest.frequency() * deviceUnderTest.resolution(), 1);
 
 	for (unsigned warmup = 0; warmup < 16; ++warmup)

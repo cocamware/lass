@@ -35,6 +35,7 @@
 
 #include "prim_common.h"
 #include "../num/num_traits.h"
+#include "../util/scoped_ptr.h"
 
 namespace lass
 {
@@ -63,34 +64,37 @@ public:
 	};
 
 	Transformation3D();
-	explicit Transformation3D(bool iDontInitialise);
+	template <typename InputIterator> Transformation3D(InputIterator iBegin, InputIterator iEnd);
+	Transformation3D(const TSelf& iOther);
+	TSelf& operator=(const TSelf& iOther);
 
-	TConstReference operator()(TSize iRow, TSize iCol) const;
-	TReference operator()(TSize iRow, TSize iCol);
-	TConstReference at(TSize iRow, TSize iCol) const;
-	TReference at(TSize iRow, TSize iCol);
+	const Transformation3D<T>& inverse() const;
 
-	const Transformation3D<T> inverse() const;
+	const TValue* matrix() const;
 
-	const TValue* data() const;
-	TValue* data();
+	static const Transformation3D<T> translation(const Vector3D<T>& iOffset);
+	static const Transformation3D<T> scaler(const T& iScale);
+	static const Transformation3D<T> scaler(const Vector3D<T>& iScale);
+	static const Transformation3D<T> rotation(XYZ iAxis, TParam iRadians);
+	static const Transformation3D<T> rotation(const Vector3D<T>& iAxis, TParam iRadians);
 
 private:
 
-	const TValue determinant() const;
-
 	TValue v_[16];
+	mutable util::ScopedPtr<TSelf> inverse_;
 };
 
-template <typename T> Transformation3D<T> operator*(const Transformation3D<T>& iA, const Transformation3D<T>& iB);
-template <typename T> Vector3D<T> operator*(const Transformation3D<T>& iA, const Vector3D<T>& iB);
-template <typename T> Point3D<T> operator*(const Transformation3D<T>& iA, const Point3D<T>& iB);
+template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformation3D<T>& iB);
+
+template <typename T> Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation);
+template <typename T> Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTransformation);
+template <typename T> Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation);
+template <typename T> std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubject, const Transformation3D<T>& iTransformation);
 
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(
-	std::basic_ostream<Char, Traits>& ioOStream, const Vector3D<T>& iB);
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, const Transformation3D<T>& iB);
 
-template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector3D<T>& iB);
+template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation3D<T>& iB);
 
 }
 

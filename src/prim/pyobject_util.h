@@ -615,7 +615,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 		impl::addMessageHeader("Transformation3D");
 		return 1;
 	}
-	prim::Transformation3D<T> result;
+	T values[16];
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		PyObject* row = PySequence_GetItem(iValue, i);
@@ -626,18 +626,16 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 		}
 		for (unsigned j = 0; j < 4; ++j)
 		{
-			typename util::CallTraits<T>::TValue temp;
-			if (pyGetSimpleObject(PySequence_GetItem(row, j), temp) != 0)
+			if (pyGetSimpleObject(PySequence_GetItem(row, j), values[4 * i + j]) != 0)
 			{
 				impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i) +
 					", column " + util::stringCast<std::string>(j));
 				return 1;
 			}
-			result(i, j) = temp;
 		}
 	}
 
-	oV = result;
+	oV = prim::Transformation3D<T>(values, values + 16);
 	return 0;
 }
 

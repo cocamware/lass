@@ -44,22 +44,35 @@ namespace prim
 /** apply transformation to cartesian plane
  */
 template<typename T, class NP>
-Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Cartesian, NP>& iPlane);
+Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
+									const Transformation3D<T>& iTransformation)
+{
+	const std::pair<Vector3D<T>, T> result = 
+		transform(std::make_pair(iPlane.normal(), iPlane.d()), iTransformation);
+	return Plane3D<T, Cartesian, NP>(result.first, result.second);
+}
 
 /** apply transformation to parametric plane
  */
 template<typename T, class NP>
-Plane3D<T, Parametric, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Parametric, NP>& iPlane)
+Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
+									 const Transformation3D<T>& iTransformation)
 {
-	return Plane3D<T, Parametric, NP>(iTransformation * iPlane.support(),
-									  iTransformation * iPlane.directionU(),
-									  iTransformation * iPlane.directionV());
+	return Plane3D<T, Parametric, NP>(transform(iPlane.support()),
+									  transform(iPlane.directionU()),
+									  transform(iPlane.directionV()));
 }
 
 /** apply transformation to combined plane
  */
 template<typename T, class NP>
-Plane3D<T, Combined, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Combined, NP>& iPlane);
+Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
+								   const Transformation3D<T>& iTransformation)
+{
+	return Plane3D<T, Combined, NP>(transform(iPlane.support()),		
+									transform(iPlane.directionU()),
+									transform(iPlane.directionV()));
+}
 
 }
 

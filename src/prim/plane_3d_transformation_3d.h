@@ -44,13 +44,16 @@ namespace prim
 {
 
 template<typename T, class NP>
-Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Cartesian, NP>& iPlane);
+Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
+									const Transformation3D<T>& iTransformation);
 
 template<typename T, class NP>
-Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Parametric, NP>& iPlane);
+Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
+									 const Transformation3D<T>& iTransformation);
 
 template<typename T, class NP>
-Plane3D<T, Cartesian, NP> operator*(const Transformation3D<T>& iTransformation, const Plane3D<T, Combined, NP>& iPlane);
+Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
+								   const Transformation3D<T>& iTransformation);
 
 }
 
