@@ -65,18 +65,18 @@ public:
 	const TVector& vector() const { return vector_; }
 	TConstReference operator[](unsigned iIndex) const { return vector_[iIndex]; }
 	TConstReference at(signed iIndex) const { return vector_.at(iIndex); }
-	TConstReference a() const { return vector_.x; }
-	TConstReference r() const { return vector_.y; }
-	TConstReference g() const { return vector_.z; }
-	TConstReference b() const { return vector_.w; }
+	TConstReference r() const { return vector_.x; }
+	TConstReference g() const { return vector_.y; }
+	TConstReference b() const { return vector_.z; }
+	TConstReference a() const { return vector_.w; }
 
 	TVector& vector() { return vector_; }
 	TReference operator[](unsigned iIndex) { return vector_[iIndex]; }
 	TReference at(signed iIndex) { return vector_.at(iIndex); }
-	TReference a() { return vector_.x; }
-	TReference r() { return vector_.y; }
-	TReference g() { return vector_.z; }
-	TReference b() { return vector_.w; }
+	TReference r() { return vector_.x; }
+	TReference g() { return vector_.y; }
+	TReference b() { return vector_.z; }
+	TReference a() { return vector_.w; }
 
 	ColorRGBA& operator+=( const ColorRGBA& iOther );
 	ColorRGBA& operator*=( const ColorRGBA& iOther );

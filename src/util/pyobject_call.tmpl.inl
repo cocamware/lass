@@ -356,7 +356,7 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod, $(p$x)$ );
+		return Caller<R>::method( iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -385,7 +385,7 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod, $(p$x)$ );
+		return Caller<R>::method( iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 

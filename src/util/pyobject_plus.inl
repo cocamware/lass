@@ -77,20 +77,19 @@
 			template <typename In, typename Out>
 			int pyNumericCast( In iIn, Out& oV )
 			{
-				typedef num::NumTraits<Out> TNumTraits;
-				if (iIn < static_cast<In>(TNumTraits::min))
+				if (iIn < static_cast<In>(num::NumTraits<Out>::min))
 				{
 					std::ostringstream buffer;
-					buffer << "not a " << TNumTraits::name() << ": underflow: " 
-						<< iIn << " < " << TNumTraits::min;
+					buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: " 
+						<< iIn << " < " << num::NumTraits<Out>::min;
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return 1;
 				}
-				if (iIn > static_cast<In>(TNumTraits::max))
+				if (iIn > static_cast<In>(num::NumTraits<Out>::max))
 				{
 					std::ostringstream buffer;
-					buffer << "not a " << TNumTraits::name() << ": overflow: " 
-						<< iIn << " > " << TNumTraits::max;
+					buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: " 
+						<< iIn << " > " << num::NumTraits<Out>::max;
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return 1;
 				}
@@ -133,7 +132,15 @@
 				if (PyInt_Check(iValue))
 				{
 					long temp = PyInt_AS_LONG(iValue);
-					return pyNumericCast( temp, oV );
+					if (temp < 0)
+					{
+						std::ostringstream buffer;
+						buffer << "not a " << num::NumTraits<Integer>::name() << ": negative: "
+							<< temp << " < 0";
+						PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+						return 1;
+					}
+					return pyNumericCast( static_cast<unsigned long>(temp), oV );
 				}
 				if (PyLong_Check(iValue))
 				{
