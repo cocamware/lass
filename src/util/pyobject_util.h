@@ -107,10 +107,8 @@ namespace lass
 		template<class C> 
 		PyObject* pyBuildSimpleObject( const std::complex<C>& iV )
 		{
-			PyObject* newTuple = PyTuple_New(2);
-			PyTuple_SetItem( newTuple, 0, pyBuildSimpleObject( iV.real() ) );
-			PyTuple_SetItem( newTuple, 1, pyBuildSimpleObject( iV.imag() ) );
-			return newTuple;
+			PyObject* newComplex = PyComplex_FromDoubles(iV.real(),iV.imag());
+			return newComplex;
 		}
 		template<class C1, class C2> 
 		PyObject* pyBuildSimpleObject( const std::pair<C1, C2>& iV )
@@ -155,23 +153,12 @@ namespace lass
 		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
-			C	r,i;
-			if (!impl::checkSequenceSize(iValue, 2))
-			{
+			if (!PyComplex_Check( iValue ))
+			{	
 				impl::addMessageHeader("complex");
 				return 1;
 			}
-			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), r ) != 0)
-			{
-				impl::addMessageHeader("complex: real");
-				return 1;
-			}
-			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), i ) != 0)
-			{
-				impl::addMessageHeader("complex: imag");
-				return 1;
-			}
-			oV = std::complex<C>( r, i );
+			oV = std::complex(PyComplex_RealAsDouble( iValue ), PyComplex_ImagAsDouble( iValue ));
 			return 0;
 		}
 
