@@ -400,9 +400,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\point_3dh.inl">
 			</File>
 			<File 
-				RelativePath=".\prim.cpp">
-			</File>
-			<File 
 				RelativePath="prim_common.cpp">
 				<FileConfiguration 
 					Name="win32_intel700|Win32">

@@ -234,4 +234,4 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, EP>& iLine
 
 #endif
 
-// --- END OF FILE ------------------------------------------------------------------------------
+// EOF

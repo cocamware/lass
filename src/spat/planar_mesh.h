@@ -530,13 +530,13 @@ namespace spat
 	
 		if (t1>t2)
 		{
-			T rx = (1.0-t)*a.x() + t*b.x();
-			T ry = (1.0-t)*a.y() + t*b.y();
+			T rx = (T(1)-t)*a.x() + t*b.x();
+			T ry = (T(1)-t)*a.y() + t*b.y();
 			return TPoint2D(rx,ry);
 		}
 
-		T rx = (1.0-t)*b.x() + t*a.x();
-		T ry = (1.0-t)*b.y() + t*a.y();
+		T rx = (T(1)-t)*b.x() + t*a.x();
+		T ry = (T(1)-t)*b.y() + t*a.y();
 		return TPoint2D(rx,ry);
 	}
 
@@ -964,6 +964,9 @@ namespace spat
 				}
 			}
 		}
+
+		LASS_THROW("Unreachable code reached :)");
+		return 0;
 	}
 
 

@@ -370,9 +370,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="kd_tree.inl">
 			</File>
 			<File 
-				RelativePath=".\spat.cpp">
-			</File>
-			<File 
 				RelativePath="spat_common.cpp">
 				<FileConfiguration 
 					Name="win32_intel700|Win32">

@@ -259,4 +259,4 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line3D<T, NP>& iLine
 
 #endif
 
-// --- END OF FILE ------------------------------------------------------------------------------
+// EOF

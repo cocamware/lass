@@ -158,7 +158,7 @@ void doTestPlanarMesh()
 	lass::io::MatlabOStream testIo;
 	lass::io::MatlabOStream testIo2;
 
-	for (int i=0;i<randomPoints.size();++i)
+	for (int i=0;i<int(randomPoints.size());++i)
 		testMesh.insertSite( randomPoints[i], false );
 
 	testIo.open( "testPlanarMeshIO_nonDelaunay.m" );
@@ -167,7 +167,7 @@ void doTestPlanarMesh()
 
 	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 
-	for (int i=0;i<randomPoints.size();++i)
+	for (int i=0;i<int(randomPoints.size());++i)
 		testMesh2.insertSite( randomPoints[i], true );
 
 	testIo2.open( "testPlanarMeshIO_Delaunay.m" );
@@ -184,8 +184,8 @@ void doTestPlanarMesh()
 	testIo2.close();
 
 	randomPointsLong.clear();
-    for (double x=10;x<91;x+=10)
-		for (double y=10;y<91;y+=10)
+    for (long x=10;x<91;x+=10)
+		for (long y=10;y<91;y+=10)
 		{
 			randomPointsLong.push_back( TPoint2DLong(x,y ) );
 		}
@@ -231,7 +231,7 @@ void doTestPlanarMesh()
 
 	TPlanarMesh		testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 
-	for (int i=0;i<randomPoints.size();++i)
+	for (int i=0;i<int(randomPoints.size());++i)
 		testMesh4.insertSite( randomPoints[i], true);
 	/* test insertion of constrained edges */
 	testIo.open( "testPlanarMeshIO_constrained_b4.m" );
