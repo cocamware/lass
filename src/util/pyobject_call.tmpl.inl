@@ -59,7 +59,16 @@ namespace impl
 template <typename T, bool isPyObject>
 struct ArgTraitsHelper
 {
-    static const T& arg(PyObject* iArg) { return *static_cast<T*>(iArg); }
+    static const T& arg(PyObject* iArg) 
+	{ 
+		if (!PyType_IsSubtype(iArg->ob_type , &T::Type ))
+		{
+#pragma LASS_FIXME("attempt for safe casting")
+			PyErr_Format(PyExc_TypeError,"not castable to %s",T::PythonClassName);
+			return 1;
+		}
+		return *static_cast<T*>(iArg); 
+	}
 };
 
 template <typename T>

@@ -87,7 +87,13 @@ private:
     {
         typedef U TCppClass;
         static U* cppObject(PyObject* iPyObject) 
-        { 
+        {
+			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
+			{
+	#pragma LASS_FIXME("attempt for safe casting")
+				PyErr_Format(PyExc_TypeError,"not castable to %s",U::PythonClassName);
+				LASS_THROW("bad cast");
+			}
             return static_cast<U*>(iPyObject);
         };
         static U* pyObject(U* iCppObject)
@@ -101,7 +107,14 @@ private:
     {
         typedef typename U::TCppClass TCppClass;
         static TCppClass* cppObject(PyObject* iPyObject) 
-        { 
+        {
+			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
+			{
+	#pragma LASS_FIXME("attempt for safe casting")
+				PyErr_Format(PyExc_TypeError,"not castable to %s",U::PythonClassName);
+				LASS_THROW("bad cast");
+			}
+
             return static_cast<TCppClass*>(static_cast<U*>(iPyObject)->cppObject()); 
         };
         static U* pyObject(TCppClass* iCppObject)

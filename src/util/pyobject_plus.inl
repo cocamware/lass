@@ -303,6 +303,8 @@
 				oV = NULL;
 			else
 			{
+#pragma LASS_FIXME("this code can result in unsafe casts, unfortunately oV has no type so there is no easy way to check")
+#pragma LASS_FIXME("for type convertability between iValue and oV at this moment of execution")
 				oV = iValue;
 				Py_INCREF( oV );
 			}
