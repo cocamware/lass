@@ -135,6 +135,8 @@ public:
     bool operator!() const;
     operator num::SafeBool() const;
 
+    virtual std::string format() const;
+
 protected: 
 
     ArgParameter(ArgParser& iParser, 
@@ -152,7 +154,6 @@ private:
 
     friend ArgParser;
 
-    virtual std::string format() const;
 
 	ArgParser& parser_;
     std::string shortName_;
@@ -208,9 +209,10 @@ public:
     typename ArgValue::TConstReference at(size_t iIndex) const;
 	TValues all() const;
 
+    virtual std::string format() const;
+
 private:
 
-    virtual std::string format() const;
     virtual bool setValue(const std::string& iValue);
 
     void checkMode(int iArgMode) const;
