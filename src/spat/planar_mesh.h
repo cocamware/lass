@@ -965,8 +965,7 @@ namespace spat
 			}
 		}
 
-		LASS_THROW("Unreachable code reached :)");
-		return 0;
+		return ea;
 	}
 
 

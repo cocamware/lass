@@ -294,6 +294,15 @@ typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB)
 	return difference.norm();
 }
 
+/** @relates lass::prim::Point2D    
+ */
+template<typename T> inline 
+typename Point3D<T>::TValue squaredDistance(const Point3D<T>& iA, const Point3D<T>& iB)
+{
+	const Vector3D<T> difference = iA - iB;
+	return difference.squaredNorm();
+}
+
 
 
 /** return a point with, for each coordinate, the minimum value of iA and iB

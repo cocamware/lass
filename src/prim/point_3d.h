@@ -109,7 +109,7 @@ template<typename T> Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T
 template<typename T> Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB);
 
 template<typename T> typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB);
-
+template<typename T> typename Point3D<T>::TValue squaredDistance(const Point3D<T>& iA, const Point3D<T>& iB);
 template<typename T> Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB);
 template<typename T> Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB);
 

@@ -55,7 +55,7 @@ struct KdTreeDefaultTraits
     typedef typename ObjectType::TConstReference TConstReference;
     enum { dimension = ObjectType::dimension };
 
-    static const TPoint& position(const ObjectType& iObject) { return iObject; }
+    static const TPoint& position(TObjectIterator iObject) { return *iObject; }
 };
 
 
@@ -108,8 +108,9 @@ public:
 
     void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-    TValue neighbourhood(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount, 
-        TNeighbourhood& oNeighbourhood);
+	Neighbour nearestNeighbour(const TPoint& iLocation) const;
+    TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount, 
+        TNeighbourhood& oNeighbourhood) const;
 
     void swap(TSelf& iOther);
 
@@ -133,7 +134,7 @@ private:
 		LessDim(TAxis iSplit): split_(iSplit) {}
 		bool operator()(const TObjectIterator& iA, const TObjectIterator& iB) const
 		{
-			return TObjectTraits::position(*iA)[split_] < TObjectTraits::position(*iB)[split_];
+			return TObjectTraits::position(iA)[split_] < TObjectTraits::position(iB)[split_];
 		}
 	private:
 		TAxis split_;
@@ -143,9 +144,14 @@ private:
     void balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd);
     TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
     void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
-    void doNeighbourhood(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
-        TNeighbourhood& oNeighbourhood, size_t iNode);
+	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
+	size_t findBoundingParentNode(const TPoint& iTarget, size_t iChildNode, TParam iRadius) const;
 
+	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
+    void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
+        TNeighbourhood& oNeighbourhood, size_t iNode) const;
+
+	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
 
 	TObjectIterators heap_;
     TAxes splits_;
