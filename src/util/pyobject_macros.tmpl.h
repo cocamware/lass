@@ -555,6 +555,20 @@ typedef std::vector< PyCFunction > TVectorCFunction;
 	PY_IMPL_SUBSCRIBE_CLASS_METHOD( CppClass__, pyMethod__, pyDoc__, dispatcher__ )
 
 /** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for 0 arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_EX_0( CppClass__, cppMethod__, R__, pyMethod__, pyDoc__, dispatcher__ )\
+	PY_CLASS_METHOD_QUALIFIED_EX( CppClass__, cppMethod__, R__, lass::meta::NullType, pyMethod__, pyDoc__, dispatcher__ )
+$[
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_EX_$x( CppClass__, cppMethod__, R__, $(P$x__)$, pyMethod__, pyDoc__, dispatcher__ )\
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__));\
+    PY_CLASS_METHOD_QUALIFIED_EX( CppClass__, cppMethod__, R__, LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__), pyMethod__, pyDoc__, dispatcher__ )
+]$
+
+/** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX with 
  *	@a dispatcher__ = py @a CppClass__ @a cppMethod__ __LINE__.
  */
@@ -563,10 +577,38 @@ typedef std::vector< PyCFunction > TVectorCFunction;
 									  LASS_UNIQUENAME(LASS_CONCATENATE_3(py, CppClass__, cppMethod__)))
 
 /** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC for 0 arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0( CppClass__, cppMethod__, R__, PList__, pyMethod__, pyDoc__ )\
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC( CppClass__, cppMethod__, R__, lass::meta::NullType, pyMethod__, pyDoc__ )
+$[
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC for $x arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_NAME_DOC_$x( CppClass__, cppMethod__, R__, $(P$x__)$, pyMethod__, pyDoc__ )\
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__));\
+    PY_CLASS_METHOD_QUALIFIED_NAME_DOC( CppClass__, cppMethod__, R__, LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__)), pyMethod__, pyDoc__ )
+]$
+
+/** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC with @a pyDoc__ = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED_NAME( CppClass__, cppMethod__, R__, PList__, pyMethod__ )\
 		PY_CLASS_METHOD_QUALIFIED_NAME_DOC( CppClass__, cppMethod__, R__, PList__, pyMethod__, 0 )
+
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME for 0 arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_NAME_0( CppClass__, cppMethod__, R__, pyMethod__ )\
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC( CppClass__, cppMethod__, R__, lass::meta::NullType, pyMethod__ )
+$[
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME for $x arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_NAME_$x( CppClass__, cppMethod__, R__, $(P$x__)$, pyMethod__ )\
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__));\
+    PY_CLASS_METHOD_QUALIFIED_NAME( CppClass__, cppMethod__, R__, LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__)), pyMethod__ )
+]$
 
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC 
@@ -577,11 +619,39 @@ typedef std::vector< PyCFunction > TVectorCFunction;
 											LASS_STRINGIFY(cppMethod__), pyDoc__)
 
 /** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for 0 arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_DOC_0( CppClass__, cppMethod__, R__, pyDoc__ )\
+	PY_CLASS_METHOD_QUALIFIED_DOC( CppClass__, cppMethod__, R__, lass::meta::NullType, pyDoc__ )
+$[
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for $x arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_DOC_$x( CppClass__, cppMethod__, R__, $(P$x__)$, pyDoc__ )\
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__));\
+    PY_CLASS_METHOD_QUALIFIED_DOC( CppClass__, cppMethod__, R__, LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__)), pyDoc__ )
+]$
+
+/** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
  *	with @a pyMethod__ = "@a cppMethod__" and @a pyDoc__ = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED( CppClass__, cppMethod__, R__, PList__ )\
 		PY_CLASS_METHOD_QUALIFIED_DOC( CppClass__, cppMethod__, R__, PList__, NULL )
+
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for 0 arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_0( CppClass__, cppMethod__, R__ )\
+	PY_CLASS_METHOD_QUALIFIED( CppClass__, cppMethod__, R__, lass::meta::NullType )
+$[
+/** @ingroup Python
+ *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for $x arguments
+ */
+#define PY_CLASS_METHOD_QUALIFIED_$x( CppClass__, cppMethod__, R__, $(P$x__)$ )\
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__));\
+    PY_CLASS_METHOD_QUALIFIED( CppClass__, cppMethod__, R__, LASS_UNIQUENAME(LASS_CONCATENATE(pyMethodArguments, CppClass__)) )
+]$
 
 
 
@@ -750,13 +820,9 @@ $[
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
  */
-/*
 #define PY_CLASS_CONSTRUCTOR_$x( CppClass__, $(P$x__)$ )\
-    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_CONCATENATE(pyConstructorArguments, CppClass__);\
-    PY_CLASS_CONSTRUCTOR( CppClass__, LASS_CONCATENATE(pyConstructorArguments, CppClass__) )
-*/
-#define PY_CLASS_CONSTRUCTOR_$x( CppClass__, $(P$x__)$ )\
-    PY_CLASS_CONSTRUCTOR( CppClass__, LASS_TYPE_LIST_$x( $(P$x__)$ ) )
+    typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_UNIQUENAME(LASS_CONCATENATE(pyConstructorArguments, CppClass__));\
+    PY_CLASS_CONSTRUCTOR( CppClass__, LASS_UNIQUENAME(LASS_CONCATENATE(pyConstructorArguments, CppClass__)) )
 ]$
 
 

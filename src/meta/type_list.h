@@ -167,7 +167,7 @@ struct TypeList
 
 }
 
-#define LASS_TYPE_LIST_1(T1) lass::meta::TypeList<T1, lass::meta::NullType>
+#define LASS_TYPE_LIST_1(T1) lass::meta::TypeList< T1 ,  lass::meta::NullType >
 
 #define LASS_TYPE_LIST_2(T1, T2) lass::meta::TypeList<T1, LASS_TYPE_LIST_1(T2) >
 

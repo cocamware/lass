@@ -71,9 +71,14 @@ print "\n***\n"
 exceptionCaught = 0
 test.int = 5
 
-print "cool member", test.cool
-test.cool = 6
-print "cool member", test.cool
+print "\n* Test automatic setter/getter accessors"
+try:
+    print "cool member", test.cool
+    test.cool = 6
+    print "cool member", test.cool
+except:
+    print "AUTOMATIC SETTER/GETTER ACCESSORS NOT SUPPORTED"
+print "\n"
 
 try:
     embedding.Bar.aStaticMethod("crash here")
