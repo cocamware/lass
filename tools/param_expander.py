@@ -92,9 +92,6 @@ def main(argv):
     argc = len(argv)
     if argc == 4:
         expandFile(argv[1], argv[2], int(argv[3]))
-    else:
-        print "Usage: %s <template file> <output file|output file pattern> <n>" % (argv[0],)
-        print " Expands a template file."
 
 
 if __name__ == "__main__":
@@ -104,5 +101,8 @@ if __name__ == "__main__":
 # History:
 #
 # $Log$
+# Revision 1.1  2004/09/13 14:55:18  bramz
+# porting param_expander from perl to python
+#
 #
 # EOF

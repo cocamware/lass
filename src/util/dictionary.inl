@@ -112,7 +112,7 @@ void Dictionary<K, V>::clearDefault()
 /** return true if dictionary has value
  */
 template <typename K, typename V>
-bool Dictionary<K, V>::clearDefault() const
+bool Dictionary<K, V>::hasDefault() const
 {
 	return hasDefault_
 }
