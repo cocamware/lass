@@ -239,7 +239,11 @@ public:
 	typedef VisitableType TVisitable;
 	typedef VisitReturnType TVisitReturn;
 
-	virtual TVisitReturn visit(TVisitable& iVisited) = 0;
+	TVisitReturn visit(TVisitable& iVisited) { return doVisit(iVisited); }
+
+private:
+
+	virtual TVisitReturn doVisit(TVisitable& iVisited) = 0;
 };
 
 
@@ -306,12 +310,12 @@ public:
 	typedef VisitReturnType TVisitReturn;
 
 	virtual ~VisitableBase() {}
-	virtual TVisitReturn accept(VisitorBase& iVisitor) = 0;
+	TVisitReturn accept(VisitorBase& iVisitor) { return doAccept(iVisitor); }
 
 protected:
 
 	template <class T>
-	static TVisitReturn doAccept(T& iVisited, VisitorBase& iVisitor)
+	static TVisitReturn doAcceptImpl(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
@@ -319,6 +323,10 @@ protected:
 		}
 		return CatchAll<T, VisitReturnType>::onUnknownVisitor(iVisited, iVisitor);
 	}
+
+private:
+
+	virtual TVisitReturn doAccept(VisitorBase& iVisitor) = 0;
 };
 
 }
@@ -331,9 +339,9 @@ protected:
  *  This macro should be invoked in the public part of every class in a visitable hierarchy.
  */
 #define LASS_UTIL_ACCEPT_VISITOR\
-	virtual TVisitReturn accept(lass::util::VisitorBase& iVisitor)\
+	virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)\
 	{\
-		return doAccept(*this, iVisitor);\
+		return doAcceptImpl(*this, iVisitor);\
 	}
 
 #endif

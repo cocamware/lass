@@ -42,19 +42,16 @@ namespace util_visitor
 {
 	class DocElement: public util::VisitableBase<>
 	{
-	public:
 		LASS_UTIL_ACCEPT_VISITOR
 	};
 
 	class Paragraph: public DocElement
 	{
-	public:
 		LASS_UTIL_ACCEPT_VISITOR
 	};
 
 	class Invisible: public DocElement
 	{
-	public:
 		LASS_UTIL_ACCEPT_VISITOR
 	};
 
@@ -66,9 +63,11 @@ namespace util_visitor
 
 		void add(std::auto_ptr<DocElement> iChild) { children_.push_back(iChild); }
 
-		void accept(util::VisitorBase& ioVisitor)
+    private:
+
+		void doAccept(util::VisitorBase& ioVisitor)
 		{
-			doAccept(*this, ioVisitor);
+			doAcceptImpl(*this, ioVisitor);
 			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
 			{
 				(*i)->accept(ioVisitor);
@@ -86,15 +85,17 @@ namespace util_visitor
 		public util::Visitor<List>
 	{
 	public:
-		void visit(DocElement&) { ++docElements_; }
-		void visit(Paragraph&) { ++paragraphs_; }
-		void visit(List&) { ++lists_; }
 
 		TestVisitor(): docElements_(0), paragraphs_(0), lists_(0) {}
 
 		int docElements_;
 		int paragraphs_;
 		int lists_;
+
+    private:
+		void doVisit(DocElement&) { ++docElements_; }
+		void doVisit(Paragraph&) { ++paragraphs_; }
+		void doVisit(List&) { ++lists_; }
 	};
 }
 
