@@ -72,7 +72,7 @@ template
 >
 struct Select
 {
-	typedef typename TrueType Type;
+	typedef TrueType Type;
 };
 
 template
@@ -82,7 +82,7 @@ template
 >
 struct Select<false, TrueType, FalseType>
 {
-	typedef typename FalseType Type;
+	typedef FalseType Type;
 };
 
 #else

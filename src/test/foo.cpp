@@ -27,7 +27,7 @@
 
 
 #include "test_common.h"
-#include "Foo.h"
+#include "foo.h"
 
 namespace lass
 {

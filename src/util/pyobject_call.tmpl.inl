@@ -502,7 +502,7 @@ struct ExplicitResolver<CppClass, R, lass::meta::NullType>
     {
 		static PyObject* callFunction( PyObject* iArgs, R (*iFunction)() ) 
 		{ 
-			return callFunction<R>( iArgs, iFunction ); 
+			return ::lass::python::impl::callFunction<R>( iArgs, iFunction ); 
 		}
 		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() ) 
 		{ 
@@ -527,7 +527,7 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
     {
 		static PyObject* callFunction( PyObject* iArgs, R (*iFunction)($(P$x)$) ) 
 		{ 
-			return callFunction<R, $(P$x)$>( iArgs, iFunction ); 
+			return ::lass::python::impl::callFunction<R, $(P$x)$>( iArgs, iFunction ); 
 		}
 		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) ) 
 		{ 

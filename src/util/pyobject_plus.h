@@ -204,13 +204,13 @@ namespace lass
 			}
 		}
 
-        /** meta function to detect if a type is a PyObject-derived type 
-         */
-        template <typename T>
-        struct IsPyObject
-        {
-            enum { value = meta::IsDerivedType<T, PyObject>::value };
-        };
+		/** meta function to detect if a type is a PyObject-derived type 
+		 */
+		template <typename T>
+		struct IsPyObject
+		{
+			enum { value = meta::IsDerivedType<T, PyObject>::value };
+		};
 
 		/* conversion from PyObject* to given types, a check should be performed
 		*  wether the conversion is possible, if not a returnvalue of 1 should be used

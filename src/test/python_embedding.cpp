@@ -140,9 +140,18 @@ PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 
-//	PY_INJECT_CLASS_IN_MODULE( TShadowBase, embedding, "Documentation for class shadow Base." );
+
+}
+}
 
 // --- shadow classes ------------------------------------------------------------------------------
+
+PY_SHADOW_CASTERS(lass::test::ShadowSpam)
+
+namespace lass
+{
+namespace test
+{
 
 PY_SHADOW_CLASS(ShadowSpam, Spam)
 PY_DECLARE_CLASS_EX(ShadowSpam, "Spam")
@@ -167,11 +176,6 @@ PY_CLASS_CONSTRUCTOR_1(ShadowEggs, int)
 PY_CLASS_MEMBER_RW(ShadowEggs, "number", number, setNumber)
 PY_INJECT_CLASS_IN_MODULE(ShadowEggs, embedding, "shadow eggs");
 
-
-// --- inject the module ---------------------------------------------------------------------------
-
-
 }
 }
 
-PY_SHADOW_CASTERS(lass::test::ShadowSpam)

@@ -75,7 +75,7 @@ Point3DH<T>::Point3DH(const TVector& iPositionVector) :
 
 
 template <typename T> inline
-typename const Point3DH<T>::TVector&
+const typename Point3DH<T>::TVector&
 Point3DH<T>::position() const
 {
 	return position_;
