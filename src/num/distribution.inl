@@ -44,7 +44,7 @@ template <>
 struct RangePolicy<rtClosed>
 {
 	template <typename T>
-	static bool isInRange(const T& iX, const T& i, const T& iSup) { return iX >= iInf && iX <= iSup; }
+	static bool isInRange(const T& iX, const T& iInf, const T& iSup) { return iX >= iInf && iX <= iSup; }
 };
 
 template <>
