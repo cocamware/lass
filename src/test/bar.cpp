@@ -104,6 +104,16 @@ namespace test
 			return iAabb.center().affine();
 		}
 
+		void Bar::overloaded( int iA )
+		{
+			std::cout << "Bar::overloaded(int): " << iA << std::endl;
+		}
+
+		void Bar::overloaded( const std::string& iB )
+		{
+			std::cout << "Bar::overloaded(const std::string&): " << iB << std::endl;
+		}
+
 		int	Bar::getInt() const
 		{
 			return privateInt_;

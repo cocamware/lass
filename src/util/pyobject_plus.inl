@@ -53,21 +53,26 @@
 			return temp;
 		}
 
-		class PyMethodEqual
+		namespace impl
 		{
-		public:
-			PyMethodEqual( const char* iName ): 
-				name_(iName) 
+			class PyMethodEqual
 			{
-			}
-			bool operator()(const PyMethodDef& iMethod) const 
-			{
-				return iMethod.ml_name && strcmp(iMethod.ml_name, name_) == 0;
-			}
-		private:
-			const char* name_;
-		};
+			public:
+				PyMethodEqual( const char* iName ): 
+					name_(iName) 
+				{
+				}
+				bool operator()(const PyMethodDef& iMethod) const 
+				{
+					return iMethod.ml_name && strcmp(iMethod.ml_name, name_) == 0;
+				}
+			private:
+				const char* name_;
+			};
+		}
 
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 		{
 			if ( iValue == Py_None )
@@ -79,6 +84,9 @@
 			}
 			return 0; 
 		}
+
+		/** @ingroup Python
+		 */
 		template<class C> 
 		inline int pyGetSimpleObject( PyObject* iValue, 
 									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
@@ -91,6 +99,9 @@
 			oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
 			return 0;
 		}
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 		{
 			if (!PyInt_Check(iValue))
@@ -103,6 +114,9 @@
 			oV = (temp!=0);
 			return 0; 
 		}
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, int& oV )
 		{
 			if (!PyInt_Check(iValue))
@@ -113,7 +127,10 @@
 			oV = PyInt_AS_LONG( iValue );
 			return 0; // ok
 		}
-        inline int pyGetSimpleObject( PyObject* iValue, unsigned& oV )
+ 
+		/** @ingroup Python
+		 */
+       inline int pyGetSimpleObject( PyObject* iValue, unsigned& oV )
         {
             int value;
             const int result = pyGetSimpleObject( iValue, value );
@@ -123,6 +140,9 @@
             }
             return result;
         }
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, long& oV )
 		{
 			if (!PyInt_Check(iValue))
@@ -133,6 +153,9 @@
 			oV = PyInt_AS_LONG( iValue );
 			return 0; // ok
 		}
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, float& oV )
 		{
 			if (PyFloat_Check(iValue))
@@ -153,6 +176,9 @@
 			PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_FLOAT ); 
 			return 1; // failure
 		}
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV )
 		{
 			if (PyFloat_Check(iValue))
@@ -173,6 +199,9 @@
 			PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE ); 
 			return 1; // failure
 		}
+
+		/** @ingroup Python
+		 */
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV )
 		{
 			if (!PyString_Check(iValue))
@@ -181,12 +210,16 @@
 			return 0;
 		}
 
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( PyObject& iV )
 		{
 			PyObject*	newOne = new PyObject( iV );
 			return pyBuildSimpleObject( newOne );
 		}
 
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( PyObject* iV )
 		{
 			if (iV==NULL)
@@ -198,36 +231,58 @@
 			return iV;
 		}
 
+		/** @ingroup Python
+		 */
 		template<class C>
 		PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV )
 		{
 			return lass::python::toPySharedPtrCast(iV);
 		}
 
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( bool iV )
 		{
 			return Py_BuildValue("i",(int)(iV!=0));
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( long iV )
 		{
 			return Py_BuildValue("i",iV);
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( int iV )
 		{
 			return Py_BuildValue("i",iV);
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( unsigned iV )
 		{
 			return pyBuildSimpleObject( (int) iV );
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( float iV )
 		{
 			return Py_BuildValue("f",iV);
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( double iV )
 		{
 			return Py_BuildValue("f",iV);
 		}
+
+		/** @ingroup Python
+		 */
 		inline PyObject* pyBuildSimpleObject( const std::string& iV )
 		{
 			return Py_BuildValue("s",iV.c_str());

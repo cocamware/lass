@@ -123,5 +123,13 @@ print test.tester('a string')
 print test.tester(box, "y")
 
 
+print "\n* Testing qualified and overloaded methods"
+test.overloaded(5)
+test.overloaded('hello!')
+print "\n"
+
+
+
+
 
 

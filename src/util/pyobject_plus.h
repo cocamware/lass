@@ -23,7 +23,9 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
+/** @defgroup Python
+ *  @brief interface library to Python
+ */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
@@ -61,6 +63,7 @@ namespace lass
 		inline PyGetSetDef createPyGetSetDef ( char* name, getter get, setter set = NULL, char* doc = NULL, void* closure = NULL );
 
 		/** PyObjectPlus.  Base class for pythonable objects.  
+		*	@ingroup Python
 		*   @author Tom De Muer
 		*	@date 2003
 		*	Usage:
@@ -90,7 +93,7 @@ namespace lass
 		};
 
 		/** @class PyObjectStorage
-		*  @ingroup SmartPtr
+		*  @ingroup Python
 		*  @brief Recommended storage policy for single PyObject objects, implementation of StoragePolicy concept
 		*  @author Tom De Muer [TDM]
 		*  @see ObjectStorage
@@ -122,7 +125,7 @@ namespace lass
 
 
 		/** @class PyObjectCounter
-		*  @ingroup SmartPtr
+		*  @ingroup Python
 		*  @brief The recommended counter for the pyobject pointers, implementation of CounterPolicy concept.
 		*  @author Tom De Muer [TDM]
 		*  @see DefaultCounter
@@ -156,6 +159,7 @@ namespace lass
 		};
 
 		/** templated "typedef" to a python shared pointer
+		 *	@ingroup Python
 		 */
 		template<class T>
 		struct PyObjectPtr
@@ -166,8 +170,10 @@ namespace lass
 		template<class T>	T*	PyPlus_INCREF(T* iObj)	{ return (T*)(iObj->PyPlus_INCREF()); }
 		template<class T>	T*	PyPlus_DECREF(T* iObj)	{ return (T*)(iObj->PyPlus_DECREF()); }
 
-		/** fromPySharedPtrCast.  Helper function casting a PyObject coming from the Python
-		*	interface to a SharedPtr object for use in C++.  Reference counts are taken care of.
+		/** fromPySharedPtrCast.  
+		*	@ingroup Python
+		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr 
+		*	object for use in C++.  Reference counts are taken care of.
 		*/
 		template<class T>	
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter> 
@@ -178,9 +184,12 @@ namespace lass
 			return temp;
 		}
 
-		/** toPySharedPtrCast.  Helper function casting an object used in C++ for use in
-		*	Python.  The key operation done here is to take care of the reference counting.
-		*	Failing to use this function may yield unexpected reference count. */
+		/** toPySharedPtrCast.  
+		*	@ingroup Python
+		*	Helper function casting an object used in C++ for use in Python.  The key operation 
+		*	done here is to take care of the reference counting. Failing to use this function may 
+		*	yield unexpected reference count. 
+		*/
 		template<class T>
 		PyObject* 
 		toPySharedPtrCast(T& iObj)

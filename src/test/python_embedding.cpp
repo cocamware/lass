@@ -127,6 +127,8 @@ namespace test
 //	PY_CLASS_OVERLOADED_METHOD( Bar, tester, primArguments )
 	PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 	PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
+	PY_CLASS_METHOD_QUALIFIED( Bar, overloaded, void, LASS_TYPE_LIST_1(int) )
+	PY_CLASS_METHOD_QUALIFIED( Bar, overloaded, void, LASS_TYPE_LIST_1(const std::string&) )
 
 	PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );   
 	PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );   

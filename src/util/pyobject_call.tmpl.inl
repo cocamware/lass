@@ -108,13 +108,13 @@ struct Caller
 	// const method
 
 	template <class CppClass>
-	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)() const )
+	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)() const )
 	{
 		return pyBuildSimpleObject( (iObject->*iMethod)() );
 	};
 	$[
 	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const, 
+	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const, 
                              $(typename util::CallTraits<P$x>::TParam iP$x)$ )
 	{
 		return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) );
@@ -169,7 +169,7 @@ struct Caller<void>
 	// const method
 
 	template <class CppClass>
-	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)() const )
+	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)() const )
 	{
 		(iObject->*iMethod)();
 		Py_INCREF( Py_None );
@@ -177,7 +177,7 @@ struct Caller<void>
 	};
 	$[
 	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)($(P$x)$) const, 
+	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)($(P$x)$) const, 
                              $( typename util::CallTraits<P$x>::TParam iP$x)$ )
 	{
 		(iObject->*iMethod)($(iP$x)$);
@@ -255,7 +255,7 @@ $[
 	/** call const method without arguments
 	 */
 	template <typename R>
-	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() const )
+	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const )
 	{
 		return Caller<R>::method<CppClass>( iObject, iMethod );
 	}
@@ -263,7 +263,7 @@ $[
 	/** call const method with $x argument, translated from python arguments
 	 */
 	template <typename R, $(typename P$x)$>
-	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const )
+	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const )
 	{
 		$(typedef meta::TypeTraits<P$x>::TStorage T$x;
 		)$
@@ -326,6 +326,7 @@ $[
 
 
 
+
 // --- constructors --------------------------------------------------------------------------------
 
 /** allocate a new object with default constructor.
@@ -370,45 +371,83 @@ PyObject* pyConstruct( PyObject* iArgs )
 ]$
 
 
-template <class CppClass, typename TypeListType> struct PyConstructor;
-$[template <class CppClass, $(typename P$x)$, typename TypeListType> struct PyConstructor$x;
+
+// --- explicit resolver ---------------------------------------------------------------------------
+
+// This explicit resolver construct is a wicked meta function that will call the write
+// template function based on template parameters in TypeListType.
+
+template <class CppClass, typename R, typename TypeListType> struct PyExplicitResolver;
+$[template <class CppClass, typename R, $(typename P$x)$, typename TypeListType> struct PyExplicitResolver$x;
 ]$
-template <class CppClass, $(typename P$x)$, typename P$y, typename TypeListType> struct PyConstructor$y;
+template <class CppClass, typename R, $(typename P$x)$, typename P$y, typename TypeListType> struct PyExplicitResolver$y;
 
 
-template <class CppClass>
-struct PyConstructor<CppClass, meta::NullType>
+template <class CppClass, typename R>
+struct PyExplicitResolver<CppClass, R, meta::NullType>
 {
     struct Impl
     {
-        static PyObject* construct( PyObject* iArgs ) { return pyConstruct<CppClass>( iArgs ); }
+		static PyObject* callFunction( PyObject* iArgs, R (*iFunction)() ) 
+		{ 
+			return pyCallFunction<R>( iArgs, iFunction ); 
+		}
+		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() ) 
+		{ 
+			return PyCallMethod<CppClass>::call<R>( iArgs, iObject, iMethod ); 
+		}
+		static PyObject* callMethod( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const ) 
+		{ 
+			return PyCallMethod<CppClass>::call<R>( iArgs, iObject, iMethod ); 
+		}
+        static PyObject* callConstructor( PyObject* iArgs ) 
+		{ 
+			return pyConstruct<CppClass>( iArgs ); 
+		}
     };
     typedef Impl TImpl;
 };
 $[
-template <class CppClass, $(typename P$x)$>
-struct PyConstructor$x<CppClass, $(P$x)$, meta::NullType>
+template <class CppClass, typename R, $(typename P$x)$>
+struct PyExplicitResolver$x<CppClass, R, $(P$x)$, meta::NullType>
 {
     struct Impl
     {
-        static PyObject* construct( PyObject* iArgs ) { return pyConstruct<CppClass, $(P$x)$>( iArgs ); }
+		static PyObject* callFunction( PyObject* iArgs, R (*iFunction)($(P$x)$) ) 
+		{ 
+			return pyCallFunction<R, $(P$x)$>( iArgs, iFunction ); 
+		}
+		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) ) 
+		{ 
+			return PyCallMethod<CppClass>::call<R, $(P$x)$>( iArgs, iObject, iMethod ); 
+		}
+		static PyObject* callMethod( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const ) 
+		{ 
+			return PyCallMethod<CppClass>::call<R, $(P$x)$>( iArgs, iObject, iMethod ); 
+		}
+        static PyObject* callConstructor( PyObject* iArgs ) 
+		{ 
+			return pyConstruct<CppClass, $(P$x)$>( iArgs ); 
+		}
     };
     typedef Impl TImpl;
 };
 ]$
 
-template <class CppClass, typename Head, typename Tail>
-struct PyConstructor<CppClass, meta::TypeList<Head, Tail> >
+template <class CppClass, typename R, typename Head, typename Tail>
+struct PyExplicitResolver<CppClass, R, meta::TypeList<Head, Tail> >
 {
-    typedef typename PyConstructor1<CppClass, Head, Tail>::TImpl TImpl;
+    typedef typename PyExplicitResolver1<CppClass, R, Head, Tail>::TImpl TImpl;
 };
 $[
-template <class CppClass, $(typename P$x)$, typename Head, typename Tail>
-struct PyConstructor$x<CppClass, $(P$x)$, meta::TypeList<Head, Tail> >
+template <class CppClass, typename R, $(typename P$x)$, typename Head, typename Tail>
+struct PyExplicitResolver$x<CppClass, R, $(P$x)$, meta::TypeList<Head, Tail> >
 {
-    typedef typename PyConstructor$y<CppClass, $(P$x)$, Head, Tail>::TImpl TImpl;
+    typedef typename PyExplicitResolver$y<CppClass, R, $(P$x)$, Head, Tail>::TImpl TImpl;
 };
 ]$
+
+
 }
 
 }

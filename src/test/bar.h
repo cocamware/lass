@@ -62,6 +62,9 @@ namespace test
         void complexArguments( const std::string& iA );
 		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis);
 
+		void overloaded( int iA );
+		void overloaded( const std::string& iB );
+
 		static int aStaticMethod( float ia );
 
 		int	getInt() const;
