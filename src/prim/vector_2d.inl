@@ -593,7 +593,7 @@ std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& oB)
 	ioIStream >> c;
 	if (c != '(')
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 		return ioIStream;
 	}
 
@@ -602,7 +602,7 @@ std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& oB)
 	
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 		return ioIStream;
 	}
 
@@ -610,7 +610,7 @@ std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& oB)
 	ioIStream >> result.y >> c;
 	if (c != ')')
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 		return ioIStream;
 	}
 

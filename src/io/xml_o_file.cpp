@@ -43,7 +43,7 @@ XmlOFile::XmlOFile():
 
 
 
-XmlOFile::XmlOFile(const char* iFileName, std::ios_base::open_mode iOpenMode):
+XmlOFile::XmlOFile(const char* iFileName, std::ios::openmode iOpenMode):
 	XmlOStream()
 {
 	open(iFileName, iOpenMode);
@@ -59,7 +59,7 @@ XmlOFile::XmlOFile(const char* iFileName, const char* iRoot):
 
 
 
-XmlOFile::XmlOFile(const std::string& iFileName, std::ios_base::open_mode iOpenMode):
+XmlOFile::XmlOFile(const std::string& iFileName, std::ios::openmode iOpenMode):
 	XmlOStream()
 {
 	open(iFileName, iOpenMode);
@@ -82,7 +82,7 @@ XmlOFile::~XmlOFile()
 
 
 
-void XmlOFile::open(const char* iFilename, std::ios_base::open_mode iOpenMode)
+void XmlOFile::open(const char* iFilename, std::ios::openmode iOpenMode)
 {
 	file_.open(iFilename, iOpenMode);
 	root_ = "";
@@ -100,7 +100,7 @@ void XmlOFile::open(const char* iFilename, const char* iRoot)
 
 
 
-void XmlOFile::open(const std::string& iFilename, std::ios_base::open_mode iOpenMode)
+void XmlOFile::open(const std::string& iFilename, std::ios::openmode iOpenMode)
 {
 	open(iFilename.c_str(), iOpenMode);
 }

@@ -247,7 +247,7 @@ readContainer(std::basic_istream<Char, Traits>& ioIStream, Container& oContainer
 	}
 	else
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 	}
 
 	return ioIStream;
@@ -401,12 +401,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
 		else
 		{
 			ioIStream.putback(c);
-			ioIStream.clear(std::ios_base::failbit);
+			ioIStream.clear(std::ios::failbit);
 		}
 	}
 	else
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 	}
 
 	return ioIStream;

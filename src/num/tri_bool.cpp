@@ -259,7 +259,7 @@ std::ostream& operator<<(std::ostream& ioS, TriBool iB)
 
 	default:
 		LASS_ASSERT(iB.state() == TriBool::sUnknown);
-		ioS << (ioS.flags() & std::ios_base::boolalpha ? "unknown" : "?");
+		ioS << (ioS.flags() & std::ios::boolalpha ? "unknown" : "?");
 		break;
 	}
 

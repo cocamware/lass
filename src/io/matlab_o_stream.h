@@ -67,7 +67,7 @@ class LASS_DLL MatlabOStream :
 {
 public:
 	MatlabOStream();
-	MatlabOStream(const char* iFilename, std::ios_base::open_mode iOpenMode);
+	MatlabOStream(const char* iFilename, std::ios::openmode iOpenMode);
 	virtual ~MatlabOStream();
 
 	void setColor(MatlabColor iColor);

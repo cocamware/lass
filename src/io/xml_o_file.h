@@ -91,15 +91,15 @@ public:
 	enum { defaut_mode = std::ios::out | std::ios::trunc };
 
 	XmlOFile();
-	XmlOFile(const char* iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	XmlOFile(const char* iFilename, std::ios::openmode iOpenMode = defaut_mode);
 	XmlOFile(const char* iFilename, const char* iRoot);
-	XmlOFile(const std::string& iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	XmlOFile(const std::string& iFilename, std::ios::openmode iOpenMode = defaut_mode);
 	XmlOFile(const std::string& iFilename, const std::string& iRoot);
 	virtual ~XmlOFile();
 
-	void open(const char* iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	void open(const char* iFilename, std::ios::openmode iOpenMode = defaut_mode);
 	void open(const char* iFilename, const char* iRoot);
-	void open(const std::string& iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	void open(const std::string& iFilename, std::ios::openmode iOpenMode = defaut_mode);
 	void open(const std::string& iFilename, const std::string& iRoot);
 	void close();
 	bool is_open() const;

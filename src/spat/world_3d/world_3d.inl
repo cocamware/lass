@@ -481,7 +481,7 @@ void World3D<T>::exportToMatlab(const std::string& a_filename,
     BASS3_HEADER("lass::spat::world_3d::World3D<T>::exportToMatlab: " + a_filename);
 
     // open file for output and empty it
-    MatlabOStream m(a_filename, std::ios_base::trunc | std::ios_base::out);
+    MatlabOStream m(a_filename, std::ios::trunc | std::ios::out);
     m << MatlabOStream::Flag("world3_wireframe", a_wireframe);
     m << MatlabOStream::Flag("world3_filled", a_filled);
     m << MatlabOStream::Flag("world3_noblack", a_noblack);

@@ -98,7 +98,7 @@ public:
 	
 private:
 
-    friend ArgParameter;
+    friend class ArgParameter;
 
     typedef std::vector<ArgParameter*> TParameters;
 	typedef TParameters::size_type TSize;
@@ -152,7 +152,7 @@ protected:
 
 private:
 
-    friend ArgParser;
+    friend class ArgParser;
 
 
 	ArgParser& parser_;

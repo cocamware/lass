@@ -41,7 +41,7 @@ MatlabOStream::MatlabOStream():
 
 
 
-MatlabOStream::MatlabOStream(const char* iFileName, std::ios_base::open_mode iOpenMode):
+MatlabOStream::MatlabOStream(const char* iFileName, std::ios::openmode iOpenMode):
 	std::ofstream(iFileName, iOpenMode),
 	color_(mcBlack)
 {

@@ -796,7 +796,7 @@ std::istream& operator>>(std::istream& ioIStream, Vector<T>& oB)
 	LASS_ENFORCE_STREAM(ioIStream) >> c;
 	if (c != '(')
 	{
-		ioIStream.clear(std::ios_base::failbit);
+		ioIStream.clear(std::ios::failbit);
 		return ioIStream;
 	}
 
@@ -811,7 +811,7 @@ std::istream& operator>>(std::istream& ioIStream, Vector<T>& oB)
 		++size;
 		if (c != ',' && c != ')')
 		{
-			ioIStream.clear(std::ios_base::failbit);
+			ioIStream.clear(std::ios::failbit);
 			return ioIStream;
 		}
 	}

@@ -124,8 +124,8 @@ void Logger::openLog(const std::string &iLogFilename, LogMode iLogMode)
 		LASS_THROW("There's already an open log file!  Can't open new one ...");
 	}
 
-	std::ios_base::open_mode mode = std::ios_base::out;
-	mode |= (iLogMode == lmAppend) ? std::ios_base::app : std::ios_base::trunc;
+	std::ios::openmode mode = std::ios::out;
+	mode |= (iLogMode == lmAppend) ? std::ios::app : std::ios::trunc;
 
 	logFile_.open(iLogFilename.c_str(), mode);
 
