@@ -87,10 +87,10 @@ namespace lass
 			static void __dealloc(PyObject *P);
 
 			static  PyObject*	__repr(PyObject *PyObj);
-			virtual std::string	pyRepr(void) { return "PyObjectPlus object at " + util::stringCast<std::string>(this); }
+			virtual std::string	pyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
 
 			static  PyObject*	__str(PyObject *PyObj);
-			virtual std::string	pyStr(void) { return "PyObjectPlus object string at " + util::stringCast<std::string>(this); }
+			virtual std::string	pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
 		};
 
 		/** @class PyObjectStorage
