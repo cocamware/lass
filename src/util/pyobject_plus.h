@@ -141,12 +141,12 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& iPointee) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
-				Py_DECREF(iPointee);
+				Py_INCREF(iPointee);
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				bool r = iPointee->ob_refcnt <=1;
-				Py_INCREF(iPointee);
+				Py_DECREF(iPointee);
 				return r;
 			}
 			template <typename TStorage> TCount count(TStorage& iPointee) const
