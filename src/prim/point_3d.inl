@@ -77,7 +77,7 @@ Point3D<T>::Point3D(const Vector3D<U>& iPositionVector):
 
 
 template <typename T> inline
-typename const Point3D<T>::TVector&
+const typename Point3D<T>::TVector&
 Point3D<T>::position() const
 {
 	return position_;
