@@ -1,0 +1,140 @@
+/** 
+*   @author Bram de Greve (bramz@users.sourceforge.net)
+*   @author Tom De Muer (tomdemuer@users.sourceforge.net)
+*
+*	Distributed under the terms of the GPL (GNU Public License)
+*
+* 	The LASS License:
+*   
+*	Copyright 2004 Bram de Greve and Tom De Muer
+*
+*   LASS is free software; you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; either version 2 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program; if not, write to the Free Software
+*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*
+
+
+ */
+
+
+
+/** @namespace lass
+ *  @brief Library for Acoustics Simulation Software
+ */
+
+
+
+/** @mainpage lass: Library for Acoustics Simulation Software 
+ *  @date 2003-2004
+ *  @author Tom De Muer, Bram de Greve
+ *  
+ *  - lass::frb: fuzzy rule bases and systems for inference
+ *  - lass::gis: wrappers around GDAL to comply with prim, etc.
+ *  - lass::io: streams, binary streams, vrmlstreams, ...
+ *  - lass::meta: a meta programming library for your cunning plans.
+ *  - lass::num: numeric primitives and functions
+ *  - lass::prim: geometric primitives and basic functionality
+ *  - lass::spat: spatial subdivisions, quadtrees, octrees, meshes in 2D and 3D, triangulators, ...
+ *  - lass::stde: std extensions, ...
+ *  - lass::util: general utility, debug facilities, ...
+ */
+
+
+
+#ifndef LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
+#define LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
+
+#include "config/config.h"
+
+
+
+
+
+// --- Here we'll define some stuff on the name of libraries lass creates ---
+
+/** @def LASS_LIB_DEBUG
+ *  @brief part of the library name that indicates if it is a release or debug build.
+ */
+#ifdef _DEBUG
+#	define LASS_LIB_DEBUG "_d"
+#else
+#	define LASS_LIB_DEBUG ""
+#endif
+
+/** @def LASS_LIB_PREFIX
+ *  @brief prefix of all library names that will be made
+ */
+#define LASS_LIB_PREFIX "lass_"
+
+/** @def LASS_LIB_SUFFIX
+ *  @brief suffix of all library names that will be made, indicates platform, compiler and build.
+ */
+#define LASS_LIB_SUFFIX "_" LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_DEBUG ".lib"
+
+
+
+// --- frequently used STL mumbo jumbo ---
+
+#include <typeinfo>
+#include <exception>
+#include <stdexcept>
+
+#include <utility>
+#include <functional>
+#include <memory>
+
+#include <string>
+
+#include <locale>
+
+#include <vector>
+#include <list>
+#include <deque>
+#include <map>
+#include <queue>
+#include <set>
+//#include <slist> // SGI extension
+#include <stack>
+
+#include <iterator>
+
+#include <algorithm>
+
+#include <complex>
+#include <numeric>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+
+
+// --- common lass stuff ---
+
+#include "util/common_macros.h"
+#include "util/exception.h"
+#include "util/enforcer.h"
+#include "io/io_fwd.h"
+#include "io/proxy_man.h"
+#include "stde/extended_io.h"
+
+
+
+// --- the name of the game ---
+
+//#pragma LASS_NOTE("LASS_PLATFORM: " LASS_PLATFORM)
+//#pragma LASS_NOTE("LASS_COMPILER: " LASS_COMPILER)
+
+
+#endif

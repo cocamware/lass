@@ -1,0 +1,1108 @@
+\documentclass[10pt,a4paper,titlepage,dutch]{report}
+\usepackage{ae}
+\usepackage{aecompl}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage{geometry}
+\geometry{verbose,a4paper}
+\pagestyle{headings}
+\setcounter{tocdepth}{3}
+\setlength\parskip{\medskipamount}
+\setlength\parindent{0pt}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{setspace}
+
+
+% ----------------------------------------------------------------
+\vfuzz2pt % Don't report over-full v-boxes if over-edge is small
+\hfuzz2pt % Don't report over-full h-boxes if over-edge is small
+% THEOREMS -------------------------------------------------------
+%\newtheorem{thm}{Theorem}[section]
+%\newtheorem{cor}[thm]{Corollary}
+%\newtheorem{lem}[thm]{Lemma}
+%\newtheorem{prop}[thm]{Proposition}
+%\theoremstyle{definition}
+%\newtheorem{defn}[thm]{Definition}
+%\theoremstyle{remark}
+%\newtheorem{rem}[thm]{Remark}
+%\numberwithin{equation}{section}
+% MATH -----------------------------------------------------------
+\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\Real}{\mathbb R}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\To}{\longrightarrow}
+\newcommand{\BX}{\mathbf{B}(X)}
+\newcommand{\A}{\mathcal{A}}
+% ----------------------------------------------------------------
+
+\begin{document}
+
+\title{lass\\Library for Acoustics Simulation Software\\C++ Style Guide}
+\author{Group Acoustics\\Department of Information Technology (INTEC)\\Ghent University}
+%\address{Department of Information Technology}
+%\email{acoust\@intec.ugent.be}
+
+%\thanks{}%
+%\subjclass{}%
+%\keywords{}%
+
+%\date{}%
+%\dedicatory{}%
+%\commby{}%
+% ----------------------------------------------------------------
+%\begin{abstract}
+%
+%\end{abstract}
+
+\maketitle
+
+\tableofcontents
+
+% ----------------------------------------------------------------
+\chapter{Introduction}
+
+If someone wants to write an introduction over here, please, feel
+free to do so.
+
+% ------------------------------------------------------------------------------
+
+\chapter{Common Wisdom}
+
+\begin{itemize}
+    \item Every time a rule is broken, this must be clearly documented.
+    \item We code and comment in American English (Note: we didn't say
+anything on jokes).
+    \item Don't code what you don't use.
+    \item Don't code what you can't test.
+    \item All code is evil.
+    \item Fight code entropy.
+    \item 80\% of the time is spent in 20\% of the code.
+    \item Premature optimization is the root of all evil.
+    \item The coffee machine is at the other end of the hallway.
+    \item Common wisdom, n: something that is widely known but usually
+ignored.
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+
+\chapter{Comments}
+
+\begin{itemize}
+
+\item Clear code is preferable to well-commented messy code. Every
+effort should be made to make code clear through good design,
+simplicity, good naming and layout. Comments are definitely
+required where code is not clear.
+
+\item Avoid compulsory comments like author, date, class names, function
+names, and modification lists as they get outdated quickly and are
+usually unnecessary. If required, try to use source control or
+other tools to insert this type of information.
+
+\item Use \verb|//| for comments, this will allow you to comment out big
+blocks of code without interference using with the \verb|/**/|
+construct.  Your doxygen comments will use \verb|/**/| though.
+
+\item The generation of documentation will be based on the comments
+written in the code itself. The automatic documentation generation
+tool Doxygen is used with the Javadoc convention of documentation.
+Look at www.doxygen.org for more information.  All public
+interface code must therefore be documented.  These code blocks will be
+written above the implementations.  Test code will be
+excluded from the \verb|user manuals|.
+
+\verb|/** a useless function|\\
+\verb| *  @throw an exception is randomly thrown.|\\
+\verb| */|\\
+\verb|void fooBar()|\\
+\verb|{|\\
+\verb|    // ...|\\
+\verb|}|
+
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+
+\chapter{Naming Conventions}
+
+\section{typographical questions}
+
+\subsection{class, struct, union}
+
+Class, structure and union names start with a capital letter and
+every new word with a capital.
+
+\verb|class FooBar;|\\
+\verb|struct FooBar;|\\
+\verb|union FooBar;|\\
+
+\subsection{variables and functions}
+
+Variable and function names start with a lowercase letter and
+every new word with a captial.
+
+\verb|int fooBar;|\\
+\verb|int fooBar();|\\
+
+Private member variables of classes should have an underscore as
+suffix.  Public member variables of structures don't.
+
+\verb|class Foo|\\
+\verb|{|\\
+\verb|    int privatePart_;|\\
+\verb|};|
+
+\verb|struct Bar|\\
+\verb|{|\\
+\verb|    int publicPart;|\\
+\verb|};|\\
+
+Parameters of functions start with \verb|i| for input values,
+\verb|o| for output values and \verb|io| for bidirectional
+parameters
+
+\verb|void fooBar( const A& iAnInputValue, |\\
+\verb|             B& oSomeOutput, |\\
+\verb|             C& ioABitOfBoth );|\\
+
+\subsection{namespaces}
+
+Namespace names use lowercase letters only and the different words
+are seperated by underscores.
+
+\verb|namespace foo_bar;|\\
+
+\subsection{files}
+
+Filenames use lowercase letters only and the different words are
+separated by underscores.
+
+\verb|foo_bar.h|\\
+
+\subsection{macros}
+
+Macro names use capitals only, the different words are seperated
+by underscores, and they start with \verb|LASS_|.
+
+\verb|LASS_FOO_BAR|\\
+
+\subsection{common sense}
+
+Never use underscores in names except for namespaces and macros.
+
+Never use leading underscores or double underscores in any kind of
+name, as it is prohibited by the ISO standard \cite{Cpp98}  in
+section 17.4.3.1.2, well not that strictly, but strictly enough
+for not doing it at all.
+
+\verb|_DON_T|\\
+\verb|DON__T|\\
+\verb|DO_THIS|\\
+
+Don't use ALL-CAPS for abbreviations, and definitely not in
+namespaces!
+
+\verb|MyISOObject // bad|\\
+\verb|MyIsoObject // good|\\
+\verb|my_HTML_namespace // bad|\\
+\verb|my_html_namespace // good|\\
+
+\section{What's in a name?}
+
+In general names of classes, variables, constants should be nouns,
+names of functions should contain a verb (except for accessors,
+see \ref{accessors}
+
+The wider the scope of the variable, the more descriptive it
+should be. A counter can be called \verb|i| if it is only used in
+a small loop, but it is unacceptable as a widely used variable in
+a long function.
+
+Don't use hungarian notation (where a code describing the
+variable's type is prefixed to the variable name) for variables.
+
+More common sense on naming can be found in Ottinger
+\cite{Ottinger}
+
+\subsection{Get and Set Accessors}
+
+In most other code bases, you'll find the usual
+\verb|get|/\verb|set| pairs as following:
+
+\verb|class Bar|\\
+\verb|{|\\
+\verb|public:|\\
+\verb|    const Foo& getFoo() const { return foo_; }|\\
+\verb|    void setFoo( const Foo& iFoo ) { foo_ = iFoo; }|\\
+\verb|private:|\\
+\verb|    Foo foo_;|\\
+\verb|};|\\
+
+However, we do not do that for simple accessors.  Instead, we
+write two accessors with the same name (\verb|foo|), one return a
+constant reference, the other a non-constant reference.  As
+following (BTW, notice that we never write code in the interface
+...):
+
+\verb|class Bar|\\
+\verb|{|\\
+\verb|public:|\\
+\verb|    const Foo& foo() const;|\\
+\verb|    Foo& foo();|\\
+\verb|private:|\\
+\verb|    Foo foo_;|\\
+\verb|};|\\
+\verb||\\
+\verb|const Foo& Bar::foo() const|\\
+\verb|{|\\
+\verb|    return foo_;|\\
+\verb|}|;\\
+\verb||\\
+\verb|Foo& Bar::foo()|\\
+\verb|{|\\
+\verb|    return foo_;|\\
+\verb|}|\\
+
+Now you can ask us: ''Why the heck do you still use accessor
+functions then?  That's the same thing as putting all data in the
+public interface.  You should use a POD structure instead!''.
+Then, Tom will give you a calm answer (or he could just write it
+down here ;-).
+
+From the developer's point of view it is a bad idea to make public
+variables.  Using accessors gives the opportunity to set
+breakpoints whenever this may necessary or to execute some extra
+code in debug mode.  From the user's point of view it allows for
+transparency of the internal interface.  The internal storage
+could be omitted and replaced by a computation.  Although this
+goes against the following paragraph... it is preferred above
+forcing the user to change his code after upgrading the library.
+
+Anyway, that's for \emph{simple} accessors.  That are accessors that
+are not time-expensive and don't have any side-effects on
+\verb|Bar| except for altering the value \verb|foo_|.  All
+accessors that are expensive, or have side-effects will still use
+the \verb|get|/\verb|set| pair (However, you can also mix, see
+below).
+
+\verb|class Bar|\\
+\verb|{|\\
+\verb|public:|\\
+\verb|    const Foo& getFoo() const;|\\
+\verb|    void setFoo( const Foo& iFoo() );|\\
+\verb|private:|\\
+\verb|    Foo foo_;|\\
+\verb|};|\\
+\verb||\\
+\verb|const Foo& Bar::getFoo() const|\\
+\verb|{|\\
+\verb|    // doing some sloooooooooow stuff here !!!|\\
+\verb|    return foo_;|\\
+\verb|}|;\\
+\verb||\\
+\verb|void Bar::setFoo( const Foo& iFoo() )|\\
+\verb|{|\\
+\verb|    // doing some slooow stuff,|\\
+\verb|    // or something that has impact on more than foo_ alone|\\
+\verb|    foo_ = iFoo;|\\
+\verb|}|\\
+
+Anyway the idea is, we \emph{hate} set 'n get. So if some accessors
+only come in the \verb|get|/\verb|set| variants, we should realize
+-- as clients -- that something expensive or tricky is done here.
+
+For the rare -- or not so rare -- cases getting something is cheap
+but setting something is not (or the other way around), you may
+also mix both schemes.
+
+\verb|class Bar|\\
+\verb|{|\\
+\verb|public:|\\
+\verb|    const Foo& foo() const; // cheap|\\
+\verb|    void setFoo( const Foo& iFoo() ); // not so cheap|\\
+\verb|private:|\\
+\verb|    Foo foo_;|\\
+\verb|};|\\
+
+However, for the \emph{setters} there may only be one function, same story for
+the \emph{getters}.  The same semantics may not be mixed into two
+functions.  If the accessor is expensive it is expensive and not
+dependent on the used member function.
+
+Again set 'n get are not preferred.  Imagine a time series object
+containing octave band values.  If you would like to change only
+one value you could write (not using set 'n get):
+
+\verb| TimeSeriesObject.value(iTime).band(iBand) = newBandValue|;
+
+If you would use either get or set for the accessor above code
+would be much longer and less obvious.
+
+\verb| tempOctaveBand = TimeSeriesObject.getValue(iTime);|\\
+\verb| tempOctaveBand.setBand(iBand) = newBandValue;|\\
+\verb| TimeSeriesObject.setValue(iTime) = tempOctaveBand;|\\
+
+Hmmm, not like we want it as a user.
+
+
+
+% ------------------------------------------------------------------------------
+
+\chapter{Files}
+
+\section{file\_names}
+
+We use the extension \verb|.h| for header files, \verb|.cpp| for
+source files that are not included by other files (in other words:
+translation units), and \verb|.inl| for source files that are
+included by others (e.g.: source files of templated classes,
+inlined functions, ...).
+
+Every class should have a separate source file and header file
+that matches the name of the class. We use small letters only, and
+different words are separated by a single underscore. For example
+\verb|class FooBar| should be defined in \verb|foo_bar.h| and be
+located in \verb|foo_bar.cpp| (or other chosen extensions).
+
+All definitions should reside in source files. The header files
+should declare an interface, the source file should implement it.
+When looking for an implementation, the programmer should always
+know that it is found in the source file. Inline functions can be
+defined in the \verb|.inl| file.
+
+\section{Source Tree}
+
+TO BE WRITTEN BY TOM?
+
+A Source Tree is a Tree containing the Source ;o)
+
+\section{Including Headers}
+
+Use relative paths in \verb|#include| statements for all internal
+headers of \verb|lass|.  Note: this is only for \verb|lass|
+development!  Clients must include files of \verb|lass| as library
+files.
+
+\verb|#include "../lass_common.h" // good|\\
+\verb|#include "../prim/vector3.h" // good|\\
+\verb|#include <lass/prim/vector3.h> // bad|\\
+
+Use new-style headers for \verb|STL| library files, so you get
+your stuff in the \verb|std| namespace.
+
+\verb|#include <iostream> // good|\\
+\verb|#include <iostream.h> // bad|\\
+
+Some compilers, like our Microsoft one, don't understand there's a
+difference between \verb|#include <cmath>| and \verb|#include|
+\verb|#<math.h>|.  \verb|cmath| should have everything of
+\verb|math.h| included in \verb|std| namespace.  Except for
+Microsoft, they have both included in the global namespace.
+Therefore, use the old fashion headers only (\verb|math.h|) if
+you're dealing with such kind of headers.
+
+\verb|#include <math.h> // good|\\
+\verb|#include <cmath> // bad|\\
+
+Include all other external libraries as libraries.
+
+\verb|#include <boost/scoped_ptr.hpp>|\\
+
+Try to avoid putting \verb|#include| in header files if a forward
+declaration is sufficient.  For example:
+
+\begin{verbatim}
+class bar;
+class Foo
+{
+    void func1(const Bar& iBar);
+};
+\end{verbatim}
+
+is preferable to
+
+\begin{verbatim}
+#include "bar.h"
+class Foo
+{
+    void func1(const Bar& iBar);
+};
+\end{verbatim}
+
+Include statements must be located at the top of a file only.
+Avoid unwanted compilation side effects by "hidden" include
+statements deep into a source file.
+
+\section {Guardian of Inclusion}
+
+Each file \verb|/num/foo_bar.h| that can be included by others
+(\verb|.h| and \verb|.inl| files) must have an inclusion guard as
+following. Notice how it states the subdirectory (subnamespace)
+\verb|num|.
+
+\verb|#ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_FOO_BAR_H|\\
+\verb|#define LASS_GUARDIAN_OF_INCLUSION_NUM_FOO_BAR_H|\\
+\verb|...|\\
+\verb|#endif|\\
+
+Yeah yeah, you can also use \verb|#pragma once| (and if you're on
+a microsoft compiler, you should! :-) but don't use it as an
+alternative for the inclusion guard, since not all compilers
+recognize this.
+
+% ----------------------------------------------------------------------
+
+\chapter{Clear Code Style}
+
+Poorly written \verb|C++| can be very difficult to understand. It
+can be simplified by not using many of the features of \verb|C++|:
+some of which are leftover from \verb|C|, some which are poorly
+understood by many developers and some which are unnecessary.
+
+\verb|#ifdef/#endif| should not be used in a function to make it
+portable. Use wrapper classes to cover platform-dependent code.
+
+Macro's are evil!  So they are to be avoided. Always use constants
+or functions if possible as they are clearer and are more easily
+understood by software tools such as debuggers and source
+browsers.
+
+However, macro's still have their usage, and you should not
+hesitate to use them if necessary, or can make the code more
+clear.  An example are the debug macro's like \verb|LASS_ASSERT|,
+\verb|LASS_THROW|, ...  Their functionality can't be mimicked by
+functions.  Another example is
+\verb|LASS_IO_BINARY_O_STREAM_INSERTOR| that prevents us of copy
+pasting almost identical code over and over again.  Still, be
+carefully when choosing their names.  For macro's that must be
+used by clients short names are preferred, but for
+"implementation" macro's that are only used for generating code
+(like \verb|LASS_IO_BINARY_O_STREAM_INSERTOR|) the most ugly
+possible names should be choosen (to prevent nameclashes).
+
+Avoid \verb|C| library functions which are superceded by modern
+objects, e.g. use \verb|std::string| class methods rather than
+\verb|strcmp|, use STL streams instead of \verb|C| runtime
+functions.
+
+Don't use optimization hint keyword \verb|register|.
+
+Use of keyword \verb|volatile| may be necessary to avoid problems
+with optimizing compilers and multithreaded apps, but avoid if
+possible.
+
+Don't use run time type information (RTTI) unless you have to. The
+overhead is unnecessary and such a mechanism shouldn't normally be
+needed with good software design and template-based collections.
+
+Avoid using \verb|goto|, however it can be useful to have a goto
+to jump exit out of a series of nested loops. A preferable
+solution would be to place the loops into a separate function with
+a return statement to end the looping.
+
+Use \verb|?:| instead of \verb|if| statements in case of
+assignments and \verb|return| statements, on the condition you can
+keep it simple.
+
+\verb|a = (b == 1) ? c : d;|\\
+\verb|return b == 1 ? c : d;|\\
+
+\section{Variables}
+
+Variables should not be reused for different purposes within the
+same routine.
+
+Variables should be declared close to where it is used. Don't put
+all the variable declarations at the beginning of a function.
+
+Never use global variables in projects larger than trivial. You
+can't tell where or when they are used and they might have
+initialization sequence problems. Try using static class members
+and/or a singleton class to manage widely used variables.
+
+Constants should be defined in the smallest scope possible, for
+example if a constant is only used in one function it should be
+defined in the function.
+
+Use the \verb|C++| type \verb|bool| for boolean variables.
+
+\section{Classes}
+
+We all know that in \verb|C++| there isn't a difference between
+\verb|class| and \verb|struct| except for the default access
+rights.
+
+\verb|class Foo|\\
+\verb|{|\\
+\verb|    int privateBar_;|\\
+\verb|};|
+
+is identical to
+
+\verb|struct Foo|\\
+\verb|{|\\
+\verb|private:|\\
+\verb|    int privateBar_;|\\
+\verb|};|
+
+However, we choose to distinguish between \verb|class| and
+\verb|struct| for clarity.  \verb|class| must be used for all
+structures that don't have public data members.  \verb|struct|
+should be used for structures with public data like POD's (plain
+old data structures).  Notice that a structure with public data
+can still have structors and other methods.
+
+
+
+% ----------------------------------------------------------------------
+
+\chapter{Formatting and Layout}
+
+\begin{itemize}
+
+\item Layout should be written for maximum code readability.
+
+\item Maximum number of characters per line?
+
+\item Don't check equivalence backwards It may be safer but it is more
+difficult to read.
+
+\verb|if (false == variableA) // bad|\\
+\verb|if (variableA == false) // good|
+
+\item Each variable declaration needs a line of its own.
+
+\verb|int i;|\\
+\verb|int j;|
+
+\item If the variable declaration is a pointer, place the star next to
+the type, not the name.
+
+\verb|char* p; // good|\\
+\verb|char *q; // bad|\\
+\verb|char * r; // bad|
+
+\item Use tabs instead of spaces to indent a source file. The tab size
+for source files should be set to every four spaces.
+
+\item Place a space around both sides of binary operators such as
+\verb|+| and \verb+||+.
+
+\verb|c = 2 * a + b;|\\
+\verb+if (x || y)+
+
+\item unary operators should "stick" to the operand, but have an extra
+
+\item Use parentheses wherever they may remove possible ambiguity in the
+minds of the reader.
+
+\item Matching braces ('\verb|{|' '\verb|}|') should line up vertically
+inline with the parent statement.
+
+\item Place single spaces immediately after commas in routine parameter
+lists.
+
+\verb|void func1( const std::string& iName, long iNumberOfFoobars )|\\
+\verb|{|\\
+\verb|    if (...)|\\
+\verb|    {|\\
+\verb|        long i;|\\
+\verb|        ...|\\
+\verb|    }|\\
+\verb|}|
+
+\item Avoid one-line \verb|if| statements.  So you can easily add more
+lines of code to it, and above all: you can more easily set
+breakpoints on it.
+
+\verb|if (a == 5) b = 6; // bad|\\
+\verb|if (a == 5)|\\
+\verb|{|\\
+\verb|    b = 6; // good|\\
+\verb|}|
+
+\end{itemize}
+
+
+% ----------------------------------------------------------------
+
+\chapter{Good Coding Practices}
+
+\begin{itemize}
+
+\item Prefix versus postfix operators. This is one of all times, yet
+it's very simple: you should only use the postfix operator if you
+need it to return the old value before increment or decrement, in
+all other cases you probably should use the prefix operator.  The
+best example is a \verb|for| loop.  You can almost always use the
+prefix operator, so you should.  Why?  Because the prefix operator
+can be more optimized than the postfix one.  "But ... but ... I
+looked in the assembly code and \verb|i++| is as optimized as
+\verb|++i| for integers", you say.  Sure, but you're not always be
+using these operators on integers, so you'd better learn the right
+habit right now.
+
+\verb|for (int i = 0; i < size; ++i)|\\
+\verb|{|\\
+\verb|    sum += vector[i];|\\
+\verb|}|
+
+\item Safe \verb|C++| coding routines and their parameters should be
+declared \verb|const| wherever possible.
+
+\item Use the \verb|LASS_ASSERT| macro to test assumed or expected
+conditions.
+
+\item Assignment operators (and operators like \verb|+=|, HOW DO YOU
+CALL THESE?) should return a reference to the object
+
+\verb|Foo& Foo::operator=( const Foo& iOther )|\\
+\verb|{|\\
+\verb|    ...|\\
+\verb|    return *this;|\\
+\verb|}|
+
+\item Classes that will be inherited from should have a virtual
+destructor.
+
+\item If a class defines either an assignment operator or a copy
+constructor it probably should define both.
+
+\item If a class needs a destructor, it often needs a copy constructor
+and assigment operator as well.
+
+\item Don't throw objects allocated from the heap. You don't know if
+they will be freed.
+
+\item Use accessors instead of public variables. If you have a function
+instead of a public member you can add a breakpoint to the
+function to see when it is being used.
+
+\item Use references instead of pointers if possible. A reference cannot
+be changed to point to another object so that you know it always
+points to the same object. And above all, a reference can never be
+NULL! This is especially useful for function parameters.
+
+\item use \verb|std::string| instead of character arrays.
+
+\end{itemize}
+
+% ----------------------------------------------------------------
+
+\chapter{On Compilers, IDE's and other stuff}
+
+We use Microsoft Visual Studio .NET 2002 as IDE.  For compilers,
+we support both the Microsoft Visual C++ .NET 2002 (a.k.a.~Visual
+C++ 7.0 or VC7) and the Intel C++ Compiler 7.1 for Windows.
+Furthermore, we also use STLport for the STL implementation, and
+although we still try to avoid it, you might need the Boost
+libraries too.
+
+\section{Installation}
+
+\subsection{Microsoft Visual Studio .NET 2002 Enterprise Developer}
+
+\begin{itemize}
+
+\item First, grab the four ISO's of Microsoft Visual Studio .NET
+2002 Enterprise Developer (MSVS7 here after).  They're available
+on arcserv. Or, alternative, if you're in the Acoust workgroup,
+check out the warehouse on Gibson \cite{Gibson}. But of course,
+you could ask one of the people around if they have it already on
+CD :).
+
+\item Find yourself the `component update disk' (or something)\dots You
+can use the fifth disk of e.g. the professional edition of MSVS7,
+or use the one on gibson (`the darned components update disk' in
+the same folder as the ISO's). It's unpacked there, so if you're
+in the neighborhood, you don't have to burn it on a CD.
+
+\item As last, you will need the service pack.  Available on MSDN, or
+again on gibson.
+
+\item Alright!  Once you have all that, you're ready to install.  Insert
+the first disk of MSVS7.  Probably, you'll get a nice `3 steps to
+install' window.  Before the setup lets you install MSVC7EntDev
+(which is step 2), you first have to update the darned components.
+OK, no problem: click on that step and do it! Normally, it should
+be enough if you browse to the contents of that disk on Gibson.
+
+\item The next step (2) is installing MSVS7 itself.  It's four disks, so
+take it easy: it's gonna take a while (hihi :-)  Oh yeah, a
+typical setup will eat 2 GB of your hard disk.  Though, you can
+safely skip some parts.  All you need is Visual C++, and some
+extra stuff of course.
+
+\item Once you have done that, you can try step three, or install the
+service pack.  OK, that's all.  Fire it up!
+
+\end{itemize}
+
+\subsection{Intel C++ Compiler 7.1 for
+Windows}
+
+\subsection{STLport}
+
+\begin{itemize}
+
+\item Currently, we're using STLport 4.5.3 \cite{STLport}.  Grab the
+STLport-4.5.3.zip package from anywhere you might find it
+\cite{STLport, Lass}. Of course, like with all zips, you have to
+unzip it to a nice folder now. We'll assume you unzip it to
+\verb|C:\dev|. You'll get a folder \verb|C:\dev\STLport-4.5.3|.
+
+\end{itemize}
+
+Before we continue, we must fix some parts of STLport.
+
+\begin{itemize}
+
+\item If you try to use \verb|<typeinfo>| with MSVC7, you might find out
+that it can't find \verb|type_info|, \verb|bad_cast| or
+\verb|bad_typeid| in the namespace \verb|_STL|. To solve this,
+apply next hack: Open \verb|C:\dev\STLport-4.5.3\typeinfo| and
+write on the very first non-comment line: \verb|#include|
+\verb|<typeinfo.h>|. (Note, STLPort said that 4.5.1 should work
+alright but that 4.5.3 is not properly configured for MSVC7).
+
+\item Currently, there's still a bug with the \verb|std::complex<>|
+template.  It seems you can't check if two complex numbers are
+inequal: \verb|a != b|.  To fix this, you should open
+\verb|C:\dev\STLport-4.5.3\| \verb|src\_complex.h|, browse to line
+736 and comment the \verb|#ifndef| guard around \verb|operator!=|:
+
+\verb|//#ifdef _STLP_FUNCTION_TMPL_PARTIAL_ORDER|\\
+\verb||\\
+\verb|template <class _Tp> |\\
+\verb|inline bool _STLP_CALL operator!=(const complex<_Tp>&|
+\verb|__z1,|\\
+\verb|                                  const complex<_Tp>& __z2) {|\\
+\verb^  return __z1._M_re != __z2._M_re || __z1._M_im !=^
+\verb|__z2._M_im;|\\
+\verb|}|\\
+\verb||\\
+\verb|//#endif /* _STLP_FUNCTION_TMPL_PARTIAL_ORDER */|
+
+\end{itemize}
+
+Now it's time to build it (alternative, you can also grab the
+builded libraries from `libs$\backslash$ext' on LASS's home on the
+fileserver \cite{Lass}.  If you do, remember to copy the dlls to
+your system folder):
+
+\begin{itemize}
+
+\item fire up a command prompt.
+
+\item invoke \verb|vcvars32.bat|.  You can find it in
+\verb|C:\Program| \verb|Files\Microsoft| \verb|Visual|
+\verb|Studio| \verb|.NET\Vc7\bin|.
+
+\item go to \verb|C:\dev\STLport-4.5.3\src| and execute the
+following commands:
+
+\verb|nmake -f vc7.mak clean install|\\
+\verb|nmake -f intel50.mak clean install|\\
+
+\end{itemize}
+
+Once you've build STLport, you need to tell Visual Studio where to
+find it.
+
+\begin{itemize}
+
+\item In the menu, go to \emph{Tools > Options > Projects > VC++
+Directories}.
+
+\item Select \emph{include files} in \emph{Show directories for:}
+and add \verb|C:\dev\STLport-4.5.3\stlport| to the list. Make sure
+it is listed before any of the Visual Studio include folders (the
+ones starting with \verb|$(VCInstallDir)|).
+
+\item Select \emph{library files} in \emph{Show directories for:}
+and add \verb|C:\dev\STLport-4.5.3\lib| to the list. Again, make
+sure it is listed before any of the Visual Studio include folders.
+
+\end{itemize}
+
+\subsection{C++ Boost}
+
+\begin{itemize}
+
+\item At this moment, we're also using the Boost libraries version
+1.30.2 \cite{Boost} As with STLport, grab the boost-1.30.2.zip
+from anywhere you might find it \cite{Boost, Lass}.  Again unzip
+it \dots  If you unzip it to \verb|C:\dev|, you'll get a new
+folder \verb|C:\dev\boost-1.30.2|.  Groovy!
+
+\item Most of Boost is implemented in headers only, so you can already
+use a lot of it by setting the correct include directories in
+Visual Studio: Tools > Options > Projects > VC++ Directories >
+Show directories for include files.  Add a new line on top and
+browse it to \verb|C:\dev\boost-1.30.2|.  Now you can already use
+e.g.~\verb|boost::scoped_ptr<>| by including
+\verb|<boost/scoped_ptr.hpp>|.  For other stuff, Boost must be
+build.  Take a deep breath and stick with me here \dots
+
+\item First, make sure you've installed MSVS7, STLPort 4.5.3 and that
+you've patched STLPort as described above.
+
+\item Now it's time to patch Boost :)  open the following file:
+
+\verb|C:\dev\boost-1.30.2\libs\regex\src\cpp_regex_traits.cpp|
+
+browse to the line
+
+\verb?#if defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)?
+
+and change it to (one line):
+
+\verb?#if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION))?\\
+\verb?&& !defined(BOOST_MSVC)?
+
+Insert under this line (and above \verb|using namespace std;|) the
+following:
+
+\verb|using stlport::isspace;|\\
+
+\item Now everything is patched, let's build Boost\dots  Very very short: Get the \verb|bjam.exe|, Invoke
+\verb|vcvars32.bat|, go to boost directory and do the command (the
+following three lines are one command!):
+
+\verb|C:\dev\boost-1.30.2>bjam "-sTOOLS=msvc-stlport"|\\
+\verb|"-sMSVC_ROOT=c:\Program Files\Microsoft Visual Studio .NET\VC7"|\\
+\verb|"-sSTLPORT_PATH=c:\dev" "-sBUILD=<stlport-iostream>on"|\\
+
+\end{itemize}
+
+\section{Project Properties for lass}
+
+In this section, we'll enumerate the different project settings
+you need to build static libraries for \verb|lass| (warning: this
+is all MSVC70 stuff). Let's go ... Click right on your project and
+select `properties'.
+
+\subsection{Configuration Names}
+
+The following settings rely on a fixed scheme of configuration
+names.  Instead of \verb|Debug| and \verb|Release| you have to use
+for each configuration a name as following:
+
+\emph{platform}\verb|_|\emph{compiler}\emph{[debug]}
+
+With:
+\begin{itemize}
+  \item \emph{platform} indicates for what platform this
+configuration will be used.  It must be equal to the value of the
+macro \verb|LASS_PLATFORM|.  For example, if the configuration is
+for the windows platform, \emph{platform} will be equal to
+\verb|win32|.
+  \item \emph{compiler} indicates on what compiler this
+  configuration will be used.  It must be equal to the value of
+  the macro \verb|LASS_COMPILER|.  For example, if you're using
+  the Microsoft Visual C++ 7.0 compiler, this will be equal to
+  \verb|vc7|
+  \item \emph{debug} indicates wether this is a configuration
+  for a debug or a release build.  In case of a debug build,
+  \emph{debug} is equal to \verb|_d|, otherwise it's an empty
+  string.
+\end{itemize}
+
+For a configuration for the windows platform, Intel C++ 7.0
+compiler and a debug build, the configuration name would be
+\verb|win32_intel700_d|.  For the release build this would reduce
+to \verb|win32_intel700|.
+
+Notice that each configuration must be used for a particular
+combination of platform, compiler and build. You can't use the
+same configuration for two different compilers.
+
+Why is this configuration name so important?  This is because this
+name is used to generate the name of the static lib that will be
+build.  However, the same name must be generated by the macro
+tools in the common headers of these libraries that automatically
+link up to these libraries when used.  Because these names are
+generated independently, we have to use a fixed naming scheme to
+let them match.
+
+\subsection{Common settings}
+
+First, some common settings that are valid for all builds.
+
+General
+
+\begin{tabular}{|l|l|}
+  \hline
+  Output Directory & .$\backslash$\$(ConfigurationName)\\
+  Intermediate Directory & .$\backslash$\$(ConfigurationName)\\
+  Configuration Type & Static Library (.lib)\\
+  \hline
+\end{tabular}
+
+C++
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{Language} & \\
+  Default Char Unsigned & Yes\\
+  Force Conformance in For Loop & Yes\\
+  \hline
+  \emph{Output Files} & \\
+  ASM List Location & \$(OutDir)$\backslash$\\
+  Object File Name & \$(OutDir)$\backslash$\\
+  Program Database File Name & \$(OutDir)$\backslash$\$(TargetName).pdb\\
+  \hline
+\end{tabular}
+
+Librarian
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{General} & \\
+  Output File & \$(OutDir)/\$(SolutionName)\_\$(ProjectName)\_\$(ConfigurationName).lib \\
+  \hline
+\end{tabular}
+
+
+
+\subsection{Microsoft versus Intel}
+
+\subsubsection*{Microsoft VC7}
+Build Events
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{Post-Build Event} & \\
+  Command Line & copy ``\$(TargetPath)'' ``\$(SolutionDir)..$\backslash$lib$\backslash$\$(TargetFileName)''\\
+  & copy ``\$(TargetDir)$\backslash$\$(TargetName).pdb'' ``\$(SolutionDir)..$\backslash$lib$\backslash$\$(TargetName).pdb''\\
+  Description & Collecting library file \$(TargetFileName) ... \\
+  \hline
+\end{tabular}
+
+\subsubsection*{Intel intel700}
+Build Events
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{Post-Build Event} & \\
+  Command Line & copy ``\$(TargetPath)'' ``\$(SolutionDir)..$\backslash$lib$\backslash$\$(TargetFileName)''\\
+  Description & Collecting library file \$(TargetFileName) ... \\
+  \hline
+\end{tabular}
+
+
+
+\subsection{Debug versus release builds}
+
+\subsubsection*{Debug}
+
+C++
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{General} & \\
+  Debug Information Format & Program Database for Edit \&
+  Continue\\
+  \hline
+  \emph{Code Generation} & \\
+  Runtime Library & Multi-threaded Debug DLL\\
+  \hline
+\end{tabular}
+
+\subsubsection*{Release}
+
+C++
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{General} & \\
+  Debug Information Format & Program Database\\
+  \hline
+  \emph{Code Generation} & \\
+  Runtime Library & Multi-threaded DLL\\
+  \hline
+\end{tabular}
+
+\subsection {Precompiled Headers}
+
+Here we'll describe how to used precompiled headers correctly.
+Say, we have a project called \verb|foo| we want to compile with
+precompiled headers. Create two files \verb|foo_common.h| and
+\verb|foo_common.cpp|. The former will be the `precompiled'
+header, the latter will perform the precompilation.
+
+Select your project and open its properties (make sure you
+selected your project so you alter the settings for all files).
+Apply the following settings, you can do this for all
+configurations at once:
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{C++} & \\
+  Precompiled Headers & Create/Use Precompiled Header: Use Precompiled Header\\
+  & Create/Use PCH Through File: foo\_common.h\\
+  & Precompiled Header file:
+  \$(IntDir)$\backslash$\$(TargetName).pch\\
+  \hline
+\end{tabular}
+
+Select \verb|foo_common.cpp| only and change its properties to:
+
+\begin{tabular}{|l|l|}
+  \hline
+  \emph{C++} & \\
+  Precompiled Headers & Create/Use Precompiled Header: Create Precompiled Header\\
+  \hline
+\end{tabular}
+
+As the last step, you must write in every translation unit
+(\verb|.cpp| files) the following include on the first
+\emph{non-comment} line:
+
+\verb|#include "foo_common.h"|
+
+\subsection{miscellaneous}
+
+MSVC7 sometimes doesn't understand you want to enable RTTI.  Like
+anyone, you go to the project properties > C/C++ > Language and
+you enable Run-Time Type Info.  Unfortunately, you might find out
+that doesn't work.  You might get warnings like: ``warning C4541:
+`typeid' used on polymorphic type `foo' with /GR-; unpredictable
+behavior may result''.  Unpredictable behavior, that is: crashing.
+You don't want that of course, so you go again in the properties
+and you check the commandline.  You'll find out that it indeed
+enables RTTI as requested, /GR is mentioned in the commandline.
+But!  If you check the buildlog, you notice it suddenly
+disappeared!  Where did it go?  Nobody knows.  Fortunately, the
+solution is simple: add /GR explicitly to the command line in the
+project properties (now it will be there twice, but the first one
+disappears, remember?), and your problem is solved ...  (Addendum:
+well not quite yet.  you might be doomed forever on this ...)
+
+
+
+% ----------------------------------------------------------------
+%\bibliographystyle{amsplain}
+%\bibliography{}
+
+\begin{thebibliography}{99}
+
+\bibitem{Boost} C++ BOOST, http://www.boost.org.
+\bibitem{Cpp98} ISO/IEC 14882 (1998), {\it Programming Languages --
+C++}.
+\bibitem{Gibson} GIBSON,
+$\backslash$$\backslash$gibson$\backslash$warehouse.
+\bibitem{Lass} LASS,
+$\backslash$$\backslash$Fileserver-urb$\backslash$acoust$\backslash$software$\backslash$intern$\backslash$lass.
+\bibitem{Ottinger} OTTINGER T. (1997), {\it Ottinger's Rules for Variable
+and Class Naming}, Object Mentor, Inc.,
+http://www.objectmentor.com/resources/articles/naming.htm.
+\bibitem{STLport} STLPORT, http://www.stlport.com.
+
+\end{thebibliography}
+
+
+\end{document}
+% ----------------------------------------------------------------
