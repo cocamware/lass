@@ -99,7 +99,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_H
-#pragma once
+
 
 
 #include "util_common.h"

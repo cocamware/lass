@@ -27,7 +27,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_INL
-#pragma once
+
 
 #include "singleton.h"
 #include "thread.h"

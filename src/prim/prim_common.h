@@ -162,7 +162,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PRIM_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PRIM_COMMON_H
-#pragma once
+
 
 
 #include "../lass_common.h"

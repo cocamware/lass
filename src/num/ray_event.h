@@ -29,7 +29,7 @@
 #define AFX_RAYEVENT_H__BE5FAEA2_278E_4F0C_BB01_458543EA838C__INCLUDED_
 
 #if _MSC_VER > 1000
-#pragma once
+
 #endif // _MSC_VER > 1000
 
 #include <exception>

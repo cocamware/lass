@@ -53,7 +53,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_ID_GENERATOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_ID_GENERATOR_H
-#pragma once
+
 
 
 #include "util_common.h"

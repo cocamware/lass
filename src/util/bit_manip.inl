@@ -27,7 +27,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_BIT_MANIP_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_BIT_MANIP_INL
-#pragma once
+
 
 #include "bit_manip.h"
 

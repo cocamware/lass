@@ -27,7 +27,7 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE3D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE3D_INL
-#pragma once
+
 
 #include "sphere_3d.h"
 
