@@ -290,19 +290,6 @@ template<typename C> interval<C>	operator-(const interval<C>& i1,const interval<
 template<typename C> interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
 template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
 
-
-// implementation of basic_ops
-template<typename C> void inpexp(interval<C>& i);
-template<typename C> void inplog(interval<C>& i);
-template<typename C> void inpsqr(interval<C>& i);
-template<typename C> void inpsqrt(interval<C>& i);
-
-template<typename C> interval<C>	sqr(const interval<C>& i);
-template<typename C> interval<C>	exp(const interval<C>& i);
-template<typename C> interval<C>	log(const interval<C>& i);
-template<typename C> interval<C>	sqrt(const interval<C>& i);
-
-
 template<typename C> 
 interval<C>	interval<C>::operator-() const 
 { 
@@ -529,7 +516,7 @@ C	interval<C>::fle(const interval<C>& i) const
 	return std::max(fl(i),fe(i));
 }
 
-template<class C>
+template<typename C>
 void inpsqr(interval<C>& i)
 {
 	C	m1,M1;
@@ -541,35 +528,35 @@ void inpsqr(interval<C>& i)
 		i.v[0] = 0.0;
 }
 
-template<class C>
+template<typename C>
 void inpsqrt(interval<C>& i)
 {
 	i.v[0] = lass::num::sqrt(i.v[0]);
 	i.v[1] = lass::num::sqrt(i.v[1]);
 }
 
-template<class C>
+template<typename C>
 void inpexp(interval<C>& i)
 {
 	i.v[0] = lass::num::exp(i.v[0]);
 	i.v[1] = lass::num::exp(i.v[1]);
 }
 
-template<class C>
+template<typename C>
 void inplog(interval<C>& i)
 {
 	i[0] = lass::num::log(i[0]);
 	i[1] = lass::num::log(i[1]);
 }
 
-template<class C>
+template<typename C>
 void inpnorm(interval<C>& i)
 {
 	i[0] = lass::num::norm( i[0] );
 	i[1] = lass::num::norm( i[1] );
 }
 
-template<class C>
+template<typename C>
 void inpinv(interval<C>& i)
 {
 	C	t(i[0]);

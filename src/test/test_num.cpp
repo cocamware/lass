@@ -34,6 +34,7 @@
 #include "test_num_matrix_vector.inl"
 #include "test_num_random.inl"
 #include "test_num_tri_bool.inl"
+#include "test_num_fn_sampled8.inl"
 
 namespace lass
 {
@@ -57,6 +58,8 @@ boost::unit_test_framework::test_suite* testNum()
     result->add(BOOST_TEST_CASE(testNumRandomMersenne));
 
     result->add(BOOST_TEST_CASE(testNumTriBool));
+
+	result->add(BOOST_TEST_CASE(testNumFNSampled8));
 
     return result;
 }

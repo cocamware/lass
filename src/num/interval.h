@@ -38,6 +38,15 @@ namespace lass
 namespace num
 {
 
+template<typename C> class interval;
+
+template<typename C> void inpsqr(interval<C>& i);
+template<typename C> void inpsqrt(interval<C>& i);
+template<typename C> void inpexp(interval<C>& i);
+template<typename C> void inplog(interval<C>& i);
+template<typename C> void inpnorm(interval<C>& i);
+template<typename C> void inpinv(interval<C>& i);
+
 /** Interval class.  Class for interval arithmetic.  The arithmetic is weak interval arithmetic: there is
 *	no rounding code, to speed up things.  It should however be useful except for numerical stability
 *   studies on the bitlevel.  If you wont strong interval arithmetic, look for the boost library.
@@ -148,12 +157,12 @@ public:
 	friend interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
 	friend interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
 
-	friend void inpsqr(interval<C>& i);
-	friend void inpsqrt(interval<C>& i);
-	friend void inpexp(interval<C>& i);
-	friend void inplog(interval<C>& i);
-	friend void inpnorm(interval<C>& i);
-	friend void inpinv(interval<C>& i);
+	friend void inpsqr<>(interval<C>& i);
+	friend void inpsqrt<>(interval<C>& i);
+	friend void inpexp<>(interval<C>& i);
+	friend void inplog<>(interval<C>& i);
+	friend void inpnorm<>(interval<C>& i);
+	friend void inpinv<>(interval<C>& i);
 };
 
 template<typename C> std::ostream& operator<<( std::ostream& os, const interval<C>& iV );
@@ -169,17 +178,10 @@ template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<
 
 // implementation of basic_ops
 
-
-template<typename C>	void inpsqr(interval<C>& i);
-template<typename C>	void inpsqrt(interval<C>& i);
-template<typename C>	void inpexp(interval<C>& i);
-template<typename C>	void inplog(interval<C>& i);
-
-
-template<typename C>	interval<C>	sqr(const interval<C>& i);
-template<typename C>	interval<C>	sqrt(const interval<C>& i);
-template<typename C>	interval<C>	exp(const interval<C>& i);
-template<typename C>	interval<C>	log(const interval<C>& i);
+template<typename C> interval<C> sqr(const interval<C>& i);
+template<typename C> interval<C> sqrt(const interval<C>& i);
+template<typename C> interval<C> exp(const interval<C>& i);
+template<typename C> interval<C> log(const interval<C>& i);
 
 template<typename C>	interval<C>	setUnion(const interval<C>& i1, const interval<C>& i2);
 template<typename C>	interval<C>	setIntersect(const interval<C>& i1, const interval<C>& i2);

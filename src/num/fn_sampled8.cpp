@@ -792,19 +792,6 @@ namespace lass
 			return temp.real();
 		}
 
-		/*
-		PY_DECLARE_CLASS( PyFNSampled8,  "FNSampled8" )
-
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeUnit, "makeUnit" )
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeZero, "makeZero" )
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeTriangular, "makeTriangular" )
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeGaussian, "makeGaussian" )
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeProbGaussian, "makeProbGaussian" )
-		PY_EXPORTMETHOD( PyFNSampled8, pyMakeTrapezoidal, "makeTrapezoidal" )
-
-		PY_INJECT_CLASS_IN_MODULE( PyFNSampled8, NULL, NULL )
-		*/
-
 		std::string	PyFNSampled8::repr(void)
 		{
 			return str( value );
@@ -896,6 +883,16 @@ namespace lass
 			}
 			return PyPlus_INCREF();
 		}
+
+		PY_DECLARE_CLASS_EX( PyFNSampled8,  "FNSampled8" )
+		PY_CLASS_CONSTRUCTOR_0( PyFNSampled8 )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeUnit, "makeUnit", NULL )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeZero, "makeZero", NULL )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeTriangular, "makeTriangular", NULL )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeGaussian, "makeGaussian", NULL )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeProbGaussian, "makeProbGaussian", NULL )
+		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeTrapezoidal, "makeTrapezoidal", NULL )
+
 	}
 	namespace python
 	{

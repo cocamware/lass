@@ -249,7 +249,7 @@
 	char* CppClass__::PythonClassName = (char*) ( pyclass__ ) ;\
 	char* CppClass__::PythonModuleName = (char*) "!no assigned module!" ;\
 	PyTypeObject CppClass__::Type = {\
-	PY_STATIC_FUNCTION_FORWARD( CppClass__, pyclass__ ) };\
+	PY_STATIC_FUNCTION_FORWARD_PLUS( CppClass__, CppClass__, pyclass__ ) };\
 	std::vector<PyMethodDef> CppClass__::Methods;\
 	std::vector<PyGetSetDef> CppClass__::GetSetters;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClass_, CppClass__ ),\
