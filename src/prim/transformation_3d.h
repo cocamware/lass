@@ -35,7 +35,7 @@
 
 #include "prim_common.h"
 #include "../num/num_traits.h"
-#include "../util/scoped_ptr.h"
+#include "../util/shared_ptr.h"
 
 namespace lass
 {
@@ -65,10 +65,8 @@ public:
 
 	Transformation3D();
 	template <typename InputIterator> Transformation3D(InputIterator iBegin, InputIterator iEnd);
-	Transformation3D(const TSelf& iOther);
-	TSelf& operator=(const TSelf& iOther);
 
-	const Transformation3D<T>& inverse() const;
+	const Transformation3D<T> inverse() const;
 
 	const TValue* matrix() const;
 
@@ -80,8 +78,15 @@ public:
 
 private:
 
-	TValue v_[16];
-	mutable util::ScopedPtr<TSelf> inverse_;
+	enum { matrixSize_ = 16 };
+
+
+	typedef util::SharedPtr<TValue, util::ArrayStorage> TMatrix;
+
+	Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix);
+
+	TMatrix matrix_;
+	mutable TMatrix inverseMatrix_;
 };
 
 template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformation3D<T>& iB);

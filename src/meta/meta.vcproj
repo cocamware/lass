@@ -303,6 +303,9 @@
 				RelativePath="bool.h">
 			</File>
 			<File 
+				RelativePath=".\empty_type.h">
+			</File>
+			<File 
 				RelativePath="if.h">
 			</File>
 			<File 
