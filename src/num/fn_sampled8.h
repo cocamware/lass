@@ -203,6 +203,7 @@ namespace lass
 
 			lass::io::BinaryOStream& write(lass::io::BinaryOStream& os) const;
 			lass::io::BinaryIStream& read(lass::io::BinaryIStream& is);
+			std::ostream& write(std::ostream& os) const;
 
 			friend void events(const FNSampled8& sfn1,const FNSampled8& sfn2,std::vector<FNSampled8::TBaseType>& outEvents);
 		};
@@ -322,6 +323,8 @@ namespace lass
 		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
 	}
 }
+
+inline std::ostream& operator<<(std::ostream& os, const lass::num::FNSampled8& sfn) { return sfn.write(os); } 
 
 //#include "fn_sampled8.inl"
 

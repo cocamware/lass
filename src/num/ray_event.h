@@ -43,7 +43,7 @@ namespace num
 typedef void*		Medium;
 
 
-enum enumEventType_ { Propagation, Reflection, DiffuseReflection, Diffraction };	
+enum enumEventType_ { Propagation, Reflection, DiffuseReflection, Diffraction, TopDiffraction };	
 typedef	enum enumEventType_	RayEventType;
 
 template<class T>
@@ -126,6 +126,18 @@ struct RayEventTypes
 	//        1 = outgoing angle with the normal
 
 	typedef RayEventImpl<T,Diffraction, 3, 4, 4, 0> DiffractionEvent;
+	// medium: 0 = normally air
+	//         1 = medium upon which incoming ray is reflected, 
+	//         2 = medium upon which outgoing ray is reflected */
+	// distance: 0 = distance from first point to wedge, r in cylindrical coord
+	//           1 = distance from wedge to second point, r in cylindrical coord
+	//			 2 = distance along z-axis in cylindrical coordinates
+	//			 3 = direct path length between first and second point.
+	// angle: 0 = angle between reflecting boundaries
+	//        1 = incoming angle with the first medium
+	//        2 = outgoing angle with the second medium
+	//		  3 = Keller cone angle
+	typedef RayEventImpl<T,TopDiffraction, 3, 4, 4, 0> TopDiffractionEvent;
 	// medium: 0 = normally air
 	//         1 = medium upon which incoming ray is reflected, 
 	//         2 = medium upon which outgoing ray is reflected */

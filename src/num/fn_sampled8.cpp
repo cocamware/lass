@@ -56,6 +56,26 @@ namespace lass
 
 		LASS_NUM_DEFINE_NUMTRAITS_FNSAMPLED
 
+		std::ostream& FNSampled8::write(std::ostream& os) const
+		{
+			int i;
+			os << "FNSampled8(";
+			os << alpha_[0].inf();
+			for (i=1;i<3;++i)
+			{
+				os << "," << alpha_[i].inf();
+			}
+			os << ";" << alpha_[3].sup();
+			for (i=2;i>=0;--i)
+			{
+				os << "," << alpha_[i].sup();
+			}
+
+			os << ")";
+			return os;
+		}
+
+
 		lass::io::BinaryOStream& FNSampled8::write( lass::io::BinaryOStream& os) const
 		{
 			int i;
@@ -1048,5 +1068,7 @@ namespace lass
 
 	}
 }
+
+
 
 
