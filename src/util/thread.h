@@ -182,8 +182,6 @@ public:
 	virtual ~MutexLocker();
 };
 
-#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
-
 /** CriticalSection.
 *	@ingroup Threading
 *	@see CriticalSectionLocker
@@ -218,13 +216,10 @@ class CriticalSectionLocker: NonCopyable
 {
 	CriticalSection&	m_criticalsection;
 public:
-	CriticalSectionLocker(  CriticalSection& iMutex );
+	CriticalSectionLocker(  CriticalSection& iSection );
 	operator bool() const { return false; }
 	virtual ~CriticalSectionLocker();
 };
-
-#endif
-
 
 
 class ThreadInternal;
