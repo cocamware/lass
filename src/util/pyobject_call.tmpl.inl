@@ -42,7 +42,7 @@
 	catch (lass::util::Exception& error)\
 	{\
 		std::ostringstream buffer;\
-		buffer << error.message() << " (" << error.location() << ")";\
+		buffer << error.message() << "\n\n(" << error.location() << ")";\
 		PyErr_SetString(PyExc_Exception, buffer.str().c_str());\
 		return v_errorReturnValue;\
 	}\

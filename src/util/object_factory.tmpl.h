@@ -102,10 +102,10 @@ namespace util
 
 template
 <
-	class AbstractProduct,
-	class IdentifierType,
-	class ProductMaker,
-	class ProductPointer = AbstractProduct*
+	typename AbstractProduct,
+	typename IdentifierType,
+	typename ProductPointer = AbstractProduct*,
+	typename ProductMaker = ProductPointer(*)()
 >
 class ObjectFactory
 {
