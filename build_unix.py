@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/python
 
 
 import os
@@ -37,11 +37,12 @@ AC_FUNC_ERROR_AT_LINE
 AC_HEADER_STDC
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([atexit floor memset pow sqrt])
-
 AC_OUTPUT(Makefile src/Makefile''')
     for p in subprojects:
         f.write(' src/%s/Makefile' % p)
     f.write(')\n') 
+
+
 
 def makeMakeFile():
     f=open('Makefile.am','w+')
@@ -50,16 +51,19 @@ AUTOMAKE_OPTIONS = foreign 1.4
 SUBDIRS = src
     ''')
 
+
+
 def makeSrcMakeFile():
     f=open('src/Makefile.am','w+')
     f.write(r'''# set the include path found by configure
 INCLUDES= $(all_includes)
-
 # the library search path.
 #lass_LDFLAGS = $(all_libraries) 
 SUBDIRS = ''')
     f.write(string.join(subprojects, ' '))
     f.close()
+
+
 
 def getSources(map):
 	filelist = os.listdir(map)
@@ -69,15 +73,21 @@ def getSources(map):
 			files.append(f)
 	return files
 
+
+
 def makeMakeFileProject(directory):
 	f = open('src/'+directory+'/Makefile.am','w+')
 	f.write('INCLUDES= $(all_includes) -I/usr/include/python2.3/ -I/usr/local/lib/boost_1_31_0/\n')
 	f.write('lib_LIBRARIES = liblass'+directory+'.a\n')
 	f.write('liblass'+directory+'_a_SOURCES = ')
 	files = getSources('src/'+directory)
-	filesStr = string.join(files,' ')
+	if directory == 'util':
+		files.append('impl/singleton_impl.cpp')
+	filesStr = string.join(files,' ')		
 	f.write(filesStr+'\n')
 	f.close()
+
+
 
 os.chdir('src/util')
 os.system('python pre_build.py')
@@ -96,5 +106,3 @@ os.system('automake -a')
 os.system('make distclean')
 os.system('./configure')
 os.system('make')
-
-

@@ -39,6 +39,19 @@ namespace lass
 {
 namespace test
 {
+PY_SHADOW_CLASS(PySpam, Spam)
+PY_SHADOW_CLASS_DERIVED(PyHam, Ham, PySpam)
+PY_SHADOW_CLASS_DERIVED(PyBacon, Bacon, PyHam)
+PY_SHADOW_CLASS_DERIVED(PyEggs, Eggs, PySpam)
+}
+}
+
+PY_SHADOW_CASTERS(lass::test::PySpam)
+
+namespace lass
+{
+namespace test
+{
 
 PY_DECLARE_CLASS_EX( PythonFoo, "PythonFoo" )
 
@@ -147,18 +160,6 @@ PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 
 // --- shadow classes ------------------------------------------------------------------------------
 
-namespace lass
-{
-namespace test
-{
-PY_SHADOW_CLASS(PySpam, Spam)
-PY_SHADOW_CLASS_DERIVED(PyHam, Ham, PySpam)
-PY_SHADOW_CLASS_DERIVED(PyBacon, Bacon, PyHam)
-PY_SHADOW_CLASS_DERIVED(PyEggs, Eggs, PySpam)
-}
-}
-
-PY_SHADOW_CASTERS(lass::test::PySpam)
 
 namespace lass
 {
