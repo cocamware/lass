@@ -30,7 +30,8 @@
 
 #include "util_common.h"
 #include "call_traits.h"
-#include "../meta/select.h"
+#include "../meta/if.h"
+#include "../meta/type_2_type.h"
 #include "../meta/type_list.h"
 
 #define LASS_UTIL_PYOBJECT_CALL_TRY_EX(e_expression, v_errorReturnValue)\
@@ -59,22 +60,13 @@ namespace impl
 template <typename T, bool isPyObject>
 struct ArgTraitsHelper
 {
-    static const T& arg(PyObject* iArg) 
-	{ 
-		if (!PyType_IsSubtype(iArg->ob_type , &T::Type ))
-		{
-#pragma LASS_FIXME("attempt for safe casting")
-			PyErr_Format(PyExc_TypeError,"not castable to %s",T::PythonClassName);
-			return 1;
-		}
-		return *static_cast<T*>(iArg); 
-	}
+    static T* get(const typename PyObjectPtr<T>::Type& iArg) { return iArg.get(); }
 };
 
 template <typename T>
 struct ArgTraitsHelper<T, false>
 {
-    static const T& arg(const T& iArg) { return iArg; }
+    static const T* get(const T& iArg) { return &iArg; }
 };
 
 /** determines the right type for temporary storage of function arguments.
@@ -82,61 +74,60 @@ struct ArgTraitsHelper<T, false>
 template <typename T> 
 struct ArgumentTraits
 {
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, T>::Type TStorage;
-    static const T& arg(const TStorage& iArg) 
-    { 
-        return ArgTraitsHelper<T, IsPyObject<T>::value>::arg(iArg); 
-    }
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, meta::NullType, meta::Type2Type<T> >::Type TStorage;
+    static const T& arg(const TStorage& iArg) { return *ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T>
 struct ArgumentTraits<const T>
 {
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, T>::Type TStorage;
-    static const T& arg(const TStorage& iArg) 
-    { 
-        return ArgTraitsHelper<T, IsPyObject<T>::value>::arg(iArg); 
-    }
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, meta::NullType, meta::Type2Type<T> >::Type TStorage;
+    static const T& arg(const TStorage& iArg) { return *ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T> struct ArgumentTraits<T&> 
 { 
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, meta::NullType>::Type TStorage;
-    static T& arg(const TStorage& iArg) { return *static_cast<T*>(iArg); } 
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::NullType>::Type TStorage;
+    static T& arg(const TStorage& iArg) { return *ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T>
 struct ArgumentTraits<const T&>
 {
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, T>::Type TStorage;
-    static const T& arg(const TStorage& iArg) 
-    { 
-        return ArgTraitsHelper<T, IsPyObject<T>::value>::arg(iArg); 
-    }
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::Type2Type<T> >::Type TStorage;
+    static const T& arg(const TStorage& iArg) { return *ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T> struct ArgumentTraits<T*> 
 { 
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, meta::NullType>::Type TStorage;
-    static T* arg(const TStorage& iArg) { return static_cast<T*>(iArg); } 
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::NullType>::Type TStorage;
+    static T* arg(const TStorage& iArg) { return ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T> struct ArgumentTraits<const T*> 
 { 
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, meta::NullType>::Type TStorage;
-    static const T* arg(const TStorage& iArg) { return static_cast<T*>(iArg); } 
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::NullType>::Type TStorage;
+    static const T* arg(const TStorage& iArg) { return ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T> struct ArgumentTraits<T* const> 
 { 
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, meta::NullType>::Type TStorage;
-    static T* const arg(const TStorage& iArg) { return static_cast<T*>(iArg); } 
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::NullType>::Type TStorage;
+    static T* arg(const TStorage& iArg) { return ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 template <typename T> struct ArgumentTraits<const T* const> 
 { 
-    typedef typename meta::Select<IsPyObject<T>::value, PyObject*, meta::NullType>::Type TStorage;
-    static const T* const arg(const TStorage& iArg) { return static_cast<T*>(iArg); } 
+    enum { isPyObject = IsPyObject<T>::value };
+    typedef typename meta::If<isPyObject, PyObjectPtr<T>, meta::NullType>::Type TStorage;
+    static const T* arg(const TStorage& iArg) { return ArgTraitsHelper<T, isPyObject>::get(iArg); }
 };
 
 

@@ -181,10 +181,10 @@ template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
                                              const Transformation3D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(oOStream) << "("
-        << iB(0, 0) << ", " << iB(0, 1)  << ", " << iB(0, 2) << ", " << iB(0, 3) << "), "
-        << iB(1, 0) << ", " << iB(1, 1)  << ", " << iB(1, 2) << ", " << iB(1, 3) << "), "
-        << iB(2, 0) << ", " << iB(2, 1)  << ", " << iB(2, 2) << ", " << iB(2, 3) << "), "
+	LASS_ENFORCE_STREAM(oOStream) << "(("
+        << iB(0, 0) << ", " << iB(0, 1)  << ", " << iB(0, 2) << ", " << iB(0, 3) << "), ("
+        << iB(1, 0) << ", " << iB(1, 1)  << ", " << iB(1, 2) << ", " << iB(1, 3) << "), ("
+        << iB(2, 0) << ", " << iB(2, 1)  << ", " << iB(2, 2) << ", " << iB(2, 3) << "), ("
         << iB(3, 0) << ", " << iB(3, 1)  << ", " << iB(3, 2) << ", " << iB(3, 3) << "))";
 	return oOStream;
 }

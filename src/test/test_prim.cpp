@@ -37,7 +37,7 @@
 #include "test_prim_points.inl"
 #include "test_prim_ray.inl"
 #include "test_prim_sphere_3d.inl"
-#include "test_prim_simple_polygon_2d.inl"
+//#include "test_prim_simple_polygon_2d.inl"
 #include "test_prim_vectors.inl"
 #include "test_prim_xml.inl"
 

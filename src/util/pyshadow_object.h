@@ -85,40 +85,29 @@ private:
     template <typename U, bool shadow>
     struct Impl
     {
-        typedef U TCppClass;
-        static U* cppObject(PyObject* iPyObject) 
-        {
-			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
-			{
-                LASS_THROW("'" << iPyObject->ob_type->tp_name << "' is not castable to '" 
-                    << U::PythonClassName << "'.");
-			}
-            return static_cast<U*>(iPyObject);
-        };
-        static U* pyObject(U* iCppObject)
-        {
-            return iCppObject;
-        }
-    };
-
-    template <typename U>
-    struct Impl<U, true>
-    {
         typedef typename U::TCppClass TCppClass;
-        static TCppClass* cppObject(PyObject* iPyObject) 
+        static TCppClass* cppObject(U* iPyObject) 
         {
-			if (!PyType_IsSubtype(iPyObject->ob_type , &U::Type ))
-			{
-                LASS_THROW("'" << iPyObject->ob_type->tp_name << "' is not castable to '" 
-                    << U::PythonClassName << "'.");
-			}
-
-            return static_cast<TCppClass*>(static_cast<U*>(iPyObject)->cppObject()); 
+            return static_cast<TCppClass*>(iPyObject->cppObject()); 
         };
         static U* pyObject(TCppClass* iCppObject)
         {
             std::auto_ptr<TCppClass> cppObject(iCppObject);
             return new U(cppObject);
+        }
+    };
+
+    template <typename U>
+    struct Impl<U, false>
+    {
+        typedef U TCppClass;
+        static U* cppObject(U* iPyObject) 
+        {
+            return iPyObject;
+        };
+        static U* pyObject(U* iCppObject)
+        {
+            return iCppObject;
         }
     };
 
@@ -129,7 +118,12 @@ public:
 
     static TCppClass* cppObject(PyObject* iPyObject) 
     { 
-        return Impl<T, isShadow>::cppObject(iPyObject); 
+		if (!PyType_IsSubtype(iPyObject->ob_type , &T::Type ))
+		{
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::PythonClassName);
+            return 0;
+		}
+        return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject)); 
     };
     static T* pyObject(TCppClass* iCppObject)
     {
@@ -181,73 +175,73 @@ namespace impl\
 template <> struct ArgumentTraits<t_ShadowObject::TCppClass>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static const TCppClass& arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static const TCppClass& arg(const TStorage& iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const t_ShadowObject::TCppClass>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static const TCppClass& arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static const TCppClass& arg(const TStorage& iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<t_ShadowObject::TCppClass&>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static TCppClass& arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static TCppClass& arg(const TStorage& iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const t_ShadowObject::TCppClass&>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static const TCppClass& arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static const TCppClass& arg(const TStorage& iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<t_ShadowObject::TCppClass*>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static TCppClass* arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static TCppClass* arg(const TStorage& iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const t_ShadowObject::TCppClass*>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static const TCppClass* arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static const TCppClass* arg(const TStorage& iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<t_ShadowObject::TCppClass* const>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static TCppClass* const arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static TCppClass* const arg(const TStorage& iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const t_ShadowObject::TCppClass* const>\
 {\
     typedef t_ShadowObject::TCppClass TCppClass;\
-    typedef PyObject* TStorage;\
-    static const TCppClass* const arg(PyObject* iArg)\
+    typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
+    static const TCppClass* const arg(const TStorage& iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<t_ShadowObject*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(iArg->cppObject());\
     }\
 };\
 }\

@@ -335,6 +335,11 @@
 #define PY_CLASS_PY_METHOD_EX( i_cppClass, i_cppMethod, s_methodName, s_doc  )\
 	inline PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
 	{\
+		if (!PyType_IsSubtype(iObject->ob_type , &i_cppClass::Type ))\
+		{\
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", i_cppClass::PythonClassName);\
+            return 0;\
+		}\
 		i_cppClass* object = static_cast<i_cppClass*>(iObject);\
 		return object->i_cppMethod( iArgs );\
 	}\
@@ -413,6 +418,10 @@
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::impl::CallMethod<TCppClass>::call(\
             iArgs, cppObject, TCppClass::i_cppMethod );\
 	}\
@@ -509,6 +518,10 @@
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::impl::ExplicitResolver\
 		<\
 			TCppClass,\
@@ -753,6 +766,10 @@ $[
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::impl::CallMethod<TCppClass>::get(\
             cppObject, TCppClass::i_cppGetter );\
 	}\
@@ -761,6 +778,10 @@ $[
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::impl::CallMethod<TCppClass>::set(\
             iArgs, cppObject, TCppClass::i_cppSetter );\
 	}\
@@ -821,6 +842,10 @@ $[
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::impl::CallMethod<TCppClass>::get(\
             cppObject, TCppClass::i_cppGetter );\
 	}\
@@ -879,6 +904,10 @@ $[
         typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
 	}\
 	inline int LASS_CONCATENATE_3( pyPublicSetter, i_cppClass, i_cppMember ) ( PyObject* iObject,PyObject* iArgs, void* iClosure )\
@@ -886,6 +915,10 @@ $[
         typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
         TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        if (!cppObject)\
+        {\
+            return 0;\
+        }\
         return ::lass::python::pyGetSimpleObject( iArgs, cppObject->i_cppMember );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\

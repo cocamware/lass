@@ -81,6 +81,8 @@
 			template <typename In, typename Out>
 			int pyNumericCast( In iIn, Out& oV )
 			{
+                LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
+                LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
 				if (iIn < static_cast<In>(num::NumTraits<Out>::min))
 				{
 					std::ostringstream buffer;
@@ -89,6 +91,7 @@
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return 1;
 				}
+                LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
 				if (iIn > static_cast<In>(num::NumTraits<Out>::max))
 				{
 					std::ostringstream buffer;
@@ -98,6 +101,7 @@
 					return 1;
 				}
 				oV = static_cast<Out>(iIn);
+                LASS_ASSERT((oV < 0) == (iIn < 0));
 				return 0;
 			}
 
