@@ -32,6 +32,7 @@
 
 
 #include "ray_3d_sphere_3d.h"
+#include "../num/basic_ops.h"
 
 
 
@@ -40,10 +41,6 @@ namespace lass
 
 namespace prim
 {
-
-
-
-#pragma LASS_FIXME("this only works if ray is normalized!")
 
 
 
@@ -64,7 +61,40 @@ namespace prim
 template<typename T, class NP, class PP> 
 Result intersect(const Ray3D<T, NP, PP>& iRay, const Sphere3D<T>& iSphere, T& oTNear, T& oTFar)
 {
-	return rInvalid;
+    typedef Vector3D<T> TVector;
+    typedef typename TVector::TValue TValue;
+    typedef typename TVector::TNumTraits TNumTraits;
+
+    const TVector v = iSphere.center() - iRay.support();
+    
+    TValue d = dot(v, iRay.direction());
+    const TValue vSquared = v.squaredNorm();
+    const TValue rSquared = num::sqr(iSphere.radius());   
+    if (d < TNumTraits::zero && vSquared > rSquared)
+    {
+        return rNone;
+    }
+    
+	const TValue uSquared = iRay.direction().squaredNorm();
+    const TValue mSquared = vSquared - num::sqr(d) / uSquared;   
+    if (mSquared > rSquared)
+    {
+        return rNone;
+    }
+    
+    const TValue q = num::sqrt(rSquared - mSquared);
+	d /= num::sqrt(uSquared);
+    if (vSquared > rSquared)
+    {
+		oTNear = d - q;
+		oTFar = d + q;
+        return rTwo;
+    }
+    else
+    {
+        oTNear = d + q;
+		return rOne;
+    }
 }
 
 
@@ -85,7 +115,7 @@ Result intersect(const Ray3D<T, Normalized, PP>& iRay, const Sphere3D<T>& iSpher
 
     const TVector v = iSphere.center() - iRay.support();
     
-    TValue d = dot(v, iRay.direction());
+    const TValue d = dot(v, iRay.direction());
     const TValue vSquared = v.squaredNorm();
     const TValue rSquared = num::sqr(iSphere.radius());   
     if (d < TNumTraits::zero && vSquared > rSquared)

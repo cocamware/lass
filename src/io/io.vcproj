@@ -27,6 +27,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
@@ -54,7 +55,8 @@
 					InlineFunctionExpansion="2"
 					EnableIntrinsicFunctions="1"
 					FavorSizeOrSpeed="1"
-					OptimizeForProcessor="3"
+					OmitFramePointers="1"
+					OptimizeForProcessor="2"
 					RequireProcExt="4"
 					Parallelization="1"
 					StringPooling="0"
@@ -65,7 +67,7 @@
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
 					RuntimeTypeInfo="1"
-					AllOptions="/c  /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /G7 /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -281,7 +283,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="FALSE"
+				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
@@ -310,7 +312,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					InlineFunctionExpansion="2"
 					EnableIntrinsicFunctions="1"
 					FavorSizeOrSpeed="1"
-					OmitFramePointers="0"
+					OmitFramePointers="1"
 					OptimizeForProcessor="2"
 					StringPooling="0"
 					MinimalRebuild="0"
@@ -321,7 +323,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
 					RuntimeTypeInfo="1"
-					AllOptions="/c  /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -404,7 +406,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /G7 /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yc&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yc&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
@@ -431,7 +433,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yc&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yc&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 			</File>

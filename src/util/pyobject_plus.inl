@@ -70,7 +70,9 @@
 				const char* name_;
 			};
 
-			/** @note range of In should fully contain range of Out.
+			/** casts one numerical value to another with range checking.
+			 *  implementation detail.
+			 *  @note range of In should fully contain range of Out.
 			 */
 			template <typename In, typename Out>
 			int pyNumericCast( In iIn, Out& oV )
@@ -96,6 +98,9 @@
 				return 0;
 			}
 
+			/** convert a PyObject to an signed integer with range checking.
+			 *  implementation detail.
+			 */
 			template <typename Integer>
 			int pyGetSignedObject( PyObject* iValue, Integer& oV )
 			{
@@ -119,6 +124,9 @@
 				return 1;
 			}
 
+			/** convert a PyObject to an unsigned integer with range checking.
+			 *  implementation detail.
+			 */
 			template <typename Integer>
 			int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 			{
@@ -142,6 +150,9 @@
 				return 1;
 			}
 
+			/** convert a PyObject to a floating point value with range checking.
+			 *  implementation detail.
+			 */
 			template <typename Float>
 			int pyGetFloatObject( PyObject* iValue, Float& oV )
 			{
