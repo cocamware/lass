@@ -78,20 +78,9 @@ struct Vector3D
 
 	// methods
 
-	Vector3D():
-		x(T()),
-		y(T()),
-		z(T())
-	{
-	}
+	Vector3D();
 	Vector3D(TParam iX, TParam iY, TParam iZ);
-
-	template <typename U> explicit Vector3D(const Vector3D<U>& iOther): 
-		x(iOther.x), 
-		y(iOther.y),
-		z(iOther.z)
-	{
-	}
+	template <typename U> explicit Vector3D(const Vector3D<U>& iOther);
 
 	typename Vector3D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector3D::TReference operator[](unsigned iIndex) ;

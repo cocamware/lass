@@ -1068,8 +1068,11 @@ void slist<T, Alloc>::merge(slist<T, Alloc>& other, BinaryPredicate compare)
         }
         node = node->next;
     }
-    node->next = other.head_.next;
-    other.head_.next = 0;
+	if (other.head_.next)
+	{
+		node->next = other.head_.next;
+		other.head_.next = 0;
+	}
 }
 
 
@@ -1111,11 +1114,11 @@ void slist<T, Alloc>::sort(BinaryPredicate compare)
     {
         slist<T, Alloc> carry;
         slist<T, Alloc> counter[64];
-        size_t fill = 0;
+        size_type fill = 0;
         while (!empty()) 
         {
             splice_after(&carry.head_, &head_, head_.next);
-            size_t i = 0;
+            size_type i = 0;
             while (i < fill && !counter[i].empty()) 
             {
                 counter[i].merge(carry, compare);
@@ -1128,7 +1131,7 @@ void slist<T, Alloc>::sort(BinaryPredicate compare)
                 ++fill;
             }
         }
-        for (size_t i = 1; i < fill; ++i)
+        for (size_type i = 1; i < fill; ++i)
         {
             counter[i].merge(counter[i - 1], compare);
         }
@@ -1224,8 +1227,8 @@ void slist<T, Alloc>::link_after(node_t* position, node_t* node) const
 template <typename T, class Alloc>
 void slist<T, Alloc>::splice_after(node_t* position, node_t* before_first, node_t* before_last) const
 {
-    LASS_ASSERT(position && before_first && before_last);
-    if (before_first != before_last)
+    LASS_ASSERT(before_first != before_last);
+    if (position != before_first && position != before_last)
     {
         node_t* const first = before_first->next;
         before_first->next = before_last->next;

@@ -45,10 +45,31 @@ namespace prim
 
 
 template<typename T> 
+Vector3D<T>::Vector3D():
+	x(TNumTraits::zero),
+	y(TNumTraits::zero),
+	z(TNumTraits::zero)
+{
+}
+
+
+
+template<typename T> 
 Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 	x(iX),
 	y(iY),
 	z(iZ)
+{
+}
+
+
+
+template <typename T>
+template <typename U> 
+Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
+	x(static_cast<TValue>(iOther.x)), 
+	y(static_cast<TValue>(iOther.y)),
+	z(static_cast<TValue>(iOther.z)),
 {
 }
 

@@ -248,6 +248,74 @@ void testStdeSlist()
     stream << yet_another_list;
     BOOST_CHECK(stream.is_equal("[0, 1, 3, 4, 5, 6, 7, 8, 9]"));
 
+	// splice
+
+	slist_type a_small_list(array, array + array_size);
+    stream << a_small_list;
+    BOOST_CHECK(stream.is_equal("[4, 3, 6, 1, 0, 2, 5]"));
+
+	yet_another_list.splice(stde::next(yet_another_list.begin()), a_small_list, a_small_list.begin());
+    stream << a_small_list;
+    BOOST_CHECK(stream.is_equal("[3, 6, 1, 0, 2, 5]"));
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[0, 4, 1, 3, 4, 5, 6, 7, 8, 9]"));
+
+	yet_another_list.splice(yet_another_list.begin(), a_small_list, a_small_list.begin(),
+		stde::next(a_small_list.begin(), 3));
+    stream << a_small_list;
+    BOOST_CHECK(stream.is_equal("[0, 2, 5]"));
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[3, 6, 1, 0, 4, 1, 3, 4, 5, 6, 7, 8, 9]"));
+
+	yet_another_list.splice(yet_another_list.end(), a_small_list);
+	BOOST_CHECK(a_small_list.empty());
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[3, 6, 1, 0, 4, 1, 3, 4, 5, 6, 7, 8, 9, 0, 2, 5]"));
+
+	// splice after
+
+	slist_type another_small_list(another_little_array, another_little_array + 4);
+	stream << another_small_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 10, 11]"));
+
+	stream << some_list;
+    BOOST_CHECK(stream.is_equal("[1, 3, 4, 5, 6, 7, 8, 9, 10]"));
+
+	some_list.splice_after(some_list.begin(), another_small_list, another_small_list.begin());
+	stream << another_small_list;
+    BOOST_CHECK(stream.is_equal("[8, 10, 11]"));
+	stream << some_list;
+    BOOST_CHECK(stream.is_equal("[1, 9, 3, 4, 5, 6, 7, 8, 9, 10]"));
+
+	some_list.splice_after(some_list.before_begin(), another_small_list, another_small_list.before_begin(),
+		another_small_list.begin());
+	stream << another_small_list;
+    BOOST_CHECK(stream.is_equal("[10, 11]"));
+	stream << some_list;
+    BOOST_CHECK(stream.is_equal("[8, 1, 9, 3, 4, 5, 6, 7, 8, 9, 10]"));
+
+	some_list.splice_after(some_list.prior(some_list.end()), another_small_list);
+    BOOST_CHECK(another_small_list.empty());
+	stream << some_list;
+    BOOST_CHECK(stream.is_equal("[8, 1, 9, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11]"));
+
+	// merge
+
+	yet_another_list.sort();
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 9]"));
+
+	some_list.sort();
+	stream << some_list;
+    BOOST_CHECK(stream.is_equal("[1, 3, 4, 5, 6, 7, 8, 8, 9, 9, 10, 10, 11]"));
+
+	some_list.merge(yet_another_list);
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[0, 0, 1, 1, 1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11]"));
+
+	some_list.unique();
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]"));
 }
 
 }

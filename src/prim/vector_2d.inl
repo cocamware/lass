@@ -59,6 +59,16 @@ Vector2D<T>::Vector2D(TParam iX, TParam iY):
 
 
 
+template <typename T>
+template <typename U> 
+Vector2D<T>::Vector2D(const Vector2D<U>& iOther):
+	x(static_cast<TValue>(iOther.x)), 
+	y(static_cast<TValue>(iOther.y))
+{
+}
+
+
+
 template<typename T> inline
 typename Vector2D<T>::TConstReference Vector2D<T>::operator[](unsigned iIndex) const
 {

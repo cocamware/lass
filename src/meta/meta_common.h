@@ -59,8 +59,19 @@
  *  @endcode
  *
  *  - Bool: converts a @c bool value the the meta constants True and False.
- *  - If: selects a type based on the value of a compile time @c bool.
- *  - MakeTypeList: creates a TypeList
+ *  - If: executes one of two metafunctions based on the value of a compile time @c bool.
+ *  - Int2Type: converts an integral value to a type.
+ *  - IsConvertibleType: evaluates true if one type is convertible to another.
+ *  - IsDerivedType: evaluates true if one type is derived from (or equal to) another.
+ *  - IsDerivedTypeStruct: evaluates true if one type is derived from another and is not the same.
+ *  - IsIntegralType: evaluates true if a type is a standard integral type.
+ *  - IsSameType: evaluates true if two types are identical.
+ *  - Select: selects one of two types based on a compile time @c bool.
+ *  - Type2Type: converts a type to a unique empty type.
+ *
+ *  @subscection traits
+ *
+ *  - TypeTraits: compile time information and operations on a single type
  *  
  *  @subsection macros
  *

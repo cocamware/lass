@@ -79,12 +79,7 @@ struct Vector2D
 
 	Vector2D();
 	Vector2D(TParam iX, TParam iY);
-
-	template <typename U> explicit Vector2D(const Vector2D<U>& iOther): 
-		x(iOther.x), 
-		y(iOther.y)
-	{
-	}
+	template <typename U> explicit Vector2D(const Vector2D<U>& iOther);
 
 	typename Vector2D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector2D::TReference operator[](unsigned iIndex);

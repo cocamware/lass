@@ -47,13 +47,14 @@
 
 
 
-// warnings en errors
+// warnings and errors
 //
 #include "pragmas_msvc.h"
 #pragma warning(4: 4061)	// enumerate 'identifier' in switch of enum 'enumeration' is not 
 							// explicitly handled by a case label
-#pragma warning(4: 4710)	// inline function was not inlined
 #pragma warning(4: 4251)    // class needs to have dll-interface to be used by clients of class 'type2'
+#pragma warning(4: 4505)    // unreferenced local function removed
+#pragma warning(4: 4710)	// inline function was not inlined
 
 // broken compilers ...
 //
