@@ -133,12 +133,12 @@ private:
         iterator end() throw() { return array_ + size_; }
         const_iterator begin() const throw() { return array_; }
         const_iterator end() const throw() { return array_ + size_; }
-        T* operator[](unsigned iIndex) 
+        T* operator[](size_type iIndex) 
         { 
             LASS_ASSERT(iIndex >= 0 && iIndex < size_);
             return &array_[iIndex]; 
         }
-        const T* operator[](unsigned iIndex) const
+        const T* operator[](size_type iIndex) const
         { 
             LASS_ASSERT(iIndex >= 0 && iIndex < size_);
             return &array_[iIndex]; 
@@ -155,12 +155,12 @@ private:
         iterator end() throw() { return 0; }
         const_iterator begin() const throw() { return 0; }
         const_iterator end() const throw() { return 0; }
-        T* operator[](unsigned iIndex) throw() 
+        T* operator[](size_type iIndex) throw() 
         {
             LASS_ASSERT(false); // you should never be in here!
             return 0; 
         }
-        const T* operator[](unsigned iIndex) const throw() 
+        const T* operator[](size_type iIndex) const throw() 
         {
             LASS_ASSERT(false); // you should never be in here!
             return 0; 
