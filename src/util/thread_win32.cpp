@@ -114,33 +114,52 @@ MutexError Mutex::unlock()
     return MUTEX_NO_ERROR;
 }
 
+
+class CriticalSectionInternal
+{
+public:
+	CriticalSectionInternal() 
+	{
+		InitializeCriticalSection(&criticalSection_);
+	}
+	~CriticalSectionInternal()
+	{
+	    if ( criticalSection_.LockCount > 0 )
+		    LASS_LOG("Warning: freeing a locked critical section with nonzero locks).");
+		DeleteCriticalSection(&criticalSection_);
+	}
+public:
+	CRITICAL_SECTION criticalSection_;
+};
+
+
+
+
 CriticalSection::CriticalSection(void )
 {
-	InitializeCriticalSection(&m_internal);
+	internal_ = new CriticalSectionInternal;
 }
 
 CriticalSection::~CriticalSection(void)
 {
-    if ( m_internal.LockCount > 0 )
-        LASS_LOG("Warning: freeing a locked critical section with nonzero locks).");
-	DeleteCriticalSection(&m_internal);
+	delete internal_;
 }
 
 void CriticalSection::lock()
 {
-    EnterCriticalSection(&m_internal);
+	EnterCriticalSection(&internal_->criticalSection_);
 }
 
 CriticalSectionError CriticalSection::tryLock()
 {
-	if (TryEnterCriticalSection(&m_internal))
+	if (TryEnterCriticalSection(&internal_->criticalSection_))
 		return CRITICALSECTION_NO_ERROR;
 	return CRITICALSECTION_TRYLOCK_FAILED;
 }
 
 void CriticalSection::unlock()
 {
-	LeaveCriticalSection(&m_internal);
+	LeaveCriticalSection(&internal_->criticalSection_);
 }
 
 class ConditionInternal
@@ -325,29 +344,6 @@ bool ThreadInternal::resume()
 
     return TRUE;
 }
-
-// static functions
-// ----------------
-
-void Thread::yield()
-{
-    // 0 argument to Sleep() is special and means to just give away the rest of
-    // our timeslice
-    ::Sleep(0);
-}
-
-void Thread::sleep(unsigned long milliseconds)
-{
-    ::Sleep(milliseconds);
-}
-
-int Thread::getCPUCount()
-{
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    return si.dwNumberOfProcessors;
-}
-
 
 // ctor and dtor
 // -------------

@@ -44,11 +44,11 @@ namespace util
 
 /**
 *	@defgroup	Threading Threading
-*	Threading functions.  The Mutex and Thread classes are almost literal copy and pastes
+*	Threading functions.  The Mutex and Thread classes for WIN32 are almost literal copy and pastes
 *	of the functions of wxWindows2.4.2.  The implementation has changed a little bit to
 *	use more of the LASS utility functions.  The most noticible difference is in the thread
 *	class where the Delete is not implemented, due to too large dependencies.  The Critical
-*	Section is an own implementation.
+*	Section on WIN32 is an own implementation, just like all the UNIX Posix threading stuff.
 *
 *	A little word on synchronization: in windows there are quite a few synchronisation
 *	primitives and synchronized objects.  Only the most common are implemented and wrapped
@@ -61,7 +61,7 @@ namespace util
 *		CriticalSection : process-wide synchronisation object between threads.  Lightweight
 *				construction.  Cannot be used for intra-thread synchronisation.
 *		Condition: this corresponds with MS Windows Events, can be used for interprocess/
-*				interthread and intrathread synchronisation.  
+*				interthread and intrathread synchronisation. Not implemented in UNIX build.
 */
 
 
@@ -182,6 +182,8 @@ public:
 	virtual ~MutexLocker();
 };
 
+
+class CriticalSectionInternal;
 /** CriticalSection.
 *	@ingroup Threading
 *	@see CriticalSectionLocker
@@ -193,18 +195,18 @@ public:
 class CriticalSection : NonCopyable
 {
 public:
-    // constructor & destructor
-    CriticalSection(void);
-    ~CriticalSection(void);
-    // Lock the critical section.
-    void lock();
-    // Try to lock the critical section: if it can't, returns immediately with an error.
-    CriticalSectionError tryLock();
-    // Unlock the mutex.
-    void unlock();
+	// constructor & destructor
+	CriticalSection(void);
+	~CriticalSection(void);
+	// Lock the critical section.
+	void lock();
+	// Try to lock the critical section: if it can't, returns immediately with an error.
+	CriticalSectionError tryLock();
+	// Unlock the mutex.
+	void unlock();
 
 protected:
-    CRITICAL_SECTION m_internal;
+	CriticalSectionInternal* internal_;
 };
 
 /** CriticalSectionLocker.
@@ -236,33 +238,6 @@ public:
     // the return type for the thread function
     typedef void *ExitCode;
 
-    // static functions
-        // Returns the wxThread object for the calling thread. NULL is returned
-        // if the caller is the main thread (but it's recommended to use
-        // IsMain() and only call This() for threads other than the main one
-        // because NULL is also returned on error). If the thread wasn't
-        // created with wxThread class, the returned value is undefined.
-    static Thread *This();
-
-        // Returns true if current thread is the main thread.
-    static bool isMain();
-
-        // Release the rest of our time slice leting the other threads run
-    static void yield();
-
-        // Sleep during the specified period of time in milliseconds
-        //
-        // NB: at least under MSW worker threads can not call ::wxSleep()!
-    static void sleep(unsigned long milliseconds);
-
-        // get the number of system CPUs - useful with SetConcurrency()
-        // (the "best" value for it is usually number of CPUs + 1)
-        //
-        // Returns -1 if unknown, number of CPUs otherwise
-    static int getCPUCount();
-
-    // constructor only creates the C++ thread object and doesn't create (or
-    // start) the real thread
     Thread(ThreadKind kind = THREAD_DETACHED);
 
     // functions that change the thread state: all these can only be called
