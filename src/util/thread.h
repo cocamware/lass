@@ -32,8 +32,10 @@
 
 #include "util_common.h"
 #include "non_copyable.h"
-#include <windows.h>
 
+#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
+#include <windows.h>
+#endif
 
 namespace lass
 {
@@ -180,6 +182,8 @@ public:
 	virtual ~MutexLocker();
 };
 
+#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
+
 /** CriticalSection.
 *	@ingroup Threading
 *	@see CriticalSectionLocker
@@ -205,6 +209,7 @@ protected:
     CRITICAL_SECTION m_internal;
 };
 
+#endif
 
 /** CriticalSectionLocker.
 *	@ingroup Threading

@@ -375,7 +375,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="singleton.inl">
 			</File>
 			<File 
-				RelativePath="thread.cpp">
+				RelativePath=".\thread.cpp">
 			</File>
 			<File 
 				RelativePath="thread_fun.tmpl.inl">
@@ -639,6 +639,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath="..\lass_common.h">
+			</File>
+			<File 
+				RelativePath="..\config\platform_linux.h">
 			</File>
 			<File 
 				RelativePath="..\config\platform_win32.h">

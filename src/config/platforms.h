@@ -29,6 +29,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORMS_H
 
 #define LASS_PLATFORM_TYPE_WIN32 1
+#define LASS_PLATFORM_TYPE_LINUX 2
 
 #if defined(linux) || defined(__linux) || defined(__linux__)
 // linux:

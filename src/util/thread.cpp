@@ -23,9 +23,10 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #include "util_common.h"
+
+#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
+
 #include <process.h> // windows related stuff
 #include "thread.h"
 
@@ -538,3 +539,5 @@ bool Thread::isPaused() const
 
 }
 }
+
+#endif

@@ -60,6 +60,15 @@ namespace num
 	typedef unsigned __int32 Tuint32;
 	typedef __int64 Tint64;
 	typedef unsigned __int64 Tuint64;
+#else
+	typedef signed char Tint8;
+	typedef unsigned char Tuint8;
+	typedef signed short Tint16;
+	typedef unsigned short Tuint16;
+	typedef signed int Tint32;
+	typedef unsigned int Tuint32;
+	typedef signed long long Tint64;
+	typedef unsigned long long Tuint64;
 #endif
 
 }

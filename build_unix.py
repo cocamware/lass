@@ -6,7 +6,7 @@ import string
 
 subprojects = ['io', 'num', 'prim', 'util', 'test']
 
-def createConfigureAc():
+def makeConfigure():
     f=open('configure.ac','w+')
     f.write(r'''
 AC_PREREQ(2.59)
@@ -43,7 +43,14 @@ AC_OUTPUT(Makefile src/Makefile''')
         f.write(' src/%s/Makefile' % p)
     f.write(')\n') 
 
-def createSrcMakeFile():
+def makeMakeFile():
+    f=open('Makefile.am','w+')
+    f.write(r'''
+AUTOMAKE_OPTIONS = foreign 1.4
+SUBDIRS = src
+    ''')
+
+def makeSrcMakeFile():
     f=open('src/Makefile.am','w+')
     f.write(r'''# set the include path found by configure
 INCLUDES= $(all_includes)
@@ -62,7 +69,7 @@ def getSources(map):
 			files.append(f)
 	return files
 
-def makeMakeFile(directory):
+def makeMakeFileProject(directory):
 	f = open('src/'+directory+'/Makefile.am','w+')
 	f.write('INCLUDES= $(all_includes) -I/usr/include/python2.3/ -I/usr/local/lib/boost_1_31_0/\n')
 	f.write('lib_LIBRARIES = liblass'+directory+'.a\n')
@@ -77,10 +84,11 @@ os.system('python pre_build.py')
 os.chdir('../test')
 os.system('python pre_build.py')
 os.chdir('../..')
-createConfigureAc()
-createSrcMakeFile()
+makeConfigure()
+makeMakeFile()
+makeSrcMakeFile()
 for p in subprojects:
-    makeMakeFile(p)
+    makeMakeFileProject(p)
 os.system('aclocal')
 os.system('autoheader')
 os.system('autoconf')
