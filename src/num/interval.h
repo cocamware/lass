@@ -40,11 +40,6 @@ namespace num
 
 template<typename C> class interval;
 
-template<typename C> interval<C>	operator+(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator-(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
-
 template<typename C> void inpsqr(interval<C>& i);
 template<typename C> void inpsqrt(interval<C>& i);
 template<typename C> void inpexp(interval<C>& i);
@@ -146,7 +141,6 @@ public:
 	/** fuzzy less or equal than*/
 	baseType	fle(const interval<C>& i) const;
 
-
 	inline interval&	operator+=(const interval<C>& i);
 	inline interval&	operator-=(const interval<C>& i);
 	inline interval&	operator*=(const interval<C>& i);
@@ -156,11 +150,6 @@ public:
 	inline interval&	operator-=(typename util::CallTraits<baseType>::TParam s);
 	inline interval&	operator*=(typename util::CallTraits<baseType>::TParam s);
 	inline interval&	operator/=(typename util::CallTraits<baseType>::TParam s);
-	
-	friend interval<C>	operator+<C>(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator-<C>(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator*<C>(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator/<C>(const interval<C>& i1,const interval<C>& i2);
 
 	friend void inpsqr<C>(interval<C>& i);
 	friend void inpsqrt<C>(interval<C>& i);
@@ -169,6 +158,11 @@ public:
 	friend void inpnorm<C>(interval<C>& i);
 	friend void inpinv<C>(interval<C>& i);
 };
+
+template<typename C> interval<C>	operator+(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator-(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
 
 template<typename C> std::ostream& operator<<( std::ostream& os, const interval<C>& iV );
 template<typename C> std::string str( const interval<C>& iV );

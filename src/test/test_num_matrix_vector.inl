@@ -196,6 +196,12 @@ void testNumVector()
 	d /= T(4);
 	BOOST_CHECK_EQUAL(d.dimension(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], b[i] / T(4));
+
+	BOOST_CHECK_EQUAL(a.sum(), std::accumulate(aRef.begin(), aRef.end(), T(0)));
+	//BOOST_CHECK_EQUAL(a.min(), *std::min_element(aRef.begin(), aRef.end()));
+	//BOOST_CHECK_EQUAL(a.max(), *std::max_element(aRef.begin(), aRef.end()));
+	BOOST_CHECK_EQUAL(a.squaredNorm(), (a * a).sum());
+	BOOST_CHECK_EQUAL(a.norm(), num::sqrt(a.squaredNorm()));
 }
 
 

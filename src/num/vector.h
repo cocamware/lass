@@ -96,6 +96,8 @@ public:
 	bool isEmpty() const;
 	bool isZero() const;
 	TValue sum() const;
+	TValue min() const;
+	TValue max() const;
 	TValue squaredNorm() const;
 	TValue norm() const;
 	Vector<T, impl::VMul<T, S, impl::VScalar<T> > > normal() const;

@@ -304,13 +304,6 @@ interval<C>&	interval<C>::operator+=(const interval<C>& i)
 	return *this;
 }
 
-interval<float>&	interval<float>::operator+=(const interval<float>& i)
-{
-	v[0] += i.v[0];
-	v[1] += i.v[1];
-	return *this;
-}
-
 template<typename C> 
 interval<C>&	interval<C>::operator-=(const interval<C>& i)
 {
@@ -319,34 +312,14 @@ interval<C>&	interval<C>::operator-=(const interval<C>& i)
 	return *this;
 }
 
-interval<float>&	interval<float>::operator-=(const interval<float>& i)
-{
-	v[0] -= i.v[0];
-	v[1] -= i.v[1];
-	return *this;
-}
-
 template<typename C> 
 interval<C>&	interval<C>::operator*=(const interval<C>& i)
 {
-	C	V[3];
-	int l;
-	V[0] = v[0] * i.v[0];
-	V[1] = v[0] * i.v[1];
-	V[2] = v[1] * i.v[0];
-	v[1] *= i.v[1];
-	v[0] = v[1];
-	
-	C& lo = v[0];
-	C& hi = v[1];
-	for (l=2;l>=0;--l)
-	{
-		C& t = V[l];
-		if (t<lo)
-			lo = t;
-		if (t>hi)
-			hi = t;
-	}
+	C	m1,M1,m2,M2;
+	impl::numMinMax(v[0]*i.v[0],v[0]*i.v[1],m1,M1);
+	impl::numMinMax(v[1]*i.v[0],v[1]*i.v[1],m2,M2);
+	impl::numMin(m1,m2,v[0]);
+	impl::numMax(M1,M2,v[1]);
 	return *this;
 }
 
@@ -356,22 +329,14 @@ interval<C>&	interval<C>::operator/=(const interval<C>& i)
 {
 	if ((i.v[0]<=0.0) && (i.v[1]>0.0))
 		LASS_THROW("division by zero");
-	C	V[4];
-	int l;
-	V[3] = static_cast<C>(1.0)/(i.v[0]*i.v[1]);
-	V[0] = v[0] * V[3]*i.v[1];
-	V[1] = v[0] * V[3]*i.v[0];
-	V[2] = v[1] * V[3]*i.v[0];
-	v[1] = v[1] * V[3]*i.v[1];
-	v[0] = v[1];
-	for (l=1;l>=0;--l)
-	{
-		if (V[l]<v[0])
-			v[0] = V[l];
-		else
-			if (V[l]>v[1])
-				v[1] = V[l];
-	}
+	C	m1,M1,m2,M2;
+	m1 = NumTraits<C>::one / i.v[0];
+	m2 = NumTraits<C>::one / i.v[1];
+	
+	impl::numMinMax(v[0]*m1,v[0]*m1,m1,M1);
+	impl::numMinMax(v[1]*m2,v[1]*m2,m2,M2);
+	impl::numMin(m1,m2,v[0]);
+	impl::numMax(M1,M2,v[1]);
 	return *this;
 }
 
@@ -417,43 +382,36 @@ interval<C>&	interval<C>::operator/=(typename util::CallTraits<baseType>::TParam
 	return *this;
 }
 
-template<typename C>
+template<typename C> inline
 interval<C>	operator+(const interval<C>& i1,const interval<C>& i2)
 {
-	return interval<C>(i1.v[0]+i2.v[0],i1.v[1]+i2.v[1]);
+	interval<C> t(i1);
+	t+=i2;
+	return t;
 }
 
-template<typename C>
+template<typename C> inline
 interval<C>	operator-(const interval<C>& i1,const interval<C>& i2)
 {
-	return interval<C>(i1.v[0]-i2.v[1],i1.v[1]-i2.v[0]);
+	interval<C> t(i1);
+	t-=i2;
+	return t;
 }
 
-template<typename C>
+template<typename C> inline
 interval<C>	operator*(const interval<C>& i1,const interval<C>& i2)
 {
-	C	m1,M1,m2,M2;
-	impl::numMinMax(i1.v[0]*i2.v[0],i1.v[0]*i2.v[1],m1,M1);
-	impl::numMinMax(i1.v[1]*i2.v[0],i1.v[1]*i2.v[1],m2,M2);
-	impl::numMin(m1,m2,m1);
-	impl::numMax(M1,M2,M1);
-	
-	return interval<C>(m1,M1);
+	interval<C> t(i1);
+	t*=i2;
+	return t;
 }
 
-template<typename C>
+template<typename C> inline
 interval<C>	operator/(const interval<C>& i1,const interval<C>& i2)
 {
-	C	m1,M1,m2,M2;
-	m1 = static_cast<C>(1.0)/i2.v[0];
-	m2 = static_cast<C>(1.0)/i2.v[1];
-	
-	impl::numMinMax(i1.v[0]*m1,i1.v[0]*m1,m1,M1);
-	impl::numMinMax(i1.v[1]*m2,i1.v[1]*m2,m2,M2);
-	impl::numMin(m1,m2,m1);
-	impl::numMax(M1,M2,M1);
-	
-	return interval<C>(m1,M1);
+	interval<C> t(i1);
+	t/=i2;
+	return t;
 }
 
 /** fuzzy equal */

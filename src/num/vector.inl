@@ -396,6 +396,48 @@ typename Vector<T, S>::TValue Vector<T, S>::sum() const
 
 
 
+/** Return minimum of all components of vector.
+ *  O(N).
+ */
+template <typename T, typename S>
+typename Vector<T, S>::TValue Vector<T, S>::min() const
+{
+	const TSize dim = dimension();
+	if (dim == 0)
+	{
+		return TNumTraits::zero;
+	}
+	TValue result = storage_[0];
+	for (TSize i = 1; i < dim; ++i)
+	{
+		result = std::min(result, storage_[i]);
+	}
+	return result;
+}
+
+
+
+/** Return maximum of all components of vector.
+ *  O(N).
+ */
+template <typename T, typename S>
+typename Vector<T, S>::TValue Vector<T, S>::max() const
+{
+	const TSize dim = dimension();
+	if (dim == 0)
+	{
+		return TNumTraits::zero;
+	}
+	TValue result = storage_[0];
+	for (TSize i = 1; i < dim; ++i)
+	{
+		result = std::max(result, storage_[i]);
+	}
+	return result;
+}
+
+
+
 /** Return squared norm of vector.
  *  @return dot(*this, *this)
  */

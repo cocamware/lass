@@ -72,17 +72,8 @@ public:
 
 	Point2D();
 	Point2D(TParam iX, TParam iY);
-
-	template <typename U> explicit Point2D(const Point2D<U>& iOther):
-		x(iOther.x), 
-		y(iOther.y)
-	{
-	}
-
-	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector):
-		position_(iPositionVector)
-	{
-	}
+	template <typename U> explicit Point2D(const Point2D<U>& iOther);
+	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector);
 
 	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;

@@ -52,6 +52,24 @@ Point2D<T>::Point2D(TParam iX, TParam iY):
 
 
 
+template<typename T>
+template<typename U>
+Point2D<T>::Point2D(const Point2D<U>& iOther):
+	position_(iOther.position_)
+{
+}
+
+
+
+template<typename T>
+template<typename U>
+Point2D<T>::Point2D(const Vector2D<U>& iPositionVector):
+	position_(iPositionVector)
+{
+}
+
+
+
 template <typename T> inline
 typename const Point2D<T>::TVector&
 Point2D<T>::position() const

@@ -58,6 +58,24 @@ Point3D<T>::Point3D(TParam iX, TParam iY, TParam iZ) :
 
 
 
+template<typename T>
+template<typename U>
+Point3D<T>::Point3D(const Point3D<U>& iOther):
+	position_(iOther.position_)
+{
+}
+
+
+
+template<typename T>
+template<typename U>
+Point3D<T>::Point3D(const Vector3D<U>& iPositionVector):
+	position_(iPositionVector)
+{
+}
+
+
+
 template <typename T> inline
 typename const Point3D<T>::TVector&
 Point3D<T>::position() const

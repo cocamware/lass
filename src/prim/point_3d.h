@@ -73,18 +73,8 @@ public:
 
 	Point3D();
 	Point3D(TParam iX, TParam iY, TParam iZ);
-
-	template <typename U> explicit Point3D(const Point3D<U>& iOther):
-		x(iOther.x), 
-		y(iOther.y),
-		z(iOther.z)
-	{
-	}
-
-	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector):
-		position_(iPositionVector)
-	{
-	}
+	template <typename U> explicit Point3D(const Point3D<U>& iOther);
+	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector);
 
 	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;
