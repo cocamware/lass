@@ -91,7 +91,14 @@ bool operator!=(const std::string&  iA, const XY& iB);
 XY operator+(const XY& iA, int iOffset);
 XY operator-(const XY& iA, int iOffset);
 
-std::ostream& operator<<(std::ostream& ioS, const XY& iXY);
+/** @relates lass::prim::XY
+ */
+template <typename Char, typename Traits>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& ioS, const XY& iXY)
+{
+	ioS << iXY.axis();
+	return ioS;
+}
 
 
 

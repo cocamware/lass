@@ -521,8 +521,9 @@ Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB)
 
 /** @relates lass::prim::Vector4D
  */
-template<typename T>
-std::ostream& operator<<(std::ostream& oOStream, const Vector4D<T>& iB)
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
+                                             const Vector4D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ", " << iB.w << ")";
 	return oOStream;
@@ -532,20 +533,9 @@ std::ostream& operator<<(std::ostream& oOStream, const Vector4D<T>& iB)
 
 /** @relates lass::prim::Vector4D
  */
-template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector4D<T>& iB)
-{
-	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Vector4D>" << iB.x << " " << iB.y << " " << iB.z << " " << iB.w << "</Vector4D>\n";
-	return oOStream;
-}
-
-
-
-/** @relates lass::prim::Vector4D
- */
-template<typename T>
-std::istream& operator>>(std::istream& ioIStream, Vector4D<T>& oB)
+template<typename T, typename Char, typename Traits>
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
+                                             Vector4D<T>& oB)
 {
 	Vector4D<T> result;
 
@@ -591,6 +581,18 @@ std::istream& operator>>(std::istream& ioIStream, Vector4D<T>& oB)
 
 	oB = result;
 	return ioIStream;
+}
+
+
+
+/** @relates lass::prim::Vector4D
+ */
+template<typename T>
+io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector4D<T>& iB)
+{
+	LASS_ENFORCE_STREAM(oOStream) 
+		<< "<Vector4D>" << iB.x << " " << iB.y << " " << iB.z << " " << iB.w << "</Vector4D>\n";
+	return oOStream;
 }
 
 

@@ -546,8 +546,9 @@ inline Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB)
 
 /** @relates lass::prim::Vector3D
  */
-template<typename T>
-std::ostream& operator<<(std::ostream& oOStream, const Vector3D<T>& iB)
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
+                                             const Vector3D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ")";
 	return oOStream;
@@ -557,20 +558,9 @@ std::ostream& operator<<(std::ostream& oOStream, const Vector3D<T>& iB)
 
 /** @relates lass::prim::Vector3D
  */
-template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector3D<T>& iB)
-{
-	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Vector3D>" << iB.x << " " << iB.y << " " << iB.z << "</Vector3D>\n";
-	return oOStream;
-}
-
-
-
-/** @relates lass::prim::Vector3D
- */
-template<typename T>
-std::istream& operator>>(std::istream& ioIStream, Vector3D<T>& oB)
+template<typename T, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
+                                             Vector3D<T>& oB)
 {
 	Vector3D<T> result;
 
@@ -608,6 +598,18 @@ std::istream& operator>>(std::istream& ioIStream, Vector3D<T>& oB)
 
 	oB = result;
 	return ioIStream;
+}
+
+
+
+/** @relates lass::prim::Vector3D
+ */
+template<typename T>
+io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector3D<T>& iB)
+{
+	LASS_ENFORCE_STREAM(oOStream) 
+		<< "<Vector3D>" << iB.x << " " << iB.y << " " << iB.z << "</Vector3D>\n";
+	return oOStream;
 }
 
 

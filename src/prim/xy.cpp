@@ -287,16 +287,6 @@ XY operator-(const XY& iA, int iOffset)
 
 
 
-/** @relates lass::prim::XY
- */
-std::ostream& operator<<(std::ostream& ioS, const XY& iXY)
-{
-	ioS << iXY.axis();
-	return ioS;
-}
-
-
-
 }
 
 }

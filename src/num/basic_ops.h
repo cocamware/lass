@@ -45,7 +45,10 @@ inline void inpsqrt(float& ioV);
 inline void inpcos(float& ioV);
 inline void inpsin(float& ioV);
 inline void inptan(float& ioV);
+inline void inpacos(float& ioV);
+inline void inpasin(float& ioV);
 inline void inpatan(float& ioV);
+inline void inpatan2(float& ioX, float iY);
 inline void inpinv(float& ioV);
 inline void inpsign(float& ioV);
 inline void inpabs(float& ioV);
@@ -55,41 +58,44 @@ inline void inpround(float& ioV);
 inline void inpclamp(float& ioV, float iMin, float iMax);
 
 inline void compnorm(float iV, float& oV);
-//inline void compnorm(const std::complex<float>& iV, float& oV);
 inline void compinv(float iV, float& oV);
-//inline void compinv(const std::complex<float>& iV, std::complex<float>& oV);
 inline float norm(const float iV);
-//inline float norm(const std::complex<float>& iV);
 inline float conj(const float iV);
 
-inline float exp(float ioV);
-inline float log(float  ioV);
+inline float exp(float iV);
+inline float log(float iV);
 inline float pow(float iX, float iY);
-inline float sqr(const float  ioV);
-inline float sqrt(const float  ioV);
-inline float cos(const float  ioV);
-inline float sin(const float  ioV);
-inline float tan(const float  ioV);
-inline float atan(const float  ioV);
-inline float inv(const float  ioV);
-inline float sign(const float  iV);
-inline float abs(const float iV);
-inline float floor(const float iV);
-inline float ceil(const float iV);
-inline float round(const float iV);
+inline float sqr(float iV);
+inline float sqrt(float iV);
+inline float cos(float iV);
+inline float sin(float iV);
+inline float tan(float iV);
+inline float acos(float iV);
+inline float asin(float iV);
+inline float atan(float iV);
+inline float atan2(float iX, float iY);
+inline float inv(float iV);
+inline float sign(float iV);
+inline float abs(float iV);
+inline float floor(float iV);
+inline float ceil(float iV);
+inline float round(float iV);
 inline float clamp(float iV, float iMin, float iMax);
 
 // double
 
 inline void inpexp(double& ioV);
 inline void inplog(double& ioV);
-inline void inppow(double& iX, double iY);
+inline void inppow(double& ioX, double iY);
 inline void inpsqr(double& ioV);
 inline void inpsqrt(double& ioV);
 inline void inpcos(double& ioV);
 inline void inpsin(double& ioV);
 inline void inptan(double& ioV);
+inline void inpacos(double& ioV);
+inline void inpasin(double& ioV);
 inline void inpatan(double& ioV);
+inline void inpatan2(double& ioX, double iY);
 inline void inpinv(double& ioV);
 inline void inpsign(double& ioV);
 inline void inpabs(double& ioV);
@@ -99,23 +105,23 @@ inline void inpround(double& ioV);
 inline void inpclamp(double& ioV, double iMin, double iMax);
 
 inline void compnorm(double iV, double& oV);
-//inline void compnorm(const std::complex<double>& iV, double& oV);
 inline void compinv(double iV, double& oV);
-//inline void compinv(const std::complex<double>& iV, std::complex<double>& oV);
 inline double norm(const double iV);
-//inline double norm(const std::complex<double>& iV);
 inline double conj(const double iV);
 
-inline double exp(double ioV);
-inline double log(double ioV);
+inline double exp(double iV);
+inline double log(double iV);
 inline double pow(double iX, double iY);
-inline double sqr(double ioV);
-inline double sqrt(double ioV);
-inline double cos(double ioV);
-inline double sin(double ioV);
-inline double tan(double ioV);
-inline double atan(double ioV);
-inline double inv(double ioV);
+inline double sqr(double iV);
+inline double sqrt(double iV);
+inline double cos(double iV);
+inline double sin(double iV);
+inline double tan(double iV);
+inline double acos(double iV);
+inline double asin(double iV);
+inline double atan(double iV);
+inline double atan2(double iX, double iY);
+inline double inv(double iV);
 inline double sign(double iV);
 inline double abs(double iV);
 inline double floor(double iV);
@@ -135,9 +141,7 @@ inline void inpround(int& ioV);
 inline void inpclamp(int& ioV, int iMin, int iMax);
 
 inline void compnorm(int iV, int& oV);
-//inline void compnorm(const std::complex<int>& iV, double& oV);
 inline int norm(const int iV);
-//inline int norm(const std::complex<int>& iV);
 inline int conj(const int iV);
 
 inline int	mod(int iV,unsigned int iMod);
@@ -150,7 +154,7 @@ inline int	ceil(int iV);
 inline int	round(int iV);
 inline int	clamp(int iV, int iMin, int iMax);
 
-// complex, experimental!
+
 
 template <typename T> inline void inpexp(std::complex<T>& ioV);
 template <typename T> inline void inplog(std::complex<T>& ioV);
@@ -160,6 +164,8 @@ template <typename T> inline void inpsqrt(std::complex<T>& ioV);
 template <typename T> inline void inpcos(std::complex<T>& ioV);
 template <typename T> inline void inpsin(std::complex<T>& ioV);
 template <typename T> inline void inptan(std::complex<T>& ioV);
+template <typename T> inline void inpacos(std::complex<T>& ioV);
+template <typename T> inline void inpasin(std::complex<T>& ioV);
 template <typename T> inline void inpatan(std::complex<T>& ioV);
 template <typename T> inline void inpinv(std::complex<T>& ioV);
 

@@ -141,8 +141,13 @@ template<typename T> Vector2D<T> operator*(typename Vector2D<T>::TParam iA, cons
 template<typename T> Vector2D<T> pointwiseMin(const Vector2D<T>& iA, const Vector2D<T>& iB);
 template<typename T> Vector2D<T> pointwiseMax(const Vector2D<T>& iA, const Vector2D<T>& iB);
 
-template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector2D<T>& iB);
-template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(
+    std::basic_ostream<Char, Traits>& ioOStream, const Vector2D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& operator>>(
+    std::basic_istream<Char, Traits>& ioIStream, Vector2D<T>& iB);
+
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector2D<T>& iB);
 
 

@@ -25,38 +25,44 @@
 
 
 
-float exp(float ioV) { return expf( ioV ); }
-float log(float ioV) { return logf( ioV ); }
-float pow(float iX, float iY) { return ::powf( iX, iY ); }
-float sqr( float ioV) { return ioV*ioV; }
-float sqrt( float ioV){ return sqrtf( ioV ); }
-float cos( float ioV) { return cosf( ioV ); }
-float sin( float ioV) { return sinf( ioV ); }
-float tan( float ioV) { return tanf( ioV ); }
-float atan( float ioV){ return atanf( ioV ); }
-float inv( float ioV) { return 1.f/ioV; }
-float sign( float iV) { if (iV<0.f) return -1.f;if (iV>0.f) return 1.f; return 0.f; }
-float abs( float iV) { return fabsf(iV); }
-float floor( float iV) { return ::floorf(iV); }
-float ceil( float iV) { return ::ceilf(iV); }
-float round( float iV) { return ::floorf(iV + .5f); }
+float exp( float iV ) { return ::expf( iV ); }
+float log( float iV ) { return ::logf( iV ); }
+float pow( float iX, float iY ) { return ::powf( iX, iY ); }
+float sqr( float iV ) { return iV*iV; }
+float sqrt( float iV ){ return ::sqrtf( iV ); }
+float cos( float iV ) { return ::cosf( iV ); }
+float sin( float iV ) { return ::sinf( iV ); }
+float tan( float iV ) { return ::tanf( iV ); }
+float acos( float iV ) { return ::acosf( iV ); }
+float asin( float iV ) { return ::asinf( iV ); }
+float atan( float iV ) { return ::atanf( iV ); }
+float atan2( float iX, float iY ) { return ::atan2f( iX, iY ); }
+float inv( float iV ) { return 1.f/iV; }
+float sign( float iV ) { if (iV<0.f) return -1.f;if (iV>0.f) return 1.f; return 0.f; }
+float abs( float iV ) { return ::fabsf( iV ); }
+float floor( float iV ) { return ::floorf( iV ); }
+float ceil( float iV ) { return ::ceilf( iV ); }
+float round( float iV ) { return ::floorf( iV + .5f ); }
 float clamp( float iV, float iMin, float iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
 
-double exp( double ioV) { return ::exp( ioV ); }
-double log( double ioV) { return ::log( ioV ); }
-double pow(double iX, double iY) { return ::pow(iX, iY); }
-double sqr( double ioV) { return ioV*ioV; }
-double sqrt( double ioV){ return ::sqrt( ioV ); }
-double cos( double ioV) { return ::cos( ioV ); }
-double sin( double ioV) { return ::sin( ioV ); }
-double tan( double ioV) { return ::tan( ioV ); }
-double atan( double ioV){ return ::atan( ioV ); }
-double inv( double ioV) { return 1.f/ioV; }
-double sign( double iV) { if (iV<0.0) return -1.0;if (iV>0.0) return 1.0; return 0.0; }
-double abs( double iV) { return fabs( iV ); }
-double floor( double iV) { return ::floor(iV); }
-double ceil( double iV) { return ::ceil(iV); }
-double round( double iV) { return ::floor(iV + .5); }
+double exp( double iV ) { return ::exp( iV ); }
+double log( double iV ) { return ::log( iV ); }
+double pow(double iX, double iY ) { return ::pow( iX, iY ); }
+double sqr( double iV ) { return iV*iV; }
+double sqrt( double iV ){ return ::sqrt( iV ); }
+double cos( double iV ) { return ::cos( iV ); }
+double sin( double iV ) { return ::sin( iV ); }
+double tan( double iV ) { return ::tan( iV ); }
+double acos( double iV ) { return ::acos( iV ); }
+double asin( double iV ) { return ::asin( iV ); }
+double atan( double iV ) { return ::atan( iV ); }
+double atan2( double iX, double iY ) { return ::atan2( iX, iY ); }
+double inv( double iV ) { return 1.f/iV; }
+double sign( double iV ) { if (iV<0.0) return -1.0;if (iV>0.0) return 1.0; return 0.0; }
+double abs( double iV ) { return fabs( iV ); }
+double floor( double iV ) { return ::floor( iV ); }
+double ceil( double iV ) { return ::ceil( iV ); }
+double round( double iV ) { return ::floor( iV + .5 ); }
 double clamp( double iV, double iMin, double iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
 
 // TODO can some think of a better idea to implement pow of two integers? [BdG]
@@ -66,10 +72,24 @@ int pow(int iX, int iY)
 	{
 		LASS_THROW("invalid paramater iY '" << iY << "'.");
 	}
-	int result = 1;
-	for (int i = 0; i < iY; ++i)
+    if (iY < 32)
+    {
+        int result = 1;
+        for (int i = 0; i < iY; ++i)
+        {
+            result *= iY;
+        }
+        return result;
+    }
+    int result = 0;
+    int pow = 1;
+    for (int i = 0; i < sizeof(int) * lass::bitsPerByte; ++i)
 	{
-		result *= iX;
+        if (iY & (1 << i))
+        {
+            result += pow;
+        }
+        pow *= iX;
 	}
 	return result;
 }
@@ -86,11 +106,14 @@ void inpexp(float& ioV) { ioV = num::exp( ioV ); }
 void inplog(float& ioV) { ioV = num::log( ioV ); }
 void inppow(float& ioX, float iY) { ioX = lass::num::pow( ioX, iY ); }
 void inpsqr(float& ioV) { ioV*= ioV; }
-void inpsqrt(float& ioV){ ioV = num::sqrt( ioV ); }
+void inpsqrt(float& ioV) { ioV = num::sqrt( ioV ); }
 void inpcos(float& ioV) { ioV = num::cos( ioV ); }
 void inpsin(float& ioV) { ioV = num::sin( ioV ); }
 void inptan(float& ioV) { ioV = num::tan( ioV ); }
-void inpatan(float& ioV){ ioV = num::atan( ioV ); }
+void inpacos(float& ioV) { ioV = num::acos( ioV ); }
+void inpasin(float& ioV) { ioV = num::asin( ioV ); }
+void inpatan(float& ioV) { ioV = num::atan( ioV ); }
+void inpatan2(float& ioX, float iY) { ioX = num::atan2( ioX, iY ); }
 void inpinv(float& ioV) { ioV = 1.f/ioV; }
 void inpsign(float& ioV) { ioV = num::sign(ioV); }
 void inpabs(float& ioV) { ioV = num::abs(ioV); }
@@ -100,23 +123,23 @@ void inpround(float& ioV) { ioV = num::round(ioV); }
 void inpclamp(float& ioV, float iMin, float iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
 
 void compnorm(float iV, float& oV) { oV = iV*iV; }
-//void compnorm(const std::complex<float>& iV, float& oV) { oV = std::norm(iV); }
 void compinv(float iV, float& oV) { oV = 1.f/iV; }
-//void compinv(const std::complex<float>& iV, std::complex<float>& oV) { oV = 1.f/iV; }
 float norm(const float iV) { return iV*iV; }
-//float norm(const std::complex<float>& iV) { return (iV.real()*iV.real()+iV.imag()*iV.imag()); }
 float conj(const float iV) { return iV; }
 
 void inpexp(double& ioV) { ioV = num::exp( ioV ); }
 void inplog(double& ioV) { ioV = num::log( ioV ); }
 void inppow(double& ioX, double iY) { ioX = lass::num::pow( ioX, iY ); }
 void inpsqr(double& ioV) { ioV *= ioV ; }
-void inpsqrt(double& ioV){ ioV = num::sqrt( ioV ); }
+void inpsqrt(double& ioV) { ioV = num::sqrt( ioV ); }
 void inpcos(double& ioV) { ioV = num::cos( ioV ); }
 void inpsin(double& ioV) { ioV = num::sin( ioV ); }
 void inptan(double& ioV) { ioV = num::tan( ioV ); }
-void inpatan(double& ioV){ ioV = num::atan( ioV ); }
-void inpinv(double& ioV){ ioV = 1.0/ioV; }
+void inpacos(double& ioV) { ioV = num::acos( ioV ); }
+void inpasin(double& ioV) { ioV = num::asin( ioV ); }
+void inpatan(double& ioV) { ioV = num::atan( ioV ); }
+void inpatan2(double& ioX, double iY) { ioX = num::atan2( ioX, iY); }
+void inpinv(double& ioV) { ioV = 1.0/ioV; }
 void inpsign(double& ioV) { ioV = num::sign(ioV); }
 void inpabs(double& ioV) { ioV = num::abs(ioV); }
 void inpfloor(double& ioV) { ioV = num::floor(ioV); }
@@ -125,11 +148,8 @@ void inpround(double& ioV) { ioV = num::round(ioV); }
 void inpclamp(double& ioV, double iMin, double iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
 
 void compnorm(double iV, double& oV) { oV = iV*iV; }
-//void compnorm(const std::complex<double>& iV, double& oV) { oV = std::norm(iV); }
 void compinv(double iV, double& oV) { oV = 1.0/iV; }
-//void compinv(const std::complex<double>& iV, std::complex<double>& oV) { oV = 1.0/iV; }
 double norm(const double iV) { return iV*iV; }
-//double norm(const std::complex<double>& iV) { return (iV.real()*iV.real()+iV.imag()*iV.imag()); }
 double conj(const double iV) { return iV; }
 
 void inppow(int& ioX, int iY) { ioX = lass::num::pow( ioX, iY ); }
@@ -142,9 +162,7 @@ void inpround(int& ioV) { }
 void inpclamp(int& ioV, int iMin, int iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
 
 void compnorm(int iV, int& oV) { oV = iV*iV; }
-//void compnorm(const std::complex<int>& iV, double& oV) { oV = std::norm(iV); }
 int norm(const int iV) { return iV*iV; }
-//int norm(const std::complex<int>& iV) { return (iV.real()*iV.real()+iV.imag()*iV.imag()); }
 int conj(const int iV) { return iV; }
 
 int	mod(int iV,unsigned int iMod)
@@ -167,6 +185,8 @@ template <typename T> void inpsqrt(std::complex<T>& ioV){ ioV = num::sqrt( ioV )
 template <typename T> void inpcos(std::complex<T>& ioV) { ioV = num::cos( ioV ); }
 template <typename T> void inpsin(std::complex<T>& ioV) { ioV = num::sin( ioV ); }
 template <typename T> void inptan(std::complex<T>& ioV) { ioV = num::tan( ioV ); }
+template <typename T> void inpacos(std::complex<T>& ioV){ ioV = num::acos( ioV ); }
+template <typename T> void inpasin(std::complex<T>& ioV){ ioV = num::asin( ioV ); }
 template <typename T> void inpatan(std::complex<T>& ioV){ ioV = num::atan( ioV ); }
 template <typename T> void inpinv(std::complex<T>& ioV) { ioV = num::inv( ioV ); }
 
@@ -178,6 +198,8 @@ template <typename T> std::complex<T> sqrt( const std::complex<T>& ioV){ return 
 template <typename T> std::complex<T> cos( const std::complex<T>& ioV) { return std::cos( ioV ); }
 template <typename T> std::complex<T> sin( const std::complex<T>& ioV) { return std::sin( ioV ); }
 template <typename T> std::complex<T> tan( const std::complex<T>& ioV) { return std::tan( ioV ); }
+template <typename T> std::complex<T> acos( const std::complex<T>& ioV){ return std::acos( ioV ); }
+template <typename T> std::complex<T> asin( const std::complex<T>& ioV){ return std::asin( ioV ); }
 template <typename T> std::complex<T> atan( const std::complex<T>& ioV){ return std::atan( ioV ); }
 template <typename T> std::complex<T> inv( const std::complex<T>& ioV) { return T(1)/ioV; }
 template <typename T> std::complex<T> abs( const std::complex<T>& iV) { return std::abs( iV ); }

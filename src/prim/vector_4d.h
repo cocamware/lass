@@ -140,9 +140,14 @@ template<typename T> Vector4D<T> operator*(typename Vector4D<T>::TParam iA, cons
 template<typename T> Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB);
 template<typename T> Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB);
 
-template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector4D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(
+    std::basic_ostream<Char, Traits>& ioOStream, const Vector4D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& operator>>(
+    std::basic_istream<Char, Traits>& ioIStream, Vector4D<T>& iB);
+
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector4D<T>& iB);
-template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector4D<T>& iB);
 
 
 }

@@ -147,9 +147,14 @@ template<typename T> Vector3D<T> operator*(typename Vector3D<T>::TParam iA, cons
 template<typename T> Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB);
 template<typename T> Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
-template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector3D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(
+    std::basic_ostream<Char, Traits>& ioOStream, const Vector3D<T>& iB);
+template<typename T, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& operator>>(
+    std::basic_istream<Char, Traits>& ioIStream, Vector3D<T>& iB);
+
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector3D<T>& iB);
-template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector3D<T>& iB);
 
 
 

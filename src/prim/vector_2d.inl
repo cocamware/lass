@@ -554,8 +554,9 @@ Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
 
 /** @relates lass::prim::Vector2D
  */
-template<typename T>
-std::ostream& operator<<(std::ostream& oOStream, const Vector2D<T>& iB)
+template<typename T, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, 
+                                             const Vector2D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y  << ")";
 
@@ -566,24 +567,13 @@ std::ostream& operator<<(std::ostream& oOStream, const Vector2D<T>& iB)
 
 /** @relates lass::prim::Vector2D
  */
-template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector2D<T>& iB)
-{
-	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>\n";
-	return oOStream;
-}
-
-
-
-/** @relates lass::prim::Vector2D
- */
-template<typename T>
-std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& oB)
+template<typename T, typename Char, typename Traits>
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream, 
+                                             Vector2D<T>& oB)
 {
 	Vector2D<T> result;
 
-	char c = 0;
+	Char c = 0;
 	ioIStream >> c;
 	if (c != '(')
 	{
@@ -610,6 +600,18 @@ std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& oB)
 
 	oB = result;
 	return ioIStream;
+}
+
+
+
+/** @relates lass::prim::Vector2D
+ */
+template<typename T>
+io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector2D<T>& iB)
+{
+	LASS_ENFORCE_STREAM(oOStream) 
+		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>\n";
+	return oOStream;
 }
 
 

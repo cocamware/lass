@@ -299,16 +299,6 @@ XYZW operator-(const XYZW& iA, int iOffset)
 
 
 
-/** @relates lass::prim::XYZW
- */
-std::ostream& operator<<(std::ostream& ioS, const XYZW& iXYZW)
-{
-	ioS << iXYZW.axis();
-	return ioS;
-}
-
-
-
 }
 
 }
