@@ -66,7 +66,7 @@ template<typename T>
 template<typename U>
 Point3D<T>::Point3D(const Point3D<U>& iOther):
 	x(static_cast<TValue>(iOther.x)),
-	y(static_cast<TValue>(iOther.y))
+	y(static_cast<TValue>(iOther.y)),
 	z(static_cast<TValue>(iOther.z))
 {
 }

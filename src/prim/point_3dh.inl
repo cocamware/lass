@@ -44,8 +44,8 @@ namespace prim
 template<typename T> inline
 Point3DH<T>::Point3DH():
 	x(TNumTraits::zero),
-	y(TNumTraits::zero)
-	z(TNumTraits::zero)
+	y(TNumTraits::zero),
+	z(TNumTraits::zero),
 	w(TNumTraits::zero)
 {
 	LASS_ASSERT(isZero());
@@ -54,11 +54,11 @@ Point3DH<T>::Point3DH():
 
 
 template<typename T> inline
-Point3DH<T>::Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW) :
+Point3DH<T>::Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW):
 	x(iX),
 	y(iY),
-    z(iZ),
-    w(iW)
+	z(iZ),
+	w(iW)
 {
 }
 
@@ -69,7 +69,7 @@ Point3DH<T>::Point3DH(const TPoint& iAffinePoint) :
 	x(iAffinePoint.x),
 	y(iAffinePoint.y),
 	z(iAffinePoint.z),
-    w(TNumTraits::one)
+	w(TNumTraits::one)
 {
 }
 
@@ -99,7 +99,7 @@ template<typename T> inline
 typename Point3DH<T>::TConstReference 
 Point3DH<T>::operator[](unsigned iIndex) const
 {
-    LASS_ASSERT(iIndex < dimension);
+	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
 }
 
@@ -109,7 +109,7 @@ template<typename T> inline
 typename Point3DH<T>::TReference 
 Point3DH<T>::operator[](unsigned iIndex)
 {
-    LASS_ASSERT(iIndex < dimension);
+	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
 }
 
@@ -172,9 +172,9 @@ template<typename T>
 Point3DH<T>& Point3DH<T>::operator-=(const Point3DH<T>& iB)
 {
 	x -= iB.x;
-    y -= iB.y;
-    z -= iB.z;
-    w -= iB.w;
+	y -= iB.y;
+	z -= iB.z;
+	w -= iB.w;
 	return *this;
 }
 

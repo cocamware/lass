@@ -218,7 +218,7 @@ void Aabb3D<T, MMP>::grow(TParam iDistance)
 template <typename T, class MMP>
 void Aabb3D<T, MMP>::scale(TParam iScale)
 {
-	cont TVector extra = size() * ((num::abs(iScale) - 1) / 2);
+	const TVector extra = size() * ((num::abs(iScale) - 1) / 2);
 	min_ -= extra;
 	max_ += extra;
 	LASS_ASSERT(isValid());

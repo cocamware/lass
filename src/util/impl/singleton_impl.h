@@ -80,7 +80,7 @@ public:
 	SingletonBase();
 	virtual ~SingletonBase();
 
-    int destructionPriority() const;
+	int destructionPriority() const;
 
 	static void initLock();  ///< do NOT call this yourself, implementation detail!
 	static void cleanLock();	///< do NOT call this yourself, implementation detail!
@@ -89,7 +89,7 @@ protected:
 
 	void subscribeInstance(int iDestructionPriority);
 
-    static TSingletonLock* lock_;
+	static TSingletonLock* lock_;
 
 private:
 
@@ -121,7 +121,7 @@ private:
 		<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
 
 	TDeathRow deathRow_;
-    TSingletonLock lock_;
+	TSingletonLock lock_;
 };
 
 }

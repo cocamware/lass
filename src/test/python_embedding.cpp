@@ -144,6 +144,12 @@ PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 }
 }
 
+PY_SHADOW_CLASS(ShadowSpam, Spam)
+PY_SHADOW_CLASS_DERIVED(ShadowHam, Ham, ShadowSpam)
+PY_SHADOW_CLASS_DERIVED(ShadowBacon, Bacon, ShadowHam)
+PY_SHADOW_CLASS_DERIVED(ShadowEggs, Eggs, ShadowSpam)
+PY_SHADOW_CASTERS(lass::test::ShadowSpam)
+
 // --- shadow classes ------------------------------------------------------------------------------
 
 namespace lass
@@ -151,24 +157,20 @@ namespace lass
 namespace test
 {
 
-PY_SHADOW_CLASS(ShadowSpam, Spam)
 PY_DECLARE_CLASS_EX(ShadowSpam, "Spam")
 PY_CLASS_METHOD(ShadowSpam, who)
 PY_CLASS_MEMBER_R(ShadowSpam, "address", address)
 PY_INJECT_CLASS_IN_MODULE(ShadowSpam, embedding, "shadow spam")
 
-PY_SHADOW_CLASS_DERIVED(ShadowHam, Ham, ShadowSpam)
 PY_DECLARE_CLASS_EX(ShadowHam, "Ham")
 PY_CLASS_CONSTRUCTOR_0(ShadowHam)
 PY_CLASS_STATIC_METHOD(ShadowHam, say)
 PY_INJECT_CLASS_IN_MODULE(ShadowHam, embedding, "shadow ham");
 
-PY_SHADOW_CLASS_DERIVED(ShadowBacon, Bacon, ShadowHam)
 PY_DECLARE_CLASS_EX(ShadowBacon, "Bacon")
 PY_CLASS_CONSTRUCTOR_0(ShadowBacon)
 PY_INJECT_CLASS_IN_MODULE(ShadowBacon, embedding, "shadow bacon");
 
-PY_SHADOW_CLASS_DERIVED(ShadowEggs, Eggs, ShadowSpam)
 PY_DECLARE_CLASS_EX(ShadowEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(ShadowEggs, int)
 PY_CLASS_MEMBER_RW(ShadowEggs, "number", number, setNumber)
@@ -176,6 +178,3 @@ PY_INJECT_CLASS_IN_MODULE(ShadowEggs, embedding, "shadow eggs");
 
 }
 }
-
-PY_SHADOW_CASTERS(lass::test::ShadowSpam)
-

@@ -137,6 +137,7 @@ Transformation3D<T>::Transformation3D(bool iDontInitialise)
 template <typename T>
 Transformation3D<T> operator*(const Transformation3D<T>& iA, const Transformation3D<T>& iB)
 {
+    typedef typename Transformation3D<T>::TSize TSize;
     Transformation3D<T> result(false);
     for (TSize i = 0; i < 4; ++i)
     {

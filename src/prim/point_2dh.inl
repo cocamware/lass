@@ -36,7 +36,7 @@ namespace prim
 template <typename T> inline 
 Point2DH<T>::Point2DH():
 	x(TNumTraits::zero),
-	y(TNumTraits::zero)
+	y(TNumTraits::zero),
 	z(TNumTraits::zero)
 {
 	LASS_ASSERT(isZero());
