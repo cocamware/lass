@@ -1,5 +1,47 @@
+#!/usr/bin/python
+
+
 import os
 import string
+
+subprojects = ['io', 'num', 'prim', 'util', 'test']
+
+def createConfigureAc():
+    f=open('configure.ac','w+')
+    f.write(r'''
+AC_PREREQ(2.59)
+AC_INIT(lass, 0.0, fubar@spam.com)
+PACKAGE=lass
+VERSION=0.0.0
+AC_CONFIG_SRCDIR([src/lass_common.h])
+AM_INIT_AUTOMAKE
+AM_CONFIG_HEADER(config.h)
+# Checks for programs.
+AC_PROG_AWK
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_RANLIB
+AC_PROG_MAKE_SET
+# Checks for libraries.
+# Checks for header files.
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_CHECK_TYPES([ptrdiff_t])
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_HEADER_STDC
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS([atexit floor memset pow sqrt])
+
+AC_OUTPUT(Makefile src/Makefile''')
+    for p in subprojects:
+        f.write(' src/%s/Makefile' % p)
+    f.write(')\n') 
 
 def createSrcMakeFile():
     f=open('src/Makefile.am','w+')
@@ -8,9 +50,9 @@ INCLUDES= $(all_includes)
 
 # the library search path.
 #lass_LDFLAGS = $(all_libraries) 
-SUBDIRS = num prim util io test ''')
+SUBDIRS = ''')
+    f.write(string.join(subprojects, ' '))
     f.close()
-    
 
 def getSources(map):
 	filelist = os.listdir(map)
@@ -30,24 +72,21 @@ def makeMakeFile(directory):
 	f.write(filesStr+'\n')
 	f.close()
 
-
 os.chdir('src/util')
 os.system('python pre_build.py')
 os.chdir('../test')
 os.system('python pre_build.py')
 os.chdir('../..')
+createConfigureAc()
 createSrcMakeFile()
-makeMakeFile('util')
-makeMakeFile('io')
-makeMakeFile('num')
-makeMakeFile('prim')
-makeMakeFile('test')
+for p in subprojects:
+    makeMakeFile(p)
 os.system('aclocal')
 os.system('autoheader')
 os.system('autoconf')
 os.system('automake -a')
 os.system('make distclean')
 os.system('./configure')
-os.system('make CPPFLAGS+=-w')
+os.system('make')
 
 

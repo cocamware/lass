@@ -128,7 +128,7 @@ namespace lass
 
 namespace prim
 {
-struct ColorRGBA;
+class ColorRGBA;
 };
 
 

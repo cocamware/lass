@@ -462,7 +462,7 @@ const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 template <typename T>
 const bool SimplePolygon3D<T>::isInRange(int iIndexOfVertex) const
 {
-	return iIndexOfVertex >= 0 && iIndexOfVertex < vertices_.size();
+	return iIndexOfVertex >= 0 && iIndexOfVertex < static_cast<int>(vertices_.size());
 }
 
 

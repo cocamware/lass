@@ -56,11 +56,11 @@ public:
 	{
 	}
 	
-	~Exception() {}
+	~Exception() throw() {}
 
 	/** return message in STL style
 	 */
-	virtual const char* what() const 
+	virtual const char* what() const throw()
 	{ 
 		return message_.c_str(); 
 	}

@@ -131,6 +131,7 @@ struct PairTraits
 			return false;
 		}
 		oElement = std::pair<T, U>(t, u);
+		return true;
 	}
 };
 
