@@ -223,7 +223,7 @@ template<class RG, class T> T gauss(RG& iGenerator,
 	DistrubitionNormal<T, RG> distribution(iGenerator, iMean, iStdDev);
 	return distribution();
 }
-*/
+
 
 
 }

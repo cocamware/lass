@@ -28,8 +28,8 @@
 #include "num_common.h"
 #include "refl_diffr.h"
 #include "num_traits.h"
-#include "..\util\pyobject_plus.h"
-#include "..\util\pyobject_util.h"
+#include "../util/pyobject_plus.h"
+#include "../util/pyobject_util.h"
 
 namespace lass
 {
