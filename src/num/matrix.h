@@ -53,7 +53,7 @@ class Matrix
 {
 public:
 
-	typedef Vector<T, S> TSelf;
+	typedef Matrix<T, S> TSelf;
 	typedef S TStorage;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
@@ -125,20 +125,20 @@ template <typename T, typename S1, typename S2>
 const Matrix<T, impl::MMul<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
 
 template <typename T, typename S> 
-const Matrix<T, impl::MAdd<T, impl::VScalar<T>, S> > operator+(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> > operator+(const T& iA, const Matrix<T, S>& iB);
 template <typename T, typename S> 
-const Matrix<T, impl::MSub<T, impl::VScalar<T>, S> > operator-(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> > operator-(const T& iA, const Matrix<T, S>& iB);
 template <typename T, typename S> 
-const Matrix<T, impl::MMul<T, impl::VScalar<T>, S> > operator*(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> > operator*(const T& iA, const Matrix<T, S>& iB);
 
 template <typename T, typename S> 
-const Matrix<T, impl::MAdd<T, S, impl::VScalar<T> > > operator+(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator+(const Matrix<T, S>& iA, const T& iB);
 template <typename T, typename S> 
-const Matrix<T, impl::MAdd<T, S, impl::VScalar<T> > > operator-(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator-(const Matrix<T, S>& iA, const T& iB);
 template <typename T, typename S> 
-const Matrix<T, impl::MMul<T, S, impl::VScalar<T> > > operator*(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, S>& iA, const T& iB);
 template <typename T, typename S> 
-const Matrix<T, impl::MMul<T, S, impl::VScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
 
 template <typename T, typename S> 
 bool solve(const Matrix<T, S>& iA, Matrix<T>& ioB);
