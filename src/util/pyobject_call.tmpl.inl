@@ -261,7 +261,7 @@ struct PyCallMethod
 		{
 			return 0;
 		}
-		return Caller<R>::method<CppClass>( iObject, iMethod );
+		return Caller<R>::method( iObject, iMethod );
 	}
 $[
 	/** call non const method with $x arguments, translated from python arguments
@@ -277,7 +277,7 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method<CppClass, $(P$x)$>( iObject, iMethod, $(p$x)$ );
+		return Caller<R>::method( iObject, iMethod, $(p$x)$ );
 	}
 ]$
 
@@ -292,7 +292,7 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method<CppClass>( iObject, iMethod );
+		return Caller<R>::method( iObject, iMethod );
 	}
 $[
 	/** call const method with $x argument, translated from python arguments
@@ -308,7 +308,7 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method<CppClass, $(P$x)$>( iObject, iMethod, $(p$x)$ );
+		return Caller<R>::method( iObject, iMethod, $(p$x)$ );
 	}
 ]$
 
@@ -425,11 +425,11 @@ struct PyExplicitResolver<CppClass, R, lass::meta::NullType>
 		}
 		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() ) 
 		{ 
-			return PyCallMethod<CppClass>::call<R>( iArgs, iObject, iMethod ); 
+			return PyCallMethod<CppClass>::call( iArgs, iObject, iMethod ); 
 		}
 		static PyObject* callMethod( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const ) 
 		{ 
-			return PyCallMethod<CppClass>::call<R>( iArgs, iObject, iMethod ); 
+			return PyCallMethod<CppClass>::call( iArgs, iObject, iMethod ); 
 		}
         static PyObject* callConstructor( PyObject* iArgs ) 
 		{ 
@@ -450,11 +450,11 @@ struct PyExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 		}
 		static PyObject* callMethod( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) ) 
 		{ 
-			return PyCallMethod<CppClass>::call<R, $(P$x)$>( iArgs, iObject, iMethod ); 
+			return PyCallMethod<CppClass>::call( iArgs, iObject, iMethod ); 
 		}
 		static PyObject* callMethod( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const ) 
 		{ 
-			return PyCallMethod<CppClass>::call<R, $(P$x)$>( iArgs, iObject, iMethod ); 
+			return PyCallMethod<CppClass>::call( iArgs, iObject, iMethod ); 
 		}
         static PyObject* callConstructor( PyObject* iArgs ) 
 		{ 

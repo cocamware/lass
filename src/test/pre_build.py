@@ -1,4 +1,4 @@
-execfile(r'..\..\tools\param_expander.py')
+execfile(r'../../tools/param_expander.py')
 
 print 'Code generation ...'
 

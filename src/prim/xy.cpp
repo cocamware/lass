@@ -35,7 +35,7 @@ namespace prim
 
 /** intializes iterator to @a x axis.
  */
-XY::XY():
+XY::XY() throw():
     value_(0)
 {
 }
@@ -55,7 +55,7 @@ XY::XY(char iAxis)
 /** initializes iterator to an axis by number.
  *  ..., -1 == @a y, 0 == @a x, 1 == @a y, 2 == @a x, ...
  */
-XY::XY(int iValue):
+XY::XY(int iValue) throw():
     value_(iValue)
 {
 }
@@ -77,7 +77,7 @@ XY::XY(const std::string& iAxis)
 
 /** return axis by character: "x" or "y".
  */
-const char XY::axis() const
+const char XY::axis() const throw()
 {
     LASS_ASSERT(value_ >= 0 && value_ < dimension);
 	const char axes[] = { 'x', 'y' };
@@ -86,7 +86,7 @@ const char XY::axis() const
 
 
 
-XY& XY::operator++()
+XY& XY::operator++() throw()
 {
     LASS_ASSERT(value_ >= 0 && value_ < dimension);
     ++value_;
@@ -95,7 +95,7 @@ XY& XY::operator++()
 
 
 
-XY& XY::operator--()
+XY& XY::operator--() throw()
 {
     LASS_ASSERT(value_ >= 0 && value_ < dimension);
     --value_;
@@ -104,7 +104,7 @@ XY& XY::operator--()
 
 
 
-XY XY::operator++(int)
+XY XY::operator++(int) throw()
 {
     XY result(*this);
     ++*this;
@@ -113,7 +113,7 @@ XY XY::operator++(int)
 
 
 
-XY XY::operator--(int)
+XY XY::operator--(int) throw()
 {
     XY result(*this);
     --*this;
@@ -122,7 +122,7 @@ XY XY::operator--(int)
 
 
 
-XY& XY::operator+=(int iOffset)
+XY& XY::operator+=(int iOffset) throw()
 {
     value_ += iOffset;
     return *this;
@@ -130,7 +130,7 @@ XY& XY::operator+=(int iOffset)
 
 
 
-XY& XY::operator-=(int iOffset)
+XY& XY::operator-=(int iOffset) throw()
 {
     value_ -= iOffset;
     return *this;
@@ -172,7 +172,7 @@ inline void XY::reset(char iAxis)
 
 /** @relates lass::prim::XY
  */
-bool operator==(const XY& iA, const XY& iB)
+bool operator==(const XY& iA, const XY& iB) throw()
 {
     return iA.value_ == iB.value_;
 }
@@ -181,7 +181,7 @@ bool operator==(const XY& iA, const XY& iB)
 
 /** @relates lass::prim::XY
  */
-bool operator==(const XY& iA, char iB)
+bool operator==(const XY& iA, char iB) throw()
 {
 	return iA.axis() == iB;
 }
@@ -190,7 +190,7 @@ bool operator==(const XY& iA, char iB)
 
 /** @relates lass::prim::XY
  */
-bool operator==(char iA, const XY& iB)
+bool operator==(char iA, const XY& iB) throw()
 {
 	return iA == iB.axis();
 }
@@ -218,7 +218,7 @@ bool operator==(const std::string& iA, const XY& iB)
 
 /** @relates lass::prim::XY
  */
-bool operator!=(const XY& iA, const XY& iB)
+bool operator!=(const XY& iA, const XY& iB) throw()
 {
     return !(iA == iB);
 }
@@ -228,7 +228,7 @@ bool operator!=(const XY& iA, const XY& iB)
 
 /** @relates lass::prim::XY
  */
-bool operator!=(const XY& iA, char iB)
+bool operator!=(const XY& iA, char iB) throw()
 {
     return !(iA == iB);
 }
@@ -238,7 +238,7 @@ bool operator!=(const XY& iA, char iB)
 
 /** @relates lass::prim::XY
  */
-bool operator!=(char iA, const XY& iB)
+bool operator!=(char iA, const XY& iB) throw()
 {
     return !(iA == iB);
 }
@@ -267,7 +267,7 @@ bool operator!=(const std::string& iA, const XY& iB)
 
 /** @relates lass::prim::XY
  */
-XY operator+(const XY& iA, int iOffset)
+XY operator+(const XY& iA, int iOffset) throw()
 {
     XY result(iA);
     result += iOffset;
@@ -278,7 +278,7 @@ XY operator+(const XY& iA, int iOffset)
 
 /** @relates lass::prim::XY
  */
-XY operator-(const XY& iA, int iOffset)
+XY operator-(const XY& iA, int iOffset) throw()
 {
     XY result(iA);
     result -= iOffset;

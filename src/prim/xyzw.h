@@ -79,14 +79,14 @@ private:
 bool operator==(const XYZW& iA, const XYZW& iB) throw();
 bool operator==(const XYZW& iA, char iB) throw();
 bool operator==(char iA, const XYZW& iB) throw();
-bool operator==(const XYZW& iA, const std::string& iB) throw();
-bool operator==(const std::string& iA, const XYZW& iB) throw();
+bool operator==(const XYZW& iA, const std::string& iB);
+bool operator==(const std::string& iA, const XYZW& iB);
 
 bool operator!=(const XYZW& iA, const XYZW& iB) throw();
 bool operator!=(const XYZW& iA, char iB) throw();
 bool operator!=(char iA, const XYZW& iB) throw();
-bool operator!=(const XYZW& iA, const std::string&  iB) throw();
-bool operator!=(const std::string&  iA, const XYZW& iB) throw();
+bool operator!=(const XYZW& iA, const std::string&  iB);
+bool operator!=(const std::string&  iA, const XYZW& iB);
 
 XYZW operator+(const XYZW& iA, int iOffset) throw();
 XYZW operator-(const XYZW& iA, int iOffset) throw();

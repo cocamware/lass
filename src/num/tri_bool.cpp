@@ -38,7 +38,7 @@ namespace num
 
 /** Construct a TriBool, with as default state the "unknown".
  */
-TriBool::TriBool(State iState):
+TriBool::TriBool(State iState) throw():
 	state_(iState)
 {
 }
@@ -47,7 +47,7 @@ TriBool::TriBool(State iState):
 
 /** Converts a C++ bool to a TriBool.  
  */
-TriBool::TriBool(bool iBool):
+TriBool::TriBool(bool iBool) throw():
 	state_(iBool ? sTrue : sFalse)
 {
 }
@@ -56,7 +56,7 @@ TriBool::TriBool(bool iBool):
 
 /** return state
  */
-const TriBool::State TriBool::state() const
+const TriBool::State TriBool::state() const throw()
 {
 	return state_;
 }
@@ -65,7 +65,7 @@ const TriBool::State TriBool::state() const
 
 /** access state
  */
-TriBool::State& TriBool::state()
+TriBool::State& TriBool::state() throw()
 {
 	return state_;
 }
@@ -78,7 +78,7 @@ TriBool::State& TriBool::state()
  *		<tr><td></td>	<td>false</td>	<td>true</td>	<td>unknown</td></tr>
  *  </table>
  */
-TriBool TriBool::operator!() const
+TriBool TriBool::operator!() const throw()
 {
 	if (state_ == sUnknown)
 	{
@@ -112,7 +112,7 @@ TriBool TriBool::operator!() const
  *      LASS_ASSERT(a.isFalse());
  *  }
  */
-TriBool::operator SafeBool() const
+TriBool::operator SafeBool() const throw()
 {
 	return state_ == sTrue ? safeTrue : safeFalse;
 }
@@ -121,7 +121,7 @@ TriBool::operator SafeBool() const
 
 /** return true if state is @c true, return false otherwise.
  */
-bool TriBool::isTrue() const
+bool TriBool::isTrue() const throw()
 {
     return state_ == sTrue;
 }
@@ -130,7 +130,7 @@ bool TriBool::isTrue() const
 
 /** return true if state is @c false, return false otherwise.
  */
-bool TriBool::isFalse() const
+bool TriBool::isFalse() const throw()
 {
     return state_ == sFalse;
 }
@@ -139,7 +139,7 @@ bool TriBool::isFalse() const
 
 /** return true if state is @c unknown, return false otherwise.
  */
-bool TriBool::isUnknown() const
+bool TriBool::isUnknown() const throw()
 {
     return state_ == sUnknown;
 }
@@ -168,7 +168,7 @@ bool TriBool::isUnknown() const
  *  @warning don't expect @c unknown @c == @c unknown yields @c true!  Use @c unknown.isUnknown() 
  *  instead.
  */
-TriBool operator==(TriBool iA, TriBool iB)
+TriBool operator==(TriBool iA, TriBool iB) throw()
 {
     if (iA.isUnknown() || iB.isUnknown())
 	{
@@ -188,7 +188,7 @@ TriBool operator==(TriBool iA, TriBool iB)
  *		<tr><td>UNKNOWN</td>	<td>unknown</td>	<td>unknown</td>	<td>unknown</td></tr>
  *  </table>
  */
-TriBool operator!=(TriBool iA, TriBool iB)
+TriBool operator!=(TriBool iA, TriBool iB) throw()
 {
 	return !(iA == iB);
 }
@@ -204,7 +204,7 @@ TriBool operator!=(TriBool iA, TriBool iB)
  *		<tr><td>UNKNOWN</td>	<td>unknown</td>	<td>@b false</td>	<td>unknown</td></tr>
  *  </table>
  */
-TriBool operator&&(TriBool iA, TriBool iB)
+TriBool operator&&(TriBool iA, TriBool iB) throw()
 {
     if (iA.isFalse() || iB.isFalse())
 	{
@@ -228,7 +228,7 @@ TriBool operator&&(TriBool iA, TriBool iB)
  *		<tr><td>UNKNOWN</td>	<td>@b true</td>	<td>unknown</td>	<td>unknown</td></tr>
  *  </table>
  */
-TriBool operator||(TriBool iA, TriBool iB)
+TriBool operator||(TriBool iA, TriBool iB) throw()
 {
     if (iA.isTrue() || iB.isTrue())
 	{

@@ -54,13 +54,16 @@ public:
 	typedef TVector::TNumTraits TNumTraits;
 
 	enum { dimension = 4 };	/**< number of dimensions */
+	
+	struct boha
+	{
+		TVector vector;
+		boha(const TVector& v): vector(v) {}
+		};
 
 	union
 	{
-		struct
-		{
-			TVector vector;
-		};
+		boha vector;
 		struct
 		{
 			TValue r;
@@ -77,8 +80,8 @@ public:
 	// HACK Yes, you have to use ColorRGBA::TNumTraits::one instead of TNumTraits::one because the 
 	// MSVC7.0 doesn't understand the latter [BdG].
 
-	TConstReference operator[]( unsigned iIndex ) const;
-	TReference operator[]( unsigned iIndex );
+	TConstReference operator[]( unsigned iIndex ) const throw();
+	TReference operator[]( unsigned iIndex ) throw();
 	TConstReference at( signed iIndex ) const throw();
 	TReference at( signed iIndex ) throw();
 
@@ -87,9 +90,9 @@ public:
 
 	const TValue brightness() const throw();
 
-	void gamma(TParam iGamma);
+	void gamma(TParam iGamma) throw();
 	const TValue clamp() throw();
-	const TValue expose(TParam iTime);
+	const TValue expose(TParam iTime) throw();
 
 	// matlab colormaps
 	//

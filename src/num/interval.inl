@@ -355,7 +355,7 @@ template<typename C>
 interval<C>&	interval<C>::operator/=(const interval<C>& i)
 {
 	if ((i.v[0]<=0.0) && (i.v[1]>0.0))
-		throw std::exception("division by zero");
+		LASS_THROW("division by zero");
 	C	V[4];
 	int l;
 	V[3] = static_cast<C>(1.0)/(i.v[0]*i.v[1]);

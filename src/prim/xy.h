@@ -79,14 +79,14 @@ private:
 bool operator==(const XY& iA, const XY& iB) throw();
 bool operator==(const XY& iA, char iB) throw();
 bool operator==(char iA, const XY& iB) throw();
-bool operator==(const XY& iA, const std::string& iB) throw();
-bool operator==(const std::string& iA, const XY& iB) throw();
+bool operator==(const XY& iA, const std::string& iB);
+bool operator==(const std::string& iA, const XY& iB);
 
 bool operator!=(const XY& iA, const XY& iB) throw();
 bool operator!=(const XY& iA, char iB) throw();
 bool operator!=(char iA, const XY& iB) throw();
-bool operator!=(const XY& iA, const std::string&  iB) throw();
-bool operator!=(const std::string&  iA, const XY& iB) throw();
+bool operator!=(const XY& iA, const std::string&  iB);
+bool operator!=(const std::string&  iA, const XY& iB);
 
 XY operator+(const XY& iA, int iOffset) throw();
 XY operator-(const XY& iA, int iOffset) throw();

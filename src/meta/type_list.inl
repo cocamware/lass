@@ -312,6 +312,16 @@ namespace impl
 
 template <typename TypeListType> struct RunTimeFinder {};
 
+/** returns index of type in typelist at runtime, or -1 if not present
+ *
+ *  @sa TypeList
+ */
+template <typename TypeListType> int find(const util::TypeInfo& iType)
+{
+	return impl::RunTimeFinder<TypeListType>::result(iType);
+}
+
+
 template <>
 struct RunTimeFinder<NullType>
 { 
@@ -330,22 +340,12 @@ struct RunTimeFinder<TypeList<HeadType, TailType> >
 		{
 			return 0;
 		}
-		const int result = find<TailType>(iType);
+		const int result = find< TailType >(iType);
 		return result == -1 ? -1 : result + 1;
 	}
 };
 
 }
-
-/** returns index of type in typelist at runtime, or -1 if not present
- *
- *  @sa TypeList
- */
-template <typename TypeListType> int find(const util::TypeInfo& iType)
-{
-	return impl::RunTimeFinder<TypeListType>::result(iType);
-}
-
 
 
 }
