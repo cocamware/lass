@@ -23,7 +23,12 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @defgroup dB
+ *  @brief collection of conversion functions for dB
+ */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_DB_H
+#define LASS_GUARDIAN_OF_INCLUSION_NUM_DB_H
 
 #include "num_common.h"
 #include "num_traits.h"
@@ -33,26 +38,42 @@ namespace lass
 	namespace num
 	{
 		
-		/** p2dB.  Converts a pressure into decibels */ 
+		/** Converts a pressure into decibels.  
+		 *  @ingroup dB
+		 */ 
 		template< typename T >	T	p2dB( const T& iValue );
 
-		/** W2dB.  Converts a power into decibels */ 
+		/** Converts a power into decibels.  
+		 *  @ingroup dB
+		 */ 
 		template< typename T >	T	W2dB( const T& iValue );
 
-		/** I2dB.  Converts an intensity into decibels.  The intensity represents the intensity 
-		*	in all directions expressed in Watts/m^2, referenced to 10^-12 */ 
+		/** Converts an intensity into decibels.  
+		 *  @ingroup dB.  
+		 *  The intensity represents the intensity in all directions expressed in Watts/m^2, 
+		 *  referenced to 10^-12.
+		 */ 
 		template< typename T >	T	I2dB( const T& iValue );
 
-		/** dB2p.  Converts decibels into a pressure */ 
+		/** Converts decibels into a pressure .  
+		 *  @ingroup dB
+		 */ 
 		template< typename T >	T	dB2p( const T& iValue );
 
-		/** dB2W.  Converts decibels into a power */ 
-		template< typename T >	T	db2W( const T& iValue );
+		/** Converts decibels into a power.  
+		 *  @ingroup dB
+		 */ 
+		template< typename T >	T	dB2W( const T& iValue );
 
-		/** dB2I.  Converts decibels into an intensity.  The intensity represents the intensity 
-		*	in all directions expressed in Watts/m^2, referenced to 10^-12 */ 
-		template< typename T >	T	db2I( const T& iValue );
+		/** Converts decibels into an intensity.  
+		 *  @ingroup dB
+		 *  The intensity represents the intensity in all directions expressed in Watts/m^2, 
+		 *  referenced to 10^-12
+		 */ 
+		template< typename T >	T	dB2I( const T& iValue );
 	}
 }
 
 #include "db.inl"
+
+#endif
