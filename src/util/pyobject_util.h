@@ -189,13 +189,13 @@ namespace lass
 				impl::addMessageHeader("pair: first");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), result.second ) != 0)
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,1), result.second ) != 0)
 			{
 				impl::addMessageHeader("pair: second");
 				return 1;
 			}
 			oV = result;
-			return error;
+			return 0;
 		}
 
 		template<class C> 
