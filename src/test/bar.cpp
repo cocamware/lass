@@ -61,9 +61,14 @@ namespace test
 			return i+1;
 		}
 
-		std::string	Bar::repr(void)
+		std::string	Bar::pyRepr(void)
 		{
-			return std::string( "This string is the representation of Bar object at " + lass::num::str((long)this) );
+			return std::string( "The representation of Bar object at " + lass::util::stringCast<std::string>((long)this) );
+		}
+
+		std::string	Bar::pyStr(void)
+		{
+			return std::string( "The string of Bar object at " + lass::util::stringCast<std::string>((long)this) );
 		}
 		
 		int Bar::aStaticMethod( float ia )

@@ -46,7 +46,8 @@ namespace test
 	{
 		PY_HEADER( lass::python::PyObjectPlus );
 
-		virtual std::string	repr(void);
+		virtual std::string	pyRepr(void);
+		virtual std::string	pyStr(void);
 
 		int	privateInt_;
 		std::string privateString_;
