@@ -75,6 +75,18 @@ Vector4D<T>::Vector4D(const Vector4D<U>& iOther):
 
 
 
+template <typename T>
+template <typename U> 
+Vector4D<T>::Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW):
+	x(static_cast<TValue>(iX)), 
+	y(static_cast<TValue>(iY)),
+	z(static_cast<TValue>(iZ)), 
+	w(static_cast<TValue>(iW))
+{
+}
+
+
+
 template<typename T> inline
 typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const  
 {

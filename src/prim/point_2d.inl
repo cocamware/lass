@@ -74,6 +74,16 @@ Point2D<T>::Point2D(const Vector2D<U>& iPositionVector):
 
 
 
+template<typename T>
+template<typename U>
+Point2D<T>::Point2D(const U& iX, const U& iY):
+	x(static_cast<TValue>(iX)),
+	y(static_cast<TValue>(iY))
+{
+}
+
+
+
 template <typename T> inline
 const typename Point2D<T>::TVector
 Point2D<T>::position() const

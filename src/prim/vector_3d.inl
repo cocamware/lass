@@ -75,6 +75,17 @@ Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
 
 
 
+template <typename T>
+template <typename U> 
+Vector3D<T>::Vector3D(const U& iX, const U& iY, const U& iZ):
+	x(static_cast<TValue>(iX)), 
+	y(static_cast<TValue>(iY)),
+	z(static_cast<TValue>(iZ))
+{
+}
+
+
+
 template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) const
 {

@@ -81,6 +81,7 @@ struct Vector4D
 	Vector4D();
 	Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW);
 	template <typename U> explicit Vector4D(const Vector4D<U>& iOther); 
+    template <typename U> Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW);
 
 	typename Vector4D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector4D::TReference operator[](unsigned iIndex) ;
