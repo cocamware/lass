@@ -81,8 +81,7 @@
 *   be considered.
 */
 #define PY_PYTHONIZE \
-	{this->ob_type = &this->Type;\
-	_Py_NewReference( this );}
+	{this->ob_type = &this->Type;}
 
 
 #define PY_DECLARE_MODULE( i_module ) \
@@ -302,6 +301,7 @@
 		t_cppClass::Type.tp_doc = s_doc;\
 		t_cppClass::Type.tp_base = t_cppClass::GetParentType();\
 		t_cppClass::PythonModuleName = LASS_STRINGIFY( i_module );\
+		LASS_ENFORCE( PyType_Ready( &t_cppClass::Type ) >= 0 );\
 		Py_INCREF(& t_cppClass::Type );\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule, i_module ), \
