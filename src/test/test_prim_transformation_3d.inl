@@ -77,6 +77,11 @@ void testPrimTransformation3D()
             for (unsigned i = 0; i < 16; ++i)
             {
 				BOOST_CHECK(num::abs(a[i] - b[i]) < epsilon);
+				if (num::abs(a[i] - b[i]) >= epsilon)
+				{
+					LASS_COUT << "i:" << i << "\ta[i]:" << a[i] << "\tb[i]" << b[i] << "\n";
+					LASS_COUT << testTransfo << "\n";
+				}
             }
         }
         catch (...)
@@ -101,6 +106,7 @@ void testPrimTransformation3D()
 	transfo = TTransformation(mat, mat + 16);
 
 	const unsigned n = 1000000;
+	stopWatch.reset();
     stopWatch.start();
 	for (unsigned k = 0; k < n; ++k)
     {

@@ -81,20 +81,20 @@ namespace util
 template
 <
 	typename T,
-	template <typename> class StoragePolicy = ObjectStorage
+	template <typename, typename> class StoragePolicy = ObjectStorage
 >
-class ScopedPtr: public StoragePolicy<T>, public NonCopyable
+class ScopedPtr: public StoragePolicy<T, NonCopyable>
 {
 public:
 
 	typedef ScopedPtr<T, StoragePolicy> TSelf;                  /**< type of @c *this */
 
 	typedef T TPointee;                                         /**< type of object pointed too. */
-	typedef StoragePolicy<T> TStoragePolicy;                    /**< type of used storage policy. */
+	typedef StoragePolicy<T, NonCopyable> TStoragePolicy;       /**< type of used storage policy. */
 
-	typedef typename StoragePolicy<T>::TStorage TStorage;       /**< storage object of pointee */
-	typedef typename StoragePolicy<T>::TPointer TPointer;       /**< pointer to pointee */
-	typedef typename StoragePolicy<T>::TReference TReference;   /**< reference to pointee */
+	typedef typename TStoragePolicy::TStorage TStorage;      /**< storage object of pointee */
+	typedef typename TStoragePolicy::TPointer TPointer;      /**< pointer to pointee */
+	typedef typename TStoragePolicy::TReference TReference;  /**< reference to pointee */
 
 	/** Rebind smart pointer with this policies to another type.
 	 */
@@ -108,21 +108,21 @@ public:
 	/** Default constructor initializes to a default set by storage policy, usually NULL.
 	 */
 	ScopedPtr():
-		StoragePolicy<T>()
+		TStoragePolicy()
 	{
 	}
 
 	/** Constructs from iPointee allocated in agreement with storage policy or be @c NULL.
 	 */
 	explicit ScopedPtr(T* iPointee):
-		StoragePolicy<T>(iPointee)
+		TStoragePolicy(iPointee)
 	{
 	}
 
 	/** Constructs by stealing pointer from a std::auto_ptr.
 	 */
 	ScopedPtr(std::auto_ptr<T> iOther):
-		StoragePolicy<T>(iOther.release())
+		TStoragePolicy(iOther.release())
 	{
 	}
 
@@ -130,7 +130,7 @@ public:
 	 */
 	~ScopedPtr()
 	{
-		StoragePolicy<T>::dispose();
+		TStoragePolicy::dispose();
 	}
 
 	/** reset the scoped pointer to default by disposing old pointee and setting to default.
@@ -161,23 +161,23 @@ public:
 	 */
 	TPointer get() const
 	{
-		return StoragePolicy<T>::pointer();
+		return TStoragePolicy::pointer();
 	}
 
 	/** access pointee as a pointer.
 	 */
 	TPointer operator->() const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return StoragePolicy<T>::pointer();
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return TStoragePolicy::pointer();
 	}
 
 	/** access pointee as a reference.
 	 */
 	TReference operator*() const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return *StoragePolicy<T>::pointer();
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return *TStoragePolicy::pointer();
 	}
 
 	/** access iIndex'th object in pointee.
@@ -188,8 +188,8 @@ public:
 	 */
 	TReference operator[](size_t iIndex) const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return StoragePolicy<T>::at(iIndex);
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return TStoragePolicy::at(iIndex);
 	}
 
 	/** access by reference the storage object that stores the link to the pointee.
@@ -200,7 +200,7 @@ public:
 	 */
 	TStorage& storage()
 	{
-		return StoragePolicy<T>::storage();
+		return TStoragePolicy::storage();
 	}
 
 	/** return by reference the storage object that stores the link to the pointee.
@@ -208,7 +208,7 @@ public:
 	 */
 	const TStorage& storage() const
 	{
-		return StoragePolicy<T>::storage();
+		return TStoragePolicy::storage();
 	}
 
 	/** return true if pointer doesn't own any object.
@@ -216,7 +216,7 @@ public:
 	 */
 	bool isEmpty() const
 	{
-		return StoragePolicy<T>::isNull();
+		return TStoragePolicy::isNull();
 	}
 
 	/** return true if pointer doesn't own any object (same as isEmpty).
@@ -240,7 +240,7 @@ public:
 	 */
 	void swap(TSelf& iOther)
 	{
-		StoragePolicy<T>::swap(static_cast<StoragePolicy<T>&>(iOther));
+		TStoragePolicy::swap(static_cast<TStoragePolicy&>(iOther));
 	}
 
 };

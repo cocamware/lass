@@ -80,22 +80,22 @@ class DefaultCounter;
 template
 <
 	typename T,
-	template <typename> class StoragePolicy = ObjectStorage,
+	template <typename, typename> class StoragePolicy = ObjectStorage,
 	class CounterPolicy = DefaultCounter
 >
-class SharedPtr: public StoragePolicy<T>, public CounterPolicy
+class SharedPtr: public StoragePolicy<T, CounterPolicy>
 {
 public:
 
 	typedef SharedPtr<T, StoragePolicy, CounterPolicy> TSelf;   /**< type of @c *this */
 
 	typedef T TPointee;                                         /**< type of object pointed too. */
-	typedef StoragePolicy<T> TStoragePolicy;                    /**< type of used storage policy. */
+	typedef StoragePolicy<T, CounterPolicy> TStoragePolicy;     /**< type of used storage policy. */
 	typedef CounterPolicy TCounterPolicy;                       /**< type of used counter policy. */
 
-	typedef typename StoragePolicy<T>::TStorage TStorage;       /**< storage object of pointee */
-	typedef typename StoragePolicy<T>::TPointer TPointer;       /**< pointer to pointee */
-	typedef typename StoragePolicy<T>::TReference TReference;   /**< reference to pointee */
+	typedef typename TStoragePolicy::TStorage TStorage;         /**< storage object of pointee */
+	typedef typename TStoragePolicy::TPointer TPointer;         /**< pointer to pointee */
+	typedef typename TStoragePolicy::TReference TReference;     /**< reference to pointee */
 	typedef typename CounterPolicy::TCount TCount;              /**< counter type */
 
 	/** Rebind smart pointer with this policies to another type.
@@ -112,8 +112,7 @@ public:
 	/** Default constructor initializes to a default set by storage policy, usually NULL.
 	 */
 	SharedPtr():
-		StoragePolicy<T>(),
-		CounterPolicy()
+		TStoragePolicy()
 	{
 	}
 
@@ -121,12 +120,11 @@ public:
 	 *  The reference counting starts here.
 	 */
 	explicit SharedPtr(T* iPointee):
-		StoragePolicy<T>(iPointee),
-		CounterPolicy()
+		TStoragePolicy(iPointee)
 	{
 		if (!isEmpty())
 		{
-			CounterPolicy::init(StoragePolicy<T>::storage());
+			CounterPolicy::init(TStoragePolicy::storage());
 		}
 	}
 
@@ -134,12 +132,11 @@ public:
 	 *  Copy another SharedPtr, and increase the reference count.
 	 */
 	SharedPtr(const TSelf& iOther):
-		StoragePolicy<T>(static_cast<const StoragePolicy<T>&>(iOther)),
-		CounterPolicy(static_cast<const CounterPolicy&>(iOther))
+		TStoragePolicy(static_cast<const TStoragePolicy&>(iOther))
 	{
 		if (!isEmpty())
 		{
-			CounterPolicy::increment(StoragePolicy<T>::storage());
+			CounterPolicy::increment(TStoragePolicy::storage());
 		}
 	}
 
@@ -147,12 +144,11 @@ public:
 	 *  The reference counting starts here.
 	*/
 	SharedPtr(std::auto_ptr<T> iOther):
-		StoragePolicy<T>(iOther.release()),
-		CounterPolicy()
+		TStoragePolicy(iOther.release())
 	{
 		if (!isEmpty())
 		{
-			CounterPolicy::init(StoragePolicy<T>::storage());
+			CounterPolicy::init(TStoragePolicy::storage());
 		}
 	}
 
@@ -165,10 +161,10 @@ public:
 	{
 		if (!isEmpty())
 		{
-			if (CounterPolicy::decrement(StoragePolicy<T>::storage()))
+			if (CounterPolicy::decrement(TStoragePolicy::storage()))
 			{
-				CounterPolicy::dispose(StoragePolicy<T>::storage());
-				StoragePolicy<T>::dispose();
+				CounterPolicy::dispose(TStoragePolicy::storage());
+				TStoragePolicy::dispose();
 			}
 		}
 	}
@@ -216,7 +212,7 @@ public:
 	 */
 	TSelf& operator=(const TSelf& iOther)
 	{
-		if (StoragePolicy<T>::storage() != static_cast<const StoragePolicy<T>&>(iOther).storage())
+		if (TStoragePolicy::storage() != static_cast<const TStoragePolicy&>(iOther).storage())
 		{
 			TSelf temp(iOther);
 			swap(temp);
@@ -228,23 +224,23 @@ public:
 	 */
 	TPointer get() const
 	{
-		return StoragePolicy<T>::pointer();
+		return TStoragePolicy::pointer();
 	}
 
 	/** access pointee as a pointer
 	 */
 	TPointer operator->() const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return StoragePolicy<T>::pointer();
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return TStoragePolicy::pointer();
 	}
 
 	/** access pointee as a reference
 	 */
 	TReference operator*() const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return *StoragePolicy<T>::pointer();
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return *TStoragePolicy::pointer();
 	}
 
 	/** access iIndex'th object in pointee.
@@ -255,8 +251,8 @@ public:
 	 */
 	TReference operator[](size_t iIndex) const
 	{
-		LASS_ASSERT(StoragePolicy<T>::pointer());
-		return StoragePolicy<T>::at(iIndex);
+		LASS_ASSERT(TStoragePolicy::pointer());
+		return TStoragePolicy::at(iIndex);
 	}
 
 	/** access by reference the storage object that stores the link to the pointee.
@@ -267,7 +263,7 @@ public:
 	 */
 	TStorage& storage()
 	{
-		return StoragePolicy<T>::storage();
+		return TStoragePolicy::storage();
 	}
 
 	/** return by reference the storage object that stores the link to the pointee.
@@ -275,7 +271,7 @@ public:
 	 */
 	const TStorage& storage() const
 	{
-		return StoragePolicy<T>::storage();
+		return TStoragePolicy::storage();
 	}
 
 	/** return number of owners of this pointee.
@@ -283,7 +279,7 @@ public:
 	 */
 	TCount count() const
 	{
-		return !isEmpty() ? CounterPolicy::count(StoragePolicy<T>::storage()) : 0;
+		return !isEmpty() ? CounterPolicy::count(TStoragePolicy::storage()) : 0;
 	}
 
 	/** return true if this is the only owner of this pointee
@@ -300,7 +296,7 @@ public:
 	 */
 	bool isEmpty() const
 	{
-		return StoragePolicy<T>::isNull();
+		return TStoragePolicy::isNull();
 	}
 
 	/** return true if pointer doesn't own any object (same as isEmpty).
@@ -324,7 +320,7 @@ public:
 	 */
 	void swap(TSelf& iOther)
 	{
-		StoragePolicy<T>::swap(static_cast<StoragePolicy<T>&>(iOther));
+		TStoragePolicy::swap(static_cast<TStoragePolicy&>(iOther));
 		CounterPolicy::swap(static_cast<CounterPolicy&>(iOther));
 	}
 };

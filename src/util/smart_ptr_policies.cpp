@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,40 +23,39 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_PYTHON_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_PYTHON_INL
-
-#include "test_common.h"
-#include "bar.h"
-
-#include "../util/scoped_ptr.h"
-#include "../util/shared_ptr.h"
+#include "util_common.h"
+#include "smart_ptr_policies.h"
+#include "../stde/small_object_allocator.h"
 
 namespace lass
 {
-namespace test
+namespace util
+{
+namespace impl
 {
 
-struct Intruded
+void initHeapCounter(int*& ioCounter, int iInitialValue)
 {
-	int counter;
-};
+	stde::small_object_allocator<int> allocator;
+	LASS_ASSERT(!ioCounter);
+	ioCounter = allocator.allocate(1);
+	LASS_ASSERT(ioCounter);
+	allocator.construct(ioCounter, iInitialValue);
+}
 
-void testUtilPython()
+void disposeHeapCounter(int*& ioCounter)
 {
-	std::string commandStr = "execfile('test_bar.py')";
-	BOOST_CHECK_EQUAL( PyRun_SimpleString( commandStr.c_str() ) , 0 );
+	stde::small_object_allocator<int> allocator;
+	LASS_ASSERT(ioCounter);
+	allocator.destroy(ioCounter);
+	allocator.deallocate(ioCounter, 1);
+	ioCounter = 0;
+}
 
 }
 
-
-
 }
 
 }
-
-#endif
 
 // EOF

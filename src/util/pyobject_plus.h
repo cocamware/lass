@@ -105,11 +105,12 @@ namespace lass
 		*  @author Tom De Muer [TDM]
 		*  @see ObjectStorage
 		*/
-		template <typename T>
-		class PyObjectStorage
+		template <typename T, typename Cascade = meta::EmptyType>
+		class PyObjectStorage: public Cascade
 		{
 		public:
 
+			typedef PyObjectStorage<T, Cascade> TSelf;
 			typedef T* TStorage;
 			typedef T* TPointer;
 			typedef T& TReference;
@@ -119,12 +120,12 @@ namespace lass
 
 		protected:
 
-			PyObjectStorage(): storage_(defaultStorage()) {}
-			PyObjectStorage(T* iPointee): storage_(iPointee) {}
+			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
+			PyObjectStorage(T* iPointee): Cascade(), storage_(iPointee) {}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }
-			void swap(PyObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);   }
+			void swap(TSelf& iOther) { std::swap(storage_, iOther.storage_);   }
 			static TStorage defaultStorage() { return 0; }
 		private:
 			TStorage storage_;
@@ -162,7 +163,7 @@ namespace lass
 			}
 			void swap(PyObjectCounter& iOther) {}
 		private:
-			TCount counterToKeepCompilerFromDoingStupidThings_;
+			//TCount counterToKeepCompilerFromDoingStupidThings_;
 		};
 
 		/** templated "typedef" to a python shared pointer

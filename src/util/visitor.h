@@ -90,11 +90,12 @@
  *  private:
  *      virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)
  *      {
+ *			visit(*this, iVisitor);
  *          for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
  *          {
  *              (*i)->accept(iVisitor);
  *          }
- *          return doAcceptImpl(*this, iVisitor);
+ *          visitOnExit(*this, iVisitor);
  *      }
  *
  *      typedef std::list<Spam*> TChildren;
@@ -102,17 +103,20 @@
  *  };
  *  @endcode
  *
- *  if @c doAcceptImpl doesn't know how to accept the visitor (or the visitor doesn't know how to
- *  visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is called.
- *  @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default the
- *  policy VisitNonStrict is used, what means the call is silently ignored and you can move on with
- *  the visit. Another one is VisitStrict which will throw an exception on every unknown visit.
+ *  @c doAccept should call both @c visit and @c visitOnExit.  The former should be called before
+ *	visiting children, the latter after.
+ *
+ *  if @c visit or @c visitOnExit don't know how to accept the visitor (or the visitor doesn't know
+ *  how to visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is 
+ *  called. @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default 
+ *  the policy VisitNonStrict is used, what means the call is silently ignored and you can move on
+ *  with the visit. Another one is VisitStrict which will throw an exception on every unknown visit.
  *  What you want is your choice, and you can always write your own policy.
  *
- *  What about TVisitReturn?  We didn't talk about that one yet, did we?  Well, by default this will
+ *  <i>What about TVisitReturn?  We didn't talk about that one yet, did we?  Well, by default this will
  *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits
  *  your needs, you could make it return something interesting.  That's when you can use
- *  TVisitReturn.
+ *  TVisitReturn.</i> <b>[disabled]</b>
  *
  *  @subsection visitors
  *
@@ -129,12 +133,19 @@
  *  private:
  *      virtual void doVisit(Foo& iFoo) { ... }
  *      virtual void doVisit(Bar& iBar) { ... }
+ *		virtual void doVisitOnExit(Bar& iBar) { ... }
  *  };
  *  @endcode
  *
  *  objects of type Spam (non derived) or any other type of the Spam hiearchy that is not Foo or Bar
  *  will be redirected to the @c onUnknownVisitor function of the @e CatchAll policy of the visitable
  *  hierarchy.  That way, you only have to pull in and write visits for the types your interested in.
+ *
+ *  for every @c Visitor<X> being derived of, you'll have to implement @c doVisit(X&).  This one is
+ *  called by @c visit in @c doAccept.  If you don't implement it, the compiler will complain.  
+ *	You can also implement @c doVisitOnExit which will be called by @c visitOnExit in @c doAccept,
+ *	but this is not required by the compiler.  If you don't implement it, it will default to an 
+ *	empty function.
  *
  *  Notice that while we didn't tell how to visit a List object, the visitor will still iterate over
  *  children of the list, since that's done in the @c accept function and has nothing to do with the
@@ -230,23 +241,20 @@ public:
 /** @ingroup VisitorPattern
  *  @brief a mix-in to provides a visitor capabilities to visit a class
  */
-template
-<
-	class VisitableType,
-	typename VisitReturnType = void
->
+template <typename VisitableType>
 class LASS_DLL_EXPORT Visitor
 {
 public:
 
 	typedef VisitableType TVisitable;
-	typedef VisitReturnType TVisitReturn;
 
-	TVisitReturn visit(TVisitable& iVisited) { return doVisit(iVisited); }
+	void visit(TVisitable& iVisited) { doVisit(iVisited); }
+	void visitOnExit(TVisitable& iVisited) { doVisitOnExit(iVisited); }
 
 private:
 
-	virtual TVisitReturn doVisit(TVisitable& iVisited) = 0;
+	virtual void doVisit(TVisitable& iVisited) = 0;
+	virtual void doVisitOnExit(TVisitable& iVisited) {}
 };
 
 
@@ -259,16 +267,11 @@ private:
  *
  *  This is the default.
  */
-template
-<
-	class VisitableType,
-	typename VisitReturnType
->
+template <typename VisitableType>
 struct LASS_DLL_EXPORT VisitNonStrict
 {
-	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
+	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
-		return VisitReturnType();
 	}
 };
 
@@ -279,18 +282,13 @@ struct LASS_DLL_EXPORT VisitNonStrict
  *
  *  This catch-all policy will raise an exception if a visitor class is not recognized.
  */
-template
-<
-	class VisitableType,
-	typename VisitReturnType
->
+template <typename VisitableType>
 struct LASS_DLL_EXPORT VisitStrict
 {
-	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
+	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
 		LASS_THROW("Unacceptable visit: '" << typeid(iVisited).name() << "' can't accept '"
 			<< typeid(iVisitor).name() << "' as visitor.");
-		return VisitReturnType();
 	}
 };
 
@@ -303,33 +301,46 @@ struct LASS_DLL_EXPORT VisitStrict
  */
 template
 <
-	typename VisitReturnType = void,
-	template <class, typename> class CatchAll = VisitNonStrict
+	template <typename> class CatchAll = VisitNonStrict
 >
 class LASS_DLL_EXPORT VisitableBase
 {
 public:
 
-	typedef VisitReturnType TVisitReturn;
-
 	virtual ~VisitableBase() {}
-	TVisitReturn accept(VisitorBase& iVisitor) { return doAccept(iVisitor); }
+	void accept(VisitorBase& iVisitor) { doAccept(iVisitor); }
 
 protected:
 
-	template <class T>
-	static TVisitReturn doAcceptImpl(T& iVisited, VisitorBase& iVisitor)
+	template <typename T>
+	static void visit(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
-			return p->visit(iVisited);
+			p->visit(iVisited);
 		}
-		return CatchAll<T, VisitReturnType>::onUnknownVisitor(iVisited, iVisitor);
+		else
+		{
+			CatchAll<T>::onUnknownVisitor(iVisited, iVisitor);
+		}
+	}
+
+	template <typename T>
+	static void visitOnExit(T& iVisited, VisitorBase& iVisitor)
+	{
+		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
+		{
+			p->visitOnExit(iVisited);
+		}
+		else
+		{
+			CatchAll<T>::onUnknownVisitor(iVisited, iVisitor);
+		}
 	}
 
 private:
 
-	virtual TVisitReturn doAccept(VisitorBase& iVisitor) = 0;
+	virtual void doAccept(VisitorBase& iVisitor) = 0;
 };
 
 }
@@ -339,12 +350,13 @@ private:
 /** @ingroup VisitorPattern
  *  @brief implements an acceptor in a visitable class
  *
- *  This macro should be invoked in the public part of every class in a visitable hierarchy.
+ *  This macro should be invoked in the private part of every class in a visitable hierarchy.
  */
 #define LASS_UTIL_ACCEPT_VISITOR\
-	virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)\
+	virtual void doAccept(lass::util::VisitorBase& iVisitor)\
 	{\
-		return doAcceptImpl(*this, iVisitor);\
+		visit(*this, iVisitor);\
+		visitOnExit(*this, iVisitor);\
 	}
 
 #endif

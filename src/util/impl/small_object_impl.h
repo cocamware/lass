@@ -52,6 +52,7 @@ namespace impl
 {
 
 /** @internal
+ *
  */
 template
 <
@@ -67,6 +68,15 @@ public:
 	void* allocate();
 	void deallocate(void* iPointer);
 	std::size_t blockSize() const { return blockSize_; }
+
+	/** we have to use IntrusiveCounter because DefaultCounter needs
+	 *	small object allocator (leading to an infinite loop).  However
+	 *	this leads to an ugly referenceCount_ in the public interface of
+	 *	FixedAllocator.  Luckely for us, FixedAllocator is only an implementation
+	 *  detail, so it doesn't really pollute on the client side.  However,
+	 *	a nicer solution might by preferable (maybe a custom CounterPolicy?)
+	 */
+	int uglyReferenceCount_; 
 
 private:
 
@@ -118,7 +128,9 @@ public:
 private:
 
 	typedef FixedAllocator<AtomType> TFixedAllocator;
-	typedef SharedPtr<TFixedAllocator> TFixedAllocatorPtr;
+	typedef util::SharedPtr<TFixedAllocator, util::ObjectStorage,
+		util::IntrusiveCounter<TFixedAllocator, int, &TFixedAllocator::uglyReferenceCount_> >
+		TFixedAllocatorPtr;
 	typedef std::vector<TFixedAllocatorPtr> TPool;
 
 	struct CompareFixedAllocatorSize:

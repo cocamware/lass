@@ -93,7 +93,6 @@
  *
  *  - lass::util::ObjectStorage: simple storage policy for objects allocated by @c new.
  *  - lass::util::ArrayStorage: simple storage policy for arrays allocated by @c new[].
- *  - lass::util::ComStorage: storage policy for COM interfaces.
  *
  *  @section CounterPolicy
  *
@@ -155,6 +154,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_PTR_POLICIES_H
 
 #include "util_common.h"
+#include "../meta/empty_type.h"
 
 namespace lass
 {
@@ -172,11 +172,16 @@ namespace util
  *  (i.e. stuff that should be deallocated by @c delete ).  The storage type @c TStorage used for
  *  this policy simply is an ordinary pointer to that pointee (@c T*)/.
  */
-template <typename T>
-class ObjectStorage
+template 
+<
+	typename T,
+	typename Cascade = meta::EmptyType
+>
+class ObjectStorage: public Cascade
 {
 public:
 
+	typedef ObjectStorage<T, Cascade> TSelf;
 	typedef T* TStorage;
 	typedef T* TPointer;
 	typedef T& TReference;
@@ -186,8 +191,8 @@ public:
 
 protected:
 
-	ObjectStorage(): storage_(defaultStorage()) {}
-	ObjectStorage(T* iPointee): storage_(iPointee) {}
+	ObjectStorage(): Cascade(), storage_(defaultStorage()) {}
+	ObjectStorage(T* iPointee): Cascade(), storage_(iPointee) {}
 
 	TPointer pointer() const { return storage_; }
 
@@ -198,7 +203,7 @@ protected:
 	}
 
 	bool isNull() const { return !storage_; }
-	void swap(ObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_); }
+	void swap(TSelf& iOther) { std::swap(storage_, iOther.storage_); }
 
 	static TStorage defaultStorage() { return 0; }
 
@@ -218,11 +223,16 @@ private:
  *  (i.e. stuff that should be deallocated by @c delete[] ).  The storage type @c TStorage used for
  *  this policy simply is an ordinary pointer to that array (@c T*)/.
  */
-template <typename T>
-class ArrayStorage
+template 
+<
+	typename T,
+	typename Cascade = meta::EmptyType
+>
+class ArrayStorage: public Cascade
 {
 public:
 
+	typedef ArrayStorage<T, Cascade> TSelf;
 	typedef T* TStorage;
 	typedef T* TPointer;
 	typedef T& TReference;
@@ -232,8 +242,8 @@ public:
 
 protected:
 
-	ArrayStorage(): storage_(defaultStorage()) { }
-	ArrayStorage(T* iPointee): storage_(iPointee) { }
+	ArrayStorage(): Cascade(), storage_(defaultStorage()) { }
+	ArrayStorage(T* iPointee): Cascade(), storage_(iPointee) { }
 
 	TPointer pointer() const { return storage_; }
 	TReference at(size_t iIndex) const { return storage_[iIndex]; }
@@ -245,7 +255,7 @@ protected:
 	}
 
 	bool isNull() const { return !storage_; }
-	void swap(ArrayStorage<T>& iOther) { std::swap(storage_, iOther.storage_);  }
+	void swap(TSelf& iOther) { std::swap(storage_, iOther.storage_);  }
 
 	static TStorage defaultStorage() { return 0; }
 
@@ -256,7 +266,16 @@ private:
 
 
 
+
+
+
 // --- counter policies ----------------------------------------------------------------------------
+
+namespace impl
+{
+	void initHeapCounter(int*& ioCounter, int iInitialValue);
+	void disposeHeapCounter(int*& ioCounter);
+}
 
 /** @class DefaultCounter
  *  @ingroup SmartPtr
@@ -279,35 +298,32 @@ protected:
 
 	template <typename TStorage> void init(TStorage& iPointee)
 	{
-		LASS_ASSERT(!count_);
-		count_ = new TCount;
-		LASS_ASSERT(count_);
-		*count_ = 1;
+		impl::initHeapCounter(count_, 1);
+		LASS_ASSERT(count_ && *count_ == 1);
 	}
 
 	template <typename TStorage> void dispose(TStorage& iPointee)
 	{
-		LASS_ASSERT(count_);
-		delete count_;
-		count_ = 0;
+		LASS_ASSERT(count_ && *count_ == 0);
+		impl::disposeHeapCounter(count_);
 	}
 
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
-		LASS_ASSERT(count_);
+		LASS_ASSERT(count_ && *count_ > 0);
 		++*count_;
 	}
 
 	template <typename TStorage> bool decrement(TStorage& iPointee)
 	{
-		LASS_ASSERT(count_);
+		LASS_ASSERT(count_ && *count_ > 0);
 		--*count_;
 		return *count_ < 1;
 	}
 
 	template <typename TStorage> TCount count(TStorage& iPointee) const
 	{
-		LASS_ASSERT(count_);
+		LASS_ASSERT(count_ && *count_ > 0);
 		return *count_;
 	}
 
@@ -362,12 +378,13 @@ template
 <
 	typename T,
 	typename CounterType,
-	CounterType T::*referenceCounter
+	CounterType T::* referenceCounter
 >
 class IntrusiveCounter
 {
 public:
 
+	typedef IntrusiveCounter<T, CounterType, referenceCounter> TSelf;
 	typedef CounterType TCount;
 
 protected:
@@ -380,28 +397,29 @@ protected:
 
 	template <typename TStorage> void dispose(TStorage& iPointee)
 	{
+		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) == 0);
 	}
 
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
-		LASS_ASSERT(iPointee);
+		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
 		++(iPointee->*referenceCounter);
 	}
 
 	template <typename TStorage> bool decrement(TStorage& iPointee)
 	{
-		LASS_ASSERT(iPointee);
+		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
 		--(iPointee->*referenceCounter);
 		return (iPointee->*referenceCounter) < 1;
 	}
 
 	template <typename TStorage> TCount count(TStorage& iPointee) const
 	{
-		LASS_ASSERT(iPointee);
+		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
 		return iPointee->*referenceCounter;
 	}
 
-	void swap(DefaultCounter& iOther)
+	void swap(TSelf& iOther)
 	{
 	}
 };

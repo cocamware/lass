@@ -67,11 +67,12 @@ namespace util_visitor
 
 		void doAccept(util::VisitorBase& ioVisitor)
 		{
-			doAcceptImpl(*this, ioVisitor);
+			visit(*this, ioVisitor);
 			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
 			{
 				(*i)->accept(ioVisitor);
 			}
+			visitOnExit(*this, ioVisitor);
 		}
 
 	private:
@@ -96,6 +97,7 @@ namespace util_visitor
 		void doVisit(DocElement&) { ++docElements_; }
 		void doVisit(Paragraph&) { ++paragraphs_; }
 		void doVisit(List&) { ++lists_; }
+		void doVisitOnExit(List&) { std::cout << "visit on exit\n"; }
 	};
 }
 
