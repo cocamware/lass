@@ -118,8 +118,8 @@ namespace lass
 			PyTuple_SetItem( newTuple, 1, pyBuildSimpleObject( iV.second ) );
 			return newTuple;
 		}
-		template<class C>
-		PyObject* pyBuildSimpleObject( const std::vector<C>& iV )
+		template<class C, typename A>
+		PyObject* pyBuildSimpleObject( const std::vector<C, A>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(iV.size());
 			int i;
@@ -127,24 +127,24 @@ namespace lass
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
 			return newTuple;
 		}
-		template<class C>
-		PyObject* pyBuildSimpleObject( const std::list<C>& iV )
+		template<class C, typename A>
+		PyObject* pyBuildSimpleObject( const std::list<C, A>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(iV.size());
 			int i;
-			typename std::list<C>::const_iterator it = iV.begin();
-			typename std::list<C>::const_iterator eit = iV.end();
+			typename std::list<C, A>::const_iterator it = iV.begin();
+			typename std::list<C, A>::const_iterator eit = iV.end();
 			for (i=0;it != eit; ++it,++i)
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( *it ) );
 			return newTuple;
 		}
-		template<class K, class V>
-		PyObject* pyBuildSimpleObject( const std::map<K,V>& iV )
+		template<class K, class V, typename P, typename A>
+		PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
 		{
 			PyObject* newDict = PyDict_New();
 			int i;
-			typename std::map<K,V>::const_iterator it = iV.begin();
-			typename std::map<K,V>::const_iterator eit = iV.end();
+			typename std::map<K, V, P, A>::const_iterator it = iV.begin();
+			typename std::map<K, V, P, A>::const_iterator eit = iV.end();
 			for (i=0;it != eit; ++it,++i)
 				PyDict_SetItem( newDict, pyBuildSimpleObject( it->first ), pyBuildSimpleObject( it->second ) );
 			return newDict;
@@ -185,22 +185,22 @@ namespace lass
 			return 0;
 		}
 
-		template<class C>
-		int pyGetSimpleObject( PyObject* iValue, std::vector<C>& oV )
+		template<class C, typename A>
+		int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
-		template<class C>
-		int pyGetSimpleObject( PyObject* iValue, std::list<C>& oV )
+		template<class C, typename A>
+		int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
-		template<class K,class D>
-		int pyGetSimpleObject( PyObject* iValue, std::map<K,D>& oV )
+		template<class K, class D, typename P, typename A>
+		int pyGetSimpleObject( PyObject* iValue, std::map<K, D, P, A>& oV )
 		{
-			typedef std::map<K,D> TMap;
+			typedef std::map<K, D, P, A> TMap;
 			if (!PyDict_Check(iValue))
 			{
 				PyErr_SetString(PyExc_TypeError, "not a dict");

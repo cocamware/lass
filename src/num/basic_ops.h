@@ -56,6 +56,7 @@ inline float floor(float iV);
 inline float ceil(float iV);
 inline float round(float iV);
 inline float clamp(float iV, float iMin, float iMax);
+inline float mod(float iV, float iMod);
 
 inline void inpexp(float& ioV);
 inline void inplog(float& ioV);
@@ -105,6 +106,7 @@ inline double floor(double iV);
 inline double ceil(double iV);
 inline double round(double iV);
 inline double clamp(double iV, double iMin, double iMax);
+inline double mod(double iV, double iMod);
 
 inline void inpexp(double& ioV);
 inline void inplog(double& ioV);

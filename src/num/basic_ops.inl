@@ -44,6 +44,8 @@ float floor( float iV ) { return ::floorf( iV ); }
 float ceil( float iV ) { return ::ceilf( iV ); }
 float round( float iV ) { return ::floorf( iV + .5f ); }
 float clamp( float iV, float iMin, float iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
+float mod( float iV, float iMod) { return iV - iMod * ::floorf(iV / iMod); }
+
 
 void inpexp(float& ioV) { ioV = num::exp( ioV ); }
 void inplog(float& ioV) { ioV = num::log( ioV ); }
@@ -91,6 +93,7 @@ double floor( double iV ) { return ::floor( iV ); }
 double ceil( double iV ) { return ::ceil( iV ); }
 double round( double iV ) { return ::floor( iV + .5 ); }
 double clamp( double iV, double iMin, double iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
+double mod( double iV, double iMod) { return iV - iMod * ::floor(iV / iMod); }
 
 void inpexp(double& ioV) { ioV = num::exp( ioV ); }
 void inplog(double& ioV) { ioV = num::log( ioV ); }
