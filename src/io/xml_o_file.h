@@ -27,6 +27,44 @@
 
 /** @class lass::io::XmlOFile
  *  @brief Output stream for writing a selection of geometric primitives to XML files.
+ *
+ *  if you open a XmlOFile with @a iOpenMode (or without a second argument), the file is opened
+ *  and that's it.  Not automatic content is written to it:
+ *
+ *  @code
+ *	{
+ *		XmlOFile a("foo.xml");
+ *		a << "spam\n"
+ *  }
+ *
+ *  // foo.xml:
+ *  // spam
+ *
+ *  {
+ *		XmlOFile b("bar.xml, std::ios::trunc);
+ *		b << "eggs\n"
+ *	}
+ *
+ *  // bar.xml:
+ *  // eggs
+ *  @endcode
+ *	
+ *  However, if your second argument is the name of your root element, then a standard XML 
+ *  declaration will be written to it and the root element will be opened.  When the file is 
+ *  closed, this root element will be closed automatically as well.
+ *
+ *  @code
+ *	{
+ *		XmlOFile c("fun.xml", "root");
+ *		c << "ham\n"
+ *	}
+ *
+ *  // fun.xml:
+ *  // <?xml version="1.0"?>
+ *  // <root>
+ *  // ham
+ *  // </root>
+ *  @endcode
  */
 
 
@@ -50,21 +88,19 @@ class LASS_DLL XmlOFile: public XmlOStream
 {
 public:
 
+	enum { defaut_mode = std::ios::out | std::ios::trunc };
+
 	XmlOFile();
-	XmlOFile(const char* iFilename, 
-			 std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
-			 const std::string& iRoot = "");
-	XmlOFile(const std::string& iFilename, 
-			 std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
-			 const std::string& iRoot = "");
+	XmlOFile(const char* iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	XmlOFile(const char* iFilename, const char* iRoot);
+	XmlOFile(const std::string& iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	XmlOFile(const std::string& iFilename, const std::string& iRoot);
 	virtual ~XmlOFile();
 
-	void open(const char* iFilename,
-			  std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
-			  const std::string& iRoot = "");
-	void open(const std::string& iFilename,
-			  std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
-			  const std::string& iRoot = "");
+	void open(const char* iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	void open(const char* iFilename, const char* iRoot);
+	void open(const std::string& iFilename, std::ios_base::open_mode iOpenMode = defaut_mode);
+	void open(const std::string& iFilename, const std::string& iRoot);
 	void close();
 	bool is_open() const;
 

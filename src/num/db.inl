@@ -37,23 +37,41 @@ namespace lass
 
 		template< typename T >	T	p2dB( const T& iValue )
 		{
+			if (iValue>=0.0)
+			{
+				return T(20)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_PRESSURE_P0))/lass::num::log(T(10));
+			}
 			if (iValue<0.0)
-				LASS_THROW( "Negative value '" << iValue << "' in p2dB" );
-			return T(20)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_PRESSURE_P0))/lass::num::log(T(10));
+			{
+				LASS_THROW( "Negative argument '" << iValue << "'" );
+			}
+			return iValue; // nan
 		}
 
 		template< typename T >	T	W2dB( const T& iValue )
 		{
+			if (iValue>=0.0)
+			{
+				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_POWER_W0))/lass::num::log(T(10));
+			}
 			if (iValue<0.0)
-				LASS_THROW( "Negative value '" << iValue << "' in W2dB" );
-			return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_POWER_W0))/lass::num::log(T(10));
+			{
+				LASS_THROW( "Negative argument '" << iValue << "'" );
+			}
+			return iValue; // nan
 		}
 
 		template< typename T >	T	I2dB( const T& iValue )
 		{
+			if (iValue>=0.0)
+			{
+				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_INTENSITY_I0))/lass::num::log(T(10));
+			}
 			if (iValue<0.0)
-				LASS_THROW( "Negative value '" << iValue << "' in I2dB" );
-			return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_INTENSITY_I0))/lass::num::log(T(10));
+			{
+				LASS_THROW( "Negative argument '" << iValue << "'" );
+			}
+			return iValue; // nan
 		}
 
 		template< typename T >	T	dB2p( const T& iValue )

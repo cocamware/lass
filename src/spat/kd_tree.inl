@@ -173,6 +173,7 @@ inline void KdTree<O, OT>::assignNode(unsigned iNode, unsigned iIndex, unsigned 
 
 
 
+
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 template <typename O, template <class> class OT>
 void KdTree<O, OT>::diagnostics()
@@ -182,19 +183,11 @@ void KdTree<O, OT>::diagnostics()
 	{
 	public:
 		Visitor(const TObjects& iObjects, const TIndices& iHeap, const TIndices& iSplits):
-			xml_("kdtree.xml", std::ios_base::trunc),
+			xml_("kdtree.xml", "diagnostics"),
 			objects_(iObjects),
 			heap_(iHeap),
 			splits_(iSplits)
 		{
-			using lass::prim::operator<<;
-			xml_ << "<kdtree>" << std::endl;
-		}
-
-		~Visitor()
-		{
-			using lass::prim::operator<<;
-			xml_ << "</kdtree>" << std::endl;
 		}
 
 		void visit(unsigned iIndex, const TAabb& iAabb)
@@ -211,26 +204,22 @@ void KdTree<O, OT>::diagnostics()
 			xml_ << p;
 
 			const unsigned d = splits_[iIndex];
-			if (d == dummy_)
+			if (d == KdTree<O,OT>::dummy_)
 			{
 				return;
 			}
 			
-			//xml_ << "<less>" << std::endl;
 			TAabb less = iAabb;
 			typename TAabb::TPoint max = less.max();
 			max[d] = p[d];
 			less.setMax(max);
 			visit(2 * iIndex + 1, less);
-			//xml_ << "</less>" << std::endl;
 
-			//xml_ << "<greater>" << std::endl;
 			TAabb greater = iAabb;
 			typename TAabb::TPoint min = greater.min();
 			min[d] = p[d];
 			greater.setMin(min);
 			visit(2 * iIndex + 2, greater);
-			//xml_ << "</greater>" << std::endl;
 		}
 
 	private:

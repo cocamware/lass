@@ -43,66 +43,85 @@ XmlOFile::XmlOFile():
 
 
 
-XmlOFile::XmlOFile(const char* iFileName, std::ios_base::open_mode iOpenMode, 
-				   const std::string& iRoot):
+XmlOFile::XmlOFile(const char* iFileName, std::ios_base::open_mode iOpenMode):
 	XmlOStream()
 {
-	open(iFileName, iOpenMode, iRoot);
+	open(iFileName, iOpenMode);
 }
 
 
 
-XmlOFile::XmlOFile(const std::string& iFileName, std::ios_base::open_mode iOpenMode, 
-				   const std::string& iRoot):
+XmlOFile::XmlOFile(const char* iFileName, const char* iRoot):
 	XmlOStream()
 {
-	open(iFileName.c_str(), iOpenMode, iRoot);
+	open(iFileName, iRoot);
+}
+
+
+
+XmlOFile::XmlOFile(const std::string& iFileName, std::ios_base::open_mode iOpenMode):
+	XmlOStream()
+{
+	open(iFileName, iOpenMode);
+}
+
+
+
+XmlOFile::XmlOFile(const std::string& iFileName, const std::string& iRoot):
+	XmlOStream()
+{
+	open(iFileName, iRoot);
 }
 
 
 
 XmlOFile::~XmlOFile()
 {
-	if (!root_.empty())
+	close();
+}
+
+
+
+void XmlOFile::open(const char* iFilename, std::ios_base::open_mode iOpenMode)
+{
+	file_.open(iFilename, iOpenMode);
+	root_ = "";
+}
+
+
+
+void XmlOFile::open(const char* iFilename, const char* iRoot)
+{
+	file_.open(iFilename, std::ios::out | std::ios::trunc);
+	root_ = iRoot;
+	file_ << "<?xml version=\"1.0\"?>" << std::endl;
+	file_ << "<" << root_ << ">" << std::endl;
+}
+
+
+
+void XmlOFile::open(const std::string& iFilename, std::ios_base::open_mode iOpenMode)
+{
+	open(iFilename.c_str(), iOpenMode);
+}
+
+
+
+void XmlOFile::open(const std::string& iFilename, const std::string& iRoot)
+{
+	open(iFilename.c_str(), iRoot.c_str());
+}
+
+
+
+void XmlOFile::close()
+{
+	if (file_.is_open() && !root_.empty())
 	{
 		file_ << "</" << root_ << ">" << std::endl;
 	}
+	file_.close();
 }
-
-
-
-void XmlOFile::open(const char* iFilename, std::ios_base::open_mode iOpenMode, 
-					const std::string& iRoot)
-{
-	file_.open(iFilename, iOpenMode);
-	if (util::checkMaskedAll<std::ios_base::open_mode>(iOpenMode, std::ios_base::trunc))
-	{
-		file_ << "<?xml version=\"1.0\"?>" << std::endl;
-	}
-	root_ = iRoot;
-	if (!root_.empty())
-	{
-		file_ << "<" << root_ << ">" << std::endl;
-	}
-}
-
-
-
-void XmlOFile::open(const std::string& iFilename, std::ios_base::open_mode iOpenMode, 
-					const std::string& iRoot)
-{
-	open(iFilename.c_str(), iOpenMode, iRoot);
-}
-
-
-
-#define LASS_IO_XML_FILE_METHOD( method__ )\
-	void XmlOFile::method__()\
-	{\
-		file_.method__();\
-	}
-
-LASS_IO_XML_FILE_METHOD( close )
 
 
 

@@ -29,7 +29,7 @@
  *  @brief Starts a element in a XmlStream you can write to, and that will be closed automatically.
  *
  *  @code
- *	XmlOFile file("foo.xml", std::ios::trunc | std::ios::out, "root");
+ *	XmlOFile file("foo.xml", "root");
  *	{
  *		XmlOElement element(file, "element");
  *		element << "inside element";
