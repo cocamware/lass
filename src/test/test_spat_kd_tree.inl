@@ -65,7 +65,7 @@ void testSpatKdTree()
     }
     const TAabb bounds(min, max);
 
-    const unsigned n = 100;
+    const unsigned n = 1000;
     num::RandomMT19937 generator;
     TPoint points[n];
     for (unsigned i = 0; i < n; ++i)
@@ -76,29 +76,29 @@ void testSpatKdTree()
     TKdTree tree(points, points + n);
     tree.diagnostics();
 
-	const unsigned nNearestTests = 50;
+	const unsigned nNearestTests = 100;
 	for (unsigned i = 0; i < nNearestTests; ++i)
 	{
-		TPoint test = bounds.random(generator);
+		TPoint target = bounds.random(generator);
 		
 		// naive nearest
 		//
-		unsigned naiveNearest = 0;
-		TValue naiveSqrDistance = squaredDistance(test, points[0]);
+		TPoint naiveNearest = points[0];
+		TValue naiveSqrDistance = squaredDistance(target, naiveNearest);
 		for (unsigned k = 1; k < n; ++k)
 		{
-			const TValue sqrDist = squaredDistance(test, points[k]);
+			const TValue sqrDist = squaredDistance(target, points[k]);
 			if (sqrDist < naiveSqrDistance)
 			{
-				naiveNearest = k;
+				naiveNearest = points[k];
 				naiveSqrDistance = sqrDist;
 			}
 		}
 
 		// kd tree nearest
-		TKdTree::Neighbour kdTreeNearest = tree.nearestNeighbour(test);
+		TPoint kdTreeNearest = tree.nearestNeighbour(target).position();
 		
-		BOOST_CHECK_CLOSE(kdTreeNearest.squaredDistance(), naiveSqrDistance, 0.01); // 0.01%
+		BOOST_CHECK_EQUAL(kdTreeNearest, naiveNearest);
 	}
 }
 

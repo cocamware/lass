@@ -149,10 +149,37 @@ KdTree<O, OT>::Neighbour::object() const
 
 
 template <typename O, template <class> class OT>
+inline typename KdTree<O, OT>::TPoint
+KdTree<O, OT>::Neighbour::position() const
+{
+	return TObjectTraits::position(object_);
+}
+
+
+
+template <typename O, template <class> class OT>
 inline typename KdTree<O, OT>::TValue
 KdTree<O, OT>::Neighbour::squaredDistance() const
 {
     return squaredDistance_;
+}
+
+
+
+template <typename O, template <class> class OT>
+inline typename KdTree<O, OT>::TObjectReference
+KdTree<O, OT>::Neighbour::operator*() const
+{
+    return *object_;
+}
+
+
+
+template <typename O, template <class> class OT>
+inline typename KdTree<O, OT>::TObjectIterator
+KdTree<O, OT>::Neighbour::operator->() const
+{
+    return object_;
 }
 
 
@@ -264,8 +291,8 @@ size_t KdTree<O, OT>::findNode(const TPoint& iTarget, size_t iStartNode) const
 		return iStartNode;
 	}
 
-    const TPoint position = TObjectTraits::position(heap_[iStartNode]);
-    const TValue delta = iTarget[split] - position[split]; // distance to splitting plane
+    const TPoint pivot = TObjectTraits::position(heap_[iStartNode]);
+    const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
 	const bool isLeftSide = delta < TValue();
 	const size_t result = findNode(iTarget, 2 * iStartNode + (isLeftSide ? 1 : 2));
 	return result != size ? result : iStartNode;
@@ -273,7 +300,7 @@ size_t KdTree<O, OT>::findNode(const TPoint& iTarget, size_t iStartNode) const
 
 
 
-#pragma LASS_FIXME("this function is broken")
+#pragma LASS_FIXME("this function is broken!")
 template <typename O, template <class> class OT>
 size_t KdTree<O, OT>::findBoundingParentNode(const TPoint& iTarget, size_t iChildNode, 
 											 TParam iRadius) const
@@ -354,11 +381,11 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
         return;
     }
 
-    const TPoint position = TObjectTraits::position(heap_[iNode]);
+    const TPoint pivot = TObjectTraits::position(heap_[iNode]);
     const TAxis split = splits_[iNode];
     if (split != dummyAxis_)
     {    
-        const TValue delta = iTarget[split] - position[split]; // distance to splitting plane
+        const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
         if (delta < TValue())
         {
             // we are left of the plane - search left node first
@@ -379,7 +406,7 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
         }
     }
 
-    const TValue sqrDistance = squaredDistance(position, iTarget);
+    const TValue sqrDistance = squaredDistance(pivot, iTarget);
     if (sqrDistance < ioSquaredRadius)
     {
         oNeighbourhood.push_back(Neighbour(heap_[iNode], sqrDistance));
@@ -434,8 +461,8 @@ void KdTree<O, OT>::diagnostics()
 				return;
 			}
 
-			const typename TObjectTraits::TPoint p = TObjectTraits::position(heap_[iNode]);
-			xml_ << p;
+			const typename TObjectTraits::TPoint pivot = TObjectTraits::position(heap_[iNode]);
+			xml_ << pivot;
 
 			const TAxis split = splits_[iNode];
 			if (split == dummyAxis_)
@@ -445,13 +472,13 @@ void KdTree<O, OT>::diagnostics()
 			
 			TAabb less = iAabb;
 			typename TAabb::TPoint max = less.max();
-			max[split] = p[split];
+			max[split] = pivot[split];
 			less.setMax(max);
 			visit(2 * iNode + 1, less);
 
 			TAabb greater = iAabb;
 			typename TAabb::TPoint min = greater.min();
-			min[split] = p[split];
+			min[split] = pivot[split];
 			greater.setMin(min);
 			visit(2 * iNode + 2, greater);
 		}

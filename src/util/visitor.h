@@ -54,24 +54,24 @@
  *
  *  Suppose, we have some classes @c Foo and @c Bar to be visited, and both are are derived of 
  *  @c Spam.  You must derived @c Spam of VisitableBase, and invoke the macro
- *  LASS_UTIL_ACCEPT_VISITOR in the public part of each class of the hierarchy.
+ *  LASS_UTIL_ACCEPT_VISITOR in the private part of each class of the hierarchy.
  * 
  *  @code
  *  class Spam: public lass::util::VisitableBase<>
  *  {
- *  public:
+ *	private:
  *		LASS_UTIL_ACCEPT_VISITOR
  *  };
  *
  *  class Foo: public Spam
  *  {
- *	public:
+ *	private:
  *		LASS_UTIL_ACCEPT_VISITOR
  *  };
  *
  *  class Bar: public Spam
  *  {
- *	public:
+ *	private:
  *		LASS_UTIL_ACCEPT_VISITOR
  *  };
  *  @endcode
@@ -80,37 +80,39 @@
  *  that is needed to switch the visitor over the different visitables.  All it does is passing the
  *  call to the VisitableBase, but it's crucial for the pattern.  Instead of using 
  *  LASS_UTIL_ACCEPT_VISITOR, you can also write your own acceptor if you want something fancier,
- *  e.g. to iterate over a list of child objects ...
+ *  e.g. to iterate over a list of child objects.  This acceptor should be called @c doAccept ...
  *
  *  @code
  *  class List: public Spam
  *  {
  *	public:
  *		void addChild(Spam* iChild): children_.push_back(iChild) {}
- *      virtual TVisitReturn accept(lass::util::VisitorBase& iVisitor)
+ *	private:
+ *      virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)
  *		{
  *			for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
  *			{
  *				(*i)->accept(iVisitor);
  *			}
- *			return doAccept(doAccept(*this, iVisitor);
+ *			return doAcceptImpl(*this, iVisitor);
  *		}
- *	private:
+ *
  *		typedef std::list<Spam*> TChildren;
  *		TChildren children_;
  *	};
  *  @endcode
  *
- *  if @c doAccept doesn't know how to accept the visitor (or the visitor doesn't know how to visit
- *  the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is called.  CatchAll
- *  of VisitableBase determines what to do on undetermined visits.  By default the policy
- *  VisitNonStrict is used, what means the call is silently ignored and you can move on with the visit.
- *  Another one is VisitStrict which will throw an exception on every unknown visit.  What you want is
- *  your choice, and you can always write your own policy.
+ *  if @c doAcceptImpl doesn't know how to accept the visitor (or the visitor doesn't know how to 
+ *  visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is called.  
+ *  @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default the 
+ *  policy VisitNonStrict is used, what means the call is silently ignored and you can move on with 
+ *  the visit. Another one is VisitStrict which will throw an exception on every unknown visit.  
+ *  What you want is your choice, and you can always write your own policy.
  *
  *  What about TVisitReturn?  We didn't talk about that one yet, did we?  Well, by default this will
- *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits your
- *  needs, you could make it return something interesting.  That's when you can use TVisitReturn.
+ *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits 
+ *  your needs, you could make it return something interesting.  That's when you can use 
+ *  TVisitReturn.
  *
  *  @subsection visitors
  *
@@ -124,8 +126,9 @@
  *		public lass::util::Visitor<Foo>,
  *		public lass::util::Visitor<Bar>
  *	{
- *		virtual void visit(Foo& iFoo) { ... }
- *		virtual void visit(Bar& iBar) { ... }
+ *  private:
+ *		virtual void doVisit(Foo& iFoo) { ... }
+ *		virtual void doVisit(Bar& iBar) { ... }
  *  };
  *  @endcode
  *
@@ -148,9 +151,9 @@
  *		public lass::util::Visitor<Spam>
  *	{
  *  public:
- *		virtual void visit(Spam& iSpam) { ++count_; }
  *      int count() const { return count_; }
  *  private:
+ *		virtual void doVisit(Spam& iSpam) { ++count_; }
  *		int count_;
  *  };
  *  @endcode.
@@ -187,7 +190,6 @@
  *		public lass::util::Visitor<Spam>
  *	{
  *  public:
- *		virtual void visit(Spam& iSpam) { ++count_; }
  *		int operator()(Spam& iSpam)
  *		{
  *			count_ = 0;
@@ -195,6 +197,7 @@
  *			return count_;
  *		}
  *  private:
+ *		virtual void doVisit(Spam& iSpam) { ++count_; }
  *		int count_;
  *  };
  *

@@ -190,10 +190,10 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iSphere)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Sphere3D>" << std::endl
-		<< "<center>" << iSphere.center() << "</center>" << std::endl
-		<< "<radius>" << iSphere.radius() << "</radius>" << std::endl
-		<< "</Sphere3D>" << std::endl;
+		<< "<Sphere3D>\n"
+		<< "<center>" << iSphere.center() << "</center>\n"
+		<< "<radius>" << iSphere.radius() << "</radius>\n"
+		<< "</Sphere3D>\n";
 
 	return ioOStream;
 }

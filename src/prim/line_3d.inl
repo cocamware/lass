@@ -243,10 +243,10 @@ template<typename T, class NP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line3D<T, NP>& iLine)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Line3D>" << std::endl
-		<< "<support>" << iLine.support() << "</support>" << std::endl
-		<< "<direction>" << iLine.direction() << "</direction>" << std::endl
-		<< "</Line3D>" << std::endl;
+		<< "<Line3D>\n"
+		<< "<support>" << iLine.support() << "</support>\n"
+		<< "<direction>" << iLine.direction() << "</direction>\n"
+		<< "</Line3D>\n";
 
 	return ioOStream;
 }

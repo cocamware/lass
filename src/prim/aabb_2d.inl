@@ -388,8 +388,8 @@ template <class RandomGenerator>
 const typename Aabb2D<T, MMP>::TPoint
 Aabb2D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
-    const TVector t(static_cast<TValue>(ioGenerator()) / RandomGenerator::max,
-                    static_cast<TValue>(ioGenerator()) / RandomGenerator::max);
+	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
+    const TVector t(uniform(), uniform(), uniform());
     const TPoint result(min_ + t * (max_ - min_));
     LASS_ASSERT(contains(result));
     return result;
@@ -532,10 +532,10 @@ template<typename T, class MMP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb2D<T, MMP>& iAabb)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Aabb2D>" << std::endl
-		<< "<min>" << iAabb.min() << "</min>" << std::endl
-		<< "<max>" << iAabb.max() << "</max>" << std::endl
-		<< "</Aabb2D>" << std::endl;
+		<< "<Aabb2D>\n"
+		<< "<min>" << iAabb.min() << "</min>\n"
+		<< "<max>" << iAabb.max() << "</max>\n"
+		<< "</Aabb2D>\n";
 
 	return ioOStream;
 }

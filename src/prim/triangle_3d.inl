@@ -270,12 +270,12 @@ const bool Triangle3D<T>::isInRange(int iIndexOfVertex) const
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTriangle)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << "<Triangle3D>" << std::endl;
+	LASS_ENFORCE_STREAM(ioOStream) << "<Triangle3D>\n";
 	for (unsigned i = 0; i < 3; ++i)
 	{
-		ioOStream << "<vertex id='" << i << "'>" << iTriangle[i] << "</vertex>" << std::endl;
+		ioOStream << "<vertex id='" << i << "'>" << iTriangle[i] << "</vertex>\n";
 	}
-	ioOStream << "</Triangle3D>" << std::endl;
+	ioOStream << "</Triangle3D>\n";
 	return ioOStream;
 }
 

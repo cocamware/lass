@@ -266,10 +266,10 @@ template<typename T, class PP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const LineSegment2D<T, PP>& iLineSegment)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<LineSegment2D>" << std::endl
-		<< "<tail>" << iLineSegment.tail() << "</tail>" << std::endl
-		<< "<head>" << iLineSegment.head() << "</head>" << std::endl
-		<< "</LineSegment2D>" << std::endl;
+		<< "<LineSegment2D>\n"
+		<< "<tail>" << iLineSegment.tail() << "</tail>\n"
+		<< "<head>" << iLineSegment.head() << "</head>\n"
+		<< "</LineSegment2D>\n";
 
 	return ioOStream;
 }

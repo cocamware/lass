@@ -320,7 +320,7 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Point2D>" << iB.x() << " " << iB.y() << "</Point2D>" << std::endl;
+		<< "<Point2D>" << iB.x() << " " << iB.y() << "</Point2D>\n";
 	return oOStream;
 }
 

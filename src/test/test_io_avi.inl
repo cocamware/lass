@@ -30,8 +30,8 @@
 
 #include "../io/avi.h"
 #include "../prim/color_rgba.h"
-
-#include <stdlib.h>
+#include "../num/random.h"
+#include "../num/distribution.h"
 
 namespace lass
 {
@@ -43,9 +43,12 @@ void testIoAvi()
 	const int width = 320;
 	const int height = 240;
 
+	num::RandomMT19937 random;
+	num::DistributionUniform<float, num::RandomMT19937> uniform01(random);
+
 	LASS_COUT << "SPECIFY AVI FORMAT IN DIALOG!\n";
 	io::Avi avi("test.avi", 25, width, height, 24);
-	util::ScopedPtr<prim::ColorRGBA, util::ArrayStorage> buffer(new prim::ColorRGBA[width * height]);
+	std::vector<prim::ColorRGBA> buffer(width * height);
 
 	LASS_COUT << "\n writing avi file: ";
 	for (int i = 0; i < 25; ++i)
@@ -56,13 +59,13 @@ void testIoAvi()
 			const int x0 = y * width;
 			for (int x = 0; x < width; ++x)
 			{
-				const float r = static_cast<float>(rand()) / RAND_MAX;
-				const float g = static_cast<float>(rand()) / RAND_MAX;
-				const float b = 0;//static_cast<float>(rand()) / RAND_MAX;
+				const float r = uniform01();
+				const float g = uniform01();
+				const float b = 0;//uniform01();
 				buffer[x0 + x] = prim::ColorRGBA(r, g, b);
 			}
 		}
-		avi.frame(buffer.get());
+		avi.frame(&buffer[0]);
 	}
 	LASS_COUT << "\n";
 }

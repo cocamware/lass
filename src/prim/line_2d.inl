@@ -212,16 +212,48 @@ Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
 
 /** @relates Line2D
  */
-template <typename T, class EP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, EP>& iLine)
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Cartesian>& iLine)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Line2D>" << std::endl
-		<< "<support>" << iLine.support() << "</support>" << std::endl
-		<< "<direction>" << iLine.direction() << "</direction>" << std::endl
-		<< "<normal>" << iLine.normal() << "</normal>" << std::endl
-		<< "<d>" << iLine.d() << "</d>" << std::endl
-		<< "</Line2D>" << std::endl;
+		<< "<Line2D>\n"
+		<< "<normal>" << iLine.normal() << "</normal>\n"
+		<< "<d>" << iLine.d() << "</d>\n"
+		<< "</Line2D>\n";
+
+	return ioOStream;
+}
+
+
+
+/** @relates Line2D
+ */
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Parametric>& iLine)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "<Line2D>\n"
+		<< "<support>" << iLine.support() << "</support>\n"
+		<< "<direction>" << iLine.direction() << "</direction>\n"
+		<< "</Line2D>\n";
+
+	return ioOStream;
+}
+
+
+
+/** @relates Line2D
+ */
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Combined>& iLine)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "<Line2D>\n"
+		<< "<support>" << iLine.support() << "</support>\n"
+		<< "<direction>" << iLine.direction() << "</direction>\n"
+		<< "<normal>" << iLine.normal() << "</normal>\n"
+		<< "<d>" << iLine.d() << "</d>\n"
+		<< "</Line2D>\n";
 
 	return ioOStream;
 }

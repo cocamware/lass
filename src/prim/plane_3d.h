@@ -421,10 +421,12 @@ public:
     */
 };
 
-template <typename T, class EP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, EP>& iPlane);
-
-
+template <typename T> 
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Cartesian>& iPlane);
+template <typename T> 
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Parametric>& iPlane);
+template <typename T> 
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Combined>& iPlane);
 
 }
 

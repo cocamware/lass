@@ -576,7 +576,7 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector2D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>" << std::endl;
+		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>\n";
 	return oOStream;
 }
 

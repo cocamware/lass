@@ -537,12 +537,12 @@ template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon)
 {
 	const unsigned n = iPolygon.size();
-	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon2D>" << std::endl;
+	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon2D>\n";
 	for (unsigned i = 0; i < n; ++i)
 	{
-		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>" << std::endl;
+		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
 	}
-	ioOStream << "</SimplePolygon2D>" << std::endl;
+	ioOStream << "</SimplePolygon2D>\n";
 	return ioOStream;
 }
 

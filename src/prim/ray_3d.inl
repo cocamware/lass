@@ -183,10 +183,10 @@ template<typename T, class NP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Ray3D<T, NP>& iRay)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Ray3D>" << std::endl
-		<< "<support>" << iRay.support() << "</support>" << std::endl
-		<< "<direction>" << iRay.direction() << "</direction>" << std::endl
-		<< "</Ray3D>" << std::endl;
+		<< "<Ray3D>\n"
+		<< "<support>" << iRay.support() << "</support>\n"
+		<< "<direction>" << iRay.direction() << "</direction>\n"
+		<< "</Ray3D>\n";
 	return ioOStream;
 }
 

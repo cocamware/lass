@@ -122,20 +122,52 @@ const XYZ Plane3D<T, EP, NP>::majorAxis() const
 // --- free ----------------------------------------------------------------------------------------
 
 
-
-/** @relates Line2D
+/** @relates Plane3D
  */
-template <typename T, class EP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, EP>& iLine)
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Cartesian>& iPlane)
 {
 	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "<Plane3D>" << std::endl
-		<< "<support>" << iLine.support() << "</support>" << std::endl
-		<< "<directionU>" << iLine.directionU() << "</directionU>" << std::endl
-		<< "<directionV>" << iLine.directionV() << "</directionV>" << std::endl
-		<< "<normal>" << iLine.normal() << "</normal>" << std::endl
-		<< "<d>" << iLine.d() << "</d>" << std::endl
-		<< "</Plane3D>" << std::endl;
+		<< "<Plane3D>\n"
+		<< "<normal>" << iPlane.normal() << "</normal>\n"
+		<< "<d>" << iPlane.d() << "</d>\n"
+		<< "</Plane3D>\n";
+
+	return ioOStream;
+}
+
+
+
+/** @relates Plane3D
+ */
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Parametric>& iPlane)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "<Plane3D>\n"
+		<< "<support>" << iPlane.support() << "</support>\n"
+		<< "<directionU>" << iPlane.directionU() << "</directionU>\n"
+		<< "<directionV>" << iPlane.directionV() << "</directionV>\n"
+		<< "</Plane3D>\n";
+
+	return ioOStream;
+}
+
+
+
+/** @relates Plane3D
+ */
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Combined>& iPlane)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "<Plane3D>\n"
+		<< "<support>" << iPlane.support() << "</support>\n"
+		<< "<directionU>" << iPlane.directionU() << "</directionU>\n"
+		<< "<directionV>" << iPlane.directionV() << "</directionV>\n"
+		<< "<normal>" << iPlane.normal() << "</normal>\n"
+		<< "<d>" << iPlane.d() << "</d>\n"
+		<< "</Plane3D>\n";
 
 	return ioOStream;
 }

@@ -45,15 +45,16 @@ namespace spat
 {
 
 template <typename ObjectType>
-struct KdTreeDefaultTraits
+struct KdTreeObjectTraits
 {
     typedef const ObjectType* TObjectIterator;
+    typedef const ObjectType& TObjectReference;
     typedef ObjectType TPoint;
-    typedef typename ObjectType::TValue TValue;
-    typedef typename ObjectType::TParam TParam;
-    typedef typename ObjectType::TReference TReference;
-    typedef typename ObjectType::TConstReference TConstReference;
-    enum { dimension = ObjectType::dimension };
+    typedef typename TPoint::TValue TValue;
+    typedef typename TPoint::TParam TParam;
+    typedef typename TPoint::TReference TReference;
+    typedef typename TPoint::TConstReference TConstReference;
+	enum { dimension = TPoint::dimension };
 
     static const TPoint& position(TObjectIterator iObject) { return *iObject; }
 };
@@ -63,7 +64,7 @@ struct KdTreeDefaultTraits
 template 
 <
     class ObjectType, 
-    template <class> class ObjectTraits = KdTreeDefaultTraits
+    template <class> class ObjectTraits = KdTreeObjectTraits
 >
 class KdTree
 {
@@ -75,6 +76,7 @@ public:
     typedef ObjectTraits<TObject> TObjectTraits;
 
     typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+    typedef typename TObjectTraits::TObjectReference TObjectReference;
     typedef typename TObjectTraits::TPoint TPoint;
 	typedef typename TObjectTraits::TValue TValue;
 	typedef typename TObjectTraits::TParam TParam;
@@ -93,8 +95,13 @@ public:
     {
     public:
         Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
+
         TObjectIterator object() const;
+		TPoint position() const;
         TValue squaredDistance() const;
+
+		TObjectIterator operator->() const;
+		TObjectReference operator*() const;
         bool operator<(const Neighbour& iOther) const;
     private:
         TObjectIterator object_;

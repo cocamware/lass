@@ -475,13 +475,13 @@ template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& iPolygon)
 {
 	const unsigned n = iPolygon.size();
-	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon3D>" << std::endl;
+	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon3D>\n";
 	for (unsigned i = 0; i < n; ++i)
 	{
-		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>" << std::endl;
+		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
 	}
-	ioOStream << "<plane>" << iPolygon.plane() << "</plane>" << std::endl;
-	ioOStream << "</SimplePolygon3D>" << std::endl;
+	ioOStream << "<plane>" << iPolygon.plane() << "</plane>\n";
+	ioOStream << "</SimplePolygon3D>\n";
 	return ioOStream;
 }
 

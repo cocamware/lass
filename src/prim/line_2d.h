@@ -372,8 +372,12 @@ template <typename T, class EPa, class NPa, class EPb, class NPb>
 Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
                  Point2D<T>& oPoint);
 
-template <typename T, class EP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, EP>& iLine);
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Cartesian>& iLine);
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Parametric>& iLine);
+template <typename T>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Combined>& iLine);
 
 
 
