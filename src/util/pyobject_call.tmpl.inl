@@ -222,6 +222,7 @@ struct Caller
         LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) ) )
 	}
 	]$
+
 };
 
 /** specialisation for functions with return value, alls function and returns Py_None. 
@@ -270,7 +271,7 @@ struct Caller<void>
 
 	// const method
 
-	template <class CppClass>
+    template <class CppClass>
 	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)() const )
 	{
 		LASS_UTIL_PYOBJECT_CALL_TRY( (iObject->*iMethod)() )
@@ -287,6 +288,7 @@ struct Caller<void>
 		return Py_None;
 	}
 	]$
+
 };
 
 

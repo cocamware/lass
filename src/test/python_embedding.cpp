@@ -144,6 +144,35 @@ PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
 // expose member methods of object instances
 
 PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
+/*
+	static PyCFunction pyOverloadChain_gccTest = 0;
+	inline PyObject* gccTest( PyObject* iObject, PyObject* iArgs )
+	{
+		if (pyOverloadChain_gccTest)
+		{
+			PyObject* result = pyOverloadChain_gccTest(iObject, iArgs);
+            if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
+            {
+                PyErr_Clear();
+            }
+            else
+            {
+                return result;
+            }
+		}
+        typedef ::lass::python::impl::ShadowTraits<PythonFoo> TShadowTraits;
+        typedef TShadowTraits::TCppClass TCppClass;
+        PythonFoo* const cppObject = TShadowTraits::cppObject(iObject);
+        if (!cppObject)
+        {
+            return 0;
+        }
+
+        return ::lass::python::impl::CallMethod<PythonFoo>::call<float, float, float>(
+            iArgs, cppObject, &PythonFoo::aFooMoreComplexFunction );
+	}
+	PY_IMPL_SUBSCRIBE_CLASS_METHOD( PythonFoo, "aFooMoreComplexFunction", s_doc, gccTest )
+*/
 PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
 PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
 //PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )

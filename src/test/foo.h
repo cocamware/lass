@@ -26,8 +26,8 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_Foo_H
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_Foo_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_FOO_H
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_FOO_H
 
 #include "test_common.h"
 #include "../util/pyobject_plus.h"

@@ -37,7 +37,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SMALL_OBJECT_IMPL_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SMALL_OBJECT_IMPL_INL
 
-#include "util_common.h"
+#include "../util_common.h"
 #include "small_object_impl.h"
 #include "../../num/num_traits.h"
 
@@ -78,7 +78,7 @@ FixedAllocator<A>::FixedAllocator(std::size_t iBlockSize, std::size_t iChunkSize
 template <typename A>
 FixedAllocator<A>::~FixedAllocator()
 {
-	for (TChunks::iterator i = chunks_.begin(); i != chunks_.end(); ++i)
+	for (typename TChunks::iterator i = chunks_.begin(); i != chunks_.end(); ++i)
 	{
 		LASS_ASSERT(i->blocksAvailable_ == numBlocks_);
 		i->release();
@@ -97,7 +97,7 @@ void* FixedAllocator<A>::allocate()
 		// no available memory in this chunk, try to find one
 		//
 		allocateChunk_ = 0;
-		for (TChunks::iterator i = chunks_.begin(); i != chunks_.end(); ++i)
+		for (typename TChunks::iterator i = chunks_.begin(); i != chunks_.end(); ++i)
 		{
 			if (i->blocksAvailable_ > 0)
 			{
@@ -357,7 +357,7 @@ void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
 		return lastAllocate_->allocate();
 	}
 
-	TPool::iterator i = 
+	typename TPool::iterator i = 
 		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
 
 	if (i == pool_.end() || (*i)->blockSize() != iSize)
@@ -386,7 +386,7 @@ void SmallObjectAllocator<CS, MOS, A>::deallocate(void* iPointer, std::size_t iS
         return;
     }
 
-    TPool::iterator pit = 
+    typename TPool::iterator pit = 
 		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
     LASS_ASSERT(pit != pool_.end());
     LASS_ASSERT((*pit)->blockSize() == iSize);

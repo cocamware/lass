@@ -39,10 +39,13 @@ namespace lass
 namespace test
 {
 
+struct AVeryLongInt {}; // with linux port, __int64 does fit this job no more, some fake it.
+
 // --- public --------------------------------------------------------------------------------------
 
 void testMetaTypeList()
 {
+
     using namespace meta;
 
     typedef type_list::Make<float, double, long double>::Type TFloats;
@@ -70,17 +73,17 @@ void testMetaTypeList()
     BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(long double)), 2);
     BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(NullType)), -1);
 
-	typedef type_list::Merge<TSignedIntegers, signed __int64>::Type TAllSignedIntegers;
+    typedef type_list::Merge<TSignedIntegers, AVeryLongInt>::Type TAllSignedIntegers;
     BOOST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
-    BOOST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, signed __int64>::value), 4);
+    BOOST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);
     typedef type_list::Merge<TFloats, TAllSignedIntegers>::Type TAllSignedTypes;
     BOOST_CHECK_EQUAL(int(type_list::Size<TAllSignedTypes>::value), 8);
 
     typedef type_list::Remove<TFloats, long double>::Type TCommonFloats;
     BOOST_CHECK_EQUAL(int(type_list::Size<TCommonFloats>::value), 2);
 
-    typedef type_list::Replace<TAllSignedIntegers, signed __int64, long>::Type TLongIs64;
-    BOOST_CHECK_EQUAL(int(type_list::Find<TLongIs64, signed __int64>::value), -1);
+    typedef type_list::Replace<TAllSignedIntegers, AVeryLongInt, long>::Type TLongIs64;
+    BOOST_CHECK_EQUAL(int(type_list::Find<TLongIs64, AVeryLongInt>::value), -1);
 
     typedef type_list::Unique<TLongIs64>::Type TUniqueSignedIntegers;
     BOOST_CHECK_EQUAL(int(type_list::Size<TUniqueSignedIntegers>::value), 4);

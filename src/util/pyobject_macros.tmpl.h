@@ -417,13 +417,13 @@
 		}\
         typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
         typedef TShadowTraits::TCppClass TCppClass;\
-        TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+        TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
         if (!cppObject)\
         {\
             return 0;\
         }\
         return ::lass::python::impl::CallMethod<TCppClass>::call(\
-            iArgs, cppObject, TCppClass::i_cppMethod );\
+            iArgs, cppObject, &TCppClass::i_cppMethod );\
 	}\
 	PY_IMPL_SUBSCRIBE_CLASS_METHOD( t_cppClass, s_methodName, s_doc, i_dispatcher )
 
@@ -528,7 +528,7 @@
 			t_return,\
 			t_params\
 		>\
-		::TImpl::callMethod(iArgs, cppObject, TCppClass::i_cppMethod);\
+		::TImpl::callMethod(iArgs, cppObject, &TCppClass::i_cppMethod);\
 	}\
 	PY_IMPL_SUBSCRIBE_CLASS_METHOD( t_cppClass, s_methodName, s_doc, i_dispatcher )
 
@@ -710,7 +710,7 @@ $[
 #define PY_CLASS_STATIC_METHOD_DOC( i_cppClass, i_cppMethod, s_doc )\
     PY_CLASS_STATIC_METHOD_EX(\
         i_cppClass,\
-        ::lass::python::impl::ShadowTraits<i_cppClass>::TCppClass::i_cppMethod,\
+        &::lass::python::impl::ShadowTraits<i_cppClass>::TCppClass::i_cppMethod,\
         LASS_CONCATENATE_3(py, i_cppClass, i_cppMethod), \
         LASS_STRINGIFY(i_cppMethod), s_doc )
 
@@ -771,7 +771,7 @@ $[
             return 0;\
         }\
         return ::lass::python::impl::CallMethod<TCppClass>::get(\
-            cppObject, TCppClass::i_cppGetter );\
+            cppObject, &TCppClass::i_cppGetter );\
 	}\
 	inline int LASS_CONCATENATE_3( pySetter, t_cppClass, i_cppSetter ) ( PyObject* iObject, PyObject* iArgs, void* iClosure )\
 	{\
@@ -783,7 +783,7 @@ $[
             return 0;\
         }\
         return ::lass::python::impl::CallMethod<TCppClass>::set(\
-            iArgs, cppObject, TCppClass::i_cppSetter );\
+            iArgs, cppObject, &TCppClass::i_cppSetter );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
     ( LASS_CONCATENATE_3( lassExecutePyClassMemberRW_, t_cppClass, i_cppGetter ),\
@@ -847,7 +847,7 @@ $[
             return 0;\
         }\
         return ::lass::python::impl::CallMethod<TCppClass>::get(\
-            cppObject, TCppClass::i_cppGetter );\
+            cppObject, &TCppClass::i_cppGetter );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
     ( LASS_CONCATENATE_3( lassExecutePyClassMemberR_, t_cppClass, i_cppGetter ),\

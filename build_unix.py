@@ -77,14 +77,17 @@ def getSources(map):
 
 def makeMakeFileProject(directory):
 	f = open('src/'+directory+'/Makefile.am','w+')
-	f.write('INCLUDES= $(all_includes) -I/usr/include/python2.3/ -I/usr/local/lib/boost_1_31_0/\n')
+	f.write('INCLUDES= $(all_includes) -I/usr/include/python2.4/ -I/usr/local/lib/boost_1_32_0/\n')
 	f.write('lib_LIBRARIES = liblass'+directory+'.a\n')
 	f.write('liblass'+directory+'_a_SOURCES = ')
 	files = getSources('src/'+directory)
-	if directory == 'util':
-		files.append('impl/singleton_impl.cpp')
-	filesStr = string.join(files,' ')		
-	f.write(filesStr+'\n')
+	filesStr = string.join(files,' ')
+	try:
+		implFiles = getSources('src/'+directory+'/impl')
+		implFilesStr = string.join(['impl/'+x for x in implFiles],' ')		
+	except OSError:
+		implFilesStr = '' 
+	f.write(filesStr+' '+implFilesStr+'\n')
 	f.close()
 
 
