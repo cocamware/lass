@@ -442,7 +442,9 @@ void KdTree<O, OT>::diagnostics()
 
 		void visit(size_t iNode, const TAabb& iAabb)
 		{
-			//using lass::prim::operator<<;
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+            using lass::prim::operator<<;
+#endif
 			xml_ << iAabb;
 
 			if (iNode >= heap_.size() || heap_[iNode] == end_)

@@ -64,7 +64,7 @@ struct Line2DImpl
 template <typename T, class NormalizingPolicy>
 struct Line2DImpl<T, Parametric, NormalizingPolicy>
 {
-    typedef Line2DCartesian<T, NormalizingPolicy> Type;
+    typedef Line2DParametric<T, NormalizingPolicy> Type;
 };
 
 /** @internal

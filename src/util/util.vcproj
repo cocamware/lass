@@ -25,7 +25,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				OptimizeForProcessor="2"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="FALSE"
@@ -234,7 +234,9 @@
 				Name="VCPostBuildEventTool"
 				Description="Collectin library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;
+
 copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(TargetName).pdb&quot;
+
 "/>
 			<Tool 
 				Name="VCPreBuildEventTool"
@@ -251,6 +253,8 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+			<IntelOptions 
+				CompilerName="1"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71|Win32"
@@ -323,7 +327,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				Name="VCPostBuildEventTool"
 				Description="Collectin library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;
+
 copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(TargetName).pdb&quot;
+
 "/>
 			<Tool 
 				Name="VCPreBuildEventTool"
@@ -341,6 +347,8 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+			<IntelOptions 
+				CompilerName="1"/>
 		</Configuration>
 	</Configurations>
 	<References>

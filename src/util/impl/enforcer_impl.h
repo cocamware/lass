@@ -119,7 +119,33 @@ struct IndexPredicate
     template <typename T>
     static bool LASS_CALL wrong(const T& iIndex)
     {
-        return iIndex < 0 || !(iIndex < size);
+        return iIndex < 0 || iIndex >= size;
+    }
+    static bool LASS_CALL wrong(unsigned char iIndex)
+    {
+        return iIndex >= size;
+    }
+    static bool LASS_CALL wrong(unsigned short iIndex)
+    {
+        return iIndex >= size;
+    }
+    static bool LASS_CALL wrong(unsigned int iIndex)
+    {
+        return iIndex >= size;
+    }
+    static bool LASS_CALL wrong(unsigned long iIndex)
+    {
+        return iIndex >= size;
+    }
+};
+
+template <>
+struct IndexPredicate<0>
+{
+    template <typename T>
+    static bool LASS_CALL wrong(const T& iIndex)
+    {
+        return true;
     }
 };
 

@@ -37,6 +37,7 @@
  */
 
 #if defined(LASS_UTIL_PROCESS_WIN32)
+#pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
 
 #include "dictionary.h"
 #include <windows.h>

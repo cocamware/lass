@@ -65,7 +65,7 @@ struct Plane3DImpl
 template <typename T, class NormalizingPolicy>
 struct Plane3DImpl<T, Parametric, NormalizingPolicy>
 {
-    typedef Plane3DCartesian<T, NormalizingPolicy> Type;
+    typedef Plane3DParametric<T, NormalizingPolicy> Type;
 };
 
 /** @internal

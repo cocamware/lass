@@ -29,7 +29,7 @@
 // Win32 implementation
 //
 #ifdef LASS_IO_AVI_WIN32
-#pragma LASS_NOTE("using win32 implementation")
+#pragma LASS_NOTE("io::Avi: using win32 implementation")
 
 #include "../prim/color_rgba.h"
 

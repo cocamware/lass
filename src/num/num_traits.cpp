@@ -76,8 +76,8 @@ const bool	NumTraits<std::complex<float> >::isSigned = true;
 const bool	NumTraits<std::complex<float> >::hasInfinity = false;
 const bool	NumTraits<std::complex<float> >::hasNaN = false;
 
-const std::complex<float>	NumTraits<std::complex<float> >::one = NumTraits<float>::one;
-const std::complex<float>	NumTraits<std::complex<float> >::zero =  NumTraits<float>::zero;
+const std::complex<float>	NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
+const std::complex<float>	NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
 
 const std::complex<float>	NumTraits<std::complex<float> >::pi = 3.1415926535897932384626433832795f;
 const std::complex<float>	NumTraits<std::complex<float> >::e = 2.7182818284590452353602874713527f;
@@ -119,14 +119,22 @@ const bool	NumTraits<std::complex<double> >::isSigned = true;
 const bool	NumTraits<std::complex<double> >::hasInfinity = false;
 const bool	NumTraits<std::complex<double> >::hasNaN = false;
 
-const std::complex<double>	NumTraits<std::complex<double> >::one = NumTraits<double>::one;
-const std::complex<double>	NumTraits<std::complex<double> >::zero =  NumTraits<double>::zero;
+const std::complex<double>	NumTraits<std::complex<double> >::one = std::complex<double>(1.0, 0.0);
+const std::complex<double>	NumTraits<std::complex<double> >::zero = std::complex<double>(0.0, 0.0);
 
 const std::complex<double>	NumTraits<std::complex<double> >::pi = 3.1415926535897932384626433832795;
 const std::complex<double>	NumTraits<std::complex<double> >::e = 2.7182818284590452353602874713527;
 const std::complex<double>	NumTraits<std::complex<double> >::sqrt2 = 1.4142135623730950488016887242097;
 const std::complex<double>	NumTraits<std::complex<double> >::sqrtPi = 1.7724538509055160272981674833411;
+
+
+
+/*********************************************************************** 
+* unsigned/signed char/short/int/long num trait
+*/
+
 /** code generating macro for integral types */
+#pragma LASS_FIXME("memorySize is always sizeof(signed char)???")
 #define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( __LASS_type, __LASS_isSigned, __LASS_min, __LASS_max ) \
 const int	NumTraits<__LASS_type>::memorySize = sizeof(signed char);\
 const bool	NumTraits<__LASS_type>::isIntegral = false;\
@@ -141,10 +149,6 @@ const __LASS_type NumTraits<__LASS_type>::min = __LASS_min;\
 const __LASS_type NumTraits<__LASS_type>::max = __LASS_max;\
 const __LASS_type NumTraits<__LASS_type>::minStrictPositive = 1;
 
-
-/*********************************************************************** 
-* unsigned/signed char/short/int/long num trait
-*/
 #if defined(_MSC_VER)
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, true, 0 , UCHAR_MAX)
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, true, SCHAR_MIN , SCHAR_MAX )
