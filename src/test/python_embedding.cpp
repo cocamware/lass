@@ -95,7 +95,7 @@ PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
 PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
 PY_MODULE_FUNCTION( embedding, spamToCppByReference )
 PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
-PY_INJECT_MODULE( embedding, "Documentation for module embedding" )
+PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
 
 
 //PY_DECLARE_CLASS( PythonFoo )

@@ -87,12 +87,12 @@
 
 #define PY_INJECT_MODULE_EX_AT_RUNTIME( module__, moduleName__, documentation__ ) \
 	{\
+		Py_Initialize(); \
 		LASS_CONCATENATE( lassPythonModule, module__ ) = Py_InitModule3(\
 			moduleName__, \
 			&LASS_CONCATENATE_3( lassPythonModule, Methods, module__ )[0], documentation__ ); \
 	}
 
-#pragma LASS_FIXME("the semantic difference with the EX is Py_Initialize().  what about it?")
 #define PY_INJECT_MODULE_AT_RUNTIME( module__, doc__ ) \
 	{ \
 		Py_Initialize(); \
@@ -101,9 +101,7 @@
 			&LASS_CONCATENATE_3( lassPythonModule, Methods, module__ )[0], doc__ ); \
 	}
 
-#pragma LASS_FIXME("there's no PY_INJECT_MODULE_EX")
-
-#define PY_INJECT_MODULE( module__, doc__ ) \
+#define PY_INJECT_MODULE_EX( module__, doc__ ) \
 	extern "C" { \
 		void LASS_CONCATENATE( lassPythonInjectModule, module__ ) () \
 		{ \
@@ -115,6 +113,7 @@
 		LASS_CONCATENATE( lassPythonInjectModule, module__ ) ();\
     )
 
+#define PY_INJECT_MODULE( module__ ) PY_INJECT_MODULE_EX( module__, 0 )
 
 /* Use this macro for backward compatibility when wrapper functions don't
 *  need to be automatically generated or you want specific Python behaviour. 
@@ -318,8 +317,12 @@
     }
 
 // --- methods -------------------------------------------------------------------------------------
-
-#pragma LASS_FIXME("deprecated?")
+/**
+*	This macro is provided when there is need for a function in Python where there is no 
+*	direct equivalent in C++.  An example is when you would need a true polymorphic python list returned
+*	from a C++ function.  Or when you need sth very Python specific returning from your function where there
+*	is no pyBuildSimpleObject defined for.
+*/
 #define PY_CLASS_PY_METHOD_EX( PyObjectClass__, pyFunction__, pyName__, pyDoc__  )\
 	inline PyObject* LASS_CONCATENATE( staticDispatch, pyFunction__) ( PyObject* iObject, PyObject* iArgs )\
 	{\
