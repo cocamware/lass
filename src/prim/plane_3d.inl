@@ -107,6 +107,7 @@ const XYZ Plane3D<T, EP, NP>::majorAxis() const
 		return 2; // z
 	}
 	LASS_ASSERT(false);
+	return 0;
 }
 
 

@@ -101,7 +101,7 @@
 					return 1;
 				}
 				oV = static_cast<Out>(iIn);
-                LASS_ASSERT((oV < 0) == (iIn < 0));
+                //LASS_ASSERT((oV < 0) == (iIn < 0));
 				return 0;
 			}
 

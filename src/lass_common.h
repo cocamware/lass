@@ -26,12 +26,12 @@
 
 
 /** @namespace lass
- *  @brief Library for Assembled Scientific Software
+ *  @brief Library for Assembled Shared Sources
  */
 
 
 
-/** @mainpage lass: Library for Assembled Scientific Software 
+/** @mainpage lass: Library for Assembled Shared Sources
  *	@author Bram de Greve (bramz@users.sourceforge.net)
  *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *  
