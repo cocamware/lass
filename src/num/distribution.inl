@@ -193,9 +193,9 @@ DistributionNormal<T, RG>::operator()() const
 /** uniform.
  *	returns a uniform random sample from [0,1] 
  */
-template<class RG, class T> T uniform(RG& iGenerator)
+template<class T,class RG> T uniform(RG& iGenerator)
 {
-	DistrubitionUniform<T, RG> distribution(iGenerator);
+	DistributionUniform<T, RG> distribution(iGenerator);
 	return distribution();
 }
 
@@ -204,9 +204,9 @@ template<class RG, class T> T uniform(RG& iGenerator)
 /** unitGauss.
  *	@return a gaussian distributed (aka normal distributed) random with mean 0 and stddev 1 
  */
-template<class RG, class T> T unitGauss(RG& iGenerator)
+template<class T,class RG> T unitGauss(RG& iGenerator)
 {
-	DistrubitionNormal<T, RG> distribution(iGenerator);
+	DistributionNormal<T, RG> distribution(iGenerator);
 	return distribution();
 }
 
@@ -216,11 +216,11 @@ template<class RG, class T> T unitGauss(RG& iGenerator)
  *	@return a gaussian distributed (aka normal distributed) random sample with @a iMean and 
  *		stddev @a iStdDev
  */
-template<class RG, class T> T gauss(RG& iGenerator, 
+template<class T,class RG> T gauss(RG& iGenerator, 
 									typename util::CallTraits<T>::TParam iMean, 
 									typename util::CallTraits<T>::TParam iStdDev)
 {
-	DistrubitionNormal<T, RG> distribution(iGenerator, iMean, iStdDev);
+	DistributionNormal<T, RG> distribution(iGenerator, iMean, iStdDev);
 	return distribution();
 }
 

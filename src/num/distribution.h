@@ -156,9 +156,9 @@ private:
 
 // backwards compatibility functions
 
-template<class RG, class T> T uniform(RG& iGenerator);
-template<class RG, class T> T unitGauss(RG& iGenerator);
-template<class RG, class T> T gauss(RG& iGenerator, 
+template<class T,class RG> T uniform(RG& iGenerator);
+template<class T,class RG> T unitGauss(RG& iGenerator);
+template<class T,class RG> T gauss(RG& iGenerator, 
 									typename util::CallTraits<T>::TParam iMean, 
 									typename util::CallTraits<T>::TParam iStdDev);
 
