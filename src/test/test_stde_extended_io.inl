@@ -31,68 +31,123 @@
 
 #include "test_common.h"
 #include "../stde/extended_io.h"
+#include "../util/string_cast.h"
 
 namespace lass
 {
 namespace test
 {
+namespace extended_io
+{
+
+template <typename Container1, typename Container2>
+bool safe_equal(const Container1& iA, const Container2& iB)
+{
+	if (iA.size() != iB.size())
+	{
+		return false;
+	}
+	return std::equal(iA.begin(), iA.end(), iB.begin());
+}
+
+}
+
+
 
 void testStdeExtendedIo()
 {
 	boost::test_toolbox::output_test_stream stream;
+	std::stringstream buffer;
 
-	std::pair<int, int> pair(1, 2);
+	typedef std::pair<int, std::string> TPair;
+	TPair pair(1, "spam & ham");
+	const std::string& pairString = "(1, spam & ham)";
 	stream << pair;
-	BOOST_CHECK(stream.is_equal("(1, 2)"));
+	BOOST_CHECK(stream.is_equal(pairString));
+	BOOST_CHECK_EQUAL(util::stringCast<TPair>(pairString), pair);
 
-	std::vector<int> vector;
-	vector.push_back(1);
-	vector.push_back(2);
-	vector.push_back(3);
+	const std::string& sequencePattern = "[foo, bar, spam & ham]";
+
+	typedef std::vector<std::string> TVector;
+	TVector vector;
+	vector.push_back("foo");
+	vector.push_back("bar");
+	vector.push_back("spam & ham");
 	stream << vector;
-	BOOST_CHECK(stream.is_equal("[1, 2, 3]"));
+	BOOST_CHECK(stream.is_equal(sequencePattern));
+	TVector vector2;
+	BOOST_CHECK_NO_THROW(vector2 = util::stringCast<TVector>(sequencePattern));
+	BOOST_CHECK(extended_io::safe_equal(vector, vector2));
 
-	std::list<int> list;
-	list.push_back(1);
-	list.push_back(2);
-	list.push_back(3);
+	typedef std::list<std::string> TList;
+	TList list;
+	list.push_back("foo");
+	list.push_back("bar");
+	list.push_back("spam & ham");
 	stream << list;
-	BOOST_CHECK(stream.is_equal("[1, 2, 3]"));
+	BOOST_CHECK(stream.is_equal(sequencePattern));
+	TList list2;
+	BOOST_CHECK_NO_THROW(list2 = util::stringCast<TList>(sequencePattern));
+	BOOST_CHECK(extended_io::safe_equal(list, list2));
 
-	std::deque<int> deque;
-	deque.push_back(1);
-	deque.push_back(2);
-	deque.push_back(3);
+	typedef std::deque<std::string> TDeque;
+	TDeque deque;
+	deque.push_back("foo");
+	deque.push_back("bar");
+	deque.push_back("spam & ham");
 	stream << deque;
-	BOOST_CHECK(stream.is_equal("[1, 2, 3]"));
+	BOOST_CHECK(stream.is_equal(sequencePattern));
+	TDeque deque2;
+	BOOST_CHECK_NO_THROW(deque2 = util::stringCast<TDeque>(sequencePattern));
+	BOOST_CHECK(extended_io::safe_equal(deque, deque2));
 
-	std::map<std::string, int> map;
+	const std::string mapPattern = "{bar: 2, foo: 1, spam: 3}"; // alphabetic!
+	typedef std::map<std::string, int> TMap;
+	TMap map;
 	map["foo"] = 1;
 	map["bar"] = 2;
 	map["spam"] = 3;
 	stream << map;
-	BOOST_CHECK(stream.is_equal("{bar: 2, foo: 1, spam: 3}")); // alphabetic!
+	BOOST_CHECK(stream.is_equal(mapPattern));
+	TMap map2;
+	BOOST_CHECK_NO_THROW(map2 = util::stringCast<TMap>(mapPattern));
+	BOOST_CHECK(extended_io::safe_equal(map, map2));
 
-	std::multimap<std::string, int> multimap;
+	const std::string multimapPattern = "{bar: 2, foo: 1, foo: 3}";
+	typedef std::multimap<std::string, int> TMultimap;
+	TMultimap multimap;
 	multimap.insert(std::pair<std::string, int>("foo", 1));
 	multimap.insert(std::pair<std::string, int>("bar", 2));
 	multimap.insert(std::pair<std::string, int>("foo", 3));
 	stream << multimap;
-	BOOST_CHECK(stream.is_equal("{bar: 2, foo: 1, foo: 3}")); // alphabetic!
+	BOOST_CHECK(stream.is_equal(multimapPattern)); // alphabetic!
+	TMultimap multimap2;
+	BOOST_CHECK_NO_THROW(multimap2 = util::stringCast<TMultimap>(multimapPattern));
+	BOOST_CHECK(extended_io::safe_equal(multimap, multimap2));
 
-	std::set<std::string> set;
+	const std::string setPattern = "{bar, foo, spam}";
+	typedef std::set<std::string> TSet;
+	TSet set;
 	set.insert("foo");
 	set.insert("bar");
 	set.insert("spam");
 	stream << set;
-	BOOST_CHECK(stream.is_equal("{bar, foo, spam}")); // alphabetic!
+	BOOST_CHECK(stream.is_equal(setPattern)); // alphabetic!
+	TSet set2;
+	BOOST_CHECK_NO_THROW(set2 = util::stringCast<TSet>(setPattern));
+	BOOST_CHECK(extended_io::safe_equal(set, set2));
 
-	std::multiset<std::string> multiset;
+	const std::string multisetPattern = "{bar, foo, foo}";
+	typedef std::multiset<std::string> TMultiset;
+	TMultiset multiset;
 	multiset.insert("foo");
 	multiset.insert("bar");
 	multiset.insert("foo");
 	stream << multiset;
-	BOOST_CHECK(stream.is_equal("{bar, foo, foo}")); // alphabetic!
+	BOOST_CHECK(stream.is_equal(multisetPattern)); // alphabetic!
+	TMultiset multiset2;
+	BOOST_CHECK_NO_THROW(multiset2 = util::stringCast<TMultiset>(multisetPattern));
+	BOOST_CHECK(extended_io::safe_equal(multiset, multiset2));
 
 #ifdef _STLP_SLIST
 	std::slist<int> slist;

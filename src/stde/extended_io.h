@@ -128,11 +128,23 @@ operator<<(std::basic_ostream<Char, Traits>& ioOStream,
 
 
 // input
-
+/*
 template <typename T1, typename T2, typename Char, typename Traits> 
 std::basic_istream<Char, Traits>& 
 operator>>(std::basic_istream<Char, Traits>& ioIStream, std::pair<T1, T2>& oPair);
 
+template <typename T, typename Alloc, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& 
+operator>>(std::basic_istream<Char, Traits>& ioIStream, std::vector<T, Alloc>& oContainer);
+
+template <typename T, typename Alloc, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& 
+operator>>(std::basic_istream<Char, Traits>& ioIStream, std::list<T, Alloc>& oContainer);
+
+template <typename T, typename Alloc, typename Char, typename Traits> 
+std::basic_istream<Char, Traits>& 
+operator>>(std::basic_istream<Char, Traits>& ioIStream, std::deque<T, Alloc>& oContainer);
+*/
 }
 
 #include "extended_io.inl"

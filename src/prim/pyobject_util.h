@@ -203,6 +203,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 		impl::addMessageHeader("Point2D");
 		return 1;
 	}
+	return 0;
 }
 
 #   endif
@@ -228,6 +229,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
+	return 0;
 }
 
 #   endif
