@@ -23,36 +23,6 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-/** @class lass::util::impl::CompareDestructionPriority
- *  @brief helper class to compare destruction priorities fo lass::util::SingletonBase
- *  @author Bram de Greve [Bramz]
- */
-
-
-
-/** @class lass::util::impl::SingletonGuard
- *  @brief the singleton guard will take care of the destruction of all singletons
- *  @author Bram de Greve [Bramz]
- *
- *  All singletons will subscribe them to this guard with a DestructionPriority.  On an explicit
- *  call of killEmAll() (or on destruction of the guard), all singletons will be destructed.
- *  The singletons with the highest DestructionPriority will be killed first.  The order in which
- *  singletons of the same priority are destructed is undefined.
- *
- *	The system of using this destruction priority controlled by a guard that is destructed by 
- *  @c ::atexit() , is inspired by Alexandrescu's @e longevity singletons [1].
- *
- *  @warning you should never call @c killEmAll() yourself!
- *
- *  @b Reference: 
- *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns 
- *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
-*/
-
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SINGLETON_IMPL_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_SINGLETON_IMPL_H
 
@@ -69,10 +39,18 @@ namespace util
 namespace impl
 {
 
+/** @internal
+ */
 typedef Mutex TSingletonLock;
 
-LASS_DLL void LASS_CALL singletonCleanUp();
+/** @internal
+ */
+LASS_DLL void LASS_CALL singletonCleanUp() 
 
+/** base class of all singletons.
+ *  @internal
+ *  @author Bram de Greve [Bramz]
+ */
 class LASS_DLL SingletonBase: NonCopyable
 {
 public:
@@ -98,6 +76,10 @@ private:
 
 
 
+/** helper class to compare destruction priorities fo lass::util::SingletonBase.
+ *  @internal
+ *  @author Bram de Greve [Bramz]
+ */
 class LASS_DLL CompareDestructionPriority
 {
 public:
@@ -107,6 +89,24 @@ public:
 
 
 
+/** The singleton guard will take care of the destruction of all singletons.
+ *  @internal
+ *  @author Bram de Greve [Bramz]
+ *
+ *  All singletons will subscribe them to this guard with a DestructionPriority.  On an explicit
+ *  call of killEmAll() (or on destruction of the guard), all singletons will be destructed.
+ *  The singletons with the highest DestructionPriority will be killed first.  The order in which
+ *  singletons of the same priority are destructed is undefined.
+ *
+ *	The system of using this destruction priority controlled by a guard that is destructed by 
+ *  @c ::atexit() , is inspired by Alexandrescu's @e longevity singletons [1].
+ *
+ *  @warning you should never call @c killEmAll() yourself!
+ *
+ *  @b Reference: 
+ *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns 
+ *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
+*/
 class LASS_DLL SingletonGuard
 {
 public:

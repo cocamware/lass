@@ -175,4 +175,5 @@ def callbackR0():
 embedding.callR0(callbackR0)
 print "CallbackR2:"
 embedding.callR2(lambda x, y: x * y)
+
 print "\n"

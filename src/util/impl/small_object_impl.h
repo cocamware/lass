@@ -51,6 +51,8 @@ namespace util
 namespace impl
 {
 
+/** @internal
+ */
 template
 <
 	typename AtomType
@@ -96,6 +98,8 @@ private:
 
 
 
+/** @internal
+ */
 template
 <
 	std::size_t iChunkSize,
@@ -138,7 +142,8 @@ private:
 };
 
 
-
+/** @internal
+ */
 template
 <
 	std::size_t iChunkSize,

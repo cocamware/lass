@@ -25,9 +25,25 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_PYTHON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_PYTHON_H
-#include "util_common.h"
-#include "pyobject_plus.h"
+#include "../util_common.h"
+#include "../pyobject_plus.h"
+
+namespace lass
+{
+namespace util
+{
+namespace impl
+{
+
+std::string fetchException(); // see dispatcher_python.cpp
+
+}
+}
+}
+
 #endif
+
+
 
 namespace lass
 {
@@ -61,7 +77,7 @@ public:
         TPyPtr result(PyObject_CallObject(callable_.get(), 0));
         if (!result)
         {
-            LASS_THROW("bad python call");
+            LASS_THROW(fetchException());
         }
     }
 
@@ -109,7 +125,7 @@ public:
         TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
         if (!result)
         {
-            LASS_THROW("bad python call");
+            LASS_THROW(fetchException());
         }
     }
 
@@ -148,7 +164,7 @@ public:
         TPyPtr result(PyObject_CallObject(callable_.get(), 0));
         if (!result)
         {
-            LASS_THROW("bad python call");
+            LASS_THROW(fetchException());
         }
         
         typedef python::impl::ArgumentTraits<R> TraitsR; 
@@ -198,7 +214,7 @@ public:
         TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
         if (!result)
         {
-            LASS_THROW("bad python call");
+            LASS_THROW(fetchException());
         }
         
         typedef python::impl::ArgumentTraits<R> TraitsR; 

@@ -34,25 +34,6 @@ namespace lass
 	{
 		namespace impl
 		{
-			inline bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
-			{
-				if (!PyTuple_Check(iValue) && !PyList_Check(iValue))
-				{
-					PyErr_SetString(PyExc_TypeError, "not a python list/tuple");
-					return false;
-				}
-				const int size = PySequence_Size(iValue);
-				if (size != iExpectedSize)
-				{
-					std::ostringstream buffer;
-					buffer << "tuple/list is not of expected size " << iExpectedSize 
-						<< " (size is " << size << ")";
-					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-					return false;
-				}
-				return true;
-			}
-
 			inline void addMessageHeader(const std::string& iHeader)
 			{
 				if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
@@ -76,6 +57,25 @@ namespace lass
 				{
 				}
 				PyErr_Restore(type, value, traceback);
+			}
+
+			inline bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
+			{
+				if (!PyTuple_Check(iValue) && !PyList_Check(iValue))
+				{
+					PyErr_SetString(PyExc_TypeError, "not a python list/tuple");
+					return false;
+				}
+				const int size = PySequence_Size(iValue);
+				if (size != iExpectedSize)
+				{
+					std::ostringstream buffer;
+					buffer << "tuple/list is not of expected size " << iExpectedSize 
+						<< " (size is " << size << ")";
+					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+					return false;
+				}
+				return true;
 			}
 
 			template <typename Sequence>
