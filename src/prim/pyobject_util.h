@@ -52,19 +52,19 @@ PyObject* pyBuildSimpleObject(const prim::Vector2D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 {
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("Vector2D");
 		return 1;
 	}
     prim::Vector2D<T> result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector2D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector2D: y");
 		return 1;
@@ -96,24 +96,24 @@ PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 {
-	if (!impl::checkTupleSize(iValue, 3))
+	if (!impl::checkSequenceSize(iValue, 3))
 	{
 		impl::addMessageHeader("Vector3D");
 		return 1;
 	}
     prim::Vector3D<T> result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector3D: z");
 		return 1;
@@ -135,7 +135,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 template <typename T> 
 PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV)
 {
-	PyObject* newTuple = PyTuple_New(3);
+	PyObject* newTuple = PyTuple_New(4);
 	PyTuple_SetItem(newTuple, 0, pyBuildSimpleObject(iV.x));
 	PyTuple_SetItem(newTuple, 1, pyBuildSimpleObject(iV.y));
 	PyTuple_SetItem(newTuple, 2, pyBuildSimpleObject(iV.z));
@@ -146,29 +146,29 @@ PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 {
-	if (!impl::checkTupleSize(iValue, 4))
+	if (!impl::checkSequenceSize(iValue, 4))
 	{
 		impl::addMessageHeader("Vector4D");
 		return 1;
 	}
     prim::Vector4D<T> result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector4D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector4D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: z");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 3), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: w");
 		return 1;
@@ -198,19 +198,19 @@ PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
     prim::Point2D<T> result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point3D: y");
 		return 1;
@@ -238,24 +238,24 @@ PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 {
-	if (!impl::checkTupleSize(iValue, 3))
+	if (!impl::checkSequenceSize(iValue, 3))
 	{
 		impl::addMessageHeader("Point3D");
 		return 1;
 	}
     prim::Point3D<T> result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Point3D: z");
 		return 1;
@@ -289,21 +289,21 @@ template <typename T, class MMP>
 int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 {
 	typedef prim::Aabb2D<T, MMP> TAabb;
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("Aabb2D");
 		return 1;
 	}
 
 	TAabb::TPoint min;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
 	TAabb::TPoint max;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: max");
 		return 1;
@@ -343,21 +343,21 @@ template <typename T, class MMP>
 int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 {
 	typedef prim::Aabb3D<T, MMP> TAabb;
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("Aabb3D");
 		return 1;
 	}
 
 	typename TAabb::TPoint min;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
 	typename TAabb::TPoint max;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: max");
 		return 1;
@@ -401,21 +401,21 @@ template <typename T, class PP>
 int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 {
 	typedef prim::LineSegment2D<T, PP> TLineSegment;
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("LineSegment2D");
 		return 1;
 	}
 
 	TLineSegment::TPoint tail;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: head");
 		return 1;
@@ -445,21 +445,21 @@ template <typename T, class PP>
 int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 {
 	typedef prim::LineSegment3D<T, PP> TLineSegment;
-	if (!impl::checkTupleSize(iValue, 2))
+	if (!impl::checkSequenceSize(iValue, 2))
 	{
 		impl::addMessageHeader("LineSegment3D");
 		return 1;
 	}
 
 	TLineSegment::TPoint tail;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head) != 0)
+    if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: head");
 		return 1;
@@ -583,6 +583,68 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 #endif
 
 
+// --- transformations -----------------------------------------------------------------------------
+
+#ifdef LASS_PRIM_PYOBJECT_UTIL_TRANSFORMATION_3D
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRANSFORMATION_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRANSFORMATION_3D
+
+template <typename T> 
+PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV)
+{
+	PyObject* matrix = PyTuple_New(4);
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		PyObject* row = PyTuple_New(4);
+		for (unsigned j = 0; j < 4; ++j)
+		{
+			PyTuple_SetItem(row, j, pyBuildSimpleObject(iV(i, j)));
+		}
+		PyTuple_SetItem(matrix, i, row);
+	}
+	return matrix;
+}
+
+
+
+template <typename T>
+int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
+{
+	if (!impl::checkSequenceSize(iValue, 4))
+	{
+		impl::addMessageHeader("Transformation3D");
+		return 1;
+	}
+    prim::Transformation3D<T> result;
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		PyObject* row = PySequence_GetItem(iValue, i);
+		if (!impl::checkSequenceSize(row, 4))
+		{
+			impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i));
+			return 1;
+		}
+		for (unsigned j = 0; j < 4; ++j)
+		{
+			typename util::CallTraits<T>::TValue temp;
+			if (pyGetSimpleObject(PySequence_GetItem(iValue, j), temp) != 0)
+			{
+				impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i) +
+					", column " + util::stringCast<std::string>(j));
+				return 1;
+			}
+			result(i, j) = temp;
+		}
+	}
+
+	oV = result;
+	return 0;
+}
+
+#	endif
+#endif
+
+
 
 // --- colors --------------------------------------------------------------------------------------
 
@@ -615,24 +677,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	prim::ColorRGBA result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.r) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.g) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.b) != 0)
+	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.a) != 0)
+		if (pyGetSimpleObject(PySequence_GetItem(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("ColorRGBA: a");
 			return 1;

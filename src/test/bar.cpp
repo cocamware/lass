@@ -110,9 +110,11 @@ namespace test
             std::cout << "complexArguments: '" << iA << "'\n";
         };
 
-		prim::Point3D<float> Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis)
+		prim::Point3D<float> Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis, 
+			const prim::Transformation3D<double>& iTransformation)
 		{
 			std::cout << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
+			std::cout << "transformation: " << iTransformation << std::endl;
 			return iAabb.center().affine();
 		}
 

@@ -379,9 +379,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File 
-				RelativePath=".\cubic_spline.inl">
-			</File>
-			<File 
 				RelativePath="db.inl">
 			</File>
 			<File 
@@ -536,9 +533,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath="basic_ops.inl">
-			</File>
-			<File 
-				RelativePath=".\cubic_spline.h">
 			</File>
 			<File 
 				RelativePath="db.h">

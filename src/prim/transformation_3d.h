@@ -44,6 +44,8 @@ namespace prim
 template <typename T>
 class Transformation3D
 {
+public:
+
     typedef Transformation3D<T> TSelf;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
@@ -64,7 +66,7 @@ class Transformation3D
 
     TConstReference operator()(TSize iRow, TSize iCol) const;
     TReference operator()(TSize iRow, TSize iCol);
-    TConstReference at()(TSize iRow, TSize iCol) const;
+    TConstReference at(TSize iRow, TSize iCol) const;
     TReference at(TSize iRow, TSize iCol);
 
     Transformation3D<T>& operator*=(const Transformation3D<T>& iOther);
@@ -90,7 +92,12 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const
 
 }
 
-#include "matrix_3d.inl"
+#include "transformation_3d.inl"
+
+#define LASS_PRIM_PYOBJECT_UTIL_TRANSFORMATION_3D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
+#	include "pyobject_util.h"
+#endif
 
 #endif
 

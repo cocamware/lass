@@ -303,7 +303,7 @@ struct Caller<void>
 template <typename R>
 PyObject* callFunction( PyObject* iArgs, R (*iFunction)() )
 {
-	if ( !checkTupleSize(iArgs, 0) )
+	if ( !checkSequenceSize(iArgs, 0) )
 	{
 		return 0;
 	}
@@ -338,7 +338,7 @@ struct CallMethod
 	template <typename R>
 	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() )
 	{
-		if ( !checkTupleSize( iArgs, 0 ) )
+		if ( !checkSequenceSize( iArgs, 0 ) )
 		{
 			return 0;
 		}
@@ -367,7 +367,7 @@ $[
 	template <typename R>
 	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const )
 	{
-		if ( !checkTupleSize( iArgs, 0 ) )
+		if ( !checkSequenceSize( iArgs, 0 ) )
 		{
 			return 0;
 		}

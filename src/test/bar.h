@@ -37,6 +37,7 @@
 #include "../prim/pyobject_util.h"
 #include "../prim/aabb_3d.h"
 #include "../prim/xyz.h"
+#include "../prim/transformation_3d.h"
 
 namespace lass
 {
@@ -62,7 +63,8 @@ namespace test
 		float aMoreComplexFunction( float iA, float iB );
 		void  testAutomaticFunctionExport( int iA, float iB );
         void complexArguments( const std::string& iA );
-		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis);
+		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
+			const prim::Transformation3D<double>& iTransformation);
 
 		void overloaded( int iA );
 		void overloaded( const std::string& iB );

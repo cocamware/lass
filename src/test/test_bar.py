@@ -107,7 +107,8 @@ temp = dir(test)
 # more complex arguments
 test.complexArguments('a string')
 box = ((10, 20, 30), (100, 200, 300))
-print test.primArguments(box, "y")
+matrix = ((1, 2, 3, 4), [5, 6, 7, 8], (9, 10, 11, 12), (13, 14, 15, 16))
+print test.primArguments(box, "y", matrix)
 
 # testing custom built objects as arguments
 
@@ -124,8 +125,8 @@ print "publicint of bar object",test.publicInt
 # testing overloaded functions
 # print test.complexArguments('a string')
 print test.tester('a string')
-#print test.primArguments(box, "y")
-print test.tester(box, "y")
+#print test.primArguments(box, "y", matrix)
+print test.tester(box, "y", matrix)
 
 
 print "\n* Testing qualified and overloaded methods"

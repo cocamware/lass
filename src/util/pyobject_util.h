@@ -34,18 +34,18 @@ namespace lass
 	{
 		namespace impl
 		{
-			inline bool checkTupleSize(PyObject* iValue, int iExpectedSize)
+			inline bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
 			{
-				if (!PyTuple_Check(iValue))
+				if (!PyTuple_Check(iValue) && !PyList_Check(iValue))
 				{
-					PyErr_SetString(PyExc_TypeError, "not a tuple");
+					PyErr_SetString(PyExc_TypeError, "not a python list/tuple");
 					return false;
 				}
-				const int size = PyTuple_Size(iValue);
+				const int size = PySequence_Size(iValue);
 				if (size != iExpectedSize)
 				{
 					std::ostringstream buffer;
-					buffer << "tuple is not of expected size " << iExpectedSize 
+					buffer << "tuple/list is not of expected size " << iExpectedSize 
 						<< " (size is " << size << ")";
 					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 					return false;
@@ -79,22 +79,22 @@ namespace lass
 			}
 
 			template <typename Sequence>
-			int pyGetListObject( PyObject* iValue, Sequence& oV )
+			int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
 			{
-				if (!PyList_Check(iValue))
+				if (!PyList_Check(iValue) && !PyTuple_Check(iValue))
 				{
-					PyErr_SetString(PyExc_TypeError, "not a python list");
+					PyErr_SetString(PyExc_TypeError, "not a python list/tuple");
 					return 1;
 				}
 				Sequence result;
-				const int size = PyList_Size(iValue);
+				const int size = PySequence_Length(iValue);
 				for (int i = 0; i < size; ++i)
 				{
 					typename Sequence::value_type temp;
-					if (pyGetSimpleObject( PyList_GetItem(iValue,i) , temp ) != 0)
+					if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
 					{
 						impl::addMessageHeader(
-							std::string("list element ") + util::stringCast<std::string>(i));
+							std::string("sequence element ") + util::stringCast<std::string>(i));
 						return 1;
 					}
 					result.push_back( temp );
@@ -123,22 +123,22 @@ namespace lass
 		template<class C> 
 		PyObject* pyBuildSimpleObject( const std::vector<C>& iV )
 		{
-			PyObject* newArray = PyList_New(iV.size());
+			PyObject* newTuple = PyTuple_New(iV.size());
 			int i;
 			for (i = 0;i < int(iV.size()); ++i)
-				PyList_SetItem( newArray, i, pyBuildSimpleObject( iV[i] ) );
-			return newArray;
+				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
+			return newTuple;
 		}
 		template<class C> 
 		PyObject* pyBuildSimpleObject( const std::list<C>& iV )
 		{
-			PyObject* newArray = PyList_New(iV.size());
+			PyObject* newTuple = PyTuple_New(iV.size());
 			int i;
 			typename std::list<C>::const_iterator it = iV.begin();
 			typename std::list<C>::const_iterator eit = iV.end();
 			for (i=0;it != eit; ++it,++i)
-				PyList_SetItem( newArray, i, pyBuildSimpleObject( *it ) );
-			return newArray;
+				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( *it ) );
+			return newTuple;
 		}
 		template<class K, class V> 
 		PyObject* pyBuildSimpleObject( const std::map<K,V>& iV )
@@ -156,17 +156,17 @@ namespace lass
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
 			C	r,i;
-			if (!impl::checkTupleSize(iValue, 2))
+			if (!impl::checkSequenceSize(iValue, 2))
 			{
 				impl::addMessageHeader("complex");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), r ) != 0)
+			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), r ) != 0)
 			{
 				impl::addMessageHeader("complex: real");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), i ) != 0)
+			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), i ) != 0)
 			{
 				impl::addMessageHeader("complex: imag");
 				return 1;
@@ -179,17 +179,17 @@ namespace lass
 		int pyGetSimpleObject( PyObject* iValue, std::pair<C1, C2>& oV )
 		{
 			std::pair<C1, C2> result;
-			if (!impl::checkTupleSize(iValue, 2))
+			if (!impl::checkSequenceSize(iValue, 2))
 			{
 				impl::addMessageHeader("pair");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), result.first ) != 0)
+			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), result.first ) != 0)
 			{
 				impl::addMessageHeader("pair: first");
 				return 1;
 			}
-			if (pyGetSimpleObject( PyTuple_GetItem(iValue,1), result.second ) != 0)
+			if (pyGetSimpleObject( PySequence_GetItem(iValue,1), result.second ) != 0)
 			{
 				impl::addMessageHeader("pair: second");
 				return 1;
@@ -201,13 +201,13 @@ namespace lass
 		template<class C> 
 		int pyGetSimpleObject( PyObject* iValue, std::vector<C>& oV )
 		{
-			return impl::pyGetListObject( iValue, oV );
+			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
 		template<class C> 
 		int pyGetSimpleObject( PyObject* iValue, std::list<C>& oV )
 		{
-			return impl::pyGetListObject( iValue, oV );
+			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
 		template<class K,class D> 

@@ -54,7 +54,7 @@ Transformation3D<T>::Transformation3D()
 
 
 template <typename T> inline
-typename Transformation<T>::TConstReference
+typename util::CallTraits<T>::TConstReference
 Transformation3D<T>::operator()(TSize iRow, TSize iColumn) const
 {
     LASS_ASSERT(iRow < 4 && iColumn < 4);
@@ -64,7 +64,7 @@ Transformation3D<T>::operator()(TSize iRow, TSize iColumn) const
 
 
 template <typename T> inline
-typename Transformation<T>::TReference
+typename util::CallTraits<T>::TReference
 Transformation3D<T>::operator()(TSize iRow, TSize iColumn) 
 {
     LASS_ASSERT(iRow < 4 && iColumn < 4);
@@ -74,7 +74,7 @@ Transformation3D<T>::operator()(TSize iRow, TSize iColumn)
 
 
 template <typename T> inline
-typename Transformation<T>::TConstReference
+typename util::CallTraits<T>::TConstReference
 Transformation3D<T>::at(TSize iRow, TSize iColumn) const
 {
     return v_[num::mod(iRow, 4) * 4 + num::mod(iColumn, 4)];
@@ -83,7 +83,7 @@ Transformation3D<T>::at(TSize iRow, TSize iColumn) const
 
 
 template <typename T> inline
-typename Transformation<T>::TReference
+typename util::CallTraits<T>::TReference
 Transformation3D<T>::at(TSize iRow, TSize iColumn)
 {
     return v_[num::mod(iRow, 4) * 4 + num::mod(iColumn, 4)];
