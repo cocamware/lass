@@ -106,6 +106,8 @@ public:
 
     TSelf& operator+=(const TPoint& iPoint);
 	template<class MMP2> TSelf& operator+=(const Aabb2D<T, MMP2>& iOther);
+	TSelf& grow(const T& iDistance);
+	TSelf& scale(const T& iScale);
 
 	const TPointH center() const;
 	const TVector size() const;

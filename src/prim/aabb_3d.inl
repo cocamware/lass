@@ -190,6 +190,34 @@ Aabb3D<T, MMP>::operator+=(const Aabb3D<T, MMP2>& iOther)
 	return *this;
 }
 
+/** Expand bounding box by distance iDistance.  Negative values causing
+ *  reversal of the bounding box will cause the box to shrink to the
+ *  empty box.
+ */
+template <typename T, class MMP>
+Aabb3D<T, MMP>::TSelf& grow(const T& iDistance)
+{
+	min_.x -= iDistance;
+	max_.x += iDistance;
+	min_.y -= iDistance;
+	max_.y += iDistance;
+	min_.z -= iDistance;
+	max_.z += iDistance;
+}
+
+
+/** Scale bounding box by scale iScale.  Fractions will shrink the bounding box.
+ *  The origin of scaling is the center of the bounding box.  Negative values of the
+ *  scale have same effect as positive ones.
+ */
+template <typename T, class MMP>
+Aabb3D<T, MMP>::TSelf& scale(const T& iScale)
+{
+	TVector direction = (max()-center())*lass::num::abs(iScale);
+	min_ = center()-direction;
+	max_ = center()+direction;
+}
+
 
 
 /** Return the center point of the bounding box.

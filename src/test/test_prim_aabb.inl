@@ -155,6 +155,16 @@ void testPrimAabb2D()
     BOOST_CHECK(!c.isEmpty());
     BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5));
     BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10));
+
+	// growing and scaling
+    TAabbStrict d(TPoint(0, 0), TPoint(10, 10));
+	d.grow(10);
+	BOOST_CHECK(d.isValid());
+	BOOST_CHECK(!d.isEmpty());
+	BOOST_CHECK_EQUAL(d.max(),TPoint(20,20));
+	d.scale(0.5);
+	BOOST_CHECK_EQUAL(d.max(),TPoint(10,10));
+
 }
 
 
