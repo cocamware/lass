@@ -40,6 +40,7 @@ namespace lass
 
 		FNSampled8::FNSampled8() :PyObjectPlus( &Type )
 		{
+			makeZero();
 		}
 
 		FNSampled8::~FNSampled8()
@@ -838,7 +839,9 @@ namespace lass
 
 		FNSampled8 norm(const std::complex<FNSampled8 >& iComplSFN)
 		{
-			std::complex<FNSampled8 >	temp(iComplSFN);
+			std::complex<FNSampled8 >	temp;
+			temp.real(iComplSFN.real());
+			temp.imag(iComplSFN.imag());
 			num::inpnorm( temp );
 			return temp.real();
 		}
