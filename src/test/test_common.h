@@ -70,24 +70,24 @@ compareVectorsAndContinue(const VectorType& iLeft, const VectorType& iRight,
 
 	for (unsigned i = 0; i < VectorType::dimension; ++i)
 	{
-		extended_predicate_value predicate(check_is_closed(iLeft[i], iRight[i], iTolerance));
+		extended_predicate_value predicate(check_is_close(iLeft[i], iRight[i], iTolerance));
 
 		if (!predicate) 
 		{
-			return detail::test_and_continue_impl(predicate, boost::wrap_stringstream().ref() 
+			return tt_detail::test_and_continue_impl(predicate, boost::wrap_stringstream().ref() 
 					<< "difference between one of the components of " << iLeftText << "{" 
-					<< detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{" 
-					<< detail::print_helper<VectorType>( iRight ) << "}" << " exceeds " 
-					<< detail::print_helper<PersentType>( iTolerance ) << "%",
+					<< tt_detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{" 
+					<< tt_detail::print_helper<VectorType>( iRight ) << "}" << " exceeds " 
+					<< tt_detail::print_helper<PersentType>( iTolerance ) << "%",
 				iFile, iLine, false, iLogLevel);
 		}
     }
 
-    return detail::test_and_continue_impl(true, boost::wrap_stringstream().ref() 
+    return tt_detail::test_and_continue_impl(true, boost::wrap_stringstream().ref() 
 			<< "difference between the components of " << iLeftText << "{" 
-			<< detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{" 
-			<< detail::print_helper<VectorType>( iRight ) << "} does not exceeds " 
-			<< detail::print_helper<PersentType>( iTolerance ) << "%",
+			<< tt_detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{" 
+			<< tt_detail::print_helper<VectorType>( iRight ) << "} does not exceeds " 
+			<< tt_detail::print_helper<PersentType>( iTolerance ) << "%",
         iFile, iLine, true, iLogLevel);
 }
 
