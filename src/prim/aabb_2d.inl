@@ -44,8 +44,8 @@ namespace prim
  */
 template <typename T, class MMP>
 Aabb2D<T, MMP>::Aabb2D():
-	min_(TVector(TNumTraits::max, TNumTraits::max)),
-	max_(TVector(TNumTraits::min, TNumTraits::min))
+	min_(TNumTraits::max, TNumTraits::max),
+	max_(TNumTraits::min, TNumTraits::min)
 {
 	LASS_ASSERT(isEmpty());
 }
@@ -85,6 +85,7 @@ Aabb2D<T, MMP>::Aabb2D(const Aabb2D<T, MMP2>& iOther):
 	min_(iOther.min()),
 	max_(iOther.max())
 {
+	LASS_ASSERT(isValid());
 }
 
 
@@ -127,6 +128,7 @@ void Aabb2D<T, MMP>::setMin(const TPoint& iMin)
 	{
 		MMP::setMin(min_, max_, iMin);
 	}
+	LASS_ASSERT(isValid());
 }
 
 
@@ -145,6 +147,7 @@ void Aabb2D<T, MMP>::setMax(const TPoint& iMax)
 	{
 		MMP::setMax(min_, max_, iMax);
 	}
+	LASS_ASSERT(isValid());
 }
 
 
@@ -169,9 +172,9 @@ template <typename T, class MMP>
 typename Aabb2D<T, MMP>::TSelf& 
 Aabb2D<T, MMP>::operator+=(const TPoint& iPoint)
 {
-	LASS_ASSERT(isValid());
 	min_ = pointwiseMin(min_, iPoint);
 	max_ = pointwiseMax(max_, iPoint);
+	LASS_ASSERT(isValid());
 	return *this;
 }
 
@@ -184,9 +187,9 @@ template <class MMP2>
 typename Aabb2D<T, MMP>::TSelf& 
 Aabb2D<T, MMP>::operator+=(const Aabb2D<T, MMP2>& iOther)
 {
-	LASS_ASSERT(isValid());
 	min_ = pointwiseMin(min_, iOther.min());
 	max_ = pointwiseMax(max_, iOther.max());
+	LASS_ASSERT(isValid());
 	return *this;
 }
 
@@ -196,13 +199,19 @@ Aabb2D<T, MMP>::operator+=(const Aabb2D<T, MMP2>& iOther)
  *  empty box.
  */
 template <typename T, class MMP>
-Aabb2D<T, MMP>::TSelf& grow(const T& iDistance)
+void Aabb2D<T, MMP>::grow(TParam iDistance)
 {
 	min_.x -= iDistance;
 	max_.x += iDistance;
 	min_.y -= iDistance;
 	max_.y += iDistance;
+	if (max_.y < min_.y)
+	{
+		clear();
+	}
+	LASS_ASSERT(isValid());
 }
+
 
 
 /** Scale bounding box by scale iScale.  Fractions will shrink the bounding box.
@@ -210,12 +219,15 @@ Aabb2D<T, MMP>::TSelf& grow(const T& iDistance)
  *  scale have same effect as positive ones.
  */
 template <typename T, class MMP>
-Aabb2D<T, MMP>::TSelf& scale(const T& iScale)
+void Aabb2D<T, MMP>::scale(TParam iScale)
 {
-	TVector direction = (max()-center())*lass::num::abs(iScale);
-	min_ = center()-direction;
-	max_ = center()+direction;
+	const TVector extra = size() * ((num::abs(iScale) - 1) / 2);
+	min_ -= extra;
+	max_ += extra;
+	LASS_ASSERT(isValid());
 }
+
+
 
 /** Return the center point of the bounding box.
  *  We return a homogeneous point to avoid the division by two (that might not be supported
@@ -249,6 +261,7 @@ template <typename T, class MMP>
 const typename Aabb2D<T, MMP>::TValue 
 Aabb2D<T, MMP>::perimeter() const
 {
+	LASS_ASSERT(isValid());
 	const TVector result = size();
 	return 2 * (result.x + result.y);
 }
@@ -261,6 +274,7 @@ template <typename T, class MMP>
 const typename Aabb2D<T, MMP>::TValue 
 Aabb2D<T, MMP>::area() const
 {
+	LASS_ASSERT(isValid());
 	const TVector result = size();
 	return result.x * result.y;
 }
@@ -413,11 +427,24 @@ template <class RandomGenerator>
 const typename Aabb2D<T, MMP>::TPoint
 Aabb2D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
+	LASS_ASSERT(isValid());
 	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
     const TVector t(uniform(), uniform(), uniform());
     const TPoint result(min_ + t * (max_ - min_));
     LASS_ASSERT(contains(result));
     return result;
+}
+
+
+
+/** set AABB to an empty box
+ */
+template <typename T, class MMP>
+void Aabb2D<T, MMP>::clear()
+{
+	min_ = TPoint(TNumTraits::max, TNumTraits::max);
+	max_ = TPoint(TNumTraits::min, TNumTraits::min);
+	LASS_ASSERT(isValid() && isEmpty());
 }
 
 
@@ -436,21 +463,22 @@ const bool Aabb2D<T, MMP>::isEmpty() const
 
 
 /** internal check to see if AABB is valid.
- *  Or all values of min_ are larger than the values of max_ (which means it's empty),
- *  Or none of the values of min are larger than the corresponding values of max (which
- *  means the AABB contains at least one point).
+ *  There are two valid states for the AABB:
+ *  @arg <tt>max_.x < min_.x</tt> which means the box is empty
+ *  @arg <tt>max_.x >= min_.x && max_.y >= min_.y</tt> which means the box is not empty.
+ *  That gives us an invalid state as well:
+ *  @arg <tt>max_.x >= min_.x && max_.y < min_.y</tt>.  This state would cause @c isEmpty() to yield
+ *		false, while there's still nothing in it (there's no single point for which @c contains(p)
+ *		would return true.
  *
- *  There's no way that it should be anything else, since the client has no way to set
- *  a value of min_ to a larger value of the corresponding value of max_.  Each situation
- *  this "can" be possible is guarded and protected against it.  The only situation where
- *  the "inversed" situation can be setted is in the default constructor and that's done
- *  by us.
+ *  When the regular minmax policies are used (StrictMinMax and AutoMinMax), there's no way any AABB
+ *  would become invalid, and this test counts as an invariant to the box.  However, when using the
+ *  UncheckedMinMax policy, you're on your own.
  */
 template <typename T, class MMP>
 const bool Aabb2D<T, MMP>::isValid() const
 {
-	return (min_.x <= max_.x && min_.y <= max_.y) 
-		|| (min_.x > max_.x && min_.y > max_.y);
+	return (min_.x <= max_.x && min_.y <= max_.y) || (min_.x > max_.x);
 }
 
 
@@ -463,6 +491,7 @@ void Aabb2D<T, MMP>::swap(Aabb2D<T, MMP2>& iOther)
 {
 	std::swap(min_, iOther.min_);
 	std::swap(max_, iOther.max_);
+	LASS_ASSERT(isValid() && iOther.isValid());
 }
 
 

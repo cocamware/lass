@@ -33,8 +33,11 @@
  *  The way an AABB handles its minima and maxima can be set by the template parameter
  *  @c MinMaxPolicy.  One policy StrictMinMax will enforce you to use correct 
  *  minima and maxima, and on any suspicious behaviour, it will throw an exception.  
- *  The other policy AutoMinMax will try to correct misbehaviour without your 
- *  notice.  For more information on these policies, I refer to the documentation 
+ *  And other policy AutoMinMax will try to correct misbehaviour without your 
+ *  notice.  The third one is UncheckedMinMax and will ignore all errors in favour
+ *  of faster code, but leading to undefined behaviour if you misbehave.
+ *  
+ *  For more information on these policies, I refer to the documentation 
  *  compagning these policies.
  *
  *  The content of the policies are rather implementation details, clients shouldn't
@@ -215,6 +218,50 @@ struct AutoMinMax
         const PointType min = pointwiseMin(ioMin, ioMax);
         ioMax = pointwiseMax(ioMin, ioMax);
         ioMin = min;
+	}
+};
+
+
+
+/** @ingroup MinMaxPolicy
+ *  @brief MinMaxPolicy that makes it your responsibility to behave well.
+ *  @author Bram de Greve
+ *  @date 2003
+ *
+ *  The unchecked policy is the fastest policy of the pool.  It will @e silently expects you to 
+ *  provide correct min/max values and ignores all invalid states caused by you.  That way it
+ *  can avoid all checks and it will be faster than the other to in speed ciritical situations.
+ *
+ *  If you're using this policy, it's your responsibility to give the AABB correct values so it 
+ *  stays valid.  If you don't, you'll get what we call undefined behaviour.  Have fun :)
+ *
+ *  The rest of the class are implementation details for the AABB and should not be
+ *  called by the client (you :).  In short we can say of this policy: if you try to
+ *  do something stupid, you get undefined behaviour.
+ */
+struct UncheckedMinMax
+{
+	/** set value @a oMin to @a iMin and move @a ioMax (if necessary) so it stays correct.
+	 */
+	template <typename PointType>
+	static void setMin(PointType& oMin, PointType& ioMax, const PointType& iMin)
+	{
+		oMin = iMin;
+	}
+
+	/** set value @a oMax to @a iMax and move @a ioMin (if necessary) so it stays correct.
+	 */
+	template <typename PointType>
+	static void setMax(PointType& ioMin, PointType& oMax, const PointType& iMax)
+	{
+		oMax = iMax;
+	}
+
+	/** correct @a ioMin and @a ioMax so that they are indeed then minimum and maximum.
+	 */
+	template <typename PointType>
+	static void checkMinMax(PointType& ioMin, PointType& ioMax)
+	{
 	}
 };
 

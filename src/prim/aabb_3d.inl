@@ -195,7 +195,7 @@ Aabb3D<T, MMP>::operator+=(const Aabb3D<T, MMP2>& iOther)
  *  empty box.
  */
 template <typename T, class MMP>
-Aabb3D<T, MMP>::TSelf& grow(const T& iDistance)
+void Aabb3D<T, MMP>::grow(TParam iDistance)
 {
 	min_.x -= iDistance;
 	max_.x += iDistance;
@@ -203,6 +203,11 @@ Aabb3D<T, MMP>::TSelf& grow(const T& iDistance)
 	max_.y += iDistance;
 	min_.z -= iDistance;
 	max_.z += iDistance;
+	if (max_.y < min_.y)
+	{
+		clear();
+	}
+	LASS_ASSERT(isValid());
 }
 
 
@@ -211,11 +216,12 @@ Aabb3D<T, MMP>::TSelf& grow(const T& iDistance)
  *  scale have same effect as positive ones.
  */
 template <typename T, class MMP>
-Aabb3D<T, MMP>::TSelf& scale(const T& iScale)
+void Aabb3D<T, MMP>::scale(TParam iScale)
 {
-	TVector direction = (max()-center())*lass::num::abs(iScale);
-	min_ = center()-direction;
-	max_ = center()+direction;
+	cont TVector extra = size() * ((num::abs(iScale) - 1) / 2);
+	min_ -= extra;
+	max_ += extra;
+	LASS_ASSERT(isValid());
 }
 
 
@@ -424,11 +430,24 @@ template <class RandomGenerator>
 const typename Aabb3D<T, MMP>::TPoint
 Aabb3D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
+	LASS_ASSERT(isValid());
 	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
     const TVector t(uniform(), uniform(), uniform());
     const TPoint result(min_ + t * (max_ - min_));
     LASS_ASSERT(contains(result));
     return result;
+}
+
+
+
+/** set AABB to an empty box
+ */
+template <typename T, class MMP>
+void Aabb3D<T, MMP>::clear()
+{
+	min_ = TPoint(TNumTraits::max, TNumTraits::max, TNumTraits::max);
+	max_ = TPoint(TNumTraits::min, TNumTraits::min, TNumTraits::min);
+	LASS_ASSERT(isValid() && isEmpty());
 }
 
 
@@ -447,21 +466,23 @@ const bool Aabb3D<T, MMP>::isEmpty() const
 
 
 /** internal check to see if AABB is valid.
- *  Or all values of min_ are larger than the values of max_ (which means it's empty),
- *  Or none of the values of min are larger than the corresponding values of max (which
- *  means the AABB contains at least one point).
+ *  There are two valid states for the AABB:
+ *  @arg <tt>max_.x < min_.x</tt> which means the box is empty
+ *  @arg <tt>max_.x >= min_.x && max_.y >= min_.y && max_.z >= min_.z</tt> which means the box is 
+ *		not empty.
+ *  That gives us an invalid state as well:
+ *  @arg <tt>max_.x >= min_.x && (max_.y < min_.y || max_.z < min_.z)</tt>.  This state would cause
+ *		@c isEmpty() to yield false, while there's still nothing in it (there's no single point for
+ *		which @c contains(p) would return true.
  *
- *  There's no way that it should be anything else, since the client has no way to set
- *  a value of min_ to a larger value of the corresponding value of max_.  Each situation
- *  this "can" be possible is guarded and protected against it.  The only situation where
- *  the "inversed" situation can be setted is in the default constructor and that's done
- *  by us.
+ *  When the regular minmax policies are used (StrictMinMax and AutoMinMax), there's no way any AABB
+ *  would become invalid, and this test counts as an invariant to the box.  However, when using the
+ *  UncheckedMinMax policy, you're on your own.
  */
 template <typename T, class MMP>
 const bool Aabb3D<T, MMP>::isValid() const
 {
-	return (min_.x <= max_.x && min_.y <= max_.y && min_.z <= max_.z) 
-		|| (min_.x > max_.x && min_.y > max_.y && min_.z > max_.z);
+	return (min_.x <= max_.x && min_.y <= max_.y && min_.z <= max_.z) || (min_.x > max_.x);
 }
 
 

@@ -44,17 +44,21 @@ void testPrimAabb2D()
 {
 	typedef prim::Aabb2D<T, prim::StrictMinMax> TAabbStrict;
 	typedef prim::Aabb2D<T, prim::AutoMinMax> TAabbAuto;
+	typedef prim::Aabb2D<T, prim::UncheckedMinMax> TAabbUnchecked;
 	typedef prim::Point2D<T> TPoint;
 
-	// create two empty aabbs.
+	// create empty aabbs.
 
 	TAabbStrict aabbStrict;
 	TAabbAuto aabbAuto;
+	TAabbUnchecked aabbUnchecked;
 
 	BOOST_CHECK(aabbStrict.isValid());
 	BOOST_CHECK(aabbAuto.isValid());
+	BOOST_CHECK(aabbUnchecked.isValid());
 	BOOST_CHECK(aabbStrict.isEmpty());
 	BOOST_CHECK(aabbAuto.isEmpty());
+	BOOST_CHECK(aabbUnchecked.isEmpty());
 
 	// construct with corner points
 
@@ -63,11 +67,14 @@ void testPrimAabb2D()
 
 	BOOST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
 	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(m, M));
+	BOOST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(m, M));
 
 	BOOST_CHECK(aabbStrict.isValid());
 	BOOST_CHECK(aabbAuto.isValid());
+	BOOST_CHECK(aabbUnchecked.isValid());
 	BOOST_CHECK(!aabbStrict.isEmpty());
 	BOOST_CHECK(!aabbAuto.isEmpty());
+	BOOST_CHECK(!aabbUnchecked.isEmpty());
 	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
 	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
 	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
@@ -76,14 +83,16 @@ void testPrimAabb2D()
 
 	// reversed corner points
 
-	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
 	BOOST_CHECK_THROW(aabbStrict = TAabbStrict(M, m), std::exception);
-	BOOST_CHECK_NO_THROW(aabbStrict = TAabbAuto(M, m));
+	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
+	BOOST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(M, m));
 
 	BOOST_CHECK(aabbStrict.isValid());
 	BOOST_CHECK(aabbAuto.isValid());
+	BOOST_CHECK(aabbUnchecked.isValid()); // max_.x < min_.x
 	BOOST_CHECK(!aabbStrict.isEmpty());
 	BOOST_CHECK(!aabbAuto.isEmpty());
+	BOOST_CHECK(aabbUnchecked.isEmpty()); // max_.x < min_.x
 	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
 	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
 	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
@@ -163,7 +172,7 @@ void testPrimAabb2D()
 	BOOST_CHECK(!d.isEmpty());
 	BOOST_CHECK_EQUAL(d.max(),TPoint(20,20));
 	d.scale(0.5);
-	BOOST_CHECK_EQUAL(d.max(),TPoint(10,10));
+	BOOST_CHECK_EQUAL(d.max(),TPoint(12.5,12.5));
 
 }
 

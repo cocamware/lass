@@ -106,8 +106,8 @@ public:
 
     TSelf& operator+=(const TPoint& iPoint);
 	template<class MMP2> TSelf& operator+=(const Aabb3D<T, MMP2>& iOther);
-	TSelf& grow(const T& iDistance);
-	TSelf& scale(const T& iScale);
+	void grow(TParam iDistance);
+	void scale(TParam iScale);
 
 	const TPointH center() const;
 	const TVector size() const;
@@ -122,6 +122,7 @@ public:
 
     template <class RandomGenerator> const TPoint random(RandomGenerator& ioRandom) const;
 
+	void clear();
 	const bool isEmpty() const;
 	const bool isValid() const;
 
