@@ -48,9 +48,11 @@ namespace lass
 		* @author Tom De Muer
 		* @date 2002-2003
 		*/
-		class FNSampled8
+		class FNSampled8 : public lass::python::PyObjectPlus
 		{
-			friend class PyFNSampled8;
+			PY_HEADER( lass::python::PyObjectPlus ) ;
+
+			virtual std::string	pyStr(void);
 		public:
 			typedef float	TBaseType;
 			typedef float	TIntervalBaseType;
@@ -60,7 +62,7 @@ namespace lass
 		protected:
 			TInterval	alpha_[4];	/**< 0->alpha = 0; 1->alpha = 0.33; 2->alpha = 0.66; 3->alpha = 1.0 */
 
-			FNSampled8(const TInterval& ialphacut0,const TInterval& ialphacut1,const TInterval& ialphacut2,const TInterval& ialphacut3)
+			FNSampled8(const TInterval& ialphacut0,const TInterval& ialphacut1,const TInterval& ialphacut2,const TInterval& ialphacut3) : PyObjectPlus( &Type )
 			{
 				alpha_[0] = ialphacut0; 
 				alpha_[1] = ialphacut1; 
@@ -85,7 +87,7 @@ namespace lass
 			*	not demand such a constructor.
 			*/
 			FNSampled8(util::CallTraits<TBaseType>::TParam iV);
-			FNSampled8(const FNSampled8& sV) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
+			FNSampled8(const FNSampled8& sV) : PyObjectPlus( &Type ) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
 			~FNSampled8();
 
 			TInterval	getSupport() const	{ return alpha_[0]; }
@@ -101,8 +103,8 @@ namespace lass
 			TBaseType	defuzzifyCentroid() const;
 			TBaseType	defuzzifyMaxMembership() const;
 
-					void	makeUnit()	{ *this = one(); }
-					void	makeZero()  { *this = zero(); }
+					void	makeUnit();
+					void	makeZero();
 					void	makeTriangular(util::CallTraits<TBaseType>::TParam left,util::CallTraits<TBaseType>::TParam mid,util::CallTraits<TBaseType>::TParam right);
 					void	makeGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation);
 					void	makeProbGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation);
@@ -216,12 +218,14 @@ namespace lass
 		FNSampled8	operator/( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
 
 
+		
 		/** Shadow type for FNSampled8 for use in Python.  This makes the original class
 		*   as lightweight as possible and once used in Python speed/footprint isn't that
 		*	critical anymore.
 		* @author Tom De Muer
 		* @date 2003
 		*/
+		/*
 		class PyFNSampled8 :
 			public lass::python::PyObjectPlus
 		{
@@ -258,9 +262,13 @@ namespace lass
 			PyFNSampled8() : PyObjectPlus( &Type ) {}
 			PyFNSampled8(const FNSampled8& sV) : PyObjectPlus( &Type ) { value = sV; }
 			virtual ~PyFNSampled8() {}
+
+			virtual std::string	pyStr(void);
 		};
 		
 		extern "C" { void initPyFNSampled8(void); }
+		*/
+		
 
 		
 		template<>
@@ -294,11 +302,20 @@ namespace lass
 	namespace python
 	{
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
-		int pyParseObject( PyObject *args, lass::num::FNSampled8*& oObj);
+		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
+		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV );
+		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
+	}
+
+	/*
+	namespace python
+	{
+		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
 		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
 		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
 	}
-
+	*/
+	
 	namespace io
 	{
 		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);

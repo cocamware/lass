@@ -38,7 +38,7 @@ namespace lass
 	{
 		FNSampled8::TBaseType FNSampled8::alphaLevel_[4] = {TBaseType(0.0),TBaseType(0.05),TBaseType(0.31),TBaseType(0.99)};
 
-		FNSampled8::FNSampled8()
+		FNSampled8::FNSampled8() :PyObjectPlus( &Type )
 		{
 		}
 
@@ -130,10 +130,25 @@ namespace lass
 		}
 
 		FNSampled8::FNSampled8(util::CallTraits<FNSampled8::TBaseType>::TParam iV)
+			: PyObjectPlus( &Type )
 		{
 			int i;
 			for (i=3;i>=0;--i)
 				alpha_[i].set(iV,iV);
+		}
+
+		void FNSampled8::makeZero()
+		{
+			int i;
+			for (i=3;i>=0;--i)
+				alpha_[i].set(0,0);
+		}
+
+		void FNSampled8::makeUnit()
+		{
+			int i;
+			for (i=3;i>=0;--i)
+				alpha_[i].set(0,0);
 		}
 
 		void FNSampled8::makeTriangular(util::CallTraits<TBaseType>::TParam left,util::CallTraits<TBaseType>::TParam mid,util::CallTraits<TBaseType>::TParam right)
@@ -649,13 +664,17 @@ namespace lass
 
 		void inpinv(std::complex<FNSampled8>& sfn)
 		{
+			FNSampled8 tempReal(sfn.real());
+			FNSampled8 tempImag(sfn.imag());
+
 			int i;
 			for (i=3;i>=0;--i)
 			{
 				FNSampled8::TInterval alphaNorm = sfn.real().alpha_[i]*sfn.real().alpha_[i]+sfn.imag().alpha_[i]*sfn.imag().alpha_[i];
-				sfn.real().alpha_[i] /= alphaNorm;
-				sfn.imag().alpha_[i] /= -alphaNorm;
+				tempReal.alpha_[i] /= alphaNorm;
+				tempImag.alpha_[i] /= -alphaNorm;
 			}
+			sfn = std::complex<FNSampled8>( tempReal, tempImag );
 		}
 
 
@@ -804,7 +823,37 @@ namespace lass
 			return temp.real();
 		}
 
+		std::string	FNSampled8::pyStr(void)
+		{
+			return str( *this );
+		}
+
+		PY_DECLARE_CLASS( FNSampled8 )
+		PY_CLASS_CONSTRUCTOR_0( FNSampled8 )
+		PY_CLASS_CONSTRUCTOR_1( FNSampled8, lass::util::CallTraits<FNSampled8::TBaseType>::TParam )
+		PY_CLASS_METHOD( FNSampled8, makeUnit );
+		PY_CLASS_METHOD( FNSampled8, makeZero );
+		PY_CLASS_METHOD( FNSampled8, makeTriangular );
+		PY_CLASS_METHOD( FNSampled8, makeGaussian );
+		PY_CLASS_METHOD( FNSampled8, makeProbGaussian);
+		PY_CLASS_METHOD( FNSampled8, makeTrapezoidal );
+		PY_CLASS_METHOD( FNSampled8, getMembership );
+		PY_CLASS_METHOD( FNSampled8, getEntropy );
+		PY_CLASS_METHOD( FNSampled8, getDifferentialEntropy );
+		PY_CLASS_METHOD( FNSampled8, getNonspecificity );
+		PY_CLASS_METHOD( FNSampled8, getDiscord );
+		PY_CLASS_METHOD_QUALIFIED_1( FNSampled8, getSupport, FNSampled8::TInterval, lass::util::CallTraits<FNSampled8::TBaseType>::TParam );
+		PY_CLASS_METHOD( FNSampled8, defuzzifyCentroid );
+		PY_CLASS_METHOD( FNSampled8, defuzzifyMaxMembership );
+
+
+/*
 		std::string	PyFNSampled8::repr(void)
+		{
+			return str( value );
+		}
+
+		std::string	PyFNSampled8::pyStr(void)
 		{
 			return str( value );
 		}
@@ -915,18 +964,42 @@ namespace lass
 		PY_CLASS_METHOD( PyFNSampled8, defuzzifyCentroid );
 		PY_CLASS_METHOD( PyFNSampled8, defuzzifyMaxMembership );
 
+*/
 	}
+
+	namespace python
+	{
+		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV )
+		{
+			return new lass::num::FNSampled8(iV);
+		}
+
+		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV )
+		{
+			return Py_BuildValue("(O,O)", new lass::num::FNSampled8(iV.real()), new lass::num::FNSampled8(iV.imag()));
+		}
+		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV )
+		{
+			return Py_BuildValue("(O,O)", &iV.real(), &iV.imag());
+		}
+		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV )
+		{
+			if (iValue->ob_type==oV.ob_type)
+			{
+				oV = *static_cast<lass::num::FNSampled8*>(iValue);
+				return 0;
+			}
+			return -1;
+		}
+	}
+
+
+/*
 	namespace python
 	{
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV )
 		{
 #pragma LASS_NOTE("check for correct python types")
-			/*
-			if (!streq( iValue->ob_type , lass::num::PyFNSampled8::pythonClassName ))
-			{
-				PyErr_BadArgument();
-				return 1;
-			}*/
 			oV = ((lass::num::PyFNSampled8*)( iValue ))->value;
 			return 0; // ok
 		}
@@ -940,12 +1013,6 @@ namespace lass
 			else
 			{
 #pragma LASS_NOTE("check for correct python types")
-				/*
-				if (!streq(pyObjPtr->ob_type,lass::num::PyFNSampled8<C>::pythonClassName))
-				{
-					PyErr_BadArgument();
-					return 0;
-				}*/
 				oObj = (lass::num::FNSampled8*)(&(((lass::num::PyFNSampled8*)pyObjPtr)->value));
 			}
 			return ok;
@@ -965,6 +1032,7 @@ namespace lass
 		}
 
 	}
+*/
 	namespace io
 	{
 		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn)

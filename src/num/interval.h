@@ -31,6 +31,7 @@
 #include "num_common.h"
 #include "num_traits.h"
 #include "../util/call_traits.h"
+#include "../util/pyobject_plus.h"
 #include <iostream>
 
 namespace lass
@@ -293,6 +294,25 @@ struct NumTraits< interval<double> >
 #endif
 
 #include "interval.inl"
+
+}
+
+namespace python
+{
+	template<class C> int pyGetSimpleObject( PyObject* iValue, lass::num::interval<C>& oV )
+	{
+		std::pair<C,C> temp;
+		int r=pyGetSimpleObject(iValue, temp);
+		if (r==0)
+		{
+			oV.set(temp.first , temp.second);
+		}
+		return r;
+	}
+	template<class C> PyObject* pyBuildSimpleObject( const lass::num::interval<C>& iV )
+	{
+		return pyBuildSimpleObject( std::pair<C,C>(iV.inf(),iV.sup()) );
+	}
 
 }
 
