@@ -42,27 +42,27 @@ namespace stde
 
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-tolower(const std::basic_string<Char, Traits, Alloc>& iString, 
-        const std::locale& iLocale = std::locale());
+tolower(const std::basic_string<Char, Traits, Alloc>& input, 
+        const std::locale& locale = std::locale());
 
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-toupper(const std::basic_string<Char, Traits, Alloc>& iString, 
-        const std::locale& iLocale = std::locale());
+toupper(const std::basic_string<Char, Traits, Alloc>& input, 
+        const std::locale& locale = std::locale());
 
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
-            const std::basic_string<Char, Traits, Alloc>& iToBeReplaced,
-            const std::basic_string<Char, Traits, Alloc>& iReplacement);
+replace_all(const std::basic_string<Char, Traits, Alloc>& input,
+            const std::basic_string<Char, Traits, Alloc>& to_be_replaced,
+            const std::basic_string<Char, Traits, Alloc>& replacement);
 
 template <typename Char, typename Traits, typename Alloc>
-bool begins_with(const std::basic_string<Char, Traits, Alloc>& iInput,
-				 const std::basic_string<Char, Traits, Alloc>& iPrefix);
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+				 const std::basic_string<Char, Traits, Alloc>& prefix);
 
 template <typename Char, typename Traits, typename Alloc>
-bool ends_with(const std::basic_string<Char, Traits, Alloc>& iInput,
-			   const std::basic_string<Char, Traits, Alloc>& iPrefix);
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+			   const std::basic_string<Char, Traits, Alloc>& suffix);
 
 }
 

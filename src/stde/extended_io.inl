@@ -44,14 +44,14 @@ namespace impl
 {
 
 template <typename Char, typename Traits>
-void eatWhitespace(std::basic_istream<Char, Traits>& ioIStream)
+void eat_whitespace(std::basic_istream<Char, Traits>& istream)
 {
 	Char c = 0;
-	while (ioIStream.get(c))
+	while (istream.get(c))
 	{
 		if (!std::isspace(c))
 		{
-			ioIStream.putback(c);
+			istream.putback(c);
 			break;
 		}
 	}
@@ -59,41 +59,41 @@ void eatWhitespace(std::basic_istream<Char, Traits>& ioIStream)
 
 
 
-struct SequenceTraits
+struct sequence_traits
 {
 	template <typename Container, typename T>
-	static void push(Container& oContainer, const T& iElement)
+	static void push(Container& container, const T& value)
 	{
-		oContainer.push_back(iElement);
+		container.push_back(value);
 	}
 };
 
-struct SetTraits
+struct set_traits
 {
 	template <typename Container, typename T>
-	static void push(Container& oContainer, const T& iElement)
+	static void push(Container& container, const T& value)
 	{
-		oContainer.insert(iElement);
+		container.insert(value);
 	}
 };
 
-struct ElementTraits
+struct value_traits
 {
 	template <typename Char, typename Traits, typename T>
-	static bool read(std::basic_istream<Char, Traits>& ioIStream, T& oElement,
-					 Char iSeperatorInter, Char iSeperatorIntra, Char iClose)
+	static bool read(std::basic_istream<Char, Traits>& istream, T& value,
+					 Char inter_seperator, Char intra_seperator, Char closer)
 	{
-		eatWhitespace(ioIStream);
+		eat_whitespace(istream);
 
 		// read till next seperator
 		//
 		std::basic_string<Char, Traits> buffer;
 		Char c = 0;
-		while (ioIStream.get(c))
+		while (istream.get(c))
 		{
-			if (c == iSeperatorInter || c == iClose)
+			if (c == inter_seperator || c == closer)
 			{
-				ioIStream.putback(c);
+				istream.putback(c);
 				break;
 			}
 			buffer += c;
@@ -103,7 +103,7 @@ struct ElementTraits
 		//
 		try
 		{
-			oElement = util::stringCast<T>(buffer);
+			value = util::stringCast<T>(buffer);
 			return true;
 		}
 		catch (...)
@@ -113,76 +113,76 @@ struct ElementTraits
 	}
 };
 
-struct PairTraits
+struct pair_traits
 {
 	template <typename Char, typename Traits, typename T, typename U>
-	static bool read(std::basic_istream<Char, Traits>& ioIStream, std::pair<T, U>& oElement,
-					 Char iSeperatorInter, Char iSeperatorIntra, Char iClose)
+	static bool read(std::basic_istream<Char, Traits>& istream, std::pair<T, U>& value,
+					 Char inter_seperator, Char intra_seperator, Char closer)
 	{
 		T t;
-		if (!ElementTraits::read<Char>(ioIStream, t, iSeperatorIntra, 0, iSeperatorIntra))
+		if (!value_traits::read<Char>(istream, t, intra_seperator, 0, intra_seperator))
 		{
 			return false;
 		}
-		ioIStream.ignore();
+		istream.ignore();
 		U u;
-		if (!ElementTraits::read<Char>(ioIStream, u, iSeperatorInter, 0, iClose))
+		if (!value_traits::read<Char>(istream, u, inter_seperator, 0, closer))
 		{
 			return false;
 		}
-		oElement = std::pair<T, U>(t, u);
+		value = std::pair<T, U>(t, u);
 		return true;
 	}
 };
 
 template <typename Iterator, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-printSequence(std::basic_ostream<Char, Traits>& ioOStream, 
-              Iterator iBegin, Iterator iEnd, 
-              const Char* iOpen, const Char* iSeperator, const Char* iClose)
+print_sequence(std::basic_ostream<Char, Traits>& ostream, 
+              Iterator begin, Iterator end, 
+              const Char* opener, const Char* seperator, const Char* closer)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
-	buffer.copyfmt(ioOStream);
+	buffer.copyfmt(ostream);
     buffer.width(0);
 
-	buffer << iOpen;
-	for (Iterator i = iBegin; i != iEnd; ++i)
+	buffer << opener;
+	for (Iterator i = begin; i != end; ++i)
 	{
-		if (i != iBegin)
+		if (i != begin)
 		{
-			buffer << iSeperator;
+			buffer << seperator;
 		}
 		buffer << *i;
 	}
-	buffer << iClose;
+	buffer << closer;
 
-	LASS_ENFORCE_STREAM(ioOStream) << buffer.str();
-	return ioOStream;
+	LASS_ENFORCE_STREAM(ostream) << buffer.str();
+	return ostream;
 }
 
 template <typename Char, typename Traits, typename Iterator>
 std::basic_ostream<Char, Traits>& 
-printMap(std::basic_ostream<Char, Traits>& ioOStream, 
-         Iterator iBegin, Iterator iEnd,
-         const Char* iOpen, const Char* iSeperator1, const Char* iSeperator2, const Char* iClose)
+printMap(std::basic_ostream<Char, Traits>& ostream, 
+         Iterator begin, Iterator end,
+         const Char* opener, const Char* seperator_1, const Char* seperator_2, const Char* closer)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
-	buffer.copyfmt(ioOStream);
+	buffer.copyfmt(ostream);
     buffer.width(0);
 
-	buffer << iOpen;
-	for (Iterator i = iBegin; i != iEnd; ++i)
+	buffer << opener;
+	for (Iterator i = begin; i != end; ++i)
 	{
-		if (i != iBegin)
+		if (i != begin)
 		{
-			buffer << iSeperator1;
+			buffer << seperator_1;
 		}
-		buffer << i->first << iSeperator2 << i->second;
+		buffer << i->first << seperator_2 << i->second;
 	}
-	buffer << iClose;
+	buffer << closer;
 
-	LASS_ENFORCE_STREAM(ioOStream) << buffer.str();
-	return ioOStream;
+	LASS_ENFORCE_STREAM(ostream) << buffer.str();
+	return ostream;
 }
 
 
@@ -193,20 +193,20 @@ template
 	typename Container
 >
 std::basic_istream<Char, Traits>& 
-readContainer(std::basic_istream<Char, Traits>& ioIStream, Container& oContainer, 
-			 Char iOpen, Char iSeperatorInter, Char iSeperatorIntra, Char iClose)
+readContainer(std::basic_istream<Char, Traits>& istream, Container& container, 
+			 Char opener, Char inter_seperator, Char intra_seperator, Char closer)
 {
 	Container result;
 
 	bool good = true;
 	Char c = 0;
-	eatWhitespace(ioIStream);
-	if (ioIStream.get(c))
+	eat_whitespace(istream);
+	if (istream.get(c))
 	{
-		if (c == iOpen)
+		if (c == opener)
 		{
 			T temp;
-			good = Reader::read(ioIStream, temp, iSeperatorInter, iSeperatorIntra, iClose);
+			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
 			{        
 				Pusher::push(result, temp);
@@ -214,7 +214,7 @@ readContainer(std::basic_istream<Char, Traits>& ioIStream, Container& oContainer
 		}
 		else
 		{
-			ioIStream.putback(c);
+			istream.putback(c);
 			good = false;
 		}
 	}
@@ -223,12 +223,12 @@ readContainer(std::basic_istream<Char, Traits>& ioIStream, Container& oContainer
 		good = false;
 	}
 
-	while (good && ioIStream.get(c) && c != iClose)
+	while (good && istream.get(c) && c != closer)
 	{
-		if (c == iSeperatorInter)
+		if (c == inter_seperator)
 		{
 			T temp;
-			good = Reader::read(ioIStream, temp, iSeperatorInter, iSeperatorIntra, iClose);
+			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
 			{        
 				Pusher::push(result, temp);
@@ -236,21 +236,21 @@ readContainer(std::basic_istream<Char, Traits>& ioIStream, Container& oContainer
 		}
 		else
 		{
-			ioIStream.putback(c);
+			istream.putback(c);
 			good = false;
 		}
 	}
 
 	if (good)
 	{
-		oContainer.swap(result);
+		container.swap(result);
 	}
 	else
 	{
-		ioIStream.clear(std::ios::failbit);
+		istream.clear(std::ios::failbit);
 	}
 
-	return ioIStream;
+	return istream;
 }
 
 }
@@ -270,92 +270,92 @@ namespace std
  */
 template <typename T1, typename T2, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::pair<T1, T2>& iPair)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::pair<T1, T2>& x)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
-	buffer.copyfmt(ioOStream);
+	buffer.copyfmt(ostream);
     buffer.width(0);
-	buffer << "(" << iPair.first << ", " << iPair.second << ")";
-	LASS_ENFORCE_STREAM(ioOStream) << buffer.str();
-	return ioOStream;
+	buffer << "(" << x.first << ", " << x.second << ")";
+	LASS_ENFORCE_STREAM(ostream) << buffer.str();
+	return ostream;
 }
 
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::vector<T, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::vector<T, Alloc>& container)
 {
-	return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "[", ", ", "]");
+	return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "[", ", ", "]");
 }
 
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::list<T, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::list<T, Alloc>& container)
 {
-	return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "[", ", ", "]");
+	return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "[", ", ", "]");
 }
 
 /** @ingroup extended_io
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::deque<T, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::deque<T, Alloc>& container)
 {
-	return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "[", ", ", "]");
+	return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "[", ", ", "]");
 }
 
 /** @ingroup extended_io
  */
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::map<Key, Data, Comp, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::map<Key, Data, Comp, Alloc>& container)
 {
 	return lass::stde::impl::printMap<Char>(
-		ioOStream, iContainer.begin(), iContainer.end(), "{", ", ", ": ", "}");
+		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
 }
 
 /** @ingroup extended_io
  */
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::multimap<Key, Data, Comp, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::multimap<Key, Data, Comp, Alloc>& container)
 {
 	return lass::stde::impl::printMap<Char>(
-		ioOStream, iContainer.begin(), iContainer.end(), "{", ", ", ": ", "}");
+		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
 }
 
 /** @ingroup extended_io
  */
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::set<Key, Comp, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::set<Key, Comp, Alloc>& container)
 {
-    return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "{", ", ", "}");
+    return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "{", ", ", "}");
 }
 
 /** @ingroup extended_io
  */
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::multiset<Key, Comp, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::multiset<Key, Comp, Alloc>& container)
 {
-	return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "{", ", ", "}");
+	return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "{", ", ", "}");
 }
 
 #ifdef _STLP_SLIST
@@ -364,11 +364,11 @@ operator<<(std::basic_ostream<Char, Traits>& ioOStream,
  */
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& 
-operator<<(std::basic_ostream<Char, Traits>& ioOStream, 
-           const std::slist<T, Alloc>& iContainer)
+operator<<(std::basic_ostream<Char, Traits>& ostream, 
+           const std::slist<T, Alloc>& container)
 {
-	return lass::stde::impl::printSequence(
-		ioOStream, iContainer.begin(), iContainer.end(), "[", ", ", "]");
+	return lass::stde::impl::print_sequence(
+		ostream, container.begin(), container.end(), "[", ", ", "]");
 }
 
 #endif
@@ -381,35 +381,35 @@ operator<<(std::basic_ostream<Char, Traits>& ioOStream,
  */
 template <typename Char, typename Traits, typename T1, typename T2>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
+operator>>(std::basic_istream<Char, Traits>& istream, 
            std::pair<T1, T2>& oPair)
 {
 	using namespace lass::stde;
 
 	Char c = 0;
-	if (ioIStream.get(c))
+	if (istream.get(c))
 	{
 		if (c == '(')
 		{
 			std::pair<T1, T2> temp;
-			if (impl::PairTraits::read<Char>(ioIStream, temp, ')', ',', ')'))
+			if (impl::pair_traits::read<Char>(istream, temp, ')', ',', ')'))
 			{        
 				oPair = temp;
-				ioIStream.ignore();
+				istream.ignore();
 			}
 		}
 		else
 		{
-			ioIStream.putback(c);
-			ioIStream.clear(std::ios::failbit);
+			istream.putback(c);
+			istream.clear(std::ios::failbit);
 		}
 	}
 	else
 	{
-		ioIStream.clear(std::ios::failbit);
+		istream.clear(std::ios::failbit);
 	}
 
-	return ioIStream;
+	return istream;
 }
 
 
@@ -418,12 +418,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::vector<T, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::vector<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SequenceTraits, impl::ElementTraits, T, Char>(
-		ioIStream, oContainer, '[', ',', 0, ']');
+	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+		istream, container, '[', ',', 0, ']');
 }
 
 
@@ -432,12 +432,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::list<T, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::list<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SequenceTraits, impl::ElementTraits, T, Char>(
-		ioIStream, oContainer, '[', ',', 0, ']');
+	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+		istream, container, '[', ',', 0, ']');
 }
 
 
@@ -446,12 +446,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::deque<T, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::deque<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SequenceTraits, impl::ElementTraits, T, Char>(
-		ioIStream, oContainer, '[', ',', 0, ']');
+	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+		istream, container, '[', ',', 0, ']');
 }
 
 
@@ -460,12 +460,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename Key, typename Data, typename Comp, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::map<Key, Data, Comp, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::map<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SetTraits, impl::PairTraits, std::pair<Key, Data>, Char>(
-		ioIStream, oContainer, '{', ',', ':', '}');
+	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
+		istream, container, '{', ',', ':', '}');
 }
 
 
@@ -474,12 +474,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename Key, typename Data, typename Comp, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::multimap<Key, Data, Comp, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::multimap<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SetTraits, impl::PairTraits, std::pair<Key, Data>, Char>(
-		ioIStream, oContainer, '{', ',', ':', '}');
+	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
+		istream, container, '{', ',', ':', '}');
 }
 
 
@@ -488,12 +488,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename Key, typename Comp, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::set<Key, Comp, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::set<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SetTraits, impl::ElementTraits, Key, Char>(
-		ioIStream, oContainer, '{', ',', 0, '}');
+	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(
+		istream, container, '{', ',', 0, '}');
 }
 
 
@@ -502,12 +502,12 @@ operator>>(std::basic_istream<Char, Traits>& ioIStream,
  */
 template <typename Char, typename Traits, typename Key, typename Comp, typename Alloc>
 std::basic_istream<Char, Traits>& 
-operator>>(std::basic_istream<Char, Traits>& ioIStream, 
-           std::multiset<Key, Comp, Alloc>& oContainer)
+operator>>(std::basic_istream<Char, Traits>& istream, 
+           std::multiset<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::SetTraits, impl::ElementTraits, Key, Char>(
-		ioIStream, oContainer, '{', ',', 0, '}');
+	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(
+		istream, container, '{', ',', 0, '}');
 }
 
 

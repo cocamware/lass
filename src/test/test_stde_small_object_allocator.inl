@@ -1,4 +1,5 @@
 /**	@file
+ *  @internal
  *	@author Bram de Greve (bramz@users.sourceforge.net)
  *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -25,51 +26,37 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SMALL_OBJECT_ALLOCATOR_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SMALL_OBJECT_ALLOCATOR_INL
 
-#include "stde_common.h"
-#include "extended_iterator.h"
+#include "test_common.h"
+#include "../stde/small_object_allocator.h"
 
 namespace lass
 {
-namespace stde
+namespace test
 {
 
-/** @ingroup extended_iterator
- */
-template <typename Iterator>
-Iterator next(Iterator iterator)
+void testStdeSmallObjectAllocator()
 {
-	return ++iterator;
+    int n = 1000;
+
+    typedef std::list<int, stde::small_object_allocator<int> > list_type;
+    list_type list;
+    for (int k = 0; k < n; ++k)
+    {
+        list.push_back(k);
+    }
+
+    list_type::const_iterator i = list.begin();
+    for (int k = 0; k < n; ++k)
+    {
+        BOOST_CHECK(i != list.end());
+        BOOST_CHECK_EQUAL(*i, k);
+        ++i;
+    }
+    BOOST_CHECK(i == list.end());
 }
-
-/** @ingroup extended_iterator
- */
-template <typename Iterator>
-Iterator prior(Iterator iterator)
-{
-	return --iterator;
-}
-
-/** @ingroup extended_iterator
- */
-template <typename Iterator, typename Distance>
-Iterator next(Iterator iterator, Distance distance)
-{
-	std::advance(iterator, distance);
-	return iterator;
-}
-
-/** @ingroup extended_iterator
- */
-template <typename Iterator, typename Distance>
-Iterator prior(Iterator iterator, Distance distance)
-{
-	std::advance(iterator, -distance);
-	return iterator;
-}
-
 
 }
 

@@ -73,10 +73,10 @@ namespace lass
 namespace stde
 {
 
-template <typename Iterator> Iterator next(Iterator iIterator);
-template <typename Iterator> Iterator prior(Iterator iIterator);
-template <typename Iterator, typename Distance> Iterator next(Iterator iIterator, Distance iDistance);
-template <typename Iterator, typename Distance> Iterator prior(Iterator iIterator, Distance iDistance);
+template <typename Iterator> Iterator next(Iterator iterator);
+template <typename Iterator> Iterator prior(Iterator iterator);
+template <typename Iterator, typename Distance> Iterator next(Iterator iterator, Distance distance);
+template <typename Iterator, typename Distance> Iterator prior(Iterator iterator, Distance distance);
 
 
 

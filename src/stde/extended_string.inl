@@ -45,14 +45,14 @@ namespace stde
  */
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-tolower(const std::basic_string<Char, Traits, Alloc>& iString, 
-        const std::locale& iLocale)
+tolower(const std::basic_string<Char, Traits, Alloc>& input, 
+        const std::locale& locale)
 {
-    std::basic_string<Char, Traits, Alloc> result(iString);
+    std::basic_string<Char, Traits, Alloc> result(input);
     typedef typename std::basic_string<Char, Traits, Alloc>::iterator iterator;
     for (iterator i = result.begin(); i != result.end(); ++i)
     {
-        *i = std::tolower<Char>(*i, iLocale);
+        *i = std::tolower<Char>(*i, locale);
     }
     return result;
 }
@@ -64,37 +64,37 @@ tolower(const std::basic_string<Char, Traits, Alloc>& iString,
  */
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-toupper(const std::basic_string<Char, Traits, Alloc>& iString, 
-        const std::locale& iLocale)
+toupper(const std::basic_string<Char, Traits, Alloc>& input, 
+        const std::locale& locale)
 {
-    std::basic_string<Char, Traits, Alloc> result(iString);
+    std::basic_string<Char, Traits, Alloc> result(input);
     typedef typename std::basic_string<Char, Traits, Alloc>::iterator iterator;
     for (iterator i = result.begin(); i != result.end(); ++i)
     {
-        *i = std::toupper<Char>(*i, iLocale);
+        *i = std::toupper<Char>(*i, locale);
     }
     return result;
 }
 
 /** @ingroup extended_string
- *  replace all instance of @a iToBeReplaced in @a iInput by @a iReplacement.
+ *  replace all instance of @a to_be_replaced in @a input by @a replacement.
  */
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc> 
-replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
-            const std::basic_string<Char, Traits, Alloc>& iToBeReplaced,
-            const std::basic_string<Char, Traits, Alloc>& iReplacement)
+replace_all(const std::basic_string<Char, Traits, Alloc>& input,
+            const std::basic_string<Char, Traits, Alloc>& to_be_replaced,
+            const std::basic_string<Char, Traits, Alloc>& replacement)
 {
-    typedef std::basic_string<Char, Traits, Alloc> TString;
-    typename TString::size_type sizeToBeReplaced = iToBeReplaced.size();
-    typename TString::size_type sizeReplacement = iReplacement.size();
-    TString result(iInput);
+    typedef std::basic_string<Char, Traits, Alloc> string_type;
+    typename string_type::size_type size_to_be_replaced = to_be_replaced.size();
+    typename string_type::size_type size_replacement = replacement.size();
+    string_type result(input);
 
-	std::string::size_type i = result.find(iToBeReplaced);
-	while (i != std::string::npos)
+	typename string_type::size_type i = result.find(to_be_replaced);
+	while (i != string_type::npos)
 	{
-		result.replace(i, sizeToBeReplaced, iReplacement);
-		i = result.find(iToBeReplaced, i + sizeReplacement);
+		result.replace(i, size_to_be_replaced, replacement);
+		i = result.find(to_be_replaced, i + size_replacement);
 	}
     return result;
 }
@@ -102,25 +102,25 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
 
 
 /** @ingroup extended_string
- *  returns true if @a iInput begins with the string @a iPrefix
+ *  returns true if @a input begins with the input @a prefix
  */
 template <typename Char, typename Traits, typename Alloc>
-bool begins_with(const std::basic_string<Char, Traits, Alloc>& iInput,
-				 const std::basic_string<Char, Traits, Alloc>& iPrefix)
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+				 const std::basic_string<Char, Traits, Alloc>& prefix)
 {
-	return iInput.find(iPrefix) == 0;
+	return input.find(prefix) == 0;
 }
 
 
 
 /** @ingroup extended_string
- *  returns true if @a iInput ends with the string @a iSuffix
+ *  returns true if @a input ends with the input @a suffix
  */
 template <typename Char, typename Traits, typename Alloc>
-bool ends_with(const std::basic_string<Char, Traits, Alloc>& iInput,
-			   const std::basic_string<Char, Traits, Alloc>& iSuffix)
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+			   const std::basic_string<Char, Traits, Alloc>& suffix)
 {
-	return iInput.rfind(iSuffix) == iInput.length() - iSuffix.length();
+	return input.rfind(suffix) == input.length() - suffix.length();
 }
 
 
