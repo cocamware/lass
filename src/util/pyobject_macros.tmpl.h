@@ -254,8 +254,8 @@
 	std::vector<PyMethodDef> CppClass__::Methods;\
 	std::vector<PyGetSetDef> CppClass__::GetSetters;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClass_, CppClass__ ),\
-		CppClass__::Methods.push_back( lass::python::createPyMethodDef( NULL, NULL, NULL, NULL ) ) ; \
-		CppClass__::GetSetters.push_back( lass::python::createPyGetSetDef( NULL, NULL, NULL, NULL ) ) ; \
+		CppClass__::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
+		CppClass__::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
 )
 
 #define PY_DECLARE_CLASS( CppClass__ ) \
@@ -271,8 +271,8 @@
 	std::vector<PyMethodDef> CppClass__::Methods;\
 	std::vector<PyGetSetDef> CppClass__::GetSetters;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, CppClass__ ),\
-		CppClass__::Methods.push_back( lass::python::createPyMethodDef( NULL, NULL, NULL, NULL ) ) ; \
-		CppClass__::GetSetters.push_back( lass::python::createPyGetSetDef( NULL, NULL, NULL, NULL ) ) ; \
+		CppClass__::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
+		CppClass__::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
 )
 
 #define PY_DECLARE_CLASS_PLUS( CppClass__ ) \

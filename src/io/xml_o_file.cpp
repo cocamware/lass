@@ -125,13 +125,19 @@ void XmlOFile::close()
 
 
 
-#define LASS_IO_XML_FILE_GETTER( type__, getter__ )\
-	type__ XmlOFile::getter__() const\
+bool XmlOFile::is_open()
+{
+	return file_.is_open();
+}
+
+
+
+#define LASS_IO_XML_FILE_GETTER( result__, getter__ )\
+	result__ XmlOFile::getter__() const\
 	{\
 		return file_.getter__();\
 	}
 
-LASS_IO_XML_FILE_GETTER( bool, is_open )
 LASS_IO_XML_FILE_GETTER( bool, operator! )
 LASS_IO_XML_FILE_GETTER( std::ios::iostate, rdstate )
 LASS_IO_XML_FILE_GETTER( bool, good )

@@ -180,6 +180,7 @@ namespace lass
 			friend	void inptan(FNSampled8&	sfn);
 			friend	void inpatan(FNSampled8& sfn);
 			friend	void inpinv(FNSampled8&	sfn);
+			friend	void inpnorm(FNSampled8& sfn);
 
 			friend	FNSampled8 exp(const FNSampled8& sfn);
 			friend	FNSampled8 log(const FNSampled8& sfn);
@@ -191,12 +192,9 @@ namespace lass
 			friend	FNSampled8 atan(const FNSampled8& sfn);
 			friend	FNSampled8 inv(const FNSampled8& sfn);
 
-
-			friend	void inpinv(FNSampled8& iComplSFN);
 			friend	void inpinv(std::complex<FNSampled8 >& ioComplSFN);
 			friend	std::complex<FNSampled8 > inv(const std::complex<FNSampled8 >& ioComplSFN);
 			friend	void inpnorm(std::complex<FNSampled8 >& iComplSFN);
-			friend	void inpnorm(FNSampled8& iComplSFN);
 			friend	FNSampled8 norm(const std::complex<FNSampled8 >& iComplSFN);
 
 			friend	std::string str(const FNSampled8& iObj);

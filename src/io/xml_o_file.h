@@ -32,7 +32,7 @@
  *  and that's it.  Not automatic content is written to it:
  *
  *  @code
- *	{
+ *  {
  *		XmlOFile a("foo.xml");
  *		a << "spam\n"
  *  }
@@ -43,7 +43,7 @@
  *  {
  *		XmlOFile b("bar.xml, std::ios::trunc);
  *		b << "eggs\n"
- *	}
+ *  }
  *
  *  // bar.xml:
  *  // eggs
@@ -87,23 +87,19 @@ namespace io
 class LASS_DLL XmlOFile: public XmlOStream
 {
 public:
-
-	enum { defaut_mode = std::ios::out | std::ios::trunc };
-
 	XmlOFile();
-	XmlOFile(const char* iFilename, std::ios::openmode iOpenMode = defaut_mode);
+	XmlOFile(const char* iFilename, std::ios::openmode iOpenMode = std::ios::out | std::ios::trunc);
 	XmlOFile(const char* iFilename, const char* iRoot);
-	XmlOFile(const std::string& iFilename, std::ios::openmode iOpenMode = defaut_mode);
+	XmlOFile(const std::string& iFilename, std::ios::openmode iOpenMode = std::ios::out | std::ios::trunc);
 	XmlOFile(const std::string& iFilename, const std::string& iRoot);
 	virtual ~XmlOFile();
 
-	void open(const char* iFilename, std::ios::openmode iOpenMode = defaut_mode);
+	void open(const char* iFilename, std::ios::openmode iOpenMode = std::ios::out | std::ios::trunc);
 	void open(const char* iFilename, const char* iRoot);
-	void open(const std::string& iFilename, std::ios::openmode iOpenMode = defaut_mode);
+	void open(const std::string& iFilename, std::ios::openmode iOpenMode = std::ios::out | std::ios::trunc);
 	void open(const std::string& iFilename, const std::string& iRoot);
 	void close();
-	bool is_open() const;
-
+	bool is_open();
 
 	virtual bool operator!() const;
 	virtual std::ios::iostate rdstate() const;
@@ -112,21 +108,21 @@ public:
 	virtual bool fail() const;
 	virtual bool bad() const;
 
-    virtual XmlOFile& operator<<( char iIn );
-    virtual XmlOFile& operator<<( signed char iIn );
-    virtual XmlOFile& operator<<( unsigned char iIn );
-    virtual XmlOFile& operator<<( signed short iIn );
-    virtual XmlOFile& operator<<( unsigned short iIn );
-    virtual XmlOFile& operator<<( signed int iIn ) ;
-    virtual XmlOFile& operator<<( unsigned int iIn );
-    virtual XmlOFile& operator<<( signed long iIn );
-    virtual XmlOFile& operator<<( unsigned long iIn );
-    virtual XmlOFile& operator<<( float iIn );
-    virtual XmlOFile& operator<<( double iIn );
-    virtual XmlOFile& operator<<( long double iIn );
-    virtual XmlOFile& operator<<( bool iIn );
-    virtual XmlOFile& operator<<( const void* iIn );
-    virtual XmlOFile& operator<<( const char* iIn );
+	virtual XmlOFile& operator<<( char iIn );
+	virtual XmlOFile& operator<<( signed char iIn );
+ 	virtual XmlOFile& operator<<( unsigned char iIn );
+	virtual XmlOFile& operator<<( signed short iIn );
+	virtual XmlOFile& operator<<( unsigned short iIn );
+	virtual XmlOFile& operator<<( signed int iIn ) ;
+	virtual XmlOFile& operator<<( unsigned int iIn );
+	virtual XmlOFile& operator<<( signed long iIn );
+	virtual XmlOFile& operator<<( unsigned long iIn );
+	virtual XmlOFile& operator<<( float iIn );
+	virtual XmlOFile& operator<<( double iIn );
+	virtual XmlOFile& operator<<( long double iIn );
+	virtual XmlOFile& operator<<( bool iIn );
+	virtual XmlOFile& operator<<( const void* iIn );
+	virtual XmlOFile& operator<<( const char* iIn );
 	virtual XmlOFile& operator<<( const std::string& iIn );
 
 	virtual XmlOFile& operator<<( std::ostream& (*iIn) (std::ostream&) );

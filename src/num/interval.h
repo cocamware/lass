@@ -40,6 +40,11 @@ namespace num
 
 template<typename C> class interval;
 
+template<typename C> interval<C>	operator+(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator-(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
+template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
+
 template<typename C> void inpsqr(interval<C>& i);
 template<typename C> void inpsqrt(interval<C>& i);
 template<typename C> void inpexp(interval<C>& i);
@@ -152,29 +157,23 @@ public:
 	inline interval&	operator*=(typename util::CallTraits<baseType>::TParam s);
 	inline interval&	operator/=(typename util::CallTraits<baseType>::TParam s);
 	
-	friend interval<C>	operator+(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator-(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
-	friend interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
+	friend interval<C>	operator+<C>(const interval<C>& i1,const interval<C>& i2);
+	friend interval<C>	operator-<C>(const interval<C>& i1,const interval<C>& i2);
+	friend interval<C>	operator*<C>(const interval<C>& i1,const interval<C>& i2);
+	friend interval<C>	operator/<C>(const interval<C>& i1,const interval<C>& i2);
 
-	friend void inpsqr<>(interval<C>& i);
-	friend void inpsqrt<>(interval<C>& i);
-	friend void inpexp<>(interval<C>& i);
-	friend void inplog<>(interval<C>& i);
-	friend void inpnorm<>(interval<C>& i);
-	friend void inpinv<>(interval<C>& i);
+	friend void inpsqr<C>(interval<C>& i);
+	friend void inpsqrt<C>(interval<C>& i);
+	friend void inpexp<C>(interval<C>& i);
+	friend void inplog<C>(interval<C>& i);
+	friend void inpnorm<C>(interval<C>& i);
+	friend void inpinv<C>(interval<C>& i);
 };
 
 template<typename C> std::ostream& operator<<( std::ostream& os, const interval<C>& iV );
 template<typename C> std::string str( const interval<C>& iV );
 
 template<typename C> const interval<C> interval<C>::empty = interval<C>(NumTraits<C>::one, NumTraits<C>::zero);
-
-template<typename C> interval<C>	operator+(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator-(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator*(const interval<C>& i1,const interval<C>& i2);
-template<typename C> interval<C>	operator/(const interval<C>& i1,const interval<C>& i2);
-
 
 // implementation of basic_ops
 

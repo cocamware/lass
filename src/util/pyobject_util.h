@@ -226,7 +226,7 @@ namespace lass
 
 			while (PyDict_Next(iValue, &pos, &pyKey, &pyData)) 
 			{
-				TMap::key_type cKey;
+				typename TMap::key_type cKey;
 				if (pyGetSimpleObject( pyKey , cKey ) != 0)
 				{
 					impl::addMessageHeader("dict: key");
@@ -238,7 +238,7 @@ namespace lass
 					impl::addMessageHeader("dict: data");
 					return 1;
 				}
-				result.insert(TMap::value_type(cKey, cData));
+				result.insert(typename TMap::value_type(cKey, cData));
 			}
 
 			oV.swap(result);

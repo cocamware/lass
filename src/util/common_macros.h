@@ -25,7 +25,7 @@
 
 
 /** @defgroup CommonMacros Common Macros
- *  @author group Acoustics [BdG]
+ *  @author Bramz
  *  @brief usefull macros to use all over the place.
  */
 
