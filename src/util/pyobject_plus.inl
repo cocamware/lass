@@ -305,6 +305,9 @@
 			{
 #pragma LASS_FIXME("this code can result in unsafe casts, unfortunately oV has no type so there is no easy way to check")
 #pragma LASS_FIXME("for type convertability between iValue and oV at this moment of execution")
+                // well, i think there simply is no way to check the cast right here.  It's up to 
+                // the caller for once ... btw, is it EVER possible iValue == 0?  in that case we 
+                // might want to fail pyGetSimpleObject ...  [Bramz]
 				oV = iValue;
 				Py_INCREF( oV );
 			}
@@ -326,6 +329,7 @@
 				if (!PyType_IsSubtype(iValue->ob_type , &C::Type ))
 				{
 #pragma LASS_FIXME("this code must be tested somehow")
+                    // seems alright to me, but again, is it possible iValue == 0? [Bramz]
 					PyErr_Format(PyExc_TypeError,"not castable to %s",C::PythonClassName);
 					return 1;
 				}
