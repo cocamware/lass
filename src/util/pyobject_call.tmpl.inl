@@ -39,6 +39,13 @@
 	{\
 		e_expression;\
 	}\
+	catch (lass::util::Exception& error)\
+	{\
+		std::ostringstream buffer;\
+		buffer << error.message() << " (" << error.location() << ")";\
+		PyErr_SetString(PyExc_Exception, buffer.str().c_str());\
+		return v_errorReturnValue;\
+	}\
 	catch (std::exception& error)\
 	{\
 		PyErr_SetString(PyExc_Exception, error.what());\
