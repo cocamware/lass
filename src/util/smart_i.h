@@ -41,6 +41,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_I_H
 
 #include "util_common.h"
+#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -177,7 +178,7 @@ public:
 	 */
 	void swap(TSelf& iOther)
 	{
-        std::swap(interfac_, iOther.interface_);
+        std::swap(interface_, iOther.interface_);
 	}
 
 private:
@@ -199,7 +200,7 @@ private:
         }
     }
 
-    TPointer* interface_;
+    TPointer interface_;
 };
 
 }
