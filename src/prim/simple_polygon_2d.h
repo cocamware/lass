@@ -77,6 +77,10 @@ public:
 		typedef SimplePolygon2D<U, NoDegenerate> Type;
 	};
 
+	SimplePolygon2D();
+	template <typename InputIterator> 
+	SimplePolygon2D(InputIterator iFirstVertex, InputIterator iLastVertex);
+
 	const TPoint& operator[](int iIndexOfVertex) const;
 	TPoint& operator[](int iIndexOfVertex);
 	const TPoint& at(int iIndexOfVertex) const;
@@ -95,7 +99,7 @@ public:
 	const TValue area() const;
 	const TValue perimeter() const;
 	const TPointH center() const;
-
+    
 	const bool isSimple() const;
 	const bool isConvex() const;
 	const Orientation orientation() const;
@@ -126,6 +130,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, D
 }
 
 #include "simple_polygon_2d.inl"
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_H
+#	include "aabb_2d_simple_polygon_2d.h"
+#endif
 
 #endif
 

@@ -38,6 +38,23 @@ namespace prim
 
 // --- public --------------------------------------------------------------------------------------
 
+template <typename T, class DP>
+SimplePolygon2D<T, DP>::SimplePolygon2D():
+	vertices_()
+{
+}
+
+
+
+template <typename T, class DP>
+template <typename InputIterator>
+SimplePolygon2D<T, DP>::SimplePolygon2D(InputIterator iFirstVertex, InputIterator iLastVertex):
+	vertices_(iFirstVertex, iLastVertex)
+{
+}
+
+
+
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
 template <typename T, class DP>
@@ -202,7 +219,7 @@ SimplePolygon2D<T, DP>::signedArea() const
 	const int n = size();
 	for (int i = 0; i < n; ++i)
 	{
-		result += perpDot(at(i).position, at(i + 1).position);
+		result += perpDot(at(i).position(), at(i + 1).position());
 	}
 	return result / 2;
 }
