@@ -313,68 +313,6 @@
 		CppClass__::Methods.insert(CppClass__::Methods.begin(),\
 			lass::python::createPyMethodDef(pyName__, (PyCFunction) LASS_CONCATENATE(staticDispatch, pyFunction__), METH_VARARGS , pyDoc__)); )
 	
-/** Ideas for polymorphic functions
-
-Have two macros :
-	PY_CLASS_DECLARE_POLYMORPH_METHOD( Bar, test)
-and:
-	PY_CLASS_POLYMORPH_METHOD( Bar, test, complexArguments )
-	PY_CLASS_POLYMORPH_METHOD( Bar, test, primArguments )
-
-The first macro declares the datastructure needed to support the 
-dynamic dispatching.  This can be a vector of pairs: each pair
-contains the "argument check" static method and the "effective call"
-static method.
-
-The first macro also insert its function name in the python function
-table.  It will provide the dispatching by running through the vector
-of pairs and when there is an argument math effectively call the function.
-
-The second macro just updates the vector of pairs by pushing back the
-necessary pairs of functions.  These functions are also declared by the
-macro itself.  The "effective call" method can be a copy of the other
-METHOD macros.  The only thing not currently efficiently available is
-a method for checking for valid arguments.  Altough the pyGetArguments
-checks for correct typing it also try to convert the arguments which is
-not necessary at this phase of the dispatching.
-
-Remark: there is now a pyCheckArguments :)
-*/
-
-typedef std::vector< PyCFunction > TVectorCFunction;
-
-#define PY_CLASS_DECLARE_OVERLOADED_METHOD_EX( CppClass__, pyName__ , pyFunction__, pyDoc__ )\
-	TVectorCFunction LASS_CONCATENATE_3( pyOverloadSupport, CppClass__, pyName__ );\
-	inline PyObject* pyFunction__( PyObject* iObject, PyObject* iArgs )\
-	{\
-		TVectorCFunction::const_iterator fIt = LASS_CONCATENATE_3( pyOverloadSupport, CppClass__, pyName__ ).begin();\
-		TVectorCFunction::const_iterator fEIt = LASS_CONCATENATE_3( pyOverloadSupport, CppClass__, pyName__ ).end();\
-		for (;fIt!=fEIt;++fIt)\
-		{\
-			PyObject* r =(*fIt)( iObject, iArgs );\
-			if (r) return r;\
-		}\
-		PyErr_SetString(PyExc_TypeError, "Arguments for overloaded function could not be matched" );\
-		return NULL;\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE_3( lassExecutePyClassOverloadMethod_, CppClass__, pyFunction__ ),\
-		CppClass__::Methods.insert(CppClass__::Methods.begin(),\
-			lass::python::createPyMethodDef( LASS_STRINGIFY(pyName__), (PyCFunction) pyFunction__, METH_VARARGS , pyDoc__)); )
-
-#define PY_CLASS_DECLARE_OVERLOADED_METHOD( CppClass__, pyName__ )\
-	PY_CLASS_DECLARE_OVERLOADED_METHOD_EX( CppClass__, pyName__ , LASS_CONCATENATE_3(pyOverloadFunction,CppClass__,pyName__), NULL )
-
-#define PY_CLASS_OVERLOADED_METHOD( CppClass__, pyName__, method__ )\
-	inline PyObject* LASS_CONCATENATE_3( LASS_CONCATENATE( pyOverloadCall, CppClass__ ), pyName__, method__ ) (PyObject* iObject, PyObject* iArgs)\
-	{\
-		CppClass__* object = static_cast<CppClass__*>( iObject );\
-		return lass::python::impl::PyCallMethod< CppClass__ >::call( iArgs, object, CppClass__ ::method__ );\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE_3( lassExecutePyClassOverloadMethodDefs_, CppClass__, pyFunction__ ),\
-		LASS_CONCATENATE_3( pyOverloadSupport, CppClass__, pyName__ ).push_back( \
-			LASS_CONCATENATE_3( LASS_CONCATENATE( pyOverloadCall, CppClass__ ), pyName__, method__  ) ); )
-
-
 
 // --- methods -------------------------------------------------------------------------------------
 
@@ -793,7 +731,7 @@ $[
 		return lass::python::impl::PyExplicitResolver\
 		<\
 			CppClass__,\
-			meta::NullType,\
+			lass::meta::NullType,\
 			PList__\
 		>\
 		::TImpl::callConstructor(iArgs);\

@@ -40,6 +40,7 @@
 #include "../prim/point_2d.h"
 #include "../prim/aabb_2d.h"
 #include "../prim/ray_2d.h"
+#include "../prim/line_2d.h"
 #include "../prim/line_segment_2d.h"
 #include "../prim/side.h"
 #include "../util/callback_r_1.h"

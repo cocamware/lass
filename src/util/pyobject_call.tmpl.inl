@@ -50,7 +50,7 @@ $[
  *			   encountered which will be a conversion error
  */
 template <$(typename P$x)$>
-int pyGetArguments( PyObject* iArgs, $( typename util::CallTraits<P$x>::TReference oP$x)$  )
+int pyGetArguments( PyObject* iArgs, $( typename lass::util::CallTraits<P$x>::TReference oP$x)$  )
 {
 	int result = 0;
 	PyObject $(*p$x)$;
@@ -83,7 +83,7 @@ struct Caller
 	$[
 	template <$(typename P$x)$>
 	static PyObject* function( R (*iFunction)($(P$x)$), 
-                             $(typename util::CallTraits<P$x>::TParam iP$x)$ )
+                             $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
 		return pyBuildSimpleObject( (*iFunction)($(iP$x)$) );
 	}
@@ -158,7 +158,7 @@ struct Caller<void>
 	$[
 	template <class CppClass, $(typename P$x)$>
 	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)($(P$x)$), 
-                             $(typename util::CallTraits<P$x>::TParam iP$x)$ )
+                             $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
 		(iObject->*iMethod)($(iP$x)$);
 		Py_INCREF( Py_None );
@@ -178,7 +178,7 @@ struct Caller<void>
 	$[
 	template <class CppClass, $(typename P$x)$>
 	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)($(P$x)$) const, 
-                             $( typename util::CallTraits<P$x>::TParam iP$x)$ )
+                             $( typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
 		(iObject->*iMethod)($(iP$x)$);
 		Py_INCREF( Py_None );
@@ -204,7 +204,7 @@ $[
 template <typename R, $(typename P$x)$>
 PyObject* pyCallFunction( PyObject* iArgs, R (*iFunction)($(P$x)$) )
 {
-	$(typedef typename meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
+	$(typedef typename lass::meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
 	)$
 	if( pyGetArguments<$(T$x)$>( iArgs, $(p$x)$ ) )
 	{
@@ -311,7 +311,7 @@ $[
 	template <typename P>
 	static PyObject* set( PyObject* iArgs, CppClass* iObject, P (CppClass::*iMethod)() )
 	{
-		typedef meta::TypeTraits<P>::TStorage T;
+		typedef lass::meta::TypeTraits<P>::TStorage T;
 		T p;
 		
 		if( !pyGetSimpleObject( iArgs, p ) )
@@ -351,7 +351,7 @@ $[
 template <class CppClass, $(typename P$x)$>
 PyObject* pyConstruct( PyObject* iArgs )
 {
-	$(typedef meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
+	$(typedef lass::meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
 	)$
     try
     {
@@ -384,7 +384,7 @@ template <class CppClass, typename R, $(typename P$x)$, typename P$y, typename T
 
 
 template <class CppClass, typename R>
-struct PyExplicitResolver<CppClass, R, meta::NullType>
+struct PyExplicitResolver<CppClass, R, lass::meta::NullType>
 {
     struct Impl
     {
@@ -409,7 +409,7 @@ struct PyExplicitResolver<CppClass, R, meta::NullType>
 };
 $[
 template <class CppClass, typename R, $(typename P$x)$>
-struct PyExplicitResolver$x<CppClass, R, $(P$x)$, meta::NullType>
+struct PyExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 {
     struct Impl
     {
