@@ -145,7 +145,6 @@
 
 #include "meta_common.h"
 #include "null_type.h"
-#include "if.h"
 
 namespace lass
 {

@@ -97,7 +97,7 @@ DistributionUniform<T, RG, LO, RO>::operator()()
 	TValue result;
 	do
 	{
-		result = min_ + scale_ * (*generator());
+		result = min_ + scale_ * (*generator_)();
 	}
 	while (!impl::RangePolicy<LO, RO>::isInRange(result, min_, max_));
 	return result;

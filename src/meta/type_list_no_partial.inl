@@ -44,7 +44,7 @@
 
 #include "meta_common.h"
 #include "type_list.h"
-#include "if.h"
+#include "select.h"
 #include "is_same_type.h"
 #include "type_2_type.h"
 
@@ -277,7 +277,7 @@ private:
     template <>
     struct Impl<NullType>
     {
-        typedef typename If
+        typedef typename Select
         <
             impl::IsTypeList<T>::value,
             T,
@@ -305,7 +305,7 @@ private:
         typedef typename Remove<typename TList::TTail, T>::Type TCleanTail;
 
     public:
-        typedef typename If
+        typedef typename Select
         <
             IsSameType<typename TList::THead, T>::value,
             TCleanTail,
@@ -338,7 +338,7 @@ private:
     {
         typedef TypeList
         <
-            typename If
+            typename Select
             <
                 IsSameType<typename TList::THead, OldType>::value,
                 NewType,
