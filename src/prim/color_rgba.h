@@ -120,6 +120,10 @@ ColorRGBA::TValue distance( const ColorRGBA& iA, const ColorRGBA& iB ) throw();
 
 }
 
+#define LASS_PRIM_PYOBJECT_UTIL_COLOR_RGBA
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
+#	include "pyobject_util.h"
+#endif
 
 #endif
 

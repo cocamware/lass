@@ -36,7 +36,7 @@
 
 
 
-/** @class lass::meta::If
+/** @class lass::meta::Select
  *  @brief selects type based on boolean value
  *  @author Bram de Greve [BdG]
  *
@@ -52,8 +52,8 @@
  *	software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_META_IF_H
-#define LASS_GUARDIAN_OF_INCLUSION_META_IF_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_META_SELECT_H
+#define LASS_GUARDIAN_OF_INCLUSION_META_SELECT_H
 
 #include "meta_common.h"
 
@@ -70,9 +70,9 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If
+struct Select
 {
-	typedef typename TrueType::Type Type;
+	typedef typename TrueType Type;
 };
 
 template
@@ -80,9 +80,9 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If<false, TrueType, FalseType>
+struct Select<false, TrueType, FalseType>
 {
-	typedef typename FalseType::Type Type;
+	typedef typename FalseType Type;
 };
 
 #else
@@ -93,20 +93,20 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If
+struct Select
 {
 private:
 
 	template <bool flag>
 	struct Impl
 	{
-		typedef TrueType::Type Type;
+		typedef TrueType Type;
 	};
 
 	template <>
 	struct Impl<false>
 	{
-		typedef FalseType::Type Type;
+		typedef FalseType Type;
 	};
 
 public:

@@ -151,7 +151,7 @@ template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector4D<
 
 #include "vector_4d.inl"
 
-#define LASS_PRIM_PYTHON_EXTENSION_VECTOR_4D
+#define LASS_PRIM_PYOBJECT_UTIL_VECTOR_4D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #	include "pyobject_util.h"
 #endif

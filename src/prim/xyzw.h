@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& ioS, const XYZW& iXY);
 
 }
 
-#define LASS_PRIM_PYTHON_EXTENSION_XYZW
+#define LASS_PRIM_PYOBJECT_UTIL_XYZW
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
 #	include "pyobject_util.h"
 #endif

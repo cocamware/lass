@@ -27,10 +27,83 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
+
 namespace lass
 {
 	namespace python
 	{
+		namespace impl
+		{
+			inline bool checkTupleSize(PyObject* iValue, int iExpectedSize)
+			{
+				if (!PyTuple_Check(iValue))
+				{
+					PyErr_SetString(PyExc_TypeError, "not a tuple");
+					return false;
+				}
+				const int size = PyTuple_Size(iValue);
+				if (size != iExpectedSize)
+				{
+					std::ostringstream buffer;
+					buffer << "tuple is not of expected size " << iExpectedSize 
+						<< " (size is " << size << ")";
+					PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+					return false;
+				}
+				return true;
+			}
+
+			inline void addMessageHeader(const std::string& iHeader)
+			{
+				if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
+				{
+					return;
+				}
+				PyObject *type, *value, *traceback;
+				PyErr_Fetch(&type, &value, &traceback);
+				try
+				{
+					if (PyString_Check(value))
+					{
+						std::ostringstream buffer;
+						buffer << iHeader << ": " << PyString_AsString(value);
+						PyObject* temp = PyString_FromString(buffer.str().c_str());
+						std::swap(value, temp);
+						Py_DECREF(temp);
+					}
+				}
+				catch (...)
+				{
+				}
+				PyErr_Restore(type, value, traceback);
+			}
+
+			template <typename Sequence>
+			int pyGetListObject( PyObject* iValue, Sequence& oV )
+			{
+				if (!PyList_Check(iValue))
+				{
+					PyErr_SetString(PyExc_TypeError, "not a python list");
+					return 1;
+				}
+				Sequence result;
+				const int size = PyList_Size(iValue);
+				for (int i = 0; i < size; ++i)
+				{
+					typename Sequence::value_type temp;
+					if (pyGetSimpleObject( PyList_GetItem(iValue,i) , temp ) != 0)
+					{
+						impl::addMessageHeader(
+							std::string("list element ") + util::stringCast<std::string>(i));
+						return 1;
+					}
+					result.push_back( temp );
+				}
+				oV.swap(result);
+				return 0;
+			}
+		}
+
 		template<class C> 
 		PyObject* pyBuildSimpleObject( const std::complex<C>& iV )
 		{
@@ -78,108 +151,97 @@ namespace lass
 				PyDict_SetItem( newDict, pyBuildSimpleObject( it->first ), pyBuildSimpleObject( it->second ) );
 			return newDict;
 		}
+
 		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
 			C	r,i;
-			int error = !PyTuple_Check(iValue);
-			if (!error)
+			if (!impl::checkTupleSize(iValue, 2))
 			{
-				error = pyGetSimpleObject( PyTuple_GetItem(iValue,0), r ) ||
-						pyGetSimpleObject( PyTuple_GetItem(iValue,1), i );
+				impl::addMessageHeader("complex");
+				return 1;
 			}
-			else
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), r ) != 0)
 			{
-				PyErr_BadArgument();
-				return error;
+				impl::addMessageHeader("complex: real");
+				return 1;
+			}
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), c ) != 0)
+			{
+				impl::addMessageHeader("complex: imag");
+				return 1;
 			}
 			oV = std::complex<C>( r, i );
-			return error;
+			return 0;
 		}
+
 		template<class C1, class C2>
 		int pyGetSimpleObject( PyObject* iValue, std::pair<C1, C2>& oV )
 		{
 			std::pair<C1, C2> result;
-			int error = !PyTuple_Check(iValue);
-			if (!error)
+			if (!impl::checkTupleSize(iValue, 2))
 			{
-				error = pyGetSimpleObject( PyTuple_GetItem(iValue,0), result.first ) ||
-						pyGetSimpleObject( PyTuple_GetItem(iValue,1), result.second );
+				impl::addMessageHeader("pair");
+				return 1;
 			}
-			else
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), result.first ) != 0)
 			{
-				PyErr_BadArgument();
-				return error;
+				impl::addMessageHeader("pair: first");
+				return 1;
+			}
+			if (pyGetSimpleObject( PyTuple_GetItem(iValue,0), result.second ) != 0)
+			{
+				impl::addMessageHeader("pair: second");
+				return 1;
 			}
 			oV = result;
 			return error;
 		}
+
 		template<class C> 
 		int pyGetSimpleObject( PyObject* iValue, std::vector<C>& oV )
 		{
-			oV.clear();
-			int i;
-			int r;
-			int size = PyList_Size( iValue );
-			oV.reserve( size );
-			for (i = 0;i < size; ++i)
-			{
-				C temp;
-				r = pyGetSimpleObject( PyList_GetItem(iValue,i) , temp );
-				if (r!=0)
-				{
-					PyErr_BadArgument();
-					return r;
-				}
-				oV.push_back( temp );
-			}
-			return 0;
+			return impl::pyGetListObject( iValue, oV );
 		}
+
 		template<class C> 
 		int pyGetSimpleObject( PyObject* iValue, std::list<C>& oV )
 		{
-			oV.clear();
-			int i;
-			int r;
-			int size = PyList_Size( iValue );
-			for (i = 0;i < size; ++i)
-			{
-				C temp;
-				r = pyGetSimpleObject( PyList_GetItem(iValue,i) , temp );
-				if (r!=0)
-				{
-					PyErr_BadArgument();
-					return r;
-				}
-				oV.push_back( temp );
-			}
-			return 0;
+			return impl::pyGetListObject( iValue, oV );
 		}
-		template<class K,class V> 
-		int pyGetSimpleObject( PyObject* iValue, std::map<K,V>& oV )
+
+		template<class K,class D> 
+		int pyGetSimpleObject( PyObject* iValue, std::map<K,D>& oV )
 		{
-			oV.clear();
-			int i;
-			int r;
-			
-			PyObject *key, *value;
+			typedef std::map<K,D> TMap;
+			if (!PyDict_Check(iValue))
+			{
+				PyErr_SetString(PyExc_TypeError, "not a dict");
+				return 1;
+			}
+			TMap result;
+
+			PyObject *pyKey, *pyData;
 			int pos = 0;
 
-			while (PyDict_Next(iValue, &pos, &key, &value)) 
+			while (PyDict_Next(iValue, &pos, &pyKey, &pyData)) 
 			{
-				K tempKey;
-				V tempValue;
-				r = pyGetSimpleObject( key , tempKey );
-				if (r)
-					r = pyGetSimpleObject( value, tempValue );
-				if (r)
-					oV.insert( std::map<K,V>::value_type( tempKey, tempValue ) );
-				else
+				TMap::key_type cKey;
+				if (pyGetSimpleObject( pyKey , cKey ) != 0)
 				{
-					PyErr_BadArgument();
-					return r;
+					impl::addMessageHeader("dict: key");
+					return 1;
 				}
+				TMap::data_type cData;
+				if (pyGetSimpleObject( pyData , cData ) != 0)
+				{
+					impl::addMessageHeader("dict: data");
+					return 1;
+				}
+				result.insert(TMap::value_type(cKey, cData));
 			}
+
+			oV.swap(result);
 			return 0;
 		}
 	}

@@ -226,15 +226,18 @@ const int SimplePolygon3D<T>::size() const
 template <typename T>
 const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::signedArea() const
 {
-	if (size() < 3)
+	const int size = size();
+	if (size < 3)
 	{
 		return TNumTraits::zero;
 	}
 
+	const TVector& normal = normal();
+	const TPoint& reference = *this[0];
 	TValue result = TNumTraits::zero;
-	for (int i = 0; i < size(); ++i)
+	for (int i = 2; i < size; ++i)
 	{
-		result += cross(at(i).position, at(i + 1).position);
+		result += dot(cross(*this[i - 1] - reference, *this[i] - reference), normal);
 	}
 	return result / 2;
 }

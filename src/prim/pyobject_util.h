@@ -36,7 +36,7 @@ namespace python
 
 // --- vectors -------------------------------------------------------------------------------------
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_VECTOR_2D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_2D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_2D
 
@@ -52,21 +52,26 @@ PyObject* pyBuildSimpleObject(const prim::Vector2D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 {
-    prim::Vector2D<T> result;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 2;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y);
+		impl::addMessageHeader("prim::Vector2D");
+		return 1;
 	}
-	else
+    prim::Vector2D<T> result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::Vector2D: x");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	{
+		impl::addMessageHeader("prim::Vector2D: y");
+		return 1;
 	}
 
 	oV = result;
-	return error;
+	return 0;
 }
 
 #   endif
@@ -74,7 +79,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 
 
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_VECTOR_3D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_3D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_3D
 
@@ -91,22 +96,31 @@ PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 {
-    prim::Vector3D<T> result;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 3;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 3))
 	{
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) ||
-		        pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z);
+		impl::addMessageHeader("prim::Vector3D");
+		return 1;
 	}
-	else
+    prim::Vector3D<T> result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::Vector3D: x");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	{
+		impl::addMessageHeader("prim::Vector3D: y");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	{
+		impl::addMessageHeader("prim::Vector3D: z");
+		return 1;
 	}
 
 	oV = result;
-	return error;
+	return 0;
 }
 
 #   endif
@@ -114,7 +128,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 
 
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_VECTOR_4D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_VECTOR_4D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_VECTOR_4D
 
@@ -132,23 +146,36 @@ PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 {
-    prim::Vector4D<T> result;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 4;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 4))
 	{
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.y) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.z) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.w);
+		impl::addMessageHeader("prim::Vector4D");
+		return 1;
 	}
-	else
+    prim::Vector4D<T> result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
 	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::Vector4D: x");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	{
+		impl::addMessageHeader("prim::Vector4D: y");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	{
+		impl::addMessageHeader("prim::Vector4D: z");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	{
+		impl::addMessageHeader("prim::Vector4D: w");
+		return 1;
 	}
 
 	oV = result;
-	return error;
+	return 0;
 }
 
 #   endif
@@ -158,7 +185,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 
 // --- points --------------------------------------------------------------------------------------
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_POINT_2D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_POINT_2D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_2D
 
@@ -171,7 +198,11 @@ PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
-    return pyGetSimpleObject(iValue, oV.position);
+    if (pyGetSimpleObject(iValue, oV.position) != 0)
+	{
+		impl::addMessageHeader("prim::Point2D");
+		return 1;
+	}
 }
 
 #   endif
@@ -179,7 +210,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 
 
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_POINT_3D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_POINT_3D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_POINT_3D
 
@@ -192,7 +223,11 @@ PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV)
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 {
-    return pyGetSimpleObject(iValue, oV.position);
+    if (pyGetSimpleObject(iValue, oV.position) != 0)
+	{
+		impl::addMessageHeader("prim::Point3D");
+		return 1;
+	}
 }
 
 #   endif
@@ -202,7 +237,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 
 // --- boxes ---------------------------------------------------------------------------------------
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_AABB_2D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_AABB_2D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_2D
 
@@ -219,29 +254,44 @@ template <typename T, class MMP>
 int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 {
 	typedef prim::Aabb2D<T, MMP> TAabb;
-	TAabb::TPoint min;
-	TAabb::TPoint max;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 2;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max);
-	}
-	else
-	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::Aabb2D");
+		return 1;
 	}
 
-	oV = TAabb(min, max);
-	return error;
+	TAabb::TPoint min;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
+	{
+		impl::addMessageHeader("prim::Aabb2D: min");
+		return 1;
+	}
+
+	TAabb::TPoint max;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
+	{
+		impl::addMessageHeader("prim::Aabb2D: max");
+		return 1;
+	}
+
+	try
+	{
+		oV = TAabb(min, max);
+	}
+	catch (util::Exception& error)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::Aabb2D: " << error.message();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return 1;
+	}
+	return 0;
 }
 
 #   endif
 #endif
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_AABB_3D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_AABB_3D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_AABB_3D
 
@@ -258,23 +308,38 @@ template <typename T, class MMP>
 int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 {
 	typedef prim::Aabb3D<T, MMP> TAabb;
-	TAabb::TPoint min;
-	TAabb::TPoint max;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 2;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max);
-	}
-	else
-	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::Aabb3D");
+		return 1;
 	}
 
-	oV = TAabb(min, max);
-	return error;
+	TAabb::TPoint min;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
+	{
+		impl::addMessageHeader("prim::Aabb3D: min");
+		return 1;
+	}
+
+	TAabb::TPoint max;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
+	{
+		impl::addMessageHeader("prim::Aabb3D: max");
+		return 1;
+	}
+
+	try
+	{
+		oV = TAabb(min, max);
+	}
+	catch (util::Exception& error)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::Aabb3D: " << error.message();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return 1;
+	}
+	return 0;
 }
 
 #   endif
@@ -284,7 +349,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 
 // --- line segments -------------------------------------------------------------------------------
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_LINE_SEGMENT_2D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_LINE_SEGMENT_2D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_2D
 
@@ -301,19 +366,24 @@ template <typename T, class PP>
 int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 {
 	typedef prim::LineSegment2D<T, PP> TLineSegment;
-	TLineSegment::TPoint tail;
-	TLineSegment::TPoint head;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 2;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head);
+		impl::addMessageHeader("prim::LineSegment2D");
+		return 1;
 	}
-	else
+
+	TLineSegment::TPoint tail;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
 	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::LineSegment2D: tail");
+		return 1;
+	}
+
+	TLineSegment::TPoint head;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), head) != 0)
+	{
+		impl::addMessageHeader("prim::LineSegment2D: head");
+		return 1;
 	}
 
 	oV = TLineSegment(tail, head);
@@ -323,7 +393,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 #   endif
 #endif
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_LINE_SEGMENT_3D
+#ifdef LASS_PRIM_PYOBJECT_UTIL_LINE_SEGMENT_3D
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_LINE_SEGMENT_3D
 
@@ -340,19 +410,24 @@ template <typename T, class PP>
 int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 {
 	typedef prim::LineSegment3D<T, PP> TLineSegment;
-	TLineSegment::TPoint tail;
-	TLineSegment::TPoint head;
-	int error = !PyTuple_Check(iValue) || PyTuple_GET_SIZE(iValue) != 3;
-	if (!error)
+	if (!impl::checkTupleSize(iValue, 2))
 	{
-		
-		error = pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) ||
-				pyGetSimpleObject(PyTuple_GetItem(iValue, 1), head);
+		impl::addMessageHeader("prim::LineSegment3D");
+		return 1;
 	}
-	else
+
+	TLineSegment::TPoint tail;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), tail) != 0)
 	{
-		PyErr_BadArgument();
-		return error;
+		impl::addMessageHeader("prim::LineSegment3D: tail");
+		return 1;
+	}
+
+	TLineSegment::TPoint head;
+    if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), head) != 0)
+	{
+		impl::addMessageHeader("prim::LineSegment3D: head");
+		return 1;
 	}
 
 	oV = TLineSegment(tail, head);
@@ -364,7 +439,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 
 // --- axis iterators ------------------------------------------------------------------------------
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_XY
+#ifdef LASS_PRIM_PYOBJECT_UTIL_XY
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XY
 
@@ -378,18 +453,29 @@ inline
 int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 {
 	std::string axis;
-	const int error = pyGetSimpleObject(iValue, axis);
-	if (!error)
+	if (pyGetSimpleObject(iValue, axis) != 0)
+	{
+		impl::addMessageHeader("prim::XY");
+	}
+
+	try
 	{
 		oV = prim::XY(axis);
 	}
-	return error;
+	catch (util::Exception& error)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::XY: " << error.message();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str();
+		return 1;
+	}
+	return 0;
 }
 
 #   endif
 #endif
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_XYZ
+#ifdef LASS_PRIM_PYOBJECT_UTIL_XYZ
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZ
 
@@ -403,18 +489,29 @@ inline
 int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
 {
 	std::string axis;
-	const int error = pyGetSimpleObject(iValue, axis);
-	if (!error)
+	if (pyGetSimpleObject(iValue, axis) != 0)
+	{
+		impl::addMessageHeader("prim::XYZ");
+	}
+
+	try
 	{
 		oV = prim::XYZ(axis);
 	}
-	return error;
+	catch (util::Exception& error)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::XYZ: " << error.message();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return 1;
+	}
+	return 0;
 }
 
 #   endif
 #endif
 
-#ifdef LASS_PRIM_PYTHON_EXTENSION_XYZW
+#ifdef LASS_PRIM_PYOBJECT_UTIL_XYZW
 #   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
 #   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_XYZW
 
@@ -428,15 +525,90 @@ inline
 int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 {
 	std::string axis;
-	const int error = pyGetSimpleObject(iValue, axis);
-	if (!error)
+	if (pyGetSimpleObject(iValue, axis) != 0)
+	{
+		impl::addMessageHeader("prim::XYZW");
+	}
+
+	try
 	{
 		oV = prim::XYZW(axis);
 	}
-	return error;
+	catch (util::Exception& error)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::XYZW: " << error.message();
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return 1;
+	}
+	return 0;
 }
 
 #   endif
+#endif
+
+
+
+// --- colors --------------------------------------------------------------------------------------
+
+#ifdef LASS_PRIM_PYOBJECT_UTIL_COLOR_RGBA
+#   ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
+#   define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_COLOR_RGBA
+
+inline
+PyObject* pyBuildSimpleObject(const prim::ColorRGBA& iV)
+{
+	return pyBuildSimpleObject(iV.vector);
+}
+
+inline
+int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
+{
+	if (!PyTuple_Check(iValue))
+	{
+		PyErr_SetString(PyExc_TypeError, "prim::ColorRGBA: is not a tuple");
+		return 1;
+	}
+	const int size = PyTuple_Size(iValue);
+	if (size != 3 && size != 4)
+	{
+		std::ostringstream buffer;
+		buffer << "prim::ColorRGBA: tuple is not of expected size 3 or 4 (size is "
+			<< size << ")";
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return false;
+	}
+	ColorRGBA result;
+
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.x) != 0)
+	{
+		impl::addMessageHeader("prim::ColorRGBA: r");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.y) != 0)
+	{
+		impl::addMessageHeader("prim::ColorRGBA: g");
+		return 1;
+	}
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+	{
+		impl::addMessageHeader("prim::ColorRGBA: b");
+		return 1;
+	}
+	if (size == 4)
+	{
+		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.z) != 0)
+		{
+			impl::addMessageHeader("prim::ColorRGBA: a");
+			return 1;
+		}
+	}
+
+	oV = result;
+	return 0;
+}
+
+#	endif
 #endif
 
 }

@@ -33,7 +33,7 @@
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 #	include "../io/xml_o_file.h"
-#	include "../meta/if.h"
+#	include "../meta/select.h"
 #	include "../prim/aabb_2d.h"
 #	include "../prim/aabb_3d.h"
 #endif
@@ -178,7 +178,7 @@ inline void KdTree<O, OT>::assignNode(unsigned iNode, unsigned iIndex, unsigned 
 template <typename O, template <class> class OT>
 void KdTree<O, OT>::diagnostics()
 {
-	typedef typename meta::If<dimension == 2, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;
+	typedef typename meta::Select<dimension == 2, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;
 	class Visitor
 	{
 	public:

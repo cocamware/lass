@@ -31,7 +31,7 @@
 
 #include "test_common.h"
 #include "../spat/kd_tree.h"
-#include "../meta/if.h"
+#include "../meta/select.h"
 #include "../num/random.h"
 #include "../prim/aabb_2d.h"
 #include "../prim/aabb_3d.h"
@@ -47,7 +47,7 @@ void testSpatKdTree()
     typedef spat::KdTree<TPoint> TKdTree;
     typedef typename TPoint::TValue TValue;
 
-    typedef typename meta::If
+    typedef typename meta::Select
     <
         TPoint::dimension == 2, 
         prim::Aabb2D<TValue>, 

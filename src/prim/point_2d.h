@@ -141,7 +141,7 @@ template<typename T> bool inCircle( const Point2D<T>& iA, const Point2D<T>& iB, 
 
 #include "point_2d.inl"
 
-#define LASS_PRIM_PYTHON_EXTENSION_POINT_2D
+#define LASS_PRIM_PYOBJECT_UTIL_POINT_2D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #	include "pyobject_util.h"
 #endif

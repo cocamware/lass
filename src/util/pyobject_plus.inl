@@ -205,18 +205,21 @@
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV )
 		{
 			if (!PyString_Check(iValue))
+			{
+				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_STRING);
 				return 1;
+			}
 			oV = std::string( PyString_AS_STRING( iValue ) );
 			return 0;
 		}
 
 		/** @ingroup Python
-		 */
+		 *//* IS IT USED?  AND SHOULD IT BE USED THIS WAY?
 		inline PyObject* pyBuildSimpleObject( PyObject& iV )
 		{
 			PyObject*	newOne = new PyObject( iV );
 			return pyBuildSimpleObject( newOne );
-		}
+		}*/
 
 		/** @ingroup Python
 		 */

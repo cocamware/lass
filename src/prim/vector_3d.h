@@ -155,7 +155,7 @@ template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector3D<
 
 #include "vector_3d.inl"
 
-#define LASS_PRIM_PYTHON_EXTENSION_VECTOR_3D
+#define LASS_PRIM_PYOBJECT_UTIL_VECTOR_3D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #	include "pyobject_util.h"
 #endif

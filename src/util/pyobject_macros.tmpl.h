@@ -26,11 +26,12 @@
 #define LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR "Can not create object"
 
 
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL  "Bad argument - not bool"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_INT  "Bad argument - not int"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_LONG  "Bad argument - not long"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_FLOAT  "Bad argument - not float"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE  "Bad argument - not double"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL  "not bool"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_INT  "not int"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_LONG  "not long"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_FLOAT  "not float"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE  "not double"
+#define LASS_PYTHON_ERR_MSG_ARG_NOT_STRING  "not string"
 
 
 /* This macro is only used in the PyObjectPlus class and is for internal LASS
