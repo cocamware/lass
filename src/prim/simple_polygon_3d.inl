@@ -45,7 +45,9 @@ template <typename T>
 SimplePolygon3D<T>::SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC) :
 plane_(iA,iB,iC)
 {
-
+	add(iA);
+	add(iB);
+	add(iC);
 }
 
 

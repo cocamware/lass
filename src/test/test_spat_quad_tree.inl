@@ -95,7 +95,7 @@ void doTestQuadTree()
 	typedef TPoint::TVector TVector;
 	typedef lass::spat::QuadTree< TSimplePolygon2D, QuadTreeTraits >	TQuadTree;
 
-	TQuadTree	tree( TPoint(0,0), TVector(50,50));
+	TQuadTree	tree( TPoint(50,50), TVector(50,50));
 	BOOST_CHECK_EQUAL( tree.objectCount(), 0 );
 
 	const int objectsToAdd = 100;
@@ -131,7 +131,7 @@ void doTestOctTree()
 	typedef TPoint::TVector TVector;
 	typedef lass::spat::QuadTree< TSimplePolygon3D, QuadTreeTraits > TOctTree;
 
-	TOctTree	tree( TPoint(0,0,0), TVector(50,50,50));
+	TOctTree	tree( TPoint(50,50,50), TVector(50,50,50));
 	BOOST_CHECK_EQUAL( tree.objectCount(), 0 );
 
 	const int objectsToAdd = 100;

@@ -833,13 +833,13 @@ namespace spat
 				else
 				{
 					if (e->lPrev()==startBase)
-						return e;
+						return base->sym();
 					else
 						e = e->oNext()->lPrev();
 				}
 			}
 		}
-		return e;
+		return base->sym();
 	}
 
 
@@ -848,22 +848,25 @@ namespace spat
 	{
 		TEdge *ea, *eb;
 		TPoint2D aa, bb;
-		if (ea = insertSite(iSegment.tail()))
+		if (ea = insertSite(iSegment.tail()),makeDelaunay)
 			aa = org(ea);
-		if (eb = insertSite(iSegment.head()))
+		if (eb = insertSite(iSegment.head()),makeDelaunay)
 			bb = org(eb);
 	
 		if (ea == NULL || eb == NULL) 
 			throw std::runtime_error("insertEdge: could not insert endpoints of edge");
 
-		ea=locate(aa);
-		if (ea==NULL) 
-			throw std::runtime_error("insertEdge: could not locate an endpoint");
+		if (org(ea)!=aa)
+		{
+			ea=locate(aa);
+			if (ea==NULL) 
+				throw std::runtime_error("insertEdge: could not locate an endpoint");
 
-		if (!(aa == org(ea)))
-			ea = ea->sym();
-		if (!(aa == org(ea)))
-			throw std::runtime_error("insertEdge: point a is not an endpoint of ea");
+			if (!(aa == org(ea)))
+				ea = ea->sym();
+			if (!(aa == org(ea)))
+				throw std::runtime_error("insertEdge: point a is not an endpoint of ea");
+		}
 
 		if (aa == bb) 
 			throw std::runtime_error("insertEdge: both ends map to same vertex");
@@ -1274,18 +1277,15 @@ namespace spat
 				baseEdge = baseEdge->rot();
 
 			TEdge* e = baseEdge;
-			if ( !internalMarking( e ) )
+			for (int i=0;i<2;++i)
 			{
-				if (!iCallback( e )) 
-					return;
-				setInternalMarkingAroundVertex( e, true );
-			}
-			e = e->sym();
-			if ( !internalMarking( e ) )
-			{
-				if (!iCallback( e )) 
-					return;
-				setInternalMarkingAroundVertex( e, true );
+				if ( !internalMarking( e ) )
+				{
+					if (!iCallback( e )) 
+						return;
+					setInternalMarkingAroundVertex( e, true );
+				}
+				e = e->sym();
 			}
 		}
 	}
@@ -1307,18 +1307,15 @@ namespace spat
 				baseEdge = baseEdge->rot();
 
 			TEdge* e = baseEdge;
-			if ( !internalMarking( e ) )
+			for (int i=0;i<2;++i)
 			{
-				if (!iCallback( e )) 
-					return;
-				setInternalMarkingInFace( e, true );
-			}
-			e = e->sym();
-			if ( !internalMarking( e ) )
-			{
-				if (!iCallback( e )) 
-					return;
-				setInternalMarkingInFace( e, true );
+				if ( !internalMarking( e ) )
+				{
+					if (!iCallback( e )) 
+						return;
+					setInternalMarkingInFace( e, true );
+				}
+                e = e->sym();
 			}
 		}
 	}

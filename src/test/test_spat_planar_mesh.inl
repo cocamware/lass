@@ -147,7 +147,7 @@ void doTestPlanarMesh()
 
 	std::vector< TPoint2D > randomPoints;
 	std::vector< TPoint2DLong > randomPointsLong;
-	for (int i=0;i<50;++i)
+	for (int i=0;i<20;++i)
 	{
 		double rx = (double)rand()/(double)RAND_MAX;		
 		double ry = (double)rand()/(double)RAND_MAX;
@@ -158,7 +158,7 @@ void doTestPlanarMesh()
 	lass::io::MatlabOStream testIo;
 	lass::io::MatlabOStream testIo2;
 
-	for (int i=0;i<50;++i)
+	for (int i=0;i<randomPoints.size();++i)
 		testMesh.insertSite( randomPoints[i], false );
 
 	testIo.open( "testPlanarMeshIO_nonDelaunay.m" );
@@ -167,7 +167,7 @@ void doTestPlanarMesh()
 
 	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 
-	for (int i=0;i<50;++i)
+	for (int i=0;i<randomPoints.size();++i)
 		testMesh2.insertSite( randomPoints[i], true );
 
 	testIo2.open( "testPlanarMeshIO_Delaunay.m" );
@@ -184,8 +184,8 @@ void doTestPlanarMesh()
 	testIo2.close();
 
 	randomPointsLong.clear();
-    for (double x=10;x<91;x+=5)
-		for (double y=10;y<91;y+=5)
+    for (double x=10;x<91;x+=10)
+		for (double y=10;y<91;y+=10)
 		{
 			randomPointsLong.push_back( TPoint2DLong(x,y ) );
 		}
@@ -229,10 +229,24 @@ void doTestPlanarMesh()
 	/* check euler relation	*/
 	BOOST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
 
-	/* test insertion of constrained edges */
-	testMesh.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(70.0,59.0) ) );
-	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+	TPlanarMesh		testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 
+	for (int i=0;i<randomPoints.size();++i)
+		testMesh4.insertSite( randomPoints[i], true);
+	/* test insertion of constrained edges */
+	testIo.open( "testPlanarMeshIO_constrained_b4.m" );
+	testIo << testMesh4;
+	testIo.close();
+
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,10.0), TPoint2D(90.0,10.0) ) );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(90.0,10.0), TPoint2D(90.0,90.0) ) );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(90.0,90.0), TPoint2D(10.0,90.0) ) );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,90.0), TPoint2D(10.0,10.0) ) );
+	testMesh4.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
+	testIo.open( "testPlanarMeshIO_constrained.m" );
+	testIo << testMesh4;
+	testIo.close();
 }
 
 }

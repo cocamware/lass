@@ -421,7 +421,7 @@ typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, O
 			++listSize;
 			return this;
 		}
-		return NULL;
+		throw util::Exception("Object not placeable in node","here");
 	}
 
 }

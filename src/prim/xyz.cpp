@@ -148,19 +148,23 @@ inline void XYZ::reset(char iAxis)
 {
 	switch (iAxis)
 	{
+	case 0:
 	case 'x':
 	case 'X':
 		value_ = 0;
 		break;
 
+	case 1:
 	case 'y':
 	case 'Y':
 		value_ = 1;
 		break;
 
+	case 2:
     case 'z':
     case 'Z':
         value_ = 2;
+		break;
 
 	default:
 		LASS_THROW("Invalid parameter iAxis '" << iAxis 

@@ -149,11 +149,13 @@ inline void XY::reset(char iAxis)
 {
 	switch (iAxis)
 	{
+	case 0:
 	case 'x':
 	case 'X':
 		value_ = 0;
 		break;
 
+	case 1:
 	case 'y':
 	case 'Y':
 		value_ = 1;
