@@ -615,24 +615,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	prim::ColorRGBA result;
 
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.r()) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.g()) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
-	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.b()) != 0)
+	if (pyGetSimpleObject(PyTuple_GetItem(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.a()) != 0)
+		if (pyGetSimpleObject(PyTuple_GetItem(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("ColorRGBA: a");
 			return 1;

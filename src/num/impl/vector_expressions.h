@@ -50,8 +50,8 @@ public:
 
     VStorage(): storage_() {}
 	explicit VStorage(TSize iSize): storage_(iSize, T()) {}
-	TReference operator[](TSize iIndex) { LASS_ASSERT(iIndex < size_); return storage_[iIndex]; }
-	TConstReference operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size_); return storage_[iIndex]; }
+	TReference operator[](TSize iIndex) { LASS_ASSERT(iIndex < size()); return storage_[iIndex]; }
+	TConstReference operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size()); return storage_[iIndex]; }
 	TSize size() const { return storage_.size(); }
 
     // special VStorage members:
