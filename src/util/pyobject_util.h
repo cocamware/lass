@@ -72,7 +72,7 @@ namespace lass
 						Py_DECREF(temp);
 					}
 				}
-				catch (...)
+                catch (const std::exception& iError)
 				{
 				}
 				PyErr_Restore(type, value, traceback);

@@ -141,11 +141,13 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& iPointee) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
+#pragma LASS_FIXME("can we use more general Py_INCREF so TStorage can be PyObject*?");
 				iPointee->PyPlus_INCREF();
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				bool r = iPointee->ob_refcnt <=1;
+#pragma LASS_FIXME("can we use more general Py_DECREF so TStorage can be PyObject*?");
 				iPointee->PyPlus_DECREF();
 				return r;
 			}
