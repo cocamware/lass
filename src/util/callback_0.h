@@ -28,7 +28,7 @@
 /** @defgroup Callback Callback
  *  @brief library to wrap generalized callback functions in first class objects.
  *  @date 2002-2004
- *  @author Bram de Greve [BdG] (contact: bdegreve@mail.be)
+ *  @author Bram de Greve [Bramz] (contact: bramz@users.sourceforge.net)
  *
  *  The use of this library is to treat function calls as first class objects, so you can pass them
  *  around to be called at a later time.
@@ -156,7 +156,7 @@
  *  @ingroup Callback
  *  @brief callback with 0 parameter(s) and without returnvalue.
  *  @date 2002
- *  @author Bram de Greve [BdG] (contact: bdegreve@mail.be)
+ *  @author Bram de Greve [Bramz] (contact: bramz@users.sourceforge.net)
  *
  *  It's a single object that can hold a reference to a free function or an 
  *  object/(const) method pair.  Once the callback is constructed, it works
@@ -194,76 +194,55 @@ class Callback0
 {
 public:
 
+	typedef SharedPtr<impl::Dispatcher0> TDispatcher;
+
     // STRUCTORS
     
     /** Default constructor, construct empty callback.
      */
-    Callback0(): 
-        dispatcher_(0) 
+    Callback0()
     {
     }
 
-    /** Construct function callback
-     */
-	explicit Callback0(void (*iFunction)()):
-		dispatcher_(0)
+	explicit Callback0(void (*iFunction)())
     {
         if (iFunction)
         {
-			dispatcher_ = new impl::Dispatcher0Function(iFunction);
+			TDispatcher temp(new impl::Dispatcher0Function(iFunction));
+			dispatcher_ = temp;
         }
     }
     
-    /** Construct object/method callback.
-     */
 	template <class Object>
-    Callback0(Object* iObject, void (Object::*iMethod)()):
-		dispatcher_(0)
+    Callback0(Object* iObject, void (Object::*iMethod)())
     {
         if (iObject && iMethod) 
         {
-			dispatcher_ = new impl::Dispatcher0Method<Object>(iObject, iMethod);
+			TDispatcher temp(new impl::Dispatcher0Method<Object>(iObject, iMethod));
+			dispatcher_ = temp;
 		}
     }
 
-    /** Construct object/method callback with const method.
-     */
 	template <class Object>
-    Callback0(Object* iObject, void (Object::*iMethod)() const):
-		dispatcher_(0)
+    Callback0(Object* iObject, void (Object::*iMethod)() const)
     {
         if (iObject && iMethod) 
         {
-			dispatcher_ = new impl::Dispatcher0ConstMethod<Object>(iObject, iMethod);
+			TDispatcher temp(new impl::Dispatcher0ConstMethod<Object>(iObject, iMethod));
+			dispatcher_ = temp;
 		}
     }
-
-    /** Copy Constructor.
+    
+    /** @internal
      */
-    Callback0(const Callback0& iOther):
-        dispatcher_(iOther.isEmpty() ? 0 : iOther.dispatcher_->clone())
+    explicit Callback0(const TDispatcher& iDispatcher):
+        dispatcher_(iDispatcher)
     {
     }
 
-    /** Destructor
-     */
-    ~Callback0()
-    {
-        delete dispatcher_;
-		dispatcher_ = 0;
-    }
-    
-    
+
+
     // OPERATORS
-
-    /** Assignment operator.
-     */
-    const Callback0& operator=(const Callback0& iOther)
-    {
-        Callback0 temp(iOther);
-		swap(temp);
-        return *this;
-    }           
     
     /** THE operator.  Executes the callback.
      */
@@ -282,68 +261,34 @@ public:
      */
     void reset() 
     {
-        Callback0 temp;
-		swap(temp);
-    }
-
-    /** Reset to function callback
-     */
-    void reset(void (*iFunction)())
-    {
-        Callback0 temp(iFunction);
-        swap(temp);
-    }
-    
-    /** Reset to object/method callback.
-     */
-	template <class Object>
-    void reset(Object* iObject, void (Object::*iMethod)())
-    {
-        Callback0 temp(iObject, iMethod);
-        swap(temp);
-    }
-
-    /** Reset to object/method callback with const method.
-     */
- 	template <class Object>
-    void reset(Object* iObject, void (Object::*iMethod)() const)
-    {
-        Callback0 temp(iObject, iMethod);
-        swap(temp);
-    }
-
-    /** Reset to other callback.
-     */
-    void reset(const Callback0& iOther)
-    {
-        Callback0 temp(iOther);
-        swap(temp);
+        dispatcher_.reset();
     }
 
     /** Returns true if no callback dispatcher is assigned to this object.
      */
     bool isEmpty() const
     {
-        return dispatcher_ == 0;
+        return dispatcher_.isEmpty();
     }
 
     /** Swaps the dispatcher of this callback with the dispatcher of another.
      */
     void swap(Callback0& iOther)
     {
-        std::swap(dispatcher_, iOther.dispatcher_);
+        dispatcher_.swap(iOther.dispatcher_);
     }
 
-	/** return true if two callbacks are equivalent
+	/** return true if two callbacks call the same function/method,
+     *  NEEDS RTTI!
 	 */
 	bool operator==(const Callback0& iOther) const
 	{
-		return dispatcher_->isEquivalent(iOther.dispatcher_);
+		return dispatcher_->isEquivalent(iOther.dispatcher_.get());
 	}
 
 private:
 
-    impl::Dispatcher0* dispatcher_;
+    TDispatcher dispatcher_;
 };
 
 
@@ -362,6 +307,11 @@ inline bool operator!=(const Callback0& iA, const Callback0& iB)
 
 }
 
-#endif // Guardian of Inclusion
+#define LASS_UTIL_CALLBACK_PYTHON_0
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
+#	include "callback_python.h"
+#endif
+
+#endif
 
 // EOF

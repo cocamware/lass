@@ -38,23 +38,29 @@ namespace impl
 {
 
 /** abstract base class of all dispatchers for lass::util::Callback0.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 class Dispatcher0: public SmallObject<>
 {
 public:
 
+    Dispatcher0() {}
     virtual void operator()() const = 0;
-    virtual Dispatcher0* clone() const = 0;
 	virtual bool isEquivalent(const Dispatcher0* iOther) const = 0;
+
+private:
+    Dispatcher0(const Dispatcher0& iOther);
+    Dispatcher0& operator=(const Dispatcher0& iOther);
 };
 
 
 
 /** Dispatcher for lass::util::Callback0 to a free function:
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 class Dispatcher0Function: public Dispatcher0
 {
@@ -75,11 +81,6 @@ public:
         (*function_)(); 
     }
 
-    Dispatcher0* clone() const
-    {
-        return new Dispatcher0Function(*this);
-    }
-
 	bool isEquivalent(const Dispatcher0* iOther) const
 	{
 		const Dispatcher0Function* other = dynamic_cast<const Dispatcher0Function*>(iOther);
@@ -90,8 +91,9 @@ public:
 
 
 /** Dispatcher for lass::util::Callback0 to an object/method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template <class Object>
 class Dispatcher0Method: public Dispatcher0
@@ -114,11 +116,6 @@ public:
     {
         (object_->*method_)(); 
     }
-    
-    Dispatcher0* clone() const
-    {
-        return new Dispatcher0Method<Object>(*this);
-    }
 
 	bool isEquivalent(const Dispatcher0* iOther) const
 	{
@@ -130,8 +127,9 @@ public:
 
 
 /** Dispatcher for lass::util::Callback0 to an object/const method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template <class Object>
 class Dispatcher0ConstMethod: public Dispatcher0
@@ -153,11 +151,6 @@ public:
     void operator()() const
     {
         (object_->*method_)(); 
-    }
-    
-    Dispatcher0* clone() const
-    {
-        return new Dispatcher0ConstMethod<Object>(*this);
     }
 
 	bool isEquivalent(const Dispatcher0* iOther) const

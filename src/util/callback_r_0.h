@@ -29,7 +29,7 @@
  *  @ingroup Callback
  *  @brief callback with 0 parameters but with returnvalue.
  *  @date 2002
- *  @author Bram de Greve [BdG] (contact: bdegreve@mail.be)
+ *  @author Bram de Greve [Bramz] (contact: bramz@users.sourceforge.net)
  *
  *  It's a single object that can hold a reference to a free function or an 
  *  object/(const) method pair.  Once the callback is constructed, it works
@@ -68,77 +68,62 @@ class CallbackR0
 {
 public:
 
+	typedef SharedPtr< impl::DispatcherR0<R> > TDispatcher;
+
     // STRUCTORS
     
     /** Default constructor, construct empty callback.
      */
-    CallbackR0(): 
-        dispatcher_(0) 
+    CallbackR0()
     {
     }
 
     /** Construct function callback
      */
     template<typename S>
-	explicit CallbackR0(S (*iFunction)()):
-		dispatcher_(0)
+	explicit CallbackR0(S (*iFunction)())
     {
         if (iFunction)
         {
-			dispatcher_ = new impl::DispatcherR0Function<R, S>(iFunction);
+			TDispatcher temp(new impl::DispatcherR0Function<R, S>(iFunction));
+			dispatcher_ = temp;
         }
     }
     
     /** Construct object/method callback.
      */
     template<class Object, typename S>
-    CallbackR0(Object* iObject, S (Object::*iMethod)()):
-		dispatcher_(0)
+    CallbackR0(Object* iObject, S (Object::*iMethod)())
     {
         if (iObject && iMethod) 
         {
-			dispatcher_ = new impl::DispatcherR0Method<Object, R, S>(iObject, iMethod);
+			TDispatcher temp(new impl::DispatcherR0Method<Object, R, S>(iObject, iMethod));
+			dispatcher_ = temp;
 		}
     }
 
     /** Construct object/method callback with const method.
      */
     template<class Object, typename S>
-    CallbackR0(Object* iObject, S (Object::*iMethod)() const):
-		dispatcher_(0)
+    CallbackR0(Object* iObject, S (Object::*iMethod)() const)
     {
         if (iObject && iMethod) 
         {
-			dispatcher_ = new impl::DispatcherR0ConstMethod<Object, R, S>(iObject, iMethod);
+			TDispatcher temp(new impl::DispatcherR0ConstMethod<Object, R, S>(iObject, iMethod));
+			dispatcher_ = temp;
 		}
     }
 
-    /** Copy Constructor.
-     */
-    CallbackR0(const CallbackR0<R>& iOther):
-        dispatcher_(iOther.isEmpty() ? 0 : iOther.dispatcher_->clone())
-    {
-    }
 
-    /** Destructor
+    /** @internal
      */
-    ~CallbackR0()
+    CallbackR0(const TDispatcher& iDispatcher):
+        dispatcher_(iDispatcher)
     {
-        delete dispatcher_;
-		dispatcher_ = 0;
     }
     
     
     // OPERATORS
-
-    /** Assignment operator.
-     */
-    const CallbackR0& operator=(const CallbackR0<R>& iOther)
-    {
-        CallbackR0<R> temp(iOther);
-		swap(temp);
-        return *this;
-    }           
     
     /** THE operator.  Executes the callback.
      */
@@ -158,62 +143,26 @@ public:
      */
     void reset() 
     {
-        CallbackR0<R> temp;
-		swap(temp);
-    }
-
-    /** Reset to function callback
-     */
-    template<typename S>
-    void reset(S (*iFunction)())
-    {
-        CallbackR0<R> temp(iFunction);
-        swap(temp);
-    }
-    
-    /** Reset to object/method callback.
-     */
-    template<class Object, typename S>
-    void reset(Object* iObject, S (Object::*iMethod)())
-    {
-        CallbackR0<R> temp(iObject, iMethod);
-        swap(temp);
-    }
-
-    /** Reset to object/method callback with const method.
-     */
-    template<class Object, typename S>
-    void reset(Object* iObject, S (Object::*iMethod)() const)
-    {
-        CallbackR0<R> temp(iObject, iMethod);
-        swap(temp);
-    }
-
-    /** Reset to other callback.
-     */
-    void reset(const CallbackR0<R>& iOther)
-    {
-        CallbackR0<R> temp(iOther);
-        swap(temp);
+        dispatcher_.reset();
     }
 
     /** Returns true if no callback dispatcher is assigned to this object.
      */
     bool isEmpty() const
     {
-        return dispatcher_ == 0;
+        return dispatcher_.isEmpty();
     }
 
     /** Swaps the dispatcher of this callback with the dispatcher of another.
      */
     void swap(CallbackR0<R>& iOther)
     {
-        std::swap(dispatcher_, iOther.dispatcher_);
+        dispatcher_.swap(iOther.dispatcher_);
     }
 
 private:
 
-    impl::DispatcherR0<R>* dispatcher_;
+    TDispatcher dispatcher_;
 };
 
 
@@ -221,6 +170,11 @@ private:
 }
 
 }
+
+#define LASS_UTIL_CALLBACK_PYTHON_R0
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
+#	include "callback_python.h"
+#endif
 
 #endif // Guardian of Inclusion
 

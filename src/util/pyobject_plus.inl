@@ -55,6 +55,9 @@
 
 		namespace impl
 		{
+            /** @internal
+             *  predicate to check of a python method has the correct name.
+             */
 			class PyMethodEqual
 			{
 			public:
@@ -70,7 +73,8 @@
 				const char* name_;
 			};
 
-			/** casts one numerical value to another with range checking.
+			/** @internal
+             *  casts one numerical value to another with range checking.
 			 *  implementation detail.
 			 *  @note range of In should fully contain range of Out.
 			 */
@@ -97,7 +101,8 @@
 				return 0;
 			}
 
-			/** convert a PyObject to an signed integer with range checking.
+			/** @internal
+             *  convert a PyObject to an signed integer with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Integer>
@@ -123,7 +128,8 @@
 				return 1;
 			}
 
-			/** convert a PyObject to an unsigned integer with range checking.
+			/** @internal
+             *  convert a PyObject to an unsigned integer with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Integer>
@@ -157,7 +163,8 @@
 				return 1;
 			}
 
-			/** convert a PyObject to a floating point value with range checking.
+			/** @internal
+             *  convert a PyObject to a floating point value with range checking.
 			 *  implementation detail.
 			 */
 			template <typename Float>
@@ -303,11 +310,6 @@
 				oV = NULL;
 			else
 			{
-#pragma LASS_FIXME("this code can result in unsafe casts, unfortunately oV has no type so there is no easy way to check")
-#pragma LASS_FIXME("for type convertability between iValue and oV at this moment of execution")
-                // well, i think there simply is no way to check the cast right here.  It's up to 
-                // the caller for once ... btw, is it EVER possible iValue == 0?  in that case we 
-                // might want to fail pyGetSimpleObject ...  [Bramz]
 				oV = iValue;
 				Py_INCREF( oV );
 			}
@@ -320,21 +322,35 @@
 		inline int pyGetSimpleObject( PyObject* iValue, 
 									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
 		{
-			typedef util::SharedPtr<C, PyObjectStorage, PyObjectCounter> TPyPtr;
-			bool isNone = (iValue == Py_None );
+			const bool isNone = (iValue == Py_None );
 			if (isNone)
 				oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
 			else
-			{
+			{                
 				if (!PyType_IsSubtype(iValue->ob_type , &C::Type ))
 				{
-#pragma LASS_FIXME("this code must be tested somehow")
-                    // seems alright to me, but again, is it possible iValue == 0? [Bramz]
-					PyErr_Format(PyExc_TypeError,"not castable to %s",C::PythonClassName);
+					PyErr_Format(PyExc_TypeError,"not castable to %s",C::Type.tp_name);
 					return 1;
 				}
-			    oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
+			    oV = lass::python::fromPySharedPtrCast<C>(iValue);
 			}
+			return 0;
+		}
+
+		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, 
+									  util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV )
+		{
+			const bool isNone = (iValue == Py_None );
+            if (isNone)
+            {
+                oV = util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>();
+            }
+            else
+            {
+                oV = lass::python::fromPySharedPtrCast<PyObject>(iValue);
+            }
 			return 0;
 		}
 

@@ -40,8 +40,9 @@ namespace impl
 {
 
 /** abstract base class of all dispatchers for lass::util::CallbackR$x.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -51,15 +52,20 @@ class DispatcherR$x: public SmallObject<>
 {
 public:
 
+    DispatcherR$x() {}
     virtual R operator()($(P$x iP$x)$) const = 0;
-    virtual DispatcherR$x* clone() const = 0;
+
+private:
+    DispatcherR$x(const DispatcherR$x<R, $(P$x)$>& iOther);
+    DispatcherR$x& operator=(const DispatcherR$x<R, $(P$x)$>& iOther);
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR$x to a free function:
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template
 <
@@ -84,18 +90,14 @@ public:
     {
         return (*function_)($(iP$x)$); 
     }
-
-    DispatcherR$x<R, $(P$x)$>* clone() const
-    {
-        return new DispatcherR$xFunction<R, $(P$x)$, S, $(Q$x)$>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR$x to an object/method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -123,18 +125,14 @@ public:
     {
         return (object_->*method_)($(iP$x)$); 
     }
-    
-    DispatcherR$x<R, $(P$x)$>* clone() const
-    {
-        return new DispatcherR$xMethod<Object, R, $(P$x)$, S, $(Q$x)$>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR$x to an object/const method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -161,11 +159,6 @@ public:
     R operator()($(P$x iP$x)$) const
     {
         return (object_->*method_)($(iP$x)$); 
-    }
-    
-    DispatcherR$x<R, $(P$x)$>* clone() const
-    {
-        return new DispatcherR$xConstMethod<Object, R, $(P$x)$, S, $(Q$x)$>(*this);
     }
 };
 

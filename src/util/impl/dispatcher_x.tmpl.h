@@ -42,23 +42,29 @@ namespace impl
 {
 
 /** abstract base class of all dispatchers for lass::util::Callback$x.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template <$(typename P$x)$>
 class Dispatcher$x: public SmallObject<>
 {
 public:
 
+    Dispatcher$x() {}
     virtual void operator()($(P$x iP$x)$) const = 0;
-    virtual Dispatcher$x* clone() const = 0;
+
+private:
+    Dispatcher$x(const Dispatcher$x<$(P$x)$>& iOther);
+    Dispatcher$x& operator=(const Dispatcher$x<$(P$x)$>& iOther);
 };
 
 
 
 /** Dispatcher for lass::util::Callback$x to a free function:
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template<$(typename P$x)$, $(typename Q$x)$>
 class Dispatcher$xFunction: public Dispatcher$x<$(P$x)$>
@@ -79,18 +85,14 @@ public:
     {
         (*function_)($(iP$x)$); 
     }
-
-    Dispatcher$x<$(P$x)$>* clone() const
-    {
-        return new Dispatcher$xFunction<$(P$x)$, $(Q$x)$>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::Callback$x to an object/method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template <class Object, $(typename P$x)$, $(typename Q$x)$>
 class Dispatcher$xMethod: public Dispatcher$x<$(P$x)$>
@@ -113,18 +115,14 @@ public:
     {
         (object_->*method_)($(iP$x)$); 
     }
-    
-    Dispatcher$x<$(P$x)$>* clone() const
-    {
-        return new Dispatcher$xMethod<Object, $(P$x)$, $(Q$x)$>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::Callback$x to an object/const method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template <class Object, $(typename P$x)$, $(typename Q$x)$>
 class Dispatcher$xConstMethod: public Dispatcher$x<$(P$x)$>
@@ -146,11 +144,6 @@ public:
     void operator()($(P$x iP$x)$) const
     {
         (object_->*method_)($(iP$x)$); 
-    }
-    
-    Dispatcher$x<$(P$x)$>* clone() const
-    {
-        return new Dispatcher$xConstMethod<Object, $(P$x)$, $(Q$x)$>(*this);
     }
 };
 

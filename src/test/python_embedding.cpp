@@ -34,6 +34,11 @@
 #include <iostream>
 
 #include "../util/pyshadow_object.h"
+#include "../util/callback_0.h"
+#include "../util/callback_1.h"
+#include "../util/callback_r_0.h"
+#include "../util/callback_r_2.h"
+#include "../util/callback_python.h"
 
 namespace lass
 {
@@ -98,6 +103,25 @@ int anotherFreeFunction( int i )
 	return i+1;
 }
 
+void call0(const util::Callback0& iCallback)
+{
+    iCallback();
+}
+
+void call1(const util::Callback1<const std::string&>& iCallback)
+{
+    iCallback("Hello world!");
+}
+
+void callR0(const util::CallbackR0<std::string>& iCallback)
+{
+    std::cout << "Simon says: " << iCallback() << std::endl;
+}
+
+void callR2(const util::CallbackR2<float, float, float>& iCallback)
+{
+    std::cout << "f(5, 6) = " << iCallback(5, 6) << std::endl;
+}
 
 PY_DECLARE_MODULE( embedding )
 PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
@@ -108,6 +132,10 @@ PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
 PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
 PY_MODULE_FUNCTION( embedding, spamToCppByReference )
 PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
+PY_MODULE_FUNCTION( embedding, call0 )
+PY_MODULE_FUNCTION( embedding, call1 )
+PY_MODULE_FUNCTION( embedding, callR0 )
+PY_MODULE_FUNCTION( embedding, callR2 )
 PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
 
 

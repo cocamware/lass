@@ -159,3 +159,20 @@ embedding.spamToCppByConstReference(spam)
 embedding.spamToCppByPointer(spam)
 embedding.spamToCppByCopy(spam)
 print "\n"
+
+print "\n* Testing callbacks"
+print "Callback0:"
+def callback0():
+	print "... is called succesfully"
+embedding.call0(callback0)
+print "Callback1:"
+def callback1(iA):
+	print iA
+embedding.call1(callback1)
+print "CallbackR0:"
+def callbackR0():
+	return "hi!"
+embedding.callR0(callbackR0)
+print "CallbackR2:"
+embedding.callR2(lambda x, y: x * y)
+print "\n"

@@ -38,8 +38,9 @@ namespace impl
 {
 
 /** abstract base class of all dispatchers for lass::util::CallbackR0.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -49,15 +50,20 @@ class DispatcherR0: public SmallObject<>
 {
 public:
 
+    DispatcherR0() {}
     virtual R operator()() const = 0;
-    virtual DispatcherR0* clone() const = 0;
+
+private:
+    DispatcherR0(const DispatcherR0<R>& iOther);
+    DispatcherR0& operator=(const DispatcherR0<R>& iOther);
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR0 to a free function:
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template
 <
@@ -82,18 +88,14 @@ public:
     {
         return (*function_)(); 
     }
-
-    DispatcherR0<R>* clone() const
-    {
-        return new DispatcherR0Function<R, S>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR0 to an object/method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -121,18 +123,14 @@ public:
     {
         return (object_->*method_)(); 
     }
-    
-    DispatcherR0<R>* clone() const
-    {
-        return new DispatcherR0Method<Object, R, S>(*this);
-    }
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR0 to an object/const method pair.
- *  @author Bram de Greve [BdG]
- *  @date 2002-2003
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
  */
 template 
 <
@@ -159,11 +157,6 @@ public:
     R operator()() const
     {
         return (object_->*method_)(); 
-    }
-    
-    DispatcherR0<R>* clone() const
-    {
-        return new DispatcherR0ConstMethod<Object, R, S>(*this);
     }
 };
 
