@@ -303,7 +303,7 @@ void Image::filterMedian(unsigned iBoxSize)
         for (unsigned x0 = 0; x0 < cols_; ++x0)
         {
             TPixel& center = raster_[y0 * cols_ + x0];
-			if (center.a == TNumTraits::zero)
+			if (center.a() == TNumTraits::zero)
             {
                 continue; // no filtering on pixels with alphachannel == 0
             }
@@ -324,7 +324,7 @@ void Image::filterMedian(unsigned iBoxSize)
                         if (x >= 0 && x < signed(cols_))
                         {
                             const TPixel& pixel = raster_[offset + x];
-							if (pixel.a != TNumTraits::zero)
+							if (pixel.a() != TNumTraits::zero)
                             {
                                 box[pixelsInBox] = pixel;
                                 if (dx == 0 && dy == 0)
@@ -348,10 +348,7 @@ void Image::filterMedian(unsigned iBoxSize)
                 distances[i] = 0.0;
                 for (unsigned j = 0; j < pixelsInBox; ++j)
                 {
-                    const TValue dRed = box[i].r - box[j].r;
-                    const TValue dGreen = box[i].g - box[j].g;
-                    const TValue dBlue = box[i].b - box[j].b;
-					distances[i] += num::sqrt(dRed * dRed + dGreen * dGreen + dBlue * dBlue);
+					distances[i] += prim::distance(box[i], box[j]);
                 }
             }
 
@@ -454,10 +451,10 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
               {
                  num::Tuint8 data[3];
                  iFile.read((char*) &data, sizeof data);
-				 pixel->r = static_cast<TValue>(data[2]) / scale;
-				 pixel->g = static_cast<TValue>(data[1]) / scale;
-				 pixel->b = static_cast<TValue>(data[0]) / scale;
-				 pixel->a = TNumTraits::one;
+				 pixel->r() = static_cast<TValue>(data[2]) / scale;
+				 pixel->g() = static_cast<TValue>(data[1]) / scale;
+				 pixel->b() = static_cast<TValue>(data[0]) / scale;
+				 pixel->a() = TNumTraits::one;
                  ++pixel;
               }
            }  
@@ -473,10 +470,10 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
               {
                  num::Tuint8 data[4];
                  iFile.read((char*) &data, sizeof data);
-				 pixel->r = static_cast<TValue>(data[2]) / static_cast<TValue>(255);
-				 pixel->g = static_cast<TValue>(data[1]) / static_cast<TValue>(255);
-				 pixel->b = static_cast<TValue>(data[0]) / static_cast<TValue>(255);
-				 pixel->a = static_cast<TValue>(data[3]) / static_cast<TValue>(255);
+				 pixel->r() = static_cast<TValue>(data[2]) / static_cast<TValue>(255);
+				 pixel->g() = static_cast<TValue>(data[1]) / static_cast<TValue>(255);
+				 pixel->b() = static_cast<TValue>(data[0]) / static_cast<TValue>(255);
+				 pixel->a() = static_cast<TValue>(data[3]) / static_cast<TValue>(255);
                  ++pixel;
               }
            }
@@ -525,10 +522,10 @@ void Image::saveTARGA(const std::string& iFilename) const
         for (unsigned x = cols_; x > 0; --x)
         {
             num::Tuint8 data[4];
-			data[0] = static_cast<num::Tuint8>(pixel->b * scale);
-            data[1] = static_cast<num::Tuint8>(pixel->g * scale);
-            data[2] = static_cast<num::Tuint8>(pixel->r * scale);
-            data[3] = static_cast<num::Tuint8>(pixel->a * scale);
+			data[0] = static_cast<num::Tuint8>(pixel->b() * scale);
+            data[1] = static_cast<num::Tuint8>(pixel->g() * scale);
+            data[2] = static_cast<num::Tuint8>(pixel->r() * scale);
+            data[3] = static_cast<num::Tuint8>(pixel->a() * scale);
             file.write((char*) &data, sizeof data);
             ++pixel;
         }

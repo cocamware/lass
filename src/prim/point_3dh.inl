@@ -42,74 +42,164 @@ namespace prim
 {
 
 template<typename T> inline
-Point3DH<T>::Point3DH() throw():
-	position()
+Point3DH<T>::Point3DH():
+	position_()
 {
-	LASS_ASSERT(position.isZero());
+	LASS_ASSERT(position_.isZero());
 }
 
 
 
 template<typename T> inline
-Point3DH<T>::Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW)  throw():
-	position(iX, iY, iZ, iW)
-{
-}
-
-
-
-template<typename T> inline
-Point3DH<T>::Point3DH(const TPoint& iAffinePoint)  throw():
-	position(iAffinePoint.x, iAffinePoint.y, iAffinePoint.z, TNumTraits::one)
+Point3DH<T>::Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW) :
+	position_(iX, iY, iZ, iW)
 {
 }
 
 
 
 template<typename T> inline
-Point3DH<T>::Point3DH(const TVector& iPositionVector)  throw():
-	position(iPositionVector)
+Point3DH<T>::Point3DH(const TPoint& iAffinePoint) :
+	position_(iAffinePoint.x(), iAffinePoint.y(), iAffinePoint.z(), TNumTraits::one)
 {
 }
 
 
 
 template<typename T> inline
+Point3DH<T>::Point3DH(const TVector& iPositionVector) :
+	position_(iPositionVector)
+{
+}
+
+
+
+template <typename T> inline
+typename const Point3DH<T>::TVector&
+Point3DH<T>::position() const
+{
+	return position_;
+}
+
+
+
+template<typename T> inline 
 typename Point3DH<T>::TConstReference 
 Point3DH<T>::operator[](unsigned iIndex) const
 {
-	return position[iIndex];
+	return position_[iIndex];
 }
 
 
 
-template<typename T> inline
+/** Wrap index around range. 
+ */
+template<typename T> inline 
+typename Point3DH<T>::TConstReference 
+Point3DH<T>::at(signed iIndex) const
+{
+	return position_.at(iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TConstReference 
+Point3DH<T>::x() const
+{
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TConstReference 
+Point3DH<T>::y() const
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TConstReference 
+Point3DH<T>::z() const
+{
+	return position_.z;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TConstReference 
+Point3DH<T>::w() const
+{
+	return position_.w;
+}
+
+
+
+template <typename T> inline
+typename Point3DH<T>::TVector&
+Point3DH<T>::position()
+{
+	return position_;
+}
+
+
+
+template<typename T> inline 
 typename Point3DH<T>::TReference 
 Point3DH<T>::operator[](unsigned iIndex)
 {
-	return position[iIndex];
+	return position_[iIndex];
 }
 
 
 
 /** Wrap index around range. 
  */
-template<typename T> inline
-typename Point3DH<T>::TConstReference 
-Point3DH<T>::at(signed iIndex) const  throw()
-{
-	return position.at(iIndex);
-}
-
-
-
-/** Wrap index around range. 
- */
-template<typename T> inline
+template<typename T> inline 
 typename Point3DH<T>::TReference 
-Point3DH<T>::at(signed iIndex)  throw()
+Point3DH<T>::at(signed iIndex)
 {
-	return position.at(iIndex);
+	return position_.at(iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TReference 
+Point3DH<T>::x()
+{
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TReference 
+Point3DH<T>::y()
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TReference 
+Point3DH<T>::z()
+{
+	return position_.z;
+}
+
+
+
+template<typename T> inline 
+typename Point3DH<T>::TReference 
+Point3DH<T>::w()
+{
+	return position_.w;
 }
 
 
@@ -117,7 +207,7 @@ Point3DH<T>::at(signed iIndex)  throw()
 /** A weird way to get back the same object 
  */
 template<typename T> inline
-const Point3DH<T>& Point3DH<T>::operator+() const throw()
+const Point3DH<T>& Point3DH<T>::operator+() const
 {
 	return *this;
 }
@@ -125,44 +215,44 @@ const Point3DH<T>& Point3DH<T>::operator+() const throw()
 
 
 template<typename T> inline
-const Point3DH<T> Point3DH<T>::operator-() const  throw()
+const Point3DH<T> Point3DH<T>::operator-() const 
 {
-	return Point3DH(-position);
+	return Point3DH(-position_);
 }
 
 
 
 template<typename T> inline
-Point3DH<T>& Point3DH<T>::operator+=(const Point3DH<T>& iB)   throw()
+Point3DH<T>& Point3DH<T>::operator+=(const Point3DH<T>& iB)  
 {
-	position += iB.position;
+	position_ += iB.position_;
 	return *this;
 }
 
 
 
 template<typename T> inline
-Point3DH<T>& Point3DH<T>::operator-=(const Point3DH<T>& iB) throw()
+Point3DH<T>& Point3DH<T>::operator-=(const Point3DH<T>& iB)
 {
-	position -= iB.position;
+	position_ -= iB.position_;
 	return *this;
 }
 
 
 
 template<typename T> inline
-Point3DH<T>& Point3DH<T>::operator*=(TParam iB) throw()
+Point3DH<T>& Point3DH<T>::operator*=(TParam iB)
 {
-	position *= iB;
+	position_ *= iB;
 	return *this;
 }
 
 
 
 template<typename T> inline
-Point3DH<T>& Point3DH<T>::operator/=(TParam iB) throw()
+Point3DH<T>& Point3DH<T>::operator/=(TParam iB)
 {
-	position /= iB;
+	position_ /= iB;
 	return *this;
 }
 
@@ -172,9 +262,10 @@ Point3DH<T>& Point3DH<T>::operator/=(TParam iB) throw()
  *	w may be 0 but doesn't has to be.
  */
 template<typename T> inline
-const bool Point3DH<T>::isZero() const throw()
+const bool Point3DH<T>::isZero() const
 {
-	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
+	return position_.x == TNumTraits::zero && position_.y == TNumTraits::zero && 
+		position_.z == TNumTraits::zero;
 }
 
 
@@ -182,9 +273,9 @@ const bool Point3DH<T>::isZero() const throw()
 /** Return true if point is at infinite distance of origin.  test if w == 0.
  */
 template<typename T> inline
-const bool Point3DH<T>::isInfinite() const throw()
+const bool Point3DH<T>::isInfinite() const
 {
-	return w == TNumTraits::zero;
+	return position_.w == TNumTraits::zero;
 }
 
 
@@ -192,9 +283,9 @@ const bool Point3DH<T>::isInfinite() const throw()
 /** Return true if point is valid.	test if point != (0, 0, 0, 0)
  */
 template<typename T> inline
-const bool Point3DH<T>::isValid() const throw()
+const bool Point3DH<T>::isValid() const
 {
-	return !position.isZero();
+	return !position_.isZero();
 }
 
 
@@ -203,9 +294,9 @@ const bool Point3DH<T>::isValid() const throw()
  */
 template<typename T> inline
 const typename Point3DH<T>::TParam 
-Point3DH<T>::weight() const throw()
+Point3DH<T>::weight() const
 {
-	return w;
+	return position_.w;
 }
 
 
@@ -214,11 +305,11 @@ Point3DH<T>::weight() const throw()
  *	Does not influence original poitn.
  */
 template<typename T>
-const Point3D<T> Point3DH<T>::affine() const throw()
+const Point3D<T> Point3DH<T>::affine() const
 {
 	Point3DH<T> result(*this);
 	result.homogenize();
-	return Point3D<T>(result.x, result.y, result.z);
+	return Point3D<T>(result.x(), result.y(), result.z());
 }
 
 
@@ -228,8 +319,8 @@ const Point3D<T> Point3DH<T>::affine() const throw()
 template<typename T> inline
 void Point3DH<T>::homogenize() 
 {
-	position /= w;
-	w = TNumTraits::one;
+	position_ /= position_.w;
+	position_.w = TNumTraits::one;
 }
 
 
@@ -239,9 +330,9 @@ void Point3DH<T>::homogenize()
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
+bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB)
 {
-	return iA.position == iB.position;
+	return iA.position() == iB.position();
 }
 
 
@@ -249,7 +340,7 @@ bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-bool operator!=(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
+bool operator!=(const Point3DH<T>& iA, const Point3DH<T>& iB)
 {
 	return !(iA == iB);
 }
@@ -259,7 +350,7 @@ bool operator!=(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-Point3DH<T> operator+(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
+Point3DH<T> operator+(const Point3DH<T>& iA, const Point3DH<T>& iB)
 {
 	Point3DH<T> result(iA);
 	result += iB;
@@ -271,9 +362,9 @@ Point3DH<T> operator+(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-Point3DH<T> operator-(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
+Point3DH<T> operator-(const Point3DH<T>& iA, const Point3DH<T>& iB)
 {
-	Point3DH<T> result(iA.position);
+	Point3DH<T> result(iA.position());
 	result -= iB;
 	return result;
 }
@@ -283,7 +374,7 @@ Point3DH<T> operator-(const Point3DH<T>& iA, const Point3DH<T>& iB) throw()
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-Point3DH<T> operator*(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) throw()
+Point3DH<T> operator*(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB)
 {
 	Point3DH<T> result(iA);
 	result *= iB;
@@ -295,7 +386,7 @@ Point3DH<T> operator*(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) th
 /** @relates lass::prim::Point3DH
  */
 template<typename T> inline
-Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) throw()
+Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB)
 {
 	Point3DH<T> result(iA);
 	result /= iB;
@@ -307,9 +398,9 @@ Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) th
 /** @relates lass::prim::Point3DH
  */
 template<typename T>
-std::ostream& operator<<(std::ostream& ioOStream, const Point3DH<T>& iB) throw()
+std::ostream& operator<<(std::ostream& ioOStream, const Point3DH<T>& iB)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << iB.position;
+	LASS_ENFORCE_STREAM(ioOStream) << iB.position();
 	return ioOStream;
 }
 
@@ -321,7 +412,8 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3DH<T>& iB) 
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Point3DH>" << iB.x << " " << iB.y << " " << iB.z << " " << iB.w << "</Point3DH>" << std::endl;
+		<< "<Point3DH>" << iB.x() << " " << iB.y() << " " << iB.z() << " " << iB.w() 
+		<< "</Point3DH>\n";
 	return oOStream;
 }
 
@@ -332,7 +424,7 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3DH<T>& iB)
 template<typename T>
 std::istream& operator>>(std::istream& ioIStream, Point3DH<T>& iB)
 {
-	LASS_ENFORCE_STREAM(ioIStream) >> iB.position;
+	LASS_ENFORCE_STREAM(ioIStream) >> iB.position();
 	return ioIStream;
 }
 

@@ -42,27 +42,83 @@ namespace prim
 {
 
 template<typename T> inline 
-Point3D<T>::Point3D()  throw():
-	position()
+Point3D<T>::Point3D() :
+	position_()
 {
-	LASS_ASSERT(position.isZero());
+	LASS_ASSERT(position_.isZero());
 }
 
 
 
 template<typename T> inline 
-Point3D<T>::Point3D(TParam iX, TParam iY, TParam iZ)  throw():
-	position(iX, iY, iZ)
+Point3D<T>::Point3D(TParam iX, TParam iY, TParam iZ) :
+	position_(iX, iY, iZ)
 {
 }
 
 
 
-template<typename T>  inline 
+template <typename T> inline
+typename const Point3D<T>::TVector&
+Point3D<T>::position() const
+{
+	return position_;
+}
+
+
+
+template<typename T> inline 
 typename Point3D<T>::TConstReference 
 Point3D<T>::operator[](unsigned iIndex) const
 {
-	return position[iIndex];
+	return position_[iIndex];
+}
+
+
+
+/** Wrap index around range. 
+ */
+template<typename T> inline 
+typename Point3D<T>::TConstReference 
+Point3D<T>::at(signed iIndex) const
+{
+	return position_.at(iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point3D<T>::TConstReference 
+Point3D<T>::x() const
+{
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point3D<T>::TConstReference 
+Point3D<T>::y() const
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point3D<T>::TConstReference 
+Point3D<T>::z() const
+{
+	return position_.z;
+}
+
+
+
+template <typename T> inline
+typename Point3D<T>::TVector&
+Point3D<T>::position()
+{
+	return position_;
 }
 
 
@@ -71,55 +127,71 @@ template<typename T> inline
 typename Point3D<T>::TReference 
 Point3D<T>::operator[](unsigned iIndex)
 {
-	return position[iIndex];
+	return position_[iIndex];
 }
 
 
 
 /** Wrap index around range. 
-*/
-template<typename T> inline 
-typename Point3D<T>::TConstReference 
-Point3D<T>::at(signed iIndex) const  throw()
-{
-	return position.at(iIndex);
-}
-
-
-
-/** Wrap index around range. 
-*/
+ */
 template<typename T> inline 
 typename Point3D<T>::TReference 
-Point3D<T>::at(signed iIndex)  throw()
+Point3D<T>::at(signed iIndex)
 {
-	return position.at(iIndex);
+	return position_.at(iIndex);
 }
 
 
 
 template<typename T> inline 
-Point3D<T>& Point3D<T>::operator+=(const TVector& iB)  throw()
+typename Point3D<T>::TReference 
+Point3D<T>::x()
 {
-	position += iB;
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point3D<T>::TReference 
+Point3D<T>::y()
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point3D<T>::TReference 
+Point3D<T>::z()
+{
+	return position_.z;
+}
+
+
+
+template<typename T> inline 
+Point3D<T>& Point3D<T>::operator+=(const TVector& iB) 
+{
+	position_ += iB;
 	return *this;
 }
 
 
 
 template<typename T> inline 
-Point3D<T>& Point3D<T>::operator-=(const TVector& iB)  throw()
+Point3D<T>& Point3D<T>::operator-=(const TVector& iB) 
 {
-	position -= iB;
+	position_ -= iB;
 	return *this;
 }
 
 
 
 template<typename T> inline 
-const bool Point3D<T>::isZero() const  
+const bool Point3D<T>::isZero() const
 {
-	return position.isZero();
+	return position_.isZero();
 }
 
 
@@ -129,9 +201,9 @@ const bool Point3D<T>::isZero() const
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline 
-bool operator==(const Point3D<T>& iA, const Point3D<T>& iB)  throw()
+bool operator==(const Point3D<T>& iA, const Point3D<T>& iB) 
 {
-	return iA.position == iB.position;
+	return iA.position() == iB.position();
 }
 
 
@@ -139,7 +211,7 @@ bool operator==(const Point3D<T>& iA, const Point3D<T>& iB)  throw()
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline
-bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB)  throw()
+bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB) 
 {
 	return !(iA == iB);
 }
@@ -149,7 +221,7 @@ bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB)  throw()
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB) throw()
+Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB)
 {
 	Point3D<T> result(iA);
 	result += iB;
@@ -161,7 +233,7 @@ Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB) throw()
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB) throw()
+Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB)
 {
 	Point3D<T> result(iA);
 	result -= iB;
@@ -173,7 +245,7 @@ Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB) throw()
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB) throw()
+Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB)
 {
 	Point3D<T> result(iB);
 	result += iA;
@@ -185,10 +257,10 @@ Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB) throw()
 /** @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB) throw()
+Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB)
 {
-	Vector3D<T> result(iA.position);
-	result -= iB.position;
+	Vector3D<T> result(iA.position());
+	result -= iB.position();
 	return result;
 }
 
@@ -198,7 +270,7 @@ Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB) throw()
  *  @relates lass::prim::Point3D
  */
 template<typename T> inline 
-typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB) throw()
+typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB)
 {
 	const Vector3D<T> difference = iA - iB;
 	return difference.norm();
@@ -210,9 +282,9 @@ typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB)
  *  @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB) throw()
+Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB)
 {
-	return Point3D<T>(pointwiseMin(iA.position, iB.position));
+	return Point3D<T>(pointwiseMin(iA.position(), iB.position()));
 }
 
 
@@ -221,9 +293,9 @@ Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB) throw()
  *  @relates lass::prim::Point3D
  */
 template<typename T> inline 
-Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB) throw()
+Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB)
 {
-    return Point3D<T>(pointwiseMax(iA.position, iB.position));
+    return Point3D<T>(pointwiseMax(iA.position(), iB.position()));
 }
 
 
@@ -233,7 +305,7 @@ Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB) throw()
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Point3D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << iB.position;
+	LASS_ENFORCE_STREAM(ioOStream) << iB.position();
 	return ioOStream;
 }
 
@@ -245,7 +317,7 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Point3D>" << iB.x << " " << iB.y << " " << iB.z << "</Point3D>" << std::endl;
+		<< "<Point3D>" << iB.x() << " " << iB.y() << " " << iB.z() << "</Point3D>" << std::endl;
 	return oOStream;
 }
 
@@ -255,7 +327,7 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB)
 template<typename T>
 std::istream& operator>>(std::istream& ioIStream, Point3D<T>& iB)
 {
-	LASS_ENFORCE_STREAM(ioIStream) >> iB.position;
+	LASS_ENFORCE_STREAM(ioIStream) >> iB.position();
 	return ioIStream;
 }
 

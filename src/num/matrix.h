@@ -61,7 +61,7 @@ public:
 		typedef typename Matrix<U> Type;
 	};
 
-	Matrix() throw();
+	Matrix();
 	explicit Matrix(TSize iRows, TSize iCols = 0, bool iConstructAsZero = true);
 	Matrix(const Matrix<T>& iOther);
 	/*
@@ -82,43 +82,43 @@ public:
 */
 	Matrix<T>& operator=(const Matrix<T>& iOther);
 
-	TSize rows() const throw();
-	TSize cols() const throw(); 
+	TSize rows() const;
+	TSize cols() const; 
 
 	inline typename Matrix::TConstReference operator()(TSize iRow, TSize iCol) const;
 	inline typename Matrix::TReference operator()(TSize iRow, TSize iCol);
-	inline typename Matrix::TConstReference at(TSize iRow, TSize iCol) const throw();
-	inline typename Matrix::TReference at(TSize iRow, TSize iCol) throw();
+	inline typename Matrix::TConstReference at(TSize iRow, TSize iCol) const;
+	inline typename Matrix::TReference at(TSize iRow, TSize iCol);
 
-	Matrix<T>& operator+() const throw();
+	Matrix<T>& operator+() const;
 	Matrix<T> operator-() const;
 	Matrix<T>& operator+=(const Matrix<T>& iB);
 	Matrix<T>& operator-=(const Matrix<T>& iB);
-	Matrix<T>& operator*=(TParam iB) throw();
-	Matrix<T>& operator/=(TParam iB) throw();
+	Matrix<T>& operator*=(TParam iB);
+	Matrix<T>& operator/=(TParam iB);
 
 	void setZero(TSize iRows, TSize iCols);
 	void setIdentity(TSize iSize);
 
-	bool isEmpty() const throw();
-	bool isZero() const throw();
-	bool isIdentity() const throw();
-	bool isDiagonal() const throw();
-	bool isSquare() const throw();
+	bool isEmpty() const;
+	bool isZero() const;
+	bool isIdentity() const;
+	bool isDiagonal() const;
+	bool isSquare() const;
 
 	Matrix<T> transpose() const;
 	Matrix<T> inverse() const;
 
 	bool solve(Matrix<T>& ioB) const;
 
-	TPointer data() const throw();
-	void swap(Matrix<T>& iOther) throw();
+	TPointer data() const;
+	void swap(Matrix<T>& iOther);
 
 private:
 
 	typedef util::ScopedPtr<T, util::ArrayStorage> TValues;
 
-	inline TSize flatIndex(TSize iRow, TSize iCol) const throw();
+	inline TSize flatIndex(TSize iRow, TSize iCol) const;
 
 	TValues values_;
 	TSize rows_;

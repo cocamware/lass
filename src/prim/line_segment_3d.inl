@@ -110,6 +110,22 @@ LineSegment3D<T, PP>::point(TParam iT) const
 
 
 
+/** Return parameter of @e projection of @a iPoint on line segment.
+ *  @warning the result can be out of bound [0, 1] regardless the parameter policy used.
+ */
+template <typename T, class PP>
+const typename LineSegment3D<T, PP>::TValue 
+LineSegment3D<T, PP>::t(const TPoint& iPoint) const
+{
+	const TVector v = vector();
+	const TValue t1 =  dot(iPoint - tail_, v);
+	const TValue t2 = -dot(iPoint - head_, v);
+	const TValue t = std::max(t1,t2) / (t1 + t2);
+	return t1 > t2 ? t : TNumTraits::one - t; 
+}
+
+
+
 /** Return vector from tail to head.
  */
 template <typename T, class PP>

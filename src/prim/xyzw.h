@@ -48,48 +48,48 @@ public:
 
     enum { dimension = 4 };
 
-    XYZW() throw();
+    XYZW();
 	XYZW(char iAxis);
-    explicit XYZW(int iValue) throw();
+    explicit XYZW(int iValue);
 	explicit XYZW(const std::string& iAxis);
 
-	const char axis() const throw();
-	operator int() const throw() { return value_; } /**< convert axis to integer. 
+	const char axis() const;
+	operator int() const { return value_; } /**< convert axis to integer. 
 												        0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w */
 
-    XYZW& operator++() throw();
-    XYZW& operator--() throw();
-    XYZW operator++(int) throw();
-    XYZW operator--(int) throw();
+    XYZW& operator++();
+    XYZW& operator--();
+    XYZW operator++(int);
+    XYZW operator--(int);
 
-    XYZW& operator+=(int iOffset) throw();
-    XYZW& operator-=(int iOffset) throw();
+    XYZW& operator+=(int iOffset);
+    XYZW& operator-=(int iOffset);
 
 private:
 
     typedef num::Modulo<4, int> TValue;
 
-    friend bool operator==(const XYZW& iA, const XYZW& iB) throw();
+    friend bool operator==(const XYZW& iA, const XYZW& iB);
 
     void reset(char iAxis);
 
     TValue value_;
 };
 
-bool operator==(const XYZW& iA, const XYZW& iB) throw();
-bool operator==(const XYZW& iA, char iB) throw();
-bool operator==(char iA, const XYZW& iB) throw();
+bool operator==(const XYZW& iA, const XYZW& iB);
+bool operator==(const XYZW& iA, char iB);
+bool operator==(char iA, const XYZW& iB);
 bool operator==(const XYZW& iA, const std::string& iB);
 bool operator==(const std::string& iA, const XYZW& iB);
 
-bool operator!=(const XYZW& iA, const XYZW& iB) throw();
-bool operator!=(const XYZW& iA, char iB) throw();
-bool operator!=(char iA, const XYZW& iB) throw();
+bool operator!=(const XYZW& iA, const XYZW& iB);
+bool operator!=(const XYZW& iA, char iB);
+bool operator!=(char iA, const XYZW& iB);
 bool operator!=(const XYZW& iA, const std::string&  iB);
 bool operator!=(const std::string&  iA, const XYZW& iB);
 
-XYZW operator+(const XYZW& iA, int iOffset) throw();
-XYZW operator-(const XYZW& iA, int iOffset) throw();
+XYZW operator+(const XYZW& iA, int iOffset);
+XYZW operator-(const XYZW& iA, int iOffset);
 
 std::ostream& operator<<(std::ostream& ioS, const XYZW& iXY);
 

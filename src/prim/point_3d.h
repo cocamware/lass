@@ -50,8 +50,10 @@ namespace prim
 {
 
 template<typename T>
-struct Point3D
+class Point3D
 {
+public:
+
     typedef Point3D<T> TSelf;
 
 	typedef Vector3D<T> TVector;
@@ -69,58 +71,57 @@ struct Point3D
         typedef Point3D<U> Type;
     };
 
-	union
-	{
-		struct
-		{
-			TVector position;
-		};
-		struct
-		{
-			TValue x;
-			TValue y;
-			TValue z;
-		};
-	};
+	Point3D();
+	Point3D(TParam iX, TParam iY, TParam iZ);
 
-	Point3D() throw();
-	Point3D(TParam iX, TParam iY, TParam iZ) throw();
-
-	template <typename U> explicit Point3D(const Point3D<U>& iOther) throw():
+	template <typename U> explicit Point3D(const Point3D<U>& iOther):
 		x(iOther.x), 
 		y(iOther.y),
 		z(iOther.z)
 	{
 	}
 
-	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector) throw():
-		position(iPositionVector)
+	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector):
+		position_(iPositionVector)
 	{
 	}
 
+	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;
-	TReference operator[](unsigned iIndex);
-	TConstReference at(signed iIndex) const throw();
-	TReference at(signed iIndex) throw();
+	TConstReference at(signed iIndex) const;
+	TConstReference x() const;
+	TConstReference y() const;
+	TConstReference z() const;
 
-	Point3D<T>& operator+=(const Vector3D<T>& iOffset) throw();
-	Point3D<T>& operator-=(const Vector3D<T>& iOffset) throw();
+	TVector& position();
+	TReference operator[](unsigned iIndex);
+	TReference at(signed iIndex);
+	TReference x();
+	TReference y();
+	TReference z();
+
+	Point3D<T>& operator+=(const Vector3D<T>& iOffset);
+	Point3D<T>& operator-=(const Vector3D<T>& iOffset);
 
 	const bool isZero() const;
+
+private:
+
+	TVector position_;
 };
 
-template<typename T> bool operator==(const Point3D<T>& iA, const Point3D<T>& iB) throw();
-template<typename T> bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB) throw();
+template<typename T> bool operator==(const Point3D<T>& iA, const Point3D<T>& iB);
+template<typename T> bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB);
 
-template<typename T> Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB) throw();
-template<typename T> Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB) throw();
+template<typename T> Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB);
+template<typename T> Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB);
 
-template<typename T> typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB) throw();
+template<typename T> typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB);
 
-template<typename T> Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB) throw();
-template<typename T> Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB) throw();
+template<typename T> Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB);
+template<typename T> Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Point3D<T>& iB);
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB);

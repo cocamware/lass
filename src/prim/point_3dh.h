@@ -53,6 +53,8 @@ namespace prim
 template<typename T>
 struct Point3DH
 {
+public:
+
     typedef Point3DH<T> TSelf;
 
 	typedef Point3D<T> TPoint;
@@ -71,57 +73,57 @@ struct Point3DH
         typedef Point3DH<U> Type;
     };
 
-	union
-	{
-		struct
-		{
-			TVector position;
-		};
-		struct
-		{
-			TValue x;
-			TValue y;
-			TValue z;
-			TValue w;
-		};
-	};
+	Point3DH();
+	Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW = TNumTraits::one);
+	Point3DH(const TPoint& iAffinePoint);
+	explicit Point3DH(const TVector& iPositionVector);
 
-	Point3DH() throw();
-	Point3DH(TParam iX, TParam iY, TParam iZ, TParam iW = TNumTraits::one) throw();
-	Point3DH(const TPoint& iAffinePoint) throw();
-	explicit Point3DH(const TVector& iPositionVector) throw();
-
+	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;
+	TConstReference at(signed iIndex) const;
+	TConstReference x() const;
+	TConstReference y() const;
+	TConstReference z() const;
+	TConstReference w() const;
+
+	TVector& position();
 	TReference operator[](unsigned iIndex);
-	TConstReference at(signed iIndex) const throw();
-	TReference at(signed iIndex) throw();
+	TReference at(signed iIndex);
+	TReference x();
+	TReference y();
+	TReference z();
+	TReference w();
 
-	const Point3DH<T>& operator+() const throw();
-	const Point3DH<T> operator-() const throw();
+	const Point3DH<T>& operator+() const;
+	const Point3DH<T> operator-() const;
 
-	Point3DH<T>& operator+=(const Point3DH<T>& iB) throw();
-	Point3DH<T>& operator-=(const Point3DH<T>& iB) throw();
-	Point3DH<T>& operator*=(TParam iB) throw();
-	Point3DH<T>& operator/=(TParam iB) throw();
+	Point3DH<T>& operator+=(const Point3DH<T>& iB);
+	Point3DH<T>& operator-=(const Point3DH<T>& iB);
+	Point3DH<T>& operator*=(TParam iB);
+	Point3DH<T>& operator/=(TParam iB);
 
-	const bool isZero() const throw();
-	const bool isInfinite() const throw();
-	const bool isValid() const throw();
-	const TParam weight() const throw();
-	const TPoint affine() const throw();
+	const bool isZero() const;
+	const bool isInfinite() const;
+	const bool isValid() const;
+	const TParam weight() const;
+	const TPoint affine() const;
 
 	void homogenize();
+
+private:
+
+	TVector position_;
 };
 
-template<typename T> bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB) throw();
-template<typename T> bool operator!=(const Point3DH<T>& iA, const Point3DH<T>& iB) throw();
+template<typename T> bool operator==(const Point3DH<T>& iA, const Point3DH<T>& iB);
+template<typename T> bool operator!=(const Point3DH<T>& iA, const Point3DH<T>& iB);
 
-template<typename T> Point3DH<T> operator+(const Point3DH<T>& iA, const Point3DH<T>& iB) throw();
-template<typename T> Point3DH<T> operator-(const Point3DH<T>& iA, Point3DH<T>& iB) throw();
+template<typename T> Point3DH<T> operator+(const Point3DH<T>& iA, const Point3DH<T>& iB);
+template<typename T> Point3DH<T> operator-(const Point3DH<T>& iA, Point3DH<T>& iB);
 
-template<typename T> Point3DH<T> operator*(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) throw();
-template<typename T> Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB) throw();
-template<typename T> Point3DH<T> operator*(typename Point3DH<T>::TParam iA, const Point3DH<T>& iB) throw();
+template<typename T> Point3DH<T> operator*(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB);
+template<typename T> Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB);
+template<typename T> Point3DH<T> operator*(typename Point3DH<T>::TParam iA, const Point3DH<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Point3DH<T>& iB);
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3DH<T>& iB);

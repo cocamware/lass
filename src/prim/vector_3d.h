@@ -78,15 +78,15 @@ struct Vector3D
 
 	// methods
 
-	Vector3D() throw():
+	Vector3D():
 		x(T()),
 		y(T()),
 		z(T())
 	{
 	}
-	Vector3D(TParam iX, TParam iY, TParam iZ) throw();
+	Vector3D(TParam iX, TParam iY, TParam iZ);
 
-	template <typename U> explicit Vector3D(const Vector3D<U>& iOther) throw(): 
+	template <typename U> explicit Vector3D(const Vector3D<U>& iOther): 
 		x(iOther.x), 
 		y(iOther.y),
 		z(iOther.z)
@@ -95,58 +95,58 @@ struct Vector3D
 
 	typename Vector3D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector3D::TReference operator[](unsigned iIndex) ;
-	typename Vector3D::TConstReference at(signed iIndex) const throw();
-	typename Vector3D::TReference at(signed iIndex) throw();
+	typename Vector3D::TConstReference at(signed iIndex) const;
+	typename Vector3D::TReference at(signed iIndex);
 
-	const Vector3D<T>& operator+() const throw();
-	const Vector3D<T> operator-() const throw();
-	Vector3D<T>& operator+=(const Vector3D<T>& iB) throw();
-	Vector3D<T>& operator-=(const Vector3D<T>& iB) throw();
-	Vector3D<T>& operator*=(const Vector3D<T>& iB) throw();
-	Vector3D<T>& operator/=(const Vector3D<T>& iB) throw();
-	Vector3D<T>& operator+=(TParam iB) throw();
-	Vector3D<T>& operator-=(TParam iB) throw();
-	Vector3D<T>& operator*=(TParam iB) throw();
-	Vector3D<T>& operator/=(TParam iB) throw();
+	const Vector3D<T>& operator+() const;
+	const Vector3D<T> operator-() const;
+	Vector3D<T>& operator+=(const Vector3D<T>& iB);
+	Vector3D<T>& operator-=(const Vector3D<T>& iB);
+	Vector3D<T>& operator*=(const Vector3D<T>& iB);
+	Vector3D<T>& operator/=(const Vector3D<T>& iB);
+	Vector3D<T>& operator+=(TParam iB);
+	Vector3D<T>& operator-=(TParam iB);
+	Vector3D<T>& operator*=(TParam iB);
+	Vector3D<T>& operator/=(TParam iB);
 
-	const bool isZero() const throw();
-	const TValue squaredNorm() const throw();
-	const TValue norm() const throw();
-	const Vector3D<T> normal() const throw();
-	const Vector3D<T> reciprocal() const throw();
-	const Vector3D<T> project(const Vector3D<T>& iB) const throw();
-	const Vector3D<T> reject(const Vector3D<T>& iB) const throw();
+	const bool isZero() const;
+	const TValue squaredNorm() const;
+	const TValue norm() const;
+	const Vector3D<T> normal() const;
+	const Vector3D<T> reciprocal() const;
+	const Vector3D<T> project(const Vector3D<T>& iB) const;
+	const Vector3D<T> reject(const Vector3D<T>& iB) const;
 
 	void normalize();
 
     template <class RandomGenerator> static Vector3D<T> random(RandomGenerator& ioGenerator);
 };
 
-template<typename T> typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
+template<typename T> typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
 template<typename T> Vector3D<T> transform(const Vector3D<T>& iA, T (*iF)(T));
 
-template<typename T> bool operator==(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> bool operator!=(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
+template<typename T> bool operator==(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> bool operator!=(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
-template<typename T> Vector3D<T> operator+(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator-(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator*(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator/(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
+template<typename T> Vector3D<T> operator+(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator-(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator*(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator/(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
-template<typename T> Vector3D<T> operator+(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB) throw();
-template<typename T> Vector3D<T> operator-(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB) throw();
-template<typename T> Vector3D<T> operator*(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB) throw();
-template<typename T> Vector3D<T> operator/(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB) throw();
+template<typename T> Vector3D<T> operator+(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB);
+template<typename T> Vector3D<T> operator-(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB);
+template<typename T> Vector3D<T> operator*(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB);
+template<typename T> Vector3D<T> operator/(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB);
 
-template<typename T> Vector3D<T> operator+(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator-(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> operator*(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB) throw();
+template<typename T> Vector3D<T> operator+(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator-(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> operator*(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB);
 // we don't allow scalar / vector.  you can do scalar * vector.reciprocal() for that.
 
-template<typename T> Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
-template<typename T> Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB) throw();
+template<typename T> Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB);
+template<typename T> Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector3D<T>& iB);
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector3D<T>& iB);

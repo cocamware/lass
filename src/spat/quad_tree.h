@@ -83,6 +83,7 @@ public:
 	typedef typename ObjectTraits<ObjectType>::TSeparator TSeparator;
 
 	typedef typename TPoint::TVector TVector;
+	typedef typename TPoint::TValue TValue;
 
 private:
 	enum { dimension = TPoint::dimension };
@@ -177,6 +178,7 @@ namespace impl
 	{
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
     	typedef typename QuadTree<ObjectType,ObjectTraits>::TVector	TVector;
+		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
 		
 		static void buildSubNodes(QuadNode* ioParentNode)
@@ -184,22 +186,26 @@ namespace impl
 			TVector newExtents(ioParentNode->extents);
 			newExtents*=0.5;
 				
-			ioParentNode->node[0] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y+newExtents.y),newExtents);
-			ioParentNode->node[1] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y+newExtents.y),newExtents);
-			ioParentNode->node[2] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y-newExtents.y),newExtents);
-			ioParentNode->node[3] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y-newExtents.y),newExtents);
+			const TValue cx = ioParentNode->center[0];
+			const TValue cy = ioParentNode->center[1];
+			const TValue ex = newExtents[0];
+			const TValue ey = newExtents[1];
+			ioParentNode->node[0] = new QuadNode(TPoint(cx-ex,cy+ey),newExtents);
+			ioParentNode->node[1] = new QuadNode(TPoint(cx+ex,cy+ey),newExtents);
+			ioParentNode->node[2] = new QuadNode(TPoint(cx+ex,cy-ey),newExtents);
+			ioParentNode->node[3] = new QuadNode(TPoint(cx-ex,cy-ey),newExtents);
 		}
 
 		static int findSubNode(QuadNode const* iNode, const TPoint& iPoint)
 		{
 			const TPoint& center = iNode->center;
-			if ( iPoint.y >= center.y )
-				if ( iPoint.x >= center.x )
+			if ( iPoint[1] >= center[1] )
+				if ( iPoint[0] >= center[0] )
 					return 1;
 				else
 					return 0;
 			else
-				if ( iPoint.x >= center.x )
+				if ( iPoint[0] >= center[0] )
 					return 2;
 				else
 					return 3;
@@ -216,6 +222,7 @@ namespace impl
 	{
 		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
     	typedef typename QuadTree<ObjectType,ObjectTraits>::TVector	TVector;
+		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
 		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
 		
 		static void buildSubNodes(QuadNode* ioParentNode)
@@ -223,32 +230,39 @@ namespace impl
 			TVector newExtents(ioParentNode->extents);
 			newExtents*=0.5;
 				
-			ioParentNode->node[0] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y+newExtents.y,ioParentNode->center.z+newExtents.z),newExtents);
-			ioParentNode->node[1] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y+newExtents.y,ioParentNode->center.z+newExtents.z),newExtents);
-			ioParentNode->node[2] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y-newExtents.y,ioParentNode->center.z+newExtents.z),newExtents);
-			ioParentNode->node[3] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y-newExtents.y,ioParentNode->center.z+newExtents.z),newExtents);
+			const TValue cx = ioParentNode->center[0];
+			const TValue cy = ioParentNode->center[1];
+			const TValue cz = ioParentNode->center[2];
+			const TValue ex = newExtents[0];
+			const TValue ey = newExtents[1];
+			const TValue ez = newExtents[2];
 
-			ioParentNode->node[4] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y+newExtents.y,ioParentNode->center.z-newExtents.z),newExtents);
-			ioParentNode->node[5] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y+newExtents.y,ioParentNode->center.z-newExtents.z),newExtents);
-			ioParentNode->node[6] = new QuadNode(TPoint(ioParentNode->center.x+newExtents.x,ioParentNode->center.y-newExtents.y,ioParentNode->center.z-newExtents.z),newExtents);
-			ioParentNode->node[7] = new QuadNode(TPoint(ioParentNode->center.x-newExtents.x,ioParentNode->center.y-newExtents.y,ioParentNode->center.z-newExtents.z),newExtents);
+			ioParentNode->node[0] = new QuadNode(TPoint(cx-ex,cy+ey,cz+ez),newExtents);
+			ioParentNode->node[1] = new QuadNode(TPoint(cx+ex,cy+ey,cz+ez),newExtents);
+			ioParentNode->node[2] = new QuadNode(TPoint(cx+ex,cy-ey,cz+ez),newExtents);
+			ioParentNode->node[3] = new QuadNode(TPoint(cx-ex,cy-ey,cz+ez),newExtents);
+
+			ioParentNode->node[4] = new QuadNode(TPoint(cx-ex,cy+ey,cz-ez),newExtents);
+			ioParentNode->node[5] = new QuadNode(TPoint(cx+ex,cy+ey,cz-ez),newExtents);
+			ioParentNode->node[6] = new QuadNode(TPoint(cx+ex,cy-ey,cz-ez),newExtents);
+			ioParentNode->node[7] = new QuadNode(TPoint(cx-ex,cy-ey,cz-ez),newExtents);
 		}
 
 		static int findSubNode(QuadNode const* iNode, const TPoint& iPoint)
 		{
 			const TPoint& center = iNode->center;
 			int baseCell = 0;
-			if ( iPoint.y >= center.y )
-				if ( iPoint.x >= center.x )
+			if ( iPoint[1] >= center[1] )
+				if ( iPoint[0] >= center[0] )
 					baseCell=1;
 				else
 					baseCell=0;
 			else
-				if ( iPoint.x >= center.x )
+				if ( iPoint[0] >= center[0] )
 					baseCell=2;
 				else
 					baseCell=3;
-			if (iPoint.z < center.z)
+			if (iPoint[2] < center[2])
 				baseCell+=4;
 			return baseCell;
 		}

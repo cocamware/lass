@@ -48,48 +48,48 @@ public:
 
     enum { dimension = 3 };
 
-    XYZ() throw();
+    XYZ();
 	XYZ(char iAxis);
-    explicit XYZ(int iValue) throw();
+    explicit XYZ(int iValue);
 	explicit XYZ(const std::string& iAxis);
 
-	const char axis() const throw();
-	operator int() const throw() { return value_; } /**< convert axis to integer. 
+	const char axis() const;
+	operator int() const { return value_; } /**< convert axis to integer. 
 												        0 == @a x, 1 == @a y, 2 == @a z */
 
-    XYZ& operator++() throw();
-    XYZ& operator--() throw();
-    XYZ operator++(int) throw();
-    XYZ operator--(int) throw();
+    XYZ& operator++();
+    XYZ& operator--();
+    XYZ operator++(int);
+    XYZ operator--(int);
 
-    XYZ& operator+=(int iOffset) throw();
-    XYZ& operator-=(int iOffset) throw();
+    XYZ& operator+=(int iOffset);
+    XYZ& operator-=(int iOffset);
 
 private:
 
     typedef num::Modulo<3, int> TValue;
 
-    friend bool operator==(const XYZ& iA, const XYZ& iB) throw();
+    friend bool operator==(const XYZ& iA, const XYZ& iB);
 
     void reset(char iAxis);
 
     TValue value_;
 };
 
-bool operator==(const XYZ& iA, const XYZ& iB) throw();
-bool operator==(const XYZ& iA, char iB) throw();
-bool operator==(char iA, const XYZ& iB) throw();
+bool operator==(const XYZ& iA, const XYZ& iB);
+bool operator==(const XYZ& iA, char iB);
+bool operator==(char iA, const XYZ& iB);
 bool operator==(const XYZ& iA, const std::string& iB);
 bool operator==(const std::string& iA, const XYZ& iB);
 
-bool operator!=(const XYZ& iA, const XYZ& iB) throw();
-bool operator!=(const XYZ& iA, char iB) throw();
-bool operator!=(char iA, const XYZ& iB) throw();
+bool operator!=(const XYZ& iA, const XYZ& iB);
+bool operator!=(const XYZ& iA, char iB);
+bool operator!=(char iA, const XYZ& iB);
 bool operator!=(const XYZ& iA, const std::string&  iB);
 bool operator!=(const std::string&  iA, const XYZ& iB);
 
-XYZ operator+(const XYZ& iA, int iOffset) throw();
-XYZ operator-(const XYZ& iA, int iOffset) throw();
+XYZ operator+(const XYZ& iA, int iOffset);
+XYZ operator-(const XYZ& iA, int iOffset);
 
 std::ostream& operator<<(std::ostream& ioS, const XYZ& iXY);
 

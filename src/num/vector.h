@@ -26,7 +26,7 @@
 
 
 /** @class lass::num::Vector
- *  @brief a dynamic sized n-dimensional vector
+ *  @brief a dynamic sized n-dimensional vector with vector expression templates
  *  @author Bram de Greve [BdG]
  */
 
@@ -36,102 +36,128 @@
 #include "num_common.h"
 #include "num_traits.h"
 #include "../util/call_traits.h"
-#include "../util/scoped_ptr.h"
+#include "impl/vector_expressions.h"
 
 namespace lass
 {
 namespace num
 {
 
-template<typename T>
+template
+<
+	typename T,
+	typename S = std::vector<T>
+>
 class Vector
 {
 public:
+
+	typedef Vector<T, S> TSelf;
+	typedef S TStorage;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
+	typedef num::NumTraits<T> TNumTraits;
 	typedef TValue* TPointer;
-	typedef typename num::NumTraits<T> TNumTraits;
 	typedef size_t TSize;
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Vector<U> Type;
+		typedef typename Vector<U, S> Type;
 	};
 
-	Vector() throw();
-	explicit Vector(TSize iDimension, bool iConstructAsZero = true);
-	Vector(const Vector<T>& iOther);
-	/*
-	template <typename U> explicit Vector(const Vector<U>& iOther): 
-	{
-		dimension_ = iOther.dimension();
-		if (dimension_ > 0)
-		{
-			values_.reset(new T[dimension_]);
-			for (unsigned i = 0; i < dimension_; ++i)
-			{
-				values_[i] = iOther.values_[i];
-			}
-		}
-	}
-*/
-	Vector<T>& operator=(const Vector<T>& iOther);
+	Vector();
+	explicit Vector(TSize iDimension);
+	explicit Vector(const TStorage& iStorage);
+	template <typename VectorType> explicit Vector(const VectorType& iVector);
 
-	TSize dimension() const throw(); 
+	template <typename T2, typename S2> Vector<T, S>& operator=(const Vector<T2, S2>& iOther);
 
-	inline typename Vector::TConstReference operator[](TSize iIndex) const;
-	inline typename Vector::TReference operator[](TSize iIndex);
-	inline typename Vector::TConstReference at(TSize iIndex) const throw();
-	inline typename Vector::TReference at(TSize iIndex) throw();
+	TSize dimension() const; 
 
-	Vector<T>& operator+() const throw();
-	Vector<T> operator-() const;
-	Vector<T>& operator+=(const Vector<T>& iB);
-	Vector<T>& operator-=(const Vector<T>& iB);
-	Vector<T>& operator*=(TParam iB) throw();
-	Vector<T>& operator/=(TParam iB) throw();
+	const TValue operator[](TSize iIndex) const { return storage_[iIndex]; }
+	TReference operator[](TSize iIndex) { return storage_[iIndex]; }
+	const TValue at(TSize iIndex) const { return storage_[mod(iIndex, dimension())]; }
+	TReference at(TSize iIndex) { return storage_[mod(iIndex, dimension())]; }
 
-	bool isEmpty() const throw();
-	bool isZero() const throw();
-	TValue squaredNorm() const throw();
-	TValue norm() const throw();
-	Vector<T> normal() const;
-	Vector<T> reciprocal() const;
-	Vector<T> project(const Vector<T>& iB) const;
-	Vector<T> reject(const Vector<T>& iB) const;
+	const Vector<T, S>& operator+() const;
+	Vector<T, impl::VNeg<T, S> > operator-() const;
+	template <typename T2, typename S2> Vector<T, S>& operator+=(const Vector<T2, S2>& iB);
+	template <typename T2, typename S2> Vector<T, S>& operator-=(const Vector<T2, S2>& iB);
+	template <typename T2, typename S2> Vector<T, S>& operator*=(const Vector<T2, S2>& iB);
+	template <typename T2, typename S2> Vector<T, S>& operator/=(const Vector<T2, S2>& iB);
+	template <typename T2> Vector<T, S>& operator+=(const T2& iB);
+	template <typename T2> Vector<T, S>& operator-=(const T2& iB);
+	template <typename T2> Vector<T, S>& operator*=(const T2& iB);
+	template <typename T2> Vector<T, S>& operator/=(const T2& iB);
 
-	void normalize() throw();
+	bool isEmpty() const;
+	bool isZero() const;
+	TValue sum() const;
+	TValue squaredNorm() const;
+	TValue norm() const;
+	Vector<T, impl::VMul<T, S, impl::VScalar<T> > > normal() const;
+	Vector<T, impl::VRec<T, S> > reciprocal() const;
 
-	TPointer data() const throw();
-	void swap(Vector<T>& iOther) throw();
+	template <typename S2> Vector<T, impl::VMul<T, S, impl::VScalar<T> > > 
+		project(const Vector<T, S2>& iB) const;
+	template <typename S2> Vector<T, impl::VSub<T, S2, impl::VMul<T, S, impl::VScalar<T> > > > 
+		reject(const Vector<T, S2>& iB) const;
+
+	void normalize();
+
+	const TStorage& storage() const;
+	TStorage& storage();
+	void swap(Vector<T, S>& iOther);
 
 private:
 
-	typedef util::ScopedPtr<T, util::ArrayStorage> TValues;
-
-	TValues values_;
-	TSize dimension_;
+	TStorage storage_;
 };
 
+template <typename T, typename S1, typename S2> 
+bool operator==(const Vector<T>& iA, const Vector<T>& iB);
+template <typename T, typename S1, typename S2> 
+inline bool operator!=(const Vector<T>& iA, const Vector<T>& iB);
 
+template <typename T, typename S1, typename S2> 
+T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
+template <typename T, typename S> 
+Vector<T, impl::VFun<T, S> > transform(const Vector<T, S>& iA, T (*iF)(T));
 
-template <typename T> typename Vector<T>::TValue dot(const Vector<T>& iA, const Vector<T>& iB) throw();
-template <typename T> Vector<T> transform(const Vector<T>& iA, T (*iF)(T));
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::VAdd<T, S1, S2> > operator+(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::VSub<T, S1, S2> > operator-(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::VMul<T, S1, S2> > operator*(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::VDiv<T, S1, S2> > operator/(const Vector<T, S1>& iA, const Vector<T, S2>& iB);
 
-template <typename T> bool operator==(const Vector<T>& iA, const Vector<T>& iB) throw();
-template <typename T> inline bool operator!=(const Vector<T>& iA, const Vector<T>& iB) throw();
+template <typename T, typename S> 
+Vector<T, impl::VAdd<T, impl::VScalar<T>, S> > operator+(const T& iA, const Vector<T, S>& iB);
+template <typename T, typename S> 
+Vector<T, impl::VSub<T, impl::VScalar<T>, S> > operator-(const T& iA, const Vector<T, S>& iB);
+template <typename T, typename S> 
+Vector<T, impl::VMul<T, impl::VScalar<T>, S> > operator*(const T& iA, const Vector<T, S>& iB);
+template <typename T, typename S> 
+Vector<T, impl::VDiv<T, impl::VScalar<T>, S> > operator/(const T& iA, const Vector<T, S>& iB);
 
-template <typename T> inline Vector<T> operator+(const Vector<T>& iA, const Vector<T>& iB);
-template <typename T> inline Vector<T> operator-(const Vector<T>& iA, const Vector<T>& iB);
-template <typename T> inline Vector<T> operator*(const Vector<T>& iA, const T& iB);
-template <typename T> inline Vector<T> operator/(const Vector<T>& iA, const T& iB);
-template <typename T> inline Vector<T> operator*(const T& iA, const Vector<T>& iB);
+template <typename T, typename S> 
+Vector<T, impl::VAdd<T, S, impl::VScalar<T> > > operator+(const Vector<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+Vector<T, impl::VSub<T, S, impl::VScalar<T> > > operator-(const Vector<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+Vector<T, impl::VMul<T, S, impl::VScalar<T> > > operator*(const Vector<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+Vector<T, impl::VDiv<T, S, impl::VScalar<T> > > operator/(const Vector<T, S>& iA, const T& iB);
 
-template <typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector<T>& iB);
-template <typename T> std::istream& operator>>(std::istream& ioIStream, Vector<T>& iB);
+template <typename T, typename S> 
+std::ostream& operator<<(std::ostream& ioOStream, const Vector<T, S>& iB);
+template <typename T> 
+std::istream& operator>>(std::istream& ioIStream, Vector<T>& iB);
 
 
 

@@ -307,9 +307,6 @@ public:
 
 // --- runtime algorithms --------------------------------------------------------------------------
 
-namespace impl
-{
-
 template <typename TypeListType> struct RunTimeFinder {};
 
 /** returns index of type in typelist at runtime, or -1 if not present
@@ -318,7 +315,7 @@ template <typename TypeListType> struct RunTimeFinder {};
  */
 template <typename TypeListType> int find(const util::TypeInfo& iType)
 {
-	return impl::RunTimeFinder<TypeListType>::result(iType);
+	return RunTimeFinder<TypeListType>::result(iType);
 }
 
 
@@ -344,9 +341,6 @@ struct RunTimeFinder<TypeList<HeadType, TailType> >
 		return result == -1 ? -1 : result + 1;
 	}
 };
-
-}
-
 
 }
 

@@ -57,34 +57,34 @@
  *      typedef ... TPointer;   // return type of pointer() or operator-> (usually T*)
  *      typedef ... TReference; // return type of operator* or operator[] (usually T&)
  *  
- *      TStorage& storage() throw();
+ *      TStorage& storage();
  *      // return reference to storage object (usualy to a pointer)
  *
- *      const TStorage& storage() const throw(); 
+ *      const TStorage& storage() const; 
  *      // return const-reference to storage object
  *  
  *  protected:
  *
- *      StoragePolicy() throw();  
+ *      StoragePolicy();  
  *      // should initialize with default storage object (in most cases: NULL)
  *
- *      StoragePolicy(T* iPointee) throw();
+ *      StoragePolicy(T* iPointee);
  *      // should initialize to store given pointee.
  *  
- *      TPointer pointer() const throw(); 
+ *      TPointer pointer() const; 
  *      // should return a pointer to the pointee
  *
  *      TReference at(size_t iIndex) const; 
  *      // for arrays only: should return reference to iIndex'th object in array 
  *      // (YOU CAN OMMIT THIS FOR NON-ARRAYS)
  *  
- *      void dispose() throw(); 
+ *      void dispose(); 
  *      // deallocate the pointee (e.g. by a delete or delete [])
  *
- *      bool isNull() const throw(); 
+ *      bool isNull() const; 
  *      // return true if storage contains equivalent of NULL pointer.
  *
- *      void swap(StoragePolicy<T>& iOther) throw(); 
+ *      void swap(StoragePolicy<T>& iOther); 
  *      // swap storage object with other policy.
  *  };
  *  @endcode
@@ -115,21 +115,21 @@
  *  
  *  protected:
  *  
- *      DefaultCounter() throw(); // brings object in valid state without setting any counter.
+ *      DefaultCounter(); // brings object in valid state without setting any counter.
  *
  *      template <typename TStorage> void init(TStorage& iPointee); 
  *      // initialize reference count one one.  This is called on acquring of object by first owner
  *      // (increment isn't called for first owner). 
  *  
- *      template <typename TStorage> void dispose(TStorage& iPointee) throw();
+ *      template <typename TStorage> void dispose(TStorage& iPointee);
  *      // clean up the counter (not the pointee).  This is called when reference count drops to 
  *      // zero (thus on release by last owner).
  *      
- *      template <typename TStorage> void increment(TStorage& iPointee) throw();
+ *      template <typename TStorage> void increment(TStorage& iPointee);
  *      // increment the reference count by one.  This is called on acquiring of object by any owner
  *      // except the first (the first one calls init(TStorage&) instead).
  *  
- *      template <typename TStorage> bool decrement(TStorage& iPointee) throw();
+ *      template <typename TStorage> bool decrement(TStorage& iPointee);
  *      // decrement the reference count by one and returns true if it drops below one.  This is 
  *      // called on every release of the object by any owner.  It should return true if @e after 
  *      // the decrement the reference count turns out the be less than one (i.e. there are no more
@@ -137,10 +137,10 @@
  *      // all other cases, it should return false @e after the (i.e. if the reference count is
  *      // still non-zero after the decrement).
  *      
- *      template <typename TStorage> TCount count(TStorage& iPointee) const throw();
+ *      template <typename TStorage> TCount count(TStorage& iPointee) const;
  *      // return the reference count, i.e. number of owners of the pointee
  *
- *      void swap(DefaultCounter& iOther) throw();
+ *      void swap(DefaultCounter& iOther);
  *      // swap any reference counters with other policy.
  *  };
  *  @endcode
@@ -181,26 +181,26 @@ public:
 	typedef T* TPointer;
 	typedef T& TReference;
 
-	TStorage& storage() throw() { return storage_; }
-	const TStorage& storage() const throw() { return storage_; }
+	TStorage& storage() { return storage_; }
+	const TStorage& storage() const { return storage_; }
 
 protected:
 
-	ObjectStorage() throw(): storage_(defaultStorage()) {}
-	ObjectStorage(T* iPointee) throw(): storage_(iPointee) {}
+	ObjectStorage(): storage_(defaultStorage()) {}
+	ObjectStorage(T* iPointee): storage_(iPointee) {}
 
-	TPointer pointer() const throw() { return storage_; }
+	TPointer pointer() const { return storage_; }
 
-	void dispose() throw() 
+	void dispose() 
 	{
 		delete storage_; 
 		storage_ = 0; 
 	}
 
-	bool isNull() const throw() { return !storage_;	}
-	void swap(ObjectStorage<T>& iOther) throw() { std::swap(storage_, iOther.storage_);	}
+	bool isNull() const { return !storage_;	}
+	void swap(ObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
 
-	static TStorage defaultStorage() throw() { return 0; }
+	static TStorage defaultStorage() { return 0; }
 
 private:
 
@@ -227,27 +227,27 @@ public:
 	typedef T* TPointer;
 	typedef T& TReference;
 
-	TStorage& storage() throw() { return storage_; }
-	const TStorage& storage() const throw() { return storage_; }
+	TStorage& storage() { return storage_; }
+	const TStorage& storage() const { return storage_; }
 
 protected:
 
-	ArrayStorage() throw(): storage_(defaultStorage()) { }
-	ArrayStorage(T* iPointee) throw(): storage_(iPointee) { }
+	ArrayStorage(): storage_(defaultStorage()) { }
+	ArrayStorage(T* iPointee): storage_(iPointee) { }
 
-	TPointer pointer() const throw() { return storage_; }
+	TPointer pointer() const { return storage_; }
 	TReference at(size_t iIndex) const { return storage_[iIndex]; }
 
-	void dispose() throw()
+	void dispose()
 	{
 		delete [] storage_; 
 		storage_ = 0; 
 	}
 
-	bool isNull() const throw() { return !storage_; }
-    void swap(ArrayStorage<T>& iOther) throw() { std::swap(storage_, iOther.storage_);	}
+	bool isNull() const { return !storage_; }
+    void swap(ArrayStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
 
-	static TStorage defaultStorage() throw() { return 0; }
+	static TStorage defaultStorage() { return 0; }
 
 private:
 
@@ -275,7 +275,7 @@ public:
 
 protected:
 
-	DefaultCounter() throw(): count_(0) {}
+	DefaultCounter(): count_(0) {}
 
 	template <typename TStorage> void init(TStorage& iPointee)
 	{
@@ -285,33 +285,33 @@ protected:
 		*count_ = 1;
 	}
 
-	template <typename TStorage> void dispose(TStorage& iPointee) throw()
+	template <typename TStorage> void dispose(TStorage& iPointee)
 	{
 		LASS_ASSERT(count_);
 		delete count_;
 		count_ = 0;
 	}
 	
-	template <typename TStorage> void increment(TStorage& iPointee) throw()
+	template <typename TStorage> void increment(TStorage& iPointee)
 	{
 		LASS_ASSERT(count_);
 		++*count_;
 	}
 
-	template <typename TStorage> bool decrement(TStorage& iPointee) throw()
+	template <typename TStorage> bool decrement(TStorage& iPointee)
 	{
 		LASS_ASSERT(count_);
 		--*count_;
 		return *count_ < 1;
 	}
 	
-	template <typename TStorage> TCount count(TStorage& iPointee) const throw()
+	template <typename TStorage> TCount count(TStorage& iPointee) const
 	{
 		LASS_ASSERT(count_);
 		return *count_;
 	}
 	
-	void swap(DefaultCounter& iOther) throw() {	std::swap(count_, iOther.count_); }
+	void swap(DefaultCounter& iOther) {	std::swap(count_, iOther.count_); }
 
 private:
 

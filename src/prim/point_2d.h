@@ -43,17 +43,16 @@
 #include "vector_2d.h"
 #include "../io/matlab_o_stream.h"
 
-
-
 namespace lass
 {
-
 namespace prim
 {
 
 template<typename T>
-struct Point2D
+class Point2D
 {
+public:
+
     typedef typename Point2D<T> TSelf;
 
 	typedef typename Vector2D<T> TVector;
@@ -71,56 +70,54 @@ struct Point2D
         typedef typename Point2D<U> Type;
     };
 
-	union
-	{
-		struct
-		{
-			TVector position;
-		};
-		struct
-		{
-			TValue x;
-			TValue y;
-		};
-	};
+	Point2D();
+	Point2D(TParam iX, TParam iY);
 
-	Point2D() throw();
-	Point2D(TParam iX, TParam iY) throw();
-
-	template <typename U> explicit Point2D(const Point2D<U>& iOther) throw():
+	template <typename U> explicit Point2D(const Point2D<U>& iOther):
 		x(iOther.x), 
 		y(iOther.y)
 	{
 	}
 
-	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector) throw():
-		position(iPositionVector)
+	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector):
+		position_(iPositionVector)
 	{
 	}
 
+	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;
+	TConstReference at(signed iIndex) const;
+	TConstReference x() const;
+	TConstReference y() const;
+
+	TVector& position();
 	TReference operator[](unsigned iIndex);
-	TConstReference at(signed iIndex) const throw();
-	TReference at(signed iIndex) throw();
+	TReference at(signed iIndex);
+	TReference x();
+	TReference y();
 
-	Point2D<T>& operator+=(const Vector2D<T>& iOffset) throw();
-	Point2D<T>& operator-=(const Vector2D<T>& iOffset) throw();
+	Point2D<T>& operator+=(const Vector2D<T>& iOffset);
+	Point2D<T>& operator-=(const Vector2D<T>& iOffset);
 
-	const bool isZero() const throw();
+	const bool isZero() const;
+
+public:
+
+	TVector position_;
 };
 
-template<typename T> bool operator==(const Point2D<T>& iA, const Point2D<T>& iB) throw();
-template<typename T> bool operator!=(const Point2D<T>& iA, const Point2D<T>& iB) throw();
+template<typename T> bool operator==(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> bool operator!=(const Point2D<T>& iA, const Point2D<T>& iB);
 
-template<typename T> Point2D<T> operator+(const Point2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Point2D<T> operator+(const Vector2D<T>& iA, const Point2D<T>& iB) throw();
-template<typename T> Point2D<T> operator-(const Point2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator-(const Point2D<T>& iA, const Point2D<T>& iB) throw();
+template<typename T> Point2D<T> operator+(const Point2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Point2D<T> operator+(const Vector2D<T>& iA, const Point2D<T>& iB);
+template<typename T> Point2D<T> operator-(const Point2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator-(const Point2D<T>& iA, const Point2D<T>& iB);
 
-template<typename T> typename Point2D<T>::TValue distance(const Point2D<T>& iA, const Point2D<T>& iB) throw();
-template<typename T> typename Point2D<T>::TValue squaredDistance(const Point2D<T>& iA, const Point2D<T>& iB) throw();
-template<typename T> Point2D<T> pointwiseMin(const Point2D<T>& iA, const Point2D<T>& iB) throw();
-template<typename T> Point2D<T> pointwiseMax(const Point2D<T>& iA, const Point2D<T>& iB) throw();
+template<typename T> typename Point2D<T>::TValue distance(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> typename Point2D<T>::TValue squaredDistance(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> Point2D<T> pointwiseMin(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> Point2D<T> pointwiseMax(const Point2D<T>& iA, const Point2D<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Point2D<T>& iB);
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2D<T>& iB);

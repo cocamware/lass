@@ -37,8 +37,9 @@ namespace lass
 namespace num
 {
 
-template <typename T> Vector<T> operator*(const Matrix<T>& iA, const Vector<T>& iB);
-template <typename T> Matrix<T> diagonal(const Vector<T>& iB);
+template <typename T, typename S> Vector<T> operator*(const Matrix<T>& iA, const Vector<T, S>& iB);
+template <typename T, typename S> Matrix<T> diagonal(const Vector<T, S>& iB);
+template <typename T> bool solve(const Matrix<T>& iA, Vector<T>& iB);
 
 }
 

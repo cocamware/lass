@@ -50,7 +50,8 @@ namespace num
  *  @relates lass::num::Matrix
  *  @relatesalso lass::num::Vector
  */
-template <typename T> Vector<T> operator*(const Matrix<T>& iA, const Vector<T>& iB)
+template <typename T, typename S> 
+Vector<T> operator*(const Matrix<T>& iA, const Vector<T, S>& iB)
 {
 	typedef typename Matrix<T>::TNumTraits TNumTraits;
 
@@ -59,7 +60,7 @@ template <typename T> Vector<T> operator*(const Matrix<T>& iA, const Vector<T>& 
 	const TSize m = iA.rows();
 	const TSize n = iA.cols();
 
-	Vector<T> result(m, true);
+	Vector<T> result(m);
 	for (TSize i = 0; i < m; ++i)
 	{
 		result[i] = TNumTraits::zero;
@@ -78,10 +79,10 @@ template <typename T> Vector<T> operator*(const Matrix<T>& iA, const Vector<T>& 
  *  @relatesalso lass::num::Vector
  *  @sa lass::num::Matrix::isDiagonal
  */
-template <typename T>
-Matrix<T> diagonal(const Vector<T>& iB)
+template <typename T, typename S>
+Matrix<T> diagonal(const Vector<T, S>& iB)
 {
-	typedef typename Vector<T>::TSize TSize;
+	typedef typename Vector<T, S>::TSize TSize;
 	const TSize size = iB.dimension();
 
 	Matrix<T> result(size, size);

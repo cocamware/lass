@@ -33,19 +33,43 @@
 
 #include "../num/vector.h"
 #include "../num/matrix.h"
+#include "../num/random.h"
+#include "../num/distribution.h"
 
 namespace lass
 {
 namespace test
 {
+namespace num_vector
+{
+
+template <typename T>
+struct Generator
+{
+	num::RandomMT19937 random_;
+	num::DistributionUniform<T, num::RandomMT19937> distribution_;
+	Generator(): random_(), distribution_(random_) {}
+	T operator()() { return distribution_(); }
+};
+
+template <typename T>
+struct Generator<std::complex<T> >
+{
+	num::RandomMT19937 random_;
+	num::DistributionUniform<T, num::RandomMT19937> distribution_;
+	Generator(): random_(), distribution_(random_) {}
+	std::complex<T> operator()() { return std::complex<T>(distribution_(), distribution_()); }
+};
+
+}
 
 template <typename T>
 void testNumVector()
 {
 	using namespace num;
+/*	
 
 	typedef Vector<T> TVector;
-	
 	TVector a;
 	BOOST_CHECK(a.isEmpty());
 	BOOST_CHECK(a.isZero());
@@ -74,6 +98,104 @@ void testNumVector()
 	BOOST_CHECK_EQUAL(b, a + c);
 	BOOST_CHECK_EQUAL(a.squaredNorm(), b.squaredNorm());
 	BOOST_CHECK_EQUAL(a, -b);
+*/
+	// let's go a bit wild :)
+	//
+	unsigned n = 100;
+	unsigned i;
+	std::vector<T> aRef(n);
+	std::vector<T> bRef(n);
+	std::vector<T> cRef(n);
+	num_vector::Generator<T> generator;
+	for (i = 0; i < n; ++i)
+	{
+		aRef[i] = generator();
+		bRef[i] = generator();
+		cRef[i] = generator();
+	}
+
+	// construct a vector with 1000 elements
+	//
+	Vector<T> a(n);
+	BOOST_CHECK_EQUAL(a.dimension(), n);
+	BOOST_CHECK(!a.isEmpty());
+	for (i = 0; i < n; ++i)
+	{
+		a[i] = aRef[i];
+		BOOST_CHECK_EQUAL(a[i], aRef[i]);
+	}
+
+	// construct some vector from their representation
+	//
+	Vector<T> b(bRef);
+	Vector<T> c(cRef);
+	BOOST_CHECK_EQUAL(b.dimension(), n);
+	BOOST_CHECK_EQUAL(c.dimension(), n);
+	BOOST_CHECK(!b.isEmpty());
+	BOOST_CHECK(!c.isEmpty());
+
+	// final check
+	//
+	for (i = 0; i < n; ++i)
+	{
+		BOOST_CHECK_EQUAL(a[i], aRef[i]);
+		BOOST_CHECK_EQUAL(b[i], bRef[i]);
+		BOOST_CHECK_EQUAL(c[i], cRef[i]);
+	}
+
+	// construct empty vector
+	//
+	Vector<T> d;
+	BOOST_CHECK_EQUAL(d.dimension(), 0);
+	BOOST_CHECK(d.isEmpty());
+
+	d = a;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i]);
+
+	d = +b;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], b[i]);
+
+	d = -c;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], -c[i]);
+
+	d += a;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] - c[i]);
+	
+	d -= b;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] - c[i] - b[i]);
+	
+	d = a;
+	d *= b;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] * b[i]);
+	
+	d /= c;
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] * b[i]) / c[i]);
+	
+	d = a;
+	d += T(1);
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] + T(1)));
+	
+	d -= T(2);
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] + T(1)) - T(2));
+	
+	d = b;
+	d *= T(2);
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], T(2) * b[i]);
+
+	d = b;
+	d /= T(4);
+	BOOST_CHECK_EQUAL(d.dimension(), n);
+	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], b[i] / T(4));
 }
 
 
@@ -115,7 +237,7 @@ void testNumSolve()
 
 	const TSize n = 3;
 	Matrix<T> a(n, n);
-	Vector<T> b(n, 1);
+	Vector<T> b(n);
 
 	int v = 0;
 	for (TSize i = 0; i < n; ++i)

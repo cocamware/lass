@@ -78,10 +78,10 @@ struct Vector4D
 
 	// methods
 
-	Vector4D() throw();
-	Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) throw();
+	Vector4D();
+	Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW);
 
-	template <typename U> explicit Vector4D(const Vector4D<U>& iOther) throw(): 
+	template <typename U> explicit Vector4D(const Vector4D<U>& iOther): 
 		x(iOther.x), 
 		y(iOther.y),
 		z(iOther.z),
@@ -91,54 +91,54 @@ struct Vector4D
 
 	typename Vector4D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector4D::TReference operator[](unsigned iIndex) ;
-	typename Vector4D::TConstReference at(signed iIndex) const throw();
-	typename Vector4D::TReference at(signed iIndex) throw();
+	typename Vector4D::TConstReference at(signed iIndex) const;
+	typename Vector4D::TReference at(signed iIndex);
 
-	const Vector4D<T>& operator+() const throw();
-	const Vector4D<T> operator-() const throw();
-	Vector4D<T>& operator+=(const Vector4D<T>& iB) throw();
-	Vector4D<T>& operator-=(const Vector4D<T>& iB) throw();
-	Vector4D<T>& operator*=(const Vector4D<T>& iB) throw();
-	Vector4D<T>& operator/=(const Vector4D<T>& iB) throw();
-	Vector4D<T>& operator+=(TParam iB) throw();
-	Vector4D<T>& operator-=(TParam iB) throw();
-	Vector4D<T>& operator*=(TParam iB) throw();
-	Vector4D<T>& operator/=(TParam iB) throw();
+	const Vector4D<T>& operator+() const;
+	const Vector4D<T> operator-() const;
+	Vector4D<T>& operator+=(const Vector4D<T>& iB);
+	Vector4D<T>& operator-=(const Vector4D<T>& iB);
+	Vector4D<T>& operator*=(const Vector4D<T>& iB);
+	Vector4D<T>& operator/=(const Vector4D<T>& iB);
+	Vector4D<T>& operator+=(TParam iB);
+	Vector4D<T>& operator-=(TParam iB);
+	Vector4D<T>& operator*=(TParam iB);
+	Vector4D<T>& operator/=(TParam iB);
 
-	const bool isZero() const throw();
-	const TValue squaredNorm() const throw();
-	const TValue norm() const throw();
-	const Vector4D<T> normal() const throw();
-	const Vector4D<T> reciprocal() const throw();
-	const Vector4D<T> project(const Vector4D<T>& iB) const throw();
-	const Vector4D<T> reject(const Vector4D<T>& iB) const throw();
+	const bool isZero() const;
+	const TValue squaredNorm() const;
+	const TValue norm() const;
+	const Vector4D<T> normal() const;
+	const Vector4D<T> reciprocal() const;
+	const Vector4D<T> project(const Vector4D<T>& iB) const;
+	const Vector4D<T> reject(const Vector4D<T>& iB) const;
 
 	void normalize();
 };
 
-template<typename T> typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
+template<typename T> typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB);
 template<typename T> Vector4D<T> transform(const Vector4D<T>& iA, T (*iF)(T));
 
-template<typename T> bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
-template<typename T> bool operator!=(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
+template<typename T> bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB);
+template<typename T> bool operator!=(const Vector4D<T>& iA, const Vector4D<T>& iB);
 
-template<typename T> Vector4D<T> operator+(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> operator-(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> operator*(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> operator/(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
+template<typename T> Vector4D<T> operator+(const Vector4D<T>& iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> operator-(const Vector4D<T>& iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> operator*(const Vector4D<T>& iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> operator/(const Vector4D<T>& iA, const Vector4D<T>& iB);
 
-template<typename T> Vector4D<T> operator+(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB) throw();
-template<typename T> Vector4D<T> operator-(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB) throw();
-template<typename T> Vector4D<T> operator*(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB) throw();
-template<typename T> Vector4D<T> operator/(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB) throw();
+template<typename T> Vector4D<T> operator+(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB);
+template<typename T> Vector4D<T> operator-(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB);
+template<typename T> Vector4D<T> operator*(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB);
+template<typename T> Vector4D<T> operator/(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB);
 
-template<typename T> Vector4D<T> operator+(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> operator-(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> operator*(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB) throw();
+template<typename T> Vector4D<T> operator+(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> operator-(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> operator*(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB);
 // we don't allow scalar / vector.  you can do scalar * vector.reciprocal() for that.
 
-template<typename T> Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
-template<typename T> Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB) throw();
+template<typename T> Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB);
+template<typename T> Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector4D<T>& iB);
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Vector4D<T>& iB);

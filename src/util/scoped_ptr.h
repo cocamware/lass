@@ -107,35 +107,35 @@ public:
 
 	/** Default constructor initializes to a default set by storage policy, usually NULL.
 	 */
-	ScopedPtr() throw(): 
+	ScopedPtr(): 
 		StoragePolicy<T>()
 	{
 	}
 
 	/** Constructs from iPointee allocated in agreement with storage policy or be @c NULL.
 	 */
-	explicit ScopedPtr(T* iPointee) throw(): 
+	explicit ScopedPtr(T* iPointee): 
 		StoragePolicy<T>(iPointee)
 	{
 	}
 
 	/** Constructs by stealing pointer from a std::auto_ptr.
 	 */
-	ScopedPtr(std::auto_ptr<T> iOther) throw():
+	ScopedPtr(std::auto_ptr<T> iOther):
 		StoragePolicy<T>(iOther.release())
 	{
 	}
 
 	/** Destructor always disposes pointee.
 	 */
-	~ScopedPtr() throw()
+	~ScopedPtr()
 	{
 		StoragePolicy<T>::dispose();
 	}
 
     /** reset the scoped pointer to default by disposing old pointee and setting to default. 
      */
-    void reset() throw()
+    void reset()
     {
         TSelf temp;
         swap(temp);
@@ -143,7 +143,7 @@ public:
 
 	/** reset the scoped pointer by disposing old pointee and taking new one.
 	 */
-	void reset(T* iPointee) throw()
+	void reset(T* iPointee)
 	{
 		TSelf temp(iPointee);
 		swap(temp);
@@ -151,7 +151,7 @@ public:
 
     /** reset the scoped pointer by disposing old pointee and taking new one from std::auto_ptr.
      */
-    void reset(std::auto_ptr<T> iOther) throw()
+    void reset(std::auto_ptr<T> iOther)
     {
         TSelf temp(iOther);
         swap(temp);
@@ -159,7 +159,7 @@ public:
 
 	/** return pointer to pointee.
 	 */
-	TPointer get() const throw()
+	TPointer get() const
 	{
 		return StoragePolicy<T>::pointer();
 	}
@@ -198,7 +198,7 @@ public:
 	 *  @warning You can screw up things seriously if you change the storage object.  
      *           DON'T DO THIS UNLESS YOU'RE ABSOLUTELY SURE YOU KNOW WHAT YOU'RE DOING!
 	 */
-	TStorage& storage() throw()
+	TStorage& storage()
 	{
 		return StoragePolicy<T>::storage();
 	}
@@ -206,7 +206,7 @@ public:
 	/** return by reference the storage object that stores the link to the pointee.
 	 *  This will usually return a constant reference to a pointer, const T*&.
 	 */
-	const TStorage& storage() const throw()
+	const TStorage& storage() const
 	{
 		return StoragePolicy<T>::storage();
 	}
@@ -214,7 +214,7 @@ public:
 	/** return true if pointer doesn't own any object.
 	 *  @return this->get() == 0.
 	 */
-	bool isEmpty() const throw()
+	bool isEmpty() const
 	{
 		return StoragePolicy<T>::isNull();
 	}
@@ -222,7 +222,7 @@ public:
 	/** return true if pointer doesn't own any object (same as isEmpty).
 	 *  @return this->get() == 0.
 	 */
-	bool operator!() const throw()
+	bool operator!() const
 	{
 		return isEmpty();
 	}
@@ -231,14 +231,14 @@ public:
 	 *  @return this->get() != 0.
 	 *  @sa num::SafeBool
 	 */
-	operator num::SafeBool() const throw()
+	operator num::SafeBool() const
 	{
 		return isEmpty() ? num::safeFalse : num::safeTrue;
 	}
 
 	/** exchange the pointees between two shared pointers
 	 */
-	void swap(TSelf& iOther) throw()
+	void swap(TSelf& iOther)
 	{
 		StoragePolicy<T>::swap(static_cast<StoragePolicy<T>&>(iOther));
 	}

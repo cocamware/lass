@@ -31,6 +31,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stde", "stde\stde.vcproj", 
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		win32_intel700 = win32_intel700
@@ -95,6 +99,14 @@ Global
 		{3D59E9F7-20A9-49F8-863A-8929799D7A26}.win32_vc71.Build.0 = win32_vc71|Win32
 		{3D59E9F7-20A9-49F8-863A-8929799D7A26}.win32_vc71_d.ActiveCfg = win32_vc71_d|Win32
 		{3D59E9F7-20A9-49F8-863A-8929799D7A26}.win32_vc71_d.Build.0 = win32_vc71_d|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_intel700.ActiveCfg = win32_intel700|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_intel700.Build.0 = win32_intel700|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_intel700_d.ActiveCfg = win32_intel700_d|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_intel700_d.Build.0 = win32_intel700_d|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_vc71.ActiveCfg = win32_vc71|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_vc71.Build.0 = win32_vc71|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_vc71_d.ActiveCfg = win32_vc71_d|Win32
+		{643AA0CF-4C4E-47DE-ADB3-2918774DFEA7}.win32_vc71_d.Build.0 = win32_vc71_d|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

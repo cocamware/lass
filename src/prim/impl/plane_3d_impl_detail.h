@@ -60,7 +60,7 @@ struct Plane3DImplDetail
                                   T& oD)
     {
         oNormal = cross(iDirU, iDirV);
-        oD = -dot(oNormal, iSupport.position);
+        oD = -dot(oNormal, iSupport.position());
     }
 
     /** Generate directions vectors U and V of parametric equation P = S + x*U + y*V,

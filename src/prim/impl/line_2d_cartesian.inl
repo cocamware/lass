@@ -65,7 +65,7 @@ Line2DCartesian<T, NP>::Line2DCartesian(const TPoint& iSupport, const TPoint& iP
 	normal_((iPoint - iSupport).perp())
 {
 	NP::normalize(normal_);
-	d_ = -dot(normal_, iSupport.position);
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -81,7 +81,7 @@ Line2DCartesian<T, NP>::Line2DCartesian(const TPoint& iSupport, const TVector& i
 	normal_(iDirection.perp())
 {
 	NP::normalize(normal_);
-	d_ = -dot(normal_, iSupport.position);
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -97,7 +97,7 @@ Line2DCartesian<T, NP>::Line2DCartesian(const TVector& iNormal, const TPoint& iS
 	normal_(iNormal)
 {
     NP::normalize(normal_);
-	d_ = -dot(normal_, iSupport.position);
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -181,7 +181,7 @@ template<typename T, class NP>
 typename const Line2DCartesian<T, NP>::TValue 
 Line2DCartesian<T, NP>::equation(const TPoint& iPoint) const                  
 {
-    return dot(iPoint.position, normal_) + d_;
+    return dot(iPoint.position(), normal_) + d_;
 }
 
 

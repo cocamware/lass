@@ -192,13 +192,13 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 template <typename T> 
 PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV)
 {
-	return pyBuildSimpleObject(iV.position);
+	return pyBuildSimpleObject(iV.position());
 }
 
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
-    if (pyGetSimpleObject(iValue, oV.position) != 0)
+    if (pyGetSimpleObject(iValue, oV.position()) != 0)
 	{
 		impl::addMessageHeader("Point2D");
 		return 1;
@@ -218,13 +218,13 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 template <typename T> 
 PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV)
 {
-	return pyBuildSimpleObject(iV.position);
+	return pyBuildSimpleObject(iV.position());
 }
 
 template <typename T>
 int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 {
-    if (pyGetSimpleObject(iValue, oV.position) != 0)
+    if (pyGetSimpleObject(iValue, oV.position()) != 0)
 	{
 		impl::addMessageHeader("Point3D");
 		return 1;

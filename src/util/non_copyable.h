@@ -86,8 +86,8 @@ namespace util
 class LASS_DLL NonCopyable
 {
 public:
-    NonCopyable() throw() {}
-    ~NonCopyable() throw() {}
+    NonCopyable() {}
+    ~NonCopyable() {}
 private:
     NonCopyable( const NonCopyable& iOther );
     NonCopyable& operator=( const NonCopyable& iOther );

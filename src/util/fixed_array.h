@@ -80,17 +80,17 @@ public:
 
     // iterator support
 
-    iterator begin() throw() { return holder_.begin(); }
-    iterator end() throw() { return holder_.end(); }
+    iterator begin() { return holder_.begin(); }
+    iterator end() { return holder_.end(); }
 
-    const_iterator begin() const throw() { return holder_.begin(); }
-    const_iterator end() const throw() { return holder_.end(); }
+    const_iterator begin() const { return holder_.begin(); }
+    const_iterator end() const { return holder_.end(); }
 
-    reverse_iterator rbegin() throw() { return reverse_iterator(holder_.end()); }
-    reverse_iterator rend() throw() { return reverse_iterator(holder_.begin()); }
+    reverse_iterator rbegin() { return reverse_iterator(holder_.end()); }
+    reverse_iterator rend() { return reverse_iterator(holder_.begin()); }
 
-    const_reverse_iterator rbegin() const throw() { return const_reverse_iterator(holder_.end()); }
-    const_reverse_iterator rend() const throw() { return const_reverse_iterator(holder_.begin()); }
+    const_reverse_iterator rbegin() const { return const_reverse_iterator(holder_.end()); }
+    const_reverse_iterator rend() const { return const_reverse_iterator(holder_.begin()); }
 
 
     // direct element access
@@ -119,9 +119,9 @@ public:
 
     // general
 
-    size_type size() const throw() { return size_; }
-    size_type max_size() const throw() { return size_; }
-    bool empty() const throw() { return size_ == 0; }
+    size_type size() const { return size_; }
+    size_type max_size() const { return size_; }
+    bool empty() const { return size_ == 0; }
 
 private:
 
@@ -129,10 +129,10 @@ private:
     class Holder
     { 
     public:
-        iterator begin() throw() { return array_; }
-        iterator end() throw() { return array_ + size_; }
-        const_iterator begin() const throw() { return array_; }
-        const_iterator end() const throw() { return array_ + size_; }
+        iterator begin() { return array_; }
+        iterator end() { return array_ + size_; }
+        const_iterator begin() const { return array_; }
+        const_iterator end() const { return array_ + size_; }
         T* operator[](size_type iIndex) 
         { 
             LASS_ASSERT(iIndex >= 0 && iIndex < size_);
@@ -151,16 +151,16 @@ private:
     class Holder<0>
     { 
     public:
-        iterator begin() throw() { return 0; }
-        iterator end() throw() { return 0; }
-        const_iterator begin() const throw() { return 0; }
-        const_iterator end() const throw() { return 0; }
-        T* operator[](size_type iIndex) throw() 
+        iterator begin() { return 0; }
+        iterator end() { return 0; }
+        const_iterator begin() const { return 0; }
+        const_iterator end() const { return 0; }
+        T* operator[](size_type iIndex) 
         {
             LASS_ASSERT(false); // you should never be in here!
             return 0; 
         }
-        const T* operator[](size_type iIndex) const throw() 
+        const T* operator[](size_type iIndex) const 
         {
             LASS_ASSERT(false); // you should never be in here!
             return 0; 

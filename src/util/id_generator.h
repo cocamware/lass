@@ -71,11 +71,11 @@ class LASS_DLL_EXPORT IdGenerator
 {
 public:
 
-	IdGenerator( typename CallTraits<T>::TParam iFirstId = 0 ) throw();
+	IdGenerator( typename CallTraits<T>::TParam iFirstId = 0 );
 
 	typename CallTraits<T>::TValue operator()();
 
-	void setNext( typename CallTraits<T>::TParam iNextId ) throw();
+	void setNext( typename CallTraits<T>::TParam iNextId );
 
 private:
 

@@ -134,7 +134,7 @@ template<typename T, class NP>
 void Line2DParametric<T, NP>::getCartesian(TVector& oNormal, TReference oD) const
 {
 	oNormal = direction_.perp();
-    oD = -dot(oNormal, support_.position);
+    oD = -dot(oNormal, support_.position());
 }
 
 
@@ -181,7 +181,7 @@ Line2DParametric<T, NP>::equation(const TPoint& iPoint) const
     TVector normal;
     TValue d;
     getCartesian(normal, d);
-    return dot(iPoint.position, normal) + d;
+    return dot(iPoint.position(), normal) + d;
 }
 
 

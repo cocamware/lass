@@ -41,7 +41,7 @@ namespace lass
 namespace prim
 {
 
-struct ColorRGBA
+class ColorRGBA
 {
 public:
 
@@ -54,45 +54,38 @@ public:
 	typedef TVector::TNumTraits TNumTraits;
 
 	enum { dimension = 4 };	/**< number of dimensions */
-	
-	struct boha
-	{
-		TVector vector;
-		boha(const TVector& v): vector(v) {}
-		};
 
-	union
-	{
-		boha vector;
-		struct
-		{
-			TValue r;
-			TValue g;
-			TValue b;
-			TValue a;
-		};
-	};
-
-	ColorRGBA() throw();
-	ColorRGBA(TParam iWhite, TParam iAlpha = ColorRGBA::TNumTraits::one) throw();
+	ColorRGBA();
+	ColorRGBA(TParam iWhite, TParam iAlpha = ColorRGBA::TNumTraits::one);
 	ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, 
-              TParam iAlpha = ColorRGBA::TNumTraits::one) throw();
+              TParam iAlpha = ColorRGBA::TNumTraits::one);
 	// HACK Yes, you have to use ColorRGBA::TNumTraits::one instead of TNumTraits::one because the 
 	// MSVC7.0 doesn't understand the latter [BdG].
 
-	TConstReference operator[]( unsigned iIndex ) const throw();
-	TReference operator[]( unsigned iIndex ) throw();
-	TConstReference at( signed iIndex ) const throw();
-	TReference at( signed iIndex ) throw();
+	const TVector& vector() const { return vector_; }
+	TConstReference operator[](unsigned iIndex) const { return vector_[iIndex]; }
+	TConstReference at(signed iIndex) const { return vector_.at(iIndex); }
+	TConstReference a() const { return vector_.x; }
+	TConstReference r() const { return vector_.y; }
+	TConstReference g() const { return vector_.z; }
+	TConstReference b() const { return vector_.w; }
 
-	ColorRGBA& operator+=( const ColorRGBA& iOther ) throw();
-	ColorRGBA& operator*=( const ColorRGBA& iOther ) throw();
+	TVector& vector() { return vector_; }
+	TReference operator[](unsigned iIndex) { return vector_[iIndex]; }
+	TReference at(signed iIndex) { return vector_.at(iIndex); }
+	TReference a() { return vector_.x; }
+	TReference r() { return vector_.y; }
+	TReference g() { return vector_.z; }
+	TReference b() { return vector_.w; }
 
-	const TValue brightness() const throw();
+	ColorRGBA& operator+=( const ColorRGBA& iOther );
+	ColorRGBA& operator*=( const ColorRGBA& iOther );
 
-	void gamma(TParam iGamma) throw();
-	const TValue clamp() throw();
-	const TValue expose(TParam iTime) throw();
+	const TValue brightness() const;
+
+	void gamma(TParam iGamma);
+	const TValue clamp();
+	const TValue expose(TParam iTime);
 
 	// matlab colormaps
 	//
@@ -112,12 +105,14 @@ public:
 private:
 
 	static const ColorRGBA map(const ColorRGBA* iMap, int iMapSize, TValue iValue);
+
+	TVector vector_;
 };
 
-ColorRGBA operator+( const ColorRGBA& iA, const ColorRGBA& iB ) throw();
-ColorRGBA operator*( const ColorRGBA& iA, const ColorRGBA& iB ) throw();
+ColorRGBA operator+( const ColorRGBA& iA, const ColorRGBA& iB );
+ColorRGBA operator*( const ColorRGBA& iA, const ColorRGBA& iB );
 
-ColorRGBA::TValue distance( const ColorRGBA& iA, const ColorRGBA& iB ) throw();
+ColorRGBA::TValue distance( const ColorRGBA& iA, const ColorRGBA& iB );
 
 }
 

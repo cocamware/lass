@@ -35,7 +35,7 @@ namespace prim
 
 /** intializes iterator to @a x axis.
  */
-XYZ::XYZ() throw():
+XYZ::XYZ():
     value_(0)
 {
 }
@@ -54,7 +54,7 @@ XYZ::XYZ(char iAxis)
 /** initializes iterator to an axis by number.
  *  ..., -1 == @a z, 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a x, ...
  */
-XYZ::XYZ(int iValue) throw():
+XYZ::XYZ(int iValue):
     value_(iValue)
 {
 }
@@ -76,7 +76,7 @@ XYZ::XYZ(const std::string& iAxis)
 
 /** return axis by character: "x", "y" or "z".
  */
-const char XYZ::axis() const throw()
+const char XYZ::axis() const
 {
     LASS_ASSERT(value_ >= 0 && value_ < 3);
 	const char axes[] = { 'x', 'y', 'z' };
@@ -85,7 +85,7 @@ const char XYZ::axis() const throw()
 
 
 
-XYZ& XYZ::operator++() throw()
+XYZ& XYZ::operator++()
 {
     LASS_ASSERT(value_ >= 0 && value_ < dimension);
     ++value_;
@@ -94,7 +94,7 @@ XYZ& XYZ::operator++() throw()
 
 
 
-XYZ& XYZ::operator--() throw()
+XYZ& XYZ::operator--()
 {
     LASS_ASSERT(value_ >= 0 && value_ < dimension);
     --value_;
@@ -103,7 +103,7 @@ XYZ& XYZ::operator--() throw()
 
 
 
-XYZ XYZ::operator++(int) throw()
+XYZ XYZ::operator++(int)
 {
     XYZ result(*this);
     ++*this;
@@ -112,7 +112,7 @@ XYZ XYZ::operator++(int) throw()
 
 
 
-XYZ XYZ::operator--(int) throw()
+XYZ XYZ::operator--(int)
 {
     XYZ result(*this);
     --*this;
@@ -121,7 +121,7 @@ XYZ XYZ::operator--(int) throw()
 
 
 
-XYZ& XYZ::operator+=(int iOffset) throw()
+XYZ& XYZ::operator+=(int iOffset)
 {
     value_ += iOffset;
     return *this;
@@ -129,7 +129,7 @@ XYZ& XYZ::operator+=(int iOffset) throw()
 
 
 
-XYZ& XYZ::operator-=(int iOffset) throw()
+XYZ& XYZ::operator-=(int iOffset)
 {
     value_ -= iOffset;
     return *this;
@@ -178,7 +178,7 @@ inline void XYZ::reset(char iAxis)
 
 /** @relates lass::prim::XYZ
  */
-bool operator==(const XYZ& iA, const XYZ& iB) throw()
+bool operator==(const XYZ& iA, const XYZ& iB)
 {
     return iA.value_ == iB.value_;
 }
@@ -187,7 +187,7 @@ bool operator==(const XYZ& iA, const XYZ& iB) throw()
 
 /** @relates lass::prim::XYZ
  */
-bool operator==(const XYZ& iA, char iB) throw()
+bool operator==(const XYZ& iA, char iB)
 {
 	return iA.axis() == iB;
 }
@@ -196,7 +196,7 @@ bool operator==(const XYZ& iA, char iB) throw()
 
 /** @relates lass::prim::XYZ
  */
-bool operator==(char iA, const XYZ& iB) throw()
+bool operator==(char iA, const XYZ& iB)
 {
 	return iA == iB.axis();
 }
@@ -224,7 +224,7 @@ bool operator==(const std::string& iA, const XYZ& iB)
 
 /** @relates lass::prim::XYZ
  */
-bool operator!=(const XYZ& iA, const XYZ& iB) throw()
+bool operator!=(const XYZ& iA, const XYZ& iB)
 {
     return !(iA == iB);
 }
@@ -234,7 +234,7 @@ bool operator!=(const XYZ& iA, const XYZ& iB) throw()
 
 /** @relates lass::prim::XYZ
  */
-bool operator!=(const XYZ& iA, char iB) throw()
+bool operator!=(const XYZ& iA, char iB)
 {
     return !(iA == iB);
 }
@@ -244,7 +244,7 @@ bool operator!=(const XYZ& iA, char iB) throw()
 
 /** @relates lass::prim::XYZ
  */
-bool operator!=(char iA, const XYZ& iB) throw()
+bool operator!=(char iA, const XYZ& iB)
 {
     return !(iA == iB);
 }
@@ -273,7 +273,7 @@ bool operator!=(const std::string& iA, const XYZ& iB)
 
 /** @relates lass::prim::XYZ
  */
-XYZ operator+(const XYZ& iA, int iOffset) throw()
+XYZ operator+(const XYZ& iA, int iOffset)
 {
     XYZ result(iA);
     result += iOffset;
@@ -284,7 +284,7 @@ XYZ operator+(const XYZ& iA, int iOffset) throw()
 
 /** @relates lass::prim::XYZ
  */
-XYZ operator-(const XYZ& iA, int iOffset) throw()
+XYZ operator-(const XYZ& iA, int iOffset)
 {
     XYZ result(iA);
     result -= iOffset;

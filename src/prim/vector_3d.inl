@@ -45,7 +45,7 @@ namespace prim
 
 
 template<typename T> 
-Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ) throw():
+Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 	x(iX),
 	y(iY),
 	z(iZ)
@@ -78,7 +78,7 @@ typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
  */
 template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
- throw() {
+ {
 	const T* result[] = { &x, &y, &z };
 	return *result[num::mod(iIndex, 3)];
 }
@@ -88,7 +88,7 @@ typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
 /** Wrap index around range. 
  */
 template<typename T> 
-typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex) throw()
+typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
 {
 	T* result[] = { &x, &y, &z };
 	return *result[num::mod(iIndex, 3)];
@@ -99,7 +99,7 @@ typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex) throw()
 /** A weird way to get back the same object 
  */
 template<typename T> 
-const Vector3D<T>& Vector3D<T>::operator+() const throw()
+const Vector3D<T>& Vector3D<T>::operator+() const
 {
 	return *this;
 }
@@ -107,7 +107,7 @@ const Vector3D<T>& Vector3D<T>::operator+() const throw()
 
 
 template<typename T> 
-const Vector3D<T> Vector3D<T>::operator-() const throw()
+const Vector3D<T> Vector3D<T>::operator-() const
 {
 	return Vector3D(-x, -y, -z);
 }
@@ -117,7 +117,7 @@ const Vector3D<T> Vector3D<T>::operator-() const throw()
 /** componentwise addition
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)  throw()
+Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB) 
 {
 	x += iB.x;
 	y += iB.y;
@@ -130,7 +130,7 @@ Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)  throw()
 /** componentwise subtraction
  */
 template<typename T> 
-Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB) throw()
+Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
 {
 	x -= iB.x;
 	y -= iB.y;
@@ -143,7 +143,7 @@ Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB) throw()
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB) throw()
+Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB)
 {
 	x *= iB.x;
 	y *= iB.y;
@@ -156,7 +156,7 @@ Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB) throw()
 /** Componentwise division.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB) throw()
+Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB)
 {
 	x /= iB.x;
 	y /= iB.y;
@@ -169,7 +169,7 @@ Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB) throw()
 /** add iB to each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(TParam iB) throw()
+Vector3D<T>& Vector3D<T>::operator+=(TParam iB)
 {
 	x += iB;
 	y += iB;
@@ -182,7 +182,7 @@ Vector3D<T>& Vector3D<T>::operator+=(TParam iB) throw()
 /** subtract iB of each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator-=(TParam iB) throw()
+Vector3D<T>& Vector3D<T>::operator-=(TParam iB)
 {
 	x -= iB;
 	y -= iB;
@@ -195,7 +195,7 @@ Vector3D<T>& Vector3D<T>::operator-=(TParam iB) throw()
 /** multiply each component of this with iB.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(TParam iB) throw()
+Vector3D<T>& Vector3D<T>::operator*=(TParam iB)
 {
 	x *= iB;
 	y *= iB;
@@ -208,7 +208,7 @@ Vector3D<T>& Vector3D<T>::operator*=(TParam iB) throw()
 /** divide each component of this by iB.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(TParam iB) throw()
+Vector3D<T>& Vector3D<T>::operator/=(TParam iB)
 {
 	x /= iB;
 	y /= iB;
@@ -221,7 +221,7 @@ Vector3D<T>& Vector3D<T>::operator/=(TParam iB) throw()
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector3D<T>::isZero() const  throw()
+const bool Vector3D<T>::isZero() const 
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
@@ -231,7 +231,7 @@ const bool Vector3D<T>::isZero() const  throw()
 /** Return squared norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const  throw()
+const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const 
 {
 	return dot(*this, *this);
 }
@@ -241,7 +241,7 @@ const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const  throw()
 /** Return norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::norm() const  throw()
+const typename Vector3D<T>::TValue Vector3D<T>::norm() const 
 {
 	return num::sqrt(squaredNorm());
 }
@@ -255,7 +255,7 @@ const typename Vector3D<T>::TValue Vector3D<T>::norm() const  throw()
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::normal() const  throw()
+const Vector3D<T> Vector3D<T>::normal() const 
 {
 	Vector3D<T> result(*this);
 	result.normalize();
@@ -267,7 +267,7 @@ const Vector3D<T> Vector3D<T>::normal() const  throw()
 /** return the reciprocal version of this vector
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::reciprocal() const  throw()
+const Vector3D<T> Vector3D<T>::reciprocal() const 
 {
 	Vector3D<T> result(TNumTraits::one, TNumTraits::one, TNumTraits::one);
 	result /= *this;
@@ -279,7 +279,7 @@ const Vector3D<T> Vector3D<T>::reciprocal() const  throw()
 /** Project vector on this one
  */
 template <typename T>
-const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const  throw()
+const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const 
 {
 	Vector3D<T> result;
 	result *= dot(iB, *this);
@@ -292,7 +292,7 @@ const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const  throw()
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const  throw()
+const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const 
 {
 	return iB - project(iB);
 }

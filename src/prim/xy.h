@@ -48,48 +48,48 @@ public:
 
     enum { dimension = 2 };
 
-    XY() throw();
+    XY();
 	XY(char iAxis);
-    explicit XY(int iValue) throw();
+    explicit XY(int iValue);
 	explicit XY(const std::string& iAxis);
 
-	const char axis() const throw();
-	operator int() const throw() { return value_; } /**< convert axis to integer. 
+	const char axis() const;
+	operator int() const { return value_; } /**< convert axis to integer. 
 												        0 == @a x, 1 == @a y */
 
-    XY& operator++() throw();
-    XY& operator--() throw();
-    XY operator++(int) throw();
-    XY operator--(int) throw();
+    XY& operator++();
+    XY& operator--();
+    XY operator++(int);
+    XY operator--(int);
 
-    XY& operator+=(int iOffset) throw();
-    XY& operator-=(int iOffset) throw();
+    XY& operator+=(int iOffset);
+    XY& operator-=(int iOffset);
 
 private:
 
     typedef num::Modulo<2, int> TValue;
 
-    friend bool operator==(const XY& iA, const XY& iB) throw();
+    friend bool operator==(const XY& iA, const XY& iB);
 
     void reset(char iAxis);
 
     TValue value_;
 };
 
-bool operator==(const XY& iA, const XY& iB) throw();
-bool operator==(const XY& iA, char iB) throw();
-bool operator==(char iA, const XY& iB) throw();
+bool operator==(const XY& iA, const XY& iB);
+bool operator==(const XY& iA, char iB);
+bool operator==(char iA, const XY& iB);
 bool operator==(const XY& iA, const std::string& iB);
 bool operator==(const std::string& iA, const XY& iB);
 
-bool operator!=(const XY& iA, const XY& iB) throw();
-bool operator!=(const XY& iA, char iB) throw();
-bool operator!=(char iA, const XY& iB) throw();
+bool operator!=(const XY& iA, const XY& iB);
+bool operator!=(const XY& iA, char iB);
+bool operator!=(char iA, const XY& iB);
 bool operator!=(const XY& iA, const std::string&  iB);
 bool operator!=(const std::string&  iA, const XY& iB);
 
-XY operator+(const XY& iA, int iOffset) throw();
-XY operator-(const XY& iA, int iOffset) throw();
+XY operator+(const XY& iA, int iOffset);
+XY operator-(const XY& iA, int iOffset);
 
 std::ostream& operator<<(std::ostream& ioS, const XY& iXY);
 

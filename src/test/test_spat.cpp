@@ -44,6 +44,7 @@ boost::unit_test_framework::test_suite* testSpat()
     boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::spat test suite");
 
     result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));
+
 	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
     result->add(BOOST_TEST_CASE(doTestPlanarMesh));
     result->add(BOOST_TEST_CASE(doTestMeshInterpolator));

@@ -69,7 +69,7 @@ Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TPoint& iPoi
 {
     NP::normalize(direction_);
 	normal_ = direction_.perp();
-    d_ = -dot(normal_, iSupport.position);
+    d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -87,7 +87,7 @@ Line2DCombined<T, NP>::Line2DCombined(const TPoint& iSupport, const TVector& iDi
 {
     NP::normalize(direction_);
 	normal_ = direction_.perp();
-    d_ = -dot(normal_, iSupport.position);
+    d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -105,7 +105,7 @@ Line2DCombined<T, NP>::Line2DCombined(const TVector& iNormal, const TPoint& iSup
 {
 	NP::normalize(normal_);
 	direction_ = -normal_.perp();
-	d_ = -dot(normal_, iSupport.position);
+	d_ = -dot(normal_, iSupport.position());
 }
 
 
@@ -190,7 +190,7 @@ template<typename T, class NP>
 typename const Line2DCombined<T, NP>::TValue 
 Line2DCombined<T, NP>::equation(const TPoint& iPoint) const                  
 {
-    return dot(iPoint.position, normal_) + d_;
+    return dot(iPoint.position(), normal_) + d_;
 }
 
 

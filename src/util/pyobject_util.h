@@ -126,7 +126,7 @@ namespace lass
 			PyObject* newArray = PyList_New(iV.size());
 			int i;
 			for (i = 0;i < int(iV.size()); ++i)
-				PyList_SetItem( newArray, i, pyBuildSimpleObject( iV.at(i) ) );
+				PyList_SetItem( newArray, i, pyBuildSimpleObject( iV[i] ) );
 			return newArray;
 		}
 		template<class C> 

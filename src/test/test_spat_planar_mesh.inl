@@ -41,21 +41,21 @@ typedef double TestType;
 
 int countCalls = 0;
 
-bool CountCalls( lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
+bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
 {
 	++countCalls; 
 	return true;
 }
 
-bool CountCallsLong( lass::spat::PlanarMesh<long,int,int,int>::TEdge* e)
+bool CountCallsLong( ::lass::spat::PlanarMesh<long,int,int,int>::TEdge* e)
 {
 	++countCalls; 
 	return true;
 }
 
-bool TestPropertiesDouble( lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e) 
+bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e) 
 {
-	typedef lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
+	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
 
 	BOOST_CHECK_EQUAL( (e->rot()->rot()->rot()->rot()), e );
 	BOOST_CHECK_EQUAL( e->rot()->oNext()->rot()->oNext(), e );

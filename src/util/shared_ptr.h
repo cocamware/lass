@@ -111,7 +111,7 @@ public:
 
 	/** Default constructor initializes to a default set by storage policy, usually NULL.
 	 */
-	SharedPtr() throw(): 
+	SharedPtr(): 
 		StoragePolicy<T>(), 
 		CounterPolicy()
 	{
@@ -161,7 +161,7 @@ public:
 	 *  Decreases the reference count.  If the reference count reaches 0, disposes the pointee by
      *  its storage policy.
 	 */
-	~SharedPtr() throw()
+	~SharedPtr()
 	{
 		if (!isEmpty())
 		{
@@ -178,7 +178,7 @@ public:
      *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it sets
      *  itself to the default of the storage policy (usually this is the NULL pointer).
 	 */
-    void reset() throw()
+    void reset()
 	{
         TSelf temp;
         swap(temp);
@@ -226,7 +226,7 @@ public:
 
 	/** return pointer to pointee
 	 */
-	TPointer get() const throw()
+	TPointer get() const
 	{
 		return StoragePolicy<T>::pointer();
 	}
@@ -265,7 +265,7 @@ public:
 	 *  @warning You can screw up things seriously if you change the storage object.  
      *           DON'T DO THIS UNLESS YOU'RE ABSOLUTELY SURE YOU KNOW WHAT YOU'RE DOING!
 	 */
-	TStorage& storage() throw()
+	TStorage& storage()
 	{
 		return StoragePolicy<T>::storage();
 	}
@@ -273,7 +273,7 @@ public:
 	/** return by reference the storage object that stores the link to the pointee.
 	 *  This will usually return a constant reference to a pointer (const T*&).
 	 */
-	const TStorage& storage() const throw()
+	const TStorage& storage() const
 	{
 		return StoragePolicy<T>::storage();
 	}
@@ -281,7 +281,7 @@ public:
 	/** return number of owners of this pointee.
 	 *  @return 0 if pointer is empty (get() == 0), the number of owners otherwise.
 	 */
-	TCount count() const throw()
+	TCount count() const
 	{
 		return !isEmpty() ? CounterPolicy::count(StoragePolicy<T>::storage()) : 0;
 	}
@@ -290,7 +290,7 @@ public:
 	 *  an empty pointer is never unique.
 	 *  @return true if this->count() == 1.
 	 */
-	bool isUnique() const throw()
+	bool isUnique() const
 	{
 		return count() == 1;
 	}
@@ -298,7 +298,7 @@ public:
 	/** return true if pointer doesn't own any object.
 	 *  @return this->get() == 0
 	 */
-	bool isEmpty() const throw()
+	bool isEmpty() const
 	{
 		return StoragePolicy<T>::isNull();
 	}
@@ -306,7 +306,7 @@ public:
 	/** return true if pointer doesn't own any object (same as isEmpty).
 	 *  @return this->get() == 0.
 	 */
-	bool operator!() const throw()
+	bool operator!() const
 	{
 		return isEmpty();
 	}
@@ -315,14 +315,14 @@ public:
 	 *  @return this->get() != 0.
 	 *  @sa num::SafeBool
 	 */
-	operator num::SafeBool() const throw()
+	operator num::SafeBool() const
 	{
 		return isEmpty() ? num::safeFalse : num::safeTrue;
 	}
 
 	/** exchange the pointees (and there reference counts) between two shared pointers
 	 */
-	void swap(TSelf& iOther) throw()
+	void swap(TSelf& iOther)
 	{
 		StoragePolicy<T>::swap(static_cast<StoragePolicy<T>&>(iOther));
 		CounterPolicy::swap(static_cast<CounterPolicy&>(iOther));

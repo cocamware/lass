@@ -61,48 +61,48 @@ public:
 		typedef Modulo<N, U> Type;
 	};
 
-	Modulo(TParam iValue = 0) throw();
+	Modulo(TParam iValue = 0);
 
-	Modulo<N, T> operator+() const throw();
-	Modulo<N, T> operator-() const throw();
+	Modulo<N, T> operator+() const;
+	Modulo<N, T> operator-() const;
 
-	Modulo<N, T>& operator++() throw();
-	Modulo<N, T>& operator--() throw();
-	Modulo<N, T> operator++(int) throw();
-	Modulo<N, T> operator--(int) throw();
+	Modulo<N, T>& operator++();
+	Modulo<N, T>& operator--();
+	Modulo<N, T> operator++(int);
+	Modulo<N, T> operator--(int);
 
-	Modulo<N, T>& operator+=(const Modulo<N, T>& iB) throw();
-	Modulo<N, T>& operator-=(const Modulo<N, T>& iB) throw();
-	Modulo<N, T>& operator*=(const Modulo<N, T>& iB) throw();
-	Modulo<N, T>& operator/=(const Modulo<N, T>& iB) throw();
+	Modulo<N, T>& operator+=(const Modulo<N, T>& iB);
+	Modulo<N, T>& operator-=(const Modulo<N, T>& iB);
+	Modulo<N, T>& operator*=(const Modulo<N, T>& iB);
+	Modulo<N, T>& operator/=(const Modulo<N, T>& iB);
 
-	operator T() const throw();
-	TParam value() const throw();
+	operator T() const;
+	TParam value() const;
 
 private:
 
-	bool isInRange(TParam iValue) const throw();
+	bool isInRange(TParam iValue) const;
 
 	TValue value_;
 };
 
 template <unsigned N, typename T> 
-bool operator==(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator==(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
-bool operator!=(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator!=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
-bool operator<(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator<(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
-bool operator>(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator>(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
-bool operator<=(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator<=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
-bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB) throw();
+bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
 
 template <unsigned N, typename T> 
 std::ostream& operator<<(std::ostream& iS, const Modulo<N, T>& iM);

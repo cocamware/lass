@@ -406,16 +406,18 @@ template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 {
 	unsigned i, j;
+	const TVector& p = iP.position();
     bool c = false;
 	const unsigned npol = size();
     for (i = 0, j = npol-1; i < npol; j = ++i) 
 	{
-        const TPoint& a = vertices_[i];
-        const TPoint& b = vertices_[j];
-		if ((((a.y<=iP.y) && (iP.y<b.y)) ||
-			((b.y<=iP.y) && (iP.y<a.y))) &&
-			(iP.x < (b.x - a.x) * (iP.y - a.y) / (b.y - a.y) + a.x))
-		c = !c;
+        const TVector& a = vertices_[i].position();
+        const TVector& b = vertices_[j].position();
+		if (((a.y <= p.y && p.y < b.y) || (b.y <= p.y && p.y < a.y)) &&
+			p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x)
+		{
+			c = !c;
+		}
 	}
     return c;
 }

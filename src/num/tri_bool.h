@@ -198,28 +198,28 @@ public:
 		sUnknown
 	};
 
-	TriBool(State iState = sUnknown) throw();
-	TriBool(bool iBool) throw();
+	TriBool(State iState = sUnknown);
+	TriBool(bool iBool);
 
-	const State state() const throw();
-	State& state() throw();
+	const State state() const;
+	State& state();
 
-	TriBool operator!() const throw();
-	operator SafeBool() const throw();
+	TriBool operator!() const;
+	operator SafeBool() const;
 
-    bool isTrue() const throw();
-    bool isFalse() const throw();
-    bool isUnknown() const throw();
+    bool isTrue() const;
+    bool isFalse() const;
+    bool isUnknown() const;
 
 private:
 
 	State state_;
 };
 
-TriBool operator==(TriBool iA, TriBool iB) throw();
-TriBool operator!=(TriBool iA, TriBool iB) throw();
-TriBool operator&&(TriBool iA, TriBool iB) throw();
-TriBool operator||(TriBool iA, TriBool iB) throw();
+TriBool operator==(TriBool iA, TriBool iB);
+TriBool operator!=(TriBool iA, TriBool iB);
+TriBool operator&&(TriBool iA, TriBool iB);
+TriBool operator||(TriBool iA, TriBool iB);
 
 std::ostream& operator<<(std::ostream& ioS, TriBool iB);
 

@@ -108,16 +108,16 @@ namespace lass
 			typedef T* TPointer;
 			typedef T& TReference;
 
-			TStorage& storage() throw() { return storage_; }
-			const TStorage& storage() const throw() { return storage_; }
+			TStorage& storage() { return storage_; }
+			const TStorage& storage() const { return storage_; }
 
 		protected:
 
 			PyObjectStorage(): storage_(defaultStorage()) {}
 			PyObjectStorage(T* iPointee): storage_(iPointee) {}
 			TPointer pointer() const { return storage_; }
-			void dispose() throw() { storage_ = 0; }
-			bool isNull() const throw() { return !storage_;	}
+			void dispose() { storage_ = 0; }
+			bool isNull() const { return !storage_;	}
 			void swap(PyObjectStorage<T>& iOther) { std::swap(storage_, iOther.storage_);	}
 			static TStorage defaultStorage() { return 0; }
 		private:
@@ -136,25 +136,25 @@ namespace lass
 		public:
 			typedef int TCount;
 		protected:
-			PyObjectCounter() throw() {}
+			PyObjectCounter() {}
 			template <typename TStorage> void init(TStorage& iPointee) {}
-			template <typename TStorage> void dispose(TStorage& iPointee) throw() {}
-			template <typename TStorage> void increment(TStorage& iPointee) throw()
+			template <typename TStorage> void dispose(TStorage& iPointee) {}
+			template <typename TStorage> void increment(TStorage& iPointee)
 			{
 				iPointee->PyPlus_INCREF();
 			}
-			template <typename TStorage> bool decrement(TStorage& iPointee) throw()
+			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				bool r = iPointee->ob_refcnt <=1;
 				iPointee->PyPlus_DECREF();
 				return r;
 			}
-			template <typename TStorage> TCount count(TStorage& iPointee) const throw()
+			template <typename TStorage> TCount count(TStorage& iPointee) const
 			{
 				LASS_ASSERT(iPointee);
 				return iPointee->ob_refcnt;
 			}
-			void swap(PyObjectCounter& iOther) throw() {}
+			void swap(PyObjectCounter& iOther) {}
 		private:
 			TCount counterToKeepCompilerFromDoingStupidThings_;
 		};

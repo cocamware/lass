@@ -23,35 +23,28 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_POINT_2DH_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_POINT_2DH_INL
-#pragma once
-
-
 
 #include "point_2dh.h"
-
-
 
 namespace lass
 {
 namespace prim
 {
 
-template<typename T> inline 
+template <typename T> inline 
 Point2DH<T>::Point2DH():
-	position()
+	position_()
 {
-	LASS_ASSERT(position.isZero());
+	LASS_ASSERT(position_.isZero());
 }
 
 
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(TParam iX, TParam iY, TParam iZ):
-	position(iX, iY, iZ)
+	position_(iX, iY, iZ)
 {
 }
 
@@ -59,7 +52,7 @@ Point2DH<T>::Point2DH(TParam iX, TParam iY, TParam iZ):
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(const TPoint& iAffinePoint):
-	position(iAffinePoint.x, iAffinePoint.y, TNumTraits::one)
+	position_(iAffinePoint.x(), iAffinePoint.y(), TNumTraits::one)
 {
 }
 
@@ -67,8 +60,17 @@ Point2DH<T>::Point2DH(const TPoint& iAffinePoint):
 
 template<typename T> inline 
 Point2DH<T>::Point2DH(const TVector& iPositionVector):
-	position(iPositionVector)
+	position_(iPositionVector)
 {
+}
+
+
+
+template <typename T> inline
+typename const Point2DH<T>::TVector&
+Point2DH<T>::position() const
+{
+	return position_;
 }
 
 
@@ -77,16 +79,7 @@ template<typename T> inline
 typename Point2DH<T>::TConstReference 
 Point2DH<T>::operator[](unsigned iIndex) const
 {
-	return position[iIndex];
-}
-
-
-
-template<typename T> inline 
-typename Point2DH<T>::TReference 
-Point2DH<T>::operator[](unsigned iIndex)
-{
-	return position[iIndex];
+	return position_[iIndex];
 }
 
 
@@ -97,7 +90,52 @@ template<typename T> inline
 typename Point2DH<T>::TConstReference 
 Point2DH<T>::at(signed iIndex) const
 {
-	return position.at(iIndex);
+	return position_.at(iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TConstReference 
+Point2DH<T>::x() const
+{
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TConstReference 
+Point2DH<T>::y() const
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TConstReference 
+Point2DH<T>::z() const
+{
+	return position_.z;
+}
+
+
+
+template <typename T> inline
+typename Point2DH<T>::TVector&
+Point2DH<T>::position()
+{
+	return position_;
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TReference 
+Point2DH<T>::operator[](unsigned iIndex)
+{
+	return position_[iIndex];
 }
 
 
@@ -108,7 +146,34 @@ template<typename T> inline
 typename Point2DH<T>::TReference 
 Point2DH<T>::at(signed iIndex)
 {
-	return position.at(iIndex);
+	return position_.at(iIndex);
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TReference 
+Point2DH<T>::x()
+{
+	return position_.x;
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TReference 
+Point2DH<T>::y()
+{
+	return position_.y;
+}
+
+
+
+template<typename T> inline 
+typename Point2DH<T>::TReference 
+Point2DH<T>::z()
+{
+	return position_.z;
 }
 
 
@@ -126,7 +191,7 @@ const Point2DH<T>& Point2DH<T>::operator+() const
 template<typename T> inline 
 const Point2DH<T> Point2DH<T>::operator-() const
 {
-	return Point2DH(-position);
+	return Point2DH(-position_);
 }
 
 
@@ -134,7 +199,7 @@ const Point2DH<T> Point2DH<T>::operator-() const
 template<typename T> inline 
 Point2DH<T>& Point2DH<T>::operator+=(const Point2DH<T>& iB) 
 {
-	position += iB.position;
+	position_ += iB.position_;
 	return *this;
 }
 
@@ -143,7 +208,7 @@ Point2DH<T>& Point2DH<T>::operator+=(const Point2DH<T>& iB)
 template<typename T> inline 
 Point2DH<T>& Point2DH<T>::operator-=(const Point2DH<T>& iB)
 {
-	position -= iB.position;
+	position_ -= iB.position_;
 	return *this;
 }
 
@@ -152,7 +217,7 @@ Point2DH<T>& Point2DH<T>::operator-=(const Point2DH<T>& iB)
 template<typename T> inline 
 Point2DH<T>& Point2DH<T>::operator*=(TParam iB)
 {
-	position *= iB;
+	position_ *= iB;
 	return *this;
 }
 
@@ -161,7 +226,7 @@ Point2DH<T>& Point2DH<T>::operator*=(TParam iB)
 template<typename T> inline 
 Point2DH<T>& Point2DH<T>::operator/=(TParam iB)
 {
-	position /= iB;
+	position_ /= iB;
 	return *this;
 }
 
@@ -173,7 +238,7 @@ Point2DH<T>& Point2DH<T>::operator/=(TParam iB)
 template<typename T> inline 
 const bool Point2DH<T>::isZero() const
 {
-	return x == TNumTraits::zero && y == TNumTraits::zero;
+	return position_.x == TNumTraits::zero && position_.y == TNumTraits::zero;
 }
 
 
@@ -183,7 +248,7 @@ const bool Point2DH<T>::isZero() const
 template<typename T> inline 
 const bool Point2DH<T>::isInfinite() const
 {
-	return z == TNumTraits::zero;
+	return position_.z == TNumTraits::zero;
 }
 
 
@@ -193,7 +258,7 @@ const bool Point2DH<T>::isInfinite() const
 template<typename T> inline 
 const bool Point2DH<T>::isValid() const
 {
-	return !position.isZero();
+	return !position_.isZero();
 }
 
 
@@ -203,7 +268,7 @@ const bool Point2DH<T>::isValid() const
 template<typename T> inline 
 typename const Point2DH<T>::TValue Point2DH<T>::weight() const
 {
-	return z;
+	return position_.z;
 }
 
 
@@ -216,7 +281,7 @@ const Point2D<T> Point2DH<T>::affine() const
 {
 	Point2DH<T> result(*this);
 	result.homogenize();
-	return Point2D<T>(result.x, result.y);
+	return Point2D<T>(result.x(), result.y());
 }
 
 
@@ -226,8 +291,8 @@ const Point2D<T> Point2DH<T>::affine() const
 template<typename T> inline
 void Point2DH<T>::homogenize()
 {
-	position /= z;
-	z = TNumTraits::one;
+	position_ /= position_.z;
+	position_.z = TNumTraits::one;
 }
 
 
@@ -239,7 +304,7 @@ void Point2DH<T>::homogenize()
 template<typename T> inline 
 bool operator==(const Point2DH<T>& iA, const Point2DH<T>& iB)
 {
-	return iA.position == iB.position;
+	return iA.position() == iB.position();
 }
 
 
@@ -307,7 +372,7 @@ Point2DH<T> operator+(const Point2D<T>& iA, const Point2D<T>& iB)
 template<typename T> inline 
 Point2DH<T> operator-(const Point2DH<T>& iA, const Point2DH<T>& iB)
 {
-	Point2DH<T> result(iA.position);
+	Point2DH<T> result(iA.position());
 	result -= iB;
 	return result;
 }
@@ -343,7 +408,7 @@ Point2DH<T> operator/(const Point2DH<T>& iA, typename Point2DH<T>::TParam iB)
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Point2DH<T>& iB)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << iB.position;
+	LASS_ENFORCE_STREAM(ioOStream) << iB.position();
 	return ioOStream;
 }
 
@@ -355,7 +420,7 @@ template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2DH<T>& iB)
 {
 	LASS_ENFORCE_STREAM(oOStream) 
-		<< "<Point2DH>" << iB.x << " " << iB.y << " " << iB.z << "</Point2DH>" << std::endl;
+		<< "<Point2DH>" << iB.x() << " " << iB.y() << " " << iB.z() << "</Point2DH>" << std::endl;
 	return oOStream;
 }
 
@@ -366,7 +431,7 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2DH<T>& iB)
 template<typename T>
 std::istream& operator>>(std::istream& ioIStream, Point2DH<T>& iB)
 {
-	LASS_ENFORCE(ioIStream) >> iB.position;
+	LASS_ENFORCE(ioIStream) >> iB.position();
 	return ioIStream;
 }
 

@@ -23,36 +23,29 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 /** @struct lass::prim::Point2DH
  *	@brief homogenous 2D Point
  *	@author BdG
  *	@date 2003
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_POINT_2DH_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_POINT_2DH_H
-#pragma once
-
-
 
 #include "prim_common.h"
 #include "point_2d.h"
 #include "vector_3d.h"
 
-
 namespace lass
 {
-
 namespace prim
 {
 
 template<typename T>
-struct Point2DH
+class Point2DH
 {
+public:
+
     typedef typename Point2DH<T> TSelf;
 
 	typedef typename Point2D<T> TPoint;
@@ -71,45 +64,44 @@ struct Point2DH
         typedef Point2DH<U> Type;
     };
 
-	union
-	{
-		struct
-		{
-			TVector position;
-		};
-		struct
-		{
-			TValue x;
-			TValue y;
-			TValue z;
-		};
-	};
+	Point2DH();
+	Point2DH(TParam iX, TParam iY, TParam iZ = TNumTraits::one);
+	Point2DH(const TPoint& iAffinePoint);
+	explicit Point2DH(const TVector& iPositionVector);
 
-	Point2DH() throw();
-	Point2DH(TParam iX, TParam iY, TParam iZ = TNumTraits::one) throw();
-	Point2DH(const TPoint& iAffinePoint) throw();
-	explicit Point2DH(const TVector& iPositionVector) throw();
-
+	const TVector& position() const;
 	TConstReference operator[](unsigned iIndex) const;
+	TConstReference at(signed iIndex) const;
+	TConstReference x() const;
+	TConstReference y() const;
+	TConstReference z() const;
+
+	TVector& position();
 	TReference operator[](unsigned iIndex);
-	TConstReference at(signed iIndex) const throw();
-	TReference at(signed iIndex) throw();
+	TReference at(signed iIndex);
+	TReference x();
+	TReference y();
+	TReference z();
 
-	const Point2DH<T>& operator+() const throw();
-	const Point2DH<T> operator-() const throw();
+	const Point2DH<T>& operator+() const;
+	const Point2DH<T> operator-() const;
 
-	Point2DH<T>& operator+=(const Point2DH<T>& iB) throw();
-	Point2DH<T>& operator-=(const Point2DH<T>& iB) throw();
-	Point2DH<T>& operator*=(TParam iB) throw();
-	Point2DH<T>& operator/=(TParam iB) throw();
+	Point2DH<T>& operator+=(const Point2DH<T>& iB);
+	Point2DH<T>& operator-=(const Point2DH<T>& iB);
+	Point2DH<T>& operator*=(TParam iB);
+	Point2DH<T>& operator/=(TParam iB);
 
-	const bool isZero() const throw();
-	const bool isInfinite() const throw();
-	const bool isValid() const throw();
-	const TValue weight() const throw();
-	const Point2D<T> affine() const throw();
+	const bool isZero() const;
+	const bool isInfinite() const;
+	const bool isValid() const;
+	const TValue weight() const;
+	const Point2D<T> affine() const;
 
 	void homogenize();
+
+private:
+
+	TVector position_;
 };
 
 template<typename T> bool operator==(const Point2DH<T>& iA, const Point2DH<T>& iB);

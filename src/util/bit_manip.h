@@ -65,24 +65,24 @@ namespace lass
 namespace util
 {
 
-template<typename T> inline void setBit(T& a_bits, unsigned a_bit) throw();
-template<typename T> inline void clearBit(T& a_bits, unsigned a_bit) throw();
-template<typename T> inline void flipBit(T& a_bits, unsigned a_bit) throw();
-template<typename T> inline void setBitIf(T& a_bits, unsigned a_bit, bool a_condition) throw();
-template<typename T> inline void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition) throw();
-template<typename T> inline void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition) throw();
-template<typename T> inline void setBitTo(T& a_bits, unsigned a_bit, bool a_state) throw();
+template<typename T> inline void setBit(T& a_bits, unsigned a_bit);
+template<typename T> inline void clearBit(T& a_bits, unsigned a_bit);
+template<typename T> inline void flipBit(T& a_bits, unsigned a_bit);
+template<typename T> inline void setBitIf(T& a_bits, unsigned a_bit, bool a_condition);
+template<typename T> inline void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition);
+template<typename T> inline void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition);
+template<typename T> inline void setBitTo(T& a_bits, unsigned a_bit, bool a_state);
 template<typename T> inline bool checkBit(T a_bits, unsigned a_bit);
 
-template<typename T> inline void setMasked(T& a_bits, const T& a_mask) throw();
-template<typename T> inline void clearMasked(T& a_bits, const T& a_mask) throw();
-template<typename T> inline void flipMasked(T& a_bits, const T& a_mask) throw();
-template<typename T> inline void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition) throw();
-template<typename T> inline void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition) throw();
-template<typename T> inline void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition) throw();
-template<typename T> inline void setMaskedTo(T& a_bits, const T& a_mask, bool a_state) throw();
-template<typename T> inline bool checkMaskedAll(T a_bits, const T& a_mask) throw();
-template<typename T> inline bool checkMaskedSome(T a_bits, const T& a_mask) throw();
+template<typename T> inline void setMasked(T& a_bits, const T& a_mask);
+template<typename T> inline void clearMasked(T& a_bits, const T& a_mask);
+template<typename T> inline void flipMasked(T& a_bits, const T& a_mask);
+template<typename T> inline void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition);
+template<typename T> inline void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition);
+template<typename T> inline void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition);
+template<typename T> inline void setMaskedTo(T& a_bits, const T& a_mask, bool a_state);
+template<typename T> inline bool checkMaskedAll(T a_bits, const T& a_mask);
+template<typename T> inline bool checkMaskedSome(T a_bits, const T& a_mask);
 
 }
 

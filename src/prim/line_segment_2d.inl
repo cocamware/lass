@@ -118,8 +118,11 @@ template <typename T, class PP>
 const typename LineSegment2D<T, PP>::TValue 
 LineSegment2D<T, PP>::t(const TPoint& iPoint) const
 {
-    const TVector v = vector();
-    return dot(iPoint - tail_, v) / v.squaredNorm();
+	const TVector v = vector();
+	const TValue t1 =  dot(iPoint - tail_, v);
+	const TValue t2 = -dot(iPoint - head_, v);
+	const TValue t = std::max(t1,t2) / (t1 + t2);
+	return t1 > t2 ? t : TNumTraits::one - t; 
 }
 
 
@@ -278,8 +281,8 @@ template<typename T, class PP>
 lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream, const LineSegment2D<T, PP>& iLineSegment)
 {
 	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = line(";
-	oOStream << "[" << iLineSegment.tail().x << "," << iLineSegment.head().x << "],";
-	oOStream << "[" << iLineSegment.tail().y << "," << iLineSegment.head().y << "],";
+	oOStream << "[" << iLineSegment.tail().x() << "," << iLineSegment.head().x() << "],";
+	oOStream << "[" << iLineSegment.tail().y() << "," << iLineSegment.head().y() << "],";
 	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;
 	return oOStream;
 }

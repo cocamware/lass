@@ -77,10 +77,10 @@ struct Vector2D
 
 	// methods
 
-	Vector2D() throw();
-	Vector2D(TParam iX, TParam iY) throw();
+	Vector2D();
+	Vector2D(TParam iX, TParam iY);
 
-	template <typename U> explicit Vector2D(const Vector2D<U>& iOther) throw(): 
+	template <typename U> explicit Vector2D(const Vector2D<U>& iOther): 
 		x(iOther.x), 
 		y(iOther.y)
 	{
@@ -88,58 +88,58 @@ struct Vector2D
 
 	typename Vector2D::TConstReference operator[](unsigned iIndex) const;
 	typename Vector2D::TReference operator[](unsigned iIndex);
-	typename Vector2D::TConstReference at(signed iIndex) const throw();
-	typename Vector2D::TReference at(signed iIndex) throw();
+	typename Vector2D::TConstReference at(signed iIndex) const;
+	typename Vector2D::TReference at(signed iIndex);
 
-	const Vector2D<T>& operator+() const throw();
-	const Vector2D<T> operator-() const throw();
-	Vector2D<T>& operator+=(const Vector2D<T>& iB) throw();
-	Vector2D<T>& operator-=(const Vector2D<T>& iB) throw();
-	Vector2D<T>& operator*=(const Vector2D<T>& iB) throw();
-	Vector2D<T>& operator/=(const Vector2D<T>& iB) throw();
-	Vector2D<T>& operator+=(TParam iB) throw();
-	Vector2D<T>& operator-=(TParam iB) throw();
-	Vector2D<T>& operator*=(TParam iB) throw();
-	Vector2D<T>& operator/=(TParam iB) throw();
+	const Vector2D<T>& operator+() const;
+	const Vector2D<T> operator-() const;
+	Vector2D<T>& operator+=(const Vector2D<T>& iB);
+	Vector2D<T>& operator-=(const Vector2D<T>& iB);
+	Vector2D<T>& operator*=(const Vector2D<T>& iB);
+	Vector2D<T>& operator/=(const Vector2D<T>& iB);
+	Vector2D<T>& operator+=(TParam iB);
+	Vector2D<T>& operator-=(TParam iB);
+	Vector2D<T>& operator*=(TParam iB);
+	Vector2D<T>& operator/=(TParam iB);
 
-	const bool isZero() const throw();
-	const TValue squaredNorm() const throw();
-	const TValue norm() const throw();
-	const Vector2D<T> normal() const throw();
-	const Vector2D<T> reciprocal() const throw();
-    const Vector2D<T> perp() const throw();
-	const Vector2D<T> project(const Vector2D<T>& iB) const throw();
-	const Vector2D<T> reject(const Vector2D<T>& iB) const throw();
+	const bool isZero() const;
+	const TValue squaredNorm() const;
+	const TValue norm() const;
+	const Vector2D<T> normal() const;
+	const Vector2D<T> reciprocal() const;
+    const Vector2D<T> perp() const;
+	const Vector2D<T> project(const Vector2D<T>& iB) const;
+	const Vector2D<T> reject(const Vector2D<T>& iB) const;
 
 	void normalize();
 
     template <class RandomGenerator> static Vector2D<T> random(RandomGenerator& ioGenerator);
 };
 
-template<typename T> typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
+template<typename T> typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& iB);
 template<typename T> Vector2D<T> transform(const Vector2D<T>& iA, T (*iF)(T));
 
-template<typename T> bool operator==(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> bool operator!=(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
+template<typename T> bool operator==(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> bool operator!=(const Vector2D<T>& iA, const Vector2D<T>& iB);
 
-template<typename T> Vector2D<T> operator+(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator-(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator*(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator/(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
+template<typename T> Vector2D<T> operator+(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator-(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator*(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator/(const Vector2D<T>& iA, const Vector2D<T>& iB);
 
-template<typename T> Vector2D<T> operator+(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB) throw();
-template<typename T> Vector2D<T> operator-(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB) throw();
-template<typename T> Vector2D<T> operator*(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB) throw();
-template<typename T> Vector2D<T> operator/(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB) throw();
+template<typename T> Vector2D<T> operator+(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB);
+template<typename T> Vector2D<T> operator-(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB);
+template<typename T> Vector2D<T> operator*(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB);
+template<typename T> Vector2D<T> operator/(const Vector2D<T>& iA,typename  Vector2D<T>::TParam iB);
 
-template<typename T> Vector2D<T> operator+(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator-(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB) throw();
+template<typename T> Vector2D<T> operator+(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator-(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB);
 // we don't allow scalar / vector.  you can do scalar * vector.reciprocal() for that.
 
-template<typename T> Vector2D<T> pointwiseMin(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
-template<typename T> Vector2D<T> pointwiseMax(const Vector2D<T>& iA, const Vector2D<T>& iB) throw();
+template<typename T> Vector2D<T> pointwiseMin(const Vector2D<T>& iA, const Vector2D<T>& iB);
+template<typename T> Vector2D<T> pointwiseMax(const Vector2D<T>& iA, const Vector2D<T>& iB);
 
 template<typename T> std::ostream& operator<<(std::ostream& ioOStream, const Vector2D<T>& iB);
 template<typename T> std::istream& operator>>(std::istream& ioIStream, Vector2D<T>& iB);

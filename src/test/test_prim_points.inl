@@ -52,15 +52,15 @@ template <typename T> void testPrimPoint2D()
 	Vector2D<T> b(4, 5);
 	
 	p = Point2D<T>(a.x, a.y);
-	BOOST_CHECK_EQUAL(p.position, a);
-	BOOST_CHECK_EQUAL(p.x, a.x);
-	BOOST_CHECK_EQUAL(p.y, a.y);
+	BOOST_CHECK_EQUAL(p.position(), a);
+	BOOST_CHECK_EQUAL(p.x(), a.x);
+	BOOST_CHECK_EQUAL(p.y(), a.y);
 
 	Point2D<T> q(b);
-	BOOST_CHECK_EQUAL(q.position, b);
+	BOOST_CHECK_EQUAL(q.position(), b);
 
 	BOOST_CHECK_EQUAL(distance(p, q), (a - b).norm());
-	BOOST_CHECK_EQUAL((p + b).position, a + b);
+	BOOST_CHECK_EQUAL((p + b).position(), a + b);
 	BOOST_CHECK((q - b).isZero());
 }
 
@@ -77,16 +77,16 @@ template <typename T> void testPrimPoint3D()
 	Vector3D<T> b(4, 5, 6);
 	
 	p = Point3D<T>(a.x, a.y, a.z);
-	BOOST_CHECK_EQUAL(p.position, a);
-	BOOST_CHECK_EQUAL(p.x, a.x);
-	BOOST_CHECK_EQUAL(p.y, a.y);
-	BOOST_CHECK_EQUAL(p.z, a.z);
+	BOOST_CHECK_EQUAL(p.position(), a);
+	BOOST_CHECK_EQUAL(p.x(), a.x);
+	BOOST_CHECK_EQUAL(p.y(), a.y);
+	BOOST_CHECK_EQUAL(p.z(), a.z);
 
 	Point3D<T> q(b);
-	BOOST_CHECK_EQUAL(q.position, b);
+	BOOST_CHECK_EQUAL(q.position(), b);
 
 	BOOST_CHECK_EQUAL(distance(p, q), (a - b).norm());
-	BOOST_CHECK_EQUAL((p + b).position, a + b);
+	BOOST_CHECK_EQUAL((p + b).position(), a + b);
 	BOOST_CHECK((q - b).isZero());
 }
 

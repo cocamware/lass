@@ -52,18 +52,18 @@ namespace prim
 
 /** construct an unexisting color (black with zero alpha)
  */
-ColorRGBA::ColorRGBA() throw():
-	vector()
+ColorRGBA::ColorRGBA():
+	vector_()
 {
-	LASS_ASSERT(vector.isZero());
+	LASS_ASSERT(vector_.isZero());
 }
 
 
 
 /** construct a color in white range (r == g == b),  with an alpha value
  */
-ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha) throw():
-	vector(iWhite, iWhite, iWhite, iAlpha)
+ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha):
+	vector_(iWhite, iWhite, iWhite, iAlpha)
 {
 }
 
@@ -71,77 +71,45 @@ ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha) throw():
 
 /** construct a color with values for all channels
  */
-ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha) throw():
-	vector(iRed, iGreen, iBlue, iAlpha)
+ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha):
+	vector_(iRed, iGreen, iBlue, iAlpha)
 {
-}
-
-
-
-ColorRGBA::TConstReference ColorRGBA::operator[]( unsigned iIndex ) const throw()
-{
-	return vector[iIndex];
-}
-
-
-
-ColorRGBA::TReference ColorRGBA::operator[]( unsigned iIndex ) throw()
-{
-	return vector[iIndex];
-}
-
-
-
-/** Wrap index around range. 
- */
-ColorRGBA::TConstReference ColorRGBA::at( signed iIndex ) const throw()
-{
-	return vector.at(iIndex);
-}
-
-
-
-/** Wrap index around range. 
- */
-ColorRGBA::TReference ColorRGBA::at( signed iIndex ) throw()
-{
-	return vector.at(iIndex);
 }
 
 
 
 /** color addition means "this under iOther"
  */
-ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& iOther) throw()
+ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& iOther)
 {
-	const TValue unfiltered = a * (TNumTraits::one - iOther.a);
-	const TValue aResult = unfiltered + iOther.a;
+	const TValue unfiltered = a() * (TNumTraits::one - iOther.a());
+	const TValue aResult = unfiltered + iOther.a();
 	const TValue aResultInverse = TNumTraits::one / aResult;
-	
-	r = (unfiltered * r + iOther.a * iOther.r) * aResultInverse;
-	g = (unfiltered * g + iOther.a * iOther.g) * aResultInverse;
-	b = (unfiltered * b + iOther.a * iOther.b) * aResultInverse;
-	a = aResult;
+
+	vector_ *= unfiltered;
+	vector_ += iOther.a() * iOther.vector();
+	vector_.w = aResult;
+
 	return *this;
 }
 
 
 
-const ColorRGBA::TValue ColorRGBA::brightness() const throw()
+const ColorRGBA::TValue ColorRGBA::brightness() const
 {
-	return (r + g + b) / 3;
+	return (r() + g() + b()) / 3;
 }
 
 
 
 /** color mulitplication means "this through iOther"
  */
-ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther) throw()
+ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther)
 {
-	const TValue unfiltered = TNumTraits::one - iOther.a;
-	r *= (unfiltered + iOther.a * iOther.r);
-	g *= (unfiltered + iOther.a * iOther.g);
-	b *= (unfiltered + iOther.a * iOther.b);
+	const TValue unfiltered = TNumTraits::one - iOther.a();
+	vector_.x *= (unfiltered + iOther.a() * iOther.r());
+	vector_.y *= (unfiltered + iOther.a() * iOther.g());
+	vector_.w *= (unfiltered + iOther.a() * iOther.b());
 	return *this;
 }
 
@@ -151,12 +119,12 @@ ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther) throw()
  *  corrects gamma of all channels, except alpha.
  *  out = in ^ (1 / iGamma).
  */
-void ColorRGBA::gamma(TParam iGamma) throw()
+void ColorRGBA::gamma(TParam iGamma)
 {
 	const TValue invGamma = TNumTraits::one / iGamma;
-	r = num::pow(r, invGamma);
-	g = num::pow(g, invGamma);
-	b = num::pow(b, invGamma);
+	vector_.x = num::pow(vector_.x, invGamma);
+	vector_.y = num::pow(vector_.y, invGamma);
+	vector_.w = num::pow(vector_.w, invGamma);
 }
 
 
@@ -166,16 +134,16 @@ void ColorRGBA::gamma(TParam iGamma) throw()
  *  as an indicator for the bleeding of the color.
  *  @post: all channel values ar in the range [0, 1].
  */
-const ColorRGBA::TValue ColorRGBA::clamp() throw()
+const ColorRGBA::TValue ColorRGBA::clamp()
 {
-	const TValue originalAlpha = a;
+	const TValue originalAlpha = vector_.w;
 
-	r = num::clamp(r, TNumTraits::zero, TNumTraits::one);
-	g = num::clamp(g, TNumTraits::zero, TNumTraits::one);
-	b = num::clamp(b, TNumTraits::zero, TNumTraits::one);
-	a = num::clamp(a, TNumTraits::zero, TNumTraits::one);
+	vector_.x = num::clamp(vector_.x, TNumTraits::zero, TNumTraits::one);
+	vector_.y = num::clamp(vector_.y, TNumTraits::zero, TNumTraits::one);
+	vector_.z = num::clamp(vector_.z, TNumTraits::zero, TNumTraits::one);
+	vector_.w = num::clamp(vector_.w, TNumTraits::zero, TNumTraits::one);
 
-	return originalAlpha - a;
+	return originalAlpha - vector_.w;
 }
 
 
@@ -185,24 +153,24 @@ const ColorRGBA::TValue ColorRGBA::clamp() throw()
  *  as an indicator for the bleeding of the color.
  *  @post: all channel values ar in the range [0, 1].
  */
-const ColorRGBA::TValue ColorRGBA::expose(TValue iTime) throw()
+const ColorRGBA::TValue ColorRGBA::expose(TValue iTime)
 {
     const TValue originalBrightness = brightness();
-    const TValue originalAlpha = a;
+    const TValue originalAlpha = vector_.w;
 
-	r = r > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * r) : TNumTraits::zero;
-	g = g > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * g) : TNumTraits::zero;
-	b = b > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * b) : TNumTraits::zero;
+	vector_.x = vector_.x > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * vector_.x) : TNumTraits::zero;
+	vector_.y = vector_.y > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * vector_.y) : TNumTraits::zero;
+	vector_.z = vector_.z > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * vector_.z) : TNumTraits::zero;
 
 	// color bleeding ...  if the chemical gets overexposes, it's opacity increases ...
 	const TValue difference = originalBrightness - brightness();
 	if (difference > TNumTraits::zero)
 	{
-		a *= (TNumTraits::one + difference);
+		vector_.w *= (TNumTraits::one + difference);
 	}
-	a = num::clamp(a, TNumTraits::zero, TNumTraits::one);
+	vector_.w = num::clamp(vector_.w, TNumTraits::zero, TNumTraits::one);
 
-	return originalAlpha - a;
+	return originalAlpha - vector_.w;
 }
 
 
@@ -407,8 +375,8 @@ const ColorRGBA ColorRGBA::map(const ColorRGBA* iMap, int iMapSize, TValue iValu
 	}
 
 	ColorRGBA result;
-	result.vector += iMap[i].vector * (TNumTraits::one - dx);
-	result.vector += iMap[i + 1].vector * dx;
+	result.vector_ += iMap[i].vector_ * (TNumTraits::one - dx);
+	result.vector_ += iMap[i + 1].vector_ * dx;
 	return result;
 }
 
@@ -417,7 +385,7 @@ const ColorRGBA ColorRGBA::map(const ColorRGBA* iMap, int iMapSize, TValue iValu
 /** color addition means "iA under iB"
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator+(const ColorRGBA& iA, const ColorRGBA& iB) throw()
+ColorRGBA operator+(const ColorRGBA& iA, const ColorRGBA& iB)
 {
 	ColorRGBA result(iA);
 	result += iB;
@@ -429,7 +397,7 @@ ColorRGBA operator+(const ColorRGBA& iA, const ColorRGBA& iB) throw()
 /** colour multiplication means "iA through iB"
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator*(const ColorRGBA& iA, const ColorRGBA& iB) throw()
+ColorRGBA operator*(const ColorRGBA& iA, const ColorRGBA& iB)
 {
 	ColorRGBA result(iA);
 	result *= iB;
@@ -441,9 +409,9 @@ ColorRGBA operator*(const ColorRGBA& iA, const ColorRGBA& iB) throw()
 /** distance between colours as 3D points (alpha channel is disregarded).
  *  @return num::sqrt(dr * dr + dg * dg + db * db)
  */
-ColorRGBA::TValue distance(const ColorRGBA& iA, const ColorRGBA& iB) throw()
+ColorRGBA::TValue distance(const ColorRGBA& iA, const ColorRGBA& iB)
 {
-	const Vector3D<ColorRGBA::TValue> delta(iA.r - iB.r, iA.g - iB.g, iA.b - iB.b);
+	const Vector3D<ColorRGBA::TValue> delta(iA.r() - iB.r(), iA.g() - iB.g(), iA.b() - iB.b());
 	return delta.norm();
 }
 

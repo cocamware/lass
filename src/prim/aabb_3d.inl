@@ -250,16 +250,16 @@ const Side Aabb3D<T, MMP>::classify(const TPoint& iPoint) const
 {
 	LASS_ASSERT(isValid());
 
-	if (iPoint.x > min_.x && iPoint.x < max_.x &&
-		iPoint.y > min_.y && iPoint.y < max_.y &&
-		iPoint.z > min_.z && iPoint.z < max_.z)
+	if (iPoint.x() > min_.x() && iPoint.x() < max_.x() &&
+		iPoint.y() > min_.y() && iPoint.y() < max_.y() &&
+		iPoint.z() > min_.z() && iPoint.z() < max_.z())
 	{
 		return sInside;
 	}
 	
-	if (iPoint.x < min_.x || iPoint.x > max_.x ||
-		iPoint.y < min_.y || iPoint.y > max_.y ||
-		iPoint.z < min_.z || iPoint.z > max_.z)
+	if (iPoint.x() < min_.x() || iPoint.x() > max_.x() ||
+		iPoint.y() < min_.y() || iPoint.y() > max_.y() ||
+		iPoint.z() < min_.z() || iPoint.z() > max_.z())
 	{
 		return sOutside;
 	}
@@ -276,9 +276,9 @@ template <typename T, class MMP>
 const bool Aabb3D<T, MMP>::contains(const TPoint& iPoint) const
 {
 	LASS_ASSERT(isValid());
-	return  iPoint.x >= min_.x && iPoint.x <= max_.x &&
-			iPoint.y >= min_.y && iPoint.y <= max_.y &&
-			iPoint.z >= min_.z && iPoint.z <= max_.z;
+	return  iPoint.x() >= min_.x() && iPoint.x() <= max_.x() &&
+			iPoint.y() >= min_.y() && iPoint.y() <= max_.y() &&
+			iPoint.z() >= min_.z() && iPoint.z() <= max_.z();
 }
 
 
@@ -293,9 +293,9 @@ template <class MMP2>
 const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& iOther) const
 {
 	LASS_ASSERT(isValid() && iOther.isValid());
-	return iOther.min().x >= min_.x && iOther.max().x <= max_.x 
-		&& iOther.min().y >= min_.y && iOther.max().y <= max_.y
-		&& iOther.min().z >= min_.z && iOther.max().z <= max_.z;
+	return iOther.min().x() >= min_.x() && iOther.max().x() <= max_.x() 
+		&& iOther.min().y() >= min_.y() && iOther.max().y() <= max_.y()
+		&& iOther.min().z() >= min_.z() && iOther.max().z() <= max_.z();
 }
 
 
@@ -335,7 +335,7 @@ const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& iOther) const
 
     LASS_ASSERT(doubleCenterToCenter.weight() == 0);
 	const typename TPointH::TVector doubleCenterDistance = 
-		transform<T>(doubleCenterToCenter.position, num::abs);
+		transform<T>(doubleCenterToCenter.position(), num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
 	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y;
@@ -414,7 +414,7 @@ template <typename T, class MMP>
 const bool Aabb3D<T, MMP>::isEmpty() const
 {
 	LASS_ASSERT(isValid());
-	return min_.x > max_.x;
+	return min_.x() > max_.x();
 }
 
 
@@ -433,8 +433,8 @@ const bool Aabb3D<T, MMP>::isEmpty() const
 template <typename T, class MMP>
 const bool Aabb3D<T, MMP>::isValid() const
 {
-	return (min_.x <= max_.x && min_.y <= max_.y && min_.z <= max_.z) 
-		|| (min_.x > max_.x && min_.y > max_.y && min_.z > max_.z);
+	return (min_.x() <= max_.x() && min_.y() <= max_.y() && min_.z() <= max_.z()) 
+		|| (min_.x() > max_.x() && min_.y() > max_.y() && min_.z() > max_.z());
 }
 
 
