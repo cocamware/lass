@@ -52,7 +52,7 @@
  *  - @ref ThreadFun: Uses the Callback library to run existing functions in threads
  *  - Triple: std::pair a-like class with one main difference: it has three values.
  *  - TypeInfo: first class wrapper around typeid.
- *  - Visitor: implements Alexandrescu's visitor pattern.
+ *  - @ref VisitorPattern: implements Alexandrescu's visitor pattern.
  */
 
 

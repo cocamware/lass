@@ -147,7 +147,7 @@ public:
 	/** Create a new concrete product by cloning the prototype
 	 *  only to be used if maker don't want any parameters.
 	 */
-	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier)
+	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier) const
 	{
 		typename TPrototypes::const_iterator i = prototypes_.find(iIdentifier);
 		if (i == prototypes_.end())
@@ -163,7 +163,7 @@ public:
 	 */
 	template <$(typename P$x)$>
 	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier, 
-						  $(P$x& iP$x)$)
+						  $(P$x& iP$x)$) const
 	{
 		typename TPrototypes::const_iterator i = prototypes_.find(iIdentifier);
 		if (i == prototypes_.end())

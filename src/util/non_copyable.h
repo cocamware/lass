@@ -85,7 +85,7 @@ namespace util
 
 class LASS_DLL NonCopyable
 {
-public:
+protected:
     NonCopyable() {}
     ~NonCopyable() {}
 private:

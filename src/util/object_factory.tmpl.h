@@ -104,7 +104,8 @@ template
 <
 	class AbstractProduct,
 	class IdentifierType,
-	class ProductMaker
+	class ProductMaker,
+	class ProductPointer = AbstractProduct*
 >
 class ObjectFactory
 {
@@ -129,7 +130,7 @@ public:
 	/** create a new concrete product by calling its maker.
 	 *  only to be used if maker don't want any parameters.
 	 */
-	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier)
+	ProductPointer make(typename CallTraits<IdentifierType>::TParam iIdentifier) const
 	{
 		typename TMakers::const_iterator mit = makers_.find(iIdentifier);
 		if (mit == makers_.end())
@@ -144,8 +145,8 @@ public:
 	 *  only to be used if it can be mapped on maker function.
 	 */
 	template <$(typename P$x)$>
-	AbstractProduct* make(typename CallTraits<IdentifierType>::TParam iIdentifier, 
-						  $(P$x& iP$x)$)
+	ProductPointer make(typename CallTraits<IdentifierType>::TParam iIdentifier, 
+						  $(P$x& iP$x)$) const
 	{
 		typename TMakers::const_iterator mit = makers_.find(iIdentifier);
 		if (mit == makers_.end())
