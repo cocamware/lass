@@ -209,8 +209,6 @@ protected:
     CRITICAL_SECTION m_internal;
 };
 
-#endif
-
 /** CriticalSectionLocker.
 *	@ingroup Threading
 *	@see CriticalSection
@@ -224,6 +222,9 @@ public:
 	operator bool() const { return false; }
 	virtual ~CriticalSectionLocker();
 };
+
+#endif
+
 
 
 class ThreadInternal;

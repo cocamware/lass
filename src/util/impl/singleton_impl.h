@@ -69,6 +69,8 @@ namespace util
 namespace impl
 {
 
+typedef Mutex TSingletonLock;
+
 LASS_DLL void LASS_CALL singletonCleanUp();
 
 class LASS_DLL SingletonBase: NonCopyable
@@ -80,14 +82,14 @@ public:
 
     int destructionPriority() const;
 
-	static void initCriticalSection();  ///< do NOT call this yourself, implementation detail!
-	static void cleanCriticalSection();	///< do NOT call this yourself, implementation detail!
+	static void initLock();  ///< do NOT call this yourself, implementation detail!
+	static void cleanLock();	///< do NOT call this yourself, implementation detail!
 
 protected:
 
 	void subscribeInstance(int iDestructionPriority);
 
-    static CriticalSection* criticalSection_;
+    static TSingletonLock* lock_;
 
 private:
 
@@ -115,13 +117,11 @@ public:
 
 private:
 
-	typedef std::priority_queue<SingletonBase*, 
-								std::vector<SingletonBase*>, 
-								CompareDestructionPriority>
-			TDeathRow;
+	typedef std::priority_queue
+		<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
 
 	TDeathRow deathRow_;
-    CriticalSection criticalSection_;
+    TSingletonLock lock_;
 };
 
 }
@@ -131,6 +131,6 @@ private:
 }
 
 LASS_EXECUTE_BEFORE_MAIN_EX(lassUtilImplSingletonBase, 
-							lass::util::impl::SingletonBase::initCriticalSection();)
+							lass::util::impl::SingletonBase::initLock();)
 
 #endif

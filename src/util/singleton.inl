@@ -86,8 +86,8 @@ typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 	// if instance hasn't been created yet, you might want to do it now :)
 	if (neo == 0)
 	{
-		initCriticalSection();	
-		LASS_LOCK(*criticalSection_)
+		initLock();	
+		LASS_LOCK(*lock_)
 		{
 			if (neo == 0)
 			{

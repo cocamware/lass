@@ -44,7 +44,7 @@ namespace util
 namespace impl
 {
 
-CriticalSection* SingletonBase::criticalSection_ = 0;
+TSingletonLock* SingletonBase::lock_ = 0;
 
 /** kills singleton guard and all its guarded singleton.
  *  @relates SingletonGuard
@@ -59,7 +59,7 @@ CriticalSection* SingletonBase::criticalSection_ = 0;
 void singletonCleanUp()
 {
 	delete singletonGuard;
-	SingletonBase::cleanCriticalSection();
+	SingletonBase::cleanLock();
 }
 
 
@@ -89,20 +89,20 @@ int SingletonBase::destructionPriority() const
 
 
 
-void SingletonBase::initCriticalSection()
+void SingletonBase::initLock()
 {
-	if (criticalSection_ == 0)
+	if (lock_ == 0)
 	{
-		criticalSection_ = new CriticalSection;
+		lock_ = new TSingletonLock;
 	}
 }
 
 
 
-void SingletonBase::cleanCriticalSection()
+void SingletonBase::cleanLock()
 {
-	delete criticalSection_;
-	criticalSection_ = 0;
+	delete lock_;
+	lock_ = 0;
 }
 
 
