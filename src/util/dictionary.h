@@ -27,7 +27,7 @@
 
 /** @class lass::util::Dictionary
  *  @brief a wrapper around a std::map to translate keys in values and back.
- *  @author [BdG]
+ *  @author [Bramz]
  *
  *  This utility class has been written for the purpose of translating enumeration values to 
  *  strings.  Enumerations are a handy concept for the programmer to enumerate different options, 

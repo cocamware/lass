@@ -29,7 +29,7 @@
 
 /** @class lass::util::ObjectFactory
  *  @brief 
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  ObjectFactory is implemented after the example of Alexandrescu's loki::Factory [1].  An 
  *  object factory creates objects of the same hierarchy, i.e. objects that have a common base

@@ -27,7 +27,7 @@
 
 /** @class lass::util::NonCopyable
  *  @brief boost::non_copyable, base class to make types non copyable
- *  @author Bram de Greve [BdG].
+ *  @author Bram de Greve [Bramz].
  *
  *  These is copied from the boost libary, and is original written by Dave Abrahams
  *  (boost/non_copyable.hpp).

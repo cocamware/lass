@@ -36,7 +36,7 @@
 
 /** @struct lass::util::CallTraits
  *  @brief defines typedefs for function usage
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  Pretty much a copy of boost::call_traits<> (boost/call_traits.hpp, http://www.boost.org).
  *

@@ -25,7 +25,7 @@
 
 /** @class lass::util::Triple
  *  @brief extension of std::pair to three values, trait three values as a single unit.
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  we'd like to refer to the C++ standard library for info on std::pair.  Triple is an 
  *  extension of this to three values.  As std::pair, Triple is declared as a struct,

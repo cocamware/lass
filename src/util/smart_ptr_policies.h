@@ -25,7 +25,7 @@
 
 /** @defgroup SmartPtr Smart Pointers
  *  @brief collection of smart pointers as ScopedPtr, SharedPtr, ...
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  @section Pointers
  *
@@ -166,7 +166,7 @@ namespace util
 /** @class ObjectStorage
  *  @ingroup SmartPtr
  *  @brief Default storage policy for single objects, implementation of StoragePolicy concept
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  This policy is meant for simple pointees that are allocated in @c C++ by @c new or equivalent
  *  (i.e. stuff that should be deallocated by @c delete ).  The storage type @c TStorage used for
@@ -212,7 +212,7 @@ private:
 /** @class ArrayStorage
  *  @ingroup SmartPtr
  *  @brief Default storage policy for arrays, implementation of StoragePolicy concept
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  This policy is meant for simple arrays that are allocated in @c C++ by @c new[] or equivalent
  *  (i.e. stuff that should be deallocated by @c delete[] ).  The storage type @c TStorage used for
@@ -261,7 +261,7 @@ private:
 /** @class DefaultCounter
  *  @ingroup SmartPtr
  *  @brief The default counter for the shared pointers, implementation of CounterPolicy concept.
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  The default counter will use an self-owned integer as counter object.  It will allocate this on
  *  the heap and share it between all smart pointers that own the same pointee (duh!).  Of course

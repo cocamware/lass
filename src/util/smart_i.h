@@ -28,7 +28,7 @@
 /** @class lass::util::SmartI
  *  @ingroup SmartPtr
  *  @brief smart pointer to COM interfaces
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  @section interface_requirements Requirements for COM interface
  *  

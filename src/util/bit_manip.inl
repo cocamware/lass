@@ -41,7 +41,7 @@ namespace util
 
 /** Set a bit high.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be set high.
  *  @param a_bit the index of the bit to be set high (0 => 0x1, 1 => 0x2, ...)
  */
@@ -55,7 +55,7 @@ void setBit(T& a_bits, unsigned a_bit)
 
 /** set a bit low.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be set low.
  *  @param a_bit the index of the bit to be set low (0 => 0x1, 1 => 0x2, ...)
  */
@@ -69,7 +69,7 @@ void clearBit(T& a_bits, unsigned a_bit)
 
 /** flip state of a bit (low->high, high->low).
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be flipped.
  *  @param a_bit the index of the bit to be flipped (0 => 0x1, 1 => 0x2, ...)
  */
@@ -83,7 +83,7 @@ void flipBit(T& a_bits, unsigned a_bit)
 
 /** set a bit high if (and only if) a condition is fullfilled.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be set high.
  *  @param a_bit the index of the bit to be set high (0 => 0x1, 1 => 0x2, ...)
  *  @param a_condition true if the bit must be set high, false if not.
@@ -98,7 +98,7 @@ void setBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 
 /** set a bit low if (and only if) a condition is fullfilled is true.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be set low.
  *  @param a_bit the index of the bit to be set low (0 => 0x1, 1 => 0x2, ...)
  *  @param a_condition true if the bit must be set low, false if not.
@@ -113,7 +113,7 @@ void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 
 /** flip a bit if (and only if) a condition is fullfilled (low->high, high->low).
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be flipped.
  *  @param a_bit the index of the bit to be flipped (0 => 0x1, 1 => 0x2, ...)
  *  @param a_condition true if the bit must be flipped, false if not.
@@ -128,7 +128,7 @@ void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition)
 
 /** set a bit to a given state.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be set.
  *  @param a_bit the index of the bit to be set (0 => 0x1, 1 => 0x2, ...)
  *  @param a_state the state to which the bit must be set: true for high, false for low.
@@ -144,7 +144,7 @@ void setBitTo(T& a_bits, unsigned a_bit, bool a_state)
 
 /** return true if a bit is set high.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which a bit must be checked.
  *  @param a_bit the index of the bit to be checked (0 => 0x1, 1 => 0x2, ...)
  */
@@ -159,7 +159,7 @@ bool checkBit(T a_bits, unsigned a_bit)
 
 /** Set masked bits high.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be set high.
  *  @param a_mask mask indicating the bits that must be set high.
  *                The high bits in the mask indicate the bits in the bitfield to be set,
@@ -176,7 +176,7 @@ void setMasked(T& a_bits, const T& a_mask)
 
 /** Set masked bits low.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be set low.
  *  @param a_mask mask indicating the bits that must be set low.
  *                The high bits in the mask indicate the bits in the bitfield to be set,
@@ -193,7 +193,7 @@ void clearMasked(T& a_bits, const T& a_mask)
 
 /** flip masked bits.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be flipped.
  *  @param a_mask mask indicating the bits that must be flipped.
  *                The high bits in the mask indicate the bits in the bitfield to be flipped,
@@ -210,7 +210,7 @@ void flipMasked(T& a_bits, const T& a_mask)
 
 /** Set masked bits high if (and only if) a condition is fullfilled.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be set high.
  *  @param a_mask mask indicating the bits that must be set high.
  *                The high bits in the mask indicate the bits in the bitfield to be set,
@@ -228,7 +228,7 @@ void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 
 /** Set masked bits low if (and only if) a condition is fullfilled.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be set low.
  *  @param a_mask mask indicating the bits that must be set low.
  *                The high bits in the mask indicate the bits in the bitfield to be set,
@@ -246,7 +246,7 @@ void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 
 /** Flip the masked bits if (and only if) a condition is fullfilled.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be flipped.
  *  @param a_mask mask indicating the bits that must be flipped.
  *                The high bits in the mask indicate the bits in the bitfield to be flipped,
@@ -264,7 +264,7 @@ void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 
 /** Set the masked bits to a given state if (and only if) a condition is fullfilled.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be set.
  *  @param a_mask mask indicating the bits that must be set.
  *                The high bits in the mask indicate the bits in the bitfield to be set,
@@ -283,7 +283,7 @@ void setMaskedTo(T& a_bits, const T& a_mask, bool a_state)
 
 /** Check the masked bits and return true if they are ALL set.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be checked.
  *  @param a_mask mask indicating the bits that must be checked.
  *                The high bits in the mask indicate the bits in the bitfield to be checked,
@@ -302,7 +302,7 @@ bool checkMaskedAll(T a_bits, const T& a_mask)
 
 /** Check the masked bits and return true if at least one is set.
  *  @ingroup BitManip
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @param a_bits the bitfield of which some bits must be checked.
  *  @param a_mask mask indicating the bits that must be checked.
  *                The high bits in the mask indicate the bits in the bitfield to be checked,

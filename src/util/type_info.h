@@ -25,7 +25,7 @@
 
 /** @class lass::util::TypeInfo
  *  @brief first class wrapper around std::type_info
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  @code
  *  std::set<TypeInfo> types;

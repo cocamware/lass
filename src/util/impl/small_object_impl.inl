@@ -66,7 +66,7 @@ FixedAllocator<A>::FixedAllocator(std::size_t iBlockSize, std::size_t iChunkSize
 	}
 	else if (numBlocks == 0)
 	{
-		numBlocks = 8; // was 8 * iBlockSize [BdG]
+		numBlocks = 8; // was 8 * iBlockSize [Bramz]
 	}
 
 	numBlocks_ = static_cast<TAtom>(numBlocks);

@@ -25,7 +25,7 @@
 
 /** @fun stringCast
  *  @brief casts a value of one type to another by using stringstreams.
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @date 2004
  *
  *  This function is especially usefull when non-string values like floats, ints, ... should 

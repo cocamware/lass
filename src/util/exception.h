@@ -27,7 +27,7 @@
 
 /** @class lass::util::Exception
  *  @brief type of all exceptions in lass
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  @sa LASS_THROW
  */

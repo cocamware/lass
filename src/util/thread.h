@@ -331,7 +331,7 @@ private:
 
 
 /** @brief Locks a @a iLock and starts a scope block in which it remains locked.
- *  @author [BdG]
+ *  @author [Bramz]
  *  @ingroup Threading
  *
  *  This macro starts a scope block through a @c if/else construct where the lock will be locked

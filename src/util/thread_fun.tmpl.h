@@ -25,7 +25,7 @@
 
 /** @defgroup ThreadFun ThreadFun
  *  @brief library to run (member) functions in a thread
- *  @author [BdG]
+ *  @author [Bramz]
  *
  *  With these objects/functions, you can run (member) functions in threads instead of calling
  *  them directly.  you even can specify the arguments to be used.  Let's illustrate this with

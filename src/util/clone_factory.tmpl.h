@@ -29,7 +29,7 @@
 
 /** @class lass::util::CloneFactory
  *  @brief object creation by cloning prototypes
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  A clone factory is much like an object factory (lass::util::ObjectFactory), except that it will
  *  clone existings object rather than creating new ones from the ground up using maker functions.

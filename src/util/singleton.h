@@ -27,7 +27,7 @@
 
 /** @class lass::util::impl::SingletonBase
  *  @brief just a helper class of Singleton<> so it can be hold by the singleton guard.
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  */
 
 

@@ -39,6 +39,7 @@ namespace impl
 // Predicates
 
 /** Predicate for enforcers using operator!, used by LASS_ENFORCE and LASS_ENFORCE_POINTER.
+ *  @internal
  *
  *  the value iObj is taken and evaluated by using the operator!.  
  *  if this returns true, the predicate will return true and the enforcer will raise.  
@@ -64,7 +65,8 @@ struct DefaultPredicate
 
 
 /** Predicate to enforce a stream to be a in good state.
- *  @author Bram de Greve [BdG].
+ *  @internal
+ *  @author Bram de Greve [Bramz].
  *
  *  Takes a pointer to a stream, and checks if that stream is in a good state (not eof,
  *  not failed, not bad).  If not, the enforcer will raise.
@@ -81,7 +83,8 @@ struct StreamPredicate
 
 
 /** Predicate for enforcers for handles, used by LASS_ENFORCE_HANDLE.
- *  @author Bram de Greve [BdG].
+ *  @internal
+ *  @author Bram de Greve [Bramz].
  *
  *  checks iObj against -1.  Handles are assumed to return -1 as error code.  If a handle equals
  *  -1, then something is wrong and the predicate will return true (the enforce will raise).
@@ -101,7 +104,8 @@ struct HandlePredicate
 
 
 /** Predicate for index checking, used by LASS_ENFORCE_INDEX
- *  @author Bram de Greve[BdG]
+ *  @internal
+ *  @author Bram de Greve[Bramz]
  *  
  *  This predicate checks if an value iIndex fits in the half-open range [0, size), determined
  *  by the template parameter.  It's ideal for checking valid indices in arrays etc., hence the
@@ -122,7 +126,8 @@ struct IndexPredicate
 
 
 /** Predicate for calls to COM interfaces, used by LASS_ENFORCE_COM
- *  @author Bram de Greve[BdG]
+ *  @internal
+ *  @author Bram de Greve[Bramz]
  *  
  *  This predicate checks if the HRESULT return value of a COM call is non-negative (0 or more).
  *  It returns true if the return value is negative, so the enforcer will raise.
@@ -141,6 +146,7 @@ struct ComPredicate
 // --- Raisers -------------------------------------------------------------------------------------
 
 /** Throw a runtime error
+ *  @internal
  *
  *  taken from:
  *  ALEXANDRESCU A. & MARGINEAN P. (2003), Enforcements. June 2003, C++ Experts Forum,
@@ -167,6 +173,7 @@ struct DefaultRaiser
 
 
 /** Throw a range error for LASS_ENFORCE_INDEX.
+ *  @internal
  *  @author Bram de Greve.
  *  @pre type T must be streamable to a std::ostream.
  */
@@ -194,6 +201,7 @@ struct IndexRaiser
 
 
 /** Throws an run time exception for raising LASS_ENFORCE_COM
+ *  @internal
  *  @author Bram de Greve.
  */
 struct ComRaiser
@@ -220,6 +228,7 @@ struct ComRaiser
 // --- Other helper stuff --------------------------------------------------------------------------
 
 /** Helper class of the enforce macro's.
+ *  @internal
  *
  *  taken from:
  *  ALEXANDRESCU A. & MARGINEAN P. (2003), Enforcements. June 2003, C++ Experts Forum,
@@ -275,6 +284,7 @@ private:
 
 
 /** helper function to create enforcers
+ *  @internal
  *  @relates lass::util::impl::Enforcer
  *
  *  taken from:
@@ -292,6 +302,7 @@ inline Enforcer<T&, P, R> makeEnforcer(T& iT, const char* iLocus)
 
 
 /** helper function to create enforcers
+ *  @internal
  *  @relates lass::util::impl::Enforcer
  *
  *  taken from:

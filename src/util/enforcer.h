@@ -28,7 +28,7 @@
 
 /** @defgroup Enforcers Enforcers
  *  @brief enforcers are release-time counterpart of assertions to ease condition verifying
- *  @author [BdG]
+ *  @author [Bramz]
  *
  *  Enforcers are a tool described by Alexandrescu [1] 
  *  [1] ALEXANDRESCU A. & MARGINEAN P. (2003), Enforcements. June 2003, C++ Experts Forum,

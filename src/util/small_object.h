@@ -36,7 +36,7 @@
 
 /** @class lass::util::SmallObject
  *  @brief base class for small objects that need a specialized allocator.
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  This tool is the Lass implementation of Alexandrescu's SmallObject.  Let's copy some text as 
  *  documentation (slightly modified to represent this implementation)

@@ -27,7 +27,7 @@
 
 /** @struct lass::util::FixedArray
  *  @brief compile time fixed array that also supports zero length
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *  @date 2002-2003
  *
  *  FixedArray is an array of compile-time-fixed length.  The unique property of this implementation

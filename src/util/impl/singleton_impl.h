@@ -27,14 +27,14 @@
 
 /** @class lass::util::impl::CompareDestructionPriority
  *  @brief helper class to compare destruction priorities fo lass::util::SingletonBase
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  */
 
 
 
 /** @class lass::util::impl::SingletonGuard
  *  @brief the singleton guard will take care of the destruction of all singletons
- *  @author Bram de Greve [BdG]
+ *  @author Bram de Greve [Bramz]
  *
  *  All singletons will subscribe them to this guard with a DestructionPriority.  On an explicit
  *  call of killEmAll() (or on destruction of the guard), all singletons will be destructed.
