@@ -79,7 +79,7 @@ void testNumVector()
 	TVector b(3);
 	BOOST_CHECK(!b.isEmpty());
 	BOOST_CHECK(b.isZero());
-	BOOST_CHECK_EQUAL(b.dimension(), 3);
+	BOOST_CHECK_EQUAL(b.size(), 3);
 	BOOST_CHECK_EQUAL(b, b);
 	BOOST_CHECK_EQUAL(b.squaredNorm(), NumTraits<T>::zero);
 
@@ -89,12 +89,12 @@ void testNumVector()
 	BOOST_CHECK_EQUAL(b.squaredNorm(), T(35 * 35 + 65 * 65 + 167 * 167));
 
 	TVector c = T(2) * b;
-	BOOST_CHECK_EQUAL(c.dimension(), 3);
+	BOOST_CHECK_EQUAL(c.size(), 3);
 	BOOST_CHECK_EQUAL(b, c / T(2));
 	BOOST_CHECK_EQUAL(c.squaredNorm(), T(4) * b.squaredNorm());
 
 	a = b - c;
-	BOOST_CHECK_EQUAL(a.dimension(), 3);
+	BOOST_CHECK_EQUAL(a.size(), 3);
 	BOOST_CHECK_EQUAL(b, a + c);
 	BOOST_CHECK_EQUAL(a.squaredNorm(), b.squaredNorm());
 	BOOST_CHECK_EQUAL(a, -b);
@@ -117,7 +117,7 @@ void testNumVector()
 	// construct a vector with 1000 elements
 	//
 	Vector<T> a(n);
-	BOOST_CHECK_EQUAL(a.dimension(), n);
+	BOOST_CHECK_EQUAL(a.size(), n);
 	BOOST_CHECK(!a.isEmpty());
 	for (i = 0; i < n; ++i)
 	{
@@ -129,8 +129,8 @@ void testNumVector()
 	//
 	Vector<T> b(bRef);
 	Vector<T> c(cRef);
-	BOOST_CHECK_EQUAL(b.dimension(), n);
-	BOOST_CHECK_EQUAL(c.dimension(), n);
+	BOOST_CHECK_EQUAL(b.size(), n);
+	BOOST_CHECK_EQUAL(c.size(), n);
 	BOOST_CHECK(!b.isEmpty());
 	BOOST_CHECK(!c.isEmpty());
 
@@ -146,55 +146,55 @@ void testNumVector()
 	// construct empty vector
 	//
 	Vector<T> d;
-	BOOST_CHECK_EQUAL(d.dimension(), 0);
+	BOOST_CHECK_EQUAL(d.size(), 0);
 	BOOST_CHECK(d.isEmpty());
 
 	d = a;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i]);
 
 	d = +b;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], b[i]);
 
 	d = -c;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], -c[i]);
 
 	d += a;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] - c[i]);
 	
 	d -= b;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] - c[i] - b[i]);
 	
 	d = a;
 	d *= b;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], a[i] * b[i]);
 	
 	d /= c;
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] * b[i]) / c[i]);
 	
 	d = a;
 	d += T(1);
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] + T(1)));
 	
 	d -= T(2);
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] + T(1)) - T(2));
 	
 	d = b;
 	d *= T(2);
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], T(2) * b[i]);
 
 	d = b;
 	d /= T(4);
-	BOOST_CHECK_EQUAL(d.dimension(), n);
+	BOOST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], b[i] / T(4));
 
 	BOOST_CHECK_EQUAL(a.sum(), std::accumulate(aRef.begin(), aRef.end(), T(0)));
@@ -228,7 +228,7 @@ void testNumMatrix()
 	BOOST_CHECK(!b.isSquare());
 	BOOST_CHECK(!b.isDiagonal());
 	BOOST_CHECK_EQUAL(b.rows(), 3);
-	BOOST_CHECK_EQUAL(b.cols(), 4);
+	BOOST_CHECK_EQUAL(b.columns(), 4);
 	BOOST_CHECK_EQUAL(b, b);
 }
 

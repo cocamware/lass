@@ -31,15 +31,21 @@
 #include "num_common.h"
 #include "matrix.h"
 #include "vector.h"
+#include "impl/matrix_vector_expressions.h"
 
 namespace lass
 {
 namespace num
 {
 
-template <typename T, typename S> Vector<T> operator*(const Matrix<T>& iA, const Vector<T, S>& iB);
-template <typename T, typename S> Matrix<T> diagonal(const Vector<T, S>& iB);
-template <typename T> bool solve(const Matrix<T>& iA, Vector<T>& iB);
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::MVRightProd<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Vector<T, S2>& iB);
+
+template <typename T, typename S> 
+Matrix<T, impl::MVDiag<T, S> > diagonal(const Vector<T, S>& iB);
+
+template <typename T, typename S> 
+bool solve(const Matrix<T, S>& iA, Vector<T>& iB);
 
 }
 

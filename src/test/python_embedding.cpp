@@ -132,9 +132,9 @@ PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );
 PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );   
 
 #pragma LASS_FIXME("this is broken on intel700 but not on vc7, that's news!")
-//#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_INTEL
+#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_INTEL
 PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );   
-//#endif
+#endif
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 // inject the class in the module and provide documentation for it

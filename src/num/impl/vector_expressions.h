@@ -38,9 +38,37 @@ namespace impl
 {
 
 template <typename T>
+class VStorage
+{
+public:
+    enum { lvalue = true };
+	typedef typename util::CallTraits<T>::TValue TValue;
+	typedef typename util::CallTraits<T>::TParam TParam;
+	typedef typename util::CallTraits<T>::TReference TReference;
+	typedef typename util::CallTraits<T>::TConstReference TConstReference;
+	typedef size_t TSize;
+
+    VStorage(): storage_() {}
+	explicit VStorage(TSize iSize): storage_(iSize, T()) {}
+	TReference operator[](TSize iIndex) { LASS_ASSERT(iIndex < size_); return storage_[iIndex]; }
+	TConstReference operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size_); return storage_[iIndex]; }
+	TSize size() const { return storage_.size(); }
+
+    // special VStorage members:
+    //
+    void resize(TSize iSize) { storage_.resize(iSize, T()); }
+    void swap(VStorage<T>& iOther) { storage_.swap(iOther.storage_); }
+private:
+    std::vector<T> storage_;
+};
+
+/** @internal
+ */
+template <typename T>
 class VScalar
 {
 public:
+    enum { lvalue = false };
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef size_t TSize;
@@ -48,7 +76,6 @@ public:
 	VScalar(TParam iValue, TSize iSize): value_(iValue), size_(iSize) {}
 	TParam operator[](TSize iIndex) const {	LASS_ASSERT(iIndex < size_); return value_; }
 	TSize size() const { return size_; }
-	bool empty() const { return size_ == 0; }
 private:
 	TValue value_;
 	TSize size_;
@@ -56,12 +83,16 @@ private:
 
 
 
+/** @internal
+ */
 template <typename ExpressionType> 
 struct VectorExpressionTraits
 {
 	typedef const ExpressionType& TStorage;
 };
 
+/** @internal
+ */
 template <typename T> 
 struct VectorExpressionTraits<VScalar<T> >
 {
@@ -70,25 +101,23 @@ struct VectorExpressionTraits<VScalar<T> >
 
 
 
-#define LASS_NUM_VECTOR_BINARY_EXPRESSION(name__, operator__)\
+/** @internal
+ */
+#define LASS_NUM_VECTOR_BINARY_EXPRESSION(i_name, c_operator)\
 template <typename T, typename Operand1, typename Operand2>\
-class LASS_CONCATENATE(V, name__)\
+class LASS_CONCATENATE(V, i_name)\
 {\
 public:\
+    enum { lvalue = false };\
 	typedef typename util::CallTraits<T>::TValue TValue;\
 	typedef size_t TSize;\
-	LASS_CONCATENATE(V, name__)(const Operand1& iA, const Operand2& iB):\
-		operand1_(iA),\
-		operand2_(iB)\
+	LASS_CONCATENATE(V, i_name)(const Operand1& iA, const Operand2& iB):\
+        operand1_(iA), operand2_(iB)\
 	{\
 		LASS_ASSERT(operand1_.size() == operand2_.size());\
 	}\
-	TValue operator[](TSize iIndex) const\
-	{\
-		return operand1_[iIndex] operator__ operand2_[iIndex];\
-	}\
+	TValue operator[](TSize iIndex) const { return operand1_[iIndex] c_operator operand2_[iIndex]; }\
 	TSize size() const { return operand1_.size(); }\
-	bool empty() const { return operand1_.empty(); }\
 private:\
 	typename VectorExpressionTraits<Operand1>::TStorage operand1_;\
 	typename VectorExpressionTraits<Operand2>::TStorage operand2_;\
@@ -101,23 +130,19 @@ LASS_NUM_VECTOR_BINARY_EXPRESSION(Div, /);
 
 
 
-#define LASS_NUM_VECTOR_UNARY_EXPRESSION(name__, operator__)\
+/** @internal
+ */
+#define LASS_NUM_VECTOR_UNARY_EXPRESSION(i_name, c_operator)\
 template <typename T, typename Operand1>\
-class LASS_CONCATENATE(V, name__)\
+class LASS_CONCATENATE(V, i_name)\
 {\
 public:\
+    enum { lvalue = false };\
 	typedef typename util::CallTraits<T>::TValue TValue;\
 	typedef size_t TSize;\
-	LASS_CONCATENATE(V, name__)(const Operand1& iA):\
-		operand1_(iA)\
-	{\
-	}\
-	TValue operator[](TSize iIndex) const\
-	{\
-		return operator__ operand1_[iIndex];\
-	}\
+	LASS_CONCATENATE(V, i_name)(const Operand1& iA): operand1_(iA) {}\
+	TValue operator[](TSize iIndex) const { return c_operator operand1_[iIndex]; }\
 	TSize size() const { return operand1_.size(); }\
-	bool empty() const { return operand1_.empty(); }\
 private:\
 	typename VectorExpressionTraits<Operand1>::TStorage operand1_;\
 }
@@ -127,28 +152,24 @@ LASS_NUM_VECTOR_UNARY_EXPRESSION(Rec, ::lass::num::NumTraits<T>::one /);
 
 
 
+/** @internal
+ */
 template <typename T, typename Operand1>
 class VFun
 {
 public:
-	typedef T (*TFunction)(T);
+    enum { lvalue = false };
+	typedef T (*TOperator)(T);
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef size_t TSize;
-	VFun(const Operand1& iA, TFunction iFun):
-		operand1_(iA),
-		function_(iFun)
-	{
-	}
-	TValue operator[](TSize iIndex) const
-	{
-		return function_(operand1_[iIndex]);
-	}
+	VFun(const Operand1& iA, TOperator iOperator): operand1_(iA), operator_(iOperator) {}
+	TValue operator[](TSize iIndex) const {	return operator_(operand1_[iIndex]); }
 	TSize size() const { return operand1_.size(); }
-	bool empty() const { return operand1_.empty(); }
 private:
 	typename VectorExpressionTraits<Operand1>::TStorage operand1_;
-	TFunction function_;
+	TOperator operator_;
 };
+
 
 
 

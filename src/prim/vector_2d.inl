@@ -302,6 +302,16 @@ const Vector2D<T> Vector2D<T>::reject(const Vector2D<T>& iB) const
 
 
 
+/** apply a function to every component
+ */
+template <typename T>
+const Vector2D<T> Vector2D<T>::transform(T (*iOperator)(T)) const
+{
+    return Vector2D<T>(iOperator(x), iOperator(y));
+}
+
+
+
 /** Normalize vector.
  */
 template<typename T> inline
@@ -353,18 +363,6 @@ template<typename T> inline
 typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& iB)
 {
 	return iA.x * iB.y - iA.y * iB.x;
-}
-
-
-
-/** transfrom a vector by applying an operator (well, actually a function) 'iOp' to each of each
- *  component values.
- *  @relates lass::prim::Vector2D
- */
-template<typename T> 
-Vector2D<T> transform(const Vector2D<T>& iA,  T (*iF)(T))
-{
-	return Vector2D<T>(iF(iA.x), iF(iA.y));
 }
 
 

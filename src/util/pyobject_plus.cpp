@@ -38,7 +38,7 @@ namespace lass
 		std::vector<PyMethodDef> initAbstractMethods()
 		{
 			std::vector<PyMethodDef> temp;
-			temp.push_back( createPyMethodDef( NULL, NULL,NULL, NULL ) );
+			temp.push_back( createPyMethodDef( 0, 0, 0, 0 ) );
 			return temp;
 			 
 		}

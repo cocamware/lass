@@ -369,7 +369,7 @@ const bool Aabb2D<T, MMP>::intersects(const Aabb2D<T, MMP2>& iOther) const
 
     LASS_ASSERT(doubleCenterToCenter.weight() == 0);
 	const typename TPointH::TVector doubleCenterDistance = 
-		transform<T>(doubleCenterToCenter.position(), num::abs);
+        doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
 	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y;
@@ -412,7 +412,7 @@ const bool Aabb2D<T, MMP>::collides(const Aabb2D<T, MMP2>& iOther) const
 
     LASS_ASSERT(doubleCenterToCenter.weight() == 0);
 	const typename TPointH::TVector doubleCenterDistance = 
-		transform<T>(doubleCenterToCenter.position, num::abs);
+        doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
 	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y;

@@ -116,6 +116,7 @@ struct Vector3D
 	const Vector3D<T> reciprocal() const;
 	const Vector3D<T> project(const Vector3D<T>& iB) const;
 	const Vector3D<T> reject(const Vector3D<T>& iB) const;
+    const Vector3D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 
@@ -124,8 +125,6 @@ struct Vector3D
 
 template<typename T> typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB);
 template<typename T> Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB);
-
-template<typename T> Vector3D<T> transform(const Vector3D<T>& iA, T (*iF)(T));
 
 template<typename T> bool operator==(const Vector3D<T>& iA, const Vector3D<T>& iB);
 template<typename T> bool operator!=(const Vector3D<T>& iA, const Vector3D<T>& iB);

@@ -93,7 +93,7 @@ Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, TParam iD):
 template<typename T, typename EP, typename NP>
 const XYZ Plane3D<T, EP, NP>::majorAxis() const
 {
-	const TVector absNormal = transform<T>(normal(), num::abs);
+	const TVector absNormal = normal().transform(num::abs);
 	if (absNormal.x > absNormal.y && absNormal.x > absNormal.z)
 	{
 		return 0; // x

@@ -112,12 +112,12 @@ struct Vector4D
 	const Vector4D<T> reciprocal() const;
 	const Vector4D<T> project(const Vector4D<T>& iB) const;
 	const Vector4D<T> reject(const Vector4D<T>& iB) const;
+    const Vector4D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 };
 
 template<typename T> typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB);
-template<typename T> Vector4D<T> transform(const Vector4D<T>& iA, T (*iF)(T));
 
 template<typename T> bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB);
 template<typename T> bool operator!=(const Vector4D<T>& iA, const Vector4D<T>& iB);

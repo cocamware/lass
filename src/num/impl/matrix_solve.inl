@@ -54,15 +54,13 @@ namespace impl
 
 /** Given a complex matrix iA, this routine replaces it by the LU decomposition
  *  of a rowwise permutation of itself. 
- *  @param iA     - INPUT and OUTPUT.
+ *  @param ioA    - INPUT and OUTPUT.
  *                - iA is replaced by its LU decomposition.
  *                - must be square.
- *  @param iIndex - OUTPUT.
- *                - records the row permutations effected by the partial 
- *                  pivoting.
- *  @param iD     - OUTPUT.
- *                - indicates the number of row interchanges was even (+1) or 
- *                  odd (-1).
+ *  @param oIndex - OUTPUT.
+ *                - records the row permutations effected by the partial pivoting.
+ *  @param oD     - OUTPUT.
+ *                - indicates the number of row interchanges was even (+1) or odd (-1).
  *  @return - true: LU decomposition completed 
  *          - false: matrix iA is singular
  *  
@@ -72,11 +70,11 @@ namespace impl
  *  Method: Crout's algorithm with partial pivoting.
  */
 template <typename T>
-bool ludecomp(Matrix<T>& iA,
-              Matrix<size_t>& iIndex,
+bool ludecomp(Matrix<T>& ioA,
+              std::vector<size_t>& oIndex,
               int& iD)
 {
-	LASS_ASSERT(iA.isSquare());
+	LASS_ASSERT(ioA.isSquare());
 
  	typedef typename Matrix<T>::TSize TSize;
 	typedef typename Matrix<T>::TValue TValue;
@@ -85,9 +83,10 @@ bool ludecomp(Matrix<T>& iA,
 	typedef NumTraits<TBase> TBaseTraits;
 
 	const TBase epsilon = 1e-20;
-    const TSize n = iA.rows();
+    const TSize n = ioA.rows();
 
-    Matrix<T> vv(n, 1, false);
+    oIndex.resize(n);
+    std::vector<T> vv(n);
     iD = 1;
 
     for (TSize i = 0; i < n; ++i)
@@ -96,7 +95,7 @@ bool ludecomp(Matrix<T>& iA,
         TSize jMax = n;
         for (TSize j = 0; j < n; ++j)
         {
-            const TBase temp = num::norm(iA(i, j));
+            const TBase temp = num::norm(ioA(i, j));
             if (temp > normMax)
             {
                 normMax = temp;
@@ -109,7 +108,7 @@ bool ludecomp(Matrix<T>& iA,
         }
 		LASS_ASSERT(jMax != n);
 
-        vv(i, 0) = num::conj(iA(i, jMax)) / normMax;
+        vv[i] = num::conj(ioA(i, jMax)) / normMax;
     }
 
     for (TSize j = 0; j < n; ++j)
@@ -117,26 +116,26 @@ bool ludecomp(Matrix<T>& iA,
         TSize i;
 		for (i = 0; i < j; ++i)
         {
-            TValue sum = iA(i, j);
+            TValue sum = ioA(i, j);
             for (TSize k = 0; k < i; ++k)
             {
-                sum -= iA(i, k) * iA(k, j);
+                sum -= ioA(i, k) * ioA(k, j);
             }
-            iA(i, j) = sum;
+            ioA(i, j) = sum;
         }
 
         TBase normMax = TBaseTraits::zero;
 		TSize iMax = n;
         for (i = j; i < n; ++i)
         {
-            TValue sum = iA(i, j);
+            TValue sum = ioA(i, j);
             for (TSize k = 0; k < j; ++k)
             {
-                sum -= iA(i, k) * iA(k, j);
+                sum -= ioA(i, k) * ioA(k, j);
             }
-            iA(i, j) = sum;
+            ioA(i, j) = sum;
 
-            const TValue dum = vv(i, 0) * sum;
+            const TValue dum = vv[i] * sum;
             const TBase temp = num::norm(dum);
             if (temp >= normMax)
             {
@@ -150,26 +149,26 @@ bool ludecomp(Matrix<T>& iA,
         {
            for (TSize k = 0; k < n; ++k) 
            {
-               std::swap(iA(iMax, k), iA(j, k));
+               std::swap(ioA(iMax, k), ioA(j, k));
            }
            iD = -iD;
-           vv(iMax, 0) = vv(j, 0);
+           vv[iMax] = vv[j];
         }
-        iIndex(j, 0) = iMax;
+        oIndex[j] = iMax;
 
-        TBase temp = num::norm(iA(j, j));
+        TBase temp = num::norm(ioA(j, j));
 		if (temp == TBaseTraits::zero) 
         {
-			iA(j, j) = TNumTraits::one;//CT(T(1), T(1));
+			ioA(j, j) = TNumTraits::one;//CT(T(1), T(1));
 			temp = epsilon;
         }
 
         if (j != n - 1) 
         {
-            const TValue dum = num::conj(iA(j, j)) / temp;
+            const TValue dum = num::conj(ioA(j, j)) / temp;
             for (i = j + 1; i < n; ++i)
             {
-                iA(i, j) *= dum;
+                ioA(i, j) *= dum;
             }
         }
     }
@@ -196,28 +195,28 @@ bool ludecomp(Matrix<T>& iA,
  *  Method: backward and forward substitution, taking into account the leading
  *          zero's in B.
  */
-template <typename T>
-void lusolve(const Matrix<T>& iA,
-             const Matrix<size_t>& iIndex, 
-             Matrix<T>& ioB)
+template <typename T, typename S1, typename S2>
+void lusolve(const Matrix<T, S1>& iA,
+             const std::vector<size_t>& iIndex, 
+             Matrix<T, S2>& ioB)
 {
 	LASS_ASSERT(iA.isSquare());
-	LASS_ASSERT(iIndex.rows() == iA.rows() && iIndex.cols() == 1);
+	LASS_ASSERT(iIndex.size() == iA.rows());
 	LASS_ASSERT(ioB.rows() == iA.rows());
 
-	typedef typename Matrix<T>::TSize TSize;
-	typedef typename Matrix<T>::TValue TValue;
-	typedef typename Matrix<T>::TNumTraits TNumTraits;
+	typedef typename Matrix<T, S1>::TSize TSize;
+	typedef typename Matrix<T, S1>::TValue TValue;
+	typedef typename Matrix<T, S1>::TNumTraits TNumTraits;
 
 	const TSize n = iA.rows();
-	const TSize m = ioB.cols();
+	const TSize m = ioB.columns();
 
 	for (TSize k = 0; k < m; ++k)
 	{
 		TSize ii = n;
 		for (TSize i = 0; i < n; ++i) 
 		{
-			const TSize ip = iIndex(i, 0);
+            const TSize ip = iIndex[i];
 			TValue sum = ioB(ip, k);
 			ioB(ip, k) = ioB(i, k);
 
@@ -270,13 +269,13 @@ void lusolve(const Matrix<T>& iA,
 template <typename T>
 void lumprove(const Matrix<T>& iA, 
               const Matrix<T>& iAlu, 
-              const Matrix<unsigned>& iIndex, 
+              const std::vector<size_t>& iIndex, 
               const Matrix<T>& iB, 
               Matrix<T>& ioX)
 {
 	LASS_ASSERT(iA.isSquare());
 	LASS_ASSERT(iA.rows() == iAlu.rows() && iA.cols() == iAlu.cols());
-	LASS_ASSERT(iIndex.rows() == iA.rows() && iIndex.cols() == 1)
+    LASS_ASSERT(iIndex.size() == iA.rows())
 	LASS_ASSERT(iB.rows() == iA.rows());
 	LASS_ASSERT(ioX.rows() == iA.rows() && ioX.cols() == iB.cols());
 
@@ -304,46 +303,6 @@ void lumprove(const Matrix<T>& iA,
     clusolve(iAlu, iIndex, r);
 
 	ioX -= r;
-}
-
-
-
-/*
-*-------------------------------------------------------------------------
-*   
-*  FUNCTION :  cmatrix_inv()
-*
-*  TASK :  inversion of a complex matrix
-*
-*-------------------------------------------------------------------------
-*/
-template <typename T>
-Matrix<T> inverse(const Matrix<T>& iA)
-{
-	LASS_ASSERT(iA.isSquare());
-
-	typedef typename Matrix<T>::TSize TSize;
-	typedef typename Matrix<T>::TValue TValue;
-	typedef typename Matrix<T>::TNumTraits TNumTraits;
-
-    const TSize n = iA.rows();
-    
-    Matrix<T> lu(iA);
-    Matrix<size_t> index(n, 1);
-    int d;
-
-    if (!cludecomp(lu, index, d))
-    {
-        return Matrix<T>(); // empty solution
-    }
-
-    Matrix<T> result(n, n);
-    Matrix<T> result;
-	result.setIdentity(n);
-
-    clusolve(lu, indx, result) ;
-    
-    return result;
 }
 
 

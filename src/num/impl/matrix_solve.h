@@ -38,12 +38,15 @@ namespace num
 namespace impl
 {
 
-template <typename T> bool ludecomp(const Matrix<T>& iA, Matrix<size_t>& iIndex, int& iD);
-template <typename T> void lusolve(const Matrix<T>& iA, const Matrix<size_t>& iIndex, 
-								   Matrix<T>& ioB);
-template <typename T> void lumprove(const Matrix<T>& iA, const Matrix<T>& iAlu, 
-									const Matrix<size_t>& iIndex, const Matrix<T>& iB, 
-									Matrix<T>& ioX);
+template <typename T> 
+bool ludecomp(MStorage<T>& ioA, std::vector<size_t>& oIndex, int& oD);
+
+template <typename T, typename S1, typename S2> 
+void lusolve(const Matrix<T, S1>& iA, const std::vector<size_t>& iIndex, Matrix<T, S2>& ioB);
+
+template <typename T> 
+void lumprove(const Matrix<T>& iA, const Matrix<T>& iAlu, const std::vector<size_t>& iIndex, 
+              const Matrix<T>& iB, Matrix<T>& ioX);
 
 }
 

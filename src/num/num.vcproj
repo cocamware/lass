@@ -579,7 +579,13 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				Name="impl"
 				Filter="">
 				<File 
+					RelativePath=".\impl\matrix_expressions.h">
+				</File>
+				<File 
 					RelativePath="impl\matrix_solve.h">
+				</File>
+				<File 
+					RelativePath=".\impl\matrix_vector_expressions.h">
 				</File>
 				<File 
 					RelativePath=".\impl\vector_expressions.h">

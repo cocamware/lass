@@ -301,6 +301,16 @@ const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
 
 
 
+/** apply a function to every component
+ */
+template <typename T>
+const Vector4D<T> Vector4D<T>::transform(T (*iOperator)(T)) const
+{
+    return Vector4D<T>(iOperator(x), iOperator(y), iOperator(z), iOperator(w));
+}
+
+
+
 /** Normalize vector.
  */
 template<typename T> inline
@@ -318,18 +328,6 @@ template<typename T> inline
 typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB)
 {
 	return iA.x * iB.x + iA.y * iB.y + iA.z * iB.z + iA.w * iB.w;
-}
-
-
-
-/** transfrom a vector by applying an operator (well, actually a function) 'iOp' to each of each
- *  component values.
- *  @relates lass::prim::Vector4D
- */
-template<typename T> 
-inline Vector4D<T> transform(const Vector4D<T>& iA, T (*iF)(T))
-{
-	return Vector4D<T>(iF(iA.x), iF(iA.y), iF(iA.z), iF(iA.w));
 }
 
 

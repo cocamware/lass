@@ -295,6 +295,16 @@ const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
 
 
 
+/** apply a function to every component
+ */
+template <typename T>
+const Vector3D<T> Vector3D<T>::transform(T (*iOperator)(T)) const
+{
+    return Vector3D<T>(iOperator(x), iOperator(y), iOperator(z));
+}
+
+
+
 /** Normalize vector.
  */
 template<typename T> inline
@@ -345,18 +355,6 @@ Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB)
 	return Vector3D<T>(iA.y * iB.z - iA.z * iB.y, 
 					   iA.z * iB.x - iA.x * iB.z, 
 					   iA.x * iB.y - iA.y * iB.x);
-}
-
-
-
-/** transfrom a vector by applying an operator (well, actually a function) 'iOp' to each of each
- *  component values.
- *  @relates lass::prim::Vector3D
- */
-template<typename T> 
-Vector3D<T> transform(const Vector3D<T>& iA, T (*iF)(T))
-{
-	return Vector3D<T>(iF(iA.x), iF(iA.y), iF(iA.z));
 }
 
 

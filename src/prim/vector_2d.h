@@ -110,6 +110,7 @@ struct Vector2D
     const Vector2D<T> perp() const;
 	const Vector2D<T> project(const Vector2D<T>& iB) const;
 	const Vector2D<T> reject(const Vector2D<T>& iB) const;
+    const Vector2D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();
 
@@ -118,7 +119,6 @@ struct Vector2D
 
 template<typename T> typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB);
 template<typename T> typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& iB);
-template<typename T> Vector2D<T> transform(const Vector2D<T>& iA, T (*iF)(T));
 
 template<typename T> bool operator==(const Vector2D<T>& iA, const Vector2D<T>& iB);
 template<typename T> bool operator!=(const Vector2D<T>& iA, const Vector2D<T>& iB);

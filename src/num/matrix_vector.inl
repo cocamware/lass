@@ -39,7 +39,7 @@ namespace num
 #define LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(iA, iB)\
 	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
 									 lass::util::impl::DefaultRaiser>\
-	((iA).cols() == (iB).dimension(), "Matrix '" LASS_STRINGIFY(iA) "' and Vector '"\
+	((iA).columns() == (iB).size(), "Matrix '" LASS_STRINGIFY(iA) "' and Vector '"\
 	 LASS_STRINGIFY(iB) "' have no adjacent dimensions for multiplication in '" LASS_HERE "'."))
 
 	
@@ -50,26 +50,13 @@ namespace num
  *  @relates lass::num::Matrix
  *  @relatesalso lass::num::Vector
  */
-template <typename T, typename S> 
-Vector<T> operator*(const Matrix<T>& iA, const Vector<T, S>& iB)
+template <typename T, typename S1, typename S2> 
+Vector<T, impl::MVRightProd<T, S1, S2> > 
+operator*(const Matrix<T, S1>& iA, const Vector<T, S2>& iB)
 {
-	typedef typename Matrix<T>::TNumTraits TNumTraits;
-
-	LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(iA, iB);
-	typedef typename Matrix<T>::TSize TSize;
-	const TSize m = iA.rows();
-	const TSize n = iA.cols();
-
-	Vector<T> result(m);
-	for (TSize i = 0; i < m; ++i)
-	{
-		result[i] = TNumTraits::zero;
-		for (TSize j = 0; j < n; ++j)
-		{
-			result[i] += iA(i, j) * iB[j];
-		}
-	}
-	return result;
+    LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(iA, iB);
+	typedef impl::MVRightProd<T, S1, S2> TExpression;
+    return Vector<T, TExpression>(TExpression(iA.storage(), iB.storage()));
 }
 
 
@@ -80,17 +67,10 @@ Vector<T> operator*(const Matrix<T>& iA, const Vector<T, S>& iB)
  *  @sa lass::num::Matrix::isDiagonal
  */
 template <typename T, typename S>
-Matrix<T> diagonal(const Vector<T, S>& iB)
+Matrix<T, impl::MVDiag<T, S> > diagonal(const Vector<T, S>& iB)
 {
-	typedef typename Vector<T, S>::TSize TSize;
-	const TSize size = iB.dimension();
-
-	Matrix<T> result(size, size);
-	for (TSize i = 0; i < size; ++i)
-	{
-		result(i, i) = iB[i];
-	}
-	return result;
+    typedef impl::MVDiag<T, S> TExpression;
+    return Matrix<T, TExpression>(TExpression(iB.storage()));
 }
 
 
@@ -100,29 +80,12 @@ Matrix<T> diagonal(const Vector<T, S>& iB)
  *  @relatesalso lass::num::Vector
  *  @sa lass::num::Matrix::solve
  */
-template <typename T>
-bool solve(const Matrix<T>& iA, Vector<T>& iB)
+template <typename T, typename S>
+bool solve(const Matrix<T, S>& iA, Vector<T>& iB)
 {
-	typedef typename Matrix<T>::TSize TSize;
-	const TSize size = iB.dimension();
-	
-	Matrix<T> temp(size, 1, false);
-	TSize i;
-	for (i = 0; i < size; ++i)
-	{
-		temp(i, 0) = iB[i];
-	}
-
-	if (!iA.solve(temp))
-	{
-		return false;
-	}
-
-	for (i = 0; i < size; ++i)
-	{
-		iB[i] = temp(i, 0);
-	}
-	return true;
+    typedef impl::MVColumn<T, typename Vector<T>::TStorage > TAdaptor;
+    Matrix<T, TAdaptor> adaptedB(TAdaptor(iB.storage()));
+    return solve(iA, adaptedB);
 }
 
 

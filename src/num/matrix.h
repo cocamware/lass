@@ -26,7 +26,7 @@
 
 
 /** @class lass::num::Matrix
- *  @brief dynamically sized mxn-dimensional matrix
+ *  @brief a dynamic sized n-dimensional matrix with expression templates
  *  @author Bram de Greve [BdG]
  */
 
@@ -35,6 +35,7 @@
 
 #include "num_common.h"
 #include "num_traits.h"
+#include "impl/matrix_expressions.h"
 #include "../util/call_traits.h"
 #include "../util/scoped_ptr.h"
 
@@ -43,59 +44,52 @@ namespace lass
 namespace num
 {
 
-template<typename T>
+template
+<
+    typename T,
+    typename S = impl::MStorage<T>
+>
 class Matrix
 {
 public:
+
+	typedef Vector<T, S> TSelf;
+	typedef S TStorage;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
-	typedef typename TValue* TPointer;
-	typedef typename num::NumTraits<T> TNumTraits;
+	typedef num::NumTraits<T> TNumTraits;
+	typedef TValue* TPointer;
 	typedef size_t TSize;
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Matrix<U> Type;
+		typedef typename Matrix<U, S> Type;
 	};
 
 	Matrix();
-	explicit Matrix(TSize iRows, TSize iCols = 0, bool iConstructAsZero = true);
-	Matrix(const Matrix<T>& iOther);
-	/*
-	template <typename U> explicit Matrix(const Matrix<U>& iOther): 
-	{
-		rows_ = iOther.rows();
-		cols_ = iOther.cols();
-		if (rows_ > 0 && cols_ > 0)
-		{
-			const TSize size = rows_ * cols_;
-			values_.reset(new T[size]);
-			for (unsigned i = 0; i < size; ++i)
-			{
-				values_[i] = iOther.values_[i];
-			}
-		}
-	}
-*/
-	Matrix<T>& operator=(const Matrix<T>& iOther);
+	explicit Matrix(TSize iRows, TSize iCols);
+    explicit Matrix(const TStorage& iStorage);
 
-	TSize rows() const;
-	TSize cols() const; 
+	template <typename T2, typename S2> Matrix<T, S>& operator=(const Matrix<T2, S2>& iOther);
 
-	inline typename Matrix::TConstReference operator()(TSize iRow, TSize iCol) const;
-	inline typename Matrix::TReference operator()(TSize iRow, TSize iCol);
-	inline typename Matrix::TConstReference at(TSize iRow, TSize iCol) const;
-	inline typename Matrix::TReference at(TSize iRow, TSize iCol);
+    const TSize rows() const;
+	const TSize columns() const; 
 
-	Matrix<T>& operator+() const;
-	Matrix<T> operator-() const;
-	Matrix<T>& operator+=(const Matrix<T>& iB);
-	Matrix<T>& operator-=(const Matrix<T>& iB);
-	Matrix<T>& operator*=(TParam iB);
-	Matrix<T>& operator/=(TParam iB);
+	const TValue operator()(TSize iRow, TSize iCol) const;
+	TReference operator()(TSize iRow, TSize iCol);
+	const TValue at(TSize iRow, TSize iCol) const;
+	TReference at(TSize iRow, TSize iCol);
+
+	const Matrix<T, S>& operator+() const;
+	const Matrix<T, impl::MNeg<T, S> > operator-() const;
+
+	template <typename S2> Matrix<T, S>& operator+=(const Matrix<T, S2>& iB);
+	template <typename S2> Matrix<T, S>& operator-=(const Matrix<T, S2>& iB);
+	Matrix<T, S>& operator*=(TParam iB);
+	Matrix<T, S>& operator/=(TParam iB);
 
 	void setZero(TSize iRows, TSize iCols);
 	void setIdentity(TSize iSize);
@@ -106,38 +100,53 @@ public:
 	bool isDiagonal() const;
 	bool isSquare() const;
 
-	Matrix<T> transpose() const;
-	Matrix<T> inverse() const;
+    const Matrix<T, impl::MTrans<T, S> > transpose() const;
+	
+    bool inverse();
 
-	bool solve(Matrix<T>& ioB) const;
-
-	TPointer data() const;
-	void swap(Matrix<T>& iOther);
+	const TStorage& storage() const;
+	void swap(Matrix<T, S>& iOther);
 
 private:
 
-	typedef util::ScopedPtr<T, util::ArrayStorage> TValues;
-
-	inline TSize flatIndex(TSize iRow, TSize iCol) const;
-
-	TValues values_;
-	TSize rows_;
-	TSize cols_;
+	TStorage storage_;
 };
 
-template <typename T> bool operator==(const Matrix<T>& iA, const Matrix<T>& iB);
-template <typename T> inline bool operator!=(const Matrix<T>& iA, const Matrix<T>& iB);
+template <typename T, typename S1, typename S2> 
+bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+inline bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
 
-template <typename T> inline Matrix<T> operator+(const Matrix<T>& iA, const Matrix<T>& iB);
-template <typename T> inline Matrix<T> operator-(const Matrix<T>& iA, const Matrix<T>& iB);
-template <typename T> inline Matrix<T> operator*(const Matrix<T>& iA, const T& iB);
-template <typename T> inline Matrix<T> operator/(const Matrix<T>& iA, const T& iB);
-template <typename T> inline Matrix<T> operator*(const T& iA, const Matrix<T>& iB);
+template <typename T, typename S1, typename S2> 
+const Matrix<T, impl::MAdd<T, S1, S2> > operator+(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+const Matrix<T, impl::MSub<T, S1, S2> > operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+template <typename T, typename S1, typename S2> 
+const Matrix<T, impl::MMul<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
 
-template <typename T> Matrix<T> operator*(const Matrix<T>& iA, const Matrix<T>& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MAdd<T, impl::VScalar<T>, S> > operator+(const T& iA, const Matrix<T, S>& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MSub<T, impl::VScalar<T>, S> > operator-(const T& iA, const Matrix<T, S>& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MMul<T, impl::VScalar<T>, S> > operator*(const T& iA, const Matrix<T, S>& iB);
 
-template <typename T> std::ostream& operator<<(std::ostream& iS, const Matrix<T>& iA);
-template <typename T> std::istream& operator>>(std::istream& iS, Matrix<T>& iA);
+template <typename T, typename S> 
+const Matrix<T, impl::MAdd<T, S, impl::VScalar<T> > > operator+(const Matrix<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MAdd<T, S, impl::VScalar<T> > > operator-(const Matrix<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MMul<T, S, impl::VScalar<T> > > operator*(const Matrix<T, S>& iA, const T& iB);
+template <typename T, typename S> 
+const Matrix<T, impl::MMul<T, S, impl::VScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
+
+template <typename T, typename S> 
+bool solve(const Matrix<T, S>& iA, Matrix<T>& ioB);
+
+
+template <typename T, typename S, typename Char, typename Traits> 
+std::basic_ostream<Char, Traits>& 
+operator<<(std::basic_ostream<Char, Traits>& iS, const Matrix<T, S>& iA);
 
 }
 
