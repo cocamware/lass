@@ -134,6 +134,32 @@ inline RandomMT19937::TValue RandomMT19937::operator()()
 }
 
 
+
+template<class RG, class T> 
+T uniform(RG& iGenerator)
+{
+	return static_cast<T>(iGenerator())/static_cast<T>(RG::max);
+}
+
+template<class RG, class T> 
+T unitGauss(RG& iGenerator)
+{
+	T fac,rsq,v1,v2;
+	do
+	{
+		v1 = 2.0*uniform(iGenerator)-1.0;
+		v2 = 2.0*uniform(iGenerator)-1.0;
+		rsq = v1*v1+v2*v2;
+	} while (rsq >= 1.0 || rsq == 0.0 );
+	fac = lass::num::sqrt(-2.0*lass::num::log(rsq)/rsq);
+	return v2*fac;
+}
+
+template<class RG, class T> 
+T gauss(RG& iGenerator, typename lass::util::CallTraits<T>::TParam iMean, typename lass::util::CallTraits<T>::TParam iStdDev)
+{
+	return iMean + iStdDev*unitGauss(iGenerator);
+}
        
 
 

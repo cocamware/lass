@@ -38,6 +38,7 @@
 
 #include "num_common.h"
 #include <cstdlib>
+#include "../util/call_traits.h"
 
 namespace lass
 {
@@ -115,6 +116,20 @@ private:
     TValue state_[stateSize_];      /**< the array for the state vector. */
     int index_;                     /**< index in state vector. */
 };
+
+
+/** uniform.
+*	returns a uniform random sample from [0,1] 
+*/
+template<class RG, class T> T uniform(RG& iGenerator);
+/** unitGauss.
+*	returns a gaussian distributed random with mean 0 and stddev 1 
+*/
+template<class RG, class T> T unitGauss(RG& iGenerator);
+/** gauss.
+*	returns a gaussian distributed random sample with iMean and stddev iStdDev
+*/
+template<class RG, class T> T gauss(RG& iGenerator, typename lass::util::CallTraits<T>::TParam iMean, typename  lass::util::CallTraits<T>::TParam iStdDev);
 
 
 
