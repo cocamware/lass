@@ -45,50 +45,50 @@ class Ham: public Spam {};
 
 void testMetaIsConvertibleType()
 {
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<float, int>::value), true);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<int, float>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<float, int>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<int, float>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<std::string, const char*>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<const char*, std::string>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<std::string, const char*>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<const char*, std::string>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<float*, int*>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<float*, void*>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, int*>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, void*>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<const float*, float*>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<float*, const float*>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<const float*, float*>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, const float*>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<Spam, int>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<int, Spam>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<Spam, Ham>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam, int>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<int, Spam>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam, Ham>::value), false);
 
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<Spam*, Ham*>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsConvertibleType<Ham*, Spam*>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam*, Ham*>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsConvertibleType<Ham*, Spam*>::value), true);
 }
 
 
 
 void testMetaIsDerivedType()
 {
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<float, int>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<float, int>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<float, int>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<float, int>::value), false);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<float, float>::value), true);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<float, float>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<float, float>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<float, float>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Spam, void>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Spam, void>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, void>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, void>::value), false);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<void, void>::value), true);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<void, void>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<void, void>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<void, void>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Spam, Ham>::value), false);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Spam, Ham>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, Ham>::value), false);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, Ham>::value), false);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Ham, Spam>::value), true);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Ham, Spam>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham, Spam>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham, Spam>::value), true);
 
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Ham*, Spam*>::value), true);
-	BOOST_CHECK_EQUAL((meta::IsDerivedType<Ham*, Spam*>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham*, Spam*>::value), true);
+	BOOST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham*, Spam*>::value), true);
 }
 
 }
