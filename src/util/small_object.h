@@ -142,6 +142,23 @@ public:
 #endif
 	}
 
+	static void* operator new(std::size_t iSize, void* p) throw()
+	{
+		return ::operator new(iSize, p);
+	}
+
+	static void* operator new(std::size_t iSize, const std::nothrow_t&) throw()
+	{
+		try
+		{
+			return SmallObject::operator new(iSize);
+		}
+		catch (...)
+		{
+			return 0;
+		}
+	}
+
 	static void operator delete(void* iPointer, std::size_t iSize)
 	{
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR

@@ -548,9 +548,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="basic_ops.inl">
 			</File>
 			<File 
-				RelativePath=".\cubic_spline.h">
-			</File>
-			<File 
 				RelativePath="db.h">
 			</File>
 			<File 
