@@ -25,15 +25,15 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_TRIPLE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_TRIPLE_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_INL
+#define LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_INL
 
-#include "util_common.h"
+#include "stde_common.h"
 #include "triple.h"
 
 namespace lass
 {
-namespace util
+namespace stde
 {
 
 // --- public --------------------------------------------------------------------------------------
@@ -42,10 +42,10 @@ namespace util
 /** default constructor
  *  The default constructor creates a vlaue triple with triples that are initialized by the 
  *  default constructor of their type.  Because of language rules, an explicit call of a default
- *  constructor also initializes fundamental data types such as int.
+ *  constructor also initializes fundamental data types such as @c int.
  */
 template <typename T1, typename T2, typename T3>
-Triple<T1, T2, T3>::Triple():
+triple<T1, T2, T3>::triple():
     first(T1()),
     second(T2()),
     third(T3())
@@ -57,12 +57,28 @@ Triple<T1, T2, T3>::Triple():
 /** constructor for three values
  */
 template <typename T1, typename T2, typename T3>
-Triple<T1, T2, T3>::Triple(typename CallTraits<T1>::TParam iA, 
-                           typename CallTraits<T2>::TParam iB, 
-                           typename CallTraits<T3>::TParam iC):
-    first(iA),
-    second(iB),
-    third(iC)
+triple<T1, T2, T3>::triple(typename util::CallTraits<T1>::TParam a, 
+                           typename util::CallTraits<T2>::TParam b, 
+                           typename util::CallTraits<T3>::TParam c):
+    first(a),
+    second(b),
+    third(c)
+{
+}
+
+
+
+/** copy constructor with implicit conversions
+    *  This template version of the copy constructor provided here is ussed when implicit 
+    *  conversions are necessary.  If an object of type Triple gets copied, the normal implicitly
+    *  generated default copy constructor is called, which is nice.
+    */
+template <typename T1, typename T2, typename T3>
+template <typename U1, typename U2, typename U3>
+triple<T1, T2, T3>::triple(const triple<U1, U2, U3>& other):
+    first(other.first),
+    second(other.second),
+    third(other.third)
 {
 }
 
@@ -79,16 +95,16 @@ Triple<T1, T2, T3>::Triple(typename CallTraits<T1>::TParam iA,
 // --- free ----------------------------------------------------------------------------------------
 
 /** two triples are identical if all elements (first, second, third) are identical.
- *  @relates Triple
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator==(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator==(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return iA.first == iB.first && iA.second == iB.second && iA.third == iB.third;
+    return x.first == y.first && x.second == y.second && x.third == y.third;
 }
 
-/** return true if iA is "less" than iB.
- *  @relates Triple
+/** return true if x is "less" than y.
+ *  @relates triple
  * 
  *  As for std::pair, the "less than" comparison is implemented for Triples in a similar way.
  *  The first value has higher priority than the second and third, and the second value has higher
@@ -98,79 +114,77 @@ bool operator==(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
  *  second values are equal too, the comparison of the third values finally yields the result.
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator<(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator<(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return iA.first < iB.first || 
-            (!(iB.first < iA.first) && (iA.second < iB.second ||
-                                        (!(iB.second < iA.second) && iA.third < iB.third)));
+    return x.first < y.first || (!(y.first < x.first) && 
+        (x.second < y.second || (!(y.second < x.second) && x.third < y.third)));
 }
 
-/** equivalent to !(iA == iB), see operator<
- *  @relates Triple
+/** equivalent to !(x == y), see operator<
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator!=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator!=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return !(iA == iB);
+    return !(x == y);
 }
 
-/** equivalent to iB < iA, see operator<
- *  @relates Triple
+/** equivalent to y < x, see operator<
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator>(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator>(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return iB < iA;
+    return y < x;
 }
 
-/** equivalent to !(iB < iA), see operator<
- *  @relates Triple
+/** equivalent to !(y < x), see operator<
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator<=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator<=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return !(iB < iA);
+    return !(y < x);
 }
 
-/** equivalent to !(iA < iB), see operator<
- *  @relates Triple
+/** equivalent to !(x < y), see operator<
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator>=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB)
+bool operator>=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y)
 {
-    return !(iA < iB);
+    return !(x < y);
 }
 
 
 
 /*
- *  @relates Triple
+ *  @relates triple
  */
 template <typename T1, typename T2, typename T3>
-std::ostream& operator<<(std::ostream& ioS, const Triple<T1, T2, T3>& iTriple)
+std::ostream& operator<<(std::ostream& stream, const triple<T1, T2, T3>& x)
 {
-    ioS << "(" << iTriple.first << ", " << iTriple.second << ", " << iTriple.third << ")";
-    return ioS;
+    return stream << "(" << x.first << ", " << x.second << ", " << x.third << ")";
 }
 
 
 
-/** convenience function to create a lass::util::Triple.
- *  @relates Triple
+/** convenience function to create a lass::stde::triple.
+ *  @relates triple
  *
- *  The makeTriple template function enables you to create a value triple without writing the 
- *  types explicitly.  In particular the makeTriple function makes it convenient to pass three
- *  values of a Triple directly to a function that requires a Triple as its argument.
+ *  The make_triple template function enables you to create a value triple without writing the 
+ *  types explicitly.  In particular the make_triple function makes it convenient to pass three
+ *  values of a triple directly to a function that requires a triple as its argument.
  *  It works even when the types do not match exactly becuase the template copy constructor
  *  provides implicit type conversion.
  *
- *  using makeTriple should cost no runtime.  The compiler should always optimize any implied
+ *  using make_triple should cost no runtime.  The compiler should always optimize any implied
  *  overhead.
  */
 template <typename T1, typename T2, typename T3>
-Triple<T1, T2, T3> makeTriple(const T1& iA, const T2& iB, const T3& iC)
+triple<T1, T2, T3> make_triple(const T1& a, const T2& b, const T3& c)
 {
-    return Triple<T1, T2, T3>(iA, iB, iC);
+    return triple<T1, T2, T3>(a, b, c);
 }
 
 

@@ -38,7 +38,6 @@
 #include "test_util_python.inl"
 #include "test_util_string_cast.inl"
 #include "test_util_thread_fun.inl"
-#include "test_util_triple.inl"
 #include "test_util_visitor.inl"
 
 namespace lass
@@ -68,8 +67,6 @@ boost::unit_test_framework::test_suite* testUtil()
     result->add(BOOST_TEST_CASE(testUtilStringCast));
 
     result->add(BOOST_TEST_CASE(testUtilThreadFun));
-
-    result->add(BOOST_TEST_CASE(testUtilTriple));
 
 	result->add(BOOST_TEST_CASE(testUtilVisitor));
 

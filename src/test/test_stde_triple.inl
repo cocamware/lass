@@ -26,15 +26,15 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_TRIPLE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_TRIPLE_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_TRIPLE_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_TRIPLE_INL
 
 #include "test_common.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4244)
 
-#include "../util/triple.h"
+#include "../stde/triple.h"
 
 
 
@@ -43,15 +43,13 @@ namespace lass
 namespace test
 {
 
-void testUtilTriple()
+void testStdeTriple()
 {
-	using namespace util;
+    typedef stde::triple<char, float, std::string> triple1_type;
+    typedef stde::triple<int, double, std::string> triple2_type;
 
-    typedef Triple<char, float, std::string> Triple1;
-    typedef Triple<int, double, std::string> Triple2;
-
-    Triple1 triple1 = makeTriple(true, 1, std::string("hello world!"));
-    Triple2 triple2(triple1);
+    triple1_type triple1 = stde::make_triple(true, 1, std::string("hello world!"));
+    triple2_type triple2(triple1);
     BOOST_CHECK_EQUAL(triple1, triple2);
 
     triple2.first = 666;

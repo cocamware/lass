@@ -23,17 +23,17 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @class lass::util::Triple
- *  @brief extension of std::pair to three values, trait three values as a single unit.
+/** @class lass::stde::triple
+ *  @brief extension of @c std::pair to three values, trait three values as a single unit.
  *  @author Bram de Greve [Bramz]
  *
- *  we'd like to refer to the C++ standard library for info on std::pair.  Triple is an 
- *  extension of this to three values.  As std::pair, Triple is declared as a struct,
+ *  we'd like to refer to the C++ standard library for info on @c std::pair.  @c triple is an 
+ *  extension of this to three values.  As @c std::pair, triple is declared as a struct,
  *  the default constructor will initialize all elements with their default constructor,
- *  and implicit conversions between Triples of different type are allowed, provided that
+ *  and implicit conversions between triples of different type are allowed, provided that
  *  the conversions between the element types are possible.
  *
- *  As for std::pair, the "less than" comparison is implemented for Triple in a similar way.
+ *  As for @c std::pair, the "less than" comparison is implemented for @c triple in a similar way.
  *  The first value has higher priority than the second and third, and the second value has higher
  *  priority than the third.  Thus, if the first values of two pairs differ, the result of their 
  *  comparison is used as the result of the comparison of the whole triples.  If the first values
@@ -41,75 +41,60 @@
  *  second values are equal too, the comparison of the third values finally yields the result.
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_TRIPLE_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_TRIPLE_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_H
+#define LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_H
 
-#include "util_common.h"
+#include "stde_common.h"
 
 namespace lass
 {
-namespace util
+namespace stde
 {
 
 template <typename T1, typename T2, typename T3>
-struct Triple
+struct triple
 {
-    // typenames for the values
     typedef T1 first_type;
     typedef T2 second_type;
     typedef T3 third_type;
 
-    // member
     T1 first;
     T2 second;
     T3 third;
 
-    Triple();
-    Triple(typename CallTraits<T1>::TParam iA, 
-		   typename CallTraits<T2>::TParam iB, 
-		   typename CallTraits<T3>::TParam iC);
-
-    /** copy constructor with implicit conversions
-     *  This template version of the copy constructor provided here is ussed when implicit 
-     *  conversions are necessary.  If an object of type Triple gets copied, the normal implicitly
-     *  generated default copy constructor is called, which is nice.
-     */
-    template <typename U1, typename U2, typename U3>
-    Triple(const Triple<U1, U2, U3>& iOther):
-        first(iOther.first),
-        second(iOther.second),
-        third(iOther.third)
-    {
-    }
+    triple();
+    triple(typename util::CallTraits<T1>::TParam a, typename util::CallTraits<T2>::TParam b,
+        typename util::CallTraits<T3>::TParam c);
+    template <typename U1, typename U2, typename U3> triple(const triple<U1, U2, U3>& other);
 };
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator==(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator==(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator!=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator!=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator<(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator<(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator>(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator>(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator<=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator<=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 template <typename T1, typename T2, typename T3, typename U1, typename U2, typename U3>
-bool operator>=(const Triple<T1, T2, T3>& iA, const Triple<U1, U2, U3>& iB);
+bool operator>=(const triple<T1, T2, T3>& x, const triple<U1, U2, U3>& y);
 
 
 
 template <typename T1, typename T2, typename T3>
-std::ostream& operator<<(std::ostream& ioS, const Triple<T1, T2, T3>& iTriple);
+std::ostream& operator<<(std::ostream& stream, const triple<T1, T2, T3>& x);
 
 
 
 template <typename T1, typename T2, typename T3>
-Triple<T1, T2, T3> makeTriple(const T1& iA, const T2& iB, const T3& iC);
+triple<T1, T2, T3> make_triple(const T1& a, const T2& b, const T3& c);
 
 }
 

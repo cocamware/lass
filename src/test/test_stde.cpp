@@ -33,6 +33,7 @@
 #include "test_stde_extended_string.inl"
 #include "test_stde_slist.inl"
 #include "test_stde_small_object_allocator.inl"
+#include "test_stde_triple.inl"
 
 namespace lass
 {
@@ -47,6 +48,7 @@ boost::unit_test_framework::test_suite* testStde()
 	result->add(BOOST_TEST_CASE(testStdeExtendedString));
 	result->add(BOOST_TEST_CASE(testStdeSlist));
 	result->add(BOOST_TEST_CASE(testStdeSmallObjectAllocator));
+	result->add(BOOST_TEST_CASE(testStdeTriple));
 
     return result;
 }
