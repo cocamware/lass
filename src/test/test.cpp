@@ -45,14 +45,19 @@
 #include "test_stde.h"
 #include "test_util.h"
 
+#include "../io/arg_parser.h"
+
 #include <boost/test/detail/unit_test_parameters.hpp>
 
 int test_main(int argc, char* argv[])
 {
+    using namespace boost::unit_test_framework;
+
 	lass::io::proxyMan()->clog()->remove(&std::clog);
 
-    using namespace boost::unit_test_framework;
-	const bool nightlyTest = (argc > 1 && strcmp(argv[1], "--nightly_test") == 0);
+	lass::io::ArgParser parser;
+	lass::io::ArgFlag argXml(parser, "x", "xml");
+	parser.parse(argc, argv);
 
     test_suite testSuite("lass test suite");
     
@@ -65,22 +70,22 @@ int test_main(int argc, char* argv[])
     testSuite.add(lass::test::testSpat());
 
 	std::ofstream log;
-	if (nightlyTest)
+	if (argXml)
 	{
 		// redirect info to files
 		//
 		unit_test_log::instance().set_log_format("XML");
 		unit_test_log::instance().set_log_threshold_level(log_test_suites);
-		log.open("nightly_test_log." LASS_TEST_VERSION ".xml");
+		log.open("test_log." LASS_TEST_VERSION ".xml");
 		unit_test_log::instance().set_log_stream(log);
 	}
 
 	testSuite.run();
 
-	if (nightlyTest)
+	if (argXml)
 	{
 		unit_test_result::instance().set_report_format("XML");
-		std::ofstream result("nightly_test_result." LASS_TEST_VERSION ".xml");
+		std::ofstream result("test_result." LASS_TEST_VERSION ".xml");
 		unit_test_result::instance().detailed_report(result);
 	}
 
