@@ -409,7 +409,7 @@ const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 	const TVector& p = iP.position();
     bool c = false;
 	const unsigned npol = size();
-    for (i = 0, j = npol-1; i < npol; j = ++i) 
+    for (i = 0, j = npol-1; i < npol; j = i++) 
 	{
         const TVector& a = vertices_[i].position();
         const TVector& b = vertices_[j].position();

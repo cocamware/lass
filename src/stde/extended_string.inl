@@ -99,6 +99,32 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
     return result;
 }
 
+
+
+/** @ingroup extended_string
+ *  returns true if @a iInput begins with the string @a iPrefix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& iInput,
+				 const std::basic_string<Char, Traits, Alloc>& iPrefix)
+{
+	return iInput.find(iPrefix) == 0;
+}
+
+
+
+/** @ingroup extended_string
+ *  returns true if @a iInput ends with the string @a iSuffix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& iInput,
+			   const std::basic_string<Char, Traits, Alloc>& iSuffix)
+{
+	return iInput.rfind(iSuffix) == iInput.length() - iSuffix.length();
+}
+
+
+
 }
 
 }

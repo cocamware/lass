@@ -44,7 +44,19 @@ void testStdeExtendedString()
     const std::string lower = stde::tolower(testString);
 	BOOST_CHECK_EQUAL(stde::tolower(testString), "this is a mixed case string");
 	BOOST_CHECK_EQUAL(stde::toupper(testString), "THIS IS A MIXED CASE STRING");
-	BOOST_CHECK_EQUAL(stde::replace_all(testString, "IS", "was"), "This was a MiXed CaSE stRINg");
+	BOOST_CHECK_EQUAL(stde::replace_all(testString, std::string("S"), std::string("s")), 
+		"This Is a MiXed CasE stRINg");
+
+	const std::string test = "abcdefabcdef";
+	BOOST_CHECK(stde::begins_with(test, std::string("abc")));
+	BOOST_CHECK(stde::begins_with(test, std::string("")));
+	BOOST_CHECK(!stde::begins_with(test, std::string("abx")));
+	BOOST_CHECK(!stde::begins_with(test, std::string("def")));
+
+	BOOST_CHECK(stde::ends_with(test, std::string("def")));
+	BOOST_CHECK(stde::ends_with(test, std::string("")));
+	BOOST_CHECK(!stde::ends_with(test, std::string("xef")));
+	BOOST_CHECK(!stde::ends_with(test, std::string("abc")));
 }
 
 }

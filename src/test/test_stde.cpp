@@ -30,7 +30,7 @@
 #include "test_stde.h"
 
 #include "test_stde_extended_io.inl"
-//#include "test_stde_extended_string.inl"
+#include "test_stde_extended_string.inl"
 
 namespace lass
 {
@@ -42,7 +42,7 @@ boost::unit_test_framework::test_suite* testStde()
     boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::stde test suite");
 
 	result->add(BOOST_TEST_CASE(testStdeExtendedIo));
-	//result->add(BOOST_TEST_CASE(testStdeExtendedString));
+	result->add(BOOST_TEST_CASE(testStdeExtendedString));
 
     return result;
 }

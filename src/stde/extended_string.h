@@ -56,6 +56,13 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& iInput,
             const std::basic_string<Char, Traits, Alloc>& iToBeReplaced,
             const std::basic_string<Char, Traits, Alloc>& iReplacement);
 
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& iInput,
+				 const std::basic_string<Char, Traits, Alloc>& iPrefix);
+
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& iInput,
+			   const std::basic_string<Char, Traits, Alloc>& iPrefix);
 
 }
 

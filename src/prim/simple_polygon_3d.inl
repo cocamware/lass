@@ -441,7 +441,7 @@ const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 	unsigned i, j;
     bool c = false;
 	const unsigned npol = size();
-    for (i = 0, j = npol-1; i < npol; j = ++i) 
+    for (i = 0, j = npol-1; i < npol; j = i++) 
 	{
         const TPoint& a = vertices_[i];
         const TPoint& b = vertices_[j];

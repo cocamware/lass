@@ -57,9 +57,8 @@ Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) const
 {
-	LASS_ASSERT(iIndex < 3);
-	const T* result[] = { &x, &y, &z };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -67,9 +66,8 @@ typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) c
 template<typename T> 
 typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 {
-	LASS_ASSERT(iIndex < 3);
-	T* result[] = { &x, &y, &z };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -79,8 +77,7 @@ typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
  {
-	const T* result[] = { &x, &y, &z };
-	return *result[num::mod(iIndex, 3)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
@@ -90,8 +87,7 @@ typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
 template<typename T> 
 typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
 {
-	T* result[] = { &x, &y, &z };
-	return *result[num::mod(iIndex, 3)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 

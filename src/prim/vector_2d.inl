@@ -62,9 +62,8 @@ Vector2D<T>::Vector2D(TParam iX, TParam iY):
 template<typename T> inline
 typename Vector2D<T>::TConstReference Vector2D<T>::operator[](unsigned iIndex) const
 {
-	LASS_ASSERT(iIndex < 2);
-	const T* result[] = { &x, &y };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -72,9 +71,8 @@ typename Vector2D<T>::TConstReference Vector2D<T>::operator[](unsigned iIndex) c
 template<typename T> inline
 typename Vector2D<T>::TReference Vector2D<T>::operator[](unsigned iIndex)
 {
-	LASS_ASSERT(iIndex < 2);
-	T* result[] = { &x, &y };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -84,8 +82,7 @@ typename Vector2D<T>::TReference Vector2D<T>::operator[](unsigned iIndex)
 template<typename T> inline
 typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
 {
-	const T* result[] = { &x, &y };
-	return *result[num::mod(iIndex, 2)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
@@ -95,8 +92,7 @@ typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
 template<typename T> inline
 typename Vector2D<T>::TReference Vector2D<T>::at(signed iIndex)
 {
-	T* result[] = { &x, &y };
-	return *result[num::mod(iIndex, 2)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 

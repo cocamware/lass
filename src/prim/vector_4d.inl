@@ -66,9 +66,8 @@ Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) :
 template<typename T> inline
 typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const  
 {
-	LASS_ASSERT(iIndex < 4);
-	const T* result[] = { &x, &y, &z, &w };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -76,9 +75,8 @@ typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) c
 template<typename T> inline
 typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex) 
 {
-	LASS_ASSERT(iIndex < 4);
-	T* result[] = { &x, &y, &z, &w };
-	return *result[iIndex];
+	LASS_ASSERT(iIndex < dimension);
+	return *(&x + iIndex);
 }
 
 
@@ -88,8 +86,7 @@ typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
 template<typename T> inline
 typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const 
 {
-	const T* result[] = { &x, &y, &z, &w };
-	return *result[num::mod(iIndex, 4)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
@@ -99,8 +96,7 @@ typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
 template<typename T> inline
 typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex) 
 {
-	T* result[] = { &x, &y, &z, &w };
-	return *result[num::mod(iIndex, 4)];
+	return *(&x + num::mod(iIndex, dimension));
 }
 
 
