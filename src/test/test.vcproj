@@ -535,9 +535,6 @@
 				RelativePath=".\test_num_db.inl">
 			</File>
 			<File 
-				RelativePath=".\test_num_distribution.inl">
-			</File>
-			<File 
 				RelativePath="test_num_matrix_vector.inl">
 			</File>
 			<File 
@@ -596,6 +593,9 @@
 			</File>
 			<File 
 				RelativePath=".\test_spat_quad_tree.inl">
+			</File>
+			<File 
+				RelativePath=".\test_spat_world_3d.inl">
 			</File>
 			<File 
 				RelativePath="test_stde.cpp">

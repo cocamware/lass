@@ -1,33 +1,26 @@
-/** 
-*   @author Bram de Greve (bramz@users.sourceforge.net)
-*   @author Tom De Muer (tomdemuer@users.sourceforge.net)
-*
-*	Distributed under the terms of the GPL (GNU Public License)
-*
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
-*
-*   LASS is free software; you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation; either version 2 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program; if not, write to the Free Software
-*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-
-
+/**	@file
+ *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *  $Revision$
- *  $Date$
- *  $Author$ (last commit)
+ *	Distributed under the terms of the GPL (GNU Public License)
+ *
+ * 	The LASS License:
+ *
+ *	Copyright 2004 Bram de Greve and Tom De Muer
+ *
+ *	LASS is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -184,33 +177,5 @@ private:
 }
 
 #endif
-
-/*
- *  $Log$
- *  Revision 1.15  2004/09/06 13:24:47  tgdemuer
- *  *** empty log message ***
- *
- *  Revision 1.14  2004/09/06 13:08:44  tgdemuer
- *  *** empty log message ***
- *
- *  Revision 1.13  2004/07/01 13:22:59  bdegreve
- *  *** empty log message ***
- *
- *  Revision 1.12  2004/07/01 09:55:16  bdegreve
- *  weird bugs
- *
- *  Revision 1.11  2004/06/21 13:26:25  bdegreve
- *  final fix for reverse iterators (i hope :)
- *
- *  Revision 1.10  2004/06/21 12:29:59  bdegreve
- *  *** empty log message ***
- *
- *  Revision 1.9  2004/06/21 11:24:43  bdegreve
- *  reverse iterator bug fixing (but now for real)
- *
- *  Revision 1.8  2004/06/21 11:22:19  bdegreve
- *  reverse iterator bug fixing
- *
- */
 
 // --- END OF FILE -------------------------------------------------------------

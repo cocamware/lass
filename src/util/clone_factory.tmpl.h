@@ -1,38 +1,31 @@
-/** 
-*   @author Bram de Greve (bramz@users.sourceforge.net)
-*   @author Tom De Muer (tomdemuer@users.sourceforge.net)
-*
-*	Distributed under the terms of the GPL (GNU Public License)
-*
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
-*
-*   LASS is free software; you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation; either version 2 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program; if not, write to the Free Software
-*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-
-
- *  @date 2004
+/**	@file
+ *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *  @par last commit:
- *		$Revision$\n
- *		$Date$\n
- *		$Author$
+ *	Distributed under the terms of the GPL (GNU Public License)
  *
- *  $g
+ * 	The LASS License:
+ *
+ *	Copyright 2004 Bram de Greve and Tom De Muer
+ *
+ *	LASS is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *	$g
  */
+
+
 
 /** @class lass::util::CloneFactory
  *  @brief object creation by cloning prototypes
@@ -198,28 +191,5 @@ private:
 }
 
 #endif
-
-/* History:
- *  
- * $Log$
- * Revision 1.6  2004/09/06 13:24:47  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.5  2004/09/06 13:08:44  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.4  2004/08/25 13:01:18  bdegreve
- * changed clone factory to use only one cloner function like it should be
- *
- * Revision 1.3  2004/08/23 13:26:01  bdegreve
- * doc update
- *
- * Revision 1.2  2004/08/20 08:40:57  bdegreve
- * doc update
- *
- * Revision 1.1  2004/07/13 17:33:56  bdegreve
- * major update
- *
- */
 
 // EOF

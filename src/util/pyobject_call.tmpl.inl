@@ -1,35 +1,26 @@
-/** 
-*   @author Bram de Greve (bramz@users.sourceforge.net)
-*   @author Tom De Muer (tomdemuer@users.sourceforge.net)
-*
-*	Distributed under the terms of the GPL (GNU Public License)
-*
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
-*
-*   LASS is free software; you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation; either version 2 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program; if not, write to the Free Software
-*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-
-
- *  @date 2004
+/**	@file
+ *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *  @par last commit:
- *		$Revision$\n
- *		$Date$\n
- *		$Author$
+ *	Distributed under the terms of the GPL (GNU Public License)
+ *
+ * 	The LASS License:
+ *
+ *	Copyright 2004 Bram de Greve and Tom De Muer
+ *
+ *	LASS is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  $g
  */
@@ -426,41 +417,5 @@ struct PyConstructor$x<CppClass, $(P$x)$, meta::TypeList<Head, Tail> >
 
 
 #endif
-
-/*
- * $Log$
- * Revision 1.25  2004/09/06 13:24:47  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.24  2004/09/06 13:08:44  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.23  2004/08/12 11:47:42  tgdemuer
- * overloaded member methods working
- *
- * Revision 1.22  2004/08/12 09:17:04  tgdemuer
- * pyCheckArguments bypassed, this means that pyGetSimpleObject should check first and that pyCallArguments should have an early out
- *
- * Revision 1.21  2004/08/11 16:02:35  tgdemuer
- * various
- * overloaded functions for python
- *
- * Revision 1.20  2004/07/27 15:31:21  bdegreve
- * adding constructor support up to N arguments.
- * PY_ABSTRACT_HEADER and PY_DECLARE_ABSTRACT_CLASS are gone.
- * all pythonized classes are not constructable by default.
- * Simply use PY_HEADER and PY_DECLARE_CLASS.
- *
- * Revision 1.19  2004/06/28 14:20:39  tgdemuer
- * VS2003 migration
- *
- * Revision 1.18  2004/06/22 21:04:00  bdegreve
- * fixing project configuration
- * (PS: PY_CLASS_MEMBER_RW is broken on intel for fancy getter/setters)
- *
- * Revision 1.17  2004/06/22 14:11:11  bdegreve
- * PY_CLASS_MEMBER_RW_EX accepts both kind of setters now: void Bar::setFoo(const Foo&) and Foo& Bar::foo()
- *
- */
 
 // EOF

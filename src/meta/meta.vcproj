@@ -298,9 +298,6 @@
 				RelativePath=".\is_convertible_type.h">
 			</File>
 			<File 
-				RelativePath=".\is_derived_type.h">
-			</File>
-			<File 
 				RelativePath="is_same_type.h">
 			</File>
 			<File 

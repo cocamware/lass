@@ -1,36 +1,26 @@
-/** 
-*   @author Bram de Greve (bramz@users.sourceforge.net)
-*   @author Tom De Muer (tomdemuer@users.sourceforge.net)
-*
-*	Distributed under the terms of the GPL (GNU Public License)
-*
-* 	The LASS License:
-*   
-*	Copyright 2004 Bram de Greve and Tom De Muer
-*
-*   LASS is free software; you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation; either version 2 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program; if not, write to the Free Software
-*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-*/
-/** @file util/pyobject_macros.h 
+/**	@file
+ *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *  @par last commit:
- *		$Revision$\n
- *		$Date$\n
- *		$Author$
+ *	Distributed under the terms of the GPL (GNU Public License)
  *
- *  $g
+ * 	The LASS License:
+ *
+ *	Copyright 2004 Bram de Greve and Tom De Muer
+ *
+ *	LASS is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #define LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR "Can not create object"
@@ -585,83 +575,5 @@ $[
     typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_CONCATENATE(pyConstructorArguments, CppClass__);\
     PY_CLASS_CONSTRUCTOR( CppClass__, LASS_CONCATENATE(pyConstructorArguments, CppClass__) )
 ]$
-
-
-
-/* History:
- *
- * $Log$
- * Revision 1.8  2004/09/06 13:24:47  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.7  2004/09/06 13:08:44  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.6  2004/08/26 13:59:46  bdegreve
- * overloaded functions in piggy back style
- *
- * Revision 1.5  2004/08/12 11:47:42  tgdemuer
- * overloaded member methods working
- *
- * Revision 1.4  2004/08/12 09:17:04  tgdemuer
- * pyCheckArguments bypassed, this means that pyGetSimpleObject should check first and that pyCallArguments should have an early out
- *
- * Revision 1.3  2004/08/11 16:02:35  tgdemuer
- * various
- * overloaded functions for python
- *
- * Revision 1.2  2004/08/02 15:08:37  tgdemuer
- * experiment with python submodules
- *
- * Revision 1.1  2004/07/27 15:35:09  bdegreve
- * adding constructor support up to N arguments.
- * PY_ABSTRACT_HEADER and PY_DECLARE_ABSTRACT_CLASS are gone.
- * all pythonized classes are not constructable by default.
- * Simply use PY_HEADER and PY_DECLARE_CLASS.
- *
- *
- * RENAMED: pyobject_macros.h -> pyobject_macros.tmpl.h
- *
- * Revision 1.22  2004/07/16 16:51:48  bdegreve
- * various
- *
- * Revision 1.21  2004/07/05 13:37:39  bdegreve
- * bypassed PYTHON_SHARED_PTR_SUPPORT with a template
- *
- * Revision 1.20  2004/06/30 07:47:43  tgdemuer
- * cleanup of experimental code and added some comments
- *
- * Revision 1.19  2004/06/29 15:36:24  bdegreve
- * various fixes on msvc2003 migration
- *
- * Revision 1.18  2004/06/29 06:31:09  tgdemuer
- * VS2003 migration
- *
- * Revision 1.17  2004/06/26 19:59:47  bdegreve
- * various
- *
- * Revision 1.16  2004/06/25 17:36:35  bdegreve
- * expanded PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME for general kind of objects
- *
- * Revision 1.15  2004/06/24 13:49:00  bdegreve
- * fixed EXECUTE problem concerning same line number
- *
- * Revision 1.14  2004/06/22 21:04:00  bdegreve
- * fixing project configuration
- * (PS: PY_CLASS_MEMBER_RW is broken on intel for fancy getter/setters)
- *
- * Revision 1.13  2004/06/22 16:39:49  bdegreve
- * removing cast in PY_CLASS_METHOD_EX to avoid copy constructor of object
- *
- * Revision 1.12  2004/06/22 14:28:43  tgdemuer
- * injection of objects
- *
- * Revision 1.11  2004/06/22 14:28:08  tgdemuer
- * injection of objects
- *
- * Revision 1.10  2004/06/22 14:11:11  bdegreve
- * PY_CLASS_MEMBER_RW_EX accepts both kind of setters now: void Bar::setFoo(const Foo&) and Foo& Bar::foo()
- *
- */
 
 // EOF

@@ -491,9 +491,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				Name="impl sources"
 				Filter="">
 				<File 
-					RelativePath="impl\aabb.inl">
-				</File>
-				<File 
 					RelativePath="impl\line_2d_cartesian.inl">
 				</File>
 				<File 
@@ -501,9 +498,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				</File>
 				<File 
 					RelativePath="impl\line_2d_parametric.inl">
-				</File>
-				<File 
-					RelativePath="impl\line_segment.inl">
 				</File>
 				<File 
 					RelativePath="impl\plane_3d_cartesian.inl">

@@ -369,16 +369,10 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="scoped_array.inl">
 			</File>
 			<File 
-				RelativePath="scoped_ptr.inl">
-			</File>
-			<File 
 				RelativePath="singleton.inl">
 			</File>
 			<File 
 				RelativePath="thread.cpp">
-			</File>
-			<File 
-				RelativePath="thread_fun.inl">
 			</File>
 			<File 
 				RelativePath="thread_fun.tmpl.inl">
