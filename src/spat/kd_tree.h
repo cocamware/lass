@@ -64,7 +64,7 @@ struct KdTreeObjectTraits
 template 
 <
     class ObjectType, 
-    template <class> class ObjectTraits = KdTreeObjectTraits
+    class ObjectTraits = KdTreeObjectTraits<ObjectType>
 >
 class KdTree
 {
@@ -73,7 +73,7 @@ public:
     typedef KdTree<ObjectType, ObjectTraits> TSelf;
 
     typedef ObjectType TObject;
-    typedef ObjectTraits<TObject> TObjectTraits;
+    typedef ObjectTraits TObjectTraits;
 
     typedef typename TObjectTraits::TObjectIterator TObjectIterator;
     typedef typename TObjectTraits::TObjectReference TObjectReference;
@@ -84,12 +84,6 @@ public:
 	typedef typename TObjectTraits::TParam TConstReference;
 
     enum { dimension = TObjectTraits::dimension };
-
-    template <typename Obj>
-    struct Rebind
-    {
-        typedef KdTree<Obj, ObjectTraits> Type;
-    };
 
     class Neighbour
     {

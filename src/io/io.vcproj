@@ -62,7 +62,10 @@
 					UseProcExt="4"
 					RequireProcExt="4"
 					Parallelization="1"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -143,6 +146,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -229,6 +233,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -327,7 +332,11 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="2"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
+					StructMemberAlignment="0"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"

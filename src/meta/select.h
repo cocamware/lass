@@ -40,6 +40,11 @@
  *  @brief selects type based on boolean value
  *  @author Bram de Greve [BdG]
  *
+ *  @code
+ *  typedef meta::Select<true, int, float>::Type A; // A = int
+ *  typedef meta::Select<false, char*, std::string>::Type B; // B = std::string
+ *  @endcode
+ *
  *	@par original code by Andrei Alexandrescu:
  *	The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
  *	This code (Loki) accompanies the book:\n

@@ -57,7 +57,10 @@
 					UseProcExt="4"
 					RequireProcExt="4"
 					Parallelization="1"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -80,7 +83,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -142,6 +145,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -169,7 +173,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -229,6 +233,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -256,7 +261,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -330,7 +335,11 @@
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="2"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
+					StructMemberAlignment="0"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -353,7 +362,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -590,6 +599,9 @@
 				RelativePath=".\test_stde_small_object_allocator.inl">
 			</File>
 			<File 
+				RelativePath=".\test_stde_triple.inl">
+			</File>
+			<File 
 				RelativePath="test_util.cpp">
 				<FileConfiguration 
 					Name="win32_intel700_d|Win32">
@@ -632,9 +644,6 @@
 			</File>
 			<File 
 				RelativePath="test_util_thread_fun.inl">
-			</File>
-			<File 
-				RelativePath="test_util_triple.inl">
 			</File>
 			<File 
 				RelativePath=".\test_util_visitor.inl">

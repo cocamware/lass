@@ -45,7 +45,7 @@ namespace spat
 
 // --- public --------------------------------------------------------------------------------------
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 KdTree<O, OT>::KdTree():
 	begin_(),
     end_()
@@ -54,7 +54,7 @@ KdTree<O, OT>::KdTree():
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
     end_(iEnd)
@@ -74,7 +74,7 @@ KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 {
     TSelf temp(iBegin, iEnd);
@@ -83,7 +83,7 @@ void KdTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::swap(TSelf& iOther)
 {
     std::swap(begin_, iOther.begin_);
@@ -94,7 +94,7 @@ void KdTree<O, OT>::swap(TSelf& iOther)
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 typename KdTree<O, OT>::Neighbour
 KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
 {
@@ -113,7 +113,7 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 typename KdTree<O, OT>::TValue
 KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMaxCount,
 						   TNeighbourhood& oNeighbourhood) const
@@ -136,7 +136,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 const bool KdTree<O, OT>::isEmpty() const
 {
 	return heap_.empty();
@@ -146,7 +146,7 @@ const bool KdTree<O, OT>::isEmpty() const
 
 // --- neighbour -----------------------------------------------------------------------------------
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 KdTree<O, OT>::Neighbour::Neighbour(TObjectIterator iObject, TValue iSquaredDistance):
     object_(iObject),
     squaredDistance_(iSquaredDistance)
@@ -155,7 +155,7 @@ KdTree<O, OT>::Neighbour::Neighbour(TObjectIterator iObject, TValue iSquaredDist
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline typename KdTree<O, OT>::TObjectIterator
 KdTree<O, OT>::Neighbour::object() const
 {
@@ -164,7 +164,7 @@ KdTree<O, OT>::Neighbour::object() const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline typename KdTree<O, OT>::TPoint
 KdTree<O, OT>::Neighbour::position() const
 {
@@ -173,7 +173,7 @@ KdTree<O, OT>::Neighbour::position() const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline typename KdTree<O, OT>::TValue
 KdTree<O, OT>::Neighbour::squaredDistance() const
 {
@@ -182,7 +182,7 @@ KdTree<O, OT>::Neighbour::squaredDistance() const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline typename KdTree<O, OT>::TObjectReference
 KdTree<O, OT>::Neighbour::operator*() const
 {
@@ -191,7 +191,7 @@ KdTree<O, OT>::Neighbour::operator*() const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline typename KdTree<O, OT>::TObjectIterator
 KdTree<O, OT>::Neighbour::operator->() const
 {
@@ -200,7 +200,7 @@ KdTree<O, OT>::Neighbour::operator->() const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline bool
 KdTree<O, OT>::Neighbour::operator<(const Neighbour& iOther) const
 {
@@ -215,7 +215,7 @@ KdTree<O, OT>::Neighbour::operator<(const Neighbour& iOther) const
 
 // --- private -------------------------------------------------------------------------------------
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd)
 {
     if (iEnd == iBegin)
@@ -244,7 +244,7 @@ void KdTree<O, OT>::balance(size_t iNode, TIteratorIterator iBegin, TIteratorIte
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 typename KdTree<O, OT>::TAxis
 KdTree<O, OT>::findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const
 {
@@ -278,7 +278,7 @@ KdTree<O, OT>::findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) c
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 inline void KdTree<O, OT>::assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis)
 {
     if (heap_.size() <= iNode)
@@ -292,7 +292,7 @@ inline void KdTree<O, OT>::assignNode(size_t iNode, TObjectIterator iObject, TAx
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 size_t KdTree<O, OT>::findNode(const TPoint& iTarget, size_t iStartNode) const
 {
 	const size_t size = heap_.size();
@@ -316,7 +316,7 @@ size_t KdTree<O, OT>::findNode(const TPoint& iTarget, size_t iStartNode) const
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::doNearestNeighbour(const TPoint& iTarget, Neighbour& ioNearest, size_t iNode) const
 {
     if (iNode >= heap_.size() || heap_[iNode] == end_)
@@ -358,7 +358,7 @@ void KdTree<O, OT>::doNearestNeighbour(const TPoint& iTarget, Neighbour& ioNeare
 
 
 
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 								  TReference ioSquaredRadius, 
 								  size_t iMaxCount,
@@ -410,7 +410,7 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 
 
 
-template <typename O, template <class> class OT> inline
+template <class O, class OT> inline
 typename KdTree<O, OT>::TValue
 KdTree<O, OT>::squaredDistance(const TPoint& iA, const TPoint& iB)
 {
@@ -425,7 +425,7 @@ KdTree<O, OT>::squaredDistance(const TPoint& iA, const TPoint& iB)
 
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
-template <typename O, template <class> class OT>
+template <class O, class OT>
 void KdTree<O, OT>::diagnostics()
 {
 	typedef typename meta::Select<dimension == 2, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;

@@ -40,6 +40,14 @@
  *  @brief meta function that evaluates true if two types are the same
  *  @author Bram de Greve [BdG]
  *
+ *  @code
+ *  bool a = lass::meta::IsSameType<int, int>::value; // a = true;
+ *  bool b = lass::meta::IsSameType<int, float>::value; // b = false;
+ *
+ *  // you can also evaluate to meta::True and meta::False
+ *  typedef lass::meta::IsSameType<std::string, std::string>::Type C; // C = meta::True
+ *  @encode
+ *
  *	@par original code by Andrei Alexandrescu:
  *	The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
  *	This code (Loki) accompanies the book:\n
