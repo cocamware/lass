@@ -36,33 +36,62 @@ namespace io
 
 XmlOFile::XmlOFile():
 	XmlOStream(),
-	file_()
+	file_(),
+	root_("")
 {
 }
 
 
 
-XmlOFile::XmlOFile(const char* iFileName, std::ios_base::open_mode iOpenMode):
+XmlOFile::XmlOFile(const char* iFileName, std::ios_base::open_mode iOpenMode, 
+				   const std::string& iRoot):
 	XmlOStream()
 {
-	open(iFileName, iOpenMode);
+	open(iFileName, iOpenMode, iRoot);
+}
+
+
+
+XmlOFile::XmlOFile(const std::string& iFileName, std::ios_base::open_mode iOpenMode, 
+				   const std::string& iRoot):
+	XmlOStream()
+{
+	open(iFileName.c_str(), iOpenMode, iRoot);
 }
 
 
 
 XmlOFile::~XmlOFile()
 {
+	if (!root_.empty())
+	{
+		file_ << "</" << root_ << ">" << std::endl;
+	}
 }
 
 
 
-void XmlOFile::open(const char* iFilename, std::ios_base::open_mode iOpenMode)
+void XmlOFile::open(const char* iFilename, std::ios_base::open_mode iOpenMode, 
+					const std::string& iRoot)
 {
 	file_.open(iFilename, iOpenMode);
 	if (util::checkMaskedAll<std::ios_base::open_mode>(iOpenMode, std::ios_base::trunc))
 	{
 		file_ << "<?xml version=\"1.0\"?>" << std::endl;
 	}
+	root_ = iRoot;
+	if (!root_.empty())
+	{
+		file_ << "<" << root_ << ">" << std::endl;
+	}
+}
+
+
+
+void XmlOFile::open(const std::string& iFilename, std::ios_base::open_mode iOpenMode, 
+					const std::string& iRoot)
+{
+	open(iFilename.c_str(), iOpenMode, iRoot);
 }
 
 

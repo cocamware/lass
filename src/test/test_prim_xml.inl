@@ -63,8 +63,7 @@ void testPrimXml()
 {
 	using namespace prim;
 
-	io::XmlOFile xml("prim.xml");
-	xml << "<test>" << std::endl;
+	io::XmlOFile xml("prim.xml", std::ios::out | std::ios::trunc, "root");
 
 	xml << Aabb2D<float>(Point2D<float>(1.f, 2.f), Point2D<float>(4.f, 5.f));
 	xml << Aabb3D<float>(Point3D<float>(1.f, 2.f, 3.f), Point3D<float>(4.f, 5.f, 6.f));
@@ -107,8 +106,6 @@ void testPrimXml()
 	xml << Vector2D<float>(1.f, 2.f);
 	xml << Vector3D<float>(1.f, 2.f, 3.f);
 	xml << Vector4D<float>(1.f, 2.f, 3.f, 4.f);
-
-	xml << "</test>" << std::endl;
 }
 
 

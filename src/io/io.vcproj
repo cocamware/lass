@@ -454,6 +454,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\proxy_o_stream.cpp">
 			</File>
 			<File 
+				RelativePath=".\xml_o_element.cpp">
+			</File>
+			<File 
 				RelativePath=".\xml_o_file.cpp">
 			</File>
 			<Filter 
@@ -502,6 +505,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\proxy_o_stream.h">
+			</File>
+			<File 
+				RelativePath=".\xml_o_element.h">
 			</File>
 			<File 
 				RelativePath=".\xml_o_file.h">

@@ -52,11 +52,19 @@ public:
 
 	XmlOFile();
 	XmlOFile(const char* iFilename, 
-			 std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc);
+			 std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
+			 const std::string& iRoot = "");
+	XmlOFile(const std::string& iFilename, 
+			 std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
+			 const std::string& iRoot = "");
 	virtual ~XmlOFile();
 
 	void open(const char* iFilename,
-			  std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc);
+			  std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
+			  const std::string& iRoot = "");
+	void open(const std::string& iFilename,
+			  std::ios_base::open_mode iOpenMode = std::ios_base::out | std::ios_base::trunc,
+			  const std::string& iRoot = "");
 	void close();
 	bool is_open() const;
 
@@ -90,6 +98,7 @@ public:
 private:
 
 	std::ofstream file_;
+	std::string root_;
 };
 
 
