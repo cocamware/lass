@@ -30,6 +30,7 @@
 
 #include "stde_common.h"
 #include "slist.h"
+#include "../meta/is_integral_type.h"
 
 namespace lass
 {
@@ -83,7 +84,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(size_type n, const T& value, const Alloc& allocator):
     Alloc(allocator)
 {
-	insert_after(before_begin(), n, value);
+    insert_after(before_begin(), n, value);
 }
 
 
@@ -117,7 +118,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(const slist<T, Alloc>& other):
     Alloc(other.get_allocator())
 {
-	insert_after(before_begin(), other.begin(), other.end());
+    insert_after(before_begin(), other.begin(), other.end());
 }
 
 
@@ -580,7 +581,6 @@ template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert(iterator position, InputIterator first, InputIterator last)
 {
-	LASS_ASSERT(position);
 	const iterator before_position = prior(position);
 	insert_after(before_position, first, last);
 }
@@ -646,13 +646,7 @@ template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last)
 {
-	while (first != last)
-	{
-        node_t* new_node = make_node(*first);
-		link_after(position.node_, new_node);
-		++position;
-		++first;
-	}
+    insert_after(position, first, last, typename meta::IsIntegralType<InputIterator>::Type());
 }
 
 
@@ -673,7 +667,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::iterator 
 slist<T, Alloc>::erase(iterator position)
 {
-	const iterator before_position = prior(position);
+	iterator before_position = prior(position);
     erase_after(before_position);
     return ++before_position;
 }
@@ -699,7 +693,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::iterator 
 slist<T, Alloc>::erase(iterator position, iterator last)
 {
-	const iterator before_position = prior(position);
+	iterator before_position = prior(position);
     erase_after(before_position, last);
     return ++before_position;
 }
@@ -718,9 +712,8 @@ slist<T, Alloc>::erase(iterator position, iterator last)
 template <typename T, class Alloc>
 void slist<T, Alloc>::erase_after(iterator position)
 {
-	LASS_ASSERT(position && position->next);
+	LASS_ASSERT(position.node_ && position.node_->next);
     unlink_and_destroy_after(position.node_);
-    return iterator(position.node_->next);
 }
 
 
@@ -739,7 +732,7 @@ void slist<T, Alloc>::erase_after(iterator position)
 template <typename T, class Alloc>
 void slist<T, Alloc>::erase_after(iterator position, iterator last)
 {
-	LASS_ASSERT(position);
+	LASS_ASSERT(position.node_);
 	while (position.node_->next != last.node_)
 	{
 		erase_after(position);
@@ -927,7 +920,7 @@ void slist<T, Alloc>::remove(const T& value)
     {
         if (node->next->value == value)
         {
-            erase_after(node);
+            unlink_and_destroy_after(node);
         }
         else
         {
@@ -951,9 +944,9 @@ void slist<T, Alloc>::remove_if(UnaryPredicate predicate)
     node_t* node = &head_;
     while (node->next)
     {
-        if (node->next->value == value)
+        if (predicate(node->next->value))
         {
-            erase_after(node);
+            unlink_and_destroy_after(node);
         }
         else
         {
@@ -983,7 +976,7 @@ void slist<T, Alloc>::unique()
     {
         if (node->value == node->next->value)
         {
-            erase_after(node);
+            unlink_and_destroy_after(node);
         }
         else
         {
@@ -1017,7 +1010,7 @@ void slist<T, Alloc>::unique(BinaryPredicate predicate)
     {
         if (predicate(node->value, node->next->value))
         {
-            erase_after(node);
+            unlink_and_destroy_after(node);
         }
         else
         {
@@ -1239,6 +1232,42 @@ void slist<T, Alloc>::splice_after(node_t* position, node_t* before_first, node_
         before_last->next = position->next;
         position->next = first;
     }
+}
+
+
+
+/** @internal
+ */
+template <typename T, class Alloc>
+template <typename IntegralType>
+void slist<T, Alloc>::insert_after(iterator position, IntegralType n, IntegralType value,
+                                   const meta::True&)
+{
+    node_t* node = position.node_;
+	for (IntegralType i = 0; i < n; ++i)
+	{
+        node_t* new_node = make_node(value);
+		link_after(node, new_node);
+		node = new_node;
+	}
+}
+
+
+
+/** @internal
+ */
+template <typename T, class Alloc>
+template <typename InputIterator>
+void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last,
+                                   const meta::False&)
+{
+	while (first != last)
+	{
+        node_t* new_node = make_node(*first);
+		link_after(position.node_, new_node);
+		++position;
+		++first;
+	}
 }
 
 

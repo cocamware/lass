@@ -137,7 +137,7 @@ void testStdeSlist()
     }
 
     n_list.resize(n);
-    BOOST_CHECK_EQUAL(n_list.size(), n + m);
+    BOOST_CHECK_EQUAL(n_list.size(), n);
     i = n_list.begin();
     for (slist_type::size_type k = 0; k < n; ++k)
     {
@@ -164,6 +164,8 @@ void testStdeSlist()
     some_list.pop_front();
     BOOST_CHECK_EQUAL(some_list.size(), 1);
     BOOST_CHECK_EQUAL(some_list.front(), 0);
+    
+    // insert
 
     some_list.insert(some_list.begin(), 1);
     stream << some_list;
@@ -175,8 +177,77 @@ void testStdeSlist()
 
     int little_array[3] = { 3, 4, 5 };
     some_list.insert(some_list.end(), little_array, little_array + 3);
+    stream << some_list;
     BOOST_CHECK(stream.is_equal("[2, 2, 2, 2, 1, 0, 3, 4, 5]"));
-  
+
+    // insert_after
+
+    i = some_list.insert_after(some_list.begin(), 6);
+    BOOST_CHECK_EQUAL(*i, 6);
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[2, 6, 2, 2, 2, 1, 0, 3, 4, 5]"));
+
+    some_list.insert_after(some_list.prior(some_list.end()), 3, 7);
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[2, 6, 2, 2, 2, 1, 0, 3, 4, 5, 7, 7, 7]"));
+
+    int another_little_array[] = { 8, 9, 10, 11 };
+    some_list.insert_after(some_list.before_begin(), another_little_array, another_little_array + 4);
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 10, 11, 2, 6, 2, 2, 2, 1, 0, 3, 4, 5, 7, 7, 7]"));
+
+    // erase 
+
+    int yet_another_array[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    slist_type yet_another_list(yet_another_array, yet_another_array + 16);
+    BOOST_CHECK_EQUAL(yet_another_list.size(), 16);
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"));
+
+    i = yet_another_list.erase(yet_another_list.begin());
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"));
+    BOOST_CHECK(i == yet_another_list.begin());
+
+    i = yet_another_list.erase(stde::next(yet_another_list.begin(), 12), yet_another_list.end());
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"));
+    BOOST_CHECK(i == yet_another_list.end());
+
+    yet_another_list.erase_after(yet_another_list.begin());
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"));
+
+    yet_another_list.erase_after(stde::next(yet_another_list.begin(), 8), yet_another_list.end());
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[1, 3, 4, 5, 6, 7, 8, 9, 10]"));
+
+    some_list.swap(yet_another_list);
+    stream << some_list;
+    BOOST_CHECK(stream.is_equal("[1, 3, 4, 5, 6, 7, 8, 9, 10]"));
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 10, 11, 2, 6, 2, 2, 2, 1, 0, 3, 4, 5, 7, 7, 7]"));
+
+    BOOST_CHECK_EQUAL(n_list.size(), n);
+    n_list.clear();
+    BOOST_CHECK_EQUAL(n_list.size(), 0);
+
+    yet_another_list.unique();
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 10, 11, 2, 6, 2, 1, 0, 3, 4, 5, 7]"));
+
+    yet_another_list.remove(2);
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 10, 11, 6, 1, 0, 3, 4, 5, 7]"));
+
+    yet_another_list.remove_if(std::bind2nd(std::greater_equal<int>(), 10));
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[8, 9, 6, 1, 0, 3, 4, 5, 7]"));
+
+    yet_another_list.sort();
+    stream << yet_another_list;
+    BOOST_CHECK(stream.is_equal("[0, 1, 3, 4, 5, 6, 7, 8, 9]"));
+
 }
 
 }

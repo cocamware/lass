@@ -33,7 +33,7 @@
 
 #include "stde_common.h"
 #include "extended_io.h"
-#include "../util/small_object.h"
+#include "../meta/bool.h"
 
 namespace lass
 {
@@ -196,6 +196,11 @@ private:
 	void unlink_and_destroy_after(node_t* position) const;
 	void link_after(node_t* position, node_t* node) const;
     void splice_after(node_t* position, node_t* before_first, node_t* before_last) const;
+
+	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
+        InputIterator last, const meta::True& iterator_is_integral);
+	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
+        InputIterator last, const meta::False& iterator_is_iterator);
    
     node_t head_;
 };

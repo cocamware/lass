@@ -56,6 +56,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_META_IS_DERIVED_TYPE_H
 
 #include "meta_common.h"
+#include "bool.h"
 #include "is_convertible_type.h"
 #include "is_same_type.h"
 
@@ -90,6 +91,8 @@ struct IsDerivedTypeStrict
         value = IsDerivedType<DerivedType, BaseType>::value &&
                 !IsSameType<const DerivedType, const BaseType>::value
     };     
+
+    typedef typename Bool<value>::Type Type;
 };
 
 }

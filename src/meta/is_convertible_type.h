@@ -82,6 +82,7 @@ public:
 	void dummyFunctionToKeepGccHappy() {}
 
 	enum { value = sizeof(test(makeTestObject())) == sizeof(meta::True) };
+    typedef typename Bool<value>::Type Type;
 };
 
 }

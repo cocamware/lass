@@ -56,6 +56,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_META_IS_SAME_TYPE_H
 
 #include "meta_common.h"
+#include "bool.h"
 
 namespace lass
 {
@@ -72,6 +73,7 @@ template
 struct IsSameType
 {
 	enum { value = false };
+    typedef False Type;
 };
 
 template
@@ -81,6 +83,7 @@ template
 struct IsSameType<A, A>
 {
 	enum { value = true };
+    typedef True Type;
 };
 
 #else
@@ -109,6 +112,7 @@ private:
 public:
 
 	enum { value = IsSameAsA<B>::value };
+    typedef typename Bool<value>::Type Type;
 };
 
 #endif
