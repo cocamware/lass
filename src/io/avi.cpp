@@ -109,7 +109,7 @@ void Avi::open(const std::string& iFileName, int iFps, int iWidth, int iHeight, 
 	height_ = iHeight;
 	bpp_ = iBpp;
 
-	LASS_ENFORCE_POINTER(reinterpret_cast<impl::easyAVI*>(pimpl_))->openAVI(
+	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->openAVI(
 		const_cast<char*>(iFileName.c_str()), iFps, iWidth, iHeight);
 }	
 
@@ -120,7 +120,7 @@ void Avi::open(const std::string& iFileName, int iFps, int iWidth, int iHeight, 
 void Avi::close()
 {
 	buffer_.reset();
-	LASS_ENFORCE_POINTER(reinterpret_cast<impl::easyAVI*>(pimpl_))->closeAVI();
+	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->closeAVI();
 }
 
 
@@ -129,7 +129,7 @@ void Avi::close()
  */
 bool Avi::isOpen() const
 {
-	return LASS_ENFORCE_POINTER(reinterpret_cast<impl::easyAVI*>(pimpl_))->isOpen();
+	return LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->isOpen();
 }
 
 
@@ -174,7 +174,7 @@ int Avi::bpp() const
  */
 void Avi::frame(const TRaw32* iFrame)
 {
-	LASS_ENFORCE_POINTER(reinterpret_cast<impl::easyAVI*>(pimpl_))->addFrame(
+	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->addFrame(
 		const_cast<TRaw32*>(iFrame));
 }
 
@@ -197,7 +197,7 @@ void Avi::frame(const prim::ColorRGBA* iFrame)
 					 (static_cast<TRaw32>(iFrame[i].g * 255.0f) << 8) +
 					 (static_cast<TRaw32>(iFrame[i].b * 255.0f));
 	}
-	LASS_ENFORCE_POINTER(reinterpret_cast<impl::easyAVI*>(pimpl_))->addFrame(buffer_.get());
+	LASS_ENFORCE_POINTER(static_cast<impl::easyAVI*>(pimpl_))->addFrame(buffer_.get());
 }
 
 
