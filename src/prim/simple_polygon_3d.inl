@@ -455,6 +455,17 @@ const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 
 
 
+/** flip normal and reverse sequence of vertices
+ */
+template <typename T>
+void SimplePolygon3D<T>::flip()
+{
+	plane_.flip();
+	std::reverse(vertices_.begin(), vertices_.end());
+}
+
+
+
 // --- private -------------------------------------------------------------------------------------
 
 /** return if index of vertex is in range of the std::vector

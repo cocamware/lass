@@ -117,6 +117,8 @@ public:
 	const Side classify(const TPoint& iP) const;
 	const bool contains(const TPoint& iP) const;
 
+	void flip();
+
 private:
 
 	const bool isInRange(int iIndexOfVertex) const;

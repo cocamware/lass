@@ -77,6 +77,20 @@ std::string fileExtension(const std::string& iFileName)
 
 
 
+/** @ingroup FileAttribute
+ *  return the part of the file name before the last dot. 
+ *  return an original string if there's no dot.
+ *  e.g. @e foo returns @e foo, @e foo.bar returns @e foo, 
+ *  @e foo.bar.fun returns @e foo.bar .
+ */
+std::string fileWithoutExtension(const std::string& iFileName)
+{
+	std::string::size_type dot = iFileName.rfind('.');
+	return dot != std::string::npos ? iFileName.substr(0, dot) : "";
+}
+
+
+
 }
 
 }

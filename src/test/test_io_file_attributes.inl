@@ -51,6 +51,13 @@ void testIoFileAttributes()
 	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar"), "bar");
 	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar."), "");	
 	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar.fun"), "fun");	
+
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension(""), "");
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo"), "foo");
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo."), "foo");
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar"), "foo");
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar."), "foo.bar");	
+	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar.fun"), "foo.bar");	
 }
 
 }
