@@ -33,13 +33,13 @@
 
 namespace lass
 {
-	namespace num
-	{
-	
+namespace num
+{
 
-	/** impl. private implementation functions */
-	namespace impl
-	{
+
+/** impl. private implementation functions */
+namespace impl
+{
 
 	template<class NTC>	NTC heaviside(const NTC& iValue)
 	{
@@ -146,44 +146,6 @@ namespace lass
 		}
 		LASS_THROW("Unforeseen condition in calculation of w");
 	};
-
-	#pragma warning(disable:4100)	// suppress "unreferenced formal parameter"
-	template<class NTC> std::complex<NTC> reflQ(const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R)
-	{
-		std::complex<NTC>	Rp;
-		std::complex<NTC>	invZ;
-		NTC theta;
-
-		invZ = static_cast<NTC>(1.0)/Z;
-
-		theta = (PI2)-psi;
-		Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
-
-		return Rp;
-	}
-	#pragma warning(default:4100)	// suppress "unreferenced formal parameter"
-
-
-
-	template<class NTC> std::complex<NTC> sphreflQ(const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R)
-	{
-		std::complex<NTC>	ro,ero,Rp,tempc;
-		std::complex<NTC>	invZ;
-		NTC theta;
-		std::complex<NTC> J(0.0,1.0);
-
-		invZ = static_cast<NTC>(1.0)/Z;
-
-		theta = (PI2)-psi;
-		ro = std::complex<NTC>(0.5,0.5)*static_cast<NTC>(num::sqrt(k*R))*(static_cast<NTC>(num::cos(theta))+invZ);
-		ero= static_cast<NTC>(1.0)+static_cast<NTC>(SQRTPI)*J*ro*w(ro);
-
-		Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
-
-		tempc = Rp+(static_cast<NTC>(1.0)-Rp)*ero;
-
-		return tempc;
-	}
 
 	template<class NTC> void sphreflQ2(const NTC* psi,const NTC& k,const std::complex<NTC>* Z,const NTC& R,std::complex<NTC>* outSphRefl)
 	{
@@ -317,117 +279,156 @@ namespace lass
 		return tempc;
 	};
 
+}
+
+
+
+#pragma warning(disable:4100)	// suppress "unreferenced formal parameter"
+template<class NTC> std::complex<NTC> reflQ(const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R)
+{
+	std::complex<NTC>	Rp;
+	std::complex<NTC>	invZ;
+	NTC theta;
+
+	invZ = static_cast<NTC>(1.0)/Z;
+
+	theta = (PI2)-psi;
+	Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
+
+	return Rp;
+}
+#pragma warning(default:4100)	// suppress "unreferenced formal parameter"
+
+template<class NTC> std::complex<NTC> sphreflQ(const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R)
+{
+	std::complex<NTC>	ro,ero,Rp,tempc;
+	std::complex<NTC>	invZ;
+	NTC theta;
+	std::complex<NTC> J(0.0,1.0);
+
+	invZ = static_cast<NTC>(1.0)/Z;
+
+	theta = (PI2)-psi;
+	ro = std::complex<NTC>(0.5,0.5)*static_cast<NTC>(num::sqrt(k*R))*(static_cast<NTC>(num::cos(theta))+invZ);
+	ero= static_cast<NTC>(1.0)+static_cast<NTC>(SQRTPI)*J*ro*w(ro);
+
+	Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
+
+	tempc = Rp+(static_cast<NTC>(1.0)-Rp)*ero;
+
+	return tempc;
+}
+
+std::complex<double> diffractionNord2000(
+		const double& thetaR,const double& thetaS, const double& beta,
+		const std::complex<double>& ZR,const std::complex<double>& ZS,
+		const double& RS, const double& RR,const double& freq)
+{
+	long i;
+	
+	double	theta[4],A[4],B[4],C[4],l[4],nu,k;
+	std::complex<double> Q[4];
+	std::complex<double> QS,QR;
+	std::complex<double> Ev,AD[4];
+	std::complex<double> temp,tempex;
+	std::complex<double> ZZ[2],QQ[2];
+
+	static double c = 340.0;
+
+	k = 2.0*NumTraits<double>::pi*freq/c;
+
+	temp = std::complex<double>(0.0,0.0);
+	tempex = std::complex<double>(0.0,0.0);
+	nu = NumTraits<double>::pi/beta;
+
+	double temppsi[2];
+
+	temppsi[0] = beta-thetaS;
+	if (temppsi[0]>(NumTraits<double>::pi*0.5))
+		temppsi[0] = (NumTraits<double>::pi*0.5);
+	temppsi[1] = thetaR;
+	if (temppsi[1]>(NumTraits<double>::pi*0.5))
+		temppsi[1] = (NumTraits<double>::pi*0.5);
+	ZZ[0] = ZS;
+	ZZ[1] = ZR;
+	
+	impl::sphreflQ2<double>(temppsi,k,ZZ,(RS+RR),QQ);
+
+	QS = QQ[0];
+	QR = QQ[1];
+
+	theta[0] = thetaS - thetaR;							Q[0] = 1.0;
+	theta[1] = thetaS + thetaR;							Q[1] = QR;
+	theta[2] = 2.0*beta - (thetaR + thetaS);			Q[2] = QS;
+	theta[3] = 2.0*beta - (thetaS - thetaR);			Q[3] = QR*QS;
+	for (i=0;i<4;++i)
+		l[i] = RS+RR;
+	/**
+		The structuring of the instructions below may seem odd but is intended to keep the
+		instructions in the instructioncache at level 1.
+	*/
+
+	for (i=0;i<4;++i)
+		A[i] = ((nu/2.0)*(beta-NumTraits<double>::pi+theta[i])) + NumTraits<double>::pi*impl::heaviside<double>(NumTraits<double>::pi-theta[i]);
+	for (i=0;i<4;++i)
+		C[i] = impl::diffr2000C<double>(cos(A[i]),nu,RS,RR,l[i]);
+	for (i=0;i<4;++i)
+		B[i] = impl::diffr2000B<double>(C[i],cos(A[i]),nu,RS,RR,l[i],k);
+	for (i=0;i<4;++i)
+		AD[i]= impl::diffr2000AD<double>(B[i]);
+	for (i=0;i<4;++i)
+	{
+		Ev = impl::diffr2000Ev<double>(A[i],AD[i],C[i]);
+		Q[i]*=std::exp(std::complex<double>(0.0,k*l[i]))/l[i];
+		temp+= Q[i]*A[i]*Ev;
 	}
+	temp /= -NumTraits<double>::pi;
+	for (i=0;i<4;++i)
+		l[i] = sqrt(RS*RS + RR*RR - 2*RS*RR*cos(theta[i]));
+
+	if (theta[0]<NumTraits<double>::pi)
+		tempex += std::exp(std::complex<double>(0.0,k*l[0]))/l[0];
+	if (theta[1]<NumTraits<double>::pi)
+		tempex += QR*std::exp(std::complex<double>(0.0,k*l[1]))/l[1];
+	if (theta[2]<NumTraits<double>::pi)
+		tempex += QS*std::exp(std::complex<double>(0.0,k*l[2]))/l[2];
 		
+	temp += tempex;
+
+	return temp;
+}
+
+PyObject* pyDiffractionNord2000(PyObject *ignored,PyObject *args)
+{
+	/*
 	std::complex<double> diffractionNord2000(
-			const double& thetaR,const double& thetaS, const double& beta,
-			const std::complex<double>& ZR,const std::complex<double>& ZS,
-			const double& RS, const double& RR,const double& freq)
+		const double& thetaR,const double& thetaS, const double& beta,
+		const std::complex<double>& ZR,const std::complex<double>& ZS,
+		const double& RS, const double& RR,const double& freq)
 	{
-		long i;
-		
-		double	theta[4],A[4],B[4],C[4],l[4],nu,k;
-		std::complex<double> Q[4];
-		std::complex<double> QS,QR;
-		std::complex<double> Ev,AD[4];
-		std::complex<double> temp,tempex;
-		std::complex<double> ZZ[2],QQ[2];
-
-		static double c = 340.0;
-
-		k = 2.0*NumTraits<double>::pi*freq/c;
-
-		temp = std::complex<double>(0.0,0.0);
-		tempex = std::complex<double>(0.0,0.0);
-		nu = NumTraits<double>::pi/beta;
-
-		double temppsi[2];
-
-		temppsi[0] = beta-thetaS;
-		if (temppsi[0]>(NumTraits<double>::pi*0.5))
-			temppsi[0] = (NumTraits<double>::pi*0.5);
-		temppsi[1] = thetaR;
-		if (temppsi[1]>(NumTraits<double>::pi*0.5))
-			temppsi[1] = (NumTraits<double>::pi*0.5);
-		ZZ[0] = ZS;
-		ZZ[1] = ZR;
-		
-		impl::sphreflQ2<double>(temppsi,k,ZZ,(RS+RR),QQ);
-
-		QS = QQ[0];
-		QR = QQ[1];
-	
-		theta[0] = thetaS - thetaR;							Q[0] = 1.0;
-		theta[1] = thetaS + thetaR;							Q[1] = QR;
-		theta[2] = 2.0*beta - (thetaR + thetaS);			Q[2] = QS;
-		theta[3] = 2.0*beta - (thetaS - thetaR);			Q[3] = QR*QS;
-		for (i=0;i<4;++i)
-			l[i] = RS+RR;
-		/**
-			The structuring of the instructions below may seem odd but is intended to keep the
-			instructions in the instructioncache at level 1.
-		*/
-
-		for (i=0;i<4;++i)
-			A[i] = ((nu/2.0)*(beta-NumTraits<double>::pi+theta[i])) + NumTraits<double>::pi*impl::heaviside<double>(NumTraits<double>::pi-theta[i]);
-		for (i=0;i<4;++i)
-			C[i] = impl::diffr2000C<double>(cos(A[i]),nu,RS,RR,l[i]);
-		for (i=0;i<4;++i)
-			B[i] = impl::diffr2000B<double>(C[i],cos(A[i]),nu,RS,RR,l[i],k);
-		for (i=0;i<4;++i)
-			AD[i]= impl::diffr2000AD<double>(B[i]);
-		for (i=0;i<4;++i)
-		{
-			Ev = impl::diffr2000Ev<double>(A[i],AD[i],C[i]);
-			Q[i]*=std::exp(std::complex<double>(0.0,k*l[i]))/l[i];
-			temp+= Q[i]*A[i]*Ev;
-		}
-		temp /= -NumTraits<double>::pi;
-		for (i=0;i<4;++i)
-			l[i] = sqrt(RS*RS + RR*RR - 2*RS*RR*cos(theta[i]));
-
-		if (theta[0]<NumTraits<double>::pi)
-			tempex += std::exp(std::complex<double>(0.0,k*l[0]))/l[0];
-		if (theta[1]<NumTraits<double>::pi)
-			tempex += QR*std::exp(std::complex<double>(0.0,k*l[1]))/l[1];
-		if (theta[2]<NumTraits<double>::pi)
-			tempex += QS*std::exp(std::complex<double>(0.0,k*l[2]))/l[2];
-			
-		temp += tempex;
-
-		return temp;
-	}
-
-	PyObject* pyDiffractionNord2000(PyObject *ignored,PyObject *args)
+	*/
+	double thetaR,thetaS,beta,ZR,ZS,RS,RR,freq;
+	if(!PyArg_ParseTuple(args, const_cast<char*>("dddCCddd"),
+		&thetaR,&thetaS,&beta,&ZR,&ZS,&RS,&RR,&freq) )
 	{
-		/*
-		std::complex<double> diffractionNord2000(
-			const double& thetaR,const double& thetaS, const double& beta,
-			const std::complex<double>& ZR,const std::complex<double>& ZS,
-			const double& RS, const double& RR,const double& freq)
-		{
-		*/
-		double thetaR,thetaS,beta,ZR,ZS,RS,RR,freq;
-		if(!PyArg_ParseTuple(args, const_cast<char*>("dddCCddd"),
-			&thetaR,&thetaS,&beta,&ZR,&ZS,&RS,&RR,&freq) )
-		{
-			PyErr_BadArgument();
-			Py_INCREF( Py_None );
-			return Py_None;
-		}
-		return lass::python::pyBuildSimpleObject( diffractionNord2000(thetaR,thetaS,beta,ZR,ZS,RS,RR,freq) );
+		PyErr_BadArgument();
+		Py_INCREF( Py_None );
+		return Py_None;
 	}
-	
+	return lass::python::pyBuildSimpleObject( diffractionNord2000(thetaR,thetaS,beta,ZR,ZS,RS,RR,freq) );
+}
 
-	static PyMethodDef FileMethods[] = { 
-		{"diffractionNord2000", pyDiffractionNord2000, METH_VARARGS},
-		{NULL, NULL}// Sentinel
-	};
 
-	void pyInitNumReflDiffraction(void)
-	{      
-		Py_InitModule(const_cast<char*>("LassNum") , FileMethods);      
-	}
+static PyMethodDef FileMethods[] = { 
+	{"diffractionNord2000", pyDiffractionNord2000, METH_VARARGS},
+	{NULL, NULL}// Sentinel
+};
 
-	}
+void pyInitNumReflDiffraction(void)
+{      
+	Py_InitModule(const_cast<char*>("LassNum") , FileMethods);      
+}
+
+}
+
 }
