@@ -146,8 +146,6 @@ PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 
 // --- shadow classes ------------------------------------------------------------------------------
 
-PY_SHADOW_CASTERS(lass::test::ShadowSpam)
-
 namespace lass
 {
 namespace test
@@ -178,4 +176,6 @@ PY_INJECT_CLASS_IN_MODULE(ShadowEggs, embedding, "shadow eggs");
 
 }
 }
+
+PY_SHADOW_CASTERS(lass::test::ShadowSpam)
 

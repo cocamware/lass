@@ -68,7 +68,7 @@ protected:
 		oOwner, 
 		oBorrowed 
 	};
-	PyShadowBase(PyTypeObject* iType, void* iCppObject, Ownership iOwnership): 
+	PyShadowBase(PyTypeObject* iType, CppBase* iCppObject, Ownership iOwnership): 
 		PyShadowBaseCommon(iType), cppObject__(iCppObject), ownership_(iOwnership) 
 	{
 	}
@@ -181,7 +181,7 @@ template <> struct ArgumentTraits<ShadowObject__::TCppClass>\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const ShadowObject__::TCppClass>\
@@ -190,7 +190,7 @@ template <> struct ArgumentTraits<const ShadowObject__::TCppClass>\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<ShadowObject__::TCppClass&>\
@@ -199,7 +199,7 @@ template <> struct ArgumentTraits<ShadowObject__::TCppClass&>\
     typedef PyObject* TStorage;\
     static TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const ShadowObject__::TCppClass&>\
@@ -208,7 +208,7 @@ template <> struct ArgumentTraits<const ShadowObject__::TCppClass&>\
     typedef PyObject* TStorage;\
     static const TCppClass& arg(PyObject* iArg)\
     {\
-        return *static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return *static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<ShadowObject__::TCppClass*>\
@@ -217,7 +217,7 @@ template <> struct ArgumentTraits<ShadowObject__::TCppClass*>\
     typedef PyObject* TStorage;\
     static TCppClass* arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const ShadowObject__::TCppClass*>\
@@ -226,7 +226,7 @@ template <> struct ArgumentTraits<const ShadowObject__::TCppClass*>\
     typedef PyObject* TStorage;\
     static const TCppClass* arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<ShadowObject__::TCppClass* const>\
@@ -235,7 +235,7 @@ template <> struct ArgumentTraits<ShadowObject__::TCppClass* const>\
     typedef PyObject* TStorage;\
     static TCppClass* const arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 template <> struct ArgumentTraits<const ShadowObject__::TCppClass* const>\
@@ -244,7 +244,7 @@ template <> struct ArgumentTraits<const ShadowObject__::TCppClass* const>\
     typedef PyObject* TStorage;\
     static const TCppClass* const arg(PyObject* iArg)\
     {\
-        return static_cast<TCppClass*>(static_cast<PyShadowObject__*>(iArg)->cppObject());\
+        return static_cast<TCppClass*>(static_cast<ShadowObject__*>(iArg)->cppObject());\
     }\
 };\
 }\
