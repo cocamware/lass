@@ -69,7 +69,7 @@ template <typename U>
 Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
 	x(static_cast<TValue>(iOther.x)), 
 	y(static_cast<TValue>(iOther.y)),
-	z(static_cast<TValue>(iOther.z)),
+	z(static_cast<TValue>(iOther.z))
 {
 }
 
