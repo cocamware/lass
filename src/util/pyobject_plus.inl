@@ -311,7 +311,6 @@
 
 		/** @ingroup Python
 		 */
-#pragma LASS_FIXME("dangerous!  what if iValue is not compatible with C*???")
 		template<class C> 
 		inline int pyGetSimpleObject( PyObject* iValue, 
 									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
@@ -321,7 +320,15 @@
 			if (isNone)
 				oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
 			else
+			{
+				if (!PyType_IsSubtype(iValue->ob_type , &C::Type ))
+				{
+#pragma LASS_FIXME("this code must be tested somehow")
+					PyErr_Format(PyExc_TypeError,"not castable to %s",C::PythonClassName);
+					return 1;
+				}
 			    oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
+			}
 			return 0;
 		}
 
