@@ -78,6 +78,13 @@ namespace test
 			coolMember_ = 1.f;
 		}
 
+		Bar::Bar(int iA, const std::string& iB) : PyObjectPlus(&Type )
+		{
+			privateInt_ = iA;
+			privateString_ = iB;
+			coolMember_ = 1.f;
+		}
+
 		Bar::~Bar()
 		{
 

@@ -128,6 +128,13 @@ test.overloaded(5)
 test.overloaded('hello!')
 print "\n"
 
+print "\n* Testing overloaded constructor"
+barA = embedding.Bar()
+print barA
+barB = embedding.Bar(5, "hello")
+print barB
+print "\n"
+
 
 
 

@@ -55,6 +55,7 @@ namespace test
 
 	public:
 		Bar();
+		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
 
 		float aMoreComplexFunction( float iA, float iB );

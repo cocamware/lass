@@ -44,8 +44,8 @@
 		static std::vector<PyMethodDef>    Methods; \
 		static std::vector<PyGetSetDef>    GetSetters; \
 		virtual PyTypeObject *GetType(void) {return &Type;}; \
-		static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
-		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return NULL;}
+		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
+		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return NULL;}*/
 
 /* Place as first line of your Pythonized class.  For ParentClass use the 
 *  C++ class from which you wish the python object inherits.  ParentClass
@@ -61,8 +61,8 @@
 		static std::vector<PyGetSetDef>    GetSetters; \
 		static PyTypeObject* GetParentType(void) { return &ParentClass::Type; }\
 		virtual PyTypeObject *GetType(void) {return &Type;}; \
-		static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
-		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return NULL;}
+		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
+		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return NULL;}*/
 
 /** PY_PYTHONIZE.  Use this macro to make objects derived from PyObjectPlus have 
 *   a type in Python too.  If you don't use this macro you can still derive from the PyObjectPlus
@@ -185,7 +185,7 @@
 	0,				/*tp_dictoffset*/\
 	0,				/*tp_init*/\
 	0,/*tp_alloc*/\
-	CppClass__ ::__forbidden_new,/*tp_new*/\
+	0/*CppClass__ ::__forbidden_new*/,/*tp_new*/\
 	0,				/*tp_free*/\
 	0,				/*tp_is_gc*/\
 	0,				/*tp_bases*/\
@@ -234,7 +234,7 @@
 	0,				/*tp_dictoffset*/\
 	0,				/*tp_init*/\
 	0,/*tp_alloc*/\
-	lass::python::PyObjectPlusPlus< CppClass__ , parentclass__ >::__forbidden_new,/*tp_new*/\
+	0/*lass::python::PyObjectPlusPlus< CppClass__ , parentclass__ >::__forbidden_new*/,/*tp_new*/\
 	0,				/*tp_free*/\
 	0,				/*tp_is_gc*/\
 	0,				/*tp_bases*/\
@@ -444,39 +444,8 @@ typedef std::vector< PyCFunction > TVectorCFunction;
 			return lass::python::impl::PyCallMethod<Obj>::call(	iArgs, iObject, Obj::cppMethod__ );\
 		}\
 	};\
-	inline PyObject* dispatcher__( PyObject* iObject, PyObject* iArgs )\
-	{\
-		if (LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ))\
-		{\
-			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, dispatcher__ )(iObject, iArgs);\
-			if (result)\
-			{\
-				return result;\
-			}\
-		}\
-		CppClass__* object = static_cast<CppClass__*>( iObject );\
-		return LASS_CONCATENATE( PyShadowResolver_, dispatcher__ )\
-		<\
-			lass::python::IsShadowType<CppClass__>::value\
-		>\
-		::call( object, iArgs );\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE_3( lassExecutePyClassMethod_, CppClass__, dispatcher__ ),\
-		std::vector<PyMethodDef>::iterator i =\
-			std::find_if(CppClass__::Methods.begin(), CppClass__::Methods.end(), \
-						 lass::python::impl::PyMethodEqual(pyMethod__));\
-		if (i == CppClass__::Methods.end())\
-		{\
-			CppClass__::Methods.insert(CppClass__::Methods.begin(),\
-				lass::python::createPyMethodDef(\
-					pyMethod__, (PyCFunction) dispatcher__, METH_VARARGS , pyDoc__));\
-		}\
-		else\
-		{\
-			LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ) = i->ml_meth;\
-			i->ml_meth = dispatcher__;\
-		};\
-	)
+	PY_IMPL_DISPATCHER_CLASS_METHOD( CppClass__, dispatcher__ )\
+	PY_IMPL_SUBSCRIBE_CLASS_METHOD( CppClass__, pyMethod__, pyDoc__, dispatcher__ )
 
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_EX with 
@@ -582,39 +551,8 @@ typedef std::vector< PyCFunction > TVectorCFunction;
 			::TImpl::callMethod(iArgs, iObject, Obj::cppMethod__);\
 		}\
 	};\
-	inline PyObject* dispatcher__( PyObject* iObject, PyObject* iArgs )\
-	{\
-		if (LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ))\
-		{\
-			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, dispatcher__ )(iObject, iArgs);\
-			if (result)\
-			{\
-				return result;\
-			}\
-		}\
-		CppClass__* object = static_cast<CppClass__*>( iObject );\
-		return LASS_CONCATENATE( PyShadowResolver_, dispatcher__ )\
-		<\
-			lass::python::IsShadowType<CppClass__>::value\
-		>\
-		::call( object, iArgs );\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE_3( lassExecutePyClassMethod_, CppClass__, dispatcher__ ),\
-		std::vector<PyMethodDef>::iterator i =\
-			std::find_if(CppClass__::Methods.begin(), CppClass__::Methods.end(), \
-						 lass::python::impl::PyMethodEqual(pyMethod__));\
-		if (i == CppClass__::Methods.end())\
-		{\
-			CppClass__::Methods.insert(CppClass__::Methods.begin(),\
-				lass::python::createPyMethodDef(\
-					pyMethod__, (PyCFunction) dispatcher__, METH_VARARGS , pyDoc__));\
-		}\
-		else\
-		{\
-			LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ) = i->ml_meth;\
-			i->ml_meth = dispatcher__;\
-		};\
-	)
+	PY_IMPL_DISPATCHER_CLASS_METHOD( CppClass__, dispatcher__ )\
+	PY_IMPL_SUBSCRIBE_CLASS_METHOD( CppClass__, pyMethod__, pyDoc__, dispatcher__ )
 
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX with 
@@ -741,10 +679,17 @@ typedef std::vector< PyCFunction > TVectorCFunction;
  *
  *  All python classes are abstract by default, you don't have any constructors to create
  *  instances.  To make a class concrete, you must provide a constructor by using this macro.
+ *  You can overload this constructor by the same way you can overload class methods.
  *
- *  @param CppClass__ the C++ class
- *  @param Parameters__ a meta::TypeList of the parameters needed by the constructor.
- *                      Use meta::NullType if the constructor doesn't take any parameters.
+ *  @param CppClass__ 
+ *		the C++ class to generate the constructor 
+ *  @param PList__
+ *		a meta::TypeList of the parameters needed by the constructor.
+ *      Use meta::NullType if the constructor doesn't take any parameters.
+ *  @param dispatcher__ 
+ *		A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *		used for the names of automatic generated variables and functions and should be unique
+ *		per exported C++ class/constructor pair.
  *
  *  @code
  *  // foo.h
@@ -752,31 +697,49 @@ typedef std::vector< PyCFunction > TVectorCFunction;
  *  {
  *      PY_HEADER(python::PyObjectPlus)
  *  public:
+ *		Foo();
  *      Foo(int iA, const std::string& iB);
  *  };
  *
  *  // foo.cpp
- *  PY_DECLARE_CLASS(Foo)
+ *  PY_DECLARE_CLASS(Foo)  
+ *  PY_CLASS_CONSTRUCTOR(Foo, meta::NullType) // constructor without arguments.
  *  typedef meta::type_list::Make<int, std::string>::Type TArguments;
- *  PY_CLASS_CONSTRUCTOR(Foo, TArguments)
- *
- *  // constructor without arguments:
- *  PY_CLASS_CONSTRUCTOR(Bar, meta::NullType)
+ *  PY_CLASS_CONSTRUCTOR(Foo, TArguments) // constructor with some arguments. *
  *  @endcode
  */
-#define PY_CLASS_CONSTRUCTOR( CppClass__, Parameters__ )\
-    PyObject* LASS_CONCATENATE(pyConstruct, CppClass__)(PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds)\
+#define PY_CLASS_CONSTRUCTOR_EX( CppClass__, PList__, dispatcher__ )\
+	static newfunc LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ) = 0;\
+    PyObject* dispatcher__(PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds)\
     {\
+		if (LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, dispatcher__ )(iSubtype, iArgs, iKwds);\
+			if (result)\
+			{\
+				return result;\
+			}\
+		}\
 		return lass::python::impl::PyExplicitResolver\
 		<\
 			CppClass__,\
 			meta::NullType,\
-			Parameters__\
+			PList__\
 		>\
 		::TImpl::callConstructor(iArgs);\
     }\
-    LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(lassExecutePyClassConstructor_, CppClass__),\
-        CppClass__::Type.tp_new = LASS_CONCATENATE(pyConstruct, CppClass__); )
+    LASS_EXECUTE_BEFORE_MAIN_EX(\
+		LASS_CONCATENATE(lassExecutePyClassConstructor_, dispatcher__),\
+		LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ) = CppClass__::Type.tp_new;\
+        CppClass__::Type.tp_new = dispatcher__; \
+	)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with 
+ *	@a dispatcher__ = pyConstruct @a CppClass__ __LINE__
+ */
+#define PY_CLASS_CONSTRUCTOR( CppClass__, PList__ )\
+	PY_CLASS_CONSTRUCTOR_EX( CppClass__, PList__, LASS_UNIQUENAME(LASS_CONCATENATE(pyConstruct_, CppClass__)) )
 
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments
@@ -787,9 +750,56 @@ $[
 /** @ingroup Python
  *	convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
  */
+/*
 #define PY_CLASS_CONSTRUCTOR_$x( CppClass__, $(P$x__)$ )\
     typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) LASS_CONCATENATE(pyConstructorArguments, CppClass__);\
     PY_CLASS_CONSTRUCTOR( CppClass__, LASS_CONCATENATE(pyConstructorArguments, CppClass__) )
+*/
+#define PY_CLASS_CONSTRUCTOR_$x( CppClass__, $(P$x__)$ )\
+    PY_CLASS_CONSTRUCTOR( CppClass__, LASS_TYPE_LIST_$x( $(P$x__)$ ) )
 ]$
+
+
+// --- implementation macros -----------------------------------------------------------------------
+
+#define PY_IMPL_DISPATCHER_CLASS_METHOD( CppClass__, dispatcher__ )\
+	inline PyObject* dispatcher__( PyObject* iObject, PyObject* iArgs )\
+	{\
+		if (LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, dispatcher__ )(iObject, iArgs);\
+			if (result)\
+			{\
+				return result;\
+			}\
+		}\
+		CppClass__* object = static_cast<CppClass__*>( iObject );\
+		return LASS_CONCATENATE( PyShadowResolver_, dispatcher__ )\
+		<\
+			lass::python::IsShadowType<CppClass__>::value\
+		>\
+		::call( object, iArgs );\
+	}
+
+
+
+#define PY_IMPL_SUBSCRIBE_CLASS_METHOD( CppClass__, pyMethod__, pyDoc__, dispatcher__ )\
+	LASS_EXECUTE_BEFORE_MAIN_EX(\
+		LASS_CONCATENATE_3( lassExecutePySubscribeClassMethod_, CppClass__, dispatcher__ ),\
+		std::vector<PyMethodDef>::iterator i =\
+			std::find_if(CppClass__::Methods.begin(), CppClass__::Methods.end(), \
+						 lass::python::impl::PyMethodEqual(pyMethod__));\
+		if (i == CppClass__::Methods.end())\
+		{\
+			CppClass__::Methods.insert(CppClass__::Methods.begin(),\
+				lass::python::createPyMethodDef(\
+					pyMethod__, (PyCFunction) dispatcher__, METH_VARARGS , pyDoc__));\
+		}\
+		else\
+		{\
+			LASS_CONCATENATE( pyOverloadChain_, dispatcher__ ) = i->ml_meth;\
+			i->ml_meth = dispatcher__;\
+		};\
+	)
 
 // EOF

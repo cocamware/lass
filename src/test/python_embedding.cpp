@@ -113,7 +113,8 @@ namespace test
 
 	// declare a new pythonable class
 	PY_DECLARE_CLASS( Bar )
-    PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );
+    PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );	
+	PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
 	PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 
 	// expose member methods of object instances
