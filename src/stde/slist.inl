@@ -66,7 +66,6 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(const Alloc& allocator):
     Alloc(allocator)
 {
-	head_ = allocate_head();
 }
 
 
@@ -84,8 +83,7 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(size_type n, const T& value, const Alloc& allocator):
     Alloc(allocator)
 {
-	head_ = allocate_head();
-	insert_after(head_, n, value);
+	insert_after(before_begin(), n, value);
 }
 
 
@@ -104,8 +102,7 @@ template <typename InputIterator>
 slist<T, Alloc>::slist(InputIterator first, InputIterator last, const Alloc& allocator):
     Alloc(allocator)
 {
-	head_ = allocate_head();
-	insert_after(head_, first, last);
+	insert_after(before_begin(), first, last);
 }
 
 
@@ -120,7 +117,6 @@ template <typename T, class Alloc>
 slist<T, Alloc>::slist(const slist<T, Alloc>& other):
     Alloc(other.get_allocator())
 {
-	head_ = allocate_head();
 	insert_after(before_begin(), other.begin(), other.end());
 }
 
@@ -133,14 +129,9 @@ slist<T, Alloc>::slist(const slist<T, Alloc>& other):
 template <typename T, class Alloc>
 slist<T, Alloc>::~slist()
 {
-	if (head_) // normally, there should _always_ be a head, but just in case ...
+	while (head_.next)
 	{
-		while (head_->next)
-		{
-            unlink_and_destroy_after(head_);
-		}
-        node_allocator_type(get_allocator()).deallocate(head_, 1);
-		head_ = 0;
+        unlink_and_destroy_after(&head_);
 	}
 }
 
@@ -217,8 +208,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::iterator 
 slist<T, Alloc>::begin()
 {
-	LASS_ASSERT(head_);
-    return iterator(head_->next);
+    return iterator(head_.next);
 }
 
 
@@ -231,8 +221,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::const_iterator 
 slist<T, Alloc>::begin() const
 {
-	LASS_ASSERT(head_);
-    return const_iterator(head_->next);
+    return const_iterator(head_.next);
 }
 
 
@@ -275,8 +264,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::iterator 
 slist<T, Alloc>::before_begin()
 {
-	LASS_ASSERT(head_);
-    return iterator(head_);
+    return iterator(&head_);
 }
 
 
@@ -293,8 +281,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::const_iterator 
 slist<T, Alloc>::before_begin() const
 {
-	LASS_ASSERT(head_);
-    return const_iterator(head_);
+    return const_iterator(&head_);
 }
 
 
@@ -390,8 +377,7 @@ slist<T, Alloc>::prior(const_iterator position, const_iterator start) const
 template <typename T, class Alloc>
 bool slist<T, Alloc>::empty() const
 {
-	LASS_ASSERT(head_);
-    return head_->next == 0;
+    return head_.next == 0;
 }
 
 
@@ -404,9 +390,8 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::size_type
 slist<T, Alloc>::size() const
 {
- 	LASS_ASSERT(head_);
     size_type n = 0;
-    for (node_t* i = head_->next; i != 0; i = i->next)
+    for (node_t* i = head_.next; i != 0; i = i->next)
     {
         ++n;
     }
@@ -444,8 +429,7 @@ slist<T, Alloc>::max_size() const
 template <typename T, class Alloc>
 void slist<T, Alloc>::resize(size_type n, const T& value)
 {
-	LASS_ASSERT(head_);
-    node_t* i = head_;
+    node_t* i = &head_;
     while (i->next && n)
     {
         --n;
@@ -453,7 +437,7 @@ void slist<T, Alloc>::resize(size_type n, const T& value)
     }
     if (n)
     {
-        insert_after(i, n, value);
+        insert_after(iterator(i), n, value);
     }
     else
     {
@@ -477,8 +461,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::reference 
 slist<T, Alloc>::front()
 {
-	LASS_ASSERT(head_ && head_->next);
-    return head_->next->value;
+    return head_.next->value;
 }
 
 
@@ -494,8 +477,7 @@ template <typename T, class Alloc>
 typename slist<T, Alloc>::const_reference 
 slist<T, Alloc>::front() const
 {
-	LASS_ASSERT(head_ && head_->next);
-    return head_->next->value;
+    return head_.next->value;
 }
 
 
@@ -512,10 +494,9 @@ slist<T, Alloc>::front() const
 template <typename T, class Alloc>
 void slist<T, Alloc>::push_front(const T& value)
 {
-	LASS_ASSERT(head_);
     node_t* node = make_node(value);
-	node->next = head_->next;
-    head_->next = node;
+	node->next = head_.next;
+    head_.next = node;
 }
 
 
@@ -530,8 +511,7 @@ void slist<T, Alloc>::push_front(const T& value)
 template <typename T, class Alloc>
 void slist<T, Alloc>::pop_front()
 {
-    LASS_ASSERT(head_);
-    unlink_and_destroy_after(head_);
+    unlink_and_destroy_after(&head_);
 }
 
 
@@ -640,11 +620,12 @@ slist<T, Alloc>::insert_after(iterator position, const T& value)
 template <typename T, class Alloc>
 void slist<T, Alloc>::insert_after(iterator position, size_type n, const T& value)
 {
+    node_t* node = position.node_;
 	for (size_type i = 0; i < n; ++i)
 	{
         node_t* new_node = make_node(value);
-		link_after(position, new_node);
-		position = new_node;
+		link_after(node, new_node);
+		node = new_node;
 	}
 }
 
@@ -777,7 +758,7 @@ template <typename T, class Alloc>
 void slist<T, Alloc>::swap(slist<T, Alloc>& other)
 {
     LASS_ASSERT(get_allocator() == other.get_allocator());
-    std::swap(head_, other.head_);
+    std::swap(head_.next, other.head_.next);
 }
 
 
@@ -882,14 +863,13 @@ void slist<T, Alloc>::splice(iterator position, slist<T, Alloc>& other, iterator
 template <typename T, class Alloc>
 void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other)
 {
-    LASS_ASSERT(other.head_);
-    node_t* other_before_last = other.head_;
+    node_t* other_before_last = &other.head_;
     while (other_before_last->next)
     {
         other_before_last = other_before_last->next;
     }
 
-    splice_after(position.node_, other.head_, other_before_last);
+    splice_after(position.node_, &other.head_, other_before_last);
 }
 
 
@@ -942,8 +922,7 @@ void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other, it
 template <typename T, class Alloc>
 void slist<T, Alloc>::remove(const T& value)
 {
-    LASS_ASSERT(head_);
-    node_t* node = head_;
+    node_t* node = &head_;
     while (node->next)
     {
         if (node->next->value == value)
@@ -969,8 +948,7 @@ template <typename T, class Alloc>
 template <class UnaryPredicate>
 void slist<T, Alloc>::remove_if(UnaryPredicate predicate)
 {
-    LASS_ASSERT(head_);
-    node_t* node = head_;
+    node_t* node = &head_;
     while (node->next)
     {
         if (node->next->value == value)
@@ -996,8 +974,7 @@ void slist<T, Alloc>::remove_if(UnaryPredicate predicate)
 template <typename T, class Alloc>
 void slist<T, Alloc>::unique()
 {
-    LASS_ASSERT(head_);
-    node_t* node = head_->next;
+    node_t* node = head_.next;
     if (!node)
     {
         return;
@@ -1031,8 +1008,7 @@ template <typename T, class Alloc>
 template <class BinaryPredicate>
 void slist<T, Alloc>::unique(BinaryPredicate predicate)
 {
-    LASS_ASSERT(head_);
-    node_t* node = head_->next;
+    node_t* node = head_.next;
     if (!node)
     {
         return;
@@ -1090,21 +1066,17 @@ template <typename T, class Alloc>
 template <class BinaryPredicate>
 void slist<T, Alloc>::merge(slist<T, Alloc>& other, BinaryPredicate compare)
 {
-    LASS_ASSERT(head_ && other.head_);
-    node_t* node = head_;
-    while (node->next)
+    node_t* node = &head_;
+    while (node->next && other.head_.next)
     {
-        if (compare(a->next, other.head_->next))
+        if (compare(other.head_.next->value, node->next->value))
         {
-            a = a->next;
+            splice_after(node, &other.head_, other.head_.next);
         }
-        else
-        {
-            splice_after(a, other.head_, other.head_->next);
-        }
+        node = node->next;
     }
-    node->next = other.head_->next;
-    other.head_->next = 0;
+    node->next = other.head_.next;
+    other.head_.next = 0;
 }
 
 
@@ -1142,15 +1114,14 @@ template <typename T, class Alloc>
 template <class BinaryPredicate>
 void slist<T, Alloc>::sort(BinaryPredicate compare)
 {
-    LASS_ASSERT(head_);
-    if (head_->next && head_->next->next) 
+    if (head_.next && head_.next->next) 
     {
         slist<T, Alloc> carry;
         slist<T, Alloc> counter[64];
         size_t fill = 0;
         while (!empty()) 
         {
-            splice_after(carry.head_, head_, head_->next);
+            splice_after(&carry.head_, &head_, head_.next);
             size_t i = 0;
             while (i < fill && !counter[i].empty()) 
             {
@@ -1184,14 +1155,14 @@ template <typename T, class Alloc>
 void slist<T, Alloc>::reverse()
 {
     node_t* begin = 0;
-    while (head_->next)
+    while (head_.next)
     {
-        node_t* node = head_->next;
-        head_->next = node->next;
+        node_t* node = head_.next;
+        head_.next = node->next;
         node->next = begin;
         begin = node;
     }
-    head_->next = begin;
+    head_.next = begin;
 }
 
 // --- protected -----------------------------------------------------------------------------------
@@ -1199,22 +1170,6 @@ void slist<T, Alloc>::reverse()
 
 
 // --- private -------------------------------------------------------------------------------------
-
-/** @internal
- */
-template <typename T, class Alloc>
-typename slist<T, Alloc>::node_t*
-slist<T, Alloc>::allocate_head() const
-{
-    allocator_type allocator = get_allocator();
-    node_allocator_type node_allocator = node_allocator_type(allocator);
-	
-	node_t* head = node_allocator.allocate(1);
-	head->next = 0;	
-	return head;
-}
-
-
 
 /** @internal
  */

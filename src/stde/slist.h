@@ -49,6 +49,7 @@ private:
     {
         T value;
         node_t* next;
+        node_t(): next(0) {}
     };
 
 public:
@@ -62,14 +63,20 @@ public:
     typedef typename allocator_type::size_type size_type;
     typedef typename allocator_type::difference_type difference_type;
 
-    class iterator;
-    friend class iterator;
     class const_iterator;
     friend class const_iterator;
+    class iterator;
+    friend class iterator;
 
     class iterator
     {
     public:
+        typedef T value_type;
+        typedef typename allocator_type::pointer pointer;
+        typedef typename allocator_type::reference reference;
+        typedef typename allocator_type::size_type size_type;
+        typedef typename allocator_type::difference_type difference_type;
+        typedef std::forward_iterator_tag iterator_category;
         iterator(): node_(0) {}
         reference operator*() const { LASS_ASSERT(node_); return node_->value; }
         pointer operator->() const { LASS_ASSERT(node_); return &node_->value; }
@@ -79,6 +86,7 @@ public:
         bool operator!=(const iterator& other) const { return !(*this == other); }
     private:
         friend class slist<T, Alloc>;
+        friend class const_iterator;
         explicit iterator(node_t* node): node_(node) {}  
         node_t* node_;
     };
@@ -86,7 +94,14 @@ public:
     class const_iterator
     {
     public:
+        typedef const T value_type;
+        typedef typename allocator_type::const_pointer pointer;
+        typedef typename allocator_type::const_reference reference;
+        typedef typename allocator_type::size_type size_type;
+        typedef typename allocator_type::difference_type difference_type;
+        typedef std::forward_iterator_tag iterator_category;
         const_iterator(): node_(0) {}
+        const_iterator(iterator i): node_(i.node_) {}
         const_reference operator*() const { LASS_ASSERT(node_); return node_->value; }
         const_pointer operator->() const { LASS_ASSERT(node_); return &node_->value; }
         const_iterator& operator++() { node_ = node_->next; return *this; }
@@ -177,13 +192,12 @@ private:
 
     typedef typename allocator_type::template rebind<node_t>::other node_allocator_type;
 
-	node_t* allocate_head() const;
     node_t* make_node(const T& value) const;
 	void unlink_and_destroy_after(node_t* position) const;
 	void link_after(node_t* position, node_t* node) const;
     void splice_after(node_t* position, node_t* before_first, node_t* before_last) const;
    
-    node_t* head_;
+    node_t head_;
 };
 
 template <typename T, class Alloc> 
