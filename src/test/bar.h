@@ -30,8 +30,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_BAR_H
 
 #include "test_common.h"
-#include "..\util\pyobject_plus.h"
-#include "..\util\pyobject_util.h"
+#include "../util/pyobject_plus.h"
+#include "../util/pyobject_util.h"
 #include "foo.h"
 
 #include "../prim/pyobject_util.h"

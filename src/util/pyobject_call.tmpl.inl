@@ -269,7 +269,7 @@ $[
 	template <typename R, $(typename P$x)$>
 	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) )
 	{
-		$(typedef meta::TypeTraits<P$x>::TStorage T$x;
+		$(typedef typename meta::TypeTraits<P$x>::TStorage T$x;
 		)$
 		$(T$x p$x;
 		)$
@@ -300,7 +300,7 @@ $[
 	template <typename R, $(typename P$x)$>
 	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const )
 	{
-		$(typedef meta::TypeTraits<P$x>::TStorage T$x;
+		$(typedef typename meta::TypeTraits<P$x>::TStorage T$x;
 		)$
 		$(T$x p$x;
 		)$
@@ -327,7 +327,7 @@ $[
 	template <typename P>
 	static PyObject* set( PyObject* iArgs, CppClass* iObject, void (CppClass::*iMethod)(P) )
 	{
-		typedef meta::TypeTraits<P>::TStorage T;
+		typedef typename meta::TypeTraits<P>::TStorage T;
 		T p;
 		
 		if( pyGetSimpleObject( iArgs, p ) != 0 )
@@ -347,7 +347,7 @@ $[
 	template <typename P>
 	static PyObject* set( PyObject* iArgs, CppClass* iObject, P (CppClass::*iMethod)() )
 	{
-		typedef lass::meta::TypeTraits<P>::TStorage T;
+		typedef typename lass::meta::TypeTraits<P>::TStorage T;
 		T p;
 		
 		if( pyGetSimpleObject( iArgs, p ) != 0 )
@@ -384,7 +384,7 @@ $[
 template <class CppClass, $(typename P$x)$>
 PyObject* pyConstruct( PyObject* iArgs )
 {
-	$(typedef lass::meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
+	$(typedef typename lass::meta::TypeTraits<P$x>::TStorage T$x; T$x p$x;
 	)$
 
 	if ( !pyGetArguments<$(T$x)$>( iArgs, $(p$x)$ ) )

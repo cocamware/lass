@@ -316,14 +316,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 		return 1;
 	}
 
-	TAabb::TPoint min;
+	typename TAabb::TPoint min;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
-	TAabb::TPoint max;
+	typename TAabb::TPoint max;
     if (pyGetSimpleObject(PyTuple_GetItem(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: max");

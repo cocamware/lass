@@ -78,7 +78,12 @@ struct Vector3D
 
 	// methods
 
-	Vector3D() throw();
+	Vector3D() throw():
+		x(T()),
+		y(T()),
+		z(T())
+	{
+	}
 	Vector3D(TParam iX, TParam iY, TParam iZ) throw();
 
 	template <typename U> explicit Vector3D(const Vector3D<U>& iOther) throw(): 

@@ -189,7 +189,7 @@ DistributionNormal<T, RG>::operator()() const
 
 
 // --- backwards compatibility ---------------------------------------------------------------------
-
+/* -- TEMPORARILY commented out for GCC test
 /** uniform.
  *	returns a uniform random sample from [0,1] 
  */
@@ -223,7 +223,7 @@ template<class RG, class T> T gauss(RG& iGenerator,
 	DistrubitionNormal<T, RG> distribution(iGenerator, iMean, iStdDev);
 	return distribution();
 }
-
+*/
 
 
 }

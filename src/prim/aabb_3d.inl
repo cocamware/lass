@@ -393,7 +393,7 @@ const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& iOther) const
  */
 template <typename T, class MMP>
 template <class RandomGenerator>
-typename const Aabb3D<T, MMP>::TPoint
+const typename Aabb3D<T, MMP>::TPoint
 Aabb3D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
     const TVector t(static_cast<TValue>(ioGenerator()) / RandomGenerator::max,

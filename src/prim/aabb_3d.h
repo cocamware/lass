@@ -72,11 +72,11 @@ class Aabb3D
 {
 public:
 
-    typedef typename Aabb3D<T, MinMaxPolicy> TSelf;
+    typedef Aabb3D<T, MinMaxPolicy> TSelf;
     typedef MinMaxPolicy TMinMaxPolicy;
 
-	typedef typename Point3D<T> TPoint;
-	typedef typename Point3DH<T> TPointH;
+	typedef Point3D<T> TPoint;
+	typedef Point3DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;
 
     typedef typename TPoint::TValue TValue;
@@ -89,7 +89,7 @@ public:
 
     template <typename U> struct Rebind
     {
-        typedef typename Aabb3D<U, MinMaxPolicy> Type;
+        typedef Aabb3D<U, MinMaxPolicy> Type;
     };
 	
 	Aabb3D();

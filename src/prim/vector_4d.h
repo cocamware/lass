@@ -52,7 +52,7 @@ namespace prim
 template<typename T>
 struct Vector4D
 {
-    typedef typename Vector4D<T> TSelf;
+    typedef Vector4D<T> TSelf;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -64,7 +64,7 @@ struct Vector4D
 
 	template <typename U> struct Rebind
 	{
-		typedef typename Vector4D<U> Type;
+		typedef Vector4D<U> Type;
 	};
 
 

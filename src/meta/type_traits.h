@@ -193,60 +193,60 @@ private:
     template <typename U> struct ConstTraits
     {
         enum { isConst = false };
-        typedef typename U TNonConst;
-        typedef typename const U TConst;
+        typedef U TNonConst;
+        typedef const U TConst;
     };
     template <typename U> struct ConstTraits<const U>
     {
         enum { isConst = true };
-        typedef typename U TNonConst;
-        typedef typename const U TConst;
+        typedef U TNonConst;
+        typedef const U TConst;
     };
     template <typename U> struct ConstTraits<U&>
     {
         enum { isConst = false };
-        typedef typename U& TNonConst;
-        typedef typename const U& TConst;
+        typedef U& TNonConst;
+        typedef const U& TConst;
     };
     template <typename U> struct ConstTraits<const U&>
     {
         enum { isConst = true };
-        typedef typename U& TNonConst;
-        typedef typename const U& TConst;
+        typedef U& TNonConst;
+        typedef const U& TConst;
     };
 
     template <typename U> struct PointerTraits
     {
         enum { isPointer = false };
-        typedef typename NullType TPointee;
+        typedef NullType TPointee;
     };
     template <typename U> struct PointerTraits<U*>
     {
         enum { isPointer = true };
-        typedef typename U TPointee;
+        typedef U TPointee;
     };
     template <typename U> struct PointerTraits<U&>
     {
         enum { isPointer = false };
-        typedef typename NullType TPointee;
+        typedef NullType TPointee;
     };
     template <typename U> struct PointerTraits<U*&>
     {
         enum { isPointer = true };
-        typedef typename U TPointee;
+        typedef U TPointee;
     };
 
 	template <typename U> struct ReferenceTraits
     {
         enum { isReference = false };
-        typedef typename U TReferred;
-        typedef typename U& TReference;
+        typedef U TReferred;
+        typedef U& TReference;
     };
     template <typename U> struct ReferenceTraits<U&>
     {
         enum { isReference = true };
-        typedef typename U TReferred;
-        typedef typename U& TReference;
+        typedef U TReferred;
+        typedef U& TReference;
     };
 
     typedef typename ConstTraits<T>::TNonConst TStripped;

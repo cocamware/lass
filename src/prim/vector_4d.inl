@@ -42,7 +42,7 @@ namespace prim
 {
 
 template<typename T> inline
-Vector4D<T>::Vector4D():
+Vector4D<T>::Vector4D()  throw():
 	x(T()),
 	y(T()),
 	z(T()),
@@ -53,7 +53,7 @@ Vector4D<T>::Vector4D():
 
 	
 template<typename T> inline
-Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW):
+Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW)  throw():
 	x(iX),
 	y(iY),
 	z(iZ),
@@ -64,7 +64,7 @@ Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW):
 
 
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const
+typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const  
 {
 	LASS_ASSERT(iIndex < 4);
 	const T* result[] = { &x, &y, &z, &w };
@@ -74,7 +74,7 @@ typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) c
 
 
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
+typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex) 
 {
 	LASS_ASSERT(iIndex < 4);
 	T* result[] = { &x, &y, &z, &w };
@@ -86,7 +86,7 @@ typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
 /** Wrap index around range. 
  */
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
+typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const  throw()
 {
 	const T* result[] = { &x, &y, &z, &w };
 	return *result[num::mod(iIndex, 4)];
@@ -97,7 +97,7 @@ typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
 /** Wrap index around range. 
  */
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex)
+typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex)  throw()
 {
 	T* result[] = { &x, &y, &z, &w };
 	return *result[num::mod(iIndex, 4)];
@@ -108,7 +108,7 @@ typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex)
 /** A weird way to get back the same object 
  */
 template<typename T> inline
-const Vector4D<T>& Vector4D<T>::operator+() const
+const Vector4D<T>& Vector4D<T>::operator+() const throw()
 {
 	return *this;
 }
@@ -116,7 +116,7 @@ const Vector4D<T>& Vector4D<T>::operator+() const
 
 
 template<typename T> inline
-const Vector4D<T> Vector4D<T>::operator-() const
+const Vector4D<T> Vector4D<T>::operator-() const throw()
 {
 	return Vector4D(-x, -y, -z, -w);
 }
@@ -126,7 +126,7 @@ const Vector4D<T> Vector4D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& iB) throw()
 {
 	x += iB.x;
 	y += iB.y;
@@ -140,7 +140,7 @@ Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& iB)
 /** componentwise subtraction
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& iB) throw()
 {
 	x -= iB.x;
 	y -= iB.y;
@@ -154,7 +154,7 @@ Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& iB)
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& iB) throw()
 {
 	x *= iB.x;
 	y *= iB.y;
@@ -168,7 +168,7 @@ Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& iB)
 /** Componentwise division.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator/=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator/=(const Vector4D<T>& iB) throw()
 {
 	x /= iB.x;
 	y /= iB.y;
@@ -182,7 +182,7 @@ Vector4D<T>& Vector4D<T>::operator/=(const Vector4D<T>& iB)
 /** add iB to each component of this.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator+=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator+=(TParam iB) throw()
 {
 	x += iB;
 	y += iB;
@@ -196,7 +196,7 @@ Vector4D<T>& Vector4D<T>::operator+=(TParam iB)
 /** subtract iB of each component of this.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator-=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator-=(TParam iB) throw()
 {
 	x -= iB;
 	y -= iB;
@@ -210,7 +210,7 @@ Vector4D<T>& Vector4D<T>::operator-=(TParam iB)
 /** multiply each component of this with iB.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator*=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator*=(TParam iB) throw()
 {
 	x *= iB;
 	y *= iB;
@@ -224,7 +224,7 @@ Vector4D<T>& Vector4D<T>::operator*=(TParam iB)
 /** divide each component of this by iB.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator/=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator/=(TParam iB) throw()
 {
 	x /= iB;
 	y /= iB;
@@ -238,7 +238,7 @@ Vector4D<T>& Vector4D<T>::operator/=(TParam iB)
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector4D<T>::isZero() const
+const bool Vector4D<T>::isZero() const throw()
 {
 	return	x == TNumTraits::zero && y == TNumTraits::zero &&
 			z == TNumTraits::zero && w == TNumTraits::zero;
@@ -249,7 +249,7 @@ const bool Vector4D<T>::isZero() const
 /** Return squared norm of vector.
  */
 template<typename T> inline
-typename const Vector4D<T>::TValue Vector4D<T>::squaredNorm() const
+const typename Vector4D<T>::TValue Vector4D<T>::squaredNorm() const throw()
 {
 	return dot(*this, *this);
 }
@@ -259,7 +259,7 @@ typename const Vector4D<T>::TValue Vector4D<T>::squaredNorm() const
 /** Return norm of vector.
  */
 template<typename T> inline
-typename const Vector4D<T>::TValue Vector4D<T>::norm() const
+const typename  Vector4D<T>::TValue Vector4D<T>::norm() const throw()
 {
 	return num::sqrt(squaredNorm());
 }
@@ -273,7 +273,7 @@ typename const Vector4D<T>::TValue Vector4D<T>::norm() const
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
-const Vector4D<T> Vector4D<T>::normal() const
+const Vector4D<T> Vector4D<T>::normal() const throw()
 {
 	Vector4D<T> result(*this);
 	result.normalize();
@@ -285,7 +285,7 @@ const Vector4D<T> Vector4D<T>::normal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
+const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const throw() 
 {
 	Vector4D<T> result;
 	result *= dot(iB, *this);
@@ -298,7 +298,7 @@ const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
+const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const  throw()
 {
 	return iB - project(iB);
 }

@@ -42,7 +42,7 @@ namespace num
 // --- public --------------------------------------------------------------------------------------
 
 template <unsigned N, typename T>
-Modulo<N, T>::Modulo(TParam iValue):
+Modulo<N, T>::Modulo(TParam iValue) throw():
 	value_(mod(iValue, N))
 {
 	LASS_ASSERT(N <= NumTraits<T>::max);
@@ -51,7 +51,7 @@ Modulo<N, T>::Modulo(TParam iValue):
 
 
 template <unsigned N, typename T> inline
-Modulo<N, T> Modulo<N, T>::operator+() const
+Modulo<N, T> Modulo<N, T>::operator+() const  throw()
 {
 	return *this;
 }
@@ -59,7 +59,7 @@ Modulo<N, T> Modulo<N, T>::operator+() const
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator-() const
+Modulo<N, T> Modulo<N, T>::operator-() const  throw()
 {
 	return Modulo<N, T>(-value_);
 }
@@ -67,7 +67,7 @@ Modulo<N, T> Modulo<N, T>::operator-() const
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator++()
+Modulo<N, T>& Modulo<N, T>::operator++()  throw()
 {
 	++value_;
 	if (value_ == N)
@@ -81,7 +81,7 @@ Modulo<N, T>& Modulo<N, T>::operator++()
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator--()
+Modulo<N, T>& Modulo<N, T>::operator--() throw()
 {
 	if (value_ == 0)
 	{
@@ -95,7 +95,7 @@ Modulo<N, T>& Modulo<N, T>::operator--()
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator++(int)
+Modulo<N, T> Modulo<N, T>::operator++(int) throw()
 {
 	Modulo<N, T> result(*this);
 	++*this;
@@ -105,7 +105,7 @@ Modulo<N, T> Modulo<N, T>::operator++(int)
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator--(int)
+Modulo<N, T> Modulo<N, T>::operator--(int) throw()
 {
 	Modulo<N, T> result(*this);
 	--*this;
@@ -115,7 +115,7 @@ Modulo<N, T> Modulo<N, T>::operator--(int)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther)
+Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther) throw()
 {
 	value_ += iOther.value_;
 	if (value_ >= N)
@@ -129,7 +129,7 @@ Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& iOther)
+Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& iOther) throw()
 {
 	value_ -= iOther.value_;
 	if (value_ < 0)
@@ -143,7 +143,7 @@ Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator*=(const Modulo<N, T>& iOther)
+Modulo<N, T>& Modulo<N, T>::operator*=(const Modulo<N, T>& iOther) throw()
 {
 	value_ *= iOther.value_;
 	value_ = mod(value_, N);
@@ -154,7 +154,7 @@ Modulo<N, T>& Modulo<N, T>::operator*=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& iOther)
+Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& iOther) throw()
 {
 	value_ /= iOther.value_;
 	value_ = mod(value_, N);
@@ -165,7 +165,7 @@ Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T> inline
-Modulo<N, T>::operator T() const
+Modulo<N, T>::operator T() const  throw()
 {
 	return value_;
 }
@@ -173,7 +173,7 @@ Modulo<N, T>::operator T() const
 
 
 template <unsigned N, typename T> inline
-typename Modulo<N, T>::TParam Modulo<N, T>::value() const
+typename Modulo<N, T>::TParam Modulo<N, T>::value() const throw()
 {
 	return value_;
 }
@@ -187,7 +187,7 @@ typename Modulo<N, T>::TParam Modulo<N, T>::value() const
 // --- private -------------------------------------------------------------------------------------
 
 template <unsigned N, typename T>
-bool Modulo<N, T>::isInRange(TParam iValue) const
+bool Modulo<N, T>::isInRange(TParam iValue) const throw()
 {
 	return iValue >= 0 && iValue < N;
 }
@@ -245,10 +245,10 @@ bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
 
 
 template <unsigned N, typename T> 
-std::ostream& operator<<(std::ostream& iS, Modulo<N, T> iM)
+std::ostream& operator<<(std::ostream& oS, Modulo<N, T> iM)
 {
-	iS << iM.value();
-	return iS;
+	oS << iM.value();
+	return oS;
 }
 
 
@@ -259,7 +259,7 @@ std::istream& operator>>(std::istream& iS, Modulo<N, T>& iM)
 	int result;
 	LASS_ENFORCE(iS) >> result;
 	iM = Modulo<N, T>(result);
-	return *this;
+	return iS;
 }
 
 

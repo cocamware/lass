@@ -1,4 +1,4 @@
-execfile(r'..\..\tools\param_expander.py')
+execfile(r'../../tools/param_expander.py')
 
 print 'Code generation ...'
 
@@ -7,8 +7,8 @@ expandFile('clone_factory.tmpl.h', 'clone_factory.h', 10)
 
 expandFile('callback_x.tmpl.h', 'callback_$x.h', 10)
 expandFile('callback_r_x.tmpl.h', 'callback_r_$x.h', 10)
-expandFile('impl\dispatcher_x.tmpl.h', 'impl\dispatcher_$x.h', 10)
-expandFile('impl\dispatcher_r_x.tmpl.h', 'impl\dispatcher_r_$x.h', 10)
+expandFile('impl/dispatcher_x.tmpl.h', 'impl/dispatcher_$x.h', 10)
+expandFile('impl/dispatcher_r_x.tmpl.h', 'impl/dispatcher_r_$x.h', 10)
 
 expandFile('pyobject_macros.tmpl.h', 'pyobject_macros.h', 10)
 expandFile('pyobject_call.tmpl.inl', 'pyobject_call.inl', 10)

@@ -43,18 +43,9 @@ namespace lass
 namespace prim
 {
 
-template<typename T> inline
-Vector3D<T>::Vector3D():
-	x(T()),
-	y(T()),
-	z(T())
-{
-}
 
-
-	
-template<typename T> inline
-Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
+template<typename T> 
+Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ) throw():
 	x(iX),
 	y(iY),
 	z(iZ)
@@ -63,7 +54,7 @@ Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 
 
 
-template<typename T> inline
+template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) const
 {
 	LASS_ASSERT(iIndex < 3);
@@ -73,7 +64,7 @@ typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) c
 
 
 
-template<typename T> inline
+template<typename T> 
 typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 {
 	LASS_ASSERT(iIndex < 3);
@@ -85,9 +76,9 @@ typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
 
 /** Wrap index around range. 
  */
-template<typename T> inline
+template<typename T> 
 typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
-{
+ throw() {
 	const T* result[] = { &x, &y, &z };
 	return *result[num::mod(iIndex, 3)];
 }
@@ -96,8 +87,8 @@ typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
 
 /** Wrap index around range. 
  */
-template<typename T> inline
-typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
+template<typename T> 
+typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex) throw()
 {
 	T* result[] = { &x, &y, &z };
 	return *result[num::mod(iIndex, 3)];
@@ -107,16 +98,16 @@ typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
 
 /** A weird way to get back the same object 
  */
-template<typename T> inline
-const Vector3D<T>& Vector3D<T>::operator+() const
+template<typename T> 
+const Vector3D<T>& Vector3D<T>::operator+() const throw()
 {
 	return *this;
 }
 
 
 
-template<typename T> inline
-const Vector3D<T> Vector3D<T>::operator-() const
+template<typename T> 
+const Vector3D<T> Vector3D<T>::operator-() const throw()
 {
 	return Vector3D(-x, -y, -z);
 }
@@ -126,7 +117,7 @@ const Vector3D<T> Vector3D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)  throw()
 {
 	x += iB.x;
 	y += iB.y;
@@ -138,8 +129,8 @@ Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
 
 /** componentwise subtraction
  */
-template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
+template<typename T> 
+Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB) throw()
 {
 	x -= iB.x;
 	y -= iB.y;
@@ -152,7 +143,7 @@ Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB) throw()
 {
 	x *= iB.x;
 	y *= iB.y;
@@ -165,7 +156,7 @@ Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB)
 /** Componentwise division.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB) throw()
 {
 	x /= iB.x;
 	y /= iB.y;
@@ -178,7 +169,7 @@ Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB)
 /** add iB to each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator+=(TParam iB) throw()
 {
 	x += iB;
 	y += iB;
@@ -191,7 +182,7 @@ Vector3D<T>& Vector3D<T>::operator+=(TParam iB)
 /** subtract iB of each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator-=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator-=(TParam iB) throw()
 {
 	x -= iB;
 	y -= iB;
@@ -204,7 +195,7 @@ Vector3D<T>& Vector3D<T>::operator-=(TParam iB)
 /** multiply each component of this with iB.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator*=(TParam iB) throw()
 {
 	x *= iB;
 	y *= iB;
@@ -217,7 +208,7 @@ Vector3D<T>& Vector3D<T>::operator*=(TParam iB)
 /** divide each component of this by iB.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator/=(TParam iB) throw()
 {
 	x /= iB;
 	y /= iB;
@@ -230,7 +221,7 @@ Vector3D<T>& Vector3D<T>::operator/=(TParam iB)
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector3D<T>::isZero() const
+const bool Vector3D<T>::isZero() const  throw()
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
@@ -240,7 +231,7 @@ const bool Vector3D<T>::isZero() const
 /** Return squared norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const
+const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const  throw()
 {
 	return dot(*this, *this);
 }
@@ -250,7 +241,7 @@ const typename Vector3D<T>::TValue Vector3D<T>::squaredNorm() const
 /** Return norm of vector.
  */
 template<typename T> inline
-const typename Vector3D<T>::TValue Vector3D<T>::norm() const
+const typename Vector3D<T>::TValue Vector3D<T>::norm() const  throw()
 {
 	return num::sqrt(squaredNorm());
 }
@@ -264,7 +255,7 @@ const typename Vector3D<T>::TValue Vector3D<T>::norm() const
  * http://mathworld.wolfram.com/NormalizedVector.html.
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::normal() const
+const Vector3D<T> Vector3D<T>::normal() const  throw()
 {
 	Vector3D<T> result(*this);
 	result.normalize();
@@ -276,7 +267,7 @@ const Vector3D<T> Vector3D<T>::normal() const
 /** return the reciprocal version of this vector
  */
 template<typename T>
-const Vector3D<T> Vector3D<T>::reciprocal() const
+const Vector3D<T> Vector3D<T>::reciprocal() const  throw()
 {
 	Vector3D<T> result(TNumTraits::one, TNumTraits::one, TNumTraits::one);
 	result /= *this;
@@ -288,7 +279,7 @@ const Vector3D<T> Vector3D<T>::reciprocal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
+const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const  throw()
 {
 	Vector3D<T> result;
 	result *= dot(iB, *this);
@@ -301,7 +292,7 @@ const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
+const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const  throw()
 {
 	return iB - project(iB);
 }
@@ -329,7 +320,7 @@ Vector3D<T> Vector3D<T>::random(RandomGenerator& ioGenerator)
 	const TValue z = zGenerator();
 	const TValue r = num::sqrt(1 - num::sqr(z));
 
-	num::DistributionUniform<TValue, RandomGenerator, false, true> thetaGenerator(
+	num::DistributionUniform<TValue, RandomGenerator> thetaGenerator(
 		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
     const TValue theta = thetaGenerator();
 

@@ -55,8 +55,8 @@
 */
 #define PY_HEADER( ParentClass ) \
 	public: \
-		static char*		  PythonClassName;\
-		static char*		  PythonModuleName;\
+		static char* PythonClassName;\
+		static char* PythonModuleName;\
 		static PyTypeObject   Type; \
 		static std::vector<PyMethodDef>    Methods; \
 		static std::vector<PyGetSetDef>    GetSetters; \

@@ -53,10 +53,10 @@ namespace prim
 template<typename T>
 struct Point3DH
 {
-    typedef typename Point3DH<T> TSelf;
+    typedef Point3DH<T> TSelf;
 
-	typedef typename Point3D<T> TPoint;
-	typedef typename Vector4D<T> TVector;
+	typedef Point3D<T> TPoint;
+	typedef Vector4D<T> TVector;
 
 	typedef typename TVector::TValue TValue;
 	typedef typename TVector::TParam TParam;
@@ -68,7 +68,7 @@ struct Point3DH
 
     template <typename U> struct Rebind
     {
-        typedef typename Point3DH<U> Type;
+        typedef Point3DH<U> Type;
     };
 
 	union

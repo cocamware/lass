@@ -134,8 +134,8 @@ namespace lass
 		{
 			PyObject* newArray = PyList_New(iV.size());
 			int i;
-			std::list<C>::const_iterator it = iV.begin();
-			std::list<C>::const_iterator eit = iV.end();
+			typename std::list<C>::const_iterator it = iV.begin();
+			typename std::list<C>::const_iterator eit = iV.end();
 			for (i=0;it != eit; ++it,++i)
 				PyList_SetItem( newArray, i, pyBuildSimpleObject( *it ) );
 			return newArray;
@@ -145,8 +145,8 @@ namespace lass
 		{
 			PyObject* newDict = PyDict_New();
 			int i;
-			std::map<K,V>::const_iterator it = iV.begin();
-			std::map<K,V>::const_iterator eit = iV.end();
+			typename std::map<K,V>::const_iterator it = iV.begin();
+			typename std::map<K,V>::const_iterator eit = iV.end();
 			for (i=0;it != eit; ++it,++i)
 				PyDict_SetItem( newDict, pyBuildSimpleObject( it->first ), pyBuildSimpleObject( it->second ) );
 			return newDict;
@@ -232,7 +232,7 @@ namespace lass
 					impl::addMessageHeader("dict: key");
 					return 1;
 				}
-				TMap::data_type cData;
+				D cData;
 				if (pyGetSimpleObject( pyData , cData ) != 0)
 				{
 					impl::addMessageHeader("dict: data");

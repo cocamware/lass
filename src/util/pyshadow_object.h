@@ -33,14 +33,14 @@ namespace lass
 {
 	namespace python
 	{
-		template<typename T, typename P = lass::python::PyObjectPlus>
+		template<typename T, typename P  >
 		class PyObjectPlusPlus : public P
 		{
 			PY_HEADER( P );
 
-			typedef typename T	TPyClassSelf;
-			typedef typename P	TPyClassParent;
-			typedef typename PyObjectPlusPlus<T,P>	TSelf;
+			typedef T	TPyClassSelf;
+			typedef P	TPyClassParent;
+			typedef PyObjectPlusPlus<T,P>	TSelf;
 
 		public:
             virtual std::string	pyRepr(void) { return "PyObjectPlusPlus object at " + util::stringCast<std::string>(this); }
@@ -50,11 +50,11 @@ namespace lass
 			virtual ~PyObjectPlusPlus() {}
 		};
 
-		template<typename T, typename P = lass::python::PyObjectPlus >
+		template<typename T, typename P  >
 		class PyShadowObject : public PyObjectPlusPlus<T,P>
 		{
 		public:
-			typedef typename T	RealObject;
+			typedef T	RealObject;
 			T*	value_;
 
 			PyShadowObject() : value_( new T() ) {}
@@ -139,7 +139,7 @@ namespace lass
 		struct IsShadowType 
 		{
 			enum { value = 0 };
-			typedef typename T	RealObjectType;
+			typedef T	RealObjectType;
 		};
 
 		template< typename T, typename P >  
