@@ -81,7 +81,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -156,7 +156,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -234,7 +234,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 "/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -323,7 +323,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 "/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"
+				CommandLine="pre_build.py"
 				ExcludedFromBuild="FALSE"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>

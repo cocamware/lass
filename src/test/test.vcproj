@@ -88,7 +88,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -170,7 +170,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -252,7 +252,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"/>
+				CommandLine="pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -349,7 +349,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.bat"
+				CommandLine="pre_build.py"
 				ExcludedFromBuild="FALSE"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
