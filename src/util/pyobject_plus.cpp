@@ -54,7 +54,7 @@ namespace lass
 		PyObjectPlus::~PyObjectPlus() 
 		{  
 		};
-		
+		/*
 		void PyObjectPlus::__dealloc(PyObject *P)    
 		{  
 			delete ((PyObjectPlus *) P);  
@@ -69,7 +69,7 @@ namespace lass
 		{ 
 			return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr()); 
 		}
-
+*/
 		PyObjectPlus* PyObjectPlus::PyPlus_INCREF(void) 
 		{	
 			Py_INCREF(this);
@@ -80,6 +80,18 @@ namespace lass
 		{
 			Py_DECREF(this);
 			return this;
-		};
+        }
+
+        PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
+        {
+			this->ob_type = iOther.ob_type;
+			_Py_NewReference( this );
+        }
+
+        PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
+        {
+            LASS_ASSERT(this->ob_type == iOther.ob_type);
+            return *this;
+        }
 	}
 }

@@ -45,7 +45,7 @@ namespace lass
 namespace io
 {
 
-class Image
+class LASS_DLL_EXPORT Image
 {
 public:
 

@@ -45,7 +45,6 @@
  */
 #define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
 //#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
-#pragma comment(lib, LASS_LIB_IO)
 
 
 

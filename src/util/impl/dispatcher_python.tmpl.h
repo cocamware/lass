@@ -35,7 +35,7 @@ namespace util
 namespace impl
 {
 
-std::string fetchException(); // see dispatcher_python.cpp
+LASS_DLL_EXPORT std::string LASS_CALL fetchException(); // see dispatcher_python.cpp
 
 }
 }

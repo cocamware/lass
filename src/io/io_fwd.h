@@ -38,10 +38,10 @@ namespace io
 class ProxyOStream;
 class ProxyIStream;
 
-LASS_DLL ProxyOStream& LASS_CALL cout();
-LASS_DLL ProxyOStream& LASS_CALL cerr();
-LASS_DLL ProxyOStream& LASS_CALL clog();
-LASS_DLL ProxyIStream& LASS_CALL cin();
+LASS_DLL_EXPORT ProxyOStream& LASS_CALL cout();
+LASS_DLL_EXPORT ProxyOStream& LASS_CALL cerr();
+LASS_DLL_EXPORT ProxyOStream& LASS_CALL clog();
+LASS_DLL_EXPORT ProxyIStream& LASS_CALL cin();
 
 }
 

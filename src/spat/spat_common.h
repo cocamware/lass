@@ -47,8 +47,10 @@
  */
 #define LASS_LIB_SPAT LASS_LIB_PREFIX "spat" LASS_LIB_SUFFIX
 //#pragma message("LASS_LIB_SPAT: " LASS_LIB_SPAT)
-#pragma comment(lib, LASS_LIB_SPAT)
 
+#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+#   pragma comment(lib, LASS_LIB_SPAT)
+#endif
 
 
 #endif

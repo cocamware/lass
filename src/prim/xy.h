@@ -41,7 +41,7 @@ namespace lass
 namespace prim
 {
 
-class XY
+class LASS_DLL_EXPORT XY
 {
 public:
 
@@ -69,27 +69,27 @@ private:
 
     typedef num::Modulo<2, int> TValue;
 
-    friend bool operator==(const XY& iA, const XY& iB);
+    friend LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const XY& iB);
 
     void reset(char iAxis);
 
     TValue value_;
 };
 
-bool operator==(const XY& iA, const XY& iB);
-bool operator==(const XY& iA, char iB);
-bool operator==(char iA, const XY& iB);
-bool operator==(const XY& iA, const std::string& iB);
-bool operator==(const std::string& iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, char iB);
+LASS_DLL_EXPORT bool LASS_CALL operator==(char iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator==(const XY& iA, const std::string& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator==(const std::string& iA, const XY& iB);
 
-bool operator!=(const XY& iA, const XY& iB);
-bool operator!=(const XY& iA, char iB);
-bool operator!=(char iA, const XY& iB);
-bool operator!=(const XY& iA, const std::string&  iB);
-bool operator!=(const std::string&  iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator!=(const XY& iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator!=(const XY& iA, char iB);
+LASS_DLL_EXPORT bool LASS_CALL operator!=(char iA, const XY& iB);
+LASS_DLL_EXPORT bool LASS_CALL operator!=(const XY& iA, const std::string&  iB);
+LASS_DLL_EXPORT bool LASS_CALL operator!=(const std::string&  iA, const XY& iB);
 
-XY operator+(const XY& iA, int iOffset);
-XY operator-(const XY& iA, int iOffset);
+LASS_DLL_EXPORT XY LASS_CALL operator+(const XY& iA, int iOffset);
+LASS_DLL_EXPORT XY LASS_CALL operator-(const XY& iA, int iOffset);
 
 /** @relates lass::prim::XY
  */

@@ -187,7 +187,7 @@ namespace lass
 namespace num
 {
 
-class TriBool
+class LASS_DLL_EXPORT TriBool
 {
 public:
 
@@ -216,12 +216,12 @@ private:
 	State state_;
 };
 
-TriBool operator==(TriBool iA, TriBool iB);
-TriBool operator!=(TriBool iA, TriBool iB);
-TriBool operator&&(TriBool iA, TriBool iB);
-TriBool operator||(TriBool iA, TriBool iB);
+LASS_DLL_EXPORT TriBool LASS_CALL operator==(TriBool iA, TriBool iB);
+LASS_DLL_EXPORT TriBool LASS_CALL operator!=(TriBool iA, TriBool iB);
+LASS_DLL_EXPORT TriBool LASS_CALL operator&&(TriBool iA, TriBool iB);
+LASS_DLL_EXPORT TriBool LASS_CALL operator||(TriBool iA, TriBool iB);
 
-std::ostream& operator<<(std::ostream& ioS, TriBool iB);
+LASS_DLL_EXPORT std::ostream& LASS_CALL operator<<(std::ostream& ioS, TriBool iB);
 
 
 

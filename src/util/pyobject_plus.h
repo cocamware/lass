@@ -31,12 +31,13 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 
 #include "util_common.h"
-#ifndef _DEBUG
-	#include "Python.h"
+
+#if defined(_DEBUG) && !defined(LASS_PYTHON_HAS_DEBUG_BUILD)
+#	undef _DEBUG
+#	include "Python.h"
+#	define _DEBUG
 #else
-	#undef _DEBUG
-	#include "Python.h"
-	#define _DEBUG
+#	include "Python.h"
 #endif
 
 #include "../meta/bool.h"
@@ -78,7 +79,7 @@ namespace lass
 		public:
 			typedef PyObjectPlus	TSelf;
 
-			PyObjectPlus(PyTypeObject *T = &Type);
+			PyObjectPlus(PyTypeObject *T);
 			virtual ~PyObjectPlus();
 			
 			PyObjectPlus* PyPlus_INCREF(void);// incref method
@@ -91,6 +92,11 @@ namespace lass
 
 			static  PyObject*	__str(PyObject *PyObj);
 			virtual std::string	pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
+
+        protected:
+
+			PyObjectPlus(const PyObjectPlus& iOther);
+			PyObjectPlus& operator=(const PyObjectPlus& iOther);
 		};
 
 		/** @class PyObjectStorage
@@ -205,11 +211,13 @@ namespace lass
 		}
 
 		/** meta function to detect if a type is a PyObject-derived type 
-		 */
+		*	@ingroup Python
+		*/
 		template <typename T>
 		struct IsPyObject
 		{
 			enum { value = meta::IsDerivedType<T, PyObject>::value };
+			typedef typename meta::Bool<value>::Type Type;
 		};
 
 		/* conversion from PyObject* to given types, a check should be performed

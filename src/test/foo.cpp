@@ -44,7 +44,8 @@ namespace test
 			return (PyObject*)(new PythonFoo ());// Make new Python-able object
 		}
 
-		PythonFoo ::PythonFoo () 
+        PythonFoo ::PythonFoo ():
+            PyObjectPlus(&Type)
 		{
 			privateInt_ = 0;
 			privateString_ = "uninitialized string";

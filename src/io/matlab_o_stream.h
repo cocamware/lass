@@ -62,7 +62,7 @@ enum MatlabColor
 
 
 
-class LASS_DLL MatlabOStream : 
+class LASS_DLL_EXPORT MatlabOStream : 
 	public std::ofstream
 {
 public:

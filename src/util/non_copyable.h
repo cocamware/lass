@@ -83,7 +83,7 @@ namespace lass
 namespace util
 {
 
-class LASS_DLL NonCopyable
+class LASS_DLL_EXPORT NonCopyable
 {
 protected:
     NonCopyable() {}

@@ -249,7 +249,7 @@ Plane3DParametric<T, NP>::equation(const TPoint& iPoint) const
     TVector normal;
     TValue d;
     getCartesian(normal, d);
-    return dot(iPoint.position, normal) + d;
+    return dot(iPoint.position(), normal) + d;
 }
 
 
@@ -287,7 +287,7 @@ Plane3DParametric<T, NP>::reject(const TPoint& iPoint) const
     TVector normal;
     TValue d;
     getCartesian(normal, d);
-    return normal * NP::divideBySquaredNorm(dot(iPoint.position, normal) + d, normal);
+    return normal * NP::divideBySquaredNorm(dot(iPoint.position(), normal) + d, normal);
 }
 
 

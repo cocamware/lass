@@ -67,7 +67,9 @@
 ///** name of library
 // */
 //#define LASS_LIB_STDE LASS_LIB_PREFIX "stde" LASS_LIB_SUFFIX
-//#pragma comment(lib, LASS_LIB_STDE)
+//#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+//#   pragma comment(lib, LASS_LIB_STDE)
+//#endif
 
 
 

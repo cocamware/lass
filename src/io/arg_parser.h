@@ -79,7 +79,7 @@ struct ArgFormat
 /** @ingroup ArgParser
  *  @brief the parser itself
  */
-class ArgParser
+class LASS_DLL_EXPORT ArgParser
 {
 public:
 
@@ -122,7 +122,7 @@ private:
 
 /** @ingroup ArgParser
  */
-class ArgParameter
+class LASS_DLL_EXPORT ArgParameter
 {
 public:
 
@@ -165,7 +165,7 @@ private:
 
 /** @ingroup ArgParser
  */
-class ArgFlag: public ArgParameter
+class LASS_DLL_EXPORT ArgFlag: public ArgParameter
 {
 public:
 
@@ -181,7 +181,7 @@ public:
 /** @ingroup ArgParser
  */
 template <typename T>
-class ArgValue: public ArgParameter
+class LASS_DLL_EXPORT ArgValue: public ArgParameter
 {
 public:
 
@@ -232,7 +232,11 @@ private:
 class ArgBadArgument: public std::runtime_error
 {
 public:
-    ArgBadArgument(const std::string& iArgument);
+    ArgBadArgument(const std::string& iArgument):
+        runtime_error("Bad program argument '" + iArgument + 
+            "': see standard output for more details.")
+    {
+    }
 };
 
 

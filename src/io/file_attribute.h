@@ -39,11 +39,11 @@ namespace lass
 namespace io
 {
 
-bool fileDoesExist(const std::string& iFileName);
-std::string fileExtension(const std::string& iFileName);
-std::string fileWithoutExtension(const std::string& iFileName);
-std::string filePath(const std::string& iFileName);
-std::string fileWithoutPath(const std::string& iFileName);
+LASS_DLL_EXPORT bool LASS_CALL fileDoesExist(const std::string& iFileName);
+LASS_DLL_EXPORT std::string LASS_CALL fileExtension(const std::string& iFileName);
+LASS_DLL_EXPORT std::string LASS_CALL fileWithoutExtension(const std::string& iFileName);
+LASS_DLL_EXPORT std::string LASS_CALL filePath(const std::string& iFileName);
+LASS_DLL_EXPORT std::string LASS_CALL fileWithoutPath(const std::string& iFileName);
 
 }
 

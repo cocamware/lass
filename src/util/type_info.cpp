@@ -23,11 +23,6 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_TYPE_INFO_INL
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_TYPE_INFO_INL
-
 #include "util_common.h"
 #include "type_info.h"
 
@@ -37,7 +32,7 @@ namespace util
 {
 
 /** construct an Null type info object.
- *  it stores info on lass::util::NullType, as to say: there's no info in this TypeInfo.
+ *  it stores info on lass::meta::NullType, as to say: there's no info in this TypeInfo.
  */
 inline TypeInfo::TypeInfo():
 	type_info_(&typeid(meta::NullType))
@@ -162,7 +157,5 @@ inline std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo
 }
 
 }
-
-#endif
 
 // EOF

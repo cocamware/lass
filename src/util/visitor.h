@@ -219,7 +219,7 @@ namespace util
 /** @ingroup VisitorPattern
  *  @brief base class of all visitors
  */
-class VisitorBase
+class LASS_DLL_EXPORT VisitorBase
 {
 public:
 	virtual ~VisitorBase() {}
@@ -235,7 +235,7 @@ template
 	class VisitableType,
 	typename VisitReturnType = void
 >
-class Visitor
+class LASS_DLL_EXPORT Visitor
 {
 public:
 
@@ -264,7 +264,7 @@ template
 	class VisitableType,
 	typename VisitReturnType
 >	
-struct VisitNonStrict
+struct LASS_DLL_EXPORT VisitNonStrict
 {
 	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
@@ -284,7 +284,7 @@ template
 	class VisitableType,
 	typename VisitReturnType
 >	
-struct VisitStrict
+struct LASS_DLL_EXPORT VisitStrict
 {
 	static VisitReturnType onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
@@ -306,7 +306,7 @@ template
 	typename VisitReturnType = void,
 	template <class, typename> class CatchAll = VisitNonStrict
 >
-class VisitableBase
+class LASS_DLL_EXPORT VisitableBase
 {
 public:
 

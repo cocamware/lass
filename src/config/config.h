@@ -28,6 +28,14 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 #define LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 
+/** @def LASS_PYTHON_HAS_DEBUG_BUILD
+ *  @brief Define this one if your Python distribution has a debug build that can be used for the
+ *		debug build of Lass.  If not, the release build of Python will be used instead.
+ */
+#define LASS_PYTHON_HAS_DEBUG_BUILD
+
+
+
 /** @def #define LASS_BOOST_ALWAYS
  *  @brief Define this if you have Boost (www.boost.org) around, and you always want to fall back 
  *         on it whenever possible.

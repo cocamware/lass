@@ -114,7 +114,7 @@ template<typename T, class NP>
 Plane3DCombined<T, NP>::Plane3DCombined(const TVector& iNormal, const TPoint& iSupport):
     support_(iSupport),
 	normal_(iNormal),
-	d_(-dot(iNormal, iSupport.position))
+	d_(-dot(iNormal, iSupport.position()))
 {
     Plane3DImplDetail::generateDirections(normal_, directionU_, directionV_);
     NP::normalize(directionU_);
@@ -261,7 +261,7 @@ template<typename T, class NP>
 const typename Plane3DCombined<T, NP>::TValue 
 Plane3DCombined<T, NP>::equation(const TPoint& iPoint) const                  
 {
-    return dot(iPoint.position, normal_) + d_;
+    return dot(iPoint.position(), normal_) + d_;
 }
 
 

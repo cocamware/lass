@@ -41,7 +41,7 @@ namespace lass
 namespace prim
 {
 
-class ColorRGBA
+class LASS_DLL_EXPORT ColorRGBA
 {
 public:
 

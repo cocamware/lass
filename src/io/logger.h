@@ -59,7 +59,7 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL Logger
+class LASS_DLL_EXPORT Logger
 {
 public:
 

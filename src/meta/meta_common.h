@@ -98,7 +98,9 @@
 ///** name of library
 // */
 //#define LASS_LIB_META LASS_LIB_PREFIX "meta" LASS_LIB_SUFFIX
-//#pragma comment(lib, LASS_LIB_META)
+//#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+//#   pragma comment(lib, LASS_LIB_META)
+//#endif
 
 
 

@@ -118,10 +118,7 @@
 #include <list>
 #include <deque>
 #include <map>
-#include <queue>
 #include <set>
-//#include <slist> // SGI extension
-#include <stack>
 
 #include <iterator>
 

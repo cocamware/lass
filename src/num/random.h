@@ -50,7 +50,7 @@ namespace num
  *
  *  @note this one isn't thread safe since state is stored externally.
  */
-class RandomStandard
+class LASS_DLL_EXPORT RandomStandard
 {
 public:
     typedef int TValue;             /**< type of return value. */
@@ -82,7 +82,7 @@ public:
  *
  *  Our version is implemented after the MT19937 standard code of 2002/1/26 (mt19937ar.c)
  */
-class RandomMT19937
+class LASS_DLL_EXPORT RandomMT19937
 {
 public:
 

@@ -665,15 +665,6 @@ ArgFlag::ArgFlag(ArgParser& iParser,
 
 
 
-// --- ArgBadArgument ------------------------------------------------------------------------------
-
-ArgBadArgument::ArgBadArgument(const std::string& iArg):
-    runtime_error("Bad program argument '" + iArg + "': see standard output for more details.")
-{
-}
-
-
-
 }
 
 }

@@ -90,7 +90,7 @@ Plane3DCartesian<T, NP>::Plane3DCartesian(const TPoint& iSupport,
 template<typename T, class NP>
 Plane3DCartesian<T, NP>::Plane3DCartesian(const TVector& iNormal, const TPoint& iSupport):
 	normal_(iNormal),
-	d_(-dot(iNormal, iSupport.position))
+	d_(-dot(iNormal, iSupport.position()))
 {
     NP::normalizeAndScale(normal_, d_);
 }
@@ -241,7 +241,7 @@ template<typename T, class NP>
 const typename Plane3DCartesian<T, NP>::TValue 
 Plane3DCartesian<T, NP>::equation(const TPoint& iPoint) const                  
 {
-    return dot(iPoint.position, normal_) + d_;
+    return dot(iPoint.position(), normal_) + d_;
 }
 
 
@@ -371,8 +371,8 @@ Plane3DCartesian<T, NP>::uv(const TPoint& iPoint) const
 {
     TVector reciprocalU;
     TVector reciprocalV;
-    getReciprocal(reciprocalU, reciprocalV);
-    const TVector relative = iPoint - support_;
+    getReciprocals(reciprocalU, reciprocalV);
+    const TVector relative = iPoint - support();
     return TUV(dot(relative, reciprocalU), dot(relative, reciprocalV));
 }
 

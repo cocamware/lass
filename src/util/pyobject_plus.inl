@@ -25,6 +25,22 @@
 
 
 
+		inline void PyObjectPlus::__dealloc(PyObject *P)    
+		{  
+			delete ((PyObjectPlus *) P);  
+		};
+
+		inline PyObject*	PyObjectPlus::__repr(PyObject *PyObj) 
+		{	
+			return pyBuildSimpleObject(((TSelf*)PyObj)->pyRepr());
+		}
+
+		inline PyObject*	PyObjectPlus::__str(PyObject *PyObj) 
+		{ 
+			return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr()); 
+		}
+
+
 		inline PyMethodDef createPyMethodDef(  char	*ml_name, 
 										PyCFunction  ml_meth,
                                         int		 ml_flags,

@@ -69,7 +69,9 @@
 /** name of library
  */
 #define LASS_LIB_UTIL LASS_LIB_PREFIX "util" LASS_LIB_SUFFIX
-#pragma comment(lib, LASS_LIB_UTIL)
-//#pragma message("LASS_LIB_UTIL: " LASS_LIB_UTIL)
+
+#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+#   pragma comment(lib, LASS_LIB_UTIL)
+#endif
 
 #endif
