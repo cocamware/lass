@@ -134,9 +134,8 @@ const std::complex<double>	NumTraits<std::complex<double> >::sqrtPi = 1.77245385
 */
 
 /** code generating macro for integral types */
-#pragma LASS_FIXME("memorySize is always sizeof(signed char)???")
 #define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( __LASS_type, __LASS_isSigned, __LASS_min, __LASS_max ) \
-const int	NumTraits<__LASS_type>::memorySize = sizeof(signed char);\
+const int	NumTraits<__LASS_type>::memorySize = sizeof(__LASS_type);\
 const bool	NumTraits<__LASS_type>::isIntegral = false;\
 const bool	NumTraits<__LASS_type>::isNative = true;\
 const bool	NumTraits<__LASS_type>::isSigned = __LASS_isSigned;\
