@@ -228,7 +228,7 @@ const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& iScale)
 /** make a 3D transformation representing a rotation around a primary axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::rotation(XYZ iAxis, const T& iRadians)
+const Transformation3D<T> Transformation3D<T>::rotation(XYZ iAxis, TParam iRadians)
 {
 	const T c = num::cos(iRadians);
 	const T s = num::sin(iRadians);
@@ -249,7 +249,7 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ iAxis, const T& iRad
 /** make a 3D transformation representing a rotation around an arbitrary axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& iAxis, const T& iRadians)
+const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& iAxis, TParam iRadians)
 {
 	Vector3D<T> a = iAxis.normal();
 	const T c = num::cos(iRadians);
