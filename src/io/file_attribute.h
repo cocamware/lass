@@ -39,6 +39,16 @@ namespace lass
 namespace io
 {
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+const char pathSeperator = '\\';
+const char pathAlternativeSeperator = '/';
+const char extensionSeperator = '.';
+#else
+const char pathSeperator = '/';
+const char pathAlternativeSeperator = '\0';
+const char extensionSeperator = '.';
+#endif
+
 LASS_DLL_EXPORT bool LASS_CALL fileDoesExist(const std::string& iFileName);
 LASS_DLL_EXPORT std::string LASS_CALL fileExtension(const std::string& iFileName);
 LASS_DLL_EXPORT std::string LASS_CALL fileWithoutExtension(const std::string& iFileName);

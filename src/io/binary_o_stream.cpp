@@ -26,68 +26,31 @@
 #include "io_common.h"
 #include "binary_o_stream.h"
 
-
-
 namespace lass
 {
-
 namespace io
 {
 
-/** Construct an "empty" closed stream..
- */
+// --- public --------------------------------------------------------------------------------------
+
 BinaryOStream::BinaryOStream():
-	file_(0)
+	StreamBase()
 {
 }
 
-
-
-/** Construct stream by filename and open it.
- */
-BinaryOStream::BinaryOStream( const std::string& iFileName ):
-	file_(0)
-{
-	open(iFileName);
-}
-
-/** Close stream on destruction.
- */
 BinaryOStream::~BinaryOStream()
 {
-	close();
-}
-
-void BinaryOStream::open(const std::string& iFileName)
-{
-	close();
-	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "wb"));
-}
-
-void BinaryOStream::close()
-{
-	if (isOpen())
-	{
-		fclose( LASS_ENFORCE_POINTER(file_) );
-		file_ = 0;
-	}
-}
-
-bool BinaryOStream::isOpen() const
-{
-	return file_ != 0;
 }
 
 void BinaryOStream::flush()
 {
-	fflush( LASS_ENFORCE_POINTER(file_) );
+	doFlush();
 }
-
 
 #define LASS_IO_BINARY_O_STREAM_INSERTOR( type )\
 BinaryOStream& BinaryOStream::operator<<( type iIn )\
 {\
-	fwrite( &iIn, sizeof(type), 1, LASS_ENFORCE_POINTER(file_) );\
+	doWrite(&iIn, sizeof(type));\
 	return *this;\
 }
 
@@ -110,7 +73,7 @@ BinaryOStream& BinaryOStream::operator<<(const char* iIn)
 {
 	size_t length = strlen(iIn);
 	*this << length;
-	fwrite( iIn, length, 1, LASS_ENFORCE_POINTER(file_) );
+	doWrite(iIn, length);
 	return *this;
 }
 
@@ -118,20 +81,18 @@ BinaryOStream& BinaryOStream::operator<<(const std::string& iIn)
 {
 	size_t length = iIn.length() + 1;
 	*this << length;
-	fwrite( iIn.c_str(), length, 1, LASS_ENFORCE_POINTER(file_) );
+	doWrite(iIn.c_str(), length);
 	return *this;
 }
 
 /** write a buffer of bytes to the stream
- *  @par iIn pointer to buffer.
- *  @par iBufferLength length of buffer in bytes.
+ *  @param iBytes pointer to buffer.
+ *  @param iNumberOfBytes length of buffer in bytes.
  */
-void BinaryOStream::write(const void* iIn, size_t iBufferLength)
+void BinaryOStream::write(const void* iBytes, size_t iNumberOfBytes)
 {
-	fwrite( iIn, iBufferLength, 1, LASS_ENFORCE_POINTER(file_) );
+	doWrite(iBytes, iNumberOfBytes);
 }
-
-
 
 }
 

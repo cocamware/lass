@@ -24,20 +24,20 @@
  */
 
 #include "io_common.h"
-#include "binary_i_stream.h"
-#include "binary_o_stream.h"
+#include "binary_i_file.h"
+#include "binary_o_file.h"
 
 int main(int argc, char* argv[])
 {
 	{
-	lass::io::BinaryOStream testO("temp.txt");
+	lass::io::BinaryOFile testO("temp.txt");
 
 	testO << (long)5;
 	testO << std::string("This is a test");
 	}
 
 	{
-	lass::io::BinaryIStream testI("temp.txt");
+	lass::io::BinaryIFile testI("temp.txt");
 	long t;
 	std::string tstr;
 

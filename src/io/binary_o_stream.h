@@ -26,11 +26,7 @@
 
 
 /** @class lass::io::BinaryOStream
- *  @brief Output Stream for binary files.
- *
- *  @warning BinaryOStream does not flush.  so lass::io::ProxyOStream doesn't try to.
- *           If you ever teach BinaryOStream how to flush, don't forget to tell
- *           ProxyOStream!
+ *  @brief base class of binary output streams.
  */
 
 
@@ -41,9 +37,7 @@
 
 
 #include "io_common.h"
-#include <cstdio>
-
-
+#include "stream_base.h"
 
 namespace lass
 {
@@ -51,17 +45,13 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT BinaryOStream
+class LASS_DLL_EXPORT BinaryOStream: public StreamBase
 {
 public:
 
 	BinaryOStream();
-	BinaryOStream( const std::string& iFileName );
 	~BinaryOStream();
 
-	void open(const std::string& iFileName);
-	void close();
-	bool isOpen() const;
 	void flush();
 
 	BinaryOStream& operator<<( char iIn );
@@ -87,7 +77,8 @@ public:
 
 private:
 
-	FILE* file_;
+	virtual void doWrite(const void* iBytes, size_t iNumberOfBytes) = 0;
+	virtual void doFlush() = 0;
 };
 
 }

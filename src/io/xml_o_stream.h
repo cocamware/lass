@@ -37,6 +37,7 @@
 
 
 #include "io_common.h"
+#include "stream_base.h"
 
 namespace lass
 {
@@ -45,18 +46,11 @@ namespace io
 {
 
 
-class LASS_DLL_EXPORT XmlOStream
+class LASS_DLL_EXPORT XmlOStream: public StreamBase
 {
 public:
 
 	virtual ~XmlOStream() {}
-
-	virtual bool operator!() const = 0;
-	virtual std::ios::iostate rdstate() const = 0;
-	virtual bool good() const = 0;
-	virtual bool eof() const = 0;
-	virtual bool fail() const = 0;
-	virtual bool bad() const = 0;
 
 	virtual XmlOStream& operator<<( char iIn ) = 0;
 	virtual XmlOStream& operator<<( signed char iIn ) = 0;

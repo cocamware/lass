@@ -25,48 +25,54 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CLOCK_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_CLOCK_H
+/** @class lass::io::BinaryIFile
+ *  @brief Input Stream for binary files.
+ */
 
-#include "util_common.h"
-#include "impl/clock_impl.h"
-#include "../num/num_traits.h"
+
+
+#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_FILE_H
+#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_FILE_H
+
+
+
+#include "io_common.h"
+#include "binary_i_stream.h"
+#include <cstdio>
+
+
 
 namespace lass
 {
-namespace util
+
+namespace io
 {
 
-class Clock
+class LASS_DLL_EXPORT BinaryIFile: public BinaryIStream
 {
 public:
 
-	typedef double TTime;
-	typedef impl::ClockImpl::TTick TTick;
+	BinaryIFile();
+	BinaryIFile( const char* iFileName );
+	BinaryIFile( const std::string& iFileName );
+	~BinaryIFile();
 
-	explicit Clock(TTime iStartTime = 0);
-	void reset(TTime iStartTime = 0);
-
-	const TTime time() const { return startTime_ + resolution_ * this->tick(); }
-	const TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
-
-	const TTick frequency() const { return frequency_; }
-	const TTime resolution() const { return resolution_; }
-
-	static const std::string humanize(const TTime& iTime);
+	void open(const char* iFileName);
+	void open(const std::string& iFileName);
+	void close();
+	bool is_open() const;
 
 private:
 
-	TTime startTime_;
-	TTime resolution_;
-	TTick startTick_;
-	TTick frequency_;
+	void doRead(void* oOutput, size_t iNumberOfBytes);
+
+	FILE* file_;
 };
+
+
 
 }
 
 }
 
 #endif
-
-// EOF

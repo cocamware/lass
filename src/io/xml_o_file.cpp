@@ -86,6 +86,7 @@ void XmlOFile::open(const char* iFilename, std::ios::openmode iOpenMode)
 {
 	file_.open(iFilename, iOpenMode);
 	root_ = "";
+	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase
 }
 
 
@@ -96,6 +97,7 @@ void XmlOFile::open(const char* iFilename, const char* iRoot)
 	root_ = iRoot;
 	file_ << "<?xml version=\"1.0\"?>" << std::endl;
 	file_ << "<" << root_ << ">" << std::endl;
+	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase
 }
 
 
@@ -121,6 +123,7 @@ void XmlOFile::close()
 		file_ << "</" << root_ << ">" << std::endl;
 	}
 	file_.close();
+	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase
 }
 
 
@@ -132,25 +135,11 @@ bool XmlOFile::is_open()
 
 
 
-#define LASS_IO_XML_FILE_GETTER( type__, getter__ )\
-	type__ XmlOFile::getter__() const\
-	{\
-		return file_.getter__();\
-	}
-
-LASS_IO_XML_FILE_GETTER( bool, operator! )
-LASS_IO_XML_FILE_GETTER( std::ios::iostate, rdstate )
-LASS_IO_XML_FILE_GETTER( bool, good )
-LASS_IO_XML_FILE_GETTER( bool, eof )
-LASS_IO_XML_FILE_GETTER( bool, fail )
-LASS_IO_XML_FILE_GETTER( bool, bad )
-
-
-
 #define LASS_IO_XML_O_FILE_INSERTOR( type__ )\
 	XmlOFile& XmlOFile::operator<<( type__ iIn )\
 	{\
 		file_ << iIn;\
+		clear(file_.rdstate());\
 		return *this;\
 	}
 
@@ -174,6 +163,7 @@ LASS_IO_XML_O_FILE_INSERTOR( const std::string& )
 XmlOFile& XmlOFile::operator<<( std::ostream& (*iIn) (std::ostream&) )
 {
 	file_ << iIn;
+	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase
 	return *this;
 }
 

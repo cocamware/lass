@@ -44,18 +44,22 @@ BinaryIStream& BinaryIStream::operator>>(std::vector<T>& oOut)
 {
 	unsigned size = 0;
 	*this >> size;
+	if (!good())
+	{
+		return *this;
+	}
 
 	std::vector<T> result;
 	result.resize(size);
 
-	for (unsigned i = 0; i < size; ++i)
-	{
-		T t;
-		*this >> t;
-		result.push_back(t);
-	}
+		for (unsigned i = 0; i < size; ++i)
+		{
+			T t;
+			*this >> t;
+			result.push_back(t);
+		}
 
-	oOut.swap(result);  // "copy" result to output
+		oOut.swap(result);  // "copy" result to output
 	return *this;
 }
 

@@ -26,67 +26,25 @@
 #include "io_common.h"
 #include "binary_i_stream.h"
 
-#include "../util/scoped_array.h"
-
-#include <cstdio>
-
-
-
 namespace lass
 {
 
 namespace io
 {
 
-/** Construct an "empty" closed stream..
- */
 BinaryIStream::BinaryIStream():
-	file_(0)
+	StreamBase()
 {
 }
 
-
-
-/** Construct stream by filename and open it.
- */
-BinaryIStream::BinaryIStream( const std::string& iFileName ):
-	file_(0)
-{
-	open(iFileName);
-}
-
-/** Close stream on destruction.
- */
 BinaryIStream::~BinaryIStream()
 {
-	close();
 }
-
-void BinaryIStream::open(const std::string& iFileName)
-{
-	close();
-	file_ = LASS_ENFORCE_POINTER(fopen(iFileName.c_str(), "rb"));
-}
-
-void BinaryIStream::close()
-{
-	if (isOpen())
-	{
-		fclose( LASS_ENFORCE_POINTER((file_)) );
-		file_ = 0;
-	}
-}
-
-bool BinaryIStream::isOpen() const
-{
-	return file_ != 0;
-}
-
 
 #define LASS_IO_BINARY_I_STREAM_EXTRACTOR( type )\
 BinaryIStream& BinaryIStream::operator>>( type & oOut )\
 {\
-	fread( &oOut, sizeof( type ), 1, LASS_ENFORCE_POINTER((file_)) );\
+	doRead(&oOut, sizeof(type));\
 	return *this;\
 }
 
@@ -109,10 +67,15 @@ BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
 {
 	size_t length;
 	*this >> length;
-	util::ScopedArray<char> buffer(new char[length+2]);  // [TDM] null character storage + safety :o)
-	fread(buffer.get(), length, 1, LASS_ENFORCE_POINTER((file_)));
-	oOut = std::string(buffer.get());
-
+	if (good())
+	{
+		std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
+		doRead(&buffer[0], length);
+		if (good())
+		{
+			oOut = std::string(&buffer[0]);
+		}
+	}
 	return *this;
 }
 

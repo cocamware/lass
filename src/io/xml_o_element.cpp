@@ -39,6 +39,7 @@ XmlOElement::XmlOElement(XmlOStream& iParent, const std::string& iName):
 	name_(iName)
 {
 	parent_ << "<" << name_ << ">" << std::endl;
+	clear(parent_.rdstate()); // copy state from parent_ to io::StreamBase
 }
 
 
@@ -50,25 +51,11 @@ XmlOElement::~XmlOElement()
 
 
 
-#define LASS_IO_XML_ELEMENT_GETTER( type__, getter__ )\
-	type__ XmlOElement::getter__() const\
-	{\
-		return parent_.getter__();\
-	}
-
-LASS_IO_XML_ELEMENT_GETTER( bool, operator! )
-LASS_IO_XML_ELEMENT_GETTER( std::ios::iostate, rdstate )
-LASS_IO_XML_ELEMENT_GETTER( bool, good )
-LASS_IO_XML_ELEMENT_GETTER( bool, eof )
-LASS_IO_XML_ELEMENT_GETTER( bool, fail )
-LASS_IO_XML_ELEMENT_GETTER( bool, bad )
-
-
-
 #define LASS_IO_XML_O_ELEMENT_INSERTOR( type__ )\
 	XmlOElement& XmlOElement::operator<<( type__ iIn )\
 	{\
 		parent_ << iIn;\
+		clear(parent_.rdstate());\
 		return *this;\
 	}
 
@@ -92,6 +79,7 @@ LASS_IO_XML_O_ELEMENT_INSERTOR( const std::string& )
 XmlOElement& XmlOElement::operator<<( std::ostream& (*iIn) (std::ostream&) )
 {
 	parent_ << iIn;
+	clear(parent_.rdstate()); // copy state from parent_ to io::StreamBase
 	return *this;
 }
 

@@ -32,6 +32,7 @@
 #include "test_common.h"
 
 #include "../prim/simple_polygon_2d.h"
+#include "../prim/aabb_2d.h"
 #include "../prim/ray_3d.h"
 #include "../meta/is_same_type.h"
 
@@ -148,6 +149,28 @@ void testPrimSimplePolygon2D()
 	BOOST_CHECK_NO_THROW(polygon.insert(37, TPoint(51, 95))); // 37 => 0
 	BOOST_CHECK_EQUAL(polygon.size(), 2);
 	BOOST_CHECK_NO_THROW(polygon.erase(37)); // 37 => 1
+
+	// a vector of points
+	//
+	std::cout << "BEEN HERE\n";
+	std::vector<TPoint> points;
+	points.push_back(TPoint(2, 0));
+	points.push_back(TPoint(8, 1));
+	points.push_back(TPoint(10, 5));
+	points.push_back(TPoint(5, 10));
+	points.push_back(TPoint(0, 0));
+	polygon = TPolygon(points.begin(), points.end());
+	BOOST_CHECK_EQUAL(polygon.size(), 5);
+	for (int i = 0; i < 5; ++i)
+	{
+		BOOST_CHECK_EQUAL(polygon[i], points[i]);
+	}
+	prim::Aabb2D<T> box = prim::aabb(polygon);
+    BOOST_CHECK_EQUAL(box.min().x, 0); 
+    BOOST_CHECK_EQUAL(box.min().y, 0); 
+    BOOST_CHECK_EQUAL(box.max().x, 10); 
+    BOOST_CHECK_EQUAL(box.max().y, 10); 
+	std::cout << "DONE THAT\n";
 }
 
 }

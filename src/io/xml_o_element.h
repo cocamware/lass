@@ -62,13 +62,6 @@ public:
 	XmlOElement(XmlOStream& iParent, const std::string& iName);
 	virtual ~XmlOElement();
 
-	virtual bool operator!() const;
-	virtual std::ios::iostate rdstate() const;
-	virtual bool good() const;
-	virtual bool eof() const;
-	virtual bool fail() const;
-	virtual bool bad() const;
-
 	virtual XmlOElement& operator<<( char iIn );
 	virtual XmlOElement& operator<<( signed char iIn );
 	virtual XmlOElement& operator<<( unsigned char iIn );

@@ -31,8 +31,8 @@
 
 #include "test_common.h"
 
-#include "../io/binary_i_stream.h"
-#include "../io/binary_o_stream.h"
+#include "../io/binary_i_file.h"
+#include "../io/binary_o_file.h"
 
 namespace lass
 {
@@ -47,13 +47,13 @@ void testIoBinaryStream()
 	std::string b = "This is a test";
 
 	{
-	BinaryOStream testO("temp.txt");
+	BinaryOFile testO("temp.txt");
 	testO << a;
 	testO << b;
 	}
 
 	{
-	BinaryIStream testI("temp.txt");
+	BinaryIFile testI("temp.txt");
 	long t;
 	std::string tstr;
 

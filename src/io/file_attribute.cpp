@@ -71,7 +71,7 @@ bool fileDoesExist(const std::string& iFileName)
  */
 std::string fileExtension(const std::string& iFileName)
 {
-	std::string::size_type lastDot = iFileName.rfind('.');
+	std::string::size_type lastDot = iFileName.rfind(extensionSeperator);
 	return lastDot!= std::string::npos ? iFileName.substr(lastDot + 1) : "";
 }
 
@@ -85,7 +85,7 @@ std::string fileExtension(const std::string& iFileName)
  */
 std::string fileWithoutExtension(const std::string& iFileName)
 {
-	return iFileName.substr(0, iFileName.rfind('.'));
+	return iFileName.substr(0, iFileName.rfind(extensionSeperator));
 }
 
 
@@ -98,7 +98,8 @@ std::string fileWithoutExtension(const std::string& iFileName)
  */
 std::string filePath(const std::string& iFileName)
 {
-	std::string::size_type lastSlash = iFileName.find_last_of("/\\");
+	const char seperators[] = { pathSeperator, pathAlternativeSeperator, '\0' }; 
+	std::string::size_type lastSlash = iFileName.find_last_of(seperators);
 	return lastSlash != std::string::npos ? iFileName.substr(0, lastSlash) : "";
 }
 
@@ -112,7 +113,8 @@ std::string filePath(const std::string& iFileName)
  */
 std::string fileWithoutPath(const std::string& iFileName)
 {
-	std::string::size_type lastSlash = iFileName.find_last_of("/\\");
+	const char seperators[] = { pathSeperator, pathAlternativeSeperator, '\0' }; 
+	std::string::size_type lastSlash = iFileName.find_last_of(seperators);
 	return lastSlash != std::string::npos ? iFileName.substr(lastSlash + 1) : iFileName;
 }
 

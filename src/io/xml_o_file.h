@@ -101,13 +101,6 @@ public:
 	void close();
 	bool is_open();
 
-	virtual bool operator!() const;
-	virtual std::ios::iostate rdstate() const;
-	virtual bool good() const;
-	virtual bool eof() const;
-	virtual bool fail() const;
-	virtual bool bad() const;
-
 	virtual XmlOFile& operator<<( char iIn );
 	virtual XmlOFile& operator<<( signed char iIn );
 	virtual XmlOFile& operator<<( unsigned char iIn );

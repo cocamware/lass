@@ -53,7 +53,7 @@ namespace prim
  *  This is the default policy
  *
  *  NoDegenerate will not prevent a primitive to become degenerate, but it will check some
- *  conditions will check some conditions when you try to do "unsafe" operations and throws
+ *  basic conditions when you try to do "unsafe" operations and throws
  *  an exception on failure.  e.g. CheckDegenerate will not allow you to get the @c edge(0)
  *  or @c vector(0) of a polygon with only one vertex.
  *
@@ -114,7 +114,7 @@ struct StrictNoDegenerate
 	template <class Primitive>
 	static void enforceSimple(const Primitive& iPrimitive)
 	{
-		if (!iPrimtive.isSimple())
+		if (!iPrimitive.isSimple())
 		{
 			LASS_THROW("polygon is not simple.");
 		}

@@ -26,7 +26,7 @@
 
 
 /** @class lass::io::BinaryIStream
- *  @brief Input Stream for binary files.
+ *  @brief base class of binary input streams.
  */
 
 
@@ -34,12 +34,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_STREAM_H
 #define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_STREAM_H
 
-
-
 #include "io_common.h"
-#include <string>
-
-
+#include "stream_base.h"
 
 namespace lass
 {
@@ -47,17 +43,12 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT BinaryIStream
+class LASS_DLL_EXPORT BinaryIStream: public StreamBase
 {
 public:
 
 	BinaryIStream();
-	BinaryIStream( const std::string& iFileName );
 	~BinaryIStream();
-
-	void open(const std::string& iFileName);
-	void close();
-	bool isOpen() const;
 
 	BinaryIStream& operator>>( char& oOut );
 	BinaryIStream& operator>>( signed char& oOut );
@@ -80,7 +71,7 @@ public:
 
 private:
 
-	FILE* file_;
+	virtual void doRead(void* oOutput, size_t iNumberOfBytes) = 0;
 };
 
 

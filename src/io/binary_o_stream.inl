@@ -42,7 +42,7 @@ namespace io
 template <typename T>
 BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& iIn)
 {
-	const unsigned size = iIn.size();
+	const std::vector<T>::size_type size = iIn.size();
 	*this << size;
 	for (unsigned i = 0; i < size; ++i)
 	{
