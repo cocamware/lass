@@ -228,6 +228,8 @@ namespace lass
 			PY_HEADER( lass::python::PyObjectPlus ) ;
 
 			std::string	repr(void);// _repr method
+
+			typedef FNSampled8::TBaseType TBaseType;
 				
 			PyObject* pyMakeUnit(PyObject *args);
 			PyObject* pyMakeZero(PyObject *args);
@@ -235,6 +237,17 @@ namespace lass
 			PyObject* pyMakeGaussian(PyObject *args);
 			PyObject* pyMakeProbGaussian(PyObject *args);
 			PyObject* pyMakeTrapezoidal(PyObject *args);
+
+			TBaseType	getMembership(util::CallTraits<TBaseType>::TParam iX) const { return value.getMembership(iX); }
+			TBaseType	getEntropy() const { return value.getEntropy(); }
+			TBaseType	getDifferentialEntropy() const { return value.getDifferentialEntropy(); }
+			TBaseType	getNonspecificity() const { return value.getNonspecificity(); }
+			TBaseType	getDiscreteNonspecificity() const { return value.getDiscreteNonspecificity(); }
+			TBaseType	getDiscord() const { return value.getDiscord(); }
+			TBaseType	getDiscreteDiscord() const { return value.getDiscreteDiscord(); }
+
+			TBaseType	defuzzifyCentroid() const { return value.defuzzifyCentroid(); }
+			TBaseType	defuzzifyMaxMembership() const { return value.defuzzifyMaxMembership(); }
 
 		public:
 			FNSampled8	value;

@@ -905,6 +905,16 @@ namespace lass
 		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeProbGaussian, "makeProbGaussian", NULL )
 		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeTrapezoidal, "makeTrapezoidal", NULL )
 
+		PY_CLASS_METHOD( PyFNSampled8, getMembership );
+		PY_CLASS_METHOD( PyFNSampled8, getEntropy );
+		PY_CLASS_METHOD( PyFNSampled8, getDifferentialEntropy );
+		PY_CLASS_METHOD( PyFNSampled8, getNonspecificity );
+		//PY_CLASS_METHOD( PyFNSampled8, getDiscreteNonspecificity );
+		PY_CLASS_METHOD( PyFNSampled8, getDiscord );
+		//PY_CLASS_METHOD( PyFNSampled8, getDiscreteDiscord );
+		PY_CLASS_METHOD( PyFNSampled8, defuzzifyCentroid );
+		PY_CLASS_METHOD( PyFNSampled8, defuzzifyMaxMembership );
+
 	}
 	namespace python
 	{
