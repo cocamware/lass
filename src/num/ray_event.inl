@@ -27,40 +27,40 @@
 
 #include "ray_event.h"
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-RayEvent::EventType RayEventImpl<T, M, D, A, C>::GetType() const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+RayEventType RayEventImpl<TN, T, M, D, A, C>::GetType() const
 {
 	return T;
 }
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-Medium RayEventImpl<T, M, D, A, C>::GetMedium(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+Medium RayEventImpl<TN, T, M, D, A, C>::GetMedium(int iIndex) const
 {
     return CheckMediumIndex(iIndex) ? medium_[iIndex] : 0;
 }
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-double RayEventImpl<T, M, D, A, C>::GetDistance(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+TN RayEventImpl<TN, T, M, D, A, C>::GetDistance(int iIndex) const
 {
     return CheckDistanceIndex(iIndex) ? distance_[iIndex] : 0.0;
 }
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-double RayEventImpl<T, M, D, A, C>::GetAngle(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+TN RayEventImpl<TN, T, M, D, A, C>::GetAngle(int iIndex) const
 {
     return CheckAngleIndex(iIndex) ? angle_[iIndex] : 0.0;
 }
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-void RayEventImpl<T, M, D, A, C>::GetCoords(int iIndex,double& oX,double& oY,double& oZ) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+void RayEventImpl<TN, T, M, D, A, C>::GetCoords(int iIndex,TN& oX,TN& oY,TN& oZ) const
 {
     if (CheckCoordIndex(iIndex))
     {
@@ -72,8 +72,8 @@ void RayEventImpl<T, M, D, A, C>::GetCoords(int iIndex,double& oX,double& oY,dou
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-void RayEventImpl<T, M, D, A, C>::SetMedium(int iIndex, Medium iMedium)
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+void RayEventImpl<TN, T, M, D, A, C>::SetMedium(int iIndex, Medium iMedium)
 {
 	if (CheckMediumIndex(iIndex))
     {
@@ -83,8 +83,8 @@ void RayEventImpl<T, M, D, A, C>::SetMedium(int iIndex, Medium iMedium)
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-void RayEventImpl<T, M, D, A, C>::SetDistance(int iIndex, double iDistance)
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+void RayEventImpl<TN, T, M, D, A, C>::SetDistance(int iIndex, TN iDistance)
 {
 	if (CheckDistanceIndex(iIndex))
     {
@@ -94,8 +94,8 @@ void RayEventImpl<T, M, D, A, C>::SetDistance(int iIndex, double iDistance)
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-void RayEventImpl<T, M, D, A, C>::SetAngle(int iIndex, double iAngle)
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+void RayEventImpl<TN, T, M, D, A, C>::SetAngle(int iIndex, TN iAngle)
 {
 	if (CheckAngleIndex(iIndex))
     {
@@ -105,8 +105,8 @@ void RayEventImpl<T, M, D, A, C>::SetAngle(int iIndex, double iAngle)
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-void RayEventImpl<T, M, D, A, C>::SetCoords(int iIndex, double iX, double iY, double iZ)
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+void RayEventImpl<TN, T, M, D, A, C>::SetCoords(int iIndex, TN iX, TN iY, TN iZ)
 {
 	if (CheckDistanceIndex(iIndex))
     {
@@ -120,8 +120,8 @@ void RayEventImpl<T, M, D, A, C>::SetCoords(int iIndex, double iX, double iY, do
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-bool RayEventImpl<T, M, D, A, C>::CheckMediumIndex(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+bool RayEventImpl<TN, T, M, D, A, C>::CheckMediumIndex(int iIndex) const
 {
 	if ((iIndex<0) || (iIndex>=M))
     {
@@ -133,8 +133,8 @@ bool RayEventImpl<T, M, D, A, C>::CheckMediumIndex(int iIndex) const
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-bool RayEventImpl<T, M, D, A, C>::CheckDistanceIndex(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+bool RayEventImpl<TN, T, M, D, A, C>::CheckDistanceIndex(int iIndex) const
 {
 	if ((iIndex<0) || (iIndex>=D))
     {
@@ -146,8 +146,8 @@ bool RayEventImpl<T, M, D, A, C>::CheckDistanceIndex(int iIndex) const
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-bool RayEventImpl<T, M, D, A, C>::CheckAngleIndex(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+bool RayEventImpl<TN, T, M, D, A, C>::CheckAngleIndex(int iIndex) const
 {
 	if ((iIndex<0) || (iIndex>=A))
     {
@@ -159,8 +159,8 @@ bool RayEventImpl<T, M, D, A, C>::CheckAngleIndex(int iIndex) const
 
 
 
-template <RayEvent::EventType T, unsigned M, unsigned D, unsigned A, unsigned C>
-bool RayEventImpl<T, M, D, A, C>::CheckCoordIndex(int iIndex) const
+template <class TN, RayEventType T, unsigned M, unsigned D, unsigned A, unsigned C>
+bool RayEventImpl<TN, T, M, D, A, C>::CheckCoordIndex(int iIndex) const
 {
 	if ((iIndex<0) || (iIndex>=C))
     {

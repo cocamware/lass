@@ -303,6 +303,16 @@ bool ccw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
 	return	doubleTriangleArea(iA,iB,iC) > static_cast<T>(0.0);
 }
 
+/** returns true when the line iB->iC is clockwise oriented with respect to iA->iB
+ *  @relates lass::prim::Point2D 
+ */
+template<typename T> 
+bool cw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+{
+	return	doubleTriangleArea(iA,iB,iC) < static_cast<T>(0.0);
+}
+
+
 /** returns true when the line iB->iC is counter clockwise oriented with respect to iA->iB.
  *  When iC is in line of iA and iB also returns true.
  *  @relates lass::prim::Point2D 
@@ -311,6 +321,16 @@ template<typename T>
 bool weakCcw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
 {
 	return	doubleTriangleArea(iA,iB,iC) >= static_cast<T>(0.0);
+}
+
+/** returns true when the line iB->iC is counter clockwise oriented with respect to iA->iB.
+ *  When iC is in line of iA and iB also returns true.
+ *  @relates lass::prim::Point2D 
+ */
+template<typename T> 
+bool weakCw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+{
+	return	doubleTriangleArea(iA,iB,iC) <= static_cast<T>(0.0);
 }
 
 /** returns true when the point iD is strictly (within numerical precision) in the circle 

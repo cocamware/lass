@@ -129,7 +129,9 @@ template<typename T> lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream
 
 
 template<typename T> T doubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
+template<typename T> bool cw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
 template<typename T> bool ccw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
+template<typename T> bool weakCw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
 template<typename T> bool weakCcw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
 template<typename T> bool inCircle( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC, const Point2D<T>& iD );
 

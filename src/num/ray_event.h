@@ -43,47 +43,46 @@ namespace num
 typedef void*		Medium;
 
 
+enum enumEventType_ { Propagation, Reflection, DiffuseReflection, Diffraction };	
+typedef	enum enumEventType_	RayEventType;
+
+template<class T>
 class RayEvent  
 {
-
-public:
-	enum enumEventType_ { Propagation, Reflection, DiffuseReflection, Diffraction };	
-	typedef	enum enumEventType_	EventType;
-
 public:
 	virtual ~RayEvent() {}
 
-	virtual	EventType GetType() const = 0;
+	virtual	RayEventType GetType() const = 0;
 
 	virtual	Medium	GetMedium(int iIndex) const = 0;
-	virtual double  GetDistance(int iIndex) const = 0;
-	virtual double  GetAngle(int iIndex) const = 0;
-	virtual void	GetCoords(int iIndex, double& oX, double& oY, double& oZ) const = 0;
+	virtual T  GetDistance(int iIndex) const = 0;
+	virtual T  GetAngle(int iIndex) const = 0;
+	virtual void	GetCoords(int iIndex, T& oX, T& oY, T& oZ) const = 0;
 
 	virtual	void SetMedium(int iIndex,Medium iMedium) = 0;
-	virtual void SetDistance(int iIndex,double iDistance) = 0;
-	virtual void SetAngle(int iIndex,double iAngle) = 0;
-	virtual void SetCoords(int iIndex, double iX, double iY, double iZ) = 0;
+	virtual void SetDistance(int iIndex,T iDistance) = 0;
+	virtual void SetAngle(int iIndex,T iAngle) = 0;
+	virtual void SetCoords(int iIndex, T iX, T iY, T iZ) = 0;
 };
 
 
 
-template <RayEvent::EventType type, unsigned numMedia, unsigned numDistances, unsigned numAngles, unsigned numCoords>
-class RayEventImpl: public RayEvent
+template <class T, RayEventType type, unsigned numMedia, unsigned numDistances, unsigned numAngles, unsigned numCoords>
+class RayEventImpl: public RayEvent<T>
 {
 public:
 
-	inline	EventType GetType() const;
+	inline	RayEventType GetType() const;
 
 	inline	Medium	GetMedium(int iIndex) const;
-	inline  double  GetDistance(int iIndex) const;
-	inline  double  GetAngle(int iIndex) const;
-	inline  void	GetCoords(int iIndex, double& oX, double& oY, double& oZ) const;
+	inline  T  GetDistance(int iIndex) const;
+	inline  T  GetAngle(int iIndex) const;
+	inline  void	GetCoords(int iIndex, T& oX, T& oY, T& oZ) const;
 
 	inline	void    SetMedium(int iIndex,Medium iMedium);
-	inline  void    SetDistance(int iIndex,double iDistance);
-	inline  void    SetAngle(int iIndex,double iAngle);
-	inline  void    SetCoords(int iIndex, double iX, double iY, double iZ);
+	inline  void    SetDistance(int iIndex,T iDistance);
+	inline  void    SetAngle(int iIndex,T iAngle);
+	inline  void    SetCoords(int iIndex, T iX, T iY, T iZ);
 
 private:
 
@@ -93,48 +92,51 @@ private:
     bool CheckCoordIndex(int iIndex) const;
 
 	lass::util::FixedArray<Medium, numMedia> medium_;
-    lass::util::FixedArray<double, numDistances> distance_;
-    lass::util::FixedArray<double, numAngles> angle_;
-    lass::util::FixedArray<double, numCoords> x_;
-    lass::util::FixedArray<double, numCoords> y_;
-    lass::util::FixedArray<double, numCoords> z_;
+    lass::util::FixedArray<T, numDistances> distance_;
+    lass::util::FixedArray<T, numAngles> angle_;
+    lass::util::FixedArray<T, numCoords> x_;
+    lass::util::FixedArray<T, numCoords> y_;
+    lass::util::FixedArray<T, numCoords> z_;
 };
 
 //
 /////////////////////////////////////////////////////
 //
 
-typedef RayEventImpl<RayEvent::Propagation, 1, 2, 0, 2> PropagationEvent;
-// medium
-// distance
-// coord: 0 = from
-//        1 = to
+template<class T>
+struct RayEventTypes
+{
+	typedef RayEventImpl<T, Propagation, 1, 2, 0, 2> PropagationEvent;
+	// medium
+	// distance
+	// coord: 0 = from
+	//        1 = to
 
-typedef RayEventImpl<RayEvent::Reflection, 2, 2, 1, 0> ReflectionEvent;
-// medium: 0 = normally air, 1 = medium upon which is reflected
-// distance: 
-//	0 distance from source to medium reflection point
-//	1 distance from medium reflection point to receiver
-// angle: angle with the normal 
+	typedef RayEventImpl<T, Reflection, 2, 2, 1, 0> ReflectionEvent;
+	// medium: 0 = normally air, 1 = medium upon which is reflected
+	// distance: 
+	//	0 distance from source to medium reflection point
+	//	1 distance from medium reflection point to receiver
+	// angle: angle with the normal 
 
-typedef RayEventImpl<RayEvent::DiffuseReflection, 2, 0, 2, 0> DiffuseReflectionEvent;
-// medium: 0 = normally air, 
-//         1 = medium upon which is reflected
-// angle: 0 = incoming angle, 
-//        1 = outgoing angle with the normal
+	typedef RayEventImpl<T, DiffuseReflection, 2, 0, 2, 0> DiffuseReflectionEvent;
+	// medium: 0 = normally air, 
+	//         1 = medium upon which is reflected
+	// angle: 0 = incoming angle, 
+	//        1 = outgoing angle with the normal
 
-typedef RayEventImpl<RayEvent::Diffraction, 3, 3, 4, 0> DiffractionEvent;
-// medium: 0 = normally air
-//         1 = medium upon which incoming ray is reflected, 
-//         2 = medium upon which outgoing ray is reflected */
-// distance: 0 = distance from first point to wedge, r in cylindrical coord
-//           1 = distance from wedge to second point, r in cylindrical coord
-//			 2 = distance along z-axis in cylindrical coordinates
-// angle: 0 = angle between reflecting boundaries
-//        1 = incoming angle with the first medium
-//        2 = outgoing angle with the second medium
-//		  3 = Keller cone angle
-
+	typedef RayEventImpl<T,Diffraction, 3, 3, 4, 0> DiffractionEvent;
+	// medium: 0 = normally air
+	//         1 = medium upon which incoming ray is reflected, 
+	//         2 = medium upon which outgoing ray is reflected */
+	// distance: 0 = distance from first point to wedge, r in cylindrical coord
+	//           1 = distance from wedge to second point, r in cylindrical coord
+	//			 2 = distance along z-axis in cylindrical coordinates
+	// angle: 0 = angle between reflecting boundaries
+	//        1 = incoming angle with the first medium
+	//        2 = outgoing angle with the second medium
+	//		  3 = Keller cone angle
+};
 
 #include "ray_event.inl"
 

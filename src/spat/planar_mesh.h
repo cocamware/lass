@@ -41,6 +41,7 @@
 #include "../prim/aabb_2d.h"
 #include "../prim/ray_2d.h"
 #include "../prim/line_segment_2d.h"
+#include "../prim/side.h"
 #include "../util/callback_r_1.h"
 #include "../io/matlab_o_stream.h"
 
@@ -67,6 +68,8 @@ namespace spat
 	{
 	public:
 		typedef lass::prim::Point2D<T> TPoint2D;
+		typedef lass::prim::Vector2D<T> TVector2D;
+		typedef lass::prim::Line2D<T> TLine2D;
 		typedef lass::prim::Ray2D<T, prim::Unnormalized, prim::Unbounded > TRay2D;
 		typedef lass::prim::LineSegment2D<T> TLineSegment2D;
 
@@ -129,6 +132,7 @@ namespace spat
 
        	TEdge*	locate( const TPoint2D& iPoint ) const;
 		TEdge*	insertSite( const TPoint2D& iPoint, bool makeDelaunay = true);
+		TEdge*	insertEdge( const TLineSegment2D& iSegment, bool makeDelaunay = true);
 		bool	deleteEdge( TEdge* iEdge );
 		long	edgeCount() const;
 		void	makeMaximalConvexPolygon();
@@ -168,6 +172,7 @@ namespace spat
 		TEdge* makeEdge( const TPoint2D& a, const TPoint2D& b, bool makeConstrained );
 		void swap( TEdge* iEdge );
 		TEdge* connect( TEdge* a, TEdge* b );
+		void triangulate( TEdge* iEdge );
 		void fixEdge( TEdge* e );
 		void splitEdge(TEdge *e, const TPoint2D& iPoint );
 		TPoint2D snap(const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
@@ -676,6 +681,57 @@ namespace spat
         return bruteForceLocate(iPoint);
 	}
 
+
+	TEMPLATE_DEF
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::triangulate( TEdge* iEdge )
+	// Triangulates the left face of first, which is assumed to be closed.
+	// It is also assumed that all the vertices of that face lie to the
+	// left of last (the edge preceeding first).	
+	// This is NOT intended as a general simple polygon triangulation
+	// routine. It is called by InsertEdge in order to restore a
+	// triangulation after an edge has been inserted.
+	// The routine consists of two loops: the outer loop continues as
+	// long as the left face is not a triangle. The inner loop examines 
+	// successive triplets of vertices, creating a triangle whenever the
+	// triplet is counterclockwise.
+	{
+		TEdge *first = iEdge;
+		TEdge *a, *b, *e, *t1, *t2, *last = first->lPrev();
+
+		while (first->lNext()->lNext() != last) 
+		{
+			e = first->lNext();
+			t1 = first;
+			while (e != last) 
+			{
+				t2 = e->lNext();
+				if (t2 == last && t1 == first)
+					break;
+				if (leftOf(dest(e),t1))
+				{
+					if (t1 == first)
+						t1 = first = connect(e, t1)->sym();
+					else
+						t1 = connect(e, t1)->sym();
+					a = t1->oPrev(), b = t1->dNext();
+					fixEdge(a);
+					fixEdge(b);
+					e = t2;
+				} 
+				else 
+				{
+					t1 = e;
+					e = t2;
+				}
+			}
+		}
+		a = last->lNext(), b = last->lPrev();
+		fixEdge(a);
+		fixEdge(b);
+		fixEdge(last);
+	}
+
+
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertSite( const TPoint2D& iPoint, bool makeDelaunay )
 	{
@@ -784,6 +840,126 @@ namespace spat
 			}
 		}
 		return e;
+	}
+
+
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, bool makeDelaunay = true)
+	{
+		TEdge *ea, *eb;
+		TPoint2D aa, bb;
+		if (ea = insertSite(iSegment.tail()))
+			aa = org(ea);
+		if (eb = insertSite(iSegment.head()))
+			bb = org(eb);
+	
+		if (ea == NULL || eb == NULL) 
+			throw std::runtime_error("insertEdge: could not insert endpoints of edge");
+
+		ea=locate(aa);
+		if (ea==NULL) 
+			throw std::runtime_error("insertEdge: could not locate an endpoint");
+
+		if (!(aa == org(ea)))
+			ea = ea->sym();
+		if (!(aa == org(ea)))
+			throw std::runtime_error("insertEdge: point a is not an endpoint of ea");
+
+		if (aa == bb) 
+			throw std::runtime_error("insertEdge: both ends map to same vertex");
+
+		// aa and bb are vertices in the mesh; our goal is to connect
+		// them by a sequence of one or more edges.
+
+		TLine2D	ab(aa,bb);
+		TVector2D dd=bb-aa;
+		TEdge *t,*ne;
+
+		while (org(ea)!=iSegment.head())
+		{
+			t = ea;
+			do
+			{
+				if ( ab.classify(dest(ea))==prim::sSurface && dot(dest(ea)-aa,dd)>0)
+					break;
+				if ( ab.classify(dest(ea->oNext()))==prim::sSurface 
+					&&	dot(dest(ea->oNext())-aa,dd)>0 )
+				{
+					ea = ea->oNext();
+					break;
+				}
+				if (!cw(dest(ea),bb,aa) && cw(dest(ea->oNext()),bb,aa))
+					break;
+				ea = ea->oNext();
+				if (ea==t)
+					throw std::runtime_error("insertEdge: infinite loop");
+			} while (true);
+
+			// check to see if an edge is already there:
+			if ( ab.classify(dest(ea))==prim::sSurface)
+			{
+				ea->quadEdge()->edgeConstrain();
+				aa = dest(ea);
+				if (aa==bb)
+#pragma LASS_TODO("Check if returned edge doesn't violate postconditions")
+					return ea;
+				ab = TLine2D(aa,bb);
+				dd = bb-aa;
+				ea = ea->sym()->oNext();
+				continue;
+			}
+			t = ea;
+			while (true)
+			{
+
+				if (ab.classify(dest(t->lNext()))==prim::sSurface)
+				{
+#pragma LASS_TODO("does this only work for triangles?!")
+					if (ea==t->lNext()->lNext()->lNext())
+					{
+						// edge is already there
+						t->lNext()->lNext()->quadEdge()->edgeConstrain();
+						ea = t->lNext()->sym();
+						break;
+					} 
+					else 
+					{
+						// need a new edge
+						ne = connect(t->lNext(), ea); 
+						ne->quadEdge()->edgeConstrain();
+						ea = t->lNext()->sym();
+						triangulate(ne->lNext());
+						triangulate(ne->oPrev());
+						break;
+					}
+				}
+
+				if ( ccw(aa,bb, dest(t->lNext())) )
+				{
+					if (!t->lNext()->isConstrained())
+						deleteEdge(t->lNext());
+					else
+					{
+						TPoint2D x;
+						TLine2D other(org(t->lNext()),dest(t->lNext()));
+						if (prim::intersect(ab,other,x)!=prim::rOne)
+							throw std::runtime_error("insertEdge: could not find intersection");
+						splitEdge(t->lNext(),x);
+						ne = connect(t->lNext(), ea); 
+						ne->quadEdge()->edgeConstrain();
+
+						ea = t->lNext()->sym();
+						triangulate(ne->lNext());
+						triangulate(ne->oPrev());
+						break;
+					}
+				}
+				else
+				{
+					t = t->lNext();
+				}
+			}
+		}
 	}
 
 
