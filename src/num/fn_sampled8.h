@@ -40,8 +40,6 @@ namespace lass
 {
 	namespace num
 	{
-		class PyFNSampled8;
-
 		/** Sampled Fuzzy Number with 8 control points.  A fuzzy number sampled with 4 alpha-cuts.  The alpha-cuts are
 		*   statically determined, otherwise the alphas would need to be stored too.  Other classes
 		*   can be used for that.  Speed was the main interest in developing this class.
@@ -109,6 +107,7 @@ namespace lass
 					void    makeGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation);
 					void    makeProbGaussian(util::CallTraits<TBaseType>::TParam mean, util::CallTraits<TBaseType>::TParam stddeviation);
 					void    makeTrapezoidal(util::CallTraits<TBaseType>::TParam a,util::CallTraits<TBaseType>::TParam b,util::CallTraits<TBaseType>::TParam c,util::CallTraits<TBaseType>::TParam d);
+					void	clamp(util::CallTraits<TBaseType>::TParam left,util::CallTraits<TBaseType>::TParam right);
 
 			FNSampled8& operator+=(const FNSampled8& sfn);
 			FNSampled8& operator-=(const FNSampled8& sfn);
@@ -218,7 +217,7 @@ namespace lass
 		FNSampled8  operator*( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
 		FNSampled8  operator/( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
 
-
+		inline FNSampled8& clamp(FNSampled8& iV, const FNSampled8::TBaseType& iLeft, const FNSampled8::TBaseType& iRight ) { iV.clamp(iLeft,iRight); return iV; }
 
 		/** Shadow type for FNSampled8 for use in Python.  This makes the original class
 		*   as lightweight as possible and once used in Python speed/footprint isn't that
@@ -308,15 +307,6 @@ namespace lass
 		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
 	}
 
-	/*
-	namespace python
-	{
-		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
-		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
-		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
-	}
-	*/
-
 	namespace io
 	{
 		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
@@ -325,7 +315,5 @@ namespace lass
 }
 
 inline std::ostream& operator<<(std::ostream& os, const lass::num::FNSampled8& sfn) { return sfn.write(os); }
-
-//#include "fn_sampled8.inl"
 
 #endif

@@ -36,6 +36,24 @@ namespace lass
 {
 	namespace num
 	{
+		PY_DECLARE_CLASS( FNSampled8 )
+		PY_CLASS_CONSTRUCTOR_0( FNSampled8 )
+		PY_CLASS_CONSTRUCTOR_1( FNSampled8, lass::util::CallTraits<FNSampled8::TBaseType>::TParam )
+		PY_CLASS_METHOD( FNSampled8, makeUnit );
+		PY_CLASS_METHOD( FNSampled8, makeZero );
+		PY_CLASS_METHOD( FNSampled8, makeTriangular );
+		PY_CLASS_METHOD( FNSampled8, makeGaussian );
+		PY_CLASS_METHOD( FNSampled8, makeProbGaussian);
+		PY_CLASS_METHOD( FNSampled8, makeTrapezoidal );
+		PY_CLASS_METHOD( FNSampled8, getMembership );
+		PY_CLASS_METHOD( FNSampled8, getEntropy );
+		PY_CLASS_METHOD( FNSampled8, getDifferentialEntropy );
+		PY_CLASS_METHOD( FNSampled8, getNonspecificity );
+		PY_CLASS_METHOD( FNSampled8, getDiscord );
+		PY_CLASS_METHOD_QUALIFIED_1( FNSampled8, getSupport, FNSampled8::TInterval, lass::util::CallTraits<FNSampled8::TBaseType>::TParam );
+		PY_CLASS_METHOD( FNSampled8, defuzzifyCentroid );
+		PY_CLASS_METHOD( FNSampled8, defuzzifyMaxMembership );
+
 		FNSampled8::TBaseType FNSampled8::alphaLevel_[4] = {TBaseType(0.0),TBaseType(0.05),TBaseType(0.31),TBaseType(0.99)};
 
 		FNSampled8::FNSampled8() :PyObjectPlus( &Type )
@@ -223,6 +241,19 @@ namespace lass
 				alpha_[i].set(mean-temp*stddeviation,mean+temp*stddeviation);
 			}
 		}
+
+
+		/** clamps the fuzzy number with left as the infinum and right as the supinum.  This function is useful when 
+		*	numbers are generated externally but need to be within in a certain range to have physical
+		*	meaning.
+		*/
+		void FNSampled8::clamp(util::CallTraits<TBaseType>::TParam left,util::CallTraits<TBaseType>::TParam right)
+		{
+			TInterval limits(left,right);
+			for (int i=0;i<4;++i)
+				alpha_[i] = set_intersect(limits,alpha_[i]);
+		}
+
 
 		FNSampled8::TInterval FNSampled8::getSupport(util::CallTraits<TBaseType>::TParam iAlpha)    const
 		{
@@ -850,25 +881,6 @@ namespace lass
 		{
 			return str( *this );
 		}
-
-		PY_DECLARE_CLASS( FNSampled8 )
-		PY_CLASS_CONSTRUCTOR_0( FNSampled8 )
-		PY_CLASS_CONSTRUCTOR_1( FNSampled8, lass::util::CallTraits<FNSampled8::TBaseType>::TParam )
-		PY_CLASS_METHOD( FNSampled8, makeUnit );
-		PY_CLASS_METHOD( FNSampled8, makeZero );
-		PY_CLASS_METHOD( FNSampled8, makeTriangular );
-		PY_CLASS_METHOD( FNSampled8, makeGaussian );
-		PY_CLASS_METHOD( FNSampled8, makeProbGaussian);
-		PY_CLASS_METHOD( FNSampled8, makeTrapezoidal );
-		PY_CLASS_METHOD( FNSampled8, getMembership );
-		PY_CLASS_METHOD( FNSampled8, getEntropy );
-		PY_CLASS_METHOD( FNSampled8, getDifferentialEntropy );
-		PY_CLASS_METHOD( FNSampled8, getNonspecificity );
-		PY_CLASS_METHOD( FNSampled8, getDiscord );
-		PY_CLASS_METHOD_QUALIFIED_1( FNSampled8, getSupport, FNSampled8::TInterval, lass::util::CallTraits<FNSampled8::TBaseType>::TParam );
-		PY_CLASS_METHOD( FNSampled8, defuzzifyCentroid );
-		PY_CLASS_METHOD( FNSampled8, defuzzifyMaxMembership );
-
 
 /*
 		std::string PyFNSampled8::repr(void)

@@ -177,8 +177,8 @@ template<typename C> interval<C> sqrt(const interval<C>& i);
 template<typename C> interval<C> exp(const interval<C>& i);
 template<typename C> interval<C> log(const interval<C>& i);
 
-template<typename C>    interval<C> setUnion(const interval<C>& i1, const interval<C>& i2);
-template<typename C>    interval<C> setIntersect(const interval<C>& i1, const interval<C>& i2);
+template<typename C>    interval<C> set_union(const interval<C>& i1, const interval<C>& i2);
+template<typename C>    interval<C> set_intersect(const interval<C>& i1, const interval<C>& i2);
 
 #ifndef LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 // num traits partial specialisation
