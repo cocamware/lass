@@ -30,10 +30,18 @@
 #include "python_embedding.h"
 #include "foo.h"
 #include "bar.h"
+#include "python_shadow.h"
 #include <iostream>
 
-typedef lass::test::PythonFoo TPythonFoo;
-PY_DECLARE_CLASS_PLUS_EX( TPythonFoo, "PythonFoo" )
+#include "../util/pyshadow_object.h"
+
+namespace lass
+{
+namespace test
+{
+
+PY_DECLARE_CLASS_EX( PythonFoo, "PythonFoo" )
+
 
 class Base
 {
@@ -55,19 +63,11 @@ public:
 	virtual int get2X() const { return 2*x_; }
 };
 
-#pragma LASS_FIXME("This code borks under vs2003, needs to be fixed when the time comes") 
-/*
-typedef lass::python::PyShadowObject< Base >	TShadowBase;
-
-PY_DECLARE_CLASS_PLUS_EX( TShadowBase, "Base" )
-PY_CLASS_METHOD_EX( TShadowBase, getX, pygetXshadowBase, "getX", NULL );
-
-*/
 int test()
 {
-	int b = lass::python::IsShadowType< int >::value ;
-	int c = lass::python::IsShadowType< lass::test::PythonFoo >::value ;
-	int d = lass::python::IsShadowType< lass::test::Bar >::value;
+    int b = lass::python::impl::ShadowTraits< int >::isShadow ;
+    int c = lass::python::impl::ShadowTraits< lass::test::PythonFoo >::isShadow ;
+    int d = lass::python::impl::ShadowTraits< lass::test::Bar >::isShadow;
 
 	std::cout << "int is shadow type : " << b << "\n";
 	std::cout << "python foo is shadow type : " << c << "\n";
@@ -75,72 +75,103 @@ int test()
 	return 0;
 }
 
-namespace lass
+lass::test::PythonFooPtr getAFoo(  )
 {
-namespace test
+	return lass::test::PythonFooPtr(new lass::test::PythonFoo(5, "hello"));
+}
+int anotherFreeFunction( int i )
 {
+	test();
+	return i+1;
+}
 
 
-
-	lass::test::PythonFooPtr getAFoo(  )
-	{
-		return lass::test::PythonFooPtr(new lass::test::PythonFoo(5, "hello"));
-	}
-	int anotherFreeFunction( int i )
-	{
-		::test();
-		return i+1;
-	}
-	PY_DECLARE_MODULE( embedding )
-	PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
-	PY_MODULE_FUNCTION( embedding, listInfo )
-	PY_MODULE_FUNCTION( embedding, getAFoo )
-	PY_INJECT_MODULE( embedding, "Documentation for module embedding" )
+PY_DECLARE_MODULE( embedding )
+PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
+PY_MODULE_FUNCTION( embedding, listInfo )
+PY_MODULE_FUNCTION( embedding, getAFoo )
+PY_MODULE_FUNCTION( embedding, makeSpam )
+PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
+PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
+PY_MODULE_FUNCTION( embedding, spamToCppByReference )
+PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
+PY_INJECT_MODULE( embedding, "Documentation for module embedding" )
 
 
-	//PY_DECLARE_CLASS( PythonFoo )
+//PY_DECLARE_CLASS( PythonFoo )
 
-	// expose member methods of object instances
+// expose member methods of object instances
 
-	PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
-	PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
-	PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
-	//PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )
+PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
+PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
+PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
+//PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )
 
-	// inject the class in the module and provide documentation for it
-	PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );
+// inject the class in the module and provide documentation for it
+PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );
 
 
-	// declare a new pythonable class
-	PY_DECLARE_CLASS( Bar )
-    PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );	
-	PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
-	PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
+// declare a new pythonable class
+PY_DECLARE_CLASS( Bar )
+PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );	
+PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
+PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 
-	// expose member methods of object instances
-	PY_CLASS_METHOD( Bar, aMoreComplexFunction )
-	PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
-	PY_CLASS_METHOD( Bar, complexArguments );
-	PY_CLASS_METHOD( Bar, primArguments );
-	
-	PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
-	PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
-	PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
-	PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
+// expose member methods of object instances
+PY_CLASS_METHOD( Bar, aMoreComplexFunction )
+PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
+PY_CLASS_METHOD( Bar, complexArguments );
+PY_CLASS_METHOD( Bar, primArguments );
 
-	PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );   
-	PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );   
+PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
+PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
+PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
+PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
+
+PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );   
+PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );   
 
 #pragma LASS_FIXME("this is broken on intel700 but not on vc7, that's news!")
 #if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_INTEL
-	PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );   
+PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );   
 #endif
 
-	PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
-	// inject the class in the module and provide documentation for it
-	PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
-	
+PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
+// inject the class in the module and provide documentation for it
+PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
+
 //	PY_INJECT_CLASS_IN_MODULE( TShadowBase, embedding, "Documentation for class shadow Base." );
+
+// --- shadow classes ------------------------------------------------------------------------------
+
+PY_SHADOW_CLASS(ShadowSpam, Spam)
+PY_DECLARE_CLASS_EX(ShadowSpam, "Spam")
+PY_CLASS_METHOD(ShadowSpam, who)
+PY_CLASS_MEMBER_R(ShadowSpam, "address", address)
+PY_INJECT_CLASS_IN_MODULE(ShadowSpam, embedding, "shadow spam")
+
+PY_SHADOW_CLASS_DERIVED(ShadowHam, Ham, ShadowSpam)
+PY_DECLARE_CLASS_EX(ShadowHam, "Ham")
+PY_CLASS_CONSTRUCTOR_0(ShadowHam)
+PY_CLASS_STATIC_METHOD(ShadowHam, say)
+PY_INJECT_CLASS_IN_MODULE(ShadowHam, embedding, "shadow ham");
+
+PY_SHADOW_CLASS_DERIVED(ShadowBacon, Bacon, ShadowHam)
+PY_DECLARE_CLASS_EX(ShadowBacon, "Bacon")
+PY_CLASS_CONSTRUCTOR_0(ShadowBacon)
+PY_INJECT_CLASS_IN_MODULE(ShadowBacon, embedding, "shadow bacon");
+
+PY_SHADOW_CLASS_DERIVED(ShadowEggs, Eggs, ShadowSpam)
+PY_DECLARE_CLASS_EX(ShadowEggs, "Eggs")
+PY_CLASS_CONSTRUCTOR_1(ShadowEggs, int)
+PY_CLASS_MEMBER_RW(ShadowEggs, "number", number, setNumber)
+PY_INJECT_CLASS_IN_MODULE(ShadowEggs, embedding, "shadow eggs");
+
+
+// --- inject the module ---------------------------------------------------------------------------
+
 
 }
 }
+
+PY_SHADOW_CASTERS(lass::test::ShadowSpam)

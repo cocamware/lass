@@ -186,35 +186,6 @@
 
 		/** @ingroup Python
 		 */
-		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
-		{
-			if ( iValue == Py_None )
-				oV = NULL;
-			else
-			{
-				oV = iValue;
-				Py_INCREF( oV );
-			}
-			return 0; 
-		}
-
-		/** @ingroup Python
-		 */
-		template<class C> 
-		inline int pyGetSimpleObject( PyObject* iValue, 
-									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
-		{
-			typedef util::SharedPtr<C, PyObjectStorage, PyObjectCounter> TPyPtr;
-			bool isNone = (iValue == Py_None );
-			if (isNone)
-				oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
-			else
-			oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
-			return 0;
-		}
-
-		/** @ingroup Python
-		 */
 		inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 		{
 			int result = PyObject_IsTrue(iValue);
@@ -318,6 +289,35 @@
 		}
 
 		/** @ingroup Python
+		 */
+		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
+		{
+			if ( iValue == Py_None )
+				oV = NULL;
+			else
+			{
+				oV = iValue;
+				Py_INCREF( oV );
+			}
+			return 0; 
+		}
+
+		/** @ingroup Python
+		 */
+		template<class C> 
+		inline int pyGetSimpleObject( PyObject* iValue, 
+									  util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
+		{
+			typedef util::SharedPtr<C, PyObjectStorage, PyObjectCounter> TPyPtr;
+			bool isNone = (iValue == Py_None );
+			if (isNone)
+				oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
+			else
+			    oV = lass::python::fromPySharedPtrCast< typename TPyPtr::TPointee >(iValue);
+			return 0;
+		}
+
+        /** @ingroup Python
 		 *//* IS IT USED?  AND SHOULD IT BE USED THIS WAY?
 		inline PyObject* pyBuildSimpleObject( PyObject& iV )
 		{

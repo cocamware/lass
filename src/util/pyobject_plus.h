@@ -39,8 +39,9 @@
 	#define _DEBUG
 #endif
 
-#include "../meta/type_traits.h"
 #include "../meta/bool.h"
+#include "../meta/is_derived_type.h"
+#include "../meta/type_traits.h"
 #include "../meta/type_2_type.h"
 #include "../meta/int_2_type.h"
 #include "../num/num_traits.h"
@@ -48,7 +49,6 @@
 #include "string_cast.h"
 #include "pyobject_util.h"
 #include "pyobject_macros.h"
-#include "pyshadow_object.h"
 #include "call_traits.h"
 #include <cstdlib>
 
@@ -204,10 +204,17 @@ namespace lass
 			}
 		}
 
+        /** meta function to detect if a type is a PyObject-derived type 
+         */
+        template <typename T>
+        struct IsPyObject
+        {
+            enum { value = meta::IsDerivedType<T, PyObject>::value };
+        };
+
 		/* conversion from PyObject* to given types, a check should be performed
 		*  wether the conversion is possible, if not a returnvalue of 1 should be used
 		*/
-		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, bool& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, signed char& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, unsigned char& oV );
@@ -221,10 +228,10 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
+		//template <class C> PyObject* pyGetSimpleObject( PyObject* iValue, util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV );
 
-		inline PyObject* pyBuildSimpleObject( PyObject* iV );
-		inline PyObject* pyBuildSimpleObject( PyObject& iV );
-		inline PyObject* pyBuildSimpleObject( bool iV );
+        inline PyObject* pyBuildSimpleObject( bool iV );
 		inline PyObject* pyBuildSimpleObject( signed char iV );
 		inline PyObject* pyBuildSimpleObject( unsigned char iV );
 		inline PyObject* pyBuildSimpleObject( signed short iV );
@@ -238,14 +245,15 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( long double iV );
 		inline PyObject* pyBuildSimpleObject( const char* iV );
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
+		inline PyObject* pyBuildSimpleObject( PyObject* iV );
+		//inline PyObject* pyBuildSimpleObject( PyObject& iV );
+		//template <class C> PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV );
 
 		#include "pyobject_plus.inl"
 	}
 }
 
-LASS_META_BROKEN_TYPE_TRAITS_SPECIALISATION(PyObject)
-LASS_META_BROKEN_TYPE_TRAITS_SPECIALISATION(lass::python::PyObjectPlus)
-
+#include "pyshadow_object.h"
 #include "pyobject_call.inl"
 
 #endif

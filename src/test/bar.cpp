@@ -165,33 +165,14 @@ namespace test
 			return coolMember_;
 		}
 
-		/*
-		template< class T>
-		class ShadowObject 
-			: public lass::python::PyObjectPlus
-		{
-			PY_HEADER( lass::python::PyObjectPlus );
 
-			T*	CppObject_;
-			typedef T	OriginalCppClass;
-		public:
+        // --- shadow classes ---
 
-			ShadowObject() : PyObjectPlus( &Type ), CppObject_(NULL) {}
-			ShadowObject( const T& iC ) : PyObjectPlus(&Type), CppObject_(&iC) {}
-			virtual ~ShadowObject () {}
-
-		};
-
-		typedef ShadowObject<PythonFoo> ShadowFoo;
-		typedef ShadowObject<PythonBar> ShadowBar;
+        /*typedef python::PyShadowClass<PythonFoo> ShadowFoo;
 
 		PY_DECLARE_CLASS_EX ( ShadowFoo, "ShadowFoo" )
 		PY_DECLARE_CLASS_EX ( ShadowBar, "ShadowBar" )
 		PY_CLASS_METHOD( ShadowBar, setFooRef ) 
-		*/
-
-
-
-
-}
+        */
+    }
 }

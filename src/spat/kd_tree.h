@@ -28,12 +28,14 @@
 /** @class lass::spat::KdTree
  *  @brief a KD tree for point-like objects
  *  @author Bram de Greve [BdG]
+ *
+ *  the KD tree does NOT own the objects.  You must keep them yourself!
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_SPAT_KD_TREE_H
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_KD_TREE_H
 
-#define LASS_SPAT_KD_TREE_DIAGNOSTICS
+//#define LASS_SPAT_KD_TREE_DIAGNOSTICS
 
 #include "spat_common.h"
 
@@ -42,14 +44,18 @@ namespace lass
 namespace spat
 {
 
-template <typename PointType>
+template <typename ObjectType>
 struct KdTreeDefaultTraits
 {
-    typedef PointType TPoint;
-    typedef typename PointType::TValue TValue;
-    enum { dimension = PointType::dimension };
+    typedef const ObjectType* TObjectIterator;
+    typedef ObjectType TPoint;
+    typedef typename ObjectType::TValue TValue;
+    typedef typename ObjectType::TParam TParam;
+    typedef typename ObjectType::TReference TReference;
+    typedef typename ObjectType::TConstReference TConstReference;
+    enum { dimension = ObjectType::dimension };
 
-    static const PointType& position(const PointType& iPoint) { return iPoint; }
+    static const TPoint& position(const ObjectType& iObject) { return iObject; }
 };
 
 
@@ -63,50 +69,88 @@ class KdTree
 {
 public:
 
-    typedef ObjectType TObjectType;
-    typedef ObjectTraits<ObjectType> TObjectTraits;
+    typedef KdTree<ObjectType, ObjectTraits> TSelf;
 
+    typedef ObjectType TObject;
+    typedef ObjectTraits<TObject> TObjectTraits;
+
+    typedef typename TObjectTraits::TObjectIterator TObjectIterator;
     typedef typename TObjectTraits::TPoint TPoint;
 	typedef typename TObjectTraits::TValue TValue;
+	typedef typename TObjectTraits::TParam TParam;
+	typedef typename TObjectTraits::TParam TReference;
+	typedef typename TObjectTraits::TParam TConstReference;
 
     enum { dimension = TObjectTraits::dimension };
 
-    typedef std::vector<ObjectType> TObjects;
+    template <typename Obj>
+    struct Rebind
+    {
+        typedef KdTree<Obj, ObjectTraits> Type;
+    };
 
-	KdTree(const TObjects& iObjects);
-    template <typename InputIterator> KdTree(InputIterator iObjectBegin, InputIterator iObjectEnd);
+    class Neighbour
+    {
+    public:
+        Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
+        TObjectIterator object() const;
+        TValue squaredDistance() const;
+        bool operator<(const Neighbour& iOther) const;
+    private:
+        TObjectIterator object_;
+        TValue squaredDistance_;
+    };
 
-private:
+    typedef std::vector<Neighbour> TNeighbourhood;
 
-	class LessDim
-	{
-	public:
-		LessDim(const TObjects& iObjects, unsigned iIndex): objects_(iObjects), index_(iIndex) {}
-		bool operator()(unsigned iA, unsigned iB)
-		{
-			return TObjectTraits::position(objects_[iA])[index_] < TObjectTraits::position(objects_[iB])[index_];
-		}
-	private:
-		const TObjects& objects_;
-		unsigned index_;
-	};
+    KdTree();
+	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
-	typedef std::vector<unsigned> TIndices;
+    void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-    enum { dummy_ = unsigned(-1)} ;
+    TValue neighbourhood(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount, 
+        TNeighbourhood& oNeighbourhood);
 
-	void buildHeap();
-    void balance(unsigned iNode, TIndices& ioIndices, unsigned iBegin, unsigned iEnd);
-    unsigned findSplitDimension(const TIndices& iIndices, unsigned iBegin, unsigned iEnd);
-    void assignNode(unsigned iNode, unsigned iIndex, unsigned iSplitDimension);
-
-    TObjects objects_;
-	TIndices heap_;
-    TIndices splits_;
+    void swap(TSelf& iOther);
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 	void diagnostics();
 #endif
+
+private:
+
+    typedef std::vector<TObjectIterator> TObjectIterators;
+    typedef typename TObjectIterators::iterator TIteratorIterator;
+
+    typedef unsigned char TAxis;
+    typedef std::vector<TAxis> TAxes;
+
+    enum { dummyAxis_ = TAxis(-1)} ;
+
+	class LessDim
+	{
+	public:
+		LessDim(TAxis iSplit): split_(iSplit) {}
+		bool operator()(const TObjectIterator& iA, const TObjectIterator& iB) const
+		{
+			return TObjectTraits::position(*iA)[split_] < TObjectTraits::position(*iB)[split_];
+		}
+	private:
+		TAxis split_;
+	};
+
+	void buildHeap();
+    void balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd);
+    TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
+    void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
+    void doNeighbourhood(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
+        TNeighbourhood& oNeighbourhood, size_t iNode);
+
+
+	TObjectIterators heap_;
+    TAxes splits_;
+    TObjectIterator begin_;
+    TObjectIterator end_;
 };
 
 

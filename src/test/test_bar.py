@@ -1,5 +1,5 @@
 import embedding
-import code
+#import code
 #s = code.InteractiveConsole()
 #s.interact()
 
@@ -71,7 +71,7 @@ print "\n***\n"
 exceptionCaught = 0
 test.int = 5
 
-print "\n* Test automatic setter/getter accessors"
+print "\n* Test automatic and cool setter/getter accessors"
 try:
     print "cool member", test.cool
     test.cool = 6
@@ -140,8 +140,21 @@ barB = embedding.Bar(5, "hello")
 print barB
 print "\n"
 
-
-
-
-
-
+print "\n* Testing shadow objects"
+shadowB = embedding.Bacon()
+print "shadowB.who():", shadowB.who()
+shadowB2 = embedding.Ham()
+print "shadowB2.who():", shadowB2.who()
+shadowC = embedding.Eggs(3)
+print "shadowC.who():", shadowC.who()
+print "shadowC.number:", shadowC.number
+shadowC.number = 4
+print "shadowC.number:", shadowC.number
+spam = embedding.makeSpam("Bacon")
+print "spam.who():", spam.who()
+print "spam.address:", spam.address
+embedding.spamToCppByReference(spam)
+embedding.spamToCppByConstReference(spam)
+embedding.spamToCppByPointer(spam)
+embedding.spamToCppByCopy(spam)
+print "\n"

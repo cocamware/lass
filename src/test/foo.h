@@ -32,6 +32,7 @@
 #include "test_common.h"
 #include "../util/pyobject_plus.h"
 #include "../util/pyobject_util.h"
+#include "../util/pyshadow_object.h"
 
 
 namespace lass
@@ -43,13 +44,15 @@ namespace test
 	typedef lass::util::SharedPtr< PythonFoo , lass::python::PyObjectStorage, lass::python::PyObjectCounter >		PythonFooPtr;
 
 	class PythonFoo : 
-		public lass::python::PyObjectPlusPlus<PythonFoo, lass::python::PyObjectPlus > 
+		public lass::python::PyObjectPlus 
 	{
 		virtual std::string	pyRepr(void);
 		static	PyObject* pyMake(PyObject *ignored, PyObject *args);
 
 		int	privateInt_;
 		std::string privateString_;
+
+        PY_HEADER(lass::python::PyObjectPlus)
 
 	public:
 		PythonFoo ();

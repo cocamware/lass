@@ -29,6 +29,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_KD_TREE_INL
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_KD_TREE_INL
 
+#define LASS_SPAT_KD_TREE_DIAGNOSTICS
+
 #include "test_common.h"
 #include "../spat/kd_tree.h"
 #include "../meta/select.h"
@@ -65,13 +67,14 @@ void testSpatKdTree()
 
     const unsigned n = 20;
     num::RandomMT19937 generator;
-    std::vector<TPoint> points(n);
+    TPoint points[n];
     for (unsigned i = 0; i < n; ++i)
     {
         points[i] = bounds.random(generator);
     }
     
-    TKdTree tree(points);
+    TKdTree tree(points, points + n);
+    tree.diagnostics();
 }
 
 
