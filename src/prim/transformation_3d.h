@@ -83,7 +83,7 @@ private:
 
 	typedef util::SharedPtr<TValue, util::ArrayStorage> TMatrix;
 
-	Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix);
+	Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
 
 	TMatrix matrix_;
 	mutable TMatrix inverseMatrix_;

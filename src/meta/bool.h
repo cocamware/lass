@@ -67,17 +67,64 @@ struct False
 	enum { value = false };
 };
 
+
+
 template <bool flag>
 struct Bool
 {
 	typedef True Type;
+	enum { value = true };
 };
 
 template <>
 struct Bool<false>
 {
 	typedef False Type;
+	enum { value = false };
 };
+
+// --- logic operators -----------------------------------------------------------------------------
+
+/** meta NOT
+ *  @relates Bool
+ */
+template <typename Operand> struct Not;
+template <> struct Not<False>	{ typedef True Type; enum { value = true }; };
+template <> struct Not<True>	{ typedef False Type; enum { value = false }; };
+
+
+
+/** meta AND
+ *  @relates Bool
+ */
+template <typename Operand1, typename Operand2> struct And;
+template <> struct And<False, False>	{ typedef False Type; enum { value = false }; };
+template <> struct And<False, True>		{ typedef False Type; enum { value = false }; };
+template <> struct And<True, False>		{ typedef False Type; enum { value = false }; };
+template <> struct And<True, True>		{ typedef True Type; enum { value = true }; };
+
+
+
+/** meta OR
+ *  @relates Bool
+ */
+template <typename Operand1, typename Operand2> struct Or;
+template <> struct Or<False, False>		{ typedef False Type; enum { value = false }; };
+template <> struct Or<False, True>		{ typedef True Type; enum { value = true }; };
+template <> struct Or<True, False>		{ typedef True Type; enum { value = true }; };
+template <> struct Or<True, True>		{ typedef True Type; enum { value = true }; };
+
+
+
+/** meta XOR
+ *  @relates Bool
+ */
+template <typename Operand1, typename Operand2> struct Xor;
+template <> struct Xor<False, False>	{ typedef False Type; enum { value = false }; };
+template <> struct Xor<False, True>		{ typedef True Type; enum { value = true }; };
+template <> struct Xor<True, False>		{ typedef True Type; enum { value = true }; };
+template <> struct Xor<True, True>		{ typedef False Type; enum { value = false }; };
+
 
 }
 

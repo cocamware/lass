@@ -152,13 +152,14 @@ Transformation3D<T>::inverse() const
 			inverseMatrix_.reset();
 			LASS_THROW("transformation not invertible");
 		}
+		const TValue invDet = num::inv(det);
 		std::transform(inverseMatrix_.get(), inverseMatrix_.get() + 16,
 			inverseMatrix_.get(),
 			std::bind2nd(std::multiplies<TValue>(), num::inv(det)));
 	}
 
 	LASS_ASSERT(inverseMatrix_ && matrix_);
-	return TSelf(inverseMatrix_, matrix_);
+	return TSelf(inverseMatrix_, matrix_, false);
 }
 
 
@@ -270,7 +271,7 @@ const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& iAxis
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T> inline
-Transformation3D<T>::Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix):
+Transformation3D<T>::Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool):
 	matrix_(iMatrix),
 	inverseMatrix_(iInverseMatrix)
 {
