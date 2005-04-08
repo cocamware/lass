@@ -303,9 +303,12 @@
 		t_cppClass::PythonModuleName = LASS_STRINGIFY( i_module );\
 		LASS_ENFORCE( PyType_Ready( &t_cppClass::Type ) >= 0 );\
 		Py_INCREF(& t_cppClass::Type );\
+		std::string fullName = std::string(std::string(PyModule_GetName(LASS_CONCATENATE( lassPythonModule, i_module ))) + "." + std::string(t_cppClass::PythonClassName));\
+		char* fullNameCharPtr = new char[fullName.size()+1];\
+		strcpy(fullNameCharPtr,fullName.c_str());\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule, i_module ), \
-			const_cast<char*>( t_cppClass::PythonClassName ), \
+			const_cast<char*>( fullNameCharPtr ), \
 			(PyObject *)& t_cppClass::Type);\
 	}
 
