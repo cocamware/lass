@@ -48,8 +48,6 @@
  */
 #define PY_HEADER_INTERNAL \
 	public: \
-		static char*          PythonClassName;\
-		static char*          PythonModuleName;\
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
@@ -64,11 +62,10 @@
 */
 #define PY_HEADER( t_parentClass ) \
 	public: \
-		static char* PythonClassName;\
-		static char* PythonModuleName;\
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
+		static ::std::vector<::lass::python::impl::StaticMember>	Statics; \
 		static PyTypeObject* GetParentType(void) { return &t_parentClass::Type; }\
 		virtual PyTypeObject *GetType(void) {return &Type;}; \
 		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
@@ -261,12 +258,11 @@
 
 
 #define PY_DECLARE_CLASS_EX( i_cppClass, s_className ) \
-	char* i_cppClass::PythonClassName = (char*) ( s_className ) ;\
-	char* i_cppClass::PythonModuleName = (char*) "!no assigned module!" ;\
 	PyTypeObject i_cppClass::Type = {\
-	PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass, i_cppClass, s_className ) };\
+		PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass, i_cppClass, s_className ) };\
 	std::vector<PyMethodDef> i_cppClass::Methods;\
 	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
+	std::vector<::lass::python::impl::StaticMember> i_cppClass::Statics;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClass_, i_cppClass ),\
 		i_cppClass::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
 		i_cppClass::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
@@ -278,10 +274,8 @@
 
 
 #define PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className ) \
-	char* i_cppClass::PythonClassName = (char*) ( s_className ) ;\
-	char* i_cppClass::PythonModuleName = (char*) "!no assigned module!" ;\
 	PyTypeObject i_cppClass::Type = {\
-	PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass::TPyClassSelf, i_cppClass::TPyClassParent, s_className ) };\
+		PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass::TPyClassSelf, i_cppClass::TPyClassParent, s_className ) };\
 	std::vector<PyMethodDef> i_cppClass::Methods;\
 	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, i_cppClass ),\
@@ -296,20 +290,8 @@
 
 #define PY_INJECT_CLASS_IN_MODULE_AT_RUNTIME( t_cppClass, i_module, s_doc ) \
 	{\
-		t_cppClass::Type.tp_methods = &t_cppClass::Methods[0];\
-		t_cppClass::Type.tp_getset = &t_cppClass::GetSetters[0];\
-		t_cppClass::Type.tp_doc = s_doc;\
-		t_cppClass::Type.tp_base = t_cppClass::GetParentType();\
-		t_cppClass::PythonModuleName = LASS_STRINGIFY( i_module );\
-		LASS_ENFORCE( PyType_Ready( &t_cppClass::Type ) >= 0 );\
-		Py_INCREF(& t_cppClass::Type );\
-		std::string fullName = std::string(std::string(PyModule_GetName(LASS_CONCATENATE( lassPythonModule, i_module ))) + "." + std::string(t_cppClass::PythonClassName));\
-		char* fullNameCharPtr = new char[fullName.size()+1];\
-		strcpy(fullNameCharPtr,fullName.c_str());\
-		PyModule_AddObject(\
-			LASS_CONCATENATE( lassPythonModule, i_module ), \
-			const_cast<char*>( fullNameCharPtr ), \
-			(PyObject *)& t_cppClass::Type);\
+		::lass::python::impl::injectClassInModule<t_cppClass>(\
+			LASS_CONCATENATE(lassPythonModule, i_module), s_doc);\
 	}
 
 #define PY_INJECT_CLASS_IN_MODULE( i_cppClass, i_module, s_doc ) \
@@ -328,6 +310,79 @@
 			::lass::python::pyBuildSimpleObject(o_object) );\
 	}
 
+
+
+#define PY_CLASS_STATIC_CONST( i_cppClass, s_name, v_value )\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyClassStaticConst, i_cppClass ),\
+		::lass::python::impl::classStaticConst( i_cppClass::Statics, s_name, v_value );\
+	)
+
+// --- inner class ---------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  Adds an inner class.
+ *
+ *  @param t_outerCppClass
+ *      the C++ class you want to add an inner class to.
+ *  @param t_innerCppClass
+ *		the C++ class you want to add as inner class.
+ *  @param s_name
+ *      the name the inner class will have in python (zero terminated C string)
+ *  @param s_doc
+ *      documentation of inner class as shown in Python (zero terminated C string)
+ *
+ *  Invoke this macro to add an inner class to a class in Python.  Both classes (inner and outer)
+ *	should be derived from PyObjectPlus.
+ *
+ *  @code
+ *  // inner_and_outer.h
+ *  class Inner
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *		...
+ *  };
+ *
+ *  class Outer
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *		...
+ *  };
+ *
+ *  // inner_and_outer.cpp
+ *  PY_DECLARE_CLASS(Inner)
+ *  PY_DECLARE_CLASS(Outer)
+ *  PY_CLASS_INNCER_CLASS_EX( Outer, Inner, "Inner", "Inner class" )
+ *  @endcode
+ */
+#define PY_CLASS_INNER_CLASS_EX( i_outerCppClass, i_innerCppClass, s_name, s_doc )\
+	LASS_EXECUTE_BEFORE_MAIN_EX(\
+		LASS_CONCATENATE_3(lassExecutePyClassInnerClass, i_outerCppClass, i_innerCppClass),\
+		::lass::python::impl::classInnerClass<i_innerCppClass>(i_outerCppClass::Statics, s_name, s_doc);\
+	)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_doc = 0.
+ */
+#define PY_CLASS_INNER_CLASS_NAME( i_outerCppClass, i_innerCppClass, s_name)\
+	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, s_name, 0)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_name = "@a i_innerCppClass".
+ */
+#define PY_CLASS_INNER_CLASS_DOC( i_outerCppClass, i_innerCppClass, s_doc )\
+	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_name = "@a i_innerCppClass" and s_doc = 0.
+ */
+#define PY_CLASS_INNER_CLASS( i_outerCppClass, i_innerCppClass)\
+	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), 0)
+
+
+
 // --- methods -------------------------------------------------------------------------------------
 /**
 *   This macro is provided when there is need for a function in Python where there is no
@@ -340,7 +395,7 @@
 	{\
 		if (!PyType_IsSubtype(iObject->ob_type , &i_cppClass::Type ))\
 		{\
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", i_cppClass::PythonClassName);\
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", i_cppClass::Type.tp_name);\
 			return 0;\
 		}\
 		i_cppClass* object = static_cast<i_cppClass*>(iObject);\
@@ -1061,5 +1116,108 @@ $[
 			i->ml_meth = i_dispatcher;\
 		};\
 	)
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+
+struct StaticMember
+{
+	PyObject* object;
+	PyTypeObject* parentType;
+	std::vector<PyMethodDef>* methods;
+	std::vector<PyGetSetDef>* getSetters;
+	const std::vector<StaticMember>* statics;
+	const char* name;
+	const char* doc;
+};
+
+// currently, i'm implementing these functions inline in this header, just to see where we get with them.
+// But they should probably move to some .cpp or .inl (for templates) file. [BdG]
+
+void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
+					std::vector<PyMethodDef>& iMethods,
+					std::vector<PyGetSetDef>& iGetSetters, 
+					const std::vector<StaticMember>& iStatics, 
+					const char* iModuleName, const char* iDocumentation);
+
+inline void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics)
+{
+	for (std::vector<StaticMember>::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
+	{
+		if (PyType_Check(i->object))
+		{
+			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
+				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
+		}
+		PyDict_SetItemString(iPyType.tp_dict, i->name, i->object);
+	}
+}
+
+inline void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
+						   std::vector<PyMethodDef>& iMethods,
+						   std::vector<PyGetSetDef>& iGetSetters, 
+						   const std::vector<StaticMember>& iStatics, 
+						   const char* iModuleName, const char* iDocumentation)
+{
+	std::string fullName = std::string(iModuleName) + std::string(".") + std::string(iPyType.tp_name);
+	char* fullNameCharPtr = new char[fullName.size()+1];
+	strcpy(fullNameCharPtr,fullName.c_str());
+
+	iPyType.tp_name = fullNameCharPtr;
+	iPyType.tp_methods = &iMethods[0];
+	iPyType.tp_getset = &iGetSetters[0];
+	iPyType.tp_doc = const_cast<char*>(iDocumentation);
+	iPyType.tp_base = &iPyParentType;
+	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
+	Py_INCREF( &iPyType );
+
+	injectStaticMembers(iPyType, iStatics);
+}
+
+template <typename CppClass>
+inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
+{
+	char* shortName = CppClass::Type.tp_name; // finalizePyType will expand tp_name with module name.
+	finalizePyType(CppClass::Type, *CppClass::GetParentType(), CppClass::Methods, CppClass::GetSetters,
+		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation);
+	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
+}
+
+template<typename T>
+inline void classStaticConst(std::vector<StaticMember>& iStatics, const char* iName, const T& iValue)
+{
+	StaticMember temp;
+	temp.name = iName;
+	temp.object = pyBuildSimpleObject(iValue);
+	temp.parentType = 0;
+	temp.methods = 0;
+	temp.getSetters = 0;
+	temp.statics = 0;
+	temp.doc = 0;
+	iStatics.push_back(temp);
+}
+
+template <typename CppClass>
+inline void classInnerClass(std::vector<StaticMember>& iOuterStatics, const char* iInnerClassName, 
+							const char* iDocumentation)
+{
+	StaticMember temp;
+	temp.name = iName;
+	temp.object = reinterpret_cast<PyObject*>(&CppClass::Type);
+	temp.parentType = CppClass::GetParentType();
+	temp.methods = &CppClass::Methods;
+	temp.getSetters = &CppClass::GetSetters;
+	temp.statics = &CppClass::Statics;
+	temp.doc = iDocumentation;
+	iStatics.push_back(temp);
+}
+
+}
+}
+}
 
 // EOF

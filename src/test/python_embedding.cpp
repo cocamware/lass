@@ -203,6 +203,8 @@ PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );
 PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
+
+PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 

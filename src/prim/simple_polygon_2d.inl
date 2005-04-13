@@ -252,7 +252,8 @@ const Orientation SimplePolygon2D<T, DP>::orientation() const
 	const TValue signArea = signedArea(); // DP::enforceSimple(*this);
 	LASS_PRIM_ENFORCE_NO_DEGENERATE(DP, signArea != TNumTraits::zero);
 
-	return signArea < TNumTraits::zero ? oClockWise : oCounterClockWise;
+	return signArea == TNumTraits::zero ? oInvalid :
+		(signArea < TNumTraits::zero ? oClockWise : oCounterClockWise);
 }
 
 
@@ -392,6 +393,9 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 
 
 /** return true if inner angle of vertex is reflex (is > 180 degrees).
+ *
+ *  <i>Reflect Angle: An angle more than 180°</i>,
+ *  http://mathworld.wolfram.com/ReflexAngle.html
  *
  *  test if signedArea() and perdDot(...) have different sign.
  *  if one of them is zero, it will return false by default.

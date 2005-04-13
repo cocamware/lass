@@ -56,11 +56,11 @@ class PyShadowBase: public PyShadowBaseCommon
 public:
 	virtual ~PyShadowBase()
 	{
-		if (ownership_ == oOwner) delete cppObject__; cppObject__ = 0;
+		if (ownership_ == oOwner) delete cppObject_; cppObject_ = 0;
 	}
 	CppBase* cppObject() const
 	{
-		return cppObject__;
+		return cppObject_;
 	}
 protected:
 	enum Ownership
@@ -69,11 +69,11 @@ protected:
 		oBorrowed
 	};
 	PyShadowBase(PyTypeObject* iType, CppBase* iCppObject, Ownership iOwnership):
-		PyShadowBaseCommon(iType), cppObject__(iCppObject), ownership_(iOwnership)
+		PyShadowBaseCommon(iType), cppObject_(iCppObject), ownership_(iOwnership)
 	{
 	}
 private:
-	CppBase* cppObject__;
+	CppBase* cppObject_;
 	Ownership ownership_;
 };
 
@@ -120,7 +120,7 @@ public:
 	{
 		if (!PyType_IsSubtype(iPyObject->ob_type , &T::Type ))
 		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::PythonClassName);
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::Type.tp_name);
 			return 0;
 		}
 		return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject));

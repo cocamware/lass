@@ -50,7 +50,7 @@ template
 >
 void testPrimSimplePolygon2D()
 {
-	typedef prim::SimplePolygon2D<T> TPolygon;
+	typedef prim::SimplePolygon2D<T, DegeneratePolicy> TPolygon;
 	typedef prim::Point2D<T> TPoint;
 	typedef prim::Vector2D<T> TVector;
 	typedef typename TVector::TNumTraits TNumTraits;
@@ -58,7 +58,7 @@ void testPrimSimplePolygon2D()
 	const bool isNoDegenerate = meta::IsSameType<DegeneratePolicy, prim::NoDegenerate>::value;
 	const bool isStrictNoDegenerate = meta::IsSameType<DegeneratePolicy, prim::StrictNoDegenerate>::value;
 
-	// empty polygon (invalid)
+	// empty polygon
 	//
 	TPolygon polygon;
 	BOOST_CHECK_THROW(polygon.at(37), util::Exception);
@@ -68,18 +68,10 @@ void testPrimSimplePolygon2D()
 	BOOST_CHECK_THROW(polygon.erase(37), util::Exception);
 	BOOST_CHECK(polygon.isEmpty());
 	BOOST_CHECK_EQUAL(polygon.size(), 0);
-	if (isStrictNoDegenerate)
-	{
-		BOOST_CHECK_THROW(polygon.signedArea(), util::Exception);
-		BOOST_CHECK_THROW(polygon.area(), util::Exception);
-	}
-	else
-	{
-		BOOST_CHECK_NO_THROW(polygon.signedArea());
-		BOOST_CHECK_NO_THROW(polygon.area());
-		BOOST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
-		BOOST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
-	}
+	BOOST_CHECK_NO_THROW(polygon.signedArea());
+	BOOST_CHECK_NO_THROW(polygon.area());
+	BOOST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
+	BOOST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
 	if (isStrictNoDegenerate || isNoDegenerate)
 	{
 	   BOOST_CHECK_THROW(polygon.orientation(), util::Exception);
@@ -116,18 +108,10 @@ void testPrimSimplePolygon2D()
 	}
 	BOOST_CHECK(!polygon.isEmpty());
 	BOOST_CHECK_EQUAL(polygon.size(), 1);
-	if (isStrictNoDegenerate)
-	{
-		BOOST_CHECK_THROW(polygon.signedArea(), util::Exception);
-		BOOST_CHECK_THROW(polygon.area(), util::Exception);
-	}
-	else
-	{
-		BOOST_CHECK_NO_THROW(polygon.signedArea());
-		BOOST_CHECK_NO_THROW(polygon.area());
-		BOOST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
-		BOOST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
-	}
+	BOOST_CHECK_NO_THROW(polygon.signedArea());
+	BOOST_CHECK_NO_THROW(polygon.area());
+	BOOST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
+	BOOST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
 	if (isStrictNoDegenerate || isNoDegenerate)
 	{
 	   BOOST_CHECK_THROW(polygon.orientation(), util::Exception);
@@ -141,7 +125,15 @@ void testPrimSimplePolygon2D()
 	BOOST_CHECK_EQUAL(polygon.center().affine(), p0);
 	BOOST_CHECK(polygon.isSimple());
 	BOOST_CHECK(polygon.isConvex());
-	BOOST_CHECK_THROW(polygon.isReflex(37), util::Exception);
+	if (isStrictNoDegenerate || isNoDegenerate)
+	{
+		BOOST_CHECK_THROW(polygon.isReflex(37), util::Exception);
+	}
+	else
+	{
+		BOOST_CHECK_NO_THROW(polygon.isReflex(37));
+		BOOST_CHECK_EQUAL(polygon.isReflex(37), false);
+	}
 	BOOST_CHECK(!polygon.isValid());
 
 	BOOST_CHECK_NO_THROW(polygon.erase(37)); // 37 => 0
@@ -152,7 +144,6 @@ void testPrimSimplePolygon2D()
 
 	// a vector of points
 	//
-	std::cout << "BEEN HERE\n";
 	std::vector<TPoint> points;
 	points.push_back(TPoint(2, 0));
 	points.push_back(TPoint(8, 1));
@@ -170,7 +161,6 @@ void testPrimSimplePolygon2D()
     BOOST_CHECK_EQUAL(box.min().y, 0); 
     BOOST_CHECK_EQUAL(box.max().x, 10); 
     BOOST_CHECK_EQUAL(box.max().y, 10); 
-	std::cout << "DONE THAT\n";
 }
 
 }

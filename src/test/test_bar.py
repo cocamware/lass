@@ -39,6 +39,14 @@ print "\n***\n"
 print "dir of Bar object returned :\n ",dir(test)
 print "dir of embedding.Bar : \n" , dir(embedding.Bar)
 print "__dict__ of Bar object :\n",embedding.Bar.__dict__
+print "Bar.CONST:\n", embedding.Bar.CONST
+try:
+    Bar.CONST = 6
+except:
+    print "Can't change Bar.CONST, which is nice"
+else:
+    print "ERROR: Can change Bar.CONST."
+
 
 # the __members__ attribute is not (yet) supported
 #print "members of Bar object : ",test.__members__

@@ -40,14 +40,10 @@ namespace lass
 namespace test
 {
 
-struct Intruded
-{
-	int counter;
-};
-
 void testUtilPython()
 {
 	std::string commandStr = "execfile('test_bar.py')";
+	//commandStr = "from code import interact\ninteract()";
 	BOOST_CHECK_EQUAL( PyRun_SimpleString( commandStr.c_str() ) , 0 );
 
 }
