@@ -84,6 +84,16 @@ namespace test
 		float& coolMember();
 
 		int publicInt;
+
+		class InnerClass : public lass::python::PyObjectPlus
+		{
+			PY_HEADER( lass::python::PyObjectPlus );
+		public:
+			InnerClass(const std::string& iSayWhat);
+			std::string talkTo(const std::string& iName);
+		private:
+			std::string sayWhat_;
+		};
 	};
 
 	void listInfo( PyObject* iObject );

@@ -167,6 +167,16 @@ namespace test
 			return coolMember_;
 		}
 
+		Bar::InnerClass::InnerClass(const std::string& iSayWhat):
+			PyObjectPlus(&Type),
+			sayWhat_(iSayWhat)
+		{
+		}
+
+		std::string Bar::InnerClass::talkTo(const std::string& iName)
+		{
+			return iName + ", " + sayWhat_ + ".\n";
+		}
 
 		// --- shadow classes ---
 

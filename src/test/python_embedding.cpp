@@ -58,7 +58,7 @@ namespace lass
 namespace test
 {
 
-PY_DECLARE_CLASS_EX( PythonFoo, "PythonFoo" )
+PY_DECLARE_CLASS_NAME( PythonFoo, "PythonFoo" )
 
 
 class Base
@@ -180,7 +180,6 @@ PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );
 
-
 // declare a new pythonable class
 PY_DECLARE_CLASS( Bar )
 PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );
@@ -204,7 +203,17 @@ PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 
+// a const value as class member
 PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );
+
+// innerclass of Bar
+typedef Bar::InnerClass TBarInnerClass;
+PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )
+PY_CLASS_CONSTRUCTOR_1( TBarInnerClass, const std::string& );
+PY_CLASS_METHOD( TBarInnerClass, talkTo );
+PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
+
+
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 
@@ -221,21 +230,21 @@ namespace lass
 namespace test
 {
 
-PY_DECLARE_CLASS_EX(PySpam, "Spam")
+PY_DECLARE_CLASS_NAME(PySpam, "Spam")
 PY_CLASS_METHOD(PySpam, who)
 PY_CLASS_MEMBER_R(PySpam, "address", address)
 PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam")
 
-PY_DECLARE_CLASS_EX(PyHam, "Ham")
+PY_DECLARE_CLASS_NAME(PyHam, "Ham")
 PY_CLASS_CONSTRUCTOR_0(PyHam)
 PY_CLASS_STATIC_METHOD(PyHam, say)
 PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");
 
-PY_DECLARE_CLASS_EX(PyBacon, "Bacon")
+PY_DECLARE_CLASS_NAME(PyBacon, "Bacon")
 PY_CLASS_CONSTRUCTOR_0(PyBacon)
 PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
 
-PY_DECLARE_CLASS_EX(PyEggs, "Eggs")
+PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
 PY_CLASS_MEMBER_RW(PyEggs, "number", number, setNumber)
 PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");

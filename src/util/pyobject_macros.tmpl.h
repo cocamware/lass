@@ -31,6 +31,9 @@
 // o_foo: must be an existing object (could be spam::bar if spam::bar exists as object)
 // f_foo: must be a declared function (could be spam::bar if spam::bar(...) is declared as function)
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
+
 #define LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR "Can not create object"
 
 
@@ -257,34 +260,40 @@
 
 
 
-#define PY_DECLARE_CLASS_EX( i_cppClass, s_className ) \
-	PyTypeObject i_cppClass::Type = {\
-		PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass, i_cppClass, s_className ) };\
-	std::vector<PyMethodDef> i_cppClass::Methods;\
-	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
-	std::vector<::lass::python::impl::StaticMember> i_cppClass::Statics;\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClass_, i_cppClass ),\
-		i_cppClass::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
-		i_cppClass::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
+#define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier ) \
+	PyTypeObject t_cppClass::Type = {\
+		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, ::lass::meta::NullType, s_className ) };\
+	std::vector<PyMethodDef> t_cppClass::Methods;\
+	std::vector<PyGetSetDef> t_cppClass::GetSetters;\
+	std::vector<::lass::python::impl::StaticMember> t_cppClass::Statics;\
+	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPythonImplExecutePyDeclareClass_, i_uniqueClassIdentifier ),\
+		t_cppClass::Methods.push_back( ::lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
+		t_cppClass::GetSetters.push_back( ::lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
 )
 
+#define PY_DECLARE_CLASS_NAME( i_cppClass, s_className )\
+	PY_DECLARE_CLASS_EX( i_cppClass, s_className, i_cppClass )
+
 #define PY_DECLARE_CLASS( i_cppClass ) \
-	PY_DECLARE_CLASS_EX( i_cppClass, LASS_STRINGIFY(i_cppClass) );
+	PY_DECLARE_CLASS_EX( i_cppClass, LASS_STRINGIFY(i_cppClass), i_cppClass );
 
 
 
-#define PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className ) \
+#define PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_uniqueClassIdentifier ) \
 	PyTypeObject i_cppClass::Type = {\
 		PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass::TPyClassSelf, i_cppClass::TPyClassParent, s_className ) };\
 	std::vector<PyMethodDef> i_cppClass::Methods;\
 	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, i_cppClass ),\
+	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, i_uniqueClassIdentifier ),\
 		i_cppClass::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
 		i_cppClass::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
 )
 
+#define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
+	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_cppClass )
+
 #define PY_DECLARE_CLASS_PLUS( i_cppClass ) \
-	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) )
+	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
 
 
 
@@ -331,6 +340,8 @@
  *      the name the inner class will have in python (zero terminated C string)
  *  @param s_doc
  *      documentation of inner class as shown in Python (zero terminated C string)
+ *  @param i_uniqueId
+ *		some identifier that is unique to this innerclass/outerclass combination
  *
  *  Invoke this macro to add an inner class to a class in Python.  Both classes (inner and outer)
  *	should be derived from PyObjectPlus.
@@ -357,26 +368,32 @@
  *  PY_CLASS_INNCER_CLASS_EX( Outer, Inner, "Inner", "Inner class" )
  *  @endcode
  */
-#define PY_CLASS_INNER_CLASS_EX( i_outerCppClass, i_innerCppClass, s_name, s_doc )\
-	LASS_EXECUTE_BEFORE_MAIN_EX(\
-		LASS_CONCATENATE_3(lassExecutePyClassInnerClass, i_outerCppClass, i_innerCppClass),\
-		::lass::python::impl::classInnerClass<i_innerCppClass>(i_outerCppClass::Statics, s_name, s_doc);\
+#define PY_CLASS_INNER_CLASS_EX( t_outerCppClass, t_innerCppClass, s_name, s_doc, i_uniqueClassId )\
+	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecutePyClassInnerClass, i_uniqueClassId),\
+		::lass::python::impl::classInnerClass<t_innerCppClass>(t_outerCppClass::Statics, s_name, s_doc);\
 	)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_doc = 0.
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a i_uniqueId = @a i_outerCppClass ## @a i_innerCppClass.
+ */
+#define PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, s_name, s_doc )\
+	PY_CLASS_INNER_CLASS_EX( i_outerCppClass, i_innerCppClass, s_name, s_doc,\
+		LASS_CONCATENATE(i_outerCppClass, i_innerCppClass) )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_NAME_DOC with @a s_doc = 0.
  */
 #define PY_CLASS_INNER_CLASS_NAME( i_outerCppClass, i_innerCppClass, s_name)\
 	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, s_name, 0)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_name = "@a i_innerCppClass".
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_NAME_DOC with @a s_name = "@a i_innerCppClass".
  */
 #define PY_CLASS_INNER_CLASS_DOC( i_outerCppClass, i_innerCppClass, s_doc )\
 	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), s_doc)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a s_name = "@a i_innerCppClass" and s_doc = 0.
+ *  convenience macro, wraps PY_CLASS_INNER_CLASS_NAME_DOC with @a s_name = "@a i_innerCppClass" and s_doc = 0.
  */
 #define PY_CLASS_INNER_CLASS( i_outerCppClass, i_innerCppClass)\
 	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), 0)
@@ -1206,18 +1223,20 @@ inline void classInnerClass(std::vector<StaticMember>& iOuterStatics, const char
 							const char* iDocumentation)
 {
 	StaticMember temp;
-	temp.name = iName;
+	temp.name = iInnerClassName;
 	temp.object = reinterpret_cast<PyObject*>(&CppClass::Type);
 	temp.parentType = CppClass::GetParentType();
 	temp.methods = &CppClass::Methods;
 	temp.getSetters = &CppClass::GetSetters;
 	temp.statics = &CppClass::Statics;
 	temp.doc = iDocumentation;
-	iStatics.push_back(temp);
+	iOuterStatics.push_back(temp);
 }
 
 }
 }
 }
+
+#endif
 
 // EOF

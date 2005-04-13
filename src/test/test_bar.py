@@ -1,8 +1,20 @@
+import sys
 import embedding
+
 #import code
 #s = code.InteractiveConsole()
 #s.interact()
 
+numberOfErrors = 0
+
+def reportError(description):
+    global numberOfErrors
+    numberOfErrors += 1
+    if sys.exc_info()[0]:
+        print "ERROR: %s: %s" % (description, sys.exc_info()[0])
+    else:
+        print "ERROR: %s" % description
+    sys.exc_clear()
 
 class TestClass:
     def __init__(self):
@@ -39,13 +51,7 @@ print "\n***\n"
 print "dir of Bar object returned :\n ",dir(test)
 print "dir of embedding.Bar : \n" , dir(embedding.Bar)
 print "__dict__ of Bar object :\n",embedding.Bar.__dict__
-print "Bar.CONST:\n", embedding.Bar.CONST
-try:
-    Bar.CONST = 6
-except:
-    print "Can't change Bar.CONST, which is nice"
-else:
-    print "ERROR: Can change Bar.CONST."
+
 
 
 # the __members__ attribute is not (yet) supported
@@ -85,7 +91,7 @@ try:
     test.cool = 6
     print "cool member", test.cool
 except:
-    print "AUTOMATIC SETTER/GETTER ACCESSORS NOT SUPPORTED"
+    reportError("cool setter/getter accessors not supported")
 print "\n"
 
 try:
@@ -137,10 +143,46 @@ print test.tester('a string')
 print test.tester(box, "y", matrix)
 
 
+
+print "\n* Testing class constants"
+try:
+    print "Bar.CONST:\n", embedding.Bar.CONST
+except:
+    reportError("Bar seems to have troubles with CONST")
+else:
+    try:
+        Bar.CONST = 6
+    except:
+        print "Can't change Bar.CONST, which is nice"
+    else:
+        reportError("Can change Bar.CONST, which I shouldn't be able to")
+print "\n"
+
+
+
+print "\n* Testing inner classes"
+try:
+    innerClass = embedding.Bar.InnerClass("the answer is 42")
+except:
+    reportError("Can't create innerclass")
+else:
+    try:
+        sayings = innerClass.talkTo("Arthur")
+    except:
+        reportError("Couldn't talk to Arthur")
+    print sayings
+    if sayings != "Arthur, the answer is 42.\n":
+        reportError("innerClass said the wrong things")
+print "\n"
+
+
+
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)
 test.overloaded('hello!')
 print "\n"
+
+
 
 print "\n* Testing overloaded constructor"
 barA = embedding.Bar()
