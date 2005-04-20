@@ -31,6 +31,9 @@ namespace lass
 namespace util
 {
 
+/** @param iDescriptor description printed at begin of the line
+ *  @param iConsoleWidth maximum number of characters on one console text line (default=80)
+ */
 ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConsoleWidth):
 	description_(iDescription),
 	backslash_(iConsoleWidth, '\b'),
@@ -50,6 +53,8 @@ ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConso
 	}
 }
 
+/** print final message on destruction
+ */
 ProgressIndicator::~ProgressIndicator()
 {
 	std::ostringstream stepInfo;
@@ -58,6 +63,9 @@ ProgressIndicator::~ProgressIndicator()
 	std::cout << backslash_ << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
 }
 
+/** update progress indicator
+ *  @param iProgress value in range [0, 1]
+ */
 void ProgressIndicator::operator()(double iProgress)
 {
 	iProgress = num::clamp(iProgress, num::NumTraits<double>::zero, num::NumTraits<double>::one);

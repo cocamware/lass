@@ -23,6 +23,22 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @class lass::util::ProgressIndicator
+ *  Prints a progress indication to console.
+ *  
+ *  @code
+ *	{
+ *		ProgressIndicator indicator("doing something")
+ *		const int n = 1000;
+ *		for (int i = 0; i < n; ++i)
+ *		{
+ *			doSomething();
+ *			indicator(double(i) / n);
+ *		}
+ *	} // when indicator goes out of scope, it prints a final message.
+ *  @endcode
+ */
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PROGRESS_INDICATOR
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_I_H
 
