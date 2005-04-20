@@ -38,6 +38,9 @@ print "\n***\n"
 print "Module documentation :\n ",embedding.__doc__
 print "Class documentation :\n ",embedding.Bar.__doc__
 
+#print "dir of embedding.Bar : \n" , dir(embedding.Bar)
+#print "__dict__ of Bar object :\n",embedding.Bar.__dict__
+
 # querying the module
 print "dir of bar module:\n",dir(embedding)
 

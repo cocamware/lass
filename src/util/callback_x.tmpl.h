@@ -130,7 +130,7 @@ public:
 
 	/** THE operator.  Executes the callback.
 	 */
-	void operator()($(P$x iP$x)$) const
+	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		if (!isEmpty())
 		{

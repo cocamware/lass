@@ -69,7 +69,10 @@
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
 		static ::std::vector<::lass::python::impl::StaticMember>	Statics; \
-		static PyTypeObject* GetParentType(void) { return &t_parentClass::Type; }\
+		static PyTypeObject* GetParentType(void)\
+		{\
+			return &t_parentClass::Type != &::lass::python::PyObjectPlus::Type ? &t_parentClass::Type : 0;\
+		}\
 		virtual PyTypeObject *GetType(void) {return &Type;}; \
 		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
 		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return 0;}*/
@@ -324,7 +327,7 @@
 #define PY_CLASS_STATIC_CONST( i_cppClass, s_name, v_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE( lassExecutePyClassStaticConst, i_cppClass ),\
-		::lass::python::impl::classStaticConst( i_cppClass::Statics, s_name, v_value );\
+		::lass::python::impl::addClassStaticConst<i_cppClass>(s_name, v_value);\
 	)
 
 // --- inner class ---------------------------------------------------------------------------------
@@ -369,8 +372,8 @@
  *  @endcode
  */
 #define PY_CLASS_INNER_CLASS_EX( t_outerCppClass, t_innerCppClass, s_name, s_doc, i_uniqueClassId )\
-	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecutePyClassInnerClass, i_uniqueClassId),\
-		::lass::python::impl::classInnerClass<t_innerCppClass>(t_outerCppClass::Statics, s_name, s_doc);\
+	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_uniqueClassId),\
+		::lass::python::impl::addClassInnerClass<t_innerCppClass>(t_outerCppClass::Statics, s_name, s_doc);\
 	)
 
 /** @ingroup Python
@@ -478,29 +481,14 @@
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
 	inline PyObject* i_dispatcher( PyObject* iObject, PyObject* iArgs )\
 	{\
-		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
-		{\
-			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iObject, iArgs);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
-			{\
-				return result;\
-			}\
-		}\
-		typedef ::lass::python::impl::ShadowTraits<t_cppClass> TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
-		if (!cppObject)\
-		{\
-			return 0;\
-		}\
-		return ::lass::python::impl::CallMethod<TCppClass>::call(\
-			iArgs, cppObject, &TCppClass::i_cppMethod );\
+		return ::lass::python::impl::callClassMethod<t_cppClass>(\
+			iObject, iArgs, LASS_CONCATENATE(pyOverloadChain_, i_dispatcher),\
+			&::lass::python::impl::ShadowTraits<t_cppClass>::TCppClass::i_cppMethod);\
 	}\
-	PY_IMPL_SUBSCRIBE_CLASS_METHOD( t_cppClass, s_methodName, s_doc, i_dispatcher )
+	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_dispatcher),\
+		::lass::python::impl::addClassMethod<t_cppClass>(\
+			s_methodName, s_doc, i_dispatcher, LASS_CONCATENATE(pyOverloadChain_, i_dispatcher));\
+	)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_METHOD_EX with
@@ -605,7 +593,10 @@
 		>\
 		::TImpl::callMethod(iArgs, cppObject, &TCppClass::i_cppMethod);\
 	}\
-	PY_IMPL_SUBSCRIBE_CLASS_METHOD( t_cppClass, s_methodName, s_doc, i_dispatcher )
+	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_dispatcher),\
+		::lass::python::impl::addClassMethod<t_cppClass>(\
+			s_methodName, s_doc, i_dispatcher, LASS_CONCATENATE(pyOverloadChain_, i_dispatcher));\
+	)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for 0 arguments
@@ -1051,7 +1042,7 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_CONSTRUCTOR(Foo, meta::NullType) // constructor without arguments.
+ *   TRUCTOR(Foo, meta::NullType) // constructor without arguments.
  *  typedef meta::type_list::Make<int, std::string>::Type TArguments;
  *  PY_CLASS_CONSTRUCTOR(Foo, TArguments) // constructor with some arguments. *
  *  @endcode
@@ -1112,27 +1103,7 @@ $[
 ]$
 
 
-// --- implementation macros -----------------------------------------------------------------------
-
-#define PY_IMPL_SUBSCRIBE_CLASS_METHOD( t_cppClass, s_methodName, s_doc, i_dispatcher )\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE_3( lassExecutePySubscribeClassMethod_, t_cppClass, i_dispatcher ),\
-		::std::vector<PyMethodDef>::iterator i = ::std::find_if(\
-			t_cppClass::Methods.begin(), t_cppClass::Methods.end(),\
-			::lass::python::impl::PyMethodEqual(s_methodName));\
-		if (i == t_cppClass::Methods.end())\
-		{\
-			t_cppClass::Methods.insert(\
-				t_cppClass::Methods.begin(),\
-				::lass::python::createPyMethodDef(\
-					s_methodName, (PyCFunction) i_dispatcher, METH_VARARGS , s_doc));\
-		}\
-		else\
-		{\
-			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = i->ml_meth;\
-			i->ml_meth = i_dispatcher;\
-		};\
-	)
+// --- implementation of macros --------------------------------------------------------------------
 
 namespace lass
 {
@@ -1140,6 +1111,9 @@ namespace python
 {
 namespace impl
 {
+
+// currently, i'm implementing these functions inline in this header, just to see where we get with them.
+// But they should probably move to some .cpp or .inl (for templates) file. [BdG]
 
 struct StaticMember
 {
@@ -1151,9 +1125,6 @@ struct StaticMember
 	const char* name;
 	const char* doc;
 };
-
-// currently, i'm implementing these functions inline in this header, just to see where we get with them.
-// But they should probably move to some .cpp or .inl (for templates) file. [BdG]
 
 void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 					std::vector<PyMethodDef>& iMethods,
@@ -1204,8 +1175,27 @@ inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentati
 	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
 }
 
-template<typename T>
-inline void classStaticConst(std::vector<StaticMember>& iStatics, const char* iName, const T& iValue)
+template <typename CppClass>
+void addClassMethod(char* iMethodName, char* iDocumentation, PyCFunction iMethodDispatcher,
+					PyCFunction& oOverloadChain)
+{
+	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
+		CppClass::Methods.begin(), CppClass::Methods.end(),	PyMethodEqual(iMethodName));
+	if (i == CppClass::Methods.end())
+	{
+		CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
+			iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
+		oOverloadChain = 0;
+	}
+	else
+	{
+		oOverloadChain = i->ml_meth;
+		i->ml_meth = iMethodDispatcher;
+	};
+}
+
+template <typename CppClass, typename T>
+inline void addClassStaticConst(const char* iName, const T& iValue)
 {
 	StaticMember temp;
 	temp.name = iName;
@@ -1215,22 +1205,48 @@ inline void classStaticConst(std::vector<StaticMember>& iStatics, const char* iN
 	temp.getSetters = 0;
 	temp.statics = 0;
 	temp.doc = 0;
-	iStatics.push_back(temp);
+	CppClass::Statics.push_back(temp);
 }
 
-template <typename CppClass>
-inline void classInnerClass(std::vector<StaticMember>& iOuterStatics, const char* iInnerClassName, 
-							const char* iDocumentation)
+template <typename InnerCppClass>
+inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
+							   const char* iInnerClassName, const char* iDocumentation)
 {
 	StaticMember temp;
 	temp.name = iInnerClassName;
-	temp.object = reinterpret_cast<PyObject*>(&CppClass::Type);
-	temp.parentType = CppClass::GetParentType();
-	temp.methods = &CppClass::Methods;
-	temp.getSetters = &CppClass::GetSetters;
-	temp.statics = &CppClass::Statics;
+	temp.object = reinterpret_cast<PyObject*>(&InnerCppClass::Type);
+	temp.parentType = InnerCppClass::GetParentType();
+	temp.methods = &InnerCppClass::Methods;
+	temp.getSetters = &InnerCppClass::GetSetters;
+	temp.statics = &InnerCppClass::Statics;
 	temp.doc = iDocumentation;
-	iOuterStatics.push_back(temp);
+	oOuterStatics.push_back(temp);
+}
+
+template <typename ClassType, typename MethodType>
+PyObject* callClassMethod(PyObject* iObject, PyObject* iArgs, PyCFunction iOverloadChain, 
+						  MethodType iMethod)
+{
+	if (iOverloadChain)
+	{
+		PyObject* result = iOverloadChain(iObject, iArgs);
+		if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
+		{
+			PyErr_Clear();
+		}
+		else
+		{
+			return result;
+		}
+	}
+	typedef ::lass::python::impl::ShadowTraits<ClassType> TShadowTraits;
+	typedef TShadowTraits::TCppClass TCppClass;
+	TCppClass* const cppObject = TShadowTraits::cppObject(iObject);
+	if (!cppObject)
+	{
+		return 0;
+	}
+	return ::lass::python::impl::CallMethod<TCppClass>::call(iArgs, cppObject, iMethod);
 }
 
 }

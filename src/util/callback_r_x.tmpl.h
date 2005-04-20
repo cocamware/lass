@@ -128,7 +128,7 @@ public:
 
 	/** THE operator.  Executes the callback.
 	 */
-	R operator()($(P$x iP$x)$) const
+	R operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		if (isEmpty())
 		{

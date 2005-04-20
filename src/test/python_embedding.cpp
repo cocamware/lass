@@ -182,7 +182,7 @@ PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." 
 
 // declare a new pythonable class
 PY_DECLARE_CLASS( Bar )
-PY_CLASS_CONSTRUCTOR( Bar, meta::NullType );
+PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
 PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
 PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 
@@ -196,7 +196,6 @@ PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
-
 PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );
 PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );
 PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
@@ -212,7 +211,6 @@ PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )
 PY_CLASS_CONSTRUCTOR_1( TBarInnerClass, const std::string& );
 PY_CLASS_METHOD( TBarInnerClass, talkTo );
 PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
-
 
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );

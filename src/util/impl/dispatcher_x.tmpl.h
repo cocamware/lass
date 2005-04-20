@@ -52,7 +52,7 @@ class Dispatcher$x: public SmallObject<>
 public:
 
 	Dispatcher$x() {}
-	virtual void operator()($(P$x iP$x)$) const = 0;
+	virtual void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const = 0;
 
 private:
 	Dispatcher$x(const Dispatcher$x<$(P$x)$>& iOther);
@@ -81,7 +81,7 @@ public:
 	{
 	}
 
-	void operator()($(P$x iP$x)$) const
+	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		(*function_)($(iP$x)$);
 	}
@@ -111,7 +111,7 @@ public:
 	{
 	}
 
-	void operator()($(P$x iP$x)$) const
+	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		(object_->*method_)($(iP$x)$);
 	}
@@ -141,7 +141,7 @@ public:
 	{
 	}
 
-	void operator()($(P$x iP$x)$) const
+	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		(object_->*method_)($(iP$x)$);
 	}
