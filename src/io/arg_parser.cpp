@@ -596,7 +596,7 @@ ArgParameter::ArgParameter(ArgParser& iParser,
 
 
 
-std::string ArgParameter::names() const
+const std::string ArgParameter::names() const
 {
 	std::ostringstream result;
 
@@ -618,14 +618,35 @@ std::string ArgParameter::names() const
 
 
 
-bool ArgParameter::parserIsQuiet() const
+const bool ArgParameter::parserIsQuiet() const
 {
 	return parser_.isQuiet_;
 }
 
 
 
-std::string ArgParameter::format() const
+void ArgParameter::set()
+{
+	isSet_ = true;
+}
+
+
+
+const std::string ArgParameter::format() const
+{
+	return doFormat();
+}
+
+
+
+const bool ArgParameter::setValue(const std::string& iValue)
+{
+	return doSetValue(iValue);
+}
+
+
+
+const std::string ArgParameter::doFormat() const
 {
 	std::ostringstream result;
 	result << "[" << names() << "]";
@@ -634,10 +655,10 @@ std::string ArgParameter::format() const
 
 
 
-bool ArgParameter::setValue(const std::string& iValue)
+const bool ArgParameter::doSetValue(const std::string& iValue)
 {
 	//LASS_LOG("parameter '" << names() << "' is set.");
-	isSet_ = true;
+	set();
 	return true;
 }
 

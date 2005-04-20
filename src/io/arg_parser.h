@@ -131,11 +131,10 @@ public:
 	const std::string& shortName() const;
 	const std::string& longName() const;
 	const int mode() const;
+	const std::string format() const;
 
 	bool operator!() const;
 	operator num::SafeBool() const;
-
-	virtual std::string format() const;
 
 protected:
 
@@ -144,21 +143,23 @@ protected:
 				 const std::string& iLongName,
 				 int iArgMode = amDefault);
 
-	std::string names() const;
-	bool parserIsQuiet() const;
-	virtual bool setValue(const std::string& iValue);
-
-	bool isSet_;
+	const std::string names() const;
+	const bool parserIsQuiet() const;
+	const bool setValue(const std::string& iValue);
+	void set();
 
 private:
 
 	friend class ArgParser;
 
+	virtual const std::string doFormat() const;
+	virtual const bool doSetValue(const std::string& iValue);
 
 	ArgParser& parser_;
 	std::string shortName_;
 	std::string longName_;
 	int mode_;
+	bool isSet_;
 };
 
 
@@ -209,11 +210,11 @@ public:
 	typename ArgValue::TConstReference at(size_t iIndex) const;
 	TValues all() const;
 
-	virtual std::string format() const;
-
 private:
 
-	virtual bool setValue(const std::string& iValue);
+
+	virtual const std::string doFormat() const;
+	virtual const bool doSetValue(const std::string& iValue);
 
 	void checkMode(int iArgMode) const;
 

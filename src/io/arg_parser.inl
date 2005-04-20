@@ -83,89 +83,6 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 
 
 
-template <typename T>
-std::string ArgValue<T>::format() const
-{
-	LASS_ASSERT(!(mode() & amNoValue));
-
-	std::ostringstream result;
-	result << "[" << names() << " ";
-
-	if (mode() & amOptional)
-	{
-		result << "[";
-	}
-	result << "<" << (description_.empty() ? "value" : description_) << ">";
-	if (mode() & amMultiple)
-	{
-		result << " ...";
-	}
-	if (mode() & amOptional)
-	{
-		result << "]";
-	}
-
-	result << "]";
-	return result.str();
-}
-
-
-
-
-template <typename T>
-bool ArgValue<T>::setValue(const std::string& iValue)
-{
-	LASS_ASSERT(!(mode() & amNoValue));
-
-	if (iValue == "")
-	{
-		if (mode() & amRequired)
-		{
-			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-				<< "Bad program arguments: you didn't provide a value for the parameter '"
-				<< names() << "' as required.\n";
-			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
-			return false;
-		}
-
-		//LASS_LOG("parameter '" << names() << "' is set without value");
-	}
-	else
-	{
-		if (values_.size() != 0 && !(mode() & amMultiple))
-		{
-			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-				<< "Bad program arguments: parameter '" << names() << "' already has a value '"
-				<< values_[0] << "' assigned, you can't assign another value '" << iValue
-				<< "' because this parameter cannot be multiple valued.\n";
-			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
-			return false;
-		}
-		else
-		{
-			try
-			{
-				values_.push_back(util::stringCast<T>(iValue));
-			}
-			catch(util::Exception)
-			{
-				(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-					<< "Bad program arguments: could not interpret '" << iValue
-					<< "' as a value of type '" << typeid(T).name() << "'.\n";
-				if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
-				return false;
-			}
-
-			//LASS_LOG("parameter '" << names() << "' is set, value == '" << values_.back() << "'");
-		}
-	}
-
-	isSet_ = true;
-	return true;
-}
-
-
-
 /** return number of values that are stored for this argument.
  */
 template <typename T>
@@ -252,6 +169,88 @@ void ArgValue<T>::checkMode(int iArgMode) const
 		LASS_THROW("For a ArgValue '" << names() << "' you must choose between mode 'amOptional' "
 			<< "or 'amRequired'.  At least one of these must be set, but not both.");
 	}
+}
+
+
+
+template <typename T>
+const std::string ArgValue<T>::doFormat() const
+{
+	LASS_ASSERT(!(mode() & amNoValue));
+
+	std::ostringstream result;
+	result << "[" << names() << " ";
+
+	if (mode() & amOptional)
+	{
+		result << "[";
+	}
+	result << "<" << (description_.empty() ? "value" : description_) << ">";
+	if (mode() & amMultiple)
+	{
+		result << " ...";
+	}
+	if (mode() & amOptional)
+	{
+		result << "]";
+	}
+
+	result << "]";
+	return result.str();
+}
+
+
+
+template <typename T>
+const bool ArgValue<T>::doSetValue(const std::string& iValue)
+{
+	LASS_ASSERT(!(mode() & amNoValue));
+
+	if (iValue == "")
+	{
+		if (mode() & amRequired)
+		{
+			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
+				<< "Bad program arguments: you didn't provide a value for the parameter '"
+				<< names() << "' as required.\n";
+			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+			return false;
+		}
+
+		//LASS_LOG("parameter '" << names() << "' is set without value");
+	}
+	else
+	{
+		if (values_.size() != 0 && !(mode() & amMultiple))
+		{
+			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
+				<< "Bad program arguments: parameter '" << names() << "' already has a value '"
+				<< values_[0] << "' assigned, you can't assign another value '" << iValue
+				<< "' because this parameter cannot be multiple valued.\n";
+			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+			return false;
+		}
+		else
+		{
+			try
+			{
+				values_.push_back(util::stringCast<T>(iValue));
+			}
+			catch(util::Exception)
+			{
+				(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
+					<< "Bad program arguments: could not interpret '" << iValue
+					<< "' as a value of type '" << typeid(T).name() << "'.\n";
+				if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+				return false;
+			}
+
+			//LASS_LOG("parameter '" << names() << "' is set, value == '" << values_.back() << "'");
+		}
+	}
+
+	set();
+	return true;
 }
 
 
