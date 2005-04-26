@@ -500,6 +500,8 @@
 		{\
 			return 0;\
 		}\
+		return ::lass::python::impl::CallMethod<TCppClass>::call(\
+			iArgs, cppObject, &TCppClass::i_cppMethod );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_dispatcher),\
 		::lass::python::impl::addClassMethod< t_cppClass >(\
