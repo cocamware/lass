@@ -481,9 +481,25 @@
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
 	inline PyObject* i_dispatcher( PyObject* iObject, PyObject* iArgs )\
 	{\
-		return ::lass::python::impl::callClassMethod< t_cppClass >(\
-			iObject, iArgs, LASS_CONCATENATE(pyOverloadChain_, i_dispatcher),\
-			&::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass::i_cppMethod);\
+		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iObject, iArgs);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_dispatcher),\
 		::lass::python::impl::addClassMethod< t_cppClass >(\
@@ -1221,32 +1237,6 @@ inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics,
 	temp.statics = &InnerCppClass::Statics;
 	temp.doc = iDocumentation;
 	oOuterStatics.push_back(temp);
-}
-
-template <typename ClassType, typename MethodType>
-PyObject* callClassMethod(PyObject* iObject, PyObject* iArgs, PyCFunction iOverloadChain, 
-						  MethodType iMethod)
-{
-	if (iOverloadChain)
-	{
-		PyObject* result = iOverloadChain(iObject, iArgs);
-		if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
-		{
-			PyErr_Clear();
-		}
-		else
-		{
-			return result;
-		}
-	}
-	typedef ::lass::python::impl::ShadowTraits<ClassType> TShadowTraits;
-	typedef TShadowTraits::TCppClass TCppClass;
-	TCppClass* const cppObject = TShadowTraits::cppObject(iObject);
-	if (!cppObject)
-	{
-		return 0;
-	}
-	return ::lass::python::impl::CallMethod<TCppClass>::call(iArgs, cppObject, iMethod);
 }
 
 }
