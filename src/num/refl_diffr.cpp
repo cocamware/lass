@@ -43,8 +43,8 @@ namespace impl
 
 	template<class NTC> NTC heaviside(const NTC& iValue)
 	{
-		if (iValue>0.0)
-			return iValue;
+		if (iValue>=0.0)
+			return 1.0;
 		return NTC(0.0);
 	}
 
