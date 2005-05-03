@@ -57,6 +57,19 @@ void testStdeExtendedString()
 	BOOST_CHECK(stde::ends_with(test, std::string("")));
 	BOOST_CHECK(!stde::ends_with(test, std::string("xef")));
 	BOOST_CHECK(!stde::ends_with(test, std::string("abc")));
+
+	typedef std::vector<std::string> string_vector;
+	BOOST_CHECK_EQUAL(stde::split(std::string("")), string_vector());
+	string_vector splitted;
+	splitted.push_back("foo");
+	splitted.push_back("bar");
+	splitted.push_back("fun");
+	splitted.push_back("baz");
+	BOOST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz")), splitted);
+	splitted.push_back("");
+	BOOST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz ")), splitted);
+	splitted.insert(splitted.begin(), "");
+	BOOST_CHECK_EQUAL(stde::split(std::string("\tfoo bar\t fun \n baz ")), splitted);
 }
 
 }

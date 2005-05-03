@@ -28,6 +28,11 @@
 /** @defgroup extended_string ExtendedString
  *  @brief extra std::string functionality
  *  @author Bram de Greve [BdG]
+ *
+ *  ExtendedString is not an extended std::string implementation as the name might suggest, but
+ *  a set of functions that provide extra functionality on very standard std::string strings.
+ *  Most of them are inspired by the string module of Python, as you will notice.
+ *  Others are std::string implementations of C functions operating on char arrays
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_STRING_H

@@ -389,6 +389,9 @@
 				RelativePath="deletor.h">
 			</File>
 			<File 
+				RelativePath=".\extended_algorithm.h">
+			</File>
+			<File 
 				RelativePath="extended_io.h">
 			</File>
 			<File 

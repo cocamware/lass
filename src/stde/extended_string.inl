@@ -77,7 +77,7 @@ toupper(const std::basic_string<Char, Traits, Alloc>& input,
 }
 
 /** @ingroup extended_string
- *  replace all instance of @a to_be_replaced in @a input by @a replacement.
+ *  replace all instances of @a to_be_replaced in @a input by @a replacement.
  */
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc>
@@ -128,15 +128,10 @@ bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 /** @ingroup extended_string
  *  Reflects the Python function @c split without seperator argument
  *
- *  Return a vector of the words of the string @a to_be_split.  The second argument @a seperator
- *  specifies a string to be used as the word separator. The returned vector will then have one
- *  more item than the number of non-overlapping occurrences of the separator in the string.
+ *  Return a vector of the words of the string @a to_be_split.  The words are separated by arbitrary
+ *  strings of whitespace characters (space, tab, newline, return, formfeed). 
  *
- *  The optional third argument @a max_split defaults to 0.  If it is nonzero, at most
- *  @a max_split number of splits occur, and the remainder of the string is returned as the final
- *  element of the list (thus, the list will have at most @a max_split + 1 elements).
- *
- *  If @a to_be_split is empty, then the result will have an empty string as only element.
+ *  If @a to_be_split is empty, then the result will have an empty vector.
  */
 template <typename Char, typename Traits, typename Alloc>
 std::vector< std::basic_string<Char, Traits, Alloc> >
@@ -148,13 +143,23 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split)
 	const string_type seperators = " \t\n";
 	std::vector< std::basic_string<Char, Traits, Alloc> > result;
 
+	if (to_be_split.empty())
+	{
+		return result;
+	}
+
 	size_type begin = 0;
 	size_type i = to_be_split.find_first_of(seperators);
 	while (i != string_type::npos)
 	{
 		result.push_back(to_be_split.substr(begin, i - begin));
-		begin = i + 1;
-		i = to_be_split.find_first_of(seperators);
+		begin = to_be_split.find_first_not_of(seperators, i);
+		if (begin == string_type::npos)
+		{
+			result.push_back(string_type());
+			return result;
+		}
+		i = to_be_split.find_first_of(seperators, begin);
 	}
 
 	result.push_back(to_be_split.substr(begin));
