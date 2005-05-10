@@ -98,6 +98,29 @@
  */
 #define LASS_LIB_SUFFIX "_" LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_DEBUG ".lib"
 
+/** @def LASS_DLL
+ *  @brief DLL interface: import or export symbols?  or neither?
+ */
+#if defined(LASS_BUILD_DLL)
+#	define LASS_DLL LASS_DLL_EXPORT
+#elif defined(LASS_USE_DLL)
+#	define LASS_DLL LASS_DLL_IMPORT
+#else
+#	define LASS_DLL
+#endif
+
+/** @def LASS_LIB_AUTO_LINK
+ *  @brief if defined, try to automatically link the static libraries
+ */
+#if defined(LASS_LIB_AUTO_LINK)
+#	undef LASS_LIB_AUTO_LINK
+#endif
+#if !defined(LASS_BUILD_DLL)
+#	if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
+#		define LASS_LIB_AUTO_LINK
+#	endif
+#endif
+
 
 
 // --- frequently used STL mumbo jumbo ---

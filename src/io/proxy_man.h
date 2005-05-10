@@ -64,7 +64,7 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT ProxyMan
+class LASS_DLL ProxyMan
 {
 public:
 
@@ -83,7 +83,7 @@ private:
 	ProxyIStream cin_;
 };
 
-LASS_DLL_EXPORT ProxyMan* LASS_CALL proxyMan();
+LASS_DLL ProxyMan* LASS_CALL proxyMan();
 
 }
 

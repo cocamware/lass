@@ -63,7 +63,7 @@ namespace lass
 namespace util
 {
 
-class LASS_DLL_EXPORT TypeInfo
+class LASS_DLL TypeInfo
 {
 public:
 
@@ -81,14 +81,14 @@ private:
 
 };
 
-LASS_DLL_EXPORT bool operator==(const TypeInfo& iA, const TypeInfo& iB);
-LASS_DLL_EXPORT bool operator!=(const TypeInfo& iA, const TypeInfo& iB);
-LASS_DLL_EXPORT bool operator<(const TypeInfo& iA, const TypeInfo& iB);
-LASS_DLL_EXPORT bool operator>(const TypeInfo& iA, const TypeInfo& iB);
-LASS_DLL_EXPORT bool operator<=(const TypeInfo& iA, const TypeInfo& iB);
-LASS_DLL_EXPORT bool operator>=(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator==(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator!=(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator<(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator>(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator<=(const TypeInfo& iA, const TypeInfo& iB);
+LASS_DLL bool operator>=(const TypeInfo& iA, const TypeInfo& iB);
 
-LASS_DLL_EXPORT std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo);
+LASS_DLL std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo);
 
 }
 

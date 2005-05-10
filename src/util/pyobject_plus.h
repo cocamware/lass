@@ -72,7 +72,7 @@ namespace lass
 		*   The usage will be given by providing an example.  See the test case and look
 		*   for the files bar.h and bar.cpp.
 		*/
-		class LASS_DLL_EXPORT PyObjectPlus :
+		class LASS_DLL PyObjectPlus :
 			public PyObject
 		{
 			PY_HEADER_INTERNAL;

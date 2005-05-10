@@ -73,7 +73,7 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT ProxyOStream
+class LASS_DLL ProxyOStream
 {
 public:
 

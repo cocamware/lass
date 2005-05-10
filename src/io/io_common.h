@@ -45,8 +45,7 @@
  */
 #define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
 //#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
-
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+#if defined(LASS_LIB_AUTO_LINK)
 #	pragma comment(lib, LASS_LIB_IO)
 #endif
 

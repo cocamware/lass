@@ -55,7 +55,7 @@ namespace io
 {
 
 
-class LASS_DLL_EXPORT XmlOElement: public XmlOStream
+class LASS_DLL XmlOElement: public XmlOStream
 {
 public:
 

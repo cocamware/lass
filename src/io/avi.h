@@ -137,7 +137,7 @@ class ColorRGBA;
 namespace io
 {
 
-class LASS_DLL_EXPORT Avi
+class LASS_DLL Avi
 {
 public:
 

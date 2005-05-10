@@ -52,7 +52,7 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT StreamBase: public util::NonCopyable
+class LASS_DLL StreamBase: public util::NonCopyable
 {
 public:
 

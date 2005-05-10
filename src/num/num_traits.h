@@ -37,7 +37,7 @@ namespace num
 {
 
 template<class C>
-struct LASS_DLL_EXPORT NumTraits
+struct LASS_DLL NumTraits
 {
 	typedef C   selfType;               /**< our own type */
 	typedef C   baseType;               /**< is the base type where selfType is based on */

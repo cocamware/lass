@@ -62,19 +62,46 @@ enum MatlabColor
 
 
 
-class LASS_DLL_EXPORT MatlabOStream :
-	public std::ofstream
+class MatlabOStream: public std::ofstream
 {
 public:
-	MatlabOStream();
-	MatlabOStream(const char* iFilename, std::ios::openmode iOpenMode);
-	virtual ~MatlabOStream();
+	MatlabOStream(): 
+		std::ofstream(), 
+		color_(mcBlack) 
+	{
+	}
 
-	void setColor(MatlabColor iColor);
-	const std::string& color() const;
+	MatlabOStream(const char* iFilename, std::ios::openmode iOpenMode): 
+		std::ofstream(iFilename, iOpenMode), 
+		color_(mcBlack)
+	{
+	}
 
-	void setFlag(const std::string& iName, bool iValue);
-	bool flag(const std::string& iName, bool iDefault = false) const;
+	virtual ~MatlabOStream() 
+	{
+	}
+
+	void setColor(MatlabColor iColor) 
+	{
+		color_ = iColor; 
+	}
+
+	const std::string& color() const
+	{
+		static const std::string colors[] = {"'y'", "'m'", "'c'", "'r'", "'g'", "'b'", "'w'", "'k'"};
+		return colors[color_];
+	}
+
+	void setFlag(const std::string& iName, bool iValue)
+	{
+		flags_[iName] = iValue;
+	}
+
+	bool flag(const std::string& iName, bool iDefault = false) const
+	{
+		TFlags::const_iterator i = flags_.find(iName);
+		return i != flags_.end() ? i->second : iDefault;
+	}
 
 private:
 

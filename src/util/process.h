@@ -50,7 +50,7 @@ namespace lass
 namespace util
 {
 
-LASS_DLL_EXPORT void LASS_CALL setProcessPriority(const std::string& iPriority);
+LASS_DLL void LASS_CALL setProcessPriority(const std::string& iPriority);
 
 }
 

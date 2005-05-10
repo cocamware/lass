@@ -665,6 +665,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				<File 
 					RelativePath="impl\small_object_impl.h">
 				</File>
+				<File 
+					RelativePath=".\impl\util_common.h">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter 
@@ -674,6 +677,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 		<Filter 
 			Name="Config Files"
 			Filter="">
+			<File 
+				RelativePath="..\config\compiler_gcc.h">
+			</File>
 			<File 
 				RelativePath="..\config\compiler_intel.h">
 			</File>

@@ -46,7 +46,7 @@ namespace io
 {
 
 
-class LASS_DLL_EXPORT XmlOStream: public StreamBase
+class LASS_DLL XmlOStream: public StreamBase
 {
 public:
 

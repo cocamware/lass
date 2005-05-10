@@ -70,7 +70,7 @@
  */
 #define LASS_LIB_UTIL LASS_LIB_PREFIX "util" LASS_LIB_SUFFIX
 
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+#if defined(LASS_LIB_AUTO_LINK)
 #	pragma comment(lib, LASS_LIB_UTIL)
 #endif
 

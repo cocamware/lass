@@ -41,7 +41,7 @@ namespace lass
 namespace prim
 {
 
-class LASS_DLL_EXPORT XYZW
+class LASS_DLL XYZW
 {
 public:
 
@@ -69,27 +69,27 @@ private:
 
 	typedef num::Modulo<4, int> TValue;
 
-	friend LASS_DLL_EXPORT bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
+	friend LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
 
 	void reset(char iAxis);
 
 	TValue value_;
 };
 
-LASS_DLL_EXPORT bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
-LASS_DLL_EXPORT bool LASS_CALL operator==(const XYZW& iA, char iB);
-LASS_DLL_EXPORT bool LASS_CALL operator==(char iA, const XYZW& iB);
-LASS_DLL_EXPORT bool LASS_CALL operator==(const XYZW& iA, const std::string& iB);
-LASS_DLL_EXPORT bool LASS_CALL operator==(const std::string& iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator==(const XYZW& iA, char iB);
+LASS_DLL bool LASS_CALL operator==(char iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const std::string& iB);
+LASS_DLL bool LASS_CALL operator==(const std::string& iA, const XYZW& iB);
 
-LASS_DLL_EXPORT bool LASS_CALL operator!=(const XYZW& iA, const XYZW& iB);
-LASS_DLL_EXPORT bool LASS_CALL operator!=(const XYZW& iA, char iB);
-LASS_DLL_EXPORT bool LASS_CALL operator!=(char iA, const XYZW& iB);
-LASS_DLL_EXPORT bool LASS_CALL operator!=(const XYZW& iA, const std::string&  iB);
-LASS_DLL_EXPORT bool LASS_CALL operator!=(const std::string&  iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, char iB);
+LASS_DLL bool LASS_CALL operator!=(char iA, const XYZW& iB);
+LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, const std::string&  iB);
+LASS_DLL bool LASS_CALL operator!=(const std::string&  iA, const XYZW& iB);
 
-LASS_DLL_EXPORT XYZW LASS_CALL operator+(const XYZW& iA, int iOffset);
-LASS_DLL_EXPORT XYZW LASS_CALL operator-(const XYZW& iA, int iOffset);
+LASS_DLL XYZW LASS_CALL operator+(const XYZW& iA, int iOffset);
+LASS_DLL XYZW LASS_CALL operator-(const XYZW& iA, int iOffset);
 
 /** @relates lass::prim::XY
  */

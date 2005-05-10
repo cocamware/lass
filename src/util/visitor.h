@@ -230,7 +230,7 @@ namespace util
 /** @ingroup VisitorPattern
  *  @brief base class of all visitors
  */
-class LASS_DLL_EXPORT VisitorBase
+class LASS_DLL VisitorBase
 {
 public:
 	virtual ~VisitorBase() {}
@@ -242,7 +242,7 @@ public:
  *  @brief a mix-in to provides a visitor capabilities to visit a class
  */
 template <typename VisitableType>
-class LASS_DLL_EXPORT Visitor
+class LASS_DLL Visitor
 {
 public:
 
@@ -268,7 +268,7 @@ private:
  *  This is the default.
  */
 template <typename VisitableType>
-struct LASS_DLL_EXPORT VisitNonStrict
+struct LASS_DLL VisitNonStrict
 {
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
@@ -283,7 +283,7 @@ struct LASS_DLL_EXPORT VisitNonStrict
  *  This catch-all policy will raise an exception if a visitor class is not recognized.
  */
 template <typename VisitableType>
-struct LASS_DLL_EXPORT VisitStrict
+struct LASS_DLL VisitStrict
 {
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
@@ -303,7 +303,7 @@ template
 <
 	template <typename> class CatchAll = VisitNonStrict
 >
-class LASS_DLL_EXPORT VisitableBase
+class LASS_DLL VisitableBase
 {
 public:
 

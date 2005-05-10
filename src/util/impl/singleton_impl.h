@@ -45,13 +45,13 @@ typedef Mutex TSingletonLock;
 
 /** @internal
  */
-LASS_DLL_EXPORT void LASS_CALL singletonCleanUp();
+LASS_DLL void LASS_CALL singletonCleanUp();
 
 /** base class of all singletons.
  *  @internal
  *  @author Bram de Greve [Bramz]
  */
-class LASS_DLL_EXPORT SingletonBase: NonCopyable
+class LASS_DLL SingletonBase: NonCopyable
 {
 public:
 
@@ -80,7 +80,7 @@ private:
  *  @internal
  *  @author Bram de Greve [Bramz]
  */
-class LASS_DLL_EXPORT CompareDestructionPriority
+class LASS_DLL CompareDestructionPriority
 {
 public:
 
@@ -107,7 +107,7 @@ public:
  *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns
  *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
 */
-class LASS_DLL_EXPORT SingletonGuard
+class LASS_DLL SingletonGuard
 {
 public:
 

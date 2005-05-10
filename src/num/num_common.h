@@ -40,7 +40,7 @@
 #define LASS_LIB_NUM LASS_LIB_PREFIX "num" LASS_LIB_SUFFIX
 //#pragma message("LASS_LIB_NUM: " LASS_LIB_NUM)
 
-#if !defined(LASS_LIB_NO_AUTOMATIC_LINK)
+#if defined(LASS_LIB_AUTO_LINK)
 #	pragma comment(lib, LASS_LIB_NUM)
 #endif
 

@@ -48,7 +48,7 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL_EXPORT BinaryIFile: public BinaryIStream
+class LASS_DLL BinaryIFile: public BinaryIStream
 {
 public:
 

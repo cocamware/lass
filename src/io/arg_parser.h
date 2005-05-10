@@ -79,7 +79,7 @@ struct ArgFormat
 /** @ingroup ArgParser
  *  @brief the parser itself
  */
-class LASS_DLL_EXPORT ArgParser
+class LASS_DLL ArgParser
 {
 public:
 
@@ -122,7 +122,7 @@ private:
 
 /** @ingroup ArgParser
  */
-class LASS_DLL_EXPORT ArgParameter
+class LASS_DLL ArgParameter
 {
 public:
 
@@ -166,7 +166,7 @@ private:
 
 /** @ingroup ArgParser
  */
-class LASS_DLL_EXPORT ArgFlag: public ArgParameter
+class LASS_DLL ArgFlag: public ArgParameter
 {
 public:
 
@@ -182,7 +182,7 @@ public:
 /** @ingroup ArgParser
  */
 template <typename T>
-class LASS_DLL_EXPORT ArgValue: public ArgParameter
+class LASS_DLL ArgValue: public ArgParameter
 {
 public:
 
