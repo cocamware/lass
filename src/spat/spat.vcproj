@@ -437,43 +437,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					</Tool>
 				</FileConfiguration>
 			</File>
-			<Filter 
-				Name="world_3d sources"
-				Filter="">
-				<File 
-					RelativePath="world_3d\cell_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\edge_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\face_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\object_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d_const_iterators.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d_iterators.inl">
-				</File>
-				<File 
-					RelativePath=".\world_3d\polarity.cpp">
-				</File>
-				<File 
-					RelativePath=".\world_3d\preprocessor_2d5.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\vertex_3d.inl">
-				</File>
-				<File 
-					RelativePath="world_3d\world_3d.inl">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter 
 			Name="Header Files"
@@ -496,43 +459,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			<File 
 				RelativePath="spat_common.h">
 			</File>
-			<Filter 
-				Name="world_3d"
-				Filter="">
-				<File 
-					RelativePath="world_3d\cell_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\edge_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\face_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\object_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d_const_iterators.h">
-				</File>
-				<File 
-					RelativePath="world_3d\pair_3d_iterators.h">
-				</File>
-				<File 
-					RelativePath="world_3d\polarity.h">
-				</File>
-				<File 
-					RelativePath=".\world_3d\preprocessor_2d5.h">
-				</File>
-				<File 
-					RelativePath="world_3d\vertex_3d.h">
-				</File>
-				<File 
-					RelativePath="world_3d\world_3d.h">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter 
 			Name="Resource Files"
