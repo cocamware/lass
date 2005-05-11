@@ -409,9 +409,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\type_info.cpp">
 			</File>
 			<File 
-				RelativePath="type_info.inl">
-			</File>
-			<File 
 				RelativePath="util.cpp">
 				<FileConfiguration 
 					Name="win32_intel700|Win32"

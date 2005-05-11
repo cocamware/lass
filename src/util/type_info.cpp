@@ -34,7 +34,7 @@ namespace util
 /** construct an Null type info object.
  *  it stores info on lass::meta::NullType, as to say: there's no info in this TypeInfo.
  */
-inline TypeInfo::TypeInfo():
+TypeInfo::TypeInfo():
 	type_info_(&typeid(meta::NullType))
 {
 	LASS_ASSERT(type_info_);
@@ -44,7 +44,7 @@ inline TypeInfo::TypeInfo():
 
 /** Implicit conversion constructor of std::type_info to lass::util::TypeInfo
  */
-inline TypeInfo::TypeInfo(const std::type_info& iType_info):
+TypeInfo::TypeInfo(const std::type_info& iType_info):
 	type_info_(&iType_info)
 {
 	LASS_ASSERT(type_info_);
@@ -54,7 +54,7 @@ inline TypeInfo::TypeInfo(const std::type_info& iType_info):
 
 /** return reference to std::type_info object, used by this TypeInfo object.
  */
-inline const std::type_info& TypeInfo::type_info() const
+const std::type_info& TypeInfo::type_info() const
 {
 	LASS_ASSERT(type_info_);
 	return *type_info_;
@@ -64,7 +64,7 @@ inline const std::type_info& TypeInfo::type_info() const
 
 /** return true if this TypeInfo comes before the other one (conform std::type_info::before).
  */
-inline bool TypeInfo::before(const TypeInfo& iOther) const
+bool TypeInfo::before(const TypeInfo& iOther) const
 {
 	LASS_ASSERT(type_info_);
 	return type_info_->before(*iOther.type_info_) != 0;
@@ -74,7 +74,7 @@ inline bool TypeInfo::before(const TypeInfo& iOther) const
 
 /** return name of type (conform std::type_info::name)
  */
-inline const char* TypeInfo::name() const
+const char* TypeInfo::name() const
 {
 	LASS_ASSERT(type_info_);
 	return type_info_->name();
@@ -85,7 +85,7 @@ inline const char* TypeInfo::name() const
 /** return true if both TypeInfo objects refer to the same type.
  *  @relates TypeInfo
  */
-inline bool operator==(const TypeInfo& iA, const TypeInfo& iB)
+bool operator==(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return (iA.type_info() == iB.type_info()) != 0;
 }
@@ -95,7 +95,7 @@ inline bool operator==(const TypeInfo& iA, const TypeInfo& iB)
 /** return true if iA and iB refer to different types.
  *  @relates TypeInfo
  */
-inline bool operator!=(const TypeInfo& iA, const TypeInfo& iB)
+bool operator!=(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return !(iA == iB);
 }
@@ -105,7 +105,7 @@ inline bool operator!=(const TypeInfo& iA, const TypeInfo& iB)
 /** return true if iA comes before iB.
  *  @relates TypeInfo
  */
-inline bool operator<(const TypeInfo& iA, const TypeInfo& iB)
+bool operator<(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return iA.before(iB);
 }
@@ -115,7 +115,7 @@ inline bool operator<(const TypeInfo& iA, const TypeInfo& iB)
 /** return true if iB comes before iA.
  *  @relates TypeInfo
  */
-inline bool operator>(const TypeInfo& iA, const TypeInfo& iB)
+bool operator>(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return iB < iA;
 }
@@ -126,7 +126,7 @@ inline bool operator>(const TypeInfo& iA, const TypeInfo& iB)
  *  @relates TypeInfo
  *  same as (iA comes before iB) or (iA and iB are identical).
  */
-inline bool operator<=(const TypeInfo& iA, const TypeInfo& iB)
+bool operator<=(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return !(iB < iA);
 }
@@ -137,7 +137,7 @@ inline bool operator<=(const TypeInfo& iA, const TypeInfo& iB)
  *  @relates TypeInfo
  *  same as (iB comes before iA) or (iA and iB are identical).
  */
-inline bool operator>=(const TypeInfo& iA, const TypeInfo& iB)
+bool operator>=(const TypeInfo& iA, const TypeInfo& iB)
 {
 	return !(iA < iB);
 }
@@ -146,7 +146,7 @@ inline bool operator>=(const TypeInfo& iA, const TypeInfo& iB)
 
 /** @relates TypeInfo
  */
-inline std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo)
+std::ostream& operator<<(std::ostream& iStream, const TypeInfo& iTypeInfo)
 {
 	iStream << iTypeInfo.name();
 	return iStream;

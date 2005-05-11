@@ -81,7 +81,7 @@
 				EnableCOMDATFolding="2"
 				TargetMachine="1">
 				<IntelOptions 
-					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\temp\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -168,7 +168,7 @@
 				SubSystem="1"
 				TargetMachine="1">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\temp\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -253,7 +253,7 @@
 				SubSystem="1"
 				TargetMachine="1">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\temp\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -351,7 +351,7 @@
 				EnableCOMDATFolding="2"
 				TargetMachine="1">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\temp\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -404,6 +404,14 @@
 						Name="VCCLCompilerTool">
 						<IntelOptions 
 							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
+					</Tool>
+				</FileConfiguration>
+				<FileConfiguration 
+					Name="win32_vc71|Win32">
+					<Tool 
+						Name="VCCLCompilerTool">
+						<IntelOptions 
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
 					</Tool>
 				</FileConfiguration>
 			</File>
@@ -610,6 +618,14 @@
 						Name="VCCLCompilerTool">
 						<IntelOptions 
 							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
+					</Tool>
+				</FileConfiguration>
+				<FileConfiguration 
+					Name="win32_vc71|Win32">
+					<Tool 
+						Name="VCCLCompilerTool">
+						<IntelOptions 
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
 					</Tool>
 				</FileConfiguration>
 			</File>
