@@ -222,6 +222,9 @@ template <typename T> inline void compinv(const std::complex<T>& iV, std::comple
 template <typename T> inline T norm(const std::complex<T>& iV);
 template <typename T> inline std::complex<T> conj(const std::complex<T>& iV);
 
+template<typename T,typename f> T applyFunction(const T& iV, f func ) { return func(iV); }
+
+
 #include "basic_ops.inl"
 
 }
