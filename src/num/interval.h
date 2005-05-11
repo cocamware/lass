@@ -158,6 +158,9 @@ public:
 	friend void inplog<C>(interval<C>& i);
 	friend void inpnorm<C>(interval<C>& i);
 	friend void inpinv<C>(interval<C>& i);
+
+	template<typename C> friend interval<C>& applyFunction(const interval<C>& iV, C (*func)(C) );
+
 };
 
 template<typename C> interval<C>    operator+(const interval<C>& i1,const interval<C>& i2);

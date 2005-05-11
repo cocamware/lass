@@ -882,6 +882,16 @@ namespace lass
 			return str( *this );
 		}
 
+		FNSampled8& applyFunction(const FNSampled8& iV, FNSampled8::TBaseType (*func)(FNSampled8::TBaseType) )
+		{
+			FNSampled8 temp(iV);
+			int i=0;
+			for (;i<4;++i)
+				temp.alpha_[i] = applyFunction(temp.alpha_[i],func);
+			return temp;
+		}
+
+
 /*
 		std::string PyFNSampled8::repr(void)
 		{
@@ -1026,6 +1036,15 @@ namespace lass
 			}
 			return -1;
 		}
+
+		int pyGetSimpleObject( PyObject* iValue, std::complex<lass::num::FNSampled8>& oV )
+		{
+			std::pair<lass::num::FNSampled8,lass::num::FNSampled8> tempV;
+			int r = pyGetSimpleObject(iValue, tempV);
+			oV = std::complex<lass::num::FNSampled8>(tempV.first,tempV.second);
+			return r;
+		}
+
 	}
 
 

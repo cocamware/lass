@@ -205,6 +205,7 @@ namespace lass
 			std::ostream& write(std::ostream& os) const;
 
 			friend void events(const FNSampled8& sfn1,const FNSampled8& sfn2,std::vector<FNSampled8::TBaseType>& outEvents);
+			friend FNSampled8& applyFunction(const FNSampled8& iV, FNSampled8::TBaseType (*func)(FNSampled8::TBaseType) );
 		};
 
 		FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8& iV2 );
@@ -302,6 +303,7 @@ namespace lass
 	namespace python
 	{
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
+		int pyGetSimpleObject( PyObject* iValue, std::complex<lass::num::FNSampled8>& oV );
 		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
 		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV );
 		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );

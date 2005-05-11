@@ -566,3 +566,14 @@ interval<C> set_intersect(const interval<C>& i1, const interval<C>& i2)
 {
 	return interval<C>( std::max(i1.inf(), i2.inf()), std::min( i1.sup(), i2.sup() ) );
 }
+
+
+template<typename C>
+interval<C>& applyFunction(const interval<C>& iV, C (*func)(C) )
+{
+	C t1,t2,r1,r2;
+	t1 = func(iV.inf());
+	t2 = func(iV.sup());
+	impl::numMinMax(t1,t2,r1,r2);
+	return interval<C>(r1,r2);
+}
