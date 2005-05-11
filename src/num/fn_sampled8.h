@@ -205,7 +205,7 @@ namespace lass
 			std::ostream& write(std::ostream& os) const;
 
 			friend void events(const FNSampled8& sfn1,const FNSampled8& sfn2,std::vector<FNSampled8::TBaseType>& outEvents);
-			friend FNSampled8& applyFunction(const FNSampled8& iV, FNSampled8::TBaseType (*func)(FNSampled8::TBaseType) );
+			template<typename f> friend FNSampled8 applyFunction(const FNSampled8& iV, f func );
 		};
 
 		FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8& iV2 );
@@ -298,6 +298,16 @@ namespace lass
 		std::complex<FNSampled8 >& operator+=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 		std::complex<FNSampled8 >& operator-=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 
+		template<typename f>
+		FNSampled8 applyFunction(const FNSampled8& iV, f func )
+		{
+			FNSampled8 temp(iV);
+			int i=0;
+			for (;i<4;++i)
+				temp.alpha_[i] = applyFunction(temp.alpha_[i],func);
+			return temp;
+		}
+
 	}
 
 	namespace python
@@ -317,5 +327,7 @@ namespace lass
 }
 
 inline std::ostream& operator<<(std::ostream& os, const lass::num::FNSampled8& sfn) { return sfn.write(os); }
+
+
 
 #endif

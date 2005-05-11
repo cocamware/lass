@@ -882,15 +882,6 @@ namespace lass
 			return str( *this );
 		}
 
-		FNSampled8& applyFunction(const FNSampled8& iV, FNSampled8::TBaseType (*func)(FNSampled8::TBaseType) )
-		{
-			FNSampled8 temp(iV);
-			int i=0;
-			for (;i<4;++i)
-				temp.alpha_[i] = applyFunction(temp.alpha_[i],func);
-			return temp;
-		}
-
 
 /*
 		std::string PyFNSampled8::repr(void)

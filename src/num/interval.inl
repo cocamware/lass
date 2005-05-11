@@ -568,8 +568,8 @@ interval<C> set_intersect(const interval<C>& i1, const interval<C>& i2)
 }
 
 
-template<typename C>
-interval<C>& applyFunction(const interval<C>& iV, C (*func)(C) )
+template<typename C,typename f>
+interval<C> applyFunction(const interval<C>& iV, f func )
 {
 	C t1,t2,r1,r2;
 	t1 = func(iV.inf());

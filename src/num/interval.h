@@ -159,7 +159,7 @@ public:
 	friend void inpnorm<C>(interval<C>& i);
 	friend void inpinv<C>(interval<C>& i);
 
-	template<typename C> friend interval<C>& applyFunction(const interval<C>& iV, C (*func)(C) );
+	template<typename C,typename f> friend interval<C> applyFunction(const interval<C>& iV, f func );
 
 };
 
