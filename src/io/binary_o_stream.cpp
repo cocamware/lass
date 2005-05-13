@@ -72,15 +72,15 @@ LASS_IO_BINARY_O_STREAM_INSERTOR(const void*)
 BinaryOStream& BinaryOStream::operator<<(const char* iIn)
 {
 	size_t length = strlen(iIn);
-	*this << length;
+	doWrite(&length, sizeof(size_t));
 	doWrite(iIn, length);
 	return *this;
 }
 
 BinaryOStream& BinaryOStream::operator<<(const std::string& iIn)
 {
-	size_t length = iIn.length() + 1;
-	*this << length;
+	size_t length = iIn.length();
+	doWrite(&length, sizeof(size_t));
 	doWrite(iIn.c_str(), length);
 	return *this;
 }

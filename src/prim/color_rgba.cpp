@@ -448,7 +448,8 @@ const ColorRGBA ColorRGBA::mapWinter(TParam iValue)
  */
 const ColorRGBA ColorRGBA::mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap)
 {
-	return doMap(iValue, &iColorMap[0], iColorMap.size());
+	LASS_ASSERT(static_cast<int>(iColorMap.size()) >= 0);
+	return doMap(iValue, &iColorMap[0], static_cast<int>(iColorMap.size()));
 }
 
 

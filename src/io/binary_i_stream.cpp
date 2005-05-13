@@ -65,15 +65,18 @@ LASS_IO_BINARY_I_STREAM_EXTRACTOR(void*)
 
 BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
 {
-	size_t length;
-	*this >> length;
 	if (good())
 	{
-		std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
-		doRead(&buffer[0], length);
+		size_t length;
+		doRead(&length, sizeof(size_t));
 		if (good())
 		{
-			oOut = std::string(&buffer[0]);
+			std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
+			doRead(&buffer[0], length);
+			if (good())
+			{
+				oOut = std::string(&buffer[0]);
+			}
 		}
 	}
 	return *this;
