@@ -592,13 +592,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 template <typename T>
 PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV)
 {
-	PyObject* matrix = PyTuple_New(4);
+	const T* const v = iV.matrix();
+	PyObject* const matrix = PyTuple_New(4);
 	for (unsigned i = 0; i < 4; ++i)
 	{
-		PyObject* row = PyTuple_New(4);
+		PyObject* const row = PyTuple_New(4);
 		for (unsigned j = 0; j < 4; ++j)
 		{
-			PyTuple_SetItem(row, j, pyBuildSimpleObject(iV(i, j)));
+			PyTuple_SetItem(row, j, pyBuildSimpleObject(v[i * 4 + j]));
 		}
 		PyTuple_SetItem(matrix, i, row);
 	}

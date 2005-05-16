@@ -54,9 +54,7 @@
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
-		virtual PyTypeObject *GetType(void) {return &Type;}; \
-		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
-		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return 0;}*/
+		virtual PyTypeObject *GetType(void) {return &Type;};
 
 /** Place as first line of your Pythonized class.  For ParentClass use the
 *  C++ class from which you wish the python object inherits.  ParentClass
@@ -65,17 +63,16 @@
 */
 #define PY_HEADER( t_parentClass ) \
 	public: \
+		typedef t_parentClass TPyParent;\
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
 		static ::std::vector<::lass::python::impl::StaticMember>	Statics; \
 		static PyTypeObject* GetParentType(void)\
 		{\
-			return &t_parentClass::Type != &::lass::python::PyObjectPlus::Type ? &t_parentClass::Type : 0;\
+			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
 		}\
-		virtual PyTypeObject *GetType(void) {return &Type;}; \
-		/*static PyObject* __forbidden_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) \
-		{ PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR); return 0;}*/
+		virtual PyTypeObject *GetType(void) {return &Type;};
 
 /** PY_PYTHONIZE.  Use this macro to make objects derived from PyObjectPlus have
 *   a type in Python too.  If you don't use this macro you can still derive from the PyObjectPlus
@@ -165,101 +162,99 @@
 
 #define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
 	PyObject_HEAD_INIT(&PyType_Type)\
-	0,      \
-	(char*)( s_className ), \
-	sizeof( t_cppClass ),           \
-	0,                          \
-	\
-	PyObjectPlus::__dealloc,    \
-	0,                          \
-	0,                      /*tp_getattr*/\
-	0,                      /*tp_setattr*/\
-	0,                          \
-	0,      \
-	0,              /*tp_as_number*/\
-	0,              /*tp_as_sequence*/\
-	0,              /*tp_as_mapping*/\
-	0,              /*tp_hash*/\
-	0,              /*tp_call */\
-	0,              /*tp_str */\
-	PyObject_GenericGetAttr ,               /*tp_getattro */\
-	PyObject_GenericSetAttr,                /*tp_setattro */\
-	0,              /*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,      /*tp_flags*/\
-	0,              /*tp_doc*/\
-	0,              /*tp_traverse*/\
-	0,              /*tp_clear*/\
-	0,              /*tp_richcompare*/\
-	0,              /*tp_weaklistoffset*/\
-	0,              /*tp_iter*/\
-	0,              /*tp_iternext*/\
-	0,              /*tp_methods*/\
-	0,              /*tp_members*/\
-	0,              /*tp_getset*/\
-	0,              /*tp_base*/\
-	0,              /*tp_dict*/\
-	0,              /*tp_descr_get*/\
-	0,              /*tp_descr_set*/\
-	0,              /*tp_dictoffset*/\
-	0,              /*tp_init*/\
-	0,/*tp_alloc*/\
-	0/*t_cppClass ::__forbidden_new*/,/*tp_new*/\
-	0,              /*tp_free*/\
-	0,              /*tp_is_gc*/\
-	0,              /*tp_bases*/\
-	0,              /*tp_mro*/\
-	0,              /*tp_cache*/\
-	0,              /*tp_subclasses*/\
-	0,              /*tp_weaklist*/
+	0,	/*ob_size*/\
+	(char*)( s_className ),	/*tp_name*/\
+	sizeof( t_cppClass ),	/*tp_basicsize*/\
+	0,	/*tp_itemsize*/\
+	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
+	0,	/*tp_print*/\
+	0,	/*tp_getattr*/\
+	0,	/*tp_setattr*/\
+	0,	/*tp_compare*/\
+	0,	/*tp_repr*/\
+	0,	/*tp_as_number*/\
+	0,	/*tp_as_sequence*/\
+	0,	/*tp_as_mapping*/\
+	0,	/*tp_hash*/\
+	0,	/*tp_call */\
+	0,	/*tp_str */\
+	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,	/*tp_as_buffer*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
+	0,	/*tp_doc*/\
+	0,	/*tp_traverse*/\
+	0,	/*tp_clear*/\
+	0,	/*tp_richcompare*/\
+	0,	/*tp_weaklistoffset*/\
+	0,	/*tp_iter*/\
+	0,	/*tp_iternext*/\
+	0,	/*tp_methods*/\
+	0,	/*tp_members*/\
+	0,	/*tp_getset*/\
+	0,	/*tp_base*/\
+	0,	/*tp_dict*/\
+	0,	/*tp_descr_get*/\
+	0,	/*tp_descr_set*/\
+	0,	/*tp_dictoffset*/\
+	0,	/*tp_init*/\
+	0,	/*tp_alloc*/\
+	0,	/*tp_new*/\
+	0,	/*tp_free*/\
+	0,	/*tp_is_gc*/\
+	0,	/*tp_bases*/\
+	0,	/*tp_mro*/\
+	0,	/*tp_cache*/\
+	0,	/*tp_subclasses*/\
+	0,	/*tp_weaklist*/
 
 #define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, t_cppParentClass, s_className )    \
 	PyObject_HEAD_INIT(&PyType_Type)\
-	0,      \
-	(char*)( s_className ), \
-	sizeof( t_cppClass ),           \
-	0,                          \
-	\
-	PyObjectPlus::__dealloc,    \
-	0,                          \
-	0,                      /*tp_getattr*/\
-	0,                      /*tp_setattr*/\
-	0,                          \
-	PyObjectPlus::__repr,       \
-	0,              /*tp_as_number*/\
-	0,              /*tp_as_sequence*/\
-	0,              /*tp_as_mapping*/\
-	0,              /*tp_hash*/\
-	0,              /*tp_call */\
-	PyObjectPlus::__str,                /*tp_str */\
-	PyObject_GenericGetAttr ,               /*tp_getattro */\
-	PyObject_GenericSetAttr,                /*tp_setattro */\
-	0,              /*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,      /*tp_flags*/\
-	0,              /*tp_doc*/\
-	0,              /*tp_traverse*/\
-	0,              /*tp_clear*/\
-	0,              /*tp_richcompare*/\
-	0,              /*tp_weaklistoffset*/\
-	0,              /*tp_iter*/\
-	0,              /*tp_iternext*/\
-	0,              /*tp_methods*/\
-	0,              /*tp_members*/\
-	0,              /*tp_getset*/\
-	0,              /*tp_base*/\
-	0,              /*tp_dict*/\
-	0,              /*tp_descr_get*/\
-	0,              /*tp_descr_set*/\
-	0,              /*tp_dictoffset*/\
-	0,              /*tp_init*/\
-	0,/*tp_alloc*/\
-	0/*lass::python::PyObjectPlusPlus< t_cppClass , t_cppParentClass >::__forbidden_new*/,/*tp_new*/\
-	0,              /*tp_free*/\
-	0,              /*tp_is_gc*/\
-	0,              /*tp_bases*/\
-	0,              /*tp_mro*/\
-	0,              /*tp_cache*/\
-	0,              /*tp_subclasses*/\
-	0,              /*tp_weaklist*/
+	0,	/*ob_size*/\
+	(char*)( s_className ), /*tp_name*/\
+	sizeof( t_cppClass ),	/*tp_basicsize*/\
+	0,	/*tp_itemsize*/\
+	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
+	0,	/*tp_print*/\
+	0,	/*tp_getattr*/\
+	0,	/*tp_setattr*/\
+	0,	/*tp_compare*/\
+	PyObjectPlus::__repr,	/*tp_repr*/\
+	0,	/*tp_as_number*/\
+	0,	/*tp_as_sequence*/\
+	0,	/*tp_as_mapping*/\
+	0,	/*tp_hash*/\
+	0,	/*tp_call */\
+	PyObjectPlus::__str,	/*tp_str */\
+	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,	/*tp_as_buffer*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
+	0,	/*tp_doc*/\
+	0,	/*tp_traverse*/\
+	0,	/*tp_clear*/\
+	0,	/*tp_richcompare*/\
+	0,	/*tp_weaklistoffset*/\
+	0,	/*tp_iter*/\
+	0,	/*tp_iternext*/\
+	0,	/*tp_methods*/\
+	0,	/*tp_members*/\
+	0,	/*tp_getset*/\
+	0,	/*tp_base*/\
+	0,	/*tp_dict*/\
+	0,	/*tp_descr_get*/\
+	0,	/*tp_descr_set*/\
+	0,	/*tp_dictoffset*/\
+	0,	/*tp_init*/\
+	0,	/*tp_alloc*/\
+	0,	/*tp_new*/\
+	0,	/*tp_free*/\
+	0,	/*tp_is_gc*/\
+	0,	/*tp_bases*/\
+	0,	/*tp_mro*/\
+	0,	/*tp_cache*/\
+	0,	/*tp_subclasses*/\
+	0,	/*tp_weaklist*/
 
 
 

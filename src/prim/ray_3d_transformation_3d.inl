@@ -43,8 +43,8 @@ Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject,
 						   const Transformation3D<T>& iTransformation)
 {
 	return Ray3D<T, NP, PP>(
-		transform(iRay.support(), iTransformation)
-		transform(iRay.direction(), iTransformation));
+		transform(iSubject.support(), iTransformation),
+		transform(iSubject.direction(), iTransformation));
 }
 
 }

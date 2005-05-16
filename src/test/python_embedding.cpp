@@ -31,6 +31,7 @@
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
+#include "python_base_derived.h"
 #include <iostream>
 
 #include "../util/pyshadow_object.h"
@@ -61,25 +62,6 @@ namespace test
 PY_DECLARE_CLASS_NAME( PythonFoo, "PythonFoo" )
 
 
-class Base
-{
-	int x_;
-public:
-	Base()  : x_(0) {}
-	virtual ~Base() {}
-
-	virtual int getX() const { return x_; }
-};
-
-class Derived : public Base
-{
-	int x_;
-public:
-	Derived()  : x_(666) {}
-	virtual ~Derived() {}
-
-	virtual int get2X() const { return 2*x_; }
-};
 
 int test()
 {
@@ -215,6 +197,21 @@ PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
 // inject the class in the module and provide documentation for it
 PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
 
+
+// --- base & derived ---------------------------------------------------------------------------------
+
+using namespace python_base_derived;
+
+PY_DECLARE_CLASS(Base)
+PY_CLASS_METHOD(Base, baseMethod)
+PY_CLASS_MEMBER_RW(Base, "baseMember", baseMember, baseMember)
+PY_INJECT_CLASS_IN_MODULE( Base, embedding, "Base class." );
+
+PY_DECLARE_CLASS(Derived)
+PY_CLASS_CONSTRUCTOR_0(Derived)
+PY_CLASS_METHOD(Derived, derivedMethod)
+PY_CLASS_MEMBER_RW(Derived, "derivedMember", derivedMember, derivedMember)
+PY_INJECT_CLASS_IN_MODULE( Derived, embedding, "Derived class." );
 
 }
 }

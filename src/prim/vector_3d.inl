@@ -309,7 +309,7 @@ const Vector3D<T> Vector3D<T>::reciprocal() const
 template <typename T>
 const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 {
-	Vector3D<T> result;
+	Vector3D<T> result(*this);
 	result *= dot(iB, *this);
 	result /= squaredNorm();
 	return result;

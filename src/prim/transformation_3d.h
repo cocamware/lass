@@ -34,6 +34,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
 
 #include "prim_common.h"
+#include "xyz.h"
 #include "../num/num_traits.h"
 #include "../util/shared_ptr.h"
 

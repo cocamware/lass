@@ -212,7 +212,8 @@ const bool SimplePolygon3D<T>::isEmpty() const
 template <typename T>
 const int SimplePolygon3D<T>::size() const
 {
-	return vertices_.size();
+	LASS_ASSERT(static_cast<int>(vertices_.size()) > 0);
+	return static_cast<int>(vertices_.size());
 }
 
 

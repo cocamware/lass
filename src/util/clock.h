@@ -37,7 +37,7 @@ namespace lass
 namespace util
 {
 
-class Clock
+class LASS_DLL Clock
 {
 public:
 

@@ -23,31 +23,21 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 /** @namespace lass::io
  *  @brief streams, binary streams, vrmlstreams, ...
  *  @author BdG
  *  @date 2003
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
 
-
-
-
 #include "../lass_common.h"
 
-/** name of library for io part
- */
 #define LASS_LIB_IO LASS_LIB_PREFIX "io" LASS_LIB_SUFFIX
-//#pragma message("LASS_LIB_IO: " LASS_LIB_IO)
 #if defined(LASS_LIB_AUTO_LINK)
+#	pragma message("LASS_LIB_IO: " LASS_LIB_IO)
 #	pragma comment(lib, LASS_LIB_IO)
 #endif
-
 
 #endif

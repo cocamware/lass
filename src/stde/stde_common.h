@@ -64,8 +64,6 @@
 // Since no static lib is build, we shouldn't try to link to it.
 // Uncomment this if this changes [BdG]
 //
-///** name of library
-// */
 //#define LASS_LIB_STDE LASS_LIB_PREFIX "stde" LASS_LIB_SUFFIX
 //#if defined(LASS_LIB_AUTO_LINK)
 //#   pragma comment(lib, LASS_LIB_STDE)

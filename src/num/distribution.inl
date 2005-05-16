@@ -189,9 +189,9 @@ DistributionNormal<T, RG>::operator()() const
 
 
 // --- backwards compatibility ---------------------------------------------------------------------
-/* -- TEMPORARILY commented out for GCC test
-/** uniform.
- *  returns a uniform random sample from [0,1]
+
+/** @ingroup Distribution
+ *  @return a uniform random sample from [0,1]
  */
 template<class T,class RG> T uniform(RG& iGenerator)
 {
@@ -201,7 +201,7 @@ template<class T,class RG> T uniform(RG& iGenerator)
 
 
 
-/** unitGauss.
+/** @ingroup Distribution
  *  @return a gaussian distributed (aka normal distributed) random with mean 0 and stddev 1
  */
 template<class T,class RG> T unitGauss(RG& iGenerator)
@@ -212,7 +212,7 @@ template<class T,class RG> T unitGauss(RG& iGenerator)
 
 
 
-/** gauss.
+/** @ingroup Distribution
  *  @return a gaussian distributed (aka normal distributed) random sample with @a iMean and
  *      stddev @a iStdDev
  */

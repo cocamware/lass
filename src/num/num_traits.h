@@ -141,12 +141,12 @@ struct NumTraits< ttype >\
 LASS_NUM_DECLARE_FLOATING_TRAITS( float, "float" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< float > , "complex<float>" )
 
-bool isNaN( float iV );
+LASS_DLL bool isNaN( float iV );
 
 LASS_NUM_DECLARE_FLOATING_TRAITS( double , "double" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< double > , "complex<double>" )
 
-bool isNaN( double iV );
+LASS_DLL bool isNaN( double iV );
 
 
 #define LASS_NUM_DECLARE_INTEGRAL_TRAITS( type, tname ) \

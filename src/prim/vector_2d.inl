@@ -304,7 +304,7 @@ const Vector2D<T> Vector2D<T>::perp() const
 template <typename T>
 const Vector2D<T> Vector2D<T>::project(const Vector2D<T>& iB) const
 {
-	Vector2D<T> result;
+	Vector2D<T> result(*this);
 	result *= dot(iB, *this);
 	result /= squaredNorm();
 	return result;

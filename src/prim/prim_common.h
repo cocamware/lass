@@ -167,9 +167,8 @@
 
 #include "../lass_common.h"
 
-/** name of library
- */
 #define LASS_LIB_PRIM LASS_LIB_PREFIX "prim" LASS_LIB_SUFFIX
+//#pragma message("LASS_LIB_PRIM: " LASS_LIB_PRIM)
 
 #if defined(LASS_LIB_AUTO_LINK)
 #	pragma comment(lib, LASS_LIB_PRIM)

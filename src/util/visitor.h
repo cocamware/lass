@@ -33,7 +33,7 @@
  *  It uses RTTI to visit all elements (what means some slow down on performance), but has the
  *  benefit of a very low dependency between the visitor and the visited hierarchy.
  *
- *  @paroriginal code by Andrei Alexandrescu:
+ *  @par original code by Andrei Alexandrescu:
  *      <i>The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
  *      This code (Loki) accompanies the book:\n
  *      Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
@@ -233,7 +233,10 @@ namespace util
 class LASS_DLL VisitorBase
 {
 public:
-	virtual ~VisitorBase() {}
+	VisitorBase();
+	VisitorBase(const VisitorBase&);
+	VisitorBase& operator=(const VisitorBase&);
+	virtual ~VisitorBase();
 };
 
 
@@ -242,11 +245,16 @@ public:
  *  @brief a mix-in to provides a visitor capabilities to visit a class
  */
 template <typename VisitableType>
-class LASS_DLL Visitor
+class Visitor
 {
 public:
 
 	typedef VisitableType TVisitable;
+
+	Visitor() {}
+	Visitor(const Visitor&) {}
+	virtual ~Visitor() {}
+	Visitor& operator=(const Visitor&) { return *this; }
 
 	void visit(TVisitable& iVisited) { doVisit(iVisited); }
 	void visitOnExit(TVisitable& iVisited) { doVisitOnExit(iVisited); }
@@ -268,9 +276,12 @@ private:
  *  This is the default.
  */
 template <typename VisitableType>
-struct LASS_DLL VisitNonStrict
+struct VisitNonStrict
 {
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
+	{
+	}
+	static void onUnknownVisitorOnExit(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
 	}
 };
@@ -283,11 +294,16 @@ struct LASS_DLL VisitNonStrict
  *  This catch-all policy will raise an exception if a visitor class is not recognized.
  */
 template <typename VisitableType>
-struct LASS_DLL VisitStrict
+struct VisitStrict
 {
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
 		LASS_THROW("Unacceptable visit: '" << typeid(iVisited).name() << "' can't accept '"
+			<< typeid(iVisitor).name() << "' as visitor.");
+	}
+	static void onUnknownVisitorOnExit(VisitableType& iVisited, VisitorBase& iVisitor)
+	{
+		LASS_THROW("Unacceptable visitOnExit: '" << typeid(iVisited).name() << "' can't accept '"
 			<< typeid(iVisitor).name() << "' as visitor.");
 	}
 };
@@ -303,17 +319,18 @@ template
 <
 	template <typename> class CatchAll = VisitNonStrict
 >
-class LASS_DLL VisitableBase
+class VisitableBase
 {
 public:
-
+	VisitableBase() {}
+	VisitableBase(const VisitableBase&) {}
 	virtual ~VisitableBase() {}
+	VisitableBase& operator=(const VisitableBase&) { return *this; }
+
 	void accept(VisitorBase& iVisitor) { doAccept(iVisitor); }
 
-protected:
-
 	template <typename T>
-	static void visit(T& iVisited, VisitorBase& iVisitor)
+	static void doVisit(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
@@ -326,7 +343,7 @@ protected:
 	}
 
 	template <typename T>
-	static void visitOnExit(T& iVisited, VisitorBase& iVisitor)
+	static void doVisitOnExit(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
@@ -334,7 +351,7 @@ protected:
 		}
 		else
 		{
-			CatchAll<T>::onUnknownVisitor(iVisited, iVisitor);
+			CatchAll<T>::onUnknownVisitorOnExit(iVisited, iVisitor);
 		}
 	}
 
@@ -355,8 +372,8 @@ private:
 #define LASS_UTIL_ACCEPT_VISITOR\
 	virtual void doAccept(lass::util::VisitorBase& iVisitor)\
 	{\
-		visit(*this, iVisitor);\
-		visitOnExit(*this, iVisitor);\
+		doVisit(*this, iVisitor);\
+		doVisitOnExit(*this, iVisitor);\
 	}
 
 #endif

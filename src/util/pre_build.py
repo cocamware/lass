@@ -1,4 +1,5 @@
-execfile(r'../../tools/param_expander.py')
+import os.path
+execfile(os.path.join(os.pardir, os.pardir, 'tools', 'param_expander.py'))
 
 print 'Code generation ...'
 

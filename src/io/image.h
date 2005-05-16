@@ -56,9 +56,6 @@ public:
 	typedef prim::ColorRGBA::TParam TParam;
 	typedef prim::ColorRGBA::TNumTraits TNumTraits;
 
-	class ConstRow;
-	class RefRow;
-
 	// STRUCTORS
 
 	Image();

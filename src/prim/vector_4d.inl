@@ -307,7 +307,7 @@ const Vector4D<T> Vector4D<T>::normal() const
 template <typename T>
 const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
 {
-	Vector4D<T> result;
+	Vector4D<T> result(*this);
 	result *= dot(iB, *this);
 	result /= squaredNorm();
 	return result;

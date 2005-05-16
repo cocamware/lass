@@ -60,9 +60,9 @@
 #define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
 
 
-#define LASS_DLL_IMPORT   __declspec( dllimport )
-#define LASS_DLL_EXPORT   __declspec( dllexport )
+#define LASS_DLL_IMPORT __declspec( dllimport )
+#define LASS_DLL_EXPORT __declspec( dllexport )
 #define LASS_CALL __cdecl
-#define LASS_NO_INLINE   __declspec( noinline )
+#define LASS_NO_INLINE __declspec( noinline )
 
 #endif

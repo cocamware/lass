@@ -79,7 +79,7 @@ namespace lass
 		public:
 			typedef PyObjectPlus    TSelf;
 
-			PyObjectPlus(PyTypeObject *T);
+			PyObjectPlus(PyTypeObject *T); 
 			virtual ~PyObjectPlus();
 
 			PyObjectPlus* PyPlus_INCREF(void);// incref method

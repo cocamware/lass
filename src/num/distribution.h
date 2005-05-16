@@ -29,7 +29,17 @@
  *
  *  A set of distribution for random numbers
  *
- *  @ref DistributionUniform
+ *  distribution classes:
+ *
+ *  @arg @ref DistributionUniform
+ *  @arg @ref DistributionExponential
+ *  @arg @ref DistributionNormal
+ *
+ *  backwards compatible functions:
+ *  
+ *  @arg @ref uniform
+ *  @arg @ref unitGauss
+ *  @arg @ref gauss
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_DISTRIBUTION_H
@@ -43,13 +53,18 @@ namespace lass
 namespace num
 {
 
+/** @ingroup Distribution
+ *  enumeration indicating how a real-number range must be closed.
+ */
 enum RangeType
 {
-	rtClosed    = 0x0,  // range is closed on both sides: [inf, sup]
-	rtRightOpen = 0x1,  // range is open to the right: [inf, sup)
-	rtLeftOpen  = 0x2,  // range is open to the left: (inf, sup]
-	rtOpen      = 0x3,  // range is open to both sides: (inf, sup)
+	rtClosed    = 0x0,  ///< range is closed on both sides: [inf, sup]
+	rtRightOpen = 0x1,  ///< range is open to the right: [inf, sup)
+	rtLeftOpen  = 0x2,  ///< range is open to the left: (inf, sup]
+	rtOpen      = 0x3,  ///< range is open to both sides: (inf, sup)
 };
+
+
 
 /** @ingroup Distribution
  *  a uniform distribution mapper.
@@ -158,9 +173,8 @@ private:
 
 template<class T,class RG> T uniform(RG& iGenerator);
 template<class T,class RG> T unitGauss(RG& iGenerator);
-template<class T,class RG> T gauss(RG& iGenerator,
-									typename util::CallTraits<T>::TParam iMean,
-									typename util::CallTraits<T>::TParam iStdDev);
+template<class T,class RG> T gauss(RG& iGenerator, typename util::CallTraits<T>::TParam iMean,
+								   typename util::CallTraits<T>::TParam iStdDev);
 
 
 }

@@ -1,9 +1,10 @@
 import sys
 import embedding
 
-#import code
-#s = code.InteractiveConsole()
-#s.interact()
+if 1:
+	import code
+	s = code.InteractiveConsole()
+	s.interact()
 
 numberOfErrors = 0
 

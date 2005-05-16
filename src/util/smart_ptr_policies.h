@@ -273,8 +273,8 @@ private:
 
 namespace impl
 {
-	void initHeapCounter(int*& ioCounter, int iInitialValue);
-	void disposeHeapCounter(int*& ioCounter);
+	LASS_DLL void initHeapCounter(int*& ioCounter, int iInitialValue);
+	LASS_DLL void disposeHeapCounter(int*& ioCounter);
 }
 
 /** @class DefaultCounter

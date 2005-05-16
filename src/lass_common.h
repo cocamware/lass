@@ -73,10 +73,6 @@
 
 #include "config/config.h"
 
-
-
-
-
 // --- Here we'll define some stuff on the name of libraries lass creates ---
 
 /** @def LASS_LIB_DEBUG
@@ -106,7 +102,7 @@
 #elif defined(LASS_USE_DLL)
 #	define LASS_DLL LASS_DLL_IMPORT
 #else
-#	define LASS_DLL
+#	define LASS_DLL LASS_DLL_EXPORT
 #endif
 
 /** @def LASS_LIB_AUTO_LINK

@@ -70,8 +70,8 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 		return rInvalid;
 	}
 
-	const TValue d = dot(iPlane.normal(), iRay.direction());
-	if (d == TNumTraits::zero)
+	const TValue nd = dot(iPlane.normal(), iRay.direction());
+	if (nd == TNumTraits::zero)
 	{
 		// ray is parallel to plane, but is it also coincident?
 		const Side side = iPlane.classify(iRay.support());
@@ -80,7 +80,7 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 	}
 	else
 	{
-		const TValue t = iPlane.equation(iRay.support()) / d;
+		const TValue t = -iPlane.equation(iRay.support()) / nd;
 		LASS_ASSERT(!num::isNaN(t));
 		if (t < TNumTraits::zero)
 		{

@@ -141,12 +141,14 @@ template <typename T> struct ArgumentTraits<const T* const>
 
 
 // --- getParameters -------------------------------------------------------------------------------
+
+inline bool getArguments( PyObject* iArgs )
+{
+	return checkSequenceSize(iArgs, 0);
+}
+
 $[
 /** translates a tuple of $x PyObjects to C++ objects.
- *  @bug what happens if arguments don't match
- *       [TDM] then the function returns a 0 resulting a NULL return to Python
- *             this in return triggers an exception with as value the last error
- *             encountered which will be a conversion error
  */
 template <$(typename P$x)$>
 bool getArguments( PyObject* iArgs, $( P$x& oP$x)$ )
@@ -307,7 +309,7 @@ struct Caller<void>
 template <typename R>
 PyObject* callFunction( PyObject* iArgs, R (*iFunction)() )
 {
-	if ( !checkSequenceSize(iArgs, 0) )
+	if( !getArguments(iArgs) )
 	{
 		return 0;
 	}
@@ -342,7 +344,7 @@ struct CallMethod
 	template <typename R>
 	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() )
 	{
-		if ( !checkSequenceSize( iArgs, 0 ) )
+		if( !getArguments(iArgs) )
 		{
 			return 0;
 		}
@@ -371,7 +373,7 @@ $[
 	template <typename R>
 	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const )
 	{
-		if ( !checkSequenceSize( iArgs, 0 ) )
+		if( !getArguments(iArgs) )
 		{
 			return 0;
 		}
@@ -454,6 +456,12 @@ PyObject* construct( PyObject* iArgs )
 {
 	typedef ShadowTraits<PyObjectClass> TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
+	
+	if( !getArguments(iArgs) )
+	{
+		return 0;
+	}
+	
 	LASS_UTIL_PYOBJECT_CALL_TRY
 	(
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass );

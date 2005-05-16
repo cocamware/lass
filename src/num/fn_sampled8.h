@@ -46,7 +46,7 @@ namespace lass
 		* @author Tom De Muer
 		* @date 2002-2003
 		*/
-		class FNSampled8 : public lass::python::PyObjectPlus
+		class LASS_DLL FNSampled8 : public lass::python::PyObjectPlus
 		{
 			PY_HEADER( lass::python::PyObjectPlus ) ;
 
@@ -208,15 +208,15 @@ namespace lass
 			template<typename f> friend FNSampled8 applyFunction(const FNSampled8& iV, f func );
 		};
 
-		FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8& iV2 );
-		FNSampled8  operator-( const FNSampled8& iV1, const FNSampled8& iV2 );
-		FNSampled8  operator*( const FNSampled8& iV1, const FNSampled8& iV2 );
-		FNSampled8  operator/( const FNSampled8& iV1, const FNSampled8& iV2 );
+		LASS_DLL FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8& iV2 );
+		LASS_DLL FNSampled8  operator-( const FNSampled8& iV1, const FNSampled8& iV2 );
+		LASS_DLL FNSampled8  operator*( const FNSampled8& iV1, const FNSampled8& iV2 );
+		LASS_DLL FNSampled8  operator/( const FNSampled8& iV1, const FNSampled8& iV2 );
 
-		FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
-		FNSampled8  operator-( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
-		FNSampled8  operator*( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
-		FNSampled8  operator/( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
+		LASS_DLL FNSampled8  operator+( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
+		LASS_DLL FNSampled8  operator-( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
+		LASS_DLL FNSampled8  operator*( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
+		LASS_DLL FNSampled8  operator/( const FNSampled8& iV1, const FNSampled8::TBaseType& iV2 );
 
 		inline FNSampled8& clamp(FNSampled8& iV, const FNSampled8::TBaseType& iLeft, const FNSampled8::TBaseType& iRight ) { iV.clamp(iLeft,iRight); return iV; }
 
@@ -293,10 +293,10 @@ namespace lass
 			static const FNSampled8 sqrtPi;
 		};
 
-		std::complex<FNSampled8 >& operator*=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
-		std::complex<FNSampled8 >& operator/=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
-		std::complex<FNSampled8 >& operator+=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
-		std::complex<FNSampled8 >& operator-=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
+		LASS_DLL std::complex<FNSampled8 >& operator*=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
+		LASS_DLL std::complex<FNSampled8 >& operator/=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
+		LASS_DLL std::complex<FNSampled8 >& operator+=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
+		LASS_DLL std::complex<FNSampled8 >& operator-=(std::complex<FNSampled8 >& isfn,const lass::num::FNSampled8::TBaseType& iN);
 
 		template<typename f>
 		FNSampled8 applyFunction(const FNSampled8& iV, f func )
@@ -312,17 +312,17 @@ namespace lass
 
 	namespace python
 	{
-		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
-		int pyGetSimpleObject( PyObject* iValue, std::complex<lass::num::FNSampled8>& oV );
-		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
-		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV );
-		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
+		LASS_DLL int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV );
+		LASS_DLL int pyGetSimpleObject( PyObject* iValue, std::complex<lass::num::FNSampled8>& oV );
+		LASS_DLL PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV );
+		LASS_DLL PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV );
+		LASS_DLL PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV );
 	}
 
 	namespace io
 	{
-		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
-		lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
+		LASS_DLL lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn);
+		LASS_DLL lass::io::BinaryIStream& operator>>(lass::io::BinaryIStream& is, lass::num::FNSampled8& sfn);
 	}
 }
 

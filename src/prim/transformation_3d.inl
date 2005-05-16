@@ -41,6 +41,9 @@ namespace prim
 
 // --- public --------------------------------------------------------------------------------------
 
+/** construct an identity transformation.
+ *  An identity transformation transforms every point to itself.
+ */
 template <typename T>
 Transformation3D<T>::Transformation3D():
 	matrix_(new TValue[16]),
@@ -66,6 +69,10 @@ Transformation3D<T>::Transformation3D():
 
 
 
+/** construct a transformation from a 4x4 tranformation matrix.
+ *  The elements of the 4x4 matrix will represented in a row major way by an iterator
+ *  range [iBegin, iEnd) of 16 elements.
+ */
 template <typename T>
 template <typename InputIterator>
 Transformation3D<T>::Transformation3D(InputIterator iBegin, InputIterator iEnd):
@@ -78,6 +85,12 @@ Transformation3D<T>::Transformation3D(InputIterator iBegin, InputIterator iEnd):
 
 
 
+/** return the inverse transformation.
+ *  The inverse is calculated on the first call, and then cached for later use.
+ *  For the transformation, we've use the C version of Cramer's rule as described in
+ *  the Intel (R) article "Streaming SIMD Extensions -Inverse of 4x4 Matrix" which
+ *  can be found here: http://www.intel.com/design/pentiumiii/sml/245043.htm
+ */
 template <typename T>
 const Transformation3D<T>
 Transformation3D<T>::inverse() const
@@ -281,6 +294,17 @@ Transformation3D<T>::Transformation3D(const TMatrix& iMatrix, const TMatrix& iIn
 
 // --- free ----------------------------------------------------------------------------------------
 
+/** concatenate two transformations @a iA and @a iB in one.
+ *  @relates Transformation3D
+ *  The result is one transformation that performs the same actions as first performing
+ *  @a iA and then @a iB.  Hence, the following lines of code are equivalent (ignoring
+ *  numerical imprecions):
+ *
+ *  @code
+ *	y = transform(x, concatenate(iA, iB));
+ *  y = transform(transform(x, iA), iB);
+ *  @endcode
+ */
 template <typename T>
 Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformation3D<T>& iB)
 {
@@ -303,6 +327,9 @@ Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformat
 
 
 
+/** apply transformation to a vector
+ *  @relates Transformation3D
+ */
 template <typename T>
 Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation)
 {
@@ -315,6 +342,9 @@ Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iT
 
 
 
+/** apply transformation to a point
+ *  @relates Transformation3D
+ */
 template <typename T>
 Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTransformation)
 {
@@ -329,6 +359,11 @@ Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTra
 
 
 
+/** apply transformation to a normal vector.
+ *  @relates Transformation3D
+ *  Vectors that represent a normal vector should transform differentely than ordinary
+ *  vectors.  Use this transformation function for normals.
+ */
 template <typename T>
 Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation)
 {
@@ -341,6 +376,19 @@ Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<
 
 
 
+/** apply transformation to a 4D normal vector.
+ *  @relates Transformation3D
+ *  Vectors that represent a normal vector should transform differentely than ordinary
+ *  vectors.  Use this transformation function for normals.
+ *
+ *  Cartesian planes have a 4D normal vector that must be transformed in 3D.  Use this
+ *  function to do it:
+ *
+ *  @code
+ *  // ax + by + cz + d == 0
+ *	normalTransform(std::make_pair(Vector3D<float>(a, b, c), d), transformation);
+ *  @endcode
+ */
 template <typename T>
 std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubject, 
 										  const Transformation3D<T>& iTransformation)
@@ -358,7 +406,7 @@ std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubj
 
 
 
-/** @relates lass::prim::Vector3D
+/** @relates Transformation3D
  */
 template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
@@ -375,7 +423,7 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 
 
 
-/** @relates lass::prim::Vector3D
+/** @relates Transformation3D
  */
 template<typename T>
 io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation3D<T>& iTransformation)

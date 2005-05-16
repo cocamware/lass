@@ -35,8 +35,6 @@
 
 #include "../lass_common.h"
 
-/** name of library
- */
 #define LASS_LIB_NUM LASS_LIB_PREFIX "num" LASS_LIB_SUFFIX
 //#pragma message("LASS_LIB_NUM: " LASS_LIB_NUM)
 
