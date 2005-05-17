@@ -23,56 +23,33 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @class lass::util::ProgressIndicator
- *  Prints a progress indication to console.
- *  
- *  @code
- *	{
- *		ProgressIndicator indicator("doing something")
- *		const int n = 1000;
- *		for (int i = 0; i < n; ++i)
- *		{
- *			doSomething();
- *			indicator(double(i) / n);
- *		}
- *	} // when indicator goes out of scope, it prints a final message.
- *  @endcode
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PROGRESS_INDICATOR
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_I_H
-
 #include "util_common.h"
-#include "clock.h"
+#include "visitor.h"
 
 namespace lass
 {
 namespace util
 {
 
-class LASS_DLL ProgressIndicator
+VisitorBase::VisitorBase()
 {
-public:
-	ProgressIndicator(const std::string& iDescription, int iConsoleWidth = 80);
-	~ProgressIndicator();
-	void operator()(double iProgress);
+}
 
-private:
-	enum { timeLeftSize_ = 4 };
-	Clock clock_;
-	Clock::TTime timeLeftBuffer_[timeLeftSize_];
-	std::string description_;
-	std::string backslash_;
-	std::string whitespace_;
-	int consoleWidth_;
-	int current_;
-	int timeLeftIndex_;
-};
+VisitorBase::VisitorBase(const VisitorBase&)
+{
+}
 
+VisitorBase::~VisitorBase()
+{
+}
+
+VisitorBase& VisitorBase::operator=(const VisitorBase&)
+{
+	return *this;
 }
 
 }
 
-#endif
+}
 
 // EOF

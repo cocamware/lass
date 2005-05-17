@@ -154,7 +154,7 @@
  *  If you don't declare visits for all types, it will go for a best match if possible.  e.g. if you're
  *  only interested in counting the number of objects in the visitable hierarchy regardless of their
  *  subtype, you can get away with writing a visitor that only visits the Spam type.  All subtypes
- *  will be handled by this best match visit.
+ *  will be handled by this best match visit.  // THIS IS A FALSE STATEMENT!
  *
  *  @code
  *  class Counter:
@@ -234,9 +234,10 @@ class LASS_DLL VisitorBase
 {
 public:
 	VisitorBase();
+	virtual ~VisitorBase();
+protected:
 	VisitorBase(const VisitorBase&);
 	VisitorBase& operator=(const VisitorBase&);
-	virtual ~VisitorBase();
 };
 
 
@@ -252,12 +253,15 @@ public:
 	typedef VisitableType TVisitable;
 
 	Visitor() {}
-	Visitor(const Visitor&) {}
 	virtual ~Visitor() {}
-	Visitor& operator=(const Visitor&) { return *this; }
 
 	void visit(TVisitable& iVisited) { doVisit(iVisited); }
 	void visitOnExit(TVisitable& iVisited) { doVisitOnExit(iVisited); }
+
+protected:
+
+	Visitor(const Visitor&) {}
+	Visitor& operator=(const Visitor&) { return *this; }
 
 private:
 
@@ -323,9 +327,7 @@ class VisitableBase
 {
 public:
 	VisitableBase() {}
-	VisitableBase(const VisitableBase&) {}
 	virtual ~VisitableBase() {}
-	VisitableBase& operator=(const VisitableBase&) { return *this; }
 
 	void accept(VisitorBase& iVisitor) { doAccept(iVisitor); }
 
@@ -354,6 +356,11 @@ public:
 			CatchAll<T>::onUnknownVisitorOnExit(iVisited, iVisitor);
 		}
 	}
+
+protected:
+
+	VisitableBase(const VisitableBase&) {}
+	VisitableBase& operator=(const VisitableBase&) { return *this; }
 
 private:
 

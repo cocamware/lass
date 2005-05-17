@@ -83,7 +83,7 @@ template <typename T> void testPrimVector2D()
 	BOOST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
 	BOOST_CHECK_EQUAL(dot(a, b), dot(b, a));
 	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK_CLOSE(zero, dot(a.project(b), a.reject(b)), 100 * epsilon);
+	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector2D<T> n(b);
 	n.normalize();
@@ -146,7 +146,7 @@ template <typename T> void testPrimVector3D()
 	BOOST_CHECK_EQUAL(dot(cross(a, b), b), zero);
 
 	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK_CLOSE(zero, dot(a.project(b), a.reject(b)), 100 * epsilon);
+	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector3D<T> n(b);
 	n.normalize();
@@ -208,7 +208,7 @@ template <typename T> void testPrimVector4D()
 	BOOST_CHECK_EQUAL(dot(a, b), dot(b, a));
 
 	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK_CLOSE(zero, dot(a.project(b), a.reject(b)), 100 * epsilon);
+	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector4D<T> n(b);
 	n.normalize();

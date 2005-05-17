@@ -67,12 +67,12 @@ namespace util_visitor
 
 		void doAccept(util::VisitorBase& ioVisitor)
 		{
-			visit(*this, ioVisitor);
+			doVisit(*this, ioVisitor);
 			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
 			{
 				(*i)->accept(ioVisitor);
 			}
-			visitOnExit(*this, ioVisitor);
+			doVisitOnExit(*this, ioVisitor);
 		}
 
 	private:
