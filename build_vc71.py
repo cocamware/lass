@@ -14,5 +14,6 @@ for c in configurations:
     os.system('"' + msvcPath + '\\Common7\\IDE\\devenv.exe" /rebuild ' + c + ' /out ' + c + '.log lass.sln')
 os.chdir('..')
 
-os.system('copy src\\*.log logs')
+os.system('mkdir logs')
+os.system('copy src\\*.log logs /Y')
 os.system('del src\\*.log /F /Q')
