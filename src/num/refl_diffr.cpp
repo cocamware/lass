@@ -36,10 +36,90 @@ namespace lass
 namespace num
 {
 
+#define PI 3.1415926535897932384626433832795
 
 /** impl. private implementation functions */
 namespace impl
 {
+	double cot(double iArg)
+	{
+		double temp = tan(iArg);
+		if (fabs(temp)<1.0e-10)
+			return 1.0e10;
+		return 1.0/tan(iArg);
+	}
+
+	double ap(double beta,double n)
+	{
+		double N = 1.0;
+		if (beta<=PI*(n-1.0))
+			N = 0.0;
+		return 2.0*pow(cos((2.0*PI*n*N-beta)*0.5),2.0);
+	}
+
+	double am(double beta,double n)
+	{
+		double N=0.0;
+		if (beta<PI*(1.0-n))
+			N = -1.0;
+		if (beta>PI*(1.0+n))
+			N = -1.0;
+		return 2.0*pow(cos((2.0*PI*n*N-beta)*0.5),2.0);
+	}
+
+	std::complex<double> F(double X)
+	{
+		std::complex<double> temp;
+		temp = std::exp( std::complex<double>( 0.0, PI * 0.25 * sqrt( X / (X+1.4))) );
+		
+		if (X<0.8)
+			temp *= sqrt( PI * X ) * ( 1.0 -  (sqrt(X)/(0.7*sqrt(X)+1.2)) );
+		else
+			temp *= (1.0- (0.8/(pow(X+1.25,2.0))));
+
+		return temp;
+
+	}
+
+	float cotf(float iArg)
+	{
+		float temp = tan(iArg);
+		if (fabsf(temp)<1.0e-10)
+			return 1.0e10;
+		return 1.0f/tanf(iArg);
+	}
+
+	float apf(float beta,float n)
+	{
+		float N = 1.0;
+		if (beta<=PI*(n-1.0))
+			N = 0.0;
+		return 2.0f*powf(cosf((2.0f*static_cast<float>(PI)*n*N-beta)*0.5f),2.0f);
+	}
+
+	float amf(float beta,float n)
+	{
+		float N=0.0f;
+		if (beta<PI*(1.0f-n))
+			N = -1.0f;
+		if (beta>PI*(1.0f+n))
+			N = -1.0f;
+		return 2.0f*powf(cosf((2.0f*static_cast<float>(PI)*n*N-beta)*0.5f),2.0f);
+	}
+
+	std::complex<float> Ff(float X)
+	{
+		std::complex<float> temp;
+		temp = std::exp( std::complex<float>( 0.0f, static_cast<float>(PI) * 0.25f * sqrtf( X / (X+1.4f))) );
+		
+		if (X<0.8f)
+			temp *= sqrtf( static_cast<float>(PI) * X ) * ( 1.0f -  (sqrtf(X)/(0.7f*sqrtf(X)+1.2f)) );
+		else
+			temp *= (1.0f- (0.8f/(powf(X+1.25f,2.0f))));
+
+		return temp;
+
+	}
 
 	template<class NTC> NTC heaviside(const NTC& iValue)
 	{
@@ -396,37 +476,6 @@ std::complex<double> diffractionNord2000(
 	temp += tempex;
 
 	return temp;
-}
-
-PyObject* pyDiffractionNord2000(PyObject *ignored,PyObject *args)
-{
-	/*
-	std::complex<double> diffractionNord2000(
-		const double& thetaR,const double& thetaS, const double& beta,
-		const std::complex<double>& ZR,const std::complex<double>& ZS,
-		const double& RS, const double& RR,const double& freq)
-	{
-	*/
-	double thetaR,thetaS,beta,ZR,ZS,RS,RR,freq;
-	if(!PyArg_ParseTuple(args, const_cast<char*>("dddCCddd"),
-		&thetaR,&thetaS,&beta,&ZR,&ZS,&RS,&RR,&freq) )
-	{
-		PyErr_BadArgument();
-		Py_INCREF( Py_None );
-		return Py_None;
-	}
-	return lass::python::pyBuildSimpleObject( diffractionNord2000(thetaR,thetaS,beta,ZR,ZS,RS,RR,freq) );
-}
-
-
-static PyMethodDef FileMethods[] = {
-	{"diffractionNord2000", pyDiffractionNord2000, METH_VARARGS},
-	{NULL, NULL}// Sentinel
-};
-
-void pyInitNumReflDiffraction(void)
-{
-	Py_InitModule(const_cast<char*>("LassNum") , FileMethods);
 }
 
 }
