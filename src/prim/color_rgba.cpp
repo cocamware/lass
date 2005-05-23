@@ -201,58 +201,11 @@ const ColorRGBA::TValue ColorRGBA::brightness() const
 
 
 
-/** gamma correction.
- *  corrects gamma of all channels, except alpha.
- *  out = in ^ (1 / iGamma).
+/** return true if all color components are zero
  */
-void ColorRGBA::gamma(TParam iGamma)
+const bool ColorRGBA::isBlack() const
 {
-	const TValue invGamma = TNumTraits::one / iGamma;
-	r = num::pow(r, invGamma);
-	g = num::pow(g, invGamma);
-	b = num::pow(b, invGamma);
-}
-
-
-
-/** clamp all channels (including alpha channel) to the range [0, 1].
- *  @return the difference on the alpha channel (original alhpa - new alpha) and can be used
- *  as an indicator for the bleeding of the color.
- *  @post: all channel values ar in the range [0, 1].
- */
-const ColorRGBA::TValue ColorRGBA::clamp()
-{
-	const TValue originalAlpha = a;
-
-	r = num::clamp(r, TNumTraits::zero, TNumTraits::one);
-	g = num::clamp(g, TNumTraits::zero, TNumTraits::one);
-	b = num::clamp(b, TNumTraits::zero, TNumTraits::one);
-	a = num::clamp(a, TNumTraits::zero, TNumTraits::one);
-
-	return originalAlpha - a;
-}
-
-
-
-/** simulate the exposion of a light with this color to a chemical film during an exposure time.
- *  @return the difference on the alpha channel (original alhpa - new alpha) and can be used
- *  as an indicator for the bleeding of the color.
- *  @post: all channel values ar in the range [0, 1].
- */
-const ColorRGBA::TValue ColorRGBA::expose(TParam iTime)
-{
-	const TValue originalBrightness = brightness();
-	const TValue originalAlpha = a;
-
-	r = r > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * r) : TNumTraits::zero;
-	g = g > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * g) : TNumTraits::zero;
-	b = b > TNumTraits::zero ? TNumTraits::one - num::exp(-iTime * b) : TNumTraits::zero;
-
-	// color bleeding ...  if the chemical gets overexposes, it's opacity increases ...
-	a *= originalBrightness / brightness();
-	a = num::clamp(a, TNumTraits::zero, TNumTraits::one);
-
-	return originalAlpha - a;
+	return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero;
 }
 
 
@@ -263,6 +216,104 @@ const bool ColorRGBA::isZero() const
 {
 	return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero &&
 		a == TNumTraits::zero;
+}
+
+
+
+/** return darkened colour without changing the opaqueness.
+ *
+ *  @pre @a *this are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA.
+ *  ColorR = ColorA * darkenFactor.
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ */
+const ColorRGBA ColorRGBA::darkened(ColorRGBA::TParam iFactor) const
+{
+	ColorRGBA result(*this);
+	result *= iFactor;
+	result.a = a;
+	return result;
+}
+
+
+
+/** return color with dissolved opaqueness
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA * dissolveFactor.
+ *  ColorR = ColorA.
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ */
+const ColorRGBA ColorRGBA::dissolved(TParam iFactor) const
+{
+	ColorRGBA result(*this);
+	result.a *= iFactor;
+	return result;
+}
+
+
+
+/** return gamma corrected color.
+ *
+ *  corrects gamma of all channels, except alpha.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA.
+ *  ColorR = ColorA ** (1 / gamma).
+ *  @endcode
+ */
+const ColorRGBA ColorRGBA::gammaCorrected(TParam iGammaExponent) const
+{
+	const TValue invGamma = num::inv(iGammaExponent);
+	return ColorRGBA(num::pow(r, invGamma), num::pow(g, invGamma), num::pow(b, invGamma), a);
+}
+
+
+
+/** return exposed color.
+ *
+ *  apply exposure function to color and clamp alpha channel
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @post: all channel values ar in the range [0, 1].
+ *
+ *  @code
+ *  alphaR = alphaA.
+ *  ColorR = 1 - exp(-time * ColorA).
+ *  @endcode
+ */
+const ColorRGBA ColorRGBA::exposed(TParam iExposureTime) const
+{
+	const TValue f = -iExposureTime;
+	return ColorRGBA(
+		num::clamp(TNumTraits::one - num::exp(f * r), TNumTraits::zero, TNumTraits::one),
+		num::clamp(TNumTraits::one - num::exp(f * g), TNumTraits::zero, TNumTraits::one),
+		num::clamp(TNumTraits::one - num::exp(f * b), TNumTraits::zero, TNumTraits::one),
+		num::clamp(a, TNumTraits::zero, TNumTraits::one));
+}
+
+
+
+/** clamp all channels (including alpha channel) to the range [0, 1].
+ *  @post: all channel values ar in the range [0, 1].
+ */
+const ColorRGBA ColorRGBA::clamped() const
+{
+	return ColorRGBA(
+		num::clamp(r, TNumTraits::zero, TNumTraits::one),
+		num::clamp(g, TNumTraits::zero, TNumTraits::one),
+		num::clamp(b, TNumTraits::zero, TNumTraits::one),
+		num::clamp(a, TNumTraits::zero, TNumTraits::one));
 }
 
 
@@ -626,51 +677,186 @@ ColorRGBA operator/(const ColorRGBA& iA, ColorRGBA::TParam iB)
 
 
 
-/** @a iB painted over @a iA.
- *  @a iB is painted over @a iA and leaves only a that part of @a iA visible that
- *  isn't painted over: 1 - alphaB
+/** placement of foreground @a iA in front of background @a iB.
  *
- *  alphaR = 1 - (1 - alphaA) * (1 - alphaB) = alphaA * (1 - alphaB) + alphaB.
- *  alphaR * colorR = alphaA * (1 - alphaB) * colorA + alphaB * colorB.
+ *  @a iA is painted over @a iB and leaves only a that part of @a iB visible that isn't painted 
+ *  over: 1 - alphaA.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA + (1 - alphaA) * alphaB.
+ *  ColorR * alphaR = ColorA * alphaA + ColorB * alphaB * (1 - alphaA).
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA under(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA over(const ColorRGBA& iA, const ColorRGBA& iB)
 {
-	const ColorRGBA::TValue unfiltered = iA.a * (ColorRGBA::TNumTraits::one - iB.a);
-	const ColorRGBA::TValue aResult = unfiltered + iB.a;
-	const ColorRGBA::TValue aResultInverse = ColorRGBA::TNumTraits::one / aResult;
+	const ColorRGBA::TValue unfilteredB = (ColorRGBA::TNumTraits::one - iA.a) * iB.a;
+	const ColorRGBA::TValue alphaR = iA.a + unfilteredB;
+	ColorRGBA result(iB);
+	result *= unfilteredB;
+	result *= iA * iA.a;
+	result /= alphaR;
+	result.a = alphaR;
+	return result;
+}
 
+
+
+/** part of @a iA inside @a iB.
+ *
+ *  @a iA is only painted where @a iB is present, and @a iB is not painted at all.
+ *  This is the equivalent of only drawing @iA clipped by the alpha channel of @a iB
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA * alphaB.
+ *  ColorR = ColorA.
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
+ */
+ColorRGBA in(const ColorRGBA& iA, const ColorRGBA& iB)
+{
 	ColorRGBA result(iA);
-	result *= (unfiltered * aResultInverse);
-	result += iB * (iB.a * aResultInverse);
-	result.a = aResult;
+	result.a *= iB.a;
+	return result;
+}
+
+
+
+/** @a iA held out by @a iB, part of @a iA outside @a iB.
+ *
+ *  @a iA is only painted where @a iB is not present, and @a iB is not painted at all.
+ *  This is the equivalent of only drawing @iA clipped by the inverse alpha channel of @a iB.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA * (1 - alphaB).
+ *  ColorR = ColorA.
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
+ */
+ColorRGBA out(const ColorRGBA& iA, const ColorRGBA& iB)
+{
+	ColorRGBA result(iA);
+	result.a *= (ColorRGBA::TNumTraits::one - iB.a);
+	return result;
+}
+
+
+
+/** union of @a iA in @a iB and @a iB out @a iA.
+ *
+ *  @a iA atop @a iB includes @a iA where it's on top of @a iB, otherwise it's @a iB.  But nothing 
+ *  outside @a iB is included.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaB.
+ *  ColorR = ColorA * alphaA + ColorB * (1 - alphaA).
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
+ */
+ColorRGBA atop(const ColorRGBA& iA, const ColorRGBA& iB)
+{
+	ColorRGBA result(iA);
+	result *= iA.a;
+	result += iB * (ColorRGBA::TNumTraits::one - iA.a);
+	result.a = iB.a;
+	return result;
+}
+
+
+
+/** union of @a iA out @a iB and @a iB out @a iA.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA * (1 - alphaB) + alphaB * (1 - alphaA).
+ *  colorR * alphaR = colorA * alphaA * (1 - alphaB) + colorB * alphaB * (1 - alphaA).
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
+ */
+ColorRGBA xor(const ColorRGBA& iA, const ColorRGBA& iB)
+{
+	const ColorRGBA::TValue fA = iA.a * (ColorRGBA::TNumTraits::one - iB.a);
+	const ColorRGBA::TValue fB = iB.a * (ColorRGBA::TNumTraits::one - iA.a);
+	ColorRGBA result(iA);
+	result *= fA;
+	result += iB * fB;
+	result /= fA + fB;
+	result.a = fA + fB;
+	return result;
+}
+
+
+
+/** @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
+ *  alphaR = alphaA + alphaB
+ *  colorR * alphaR = colorA * alphaA + colorB * alphaB.
+ *  @endcode
+ *
+ *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
+ *  @arg http://en.wikipedia.org/wiki/Alpha_channel
+ */
+ColorRGBA plus(const ColorRGBA& iA, const ColorRGBA& iB)
+{
+	ColorRGBA result(iA);
+	result *= iA;
+	result += iB * iB.a;
+	result /= iA.a + iB.a;
+	result.a = iA.a + iB.a;
 	return result;
 }
 
 
 
 /** @a iA seen through color filter @a iB.
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *
+ *  @code
  *  alphaR = alphaA.
- *  alphaR * colorR = alphaA * (1 - alphaB) * colorA + alphaA * alphaB * colorA * colorB.
+ *  colorR = colorA * (1 - alphaB) + colorA * colorB * alphaB.
+ *  @endcode
  */
 ColorRGBA through(const ColorRGBA& iA, const ColorRGBA& iB)
 {
-	ColorRGBA result(iB);
+	ColorRGBA result(iA);
+	result *= iB;
 	result *= iB.a;
-	result += ColorRGBA::TNumTraits::one - iB.a;
-	result *= iA;
+	result += iA * (ColorRGBA::TNumTraits::one - iA.b);
 	result.a = iA.a;
 	return result;
 }
 
 
 
-/** distance between colours as 3D points (alpha channel is disregarded).
- *  @return num::sqrt(dr * dr + dg * dg + db * db)
+/** distance between non-non-premultiplied colours as 3D points (alpha channel is disregarded).
+ *  @return num::sqrt(dR ** 2 + dG ** 2 + dB ** 2)
  */
 ColorRGBA::TValue distance(const ColorRGBA& iA, const ColorRGBA& iB)
 {
-	const ColorRGBA delta = iA - iB;
-	return delta.vector().norm();
+	ColorRGBA delta(iA);
+	delta -= iB;
+	return num::sqrt(num::sqr(delta.r) + num::sqr(delta.g) + num::sqr(delta.a));
 }
 
 }

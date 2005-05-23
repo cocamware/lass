@@ -67,14 +67,18 @@
 			<Tool 
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
-				CommandLine="copy $(TargetPath) $(ProjectDir)..\bin /Y
-copy $(TargetDir)$(TargetName).pdb $(ProjectDir)..\bin /Y
-copy $(TargetDir)$(TargetName).lib $(ProjectDir)..\lib /Y
-"/>
+				CommandLine="copy $(TargetPath) $(ProjectDir)..\..\bin /Y
+copy $(TargetDir)$(TargetName).pdb $(ProjectDir)..\..\bin /Y
+copy $(TargetDir)$(TargetName).lib $(ProjectDir)..\..\lib /Y
+
+xcopy $(ProjectDir)..\*.h $(ProjectDir)..\..\lass /E /I /R /Y
+xcopy $(ProjectDir)..\*.inl $(ProjectDir)..\..\lass /E /I /R /Y/Y"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="cd ..\src\util
+				Description="generating source code"
+				CommandLine="cd ..\util
 pre_build.py
+cd ..\dll
 "/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
@@ -160,12 +164,16 @@ pre_build.py
 				CommandLine="copy $(TargetPath) $(ProjectDir)..\..\bin /Y
 copy $(TargetDir)$(TargetName).pdb $(ProjectDir)..\..\bin /Y
 copy $(TargetDir)$(TargetName).lib $(ProjectDir)..\..\lib /Y
-"/>
+
+xcopy $(ProjectDir)..\*.h $(ProjectDir)..\..\lass /E /I /R /Y
+xcopy $(ProjectDir)..\*.inl $(ProjectDir)..\..\lass /E /I /R /Y/Y"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
+				Description="generating source code"
 				CommandLine="cd ..\util
 pre_build.py
-cd ..\dll"/>
+cd ..\dll
+"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -255,16 +263,16 @@ cd ..\dll"/>
 				RelativePath="..\num\tri_bool.cpp">
 			</File>
 			<File 
-				RelativePath="..\prim\color_rgba.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\xy.cpp">
-			</File>
-			<File 
 				RelativePath="..\prim\xyz.cpp">
 			</File>
 			<File 
 				RelativePath="..\prim\xyzw.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\color_rgba.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xy.cpp">
 			</File>
 			<File 
 				RelativePath="..\util\clock.cpp">
@@ -274,9 +282,6 @@ cd ..\dll"/>
 			</File>
 			<File 
 				RelativePath="..\util\progress_indicator.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\pyobject_macros.cpp">
 			</File>
 			<File 
 				RelativePath="..\util\pyobject_plus.cpp">

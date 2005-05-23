@@ -60,11 +60,12 @@ Vector<T, S>::Vector():
 /** Construct a vector of dimension @a iDimension.
  *  @param iDimension the dimension of the vector to be created.  You can pass zero, but you
  *         shouldn't pass negative dimensions though.
+ *  @param iInitialValue the initial value of all vector components, zero by default.
  *  Exception safety: strong guarentee.
  */
 template <typename T, typename S>
-Vector<T, S>::Vector(TSize iDimension):
-	storage_(iDimension)
+Vector<T, S>::Vector(TSize iDimension, TParam iInitialValue):
+	storage_(iDimension, iInitialValue)
 {
 }
 

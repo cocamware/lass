@@ -87,12 +87,14 @@ public:
 	ColorRGBA& operator/=( TParam iWhite );
 
 	const TValue brightness() const;
-
-	void gamma(TParam iGamma);
-	const TValue clamp();
-	const TValue expose(TParam iTime);
-
+	const bool isBlack() const;
 	const bool isZero() const;
+
+	const ColorRGBA darkened( TParam iFactor ) const;
+	const ColorRGBA dissolved( TParam iFactor) const;
+	const ColorRGBA gammaCorrected(TParam iGamma) const;
+	const ColorRGBA exposed(TParam iTime) const;
+	const ColorRGBA clamped() const;
 
 	// matlab colormaps
 	//
@@ -127,7 +129,12 @@ LASS_DLL ColorRGBA LASS_CALL operator-( const ColorRGBA& iA, ColorRGBA::TParam i
 LASS_DLL ColorRGBA LASS_CALL operator*( const ColorRGBA& iA, ColorRGBA::TParam iB );
 LASS_DLL ColorRGBA LASS_CALL operator/( const ColorRGBA& iA, ColorRGBA::TParam iB );
 
-LASS_DLL ColorRGBA LASS_CALL under( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL over( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL in( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL out( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL atop( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL xor( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL plus( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL through( const ColorRGBA& iA, const ColorRGBA& iB );
 
 LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorRGBA& iB );

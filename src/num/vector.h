@@ -68,7 +68,7 @@ public:
 	};
 
 	Vector();
-	explicit Vector(TSize iDimension);
+	explicit Vector(TSize iDimension, TParam iInitialValue = TNumTraits::zero);
 	explicit Vector(const TStorage& iStorage);
 	template <typename VectorType> explicit Vector(const VectorType& iVector);
 

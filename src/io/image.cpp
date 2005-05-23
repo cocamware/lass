@@ -30,6 +30,12 @@
 
 #include <fstream>
 
+#define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(iA, iB)\
+	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
+									 lass::util::impl::DefaultRaiser>\
+	((iA).rows() == (iB).rows() && (iA).cols() == (iB).cols(), "Images '" LASS_STRINGIFY(iA)\
+	 "' and '" LASS_STRINGIFY(iB) "' have different size in '" LASS_HERE "'."))
+
 namespace lass
 {
 namespace io
@@ -275,6 +281,126 @@ const bool Image::isEmpty() const
 
 
 
+/** this = this over other
+ */
+void Image::over(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::over);
+}
+
+
+
+/** this = this in other
+ */
+void Image::in(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::in);
+}
+
+
+
+/** this = this out other
+ */
+void Image::out(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::out);
+}
+
+
+
+/** this = this atop other
+ */
+void Image::atop(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::atop);
+}
+
+
+
+/** this = this through other
+ */
+void Image::through(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::through);
+}
+
+
+
+/** this = other over this
+ */
+void Image::rover(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::over);
+}
+
+
+
+/** this = other in this
+ */
+void Image::rin(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::in);
+}
+
+
+
+/** this = other out this
+ */
+void Image::rout(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::out);
+}
+
+
+
+/** this = other atop this
+ */
+void Image::ratop(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::atop);
+}
+
+
+
+/** this = other through this
+ */
+void Image::rthrough(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::through);
+}
+
+
+
+/** this = this xor other = other xor this
+ */
+void Image::xor(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::xor);
+}
+
+
+
+/** this = this plus other = other plus this
+ */
+void Image::plus(const Image& iOther)
+{
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
+	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::plus);
+}
+
+
+
 /** Apply a median filter on image.
  *  @param iBoxSize size of box filter, must be odd.
  *
@@ -370,12 +496,25 @@ void Image::filterMedian(unsigned iBoxSize)
 
 /** apply gamma correction to image
  */
-void Image::filterGamma(TParam iGamma)
+void Image::filterGamma(TParam iGammaExponent)
 {
 	const TRaster::size_type size = raster_.size();
 	for (TRaster::size_type i = 0; i < size; ++i)
 	{
-		raster_[i].gamma(iGamma);
+		raster_[i] = raster_[i].gammaCorrected(iGammaExponent);
+	}
+}
+
+
+
+/** apply exposure to image
+ */
+void Image::filterExposure(TParam iExposureTime)
+{
+	const TRaster::size_type size = raster_.size();
+	for (TRaster::size_type i = 0; i < size; ++i)
+	{
+		raster_[i] = raster_[i].exposed(iExposureTime);
 	}
 }
 
@@ -414,13 +553,13 @@ void Image::openTARGA(const std::string& iFilename)
 	HeaderTARGA header;
 	file.read((char*) &header, sizeof header);
 
-	switch (header.imgType)
+	switch (header.imageType)
 	{
 	case 2:
 		openTARGA2(file, header);
 		break;
 	default:
-		LASS_THROW("'" << iFilename << "': unknown image type '" << header.imgType << "'");
+		LASS_THROW("'" << iFilename << "': unsupported image type '" << header.imageType << "'");
 		break;
 	};
 
@@ -434,13 +573,11 @@ void Image::openTARGA(const std::string& iFilename)
 void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
 {
 	const TValue scale(255);
-	const unsigned size = resize(iHeader.imgHeight, iHeader.imgWidth);
+	
+	resize(iHeader.imageHeight, iHeader.imageWidth);
+	iFile.seekg(sizeof(HeaderTARGA) + iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize);
 
-	// skip image ID field & Color Map Data
-	iFile.seekg(18 + iHeader.idFieldLength +
-				 iHeader.colMapLength * iHeader.colMapEntrySize);
-
-	switch (iHeader.imgPixelSize)
+	switch (iHeader.imagePixelSize)
 	{
 	case 24:
 		{
@@ -481,7 +618,7 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
 		break;
 
 	default:
-		LASS_THROW("unknown pixel size '" << iHeader.imgPixelSize << "'.");
+		LASS_THROW("unsupported pixel size '" << iHeader.imagePixelSize << "'.");
 	}
 }
 
@@ -501,18 +638,18 @@ void Image::saveTARGA(const std::string& iFilename) const
 
 	// STEP 1: Make a header of the right type
 	HeaderTARGA header;
-	header.idFieldLength = 0;
-	header.colMapType = 0;
-	header.imgType = 2;
-	header.colMapOrigin = 0;
-	header.colMapLength = 0;
-	header.colMapEntrySize = 0;
-	header.imgXorigin = 0;
-	header.imgYorigin = 0;
-	header.imgWidth = cols_;
-	header.imgHeight = rows_;
-	header.imgPixelSize = 32;
-	header.imgDescriptor = 8;
+	header.idLength = 0;
+	header.colorMapType = 0;
+	header.imageType = 2;
+	header.colorMapOrigin = 0;
+	header.colorMapLength = 0;
+	header.colorMapEntrySize = 0;
+	header.imageXorigin = 0;
+	header.imageYorigin = 0;
+	header.imageWidth = cols_;
+	header.imageHeight = rows_;
+	header.imagePixelSize = 32;
+	header.imageDescriptor = 0x08; // 8 attribute bits
 
 	file.write((char*) &header, sizeof header);
 

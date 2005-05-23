@@ -93,33 +93,53 @@ public:
 	const unsigned cols() const;
 	const bool isEmpty() const;
 
+	// OPERATIONS
+
+	void over(const Image& iOther);
+	void in(const Image& iOther);
+	void out(const Image& iOther);
+	void atop(const Image& iOther);
+	void through(const Image& iOther);
+	void rover(const Image& iOther);
+	void rin(const Image& iOther);
+	void rout(const Image& iOther);
+	void ratop(const Image& iOther);
+	void rthrough(const Image& iOther);
+	void xor(const Image& iOther);
+	void plus(const Image& iOther);
+
 	// FILTERS
 
 	void filterMedian(unsigned iBoxSize);
-	void filterGamma(TParam iGamma);
+	void filterGamma(TParam iGammaExponent);
+	void filterExposure(TParam iExposureTime);
 
 private:
 
+#	pragma pack(push, 1)
 	struct HeaderTARGA
 	{
-		num::Tuint8  idFieldLength;
-		num::Tuint8  colMapType;
-		num::Tuint8  imgType;
-		num::Tuint16 colMapOrigin;
-		num::Tuint16 colMapLength;
-		num::Tuint8  colMapEntrySize;
-		num::Tuint8  imgXorigin;
-		num::Tuint8  imgYorigin;
-		num::Tuint16 imgWidth;
-		num::Tuint16 imgHeight;
-		num::Tuint8  imgPixelSize;
-		num::Tuint8  imgDescriptor;
+		num::Tuint8 idLength;
+		num::Tuint8 colorMapType;
+		num::Tuint8 imageType;
+		num::Tuint16 colorMapOrigin;
+		num::Tuint16 colorMapLength;
+		num::Tuint8	colorMapEntrySize;
+		num::Tuint16 imageXorigin;
+		num::Tuint16 imageYorigin;
+		num::Tuint16 imageWidth;
+		num::Tuint16 imageHeight;
+		num::Tuint8 imagePixelSize;
+		num::Tuint8 imageDescriptor;
 
-		unsigned numAttributeBits() const { return imgDescriptor & 0x0F; }
-		unsigned screenOrigin() const { return (imgDescriptor & 0x10) >> 5; }
-		unsigned interleavingFlag() const { return (imgDescriptor&0x60) >> 6; }
+		const unsigned numAttributeBits() const { return imageDescriptor & 0x0F; }
+		const bool flipHorizontalFlag() const { return ((imageDescriptor >> 4) & 0x01) == 0x01; }
+		const bool flipVerticalFlag() const { return ((imageDescriptor >> 5) & 0x01) == 0x01; }
+		const bool interleavingFlag() const { return ((imageDescriptor >> 6) & 0x01) == 0x01; }
 	};
+#	pragma pack(pop)
 
+	LASS_META_ASSERT(sizeof(HeaderTARGA) == 18 && lass::bitsPerByte == 8, HeaderTARGA_is_ill_formatted);
 
 	// PRIVATE METHODS
 
