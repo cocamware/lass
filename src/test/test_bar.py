@@ -1,7 +1,7 @@
 import sys
 import embedding
 
-if 1:
+if 0:
 	import code
 	s = code.InteractiveConsole()
 	s.interact()
