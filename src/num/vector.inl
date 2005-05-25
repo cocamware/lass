@@ -89,7 +89,7 @@ Vector<T, S>::Vector(const TStorage& iStorage):
 template <typename T, typename S>
 template <typename VectorType>
 Vector<T, S>::Vector(const VectorType& iVector):
-	storage_(iVector.size())
+	storage_(iVector.size(), T())
 {
 	TSize n = size();
 	for (TSize i = 0; i < n; ++i)

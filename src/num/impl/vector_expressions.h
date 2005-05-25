@@ -49,7 +49,7 @@ public:
 	typedef size_t TSize;
 
 	VStorage(): storage_() {}
-	explicit VStorage(TSize iSize): storage_(iSize, T()) {}
+	VStorage(TSize iSize, TParam iInitialValue): storage_(iSize, iInitialValue) {}
 	TReference operator[](TSize iIndex) { LASS_ASSERT(iIndex < size()); return storage_[iIndex]; }
 	TConstReference operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size()); return storage_[iIndex]; }
 	TSize size() const { return storage_.size(); }
