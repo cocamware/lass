@@ -31,6 +31,7 @@
 #include "test_num.h"
 
 #include "test_num_db.inl"
+#include "test_num_spline.inl"
 #include "test_num_matrix_vector.inl"
 #include "test_num_random.inl"
 #include "test_num_tri_bool.inl"
@@ -47,6 +48,8 @@ boost::unit_test_framework::test_suite* testNum()
 
 	result->add(BOOST_TEST_CASE(testNumDb<float>));
 	result->add(BOOST_TEST_CASE(testNumDb<double>));
+
+	result->add(BOOST_TEST_CASE(testNumSpline));
 
 	result->add(BOOST_TEST_CASE(testNumMatrix<double>));
 	result->add(BOOST_TEST_CASE(testNumMatrix<std::complex<double> >));

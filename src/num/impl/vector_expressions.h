@@ -73,7 +73,7 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef size_t TSize;
 
-	VScalar(TParam iValue, TSize iSize): value_(iValue), size_(iSize) {}
+	VScalar(TSize iSize, TParam iValue): value_(iValue), size_(iSize) {}
 	TParam operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size_); return value_; }
 	TSize size() const { return size_; }
 private:

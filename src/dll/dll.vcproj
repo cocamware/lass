@@ -263,16 +263,16 @@ cd ..\dll
 				RelativePath="..\num\tri_bool.cpp">
 			</File>
 			<File 
-				RelativePath="..\prim\xyz.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\xyzw.cpp">
-			</File>
-			<File 
 				RelativePath="..\prim\color_rgba.cpp">
 			</File>
 			<File 
 				RelativePath="..\prim\xy.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xyz.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xyzw.cpp">
 			</File>
 			<File 
 				RelativePath="..\util\clock.cpp">

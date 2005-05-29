@@ -70,7 +70,7 @@
 
 #if defined(LASS_LIB_AUTO_LINK)
 #	pragma message("LASS_LIB_UTIL: " LASS_LIB_UTIL)
-#	pragma comment(lib, LASS_LIB_UTIL)
+//#	pragma comment(lib, LASS_LIB_UTIL)
 #endif
 
 #endif

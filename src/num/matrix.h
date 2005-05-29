@@ -141,8 +141,8 @@ const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, 
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
 
-template <typename T, typename S>
-bool solve(const Matrix<T, S>& iA, Matrix<T>& ioB);
+template <typename T, typename S, typename S2>
+bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB);
 
 
 template <typename T, typename S, typename Char, typename Traits>

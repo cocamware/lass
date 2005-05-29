@@ -781,7 +781,7 @@ operator/(const Matrix<T, S>& iA, const T& iB)
  *         (this->isSquare() && this->columns() == ioB.rows())
  */
 template <typename T, typename S, typename S2>
-bool solve(const Matrix<T, S> iA, Matrix<T, S2>& ioB)
+bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 {
 	LASS_META_ASSERT(S2::lvalue, ioB_isnt_an_lvalue);
 	LASS_ENFORCE(iA.isSquare());
