@@ -39,7 +39,7 @@ namespace lass
 {
 namespace test
 {
-
+/*
 template 
 <
 	typename ScalarType, 
@@ -54,34 +54,206 @@ struct FixedDimensionDataTraits
 	static void scale(DataType& ioAcc, ScalarType iScale) {	ioAcc *= iScale; }
 	static void multiplyAccumulate(DataType& ioAcc, const DataType& iData, ScalarType iScale) {	ioAcc += iData * iScale; }
 };
+*/
 
 void testNumSpline()
 {
 	typedef float TScalar;
-	typedef prim::Vector3D<float> TData;
+	typedef prim::Vector3D<float> TVector3D;
 
 	/*
 	const TScalar xx[] = { -13.f, -5.6f, -5.5f, 2.f, 3.14f, 7.34f,   9.f, 10.7f };
 	const TScalar yy[] = {  4.8f, -34.f, -34.f, 0.f,  6.5f,  0.5f, -20.f, -15.f };
 	/*/
-	const TScalar xx[] = {365e-9f, 370e-9f, 375e-9f, 380e-9f, 385e-9f, 390e-9f, 395e-9f, 400e-9f, 405e-9f, 410e-9f, 415e-9f, 420e-9f, 425e-9f, 430e-9f, 435e-9f, 440e-9f, 445e-9f, 450e-9f, 455e-9f, 460e-9f, 465e-9f, 470e-9f, 475e-9f, 480e-9f, 485e-9f, 490e-9f, 495e-9f, 500e-9f, 505e-9f, 510e-9f, 515e-9f, 520e-9f, 525e-9f, 530e-9f, 535e-9f, 540e-9f, 545e-9f, 550e-9f, 555e-9f, 560e-9f, 565e-9f, 570e-9f, 575e-9f, 580e-9f, 585e-9f, 590e-9f, 595e-9f, 600e-9f, 605e-9f, 610e-9f, 615e-9f, 620e-9f, 625e-9f, 630e-9f, 635e-9f, 640e-9f, 645e-9f, 650e-9f, 655e-9f, 660e-9f, 665e-9f, 670e-9f, 675e-9f, 680e-9f, 685e-9f, 690e-9f, 695e-9f, 700e-9f, 705e-9f, 710e-9f, 715e-9f, 720e-9f, 725e-9f, 730e-9f, 735e-9f, 740e-9f, 745e-9f, 750e-9f, 755e-9f, 760e-9f, 765e-9f, 770e-9f, 775e-9f, 780e-9f, 785e-9f};
-	const TData yy[] = {TData(), TData(), TData(), TData(0.0002, 0.0000, 0.0007), TData(0.0007, 0.0001, 0.0029), TData(0.0024, 0.0003, 0.0105), TData(0.0072, 0.0008, 0.0323), TData(0.0191, 0.0020, 0.0860), TData(0.0434, 0.0045, 0.1971), TData(0.0847, 0.0088, 0.3894), TData(0.1406, 0.0145, 0.6568), TData(0.2045, 0.0214, 0.9725), TData(0.2647, 0.0295, 1.2825), TData(0.3147, 0.0387, 1.5535), TData(0.3577, 0.0496, 1.7985), TData(0.3837, 0.0621, 1.9673), TData(0.3867, 0.0747, 2.0273), TData(0.3707, 0.0895, 1.9948), TData(0.3430, 0.1063, 1.9007), TData(0.3023, 0.1282, 1.7454), TData(0.2541, 0.1528, 1.5549), TData(0.1956, 0.1852, 1.3176), TData(0.1323, 0.2199, 1.0302), TData(0.0805, 0.2536, 0.7721), TData(0.0411, 0.2977, 0.5701), TData(0.0162, 0.3391, 0.4153), TData(0.0051, 0.3954, 0.3024), TData(0.0038, 0.4608, 0.2185), TData(0.0154, 0.5314, 0.1592), TData(0.0375, 0.6067, 0.1120), TData(0.0714, 0.6857, 0.0822), TData(0.1177, 0.7618, 0.0607), TData(0.1730, 0.8233, 0.0431), TData(0.2365, 0.8752, 0.0305), TData(0.3042, 0.9238, 0.0206), TData(0.3768, 0.9620, 0.0137), TData(0.4516, 0.9822, 0.0079), TData(0.5298, 0.9918, 0.0040), TData(0.6161, 0.9991, 0.0011), TData(0.7052, 0.9973, 0.0000), TData(0.7938, 0.9824, 0.0000), TData(0.8787, 0.9556, 0.0000), TData(0.9512, 0.9152, 0.0000), TData(1.0142, 0.8689, 0.0000), TData(1.0743, 0.8256, 0.0000), TData(1.1185, 0.7774, 0.0000), TData(1.1343, 0.7204, 0.0000), TData(1.1240, 0.6583, 0.0000), TData(1.0891, 0.5939, 0.0000), TData(1.0305, 0.5280, 0.0000), TData(0.9507, 0.4618, 0.0000), TData(0.8563, 0.3981, 0.0000), TData(0.7549, 0.3396, 0.0000), TData(0.6475, 0.2835, 0.0000), TData(0.5351, 0.2283, 0.0000), TData(0.4316, 0.1798, 0.0000), TData(0.3437, 0.1402, 0.0000), TData(0.2683, 0.1076, 0.0000), TData(0.2043, 0.0812, 0.0000), TData(0.1526, 0.0603, 0.0000), TData(0.1122, 0.0441, 0.0000), TData(0.0813, 0.0318, 0.0000), TData(0.0579, 0.0226, 0.0000), TData(0.0409, 0.0159, 0.0000), TData(0.0286, 0.0111, 0.0000), TData(0.0199, 0.0077, 0.0000), TData(0.0138, 0.0054, 0.0000), TData(0.0096, 0.0037, 0.0000), TData(0.0066, 0.0026, 0.0000), TData(0.0046, 0.0018, 0.0000), TData(0.0031, 0.0012, 0.0000), TData(0.0022, 0.0008, 0.0000), TData(0.0015, 0.0006, 0.0000), TData(0.0010, 0.0004, 0.0000), TData(0.0007, 0.0003, 0.0000), TData(0.0005, 0.0002, 0.0000), TData(0.0004, 0.0001, 0.0000), TData(0.0003, 0.0001, 0.0000), TData(0.0002, 0.0001, 0.0000), TData(0.0001, 0.0000, 0.0000), TData(0.0001, 0.0000, 0.0000), TData(0.0001, 0.0000, 0.0000), TData(0.0000, 0.0000, 0.0000), TData(0.0000, 0.0000, 0.0000), TData(0.0000, 0.0000, 0.0000), };
+	const TScalar w[] =
+	{
+		3.70e-007,
+		3.75e-007,
+		3.80e-007,
+		3.85e-007,
+		3.90e-007,
+		3.95e-007,
+		4.00e-007,
+		4.05e-007,
+		4.10e-007,
+		4.15e-007,
+		4.20e-007,
+		4.25e-007,
+		4.30e-007,
+		4.35e-007,
+		4.40e-007,
+		4.45e-007,
+		4.50e-007,
+		4.55e-007,
+		4.60e-007,
+		4.65e-007,
+		4.70e-007,
+		4.75e-007,
+		4.80e-007,
+		4.85e-007,
+		4.90e-007,
+		4.95e-007,
+		5.00e-007,
+		5.05e-007,
+		5.10e-007,
+		5.15e-007,
+		5.20e-007,
+		5.25e-007,
+		5.30e-007,
+		5.35e-007,
+		5.40e-007,
+		5.45e-007,
+		5.50e-007,
+		5.55e-007,
+		5.60e-007,
+		5.65e-007,
+		5.70e-007,
+		5.75e-007,
+		5.80e-007,
+		5.85e-007,
+		5.90e-007,
+		5.95e-007,
+		6.00e-007,
+		6.05e-007,
+		6.10e-007,
+		6.15e-007,
+		6.20e-007,
+		6.25e-007,
+		6.30e-007,
+		6.35e-007,
+		6.40e-007,
+		6.45e-007,
+		6.50e-007,
+		6.55e-007,
+		6.60e-007,
+		6.65e-007,
+		6.70e-007,
+		6.75e-007,
+		6.80e-007,
+		6.85e-007,
+		6.90e-007,
+		6.95e-007,
+		7.00e-007,
+		7.05e-007,
+		7.10e-007,
+		7.15e-007,
+		7.20e-007,
+		7.25e-007,
+		7.30e-007,
+		7.35e-007,
+		7.40e-007,
+		7.45e-007,
+		7.50e-007,
+		7.55e-007,
+		7.60e-007,
+		7.65e-007,
+		7.70e-007,
+		7.75e-007,
+		7.80e-007,
+	};
+	const TVector3D xyz[] =
+	{
+		TVector3D(0.0000e+000, 0.0000e+000, 0.0000e+000),
+		TVector3D(0.0000e+000, 0.0000e+000, 0.0000e+000),
+		TVector3D(1.7146e+003, 0.0000e+000, 5.9997e+003),
+		TVector3D(6.0010e+003, 8.5718e+002, 2.4856e+004),
+		TVector3D(2.0575e+004, 2.5715e+003, 8.9996e+004),
+		TVector3D(6.1725e+004, 6.8574e+003, 2.7684e+005),
+		TVector3D(1.6374e+005, 1.7144e+004, 7.3711e+005),
+		TVector3D(3.7206e+005, 3.8573e+004, 1.6894e+006),
+		TVector3D(7.2612e+005, 7.5432e+004, 3.3376e+006),
+		TVector3D(1.2053e+006, 1.2429e+005, 5.6295e+006),
+		TVector3D(1.7532e+006, 1.8344e+005, 8.3353e+006),
+		TVector3D(2.2692e+006, 2.5287e+005, 1.0992e+007),
+		TVector3D(2.6979e+006, 3.3173e+005, 1.3315e+007),
+		TVector3D(3.0665e+006, 4.2516e+005, 1.5415e+007),
+		TVector3D(3.2894e+006, 5.3231e+005, 1.6862e+007),
+		TVector3D(3.3151e+006, 6.4031e+005, 1.7376e+007),
+		TVector3D(3.1780e+006, 7.6717e+005, 1.7098e+007),
+		TVector3D(2.9405e+006, 9.1118e+005, 1.6291e+007),
+		TVector3D(2.5916e+006, 1.0989e+006, 1.4960e+007),
+		TVector3D(2.1784e+006, 1.3098e+006, 1.3327e+007),
+		TVector3D(1.6769e+006, 1.5875e+006, 1.1293e+007),
+		TVector3D(1.1342e+006, 1.8849e+006, 8.8299e+006),
+		TVector3D(6.9012e+005, 2.1738e+006, 6.6177e+006),
+		TVector3D(3.5235e+005, 2.5518e+006, 4.8863e+006),
+		TVector3D(1.3888e+005, 2.9067e+006, 3.5596e+006),
+		TVector3D(4.3722e+004, 3.3893e+006, 2.5919e+006),
+		TVector3D(3.2577e+004, 3.9499e+006, 1.8728e+006),
+		TVector3D(1.3202e+005, 4.5550e+006, 1.3645e+006),
+		TVector3D(3.2148e+005, 5.2005e+006, 9.5996e+005),
+		TVector3D(6.1210e+005, 5.8777e+006, 7.0454e+005),
+		TVector3D(1.0090e+006, 6.5300e+006, 5.2026e+005),
+		TVector3D(1.4831e+006, 7.0571e+006, 3.6941e+005),
+		TVector3D(2.0275e+006, 7.5020e+006, 2.6142e+005),
+		TVector3D(2.6079e+006, 7.9186e+006, 1.7656e+005),
+		TVector3D(3.2303e+006, 8.2460e+006, 1.1742e+005),
+		TVector3D(3.8715e+006, 8.4192e+006, 6.7711e+004),
+		TVector3D(4.5419e+006, 8.5015e+006, 3.4284e+004),
+		TVector3D(5.2817e+006, 8.5641e+006, 9.4281e+003),
+		TVector3D(6.0456e+006, 8.5486e+006, 0.0000e+000),
+		TVector3D(6.8051e+006, 8.4209e+006, 0.0000e+000),
+		TVector3D(7.5330e+006, 8.1912e+006, 0.0000e+000),
+		TVector3D(8.1545e+006, 7.8449e+006, 0.0000e+000),
+		TVector3D(8.6946e+006, 7.4480e+006, 0.0000e+000),
+		TVector3D(9.2098e+006, 7.0769e+006, 0.0000e+000),
+		TVector3D(9.5888e+006, 6.6637e+006, 0.0000e+000),
+		TVector3D(9.7242e+006, 6.1751e+006, 0.0000e+000),
+		TVector3D(9.6359e+006, 5.6428e+006, 0.0000e+000),
+		TVector3D(9.3367e+006, 5.0908e+006, 0.0000e+000),
+		TVector3D(8.8343e+006, 4.5259e+006, 0.0000e+000),
+		TVector3D(8.1502e+006, 3.9584e+006, 0.0000e+000),
+		TVector3D(7.3410e+006, 3.4124e+006, 0.0000e+000),
+		TVector3D(6.4717e+006, 2.9110e+006, 0.0000e+000),
+		TVector3D(5.5509e+006, 2.4301e+006, 0.0000e+000),
+		TVector3D(4.5873e+006, 1.9569e+006, 0.0000e+000),
+		TVector3D(3.7001e+006, 1.5412e+006, 0.0000e+000),
+		TVector3D(2.9465e+006, 1.2018e+006, 0.0000e+000),
+		TVector3D(2.3001e+006, 9.2232e+005, 0.0000e+000),
+		TVector3D(1.7514e+006, 6.9603e+005, 0.0000e+000),
+		TVector3D(1.3082e+006, 5.1688e+005, 0.0000e+000),
+		TVector3D(9.6188e+005, 3.7802e+005, 0.0000e+000),
+		TVector3D(6.9697e+005, 2.7258e+005, 0.0000e+000),
+		TVector3D(4.9637e+005, 1.9372e+005, 0.0000e+000),
+		TVector3D(3.5063e+005, 1.3629e+005, 0.0000e+000),
+		TVector3D(2.4518e+005, 9.5147e+004, 0.0000e+000),
+		TVector3D(1.7060e+005, 6.6003e+004, 0.0000e+000),
+		TVector3D(1.1831e+005, 4.6288e+004, 0.0000e+000),
+		TVector3D(8.2300e+004, 3.1716e+004, 0.0000e+000),
+		TVector3D(5.6581e+004, 2.2287e+004, 0.0000e+000),
+		TVector3D(3.9435e+004, 1.5429e+004, 0.0000e+000),
+		TVector3D(2.6576e+004, 1.0286e+004, 0.0000e+000),
+		TVector3D(1.8860e+004, 6.8574e+003, 0.0000e+000),
+		TVector3D(1.2859e+004, 5.1431e+003, 0.0000e+000),
+		TVector3D(8.5729e+003, 3.4287e+003, 0.0000e+000),
+		TVector3D(6.0010e+003, 2.5715e+003, 0.0000e+000),
+		TVector3D(4.2864e+003, 1.7144e+003, 0.0000e+000),
+		TVector3D(3.4291e+003, 8.5718e+002, 0.0000e+000),
+		TVector3D(2.5719e+003, 8.5718e+002, 0.0000e+000),
+		TVector3D(1.7146e+003, 8.5718e+002, 0.0000e+000),
+		TVector3D(8.5729e+002, 0.0000e+000, 0.0000e+000),
+		TVector3D(8.5729e+002, 0.0000e+000, 0.0000e+000),
+		TVector3D(8.5729e+002, 0.0000e+000, 0.0000e+000),
+		TVector3D(0.0000e+000, 0.0000e+000, 0.0000e+000),
+		TVector3D(0.0000e+000, 0.0000e+000, 0.0000e+000),
+	};
 	const TScalar begin = 300e-9f;
 	const TScalar end = 850e-9f;
 	const TScalar delta = 1e-9f;
-	const TScalar integral0 = begin;
+	const TScalar integral0 = 380e-9f;
 	/**/
 
-	num::SplineLinear<TScalar, TData, FixedDimensionDataTraits<TScalar, TData> > linear(xx, xx + (sizeof xx / sizeof TScalar), yy);
+	num::SplineLinear<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > linear(
+		w, w + (sizeof w / sizeof TScalar), xyz);
 	std::ofstream outputLinear("spline_linear.txt");
 	const size_t n = static_cast<size_t>(num::floor((end - begin) / delta));
 	for (unsigned i = 0; i < n; ++i)
 	{
 		const TScalar x = begin + i * delta;
-		const TData y = linear(x);
-		const TData dy = linear.derivative(x);
-		const TData ddy = linear.derivative2(x);
-		const TData inty = linear.integral(integral0, x);
+		const TVector3D y = linear(x);
+		const TVector3D dy = linear.derivative(x);
+		const TVector3D ddy = linear.derivative2(x);
+		const TVector3D inty = linear.integral(integral0, x);
 		outputLinear << x << "\t" 
 			<< y.x << "\t" << y.y << "\t" << y.z << "\t"
 			<< dy.x << "\t" << dy.y << "\t" << dy.z << "\t"
@@ -89,15 +261,16 @@ void testNumSpline()
 			<< inty.x << "\t" << inty.y << "\t" << inty.z << "\n";
 	}
 
-	num::SplineCubic<TScalar, TData, FixedDimensionDataTraits<TScalar, TData> > cubic(xx, xx + (sizeof xx / sizeof TScalar), yy);
+	num::SplineCubic<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > cubic(
+		w, w + (sizeof w / sizeof TScalar), xyz);
 	std::ofstream outputCubic("spline_cubic.txt");
 	for (unsigned i = 0; i < n; ++i)
 	{
 		const TScalar x = begin + i * delta;
-		const TData y = cubic(x);
-		const TData dy = cubic.derivative(x);
-		const TData ddy = cubic.derivative2(x);
-		const TData inty = cubic.integral(integral0, x);
+		const TVector3D y = cubic(x);
+		const TVector3D dy = cubic.derivative(x);
+		const TVector3D ddy = cubic.derivative2(x);
+		const TVector3D inty = cubic.integral(integral0, x);
 		outputCubic << x << "\t" 
 			<< y.x << "\t" << y.y << "\t" << y.z << "\t"
 			<< dy.x << "\t" << dy.y << "\t" << dy.z << "\t"

@@ -47,7 +47,7 @@ template
 <
 	typename ScalarType,
 	typename DataType,
-	typename DataTraits = DefaultDataTraits<ScalarType, DataType>
+	typename DataTraits = DataTraitsDefault<DataType>
 >
 class SplineLinear: public Spline<ScalarType, DataType>
 {

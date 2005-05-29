@@ -45,7 +45,7 @@ template
 <
 	typename ScalarType,
 	typename DataType,
-	typename DataTraits = DefaultDataTraits<ScalarType, DataType>
+	typename DataTraits = DataTraitsDefault<DataType>
 >
 class SplineCubic: public Spline<ScalarType, DataType>
 {

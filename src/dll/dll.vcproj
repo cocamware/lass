@@ -200,6 +200,69 @@ cd ..\dll
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File 
+				RelativePath="..\util\clock.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\process.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\progress_indicator.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\pyobject_plus.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\smart_ptr_policies.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\thread.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\type_info.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\visitor.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\impl\clock_impl.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\impl\dispatcher_python.cpp">
+			</File>
+			<File 
+				RelativePath="..\util\impl\singleton_impl.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\color_rgba.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xy.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xyz.cpp">
+			</File>
+			<File 
+				RelativePath="..\prim\xyzw.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\fn_sampled8.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\interval.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\num_traits.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\random.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\refl_diffr.cpp">
+			</File>
+			<File 
+				RelativePath="..\num\tri_bool.cpp">
+			</File>
+			<File 
 				RelativePath="..\io\arg_parser.cpp">
 			</File>
 			<File 
@@ -243,69 +306,6 @@ cd ..\dll
 			</File>
 			<File 
 				RelativePath="..\io\xml_o_file.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\fn_sampled8.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\interval.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\num_traits.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\random.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\refl_diffr.cpp">
-			</File>
-			<File 
-				RelativePath="..\num\tri_bool.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\color_rgba.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\xy.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\xyz.cpp">
-			</File>
-			<File 
-				RelativePath="..\prim\xyzw.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\clock.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\process.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\progress_indicator.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\pyobject_plus.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\smart_ptr_policies.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\thread.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\type_info.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\visitor.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\impl\clock_impl.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\impl\dispatcher_python.cpp">
-			</File>
-			<File 
-				RelativePath="..\util\impl\singleton_impl.cpp">
 			</File>
 		</Filter>
 		<Filter 

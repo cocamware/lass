@@ -59,101 +59,111 @@ public:
 };
 
 
-template 
-<
-	typename ScalarType, 
-	typename DataType
->
-struct DefaultDataTraits
+
+
+
+#pragma LASS_TODO("below are data traits that should move to a seperate header when appropriate, [Bramz]")
+
+/** @defgroup DataTraits
+ *  A set of trait classes on how to manipulate data
+ *
+ *  This is the concept each data traits class has to model:
+ *
+ *  @code
+ *  struct
+ *  {
+ *		typedef ... TData; // type of data
+ *		typedef ... TScalar; // type of a single scalar value in data
+ *		static size_t dimension(const TData& iY); // returns number of scalar values in iY
+ *		static void zero(TData& iY, size_t iDim); // resets iY to a data object with iDim zeros
+ *		static TScalar get(const TData& iY, size_t iIndex); // return iIndex'th scalar in iY
+ *		static void set(TData& ioY, size_t iIndex, TScalar iV); // set iIndex'th scalar of iY to iV
+ *		static void scale(TDAta& ioAcc, TScalar iS); // scale each scalar of ioAcc by iS
+ *		static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS); // add each
+ *			// element of iY multiplied by iS to the element in ioAcc with same index.
+ *  };
+ *	@endcode
+ *
+ *  - @ref DataTraitsSequence: concerning data acting like an STL sequence
+ *  - @ref DataTraitsScalar: concerning scalar data
+ *  - @ref DataTraitsDynamicVector: concerning data like num::Vector
+ *  - @ref DataTraitsStaticVector: concerning data like prim::Vector2D
+ */
+
+/** @ingroup DataTraits
+ */
+template <typename SequenceType>
+struct DataTraitsSequence
 {
-	/** return the number of scalar in one data element
-	 */
-	static size_t dimension(const DataType& iData)
-	{
-		return iData.size();
-	}
-	/** initialize @a ioData to an element with @a iDimension zeroes.
-	 */
-	static void zero(DataType& ioData, size_t iDimension)
-	{
-		ioData = DataType(iDimension);
-	}
-	/** get the @a iIndex'th scalar of @a iData
-	 */
-	static ScalarType get(const DataType& iData, size_t iIndex) 
+	typedef SequenceType TData;
+	typedef typename SequenceType::value_type TScalar;
+	static size_t dimension(const TData& iY) { return std::distance(iY.begin(), iY.end()); }
+	static void zero(TData& ioY, size_t iDim) { ioY = TData(iDim); }
+	static TScalar get(const TData& iY, size_t iIndex) { return *stde::next(ioY.begin(), iIndex); }
+	static void set(TData& ioY, size_t iIndex, TScalar iV) { *stde::next(ioY.begin(), iIndex) = iV; }
+	static void scale(TData& ioAcc, TScalar iS) 
 	{ 
-		return iData[iIndex]; 
+		std::transform(ioAcc.begin(), ioAcc.end(), ioAcc.begin(), std::bind2nd(std::multiply, iS));
 	}
-	/** set the @a iIndex'th scalar of @a iData to @a iValue
-	 */
-	static void set(DataType& ioData, size_t iIndex, ScalarType iValue) 
-	{ 
-		ioData[iIndex] = iValue; 
-	}
-	/** scale @a ioAcc by @a iScale
-	 */
-	static void scale(DataType& ioAcc, ScalarType iScale)
+	static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS) 
 	{
-		ioAcc *= iScale;
+		std::transform(ioAcc.begin(), ioAcc.end(), iY.begin(), ioAcc.begin(), Mac(iS));
 	}
-	/** multiply @a iData by @a iScale and add result to @a ioAcc
-	 */
-	static void multiplyAccumulate(DataType& ioAcc, const DataType& iData, ScalarType iScale)
+private:
+	class Mac
 	{
-		ioAcc += iData * iScale;
-	}
+		TScalar s_;
+	public:
+		Mac(TScalar iS): s_(iS) {}
+		TScalar operator()(TScalar iA, TScalar iB) const { return iA + s_ * iB; }
+	};
+};
+
+/** @ingroup DataTraits
+ */
+template <typename ScalarType>
+struct DataTraitsScalar
+{
+	typedef ScalarType TData;
+	typedef ScalarType TScalar;
+	static size_t dimension(TScalar iY) { return 1; }
+	static void zero(TScalar& ioY, size_t iDim) { ioY = TScalar(); }
+	static TScalar get(TScalar iY, size_t iIndex) { return iY; }
+	static void set(TScalar& ioY, size_t iIndex, TScalar iV) { ioY = iV; }
+	static void scale(TScalar& ioAcc, TScalar iS) { ioAcc *= iS; }
+	static void multiplyAccumulate(TScalar& ioAcc, TScalar iY, TScalar iS) { ioAcc += iY * iS; }
 };
 
 
-
-template 
-<
-	typename ScalarType
->
-struct DefaultDataTraits<ScalarType, ScalarType>
+/** @ingroup DataTraits
+ */
+template <typename DataType>
+struct DataTraitsDynamicVector
 {
-	/** return the number of scalar in one data element
-	 */
-	static size_t dimension(ScalarType iData)
-	{
-		return 1;
-	}
-	/** initialize @a ioData to an element with @a iDimension zeroes.
-	 */
-	static void zero(ScalarType& ioData, size_t iDimension)
-	{
-		LASS_ASSERT(iDimension == 1);
-		ioData = ScalarType();
-	}
-	/** get the @a iIndex'th scalar of @a iData
-	 */
-	static ScalarType get(ScalarType iData, size_t iIndex) 
-	{ 
-		LASS_ASSERT(iIndex == 0);
-		return iData; 
-	}
-	/** set the @a iIndex'th scalar of @a iData to @a iValue
-	 */
-	static void set(ScalarType& ioData, size_t iIndex, ScalarType iValue) 
-	{ 
-		LASS_ASSERT(iIndex == 0);
-		ioData = iValue; 
-	}
-	/** scale @a ioAcc by @a iScale
-	 */
-	static void scale(ScalarType& ioAcc, ScalarType iScale)
-	{
-		ioAcc *= iScale;
-	}
-	/** multiply @a iData by @a iScale and add result to @a ioAcc
-	 */
-	static void multiplyAccumulate(ScalarType& ioAcc, ScalarType iData, ScalarType iScale)
-	{
-		ioAcc += iData * iScale;
-	}
+	typedef DataType TData;
+	typedef typename DataType::TValue TScalar;
+	static size_t dimension(const TData& iY) { return iY.size(); }
+	static void zero(TData& ioY, size_t iDim) { ioY = TData(iDim); }
+	static TScalar get(const TData& iY, size_t iIndex) { return iY[iIndex]; }
+	static void set(TData& ioY, size_t iIndex, TScalar iV) { ioY[iIndex] = iV; }
+	static void scale(TData& ioAcc, TScalar iS) { ioAcc *= iS; }
+	static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS)  { ioAcc += iY * iS; }
 };
 
-
+/** @ingroup DataTraits
+ */
+template <typename DataType>
+struct DataTraitsStaticVector
+{
+	typedef DataType TData;
+	typedef typename DataType::TValue TScalar;
+	static size_t dimension(const TData& iY) { return TData::dimension; }
+	static void zero(TData& ioY, size_t iDim) { ioY = TData(); }
+	static TScalar get(const TData& iY, size_t iIndex) { return iY[iIndex]; }
+	static void set(TData& ioY, size_t iIndex, TScalar iV) { ioY[iIndex] = iV; }
+	static void scale(TData& ioAcc, TScalar iS) { ioAcc *= iS; }
+	static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS)  { ioAcc += iY * iS; }
+};
 
 }
 
