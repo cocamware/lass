@@ -32,6 +32,7 @@
 #include "test_common.h"
 
 #include "../prim/transformation_3d.h"
+#include "../prim/transformation_2d.h"
 #include "../num/random.h"
 #include "../num/distribution.h"
 /*

@@ -71,6 +71,7 @@ public:
 	explicit Vector(TSize iDimension, TParam iInitialValue = TNumTraits::zero);
 	explicit Vector(const TStorage& iStorage);
 	template <typename VectorType> explicit Vector(const VectorType& iVector);
+	template <typename T2, typename S2> Vector(const Vector<T2, S2>& iOther);
 
 	template <typename T2, typename S2> Vector<T, S>& operator=(const Vector<T2, S2>& iOther);
 
@@ -116,6 +117,8 @@ public:
 	void swap(Vector<T, S>& iOther);
 
 private:
+
+	template <typename T2, typename S2> friend class Vector;
 
 	TStorage storage_;
 };

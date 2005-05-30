@@ -100,6 +100,24 @@ Vector<T, S>::Vector(const VectorType& iVector):
 
 
 
+/** construct storage/expression vector to this (this should be a storage vector).
+ *  This vector should be an lvalue which means it should be a storage vector.
+ *  Exception safety: strong guarentee.
+ */
+template <typename T, typename S>
+template <typename T2, typename S2>
+Vector<T, S>::Vector(const Vector<T2, S2>& iOther)
+{
+	TSize n = iOther.storage_.size();
+	storage_.resize(n);
+	for (TSize i = 0; i < n; ++i)
+	{
+		storage_[i] = iOther.storage_[i];
+	}
+}
+
+
+
 /** assign storage/expression vector to this (this should be a storage vector).
  *  This vector should be an lvalue which means it should be a storage vector.
  *  Exception safety: basic guarentee.
@@ -108,11 +126,11 @@ template <typename T, typename S>
 template <typename T2, typename S2>
 Vector<T, S>& Vector<T, S>::operator=(const Vector<T2, S2>& iOther)
 {
-	TSize n = iOther.size();
+	TSize n = iOther.storage_.size();
 	storage_.resize(n);
 	for (TSize i = 0; i < n; ++i)
 	{
-		storage_[i] = iOther[i];
+		storage_[i] = iOther.storage_[i];
 	}
 	return *this;
 }
@@ -168,7 +186,7 @@ template <typename T, typename S> inline
 const typename Vector<T, S>::TValue
 Vector<T, S>::at(TSize iIndex) const
 {
-	return storage_[mod(iIndex, size())];
+	return storage_[mod(iIndex, storage_.size())];
 }
 
 
@@ -182,7 +200,7 @@ template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
 Vector<T, S>::at(TSize iIndex)
 {
-	return storage_[num::mod(iIndex, size())];
+	return storage_[num::mod(iIndex, storage_.size())];
 }
 
 
@@ -222,7 +240,7 @@ template <typename T2, typename S2>
 Vector<T, S>& Vector<T, S>::operator+=(const Vector<T2, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] += iB[i];
@@ -241,7 +259,7 @@ template <typename T2, typename S2>
 Vector<T, S>& Vector<T, S>::operator-=(const Vector<T2, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] -= iB[i];
@@ -260,7 +278,7 @@ template <typename T2, typename S2>
 Vector<T, S>& Vector<T, S>::operator*=(const Vector<T2, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] *= iB[i];
@@ -279,7 +297,7 @@ template <typename T2, typename S2>
 Vector<T, S>& Vector<T, S>::operator/=(const Vector<T2, S2>& iB)
 {
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] /= iB[i];
@@ -295,7 +313,7 @@ template <typename T, typename S>
 template <typename T2>
 Vector<T, S>& Vector<T, S>::operator+=(const T2& iB)
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] += iB;
@@ -311,7 +329,7 @@ template <typename T, typename S>
 template <typename T2>
 Vector<T, S>& Vector<T, S>::operator-=(const T2& iB)
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] -= iB;
@@ -327,7 +345,7 @@ template <typename T, typename S>
 template <typename T2>
 Vector<T, S>& Vector<T, S>::operator*=(const T2& iB)
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] *= iB;
@@ -343,7 +361,7 @@ template <typename T, typename S>
 template <typename T2>
 Vector<T, S>& Vector<T, S>::operator/=(const T2& iB)
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		storage_[i] /= iB;
@@ -368,7 +386,7 @@ const bool Vector<T, S>::isEmpty() const
 template <typename T, typename S>
 const bool Vector<T, S>::isZero() const
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)
 	{
 		// if you get your compiler error here, you'll be using a broken STLport version. Ask [Bramz].
@@ -389,7 +407,7 @@ template <typename T, typename S>
 const typename Vector<T, S>::TValue
 Vector<T, S>::sum() const
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	TValue result = TNumTraits::zero;
 	for (TSize i = 0; i < n; ++i)
 	{
@@ -407,7 +425,7 @@ template <typename T, typename S>
 const typename Vector<T, S>::TValue
 Vector<T, S>::min() const
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	if (n == 0)
 	{
 		return TNumTraits::zero;
@@ -429,7 +447,7 @@ template <typename T, typename S>
 const typename Vector<T, S>::TValue
 Vector<T, S>::max() const
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	if (n == 0)
 	{
 		return TNumTraits::zero;
@@ -451,7 +469,7 @@ template <typename T, typename S>
 const typename Vector<T, S>::TValue
 Vector<T, S>::squaredNorm() const
 {
-	const TSize n = size();
+	const TSize n = storage_.size();
 	TValue result = TNumTraits::zero;
 	for (TSize i = 0; i < n; ++i)
 	{
@@ -488,7 +506,7 @@ Vector<T, S>::normal() const
 {
 	const TValue scale = TNumTraits::one / norm();
 	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar(size(), scale)));
+	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar(storage_.size(), scale)));
 }
 
 
@@ -515,7 +533,7 @@ Vector<T, S>::project(const Vector<T, S2>& iB) const
 	LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(*this, iB);
 	const TValue scale = dot(iB, *this) / squaredNorm();
 	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar<T>(size(), scale)));
+	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar<T>(storage_.size(), scale)));
 }
 
 
