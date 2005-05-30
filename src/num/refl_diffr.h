@@ -34,6 +34,7 @@ namespace lass
 {
 namespace num
 {
+	#define PI 3.1415926535897932384626433832795
 
 	/** Computes the reflection coefficient for planar waves */
 	template<class NTC> std::complex<NTC> reflQ(
@@ -202,17 +203,17 @@ namespace num
 	{
 		std::complex<double> D;
 		double beta = wedgeangle;
-		double n = beta/num::PI;
-		D = -std::exp(std::complex<double>(0.0,-num::PI*0.25));
-		D/= 2.0*n*sqrt(2.0*k*num::PI)*sin(thetaI);
+		double n = beta/PI;
+		D = -std::exp(std::complex<double>(0.0,-PI*0.25));
+		D/= 2.0*n*sqrt(2.0*k*PI)*sin(thetaI);
 
 		double L = WP::L(rS,rR,thetaI);
 		std::complex<double> T;
 
-		T = impl::cot((num::PI  + (alphaD-alphaI))/(2.0*n))*impl::F(k*L*impl::ap(alphaD-alphaI,n));
-		T+= impl::cot((num::PI  - (alphaD-alphaI))/(2.0*n))*impl::F(k*L*impl::am(alphaD-alphaI,n));
-		T+= impl::cot((num::PI  + (alphaD+alphaI))/(2.0*n))*impl::F(k*L*impl::ap(alphaD+alphaI,n));
-		T+= impl::cot((num::PI  - (alphaD+alphaI))/(2.0*n))*impl::F(k*L*impl::am(alphaD+alphaI,n));
+		T = impl::cot((PI  + (alphaD-alphaI))/(2.0*n))*impl::F(k*L*impl::ap(alphaD-alphaI,n));
+		T+= impl::cot((PI  - (alphaD-alphaI))/(2.0*n))*impl::F(k*L*impl::am(alphaD-alphaI,n));
+		T+= impl::cot((PI  + (alphaD+alphaI))/(2.0*n))*impl::F(k*L*impl::ap(alphaD+alphaI,n));
+		T+= impl::cot((PI  - (alphaD+alphaI))/(2.0*n))*impl::F(k*L*impl::am(alphaD+alphaI,n));
 
 		return D*T;
 	}
@@ -222,17 +223,17 @@ namespace num
 	{
 		std::complex<float> D;
 		float beta = wedgeangle;
-		float n = beta/num::PI;
-		D = -std::exp(std::complex<float>(0.0,-num::PI*0.25));
-		D/= 2.0*n*sqrtf(2.0*k*num::PI)*sinf(thetaI);
+		float n = beta/PI;
+		D = -std::exp(std::complex<float>(0.0,-PI*0.25));
+		D/= 2.0*n*sqrtf(2.0*k*PI)*sinf(thetaI);
 
 		float L = WP::L(rS,rR,thetaI);
 		std::complex<float> T;
 
-		T = impl::cotf((num::PI  + (alphaD-alphaI))/(2.0f*n))*impl::Ff(k*L*impl::apf(alphaD-alphaI,n));
-		T+= impl::cotf((num::PI  - (alphaD-alphaI))/(2.0f*n))*impl::Ff(k*L*impl::amf(alphaD-alphaI,n));
-		T+= impl::cotf((num::PI  + (alphaD+alphaI))/(2.0f*n))*impl::Ff(k*L*impl::apf(alphaD+alphaI,n));
-		T+= impl::cotf((num::PI  - (alphaD+alphaI))/(2.0f*n))*impl::Ff(k*L*impl::amf(alphaD+alphaI,n));
+		T = impl::cotf((PI  + (alphaD-alphaI))/(2.0f*n))*impl::Ff(k*L*impl::apf(alphaD-alphaI,n));
+		T+= impl::cotf((PI  - (alphaD-alphaI))/(2.0f*n))*impl::Ff(k*L*impl::amf(alphaD-alphaI,n));
+		T+= impl::cotf((PI  + (alphaD+alphaI))/(2.0f*n))*impl::Ff(k*L*impl::apf(alphaD+alphaI,n));
+		T+= impl::cotf((PI  - (alphaD+alphaI))/(2.0f*n))*impl::Ff(k*L*impl::amf(alphaD+alphaI,n));
 
 		return D*T;
 	}
