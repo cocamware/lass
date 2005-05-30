@@ -37,12 +37,10 @@ namespace num
 	#define PI 3.1415926535897932384626433832795
 
 	/** Computes the reflection coefficient for planar waves */
-	template<class NTC> std::complex<NTC> reflQ(
-			const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R);
+	std::complex<double> planeReflection(const double& psi,const double& k,const std::complex<double>& Z,const double& R);
 
 	/** Computes the reflection coefficient for spherical waves */
-	template<class NTC> std::complex<NTC> sphreflQ(
-		const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R);
+	std::complex<double> sphericalReflection(const double& psi,const double& k,const std::complex<double>& Z,const double& R);
 
 	/** diffractionNord2000.  Computes the diffraction coefficient according to the
 	*   Nord2000 standard.  This should be the Hadden-Pierce solution */

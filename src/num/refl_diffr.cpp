@@ -372,7 +372,7 @@ template<class NTC> std::complex<NTC> reflQ(const NTC& psi,const NTC& k,const st
 
 	invZ = static_cast<NTC>(1.0)/Z;
 
-	theta = (PI2)-psi;
+	theta = (NumTraits<double>::pi*0.5)-psi;
 	Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
 
 	return Rp;
@@ -388,9 +388,9 @@ template<class NTC> std::complex<NTC> sphreflQ(const NTC& psi,const NTC& k,const
 
 	invZ = static_cast<NTC>(1.0)/Z;
 
-	theta = (PI2)-psi;
+	theta = (NumTraits<double>::pi*0.5)-psi;
 	ro = std::complex<NTC>(0.5,0.5)*static_cast<NTC>(num::sqrt(k*R))*(static_cast<NTC>(num::cos(theta))+invZ);
-	ero= static_cast<NTC>(1.0)+static_cast<NTC>(SQRTPI)*J*ro*w(ro);
+	ero= 1.0+J*ro*impl::w(ro)*std::complex<NTC>(NumTraits<NTC>::sqrtPi);
 
 	Rp = (static_cast<NTC>(num::cos(theta))-(invZ))/(static_cast<NTC>(num::cos(theta))+(invZ));
 
@@ -398,6 +398,18 @@ template<class NTC> std::complex<NTC> sphreflQ(const NTC& psi,const NTC& k,const
 
 	return tempc;
 }
+
+
+std::complex<double> planeReflection(const double& psi,const double& k,const std::complex<double>& Z,const double& R)
+{
+	return reflQ(psi,k,Z,R);
+}
+
+std::complex<double> sphericalReflection(const double& psi,const double& k,const std::complex<double>& Z,const double& R)
+{
+	return sphreflQ(psi,k,Z,R);
+}
+
 
 std::complex<double> diffractionNord2000(
 		const double& thetaR,const double& thetaS, const double& beta,
