@@ -112,9 +112,11 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 		LASS_THROW("can't perform range search in empty KdTree");
 	}
 
+	iMaxCount = std::min(iMaxCount, std::distance(begin_, end_));
+
 	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
 	LASS_ASSERT(iMaxCount > 0);
-
+    
 	TValue squaredRadius = iMaxRadius * iMaxRadius;
 	oNeighbourhood.clear();
 	oNeighbourhood.reserve(iMaxCount + 1);
