@@ -61,8 +61,8 @@ namespace lass
 	namespace python
 	{
 
-		inline PyMethodDef createPyMethodDef(  char *ml_name, PyCFunction  ml_meth, int ml_flags, char  *ml_doc );
-		inline PyGetSetDef createPyGetSetDef ( char* name, getter get, setter set = NULL, char* doc = NULL, void* closure = NULL );
+		//inline PyMethodDef createPyMethodDef(  char *ml_name, PyCFunction  ml_meth, int ml_flags, char  *ml_doc );
+		//inline PyGetSetDef createPyGetSetDef ( char* name, getter get, setter set = NULL, char* doc = NULL, void* closure = NULL );
 
 		/** PyObjectPlus.  Base class for pythonable objects.
 		*   @ingroup Python
@@ -256,10 +256,61 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
 		inline PyObject* pyBuildSimpleObject( PyObject* iV );
 
-		#include "pyobject_plus.inl"
+		namespace impl
+		{
+			/** @internal
+			*/
+			struct StaticMember
+			{
+				PyObject* object;
+				PyTypeObject* parentType;
+				std::vector<PyMethodDef>* methods;
+				std::vector<PyGetSetDef>* getSetters;
+				const std::vector<StaticMember>* statics;
+				const char* name;
+				const char* doc;
+			};
+
+			/**	@internal
+			*	predicate to check of a python method has the correct name.
+			*/
+			class LASS_DLL PyMethodEqual
+			{
+			public:
+				PyMethodEqual( const char* iName );
+				bool operator()(const PyMethodDef& iMethod) const;
+			private:
+				const char* name_;
+			};
+
+			LASS_DLL PyMethodDef createPyMethodDef( char *ml_name, PyCFunction ml_meth, int ml_flags, char *ml_doc );
+			LASS_DLL PyGetSetDef createPyGetSetDef( char* name, getter get, setter set, char* doc, void* closure );
+
+			LASS_DLL void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
+			LASS_DLL void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
+				std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
+				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation);
+			LASS_DLL void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
+				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+
+			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
+			template <typename CppClass> void addClassMethod(char* iMethodName, char* iDocumentation, 
+				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);
+			template <typename InnerCppClass> void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
+                const char* iInnerClassName, const char* iDocumentation);
+
+			template <typename In, typename Out> int pyNumericCast( In iIn, Out& oV );
+			template <typename Integer> int pyGetSignedObject( PyObject* iValue, Integer& oV );
+			template <typename Integer> int pyGetUnsignedObject( PyObject* iValue, Integer& oV );
+			template <typename Float> int pyGetFloatObject( PyObject* iValue, Float& oV );
+
+		}
+
 	}
 }
 
+#include "pyobject_plus.inl"
 #include "pyshadow_object.h"
 #include "pyobject_call.inl"
 

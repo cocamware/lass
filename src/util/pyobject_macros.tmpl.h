@@ -90,7 +90,7 @@
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE( lassExecutePyDeclareModule_, i_module ), \
 		LASS_CONCATENATE_3( lassPythonModule, Methods, i_module ).push_back( \
-			::lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ;\
+			::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ;\
 	)
 
 #define PY_INJECT_MODULE_EX_AT_RUNTIME( i_module, s_moduleName, s_doc ) \
@@ -126,39 +126,301 @@
 /* Use this macro for backward compatibility when wrapper functions don't
 *  need to be automatically generated or you want specific Python behaviour.
 */
-#define PY_MODULE_PY_FUNCTION_EX( i_module, i_cppFunction, s_functionName, s_doc )\
+#define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
 	extern std::vector< PyMethodDef > LASS_CONCATENATE_3( lassPythonModule, Methods, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, i_cppFunction ),\
+	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, f_cppFunction ),\
 		LASS_CONCATENATE_3( lassPythonModule, Methods , i_module ).insert(\
 			LASS_CONCATENATE_3( lassPythonModule, Methods , i_module ).begin(),\
-			::lass::python::createPyMethodDef( s_functionName, i_cppFunction , METH_VARARGS  , s_doc ));\
+				::lass::python::impl::createPyMethodDef( s_functionName, f_cppFunction , METH_VARARGS  , s_doc ));\
 	)
 
 
 
-#define PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, i_dispatcher, s_functionName, s_doc )\
+// --- free module functions -----------------------------------------------------------------------
+
+/** @ingroup Python
+ *  Exports a C++ free function to Python
+ *
+ *  @param i_module
+ *		the module object
+ *  @param f_cppFunction
+ *      the name of the function in C++
+ *  @param s_functionName
+ *      the name the method will have in Python
+ *  @param s_doc
+ *      documentation of function as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *      per exported C++ class/method pair.
+ *
+ *  Invoke this macro to export a function to python.  You can use this to generate overloaded
+ *  Python functions by exporting multiple functions with the same @a s_methodName name.
+ *
+ *  @note
+ *      unlike in C++ overload issues will be not be solved by best fit, but by first fit.
+ *      If such an overloaded Python functions is called, the different overloads are called in
+ *      the same order of export.  The first one that fits the arguments will be called.
+ *
+ *  @note
+ *      the documentation of the Python method will be the @a s_doc of the first exported
+ *      overload.
+ *
+ *  @code
+ *  void barA(int a);
+ *  void barB(const std::string& b);
+ *
+ *  PY_MODULE_FUNCTION_EX(foo_module, barA, "bar", 0, foo_bar_a)
+ *  PY_MODULE_FUNCTION_EX(foo_module, barB, "bar", 0, foo_bar_b)
+ *  @endcode
+ */
+#define PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc, i_dispatcher )\
+	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
 	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
-		return ::lass::python::impl::callFunction( iArgs, f_cppFunction );\
+		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iIgnore, iArgs);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		return ::lass::python::impl::callFunction( iArgs, &f_cppFunction );\
+	}\
+	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods, i_module );\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
+		lass::python::impl::addModuleFunction(\
+			LASS_CONCATENATE( lassPythonModuleMethods, i_module ),\
+			s_functionName, s_doc, i_dispatcher,\
+			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) );\
+	)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_EX with @a i_uniqueId = @a i_outerCppClass ## @a i_innerCppClass.
+ */
+#define PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, s_name, s_doc )\
+	PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_name, s_doc,\
+		LASS_CONCATENATE(i_module, f_cppFunction) )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION_NAME( i_module, f_cppFunction, s_name)\
+	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, s_name, 0)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_name = "@a i_innerCppClass".
+ */
+#define PY_MODULE_FUNCTION_DOC( i_module, f_cppFunction, s_doc )\
+	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, LASS_STRINGIFY(f_cppFunction), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_name = "@a i_innerCppClass" and s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION( i_module, f_cppFunction)\
+	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, LASS_STRINGIFY(f_cppFunction), 0)
+
+
+
+
+// --- explicit qualified free functions -----------------------------------------------------------
+
+/** @ingroup Python
+ *  Exports a C++ free functions to Python will fully qualified return type and parameters
+ *
+ *  @param i_module
+ *		the module object
+ *  @param f_cppFunction
+ *      the name of the function in C++
+ *  @param t_return
+ *      the return type of @a f_cppFunction
+ *  @param t_params
+ *      a lass::meta::TypeList of the parameter types of @a f_cppFunction
+ *  @param s_functionName
+ *      the name the method will have in Python
+ *  @param s_doc
+ *      documentation of function as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *
+ *  You can use this macro instead of PY_MODULE_FUNCTION_EX if there's an ambiguity on 
+ *	@a f_cppFunction. This macro will help you to solve this ambiguity by explicitely 
+ *	specifying return type and parameter types.
+ *
+ *  @code
+ *	void bar(int a);
+ *  void bar(const std::string& b);
+ *
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, LASS_TYPE_LIST_1(int), "bar", 0, foo_bar_a)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, LASS_TYPE_LIST_1(const std::string&), "bar", 0, foo_bar_b)
+ *  @endcode
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_EX(i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc, i_dispatcher)\
+	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
+	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
+	{\
+		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iIgnore, iArgs);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		return ::lass::python::impl::ExplicitResolver\
+		<\
+			lass::meta::NullType,\
+			t_return,\
+			t_params\
+		>\
+		::TImpl::callFunction(iArgs, &f_cppFunction);\
 	}\
 	extern std::vector< PyMethodDef > LASS_CONCATENATE_3( lassPythonModule, Methods, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
-		LASS_CONCATENATE_3( lassPythonModule, Methods, i_module ).insert(\
-			LASS_CONCATENATE_3( lassPythonModule, Methods, i_module ).begin(),\
-			::lass::python::createPyMethodDef(\
-				s_functionName, i_dispatcher, METH_VARARGS, s_doc ));\
+		lass::python::impl::addModuleFunction(\
+			LASS_CONCATENATE( lassPythonModuleMethods, i_module ),\
+			s_functionName, s_doc, i_dispatcher,\
+			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) );\
 	)
 
-#define PY_MODULE_FUNCTION_DOC( i_module, i_cppFunction, s_doc )\
-	PY_MODULE_FUNCTION_EX(\
-		i_module, i_cppFunction, LASS_CONCATENATE(py, i_cppFunction), LASS_STRINGIFY(i_cppFunction),\
-		s_doc )
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX for 0 arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_EX_0( i_module, f_cppFunction, t_return, s_functionName, s_doc, i_dispatcher )\
+	PY_MODULE_FUNCTION_QUALIFIED_EX(\
+		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName, s_doc, i_dispatcher )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
+	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_dispatcher));\
+	PY_MODULE_FUNCTION_QUALIFIED_EX(\
+		i_module, f_cppFunction, t_return,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_dispatcher),\
+		s_functionName, s_doc, i_dispatcher )
+]$
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX with
+ *  @a i_dispatcher = py @a t_cppClass @a f_cppFunction __LINE__.
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
+		PY_MODULE_FUNCTION_QUALIFIED_EX(\
+			i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc,\
+			LASS_UNIQUENAME(LASS_CONCATENATE_3(py, i_module, f_cppFunction)))
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC for 0 arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
+		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName, s_doc )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC for $x arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc )\
+	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
+		i_module, f_cppFunction, t_return,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_functionName, s_doc )
+]$
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC with @a s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME( i_module, f_cppFunction, t_return, t_params, s_functionName )\
+		PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
+			i_module, f_cppFunction, t_return, t_params, s_functionName, 0 )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME for 0 arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME_0( i_module, f_cppFunction, t_return, s_functionName )\
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
+		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME for $x arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_NAME_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName )\
+	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
+	PY_MODULE_FUNCTION_QUALIFIED_NAME( \
+		i_module, f_cppFunction, t_return, \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_functionName )
+]$
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
+ *  with @a s_functionName = "@a f_cppFunction".
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, s_doc )\
+		PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( \
+			i_module, f_cppFunction, t_return, t_params, LASS_STRINGIFY(f_cppFunction), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_DOC for 0 arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_DOC_0( i_module, f_cppFunction, t_return, s_doc )\
+	PY_MODULE_FUNCTION_QUALIFIED_DOC( \
+		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_doc )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_DOC for $x arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_doc )\
+	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
+	PY_MODULE_FUNCTION_QUALIFIED_DOC( \
+		i_module, f_cppFunction, t_return, \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_doc )
+]$
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
+ *  with @a s_functionName = "@a f_cppFunction" and @a s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED( i_module, f_cppFunction, t_return, t_params )\
+		PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, 0 )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED for 0 arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_0( i_module, f_cppFunction, t_return )\
+	PY_MODULE_FUNCTION_QUALIFIED( i_module, f_cppFunction, t_return, ::lass::meta::NullType )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED for $x arguments
+ */
+#define PY_MODULE_FUNCTION_QUALIFIED_$x( i_module, f_cppFunction, t_return, $(t_P$x)$ )\
+	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
+	PY_MODULE_FUNCTION_QUALIFIED( \
+		i_module, f_cppFunction, t_return, \
+		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)) )
+]$
 
 
-#define PY_MODULE_FUNCTION( i_module, i_cppFunction )\
-	PY_MODULE_FUNCTION_DOC( i_module, i_cppFunction, 0 )
+
+
+
 
 #define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
 	PyObject_HEAD_INIT(&PyType_Type)\
@@ -265,8 +527,8 @@
 	std::vector<PyGetSetDef> t_cppClass::GetSetters;\
 	std::vector<::lass::python::impl::StaticMember> t_cppClass::Statics;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPythonImplExecutePyDeclareClass_, i_uniqueClassIdentifier ),\
-		t_cppClass::Methods.push_back( ::lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
-		t_cppClass::GetSetters.push_back( ::lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
+		t_cppClass::Methods.push_back( ::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
+		t_cppClass::GetSetters.push_back( ::lass::python::impl::createPyGetSetDef( 0, 0, 0, 0, 0 ) ) ; \
 )
 
 #define PY_DECLARE_CLASS_NAME( i_cppClass, s_className )\
@@ -283,8 +545,8 @@
 	std::vector<PyMethodDef> i_cppClass::Methods;\
 	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, i_uniqueClassIdentifier ),\
-		i_cppClass::Methods.push_back( lass::python::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
-		i_cppClass::GetSetters.push_back( lass::python::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
+		i_cppClass::Methods.push_back( lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
+		i_cppClass::GetSetters.push_back( lass::python::impl::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
 )
 
 #define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
@@ -310,12 +572,15 @@
 
 
 
-#define PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME( o_object, i_module, s_objectName )\
+#define PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX( o_object, i_module, s_objectName )\
 	{\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule, i_module ), s_objectName,\
 			::lass::python::pyBuildSimpleObject(o_object) );\
 	}
+
+#define PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME( o_object, i_module )\
+	PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX(o_object, i_module, LASS_STRINGIFY(o_object))
 
 
 
@@ -420,7 +685,7 @@
 	( LASS_CONCATENATE_3( lassExecutePyClassPyMethod_, i_cppClass, i_cppMethod ),\
 		i_cppClass::Methods.insert(\
 			i_cppClass::Methods.begin(),\
-			::lass::python::createPyMethodDef(\
+			::lass::python::impl::createPyMethodDef(\
 				s_methodName, (PyCFunction) LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod),\
 				METH_VARARGS, s_doc));\
 	)
@@ -778,7 +1043,7 @@ $[
 	( LASS_CONCATENATE( lassExecutePyClassStaticMethod_, i_dispatcher ),\
 		t_cppClass::Methods.insert(\
 			t_cppClass::Methods.begin(),\
-			::lass::python::createPyMethodDef(\
+			::lass::python::impl::createPyMethodDef(\
 				s_methodName, (PyCFunction) i_dispatcher, METH_VARARGS  | METH_CLASS , s_doc));\
 	)
 
@@ -868,7 +1133,7 @@ $[
 	( LASS_CONCATENATE_3( lassExecutePyClassMemberRW_, t_cppClass, i_cppGetter ),\
 		t_cppClass::GetSetters.insert(\
 			t_cppClass::GetSetters.begin(),\
-			::lass::python::createPyGetSetDef(\
+			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE_3( pyGetter, t_cppClass, i_cppGetter ), \
 				LASS_CONCATENATE_3( pySetter, t_cppClass, i_cppSetter ), s_doc, 0));\
 	)
@@ -932,7 +1197,7 @@ $[
 	( LASS_CONCATENATE_3( lassExecutePyClassMemberR_, t_cppClass, i_cppGetter ),\
 		t_cppClass::GetSetters.insert(\
 			t_cppClass::GetSetters.begin(),\
-			::lass::python::createPyGetSetDef(\
+			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE_3( pyGetter, t_cppClass, i_cppGetter ), 0, \
 				s_doc, 0));\
 	)
@@ -1004,7 +1269,7 @@ $[
 	( LASS_CONCATENATE_3( lassExecutePyClassPublicMember_, i_cppClass, i_cppMember ),\
 		i_cppClass::GetSetters.insert(\
 			i_cppClass::GetSetters.begin(),\
-			::lass::python::createPyGetSetDef(\
+			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE_3( pyPublicGetter, i_cppClass, i_cppMember ),\
 				LASS_CONCATENATE_3( pyPublicSetter, i_cppClass, i_cppMember ), s_doc, 0));\
 	)
@@ -1114,131 +1379,6 @@ $[
 	PY_CLASS_CONSTRUCTOR(\
 		t_cppClass, LASS_UNIQUENAME(LASS_CONCATENATE(pyConstructorArguments, t_cppClass)))
 ]$
-
-
-// --- implementation of macros --------------------------------------------------------------------
-
-namespace lass
-{
-namespace python
-{
-namespace impl
-{
-
-// currently, i'm implementing these functions inline in this header, just to see where we get with them.
-// But they should probably move to some .cpp or .inl (for templates) file. [BdG]
-
-struct StaticMember
-{
-	PyObject* object;
-	PyTypeObject* parentType;
-	std::vector<PyMethodDef>* methods;
-	std::vector<PyGetSetDef>* getSetters;
-	const std::vector<StaticMember>* statics;
-	const char* name;
-	const char* doc;
-};
-
-void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
-					std::vector<PyMethodDef>& iMethods,
-					std::vector<PyGetSetDef>& iGetSetters, 
-					const std::vector<StaticMember>& iStatics, 
-					const char* iModuleName, const char* iDocumentation);
-
-inline void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics)
-{
-	for (std::vector<StaticMember>::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
-	{
-		if (PyType_Check(i->object))
-		{
-			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
-				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
-		}
-		PyDict_SetItemString(iPyType.tp_dict, i->name, i->object);
-	}
-}
-
-inline void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
-						   std::vector<PyMethodDef>& iMethods,
-						   std::vector<PyGetSetDef>& iGetSetters, 
-						   const std::vector<StaticMember>& iStatics, 
-						   const char* iModuleName, const char* iDocumentation)
-{
-	std::string fullName = std::string(iModuleName) + std::string(".") + std::string(iPyType.tp_name);
-	char* fullNameCharPtr = new char[fullName.size()+1];
-	strcpy(fullNameCharPtr,fullName.c_str());
-
-	iPyType.tp_name = fullNameCharPtr;
-	iPyType.tp_methods = &iMethods[0];
-	iPyType.tp_getset = &iGetSetters[0];
-	iPyType.tp_doc = const_cast<char*>(iDocumentation);
-	iPyType.tp_base = &iPyParentType;
-	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
-	Py_INCREF( &iPyType );
-
-	injectStaticMembers(iPyType, iStatics);
-}
-
-template <typename CppClass>
-inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
-{
-	char* shortName = CppClass::Type.tp_name; // finalizePyType will expand tp_name with module name.
-	finalizePyType(CppClass::Type, *CppClass::GetParentType(), CppClass::Methods, CppClass::GetSetters,
-		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation);
-	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
-}
-
-template <typename CppClass>
-void addClassMethod(char* iMethodName, char* iDocumentation, PyCFunction iMethodDispatcher,
-					PyCFunction& oOverloadChain)
-{
-	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
-		CppClass::Methods.begin(), CppClass::Methods.end(),	PyMethodEqual(iMethodName));
-	if (i == CppClass::Methods.end())
-	{
-		CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
-			iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
-		oOverloadChain = 0;
-	}
-	else
-	{
-		oOverloadChain = i->ml_meth;
-		i->ml_meth = iMethodDispatcher;
-	};
-}
-
-template <typename CppClass, typename T>
-inline void addClassStaticConst(const char* iName, const T& iValue)
-{
-	StaticMember temp;
-	temp.name = iName;
-	temp.object = pyBuildSimpleObject(iValue);
-	temp.parentType = 0;
-	temp.methods = 0;
-	temp.getSetters = 0;
-	temp.statics = 0;
-	temp.doc = 0;
-	CppClass::Statics.push_back(temp);
-}
-
-template <typename InnerCppClass>
-inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
-							   const char* iInnerClassName, const char* iDocumentation)
-{
-	StaticMember temp;
-	temp.name = iInnerClassName;
-	temp.object = reinterpret_cast<PyObject*>(&InnerCppClass::Type);
-	temp.parentType = InnerCppClass::GetParentType();
-	temp.methods = &InnerCppClass::Methods;
-	temp.getSetters = &InnerCppClass::GetSetters;
-	temp.statics = &InnerCppClass::Statics;
-	temp.doc = iDocumentation;
-	oOuterStatics.push_back(temp);
-}
-
-}
-}
-}
 
 #endif
 

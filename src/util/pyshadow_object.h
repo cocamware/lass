@@ -137,8 +137,8 @@ public:
 
 }
 
-#define PY_SHADOW_CLASS_EX(i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
-	class i_PyObjectShadowClass: public t_PyObjectBase\
+#define PY_SHADOW_CLASS_EX(i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent, i_classSpecifier)\
+	class i_classSpecifier i_PyObjectShadowClass: public t_PyObjectBase\
 	{\
 		PY_HEADER(t_PyObjectParent)\
 	public:\
@@ -157,11 +157,11 @@ public:
 #define PY_SHADOW_CLASS(i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS_EX(\
 		i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBase<t_CppClass>,\
-		::lass::python::PyObjectPlus)
+		::lass::python::PyObjectPlus, )
 
 #define PY_SHADOW_CLASS_DERIVED(i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_EX(\
-		i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
+		i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent, )
 
 
 
