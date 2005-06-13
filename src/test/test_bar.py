@@ -180,6 +180,12 @@ else:
 print "\n"
 
 
+print "\n* Testing qualified and overloaded functions"
+embedding.overloaded(5)
+embedding.overloaded('hello!')
+embedding.overloaded(1 + 2j)
+print "\n"
+
 
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)

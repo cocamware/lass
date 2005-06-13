@@ -56,7 +56,7 @@ struct QuadTreeTraits< TSimplePolygon2D >
 	static TAabb aabb(const TSimplePolygon2D& iP)
 	{
 		TAabb temp;
-		for (int i=0;i<iP.size();++i)
+		for (size_t i=0;i<iP.size();++i)
 			temp += iP[i];
 		return temp;
 	}
@@ -77,7 +77,7 @@ struct QuadTreeTraits< TSimplePolygon3D >
 	static TAabb aabb(const TSimplePolygon3D& iP)
 	{
 		TAabb temp;
-		for (int i=0;i<iP.size();++i)
+		for (size_t i=0;i<iP.size();++i)
 			temp += iP[i];
 		return temp;
 	}

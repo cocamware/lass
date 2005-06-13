@@ -72,11 +72,11 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 {
 	seed(19650218UL);
 
-	const int keySize = std::distance(iBegin, iEnd);
+	const size_t keySize = std::distance(iBegin, iEnd);
 	int i = 1;
 	int j = 0;
 	ForwardIterator key = iBegin;
-	for (int k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
+	for (size_t k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1664525UL)) + *key + j;
 		state_[i] &= wordMask_;
@@ -97,7 +97,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 		}
 		LASS_ASSERT(j < keySize);
 	}
-	for (int k = stateSize_ - 1; k > 0; --k)
+	for (size_t k = stateSize_ - 1; k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1566083941UL)) - i;
 		state_[i] &= wordMask_;

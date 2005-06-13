@@ -104,6 +104,21 @@ void callR2(const util::CallbackR2<float, float, float>& iCallback)
 	std::cout << "f(5, 6) = " << iCallback(5, 6) << std::endl;
 }
 
+void overloadedA(int iA)
+{
+	std::cout << "overloadedA " << iA << std::endl;
+}
+
+void overloadedB(const std::string& iA)
+{
+	std::cout << "overloadedA " << iA << std::endl;
+}
+
+void overloadedB(const std::complex<float>& iA)
+{
+	std::cout << "overloadedA " << iA << std::endl;
+}
+
 PY_DECLARE_MODULE( embedding )
 PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
 PY_MODULE_FUNCTION( embedding, listInfo )
@@ -117,6 +132,10 @@ PY_MODULE_FUNCTION( embedding, call0 )
 PY_MODULE_FUNCTION( embedding, call1 )
 PY_MODULE_FUNCTION( embedding, callR0 )
 PY_MODULE_FUNCTION( embedding, callR2 )
+PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
+
 PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
 
 
@@ -125,35 +144,6 @@ PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
 // expose member methods of object instances
 
 PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
-/*
-	static PyCFunction pyOverloadChain_gccTest = 0;
-	inline PyObject* gccTest( PyObject* iObject, PyObject* iArgs )
-	{
-		if (pyOverloadChain_gccTest)
-		{
-			PyObject* result = pyOverloadChain_gccTest(iObject, iArgs);
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
-			{
-				PyErr_Clear();
-			}
-			else
-			{
-				return result;
-			}
-		}
-		typedef ::lass::python::impl::ShadowTraits<PythonFoo> TShadowTraits;
-		typedef TShadowTraits::TCppClass TCppClass;
-		PythonFoo* const cppObject = TShadowTraits::cppObject(iObject);
-		if (!cppObject)
-		{
-			return 0;
-		}
-
-		return ::lass::python::impl::CallMethod<PythonFoo>::call<float, float, float>(
-			iArgs, cppObject, &PythonFoo::aFooMoreComplexFunction );
-	}
-	PY_IMPL_SUBSCRIBE_CLASS_METHOD( PythonFoo, "aFooMoreComplexFunction", s_doc, gccTest )
-*/
 PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
 PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
 //PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )

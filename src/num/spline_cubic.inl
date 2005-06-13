@@ -190,9 +190,7 @@ void SplineCubic<S, D, T>::init()
 
 		if (h.back() <= 0)
 		{
-			LASS_THROW("Nodes in cubic spline must have absolutely increasing control components.  '"
-				<< nodes_[i - 1].x << "' >= '" << nodes_[i].x << "' for nodes '" << (i - 1)
-				<< "' and '" << i << "'.");
+			LASS_THROW("Nodes in cubic spline must have absolutely increasing control components.");
 		}
 
 		if (TDataTraits::dimension(nodes_[i].d) != dataDimension_)
