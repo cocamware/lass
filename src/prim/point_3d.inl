@@ -106,7 +106,7 @@ Point3D<T>::position() const
 
 template<typename T> inline
 typename Point3D<T>::TConstReference
-Point3D<T>::operator[](unsigned iIndex) const
+Point3D<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -116,7 +116,7 @@ Point3D<T>::operator[](unsigned iIndex) const
 
 template<typename T> inline
 typename Point3D<T>::TReference
-Point3D<T>::operator[](unsigned iIndex)
+Point3D<T>::operator[](size_t iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);

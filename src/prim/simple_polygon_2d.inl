@@ -59,9 +59,9 @@ SimplePolygon2D<T, DP>::SimplePolygon2D(InputIterator iFirstVertex, InputIterato
  */
 template <typename T, class DP>
 const typename SimplePolygon2D<T, DP>::TPoint&
-SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex) const
+SimplePolygon2D<T, DP>::operator[](size_t iIndexOfVertex) const
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
+	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
 }
 
@@ -71,9 +71,9 @@ SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex) const
  */
 template <typename T, class DP>
 typename SimplePolygon2D<T, DP>::TPoint&
-SimplePolygon2D<T, DP>::operator[](int iIndexOfVertex)
+SimplePolygon2D<T, DP>::operator[](size_t iIndexOfVertex)
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
+	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
 }
 
@@ -88,7 +88,7 @@ const typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex) const
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -104,7 +104,7 @@ typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex)
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 
 	return vertices_[i];
@@ -155,7 +155,7 @@ void SimplePolygon2D<T, DP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
 	LASS_ENFORCE(!isEmpty());
 
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.insert(vertices_.begin() + i, iVertex);
 }
@@ -168,7 +168,7 @@ template <typename T, class DP>
 void SimplePolygon2D<T, DP>::erase(int iIndexOfVertex)
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.erase(vertices_.begin() + i);
 }
@@ -188,10 +188,9 @@ const bool SimplePolygon2D<T, DP>::isEmpty() const
 /** return number of vertices
  */
 template <typename T, class DP>
-const int SimplePolygon2D<T, DP>::size() const
+const size_t SimplePolygon2D<T, DP>::size() const
 {
-	LASS_ASSERT(vertices_.size() >= 0);
-	return static_cast<int>(vertices_.size());
+	return vertices_.size();
 }
 
 
@@ -426,10 +425,10 @@ const bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 {
-	unsigned i, j;
+	size_t i, j;
 	const TVector& p = iP.position();
 	bool c = false;
-	const unsigned npol = size();
+	const size_t npol = size();
 	for (i = 0, j = npol-1; i < npol; j = i++)
 	{
 		const TVector& a = vertices_[i].position();
@@ -557,9 +556,9 @@ const bool SimplePolygon2D<T, DP>::isInRange(int iIndexOfVertex) const
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon)
 {
-	const unsigned n = iPolygon.size();
+	const size_t n = iPolygon.size();
 	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon2D>\n";
-	for (unsigned i = 0; i < n; ++i)
+	for (size_t i = 0; i < n; ++i)
 	{
 		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
 	}

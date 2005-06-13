@@ -95,7 +95,7 @@ Point2D<T>::position() const
 
 template<typename T> inline
 typename Point2D<T>::TConstReference
-Point2D<T>::operator[](unsigned iIndex) const
+Point2D<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -105,7 +105,7 @@ Point2D<T>::operator[](unsigned iIndex) const
 
 template<typename T> inline
 typename Point2D<T>::TReference
-Point2D<T>::operator[](unsigned iIndex)
+Point2D<T>::operator[](size_t iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);

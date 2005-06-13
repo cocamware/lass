@@ -83,8 +83,8 @@ struct Vector3D
 	template <typename U> explicit Vector3D(const Vector3D<U>& iOther);
 	template <typename U> Vector3D(const U& iX, const U& iY, const U& iZ);
 
-	typename Vector3D::TConstReference operator[](unsigned iIndex) const;
-	typename Vector3D::TReference operator[](unsigned iIndex) ;
+	typename Vector3D::TConstReference operator[](size_t iIndex) const;
+	typename Vector3D::TReference operator[](size_t iIndex) ;
 	typename Vector3D::TConstReference at(signed iIndex) const;
 	typename Vector3D::TReference at(signed iIndex);
 

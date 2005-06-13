@@ -87,7 +87,7 @@ Vector3D<T>::Vector3D(const U& iX, const U& iY, const U& iZ):
 
 
 template<typename T>
-typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) const
+typename Vector3D<T>::TConstReference Vector3D<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -96,7 +96,7 @@ typename Vector3D<T>::TConstReference Vector3D<T>::operator[](unsigned iIndex) c
 
 
 template<typename T>
-typename Vector3D<T>::TReference Vector3D<T>::operator[](unsigned iIndex)
+typename Vector3D<T>::TReference Vector3D<T>::operator[](size_t iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);

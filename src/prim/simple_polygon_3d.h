@@ -82,8 +82,8 @@ public:
 	SimplePolygon3D(const TPlane& iPlane);
 	SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC);
 
-	const TPoint& operator[](int iIndexOfVertex) const;
-	TPoint& operator[](int iIndexOfVertex);
+	const TPoint& operator[](size_t iIndexOfVertex) const;
+	TPoint& operator[](size_t iIndexOfVertex);
 	const TPoint& at(int iIndexOfVertex) const;
 	TPoint& at(int iIndexOfVertex);
 	const TLineSegment edge(int iIndexOfTailVertex) const;
@@ -98,7 +98,7 @@ public:
 	void remove(int iIndexOfVertex);
 
 	const bool isEmpty() const;
-	const int size() const;
+	const size_t size() const;
 
 	const TValue signedArea() const;
 	const TValue area() const;

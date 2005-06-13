@@ -54,9 +54,9 @@ plane_(iA,iB,iC)
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
 template <typename T>
-const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](int iIndexOfVertex) const
+const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iIndexOfVertex) const
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
+	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
 }
 
@@ -65,9 +65,9 @@ const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](int iI
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
 template <typename T>
-typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](int iIndexOfVertex)
+typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iIndexOfVertex)
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
+	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
 }
 
@@ -79,7 +79,7 @@ typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](int iIndexOf
 template <typename T>
 const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex) const
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -92,7 +92,7 @@ const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVe
 template <typename T>
 typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -178,7 +178,7 @@ void SimplePolygon3D<T>::add(const TPoint& iVertex)
 template <typename T>
 void SimplePolygon3D<T>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.insert(i, iVertex);
 }
@@ -190,7 +190,7 @@ void SimplePolygon3D<T>::insert(int iIndexOfVertex, const TPoint& iVertex)
 template <typename T>
 void SimplePolygon3D<T>::remove(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size()));
+	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.remove(i);
 }
@@ -210,10 +210,9 @@ const bool SimplePolygon3D<T>::isEmpty() const
 /** return number of vertices
  */
 template <typename T>
-const int SimplePolygon3D<T>::size() const
+const size_t SimplePolygon3D<T>::size() const
 {
-	LASS_ASSERT(static_cast<int>(vertices_.size()) > 0);
-	return static_cast<int>(vertices_.size());
+	return vertices_.size();
 }
 
 
@@ -439,9 +438,9 @@ const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 	const XYZ x = majorAxis() + 1;
 	const XYZ y = majorAxis() + 2;
 
-	unsigned i, j;
+	size_t i, j;
 	bool c = false;
-	const unsigned npol = size();
+	const size_t npol = size();
 	for (i = 0, j = npol-1; i < npol; j = i++)
 	{
 		const TPoint& a = vertices_[i];
@@ -486,9 +485,9 @@ const bool SimplePolygon3D<T>::isInRange(int iIndexOfVertex) const
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& iPolygon)
 {
-	const unsigned n = iPolygon.size();
+	const size_t n = iPolygon.size();
 	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon3D>\n";
-	for (unsigned i = 0; i < n; ++i)
+	for (size_t i = 0; i < n; ++i)
 	{
 		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
 	}

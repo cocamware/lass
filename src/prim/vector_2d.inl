@@ -80,7 +80,7 @@ Vector2D<T>::Vector2D(const U& iX, const U& iY):
 
 
 template<typename T> inline
-typename Vector2D<T>::TConstReference Vector2D<T>::operator[](unsigned iIndex) const
+typename Vector2D<T>::TConstReference Vector2D<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -89,7 +89,7 @@ typename Vector2D<T>::TConstReference Vector2D<T>::operator[](unsigned iIndex) c
 
 
 template<typename T> inline
-typename Vector2D<T>::TReference Vector2D<T>::operator[](unsigned iIndex)
+typename Vector2D<T>::TReference Vector2D<T>::operator[](size_t iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);

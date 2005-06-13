@@ -82,8 +82,8 @@ struct Vector2D
 	template <typename U> explicit Vector2D(const Vector2D<U>& iOther);
 	template <typename U> Vector2D(const U& iX, const U& iY);
 
-	typename Vector2D::TConstReference operator[](unsigned iIndex) const;
-	typename Vector2D::TReference operator[](unsigned iIndex);
+	typename Vector2D::TConstReference operator[](size_t iIndex) const;
+	typename Vector2D::TReference operator[](size_t iIndex);
 	typename Vector2D::TConstReference at(signed iIndex) const;
 	typename Vector2D::TReference at(signed iIndex);
 

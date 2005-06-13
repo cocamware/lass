@@ -74,8 +74,8 @@ public:
 	explicit Point2DH(const TVector& iPositionVector);
 
 	const TVector position() const;
-	TConstReference operator[](unsigned iIndex) const;
-	TReference operator[](unsigned iIndex);
+	TConstReference operator[](size_t iIndex) const;
+	TReference operator[](size_t iIndex);
 	TConstReference at(signed iIndex) const;
 	TReference at(signed iIndex);
 

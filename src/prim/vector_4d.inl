@@ -88,7 +88,7 @@ Vector4D<T>::Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW):
 
 
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) const
+typename Vector4D<T>::TConstReference Vector4D<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
@@ -97,7 +97,7 @@ typename Vector4D<T>::TConstReference Vector4D<T>::operator[](unsigned iIndex) c
 
 
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::operator[](unsigned iIndex)
+typename Vector4D<T>::TReference Vector4D<T>::operator[](size_t iIndex)
 {
 	LASS_ASSERT(iIndex < dimension);
 	return *(&x + iIndex);
