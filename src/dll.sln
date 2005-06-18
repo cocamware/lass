@@ -5,10 +5,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dll", "dll\dll.vcproj", "{6
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
+		win32_intel700 = win32_intel700
+		win32_intel700_d = win32_intel700_d
 		win32_vc71 = win32_vc71
 		win32_vc71_d = win32_vc71_d
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
+		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_intel700.ActiveCfg = win32_intel700|Win32
+		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_intel700.Build.0 = win32_intel700|Win32
+		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_intel700_d.ActiveCfg = win32_intel700_d|Win32
+		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_intel700_d.Build.0 = win32_intel700_d|Win32
 		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_vc71.ActiveCfg = win32_vc71|Win32
 		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_vc71.Build.0 = win32_vc71|Win32
 		{69897919-70C1-4860-A7CE-77A1C994930C}.win32_vc71_d.ActiveCfg = win32_vc71_d|Win32
