@@ -331,6 +331,7 @@
 #include "point_3dh.h"
 #include "xyz.h"
 #include "impl/plane_3d_impl.h"
+#include "../num/floating_point_comparison.h"
 
 
 
@@ -366,6 +367,14 @@ public:
 	Plane3D(const TPoint& iSupport, const TVector& iDirU, const TVector& iDirV);
 	Plane3D(const TVector& iNormal, const TPoint& iSupport);
 	Plane3D(const TVector& iNormal, TParam iD);
+
+	const Side classify(const TPoint& iPoint) const;
+	const TValue signedDistance(const TPoint& iPoint) const;
+	const TValue squaredDistance(const TPoint& iPoint) const;
+
+	const Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	const TValue signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	const TValue squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
 
 	const XYZ majorAxis() const;
 

@@ -156,6 +156,74 @@ Ray3D<T, NP, PP>::t(const TPoint& iPoint) const
 
 
 
+
+/** Project vector on the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TVector
+Ray3D<T, NP, PP>::project(const TVector& iVector) const
+{
+	return direction_ * NP::divideBySquaredNorm(dot(iVector, direction_), direction_);
+}
+
+
+
+/** Reject vector against the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TVector
+Ray3D<T, NP, PP>::reject(const TVector& iVector) const
+{
+	return iVector - project(iVector);
+}
+
+
+
+/** Reflect vector against the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TVector
+Ray3D<T, NP, PP>::reflect(const TVector& iVector) const
+{
+	return 2 * project(iVector) - iVector;
+}
+
+
+
+
+/** Project point on the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TPoint
+Ray3D<T, NP, PP>::project(const TPoint& iPoint) const
+{
+	return support_ + project(iPoint - support_);
+}
+
+
+
+/** Reject point against the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TVector
+Ray3D<T, NP, PP>::reject(const TPoint& iPoint) const
+{
+	return reject(iPoint - support_);
+}
+
+
+
+/** Reject point against the axis of the ray
+ */
+template <typename T, class NP, class PP>
+const typename Ray3D<T, NP, PP>::TPoint
+Ray3D<T, NP, PP>::reflect(const TPoint& iPoint) const
+{
+	return support_ + reflect(iPoint - support_);
+}
+
+
+
 /** Return true if ray is valid (direction isn't a zero vector).
  */
 template <typename T, class NP, class PP>

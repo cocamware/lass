@@ -224,17 +224,6 @@ const typename Plane3DCartesian<T, NP>::TParam Plane3DCartesian<T, NP>::d() cons
 
 
 
-/** Return on what side a point is located.
- */
-template<typename T, class NP>
-const Side Plane3DCartesian<T, NP>::classify(const TPoint& iPoint) const
-{
-	const TValue eq = equation(iPoint);
-	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
-}
-
-
-
 /** Return value of point in equation.
  */
 template<typename T, class NP>
@@ -246,25 +235,14 @@ Plane3DCartesian<T, NP>::equation(const TPoint& iPoint) const
 
 
 
-/** Return signed distance of point to plane.
- *  negative value means point is in the back.
+/** Return value of point in equation.
  */
 template<typename T, class NP>
 const typename Plane3DCartesian<T, NP>::TValue
-Plane3DCartesian<T, NP>::signedDistance(const TPoint& iPoint) const
+Plane3DCartesian<T, NP>::equation(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
-	return NP::divideByNorm(equation(iPoint), normal_);
-}
-
-
-
-/** Return squared distance of point to plane.
- */
-template<typename T, class NP>
-const typename Plane3DCartesian<T, NP>::TValue
-Plane3DCartesian<T, NP>::squaredDistance(const TPoint& iPoint) const
-{
-	return num::sqr(signedDistance(iPoint));
+	const TValue a = dot(iPoint.position(), normal_);
+	return almostEqual(a, -d, iRelativeTolerance) ? TNumTraits::zero : (a + d_);
 }
 
 

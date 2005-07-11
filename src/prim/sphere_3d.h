@@ -92,6 +92,12 @@ public:
 	const Side classify(const TPoint& iPoint) const;
 	const TValue equation(const TPoint& iPoint) const;
 	const TValue signedDistance(const TPoint& iPoint) const;
+	const TValue squaredDistance(const TPoint& iPoint) const;
+
+	const Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	const TValue equation(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	const TValue signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	const TValue squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
 
 	const bool isValid() const;
 

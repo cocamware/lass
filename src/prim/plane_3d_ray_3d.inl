@@ -96,6 +96,45 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 
 
 
+template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
+Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
+				 const Ray3D<T, NPRay, PPRay>& iRay,
+				 T& oT, T iRelativeTolerance)
+{
+	typedef typename Vector3D<T>::TValue TValue;
+	typedef typename Vector3D<T>::TNumTraits TNumTraits;
+
+	if (!iPlane.isValid() || !iRay.isValid())
+	{
+		return rInvalid;
+	}
+
+	const TValue nd = dot(iPlane.normal(), iRay.direction());
+	if (nd == TNumTraits::zero)
+	{
+		// ray is parallel to plane, but is it also coincident?
+		const Side side = iPlane.classify(iRay.support(), iRelativeTolerance);
+		LASS_ASSERT(side == sFront || side == sSurface || side == sBack);
+		return side == sSurface ? rInfinite : rNone;
+	}
+	else
+	{
+		const TValue t = -iPlane.equation(iRay.support()) / nd;
+		LASS_ASSERT(!num::isNaN(t));
+		if (t < iRelativeTolerance)
+		{
+			return rNone;
+		}
+		else
+		{
+			oT = t;
+			return rOne;
+		}
+	}
+}
+
+
+
 }
 
 }

@@ -189,12 +189,31 @@ Transformation3D<T>::matrix() const
 
 
 
+template <typename T>
+void Transformation3D<T>::swap(TSelf& ioOther)
+{
+	matrix_.swap(ioOther.matrix_);
+	inverseMatrix_.swap(ioOther.inverseMatrix_);
+}
+
+
+
+/** make a 3D identity transformation
+ */
+template <typename T>
+const Transformation3D<T> Transformation3D<T>::identity()
+{
+	return TSelf();
+}
+
+
+
 /** make a 3D transformation representing a translation
  */
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& iOffset)
 {
-	Transformation3D<T> result;
+	TSelf result;
 	result.matrix_[3] = iOffset.x;
 	result.matrix_[7] = iOffset.y;
 	result.matrix_[11] = iOffset.z;
@@ -208,7 +227,7 @@ const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& iO
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(const T& iScale)
 {
-	Transformation3D<T> result;
+	TSelf result;
 	result.matrix_[0] = iScale;
 	result.matrix_[5] = iScale;
 	result.matrix_[10] = iScale;
@@ -222,7 +241,7 @@ const Transformation3D<T> Transformation3D<T>::scaler(const T& iScale)
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& iScale)
 {
-	Transformation3D<T> result;
+	TSelf result;
 	result.matrix_[0] = iScale.x;
 	result.matrix_[5] = iScale.y;
 	result.matrix_[10] = iScale.z;

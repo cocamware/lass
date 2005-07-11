@@ -134,6 +134,25 @@ Transformation2D<T>::matrix() const
 
 
 
+template <typename T>
+void Transformation2D<T>::swap(TSelf& ioOther)
+{
+	matrix_.swap(ioOther.matrix_);
+	inverseMatrix_.swap(ioOther.inverseMatrix_);
+}
+
+
+
+/** make a 2D identity transformation 
+ */
+template <typename T> 
+const Transformation2D<T> Transformation2D<T>::identity()
+{
+	return TSelf();
+}
+
+
+
 /** make a 2D transformation representing a translation
  */
 template <typename T>

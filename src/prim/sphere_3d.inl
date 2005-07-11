@@ -30,6 +30,7 @@
 
 
 #include "sphere_3d.h"
+#include "../num/floating_point_comparison.h"
 
 namespace lass
 {
@@ -135,7 +136,7 @@ const typename Sphere3D<T>::TValue
 Sphere3D<T>::equation(const TPoint& iPoint) const
 {
 	const TVector difference = iPoint - center_;
-	return difference.squaredNorm() - radius_ * radius_;
+	return difference.squaredNorm() - num::sqr(radius_);
 }
 
 
@@ -149,6 +150,68 @@ Sphere3D<T>::signedDistance(const TPoint& iPoint) const
 {
 	const TValue eq = equation(iPoint);
 	return eq >= TNumTraits::zero ? num::sqrt(eq) : -num::sqrt(-eq);
+}
+
+
+
+/** return squared distance of point to surface of sphere.
+ */
+template<typename T>
+const typename Sphere3D<T>::TValue
+Sphere3D<T>::squaredDistance(const TPoint& iPoint) const
+{
+	return num::abs(equation(iPoint));
+}
+
+
+
+/** Classify a point and tell and what side of the sphere surface it is.
+ *  @return sInside, sSurface, sOutside
+ */
+template<typename T>
+const Side Sphere3D<T>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	const TValue eq = equation(iPoint, iRelativeTolerance);
+	return eq > TNumTraits::zero ? sOutside : (eq < TNumTraits::zero ? sInside : sSurface);
+}
+
+
+
+/**
+ * (P - C)² - r²
+ */
+template<typename T>
+const typename Sphere3D<T>::TValue
+Sphere3D<T>::equation(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	const TVector difference = iPoint - center_;
+	const TValue d2 = difference.squaredNorm();
+	const TValue r2 = num::sqr(radius_);
+	return num::almostEqual(d2, r2, iRelativeTolerance) ? TNumTraits::zero : (d2 - r2);
+}
+
+
+
+/** return signed distance of point to surface of sphere.
+ *  negative distance means point is inside the sphere.
+ */
+template<typename T>
+const typename Sphere3D<T>::TValue
+Sphere3D<T>::signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	const TValue eq = equation(iPoint, iRelativeTolerance);
+	return eq >= TNumTraits::zero ? num::sqrt(eq) : -num::sqrt(-eq);
+}
+
+
+
+/** return squared distance of point to surface of sphere.
+ */
+template<typename T>
+const typename Sphere3D<T>::TValue
+Sphere3D<T>::squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	return num::abs(equation(iPoint, iRelativeTolerance));
 }
 
 

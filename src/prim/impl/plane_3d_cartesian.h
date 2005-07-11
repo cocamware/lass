@@ -100,10 +100,8 @@ public:
 	const TVector& normal() const;
 	const TParam d() const;
 
-	const Side classify(const TPoint& iPoint) const;
 	const TValue equation(const TPoint& iPoint) const;
-	const TValue signedDistance(const TPoint& iPoint) const;
-	const TValue squaredDistance(const TPoint& iPoint) const;
+	const TValue equation(const TPoint& iPoint, TParam iRelativeTolerance) const;
 
 	const TVector reject(const TPoint& iPoint) const;
 	const TVector reject(const TVector& iVector) const;

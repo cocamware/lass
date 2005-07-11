@@ -98,6 +98,12 @@ public:
 
 	const TPoint point(TParam a_t) const;
 	const TValue t(const TPoint& iPoint) const;
+	const TVector project(const TVector& iVector) const;
+	const TVector reject(const TVector& iVector) const;
+	const TVector reflect(const TVector& iVector) const;
+	const TPoint project(const TPoint& iPoint) const;
+	const TVector reject(const TPoint& iPoint) const;
+	const TPoint reflect(const TPoint& iPoint) const;
 
 	const bool isValid() const;
 

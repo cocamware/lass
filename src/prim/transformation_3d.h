@@ -67,15 +67,17 @@ public:
 	Transformation3D();
 	template <typename InputIterator> Transformation3D(InputIterator iBegin, InputIterator iEnd);
 
-	const Transformation3D<T> inverse() const;
+	const TSelf inverse() const;
 
 	const TValue* matrix() const;
+	void swap(TSelf& ioOther);
 
-	static const Transformation3D<T> translation(const Vector3D<T>& iOffset);
-	static const Transformation3D<T> scaler(const T& iScale);
-	static const Transformation3D<T> scaler(const Vector3D<T>& iScale);
-	static const Transformation3D<T> rotation(XYZ iAxis, TParam iRadians);
-	static const Transformation3D<T> rotation(const Vector3D<T>& iAxis, TParam iRadians);
+	static const TSelf identity();
+	static const TSelf translation(const Vector3D<T>& iOffset);
+	static const TSelf scaler(const T& iScale);
+	static const TSelf scaler(const Vector3D<T>& iScale);
+	static const TSelf rotation(XYZ iAxis, TParam iRadians);
+	static const TSelf rotation(const Vector3D<T>& iAxis, TParam iRadians);
 
 private:
 

@@ -70,23 +70,28 @@ public:
 	const Transformation2D<T> inverse() const;
 
 	const TValue* matrix() const;
+	void swap(TSelf& ioOther);
 
-	static const Transformation2D<T> translation(const Vector2D<T>& iOffset);
-	static const Transformation2D<T> scaler(const T& iScale);
-	static const Transformation2D<T> scaler(const Vector2D<T>& iScale);
-	static const Transformation2D<T> rotation(TParam iRadians);
+	static const TSelf identity();
+	static const TSelf translation(const Vector2D<T>& iOffset);
+	static const TSelf scaler(const T& iScale);
+	static const TSelf scaler(const Vector2D<T>& iScale);
+	static const TSelf rotation(TParam iRadians);
 
 private:
 
 	enum { matrixSize_ = 9 };
 
-
 	typedef util::SharedPtr<TValue, util::ArrayStorage> TMatrix;
 
 	Transformation2D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
 
+	static const TMatrix& getIdentityMatrix();
+
 	TMatrix matrix_;
 	mutable TMatrix inverseMatrix_;
+
+	static TMatrix identityMatrix_;
 };
 
 template <typename T> Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformation2D<T>& iB);
