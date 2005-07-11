@@ -44,10 +44,10 @@ namespace lass
 {
 namespace test
 {
-PY_SHADOW_CLASS(PySpam, Spam)
-PY_SHADOW_CLASS_DERIVED(PyHam, Ham, PySpam)
-PY_SHADOW_CLASS_DERIVED(PyBacon, Bacon, PyHam)
-PY_SHADOW_CLASS_DERIVED(PyEggs, Eggs, PySpam)
+PY_SHADOW_CLASS(/**/, PySpam, Spam);
+PY_SHADOW_CLASS_DERIVED(/**/, PyHam, Ham, PySpam)
+PY_SHADOW_CLASS_DERIVED(/**/, PyBacon, Bacon, PyHam)
+PY_SHADOW_CLASS_DERIVED(/**/, PyEggs, Eggs, PySpam)
 }
 }
 
@@ -136,7 +136,8 @@ PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
 
-PY_INJECT_MODULE_EX( embedding, "Documentation for module embedding" )
+LASS_EXECUTE_BEFORE_MAIN(
+	PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" ))
 
 
 //PY_DECLARE_CLASS( PythonFoo )
@@ -149,7 +150,8 @@ PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
 //PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )
 
 // inject the class in the module and provide documentation for it
-PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );
+LASS_EXECUTE_BEFORE_MAIN(
+	PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );)
 
 // declare a new pythonable class
 PY_DECLARE_CLASS( Bar )
@@ -184,7 +186,8 @@ PY_CLASS_METHOD( TBarInnerClass, talkTo );
 PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
 
 // inject the class in the module and provide documentation for it
-PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
+LASS_EXECUTE_BEFORE_MAIN(
+	PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );)
 
 }
 }
@@ -201,21 +204,21 @@ namespace test
 PY_DECLARE_CLASS_NAME(PySpam, "Spam")
 PY_CLASS_METHOD(PySpam, who)
 PY_CLASS_MEMBER_R(PySpam, "address", address)
-PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam")
+LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam");)
 
 PY_DECLARE_CLASS_NAME(PyHam, "Ham")
 PY_CLASS_CONSTRUCTOR_0(PyHam)
 PY_CLASS_STATIC_METHOD(PyHam, say)
-PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");
+LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");)
 
 PY_DECLARE_CLASS_NAME(PyBacon, "Bacon")
 PY_CLASS_CONSTRUCTOR_0(PyBacon)
-PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
+LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");)
 
 PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
 PY_CLASS_MEMBER_RW(PyEggs, "number", number, setNumber)
-PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");
+LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");)
 
 }
 }

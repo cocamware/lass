@@ -63,7 +63,8 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700/lass_test_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_test_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700/lass_test_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_test_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"
+					MSOriginalAdditionalOptions="/GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -77,9 +78,11 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1">
+				TargetMachine="1"
+				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /LTCG /OUT:&quot;win32_intel700/lass_test_win32_intel700.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -149,7 +152,8 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP /GR"
+					MSOriginalAdditionalOptions="/GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -162,9 +166,11 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/test.pdb"
 				SubSystem="1"
-				TargetMachine="1">
+				TargetMachine="1"
+				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -233,7 +239,8 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"
+					MSOriginalAdditionalOptions="/GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -246,9 +253,11 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).pdb"
 				SubSystem="1"
-				TargetMachine="1">
+				TargetMachine="1"
+				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -329,7 +338,8 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
+					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"
+					MSOriginalAdditionalOptions="/GR"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -343,9 +353,11 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1">
+				TargetMachine="1"
+				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -387,25 +399,31 @@
 					Name="win32_intel700_d|Win32">
 					<Tool 
 						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0">
+						GeneratePreprocessedFile="0"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71_d|Win32">
 					<Tool 
-						Name="VCCLCompilerTool">
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71|Win32">
 					<Tool 
-						Name="VCCLCompilerTool">
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 			</File>
@@ -417,6 +435,16 @@
 			</File>
 			<File 
 				RelativePath="python_embedding.cpp">
+				<FileConfiguration 
+					Name="win32_vc71|Win32">
+					<Tool 
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
+						<IntelOptions 
+							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"
+							MSOriginalAdditionalOptions=""/>
+					</Tool>
+				</FileConfiguration>
 			</File>
 			<File 
 				RelativePath=".\python_shadow.cpp">
@@ -433,36 +461,44 @@
 					Name="win32_intel700|Win32">
 					<Tool 
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
+						UsePrecompiledHeader="1"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_intel700/lass_test_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_test_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_intel700/lass_test_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_test_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_intel700_d|Win32">
 					<Tool 
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
+						UsePrecompiledHeader="1"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71_d|Win32">
 					<Tool 
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
+						UsePrecompiledHeader="1"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71|Win32">
 					<Tool 
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
+						UsePrecompiledHeader="1"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 			</File>
@@ -602,27 +638,33 @@
 					<Tool 
 						Name="VCCLCompilerTool"
 						TreatWChar_tAsBuiltInType="TRUE"
-						ForceConformanceInForLoopScope="FALSE">
+						ForceConformanceInForLoopScope="FALSE"
+						AdditionalOptions="">
 						<IntelOptions 
 							TreatWChar_tAsBuiltInType="1"
 							ForceConformanceInForLoopScope="0"
-							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Yu&quot;test_common.h&quot; /Fp&quot;win32_intel700_d/lass_test_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_test_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71_d|Win32">
 					<Tool 
-						Name="VCCLCompilerTool">
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
 					Name="win32_vc71|Win32">
 					<Tool 
-						Name="VCCLCompilerTool">
+						Name="VCCLCompilerTool"
+						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71/lass_test_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_test_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"
+							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
 			</File>

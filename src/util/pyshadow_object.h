@@ -41,13 +41,13 @@ namespace python
 namespace impl
 {
 
-class PyShadowBaseCommon: public PyObjectPlus
+class LASS_DLL PyShadowBaseCommon: public PyObjectPlus
 {
 protected:
-	PyShadowBaseCommon(PyTypeObject* iType):
-		PyObjectPlus(iType)
-	{
-	}
+	PyShadowBaseCommon(PyTypeObject* iType);
+	PyShadowBaseCommon(const PyShadowBaseCommon& iOther);
+	~PyShadowBaseCommon();
+	PyShadowBaseCommon& operator=(const PyShadowBaseCommon& iOther);	
 };
 
 template <class CppBase>
@@ -137,8 +137,8 @@ public:
 
 }
 
-#define PY_SHADOW_CLASS_EX(i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent, i_classSpecifier)\
-	class i_classSpecifier i_PyObjectShadowClass: public t_PyObjectBase\
+#define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
+	class dllInterface i_PyObjectShadowClass: public t_PyObjectBase\
 	{\
 		PY_HEADER(t_PyObjectParent)\
 	public:\
@@ -152,16 +152,16 @@ public:
 	protected:\
 		i_PyObjectShadowClass(PyTypeObject* iType, TCppClass* iValue, Ownership iOwnership):\
 			t_PyObjectBase(iType, iValue, iOwnership) {}\
-	};\
+	};
 
-#define PY_SHADOW_CLASS(i_PyObjectShadowClass, t_CppClass)\
+#define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS_EX(\
-		i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBase<t_CppClass>,\
-		::lass::python::PyObjectPlus, )
+		dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBase<t_CppClass>,\
+		::lass::python::PyObjectPlus)
 
-#define PY_SHADOW_CLASS_DERIVED(i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
+#define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_EX(\
-		i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent, )
+		dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
 
 
 

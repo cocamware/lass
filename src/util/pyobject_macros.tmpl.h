@@ -56,11 +56,14 @@
 		static ::std::vector<PyGetSetDef>    GetSetters; \
 		virtual PyTypeObject *GetType(void) {return &Type;};
 
-/** Place as first line of your Pythonized class.  For ParentClass use the
-*  C++ class from which you wish the python object inherits.  ParentClass
-*  must also be a Pythonized class or use lass::python::PyObjectPlus as default.
-*  @remark Any declarations coming after this macro are public!
-*/
+/** @ingroup Python
+ *  Place as first line of your Pythonized class.    
+ *
+ *  For @a t_parentClass use the C++ class from which you wish the python object inherits.  
+ *	@a t_parentClass must also be a Pythonized class or use lass::python::PyObjectPlus as default.
+ *
+ *   @remark Any declarations coming after this macro are public!
+ */
 #define PY_HEADER( t_parentClass ) \
 	public: \
 		typedef t_parentClass TPyParent;\
@@ -74,7 +77,14 @@
 		}\
 		virtual PyTypeObject *GetType(void) {return &Type;};
 
-/** PY_PYTHONIZE.  Use this macro to make objects derived from PyObjectPlus have
+
+
+/** @ingroup Python
+*
+*	@deprecated You should use protected constructors in base classes to pass the python type
+*	from the most derived class to PyObjectPluse
+*
+*	Use this macro to make objects derived from PyObjectPlus have
 *   a type in Python too.  If you don't use this macro you can still derive from the PyObjectPlus
 *   parent class with the type as argument for the constructor.  For single inheritance this last
 *   method is preferred.  For classes with a multitude of constructors the PYTHONIZE macro can
@@ -84,6 +94,15 @@
 	{this->ob_type = &this->Type;}
 
 
+
+// --- modules -------------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  Declare and define an object respresenting a python module.
+ *
+ *  @param i_module 
+ *		the identifier of the module to be used in C++
+ */
 #define PY_DECLARE_MODULE( i_module ) \
 	PyObject* LASS_CONCATENATE( lassPythonModule, i_module ) = 0;\
 	std::vector<PyMethodDef> LASS_CONCATENATE_3( lassPythonModule, Methods, i_module ); \
@@ -93,7 +112,22 @@
 			::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ;\
 	)
 
-#define PY_INJECT_MODULE_EX_AT_RUNTIME( i_module, s_moduleName, s_doc ) \
+
+
+/** @ingroup Python
+ *	Inject a python module so Python is aware of it.
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *  @param i_module
+ *		the identifier of a module declared by PY_DECLARE_MODULE
+ *	@param s_moduleName
+ *		name of module as shown in Python (zero terminated C string)
+ *	@param s_doc
+ *      documentation of module as shown in Python (zero terminated C string)
+ */
+#define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
 	{\
 		Py_Initialize(); \
 		LASS_CONCATENATE( lassPythonModule, i_module ) = Py_InitModule3(\
@@ -101,31 +135,67 @@
 			&LASS_CONCATENATE_3( lassPythonModule, Methods, i_module )[0], s_doc ); \
 	}
 
-#define PY_INJECT_MODULE_AT_RUNTIME( i_module, s_doc ) \
-	{ \
-		Py_Initialize(); \
-		LASS_CONCATENATE( lassPythonModule, i_module ) = Py_InitModule3(\
-			const_cast<char*>( LASS_STRINGIFY(i_module) ), \
-			&LASS_CONCATENATE_3( lassPythonModule, Methods, i_module )[0], s_doc ); \
+/** @ingroup Python
+ *  convenience macro, wraps PY_INJECT_MODULE_EX with
+ *  @a s_doc = 0
+ */
+#define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
+	PY_INJECT_MODULE_EX( i_module, s_moduleName, 0)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_INJECT_MODULE_EX with
+ *  @a s_moduleName = # @a i_module
+ */
+#define PY_INJECT_MODULE_DOC( i_module, s_doc )\
+	PY_INJECT_MODULE_EX( i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_INJECT_MODULE_EX with
+ *  @a s_moduleName = # @a i_module and s_doc = 0
+ */
+#define PY_INJECT_MODULE( i_module )\
+	PY_INJECT_MODULE_EX( i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), 0)
+
+
+
+// --- module variables ----------------------------------------------------------------------------
+
+/** @ingroup Python
+ *	Inject a variable in a python module
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *  @param o_object
+ *		the object/variable to be injected
+ *	@param i_module
+ *		the identifier of the module to inject the object in
+ *	@param s_objectName
+ *		name of object as shown in the module (zero terminated C string)
+ */
+#define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
+	{\
+		PyModule_AddObject(\
+			LASS_CONCATENATE( lassPythonModule, i_module ), s_objectName,\
+			::lass::python::pyBuildSimpleObject(o_object) );\
 	}
 
-#define PY_INJECT_MODULE_EX( i_module, s_doc ) \
-	extern "C" { \
-		void LASS_CONCATENATE( lassPythonInjectModule, i_module ) () \
-		{ \
-			PY_INJECT_MODULE_AT_RUNTIME( i_module, s_doc )\
-		}\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE( lassExecutePyInjectModule_, i_module ), \
-		LASS_CONCATENATE( lassPythonInjectModule, i_module ) ();\
-	)
+/** @ingroup Python
+ *  convenience macro, wraps PY_INJECT_OBJECT_IN_MODULE_EX with
+ *  @a s_objectName = # @a o_object
+ */
+#define PY_INJECT_OBJECT_IN_MODULE( o_object, i_module )\
+	PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX(o_object, i_module, LASS_STRINGIFY(o_object))
 
-#define PY_INJECT_MODULE( i_module ) PY_INJECT_MODULE_EX( i_module, 0 )
 
-/* Use this macro for backward compatibility when wrapper functions don't
-*  need to be automatically generated or you want specific Python behaviour.
-*/
+
+// --- free module functions -----------------------------------------------------------------------
+
+/* @ingroup Python
+ * @depracated
+ * Use this macro for backward compatibility when wrapper functions don't 
+ * need to be automatically generated or you want specific Python behaviour.
+ */
 #define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
 	extern std::vector< PyMethodDef > LASS_CONCATENATE_3( lassPythonModule, Methods, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -136,8 +206,6 @@
 	)
 
 
-
-// --- free module functions -----------------------------------------------------------------------
 
 /** @ingroup Python
  *  Exports a C++ free function to Python
@@ -420,106 +488,20 @@ $[
 
 
 
+// --- classes -------------------------------------------------------------------------------------
 
-
-#define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
-	PyObject_HEAD_INIT(&PyType_Type)\
-	0,	/*ob_size*/\
-	(char*)( s_className ),	/*tp_name*/\
-	sizeof( t_cppClass ),	/*tp_basicsize*/\
-	0,	/*tp_itemsize*/\
-	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
-	0,	/*tp_print*/\
-	0,	/*tp_getattr*/\
-	0,	/*tp_setattr*/\
-	0,	/*tp_compare*/\
-	0,	/*tp_repr*/\
-	0,	/*tp_as_number*/\
-	0,	/*tp_as_sequence*/\
-	0,	/*tp_as_mapping*/\
-	0,	/*tp_hash*/\
-	0,	/*tp_call */\
-	0,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
-	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
-	0,	/*tp_doc*/\
-	0,	/*tp_traverse*/\
-	0,	/*tp_clear*/\
-	0,	/*tp_richcompare*/\
-	0,	/*tp_weaklistoffset*/\
-	0,	/*tp_iter*/\
-	0,	/*tp_iternext*/\
-	0,	/*tp_methods*/\
-	0,	/*tp_members*/\
-	0,	/*tp_getset*/\
-	0,	/*tp_base*/\
-	0,	/*tp_dict*/\
-	0,	/*tp_descr_get*/\
-	0,	/*tp_descr_set*/\
-	0,	/*tp_dictoffset*/\
-	0,	/*tp_init*/\
-	0,	/*tp_alloc*/\
-	0,	/*tp_new*/\
-	0,	/*tp_free*/\
-	0,	/*tp_is_gc*/\
-	0,	/*tp_bases*/\
-	0,	/*tp_mro*/\
-	0,	/*tp_cache*/\
-	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
-
-#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, t_cppParentClass, s_className )    \
-	PyObject_HEAD_INIT(&PyType_Type)\
-	0,	/*ob_size*/\
-	(char*)( s_className ), /*tp_name*/\
-	sizeof( t_cppClass ),	/*tp_basicsize*/\
-	0,	/*tp_itemsize*/\
-	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
-	0,	/*tp_print*/\
-	0,	/*tp_getattr*/\
-	0,	/*tp_setattr*/\
-	0,	/*tp_compare*/\
-	PyObjectPlus::__repr,	/*tp_repr*/\
-	0,	/*tp_as_number*/\
-	0,	/*tp_as_sequence*/\
-	0,	/*tp_as_mapping*/\
-	0,	/*tp_hash*/\
-	0,	/*tp_call */\
-	PyObjectPlus::__str,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
-	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
-	0,	/*tp_doc*/\
-	0,	/*tp_traverse*/\
-	0,	/*tp_clear*/\
-	0,	/*tp_richcompare*/\
-	0,	/*tp_weaklistoffset*/\
-	0,	/*tp_iter*/\
-	0,	/*tp_iternext*/\
-	0,	/*tp_methods*/\
-	0,	/*tp_members*/\
-	0,	/*tp_getset*/\
-	0,	/*tp_base*/\
-	0,	/*tp_dict*/\
-	0,	/*tp_descr_get*/\
-	0,	/*tp_descr_set*/\
-	0,	/*tp_dictoffset*/\
-	0,	/*tp_init*/\
-	0,	/*tp_alloc*/\
-	0,	/*tp_new*/\
-	0,	/*tp_free*/\
-	0,	/*tp_is_gc*/\
-	0,	/*tp_bases*/\
-	0,	/*tp_mro*/\
-	0,	/*tp_cache*/\
-	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
-
-
-
+/** @ingroup Python
+ *  Bring alive one derived pupil of PyObjectPlus
+ *
+ *  @param t_cppClass
+ *		the type of the class to be brought alive
+ *	@param s_className
+ *		the name of class as shown in Python (zero terminated C string)
+ *	@param i_uniqueClassIdentifier
+ *		a unique identifier for household stuff
+ *
+ *  @remark put each PY_DECLARE_CLASS_EX in only one translation unit.  So not in headers!
+ */
 #define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier ) \
 	PyTypeObject t_cppClass::Type = {\
 		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, ::lass::meta::NullType, s_className ) };\
@@ -531,13 +513,23 @@ $[
 		t_cppClass::GetSetters.push_back( ::lass::python::impl::createPyGetSetDef( 0, 0, 0, 0, 0 ) ) ; \
 )
 
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_CLASS_EX for with
+ *  @a i_uniqueClassIdentifier = @a i_cppClass
+ */
 #define PY_DECLARE_CLASS_NAME( i_cppClass, s_className )\
 	PY_DECLARE_CLASS_EX( i_cppClass, s_className, i_cppClass )
 
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_CLASS_EX for with
+ *  @a i_uniqueClassIdentifier = @a i_cppClass and @a s_className = # @a i_cppClass
+ */
 #define PY_DECLARE_CLASS( i_cppClass ) \
 	PY_DECLARE_CLASS_EX( i_cppClass, LASS_STRINGIFY(i_cppClass), i_cppClass );
 
 
+
+#pragma LASS_TODO("is this still being used / useful? [Bramz]")
 
 #define PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_uniqueClassIdentifier ) \
 	PyTypeObject i_cppClass::Type = {\
@@ -557,13 +549,28 @@ $[
 
 
 
-#define PY_INJECT_CLASS_IN_MODULE_AT_RUNTIME( t_cppClass, i_module, s_doc ) \
+/** @ingroup Python
+ *  Inject a class in a module
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *  @param t_cppClass
+ *		the type of the class to be injected
+ *	@param i_module
+ *		the identifier of the module object to inject the class in.
+ *	@param s_doc
+ *		documentation of class as shown in Python (zero terminated C string)
+ */
+#define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
 	{\
 		::lass::python::impl::injectClassInModule< t_cppClass >(\
 			LASS_CONCATENATE(lassPythonModule, i_module), s_doc);\
 	}
 
-#define PY_INJECT_CLASS_IN_MODULE( i_cppClass, i_module, s_doc ) \
+/** @ingroup Python
+ *  @deprecated
+#define PY_INJECT_CLASS_IN_MODULE_BEFORE_MAIN( i_cppClass, i_module, s_doc ) \
 	extern PyObject* LASS_CONCATENATE( lassPythonModule, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyInjectClassInModule_, i_cppClass, i_module ),\
@@ -572,23 +579,24 @@ $[
 
 
 
-#define PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX( o_object, i_module, s_objectName )\
-	{\
-		PyModule_AddObject(\
-			LASS_CONCATENATE( lassPythonModule, i_module ), s_objectName,\
-			::lass::python::pyBuildSimpleObject(o_object) );\
-	}
-
-#define PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME( o_object, i_module )\
-	PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX(o_object, i_module, LASS_STRINGIFY(o_object))
-
-
-
+/** @ingroup Python
+ *  export some value as a static constant of a class
+ *
+ *  @param i_cppClass
+ *		the class to add the constant to.
+ *	@param s_name
+ *		name of static constant as shown in python (zero terminated C string)
+ *	@param v_value
+ *		the value of the constant.  it should be convertible to a PyObject by using the
+ *		python::pyBuildSimpleObject functions
+ */
 #define PY_CLASS_STATIC_CONST( i_cppClass, s_name, v_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE( lassExecutePyClassStaticConst, i_cppClass ),\
 		::lass::python::impl::addClassStaticConst<i_cppClass>(s_name, v_value);\
 	)
+
+
 
 // --- inner class ---------------------------------------------------------------------------------
 
@@ -660,7 +668,6 @@ $[
  */
 #define PY_CLASS_INNER_CLASS( i_outerCppClass, i_innerCppClass)\
 	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), 0)
-
 
 
 // --- methods -------------------------------------------------------------------------------------
@@ -1379,6 +1386,111 @@ $[
 	PY_CLASS_CONSTRUCTOR(\
 		t_cppClass, LASS_UNIQUENAME(LASS_CONCATENATE(pyConstructorArguments, t_cppClass)))
 ]$
+
+
+
+// --- internals -----------------------------------------------------------------------------------
+
+/** @internal
+ */
+#define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
+	PyObject_HEAD_INIT(&PyType_Type)\
+	0,	/*ob_size*/\
+	(char*)( s_className ),	/*tp_name*/\
+	sizeof( t_cppClass ),	/*tp_basicsize*/\
+	0,	/*tp_itemsize*/\
+	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
+	0,	/*tp_print*/\
+	0,	/*tp_getattr*/\
+	0,	/*tp_setattr*/\
+	0,	/*tp_compare*/\
+	0,	/*tp_repr*/\
+	0,	/*tp_as_number*/\
+	0,	/*tp_as_sequence*/\
+	0,	/*tp_as_mapping*/\
+	0,	/*tp_hash*/\
+	0,	/*tp_call */\
+	0,	/*tp_str */\
+	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,	/*tp_as_buffer*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
+	0,	/*tp_doc*/\
+	0,	/*tp_traverse*/\
+	0,	/*tp_clear*/\
+	0,	/*tp_richcompare*/\
+	0,	/*tp_weaklistoffset*/\
+	0,	/*tp_iter*/\
+	0,	/*tp_iternext*/\
+	0,	/*tp_methods*/\
+	0,	/*tp_members*/\
+	0,	/*tp_getset*/\
+	0,	/*tp_base*/\
+	0,	/*tp_dict*/\
+	0,	/*tp_descr_get*/\
+	0,	/*tp_descr_set*/\
+	0,	/*tp_dictoffset*/\
+	0,	/*tp_init*/\
+	0,	/*tp_alloc*/\
+	0,	/*tp_new*/\
+	0,	/*tp_free*/\
+	0,	/*tp_is_gc*/\
+	0,	/*tp_bases*/\
+	0,	/*tp_mro*/\
+	0,	/*tp_cache*/\
+	0,	/*tp_subclasses*/\
+	0,	/*tp_weaklist*/
+
+/** @internal
+ */
+#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, t_cppParentClass, s_className )    \
+	PyObject_HEAD_INIT(&PyType_Type)\
+	0,	/*ob_size*/\
+	(char*)( s_className ), /*tp_name*/\
+	sizeof( t_cppClass ),	/*tp_basicsize*/\
+	0,	/*tp_itemsize*/\
+	PyObjectPlus::__dealloc,	/*tp_dealloc*/\
+	0,	/*tp_print*/\
+	0,	/*tp_getattr*/\
+	0,	/*tp_setattr*/\
+	0,	/*tp_compare*/\
+	PyObjectPlus::__repr,	/*tp_repr*/\
+	0,	/*tp_as_number*/\
+	0,	/*tp_as_sequence*/\
+	0,	/*tp_as_mapping*/\
+	0,	/*tp_hash*/\
+	0,	/*tp_call */\
+	PyObjectPlus::__str,	/*tp_str */\
+	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,	/*tp_as_buffer*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
+	0,	/*tp_doc*/\
+	0,	/*tp_traverse*/\
+	0,	/*tp_clear*/\
+	0,	/*tp_richcompare*/\
+	0,	/*tp_weaklistoffset*/\
+	0,	/*tp_iter*/\
+	0,	/*tp_iternext*/\
+	0,	/*tp_methods*/\
+	0,	/*tp_members*/\
+	0,	/*tp_getset*/\
+	0,	/*tp_base*/\
+	0,	/*tp_dict*/\
+	0,	/*tp_descr_get*/\
+	0,	/*tp_descr_set*/\
+	0,	/*tp_dictoffset*/\
+	0,	/*tp_init*/\
+	0,	/*tp_alloc*/\
+	0,	/*tp_new*/\
+	0,	/*tp_free*/\
+	0,	/*tp_is_gc*/\
+	0,	/*tp_bases*/\
+	0,	/*tp_mro*/\
+	0,	/*tp_cache*/\
+	0,	/*tp_subclasses*/\
+	0,	/*tp_weaklist*/
+
 
 #endif
 

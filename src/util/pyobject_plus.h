@@ -187,9 +187,19 @@ namespace lass
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 		fromPySharedPtrCast(PyObject* iObj)
 		{
+			LASS_ASSERT( PyType_IsSubtype(iObj->ob_type, &T::Type) );
 			Py_INCREF(iObj);
-			lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>    temp( static_cast<T*>(iObj) );
-			return temp;
+			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
+		}
+
+		/** fromPySharedPtrCast overload for plain old PyObject
+		*   @ingroup Python
+		*/
+		inline lass::util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>
+		fromPySharedPtrCast(PyObject* iObj)
+		{
+			Py_INCREF(iObj);
+			return lass::util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter>( iObj );
 		}
 
 		/** toPySharedPtrCast.

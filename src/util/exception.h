@@ -67,14 +67,14 @@ public:
 
 	/** return string with error message
 	 */
-	const std::string& message()
+	const std::string& message() const
 	{
 		return message_;
 	}
 
 	/** return string with location info where exception is thrown
 	 */
-	const std::string& location()
+	const std::string& location() const
 	{
 		return location_;
 	}
