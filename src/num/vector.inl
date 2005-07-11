@@ -506,7 +506,7 @@ Vector<T, S>::normal() const
 {
 	const TValue scale = TNumTraits::one / norm();
 	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar(storage_.size(), scale)));
+	return Vector<T, TExpression>(TExpression(storage_, impl::VScalar<T>(storage_.size(), scale)));
 }
 
 
@@ -714,7 +714,7 @@ const Vector<T, impl::VAdd<T, impl::VScalar<T>, S> >
 operator+(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VAdd<T, impl::VScalar<T>, S> TExpression;
-	return Vector<T, TExpression>(TExpression(impl::VScalar(iB.size(), iA), iB.storage()));
+	return Vector<T, TExpression>(TExpression(impl::VScalar<T>(iB.size(), iA), iB.storage()));
 }
 
 
@@ -727,7 +727,7 @@ const Vector<T, impl::VSub<T, impl::VScalar<T>, S> >
 operator-(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VSub<T, impl::VScalar<T>, S> TExpression;
-	return Vector<T, TExpression>(TExpression(impl::VScalar(iB.size(), iA), iB.storage()));
+	return Vector<T, TExpression>(TExpression(impl::VScalar<T>(iB.size(), iA), iB.storage()));
 }
 
 
@@ -740,7 +740,7 @@ const Vector<T, impl::VMul<T, impl::VScalar<T>, S> >
 operator*(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VMul<T, impl::VScalar<T>, S> TExpression;
-	return Vector<T, TExpression>(TExpression(impl::VScalar(iB.size(), iA), iB.storage()));
+	return Vector<T, TExpression>(TExpression(impl::VScalar<T>(iB.size(), iA), iB.storage()));
 }
 
 
@@ -753,7 +753,7 @@ const Vector<T, impl::VDiv<T, impl::VScalar<T>, S> >
 operator/(const T& iA, const Vector<T, S>& iB)
 {
 	typedef impl::VDiv<T, impl::VScalar<T>, S> TExpression;
-	return Vector<T, TExpression>(TExpression(impl::VScalar(iB.size(), iA), iB.storage()));
+	return Vector<T, TExpression>(TExpression(impl::VScalar<T>(iB.size(), iA), iB.storage()));
 }
 
 
@@ -766,7 +766,7 @@ const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > >
 operator+(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VAdd<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iA.size(), iB)));
+	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar<T>(iA.size(), iB)));
 }
 
 
@@ -779,7 +779,7 @@ const Vector<T, impl::VSub<T, S, impl::VScalar<T> > >
 operator-(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VSub<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iA.size(), iB)));
+	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar<T>(iA.size(), iB)));
 }
 
 
@@ -792,7 +792,7 @@ const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
 operator*(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VMul<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iA.size(), iB)));
+	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar<T>(iA.size(), iB)));
 }
 
 
@@ -805,7 +805,7 @@ const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > >
 operator/(const Vector<T, S>& iA, const T& iB)
 {
 	typedef impl::VDiv<T, S, impl::VScalar<T> > TExpression;
-	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar(iA.size(), iB)));
+	return Vector<T, TExpression>(TExpression(iA.storage(), impl::VScalar<T>(iA.size(), iB)));
 }
 
 

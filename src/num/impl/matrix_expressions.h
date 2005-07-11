@@ -71,6 +71,10 @@ public:
 		std::swap(rows_, iOther.rows_);
 		std::swap(cols_, iOther.cols_);
 	}
+
+	typename std::vector<T>::iterator rowMajor() { return storage_.begin(); } 
+	typename std::vector<T>::const_iterator rowMajor() const { return storage_.begin(); } 
+
 private:
 	std::vector<T> storage_;
 	TSize rows_;

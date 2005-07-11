@@ -29,7 +29,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_IMPL_MATRIX_SOLVE_H
 
 #include "../num_common.h"
-#include "../matrix.h"
 
 namespace lass
 {
@@ -38,15 +37,56 @@ namespace num
 namespace impl
 {
 
-template <typename T>
-bool ludecomp(MStorage<T>& ioA, std::vector<size_t>& oIndex, int& oD);
+template 
+<
+	typename T, 
+	typename RandomIterator1, 
+	typename RandomIterator2
+>
+bool ludecomp(RandomIterator1 ioMatrix,
+			  RandomIterator2 oIndex,
+			  size_t iSize,
+			  int& iD);
 
-template <typename T, typename S1, typename S2>
-void lusolve(const Matrix<T, S1>& iA, const std::vector<size_t>& iIndex, Matrix<T, S2>& ioB);
 
-template <typename T>
-void lumprove(const Matrix<T>& iA, const Matrix<T>& iAlu, const std::vector<size_t>& iIndex,
-			  const Matrix<T>& iB, Matrix<T>& ioX);
+
+template 
+<
+	typename T, 
+	typename RandomIterator1, 
+	typename RandomIterator2,
+	typename RandomIterator3
+>
+void lusolve(RandomIterator1 iMatrix,
+			 RandomIterator2 iIndex,
+			 RandomIterator3 ioColumn,
+			 size_t iSize);
+
+
+
+template
+<
+	typename T,
+	typename RandomIterator1,
+	typename RandomIterator2,
+	typename RandomIterator3,
+	typename RandomIterator4,
+	typename RandomIterator5
+>
+void lumprove(RandomIterator1 iMatrix,
+			  RandomIterator2 iMatrixLU,
+			  RandomIterator3 iIndex,
+			  RandomIterator4 iColumn,
+			  RandomIterator5 ioX,
+			  size_t iSize);
+
+
+
+template <typename T, typename RandomIterator1,	typename RandomIterator2> 
+bool cramer2(RandomIterator1 iMatrixRowMajor, RandomIterator2 ioColumn);
+
+template <typename T, typename RandomIterator1,	typename RandomIterator2> 
+bool cramer3(RandomIterator1 iMatrixRowMajor, RandomIterator2 ioColumn);
 
 }
 

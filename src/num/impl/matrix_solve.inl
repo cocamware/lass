@@ -54,48 +54,57 @@ namespace impl
 
 /** Given a complex matrix iA, this routine replaces it by the LU decomposition
  *  of a rowwise permutation of itself.
- *  @param ioA    - INPUT and OUTPUT.
- *                - iA is replaced by its LU decomposition.
- *                - must be square.
- *  @param oIndex - OUTPUT.
- *                - records the row permutations effected by the partial pivoting.
- *  @param oD     - OUTPUT.
- *                - indicates the number of row interchanges was even (+1) or odd (-1).
+ *  @param ioMatrix
+ *		- INPUT and OUTPUT.
+ *		- Random iterator to first element of of a @e square matrix in row major order.
+ *      - ioMatrix is replaced by its LU decomposition.
+ *		- [ioMatrix, ioMatrix + iSize * iSize) must be a valid range
+ *  @param oIndex 
+ *		- OUTPUT.
+ *      - records the row permutations effected by the partial pivoting.
+ *		- [oIndex, oIndex + iSize) must be a valid range.
+ *	@param iSize
+ *		- INPUT
+ *		- size of matrix
+ *  @param oD     
+ *		- OUTPUT.
+ *      - indicates the number of row interchanges was even (+1) or odd (-1).
  *  @return - true: LU decomposition completed
- *          - false: matrix iA is singular
+ *          - false: matrix ioMatrix is singular
  *
- *  This routine is used in combination with clusolve() to solve linear
- *  equations and clumprove() to improve the solution.
+ *  This routine is used in combination with lusolve() to solve linear
+ *  equations and lumprove() to improve the solution.
  *
  *  Method: Crout's algorithm with partial pivoting.
  */
-template <typename T>
-bool ludecomp(Matrix<T>& ioA,
-			  std::vector<size_t>& oIndex,
+template 
+<
+	typename T, 
+	typename RandomIterator1, 
+	typename RandomIterator2
+>
+bool ludecomp(RandomIterator1 ioMatrix,
+			  RandomIterator2 oIndex,
+			  size_t iSize,
 			  int& iD)
 {
-	LASS_ASSERT(ioA.isSquare());
-
-	typedef typename Matrix<T>::TSize TSize;
-	typedef typename Matrix<T>::TValue TValue;
-	typedef typename Matrix<T>::TNumTraits TNumTraits;
+	typedef NumTraits<T> TNumTraits;
 	typedef typename TNumTraits::baseType TBase;
 	typedef NumTraits<TBase> TBaseTraits;
 
 	const TBase epsilon = static_cast<TBase>(1e-20);
-	const TSize n = ioA.rows();
 
-	oIndex.resize(n);
-	std::vector<T> vv(n);
+	std::vector<T> vv(iSize);
 	iD = 1;
 
-	for (TSize i = 0; i < n; ++i)
+	for (size_t i = 0; i < iSize; ++i)
 	{
+		RandomIterator1 rowI = ioMatrix + (i * iSize);
 		TBase normMax = TBaseTraits::zero;
-		TSize jMax = n;
-		for (TSize j = 0; j < n; ++j)
+		size_t jMax = iSize;
+		for (size_t j = 0; j < iSize; ++j)
 		{
-			const TBase temp = num::norm(ioA(i, j));
+			const TBase temp = num::norm(rowI[j]);
 			if (temp > normMax)
 			{
 				normMax = temp;
@@ -106,36 +115,38 @@ bool ludecomp(Matrix<T>& ioA,
 		{
 			return false; // no decomposition
 		}
-		LASS_ASSERT(jMax != n);
+		LASS_ASSERT(jMax != iSize);
 
-		vv[i] = num::conj(ioA(i, jMax)) / normMax;
+		vv[i] = num::conj(rowI[jMax]) / normMax;
 	}
 
-	for (TSize j = 0; j < n; ++j)
+	for (size_t j = 0; j < iSize; ++j)
 	{
-		TSize i;
+		size_t i;
 		for (i = 0; i < j; ++i)
 		{
-			TValue sum = ioA(i, j);
-			for (TSize k = 0; k < i; ++k)
+			RandomIterator1 rowI = ioMatrix + (i * iSize);
+			T sum = rowI[j];
+			for (size_t k = 0; k < i; ++k)
 			{
-				sum -= ioA(i, k) * ioA(k, j);
+				sum -= rowI[k] * ioMatrix[k * iSize + j];
 			}
-			ioA(i, j) = sum;
+			rowI[j] = sum;
 		}
 
 		TBase normMax = TBaseTraits::zero;
-		TSize iMax = n;
-		for (i = j; i < n; ++i)
+		size_t iMax = iSize;
+		for (i = j; i < iSize; ++i)
 		{
-			TValue sum = ioA(i, j);
-			for (TSize k = 0; k < j; ++k)
+			RandomIterator1 rowI = ioMatrix + (i * iSize);
+			T sum = rowI[j];
+			for (size_t k = 0; k < j; ++k)
 			{
-				sum -= ioA(i, k) * ioA(k, j);
+				sum -= rowI[k] * ioMatrix[k * iSize + j];
 			}
-			ioA(i, j) = sum;
+			rowI[j] = sum;
 
-			const TValue dum = vv[i] * sum;
+			const T dum = vv[i] * sum;
 			const TBase temp = num::norm(dum);
 			if (temp >= normMax)
 			{
@@ -143,32 +154,32 @@ bool ludecomp(Matrix<T>& ioA,
 			   iMax = i;
 			}
 		}
-		LASS_ASSERT(iMax != n);
+		LASS_ASSERT(iMax != iSize);
 
 		if (j != iMax)
 		{
-		   for (TSize k = 0; k < n; ++k)
+		   for (size_t k = 0; k < iSize; ++k)
 		   {
-			   std::swap(ioA(iMax, k), ioA(j, k));
+			   std::swap(ioMatrix[iMax * iSize + k], ioMatrix[j * iSize + k]);
 		   }
 		   iD = -iD;
 		   vv[iMax] = vv[j];
 		}
 		oIndex[j] = iMax;
 
-		TBase temp = num::norm(ioA(j, j));
+		TBase temp = num::norm(ioMatrix[j * iSize + j]);
 		if (temp == TBaseTraits::zero)
 		{
-			ioA(j, j) = TNumTraits::one;//CT(T(1), T(1));
+			ioMatrix[j * iSize + j] = TNumTraits::one;//CT(T(1), T(1));
 			temp = epsilon;
 		}
 
-		if (j != n - 1)
+		if (j != iSize - 1)
 		{
-			const TValue dum = num::conj(ioA(j, j)) / temp;
-			for (i = j + 1; i < n; ++i)
+			const T dum = num::conj(ioMatrix[j * iSize + j]) / temp;
+			for (i = j + 1; i < iSize; ++i)
 			{
-				ioA(i, j) *= dum;
+				ioMatrix[i * iSize + j] *= dum;
 			}
 		}
 	}
@@ -178,16 +189,26 @@ bool ludecomp(Matrix<T>& ioA,
 
 
 
-/** Solves the set of linear eqautions A.X = B.
- *  @param iA     - INPUT.
- *                - A as LU decomposition.µ
- *                - must be square.
- *  @param iIndex - INPUT permutation vector returned by cludecomp().
- *                - must be of same dimension as iA
- *  @param ioB    - INPUT and OUTPUT
- *                - as input, it is the righthand side vector B.
- *                - as output it is the solution vector X.
- *                - must be of same dimension as iA
+/** Solves the set of linear eqautions A X = B.
+ *  @param iMatrix     
+ *		- INPUT.
+ *		- Random iterator to first element of A in row major order
+ *      - A as LU decomposition.
+ *      - A must be square.
+ *		- [iMatrix, iMatrx + iSize * iSize) must be a valid range
+ *  @param iIndex 
+ *		- INPUT 
+ *		- permutation sequence filled by ludecomp().
+ *      - [iIndex, iIndex + iSize) must be a valid range
+ *  @param ioColumn    
+ *		- INPUT and OUTPUT
+ *      - as input, it is the righthand side vector B.
+ *      - as output it is the solution vector X.
+ *      - must be of same length as iA
+ *      - [ioColumn, ioColumn + iSize) must be a valid range
+ *	@param iSize
+ *		- INPUT
+ *		- size of matrix
  *
  *  This routine can be used for successive calls with different right-hand
  *  sides B.
@@ -195,117 +216,226 @@ bool ludecomp(Matrix<T>& ioA,
  *  Method: backward and forward substitution, taking into account the leading
  *          zero's in B.
  */
-template <typename T, typename S1, typename S2>
-void lusolve(const Matrix<T, S1>& iA,
-			 const std::vector<size_t>& iIndex,
-			 Matrix<T, S2>& ioB)
+template 
+<
+	typename T, 
+	typename RandomIterator1, 
+	typename RandomIterator2,
+	typename RandomIterator3
+>
+void lusolve(RandomIterator1 iMatrix,
+			 RandomIterator2 iIndex,
+			 RandomIterator3 ioColumn,
+			 size_t iSize)
 {
-	LASS_ASSERT(iA.isSquare());
-	LASS_ASSERT(iIndex.size() == iA.rows());
-	LASS_ASSERT(ioB.rows() == iA.rows());
+	typedef NumTraits<T> TNumTraits;
 
-	typedef typename Matrix<T, S1>::TSize TSize;
-	typedef typename Matrix<T, S1>::TValue TValue;
-	typedef typename Matrix<T, S1>::TNumTraits TNumTraits;
-
-	const TSize n = iA.rows();
-	const TSize m = ioB.columns();
-
-	for (TSize k = 0; k < m; ++k)
+	size_t ii = iSize;
+	for (size_t i = 0; i < iSize; ++i)
 	{
-		TSize ii = n;
-		for (TSize i = 0; i < n; ++i)
-		{
-			const TSize ip = iIndex[i];
-			TValue sum = ioB(ip, k);
-			ioB(ip, k) = ioB(i, k);
+		RandomIterator1 rowI = iMatrix + (i * iSize);
+		const size_t ip = iIndex[i];
+		T sum = ioColumn[ip];
+		ioColumn[ip] = ioColumn[i];
 
-			if (ii != n)
-			{
-				for (TSize j = ii; j < i; ++j)
-				{
-					sum -= iA(i, j) * ioB(j, k);
-				}
-			}
-			else
-			{
-				if (!(sum == TNumTraits::zero)) // BUG in STL???
-				{
-					ii = i;
-				}
-			}
-			ioB(i, k) = sum;
-		}
-
-		for (TSize ic = n; ic > 0; --ic)
+		if (ii != iSize)
 		{
-			const TSize i = ic - 1;
-			TValue sum = ioB(i, k);
-			for (TSize j = ic; j < n; ++j)
+			for (size_t j = ii; j < i; ++j)
 			{
-				sum -= iA(i, j) * ioB(j, k);
+				sum -= rowI[j] * ioColumn[j];
 			}
-			ioB(i, k) = sum / iA(i, i);
 		}
+		else
+		{
+			if (!(sum == TNumTraits::zero)) // BUG in STL???
+			{
+				ii = i;
+			}
+		}
+		ioColumn[i] = sum;
+	}
+
+	for (size_t ic = iSize; ic > 0; --ic)
+	{
+		const size_t i = ic - 1;
+		RandomIterator1 rowI = iMatrix + (i * iSize);
+		T sum = ioColumn[i];
+		for (size_t j = ic; j < iSize; ++j)
+		{
+			sum -= rowI[j] * ioColumn[j];
+		}
+		ioColumn[i] = sum / rowI[i];
 	}
 }
 
 
 
-/** Improves a solution vector X of the linear set of equations A.X = B.
- *  @param iA     - INPUT
- *                - must be square.
- *  @param iAlu   - INPUT
- *                - LU decompostion of iA
- *                - must be square.
- *  @param iIndex - INPUT
- *                - must be of same dimension as iA
- *  @param iB     - INPUT
- *                - must be of same dimension as iA
- *  @param ioX    - INPUT and OUTPUT
- *                - modified to an improved set of values.
- *                - must be of same dimension as iA
+/** Improves a solution vector X of the linear set of equations A X = B.
+ *  @param iMatrix     
+ *		- INPUT
+ *		- Random iterator to first element of matrix in row major order.
+ *      - must be square.
+ *		- [iMatrix, iMatrix + iSize * iSize) must be a valid range
+ *  @param iMatrixLU   
+ *		- INPUT
+ *      - LU decompostion of A
+ *      - must be square.
+ *		- [iMatrixLU, iMatrixLU + iSize * iSize) must be a valid range
+ *  @param iIndex 
+ *		- INPUT
+ *		- [iIndex, iIndex + iSize) must be a valid range
+ *  @param iColumn 
+ *		- INPUT
+ *		- [iColumn, iColumn + iSize) must be a valid range
+ *  @param ioX 
+ *		- INPUT and OUTPUT
+ *		- [ioX, ioX + iSize) must be a valid range
  */
-template <typename T>
-void lumprove(const Matrix<T>& iA,
-			  const Matrix<T>& iAlu,
-			  const std::vector<size_t>& iIndex,
-			  const Matrix<T>& iB,
-			  Matrix<T>& ioX)
+template
+<
+	typename T,
+	typename RandomIterator1,
+	typename RandomIterator2,
+	typename RandomIterator3,
+	typename RandomIterator4,
+	typename RandomIterator5
+>
+void lumprove(RandomIterator1 iMatrix,
+			  RandomIterator2 iMatrixLU,
+			  RandomIterator3 iIndex,
+			  RandomIterator4 iColumn,
+			  RandomIterator5 ioX,
+			  size_t iSize)
 {
-	LASS_ASSERT(iA.isSquare());
-	LASS_ASSERT(iA.rows() == iAlu.rows() && iA.cols() == iAlu.cols());
-	LASS_ASSERT(iIndex.size() == iA.rows())
-	LASS_ASSERT(iB.rows() == iA.rows());
-	LASS_ASSERT(ioX.rows() == iA.rows() && ioX.cols() == iB.cols());
+	typedef NumTraits<T> TNumTraits;
 
-	typedef typename Matrix<T>::TSize TSize;
-	typedef typename Matrix<T>::TValue TValue;
-	typedef typename Matrix<T>::TNumTraits TNumTraits;
-
-	const TSize n = iA.rows();
-	const TSize m = iB.cols();
-
-	Matrix<T> r(n, m, false);
-	TSize i;
-	for (i = 0; i < n; ++i)
+	std::vector<T> r(iSize);
+	size_t i;
+	for (i = 0; i < iSize; ++i)
 	{
-		for (TSize k = 0; k < m; ++k)
+		RandomIterator1 rowI = iMatrix + (i * iSize);
+		r[i] = -iColumn[i];
+		for (size_t j = 0; j < iSize; ++j)
 		{
-			r(i, k) = -iB(i, k);
-			for (TSize j = 0; j < n; ++j)
-			{
-				r(i, k) += iA(i, j) * ioX(j, k);
-			}
+			r[i] += rowI[j] * ioX[j];
 		}
 	}
 
-	clusolve(iAlu, iIndex, r);
+	lusolve(iMatrixLU, iIndex, r.begin(), iSize);
 
-	ioX -= r;
+	for (i = 0; i < iSize; ++i)
+	{
+		ioX[i] -= r[i];
+	}
 }
 
 
+
+/** Solve A X = B for 2x2 matrices with Cramer's rule.
+ *  @param iMatrix     
+ *		- INPUT
+ *		- Random iterator to first element of matrix A in row major order.
+ *      - A must be of size 2x2.
+ *		- [iMatrix, iMatrix + 4) must be a valid range
+ *  @param ioColumn 
+ *		- INPUT and OUTPUT
+ *		- Random iterator to first element of B as input
+ *		- Random iterator to first element of X as output
+ *		- [iColumn, iColumn + 2) must be a valid range
+ */
+template 
+<
+	typename T,
+	typename RandomIterator1,
+	typename RandomIterator2
+> 
+bool cramer2(RandomIterator1 iMatrixRowMajor, 
+			 RandomIterator2 ioColumn)
+{
+	typedef NumTraits<T> TNumTraits;
+	RandomIterator1 m = iMatrixRowMajor; // shortcut ;)
+
+	const T determinant = m[0] * m[3] - m[1] * m[2];
+
+	if (determinant == TNumTraits::zero)
+	{
+		for (size_t k = 0; k < 2; ++k)
+		{
+			ioColumn[k] = TNumTraits::qNaN;
+		}
+		return false;
+	}
+
+	const T inverseDeterminant = num::inv(determinant);
+	const T x = ioColumn[0];
+	const T y = ioColumn[1];
+
+	ioColumn[0] = inverseDeterminant * (x * m[3] - y * m[2]);
+	ioColumn[0] = inverseDeterminant * (m[0] * y - m[1] * x);
+
+	return true;
+}
+
+
+
+/** Solve A X = B for 3x3 matrices with Cramer's rule.
+ *  @param iMatrix     
+ *		- INPUT
+ *		- Random iterator to first element of matrix A in row major order.
+ *      - A must be of size 3x3.
+ *		- [iMatrix, iMatrix + 9) must be a valid range
+ *  @param ioColumn 
+ *		- INPUT and OUTPUT
+ *		- Random iterator to first element of B as input
+ *		- Random iterator to first element of X as output
+ *		- [iColumn, iColumn + 3) must be a valid range
+ */
+template 
+<
+	typename T,
+	typename RandomIterator1,
+	typename RandomIterator2
+> 
+bool cramer3(RandomIterator1 iMatrixRowMajor, 
+			 RandomIterator2 ioColumn)
+{
+	typedef NumTraits<T> TNumTraits;
+	RandomIterator1 m = iMatrixRowMajor; // shortcut ;)
+
+	const T determinant = 
+		m[0] * (m[4] * m[8] - m[7] * m[5]) +
+		m[3] * (m[7] * m[2] - m[1] * m[8]) +
+		m[6] * (m[1] * m[5] - m[4] * m[2]);
+	
+	if (determinant == TNumTraits::zero)
+	{
+		for (size_t k = 0; k < 3; ++k)
+		{
+			ioColumn[k] = TNumTraits::qNaN;
+		}
+		return false;
+	}
+
+	const T inverseDeterminant = num::inv(determinant);
+	const T x = ioColumn[0];
+	const T y = ioColumn[1];
+	const T z = ioColumn[2];
+
+	ioColumn[0] = inverseDeterminant * (
+		x * (m[4] * m[8] - m[7] * m[5]) +
+		y * (m[7] * m[2] - m[1] * m[8]) +
+		z * (m[1] * m[5] - m[4] * m[2]));
+	ioColumn[1] = inverseDeterminant * (
+		m[0] * (y * m[8] - z * m[5]) +
+		m[3] * (z * m[2] - x * m[8]) +
+		m[6] * (x * m[5] - y * m[2]));
+	ioColumn[2] = inverseDeterminant * (
+		m[0] * (m[4] * z - m[7] * y) +
+		m[3] * (m[7] * x - m[1] * z) +
+		m[6] * (m[1] * y - m[4] * x));
+
+	return true;
+}
 
 }
 

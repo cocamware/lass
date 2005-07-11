@@ -221,6 +221,56 @@ Matrix<T, S>::at(TSize iRow, TSize iColumn)
 
 
 
+/** return a row of matrix.
+ *  iRow will be wrapped to range [0, this->rows()) by using a modulus operator
+ */
+template <typename T, typename S> inline
+typename Matrix<T, S>::ConstRow
+Matrix<T, S>::row(TSize iRow) const
+{
+	return ConstRow(*this, mod(iRow, rows()));
+}
+
+
+
+/** return a row of matrix.
+ *  iRow will be wrapped to range [0, this->rows()) by using a modulus operator.
+ *  THIS MUST BE LVALUE (storage matrix).
+ */
+template <typename T, typename S> inline
+typename Matrix<T, S>::Row
+Matrix<T, S>::row(TSize iRow)
+{
+	return Row(*this, mod(iRow, rows()));
+}
+
+
+
+/** return a column of matrix.
+ *  iColumn will be wrapped to range [0, this->columns()) by using a modulus operator
+ */
+template <typename T, typename S> inline
+typename Matrix<T, S>::ConstColumn
+Matrix<T, S>::column(TSize iColumn) const
+{
+	return ConstColumn(*this, mod(iColumn, columns()));
+}
+
+
+
+/** return a column of matrix.
+ *  iColumn will be wrapped to range [0, this->columns()) by using a modulus operator
+ *  THIS MUST BE LVALUE (storage matrix).
+ */
+template <typename T, typename S> inline
+typename Matrix<T, S>::Column
+Matrix<T, S>::column(TSize iColumn)
+{
+	return Column(*this, mod(iColumn, columns()));
+}
+
+
+
 /** A weird way to get back the same object
  */
 template <typename T, typename S> inline
@@ -514,7 +564,6 @@ Matrix<T, S>::transpose() const
 {
 	typedef impl::MTrans<T, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(storage_));
-	Matrix<T> result(cols_, rows_, false);
 }
 
 
@@ -530,23 +579,28 @@ Matrix<T, S>::transpose() const
  *  @throw an exception is thrown if this is not a square matrix
  */
 template <typename T, typename S>
-bool Matrix<T, S>::inverse()
+bool Matrix<T, S>::invert()
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_ENFORCE(isSquare());
 
+	const TSize n = rows();
 	Matrix<T> lu(*this);
-	std::vector<size_t> index;
+	std::vector<size_t> index(n);
 	int d;
 
-	if (!impl::ludecomp(lu, index, d))
+	if (!impl::ludecomp(lu.storage().rowMajor(), index.begin(), n, d))
 	{
 		setZero(0, 0);
 		return false; // empty solution
 	}
 
-	setIdentity(rows());
-	impl::lusolve(lu, index, *this);
+	setIdentity(n);
+	for (TSize i = 0; i < n; ++i)
+	{
+		impl::lusolve(lu.storage().rowMajor(), index.begin(), column(i), n);
+	}
+
 	return true;
 }
 
@@ -555,6 +609,15 @@ bool Matrix<T, S>::inverse()
 template <typename T, typename S> inline
 const typename Matrix<T, S>::TStorage&
 Matrix<T, S>::storage() const
+{
+	return storage_;
+}
+
+
+
+template <typename T, typename S> inline
+typename Matrix<T, S>::TStorage&
+Matrix<T, S>::storage()
 {
 	return storage_;
 }
@@ -787,17 +850,21 @@ bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 	LASS_ENFORCE(iA.isSquare());
 	LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(iA, ioB);
 
+	size_t n = iA.rows();
 	Matrix<T> lu(iA);
-	std::vector<size_t> index(iA.rows());
+	std::vector<size_t> index(n);
 	int d;
 
-	if (!impl::ludecomp(lu, index, d))
+	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
 	{
 		ioB.setZero(0, 0);
 		return false; // empty solution
 	}
 
-	impl::lusolve(lu, index, ioB);
+	for (size_t i = 0; i < ioB.columns(); ++i)
+	{
+		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), ioB.column(i), n);
+	}
 	return true;
 }
 

@@ -69,6 +69,64 @@ public:
 		typedef Matrix<U, S> Type;
 	};
 
+	class Row
+	{
+	public:
+		T& operator[](size_t iJ) { return matrix_(row_, iJ); }
+		const T& operator[](size_t iJ) const { return matrix_(row_, iJ); }
+		T& at(size_t iJ) { return matrix_.at(row_, iJ); }
+		const T& at(size_t iJ) const { return matrix_.at(row_, iJ); }
+		const TSize size() const { return matrix_.columns(); }
+	private:
+		friend class Matrix<T, S>;
+		Row(Matrix<T, S>& iMatrix, TSize iRow): matrix_(iMatrix), row_(iRow) {}
+		Matrix<T, S>& matrix_;
+		TSize row_;
+	};
+
+	class ConstRow
+	{
+	public:
+		ConstRow(const Row& iOther): matrix_(iOther.matrix_), row_(iOther.row_) {}
+		const T& operator[](size_t iJ) const { return matrix_(row_, iJ); }
+		const T& at(size_t iJ) const { return matrix_.at(row_, iJ); }
+		const TSize size() const { return matrix_.columns(); }
+	private:
+		friend class Matrix<T, S>;
+		ConstRow(const Matrix<T, S>& iMatrix, TSize iRow): matrix_(iMatrix), row_(iRow) {}
+		const Matrix<T, S>& matrix_;
+		TSize row_;
+	};
+
+	class Column
+	{
+	public:
+		T& operator[](size_t iI) { return matrix_(iI, column_); }
+		const T& operator[](size_t iI) const { return matrix_(iI, column_); }
+		T& at(size_t iI) { return matrix_.at(iI, iJ); }
+		const T& at(size_t iI) const { return matrix_.at(iI, column_); }
+		const TSize size() const { return matrix_.rows(); }
+	private:
+		friend class Matrix<T, S>;
+		Column(Matrix<T, S>& iMatrix, TSize iColumn): matrix_(iMatrix), column_(iColumn) {}
+		Matrix<T, S>& matrix_;
+		TSize column_;
+	};
+
+	class ConstColumn
+	{
+	public:
+		ConstColumn(const Column& iOther): matrix_(iOther.matrix_), column_(iOther.column_) {}
+		const T& operator[](size_t iI) const { return matrix_(iI, column_); }
+		const T& at(size_t iI) const { return matrix_.at(iI, column_); }
+		const TSize size() const { return matrix_.rows(); }
+	private:
+		friend class Matrix<T, S>;
+		ConstColumn(const Matrix<T, S>& iMatrix, TSize iColumn): matrix_(iMatrix), column_(iColumn) {}
+		const Matrix<T, S>& matrix_;
+		TSize column_;
+	};
+
 	Matrix();
 	explicit Matrix(TSize iRows, TSize iCols);
 	explicit Matrix(const TStorage& iStorage);
@@ -83,6 +141,11 @@ public:
 	TReference operator()(TSize iRow, TSize iCol);
 	const TValue at(TSize iRow, TSize iCol) const;
 	TReference at(TSize iRow, TSize iCol);
+
+	ConstRow row(TSize iRow) const;
+	Row row(TSize iRow);
+	ConstColumn column(TSize iColumn) const;
+	Column column(TSize iColumn);
 
 	const Matrix<T, S>& operator+() const;
 	const Matrix<T, impl::MNeg<T, S> > operator-() const;
@@ -103,9 +166,10 @@ public:
 
 	const Matrix<T, impl::MTrans<T, S> > transpose() const;
 
-	bool inverse();
+	bool invert();
 
 	const TStorage& storage() const;
+	TStorage& storage();
 	void swap(Matrix<T, S>& iOther);
 
 private:
