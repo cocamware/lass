@@ -35,6 +35,7 @@
 
 #include "io_common.h"
 
+#include "../num/num_common.h"
 #include "../prim/color_rgba.h"
 
 namespace lass
@@ -44,6 +45,9 @@ namespace lass
 
 namespace io
 {
+
+class BinaryIStream;
+class BinaryOStream;
 
 class LASS_DLL Image
 {
@@ -73,9 +77,12 @@ public:
 	void reset(const Image& iOther);
 
 	void open(const std::string& iFilename);
+	void open(BinaryIStream& iStream, const std::string& iFormatTag);
 	void save(const std::string& iFilename);
+	void save(BinaryOStream& iStream, const std::string& iFormatTag);
 
 	Image& operator=(const Image& iOther);
+	void swap(Image& iOther);
 
 	const TPixel& operator[](unsigned iFlatIndex) const { return raster_[iFlatIndex]; }
 	TPixel& operator[](unsigned iFlatIndex) { return raster_[iFlatIndex]; }
@@ -116,8 +123,18 @@ public:
 
 private:
 
-#	pragma pack(push, 1)
-	struct HeaderTARGA
+	struct HeaderRaw
+	{
+		num::Tuint32 lass;
+		num::Tuint32 version;
+		num::Tuint32 rows;
+		num::Tuint32 cols;
+
+		void readFrom(BinaryIStream& ioIStream);
+		void writeTo(BinaryOStream& ioOStream);
+	};
+
+	struct HeaderTarga
 	{
 		num::Tuint8 idLength;
 		num::Tuint8 colorMapType;
@@ -136,25 +153,53 @@ private:
 		const bool flipHorizontalFlag() const { return ((imageDescriptor >> 4) & 0x01) == 0x01; }
 		const bool flipVerticalFlag() const { return ((imageDescriptor >> 5) & 0x01) == 0x01; }
 		const bool interleavingFlag() const { return ((imageDescriptor >> 6) & 0x01) == 0x01; }
-	};
-#	pragma pack(pop)
 
-	LASS_META_ASSERT(sizeof(HeaderTARGA) == 18 && lass::bitsPerByte == 8, HeaderTARGA_is_ill_formatted);
+		void readFrom(BinaryIStream& ioIStream);
+		void writeTo(BinaryOStream& ioOStream);
+	};
+
+	typedef BinaryIStream& (Image::*TFileOpener)(BinaryIStream&);
+	typedef BinaryOStream& (Image::*TFileSaver)(BinaryOStream&) const;
+
+	struct FileFormat
+	{
+		TFileOpener open;
+		TFileSaver save;
+		FileFormat(TFileOpener iOpen, TFileSaver iSave): open(iOpen), save(iSave) {}
+		FileFormat(): open(0), save(0) {}
+	};
+
+	typedef std::map<std::string, FileFormat> TFileFormats;
+
+	enum
+	{
+		magicLass_ = LASS_LITTLE_ENDIAN ? 0x7373616c : 0x6c617373 // "lass" in ascii
+	};
+
 
 	// PRIVATE METHODS
 
 	unsigned resize(unsigned iRows, unsigned iCols);
 	unsigned flatIndex(unsigned iRows, unsigned iCols) const { return iRows * cols_ + iCols; }
-	void openTARGA(const std::string& iFilename);
-	void openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader);
-	void saveTARGA(const std::string& iFilename) const;
 
+	BinaryIStream& openRaw(BinaryIStream& iFile);
+	BinaryIStream& openTarga(BinaryIStream& iFile);
+	BinaryIStream& openTarga2(BinaryIStream& iFile, const HeaderTarga& iHeader);
+
+	BinaryOStream& saveRaw(BinaryOStream& iFile) const;
+	BinaryOStream& saveTarga(BinaryOStream& iFile) const;
+	
+	FileFormat findFormat(const std::string& iFormatTag);
+
+	static TFileFormats fillFileFormats();
 
 	// PRIVATE DATA
 
 	unsigned rows_;
 	unsigned cols_;
 	TRaster raster_;
+
+	static TFileFormats fileFormats_;
 };
 
 

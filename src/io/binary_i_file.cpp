@@ -25,7 +25,7 @@
 
 #include "io_common.h"
 #include "binary_i_file.h"
-
+#include "../meta/meta_assert.h"
 #include "../util/scoped_array.h"
 
 #include <cstdio>
@@ -120,6 +120,28 @@ bool BinaryIFile::is_open() const
 
 // --- private -------------------------------------------------------------------------------------
 
+long BinaryIFile::doTellg() const
+{
+	return ::ftell(file_);
+}
+
+
+
+void BinaryIFile::doSeekg(long iOffset, std::ios_base::seekdir iDirection)
+{
+	LASS_META_ASSERT(std::ios_base::beg == SEEK_SET, ios_base_beg_is_not_equal_to_SEEK_SET);
+	LASS_META_ASSERT(std::ios_base::cur == SEEK_CUR, ios_base_cur_is_not_equal_to_SEEK_CUR);
+	LASS_META_ASSERT(std::ios_base::end == SEEK_END, ios_base_end_is_not_equal_to_SEEK_END);
+
+	const int result = ::fseek(file_, iOffset, iDirection);
+	if (result != 0)
+	{
+		setstate(std::ios_base::badbit);
+	}
+}
+
+
+
 void BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
 {
 	if (!file_)
@@ -137,6 +159,8 @@ void BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
 		setstate(std::ios_base::eofbit);
 	}
 }
+
+
 
 }
 

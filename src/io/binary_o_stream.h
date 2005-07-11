@@ -37,7 +37,7 @@
 
 
 #include "io_common.h"
-#include "stream_base.h"
+#include "binary_stream_base.h"
 
 namespace lass
 {
@@ -45,13 +45,16 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL BinaryOStream: public StreamBase
+class LASS_DLL BinaryOStream: public BinaryStreamBase
 {
 public:
 
 	BinaryOStream();
 	~BinaryOStream();
 
+	long tellp() const;
+	BinaryOStream& seekp(long iPosition);
+	BinaryOStream& seekp(long iOffset, std::ios_base::seekdir iDirection); 
 	void flush();
 
 	BinaryOStream& operator<<( char iIn );
@@ -77,8 +80,10 @@ public:
 
 private:
 
-	virtual void doWrite(const void* iBytes, size_t iNumberOfBytes) = 0;
+	virtual long doTellp() const = 0;
+	virtual void doSeekp(long iOffset, std::ios_base::seekdir iDirection) = 0;
 	virtual void doFlush() = 0;
+	virtual void doWrite(const void* iBytes, size_t iNumberOfBytes) = 0;
 };
 
 }

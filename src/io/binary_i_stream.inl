@@ -42,8 +42,11 @@ namespace io
 template <typename T>
 BinaryIStream& BinaryIStream::operator>>(std::vector<T>& oOut)
 {
-	unsigned size = 0;
-	*this >> size;
+	typedef typename std::vector<T>::size_type size_type;
+	num::Tuint32 n;
+	*this >> n;
+	size_type size = static_cast<size_t>(n);
+	LASS_ASSERT(n == static_cast<num::Tuint32>(n));
 	if (!good())
 	{
 		return *this;
@@ -52,14 +55,20 @@ BinaryIStream& BinaryIStream::operator>>(std::vector<T>& oOut)
 	std::vector<T> result;
 	result.resize(size);
 
-		for (unsigned i = 0; i < size; ++i)
+	for (size_type i = 0; i < size && good(); ++i)
+	{
+		T t;
+		*this >> t;
+		if (good())
 		{
-			T t;
-			*this >> t;
 			result.push_back(t);
 		}
+	}
 
+	if (good())
+	{
 		oOut.swap(result);  // "copy" result to output
+	}
 	return *this;
 }
 
@@ -73,7 +82,10 @@ BinaryIStream& BinaryIStream::operator>>(std::complex<T>& oOut)
 	T im;
 	*this >> im;
 
-	oOut = std::complex<T>(re, im);
+	if (good())
+	{
+		oOut = std::complex<T>(re, im);
+	}
 	return *this;
 }
 

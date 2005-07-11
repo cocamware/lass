@@ -43,71 +43,7 @@
 #endif
 
 #include "basic_ops.h"
+#include "basic_types.h"
 #include "stringify.h"
-#include "../meta/meta_assert.h"
-
-#if defined(LASS_COMPATIBLE_INTEGERS_STDINT)
-
-#include <stdint.h>
-
-namespace lass
-{
-namespace num
-{
-	typedef int8_t Tint8;
-	typedef uint8_t Tuint8;
-	typedef int16_t Tint16;
-	typedef uint16_t Tuint16;
-	typedef int32_t Tint32;
-	typedef uint32_t Tuint32;
-	typedef int64_t Tint64;
-	typedef uint64_t Tuint64;
-}
-}
-
-#elif defined(LASS_COMPATIBLE_INTEGERS_MSVC_STYLE)
-
-namespace lass
-{
-namespace num
-{
-	typedef __int8 Tint8;
-	typedef unsigned __int8 Tuint8;
-	typedef __int16 Tint16;
-	typedef unsigned __int16 Tuint16;
-	typedef __int32 Tint32;
-	typedef unsigned __int32 Tuint32;
-	typedef __int64 Tint64;
-	typedef unsigned __int64 Tuint64;
-}
-}
-
-#else
-
-namespace lass
-{
-namespace num
-{
-	typedef signed char Tint8;
-	typedef unsigned char Tuint8;
-	typedef signed short Tint16;
-	typedef unsigned short Tuint16;
-	typedef signed int Tint32;
-	typedef unsigned int Tuint32;
-	typedef signed long long Tint64;
-	typedef unsigned long long Tuint64;
-}
-}
-
-#endif
-
-LASS_META_ASSERT(sizeof(lass::num::Tint8) * lass::bitsPerByte == 8, Tint8_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint8) * lass::bitsPerByte == 8, Tuint8_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint16) * lass::bitsPerByte == 16, Tint16_is_not_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint16) * lass::bitsPerByte == 16, Tuint16_is_not_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint32) * lass::bitsPerByte == 32, Tint32_is_not_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint32) * lass::bitsPerByte == 32, Tuint32_is_not_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint64) * lass::bitsPerByte == 64, Tint64_is_not_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint64) * lass::bitsPerByte == 64, Tuint64_is_not_64_bits);
 
 #endif

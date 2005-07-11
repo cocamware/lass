@@ -35,7 +35,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_STREAM_H
 
 #include "io_common.h"
-#include "stream_base.h"
+#include "binary_stream_base.h"
 
 namespace lass
 {
@@ -43,12 +43,16 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL BinaryIStream: public StreamBase
+class LASS_DLL BinaryIStream: public BinaryStreamBase
 {
 public:
 
 	BinaryIStream();
 	~BinaryIStream();
+
+	long tellg() const;
+	BinaryIStream& seekg(long iPosition);
+	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
 
 	BinaryIStream& operator>>( char& oOut );
 	BinaryIStream& operator>>( signed char& oOut );
@@ -69,8 +73,12 @@ public:
 	template <typename T> BinaryIStream& operator>>( std::vector<T>& oOut );
 	template <typename T> BinaryIStream& operator>>( std::complex<T>& oOut );
 
+	void read(void* oOutput, size_t iNumberOfBytes);
+
 private:
 
+	virtual long doTellg() const = 0;
+	virtual void doSeekg(long iOffset, std::ios_base::seekdir iDirection) = 0;
 	virtual void doRead(void* oOutput, size_t iNumberOfBytes) = 0;
 };
 

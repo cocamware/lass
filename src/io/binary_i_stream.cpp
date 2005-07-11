@@ -25,6 +25,7 @@
 
 #include "io_common.h"
 #include "binary_i_stream.h"
+#include "../num/basic_types.h"
 
 namespace lass
 {
@@ -33,18 +34,47 @@ namespace io
 {
 
 BinaryIStream::BinaryIStream():
-	StreamBase()
+	BinaryStreamBase()
 {
 }
+
+
 
 BinaryIStream::~BinaryIStream()
 {
 }
 
+
+
+long BinaryIStream::tellg() const
+{
+	return doTellg();
+}
+
+
+
+BinaryIStream& BinaryIStream::seekg(long iPosition)
+{
+	doSeekg(iPosition, std::ios_base::beg);
+	return *this;
+}
+
+
+
+BinaryIStream& BinaryIStream::seekg(long iOffset, std::ios_base::seekdir iDirection)
+{
+	doSeekg(iOffset, iDirection);
+	return *this;
+}
+
+
+
 #define LASS_IO_BINARY_I_STREAM_EXTRACTOR( type )\
 BinaryIStream& BinaryIStream::operator>>( type & oOut )\
 {\
-	doRead(&oOut, sizeof(type));\
+	type temp;\
+	doRead(&temp, sizeof(type));\
+	oOut = num::fixEndianness(temp, endianness());\
 	return *this;\
 }
 
@@ -63,12 +93,16 @@ LASS_IO_BINARY_I_STREAM_EXTRACTOR(long double)
 LASS_IO_BINARY_I_STREAM_EXTRACTOR(bool)
 LASS_IO_BINARY_I_STREAM_EXTRACTOR(void*)
 
+
+
 BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
 {
 	if (good())
 	{
-		size_t length;
-		doRead(&length, sizeof(size_t));
+		num::Tuint32 n;
+		*this >> n;
+		size_t length = static_cast<size_t>(n);
+		LASS_ASSERT(n == static_cast<num::Tuint32>(n));
 		if (good())
 		{
 			std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
@@ -80,6 +114,20 @@ BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
 		}
 	}
 	return *this;
+}
+
+
+
+/** read a number of bytes from stream to buffer
+ *
+ *  @param iBytes 
+ *		pointer to buffer.  Must be able to contain at least @a iNumberOfBytes bytes.
+ *  @param 
+ *		iNumberOfBytes number of bytes to be read
+ */
+void BinaryIStream::read(void* oOutput, size_t iNumberOfBytes)
+{
+	doRead(oOutput, iNumberOfBytes);
 }
 
 

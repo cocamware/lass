@@ -25,55 +25,30 @@
 
 
 
-/** @class lass::io::BinaryOFile
- *  @brief BinaryOStream to file.
- */
+#ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_ENDIANNESS_H
+#define LASS_GUARDIAN_OF_INCLUSION_NUM_ENDIANNESS_H
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_FILE_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_FILE_H
-
-
-
-#include "io_common.h"
-#include "binary_o_stream.h"
-#include <cstdio>
-
-
+#include "num_common.h"
 
 namespace lass
 {
-
-namespace io
+namespace num
 {
 
-class LASS_DLL BinaryOFile: public BinaryOStream
+enum Endianness
 {
-public:
-
-	BinaryOFile();
-	BinaryOFile( const char* iFileName );
-	BinaryOFile( const std::string& iFileName );
-	~BinaryOFile();
-
-	void open(const char* iFileName);
-	void open(const std::string& iFileName);
-	void close();
-	bool is_open() const;
-
-private:
-
-	long doTellp() const;
-	void doSeekp(long iOffset, std::ios_base::seekdir iDirection);
-	void doWrite(const void* iBytes, size_t iNumberOfBytes);
-	void doFlush();
-
-	FILE* file_;
+	littleEndian,
+	bigEndian,
+	systemEndian = LASS_LITTLE_ENDIAN ? littleEndian : bigEndian
 };
 
+template <Endianness outEndian, Endianness inEndian, typename T>  T endianCast(T iIn);
+template <typename T> T fixEndianness(T iIn, Endianness iEndianness);
+
 }
 
 }
+
+#include "endianness.inl"
 
 #endif

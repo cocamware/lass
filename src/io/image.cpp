@@ -25,10 +25,10 @@
 
 #include "io_common.h"
 #include "image.h"
+#include "binary_i_file.h"
+#include "binary_o_file.h"
 #include "file_attribute.h"
 #include "../stde/extended_string.h"
-
-#include <fstream>
 
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(iA, iB)\
 	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
@@ -41,14 +41,17 @@ namespace lass
 namespace io
 {
 
+Image::TFileFormats Image::fileFormats_ = Image::fillFileFormats();
+
 // --- public --------------------------------------------------------------------------------------
 
 /** Default constructor.  empty image.
  */
 Image::Image():
+	rows_(0),
+	cols_(0),
 	raster_()
 {
-	reset();
 }
 
 
@@ -56,9 +59,13 @@ Image::Image():
 /** Construct image of given width and height.
  */
 Image::Image(unsigned iRows, unsigned iCols):
+	rows_(0),
+	cols_(0),
 	raster_()
 {
-	reset(iRows, iCols);
+	const TPixel black;
+	resize(iRows, iCols);
+	std::fill(raster_.begin(), raster_.end(), black);
 }
 
 
@@ -66,9 +73,11 @@ Image::Image(unsigned iRows, unsigned iCols):
 /** Construct image from given file.
  */
 Image::Image(const std::string& iFilename):
+	rows_(0),
+	cols_(0),
 	raster_()
 {
-	reset(iFilename);
+	open(iFilename);
 }
 
 
@@ -76,9 +85,10 @@ Image::Image(const std::string& iFilename):
 /** Copy constructor
  */
 Image::Image(const Image& iOther):
-	raster_()
+	rows_(iOther.rows_),
+	cols_(iOther.cols_),
+	raster_(iOther.raster_)
 {
-	reset(iOther);
 }
 
 
@@ -87,7 +97,6 @@ Image::Image(const Image& iOther):
  */
 Image::~Image()
 {
-	reset();
 }
 
 
@@ -98,9 +107,8 @@ Image::~Image()
  */
 void Image::reset()
 {
-	rows_ = 0;
-	cols_ = 0;
-	raster_.clear();
+	Image temp;
+	swap(temp);
 }
 
 
@@ -109,13 +117,8 @@ void Image::reset()
  */
 void Image::reset(unsigned iRows, unsigned iCols)
 {
-	if (iRows == 0 || iCols == 0)
-	{
-		LASS_THROW("invalid parameters '" << iRows << ", " << iCols << "'");
-	}
-	const TPixel black;
-	resize(iRows, iCols);
-	std::fill(raster_.begin(), raster_.end(), black);
+	Image temp(iRows, iCols);
+	swap(temp);
 }
 
 
@@ -124,7 +127,8 @@ void Image::reset(unsigned iRows, unsigned iCols)
  */
 void Image::reset(const std::string& iFilename)
 {
-	open(iFilename);
+	Image temp(iFilename);
+	swap(temp);
 }
 
 
@@ -133,11 +137,8 @@ void Image::reset(const std::string& iFilename)
  */
 void Image::reset(const Image& iOther)
 {
-	if (this != &iOther)
-	{
-		const unsigned size = resize(iOther.rows_, iOther.cols_);
-		memcpy(&raster_[0], &iOther.raster_[0], size * sizeof(TPixel));
-	}
+	Image temp(iOther);
+	swap(temp);
 }
 
 
@@ -146,14 +147,44 @@ void Image::reset(const Image& iOther)
  */
 void Image::open(const std::string& iFilename)
 {
-	const std::string ext = stde::tolower(fileExtension(iFilename));
-	if (ext == "tga")
+	try
 	{
-		openTARGA(iFilename);
+		BinaryIFile file(iFilename);
+		if (!file)
+		{
+			LASS_THROW("could not open file to read.");
+		}
+
+		open(file, fileExtension(iFilename));
+	}
+	catch (const util::Exception& error)
+	{
+		LASS_THROW("'" << iFilename << "': " << error.message());
+	}
+}
+
+
+
+/** Open image from binary stream
+ */
+void Image::open(BinaryIStream& iStream, const std::string& iFormatTag)
+{
+	Image temp;
+	TFileOpener opener = findFormat(iFormatTag).open;
+
+	(temp.*opener)(iStream);
+
+	if (iStream.good())
+	{
+		swap(temp);
+	}
+	else if (iStream.eof())
+	{
+		LASS_THROW("tried to read past end of file.");
 	}
 	else
 	{
-		LASS_THROW("'" << iFilename << "': unknown fileformat '" << ext << "'.");
+		LASS_THROW("unknown failure in file.");
 	}
 }
 
@@ -163,14 +194,38 @@ void Image::open(const std::string& iFilename)
  */
 void Image::save(const std::string& iFilename)
 {
-	const std::string ext = stde::tolower(fileExtension(iFilename));
-	if (ext == "tga")
+	try
 	{
-		saveTARGA(iFilename);
+		BinaryOFile file(iFilename);
+		if (!file)
+		{
+			LASS_THROW("could not open file to write.");
+		}
+
+		save(file, fileExtension(iFilename));
 	}
-	else
+	catch (const util::Exception& error)
 	{
-		LASS_THROW("'" << iFilename << "': unknown fileformat '" << ext << ".");
+		LASS_THROW("'" << iFilename << "': " << error.message());
+	}
+}
+
+
+
+/** Save image to file
+ */
+void Image::save(BinaryOStream& iStream, const std::string& iFormatTag)
+{
+	TFileSaver saver = findFormat(iFormatTag).save;
+	(this->*saver)(iStream);
+
+	if (iStream.eof())
+	{
+		LASS_THROW("tried to read past end of file.");
+	}
+	if (!iStream.good())
+	{
+		LASS_THROW("unknown failure in file.");
 	}
 }
 
@@ -180,8 +235,20 @@ void Image::save(const std::string& iFilename)
  */
 Image& Image::operator=(const Image& iOther)
 {
-	reset(iOther);
+	Image temp(iOther);
+	swap(temp);
 	return *this;
+}
+
+
+
+/** swap two images
+ */
+void Image::swap(Image& iOther)
+{
+	std::swap(rows_, iOther.rows_);
+	std::swap(cols_, iOther.cols_);
+	raster_.swap(iOther.raster_);
 }
 
 
@@ -540,42 +607,64 @@ unsigned Image::resize(unsigned iRows, unsigned iCols)
 
 
 
-/** Open TARGA file.
+/** Open LASS Raw file.
  */
-void Image::openTARGA(const std::string& iFilename)
+BinaryIStream& Image::openRaw(BinaryIStream& iFile)
 {
-	std::ifstream file(iFilename.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
+	HeaderRaw header;
+	iFile.read(&header, sizeof header);
+	if (header.lass != magicLass_ /* lass */ && header.version != 1)
 	{
-		return;
+		LASS_THROW("not a LASS RAW version 1 file.");
 	}
 
-	HeaderTARGA header;
-	file.read((char*) &header, sizeof header);
+	resize(header.rows, header.cols);
+	num::Tfloat32 r, g, b, a;
+	for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+	{
+		iFile >> r >> g >> b >> a;
+		i->r = r;
+		i->g = g;
+		i->b = b;
+		i->a = a;
+	}
+
+	return iFile;
+}
+
+
+
+/** Open TARGA file.
+ */
+BinaryIStream& Image::openTarga(BinaryIStream& iFile)
+{
+	HeaderTarga header;
+	iFile.read(&header, sizeof header);
+	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)
 	{
 	case 2:
-		openTARGA2(file, header);
+		openTarga2(iFile, header);
 		break;
 	default:
-		LASS_THROW("'" << iFilename << "': unsupported image type '" << header.imageType << "'");
+		LASS_THROW("unsupported image type '" << header.imageType << "'");
 		break;
 	};
 
-	file.close();
+	return iFile;
 }
 
 
 
 /** Open Type 2 TARGA file
  */
-void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
+BinaryIStream& Image::openTarga2(BinaryIStream& iFile, const HeaderTarga& iHeader)
 {
 	const TValue scale(255);
 	
-	resize(iHeader.imageHeight, iHeader.imageWidth);
-	iFile.seekg(sizeof(HeaderTARGA) + iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize);
+	iFile.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
+		std::ios_base::cur);
 
 	switch (iHeader.imagePixelSize)
 	{
@@ -587,7 +676,7 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
 			  for (unsigned x = cols_; x > 0; --x)
 			  {
 				 num::Tuint8 data[3];
-				 iFile.read((char*) &data, sizeof data);
+				 iFile.read(data, sizeof data);
 				 pixel->r = static_cast<TValue>(data[2]) / scale;
 				 pixel->g = static_cast<TValue>(data[1]) / scale;
 				 pixel->b = static_cast<TValue>(data[0]) / scale;
@@ -606,7 +695,7 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
 			  for (unsigned x = cols_; x > 0; --x)
 			  {
 				 num::Tuint8 data[4];
-				 iFile.read((char*) &data, sizeof data);
+				 iFile.read(data, sizeof data);
 				 pixel->r = static_cast<TValue>(data[2]) / static_cast<TValue>(255);
 				 pixel->g = static_cast<TValue>(data[1]) / static_cast<TValue>(255);
 				 pixel->b = static_cast<TValue>(data[0]) / static_cast<TValue>(255);
@@ -620,24 +709,45 @@ void Image::openTARGA2(std::ifstream& iFile, const HeaderTARGA& iHeader)
 	default:
 		LASS_THROW("unsupported pixel size '" << iHeader.imagePixelSize << "'.");
 	}
+
+	return iFile;
 }
 
 
 
-/** Save TARGA file (type 2, 32 bit).
- */
-void Image::saveTARGA(const std::string& iFilename) const
+BinaryOStream& Image::saveRaw(BinaryOStream& iFile) const
 {
-	const TValue scale(255);
+	HeaderRaw header;
+	header.lass = magicLass_;
+	header.version = 1;
+	header.rows = rows_;
+	header.cols = cols_;
+	iFile.write(&header, sizeof header);
 
-	std::ofstream file(iFilename.c_str(), std::ios::out | std::ios::binary);
-	if (!file)
+	num::Tfloat32 r, g, b, a;
+	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
-		return;
+		r = i->r;
+		g = i->g;
+		b = i->b;
+		a = i->a;
+		iFile << r << g << b << a;
 	}
 
+	return iFile;
+}
+
+
+/** Save TARGA file (type 2, 32 bit).
+ */
+BinaryOStream& Image::saveTarga(BinaryOStream& iFile) const
+{
+	const TValue scale(255);
+	const TValue zero(0);
+	const TValue one(1);
+
 	// STEP 1: Make a header of the right type
-	HeaderTARGA header;
+	HeaderTarga header;
 	header.idLength = 0;
 	header.colorMapType = 0;
 	header.imageType = 2;
@@ -651,7 +761,7 @@ void Image::saveTARGA(const std::string& iFilename) const
 	header.imagePixelSize = 32;
 	header.imageDescriptor = 0x08; // 8 attribute bits
 
-	file.write((char*) &header, sizeof header);
+	iFile.write(&header, sizeof header);
 
 	for (unsigned y = rows_; y > 0; --y)
 	{
@@ -659,17 +769,88 @@ void Image::saveTARGA(const std::string& iFilename) const
 		for (unsigned x = cols_; x > 0; --x)
 		{
 			num::Tuint8 data[4];
-			data[0] = static_cast<num::Tuint8>(pixel->b * scale);
-			data[1] = static_cast<num::Tuint8>(pixel->g * scale);
-			data[2] = static_cast<num::Tuint8>(pixel->r * scale);
-			data[3] = static_cast<num::Tuint8>(pixel->a * scale);
-			file.write((char*) &data, sizeof data);
+			data[0] = static_cast<num::Tuint8>(num::clamp(pixel->b, zero, one) * scale),
+			data[1] = static_cast<num::Tuint8>(num::clamp(pixel->g, zero, one) * scale);
+			data[2] = static_cast<num::Tuint8>(num::clamp(pixel->r, zero, one) * scale);
+			data[3] = static_cast<num::Tuint8>(num::clamp(pixel->a, zero, one) * scale);
+			iFile.write(data, sizeof data);
 			++pixel;
 		}
 	}
 
-	file.close();
+	return iFile;
 }
+
+
+
+Image::FileFormat Image::findFormat(const std::string& iFormatTag)
+{
+	const std::string key = stde::tolower(iFormatTag);
+	TFileFormats::const_iterator i = fileFormats_.find(key);
+	if (i == fileFormats_.end())
+	{
+		LASS_THROW("unknown fileformat '" << key << "'.");
+	}
+	return i->second;
+}
+
+
+
+Image::TFileFormats Image::fillFileFormats()
+{
+	TFileFormats formats;
+	formats["raw"] = FileFormat(&Image::openRaw, &Image::saveRaw);
+	formats["targa"] = FileFormat(&Image::openTarga, &Image::saveTarga);
+	formats["tga"] = formats["targa"];
+	return formats;
+}
+
+
+
+// --- HeaderRaw -----------------------------------------------------------------------------------
+
+void Image::HeaderRaw::readFrom(BinaryIStream& ioIStream)
+{
+	num::Endianness oldEndian = ioIStream.endianness();
+	ioIStream.setEndianness(num::littleEndian);
+	ioIStream >> lass >> version >> rows >> cols;
+	ioIStream.setEndianness(oldEndian);
+}
+
+
+
+void Image::HeaderRaw::writeTo(BinaryOStream& ioOStream)
+{
+	num::Endianness oldEndian = ioOStream.endianness();
+	ioOStream.setEndianness(num::littleEndian);
+	ioOStream << lass << version << rows << cols;
+	ioOStream.setEndianness(oldEndian);
+}
+
+
+
+void Image::HeaderTarga::readFrom(BinaryIStream& ioIStream)
+{
+	num::Endianness oldEndian = ioIStream.endianness();
+	ioIStream.setEndianness(num::littleEndian);
+	ioIStream >> idLength >> colorMapType >> imageType >> colorMapOrigin >> colorMapLength >>
+		colorMapEntrySize >> imageXorigin >> imageYorigin >> imageWidth >> imageHeight >>
+		imagePixelSize >> imageDescriptor;
+	ioIStream.setEndianness(oldEndian);
+}
+
+
+
+void Image::HeaderTarga::writeTo(BinaryOStream& ioOStream)
+{
+	num::Endianness oldEndian = ioOStream.endianness();
+	ioOStream.setEndianness(num::littleEndian);
+	ioOStream << idLength << colorMapType << imageType << colorMapOrigin << colorMapLength <<
+		colorMapEntrySize << imageXorigin << imageYorigin << imageWidth << imageHeight <<
+		imagePixelSize << imageDescriptor;
+	ioOStream.setEndianness(oldEndian);
+}
+
 
 // --- free ----------------------------------------------------------------------------------------
 

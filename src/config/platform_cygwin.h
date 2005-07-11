@@ -33,7 +33,7 @@
 #define LASS_PLATFORM "Cygwin"
 #define LASS_LIB_PLATFORM "Cygwin"
 #define LASS_LITTLE_ENDIAN  1
-#define LASS_BIG_ENDIAN
+#define LASS_BIG_ENDIAN 0
 
 namespace lass
 {

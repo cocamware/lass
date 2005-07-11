@@ -42,9 +42,13 @@ namespace io
 template <typename T>
 BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& iIn)
 {
-	const std::vector<T>::size_type size = iIn.size();
-	*this << size;
-	for (unsigned i = 0; i < size; ++i)
+	typedef typename std::vector<T>::size_type size_type;
+	const size_type size = iIn.size();
+	const num::Tuint32 n = static_cast<unsigned>(size);
+	LASS_ASSERT(size == static_cast<size_t>(n));
+	*this << n;
+
+	for (size_type i = 0; i < size; ++i)
 	{
 		LASS_ASSERT(i < iIn.size());
 		*this << iIn[i];

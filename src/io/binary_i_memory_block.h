@@ -25,19 +25,19 @@
 
 
 
-/** @class lass::io::BinaryOFile
- *  @brief BinaryOStream to file.
+/** @class lass::io::BinaryIMemoryBlock
+ *  @brief Input Stream from a memory block.
  */
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_FILE_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_FILE_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_MEMORY_BLOCK_H
+#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_MEMORY_BLOCK_H
 
 
 
 #include "io_common.h"
-#include "binary_o_stream.h"
+#include "binary_i_stream.h"
 #include <cstdio>
 
 
@@ -48,29 +48,28 @@ namespace lass
 namespace io
 {
 
-class LASS_DLL BinaryOFile: public BinaryOStream
+class LASS_DLL BinaryIMemoryBlock: public BinaryIStream
 {
 public:
 
-	BinaryOFile();
-	BinaryOFile( const char* iFileName );
-	BinaryOFile( const std::string& iFileName );
-	~BinaryOFile();
-
-	void open(const char* iFileName);
-	void open(const std::string& iFileName);
-	void close();
-	bool is_open() const;
+	BinaryIMemoryBlock();
+	BinaryIMemoryBlock( const void* iBegin, long iSize );
+	BinaryIMemoryBlock( const void* iBegin, const void* iEnd );
 
 private:
 
-	long doTellp() const;
-	void doSeekp(long iOffset, std::ios_base::seekdir iDirection);
-	void doWrite(const void* iBytes, size_t iNumberOfBytes);
-	void doFlush();
+	typedef char TByte;
 
-	FILE* file_;
+	long doTellg() const;
+	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
+	void doRead(void* oOutput, size_t iNumberOfBytes);
+
+	const TByte* begin_;
+	long size_;
+	long position_;
 };
+
+
 
 }
 

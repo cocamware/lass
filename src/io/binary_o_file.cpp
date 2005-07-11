@@ -118,23 +118,21 @@ bool BinaryOFile::is_open() const
 
 // --- private -------------------------------------------------------------------------------------
 
-/** write a buffer of bytes to the stream
- *  @par iIn pointer to buffer.
- *  @par iBufferLength length of buffer in bytes.
- */
-void BinaryOFile::doWrite(const void* iBytes, size_t iNumberOfBytes)
+long BinaryOFile::doTellp() const
 {
-	if (!file_)
-	{
-		setstate(std::ios_base::failbit);
-		return;
-	}
-	if (!good())
-	{
-		return;
-	}
-	const size_t bytesWritten = ::fwrite( iBytes, 1, iNumberOfBytes, file_ );
-	if (bytesWritten != iNumberOfBytes)
+	return ::ftell(file_);
+}
+
+
+
+void BinaryOFile::doSeekp(long iOffset, std::ios_base::seekdir iDirection)
+{
+	LASS_META_ASSERT(std::ios_base::beg == SEEK_SET, ios_base_beg_is_not_equal_to_SEEK_SET);
+	LASS_META_ASSERT(std::ios_base::cur == SEEK_CUR, ios_base_cur_is_not_equal_to_SEEK_CUR);
+	LASS_META_ASSERT(std::ios_base::end == SEEK_END, ios_base_end_is_not_equal_to_SEEK_END);
+
+	const int result = ::fseek(file_, iOffset, iDirection);
+	if (result != 0)
 	{
 		setstate(std::ios_base::badbit);
 	}
@@ -159,6 +157,31 @@ void BinaryOFile::doFlush()
 		setstate(std::ios_base::badbit);
 	}
 }
+
+
+
+/** write a buffer of bytes to the stream
+ *  @par iIn pointer to buffer.
+ *  @par iBufferLength length of buffer in bytes.
+ */
+void BinaryOFile::doWrite(const void* iBytes, size_t iNumberOfBytes)
+{
+	if (!file_)
+	{
+		setstate(std::ios_base::failbit);
+		return;
+	}
+	if (!good())
+	{
+		return;
+	}
+	const size_t bytesWritten = ::fwrite( iBytes, 1, iNumberOfBytes, file_ );
+	if (bytesWritten != iNumberOfBytes)
+	{
+		setstate(std::ios_base::badbit);
+	}
+}
+
 
 }
 
