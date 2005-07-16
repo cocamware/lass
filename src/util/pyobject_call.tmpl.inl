@@ -419,7 +419,7 @@ $[
 		}
 
 		LASS_UTIL_PYOBJECT_CALL_TRY_EX( (iObject->*iMethod)(TArg::arg(p)), -1 )
-		Py_INCREF( Py_None );
+		//Py_INCREF( Py_None ); [TDM] removed
 		return 0;
 	}
 
@@ -439,7 +439,7 @@ $[
 		}
 
 		LASS_UTIL_PYOBJECT_CALL_TRY_EX( (iObject->*iMethod)() = TArg::arg(p), -1 )
-		Py_INCREF( Py_None );
+		//Py_INCREF( Py_None ); [TDM] removed
 		return 0;
 	}
 };

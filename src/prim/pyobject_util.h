@@ -59,12 +59,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV)
 	}
 	prim::Vector2D<T> result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector2D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector2D: y");
 		return 1;
@@ -103,17 +103,17 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 	}
 	prim::Vector3D<T> result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector3D: z");
 		return 1;
@@ -153,22 +153,22 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV)
 	}
 	prim::Vector4D<T> result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector4D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector4D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: z");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 3), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 3), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: w");
 		return 1;
@@ -205,12 +205,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 	}
 	prim::Point2D<T> result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point3D: y");
 		return 1;
@@ -245,22 +245,21 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 	}
 	prim::Point3D<T> result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.x) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.y) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.z) != 0)
 	{
 		impl::addMessageHeader("Point3D: z");
 		return 1;
 	}
-
 	oV = result;
 	return 0;
 }
@@ -296,14 +295,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	}
 
 	TAabb::TPoint min;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
 	TAabb::TPoint max;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: max");
 		return 1;
@@ -350,14 +349,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	}
 
 	typename TAabb::TPoint min;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), min) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
 	typename TAabb::TPoint max;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), max) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: max");
 		return 1;
@@ -408,14 +407,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint tail;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: head");
 		return 1;
@@ -452,14 +451,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 	}
 
 	TLineSegment::TPoint tail;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), tail) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
 	TLineSegment::TPoint head;
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), head) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: head");
 		return 1;
@@ -619,7 +618,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 	T values[16];
 	for (unsigned i = 0; i < 4; ++i)
 	{
-		PyObject* row = PySequence_GetItem(iValue, i);
+		PyObject* row = PySequence_Fast_GET_ITEM(iValue, i);
 		if (!impl::checkSequenceSize(row, 4))
 		{
 			impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i));
@@ -627,7 +626,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 		}
 		for (unsigned j = 0; j < 4; ++j)
 		{
-			if (pyGetSimpleObject(PySequence_GetItem(row, j), values[4 * i + j]) != 0)
+			if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(row, j), values[4 * i + j]) != 0)
 			{
 				impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i) +
 					", column " + util::stringCast<std::string>(j));
@@ -676,24 +675,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	prim::ColorRGBA result;
 
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 0), result.r) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 1), result.g) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_GetItem(iValue, 2), result.b) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyGetSimpleObject(PySequence_GetItem(iValue, 3), result.a) != 0)
+		if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("ColorRGBA: a");
 			return 1;

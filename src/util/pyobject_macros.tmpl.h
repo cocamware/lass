@@ -1133,8 +1133,9 @@ $[
 		{\
 			return 0;\
 		}\
-		return ::lass::python::impl::CallMethod<TCppClass>::set(\
+		int r = ::lass::python::impl::CallMethod<TCppClass>::set(\
 			iArgs, cppObject, &TCppClass::i_cppSetter );\
+		return r;\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyClassMemberRW_, t_cppClass, i_cppGetter ),\

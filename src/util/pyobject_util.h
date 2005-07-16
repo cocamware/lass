@@ -91,7 +91,7 @@ namespace lass
 				for (int i = 0; i < size; ++i)
 				{
 					typename Sequence::value_type temp;
-					if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
+					if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue, i) , temp ) != 0)
 					{
 						impl::addMessageHeader(
 							std::string("sequence element ") + util::stringCast<std::string>(i));
@@ -171,12 +171,12 @@ namespace lass
 				impl::addMessageHeader("pair");
 				return 1;
 			}
-			if (pyGetSimpleObject( PySequence_GetItem(iValue,0), result.first ) != 0)
+			if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue,0), result.first ) != 0)
 			{
 				impl::addMessageHeader("pair: first");
 				return 1;
 			}
-			if (pyGetSimpleObject( PySequence_GetItem(iValue,1), result.second ) != 0)
+			if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue,1), result.second ) != 0)
 			{
 				impl::addMessageHeader("pair: second");
 				return 1;
