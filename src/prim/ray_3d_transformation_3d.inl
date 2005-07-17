@@ -34,6 +34,36 @@ namespace lass
 {
 namespace prim
 {
+namespace impl
+{
+
+template <typename NP> struct RayParameterRescaler;
+
+template <>
+struct RayParameterRescaler<prim::Unnormalized>
+{
+	// unnormalized directions don't alter parameter: same t is same point
+	template <typename T, typename VectorType> 
+	static void rescale(T& ioRayParameter, const VectorType& iNewRayDirection) 
+	{ 
+	}
+};
+
+template <>
+struct RayParameterRescaler<prim::Normalized>
+{
+	// normalized ray's compress parameters because of renormalisation of direction.
+	// to get same point, scale parameter by norm before renormalisation.
+	template <typename T, typename VectorType> 
+	static void rescale(T& ioRayParameter, const VectorType& iNewRayDirection) 
+	{
+		ioRayParameter *= iNewRayDirection.norm();
+	}
+};
+
+}
+
+
 
 /** apply transformation to ray
  *  @relates Transformation3D
@@ -42,6 +72,36 @@ template<typename T, class NP, class PP>
 Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, 
 						   const Transformation3D<T>& iTransformation)
 {
+	return Ray3D<T, NP, PP>(
+		transform(iSubject.support(), iTransformation),
+		transform(iSubject.direction(), iTransformation));
+}
+
+
+
+/** apply transformation to ray, and rescale a parameter to represent same point
+ *
+ *  @param ioParameterOfPointOnRay
+ *		- INPUT & OUTPUT
+ *		- if direction gets renormalized, then a point on ray is no longer represented
+ *		  by same parameter.  Adjust parameter @a ioParameterOfPointOnRay to fix this.
+ *		- If you fill in 1 as @a ioParameterOfPointOnRay, you can use the result to
+ *		  rescale multiple parameters by multiplying it.
+ *		- <tt>transform(ray, transf).point(t') == transform(ray.point(t), transf)</tt>
+ *
+ *  @relates Transformation3D
+ */
+template<typename T, class NP, class PP>
+Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, 
+						   const Transformation3D<T>& iTransformation,
+						   T& ioParameterOfPointOnRay)
+{
+	typedef Ray3D<T, NP, PP> TRay;
+	const typename TRay::TPoint support = transform(iSubject.support(), iTransformation);
+	const typename TRay::TVector direction = transform(iSubject.direction(), iTransformation);
+	
+	impl::RayParameterRescaler<NP>::rescale(ioParameterOfPointOnRay, direction);
+
 	return Ray3D<T, NP, PP>(
 		transform(iSubject.support(), iTransformation),
 		transform(iSubject.direction(), iTransformation));

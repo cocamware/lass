@@ -44,7 +44,14 @@ namespace prim
 {
 
 template<typename T, class NP, class PP>
-Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, const Transformation3D<T>& iTransformation);
+Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, 
+						   const Transformation3D<T>& iTransformation);
+
+template<typename T, class NP, class PP>
+Ray3D<T, NP, PP> transform(const Ray3D<T, NP, PP>& iSubject, 
+						   const Transformation3D<T>& iTransformation,
+						   T& ioParameterOfPointOnRay);
+
 
 }
 
