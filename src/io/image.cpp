@@ -612,7 +612,7 @@ unsigned Image::resize(unsigned iRows, unsigned iCols)
 BinaryIStream& Image::openRaw(BinaryIStream& iFile)
 {
 	HeaderRaw header;
-	iFile.read(&header, sizeof header);
+	header.readFrom(iFile);
 	if (header.lass != magicLass_ /* lass */ && header.version != 1)
 	{
 		LASS_THROW("not a LASS RAW version 1 file.");
@@ -639,7 +639,7 @@ BinaryIStream& Image::openRaw(BinaryIStream& iFile)
 BinaryIStream& Image::openTarga(BinaryIStream& iFile)
 {
 	HeaderTarga header;
-	iFile.read(&header, sizeof header);
+	header.readFrom(iFile);
 	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)
@@ -722,7 +722,7 @@ BinaryOStream& Image::saveRaw(BinaryOStream& iFile) const
 	header.version = 1;
 	header.rows = rows_;
 	header.cols = cols_;
-	iFile.write(&header, sizeof header);
+	header.writeTo(iFile);
 
 	num::Tfloat32 r, g, b, a;
 	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
@@ -761,7 +761,7 @@ BinaryOStream& Image::saveTarga(BinaryOStream& iFile) const
 	header.imagePixelSize = 32;
 	header.imageDescriptor = 0x08; // 8 attribute bits
 
-	iFile.write(&header, sizeof header);
+	header.writeTo(iFile);
 
 	for (unsigned y = rows_; y > 0; --y)
 	{
