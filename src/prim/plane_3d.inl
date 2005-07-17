@@ -69,7 +69,7 @@ Plane3D<T, EP, NP>::Plane3D(const TPoint& iSupport,
 
 template<typename T, typename EP, typename NP>
 Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, const TPoint& iSupport):
-	TImpl(iSupport, iNormal)
+	TImpl(iNormal, iSupport)
 {
 }
 
