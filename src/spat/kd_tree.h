@@ -159,6 +159,7 @@ private:
 	TAxes splits_;
 	TObjectIterator begin_;
 	TObjectIterator end_;
+	size_t size_;
 };
 
 

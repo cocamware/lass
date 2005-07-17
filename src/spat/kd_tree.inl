@@ -59,9 +59,9 @@ KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
 	end_(iEnd)
 {
-	const size_t size = std::distance(begin_, end_);
-	heap_.resize(size, end_);
-	splits_.resize(size, dummyAxis_);
+	size_ = std::distance(begin_, end_);
+	heap_.resize(size_, end_);
+	splits_.resize(size_, dummyAxis_);
 
 	TObjectIterators input;
 	for (TObjectIterator i = begin_; i != end_; ++i)
@@ -112,7 +112,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 		LASS_THROW("can't perform range search in empty KdTree");
 	}
 
-	iMaxCount = std::min(iMaxCount, std::distance(begin_, end_));
+	iMaxCount = std::min(iMaxCount, size_);
 
 	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
 	LASS_ASSERT(iMaxCount > 0);
