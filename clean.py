@@ -7,6 +7,12 @@ print "cleaning up builds ..."
 projects = ['frb', 'gis', 'io', 'num', 'prim', 'spat', 'stde', 'test', 'util'];
 configurations = ['win32_vc7', 'win32_vc7_d', 'win32_vc71', 'win32_vc71_d', 'win32_intel700', 'win32_intel700_d']
 
+os.chdir('bin')
+os.system('del *.exe /F /Q')
+os.system('del *.dll /F /Q')
+os.system('del *.pdb /F /Q')
+os.chdir('..')
+
 os.chdir('lib')
 os.system('del *.lib /F /Q')
 os.system('del *.pdb /F /Q')
