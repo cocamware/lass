@@ -121,7 +121,8 @@ namespace lass
 		template<class C, typename A>
 		PyObject* pyBuildSimpleObject( const std::vector<C, A>& iV )
 		{
-			PyObject* newTuple = PyTuple_New(iV.size());
+			LASS_ASSERT(static_cast<int>(iV.size()) >= 0);
+			PyObject* newTuple = PyTuple_New(static_cast<int>(iV.size()));
 			int i;
 			for (i = 0;i < int(iV.size()); ++i)
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
