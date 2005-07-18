@@ -255,7 +255,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV)
 		impl::addMessageHeader("Point3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.z) != 0)
+	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Point3D: z");
 		return 1;
