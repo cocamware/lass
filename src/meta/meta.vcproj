@@ -84,6 +84,8 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+			<IntelOptions 
+				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
@@ -147,6 +149,8 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+			<IntelOptions 
+				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"

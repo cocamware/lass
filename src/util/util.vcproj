@@ -17,7 +17,7 @@
 			IntermediateDirectory="win32_intel700"
 			ConfigurationType="4"
 			CharacterSet="2"
-			WholeProgramOptimization="TRUE">
+			WholeProgramOptimization="FALSE">
 			<Tool 
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
@@ -47,7 +47,6 @@
 				WarningLevel="3"
 				DebugInformationFormat="3">
 				<IntelOptions 
-					WholeProgramOptimization="1"
 					Optimization="3"
 					GlobalOptimizations="1"
 					InlineFunctionExpansion="2"
@@ -65,7 +64,7 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"
+					AllOptions="/c  /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"
 					MSOriginalAdditionalOptions="/GR"/>
 			</Tool>
 			<Tool 
@@ -75,7 +74,7 @@
 				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/LTCG /OUT:&quot;win32_intel700/lass_util_win32_intel700.lib&quot; /NOLOGO"
+					AllOptions="/OUT:&quot;win32_intel700/lass_util_win32_intel700.lib&quot; /NOLOGO"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -100,7 +99,7 @@
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 			<IntelOptions 
-				WholeProgramOptimization="1"/>
+				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
@@ -179,6 +178,8 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+			<IntelOptions 
+				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
@@ -458,7 +459,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						Name="VCCLCompilerTool"
 						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"
 							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>
@@ -505,7 +506,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						UsePrecompiledHeader="1"
 						AdditionalOptions="">
 						<IntelOptions 
-							AllOptions="/c /GR /GL /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"
 							MSOriginalAdditionalOptions=""/>
 					</Tool>
 				</FileConfiguration>

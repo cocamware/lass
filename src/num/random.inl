@@ -38,7 +38,7 @@ namespace num
 
 // --- RandomStandard ------------------------------------------------------------------------------
 
-inline RandomStandard::TValue RandomStandard::operator ()() const
+inline const RandomStandard::TValue RandomStandard::operator ()() const
 {
 	return rand();
 }
@@ -110,27 +110,6 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	}
 
 	state_[0] = upperMask_;
-}
-
-
-
-inline RandomMT19937::TValue RandomMT19937::operator()()
-{
-	if (index_ >= stateSize_)
-	{
-		reload();
-	}
-
-	TValue y = state_[index_++];
-
-	// Tempering
-	//
-	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
-	y ^= (y << 15) & 0xefc60000UL;
-	y ^= (y >> 18);
-
-	return y;
 }
 
 

@@ -192,7 +192,7 @@ namespace lass
 			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
 		}
 
-				/** fromPySharedPtrCast.
+		/** fromPySharedPtrCast.
 		*   @ingroup Python
 		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
 		*   object for use in C++.  Reference counts are taken care of.
@@ -203,16 +203,6 @@ namespace lass
 		{
 			Py_INCREF(iObj);
 			return lass::util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter>( static_cast<PyObject*>(iObj) );
-		}
-
-		/** fromPySharedPtrCast overload for plain old PyObject
-		*   @ingroup Python
-		*/
-		inline lass::util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>
-		fromPySharedPtrCast(PyObject* iObj)
-		{
-			Py_INCREF(iObj);
-			return lass::util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter>( iObj );
 		}
 
 		/** toPySharedPtrCast.
@@ -336,5 +326,7 @@ namespace lass
 #include "pyobject_plus.inl"
 #include "pyshadow_object.h"
 #include "pyobject_call.inl"
+#include "callback_python.h"
+#include "../prim/pyobject_util.h"
 
 #endif

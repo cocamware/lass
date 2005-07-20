@@ -498,6 +498,45 @@ void Aabb2D<T, MMP>::swap(Aabb2D<T, MMP2>& iOther)
 
 // --- free ----------------------------------------------------------------------------------------
 
+/** join two AABBs
+ *  @relates Aabb2D
+ */
+template <typename T, class MMPa, class MMPb> inline
+const Aabb2D<T, MMPa> operator+(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>& iB)
+{
+	Aabb2D<T, MMPa> result(iA);
+	result += iB;
+	return result;
+}
+
+
+
+/** add a point to an AABB
+ *  @relates Aabb2D
+ */
+template <typename T, class MMP> inline
+const Aabb2D<T, MMP> operator+(const Aabb2D<T, MMP>& iA, const Point2D<T>& iB)
+{
+	Aabb2D<T, MMPa> result(iA);
+	result += iB;
+	return result;
+}
+
+
+
+/** add a point to an AABB
+ *  @relates Aabb2D
+ */
+template <typename T, class MMP> inline
+const Aabb2D<T, MMP> operator+(const Point2D<T>& iA, const Aabb2D<T, MMP>& iB)
+{
+	Aabb2D<T, MMPa> result(iB);
+	result += iA;
+	return result;
+}
+
+
+
 /** distance between AABB and point
  *  @relates Aabb2D
  *  @param iA   AABB

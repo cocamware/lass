@@ -165,6 +165,18 @@ Sphere3D<T>::squaredDistance(const TPoint& iPoint) const
 
 
 
+/** returns if point is on inside or on surface
+ *  @return <tt>classify(iPoint) != sOutside</tt> but may be faster
+ */
+template<typename T>
+const bool Sphere3D<T>::contains(const TPoint& iPoint) const
+{
+	const TValue eq = equation(iPoint);
+	return eq <= TNumTraits::zero;
+}
+
+
+
 /** Classify a point and tell and what side of the sphere surface it is.
  *  @return sInside, sSurface, sOutside
  */
@@ -212,6 +224,18 @@ const typename Sphere3D<T>::TValue
 Sphere3D<T>::squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
 	return num::abs(equation(iPoint, iRelativeTolerance));
+}
+
+
+
+/** returns if point is on inside or on surface
+ *  @return <tt>classify(iPoint, iRelativeTolerance) != sOutside</tt> but may be faster
+ */
+template<typename T>
+const bool Sphere3D<T>::contains(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	const TValue eq = equation(iPoint, iRelativeTolerance);
+	return eq <= TNumTraits::zero;
 }
 
 

@@ -30,6 +30,7 @@
  *  A set of random number generators.
  *
  *  - @ref RandomStandard : uses the C standard function rand().
+ *  - @ref RandomParkMiller : Minimal Standard generator by Park and Miller.
  *  - @ref RandomMT19937 : uses a mersenne twister MT19937.
  */
 
@@ -56,9 +57,45 @@ public:
 	typedef int TValue;             /**< type of return value. */
 	static const TValue max;        /**< maximum return value. */
 
-	TValue operator()() const;
+
+	const TValue operator()() const;
 };
 
+
+
+/** Minimal Standard generator by Park and Miller
+ *  @ingroup Random
+ *
+ *  RandomParkMiller is the LASS implementation of the Minimal Standard generator by Park and Miller
+ *
+ *  <i>Park and Miller, "Random Number Generators: Good ones are hard to find", Communications of the
+ *  ACM, October 1988, Volume 31, No 10, pages 1192-1201.</i>
+ */
+class LASS_DLL RandomParkMiller
+{
+	typedef num::Tuint32 TValue;    /**< type of return value. */
+	static const TValue max;        /**< maximum return value. */
+
+	RandomParkMiller();
+	explicit RandomParkMiller(TValue iSeed);
+
+	void seed(TValue iSeed);
+
+	const TValue operator()();
+
+private:
+
+	enum
+	{
+		multiplier_ = 16807,	
+		modulus_ = 2147483647,
+		seedMask_ = 123456789,
+		schrageQuotient_ = modulus_ / multiplier_,
+		schrageRest_ = modulus_ % multiplier_,
+	};
+
+	TValue buffer_;
+};
 
 
 /** implemenents a mersenne twister MT19937.
@@ -86,31 +123,31 @@ class LASS_DLL RandomMT19937
 {
 public:
 
-	typedef unsigned long TValue;   /**< type of return value. */
+	typedef num::Tuint32 TValue;   /**< type of return value. */
 	static const TValue max;        /**< maximum return value. */
 
 	RandomMT19937();
-	RandomMT19937(TValue iSeed);
+	explicit RandomMT19937(TValue iSeed);
 	template <typename ForwardIterator> RandomMT19937(ForwardIterator iBegin, ForwardIterator iEnd);
 
 	void seed(TValue iSeed);
 	template <typename ForwardIterator> void seed(ForwardIterator iBegin, ForwardIterator iEnd);
 
-	TValue operator()();
+	const TValue operator()();
 
 private:
 
 	void reload();
-	TValue twist(TValue iA, TValue iB, TValue iC) const;
+	const TValue twist(TValue iA, TValue iB, TValue iC) const;
 
 	enum
 	{
 		stateSize_  = 624,          /**< size of state vector */
 		shiftSize_  = 397,
-		magic_      = 0x9908b0dfUL, /**< constant vector a */
-		upperMask_  = 0x80000000UL, /**< most significant w-r bits */
-		lowerMask_  = 0x7fffffffUL, /**< least significant r bits */
-		wordMask_   = 0xffffffffUL, /**< 32 bit mask for >32 bit machines*/
+		magic_      = TValue(0x9908b0dfUL), /**< constant vector a */
+		upperMask_  = TValue(0x80000000UL), /**< most significant w-r bits */
+		lowerMask_  = TValue(0x7fffffffUL), /**< least significant r bits */
+		wordMask_   = TValue(0xffffffffUL), /**< 32 bit mask for >32 bit machines*/
 	};
 
 	TValue state_[stateSize_];      /**< the array for the state vector. */

@@ -71,6 +71,20 @@ bool almostGreaterOrEqual(T iA, T iB, T iRelativeTolerance)
 	return iA >= iB || almostEqual(iA, iB, iRelativeTolerance);
 }
 
+template <typename T>
+bool almostInOpenRange(T iA, T iMin, T iMax, T iRelativeTolerance)
+{
+	return almostGreater(iA, iMin, iRelativeTolerance) && 
+		almostLess(iA, iMax, iRelativeTolerance);
+}
+
+template <typename T>
+bool almostInClosedRange(T iA, T iMin, T iMax, T iRelativeTolerance)
+{
+	return almostGreaterOrEqual(iA, iMin, iRelativeTolerance) && 
+		almostLessOrEqual(iA, iMax, iRelativeTolerance);
+}
+
 }
 
 }

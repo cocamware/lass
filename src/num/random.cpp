@@ -33,9 +33,54 @@ namespace lass
 namespace num
 {
 
-// --- RandomStdLib --------------------------------------------------------------------------------
+// --- RandomStandard ------------------------------------------------------------------------------
 
 const RandomStandard::TValue RandomStandard::max = RAND_MAX;
+
+
+
+
+// --- RandomParkMiller ----------------------------------------------------------------------------
+
+const RandomParkMiller::TValue RandomParkMiller::max = RandomParkMiller::modulus_;
+
+
+
+/** default constructor.
+ *  will seed with default value
+ */
+RandomParkMiller::RandomParkMiller()
+{
+	seed(0);
+}
+
+
+
+/** default constructor.
+ *  will seed with default value
+ */
+RandomParkMiller::RandomParkMiller(TValue iSeed)
+{
+	seed(iSeed);
+}
+
+
+
+void RandomParkMiller::seed(TValue iSeed)
+{
+	buffer_ = iSeed ^ seedMask_;
+}
+
+
+
+/** draw a random number
+ */
+const RandomParkMiller::TValue RandomParkMiller::operator ()()
+{
+	TValue k = buffer_ / schrageQuotient_;
+	buffer_ = multiplier_ * (buffer_ - k * schrageQuotient_) - k * schrageRest_;
+	return buffer_;
+}
 
 
 
@@ -77,6 +122,30 @@ void RandomMT19937::seed(TValue iSeed)
 
 
 
+/** draw a random number 
+ */
+const RandomMT19937::TValue RandomMT19937::operator()()
+{
+	if (index_ >= stateSize_)
+	{
+		reload();
+	}
+
+	TValue y = state_[index_++];
+
+	// Tempering
+	//
+	y ^= (y >> 11);
+	y ^= (y << 7) & 0x9d2c5680UL;
+	y ^= (y << 15) & 0xefc60000UL;
+	y ^= (y >> 18);
+
+	return y;
+}
+
+
+// private
+
 /** generate N words at a time
  */
 void RandomMT19937::reload()
@@ -103,7 +172,7 @@ void RandomMT19937::reload()
 }
 
 
-inline RandomMT19937::TValue RandomMT19937::twist(TValue iA, TValue iB, TValue iC) const
+inline const RandomMT19937::TValue RandomMT19937::twist(TValue iA, TValue iB, TValue iC) const
 {
 	static const TValue magic01[2] = { 0x0UL, magic_ }; // magic01[x] = x * magic_ for x = 0, 1
 

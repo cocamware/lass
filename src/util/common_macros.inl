@@ -68,7 +68,16 @@
 	}\
 	while (false)
 
-
+/** and assert that always fails (thus should be in unreachable code)
+ */
+#define LASS_ASSERT_UNREACHABLE_IMPL\
+	do\
+	{\
+		LASS_CERR << "\n" << LASS_PRETTY_FUNCTION \
+			<< ": ASSERT FAILURE: Unreachable code reached.\n";\
+		LASS_BREAK_HERE;\
+	}\
+	while (false)
 
 /** Print a warning to the cerr proxy stream
  */

@@ -44,10 +44,10 @@ namespace lass
 {
 namespace test
 {
-PY_SHADOW_CLASS(/**/, PySpam, Spam);
-PY_SHADOW_CLASS_DERIVED(/**/, PyHam, Ham, PySpam)
-PY_SHADOW_CLASS_DERIVED(/**/, PyBacon, Bacon, PyHam)
-PY_SHADOW_CLASS_DERIVED(/**/, PyEggs, Eggs, PySpam)
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam);
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyHam, Ham, PySpam)
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyBacon, Bacon, PyHam)
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyEggs, Eggs, PySpam)
 }
 }
 
