@@ -154,6 +154,20 @@ public:
 		return dispatcher_.isEmpty();
 	}
 
+	/** return this->isEmpty()
+	 */
+	bool operator!() const
+	{
+		return dispatcher_.isEmpty(); 
+	}
+
+	/** return !this->isEmpty())
+	 */
+	operator num::SafeBool() const
+	{
+		return dispatcher_.isEmpty() ? num::safeFalse : num::safeTrue;
+	}
+
 	/** Swaps the dispatcher of this callback with the dispatcher of another.
 	 */
 	void swap(CallbackR$x<R, $(P$x)$>& iOther)

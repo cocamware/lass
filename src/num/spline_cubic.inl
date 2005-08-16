@@ -40,6 +40,26 @@ namespace num
 
 // --- public --------------------------------------------------------------------------------------
 
+/** construct an empty spline 
+ */
+template <typename S, typename D, typename T>
+SplineCubic<S, D, T>::SplineCubic()
+{
+}
+
+
+
+/** construct a spline with a range of nodes.
+ *
+ *  Each node consists of a control value and a data value.  You must provide the control
+ *  and data values in seperate ranges.  The control values are passed by a pair of iterators
+ *  [iFirstControl , iLastControl).  Of the range of the data values, only the iterator
+ *  iFirstData to the the first element is given.
+ *
+ *  @pre
+ *  @arg [iFirstControl, iLastControl) is a valid range.
+ *  @arg [iFirstData, iFirstData + (iLastControl - iFirstControl)) is a valid range.
+ */
 template <typename S, typename D, typename T>
 template <typename ScalarInputIterator, typename DataInputIterator>
 SplineCubic<S, D, T>::SplineCubic(ScalarInputIterator iFirstControl,
@@ -60,10 +80,22 @@ SplineCubic<S, D, T>::SplineCubic(ScalarInputIterator iFirstControl,
 
 
 
+/** Get the linear interpolated data value that corresponds with constrol value @a iX.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par Complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TData
 SplineCubic<S, D, T>::operator ()(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	const TNodeConstIterator n = findNode(iX);
 	const TScalar s = iX - n->x;
 	TData result(n->d);
@@ -75,10 +107,22 @@ SplineCubic<S, D, T>::operator ()(TScalar iX) const
 
 
 
+/** Get the first derivative of data value that corresponds with constrol value @a iX.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par Complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TData
 SplineCubic<S, D, T>::derivative(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	const TNodeConstIterator n = findNode(iX);
 	const TScalar s = iX - n->x;
 	TData result(n->c);
@@ -89,10 +133,22 @@ SplineCubic<S, D, T>::derivative(TScalar iX) const
 
 
 
+/** Get the second derivative of data value that corresponds with constrol value @a iX.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par Complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TData
 SplineCubic<S, D, T>::derivative2(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	const TNodeConstIterator n = findNode(iX);
 	const TScalar s = iX - n->x;
 	TData result(n->b);
@@ -102,10 +158,23 @@ SplineCubic<S, D, T>::derivative2(TScalar iX) const
 
 
 
+/** Get the integrated data value between control points @a iA and @a iB.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par Complexity: 
+ *		O(D * M * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg M = number of nodes between @a iA and @a iB.
+ *		@arg N = total number of nodes in spline
+ */
 template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TData
 SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	TNodeConstIterator first = findNode(iBegin);
 	TNodeConstIterator last = findNode(iEnd);
 	if (first == last)
@@ -159,6 +228,19 @@ SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 		TDataTraits::scale(result, multiplier);
 		return result;
 	}
+}
+
+
+
+/** return true if the spline contains any nodes at all.
+ *
+ *  @par Complexity: 
+ *		O(1) 
+ */
+template <typename S, typename D, typename T>
+const bool SplineCubic<S, D, T>::isEmpty() const
+{
+	return nodes_.empty();
 }
 
 
@@ -287,7 +369,8 @@ void SplineCubic<S, D, T>::init()
  *  @arg 0 if @a iX is smaller than @c nodes_[0].x</tt>
  *  @arg @c nodes_.size()-2 if @a iX is greater than @c nodes_[nodes_.size()-1].x
  *
- *  complexity: O(ln N)
+ *  @par complexity: 
+ *		O(log N)
  */
 template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TNodeConstIterator

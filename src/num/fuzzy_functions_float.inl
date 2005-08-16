@@ -70,7 +70,7 @@ namespace impl
 	*/
 	template<class NTC> NTC	erfcc(const NTC& x)
 	{
-		SW_STATIC NTC t,z,ans;
+		NTC t,z,ans;
 		z=fabs(x);
 		t=1.0/(1.0+0.5*z);
 		ans=t*exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+

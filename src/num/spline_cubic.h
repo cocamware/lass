@@ -53,6 +53,7 @@ public:
 
 	typedef DataTraits TDataTraits;
 
+	SplineCubic();
 	template <typename ScalarInputIterator, typename DataInputIterator>
 	SplineCubic(ScalarInputIterator iFirstControl, ScalarInputIterator iLastControl,
 		DataInputIterator iFirstData);
@@ -61,6 +62,8 @@ public:
 	const TData derivative(TScalar iX) const;
 	const TData derivative2(TScalar iX) const;
 	const TData integral(TScalar iA, TScalar iB) const;
+
+	const bool isEmpty() const;
 
 private:
 

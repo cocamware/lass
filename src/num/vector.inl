@@ -46,7 +46,9 @@ namespace num
 // --- public --------------------------------------------------------------------------------------
 
 /** constructs an empty vector
- *  Exception safety: strong guarentee.
+ *  
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 Vector<T, S>::Vector():
@@ -61,7 +63,12 @@ Vector<T, S>::Vector():
  *  @param iDimension the dimension of the vector to be created.  You can pass zero, but you
  *         shouldn't pass negative dimensions though.
  *  @param iInitialValue the initial value of all vector components, zero by default.
- *  Exception safety: strong guarentee.
+ *
+ *  @par Complexity: 
+ *		O(iDimension)
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 Vector<T, S>::Vector(TSize iDimension, TParam iInitialValue):
@@ -72,7 +79,12 @@ Vector<T, S>::Vector(TSize iDimension, TParam iInitialValue):
 
 
 /** construct vector from storage type
- *  Exception safety: strong guarentee.
+ *
+ *  @par Complexity: 
+ *		O(iStorage.size())
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 Vector<T, S>::Vector(const TStorage& iStorage):
@@ -84,7 +96,12 @@ Vector<T, S>::Vector(const TStorage& iStorage):
 
 /** contruct by any particular type supporting [] and size().
  *  Should only be used with writable storage type (like std::vector which is the default).
- *  Exception safety: strong guarentee.
+ *
+ *  @par Complexity: 
+ *		O(iVector.size())
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 template <typename VectorType>
@@ -101,8 +118,14 @@ Vector<T, S>::Vector(const VectorType& iVector):
 
 
 /** construct storage/expression vector to this (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: strong guarentee.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(iOther.size())
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -119,8 +142,14 @@ Vector<T, S>::Vector(const Vector<T2, S2>& iOther)
 
 
 /** assign storage/expression vector to this (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: basic guarentee.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(iOther.size())
+ *
+ *  @par Exception safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -139,7 +168,9 @@ Vector<T, S>& Vector<T, S>::operator=(const Vector<T2, S2>& iOther)
 
 /** return dimension of vector.
  *  this should never be a negative value.
- *  Exception safety: nofail.
+ *
+ *  @par Exception safety: 
+ *		nofail.
  */
 template <typename T, typename S> inline
 const typename Vector<T, S>::TSize
@@ -151,8 +182,11 @@ Vector<T, S>::size() const
 
 
 /** return the iIndex'th component value.
- *  iIndex shouldn't be out of the range [0, this->size()), unless you're asking for trouble.
- *  Exception safety: strong guarentee.
+ *
+ *  @pre @a iIndex must be in [0, this->size()), unless you're asking for trouble.
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S> inline
 const typename Vector<T, S>::TValue
@@ -165,8 +199,13 @@ Vector<T, S>::operator[](TSize iIndex) const
 
 
 /** access the iIndex'th component value.
- *  iIndex shouldn't be out of the range [0, this->size()), unless you're asking for trouble.
- *  Exception safety: strong guarentee.
+ *
+ *  @pre 
+ *		@arg @a iIndex must be in [0, this->size()), unless you're asking for trouble.
+ *		@arg @c this must be an l-value.
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
@@ -180,7 +219,9 @@ Vector<T, S>::operator[](TSize iIndex)
 /** return the iIndex'th component value and wrap index if necessary.
  *  if iIndex is out of the range [0, this->size()), it will be wrapped to map in this range.
  *  This is simply a modulus operation: mod(iIndex, this->size()).
- *  Exception safety: strong guarentee.
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S> inline
 const typename Vector<T, S>::TValue
@@ -194,7 +235,11 @@ Vector<T, S>::at(TSize iIndex) const
 /** access the iIndex'th component value and wrap index if necessary.
  *  if iIndex is out of the range [0, this->size()), it will be wrapped to map in this range.
  *  This is simply a modulus operation: mod(iIndex, this->size()).
- *  Exception safety: strong guarentee.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Exception safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
@@ -206,7 +251,12 @@ Vector<T, S>::at(TSize iIndex)
 
 
 /** A weird way to get back the same object
- *  Exception safety: nofail guarentee.
+ *
+ *  @par Complexity: 
+ *		O(1)
+ *
+ *  @par Exception safety: 
+ *		nofail guarentee.
  */
 template <typename T, typename S> inline
 const Vector<T, S>&
@@ -219,7 +269,12 @@ Vector<T, S>::operator+() const
 
 /** return a vector with all components negated
  *  (-v)[i] == -(v[i]).
- *  Exception safety: nofail.
+ *
+ *  @par Complexity: 
+ *		O(1)
+ *
+ *  @par Exception safety: 
+ *		nofail.
  */
 template <typename T, typename S>
 const Vector<T, impl::VNeg<T, S> >
@@ -232,8 +287,16 @@ Vector<T, S>::operator-() const
 
 
 /** add storage/expression vector to this (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: basic guarentee.
+ *
+ *  @pre 
+ *		@arg this->size() == iB.size()
+ *		@arg @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
+ *
+ *  @par Exception safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -251,8 +314,16 @@ Vector<T, S>& Vector<T, S>::operator+=(const Vector<T2, S2>& iB)
 
 
 /** subtract storage/expression vector from this (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: basic guarentee.
+ *
+ *  @pre 
+ *		@arg this->size() == iB.size()
+ *		@arg @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
+ *
+ *  @par Exception safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -270,8 +341,16 @@ Vector<T, S>& Vector<T, S>::operator-=(const Vector<T2, S2>& iB)
 
 
 /** multiply storage/expression vector with this (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: basic guarentee.
+ *
+ *  @pre 
+ *		@arg this->size() == iB.size()
+ *		@arg @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
+ *
+ *  @par Exception safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -289,8 +368,16 @@ Vector<T, S>& Vector<T, S>::operator*=(const Vector<T2, S2>& iB)
 
 
 /** divide this by storage/expression vector (this should be a storage vector).
- *  This vector should be an lvalue which means it should be a storage vector.
- *  Exception safety: basic guarentee.
+ *
+ *  @pre 
+ *		@arg this->size() == iB.size()
+ *		@arg @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
+ *
+ *  @par Exception safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -308,6 +395,11 @@ Vector<T, S>& Vector<T, S>::operator/=(const Vector<T2, S2>& iB)
 
 
 /** add @a iB to all components
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename T2>
@@ -324,6 +416,11 @@ Vector<T, S>& Vector<T, S>::operator+=(const T2& iB)
 
 
 /** subtract @a iB from all components
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename T2>
@@ -340,6 +437,11 @@ Vector<T, S>& Vector<T, S>::operator-=(const T2& iB)
 
 
 /** multiply all components with @a iB.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename T2>
@@ -356,6 +458,11 @@ Vector<T, S>& Vector<T, S>::operator*=(const T2& iB)
 
 
 /** divide all components by @a iB.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename T2>
@@ -370,8 +477,13 @@ Vector<T, S>& Vector<T, S>::operator/=(const T2& iB)
 }
 
 
-/**
- *  Exception safety: nofail.
+/** return true if vector contains no dataa at all
+ *
+ *  @par Complexity: 
+ *		O(1)
+ *
+ *  @par Exception safety: 
+ *		nofail.
  */
 template <typename T, typename S> inline
 const bool Vector<T, S>::isEmpty() const
@@ -382,6 +494,9 @@ const bool Vector<T, S>::isEmpty() const
 
 
 /** Return true if all the components are (exactly!) zero
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const bool Vector<T, S>::isZero() const
@@ -402,6 +517,9 @@ const bool Vector<T, S>::isZero() const
 
 
 /** Return sum of all components of vector.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const typename Vector<T, S>::TValue
@@ -419,7 +537,9 @@ Vector<T, S>::sum() const
 
 
 /** Return minimum of all components of vector.
- *  O(N).
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const typename Vector<T, S>::TValue
@@ -441,7 +561,9 @@ Vector<T, S>::min() const
 
 
 /** Return maximum of all components of vector.
- *  O(N).
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const typename Vector<T, S>::TValue
@@ -464,6 +586,9 @@ Vector<T, S>::max() const
 
 /** Return squared norm of vector.
  *  @return dot(*this, *this)
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const typename Vector<T, S>::TValue
@@ -482,6 +607,9 @@ Vector<T, S>::squaredNorm() const
 
 /** Return norm of vector.
  *  @return sqrt(this->squaredNorm())
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const typename Vector<T, S>::TValue
@@ -494,11 +622,14 @@ Vector<T, S>::norm() const
 
 /** return a unit vector with same direction/sense as this vector.
  *
- * <i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
- * It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
- * http://mathworld.wolfram.com/dimension_ormalizedVector.html.
+ *	<i>The normalized vector of <b>X</b> is a vector in the same direction but with norm (length) 1.
+ *	It is denoted <b>X^</b> and given by <b>X^</b> = <b>X</b> / |<b>X</b>|</i>,
+ *	http://mathworld.wolfram.com/dimension_ormalizedVector.html.
  *
- * @return *this / this->norm()
+ *	@return *this / this->norm()
+ *
+ *	@par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
@@ -512,6 +643,9 @@ Vector<T, S>::normal() const
 
 
 /** return a vector with each component being the reciprocal value of this vector.
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VRec<T, S> >
@@ -524,6 +658,11 @@ Vector<T, S>::reciprocal() const
 
 
 /** Project vector on this one
+ *
+ *  @pre this->size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename S2>
@@ -539,6 +678,11 @@ Vector<T, S>::project(const Vector<T, S2>& iB) const
 
 
 /** Project vector on this one
+ *
+ *  @pre this->size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 template <typename S2>
@@ -551,6 +695,11 @@ Vector<T, S>::reject(const Vector<T, S2>& iB) const
 
 
 /** Normalize vector.
+ *
+ *  @pre @c this must be an l-value.
+ *
+ *  @par Complexity: 
+ *		O(this->size())
  */
 template <typename T, typename S>
 void Vector<T, S>::normalize()
@@ -578,7 +727,15 @@ Vector<T, S>::storage()
 
 
 
-/** VECTOR MUST HAVE REAL STORAGE
+/** swap storage of two vectors
+ *
+ *  @pre @c this and @ a iOther must be l-values
+ *
+ *  @par Complexity: 
+ *		O(1)
+ *
+ *  @par Exception safety: 
+ *		no-fail
  */
 template <typename T, typename S>
 void Vector<T, S>::swap(Vector<T, S>& iOther)
@@ -597,6 +754,9 @@ void Vector<T, S>::swap(Vector<T, S>& iOther)
 
 
 /** @relates lass::prim::Vector
+ *
+ *  @par Complexity: 
+ *		O(iA->size())
  */
 template <typename T, typename S1, typename S2>
 bool operator==(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
@@ -621,6 +781,9 @@ bool operator==(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 
 /** @relates lass::prim::Vector
+ *
+ *  @par Complexity: 
+ *		O(iA.size())
  */
 template <typename T, typename S1, typename S2>
 bool operator!=(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
@@ -632,6 +795,11 @@ bool operator!=(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 /** dot product.
  *  @relates lass::num::Vector
+ *
+ *  @pre iA.size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(iA.size())
  */
 template <typename T, typename S1, typename S2>
 const T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
@@ -652,6 +820,11 @@ const T dot(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 /** componentwise addition
  *  @relates lass::num::Vector
+ *
+ *  @pre iA.size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Vector<T, impl::VAdd<T, S1, S2> >
@@ -664,8 +837,13 @@ operator+(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 
 
-/** componentwise addition
+/** componentwise subtraction
  *  @relates lass::num::Vector
+ *
+ *  @pre iA.size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Vector<T, impl::VSub<T, S1, S2> >
@@ -680,6 +858,11 @@ operator-(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 /** componentwise multiplication
  *  @relates lass::num::Vector
+ *
+ *  @pre iA.size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Vector<T, impl::VMul<T, S1, S2> >
@@ -694,6 +877,11 @@ operator*(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 /** componentwise division
  *  @relates lass::num::Vector
+ *
+ *  @pre iA.size() == iB.size()
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Vector<T, impl::VDiv<T, S1, S2> >
@@ -708,6 +896,9 @@ operator/(const Vector<T, S1>& iA, const Vector<T, S2>& iB)
 
 /** add @a iA to all components of @a iB
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VAdd<T, impl::VScalar<T>, S> >
@@ -721,6 +912,9 @@ operator+(const T& iA, const Vector<T, S>& iB)
 
 /** add @a iA to all negated components of @a iB
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VSub<T, impl::VScalar<T>, S> >
@@ -734,6 +928,9 @@ operator-(const T& iA, const Vector<T, S>& iB)
 
 /** multiply @a iA with all components of @a iB
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VMul<T, impl::VScalar<T>, S> >
@@ -747,6 +944,9 @@ operator*(const T& iA, const Vector<T, S>& iB)
 
 /** multiply @a iA with all reciprocal components of @a iB
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VDiv<T, impl::VScalar<T>, S> >
@@ -760,6 +960,9 @@ operator/(const T& iA, const Vector<T, S>& iB)
 
 /** add @a iB to all components of @a iA
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VAdd<T, S, impl::VScalar<T> > >
@@ -773,6 +976,9 @@ operator+(const Vector<T, S>& iA, const T& iB)
 
 /** subtract @a iB from all components of @a iA
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VSub<T, S, impl::VScalar<T> > >
@@ -786,6 +992,9 @@ operator-(const Vector<T, S>& iA, const T& iB)
 
 /** multiply all components of @a iA with @a iB.
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VMul<T, S, impl::VScalar<T> > >
@@ -799,6 +1008,9 @@ operator*(const Vector<T, S>& iA, const T& iB)
 
 /** multiply all components of @a iA with @a iB.
  *  @relates lass::num::Vector
+ *
+ *  @par Complexity: 
+ *		O(1)
  */
 template <typename T, typename S>
 const Vector<T, impl::VDiv<T, S, impl::VScalar<T> > >
@@ -811,6 +1023,9 @@ operator/(const Vector<T, S>& iA, const T& iB)
 
 
 /** @relates lass::prim::Vector
+ *
+ *  @par Complexity: 
+ *		O(iB.size())
  */
 template <typename T, typename S, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&

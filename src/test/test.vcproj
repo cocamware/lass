@@ -168,7 +168,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_intel700_d/lass_test_win32_intel700_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_intel700_d/test.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -257,7 +257,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71_d/lass_test_win32_vc71_d.exe&quot; /INCREMENTAL /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /SUBSYSTEM:CONSOLE /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 
@@ -357,7 +357,7 @@
 				TargetMachine="1"
 				AdditionalOptions="">
 				<IntelOptions 
-					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;C:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+					AllOptions="/NOLOGO /OUT:&quot;win32_vc71/lass_test_win32_vc71.exe&quot; /INCREMENTAL:NO /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\\..\lib&quot; /DEBUG /PDB:&quot;win32_vc71/test.pdb&quot; /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 					MSOriginalAdditionalOptions=""/>
 			</Tool>
 			<Tool 

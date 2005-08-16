@@ -187,7 +187,8 @@ namespace lass
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 		fromPySharedPtrCast(PyObject* iObj)
 		{
-			LASS_ASSERT( PyType_IsSubtype(iObj->ob_type, &T::Type) );
+			// TODO: think of a way to assert this without breaking for T == PyObject [Bramz]
+			// LASS_ASSERT( PyType_IsSubtype(iObj->ob_type, &T::Type) );
 			Py_INCREF(iObj);
 			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
 		}

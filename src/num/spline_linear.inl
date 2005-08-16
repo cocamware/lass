@@ -40,6 +40,30 @@ namespace num
 // --- public --------------------------------------------------------------------------------------
 
 template <typename S, typename D, typename T>
+SplineLinear<S, D, T>::SplineLinear()
+{
+}
+
+
+
+/** construct a spline with a range of nodes.
+ *
+ *  Each node consists of a control value and a data value.  You must provide the control
+ *  and data values in seperate ranges.  The control values are passed by a pair of iterators
+ *  [iFirstControl , iLastControl).  Of the range of the data values, only the iterator
+ *  iFirstData to the the first element is given.
+ *
+ *  @pre
+ *  @arg [iFirstControl, iLastControl) is a valid range.
+ *  @arg [iFirstData, iFirstData + (iLastControl - iFirstControl)) is a valid range.
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
+template <typename S, typename D, typename T>
 template <typename ScalarInputIterator, typename DataInputIterator>
 SplineLinear<S, D, T>::SplineLinear(ScalarInputIterator iFirstControl, 
 									ScalarInputIterator iLastControl,
@@ -57,10 +81,22 @@ SplineLinear<S, D, T>::SplineLinear(ScalarInputIterator iFirstControl,
 
 
 
+/** Get the linear interpolated data value that corresponds with constrol value @a iX.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 typename const SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::operator ()(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	const TNodes::const_iterator n = findNode(iX);
 	const TScalar dx = iX - n->x;
 
@@ -71,19 +107,50 @@ SplineLinear<S, D, T>::operator ()(TScalar iX) const
 
 
 
+/** Get the first derivative of data value that corresponds with constrol value @a iX.
+ *
+ *  As long as @a iX is exact on a node, it equals to lim_{dx->0} (*this(iX + dx) - *this(iX)) / dx.
+ *  With linear splines, in theory the first derivative does not exist on the nodes.  This
+ *  function however will return the first derivative on the right of the node. *  
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 typename const SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::derivative(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	return findNode(iX)->dy;
 }
 
 
 
+/** Get the second derivative of data value that corresponds with constrol value @a iX.
+ *
+ *  For a linear spline, the second derivative is always zero, except on the nodes where it
+ *  does not exist.  This function however will always return zero, even on the nodes.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
 template <typename S, typename D, typename T>
 typename const SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::derivative2(TScalar iX) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	TData result;
 	TDataTraits::zero(result, dataDimension_);
 	return result;
@@ -91,10 +158,23 @@ SplineLinear<S, D, T>::derivative2(TScalar iX) const
 
 
 
+/** Get the integrated data value between control points @a iA and @a iB.
+ *
+ *  @pre this->isEmpty() == false
+ *
+ *  @par complexity: 
+ *		O(D * M * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg M = number of nodes between @a iA and @a iB.
+ *		@arg N = total number of nodes in spline
+ */
 template <typename S, typename D, typename T>
 typename const SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 {
+	LASS_ASSERT(!isEmpty());
+
 	TNodeConstIterator first = findNode(iBegin);
 	TNodeConstIterator last = findNode(iEnd);
 	if (first == last)
@@ -140,6 +220,17 @@ SplineLinear<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 	}
 }
 
+
+
+/** return true if the spline contains any nodes at all.
+ *  @par complexity: 
+ *		O(1)
+ */
+template <typename S, typename D, typename T>
+const bool SplineLinear<S, D, T>::isEmpty() const
+{
+	return nodes_.empty();
+}
 
 
 

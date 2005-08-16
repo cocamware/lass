@@ -53,7 +53,9 @@ namespace num
 // --- public --------------------------------------------------------------------------------------
 
 /** constructs an empty matrix
- *  Exception safety: strong guarentee.
+ *
+ *  @par Exception Safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 Matrix<T, S>::Matrix():
@@ -70,7 +72,12 @@ Matrix<T, S>::Matrix():
  *  By default both @a iRows and @a iColumns are zero, what creates an empty matrix.
  *  Not very usefull though, except as place holder.  So, it's safe to pass
  *  zero as arguments, but you shouldn't pass negative values.
- *  Exception safety: strong guarentee.
+ *
+ *  @par Complexity:
+ *		O(iRows * iColumns)
+ *
+ *  @par Exception Safety: 
+ *		strong guarentee.
  */
 template <typename T, typename S>
 Matrix<T, S>::Matrix(TSize iRows, TSize iColumns):
@@ -89,8 +96,14 @@ Matrix<T, S>::Matrix(const TStorage& iStorage):
 
 
 /** assign storage/expression matrix to this (this should be a storage matrix).
- *  THIS MUST BE LVALUE (storage matrix).
- *  Exception safety: basic guarentee.
+ *
+ *  @pre @c this must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(iOther.rows() * iOther.columns())
+ *
+ *  @par Exception Safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -114,8 +127,14 @@ Matrix<T, S>::Matrix(const Matrix<T2, S2>& iOther):
 
 
 /** assign storage/expression matrix to this (this should be a storage matrix).
- *  THIS MUST BE LVALUE (storage matrix).
- *  Exception safety: basic guarentee.
+ *
+ *  @pre @c this must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(iOther.rows() * iOther.columns())
+ *
+ *  @par Exception Safety: 
+ *		basic guarentee.
  */
 template <typename T, typename S>
 template <typename T2, typename S2>
@@ -140,7 +159,14 @@ Matrix<T, S>& Matrix<T, S>::operator=(const Matrix<T2, S2>& iOther)
 
 
 /** return number of rows in matrix.
- *  should never return be a negative value.
+ *
+ *  @post should never return be a negative value.
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S> inline
 const typename Matrix<T, S>::TSize
@@ -152,7 +178,14 @@ Matrix<T, S>::rows() const
 
 
 /** return number of columns in matrix.
- *  should never return be a negative value.
+ *
+ *  @post should never return be a negative value.
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S> inline
 const typename Matrix<T, S>::TSize
@@ -164,7 +197,8 @@ Matrix<T, S>::columns() const
 
 
 /** return the component value at position (iRow, iColumn)
- *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
+ *
+ *  @pre (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
  *  you're asking for trouble.
  */
 template <typename T, typename S> inline
@@ -178,9 +212,11 @@ Matrix<T, S>::operator()(TSize iRow, TSize iColumn) const
 
 
 /** access the component value at position (iRow, iColumn)
- *  (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
+ *
+ *  @pre (iRow, iColumn) shouldn't be out of the range [0, this->rows()) x [0, this->columns()], unless
  *  you're asking for trouble.
- *  THIS MUST BE LVALUE (storage matrix).
+ *
+ *  @pre @c this must be an l-value (storage matrix).
  */
 template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
@@ -209,7 +245,8 @@ Matrix<T, S>::at(TSize iRow, TSize iColumn) const
 /** access the component value at position (iRow, iColumn)
  *  (iRow, iColumn) will be wrapped to range [0, this->rows()) x [0, this->columns()] by using a
  *  modulus operator
- *  THIS MUST BE LVALUE (storage matrix).
+ *
+ *  @pre @c this must be an l-value (storage matrix).
  */
 template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
@@ -272,6 +309,12 @@ Matrix<T, S>::column(TSize iColumn)
 
 
 /** A weird way to get back the same object
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S> inline
 const Matrix<T, S>& Matrix<T, S>::operator+() const
@@ -283,6 +326,12 @@ const Matrix<T, S>& Matrix<T, S>::operator+() const
 
 /** return a vector with all components negated
  *  (-a)(i, j) == -(a(i, j)).
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S>
 const Matrix<T, impl::MNeg<T, S> >
@@ -304,7 +353,10 @@ Matrix<T, S>::operator-() const
  *  This method implements the assignment addition what reduces to @n Aij+=Bij over all @n i and
  *  @n j.
  *
- *  THIS MUST BE LVALUE (storage matrix).
+ *  @pre @c this must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  *
  *  @throw an exception is thrown if @a *this and @a iB are not of the same dimensions
  */
@@ -334,7 +386,10 @@ Matrix<T, S>& Matrix<T, S>::operator+=(const Matrix<T, S2>& iB)
  *
  *  @sa Matrix<T>::operator+=
  *
- *  THIS MUST BE LVALUE (storage matrix).
+ *  @pre @c this must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  *
  *  @throw an exception is thrown if @a *this and @a iB are not of the same dimensions
  */
@@ -360,7 +415,11 @@ Matrix<T, S>& Matrix<T, S>::operator-=(const Matrix<T, S2>& iB)
 
 
 /** scalar multiplication assignment of matrix
- *  THIS MUST BE LVALUE (storage matrix).
+ *
+ *  @pre @c this must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator*=(TParam iB)
@@ -382,7 +441,8 @@ Matrix<T, S>& Matrix<T, S>::operator*=(TParam iB)
 
 
 /** scalar multiplication assignment of matrix
- *  THIS MUST BE LVALUE (storage matrix).
+ *
+ *  @pre @c this must be an l-value (storage matrix).
  */
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator /=(TParam iB)
@@ -403,8 +463,12 @@ Matrix<T, S>& Matrix<T, S>::operator /=(TParam iB)
 
 
 /** set this to a zero matrix of @a iRows rows and @a iColumns columns.
- *  this should be of storage type.
  *  @sa Matrix<T>::isZero
+ *
+ *  @pre this should be an lvalue
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 void Matrix<T, S>::setZero(TSize iRows, TSize iColumns)
@@ -424,6 +488,11 @@ void Matrix<T, S>::setZero(TSize iRows, TSize iColumns)
 
 /** set matrix to an identity matrix of size @a iSize.
  *  @sa Matrix<T>::isIdentity
+ *
+ *  @pre this should be an lvalue
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 void Matrix<T, S>::setIdentity(TSize iSize)
@@ -442,6 +511,12 @@ void Matrix<T, S>::setIdentity(TSize iSize)
 
 
 /** return true if this is a (0×0) matrix
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S>
 bool Matrix<T, S>::isEmpty() const
@@ -458,6 +533,9 @@ bool Matrix<T, S>::isEmpty() const
  *  http://mathworld.wolfram.com/ZeroMatrix.html
  *
  *  an empty matrix is also a zero matrix.
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 bool Matrix<T, S>::isZero() const
@@ -490,6 +568,9 @@ bool Matrix<T, S>::isZero() const
  *  http://mathworld.wolfram.com/IdentityMatrix.html
  *
  *  an empty matrix is also an identity matrix.
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 bool Matrix<T, S>::isIdentity() const
@@ -523,6 +604,9 @@ bool Matrix<T, S>::isIdentity() const
  *  http://mathworld.wolfram.com/DiagonalMatrix.html
  *
  *  @note both square zero matrices and identity matrices will yield true on this one.
+ *
+ *  @par Complexity:
+ *		O(this->rows() * this->columns())
  */
 template <typename T, typename S>
 bool Matrix<T, S>::isDiagonal() const
@@ -548,6 +632,11 @@ bool Matrix<T, S>::isDiagonal() const
 
 
 
+/** return true if matrix has as many rows as columns
+ *
+ *  @par Complexity:
+ *		O(1)
+ */
 template <typename T, typename S>
 bool Matrix<T, S>::isSquare() const
 {
@@ -557,6 +646,9 @@ bool Matrix<T, S>::isSquare() const
 
 
 /** return transposed matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MTrans<T, S> >
@@ -573,7 +665,7 @@ Matrix<T, S>::transpose() const
  *  If matrix has no inverse (this is singular), no exception is thrown.  Instead, an empty matrix
  *  is made.
  *
- *  THIS MUST BE LVALUE (storage matrix).
+ *  @pre @c this must be an l-value (storage matrix).
  *
  *  @result true if succeeded, false if not.
  *  @throw an exception is thrown if this is not a square matrix
@@ -625,7 +717,14 @@ Matrix<T, S>::storage()
 
 
 /** swap two matrices
- *  THEY BOTH MUST BE LVALUE (storage matrix).
+ *
+ *  @pre @c this and @a iOther must be an l-value (storage matrix).
+ *
+ *  @par Complexity:
+ *		O(1)
+ *
+ *  @par Exception safety:
+ *		no-fail
  */
 template <typename T, typename S> inline
 void Matrix<T, S>::swap(Matrix<T, S>& iOther)
@@ -647,6 +746,9 @@ void Matrix<T, S>::swap(Matrix<T, S>& iOther)
 // --- free ----------------------------------------------------------------------------------------
 
 /** @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(iA.rows() * iA.columns())
  */
 template <typename T, typename S1, typename S2>
 bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
@@ -674,6 +776,9 @@ bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 
 
 /** @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(iA.rows() * iA.columns())
  */
 template <typename T, typename S1, typename S2>
 bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
@@ -685,6 +790,9 @@ bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 
 /** componentwise addition
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Matrix<T, impl::MAdd<T, S1, S2> >
@@ -699,6 +807,9 @@ operator+(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 
 /** componentwise addition
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Matrix<T, impl::MSub<T, S1, S2> >
@@ -724,6 +835,9 @@ operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
  *
  *  @throw an exception is throw in @a iA and @a iB don't meet the requirement
  *         @n iA.columns()==iB.rows() .
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S1, typename S2>
 const Matrix<T, impl::MProd<T, S1, S2> >
@@ -738,6 +852,9 @@ operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB)
 
 /** add @a iA to all components of @a iB
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> >
@@ -752,6 +869,9 @@ operator+(const T& iA, const Matrix<T, S>& iB)
 
 /** add @a iA to all negated components of @a iB
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> >
@@ -766,6 +886,9 @@ operator-(const T& iA, const Matrix<T, S>& iB)
 
 /** multiply @a iA with all components of @a iB
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> >
@@ -780,6 +903,9 @@ operator*(const T& iA, const Matrix<T, S>& iB)
 
 /** add @a iB to all components of @a iA
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
@@ -794,6 +920,9 @@ operator+(const Matrix<T, S>& iA, const T& iB)
 
 /** subtract @a iB from all components of @a iA
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
@@ -808,6 +937,9 @@ operator-(const Matrix<T, S>& iA, const T& iB)
 
 /** multiply all components of @a iA with @a iB.
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
@@ -822,6 +954,9 @@ operator*(const Matrix<T, S>& iA, const T& iB)
 
 /** divide all components of @a iA by @a iB.
  *  @relates lass::num::Matrix
+ *
+ *  @par Complexity:
+ *		O(1)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
@@ -836,7 +971,7 @@ operator/(const Matrix<T, S>& iA, const T& iB)
 
 /** solve equation A * X = B
  *
- *  @a ioB MUST BE LVALUE (storage matrix).
+ *  @pre @a ioB must be an l-value (storage matrix).
  *
  *  @relates lass::num::Matrix
  *  @return true if solution is found, false if set has no solution.
