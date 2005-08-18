@@ -104,12 +104,21 @@ namespace lass
 			}
 		}
 
+		/** @ingroup Python
+		 *  build a copy of a std::complex as a Python complex number
+		 *  @note you build a COPY of the std::complex, not a reference to it!
+		 */
 		template<class C>
 		PyObject* pyBuildSimpleObject( const std::complex<C>& iV )
 		{
 			PyObject* newComplex = PyComplex_FromDoubles(iV.real(),iV.imag());
 			return newComplex;
 		}
+
+		/** @ingroup Python
+		 *  build a copy of a std::pair as a Python tuple
+		 *  @note you build a COPY of the std::pair, not a reference to it!
+		 */
 		template<class C1, class C2>
 		PyObject* pyBuildSimpleObject( const std::pair<C1, C2>& iV )
 		{
@@ -118,6 +127,11 @@ namespace lass
 			PyTuple_SetItem( newTuple, 1, pyBuildSimpleObject( iV.second ) );
 			return newTuple;
 		}
+
+		/** @ingroup Python
+		 *  build a copy of a std::vector as a Python tuple
+		 *  @note you build a COPY of the std::vector, not a reference to it!
+		 */
 		template<class C, typename A>
 		PyObject* pyBuildSimpleObject( const std::vector<C, A>& iV )
 		{
@@ -128,6 +142,11 @@ namespace lass
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
 			return newTuple;
 		}
+
+		/** @ingroup Python
+		 *  build a copy of a std::list as a Python tuple
+		 *  @note you build a COPY of the std::list, not a reference to it!
+		 */
 		template<class C, typename A>
 		PyObject* pyBuildSimpleObject( const std::list<C, A>& iV )
 		{
@@ -139,6 +158,11 @@ namespace lass
 				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( *it ) );
 			return newTuple;
 		}
+
+		/** @ingroup Python
+		 *  build a copy of a std::map as a Python dictionary
+		 *  @note you build a COPY of the std::map, not a reference to it!
+		 */
 		template<class K, class V, typename P, typename A>
 		PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
 		{
@@ -151,6 +175,10 @@ namespace lass
 			return newDict;
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python complex number as a std::complex.
+		 *  @note you get a COPY of the complex number, not the original number itself!
+		 */
 		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
@@ -163,6 +191,10 @@ namespace lass
 			return 0;
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python sequence of two elements as a std::pair.
+		 *  @note you get a COPY of the sequence, not the original sequence itself!
+		 */
 		template<class C1, class C2>
 		int pyGetSimpleObject( PyObject* iValue, std::pair<C1, C2>& oV )
 		{
@@ -186,18 +218,30 @@ namespace lass
 			return 0;
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python sequence as a std::vector.
+		 *  @note you get a COPY of the sequence, not the original sequence itself!
+		 */
 		template<class C, typename A>
 		int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python sequence as a std::list.
+		 *  @note you get a COPY of the sequence, not the original sequence itself!
+		 */
 		template<class C, typename A>
 		int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
 		{
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python Dictionary as a std::map.
+		 *  @note you get a COPY of the dictionary, not the original dictionary itself!
+		 */
 		template<class K, class D, typename P, typename A>
 		int pyGetSimpleObject( PyObject* iValue, std::map<K, D, P, A>& oV )
 		{
@@ -231,6 +275,18 @@ namespace lass
 
 			oV.swap(result);
 			return 0;
+		}
+
+		/** @ingroup Python
+		*  get value of a python object by the name of the python object rather than the pointer
+		*/
+		template <typename T>
+		int pyGetSimpleObjectByName(const std::string& iName, T& oV)
+		{
+			PyObject* module = PyImport_AddModule("__main__");
+			PyObject* dict = PyModule_GetDict(module);
+			PyObject* temp = PyDict_GetItemString(dict, iName.c_str());
+			return python::pyGetSimpleObject(temp, oV);
 		}
 	}
 }
