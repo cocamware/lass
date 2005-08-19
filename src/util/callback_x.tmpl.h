@@ -65,12 +65,16 @@ namespace util
 // THE CALLBACK:
 // This is the actuall class you use to hold callbacks:
 
-template<$(typename P$x)$>
+template
+<
+	$(typename P$x)$
+>
 class Callback$x
 {
 public:
 
-	typedef SharedPtr< impl::Dispatcher$x<$(P$x)$> > TDispatcher;
+	typedef Callback$x<$(P$x)$> TSelf;
+	typedef SharedPtr< impl::Dispatcher$x<$(P$x)$> > TDispatcherPtr;
 
 	// STRUCTORS
 
@@ -82,45 +86,24 @@ public:
 
 	/** Construct function callback
 	 */
-	template<$(typename Q$x)$>
-	explicit Callback$x(void (*iFunction)($(Q$x)$))
+	template <typename FunctionType>
+	explicit Callback$x(FunctionType iFunction)
 	{
-		if (iFunction)
-		{
-			TDispatcher temp(new impl::Dispatcher$xFunction<$(P$x)$, $(Q$x)$>(iFunction));
-			dispatcher_ = temp;
-		}
+		dispatcher_ = TDispatcherPtr(new impl::Dispatcher$xFunction<$(P$x)$, FunctionType>(iFunction));
 	}
 
 	/** Construct object/method callback.
 	 */
-	template<class Object, $(typename Q$x)$>
-	Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$))
+	template <typename ObjectPtr, typename Method>
+	Callback$x(ObjectPtr iObject, Method iMethod)
 	{
-		if (iObject && iMethod)
-		{
-			TDispatcher temp(new impl::Dispatcher$xMethod<Object, $(P$x)$, $(Q$x)$>(iObject, iMethod));
-			dispatcher_ = temp;
-		}
+		dispatcher_ = TDispatcherPtr(new impl::Dispatcher$xMethod<$(P$x)$, ObjectPtr, Method>(iObject, iMethod));
 	}
 
-	/** Construct object/method callback with const method.
+	/** copy constructor
 	 */
-	template<class Object, $(typename Q$x)$>
-	Callback$x(Object* iObject, void (Object::*iMethod)($(Q$x)$) const)
-	{
-		if (iObject && iMethod)
-		{
-			TDispatcher temp(new impl::Dispatcher$xConstMethod<Object, $(P$x)$, $(Q$x)$>(iObject, iMethod));
-			dispatcher_ = temp;
-		}
-	}
-
-	/** @internal
-	 *  Construct from dispatcher, implementation detail
-	 */
-	Callback$x(const TDispatcher& iDispatcher):
-		dispatcher_(iDispatcher)
+	Callback$x(const TSelf& iOther):
+		dispatcher_(iOther.dispatcher_)
 	{
 	}
 
@@ -128,13 +111,23 @@ public:
 
 	// OPERATORS
 
+	/** assignment operator
+	 */
+	template <typename Other>
+	TSelf& operator=(const Other& iOther)
+	{
+		TSelf temp(iOther);
+		swap(temp);
+		return *this;
+	}
+
 	/** THE operator.  Executes the callback.
 	 */
 	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		if (!isEmpty())
 		{
-			(*dispatcher_)($(iP$x)$);
+			dispatcher_->call($(iP$x)$);
 		}
 	}
 
@@ -171,15 +164,48 @@ public:
 
 	/** Swaps the dispatcher of this callback with the dispatcher of another.
 	 */
-	void swap(Callback$x<$(P$x)$>& iOther)
+	void swap(TSelf& iOther)
 	{
 		dispatcher_.swap(iOther.dispatcher_);
 	}
 
 private:
 
-	TDispatcher dispatcher_;
+	TDispatcherPtr dispatcher_;
 };
+
+
+
+/** make a Callback$x from a function
+ *  @relates Callback$x
+ */
+template <$(typename P$x)$>
+Callback$x<$(P$x)$> makeCallback(void (*iFunction)($(P$x)$))
+{
+	return Callback$x<$(P$x)$>(iFunction);
+}
+
+
+
+/** make a Callback$x from a object and method
+ *  @relates Callback$x
+ */
+template <typename ObjectPtr, typename Object, $(typename P$x)$>
+Callback$x<$(P$x)$> makeCallback(ObjectPtr iObject, void (Object::*iMethod)($(P$x)$))
+{
+	return Callback$x<$(P$x)$>(iObject, iMethod);
+}
+
+
+
+/** make a Callback$x from a object and const method
+ *  @relates Callback$x
+ */
+template <typename ObjectPtr, typename Object, $(typename P$x)$>
+Callback$x<$(P$x)$> makeCallback(ObjectPtr iObject, void (Object::*iMethod)($(P$x)$) const)
+{
+	return Callback$x<$(P$x)$>(iObject, iMethod);
+}
 
 
 

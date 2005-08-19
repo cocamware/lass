@@ -47,45 +47,55 @@ class Dispatcher0: public SmallObject<>
 public:
 
 	Dispatcher0() {}
-	virtual void operator()() const = 0;
-	virtual bool isEquivalent(const Dispatcher0* iOther) const = 0;
+	void call() const { doCall(); }
+	bool isEquivalent(const Dispatcher0* iOther) const { return doIsEquivalent(iOther); }
 
 private:
+
+	virtual void doCall() const = 0;
+	virtual bool doIsEquivalent(const Dispatcher0* iOther) const = 0;
+
 	Dispatcher0(const Dispatcher0& iOther);
 	Dispatcher0& operator=(const Dispatcher0& iOther);
 };
 
 
 
-/** Dispatcher for lass::util::Callback0 to a free function:
+/** Dispatcher for lass::util::Callback0 to a fuction or equivalent callable entity.
  *  @internal
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
+template 
+<
+	typename Function
+>
 class Dispatcher0Function: public Dispatcher0
 {
-private:
-
-	typedef void (*TFunction) ();
-	TFunction function_;
-
 public:
 
-	Dispatcher0Function(TFunction iFunction):
+	typedef Dispatcher0Function<Function> TSelf;
+	typedef Function TFunction;
+
+	Dispatcher0Function(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
 	{
 	}
 
-	void operator()() const
+private:
+
+	void doCall() const
 	{
-		(*function_)();
+		function_();
 	}
 
-	bool isEquivalent(const Dispatcher0* iOther) const
+	bool doIsEquivalent(const Dispatcher0* iOther) const
 	{
-		const Dispatcher0Function* other = dynamic_cast<const Dispatcher0Function*>(iOther);
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
 		return other && function_ == other->function_;
 	}
+
+	TFunction function_;
 };
 
 
@@ -95,69 +105,41 @@ public:
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template <class Object>
+template 
+<
+	typename ObjectPtr,
+	typename Method
+>
 class Dispatcher0Method: public Dispatcher0
 {
+public:
+
+	typedef Dispatcher0Method<ObjectPtr, Method> TSelf;
+	typedef ObjectPtr TObjectPtr;
+	typedef Method TMethod;
+
+	Dispatcher0Method(typename CallTraits<TObjectPtr>::TParam iObject, 
+					  typename CallTraits<TMethod>::TParam iMethod):
+		object_(iObject),
+		method_(iMethod)
+	{
+	}
+
 private:
 
-	typedef void (Object::*TMethod) ();
-	Object* object_;
+	void doCall() const
+	{
+		(object_->*method_)();
+	}
+
+	bool doIsEquivalent(const Dispatcher0* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && object_ == other->object_ && method_ == other->method_;
+	}
+
+	TObjectPtr object_;
 	TMethod method_;
-
-public:
-
-	Dispatcher0Method(Object* iObject, TMethod iMethod):
-		object_(iObject),
-		method_(iMethod)
-	{
-	}
-
-	void operator()() const
-	{
-		(object_->*method_)();
-	}
-
-	bool isEquivalent(const Dispatcher0* iOther) const
-	{
-		const Dispatcher0Method* other = dynamic_cast<const Dispatcher0Method*>(iOther);
-		return other && object_ == other->object_ && method_ == other->method_;
-	}
-};
-
-
-
-/** Dispatcher for lass::util::Callback0 to an object/const method pair.
- *  @internal
- *  @sa Callback0
- *  @author Bram de Greve [Bramz]
- */
-template <class Object>
-class Dispatcher0ConstMethod: public Dispatcher0
-{
-private:
-
-	typedef void (Object::*TConstMethod) () const;
-	Object* object_;
-	TConstMethod method_;
-
-public:
-
-	Dispatcher0ConstMethod(Object* iObject, TConstMethod iMethod):
-		object_(iObject),
-		method_(iMethod)
-	{
-	}
-
-	void operator()() const
-	{
-		(object_->*method_)();
-	}
-
-	bool isEquivalent(const Dispatcher0* iOther) const
-	{
-		const Dispatcher0ConstMethod* other = dynamic_cast<const Dispatcher0ConstMethod*>(iOther);
-		return other && object_ == other->object_ && method_ == other->method_;
-	}
 };
 
 

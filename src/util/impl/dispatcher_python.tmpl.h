@@ -61,9 +61,10 @@ namespace impl
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-class Dispatcher0Python: public Dispatcher0
+class Dispatcher0Python
 {
 public:
+
 	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
 
 	Dispatcher0Python(const TPyPtr& iCallable):
@@ -81,10 +82,9 @@ public:
 		}
 	}
 
-	bool isEquivalent(const Dispatcher0* iOther) const
+	bool operator==(const Dispatcher0Python& iOther) const
 	{
-		const Dispatcher0Python* other = dynamic_cast<const Dispatcher0Python*>(iOther);
-		return other && callable_ == other->callable_;
+		return callable_.get() == iOther.callable_.get();
 	}
 
 private:
@@ -106,9 +106,10 @@ $[
  *  @author Bram de Greve [Bramz]
  */
 template <$(typename P$x)$>
-class Dispatcher$xPython: public Dispatcher$x<$(P$x)$>
+class Dispatcher$xPython
 {
 public:
+
 	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
 
 	Dispatcher$xPython(const TPyPtr& iCallable):
@@ -148,9 +149,10 @@ private:
  *  @author Bram de Greve [Bramz]
  */
 template <typename R>
-class DispatcherR0Python: public DispatcherR0<R>
+class DispatcherR0Python
 {
 public:
+
 	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
 
 	DispatcherR0Python(const TPyPtr& iCallable):
@@ -195,9 +197,10 @@ $[
  *  @author Bram de Greve [Bramz]
  */
 template <typename R, $(typename P$x)$>
-class DispatcherR$xPython: public DispatcherR$x<R, $(P$x)$>
+class DispatcherR$xPython
 {
 public:
+
 	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
 
 	DispatcherR$xPython(const TPyPtr& iCallable):

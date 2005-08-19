@@ -39,7 +39,7 @@ namespace impl
 
 /** abstract base class of all dispatchers for lass::util::CallbackR0.
  *  @internal
- *  @sa Callback0
+ *  @sa CallbackR0
  *  @author Bram de Greve [Bramz]
  */
 template
@@ -51,9 +51,12 @@ class DispatcherR0: public SmallObject<>
 public:
 
 	DispatcherR0() {}
-	virtual R operator()() const = 0;
+	R call() const { return doCall(); }
 
 private:
+
+	virtual R doCall() const = 0;
+
 	DispatcherR0(const DispatcherR0<R>& iOther);
 	DispatcherR0& operator=(const DispatcherR0<R>& iOther);
 };
@@ -62,105 +65,69 @@ private:
 
 /** Dispatcher for lass::util::CallbackR0 to a free function:
  *  @internal
- *  @sa Callback0
+ *  @sa CallbackR0
  *  @author Bram de Greve [Bramz]
  */
 template
 <
 	typename R,
-	typename S
+	typename FunctionType
 >
 class DispatcherR0Function: public DispatcherR0<R>
 {
-private:
-
-	typedef S (*TFunction) ();
-	TFunction function_;
-
 public:
 
-	DispatcherR0Function(TFunction iFunction):
+	typedef FunctionType TFunction;
+
+	DispatcherR0Function(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
 	{
 	}
 
-	R operator()() const
+private:
+
+	R doCall() const
 	{
-		return (*function_)();
+		return function_();
 	}
+
+	TFunction function_;
 };
 
 
 
 /** Dispatcher for lass::util::CallbackR0 to an object/method pair.
  *  @internal
- *  @sa Callback0
+ *  @sa CallbackR0
  *  @author Bram de Greve [Bramz]
  */
 template
 <
-	class Object,
 	typename R,
-	typename S
+	typename ObjectPtr,
+	typename Method
 >
 class DispatcherR0Method: public DispatcherR0<R>
 {
-private:
-
-	typedef S (Object::*TMethod) ();
-	Object* object_;
-	TMethod method_;
-
 public:
 
-	DispatcherR0Method(Object* iObject, TMethod iMethod):
+	DispatcherR0Method(typename CallTraits<ObjectPtr>::TParam iObject,
+					   typename CallTraits<Method>::TParam iMethod):
 		object_(iObject),
 		method_(iMethod)
 	{
 	}
 
-	R operator()() const
-	{
-		return (object_->*method_)();
-	}
-};
-
-
-
-/** Dispatcher for lass::util::CallbackR0 to an object/const method pair.
- *  @internal
- *  @sa Callback0
- *  @author Bram de Greve [Bramz]
- */
-template
-<
-	class Object,
-	typename R,
-	typename S
->
-class DispatcherR0ConstMethod: public DispatcherR0<R>
-{
 private:
 
-	typedef S (Object::*TConstMethod) () const;
-	Object* object_;
-	TConstMethod method_;
-
-public:
-
-	DispatcherR0ConstMethod(Object* iObject, TConstMethod iMethod):
-		object_(iObject),
-		method_(iMethod)
-	{
-	}
-
-	R operator()() const
+	R doCall() const
 	{
 		return (object_->*method_)();
 	}
+
+	ObjectPtr object_;
+	Method method_;
 };
-
-
 
 }
 

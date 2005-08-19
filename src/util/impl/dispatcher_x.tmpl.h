@@ -46,15 +46,24 @@ namespace impl
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template <$(typename P$x)$>
+template 
+<
+	$(typename P$x)$
+>
 class Dispatcher$x: public SmallObject<>
 {
 public:
 
 	Dispatcher$x() {}
-	virtual void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const = 0;
+	void call($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	{
+		doCall($(iP$x)$);
+	}
 
 private:
+
+	virtual void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const = 0;
+
 	Dispatcher$x(const Dispatcher$x<$(P$x)$>& iOther);
 	Dispatcher$x& operator=(const Dispatcher$x<$(P$x)$>& iOther);
 };
@@ -66,25 +75,30 @@ private:
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template<$(typename P$x)$, $(typename Q$x)$>
+template
+<
+	$(typename P$x)$, 
+	typename FunctionType
+>
 class Dispatcher$xFunction: public Dispatcher$x<$(P$x)$>
 {
-private:
-
-	typedef void (*TFunction) ($(Q$x)$);
-	TFunction function_;
-
 public:
 
-	Dispatcher$xFunction(TFunction iFunction):
+	typedef FunctionType TFunction;
+
+	Dispatcher$xFunction(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
 	{
 	}
 
-	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+private:
+
+	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
-		(*function_)($(iP$x)$);
+		function_($(iP$x)$);
 	}
+
+	TFunction function_;
 };
 
 
@@ -94,57 +108,31 @@ public:
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-template <class Object, $(typename P$x)$, $(typename Q$x)$>
+template 
+<
+	$(typename P$x)$, 
+	typename ObjectPtr, typename Method
+>
 class Dispatcher$xMethod: public Dispatcher$x<$(P$x)$>
 {
-private:
-
-	typedef void (Object::*TMethod) ($(Q$x)$);
-	Object* object_;
-	TMethod method_;
-
 public:
 
-	Dispatcher$xMethod(Object* iObject, TMethod iMethod):
+	Dispatcher$xMethod(typename CallTraits<ObjectPtr>::TParam iObject,
+					   typename CallTraits<Method>::TParam iMethod):
 		object_(iObject),
 		method_(iMethod)
 	{
 	}
 
-	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
-	{
-		(object_->*method_)($(iP$x)$);
-	}
-};
-
-
-
-/** Dispatcher for lass::util::Callback$x to an object/const method pair.
- *  @internal
- *  @sa Callback0
- *  @author Bram de Greve [Bramz]
- */
-template <class Object, $(typename P$x)$, $(typename Q$x)$>
-class Dispatcher$xConstMethod: public Dispatcher$x<$(P$x)$>
-{
 private:
 
-	typedef void (Object::*TConstMethod) ($(Q$x)$) const;
-	Object* object_;
-	TConstMethod method_;
-
-public:
-
-	Dispatcher$xConstMethod(Object* iObject, TConstMethod iMethod):
-		object_(iObject),
-		method_(iMethod)
-	{
-	}
-
-	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		(object_->*method_)($(iP$x)$);
 	}
+
+	ObjectPtr object_;
+	Method method_;
 };
 
 

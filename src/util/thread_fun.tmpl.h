@@ -110,18 +110,14 @@ private:
 	Callback0 fun_;
 };
 
+template <typename Function>
 ThreadFun0* threadFun(
-	void (*iFun)(),
+	Function iFunction,
 	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj>
-ThreadFun0* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)(),
-	ThreadKind iKind = THREAD_DETACHED);
-
-template <typename Obj>
-ThreadFun0* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)() const,
+template <typename ObjectPtr, typename Method>
+ThreadFun0* threadMemFun(
+	ObjectPtr iObject, Method iMethod,
 	ThreadKind iKind = THREAD_DETACHED);
 
 
@@ -146,26 +142,17 @@ private:
 	typename meta::TypeTraits<P$x>::TStorage p$x_;)$
 };
 
-template <$(typename P$x)$, $(typename Q$x)$>
+template <$(typename P$x)$, typename Function>
 ThreadFun$x<$(P$x)$>* threadFun(
-	void (*iFun)($(P$x)$),
-	$(const Q$x& iQ$x)$,
+	Function iFunction,
+	$(const P$x& iP$x)$,
 	ThreadKind iKind = THREAD_DETACHED);
 
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
-ThreadFun$x<$(P$x)$>* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$),
-	$(const Q$x& iQ$x)$,
+template <$(typename P$x)$, typename ObjectPtr, typename Method>
+ThreadFun$x<$(P$x)$>* threadMemFun(
+	ObjectPtr iObject, Method iMethod,
+	$(const P$x& iP$x)$,
 	ThreadKind iKind = THREAD_DETACHED);
-
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
-ThreadFun$x<$(P$x)$>* threadFun(
-	const Obj& iObj, void (Obj::*iMemFun)($(P$x)$) const,
-	$(const Q$x& iQ$x)$,
-	ThreadKind iKind = THREAD_DETACHED);
-
-
-
 ]$
 
 }

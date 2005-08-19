@@ -574,6 +574,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="call_traits.h">
 			</File>
 			<File 
+				RelativePath=".\callback.tmpl.h">
+			</File>
+			<File 
 				RelativePath="callback_0.h">
 			</File>
 			<File 

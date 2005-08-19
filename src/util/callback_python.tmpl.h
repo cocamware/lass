@@ -58,8 +58,7 @@ inline int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV )
 		PyErr_SetString(PyExc_TypeError, "Callback0: not callable");
 		return 1;
 	}
-	util::Callback0::TDispatcher dispatcher(new util::impl::Dispatcher0Python(callable));
-	oV = util::Callback0(dispatcher);
+	oV = util::impl::Dispatcher0Python(callable);
 	return 0;
 }
 
@@ -90,9 +89,7 @@ int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
 		PyErr_SetString(PyExc_TypeError, "Callback$x: not callable");
 		return 1;
 	}
-	typename util::Callback$x<$(P$x)$>::TDispatcher dispatcher(
-		new util::impl::Dispatcher$xPython<$(P$x)$>(callable));
-	oV = util::Callback$x<$(P$x)$>(dispatcher);
+	oV = util::impl::Dispatcher$xPython<$(P$x)$>(callable);
 	return 0;
 }
 
@@ -123,9 +120,7 @@ int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV )
 		PyErr_SetString(PyExc_TypeError, "CallbackR0: not callable");
 		return 1;
 	}
-	typename util::CallbackR0<R>::TDispatcher dispatcher(
-		new util::impl::DispatcherR0Python<R>(callable));
-	oV = util::CallbackR0<R>(dispatcher);
+	oV = util::impl::DispatcherR0Python<R>(callable);
 	return 0;
 }
 
@@ -156,9 +151,7 @@ inline int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& o
 		PyErr_SetString(PyExc_TypeError, "CallbackR$x: not callable");
 		return 1;
 	}
-	typename util::CallbackR$x<R, $(P$x)$>::TDispatcher dispatcher(
-		new util::impl::DispatcherR$xPython<R, $(P$x)$>(callable));
-	oV = util::CallbackR$x<R, $(P$x)$>(dispatcher);
+	oV = util::impl::DispatcherR$xPython<R, $(P$x)$>(callable);
 	return 0;
 }
 

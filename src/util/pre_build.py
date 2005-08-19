@@ -6,6 +6,7 @@ print 'Code generation ...'
 expandFile('object_factory.tmpl.h', 'object_factory.h', 10)
 expandFile('clone_factory.tmpl.h', 'clone_factory.h', 10)
 
+expandFile('callback.tmpl.h', 'callback.h', 10)
 expandFile('callback_x.tmpl.h', 'callback_$x.h', 10)
 expandFile('callback_r_x.tmpl.h', 'callback_r_$x.h', 10)
 expandFile('callback_python.tmpl.h', 'callback_python.h', 10)

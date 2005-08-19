@@ -62,12 +62,12 @@ void* ThreadFun0::entry()
 /** @relates ThreadFun0
  *  @ingroup ThreadFun
  */
-inline
+template <typename Function>
 ThreadFun0* threadFun(
-	void (*iFun)(),
+	Function iFunction,
 	ThreadKind iKind)
 {
-	ThreadFun0* result = new ThreadFun0(Callback0(iFun), iKind);
+	ThreadFun0* result = new ThreadFun0(Callback0(iFunction), iKind);
 	result->create();
 	result->run();
 	return result;
@@ -78,28 +78,12 @@ ThreadFun0* threadFun(
 /** @relates ThreadFun0
  *  @ingroup ThreadFun
  */
-template <typename Obj>
-ThreadFun0* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)(),
+template <typename ObjectPtr, typename Method>
+ThreadFun0* threadMemFun(
+	ObjectPtr iObject, Method iMethod,
 	ThreadKind iKind)
 {
-	ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
-	result->create();
-	result->run();
-	return result;
-}
-
-
-
-/** @relates ThreadFun0
- *  @ingroup ThreadFun
- */
-template <typename Obj>
-ThreadFun0* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)() const,
-	ThreadKind iKind)
-{
-	ThreadFun0* result = new ThreadFun0(Callback0(iObj, iMemFun), iKind);
+	ThreadFun0* result = new ThreadFun0(Callback0(iObject, iMethod), iKind);
 	result->create();
 	result->run();
 	return result;
@@ -136,14 +120,14 @@ void* ThreadFun$x<$(P$x)$>::entry()
 /** @relates ThreadFun$x
  *  @ingroup ThreadFun
  */
-template <$(typename P$x)$, $(typename Q$x)$>
+template <$(typename P$x)$, typename Function>
 ThreadFun$x<$(P$x)$>* threadFun(
-	void (*iFun)($(P$x)$),
-	$(const Q$x& iQ$x)$,
+	Function iFunction,
+	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
 	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFun), $(iQ$x)$, iKind);
+		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFunction), $(iP$x)$, iKind);
 	result->create();
 	result->run();
 	return result;
@@ -154,32 +138,14 @@ ThreadFun$x<$(P$x)$>* threadFun(
 /** @relates ThreadFun$x
  *  @ingroup ThreadFun
  */
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
-ThreadFun$x<$(P$x)$>* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)($(P$x)$),
-	$(const Q$x& iQ$x)$,
+template <$(typename P$x)$, typename ObjectPtr, typename Method>
+ThreadFun$x<$(P$x)$>* threadMemFun(
+	ObjectPtr iObject, Method iMethod,
+	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
 	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
-	result->create();
-	result->run();
-	return result;
-}
-
-
-
-/** @relates ThreadFun$x
- *  @ingroup ThreadFun
- */
-template <typename Obj, $(typename P$x)$, $(typename Q$x)$>
-ThreadFun$x<$(P$x)$>* threadFun(
-	Obj* iObj, void (Obj::*iMemFun)($(P$x)$) const,
-	$(const Q$x& iQ$x)$,
-	ThreadKind iKind)
-{
-	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObj, iMemFun), $(iQ$x)$, iKind);
+		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
 	result->create();
 	result->run();
 	return result;
