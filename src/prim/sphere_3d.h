@@ -124,6 +124,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iB);
 
 #include "sphere_3d.inl"
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
+#	include "aabb_3d_sphere_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
 #include "ray_3d_sphere_3d.h"
 #endif

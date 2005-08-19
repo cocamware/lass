@@ -248,6 +248,37 @@ const bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
 
 
 
+/** return true when a point is inside or on the edge of a triangle.
+ */
+template <typename T>
+const bool Triangle2D<T>::contains(const TPoint& iP) const
+{
+	return
+		perpDot(vertices_[1] - vertices_[0], iP - vertices_[0]) >= TNumTraits::zero &&
+		perpDot(vertices_[2] - vertices_[1], iP - vertices_[1]) >= TNumTraits::zero &&
+		perpDot(vertices_[0] - vertices_[2], iP - vertices_[2]) >= TNumTraits::zero;
+}
+
+
+
+template <typename T>
+const Side Triangle2D<T>::classify(const TPoint& iP) const
+{
+	return contains(iP) ? sInside : sOutside;
+}
+
+
+
+/** flip orientation of polygon.
+ */
+template <typename T>
+void Triangle2D<T>::flip()
+{
+	std::swap(vertices_[0], vertices_[2]);
+}
+
+
+
 // --- private -------------------------------------------------------------------------------------
 
 /** return if index of vertex is in range of the std::vector

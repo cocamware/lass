@@ -429,7 +429,7 @@ Aabb2D<T, MMP>::random(RandomGenerator& ioGenerator) const
 {
 	LASS_ASSERT(isValid());
 	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
-	const TVector t(uniform(), uniform(), uniform());
+	const TVector t(uniform(), uniform());
 	const TPoint result(min_ + t * (max_ - min_));
 	LASS_ASSERT(contains(result));
 	return result;

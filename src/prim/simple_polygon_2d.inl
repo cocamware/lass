@@ -215,7 +215,8 @@ SimplePolygon2D<T, DP>::signedArea() const
 	}
 
 	TValue result = TNumTraits::zero;
-	const int n = size();
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
 	for (int i = 0; i < n; ++i)
 	{
 		result += perpDot(at(i).position(), at(i + 1).position());
@@ -264,7 +265,8 @@ const typename SimplePolygon2D<T, DP>::TValue
 SimplePolygon2D<T, DP>::perimeter() const
 {
 	TValue result = TNumTraits::zero;
-	const int n = size();
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
 	for (int i = 0; i < n; ++i)
 	{
 		result += distance(at(i), at(i + 1));
@@ -283,8 +285,9 @@ template <typename T, class DP>
 const typename SimplePolygon2D<T, DP>::TPointH
 SimplePolygon2D<T, DP>::center() const
 {
-	TPointH result;;
-	const int n = size();
+	TPointH result;
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
 	for (int i = 0; i < n; ++i)
 	{
 		result += vertices_[i];
@@ -308,7 +311,8 @@ SimplePolygon2D<T, DP>::center() const
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isSimple() const
 {
-	const int n = size();
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
 	if (n < 4)
 	{
 		return true;
@@ -369,7 +373,8 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 	}
 
 	TValue sign = TNumTraits::zero;
-	const int n = size();
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
 	for (int i = 0; i < n; ++i)
 	{
 		const TValue s = num::sign(perpDot(vector(i - 1), vector(i))); // Ax(-B) = BxA

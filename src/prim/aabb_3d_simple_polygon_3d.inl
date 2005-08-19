@@ -23,25 +23,25 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_SIMPLE_POLYGON_2D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_SIMPLE_POLYGON_2D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_SIMPLE_POLYGON_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_SIMPLE_POLYGON_3D_INL
 #pragma once
 
 #include "prim_common.h"
-#include "aabb_2d_simple_polygon_2d.h"
+#include "aabb_3d_simple_polygon_3d.h"
 
 namespace lass
 {
 namespace prim
 {
 
-/** determine axis aligned bounding box of a 2D simple polygon
- *  @relates Aabb2D
+/** determine axis aligned bounding box of a 3D simple polygon
+ *  @relates Aabb3D
  */
-template <typename T, class DegeneratePolicy> 
-Aabb2D<T> aabb(const SimplePolygon2D<T, DegeneratePolicy>& iPolygon)
+template <typename T> 
+Aabb3D<T> aabb(const SimplePolygon3D<T>& iPolygon)
 {
-	Aabb2D<T> result;
+	Aabb3D<T> result;
 	const size_t n = iPolygon.size();
 	for (size_t i = 0; i < n; ++i)
 	{

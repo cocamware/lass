@@ -170,6 +170,18 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb3D<T, MMP>& iAab
 #	include "pyobject_util.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_3D_H
+#	include "aabb_3d_simple_polygon_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
+#	include "aabb_3d_sphere_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRIANGLE_3D_H
+#	include "aabb_3d_triangle_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
 #	include "aabb_3d_transformation_3d.h"
 #endif

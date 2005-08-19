@@ -35,7 +35,8 @@
 
 #include "prim_common.h"
 #include "line_segment_2d.h"
-
+#include "orientation.h"
+#include "side.h"
 
 namespace lass
 {
@@ -92,6 +93,11 @@ public:
 
 	const bool isReflex(int iIndexOfVertex) const;
 
+	const Side classify(const TPoint& iP) const;
+	const bool contains(const TPoint& iP) const;
+
+	void flip();
+
 private:
 
 	const bool isInRange(int iIndexOfVertex) const;
@@ -111,6 +117,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTria
 }
 
 #include "triangle_2d.inl"
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_H
+#	include "aabb_2d_triangle_2d.h"
+#endif
 
 #endif
 
