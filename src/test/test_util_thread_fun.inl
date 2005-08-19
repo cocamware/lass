@@ -63,14 +63,20 @@ void testUtilThreadFun()
 	thread_test::Bar bar;
 
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(&bar, thread_test::Bar::spam, util::THREAD_JOINABLE));
+	thread.reset(util::threadMemFun(&bar, thread_test::Bar::spam, util::THREAD_JOINABLE));
 	thread->wait();
 	BOOST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(&bar, thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
+	thread.reset(util::threadMemFun(&bar, thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
 	thread->wait();
 	BOOST_CHECK(thread_test::functionIsCalled);
+
+	thread_test::functionIsCalled = false;
+	thread.reset(util::threadFun(util::makeCallback(&bar, thread_test::Bar::ham), 3, util::THREAD_JOINABLE));
+	thread->wait();
+	BOOST_CHECK(thread_test::functionIsCalled);
+
 
 	thread_test::functionIsCalled = false;
 	util::threadFun(thread_test::eggs);
