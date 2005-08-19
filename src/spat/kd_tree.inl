@@ -134,6 +134,7 @@ void KdTree<O, OT>::swap(TSelf& iOther)
 	std::swap(end_, iOther.end_);
 	heap_.swap(iOther.heap_);
 	splits_.swap(iOther.splits_);
+	std::swap(size_, iOther.size_);
 }
 
 
