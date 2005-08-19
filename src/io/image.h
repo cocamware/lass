@@ -173,14 +173,14 @@ private:
 
 	enum
 	{
-		magicLass_ = LASS_LITTLE_ENDIAN ? 0x7373616c : 0x6c617373 // "lass" in ascii
+		magicLass_ = LASS_LITTLE_ENDIAN ? 0x7373616c : 0x6c617373 /**< "lass" in ascii */
 	};
 
-
-	// PRIVATE METHODS
-
 	unsigned resize(unsigned iRows, unsigned iCols);
-	unsigned flatIndex(unsigned iRows, unsigned iCols) const { return iRows * cols_ + iCols; }
+	unsigned flatIndex(unsigned iRows, unsigned iCols) const 
+	{ 
+		return iRows * cols_ + iCols;
+	}
 
 	BinaryIStream& openRaw(BinaryIStream& iFile);
 	BinaryIStream& openTarga(BinaryIStream& iFile);
@@ -192,8 +192,6 @@ private:
 	FileFormat findFormat(const std::string& iFormatTag);
 
 	static TFileFormats fillFileFormats();
-
-	// PRIVATE DATA
 
 	unsigned rows_;
 	unsigned cols_;
