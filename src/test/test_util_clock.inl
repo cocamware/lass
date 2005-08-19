@@ -76,7 +76,7 @@ void testUtilClock()
 	LASS_EVAL(dutBegin);
 	LASS_EVAL(dutEnd);
 
-	BOOST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, 100. / CLK_TCK);
+	BOOST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, 100. * (10. / CLK_TCK));
 
 
 	const util::Clock::TTick tick1 = deviceUnderTest.tick();
