@@ -55,10 +55,7 @@ struct QuadTreeTraits< TSimplePolygon2D >
 
 	static TAabb aabb(const TSimplePolygon2D& iP)
 	{
-		TAabb temp;
-		for (size_t i=0;i<iP.size();++i)
-			temp += iP[i];
-		return temp;
+		return prim::aabb(iP);
 	}
 	static bool contains( const TSimplePolygon2D& iP, const TPoint& iPoint)
 	{
@@ -76,10 +73,7 @@ struct QuadTreeTraits< TSimplePolygon3D >
 
 	static TAabb aabb(const TSimplePolygon3D& iP)
 	{
-		TAabb temp;
-		for (size_t i=0;i<iP.size();++i)
-			temp += iP[i];
-		return temp;
+		return prim::aabb(iP);
 	}
 	static bool contains( const TSimplePolygon3D& iP, const TPoint& iPoint)
 	{

@@ -29,6 +29,7 @@
 #include "test_common.h"
 #include "test_spat.h"
 
+#include "test_spat_aabb_tree.inl"
 #include "test_spat_kd_tree.inl"
 #include "test_spat_quad_tree.inl"
 #include "test_spat_planar_mesh.inl"
@@ -43,7 +44,21 @@ boost::unit_test_framework::test_suite* testSpat()
 {
 	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::spat test suite");
 
+	typedef void(*TTestCase)();
+
+	TTestCase aabbTreeFloat2 = testSpatAabbTree<float, 2>;
+	TTestCase aabbTreeFloat3 = testSpatAabbTree<float, 3>;
+	TTestCase aabbTreeDouble2 = testSpatAabbTree<double, 2>;
+	TTestCase aabbTreeDouble3 = testSpatAabbTree<double, 3>;
+	result->add(BOOST_TEST_CASE(aabbTreeFloat2));
+	result->add(BOOST_TEST_CASE(aabbTreeFloat3));
+	result->add(BOOST_TEST_CASE(aabbTreeDouble2));
+	result->add(BOOST_TEST_CASE(aabbTreeDouble3));
+
+	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<float> >));
 	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));
+	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<double> >));
+	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<double> >));
 
 	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
 	result->add(BOOST_TEST_CASE(doTestPlanarMesh));
