@@ -93,10 +93,13 @@ public:
 private:
 
 	TGenerator* generator_;
-	TValue inf_;
-	TValue sup_;
+	TValue infimum_;
+	TValue supremum_;
 	long double scale_;
 };
+
+template <typename T, typename RandomGenerator> 
+T distributeUniform(RandomGenerator& iGenerator, T iMin = T(0), T iMax = T(1));
 
 
 
@@ -131,6 +134,9 @@ private:
 	TValue rateOfChange_;
 };
 
+template <typename T, typename RandomGenerator> 
+T distributeExponential(RandomGenerator& iGenerator, T iRateOfChange = T(1));
+
 
 
 /** @ingroup Distribution
@@ -154,7 +160,7 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;    ///< parameter value type
 
 	DistributionNormal(TGenerator& ioGenerator,
-		TParam iMean = TNumTraits::zero, TParam iStdDev = TNumTraits::one);
+		TParam iMean = TNumTraits::zero, TParam iStandardDeviation = TNumTraits::one);
 
 	TValue operator()() const;
 
@@ -162,10 +168,13 @@ private:
 
 	TGenerator* generator_;
 	TValue mean_;
-	TValue stdDev_;
+	TValue standardDeviation_;
 	mutable TValue gset_;
 	mutable bool iset_;
 };
+
+template <typename T, typename RandomGenerator> 
+T distributeExponential(RandomGenerator& iGenerator, T iMean = T(0), T iStandardDeviation = T(1));
 
 
 
@@ -175,7 +184,6 @@ template<class T,class RG> T uniform(RG& iGenerator);
 template<class T,class RG> T unitGauss(RG& iGenerator);
 template<class T,class RG> T gauss(RG& iGenerator, typename util::CallTraits<T>::TParam iMean,
 								   typename util::CallTraits<T>::TParam iStdDev);
-
 
 }
 

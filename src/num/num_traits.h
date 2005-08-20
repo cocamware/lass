@@ -24,7 +24,6 @@
  */
 
 
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H
 
@@ -43,12 +42,16 @@ struct LASS_DLL NumTraits
 	typedef C   baseType;               /**< is the base type where selfType is based on */
 	typedef C   intervalType;           /**< type of the support, useful for distributions */
 
-	static const bool  isDistribution;  /**< true for distribution like types */
-	static const bool  isIntegral;      /**< true for integral types, ie supporting ++ and -- fi */
-	static const bool  isNative;        /**< true for the native types, ie char, int , ... */
-	static const bool  isSigned;        /**< true for signed types */
-	static const bool  hasInfinity;     /**< true for types having infinity */
-	static const bool  hasNaN;          /**< true for types have the concept of Not a Number */
+	enum
+	{
+		isDistribution = 0,	/**< true for distribution like types */
+		isIntegral = 0,		/**< true for integral types, ie supporting ++ and -- fi */
+		isNative = 0,       /**< true for the native types, ie char, int , ... */
+		isSigned = 0,		/**< true for signed types */
+		hasInfinity = 0,    /**< true for types having infinity */
+		hasNaN = 0,			/**< true for types have the concept of Not a Number */
+	};
+
 	static const int   memorySize;      /**< memory footprint */
 	static const std::string name() { return "unknown"; }   /**< name of the selfType */
 
@@ -91,12 +94,15 @@ struct NumTraits<ttype>\
 	typedef ttype   selfType;\
 	typedef ttype   baseType;\
 	typedef ttype   intervalType;\
-	static const bool  isDistribution;\
-	static const bool  isIntegral;\
-	static const bool  isNative;\
-	static const bool  isSigned;\
-	static const bool  hasInfinity;\
-	static const bool  hasNaN;\
+	enum\
+	{\
+		isDistribution = false,\
+		isIntegral = false,\
+		isNative = true,\
+		isSigned = true,\
+		hasInfinity = true,\
+		hasNaN = true,\
+	};\
 	static const int   memorySize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
@@ -121,12 +127,15 @@ struct NumTraits< ttype >\
 	typedef ttype   selfType;\
 	typedef ttype::value_type   baseType;\
 	typedef ttype   intervalType;\
-	static const bool  isDistribution;\
-	static const bool  isIntegral;\
-	static const bool  isNative;\
-	static const bool  isSigned;\
-	static const bool  hasInfinity;\
-	static const bool  hasNaN;\
+	enum\
+	{\
+		isDistribution = false,\
+		isIntegral = false,\
+		isNative = false,\
+		isSigned = true,\
+		hasInfinity = false,\
+		hasNaN = true,\
+	};\
 	static const int   memorySize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
@@ -137,54 +146,88 @@ struct NumTraits< ttype >\
 	static const ttype sqrtPi;\
 };
 
-
 LASS_NUM_DECLARE_FLOATING_TRAITS( float, "float" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< float > , "complex<float>" )
-
-LASS_DLL bool isNaN( float iV );
 
 LASS_NUM_DECLARE_FLOATING_TRAITS( double , "double" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< double > , "complex<double>" )
 
-LASS_DLL bool isNaN( double iV );
-
-
-#define LASS_NUM_DECLARE_INTEGRAL_TRAITS( type, tname ) \
-template<> \
-struct NumTraits<type> \
-{\
-	typedef type selfType;\
-	typedef type baseType;\
-	typedef float   intervalType;\
-	static const bool  isDistribution;\
-	static const bool  isIntegral;\
-	static const bool  isNative;\
-	static const bool  isSigned;\
-	static const bool  hasInfinity;\
-	static const bool  hasNaN;\
-	static const int   memorySize;\
-	static const std::string name() { return tname ; }\
-	static const type one;\
-	static const type zero;\
-	static const type epsilon;\
-	static const type min;\
-	static const type max;\
-	static const type minStrictPositive;\
+template<>
+struct NumTraits<char>
+{
+	typedef char selfType;
+	typedef char baseType;
+	typedef float   intervalType;
+	typedef signed char signedType;
+	typedef unsigned char unsignedType;
+	enum
+	{
+		isDistribution = 0,
+		isIntegral = 1,
+		isNative = 1,
+#ifdef LASS_CHAR_IS_SIGNED
+		isSigned = 1,
+#else
+		isSigned = 0,
+#endif
+		hasInfinity = 0,
+		hasNaN = 0
+	};
+	static const int   memorySize;
+	static const std::string name() { return LASS_STRINGIFY(char); }
+	static const selfType one;
+	static const selfType zero;
+	static const selfType epsilon;
+	static const selfType min;
+	static const selfType max;
+	static const selfType minStrictPositive;
 };
 
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( char, "char" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed char, "signed char" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned char, "unsigned char" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed short, "signed short" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned short, "unsigned short" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed int, "signed int" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned int, "unsigned int" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed long, "signed long" )
-LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned long, "unsigned long" )
+#define LASS_NUM_DECLARE_INTEGRAL_TRAITS( sign, type, is_signed ) \
+template<> \
+struct NumTraits<sign type> \
+{\
+	typedef sign type selfType;\
+	typedef sign type baseType;\
+	typedef float   intervalType;\
+	typedef signed type signedType;\
+	typedef unsigned type unsignedType;\
+	enum\
+	{\
+		isDistribution = 0,\
+		isIntegral = 1,\
+		isNative = 1,\
+		isSigned = is_signed,\
+		hasInfinity = 0,\
+		hasNaN = 0\
+	};\
+	static const int   memorySize;\
+	static const std::string name() { return LASS_STRINGIFY(sign type); }\
+	static const selfType one;\
+	static const selfType zero;\
+	static const selfType epsilon;\
+	static const selfType min;\
+	static const selfType max;\
+	static const selfType minStrictPositive;\
+};
 
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, char, 1 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, char, 0 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, short, 1 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, short, 0 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, int, 1 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, int, 0 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, long, 1 )
+LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, long, 0 )
 
 }
 
 }
+
+// we didn't include basic_ops.h in num_common.h when including num_traits.h,
+// because basic_ops.h needs NumTraits to be defined first.  So now it's time
+// to include basic_ops.h anyway [Bramz]
+//
+#include "basic_ops.h"
 
 #endif

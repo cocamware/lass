@@ -23,257 +23,479 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+// --- implementation details ----------------------------------------------------------------------
+
+namespace impl
+{
+
+template <typename T> 
+struct IntPow
+{
+	typedef typename NumTraits<T>::signedType TSigned;
+	typedef typename NumTraits<T>::unsignedType TUnsigned;
+
+	static T eval(TSigned iX, TSigned iY)
+	{
+		LASS_ASSERT(iY >= 0);
+		LASS_ASSERT(NumTraits<TSigned>::max <= NumTraits<TUnsigned>::max);
+		return eval(iX, static_cast<TUnsigned>(iY));
+	}
+
+	static T eval(TSigned iX, TUnsigned iY)
+	{
+		if (iY == 0)
+		{
+			return 1;
+		}
+
+		TSigned result = 0;
+		TSigned partialPower = 1;
+		do
+		{
+			partialPower *= iX;
+			if (iY & 0x1)
+			{
+				result += partialPower;
+			}
+			iY >>= 1;
+		}
+		while (iY);
+		return result;
+	}
+};
+
+template <typename T> 
+struct IntDiv
+{
+	typedef typename NumTraits<T>::signedType TSigned;
+	typedef typename NumTraits<T>::unsignedType TUnsigned;
+
+	static T eval(TSigned iV, TSigned iMod)
+	{
+		const TSigned tempDiv = iV / iMod;
+		return iV % iMod >= 0 ? tempDiv : (tempDiv - 1);
+	}
+
+	static T eval(TSigned iV, TUnsigned iMod)
+	{
+		const TSigned signedMod = static_cast<TSigned>(iMod);
+		LASS_ASSERT(signedMod >= 0);
+		const TSigned tempDiv = iV / signedMod;
+		return iV % signedMod >= 0 ? tempDiv : (tempDiv - 1);
+	}
+};
+
+template <typename T> 
+struct IntMod
+{
+	typedef typename NumTraits<T>::signedType TSigned;
+	typedef typename NumTraits<T>::unsignedType TUnsigned;
+
+	static T eval(TSigned iV, TSigned iMod)
+	{
+		const TSigned tempMod = iV % iMod;
+		return tempMod >= 0 ? tempMod : (tempMod - iMod);
+	}
+
+	static T eval(TSigned iV, TUnsigned iMod)
+	{
+		const TSigned signedMod = static_cast<TSigned>(iMod);
+		LASS_ASSERT(signedMod >= 0);
+		const TSigned tempMod = iV % signedMod;
+		return tempMod >= 0 ? tempMod : (tempMod + signedMod);
+	}
+};
+
+}
+
+// --- generic functions ---------------------------------------------------------------------------
+
+/** if iV < 0 return -iV, else return iV.
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T abs(const T& iV)
+{
+	return iV < T() ? -iV : iV;
+}
+
+/** if iV < 0 return -1, else if iV > 0 return 1, else return 0.
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T sign(const T& iV)
+{
+	const T zero = T();
+	return iV > zero ? T(1) : (iV < zero ? T(-1) : zero);
+}
+
+/** return iV * iV
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T sqr(const T& iV) 
+{ 
+	return iV * iV; 
+}
+
+/** return iV * iV * iV
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T cubic(const T& iV) 
+{ 
+	return iV * iV * iV; 
+}
+
+/** return iV * iV
+ *  @ingroup BasicOps
+ *  @warning GENERIC FUNCTION USES EXP AND LOG!
+ */
+template <typename T> inline T inv(const T& iV) 
+{ 
+	return exp(-log(iX));
+}
+
+/** return iV * iV
+ *  @ingroup BasicOps
+ *  @warning GENERIC FUNCTION USES EXP AND LOG!
+ */
+template <typename T> inline T sqrt(const T& iV) 
+{ 
+	return exp(log(iX) / 2);
+}
+
+/** return exp(iPow * log(iV));
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T pow(const T& iV, const T& iPow) 
+{ 
+	return exp(iPow * log(iV));
+}
+
+/** return norm of iV as if iV is real part of complex number: sqr(iV)
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T norm(const T& iV)
+{
+	return sqr(iV);
+}
+
+/** return conjugate as if iV is a complex number: iV
+ */
+template <typename T> inline T conj(const T& iV)
+{
+	return iV;
+}
+
+/** if iV < iMin return iMin, else if iV > iMax return iMax, else return iV.
+ *  @ingroup BasicOps
+ */
+template <typename T> inline const T& clamp(const T& iV, const T& iMin, const T& iMax)
+{
+	return iV < iMin ? iMin : (iV > iMax ? iMax : iV);
+}
+
+/** @ingroup BasicOps
+ */
+template<typename T,typename f> T applyFunction(const T& iV, f func ) 
+{ 
+	return func(iV); 
+}
+
+
+
+// --- generic inplace rerouters -------------------------------------------------------------------
+
+template <typename T> void inpabs(T& ioV)						{ ioV = abs(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsign(T& ioV)						{ ioV = sign(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpinv(T& ioV)						{ ioV = inv(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsqrt(T& ioV)						{ ioV = sqrt(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpsqr(T& ioV)						{ ioV = sqr(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpcubic(T& ioV)						{ ioV = cubic(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inppow(T& ioV, T& iPow)				{ ioV = pow(ioV, iPow); }			/**< @ingroup BasicOps */
+template <typename T> void inpexp(T& ioV)						{ ioV = exp(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inplog(T& ioV)						{ ioV = log(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpcos(T& ioV)						{ ioV = cos(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsin(T& ioV)						{ ioV = sin(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inptan(T& ioV)						{ ioV = tan(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpacos(T& ioV)						{ ioV = acos(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpasin(T& ioV)						{ ioV = asin(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpatan(T& ioV)						{ ioV = atan(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpatan2(T& ioX, const T& iY)		{ ioX = atan2(ioX, iY); }			/**< @ingroup BasicOps */
+template <typename T> void inpfloor(T& ioV)						{ ioV = floor(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpceil(T& ioV)						{ ioV = ceil(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpround(T& ioV)						{ ioV = round(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpdiv(T& ioV, T& iMod)				{ ioV = div(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpmod(T& ioV, T& iMod)				{ ioV = mod(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpclamp(T& ioV, const T& iMin, const T& iMax)	{ ioV = clamp(ioV, iMin, iMax); }	/** @ingroup BasicOps */
+template <typename T> void compnorm(const T& iV, T& oV)			{ oV = norm(iV); }					/**< @ingroup BasicOps */
+template <typename T> void compinv(const T& iV, T& oV)			{ oV = inv(iV); }					/**< @ingroup BasicOps */
+
+
+
 // --- float ---------------------------------------------------------------------------------------
 
-float exp( float iV ) { return ::expf( iV ); }
-float log( float iV ) { return ::logf( iV ); }
-float pow( float iX, float iY ) { return ::powf( iX, iY ); }
-float sqr( float iV ) { return iV*iV; }
-float sqrt( float iV ){ return ::sqrtf( iV ); }
-float cos( float iV ) { return ::cosf( iV ); }
-float sin( float iV ) { return ::sinf( iV ); }
-float tan( float iV ) { return ::tanf( iV ); }
-float acos( float iV ) { return ::acosf( iV ); }
-float asin( float iV ) { return ::asinf( iV ); }
-float atan( float iV ) { return ::atanf( iV ); }
-float atan2( float iX, float iY ) { return ::atan2f( iX, iY ); }
-float inv( float iV ) { return 1.f/iV; }
-float sign( float iV ) { if (iV<0.f) return -1.f;if (iV>0.f) return 1.f; return 0.f; }
-float abs( float iV ) { return ::fabsf( iV ); }
-float floor( float iV ) { return ::floorf( iV ); }
-float ceil( float iV ) { return ::ceilf( iV ); }
-float round( float iV ) { return ::floorf( iV + .5f ); }
-float clamp( float iV, float iMin, float iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
-float mod( float iV, float iMod) { return iV - iMod * ::floorf(iV / iMod); }
+float abs(float iV)				{ return ::fabsf(iV); }			/**< @ingroup BasicOps */
+float inv(float iV)				{ return 1.f / iV; }			/**< @ingroup BasicOps */
+float sqrt(float iV)			{ return ::sqrtf(iV); }			/**< @ingroup BasicOps */
+float pow(float iV, float iPow)	{ return ::powf(iV, iPow); }	/**< @ingroup BasicOps */
+float exp(float iV)				{ return ::expf(iV); }			/**< @ingroup BasicOps */
+float log(float iV)				{ return ::logf(iV); }			/**< @ingroup BasicOps */
+float cos(float iV)				{ return ::cosf(iV); }			/**< @ingroup BasicOps */
+float sin(float iV)				{ return ::sinf(iV); }			/**< @ingroup BasicOps */
+float tan(float iV)				{ return ::tanf(iV); }			/**< @ingroup BasicOps */
+float acos(float iV)			{ return ::acosf(iV); }			/**< @ingroup BasicOps */
+float asin(float iV)			{ return ::asinf(iV); }			/**< @ingroup BasicOps */
+float atan(float iV)			{ return ::atanf(iV); }			/**< @ingroup BasicOps */
+float atan2(float iX, float iY)	{ return ::atan2f(iX, iY); }	/**< @ingroup BasicOps */
+float floor(float iV)			{ return ::floorf(iV); }		/**< @ingroup BasicOps */
+float ceil(float iV)			{ return ::ceilf(iV); }			/**< @ingroup BasicOps */
+float round(float iV)			{ return ::floorf(iV + .5f); }	/**< @ingroup BasicOps */
+float mod(float iV, float iMod) { return ::modff(iV, &iMod); }	/**< @ingroup BasicOps */
 
 
-void inpexp(float& ioV) { ioV = num::exp( ioV ); }
-void inplog(float& ioV) { ioV = num::log( ioV ); }
-void inppow(float& ioX, float iY) { ioX = lass::num::pow( ioX, iY ); }
-void inpsqr(float& ioV) { ioV*= ioV; }
-void inpsqrt(float& ioV) { ioV = num::sqrt( ioV ); }
-void inpcos(float& ioV) { ioV = num::cos( ioV ); }
-void inpsin(float& ioV) { ioV = num::sin( ioV ); }
-void inptan(float& ioV) { ioV = num::tan( ioV ); }
-void inpacos(float& ioV) { ioV = num::acos( ioV ); }
-void inpasin(float& ioV) { ioV = num::asin( ioV ); }
-void inpatan(float& ioV) { ioV = num::atan( ioV ); }
-void inpatan2(float& ioX, float iY) { ioX = num::atan2( ioX, iY ); }
-void inpinv(float& ioV) { ioV = 1.f/ioV; }
-void inpsign(float& ioV) { ioV = num::sign(ioV); }
-void inpabs(float& ioV) { ioV = num::abs(ioV); }
-void inpfloor(float& ioV) { ioV = num::floor(ioV); }
-void inpceil(float& ioV) { ioV = num::ceil(ioV); }
-void inpround(float& ioV) { ioV = num::round(ioV); }
-void inpclamp(float& ioV, float iMin, float iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
-
-void compnorm(float iV, float& oV) { oV = iV*iV; }
-void compinv(float iV, float& oV) { oV = 1.f/iV; }
-float norm(const float iV) { return iV*iV; }
-float conj(const float iV) { return iV; }
 
 // --- double --------------------------------------------------------------------------------------
 
-double exp( double iV ) { return ::exp( iV ); }
-double log( double iV ) { return ::log( iV ); }
-double pow(double iX, double iY ) { return ::pow( iX, iY ); }
-double sqr( double iV ) { return iV*iV; }
-double sqrt( double iV ){ return ::sqrt( iV ); }
-double cos( double iV ) { return ::cos( iV ); }
-double sin( double iV ) { return ::sin( iV ); }
-double tan( double iV ) { return ::tan( iV ); }
-double acos( double iV ) { return ::acos( iV ); }
-double asin( double iV ) { return ::asin( iV ); }
-double atan( double iV ) { return ::atan( iV ); }
-double atan2( double iX, double iY ) { return ::atan2( iX, iY ); }
-double inv( double iV ) { return 1.f/iV; }
-double sign( double iV ) { if (iV<0.0) return -1.0;if (iV>0.0) return 1.0; return 0.0; }
-double abs( double iV ) { return fabs( iV ); }
-double floor( double iV ) { return ::floor( iV ); }
-double ceil( double iV ) { return ::ceil( iV ); }
-double round( double iV ) { return ::floor( iV + .5 ); }
-double clamp( double iV, double iMin, double iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
-double mod( double iV, double iMod) { return iV - iMod * ::floor(iV / iMod); }
+double abs(double iV)				{ return ::fabs(iV); }			/**< @ingroup BasicOps */
+double inv(double iV)				{ return 1. / iV; }				/**< @ingroup BasicOps */
+double sqrt(double iV)				{ return ::sqrt(iV); }			/**< @ingroup BasicOps */
+double pow(double iV, double iPow)	{ return ::pow(iV, iPow); }		/**< @ingroup BasicOps */
+double exp(double iV)				{ return ::exp(iV); }			/**< @ingroup BasicOps */
+double log(double iV)				{ return ::log(iV); }			/**< @ingroup BasicOps */
+double cos(double iV)				{ return ::cos(iV); }			/**< @ingroup BasicOps */
+double sin(double iV)				{ return ::sin(iV); }			/**< @ingroup BasicOps */
+double tan(double iV)				{ return ::tan(iV); }			/**< @ingroup BasicOps */
+double acos(double iV)				{ return ::acos(iV); }			/**< @ingroup BasicOps */
+double asin(double iV)				{ return ::asin(iV); }			/**< @ingroup BasicOps */
+double atan(double iV)				{ return ::atan(iV); }			/**< @ingroup BasicOps */
+double atan2(double iX, double iY)	{ return ::atan2(iX, iY); }		/**< @ingroup BasicOps */
+double floor(double iV)				{ return ::floor(iV); }			/**< @ingroup BasicOps */
+double ceil(double iV)				{ return ::ceil(iV); }			/**< @ingroup BasicOps */
+double round(double iV)				{ return ::floor(iV + .5); }	/**< @ingroup BasicOps */
+double mod(double iV, double iMod)	{ return ::modf(iV, &iMod); }	/**< @ingroup BasicOps */
 
-void inpexp(double& ioV) { ioV = num::exp( ioV ); }
-void inplog(double& ioV) { ioV = num::log( ioV ); }
-void inppow(double& ioX, double iY) { ioX = lass::num::pow( ioX, iY ); }
-void inpsqr(double& ioV) { ioV *= ioV ; }
-void inpsqrt(double& ioV) { ioV = num::sqrt( ioV ); }
-void inpcos(double& ioV) { ioV = num::cos( ioV ); }
-void inpsin(double& ioV) { ioV = num::sin( ioV ); }
-void inptan(double& ioV) { ioV = num::tan( ioV ); }
-void inpacos(double& ioV) { ioV = num::acos( ioV ); }
-void inpasin(double& ioV) { ioV = num::asin( ioV ); }
-void inpatan(double& ioV) { ioV = num::atan( ioV ); }
-void inpatan2(double& ioX, double iY) { ioX = num::atan2( ioX, iY); }
-void inpinv(double& ioV) { ioV = 1.0/ioV; }
-void inpsign(double& ioV) { ioV = num::sign(ioV); }
-void inpabs(double& ioV) { ioV = num::abs(ioV); }
-void inpfloor(double& ioV) { ioV = num::floor(ioV); }
-void inpceil(double& ioV) { ioV = num::ceil(ioV); }
-void inpround(double& ioV) { ioV = num::round(ioV); }
-void inpclamp(double& ioV, double iMin, double iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
 
-void compnorm(double iV, double& oV) { oV = iV*iV; }
-void compinv(double iV, double& oV) { oV = 1.0/iV; }
-double norm(const double iV) { return iV*iV; }
-double conj(const double iV) { return iV; }
 
-// --- int -----------------------------------------------------------------------------------------
+// --- long double ---------------------------------------------------------------------------------
 
-// TODO can some think of a better idea to implement pow of two integers? [BdG]
-int pow(int iX, int iY)
-{
-	if (iY < 0)
-	{
-		LASS_THROW("invalid paramater iY '" << iY << "'.");
-	}
-	if (iY < 32)
-	{
-		int result = 1;
-		for (int i = 0; i < iY; ++i)
-		{
-			result *= iY;
-		}
-		return result;
-	}
-	int result = 0;
-	int pow = 1;
-	for (int i = 0; i < sizeof(int) * lass::bitsPerByte; ++i)
-	{
-		if (iY & (1 << i))
-		{
-			result += pow;
-		}
-		pow *= iX;
-	}
-	return result;
-}
+long double abs(long double iV)						{ return ::fabsl(iV); }			/**< @ingroup BasicOps */
+long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
+long double sqrt(long double iV)					{ return ::sqrtl(iV); }			/**< @ingroup BasicOps */
+long double pow(long double iV, long double iPow)	{ return ::powl(iV, iPow); }	/**< @ingroup BasicOps */
+long double exp(long double iV)						{ return ::expl(iV); }			/**< @ingroup BasicOps */
+long double log(long double iV)						{ return ::logl(iV); }			/**< @ingroup BasicOps */
+long double cos(long double iV)						{ return ::cosl(iV); }			/**< @ingroup BasicOps */
+long double sin(long double iV)						{ return ::sinl(iV); }			/**< @ingroup BasicOps */
+long double tan(long double iV)						{ return ::tanl(iV); }			/**< @ingroup BasicOps */
+long double acos(long double iV)					{ return ::acosl(iV); }			/**< @ingroup BasicOps */
+long double asin(long double iV)					{ return ::asinl(iV); }			/**< @ingroup BasicOps */
+long double atan(long double iV)					{ return ::atanl(iV); }			/**< @ingroup BasicOps */
+long double atan2(long double iX, long double iY)	{ return ::atan2l(iX, iY); }	/**< @ingroup BasicOps */
+long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
+long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
+long double round(long double iV)					{ return ::floorl(iV + .5); }	/**< @ingroup BasicOps */
+long double mod(long double iV, long double iMod)	{ return ::modfl(iV, &iMod); }	/**< @ingroup BasicOps */
 
-int sqr(int iV) { return iV*iV; }
-int sign(int iV) { if (iV<0) return -1;if (iV>0) return 1; return 0; }
-int abs(int iV) { return ::abs(iV); }
-int floor(int iV) { return iV; }
-int ceil(int iV) { return iV; }
-int round(int iV) { return iV; }
-int clamp( int iV, int iMin, int iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
 
-void inppow(int& ioX, int iY) { ioX = lass::num::pow( ioX, iY ); }
-void inpsqr(int& ioV) { ioV *= ioV ; }
-void inpsign(int& ioV) { ioV = num::sign(ioV); }
-void inpabs(int& ioV) { ioV = lass::num::abs(ioV); }
-void inpfloor(int& ioV) { }
-void inpceil(int& ioV) { }
-void inpround(int& ioV) { }
-void inpclamp(int& ioV, int iMin, int iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
 
-void compnorm(int iV, int& oV) { oV = iV*iV; }
-int norm(const int iV) { return iV*iV; }
-int conj(const int iV) { return iV; }
+// --- char ----------------------------------------------------------------------------------------
 
-int mod(int iV,unsigned int iMod)
-{
-	int intMod = (int)iMod;
-	int tempMod = iV%(intMod);
-	if (tempMod>=0)
-		return tempMod;
-	else
-		return tempMod+intMod;
-}
+#ifdef LASS_CHAR_IS_SIGNED
 
-// --- long -----------------------------------------------------------------------------------------
+char abs(char iV)						{ return static_cast<char>(abs(iV)); }			/**< @ingroup BasicOps */
+char pow(char iV, char iPow)			{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+char pow(char iV, unsigned char iPow)	{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+char floor(char iV)						{ return iV; }									/**< @ingroup BasicOps */
+char ceil(char iV)						{ return iV; }									/**< @ingroup BasicOps */
+char round(char iV)						{ return iV; }									/**< @ingroup BasicOps */
+char div(char iV, char iMod)			{ return impl::IntDiv<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char div(char iV, unsigned char iMod)	{ return impl::IntDiv<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char mod(char iV, char iMod)			{ return impl::IntMod<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char mod(char iV, unsigned char iMod)	{ return impl::IntMod<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
 
-// TODO can some think of a better idea to implement pow of two integers? [BdG]
-long pow(long iX, long iY)
-{
-	if (iY < 0)
-	{
-		LASS_THROW("invalid paramater iY '" << iY << "'.");
-	}
-	if (iY < 32)
-	{
-		long result = 1;
-		for (long i = 0; i < iY; ++i)
-		{
-			result *= iY;
-		}
-		return result;
-	}
-	long result = 0;
-	long pow = 1;
-	for (long i = 0; i < sizeof(long) * lass::bitsPerByte; ++i)
-	{
-		if (iY & (1 << i))
-		{
-			result += pow;
-		}
-		pow *= iX;
-	}
-	return result;
-}
+void inpfloor(char& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(char& ioV)		{}	/**< @ingroup BasicOps */
+void inpround(char& ioV)	{}	/**< @ingroup BasicOps */
 
-long sqr(long iV) { return iV*iV; }
-long sign(long iV) { if (iV<0) return -1;if (iV>0) return 1; return 0; }
-long abs(long iV) { return ::abs(iV); }
-long floor(long iV) { return iV; }
-long ceil(long iV) { return iV; }
-long round(long iV) { return iV; }
-long clamp( long iV, long iMin, long iMax ) { return iV < iMin ? iMin : (iV > iMax ? iMax : iV); }
+#else
 
-void inppow(long& ioX, long iY) { ioX = lass::num::pow( ioX, iY ); }
-void inpsqr(long& ioV) { ioV *= ioV ; }
-void inpsign(long& ioV) { ioV = num::sign(ioV); }
-void inpabs(long& ioV) { ioV = lass::num::abs(ioV); }
-void inpfloor(long& ioV) { }
-void inpceil(long& ioV) { }
-void inpround(long& ioV) { }
-void inpclamp(long& ioV, long iMin, long iMax) { ioV = num::clamp( ioV, iMin, iMax ); }
+char abs(char iV)			{ return iV; }									/**< @ingroup BasicOps */
+char sign(char iV)			{ return iV > 0 ? 1 : 0; }						/**< @ingroup BasicOps */
+char pow(char iV, char iPow)	{ return impl::IntPow<char>::eval(iV, static_cast<unsigned char>(iPow)); }	/**< @ingroup BasicOps */
+char floor(char iV)			{ return iV; }									/**< @ingroup BasicOps */
+char ceil(char iV)			{ return iV; }									/**< @ingroup BasicOps */
+char round(char iV)			{ return iV; }									/**< @ingroup BasicOps */
+char div(char iV, char iPow)	{ return iV / iPow; }								/**< @ingroup BasicOps */
+char mod(char iV, char iPow)	{ return iV % iPow; }								/**< @ingroup BasicOps */
 
-void compnorm(long iV, long& oV) { oV = iV*iV; }
-long norm(const long iV) { return iV*iV; }
-long conj(const long iV) { return iV; }
+void inpabs(char& ioV)		{}	/**< @ingroup BasicOps */
+void inpfloor(char& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(char& ioV)		{}	/**< @ingroup BasicOps */
+void inpround(char& ioV)	{}	/**< @ingroup BasicOps */
 
-long    mod(long iV,unsigned long iMod)
-{
-	long intMod = (long)iMod;
-	long tempMod = iV%(intMod);
-	if (tempMod>=0)
-		return tempMod;
-	else
-		return tempMod+intMod;
-}
+#endif
 
-// --- complex -------------------------------------------------------------------------------------
+// --- signed char ----------------------------------------------------------------------------------
 
-template <typename T> std::complex<T> exp( const std::complex<T>& ioV) { return std::exp( ioV ); }
-template <typename T> std::complex<T> log( const std::complex<T>& ioV) { return std::log( ioV ); }
-template <typename T> std::complex<T> pow(const std::complex<T>& iX, double iY) { return std::pow(iX, iY); }
-template <typename T> std::complex<T> sqr( const std::complex<T>& ioV) { return ioV*ioV; }
-template <typename T> std::complex<T> sqrt( const std::complex<T>& ioV){ return std::sqrt( ioV ); }
-template <typename T> std::complex<T> cos( const std::complex<T>& ioV) { return std::cos( ioV ); }
-template <typename T> std::complex<T> sin( const std::complex<T>& ioV) { return std::sin( ioV ); }
-template <typename T> std::complex<T> tan( const std::complex<T>& ioV) { return std::tan( ioV ); }
-template <typename T> std::complex<T> acos( const std::complex<T>& ioV){ return std::acos( ioV ); }
-template <typename T> std::complex<T> asin( const std::complex<T>& ioV){ return std::asin( ioV ); }
-template <typename T> std::complex<T> atan( const std::complex<T>& ioV){ return std::atan( ioV ); }
-template <typename T> std::complex<T> inv( const std::complex<T>& ioV) { return T(1)/ioV; }
+signed char abs(signed char iV)						{ return static_cast<signed char>(::abs(iV)); }	/**< @ingroup BasicOps */
+signed char pow(signed char iV, signed char iPow)		{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char pow(signed char iV, unsigned char iPow)	{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char floor(signed char iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed char ceil(signed char iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed char round(signed char iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed char div(signed char iV, signed char iPow)		{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char div(signed char iV, unsigned char iPow)	{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char mod(signed char iV, signed char iPow)		{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char mod(signed char iV, unsigned char iPow)	{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+
+void inpfloor(signed char& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(signed char& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(signed char& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- unsigned char ----------------------------------------------------------------------------------
+
+unsigned char abs(unsigned char iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned char sign(unsigned char iV)					{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned char pow(unsigned char iV, unsigned char iPow)	{ return impl::IntPow<unsigned char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+unsigned char floor(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned char ceil(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned char round(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned char div(unsigned char iV, unsigned char iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
+unsigned char mod(unsigned char iV, unsigned char iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+
+void inpabs(unsigned char& ioV)		{}	/**< @ingroup BasicOps */
+void inpfloor(unsigned char& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(unsigned char& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(unsigned char& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- signed short ----------------------------------------------------------------------------------
+
+signed short abs(signed short iV)						{ return static_cast<signed short>(::abs(iV)); }	/**< @ingroup BasicOps */
+signed short pow(signed short iV, signed short iPow)		{ return impl::IntPow<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short pow(signed short iV, unsigned short iPow)	{ return impl::IntPow<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short floor(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
+signed short ceil(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
+signed short round(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
+signed short div(signed short iV, signed short iPow)		{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short div(signed short iV, unsigned short iPow)	{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short mod(signed short iV, signed short iPow)		{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short mod(signed short iV, unsigned short iPow)	{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+
+void inpfloor(signed short& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(signed short& ioV)		{}	/**< @ingroup BasicOps */
+void inpround(signed short& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- unsigned short ----------------------------------------------------------------------------------
+
+unsigned short abs(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned short sign(unsigned short iV)						{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned short pow(unsigned short iV, unsigned short iPow)	{ return impl::IntPow<unsigned short>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+unsigned short floor(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned short ceil(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned short round(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned short div(unsigned short iV, unsigned short iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
+unsigned short mod(unsigned short iV, unsigned short iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+
+void inpabs(unsigned short& ioV)	{}	/**< @ingroup BasicOps */
+void inpfloor(unsigned short& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(unsigned short& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(unsigned short& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- signed int ----------------------------------------------------------------------------------
+
+signed int abs(signed int iV)					{ return ::abs(iV); }						/**< @ingroup BasicOps */
+signed int pow(signed int iV, signed int iPow)	{ return impl::IntPow<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int pow(signed int iV, unsigned int iPow)	{ return impl::IntPow<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int floor(signed int iV)					{ return iV; }								/**< @ingroup BasicOps */
+signed int ceil(signed int iV)					{ return iV; }								/**< @ingroup BasicOps */
+signed int round(signed int iV)					{ return iV; }								/**< @ingroup BasicOps */
+signed int div(signed int iV, signed int iPow)	{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int div(signed int iV, unsigned int iPow)	{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int mod(signed int iV, signed int iPow)	{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int mod(signed int iV, unsigned int iPow)	{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+
+void inpfloor(signed int& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(signed int& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(signed int& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- unsigned int ----------------------------------------------------------------------------------
+
+unsigned int abs(unsigned int iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned int sign(unsigned int iV)					{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned int pow(unsigned int iV, unsigned int iPow)	{ return impl::IntPow<unsigned int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+unsigned int floor(unsigned int iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned int ceil(unsigned int iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned int round(unsigned int iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned int div(unsigned int iV, unsigned int iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
+unsigned int mod(unsigned int iV, unsigned int iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+
+void inpabs(unsigned int& ioV)		{}	/**< @ingroup BasicOps */
+void inpfloor(unsigned int& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(unsigned int& ioV)		{}	/**< @ingroup BasicOps */
+void inpround(unsigned int& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- signed long ----------------------------------------------------------------------------------
+
+signed long abs(signed long iV)						{ return ::labs(iV); }							/**< @ingroup BasicOps */
+signed long pow(signed long iV, signed long iPow)		{ return impl::IntPow<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long pow(signed long iV, unsigned long iPow)	{ return impl::IntPow<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long floor(signed long iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed long ceil(signed long iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed long round(signed long iV)					{ return iV; }									/**< @ingroup BasicOps */
+signed long div(signed long iV, signed long iPow)		{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long div(signed long iV, unsigned long iPow)	{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long mod(signed long iV, signed long iPow)		{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long mod(signed long iV, unsigned long iPow)	{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+
+void inpfloor(signed long& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(signed long& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(signed long& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+// --- unsigned long ----------------------------------------------------------------------------------
+
+unsigned long abs(unsigned long iV)						{ return iV; }											/**< @ingroup BasicOps */
+unsigned long sign(unsigned long iV)					{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned long pow(unsigned long iV, unsigned long iPow)	{ return impl::IntPow<unsigned long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+unsigned long floor(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned long ceil(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned long round(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
+unsigned long div(unsigned long iV, unsigned long iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
+unsigned long mod(unsigned long iV, unsigned long iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+
+void inpabs(unsigned long& ioV)		{}	/**< @ingroup BasicOps */
+void inpfloor(unsigned long& ioV)	{}	/**< @ingroup BasicOps */
+void inpceil(unsigned long& ioV)	{}	/**< @ingroup BasicOps */
+void inpround(unsigned long& ioV)	{}	/**< @ingroup BasicOps */
+
+
+
+
+// --- complex numbers -----------------------------------------------------------------------------
+
 template <typename T> std::complex<T> abs( const std::complex<T>& iV) { return std::abs( iV ); }
+template <typename T> std::complex<T> inv( const std::complex<T>& iV) { return T(1)/ioV; }
+template <typename T> std::complex<T> sqrt( const std::complex<T>& iV){ return std::sqrt( iV ); }
+template <typename T> std::complex<T> pow(const std::complex<T>& iX, double iY) { return std::pow(iX, iY); }
+template <typename T> std::complex<T> exp( const std::complex<T>& iV) { return std::exp( ioV ); }
+template <typename T> std::complex<T> log( const std::complex<T>& iV) { return std::log( ioV ); }
+template <typename T> std::complex<T> cos( const std::complex<T>& iV) { return std::cos( ioV ); }
+template <typename T> std::complex<T> sin( const std::complex<T>& iV) { return std::sin( ioV ); }
+template <typename T> std::complex<T> tan( const std::complex<T>& iV) { return std::tan( ioV ); }
+template <typename T> std::complex<T> acos( const std::complex<T>& iV){ return std::acos( ioV ); }
+template <typename T> std::complex<T> asin( const std::complex<T>& iV){ return std::asin( ioV ); }
+template <typename T> std::complex<T> atan( const std::complex<T>& iV){ return std::atan( ioV ); }
 
-template <typename T> void inpexp(std::complex<T>& ioV) { ioV = num::exp( ioV ); }
-template <typename T> void inplog(std::complex<T>& ioV) { ioV = num::log( ioV ); }
-template <typename T> void inppow(std::complex<T>& ioX, const std::complex<T>& iY) { ioX = lass::num::pow( ioX, iY ); }
-template <typename T> void inpsqr(std::complex<T>& ioV) { ioV*= ioV; }
-template <typename T> void inpsqrt(std::complex<T>& ioV){ ioV = num::sqrt( ioV ); }
-template <typename T> void inpcos(std::complex<T>& ioV) { ioV = num::cos( ioV ); }
-template <typename T> void inpsin(std::complex<T>& ioV) { ioV = num::sin( ioV ); }
-template <typename T> void inptan(std::complex<T>& ioV) { ioV = num::tan( ioV ); }
-template <typename T> void inpacos(std::complex<T>& ioV){ ioV = num::acos( ioV ); }
-template <typename T> void inpasin(std::complex<T>& ioV){ ioV = num::asin( ioV ); }
-template <typename T> void inpatan(std::complex<T>& ioV){ ioV = num::atan( ioV ); }
-template <typename T> void inpinv(std::complex<T>& ioV) { ioV = num::inv( ioV ); }
-
-template <typename T> void compnorm(const std::complex<T>& iV, T& oV) { oV = std::norm( iV ); }
-template <typename T> void compinv(const std::complex<T>& iV, std::complex<T>& oV) { oV = T(1)/iV; }
 template <typename T> T norm(const std::complex<T>& iV) { return std::norm( iV ); }
 template <typename T> std::complex<T> conj(const std::complex<T>& iV) { return std::conj(iV); }

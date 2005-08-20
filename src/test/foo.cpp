@@ -36,7 +36,7 @@ namespace test
 {
 		std::string PythonFoo ::pyRepr(void)
 		{
-			return std::string( "This string is the representation of Foo object at " + lass::num::str((long)this) );
+			return std::string( "This string is the representation of Foo object at " + util::stringCast<std::string>(this));
 		}
 
 		PyObject* PythonFoo ::pyMake(PyObject *ignored, PyObject *args)

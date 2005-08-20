@@ -38,10 +38,6 @@ namespace num
 // partial specialization for float
 
 template<> const int    NumTraits<interval<float> >::memorySize = sizeof(interval<float>);
-template<> const bool   NumTraits<interval<float> >::isIntegral = false;
-template<> const bool   NumTraits<interval<float> >::isNative = false;
-template<> const bool   NumTraits<interval<float> >::isSigned = true;
-template<> const bool   NumTraits<interval<float> >::hasInfinity = false;
 template<> const std::string    NumTraits<interval<float> >::name() { return std::string("interval<")+NumTraits<baseType>::name()+ std::string(">"); }
 
 template<> const interval<float>    NumTraits<interval<float> >::one = interval<float>( NumTraits<float>::one );
@@ -60,10 +56,6 @@ template<> const interval<float>    NumTraits<interval<float> >::sqrtPi = interv
 // partial specialization for double
 
 template<> const int    NumTraits<interval<double> >::memorySize = sizeof(interval<double>);
-template<> const bool   NumTraits<interval<double> >::isIntegral = false;
-template<> const bool   NumTraits<interval<double> >::isNative = false;
-template<> const bool   NumTraits<interval<double> >::isSigned = true;
-template<> const bool   NumTraits<interval<double> >::hasInfinity = false;
 template<> const std::string    NumTraits<interval<double> >::name() { return std::string("interval<")+NumTraits<baseType>::name()+ std::string(">"); }
 
 template<> const interval<double>   NumTraits<interval<double> >::one = interval<double>( NumTraits<double>::one );

@@ -70,6 +70,9 @@ RandomMT19937::RandomMT19937(ForwardIterator iBegin, ForwardIterator iEnd)
 template <typename ForwardIterator>
 void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 {
+	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32,
+		if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
+
 	seed(19650218UL);
 
 	const size_t keySize = std::distance(iBegin, iEnd);
@@ -79,7 +82,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	for (size_t k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1664525UL)) + *key + j;
-		state_[i] &= wordMask_;
+		//state_[i] &= 0xffffffffUL;
 
 		++i;
 		if (i >= stateSize_)
@@ -100,7 +103,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	for (size_t k = stateSize_ - 1; k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1566083941UL)) - i;
-		state_[i] &= wordMask_;
+		//state_[i] &= 0xffffffffUL;
 		++i;
 		if (i >= stateSize_)
 		{
@@ -109,7 +112,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 		}
 	}
 
-	state_[0] = upperMask_;
+	state_[0] = 0x7fffffffUL;
 }
 
 

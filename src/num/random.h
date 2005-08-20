@@ -137,6 +137,9 @@ public:
 
 private:
 
+	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32,
+		MersenneTwister_is_designed_to_be_a_32_bits_random_number_generator);
+
 	void reload();
 	const TValue twist(TValue iA, TValue iB, TValue iC) const;
 
@@ -144,10 +147,6 @@ private:
 	{
 		stateSize_  = 624,          /**< size of state vector */
 		shiftSize_  = 397,
-		magic_      = TValue(0x9908b0dfUL), /**< constant vector a */
-		upperMask_  = TValue(0x80000000UL), /**< most significant w-r bits */
-		lowerMask_  = TValue(0x7fffffffUL), /**< least significant r bits */
-		wordMask_   = TValue(0xffffffffUL), /**< 32 bit mask for >32 bit machines*/
 	};
 
 	TValue state_[stateSize_];      /**< the array for the state vector. */

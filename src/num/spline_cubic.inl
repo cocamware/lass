@@ -101,7 +101,7 @@ SplineCubic<S, D, T>::operator ()(TScalar iX) const
 	TData result(n->d);
 	TDataTraits::multiplyAccumulate(result, n->c, s);
 	TDataTraits::multiplyAccumulate(result, n->b, num::sqr(s));
-	TDataTraits::multiplyAccumulate(result, n->a, num::sqr(s) * s);
+	TDataTraits::multiplyAccumulate(result, n->a, num::cubic(s));
 	return result;
 }
 
@@ -184,7 +184,7 @@ SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 		TData result(first->d);
 		TDataTraits::scale(result, s2 - s1);
 		TDataTraits::multiplyAccumulate(result, first->c, (num::sqr(s2) - num::sqr(s1)) / 2);
-		TDataTraits::multiplyAccumulate(result, first->b, (num::sqr(s2) * s2 - num::sqr(s1) * s1) / 3);
+		TDataTraits::multiplyAccumulate(result, first->b, (num::cubic(s2) - num::cubic(s1)) / 3);
 		TDataTraits::multiplyAccumulate(result, first->a, (num::sqr(num::sqr(s2)) - num::sqr(num::sqr(s1))) / 4);
 		return result;
 	}
@@ -205,7 +205,7 @@ SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 		TData result(first->d);
 		TDataTraits::scale(result, s2 - s1);
 		TDataTraits::multiplyAccumulate(result, first->c, (num::sqr(s2) - num::sqr(s1)) / 2);
-		TDataTraits::multiplyAccumulate(result, first->b, (num::sqr(s2) * s2 - num::sqr(s1) * s1) / 3);
+		TDataTraits::multiplyAccumulate(result, first->b, (num::cubic(s2) - num::cubic(s1)) / 3);
 		TDataTraits::multiplyAccumulate(result, first->a, (num::sqr(num::sqr(s2)) - num::sqr(num::sqr(s1))) / 4);
 		first = next++;
 
@@ -214,7 +214,7 @@ SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 			const TScalar s = next->x - first->x;
 			TDataTraits::multiplyAccumulate(result, first->d, s);
 			TDataTraits::multiplyAccumulate(result, first->c, num::sqr(s) / 2);
-			TDataTraits::multiplyAccumulate(result, first->b, num::sqr(s) * s / 3);
+			TDataTraits::multiplyAccumulate(result, first->b, num::cubic(s) / 3);
 			TDataTraits::multiplyAccumulate(result, first->a, num::sqr(num::sqr(s)) / 4);
 			first = next++;
 		}
@@ -222,7 +222,7 @@ SplineCubic<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 		const TScalar s = iEnd - first->x;
 		TDataTraits::multiplyAccumulate(result, first->d, s);
 		TDataTraits::multiplyAccumulate(result, first->c, num::sqr(s) / 2);
-		TDataTraits::multiplyAccumulate(result, first->b, num::sqr(s) * s / 3);
+		TDataTraits::multiplyAccumulate(result, first->b, num::cubic(s) / 3);
 		TDataTraits::multiplyAccumulate(result, first->a, num::sqr(num::sqr(s)) / 4);
 
 		TDataTraits::scale(result, multiplier);

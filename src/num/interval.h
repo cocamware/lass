@@ -192,11 +192,15 @@ struct NumTraits< interval<C> >
 	typedef C           baseType;
 	typedef C           intervalType;
 
-	static const bool  isDistribution;
-	static const bool  isIntegral;
-	static const bool  isNative;
-	static const bool  isSigned;
-	static const bool  hasInfinity;
+	enum
+	{
+		isDistribution = 1,
+		isIntegral = 0,
+		isNative = 0,
+		isSigned = 1,
+		hasInfinity = 0,
+	};
+
 	static const int   memorySize;
 	static const std::string name();
 
@@ -215,10 +219,6 @@ struct NumTraits< interval<C> >
 
 
 template<class C> const int     NumTraits<interval<C> >::memorySize = sizeof(interval<C>);
-template<class C> const bool    NumTraits<interval<C> >::isIntegral = false;
-template<class C> const bool    NumTraits<interval<C> >::isNative = false;
-template<class C> const bool    NumTraits<interval<C> >::isSigned = true;
-template<class C> const bool    NumTraits<interval<C> >::hasInfinity = false;
 template<class C> const std::string NumTraits<interval<C> >::name() { return std::string("interval<")+NumTraits<baseType>::name()+ std::string(">"); }
 
 template<class C> const interval<C> NumTraits<interval<C> >::one = interval<C>( NumTraits<C>::one );
@@ -244,11 +244,15 @@ struct NumTraits< interval<float> >
 	typedef float           baseType;
 	typedef float           intervalType;
 
-	static const bool  isDistribution;
-	static const bool  isIntegral;
-	static const bool  isNative;
-	static const bool  isSigned;
-	static const bool  hasInfinity;
+	enum
+	{
+		isDistribution = 1,
+		isIntegral = 0,
+		isNative = 0,
+		isSigned = 1,
+		hasInfinity = 0,
+	};
+
 	static const int   memorySize;
 	static const std::string name();
 
@@ -273,11 +277,16 @@ struct NumTraits< interval<double> >
 	typedef double          baseType;
 	typedef double          intervalType;
 
-	static const bool  isDistribution;
-	static const bool  isIntegral;
-	static const bool  isNative;
-	static const bool  isSigned;
-	static const bool  hasInfinity;
+
+	enum
+	{
+		isDistribution = 1,
+		isIntegral = 0,
+		isNative = 0,
+		isSigned = 1,
+		hasInfinity = 0,
+	};
+
 	static const int   memorySize;
 	static const std::string name();
 

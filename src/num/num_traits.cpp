@@ -44,15 +44,8 @@ namespace num
 *   and at first and second glance the standard also likes it [TDM]
 */
 const int   NumTraits<float>::memorySize = sizeof(float);
-const bool  NumTraits<float>::isIntegral = false;
-const bool  NumTraits<float>::isNative = true;
-const bool  NumTraits<float>::isSigned = true;
-const bool  NumTraits<float>::hasInfinity = true;
-const bool  NumTraits<float>::hasNaN = true;
-
 const float NumTraits<float>::one = 1.f;
 const float NumTraits<float>::zero = 0.f;
-
 const float NumTraits<float>::qNaN = std::numeric_limits<float>::quiet_NaN();
 const float NumTraits<float>::sNaN = std::numeric_limits<float>::signaling_NaN();
 const float NumTraits<float>::infinity = std::numeric_limits<float>::infinity();
@@ -64,38 +57,22 @@ const float NumTraits<float>::pi = 3.1415926535897932384626433832795f;
 const float NumTraits<float>::e = 2.7182818284590452353602874713527f;
 const float NumTraits<float>::sqrt2 = 1.4142135623730950488016887242097f;
 const float NumTraits<float>::sqrtPi = 1.7724538509055160272981674833411f;
-bool isNaN( float iV )
-{
-	return (iV!=iV);
-}
+
 // complex specialisation
 const int   NumTraits<std::complex<float> >::memorySize = sizeof(std::complex<float>);
-const bool  NumTraits<std::complex<float> >::isIntegral = false;
-const bool  NumTraits<std::complex<float> >::isNative = false;
-const bool  NumTraits<std::complex<float> >::isSigned = true;
-const bool  NumTraits<std::complex<float> >::hasInfinity = false;
-const bool  NumTraits<std::complex<float> >::hasNaN = false;
-
 const std::complex<float>   NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
 const std::complex<float>   NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
-
 const std::complex<float>   NumTraits<std::complex<float> >::pi = 3.1415926535897932384626433832795f;
 const std::complex<float>   NumTraits<std::complex<float> >::e = 2.7182818284590452353602874713527f;
 const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = 1.4142135623730950488016887242097f;
 const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = 1.7724538509055160272981674833411f;
+
 /***********************************************************************
 * double num trait
 */
 const int   NumTraits<double>::memorySize = sizeof(double);
-const bool  NumTraits<double>::isIntegral = false;
-const bool  NumTraits<double>::isNative = true;
-const bool  NumTraits<double>::isSigned = true;
-const bool  NumTraits<double>::hasInfinity = true;
-const bool  NumTraits<double>::hasNaN = true;
-
 const double    NumTraits<double>::one = 1.0;
 const double NumTraits<double>::zero= 0.0;
-
 const double    NumTraits<double>::qNaN = std::numeric_limits<double>::quiet_NaN();
 const double    NumTraits<double>::sNaN = std::numeric_limits<double>::signaling_NaN();
 const double NumTraits<double>::infinity = std::numeric_limits<double>::infinity();
@@ -107,73 +84,57 @@ const double    NumTraits<double>::pi = 3.1415926535897932384626433832795;
 const double    NumTraits<double>::e = 2.7182818284590452353602874713527;
 const double    NumTraits<double>::sqrt2 = 1.4142135623730950488016887242097;
 const double    NumTraits<double>::sqrtPi = 1.7724538509055160272981674833411;
-bool isNaN( double iV )
-{
-	return (iV!=iV);
-}
+
 // complex specialisation
 const int   NumTraits<std::complex<double> >::memorySize = sizeof(std::complex<double>);
-const bool  NumTraits<std::complex<double> >::isIntegral = false;
-const bool  NumTraits<std::complex<double> >::isNative = false;
-const bool  NumTraits<std::complex<double> >::isSigned = true;
-const bool  NumTraits<std::complex<double> >::hasInfinity = false;
-const bool  NumTraits<std::complex<double> >::hasNaN = false;
-
 const std::complex<double>  NumTraits<std::complex<double> >::one = std::complex<double>(1.0, 0.0);
 const std::complex<double>  NumTraits<std::complex<double> >::zero = std::complex<double>(0.0, 0.0);
-
 const std::complex<double>  NumTraits<std::complex<double> >::pi = 3.1415926535897932384626433832795;
 const std::complex<double>  NumTraits<std::complex<double> >::e = 2.7182818284590452353602874713527;
 const std::complex<double>  NumTraits<std::complex<double> >::sqrt2 = 1.4142135623730950488016887242097;
 const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = 1.7724538509055160272981674833411;
-
-
 
 /***********************************************************************
 * unsigned/signed char/short/int/long num trait
 */
 
 /** code generating macro for integral types */
-#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( __LASS_type, __LASS_isSigned, __LASS_min, __LASS_max ) \
+#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( __LASS_type, __LASS_min, __LASS_max ) \
 const int   NumTraits<__LASS_type>::memorySize = sizeof(__LASS_type);\
-const bool  NumTraits<__LASS_type>::isIntegral = false;\
-const bool  NumTraits<__LASS_type>::isNative = true;\
-const bool  NumTraits<__LASS_type>::isSigned = __LASS_isSigned;\
-const bool  NumTraits<__LASS_type>::hasInfinity = false;\
-const bool  NumTraits<__LASS_type>::hasNaN = false;\
 const __LASS_type NumTraits<__LASS_type>::one = 1;\
 const __LASS_type NumTraits<__LASS_type>::zero= 0;\
 const __LASS_type NumTraits<__LASS_type>::epsilon = 1;\
 const __LASS_type NumTraits<__LASS_type>::min = __LASS_min;\
 const __LASS_type NumTraits<__LASS_type>::max = __LASS_max;\
-const __LASS_type NumTraits<__LASS_type>::minStrictPositive = 1;
+const __LASS_type NumTraits<__LASS_type>::minStrictPositive = 1;\
 
 #if defined(_MSC_VER)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, true, 0 , UCHAR_MAX)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, true, SCHAR_MIN , SCHAR_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, true, 0 , USHRT_MAX)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, true, SHRT_MIN , SHRT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, true, 0 , UINT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, true, INT_MIN , INT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, true, 0 , ULONG_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, true, LONG_MIN , LONG_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, 0 , UCHAR_MAX)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, SCHAR_MIN , SCHAR_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, 0 , USHRT_MAX)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, SHRT_MIN , SHRT_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, 0 , UINT_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, INT_MIN , INT_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, 0 , ULONG_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, LONG_MIN , LONG_MAX )
 #else
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, true, -128, 127 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, false, 0, 255 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, true, 0 , 0xffff)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, true, (-32768) , 32767 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, true, 0 , 0xffffffff )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, true, (-2147483647 - 1) , 2147483647 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, true, 0 , 0xffffffff )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, true, (-2147483647 - 1) , 2147483647 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, -128, 127 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, 0, 255 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, 0 , 0xffff)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, (-32768) , 32767 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, 0 , 0xffffffff )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, (-2147483647 - 1) , 2147483647 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, 0 , 0xffffffff )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, (-2147483647 - 1) , 2147483647 )
 #endif
 
 #ifdef LASS_CHAR_IS_SIGNED
 #pragma LASS_NOTE("char is configured as signed char")
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, false, -128, 127 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, -128, 127 )
 #else
 #pragma LASS_NOTE("char is configured as unsigned char")
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, false, 0, 255 )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, 0, 255 )
 #endif
+
 }
 }

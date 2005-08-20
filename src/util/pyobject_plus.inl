@@ -397,38 +397,76 @@ inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics,
 }
 
 
-
 /** @internal
  *  casts one numerical value to another with range checking.
  *  implementation detail.
  *  @note range of In should fully contain range of Out.
+ *  @note In and Out should both be signed or unsigned.
  */
-template <typename In, typename Out>
-int pyNumericCast( In iIn, Out& oV )
+template <typename Out>
+class PyNumericCaster
 {
-	LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
-	LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
-	if (iIn < static_cast<In>(num::NumTraits<Out>::min))
+public:
+
+	template <typename In>
+	static int cast( In iIn, Out& oOut )
 	{
-		std::ostringstream buffer;
-		buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: "
-			<< iIn << " < " << num::NumTraits<Out>::min;
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-		return 1;
+		return Impl<num::NumTraits<In>::isSigned>::cast( iIn, oOut );
 	}
-	LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
-	if (iIn > static_cast<In>(num::NumTraits<Out>::max))
+
+private:
+
+	template <bool OutIsSigned> 
+	struct Impl
 	{
-		std::ostringstream buffer;
-		buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
-			<< iIn << " > " << num::NumTraits<Out>::max;
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-		return 1;
-	}
-	oV = static_cast<Out>(iIn);
-	//LASS_ASSERT((oV < 0) == (iIn < 0));
-	return 0;
-}
+		template <typename In> static int cast( In iIn, Out& oOut )
+		{
+			LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
+			LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
+			if (iIn < static_cast<In>(num::NumTraits<Out>::min))
+			{
+				std::ostringstream buffer;
+				buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: "
+					<< iIn << " < " << num::NumTraits<Out>::min;
+				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+				return 1;
+			}
+			LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
+			if (iIn > static_cast<In>(num::NumTraits<Out>::max))
+			{
+				std::ostringstream buffer;
+				buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
+					<< iIn << " > " << num::NumTraits<Out>::max;
+				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+				return 1;
+			}
+			oOut = static_cast<Out>(iIn);
+			return 0;
+		}
+	};
+
+	template <> 
+	struct Impl<false> // Out is signed
+	{
+		template <typename In> static int cast( In iIn, Out& oOut )
+		{
+			LASS_ASSERT(num::NumTraits<In>::isSigned == num::NumTraits<Out>::isSigned);
+			LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
+			if (iIn > static_cast<In>(num::NumTraits<Out>::max))
+			{
+				std::ostringstream buffer;
+				buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
+					<< iIn << " > " << num::NumTraits<Out>::max;
+				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+				return 1;
+			}
+			oOut = static_cast<Out>(iIn);
+			return 0;
+		}
+	};
+};
+
+
 
 /** @internal
  *  convert a PyObject to an signed integer with range checking.
@@ -440,7 +478,7 @@ int pyGetSignedObject( PyObject* iValue, Integer& oV )
 	if (PyInt_Check(iValue))
 	{
 		long temp = PyInt_AS_LONG(iValue);
-		return pyNumericCast( temp, oV );
+		return PyNumericCaster<Integer>::cast( temp, oV );
 	}
 	if (PyLong_Check(iValue))
 	{
@@ -451,7 +489,7 @@ int pyGetSignedObject( PyObject* iValue, Integer& oV )
 				num::NumTraits<Integer>::name().c_str());
 			return 1;
 		}
-		return pyNumericCast( temp, oV );
+		return PyNumericCaster<Integer>::cast( temp, oV );
 	}
 	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
 	return 1;
@@ -475,7 +513,7 @@ int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
-		return pyNumericCast( static_cast<unsigned long>(temp), oV );
+		return PyNumericCaster<Integer>::cast( static_cast<unsigned long>(temp), oV );
 	}
 	if (PyLong_Check(iValue))
 	{
@@ -486,7 +524,7 @@ int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 				num::NumTraits<Integer>::name().c_str());
 			return 1;
 		}
-		return pyNumericCast( temp, oV );
+		return PyNumericCaster<Integer>::cast( temp, oV );
 	}
 	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
 	return 1;
@@ -502,7 +540,7 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 	if (PyFloat_Check(iValue))
 	{
 		double temp = PyFloat_AS_DOUBLE(iValue);
-		return pyNumericCast( temp, oV );
+		return PyNumericCaster<Float>::cast( temp, oV );
 	}
 	if (PyInt_Check(iValue))
 	{
@@ -519,7 +557,7 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 				num::NumTraits<Float>::name().c_str());
 			return 1;
 		}
-		return pyNumericCast( temp, oV );
+		return PyNumericCaster<Float>::cast( temp, oV );
 	}
 	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Float>::name().c_str());
 	return 1;

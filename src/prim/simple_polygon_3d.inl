@@ -79,7 +79,7 @@ typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iInde
 template <typename T>
 const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex) const
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const int i = num::mod(iIndexOfVertex, vertices_.size());
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -92,7 +92,7 @@ const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVe
 template <typename T>
 typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const int i = num::mod(iIndexOfVertex, vertices_.size());
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
