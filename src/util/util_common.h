@@ -32,6 +32,7 @@
  *  - @ref BitManip: a set of bit  manipulation routines
  *  - @ref Callback: library to wrap callback functions in first class objects.
  *  - CallTraits: defines @e best types for arguments, references, etc.
+ *  - Clock: an class to measure time.
  *  - CloneFactory: implements Alexandrescu's clone factory pattern.
  *  - @ref CommonMacros: a set of common macros for your convenience
  *  - Dictionary: a bidirectional dictonary wrapper around a std::map.
@@ -42,15 +43,15 @@
  *  - IdGenerator: Generates unique ID's of the type you want (well, not @e all types).
  *  - NonCopyable: boost::non_copyable
  *  - ObjectFactory: implements Alexandrescu's object factory.
- *  - python::PyObjectPlus: Python binding library
  *  - @ref Process: concerning process settings.
+ *  - ProgressIndicator: a class to print a progress message.
+ *  - @ref Python: Python binding library
  *  - Singleton: implements the singleton idiom in a non-intrusive way, very easy.
  *  - SmallObject: base class for small objects that need a specialized allocator.
  *  - @ref SmartPtr: library of configurable smart pointers like ScopedPtr and SharedPtr
  *  - @ref stringCast: casts a value to a type by using string streams, to cast to/from strings.
  *  - @ref Threading: basic threading library
  *  - @ref ThreadFun: Uses the Callback library to run existing functions in threads
- *  - Triple: std::pair a-like class with one main difference: it has three values.
  *  - TypeInfo: first class wrapper around typeid.
  *  - @ref VisitorPattern: implements Alexandrescu's visitor pattern.
  */

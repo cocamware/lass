@@ -25,7 +25,7 @@
 
 
 
-/** @defgroup extended_io ExtendedIo
+/** @defgroup extended_io
  *  @brief extra insertors and extractors.
  *  @author Bram de Greve [BdG]
  *

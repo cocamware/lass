@@ -25,7 +25,7 @@
 
 
 
-/** @defgroup extended_iterator ExtendedIterator
+/** @defgroup extended_iterator
  *  @brief extra iterator functionality
  *  @author Bram de Greve [BdG]
  *

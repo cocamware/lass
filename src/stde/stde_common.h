@@ -40,11 +40,16 @@
  *
  *  These are the extensions we offer:
  *
+ *  - @ref stde_delete: functors to delete objects in pointer sequence.
+ *  - @ref extended_algorithme: additional STL algorithms
  *  - @ref extended_io: implements stream operators for @c std::pair and STL containers.
  *  - @ref extended_string: implements additional @c std::basic_string functionaly.
  *  - @ref extended_iterator: implements additional iterator functionaly like @c next and @c prior.
- *  - @ref slist: implements a single linked list, much like the one of SGI (and in STLport).
- *  - @ref small_object_allocator: an std compliant allocator using the allocator from util::SmallObject
+ *  - @ref stde_select: functors to to select members of std::pair or stde::triple.
+ *  - slist: implements a single linked list, much like the one of SGI (and in STLport).
+ *  - small_object_allocator: an std compliant allocator using the allocator from util::SmallObject
+ *  - strong_insert
+ *  - triple: a std::pair with tree elements
  *
  *  @note Currently, this libary is headers only.  This means no static library needs to be
  *        build.  Hence, the stde project is skipped by the build and the automatic link

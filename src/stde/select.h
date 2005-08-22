@@ -25,6 +25,11 @@
 
 
 
+/** @defgroup stde_select
+ *  @brief functors to select element of std::pair or stde::triple
+ */
+
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_SELECT_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_SELECT_H
 
@@ -35,7 +40,8 @@ namespace lass
 namespace stde
 {
 
-/** selects first element of pair and applies supplied operator on it
+/** selects first element of std::pair or stde::triple and applies supplied operator on it
+ *  @ingroup stde_select
  */
 template <typename Op>
 struct select_1st_t: public std::unary_function<Op::argument_type, Op::result_type>
@@ -54,7 +60,8 @@ template <typename Op> select_1st_t<Op> select_1st(const Op& op) { return select
 
 
 
-/** selects second element of pair and applies supplied operator on it
+/** selects second element of std::pair or stde::triple and applies supplied operator on it
+ *  @ingroup stde_select
  */
 template <typename Op>
 struct select_2nd_t: public std::unary_function<Op::argument_type, Op::result_type>
@@ -70,6 +77,26 @@ protected:
 /** @relates select_2nd_t
  */
 template <typename Op> select_2nd_t<Op> select_2nd(const Op& op) { return select_2nd_t<Op>(op); }
+
+
+
+/** selects third element of stde::triple and applies supplied operator on it
+ *  @ingroup stde_select
+ */
+template <typename Op>
+struct select_3rd_t: public std::unary_function<Op::argument_type, Op::result_type>
+{
+public:
+	select_3rd_t(): op_() {}
+	explicit select_3rd_t(Op iOp): op_(iOp) {}
+	template <typename T> result_type operator()(T& iT) { return op_(iT.third); }
+protected:
+	Op op_;
+};
+
+/** @relates select_3rd_t
+ */
+template <typename Op> select_3rd_t<Op> select_3rd(const Op& op) { return select_3rd_t<Op>(op); }
 
 
 

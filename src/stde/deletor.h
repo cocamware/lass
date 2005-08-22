@@ -25,6 +25,12 @@
 
 
 
+/** @defgroup stde_deletor
+ *  @brief functors to delete elements in sequence
+ */
+
+
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_DELETOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_DELETOR_H
 
@@ -36,12 +42,13 @@ namespace stde
 {
 
 /** functor to delete object argument
+ *  @ingroup stde_delete
  */
 struct deletor_t: public std::unary_function<void, void>
 {
 public:
 	deletor_t() {}
-	template <typename T> void operator()(T* iT) { delete iT; }
+	template <typename T> void operator()(T iT) { delete iT; }
 };
 
 /** @relates deletor_t
@@ -51,12 +58,13 @@ inline deletor_t deletor() { return deletor_t(); }
 
 
 /** functor to delete array argument
+ *  @ingroup stde_delete
  */
 struct deletor_array_t: public std::unary_function<void, void>
 {
 public:
 	deletor_array_t() {}
-	template <typename T> void operator()(T* iT) { delete [] iT; }
+	template <typename T> void operator()(T iT) { delete [] iT; }
 };
 
 /** @relates deletor_array_t

@@ -25,7 +25,7 @@
 
 
 
-/** @defgroup extended_string ExtendedString
+/** @defgroup extended_string
  *  @brief extra std::string functionality
  *  @author Bram de Greve [BdG]
  *
