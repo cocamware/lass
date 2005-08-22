@@ -88,7 +88,7 @@ public:
 	/** Construct function callback
 	 */
 	template <typename FunctionType>
-	explicit CallbackR$x(FunctionType iFunction)
+	CallbackR$x(FunctionType iFunction)
 	{
 		dispatcher_ = TDispatcherPtr(new impl::DispatcherR$xFunction<R, $(P$x)$, FunctionType>(iFunction));
 	}

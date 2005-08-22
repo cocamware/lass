@@ -85,7 +85,7 @@ public:
 	/** Construct function callback
 	 */
 	template <typename FunctionType>
-	explicit CallbackR0(FunctionType iFunction)
+	CallbackR0(FunctionType iFunction)
 	{
 		dispatcher_ = TDispatcherPtr(new impl::DispatcherR0Function<R, FunctionType>(iFunction));
 	}
