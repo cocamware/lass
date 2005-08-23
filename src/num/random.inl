@@ -82,7 +82,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	for (size_t k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1664525UL)) + *key + j;
-		//state_[i] &= 0xffffffffUL;
+		//state_[i] &= wordMask_;
 
 		++i;
 		if (i >= stateSize_)
@@ -103,7 +103,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	for (size_t k = stateSize_ - 1; k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1566083941UL)) - i;
-		//state_[i] &= 0xffffffffUL;
+		//state_[i] &= wordMask_;
 		++i;
 		if (i >= stateSize_)
 		{
@@ -112,7 +112,7 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 		}
 	}
 
-	state_[0] = 0x7fffffffUL;
+	state_[0] = 0x80000000;
 }
 
 

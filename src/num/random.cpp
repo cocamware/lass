@@ -86,7 +86,7 @@ const RandomParkMiller::TValue RandomParkMiller::operator ()()
 
 // --- RandomMT19937 -------------------------------------------------------------------------------
 
-const RandomMT19937::TValue RandomMT19937::max = 0xffffffffUL;
+const RandomMT19937::TValue RandomMT19937::max = 0xffffffff;
 
 /** default constructor.
  *  will seed with default value on first use.
@@ -111,11 +111,11 @@ RandomMT19937::RandomMT19937(TValue iSeed)
  */
 void RandomMT19937::seed(TValue iSeed)
 {
-	state_[0] = iSeed; // & 0xffffffffUL;
+	state_[0] = iSeed; // & 0xffffffff;
 	for (unsigned i = 1; i < stateSize_; ++i)
 	{
-		state_[i] = (1812433253UL * (state_[i - 1] ^ (state_[i - 1] >> 30)) + i);
-		//state_[i] &= 0xffffffffUL;
+		state_[i] = (1812433253 * (state_[i - 1] ^ (state_[i - 1] >> 30)) + i);
+		//state_[i] &= 0xffffffff;
 	}
 	index_ = stateSize_;
 }
@@ -136,8 +136,8 @@ const RandomMT19937::TValue RandomMT19937::operator()()
 	// Tempering
 	//
 	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
-	y ^= (y << 15) & 0xefc60000UL;
+	y ^= (y << 7) & 0x9d2c5680;
+	y ^= (y << 15) & 0xefc60000;
 	y ^= (y >> 18);
 
 	return y;
@@ -155,7 +155,7 @@ void RandomMT19937::reload()
 	//
 	if (index_ == stateSize_ + 1)
 	{
-		seed(5489UL);
+		seed(5489);
 	}
 
 	int k;
@@ -174,10 +174,10 @@ void RandomMT19937::reload()
 
 inline const RandomMT19937::TValue RandomMT19937::twist(TValue iA, TValue iB, TValue iC) const
 {
-	static const TValue magic01[2] = { 0x0UL, 0x9908b0dfUL }; // magic01[x] = x * magic_ for x = 0, 1
+	static const TValue magic01[2] = { 0x0, 0x9908b0df }; // magic01[x] = x * magic_ for x = 0, 1
 
-	const TValue y = (iA & 0x80000000UL) | (iB & 0x7fffffffUL);
-	return iC ^ (y >> 1) ^ magic01[y & 0x1UL];
+	const TValue y = (iA & 0x80000000) | (iB & 0x7fffffff);
+	return iC ^ (y >> 1) ^ magic01[y & 0x1];
 }
 
 

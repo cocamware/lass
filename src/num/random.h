@@ -73,6 +73,8 @@ public:
  */
 class LASS_DLL RandomParkMiller
 {
+public:
+
 	typedef num::Tuint32 TValue;    /**< type of return value. */
 	static const TValue max;        /**< maximum return value. */
 
@@ -151,6 +153,10 @@ private:
 
 	TValue state_[stateSize_];      /**< the array for the state vector. */
 	int index_;                     /**< index in state vector. */
+
+	static TValue wordMask_;
+	static TValue lowerMask_;
+	static TValue upperMask_;
 };
 
 

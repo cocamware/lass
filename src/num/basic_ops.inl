@@ -37,7 +37,6 @@ struct IntPow
 	static T eval(TSigned iX, TSigned iY)
 	{
 		LASS_ASSERT(iY >= 0);
-		LASS_ASSERT(NumTraits<TSigned>::max <= NumTraits<TUnsigned>::max);
 		return eval(iX, static_cast<TUnsigned>(iY));
 	}
 
@@ -72,12 +71,14 @@ struct IntDiv
 
 	static T eval(TSigned iV, TSigned iMod)
 	{
+		LASS_ASSERT(iMod > 0);
 		const TSigned tempDiv = iV / iMod;
 		return iV % iMod >= 0 ? tempDiv : (tempDiv - 1);
 	}
 
 	static T eval(TSigned iV, TUnsigned iMod)
 	{
+		LASS_ASSERT(iMod > 0);
 		const TSigned signedMod = static_cast<TSigned>(iMod);
 		LASS_ASSERT(signedMod >= 0);
 		const TSigned tempDiv = iV / signedMod;
@@ -93,12 +94,14 @@ struct IntMod
 
 	static T eval(TSigned iV, TSigned iMod)
 	{
+		LASS_ASSERT(iMod > 0);
 		const TSigned tempMod = iV % iMod;
-		return tempMod >= 0 ? tempMod : (tempMod - iMod);
+		return tempMod >= 0 ? tempMod : (tempMod + iMod);
 	}
 
 	static T eval(TSigned iV, TUnsigned iMod)
 	{
+		LASS_ASSERT(iMod > 0);
 		const TSigned signedMod = static_cast<TSigned>(iMod);
 		LASS_ASSERT(signedMod >= 0);
 		const TSigned tempMod = iV % signedMod;
