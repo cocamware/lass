@@ -75,10 +75,28 @@ void AabbTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 
 
 
-template <class O, class OT>
+template <class O, class OT> inline
 bool AabbTree<O, OT>::contains(const TPoint& iPoint) const
 {
 	return doContains(0, iPoint);
+}
+
+
+
+template <class O, class OT>
+template <typename OutputIterator> inline
+OutputIterator AabbTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst) const
+{
+	return doFind(0, iPoint, iFirst);
+}
+
+
+
+template <class O, class OT>
+typename AabbTree<O, OT>::TObjectIterator inline
+AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT) const
+{
+	return doIntersect(0, iRay, oT);
 }
 
 
@@ -153,10 +171,10 @@ template <class O, class OT>
 typename AabbTree<O, OT>::TAabb
 AabbTree<O, OT>::findAabb(TNodeIterator iBegin, TNodeIterator iEnd) const
 {
-	TAabb result;
-	for (TNodeIterator i = iBegin; i != iEnd; ++i)
+	TAabb result = iBegin->aabb;
+	for (TNodeIterator i = iBegin + 1; i != iEnd; ++i)
 	{
-		result += i->aabb;
+		result = TObjectTraits::join(result, i->aabb);
 	}
 	return result;
 }
@@ -167,13 +185,13 @@ template <class O, class OT>
 typename AabbTree<O, OT>::TAxis
 AabbTree<O, OT>::findSplitAxis(const TAabb& iAabb) const
 {
-	const TPoint min = iAabb.min();
-	const TPoint max = iAabb.max();
+	const TPoint min = TObjectTraits::min(iAabb);
+	const TPoint max = TObjectTraits::max(iAabb);
 	TAxis axis = 0;
-	TValue maxDistance = max[0] - min[0];
+	TValue maxDistance = TObjectTraits::component(max, 0) - TObjectTraits::component(min, 0);
 	for (TAxis k = 1; k < dimension; ++k)
 	{
-		const TValue distance = max[k] - min[k];
+		const TValue distance = TObjectTraits::component(max, k) - TObjectTraits::component(min, k);
 		if (distance > maxDistance)
 		{
 			axis = k;
@@ -205,7 +223,7 @@ bool AabbTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint) const
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
 
-	if (!node.aabb.contains(iPoint))
+	if (!TObjectTraits::contains(node.aabb, iPoint))
 	{
 		return false;
 	}
@@ -220,16 +238,78 @@ bool AabbTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint) const
 
 
 
-template <class O, class OT> inline
-typename AabbTree<O, OT>::TValue
-AabbTree<O, OT>::squaredDistance(const TPoint& iA, const TPoint& iB)
+template <class O, class OT>
+template <typename OutputIterator>
+OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const
 {
-	TValue result = TValue();
-	for (unsigned k = 0; k < dimension; ++k)
+	LASS_ASSERT(iIndex < heap_.size());
+	const Node& node = heap_[iIndex];
+
+	if (!TObjectTraits::contains(node.aabb, iPoint))
 	{
-		result += num::sqr(iA[k] - iB[k]);
+		return iFirst;
 	}
-	return result;
+
+	if (node.object == end_)
+	{
+		OutputIterator temp = doFind(2 * iIndex + 1, iPoint, iFirst);
+		return doFind(2 * iIndex + 2, iPoint, temp);
+	}
+
+	if (TObjectTraits::contains(node.object, iPoint))
+	{
+		*iFirst = node.object;
+		++iFirst;
+	}
+	return iFirst;
+}
+
+
+
+template <class O, class OT>
+typename AabbTree<O, OT>::TObjectIterator 
+AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) const
+{
+	LASS_ASSERT(iIndex < heap_.size());
+	const Node& node = heap_[iIndex];
+
+	TValue t;
+	if (!TObjectTraits::intersect(node.aabb, iRay, t))
+	{
+		return end_;
+	}
+
+	if (node.object == end_)
+	{
+		TValue tLeft;
+		TObjectIterator left = doIntersect(2 * iIndex + 1, iRay, tLeft);
+		TValue tRight;
+		TObjectIterator right = doIntersect(2 * iIndex + 2, iRay, tRight);
+
+		if (left != end_)
+		{
+			if (right != end_ && tRight < tLeft)
+			{
+				oT = tRight;
+				return right;
+			}
+			oT = tLeft;
+			return left;
+		}
+		if (right != end_)
+		{
+			oT = tRight;
+			return right;
+		}
+		return end_;
+	}
+
+	if (TObjectTraits::intersect(node.object, iRay, t))
+	{
+		oT = t;
+		return node.object;
+	}
+	return end_;
 }
 
 // --- free ----------------------------------------------------------------------------------------

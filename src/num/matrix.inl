@@ -303,6 +303,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::Column
 Matrix<T, S>::column(TSize iColumn)
 {
+#pragma LASS_FIXME("shouldn't iColumn be signed?")
 	return Column(*this, mod(iColumn, columns()));
 }
 

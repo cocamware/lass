@@ -122,6 +122,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTria
 #	include "aabb_2d_triangle_2d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
+#	include "ray_2d_triangle_2d.h"
+#endif
+
 #endif
 
 // EOF

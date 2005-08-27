@@ -25,76 +25,46 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_STOP_WATCH_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_STOP_WATCH_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_RAY_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_RAY_3D_H
+#pragma once
 
-#include "util_common.h"
-#include "clock.h"
+#include "prim_common.h"
+#include "aabb_3d.h"
+#include "ray_3d.h"
+
+
 
 namespace lass
 {
-namespace util
+
+namespace prim
 {
 
-class StopWatch
-{
-public:
+template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
+Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
+				 const Ray3D<T, NPRay, PPRay>& iRay,
+				 T& oTNear, T& oFar);
 
-	typedef Clock::TTime TTime;
+template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
+Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
+				 const Ray3D<T, NPRay, PPRay>& iRay,
+				 T& oTNear);
 
-	StopWatch(Clock& iClock, TTime iInitialTime = 0):
-		clock_(&iClock)
-	{
-		reset(iInitialTime);
-	}
+template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
+Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
+				 const Aabb3D<T, MMPAabb>& iAabb,				 
+				 T& oTNear, T& oFar);
 
-	void reset(TTime iInitialTime = 0)
-	{
-		timeBuffer_ = iInitialTime;
-		isRunning_ = false;
-	}
-
-	void start()
-	{
-		startTime_ = clock_->time();
-		isRunning_ = true;
-	}
-
-	void restart(TTime iInitialTime = 0)
-	{
-		reset(iInitialTime);
-		start();
-	}
-
-	const TTime stop()
-	{
-		const TTime stopTime = clock_->time();
-		if (isRunning_)
-		{
-			timeBuffer_ += stopTime - startTime_;
-			isRunning_ = false;
-		}
-		return timeBuffer_;
-	}
-
-	const TTime time() const
-	{
-		const TTime t = clock_->time();
-		return isRunning_ ? (timeBuffer_ + t - startTime_) : timeBuffer_;
-	}
-
-private:
-
-	TTime timeBuffer_;
-	TTime startTime_;
-	Clock* clock_;
-	bool isRunning_;
-};
+template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
+Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
+				 const Aabb3D<T, MMPAabb>& iAabb,				 
+				 T& oTNear);
 
 }
 
 }
+
+#include "aabb_3d_ray_3d.inl"
 
 #endif
-
-// EOF

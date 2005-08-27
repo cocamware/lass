@@ -25,15 +25,15 @@
 
 
 
-/** @class lass::spat::AabbTree
+/** @class lass::spat::AabpTree
  *  @brief an AABB bounding volume tree that looks similar to a KdTree
  *  @author Bram de Greve [BdG]
  *
  *  the AabbTree does NOT own the objects.  You must keep them yourself!
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_SPAT_AABB_TREE_H
-#define LASS_GUARDIAN_OF_INCLUSION_SPAT_AABB_TREE_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_SPAT_AABP_TREE_H
+#define LASS_GUARDIAN_OF_INCLUSION_SPAT_AABP_TREE_H
 
 //#define LASS_SPAT_AABB_TREE_DIAGNOSTICS
 
@@ -50,11 +50,11 @@ template
 	class ObjectType,
 	class ObjectTraits = DefaultObjectTraits<ObjectType, typename ObjectType::TAabb, typename ObjectType::TRay>
 >
-class AabbTree
+class AabpTree
 {
 public:
 
-	typedef AabbTree<ObjectType, ObjectTraits> TSelf;
+	typedef AabpTree<ObjectType, ObjectTraits> TSelf;
 
 	typedef ObjectType TObject;
 	typedef ObjectTraits TObjectTraits;
@@ -67,15 +67,15 @@ public:
 	typedef typename TObjectTraits::TVector TVector;
 	typedef typename TObjectTraits::TValue TValue;
 	typedef typename TObjectTraits::TParam TParam;
-	typedef typename TObjectTraits::TReference TReference;
-	typedef typename TObjectTraits::TConstReference TConstReference;
+	typedef typename TObjectTraits::TParam TReference;
+	typedef typename TObjectTraits::TParam TConstReference;
 
 	enum { dimension = TObjectTraits::dimension };
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
-	AabbTree();
-	AabbTree(TObjectIterator iBegin, TObjectIterator iEnd);
+	AabpTree();
+	AabpTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
@@ -90,44 +90,64 @@ public:
 
 private:
 
+	typedef size_t TAxis;
+
+	enum { leafNode_ = TAxis(-1) };
+
 	struct Node
 	{
-		TAabb aabb;
-		TObjectIterator object;
-		Node(const TAabb& iAabb, TObjectIterator iObject): aabb(iAabb), object(iObject) {}
+        TAxis split;
+        union
+        {
+            struct
+            {
+                TValue leftBound;
+                TValue rightBound;
+            };
+            TObjectIterator object;
+        };
 	};
 
 	typedef std::vector<Node> TNodes;
 	typedef typename TNodes::iterator TNodeIterator;
 
-	typedef size_t TAxis;
+    struct BoundedObject
+    {
+        TAabb aabb;
+        TObjectIterator object;
+		BoundedObject(const TAabb& iAabb, TObjectIterator iObject): aabb(iAabb), object(iObject) {}
+    };
+
+	typedef std::vector<BoundedObject> TBoundedObjects;
+	typedef typename TBoundedObjects::iterator TBoundedObjectIterator;
 
 	class LessDim
 	{
 	public:
 		LessDim(TAxis iSplit): split_(iSplit) {}
-		bool operator()(const Node& iA, const Node& iB) const
+		bool operator()(const BoundedObject& iA, const BoundedObject& iB) const
 		{
-			return TObjectTraits::component(TObjectTraits::min(iA.aabb), split_)
-				< TObjectTraits::component(TObjectTraits::min(iB.aabb), split_);
+            return TObjectTraits::component(TObjectTraits::min(iA.aabb), split_) 
+                < TObjectTraits::component(TObjectTraits::min(iB.aabb), split_);
 		}
 	private:
 		TAxis split_;
 	};
 
-	void balance(size_t iIndex, TNodeIterator iBegin, TNodeIterator iEnd);
-	TAabb findAabb(TNodeIterator iBegin, TNodeIterator iEnd) const;
+	void balance(size_t iIndex, const TAabb& iAabb,
+        TBoundedObjectIterator iBegin, TBoundedObjectIterator iEnd);
+	TAabb findAabb(TBoundedObjectIterator iBegin, TBoundedObjectIterator iEnd) const;
 	TAxis findSplitAxis(const TAabb& iAabb) const;
-	void assignNode(size_t iIndex, const Node& iObject);
+	void assignLeaf(size_t iIndex, TBoundedObjectIterator iObject);
+	void assignInternal(size_t iIndex, TAxis iSplit, TParam iLeftBound, TParam iRightBound);
 
 	bool doContains(size_t iIndex, const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT) const;
-
-	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
+	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference ioTNear, TReference ioTFar) const;
 
 	TNodes heap_;
+	TAabb aabb_;
 	TObjectIterator begin_;
 	TObjectIterator end_;
 	size_t size_;
@@ -138,7 +158,7 @@ private:
 
 }
 
-#include "aabb_tree.inl"
+#include "aabp_tree.inl"
 
 #endif
 

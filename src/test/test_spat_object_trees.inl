@@ -26,12 +26,12 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_AABB_TREE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_AABB_TREE_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
 
 #include "test_common.h"
 #include "../spat/aabb_tree.h"
-//#include "../spat/aabp_tree.h"
+#include "../spat/aabp_tree.h"
 #include "../meta/select.h"
 #include "../num/distribution.h"
 #include "../num/random.h"
@@ -48,7 +48,7 @@ namespace lass
 {
 namespace test
 {
-namespace aabb_tree
+namespace object_trees
 {
 
 template <typename T, typename RandomGenerator>
@@ -103,44 +103,32 @@ void generateObjects(const prim::Aabb3D<T>& iBound,
 }
 
 template <typename T, size_t dim>
-void testSpatAabbTree()
+void testSpatObjectTrees()
 {
-	typedef typename meta::Select
-	<
-		dim == 2,
-		prim::Aabb2D<T>,
-		prim::Aabb3D<T>
-	>::Type TAabb;
 
-	typedef typename meta::Select
-	<
-		dim == 2,
-		prim::Ray2D<T>,
-		prim::Ray3D<T>
-	>::Type TRay;
+	const T extent = T(1000);
+	const T maxSize = T(10);
+	const size_t numberOfObjects = 10000;
+	const size_t numberOfContainTests = 1000000;
+	const size_t numberOfIntersectionTests = 1000;
 
-	typedef typename meta::Select
-	<
-		dim == 2,
-		prim::Triangle2D<T>,
-		prim::Sphere3D<T>
-	>::Type TObject;
+	typedef typename meta::Select< dim == 2, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
+	typedef typename meta::Select< dim == 2, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
+	typedef typename meta::Select< dim == 2, prim::Ray2D<T>, prim::Ray3D<T> >::Type TRay;
 
 	typedef typename TObject::TPoint TPoint;
 	typedef typename TObject::TVector TVector;
 	typedef typename TObject::TNumTraits TNumTraits;
 
-	const T extent = T(1000);
-	const T maxSize = T(10);
-	const size_t numberOfObjects = 10000;
-	const size_t numberOfContainTests = 1000;
-	const size_t numberOfIntersectionTests = 1000;
-
+	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
+	typedef spat::AabbTree<TObject, TObjectTraits> TAabbTree;
+	typedef spat::AabpTree<TObject, TObjectTraits> TAabpTree;
+	
 	// set bounds
 	//
 	TPoint min;
 	TPoint max;
-	for (size_t i = 0; i < TPoint::dimension; ++i)
+	for (size_t i = 0; i < dim; ++i)
 	{
 		min[i] = -extent;
 		max[i] = extent;
@@ -149,20 +137,21 @@ void testSpatAabbTree()
 
 	// random generator
 	//
-	num::RandomParkMiller generator;
+	num::RandomMT19937 generator;
 
 	// create test subjects
 	//
 	TObject objects[numberOfObjects];
-	aabb_tree::generateObjects(bounds, maxSize, generator, numberOfObjects, objects);
+	object_trees::generateObjects(bounds, maxSize, generator, numberOfObjects, objects);
 	TObject* objectsEnd = objects + numberOfObjects;
 
-	// create tree
+	// create trees
 	//
-	typedef spat::AabbTree<TObject, spat::DefaultObjectTraits<TObject, TAabb, TRay> > TTree;
-	TTree tree(objects, objectsEnd);
+	TAabbTree aabbTree(objects, objectsEnd);
+	TAabpTree aabpTree(objects, objectsEnd);
 
-	typedef std::vector<const TObject*> TObjectHits;
+	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+	typedef std::vector<TObjectIterator> TObjectHits;
 
 	// contain test
 	//
@@ -180,27 +169,34 @@ void testSpatAabbTree()
 				naiveHits.push_back(&objects[k]);
 			}
 		}
-
-		bool treeContain = tree.contains(target);
-		TObjectHits treeHits;
-		tree.find(target, std::back_inserter(treeHits));
-
-		BOOST_CHECK_EQUAL(naiveContain, treeContain);
-		BOOST_CHECK_EQUAL(naiveContain, !treeHits.empty());
-
 		std::sort(naiveHits.begin(), naiveHits.end());
-		std::sort(treeHits.begin(), treeHits.end());
-		BOOST_CHECK(naiveHits.size() == treeHits.size() &&
-			std::equal(naiveHits.begin(), naiveHits.end(), treeHits.begin()));
+
+		bool aabbContain = aabbTree.contains(target);
+		TObjectHits aabbHits;
+		aabbTree.find(target, std::back_inserter(aabbHits));
+		std::sort(aabbHits.begin(), aabbHits.end());
+		BOOST_CHECK_EQUAL(naiveContain, aabbContain);
+		BOOST_CHECK_EQUAL(naiveContain, !aabbHits.empty());
+		BOOST_CHECK(naiveHits.size() == aabbHits.size() && 
+			std::equal(naiveHits.begin(), naiveHits.end(), aabbHits.begin()));
+
+		bool aabpContain = aabpTree.contains(target);
+		TObjectHits aabpHits;
+		aabpTree.find(target, std::back_inserter(aabpHits));
+		std::sort(aabpHits.begin(), aabpHits.end());
+		BOOST_CHECK_EQUAL(naiveContain, aabpContain);
+		BOOST_CHECK_EQUAL(naiveContain, !aabpHits.empty());
+		BOOST_CHECK(naiveHits.size() == aabpHits.size() && 
+			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
 	}
 
 	// intersection test
 	//
 	for (unsigned i = 0; i < numberOfIntersectionTests; ++i)
 	{
-		TPoint start = bounds.random(generator);
+		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
-		TRay ray(start, direction);
+		TRay ray(support, direction);
 
 		T naiveT = TNumTraits::infinity;
 		TObject* naiveIntersection = objectsEnd;
@@ -215,14 +211,23 @@ void testSpatAabbTree()
 			}
 		}
 
-		//std::cout << i << "\t" << naiveIntersection << "\t" << naiveT << "\t" << ray.point(naiveT) << std::endl;
+		T aabbT = TNumTraits::infinity;
+		const TObject* aabbIntersection = aabbTree.intersect(ray, aabbT);
+		BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
+		BOOST_CHECK_EQUAL(naiveT, aabbT);
 
-		T treeT = TNumTraits::infinity;
-		const TObject* treeIntersection = tree.intersect(ray, treeT);
-
-		BOOST_CHECK_EQUAL(naiveIntersection, treeIntersection);
-		BOOST_CHECK_EQUAL(naiveT, treeT);
+#pragma LASS_FIXME("this is broken, fix :)  [Bramz]")
+		/*
+		T aabpT = TNumTraits::infinity;
+		const TObject* aabpIntersection = aabpTree.intersect(ray, aabpT);
+		BOOST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
+		BOOST_CHECK_EQUAL(naiveT, aabpT);
+		*/
 	}
+
+	// SPEED TESTS
+	//
+	std::cout << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
 
 	// contain speed test
 	//
@@ -233,7 +238,8 @@ void testSpatAabbTree()
 	{
 		containTargets[i] = bounds.random(generator);
 	}
-	stopWatch.start();
+	
+	stopWatch.restart();
 	for (size_t i = 0; i < numberOfContainTests; ++i)
 	{
 		for (size_t k = 0; k < numberOfObjects; ++k)
@@ -244,31 +250,42 @@ void testSpatAabbTree()
 			}
 		}
 	}
-	const double naiveContainTime = stopWatch.stop();
-	stopWatch.reset();
-	stopWatch.start();
+	const util::Clock::TTime naiveContainTime = stopWatch.stop();
+	
+	stopWatch.restart();
 	for (size_t i = 0; i < numberOfContainTests; ++i)
 	{
 		for (size_t k = 0; k < numberOfObjects; ++k)
 		{
-			tree.contains(containTargets[i]);
+			aabbTree.contains(containTargets[i]);
 		}
 	}
-	const double treeContainTime = stopWatch.stop();
+	const  util::Clock::TTime aabbContainTime = stopWatch.stop();
+	
+	stopWatch.restart();
+	for (size_t i = 0; i < numberOfContainTests; ++i)
+	{
+		for (size_t k = 0; k < numberOfObjects; ++k)
+		{
+			aabpTree.contains(containTargets[i]);
+		}
+	}
+	const util::Clock::TTime aabpContainTime = stopWatch.stop();
 
-	std::cout << "contains: naive " << naiveContainTime << "\ttree " << treeContainTime << std::endl;
+	std::cout << "contains: naive " << naiveContainTime << "\taabb " << aabbContainTime
+		<< "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
 	//
 	TRay intersectionTargets[numberOfIntersectionTests];
 	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 	{
-		TPoint start = bounds.random(generator);
+		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
-		intersectionTargets[i] = TRay(start, direction);
+		intersectionTargets[i] = TRay(support, direction);
 	}
-	stopWatch.reset();
-	stopWatch.start();
+
+	stopWatch.restart();
 	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 	{
 		T naiveT = TNumTraits::infinity;
@@ -284,17 +301,29 @@ void testSpatAabbTree()
 			}
 		}
 	}
-	const double naiveIntersectionTime = stopWatch.stop();
-	stopWatch.reset();
-	stopWatch.start();
+	const util::Clock::TTime naiveIntersectionTime = stopWatch.stop();
+
+	stopWatch.restart();
 	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 	{
-		T treeT = TNumTraits::infinity;
-		tree.intersect(intersectionTargets[i], treeT);
+		T aabbT = TNumTraits::infinity;
+		aabbTree.intersect(intersectionTargets[i], aabbT);
 	}
-	const double treeIntersectionTime = stopWatch.stop();
+	const util::Clock::TTime aabbIntersectionTime = stopWatch.stop();
 
-	std::cout << "intersection: naive " << naiveIntersectionTime << "\ttree " << treeIntersectionTime << std::endl;
+	stopWatch.restart();
+#pragma LASS_FIXME("this is broken, fix :)  [Bramz]")
+	/*
+	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
+	{
+		T aabpT = TNumTraits::infinity;
+		aabpTree.intersect(intersectionTargets[i], aabpT);
+	}
+	*/
+	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
+
+	std::cout << "intersection: naive " << naiveIntersectionTime << "\taabb " << aabbIntersectionTime 
+		<< "\taabp " << aabpIntersectionTime << std::endl;
 }
 
 

@@ -597,6 +597,9 @@
 				RelativePath=".\test_spat_mesh_interpolator.inl">
 			</File>
 			<File 
+				RelativePath=".\test_spat_object_trees.inl">
+			</File>
+			<File 
 				RelativePath="test_spat_planar_mesh.inl">
 			</File>
 			<File 

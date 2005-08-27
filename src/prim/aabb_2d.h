@@ -173,6 +173,10 @@ io::MatlabOStream& operator<<(io::MatlabOStream& ioOStream, const Aabb2D<T, MMP>
 #	include "pyobject_util.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
+#	include "aabb_2d_ray_2d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_2D_H
 #	include "aabb_2d_simple_polygon_2d.h"
 #endif

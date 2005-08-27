@@ -29,7 +29,7 @@
 #include "test_common.h"
 #include "test_spat.h"
 
-#include "test_spat_aabb_tree.inl"
+#include "test_spat_object_trees.inl"
 #include "test_spat_kd_tree.inl"
 #include "test_spat_quad_tree.inl"
 #include "test_spat_planar_mesh.inl"
@@ -46,14 +46,14 @@ boost::unit_test_framework::test_suite* testSpat()
 
 	typedef void(*TTestCase)();
 
-	TTestCase aabbTreeFloat2 = testSpatAabbTree<float, 2>;
-	TTestCase aabbTreeFloat3 = testSpatAabbTree<float, 3>;
-	TTestCase aabbTreeDouble2 = testSpatAabbTree<double, 2>;
-	TTestCase aabbTreeDouble3 = testSpatAabbTree<double, 3>;
-	result->add(BOOST_TEST_CASE(aabbTreeFloat2));
-	result->add(BOOST_TEST_CASE(aabbTreeFloat3));
-	result->add(BOOST_TEST_CASE(aabbTreeDouble2));
-	result->add(BOOST_TEST_CASE(aabbTreeDouble3));
+	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
+	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
+	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
+	TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
+	result->add(BOOST_TEST_CASE(objectTreesFloat2));
+	result->add(BOOST_TEST_CASE(objectTreesFloat3));
+	result->add(BOOST_TEST_CASE(objectTreesDouble2));
+	result->add(BOOST_TEST_CASE(objectTreesDouble3));
 
 	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<float> >));
 	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));
