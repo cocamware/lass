@@ -35,6 +35,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_SPAT_MESH_INTERPOLATOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_MESH_INTERPOLATOR_H
 
+#pragma LASS_FIXME("Using PI as template argument isn't a good idea after all ;) [Bramz]")
+
 #include "spat_common.h"
 #include "planar_mesh.h"
 
