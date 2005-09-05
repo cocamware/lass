@@ -106,6 +106,7 @@ struct Vector3D
 	const Vector3D<T> reciprocal() const;
 	const Vector3D<T> project(const Vector3D<T>& iB) const;
 	const Vector3D<T> reject(const Vector3D<T>& iB) const;
+	const Vector3D<T> reflect(const Vector3D<T>& iB) const;
 	const Vector3D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();

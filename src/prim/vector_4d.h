@@ -106,6 +106,7 @@ struct Vector4D
 	const Vector4D<T> reciprocal() const;
 	const Vector4D<T> project(const Vector4D<T>& iB) const;
 	const Vector4D<T> reject(const Vector4D<T>& iB) const;
+	const Vector4D<T> reflect(const Vector4D<T>& iB) const;
 	const Vector4D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();

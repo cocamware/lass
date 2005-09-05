@@ -317,12 +317,20 @@ const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 
 
 
-/** Project vector on this one
+/** Reject vector from this one
  */
 template<typename T> inline
 const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
 {
 	return iB - project(iB);
+}
+
+
+
+template<typename T> inline
+const Vector3D<T> Vector3D<T>::reflect(const Vector3D<T>& iB) const
+{
+	return 2 * project(iB) - iB;
 }
 
 

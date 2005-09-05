@@ -106,6 +106,7 @@ struct Vector2D
 	const Vector2D<T> perp() const;
 	const Vector2D<T> project(const Vector2D<T>& iB) const;
 	const Vector2D<T> reject(const Vector2D<T>& iB) const;
+	const Vector2D<T> reflect(const Vector2D<T>& iB) const;
 	const Vector2D<T> transform(T (*iOperator)(T)) const;
 
 	void normalize();

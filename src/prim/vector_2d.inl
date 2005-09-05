@@ -322,6 +322,14 @@ const Vector2D<T> Vector2D<T>::reject(const Vector2D<T>& iB) const
 
 
 
+template<typename T> inline
+const Vector2D<T> Vector2D<T>::reflect(const Vector2D<T>& iB) const
+{
+	return 2 * project(iB) - iB;
+}
+
+
+
 /** apply a function to every component
  */
 template <typename T>

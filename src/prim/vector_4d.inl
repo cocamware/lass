@@ -325,6 +325,14 @@ const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
 
 
 
+template<typename T> inline
+const Vector4D<T> Vector4D<T>::reflect(const Vector4D<T>& iB) const
+{
+	return 2 * project(iB) - iB;
+}
+
+
+
 /** apply a function to every component
  */
 template <typename T>
