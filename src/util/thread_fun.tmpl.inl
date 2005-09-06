@@ -145,7 +145,7 @@ ThreadFun$x<$(P$x)$>* threadMemFun(
 	ThreadKind iKind)
 {
 	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback1<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
+		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
 	result->create();
 	result->run();
 	return result;
