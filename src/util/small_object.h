@@ -168,6 +168,17 @@ public:
 			iPointer, iSize);
 #endif
 	}
+
+	static void operator delete(void* iPointer, std::size_t iSize, const std::nothrow_t&) throw()
+	{
+		try
+		{
+			return SmallObject::operator delete(iPointer, iSize);
+		}
+		catch (...)
+		{
+		}
+	}
 };
 
 

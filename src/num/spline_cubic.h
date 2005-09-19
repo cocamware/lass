@@ -54,6 +54,8 @@ public:
 	typedef DataTraits TDataTraits;
 
 	SplineCubic();
+	template <typename PairInputIterator>
+	SplineCubic(PairInputIterator iFirst, PairInputIterator iLast);
 	template <typename ScalarInputIterator, typename DataInputIterator>
 	SplineCubic(ScalarInputIterator iFirstControl, ScalarInputIterator iLastControl,
 		DataInputIterator iFirstData);

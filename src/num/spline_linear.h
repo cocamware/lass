@@ -56,6 +56,8 @@ public:
 	typedef DataTraits TDataTraits;
 
 	SplineLinear();
+	template <typename PairInputIterator>
+	SplineLinear(PairInputIterator iFirst, PairInputIterator iLast);
 	template <typename ScalarInputIterator, typename DataInputIterator>
 	SplineLinear(ScalarInputIterator iFirstControl, ScalarInputIterator iLastControl,
 		DataInputIterator iFirstData);

@@ -185,7 +185,7 @@
  *  @a s_objectName = # @a o_object
  */
 #define PY_INJECT_OBJECT_IN_MODULE( o_object, i_module )\
-	PY_INJECT_OBJECT_IN_MODULE_AT_RUNTIME_EX(o_object, i_module, LASS_STRINGIFY(o_object))
+	PY_INJECT_OBJECT_IN_MODULE_EX(o_object, i_module, LASS_STRINGIFY(o_object))
 
 
 

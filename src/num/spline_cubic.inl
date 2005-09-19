@@ -49,31 +49,71 @@ SplineCubic<S, D, T>::SplineCubic()
 
 
 
-/** construct a spline with a range of nodes.
+/** construct a spline from a range of control/data pairs.
  *
- *  Each node consists of a control value and a data value.  You must provide the control
- *  and data values in seperate ranges.  The control values are passed by a pair of iterators
+ *  Each node consists of a control value and a data value.  This contstructor accepts a single 
+ *	range [iFirst, iLast) of control/data pairs.  The iterator type should have two fields
+ *  @c first and @c second that contain respectively the control and data values.  This is
+ *  choosen so that a std::pair can be used as a representatin of the control/data pair.
+ *
+ *  @pre
+ *  @arg [iFirst, iLast) is a valid range.
+ *  @arg @c PairInputIterator has a member @c first containing the control value
+ *  @arg @c PairInputIterator has a member @c second containing the data value
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
+ */
+template <typename S, typename D, typename T>
+template <typename PairInputIterator>
+SplineCubic<S, D, T>::SplineCubic(PairInputIterator iFirst,
+								  PairInputIterator iLast)
+{
+	while (iFirstControl != iLastControl)
+	{
+		Node node;
+		node.x = iFirst->first;
+		node.d = iFirst->second;
+		nodes_.push_back(node);
+		++iFirst;
+	}
+	init();
+}
+
+
+
+/** construct a spline from seperate ranges.
+ *
+ *  Each node consists of a control value and a data value.  This contstructor accepts seperate
+ *  ranges for control and data values.  The control values are given by the range 
  *  [iFirstControl , iLastControl).  Of the range of the data values, only the iterator
  *  iFirstData to the the first element is given.
  *
  *  @pre
  *  @arg [iFirstControl, iLastControl) is a valid range.
  *  @arg [iFirstData, iFirstData + (iLastControl - iFirstControl)) is a valid range.
+ *
+ *  @par complexity: 
+ *		O(D * log(N)) with 
+ *		@arg D = a figure that indicates the complexity of operations on data values.
+ *				 Is most probably linear with the dimension of the data value
+ *		@arg N = number of nodes
  */
 template <typename S, typename D, typename T>
 template <typename ScalarInputIterator, typename DataInputIterator>
-SplineCubic<S, D, T>::SplineCubic(ScalarInputIterator iFirstControl,
+SplineCubic<S, D, T>::SplineCubic(ScalarInputIterator iFirstControl, 
 								  ScalarInputIterator iLastControl,
 								  DataInputIterator iFirstData)
 {
 	while (iFirstControl != iLastControl)
 	{
 		Node node;
-		node.x = *iFirstControl;
-		node.d = *iFirstData;
+		node.x = *iFirstControl++;
+		node.d = *iFirstData++;
 		nodes_.push_back(node);
-		++iFirstControl;
-		++iFirstData;
 	}
 	init();
 }
@@ -287,6 +327,7 @@ void SplineCubic<S, D, T>::init()
 	//
 	const size_t numUnknows = n - 2;
 
+#pragma LASS_TODO("use a more efficient tridiagonal solver here! [Bramz]")
 	// a tridiagonal matrix with 1, 4, 1
 	num::Matrix<TScalar> m(numUnknows, numUnknows);
 	m(0, 0) = 2 * (h[0] + h[1]);
