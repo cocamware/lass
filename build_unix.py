@@ -2,13 +2,14 @@
 
 
 import os
+import sys
 
-print 'CLEAN'
-os.system('./clean.py')
-print 'AUTOCONFISCATE'
-os.system('./autoconfiscate_unix.py')
-print 'CONFIGURE'
+print '\n* CLEAN'
+os.system(sys.executable + ' clean.py')
+print '\n* AUTOCONFISCATE'
+os.system(sys.executable + ' autoconfiscate_unix.py')
+print '\n* CONFIGURE'
 os.system('./configure')
-print 'MAKE'
+print '\n* MAKE'
 os.system('make')
 
