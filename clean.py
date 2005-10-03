@@ -5,8 +5,9 @@
 
 import os
 
-generated_files = ['util/object_factory.h', 'util/clone_factory.h', 'util/pyobject_macros.h', 'util/pyobject_class.inl', 'util/callback_python.h'] + 
-	['util/callback_%d.h' % i for i in range(10)] + ['util/callback_r_%d.h' % i for i in range(10)]
+generated_files = ['util/object_factory.h', 'util/clone_factory.h', 'util/pyobject_macros.h', 'util/pyobject_class.inl', 
+	'util/callback_python.h']
+generated_files += ['util/callback_%d.h' % i for i in range(10)] + ['util/callback_r_%d.h' % i for i in range(10)]
 
 def remove_tree(dirpath):
 	if dirpath[-1] == os.sep: dirpath = dirpath[:-1]
@@ -68,8 +69,8 @@ def clean_unix():
 
 	files_to_be_removed = ['aclocal.m4', 'config.guess', 'config.h', 'config.h.in', 'config.log', 
 		'config.status', 'config.sub', 'configure', 'configure.ac', 'depcomp', 'install-sh',
-		'libtool', 'ltmain.sh', 'missing', 'mkinstalldirs', 'stamp-h1', 'tmp', 'lass-0.1.tar.gz'] +
-		[os.path.join('src', x) for x in generated_files]
+		'libtool', 'ltmain.sh', 'missing', 'mkinstalldirs', 'stamp-h1', 'tmp', 'lass-0.1.tar.gz']
+	files_to_be_removed += [os.path.join('src', x) for x in generated_files]
 	for x in files_to_be_removed:
 		try:
 			os.remove(x)
