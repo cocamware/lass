@@ -454,7 +454,7 @@ $[
 template <class PyObjectClass>
 PyObject* construct( PyObject* iArgs )
 {
-	typedef ShadowTraits<PyObjectClass> TPyShadowTraits;
+	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
 	
 	if( !getArguments(iArgs) )
@@ -475,9 +475,9 @@ $[
 template <class PyObjectClass, $(typename P$x)$>
 PyObject* construct( PyObject* iArgs )
 {
-	typedef ShadowTraits<PyObjectClass> TPyShadowTraits;
+	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
-	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
+	$(typedef ArgumentTraits< P$x > TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 	)$
 
 	if ( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )

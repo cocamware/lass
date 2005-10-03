@@ -112,7 +112,6 @@ public:
 	void rout(const Image& iOther);
 	void ratop(const Image& iOther);
 	void rthrough(const Image& iOther);
-	void xor(const Image& iOther);
 	void plus(const Image& iOther);
 
 	// FILTERS

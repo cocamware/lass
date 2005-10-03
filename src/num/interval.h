@@ -47,6 +47,7 @@ template<typename C> void inpexp(interval<C>& i);
 template<typename C> void inplog(interval<C>& i);
 template<typename C> void inpnorm(interval<C>& i);
 template<typename C> void inpinv(interval<C>& i);
+template<typename C, typename F> interval<C> applyFunction(const interval<C>& i, F func);
 
 /** Interval class.  Class for interval arithmetic.  The arithmetic is weak interval arithmetic: there is
 *   no rounding code, to speed up things.  It should however be useful except for numerical stability
@@ -159,7 +160,7 @@ public:
 	friend void inpnorm<C>(interval<C>& i);
 	friend void inpinv<C>(interval<C>& i);
 
-	template<typename C,typename f> friend interval<C> applyFunction(const interval<C>& iV, f func );
+	template<typename C2, typename F> friend interval<C2> applyFunction(const interval<C2>& iV, F func );
 
 };
 

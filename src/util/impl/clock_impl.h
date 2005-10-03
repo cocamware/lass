@@ -42,8 +42,6 @@
 #	include <time.h>
 #endif
 
-#include <windows.h>
-
 namespace lass
 {
 namespace util

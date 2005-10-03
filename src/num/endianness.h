@@ -52,3 +52,5 @@ template <typename T> T fixEndianness(T iIn, Endianness iEndianness);
 #include "endianness.inl"
 
 #endif
+
+// EOF

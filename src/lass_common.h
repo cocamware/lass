@@ -97,6 +97,9 @@
 /** @def LASS_DLL
  *  @brief DLL interface: import or export symbols?  or neither?
  */
+#ifdef LASS_DLL
+#	undef LASS_DLL
+#endif
 #if defined(LASS_BUILD_DLL)
 #	define LASS_DLL LASS_DLL_EXPORT
 #elif defined(LASS_USE_DLL)

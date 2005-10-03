@@ -111,7 +111,7 @@ struct EndianCaster<numOfBytes, endian, endian>
 template <Endianness outEndian, Endianness inEndian, typename T> 
 inline T endianCast(T iIn)
 {
-	impl::EndianCaster<sizeof T, outEndian, inEndian>::cast(reinterpret_cast<void*>(&iIn));
+	impl::EndianCaster<sizeof(T), outEndian, inEndian>::cast(reinterpret_cast<void*>(&iIn));
 	return iIn;
 }
 
@@ -126,3 +126,5 @@ inline T fixEndianness(T iIn, Endianness iEndianness)
 }
 
 #endif
+
+// EOF

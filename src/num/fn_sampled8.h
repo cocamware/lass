@@ -48,7 +48,8 @@ namespace lass
 		*/
 		class LASS_DLL FNSampled8 : public lass::python::PyObjectPlus
 		{
-			PY_HEADER( lass::python::PyObjectPlus ) ;
+		public:
+	       		PY_HEADER( ::lass::python::PyObjectPlus )
 
 			virtual std::string pyStr(void);
 		public:

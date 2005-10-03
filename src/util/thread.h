@@ -33,8 +33,8 @@
 #include "util_common.h"
 #include "non_copyable.h"
 
-#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
-#include <windows.h>
+#ifdef LASS_THREAD_WIN32
+#	include <windows.h>
 #endif
 
 namespace lass
@@ -112,6 +112,18 @@ enum ThreadKind
 {
 	THREAD_DETACHED,            /**< detached thread */
 	THREAD_JOINABLE             /**< joinable thread, can be waited for */
+};
+
+/** ThreadState
+ *  @ingroup Threading
+ */
+enum ThreadState
+{
+	STATE_NEW,          // didn't start execution yet (=> RUNNING)
+	STATE_RUNNING,      // thread is running (=> PAUSED, CANCELED)
+	STATE_PAUSED,       // thread is temporarily suspended (=> RUNNING)
+	STATE_CANCELED,     // thread should terminate a.s.a.p. (=> EXITED)
+	STATE_EXITED        // thread is terminating
 };
 
 class ConditionInternal;
@@ -237,6 +249,7 @@ class Thread
 public:
 	// the return type for the thread function
 	typedef void *ExitCode;
+	typedef unsigned long TId;
 
 	Thread(ThreadKind kind = THREAD_DETACHED);
 
@@ -288,7 +301,7 @@ public:
 
 	// Get the thread ID - a platform dependent number which uniquely
 	// identifies a thread inside a process
-	unsigned long getId() const;
+	TId getId() const;
 
 	// called when the thread exits - in the context of this thread
 	//
@@ -305,7 +318,7 @@ protected:
 
 	// entry point for the thread - called by Run() and executes in the context
 	// of this thread.
-	virtual void *entry() = 0;
+	virtual ExitCode entry() = 0;
 
 private:
 	// no copy ctor/assignment operator

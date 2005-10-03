@@ -25,7 +25,7 @@
 
 #include "util_common.h"
 
-#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
+#ifdef LASS_THREAD_WIN32
 
 #include <process.h> // windows related stuff
 
@@ -306,12 +306,12 @@ private:
 	DWORD           m_tid;        // thread id
 };
 
-DWORD ThreadInternal::winThreadStart(Thread *thread)
+ExitCode ThreadInternal::winThreadStart(Thread *thread)
 {
 	DWORD rc;
 	bool wasCancelled=false;
 
-	rc = reinterpret_cast<DWORD>(thread->entry());
+	ExitCode rc = thread->entry();
 	thread->onExit();
 	// if the thread was cancelled (from Delete()), then its handle is still
 	// needed there

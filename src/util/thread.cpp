@@ -31,28 +31,6 @@ namespace lass
 namespace util
 {
 
-enum ThreadState
-{
-	STATE_NEW,          // didn't start execution yet (=> RUNNING)
-	STATE_RUNNING,      // thread is running (=> PAUSED, CANCELED)
-	STATE_PAUSED,       // thread is temporarily suspended (=> RUNNING)
-	STATE_CANCELED,     // thread should terminate a.s.a.p. (=> EXITED)
-	STATE_EXITED        // thread is terminating
-};
-
-}
-}
-
-#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32)
-	#include "thread_win32.cpp"
-#else
-	#include "thread_unix.cpp"
-#endif
-
-namespace lass
-{
-namespace util
-{
 
 MutexLocker::MutexLocker( Mutex& iMutex ) : m_mutex(iMutex)
 {

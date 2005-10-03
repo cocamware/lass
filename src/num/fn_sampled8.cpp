@@ -870,9 +870,7 @@ namespace lass
 
 		FNSampled8 norm(const std::complex<FNSampled8 >& iComplSFN)
 		{
-			std::complex<FNSampled8 >   temp;
-			temp.real(iComplSFN.real());
-			temp.imag(iComplSFN.imag());
+			std::complex<FNSampled8 > temp(iComplSFN.real(),iComplSFN.imag());
 			num::inpnorm( temp );
 			return temp.real();
 		}
@@ -1014,10 +1012,15 @@ namespace lass
 		{
 			return Py_BuildValue("(O,O)", new lass::num::FNSampled8(iV.real()), new lass::num::FNSampled8(iV.imag()));
 		}
+		
+#pragma LASS_FIXME("this is very dangerous, and probably doens't work anyway!")
+		/*
 		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV )
 		{
 			return Py_BuildValue("(O,O)", &iV.real(), &iV.imag());
 		}
+		*/
+		
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV )
 		{
 			if (iValue->ob_type==oV.ob_type)

@@ -780,32 +780,6 @@ ColorRGBA atop(const ColorRGBA& iA, const ColorRGBA& iB)
 
 
 
-/** union of @a iA out @a iB and @a iB out @a iA.
- *
- *  @pre @a iA and @a iB are considered non-premultiplied
- *
- *  @code
- *  alphaR = alphaA * (1 - alphaB) + alphaB * (1 - alphaA).
- *  colorR * alphaR = colorA * alphaA * (1 - alphaB) + colorB * alphaB * (1 - alphaA).
- *  @endcode
- *
- *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
- *  @arg http://en.wikipedia.org/wiki/Alpha_channel
- */
-ColorRGBA xor(const ColorRGBA& iA, const ColorRGBA& iB)
-{
-	const ColorRGBA::TValue fA = iA.a * (ColorRGBA::TNumTraits::one - iB.a);
-	const ColorRGBA::TValue fB = iB.a * (ColorRGBA::TNumTraits::one - iA.a);
-	ColorRGBA result(iA);
-	result *= fA;
-	result += iB * fB;
-	result /= fA + fB;
-	result.a = fA + fB;
-	return result;
-}
-
-
-
 /** @pre @a iA and @a iB are considered non-premultiplied
  *
  *  @code

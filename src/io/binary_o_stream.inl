@@ -75,3 +75,5 @@ BinaryOStream& BinaryOStream::operator<<(const std::complex<T>& iIn)
 
 
 #endif
+
+// EOF

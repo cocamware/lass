@@ -45,7 +45,6 @@
 #define LASS_DLL_IMPORT
 #define LASS_DLL_EXPORT
 #define LASS_CALL
-#define LASS_DLL
 #define LASS_NO_INLINE
 
 #endif

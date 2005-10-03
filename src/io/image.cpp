@@ -448,16 +448,6 @@ void Image::rthrough(const Image& iOther)
 
 
 
-/** this = this xor other = other xor this
- */
-void Image::xor(const Image& iOther)
-{
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::xor);
-}
-
-
-
 /** this = this plus other = other plus this
  */
 void Image::plus(const Image& iOther)

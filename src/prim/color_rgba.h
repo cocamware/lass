@@ -32,7 +32,6 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_H
-#pragma once
 
 #include "prim_common.h"
 #include "vector_4d.h"
@@ -133,7 +132,6 @@ LASS_DLL ColorRGBA LASS_CALL over( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL in( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL out( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL atop( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL xor( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL plus( const ColorRGBA& iA, const ColorRGBA& iB );
 LASS_DLL ColorRGBA LASS_CALL through( const ColorRGBA& iA, const ColorRGBA& iB );
 

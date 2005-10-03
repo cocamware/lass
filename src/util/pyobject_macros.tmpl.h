@@ -70,7 +70,7 @@
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
-		static ::std::vector<::lass::python::impl::StaticMember>	Statics; \
+		static ::std::vector< ::lass::python::impl::StaticMember >	Statics; \
 		static PyTypeObject* GetParentType(void)\
 		{\
 			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
@@ -507,7 +507,7 @@ $[
 		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, ::lass::meta::NullType, s_className ) };\
 	std::vector<PyMethodDef> t_cppClass::Methods;\
 	std::vector<PyGetSetDef> t_cppClass::GetSetters;\
-	std::vector<::lass::python::impl::StaticMember> t_cppClass::Statics;\
+	std::vector< ::lass::python::impl::StaticMember > t_cppClass::Statics;\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPythonImplExecutePyDeclareClass_, i_uniqueClassIdentifier ),\
 		t_cppClass::Methods.push_back( ::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
 		t_cppClass::GetSetters.push_back( ::lass::python::impl::createPyGetSetDef( 0, 0, 0, 0, 0 ) ) ; \

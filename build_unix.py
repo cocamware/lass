@@ -4,7 +4,8 @@
 import os
 import string
 
-subprojects = ['io', 'num', 'prim', 'util', 'test']
+include_directories = ['/usr/include/python2.3/', '/usr/local/lib/boost_1_31_0/']
+subprojects = ['io', 'num', 'prim', 'util']
 
 def makeConfigure():
     f=open('configure.ac','w+')
@@ -77,9 +78,10 @@ def getSources(map):
 
 def makeMakeFileProject(directory):
 	f = open('src/'+directory+'/Makefile.am','w+')
-	f.write('INCLUDES= $(all_includes) -I/usr/include/python2.4/ -I/usr/local/lib/boost_1_32_0/\n')
+	f.write('INCLUDES= $(all_includes) %s\n' % string.join(['-I' + i for i in include_directories], ' '))
 	f.write('lib_LIBRARIES = liblass'+directory+'.a\n')
 	f.write('liblass'+directory+'_a_SOURCES = ')
+
 	files = getSources('src/'+directory)
 	filesStr = string.join(files,' ')
 	try:

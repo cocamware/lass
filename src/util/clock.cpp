@@ -52,7 +52,7 @@ const std::string Clock::humanize(const TTime& iTime)
 	std::ostringstream buffer;
 	buffer.copyfmt(std::cout);
 	buffer.setf(std::ios_base::showpoint);
-	buffer.setf(0, std::ios_base::floatfield);
+	buffer.setf(static_cast<std::ios_base::fmtflags>(0), std::ios_base::floatfield);
 	buffer.precision(3);
 	//buffer << std::fixed << std::setprecision(3) << std::showpoint;
 

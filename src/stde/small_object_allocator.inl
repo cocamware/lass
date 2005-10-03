@@ -40,14 +40,14 @@ namespace stde
 // --- public --------------------------------------------------------------------------------------
 
 template <typename T>
-small_object_allocator<T>::small_object_allocator()
+small_object_allocator<T>::small_object_allocator() throw()
 {
 }
 
 
 
 template <typename T>
-small_object_allocator<T>::small_object_allocator(const small_object_allocator&)
+small_object_allocator<T>::small_object_allocator(const small_object_allocator&) throw()
 {
 }
 
@@ -55,14 +55,14 @@ small_object_allocator<T>::small_object_allocator(const small_object_allocator&)
 
 template <typename T>
 template <typename U>
-small_object_allocator<T>::small_object_allocator(const small_object_allocator<U>&)
+small_object_allocator<T>::small_object_allocator(const small_object_allocator<U>&) throw()
 {
 }
 
 
 
 template <typename T>
-small_object_allocator<T>::~small_object_allocator()
+small_object_allocator<T>::~small_object_allocator() throw()
 {
 }
 
@@ -116,7 +116,7 @@ void small_object_allocator<T>::deallocate(pointer p, size_type n)
 
 template <typename T>
 typename small_object_allocator<T>::size_type
-small_object_allocator<T>::max_size() const
+small_object_allocator<T>::max_size() const throw()
 {
 	// this is only a rough estimation ...
 	const size_type n = size_type(-1) / sizeof(T);

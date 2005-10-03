@@ -25,12 +25,12 @@
 
 #include "util_common.h"
 
-#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_UNIX)
+#ifdef LASS_THREAD_POSIX
 
+#include "thread.h"
 #include <pthread.h>
 #include <time.h>
 
-#pragma error("No full support for multi threading in UNIX implemented")
 namespace lass
 {
 namespace util
@@ -40,7 +40,7 @@ class MutexInternal
 public:
 	MutexInternal()
 	{
-		int ret = pthread_mutex_init(&mutex_,NULL);
+		int ret = pthread_mutex_init(&m_mutex,NULL);
 		if ( !ret )
 		{
 			LASS_LOG("Can not create mutex");
@@ -48,7 +48,7 @@ public:
 	}
 	~MutexInternal() {  pthread_mutex_destroy(&m_mutex); }
 public:
-	pthread_mutex_t mutex_;
+	pthread_mutex_t m_mutex;
 };
 
 Mutex::Mutex(void )
@@ -98,7 +98,23 @@ MutexError Mutex::unlock()
 }
 
 
-typedef MutexInternal CriticalSectionInternal;
+
+class CriticalSectionInternal
+{
+public:
+	CriticalSectionInternal()
+	{
+		int ret = pthread_mutex_init(&m_mutex,NULL);
+		if ( !ret )
+		{
+			LASS_LOG("Can not create mutex");
+		}
+	}
+	~CriticalSectionInternal() {  pthread_mutex_destroy(&m_mutex); }
+public:
+	pthread_mutex_t m_mutex;
+};
+
 
 CriticalSection::CriticalSection(void )
 {
@@ -112,13 +128,13 @@ CriticalSection::~CriticalSection(void)
 
 void CriticalSection::lock()
 {
-	if (!pthread_mutex_lock(&m_internal->m_mutex))
+	if (!pthread_mutex_lock(&internal_->m_mutex))
 		LASS_LOG("could not lock mutex");
 }
 
 CriticalSectionError CriticalSection::tryLock()
 {
-	ret = pthread_mutex_trylock(&m_internal->m_mutex);
+	int ret = pthread_mutex_trylock(&internal_->m_mutex);
 #pragma LASS_FIXME("also check for other return conditions")
 	if (ret != 0)
 		return CRITICALSECTION_TRYLOCK_FAILED;
@@ -128,7 +144,7 @@ CriticalSectionError CriticalSection::tryLock()
 
 void CriticalSection::unlock()
 {
-	pthread_mutex_unlock(&m_internal->m_mutex);
+	pthread_mutex_unlock(&internal_->m_mutex);
 }
 
 
@@ -164,13 +180,14 @@ public:
 	}
 	void broadcast()
 	{
-		pthread_cond_broadcast(condtion_);
+		pthread_cond_broadcast(&condition_);
 	}
 	virtual  ~ConditionInternal()
 	{
-		if (!pthread_mutex_destroy(&mutex_) ||
-			!pthread_cond_destroy(&condition_))
-			LASS_LOG("could not destroy condition")
+		if (!pthread_mutex_destroy(&mutex_) || !pthread_cond_destroy(&condition_))
+		{
+		  LASS_LOG("could not destroy condition");
+		}
 	}
 };
 
@@ -208,6 +225,7 @@ void Condition::broadcast()
 class ThreadInternal
 {
 public:
+ 
 	ThreadInternal()
 	{
 		thread_ = 0;
@@ -219,7 +237,7 @@ public:
 	}
 	void free()
 	{
-		pthread_attr_destroy(tattr_);
+		pthread_attr_destroy(&attr_);
 	}
 	// create a new (suspended) thread (for the given thread object)
 	bool create(Thread *thread);
@@ -230,27 +248,25 @@ public:
 	// thread state
 
 	// thread handle and id
-	pthread_t getHandle() const { return thread_; }
-	DWORD  getId() const { return (DWORD)thread_; }
+	pthread_t thread() const { return thread_; }
 	ThreadState getState() const { return state_; }
 
 	// thread function
-	static DWORD posixThreadStart(Thread *thread);
+	static void* posixThreadStart(void* iThread);
 
 private:
 	pthread_t       thread_;    // handle of the thread
 	pthread_attr_t  attr_;      // attributes of the posix thread
 	ThreadState     state_;      // state, see ThreadState enum
 	unsigned int    priority_;   // thread priority in units
-	DWORD           tid_;        // thread id
 };
 
-void ThreadInternal::posixThreadStart(Thread *thread)
+void* ThreadInternal::posixThreadStart(void* iThread)
 {
-	DWORD rc;
+  Thread* thread = static_cast<Thread*>(iThread);
 	bool wasCancelled=false;
 
-	rc = reinterpret_cast<DWORD>(thread->entry());
+	Thread::ExitCode rc = thread->entry();
 	thread->onExit();
 	// if the thread was cancelled (from Delete()), then its handle is still
 	// needed there
@@ -264,27 +280,27 @@ void ThreadInternal::posixThreadStart(Thread *thread)
 
 bool ThreadInternal::create(Thread *thread)
 {
-	pthread_attr_init(&tattr_);
-	int ret = int pthread_create(&thread_, &tattr_,void *(*start_routine)(ThreadInternal::posixThreadStart*), thread);
+	pthread_attr_init(&attr_);
+	int ret = pthread_create(&thread_, &attr_, &ThreadInternal::posixThreadStart, thread);
 
 	if ( ret != 0 )
 	{
 		LASS_LOG("Can not create thread");
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 bool ThreadInternal::suspend()
 {
 	LASS_THROW("suspend not supported");
-	return FALSE;
+	return false;
 }
 
 bool ThreadInternal::resume()
 {
 	LASS_THROW("resume not supported");
-	return FALSE;
+	return false;
 }
 
 // ctor and dtor
@@ -354,7 +370,7 @@ Thread::ExitCode Thread::wait()
 	}
 	else
 	{
-		pthread_join(m_internal->thread_,NULL);
+		pthread_join(m_internal->thread(),NULL);
 		m_internal->free();
 	}
 	ExitCode rc = (ExitCode)-1;
@@ -367,7 +383,7 @@ ThreadError Thread::kill()
 		return THREAD_NOT_RUNNING;
 
 
-	if ( pthread_cancel(m_internal->thread_) )
+	if ( pthread_cancel(m_internal->thread()) )
 	{
 		LASS_LOG("Could not terminate thread");
 		return THREAD_MISC_ERROR;
@@ -392,10 +408,10 @@ void Thread::exit(ExitCode status)
 	LASS_LOG("Could not return from ExitThread()!");
 }
 
-unsigned long Thread::getId() const
+Thread::TId Thread::getId() const
 {
 	MutexLocker lock((Mutex &)m_mutex);
-	return (unsigned long)m_internal->getId();
+	return reinterpret_cast<TId>(m_internal->thread());
 }
 
 bool Thread::isRunning() const
@@ -419,6 +435,5 @@ bool Thread::isPaused() const
 
 }
 }
-
 
 #endif
