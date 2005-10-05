@@ -81,8 +81,15 @@ namespace stde
 template <typename Container, typename Op>
 void for_each(Container& container, Op op)
 {
-	std::for_each(container.begin(). container.end(), op);
+	std::for_each(container.begin(), container.end(), op);
 }
+
+template <typename IContainer, typename OContainer, typename Op>
+void transform(const IContainer& iContainer, OContainer& oContainer, Op op)
+{
+	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
+}
+
 
 }
 }

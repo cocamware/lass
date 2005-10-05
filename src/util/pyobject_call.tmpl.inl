@@ -405,6 +405,15 @@ $[
 		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
 	}
 
+	/** call getter function, for non-assignable, although not read-only members
+	 */
+	template <typename R>
+	static PyObject* get( CppClass* iObject, R (CppClass::*iMethod)() )
+	{
+		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
+	}
+
+
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
 	 */
 	template <typename P>
