@@ -138,8 +138,12 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& 
 
 #include "simple_polygon_3d.inl"
 
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_H
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
 #	include "aabb_3d_simple_polygon_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
+#	include "ray_3d_simple_polygon_3d.h"
 #endif
 
 #endif

@@ -51,12 +51,12 @@ namespace test
 namespace object_trees
 {
 
-template <typename T, typename RandomGenerator>
-void generateObjects(const prim::Aabb2D<T>& iBound,
-					 T iMaxSize,
-					 RandomGenerator& iRandom,
-					 size_t iNumber,
-					 prim::Triangle2D<T>* oObjects)
+template <typename T, typename RandomGenerator, typename OuputIterator>
+OuputIterator generateObjects(const prim::Aabb2D<T>& iBound,
+							  T iMaxSize,
+							  RandomGenerator& iRandom,
+							  size_t iNumber,
+							  OuputIterator iObjects)
 {
 	typedef prim::Aabb2D<T> TAabb;
 	typedef prim::Vector2D<T> TVector;
@@ -71,21 +71,24 @@ void generateObjects(const prim::Aabb2D<T>& iBound,
 		const TPoint a = bound.random(iRandom);
 		const TPoint b = bound.random(iRandom);
 		const TPoint c = bound.random(iRandom);
-		oObjects[i] = prim::Triangle2D<T>(a, b, c);
-		if (oObjects[i].orientation() == prim::oClockWise)
+		prim::Triangle2D<T> triangle(a, b, c);
+		if (triangle.orientation() == prim::oClockWise)
 		{
-			oObjects[i].flip();
+			triangle.flip();
 		}
+		*iObjects++ = triangle;
 	}
+	return iObjects;
 }
 
 
-template <typename T, typename RandomGenerator>
-void generateObjects(const prim::Aabb3D<T>& iBound,
-					 T iMaxSize,
-					 RandomGenerator& iRandom,
-					 size_t iNumber,
-					 prim::Sphere3D<T>* oObjects)
+
+template <typename T, typename RandomGenerator, typename OutputIterator>
+OutputIterator generateObjects(const prim::Aabb3D<T>& iBound,
+							   T iMaxSize,
+							   RandomGenerator& iRandom,
+							   size_t iNumber,
+							   OutputIterator iObjects)
 {
 	typedef prim::Point3D<T> TPoint;
 	typedef prim::Vector3D<T> TVector;
@@ -96,8 +99,9 @@ void generateObjects(const prim::Aabb3D<T>& iBound,
 			center - iBound.min(), iBound.max() - center);
 		const T maxRadius = std::min(iMaxSize / 2, std::min(centerToBound.x, centerToBound.y));
 		const T radius = num::distributeUniform(iRandom, T(0), maxRadius);
-		oObjects[i] = prim::Sphere3D<T>(center, radius);
+		*iObjects++ = prim::Sphere3D<T>(center, radius);
 	}
+	return iObjects;
 }
 
 }
@@ -109,8 +113,9 @@ void testSpatObjectTrees()
 	const T extent = T(1000);
 	const T maxSize = T(10);
 	const size_t numberOfObjects = 10000;
-	const size_t numberOfContainTests = 1000000;
-	const size_t numberOfIntersectionTests = 1000;
+	const size_t numberOfContainTests = 10000;
+	const size_t numberOfIntersectionTests = 10000;
+	const size_t repeatSpeedTests = 100;
 
 	typedef typename meta::Select< dim == 2, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< dim == 2, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -118,9 +123,13 @@ void testSpatObjectTrees()
 
 	typedef typename TObject::TPoint TPoint;
 	typedef typename TObject::TVector TVector;
+	typedef typename TObject::TValue TValue;
 	typedef typename TObject::TNumTraits TNumTraits;
 
+	typedef std::vector<TObject> TObjects;
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
+	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+
 	typedef spat::AabbTree<TObject, TObjectTraits> TAabbTree;
 	typedef spat::AabpTree<TObject, TObjectTraits> TAabpTree;
 	
@@ -141,16 +150,18 @@ void testSpatObjectTrees()
 
 	// create test subjects
 	//
-	TObject objects[numberOfObjects];
-	object_trees::generateObjects(bounds, maxSize, generator, numberOfObjects, objects);
-	TObject* objectsEnd = objects + numberOfObjects;
+	TObjects objects;
+	object_trees::generateObjects(
+		bounds, maxSize, generator, numberOfObjects, std::back_inserter(objects));
+
+	const TObjectIterator objectBegin = &objects[0];
+	const TObjectIterator objectEnd = objectBegin + numberOfObjects;
 
 	// create trees
 	//
-	TAabbTree aabbTree(objects, objectsEnd);
-	TAabpTree aabpTree(objects, objectsEnd);
+	TAabbTree aabbTree(objectBegin, objectEnd);
+	TAabpTree aabpTree(objectBegin, objectEnd);
 
-	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 	typedef std::vector<TObjectIterator> TObjectHits;
 
 	// contain test
@@ -158,15 +169,14 @@ void testSpatObjectTrees()
 	for (unsigned i = 0; i < numberOfContainTests; ++i)
 	{
 		TPoint target = bounds.random(generator);
-
 		TObjectHits naiveHits;
 		bool naiveContain = false;
-		for (unsigned k = 0; k < numberOfObjects; ++k)
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
-			if (objects[k].contains(target))
+			if (obj->contains(target))
 			{
 				naiveContain = true;
-				naiveHits.push_back(&objects[k]);
+				naiveHits.push_back(obj);
 			}
 		}
 		std::sort(naiveHits.begin(), naiveHits.end());
@@ -189,7 +199,6 @@ void testSpatObjectTrees()
 		BOOST_CHECK(naiveHits.size() == aabpHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
 	}
-
 	// intersection test
 	//
 	for (unsigned i = 0; i < numberOfIntersectionTests; ++i)
@@ -198,23 +207,39 @@ void testSpatObjectTrees()
 		TVector direction = TVector::random(generator);
 		TRay ray(support, direction);
 
-		T naiveT = TNumTraits::infinity;
-		TObject* naiveIntersection = objectsEnd;
-		for (unsigned k = 0; k < numberOfObjects; ++k)
+		if (true || i == 1491)
 		{
-			T tNear, tFar;
-			const prim::Result result = prim::intersect(ray, objects[k], tNear, tFar);
-			if (result != prim::rNone && tNear < naiveT)
+			T naiveT = TNumTraits::infinity;
+			TObjectIterator naiveIntersection = objectEnd;
+			for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 			{
-				naiveIntersection = &objects[k];
-				naiveT = tNear;
+				if (obj == (TObject*)0x01021B68)
+				{
+					int a= 5;
+				}
+				T t;
+				const prim::Result result = prim::intersect(*obj, ray, t);
+				if (result != prim::rNone && t < naiveT)
+				{
+					naiveIntersection = obj;
+					naiveT = t;
+				}
 			}
-		}
 
-		T aabbT = TNumTraits::infinity;
-		const TObject* aabbIntersection = aabbTree.intersect(ray, aabbT);
-		BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
-		BOOST_CHECK_EQUAL(naiveT, aabbT);
+			TPoint p = ray.point(naiveT);
+			TValue e = naiveIntersection->equation(p);
+			TValue d = dot(ray.direction(), p - naiveIntersection->center());
+
+			T aabbT = TNumTraits::infinity;
+			TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
+
+			if (naiveIntersection != aabbIntersection)
+			{
+				LASS_COUT << i << "\n";
+			}
+			BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
+			BOOST_CHECK_EQUAL(naiveT, aabbT);
+		}
 
 #pragma LASS_FIXME("this is broken, fix :)  [Bramz]")
 		/*
@@ -224,7 +249,7 @@ void testSpatObjectTrees()
 		BOOST_CHECK_EQUAL(naiveT, aabpT);
 		*/
 	}
-
+#if 0
 	// SPEED TESTS
 	//
 	std::cout << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
@@ -233,81 +258,52 @@ void testSpatObjectTrees()
 	//
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
-	TPoint containTargets[numberOfContainTests];
+	std::vector<TPoint> containTargets;
 	for (size_t i = 0; i < numberOfContainTests; ++i)
 	{
-		containTargets[i] = bounds.random(generator);
+		containTargets.push_back(bounds.random(generator));
 	}
 	
 	stopWatch.restart();
-	for (size_t i = 0; i < numberOfContainTests; ++i)
+	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
-		for (size_t k = 0; k < numberOfObjects; ++k)
+		for (size_t i = 0; i < numberOfContainTests; ++i)
 		{
-			if (objects[k].contains(containTargets[i]))
-			{
-				break;
-			}
+			aabbTree.contains(containTargets[k]);
 		}
 	}
-	const util::Clock::TTime naiveContainTime = stopWatch.stop();
+	const util::Clock::TTime aabbContainTime = stopWatch.stop();
 	
 	stopWatch.restart();
-	for (size_t i = 0; i < numberOfContainTests; ++i)
+	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
-		for (size_t k = 0; k < numberOfObjects; ++k)
-		{
-			aabbTree.contains(containTargets[i]);
-		}
-	}
-	const  util::Clock::TTime aabbContainTime = stopWatch.stop();
-	
-	stopWatch.restart();
-	for (size_t i = 0; i < numberOfContainTests; ++i)
-	{
-		for (size_t k = 0; k < numberOfObjects; ++k)
+		for (size_t i = 0; i < numberOfContainTests; ++i)
 		{
 			aabpTree.contains(containTargets[i]);
 		}
 	}
 	const util::Clock::TTime aabpContainTime = stopWatch.stop();
 
-	std::cout << "contains: naive " << naiveContainTime << "\taabb " << aabbContainTime
-		<< "\taabp " << aabpContainTime << std::endl;
+	std::cout << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
 	//
-	TRay intersectionTargets[numberOfIntersectionTests];
+	std::vector<TRay> intersectionTargets;
 	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 	{
 		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
-		intersectionTargets[i] = TRay(support, direction);
+		intersectionTargets.push_back(TRay(support, direction));
 	}
 
 	stopWatch.restart();
-	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
+	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
-		T naiveT = TNumTraits::infinity;
-		TObject* naiveIntersection = objectsEnd;
-		for (unsigned k = 0; k < numberOfObjects; ++k)
+		for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 		{
-			T tNear, tFar;
-			const prim::Result result = prim::intersect(intersectionTargets[i], objects[k], tNear, tFar);
-			if (result != prim::rNone && tNear < naiveT)
-			{
-				naiveIntersection = &objects[k];
-				naiveT = tNear;
-			}
+			T aabbT = TNumTraits::infinity;
+			aabbTree.intersect(intersectionTargets[i], aabbT);
 		}
-	}
-	const util::Clock::TTime naiveIntersectionTime = stopWatch.stop();
-
-	stopWatch.restart();
-	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
-	{
-		T aabbT = TNumTraits::infinity;
-		aabbTree.intersect(intersectionTargets[i], aabbT);
 	}
 	const util::Clock::TTime aabbIntersectionTime = stopWatch.stop();
 
@@ -322,8 +318,9 @@ void testSpatObjectTrees()
 	*/
 	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
 
-	std::cout << "intersection: naive " << naiveIntersectionTime << "\taabb " << aabbIntersectionTime 
+	std::cout << "intersection: aabb " << aabbIntersectionTime 
 		<< "\taabp " << aabpIntersectionTime << std::endl;
+#endif
 }
 
 

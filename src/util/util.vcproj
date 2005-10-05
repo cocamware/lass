@@ -392,7 +392,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					<Tool 
 						Name="VCCLCompilerTool">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
@@ -400,7 +400,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					<Tool 
 						Name="VCCLCompilerTool">
 						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71/lass_util_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_util_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
+							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71/lass_util_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_util_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 			</File>
@@ -450,6 +450,12 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						CommandLine=""
 						Outputs=""/>
 				</FileConfiguration>
+			</File>
+			<File 
+				RelativePath=".\thread_unix.cpp">
+			</File>
+			<File 
+				RelativePath=".\thread_win32.cpp">
 			</File>
 			<File 
 				RelativePath=".\type_info.cpp">
@@ -548,7 +554,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						<Tool 
 							Name="VCCLCompilerTool">
 							<IntelOptions 
-								AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
+								AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxK /QxK /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 						</Tool>
 					</FileConfiguration>
 					<FileConfiguration 
@@ -556,7 +562,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						<Tool 
 							Name="VCCLCompilerTool">
 							<IntelOptions 
-								AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71/lass_util_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_util_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
+								AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71/lass_util_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_util_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
 						</Tool>
 					</FileConfiguration>
 				</File>

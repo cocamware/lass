@@ -49,8 +49,8 @@ namespace prim
  *          @arg rOne       a intersection with @a oT >= @a iMinT is found
  *							@a oT is assigned.
  */
-template<typename T, class NP, class PP>
-Result intersect(const Triangle2D<T>& iTriangle, 
+template<typename T, class DP, class NP, class PP>
+Result intersect(const SimplePolygon2D<T, DP>& iPolygon, 
 				 const Ray2D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
 {
@@ -64,10 +64,14 @@ Result intersect(const Triangle2D<T>& iTriangle,
 
 	TValue tNear = TNumTraits::infinity;
 	bool good = false;
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[0], iTriangle[1], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[1], iTriangle[2], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[2], iTriangle[0], tNear, iMinT);
-
+	size_t size = iPolygon.size();
+	size_t iPrev = size - 1;
+	for (size_t i = 0; i < size; ++i)
+	{
+        good |= impl::intersectTriangle2DEdge(
+			support, direction, iTriangle[iPrev], iTriangle[i], tNear, iMinT);
+		iPrev = i;
+	}
 	if (good)
 	{
 		oT = tNear;

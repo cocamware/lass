@@ -41,14 +41,20 @@ namespace lass
 namespace spat
 {
 
-template <typename ObjectType, typename AabbType, typename RayType>
+template 
+<
+	typename ObjectType, 
+	typename AabbType, 
+	typename RayType,
+	typename ObjectIterator = const ObjectType*
+>
 struct DefaultObjectTraits
 {
 	typedef ObjectType TObject;					/**< type of object */
 	typedef AabbType TAabb;						/**< an nD AABB */
 	typedef RayType TRay;						/**< an nD Ray */
 
-	typedef const TObject* TObjectIterator;		/**< iterator to object */
+	typedef ObjectIterator TObjectIterator;		/**< iterator to object */
 	typedef const TObject& TObjectReference;	/**< reference to object */
 
 	typedef typename TAabb::TPoint TPoint;		/**< an nD point */
@@ -78,10 +84,10 @@ struct DefaultObjectTraits
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool intersect(TObjectIterator iObject, const TRay& iRay, TReference oT)
+	static const bool intersect(TObjectIterator iObject, const TRay& iRay, TReference oT, TParam iMinT)
 	{
 		TValue dummy;
-		return prim::intersect(iRay, *iObject, oT, dummy) != prim::rNone;
+		return prim::intersect(*iObject, iRay, oT, iMinT) != prim::rNone;
 	}
 	
 
@@ -96,9 +102,9 @@ struct DefaultObjectTraits
 
 	/** return true if AABB is intersected by ray
 	 */
-	static const bool intersect(const TAabb& iAabb, const TRay& iRay, TReference oT)
+	static const bool intersect(const TAabb& iAabb, const TRay& iRay, TReference oT, const TParam iMinT)
 	{
-		return prim::intersect(iAabb, iRay, oT) != prim::rNone;
+		return prim::intersect(iAabb, iRay, oT, iMinT) != prim::rNone;
 	}
 	
 	/** join two AABBs and return the result

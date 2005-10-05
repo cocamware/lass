@@ -23,10 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_RAY_2D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_RAY_2D_INL
 
-#include "ray_2d_triangle_2d.h"
+#include "line_segment_2d_ray_2d.h"
 #include "impl/intersect_edge_2d.h"
 
 namespace lass
@@ -34,24 +34,22 @@ namespace lass
 namespace prim
 {
 
-/** Find the intersection of a ray and a triangle by their parameter t on the ray.
+/** Find the intersection of a ray and a line segment by parameter t on the ray.
+ *  @relates lass::prim::LineSegment2D
  *  @relates lass::prim::Ray2D
- *  @relates lass::prim::Sphere2D
  *
- *  A maximum of two possible intersections with t > 0.
- *
- *  @param iTriangle [in] the triangle
+ *  @param iLineSegment [in] the line segment
  *  @param iRay [in] the ray
  *  @param oT [out] the parameter of the intersection point >= @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
- *  @return @arg rNone      no intersections with @a >= @a iMinT found
+ *  @return @arg rNone      no intersections with @a > @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
-template<typename T, class NP, class PP>
-Result intersect(const Triangle2D<T>& iTriangle, 
-				 const Ray2D<T, NP, PP>& iRay, 
+template<typename T, class PP1, class NP2, class PP2>
+Result intersect(const LineSegment2D<T, PP1>& iLineSegment, 
+				 const Ray2D<T, NP2, PP2>& iRay, 
 				 T& oT, const T& iMinT)
 {
 	typedef Point2D<T> TPoint;
@@ -63,11 +61,8 @@ Result intersect(const Triangle2D<T>& iTriangle,
 	const TVector& direction = iRay.direction();
 
 	TValue tNear = TNumTraits::infinity;
-	bool good = false;
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[0], iTriangle[1], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[1], iTriangle[2], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[2], iTriangle[0], tNear, iMinT);
-
+	const bool good = impl::intersectTriangle2DEdge(
+		support, direction, iLineSegment.tail(), iLineSegment.head(), tNear, iMinT);
 	if (good)
 	{
 		oT = tNear;

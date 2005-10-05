@@ -117,6 +117,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTria
 #	include "aabb_3d_triangle_3d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
+#	include "ray_3d_triangle_3d.h"
+#endif
+
 #endif
 
 // EOF

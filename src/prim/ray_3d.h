@@ -139,12 +139,20 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB)
 #	include "plane_3d_ray_3d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_3D_H
+#	include "ray_3d_simple_polygon_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
 #	include "ray_3d_sphere_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
 #	include "ray_3d_transformation_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRIANGLE_3D_H
+#	include "ray_3d_triangle_3d.h"
 #endif
 
 #endif

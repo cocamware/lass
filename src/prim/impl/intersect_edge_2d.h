@@ -22,29 +22,40 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
-#pragma once
 
-#include "prim_common.h"
-#include "simple_polygon_2d.h"
-#include "triangle_2d.h"
-
-#pragma LASS_FIXME("THIS HEADER IS DEPRACTED.  USE TRIANGULATE FROM AUTOMATIC HEADER SIMPLE_POLYGON_2D_TRIANGLE_2D.H! [Bramz]")
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_EDGE_2D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_EDGE_2D_H
 
 namespace lass
 {
 namespace prim
 {
-
-/** @deprecated Use triangulate from simple_polygon_2d_triangle_2d.h
-*/
-template<typename T, class DegeneratePolicy>
-bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon, std::vector<Triangle2D<T> >& oTriangles)
+namespace impl
 {
-	oTriangles.clear();
-	triangulate(iPolygon, std::back_insertor(oTriangles));
-	return true;
+
+template <typename Point, typename Vector, typename T> inline
+bool intersectEdge2D(const Point& iSupport, const Vector& iDirection, 
+					 const Point& iTail, const Point& iHead, 
+					 T& oTNear, const T& iMinT)
+{
+	typedef typename Point::TNumTraits TNumTraits;
+
+	const Vector edge = iHead - iTail;
+	const T denominator = perpDot(iDirection, -edge);
+	if (denominator != TNumTraits::zero)
+	{
+		const Vector difference = iTail - iSupport;
+		const T tRay = perpDot(difference, -edge) / denominator;
+		const T tEdge = perpDot(iDirection, difference) / denominator;
+		if (tRay > iMinT && (tEdge >= TNumTraits::zero && tEdge <= TNumTraits::one))
+		{
+			oTNear = std::min(oTNear, tRay);
+			return true;
+		}
+	}
+	return false;
+}
+
 }
 
 }
@@ -52,3 +63,5 @@ bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon, std::ve
 }
 
 #endif
+
+// EOF

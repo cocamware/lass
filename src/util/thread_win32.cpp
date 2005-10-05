@@ -27,6 +27,7 @@
 
 #ifdef LASS_THREAD_WIN32
 
+#include "thread.h"
 #include <process.h> // windows related stuff
 
 namespace lass
@@ -297,7 +298,7 @@ public:
 	ThreadState getState() const { return m_state; }
 
 	// thread function
-	static DWORD winThreadStart(Thread *thread);
+	static Thread::ExitCode winThreadStart(Thread *thread);
 
 private:
 	HANDLE          m_hThread;    // handle of the thread
@@ -306,12 +307,11 @@ private:
 	DWORD           m_tid;        // thread id
 };
 
-ExitCode ThreadInternal::winThreadStart(Thread *thread)
+Thread::ExitCode ThreadInternal::winThreadStart(Thread *thread)
 {
-	DWORD rc;
 	bool wasCancelled=false;
 
-	ExitCode rc = thread->entry();
+	Thread::ExitCode rc = thread->entry();
 	thread->onExit();
 	// if the thread was cancelled (from Delete()), then its handle is still
 	// needed there

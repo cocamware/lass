@@ -78,7 +78,50 @@ template <typename Iterator> Iterator prior(Iterator iterator);
 template <typename Iterator, typename Distance> Iterator next(Iterator iterator, Distance distance);
 template <typename Iterator, typename Distance> Iterator prior(Iterator iterator, Distance distance);
 
+template <typename Container> 
+class overwrite_insert_iterator: 
+	public std::iterator<std::output_iterator_tag, void, void, void, void>
+{
+public:
 
+	typedef overwrite_insert_iterator<Container> self_type;
+	typedef typename Container::value_type value_type;
+
+	explicit overwrite_insert_iterator(Container& container): 
+		container_(container),
+		current_(container.begin())
+	{
+	}
+
+	self_type& operator=(const value_type& value)
+	{
+		if (current_ == container.end())
+		{
+			container.push_back(value);
+			current_ = container.end();
+		}
+		else
+		{
+			*current_++ = value;
+		}
+		return *this;
+	}
+
+	self_type& operator*() { return *this; }
+	self_type& operator++() { return *this; }
+	self_type& operator++(int) { return *this; }
+
+private:
+
+	Container& container_;
+	typename Container::iterator current_;
+};
+
+template <typename Container>
+overwrite_insert_iterator<Container> overwrite_insertor(Container& container)
+{
+	return overwrite_insert_iterator<Container>(container);
+}
 
 }
 

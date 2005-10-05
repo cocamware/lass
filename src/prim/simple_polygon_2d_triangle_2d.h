@@ -22,6 +22,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
 #pragma once
@@ -30,25 +31,24 @@
 #include "simple_polygon_2d.h"
 #include "triangle_2d.h"
 
-#pragma LASS_FIXME("THIS HEADER IS DEPRACTED.  USE TRIANGULATE FROM AUTOMATIC HEADER SIMPLE_POLYGON_2D_TRIANGLE_2D.H! [Bramz]")
-
 namespace lass
 {
 namespace prim
 {
 
-/** @deprecated Use triangulate from simple_polygon_2d_triangle_2d.h
+/** triangulate.  Takes a simple polygon and triangulates it.  Convex as well as
+*   concave polygons are accepted.
+*
 */
-template<typename T, class DegeneratePolicy>
-bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon, std::vector<Triangle2D<T> >& oTriangles)
-{
-	oTriangles.clear();
-	triangulate(iPolygon, std::back_insertor(oTriangles));
-	return true;
-}
+template<typename T, class DegeneratePolicy, typename OutputIterator>
+OutputIterator triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon,
+						   OutputIterator oTriangles);
+	
 
 }
 
 }
+
+#include "algorithm.inl"
 
 #endif

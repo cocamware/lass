@@ -44,8 +44,8 @@ namespace prim
 {
 
 template<typename T, class NP, class PP>
-Result intersect(const Ray2D<T, NP, PP>& iRay, const Triangle2D<T>& iTriangle,
-				 T& oTNear, T& oTFar);
+Result intersect(const Triangle2D<T>& iTriangle, const Ray2D<T, NP, PP>& iRay,
+				 T& oT, const T& iMinT = T());
 
 }
 

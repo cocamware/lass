@@ -135,6 +135,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, D
 #	include "aabb_2d_simple_polygon_2d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
+#	include "ray_2d_simple_polygon_2d.h"
+#endif
+
 #endif
 
 // EOF

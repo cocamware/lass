@@ -38,112 +38,141 @@
 
 namespace lass
 {
-
 namespace prim
 {
+namespace impl
+{
+
+/** @internal
+ */
+template <class NormalizingPolicy>
+struct RaySphere
+{
+	template <typename T, class PP>
+	static Result intersect(const Sphere3D<T>& iSphere, 
+							const Ray3D<T, NormalizingPolicy, PP>& iRay, 
+							T& oT, const T& iMinT)
+	{
+		typedef Vector3D<T> TVector;
+		typedef typename TVector::TValue TValue;
+		typedef typename TVector::TNumTraits TNumTraits;
+
+		const TVector cs = iRay.support() - iSphere.center();
+
+		// at² + bt + c == 0
+		const TValue a = iRay.direction().squaredNorm();
+		const TValue b = dot(cs, iRay.direction());
+		const TValue c = cs.squaredNorm() - num::sqr(iSphere.radius());
+
+		const TValue discriminant = num::sqr(b) - a * c;
+
+		if (discriminant > TNumTraits::zero)
+		{
+			const TValue sqrtD = num::sqrt(discriminant);
+			const TValue invA = num::inv(a);
+			const TValue t1 = (-b - sqrtD) * invA;
+			if (t1 > iMinT)
+			{
+				oT = t1;
+				return rOne;
+			}
+			const TValue t2 = (-b + sqrtD) * invA;
+			if (t2 > iMinT)
+			{
+				oT = t2;
+				return rOne;
+			}
+		}
+		else if (discriminant == TNumTraits::zero)
+		{
+			const TValue t = -b / a;
+			if (t > iMinT)
+			{
+				oT = t;
+				return rOne;
+			}
+		}
+		return rNone;
+	}
+};
+
+/** @internal
+ */
+template <>
+struct RaySphere<Normalized>
+{
+	template <typename T, class PP>
+	static Result intersect(const Sphere3D<T>& iSphere, 
+							const Ray3D<T, Normalized, PP>& iRay, 
+							T& oT, const T& iMinT)
+	{
+		typedef Vector3D<T> TVector;
+		typedef typename TVector::TValue TValue;
+		typedef typename TVector::TNumTraits TNumTraits;
+
+		const TVector cs = iRay.support() - iSphere.center();
+
+		// at² + bt + c == 0
+		//const TValue a = 1;
+		const TValue b = dot(cs, iRay.direction());
+		const TValue c = cs.squaredNorm() - num::sqr(iSphere.radius());
+
+		const TValue discriminant = num::sqr(b) - c;
+
+		if (discriminant > TNumTraits::zero)
+		{
+			const TValue sqrtD = num::sqrt(discriminant);
+			const TValue t1 = (-b - sqrtD);
+			if (t1 > iMinT)
+			{
+				oT = t1;
+				return rOne;
+			}
+			const TValue t2 = (-b + sqrtD);
+			if (t2 > iMinT)
+			{
+				oT = t2;
+				return rOne;
+			}
+		}
+		else if (discriminant == TNumTraits::zero)
+		{
+			const TValue t = -b;
+			if (t > iMinT)
+			{
+				oT = t;
+				return rOne;
+			}
+		}
+		return rNone;
+	}
+};
+
+}
+
 
 
 
 /** Find the intersection of a ray and a sphere by their parameter t on the ray.
  *  @relates lass::prim::Ray3D
- *  @relates lass::prim::Sphere3D
+ *  @relates lass::prim:Sphere3D
  *
- *  A maximum of two possible intersections with t > 0.
- *
- *  @param iRay the ray
- *  @param iSphere the sphere
- *  @param oTNear the parameter of the intersection point with the smallest t > 0, if any.
- *  @param oTFar the parameter of the intersection point with the largest t > 0, if any.
- *  @return - rNone: no intersections with t > 0 found, oTNear and oTFar is invalid.
- *          - rOne: exactly one intersection with t > 0, oTNear represents it, oTFar is invalid.
- *          - rTwo: two intersections with t > 0 found, oTNear and oTFar represent them
+ *  @param iSphere [in] the sphere
+ *  @param iRay [in] the ray
+ *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a >= @a iMinT found
+ *                          @a oT is not assigned.
+ *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *							@a oT is assigned.
  */
-template<typename T, class NP, class PP>
-Result intersect(const Ray3D<T, NP, PP>& iRay, const Sphere3D<T>& iSphere, T& oTNear, T& oTFar)
+template<typename T, class NP, class PP> inline
+Result intersect(const Sphere3D<T>& iSphere, 
+				 const Ray3D<T, NP, PP>& iRay, 
+				 T& oT, const T& iMinT)
 {
-	typedef Vector3D<T> TVector;
-	typedef typename TVector::TValue TValue;
-	typedef typename TVector::TNumTraits TNumTraits;
-
-	const TVector v = iSphere.center() - iRay.support();
-
-	TValue d = dot(v, iRay.direction());
-	const TValue vSquared = v.squaredNorm();
-	const TValue rSquared = num::sqr(iSphere.radius());
-	if (d < TNumTraits::zero && vSquared > rSquared)
-	{
-		return rNone;
-	}
-
-	const TValue uSquared = iRay.direction().squaredNorm();
-	const TValue mSquared = vSquared - num::sqr(d) / uSquared;
-	if (mSquared > rSquared)
-	{
-		return rNone;
-	}
-
-	const TValue q = num::sqrt(rSquared - mSquared);
-	d /= num::sqrt(uSquared);
-	if (vSquared > rSquared)
-	{
-		oTNear = d - q;
-		oTFar = d + q;
-		return rTwo;
-	}
-	else
-	{
-		oTNear = d + q;
-		return rOne;
-	}
+	return impl::RaySphere<NP>::intersect(iSphere, iRay, oT, iMinT);
 }
-
-
-
-#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-
-/** specialisation of intersect for normalized rays.
- *  @relates lass::prim::Ray3D
- *  @relates lass::prim::Sphere3D
- */
-template<typename T, class PP>
-Result intersect(const Ray3D<T, Normalized, PP>& iRay, const Sphere3D<T>& iSphere,
-				 T& oTNear, T& oTFar)
-{
-	typedef Vector3D<T> TVector;
-	typedef typename TVector::TValue TValue;
-	typedef typename TVector::TNumTraits TNumTraits;
-
-	const TVector v = iSphere.center() - iRay.support();
-
-	const TValue d = dot(v, iRay.direction());
-	const TValue vSquared = v.squaredNorm();
-	const TValue rSquared = num::sqr(iSphere.radius());
-	if (d < TNumTraits::zero && vSquared > rSquared)
-	{
-		return rNone;
-	}
-
-	const TValue mSquared = vSquared - num::sqr(d);
-	if (mSquared > rSquared)
-	{
-		return rNone;
-	}
-
-	const TValue q = num::sqrt(rSquared - mSquared);
-	if (vSquared > rSquared)
-	{
-		oTNear = d - q;
-		oTFar = d + q;
-		return rTwo;
-	}
-	else
-	{
-		oTNear = d + q;
-		return rOne;
-	}
-}
-
-#endif
 
 }
 

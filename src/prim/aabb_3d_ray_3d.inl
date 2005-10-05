@@ -38,24 +38,19 @@ namespace prim
  *  @relates lass::prim::Aabb3D
  *  @relates lass::prim::Ray3D
  *
- *  @param iAabb the AABB
- *  @param iRay the ray
- *  @param oT the parameter of the intersection point with @a t > 0.  May be null.
- *  @return @arg rNone      no intersections with @a t > 0 found
+ *  @param iAabb [in] the AABB
+ *  @param iRay [in] the ray
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @return @arg rNone      no intersections with @a >= @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       exactly one intersection with t > 0 found
- *                          @a oT represents it.
- *          @arg rTwo       exactly one intersection with t > 0 found
- *                          @a oT represents it.
- *          @arg rInfinite  infinite many intersections found (ray is coincident with plane),
- *                          @a oT is not assigned.
- *          @arg rInvalid   @a iPlane or @a iRay is invalid, no intersection.
- *                          @a oT is not assigned.
+ *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *							@a oT is assigned.
  */
 template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
 Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
 				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oTNear, T& oTFar)
+				 T& oT, const T& iMinT)
 {
 	if (iAabb.isEmpty())
 	{
@@ -71,61 +66,27 @@ Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
 	const TPoint& support = iRay.support();
 	const TVector& direction = iRay.direction();
 
-	T tMin = TNumTraits::zero;
-	T tMax = TNumTraits::infinity;
+	T tNear = iMinT;
+	T tFar = TNumTraits::infinity;
 	bool good = true;
-	for (size_t i = 0; i < 3 && good; ++i)
-	{
-		good &= impl::interectSlab(min[i], max[i], support[i], direction[i], tMin, tMax);
-	}
+	good &= impl::interectSlab(min[0], max[0], support[0], direction[0], tNear, tFar);
+	good &= impl::interectSlab(min[1], max[1], support[1], direction[1], tNear, tFar);
+	good &= impl::interectSlab(min[2], max[2], support[2], direction[2], tNear, tFar);
 
 	if (good)
 	{
-		if (tMin > TNumTraits::zero)
+		if (tNear > iMinT)
 		{
-			oTNear = tMin;
-			oTFar = tMax;
-			return rTwo;
+			oT = tNear;
+			return rOne;
 		}
-		else
+		if (tFar > iMinT)
 		{
-			oTNear = tMax;
+			oT = tFar;
 			return rOne;
 		}
 	}
 	return rNone;
-}
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
-				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oTNear)
-{
-	T dummy;
-	return intersect(iAabb, iRay, oTNear, dummy);
-}
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
-				 const Aabb3D<T, MMPAabb>& iAabb,				 
-				 T& oTNear, T& oTFar)
-{
-	return intersect(iAabb, iRay, oTNear, oTFar);
-}
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
-				 const Aabb3D<T, MMPAabb>& iAabb,
-				 T& oTNear)
-{
-	T dummy;
-	return intersect(iAabb, iRay, oTNear, dummy);
 }
 
 

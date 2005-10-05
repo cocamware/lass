@@ -22,33 +22,29 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_ALGORITHM_H
-#pragma once
+
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_RAY_2D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_RAY_2D_H
 
 #include "prim_common.h"
-#include "simple_polygon_2d.h"
-#include "triangle_2d.h"
-
-#pragma LASS_FIXME("THIS HEADER IS DEPRACTED.  USE TRIANGULATE FROM AUTOMATIC HEADER SIMPLE_POLYGON_2D_TRIANGLE_2D.H! [Bramz]")
+#include "line_segment_2d.h"
+#include "ray_2d.h"
 
 namespace lass
 {
 namespace prim
 {
 
-/** @deprecated Use triangulate from simple_polygon_2d_triangle_2d.h
-*/
-template<typename T, class DegeneratePolicy>
-bool triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon, std::vector<Triangle2D<T> >& oTriangles)
-{
-	oTriangles.clear();
-	triangulate(iPolygon, std::back_insertor(oTriangles));
-	return true;
-}
+template<typename T, class PP1, class NP2, class PP2>
+Result intersect(const LineSegment2D<T, PP1>& iLineSegment, const Ray2D<T, NP2, PP2>& iRay,
+				 T& oT, const T& iMinT = T());
 
 }
 
 }
+
+#include "line_segment_2d_ray_2d.inl"
 
 #endif
+
+// EOF

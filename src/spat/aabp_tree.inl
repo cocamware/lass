@@ -106,25 +106,20 @@ template <class O, class OT>
 typename AabpTree<O, OT>::TObjectIterator
 AabpTree<O, OT>::intersect(const TRay& iRay, TReference oT) const
 {
-#pragma LASS_FIXME("clean this up, [Bramz]")
+	TObjectTraits::
 	TValue tNear;
 	TValue tFar;
-	prim::Result result = prim::intersect(aabb_, iRay, tNear, tFar);
-	if (result == prim::rNone)
+	if (TObjectTraits::intersect(aabb_, iRay, tNear, 0) && 
+		TObjectTraits::intersect(aabb_, iRay, tFar, tNear))
 	{
-		return end_;
+		TObjectIterator hit = doIntersect(0, iRay, tNear, tFar);
+		if (hit != end_)
+		{
+			oT = tNear;
+			return hit;
+		}
 	}
-	if (result == prim::rOne)
-	{
-		tFar = tNear;
-		tNear = 0;
-	}
-	TObjectIterator hit = doIntersect(0, iRay, tNear, tFar);
-	if (hit != end_)
-	{
-		oT = tNear;
-	}
-	return hit;
+	return end_;
 }
 
 
@@ -332,7 +327,26 @@ template <class O, class OT>
 typename AabpTree<O, OT>::TObjectIterator
 AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference ioTNear, TReference ioTFar) const
 {
-	return end_; // :)
+	LASS_ASSERT(iIndex < heap_.size());
+	const Node& node = heap_[iIndex];
+
+    if (node.split == leafNode_)
+    {
+        // check object in leaf node
+		TValue tNear = ioTNear;
+		TValue tFar = ioTFar;
+		if (TObjectTraits::intersect(node.object, tNear, tFar))
+		{
+
+		}
+
+        if (TObjectTraits::contains(node.object, iPoint))
+		{
+			*iFirst = node.object;
+			++iFirst;
+		}
+    }
+	else
 }
 
 // --- free ----------------------------------------------------------------------------------------

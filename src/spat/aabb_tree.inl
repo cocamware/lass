@@ -274,7 +274,7 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) con
 	const Node& node = heap_[iIndex];
 
 	TValue t;
-	if (!TObjectTraits::intersect(node.aabb, iRay, t))
+	if (!TObjectTraits::intersect(node.aabb, iRay, t, 0))
 	{
 		return end_;
 	}
@@ -304,7 +304,7 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) con
 		return end_;
 	}
 
-	if (TObjectTraits::intersect(node.object, iRay, t))
+	if (TObjectTraits::intersect(node.object, iRay, t, 0))
 	{
 		oT = t;
 		return node.object;

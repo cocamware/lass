@@ -44,8 +44,8 @@ namespace prim
 {
 
 template<typename T, class NP, class PP>
-Result intersect(const Ray3D<T, NP, PP>& iRay, const Sphere3D<T>& iSphere,
-				 T& oTNear, T& oTFar);
+Result intersect(const Sphere3D<T>& iSphere, const Ray3D<T, NP, PP>& iRay, 
+				 T& oT, const T& iMinT = T());
 
 }
 

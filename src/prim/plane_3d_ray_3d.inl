@@ -45,12 +45,13 @@ namespace prim
  *  @relates lass::prim::Plane3D
  *  @relates lass::prim::Ray3D
  *
- *  @param iPlane the plane
- *  @param iRay the ray
- *  @param oT the parameter of the intersection point with @a t > 0.  May be null.
- *  @return @arg rNone      no intersections with @a t > 0 found
+ *  @param iPlane [in] the plane
+ *  @param iRay [in] the ray
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections > @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       exactly one intersection with t > 0 found
+ *          @arg rOne       exactly one intersection > @a iMinT found
  *                          @a oT represents it.
  *          @arg rInfinite  infinite many intersections found (ray is coincident with plane),
  *                          @a oT is not assigned.
@@ -60,7 +61,7 @@ namespace prim
 template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
 Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oT)
+				 T& oT, const T& iMinT)
 {
 	typedef typename Vector3D<T>::TValue TValue;
 	typedef typename Vector3D<T>::TNumTraits TNumTraits;
@@ -82,54 +83,12 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 	{
 		const TValue t = -iPlane.equation(iRay.support()) / nd;
 		LASS_ASSERT(!num::isNaN(t));
-		if (t < TNumTraits::zero)
-		{
-			return rNone;
-		}
-		else
+		if (t > iMinT)
 		{
 			oT = t;
 			return rOne;
 		}
-	}
-}
-
-
-
-template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
-Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
-				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oT, T iRelativeTolerance)
-{
-	typedef typename Vector3D<T>::TValue TValue;
-	typedef typename Vector3D<T>::TNumTraits TNumTraits;
-
-	if (!iPlane.isValid() || !iRay.isValid())
-	{
-		return rInvalid;
-	}
-
-	const TValue nd = dot(iPlane.normal(), iRay.direction());
-	if (nd == TNumTraits::zero)
-	{
-		// ray is parallel to plane, but is it also coincident?
-		const Side side = iPlane.classify(iRay.support(), iRelativeTolerance);
-		LASS_ASSERT(side == sFront || side == sSurface || side == sBack);
-		return side == sSurface ? rInfinite : rNone;
-	}
-	else
-	{
-		const TValue t = -iPlane.equation(iRay.support()) / nd;
-		LASS_ASSERT(!num::isNaN(t));
-		if (t < iRelativeTolerance)
-		{
-			return rNone;
-		}
-		else
-		{
-			oT = t;
-			return rOne;
-		}
+		return rNone;
 	}
 }
 

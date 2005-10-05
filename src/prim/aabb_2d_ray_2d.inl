@@ -40,22 +40,17 @@ namespace prim
  *
  *  @param iAabb [in] the AABB
  *  @param iRay [in] the ray
- *  @param oT the parameter of the intersection point with @a t > 0.  May be null.
- *  @return @arg rNone      no intersections with @a t > 0 found
+ *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a >= @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       exactly one intersection with t > 0 found
- *                          @a oT represents it.
- *          @arg rTwo       exactly one intersection with t > 0 found
- *                          @a oT represents it.
- *          @arg rInfinite  infinite many intersections found (ray is coincident with plane),
- *                          @a oT is not assigned.
- *          @arg rInvalid   @a iPlane or @a iRay is invalid, no intersection.
- *                          @a oT is not assigned.
+ *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *							@a oT is assigned.
  */
 template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
 Result intersect(const Aabb2D<T, MMPAabb>& iAabb,
 				 const Ray2D<T, NPRay, PPRay>& iRay,
-				 T& oTNear, T& oTFar)
+				 T& oT, const T& iMinT)
 {
 	if (iAabb.isEmpty())
 	{
@@ -71,7 +66,7 @@ Result intersect(const Aabb2D<T, MMPAabb>& iAabb,
 	const TPoint& support = iRay.support();
 	const TVector& direction = iRay.direction();
 
-	T tNear = TNumTraits::zero;
+	T tNear = iMinT;
 	T tFar = TNumTraits::infinity;
 	bool good = true;
 	good &= impl::interectSlab(min[0], max[0], support[0], direction[0], tNear, tFar);
@@ -79,53 +74,19 @@ Result intersect(const Aabb2D<T, MMPAabb>& iAabb,
 
 	if (good)
 	{
-		if (tNear > TNumTraits::zero)
+		if (tNear > iMinT)
 		{
-			oTNear = tNear;
-			oTFar = tFar;
-			return rTwo;
+			oT = tNear;
+			return rOne;
 		}
-		else
+		if (tFar > iMinT)
 		{
-			oTNear = tFar;
+			oT = tFar;
 			return rOne;
 		}
 	}
 	return rNone;
 }
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Aabb2D<T, MMPAabb>& iAabb,
-				 const Ray2D<T, NPRay, PPRay>& iRay,
-				 T& oTNear)
-{
-	T dummy;
-	return intersect(iAabb, iRay, oTNear, dummy);
-}
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray2D<T, NPRay, PPRay>& iRay,
-				 const Aabb2D<T, MMPAabb>& iAabb,				 
-				 T& oTNear, T& oTFar)
-{
-	return intersect(iAabb, iRay, oTNear, oTFar);
-}
-
-
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray2D<T, NPRay, PPRay>& iRay,
-				 const Aabb2D<T, MMPAabb>& iAabb,
-				 T& oTNear)
-{
-	T dummy;
-	return intersect(iAabb, iRay, oTNear, dummy);
-}
-
 
 }
 

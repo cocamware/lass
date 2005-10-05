@@ -23,20 +23,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRIANGLE_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRIANGLE_3D_INL
 
-#include "ray_2d_triangle_2d.h"
-#include "impl/intersect_edge_2d.h"
+#include "ray_3d_triangle_3d.h"
 
 namespace lass
 {
 namespace prim
 {
 
+
 /** Find the intersection of a ray and a triangle by their parameter t on the ray.
- *  @relates lass::prim::Ray2D
- *  @relates lass::prim::Sphere2D
+ *  @relates lass::prim::Ray3D
+ *  @relates lass::prim::Sphere3D
  *
  *  A maximum of two possible intersections with t > 0.
  *
@@ -50,8 +50,8 @@ namespace prim
  *							@a oT is assigned.
  */
 template<typename T, class NP, class PP>
-Result intersect(const Triangle2D<T>& iTriangle, 
-				 const Ray2D<T, NP, PP>& iRay, 
+Result intersect(const Triangle3D<T>& iTriangle, 
+				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
 {
 	typedef Point2D<T> TPoint;
@@ -62,18 +62,39 @@ Result intersect(const Triangle2D<T>& iTriangle,
 	const TPoint& support = iRay.support();
 	const TVector& direction = iRay.direction();
 
-	TValue tNear = TNumTraits::infinity;
-	bool good = false;
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[0], iTriangle[1], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[1], iTriangle[2], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[2], iTriangle[0], tNear, iMinT);
+	const TVector edge1 = iTriangle[1] - iTriangle[0];
+	const TVector edge2 = iTriangle[2] - iTriangle[0];
+	const TVector pvec = cross(direction, edge2);
+	const TValue det = dot(pvec, edge1);
 
-	if (good)
+	if (det == TNumTraits::zero)
 	{
-		oT = tNear;
-		return rOne;
+		return rNone;
 	}
-	return rNone;
+	const TValue invDet = num::inv(det);
+
+	const tvec = support - iTriangle[0];
+	const TValue u = dot(tvec, pvec) * invDet;
+	if (u < TNumTraits::zero || u > TNumTraits::one)
+	{
+		return rNone;
+	}
+
+	const qvec = cross(tvec, edge1);
+	const TValue v = dot(tvec, qvec) * invDet;
+	if (v < TNumTraits::zero || (u + v) > TNumTraits::one)
+	{
+		return rNone;
+	}
+
+	const TValue t = dot(edge2, qvec) * invDet;
+	if (t <= iMinT)
+	{
+		return rNone;
+	}
+
+	oT = t;
+	return rOne;
 }
 
 }

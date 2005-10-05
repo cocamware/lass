@@ -44,12 +44,7 @@ namespace prim
 template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
 Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oT);
-
-template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
-Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
-				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oT, T iRelativeTolerance);
+				 T& oT, const T& iMinT = T());
 
 }
 

@@ -44,22 +44,7 @@ namespace prim
 template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
 Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
 				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oTNear, T& oFar);
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Aabb3D<T, MMPAabb>& iAabb,
-				 const Ray3D<T, NPRay, PPRay>& iRay,
-				 T& oTNear);
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
-				 const Aabb3D<T, MMPAabb>& iAabb,				 
-				 T& oTNear, T& oFar);
-
-template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
-Result intersect(const Ray3D<T, NPRay, PPRay>& iRay,
-				 const Aabb3D<T, MMPAabb>& iAabb,				 
-				 T& oTNear);
+				 T& oT, const T& iMinT = T());
 
 }
 
