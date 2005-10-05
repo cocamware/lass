@@ -75,7 +75,7 @@
 
 namespace lass
 {
-namespace std
+namespace stde
 {
 
 template <typename Container, typename Op>
