@@ -425,6 +425,8 @@ const SimplePolygon2D<T> SimplePolygon3D<T>::mapping(XYZ iAxis) const
 	return result;
 }
 
+
+
 template <typename T>
 const Side SimplePolygon3D<T>::classify(const TPoint& iP) const
 {
@@ -435,8 +437,9 @@ const Side SimplePolygon3D<T>::classify(const TPoint& iP) const
 template <typename T>
 const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 {
-	const XYZ x = majorAxis() + 1;
-	const XYZ y = majorAxis() + 2;
+	const XYZ major = majorAxis();
+	const XYZ x = major + 1;
+	const XYZ y = major + 2;
 
 	size_t i, j;
 	bool c = false;

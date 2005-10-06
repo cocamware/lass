@@ -23,18 +23,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY3D_SPHERE3D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY3D_SPHERE3D_INL
-
-
-
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_SPHERE_3D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_SPHERE_3D_INL
 
 #include "ray_3d_sphere_3d.h"
 #include "../num/basic_ops.h"
-
-
 
 namespace lass
 {
@@ -159,11 +152,11 @@ struct RaySphere<Normalized>
  *
  *  @param iSphere [in] the sphere
  *  @param iRay [in] the ray
- *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
- *  @return @arg rNone      no intersections with @a >= @a iMinT found
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
 template<typename T, class NP, class PP> inline

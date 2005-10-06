@@ -23,23 +23,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_H
-
-
-
 
 #include "prim_common.h"
 #include "ray_2d.h"
 #include "simple_polygon_2d.h"
 
-
-
 namespace lass
 {
-
 namespace prim
 {
 
@@ -54,3 +46,6 @@ Result intersect(const SimplePolygon2D<T>& iTriangle, const Ray2D<T, NP, PP>& iR
 #include "ray_2d_simple_polygon_2d.inl"
 
 #endif
+
+// EOF
+

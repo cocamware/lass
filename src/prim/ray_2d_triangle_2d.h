@@ -23,23 +23,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_H
-
-
-
 
 #include "prim_common.h"
 #include "ray_2d.h"
 #include "triangle_2d.h"
 
-
-
 namespace lass
 {
-
 namespace prim
 {
 
@@ -54,3 +46,6 @@ Result intersect(const Triangle2D<T>& iTriangle, const Ray2D<T, NP, PP>& iRay,
 #include "ray_2d_triangle_2d.inl"
 
 #endif
+
+// EOF
+

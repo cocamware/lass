@@ -23,23 +23,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_SPHERE_3D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_SPHERE_3D_H
-
-
-
 
 #include "prim_common.h"
 #include "ray_3d.h"
 #include "sphere_3d.h"
 
-
-
 namespace lass
 {
-
 namespace prim
 {
 
@@ -54,3 +46,5 @@ Result intersect(const Sphere3D<T>& iSphere, const Ray3D<T, NP, PP>& iRay,
 #include "ray_3d_sphere_3d.inl"
 
 #endif
+
+// EOF

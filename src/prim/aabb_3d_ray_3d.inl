@@ -41,10 +41,10 @@ namespace prim
  *  @param iAabb [in] the AABB
  *  @param iRay [in] the ray
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
- *  @param oT [out] the parameter of the intersection point >= @a iMinT.
- *  @return @arg rNone      no intersections with @a >= @a iMinT found
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
 template<typename T, typename MMPAabb, typename NPRay, typename PPRay>

@@ -54,3 +54,5 @@ Result intersect(const Triangle3D<T>& iTriangle, const Ray3D<T, NP, PP>& iRay,
 #include "ray_3d_triangle_3d.inl"
 
 #endif
+
+// EOF

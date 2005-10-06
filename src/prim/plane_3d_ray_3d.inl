@@ -23,17 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_INL
 
-
-
-
 #include "plane_3d_ray_3d.inl"
-
-
 
 namespace lass
 {

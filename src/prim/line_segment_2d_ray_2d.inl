@@ -40,9 +40,9 @@ namespace prim
  *
  *  @param iLineSegment [in] the line segment
  *  @param iRay [in] the ray
- *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
- *  @return @arg rNone      no intersections with @a > @a iMinT found
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
  *                          @a oT is not assigned.
  *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.

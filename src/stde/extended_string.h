@@ -71,6 +71,10 @@ bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 
 template <typename Char, typename Traits, typename Alloc>
 std::vector< std::basic_string<Char, Traits, Alloc> >
+split(const std::basic_string<Char, Traits, Alloc>& to_be_split);
+
+template <typename Char, typename Traits, typename Alloc>
+std::vector< std::basic_string<Char, Traits, Alloc> >
 split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 	  const std::basic_string<Char, Traits, Alloc>& seperator,
 	  size_t max_split = 0);

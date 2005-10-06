@@ -23,10 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_TRIANGLE_2D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_INL
 
-#include "ray_2d_triangle_2d.h"
+#include "ray_2d_simple_polygon_2d.h"
 #include "impl/intersect_edge_2d.h"
 
 namespace lass
@@ -36,17 +36,15 @@ namespace prim
 
 /** Find the intersection of a ray and a triangle by their parameter t on the ray.
  *  @relates lass::prim::Ray2D
- *  @relates lass::prim::Sphere2D
+ *  @relates lass::prim::SimplePolygon2D
  *
- *  A maximum of two possible intersections with t > 0.
- *
- *  @param iTriangle [in] the triangle
+ *  @param iPolygon [in] the simple polygon
  *  @param iRay [in] the ray
- *  @param oT [out] the parameter of the intersection point >= @a iMinT.
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
- *  @return @arg rNone      no intersections with @a >= @a iMinT found
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
  *                          @a oT is not assigned.
- *          @arg rOne       a intersection with @a oT >= @a iMinT is found
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
 template<typename T, class DP, class NP, class PP>
