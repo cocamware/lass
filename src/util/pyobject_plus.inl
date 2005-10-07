@@ -402,12 +402,12 @@ inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics,
 /** @internal
  *  helper for pyNumericCast
  */
-template <bool OutIsSigned> 
+template <bool InIsSigned> 
 struct PyNumericCaster
 {
 	template <typename In, typename Out> static int cast( In iIn, Out& oOut )
 	{
-		LASS_ASSERT(num::NumTraits<Out>::isSigned == false);
+		LASS_ASSERT(num::NumTraits<Out>::isSigned == true);
 		LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
 		if (iIn < static_cast<In>(num::NumTraits<Out>::min))
 		{
@@ -435,11 +435,11 @@ struct PyNumericCaster
  *  helper for pyNumericCast
  */
 template <> 
-struct PyNumericCaster<false> // Out is unsigned
+struct PyNumericCaster<false> // In is unsigned
 {
 	template <typename In, typename Out> static int cast( In iIn, Out& oOut )
 	{
-		LASS_ASSERT(num::NumTraits<Out>::isSigned == true);
+		LASS_ASSERT(num::NumTraits<Out>::isSigned == false);
 		LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
 		if (iIn > static_cast<In>(num::NumTraits<Out>::max))
 		{
