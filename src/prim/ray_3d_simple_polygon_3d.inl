@@ -46,8 +46,8 @@ namespace prim
  *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
-template<typename T, class DP, class NP, class PP>
-Result intersect(const SimplePolygon3D<T, DP>& iPolygon, 
+template<typename T, class NP, class PP>
+Result intersect(const SimplePolygon3D<T>& iPolygon, 
 				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
 {
