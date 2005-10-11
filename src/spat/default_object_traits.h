@@ -44,13 +44,13 @@ namespace spat
 template 
 <
 	typename ObjectType, 
-	typename AabbType, 
-	typename RayType,
+	typename AabbType = typename ObjectType::TAabb, 
+	typename RayType = typename ObjectType::TRay,
 	typename ObjectIterator = const ObjectType*
 >
 struct DefaultObjectTraits
 {
-	typedef ObjectType TObject;					/**< type of object */
+	typedef ObjectType TObject;					/**< type of nD object */
 	typedef AabbType TAabb;						/**< an nD AABB */
 	typedef RayType TRay;						/**< an nD Ray */
 
@@ -64,7 +64,7 @@ struct DefaultObjectTraits
 	typedef typename TAabb::TReference TReference;	/**< reference to TValue */
 	typedef typename TAabb::TConstReference TConstReference; /**< const reference to TValue */
 	
-	enum { dimension = TAabb::dimension }; /**< number of dimensions of TPoint */
+	enum { dimension = TAabb::dimension };		/**< nD = number of dimensions of TPoint */
 
 
 	// OBJECT
@@ -87,7 +87,6 @@ struct DefaultObjectTraits
 	 */
 	static const bool intersect(TObjectIterator iObject, const TRay& iRay, TReference oT, TParam iMinT)
 	{
-		TValue dummy;
 		return prim::intersect(*iObject, iRay, oT, iMinT) != prim::rNone;
 	}
 	
@@ -162,6 +161,13 @@ struct DefaultObjectTraits
 	static const TValue component(const TVector& iVector, size_t iAxis)
 	{
 		return iVector[iAxis];
+	}
+
+	/** return the reciprocal vector of @a iVector
+	 */
+	static const TVector reciprocal(const TVector& iVector)
+	{
+		return iVector.reciprocal();
 	}
 };
 

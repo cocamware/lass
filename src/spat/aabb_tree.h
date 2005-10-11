@@ -48,7 +48,7 @@ namespace spat
 template
 <
 	class ObjectType,
-	class ObjectTraits = DefaultObjectTraits<ObjectType, typename ObjectType::TAabb, typename ObjectType::TRay>
+	class ObjectTraits = DefaultObjectTraits<ObjectType>
 >
 class AabbTree
 {

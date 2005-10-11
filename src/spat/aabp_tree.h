@@ -48,7 +48,7 @@ namespace spat
 template
 <
 	class ObjectType,
-	class ObjectTraits = DefaultObjectTraits<ObjectType, typename ObjectType::TAabb, typename ObjectType::TRay>
+	class ObjectTraits = DefaultObjectTraits<ObjectType>
 >
 class AabpTree
 {
@@ -144,7 +144,8 @@ private:
 	bool doContains(size_t iIndex, const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iTMin, TParam iTMax) const;
+	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, const TVector& iReciprocalDirection, 
+		TReference oT, TParam iTMin, TParam iTMax) const;
 
 	TNodes heap_;
 	TAabb aabb_;

@@ -113,9 +113,14 @@ void testSpatObjectTrees()
 	const T extent = T(1000);
 	const T maxSize = T(10);
 	const size_t numberOfObjects = 10000;
-	const size_t numberOfContainTests = 10000;
-	const size_t numberOfIntersectionTests = 10000;
-	const size_t repeatSpeedTests = 100;
+	// validation
+	const size_t numberOfContainValidations = 1000;
+	const size_t numberOfIntersectionValidations = 1000;
+	// speed tests
+	const size_t numberOfContainSpeedTestTargets = 1000;
+	const size_t numberOfContainSpeedTestRuns = 1000;
+	const size_t numberOfIntersectionSpeedTestTargets = 1000;
+	const size_t numberOfIntersectionSpeedTestRuns = 10;
 
 	typedef typename meta::Select< dim == 2, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< dim == 2, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -166,7 +171,7 @@ void testSpatObjectTrees()
 
 	// contain test
 	//
-	for (unsigned i = 0; i < numberOfContainTests; ++i)
+	for (unsigned i = 0; i < numberOfContainValidations; ++i)
 	{
 		TPoint target = bounds.random(generator);
 		TObjectHits naiveHits;
@@ -202,7 +207,7 @@ void testSpatObjectTrees()
 
 	// intersection test
 	//
-	for (unsigned i = 0; i < numberOfIntersectionTests; ++i)
+	for (unsigned i = 0; i < numberOfIntersectionValidations; ++i)
 	{
 		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
@@ -245,56 +250,71 @@ void testSpatObjectTrees()
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
 	std::vector<TPoint> containTargets;
-	for (size_t i = 0; i < numberOfContainTests; ++i)
+	for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
 	{
 		containTargets.push_back(bounds.random(generator));
 	}	
+	size_t aabbHits = 0;
 	stopWatch.restart();
-	for (size_t k = 0; k < repeatSpeedTests; ++k)
+	for (size_t k = 0; k < numberOfContainSpeedTestRuns; ++k)
 	{
-		for (size_t i = 0; i < numberOfContainTests; ++i)
+		for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
 		{
-			aabbTree.contains(containTargets[k]);
+			aabbHits += aabbTree.contains(containTargets[i]) ? 1 : 0;
 		}
 	}
 	const util::Clock::TTime aabbContainTime = stopWatch.stop();	
+	size_t aabpHits = 0;
 	stopWatch.restart();
-	for (size_t k = 0; k < repeatSpeedTests; ++k)
+	for (size_t k = 0; k < numberOfContainSpeedTestRuns; ++k)
 	{
-		for (size_t i = 0; i < numberOfContainTests; ++i)
+		for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
 		{
-			aabpTree.contains(containTargets[i]);
+			aabpHits += aabpTree.contains(containTargets[i]) ? 1 : 0;
 		}
 	}
 	const util::Clock::TTime aabpContainTime = stopWatch.stop();
+	BOOST_CHECK_EQUAL(aabbHits, aabpHits);
 	std::cout << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
 	//
 	std::vector<TRay> intersectionTargets;
-	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
+	for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
 	{
 		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
 		intersectionTargets.push_back(TRay(support, direction));
 	}
+	T aabbTotal = 0;
 	stopWatch.restart();
-	for (size_t k = 0; k < repeatSpeedTests; ++k)
+	for (size_t k = 0; k < numberOfIntersectionSpeedTestRuns; ++k)
 	{
-		for (size_t i = 0; i < numberOfIntersectionTests; ++i)
+		for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
 		{
 			T aabbT = TNumTraits::infinity;
-			aabbTree.intersect(intersectionTargets[i], aabbT);
+			if (aabbTree.intersect(intersectionTargets[i], aabbT) != objectEnd)
+			{
+				aabbTotal += aabbT;
+			}
 		}
 	}
 	const util::Clock::TTime aabbIntersectionTime = stopWatch.stop();
+	T aabpTotal = 0;
 	stopWatch.restart();
-	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
+	for (size_t k = 0; k < numberOfIntersectionSpeedTestRuns; ++k)
 	{
-		T aabpT = TNumTraits::infinity;
-		aabpTree.intersect(intersectionTargets[i], aabpT);
+		for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
+		{
+			T aabpT = TNumTraits::infinity;
+			if (aabpTree.intersect(intersectionTargets[i], aabpT) != objectEnd)
+			{
+				aabpTotal += aabpT;
+			}
+		}
 	}
 	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
+	BOOST_CHECK_EQUAL(aabbTotal, aabpTotal);
 	std::cout << "intersection: aabb " << aabbIntersectionTime 
 		<< "\taabp " << aabpIntersectionTime << std::endl;
 }
