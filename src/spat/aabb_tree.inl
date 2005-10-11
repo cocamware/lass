@@ -94,9 +94,9 @@ OutputIterator AabbTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst
 
 template <class O, class OT>
 typename AabbTree<O, OT>::TObjectIterator inline
-AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT) const
+AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMinT) const
 {
-	return doIntersect(0, iRay, oT);
+	return doIntersect(0, iRay, oT, iMinT);
 }
 
 
@@ -188,10 +188,10 @@ AabbTree<O, OT>::findSplitAxis(const TAabb& iAabb) const
 	const TPoint min = TObjectTraits::min(iAabb);
 	const TPoint max = TObjectTraits::max(iAabb);
 	TAxis axis = 0;
-	TValue maxDistance = TObjectTraits::component(max, 0) - TObjectTraits::component(min, 0);
+	TValue maxDistance = TObjectTraits::coordinate(max, 0) - TObjectTraits::coordinate(min, 0);
 	for (TAxis k = 1; k < dimension; ++k)
 	{
-		const TValue distance = TObjectTraits::component(max, k) - TObjectTraits::component(min, k);
+		const TValue distance = TObjectTraits::coordinate(max, k) - TObjectTraits::coordinate(min, k);
 		if (distance > maxDistance)
 		{
 			axis = k;
@@ -268,13 +268,13 @@ OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, Outp
 
 template <class O, class OT>
 typename AabbTree<O, OT>::TObjectIterator 
-AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) const
+AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMin) const
 {
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
 
 	TValue t;
-	if (!TObjectTraits::intersect(node.aabb, iRay, t, 0))
+	if (!TObjectTraits::intersect(node.aabb, iRay, t, iMin))
 	{
 		return end_;
 	}
@@ -282,9 +282,9 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) con
 	if (node.object == end_)
 	{
 		TValue tLeft;
-		TObjectIterator left = doIntersect(2 * iIndex + 1, iRay, tLeft);
+		TObjectIterator left = doIntersect(2 * iIndex + 1, iRay, tLeft, iMin);
 		TValue tRight;
-		TObjectIterator right = doIntersect(2 * iIndex + 2, iRay, tRight);
+		TObjectIterator right = doIntersect(2 * iIndex + 2, iRay, tRight, iMin);
 
 		if (left != end_)
 		{
@@ -304,7 +304,7 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT) con
 		return end_;
 	}
 
-	if (TObjectTraits::intersect(node.object, iRay, t, 0))
+	if (TObjectTraits::intersect(node.object, iRay, t, iMin))
 	{
 		oT = t;
 		return node.object;

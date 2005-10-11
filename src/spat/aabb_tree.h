@@ -82,7 +82,7 @@ public:
 	bool contains(const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator intersect(const TRay& iRay, TReference oT) const;
+	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0) const;
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -108,8 +108,8 @@ private:
 		LessDim(TAxis iSplit): split_(iSplit) {}
 		bool operator()(const Node& iA, const Node& iB) const
 		{
-			return TObjectTraits::component(TObjectTraits::min(iA.aabb), split_)
-				< TObjectTraits::component(TObjectTraits::min(iB.aabb), split_);
+			return TObjectTraits::coordinate(TObjectTraits::min(iA.aabb), split_)
+				< TObjectTraits::coordinate(TObjectTraits::min(iB.aabb), split_);
 		}
 	private:
 		TAxis split_;
@@ -123,7 +123,7 @@ private:
 	bool doContains(size_t iIndex, const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT) const;
+	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMinT) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
 

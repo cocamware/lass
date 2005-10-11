@@ -199,6 +199,7 @@ void testSpatObjectTrees()
 		BOOST_CHECK(naiveHits.size() == aabpHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
 	}
+
 	// intersection test
 	//
 	for (unsigned i = 0; i < numberOfIntersectionTests; ++i)
@@ -207,49 +208,34 @@ void testSpatObjectTrees()
 		TVector direction = TVector::random(generator);
 		TRay ray(support, direction);
 
-		if (true || i == 1491)
+		T naiveT = TNumTraits::infinity;
+		TObjectIterator naiveIntersection = objectEnd;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
-			T naiveT = TNumTraits::infinity;
-			TObjectIterator naiveIntersection = objectEnd;
-			for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+			T t;
+			const prim::Result result = prim::intersect(*obj, ray, t);
+			if (result != prim::rNone && t < naiveT)
 			{
-				if (obj == (TObject*)0x01021B68)
-				{
-					int a= 5;
-				}
-				T t;
-				const prim::Result result = prim::intersect(*obj, ray, t);
-				if (result != prim::rNone && t < naiveT)
-				{
-					naiveIntersection = obj;
-					naiveT = t;
-				}
+				naiveIntersection = obj;
+				naiveT = t;
 			}
-
-			TPoint p = ray.point(naiveT);
-			TValue e = naiveIntersection->equation(p);
-			TValue d = dot(ray.direction(), p - naiveIntersection->center());
-
-			T aabbT = TNumTraits::infinity;
-			TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
-
-			if (naiveIntersection != aabbIntersection)
-			{
-				LASS_COUT << i << "\n";
-			}
-			BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
-			BOOST_CHECK_EQUAL(naiveT, aabbT);
 		}
 
-#pragma LASS_FIXME("this is broken, fix :)  [Bramz]")
-		/*
+		T aabbT = TNumTraits::infinity;
+		TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
+		BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
+		BOOST_CHECK_EQUAL(naiveT, aabbT);
+
 		T aabpT = TNumTraits::infinity;
 		const TObject* aabpIntersection = aabpTree.intersect(ray, aabpT);
+		if (aabpIntersection != aabbIntersection || aabpT != naiveT)
+		{
+			LASS_COUT << i << "\n";
+		}
 		BOOST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
 		BOOST_CHECK_EQUAL(naiveT, aabpT);
-		*/
 	}
-#if 0
+
 	// SPEED TESTS
 	//
 	std::cout << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
@@ -262,8 +248,7 @@ void testSpatObjectTrees()
 	for (size_t i = 0; i < numberOfContainTests; ++i)
 	{
 		containTargets.push_back(bounds.random(generator));
-	}
-	
+	}	
 	stopWatch.restart();
 	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
@@ -272,8 +257,7 @@ void testSpatObjectTrees()
 			aabbTree.contains(containTargets[k]);
 		}
 	}
-	const util::Clock::TTime aabbContainTime = stopWatch.stop();
-	
+	const util::Clock::TTime aabbContainTime = stopWatch.stop();	
 	stopWatch.restart();
 	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
@@ -283,7 +267,6 @@ void testSpatObjectTrees()
 		}
 	}
 	const util::Clock::TTime aabpContainTime = stopWatch.stop();
-
 	std::cout << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
@@ -295,7 +278,6 @@ void testSpatObjectTrees()
 		TVector direction = TVector::random(generator);
 		intersectionTargets.push_back(TRay(support, direction));
 	}
-
 	stopWatch.restart();
 	for (size_t k = 0; k < repeatSpeedTests; ++k)
 	{
@@ -306,21 +288,15 @@ void testSpatObjectTrees()
 		}
 	}
 	const util::Clock::TTime aabbIntersectionTime = stopWatch.stop();
-
 	stopWatch.restart();
-#pragma LASS_FIXME("this is broken, fix :)  [Bramz]")
-	/*
 	for (size_t i = 0; i < numberOfIntersectionTests; ++i)
 	{
 		T aabpT = TNumTraits::infinity;
 		aabpTree.intersect(intersectionTargets[i], aabpT);
 	}
-	*/
 	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
-
 	std::cout << "intersection: aabb " << aabbIntersectionTime 
 		<< "\taabp " << aabpIntersectionTime << std::endl;
-#endif
 }
 
 

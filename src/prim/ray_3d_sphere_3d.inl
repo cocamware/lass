@@ -103,25 +103,28 @@ struct RaySphere<Normalized>
 		typedef typename TVector::TValue TValue;
 		typedef typename TVector::TNumTraits TNumTraits;
 
-		const TVector cs = iRay.support() - iSphere.center();
+		typedef num::DoublePrecision<T>::Type TDouble;
+		typedef Vector3D<TDouble> TVectorDouble;
+
+		const TVectorDouble cs(iRay.support() - iSphere.center());
 
 		// at² + bt + c == 0
 		//const TValue a = 1;
-		const TValue b = dot(cs, iRay.direction());
-		const TValue c = cs.squaredNorm() - num::sqr(iSphere.radius());
+		const TDouble b = dot(cs, TVectorDouble(iRay.direction()));
+		const TDouble c = cs.squaredNorm() - num::sqr(TDouble(iSphere.radius()));
 
-		const TValue discriminant = num::sqr(b) - c;
+		const TDouble discriminant = num::sqr(b) - c;
 
 		if (discriminant > TNumTraits::zero)
 		{
-			const TValue sqrtD = num::sqrt(discriminant);
-			const TValue t1 = (-b - sqrtD);
+			const TDouble sqrtD = num::sqrt(discriminant);
+			const TDouble t1 = (-b - sqrtD);
 			if (t1 > iMinT)
 			{
 				oT = t1;
 				return rOne;
 			}
-			const TValue t2 = (-b + sqrtD);
+			const TDouble t2 = (-b + sqrtD);
 			if (t2 > iMinT)
 			{
 				oT = t2;
@@ -130,7 +133,7 @@ struct RaySphere<Normalized>
 		}
 		else if (discriminant == TNumTraits::zero)
 		{
-			const TValue t = -b;
+			const TDouble t = -b;
 			if (t > iMinT)
 			{
 				oT = t;

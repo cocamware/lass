@@ -64,9 +64,9 @@ Result intersect(const Triangle2D<T>& iTriangle,
 
 	TValue tNear = TNumTraits::infinity;
 	bool good = false;
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[0], iTriangle[1], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[1], iTriangle[2], tNear, iMinT);
-	good |= impl::intersectTriangle2DEdge(support, direction, iTriangle[2], iTriangle[0], tNear, iMinT);
+	good |= impl::intersectEdge2D(support, direction, iTriangle[0], iTriangle[1], tNear, iMinT);
+	good |= impl::intersectEdge2D(support, direction, iTriangle[1], iTriangle[2], tNear, iMinT);
+	good |= impl::intersectEdge2D(support, direction, iTriangle[2], iTriangle[0], tNear, iMinT);
 
 	if (good)
 	{

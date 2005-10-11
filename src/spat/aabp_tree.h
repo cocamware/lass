@@ -67,8 +67,8 @@ public:
 	typedef typename TObjectTraits::TVector TVector;
 	typedef typename TObjectTraits::TValue TValue;
 	typedef typename TObjectTraits::TParam TParam;
-	typedef typename TObjectTraits::TParam TReference;
-	typedef typename TObjectTraits::TParam TConstReference;
+	typedef typename TObjectTraits::TReference TReference;
+	typedef typename TObjectTraits::TConstReference TConstReference;
 
 	enum { dimension = TObjectTraits::dimension };
 
@@ -82,7 +82,7 @@ public:
 	bool contains(const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator intersect(const TRay& iRay, TReference oT) const;
+	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0) const;
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -127,8 +127,8 @@ private:
 		LessDim(TAxis iSplit): split_(iSplit) {}
 		bool operator()(const BoundedObject& iA, const BoundedObject& iB) const
 		{
-            return TObjectTraits::component(TObjectTraits::min(iA.aabb), split_) 
-                < TObjectTraits::component(TObjectTraits::min(iB.aabb), split_);
+            return TObjectTraits::coordinate(TObjectTraits::min(iA.aabb), split_) 
+                < TObjectTraits::coordinate(TObjectTraits::min(iB.aabb), split_);
 		}
 	private:
 		TAxis split_;
@@ -144,7 +144,7 @@ private:
 	bool doContains(size_t iIndex, const TPoint& iPoint) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference ioTNear, TReference ioTFar) const;
+	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iTMin, TParam iTMax) const;
 
 	TNodes heap_;
 	TAabb aabb_;

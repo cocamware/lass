@@ -46,14 +46,14 @@ boost::unit_test_framework::test_suite* testSpat()
 
 	typedef void(*TTestCase)();
 
-	//TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
+	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
-	//TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
-	//TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
-	//result->add(BOOST_TEST_CASE(objectTreesFloat2));
+	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
+	TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
+	result->add(BOOST_TEST_CASE(objectTreesFloat2));
 	result->add(BOOST_TEST_CASE(objectTreesFloat3));
-	//result->add(BOOST_TEST_CASE(objectTreesDouble2));
-	//result->add(BOOST_TEST_CASE(objectTreesDouble3));
+	result->add(BOOST_TEST_CASE(objectTreesDouble2));
+	result->add(BOOST_TEST_CASE(objectTreesDouble3));
 
 	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<float> >));
 	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));

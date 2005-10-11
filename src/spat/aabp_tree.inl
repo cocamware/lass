@@ -104,18 +104,23 @@ OutputIterator AabpTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst
 
 template <class O, class OT>
 typename AabpTree<O, OT>::TObjectIterator
-AabpTree<O, OT>::intersect(const TRay& iRay, TReference oT) const
+AabpTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMin) const
 {
-	TObjectTraits::
 	TValue tNear;
-	TValue tFar;
-	if (TObjectTraits::intersect(aabb_, iRay, tNear, 0) && 
-		TObjectTraits::intersect(aabb_, iRay, tFar, tNear))
+	if (TObjectTraits::intersect(aabb_, iRay, tNear, iMin))
 	{
-		TObjectIterator hit = doIntersect(0, iRay, tNear, tFar);
+		TValue tFar;
+		if (!TObjectTraits::intersect(aabb_, iRay, tFar, tNear))
+		{
+			tFar = tNear;
+			tNear = 0;
+		}
+		TValue t;
+		TObjectIterator hit = doIntersect(0, iRay, t, tNear, tFar);
 		if (hit != end_)
 		{
-			oT = tNear;
+			LASS_ASSERT(t > iMin);
+			oT = t;
 			return hit;
 		}
 	}
@@ -184,8 +189,8 @@ void AabpTree<O, OT>::balance(size_t iIndex, const TAabb& iAabb,
 
 	const TAabb aabbLeft = findAabb(iBegin, median);
 	const TAabb aabbRight = findAabb(iBegin, iEnd);
-    const TValue boundLeft = TObjectTraits::component(TObjectTraits::max(aabbLeft), split);
-    const TValue boundRight = TObjectTraits::component(TObjectTraits::min(aabbRight), split);
+    const TValue boundLeft = TObjectTraits::coordinate(TObjectTraits::max(aabbLeft), split);
+    const TValue boundRight = TObjectTraits::coordinate(TObjectTraits::min(aabbRight), split);
 
 	assignInternal(iIndex, split, boundLeft, boundRight);
 	balance(2 * iIndex + 1, aabbLeft, iBegin, median);
@@ -215,10 +220,10 @@ AabpTree<O, OT>::findSplitAxis(const TAabb& iAabb) const
     const TPoint min = TObjectTraits::min(iAabb);
 	const TPoint max = TObjectTraits::max(iAabb);
 	TAxis axis = 0;
-    TValue maxDistance = TObjectTraits::component(max, 0) - TObjectTraits::component(min, 0);
+    TValue maxDistance = TObjectTraits::coordinate(max, 0) - TObjectTraits::coordinate(min, 0);
 	for (TAxis k = 1; k < dimension; ++k)
 	{
-		const TValue distance = TObjectTraits::component(max, k) - TObjectTraits::component(min, k);
+		const TValue distance = TObjectTraits::coordinate(max, k) - TObjectTraits::coordinate(min, k);
 		if (distance > maxDistance)
 		{
 			axis = k;
@@ -274,7 +279,7 @@ bool AabpTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint) const
 
     // try both childs
     //
-	const TValue x = TObjectTraits::component(iPoint, node.split);
+	const TValue x = TObjectTraits::coordinate(iPoint, node.split);
     if (x <= node.leftBound && doContains(2 * iIndex + 1, iPoint))
     {
         return true;
@@ -308,7 +313,7 @@ OutputIterator AabpTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint,
 	else
 	{
 		// try both childs
-		const TValue x = TObjectTraits::component(iPoint, node.split);
+		const TValue x = TObjectTraits::coordinate(iPoint, node.split);
 		if (x <= node.leftBound)
 		{
 			iFirst = doFind(2 * iIndex + 1, iPoint, iFirst);
@@ -325,28 +330,85 @@ OutputIterator AabpTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint,
 
 template <class O, class OT>
 typename AabpTree<O, OT>::TObjectIterator
-AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference ioTNear, TReference ioTFar) const
+AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iTMin, TParam iTMax) const
 {
 	LASS_ASSERT(iIndex < heap_.size());
+	LASS_ASSERT(iTMax > iTMin);
 	const Node& node = heap_[iIndex];
 
     if (node.split == leafNode_)
     {
         // check object in leaf node
-		TValue tNear = ioTNear;
-		TValue tFar = ioTFar;
-		if (TObjectTraits::intersect(node.object, tNear, tFar))
+		TValue t;
+		if (TObjectTraits::intersect(node.object, iRay, t, iTMin))
 		{
-
+			LASS_ASSERT(t > iTMin && t < iTMax);
+			oT = t;
+			return node.object;
 		}
-
-        if (TObjectTraits::contains(node.object, iPoint))
-		{
-			*iFirst = node.object;
-			++iFirst;
-		}
+		return end_;
     }
 	else
+	{
+		// check children
+		const size_t leftIndex = 2 * iIndex + 1;
+		const size_t rightIndex = leftIndex + 1;
+		const TValue s = TObjectTraits::coordinate(TObjectTraits::support(iRay), node.split);
+		const TValue d = TObjectTraits::component(TObjectTraits::direction(iRay), node.split);
+		const TValue tLeftBound = (node.leftBound - s) / d;
+		const TValue tRightBound = (node.rightBound - s) / d;
+		
+		TValue tLeft;
+		TValue tRight;
+		TObjectIterator objectLeft;
+		TObjectIterator objectRight;
+		if (d > 0)
+		{
+			objectLeft = tLeftBound > iTMin ?
+				doIntersect(leftIndex, iRay, tLeft, iTMin, std::min(tLeftBound, iTMax)) : end_;
+			objectRight = tRightBound < iTMax ?
+				doIntersect(rightIndex, iRay, tRight, std::max(tRightBound, iTMin), iTMax) : end_;
+		}
+		else if (d < 0)
+		{
+			objectLeft = tLeftBound < iTMax ?
+				doIntersect(leftIndex, iRay, tLeft, std::max(tLeftBound, iTMin), iTMax) : end_;
+			objectRight = tRightBound > iTMin ?
+				doIntersect(rightIndex, iRay, tRight, iTMin, std::min(tRightBound, iTMax)) : end_;
+		}
+		else // if (d == TNumTraits::zero)
+		{
+			objectLeft = s <= node.leftBound ? 
+				doIntersect(leftIndex, iRay, tLeft, iTMin, iTMax) : end_;
+			objectRight = s >= node.rightBound ?
+				doIntersect(rightIndex, iRay, tRight, iTMin, iTMax): end_;
+		}
+		
+		// determine result
+		if (objectLeft != end_)
+		{
+			if (objectRight != end_ && tRight < tLeft)
+			{
+				LASS_ASSERT(tRight > iTMin && tRight < iTMax);
+				oT = tRight;
+				return objectRight;
+			}
+			else
+			{
+				LASS_ASSERT(tLeft > iTMin && tLeft < iTMax);
+				oT = tLeft;
+				return objectLeft;
+			}
+		}
+		if (objectRight != end_)
+		{
+			LASS_ASSERT(tRight > iTMin && tRight < iTMax);
+			oT = tRight;
+			return objectRight;
+		}
+		return end_;
+	}
+	LASS_ASSERT_UNREACHABLE;
 }
 
 // --- free ----------------------------------------------------------------------------------------

@@ -67,6 +67,7 @@ struct DefaultObjectTraits
 	enum { dimension = TAabb::dimension }; /**< number of dimensions of TPoint */
 
 
+	// OBJECT
 
 	/** return the AABB of an object
 	 */
@@ -91,7 +92,7 @@ struct DefaultObjectTraits
 	}
 	
 
-
+	// AABB
 
 	/** return true if AABB contains a point, return false otherwise
 	 */
@@ -128,11 +129,39 @@ struct DefaultObjectTraits
 		return iAabb.max(); 
 	}
 
-	/** return the @a iAxis component value of @a iPoint.
+
+	// RAY
+
+	/** return the support point of the ray
 	 */
-	static const TValue component(const TPoint& iPoint, size_t iAxis) 
+	static const TPoint support(const TRay& iRay)
+	{
+		return iRay.support();
+	}
+
+	/** return the direction vector of the ray
+	 */
+	static const TVector direction(const TRay& iRay)
+	{
+		return iRay.direction();
+	}
+
+
+
+	// POINTS AND VECTORS
+
+	/** return the @a iAxis coordinate value of @a iPoint.
+	 */
+	static const TValue coordinate(const TPoint& iPoint, size_t iAxis) 
 	{ 
 		return iPoint[iAxis]; 
+	}
+
+	/** return the @a iAxis component value of @a iVector.
+	 */
+	static const TValue component(const TVector& iVector, size_t iAxis)
+	{
+		return iVector[iAxis];
 	}
 };
 
