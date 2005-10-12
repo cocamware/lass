@@ -66,8 +66,8 @@ Result intersect(const SimplePolygon2D<T, DP>& iPolygon,
 	size_t iPrev = size - 1;
 	for (size_t i = 0; i < size; ++i)
 	{
-        good |= impl::intersectTriangle2DEdge(
-			support, direction, iTriangle[iPrev], iTriangle[i], tNear, iMinT);
+        good |= impl::intersectEdge2D(
+			support, direction, iPolygon[iPrev], iPolygon[i], tNear, iMinT);
 		iPrev = i;
 	}
 	if (good)

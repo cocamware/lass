@@ -133,6 +133,10 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray2D<T, NP, PP>& iB)
 #	include "aabb_2d_ray_2d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_H
+#	include "line_2d_ray_2d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_H
 #	include "line_segment_2d_ray_2d.h"
 #endif

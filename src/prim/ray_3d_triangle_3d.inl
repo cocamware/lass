@@ -58,8 +58,8 @@ Result intersect(const Triangle3D<T>& iTriangle,
 				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
 {
-	typedef Point2D<T> TPoint;
-	typedef Vector2D<T> TVector;
+	typedef Point3D<T> TPoint;
+	typedef Vector3D<T> TVector;
 	typedef typename TVector::TValue TValue;
 	typedef typename TVector::TNumTraits TNumTraits;
 
@@ -77,14 +77,14 @@ Result intersect(const Triangle3D<T>& iTriangle,
 	}
 	const TValue invDet = num::inv(det);
 
-	const tvec = support - iTriangle[0];
+	const TVector tvec = support - iTriangle[0];
 	const TValue u = dot(tvec, pvec) * invDet;
 	if (u < TNumTraits::zero || u > TNumTraits::one)
 	{
 		return rNone;
 	}
 
-	const qvec = cross(tvec, edge1);
+	const TVector qvec = cross(tvec, edge1);
 	const TValue v = dot(tvec, qvec) * invDet;
 	if (v < TNumTraits::zero || (u + v) > TNumTraits::one)
 	{

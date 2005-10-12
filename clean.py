@@ -102,6 +102,7 @@ if __name__ == '__main__':
 	# os table
 	os_to_clean = {
 		'win32': clean_win32,
+                'nt': clean_win32,
 		'posix': clean_unix
 		}
 		

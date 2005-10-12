@@ -23,10 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_INL
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_RAY_2D_INL
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_RAY_2D_INL
 
-#include "plane_3d_ray_3d.h"
+#include "line_2d_ray_2d.h"
 
 namespace lass
 {
@@ -34,11 +34,11 @@ namespace lass
 namespace prim
 {
 
-/** Find the intersection of a plane and ray by their parameter t on the ray.
- *  @relates lass::prim::Plane3D
- *  @relates lass::prim::Ray3D
+/** Find the intersection of a line and ray by their parameter t on the ray.
+ *  @relates lass::prim::Line2D
+ *  @relates lass::prim::Ray2D
  *
- *  @param iPlane [in] the plane
+ *  @param iLine [in] the line
  *  @param iRay [in] the ray
  *  @param oT [out] the parameter of the intersection point > @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
@@ -51,30 +51,30 @@ namespace prim
  *          @arg rInvalid   @a iPlane or @a iRay is invalid, no intersection.
  *                          @a oT is not assigned.
  */
-template<typename T, class EPPlane, class NPPlane, class NPRay, class PPRay>
-Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
-				 const Ray3D<T, NPRay, PPRay>& iRay,
+template<typename T, class EP1, class NP1, class NP2, class PP2>
+Result intersect(const Line2D<T, EP1, NP1>& iLine,
+				 const Ray2D<T, NP2, PP2>& iRay,
 				 T& oT, const T& iMinT)
 {
-	typedef typename Vector3D<T>::TValue TValue;
-	typedef typename Vector3D<T>::TNumTraits TNumTraits;
+	typedef typename Vector2D<T>::TValue TValue;
+	typedef typename Vector2D<T>::TNumTraits TNumTraits;
 
-	if (!iPlane.isValid() || !iRay.isValid())
+	if (!iLine.isValid() || !iRay.isValid())
 	{
 		return rInvalid;
 	}
 
-	const TValue nd = dot(iPlane.normal(), iRay.direction());
+	const TValue nd = perpDot(iLine.normal(), iRay.direction());
 	if (nd == TNumTraits::zero)
 	{
 		// ray is parallel to plane, but is it also coincident?
-		const Side side = iPlane.classify(iRay.support());
+		const Side side = iLine.classify(iRay.support());
 		LASS_ASSERT(side == sFront || side == sSurface || side == sBack);
 		return side == sSurface ? rInfinite : rNone;
 	}
 	else
 	{
-		const TValue t = -iPlane.equation(iRay.support()) / nd;
+		const TValue t = -iLine.equation(iRay.support()) / nd;
 		LASS_ASSERT(!num::isNaN(t));
 		if (t > iMinT)
 		{

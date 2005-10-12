@@ -61,7 +61,7 @@ Result intersect(const LineSegment2D<T, PP1>& iLineSegment,
 	const TVector& direction = iRay.direction();
 
 	TValue tNear = TNumTraits::infinity;
-	const bool good = impl::intersectTriangle2DEdge(
+	const bool good = impl::intersectEdge2D(
 		support, direction, iLineSegment.tail(), iLineSegment.head(), tNear, iMinT);
 	if (good)
 	{

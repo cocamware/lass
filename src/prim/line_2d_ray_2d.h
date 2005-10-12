@@ -23,29 +23,33 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_SIMPLE_POLYGON_2D_H
+
+
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_RAY_2D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_RAY_2D_H
+#pragma once
 
 #include "prim_common.h"
+#include "line_2d.h"
 #include "ray_2d.h"
-#include "simple_polygon_2d.h"
+
+
 
 namespace lass
 {
+
 namespace prim
 {
 
-template<typename T, class DP, class NP, class PP>
-Result intersect(const SimplePolygon2D<T, DP>& iTriangle, const Ray2D<T, NP, PP>& iRay,
+template<typename T, class EP1, class NP1, class NP2, class PP2>
+Result intersect(const Line2D<T, EP1, NP1>& iLine,
+				 const Ray2D<T, NP2, PP2>& iRay,
 				 T& oT, const T& iMinT = T());
 
 }
 
 }
 
-#include "ray_2d_simple_polygon_2d.inl"
+#include "line_2d_ray_2d.inl"
 
 #endif
-
-// EOF
-

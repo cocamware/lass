@@ -385,6 +385,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Line2D<T, Combined>&
 
 #include "line_2d.inl"
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
+#	include "line_2d_ray_2d.h"
+#endif
+
 #endif
 
 // --- END OF FILE ------------------------------------------------------------------------------

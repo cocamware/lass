@@ -121,13 +121,13 @@ struct RaySphere<Normalized>
 			const TDouble t1 = (-b - sqrtD);
 			if (t1 > iMinT)
 			{
-				oT = t1;
+				oT = static_cast<TValue>(t1);
 				return rOne;
 			}
 			const TDouble t2 = (-b + sqrtD);
 			if (t2 > iMinT)
 			{
-				oT = t2;
+				oT = static_cast<TValue>(t2);
 				return rOne;
 			}
 		}
@@ -136,7 +136,7 @@ struct RaySphere<Normalized>
 			const TDouble t = -b;
 			if (t > iMinT)
 			{
-				oT = t;
+				oT = static_cast<TValue>(t);
 				return rOne;
 			}
 		}
