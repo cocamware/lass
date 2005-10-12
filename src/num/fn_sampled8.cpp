@@ -27,7 +27,7 @@
 
 #include "num_common.h"
 #include "fn_sampled8.h"
-#include "../util/pyobject_util.h"
+#include "../util/py_stl.h"
 
 #define DISCRETISATION_OF_ENTROPY 32
 #define PDF_INTEGRAL_DISCRETISATION 32

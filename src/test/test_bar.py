@@ -35,6 +35,20 @@ class TestClass:
 
 print "\n***\n"
 
+barC = embedding.Bar()
+barC.writeableMap['test'] = 'ok'
+print "barC['test']=",barC.writeableMap['test']
+if barC.writeableMap['test'] != 'ok':
+    reportError("Map is not writeable")
+else:
+    print "Succesfully wrote to map"
+
+print dir(barC.writeableVector)
+barC.writeableVector.append(5)
+print "barC.writeableVector[0] = ",barC.writeableVector[0]
+
+
+
 # testing documentation
 print "Module documentation :\n ",embedding.__doc__
 print "Class documentation :\n ",embedding.Bar.__doc__
@@ -235,5 +249,6 @@ def callbackR0():
 embedding.callR0(callbackR0)
 print "CallbackR2:"
 embedding.callR2(lambda x, y: x * y)
+
 
 print "\n"

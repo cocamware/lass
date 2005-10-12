@@ -165,8 +165,11 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 	std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
 	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation)
 {
-	std::string fullName = 
-		std::string(iModuleName) + std::string(".") + std::string(iPyType.tp_name);
+	std::string fullName;
+	if (iModuleName)
+		fullName = std::string(iModuleName) + std::string(".") + std::string(iPyType.tp_name);
+	else	// without module, aimed at utility objects, such as PySequence, PyMap
+		fullName = std::string(iPyType.tp_name);
 	char* fullNameCharPtr = new char[fullName.size()+1];
 	strcpy(fullNameCharPtr,fullName.c_str());
 

@@ -84,6 +84,8 @@ namespace test
 		float& coolMember();
 
 		int publicInt;
+		std::map<std::string, std::string> writeableMap;
+		std::vector< double > writeableVector;
 
 		class InnerClass : public lass::python::PyObjectPlus
 		{
