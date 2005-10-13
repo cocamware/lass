@@ -42,6 +42,17 @@ if barC.writeableMap['test'] != 'ok':
     reportError("Map is not writeable")
 else:
     print "Succesfully wrote to map"
+print barC.writeableMap		# test the repr and str
+del barC.writeableMap['test']
+exceptionCaught = 1
+try:
+	print barC.writeableMap['test']	# this should fail, because of the previous del
+	exceptionCaught = 0
+except:
+	pass
+if not exceptionCaught:
+	reportError("Could not remove item from map")
+print barC.writeableMap
 
 print dir(barC.writeableVector)
 barC.writeableVector.append(5)

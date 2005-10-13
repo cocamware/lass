@@ -53,6 +53,7 @@ namespace impl
 	{
 		delete pimpl_;
 	}
+	
 
 #pragma LASS_TODO("check the IPO for a PyMap type");
 

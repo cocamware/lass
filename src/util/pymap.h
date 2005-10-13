@@ -48,6 +48,8 @@ namespace impl
 		virtual int PyMap_Length() = 0;
 		virtual PyObject* PyMap_Subscript( PyObject* iKey) = 0;
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
+		virtual std::string pyStr(void) = 0;
+		virtual std::string pyRepr(void) = 0;
 	};
 
 	template<typename M> 
@@ -59,6 +61,8 @@ namespace impl
 		virtual int PyMap_Length();
 		virtual PyObject* PyMap_Subscript( PyObject* iKey);
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
+		virtual std::string pyStr(void);
+		virtual std::string pyRepr(void);
 	private:
 		M& map_;
 		bool readOnly_;
@@ -83,6 +87,8 @@ namespace impl
 			this->ob_type->tp_as_mapping = &pyMappingMethods;
 		}
 		virtual ~PyMap();
+		virtual std::string pyStr(void) { return pimpl_->pyStr(); }
+		virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
 
 		static int PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
@@ -164,6 +170,28 @@ namespace impl
 		}
 	}
 
+	template<typename M>
+	std::string PyMapImpl<M>::pyStr( void)
+	{
+		std::stringstream temp;
+		temp << "{";
+		M::const_iterator it=map_.begin();
+		if (it!=map_.end())
+		{
+			temp << it->first << ":" << it->second;
+			++it;
+		}
+		for (;it!=map_.end();++it)
+			temp << "," << it->first << ":" << it->second;
+		temp << "}";
+		return temp.str();
+	}
+
+	template<typename M>
+	std::string PyMapImpl<M>::pyRepr( void)
+	{
+		return pyStr();
+	}
 
 }
 
