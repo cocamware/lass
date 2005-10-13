@@ -40,6 +40,38 @@ namespace python
 namespace impl
 {
 
+	template<typename C>
+	struct ContainerTraits
+	{
+		static const typename C::value_type&		element_at(const C& iC, int i) { return iC[i]; };
+		static typename C::value_type&				element_at(C& iC, int i) { return iC[i]; };
+		static typename C::const_iterator			const_iterator_at(const C& iC, int i) { return iC.begin()+i; };
+		static typename C::iterator					iterator_at(C& iC, int i) { return iC.begin()+i; };
+	};
+
+	template<typename C, typename A>
+	struct ContainerTraits<std::list<C, A> >
+	{
+		static const C& element_at(const std::list<C,A>& iC, int i) { return *const_iterator_at(iC,i); };
+		static C& element_at(std::list<C,A>& iC, int i) { return *iterator_at(iC,i); };
+		static typename std::list<C, A>::const_iterator	const_iterator_at(const std::list<C,A>& iC, int i) 
+		{ 
+			std::list<C,A>::const_iterator it = iC.begin();
+			for (int j=0;j<i;++j)
+				++it;
+			return it;
+		};
+		static typename std::list<C, A>::iterator	iterator_at(std::list<C,A>& iC, int i) 
+		{ 
+			std::list<C,A>::iterator it = iC.begin();
+			for (int j=0;j<i;++j)
+				++it;
+			return it;
+		};
+	};
+
+
+
 	class PySequenceImplBase
 	{
 	public:
@@ -61,12 +93,12 @@ namespace impl
 	};
 
 
-	template<typename V,typename A> 
-	class PySequenceVec : public PySequenceImplBase
+	template<typename Container> 
+	class PySequenceContainer : public PySequenceImplBase
 	{
 	public:
-		PySequenceVec(std::vector<V,A>& iVec, bool iReadOnly = false) : vector_(iVec), readOnly_(iReadOnly) {}
-		virtual ~PySequenceVec() {}
+		PySequenceContainer(Container& iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
+		virtual ~PySequenceContainer() {}
 
 		virtual int PySequence_Clear();
 
@@ -83,7 +115,7 @@ namespace impl
 		virtual void append(PyObject* i);
 
 	private:
-		std::vector<V,A>& vector_;
+		Container& cont_;
 		bool readOnly_;
 	};
 
@@ -96,16 +128,14 @@ namespace impl
 		static bool isInitialized;
 
 	public:
-		template<typename V, typename A> PySequence( std::vector<V, A>& iStdVec ) : PyObjectPlus(&Type)
+		template<typename Container> PySequence( Container& iCont ) : PyObjectPlus(&Type)
 		{
-			pimpl_ = new PySequenceVec<V,A>(iStdVec);
-			this->ob_type->tp_as_sequence= &pySequenceMethods;
+			pimpl_ = new PySequenceContainer<Container>(iCont);
 			initialize();
 		}
-		template<typename V, typename A> PySequence( const std::vector<V, A>& iStdVec ) : PyObjectPlus(&Type)
+		template<typename Container> PySequence( const Container& iCont ) : PyObjectPlus(&Type)
 		{
-			pimpl_ = new PySequenceVec<V,A>(iStdVec, true);
-			this->ob_type->tp_as_sequence= &pySequenceMethods;
+			pimpl_ = new PySequenceContainer<Container>(iCont,true);
 			initialize();
 		}
 
@@ -133,67 +163,73 @@ namespace impl
 		static void initialize();
 	};
 
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_Clear()
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_Clear()
 	{
-		vector_.clear();
+		cont_.clear();
 		return 0;
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_Length()
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_Length()
 	{
-		return vector_.size();
+		return cont_.size();
 	}
-	template<typename V,typename A>
-	PyObject* PySequenceVec<V,A>::PySequence_Concat(PyObject *bb)
+	template<typename Container>
+	PyObject* PySequenceContainer<Container>::PySequence_Concat(PyObject *bb)
 	{
-		std::vector<V> toConcat;
+		Container toConcat;
 		int r = pyGetSimpleObject(bb,toConcat);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
 			return NULL;
 		}
-		std::vector<V> result(vector_);
+		Container result(cont_);
 		result.insert(result.end(), toConcat.begin(), toConcat.end());
-		return pyBuildList<std::vector<V,A> >(result.begin(),result.end());
+		return pyBuildList<Container>(result.begin(),result.end());
 	}
-	template<typename V,typename A>
-	PyObject* PySequenceVec<V,A>::PySequence_Repeat(int n)
+	template<typename Container>
+	PyObject* PySequenceContainer<Container>::PySequence_Repeat(int n)
 	{
-		std::vector<V> result;
+		Container result;
 		for (int i=0;i<n;++i)
-			result.insert(result.end(), vector_.begin(), vector_.end());
-		return pyBuildList<std::vector<V,A> >(result.begin(),result.end());
+			result.insert(result.end(), cont_.begin(), cont_.end());
+		return pyBuildList<Container>(result.begin(),result.end());
 	}
-	template<typename V,typename A>
-	PyObject* PySequenceVec<V,A>::PySequence_Item(int i)
+	template<typename Container>
+	PyObject* PySequenceContainer<Container>::PySequence_Item(int i)
 	{
-		if (i<0 || i>vector_.size())
+		if (i<0 || i>cont_.size())
 		{
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
 		}
-		return pyBuildSimpleObject(vector_[i]);
+		return pyBuildSimpleObject( ContainerTraits<Container>::element_at(cont_,i));
 	}
-	template<typename V,typename A>
-	PyObject* PySequenceVec<V,A>::PySequence_Slice(int ilow, int ihigh)
+	template<typename Container>
+	PyObject* PySequenceContainer<Container>::PySequence_Slice(int ilow, int ihigh)
 	{
 		int i, len;
 		if (ilow < 0)
 			ilow = 0;
-		else if (ilow > vector_.size())
-			ilow = vector_.size();
+		else if (ilow > cont_.size())
+			ilow = cont_.size();
 		if (ihigh < ilow)
 			ihigh = ilow;
-		else if (ihigh > vector_.size())
-			ihigh = vector_.size();
+		else if (ihigh > cont_.size())
+			ihigh = cont_.size();
 		len = ihigh - ilow;
-		return static_cast<PyObject*>(pyBuildList<std::vector<V,A> >(vector_.begin()+ilow,vector_.end()+ilow+len));
+		return pyBuildList<Container>(	ContainerTraits<Container>::const_iterator_at(cont_,ilow),
+										ContainerTraits<Container>::const_iterator_at(cont_,ilow+len) );
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_AssItem(int i, PyObject *v)
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_AssItem(int i, PyObject *v)
 	{
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+			return NULL;
+		}
 		PyObject *old_value;
 		if (i < 0 || i >= PySequence_Length()) 
 		{
@@ -202,27 +238,33 @@ namespace impl
 		}
 		if (v == NULL)
 			return PySequence_AssSlice(i, i+1, v);
-		return pyGetSimpleObject(v,vector_[i]);
+		return pyGetSimpleObject(v,ContainerTraits<Container>::element_at(cont_,i));
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_AssSlice(int ilow, int ihigh, PyObject *v)
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_AssSlice(int ilow, int ihigh, PyObject *v)
 	{
-		std::vector<V> temp;
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+			return -1;
+		}
+		Container temp;
 		int r = pyGetSimpleObject(v,temp);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to type for slice assignment");
 			return -1;
 		}
-		vector_.erase(vector_.begin()+ilow,vector_.begin()+ihigh);
-		vector_.insert(vector_.begin()+ilow+1,temp.begin(),temp.end());
+		cont_.erase(	ContainerTraits<Container>::iterator_at(cont_,ilow),
+						ContainerTraits<Container>::iterator_at(cont_,ihigh) );
+		cont_.insert(	ContainerTraits<Container>::iterator_at(cont_,ilow+1),
+						temp.begin(),temp.end());
 		return 0;
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_Contains(PyObject *el)
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_Contains(PyObject *el)
 	{
-
-		V temp;
+		Container::value_type temp;
 		int r = pyGetSimpleObject(el,temp);
 		if (r)
 		{
@@ -230,46 +272,62 @@ namespace impl
 			// this corresponds to the Python behavior
 			return 0;
 		}
-		for (int i = 0; i < vector_.size(); ++i)
+		for (int i = 0; i < cont_.size(); ++i)
 		{
-			if ( vector_[i]==temp )
+			if ( ContainerTraits<Container>::element_at(cont_,i)==temp )
 				return 1;
 		}
 		return 0;
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_InplaceConcat(PyObject *other)
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_InplaceConcat(PyObject *other)
 	{
-		std::vector<V> toConcat;
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+			return -1;
+		}
+		Container toConcat;
 		int r = pyGetSimpleObject(other,toConcat);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
 			return 1;
 		}
-		vector_.insert(vector_.end(), toConcat.begin(), toConcat.end());
+		cont_.insert(cont_.end(), toConcat.begin(), toConcat.end());
 		return 0;
 	}
-	template<typename V,typename A>
-	int PySequenceVec<V,A>::PySequence_InplaceRepeat(int n)
+	template<typename Container>
+	int PySequenceContainer<Container>::PySequence_InplaceRepeat(int n)
 	{
-		int l = vector_.size();
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+			return -1;
+		}
+		int l = cont_.size();
 		for (int i=0;i<(n-1);++i)
 			for (int j=0;j<l;++j)
-                vector_.push_back(vector_[j]);
+                cont_.push_back(ContainerTraits<Container>::element_at(cont_,j));
 		return 0;
 	}
-	template<typename V,typename A>
-	void PySequenceVec<V,A>::append(PyObject* i)
+	template<typename Container>
+	void PySequenceContainer<Container>::append(PyObject* i)
 	{
-		V temp;
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+#pragma LASS_TODO("The exception flag should be set or not?")
+			return;
+		}
+		Container::value_type temp;
 		int r = pyGetSimpleObject(i,temp);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to append type");
 			return;
 		}
-		vector_.push_back( temp );
+		cont_.push_back( temp );
 	}
 
 

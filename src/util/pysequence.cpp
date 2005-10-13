@@ -61,6 +61,7 @@ namespace impl
 		if (!isInitialized)
 		{
 			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
+			PySequence::Type.tp_as_sequence= &pySequenceMethods;
 			finalizePyType( PySequence::Type, 
 							*PySequence::GetParentType(), 
 							PySequence::Methods,

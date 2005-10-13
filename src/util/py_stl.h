@@ -32,6 +32,8 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <queue>
+#include <deque>
 #include "pyobject_plus.h"
 #include "pymap.h"
 #include "pysequence.h"
@@ -66,29 +68,13 @@ namespace lass
 		}
 
 		/** @ingroup Python
-		 *  build a copy of a std::vector as a Python tuple
-		 *  @note you build a COPY of the std::vector, not a reference to it!
-		 */
-		/*
-		template<class C, typename A>
-		PyObject* pyBuildSimpleObject( const std::vector<C, A>& iV )
-		{
-			LASS_ASSERT(static_cast<int>(iV.size()) >= 0);
-			PyObject* newTuple = PyTuple_New(static_cast<int>(iV.size()));
-			int i;
-			for (i = 0;i < int(iV.size()); ++i)
-				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( iV[i] ) );
-			return newTuple;
-		}
-		*/
-		/** @ingroup Python
 		 *  build a copy of a std::vector as a Python list
 		 *  @note you build a reference to the std::vector, but the list is read-only
 		 */
 		template< class V, typename A>
 		PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 		{
-			return new impl::PySequence( iV );
+			return new impl::PySequence( iV, true );
 		}
 
 		/** @ingroup Python
@@ -102,42 +88,69 @@ namespace lass
 			return new impl::PySequence( iV );
 		}
 
-
-
-
 		/** @ingroup Python
-		 *  build a copy of a std::list as a Python tuple
-		 *  @note you build a COPY of the std::list, not a reference to it!
+		 *  build a copy of a std::list as a Python list
+		 *  @note you build a reference to the std::list, but the list is read-only
 		 */
-		template<class C, typename A>
-		PyObject* pyBuildSimpleObject( const std::list<C, A>& iV )
+		template< class V, typename A>
+		PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 		{
-			PyObject* newTuple = PyTuple_New(iV.size());
-			int i;
-			typename std::list<C, A>::const_iterator it = iV.begin();
-			typename std::list<C, A>::const_iterator eit = iV.end();
-			for (i=0;it != eit; ++it,++i)
-				PyTuple_SetItem( newTuple, i, pyBuildSimpleObject( *it ) );
-			return newTuple;
+			return new impl::PySequence( iV, true );
+		}
+		/** @ingroup Python
+		 *  build a copy of a std::list as a Python ;ost
+		 *  @note you build a reference to the std::list, any changes done in Python
+		 *  will be reflected in the original object, as far as the typesystem allows it of course
+		 */
+		template<class V, typename A>
+		PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
+		{
+			return new impl::PySequence( iV );
 		}
 
 		/** @ingroup Python
-		 *  build a copy of a std::map as a Python dictionary
-		 *  @note you build a COPY of the std::map, not a reference to it!
+		 *  build a copy of a std::queue as a Python list
+		 *  @note you build a reference to the std::queue, but the list is read-only
 		 */
 		/*
-		template<class K, class V, typename P, typename A>
-		PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
+		template< class V, typename A>
+		PyObject* pyBuildSimpleObject( const std::queue<V, A>& iV )
 		{
-			PyObject* newDict = PyDict_New();
-			int i;
-			typename std::map<K, V, P, A>::const_iterator it = iV.begin();
-			typename std::map<K, V, P, A>::const_iterator eit = iV.end();
-			for (i=0;it != eit; ++it,++i)
-				PyDict_SetItem( newDict, pyBuildSimpleObject( it->first ), pyBuildSimpleObject( it->second ) );
-			return newDict;
+			return new impl::PySequence( iV, true );
 		}
 		*/
+		/** @ingroup Python
+		 *  build a copy of a std::queue as a Python ;ost
+		 *  @note you build a reference to the std::queue, any changes done in Python
+		 *  will be reflected in the original object, as far as the typesystem allows it of course
+		 */
+		/*
+		template<class V, class A>
+		PyObject* pyBuildSimpleObject( std::queue<V, A>& iV )
+		{
+			return new impl::PySequence( iV );
+		}
+		*/
+		/** @ingroup Python
+		 *  build a copy of a std::deque as a Python list
+		 *  @note you build a reference to the std::deque, but the list is read-only
+		 */
+		template< class V, class A>
+		PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
+		{
+			return new impl::PySequence( iV, true );
+		}
+		/** @ingroup Python
+		 *  build a copy of a std::deque as a Python ;ost
+		 *  @note you build a reference to the std::deque, any changes done in Python
+		 *  will be reflected in the original object, as far as the typesystem allows it of course
+		 */
+		template<typename V,typename A>
+		PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
+		{
+			return new impl::PySequence( iV );
+		}
+
 		/** @ingroup Python
 		 *  build a copy of a std::map as a Python dictionary
 		 *  @note you build a reference to the std::map, but the map is read-only
@@ -224,6 +237,27 @@ namespace lass
 			return impl::pyGetSequenceObject( iValue, oV );
 		}
 
+		/** @ingroup Python
+		 *  get a copy of a Python sequence as a std::queue.
+		 *  @note you get a COPY of the sequence, not the original sequence itself!
+		 */
+		/*
+		template<class C, typename A>
+		int pyGetSimpleObject( PyObject* iValue, std::queue<C, A>& oV )
+		{
+			return impl::pyGetSequenceObject( iValue, oV );
+		}
+		*/
+
+		/** @ingroup Python
+		 *  get a copy of a Python sequence as a std::deque.
+		 *  @note you get a COPY of the sequence, not the original sequence itself!
+		 */
+		template<class C, typename A>
+		int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
+		{
+			return impl::pyGetSequenceObject( iValue, oV );
+		}
 		/** @ingroup Python
 		 *  get a copy of a Python Dictionary as a std::map.
 		 *  @note you get a COPY of the dictionary, not the original dictionary itself!
