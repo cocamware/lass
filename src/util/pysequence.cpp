@@ -113,6 +113,7 @@ namespace impl
 		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceConcat(other);
 		if (r)
 			return NULL;
+		Py_INCREF(iPO);
 		return iPO;
 	}
 	PyObject * PySequence::PySequence_InplaceRepeat(PyObject *iPO, int n)
@@ -120,6 +121,7 @@ namespace impl
 		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceRepeat(n);
 		if (r)
 			return NULL;
+		Py_INCREF(iPO);
 		return iPO;
 	}
 	/*
