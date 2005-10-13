@@ -55,8 +55,17 @@ if not exceptionCaught:
 print barC.writeableMap
 
 print dir(barC.writeableVector)
-barC.writeableVector.append(5)
+for i in range(3):
+	barC.writeableVector.append(i)
 print "barC.writeableVector[0] = ",barC.writeableVector[0]
+barC.writeableVector[0] = 5.0
+print "barC.writeableVector[0] = ",barC.writeableVector[0]
+a = barC.writeableVector * 3
+print "a = ",a
+barC.writeableVector *= 2
+print "new length barC.writeableVector = ", len(barC.writeableVector)
+barC.writeableVector[0:2] = range(10)
+print "new length barC.writeableVector = ", len(barC.writeableVector)
 
 
 

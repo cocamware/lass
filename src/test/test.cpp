@@ -61,12 +61,12 @@ int test_main(int argc, char* argv[])
 
 	test_suite testSuite("lass test suite");
 
+	testSuite.add(lass::test::testUtil());
 	testSuite.add(lass::test::testIo());
 	testSuite.add(lass::test::testMeta());
 	testSuite.add(lass::test::testNum());
 	testSuite.add(lass::test::testPrim());
 	testSuite.add(lass::test::testStde());
-	testSuite.add(lass::test::testUtil());
 	testSuite.add(lass::test::testSpat());
 
 	std::ofstream log;

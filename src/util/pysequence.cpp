@@ -111,14 +111,14 @@ namespace impl
 	PyObject * PySequence::PySequence_InplaceConcat(PyObject *iPO, PyObject *other)
 	{
 		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceConcat(other);
-		if (!r)
+		if (r)
 			return NULL;
 		return iPO;
 	}
 	PyObject * PySequence::PySequence_InplaceRepeat(PyObject *iPO, int n)
 	{
 		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceRepeat(n);
-		if (!r)
+		if (r)
 			return NULL;
 		return iPO;
 	}

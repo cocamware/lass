@@ -55,7 +55,7 @@ namespace lass
 				if (r==NULL)
 					return NULL;
 				typename Container::const_iterator it = iB;
-                for (int i=0;iB!=iE;++it,++i)
+                for (int i=0;it!=iE;++it,++i)
 				{
 					PyList_SET_ITEM(r,i,pyBuildSimpleObject(*it));
 				}
