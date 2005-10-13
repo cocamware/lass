@@ -114,7 +114,7 @@ namespace impl
 		virtual void append(PyObject* i) { pimpl_->append(i); }
 
 		static int PySequence_Clear(PyObject *iPO);
-		static PyObject* PySequence_ListIter(PyObject* iPO);
+		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
 		static int PySequence_Length( PyObject* iPO);
 		static PyObject* PySequence_Concat(PyObject *a, PyObject *bb);

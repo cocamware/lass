@@ -60,7 +60,7 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
+			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
 			finalizePyType( PySequence::Type, 
 							*PySequence::GetParentType(), 
 							PySequence::Methods,
@@ -121,11 +121,11 @@ namespace impl
 			return NULL;
 		return iPO;
 	}
-
+	/*
 	typedef struct {
 		PyObject_HEAD
 		long it_index;
-		PyListObject *it_seq; /* Set to NULL when iterator is exhausted */
+		PyListObject *it_seq; 
 	} listiterobject;
 
 	PyTypeObject PyListIter_Type;
@@ -147,7 +147,7 @@ namespace impl
 		_PyObject_GC_TRACK(it);
 		return (PyObject *)it;
 	}
-
+	*/
 }
 
 }
