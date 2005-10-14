@@ -74,7 +74,7 @@ namespace lass
 		template< class V, typename A>
 		PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 		{
-			return new impl::PySequence( iV, true );
+			return new impl::PySequence( iV );
 		}
 
 		/** @ingroup Python
@@ -95,7 +95,7 @@ namespace lass
 		template< class V, typename A>
 		PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 		{
-			return new impl::PySequence( iV, true );
+			return new impl::PySequence( iV );
 		}
 		/** @ingroup Python
 		 *  build a copy of a std::list as a Python ;ost
@@ -138,7 +138,7 @@ namespace lass
 		template< class V, class A>
 		PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
 		{
-			return new impl::PySequence( iV, true );
+			return new impl::PySequence( iV );
 		}
 		/** @ingroup Python
 		 *  build a copy of a std::deque as a Python ;ost
