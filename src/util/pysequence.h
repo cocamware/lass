@@ -113,7 +113,7 @@ namespace impl
 	class PySequenceContainer : public PySequenceImplBase
 	{
 	public:
-		PySequenceContainer(Container& iC, bool iReadOnly = false) : cont_(&iC), readOnly_(iReadOnly) {}
+		PySequenceContainer(typename ContainerOwnerShipPolicy::ContainerPtr iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
 		virtual ~PySequenceContainer() { ContainerOwnerShipPolicy::dispose(cont_); }
 		virtual int PySequence_Clear();
 
@@ -150,12 +150,12 @@ namespace impl
 	public:
 		template<typename Container> PySequence( Container& iCont ) : PyObjectPlus(&Type)
 		{
-			pimpl_ = new PySequenceContainer<Container>(iCont);
+			pimpl_ = new PySequenceContainer<Container>(&iCont);
 			initialize();
 		}
 		template<typename Container> PySequence( const Container& iCont ) : PyObjectPlus(&Type)
 		{
-			pimpl_ = new PySequenceContainer<Container>(iCont,true);
+			pimpl_ = new PySequenceContainer<Container>(&iCont,true);
 			initialize();
 		}
 		//PySequence( PyObject* iP );

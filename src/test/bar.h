@@ -89,6 +89,11 @@ namespace test
 		std::list< double > writeableList;
 		std::deque< double > writeableDeque;
 
+		const std::map<std::string, std::string> constMap;
+		const std::vector< double > constVector;
+		const std::list< double > constList;
+		const std::deque< double > constDeque;
+
 		class InnerClass : public lass::python::PyObjectPlus
 		{
 			PY_HEADER( lass::python::PyObjectPlus );

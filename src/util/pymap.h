@@ -56,7 +56,7 @@ namespace impl
 	class PyMapImpl : public PyMapImplBase
 	{
 	public:
-		PyMapImpl(M& iMap, bool iReadOnly = false) : map_(iMap), readOnly_(iReadOnly) {}
+		PyMapImpl(M* iMap, bool iReadOnly = false) : map_(iMap), readOnly_(iReadOnly) {}
 		virtual ~PyMapImpl() {}
 		virtual int PyMap_Length();
 		virtual PyObject* PyMap_Subscript( PyObject* iKey);
@@ -64,7 +64,7 @@ namespace impl
 		virtual std::string pyStr(void);
 		virtual std::string pyRepr(void);
 	private:
-		M& map_;
+		M* map_;
 		bool readOnly_;
 	};
 
@@ -78,12 +78,12 @@ namespace impl
 	public:
 		template<typename M> PyMap( M& iStdMap ) : PyObjectPlus(&Type)
 		{
-            pimpl_ = new PyMapImpl<M>(iStdMap);
+            pimpl_ = new PyMapImpl<M>(&iStdMap);
 			this->ob_type->tp_as_mapping = &pyMappingMethods;
 		}
 		template<typename M> PyMap( const M& iStdMap ) : PyObjectPlus(&Type)
 		{
-            pimpl_ = new PyMapImpl<M>(iStdMap, true);
+            pimpl_ = new PyMapImpl<M>(&iStdMap, true);
 			this->ob_type->tp_as_mapping = &pyMappingMethods;
 		}
 		virtual ~PyMap();
@@ -103,7 +103,7 @@ namespace impl
 	template<typename M>
 	int PyMapImpl<M>::PyMap_Length()
 	{
-		return map_.size();
+		return map_->size();
 	}
 
 	template<typename M>
@@ -116,8 +116,8 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
 			return NULL;
 		}
-		typename M::const_iterator it = map_.find(cppKey);
-		if (it==map_.end())
+		typename M::const_iterator it = map_->find(cppKey);
+		if (it==map_->end())
 		{
 			PyErr_SetObject(PyExc_KeyError, iKey);
 			return NULL;
@@ -141,7 +141,7 @@ namespace impl
 			typename M::key_type cppKey;
 			int r = pyGetSimpleObject( iKey, cppKey );
 			if (!r)
-				map_.erase(cppKey);
+				map_->erase(cppKey);
 			else
 			{
 				PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
@@ -165,7 +165,7 @@ namespace impl
 				PyErr_SetString(PyExc_TypeError, "Cannot convert data to appropriate type");
 				return 1;
 			}
-			map_.insert(M::value_type(cppKey,cppData));
+			map_->insert(M::value_type(cppKey,cppData));
 			return 0;
 		}
 	}
@@ -175,13 +175,13 @@ namespace impl
 	{
 		std::stringstream temp;
 		temp << "{";
-		M::const_iterator it=map_.begin();
-		if (it!=map_.end())
+		M::const_iterator it=map_->begin();
+		if (it!=map_->end())
 		{
 			temp << it->first << ":" << it->second;
 			++it;
 		}
-		for (;it!=map_.end();++it)
+		for (;it!=map_->end();++it)
 			temp << "," << it->first << ":" << it->second;
 		temp << "}";
 		return temp.str();
