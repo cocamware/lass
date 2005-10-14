@@ -35,7 +35,7 @@ namespace lass
 		namespace impl
 		{
 			
-			inline bool pyIsOfType(PyObject* iObject, PyTypeObject* iTypeObject)
+			inline bool isOfType(PyObject* iObject, PyTypeObject* iTypeObject)
 			{
 				return (iObject->ob_type == iTypeObject);
 			}
@@ -108,22 +108,27 @@ namespace lass
 					return 1;
 				}
 				// check if we have our own PySequence object, then take a shortcut
-				//if (PySequence::check( iValue ))
-
-				Sequence result;
-				const int size = PySequence_Length(iValue);
-				for (int i = 0; i < size; ++i)
+				if (isOfType( iValue, &PySequence::Type ) && ((PySequence*)iValue)->pointsToSameContainer(oV))
 				{
-					typename Sequence::value_type temp;
-					if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
-					{
-						impl::addMessageHeader(
-							std::string("sequence element ") + util::stringCast<std::string>(i));
-						return 1;
-					}
-					result.push_back( temp );
+					return 0;
 				}
-				oV.swap(result);
+				else
+				{
+					Sequence result;
+					const int size = PySequence_Length(iValue);
+					for (int i = 0; i < size; ++i)
+					{
+						typename Sequence::value_type temp;
+						if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
+						{
+							impl::addMessageHeader(
+								std::string("sequence element ") + util::stringCast<std::string>(i));
+							return 1;
+						}
+						result.push_back( temp );
+					}
+					oV.swap(result);
+				}
 				return 0;
 			}
 		}

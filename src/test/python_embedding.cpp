@@ -28,7 +28,6 @@
 
 #include "test_common.h"
 #include "python_embedding.h"
-#include "../util/py_stl.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -177,6 +176,8 @@ PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
+PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
+PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
 
 // a const value as class member
 PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );

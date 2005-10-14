@@ -90,6 +90,35 @@ void transform(const IContainer& iContainer, OContainer& oContainer, Op op)
 	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
 }
 
+template <class InputIterator, class Size, class OutputIterator>
+OutputIterator copy_n(InputIterator first, Size count, 
+                      OutputIterator result)
+{
+	for (Size i=0;i<count;++i)
+		*result++ = *first++;
+	return result;
+}
+
+
+template <class Container, class Size>
+Container& inplace_repeat(Container& iC, Size n)
+{
+	size_t l = iC.size();
+	for (Size i=0;i<(n-1);++i)
+		copy_n(iC.begin(),l,std::back_inserter(iC));
+	return iC;
+}
+
+
+template <class Container, class Size>
+Container repeat(Container& iC, Size n)
+{
+	Container result;
+	for (Size i=0;i<n;++i)
+		std::copy(iC.begin(),iC.end(),std::back_inserter(result));
+	return result;
+}
+
 
 }
 }

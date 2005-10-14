@@ -86,6 +86,8 @@ namespace test
 		int publicInt;
 		std::map<std::string, std::string> writeableMap;
 		std::vector< double > writeableVector;
+		std::list< double > writeableList;
+		std::deque< double > writeableDeque;
 
 		class InnerClass : public lass::python::PyObjectPlus
 		{

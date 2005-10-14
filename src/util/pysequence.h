@@ -32,6 +32,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "../stde/extended_algorithm.h"
 
 namespace lass
 {
@@ -90,16 +91,30 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
 		virtual int PySequence_InplaceRepeat(int n) = 0;
 		virtual void append(PyObject* i) = 0;
+		virtual PyObject* pop(int i) = 0;
+		virtual bool pointsToSameContainer(void* iO) = 0;
+
 	};
 
+	template<typename Container>
+	struct ContainerNotOwned
+	{
+		typedef Container* ContainerPtr;
+		static	void dispose(ContainerPtr ioC) {};
+	};
+	template<typename Container>
+	struct ContainerOwned
+	{
+		typedef Container* ContainerPtr;
+		static	void dispose(ContainerPtr ioC) {delete ioC;};
+	};
 
-	template<typename Container> 
+	template<typename Container, typename ContainerOwnerShipPolicy = ContainerNotOwned<Container> > 
 	class PySequenceContainer : public PySequenceImplBase
 	{
 	public:
-		PySequenceContainer(Container& iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
-		virtual ~PySequenceContainer() {}
-
+		PySequenceContainer(Container& iC, bool iReadOnly = false) : cont_(&iC), readOnly_(iReadOnly) {}
+		virtual ~PySequenceContainer() { ContainerOwnerShipPolicy::dispose(cont_); }
 		virtual int PySequence_Clear();
 
 		virtual int PySequence_Length();
@@ -113,9 +128,14 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other);
 		virtual int PySequence_InplaceRepeat(int n);
 		virtual void append(PyObject* i);
+		virtual PyObject* pop(int i);
+		virtual bool pointsToSameContainer(void* iO) 
+		{ 
+			return (iO == (void*)cont_);
+		}
 
 	private:
-		Container& cont_;
+		typename ContainerOwnerShipPolicy::ContainerPtr cont_;
 		bool readOnly_;
 	};
 
@@ -138,10 +158,11 @@ namespace impl
 			pimpl_ = new PySequenceContainer<Container>(iCont,true);
 			initialize();
 		}
-
-
+		//PySequence( PyObject* iP );
 		virtual ~PySequence();
-		virtual void append(PyObject* i) { pimpl_->append(i); }
+		virtual void append(PyObject* i)	{ pimpl_->append(i); }
+		virtual PyObject* pop(int i)		{ return pimpl_->pop(i); }
+
 
 		static int PySequence_Clear(PyObject *iPO);
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
@@ -157,25 +178,29 @@ namespace impl
 		static PyObject * PySequence_InplaceConcat(PyObject *self, PyObject *other);
 		static PyObject * PySequence_InplaceRepeat(PyObject *self, int n);
 
+		template<typename Container> bool pointsToSameContainer(Container& iO) 
+		{ 
+			return pimpl_->pointsToSameContainer(&iO);
+		}
 	private:
 		PySequence();
 		PySequenceImplBase*	pimpl_;
 		static void initialize();
 	};
 
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_Clear()
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container, ContainerOwnerShipPolicy>::PySequence_Clear()
 	{
-		cont_.clear();
+		cont_->clear();
 		return 0;
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_Length()
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
 	{
-		return cont_.size();
+		return cont_->size();
 	}
-	template<typename Container>
-	PyObject* PySequenceContainer<Container>::PySequence_Concat(PyObject *bb)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Concat(PyObject *bb)
 	{
 		Container toConcat;
 		int r = pyGetSimpleObject(bb,toConcat);
@@ -184,46 +209,44 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
 			return NULL;
 		}
-		Container result(cont_);
+		Container result(*cont_);
 		result.insert(result.end(), toConcat.begin(), toConcat.end());
 		return pyBuildList<Container>(result.begin(),result.end());
 	}
-	template<typename Container>
-	PyObject* PySequenceContainer<Container>::PySequence_Repeat(int n)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(int n)
 	{
-		Container result;
-		for (int i=0;i<n;++i)
-			result.insert(result.end(), cont_.begin(), cont_.end());
+		Container result = stde::repeat(*cont_,n);
 		return pyBuildList<Container>(result.begin(),result.end());
 	}
-	template<typename Container>
-	PyObject* PySequenceContainer<Container>::PySequence_Item(int i)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
 	{
-		if (i<0 || i>cont_.size())
+		if (i<0 || i>cont_->size())
 		{
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
 		}
-		return pyBuildSimpleObject( ContainerTraits<Container>::element_at(cont_,i));
+		return pyBuildSimpleObject( ContainerTraits<Container>::element_at(*cont_,i));
 	}
-	template<typename Container>
-	PyObject* PySequenceContainer<Container>::PySequence_Slice(int ilow, int ihigh)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(int ilow, int ihigh)
 	{
 		int i, len;
 		if (ilow < 0)
 			ilow = 0;
-		else if (ilow > cont_.size())
-			ilow = cont_.size();
+		else if (ilow > cont_->size())
+			ilow = cont_->size();
 		if (ihigh < ilow)
 			ihigh = ilow;
-		else if (ihigh > cont_.size())
-			ihigh = cont_.size();
+		else if (ihigh > cont_->size())
+			ihigh = cont_->size();
 		len = ihigh - ilow;
-		return pyBuildList<Container>(	ContainerTraits<Container>::const_iterator_at(cont_,ilow),
-										ContainerTraits<Container>::const_iterator_at(cont_,ilow+len) );
+		return pyBuildList<Container>(	ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
+										ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) );
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_AssItem(int i, PyObject *v)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(int i, PyObject *v)
 	{
 		if (readOnly_)
 		{
@@ -238,10 +261,10 @@ namespace impl
 		}
 		if (v == NULL)
 			return PySequence_AssSlice(i, i+1, v);
-		return pyGetSimpleObject(v,ContainerTraits<Container>::element_at(cont_,i));
+		return pyGetSimpleObject(v,ContainerTraits<Container>::element_at(*cont_,i));
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_AssSlice(int ilow, int ihigh, PyObject *v)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssSlice(int ilow, int ihigh, PyObject *v)
 	{
 		if (readOnly_)
 		{
@@ -255,14 +278,14 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to type for slice assignment");
 			return -1;
 		}
-		cont_.erase(	ContainerTraits<Container>::iterator_at(cont_,ilow),
-						ContainerTraits<Container>::iterator_at(cont_,ihigh) );
-		cont_.insert(	ContainerTraits<Container>::iterator_at(cont_,ilow+1),
+		cont_->erase(	ContainerTraits<Container>::iterator_at(*cont_,ilow),
+						ContainerTraits<Container>::iterator_at(*cont_,ihigh) );
+		cont_->insert(	ContainerTraits<Container>::iterator_at(*cont_,ilow+1),
 						temp.begin(),temp.end());
 		return 0;
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_Contains(PyObject *el)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Contains(PyObject *el)
 	{
 		Container::value_type temp;
 		int r = pyGetSimpleObject(el,temp);
@@ -272,16 +295,12 @@ namespace impl
 			// this corresponds to the Python behavior
 			return 0;
 		}
-		// algoritme lineair maken ipv kwadr
-		for (int i = 0; i < cont_.size(); ++i)
-		{
-			if ( ContainerTraits<Container>::element_at(cont_,i)==temp )
-				return 1;
-		}
+		if (std::find(cont_->begin(),cont_->end(),temp)!=cont_->end())
+			return 1;
 		return 0;
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_InplaceConcat(PyObject *other)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceConcat(PyObject *other)
 	{
 		if (readOnly_)
 		{
@@ -295,31 +314,26 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
 			return 1;
 		}
-		cont_.insert(cont_.end(), toConcat.begin(), toConcat.end());
+		cont_->insert(cont_->end(), toConcat.begin(), toConcat.end());
 		return 0;
 	}
-	template<typename Container>
-	int PySequenceContainer<Container>::PySequence_InplaceRepeat(int n)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceRepeat(int n)
 	{
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return -1;
 		}
-		// algoritme lineair maken ipv kwadr
-		int l = cont_.size();
-		for (int i=0;i<(n-1);++i)
-			for (int j=0;j<l;++j)
-                cont_.push_back(ContainerTraits<Container>::element_at(cont_,j));
+		stde::inplace_repeat(*cont_,n);
 		return 0;
 	}
-	template<typename Container>
-	void PySequenceContainer<Container>::append(PyObject* i)
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	void PySequenceContainer<Container,ContainerOwnerShipPolicy>::append(PyObject* i)
 	{
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-#pragma LASS_TODO("The exception flag should be set or not?")
 			return;
 		}
 		Container::value_type temp;
@@ -329,7 +343,19 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to append type");
 			return;
 		}
-		cont_.push_back( temp );
+		cont_->push_back( temp );
+	}
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
+	{
+		if (readOnly_)
+		{
+			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+			return NULL;
+		}
+		Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
+		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
+		return pyBuildSimpleObject(temp);
 	}
 
 

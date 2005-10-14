@@ -36,7 +36,11 @@ namespace python
 namespace impl
 {
 	PY_DECLARE_CLASS( PySequence )
+	//typedef meta::type_list::Make<PyObject*>::Type TArguments;
+	//PY_CLASS_CONSTRUCTOR(PySequence, TArguments) // constructor with some arguments. *
+
 	PY_CLASS_METHOD( PySequence, append )
+	PY_CLASS_METHOD( PySequence, pop )
 
 	PySequenceMethods PySequence::pySequenceMethods = {
 	(inquiry)PySequence_Length,			/* sq_length */
@@ -53,8 +57,21 @@ namespace impl
 
 	bool PySequence::isInitialized = false;
 
+	/* POSTPONED: parsing of the arguments needs some work
+	PySequence::PySequence( PyObject* iP ) : PyObjectPlus(&Type)
+	{
+		// we will default to the vector implementation
+		typedef std::vector<PyObject*>	TVPyObj;
+		TVPyObj*	newContainer  = new TVPyObj;
+		pyGetSimpleObject(iP, newContainer );
+		pimpl_ = new PySequenceContainer<TVPyObj,ContainerOwned<TVPyObj> >(*newContainer,false);
+		initialize();
+	}
+	*/
+
 	PySequence::~PySequence()
 	{
+		delete pimpl_;
 	}
 	void PySequence::initialize()
 	{
@@ -124,33 +141,6 @@ namespace impl
 		Py_INCREF(iPO);
 		return iPO;
 	}
-	/*
-	typedef struct {
-		PyObject_HEAD
-		long it_index;
-		PyListObject *it_seq; 
-	} listiterobject;
-
-	PyTypeObject PyListIter_Type;
-
-	PyObject * PySequence::PySequence_ListIter(PyObject* iPO)
-	{
-		listiterobject *it;
-
-		if (!PyList_Check(iPO)) {
-			PyErr_BadInternalCall();
-			return NULL;
-		}
-		it = PyObject_GC_New(listiterobject, &PyListIter_Type);
-		if (it == NULL)
-			return NULL;
-		it->it_index = 0;
-		Py_INCREF(iPO);
-		it->it_seq = (PyListObject *)iPO;
-		_PyObject_GC_TRACK(it);
-		return (PyObject *)it;
-	}
-	*/
 }
 
 }
