@@ -272,6 +272,7 @@ namespace impl
 			// this corresponds to the Python behavior
 			return 0;
 		}
+		// algoritme lineair maken ipv kwadr
 		for (int i = 0; i < cont_.size(); ++i)
 		{
 			if ( ContainerTraits<Container>::element_at(cont_,i)==temp )
@@ -305,6 +306,7 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return -1;
 		}
+		// algoritme lineair maken ipv kwadr
 		int l = cont_.size();
 		for (int i=0;i<(n-1);++i)
 			for (int j=0;j<l;++j)

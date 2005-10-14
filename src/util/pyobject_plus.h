@@ -329,5 +329,6 @@ namespace lass
 #include "pyobject_call.inl"
 #include "callback_python.h"
 #include "../prim/pyobject_util.h"
+#include "py_stl.h"
 
 #endif

@@ -34,20 +34,12 @@ namespace lass
 	{
 		namespace impl
 		{
-			/*
-			template<typename V>
-			PyListObject* pyBuildList(const std::vector<V> iV)
+			
+			inline bool pyIsOfType(PyObject* iObject, PyTypeObject* iTypeObject)
 			{
-				PyObject* r = np = (PyListObject *) PyList_New(iV.size());
-				if (r==NULL)
-					return NULL;
-				for (int i=0;i<iV.size();++i)
-				{
-					PyList_SET_ITEM(r,i,pyBuildSimpleObject(iV[i]));
-				}
-				return r;
+				return (iObject->ob_type == iTypeObject);
 			}
-			*/
+
 			template<typename Container>
 			PyObject* pyBuildList(const typename Container::const_iterator iB, const typename Container::const_iterator iE )
 			{
@@ -110,17 +102,20 @@ namespace lass
 			template <typename Sequence>
 			int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
 			{
-				if (!PyList_Check(iValue) && !PyTuple_Check(iValue))
+				if (!PySequence_Check(iValue))
 				{
-					PyErr_SetString(PyExc_TypeError, "not a python list/tuple");
+					PyErr_SetString(PyExc_TypeError, "not a python sequence");
 					return 1;
 				}
+				// check if we have our own PySequence object, then take a shortcut
+				//if (PySequence::check( iValue ))
+
 				Sequence result;
 				const int size = PySequence_Length(iValue);
 				for (int i = 0; i < size; ++i)
 				{
 					typename Sequence::value_type temp;
-					if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue, i) , temp ) != 0)
+					if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
 					{
 						impl::addMessageHeader(
 							std::string("sequence element ") + util::stringCast<std::string>(i));

@@ -66,6 +66,8 @@ barC.writeableVector *= 2
 print "new length barC.writeableVector = ", len(barC.writeableVector)
 barC.writeableVector[0:2] = range(10)
 print "new length barC.writeableVector = ", len(barC.writeableVector)
+barC.writeableVector *= 2
+print "new length barC.writeableVector = ", len(barC.writeableVector)
 
 
 
