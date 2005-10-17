@@ -178,10 +178,10 @@ PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
-PY_CLASS_PUBLIC_MEMBER( Bar, constMap );
-PY_CLASS_PUBLIC_MEMBER( Bar, constVector );
-PY_CLASS_PUBLIC_MEMBER( Bar, constList );
-PY_CLASS_PUBLIC_MEMBER( Bar, constDeque );
+PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
+PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
+PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
+PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
 
 // a const value as class member
 PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );

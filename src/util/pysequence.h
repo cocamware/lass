@@ -155,7 +155,7 @@ namespace impl
 		}
 		template<typename Container> PySequence( const Container& iCont ) : PyObjectPlus(&Type)
 		{
-			pimpl_ = new PySequenceContainer<Container>(&iCont,true);
+			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
 			initialize();
 		}
 		//PySequence( PyObject* iP );

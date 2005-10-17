@@ -1296,6 +1296,41 @@ $[
 	PY_CLASS_PUBLIC_MEMBER_DOC( i_cppClass, i_cppMember, 0 )
 
 
+#define PY_CLASS_PUBLIC_MEMBER_R_EX( i_cppClass, i_cppMember, s_memberName, s_doc )\
+	inline PyObject* LASS_CONCATENATE_3( pyPublicGetterR, i_cppClass, i_cppMember ) ( PyObject* iObject, void* iClosure)\
+	{\
+		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return ::lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE_3( lassExecutePyClassPublicMemberR_, i_cppClass, i_cppMember ),\
+		i_cppClass::GetSetters.insert(\
+			i_cppClass::GetSetters.begin(),\
+			::lass::python::impl::createPyGetSetDef(\
+				s_memberName, LASS_CONCATENATE_3( pyPublicGetterR, i_cppClass, i_cppMember ),\
+				0, s_doc, 0));\
+	)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_PUBLIC_MEMBER_R_EX
+ */
+#define PY_CLASS_PUBLIC_MEMBER_R_DOC( i_cppClass, i_cppMember , s_doc)\
+	PY_CLASS_PUBLIC_MEMBER_R_EX(\
+		i_cppClass, i_cppMember, LASS_STRINGIFY( i_cppMember ),  s_doc )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_PUBLIC_MEMBER_EX
+ */
+#define PY_CLASS_PUBLIC_MEMBER_R( i_cppClass, i_cppMember )\
+	PY_CLASS_PUBLIC_MEMBER_R_DOC( i_cppClass, i_cppMember, 0 )
+
+
 
 // --- constructors --------------------------------------------------------------------------------
 

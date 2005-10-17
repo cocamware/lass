@@ -83,7 +83,7 @@ namespace impl
 		}
 		template<typename M> PyMap( const M& iStdMap ) : PyObjectPlus(&Type)
 		{
-            pimpl_ = new PyMapImpl<M>(&iStdMap, true);
+            pimpl_ = new PyMapImpl<M>(const_cast<M*>(&iStdMap), true);
 			this->ob_type->tp_as_mapping = &pyMappingMethods;
 		}
 		virtual ~PyMap();
