@@ -78,7 +78,7 @@ namespace impl
 	public:
 		PySequenceImplBase() {};
 		virtual ~PySequenceImplBase() {};
-		virtual int PySequence_Clear() = 0;
+		virtual void clear() = 0;
 
 		virtual int PySequence_Length() = 0;
 		virtual PyObject* PySequence_Concat(PyObject *bb) = 0;
@@ -115,7 +115,7 @@ namespace impl
 	public:
 		PySequenceContainer(typename ContainerOwnerShipPolicy::ContainerPtr iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
 		virtual ~PySequenceContainer() { ContainerOwnerShipPolicy::dispose(cont_); }
-		virtual int PySequence_Clear();
+		virtual void clear();
 
 		virtual int PySequence_Length();
 		virtual PyObject* PySequence_Concat(PyObject *bb);
@@ -161,10 +161,10 @@ namespace impl
 		//PySequence( PyObject* iP );
 		virtual ~PySequence();
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
+		virtual void clear()				{ pimpl_->clear(); }
 		virtual PyObject* pop(int i)		{ return pimpl_->pop(i); }
 
 
-		static int PySequence_Clear(PyObject *iPO);
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
 		static int PySequence_Length( PyObject* iPO);
@@ -189,10 +189,9 @@ namespace impl
 	};
 
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container, ContainerOwnerShipPolicy>::PySequence_Clear()
+	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::clear()
 	{
 		cont_->clear();
-		return 0;
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
@@ -251,7 +250,7 @@ namespace impl
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return NULL;
+			return -1;
 		}
 		PyObject *old_value;
 		if (i < 0 || i >= PySequence_Length()) 

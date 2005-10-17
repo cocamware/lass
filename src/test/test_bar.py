@@ -54,22 +54,34 @@ if not exceptionCaught:
 	reportError("Could not remove item from map")
 print barC.writeableMap
 
-print dir(barC.writeableVector)
-for i in range(3):
-	barC.writeableVector.append(i)
-print "barC.writeableVector[0] = ",barC.writeableVector[0]
-barC.writeableVector[0] = 5.0
-print "barC.writeableVector[0] = ",barC.writeableVector[0]
-a = barC.writeableVector * 3
-print "a = ",a
-barC.writeableVector *= 2
-print "new length barC.writeableVector = ", len(barC.writeableVector)
-barC.writeableVector[0:2] = range(10)
-print "new length barC.writeableVector = ", len(barC.writeableVector)
-barC.writeableVector *= 2
-print "new length barC.writeableVector = ", len(barC.writeableVector)
 
-
+def testSequence(seq):
+	seq.clear()
+	for i in range(10):
+		seq.append(i)
+	for i in range(5):
+		seq.pop(3)
+	seq[3] = 5
+	assert(seq[3]==5)
+	l = len(seq)
+	seq *= 2
+	print "l*=2", l, len(seq)
+	assert(len(seq)==2*l)
+	seq += seq
+	assert(len(seq)==4*l)
+	seq[0:4] = range(10)
+	assert(len(seq)==4*l+6)
+	
+print "------------------"
+try:
+	barC.constVector = range(10)
+	barC.constVector[3] = 5
+except:
+	print "read-onlyness detected"
+print "------------------"
+testSequence(barC.writeableVector)
+testSequence(barC.writeableList)
+testSequence(barC.writeableDeque)
 
 # testing documentation
 print "Module documentation :\n ",embedding.__doc__

@@ -529,18 +529,6 @@ $[
 
 
 
-#pragma LASS_TODO("is this still being used / useful? [Bramz]")
-
-#define PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_uniqueClassIdentifier ) \
-	PyTypeObject i_cppClass::Type = {\
-		PY_STATIC_FUNCTION_FORWARD_PLUS( i_cppClass::TPyClassSelf, i_cppClass::TPyClassParent, s_className ) };\
-	std::vector<PyMethodDef> i_cppClass::Methods;\
-	std::vector<PyGetSetDef> i_cppClass::GetSetters;\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassExecutePyDeclareClassPlus_, i_uniqueClassIdentifier ),\
-		i_cppClass::Methods.push_back( lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
-		i_cppClass::GetSetters.push_back( lass::python::impl::createPyGetSetDef( 0, 0, 0, 0 ) ) ; \
-)
-
 #define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
 	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_cppClass )
 
@@ -1269,7 +1257,7 @@ $[
 		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
 		if (!cppObject)\
 		{\
-			return 0;\
+			return -1;\
 		}\
 		return ::lass::python::pyGetSimpleObject( iArgs, cppObject->i_cppMember );\
 	}\
@@ -1308,13 +1296,18 @@ $[
 		}\
 		return ::lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
 	}\
+	inline int LASS_CONCATENATE_3( pyPublicSetterR, i_cppClass, i_cppMember ) ( PyObject* iObject,PyObject* iArgs, void* iClosure )\
+	{\
+		PyErr_SetString(PyExc_TypeError, LASS_CONCATENATE_3("Object/reference ",LASS_STRINGIFY(i_cppMember)," is read-only"));\
+		return -1;\
+	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyClassPublicMemberR_, i_cppClass, i_cppMember ),\
 		i_cppClass::GetSetters.insert(\
 			i_cppClass::GetSetters.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE_3( pyPublicGetterR, i_cppClass, i_cppMember ),\
-				0, s_doc, 0));\
+				LASS_CONCATENATE_3( pyPublicSetterR, i_cppClass, i_cppMember ), s_doc, 0));\
 	)
 
 /** @ingroup Python

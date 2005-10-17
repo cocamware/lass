@@ -41,6 +41,7 @@ namespace impl
 
 	PY_CLASS_METHOD( PySequence, append )
 	PY_CLASS_METHOD( PySequence, pop )
+	PY_CLASS_METHOD( PySequence, clear )
 
 	PySequenceMethods PySequence::pySequenceMethods = {
 	(inquiry)PySequence_Length,			/* sq_length */
@@ -89,10 +90,6 @@ namespace impl
 		}
 	}
 
-	int PySequence::PySequence_Clear(PyObject *iPO)
-	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Clear();
-	}
 	int PySequence::PySequence_Length( PyObject* iPO)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Length();
