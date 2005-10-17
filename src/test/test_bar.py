@@ -53,6 +53,10 @@ except:
 if not exceptionCaught:
 	reportError("Could not remove item from map")
 print barC.writeableMap
+for i in range(3):
+	barC.writeableMap[str(i)] = str(i+1)
+print "keys=",barC.writeableMap.keys()
+print "values=",barC.writeableMap.values()
 
 
 def testSequence(seq):
@@ -84,7 +88,7 @@ testSequence(barC.writeableList)
 testSequence(barC.writeableDeque)
 for x in barC.writeableVector:
 	print "iterator", x
-
+	
 # testing documentation
 print "Module documentation :\n ",embedding.__doc__
 print "Class documentation :\n ",embedding.Bar.__doc__

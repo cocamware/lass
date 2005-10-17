@@ -36,12 +36,31 @@ namespace python
 namespace impl
 {
 	PY_DECLARE_CLASS( PyMap )
+	PY_CLASS_METHOD( PyMap, keys )
+	PY_CLASS_METHOD( PyMap, values )
+
+	bool PyMap::isInitialized = false;
 
 	PyMappingMethods PyMap::pyMappingMethods = {
 		(inquiry)PyMap::PyMap_Length, /*mp_length*/
 		(binaryfunc)PyMap::PyMap_Subscript, /*mp_subscript*/
 		(objobjargproc)PyMap::PyMap_AssSubscript, /*mp_ass_subscript*/
 	};
+
+	void PyMap::initialize()
+	{
+		if (!isInitialized)
+		{
+			PyMap::Type.tp_as_mapping = &pyMappingMethods;
+			finalizePyType( PyMap::Type, 
+							*PyMap::GetParentType(), 
+							PyMap::Methods,
+							PyMap::GetSetters, 
+							PyMap::Statics, NULL, NULL );
+			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
+			isInitialized = true;
+		}
+	}
 
 
 	PyMap::PyMap() : PyObjectPlus(&Type)

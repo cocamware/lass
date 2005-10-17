@@ -50,6 +50,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
 		virtual std::string pyStr(void) = 0;
 		virtual std::string pyRepr(void) = 0;
+		virtual PyObject* keys() const = 0;
+		virtual PyObject* values() const = 0;
 	};
 
 	template<typename M> 
@@ -63,6 +65,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
 		virtual std::string pyStr(void);
 		virtual std::string pyRepr(void);
+		virtual PyObject* keys() const;
+		virtual PyObject* values() const;
 	private:
 		M* map_;
 		bool readOnly_;
@@ -79,16 +83,18 @@ namespace impl
 		template<typename M> PyMap( M& iStdMap ) : PyObjectPlus(&Type)
 		{
             pimpl_ = new PyMapImpl<M>(&iStdMap);
-			this->ob_type->tp_as_mapping = &pyMappingMethods;
+			initialize();
 		}
 		template<typename M> PyMap( const M& iStdMap ) : PyObjectPlus(&Type)
 		{
             pimpl_ = new PyMapImpl<M>(const_cast<M*>(&iStdMap), true);
-			this->ob_type->tp_as_mapping = &pyMappingMethods;
+			initialize();
 		}
 		virtual ~PyMap();
 		virtual std::string pyStr(void) { return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
+		virtual PyObject* keys() const { return pimpl_->keys(); }
+		virtual PyObject* values() const { return pimpl_->values(); }
 
 		static int PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
@@ -97,6 +103,8 @@ namespace impl
 	private:
 		PyMap();
 		PyMapImplBase*	pimpl_;
+		static void initialize();
+		static bool isInitialized;
 	};
 
 
@@ -105,6 +113,25 @@ namespace impl
 	{
 		return map_->size();
 	}
+
+	template<typename M>
+	PyObject* PyMapImpl<M>::keys() const
+	{
+		std::vector<M::key_type> temp;
+		for (M::const_iterator it=map_->begin();it!=map_->end();++it)
+			temp.push_back(it->first);
+		return pyBuildList<std::vector<M::key_type> >(temp.begin(),temp.end());
+	}
+
+	template<typename M>
+	PyObject* PyMapImpl<M>::values() const
+	{
+		std::vector<M::mapped_type> temp;
+		for (M::const_iterator it=map_->begin();it!=map_->end();++it)
+			temp.push_back(it->second);
+		return pyBuildList<std::vector<M::key_type> >(temp.begin(),temp.end());
+	}
+
 
 	template<typename M>
 	PyObject* PyMapImpl<M>::PyMap_Subscript( PyObject* iKey)
