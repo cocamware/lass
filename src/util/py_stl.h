@@ -44,6 +44,13 @@ namespace lass
 	{
 
 		/** @ingroup Python
+			*/
+		inline PyObject* pyBuildSimpleObject( const std::string& iV )
+		{
+			return PyString_FromString(iV.c_str());
+		}
+
+		/** @ingroup Python
 		 *  build a copy of a std::complex as a Python complex number
 		 *  @note you build a COPY of the std::complex, not a reference to it!
 		 */
@@ -170,6 +177,19 @@ namespace lass
 		PyObject* pyBuildSimpleObject( std::map<K, V, P, A>& iV )
 		{
 			return new impl::PyMap( iV );
+		}
+
+		/** @ingroup Python
+			*/
+		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV )
+		{
+			if (!PyString_Check(iValue))
+			{
+				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_STRING);
+				return 1;
+			}
+			oV = std::string( PyString_AS_STRING( iValue ) );
+			return 0;
 		}
 
 		/** @ingroup Python

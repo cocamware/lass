@@ -121,19 +121,6 @@ inline int pyGetSimpleObject( PyObject* iValue, long double& oV )
 
 /** @ingroup Python
 	*/
-inline int pyGetSimpleObject( PyObject* iValue, std::string& oV )
-{
-	if (!PyString_Check(iValue))
-	{
-		PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_STRING);
-		return 1;
-	}
-	oV = std::string( PyString_AS_STRING( iValue ) );
-	return 0;
-}
-
-/** @ingroup Python
-	*/
 inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 {
 	if ( iValue == Py_None )
@@ -309,14 +296,6 @@ inline PyObject* pyBuildSimpleObject( const char* iV )
 {
 	return PyString_FromString(iV);
 }
-
-/** @ingroup Python
-	*/
-inline PyObject* pyBuildSimpleObject( const std::string& iV )
-{
-	return PyString_FromString(iV.c_str());
-}
-
 
 
 

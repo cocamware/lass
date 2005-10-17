@@ -58,6 +58,11 @@ for i in range(3):
 print "keys=",barC.writeableMap.keys()
 print "values=",barC.writeableMap.values()
 
+# subsequent test fails, probably need a partial sequence-protocol in the mapping
+# protocol embedded
+#for x in barC.writeableMap:
+#	print "map iterator",x
+
 
 def testSequence(seq):
 	seq.clear()
@@ -75,7 +80,13 @@ def testSequence(seq):
 	assert(len(seq)==4*l)
 	seq[0:4] = range(10)
 	assert(len(seq)==4*l+6)
-	
+
+barC.writeableVector = range(3)
+# we don't provide special iterator support
+# Python just goes through the sequence until a IndexError is encountered
+# this suffices for std::vector but is a bit slow for std::list/std::deque
+for x in barC.writeableVector:
+	print "iterator", x
 print "------------------"
 try:
 	barC.constVector = range(10)
@@ -86,8 +97,7 @@ print "------------------"
 testSequence(barC.writeableVector)
 testSequence(barC.writeableList)
 testSequence(barC.writeableDeque)
-for x in barC.writeableVector:
-	print "iterator", x
+print barC.writeableVector
 	
 # testing documentation
 print "Module documentation :\n ",embedding.__doc__

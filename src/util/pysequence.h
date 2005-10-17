@@ -33,6 +33,7 @@
 #include "util_common.h"
 #include "pyobject_plus.h"
 #include "../stde/extended_algorithm.h"
+#include "string_cast.h"
 
 namespace lass
 {
@@ -93,7 +94,8 @@ namespace impl
 		virtual void append(PyObject* i) = 0;
 		virtual PyObject* pop(int i) = 0;
 		virtual bool pointsToSameContainer(void* iO) = 0;
-
+		virtual std::string pyStr(void) = 0;
+		virtual std::string pyRepr(void) = 0;
 	};
 
 	template<typename Container>
@@ -133,7 +135,8 @@ namespace impl
 		{ 
 			return (iO == (void*)cont_);
 		}
-
+		virtual std::string pyStr(void);
+		virtual std::string pyRepr(void);
 	private:
 		typename ContainerOwnerShipPolicy::ContainerPtr cont_;
 		bool readOnly_;
@@ -163,7 +166,8 @@ namespace impl
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
 		virtual void clear()				{ pimpl_->clear(); }
 		virtual PyObject* pop(int i)		{ return pimpl_->pop(i); }
-
+		virtual std::string pyStr(void)		{ return pimpl_->pyStr(); }
+		virtual std::string pyRepr(void)	{ return pimpl_->pyRepr(); }
 
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
@@ -221,7 +225,7 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
 	{
-		if (i<0 || i>cont_->size())
+		if (i<0 || i>=cont_->size())
 		{
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
@@ -355,6 +359,18 @@ namespace impl
 		Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
 		return pyBuildSimpleObject(temp);
+	}
+
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	std::string PySequenceContainer<Container,ContainerOwnerShipPolicy>::pyStr( void)
+	{
+		return pyRepr();
+	}
+
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	std::string PySequenceContainer<Container,ContainerOwnerShipPolicy>::pyRepr( void)
+	{
+		return util::stringCast<std::string>(*cont_);
 	}
 
 

@@ -32,6 +32,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "string_cast.h"
 
 namespace lass
 {
@@ -200,24 +201,13 @@ namespace impl
 	template<typename M>
 	std::string PyMapImpl<M>::pyStr( void)
 	{
-		std::stringstream temp;
-		temp << "{";
-		M::const_iterator it=map_->begin();
-		if (it!=map_->end())
-		{
-			temp << it->first << ":" << it->second;
-			++it;
-		}
-		for (;it!=map_->end();++it)
-			temp << "," << it->first << ":" << it->second;
-		temp << "}";
-		return temp.str();
+		return  pyRepr();
 	}
 
 	template<typename M>
 	std::string PyMapImpl<M>::pyRepr( void)
 	{
-		return pyStr();
+		return util::stringCast<std::string>(*map_);
 	}
 
 }

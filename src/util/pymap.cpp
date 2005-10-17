@@ -74,7 +74,7 @@ namespace impl
 	}
 	
 
-#pragma LASS_TODO("check the IPO for a PyMap type");
+#pragma LASS_TODO("check the IPO for a PyMap type")
 
 	int PyMap::PyMap_Length( PyObject* iPO)
 	{
