@@ -82,6 +82,8 @@ print "------------------"
 testSequence(barC.writeableVector)
 testSequence(barC.writeableList)
 testSequence(barC.writeableDeque)
+for x in barC.writeableVector:
+	print "iterator", x
 
 # testing documentation
 print "Module documentation :\n ",embedding.__doc__

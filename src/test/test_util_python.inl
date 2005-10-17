@@ -46,6 +46,11 @@ void testUtilPython()
 	//commandStr = "from code import interact\ninteract()";
 	BOOST_CHECK_EQUAL( PyRun_SimpleString( commandStr.c_str() ) , 0 );
 
+	typedef std::vector<double> TV;
+	TV vec;
+	python::impl::PySequence pyseqtest(vec);
+	BOOST_CHECK_EQUAL( PySequence_Check(&pyseqtest) , 1);
+
 }
 
 
