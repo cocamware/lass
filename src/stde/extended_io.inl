@@ -66,6 +66,11 @@ struct sequence_traits
 	{
 		container.push_back(value);
 	}
+	template <typename Container>
+	static void temp_to_output(Container& temp, Container& output)
+	{
+		temp.swap(output);
+	}
 };
 
 struct set_traits
@@ -74,6 +79,11 @@ struct set_traits
 	static void push(Container& container, const T& value)
 	{
 		container.insert(value);
+	}
+	template <typename Container>
+	static void temp_to_output(Container& temp, Container& output)
+	{
+		temp.swap(output);
 	}
 };
 
@@ -162,9 +172,9 @@ print_sequence(std::basic_ostream<Char, Traits>& ostream,
 
 template <typename Char, typename Traits, typename Iterator>
 std::basic_ostream<Char, Traits>&
-printMap(std::basic_ostream<Char, Traits>& ostream,
-		 Iterator begin, Iterator end,
-		 const Char* opener, const Char* seperator_1, const Char* seperator_2, const Char* closer)
+print_map(std::basic_ostream<Char, Traits>& ostream,
+		  Iterator begin, Iterator end,
+		  const Char* opener, const Char* seperator_1, const Char* seperator_2, const Char* closer)
 {
 	std::basic_ostringstream<Char, Traits> buffer;
 	buffer.copyfmt(ostream);
@@ -188,12 +198,12 @@ printMap(std::basic_ostream<Char, Traits>& ostream,
 
 template
 <
-	typename Pusher, typename Reader, typename T,
+	typename ContainerTraits, typename DataTraits, typename T,
 	typename Char, typename Traits,
 	typename Container
 >
 std::basic_istream<Char, Traits>&
-readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
+read_container(std::basic_istream<Char, Traits>& istream, Container& container,
 			 Char opener, Char inter_seperator, Char intra_seperator, Char closer)
 {
 	Container result;
@@ -206,10 +216,10 @@ readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 		if (c == opener)
 		{
 			T temp;
-			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
+			good = DataTraits::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
 			{
-				Pusher::push(result, temp);
+				ContainerTraits::push(result, temp);
 			}
 		}
 		else
@@ -228,10 +238,10 @@ readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 		if (c == inter_seperator)
 		{
 			T temp;
-			good = Reader::read(istream, temp, inter_seperator, intra_seperator, closer);
+			good = DataTraits::read(istream, temp, inter_seperator, intra_seperator, closer);
 			if (good)
 			{
-				Pusher::push(result, temp);
+				ContainerTraits::push(result, temp);
 			}
 		}
 		else
@@ -243,7 +253,7 @@ readContainer(std::basic_istream<Char, Traits>& istream, Container& container,
 
 	if (good)
 	{
-		container.swap(result);
+		ContainerTraits::temp_to_output(result, container);
 	}
 	else
 	{
@@ -321,7 +331,7 @@ std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& ostream,
 		   const std::map<Key, Data, Comp, Alloc>& container)
 {
-	return lass::stde::impl::printMap<Char>(
+	return lass::stde::impl::print_map<Char>(
 		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
 }
 
@@ -332,7 +342,7 @@ std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& ostream,
 		   const std::multimap<Key, Data, Comp, Alloc>& container)
 {
-	return lass::stde::impl::printMap<Char>(
+	return lass::stde::impl::print_map<Char>(
 		ostream, container.begin(), container.end(), "{", ", ", ": ", "}");
 }
 
@@ -422,7 +432,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::vector<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+	return impl::read_container<impl::sequence_traits, impl::value_traits, T, Char>(
 		istream, container, '[', ',', 0, ']');
 }
 
@@ -436,7 +446,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::list<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+	return impl::read_container<impl::sequence_traits, impl::value_traits, T, Char>(
 		istream, container, '[', ',', 0, ']');
 }
 
@@ -450,7 +460,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::deque<T, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::sequence_traits, impl::value_traits, T, Char>(
+	return impl::read_container<impl::sequence_traits, impl::value_traits, T, Char>(
 		istream, container, '[', ',', 0, ']');
 }
 
@@ -464,7 +474,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::map<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
+	return impl::read_container<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
 		istream, container, '{', ',', ':', '}');
 }
 
@@ -478,7 +488,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::multimap<Key, Data, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
+	return impl::read_container<impl::set_traits, impl::pair_traits, std::pair<Key, Data>, Char>(
 		istream, container, '{', ',', ':', '}');
 }
 
@@ -492,7 +502,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::set<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(
+	return impl::read_container<impl::set_traits, impl::value_traits, Key, Char>(
 		istream, container, '{', ',', 0, '}');
 }
 
@@ -506,7 +516,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   std::multiset<Key, Comp, Alloc>& container)
 {
 	using namespace lass::stde;
-	return impl::readContainer<impl::set_traits, impl::value_traits, Key, Char>(
+	return impl::read_container<impl::set_traits, impl::value_traits, Key, Char>(
 		istream, container, '{', ',', 0, '}');
 }
 

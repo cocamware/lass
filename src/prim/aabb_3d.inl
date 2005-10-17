@@ -520,7 +520,7 @@ const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>
 template <typename T, class MMP> inline
 const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB)
 {
-	Aabb3D<T, MMPa> result(iA);
+	Aabb3D<T, MMP> result(iA);
 	result += iB;
 	return result;
 }
@@ -533,7 +533,7 @@ const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB)
 template <typename T, class MMP> inline
 const Aabb3D<T, MMP> operator+(const Point3D<T>& iA, const Aabb3D<T, MMP>& iB)
 {
-	Aabb3D<T, MMPa> result(iB);
+	Aabb3D<T, MMP> result(iB);
 	result += iA;
 	return result;
 }

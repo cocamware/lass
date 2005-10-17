@@ -34,6 +34,7 @@
 #include "stde_common.h"
 #include "extended_io.h"
 #include "../meta/bool.h"
+#include "../meta/type_2_type.h"
 
 namespace lass
 {
@@ -217,10 +218,10 @@ private:
 	void splice_after(node_base_t* position, node_base_t* before_first,
 		node_base_t* before_last) const;
 
+	void insert_after(iterator position, size_type n, const value_type& value,
+		meta::Type2Type<meta::True> parameter_is_integral);
 	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
-		InputIterator last, const meta::True& iterator_is_integral);
-	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
-		InputIterator last, const meta::False& iterator_is_iterator);
+		InputIterator last, meta::Type2Type<meta::False> parameter_is_iterator);
 
 	node_base_t head_;
 };
@@ -242,6 +243,10 @@ template <typename T, class Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& o_stream,
 		   const slist<T, Alloc>& container);
+template <typename T, class Alloc, typename Char, typename Traits>
+std::basic_istream<Char, Traits>&
+operator>>(std::basic_istream<Char, Traits>& i_stream,
+		   slist<T, Alloc>& container);
 
 }
 

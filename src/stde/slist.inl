@@ -49,6 +49,11 @@ struct slist_traits
 	{
 		container.push_front(value);
 	}
+	template <typename Container>
+	static void temp_to_output(Container& temp, Container& output)
+	{
+		temp.swap(output);
+	}
 };
 
 }
@@ -650,7 +655,7 @@ template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last)
 {
-	insert_after(position, first, last, typename meta::IsIntegralType<InputIterator>::Type());
+	insert_after(position, first, last, meta::Type2Type<typename meta::IsIntegralType<InputIterator>::Type>());
 }
 
 
@@ -1248,12 +1253,11 @@ void slist<T, Alloc>::splice_after(node_base_t* position, node_base_t* before_fi
 /** @internal
  */
 template <typename T, class Alloc>
-template <typename IntegralType>
-void slist<T, Alloc>::insert_after(iterator position, IntegralType n, IntegralType value,
-								   const meta::True&)
+void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_type& value,
+								   meta::Type2Type<meta::True>)
 {
 	node_base_t* node = position.node_;
-	for (IntegralType i = 0; i < n; ++i)
+	for (size_type i = 0; i < n; ++i)
 	{
 		node_t* new_node = make_node(value);
 		link_after(node, new_node);
@@ -1268,7 +1272,7 @@ void slist<T, Alloc>::insert_after(iterator position, IntegralType n, IntegralTy
 template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last,
-								   const meta::False&)
+								   meta::Type2Type<meta::False>)
 {
 	while (first != last)
 	{

@@ -517,7 +517,7 @@ const Aabb2D<T, MMPa> operator+(const Aabb2D<T, MMPa>& iA, const Aabb2D<T, MMPb>
 template <typename T, class MMP> inline
 const Aabb2D<T, MMP> operator+(const Aabb2D<T, MMP>& iA, const Point2D<T>& iB)
 {
-	Aabb2D<T, MMPa> result(iA);
+	Aabb2D<T, MMP> result(iA);
 	result += iB;
 	return result;
 }
@@ -530,7 +530,7 @@ const Aabb2D<T, MMP> operator+(const Aabb2D<T, MMP>& iA, const Point2D<T>& iB)
 template <typename T, class MMP> inline
 const Aabb2D<T, MMP> operator+(const Point2D<T>& iA, const Aabb2D<T, MMP>& iB)
 {
-	Aabb2D<T, MMPa> result(iB);
+	Aabb2D<T, MMP> result(iB);
 	result += iA;
 	return result;
 }
