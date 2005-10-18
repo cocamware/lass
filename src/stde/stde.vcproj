@@ -76,8 +76,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700|Win32"
@@ -118,9 +116,7 @@
 					OptimizeForProcessor="3"
 					UseProcExt="4"
 					Parallelization="1"
-					StringPooling="0"
 					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -154,8 +150,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
@@ -265,7 +259,6 @@
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="0"
-					StringPooling="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"

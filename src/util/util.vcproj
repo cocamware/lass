@@ -56,10 +56,7 @@
 					OptimizeForProcessor="3"
 					UseProcExt="4"
 					Parallelization="1"
-					StringPooling="0"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -95,8 +92,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
@@ -131,7 +126,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -173,8 +167,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
@@ -210,7 +202,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -303,8 +294,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="0"
-					StringPooling="0"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
@@ -409,7 +398,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					<Tool 
 						Name="VCCLCompilerTool">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
@@ -579,7 +568,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						<Tool 
 							Name="VCCLCompilerTool">
 							<IntelOptions 
-								AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
+								AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /GR /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
 						</Tool>
 					</FileConfiguration>
 					<FileConfiguration 

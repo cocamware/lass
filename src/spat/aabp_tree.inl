@@ -361,8 +361,8 @@ AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, const TVector& iRe
 		const TValue tLeftBound = (node.leftBound - s) * invD;
 		const TValue tRightBound = (node.rightBound - s) * invD;
 		
-		TValue tLeft;
-		TValue tRight;
+		TValue tLeft = 0;
+		TValue tRight = 0;
 		TObjectIterator objectLeft;
 		TObjectIterator objectRight;
 		if (d > 0)

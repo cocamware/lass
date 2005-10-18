@@ -60,10 +60,7 @@
 					UseProcExt="4"
 					RequireProcExt="3"
 					Parallelization="1"
-					StringPooling="0"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -101,8 +98,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
@@ -140,7 +135,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -184,8 +178,6 @@
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool 
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="0"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
@@ -224,7 +216,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -322,8 +313,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="0"
-					StringPooling="0"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
