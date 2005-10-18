@@ -58,14 +58,14 @@ namespace impl
 		static C& element_at(std::list<C,A>& iC, int i) { return *iterator_at(iC,i); };
 		static typename std::list<C, A>::const_iterator	const_iterator_at(const std::list<C,A>& iC, int i) 
 		{ 
-			std::list<C,A>::const_iterator it = iC.begin();
+			typename std::list<C,A>::const_iterator it = iC.begin();
 			for (int j=0;j<i;++j)
 				++it;
 			return it;
 		};
 		static typename std::list<C, A>::iterator	iterator_at(std::list<C,A>& iC, int i) 
 		{ 
-			std::list<C,A>::iterator it = iC.begin();
+			typename std::list<C,A>::iterator it = iC.begin();
 			for (int j=0;j<i;++j)
 				++it;
 			return it;
@@ -290,7 +290,7 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Contains(PyObject *el)
 	{
-		Container::value_type temp;
+		typename Container::value_type temp;
 		int r = pyGetSimpleObject(el,temp);
 		if (r)
 		{
@@ -339,7 +339,7 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return;
 		}
-		Container::value_type temp;
+		typename Container::value_type temp;
 		int r = pyGetSimpleObject(i,temp);
 		if (r)
 		{
@@ -356,7 +356,7 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return NULL;
 		}
-		Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
+		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
 		return pyBuildSimpleObject(temp);
 	}

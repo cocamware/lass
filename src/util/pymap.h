@@ -118,19 +118,19 @@ namespace impl
 	template<typename M>
 	PyObject* PyMapImpl<M>::keys() const
 	{
-		std::vector<M::key_type> temp;
-		for (M::const_iterator it=map_->begin();it!=map_->end();++it)
+		std::vector<typename M::key_type> temp;
+		for (typename M::const_iterator it=map_->begin();it!=map_->end();++it)
 			temp.push_back(it->first);
-		return pyBuildList<std::vector<M::key_type> >(temp.begin(),temp.end());
+		return pyBuildList<std::vector<typename M::key_type> >(temp.begin(),temp.end());
 	}
 
 	template<typename M>
 	PyObject* PyMapImpl<M>::values() const
 	{
-		std::vector<M::mapped_type> temp;
-		for (M::const_iterator it=map_->begin();it!=map_->end();++it)
+		std::vector<typename M::mapped_type> temp;
+		for (tu[ema,e M::const_iterator it=map_->begin();it!=map_->end();++it)
 			temp.push_back(it->second);
-		return pyBuildList<std::vector<M::key_type> >(temp.begin(),temp.end());
+		return pyBuildList<std::vector<typename M::key_type> >(temp.begin(),temp.end());
 	}
 
 

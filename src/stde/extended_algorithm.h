@@ -97,28 +97,32 @@ OutputIterator copy_n(InputIterator first, Size count,
 	for (Size i=0;i<count;++i)
 		*result++ = *first++;
 	return result;
+}      
+
+template <class InputIterator, class OutputIterator, class Size>
+OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator output, Size n)
+{
+	for (Size i = 0; i < n; ++i)
+	{
+		output = std::copy(first, last, output);
+	}
+	return output;
 }
 
+template <class Container, class Size>
+Container repeat(const Container& iC, Size n)
+{
+	Container result;
+	repeat(iC.begin(), iC.end(), std::back_inserter(result), n);
+	return result;
+}
 
 template <class Container, class Size>
 Container& inplace_repeat(Container& iC, Size n)
 {
-	size_t l = iC.size();
-	for (Size i=0;i<(n-1);++i)
-		copy_n(iC.begin(),l,std::back_inserter(iC));
-	return iC;
+	Container temp(iC);
+	repeat(temp.begin(), temp.end(), std::back_inserter(iC), n - 1);
 }
-
-
-template <class Container, class Size>
-Container repeat(Container& iC, Size n)
-{
-	Container result;
-	for (Size i=0;i<n;++i)
-		std::copy(iC.begin(),iC.end(),std::back_inserter(result));
-	return result;
-}
-
 
 }
 }
