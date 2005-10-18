@@ -212,6 +212,29 @@ namespace impl
 
 }
 
+
+
+/** @ingroup Python
+	*  build a copy of a std::map as a Python dictionary
+	*  @note you build a reference to the std::map, but the map is read-only
+	*/
+template<class K, class V, typename P, typename A>
+PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
+{
+	return new impl::PyMap( iV );
+}
+
+/** @ingroup Python
+	*  build a copy of a std::map as a Python dictionary
+	*  @note you build a reference to the std::map, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+template<class K, class V, typename P, typename A>
+PyObject* pyBuildSimpleObject( std::map<K, V, P, A>& iV )
+{
+	return new impl::PyMap( iV );
+}
+
 }
 
 }

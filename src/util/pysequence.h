@@ -410,6 +410,134 @@ namespace impl
 
 }
 
+/** @ingroup Python
+	*  build a copy of a std::vector as a Python list
+	*  @note you build a reference to the std::vector, but the list is read-only
+	*/
+template< class V, typename A>
+PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+/** @ingroup Python
+	*  build a copy of a std::vector as a Python ;ost
+	*  @note you build a reference to the std::vector, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+template<class V, typename A>
+PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+/** @ingroup Python
+	*  build a copy of a std::list as a Python list
+	*  @note you build a reference to the std::list, but the list is read-only
+	*/
+template< class V, typename A>
+PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+/** @ingroup Python
+	*  build a copy of a std::list as a Python ;ost
+	*  @note you build a reference to the std::list, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+template<class V, typename A>
+PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+/** @ingroup Python
+	*  build a copy of a std::queue as a Python list
+	*  @note you build a reference to the std::queue, but the list is read-only
+	*/
+/*
+template< class V, typename A>
+PyObject* pyBuildSimpleObject( const std::queue<V, A>& iV )
+{
+	return new impl::PySequence( iV, true );
+}
+*/
+/** @ingroup Python
+	*  build a copy of a std::queue as a Python ;ost
+	*  @note you build a reference to the std::queue, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+/*
+template<class V, class A>
+PyObject* pyBuildSimpleObject( std::queue<V, A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+*/
+/** @ingroup Python
+	*  build a copy of a std::deque as a Python list
+	*  @note you build a reference to the std::deque, but the list is read-only
+	*/
+template< class V, class A>
+PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+/** @ingroup Python
+	*  build a copy of a std::deque as a Python ;ost
+	*  @note you build a reference to the std::deque, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+template<typename V,typename A>
+PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+
+/** @ingroup Python
+	*  get a copy of a Python sequence as a std::vector.
+	*  @note you get a COPY of the sequence, not the original sequence itself!
+	*/
+template<class C, typename A>
+int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
+{
+	return impl::pyGetSequenceObject( iValue, oV );
+}
+
+/** @ingroup Python
+	*  get a copy of a Python sequence as a std::list.
+	*  @note you get a COPY of the sequence, not the original sequence itself!
+	*/
+template<class C, typename A>
+int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
+{
+	return impl::pyGetSequenceObject( iValue, oV );
+}
+
+/** @ingroup Python
+	*  get a copy of a Python sequence as a std::queue.
+	*  @note you get a COPY of the sequence, not the original sequence itself!
+	*/
+/*
+template<class C, typename A>
+int pyGetSimpleObject( PyObject* iValue, std::queue<C, A>& oV )
+{
+	return impl::pyGetSequenceObject( iValue, oV );
+}
+*/
+
+/** @ingroup Python
+	*  get a copy of a Python sequence as a std::deque.
+	*  @note you get a COPY of the sequence, not the original sequence itself!
+	*/
+template<class C, typename A>
+int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
+{
+	return impl::pyGetSequenceObject( iValue, oV );
+}
+
+
 }
 
 }
