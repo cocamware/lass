@@ -119,40 +119,6 @@ namespace lass
 		}
 
 
-		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&  operator*=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
-		{
-			isfn.real() *= iN;
-			isfn.imag() *= iN;
-			return isfn;
-		}
-
-
-		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&  operator/=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
-		{
-			isfn.real() /= iN;
-			isfn.imag() /= iN;
-			return isfn;
-		}
-
-		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&  operator+=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
-		{
-			isfn.real() += iN;
-			isfn.imag() += iN;
-			return isfn;
-		}
-
-
-		/** complex extensions.  To avoid some cast of a float to a full object ... */
-		std::complex<FNSampled8 >&  operator-=(std::complex<FNSampled8 >& isfn,const FNSampled8::TBaseType& iN)
-		{
-			isfn.real() -= iN;
-			isfn.imag() -= iN;
-			return isfn;
-		}
-
 		std::string str(const FNSampled8& iObj)
 		{
 			std::string temp = "FNS8[";
@@ -879,125 +845,6 @@ namespace lass
 			return str( *this );
 		}
 
-
-/*
-		std::string PyFNSampled8::repr(void)
-		{
-			return str( value );
-		}
-
-		std::string PyFNSampled8::pyStr(void)
-		{
-			return str( value );
-		}
-
-		PyObject* PyFNSampled8::pyMakeUnit(PyObject *args)
-		{
-			value.makeUnit();
-			return PyPlus_INCREF();
-		}
-		PyObject* PyFNSampled8::pyMakeZero(PyObject *args)
-		{
-			value.makeZero();
-			return PyPlus_INCREF();
-		}
-		PyObject* PyFNSampled8::pyMakeTriangular(PyObject *args)
-		{
-			std::vector<FNSampled8::TBaseType>  argVector;
-			PyObject*   pyTuplePtr;
-			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
-			if (!ok)
-				PyErr_BadArgument();
-			else
-			{
-				int ok = python::pyGetSimpleObject(pyTuplePtr, argVector);
-				if (!ok)
-					PyErr_BadArgument();
-				else
-				{
-					value.makeTriangular( argVector[0], argVector[1], argVector[2] );
-				}
-			}
-			return PyPlus_INCREF();
-		}
-		PyObject* PyFNSampled8::pyMakeGaussian(PyObject *args)
-		{
-			std::vector<FNSampled8::TBaseType>  argVector;
-			PyObject*   pyTuplePtr;
-			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
-			if (!ok)
-				PyErr_BadArgument();
-			else
-			{
-				int ok = python::pyGetSimpleObject(pyTuplePtr, argVector);
-				if (!ok)
-					PyErr_BadArgument();
-				else
-				{
-					value.makeTriangular( argVector[0], argVector[1], argVector[2] );
-				}
-			}
-			return PyPlus_INCREF();
-		}
-		PyObject* PyFNSampled8::pyMakeProbGaussian(PyObject *args)
-		{
-			std::vector<FNSampled8::TBaseType>  argVector;
-			PyObject*   pyTuplePtr;
-			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
-			if (!ok)
-				PyErr_BadArgument();
-			else
-			{
-				int ok = python::pyGetSimpleObject(pyTuplePtr, argVector);
-				if (!ok)
-					PyErr_BadArgument();
-				else
-				{
-					value.makeTriangular( argVector[0], argVector[1], argVector[2] );
-				}
-			}
-			return PyPlus_INCREF();
-		}
-		PyObject* PyFNSampled8::pyMakeTrapezoidal(PyObject *args)
-		{
-			std::vector<FNSampled8::TBaseType>  argVector;
-			PyObject*   pyTuplePtr;
-			int ok = PyArg_ParseTuple(args, "O", &pyTuplePtr );
-			if (!ok)
-				PyErr_BadArgument();
-			else
-			{
-				int ok = python::pyGetSimpleObject(pyTuplePtr, argVector);
-				if (!ok)
-					PyErr_BadArgument();
-				else
-				{
-					value.makeTriangular( argVector[0], argVector[1], argVector[2] );
-				}
-			}
-			return PyPlus_INCREF();
-		}
-
-		PY_DECLARE_CLASS_EX( PyFNSampled8,  "FNSampled8" )
-		PY_CLASS_CONSTRUCTOR_0( PyFNSampled8 )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeUnit, "makeUnit", NULL )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeZero, "makeZero", NULL )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeTriangular, "makeTriangular", NULL )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeGaussian, "makeGaussian", NULL )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeProbGaussian, "makeProbGaussian", NULL )
-		PY_CLASS_PY_METHOD_EX( PyFNSampled8, pyMakeTrapezoidal, "makeTrapezoidal", NULL )
-
-		PY_CLASS_METHOD( PyFNSampled8, getMembership );
-		PY_CLASS_METHOD( PyFNSampled8, getEntropy );
-		PY_CLASS_METHOD( PyFNSampled8, getDifferentialEntropy );
-		PY_CLASS_METHOD( PyFNSampled8, getNonspecificity );
-		//PY_CLASS_METHOD( PyFNSampled8, getDiscreteNonspecificity );
-		PY_CLASS_METHOD( PyFNSampled8, getDiscord );
-		//PY_CLASS_METHOD( PyFNSampled8, getDiscreteDiscord );
-		PY_CLASS_METHOD( PyFNSampled8, defuzzifyCentroid );
-		PY_CLASS_METHOD( PyFNSampled8, defuzzifyMaxMembership );
-
-*/
 	}
 
 	namespace python
@@ -1011,14 +858,6 @@ namespace lass
 		{
 			return Py_BuildValue("(O,O)", new lass::num::FNSampled8(iV.real()), new lass::num::FNSampled8(iV.imag()));
 		}
-		
-#pragma LASS_FIXME("this is very dangerous, and probably doens't work anyway!")
-		/*
-		PyObject* pyBuildSimpleObject( std::complex<lass::num::FNSampled8>& iV )
-		{
-			return Py_BuildValue("(O,O)", &iV.real(), &iV.imag());
-		}
-		*/
 		
 		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV )
 		{
@@ -1040,46 +879,6 @@ namespace lass
 
 	}
 
-
-/*
-	namespace python
-	{
-		int pyGetSimpleObject( PyObject* iValue, lass::num::FNSampled8& oV )
-		{
-#pragma LASS_NOTE("check for correct python types")
-			oV = ((lass::num::PyFNSampled8*)( iValue ))->value;
-			return 0; // ok
-		}
-
-		int pyParseObject( PyObject *args, lass::num::FNSampled8*& oObj)
-		{
-			PyObject *pyObjPtr;
-			int ok = PyArg_ParseTuple( args, "O", &pyObjPtr);
-			if (!ok)
-				PyErr_BadArgument();
-			else
-			{
-#pragma LASS_NOTE("check for correct python types")
-				oObj = (lass::num::FNSampled8*)(&(((lass::num::PyFNSampled8*)pyObjPtr)->value));
-			}
-			return ok;
-		}
-
-		PyObject* pyBuildSimpleObject( const lass::num::FNSampled8& iV )
-		{
-			PyObject* t = new lass::num::PyFNSampled8(iV);
-			return Py_BuildValue("O", t );
-		}
-
-		PyObject* pyBuildSimpleObject( const std::complex<lass::num::FNSampled8>& iV )
-		{
-			PyObject* tR = new lass::num::PyFNSampled8(iV.real());
-			PyObject* tI = new lass::num::PyFNSampled8(iV.imag());
-			return Py_BuildValue("(O,O)", tR, tI);
-		}
-
-	}
-*/
 	namespace io
 	{
 		lass::io::BinaryOStream& operator<<(lass::io::BinaryOStream& os, const lass::num::FNSampled8& sfn)
