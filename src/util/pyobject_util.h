@@ -98,38 +98,6 @@ namespace lass
 				return true;
 			}
 
-			template <typename Sequence>
-			int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
-			{
-				if (!PySequence_Check(iValue))
-				{
-					PyErr_SetString(PyExc_TypeError, "not a python sequence");
-					return 1;
-				}
-				// check if we have our own PySequence object, then take a shortcut
-				if (isOfType( iValue, &PySequence::Type ) && ((PySequence*)iValue)->pointsToSameContainer(oV))
-				{
-					return 0;
-				}
-				else
-				{
-					Sequence result;
-					const int size = PySequence_Length(iValue);
-					for (int i = 0; i < size; ++i)
-					{
-						typename Sequence::value_type temp;
-						if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
-						{
-							impl::addMessageHeader(
-								std::string("sequence element ") + util::stringCast<std::string>(i));
-							return 1;
-						}
-						result.push_back( temp );
-					}
-					oV.swap(result);
-				}
-				return 0;
-			}
 		}
 
 		/** @ingroup Python
