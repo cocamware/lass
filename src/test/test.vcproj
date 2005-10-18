@@ -55,7 +55,10 @@
 					UseProcExt="4"
 					RequireProcExt="3"
 					Parallelization="1"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -86,7 +89,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.py"/>
+				CommandLine="python pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -134,6 +137,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -169,7 +173,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.py"/>
+				CommandLine="python pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -218,6 +222,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -253,7 +258,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.py"/>
+				CommandLine="python pre_build.py"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>
 			<Tool 
@@ -312,9 +317,12 @@
 					GlobalOptimizations="1"
 					InlineFunctionExpansion="2"
 					EnableIntrinsicFunctions="1"
+					ImproveFloatingPointConsistency="0"
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="0"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
@@ -348,7 +356,7 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"/>
 			<Tool 
 				Name="VCPreBuildEventTool"
-				CommandLine="pre_build.py"
+				CommandLine="python pre_build.py"
 				ExcludedFromBuild="FALSE"/>
 			<Tool 
 				Name="VCPreLinkEventTool"/>

@@ -214,13 +214,13 @@ namespace impl
 		}
 		Container result(*cont_);
 		result.insert(result.end(), toConcat.begin(), toConcat.end());
-		return pyBuildList<Container>(result.begin(),result.end());
+		return pyBuildList(result.begin(),result.end());
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(int n)
 	{
 		Container result = stde::repeat(*cont_,n);
-		return pyBuildList<Container>(result.begin(),result.end());
+		return pyBuildList(result.begin(),result.end());
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
@@ -245,8 +245,8 @@ namespace impl
 		else if (ihigh > cont_->size())
 			ihigh = cont_->size();
 		len = ihigh - ilow;
-		return pyBuildList<Container>(	ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
-										ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) );
+		return pyBuildList(	ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
+							ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) );
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(int i, PyObject *v)

@@ -116,7 +116,9 @@
 					OptimizeForProcessor="3"
 					UseProcExt="4"
 					Parallelization="1"
+					StringPooling="0"
 					RuntimeLibrary="2"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -259,6 +261,7 @@
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="0"
+					StringPooling="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
@@ -392,6 +395,9 @@
 			</File>
 			<File 
 				RelativePath=".\iterator_range.h">
+			</File>
+			<File 
+				RelativePath=".\noop.h">
 			</File>
 			<File 
 				RelativePath="select.h">

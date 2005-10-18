@@ -122,6 +122,7 @@ Container& inplace_repeat(Container& iC, Size n)
 {
 	Container temp(iC);
 	repeat(temp.begin(), temp.end(), std::back_inserter(iC), n - 1);
+	return iC;
 }
 
 }

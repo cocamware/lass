@@ -40,16 +40,15 @@ namespace lass
 				return (iObject->ob_type == iTypeObject);
 			}
 
-			template<typename Container>
-			PyObject* pyBuildList(const typename Container::const_iterator iB, const typename Container::const_iterator iE )
+			template<typename InputIterator>
+			PyObject* pyBuildList(InputIterator iB, InputIterator iE )
 			{
 				PyObject* r = PyList_New(std::distance(iB,iE));
 				if (r==NULL)
 					return NULL;
-				typename Container::const_iterator it = iB;
-                for (int i=0;it!=iE;++it,++i)
+                for (int i=0;iB!=iE;++iB,++i)
 				{
-					PyList_SET_ITEM(r,i,pyBuildSimpleObject(*it));
+					PyList_SET_ITEM(r,i,pyBuildSimpleObject(*iB));
 				}
 				return r;
 			}
