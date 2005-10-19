@@ -35,8 +35,6 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_SPAT_MESH_INTERPOLATOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_MESH_INTERPOLATOR_H
 
-#pragma LASS_FIXME("Using PI as template argument isn't a good idea after all ;) [Bramz]")
-
 #include "spat_common.h"
 #include "planar_mesh.h"
 
@@ -73,15 +71,15 @@ void barycenters( const prim::Point2D<T>& q, const prim::Point2D<T>& a, const pr
 }
 
 
-template<typename T, typename PI>
+template<typename T, typename TPI>
 class MeshInterpolator
 {
 protected:
-	typedef PlanarMesh<T, PI, void, void >  TPlanarMesh;
+	typedef PlanarMesh<T, TPI, void, void >  TPlanarMesh;
 	MeshInterpolator() {}
 
 	TPlanarMesh mesh_;
-	typedef std::list<PI> TInfoList;    /**< type must support stable iterators */
+	typedef std::list<TPI> TInfoList;    /**< type must support stable iterators */
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
@@ -90,19 +88,19 @@ public:
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
 
-	virtual void insertSite( const TPoint2D& iPoint, const PI& iPointInfo );
-	virtual PI   interpolate( const TPoint2D& iQuery ) const = 0;
+	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
+	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
 };
 
 
-template<typename T, typename PI>
-MeshInterpolator<T,PI>::MeshInterpolator( const TAabb2D& iAabb ) : mesh_( iAabb )
+template<typename T, typename TPI>
+MeshInterpolator<T,TPI>::MeshInterpolator( const TAabb2D& iAabb ) : mesh_( iAabb )
 {
 
 }
 
-template<typename T, typename PI>
-void MeshInterpolator<T,PI>::insertSite( const TPoint2D& iPoint, const PI& iPointInfo )
+template<typename T, typename TPI>
+void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPointInfo )
 {
 	typename TPlanarMesh::TEdge* e = mesh_.insertSite( iPoint );
 	e = mesh_.locate( iPoint );
@@ -125,24 +123,24 @@ void MeshInterpolator<T,PI>::insertSite( const TPoint2D& iPoint, const PI& iPoin
  */
 
 
-template<typename T, typename PI>
-class LinearMeshInterpolator : public MeshInterpolator<T,PI>
+template<typename T, typename TPI>
+class LinearMeshInterpolator : public MeshInterpolator<T,TPI>
 {
-	typedef typename MeshInterpolator<T,PI>::TPlanarMesh TPlanarMesh;
+	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
 
 	LinearMeshInterpolator() {}
 public:
-	typedef typename MeshInterpolator<T,PI>::TPoint2D TPoint2D;
-	typedef typename MeshInterpolator<T,PI>::TAabb2D TAabb2D;
+	typedef typename MeshInterpolator<T,TPI>::TPoint2D TPoint2D;
+	typedef typename MeshInterpolator<T,TPI>::TAabb2D TAabb2D;
 
-	LinearMeshInterpolator( const TAabb2D& iAabb, const PI& iValueOutside );
+	LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside );
 	virtual ~LinearMeshInterpolator() {}
-	virtual PI interpolate( const TPoint2D& iQuery ) const;
+	virtual TPI interpolate( const TPoint2D& iQuery ) const;
 };
 
 
-template<typename T, typename PI>
-LinearMeshInterpolator<T,PI>::LinearMeshInterpolator( const TAabb2D& iAabb, const PI& iValueOutside ) : MeshInterpolator<T,PI>( iAabb )
+template<typename T, typename TPI>
+LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside ) : MeshInterpolator<T,TPI>( iAabb )
 {
 	TPoint2D topleft( iAabb.min().x, iAabb.max().y );
 	TPoint2D topright( iAabb.max().x, iAabb.max().y );
@@ -171,8 +169,8 @@ LinearMeshInterpolator<T,PI>::LinearMeshInterpolator( const TAabb2D& iAabb, cons
 
 }
 
-template<typename T, typename PI>
-PI LinearMeshInterpolator<T,PI>::interpolate( const TPoint2D& iQuery ) const
+template<typename T, typename TPI>
+TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
 {
 	typename TPlanarMesh::TEdge* e=mesh_.locate(iQuery);
 	if (!TPlanarMesh::hasLeftFace(e))
@@ -182,9 +180,9 @@ PI LinearMeshInterpolator<T,PI>::interpolate( const TPoint2D& iQuery ) const
 	TPoint2D b = TPlanarMesh::dest(e);
 	TPoint2D c = TPlanarMesh::dest(e->lNext());
 
-	PI* ia = TPlanarMesh::pointHandle(e);
-	PI* ib = TPlanarMesh::pointHandle(e->lNext());
-	PI* ic = TPlanarMesh::pointHandle(e->lNext()->lNext());
+	TPI* ia = TPlanarMesh::pointHandle(e);
+	TPI* ib = TPlanarMesh::pointHandle(e->lNext());
+	TPI* ic = TPlanarMesh::pointHandle(e->lNext()->lNext());
 
 	T ba,bb,bc;
 
