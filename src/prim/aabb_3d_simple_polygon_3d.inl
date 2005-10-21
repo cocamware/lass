@@ -38,8 +38,8 @@ namespace prim
 /** determine axis aligned bounding box of a 3D simple polygon
  *  @relates Aabb3D
  */
-template <typename T> 
-Aabb3D<T> aabb(const SimplePolygon3D<T>& iPolygon)
+template <typename T, class EP, class NP> 
+Aabb3D<T> aabb(const SimplePolygon3D<T, EP, NP>& iPolygon)
 {
 	Aabb3D<T> result;
 	const size_t n = iPolygon.size();
@@ -60,13 +60,14 @@ Aabb3D<T> aabb(const SimplePolygon3D<T>& iPolygon)
  *  @return the clipped polygon.
  */
 template <typename T, class EP, class NP, class MMP>
-SimplePolygon3D<T> clip(const Aabb3D<T, MMP>& iAabb, const Plane3D<T, EP, NP>& iPlane)
+SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb, 
+								const Plane3D<T, EP, NP>& iPlane)
 {
 #pragma LASS_TODO("make this faster for non-cartesian planes [Bramz]")
 	typedef Plane3D<T, EP, NP> TPlane;
-	typedef SimplePolygon3D<T> TPolygon;
-	typedef typename TPlane::TPoint TPoint;
-	typedef typename TPlane::TVector TVector;
+	typedef SimplePolygon3D<T, EP, NP> TPolygon;
+	typedef Point3D<T> TPoint;
+	typedef typename TPoint::TVector TVector;
     TPolygon poly(iPlane);
 
 	const TPoint& min = iAabb.min();

@@ -347,6 +347,18 @@ Point3DH<T> operator/(const Point3DH<T>& iA, typename Point3DH<T>::TParam iB)
 
 /** @relates lass::prim::Point3DH
  */
+template<typename T> inline
+Point3DH<T> operator*(typename Point3DH<T>::TParam iA, const Point3DH<T>& iB)
+{
+	Point3DH<T> result(iB);
+	result *= iA;
+	return result;
+}
+
+
+
+/** @relates lass::prim::Point3DH
+ */
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Point3DH<T>& iB)
 {

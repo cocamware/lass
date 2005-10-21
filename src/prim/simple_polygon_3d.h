@@ -53,7 +53,12 @@ namespace lass
 namespace prim
 {
 
-template <typename T>
+template 
+<
+	typename T,
+	class PlaneEquationPolicy = Cartesian,
+	class PlaneNormalizingPolicy = Normalized
+>
 class SimplePolygon3D
 {
 public:
@@ -64,7 +69,7 @@ public:
 	typedef Point3DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;
 	typedef LineSegment3D<T> TLineSegment;
-	typedef Plane3D<T, Cartesian, Normalized> TPlane;
+	typedef Plane3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy> TPlane;
 
 	typedef typename TPoint::TValue TValue;
 	typedef typename TPoint::TParam TParam;
@@ -76,7 +81,7 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef SimplePolygon3D<U> Type;
+		typedef SimplePolygon3D<U, PlaneEquationPolicy, PlaneNormalizingPolicy> Type;
 	};
 
 	SimplePolygon3D(const TPlane& iPlane);
@@ -129,15 +134,17 @@ private:
 	TPlane plane_;
 };
 
-template<typename T, class PP>
-Result intersect(const SimplePolygon3D<T>& iPolygon, const LineSegment3D<T, PP>& iSegment,
-				 T& oT, const T& iMinT = T());
+template<typename T, class EP, class NP, class PP>
+Result intersect(const SimplePolygon3D<T, EP, NP>& iPolygon, 
+				 const LineSegment3D<T, PP>& iSegment, 
+				 T& oT, const T& iMinT = 0);
 
-template<typename T, class EP, class NP>
-SimplePolygon3D<T> clip(const Plane3D<T, EP, NP>& iPlane, const SimplePolygon3D<T>& iPolygon);
+template<typename T, class EP1, class NP1, class EP2, class NP2>
+SimplePolygon3D<T, EP2, NP2> clip(const Plane3D<T, EP1, NP1>& iPlane, 
+								  const SimplePolygon3D<T, EP2, NP2>& iPolygon);
 
-template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& iPolygon);
+template <typename T, class EP, class NP>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T, EP, NP>& iPolygon);
 
 }
 

@@ -63,25 +63,24 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 		return rInvalid;
 	}
 
-	const TValue nd = dot(iPlane.normal(), iSegment.vector());
-	if (nd == TNumTraits::zero)
-	{
-		// segment is parallel to plane, but is it also coincident?
-		const Side side = iPlane.classify(iSegment.tail());
-		LASS_ASSERT(side == sFront || side == sSurface || side == sBack);
-		return side == sSurface ? rInfinite : rNone;
-	}
-	else
-	{
-		const TValue t = -iPlane.equation(iSegment.tail()) / nd;
-		LASS_ASSERT(!num::isNaN(t));
-		if (t > iMinT && t >= TNumTraits::zero && t <= TNumTraits::one)
+    const TValue eTail = iPlane.equation(iSegment.tail());
+    const TValue eHead = iPlane.equation(iSegment.head());
+
+	if (eTail == eHead)
+    {
+		return eTail == TNumTraits::zero ? rInfinite : rNone;
+    }
+    else
+    {
+        // find candidate of intersection.
+		const TValue t = eTail / (eTail - eHead);
+		if (t >= TNumTraits::zero && t <= TNumTraits::one)
 		{
 			oT = t;
 			return rOne;
 		}
 		return rNone;
-	}
+    }
 }
 
 /** reflect a linesegment in a plane.

@@ -36,13 +36,13 @@ namespace lass
 namespace prim
 {
 
-template <typename T>
-SimplePolygon3D<T>::SimplePolygon3D(const TPlane& iPlane) : plane_(iPlane)
+template <typename T, class EP, class NP>
+SimplePolygon3D<T, EP, NP>::SimplePolygon3D(const TPlane& iPlane) : plane_(iPlane)
 {
 }
 
-template <typename T>
-SimplePolygon3D<T>::SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC) :
+template <typename T, class EP, class NP>
+SimplePolygon3D<T, EP, NP>::SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC) :
 plane_(iA,iB,iC)
 {
 	add(iA);
@@ -53,8 +53,9 @@ plane_(iA,iB,iC)
 
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iIndexOfVertex) const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TPoint& 
+SimplePolygon3D<T, EP, NP>::operator[](size_t iIndexOfVertex) const
 {
 	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
@@ -64,8 +65,9 @@ const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t
 
 /** return vertex of polygon by its index, not wrapped, no bounds check.
  */
-template <typename T>
-typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iIndexOfVertex)
+template <typename T, class EP, class NP>
+typename SimplePolygon3D<T, EP, NP>::TPoint& 
+SimplePolygon3D<T, EP, NP>::operator[](size_t iIndexOfVertex)
 {
 	LASS_ASSERT(iIndexOfVertex < vertices_.size());
 	return vertices_[iIndexOfVertex];
@@ -76,8 +78,9 @@ typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::operator[](size_t iInde
 /** return vertex of polygon by its index, but wrap around the bounds.
  *  this->at(-1) will return the same vertex as this->at(this->size() - 1);
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex) const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TPoint& 
+SimplePolygon3D<T, EP, NP>::at(int iIndexOfVertex) const
 {
 	const int i = num::mod(iIndexOfVertex, vertices_.size());
 	LASS_ASSERT(isInRange(i));
@@ -89,8 +92,9 @@ const typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVe
 /** return vertex of polygon by its index, but wrap around the bounds.
  *  this->at(-1) will return the same vertex as this->at(this->size() - 1);
  */
-template <typename T>
-typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex)
+template <typename T, class EP, class NP>
+typename SimplePolygon3D<T, EP, NP>::TPoint& 
+SimplePolygon3D<T, EP, NP>::at(int iIndexOfVertex)
 {
 	const int i = num::mod(iIndexOfVertex, vertices_.size());
 	LASS_ASSERT(isInRange(i));
@@ -101,18 +105,20 @@ typename SimplePolygon3D<T>::TPoint& SimplePolygon3D<T>::at(int iIndexOfVertex)
 
 /** return the edge of the polygon between vertices at(iIndex) and at(iIndex + 1).
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TLineSegment SimplePolygon3D<T>::edge(int iIndexOfTailVertex) const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TLineSegment 
+SimplePolygon3D<T, EP, NP>::edge(int iIndexOfTailVertex) const
 {
-	return SimplePolygon3D<T>::TLineSegment(at(iIndexOfTailVertex), at(iIndexOfTailVertex + 1));
+	return SimplePolygon3D<T, EP, NP>::TLineSegment(at(iIndexOfTailVertex), at(iIndexOfTailVertex + 1));
 }
 
 
 
 /** return the vector between vertices at(iIndex) and at(iIndex + 1)\
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TVector SimplePolygon3D<T>::vector(int iIndexOfTailVertex) const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TVector 
+SimplePolygon3D<T, EP, NP>::vector(int iIndexOfTailVertex) const
 {
 	return at(iIndexOfTailVertex + 1) - at(iIndexOfTailVertex);
 }
@@ -121,8 +127,9 @@ const typename SimplePolygon3D<T>::TVector SimplePolygon3D<T>::vector(int iIndex
 
 /** return support plane of polygon.
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TPlane& SimplePolygon3D<T>::plane() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TPlane& 
+SimplePolygon3D<T, EP, NP>::plane() const
 {
 	return plane_;
 }
@@ -131,8 +138,9 @@ const typename SimplePolygon3D<T>::TPlane& SimplePolygon3D<T>::plane() const
 
 /** access support plane of polygon.
  */
-template <typename T>
-typename SimplePolygon3D<T>::TPlane& SimplePolygon3D<T>::plane()
+template <typename T, class EP, class NP>
+typename SimplePolygon3D<T, EP, NP>::TPlane& 
+SimplePolygon3D<T, EP, NP>::plane()
 {
 	return plane_;
 }
@@ -141,8 +149,9 @@ typename SimplePolygon3D<T>::TPlane& SimplePolygon3D<T>::plane()
 
 /** return normal of plane
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TVector SimplePolygon3D<T>::normal() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TVector 
+SimplePolygon3D<T, EP, NP>::normal() const
 {
 	return plane_.normal();
 }
@@ -156,8 +165,8 @@ const typename SimplePolygon3D<T>::TVector SimplePolygon3D<T>::normal() const
  *  if the normal vector is (1, 1, 0), then @e y axis will be choosen, because @e y has a higher
  *  index than @e x .
  */
-template <typename T>
-const XYZ SimplePolygon3D<T>::majorAxis() const
+template <typename T, class EP, class NP>
+const XYZ SimplePolygon3D<T, EP, NP>::majorAxis() const
 {
 	return plane_.majorAxis();
 }
@@ -166,8 +175,8 @@ const XYZ SimplePolygon3D<T>::majorAxis() const
 
 /** add a point at the "end" of the vertex list
  */
-template <typename T>
-void SimplePolygon3D<T>::add(const TPoint& iVertex)
+template <typename T, class EP, class NP>
+void SimplePolygon3D<T, EP, NP>::add(const TPoint& iVertex)
 {
 	vertices_.push_back(iVertex);
 }
@@ -175,8 +184,8 @@ void SimplePolygon3D<T>::add(const TPoint& iVertex)
 
 /** insert a vertex at iIndex (so it will sit before the current at(iIndex)).
  */
-template <typename T>
-void SimplePolygon3D<T>::insert(int iIndexOfVertex, const TPoint& iVertex)
+template <typename T, class EP, class NP>
+void SimplePolygon3D<T, EP, NP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
 	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
@@ -187,8 +196,8 @@ void SimplePolygon3D<T>::insert(int iIndexOfVertex, const TPoint& iVertex)
 
 /** remove the vertex at(iIndex)
  */
-template <typename T>
-void SimplePolygon3D<T>::remove(int iIndexOfVertex)
+template <typename T, class EP, class NP>
+void SimplePolygon3D<T, EP, NP>::remove(int iIndexOfVertex)
 {
 	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
@@ -199,8 +208,8 @@ void SimplePolygon3D<T>::remove(int iIndexOfVertex)
 
 /** return true if polygon has no vertices
  */
-template <typename T>
-const bool SimplePolygon3D<T>::isEmpty() const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::isEmpty() const
 {
 	return vertices_.empty();
 }
@@ -209,8 +218,8 @@ const bool SimplePolygon3D<T>::isEmpty() const
 
 /** return number of vertices
  */
-template <typename T>
-const size_t SimplePolygon3D<T>::size() const
+template <typename T, class EP, class NP>
+const size_t SimplePolygon3D<T, EP, NP>::size() const
 {
 	return vertices_.size();
 }
@@ -223,8 +232,9 @@ const size_t SimplePolygon3D<T>::size() const
  *  counterclockwise order, and negative if they are in clockwise order.</i>,
  *  http://mathworld.wolfram.com/PolygonArea.html
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::signedArea() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TValue 
+SimplePolygon3D<T, EP, NP>::signedArea() const
 {
 	const int size = size();
 	if (size < 3)
@@ -249,8 +259,9 @@ const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::signedArea() const
  *  <i>The area of a surface is the amount of material needed to "cover" it completely</i>,
  *  http://mathworld.wolfram.com/Area.html
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::area() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TValue 
+SimplePolygon3D<T, EP, NP>::area() const
 {
 	return num::abs(signedArea());
 }
@@ -259,8 +270,9 @@ const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::area() const
 
 /** return sum of the lengths of all edges
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::perimeter() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TValue 
+SimplePolygon3D<T, EP, NP>::perimeter() const
 {
 	TValue result = TNumTraits::zero;
 	for (int i = 0; i < size(); ++i)
@@ -276,11 +288,12 @@ const typename SimplePolygon3D<T>::TValue SimplePolygon3D<T>::perimeter() const
  *  The barycenter is the homogenous sum of all vertices.
  *  @warning for non-convex polygons, it's NOT guaranteed that this center is inside the polygon.
  */
-template <typename T>
-const typename SimplePolygon3D<T>::TPointH SimplePolygon3D<T>::center() const
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TPointH 
+SimplePolygon3D<T, EP, NP>::center() const
 {
 	TPointH result;;
-	for (int i = 0; i < size(); ++i)
+	for (size_t i = 0; i < size(); ++i)
 	{
 		result += vertices_[i];
 	}
@@ -301,8 +314,8 @@ const typename SimplePolygon3D<T>::TPointH SimplePolygon3D<T>::center() const
  *  @warning this is a brute force test.  we simple test for all edges if they are not intersecting
  *           Hence, this is O(n^2).
  */
-template <typename T>
-const bool SimplePolygon3D<T>::isSimple() const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::isSimple() const
 {
 	return mapping(majorAxis()).isSimple();
 }
@@ -324,8 +337,8 @@ const bool SimplePolygon3D<T>::isSimple() const
  *  A polygon with less than three vertices is always convex.  A polygon with all colinear
  *  vertices is considered convex (not very usefull maybe, but convex).
  */
-template <typename T>
-const bool SimplePolygon3D<T>::isConvex() const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::isConvex() const
 {
 	if (size() < 3)
 	{
@@ -357,8 +370,8 @@ const bool SimplePolygon3D<T>::isConvex() const
 /** return orientation of polygon
  *  @warning assumes polygon is simple
  */
-template <typename T>
-const Orientation SimplePolygon3D<T>::orientation() const
+template <typename T, class EP, class NP>
+const Orientation SimplePolygon3D<T, EP, NP>::orientation() const
 {
 	const TValue area = signedArea();
 	if (area > TNumTraits::zero)
@@ -383,8 +396,8 @@ const Orientation SimplePolygon3D<T>::orientation() const
  *  test if signedArea() and perdDot(...) have different sign.
  *  if one of them is zero, it will return false by default.
  */
-template <typename T>
-const bool SimplePolygon3D<T>::isReflex(int iIndexOfVertex) const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::isReflex(int iIndexOfVertex) const
 {
 	const TValue pd = perdDot(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)); // Ax(-B) = BxA
 	return signedArea() * pd < TNumTraits::zero;
@@ -409,8 +422,8 @@ const bool SimplePolygon3D<T>::isReflex(int iIndexOfVertex) const
  *
  *  @todo explain this better
  */
-template <typename T>
-const SimplePolygon2D<T> SimplePolygon3D<T>::mapping(XYZ iAxis) const
+template <typename T, class EP, class NP>
+const SimplePolygon2D<T> SimplePolygon3D<T, EP, NP>::mapping(XYZ iAxis) const
 {
 	const XYZ x = iAxis + 1;
 	const XYZ y = iAxis + 2;
@@ -427,15 +440,15 @@ const SimplePolygon2D<T> SimplePolygon3D<T>::mapping(XYZ iAxis) const
 
 
 
-template <typename T>
-const Side SimplePolygon3D<T>::classify(const TPoint& iP) const
+template <typename T, class EP, class NP>
+const Side SimplePolygon3D<T, EP, NP>::classify(const TPoint& iP) const
 {
 	return contains(iP) ? sInside : sOutside;
 }
 
 
-template <typename T>
-const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::contains(const TPoint& iP) const
 {
 	const XYZ major = majorAxis();
 	const XYZ x = major + 1;
@@ -460,8 +473,8 @@ const bool SimplePolygon3D<T>::contains(const TPoint& iP) const
 
 /** flip normal and reverse sequence of vertices
  */
-template <typename T>
-void SimplePolygon3D<T>::flip()
+template <typename T, class EP, class NP>
+void SimplePolygon3D<T, EP, NP>::flip()
 {
 	plane_.flip();
 	std::reverse(vertices_.begin(), vertices_.end());
@@ -473,8 +486,8 @@ void SimplePolygon3D<T>::flip()
 
 /** return if index of vertex is in range of the std::vector
  */
-template <typename T>
-const bool SimplePolygon3D<T>::isInRange(int iIndexOfVertex) const
+template <typename T, class EP, class NP>
+const bool SimplePolygon3D<T, EP, NP>::isInRange(int iIndexOfVertex) const
 {
 	return iIndexOfVertex >= 0 && iIndexOfVertex < static_cast<int>(vertices_.size());
 }
@@ -497,8 +510,8 @@ const bool SimplePolygon3D<T>::isInRange(int iIndexOfVertex) const
  *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
  */
-template<typename T, class NP, class PP>
-Result intersect(const SimplePolygon3D<T>& iPolygon, 
+template<typename T, class EP, class NP, class PP>
+Result intersect(const SimplePolygon3D<T, EP, NP>& iPolygon, 
 				 const LineSegment3D<T, PP>& iSegment, 
 				 T& oT, const T& iMinT)
 {
@@ -527,14 +540,15 @@ Result intersect(const SimplePolygon3D<T>& iPolygon,
  *  @param iPolygon [in] the polygon to be clipped
  *  @return the clipped polygon.
  */
-template <typename T, class EP, class NP>
-SimplePolygon3D<T> clip(const Plane3D<T, EP, NP>& iPlane, const SimplePolygon3D<T>& iPolygon)
+template <typename T, class EP1, class NP1, class EP2, class NP2>
+SimplePolygon3D<T, EP2, NP2> clip(const Plane3D<T, EP1, NP1>& iPlane, 
+								  const SimplePolygon3D<T, EP2, NP2>& iPolygon)
 {
-	typedef SimplePolygon3D<T> TPolygon;
-	typedef Plane3D<T, EP, NP> TPlane;
-	typedef typename TPolygon::TPoint TPoint;
-	typedef typename TPolygon::TValue TValue;
-	typedef typename TPolygon::TNumTraits TNumTraits;
+	typedef Plane3D<T, EP1, NP1> TPlane;
+	typedef SimplePolygon3D<T, EP2, NP2> TPolygon;
+	typedef Point3D<T> TPoint;
+	typedef TPoint::TValue TValue;
+	typedef TPoint::TNumTraits TNumTraits;
 
     const size_t size = iPolygon.size();
 	if (size < 2)
@@ -616,8 +630,8 @@ SimplePolygon3D<T> clip(const Plane3D<T, EP, NP>& iPlane, const SimplePolygon3D<
 
 /** @relates lass::prim::SimplePolygon3D
  */
-template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& iPolygon)
+template <typename T, class EP, class NP>
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T, EP, NP>& iPolygon)
 {
 	const size_t n = iPolygon.size();
 	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon3D>\n";

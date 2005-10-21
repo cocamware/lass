@@ -37,11 +37,12 @@ namespace lass
 namespace prim
 {
 
-template <typename T> 
-Aabb3D<T> aabb(const SimplePolygon3D<T>& iPolygon);
+template <typename T, class EP, class NP> 
+Aabb3D<T> aabb(const SimplePolygon3D<T, EP, NP>& iPolygon);
 
 template<typename T, class EP, class NP, class MMP>
-SimplePolygon3D<T> clip(const Aabb3D<T, MMP>& iAabb, const Plane3D<T, EP, NP>& iPlane);
+SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb, 
+								const Plane3D<T, EP, NP>& iPlane);
 
 }
 
