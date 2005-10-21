@@ -50,6 +50,96 @@ Aabb3D<T> aabb(const SimplePolygon3D<T>& iPolygon)
 	return result;
 }
 
+/** Clip a plane to an AABB and get a polygon.
+ *  @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Plane3D
+ *  @relates lass::prim::SimplePolygon3D
+ *
+ *  @param iAabb [in] the Aabb to clip to
+ *  @param iPlane [in] the plane to be clipped
+ *  @return the clipped polygon.
+ */
+template <typename T, class EP, class NP, class MMP>
+SimplePolygon3D<T> clip(const Aabb3D<T, MMP>& iAabb, const Plane3D<T, EP, NP>& iPlane)
+{
+#pragma LASS_TODO("make this faster for non-cartesian planes [Bramz]")
+	typedef Plane3D<T, EP, NP> TPlane;
+	typedef SimplePolygon3D<T> TPolygon;
+	typedef typename TPlane::TPoint TPoint;
+	typedef typename TPlane::TVector TVector;
+    TPolygon poly(iPlane);
+
+	const TPoint& min = iAabb.min();
+	const TPoint& max = iAabb.max();
+
+	TVector m;
+	switch (iPlane.majorAxis())
+	{
+	case 0: // x
+    {
+        TPoint p[4] = 
+        {
+            TPoint(0.0, min.y, min.z), TPoint(0.0, max.y, min.z),
+            TPoint(0.0, max.y, max.z), TPoint(0.0, min.y, max.z)
+        };
+		if (iPlane.normal().x < 0)
+		{
+			std::reverse(p, p + 4);
+		}
+        for (size_t i = 0; i < 4; ++i)
+        {
+            p[i].x = -iPlane.equation(p[i]) / iPlane.normal().x;
+            poly.add(p[i]);
+        }
+        m = TVector(1.0, 0.0, 0.0);
+		break;
+    }
+	case 1: // y
+    {
+        TPoint p[4] = 
+        {
+            TPoint(min.x, 0.0, min.z), TPoint(min.x, 0.0, max.z),
+            TPoint(max.x, 0.0, max.z), TPoint(max.x, 0.0, min.z)
+        };
+ 		if (iPlane.normal().y < 0)
+		{
+			std::reverse(p, p + 4);
+		}
+        for (size_t i = 0; i < 4; ++i)
+        {
+            p[i].y = -iPlane.equation(p[i]) / iPlane.normal().y;
+            poly.add(p[i]);
+        }
+        m = TVector(0.0, 1.0, 0.0);
+		break;
+    }
+	case 2: // z
+    {
+        TPoint p[4] = 
+        {
+            TPoint(min.x, min.y, 0.0), TPoint(max.x, min.y, 0.0),
+            TPoint(max.x, max.y, 0.0), TPoint(min.x, max.y, 0.0)
+        };
+		if (iPlane.normal().z < 0)
+		{
+			std::reverse(p, p + 4);
+		}
+        for (size_t i = 0; i < 4; ++i)
+        {
+            p[i].z = -iPlane.equation(p[i]) / iPlane.normal().z;
+            poly.add(p[i]);
+        }
+        m = TVector(0.0, 0.0, 1.0);
+    }
+	default:
+		LASS_THROW("unreachable code");
+	};
+
+    // clip against those 'm' borders
+	return clip(TPlane(m, min), clip(TPlane(-m, max), poly));
+}       
+
+
 }
 
 }

@@ -129,4 +129,8 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 #	include "pyobject_util.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_H
+#	include "line_segment_3d_plane_3d.h"
+#endif
+
 #endif

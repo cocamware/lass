@@ -23,32 +23,35 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_2D_TRIANGLE_2D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_2D_TRIANGLE_2D_H
-#pragma once
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_PLANE_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_PLANE_3D_H
 
 #include "prim_common.h"
-#include "simple_polygon_2d.h"
-#include "triangle_2d.h"
+#include "line_segment_3d.h"
+#include "plane_3d.h"
 
 namespace lass
 {
 namespace prim
 {
 
-/** triangulate.  Takes a simple polygon and triangulates it.  Convex as well as
-*   concave polygons are accepted.
-*
-*/
-template<typename T, class DegeneratePolicy, typename OutputIterator>
-OutputIterator triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon,
-						   OutputIterator oTriangles);
-	
+template<typename T, class EP, class NP, class PP>
+Result intersect(const Plane3D<T, EP, NP>& iPlane,
+				 const LineSegment3D<T, PP>& iSegment,
+				 T& oT, const T& iMinT = T());
+
+template <typename T, class EP, class NP, class PP>
+LineSegment3D<T, PP> reflect(const Plane3D<T, EP, NP>& iPlane, const LineSegment3D<T, PP>& iSegment);
+
+template <typename T, class EP, class NP, class PP>
+LineSegment3D<T, PP> project(const Plane3D<T, EP, NP>& iPlane, const LineSegment3D<T, PP>& iSegment);
 
 }
 
 }
 
-#include "simple_polygon_2d_triangle_2d.inl"
+#include "line_segment_3d_plane_3d.inl"
 
 #endif
+
+// EOF

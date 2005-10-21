@@ -127,6 +127,14 @@ template<typename T> inline Point3DH<T> operator+(const Point3D<T>& iA, const Po
 {
 	return Point3DH<T>(iA) + Point3DH<T>(iB);
 }
+template<typename T> inline Point3DH<T> operator*(typename Point3D<T>::TParam iA, const Point3D<T>& iB)
+{
+	return iA * Point3DH<T>(iB);
+}
+template<typename T> inline Point3DH<T> operator*(const Point3D<T>& iA, typename Point3D<T>::TParam iB)
+{
+	return Point3DH<T>(iA) * iB;
+}
 
 
 

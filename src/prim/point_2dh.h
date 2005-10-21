@@ -114,6 +114,22 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const 
 template<typename T> std::istream& operator>>(std::istream& ioIStream, Point2DH<T>& oB);
 
 
+// redirectors (stuff because template instantiation doesn't understand it can convert
+// regular points to homogenous points:
+template<typename T> inline Point2DH<T> operator+(const Point2D<T>& iA, const Point2D<T>& iB)
+{
+	return Point2DH<T>(iA) + Point2DH<T>(iB);
+}
+template<typename T> inline Point2DH<T> operator*(typename Point2D<T>::TParam iA, const Point2D<T>& iB)
+{
+	return iA * Point2DH<T>(iB);
+}
+template<typename T> inline Point2DH<T> operator*(const Point2D<T>& iA, typename Point2D<T>::TParam iB)
+{
+	return Point2DH<T>(iA) * iB;
+}
+
+
 
 }
 

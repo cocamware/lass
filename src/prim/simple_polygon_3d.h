@@ -129,6 +129,13 @@ private:
 	TPlane plane_;
 };
 
+template<typename T, class PP>
+Result intersect(const SimplePolygon3D<T>& iPolygon, const LineSegment3D<T, PP>& iSegment,
+				 T& oT, const T& iMinT = T());
+
+template<typename T, class EP, class NP>
+SimplePolygon3D<T> clip(const Plane3D<T, EP, NP>& iPlane, const SimplePolygon3D<T>& iPolygon);
+
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T>& iPolygon);
 

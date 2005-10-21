@@ -445,8 +445,12 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Plane3D<T, Combined>
 //#include "line_3d_plane_3d.h"
 //#endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_H
+#	include "line_segment_3d_plane_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
-#include "plane_3d_ray_3d.h"
+#	include "plane_3d_ray_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H

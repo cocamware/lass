@@ -483,6 +483,137 @@ const bool SimplePolygon3D<T>::isInRange(int iIndexOfVertex) const
 
 // --- free ----------------------------------------------------------------------------------------
 
+/** Find the intersection of a line segment and a simple polygon by their parameter t on the 
+ *	line segment.
+ *  @relates lass::prim::LineSegment3D
+ *  @relates lass::prim::SimplePolygon3D
+ *
+ *  @param iPolygon [in] the simple polygon
+ *  @param iSegment [in] the line segment
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
+ *                          @a oT is not assigned.
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
+ *							@a oT is assigned.
+ */
+template<typename T, class NP, class PP>
+Result intersect(const SimplePolygon3D<T>& iPolygon, 
+				 const LineSegment3D<T, PP>& iSegment, 
+				 T& oT, const T& iMinT)
+{
+	typedef Point2D<T> TPoint;
+	typedef typename TPoint::TValue TValue;
+
+	TValue t;
+	if (intersect(iPolygon.plane(), iSegment, t, iMinT) == rOne)
+	{
+		if (iPolygon.contains(iSegment.point(t)))
+		{
+			oT = t;
+			return rOne;
+		}
+	}
+	return rNone;
+}
+
+
+
+/** Clip a polygon to a plane.
+ *  @relates lass::prim::SimplePolygon3D
+ *  @relates lass::prim::Plane3D
+ *
+ *  @param iPlane [in] the plane to clip to
+ *  @param iPolygon [in] the polygon to be clipped
+ *  @return the clipped polygon.
+ */
+template <typename T, class EP, class NP>
+SimplePolygon3D<T> clip(const Plane3D<T, EP, NP>& iPlane, const SimplePolygon3D<T>& iPolygon)
+{
+	typedef SimplePolygon3D<T> TPolygon;
+	typedef Plane3D<T, EP, NP> TPlane;
+	typedef typename TPolygon::TPoint TPoint;
+	typedef typename TPolygon::TValue TValue;
+	typedef typename TPolygon::TNumTraits TNumTraits;
+
+    const size_t size = iPolygon.size();
+	if (size < 2)
+	{
+		return iPolygon;
+	}
+
+    bool allOut = true;
+    bool allIn = true;
+	std::vector<T> e(size);
+    for (size_t i = 0; i < size; ++i)
+    {
+        e[i] = iPlane.equation(iPolygon[i]);
+		allOut &= (e[i] <= TNumTraits::zero);
+        allIn &= (e[i] >= TNumTraits::zero);
+    }
+
+    if (allIn)
+    {
+        return iPolygon;
+    }
+
+    if (allOut)
+    {
+        return TPolygon(iPolygon.plane());
+    }
+
+    TPolygon result(iPolygon.plane());
+    TPoint tail = iPolygon[size - 1];
+    TValue tailE = e[size - 1];
+	bool tailInside = tailE >= TNumTraits::zero;
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        const TPoint& head = iPolygon[i];
+        const TValue headE = e[i];
+        const bool headInside = headE >= TNumTraits::zero;
+
+        if (tailInside)
+        {
+            if (headInside)
+            {
+                // both in, add this vertex
+                result.add(head);
+            }
+            else
+            {
+                // going out, add intersection point
+                const TValue t = tailE / (tailE - headE);
+                LASS_ASSERT(0.0 <= t && t <= 1.0);
+				const TPoint p = tail + t * (head - tail);
+                result.add(p);
+            }
+        }
+        else
+        {
+            if (headInside)
+            {
+                // coming in, add intersection point and this vertex.
+                const TValue t = tailE / (tailE - headE);
+                LASS_ASSERT(0.0 <= t && t <= 1.0);
+				const TPoint p = tail + t * (head - tail);
+                result.add(p);
+                result.add(head);
+            }
+            else
+            {
+                // both out, do nothing.
+            }
+        }
+
+        tail = head;
+        tailE = headE;
+        tailInside = headInside;
+    }
+
+    return result;
+}       
+
 /** @relates lass::prim::SimplePolygon3D
  */
 template <typename T>
