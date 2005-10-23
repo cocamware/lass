@@ -7,7 +7,7 @@ import os
 
 generated_files = ['util/object_factory.h', 'util/clone_factory.h', 'util/pyobject_macros.h', 'util/pyobject_class.inl', 
 	'util/callback_python.h']
-generated_files += ['util/callback_%d.h' % i for i in range(10)] + ['util/callback_r_%d.h' % i for i in range(10)]
+generated_files += ['util/callback_%d.h' % i for i in range(1, 11)] + ['util/callback_r_%d.h' % i for i in range(1, 11)]
 
 def remove_tree(dirpath):
 	if dirpath[-1] == os.sep: dirpath = dirpath[:-1]

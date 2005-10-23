@@ -165,3 +165,4 @@ void BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
 }
 
 }
+

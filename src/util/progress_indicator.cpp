@@ -102,3 +102,4 @@ void ProgressIndicator::operator()(double iProgress)
 }
 
 // EOF
+
