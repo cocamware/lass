@@ -73,6 +73,12 @@
 
 #include "config/config.h"
 
+// --- Check if we have RTTI and warn if we don't ---
+
+#ifndef _CPPRTTI
+#	pragma LASS_FIMXE("RTTI not enabled ... Add /GR to commandline options")
+#endif
+
 // --- Here we'll define some stuff on the name of libraries lass creates ---
 
 /** @def LASS_LIB_DEBUG
