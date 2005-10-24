@@ -198,7 +198,7 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 
 	const size_type seperator_size = seperator.size();
 	size_type begin = 0;
-	while (result.size() < max_split())
+	while (result.size() < max_split)
 	{
 		size_type i = to_be_split.find(seperator);
 		if (i == string_type::npos)

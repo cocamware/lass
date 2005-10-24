@@ -25,47 +25,9 @@
 
 
 
-/** @defgroup extended_io
- *  @brief extra insertors and extractors.
+/** @defgroup extended_algorithm
+ *  @brief extra algorithms
  *  @author Bram de Greve [BdG]
- *
- *  ExtendedIo groups additional stream operators for @c std::pair and standard containers like
- *  @c std::vector, @c std::list, ...  By including this header, it will possible to output
- *  these types to a stream, just like a regular float.
- *
- *  Currently, the containers only have output operators, only std::pair has both the output
- *  and input operator.  This will probably change in the future when there's a need for it.
- *
- *  The supported standard containers are @c std::vector, @c std::list, @c std::deque,
- *  @c std::map, @c std::multimap, @c std::set, @c std::multiset.
- *
- *  STLport specific: in case @c std::slist is detected as included, it is supported as well.
- *
- *  @code
- *  std::pair<int, std::string> a(5, "hello");
- *  std::cout << a; // (5, hello)
- *  std::cin >> a;
- *
- *  std::vector<int> b;
- *  b.push_back(1);
- *  b.push_back(2);
- *  b.push_back(3);
- *  std::cout << b; // [1, 2, 3]
- *
- *  std::map<std::string, int> c;
- *  c["foo"] = 1;
- *  c["bar"] = 2;
- *  c["spam"] = 3;
- *  c << map; // {bar: 2, foo: 1, spam: 3}
- *
- *  std::set<std::string> d;
- *  d.insert("foo");
- *  d.insert("bar");
- *  d.insert("spam");
- *  stream << d; // {bar, foo, spam}
- *  @endcode
- *
- *  @note we need to inject all this stuff in the std namespace for the look up thingies to work.
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ALGORITHM_H
@@ -78,17 +40,7 @@ namespace lass
 namespace stde
 {
 
-template <typename Container, typename Op>
-void for_each(Container& container, Op op)
-{
-	std::for_each(container.begin(), container.end(), op);
-}
-
-template <typename IContainer, typename OContainer, typename Op>
-void transform(const IContainer& iContainer, OContainer& oContainer, Op op)
-{
-	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
-}
+// --- pure iterator algorithms --------------------------------------------------------------------
 
 template <class InputIterator, class Size, class OutputIterator>
 OutputIterator copy_n(InputIterator first, Size count, 
@@ -107,6 +59,22 @@ OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator ou
 		output = std::copy(first, last, output);
 	}
 	return output;
+}
+
+
+
+// --- container algorithms shortcuts --------------------------------------------------------------
+
+template <typename Container, typename Op>
+void for_each(Container& container, Op op)
+{
+	std::for_each(container.begin(), container.end(), op);
+}
+
+template <typename IContainer, typename OContainer, typename Op>
+void transform(const IContainer& iContainer, OContainer& oContainer, Op op)
+{
+	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
 }
 
 template <class Container, class Size>

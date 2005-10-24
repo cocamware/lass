@@ -200,7 +200,9 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
 	{
-		return cont_->size();
+		const int size = cont_->size();
+		LASS_ASSERT(size >= 0);
+		return size;
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Concat(PyObject *bb)
@@ -225,7 +227,10 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
 	{
-		if (i<0 || i>=cont_->size())
+		const int size = cont_->size();
+		LASS_ASSERT(size >= 0);
+
+		if (i<0 || i>=size)
 		{
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
@@ -235,15 +240,18 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(int ilow, int ihigh)
 	{
-		int i, len;
+		const int size = cont_->size();
+		LASS_ASSERT(size >= 0);
+
+		int len;
 		if (ilow < 0)
 			ilow = 0;
-		else if (ilow > cont_->size())
-			ilow = cont_->size();
+		else if (ilow > size)
+			ilow = size;
 		if (ihigh < ilow)
 			ihigh = ilow;
-		else if (ihigh > cont_->size())
-			ihigh = cont_->size();
+		else if (ihigh > size)
+			ihigh = size;
 		len = ihigh - ilow;
 		return pyBuildList(	ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
 							ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) );
@@ -256,7 +264,6 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return -1;
 		}
-		PyObject *old_value;
 		if (i < 0 || i >= PySequence_Length()) 
 		{
 			PyErr_SetString(PyExc_IndexError,"list assignment index out of range");

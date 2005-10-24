@@ -235,7 +235,7 @@ Matrix<T, S>::operator()(TSize iRow, TSize iColumn)
  */
 template <typename T, typename S> inline
 const typename Matrix<T, S>::TValue
-Matrix<T, S>::at(TSize iRow, TSize iColumn) const
+Matrix<T, S>::at(signed iRow, signed iColumn) const
 {
 	return storage_(mod(iRow, rows()), mod(iColumn, columns()));
 }
@@ -250,7 +250,7 @@ Matrix<T, S>::at(TSize iRow, TSize iColumn) const
  */
 template <typename T, typename S> inline
 typename util::CallTraits<T>::TReference
-Matrix<T, S>::at(TSize iRow, TSize iColumn)
+Matrix<T, S>::at(signed iRow, signed iColumn)
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	return storage_(mod(iRow, rows()), mod(iColumn, columns()));
@@ -263,7 +263,7 @@ Matrix<T, S>::at(TSize iRow, TSize iColumn)
  */
 template <typename T, typename S> inline
 typename Matrix<T, S>::ConstRow
-Matrix<T, S>::row(TSize iRow) const
+Matrix<T, S>::row(signed iRow) const
 {
 	return ConstRow(*this, mod(iRow, rows()));
 }
@@ -276,7 +276,7 @@ Matrix<T, S>::row(TSize iRow) const
  */
 template <typename T, typename S> inline
 typename Matrix<T, S>::Row
-Matrix<T, S>::row(TSize iRow)
+Matrix<T, S>::row(signed iRow)
 {
 	return Row(*this, mod(iRow, rows()));
 }
@@ -288,7 +288,7 @@ Matrix<T, S>::row(TSize iRow)
  */
 template <typename T, typename S> inline
 typename Matrix<T, S>::ConstColumn
-Matrix<T, S>::column(TSize iColumn) const
+Matrix<T, S>::column(signed iColumn) const
 {
 	return ConstColumn(*this, mod(iColumn, columns()));
 }
@@ -301,9 +301,8 @@ Matrix<T, S>::column(TSize iColumn) const
  */
 template <typename T, typename S> inline
 typename Matrix<T, S>::Column
-Matrix<T, S>::column(TSize iColumn)
+Matrix<T, S>::column(signed iColumn)
 {
-#pragma LASS_FIXME("shouldn't iColumn be signed?")
 	return Column(*this, mod(iColumn, columns()));
 }
 

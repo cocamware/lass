@@ -139,13 +139,13 @@ public:
 
 	const TValue operator()(TSize iRow, TSize iCol) const;
 	TReference operator()(TSize iRow, TSize iCol);
-	const TValue at(TSize iRow, TSize iCol) const;
-	TReference at(TSize iRow, TSize iCol);
+	const TValue at(signed iRow, signed iCol) const;
+	TReference at(signed iRow, signed iCol);
 
-	ConstRow row(TSize iRow) const;
-	Row row(TSize iRow);
-	ConstColumn column(TSize iColumn) const;
-	Column column(TSize iColumn);
+	ConstRow row(signed iRow) const;
+	Row row(signed iRow);
+	ConstColumn column(signed iColumn) const;
+	Column column(signed iColumn);
 
 	const Matrix<T, S>& operator+() const;
 	const Matrix<T, impl::MNeg<T, S> > operator-() const;
