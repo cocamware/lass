@@ -32,6 +32,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "pyobject_util.h"
 #include "string_cast.h"
 
 namespace lass
@@ -221,7 +222,7 @@ namespace impl
 template<class K, class V, typename P, typename A>
 PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
 {
-	return new impl::PyMap( iV );
+	return impl::pyBuildMap(iV.begin(),iV.end());
 }
 
 /** @ingroup Python

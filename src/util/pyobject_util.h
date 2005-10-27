@@ -53,6 +53,23 @@ namespace lass
 				return r;
 			}
 
+			template<typename InputIterator>
+			PyObject* pyBuildMap(InputIterator iB, InputIterator iE )
+			{
+				PyObject* r = PyDict_New();
+				if (r==NULL)
+					return NULL;
+                for (int i=0;iB!=iE;++iB,++i)
+				{
+					if (PyDict_SetItem( r, pyBuildSimpleObject(iB->first), pyBuildSimpleObject(iB->second)))
+					{
+						// failed
+						PyDict_Clear(r);	// should we clean up more than this?!
+						return 0;
+					}
+				}
+				return r;
+			}
 
 			inline void addMessageHeader(const std::string& iHeader)
 			{

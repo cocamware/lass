@@ -32,6 +32,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "pyobject_util.h"
 #include "../stde/extended_algorithm.h"
 #include "string_cast.h"
 
@@ -424,7 +425,7 @@ namespace impl
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 {
-	return new impl::PySequence( iV );
+	return impl::pyBuildList(iV.begin(),iV.end() );
 }
 
 /** @ingroup Python
@@ -445,7 +446,7 @@ PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 {
-	return new impl::PySequence( iV );
+	return impl::pyBuildList(iV.begin(),iV.end() );
 }
 /** @ingroup Python
 	*  build a copy of a std::list as a Python ;ost
@@ -488,7 +489,7 @@ PyObject* pyBuildSimpleObject( std::queue<V, A>& iV )
 template< class V, class A>
 PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
 {
-	return new impl::PySequence( iV );
+	return impl::pyBuildList(iV.begin(),iV.end() );
 }
 /** @ingroup Python
 	*  build a copy of a std::deque as a Python ;ost
