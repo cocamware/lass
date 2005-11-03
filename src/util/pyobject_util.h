@@ -40,8 +40,8 @@ namespace lass
 				return (iObject->ob_type == iTypeObject);
 			}
 
-			template<typename InputIterator>
-			PyObject* pyBuildList(InputIterator iB, InputIterator iE )
+			template<typename ForwardIterator>
+			PyObject* pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
 				PyObject* r = PyList_New(std::distance(iB,iE));
 				if (r==NULL)
