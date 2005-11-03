@@ -189,6 +189,46 @@
 
 
 
+/** @ingroup 
+ *	Inject a integer constant in a python module
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *	@param i_module
+ *		the identifier of the module to inject the object in
+ *	@param s_name
+ *		name of constant as shown in the module (zero terminated C string)
+ *  @param v_value
+ *		value of the constant (long)
+ */
+#define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, v_value )\
+	{\
+		PyModule_AddIntConstant(\
+			LASS_CONCATENATE( lassPythonModule, i_module ),	s_name, v_value);\
+	}
+
+
+
+/** @ingroup 
+ *	Inject a integer constant in a python module
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *	@param i_module
+ *		the identifier of the module to inject the object in
+ *	@param s_name
+ *		name of constant as shown in the module (zero terminated C string)
+ *  @param s_value
+ *		value of the constant (zero terminated C string)
+ */
+#define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, s_value )\
+	{\
+		PyModule_AddIntConstant(\
+			LASS_CONCATENATE( lassPythonModule, i_module ),	s_name, s_value);\
+	}
+
 // --- free module functions -----------------------------------------------------------------------
 
 /* @ingroup Python

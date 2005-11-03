@@ -206,30 +206,30 @@ template<typename T,typename f> T applyFunction(const T& iV, f func )
 
 // --- generic inplace rerouters -------------------------------------------------------------------
 
-template <typename T> void inpabs(T& ioV)						{ ioV = abs(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpsign(T& ioV)						{ ioV = sign(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpinv(T& ioV)						{ ioV = inv(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpsqrt(T& ioV)						{ ioV = sqrt(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsqr(T& ioV)						{ ioV = sqr(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpcubic(T& ioV)						{ ioV = cubic(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inppow(T& ioV, T& iPow)				{ ioV = pow(ioV, iPow); }			/**< @ingroup BasicOps */
-template <typename T> void inpexp(T& ioV)						{ ioV = exp(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inplog(T& ioV)						{ ioV = log(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpcos(T& ioV)						{ ioV = cos(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpsin(T& ioV)						{ ioV = sin(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inptan(T& ioV)						{ ioV = tan(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpacos(T& ioV)						{ ioV = acos(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpasin(T& ioV)						{ ioV = asin(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpatan(T& ioV)						{ ioV = atan(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpatan2(T& ioX, const T& iY)		{ ioX = atan2(ioX, iY); }			/**< @ingroup BasicOps */
-template <typename T> void inpfloor(T& ioV)						{ ioV = floor(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpceil(T& ioV)						{ ioV = ceil(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpround(T& ioV)						{ ioV = round(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpdiv(T& ioV, T& iMod)				{ ioV = div(ioV, iMod); }			/**< @ingroup BasicOps */
-template <typename T> void inpmod(T& ioV, T& iMod)				{ ioV = mod(ioV, iMod); }			/**< @ingroup BasicOps */
-template <typename T> void inpclamp(T& ioV, const T& iMin, const T& iMax)	{ ioV = clamp(ioV, iMin, iMax); }	/** @ingroup BasicOps */
-template <typename T> void compnorm(const T& iV, T& oV)			{ oV = norm(iV); }					/**< @ingroup BasicOps */
-template <typename T> void compinv(const T& iV, T& oV)			{ oV = inv(iV); }					/**< @ingroup BasicOps */
+template <typename T> void inpabs(T& ioV)						{ ioV = num::abs(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsign(T& ioV)						{ ioV = num::sign(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpinv(T& ioV)						{ ioV = num::inv(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsqrt(T& ioV)						{ ioV = num::sqrt(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpsqr(T& ioV)						{ ioV = num::sqr(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpcubic(T& ioV)						{ ioV = num::cubic(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inppow(T& ioV, T& iPow)				{ ioV = num::pow(ioV, iPow); }			/**< @ingroup BasicOps */
+template <typename T> void inpexp(T& ioV)						{ ioV = num::exp(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inplog(T& ioV)						{ ioV = num::log(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpcos(T& ioV)						{ ioV = num::cos(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsin(T& ioV)						{ ioV = num::sin(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inptan(T& ioV)						{ ioV = num::tan(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpacos(T& ioV)						{ ioV = num::acos(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpasin(T& ioV)						{ ioV = num::asin(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpatan(T& ioV)						{ ioV = num::atan(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpatan2(T& ioX, const T& iY)		{ ioX = num::atan2(ioX, iY); }			/**< @ingroup BasicOps */
+template <typename T> void inpfloor(T& ioV)						{ ioV = num::floor(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpceil(T& ioV)						{ ioV = num::ceil(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpround(T& ioV)						{ ioV = num::round(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpdiv(T& ioV, T& iMod)				{ ioV = num::div(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpmod(T& ioV, T& iMod)				{ ioV = num::mod(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpclamp(T& ioV, const T& iMin, const T& iMax)	{ ioV = num::clamp(ioV, iMin, iMax); }	/** @ingroup BasicOps */
+template <typename T> void compnorm(const T& iV, T& oV)			{ oV = num::norm(iV); }					/**< @ingroup BasicOps */
+template <typename T> void compinv(const T& iV, T& oV)			{ oV = num::inv(iV); }					/**< @ingroup BasicOps */
 
 
 
@@ -251,7 +251,14 @@ float atan2(float iX, float iY)	{ return ::atan2f(iX, iY); }	/**< @ingroup Basic
 float floor(float iV)			{ return ::floorf(iV); }		/**< @ingroup BasicOps */
 float ceil(float iV)			{ return ::ceilf(iV); }			/**< @ingroup BasicOps */
 float round(float iV)			{ return ::floorf(iV + .5f); }	/**< @ingroup BasicOps */
-float mod(float iV, float iMod) { return ::modff(iV, &iMod); }	/**< @ingroup BasicOps */
+
+/** @ingroup BasicOps */
+float mod(float iV, float iMod) 
+{ 
+	float tempMod = iMod;
+	const float result = ::modff(iV, &tempMod);
+	return result < 0.f ? result + iMod : result;
+}	
 
 
 
@@ -273,7 +280,14 @@ double atan2(double iX, double iY)	{ return ::atan2(iX, iY); }		/**< @ingroup Ba
 double floor(double iV)				{ return ::floor(iV); }			/**< @ingroup BasicOps */
 double ceil(double iV)				{ return ::ceil(iV); }			/**< @ingroup BasicOps */
 double round(double iV)				{ return ::floor(iV + .5); }	/**< @ingroup BasicOps */
-double mod(double iV, double iMod)	{ return ::modf(iV, &iMod); }	/**< @ingroup BasicOps */
+
+/** @ingroup BasicOps */
+double mod(double iV, double iMod) 
+{ 
+	double tempMod = iMod;
+	const double result = ::modf(iV, &tempMod);
+	return result < 0. ? result + iMod : result;
+}	
 
 
 
@@ -295,7 +309,14 @@ long double atan2(long double iX, long double iY)	{ return ::atan2l(iX, iY); }	/
 long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
 long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
 long double round(long double iV)					{ return ::floorl(iV + .5); }	/**< @ingroup BasicOps */
-long double mod(long double iV, long double iMod)	{ return ::modfl(iV, &iMod); }	/**< @ingroup BasicOps */
+
+/** @ingroup BasicOps */
+long double mod(long double iV, long double iMod) 
+{ 
+	long double tempMod = iMod;
+	const long double result = ::modfl(iV, &tempMod);
+	return result < 0. ? result + iMod : result;
+}	
 
 
 

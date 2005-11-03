@@ -113,7 +113,9 @@ namespace impl
 	template<typename M>
 	int PyMapImpl<M>::PyMap_Length()
 	{
-		return map_->size();
+		const int size = static_cast<int>(map_->size());
+		LASS_ASSERT(size >= 0);
+		return size;
 	}
 
 	template<typename M>

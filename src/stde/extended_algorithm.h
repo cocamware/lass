@@ -65,28 +65,28 @@ OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator ou
 
 // --- container algorithms shortcuts --------------------------------------------------------------
 
-template <typename Container, typename Op>
-void for_each(Container& container, Op op)
+template <typename Container, typename Op> inline
+void for_each_c(Container& container, Op op)
 {
 	std::for_each(container.begin(), container.end(), op);
 }
 
-template <typename IContainer, typename OContainer, typename Op>
-void transform(const IContainer& iContainer, OContainer& oContainer, Op op)
+template <typename IContainer, typename OContainer, typename Op> inline
+void transform_c(const IContainer& iContainer, OContainer& oContainer, Op op)
 {
 	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
 }
 
-template <class Container, class Size>
-Container repeat(const Container& iC, Size n)
+template <class Container, class Size> inline
+Container repeat_c(const Container& iC, Size n)
 {
 	Container result;
 	repeat(iC.begin(), iC.end(), std::back_inserter(result), n);
 	return result;
 }
 
-template <class Container, class Size>
-Container& inplace_repeat(Container& iC, Size n)
+template <class Container, class Size> inline
+Container& inplace_repeat_c(Container& iC, Size n)
 {
 	Container temp(iC);
 	repeat(temp.begin(), temp.end(), std::back_inserter(iC), n - 1);

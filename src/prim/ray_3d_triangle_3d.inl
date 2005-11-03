@@ -53,10 +53,45 @@ namespace prim
  *		Journal of Graphics Tools, 2(1), 21-28 (1997).
  *		http://www.graphics.cornell.edu/pubs/1997/MT97.html
  */
-template<typename T, class NP, class PP>
+template<typename T, class NP, class PP> inline
 Result intersect(const Triangle3D<T>& iTriangle, 
 				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
+{
+	T u;
+	T v;
+	return intersect(iTriangle, iRay, u, v, oT, iMinT);
+}
+
+
+
+
+/** Find the intersection of a ray and a triangle by their parameter t on the ray
+ *  and it's coordinates (u,v) on the triangle.
+ *  @relates lass::prim::Ray3D
+ *  @relates lass::prim::Triangle3D
+ *
+ *  A maximum of two possible intersections with t > 0.
+ *
+ *  @param iTriangle [in] the triangle
+ *  @param iRay [in] the ray
+ *  @param oU [out] the parameter of the intersection point > @a iMinT.
+ *  @param oV [out] the parameter of the intersection point > @a iMinT.
+ *  @param oT [out] the parameter of the intersection point > @a iMinT.
+ *  @param iMinT [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a oT > @a iMinT found
+ *                          @a oT is not assigned.
+ *          @arg rOne       a intersection with @a oT > @a iMinT is found
+ *							@a oT is assigned.
+ *
+ *  @note MOLLER T. and TRUMBORE B. <q>Fast, Minimum Storage Ray/Triangle Intersection</q>,
+ *		Journal of Graphics Tools, 2(1), 21-28 (1997).
+ *		http://www.graphics.cornell.edu/pubs/1997/MT97.html
+ */
+template<typename T, class NP, class PP>
+Result intersect(const Triangle3D<T>& iTriangle, 
+				 const Ray3D<T, NP, PP>& iRay, 
+				 T& oU, T& oV, T& oT, const T& iMinT)
 {
 	typedef Point3D<T> TPoint;
 	typedef Vector3D<T> TVector;
@@ -97,6 +132,8 @@ Result intersect(const Triangle3D<T>& iTriangle,
 		return rNone;
 	}
 
+	oU = u;
+	oV = v;
 	oT = t;
 	return rOne;
 }

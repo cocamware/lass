@@ -85,9 +85,11 @@ class overwrite_insert_iterator:
 public:
 
 	typedef overwrite_insert_iterator<Container> self_type;
+	typedef Container container_type;
 	typedef typename Container::value_type value_type;
+	typedef typename Container::iterator iterator;
 
-	explicit overwrite_insert_iterator(Container& container): 
+	explicit overwrite_insert_iterator(container_type& container): 
 		container_(container),
 		current_(container.begin())
 	{
@@ -111,10 +113,12 @@ public:
 	self_type& operator++() { return *this; }
 	self_type& operator++(int) { return *this; }
 
+	const iterator current() const { return current_; }
+
 private:
 
-	Container& container_;
-	typename Container::iterator current_;
+	container_type& container_;
+	iterator current_;
 };
 
 template <typename Container>

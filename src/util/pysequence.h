@@ -201,7 +201,7 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
 	{
-		const int size = cont_->size();
+		const int size = static_cast<int>(cont_->size());
 		LASS_ASSERT(size >= 0);
 		return size;
 	}
@@ -222,13 +222,13 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(int n)
 	{
-		Container result = stde::repeat(*cont_,n);
+		Container result = stde::repeat_c(*cont_,n);
 		return pyBuildList(result.begin(),result.end());
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
 	{
-		const int size = cont_->size();
+		const int size = static_cast<int>(cont_->size());
 		LASS_ASSERT(size >= 0);
 
 		if (i<0 || i>=size)
@@ -241,7 +241,7 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(int ilow, int ihigh)
 	{
-		const int size = cont_->size();
+		const int size = static_cast<int>(cont_->size());
 		LASS_ASSERT(size >= 0);
 
 		int len;
@@ -336,7 +336,7 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return -1;
 		}
-		stde::inplace_repeat(*cont_,n);
+		stde::inplace_repeat_c(*cont_,n);
 		return 0;
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>

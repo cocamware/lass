@@ -47,6 +47,10 @@ template<typename T, class NP, class PP>
 Result intersect(const Triangle3D<T>& iTriangle, const Ray3D<T, NP, PP>& iRay,
 				 T& oT, const T& iMinT = T());
 
+template<typename T, class NP, class PP>
+Result intersect(const Triangle3D<T>& iTriangle, const Ray3D<T, NP, PP>& iRay,
+				 T& oU, T& oV, T& oT, const T& iMinT = T());
+
 }
 
 }

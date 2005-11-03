@@ -31,6 +31,9 @@
 #include "stde_common.h"
 #include "extended_iterator.h"
 
+#pragma warning(push)
+#pragma warning(disable: 4244)
+
 namespace lass
 {
 namespace stde
@@ -76,6 +79,8 @@ Iterator prior(Iterator iterator, Distance distance)
 }
 
 }
+
+#pragma warning(pop)
 
 #endif
 

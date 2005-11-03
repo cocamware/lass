@@ -27,6 +27,17 @@
 
 /** @defgroup stde_select
  *  @brief functors to select element of std::pair or stde::triple
+ *
+ *  @code
+ *	typedef std::map<std::string, int> map_type;
+ *	map_type a;
+ *	a["one"] = 1;
+ *	a["two"] = 2;
+ *	a["three"] = 3;
+ *	std::transform(a.begin(), a.end(), 
+ *		std::ostream_iterator<map_type::key_type>(std::cout, " "),
+ *		stde::select_1st<map_type::value_type>());
+ *  @endcode
  */
 
 
@@ -34,6 +45,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_SELECT_H
 
 #include "stde_common.h"
+#include "../util/call_traits.h"
 
 namespace lass
 {
@@ -43,62 +55,45 @@ namespace stde
 /** selects first element of std::pair or stde::triple and applies supplied operator on it
  *  @ingroup stde_select
  */
-template <typename Op>
-struct select_1st_t: public std::unary_function<Op::argument_type, Op::result_type>
+template <typename Pair>
+struct select_1st: public std::unary_function<Pair, typename Pair::first_type>
 {
-public:
-	select_1st_t(): op_() {}
-	explicit select_1st_t(Op iOp): op_(iOp) {}
-	template <typename T> result_type operator()(T& iT) { return op_(iT.first); }
-protected:
-	Op op_;
+	typename util::CallTraits<result_type>::TParam 
+	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	{ 
+		return iArgument.first; 
+	}
 };
-
-/** @relates select_1st_t
- */
-template <typename Op> select_1st_t<Op> select_1st(const Op& op) { return select_1st_t<Op>(op); }
 
 
 
 /** selects second element of std::pair or stde::triple and applies supplied operator on it
  *  @ingroup stde_select
  */
-template <typename Op>
-struct select_2nd_t: public std::unary_function<Op::argument_type, Op::result_type>
+template <typename Pair>
+struct select_2nd: public std::unary_function<Pair, typename Pair::second_type>
 {
-public:
-	select_2nd_t(): op_() {}
-	explicit select_2nd_t(Op iOp): op_(iOp) {}
-	template <typename T> result_type operator()(T& iT) { return op_(iT.second); }
-protected:
-	Op op_;
+	typename util::CallTraits<result_type>::TParam 
+	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	{ 
+		return iArgument.second; 
+	}
 };
 
-/** @relates select_2nd_t
- */
-template <typename Op> select_2nd_t<Op> select_2nd(const Op& op) { return select_2nd_t<Op>(op); }
 
 
-
-/** selects third element of stde::triple and applies supplied operator on it
+/** selects second element of std::pair or stde::triple and applies supplied operator on it
  *  @ingroup stde_select
  */
-template <typename Op>
-struct select_3rd_t: public std::unary_function<Op::argument_type, Op::result_type>
+template <typename Triple>
+struct select_3rd: public std::unary_function<Triple, typename Triple::third_type>
 {
-public:
-	select_3rd_t(): op_() {}
-	explicit select_3rd_t(Op iOp): op_(iOp) {}
-	template <typename T> result_type operator()(T& iT) { return op_(iT.third); }
-protected:
-	Op op_;
+	typename util::CallTraits<result_type>::TParam 
+	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	{ 
+		return iArgument.third; 
+	}
 };
-
-/** @relates select_3rd_t
- */
-template <typename Op> select_3rd_t<Op> select_3rd(const Op& op) { return select_3rd_t<Op>(op); }
-
-
 
 }
 

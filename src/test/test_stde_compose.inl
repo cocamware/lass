@@ -26,39 +26,54 @@
 
 
 
-#include "test_common.h"
-#include "test_stde.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_COMPOSE_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_COMPOSE_INL
 
-#include "test_stde_compose.inl"
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_small_object_allocator.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "test_common.h"
+#include "../stde/compose.h"
+#include "../stde/select.h"
 
 namespace lass
 {
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testStde()
+void testStdeCompose()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::stde test suite");
+	boost::test_toolbox::output_test_stream stream;
 
-	result->add(BOOST_TEST_CASE(testStdeCompose));
-	result->add(BOOST_TEST_CASE(testStdeExtendedIo));
-	result->add(BOOST_TEST_CASE(testStdeExtendedString));
-	result->add(BOOST_TEST_CASE(testStdeSlist));
-	result->add(BOOST_TEST_CASE(testStdeSmallObjectAllocator));
-	result->add(BOOST_TEST_CASE(testStdeStaticVector));
-	result->add(BOOST_TEST_CASE(testStdeTriple));
+	std::vector<int> a, b;
+	for (int i = 0; i < 5; ++i)
+	{
+		a.push_back(i);
+	}
+	std::transform(a.begin(), a.end(), std::back_inserter(b),
+		stde::compose_f_gx(
+			std::negate<int>(),
+			std::bind2nd(std::multiplies<int>(), 2)));	
+	stream << b;
+	BOOST_CHECK(stream.is_equal("[0, -2, -4, -6, -8]"));
 
-	return result;
+	typedef std::pair<int, int> pair_type;
+	std::vector<pair_type> c;
+	std::vector<int> d;
+	for (int i = 0; i < 10; ++i)
+	{
+		c.push_back(std::make_pair(10 * i, i));
+	}
+	std::transform(c.begin(), c.end(), std::back_inserter(d),
+		stde::compose_f_gx_hx(
+			std::plus<int>(),
+			stde::select_1st<pair_type>(),
+			stde::select_2nd<pair_type>()));
+	stream << d;
+	BOOST_CHECK(stream.is_equal("[0, 11, 22, 33, 44]"));
 }
 
 }
 
 }
+
+#endif
 
 // EOF
