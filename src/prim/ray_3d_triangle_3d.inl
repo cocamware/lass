@@ -75,8 +75,8 @@ Result intersect(const Triangle3D<T>& iTriangle,
  *
  *  @param iTriangle [in] the triangle
  *  @param iRay [in] the ray
- *  @param oU [out] the parameter of the intersection point > @a iMinT.
- *  @param oV [out] the parameter of the intersection point > @a iMinT.
+ *  @param oU [out] the parameter of the intersection point on the triangle.
+ *  @param oV [out] the parameter of the intersection point on the triangle.
  *  @param oT [out] the parameter of the intersection point > @a iMinT.
  *  @param iMinT [in] the minimum t that may be returned as valid intersection.
  *  @return @arg rNone      no intersections with @a oT > @a iMinT found

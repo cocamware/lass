@@ -83,10 +83,21 @@ def _scan(text, n, level):
 
 
 def _generateFile(outFileName, text, i):
-	print outFileName
-	outFile = open(outFileName, 'w')
-	outFile.write(expand(text, i))
-	outFile.close()
+	print outFileName,
+	try:
+		outFile = file(outFileName, 'r')
+		currentContent = outFile.read()
+		outFile.close()
+	except:
+		currentContent = ""
+	newContent = expand(text, i)
+	if newContent != currentContent:
+		outFile = file(outFileName, 'w')
+		outFile.write(newContent)
+		outFile.close()
+		print "updated"
+	else:
+		print "still up to date"
 
 
 """
@@ -129,6 +140,9 @@ if __name__ == "__main__":
 # History:
 #
 # $Log$
+# Revision 1.4  2005/05/23 19:26:26  bramz
+# some operator changes to colors and images
+#
 # Revision 1.3  2004/11/28 17:08:11  bramz
 # fixed bug revealed by python2.4 and improved substitution scheme
 #

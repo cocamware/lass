@@ -35,7 +35,7 @@
 
 #include "prim_common.h"
 #include "line_segment_3d.h"
-
+#include "plane_3d.h"
 
 namespace lass
 {

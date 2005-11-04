@@ -21,8 +21,6 @@ def gather_source_files():
 	for p in projects:
 		result = remover(result, p + '.cpp')
 		result = remover(result, p + '_common.cpp')
-	result = remover(result, 'thread_unix.cpp')
-	result = remover(result, 'thread_win32.cpp')
 	result = remover(result, 'matlab_o_stream.cpp')	
 	result = remover(result, 'matlab_o_stream.cpp')	
 	return result
@@ -31,6 +29,7 @@ def insert_files_in_project(project, files):
 	def do_escape(x):
 		escaper = re.compile(r'\\', re.DOTALL)
 		return escaper.sub(r'\\\\', x)		
+
 	regex = re.compile(r'<File .+</File>', re.DOTALL)
 	repl = '\n'.join(['<File RelativePath="%s"></File>' % f for f in files])
 	return regex.sub(do_escape(repl),project)
