@@ -82,7 +82,8 @@ void testPrimSimplePolygon2D()
 		BOOST_CHECK_EQUAL(polygon.orientation(), prim::oInvalid);
 	}
 	BOOST_CHECK_EQUAL(polygon.perimeter(), TNumTraits::zero);
-	BOOST_CHECK(!polygon.center().isValid());
+	BOOST_CHECK(!polygon.vertexCentroid().isValid());
+	BOOST_CHECK(!polygon.surfaceCentroid().isValid());
 	BOOST_CHECK(polygon.isSimple());
 	BOOST_CHECK(polygon.isConvex());
 	BOOST_CHECK_THROW(polygon.isReflex(37), util::Exception);
@@ -122,7 +123,8 @@ void testPrimSimplePolygon2D()
 		BOOST_CHECK_EQUAL(polygon.orientation(), prim::oInvalid);
 	}
 	BOOST_CHECK_EQUAL(polygon.perimeter(), TNumTraits::zero);
-	BOOST_CHECK_EQUAL(polygon.center().affine(), p0);
+	BOOST_CHECK_EQUAL(polygon.vertexCentroid().affine(), p0);
+	BOOST_CHECK_EQUAL(polygon.surfaceCentroid().affine(), p0);
 	BOOST_CHECK(polygon.isSimple());
 	BOOST_CHECK(polygon.isConvex());
 	if (isStrictNoDegenerate || isNoDegenerate)

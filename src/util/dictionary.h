@@ -125,7 +125,9 @@ namespace util
 template
 <
 	typename KeyType,
-	typename ValueType
+	typename ValueType,
+	typename KeyLess = std::less<KeyType>,
+	typename ValueLess = std::less<ValueType>
 >
 class Dictionary
 {
@@ -133,12 +135,16 @@ public:
 
 	typedef KeyType TKey;
 	typedef ValueType TValue;
-	typedef std::set<KeyType> TKeys;
-	typedef std::set<ValueType> TValues;
+	typedef KeyLess TKeyLess;
+	typedef ValueLess TValueLess;
+	typedef std::set<KeyType, KeyLess> TKeys;
+	typedef std::set<ValueType, ValueLess> TValues;
 	typedef typename CallTraits<KeyType>::TParam TKeyParam;
 	typedef typename CallTraits<ValueType>::TParam TValueParam;
 
 	Dictionary();
+	explicit Dictionary(TKeyLess iKeyLess);
+	Dictionary(TKeyLess iKeyLess, TValueLess iValueLess);
 
 	void add(const TKey& iKey, const TValue& iValue);
 	void remove(const TKey& iKey, const TValue& iValue);
@@ -160,11 +166,15 @@ public:
 
 private:
 
-	typedef std::multimap<TKey, TValue> TMap;
+	typedef std::multimap<TKey, TValue, KeyLess> TMap;
+
+	bool equalValues(TValueParam iA, TValueParam iB) const;
 
 	TMap map_;
 	TKey defaultKey_;
 	TValue defaultValue_;
+	TKeyLess keyLess_;
+	TValueLess valueLess_;
 	bool hasDefault_;
 };
 

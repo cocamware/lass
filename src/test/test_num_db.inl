@@ -50,7 +50,9 @@ void testNumDb()
 	BOOST_CHECK_CLOSE(num::p2dB(T(20.e-4)), T(40), 100 * epsilon);
 	BOOST_CHECK_EQUAL(num::p2dB(T(0)), -num::NumTraits<T>::infinity);
 	BOOST_CHECK_THROW(num::p2dB(T(-1)), util::Exception);
+	LASS_COUT << "v----\n";
 	BOOST_CHECK_NO_THROW(num::p2dB(num::NumTraits<T>::qNaN));
+	LASS_COUT << "^----\n";
 
 	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-14)), T(-20), 100 * epsilon);
 	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-13)), T(-10), 100 * epsilon);
@@ -59,7 +61,9 @@ void testNumDb()
 	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-10)), T(20), 100 * epsilon);
 	BOOST_CHECK_EQUAL(num::I2dB(T(0)), -num::NumTraits<T>::infinity);
 	BOOST_CHECK_THROW(num::I2dB(T(-1)), util::Exception);
+	LASS_COUT << "v----\n";
 	BOOST_CHECK_NO_THROW(num::I2dB(num::NumTraits<T>::qNaN));
+	LASS_COUT << "^----\n";
 
 	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-14)), T(-20), 100 * epsilon);
 	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-13)), T(-10), 100 * epsilon);
@@ -68,7 +72,9 @@ void testNumDb()
 	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-10)), T(20), 100 * epsilon);
 	BOOST_CHECK_EQUAL(num::W2dB(T(0)), -num::NumTraits<T>::infinity);
 	BOOST_CHECK_THROW(num::W2dB(T(-1)), util::Exception);
+	LASS_COUT << "v----\n";
 	BOOST_CHECK_NO_THROW(num::W2dB(num::NumTraits<T>::qNaN));
+	LASS_COUT << "^----\n";
 
 	BOOST_CHECK_CLOSE(num::dB2p(T(-40)), T(20.e-8), 100 * epsilon);
 	BOOST_CHECK_CLOSE(num::dB2p(T(-20)), T(20.e-7), 100 * epsilon);

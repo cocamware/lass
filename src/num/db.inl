@@ -38,11 +38,11 @@ namespace lass
 
 		template< typename T >  T   p2dB( const T& iValue )
 		{
-			if (iValue>=0.0)
+			if (iValue>=T(0))
 			{
 				return T(20)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_PRESSURE_P0))/lass::num::log(T(10));
 			}
-			if (iValue<0.0)
+			if (!isNaN(iValue))
 			{
 				LASS_THROW( "Negative argument '" << iValue << "'" );
 			}
@@ -51,11 +51,11 @@ namespace lass
 
 		template< typename T >  T   W2dB( const T& iValue )
 		{
-			if (iValue>=0.0)
+			if (iValue>=T(0))
 			{
 				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_POWER_W0))/lass::num::log(T(10));
 			}
-			if (iValue<0.0)
+			if (!isNaN(iValue))
 			{
 				LASS_THROW( "Negative argument '" << iValue << "'" );
 			}
@@ -64,11 +64,11 @@ namespace lass
 
 		template< typename T >  T   I2dB( const T& iValue )
 		{
-			if (iValue>=0.0)
+			if (iValue>=T(0))
 			{
 				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_INTENSITY_I0))/lass::num::log(T(10));
 			}
-			if (iValue<0.0)
+			if (!isNaN(iValue))
 			{
 				LASS_THROW( "Negative argument '" << iValue << "'" );
 			}

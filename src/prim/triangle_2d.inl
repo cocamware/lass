@@ -179,13 +179,25 @@ const typename Triangle2D<T>::TValue Triangle2D<T>::perimeter() const
 
 
 
-/** @copydoc SimplePolygon2D::center
+/** @copydoc SimplePolygon2D::vertexCentroid
  */
 template <typename T>
-const typename Triangle2D<T>::TPointH Triangle2D<T>::center() const
+const typename Triangle2D<T>::TPointH
+Triangle2D<T>::vertexCentroid() const
 {
 	TPointH result = vertices_[0] + vertices_[1] + vertices_[2];
 	return result;
+}
+
+
+
+/** @copydoc SimplePolygon2D::vertexCentroid
+ */
+template <typename T>
+const typename Triangle2D<T>::TPointH inline
+Triangle2D<T>::surfaceCentroid() const
+{
+	return vertexCentroid();
 }
 
 

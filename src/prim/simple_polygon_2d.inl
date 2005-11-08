@@ -197,7 +197,13 @@ const size_t SimplePolygon2D<T, DP>::size() const
  *
  *  <i>The area of a convex polygon is defined to be positive if the points are arranged in a
  *  counterclockwise order, and negative if they are in clockwise order.</i>,
- *  http://mathworld.wolfram.com/PolygonArea.html
+ *  Eric W. Weisstein. "Polygon Area." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/PolygonArea.html 
+ *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.01: "How do I find the area of a polygon?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
  *
  *  @warning polygon must be simple accoring degenerate policy.
  */
@@ -213,11 +219,10 @@ SimplePolygon2D<T, DP>::signedArea() const
 	}
 
 	TValue result = TNumTraits::zero;
-	const int n = static_cast<int>(size());
-	LASS_ASSERT(n >= 0);
-	for (int i = 0; i < n; ++i)
+	const size_t n = size();
+	for (size_t prevI = n - 1, i = 0; i < n; prevI = i++)
 	{
-		result += perpDot(at(i).position(), at(i + 1).position());
+		result += perpDot(vertices_[prevI].position(), vertices_[i].position());
 	}
 	return result / 2;
 }
@@ -227,7 +232,8 @@ SimplePolygon2D<T, DP>::signedArea() const
 /** return area of the polygons surface.
  *
  *  <i>The area of a surface is the amount of material needed to "cover" it completely</i>,
- *  http://mathworld.wolfram.com/Area.html
+ *  Eric W. Weisstein. "Area." From MathWorld--A Wolfram Web Resource.
+ *	http://mathworld.wolfram.com/Area.html
  *
  *  @warning polygon must be simple accoring @a DegeneratePolicy.
  */
@@ -263,11 +269,10 @@ const typename SimplePolygon2D<T, DP>::TValue
 SimplePolygon2D<T, DP>::perimeter() const
 {
 	TValue result = TNumTraits::zero;
-	const int n = static_cast<int>(size());
-	LASS_ASSERT(n >= 0);
-	for (int i = 0; i < n; ++i)
+	const size_t n = size();
+	for (size_t prevI = n - 1, i = 0; i < n; prevI = i++)
 	{
-		result += distance(at(i), at(i + 1));
+		result += distance(vertices_[prevI], vertices_[i]);
 	}
 	return result;
 }
@@ -275,18 +280,17 @@ SimplePolygon2D<T, DP>::perimeter() const
 
 
 /** return the barycenter of all vertices.
- *  The barycenter is the homogenous sum of all vertices.
+ *  The vertex centroid is the homogenous sum of all vertices.
  *
  *  @warning for non-convex polygons, it's NOT guaranteed that this center is inside the polygon.
  */
 template <typename T, class DP>
 const typename SimplePolygon2D<T, DP>::TPointH
-SimplePolygon2D<T, DP>::center() const
+SimplePolygon2D<T, DP>::vertexCentroid() const
 {
 	TPointH result;
-	const int n = static_cast<int>(size());
-	LASS_ASSERT(n >= 0);
-	for (int i = 0; i < n; ++i)
+	const size_t n = size();
+	for (size_t i = 0; i < n; ++i)
 	{
 		result += vertices_[i];
 	}
@@ -294,12 +298,48 @@ SimplePolygon2D<T, DP>::center() const
 }
 
 
+
+/** return the centroid of the filled polygon.
+ *
+ *  Eric W. Weisstein. "Geometric Centroid." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/GeometricCentroid.html
+ *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.02: "How can the centroid of a polygon be computed?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
+ *
+ *  @warning for non-convex polygons, it's NOT guaranteed that this center is inside the polygon.
+ */
+template <typename T, class DP>
+const typename SimplePolygon2D<T, DP>::TPointH
+SimplePolygon2D<T, DP>::surfaceCentroid() const
+{
+	const size_t n = size();
+	if (n < 3)
+	{
+		return vertexCentroid();
+	}
+
+	TPointH result;
+	for (size_t prevI = n - 1, i = 0; i < n; prevI = i++)
+	{
+		const TValue triangleWeight = perpDot(vertices_[prevI].position(), vertices_[i].position());
+		const TPointH triangleCenter = vertices_[prevI] + vertices_[i] + TPoint();
+		result += triangleWeight * triangleCenter;
+	}
+	return result;
+}
+
+
+
 /** return true if polygon is simple, false if not.
  *
  *  <i>A polygon P is said to be simple (or Jordan) if the only points of the plane belonging to
  *  two polygon edges of P are the polygon vertices of P. Such a polygon has a well defined
  *  interior and exterior. Simple polygons are topologically equivalent to a disk.</i>,
- *  http://mathworld.wolfram.com/SimplePolygon.html.
+ *  Eric W. Weisstein. "Simple Polygon." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/SimplePolygon.html 
  *
  *  A polygon with less than four vertices is always simple.
  *
@@ -348,7 +388,8 @@ const bool SimplePolygon2D<T, DP>::isSimple() const
  *  <i>A planar polygon is convex if it contains all the line segments connecting any pair of its
  *  points. Thus, for example, a regular pentagon is convex, while an indented pentagon is not.
  *  A planar polygon that is not convex is said to be a concave polygon</i>,
- *  http://mathworld.wolfram.com/ConvexPolygon.html.
+ *  Eric W. Weisstein. "Convex Polygon." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/ConvexPolygon.html 
  *
  *  A simple polygon is convex if all the cross products of adjacent edges will be the same sign
  *  (we ignore zero cross products of colinear edges, only + or - are taken in account), a concave polygon
@@ -365,14 +406,14 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 {
 	DP::enforceSimple(*this);
 
-	if (size() < 3)
+	const int n = static_cast<int>(size());
+	LASS_ASSERT(n >= 0);
+	if (n < 3)
 	{
 		return true;
 	}
 
 	TValue sign = TNumTraits::zero;
-	const int n = static_cast<int>(size());
-	LASS_ASSERT(n >= 0);
 	for (int i = 0; i < n; ++i)
 	{
 		const TValue s = num::sign(perpDot(vector(i - 1), vector(i))); // Ax(-B) = BxA
@@ -397,7 +438,8 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
 /** return true if inner angle of vertex is reflex (is > 180 degrees).
  *
  *  <i>Reflect Angle: An angle more than 180°</i>,
- *  http://mathworld.wolfram.com/ReflexAngle.html
+ *  Eric W. Weisstein. "Reflex Angle." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/ReflexAngle.html 
  *
  *  test if signedArea() and perdDot(...) have different sign.
  *  if one of them is zero, it will return false by default.
@@ -416,14 +458,18 @@ const bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
 
 
 
-/** return true when a point is inside or on a polygon.  when a point lies
- *  on a polygon edge the answer can either be true or false but in a way that
- *  for a meshing the answer will only be true for one polygon.  More precise:
- *  for polygons sharing an edge only one of them will return true for a point
- *  on the edge.
+/** return true when a point is inside or on a polygon.
+ *
+ *	When a point lies on a polygon edge the answer can either be true or false but in a way that
+ *  for a meshing the answer will only be true for one polygon.  More precise: for polygons sharing
+ *	an edge only one of them will return true for a point on the edge.
  *  For an explanation of how this exactly works:
  *  http://www.ecse.rpi.edu/Homepages/wrf/geom/pnpoly.html (Wm Randolph Franklin)
  *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.03: "How do I find if a point lies within a polygon?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
  */
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const

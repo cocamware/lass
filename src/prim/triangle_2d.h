@@ -84,7 +84,8 @@ public:
 	const TValue signedArea() const;
 	const TValue area() const;
 	const TValue perimeter() const;
-	const TPointH center() const;
+	const TPointH vertexCentroid() const;
+	const TPointH surfaceCentroid() const;
 
 	const bool isSimple() const;
 	const bool isConvex() const;

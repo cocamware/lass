@@ -57,7 +57,7 @@ void testStdeCompose()
 	typedef std::pair<int, int> pair_type;
 	std::vector<pair_type> c;
 	std::vector<int> d;
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		c.push_back(std::make_pair(10 * i, i));
 	}

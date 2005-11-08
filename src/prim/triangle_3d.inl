@@ -200,14 +200,25 @@ Triangle3D<T>::perimeter() const
 
 
 
-/** @copydoc SimplePolygon3D::center
+/** @copydoc SimplePolygon3D::vertexCentroid
  */
 template <typename T>
 const typename Triangle3D<T>::TPointH
-Triangle3D<T>::center() const
+Triangle3D<T>::vertexCentroid() const
 {
 	TPointH result = vertices_[0] + vertices_[1] + vertices_[2];
 	return result;
+}
+
+
+
+/** @copydoc SimplePolygon3D::surfaceCentroid
+ */
+template <typename T>
+const typename Triangle3D<T>::TPointH inline
+Triangle3D<T>::surfaceCentroid() const
+{
+	return vertexCentroid();
 }
 
 

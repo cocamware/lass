@@ -22,7 +22,7 @@
 			WholeProgramOptimization="FALSE">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="2"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -111,7 +111,7 @@
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -191,7 +191,7 @@
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -278,7 +278,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="3"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -370,6 +370,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 		<Filter 
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File 
+				RelativePath="basic_ops.inl">
+			</File>
 			<File 
 				RelativePath="db.inl">
 			</File>
@@ -512,9 +515,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			Filter="h;hpp;hxx;hm;inl">
 			<File 
 				RelativePath="basic_ops.h">
-			</File>
-			<File 
-				RelativePath="basic_ops.inl">
 			</File>
 			<File 
 				RelativePath=".\basic_types.h">

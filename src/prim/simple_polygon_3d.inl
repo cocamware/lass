@@ -230,24 +230,32 @@ const size_t SimplePolygon3D<T, EP, NP>::size() const
  *
  *  <i>The area of a convex polygon is defined to be positive if the points are arranged in a
  *  counterclockwise order, and negative if they are in clockwise order.</i>,
+ *  Eric W. Weisstein. "Polygon Area." From MathWorld--A Wolfram Web Resource. 
  *  http://mathworld.wolfram.com/PolygonArea.html
+ *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.01: "How do I find the area of a polygon?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
  */
 template <typename T, class EP, class NP>
 const typename SimplePolygon3D<T, EP, NP>::TValue 
 SimplePolygon3D<T, EP, NP>::signedArea() const
 {
-	const int size = size();
+	const size_t n = size();
 	if (size < 3)
 	{
 		return TNumTraits::zero;
 	}
 
-	const TVector& normal = normal();
-	const TPoint& reference = *this[0];
+	const TVector& normal = normal().normal();
+	const TPoint& reference = vertices_[0];
 	TValue result = TNumTraits::zero;
-	for (int i = 2; i < size; ++i)
+	for (size_t prevI = 1, i = 2; i < n; prevI = i++)
 	{
-		result += dot(cross(*this[i - 1] - reference, *this[i] - reference), normal);
+		const TVector a = vertices_[prevI] - reference;
+		const TVector b = vertices_[i] - reference;
+		result += dot(cross(a, b), normal);
 	}
 	return result / 2;
 }
@@ -257,7 +265,8 @@ SimplePolygon3D<T, EP, NP>::signedArea() const
 /** return area of the polygons surface.
  *
  *  <i>The area of a surface is the amount of material needed to "cover" it completely</i>,
- *  http://mathworld.wolfram.com/Area.html
+ *  Eric W. Weisstein. "Area." From MathWorld--A Wolfram Web Resource. 
+ *	http://mathworld.wolfram.com/Area.html
  */
 template <typename T, class EP, class NP>
 const typename SimplePolygon3D<T, EP, NP>::TValue 
@@ -290,9 +299,9 @@ SimplePolygon3D<T, EP, NP>::perimeter() const
  */
 template <typename T, class EP, class NP>
 const typename SimplePolygon3D<T, EP, NP>::TPointH 
-SimplePolygon3D<T, EP, NP>::center() const
+SimplePolygon3D<T, EP, NP>::vertexCentroid() const
 {
-	TPointH result;;
+	TPointH result;
 	for (size_t i = 0; i < size(); ++i)
 	{
 		result += vertices_[i];
@@ -302,12 +311,49 @@ SimplePolygon3D<T, EP, NP>::center() const
 
 
 
+/** return the centroid of the filled polygon.
+ *
+ *  Eric W. Weisstein. "Geometric Centroid." From MathWorld--A Wolfram Web Resource. 
+ *  http://mathworld.wolfram.com/GeometricCentroid.html
+ *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.02: "How can the centroid of a polygon be computed?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
+ *
+ *  @warning for non-convex polygons, it's NOT guaranteed that this center is inside the polygon.
+ */
+template <typename T, class EP, class NP>
+const typename SimplePolygon3D<T, EP, NP>::TPointH 
+SimplePolygon3D<T, EP, NP>::surfaceCentroid() const
+{
+	if (size < 3)
+	{
+		return vertexCentroid();
+	}
+
+	const TVector& normal = normal().normal();
+	const TPoint& reference = vertices_[0];
+	TPointH result;
+	for (size_t prevI = 1, i = 2; i < n; prevI = i++)
+	{
+		const TVector a = vertices_[prevI] - reference;
+		const TVector b = vertices_[i] - reference;
+		const TValue triangleWeight = dot(cross(a, b), normal);
+		const TPointH triangleCentroid = a + b + reference;
+		result += triangleWeight * triangleCentroid;
+	}
+}
+
+
+
 /** return true if polygon is simple, false if not.
  *
  *  <i>A polygon P is said to be simple (or Jordan) if the only points of the plane belonging to
  *  two polygon edges of P are the polygon vertices of P. Such a polygon has a well defined
  *  interior and exterior. Simple polygons are topologically equivalent to a disk.</i>,
- *  http://mathworld.wolfram.com/SimplePolygon.html.
+ *  Eric W. Weisstein. "Simple Polygon." From MathWorld--A Wolfram Web Resource. 
+ *	http://mathworld.wolfram.com/SimplePolygon.html 
  *
  *  In 3D, we test if the 2D mapping on the major axis is simple.
  *
@@ -328,7 +374,8 @@ const bool SimplePolygon3D<T, EP, NP>::isSimple() const
  *  <i>A planar polygon is convex if it contains all the line segments connecting any pair of its
  *  points. Thus, for example, a regular pentagon is convex, while an indented pentagon is not.
  *  A planar polygon that is not convex is said to be a concave polygon</i>,
- *  http://mathworld.wolfram.com/ConvexPolygon.html.
+ *  Eric W. Weisstein. "Convex Polygon." From MathWorld--A Wolfram Web Resource. 
+ *	http://mathworld.wolfram.com/ConvexPolygon.html 
  *
  *  A simple polygon is convex if all the cross products of adjacent edges will be the same sign
  *  (we ignore zero signs, only + or - are taken in account), a concave polygon will have a mixture
@@ -447,6 +494,14 @@ const Side SimplePolygon3D<T, EP, NP>::classify(const TPoint& iP) const
 }
 
 
+
+/** return true if a point @a iP is inside the polygon, on condition @a iP is on the plane
+ *
+ *  @par Algorithm:
+ *  comp.graphics.algorithms Frequently Asked Questions: 
+ *	Subject 2.03: "How do I find if a point lies within a polygon?"
+ *  http://www.faqs.org/faqs/graphics/algorithms-faq/
+ */
 template <typename T, class EP, class NP>
 const bool SimplePolygon3D<T, EP, NP>::contains(const TPoint& iP) const
 {

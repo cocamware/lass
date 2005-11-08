@@ -38,9 +38,30 @@ namespace util
 
 // --- public --------------------------------------------------------------------------------------
 
-template <typename K, typename V>
-Dictionary<K, V>::Dictionary():
+template <typename K, typename V, typename KL, typename VL>
+Dictionary<K, V, KL, VL>::Dictionary():
 	map_(),
+	hasDefault_(false)
+{
+}
+
+
+
+template <typename K, typename V, typename KL, typename VL>
+Dictionary<K, V, KL, VL>::Dictionary(TKeyLess iKeyLess):
+	map_(),
+	keyLess_(iKeyLess),
+	hasDefault_(false)
+{
+}
+
+
+
+template <typename K, typename V, typename KL, typename VL>
+Dictionary<K, V, KL, VL>::Dictionary(TKeyLess iKeyLess, TValueLess iValueLess):
+	map_(),
+	keyLess_(iKeyLess),
+	valueLess_(iValueLess),
 	hasDefault_(false)
 {
 }
@@ -49,13 +70,13 @@ Dictionary<K, V>::Dictionary():
 
 /** add a key and value to dictionary as new entry.
  */
-template <typename K, typename V>
-void Dictionary<K, V>::add(const TKey& iKey, const TValue& iValue)
+template <typename K, typename V, typename KL, typename VL>
+void Dictionary<K, V, KL, VL>::add(const TKey& iKey, const TValue& iValue)
 {
 	std::pair<TMap::iterator, TMap::iterator> range = map_.equal_range(iKey);
 	for (TMap::iterator i = range.first; i != range.second; ++i)
 	{
-		if (i->second == iValue)
+		if (equalValues(i->second, iValue))
 		{
 			return;
 		}
@@ -67,13 +88,13 @@ void Dictionary<K, V>::add(const TKey& iKey, const TValue& iValue)
 
 /** remove a key and value from the dictionary.
  */
-template <typename K, typename V>
-void Dictionary<K, V>::remove(const TKey& iKey, const TValue& iValue)
+template <typename K, typename V, typename KL, typename VL>
+void Dictionary<K, V, KL, VL>::remove(const TKey& iKey, const TValue& iValue)
 {
 	std::pair<TMap::iterator, TMap::iterator> range = map_.equal_range(iKey);
 	for (TMap::iterator i = range.first; i != range.second; ++i)
 	{
-		if (i->second == iValue)
+		if (equalValues(i->second, iValue))
 		{
 			map_.erase(i);
 			return;
@@ -87,8 +108,8 @@ void Dictionary<K, V>::remove(const TKey& iKey, const TValue& iValue)
  *  Once @e default key and value are set, these will be returned on occasions you try to look up a
  *  key or value but it can't be found.
  */
-template <typename K, typename V>
-void Dictionary<K, V>::setDefault(const TKey& iKey, const TValue& iValue)
+template <typename K, typename V, typename KL, typename VL>
+void Dictionary<K, V, KL, VL>::setDefault(const TKey& iKey, const TValue& iValue)
 {
 	defaultKey_ = iKey;
 	defaultValue_ = iValue;
@@ -101,8 +122,8 @@ void Dictionary<K, V>::setDefault(const TKey& iKey, const TValue& iValue)
  *  If no @e default key and value are set, and exception will be thrown on occasions you try to look
  *  up a key or value but it can't be found.
  */
-template <typename K, typename V>
-void Dictionary<K, V>::clearDefault()
+template <typename K, typename V, typename KL, typename VL>
+void Dictionary<K, V, KL, VL>::clearDefault()
 {
 	hasDefault_ = false;
 }
@@ -111,8 +132,8 @@ void Dictionary<K, V>::clearDefault()
 
 /** return true if dictionary has value
  */
-template <typename K, typename V>
-bool Dictionary<K, V>::hasDefault() const
+template <typename K, typename V, typename KL, typename VL>
+bool Dictionary<K, V, KL, VL>::hasDefault() const
 {
 	return hasDefault_;
 }
@@ -131,9 +152,9 @@ bool Dictionary<K, V>::hasDefault() const
  *      if no value can be found that belongs to the key and no @e default value is set, then
  *      an exception will be thrown.
  */
-template <typename K, typename V>
-const typename Dictionary<K, V>::TValue&
-Dictionary<K, V>::operator[](TKeyParam iKey) const
+template <typename K, typename V, typename KL, typename VL>
+const typename Dictionary<K, V, KL, VL>::TValue&
+Dictionary<K, V, KL, VL>::operator[](TKeyParam iKey) const
 {
 	typename TMap::const_iterator i = map_.find(iKey);
 	if (i == map_.end())
@@ -160,13 +181,13 @@ Dictionary<K, V>::operator[](TKeyParam iKey) const
  *  @throw if no key can be found to wich the value belongs and no @e default key is set, then an
  *         exception will be thrown.
  */
-template <typename K, typename V>
-typename const Dictionary<K, V>::TKey&
-Dictionary<K, V>::key(TValueParam iValue) const
+template <typename K, typename V, typename KL, typename VL>
+typename const Dictionary<K, V, KL, VL>::TKey&
+Dictionary<K, V, KL, VL>::key(TValueParam iValue) const
 {
 	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
 	{
-		if (i->second == iValue)
+		if (equalValues(i->second, iValue))
 		{
 			return i->first;
 		}
@@ -182,9 +203,9 @@ Dictionary<K, V>::key(TValueParam iValue) const
 
 /** return all keys in the dictionary
  */
-template <typename K, typename V>
-typename Dictionary<K, V>::TKeys
-Dictionary<K, V>::keys() const
+template <typename K, typename V, typename KL, typename VL>
+typename Dictionary<K, V, KL, VL>::TKeys
+Dictionary<K, V, KL, VL>::keys() const
 {
 	TKeys result;
 	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
@@ -198,9 +219,9 @@ Dictionary<K, V>::keys() const
 
 /** return all values in the dictionary
  */
-template <typename K, typename V>
-typename Dictionary<K, V>::TValues
-Dictionary<K, V>::values() const
+template <typename K, typename V, typename KL, typename VL>
+typename Dictionary<K, V, KL, VL>::TValues
+Dictionary<K, V, KL, VL>::values() const
 {
 	TValues result;
 	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
@@ -214,14 +235,14 @@ Dictionary<K, V>::values() const
 
 /** return all keys that have value @a iValue.
  */
-template <typename K, typename V>
-typename Dictionary<K, V>::TKeys
-Dictionary<K, V>::keys(TValueParam iValue) const
+template <typename K, typename V, typename KL, typename VL>
+typename Dictionary<K, V, KL, VL>::TKeys
+Dictionary<K, V, KL, VL>::keys(TValueParam iValue) const
 {
 	TKeys result;
 	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
 	{
-		if (i->second == iValue)
+		if (equalValues(i->second, iValue))
 		{
 			result.insert(i->first);
 		}
@@ -233,9 +254,9 @@ Dictionary<K, V>::keys(TValueParam iValue) const
 
 /** return all values in the dictionary
  */
-template <typename K, typename V>
-typename Dictionary<K, V>::TValues
-Dictionary<K, V>::values(TKeyParam iKey) const
+template <typename K, typename V, typename KL, typename VL>
+typename Dictionary<K, V, KL, VL>::TValues
+Dictionary<K, V, KL, VL>::values(TKeyParam iKey) const
 {
 	TValues result;
 	std::pair<TMap::const_iterator, TMap::const_iterator> range = map_.equal_range(iKey);
@@ -250,8 +271,8 @@ Dictionary<K, V>::values(TKeyParam iKey) const
 
 /** return true if @a iKey is a key of dictionary
  */
-template <typename K, typename V>
-bool Dictionary<K, V>::isKey(TKeyParam iKey) const
+template <typename K, typename V, typename KL, typename VL>
+bool Dictionary<K, V, KL, VL>::isKey(TKeyParam iKey) const
 {
 	return map_.find(iKey) != map_.end();
 }
@@ -260,12 +281,12 @@ bool Dictionary<K, V>::isKey(TKeyParam iKey) const
 
 /** return true if @a iValue is a value of dictionary
  */
-template <typename K, typename V>
-bool Dictionary<K, V>::isValue(TValueParam iValue) const
+template <typename K, typename V, typename KL, typename VL>
+bool Dictionary<K, V, KL, VL>::isValue(TValueParam iValue) const
 {
 	for (TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
 	{
-		if (i->second == iValue)
+		if (equalValues(i->second, iValue))
 		{
 			return true;
 		}
@@ -280,6 +301,12 @@ bool Dictionary<K, V>::isValue(TValueParam iValue) const
 
 
 // --- private -------------------------------------------------------------------------------------
+
+template <typename K, typename V, typename KL, typename VL>
+bool Dictionary<K, V, KL, VL>::equalValues(TValueParam iA, TValueParam iB) const
+{
+	return !valueLess_(iA, iB) && !valueLess_(iB, iA);
+}
 
 
 

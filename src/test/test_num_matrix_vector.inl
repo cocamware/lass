@@ -185,7 +185,7 @@ void testNumVector()
 
 	d -= T(2);
 	BOOST_CHECK_EQUAL(d.size(), n);
-	for (i = 0; i < n; ++i) BOOST_CHECK_EQUAL(d[i], (a[i] + T(1)) - T(2));
+	for (i = 0; i < n; ++i) BOOST_CHECK(num::sqrt(num::norm(d[i] - ((a[i] + T(1)) - T(2)))) < 1e-7);
 
 	d = b;
 	d *= T(2);

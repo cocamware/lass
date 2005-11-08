@@ -75,8 +75,11 @@
 
 // --- Check if we have RTTI and warn if we don't ---
 
+// If you have the Intel C++ Compiler 7.1 installed, it screws up the part of MSVC's IDE
+// were you can enable RTTI.  Therefore, you must add /GR to the commandline explicitely
+// http://tinyurl.com/8usvw
 #ifndef _CPPRTTI
-#	pragma LASS_FIMXE("RTTI not enabled ... Add /GR to commandline options")
+#	pragma LASS_FIMXE("RTTI not enabled ... Add /GR to commandline options if you need it.")
 #endif
 
 // --- Here we'll define some stuff on the name of libraries lass creates ---

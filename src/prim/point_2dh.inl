@@ -363,6 +363,18 @@ Point2DH<T> operator/(const Point2DH<T>& iA, typename Point2DH<T>::TParam iB)
 
 /** @relates lass::prim::Point2DH
  */
+template<typename T> inline
+Point2DH<T> operator*(typename Point2DH<T>::TParam iA, const Point2DH<T>& iB)
+{
+	Point2DH<T> result(iB);
+	result *= iA;
+	return result;
+}
+
+
+
+/** @relates lass::prim::Point2DH
+ */
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Point2DH<T>& iB)
 {
