@@ -216,7 +216,7 @@ private:
  *  @relates compose_f_gx_hy_t
  */
 template <typename OpF, typename OpG, typename OpH> inline
-compose_f_gx_hy(const OpF& f, const OpG& g, const OpH& h)
+compose_f_gx_hy_t<OpF, OpG, OpH> compose_f_gx_hy(const OpF& f, const OpG& g, const OpH& h)
 {
 	return compose_f_gx_hy_t<OpF, OpG, OpH>(f, g, h);
 }

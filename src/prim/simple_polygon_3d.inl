@@ -692,7 +692,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T, E
 	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon3D>\n";
 	for (size_t i = 0; i < n; ++i)
 	{
-		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
+		ioOStream << "<vertex id='" << static_cast<unsigned long>(i) << "'>" << iPolygon[i] << "</vertex>\n";
 	}
 	ioOStream << "<plane>" << iPolygon.plane() << "</plane>\n";
 	ioOStream << "</SimplePolygon3D>\n";

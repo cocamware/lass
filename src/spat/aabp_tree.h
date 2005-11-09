@@ -92,7 +92,7 @@ private:
 
 	typedef size_t TAxis;
 
-	enum { leafNode_ = TAxis(-1) };
+	enum { leafNode_ = dimension }; // we need a value that's never going to be a valid axis
 
 	struct Node
 	{

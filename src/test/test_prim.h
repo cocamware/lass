@@ -35,7 +35,7 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testPrim();
+TUnitTests testPrim();
 
 }
 

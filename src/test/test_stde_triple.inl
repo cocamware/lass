@@ -50,20 +50,20 @@ void testStdeTriple()
 
 	triple1_type triple1 = stde::make_triple(true, 1, std::string("hello world!"));
 	triple2_type triple2(triple1);
-	BOOST_CHECK_EQUAL(triple1, triple2);
+	LASS_TEST_CHECK_EQUAL(triple1, triple2);
 
 	triple2.first = 666;
-	BOOST_CHECK(triple1 != triple2);
+	LASS_TEST_CHECK(triple1 != triple2);
 
 	triple2 = triple1;
-	BOOST_CHECK_EQUAL(triple1, triple2);
+	LASS_TEST_CHECK_EQUAL(triple1, triple2);
 
 	triple2.second = 6.66;
-	BOOST_CHECK(triple1 != triple2);
+	LASS_TEST_CHECK(triple1 != triple2);
 
 	triple2 = triple1;
 	triple2.third = "foo";
-	BOOST_CHECK(triple1 != triple2);
+	LASS_TEST_CHECK(triple1 != triple2);
 }
 
 

@@ -59,9 +59,9 @@ void testPrimLine2D()
 	TLineParametric parametric;
 	TLineCartesian cartesian;
 
-	BOOST_CHECK(!cartesian.isValid());
-	BOOST_CHECK(!parametric.isValid());
-	BOOST_CHECK(!combined.isValid());
+	LASS_TEST_CHECK(!cartesian.isValid());
+	LASS_TEST_CHECK(!parametric.isValid());
+	LASS_TEST_CHECK(!combined.isValid());
 
 	// TEST LINES IF FEEDED WITH PARAMETRIC EQUATION
 
@@ -72,9 +72,9 @@ void testPrimLine2D()
 	parametric = TLineParametric(support, dir);
 	cartesian = TLineCartesian(support, dir);
 
-	BOOST_CHECK(combined.isValid());
-	BOOST_CHECK(parametric.isValid());
-	BOOST_CHECK(cartesian.isValid());
+	LASS_TEST_CHECK(combined.isValid());
+	LASS_TEST_CHECK(parametric.isValid());
+	LASS_TEST_CHECK(cartesian.isValid());
 
 	// if the lines are feeded by a parametric equation, then only the parametric plane
 	// and the combined plane must act exactly identical for operations that involve
@@ -82,9 +82,9 @@ void testPrimLine2D()
 	// the cartesian line looses info, and has to recreate support point on demand.
 	// Those are not necessarely the same as the originals.
 	//
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	BOOST_CHECK_EQUAL(combined.direction(), parametric.direction());
-	BOOST_CHECK_EQUAL(combined.direction(), cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), parametric.direction());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), cartesian.direction());
 
 	// however, on operations that involve the cartesian quantities (normal and d), they
 	// all should act identical, becuase they all have to generate these out of the
@@ -93,10 +93,10 @@ void testPrimLine2D()
 	// is perfect and (b) they both calculate the value 'd' in the same way (in case of
 	// normalized vectors, d is twice calculated after normalisation.
 	//
-	BOOST_CHECK_EQUAL(combined.normal(), parametric.normal());
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_EQUAL(combined.d(), parametric.d());
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 
 	// parametric equation can also be initialized with two points.
 	//
@@ -107,13 +107,13 @@ void testPrimLine2D()
 
 	// same conditions should apply as above
 	//
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	BOOST_CHECK_EQUAL(combined.direction(), parametric.direction());
-	BOOST_CHECK_EQUAL(combined.direction(), cartesian.direction());
-	BOOST_CHECK_EQUAL(combined.normal(), parametric.normal());
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_EQUAL(combined.d(), parametric.d());
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), parametric.direction());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 
 
 	// TEST LINES IF FEEDED WITH CARTESIAN EQUATION
@@ -132,18 +132,18 @@ void testPrimLine2D()
 	// doesn't store d, but "converts" it to a support point.  When d is requested, it has to
 	// convert it back.  This will introduce some precision losses.
 	//
-	BOOST_CHECK_EQUAL(combined.normal(), parametric.normal());
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_CLOSE(combined.d(), parametric.d(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 
 	// as said, direction vectors should always be the same.  support points don't have to.
 	// cartesian has to calculate it later on request, and this can differ.
 	//
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	LASS_CLOSE_VECTOR(combined.support(), cartesian.support(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.direction(), parametric.direction());
-	BOOST_CHECK_EQUAL(combined.direction(), cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.support(), cartesian.support(), epsilon, 2);
+	LASS_TEST_CHECK_EQUAL(combined.direction(), parametric.direction());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), cartesian.direction());
 
 	// you can also initialize cartesian equation with a support point and a normal vector
 	//
@@ -153,13 +153,13 @@ void testPrimLine2D()
 
 	// same conditions should apply as above except for support point of cartesian
 	//
-	BOOST_CHECK_EQUAL(combined.normal(), parametric.normal());
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_EQUAL(combined.d(), parametric.d());
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	BOOST_CHECK_EQUAL(combined.direction(), parametric.direction());
-	BOOST_CHECK_EQUAL(combined.direction(), cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), parametric.direction());
+	LASS_TEST_CHECK_EQUAL(combined.direction(), cartesian.direction());
 
 
 	// NOW DO SOME TESTS ON FUNCTIONALITY OF LINES
@@ -169,25 +169,25 @@ void testPrimLine2D()
 
 	const TPoint front(54, 81);
 	const TPoint back(-354, -534);
-	BOOST_CHECK_EQUAL(combined.classify(front), sFront);
-	BOOST_CHECK_EQUAL(parametric.classify(front), sFront);
-	BOOST_CHECK_EQUAL(cartesian.classify(front), sFront);
-	BOOST_CHECK_EQUAL(combined.classify(back), sBack);
-	BOOST_CHECK_EQUAL(parametric.classify(back), sBack);
-	BOOST_CHECK_EQUAL(cartesian.classify(back), sBack);
-	BOOST_CHECK_EQUAL(combined.classify(support), sSurface);
-	BOOST_CHECK_EQUAL(parametric.classify(support), sSurface);
-	BOOST_CHECK_EQUAL(cartesian.classify(support), sSurface);
+	LASS_TEST_CHECK_EQUAL(combined.classify(front), sFront);
+	LASS_TEST_CHECK_EQUAL(parametric.classify(front), sFront);
+	LASS_TEST_CHECK_EQUAL(cartesian.classify(front), sFront);
+	LASS_TEST_CHECK_EQUAL(combined.classify(back), sBack);
+	LASS_TEST_CHECK_EQUAL(parametric.classify(back), sBack);
+	LASS_TEST_CHECK_EQUAL(cartesian.classify(back), sBack);
+	LASS_TEST_CHECK_EQUAL(combined.classify(support), sSurface);
+	LASS_TEST_CHECK_EQUAL(parametric.classify(support), sSurface);
+	LASS_TEST_CHECK_EQUAL(cartesian.classify(support), sSurface);
 
-	BOOST_CHECK_CLOSE(combined.equation(front), parametric.equation(front), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.equation(front), cartesian.equation(front));
-	BOOST_CHECK_CLOSE(combined.equation(back), parametric.equation(back), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.equation(back), cartesian.equation(back));
+	LASS_TEST_CHECK_CLOSE(combined.equation(front), parametric.equation(front), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.equation(front), cartesian.equation(front));
+	LASS_TEST_CHECK_CLOSE(combined.equation(back), parametric.equation(back), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.equation(back), cartesian.equation(back));
 
-	BOOST_CHECK_CLOSE(combined.signedDistance(front), parametric.signedDistance(front), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.signedDistance(front), cartesian.signedDistance(front));
-	BOOST_CHECK_CLOSE(combined.signedDistance(back), parametric.signedDistance(back), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.signedDistance(back), cartesian.signedDistance(back));
+	LASS_TEST_CHECK_CLOSE(combined.signedDistance(front), parametric.signedDistance(front), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.signedDistance(front), cartesian.signedDistance(front));
+	LASS_TEST_CHECK_CLOSE(combined.signedDistance(back), parametric.signedDistance(back), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.signedDistance(back), cartesian.signedDistance(back));
 
 	// projection, rejection and reflection
 
@@ -199,39 +199,39 @@ void testPrimLine2D()
 	// parametric has more advantage to use project as elementary operator, based on the
 	// direction vector.  Hence the small difference in precision with the other two.
 	//
-	BOOST_CHECK_EQUAL(combined.reject(v), cartesian.reject(v));
-	BOOST_CHECK_EQUAL(combined.reject(p), cartesian.reject(p));
-	BOOST_CHECK_EQUAL(combined.project(v), cartesian.project(v));
-	BOOST_CHECK_EQUAL(combined.project(p), cartesian.project(p));
-	BOOST_CHECK_EQUAL(combined.reflect(v), cartesian.reflect(v));
-	BOOST_CHECK_EQUAL(combined.reflect(p), cartesian.reflect(p));
-	LASS_CLOSE_VECTOR(combined.reject(v), parametric.reject(v), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.reject(p), parametric.reject(p), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.project(v), parametric.project(v), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.project(p), parametric.project(p), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.reflect(v), parametric.reflect(v), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.reflect(p), parametric.reflect(p), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.reject(v), cartesian.reject(v));
+	LASS_TEST_CHECK_EQUAL(combined.reject(p), cartesian.reject(p));
+	LASS_TEST_CHECK_EQUAL(combined.project(v), cartesian.project(v));
+	LASS_TEST_CHECK_EQUAL(combined.project(p), cartesian.project(p));
+	LASS_TEST_CHECK_EQUAL(combined.reflect(v), cartesian.reflect(v));
+	LASS_TEST_CHECK_EQUAL(combined.reflect(p), cartesian.reflect(p));
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reject(v), parametric.reject(v), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reject(p), parametric.reject(p), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(v), parametric.project(v), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(p), parametric.project(p), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reflect(v), parametric.reflect(v), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reflect(p), parametric.reflect(p), epsilon, 2);
 
 	// in theory, the sum of the projected and the reject must give the original.
 	// in theory ...
 	//
-	LASS_CLOSE_VECTOR(combined.project(v) + combined.reject(v), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.project(p) + combined.reject(p), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(parametric.project(v) + parametric.reject(v), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(parametric.project(p) + parametric.reject(p), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.project(v) + cartesian.reject(v), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.project(p) + cartesian.reject(p), p, 100 * epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(v) + combined.reject(v), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(p) + combined.reject(p), p, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.project(v) + parametric.reject(v), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.project(p) + parametric.reject(p), p, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.project(v) + cartesian.reject(v), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.project(p) + cartesian.reject(p), p, epsilon, 2);
 
 	// in theory reflecting twice delivers the same point, but this is not so very
 	// true (precision difference) since it needs to reject or project two totally
 	// different points to get there.
 	//
-	LASS_CLOSE_VECTOR(combined.reflect(combined.reflect(v)), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.reflect(combined.reflect(p)), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(parametric.reflect(parametric.reflect(v)), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(parametric.reflect(parametric.reflect(p)), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.reflect(cartesian.reflect(v)), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.reflect(cartesian.reflect(p)), p, 100 * epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reflect(combined.reflect(v)), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reflect(combined.reflect(p)), p, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.reflect(parametric.reflect(v)), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.reflect(parametric.reflect(p)), p, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.reflect(cartesian.reflect(v)), v, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.reflect(cartesian.reflect(p)), p, epsilon, 2);
 
 
 	// point parameters
@@ -241,33 +241,33 @@ void testPrimLine2D()
 	//
 	// Yet, using t as a parameter in point() should deliver the project(p).
 	//
-	BOOST_CHECK_EQUAL(combined.point(T(0)), combined.support());
-	BOOST_CHECK_EQUAL(combined.point(T(1)), combined.support() + combined.direction());
-	BOOST_CHECK_EQUAL(combined.point(T(-1)), combined.support() - combined.direction());
-	BOOST_CHECK_EQUAL(combined.t(combined.support()), T(0));
-	BOOST_CHECK_CLOSE(combined.t(combined.support() + combined.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(combined.t(combined.support() - combined.direction()), T(-1), 100 * epsilon);
-	LASS_CLOSE_VECTOR(combined.project(p), combined.point(combined.t(p)), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.point(T(0)), combined.support());
+	LASS_TEST_CHECK_EQUAL(combined.point(T(1)), combined.support() + combined.direction());
+	LASS_TEST_CHECK_EQUAL(combined.point(T(-1)), combined.support() - combined.direction());
+	LASS_TEST_CHECK_EQUAL(combined.t(combined.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(combined.t(combined.support() + combined.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(combined.t(combined.support() - combined.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(p), combined.point(combined.t(p)), epsilon, 2);
 
-	BOOST_CHECK_EQUAL(parametric.point(T(0)), parametric.support());
-	BOOST_CHECK_EQUAL(parametric.point(T(1)), parametric.support() + parametric.direction());
-	BOOST_CHECK_EQUAL(parametric.point(T(-1)), parametric.support() - parametric.direction());
-	BOOST_CHECK_EQUAL(parametric.t(parametric.support()), T(0));
-	BOOST_CHECK_CLOSE(parametric.t(parametric.support() + parametric.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(parametric.t(parametric.support() - parametric.direction()), T(-1), 100 * epsilon);
-	LASS_CLOSE_VECTOR(parametric.project(p), parametric.point(parametric.t(p)), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(parametric.point(T(0)), parametric.support());
+	LASS_TEST_CHECK_EQUAL(parametric.point(T(1)), parametric.support() + parametric.direction());
+	LASS_TEST_CHECK_EQUAL(parametric.point(T(-1)), parametric.support() - parametric.direction());
+	LASS_TEST_CHECK_EQUAL(parametric.t(parametric.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(parametric.t(parametric.support() + parametric.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(parametric.t(parametric.support() - parametric.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.project(p), parametric.point(parametric.t(p)), epsilon, 2);
 
-	BOOST_CHECK_EQUAL(cartesian.point(T(0)), cartesian.support());
-	BOOST_CHECK_EQUAL(cartesian.point(T(1)), cartesian.support() + cartesian.direction());
-	BOOST_CHECK_EQUAL(cartesian.point(T(-1)), cartesian.support() - cartesian.direction());
-	BOOST_CHECK_EQUAL(cartesian.t(cartesian.support()), T(0));
-	BOOST_CHECK_CLOSE(cartesian.t(cartesian.support() + cartesian.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(cartesian.t(cartesian.support() - cartesian.direction()), T(-1), 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.project(p), cartesian.point(cartesian.t(p)), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(cartesian.point(T(0)), cartesian.support());
+	LASS_TEST_CHECK_EQUAL(cartesian.point(T(1)), cartesian.support() + cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(cartesian.point(T(-1)), cartesian.support() - cartesian.direction());
+	LASS_TEST_CHECK_EQUAL(cartesian.t(cartesian.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(cartesian.t(cartesian.support() + cartesian.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(cartesian.t(cartesian.support() - cartesian.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.project(p), cartesian.point(cartesian.t(p)), epsilon, 2);
 
-	BOOST_CHECK_EQUAL(combined.t(p), parametric.t(p));
-	LASS_CLOSE_VECTOR(parametric.point(parametric.t(p)), combined.point(combined.t(p)), 100 * epsilon);
-	LASS_CLOSE_VECTOR(cartesian.point(cartesian.t(p)), combined.point(combined.t(p)), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.t(p), parametric.t(p));
+	LASS_TEST_CHECK_CLOSE_ARRAY(parametric.point(parametric.t(p)), combined.point(combined.t(p)), epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(cartesian.point(cartesian.t(p)), combined.point(combined.t(p)), epsilon, 2);
 
 	// flip, if we flip planes, we need to find negative distances.
 
@@ -287,15 +287,15 @@ void testPrimLine2D()
 	parametric.flip();
 	cartesian.flip();
 
-	BOOST_CHECK_EQUAL(combined.normal(), -normalCo);
-	BOOST_CHECK_EQUAL(parametric.normal(), -normalPa);
-	BOOST_CHECK_EQUAL(cartesian.normal(), -normalCa);
-	BOOST_CHECK_EQUAL(combined.signedDistance(p), -distCo);
-	BOOST_CHECK_EQUAL(parametric.signedDistance(p), -distPa);
-	BOOST_CHECK_EQUAL(cartesian.signedDistance(p), -distCa);
-	BOOST_CHECK_EQUAL(combined.t(p), -tCo);
-	BOOST_CHECK_EQUAL(parametric.t(p), -tPa);
-	BOOST_CHECK_EQUAL(cartesian.t(p), -tCa);
+	LASS_TEST_CHECK_EQUAL(combined.normal(), -normalCo);
+	LASS_TEST_CHECK_EQUAL(parametric.normal(), -normalPa);
+	LASS_TEST_CHECK_EQUAL(cartesian.normal(), -normalCa);
+	LASS_TEST_CHECK_EQUAL(combined.signedDistance(p), -distCo);
+	LASS_TEST_CHECK_EQUAL(parametric.signedDistance(p), -distPa);
+	LASS_TEST_CHECK_EQUAL(cartesian.signedDistance(p), -distCa);
+	LASS_TEST_CHECK_EQUAL(combined.t(p), -tCo);
+	LASS_TEST_CHECK_EQUAL(parametric.t(p), -tPa);
+	LASS_TEST_CHECK_EQUAL(cartesian.t(p), -tCa);
 
 	// alright, that's it folks =)
 }

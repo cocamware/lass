@@ -198,10 +198,18 @@ inline Callback0 makeCallback(void (*iFunction)())
 
 
 
+/** convencie function, make callback from callback
+ */
+inline const Callback0& makeCallback(const Callback0& iCallback)
+{
+	return iCallback;
+}
+
+
 /** make a Callback0 from a object and method
  *  @relates Callback0
  */
-template <typename ObjectPtr, typename Object>
+template <typename ObjectPtr, typename Object> inline
 Callback0 makeCallback(ObjectPtr iObject, void (Object::*iMethod)())
 {
 	return Callback0(iObject, iMethod);
@@ -212,7 +220,7 @@ Callback0 makeCallback(ObjectPtr iObject, void (Object::*iMethod)())
 /** make a Callback0 from a object and const method
  *  @relates Callback0
  */
-template <typename ObjectPtr, typename Object>
+template <typename ObjectPtr, typename Object> inline
 Callback0 makeCallback(ObjectPtr iObject, void (Object::*iMethod)() const)
 {
 	return Callback0(iObject, iMethod);

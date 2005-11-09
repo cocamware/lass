@@ -36,68 +36,9 @@
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_COMMON_H
 
 #include "../lass_common.h"
-
-#include <boost/test/unit_test_suite.hpp>
-#include <boost/test/test_tools.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "unit_test.h"
 
 #define LASS_TEST_VERSION LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_DEBUG
-
-/** compare if all components of a lass::prim vector, point or homogenous point are "close".
- *  It does what BOOST_CHECK_CLOSE does, but for more components.
- */
-#define LASS_CLOSE_VECTOR(iLeft, iRight, iPersentTolerance)\
-	lass::test::impl::compareVectorsAndContinue((iLeft), (iRight), (iPersentTolerance),\
-												#iLeft,  #iRight, __FILE__, __LINE__)
-
-
-namespace lass
-{
-namespace test
-{
-namespace impl
-{
-
-template <typename VectorType, typename PersentType>
-inline bool
-compareVectorsAndContinue(const VectorType& iLeft, const VectorType& iRight,
-						  PersentType iTolerance,
-						  const char* iLeftText, const char* iRightText,
-						  const char* iFile, std::size_t iLine,
-						  boost::unit_test_framework::log_level iLogLevel = boost::unit_test_framework::log_all_errors )
-{
-	using namespace boost::test_toolbox;
-
-	for (unsigned i = 0; i < VectorType::dimension; ++i)
-	{
-		extended_predicate_value predicate(check_is_close(iLeft[i], iRight[i], iTolerance));
-
-		if (!predicate)
-		{
-			return tt_detail::test_and_continue_impl(predicate, boost::wrap_stringstream().ref()
-					<< "difference between one of the components of " << iLeftText << "{"
-					<< tt_detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{"
-					<< tt_detail::print_helper<VectorType>( iRight ) << "}" << " exceeds "
-					<< tt_detail::print_helper<PersentType>( iTolerance ) << "%",
-				iFile, iLine, false, iLogLevel);
-		}
-	}
-
-	return tt_detail::test_and_continue_impl(true, boost::wrap_stringstream().ref()
-			<< "difference between the components of " << iLeftText << "{"
-			<< tt_detail::print_helper<VectorType>( iLeft ) << "}" << " and " << iRightText << "{"
-			<< tt_detail::print_helper<VectorType>( iRight ) << "} does not exceeds "
-			<< tt_detail::print_helper<PersentType>( iTolerance ) << "%",
-		iFile, iLine, true, iLogLevel);
-}
-
-
-
-}
-
-}
-
-}
 
 #endif
 

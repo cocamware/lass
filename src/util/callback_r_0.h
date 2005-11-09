@@ -197,7 +197,7 @@ bool operator!=(const CallbackR0<R>& iA, const CallbackR0<R>& iB)
 /** make a CallbackR0 from a function
  *  @relates CallbackR0
  */
-template <typename R>
+template <typename R> inline
 CallbackR0<R> makeCallback(R (*iFunction)())
 {
 	return Callback0(iFunction);
@@ -205,10 +205,21 @@ CallbackR0<R> makeCallback(R (*iFunction)())
 
 
 
+/** make a CallbackR0 from a callback
+ *  @relates CallbackR0
+ */
+template <typename R> inline
+const CallbackR0<R>& makeCallback(const CallbackR0<R>& iCallback)
+{
+	return iCallback;
+}
+
+
+
 /** make a CallbackR0 from a object and method
  *  @relates CallbackR0
  */
-template <typename ObjectPtr, typename Object, typename R>
+template <typename ObjectPtr, typename Object, typename R> inline
 CallbackR0<R> makeCallback(ObjectPtr iObject, R (Object::*iMethod)())
 {
 	return Callback0(iObject, iMethod);
@@ -219,7 +230,7 @@ CallbackR0<R> makeCallback(ObjectPtr iObject, R (Object::*iMethod)())
 /** make a CallbackR0 from a object and const method
  *  @relates CallbackR0
  */
-template <typename ObjectPtr, typename Object, typename R>
+template <typename ObjectPtr, typename Object, typename R> inline
 CallbackR0<R> makeCallback(ObjectPtr iObject, R (Object::*iMethod)() const)
 {
 	return Callback0(iObject, iMethod);

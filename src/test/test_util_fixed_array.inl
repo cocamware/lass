@@ -43,46 +43,48 @@ void testUtilFixedArray()
 {
 	using namespace util;
 
-	FixedArray<T, 5> array;
+	typedef FixedArray<T, 5> TFixedArray;
 
-	BOOST_CHECK_EQUAL(array.size(), 5);
-	BOOST_CHECK_EQUAL(array.max_size(), 5);
-	BOOST_CHECK_EQUAL(array.empty(), false);
+	TFixedArray array;
+
+	LASS_TEST_CHECK_EQUAL(array.size(), 5);
+	LASS_TEST_CHECK_EQUAL(array.max_size(), 5);
+	LASS_TEST_CHECK_EQUAL(array.empty(), false);
 
 	T value(1);
-	for (util::FixedArray<T, 5>::iterator it = array.begin(); it != array.end(); ++it)
+	for (TFixedArray::iterator it = array.begin(); it != array.end(); ++it)
 	{
 		*it = value;
 		value += value;
 	}
 
-	BOOST_CHECK_EQUAL(array[0], 1);
-	BOOST_CHECK_EQUAL(array[1], 2);
-	BOOST_CHECK_EQUAL(array[2], 4);
-	BOOST_CHECK_EQUAL(array[3], 8);
-	BOOST_CHECK_EQUAL(array[4], 16);
+	LASS_TEST_CHECK_EQUAL(array[0], 1);
+	LASS_TEST_CHECK_EQUAL(array[1], 2);
+	LASS_TEST_CHECK_EQUAL(array[2], 4);
+	LASS_TEST_CHECK_EQUAL(array[3], 8);
+	LASS_TEST_CHECK_EQUAL(array[4], 16);
 
 	for (unsigned i = 0; i < array.size(); ++i)
 	{
-		BOOST_CHECK_EQUAL(array[i], array.at(i));
+		LASS_TEST_CHECK_EQUAL(array[i], array.at(i));
 	}
 
-	BOOST_CHECK_EQUAL(array[0], array.front());
-	BOOST_CHECK_EQUAL(*array.begin(), array.front());
-	BOOST_CHECK_EQUAL(*array.rbegin(), array.back());
+	LASS_TEST_CHECK_EQUAL(array[0], array.front());
+	LASS_TEST_CHECK_EQUAL(*array.begin(), array.front());
+	LASS_TEST_CHECK_EQUAL(*array.rbegin(), array.back());
 
-	BOOST_CHECK_THROW(array.at(-1) = 37, std::exception);
-	BOOST_CHECK_THROW(array.at(5) = 37, std::exception);
+	LASS_TEST_CHECK_THROW(array.at(static_cast<TFixedArray::size_type>(-1)) = 37, std::exception);
+	LASS_TEST_CHECK_THROW(array.at(5) = 37, std::exception);
 
 	FixedArray<T, 0> nullArray;
 
-	BOOST_CHECK_EQUAL(nullArray.size(), 0);
-	BOOST_CHECK_EQUAL(nullArray.max_size(), 0);
-	BOOST_CHECK_EQUAL(nullArray.empty(), true);
-	BOOST_CHECK(nullArray.begin() == nullArray.end());
-	BOOST_CHECK(nullArray.rbegin() == nullArray.rend());
+	LASS_TEST_CHECK_EQUAL(nullArray.size(), 0);
+	LASS_TEST_CHECK_EQUAL(nullArray.max_size(), 0);
+	LASS_TEST_CHECK_EQUAL(nullArray.empty(), true);
+	LASS_TEST_CHECK(nullArray.begin() == nullArray.end());
+	LASS_TEST_CHECK(nullArray.rbegin() == nullArray.rend());
 
-	BOOST_CHECK_THROW(nullArray.at(0) = 37, std::exception);
+	LASS_TEST_CHECK_THROW(nullArray.at(0) = 37, std::exception);
 }
 
 }

@@ -54,46 +54,46 @@ template <typename T> void testPrimVector2D()
 	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector2D<T> a;
-	BOOST_CHECK(a.isZero());
+	LASS_TEST_CHECK(a.isZero());
 
 	a = Vector2D<T>(a0, a1);
-	BOOST_CHECK_EQUAL(a.x, a0);
-	BOOST_CHECK_EQUAL(a.y, a1);
-	BOOST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1));
-	BOOST_CHECK_CLOSE(a.norm() * a.norm(), a.squaredNorm(), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(a.x, a0);
+	LASS_TEST_CHECK_EQUAL(a.y, a1);
+	LASS_TEST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1));
+	LASS_TEST_CHECK_CLOSE(a.norm() * a.norm(), a.squaredNorm(), epsilon);
 
 	Vector2D<T> b(b0, b1);
-	BOOST_CHECK_EQUAL(b[0], b.x);
-	BOOST_CHECK_EQUAL(b[1], b.y);
-	BOOST_CHECK_EQUAL(b.at(-3), b.y);
-	BOOST_CHECK_EQUAL(b.at(-2), b.x);
-	BOOST_CHECK_EQUAL(b.at(-1), b.y);
+	LASS_TEST_CHECK_EQUAL(b[0], b.x);
+	LASS_TEST_CHECK_EQUAL(b[1], b.y);
+	LASS_TEST_CHECK_EQUAL(b.at(-3), b.y);
+	LASS_TEST_CHECK_EQUAL(b.at(-2), b.x);
+	LASS_TEST_CHECK_EQUAL(b.at(-1), b.y);
 
-	BOOST_CHECK_EQUAL(a + b, Vector2D<T>(a0 + b0, a1 + b1));
-	BOOST_CHECK_EQUAL(a - b, Vector2D<T>(a0 - b0, a1 - b1));
-	BOOST_CHECK_EQUAL(a * b, Vector2D<T>(a0 * b0, a1 * b1));
-	BOOST_CHECK_EQUAL(a / b, Vector2D<T>(a0 / b0, a1 / b1));
+	LASS_TEST_CHECK_EQUAL(a + b, Vector2D<T>(a0 + b0, a1 + b1));
+	LASS_TEST_CHECK_EQUAL(a - b, Vector2D<T>(a0 - b0, a1 - b1));
+	LASS_TEST_CHECK_EQUAL(a * b, Vector2D<T>(a0 * b0, a1 * b1));
+	LASS_TEST_CHECK_EQUAL(a / b, Vector2D<T>(a0 / b0, a1 / b1));
 
-	BOOST_CHECK_EQUAL(a + b, b + a);
-	BOOST_CHECK_EQUAL(a * b, b * a);
-	BOOST_CHECK_EQUAL(two * a, a * two);
-	BOOST_CHECK_EQUAL(two * a, a + a);
-	BOOST_CHECK_EQUAL(a / two, half * a);
+	LASS_TEST_CHECK_EQUAL(a + b, b + a);
+	LASS_TEST_CHECK_EQUAL(a * b, b * a);
+	LASS_TEST_CHECK_EQUAL(two * a, a * two);
+	LASS_TEST_CHECK_EQUAL(two * a, a + a);
+	LASS_TEST_CHECK_EQUAL(a / two, half * a);
 
-	BOOST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
-	BOOST_CHECK_EQUAL(dot(a, b), dot(b, a));
-	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
+	LASS_TEST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
+	LASS_TEST_CHECK_EQUAL(dot(a, b), dot(b, a));
+	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector2D<T> n(b);
 	n.normalize();
-	BOOST_CHECK_EQUAL(n, b.normal());
-	BOOST_CHECK_EQUAL(n.norm(), one);
+	LASS_TEST_CHECK_EQUAL(n, b.normal());
+	LASS_TEST_CHECK_EQUAL(n.norm(), one);
 
 	std::stringstream ss;
 	ss << a;
 	ss >> b;
-	BOOST_CHECK_EQUAL(a, b);
+	LASS_TEST_CHECK_EQUAL(a, b);
 }
 
 
@@ -110,53 +110,53 @@ template <typename T> void testPrimVector3D()
 	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector3D<T> a;
-	BOOST_CHECK(a.isZero());
+	LASS_TEST_CHECK(a.isZero());
 
 	a = Vector3D<T>(a0, a1, a2);
-	BOOST_CHECK_EQUAL(a.x, a0);
-	BOOST_CHECK_EQUAL(a.y, a1);
-	BOOST_CHECK_EQUAL(a.z, a2);
+	LASS_TEST_CHECK_EQUAL(a.x, a0);
+	LASS_TEST_CHECK_EQUAL(a.y, a1);
+	LASS_TEST_CHECK_EQUAL(a.z, a2);
 
-	BOOST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1 + a2 * a2));
-	BOOST_CHECK_EQUAL(a.norm() * a.norm(), a.squaredNorm());
+	LASS_TEST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1 + a2 * a2));
+	LASS_TEST_CHECK_EQUAL(a.norm() * a.norm(), a.squaredNorm());
 
 	Vector3D<T> b(b0, b1, b2);
-	BOOST_CHECK_EQUAL(b[0], b.x);
-	BOOST_CHECK_EQUAL(b[1], b.y);
-	BOOST_CHECK_EQUAL(b[2], b.z);
-	BOOST_CHECK_EQUAL(b.at(-3), b.x);
-	BOOST_CHECK_EQUAL(b.at(-2), b.y);
-	BOOST_CHECK_EQUAL(b.at(-1), b.z);
+	LASS_TEST_CHECK_EQUAL(b[0], b.x);
+	LASS_TEST_CHECK_EQUAL(b[1], b.y);
+	LASS_TEST_CHECK_EQUAL(b[2], b.z);
+	LASS_TEST_CHECK_EQUAL(b.at(-3), b.x);
+	LASS_TEST_CHECK_EQUAL(b.at(-2), b.y);
+	LASS_TEST_CHECK_EQUAL(b.at(-1), b.z);
 
-	BOOST_CHECK_EQUAL(a + b, Vector3D<T>(a0 + b0, a1 + b1, a2 + b2));
-	BOOST_CHECK_EQUAL(a - b, Vector3D<T>(a0 - b0, a1 - b1, a2 - b2));
-	BOOST_CHECK_EQUAL(a * b, Vector3D<T>(a0 * b0, a1 * b1, a2 * b2));
-	BOOST_CHECK_EQUAL(a / b, Vector3D<T>(a0 / b0, a1 / b1, a2 / b2));
+	LASS_TEST_CHECK_EQUAL(a + b, Vector3D<T>(a0 + b0, a1 + b1, a2 + b2));
+	LASS_TEST_CHECK_EQUAL(a - b, Vector3D<T>(a0 - b0, a1 - b1, a2 - b2));
+	LASS_TEST_CHECK_EQUAL(a * b, Vector3D<T>(a0 * b0, a1 * b1, a2 * b2));
+	LASS_TEST_CHECK_EQUAL(a / b, Vector3D<T>(a0 / b0, a1 / b1, a2 / b2));
 
-	BOOST_CHECK_EQUAL(a + b, b + a);
-	BOOST_CHECK_EQUAL(a * b, b * a);
-	BOOST_CHECK_EQUAL(two * a, a * two);
-	BOOST_CHECK_EQUAL(two * a, a + a);
-	BOOST_CHECK_EQUAL(a / two, half * a);
+	LASS_TEST_CHECK_EQUAL(a + b, b + a);
+	LASS_TEST_CHECK_EQUAL(a * b, b * a);
+	LASS_TEST_CHECK_EQUAL(two * a, a * two);
+	LASS_TEST_CHECK_EQUAL(two * a, a + a);
+	LASS_TEST_CHECK_EQUAL(a / two, half * a);
 
-	BOOST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
-	BOOST_CHECK_EQUAL(dot(a, b), dot(b, a));
+	LASS_TEST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
+	LASS_TEST_CHECK_EQUAL(dot(a, b), dot(b, a));
 
-	BOOST_CHECK_EQUAL(dot(cross(a, b), a), zero);
-	BOOST_CHECK_EQUAL(dot(cross(a, b), b), zero);
+	LASS_TEST_CHECK_EQUAL(dot(cross(a, b), a), zero);
+	LASS_TEST_CHECK_EQUAL(dot(cross(a, b), b), zero);
 
-	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
+	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector3D<T> n(b);
 	n.normalize();
-	BOOST_CHECK_EQUAL(n, b.normal());
-	BOOST_CHECK_CLOSE(n.norm(), one, 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(n, b.normal());
+	LASS_TEST_CHECK_CLOSE(n.norm(), one, epsilon);
 
 	std::stringstream ss;
 	ss << a;
 	ss >> b;
-	BOOST_CHECK_EQUAL(a, b);
+	LASS_TEST_CHECK_EQUAL(a, b);
 }
 
 
@@ -173,52 +173,52 @@ template <typename T> void testPrimVector4D()
 	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector4D<T> a;
-	BOOST_CHECK(a.isZero());
+	LASS_TEST_CHECK(a.isZero());
 
 	a = Vector4D<T>(a0, a1, a2, a3);
-	BOOST_CHECK_EQUAL(a.x, a0);
-	BOOST_CHECK_EQUAL(a.y, a1);
-	BOOST_CHECK_EQUAL(a.z, a2);
-	BOOST_CHECK_EQUAL(a.w, a3);
+	LASS_TEST_CHECK_EQUAL(a.x, a0);
+	LASS_TEST_CHECK_EQUAL(a.y, a1);
+	LASS_TEST_CHECK_EQUAL(a.z, a2);
+	LASS_TEST_CHECK_EQUAL(a.w, a3);
 
-	BOOST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3));
-	BOOST_CHECK_CLOSE(a.norm() * a.norm(), a.squaredNorm(), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3));
+	LASS_TEST_CHECK_CLOSE(a.norm() * a.norm(), a.squaredNorm(), epsilon);
 
 	Vector4D<T> b(b0, b1, b2, b3);
-	BOOST_CHECK_EQUAL(b[0], b.x);
-	BOOST_CHECK_EQUAL(b[1], b.y);
-	BOOST_CHECK_EQUAL(b[2], b.z);
-	BOOST_CHECK_EQUAL(b[3], b.w);
-	BOOST_CHECK_EQUAL(b.at(-3), b.y);
-	BOOST_CHECK_EQUAL(b.at(-2), b.z);
-	BOOST_CHECK_EQUAL(b.at(-1), b.w);
+	LASS_TEST_CHECK_EQUAL(b[0], b.x);
+	LASS_TEST_CHECK_EQUAL(b[1], b.y);
+	LASS_TEST_CHECK_EQUAL(b[2], b.z);
+	LASS_TEST_CHECK_EQUAL(b[3], b.w);
+	LASS_TEST_CHECK_EQUAL(b.at(-3), b.y);
+	LASS_TEST_CHECK_EQUAL(b.at(-2), b.z);
+	LASS_TEST_CHECK_EQUAL(b.at(-1), b.w);
 
-	BOOST_CHECK_EQUAL(a + b, Vector4D<T>(a0 + b0, a1 + b1, a2 + b2, a3 + b3));
-	BOOST_CHECK_EQUAL(a - b, Vector4D<T>(a0 - b0, a1 - b1, a2 - b2, a3 - b3));
-	BOOST_CHECK_EQUAL(a * b, Vector4D<T>(a0 * b0, a1 * b1, a2 * b2, a3 * b3));
-	BOOST_CHECK_EQUAL(a / b, Vector4D<T>(a0 / b0, a1 / b1, a2 / b2, a3 / b3));
+	LASS_TEST_CHECK_EQUAL(a + b, Vector4D<T>(a0 + b0, a1 + b1, a2 + b2, a3 + b3));
+	LASS_TEST_CHECK_EQUAL(a - b, Vector4D<T>(a0 - b0, a1 - b1, a2 - b2, a3 - b3));
+	LASS_TEST_CHECK_EQUAL(a * b, Vector4D<T>(a0 * b0, a1 * b1, a2 * b2, a3 * b3));
+	LASS_TEST_CHECK_EQUAL(a / b, Vector4D<T>(a0 / b0, a1 / b1, a2 / b2, a3 / b3));
 
-	BOOST_CHECK_EQUAL(a + b, b + a);
-	BOOST_CHECK_EQUAL(a * b, b * a);
-	BOOST_CHECK_EQUAL(two * a, a * two);
-	BOOST_CHECK_EQUAL(two * a, a + a);
-	BOOST_CHECK_EQUAL(a / two, half * a);
+	LASS_TEST_CHECK_EQUAL(a + b, b + a);
+	LASS_TEST_CHECK_EQUAL(a * b, b * a);
+	LASS_TEST_CHECK_EQUAL(two * a, a * two);
+	LASS_TEST_CHECK_EQUAL(two * a, a + a);
+	LASS_TEST_CHECK_EQUAL(a / two, half * a);
 
-	BOOST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
-	BOOST_CHECK_EQUAL(dot(a, b), dot(b, a));
+	LASS_TEST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
+	LASS_TEST_CHECK_EQUAL(dot(a, b), dot(b, a));
 
-	BOOST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
-	BOOST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
+	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector4D<T> n(b);
 	n.normalize();
-	BOOST_CHECK_EQUAL(n, b.normal());
-	BOOST_CHECK_EQUAL(n.norm(), one);
+	LASS_TEST_CHECK_EQUAL(n, b.normal());
+	LASS_TEST_CHECK_EQUAL(n.norm(), one);
 
 	std::stringstream ss;
 	ss << a;
 	ss >> b;
-	BOOST_CHECK_EQUAL(a, b);
+	LASS_TEST_CHECK_EQUAL(a, b);
 }
 
 

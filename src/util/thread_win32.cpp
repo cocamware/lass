@@ -473,7 +473,10 @@ void Thread::exit(ExitCode status)
 		delete this;
 	}
 
-	_endthreadex((unsigned)status);
+#pragma warning(push)
+#pragma warning(disable: 4311) //  'reinterpret_cast' : pointer truncation from 'lass::util::Thread::ExitCode' to 'unsigned int'
+	_endthreadex(reinterpret_cast<unsigned>(status));
+#pragma warning(pop)
 	LASS_LOG("Could not return from ExitThread()!");
 }
 

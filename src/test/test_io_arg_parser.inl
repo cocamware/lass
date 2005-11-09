@@ -41,8 +41,8 @@ void testIoArgParser()
 
 	const std::string commandLine = "--path=c:\\foo -h --path=\"c:\\my bar\" -d -s\"\\\"hello world!\\\"\" script.py -- 0build.py";
 
-	boost::test_toolbox::output_test_stream testStream;
-	proxyMan()->cout()->add(&testStream);
+	TestStream testStream;
+	proxyMan()->cout()->add(&testStream.stream());
 	proxyMan()->cout()->remove(&std::cout);
 
 	ArgParser parser("testIoArgParser", "1.0.0", "script ...");
@@ -62,31 +62,31 @@ void testIoArgParser()
 	ArgParser::TArguments result;
 	parser.parse(commandLine, &result);
 
-	BOOST_CHECK(testStream.is_equal("testIoArgParser version 1.0.0\n"
+	LASS_TEST_CHECK(testStream.isEqual("testIoArgParser version 1.0.0\n"
 		"usage: testIoArgParser [-v|--version] [-h|--help] [-H] [-s|--say <text>] [--path "
 		"<value> ...] [-d|--diffraction [<max. number of diffractions>]] script ...\n"));
 
-	BOOST_CHECK(!hello);
+	LASS_TEST_CHECK(!hello);
 
-	BOOST_CHECK(say);
-	BOOST_CHECK_EQUAL(say.size(), 1);
-	BOOST_CHECK_EQUAL(say[0], "\"hello world!\"");
+	LASS_TEST_CHECK(say);
+	LASS_TEST_CHECK_EQUAL(say.size(), 1);
+	LASS_TEST_CHECK_EQUAL(say[0], "\"hello world!\"");
 
-	BOOST_CHECK(path);
-	BOOST_CHECK_EQUAL(path.size(), 2);
-	BOOST_CHECK_EQUAL(path[0], "c:\\foo");
-	BOOST_CHECK_EQUAL(path[1], "c:\\my bar");
+	LASS_TEST_CHECK(path);
+	LASS_TEST_CHECK_EQUAL(path.size(), 2);
+	LASS_TEST_CHECK_EQUAL(path[0], "c:\\foo");
+	LASS_TEST_CHECK_EQUAL(path[1], "c:\\my bar");
 
-	BOOST_CHECK(diffraction);
-	BOOST_CHECK_EQUAL(diffraction.size(), 1); // still default value
-	BOOST_CHECK_EQUAL(diffraction[0], 2);
+	LASS_TEST_CHECK(diffraction);
+	LASS_TEST_CHECK_EQUAL(diffraction.size(), 1); // still default value
+	LASS_TEST_CHECK_EQUAL(diffraction[0], 2);
 
-	BOOST_CHECK_EQUAL(result.size(), 2);
-	BOOST_CHECK_EQUAL(result[0], "script.py");
-	BOOST_CHECK_EQUAL(result[1], "0build.py");
+	LASS_TEST_CHECK_EQUAL(result.size(), 2);
+	LASS_TEST_CHECK_EQUAL(result[0], "script.py");
+	LASS_TEST_CHECK_EQUAL(result[1], "0build.py");
 
 	proxyMan()->cout()->add(&std::cout);
-	proxyMan()->cout()->remove(&testStream);
+	proxyMan()->cout()->remove(&testStream.stream());
 }
 
 

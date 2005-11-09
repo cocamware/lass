@@ -27,15 +27,7 @@
 
 
 #include "test_common.h"
-
-// we must include the implementation of the test exec monitor exaclty once (see documentation
-// in Boost).  This seems a nice spot to do so.  Disable a few spurious warnings ...
-//
-#pragma warning(push)
-#	pragma warning(disable: 4267)
-#	pragma warning(disable: 4535)
-#	include <boost/test/included/test_exec_monitor.hpp>
-#pragma warning(pop)
+#include "unit_test.h"
 
 #include "test_io.h"
 #include "test_meta.h"
@@ -45,52 +37,31 @@
 #include "test_stde.h"
 #include "test_util.h"
 
-#include "../io/arg_parser.h"
+#include "../stde/extended_algorithm.h"
+#include "../io/logger.h"
 
-#include <boost/test/detail/unit_test_parameters.hpp>
-
-int test_main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-	using namespace boost::unit_test_framework;
+	using namespace lass;
 
-	lass::io::proxyMan()->clog()->remove(&std::clog);
+	io::proxyMan()->clog()->remove(&std::clog);
 
-	lass::io::ArgParser parser;
-	lass::io::ArgFlag argXml(parser, "x", "xml");
-	parser.parse(argc, argv);
+	io::Logger logger("test_" LASS_TEST_VERSION ".log");
+	logger.subscribeTo(io::proxyMan()->cout());
+	logger.subscribeTo(io::proxyMan()->clog());
+	logger.subscribeTo(io::proxyMan()->cerr());
 
-	test_suite testSuite("lass test suite");
+	test::TUnitTests unitTests;
+	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
+	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
+	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
+	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
+	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
+	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
+	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 
-	testSuite.add(lass::test::testUtil());
-	testSuite.add(lass::test::testIo());
-	testSuite.add(lass::test::testMeta());
-	testSuite.add(lass::test::testNum());
-	testSuite.add(lass::test::testPrim());
-	testSuite.add(lass::test::testStde());
-	testSuite.add(lass::test::testSpat());
+	test::runTests(unitTests);
 
-	std::ofstream log;
-	if (argXml)
-	{
-		// redirect info to files
-		//
-		unit_test_log::instance().set_log_format("XML");
-		unit_test_log::instance().set_log_threshold_level(log_test_suites);
-		log.open("test_log." LASS_TEST_VERSION ".xml");
-		unit_test_log::instance().set_log_stream(log);
-	}
-
-	testSuite.run();
-
-	if (argXml)
-	{
-		unit_test_result::instance().set_report_format("XML");
-		std::ofstream result("test_result." LASS_TEST_VERSION ".xml");
-		unit_test_result::instance().detailed_report(result);
-	}
-
-	unit_test_result::instance().set_report_format("HRF");
-	unit_test_log::instance().set_log_stream(std::cout);
 	return 0;
 }
 

@@ -55,7 +55,7 @@ namespace lass
 namespace util
 {
 
-template <typename T, int size_>
+template <typename T, size_t size_>
 class FixedArray
 {
 public:
@@ -97,18 +97,31 @@ public:
 
 	reference operator[](size_type iIndex)
 	{
-		LASS_ASSERT(holder_[iIndex] != 0);
 		return *holder_[iIndex];
 	}
 
 	const_reference operator[](size_type iIndex) const
 	{
-		LASS_ASSERT(holder_[iIndex] != 0);
 		return *holder_[iIndex];
 	}
 
-	reference at(size_type iIndex) { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
-	const_reference at(size_type iIndex) const { return this->operator[](LASS_ENFORCE_INDEX(iIndex, size_)); }
+	reference at(size_type iIndex) 
+	{
+		if (!holder_.inRange(iIndex))
+		{
+			throw std::out_of_range("index out of range in lass::util::FixedArray::at");
+		}
+		return *holder_[iIndex];
+	}
+
+	const_reference at(size_type iIndex) const
+	{
+		if (!holder_.inRange(iIndex))
+		{
+			throw std::out_of_range("index out of range in lass::util::FixedArray::at");
+		}
+		return *holder_[iIndex];
+	}
 
 	reference front() { return this->operator[](0); }
 	reference back() { return this->operator[](size_ - 1); }
@@ -135,14 +148,15 @@ private:
 		const_iterator end() const { return array_ + size_; }
 		T* operator[](size_type iIndex)
 		{
-			LASS_ASSERT(iIndex >= 0 && iIndex < size_);
+			LASS_ASSERT(inRange(iIndex));
 			return &array_[iIndex];
 		}
 		const T* operator[](size_type iIndex) const
 		{
-			LASS_ASSERT(iIndex >= 0 && iIndex < size_);
+			LASS_ASSERT(inRange(iIndex));
 			return &array_[iIndex];
 		}
+		bool inRange(size_type iIndex) const { return iIndex < size_; }
 	private:
 		value_type array_[size_];
 	};
@@ -165,6 +179,7 @@ private:
 			LASS_ASSERT(false); // you should never be in here!
 			return 0;
 		}
+		bool inRange(size_type iIndex) const { return false; }
 	};
 
 	Holder<size_> holder_;

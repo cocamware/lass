@@ -77,7 +77,7 @@ void testPrimTransformation3D()
 			const T* b = identity.matrix();
             for (unsigned i = 0; i < 16; ++i)
             {
-				BOOST_CHECK(num::abs(a[i] - b[i]) < epsilon);
+				LASS_TEST_CHECK(num::abs(a[i] - b[i]) < epsilon);
 				if (num::abs(a[i] - b[i]) >= epsilon)
 				{
 					LASS_COUT << "i:" << i << "\ta[i]:" << a[i] << "\tb[i]" << b[i] << "\n";

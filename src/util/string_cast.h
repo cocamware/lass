@@ -131,16 +131,17 @@ private:
 template <typename Out, typename In>
 Out stringCast(const In& iIn)
 {
-	Out result;
-	impl::StringCaster<Out, In> caster;
+	typedef typename util::CallTraits<Out>::TValue TOut;
+	typedef typename util::CallTraits<In>::TValue TIn;
+	
+	TOut result;
+	impl::StringCaster<TOut, TIn> caster;
 	if (!(caster << iIn && caster >> result))
 	{
-		LASS_THROW("cast has failed");
+		LASS_THROW("stringCast has failed");
 	}
 	return result;
 }
-
-
 
 }
 

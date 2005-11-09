@@ -43,7 +43,9 @@ namespace lass
 			template<typename ForwardIterator>
 			PyObject* pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
-				PyObject* r = PyList_New(std::distance(iB,iE));
+				const int size = static_cast<int>(std::distance(iB,iE));
+				LASS_ASSERT(size >= 0);
+				PyObject* r = PyList_New(size);
 				if (r==NULL)
 					return NULL;
                 for (int i=0;iB!=iE;++iB,++i)

@@ -593,7 +593,8 @@ const bool SimplePolygon2D<T, DP>::isValid() const
 template <typename T, class DP>
 const bool SimplePolygon2D<T, DP>::isInRange(int iIndexOfVertex) const
 {
-	return iIndexOfVertex >= 0 && iIndexOfVertex < size();
+	LASS_ASSERT(static_cast<int>(size()) >= 0);
+	return iIndexOfVertex >= 0 && iIndexOfVertex < static_cast<int>(size());
 }
 
 
@@ -609,7 +610,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, D
 	LASS_ENFORCE_STREAM(ioOStream) << "<SimplePolygon2D>\n";
 	for (size_t i = 0; i < n; ++i)
 	{
-		ioOStream << "<vertex id='" << i << "'>" << iPolygon[i] << "</vertex>\n";
+		ioOStream << "<vertex id='" << static_cast<unsigned long>(i) << "'>" << iPolygon[i] << "</vertex>\n";
 	}
 	ioOStream << "</SimplePolygon2D>\n";
 	return ioOStream;

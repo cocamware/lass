@@ -40,15 +40,15 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testIo()
+TUnitTests testIo()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::io test suite");
+	TUnitTests result;
 
-	//result->add(BOOST_TEST_CASE(testIoAvi));
-	result->add(BOOST_TEST_CASE(testIoArgParser));
-	result->add(BOOST_TEST_CASE(testIoBinaryStream));
-	result->add(BOOST_TEST_CASE(testIoFileAttributes));
-	result->add(BOOST_TEST_CASE(testIoProxySystem));
+	//result.push_back(LASS_UNIT_TEST(testIoAvi));
+	result.push_back(LASS_UNIT_TEST(testIoArgParser));
+	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
+	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
+	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
 
 	return result;
 }

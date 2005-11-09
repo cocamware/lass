@@ -265,7 +265,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::ConstRow
 Matrix<T, S>::row(signed iRow) const
 {
-	return ConstRow(*this, mod(iRow, rows()));
+	return ConstRow(*this, static_cast<size_t>(mod(iRow, static_cast<int>(rows()))));
 }
 
 
@@ -278,7 +278,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::Row
 Matrix<T, S>::row(signed iRow)
 {
-	return Row(*this, mod(iRow, rows()));
+	return Row(*this, static_cast<size_t>(mod(iRow, static_cast<int>(rows()))));
 }
 
 
@@ -290,7 +290,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::ConstColumn
 Matrix<T, S>::column(signed iColumn) const
 {
-	return ConstColumn(*this, mod(iColumn, columns()));
+	return ConstColumn(*this, static_cast<size_t>(mod(iColumn, static_cast<int>(columns()))));
 }
 
 
@@ -303,7 +303,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::Column
 Matrix<T, S>::column(signed iColumn)
 {
-	return Column(*this, mod(iColumn, columns()));
+	return Column(*this, static_cast<size_t>(mod(iColumn, static_cast<int>(columns()))));
 }
 
 
@@ -998,7 +998,8 @@ bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 
 	for (size_t i = 0; i < ioB.columns(); ++i)
 	{
-		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), ioB.column(i), n);
+		LASS_ASSERT(static_cast<int>(i) >= 0);
+		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), ioB.column(static_cast<int>(i)), n);
 	}
 	return true;
 }

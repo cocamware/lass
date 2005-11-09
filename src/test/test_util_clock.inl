@@ -43,7 +43,7 @@ void testUtilClock()
 {
 	util::Clock deviceUnderTest;
 	LASS_COUT << "frequency: " << deviceUnderTest.frequency() << std::endl;
-	BOOST_CHECK_EQUAL(deviceUnderTest.frequency() * deviceUnderTest.resolution(), 1);
+	LASS_TEST_CHECK_EQUAL(deviceUnderTest.frequency() * deviceUnderTest.resolution(), 1);
 
 	for (unsigned warmup = 0; warmup < 16; ++warmup)
 	{
@@ -76,7 +76,7 @@ void testUtilClock()
 	LASS_EVAL(dutBegin);
 	LASS_EVAL(dutEnd);
 
-	BOOST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, 100. * (10. / CLK_TCK));
+	LASS_TEST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, (10. / CLK_TCK));
 
 
 	const util::Clock::TTick tick1 = deviceUnderTest.tick();

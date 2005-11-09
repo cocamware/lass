@@ -42,20 +42,20 @@ namespace test
 void testUtilStringCast()
 {
 	std::string five = "5";
-	BOOST_CHECK_EQUAL(util::stringCast<int>(5), 5);
-	BOOST_CHECK_EQUAL(util::stringCast<double>(5), 5.0);
-	BOOST_CHECK_EQUAL(util::stringCast<std::string>(5), "5");
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(5), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(5), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(5), "5");
 
-	BOOST_CHECK_EQUAL(util::stringCast<int>(5.0), 5);
-	BOOST_CHECK_EQUAL(util::stringCast<double>(5.0), 5.0);
-	BOOST_CHECK_EQUAL(util::stringCast<std::string>(5.0), "5");
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(5.0), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(5.0), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(5.0), "5");
 
-	BOOST_CHECK_EQUAL(util::stringCast<int>(five), 5);
-	BOOST_CHECK_EQUAL(util::stringCast<double>(five), 5.0);
-	BOOST_CHECK_EQUAL(util::stringCast<std::string>(five), "5");
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(five), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(five), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(five), "5");
 
 	void* p = reinterpret_cast<void*>(0x1a2b3c4d);
-	BOOST_CHECK_EQUAL(util::stringCast<std::string>(p), "1A2B3C4D");
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(p), "1A2B3C4D");
 }
 
 

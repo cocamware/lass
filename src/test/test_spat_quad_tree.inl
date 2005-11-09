@@ -90,7 +90,7 @@ void doTestQuadTree()
 	typedef lass::spat::QuadTree< TSimplePolygon2D, QuadTreeTraits >    TQuadTree;
 
 	TQuadTree   tree( TPoint(50,50), TVector(50,50));
-	BOOST_CHECK_EQUAL( tree.objectCount(), 0 );
+	LASS_TEST_CHECK_EQUAL( tree.objectCount(), 0 );
 
 	const int objectsToAdd = 100;
 	const int maxList = 2;
@@ -104,15 +104,15 @@ void doTestQuadTree()
 		tree.add(tempPoly, maxList, maxDepth);
 	}
 
-	BOOST_CHECK_EQUAL( tree.objectCount(), objectsToAdd );
-	BOOST_CHECK( tree.maxDepth() <= maxDepth );
+	LASS_TEST_CHECK_EQUAL( tree.objectCount(), objectsToAdd );
+	LASS_TEST_CHECK( tree.maxDepth() <= maxDepth );
 
 	std::vector< TSimplePolygon2D* >    resultQuery;
 	for (int i=0;i<objectsToAdd;++i)
 	{
 		resultQuery.clear();
 		int hitcount = tree.contains( TPoint(10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX), resultQuery);
-		BOOST_CHECK_EQUAL( hitcount, resultQuery.size() );
+		LASS_TEST_CHECK_EQUAL( hitcount, resultQuery.size() );
 	}
 
 
@@ -126,7 +126,7 @@ void doTestOctTree()
 	typedef lass::spat::QuadTree< TSimplePolygon3D, QuadTreeTraits > TOctTree;
 
 	TOctTree    tree( TPoint(50,50,50), TVector(50,50,50));
-	BOOST_CHECK_EQUAL( tree.objectCount(), 0 );
+	LASS_TEST_CHECK_EQUAL( tree.objectCount(), 0 );
 
 	const int objectsToAdd = 100;
 	const int maxList = 2;
@@ -141,15 +141,15 @@ void doTestOctTree()
 		tree.add(tempPoly, maxList, maxDepth);
 	}
 
-	BOOST_CHECK_EQUAL( tree.objectCount(), objectsToAdd );
-	BOOST_CHECK( tree.maxDepth() <= maxDepth );
+	LASS_TEST_CHECK_EQUAL( tree.objectCount(), objectsToAdd );
+	LASS_TEST_CHECK( tree.maxDepth() <= maxDepth );
 
 	std::vector< TSimplePolygon3D* >    resultQuery;
 	for (int i=0;i<objectsToAdd;++i)
 	{
 		resultQuery.clear();
 		int hitcount = tree.contains( TPoint(10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX), resultQuery);
-		BOOST_CHECK_EQUAL( hitcount, resultQuery.size() );
+		LASS_TEST_CHECK_EQUAL( hitcount, resultQuery.size() );
 	}
 
 	std::cout << "Oct tree max depth : " << tree.maxDepth() << std::endl;

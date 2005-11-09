@@ -179,7 +179,7 @@ private:
 /** make a CallbackR$x from a function
  *  @relates CallbackR$x
  */
-template <typename R, $(typename P$x)$>
+template <typename R, $(typename P$x)$> inline
 CallbackR$x<R, $(P$x)$> makeCallback(R (*iFunction)($(P$x)$))
 {
 	return CallbackR$x<R, $(P$x)$>(iFunction);
@@ -187,10 +187,21 @@ CallbackR$x<R, $(P$x)$> makeCallback(R (*iFunction)($(P$x)$))
 
 
 
+/** make a CallbackR$x from a function
+ *  @relates CallbackR$x
+ */
+template <typename R, $(typename P$x)$> inline
+const CallbackR$x<R, $(P$x)$>& makeCallback(const CallbackR$x<R, $(P$x)$>& iCallback)
+{
+	return iCallback;
+}
+
+
+
 /** make a CallbackR$x from a object and method
  *  @relates CallbackR$x
  */
-template <typename ObjectPtr, typename Object, typename R, $(typename P$x)$>
+template <typename ObjectPtr, typename Object, typename R, $(typename P$x)$> inline
 CallbackR$x<R, $(P$x)$> makeCallback(ObjectPtr iObject, R (Object::*iMethod)($(P$x)$))
 {
 	return CallbackR$x<R, $(P$x)$>(iObject, iMethod);
@@ -201,7 +212,7 @@ CallbackR$x<R, $(P$x)$> makeCallback(ObjectPtr iObject, R (Object::*iMethod)($(P
 /** make a CallbackR$x from a object and const method
  *  @relates CallbackR$x
  */
-template <typename ObjectPtr, typename Object, typename R, $(typename P$x)$>
+template <typename ObjectPtr, typename Object, typename R, $(typename P$x)$> inline
 CallbackR$x<R, $(P$x)$> makeCallback(ObjectPtr iObject, R (Object::*iMethod)($(P$x)$) const)
 {
 	return CallbackR$x<R, $(P$x)$>(iObject, iMethod);

@@ -43,35 +43,35 @@
 #include "test_prim_xml.inl"
 
 #define LASS_TEST_PRIM_ADD_TEST_CASES(Type__)\
-	result->add(BOOST_TEST_CASE(testPrimAabb2D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimAabb3D<Type__>));\
-	result->add(BOOST_TEST_CASE((testPrimLine2D<Type__, prim::Unnormalized>)));\
-	result->add(BOOST_TEST_CASE((testPrimLine2D<Type__,prim::Normalized>)));\
-	result->add(BOOST_TEST_CASE((testPrimLine3D<Type__, prim::Unnormalized>)));\
-	result->add(BOOST_TEST_CASE((testPrimLine3D<Type__,prim::Normalized>)));\
-	result->add(BOOST_TEST_CASE(testPrimLineSegment2D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimLineSegment3D<Type__>));\
-	result->add(BOOST_TEST_CASE((testPrimPlane3D<Type__,prim::Normalized>)));\
-	result->add(BOOST_TEST_CASE((testPrimPlane3D<Type__,prim::Unnormalized>)));\
-	result->add(BOOST_TEST_CASE(testPrimPoint2D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimPoint3D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimPoint3DH<Type__>));\
-	result->add(BOOST_TEST_CASE((testPrimRay2D<Type__, prim::Unnormalized, prim::Unbounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay2D<Type__, prim::Unnormalized, prim::Bounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay2D<Type__, prim::Normalized, prim::Unbounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay2D<Type__, prim::Normalized, prim::Bounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay3D<Type__, prim::Unnormalized, prim::Unbounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay3D<Type__, prim::Unnormalized, prim::Bounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay3D<Type__, prim::Normalized, prim::Unbounded>)));\
-	result->add(BOOST_TEST_CASE((testPrimRay3D<Type__, prim::Normalized, prim::Bounded>)));\
-	result->add(BOOST_TEST_CASE(testPrimSphere3D<Type__>));\
-	result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::NoDegenerate>)));\
-	result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::StrictNoDegenerate>)));\
-	result->add(BOOST_TEST_CASE((testPrimSimplePolygon2D<Type__, prim::AllowDegenerate>)));\
-	result->add(BOOST_TEST_CASE(testPrimTransformation3D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimVector2D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimVector3D<Type__>));\
-	result->add(BOOST_TEST_CASE(testPrimVector4D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimAabb2D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimAabb3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST((testPrimLine2D<Type__, prim::Unnormalized>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimLine2D<Type__,prim::Normalized>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimLine3D<Type__, prim::Unnormalized>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimLine3D<Type__,prim::Normalized>)));\
+	result.push_back(LASS_UNIT_TEST(testPrimLineSegment2D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimLineSegment3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<Type__,prim::Normalized>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<Type__,prim::Unnormalized>)));\
+	result.push_back(LASS_UNIT_TEST(testPrimPoint2D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3DH<Type__>));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay2D<Type__, prim::Unnormalized, prim::Unbounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay2D<Type__, prim::Unnormalized, prim::Bounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay2D<Type__, prim::Normalized, prim::Unbounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay2D<Type__, prim::Normalized, prim::Bounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Unnormalized, prim::Unbounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Unnormalized, prim::Bounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Normalized, prim::Unbounded>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Normalized, prim::Bounded>)));\
+	result.push_back(LASS_UNIT_TEST(testPrimSphere3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::NoDegenerate>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::StrictNoDegenerate>)));\
+	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::AllowDegenerate>)));\
+	result.push_back(LASS_UNIT_TEST(testPrimTransformation3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimVector2D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimVector3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimVector4D<Type__>));\
 	/**/
 
 namespace lass
@@ -79,13 +79,13 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testPrim()
+TUnitTests testPrim()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::prim test suite");
+	TUnitTests result;
 
 	LASS_TEST_PRIM_ADD_TEST_CASES(float);
 	LASS_TEST_PRIM_ADD_TEST_CASES(double);
-	result->add(BOOST_TEST_CASE(testPrimXml));
+	result.push_back(LASS_UNIT_TEST(testPrimXml));
 
 	return result;
 }

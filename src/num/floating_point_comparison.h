@@ -38,7 +38,7 @@ namespace num
 template <typename T>
 bool almostEqual(T iA, T iB, T iRelativeTolerance)
 {
-	return num::abs(iA - iB) < iRelativeTolerance * std::max(iA, iB);
+	return num::abs(iA - iB) < iRelativeTolerance * std::max(num::abs(iA), num::abs(iB));
 }
 
 template <typename T>

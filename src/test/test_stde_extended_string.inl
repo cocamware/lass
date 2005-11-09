@@ -42,34 +42,34 @@ void testStdeExtendedString()
 	const std::string testString = "This IS a MiXed CaSE stRINg";
 
 	const std::string lower = stde::tolower(testString);
-	BOOST_CHECK_EQUAL(stde::tolower(testString), "this is a mixed case string");
-	BOOST_CHECK_EQUAL(stde::toupper(testString), "THIS IS A MIXED CASE STRING");
-	BOOST_CHECK_EQUAL(stde::replace_all(testString, std::string("S"), std::string("s")),
+	LASS_TEST_CHECK_EQUAL(stde::tolower(testString), "this is a mixed case string");
+	LASS_TEST_CHECK_EQUAL(stde::toupper(testString), "THIS IS A MIXED CASE STRING");
+	LASS_TEST_CHECK_EQUAL(stde::replace_all(testString, std::string("S"), std::string("s")),
 		"This Is a MiXed CasE stRINg");
 
 	const std::string test = "abcdefabcdef";
-	BOOST_CHECK(stde::begins_with(test, std::string("abc")));
-	BOOST_CHECK(stde::begins_with(test, std::string("")));
-	BOOST_CHECK(!stde::begins_with(test, std::string("abx")));
-	BOOST_CHECK(!stde::begins_with(test, std::string("def")));
+	LASS_TEST_CHECK(stde::begins_with(test, std::string("abc")));
+	LASS_TEST_CHECK(stde::begins_with(test, std::string("")));
+	LASS_TEST_CHECK(!stde::begins_with(test, std::string("abx")));
+	LASS_TEST_CHECK(!stde::begins_with(test, std::string("def")));
 
-	BOOST_CHECK(stde::ends_with(test, std::string("def")));
-	BOOST_CHECK(stde::ends_with(test, std::string("")));
-	BOOST_CHECK(!stde::ends_with(test, std::string("xef")));
-	BOOST_CHECK(!stde::ends_with(test, std::string("abc")));
+	LASS_TEST_CHECK(stde::ends_with(test, std::string("def")));
+	LASS_TEST_CHECK(stde::ends_with(test, std::string("")));
+	LASS_TEST_CHECK(!stde::ends_with(test, std::string("xef")));
+	LASS_TEST_CHECK(!stde::ends_with(test, std::string("abc")));
 
 	typedef std::vector<std::string> string_vector;
-	BOOST_CHECK_EQUAL(stde::split(std::string("")), string_vector());
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("")), string_vector());
 	string_vector splitted;
 	splitted.push_back("foo");
 	splitted.push_back("bar");
 	splitted.push_back("fun");
 	splitted.push_back("baz");
-	BOOST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz")), splitted);
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz")), splitted);
 	splitted.push_back("");
-	BOOST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz ")), splitted);
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz ")), splitted);
 	splitted.insert(splitted.begin(), "");
-	BOOST_CHECK_EQUAL(stde::split(std::string("\tfoo bar\t fun \n baz ")), splitted);
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("\tfoo bar\t fun \n baz ")), splitted);
 }
 
 }

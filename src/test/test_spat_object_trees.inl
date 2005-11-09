@@ -190,18 +190,18 @@ void testSpatObjectTrees()
 		TObjectHits aabbHits;
 		aabbTree.find(target, std::back_inserter(aabbHits));
 		std::sort(aabbHits.begin(), aabbHits.end());
-		BOOST_CHECK_EQUAL(naiveContain, aabbContain);
-		BOOST_CHECK_EQUAL(naiveContain, !aabbHits.empty());
-		BOOST_CHECK(naiveHits.size() == aabbHits.size() && 
+		LASS_TEST_CHECK_EQUAL(naiveContain, aabbContain);
+		LASS_TEST_CHECK_EQUAL(naiveContain, !aabbHits.empty());
+		LASS_TEST_CHECK(naiveHits.size() == aabbHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabbHits.begin()));
 
 		bool aabpContain = aabpTree.contains(target);
 		TObjectHits aabpHits;
 		aabpTree.find(target, std::back_inserter(aabpHits));
 		std::sort(aabpHits.begin(), aabpHits.end());
-		BOOST_CHECK_EQUAL(naiveContain, aabpContain);
-		BOOST_CHECK_EQUAL(naiveContain, !aabpHits.empty());
-		BOOST_CHECK(naiveHits.size() == aabpHits.size() && 
+		LASS_TEST_CHECK_EQUAL(naiveContain, aabpContain);
+		LASS_TEST_CHECK_EQUAL(naiveContain, !aabpHits.empty());
+		LASS_TEST_CHECK(naiveHits.size() == aabpHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
 	}
 
@@ -228,8 +228,8 @@ void testSpatObjectTrees()
 
 		T aabbT = TNumTraits::infinity;
 		TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
-		BOOST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
-		BOOST_CHECK_EQUAL(naiveT, aabbT);
+		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
+		LASS_TEST_CHECK_EQUAL(naiveT, aabbT);
 
 		T aabpT = TNumTraits::infinity;
 		const TObject* aabpIntersection = aabpTree.intersect(ray, aabpT);
@@ -237,8 +237,8 @@ void testSpatObjectTrees()
 		{
 			LASS_COUT << i << "\n";
 		}
-		BOOST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
-		BOOST_CHECK_EQUAL(naiveT, aabpT);
+		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
+		LASS_TEST_CHECK_EQUAL(naiveT, aabpT);
 	}
 
 	// SPEED TESTS
@@ -274,7 +274,7 @@ void testSpatObjectTrees()
 		}
 	}
 	const util::Clock::TTime aabpContainTime = stopWatch.stop();
-	BOOST_CHECK_EQUAL(aabbHits, aabpHits);
+	LASS_TEST_CHECK_EQUAL(aabbHits, aabpHits);
 	std::cout << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
@@ -314,7 +314,7 @@ void testSpatObjectTrees()
 		}
 	}
 	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
-	BOOST_CHECK_EQUAL(aabbTotal, aabpTotal);
+	LASS_TEST_CHECK_EQUAL(aabbTotal, aabpTotal);
 	std::cout << "intersection: aabb " << aabbIntersectionTime 
 		<< "\taabp " << aabpIntersectionTime << std::endl;
 }

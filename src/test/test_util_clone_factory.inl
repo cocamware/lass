@@ -79,11 +79,11 @@ void testUtilCloneFactory()
 	factory.subscribe("Doe", TBasePtr(new clone_factory::Bar("Doe")));
 
 	TBasePtr a(factory.make("Joe"));
-	BOOST_CHECK_EQUAL(a->who(), "Base Joe");
+	LASS_TEST_CHECK_EQUAL(a->who(), "Base Joe");
 	TBasePtr b(factory.make("Moe"));
-	BOOST_CHECK_EQUAL(b->who(), "Foo Moe");
+	LASS_TEST_CHECK_EQUAL(b->who(), "Foo Moe");
 	TBasePtr c(factory.make("Doe"));
-	BOOST_CHECK_EQUAL(c->who(), "Bar Doe");
+	LASS_TEST_CHECK_EQUAL(c->who(), "Bar Doe");
 }
 
 }

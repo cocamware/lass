@@ -185,12 +185,12 @@ void testSpatAabbTree()
 		TObjectHits treeHits;
 		tree.find(target, std::back_inserter(treeHits));
 
-		BOOST_CHECK_EQUAL(naiveContain, treeContain);
-		BOOST_CHECK_EQUAL(naiveContain, !treeHits.empty());
+		LASS_TEST_CHECK_EQUAL(naiveContain, treeContain);
+		LASS_TEST_CHECK_EQUAL(naiveContain, !treeHits.empty());
 
 		std::sort(naiveHits.begin(), naiveHits.end());
 		std::sort(treeHits.begin(), treeHits.end());
-		BOOST_CHECK(naiveHits.size() == treeHits.size() &&
+		LASS_TEST_CHECK(naiveHits.size() == treeHits.size() &&
 			std::equal(naiveHits.begin(), naiveHits.end(), treeHits.begin()));
 	}
 
@@ -220,8 +220,8 @@ void testSpatAabbTree()
 		T treeT = TNumTraits::infinity;
 		const TObject* treeIntersection = tree.intersect(ray, treeT);
 
-		BOOST_CHECK_EQUAL(naiveIntersection, treeIntersection);
-		BOOST_CHECK_EQUAL(naiveT, treeT);
+		LASS_TEST_CHECK_EQUAL(naiveIntersection, treeIntersection);
+		LASS_TEST_CHECK_EQUAL(naiveT, treeT);
 	}
 
 	// contain speed test

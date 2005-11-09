@@ -37,6 +37,7 @@
 #include "test_util_fixed_array.inl"
 #include "test_util_id_generator.inl"
 #include "test_util_python.inl"
+#include "test_util_small_object.inl"
 #include "test_util_string_cast.inl"
 #include "test_util_thread_fun.inl"
 #include "test_util_visitor.inl"
@@ -46,34 +47,36 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testUtil()
+TUnitTests testUtil()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::util test suite");
+	TUnitTests result;
 
-	result->add(BOOST_TEST_CASE(testUtilCallback));
+	result.push_back(LASS_UNIT_TEST(testUtilCallback));
 
-	result->add(BOOST_TEST_CASE(testUtilClock));
+	result.push_back(LASS_UNIT_TEST(testUtilClock));
 
-	result->add(BOOST_TEST_CASE(testUtilCloneFactory));
+	result.push_back(LASS_UNIT_TEST(testUtilCloneFactory));
 
-	result->add(BOOST_TEST_CASE(testUtilDictionary));
+	result.push_back(LASS_UNIT_TEST(testUtilDictionary));
 
-	result->add(BOOST_TEST_CASE(testUtilException));
+	result.push_back(LASS_UNIT_TEST(testUtilException));
 
-	result->add(BOOST_TEST_CASE(testUtilFixedArray<int>));
-	result->add(BOOST_TEST_CASE(testUtilFixedArray<float>));
+	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<int>));
+	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<float>));
 
-	result->add(BOOST_TEST_CASE(testUtilIdGenerator<int>));
-	result->add(BOOST_TEST_CASE(testUtilIdGenerator<char>));
-	result->add(BOOST_TEST_CASE(testUtilIdGenerator<unsigned long>));
+	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<int>));
+	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<char>));
+	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<unsigned long>));
 
-	result->add(BOOST_TEST_CASE(testUtilStringCast));
+	result.push_back(LASS_UNIT_TEST(testUtilSmallObject));
 
-	result->add(BOOST_TEST_CASE(testUtilThreadFun));
+	result.push_back(LASS_UNIT_TEST(testUtilStringCast));
 
-	result->add(BOOST_TEST_CASE(testUtilVisitor));
+	result.push_back(LASS_UNIT_TEST(testUtilThreadFun));
 
-	result->add(BOOST_TEST_CASE(testUtilPython));
+	result.push_back(LASS_UNIT_TEST(testUtilVisitor));
+
+	result.push_back(LASS_UNIT_TEST(testUtilPython));
 
 	return result;
 }

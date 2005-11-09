@@ -57,46 +57,46 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 {
 	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
 
-	BOOST_CHECK_EQUAL( (e->rot()->rot()->rot()->rot()), e );
-	BOOST_CHECK_EQUAL( e->rot()->oNext()->rot()->oNext(), e );
-	BOOST_CHECK( e->rot()->rot() != e );
+	LASS_TEST_CHECK_EQUAL( (e->rot()->rot()->rot()->rot()), e );
+	LASS_TEST_CHECK_EQUAL( e->rot()->oNext()->rot()->oNext(), e );
+	LASS_TEST_CHECK( e->rot()->rot() != e );
 	if ( TPlanarMesh::inPrimaryMesh( e ) )
 	{
-		BOOST_CHECK( TPlanarMesh::inDualMesh( e->rot() ) );
+		LASS_TEST_CHECK( TPlanarMesh::inDualMesh( e->rot() ) );
 	}
 	else
 	{
-		BOOST_CHECK( TPlanarMesh::inPrimaryMesh( e->rot() ) );
+		LASS_TEST_CHECK( TPlanarMesh::inPrimaryMesh( e->rot() ) );
 	}
 	if ( TPlanarMesh::inPrimaryMesh( e ) )
 	{
-		BOOST_CHECK( TPlanarMesh::inPrimaryMesh( e->oNext() ) );
+		LASS_TEST_CHECK( TPlanarMesh::inPrimaryMesh( e->oNext() ) );
 	}
-	BOOST_CHECK_EQUAL( e->sym(), e->rot()->rot() );
-	BOOST_CHECK_EQUAL( e->invRot(), e->rot()->rot()->rot() );
+	LASS_TEST_CHECK_EQUAL( e->sym(), e->rot()->rot() );
+	LASS_TEST_CHECK_EQUAL( e->invRot(), e->rot()->rot()->rot() );
 
-	BOOST_CHECK_EQUAL( e->lNext(), e->invRot()->oNext()->rot() );
-	BOOST_CHECK_EQUAL( e->rNext(), e->rot()->oNext()->invRot() );
-	BOOST_CHECK_EQUAL( e->dNext(), e->sym()->oNext()->sym() );
+	LASS_TEST_CHECK_EQUAL( e->lNext(), e->invRot()->oNext()->rot() );
+	LASS_TEST_CHECK_EQUAL( e->rNext(), e->rot()->oNext()->invRot() );
+	LASS_TEST_CHECK_EQUAL( e->dNext(), e->sym()->oNext()->sym() );
 
-	BOOST_CHECK_EQUAL( e->oPrev(), e->rot()->oNext()->rot() );
-	BOOST_CHECK_EQUAL( e->lPrev(), e->oNext()->sym() );
-	BOOST_CHECK_EQUAL( e->rPrev(), e->sym()->oNext() );
-	BOOST_CHECK_EQUAL( e->dPrev(), e->invRot()->oNext()->invRot() );
-	BOOST_CHECK( TPlanarMesh::inPrimaryMesh( e ) != TPlanarMesh::inDualMesh( e ) );
+	LASS_TEST_CHECK_EQUAL( e->oPrev(), e->rot()->oNext()->rot() );
+	LASS_TEST_CHECK_EQUAL( e->lPrev(), e->oNext()->sym() );
+	LASS_TEST_CHECK_EQUAL( e->rPrev(), e->sym()->oNext() );
+	LASS_TEST_CHECK_EQUAL( e->dPrev(), e->invRot()->oNext()->invRot() );
+	LASS_TEST_CHECK( TPlanarMesh::inPrimaryMesh( e ) != TPlanarMesh::inDualMesh( e ) );
 
-	BOOST_CHECK_NO_THROW( TPlanarMesh::edgeHandle( e ) );
-	BOOST_CHECK_NO_THROW( TPlanarMesh::faceHandle( e ) );
-	BOOST_CHECK_NO_THROW( TPlanarMesh::pointHandle( e ) );
+	LASS_TEST_CHECK_NO_THROW( TPlanarMesh::edgeHandle( e ) );
+	LASS_TEST_CHECK_NO_THROW( TPlanarMesh::faceHandle( e ) );
+	LASS_TEST_CHECK_NO_THROW( TPlanarMesh::pointHandle( e ) );
 
 	if ( TPlanarMesh::inPrimaryMesh( e ) )
 	{
-		BOOST_CHECK_NO_THROW( TPlanarMesh::setPointHandle( e, 0 ) );
-		BOOST_CHECK_NO_THROW( TPlanarMesh::setEdgeHandle( e, 0 ) );
-		BOOST_CHECK_NO_THROW( TPlanarMesh::setFaceHandle( e, 0 ) );
+		LASS_TEST_CHECK_NO_THROW( TPlanarMesh::setPointHandle( e, 0 ) );
+		LASS_TEST_CHECK_NO_THROW( TPlanarMesh::setEdgeHandle( e, 0 ) );
+		LASS_TEST_CHECK_NO_THROW( TPlanarMesh::setFaceHandle( e, 0 ) );
 
 
-		BOOST_WARN_MESSAGE( true, "PlanarMesh: no test for faceHandles" );
+#pragma LASS_FIXME("PlanarMesh: no test for faceHandles" )
 		/*
 		std::auto_ptr<int>  tempHandle(new int(5));
 		TPlanarMesh::setFaceHandle( e, tempHandle.get() );
@@ -104,7 +104,7 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 		TPlanarMesh::TEdge* currentEdge = e;
 		do
 		{
-			BOOST_CHECK_EQUAL( *TPlanarMesh::faceHandle( e ) , 5 );
+			LASS_TEST_CHECK_EQUAL( *TPlanarMesh::faceHandle( e ) , 5 );
 			currentEdge = currentEdge->lNext();
 		} while ( currentEdge != e );
 		*/
@@ -112,9 +112,9 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 	}
 	else
 	{
-		BOOST_CHECK_THROW( TPlanarMesh::setPointHandle( e, 0 ), std::runtime_error );
-		BOOST_CHECK_THROW( TPlanarMesh::setEdgeHandle( e, 0 ), std::runtime_error );
-		BOOST_CHECK_THROW( TPlanarMesh::setFaceHandle( e, 0 ), std::runtime_error );
+		LASS_TEST_CHECK_THROW( TPlanarMesh::setPointHandle( e, 0 ), std::runtime_error );
+		LASS_TEST_CHECK_THROW( TPlanarMesh::setEdgeHandle( e, 0 ), std::runtime_error );
+		LASS_TEST_CHECK_THROW( TPlanarMesh::setFaceHandle( e, 0 ), std::runtime_error );
 	}
 
 	return true;
@@ -122,8 +122,7 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 
 void doTestPlanarMesh()
 {
-	BOOST_WARN_MESSAGE( false, "PlanarMesh: Only the double typename is tested, due to broken compiler support!");
-	BOOST_MESSAGE("testing lass::spat::PlanarMesh<> ...");
+#pragma LASS_FIXME("PlanarMesh: Only the double typename is tested, due to broken compiler support!")
 	using namespace spat;
 
 	typedef PlanarMesh<TestType, int, int, int >    TPlanarMesh;
@@ -141,7 +140,7 @@ void doTestPlanarMesh()
 	if ( TPlanarMesh::inDualMesh( e ) )
 		e = e->rot();
 
-	BOOST_CHECK_EQUAL( e, e->lNext()->lNext()->lNext() );
+	LASS_TEST_CHECK_EQUAL( e, e->lNext()->lNext()->lNext() );
 
 	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 
@@ -227,7 +226,7 @@ void doTestPlanarMesh()
 	countFaces = countCalls;
 
 	/* check euler relation */
-	BOOST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
+	LASS_TEST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
 
 	TPlanarMesh     testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 

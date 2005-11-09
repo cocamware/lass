@@ -59,52 +59,40 @@ void testUtilDictionary()
 	dictionary.add("ham", fbHam);
 	dictionary.setDefault("invalid", fbInvalid);
 
-	BOOST_CHECK_EQUAL(dictionary["eggs"], int(fbEggs));
-	BOOST_CHECK_EQUAL(dictionary["spam"], int(fbSpam));
-	BOOST_CHECK_EQUAL(dictionary["ham"], int(fbHam));
-	BOOST_CHECK_EQUAL(dictionary["foobar"], int(fbInvalid));
+	LASS_TEST_CHECK_EQUAL(dictionary["eggs"], int(fbEggs));
+	LASS_TEST_CHECK_EQUAL(dictionary["spam"], int(fbSpam));
+	LASS_TEST_CHECK_EQUAL(dictionary["ham"], int(fbHam));
+	LASS_TEST_CHECK_EQUAL(dictionary["foobar"], int(fbInvalid));
 
-	BOOST_CHECK_EQUAL(dictionary.key(fbEggs), "eggs");
-	BOOST_CHECK_EQUAL(dictionary.key(fbSpam), "spam");
-	BOOST_CHECK_EQUAL(dictionary.key(fbHam), "ham");
-	BOOST_CHECK_EQUAL(dictionary.key(666), "invalid");
+	LASS_TEST_CHECK_EQUAL(dictionary.key(fbEggs), "eggs");
+	LASS_TEST_CHECK_EQUAL(dictionary.key(fbSpam), "spam");
+	LASS_TEST_CHECK_EQUAL(dictionary.key(fbHam), "ham");
+	LASS_TEST_CHECK_EQUAL(dictionary.key(666), "invalid");
 
-	boost::test_toolbox::output_test_stream stream;
-	stream << dictionary.keys();
-	BOOST_CHECK(stream.is_equal("{eggs, ham, spam}"));
-	stream << dictionary.values();
-	BOOST_CHECK(stream.is_equal("{1, 2, 3}"));
+	LASS_TEST_CHECK_LEXICAL(dictionary.keys(), "{eggs, ham, spam}");
+	LASS_TEST_CHECK_LEXICAL(dictionary.values(), "{1, 2, 3}");
 
 	dictionary.add("EGGS", fbEggs);
-	BOOST_CHECK_EQUAL(dictionary["eggs"], int(fbEggs));
-	BOOST_CHECK_EQUAL(dictionary["EGGS"], int(fbEggs));
-	BOOST_CHECK(dictionary.key(fbEggs) == "eggs" || dictionary.key(fbEggs) == "EGGS");
-	stream << dictionary.keys();
-	BOOST_CHECK(stream.is_equal("{EGGS, eggs, ham, spam}"));
-	stream << dictionary.keys(fbEggs);
-	BOOST_CHECK(stream.is_equal("{EGGS, eggs}"));
-	stream << dictionary.values();
-	BOOST_CHECK(stream.is_equal("{1, 2, 3}"));
+	LASS_TEST_CHECK_EQUAL(dictionary["eggs"], int(fbEggs));
+	LASS_TEST_CHECK_EQUAL(dictionary["EGGS"], int(fbEggs));
+	LASS_TEST_CHECK(dictionary.key(fbEggs) == "eggs" || dictionary.key(fbEggs) == "EGGS");
+	LASS_TEST_CHECK_LEXICAL(dictionary.keys(), "{EGGS, eggs, ham, spam}");
+	LASS_TEST_CHECK_LEXICAL(dictionary.keys(fbEggs), "{EGGS, eggs}");
+	LASS_TEST_CHECK_LEXICAL(dictionary.values(), "{1, 2, 3}");
 
 	dictionary.remove("EGGS", fbEggs);
-	stream << dictionary.keys();
-	BOOST_CHECK(stream.is_equal("{eggs, ham, spam}"));
+	LASS_TEST_CHECK_LEXICAL(util::stringCast<std::string>(dictionary.keys()), "{eggs, ham, spam}");
 
 	dictionary.add("eggs", 12);
-	BOOST_CHECK(dictionary["eggs"] == fbEggs || dictionary["eggs"] == 12);
-	BOOST_CHECK_EQUAL(dictionary.key(fbEggs), "eggs");
-	BOOST_CHECK_EQUAL(dictionary.key(12), "eggs");
-	stream << dictionary.keys();
-	BOOST_CHECK(stream.is_equal("{eggs, ham, spam}"));
-	stream << dictionary.values();
-	BOOST_CHECK(stream.is_equal("{1, 2, 3, 12}"));
-	stream << dictionary.values("eggs");
-	BOOST_CHECK(stream.is_equal("{1, 12}"));
+	LASS_TEST_CHECK(dictionary["eggs"] == fbEggs || dictionary["eggs"] == 12);
+	LASS_TEST_CHECK_EQUAL(dictionary.key(fbEggs), "eggs");
+	LASS_TEST_CHECK_EQUAL(dictionary.key(12), "eggs");
+	LASS_TEST_CHECK_LEXICAL(dictionary.keys(), "{eggs, ham, spam}");
+	LASS_TEST_CHECK_LEXICAL(dictionary.values(), "{1, 2, 3, 12}");
+	LASS_TEST_CHECK_LEXICAL(dictionary.values("eggs"), "{1, 12}");
 
 	dictionary.remove("eggs", 12);
-	stream << dictionary.values();
-	BOOST_CHECK(stream.is_equal("{1, 2, 3}"));
-
+	LASS_TEST_CHECK_LEXICAL(dictionary.values(), "{1, 2, 3}");
 }
 
 }

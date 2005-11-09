@@ -33,9 +33,9 @@
 #include "test_common.h"
 
 #ifdef _DEBUG
-#	define LASS_CHECK_THROW_IN_DEBUG(x, e) BOOST_CHECK_THROW(x, e)
+#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_THROW(x, e)
 #else
-#	define LASS_CHECK_THROW_IN_DEBUG(x, e) BOOST_CHECK_NO_THROW(x)
+#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_NO_THROW(x)
 #endif
 
 namespace lass
@@ -45,19 +45,19 @@ namespace test
 
 void testUtilException()
 {
-	BOOST_CHECK_NO_THROW(
+	LASS_TEST_CHECK_NO_THROW(
 		try
 		{
 			LASS_THROW("this is a lass exception");
 		}
 		catch (util::Exception& lassException)
 		{
-			BOOST_CHECK_EQUAL(lassException.message(), lassException.what());
+			LASS_TEST_CHECK_EQUAL(lassException.message(), lassException.what());
 		}
 	);
 
-	BOOST_CHECK_THROW(LASS_THROW("this is a lass exception"), util::Exception);
-	BOOST_CHECK_THROW(LASS_THROW("this is a lass exception"), std::exception);
+	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), util::Exception);
+	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), std::exception);
 
 }
 

@@ -58,31 +58,31 @@ void testUtilThreadFun()
 	thread_test::functionIsCalled = false;
 	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::THREAD_JOINABLE));
 	thread->wait();
-	BOOST_CHECK(thread_test::functionIsCalled);
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::Bar bar;
 
 	thread_test::functionIsCalled = false;
 	thread.reset(util::threadMemFun(&bar, thread_test::Bar::spam, util::THREAD_JOINABLE));
 	thread->wait();
-	BOOST_CHECK(thread_test::functionIsCalled);
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::functionIsCalled = false;
 	thread.reset(util::threadMemFun(&bar, thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
 	thread->wait();
-	BOOST_CHECK(thread_test::functionIsCalled);
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::functionIsCalled = false;
 	thread.reset(util::threadFun(util::makeCallback(&bar, thread_test::Bar::ham), 3, util::THREAD_JOINABLE));
 	thread->wait();
-	BOOST_CHECK(thread_test::functionIsCalled);
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 
 	thread_test::functionIsCalled = false;
 	util::threadFun(thread_test::eggs);
-	BOOST_CHECK(!thread_test::functionIsCalled);
+	LASS_TEST_CHECK(!thread_test::functionIsCalled);
 	Sleep(100);
-	BOOST_CHECK(thread_test::functionIsCalled);
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 }
 
 }

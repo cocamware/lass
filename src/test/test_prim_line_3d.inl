@@ -53,49 +53,49 @@ void testPrimLine3D()
 	const bool isNormalized = meta::IsSameType<NormalizingPolicy, prim::Normalized>::value;
 
 	TLine line;
-	BOOST_CHECK(!line.isValid());
+	LASS_TEST_CHECK(!line.isValid());
 
 	TPoint support(64, 37, 18);
 	TVector direction(15, 59, 67);
 	line = TLine(support, direction);
-	BOOST_CHECK(line.isValid());
-	BOOST_CHECK_EQUAL(line.support(), support);
-	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK(line.isValid());
+	LASS_TEST_CHECK_EQUAL(line.support(), support);
+	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
 	support = TPoint(68, 46, 30);
 	line.support() = support;
-	BOOST_CHECK_EQUAL(line.support(), support);
-	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(line.support(), support);
+	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
 	direction = TVector(38, 73, 68);
 	line.setDirection(direction);
-	BOOST_CHECK_EQUAL(line.support(), support);
-	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(line.support(), support);
+	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
 
 	TPoint lookAt(86, 15, 69);
 	line = TLine(support, lookAt);
-	BOOST_CHECK_EQUAL(line.support(), support);
-	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(line.support(), support);
+	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
 	lookAt = TPoint(24, 93, 78);
 	line.lookAt(lookAt);
-	BOOST_CHECK_EQUAL(line.support(), support);
-	BOOST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(line.support(), support);
+	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
 	TPoint p(83, 74, 38);
 	TPoint v(36, 91, 23);
-	LASS_CLOSE_VECTOR(line.project(p) + line.reject(p), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(line.project(v) + line.reject(v), v, 100 * epsilon);
-	LASS_CLOSE_VECTOR(line.reflect(line.reflect(p)), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(line.reflect(line.reflect(v)), v, 100 * epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.project(p) + line.reject(p), p, epsilon, 3);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.project(v) + line.reject(v), v, epsilon, 3);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.reflect(line.reflect(p)), p, epsilon, 3);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.reflect(line.reflect(v)), v, epsilon, 3);
 
-	BOOST_CHECK_EQUAL(line.point(T(0)), line.support());
-	BOOST_CHECK_EQUAL(line.point(T(1)), line.support() + line.direction());
-	BOOST_CHECK_EQUAL(line.point(T(-1)), line.support() - line.direction());
-	BOOST_CHECK_EQUAL(line.t(line.support()), T(0));
-	BOOST_CHECK_CLOSE(line.t(line.support() + line.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(line.t(line.support() - line.direction()), T(-1), 100 * epsilon);
-	LASS_CLOSE_VECTOR(line.project(p), line.point(line.t(p)), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(line.point(T(0)), line.support());
+	LASS_TEST_CHECK_EQUAL(line.point(T(1)), line.support() + line.direction());
+	LASS_TEST_CHECK_EQUAL(line.point(T(-1)), line.support() - line.direction());
+	LASS_TEST_CHECK_EQUAL(line.t(line.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(line.t(line.support() + line.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(line.t(line.support() - line.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.project(p), line.point(line.t(p)), epsilon, 3);
 }
 
 }

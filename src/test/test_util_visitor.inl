@@ -121,9 +121,9 @@ void testUtilVisitor()
 	TestVisitor visitor;
 	root.accept(visitor);
 
-	BOOST_CHECK_EQUAL(visitor.docElements_, 1);
-	BOOST_CHECK_EQUAL(visitor.paragraphs_, 3);
-	BOOST_CHECK_EQUAL(visitor.lists_, 2);
+	LASS_TEST_CHECK_EQUAL(visitor.docElements_, 1);
+	LASS_TEST_CHECK_EQUAL(visitor.paragraphs_, 3);
+	LASS_TEST_CHECK_EQUAL(visitor.lists_, 2);
 }
 
 

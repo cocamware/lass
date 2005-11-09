@@ -56,15 +56,15 @@ bool safe_equal(const Container1& iA, const Container2& iB)
 
 void testStdeExtendedIo()
 {
-	boost::test_toolbox::output_test_stream stream;
+	TestStream stream;
 	std::stringstream buffer;
 
 	typedef std::pair<int, std::string> TPair;
 	TPair pair(1, "spam & ham");
 	const std::string& pairString = "(1, spam & ham)";
 	stream << pair;
-	BOOST_CHECK(stream.is_equal(pairString));
-	BOOST_CHECK_EQUAL(util::stringCast<TPair>(pairString), pair);
+	LASS_TEST_CHECK(stream.isEqual(pairString));
+	LASS_TEST_CHECK_EQUAL(util::stringCast<TPair>(pairString), pair);
 
 	const std::string& sequencePattern = "[foo, bar, spam & ham]";
 
@@ -74,10 +74,36 @@ void testStdeExtendedIo()
 	vector.push_back("bar");
 	vector.push_back("spam & ham");
 	stream << vector;
-	BOOST_CHECK(stream.is_equal(sequencePattern));
+	LASS_TEST_CHECK(stream.isEqual(sequencePattern));
 	TVector vector2;
-	BOOST_CHECK_NO_THROW(vector2 = util::stringCast<TVector>(sequencePattern));
-	BOOST_CHECK(extended_io::safe_equal(vector, vector2));
+	//LASS_TEST_CHECK_NO_THROW(vector2 = util::stringCast<TVector>(sequencePattern));
+		do 
+	{
+		try 
+		{ 
+			vector2 = util::stringCast<TVector>(sequencePattern); 
+		} 
+		catch (const ::lass::util::Exception& error)
+		{ 
+			++::lass::test::impl::errors(); 
+			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::lass::util::Exception" << " (" << error.what() << ")." << std::endl; 
+			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::lass::util::Exception" << " (" << error.what() << ")." << std::endl; 
+		} 
+		catch (const ::std::exception& error) 
+		{ 
+			++::lass::test::impl::errors(); 
+			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::std::exception" << " (" << error.what() << ")." << std::endl; 
+			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::std::exception" << " (" << error.what() << ")." << std::endl; 
+		} 
+		catch (...) 
+		{ 
+			++::lass::test::impl::errors(); 
+			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": unknown exception." << std::endl; 
+			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": unknown exception." << std::endl; 
+		} 
+	} 
+	while (false);
+	LASS_TEST_CHECK(extended_io::safe_equal(vector, vector2));
 
 	typedef std::list<std::string> TList;
 	TList list;
@@ -85,10 +111,10 @@ void testStdeExtendedIo()
 	list.push_back("bar");
 	list.push_back("spam & ham");
 	stream << list;
-	BOOST_CHECK(stream.is_equal(sequencePattern));
+	LASS_TEST_CHECK(stream.isEqual(sequencePattern));
 	TList list2;
-	BOOST_CHECK_NO_THROW(list2 = util::stringCast<TList>(sequencePattern));
-	BOOST_CHECK(extended_io::safe_equal(list, list2));
+	LASS_TEST_CHECK_NO_THROW(list2 = util::stringCast<TList>(sequencePattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(list, list2));
 
 	typedef std::deque<std::string> TDeque;
 	TDeque deque;
@@ -96,10 +122,10 @@ void testStdeExtendedIo()
 	deque.push_back("bar");
 	deque.push_back("spam & ham");
 	stream << deque;
-	BOOST_CHECK(stream.is_equal(sequencePattern));
+	LASS_TEST_CHECK(stream.isEqual(sequencePattern));
 	TDeque deque2;
-	BOOST_CHECK_NO_THROW(deque2 = util::stringCast<TDeque>(sequencePattern));
-	BOOST_CHECK(extended_io::safe_equal(deque, deque2));
+	LASS_TEST_CHECK_NO_THROW(deque2 = util::stringCast<TDeque>(sequencePattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(deque, deque2));
 
 	const std::string mapPattern = "{bar: 2, foo: 1, spam: 3}"; // alphabetic!
 	typedef std::map<std::string, int> TMap;
@@ -108,10 +134,10 @@ void testStdeExtendedIo()
 	map["bar"] = 2;
 	map["spam"] = 3;
 	stream << map;
-	BOOST_CHECK(stream.is_equal(mapPattern));
+	LASS_TEST_CHECK(stream.isEqual(mapPattern));
 	TMap map2;
-	BOOST_CHECK_NO_THROW(map2 = util::stringCast<TMap>(mapPattern));
-	BOOST_CHECK(extended_io::safe_equal(map, map2));
+	LASS_TEST_CHECK_NO_THROW(map2 = util::stringCast<TMap>(mapPattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(map, map2));
 
 	const std::string multimapPattern = "{bar: 2, foo: 1, foo: 3}";
 	typedef std::multimap<std::string, int> TMultimap;
@@ -120,10 +146,10 @@ void testStdeExtendedIo()
 	multimap.insert(std::pair<std::string, int>("bar", 2));
 	multimap.insert(std::pair<std::string, int>("foo", 3));
 	stream << multimap;
-	BOOST_CHECK(stream.is_equal(multimapPattern)); // alphabetic!
+	LASS_TEST_CHECK(stream.isEqual(multimapPattern)); // alphabetic!
 	TMultimap multimap2;
-	BOOST_CHECK_NO_THROW(multimap2 = util::stringCast<TMultimap>(multimapPattern));
-	BOOST_CHECK(extended_io::safe_equal(multimap, multimap2));
+	LASS_TEST_CHECK_NO_THROW(multimap2 = util::stringCast<TMultimap>(multimapPattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(multimap, multimap2));
 
 	const std::string setPattern = "{bar, foo, spam}";
 	typedef std::set<std::string> TSet;
@@ -132,10 +158,10 @@ void testStdeExtendedIo()
 	set.insert("bar");
 	set.insert("spam");
 	stream << set;
-	BOOST_CHECK(stream.is_equal(setPattern)); // alphabetic!
+	LASS_TEST_CHECK(stream.isEqual(setPattern)); // alphabetic!
 	TSet set2;
-	BOOST_CHECK_NO_THROW(set2 = util::stringCast<TSet>(setPattern));
-	BOOST_CHECK(extended_io::safe_equal(set, set2));
+	LASS_TEST_CHECK_NO_THROW(set2 = util::stringCast<TSet>(setPattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(set, set2));
 
 	const std::string multisetPattern = "{bar, foo, foo}";
 	typedef std::multiset<std::string> TMultiset;
@@ -144,10 +170,10 @@ void testStdeExtendedIo()
 	multiset.insert("bar");
 	multiset.insert("foo");
 	stream << multiset;
-	BOOST_CHECK(stream.is_equal(multisetPattern)); // alphabetic!
+	LASS_TEST_CHECK(stream.isEqual(multisetPattern)); // alphabetic!
 	TMultiset multiset2;
-	BOOST_CHECK_NO_THROW(multiset2 = util::stringCast<TMultiset>(multisetPattern));
-	BOOST_CHECK(extended_io::safe_equal(multiset, multiset2));
+	LASS_TEST_CHECK_NO_THROW(multiset2 = util::stringCast<TMultiset>(multisetPattern));
+	LASS_TEST_CHECK(extended_io::safe_equal(multiset, multiset2));
 
 #ifdef _STLP_SLIST
 	std::slist<int> slist;
@@ -155,7 +181,7 @@ void testStdeExtendedIo()
 	slist.push_back(2);
 	slist.push_back(3);
 	stream << slist;
-	BOOST_CHECK(stream.is_equal("[1, 2, 3]"));
+	LASS_TEST_CHECK(stream.isEqual("[1, 2, 3]"));
 #endif
 
 }

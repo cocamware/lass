@@ -40,7 +40,7 @@ namespace test
 
 void testStdeCompose()
 {
-	boost::test_toolbox::output_test_stream stream;
+	TestStream stream;
 
 	std::vector<int> a, b;
 	for (int i = 0; i < 5; ++i)
@@ -52,7 +52,7 @@ void testStdeCompose()
 			std::negate<int>(),
 			std::bind2nd(std::multiplies<int>(), 2)));	
 	stream << b;
-	BOOST_CHECK(stream.is_equal("[0, -2, -4, -6, -8]"));
+	LASS_TEST_CHECK(stream.isEqual("[0, -2, -4, -6, -8]"));
 
 	typedef std::pair<int, int> pair_type;
 	std::vector<pair_type> c;
@@ -67,7 +67,7 @@ void testStdeCompose()
 			stde::select_1st<pair_type>(),
 			stde::select_2nd<pair_type>()));
 	stream << d;
-	BOOST_CHECK(stream.is_equal("[0, 11, 22, 33, 44]"));
+	LASS_TEST_CHECK(stream.isEqual("[0, 11, 22, 33, 44]"));
 }
 
 }

@@ -42,48 +42,48 @@ void testIoFileAttributes()
 	test << "foobar";
 	test.close();
 
-	BOOST_CHECK_EQUAL(io::fileDoesExist("this_file_does_exist"), true);
-	BOOST_CHECK_EQUAL(io::fileDoesExist("this_file_does_not_exist"), false);
+	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_exist"), true);
+	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_not_exist"), false);
 
-	BOOST_CHECK_EQUAL(io::fileExtension(""), "");
-	BOOST_CHECK_EQUAL(io::fileExtension("foo"), "");
-	BOOST_CHECK_EQUAL(io::fileExtension("foo."), "");
-	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar"), "bar");
-	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar."), "");
-	BOOST_CHECK_EQUAL(io::fileExtension("foo.bar.fun"), "fun");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension(""), "");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo"), "");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo."), "");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo.bar"), "bar");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo.bar."), "");
+	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo.bar.fun"), "fun");
 
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension(""), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo"), "foo");
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo."), "foo");
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar"), "foo");
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar."), "foo.bar");
-	BOOST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar.fun"), "foo.bar");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension(""), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo."), "foo");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar."), "foo.bar");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar.fun"), "foo.bar");
 
-	BOOST_CHECK_EQUAL(io::filePath(""), "");
-	BOOST_CHECK_EQUAL(io::filePath("foo"), "");
-	BOOST_CHECK_EQUAL(io::filePath("foo/"), "foo");
-	BOOST_CHECK_EQUAL(io::filePath("foo/bar"), "foo");
-	BOOST_CHECK_EQUAL(io::filePath("foo/bar/"), "foo/bar");
-	BOOST_CHECK_EQUAL(io::filePath("foo/bar/fun"), "foo/bar");
-	BOOST_CHECK_EQUAL(io::filePath(""), "");
-	BOOST_CHECK_EQUAL(io::filePath("foo"), "");
-	BOOST_CHECK_EQUAL(io::filePath("foo\\"), "foo");
-	BOOST_CHECK_EQUAL(io::filePath("foo\\bar"), "foo");
-	BOOST_CHECK_EQUAL(io::filePath("foo\\bar\\"), "foo\\bar");
-	BOOST_CHECK_EQUAL(io::filePath("foo\\bar\\fun"), "foo\\bar");
+	LASS_TEST_CHECK_EQUAL(io::filePath(""), "");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo"), "");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo/"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar/"), "foo/bar");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar/fun"), "foo/bar");
+	LASS_TEST_CHECK_EQUAL(io::filePath(""), "");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo"), "");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar\\"), "foo\\bar");
+	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar\\fun"), "foo\\bar");
 
-	BOOST_CHECK_EQUAL(io::fileWithoutPath(""), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/"), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar"), "bar");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/"), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/fun"), "fun");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath(""), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\"), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar"), "bar");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\"), "");
-	BOOST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\fun"), "fun");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath(""), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/"), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar"), "bar");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/"), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/fun"), "fun");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath(""), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\"), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar"), "bar");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\"), "");
+	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\fun"), "fun");
 }
 
 }

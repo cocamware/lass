@@ -98,7 +98,7 @@ void testSpatKdTree()
 		// kd tree nearest
 		TPoint kdTreeNearest = tree.nearestNeighbour(target).position();
 
-		BOOST_CHECK_EQUAL(kdTreeNearest, naiveNearest);
+		LASS_TEST_CHECK_EQUAL(kdTreeNearest, naiveNearest);
 	}
 }
 

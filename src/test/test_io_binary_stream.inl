@@ -60,8 +60,8 @@ void testIoBinaryStream()
 	testI >> t;
 	testI >> tstr;
 
-	BOOST_CHECK_EQUAL(t, a);
-	BOOST_CHECK_EQUAL(tstr, b);
+	LASS_TEST_CHECK_EQUAL(t, a);
+	LASS_TEST_CHECK_EQUAL(tstr, b);
 	}
 }
 

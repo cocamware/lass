@@ -38,20 +38,20 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testMeta()
+TUnitTests testMeta()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::meta test suite");
+	TUnitTests result;
 
 	// test meta assert (if you're curious, try change the expression 1 + 1 == 2 into something
 	// false like 1 + 1 == 3, and see what happens =) BdG]
 	//
 	LASS_META_ASSERT(1 + 1 == 2, it_s_the_end_of_the_world);
 
-	result->add(BOOST_TEST_CASE(testMetaTypeList));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<int>));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<float>));
-	result->add(BOOST_TEST_CASE(testMetaTypeTraits<std::string>));
-	result->add(BOOST_TEST_CASE(testMetaIsConvertibleType));
+	result.push_back(LASS_UNIT_TEST(testMetaTypeList));
+	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<int>));
+	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<float>));
+	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<std::string>));
+	result.push_back(LASS_UNIT_TEST(testMetaIsConvertibleType));
 
 	return result;
 }

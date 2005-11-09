@@ -51,11 +51,11 @@ void testStdeSmallObjectAllocator()
 	list_type::const_iterator i = list.begin();
 	for (int k = 0; k < n; ++k)
 	{
-		BOOST_CHECK(i != list.end());
-		BOOST_CHECK_EQUAL(*i, k);
+		LASS_TEST_CHECK(i != list.end());
+		LASS_TEST_CHECK_EQUAL(*i, k);
 		++i;
 	}
-	BOOST_CHECK(i == list.end());
+	LASS_TEST_CHECK(i == list.end());
 }
 
 }

@@ -46,22 +46,22 @@ template <typename T> void testPrimPoint2D()
 	using namespace prim;
 
 	Point2D<T> p;
-	BOOST_CHECK(p.isZero());
+	LASS_TEST_CHECK(p.isZero());
 
 	Vector2D<T> a(1, 2);
 	Vector2D<T> b(4, 5);
 
 	p = Point2D<T>(a.x, a.y);
-	BOOST_CHECK_EQUAL(p.position(), a);
-	BOOST_CHECK_EQUAL(p.x, a.x);
-	BOOST_CHECK_EQUAL(p.y, a.y);
+	LASS_TEST_CHECK_EQUAL(p.position(), a);
+	LASS_TEST_CHECK_EQUAL(p.x, a.x);
+	LASS_TEST_CHECK_EQUAL(p.y, a.y);
 
 	Point2D<T> q(b);
-	BOOST_CHECK_EQUAL(q.position(), b);
+	LASS_TEST_CHECK_EQUAL(q.position(), b);
 
-	BOOST_CHECK_EQUAL(distance(p, q), (a - b).norm());
-	BOOST_CHECK_EQUAL((p + b).position(), a + b);
-	BOOST_CHECK((q - b).isZero());
+	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
+	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
+	LASS_TEST_CHECK((q - b).isZero());
 }
 
 
@@ -71,23 +71,23 @@ template <typename T> void testPrimPoint3D()
 	using namespace prim;
 
 	Point3D<T> p;
-	BOOST_CHECK(p.isZero());
+	LASS_TEST_CHECK(p.isZero());
 
 	Vector3D<T> a(1, 2, 3);
 	Vector3D<T> b(4, 5, 6);
 
 	p = Point3D<T>(a.x, a.y, a.z);
-	BOOST_CHECK_EQUAL(p.position(), a);
-	BOOST_CHECK_EQUAL(p.x, a.x);
-	BOOST_CHECK_EQUAL(p.y, a.y);
-	BOOST_CHECK_EQUAL(p.z, a.z);
+	LASS_TEST_CHECK_EQUAL(p.position(), a);
+	LASS_TEST_CHECK_EQUAL(p.x, a.x);
+	LASS_TEST_CHECK_EQUAL(p.y, a.y);
+	LASS_TEST_CHECK_EQUAL(p.z, a.z);
 
 	Point3D<T> q(b);
-	BOOST_CHECK_EQUAL(q.position(), b);
+	LASS_TEST_CHECK_EQUAL(q.position(), b);
 
-	BOOST_CHECK_EQUAL(distance(p, q), (a - b).norm());
-	BOOST_CHECK_EQUAL((p + b).position(), a + b);
-	BOOST_CHECK((q - b).isZero());
+	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
+	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
+	LASS_TEST_CHECK((q - b).isZero());
 }
 
 

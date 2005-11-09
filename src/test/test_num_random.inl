@@ -43,12 +43,12 @@ void testNumRandomMersenne()
 {
 	// we use a test file provided by the mersenne twister authors.
 	//
-	boost::test_toolbox::output_test_stream output("mt19937ar.out");
+	TestStream output("mt19937ar.out");
 
 	// just something in the file
 	//
 	output << "1000 outputs of genrand_int32()\n";
-	BOOST_CHECK(output.match_pattern());
+	LASS_TEST_CHECK(output.matchPattern());
 
 	// initialize the generator with an array of 4 values
 	//
@@ -64,7 +64,7 @@ void testNumRandomMersenne()
 		}
 		output << "\n";
 	}
-	BOOST_CHECK(output.match_pattern());
+	LASS_TEST_CHECK(output.matchPattern());
 }
 
 
@@ -89,14 +89,14 @@ void testNumDistributions()
 	for (i = 0; i < testSize; ++i)
 	{
 		const TValue draw = distUnitUniform();
-		BOOST_CHECK(draw > 0 && draw < 1);
+		LASS_TEST_CHECK(draw > 0 && draw < 1);
 		mean += draw;
 		variance += draw * draw;
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK_CLOSE(mean, 0.5, 100 * tolerance);
-	BOOST_CHECK_CLOSE(variance, 1. / 12., 100 * tolerance);
+	LASS_TEST_CHECK_CLOSE(mean, 0.5, tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 1. / 12., tolerance);
 
 	// uniform distribution
 	//
@@ -111,8 +111,8 @@ void testNumDistributions()
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK_CLOSE(mean, 50., 100 * tolerance);
-	BOOST_CHECK_CLOSE(variance, 300. * 300. / 12., 100 * tolerance);
+	LASS_TEST_CHECK_CLOSE(mean, 50., tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 300. * 300. / 12., tolerance);
 
 	// unit exponential distribution
 	//
@@ -127,8 +127,8 @@ void testNumDistributions()
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK_CLOSE(mean, 1., 100 * tolerance);
-	BOOST_CHECK_CLOSE(variance, 1., 100 * tolerance);
+	LASS_TEST_CHECK_CLOSE(mean, 1., tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 1., tolerance);
 
 	// exponential distribution
 	//
@@ -143,8 +143,8 @@ void testNumDistributions()
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK_CLOSE(mean, 1. / 100., 100 * tolerance);
-	BOOST_CHECK_CLOSE(variance, 1. / (100. * 100.), 100 * tolerance);
+	LASS_TEST_CHECK_CLOSE(mean, 1. / 100., tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 1. / (100. * 100.), tolerance);
 
 	// normal distribution
 	//
@@ -159,8 +159,8 @@ void testNumDistributions()
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK(mean < tolerance);
-	BOOST_CHECK_CLOSE(variance, 1., 100 * tolerance);
+	LASS_TEST_CHECK(mean < tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 1., tolerance);
 
 	// normal distribution
 	//
@@ -175,8 +175,8 @@ void testNumDistributions()
 	}
 	mean /= testSize;
 	variance = variance / testSize - mean * mean;
-	BOOST_CHECK_CLOSE(mean, 200., 100 * tolerance);
-	BOOST_CHECK_CLOSE(variance, 100. * 100., 100 * tolerance);
+	LASS_TEST_CHECK_CLOSE(mean, 200., tolerance);
+	LASS_TEST_CHECK_CLOSE(variance, 100. * 100., tolerance);
 }
 
 

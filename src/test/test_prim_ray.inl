@@ -60,50 +60,50 @@ void testPrimRay2D()
 	const bool isBounded = meta::IsSameType<ParameterPolicy, prim::Bounded>::value;
 
 	TRay ray;
-	BOOST_CHECK(!ray.isValid());
+	LASS_TEST_CHECK(!ray.isValid());
 
 	TPoint support(64, 37);
 	TVector direction(15, 59);
 	ray = TRay(support, direction);
-	BOOST_CHECK(ray.isValid());
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK(ray.isValid());
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	support = TPoint(68, 46);
 	ray.support() = support;
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	direction = TVector(38, 73);
 	ray.setDirection(direction);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	TPoint lookAt(86, 15);
 	ray = TRay(support, lookAt);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
 	lookAt = TPoint(24, 93);
 	ray.lookAt(lookAt);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
-	BOOST_CHECK_EQUAL(ray.point(T(0)), ray.support());
-	BOOST_CHECK_EQUAL(ray.point(T(1)), ray.support() + ray.direction());
+	LASS_TEST_CHECK_EQUAL(ray.point(T(0)), ray.support());
+	LASS_TEST_CHECK_EQUAL(ray.point(T(1)), ray.support() + ray.direction());
 	if (isBounded)
 	{
-		BOOST_CHECK_THROW(ray.point(T(-1)), util::Exception);
+		LASS_TEST_CHECK_THROW(ray.point(T(-1)), util::Exception);
 	}
 	else
 	{
-		BOOST_CHECK_NO_THROW(ray.point(T(-1)));
-		BOOST_CHECK_EQUAL(ray.point(T(-1)), ray.support() - ray.direction());
+		LASS_TEST_CHECK_NO_THROW(ray.point(T(-1)));
+		LASS_TEST_CHECK_EQUAL(ray.point(T(-1)), ray.support() - ray.direction());
 	}
-	BOOST_CHECK_EQUAL(ray.t(ray.support()), T(0));
-	BOOST_CHECK_CLOSE(ray.t(ray.support() + ray.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(ray.t(ray.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() + ray.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
 }
 
 template
@@ -124,50 +124,50 @@ void testPrimRay3D()
 	const bool isBounded = meta::IsSameType<ParameterPolicy, prim::Bounded>::value;
 
 	TRay ray;
-	BOOST_CHECK(!ray.isValid());
+	LASS_TEST_CHECK(!ray.isValid());
 
 	TPoint support(64, 37, 18);
 	TVector direction(15, 59, 67);
 	ray = TRay(support, direction);
-	BOOST_CHECK(ray.isValid());
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK(ray.isValid());
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	support = TPoint(68, 46, 30);
 	ray.support() = support;
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	direction = TVector(38, 73, 68);
 	ray.setDirection(direction);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
 
 	TPoint lookAt(86, 15, 69);
 	ray = TRay(support, lookAt);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
 	lookAt = TPoint(24, 93, 78);
 	ray.lookAt(lookAt);
-	BOOST_CHECK_EQUAL(ray.support(), support);
-	BOOST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
+	LASS_TEST_CHECK_EQUAL(ray.support(), support);
+	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? (lookAt - support).normal() : (lookAt - support));
 
-	BOOST_CHECK_EQUAL(ray.point(T(0)), ray.support());
-	BOOST_CHECK_EQUAL(ray.point(T(1)), ray.support() + ray.direction());
+	LASS_TEST_CHECK_EQUAL(ray.point(T(0)), ray.support());
+	LASS_TEST_CHECK_EQUAL(ray.point(T(1)), ray.support() + ray.direction());
 	if (isBounded)
 	{
-		BOOST_CHECK_THROW(ray.point(T(-1)), util::Exception);
+		LASS_TEST_CHECK_THROW(ray.point(T(-1)), util::Exception);
 	}
 	else
 	{
-		BOOST_CHECK_NO_THROW(ray.point(T(-1)));
-		BOOST_CHECK_EQUAL(ray.point(T(-1)), ray.support() - ray.direction());
+		LASS_TEST_CHECK_NO_THROW(ray.point(T(-1)));
+		LASS_TEST_CHECK_EQUAL(ray.point(T(-1)), ray.support() - ray.direction());
 	}
-	BOOST_CHECK_EQUAL(ray.t(ray.support()), T(0));
-	BOOST_CHECK_CLOSE(ray.t(ray.support() + ray.direction()), T(1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), 100 * epsilon);
-	BOOST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(ray.t(ray.support()), T(0));
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() + ray.direction()), T(1), epsilon);
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
+	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
 }
 
 }

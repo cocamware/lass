@@ -36,7 +36,7 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testStde();
+TUnitTests testStde();
 
 }
 
@@ -46,6 +46,9 @@ boost::unit_test_framework::test_suite* testStde();
 
 /*
  * $Log$
+ * Revision 1.2  2005/02/14 16:42:58  bramz
+ * - fixing tabs
+ *
  * Revision 1.1.1.2  2004/09/06 18:50:35  tomdemuer
  * *** empty log message ***
  *

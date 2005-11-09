@@ -98,7 +98,8 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 			key = iBegin;
 			j = 0;
 		}
-		LASS_ASSERT(j < keySize);
+		LASS_ASSERT(static_cast<int>(keySize) >= 0);
+		LASS_ASSERT(j < static_cast<int>(keySize));
 	}
 	for (size_t k = stateSize_ - 1; k > 0; --k)
 	{

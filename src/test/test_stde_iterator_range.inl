@@ -43,11 +43,11 @@ void testStdeIteratorRange()
 	typedef stde::iterator_range<TContainer::iterator> TRange;
 
 	TRange range;
-	BOOST_CHECK(range.begin() == range.end());
-	BOOST_CHECK_EQUAL(range.size(), 0);
-	BOOST_CHECK(range.empty());
-	BOOST_CHECK(!range);
-	BOOST_CHECK(range ? false : true);
+	LASS_TEST_CHECK(range.begin() == range.end());
+	LASS_TEST_CHECK_EQUAL(range.size(), 0);
+	LASS_TEST_CHECK(range.empty());
+	LASS_TEST_CHECK(!range);
+	LASS_TEST_CHECK(range ? false : true);
 
 	TContainer container;
 	const int n = 10;
@@ -57,21 +57,21 @@ void testStdeIteratorRange()
 	}
 
 	range = TRange(container.begin(), container.end());
-	BOOST_CHECK(range.begin() == container.begin());
-	BOOST_CHECK(range.end() == container.end());
-	BOOST_CHECK_EQUAL(range.size(), n);
-	BOOST_CHECK(!range.empty());
-	BOOST_CHECK_EQUAL(!range, false);
-	BOOST_CHECK(range);
+	LASS_TEST_CHECK(range.begin() == container.begin());
+	LASS_TEST_CHECK(range.end() == container.end());
+	LASS_TEST_CHECK_EQUAL(range.size(), n);
+	LASS_TEST_CHECK(!range.empty());
+	LASS_TEST_CHECK_EQUAL(!range, false);
+	LASS_TEST_CHECK(range);
 
 	for (int i = 0; i < n; ++i)
 	{
-		BOOST_CHECK_EQUAL(range[i], i);
+		LASS_TEST_CHECK_EQUAL(range[i], i);
 	}
 
 	for (int i = 0; range; ++range, ++i)
 	{
-		BOOST_CHECK_EQUAL(*range, i);
+		LASS_TEST_CHECK_EQUAL(*range, i);
 	}
 
 	TContainer other_container;
@@ -81,14 +81,14 @@ void testStdeIteratorRange()
 	}
 	TRange other(other_container.begin(), other_container.end());
 
-	BOOST_CHECK(range == TRange());
-	BOOST_CHECK(range != other);
+	LASS_TEST_CHECK(range == TRange());
+	LASS_TEST_CHECK(range != other);
 	
 	range = other++;
-	BOOST_CHECK_EQUAL(range.size(), other.size() + 1);
+	LASS_TEST_CHECK_EQUAL(range.size(), other.size() + 1);
 	
 	range.swap(other);
-	BOOST_CHECK_EQUAL(range.size() + 1, other.size());
+	LASS_TEST_CHECK_EQUAL(range.size() + 1, other.size());
 }
 
 }

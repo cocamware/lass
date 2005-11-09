@@ -42,17 +42,17 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testStde()
+TUnitTests testStde()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::stde test suite");
+	TUnitTests result;
 
-	result->add(BOOST_TEST_CASE(testStdeCompose));
-	result->add(BOOST_TEST_CASE(testStdeExtendedIo));
-	result->add(BOOST_TEST_CASE(testStdeExtendedString));
-	result->add(BOOST_TEST_CASE(testStdeSlist));
-	result->add(BOOST_TEST_CASE(testStdeSmallObjectAllocator));
-	result->add(BOOST_TEST_CASE(testStdeStaticVector));
-	result->add(BOOST_TEST_CASE(testStdeTriple));
+	result.push_back(LASS_UNIT_TEST(testStdeCompose));
+	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
+	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
+	result.push_back(LASS_UNIT_TEST(testStdeSlist));
+	result.push_back(LASS_UNIT_TEST(testStdeSmallObjectAllocator));
+	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
+	result.push_back(LASS_UNIT_TEST(testStdeTriple));
 
 	return result;
 }

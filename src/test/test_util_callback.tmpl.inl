@@ -40,37 +40,37 @@ $(#include "../util/callback_r_$x.h"
 )$
 
 #define LASS_TEST_CALLBACK_EMPTY(callback)\
-	BOOST_CHECK_MESSAGE(callback.isEmpty(), "isEmpty() returned false on empty callback.");
+	LASS_TEST_CHECK_MESSAGE(callback.isEmpty(), "isEmpty() returned false on empty callback.");
 
 #define LASS_TEST_CALLBACK_NOT_EMPTY(callback)\
-	BOOST_CHECK_MESSAGE(!callback.isEmpty(), "isEmpty() returned true on non-empty callback.");
+	LASS_TEST_CHECK_MESSAGE(!callback.isEmpty(), "isEmpty() returned true on non-empty callback.");
 
 #define LASS_TEST_CALLBACK_CALL(expression)\
 	dispatcherIsCalled = false;\
-	BOOST_CHECK_NO_THROW(expression);\
-	BOOST_CHECK_MESSAGE(dispatcherIsCalled, "non-empty '" #expression "' didn't execute dispatcher.");
+	LASS_TEST_CHECK_NO_THROW(expression);\
+	LASS_TEST_CHECK_MESSAGE(dispatcherIsCalled, "non-empty '" #expression "' didn't execute dispatcher.");
 
 #define LASS_TEST_CALLBACK_CALL_R(expression)\
 	dispatcherIsCalled = false;\
 	{\
 		int result = 666;\
-		BOOST_CHECK_NO_THROW(result = expression);\
-		BOOST_CHECK_MESSAGE(result == 1, "non-empty '" #expression "' didn't return correct value.");\
-		BOOST_CHECK_MESSAGE(dispatcherIsCalled, "non-empty '" #expression "' didn't execute dispatcher.");\
+		LASS_TEST_CHECK_NO_THROW(result = expression);\
+		LASS_TEST_CHECK_MESSAGE(result == 1, "non-empty '" #expression "' didn't return correct value.");\
+		LASS_TEST_CHECK_MESSAGE(dispatcherIsCalled, "non-empty '" #expression "' didn't execute dispatcher.");\
 	}
 
 #define LASS_TEST_CALLBACK_EMPTY_CALL(expression)\
 	dispatcherIsCalled = false;\
-	BOOST_CHECK_NO_THROW(expression);\
-	BOOST_CHECK_MESSAGE(!dispatcherIsCalled, "empty '" #expression "' did execute dispatcher.");
+	LASS_TEST_CHECK_NO_THROW(expression);\
+	LASS_TEST_CHECK_MESSAGE(!dispatcherIsCalled, "empty '" #expression "' did execute dispatcher.");
 
 #define LASS_TEST_CALLBACK_EMPTY_CALL_R(expression)\
 	dispatcherIsCalled = false;\
 	{\
 		int result = 666;\
-		BOOST_CHECK_THROW(result = expression, util::Exception);\
-		BOOST_CHECK_MESSAGE(result != 1, "empty '" #expression "' did return value.");\
-		BOOST_CHECK_MESSAGE(!dispatcherIsCalled, "empty '" #expression "' did execute dispatcher.");\
+		LASS_TEST_CHECK_THROW(result = expression, util::Exception);\
+		LASS_TEST_CHECK_MESSAGE(result != 1, "empty '" #expression "' did return value.");\
+		LASS_TEST_CHECK_MESSAGE(!dispatcherIsCalled, "empty '" #expression "' did execute dispatcher.");\
 	}
 
 namespace
@@ -126,24 +126,24 @@ void testUtilCallback()
 	LASS_TEST_CALLBACK_EMPTY_CALL(cb0_void());
 
 	cb0_void.swap(cb0_void_free);
-	//BOOST_CHECK(cb0_void != cb0_void_free);
+	//LASS_TEST_CHECK(cb0_void != cb0_void_free);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void);
 	LASS_TEST_CALLBACK_EMPTY(cb0_void_free);
 	LASS_TEST_CALLBACK_CALL(cb0_void());
 	LASS_TEST_CALLBACK_EMPTY_CALL(cb0_void_free());
 
 	cb0_void_free = cb0_void;
-	//BOOST_CHECK(cb0_void == cb0_void_free);
+	//LASS_TEST_CHECK(cb0_void == cb0_void_free);
 	LASS_TEST_CALLBACK_CALL(cb0_void());
 	LASS_TEST_CALLBACK_CALL(cb0_void_free());
 
 	cb0_void = cb0_void_mem;
-	//BOOST_CHECK(cb0_void == cb0_void_mem);
+	//LASS_TEST_CHECK(cb0_void == cb0_void_mem);
 	LASS_TEST_CALLBACK_CALL(cb0_void());
 	LASS_TEST_CALLBACK_CALL(cb0_void_mem());
 
 	cb0_void = cb0_void_const_mem;
-	//BOOST_CHECK(cb0_void == cb0_void_const_mem);
+	//LASS_TEST_CHECK(cb0_void == cb0_void_const_mem);
 	LASS_TEST_CALLBACK_CALL(cb0_void());
 	LASS_TEST_CALLBACK_CALL(cb0_void_const_mem());
 $[

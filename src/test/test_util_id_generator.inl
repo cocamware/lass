@@ -44,26 +44,26 @@ void testUtilIdGenerator()
 	using namespace util;
 
 	IdGenerator<T> generator;
-	BOOST_CHECK_EQUAL(generator(), 0);
-	BOOST_CHECK_EQUAL(generator(), 1);
-	BOOST_CHECK_EQUAL(generator(), 2);
-	BOOST_CHECK_EQUAL(generator(), 3);
+	LASS_TEST_CHECK_EQUAL(generator(), 0);
+	LASS_TEST_CHECK_EQUAL(generator(), 1);
+	LASS_TEST_CHECK_EQUAL(generator(), 2);
+	LASS_TEST_CHECK_EQUAL(generator(), 3);
 
 	generator.setNext(7);
-	BOOST_CHECK_EQUAL(generator(), 7);
-	BOOST_CHECK_EQUAL(generator(), 8);
-	BOOST_CHECK_EQUAL(generator(), 9);
-	BOOST_CHECK_EQUAL(generator(), 10);
+	LASS_TEST_CHECK_EQUAL(generator(), 7);
+	LASS_TEST_CHECK_EQUAL(generator(), 8);
+	LASS_TEST_CHECK_EQUAL(generator(), 9);
+	LASS_TEST_CHECK_EQUAL(generator(), 10);
 
 	generator.setNext(num::NumTraits<T>::max - 1);
-	BOOST_CHECK_EQUAL(generator(), num::NumTraits<T>::max - 1);
-	BOOST_CHECK_THROW(generator(), std::exception);
+	LASS_TEST_CHECK_EQUAL(generator(), num::NumTraits<T>::max - 1);
+	LASS_TEST_CHECK_THROW(generator(), std::exception);
 
 	IdGenerator<T> generator2(10);
-	BOOST_CHECK_EQUAL(generator2(), 10);
-	BOOST_CHECK_EQUAL(generator2(), 11);
-	BOOST_CHECK_EQUAL(generator2(), 12);
-	BOOST_CHECK_EQUAL(generator2(), 13);
+	LASS_TEST_CHECK_EQUAL(generator2(), 10);
+	LASS_TEST_CHECK_EQUAL(generator2(), 11);
+	LASS_TEST_CHECK_EQUAL(generator2(), 12);
+	LASS_TEST_CHECK_EQUAL(generator2(), 13);
 }
 
 }

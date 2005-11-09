@@ -40,9 +40,9 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testSpat()
+TUnitTests testSpat()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::spat test suite");
+	TUnitTests result;
 
 	typedef void(*TTestCase)();
 
@@ -50,21 +50,21 @@ boost::unit_test_framework::test_suite* testSpat()
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
 	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
 	TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
-	result->add(BOOST_TEST_CASE(objectTreesFloat2));
-	result->add(BOOST_TEST_CASE(objectTreesFloat3));
-	result->add(BOOST_TEST_CASE(objectTreesDouble2));
-	result->add(BOOST_TEST_CASE(objectTreesDouble3));
+	result.push_back(LASS_UNIT_TEST(objectTreesFloat2));
+	result.push_back(LASS_UNIT_TEST(objectTreesFloat3));
+	result.push_back(LASS_UNIT_TEST(objectTreesDouble2));
+	result.push_back(LASS_UNIT_TEST(objectTreesDouble3));
 
-	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<float> >));
-	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<float> >));
-	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point2D<double> >));
-	result->add(BOOST_TEST_CASE(testSpatKdTree<prim::Point3D<double> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<float> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<float> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<double> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<double> >));
 
 	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
-	result->add(BOOST_TEST_CASE(doTestPlanarMesh));
-	result->add(BOOST_TEST_CASE(doTestMeshInterpolator));
-	result->add(BOOST_TEST_CASE(doTestQuadTree));
-	result->add(BOOST_TEST_CASE(doTestOctTree));
+	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
+	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
+	result.push_back(LASS_UNIT_TEST(doTestQuadTree));
+	result.push_back(LASS_UNIT_TEST(doTestOctTree));
 
 	return result;
 }

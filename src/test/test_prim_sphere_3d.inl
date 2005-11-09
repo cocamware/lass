@@ -55,27 +55,27 @@ void testPrimSphere3D()
 	const TPoint origin;
 
 	TSphere sphere;
-	BOOST_CHECK(sphere.isValid());
-	BOOST_CHECK_EQUAL(sphere.center(), origin);
-	BOOST_CHECK_EQUAL(sphere.radius(), 0);
-	BOOST_CHECK_EQUAL(sphere.area(), 0);
-	BOOST_CHECK_EQUAL(sphere.volume(), 0);
-	BOOST_CHECK_EQUAL(sphere.classify(origin), prim::sSurface);
-	BOOST_CHECK_EQUAL(sphere.equation(origin), 0);
-	BOOST_CHECK_EQUAL(sphere.signedDistance(origin), 0);
+	LASS_TEST_CHECK(sphere.isValid());
+	LASS_TEST_CHECK_EQUAL(sphere.center(), origin);
+	LASS_TEST_CHECK_EQUAL(sphere.radius(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.area(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.volume(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.classify(origin), prim::sSurface);
+	LASS_TEST_CHECK_EQUAL(sphere.equation(origin), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(origin), 0);
 
 	const TPoint center(1, 2, 3);
 	const T radius = 4;
 
 	sphere = TSphere(center, radius);
-	BOOST_CHECK(sphere.isValid());
-	BOOST_CHECK_EQUAL(sphere.center(), center);
-	BOOST_CHECK_EQUAL(sphere.radius(), radius);
-	BOOST_CHECK_EQUAL(sphere.area(), T(4) * TNumTraits::pi * num::sqr(radius));
-	BOOST_CHECK_EQUAL(sphere.volume(), T(4) / T(3) * TNumTraits::pi * num::sqr(radius) * radius);
-	BOOST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
-	BOOST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
-	BOOST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
+	LASS_TEST_CHECK(sphere.isValid());
+	LASS_TEST_CHECK_EQUAL(sphere.center(), center);
+	LASS_TEST_CHECK_EQUAL(sphere.radius(), radius);
+	LASS_TEST_CHECK_EQUAL(sphere.area(), T(4) * TNumTraits::pi * num::sqr(radius));
+	LASS_TEST_CHECK_EQUAL(sphere.volume(), T(4) / T(3) * TNumTraits::pi * num::sqr(radius) * radius);
+	LASS_TEST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
+	LASS_TEST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
+	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
 }
 
 }

@@ -45,15 +45,14 @@ void testIoProxySystem()
 
 	// first, we have to hook bogus streams to the proxy manager.
 	//
-	//proxyMan()->cout()->remove(&std::cout);
-	//proxyMan()->clog()->remove(&std::clog);
-	//proxyMan()->cerr()->remove(&std::cerr);
-	boost::test_toolbox::output_test_stream testOut;
-	boost::test_toolbox::output_test_stream testLog;
-	boost::test_toolbox::output_test_stream testErr;
-	proxyMan()->cout()->add(&testOut);
-	proxyMan()->clog()->add(&testLog);
-	proxyMan()->cerr()->add(&testErr);
+	proxyMan()->cout()->remove(&std::cout);
+	proxyMan()->cerr()->remove(&std::cerr);
+	TestStream testOut;
+	TestStream testLog;
+	TestStream testErr;
+	proxyMan()->cout()->add(&testOut.stream());
+	proxyMan()->clog()->add(&testLog.stream());
+	proxyMan()->cerr()->add(&testErr.stream());
 
 	try
 	{
@@ -66,27 +65,27 @@ void testIoProxySystem()
 
 		// test it
 		LASS_COUT << "message to lass cout\n";
-		BOOST_CHECK(testOut.is_equal("message to lass cout\n"));
-		BOOST_CHECK(testLog.is_empty());
-		BOOST_CHECK(testErr.is_empty());
+		LASS_TEST_CHECK(testOut.isEqual("message to lass cout\n"));
+		LASS_TEST_CHECK(testLog.isEqual(""));
+		LASS_TEST_CHECK(testErr.isEqual(""));
 
 		LASS_CLOG << "message to lass clog\n";
-		BOOST_CHECK(testOut.is_empty());
-		BOOST_CHECK(testLog.is_equal("message to lass clog\n"));
-		BOOST_CHECK(testErr.is_empty());
+		LASS_TEST_CHECK(testOut.isEqual(""));
+		LASS_TEST_CHECK(testLog.isEqual("message to lass clog\n"));
+		LASS_TEST_CHECK(testErr.isEqual(""));
 
 		LASS_CERR << "message to lass cerr\n";
-		BOOST_CHECK(testOut.is_empty());
-		BOOST_CHECK(testLog.is_empty());
-		BOOST_CHECK(testErr.is_equal("message to lass cerr\n"));
+		LASS_TEST_CHECK(testOut.isEqual(""));
+		LASS_TEST_CHECK(testLog.isEqual(""));
+		LASS_TEST_CHECK(testErr.isEqual("message to lass cerr\n"));
 
 		// test subscribtions
 		logger.subscribeTo(proxyMan()->cout());
 		LASS_COUT << "this should go in the logger\n";
-		BOOST_CHECK(testOut.is_equal("this should go in the logger\n"));
+		LASS_TEST_CHECK(testOut.isEqual("this should go in the logger\n"));
 		logger.unsubscribeTo(proxyMan()->cout());
 		LASS_COUT << "but this shouldn't\n";
-		BOOST_CHECK(testOut.is_equal("but this shouldn't\n"));
+		LASS_TEST_CHECK(testOut.isEqual("but this shouldn't\n"));
 
 		// test debug macros
 		LASS_WARNING("this is a warning");
@@ -112,17 +111,13 @@ void testIoProxySystem()
 			LASS_COUT << "second line.\n";
 		}
 	}
-	catch(...)
-	{
-		BOOST_ERROR("exception is thrown");
-	}
+	LASS_TEST_CATCH_EXCEPTIONS("an exception is thrown")
 
-	//proxyMan()->cout()->add(&std::cout);
-	//proxyMan()->clog()->add(&std::clog);
-	//proxyMan()->cerr()->add(&std::cerr);
-	proxyMan()->cout()->remove(&testOut);
-	proxyMan()->clog()->remove(&testLog);
-	proxyMan()->cerr()->remove(&testErr);
+	proxyMan()->cout()->add(&std::cout);
+	proxyMan()->cerr()->add(&std::cerr);
+	proxyMan()->cout()->remove(&testOut.stream());
+	proxyMan()->clog()->remove(&testLog.stream());
+	proxyMan()->cerr()->remove(&testErr.stream());
 }
 
 }

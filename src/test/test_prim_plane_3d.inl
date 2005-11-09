@@ -59,9 +59,9 @@ void testPrimPlane3D()
 	TPlaneCartesian cartesian;
 	TPlaneParametric parametric;
 
-	BOOST_CHECK(!combined.isValid());
-	BOOST_CHECK(!cartesian.isValid());
-	BOOST_CHECK(!parametric.isValid());
+	LASS_TEST_CHECK(!combined.isValid());
+	LASS_TEST_CHECK(!cartesian.isValid());
+	LASS_TEST_CHECK(!parametric.isValid());
 
 	// TEST PLANES IF FEEDED WITH PARAMETRIC EQUATION
 
@@ -73,9 +73,9 @@ void testPrimPlane3D()
 	cartesian = TPlaneCartesian(support, directionU, directionV);
 	parametric = TPlaneParametric(support, directionU, directionV);
 
-	BOOST_CHECK(combined.isValid());
-	BOOST_CHECK(cartesian.isValid());
-	BOOST_CHECK(parametric.isValid());
+	LASS_TEST_CHECK(combined.isValid());
+	LASS_TEST_CHECK(cartesian.isValid());
+	LASS_TEST_CHECK(parametric.isValid());
 
 	// if the planes are feeded by a parametric equation, then only the parametric plane
 	// and the combined plane must act exactly identical for operations that involve
@@ -83,11 +83,11 @@ void testPrimPlane3D()
 	// the cartesian plane looses info, and has to recreate support point and (reciprocal)
 	// direction vectors on demand.  Those are not necessarely the same as the originals.
 	//
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	BOOST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
-	BOOST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
-	BOOST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
-	BOOST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
+	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
+	LASS_TEST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
+	LASS_TEST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
 
 	// however, on operations that involve the cartesian quantities (normal and d), they
 	// all should act identical, becuase they all have to generate these out of the
@@ -104,10 +104,10 @@ void testPrimPlane3D()
 	// precision, hence no option to take.  So what can be do about it?  Nada, we'll have
 	// to live with error.
 	//
-	LASS_CLOSE_VECTOR(combined.normal(), parametric.normal(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_CLOSE(combined.d(), parametric.d(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal(), parametric.normal(), epsilon, 3);
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 
 	// we can also use three points to initialize parametric equation
 
@@ -118,21 +118,21 @@ void testPrimPlane3D()
 	cartesian = TPlaneCartesian(support, pointU, pointV);
 	parametric = TPlaneParametric(support, pointU, pointV);
 
-	BOOST_CHECK(combined.isValid());
-	BOOST_CHECK(cartesian.isValid());
-	BOOST_CHECK(parametric.isValid());
+	LASS_TEST_CHECK(combined.isValid());
+	LASS_TEST_CHECK(cartesian.isValid());
+	LASS_TEST_CHECK(parametric.isValid());
 
 	// same conditions as above should apply.
 
-	BOOST_CHECK_EQUAL(combined.support(), parametric.support());
-	BOOST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
-	BOOST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
-	BOOST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
-	BOOST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
-	LASS_CLOSE_VECTOR(combined.normal(), parametric.normal(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	BOOST_CHECK_CLOSE(combined.d(), parametric.d(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
+	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
+	LASS_TEST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
+	LASS_TEST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal(), parametric.normal(), epsilon, 3);
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 
 
 	// TEST PLANES IF FEEDED WITH CARTESIAN EQUATION
@@ -144,19 +144,19 @@ void testPrimPlane3D()
 	cartesian = TPlaneCartesian(normal, d);
 	parametric = TPlaneParametric(normal, d);
 
-	BOOST_CHECK(combined.isValid());
-	BOOST_CHECK(cartesian.isValid());
-	BOOST_CHECK(parametric.isValid());
+	LASS_TEST_CHECK(combined.isValid());
+	LASS_TEST_CHECK(cartesian.isValid());
+	LASS_TEST_CHECK(parametric.isValid());
 
 	// first, let's see what they say on cartesian quantities.  For cartesian and combined planes,
 	// this should be exactly equal.  parametric can a lot in case of unnormalized
 	// policy.  it should still be parallel to the original normal though ...
 	//
-	BOOST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	LASS_CLOSE_VECTOR(combined.normal().normal(), parametric.normal().normal(), 100 * epsilon);
-	BOOST_CHECK_EQUAL(combined.d(), cartesian.d());
-	BOOST_CHECK_CLOSE(combined.d() / combined.normal().norm(),
-					  parametric.d() / parametric.normal().norm(), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal().normal(), parametric.normal().normal(), epsilon, 3);
+	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_CLOSE(combined.d() / combined.normal().norm(),
+					  parametric.d() / parametric.normal().norm(), epsilon);
 }
 
 

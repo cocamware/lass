@@ -36,7 +36,7 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testIo();
+TUnitTests testIo();
 
 }
 

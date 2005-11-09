@@ -46,72 +46,72 @@ void testNumTriBool()
 	const TriBool trueBool(true);
 	const TriBool falseBool(false);
 
-	BOOST_CHECK_EQUAL(trueBool, true);
-	BOOST_CHECK_EQUAL(falseBool, false);
-	BOOST_CHECK((unknownBool == unknown).isUnknown());
+	LASS_TEST_CHECK_EQUAL(trueBool, true);
+	LASS_TEST_CHECK_EQUAL(falseBool, false);
+	LASS_TEST_CHECK((unknownBool == unknown).isUnknown());
 
-	BOOST_CHECK(trueBool.isTrue());
-	BOOST_CHECK(!falseBool.isTrue());
-	BOOST_CHECK(!unknownBool.isTrue());
+	LASS_TEST_CHECK(trueBool.isTrue());
+	LASS_TEST_CHECK(!falseBool.isTrue());
+	LASS_TEST_CHECK(!unknownBool.isTrue());
 
-	BOOST_CHECK(!trueBool.isFalse());
-	BOOST_CHECK(falseBool.isFalse());
-	BOOST_CHECK(!unknownBool.isFalse());
+	LASS_TEST_CHECK(!trueBool.isFalse());
+	LASS_TEST_CHECK(falseBool.isFalse());
+	LASS_TEST_CHECK(!unknownBool.isFalse());
 
-	BOOST_CHECK(!trueBool.isUnknown());
-	BOOST_CHECK(!falseBool.isUnknown());
-	BOOST_CHECK(unknownBool.isUnknown());
+	LASS_TEST_CHECK(!trueBool.isUnknown());
+	LASS_TEST_CHECK(!falseBool.isUnknown());
+	LASS_TEST_CHECK(unknownBool.isUnknown());
 
 
-	BOOST_CHECK(trueBool);
-	BOOST_CHECK(!falseBool);
-	BOOST_CHECK((!unknownBool).isUnknown());
+	LASS_TEST_CHECK(trueBool);
+	LASS_TEST_CHECK(!falseBool);
+	LASS_TEST_CHECK((!unknownBool).isUnknown());
 
-	BOOST_CHECK((trueBool == trueBool).isTrue());
-	BOOST_CHECK((trueBool == falseBool).isFalse());
-	BOOST_CHECK((trueBool == unknownBool).isUnknown());
-	BOOST_CHECK((falseBool == trueBool).isFalse());
-	BOOST_CHECK((falseBool == falseBool).isTrue());
-	BOOST_CHECK((falseBool == unknownBool).isUnknown());
-	BOOST_CHECK((unknownBool == trueBool).isUnknown());
-	BOOST_CHECK((unknownBool == falseBool).isUnknown());
-	BOOST_CHECK((unknownBool == unknownBool).isUnknown());
+	LASS_TEST_CHECK((trueBool == trueBool).isTrue());
+	LASS_TEST_CHECK((trueBool == falseBool).isFalse());
+	LASS_TEST_CHECK((trueBool == unknownBool).isUnknown());
+	LASS_TEST_CHECK((falseBool == trueBool).isFalse());
+	LASS_TEST_CHECK((falseBool == falseBool).isTrue());
+	LASS_TEST_CHECK((falseBool == unknownBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool == trueBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool == falseBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool == unknownBool).isUnknown());
 
-	BOOST_CHECK((trueBool != trueBool).isFalse());
-	BOOST_CHECK((trueBool != falseBool).isTrue());
-	BOOST_CHECK((trueBool != unknownBool).isUnknown());
-	BOOST_CHECK((falseBool != trueBool).isTrue());
-	BOOST_CHECK((falseBool != falseBool).isFalse());
-	BOOST_CHECK((falseBool != unknownBool).isUnknown());
-	BOOST_CHECK((unknownBool != trueBool).isUnknown());
-	BOOST_CHECK((unknownBool != falseBool).isUnknown());
-	BOOST_CHECK((unknownBool != unknownBool).isUnknown());
+	LASS_TEST_CHECK((trueBool != trueBool).isFalse());
+	LASS_TEST_CHECK((trueBool != falseBool).isTrue());
+	LASS_TEST_CHECK((trueBool != unknownBool).isUnknown());
+	LASS_TEST_CHECK((falseBool != trueBool).isTrue());
+	LASS_TEST_CHECK((falseBool != falseBool).isFalse());
+	LASS_TEST_CHECK((falseBool != unknownBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool != trueBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool != falseBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool != unknownBool).isUnknown());
 
-	BOOST_CHECK((trueBool && trueBool).isTrue());
-	BOOST_CHECK((trueBool && falseBool).isFalse());
-	BOOST_CHECK((trueBool && unknownBool).isUnknown());
-	BOOST_CHECK((falseBool && trueBool).isFalse());
-	BOOST_CHECK((falseBool && falseBool).isFalse());
-	BOOST_CHECK((falseBool && unknownBool).isFalse());
-	BOOST_CHECK((unknownBool && trueBool).isUnknown());
-	BOOST_CHECK((unknownBool && falseBool).isFalse());
-	BOOST_CHECK((unknownBool && unknownBool).isUnknown());
+	LASS_TEST_CHECK((trueBool && trueBool).isTrue());
+	LASS_TEST_CHECK((trueBool && falseBool).isFalse());
+	LASS_TEST_CHECK((trueBool && unknownBool).isUnknown());
+	LASS_TEST_CHECK((falseBool && trueBool).isFalse());
+	LASS_TEST_CHECK((falseBool && falseBool).isFalse());
+	LASS_TEST_CHECK((falseBool && unknownBool).isFalse());
+	LASS_TEST_CHECK((unknownBool && trueBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool && falseBool).isFalse());
+	LASS_TEST_CHECK((unknownBool && unknownBool).isUnknown());
 
-	BOOST_CHECK(trueBool || trueBool);
-	BOOST_CHECK(trueBool || falseBool);
-	BOOST_CHECK(trueBool || unknownBool);
-	BOOST_CHECK(falseBool || trueBool);
-	BOOST_CHECK((falseBool || falseBool).isFalse());
-	BOOST_CHECK((falseBool || unknownBool).isUnknown());
-	BOOST_CHECK(unknownBool || trueBool);
-	BOOST_CHECK((unknownBool || falseBool).isUnknown());
-	BOOST_CHECK((unknownBool || unknownBool).isUnknown());
+	LASS_TEST_CHECK(trueBool || trueBool);
+	LASS_TEST_CHECK(trueBool || falseBool);
+	LASS_TEST_CHECK(trueBool || unknownBool);
+	LASS_TEST_CHECK(falseBool || trueBool);
+	LASS_TEST_CHECK((falseBool || falseBool).isFalse());
+	LASS_TEST_CHECK((falseBool || unknownBool).isUnknown());
+	LASS_TEST_CHECK(unknownBool || trueBool);
+	LASS_TEST_CHECK((unknownBool || falseBool).isUnknown());
+	LASS_TEST_CHECK((unknownBool || unknownBool).isUnknown());
 
-	boost::test_toolbox::output_test_stream test;
+	TestStream test;
 	test << std::boolalpha << trueBool << ", " << falseBool << ", " << unknownBool;
-	BOOST_CHECK(test.is_equal("true, false, unknown"));
+	LASS_TEST_CHECK(test.isEqual("true, false, unknown"));
 	test << std::noboolalpha << trueBool << ", " << falseBool << ", " << unknownBool;
-	BOOST_CHECK(test.is_equal("1, 0, ?"));
+	LASS_TEST_CHECK(test.isEqual("1, 0, ?"));
 }
 
 

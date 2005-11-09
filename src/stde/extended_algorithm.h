@@ -63,19 +63,29 @@ OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator ou
 
 
 
+// --- range algorithms shortcuts ------------------------------------------------------------------
+
+template <typename InputRange, typename OutputIterator> inline
+void copy_r(const InputRange& range, OutputIterator output)
+{
+	std::copy(range.begin(), range.end(), output);
+}
+
+template <typename ForwardRange, typename Op> inline
+void for_each_r(ForwardRange& range, Op op)
+{
+	std::for_each(range.begin(), range.end(), op);
+}
+
+template <typename InputRange, typename OutputIterator, typename Op> inline
+void transform_r(const InputRange& range, OutputIterator output, Op op)
+{
+	std::transform(range.begin(), range.end(), output, op);
+}
+
+
+
 // --- container algorithms shortcuts --------------------------------------------------------------
-
-template <typename Container, typename Op> inline
-void for_each_c(Container& container, Op op)
-{
-	std::for_each(container.begin(), container.end(), op);
-}
-
-template <typename IContainer, typename OContainer, typename Op> inline
-void transform_c(const IContainer& iContainer, OContainer& oContainer, Op op)
-{
-	std::transform(iContainer.begin(), iContainer.end(), std::back_inserter<OContainer>(oContainer), op);
-}
 
 template <class Container, class Size> inline
 Container repeat_c(const Container& iC, Size n)

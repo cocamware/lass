@@ -43,62 +43,56 @@ void testNumDb()
 {
 	T epsilon = T(1e-5);
 
-	BOOST_CHECK_CLOSE(num::p2dB(T(20.e-8)), T(-40), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::p2dB(T(20.e-7)), T(-20), 100 * epsilon);
-	BOOST_CHECK(num::abs(num::p2dB(T(20.e-6))) < epsilon);
-	BOOST_CHECK_CLOSE(num::p2dB(T(20.e-5)), T(20), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::p2dB(T(20.e-4)), T(40), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::p2dB(T(0)), -num::NumTraits<T>::infinity);
-	BOOST_CHECK_THROW(num::p2dB(T(-1)), util::Exception);
-	LASS_COUT << "v----\n";
-	BOOST_CHECK_NO_THROW(num::p2dB(num::NumTraits<T>::qNaN));
-	LASS_COUT << "^----\n";
+	LASS_TEST_CHECK_CLOSE(num::p2dB(T(20.e-8)), T(-40), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::p2dB(T(20.e-7)), T(-20), epsilon);
+	LASS_TEST_CHECK(num::abs(num::p2dB(T(20.e-6))) < epsilon);
+	LASS_TEST_CHECK_CLOSE(num::p2dB(T(20.e-5)), T(20), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::p2dB(T(20.e-4)), T(40), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::p2dB(T(0)), -num::NumTraits<T>::infinity);
+	LASS_TEST_CHECK_THROW(num::p2dB(T(-1)), util::Exception);
+	LASS_TEST_CHECK_NO_THROW(num::p2dB(num::NumTraits<T>::qNaN));
 
-	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-14)), T(-20), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-13)), T(-10), 100 * epsilon);
-	BOOST_CHECK(num::abs(num::I2dB(T(1.e-12))) < epsilon);
-	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-11)), T(10), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::I2dB(T(1.e-10)), T(20), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::I2dB(T(0)), -num::NumTraits<T>::infinity);
-	BOOST_CHECK_THROW(num::I2dB(T(-1)), util::Exception);
-	LASS_COUT << "v----\n";
-	BOOST_CHECK_NO_THROW(num::I2dB(num::NumTraits<T>::qNaN));
-	LASS_COUT << "^----\n";
+	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-14)), T(-20), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-13)), T(-10), epsilon);
+	LASS_TEST_CHECK(num::abs(num::I2dB(T(1.e-12))) < epsilon);
+	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-11)), T(10), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-10)), T(20), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::I2dB(T(0)), -num::NumTraits<T>::infinity);
+	LASS_TEST_CHECK_THROW(num::I2dB(T(-1)), util::Exception);
+	LASS_TEST_CHECK_NO_THROW(num::I2dB(num::NumTraits<T>::qNaN));
 
-	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-14)), T(-20), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-13)), T(-10), 100 * epsilon);
-	BOOST_CHECK(num::abs(num::W2dB(T(1.e-12))) < epsilon);
-	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-11)), T(10), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::W2dB(T(1.e-10)), T(20), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::W2dB(T(0)), -num::NumTraits<T>::infinity);
-	BOOST_CHECK_THROW(num::W2dB(T(-1)), util::Exception);
-	LASS_COUT << "v----\n";
-	BOOST_CHECK_NO_THROW(num::W2dB(num::NumTraits<T>::qNaN));
-	LASS_COUT << "^----\n";
+	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-14)), T(-20), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-13)), T(-10), epsilon);
+	LASS_TEST_CHECK(num::abs(num::W2dB(T(1.e-12))) < epsilon);
+	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-11)), T(10), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-10)), T(20), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::W2dB(T(0)), -num::NumTraits<T>::infinity);
+	LASS_TEST_CHECK_THROW(num::W2dB(T(-1)), util::Exception);
+	LASS_TEST_CHECK_NO_THROW(num::W2dB(num::NumTraits<T>::qNaN));
 
-	BOOST_CHECK_CLOSE(num::dB2p(T(-40)), T(20.e-8), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2p(T(-20)), T(20.e-7), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2p(T(0)), T(20.e-6), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2p(T(20)), T(20.e-5), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2p(T(40)), T(20.e-4), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::dB2p(-num::NumTraits<T>::infinity), T(0));
-	BOOST_CHECK_NO_THROW(num::dB2p(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK_CLOSE(num::dB2p(T(-40)), T(20.e-8), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2p(T(-20)), T(20.e-7), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2p(T(0)), T(20.e-6), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2p(T(20)), T(20.e-5), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2p(T(40)), T(20.e-4), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::dB2p(-num::NumTraits<T>::infinity), T(0));
+	LASS_TEST_CHECK_NO_THROW(num::dB2p(num::NumTraits<T>::qNaN));
 
-	BOOST_CHECK_CLOSE(num::dB2I(T(-20)), T(1.e-14), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2I(T(-10)), T(1.e-13), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2I(T(0)), T(1.e-12), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2I(T(10)), T(1.e-11), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2I(T(20)), T(1.e-10), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::dB2I(-num::NumTraits<T>::infinity), T(0));
-	BOOST_CHECK_NO_THROW(num::dB2I(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK_CLOSE(num::dB2I(T(-20)), T(1.e-14), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2I(T(-10)), T(1.e-13), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2I(T(0)), T(1.e-12), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2I(T(10)), T(1.e-11), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2I(T(20)), T(1.e-10), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::dB2I(-num::NumTraits<T>::infinity), T(0));
+	LASS_TEST_CHECK_NO_THROW(num::dB2I(num::NumTraits<T>::qNaN));
 
-	BOOST_CHECK_CLOSE(num::dB2W(T(-20)), T(1.e-14), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2W(T(-10)), T(1.e-13), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2W(T(0)), T(1.e-12), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2W(T(10)), T(1.e-11), 100 * epsilon);
-	BOOST_CHECK_CLOSE(num::dB2W(T(20)), T(1.e-10), 100 * epsilon);
-	BOOST_CHECK_EQUAL(num::dB2W(-num::NumTraits<T>::infinity), T(0));
-	BOOST_CHECK_NO_THROW(num::dB2W(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK_CLOSE(num::dB2W(T(-20)), T(1.e-14), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2W(T(-10)), T(1.e-13), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2W(T(0)), T(1.e-12), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2W(T(10)), T(1.e-11), epsilon);
+	LASS_TEST_CHECK_CLOSE(num::dB2W(T(20)), T(1.e-10), epsilon);
+	LASS_TEST_CHECK_EQUAL(num::dB2W(-num::NumTraits<T>::infinity), T(0));
+	LASS_TEST_CHECK_NO_THROW(num::dB2W(num::NumTraits<T>::qNaN));
 
 }
 

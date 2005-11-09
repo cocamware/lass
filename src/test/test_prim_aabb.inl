@@ -53,126 +53,126 @@ void testPrimAabb2D()
 	TAabbAuto aabbAuto;
 	TAabbUnchecked aabbUnchecked;
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(aabbUnchecked.isValid());
-	BOOST_CHECK(aabbStrict.isEmpty());
-	BOOST_CHECK(aabbAuto.isEmpty());
-	BOOST_CHECK(aabbUnchecked.isEmpty());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(aabbUnchecked.isValid());
+	LASS_TEST_CHECK(aabbStrict.isEmpty());
+	LASS_TEST_CHECK(aabbAuto.isEmpty());
+	LASS_TEST_CHECK(aabbUnchecked.isEmpty());
 
 	// construct with corner points
 
 	TPoint m(10, 100);
 	TPoint M(1000, 10000);
 
-	BOOST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
-	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(m, M));
-	BOOST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbAuto = TAabbAuto(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(m, M));
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(aabbUnchecked.isValid());
-	BOOST_CHECK(!aabbStrict.isEmpty());
-	BOOST_CHECK(!aabbAuto.isEmpty());
-	BOOST_CHECK(!aabbUnchecked.isEmpty());
-	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
-	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
-	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
-	BOOST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
-	BOOST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(aabbUnchecked.isValid());
+	LASS_TEST_CHECK(!aabbStrict.isEmpty());
+	LASS_TEST_CHECK(!aabbAuto.isEmpty());
+	LASS_TEST_CHECK(!aabbUnchecked.isEmpty());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
 
 	// reversed corner points
 
-	BOOST_CHECK_THROW(aabbStrict = TAabbStrict(M, m), std::exception);
-	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
-	BOOST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(M, m));
+	LASS_TEST_CHECK_THROW(aabbStrict = TAabbStrict(M, m), std::exception);
+	LASS_TEST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
+	LASS_TEST_CHECK_NO_THROW(aabbUnchecked = TAabbUnchecked(M, m));
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(aabbUnchecked.isValid()); // max_.x < min_.x
-	BOOST_CHECK(!aabbStrict.isEmpty());
-	BOOST_CHECK(!aabbAuto.isEmpty());
-	BOOST_CHECK(aabbUnchecked.isEmpty()); // max_.x < min_.x
-	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
-	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
-	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
-	BOOST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
-	BOOST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(aabbUnchecked.isValid()); // max_.x < min_.x
+	LASS_TEST_CHECK(!aabbStrict.isEmpty());
+	LASS_TEST_CHECK(!aabbAuto.isEmpty());
+	LASS_TEST_CHECK(aabbUnchecked.isEmpty()); // max_.x < min_.x
+	LASS_TEST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
 
 	// classificiation
 
-	BOOST_CHECK(aabbStrict.classify(m) == prim::sSurface);
-	BOOST_CHECK(aabbStrict.classify(M) == prim::sSurface);
-	BOOST_CHECK(aabbStrict.classify(aabbStrict.center().affine()) == prim::sInside);
-	BOOST_CHECK(aabbStrict.classify(TPoint(10, 10)) == prim::sOutside);
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(aabbStrict.center().affine()));
-	BOOST_CHECK(!aabbStrict.contains(TPoint(10, 10)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.classify(m) == prim::sSurface);
+	LASS_TEST_CHECK(aabbStrict.classify(M) == prim::sSurface);
+	LASS_TEST_CHECK(aabbStrict.classify(aabbStrict.center().affine()) == prim::sInside);
+	LASS_TEST_CHECK(aabbStrict.classify(TPoint(10, 10)) == prim::sOutside);
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbStrict.center().affine()));
+	LASS_TEST_CHECK(!aabbStrict.contains(TPoint(10, 10)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(aabbAuto.contains(aabbStrict));
 
 	// addition
 
 	aabbStrict += TPoint(50, 10);  // (10, 10)-(1000, 10000)
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 10)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 10)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 10)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 10)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(!aabbAuto.contains(aabbStrict));
 
 	aabbStrict += TAabbAuto(TPoint(50, 50), TPoint(10000, 0)); // (10, 0)-(10000, 10000)
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 10)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 10)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 50)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10000, 0)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 0)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10000, 10000)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 10)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 10)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 50)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10000, 0)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 0)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10000, 10000)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(!aabbAuto.contains(aabbStrict));
 
 	// distance and intersection
 
 	TAabbStrict a(TPoint(0, 0), TPoint(10, 10));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), 10);
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), 10);
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(T(200)));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(T(200)));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), 10);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), 10);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(T(200)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(T(200)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), 0);
 
 	TAabbStrict b(TPoint(100, 100), TPoint(1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10), TPoint(100, 100)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10), TPoint(100, 100)));
 
 	TAabbStrict c(TPoint(6, 66), TPoint(666, 6666));
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-	BOOST_CHECK(c.isEmpty());
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(100, 5), TPoint(1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 90);
 	c = TAabbStrict(TPoint(6, 66), TPoint(666, 6666));
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-	BOOST_CHECK(c.isEmpty());
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(5, 5), TPoint(1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5));
-	BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 0);
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rOne);
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK_EQUAL(c.min(), TPoint(5, 5));
+	LASS_TEST_CHECK_EQUAL(c.max(), TPoint(10, 10));
 
 	// growing and scaling
 	TAabbStrict d(TPoint(0, 0), TPoint(10, 10));
 	d.grow(10);
-	BOOST_CHECK(d.isValid());
-	BOOST_CHECK(!d.isEmpty());
-	BOOST_CHECK_EQUAL(d.max(),TPoint(20,20));
+	LASS_TEST_CHECK(d.isValid());
+	LASS_TEST_CHECK(!d.isEmpty());
+	LASS_TEST_CHECK_EQUAL(d.max(),TPoint(20,20));
 	d.scale(0.5);
-	BOOST_CHECK_EQUAL(d.max(),TPoint(12.5,12.5));
+	LASS_TEST_CHECK_EQUAL(d.max(),TPoint(12.5,12.5));
 
 }
 
@@ -190,111 +190,111 @@ void testPrimAabb3D()
 	TAabbStrict aabbStrict;
 	TAabbAuto aabbAuto;
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(aabbStrict.isEmpty());
-	BOOST_CHECK(aabbAuto.isEmpty());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(aabbStrict.isEmpty());
+	LASS_TEST_CHECK(aabbAuto.isEmpty());
 
 	// construct with corner points
 
 	TPoint m(10, 100, 200);
 	TPoint M(1000, 10000, 20000);
 
-	BOOST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
-	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbAuto = TAabbAuto(m, M));
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(!aabbStrict.isEmpty());
-	BOOST_CHECK(!aabbAuto.isEmpty());
-	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
-	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
-	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
-	BOOST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
-	BOOST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(!aabbStrict.isEmpty());
+	LASS_TEST_CHECK(!aabbAuto.isEmpty());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
 
 	// reversed corner points
 
-	BOOST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
-	BOOST_CHECK_THROW(aabbStrict = TAabbStrict(M, m), std::exception);
-	BOOST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
+	LASS_TEST_CHECK_NO_THROW(aabbAuto = TAabbAuto(M, m));
+	LASS_TEST_CHECK_THROW(aabbStrict = TAabbStrict(M, m), std::exception);
+	LASS_TEST_CHECK_NO_THROW(aabbStrict = TAabbStrict(m, M));
 
-	BOOST_CHECK(aabbStrict.isValid());
-	BOOST_CHECK(aabbAuto.isValid());
-	BOOST_CHECK(!aabbStrict.isEmpty());
-	BOOST_CHECK(!aabbAuto.isEmpty());
-	BOOST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
-	BOOST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
-	BOOST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
-	BOOST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
-	BOOST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
+	LASS_TEST_CHECK(aabbStrict.isValid());
+	LASS_TEST_CHECK(aabbAuto.isValid());
+	LASS_TEST_CHECK(!aabbStrict.isEmpty());
+	LASS_TEST_CHECK(!aabbAuto.isEmpty());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.min(), aabbAuto.min());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.max(), aabbAuto.max());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.center(), aabbAuto.center());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.size(), aabbAuto.size());
+	LASS_TEST_CHECK_EQUAL(aabbStrict.area(), aabbAuto.area());
 
 	// classificiation
 
-	BOOST_CHECK(aabbStrict.classify(m) == prim::sSurface);
-	BOOST_CHECK(aabbStrict.classify(M) == prim::sSurface);
-	BOOST_CHECK(aabbStrict.classify(aabbStrict.center().affine()) == prim::sInside);
-	BOOST_CHECK(aabbStrict.classify(TPoint(10, 10, 20)) == prim::sOutside);
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(aabbStrict.center().affine()));
-	BOOST_CHECK(!aabbStrict.contains(TPoint(10, 10, 20)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.classify(m) == prim::sSurface);
+	LASS_TEST_CHECK(aabbStrict.classify(M) == prim::sSurface);
+	LASS_TEST_CHECK(aabbStrict.classify(aabbStrict.center().affine()) == prim::sInside);
+	LASS_TEST_CHECK(aabbStrict.classify(TPoint(10, 10, 20)) == prim::sOutside);
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbStrict.center().affine()));
+	LASS_TEST_CHECK(!aabbStrict.contains(TPoint(10, 10, 20)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(aabbAuto.contains(aabbStrict));
 
 	// addition
 
 	aabbStrict += TPoint(50, 10, 20);  // (10, 10, 20)-(1000, 10000, 20000)
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 10, 20)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 10, 20)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 10, 20)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 10, 20)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(!aabbAuto.contains(aabbStrict));
 
 	aabbStrict += TAabbAuto(TPoint(50, 50, 100), TPoint(10000, 0, 0));
 	// (10, 0, 0)-(10000, 10000, 20000)
-	BOOST_CHECK(aabbStrict.contains(m));
-	BOOST_CHECK(aabbStrict.contains(M));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 10, 20)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 10, 20)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(50, 50, 100)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10000, 0, 0)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10, 0, 0)));
-	BOOST_CHECK(aabbStrict.contains(TPoint(10000, 10000, 20000)));
-	BOOST_CHECK(aabbStrict.contains(aabbAuto));
-	BOOST_CHECK(!aabbAuto.contains(aabbStrict));
+	LASS_TEST_CHECK(aabbStrict.contains(m));
+	LASS_TEST_CHECK(aabbStrict.contains(M));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 10, 20)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 10, 20)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(50, 50, 100)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10000, 0, 0)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10, 0, 0)));
+	LASS_TEST_CHECK(aabbStrict.contains(TPoint(10000, 10000, 20000)));
+	LASS_TEST_CHECK(aabbStrict.contains(aabbAuto));
+	LASS_TEST_CHECK(!aabbAuto.contains(aabbStrict));
 
 	// distance and intersection
 
 	TAabbStrict a(TPoint(0, 0, 0), TPoint(10, 10, 10));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)));
-	BOOST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
 
 	TAabbStrict b(TPoint(100, 100, 100), TPoint(1000, 1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10, 10), TPoint(100, 100, 100)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10, 10), TPoint(100, 100, 100)));
 
 	TAabbStrict c(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-	BOOST_CHECK(c.isEmpty());
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(100, 5, 5), TPoint(1000, 1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), 90);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 90);
 	c = TAabbStrict(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rNone);
-	BOOST_CHECK(c.isEmpty());
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
+	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(5, 5, 5), TPoint(1000, 1000, 1000));
-	BOOST_CHECK_EQUAL(prim::distance(a, b), 0);
-	BOOST_CHECK(prim::intersect(a, b, c) == prim::rOne);
-	BOOST_CHECK(!c.isEmpty());
-	BOOST_CHECK_EQUAL(c.min(), TPoint(5, 5, 5));
-	BOOST_CHECK_EQUAL(c.max(), TPoint(10, 10, 10));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 0);
+	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rOne);
+	LASS_TEST_CHECK(!c.isEmpty());
+	LASS_TEST_CHECK_EQUAL(c.min(), TPoint(5, 5, 5));
+	LASS_TEST_CHECK_EQUAL(c.max(), TPoint(10, 10, 10));
 }
 
 

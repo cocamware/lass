@@ -51,45 +51,45 @@ void testMetaTypeList()
 	typedef type_list::Make<float, double, long double>::Type TFloats;
 	typedef type_list::Make<signed char, short, int, long>::Type TSignedIntegers;
 
-	BOOST_CHECK_EQUAL(int(type_list::Size<TFloats>::value), 3);
-	BOOST_CHECK_EQUAL(int(type_list::Size<TSignedIntegers>::value), 4);
-	BOOST_CHECK_EQUAL(int(type_list::Size<NullType>::value), 0);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TFloats>::value), 3);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TSignedIntegers>::value), 4);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<NullType>::value), 0);
 
 	typedef type_list::At<TFloats, 1>::Type TFloat1; // double
-	BOOST_CHECK((IsSameType<TFloat1, double>::value));
+	LASS_TEST_CHECK((IsSameType<TFloat1, double>::value));
 
 	typedef type_list::AtNonStrict<TFloats, 4>::Type TFloat4; // NullType
-	BOOST_CHECK((IsSameType<TFloat4, NullType>::value));
+	LASS_TEST_CHECK((IsSameType<TFloat4, NullType>::value));
 	typedef type_list::AtNonStrict<TFloats, 5, float>::Type TFloat5; // float
-	BOOST_CHECK((IsSameType<TFloat5, float>::value));
+	LASS_TEST_CHECK((IsSameType<TFloat5, float>::value));
 
-	BOOST_CHECK_EQUAL(int(type_list::Find<TFloats, float>::value), 0);
-	BOOST_CHECK_EQUAL(int(type_list::Find<TFloats, double>::value), 1);
-	BOOST_CHECK_EQUAL(int(type_list::Find<TFloats, long double>::value), 2);
-	BOOST_CHECK_EQUAL(int(type_list::Find<TFloats, NullType>::value), -1);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, float>::value), 0);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, double>::value), 1);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, long double>::value), 2);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, NullType>::value), -1);
 
-	BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(float)), 0);
-	BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(double)), 1);
-	BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(long double)), 2);
-	BOOST_CHECK_EQUAL(type_list::find<TFloats>(typeid(NullType)), -1);
+	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(float)), 0);
+	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(double)), 1);
+	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(long double)), 2);
+	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(NullType)), -1);
 
 	typedef type_list::Merge<TSignedIntegers, AVeryLongInt>::Type TAllSignedIntegers;
-	BOOST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
-	BOOST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);
 	typedef type_list::Merge<TFloats, TAllSignedIntegers>::Type TAllSignedTypes;
-	BOOST_CHECK_EQUAL(int(type_list::Size<TAllSignedTypes>::value), 8);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedTypes>::value), 8);
 
 	typedef type_list::Remove<TFloats, long double>::Type TCommonFloats;
-	BOOST_CHECK_EQUAL(int(type_list::Size<TCommonFloats>::value), 2);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TCommonFloats>::value), 2);
 
 	typedef type_list::Replace<TAllSignedIntegers, AVeryLongInt, long>::Type TLongIs64;
-	BOOST_CHECK_EQUAL(int(type_list::Find<TLongIs64, AVeryLongInt>::value), -1);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TLongIs64, AVeryLongInt>::value), -1);
 
 	typedef type_list::Unique<TLongIs64>::Type TUniqueSignedIntegers;
-	BOOST_CHECK_EQUAL(int(type_list::Size<TUniqueSignedIntegers>::value), 4);
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TUniqueSignedIntegers>::value), 4);
 
 	typedef type_list::Reverse<TFloats>::Type TReverseFloats;
-	BOOST_CHECK_EQUAL(int(type_list::Size<TReverseFloats>::value),
+	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TReverseFloats>::value),
 					  int(type_list::Size<TFloats>::value));
 }
 

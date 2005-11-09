@@ -56,42 +56,42 @@ void testPrimLineSegment2D()
 	TLineSegBounded bounded(a, b);
 	TLineSegUnbounded unbounded(c, d);
 
-	BOOST_CHECK_EQUAL(bounded.tail(), a);
-	BOOST_CHECK_EQUAL(bounded.head(), b);
-	BOOST_CHECK_EQUAL(unbounded.tail(), c);
-	BOOST_CHECK_EQUAL(unbounded.head(), d);
-	BOOST_CHECK_EQUAL(bounded.vector(), b - a);
-	BOOST_CHECK_EQUAL(unbounded.vector(), d - c);
-	BOOST_CHECK_EQUAL(bounded.length(), prim::distance(a, b));
-	BOOST_CHECK_EQUAL(unbounded.length(), prim::distance(c, d));
+	LASS_TEST_CHECK_EQUAL(bounded.tail(), a);
+	LASS_TEST_CHECK_EQUAL(bounded.head(), b);
+	LASS_TEST_CHECK_EQUAL(unbounded.tail(), c);
+	LASS_TEST_CHECK_EQUAL(unbounded.head(), d);
+	LASS_TEST_CHECK_EQUAL(bounded.vector(), b - a);
+	LASS_TEST_CHECK_EQUAL(unbounded.vector(), d - c);
+	LASS_TEST_CHECK_EQUAL(bounded.length(), prim::distance(a, b));
+	LASS_TEST_CHECK_EQUAL(unbounded.length(), prim::distance(c, d));
 
-	BOOST_CHECK_THROW(bounded.point(T(1.1)), std::exception);
-	BOOST_CHECK_THROW(bounded.point(T(-0.1)), std::exception);
-	BOOST_CHECK_NO_THROW(bounded.point(T(0)));
-	BOOST_CHECK_NO_THROW(bounded.point(T(1)));
-	BOOST_CHECK_NO_THROW(bounded.point(T(.5)));
+	LASS_TEST_CHECK_THROW(bounded.point(T(1.1)), std::exception);
+	LASS_TEST_CHECK_THROW(bounded.point(T(-0.1)), std::exception);
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(0)));
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(1)));
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(.5)));
 
-	BOOST_CHECK_NO_THROW(unbounded.point(T(1.1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(-0.1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(0)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(.5)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(1.1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(-0.1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(0)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(.5)));
 
-	BOOST_CHECK_EQUAL(bounded.point(T(0)), bounded.tail());
-	BOOST_CHECK_EQUAL(bounded.point(T(1)), bounded.head());
-	BOOST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
-	BOOST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
+	LASS_TEST_CHECK_EQUAL(bounded.point(T(0)), bounded.tail());
+	LASS_TEST_CHECK_EQUAL(bounded.point(T(1)), bounded.head());
+	LASS_TEST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
+	LASS_TEST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
 
 	T t, u;
-	BOOST_CHECK_EQUAL(prim::intersect(bounded, unbounded, t, u), prim::rOne);
-	BOOST_CHECK(t >= T(0) && t <= T(1));
-	BOOST_CHECK(u >= T(0) && u <= T(1));
-	LASS_CLOSE_VECTOR(bounded.point(t), unbounded.point(u), 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, t, u), prim::rOne);
+	LASS_TEST_CHECK(t >= T(0) && t <= T(1));
+	LASS_TEST_CHECK(u >= T(0) && u <= T(1));
+	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), unbounded.point(u), epsilon, 2);
 
 	TPoint p;
-	BOOST_CHECK_EQUAL(prim::intersect(bounded, unbounded, p), prim::rOne);
-	LASS_CLOSE_VECTOR(bounded.point(t), p, 100 * epsilon);
-	LASS_CLOSE_VECTOR(unbounded.point(u), p, 100 * epsilon);
+	LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, p), prim::rOne);
+	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), p, epsilon, 2);
+	LASS_TEST_CHECK_CLOSE_ARRAY(unbounded.point(u), p, epsilon, 2);
 }
 
 
@@ -111,31 +111,31 @@ void testPrimLineSegment3D()
 	TLineSegBounded bounded(a, b);
 	TLineSegUnbounded unbounded(c, d);
 
-	BOOST_CHECK_EQUAL(bounded.tail(), a);
-	BOOST_CHECK_EQUAL(bounded.head(), b);
-	BOOST_CHECK_EQUAL(unbounded.tail(), c);
-	BOOST_CHECK_EQUAL(unbounded.head(), d);
-	BOOST_CHECK_EQUAL(bounded.vector(), b - a);
-	BOOST_CHECK_EQUAL(unbounded.vector(), d - c);
-	BOOST_CHECK_EQUAL(bounded.length(), prim::distance(a, b));
-	BOOST_CHECK_EQUAL(unbounded.length(), prim::distance(c, d));
+	LASS_TEST_CHECK_EQUAL(bounded.tail(), a);
+	LASS_TEST_CHECK_EQUAL(bounded.head(), b);
+	LASS_TEST_CHECK_EQUAL(unbounded.tail(), c);
+	LASS_TEST_CHECK_EQUAL(unbounded.head(), d);
+	LASS_TEST_CHECK_EQUAL(bounded.vector(), b - a);
+	LASS_TEST_CHECK_EQUAL(unbounded.vector(), d - c);
+	LASS_TEST_CHECK_EQUAL(bounded.length(), prim::distance(a, b));
+	LASS_TEST_CHECK_EQUAL(unbounded.length(), prim::distance(c, d));
 
-	BOOST_CHECK_THROW(bounded.point(T(1.1)), std::exception);
-	BOOST_CHECK_THROW(bounded.point(T(-0.1)), std::exception);
-	BOOST_CHECK_NO_THROW(bounded.point(T(0)));
-	BOOST_CHECK_NO_THROW(bounded.point(T(1)));
-	BOOST_CHECK_NO_THROW(bounded.point(T(.5)));
+	LASS_TEST_CHECK_THROW(bounded.point(T(1.1)), std::exception);
+	LASS_TEST_CHECK_THROW(bounded.point(T(-0.1)), std::exception);
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(0)));
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(1)));
+	LASS_TEST_CHECK_NO_THROW(bounded.point(T(.5)));
 
-	BOOST_CHECK_NO_THROW(unbounded.point(T(1.1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(-0.1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(0)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(1)));
-	BOOST_CHECK_NO_THROW(unbounded.point(T(.5)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(1.1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(-0.1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(0)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(1)));
+	LASS_TEST_CHECK_NO_THROW(unbounded.point(T(.5)));
 
-	BOOST_CHECK_EQUAL(bounded.point(T(0)), bounded.tail());
-	BOOST_CHECK_EQUAL(bounded.point(T(1)), bounded.head());
-	BOOST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
-	BOOST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
+	LASS_TEST_CHECK_EQUAL(bounded.point(T(0)), bounded.tail());
+	LASS_TEST_CHECK_EQUAL(bounded.point(T(1)), bounded.head());
+	LASS_TEST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
+	LASS_TEST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
 }
 
 

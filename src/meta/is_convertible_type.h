@@ -58,6 +58,9 @@
 #include "meta_common.h"
 #include "bool.h"
 
+#pragma warning(push)
+#pragma warning(disable: 4244)
+
 namespace lass
 {
 namespace meta
@@ -88,6 +91,8 @@ public:
 }
 
 }
+
+#pragma warning(pop)
 
 #endif
 

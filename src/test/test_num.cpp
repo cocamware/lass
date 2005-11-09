@@ -42,28 +42,28 @@ namespace lass
 namespace test
 {
 
-boost::unit_test_framework::test_suite* testNum()
+TUnitTests testNum()
 {
-	boost::unit_test_framework::test_suite* result = BOOST_TEST_SUITE("lass::num test suite");
+	TUnitTests result;
 
-	result->add(BOOST_TEST_CASE(testNumDb<float>));
-	result->add(BOOST_TEST_CASE(testNumDb<double>));
+	result.push_back(LASS_UNIT_TEST(testNumDb<float>));
+	result.push_back(LASS_UNIT_TEST(testNumDb<double>));
 
-	result->add(BOOST_TEST_CASE(testNumSpline));
+	result.push_back(LASS_UNIT_TEST(testNumSpline));
 
-	result->add(BOOST_TEST_CASE(testNumMatrix<double>));
-	result->add(BOOST_TEST_CASE(testNumMatrix<std::complex<double> >));
-	result->add(BOOST_TEST_CASE(testNumVector<double>));
-	result->add(BOOST_TEST_CASE(testNumVector<std::complex<double> >));
-	result->add(BOOST_TEST_CASE(testNumSolve<double>));
-	result->add(BOOST_TEST_CASE(testNumSolve<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumMatrix<double>));
+	result.push_back(LASS_UNIT_TEST(testNumMatrix<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumVector<double>));
+	result.push_back(LASS_UNIT_TEST(testNumVector<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumSolve<double>));
+	result.push_back(LASS_UNIT_TEST(testNumSolve<std::complex<double> >));
 
-	result->add(BOOST_TEST_CASE(testNumRandomMersenne));
-	result->add(BOOST_TEST_CASE(testNumDistributions));
+	result.push_back(LASS_UNIT_TEST(testNumRandomMersenne));
+	result.push_back(LASS_UNIT_TEST(testNumDistributions));
 
-	result->add(BOOST_TEST_CASE(testNumTriBool));
+	result.push_back(LASS_UNIT_TEST(testNumTriBool));
 
-	result->add(BOOST_TEST_CASE(testNumFNSampled8));
+	result.push_back(LASS_UNIT_TEST(testNumFNSampled8));
 
 	return result;
 }
