@@ -135,7 +135,7 @@ public:
 
 	static void* operator new(std::size_t iSize)
 	{
-		LASS_COUT << "void* SmallObject::operator new(std::size_t) [iSize=" << iSize << "]\n";
+		//LASS_COUT << "void* SmallObject::operator new(std::size_t) [iSize=" << iSize << "]\n";
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR
 		return ::operator new(iSize);
 #else
@@ -145,13 +145,13 @@ public:
 
 	static void* operator new(std::size_t iSize, void* p) throw()
 	{
-		std::cout << "void* SmallObject::operator new(std::size_t, void*) throw() [iSize=" << iSize << "]\n";
+		//LASS_COUT << "void* SmallObject::operator new(std::size_t, void*) throw() [iSize=" << iSize << "]\n";
 		return ::operator new(iSize, p);
 	}
 
 	static void* operator new(std::size_t iSize, const std::nothrow_t&) throw()
 	{
-		LASS_COUT << "void* SmallObject::operator new(std::size_t, const std::nothrow_t&) throw() [iSize=" << iSize << "]\n";
+		//LASS_COUT << "void* SmallObject::operator new(std::size_t, const std::nothrow_t&) throw() [iSize=" << iSize << "]\n";
 		try
 		{
 			return SmallObject::operator new(iSize);
@@ -164,7 +164,7 @@ public:
 
 	static void operator delete(void* iPointer, std::size_t iSize)
 	{
-		LASS_COUT << "void SmallObject::operator delete(void*, std::size_t) [iSize=" << iSize << "]\n";
+		//LASS_COUT << "void SmallObject::operator delete(void*, std::size_t) [iSize=" << iSize << "]\n";
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR
 		::operator delete(iPointer);
 #else
@@ -175,7 +175,7 @@ public:
 
 	static void operator delete(void* iPointer, std::size_t iSize, const std::nothrow_t&) throw()
 	{
-		LASS_COUT << "void SmallObject::operator delete(void*, std::size_t, const std::nothrow_t&) throw() [iSize=" << iSize << "]\n";
+		//LASS_COUT << "void SmallObject::operator delete(void*, std::size_t, const std::nothrow_t&) throw() [iSize=" << iSize << "]\n";
 		try
 		{
 			return SmallObject::operator delete(iPointer, iSize);
@@ -187,7 +187,7 @@ public:
 
 	static void operator delete(void* iPointer, void* p) throw()
 	{
-		LASS_COUT << "void SmallObject::operator delete(void*, void*) throw()\n";
+		//LASS_COUT << "void SmallObject::operator delete(void*, void*) throw()\n";
 	}
 };
 
