@@ -47,13 +47,16 @@ template
 <
 	typename ScalarType,
 	typename DataType,
-	typename DataTraits = DataTraitsDefault<DataType>
+	typename DataTraits = DefaultDataTraits<ScalarType, DataType>
 >
 class SplineLinear: public Spline<ScalarType, DataType>
 {
 public:
 
 	typedef DataTraits TDataTraits;
+	typedef Spline<ScalarType, DataType> TSplineBase;
+	typedef typename TSplineBase::TScalar TScalar;
+	typedef typename TSplineBase::TData TData;
 
 	SplineLinear();
 	template <typename PairInputIterator>

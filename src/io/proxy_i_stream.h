@@ -69,7 +69,7 @@ public:
 
 private:
 
-	std::istream* stdSource_;
+	std::istream* source_;
 };
 
 

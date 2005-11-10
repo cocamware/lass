@@ -415,12 +415,13 @@ std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubj
 	const T* const invMat = iTransformation.inverse().matrix();
 	const Vector3D<T>& n = iSubject.first;
 	const T d = iSubject.second;
-	return std::make_pair(
-		Vector3D<T>(
-			invMat[ 0] * n.x + invMat[ 4] * n.y + invMat[ 8] * n.z + invMat[12] * d,
-			invMat[ 1] * n.x + invMat[ 5] * n.y + invMat[ 9] * n.z + invMat[13] * d,
-			invMat[ 2] * n.x + invMat[ 6] * n.y + invMat[10] * n.z + invMat[14] * d),
-		invMat[ 3] * n.x + invMat[ 7] * n.y + invMat[11] * n.z + invMat[15] * d));
+	const Vector3D<T> transformedN(
+		invMat[ 0] * n.x + invMat[ 4] * n.y + invMat[ 8] * n.z + invMat[12] * d,
+		invMat[ 1] * n.x + invMat[ 5] * n.y + invMat[ 9] * n.z + invMat[13] * d,
+		invMat[ 2] * n.x + invMat[ 6] * n.y + invMat[10] * n.z + invMat[14] * d);
+	const T transformedD = 
+		invMat[ 3] * n.x + invMat[ 7] * n.y + invMat[11] * n.z + invMat[15] * d;
+	return std::make_pair(transformedN, transformedD);
 }
 
 

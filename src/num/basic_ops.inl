@@ -35,8 +35,7 @@ struct IntPow
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
 
 	static T eval(TSigned iX, TSigned iY)
-	{
-		LASS_ASSERT(iY >= 0);
+	{		LASS_ASSERT(iY >= 0);
 		return eval(iX, static_cast<TUnsigned>(iY));
 	}
 
@@ -146,22 +145,21 @@ template <typename T> inline T cubic(const T& iV)
 	return iV * iV * iV; 
 }
 
-/** return iV * iV
+/** return iV ^ -1
  *  @ingroup BasicOps
- *  @warning GENERIC FUNCTION USES EXP AND LOG!
  */
 template <typename T> inline T inv(const T& iV) 
 { 
-	return exp(-log(iX));
+	return T(1) / iV;
 }
 
-/** return iV * iV
+/** return iV ^ 1/2
  *  @ingroup BasicOps
  *  @warning GENERIC FUNCTION USES EXP AND LOG!
  */
 template <typename T> inline T sqrt(const T& iV) 
 { 
-	return exp(log(iX) / 2);
+	return exp(log(iV) / 2);
 }
 
 /** return exp(iPow * log(iV));
@@ -509,17 +507,17 @@ void inpround(unsigned long& ioV)	{}	/**< @ingroup BasicOps */
 // --- complex numbers -----------------------------------------------------------------------------
 
 template <typename T> std::complex<T> abs( const std::complex<T>& iV) { return std::abs( iV ); }
-template <typename T> std::complex<T> inv( const std::complex<T>& iV) { return T(1)/ioV; }
+template <typename T> std::complex<T> inv( const std::complex<T>& iV) { return T(1)/iV; }
 template <typename T> std::complex<T> sqrt( const std::complex<T>& iV){ return std::sqrt( iV ); }
 template <typename T> std::complex<T> pow(const std::complex<T>& iX, double iY) { return std::pow(iX, iY); }
-template <typename T> std::complex<T> exp( const std::complex<T>& iV) { return std::exp( ioV ); }
-template <typename T> std::complex<T> log( const std::complex<T>& iV) { return std::log( ioV ); }
-template <typename T> std::complex<T> cos( const std::complex<T>& iV) { return std::cos( ioV ); }
-template <typename T> std::complex<T> sin( const std::complex<T>& iV) { return std::sin( ioV ); }
-template <typename T> std::complex<T> tan( const std::complex<T>& iV) { return std::tan( ioV ); }
-template <typename T> std::complex<T> acos( const std::complex<T>& iV){ return std::acos( ioV ); }
-template <typename T> std::complex<T> asin( const std::complex<T>& iV){ return std::asin( ioV ); }
-template <typename T> std::complex<T> atan( const std::complex<T>& iV){ return std::atan( ioV ); }
+template <typename T> std::complex<T> exp( const std::complex<T>& iV) { return std::exp( iV ); }
+template <typename T> std::complex<T> log( const std::complex<T>& iV) { return std::log( iV ); }
+template <typename T> std::complex<T> cos( const std::complex<T>& iV) { return std::cos( iV ); }
+template <typename T> std::complex<T> sin( const std::complex<T>& iV) { return std::sin( iV ); }
+template <typename T> std::complex<T> tan( const std::complex<T>& iV) { return std::tan( iV ); }
+template <typename T> std::complex<T> acos( const std::complex<T>& iV){ return std::acos( iV ); }
+template <typename T> std::complex<T> asin( const std::complex<T>& iV){ return std::asin( iV ); }
+template <typename T> std::complex<T> atan( const std::complex<T>& iV){ return std::atan( iV ); }
 
 template <typename T> T norm(const std::complex<T>& iV) { return std::norm( iV ); }
 template <typename T> std::complex<T> conj(const std::complex<T>& iV) { return std::conj(iV); }

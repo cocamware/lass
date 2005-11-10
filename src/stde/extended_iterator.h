@@ -97,10 +97,10 @@ public:
 
 	self_type& operator=(const value_type& value)
 	{
-		if (current_ == container.end())
+		if (current_ == container_.end())
 		{
-			container.push_back(value);
-			current_ = container.end();
+			container_.push_back(value);
+			current_ = container_.end();
 		}
 		else
 		{
@@ -113,7 +113,7 @@ public:
 	self_type& operator++() { return *this; }
 	self_type& operator++(int) { return *this; }
 
-	const iterator current() const { return current_; }
+	const iterator get() const { return current_; }
 
 private:
 

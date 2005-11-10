@@ -30,6 +30,7 @@
 
 #include "num_common.h"
 #include "vector.h"
+#include "../meta/is_integral_type.h"
 
 #define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB)\
 	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
@@ -105,14 +106,9 @@ Vector<T, S>::Vector(const TStorage& iStorage):
  */
 template <typename T, typename S>
 template <typename VectorType>
-Vector<T, S>::Vector(const VectorType& iVector):
-	storage_(iVector.size(), T())
+Vector<T, S>::Vector(const VectorType& iVector)
 {
-	TSize n = size();
-	for (TSize i = 0; i < n; ++i)
-	{
-		storage_[i] = iVector[i];
-	}
+	init(iVector, meta::Type2Type<typename meta::IsIntegralType<VectorType>::Type>());
 }
 
 
@@ -747,6 +743,29 @@ void Vector<T, S>::swap(Vector<T, S>& iOther)
 
 // --- private -------------------------------------------------------------------------------------
 
+template <typename T, typename S>
+template <typename IntegralType>
+void Vector<T, S>::init(IntegralType iDimension, meta::Type2Type<meta::True>)
+{
+	TStorage temp(iDimension, T());
+	storage_.swap(temp);
+}
+
+
+
+template <typename T, typename S>
+template <typename VectorType>
+void Vector<T, S>::init(const VectorType& iVector, meta::Type2Type<meta::False>)
+{
+	TSize n = iVector.size();
+	TStorage temp(n, T());
+	for (TSize i = 0; i < n; ++i)
+	{
+		temp[i] = iVector[i];
+	}
+	storage_.swap(temp);
+}
+	
 
 
 // --- free ----------------------------------------------------------------------------------------
@@ -1035,7 +1054,7 @@ operator<<(std::basic_ostream<Char, Traits>& oOStream, const Vector<T, S>& iB)
 	const TSize n = iB.size();
 
 	LASS_ENFORCE_STREAM(oOStream) << "(";
-	if (size > 0)
+	if (n > 0)
 	{
 		LASS_ENFORCE_STREAM(oOStream) << iB[0];
 	}

@@ -34,12 +34,34 @@
 #include "../util/thread_fun.h"
 #include "../util/scoped_ptr.h"
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	include <windows.h>
+#else
+#	include <time.h>
+#endif
+
 namespace lass
 {
 namespace test
 {
 namespace thread_test
 {
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+	void sleep(int iMilliSeconds)
+	{
+		Sleep(iMilliSeconds);
+	}
+#else
+	void sleep(int iMilliSeconds)
+	{
+		timespec timeOut, remains;
+		timeOut.tv_sec = 0;
+		timeOut.tv_nsec = iMilliSeconds * 1000000;
+		nanosleep(&timeOut, &remains);
+	}
+#endif
+
 	bool functionIsCalled = false;
 
 	void foo(int a, int b) { functionIsCalled = true; }
@@ -50,7 +72,7 @@ namespace thread_test
 		void ham(int a) const { functionIsCalled = true; }
 	};
 
-	void eggs() { Sleep(10); functionIsCalled = true;}
+	void eggs() { sleep(10); functionIsCalled = true;}
 }
 
 void testUtilThreadFun()
@@ -63,17 +85,17 @@ void testUtilThreadFun()
 	thread_test::Bar bar;
 
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, thread_test::Bar::spam, util::THREAD_JOINABLE));
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::THREAD_JOINABLE));
 	thread->wait();
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
 	thread->wait();
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(util::makeCallback(&bar, thread_test::Bar::ham), 3, util::THREAD_JOINABLE));
+	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::THREAD_JOINABLE));
 	thread->wait();
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
@@ -81,7 +103,7 @@ void testUtilThreadFun()
 	thread_test::functionIsCalled = false;
 	util::threadFun(thread_test::eggs);
 	LASS_TEST_CHECK(!thread_test::functionIsCalled);
-	Sleep(100);
+	thread_test::sleep(100);
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 }
 

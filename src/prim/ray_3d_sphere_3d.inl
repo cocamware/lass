@@ -103,7 +103,7 @@ struct RaySphere<Normalized>
 		typedef typename TVector::TValue TValue;
 		typedef typename TVector::TNumTraits TNumTraits;
 
-		typedef num::DoublePrecision<T>::Type TDouble;
+		typedef typename num::DoublePrecision<T>::Type TDouble;
 		typedef Vector3D<TDouble> TVectorDouble;
 
 		const TVectorDouble cs(iRay.support() - iSphere.center());

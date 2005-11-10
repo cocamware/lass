@@ -7,8 +7,8 @@ import sys
 
 include_directories = ['%s/include/python%s' % (sys.prefix, sys.version[:3])]
 
-subprojects = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
-
+lib_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
+test_dirs = ['test']
 
 
 
@@ -17,6 +17,8 @@ def pre_build():
 	current = os.getcwd()
 	os.chdir('src/util')
 	os.system(sys.executable + ' pre_build.py')
+	os.chdir('../test')
+	os.system(sys.executable + ' pre_build.py')
 	os.chdir(current)
 
 
@@ -24,11 +26,12 @@ def check_extension(filename, extension):
 	return filename.endswith('.' + extension) and not filename.endswith('.tmpl.' + extension)
 
 
-def gather_sources():
+def gather_sources(directories):
 	ignore_list = []
-	for s in subprojects:
-		ignore_list.append('%s/%s.cpp' % (s, s))
+	for s in directories:
 		ignore_list.append('%s/%s_common.cpp' % (s, s))
+		if s != 'test':
+			ignore_list.append('%s/%s.cpp' % (s, s))
 
 	current = os.getcwd()
 	os.chdir('src')
@@ -38,8 +41,8 @@ def gather_sources():
 			sources.append(os.path.join(dirname, f))
 	
 	result = []
-	for s in subprojects:
-		os.path.walk(s, walker, result)
+	for dirname in directories:
+		os.path.walk(dirname, walker, result)
 	result = [f for f in result if check_extension(f, 'cpp') and not f in ignore_list]
 	
 	os.chdir(current)
@@ -48,7 +51,7 @@ def gather_sources():
 
 
 
-def gather_headers():
+def gather_headers(directories):
 	current = os.getcwd()
 	os.chdir('src')
 	
@@ -59,7 +62,7 @@ def gather_headers():
 	
 	result = {'': ['lass_common.h']}
 	os.path.walk('config', walker, result)
-	for s in subprojects:
+	for s in directories:
 		os.path.walk(s, walker, result)
 	
 	os.chdir(current)
@@ -80,11 +83,12 @@ AM_CONFIG_HEADER(config.h)
 
 # Checks for programs.
 AC_PROG_CXX
-AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_LN_S
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
+
+# Checks for languages
+AC_LANG_CPLUSPLUS
 
 # Checks for libraries.
 
@@ -101,7 +105,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_ERROR_AT_LINE
 AC_HEADER_STDC
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([atexit floor memset pow sqrt])
+AC_CHECK_FUNCS([atexit floor memset pow sqrt clock_gettime])
 AC_OUTPUT(Makefile src/Makefile)
 ''') 
 	configure.close()
@@ -117,9 +121,10 @@ SUBDIRS = src
 
 
 
-def writeSrcMakeFile(sources_list, headers_dict):
+def writeSrcMakeFile(sources_list, headers_dict, test_sources_list):
 	includes = ' '.join(['-I' + i for i in include_directories])
 	sources = ' '.join(sources_list)
+	test_sources = ' '.join(test_sources_list)
 
 	makefile=open('src/Makefile.am','w+')
 	makefile.write(r'''
@@ -129,11 +134,10 @@ INCLUDES= $(all_includes) %s
 # the library search path.
 #lass_LDFLAGS = $(all_libraries) 
 
-# the library
+# the librart
 lib_LTLIBRARIES = liblass.la
 liblass_la_SOURCES = %s
-
-# the headers
+liblass_la_LDFLAGS = -lpython2.3 -lrt
 ''' % (includes, sources)
 )
 
@@ -145,6 +149,13 @@ liblass_la_SOURCES = %s
 		incfiles = ' '.join([os.path.join(subdir, f) for f in headers_dict[subdir]])
 		makefile.write('include_lass%sdir = $(includedir)/lass%s\n' % (incname, incdir))
 		makefile.write('include_lass%s_HEADERS = %s\n' % (incname, incfiles))
+
+	makefile.write(r'''
+# test
+noinst_PROGRAMS = testlass
+testlass_SOURCES = %s
+testlass_LDADD = liblass.la
+''' % test_sources)
 
 	makefile.close()
 
@@ -169,9 +180,10 @@ def build():
 
 
 pre_build()
-sources = gather_sources()
-headers = gather_headers()
+sources = gather_sources(lib_dirs)
+headers = gather_headers(lib_dirs)
+test_sources = gather_sources(test_dirs)
 writeConfigure()
 writeMakeFile()
-writeSrcMakeFile(sources, headers)
+writeSrcMakeFile(sources, headers, test_sources)
 build()

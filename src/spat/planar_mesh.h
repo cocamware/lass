@@ -231,7 +231,9 @@ namespace spat
 			bool edgeToMatlab( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge )
 			{
 				if (!mesh_->internalMarking( iEdge ))
-					stream_ << TPlanarMesh::TLineSegment2D( TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) << std::endl;
+					stream_ << typename TPlanarMesh::TLineSegment2D( 
+						TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) 
+						<< std::endl;
 				else
 					return true;
 				mesh_->setInternalMarking( iEdge, true );
@@ -332,9 +334,11 @@ namespace spat
 		impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle> matlabWriter(&iMesh, ioOStream);
 		TEdgeMarker edgeMarker(  &iMesh, false );
 		iMesh.forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
-		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, &impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::edgeToMatlab ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, 
+			&impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::edgeToMatlab ) );
 		iMesh.forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
-		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, &impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::vertexToMatlab ) );
+		iMesh.forAllPrimaryEdges( TEdgeCallback( &matlabWriter, 
+			&impl::EdgeToMatlab<T,PointHandle,EdgeHandle,FaceHandle>::vertexToMatlab ) );
 		return ioOStream;
 	}
 

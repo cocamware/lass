@@ -33,7 +33,7 @@
 
 #include "../prim/vector_2d.h"
 #include "../prim/vector_3d.h"
-#include "../prim/vectoR_4d.h"
+#include "../prim/vector_4d.h"
 
 #define LASS_TEST_PRIM_VECTORS_EPSILON 1e-4
 

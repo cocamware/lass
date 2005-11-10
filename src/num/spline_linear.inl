@@ -128,12 +128,12 @@ SplineLinear<S, D, T>::SplineLinear(ScalarInputIterator iFirstControl,
  *		@arg N = number of nodes
  */
 template <typename S, typename D, typename T>
-typename const SplineLinear<S, D, T>::TData
+const typename SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::operator ()(TScalar iX) const
 {
 	LASS_ASSERT(!isEmpty());
 
-	const TNodes::const_iterator n = findNode(iX);
+	const typename TNodes::const_iterator n = findNode(iX);
 	const TScalar dx = iX - n->x;
 
 	TData result(n->y);
@@ -158,7 +158,7 @@ SplineLinear<S, D, T>::operator ()(TScalar iX) const
  *		@arg N = number of nodes
  */
 template <typename S, typename D, typename T>
-typename const SplineLinear<S, D, T>::TData
+const typename SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::derivative(TScalar iX) const
 {
 	LASS_ASSERT(!isEmpty());
@@ -182,7 +182,7 @@ SplineLinear<S, D, T>::derivative(TScalar iX) const
  *		@arg N = number of nodes
  */
 template <typename S, typename D, typename T>
-typename const SplineLinear<S, D, T>::TData
+const typename SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::derivative2(TScalar iX) const
 {
 	LASS_ASSERT(!isEmpty());
@@ -206,7 +206,7 @@ SplineLinear<S, D, T>::derivative2(TScalar iX) const
  *		@arg N = total number of nodes in spline
  */
 template <typename S, typename D, typename T>
-typename const SplineLinear<S, D, T>::TData
+const typename SplineLinear<S, D, T>::TData
 SplineLinear<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
 {
 	LASS_ASSERT(!isEmpty());
@@ -277,7 +277,7 @@ void SplineLinear<S, D, T>::init()
 {
 	// are there any nodes at all?  we need at least two!
 	//
-	const TNodes::size_type size = nodes_.size();
+	const typename TNodes::size_type size = nodes_.size();
 	if (size < 2)
 	{
 		LASS_THROW("A linear interpolator needs at least two nodes!  This one only has '"

@@ -327,7 +327,8 @@ template <typename T, class EP, class NP>
 const typename SimplePolygon3D<T, EP, NP>::TPointH 
 SimplePolygon3D<T, EP, NP>::surfaceCentroid() const
 {
-	if (size < 3)
+	const size_t n = size();
+	if (n < 3)
 	{
 		return vertexCentroid();
 	}
@@ -602,10 +603,10 @@ SimplePolygon3D<T, EP2, NP2> clip(const Plane3D<T, EP1, NP1>& iPlane,
 	typedef Plane3D<T, EP1, NP1> TPlane;
 	typedef SimplePolygon3D<T, EP2, NP2> TPolygon;
 	typedef Point3D<T> TPoint;
-	typedef TPoint::TValue TValue;
-	typedef TPoint::TNumTraits TNumTraits;
+	typedef typename TPoint::TValue TValue;
+	typedef typename TPoint::TNumTraits TNumTraits;
 
-    const size_t size = iPolygon.size();
+	const size_t size = iPolygon.size();
 	if (size < 2)
 	{
 		return iPolygon;

@@ -69,10 +69,9 @@ SplineCubic<S, D, T>::SplineCubic()
  */
 template <typename S, typename D, typename T>
 template <typename PairInputIterator>
-SplineCubic<S, D, T>::SplineCubic(PairInputIterator iFirst,
-								  PairInputIterator iLast)
+SplineCubic<S, D, T>::SplineCubic(PairInputIterator iFirst, PairInputIterator iLast)
 {
-	while (iFirstControl != iLastControl)
+	while (iFirst != iLast)
 	{
 		Node node;
 		node.x = iFirst->first;

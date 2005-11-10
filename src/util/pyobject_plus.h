@@ -270,6 +270,8 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
 		inline PyObject* pyBuildSimpleObject( PyObject* iV );
 
+		template <typename T> int pyGetSimpleObjectByName(const std::string& iName, T& oV);
+
 		namespace impl
 		{
 			/** @internal

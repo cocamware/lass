@@ -73,15 +73,15 @@ Dictionary<K, V, KL, VL>::Dictionary(TKeyLess iKeyLess, TValueLess iValueLess):
 template <typename K, typename V, typename KL, typename VL>
 void Dictionary<K, V, KL, VL>::add(const TKey& iKey, const TValue& iValue)
 {
-	std::pair<TMap::iterator, TMap::iterator> range = map_.equal_range(iKey);
-	for (TMap::iterator i = range.first; i != range.second; ++i)
+	std::pair<typename TMap::iterator, typename TMap::iterator> range = map_.equal_range(iKey);
+	for (typename TMap::iterator i = range.first; i != range.second; ++i)
 	{
 		if (equalValues(i->second, iValue))
 		{
 			return;
 		}
 	}
-	map_.insert(TMap::value_type(iKey, iValue));
+	map_.insert(typename TMap::value_type(iKey, iValue));
 }
 
 
@@ -91,8 +91,8 @@ void Dictionary<K, V, KL, VL>::add(const TKey& iKey, const TValue& iValue)
 template <typename K, typename V, typename KL, typename VL>
 void Dictionary<K, V, KL, VL>::remove(const TKey& iKey, const TValue& iValue)
 {
-	std::pair<TMap::iterator, TMap::iterator> range = map_.equal_range(iKey);
-	for (TMap::iterator i = range.first; i != range.second; ++i)
+	std::pair<typename TMap::iterator, typename TMap::iterator> range = map_.equal_range(iKey);
+	for (typename TMap::iterator i = range.first; i != range.second; ++i)
 	{
 		if (equalValues(i->second, iValue))
 		{
@@ -182,7 +182,7 @@ Dictionary<K, V, KL, VL>::operator[](TKeyParam iKey) const
  *         exception will be thrown.
  */
 template <typename K, typename V, typename KL, typename VL>
-typename const Dictionary<K, V, KL, VL>::TKey&
+const typename Dictionary<K, V, KL, VL>::TKey&
 Dictionary<K, V, KL, VL>::key(TValueParam iValue) const
 {
 	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
@@ -259,7 +259,7 @@ typename Dictionary<K, V, KL, VL>::TValues
 Dictionary<K, V, KL, VL>::values(TKeyParam iKey) const
 {
 	TValues result;
-	std::pair<TMap::const_iterator, TMap::const_iterator> range = map_.equal_range(iKey);
+	std::pair<typename TMap::const_iterator, typename TMap::const_iterator> range = map_.equal_range(iKey);
 	for (typename TMap::const_iterator i = range.first; i != range.second; ++i)
 	{
 		result.insert(i->second);
@@ -284,7 +284,7 @@ bool Dictionary<K, V, KL, VL>::isKey(TKeyParam iKey) const
 template <typename K, typename V, typename KL, typename VL>
 bool Dictionary<K, V, KL, VL>::isValue(TValueParam iValue) const
 {
-	for (TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
+	for (typename TMap::const_iterator i = map_.begin(); i != map_.end(); ++i)
 	{
 		if (equalValues(i->second, iValue))
 		{

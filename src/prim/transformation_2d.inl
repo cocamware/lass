@@ -255,7 +255,7 @@ Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformat
 				a[i + 2] * b[6 + j];
 		}
 	}
-	return Transformation2D<T>(result, result + matrixSize_);
+	return Transformation2D<T>(result, result + 9);
 }
 
 
@@ -330,7 +330,7 @@ std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& iSubj
 		Vector2D<T>(
 			invMat[0] * n.x + invMat[3] * n.y + invMat[6] * c,
 			invMat[1] * n.x + invMat[4] * n.y + invMat[7] * c),
-		invMat[2] * n.x + invMat[5] * n.y + invMat[8] * c));
+		invMat[2] * n.x + invMat[5] * n.y + invMat[8] * c);
 }
 
 

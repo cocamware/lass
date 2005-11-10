@@ -249,7 +249,6 @@ class Thread
 public:
 	// the return type for the thread function
 	typedef void *ExitCode;
-	typedef unsigned long TId;
 
 	Thread(ThreadKind kind = THREAD_DETACHED);
 
@@ -298,10 +297,6 @@ public:
 
 		// is the thread of detached kind?
 	bool isDetached() const { return m_isDetached; }
-
-	// Get the thread ID - a platform dependent number which uniquely
-	// identifies a thread inside a process
-	TId getId() const;
 
 	// called when the thread exits - in the context of this thread
 	//

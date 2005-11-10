@@ -408,12 +408,6 @@ void Thread::exit(ExitCode status)
 	LASS_LOG("Could not return from ExitThread()!");
 }
 
-Thread::TId Thread::getId() const
-{
-	MutexLocker lock((Mutex &)m_mutex);
-	return reinterpret_cast<TId>(m_internal->thread());
-}
-
 bool Thread::isRunning() const
 {
 	MutexLocker lock((Mutex &)m_mutex);

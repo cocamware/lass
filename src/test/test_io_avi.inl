@@ -24,11 +24,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_IO_AVI_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_IO_AVI_INL
 
 #include "test_common.h"
 
 #include "../io/avi.h"
+
+#if !defined(LASS_IO_AVI_NO_SUPPORT)
+
 #include "../prim/color_rgba.h"
 #include "../num/random.h"
 #include "../num/distribution.h"
@@ -75,5 +79,9 @@ void testIoAvi()
 }
 
 }
+
+#endif
+
+#endif
 
 // EOF

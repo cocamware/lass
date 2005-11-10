@@ -1338,7 +1338,9 @@ $[
 	}\
 	inline int LASS_CONCATENATE_3( pyPublicSetterR, i_cppClass, i_cppMember ) ( PyObject* iObject,PyObject* iArgs, void* iClosure )\
 	{\
-		PyErr_SetString(PyExc_TypeError, LASS_CONCATENATE_3("Object/reference ",LASS_STRINGIFY(i_cppMember)," is read-only"));\
+		std::ostringstream buffer;\
+		buffer << "Object/reference " << s_memberName << " is read-only.";\
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());\
 		return -1;\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\

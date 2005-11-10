@@ -28,7 +28,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_TOLERANCE_COMPARISON_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_TOLERANCE_COMPARISON_H
 
-#include <cmath>
+#include "num_common.h"
+#include "basic_ops.h"
 
 namespace lass
 {

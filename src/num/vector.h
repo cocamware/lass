@@ -35,6 +35,8 @@
 
 #include "num_common.h"
 #include "num_traits.h"
+#include "../meta/bool.h"
+#include "../meta/type_2_type.h"
 #include "../util/call_traits.h"
 #include "impl/vector_expressions.h"
 
@@ -120,6 +122,9 @@ private:
 
 	template <typename T2, typename S2> friend class Vector;
 
+	template <typename IntegralType> void init(IntegralType iDimension, meta::Type2Type<meta::True>);
+	template <typename VectorType> void init(const VectorType& iVector, meta::Type2Type<meta::False>);
+ 
 	TStorage storage_;
 };
 

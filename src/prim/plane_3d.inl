@@ -135,7 +135,7 @@ template<typename T, typename EP, typename NP>
 const typename Plane3D<T, EP, NP>::TValue
 Plane3D<T, EP, NP>::signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
-	return NP::divideByNorm(equation(iPoint, iRelativeTolerance), normal_);
+	return NP::divideByNorm(equation(iPoint, iRelativeTolerance), this->normal());
 }
 
 
@@ -161,7 +161,7 @@ Plane3D<T, EP, NP>::squaredDistance(const TPoint& iPoint, TParam iRelativeTolera
 template<typename T, typename EP, typename NP>
 const XYZ Plane3D<T, EP, NP>::majorAxis() const
 {
-	const TVector absNormal = normal().transform(num::abs);
+	const TVector absNormal = this->normal().transform(num::abs);
 	if (absNormal.x > absNormal.y && absNormal.x > absNormal.z)
 	{
 		return 0; // x

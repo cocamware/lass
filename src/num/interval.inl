@@ -246,7 +246,7 @@ template<typename C>    C  numMax4(const C& k1,const C& k2,const C& k3,const C& 
 	tmpmax = k2;
 	if (k1>k2)
 		tmpmax = k1;
-	if (k3>tmpmin)
+	if (k3>tmpmax)
 		tmpmax = k3;
 	if (k4>tmpmax)
 		tmpmax = k4;

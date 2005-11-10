@@ -244,7 +244,7 @@ void testNumSpline()
 	/**/
 
 	num::SplineLinear<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > linear(
-		w, w + (sizeof w / sizeof TScalar), xyz);
+		w, w + (sizeof(w) / sizeof(TScalar)), xyz);
 	std::ofstream outputLinear("spline_linear.txt");
 	const size_t n = static_cast<size_t>(num::floor((end - begin) / delta));
 	for (unsigned i = 0; i < n; ++i)
@@ -262,7 +262,7 @@ void testNumSpline()
 	}
 
 	num::SplineCubic<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > cubic(
-		w, w + (sizeof w / sizeof TScalar), xyz);
+		w, w + (sizeof(w) / sizeof(TScalar)), xyz);
 	std::ofstream outputCubic("spline_cubic.txt");
 	for (unsigned i = 0; i < n; ++i)
 	{

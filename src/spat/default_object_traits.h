@@ -35,11 +35,26 @@
 
 #include "spat_common.h"
 #include "../meta/select.h"
+#include "../prim/result.h"
 
 namespace lass
 {
 namespace spat
 {
+
+namespace impl
+{
+template <typename AabbType, typename ObjectType> inline 
+AabbType aabbHelper(const ObjectType& iObject) 
+{ 
+	return aabb(iObject); 
+}
+template <typename SubjectType, typename RayType, typename ReferenceType, typename ParamType> inline 
+prim::Result intersectHelper(const SubjectType& iSubject, const RayType& iRay, ReferenceType oT, ParamType iMinT) 
+{
+	return intersect(iSubject, iRay, oT, iMinT);
+}
+}
 
 template 
 <
@@ -73,7 +88,7 @@ struct DefaultObjectTraits
 	 */
 	static const TAabb aabb(TObjectIterator iObject) 
 	{ 
-		return prim::aabb(*iObject); 
+		impl::aabbHelper<TAabb, TObject>(*iObject); 
 	}
 	
 	/** return true if object contains a point, return false otherwise
@@ -87,7 +102,8 @@ struct DefaultObjectTraits
 	 */
 	static const bool intersect(TObjectIterator iObject, const TRay& iRay, TReference oT, TParam iMinT)
 	{
-		return prim::intersect(*iObject, iRay, oT, iMinT) != prim::rNone;
+		return impl::intersectHelper<TObject, TRay, TReference, TParam>(
+			*iObject, iRay, oT, iMinT) != prim::rNone;
 	}
 	
 
@@ -104,7 +120,8 @@ struct DefaultObjectTraits
 	 */
 	static const bool intersect(const TAabb& iAabb, const TRay& iRay, TReference oT, const TParam iMinT)
 	{
-		return prim::intersect(iAabb, iRay, oT, iMinT) != prim::rNone;
+		return impl::intersectHelper<TAabb, TRay, TReference, TParam>(
+			iAabb, iRay, oT, iMinT) != prim::rNone;
 	}
 	
 	/** join two AABBs and return the result

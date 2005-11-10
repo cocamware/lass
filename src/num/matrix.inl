@@ -337,7 +337,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MNeg<T, S> >
 Matrix<T, S>::operator-() const
 {
-	typedef impl::VNeg<T, S> TExpression;
+	typedef impl::MNeg<T, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(storage_));
 }
 
@@ -862,7 +862,7 @@ operator+(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MAdd<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar<T>(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -879,7 +879,7 @@ operator-(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MSub<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar<T>(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -896,7 +896,7 @@ operator*(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MMul<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		impl::MScalar(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar<T>(iA, iB.rows(), iB.cols()), iB.storage()));
 }
 
 
@@ -913,7 +913,7 @@ operator+(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MAdd<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(iB, iA.rows(), iA.cols())));
 }
 
 
@@ -930,7 +930,7 @@ operator-(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MSub<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar(-iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(-iB, iA.rows(), iA.cols())));
 }
 
 
@@ -947,7 +947,7 @@ operator*(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar(iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(iB, iA.rows(), iA.cols())));
 }
 
 
@@ -964,7 +964,7 @@ operator/(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
 }
 
 

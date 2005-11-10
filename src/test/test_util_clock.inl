@@ -33,6 +33,11 @@
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
 
+#include <ctime>
+#ifndef CLK_TCK
+#	include <unistd.h>
+#	define CLK_TCK sysconf(_SC_CLK_TCK)
+#endif
 
 namespace lass
 {
@@ -55,7 +60,7 @@ void testUtilClock()
 	double testSeconds = 1;
 
 	const ::clock_t stdBegin = ::clock();
-	const ::clock_t stdEnd = stdBegin + static_cast<::clock_t>(testSeconds * CLK_TCK);
+	const ::clock_t stdEnd = stdBegin + static_cast< ::clock_t >(testSeconds * CLK_TCK);
 
 	while (::clock() <= stdBegin)
 	{

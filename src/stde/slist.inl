@@ -1459,7 +1459,7 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 		   slist<T, Alloc>& container)
 {
 	std::basic_istream<Char, Traits>& result =
-		impl::readContainer<impl::slist_traits, impl::value_traits, T, Char>(
+		impl::read_container<impl::slist_traits, impl::value_traits, T, Char>(
 			istream, container, '[', ',', 0, ']');
 	container.reverse();
 	return result;

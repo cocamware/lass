@@ -118,7 +118,7 @@ private:
 	void move_to_front(iterator first, iterator last, size_type step);
 	void enforce_valid_size(size_type new_size) const;
 
-	char data_[max_size_ * sizeof T];
+	char data_[max_size_ * sizeof(T)];
 	size_type size_;
 };
 

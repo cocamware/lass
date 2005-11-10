@@ -58,8 +58,8 @@ namespace stde
 template <typename Pair>
 struct select_1st: public std::unary_function<Pair, typename Pair::first_type>
 {
-	typename util::CallTraits<result_type>::TParam 
-	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	typename util::CallTraits<typename Pair::first_type>::TParam 
+	operator()(typename util::CallTraits<Pair>::TParam iArgument) 
 	{ 
 		return iArgument.first; 
 	}
@@ -73,8 +73,8 @@ struct select_1st: public std::unary_function<Pair, typename Pair::first_type>
 template <typename Pair>
 struct select_2nd: public std::unary_function<Pair, typename Pair::second_type>
 {
-	typename util::CallTraits<result_type>::TParam 
-	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	typename util::CallTraits<typename Pair::second_type>::TParam 
+	operator()(typename util::CallTraits<Pair>::TParam iArgument) 
 	{ 
 		return iArgument.second; 
 	}
@@ -88,8 +88,8 @@ struct select_2nd: public std::unary_function<Pair, typename Pair::second_type>
 template <typename Triple>
 struct select_3rd: public std::unary_function<Triple, typename Triple::third_type>
 {
-	typename util::CallTraits<result_type>::TParam 
-	operator()(typename util::CallTraits<argument_type>::TParam iArgument) 
+	typename util::CallTraits<typename Triple::third_type>::TParam 
+	operator()(typename util::CallTraits<Triple>::TParam iArgument) 
 	{ 
 		return iArgument.third; 
 	}

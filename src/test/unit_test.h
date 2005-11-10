@@ -31,61 +31,65 @@
 #include "../num/floating_point_comparison.h"
 #include "../util/callback_0.h"
 
-#define LASS_UNIT_TEST(o_functor)\
+#define LASS_UNIT_TEST(o_functor) \
 	::lass::test::impl::UnitTest(::lass::util::makeCallback(o_functor), LASS_STRINGIFY(o_functor), LASS_FILE, LASS_LINE)
 
 #define LASS_TEST_ERROR(s_message)\
 	LASS_TEST_IMPL_ERROR(s_message, LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CATCH_EXCEPTIONS(s_message)\
+#define LASS_TEST_CATCH_EXCEPTIONS(s_message) \
 	LASS_TEST_IMPL_CATCH_EXCEPTIONS(s_message, LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK(e_predicate)\
+#define LASS_TEST_CHECK(e_predicate) \
 	::lass::test::impl::check((e_predicate), "test '" LASS_STRINGIFY(e_predicate) "' failed.", LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_MESSAGE(e_predicate, s_message)\
+#define LASS_TEST_CHECK_MESSAGE(e_predicate, s_message) \
 	::lass::test::impl::check((e_predicate), s_message, LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_EQUAL(a, b)\
+#define LASS_TEST_CHECK_EQUAL(a, b) \
 	::lass::test::impl::checkEqual((a), (b), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_LEXICAL(a, b)\
-	::lass::test::impl::checkEqual(::lass::util::stringCast<::std::string>(a), ::lass::util::stringCast<::std::string>(b), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
+#define LASS_TEST_CHECK_LEXICAL(a, b) \
+	::lass::test::impl::checkEqual( \
+		::lass::util::stringCast< ::std::string >(a), ::lass::util::stringCast< ::std::string >(b), \
+		LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_CLOSE(a, b, relative_tolerance)\
-	::lass::test::impl::checkClose((a), (b), (relative_tolerance), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
+#define LASS_TEST_CHECK_CLOSE(a, b, relative_tolerance) \
+	::lass::test::impl::checkClose( \
+		(a), (b), (relative_tolerance), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_CLOSE_ARRAY(a, b, relative_tolerance, size)\
-	::lass::test::impl::checkCloseArray((a), (b), (relative_tolerance), (size), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
+#define LASS_TEST_CHECK_CLOSE_ARRAY(a, b, relative_tolerance, size) \
+	::lass::test::impl::checkCloseArray( \
+		(a), (b), (relative_tolerance), (size), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)
 
-#define LASS_TEST_CHECK_NO_THROW(e_predicate)\
-	do\
-	{\
-		try\
-		{\
-			e_predicate;\
-		}\
-		LASS_TEST_CATCH_EXCEPTIONS("exception was thrown by '" LASS_STRINGIFY(e_predicate) "'")\
-	}\
+#define LASS_TEST_CHECK_NO_THROW(e_predicate) \
+	do \
+	{ \
+		try \
+		{ \
+			e_predicate; \
+		} \
+		LASS_TEST_CATCH_EXCEPTIONS("exception was thrown by '" LASS_STRINGIFY(e_predicate) "'") \
+	} \
 	while (false)
 
-#define LASS_TEST_CHECK_THROW(e_predicate, exception_type)\
-	do\
-	{\
-		try\
-		{\
-			try\
-			{\
-				e_predicate;\
-			}\
-			catch(const exception_type&)\
-			{\
-				break;\
-			}\
-		}\
-		LASS_TEST_CATCH_EXCEPTIONS("wrong exception was thrown by '" LASS_STRINGIFY(e_predicate) "'")\
-		LASS_TEST_ERROR("no exception was thrown by '" << LASS_STRINGIFY(e_predicate) << "'.");\
-	}\
+#define LASS_TEST_CHECK_THROW(e_predicate, exception_type) \
+	do \
+	{ \
+		try \
+		{ \
+			try \
+			{ \
+				e_predicate; \
+			} \
+			catch(const exception_type&) \
+			{ \
+				break; \
+			} \
+		} \
+		LASS_TEST_CATCH_EXCEPTIONS("wrong exception was thrown by '" LASS_STRINGIFY(e_predicate) "'") \
+		LASS_TEST_ERROR("no exception was thrown by '" << LASS_STRINGIFY(e_predicate) << "'."); \
+	} \
 	while (false)
 
 namespace lass

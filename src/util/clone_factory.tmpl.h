@@ -77,13 +77,13 @@
  *
  *  Base* clone(const Base& iPrototype) { return iPrototype.clone(); }
  *
-  * typedef util::CloneFactory<clone_factory::Base, std::string> TFactory;
- *  typedef std::auto_ptr<clone_factory::Base> TBasePtr;
+  * typedef util::CloneFactory<Base, std::string> TFactory;
+ *  typedef std::auto_ptr<Base> TBasePtr;
  *
- *  TFactory factory(clone_factory::clone);
- *  factory.subscribe("Joe", TBasePtr(new clone_factory::Base("Joe")));
- *  factory.subscribe("Moe", TBasePtr(new clone_factory::Foo("Moe")));
- *  factory.subscribe("Doe", TBasePtr(new clone_factory::Bar("Doe")));
+ *  TFactory factory(clone);
+ *  factory.subscribe("Joe", TBasePtr(new Base("Joe")));
+ *  factory.subscribe("Moe", TBasePtr(new Foo("Moe")));
+ *  factory.subscribe("Doe", TBasePtr(new Bar("Doe")));
  *
  *  TBasePtr a(factory.make("Joe"));
  *  LASS_COUT << a->who() << "\n"; // Base Joe
@@ -132,7 +132,7 @@ public:
 	bool subscribe(typename CallTraits<IdentifierType>::TParam iIdentifier,
 				   std::auto_ptr<AbstractProduct> iPrototype)
 	{
-		return prototypes_.insert(TPrototypes::value_type(iIdentifier, iPrototype)).second;
+		return prototypes_.insert(typename TPrototypes::value_type(iIdentifier, iPrototype)).second;
 	}
 
 	/** unregister a concrete product by its @a iIdentifier

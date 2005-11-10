@@ -52,7 +52,7 @@ void testUtilFixedArray()
 	LASS_TEST_CHECK_EQUAL(array.empty(), false);
 
 	T value(1);
-	for (TFixedArray::iterator it = array.begin(); it != array.end(); ++it)
+	for (typename TFixedArray::iterator it = array.begin(); it != array.end(); ++it)
 	{
 		*it = value;
 		value += value;
@@ -73,7 +73,7 @@ void testUtilFixedArray()
 	LASS_TEST_CHECK_EQUAL(*array.begin(), array.front());
 	LASS_TEST_CHECK_EQUAL(*array.rbegin(), array.back());
 
-	LASS_TEST_CHECK_THROW(array.at(static_cast<TFixedArray::size_type>(-1)) = 37, std::exception);
+	LASS_TEST_CHECK_THROW(array.at(static_cast<typename TFixedArray::size_type>(-1)) = 37, std::exception);
 	LASS_TEST_CHECK_THROW(array.at(5) = 37, std::exception);
 
 	FixedArray<T, 0> nullArray;

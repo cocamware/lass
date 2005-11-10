@@ -53,7 +53,7 @@ ProxyIStream::ProxyIStream( std::istream* iSource  )
  */
 void ProxyIStream::setSource( std::istream* iSource )
 {
-	stdSource_ = iSource;
+	source_ = iSource;
 }
 
 

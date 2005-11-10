@@ -115,7 +115,7 @@
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	define LASS_IO_AVI_WIN32
 #else
-#	pragma LASS_IO_AVI_NO_SUPPORT
+#	define LASS_IO_AVI_NO_SUPPORT
 #	pragma LASS_NOTE("COMPATIBILTY WARNING: lass::io::Avi is not supported on this platform")
 #endif
 

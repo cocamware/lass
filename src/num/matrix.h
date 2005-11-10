@@ -103,7 +103,7 @@ public:
 	public:
 		T& operator[](size_t iI) { return matrix_(iI, column_); }
 		const T& operator[](size_t iI) const { return matrix_(iI, column_); }
-		T& at(size_t iI) { return matrix_.at(iI, iJ); }
+		T& at(size_t iI) { return matrix_.at(iI, column_); }
 		const T& at(size_t iI) const { return matrix_.at(iI, column_); }
 		const TSize size() const { return matrix_.rows(); }
 	private:

@@ -196,7 +196,7 @@ namespace impl
 				PyErr_SetString(PyExc_TypeError, "Cannot convert data to appropriate type");
 				return 1;
 			}
-			map_->insert(M::value_type(cppKey,cppData));
+			map_->insert(typename M::value_type(cppKey,cppData));
 			return 0;
 		}
 	}

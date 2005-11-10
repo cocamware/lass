@@ -53,7 +53,7 @@ void testUtilSmallObject()
 {
 	using namespace small_object;
 
-	LASS_COUT << "sizeof Small: " << sizeof Small << std::endl;
+	LASS_COUT << "sizeof Small: " << sizeof(Small) << std::endl;
 
 	LASS_COUT << "a\n";
 	Small* a = new Small;
@@ -64,7 +64,7 @@ void testUtilSmallObject()
 	delete b;
 
 	LASS_COUT << "c\n";
-	char buffer[sizeof Small];
+	char buffer[sizeof(Small)];
 	Small* c = new (buffer) Small;
 	c->~Small();
 }

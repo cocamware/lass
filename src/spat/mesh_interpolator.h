@@ -149,30 +149,30 @@ LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, con
 
 	typename TPlanarMesh::TEdge*    e;
 
-	info_.push_back(iValueOutside);
+	this->info_.push_back(iValueOutside);
 
-	e = mesh_.locate(topleft);
+	e = this->mesh_.locate(topleft);
 	LASS_ASSERT(TPlanarMesh::org(e) == topleft);
-	TPlanarMesh::setPointHandle(e, &info_.back());
+	TPlanarMesh::setPointHandle(e, &this->info_.back());
 
-	e = mesh_.locate(topright);
+	e = this->mesh_.locate(topright);
 	LASS_ASSERT(TPlanarMesh::org(e) == topright);
-	TPlanarMesh::setPointHandle( e, &info_.back() );
+	TPlanarMesh::setPointHandle( e, &this->info_.back() );
 
-	e = mesh_.locate(bottomleft);
+	e = this->mesh_.locate(bottomleft);
 	LASS_ASSERT(TPlanarMesh::org(e) == bottomleft);
-	TPlanarMesh::setPointHandle(e, &info_.back());
+	TPlanarMesh::setPointHandle(e, &this->info_.back());
 
-	e = mesh_.locate(bottomright);
+	e = this->mesh_.locate(bottomright);
 	LASS_ASSERT(TPlanarMesh::org(e) == bottomright);
-	TPlanarMesh::setPointHandle( e, &info_.back() );
+	TPlanarMesh::setPointHandle( e, &this->info_.back() );
 
 }
 
 template<typename T, typename TPI>
 TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
 {
-	typename TPlanarMesh::TEdge* e=mesh_.locate(iQuery);
+	typename TPlanarMesh::TEdge* e = this->mesh_.locate(iQuery);
 	if (!TPlanarMesh::hasLeftFace(e))
 		e = e->sym();
 

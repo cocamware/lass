@@ -182,7 +182,7 @@ template <typename T>
 const typename Triangle3D<T>::TValue
 Triangle3D<T>::area() const
 {
-	return num::sqrt(squaredNorm());
+	return num::sqrt(squaredArea());
 }
 
 
@@ -247,17 +247,14 @@ const bool Triangle3D<T>::isConvex() const
 
 
 
-/** return true if inner angle of vertex is reflex (is > 180 degrees).
- *  @warning assumes polygon is simple
- *
- *  test if signedArea() and perdDot(...) have different sign.
- *  if one of them is zero, it will return false by default.
+/** @copydoc SimplePolygon3D::isReflex
+ *  @par Triangle specific:
+ *	A triangle never has reflex vertices
  */
 template <typename T>
 const bool Triangle3D<T>::isReflex(int iIndexOfVertex) const
 {
-	const TValue pd = perdDot(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)); // Ax(-B) = BxA
-	return signedArea() * pd < TNumTraits::zero;
+	return false;
 }
 
 

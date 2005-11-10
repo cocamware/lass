@@ -298,6 +298,18 @@ inline PyObject* pyBuildSimpleObject( const char* iV )
 }
 
 
+/** @ingroup Python
+ *  get value of a python object by the name of the python object rather than the pointer
+ */
+template <typename T>
+int pyGetSimpleObjectByName(const std::string& iName, T& oV)
+{
+	PyObject* module = PyImport_AddModule("__main__");
+	PyObject* dict = PyModule_GetDict(module);
+	PyObject* temp = PyDict_GetItemString(dict, iName.c_str());
+	return python::pyGetSimpleObject(temp, oV);
+}
+
 
 // --- impl ----------------------------------------------------------------------------------------
 

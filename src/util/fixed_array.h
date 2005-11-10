@@ -71,120 +71,151 @@ public:
 	typedef ptrdiff_t difference_type;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
-
-	// stlport thing to declare the std::reverse_iterator and std::const_reverse_iterator
-	//
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
 	// iterator support
 
-	iterator begin() { return holder_.begin(); }
-	iterator end() { return holder_.end(); }
+	iterator begin() { return array_; }
+	iterator end() { return array_ + size_; }
 
-	const_iterator begin() const { return holder_.begin(); }
-	const_iterator end() const { return holder_.end(); }
+	const_iterator begin() const { return array_; }
+	const_iterator end() const { return array_ + size_; }
 
-	reverse_iterator rbegin() { return reverse_iterator(holder_.end()); }
-	reverse_iterator rend() { return reverse_iterator(holder_.begin()); }
+	reverse_iterator rbegin() { return reverse_iterator(end()); }
+	reverse_iterator rend() { return reverse_iterator(begin()); }
 
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(holder_.end()); }
-	const_reverse_iterator rend() const { return const_reverse_iterator(holder_.begin()); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 
 
 	// direct element access
 
 	reference operator[](size_type iIndex)
 	{
-		return *holder_[iIndex];
+		LASS_ASSERT(iIndex < size_);
+		return array_[iIndex];
 	}
 
 	const_reference operator[](size_type iIndex) const
 	{
-		return *holder_[iIndex];
+		LASS_ASSERT(iIndex < size_);
+		return array_[iIndex];
 	}
 
 	reference at(size_type iIndex) 
 	{
-		if (!holder_.inRange(iIndex))
+		if (iIndex >= size_)
 		{
 			throw std::out_of_range("index out of range in lass::util::FixedArray::at");
 		}
-		return *holder_[iIndex];
+		return array_[iIndex];
 	}
 
 	const_reference at(size_type iIndex) const
 	{
-		if (!holder_.inRange(iIndex))
+		if (iIndex >= size_)
 		{
 			throw std::out_of_range("index out of range in lass::util::FixedArray::at");
 		}
-		return *holder_[iIndex];
+		return array_[iIndex];
 	}
 
-	reference front() { return this->operator[](0); }
-	reference back() { return this->operator[](size_ - 1); }
+	reference front() { return array_[0]; }
+	reference back() { return array_[size_ - 1]; }
 
-	const_reference front() const { return this->operator[](0); }
-	const_reference back() const { return this->operator[](size_ - 1); }
+	const_reference front() const { return array_[0]; }
+	const_reference back() const { return array_[size_ - 1]; }
 
 
 	// general
 
 	size_type size() const { return size_; }
 	size_type max_size() const { return size_; }
-	bool empty() const { return size_ == 0; }
+	bool empty() const { return false; }
 
 private:
 
-	template<size_type size_>
-	class Holder
-	{
-	public:
-		iterator begin() { return array_; }
-		iterator end() { return array_ + size_; }
-		const_iterator begin() const { return array_; }
-		const_iterator end() const { return array_ + size_; }
-		T* operator[](size_type iIndex)
-		{
-			LASS_ASSERT(inRange(iIndex));
-			return &array_[iIndex];
-		}
-		const T* operator[](size_type iIndex) const
-		{
-			LASS_ASSERT(inRange(iIndex));
-			return &array_[iIndex];
-		}
-		bool inRange(size_type iIndex) const { return iIndex < size_; }
-	private:
-		value_type array_[size_];
-	};
-
-	template<>
-	class Holder<0>
-	{
-	public:
-		iterator begin() { return 0; }
-		iterator end() { return 0; }
-		const_iterator begin() const { return 0; }
-		const_iterator end() const { return 0; }
-		T* operator[](size_type iIndex)
-		{
-			LASS_ASSERT(false); // you should never be in here!
-			return 0;
-		}
-		const T* operator[](size_type iIndex) const
-		{
-			LASS_ASSERT(false); // you should never be in here!
-			return 0;
-		}
-		bool inRange(size_type iIndex) const { return false; }
-	};
-
-	Holder<size_> holder_;
+	value_type array_[size_];
 };
 
+
+
+template <typename T>
+  class FixedArray<T, 0>
+{
+public:
+
+	// type definitions
+
+	typedef T value_type;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef value_type* pointer;
+	typedef const value_type* const_pointer;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	typedef value_type* iterator;
+	typedef const value_type* const_iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+
+	// iterator support
+
+	iterator begin() { return 0; }
+	iterator end() { return 0; }
+
+	const_iterator begin() const { return 0; }
+	const_iterator end() const { return 0; }
+
+	reverse_iterator rbegin() { return reverse_iterator(end()); }
+	reverse_iterator rend() { return reverse_iterator(begin()); }
+
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
+
+
+	// direct element access
+
+	reference operator[](size_type iIndex)
+	{
+		LASS_ASSERT(false);
+		return *begin();
+	}
+
+	const_reference operator[](size_type iIndex) const
+	{
+		LASS_ASSERT(false);
+		return *begin();
+	}
+
+	reference at(size_type iIndex) 
+	{
+		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
+		return *begin();
+	}
+
+	const_reference at(size_type iIndex) const
+	{
+		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
+		return *begin();
+	}
+
+	reference front() { return *begin(); }
+	reference back() { return *begin(); }
+
+	const_reference front() const { return *begin(); }
+	const_reference back() const { return *begin(); }
+
+
+	// general
+
+	size_type size() const { return 0; }
+	size_type max_size() const { return 0; }
+	bool empty() const { return true; }
+};
 
 
 }

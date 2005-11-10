@@ -34,6 +34,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_SPLINE_H
 
 #include "num_common.h"
+#include "../stde/extended_iterator.h"
 
 namespace lass
 {
@@ -101,11 +102,11 @@ struct DataTraitsSequence
 	typedef typename SequenceType::value_type TScalar;
 	static size_t dimension(const TData& iY) { return std::distance(iY.begin(), iY.end()); }
 	static void zero(TData& ioY, size_t iDim) { ioY = TData(iDim); }
-	static TScalar get(const TData& iY, size_t iIndex) { return *stde::next(ioY.begin(), iIndex); }
+	static TScalar get(const TData& iY, size_t iIndex) { return *stde::next(iY.begin(), iIndex); }
 	static void set(TData& ioY, size_t iIndex, TScalar iV) { *stde::next(ioY.begin(), iIndex) = iV; }
 	static void scale(TData& ioAcc, TScalar iS) 
 	{ 
-		std::transform(ioAcc.begin(), ioAcc.end(), ioAcc.begin(), std::bind2nd(std::multiply, iS));
+		std::transform(ioAcc.begin(), ioAcc.end(), ioAcc.begin(), std::bind2nd(std::multiplies<TScalar>(), iS));
 	}
 	static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS) 
 	{
