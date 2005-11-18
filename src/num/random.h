@@ -59,6 +59,7 @@ public:
 
 
 	const TValue operator()() const;
+	const TValue operator()(TValue iSupremum) const;
 };
 
 
@@ -84,6 +85,7 @@ public:
 	void seed(TValue iSeed);
 
 	const TValue operator()();
+	const TValue operator()(TValue iSupremum);
 
 private:
 
@@ -136,6 +138,7 @@ public:
 	template <typename ForwardIterator> void seed(ForwardIterator iBegin, ForwardIterator iEnd);
 
 	const TValue operator()();
+	const TValue operator()(TValue iSupremum);
 
 private:
 

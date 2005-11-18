@@ -33,6 +33,8 @@ namespace prim
 namespace impl
 {
 
+/** @internal
+ */
 template <typename Point, typename Vector, typename T> inline
 bool intersectEdge2D(const Point& iSupport, const Vector& iDirection, 
 					 const Point& iTail, const Point& iHead, 

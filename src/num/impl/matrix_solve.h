@@ -83,10 +83,12 @@ void lumprove(RandomIterator1 iMatrix,
 
 
 template <typename T, typename RandomIterator1,	typename RandomIterator2> 
-bool cramer2(RandomIterator1 iMatrixRowMajor, RandomIterator2 ioColumn);
+bool cramer2(RandomIterator1 iMatrixRowMajor, 
+			 RandomIterator2 ioColumnFirst, RandomIterator2 ioColumnLast);
 
 template <typename T, typename RandomIterator1,	typename RandomIterator2> 
-bool cramer3(RandomIterator1 iMatrixRowMajor, RandomIterator2 ioColumn);
+bool cramer3(RandomIterator1 iMatrixRowMajor,
+			 RandomIterator2 ioColumnFirst, RandomIterator2 ioColumnLast);
 
 }
 

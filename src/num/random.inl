@@ -38,9 +38,31 @@ namespace num
 
 // --- RandomStandard ------------------------------------------------------------------------------
 
+/** draw a random number
+ */
 inline const RandomStandard::TValue RandomStandard::operator ()() const
 {
 	return rand();
+}
+
+
+
+/** draw a random number remapped to range [0, iSupremum)
+ */
+inline const RandomStandard::TValue RandomStandard::operator ()(const TValue iSupremum) const
+{
+	return rand() % iSupremum;
+}
+
+
+
+// --- RandomParkMiller ----------------------------------------------------------------------------
+
+/** draw a random number remapped to range [0, iSupremum)
+ */
+inline const RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue iSupremum)
+{
+	return (*this)() % iSupremum;
 }
 
 
@@ -114,6 +136,15 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 	}
 
 	state_[0] = 0x80000000;
+}
+
+
+
+/** draw a random number remapped to range [0, iSupremum)
+ */
+inline const RandomMT19937::TValue RandomMT19937::operator ()(const TValue iSupremum)
+{
+	return (*this)() % iSupremum;
 }
 
 

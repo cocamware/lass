@@ -69,6 +69,7 @@ public:
 	typedef typename TObjectTraits::TParam TParam;
 	typedef typename TObjectTraits::TReference TReference;
 	typedef typename TObjectTraits::TConstReference TConstReference;
+	typedef typename TObjectTraits::TInfo TInfo;
 
 	enum { dimension = TObjectTraits::dimension };
 
@@ -79,10 +80,15 @@ public:
 
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-	bool contains(const TPoint& iPoint) const;
+	const TAabb& aabb() const;
+
+	bool contains(const TPoint& iPoint, const TInfo* iInfo = 0) const;
 	template <typename OutputIterator> 
-	OutputIterator find(const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0) const;
+	OutputIterator find(const TPoint& iPoint, OutputIterator iResult, const TInfo* iInfo = 0) const;
+	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0, 
+		const TInfo* iInfo = 0) const;
+	bool intersects(const TRay& iRay, TParam iMinT = 0, 
+		TParam iMaxT = std::numeric_limits<TValue>::infinity(), const TInfo* iInfo = 0) const;
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -120,10 +126,11 @@ private:
 	TAxis findSplitAxis(const TAabb& iAabb) const;
 	void assignNode(size_t iIndex, const Node& iObject);
 
-	bool doContains(size_t iIndex, const TPoint& iPoint) const;
+	bool doContains(size_t iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMinT) const;
+	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst, const TInfo* iInfo) const;
+	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const;
+	bool doIntersects(size_t iIndex, const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
 

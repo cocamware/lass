@@ -350,7 +350,8 @@ template
 	typename RandomIterator2
 > 
 bool cramer2(RandomIterator1 iMatrixRowMajor, 
-			 RandomIterator2 ioColumn)
+			 RandomIterator2 ioColumnFirst,
+			 RandomIterator2 ioColumnLast)
 {
 	typedef NumTraits<T> TNumTraits;
 	RandomIterator1 m = iMatrixRowMajor; // shortcut ;)
@@ -359,20 +360,19 @@ bool cramer2(RandomIterator1 iMatrixRowMajor,
 
 	if (determinant == TNumTraits::zero)
 	{
-		for (size_t k = 0; k < 2; ++k)
-		{
-			ioColumn[k] = TNumTraits::qNaN;
-		}
 		return false;
 	}
 
 	const T inverseDeterminant = num::inv(determinant);
-	const T x = ioColumn[0];
-	const T y = ioColumn[1];
 
-	ioColumn[0] = inverseDeterminant * (x * m[3] - y * m[2]);
-	ioColumn[0] = inverseDeterminant * (m[0] * y - m[1] * x);
-
+	for (RandomIterator2 column = ioColumnFirst; column != ioColumnLast; column += 2)
+	{
+		LASS_ASSERT(column + 1 != ioColumnLast);
+        const T x = column[0];
+		const T y = column[1];		
+		column[0] = inverseDeterminant * (x * m[3] - y * m[2]);
+		column[1] = inverseDeterminant * (m[0] * y - m[1] * x);
+	}
 	return true;
 }
 
@@ -397,7 +397,8 @@ template
 	typename RandomIterator2
 > 
 bool cramer3(RandomIterator1 iMatrixRowMajor, 
-			 RandomIterator2 ioColumn)
+			 RandomIterator2 ioColumnFirst,
+			 RandomIterator2 ioColumnLast)
 {
 	typedef NumTraits<T> TNumTraits;
 	RandomIterator1 m = iMatrixRowMajor; // shortcut ;)
@@ -409,30 +410,30 @@ bool cramer3(RandomIterator1 iMatrixRowMajor,
 	
 	if (determinant == TNumTraits::zero)
 	{
-		for (size_t k = 0; k < 3; ++k)
-		{
-			ioColumn[k] = TNumTraits::qNaN;
-		}
 		return false;
 	}
 
 	const T inverseDeterminant = num::inv(determinant);
-	const T x = ioColumn[0];
-	const T y = ioColumn[1];
-	const T z = ioColumn[2];
 
-	ioColumn[0] = inverseDeterminant * (
-		x * (m[4] * m[8] - m[7] * m[5]) +
-		y * (m[7] * m[2] - m[1] * m[8]) +
-		z * (m[1] * m[5] - m[4] * m[2]));
-	ioColumn[1] = inverseDeterminant * (
-		m[0] * (y * m[8] - z * m[5]) +
-		m[3] * (z * m[2] - x * m[8]) +
-		m[6] * (x * m[5] - y * m[2]));
-	ioColumn[2] = inverseDeterminant * (
-		m[0] * (m[4] * z - m[7] * y) +
-		m[3] * (m[7] * x - m[1] * z) +
-		m[6] * (m[1] * y - m[4] * x));
+	for (RandomIterator2 column = ioColumnFirst; column != ioColumnLast; column += 3)
+	{
+		LASS_ASSERT(column + 1 != ioColumnLast && column + 2 != ioColumnLast);
+		const T x = column[0];
+		const T y = column[1];
+		const T z = column[2];
+		column[0] = inverseDeterminant * (
+			x * (m[4] * m[8] - m[7] * m[5]) +
+			y * (m[7] * m[2] - m[1] * m[8]) +
+			z * (m[1] * m[5] - m[4] * m[2]));
+		column[1] = inverseDeterminant * (
+			m[0] * (y * m[8] - z * m[5]) +
+			m[3] * (z * m[2] - x * m[8]) +
+			m[6] * (x * m[5] - y * m[2]));
+		column[2] = inverseDeterminant * (
+			m[0] * (m[4] * z - m[7] * y) +
+			m[3] * (m[7] * x - m[1] * z) +
+			m[6] * (m[1] * y - m[4] * x));
+	}
 
 	return true;
 }

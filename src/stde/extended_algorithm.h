@@ -42,6 +42,10 @@ namespace stde
 
 // --- pure iterator algorithms --------------------------------------------------------------------
 
+/** copy @a count elements from sequence starting at @a first to sequence starting at @a result
+ *	@ingroup extended_algorithm 
+ *  @pre there should be enough room in output sequence to hold @a n elements
+ */
 template <class InputIterator, class Size, class OutputIterator>
 OutputIterator copy_n(InputIterator first, Size count, 
                       OutputIterator result)
@@ -51,6 +55,10 @@ OutputIterator copy_n(InputIterator first, Size count,
 	return result;
 }      
 
+/** copy sequence @a first to @a last @a n times to sequence starting at @a output
+ *	@ingroup extended_algorithm 
+ *  @pre there should be enough room in output sequence to hold @a n times the input sequence.
+ */
 template <class InputIterator, class OutputIterator, class Size>
 OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator output, Size n)
 {
@@ -62,31 +70,10 @@ OutputIterator repeat(InputIterator first, InputIterator last, OutputIterator ou
 }
 
 
-
-// --- range algorithms shortcuts ------------------------------------------------------------------
-
-template <typename InputRange, typename OutputIterator> inline
-void copy_r(const InputRange& range, OutputIterator output)
-{
-	std::copy(range.begin(), range.end(), output);
-}
-
-template <typename ForwardRange, typename Op> inline
-void for_each_r(ForwardRange& range, Op op)
-{
-	std::for_each(range.begin(), range.end(), op);
-}
-
-template <typename InputRange, typename OutputIterator, typename Op> inline
-void transform_r(const InputRange& range, OutputIterator output, Op op)
-{
-	std::transform(range.begin(), range.end(), output, op);
-}
-
-
-
 // --- container algorithms shortcuts --------------------------------------------------------------
 
+/** @ingroup extended_algorithm 
+ */ 
 template <class Container, class Size> inline
 Container repeat_c(const Container& iC, Size n)
 {
@@ -95,6 +82,8 @@ Container repeat_c(const Container& iC, Size n)
 	return result;
 }
 
+/** @ingroup extended_algorithm 
+ */ 
 template <class Container, class Size> inline
 Container& inplace_repeat_c(Container& iC, Size n)
 {

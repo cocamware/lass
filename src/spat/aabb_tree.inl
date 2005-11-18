@@ -76,27 +76,45 @@ void AabbTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 
 
 template <class O, class OT> inline
-bool AabbTree<O, OT>::contains(const TPoint& iPoint) const
+const typename AabbTree<O, OT>::TAabb&
+AabbTree<O, OT>::aabb() const
 {
-	return doContains(0, iPoint);
+	return heap_[0].aabb;
+}
+
+
+
+template <class O, class OT> inline
+bool AabbTree<O, OT>::contains(const TPoint& iPoint, const TInfo* iInfo) const
+{
+	return doContains(0, iPoint, iInfo);
 }
 
 
 
 template <class O, class OT>
 template <typename OutputIterator> inline
-OutputIterator AabbTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst) const
+OutputIterator AabbTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst, 
+									 const TInfo* iInfo) const
 {
-	return doFind(0, iPoint, iFirst);
+	return doFind(0, iPoint, iFirst, iInfo);
 }
 
 
 
 template <class O, class OT>
 typename AabbTree<O, OT>::TObjectIterator inline
-AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMinT) const
+AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const
 {
-	return doIntersect(0, iRay, oT, iMinT);
+	return doIntersect(0, iRay, oT, iMinT, iInfo);
+}
+
+
+
+template <class O, class OT>
+bool inline AabbTree<O, OT>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const
+{
+	return doIntersects(0, iRay, iMinT, iMaxT, iInfo);
 }
 
 
@@ -218,7 +236,7 @@ inline void AabbTree<O, OT>::assignNode(size_t iIndex, const Node& iNode)
 
 
 template <class O, class OT>
-bool AabbTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint) const
+bool AabbTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint, const TInfo* iInfo) const
 {
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
@@ -230,17 +248,19 @@ bool AabbTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint) const
 
 	if (node.object == end_)
 	{
-		return doContains(2 * iIndex + 1, iPoint) || doContains(2 * iIndex + 2, iPoint);
+		return doContains(2 * iIndex + 1, iPoint, iInfo) 
+			|| doContains(2 * iIndex + 2, iPoint, iInfo);
 	}
 
-	return TObjectTraits::contains(node.object, iPoint);
+	return TObjectTraits::contains(node.object, iPoint, iInfo);
 }
 
 
 
 template <class O, class OT>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const
+OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst,
+									   const TInfo* iInfo) const
 {
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
@@ -252,11 +272,11 @@ OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, Outp
 
 	if (node.object == end_)
 	{
-		OutputIterator temp = doFind(2 * iIndex + 1, iPoint, iFirst);
-		return doFind(2 * iIndex + 2, iPoint, temp);
+		OutputIterator temp = doFind(2 * iIndex + 1, iPoint, iFirst, iInfo);
+		return doFind(2 * iIndex + 2, iPoint, temp, iInfo);
 	}
 
-	if (TObjectTraits::contains(node.object, iPoint))
+	if (TObjectTraits::contains(node.object, iPoint, iInfo))
 	{
 		*iFirst = node.object;
 		++iFirst;
@@ -268,7 +288,8 @@ OutputIterator AabbTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint, Outp
 
 template <class O, class OT>
 typename AabbTree<O, OT>::TObjectIterator 
-AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMin) const
+AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMin,
+							 const TInfo* iInfo) const
 {
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
@@ -282,9 +303,9 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TPa
 	if (node.object == end_)
 	{
 		TValue tLeft;
-		TObjectIterator left = doIntersect(2 * iIndex + 1, iRay, tLeft, iMin);
+		TObjectIterator left = doIntersect(2 * iIndex + 1, iRay, tLeft, iMin, iInfo);
 		TValue tRight;
-		TObjectIterator right = doIntersect(2 * iIndex + 2, iRay, tRight, iMin);
+		TObjectIterator right = doIntersect(2 * iIndex + 2, iRay, tRight, iMin, iInfo);
 
 		if (left != end_)
 		{
@@ -304,12 +325,36 @@ AabbTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TPa
 		return end_;
 	}
 
-	if (TObjectTraits::intersect(node.object, iRay, t, iMin))
+	if (TObjectTraits::intersect(node.object, iRay, t, iMin, iInfo))
 	{
 		oT = t;
 		return node.object;
 	}
 	return end_;
+}
+
+
+
+template <class O, class OT>
+bool AabbTree<O, OT>::doIntersects(size_t iIndex, const TRay& iRay, TParam iMin, 
+									   const TParam iMaxT, const TInfo* iInfo) const
+{
+	LASS_ASSERT(iIndex < heap_.size());
+	const Node& node = heap_[iIndex];
+
+	TValue t;
+	if (!TObjectTraits::intersect(node.aabb, iRay, t, iMin))
+	{
+		return false;
+	}
+
+	if (node.object == end_)
+	{
+		return doIsIntersecting(2 * iIndex + 1, iRay, iMin, iMaxT, iInfo)
+			|| doIsIntersecting(2 * iIndex + 2, iRay, iMin, iMaxT, iInfo);
+	}
+
+	return TObjectTraits::isIntersecting(node.object, iRay, iMin, iMaxT, iInfo);
 }
 
 // --- free ----------------------------------------------------------------------------------------

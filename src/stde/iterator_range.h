@@ -23,13 +23,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @class lass::stde::range
+/** @class lass::stde::iterator_range
  *  @brief iterator range.
  *  @author Bram de Greve [Bramz]
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_RANGE_H
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_RANGE_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_ITERATOR_RANGE_H
+#define LASS_GUARDIAN_OF_INCLUSION_STDE_ITERATOR_RANGE_H
 
 #include "stde_common.h"
 #include "../num/safe_bool.h"

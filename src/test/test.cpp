@@ -37,7 +37,7 @@
 #include "test_stde.h"
 #include "test_util.h"
 
-#include "../stde/extended_algorithm.h"
+#include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 
 int main(int argc, char* argv[])

@@ -69,6 +69,7 @@ public:
 	typedef typename TObjectTraits::TParam TParam;
 	typedef typename TObjectTraits::TReference TReference;
 	typedef typename TObjectTraits::TConstReference TConstReference;
+	typedef typename TObjectTraits::TInfo TInfo;
 
 	enum { dimension = TObjectTraits::dimension };
 
@@ -79,10 +80,15 @@ public:
 
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-	bool contains(const TPoint& iPoint) const;
+	const TAabb& aabb() const;
+
+	const bool contains(const TPoint& iPoint, const TInfo* iInfo = 0) const;
 	template <typename OutputIterator> 
-	OutputIterator find(const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0) const;
+	OutputIterator find(const TPoint& iPoint, OutputIterator iResult, const TInfo* iInfo = 0) const;
+	const TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0, 
+		const TInfo* iInfo = 0) const;
+	const bool intersects(const TRay& iRay, TParam iMinT = 0, 
+		TParam iMaxT = std::numeric_limits<TValue>::infinity(), const TInfo* iInfo = 0) const;
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -96,16 +102,10 @@ private:
 
 	struct Node
 	{
+        TValue leftBound;
+        TValue rightBound;
+        TObjectIterator object;
         TAxis split;
-        union
-        {
-            struct
-            {
-                TValue leftBound;
-                TValue rightBound;
-            };
-            TObjectIterator object;
-        };
 	};
 
 	typedef std::vector<Node> TNodes;
@@ -141,11 +141,16 @@ private:
 	void assignLeaf(size_t iIndex, TBoundedObjectIterator iObject);
 	void assignInternal(size_t iIndex, TAxis iSplit, TParam iLeftBound, TParam iRightBound);
 
-	bool doContains(size_t iIndex, const TPoint& iPoint) const;
+	const bool doContains(size_t iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, const TVector& iReciprocalDirection, 
-		TReference oT, TParam iTMin, TParam iTMax) const;
+	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, 
+		OutputIterator iResult, const TInfo* iInfo) const;
+	const TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, 
+		const TVector& iReciprocalDirection, TReference oT, TParam iMinT, TParam iTMax, 
+		const TInfo* iInfo) const;
+	const bool doIntersects(size_t iIndex, const TRay& iRay, 
+		const TVector& iReciprocalDirection, TParam iMinT, TParam iMaxT, 
+		const TInfo* iInfo) const;
 
 	TNodes heap_;
 	TAabb aabb_;

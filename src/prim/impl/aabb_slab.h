@@ -35,6 +35,8 @@ namespace prim
 namespace impl
 {
 
+/** @internal
+ */
 template <typename T> inline
 bool interectSlab(const T& iMin, const T& iMax, const T& iSupport, const T& iDirection, T& ioTNear, T& ioTFar)
 {

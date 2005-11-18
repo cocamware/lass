@@ -34,7 +34,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_DEFAULT_OBJECT_TRAITS_H
 
 #include "spat_common.h"
-#include "../meta/select.h"
 #include "../prim/result.h"
 
 namespace lass
@@ -44,15 +43,15 @@ namespace spat
 
 namespace impl
 {
-template <typename AabbType, typename ObjectType> inline 
-AabbType aabbHelper(const ObjectType& iObject) 
+template <typename Aabb, typename Object> inline 
+Aabb aabbHelper(const Object& iObject) 
 { 
 	return aabb(iObject); 
 }
-template <typename SubjectType, typename RayType, typename ReferenceType, typename ParamType> inline 
-prim::Result intersectHelper(const SubjectType& iSubject, const RayType& iRay, ReferenceType oT, ParamType iMinT) 
+template <typename Object, typename Ray, typename Ref, typename Param> inline 
+prim::Result intersectHelper(const Object& iObject, const Ray& iRay, Ref oT, Param iMinT) 
 {
-	return intersect(iSubject, iRay, oT, iMinT);
+	return intersect(iObject, iRay, oT, iMinT);
 }
 }
 
@@ -78,6 +77,8 @@ struct DefaultObjectTraits
 	typedef typename TAabb::TParam TParam;		/**< best type for function parameters of TValue */
 	typedef typename TAabb::TReference TReference;	/**< reference to TValue */
 	typedef typename TAabb::TConstReference TConstReference; /**< const reference to TValue */
+
+	typedef void TInfo;
 	
 	enum { dimension = TAabb::dimension };		/**< nD = number of dimensions of TPoint */
 
@@ -88,22 +89,35 @@ struct DefaultObjectTraits
 	 */
 	static const TAabb aabb(TObjectIterator iObject) 
 	{ 
-		impl::aabbHelper<TAabb, TObject>(*iObject); 
+		return impl::aabbHelper<TAabb, TObject>(*iObject); 
 	}
 	
 	/** return true if object contains a point, return false otherwise
 	 */
-	static const bool contains(TObjectIterator iObject, const TPoint& iPoint) 
+	static const bool contains(TObjectIterator iObject, const TPoint& iPoint, const TInfo* iInfo) 
 	{ 
 		return iObject->contains(iPoint); 
 	}
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool intersect(TObjectIterator iObject, const TRay& iRay, TReference oT, TParam iMinT)
+	static const bool intersect(TObjectIterator iObject, const TRay& iRay, 
+		TReference oT, TParam iMinT, const TInfo* iInfo)
 	{
-		return impl::intersectHelper<TObject, TRay, TReference, TParam>(
-			*iObject, iRay, oT, iMinT) != prim::rNone;
+		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
+			*iObject, iRay, oT, iMinT);
+		return hit != prim::rNone;
+	}
+
+	/** return true if object is intersected by ray
+	 */
+	static const bool intersects(TObjectIterator iObject, const TRay& iRay, 
+		TParam iMinT, TParam iMaxT, const TInfo* iInfo)
+	{
+		TValue t;
+		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
+			*iObject, iRay, t, iMinT);
+		return hit != prim::rNone && t < iMaxT;
 	}
 	
 

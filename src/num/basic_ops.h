@@ -73,6 +73,7 @@ template <typename T> inline void inpatan2(T& ioX, const T& iY);
 template <typename T> inline void inpfloor(T& ioV);
 template <typename T> inline void inpceil(T& ioV);
 template <typename T> inline void inpround(T& ioV);
+template <typename T> inline void inpfractional(T& ioV);
 template <typename T> inline void inpdiv(T& ioV, const T& iMod);
 template <typename T> inline void inpmod(T& ioV, const T& iMod);
 template <typename T> inline void inpclamp(T& ioV, const T& iMin, const T& iMax);
@@ -101,6 +102,7 @@ inline float atan2(float iX, float iY);
 inline float floor(float iV);
 inline float ceil(float iV);
 inline float round(float iV);
+inline float fractional(float iV);
 inline float div(float iV, float iMod);
 inline float mod(float iV, float iMod);
 
@@ -124,6 +126,7 @@ inline double atan2(double iX, double iY);
 inline double floor(double iV);
 inline double ceil(double iV);
 inline double round(double iV);
+inline double fractional(double iV);
 inline double div(double iV, double iMod);
 inline double mod(double iV, double iMod);
 
@@ -147,6 +150,7 @@ inline long double atan2(long double iX, long double iY);
 inline long double floor(long double iV);
 inline long double ceil(long double iV);
 inline long double round(long double iV);
+inline long double fractional(long double iV);
 inline long double div(long double iV, long double iMod);
 inline long double mod(long double iV, long double iMod);
 
@@ -154,30 +158,11 @@ inline long double mod(long double iV, long double iMod);
 
 // --- char ----------------------------------------------------------------------------------------
 
-#ifdef LASS_CHAR_IS_SIGNED
-
-inline char abs(char iV);
-inline char pow(char iV, char iPow);
-inline char pow(char iV, unsigned char iPow);
-inline char floor(char iV);
-inline char ceil(char iV);
-inline char div(char iV, char iMod);
-inline char div(char iV, unsigned char iMod);
-inline char mod(char iV, char iMod);
-inline char mod(char iV, unsigned char iMod);
-
-inline void inpfloor(char& ioV);
-inline void inpceil(char& ioV);
-inline void inpround(char& ioV);
-
-#else
-
-inline char abs(char iV);
-inline char sign(char iV);
 inline char pow(char iV, char iPow);
 inline char floor(char iV);
 inline char ceil(char iV);
 inline char round(char iV);
+inline char fractional(char iV);
 inline char div(char iV, char iPow);
 inline char mod(char iV, char iPow);
 
@@ -185,6 +170,18 @@ inline void inpabs(char& ioV);
 inline void inpfloor(char& ioV);
 inline void inpceil(char& ioV);
 inline void inpround(char& ioV);
+inline void inpfractional(char& ioV);
+
+#ifdef LASS_CHAR_IS_SIGNED
+
+inline char pow(char iV, unsigned char iPow);
+inline char div(char iV, unsigned char iMod);
+inline char mod(char iV, unsigned char iMod);
+
+#else
+
+inline char abs(char iV);
+inline char sign(char iV);
 
 #endif
 
@@ -198,6 +195,7 @@ inline signed char pow(signed char iV, unsigned char iPow);
 inline signed char floor(signed char iV);
 inline signed char ceil(signed char iV);
 inline signed char round(signed char iV);
+inline signed char fractional(signed char iV);
 inline signed char div(signed char iV, signed char iMod);
 inline signed char div(signed char iV, unsigned char iMod);
 inline signed char mod(signed char iV, signed char iMod);
@@ -206,6 +204,7 @@ inline signed char mod(signed char iV, unsigned char iMod);
 inline void inpfloor(signed char& ioV);
 inline void inpceil(signed char& ioV);
 inline void inpround(signed char& ioV);
+inline void inpfractional(signed char& ioV);
 
 // unsigned char
 
@@ -215,6 +214,7 @@ inline unsigned char pow(unsigned char iV, unsigned char iPow);
 inline unsigned char floor(unsigned char iV);
 inline unsigned char ceil(unsigned char iV);
 inline unsigned char round(unsigned char iV);
+inline unsigned char fractional(unsigned char iV);
 inline unsigned char div(unsigned char iV, unsigned char iMod);
 inline unsigned char mod(unsigned char iV, unsigned char iMod);
 
@@ -222,6 +222,7 @@ inline void inpabs(unsigned char& ioV);
 inline void inpfloor(unsigned char& ioV);
 inline void inpceil(unsigned char& ioV);
 inline void inpround(unsigned char& ioV);
+inline void inpfractional(unsigned char& ioV);
 
 
 
@@ -233,6 +234,7 @@ inline signed short pow(signed short iV, unsigned short iPow);
 inline signed short floor(signed short iV);
 inline signed short ceil(signed short iV);
 inline signed short round(signed short iV);
+inline signed short fractional(signed short iV);
 inline signed short div(signed short iV, signed short iMod);
 inline signed short div(signed short iV, unsigned short iMod);
 inline signed short mod(signed short iV, signed short iMod);
@@ -241,6 +243,7 @@ inline signed short mod(signed short iV, unsigned short iMod);
 inline void inpfloor(signed short& ioV);
 inline void inpceil(signed short& ioV);
 inline void inpround(signed short& ioV);
+inline void inpfractional(signed short& ioV);
 
 // unsigned short
 
@@ -250,6 +253,7 @@ inline unsigned short pow(unsigned short iV, unsigned short iPow);
 inline unsigned short floor(unsigned short iV);
 inline unsigned short ceil(unsigned short iV);
 inline unsigned short round(unsigned short iV);
+inline unsigned short fractional(unsigned short iV);
 inline unsigned short div(unsigned short iV, unsigned short iMod);
 inline unsigned short mod(unsigned short iV, unsigned short iMod);
 
@@ -257,6 +261,7 @@ inline void inpabs(unsigned short& ioV);
 inline void inpfloor(unsigned short& ioV);
 inline void inpceil(unsigned short& ioV);
 inline void inpround(unsigned short& ioV);
+inline void inpfractional(unsigned short& ioV);
 
 
 
@@ -268,6 +273,7 @@ inline signed int pow(signed int iV, unsigned int iPow);
 inline signed int floor(signed int iV);
 inline signed int ceil(signed int iV);
 inline signed int round(signed int iV);
+inline signed int fractional(signed int iV);
 inline signed int div(signed int iV, signed int iMod);
 inline signed int div(signed int iV, unsigned int iMod);
 inline signed int mod(signed int iV, signed int iMod);
@@ -276,6 +282,7 @@ inline signed int mod(signed int iV, unsigned int iMod);
 inline void inpfloor(signed int& ioV);
 inline void inpceil(signed int& ioV);
 inline void inpround(signed int& ioV);
+inline void inpfractional(signed int& ioV);
 
 // unsigned int
 
@@ -285,6 +292,7 @@ inline unsigned int pow(unsigned int iX, unsigned int iY);
 inline unsigned int floor(unsigned int iV);
 inline unsigned int ceil(unsigned int iV);
 inline unsigned int round(unsigned int iV);
+inline unsigned int fractional(unsigned int iV);
 inline unsigned int div(unsigned int iV, unsigned int iMod);
 inline unsigned int mod(unsigned int iV, unsigned int iMod);
 
@@ -292,6 +300,7 @@ inline void inpabs(unsigned int& ioV);
 inline void inpfloor(unsigned int& ioV);
 inline void inpceil(unsigned int& ioV);
 inline void inpround(unsigned int& ioV);
+inline void inpfractional(unsigned int& ioV);
 
 
 
@@ -303,6 +312,7 @@ inline signed long pow(signed long iX, unsigned long iY);
 inline signed long floor(signed long iV);
 inline signed long ceil(signed long iV);
 inline signed long round(signed long iV);
+inline signed long fractional(signed long iV);
 inline signed long div(signed long iV, signed long iMod);
 inline signed long div(signed long iV, unsigned long iMod);
 inline signed long mod(signed long iV, signed long iMod);
@@ -311,6 +321,7 @@ inline signed long mod(signed long iV, unsigned long iMod);
 inline void inpfloor(signed long& ioV);
 inline void inpceil(signed long& ioV);
 inline void inpround(signed long& ioV);
+inline void inpfractional(signed long& ioV);
 
 // unsigned long
 
@@ -320,6 +331,7 @@ inline unsigned long pow(unsigned long iV, unsigned long iPow);
 inline unsigned long floor(unsigned long iV);
 inline unsigned long ceil(unsigned long iV);
 inline unsigned long round(unsigned long iV);
+inline unsigned long fractional(unsigned long iV);
 inline unsigned long div(unsigned long iV, unsigned long iMod);
 inline unsigned long mod(unsigned long iV, unsigned long iMod);
 
@@ -327,6 +339,7 @@ inline void inpabs(unsigned long& ioV);
 inline void inpfloor(unsigned long& ioV);
 inline void inpceil(unsigned long& ioV);
 inline void inpround(unsigned long& ioV);
+inline void inpfractional(unsigned long& ioV);
 
 
 

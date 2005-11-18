@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_TRIANGLE_3D_INL
 
 #include "ray_3d_triangle_3d.h"
+#include "impl/intersect_triangle_3d.h"
 
 namespace lass
 {
@@ -60,7 +61,9 @@ Result intersect(const Triangle3D<T>& iTriangle,
 {
 	T u;
 	T v;
-	return intersect(iTriangle, iRay, u, v, oT, iMinT);
+	return impl::intersectTriangle3D(
+		iTriangle[0], iTriangle[1] - iTriangle[0], iTriangle[2] - iTriangle[0],
+		iRay.support(), iRay.direction(), u, v, oT, iMinT);
 }
 
 
@@ -88,54 +91,14 @@ Result intersect(const Triangle3D<T>& iTriangle,
  *		Journal of Graphics Tools, 2(1), 21-28 (1997).
  *		http://www.graphics.cornell.edu/pubs/1997/MT97.html
  */
-template<typename T, class NP, class PP>
+template<typename T, class NP, class PP> inline
 Result intersect(const Triangle3D<T>& iTriangle, 
 				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oU, T& oV, T& oT, const T& iMinT)
 {
-	typedef Point3D<T> TPoint;
-	typedef Vector3D<T> TVector;
-	typedef typename TVector::TValue TValue;
-	typedef typename TVector::TNumTraits TNumTraits;
-
-	const TPoint& support = iRay.support();
-	const TVector& direction = iRay.direction();
-
-	const TVector edge1 = iTriangle[1] - iTriangle[0];
-	const TVector edge2 = iTriangle[2] - iTriangle[0];
-	const TVector pvec = cross(direction, edge2);
-	const TValue det = dot(pvec, edge1);
-
-	if (det == TNumTraits::zero)
-	{
-		return rNone;
-	}
-	const TValue invDet = num::inv(det);
-
-	const TVector tvec = support - iTriangle[0];
-	const TValue u = dot(tvec, pvec) * invDet;
-	if (u < TNumTraits::zero || u > TNumTraits::one)
-	{
-		return rNone;
-	}
-
-	const TVector qvec = cross(tvec, edge1);
-	const TValue v = dot(tvec, qvec) * invDet;
-	if (v < TNumTraits::zero || (u + v) > TNumTraits::one)
-	{
-		return rNone;
-	}
-
-	const TValue t = dot(edge2, qvec) * invDet;
-	if (t <= iMinT)
-	{
-		return rNone;
-	}
-
-	oU = u;
-	oV = v;
-	oT = t;
-	return rOne;
+	return impl::intersectTriangle3D(
+		iTriangle[0], iTriangle[1] - iTriangle[0], iTriangle[2] - iTriangle[0],
+		iRay.support(), iRay.direction(), oU, oV, oT, iMinT);
 }
 
 }
