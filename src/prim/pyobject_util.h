@@ -647,14 +647,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 #ifdef LASS_PRIM_PYOBJECT_UTIL_TRIANGLE_MESH_3D
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRIANGLE_MESH_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H_TRIANGLE_MESH_3D
+#	pragma LASS_NOTE("this is compiled!")
 
-template <typename T, template <typename, typename> class BHV>
-int pyGetSimpleObject(PyObject* iValue, typename TriangleMesh3D<T, BVH>::TIndexTriangle& oTriangle)
+inline int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
 {
-	typename TriangleMesh3D<T, BVH>::TIndexTriangle result = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	prim::IndexTriangle result = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (!impl::checkSequenceSize(iValue, 3))
 	{
-		impl::addMessageHeader("lass::prim::TriangleMesh3D::TIndexTriangle");
+		impl::addMessageHeader("lass::prim::IndexTriangle");
 		return 1;
 	}
 	std::vector<std::size_t> vertex;
@@ -662,18 +662,19 @@ int pyGetSimpleObject(PyObject* iValue, typename TriangleMesh3D<T, BVH>::TIndexT
 	{
 		if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, k), vertex) != 0)
 		{
-			impl::addMessageHeader("lass::prim::TriangleMesh3D::TIndexTriangle: vertex " + 
+			impl::addMessageHeader("lass::prim::IndexTriangle: vertex " + 
 				util::stringCast<std::string>(k));
 			return 1;
 		}
-		if (vertex.empty() || vertex.size() > 3)
+		std::size_t size = vertex.size();
+		if (size == 0 || size > 3)
 		{
 			PyErr_SetString(PyExc_TypeError, "vertex is not (v [, vt [, vn]])");
 			return 1;
 		}
 		result.vertices[k] = vertex[0];
-		result.uvs[k] = vertex.size() > 1 ? vertex[1] : 0;
-		result.normals[k] = vertex.size() > 2 ? vertex[2] : 0;
+		result.uvs[k] = size > 1 ? vertex[1] : prim::IndexTriangle::null();
+		result.normals[k] = size > 2 ? vertex[2] : prim::IndexTriangle::null();
 	}
 	oTriangle = result;
 	return 0;

@@ -58,9 +58,9 @@ public:
 	void operator()(double iProgress);
 
 private:
-	enum { timeLeftSize_ = 4 };
 	Clock clock_;
-	Clock::TTime timeLeftBuffer_[timeLeftSize_];
+	Clock::TTime timeLeftBuffer_;
+	Clock::TTime previousTimeElapsed_;
 	std::string description_;
 	std::string backslash_;
 	std::string whitespace_;

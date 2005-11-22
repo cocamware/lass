@@ -350,11 +350,11 @@ bool AabbTree<O, OT>::doIntersects(size_t iIndex, const TRay& iRay, TParam iMin,
 
 	if (node.object == end_)
 	{
-		return doIsIntersecting(2 * iIndex + 1, iRay, iMin, iMaxT, iInfo)
-			|| doIsIntersecting(2 * iIndex + 2, iRay, iMin, iMaxT, iInfo);
+		return doIntersects(2 * iIndex + 1, iRay, iMin, iMaxT, iInfo)
+			|| doIntersects(2 * iIndex + 2, iRay, iMin, iMaxT, iInfo);
 	}
 
-	return TObjectTraits::isIntersecting(node.object, iRay, iMin, iMaxT, iInfo);
+	return TObjectTraits::intersects(node.object, iRay, iMin, iMaxT, iInfo);
 }
 
 // --- free ----------------------------------------------------------------------------------------

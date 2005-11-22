@@ -72,6 +72,17 @@ Ray3D<T, NP, PP>::Ray3D(const TPoint& iSupport, const TPoint& iLookAt):
 
 
 
+template <typename T, class NP, class PP>
+template <class NP2, class PP2>
+Ray3D<T, NP, PP>::Ray3D(const Ray3D<T, NP2, PP2>& iOther):
+	support_(iOther.support()),
+	direction_(iOther.direction())
+{
+	NP::normalize(direction_);
+}
+
+
+
 /** return origin of ray.
  *  the origin is also the support point of the ray.
  */
