@@ -79,6 +79,41 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 	  const std::basic_string<Char, Traits, Alloc>& seperator,
 	  size_t max_split = 0);
 
+template <typename Char, typename Traits, typename Alloc, typename InputIterator>
+std::basic_string<Char, Traits, Alloc>
+join(const std::basic_string<Char, Traits, Alloc>& joiner, InputIterator first, InputIterator last);
+
+template <typename Char, typename Traits, typename Alloc, typename InputRange>
+std::basic_string<Char, Traits, Alloc>
+join_r(const std::basic_string<Char, Traits, Alloc>& joiner, const InputRange& range);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+lstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	   const std::basic_string<Char, Traits, Alloc>& to_be_removed);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+lstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+rstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	   const std::basic_string<Char, Traits, Alloc>& to_be_removed);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+rstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+strip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	  const std::basic_string<Char, Traits, Alloc>& to_be_removed);
+
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+strip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped);
+
 }
 
 }

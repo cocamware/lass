@@ -119,6 +119,7 @@ public:
 	void filterMedian(unsigned iBoxSize);
 	void filterGamma(TParam iGammaExponent);
 	void filterExposure(TParam iExposureTime);
+	void filterInverseExposure(TParam iExposureTime);
 
 private:
 
@@ -157,6 +158,32 @@ private:
 		void writeTo(BinaryOStream& ioOStream);
 	};
 
+	struct HeaderRadianceHdr
+	{
+		enum 
+		{
+			sizeColorCorr = 3,
+			sizePrimaries = 8
+		};
+
+		float exposure;
+		float colorCorr[sizeColorCorr];
+		float primaries[sizePrimaries];
+		unsigned height;
+		unsigned width;
+		bool yIncreasing;
+		bool xIncreasing;
+		bool isRgb;
+
+		HeaderRadianceHdr();
+		void readFrom(BinaryIStream& ioIStream);
+		void writeTo(BinaryOStream& ioOStream);
+
+	private:
+		static std::string readString(BinaryIStream& iStream);
+		static void writeString(BinaryOStream& oStream, const std::string& iString);
+	};
+
 	typedef BinaryIStream& (Image::*TFileOpener)(BinaryIStream&);
 	typedef BinaryOStream& (Image::*TFileSaver)(BinaryOStream&) const;
 
@@ -170,23 +197,20 @@ private:
 
 	typedef std::map<std::string, FileFormat> TFileFormats;
 
-	enum
-	{
-		magicLass_ = LASS_LITTLE_ENDIAN ? 0x7373616c : 0x6c617373 /**< "lass" in ascii */
-	};
-
 	unsigned resize(unsigned iRows, unsigned iCols);
 	unsigned flatIndex(unsigned iRows, unsigned iCols) const 
 	{ 
 		return iRows * cols_ + iCols;
 	}
 
-	BinaryIStream& openRaw(BinaryIStream& iFile);
-	BinaryIStream& openTarga(BinaryIStream& iFile);
-	BinaryIStream& openTarga2(BinaryIStream& iFile, const HeaderTarga& iHeader);
+	BinaryIStream& openRaw(BinaryIStream& iStream);
+	BinaryIStream& openTarga(BinaryIStream& iStream);
+	BinaryIStream& openTarga2(BinaryIStream& iStream, const HeaderTarga& iHeader);
+	BinaryIStream& openRadianceHdr(BinaryIStream& iStream);
 
-	BinaryOStream& saveRaw(BinaryOStream& iFile) const;
-	BinaryOStream& saveTarga(BinaryOStream& iFile) const;
+	BinaryOStream& saveRaw(BinaryOStream& oStream) const;
+	BinaryOStream& saveTarga(BinaryOStream& oStream) const;
+	BinaryOStream& saveRadianceHdr(BinaryOStream& oStream) const;
 	
 	FileFormat findFormat(const std::string& iFormatTag);
 
@@ -197,6 +221,8 @@ private:
 	TRaster raster_;
 
 	static TFileFormats fileFormats_;
+	static num::Tuint32 magicLass_;
+	static std::string magicRadiance_;
 };
 
 

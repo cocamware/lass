@@ -304,6 +304,30 @@ const ColorRGBA ColorRGBA::exposed(TParam iExposureTime) const
 
 
 
+/** return result of inverse exposure function
+ *
+ *  apply inverse of exposure function to color and clamp alpha channel
+ *
+ *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @post: all channel values ar in the range [0, 1].
+ *
+ *  @code
+ *  alphaR = alphaA.
+ *  ColorR = log(1 - colorA) / -time
+ *  @endcode
+ */
+const ColorRGBA ColorRGBA::invExposed(TParam iExposureTime) const
+{
+	const TValue f =  num::inv(-iExposureTime);
+	return ColorRGBA(
+		f * num::log(TNumTraits::one - num::clamp(r, TNumTraits::zero, 0.9999f)),
+		f * num::log(TNumTraits::one - num::clamp(g, TNumTraits::zero, 0.9999f)),
+		f * num::log(TNumTraits::one - num::clamp(b, TNumTraits::zero, 0.9999f)),
+		a);
+}
+
+
+
 /** clamp all channels (including alpha channel) to the range [0, 1].
  *  @post: all channel values ar in the range [0, 1].
  */

@@ -93,6 +93,7 @@ public:
 	const ColorRGBA dissolved( TParam iFactor) const;
 	const ColorRGBA gammaCorrected(TParam iGamma) const;
 	const ColorRGBA exposed(TParam iTime) const;
+	const ColorRGBA invExposed(TParam iTime) const;
 	const ColorRGBA clamped() const;
 
 	// matlab colormaps

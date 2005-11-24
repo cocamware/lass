@@ -60,26 +60,25 @@ public:
 
 protected:
 
-	BinaryStreamBase(num::Endianness iEndianness = num::littleEndian): 
-		 StreamBase(),
-		 streamEndianness_(iEndianness)
-	{
-	}
-
-	~BinaryStreamBase() {}
-
-	void fixEndianness(void* ioBuffer, size_t iNumberOfBytes) 
-	{
-		if (streamEndianness_ != num::systemEndian)
-		{
-			std::reverse(static_cast<num::Tuint8*>(ioBuffer), 
-				static_cast<num::Tuint8*>(ioBuffer) + iNumberOfBytes);
-		}
-	}
+	BinaryStreamBase(num::Endianness iEndianness = num::littleEndian);
+	~BinaryStreamBase();
 
 private:
 
 	num::Endianness streamEndianness_;	
+};
+
+
+
+
+class LASS_DLL EndiannessSetter: public util::NonCopyable
+{
+public:
+	EndiannessSetter(BinaryStreamBase& iStream, num::Endianness iEndianness);
+	~EndiannessSetter();
+private:
+	BinaryStreamBase& stream_;
+	num::Endianness oldEndianness_;
 };
 
 }

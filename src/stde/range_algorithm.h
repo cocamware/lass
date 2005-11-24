@@ -175,7 +175,7 @@ mismatch_r(const InputRange1& range1, const InputRange2& range2)
 template <typename InputRange1, typename InputRange2> inline
 bool equal_r(const InputRange1& range1, const InputRange2& range2)
 {
-	return std::equal(range1.begin(), range1.end(), range2.begin(), range2.end());
+	return std::equal(range1.begin(), range1.end(), range2.begin());
 }
 
 /** std::mismatch wrapper for ranges
@@ -184,7 +184,7 @@ bool equal_r(const InputRange1& range1, const InputRange2& range2)
 template <typename InputRange1, typename InputRange2, typename BinaryPredicate> inline
 bool equal_r(const InputRange1& range1, const InputRange2& range2, BinaryPredicate pred)
 {
-	return std::equal(range1.begin(), range1.end(), range2.begin(), range2.end(), pred);
+	return std::equal(range1.begin(), range1.end(), range2.begin(), pred);
 }
 
 /** std::search wrapper for ranges

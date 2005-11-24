@@ -33,12 +33,18 @@
 
 #include <locale>
 
-// --- implemenation details -----------------------------------------------------------------------
-
 namespace lass
 {
 namespace stde
 {
+namespace impl
+{
+	template <typename StringType> 
+	StringType whitespace(const StringType&) 
+	{ 
+		return StringType(" \t\n"); 
+	}
+}
 
 /** @ingroup extended_string
  *  convert std::basic_string to lower case by using user locale
@@ -140,7 +146,7 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split)
 	typedef std::basic_string<Char, Traits, Alloc> string_type;
 	typedef typename string_type::size_type size_type;
 
-	const string_type seperators = " \t\n";
+	const string_type seperators = impl::whitespace(to_be_split);
 	std::vector< std::basic_string<Char, Traits, Alloc> > result;
 
 	if (to_be_split.empty())
@@ -212,6 +218,126 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 
 	result.push_back(to_be_split.substr(begin));
 	return result;
+}
+
+
+
+/** @ingroup extended_string
+ */
+template <typename Char, typename Traits, typename Alloc, typename InputIterator>
+std::basic_string<Char, Traits, Alloc>
+join(const std::basic_string<Char, Traits, Alloc>& joiner, InputIterator first, InputIterator last)
+{
+	std::basic_ostringstream<Char, Traits, Alloc> buffer;
+	if (first != last)
+	{
+		buffer << *first++;
+	}
+	while (first != last)
+	{
+		buffer << joiner << *first++;
+	}
+	return buffer.str();
+}
+
+
+
+template <typename Char, typename Traits, typename Alloc, typename InputRange> inline
+std::basic_string<Char, Traits, Alloc>
+join_r(const std::basic_string<Char, Traits, Alloc>& joiner, const InputRange& range)
+{
+	return join(joiner, range.begin(), range.end());
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with leading characters removed.
+ *
+ *  The characters in the string @a to_be_removed will be stripped from the beginning of the string
+ *  @a to_be_stripped. 
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+lstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	   const std::basic_string<Char, Traits, Alloc>& to_be_removed)
+{
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	const typename string_type::size_type begin = to_be_stripped.find_first_not_of(to_be_removed);
+	return begin == string_type::npos ? string_type() : to_be_stripped.substr(begin);
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with leading whitespace removed.
+ */
+template <typename Char, typename Traits, typename Alloc> inline
+std::basic_string<Char, Traits, Alloc>
+lstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped)
+{
+	return lstrip(to_be_stripped, impl::whitespace(to_be_stripped));
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with trailing characters removed.
+ *
+ *  The characters in the string @a to_be_removed will be stripped from the ending of the string
+ *  @a to_be_stripped. 
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+rstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	   const std::basic_string<Char, Traits, Alloc>& to_be_removed)
+{
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	const typename string_type::size_type end = to_be_stripped.find_last_not_of(to_be_removed);
+	return end == size_type::npos ? string_type : to_be_stripped.substr(0, end + 1);
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with trailing whitespace removed.
+ */
+template <typename Char, typename Traits, typename Alloc> inline
+std::basic_string<Char, Traits, Alloc>
+rstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped)
+{
+	return rstrip(to_be_stripped, impl::whitespace(to_be_stripped));
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with both leading and trailing characters removed.
+ *
+ *  The characters in the string @a to_be_removed will be stripped from both the beginning and the 
+ *  ending of the string @a to_be_stripped. 
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+strip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
+	  const std::basic_string<Char, Traits, Alloc>& to_be_removed)
+{
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	const typename string_type::size_type begin = to_be_stripped.find_first_not_of(to_be_removed);
+	const typename string_type::size_type end = to_be_stripped.find_last_not_of(to_be_removed);
+	return begin == string_type::npos ? string_type() : to_be_stripped.substr(begin, end - begin + 1);
+}
+
+
+
+/** @ingroup extended_string
+ *  Return a copy of the string @a to_be_stripped with leading and trailing whitespace removed.
+ */
+template <typename Char, typename Traits, typename Alloc> inline
+std::basic_string<Char, Traits, Alloc>
+strip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped)
+{
+	return strip(to_be_stripped, impl::whitespace(to_be_stripped));
 }
 
 
