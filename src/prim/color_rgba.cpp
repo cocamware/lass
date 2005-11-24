@@ -320,9 +320,9 @@ const ColorRGBA ColorRGBA::invExposed(TParam iExposureTime) const
 {
 	const TValue f =  num::inv(-iExposureTime);
 	return ColorRGBA(
-		f * num::log(TNumTraits::one - num::clamp(r, TNumTraits::zero, 0.9999f)),
-		f * num::log(TNumTraits::one - num::clamp(g, TNumTraits::zero, 0.9999f)),
-		f * num::log(TNumTraits::one - num::clamp(b, TNumTraits::zero, 0.9999f)),
+		f * num::log(num::clamp(TNumTraits::one - r, TNumTraits::minStrictPositive, TNumTraits::one)),
+		f * num::log(num::clamp(TNumTraits::one - g, TNumTraits::minStrictPositive, TNumTraits::one)),
+		f * num::log(num::clamp(TNumTraits::one - b, TNumTraits::minStrictPositive, TNumTraits::one)),
 		a);
 }
 

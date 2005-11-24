@@ -326,6 +326,9 @@
 				RelativePath=".\extended_string.inl">
 			</File>
 			<File 
+				RelativePath=".\integral_range.inl">
+			</File>
+			<File 
 				RelativePath=".\iterator_range.inl">
 			</File>
 			<File 
@@ -411,6 +414,9 @@
 			</File>
 			<File 
 				RelativePath=".\extended_string.h">
+			</File>
+			<File 
+				RelativePath=".\integral_range.h">
 			</File>
 			<File 
 				RelativePath=".\iterator_range.h">

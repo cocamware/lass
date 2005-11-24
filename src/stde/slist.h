@@ -93,7 +93,7 @@ public:
 			return &static_cast<node_t* const>(node_)->value;
 		}
 		iterator& operator++() { node_ = node_->next; return *this; }
-		iterator operator++(int) { iterator& result(*this); ++(*this); return result; }
+		iterator operator++(int) { iterator result(*this); ++(*this); return result; }
 		bool operator==(const iterator& other) const { return node_ == other.node_; }
 		bool operator!=(const iterator& other) const { return !(*this == other); }
 	private:
@@ -125,7 +125,7 @@ public:
 			return &static_cast<const node_t* const>(node_)->value;
 		}
 		const_iterator& operator++() { node_ = node_->next; return *this; }
-		const_iterator operator++(int) { const_iterator& result(*this); ++(*this); return result; }
+		const_iterator operator++(int) { const_iterator result(*this); ++(*this); return result; }
 		bool operator==(const const_iterator& other) const { return node_ == other.node_; }
 		bool operator!=(const const_iterator& other) const { return !(*this == other); }
 	private:

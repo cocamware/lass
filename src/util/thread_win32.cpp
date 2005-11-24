@@ -26,6 +26,7 @@
 #include "util_common.h"
 
 #ifdef LASS_THREAD_WIN32
+#pragma LASS_NOTE("util::Threading: using win32 implementation")
 
 #include "thread.h"
 #include <process.h> // windows related stuff

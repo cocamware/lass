@@ -105,7 +105,7 @@ size_t ArgValue<T>::size() const
 template <typename T>
 typename ArgValue<T>::TConstReference ArgValue<T>::operator[](size_t iIndex) const
 {
-	LASS_ASSERT(iIndex >= 0 && iIndex < size());
+	LASS_ASSERT(iIndex < size());
 	if (values_.size() == 0 && hasDefault_ && iIndex == 0)
 	{
 		return default_;

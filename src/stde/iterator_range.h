@@ -58,7 +58,7 @@ public:
 
 	iterator operator->() const;
 	reference operator*() const;
-	reference operator[](difference_type index);
+	reference operator[](difference_type index) const;
 
 	iterator_range& operator++();
 	iterator_range operator++(int);

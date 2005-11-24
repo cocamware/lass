@@ -45,9 +45,16 @@ namespace io
 {
 namespace impl
 {
-	struct Rgbe
+	class Bytes4
 	{
-		num::Tuint8 v[4];
+	public:
+		const num::Tuint8 operator[](std::size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
+		num::Tuint8& operator[](std::size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
+		const num::Tuint8* get() const { return values_; }
+		num::Tuint8* get() { return values_; }
+		bool operator==(const Bytes4& iOther) const { return std::equal(values_, values_ + 4, iOther.values_); }
+	private:
+		num::Tuint8 values_[4];
 	};
 }
 
@@ -670,10 +677,11 @@ BinaryIStream& Image::openTarga(BinaryIStream& iStream)
 	switch (header.imageType)
 	{
 	case 2:
-		openTarga2(iStream, header);
+	case 10:
+		openTargaTrueColor(iStream, header);
 		break;
 	default:
-		LASS_THROW("unsupported image type '" << header.imageType << "'");
+		LASS_THROW("unsupported image type '" << static_cast<unsigned>(header.imageType) << "'");
 		break;
 	};
 
@@ -682,57 +690,84 @@ BinaryIStream& Image::openTarga(BinaryIStream& iStream)
 
 
 
-/** Open Type 2 TARGA file
+/** Open Type 2 and 11 TARGA file
  */
-BinaryIStream& Image::openTarga2(BinaryIStream& iStream, const HeaderTarga& iHeader)
+BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTarga& iHeader)
 {
-	const TValue scale(255);
-	
+	const TValue scale = num::inv(255.f);
+
+	std::size_t numBytes = 0;
+	switch (iHeader.imagePixelSize)
+	{
+	case 24: 
+		numBytes = 3; 
+		break;
+	case 32:
+		numBytes = 4;
+		break;
+	default:
+		LASS_THROW("image pixel size '" << iHeader.imagePixelSize << "' not supported.");
+	};
+
 	iStream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
 		std::ios_base::cur);
 
-	switch (iHeader.imagePixelSize)
-	{
-	case 24:
+	LASS_ASSERT(cols_ == iHeader.imageWidth);
+	std::vector<impl::Bytes4> buffer(cols_);
+	for (unsigned y = rows_; y > 0; --y)
+	{	
+		if (iHeader.imageType == 10)
 		{
-		   for (unsigned y = rows_; y > 0; --y)
-		   {
-			  TPixel* pixel = &raster_[(y - 1) * cols_];
-			  for (unsigned x = cols_; x > 0; --x)
-			  {
-				 num::Tuint8 data[3];
-				 iStream.read(data, sizeof data);
-				 pixel->r = static_cast<TValue>(data[2]) / scale;
-				 pixel->g = static_cast<TValue>(data[1]) / scale;
-				 pixel->b = static_cast<TValue>(data[0]) / scale;
-				 pixel->a = TNumTraits::one;
-				 ++pixel;
-			  }
-		   }
+			// decode rle
+			//
+			unsigned x = 0;
+			while (x < cols_)
+			{
+				num::Tuint8 code;
+				iStream >> code;
+				const num::Tuint8 packetSize = (code & 0x7f) + 1;
+				impl::Bytes4 bytes;
+				if (code & 0x80)
+				{
+					iStream.read(bytes.get(), numBytes);
+					for (num::Tuint8 i = 0; i < packetSize; ++i)
+					{
+						LASS_ASSERT(x < cols_);
+						buffer[x++] = bytes;
+					}
+				}
+				else
+				{
+					for (num::Tuint8 i = 0; i < packetSize; ++i)
+					{
+						iStream.read(bytes.get(), numBytes);
+						LASS_ASSERT(x < cols_);
+						buffer[x++] = bytes;
+					}
+				}
+			}
 		}
-		break;
-
-	case 32:
+		else
 		{
-		   for (unsigned y = rows_; y > 0; --y)
-		   {
-			  TPixel* pixel = &raster_[(y - 1) * cols_];
-			  for (unsigned x = cols_; x > 0; --x)
-			  {
-				 num::Tuint8 data[4];
-				 iStream.read(data, sizeof data);
-				 pixel->r = static_cast<TValue>(data[2]) / static_cast<TValue>(255);
-				 pixel->g = static_cast<TValue>(data[1]) / static_cast<TValue>(255);
-				 pixel->b = static_cast<TValue>(data[0]) / static_cast<TValue>(255);
-				 pixel->a = static_cast<TValue>(data[3]) / static_cast<TValue>(255);
-				 ++pixel;
-			  }
-		   }
+			LASS_ASSERT(iHeader.imageType == 2);
+			for (unsigned x = 0; x < cols_; ++x)
+			{
+				iStream.read(buffer[x].get(), numBytes);
+			}
 		}
-		break;
 
-	default:
-		LASS_THROW("unsupported pixel size '" << iHeader.imagePixelSize << "'.");
+		// decode scanline
+		//
+		TPixel* scanline = &raster_[(y - 1) * cols_];
+		for (unsigned x = 0; x < cols_; ++x)
+		{
+			const impl::Bytes4& bytes = buffer[x];
+			TPixel& pixel = scanline[x];
+			pixel.r = static_cast<TValue>(bytes[2]) * scale;
+			pixel.g = static_cast<TValue>(bytes[1]) * scale;
+			pixel.b = static_cast<TValue>(bytes[0]) * scale;
+			pixel.a = numBytes == 3 ? TNumTraits::one : static_cast<TValue>(bytes[3]) * scale;
+		}
 	}
 
 	return iStream;
@@ -761,6 +796,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 		inverseCorrections[i] = num::inv(header.exposure * header.colorCorr[i]);
 	}
 	
+	resize(header.height, header.width);
+
 	const std::ptrdiff_t firstY = !header.yIncreasing ? 0 : (header.height - 1);	
 	const std::ptrdiff_t lastY = !header.yIncreasing ? header.height : -1;	
 	const std::ptrdiff_t deltaY = !header.yIncreasing ? 1 : -1;
@@ -768,25 +805,26 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 	const std::ptrdiff_t lastX = header.xIncreasing ? header.width : -1;
 	const std::ptrdiff_t deltaX = header.xIncreasing ? 1 : -1;
 
-	resize(header.height, header.width);
+	std::vector<impl::Bytes4> buffer(header.width);
+	impl::Bytes4 rgbe;
+	unsigned rleCount = 0;
+	unsigned rleCountByte = 0;
+
 	for (std::ptrdiff_t y = firstY; y != lastY; y += deltaY)
 	{
-		TPixel* line = &raster_[y * header.width];		
-		
-		TPixel pixel;
-		num::Tuint8 bytes[4];
-		unsigned rleCount = 0;
-		unsigned rleCountByte = 0;
-
+		// unpack scanline to buffer
+		//
 		std::ptrdiff_t x = firstX;
 		while (x != lastX)
 		{
-			iStream.read(bytes, 4);
-			if (bytes[0] == 2 && bytes[1] == 2 && (bytes[2] & 0x80) == 0)
+			iStream.read(rgbe.get(), 4);
+			if (rgbe[0] == 2 && rgbe[1] == 2 && (rgbe[2] & 0x80) == 0)
 			{
-				const unsigned lineLength = bytes[2] * 256 + bytes[3];
+				// new rle
+				//
+				const unsigned lineLength = rgbe[2] * 256 + rgbe[3];
 				const ptrdiff_t lastX2 = x + lineLength * deltaX;
-				for (unsigned k = 0; k < 3; ++k)
+				for (unsigned k = 0; k < 4; ++k)
 				{
 					ptrdiff_t x2 = x;
 					while (x2 != lastX2)
@@ -806,69 +844,53 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 								iStream >> value;
 							}
 							LASS_ASSERT(x2 != lastX2);
-							line[x2][k] = value * inverseCorrections[k];
+							buffer[x2][k] = value;
 							x2 += deltaX;
 						}
 					}
 				}
-				ptrdiff_t x2 = x;
-				while (x2 != lastX2)
-				{
-					num::Tuint8 spanSize = 0, value = 0;
-					iStream >> spanSize;
-					const bool isHomogenousSpan = spanSize > 128;
-					if (isHomogenousSpan) 
-					{
-						spanSize -= 128;
-						iStream >> value;
-					}
-					for (num::Tuint8 i = spanSize; i > 0; --i)
-					{
-						if (!isHomogenousSpan)
-						{
-							iStream >> value;
-						}
-						LASS_ASSERT(x2 != lastX2);
-						for (unsigned k = 0; k < 3; ++k)
-						{
-							line[x2][k] *= exponents[value];
-						}
-						x2 += deltaX;
-					}
-				}
 				x = lastX2;
-
 			}
 			else
 			{
 				// no rle or old rle
-				if (bytes[0] == 1 && bytes[1] == 1 && bytes[2] == 1)
+				//
+				if (rgbe[0] == 1 && rgbe[1] == 1 && rgbe[2] == 1)
 				{
-					rleCount |= bytes[4] << rleCountByte;
+					rleCount |= rgbe[4] << rleCountByte;
 					++rleCountByte;
 				}
 				else
 				{
 					if (rleCount > 0)
 					{
-						for (unsigned k = rleCount; k > 1; --k)
+						for (unsigned k = rleCount - 1; k > 0; --k)
 						{
-							line[x] = pixel;
+							buffer[x] = rgbe;
 							x += deltaX;
 						}
 						rleCount = 0;
 						rleCountByte = 0;
 					}
-					const float exp = exponents[bytes[3]];
-					for (unsigned k = 0; k < 3; ++k)
-					{
-						pixel[k] = exp * bytes[k] * inverseCorrections[k];
-					}
-					line[x] = pixel;
+					buffer[x] = rgbe;
 					x += deltaX;
 				}
 			}
-		}		
+		}
+
+		// decode rgbe information
+		//
+		TPixel* scanline = &raster_[y * header.width];	
+		for (std::ptrdiff_t x = firstX; x != lastX; x += deltaX)
+		{
+			const impl::Bytes4& rgbe = buffer[x];
+			TPixel& pixel = scanline[x];
+			const float exponent = exponents[rgbe[3]];
+			for (unsigned k = 0; k < 3; ++k)
+			{
+				pixel[k] = rgbe[k] * inverseCorrections[k] * exponent;
+			}
+		}
 	}	
 	return iStream;
 }
@@ -911,7 +933,7 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 	HeaderTarga header;
 	header.idLength = 0;
 	header.colorMapType = 0;
-	header.imageType = 2;
+	header.imageType = 10; // rle true color
 	header.colorMapOrigin = 0;
 	header.colorMapLength = 0;
 	header.colorMapEntrySize = 0;
@@ -924,19 +946,72 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 
 	header.writeTo(oStream);
 
+	std::vector<impl::Bytes4> buffer(header.imageWidth);
+	std::vector<impl::Bytes4> rleBuffer(128);
 	for (unsigned y = rows_; y > 0; --y)
 	{
-		const TPixel* pixel = &raster_[(y - 1) * cols_];
-		for (unsigned x = cols_; x > 0; --x)
+		if (y == 836)
 		{
-			num::Tuint8 data[4];
-			data[0] = static_cast<num::Tuint8>(num::clamp(pixel->b, zero, one) * scale),
-			data[1] = static_cast<num::Tuint8>(num::clamp(pixel->g, zero, one) * scale);
-			data[2] = static_cast<num::Tuint8>(num::clamp(pixel->r, zero, one) * scale);
-			data[3] = static_cast<num::Tuint8>(num::clamp(pixel->a, zero, one) * scale);
-			oStream.write(data, sizeof data);
-			++pixel;
+			int a = 5;
 		}
+		unsigned x;
+
+		// encode in scanline buffer
+		//
+		const TPixel* scanline = &raster_[(y - 1) * cols_];
+		for (x = 0; x < cols_; ++x)
+		{
+			const TPixel& pixel = scanline[x];
+			impl::Bytes4& bytes = buffer[x];
+			bytes[0] = static_cast<num::Tuint8>(num::clamp(pixel.b, zero, one) * scale);
+			bytes[1] = static_cast<num::Tuint8>(num::clamp(pixel.g, zero, one) * scale);
+			bytes[2] = static_cast<num::Tuint8>(num::clamp(pixel.r, zero, one) * scale);
+			bytes[3] = static_cast<num::Tuint8>(num::clamp(pixel.a, zero, one) * scale);
+		}
+
+		// run-length encode buffer
+		//
+		unsigned totalLength = 0;
+		num::Tuint8 numDiff = 0;
+		x = 0;
+		while (x < cols_)
+		{
+			const impl::Bytes4& bytes = buffer[x];
+			unsigned x2 = x;
+			num::Tuint8 numSame = 0;
+			while (x2 < cols_ && numSame < 128 && buffer[x2] == bytes)
+			{
+				++x2;
+				++numSame;
+			}
+			if (numSame == 1)
+			{
+				rleBuffer[numDiff] = bytes;
+				++numDiff;
+				++x;
+			}
+			if (numDiff == 128 || ((numSame > 1 || x == cols_) && numDiff > 0))
+			{
+				oStream << static_cast<num::Tuint8>(numDiff - 1);
+				for (num::Tuint8 i = 0; i < numDiff; ++i)
+				{
+					oStream.write(&rleBuffer[i], 4);
+				}
+				totalLength += numDiff;
+				LASS_ASSERT(totalLength == x);
+				numDiff = 0;
+			}
+			if (numSame > 1)
+			{
+				oStream << static_cast<num::Tuint8>((numSame - 1) | 0x80);
+				oStream.write(bytes.get(), 4);
+				x = x2;
+				totalLength += numSame;
+				LASS_ASSERT(totalLength == x);
+				numSame = 0;
+			}
+		}
+		LASS_ASSERT(totalLength == cols_);
 	}
 
 	return oStream;
@@ -958,7 +1033,7 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 	header.xIncreasing = true;
 	header.writeTo(oStream);
 
-	std::vector<impl::Rgbe> buffer(cols_);
+	std::vector<impl::Bytes4> buffer(cols_);
 	std::vector<num::Tuint8> rleBuffer(128);
 
 	for (unsigned y = 0; y < rows_; ++y)
@@ -969,11 +1044,11 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 		for (unsigned x = 0; x < cols_; ++x)
 		{
 			const TPixel& pixel = line[x];
-			impl::Rgbe& rgbe = buffer[x];
+			impl::Bytes4& rgbe = buffer[x];
 			const float maximum = std::max(std::max(pixel.r, pixel.g), pixel.b);
 			if (maximum < 1e-32)
 			{
-				rgbe.v[0] = rgbe.v[1] = rgbe.v[2] = rgbe.v[3] = 0;
+				rgbe[0] = rgbe[1] = rgbe[2] = rgbe[3] = 0;
 			}
 			else
 			{
@@ -982,9 +1057,9 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 				for (unsigned k = 0; k < 3; ++k)
 				{
 					const float normalized = pixel[k] * (256.f * mantissa / maximum);
-					rgbe.v[k] = static_cast<num::Tuint8>(num::clamp(normalized, 0.f, 255.f));
+					rgbe[k] = static_cast<num::Tuint8>(num::clamp(normalized, 0.f, 255.f));
 				}
-				rgbe.v[3] = static_cast<num::Tuint8>(num::clamp(exponent + 128, 0, 255));
+				rgbe[3] = static_cast<num::Tuint8>(num::clamp(exponent + 128, 0, 255));
 			}
 		}
 
@@ -1003,10 +1078,10 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 			unsigned x = 0;
 			while (x < cols_)
 			{
-				num::Tuint8 value = buffer[x].v[k];
+				num::Tuint8 value = buffer[x][k];
 				unsigned x2 = x;
 				num::Tuint8 numSame = 0;
-				while (x2 < cols_ && numSame < 127 && buffer[x2].v[k] == value)
+				while (x2 < cols_ && numSame < 127 && buffer[x2][k] == value)
 				{
 					++x2;
 					++numSame;
@@ -1067,6 +1142,7 @@ Image::TFileFormats Image::fillFileFormats()
 	formats["targa"] = FileFormat(&Image::openTarga, &Image::saveTarga);
 	formats["tga"] = formats["targa"];
 	formats["hdr"] = FileFormat(&Image::openRadianceHdr, &Image::saveRadianceHdr);
+	formats["pic"] =formats["hdr"];
 	return formats;
 }
 

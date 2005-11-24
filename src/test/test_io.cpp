@@ -34,11 +34,24 @@
 #include "test_io_binary_stream.inl"
 #include "test_io_file_attributes.inl"
 #include "test_io_proxy_system.inl"
+#include "../io/image.h"
 
 namespace lass
 {
 namespace test
 {
+
+void HdrTest()
+{
+	io::Image image("d:/temp/grace_probe.hdr");
+	image.save("d:/temp/grace_probe_1.hdr");
+	image.filterExposure(4.f);
+	image.save("d:/temp/grace_probe_2.tga");
+	
+	io::Image image2("d:/temp/grace_probe_2.tga");
+	image2.filterInverseExposure(4.f);
+	image2.save("d:/temp/grace_probe_3.hdr");
+}
 
 TUnitTests testIo()
 {
@@ -49,6 +62,7 @@ TUnitTests testIo()
 	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
 	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
 	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
+	result.push_back(LASS_UNIT_TEST(HdrTest));
 
 	return result;
 }

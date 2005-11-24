@@ -32,6 +32,8 @@
 #include "test_common.h"
 #include "../stde/compose.h"
 #include "../stde/select.h"
+#include "../stde/integral_range.h"
+#include "../stde/range_algorithm.h"
 
 namespace lass
 {
@@ -42,17 +44,12 @@ void testStdeCompose()
 {
 	TestStream stream;
 
-	std::vector<int> a, b;
-	for (int i = 0; i < 5; ++i)
-	{
-		a.push_back(i);
-	}
-	std::transform(a.begin(), a.end(), std::back_inserter(b),
+	std::vector<int> a;
+	stde::transform_r(stde::integral_range(5), std::back_inserter(a),
 		stde::compose_f_gx(
 			std::negate<int>(),
 			std::bind2nd(std::multiplies<int>(), 2)));	
-	stream << b;
-	LASS_TEST_CHECK(stream.isEqual("[0, -2, -4, -6, -8]"));
+	LASS_TEST_CHECK_LEXICAL(a, "[0, -2, -4, -6, -8]");
 
 	typedef std::pair<int, int> pair_type;
 	std::vector<pair_type> c;
@@ -61,13 +58,12 @@ void testStdeCompose()
 	{
 		c.push_back(std::make_pair(10 * i, i));
 	}
-	std::transform(c.begin(), c.end(), std::back_inserter(d),
+	stde::transform_r(c, std::back_inserter(d),
 		stde::compose_f_gx_hx(
 			std::plus<int>(),
 			stde::select_1st<pair_type>(),
 			stde::select_2nd<pair_type>()));
-	stream << d;
-	LASS_TEST_CHECK(stream.isEqual("[0, 11, 22, 33, 44]"));
+	LASS_TEST_CHECK_LEXICAL(d, "[0, 11, 22, 33, 44]");
 }
 
 }

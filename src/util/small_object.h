@@ -162,7 +162,7 @@ public:
 		}
 	}
 
-	static void operator delete(void* iPointer, std::size_t iSize)
+	static void operator delete(void* iPointer, std::size_t iSize) throw()
 	{
 		//LASS_COUT << "void SmallObject::operator delete(void*, std::size_t) [iSize=" << iSize << "]\n";
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR

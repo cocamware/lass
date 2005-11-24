@@ -96,7 +96,7 @@ iterator_range<I>::operator*() const
 
 template <typename I> inline
 typename iterator_range<I>::reference 
-iterator_range<I>::operator[](difference_type index) 
+iterator_range<I>::operator[](difference_type index) const
 { 
 	LASS_ASSERT(index < this->size());
 	iterator result = first_;

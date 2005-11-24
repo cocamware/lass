@@ -205,7 +205,7 @@ private:
 
 	BinaryIStream& openRaw(BinaryIStream& iStream);
 	BinaryIStream& openTarga(BinaryIStream& iStream);
-	BinaryIStream& openTarga2(BinaryIStream& iStream, const HeaderTarga& iHeader);
+	BinaryIStream& openTargaTrueColor(BinaryIStream& iStream, const HeaderTarga& iHeader);
 	BinaryIStream& openRadianceHdr(BinaryIStream& iStream);
 
 	BinaryOStream& saveRaw(BinaryOStream& oStream) const;
@@ -213,6 +213,7 @@ private:
 	BinaryOStream& saveRadianceHdr(BinaryOStream& oStream) const;
 	
 	FileFormat findFormat(const std::string& iFormatTag);
+	std::string readRadianceHdrString(BinaryIStream& iStream) const;
 
 	static TFileFormats fillFileFormats();
 
