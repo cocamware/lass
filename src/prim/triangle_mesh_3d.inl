@@ -30,6 +30,7 @@
 
 #include "prim_common.h"
 #include "triangle_mesh_3d.h"
+#include "../stde/range_algorithm.h"
 
 namespace lass
 {
@@ -161,7 +162,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals()
 		for (std::size_t k = 0; k < 3; ++k)
 		{
 			std::size_t i = triangle->vertices[k] - &vertices_[0];
-			triangle->normals[k] = &newNormals[i];
+			triangle->normals[k] = &normals_[i];
 
 			const TVector a = *triangle->vertices[(k + 1) % 3] - *triangle->vertices[k];
 			const TVector b = *triangle->vertices[(k + 2) % 3] - *triangle->vertices[k];
