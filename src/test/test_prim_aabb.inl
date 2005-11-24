@@ -185,6 +185,8 @@ void testPrimAabb3D()
 	typedef prim::Aabb3D<T, prim::AutoMinMax> TAabbAuto;
 	typedef prim::Point3D<T> TPoint;
 
+	T epsilon = 1e-6f;
+
 	// create two empty aabbs.
 
 	TAabbStrict aabbStrict;
@@ -270,8 +272,8 @@ void testPrimAabb3D()
 	TAabbStrict a(TPoint(0, 0, 0), TPoint(10, 10, 10));
 	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
 	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)));
+	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)), epsilon);
+	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)), epsilon);
 	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
 
 	TAabbStrict b(TPoint(100, 100, 100), TPoint(1000, 1000, 1000));

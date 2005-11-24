@@ -30,6 +30,10 @@
 #include "num_common.h"
 #include "../util/call_traits.h"
 
+#ifdef LASS_ISNAN_MSVC_FLOAT_H
+#	include <float.h>
+#endif
+
 namespace lass
 {
 namespace num
@@ -72,10 +76,14 @@ struct LASS_DLL NumTraits
 	static const C sqrtPi;
 };
 
-template<class C>
+template<class C> inline
 bool isNaN( const C& iV )
 {
+#ifdef LASS_ISNAN_MSVC_FLOAT_H
+	return _isnan(static_cast<double>(iV)) != 0;
+#else
 	return iV!=iV;
+#endif
 }
 
 /** return true if iV equals minus or plus Infinity

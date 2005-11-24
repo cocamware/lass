@@ -118,7 +118,7 @@ template <typename T> void testPrimVector3D()
 	LASS_TEST_CHECK_EQUAL(a.z, a2);
 
 	LASS_TEST_CHECK_EQUAL(a.squaredNorm(), (a0 * a0 + a1 * a1 + a2 * a2));
-	LASS_TEST_CHECK_EQUAL(a.norm() * a.norm(), a.squaredNorm());
+	LASS_TEST_CHECK_CLOSE(a.norm() * a.norm(), a.squaredNorm(), epsilon);
 
 	Vector3D<T> b(b0, b1, b2);
 	LASS_TEST_CHECK_EQUAL(b[0], b.x);

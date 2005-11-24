@@ -59,6 +59,8 @@
 // use __int8 and friends
 #define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
 
+// use _isnan from <float.h>
+#define LASS_ISNAN_MSVC_FLOAT_H
 
 #define LASS_DLL_IMPORT __declspec( dllimport )
 #define LASS_DLL_EXPORT __declspec( dllexport )

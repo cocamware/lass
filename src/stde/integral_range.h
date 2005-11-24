@@ -39,39 +39,75 @@ namespace lass
 namespace stde
 {
 
+template <typename integral_type> class const_integral_iterator;
+
+template <typename I> bool operator==(const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+template <typename I> bool operator!=(const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+template <typename I> bool operator< (const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+template <typename I> bool operator> (const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+template <typename I> bool operator<=(const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+template <typename I> bool operator>=(const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
+
+template <typename integral_type>
+class const_integral_iterator: 
+	public std::iterator<std::random_access_iterator_tag, const integral_type>
+{
+public:
+	typedef const_integral_iterator<integral_type> self_type;
+
+	const_integral_iterator(value_type value, value_type step);
+
+	pointer operator->() const;
+	reference operator*() const;
+	value_type operator[](difference_type n) const;
+
+	self_type& operator++();
+	self_type operator++(int);
+	self_type& operator--();
+	self_type operator--(int);
+
+	self_type& operator+=(difference_type n);
+	self_type& operator-=(difference_type n);
+	self_type operator+(difference_type n) const;
+	self_type operator-(difference_type n) const;
+
+	difference_type operator-(const self_type& other) const;
+
+private:
+
+	friend bool operator== <integral_type>(const const_integral_iterator<integral_type>&, const const_integral_iterator<integral_type>& );
+	friend bool operator<  <integral_type>(const const_integral_iterator<integral_type>&, const const_integral_iterator<integral_type>& );
+	
+	integral_type value_;
+	integral_type step_;
+};
+
+
+
+template <typename integral_type> class integral_range_t;
+
+template <typename I> bool operator==(const integral_range_t<I>& a, const integral_range_t<I>& b);
+template <typename I> bool operator!=(const integral_range_t<I>& a, const integral_range_t<I>& b);
+template <typename I> bool operator< (const integral_range_t<I>& a, const integral_range_t<I>& b);
+template <typename I> bool operator> (const integral_range_t<I>& a, const integral_range_t<I>& b);
+template <typename I> bool operator<=(const integral_range_t<I>& a, const integral_range_t<I>& b);
+template <typename I> bool operator>=(const integral_range_t<I>& a, const integral_range_t<I>& b);
+
 template <typename integral_type>
 class integral_range_t
 {
 public:
 
-	class const_iterator
-	{
-	public:
-		typedef const integral_type value_type;
-		typedef const integral_type* pointer;
-		typedef const integral_type& reference;
-		typedef std::size_t size_type;
-		typedef std::ptrdiff_t difference_type;
-		typedef std::random_access_iterator_tag iterator_category;
-		const_iterator(): range_() {}
-		pointer operator->() const { return range_.operator->(); }
-		reference operator*() const { return range_.operator*(); }
-		const_iterator& operator++() { ++range_; return *this; }
-		const_iterator operator++(int) { const_iterator result(*this); ++(*this); return result; }
-		bool operator==(const const_iterator& other) const { return range_ == other.range_; }
-		bool operator!=(const const_iterator& other) const { return !(*this == other); }
-	private:
-		friend class integral_range_t<integral_type>;
-		explicit const_iterator(const integral_range_t<integral_type>& range): range_(range) {}
-		integral_range_t<integral_type> range_;
-	};
+	typedef integral_range_t<integral_type> self_type;
 
-	typedef const integral_type value_type;
-	typedef const integral_type* const_pointer;
-	typedef const integral_type& const_reference;
+	typedef const_integral_iterator<integral_type> const_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+	typedef typename const_iterator::value_type value_type;
+	typedef typename const_iterator::pointer const_pointer;
+	typedef typename const_iterator::reference const_reference;
+	typedef typename const_iterator::difference_type difference_type;
 	typedef std::size_t size_type;
-	typedef std::ptrdiff_t difference_type;
-	typedef std::random_access_iterator_tag iterator_category;
 
 	integral_range_t();
 	integral_range_t(value_type last);
@@ -80,36 +116,43 @@ public:
 
 	const_iterator begin() const;
 	const_iterator end() const;
+	const_reverse_iterator rbegin() const;
+	const_reverse_iterator rend() const;
 
 	const_pointer operator->() const;
 	const_reference operator*() const;
-	const_reference operator[](difference_type index) const;
+	value_type operator[](difference_type index) const;
 
-	integral_range_t<integral_type>& operator++();
-	integral_range_t<integral_type> operator++(int);
+	self_type& operator++();
+	self_type operator++(int);
+	self_type& operator--();
+	self_type operator--(int);
+
+	self_type& operator+=(difference_type n);
+	self_type& operator-=(difference_type n);
+	self_type operator+(difference_type n) const;
+	self_type operator-(difference_type n) const;
 
 	const size_type size() const;
 	const bool empty() const;
 	const bool operator!() const;
 	operator const num::SafeBool() const;
 
-	void swap(integral_range_t<integral_type>& other);
+	void swap(self_type& other);
 
 private:
 
-	template <typename J> friend const bool operator==(const integral_range_t<J>& a, const integral_range_t<J>& b);
+	friend bool operator== <integral_type>(const integral_range_t<integral_type>& a, const integral_range_t<integral_type>& b);
+	friend bool operator<  <integral_type>(const integral_range_t<integral_type>& a, const integral_range_t<integral_type>& b);
 
 	integral_type first_;
-	integral_type step_;
 	integral_type last_;
+	integral_type step_;
 };
 
 template <typename I> integral_range_t<I> integral_range(const I& last);
 template <typename I> integral_range_t<I> integral_range(const I& first, const I& last);
 template <typename I> integral_range_t<I> integral_range(const I& first, const I& last, const I& step);
-
-template <typename I> const bool operator==(const integral_range_t<I>& a, const integral_range_t<I>& b);
-template <typename I> const bool operator!=(const integral_range_t<I>& a, const integral_range_t<I>& b);
 
 }
 

@@ -204,7 +204,7 @@ void testPrimLine2D()
 	LASS_TEST_CHECK_EQUAL(combined.project(v), cartesian.project(v));
 	LASS_TEST_CHECK_EQUAL(combined.project(p), cartesian.project(p));
 	LASS_TEST_CHECK_EQUAL(combined.reflect(v), cartesian.reflect(v));
-	LASS_TEST_CHECK_EQUAL(combined.reflect(p), cartesian.reflect(p));
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reflect(p), cartesian.reflect(p), epsilon, 2);
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reject(v), parametric.reject(v), epsilon, 2);
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reject(p), parametric.reject(p), epsilon, 2);
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.project(v), parametric.project(v), epsilon, 2);
