@@ -79,7 +79,7 @@
 // were you can enable RTTI.  Therefore, you must add /GR to the commandline explicitely
 // http://tinyurl.com/8usvw
 #ifndef _CPPRTTI
-#	pragma LASS_FIMXE("RTTI not enabled ... Add /GR to commandline options if you need it.")
+#	pragma message("[LASS BUILD MSG] RTTI not enabled ... Add /GR to commandline options if you need it.")
 #endif
 
 // --- Here we'll define some stuff on the name of libraries lass creates ---
