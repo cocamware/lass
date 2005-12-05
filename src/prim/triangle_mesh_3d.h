@@ -92,6 +92,7 @@ public:
 		TVector dPoint_dV;
 		TVector dNormal_dU;
 		TVector dNormal_dV;
+		TVector geometricNormal;
 		TUv uv;
 	};
 

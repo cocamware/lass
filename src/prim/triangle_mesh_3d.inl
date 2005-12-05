@@ -67,9 +67,9 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices,
 			}
 			triangle.vertices[k] = &vertices_[vertex];
 
-			if (sizeNormals > 0)
-			{
-				const std::size_t normal = i->normals[k];
+			const std::size_t normal = i->normals[k];
+			if (normal != IndexTriangle::null())
+			{				
 				if (normal >= sizeNormals)
 				{
 					LASS_THROW("normal index is out of range: " << static_cast<unsigned long>(normal) 
@@ -82,10 +82,10 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices,
 				triangle.normals[k] = 0;
 			}
 
-			if (sizeUvs > 0)
+			const std::size_t uv = i->uvs[k];
+			if (uv != IndexTriangle::null())
 			{
-				const std::size_t uv = i->uvs[k];
-				if (uv >= sizeUvs && !(uv == 0 && sizeUvs == 0))
+				if (uv >= sizeUvs)
 				{
 					LASS_THROW("uv index is out of range: " << static_cast<unsigned long>(uv) 
 						<< " >= " << static_cast<unsigned long>(sizeUvs));
@@ -169,7 +169,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals()
 			const TVector n = cross(a, b).normal();
 			if (!n.isZero())
 			{
-				triangle->normals[k] += n * num::acos(dot(a, b) / (a.norm() * b.norm()));
+				normals_[i] += n * num::acos(dot(a, b) / (a.norm() * b.norm()));
 			}
 		}
 	}
@@ -252,6 +252,7 @@ const Result TriangleMesh3D<T, BHV>::Triangle::intersect(const TRay& iRay,
 			oContext->dPoint_dV = dPoint_dS;
 		}
 
+		oContext->geometricNormal = cross(dPoint_dR, dPoint_dS).normal();
 		if (normals[0])
 		{
 			LASS_ASSERT(normals[1] && normals[2]);
@@ -264,9 +265,9 @@ const Result TriangleMesh3D<T, BHV>::Triangle::intersect(const TRay& iRay,
 		}
 		else
 		{
-			oContext->normal = cross(dPoint_dR, dPoint_dS).normal();
-			oContext->dNormal_dU = TVector(0, 0, 0);
-			oContext->dNormal_dV = TVector(0, 0, 0);
+			oContext->normal = oContext->geometricNormal;
+			oContext->dNormal_dU = TVector();
+			oContext->dNormal_dV = TVector();
 		}
 	}
 	return rOne;

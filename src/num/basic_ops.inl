@@ -210,7 +210,7 @@ template <typename T> void inpinv(T& ioV)						{ ioV = num::inv(ioV); }					/**<
 template <typename T> void inpsqrt(T& ioV)						{ ioV = num::sqrt(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpsqr(T& ioV)						{ ioV = num::sqr(ioV); }					/**< @ingroup BasicOps */
 template <typename T> void inpcubic(T& ioV)						{ ioV = num::cubic(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inppow(T& ioV, T& iPow)				{ ioV = num::pow(ioV, iPow); }			/**< @ingroup BasicOps */
+template <typename T> void inppow(T& ioV, const T& iPow)		{ ioV = num::pow(ioV, iPow); }			/**< @ingroup BasicOps */
 template <typename T> void inpexp(T& ioV)						{ ioV = num::exp(ioV); }					/**< @ingroup BasicOps */
 template <typename T> void inplog(T& ioV)						{ ioV = num::log(ioV); }					/**< @ingroup BasicOps */
 template <typename T> void inpcos(T& ioV)						{ ioV = num::cos(ioV); }					/**< @ingroup BasicOps */
@@ -224,9 +224,10 @@ template <typename T> void inpfloor(T& ioV)						{ ioV = num::floor(ioV); }				/
 template <typename T> void inpceil(T& ioV)						{ ioV = num::ceil(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpround(T& ioV)						{ ioV = num::round(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpfractional(T& ioV)				{ ioV -= num::floor(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpdiv(T& ioV, T& iMod)				{ ioV = num::div(ioV, iMod); }			/**< @ingroup BasicOps */
-template <typename T> void inpmod(T& ioV, T& iMod)				{ ioV = num::mod(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpdiv(T& ioV, const T& iMod)		{ ioV = num::div(ioV, iMod); }			/**< @ingroup BasicOps */
+template <typename T> void inpmod(T& ioV, const T& iMod)		{ ioV = num::mod(ioV, iMod); }			/**< @ingroup BasicOps */
 template <typename T> void inpclamp(T& ioV, const T& iMin, const T& iMax)	{ ioV = num::clamp(ioV, iMin, iMax); }	/** @ingroup BasicOps */
+
 template <typename T> void compnorm(const T& iV, T& oV)			{ oV = num::norm(iV); }					/**< @ingroup BasicOps */
 template <typename T> void compinv(const T& iV, T& oV)			{ oV = num::inv(iV); }					/**< @ingroup BasicOps */
 

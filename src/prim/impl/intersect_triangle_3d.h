@@ -75,7 +75,7 @@ Result intersectTriangle3D(const Point& iVertex0, const Vector& iEdge1, const Ve
 	}
 
 	const T t = dot(iEdge2, qvec);
-	if (t <= iMinT)
+	if (t <= (iMinT * det))
 	{
 		return rNone;
 	}
