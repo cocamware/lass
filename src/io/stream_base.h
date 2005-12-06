@@ -69,7 +69,7 @@ public:
 protected:
 
 	StreamBase(): state_(std::ios_base::goodbit) {}
-	~StreamBase() {}
+	virtual ~StreamBase() {}
 
 private:
 

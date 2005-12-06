@@ -34,8 +34,8 @@ namespace io
 
 ProxyMan::ProxyMan():
 	cout_(&std::cout, ProxyOStream::acceptAll),
-	clog_(&std::clog, ProxyOStream::acceptAll),
 	cerr_(&std::cerr, ProxyOStream::acceptAll),
+	clog_(&std::clog, ProxyOStream::acceptAll),
 	cin_(&std::cin)
 {
 }

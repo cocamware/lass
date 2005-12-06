@@ -585,11 +585,11 @@ ArgParameter::ArgParameter(ArgParser& iParser,
 						   const std::string& iShortName,
 						   const std::string& iLongName,
 						   int iArgMode):
+	parser_(iParser),
 	shortName_(iShortName),
 	longName_(iLongName),
 	mode_(iArgMode),
-	isSet_(false),
-	parser_(iParser)
+	isSet_(false)
 {
 	parser_.subscribe(*this);
 }

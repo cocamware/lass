@@ -313,7 +313,7 @@ const Image::TPixel& Image::at(signed iRow, signed iCol) const
 {
 	const unsigned i = num::mod(iRow, rows_);
 	const unsigned j = num::mod(iCol, cols_);
-	return raster_[flatIndex(iRow, iCol)];
+	return raster_[flatIndex(i, j)];
 }
 
 
@@ -326,7 +326,7 @@ Image::TPixel& Image::at(signed iRow, signed iCol)
 {
 	const unsigned i = num::mod(iRow, rows_);
 	const unsigned j = num::mod(iCol, cols_);
-	return raster_[flatIndex(iRow, iCol)];
+	return raster_[flatIndex(i, j)];
 }
 
 
@@ -799,10 +799,10 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 	resize(header.height, header.width);
 
 	const std::ptrdiff_t firstY = !header.yIncreasing ? 0 : (header.height - 1);	
-	const std::ptrdiff_t lastY = !header.yIncreasing ? header.height : -1;	
+	const std::ptrdiff_t lastY = !header.yIncreasing ? static_cast<std::ptrdiff_t>(header.height) : -1;	
 	const std::ptrdiff_t deltaY = !header.yIncreasing ? 1 : -1;
 	const std::ptrdiff_t firstX = header.xIncreasing ? 0 : (header.width - 1);
-	const std::ptrdiff_t lastX = header.xIncreasing ? header.width : -1;
+	const std::ptrdiff_t lastX = header.xIncreasing ? static_cast<std::ptrdiff_t>(header.width) : -1;
 	const std::ptrdiff_t deltaX = header.xIncreasing ? 1 : -1;
 
 	std::vector<impl::Bytes4> buffer(header.width);
@@ -950,10 +950,6 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 	std::vector<impl::Bytes4> rleBuffer(128);
 	for (unsigned y = rows_; y > 0; --y)
 	{
-		if (y == 836)
-		{
-			int a = 5;
-		}
 		unsigned x;
 
 		// encode in scanline buffer

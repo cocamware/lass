@@ -94,17 +94,12 @@ template<int x> struct MetaAssertTest {};
 }
 }
 }
-//*
+
+
 #define LASS_META_ASSERT(expression__, message__)\
 	typedef lass::meta::impl::MetaAssertTest<\
 		sizeof(lass::meta::impl::MetaAssertor<((expression__) == 0)>)>\
 	LASS_META_ASSERT_##message__
-
-/**/
-/*
-#define LASS_META_ASSERT(expression__, message__) \
-	typedef char LASS_META_ASSERT_FAILURE_##message__[1][(expression__)]
-/**/
 
 #endif
 

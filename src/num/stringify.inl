@@ -24,7 +24,8 @@
  */
 
 
-
+/** @deprecated use util::stringCast
+ */
 std::string str(float iV)
 {
 	char buf[64];
@@ -32,6 +33,9 @@ std::string str(float iV)
 	return std::string(buf);
 }
 
+
+/** @deprecated use util::stringCast
+ */
 std::string str(double iV)
 {
 	char buf[64];
@@ -39,6 +43,8 @@ std::string str(double iV)
 	return std::string(buf);
 }
 
+/** @deprecated use util::stringCast
+ */
 std::string str(int iV)
 {
 	char buf[64];
@@ -46,13 +52,17 @@ std::string str(int iV)
 	return std::string(buf);
 }
 
+/** @deprecated use util::stringCast
+ */
 std::string str(long iV)
 {
 	char buf[64];
-	sprintf(buf,"%d",iV);
+	sprintf(buf,"%ld",iV);
 	return std::string(buf);
 }
 
+/** @deprecated use util::stringCast
+ */
 template<class C>
 std::string str(const std::complex<C>& iV)
 {

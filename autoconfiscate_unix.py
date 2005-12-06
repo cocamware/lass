@@ -131,12 +131,10 @@ def writeSrcMakeFile(sources_list, headers_dict, test_sources_list):
 # set the include path found by configure
 INCLUDES= $(all_includes) %s
 
-# the library search path.
-#lass_LDFLAGS = $(all_libraries) 
-
 # the librart
 lib_LTLIBRARIES = liblass.la
 liblass_la_SOURCES = %s
+liblass_la_CPPFLAGS = -g -m32 -Wall
 liblass_la_LDFLAGS = -lpython2.3 -lrt
 ''' % (includes, sources)
 )
@@ -154,6 +152,7 @@ liblass_la_LDFLAGS = -lpython2.3 -lrt
 # test
 noinst_PROGRAMS = testlass
 testlass_SOURCES = %s
+testlass_CPPFLAGS = -g -m32 -Wall
 testlass_LDADD = liblass.la
 ''' % test_sources)
 

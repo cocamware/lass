@@ -598,6 +598,7 @@ $[
 
 /** @ingroup Python
  *  @deprecated
+ */
 #define PY_INJECT_CLASS_IN_MODULE_BEFORE_MAIN( i_cppClass, i_module, s_doc ) \
 	extern PyObject* LASS_CONCATENATE( lassPythonModule, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -1482,8 +1483,8 @@ $[
 	0,	/*tp_hash*/\
 	0,	/*tp_call */\
 	0,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
 	0,	/*tp_as_buffer*/\
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
 	0,	/*tp_doc*/\
@@ -1532,8 +1533,8 @@ $[
 	0,	/*tp_hash*/\
 	0,	/*tp_call */\
 	PyObjectPlus::__str,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,	/*tp_setattro */\
+	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
 	0,	/*tp_as_buffer*/\
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
 	0,	/*tp_doc*/\

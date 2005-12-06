@@ -54,6 +54,11 @@ class const_integral_iterator:
 {
 public:
 	typedef const_integral_iterator<integral_type> self_type;
+	typedef std::iterator<std::random_access_iterator_tag, const integral_type> iterator_type;
+	typedef typename iterator_type::value_type value_type;
+	typedef typename iterator_type::pointer pointer;
+	typedef typename iterator_type::reference reference;
+	typedef typename iterator_type::difference_type difference_type;
 
 	const_integral_iterator(value_type value, value_type step);
 

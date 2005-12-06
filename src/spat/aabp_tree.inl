@@ -488,7 +488,7 @@ const bool AabpTree<O, OT>::doIntersects(size_t iIndex, const TRay& iRay,
 		if (TObjectTraits::intersect(node.object, iRay, t, iTMin, iInfo))
 		{
 			LASS_ASSERT(t > iTMin && t < iTMax);
-			return return true;
+			return true;
 		}
 		return false;
     }

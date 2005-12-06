@@ -175,8 +175,8 @@ namespace lass
 			typedef util::SharedPtr<T, PyObjectStorage, PyObjectCounter> Type;
 		};
 
-		template<class T>   T*  PyPlus_INCREF(T* iObj)  { return Py_INCREF(iObj); return iObj; }
-		template<class T>   T*  PyPlus_DECREF(T* iObj)  { return Py_DECREF(iObj); return iObj; }
+		template<class T>   T*  PyPlus_INCREF(T* iObj)  { Py_INCREF(iObj); return iObj; }
+		template<class T>   T*  PyPlus_DECREF(T* iObj)  { Py_DECREF(iObj); return iObj; }
 
 		/** fromPySharedPtrCast.
 		*   @ingroup Python

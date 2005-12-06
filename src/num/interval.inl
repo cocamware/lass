@@ -423,10 +423,7 @@ C   interval<C>::fe(const interval<C>& i) const
 		if (isSingleton())
 			if (v[0]==i.v[0])
 				return static_cast<C>(1.0);
-			else
-				static_cast<C>(0.0);
-
-			return static_cast<C>(0.0);
+		return static_cast<C>(0.0);
 	}
 	if (i.v[0]<v[1])
 	{
@@ -517,7 +514,6 @@ void inpnorm(interval<C>& i)
 template<typename C>
 void inpinv(interval<C>& i)
 {
-	C   t(i[0]);
 	i[0] = lass::num::inv( i[1] );
 	i[1] = lass::num::inv( i[0] );
 }

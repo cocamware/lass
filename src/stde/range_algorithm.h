@@ -190,19 +190,19 @@ bool equal_r(const InputRange1& range1, const InputRange2& range2, BinaryPredica
 /** std::search wrapper for ranges
  *	@ingroup range_algorithm 
  */ 
-template <typename ForwardRange1, typename ForwardRange2, typename BinaryPredicate> inline
+template <typename ForwardRange1, typename ForwardRange2> inline
 typename ForwardRange1::iterator 
-search_r(const ForwardRange1& range1,const ForwardRange2& range2, BinaryPredicate pred)
+search_r(const ForwardRange1& range1,const ForwardRange2& range2)
 {
-	return std::search(range1.begin(), range1.end(), range2.begin(), range2.end(), pred);
+	return std::search(range1.begin(), range1.end(), range2.begin(), range2.end());
 }
 
 /** std::search wrapper for ranges
  *	@ingroup range_algorithm 
  */ 
-template <typename ForwardRange1, typename ForwardRange2> inline
+template <typename ForwardRange1, typename ForwardRange2, typename BinaryPredicate> inline
 typename ForwardRange1::iterator 
-search_r(const ForwardRange1& range1,const ForwardRange2& range2)
+search_r(const ForwardRange1& range1,const ForwardRange2& range2, BinaryPredicate pred)
 {
 	return std::search(range1.begin(), range1.end(), range2.begin(), range2.end(), pred);
 }
@@ -391,7 +391,7 @@ unique_r(ForwardRange& range, Predicate pred)
 template <typename InputRange, typename OutputIterator> inline
 OutputIterator unique_copy_r(const InputRange& range, OutputIterator result)
 {
-	return std::unique_copy_r(range.begin(), range.end(), result);
+	return std::unique_copy(range.begin(), range.end(), result);
 }
 
 /** std::unique_copy_r wrapper for ranges
@@ -400,7 +400,7 @@ OutputIterator unique_copy_r(const InputRange& range, OutputIterator result)
 template <typename InputRange, typename OutputIterator, typename Predicate> inline
 OutputIterator unique_copy_r(const InputRange& range, OutputIterator result, Predicate pred)
 {
-	return std::unique_copy_r(range.begin(), range.end(), result, pred);
+	return std::unique_copy(range.begin(), range.end(), result, pred);
 }
 
 /** std::reverse wrapper for ranges

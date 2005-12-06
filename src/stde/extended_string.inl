@@ -294,7 +294,7 @@ rstrip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped,
 {
 	typedef std::basic_string<Char, Traits, Alloc> string_type;
 	const typename string_type::size_type end = to_be_stripped.find_last_not_of(to_be_removed);
-	return end == size_type::npos ? string_type : to_be_stripped.substr(0, end + 1);
+	return end == string_type::npos ? string_type() : to_be_stripped.substr(0, end + 1);
 }
 
 
