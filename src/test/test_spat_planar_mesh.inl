@@ -31,6 +31,7 @@
 
 #include "../spat/planar_mesh.h"
 #include "../io/matlab_o_stream.h"
+#include "../prim/triangle_2d.h"
 
 namespace lass
 {
@@ -122,6 +123,17 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 
 void doTestPlanarMesh()
 {
+	using namespace prim;
+	// this in preparation for a Voronoi surface test
+	typedef Triangle2D<double>	TTriangle;
+	typedef Point2D<double>	TPoint;
+
+	TTriangle testTriangle(TPoint(0,0),TPoint(1,0),TPoint(0,1));
+	LASS_TEST_CHECK_EQUAL( partialVoronoiSurface(testTriangle,0)
+							+ partialVoronoiSurface(testTriangle,1)
+							+ partialVoronoiSurface(testTriangle,2), 0.5 );
+
+
 #pragma LASS_FIXME("PlanarMesh: Only the double typename is tested, due to broken compiler support!")
 	using namespace spat;
 

@@ -111,7 +111,8 @@ private:
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTriangle);
 
-
+template <typename T>
+T partialVoronoiSurface(const Triangle2D<T> iT, int iIndexOfVertex);
 
 }
 

@@ -46,6 +46,10 @@ TUnitTests testSpat()
 
 	typedef void(*TTestCase)();
 
+	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
+	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
+	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
+
 	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
 	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
@@ -60,9 +64,6 @@ TUnitTests testSpat()
 	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<double> >));
 	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<double> >));
 
-	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
-	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
-	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
 	result.push_back(LASS_UNIT_TEST(doTestQuadTree));
 	result.push_back(LASS_UNIT_TEST(doTestOctTree));
 

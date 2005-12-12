@@ -30,6 +30,7 @@
 
 #include "prim_common.h"
 #include "triangle_2d.h"
+#include "ray_2d.h"
 
 namespace lass
 {
@@ -319,6 +320,38 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTria
 	return ioOStream;
 }
 
+/** Returns the surface of the partial Voronoi cell constructed around vertex 
+*   iIndexOfVertex (say vertex a in triangle abc).  Then the surface is determined by
+*   the quad built by a, the two midpoints on ab and ac and the intersection of the two
+*	perpendicular bisectors.
+*/
+template <typename T>
+T partialVoronoiSurface(const Triangle2D<T> iT, int iIndexOfVertex)
+{
+	// compute the two midpoints
+	typedef Triangle2D<T>::TPoint	TPoint;
+	typedef Triangle2D<T>::TPointH	TPointH;
+	typedef Triangle2D<T>::TVector	TVector;
+	typedef Line2D<T> TLine;
+	TPoint a = iT.at(iIndexOfVertex);
+	TPoint b = iT.at(iIndexOfVertex+1);
+	TPoint c = iT.at(iIndexOfVertex-1);
+
+	TPointH abh = a+b;
+	TPointH ach = a+c;
+	TPoint ab = abh.affine();
+	TPoint ac = ach.affine();
+	TLine pbisAb(ab, (b-a).perp());
+	TLine pbisAc(ac, (c-a).perp());
+
+	TPoint m;
+	LASS_ENFORCE(rOne == intersect(pbisAb, pbisAc,m));
+
+	Triangle2D<T> aAbm(a,ab,m);
+	Triangle2D<T> amAc(a,m,ac);
+
+	return aAbm.area()+amAc.area();
+}
 
 }
 

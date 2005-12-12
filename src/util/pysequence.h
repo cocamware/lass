@@ -43,14 +43,26 @@ namespace python
 namespace impl
 {
 
-	template<typename C>
+		template<typename C>
 	struct ContainerTraits
 	{
 		static const typename C::value_type&		element_at(const C& iC, int i) { return iC[i]; };
 		static typename C::value_type&				element_at(C& iC, int i) { return iC[i]; };
 		static typename C::const_iterator			const_iterator_at(const C& iC, int i) { return iC.begin()+i; };
 		static typename C::iterator					iterator_at(C& iC, int i) { return iC.begin()+i; };
+		static void reserve(C& iC, int iAmount)		{};
 	};
+
+	template<typename C, typename A>
+	struct ContainerTraits<std::vector<C, A> > 
+	{
+		static const typename std::vector<C, A>::value_type&		element_at(const std::vector<C, A>& iC, int i) { return iC[i]; };
+		static typename std::vector<C, A>::value_type&				element_at(std::vector<C, A>& iC, int i) { return iC[i]; };
+		static typename std::vector<C, A>::const_iterator			const_iterator_at(const std::vector<C, A>& iC, int i) { return iC.begin()+i; };
+		static typename std::vector<C, A>::iterator					iterator_at(std::vector<C, A>& iC, int i) { return iC.begin()+i; };
+		static void reserve(std::vector<C, A>& iC, int iAmount)		{iC.reserve(iAmount);};
+	};
+
 
 	template<typename C, typename A>
 	struct ContainerTraits<std::list<C, A> >
@@ -71,6 +83,7 @@ namespace impl
 				++it;
 			return it;
 		};
+		static void reserve(std::list<C, A>& iC, int iAmount)		{};
 	};
 
 
@@ -81,6 +94,8 @@ namespace impl
 		PySequenceImplBase() {};
 		virtual ~PySequenceImplBase() {};
 		virtual void clear() = 0;
+		virtual void reserve(int iAmount) = 0;
+
 
 		virtual int PySequence_Length() = 0;
 		virtual PyObject* PySequence_Concat(PyObject *bb) = 0;
@@ -119,6 +134,7 @@ namespace impl
 		PySequenceContainer(typename ContainerOwnerShipPolicy::ContainerPtr iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
 		virtual ~PySequenceContainer() { ContainerOwnerShipPolicy::dispose(cont_); }
 		virtual void clear();
+		virtual void reserve(int iAmount);
 
 		virtual int PySequence_Length();
 		virtual PyObject* PySequence_Concat(PyObject *bb);
@@ -166,6 +182,7 @@ namespace impl
 		virtual ~PySequence();
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
 		virtual void clear()				{ pimpl_->clear(); }
+		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
 		virtual PyObject* pop(int i)		{ return pimpl_->pop(i); }
 		virtual std::string pyStr(void)		{ return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void)	{ return pimpl_->pyRepr(); }
@@ -197,6 +214,11 @@ namespace impl
 	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::clear()
 	{
 		cont_->clear();
+	}
+	template<typename Container, typename ContainerOwnerShipPolicy>
+	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::reserve(int iAmount)
+	{
+		ContainerTraits<Container>::reserve(*cont_,iAmount);
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()

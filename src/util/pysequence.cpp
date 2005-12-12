@@ -42,6 +42,7 @@ namespace impl
 	PY_CLASS_METHOD( PySequence, append )
 	PY_CLASS_METHOD( PySequence, pop )
 	PY_CLASS_METHOD( PySequence, clear )
+	PY_CLASS_METHOD( PySequence, reserve )
 
 	PySequenceMethods PySequence::pySequenceMethods = {
 	(inquiry)PySequence_Length,			/* sq_length */
