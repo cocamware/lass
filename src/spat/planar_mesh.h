@@ -146,6 +146,7 @@ namespace spat
 		static  bool  hasLeftFace( TEdge* iEdge );
 		static  bool  hasRightFace( TEdge* iEdge );
 		static  int   chainOrder( TEdge* iEdge );
+		static  int   vertexOrder( TEdge* iEdge );
 
 		static  bool inPrimaryMesh( TEdge* iEdge );
 		static  bool inDualMesh( TEdge* iEdge );
@@ -323,6 +324,16 @@ namespace spat
 				return false;
 			}
 		};
+	}
+
+	TEMPLATE_DEF
+	lass::io::MatlabOStream& operator<<( lass::io::MatlabOStream& ioOStream, const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge& iEdge )
+	{
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		ioOStream << typename TPlanarMesh::TLineSegment2D( 
+					TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) 
+					<< std::endl;
+		return ioOStream;
 	}
 
 	TEMPLATE_DEF
@@ -1069,6 +1080,10 @@ namespace spat
 		return hasLeftFace( iEdge->sym() );
 	}
 
+	/** chainOrder.  returns the order of the polygonal chain starting from iEdge and
+	*	walking around the left-face of iEdge.  Or in other words: the number of vertices
+	*	in the polygon on the left of iEdge.
+	*/
 	TEMPLATE_DEF
 	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::chainOrder( TEdge* iEdge )
 	{
@@ -1078,6 +1093,22 @@ namespace spat
 		{
 			++order;
 			currentEdge = currentEdge->lNext();
+		} while (currentEdge!=iEdge);
+		return order;
+	}
+
+	/** vertexOrder.  returns the order of the vertex defined by the origin of iEdge
+	*	This is the number of undirected edges connected to this origin.
+	*/
+	TEMPLATE_DEF
+	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::vertexOrder( TEdge* iEdge )
+	{
+		int order = 0;
+		TEdge* currentEdge = iEdge;
+		do
+		{
+			++order;
+			currentEdge = currentEdge->oNext();
 		} while (currentEdge!=iEdge);
 		return order;
 	}

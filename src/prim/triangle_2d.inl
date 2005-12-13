@@ -326,7 +326,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTria
 *	perpendicular bisectors.
 */
 template <typename T>
-T partialVoronoiSurface(const Triangle2D<T> iT, int iIndexOfVertex)
+T partialVoronoiArea(const Triangle2D<T> iT, int iIndexOfVertex)
 {
 	// compute the two midpoints
 	typedef Triangle2D<T>::TPoint	TPoint;

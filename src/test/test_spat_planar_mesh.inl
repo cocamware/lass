@@ -48,6 +48,38 @@ bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
 	return true;
 }
 
+bool ComputeVoronoiArea( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
+{
+	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
+	int n = TPlanarMesh::vertexOrder(e);
+	TestType area = 0.0;
+	for (int i=0;i<n;++i)
+	{
+		lass::prim::Triangle2D<TestType> tri( TPlanarMesh::org(e), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()) );
+		area += lass::prim::partialVoronoiArea( tri, 0 );
+		e = e->oNext();
+	}
+	std::cout << TPlanarMesh::org(e) << "\t" << n << "\t" << area << std::endl;
+
+	if (TPlanarMesh::org(e)==lass::prim::Point2D<TestType>(40,40))
+	{
+		lass::io::MatlabOStream testPoint;
+		testPoint.open("testPoint.m");
+		testPoint << TPlanarMesh::org(e);
+		for (int i=0;i<n;++i)
+		{
+			e = e->oNext();
+			lass::prim::Triangle2D<TestType> tri( TPlanarMesh::org(e), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()) );
+			testPoint << TPlanarMesh::TLineSegment2D( 
+					TPlanarMesh::org(e), TPlanarMesh::dest(e) );
+			//testPoint << *e;
+		}
+		testPoint.close();
+	}
+
+	return true;
+}
+
 bool CountCallsLong( ::lass::spat::PlanarMesh<long,int,int,int>::TEdge* e)
 {
 	++countCalls;
@@ -129,9 +161,9 @@ void doTestPlanarMesh()
 	typedef Point2D<double>	TPoint;
 
 	TTriangle testTriangle(TPoint(0,0),TPoint(1,0),TPoint(0,1));
-	LASS_TEST_CHECK_EQUAL( partialVoronoiSurface(testTriangle,0)
-							+ partialVoronoiSurface(testTriangle,1)
-							+ partialVoronoiSurface(testTriangle,2), 0.5 );
+	LASS_TEST_CHECK_EQUAL( partialVoronoiArea(testTriangle,0)
+							+ partialVoronoiArea(testTriangle,1)
+							+ partialVoronoiArea(testTriangle,2), 0.5 );
 
 
 #pragma LASS_FIXME("PlanarMesh: Only the double typename is tested, due to broken compiler support!")
@@ -142,6 +174,21 @@ void doTestPlanarMesh()
 	typedef TPlanarMesh::TPoint2D   TPoint2D;
 	typedef TPlanarMesh::TEdge      TEdge;
 	typedef TPlanarMeshLong::TPoint2D   TPoint2DLong;
+
+	TPlanarMesh		voronoiTest(TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
+	for (int x=10;x<90;x+=10)
+	{
+		for (int y=10;y<90;y+=10)
+		{
+			voronoiTest.insertSite(TPoint2D(x,y));
+		}
+	}
+	lass::io::MatlabOStream testVoronoiIo;
+	voronoiTest.forAllVertices( TPlanarMesh::TEdgeCallback( ComputeVoronoiArea )  );
+	testVoronoiIo.open("voronoiTest.m");
+	testVoronoiIo << voronoiTest;
+	testVoronoiIo.close();
+	
 
 	TPlanarMesh     testMesh( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 	TPlanarMesh     testMesh2( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
