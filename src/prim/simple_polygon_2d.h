@@ -123,6 +123,8 @@ private:
 	TVertices vertices_;
 };
 
+
+
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon);
 

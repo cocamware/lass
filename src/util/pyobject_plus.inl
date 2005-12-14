@@ -398,6 +398,8 @@ struct PyNumericCaster
 {
 	template <typename In, typename Out> static int cast( In iIn, Out& oOut )
 	{
+		//LASS_COUT << ">>>> PyNumericCaster<" << typeid(In).name() << ", " << typeid(Out).name() << ">\n";
+
 		LASS_ASSERT(num::NumTraits<Out>::isSigned == true);
 		LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
 		if (iIn < static_cast<In>(num::NumTraits<Out>::min))
@@ -409,7 +411,11 @@ struct PyNumericCaster
 			return 1;
 		}
 		LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
-		if (iIn > static_cast<In>(num::NumTraits<Out>::max))
+		const In maxIn = static_cast<In>(num::NumTraits<Out>::max);
+		const bool isOverflow = (iIn > maxIn);
+		//LASS_COUT << iIn << " > " << maxIn << "? "
+		//	<< (isOverflow) << " " << (iIn > maxIn) << "\n";
+		if (isOverflow)
 		{
 			std::ostringstream buffer;
 			buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "

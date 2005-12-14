@@ -68,7 +68,7 @@ void ProgressIndicator::operator()(double iProgress)
 	iProgress = num::clamp(iProgress, num::NumTraits<double>::zero, num::NumTraits<double>::one);
 	const int procent = static_cast<int>(100 *iProgress);
 
-	const Clock::TTime alpha = 0.5f;
+	const Clock::TTime updateRate = 0.25f;
 
 	if (procent > current_)
 	{
@@ -81,7 +81,7 @@ void ProgressIndicator::operator()(double iProgress)
 		}
 		else
 		{
-			timeLeftBuffer_ += alpha * (timeLeft - timeLeftBuffer_);
+			timeLeftBuffer_ += updateRate * (timeLeft - timeLeftBuffer_);
 		}
 
 		std::ostringstream stepInfo;
