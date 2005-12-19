@@ -35,18 +35,18 @@
 #include "../meta/is_same_type.h"
 
 #define LASS_TEST_META_TYPE_TRAITS_EVAL(type)\
-	std::cout << LASS_STRINGIFY(type) << std::endl;\
-	std::cout << "Type: " << typeid(TypeTraits<type>::Type).name() << std::endl;\
-	std::cout << (TypeTraits<type>::isConst ? "isConst" : "---") << ", ";\
-	std::cout << (TypeTraits<type>::isPointer ? "isPointer" : "---") << ", ";\
-	std::cout << (TypeTraits<type>::isReference ? "isReference" : "---") << std::endl;\
-	std::cout << "TNonConst: " << typeid(typename TypeTraits<type>::TNonConst).name() << std::endl;\
-	std::cout << "TConst: " << typeid(typename TypeTraits<type>::TConst).name() << std::endl;\
-	std::cout << "TPointee: " << typeid(typename TypeTraits<type>::TPointee).name() << std::endl;\
-	std::cout << "TReferred: " << typeid(typename TypeTraits<type>::TReferred).name() << std::endl;\
-	std::cout << "TReference: " << typeid(typename TypeTraits<type>::TReference).name() << std::endl;\
-	std::cout << "TStorage: " << typeid(typename TypeTraits<type>::TStorage).name() << std::endl;\
-	std::cout << std::endl
+	LASS_COUT << LASS_STRINGIFY(type) << std::endl;\
+	LASS_COUT << "Type: " << typeid(TypeTraits<type>::Type).name() << std::endl;\
+	LASS_COUT << (TypeTraits<type>::isConst ? "isConst" : "---") << ", ";\
+	LASS_COUT << (TypeTraits<type>::isPointer ? "isPointer" : "---") << ", ";\
+	LASS_COUT << (TypeTraits<type>::isReference ? "isReference" : "---") << std::endl;\
+	LASS_COUT << "TNonConst: " << typeid(typename TypeTraits<type>::TNonConst).name() << std::endl;\
+	LASS_COUT << "TConst: " << typeid(typename TypeTraits<type>::TConst).name() << std::endl;\
+	LASS_COUT << "TPointee: " << typeid(typename TypeTraits<type>::TPointee).name() << std::endl;\
+	LASS_COUT << "TReferred: " << typeid(typename TypeTraits<type>::TReferred).name() << std::endl;\
+	LASS_COUT << "TReference: " << typeid(typename TypeTraits<type>::TReference).name() << std::endl;\
+	LASS_COUT << "TStorage: " << typeid(typename TypeTraits<type>::TStorage).name() << std::endl;\
+	LASS_COUT << std::endl
 
 namespace lass
 {

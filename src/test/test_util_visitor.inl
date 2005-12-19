@@ -97,7 +97,7 @@ namespace util_visitor
 		void doVisit(DocElement&) { ++docElements_; }
 		void doVisit(Paragraph&) { ++paragraphs_; }
 		void doVisit(List&) { ++lists_; }
-		void doVisitOnExit(List&) { std::cout << "visit on exit\n"; }
+		void doVisitOnExit(List&) { LASS_COUT << "visit on exit\n"; }
 	};
 }
 

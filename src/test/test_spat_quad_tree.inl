@@ -116,7 +116,7 @@ void doTestQuadTree()
 	}
 
 
-	std::cout << "Quad tree max depth : " << tree.maxDepth() << std::endl;
+	LASS_COUT << "Quad tree max depth : " << tree.maxDepth() << std::endl;
 }
 
 void doTestOctTree()
@@ -152,7 +152,7 @@ void doTestOctTree()
 		LASS_TEST_CHECK_EQUAL( hitcount, resultQuery.size() );
 	}
 
-	std::cout << "Oct tree max depth : " << tree.maxDepth() << std::endl;
+	LASS_COUT << "Oct tree max depth : " << tree.maxDepth() << std::endl;
 }
 }
 }

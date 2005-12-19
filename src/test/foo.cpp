@@ -63,7 +63,7 @@ namespace test
 
 		void  PythonFoo ::testFooAutomaticFunctionExport( int iA, float iB )
 		{
-			std::cout << "C++ testAutomaticFunctionExport : " << iA + iB << "\n";
+			LASS_COUT << "C++ testAutomaticFunctionExport : " << iA + iB << "\n";
 		}
 	}
 }

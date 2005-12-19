@@ -215,7 +215,7 @@ void testSpatAabbTree()
 			}
 		}
 
-		//std::cout << i << "\t" << naiveIntersection << "\t" << naiveT << "\t" << ray.point(naiveT) << std::endl;
+		//LASS_COUT << i << "\t" << naiveIntersection << "\t" << naiveT << "\t" << ray.point(naiveT) << std::endl;
 
 		T treeT = TNumTraits::infinity;
 		const TObject* treeIntersection = tree.intersect(ray, treeT);
@@ -256,7 +256,7 @@ void testSpatAabbTree()
 	}
 	const double treeContainTime = stopWatch.stop();
 
-	std::cout << "contains: naive " << naiveContainTime << "\ttree " << treeContainTime << std::endl;
+	LASS_COUT << "contains: naive " << naiveContainTime << "\ttree " << treeContainTime << std::endl;
 
 	// intersection speed test
 	//
@@ -294,7 +294,7 @@ void testSpatAabbTree()
 	}
 	const double treeIntersectionTime = stopWatch.stop();
 
-	std::cout << "intersection: naive " << naiveIntersectionTime << "\ttree " << treeIntersectionTime << std::endl;
+	LASS_COUT << "intersection: naive " << naiveIntersectionTime << "\ttree " << treeIntersectionTime << std::endl;
 }
 
 

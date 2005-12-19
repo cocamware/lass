@@ -36,8 +36,8 @@ namespace test
 {
 		void listInfo( PyObject* iObject )
 		{
-			std::cout << "Name : " << iObject->ob_type->tp_name << "\n";
-			std::cout << "Methods : \n";
+			LASS_COUT << "Name : " << iObject->ob_type->tp_name << "\n";
+			LASS_COUT << "Methods : \n";
 			int i=0;
 			if (iObject->ob_type->tp_methods)
 			{
@@ -46,7 +46,7 @@ namespace test
 
 					if (iObject->ob_type->tp_methods[i].ml_name !=NULL)
 					{
-						std::cout << iObject->ob_type->tp_methods[i].ml_name << "\n";
+						LASS_COUT << iObject->ob_type->tp_methods[i].ml_name << "\n";
 						++i;
 					}
 					else
@@ -57,7 +57,7 @@ namespace test
 
 		int freeFunction( int i )
 		{
-			std::cout << "Freefunction " << i << "\n";
+			LASS_COUT << "Freefunction " << i << "\n";
 			return i+1;
 		}
 
@@ -102,30 +102,30 @@ namespace test
 
 		void  Bar::testAutomaticFunctionExport( int iA, float iB )
 		{
-			std::cout << "C++ testAutomaticFunctionExport : " << iA + iB << "\n";
+			LASS_COUT << "C++ testAutomaticFunctionExport : " << iA + iB << "\n";
 		}
 
 		void Bar::complexArguments( const std::string& iA )
 		{
-			std::cout << "complexArguments: '" << iA << "'\n";
+			LASS_COUT << "complexArguments: '" << iA << "'\n";
 		};
 
 		prim::Point3D<float> Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation)
 		{
-			std::cout << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
-			std::cout << "transformation: " << iTransformation << std::endl;
+			LASS_COUT << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
+			LASS_COUT << "transformation: " << iTransformation << std::endl;
 			return iAabb.center().affine();
 		}
 
 		void Bar::overloaded( int iA )
 		{
-			std::cout << "Bar::overloaded(int): " << iA << std::endl;
+			LASS_COUT << "Bar::overloaded(int): " << iA << std::endl;
 		}
 
 		void Bar::overloaded( const std::string& iB )
 		{
-			std::cout << "Bar::overloaded(const std::string&): " << iB << std::endl;
+			LASS_COUT << "Bar::overloaded(const std::string&): " << iB << std::endl;
 		}
 
 		int Bar::getInt() const

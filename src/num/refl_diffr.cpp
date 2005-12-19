@@ -257,11 +257,11 @@ namespace impl
 		}
 		catch (std::exception& e)
 		{
-			std::cout << "\nSomething went wrong in calculation of spherical reflection coefficient\n";
-			std::cout << "psi = " << lpsi[0] << "," << lpsi[1] << "\n";
-			std::cout << "k = " << lk << "\n";
-			std::cout << "Z = " << lZ[0] << "," << lZ[1] << "\n";
-			std::cout << "R = " << lR << "\n";
+			LASS_COUT << "\nSomething went wrong in calculation of spherical reflection coefficient\n";
+			LASS_COUT << "psi = " << lpsi[0] << "," << lpsi[1] << "\n";
+			LASS_COUT << "k = " << lk << "\n";
+			LASS_COUT << "Z = " << lZ[0] << "," << lZ[1] << "\n";
+			LASS_COUT << "R = " << lR << "\n";
 			throw e;
 		}
 	}

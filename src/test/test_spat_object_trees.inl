@@ -243,7 +243,7 @@ void testSpatObjectTrees()
 
 	// SPEED TESTS
 	//
-	std::cout << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
+	LASS_COUT << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
 
 	// contain speed test
 	//
@@ -275,7 +275,7 @@ void testSpatObjectTrees()
 	}
 	const util::Clock::TTime aabpContainTime = stopWatch.stop();
 	LASS_TEST_CHECK_EQUAL(aabbHits, aabpHits);
-	std::cout << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
+	LASS_COUT << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
 	// intersection speed test
 	//
@@ -315,7 +315,7 @@ void testSpatObjectTrees()
 	}
 	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
 	LASS_TEST_CHECK_EQUAL(aabbTotal, aabpTotal);
-	std::cout << "intersection: aabb " << aabbIntersectionTime 
+	LASS_COUT << "intersection: aabb " << aabbIntersectionTime 
 		<< "\taabp " << aabpIntersectionTime << std::endl;
 }
 

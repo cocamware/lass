@@ -39,24 +39,24 @@ const bool  testInterval = true;
 template<class C>
 void test_traits(C iDummyArg)
 {
-	std::cout << "\n";
-	std::cout << "name = " << lass::num::NumTraits<C>::name() << std::endl;
-	std::cout << "isIntegral  = " << lass::num::NumTraits<C>::isIntegral << std::endl;
-	std::cout << "isNative  = " << lass::num::NumTraits<C>::isNative << std::endl;
-	std::cout << "memorySize  = " << lass::num::NumTraits<C>::memorySize << std::endl;
-	std::cout << "one  = " << lass::num::str(lass::num::NumTraits<C>::one) << std::endl;
-	std::cout << "zero  = " << lass::num::str(lass::num::NumTraits<C>::zero) << std::endl;
+	LASS_COUT << "\n";
+	LASS_COUT << "name = " << lass::num::NumTraits<C>::name() << std::endl;
+	LASS_COUT << "isIntegral  = " << lass::num::NumTraits<C>::isIntegral << std::endl;
+	LASS_COUT << "isNative  = " << lass::num::NumTraits<C>::isNative << std::endl;
+	LASS_COUT << "memorySize  = " << lass::num::NumTraits<C>::memorySize << std::endl;
+	LASS_COUT << "one  = " << lass::num::str(lass::num::NumTraits<C>::one) << std::endl;
+	LASS_COUT << "zero  = " << lass::num::str(lass::num::NumTraits<C>::zero) << std::endl;
 
-	std::cout << "sqrt of pi = " << lass::num::str(lass::num::sqrt(  lass::num::NumTraits<C>::pi )) << std::endl;
-	std::cout << "sqrtPi = " << lass::num::str(lass::num::NumTraits<C>::sqrtPi) << std::endl;
+	LASS_COUT << "sqrt of pi = " << lass::num::str(lass::num::sqrt(  lass::num::NumTraits<C>::pi )) << std::endl;
+	LASS_COUT << "sqrtPi = " << lass::num::str(lass::num::NumTraits<C>::sqrtPi) << std::endl;
 
-	std::cout << lass::num::str( lass::num::NumTraits<C>::e ) << std::endl;
+	LASS_COUT << lass::num::str( lass::num::NumTraits<C>::e ) << std::endl;
 }
 
 template<class C>
 void test_interval(C iDummyArg)
 {
-	std::cout << "\n";
+	LASS_COUT << "\n";
 
 	typedef lass::num::interval<C>  Tinterval;
 	typedef lass::num::NumTraits<Tinterval> TnumTrait;
@@ -64,27 +64,27 @@ void test_interval(C iDummyArg)
 	Tinterval   temp1;
 	Tinterval   temp2;
 
-	std::cout << "1+1 = " << TnumTrait::one + TnumTrait::one << std::endl;
-	std::cout << "1-1 = " << TnumTrait::one - TnumTrait::one << std::endl;
+	LASS_COUT << "1+1 = " << TnumTrait::one + TnumTrait::one << std::endl;
+	LASS_COUT << "1-1 = " << TnumTrait::one - TnumTrait::one << std::endl;
 	temp1 = TnumTrait::one + TnumTrait::one;
-	std::cout << "(1+1)*(1+1) = " << temp1 * temp1 << std::endl;
-	std::cout << "1/(1+1) = " << TnumTrait::one / temp1 << std::endl;
+	LASS_COUT << "(1+1)*(1+1) = " << temp1 * temp1 << std::endl;
+	LASS_COUT << "1/(1+1) = " << TnumTrait::one / temp1 << std::endl;
 
 }
 
 template<class C>
 void test_fuzzy_functions(C iDummyArg)
 {
-	std::cout << "\n";
+	LASS_COUT << "\n";
 
 	C   temp;
 
 	lass::num::createUnit(temp);
-	std::cout << "unit = " << temp << std::endl;
+	LASS_COUT << "unit = " << temp << std::endl;
 	lass::num::createZero(temp);
-	std::cout << "zero = " << temp << std::endl;
+	LASS_COUT << "zero = " << temp << std::endl;
 
-	std::cout << "entropy = " << lass::num::entropy( temp ) << std::endl;
+	LASS_COUT << "entropy = " << lass::num::entropy( temp ) << std::endl;
 
 }
 
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 	test_traits< lass::num::FNSampled8 >( lass::num::FNSampled8(0.f) );
 
 	for (int i=-5;i<5;++i)
-		std::cout << i << "\t" << lass::num::mod(i,3) << std::endl;
+		LASS_COUT << i << "\t" << lass::num::mod(i,3) << std::endl;
 
 	std::cin.ignore();
 	return 0;

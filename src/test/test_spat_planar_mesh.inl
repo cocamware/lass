@@ -59,7 +59,7 @@ bool ComputeVoronoiArea( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* 
 		area += lass::prim::partialVoronoiArea( tri, 0 );
 		e = e->oNext();
 	}
-	std::cout << TPlanarMesh::org(e) << "\t" << n << "\t" << area << std::endl;
+	LASS_COUT << TPlanarMesh::org(e) << "\t" << n << "\t" << area << std::endl;
 
 	if (TPlanarMesh::org(e)==lass::prim::Point2D<TestType>(40,40))
 	{
@@ -271,17 +271,17 @@ void doTestPlanarMesh()
 
 	countCalls = 0;
 	testMesh3.forAllPrimaryUndirectedEdges( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
-	std::cout << "Number of edges = " << countCalls << "\n";
+	LASS_COUT << "Number of edges = " << countCalls << "\n";
 	countEdges = countCalls;
 
 	countCalls = 0;
 	testMesh3.forAllVertices( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
-	std::cout << "Number of vertices = " << countCalls << "\n";
+	LASS_COUT << "Number of vertices = " << countCalls << "\n";
 	countVertices = countCalls;
 
 	countCalls = 0;
 	testMesh3.forAllFaces( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
-	std::cout << "Number of faces = " << countCalls << "\n";
+	LASS_COUT << "Number of faces = " << countCalls << "\n";
 	countFaces = countCalls;
 
 	/* check euler relation */

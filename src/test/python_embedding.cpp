@@ -68,9 +68,9 @@ int test()
 	int c = lass::python::impl::ShadowTraits< lass::test::PythonFoo >::isShadow ;
 	int d = lass::python::impl::ShadowTraits< lass::test::Bar >::isShadow;
 
-	std::cout << "int is shadow type : " << b << "\n";
-	std::cout << "python foo is shadow type : " << c << "\n";
-	std::cout << "bar is shadow type : " << d << "\n";
+	LASS_COUT << "int is shadow type : " << b << "\n";
+	LASS_COUT << "python foo is shadow type : " << c << "\n";
+	LASS_COUT << "bar is shadow type : " << d << "\n";
 	return 0;
 }
 
@@ -96,27 +96,27 @@ void call1(const util::Callback1<const std::string&>& iCallback)
 
 void callR0(const util::CallbackR0<std::string>& iCallback)
 {
-	std::cout << "Simon says: " << iCallback() << std::endl;
+	LASS_COUT << "Simon says: " << iCallback() << std::endl;
 }
 
 void callR2(const util::CallbackR2<float, float, float>& iCallback)
 {
-	std::cout << "f(5, 6) = " << iCallback(5, 6) << std::endl;
+	LASS_COUT << "f(5, 6) = " << iCallback(5, 6) << std::endl;
 }
 
 void overloadedA(int iA)
 {
-	std::cout << "overloadedA " << iA << std::endl;
+	LASS_COUT << "overloadedA " << iA << std::endl;
 }
 
 void overloadedB(const std::string& iA)
 {
-	std::cout << "overloadedA " << iA << std::endl;
+	LASS_COUT << "overloadedA " << iA << std::endl;
 }
 
 void overloadedB(const std::complex<float>& iA)
 {
-	std::cout << "overloadedA " << iA << std::endl;
+	LASS_COUT << "overloadedA " << iA << std::endl;
 }
 
 PY_DECLARE_MODULE( embedding )
