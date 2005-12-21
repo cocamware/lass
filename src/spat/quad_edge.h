@@ -43,7 +43,7 @@ namespace spat
 			friend class QuadEdge<EdgeHandle>;
 		public:
 			Edge() : next_(NULL), edgeHandle_(NULL) {}
-			~Edge() {}
+			~Edge() { dispose(); }
 
 			Edge* rot()   { return (index_ < 3) ? this + 1 : this - 3; }
 			Edge* invRot(){ return (index_ > 0) ? this - 1 : this + 3; }
@@ -58,11 +58,12 @@ namespace spat
 			Edge* rPrev() { return sym()->oNext(); }
 
 			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
-			EdgeHandle*&    handle() { return edgeHandle_; }
+			EdgeHandle*&    handle() { if (!edgeHandle_) edgeHandle_ = new EdgeHandle; return edgeHandle_;}
 			EdgeHandle const* const handle() const { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
 
 			int index() const { return index_; }
+			void dispose()	  { delete edgeHandle_; edgeHandle_ = NULL;}
 		private:
 			Edge*           next_;
 			EdgeHandle*     edgeHandle_;
@@ -78,6 +79,7 @@ namespace spat
 		void    faceDeconstrain();
 		bool    isConstrained() const;
 		Edge*   edges();
+		void	dispose();	/**< disposes all the edgehandles */
 
 		static void splice( Edge* a, Edge* b);
 
@@ -101,6 +103,14 @@ namespace spat
 		edges_[2].next_ = &edges_[2];
 		edges_[3].next_ = &edges_[1];
 	}
+
+	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::dispose()
+	{
+		for (int i=0;i<4;++i)
+			edges_[i].dispose();
+	}
+
+
 	template< typename EdgeHandle > QuadEdge<EdgeHandle>::~QuadEdge()
 	{
 		LASS_ASSERT( !faceConstrained_ );

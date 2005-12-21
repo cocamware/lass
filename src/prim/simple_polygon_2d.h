@@ -128,6 +128,19 @@ private:
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon);
 
+/** C = A \ B */
+template <typename T, class DP>
+bool set_difference(const SimplePolygon2D<T, DP>& iPolygonA,const SimplePolygon2D<T, DP>& iPolygonB, std::vector<SimplePolygon2D<T, DP> >& oPolygonsC);
+
+/** C = A U B */
+template <typename T, class DP>
+bool set_union(const SimplePolygon2D<T, DP>& iPolygonA,const SimplePolygon2D<T, DP>& iPolygonB, std::vector<SimplePolygon2D<T, DP> >& oPolygonsC);
+
+/** C = (A U B) \ (A \ B) \ (B \ A)  */
+template <typename T, class DP>
+bool set_intersect(const SimplePolygon2D<T, DP>& iPolygonA,const SimplePolygon2D<T, DP>& iPolygonB, std::vector<SimplePolygon2D<T, DP> >& oPolygonsC);
+
+
 }
 
 }

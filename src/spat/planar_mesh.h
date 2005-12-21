@@ -44,6 +44,7 @@
 #include "../prim/line_segment_2d.h"
 #include "../prim/side.h"
 #include "../util/callback_r_1.h"
+#include "../util/small_object.h"
 #include "../io/matlab_o_stream.h"
 
 
@@ -76,7 +77,7 @@ namespace spat
 
 		static const int PLANAR_MESH_STACK_DEPTH = 8;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
 	private:
-		struct ProxyHandle
+		struct ProxyHandle : public lass::util::SmallObject<16384,64,unsigned char>
 		{
 			TPoint2D*       point_;
 			PointHandle*    pointHandle_;
@@ -112,8 +113,8 @@ namespace spat
 	public:
 		typedef lass::spat::QuadEdge<ProxyHandle>       TQuadEdge;
 		typedef typename TQuadEdge::Edge    TEdge;
-		typedef std::list< TQuadEdge* >     TQuadEdgeList;
-		typedef std::list< ProxyHandle* >   TProxyHandleList;
+		typedef std::vector< TQuadEdge* >     TQuadEdgeList;
+		typedef std::vector< ProxyHandle* >   TProxyHandleList;
 		typedef lass::util::CallbackR1<bool,TEdge*> TEdgeCallback;
 
 	public:
@@ -161,7 +162,6 @@ namespace spat
 	private:
 		TEdge*  startEdge_;
 		TQuadEdgeList       quadEdgeList_;
-		TProxyHandleList    handleList_;
 
 		mutable TEdge*  lastLocateEdge_;
 		long    edgeCount_;
@@ -189,6 +189,7 @@ namespace spat
 		friend class impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle>;
 
 		bool internalMarking( TEdge* iEdge );
+		static bool deletePoint( TEdge* e);
 		void setInternalMarking( TEdge* iEdge, bool iMark );
 		void setInternalMarkingAroundVertex( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
@@ -433,20 +434,33 @@ namespace spat
 		init4(a, b, c, d);
 	}
 
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::deletePoint( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge)
+	{
+		if (iEdge->handle()->point_)
+			delete iEdge->handle()->point_;
+		TEdge*  currentEdge = iEdge;
+		do
+		{
+			LASS_ENFORCE(currentEdge->handle())->point_ = NULL;
+			currentEdge = currentEdge->oNext();
+		} while ( currentEdge != iEdge );
+		return true;
+	}
+
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::~PlanarMesh( )
 	{
+		forAllVertices( deletePoint );
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			(*qIt)->edgeDeconstrain();
 			(*qIt)->faceDeconstrain();
+			(*qIt)->dispose();
 			delete *qIt;
 		}
-
-		typename TProxyHandleList::iterator pIt;
-		for (pIt = handleList_.begin(); pIt != handleList_.end(); ++pIt)
-			delete *pIt;
 	}
 
 	TEMPLATE_DEF
@@ -455,15 +469,16 @@ namespace spat
 		TQuadEdge* qe = new TQuadEdge(makeConstrained);
 		quadEdgeList_.push_back( qe );
 		edgeCount_ += 2;
-
+		
 		TEdge*  e = qe->edges();
+		/*
 		for (int i=0;i<4;++i)
 		{
 			ProxyHandle*    pHandle = new ProxyHandle;
-			handleList_.push_back( pHandle );
 			e->handle() = pHandle;
 			e = e->rot();
 		}
+		*/
 		return e;
 	}
 
@@ -610,7 +625,9 @@ namespace spat
 		TQuadEdge::splice( e, e->oPrev() );
 		TQuadEdge::splice( e->sym(), e->sym()->oPrev() );
 
-		quadEdgeList_.remove( e->quadEdge() );
+		TQuadEdgeList::iterator it = std::find(quadEdgeList_.begin(),quadEdgeList_.end(),e->quadEdge());
+        std::swap(*it, quadEdgeList_.back());
+		quadEdgeList_.pop_back();
 		edgeCount_ -= 2;
 		return true;
 	}
@@ -1209,6 +1226,7 @@ namespace spat
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setEdgeHandle : edge not in primary mesh");
+
 		iEdge->handle()->edgeHandle_ = iHandle;
 	}
 

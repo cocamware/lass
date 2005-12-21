@@ -140,7 +140,7 @@ void KdTree<O, OT>::rangeSearchLeanAndMean(const TPoint& iTarget, TParam iMaxRad
 	TValue squaredRadius = iMaxRadius * iMaxRadius;
 	oNeighbourhood.clear();
 
-	doRangeSearch(iTarget, squaredRadius, oNeighbourhood, 0);
+	doRangeSearchLeanAndMean(iTarget, squaredRadius, oNeighbourhood, 0);
 }
 
 
@@ -407,19 +407,19 @@ void KdTree<O, OT>::doRangeSearchLeanAndMean(const TPoint& iTarget,
 		if (delta < TValue())
 		{
 			// we are left of the plane - search left node first
-			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+			doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 1);
 			if (num::sqr(delta) < ioSquaredRadius)
 			{
-				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+				doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 2);
 			}
 		}
 		else
 		{
 			// we are right of the plane - search right node first
-			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+			doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 2);
 			if (num::sqr(delta) < ioSquaredRadius)
 			{
-				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+				doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 1);
 			}
 		}
 	}
