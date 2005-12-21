@@ -112,6 +112,8 @@ public:
 	Neighbour nearestNeighbour(const TPoint& iLocation) const;
 	TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
 		TNeighbourhood& oNeighbourhood) const;
+	void rangeSearchLeanAndMean(const TPoint& iCenter, TParam iMaxRadius,
+		TNeighbourhood& oNeighbourhood) const;
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -151,6 +153,8 @@ private:
 
 	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
 	void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
+		TNeighbourhood& oNeighbourhood, size_t iNode) const;
+	void doRangeSearchLeanAndMean(const TPoint& iCenter, TReference ioSquaredRadius,
 		TNeighbourhood& oNeighbourhood, size_t iNode) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);

@@ -126,6 +126,24 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 }
 
 
+#pragma LASS_TODO("Integrate this lean and mean range search more properly, avoiding code duplication [Bramz]")
+template <class O, class OT>
+void KdTree<O, OT>::rangeSearchLeanAndMean(const TPoint& iTarget, TParam iMaxRadius, TNeighbourhood& oNeighbourhood) const
+{
+	if (isEmpty())
+	{
+		LASS_THROW("can't perform range search in empty KdTree");
+	}
+
+	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
+    
+	TValue squaredRadius = iMaxRadius * iMaxRadius;
+	oNeighbourhood.clear();
+
+	doRangeSearch(iTarget, squaredRadius, oNeighbourhood, 0);
+}
+
+
 
 template <class O, class OT>
 void KdTree<O, OT>::swap(TSelf& iOther)
@@ -365,6 +383,51 @@ void KdTree<O, OT>::doNearestNeighbour(const TPoint& iTarget, Neighbour& ioNeare
 	if (sqrDistance < ioNearest.squaredDistance())
 	{
 		ioNearest = Neighbour(heap_[iNode], sqrDistance);
+	}
+}
+
+
+
+template <class O, class OT>
+void KdTree<O, OT>::doRangeSearchLeanAndMean(const TPoint& iTarget,
+											 TReference ioSquaredRadius,
+											 TNeighbourhood& oNeighbourhood,
+											 size_t iNode) const
+{
+	if (iNode >= heap_.size() || heap_[iNode] == end_)
+	{
+		return;
+	}
+
+	const TPoint pivot = TObjectTraits::position(heap_[iNode]);
+	const TAxis split = splits_[iNode];
+	if (split != dummyAxis_)
+	{
+		const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
+		if (delta < TValue())
+		{
+			// we are left of the plane - search left node first
+			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+			if (num::sqr(delta) < ioSquaredRadius)
+			{
+				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+			}
+		}
+		else
+		{
+			// we are right of the plane - search right node first
+			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+			if (num::sqr(delta) < ioSquaredRadius)
+			{
+				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+			}
+		}
+	}
+
+	const TValue sqrDistance = squaredDistance(pivot, iTarget);
+	if (sqrDistance < ioSquaredRadius)
+	{
+		oNeighbourhood.push_back(Neighbour(heap_[iNode], sqrDistance));
 	}
 }
 
