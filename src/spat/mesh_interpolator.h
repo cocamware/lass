@@ -74,16 +74,19 @@ void barycenters( const prim::Point2D<T>& q, const prim::Point2D<T>& a, const pr
 template<typename T, typename TPI>
 class MeshInterpolator
 {
+public:
+	typedef prim::Aabb2D<T> TAabb2D;
 protected:
 	typedef PlanarMesh<T, TPI, void, void >  TPlanarMesh;
 	MeshInterpolator() {}
 
 	TPlanarMesh mesh_;
+	TAabb2D		aabb_;
+
 	typedef std::list<TPI> TInfoList;    /**< type must support stable iterators */
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
-	typedef prim::Aabb2D<T> TAabb2D;
 
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
@@ -96,12 +99,17 @@ public:
 template<typename T, typename TPI>
 MeshInterpolator<T,TPI>::MeshInterpolator( const TAabb2D& iAabb ) : mesh_( iAabb )
 {
-
+	aabb_ = iAabb;
 }
 
 template<typename T, typename TPI>
 void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPointInfo )
 {
+	if (!aabb_.contains( iPoint ))
+	{
+		LASS_THROW("MeshInterpolator: cannot insert point outside bounding box");
+	}
+
 	typename TPlanarMesh::TEdge* e = mesh_.insertSite( iPoint );
 	e = mesh_.locate( iPoint );
 
