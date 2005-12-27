@@ -131,8 +131,9 @@ public:
 	const TUvs& uvs() const;
 
 	const TAabb aabb() const;
+	const TValue area() const;
 
-	void smoothNormals();
+	void smoothNormals(TParam iMaxAngleInRadians);
 
 	const Result intersect(const TRay& iRay, TTriangleIterator& oTriangle, TReference oT, 
 		TParam iMinT = 0, IntersectionContext* oContext = 0) const;

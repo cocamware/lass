@@ -165,6 +165,16 @@ const bool Point2D<T>::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+template<typename T> inline
+const bool Point2D<T>::isNaN() const
+{
+	return num::isNaN(x) || num::isNaN(y);
+}
+
+
+
 // --- FREE FUNCTIONS ---------------------------------------------------------------------------
 
 /** @relates lass::prim::Point2D

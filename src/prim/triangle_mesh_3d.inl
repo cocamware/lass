@@ -151,30 +151,126 @@ TriangleMesh3D<T, BHV>::aabb() const
 
 
 template <typename T, template <typename, typename> class BHV>
-void TriangleMesh3D<T, BHV>::smoothNormals()
+const typename TriangleMesh3D<T, BHV>::TValue
+TriangleMesh3D<T, BHV>::area() const
 {
-	normals_.resize(vertices_.size());
-	stde::fill_r(normals_, TVector());
+	TValue result = 0;
 
-	typename TTriangles::iterator triangle;
+	typename TTriangles::const_iterator triangle;
 	for (triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
 	{
+		const TVector a = *triangle->vertices[1] - *triangle->vertices[0];
+		const TVector b = *triangle->vertices[2] - *triangle->vertices[0];
+		const TVector n = cross(a, b);
+		result += n.norm() / 2;
+	}
+
+	return result;
+}
+
+
+
+template <typename T, template <typename, typename> class BHV>
+void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
+{
+	const std::size_t numTriangles = triangles_.size();
+	const std::size_t numVertices = vertices_.size();
+	const TValue minDot = num::cos(iMaxAngleInRadians);
+
+	// first pass: determine possible vertex normals
+	//
+	TNormals faceNormals(numTriangles);
+	TNormals vertexNormals(numVertices);
+	for (std::size_t i = 0; i < numTriangles; ++i)
+	{
+		const Triangle& triangle = triangles_[i];
+
+		const TVector edges[3] =
+		{
+			(*triangle.vertices[1] - *triangle.vertices[0]).normal(),
+			(*triangle.vertices[2] - *triangle.vertices[1]).normal(),
+			(*triangle.vertices[0] - *triangle.vertices[2]).normal()
+		};
+		
+		const TVector n = cross(edges[0], edges[1]).normal();
+		faceNormals[i] = n;
+
+		if (!n.isZero() && !n.isNaN())
+		{
+			for (std::size_t prevK = 2, k = 0; k < 3; prevK = k++)
+			{
+				std::size_t j = triangle.vertices[k] - &vertices_[0];
+				vertexNormals[j] += n * num::acos(-dot(edges[prevK], edges[k]));
+			}
+		}
+	}
+	stde::for_each_r(vertexNormals, std::mem_fun_ref(TVector::normalize));
+
+	// 2nd pass: determine wether to use vertex or face normal
+	//
+	std::vector<std::size_t> usedVertexNormals(vertices_.size(), IndexTriangle::null());
+	std::vector<std::size_t> usedFaceNormals(triangles_.size(), IndexTriangle::null());
+	std::size_t normalCount = 0;
+	for (std::size_t i = 0; i < numTriangles; ++i)
+	{
+		const Triangle& triangle = triangles_[i];
 		for (std::size_t k = 0; k < 3; ++k)
 		{
-			std::size_t i = triangle->vertices[k] - &vertices_[0];
-			triangle->normals[k] = &normals_[i];
-
-			const TVector a = *triangle->vertices[(k + 1) % 3] - *triangle->vertices[k];
-			const TVector b = *triangle->vertices[(k + 2) % 3] - *triangle->vertices[k];
-			const TVector n = cross(a, b).normal();
-			if (!n.isZero())
+			std::size_t j = triangle.vertices[k] - &vertices_[0];
+			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
 			{
-				normals_[i] += n * num::acos(dot(a, b) / (a.norm() * b.norm()));
+				if (usedVertexNormals[j] == IndexTriangle::null())
+				{
+					usedVertexNormals[j] = normalCount++;
+				}
+			}
+			else
+			{
+				if (usedFaceNormals[i] == IndexTriangle::null())
+				{
+					usedFaceNormals[i] = normalCount++;
+				}
 			}
 		}
 	}
 
-	stde::for_each_r(normals_, std::mem_fun_ref(TVector::normalize));
+	// 2nd pass and a half: collect selected normals in normals_
+	normals_.resize(normalCount);
+	for (std::size_t i = 0; i < numTriangles; ++i)
+	{
+		if (usedFaceNormals[i] != IndexTriangle::null())
+		{
+			normals_[usedFaceNormals[i]] = faceNormals[i];
+		}
+	}
+	for (std::size_t j = 0; j < numVertices; ++j)
+	{
+		if (usedVertexNormals[i] != IndexTriangle::null())
+		{
+			normals_[usedVertexNormals[i]] = vertexNormals[i];
+		}
+	}
+
+	// 3rd pass: assign pointers to normals!
+	//
+	for (std::size_t i = 0; i < numTriangles; ++i)
+	{
+		Triangle& triangle = triangles_[i];
+		for (std::size_t k = 0; k < 3; ++k)
+		{
+			std::size_t j = triangle.vertices[k] - &vertices_[0];
+			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
+			{
+				LASS_ASSERT(usedVertexNormals[j] != IndexTriangle::null())
+				triangle.normals[k] = &normals_[usedVertexNormals[j]];
+			}
+			else
+			{
+				LASS_ASSERT(usedFaceNormals[i] != IndexTriangle::null())
+				triangle.normals[k] = &normals_[usedFaceNormals[i]];
+			}
+		}
+	}
 }
 
 

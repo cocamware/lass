@@ -89,6 +89,7 @@ public:
 
 	const bool isZero() const;
 	const bool isInfinite() const;
+	const bool isNaN() const;
 	const bool isValid() const;
 	const TValue weight() const;
 	const Point2D<T> affine() const;

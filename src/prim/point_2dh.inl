@@ -199,6 +199,16 @@ const bool Point2DH<T>::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+template<typename T> inline
+const bool Point2DH<T>::isNaN() const
+{
+	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z);
+}
+
+
+
 /** Return true if point is at infinite distance of origin.  test if z == 0.
  */
 template<typename T>

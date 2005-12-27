@@ -100,6 +100,7 @@ struct Vector3D
 	Vector3D<T>& operator/=(TParam iB);
 
 	const bool isZero() const;
+	const bool isNaN() const;
 	const TValue squaredNorm() const;
 	const TValue norm() const;
 	const Vector3D<T> normal() const;

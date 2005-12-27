@@ -100,6 +100,7 @@ struct Vector4D
 	Vector4D<T>& operator/=(TParam iB);
 
 	const bool isZero() const;
+	const bool isNaN() const;
 	const TValue squaredNorm() const;
 	const TValue norm() const;
 	const Vector4D<T> normal() const;

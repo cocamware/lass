@@ -91,6 +91,7 @@ public:
 	Point3D<T>& operator-=(const Vector3D<T>& iOffset);
 
 	const bool isZero() const;
+	const bool isNaN() const;
 };
 
 template<typename T> bool operator==(const Point3D<T>& iA, const Point3D<T>& iB);

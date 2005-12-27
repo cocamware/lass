@@ -216,6 +216,16 @@ const bool Point3DH<T>::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+template<typename T> inline
+const bool Point3DH<T>::isNaN() const
+{
+	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z) || num::isNaN(w);
+}
+
+
+
 /** Return true if point is at infinite distance of origin.  test if w == 0.
  */
 template<typename T> inline

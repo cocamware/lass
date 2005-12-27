@@ -124,7 +124,7 @@ template
 <
 	std::size_t chunkSize = 4096,
 	std::size_t maxObjectSize = 64,
-	typename AtomType = unsigned char
+	typename IndexType = unsigned char
 >
 class SmallObject
 {
@@ -139,7 +139,7 @@ public:
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR
 		return ::operator new(iSize);
 #else
-		return impl::smallObjectAllocator<chunkSize, maxObjectSize, AtomType>()->allocate(iSize);
+		return impl::smallObjectAllocator<chunkSize, maxObjectSize, IndexType>()->allocate(iSize);
 #endif
 	}
 
@@ -168,7 +168,7 @@ public:
 #ifdef LASS_BYPASS_SMALL_OBJECT_ALLOCATOR
 		::operator delete(iPointer);
 #else
-		impl::smallObjectAllocator<chunkSize, maxObjectSize, AtomType>()->deallocate(
+		impl::smallObjectAllocator<chunkSize, maxObjectSize, IndexType>()->deallocate(
 			iPointer, iSize);
 #endif
 	}

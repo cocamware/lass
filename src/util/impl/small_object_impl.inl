@@ -50,33 +50,26 @@ namespace impl
 
 // --- FixedAllocator ------------------------------------------------------------------------------
 
-template <typename A>
-FixedAllocator<A>::FixedAllocator(std::size_t iBlockSize, std::size_t iChunkSize):
+template <typename I>
+FixedAllocator<I>::FixedAllocator(std::size_t iBlockSize, std::size_t iChunkSize):
 	blockSize_(iBlockSize),
 	allocateChunk_(0),
 	deallocateChunk_(0)
 {
-	LASS_ASSERT(iBlockSize >= sizeof(TAtom));
-	LASS_ASSERT(iBlockSize % sizeof(TAtom) == 0);
+	LASS_ASSERT(iBlockSize >= sizeof(TIndex));
+	LASS_ASSERT(num::NumTraits<TIndex>::max >= 8);
 
-	std::size_t numBlocks = iChunkSize / blockSize_;
-	if (numBlocks > num::NumTraits<TAtom>::max)
-	{
-		numBlocks = num::NumTraits<TAtom>::max;
-	}
-	else if (numBlocks == 0)
-	{
-		numBlocks = 8; // was 8 * iBlockSize [Bramz]
-	}
+	std::size_t numBlocks = num::clamp<std::size_t>(
+		iChunkSize / blockSize_, 8, num::NumTraits<TIndex>::max);
 
-	numBlocks_ = static_cast<TAtom>(numBlocks);
+	numBlocks_ = static_cast<TIndex>(numBlocks);
 	LASS_ASSERT(numBlocks_ == numBlocks);
 }
 
 
 
-template <typename A>
-FixedAllocator<A>::~FixedAllocator()
+template <typename I>
+FixedAllocator<I>::~FixedAllocator()
 {
 	for (typename TChunks::iterator i = chunks_.begin(); i != chunks_.end(); ++i)
 	{
@@ -89,8 +82,8 @@ FixedAllocator<A>::~FixedAllocator()
 
 /** allocates a block of fixed size
  */
-template <typename A>
-void* FixedAllocator<A>::allocate()
+template <typename I>
+void* FixedAllocator<I>::allocate()
 {
 	if (allocateChunk_ == 0 || allocateChunk_->blocksAvailable_ == 0)
 	{
@@ -130,8 +123,8 @@ void* FixedAllocator<A>::allocate()
 /** deallocates a block previously allocated with @a allocate
  *  @warning undefined behavious if called with the wrong pointer
  */
-template <typename A>
-void FixedAllocator<A>::deallocate(void* iPointer)
+template <typename I>
+void FixedAllocator<I>::deallocate(void* iPointer)
 {
 	LASS_ASSERT(!chunks_.empty());
 	LASS_ASSERT(&chunks_.front() <= deallocateChunk_);
@@ -147,8 +140,8 @@ void FixedAllocator<A>::deallocate(void* iPointer)
 
 /** finds the chunk corresponding to a pointer, using an efficient search
  */
-template <typename A>
-typename FixedAllocator<A>::Chunk* FixedAllocator<A>::vicinityFind(void* iPointer)
+template <typename I>
+typename FixedAllocator<I>::Chunk* FixedAllocator<I>::vicinityFind(void* iPointer)
 {
 	LASS_ASSERT(!chunks_.empty());
 	LASS_ASSERT(deallocateChunk_);
@@ -206,8 +199,8 @@ typename FixedAllocator<A>::Chunk* FixedAllocator<A>::vicinityFind(void* iPointe
 /** performs deallocation.
  *  @pre assumes @a deallocChunk_ points to the correct chunk
  */
-template <typename A>
-void FixedAllocator<A>::doDeallocate(void* iPointer)
+template <typename I>
+void FixedAllocator<I>::doDeallocate(void* iPointer)
 {
 	LASS_ASSERT(deallocateChunk_->data_ <= iPointer);
 	LASS_ASSERT(deallocateChunk_->data_ + numBlocks_ * blockSize_ > iPointer);
@@ -259,25 +252,24 @@ void FixedAllocator<A>::doDeallocate(void* iPointer)
 
 /** initializes a chunk object
  */
-template <typename A>
-void FixedAllocator<A>::Chunk::init(std::size_t iBlockSize, TAtom iBlocks)
+template <typename I>
+void FixedAllocator<I>::Chunk::init(std::size_t iBlockSize, TIndex iBlocks)
 {
-	LASS_ASSERT(iBlockSize >= sizeof(TAtom));
-	LASS_ASSERT(iBlockSize % sizeof(TAtom) == 0);
+	LASS_ASSERT(iBlockSize >= sizeof(TIndex));
 	LASS_ASSERT(iBlocks > 0);
 	LASS_ASSERT((iBlockSize * iBlocks) / iBlockSize == iBlocks); // Overflow check
 
 	firstAvailableBlock_ = 0;
 	blocksAvailable_ = iBlocks;
 
-	const size_t step = iBlockSize / sizeof(TAtom);
-	LASS_ASSERT(step * sizeof(TAtom) == iBlockSize);
-
-	data_ = new TAtom[iBlockSize * iBlocks];
-	TAtom* p = data_;
-	for (TAtom i = 0; i != iBlocks; p += step)
+	data_ = new char[iBlockSize * iBlocks];
+	char* p = data_;
+	TIndex i = 0;
+	while (i != iBlocks)
 	{
-		*p = ++i;
+		++i;
+		*reinterpret_cast<TIndex*>(p) = i;
+		p += iBlockSize;
 	}
 }
 
@@ -285,8 +277,8 @@ void FixedAllocator<A>::Chunk::init(std::size_t iBlockSize, TAtom iBlocks)
 
 /** releases the data managed by a chunk
  */
-template <typename A>
-void FixedAllocator<A>::Chunk::release()
+template <typename I>
+void FixedAllocator<I>::Chunk::release()
 {
 	delete [] data_;
 }
@@ -295,19 +287,19 @@ void FixedAllocator<A>::Chunk::release()
 
 /** allocated a block from a chunk
  */
-template <typename A>
-void* FixedAllocator<A>::Chunk::allocate(std::size_t iBlockSize)
+template <typename I>
+void* FixedAllocator<I>::Chunk::allocate(std::size_t iBlockSize)
 {
 	if (!blocksAvailable_)
 	{
 		return 0;
 	}
 
-	TAtom* result = data_ + (firstAvailableBlock_ * iBlockSize);
+	char* result = data_ + (firstAvailableBlock_ * iBlockSize);
 
 	// update firstAvailableBlock_ to point to the next block
 	//
-	firstAvailableBlock_ = *result;
+	firstAvailableBlock_ = *reinterpret_cast<TIndex*>(result);
 	--blocksAvailable_;
 
 	return result;
@@ -317,15 +309,15 @@ void* FixedAllocator<A>::Chunk::allocate(std::size_t iBlockSize)
 
 /** deallocates a block from a chunk
  */
-template <typename A>
-void FixedAllocator<A>::Chunk::deallocate(void* iPointer, std::size_t iBlockSize)
+template <typename I>
+void FixedAllocator<I>::Chunk::deallocate(void* iPointer, std::size_t iBlockSize)
 {
 	LASS_ASSERT(iPointer >= data_);
-	TAtom* toRelease = static_cast<TAtom*>(iPointer);
+	char* toRelease = static_cast<char*>(iPointer);
 	LASS_ASSERT((toRelease - data_) % iBlockSize == 0); // alignment check
 
-	*toRelease = firstAvailableBlock_;
-	firstAvailableBlock_ = static_cast<TAtom>((toRelease - data_) / iBlockSize);
+	*reinterpret_cast<TIndex*>(toRelease) = firstAvailableBlock_;
+	firstAvailableBlock_ = static_cast<TIndex>((toRelease - data_) / iBlockSize);
 	LASS_ASSERT(firstAvailableBlock_ == (toRelease - data_) / iBlockSize);
 
 	++blocksAvailable_;
@@ -335,8 +327,8 @@ void FixedAllocator<A>::Chunk::deallocate(void* iPointer, std::size_t iBlockSize
 
 // --- SmallObjectAllocator ------------------------------------------------------------------------
 
-template <std::size_t CS, std::size_t MOS, typename A>
-SmallObjectAllocator<CS, MOS, A>::SmallObjectAllocator():
+template <std::size_t CS, std::size_t MOS, typename I>
+SmallObjectAllocator<CS, MOS, I>::SmallObjectAllocator():
 	lastAllocate_(0),
 	lastDeallocate_(0)
 {
@@ -344,13 +336,14 @@ SmallObjectAllocator<CS, MOS, A>::SmallObjectAllocator():
 
 
 
-template <std::size_t CS, std::size_t MOS, typename A>
-void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
+template <std::size_t CS, std::size_t MOS, typename I>
+void* SmallObjectAllocator<CS, MOS, I>::doAllocate(std::size_t iSize)
 {
 	if (iSize > maxObjectSize_)
 	{
 		return operator new(iSize);
 	}
+	iSize = std::max(iSize, sizeof(TIndex));
 
 	if (lastAllocate_ && lastAllocate_->blockSize() == iSize)
 	{
@@ -372,13 +365,14 @@ void* SmallObjectAllocator<CS, MOS, A>::allocate(std::size_t iSize)
 
 
 
-template <std::size_t CS, std::size_t MOS, typename A>
-void SmallObjectAllocator<CS, MOS, A>::deallocate(void* iPointer, std::size_t iSize)
+template <std::size_t CS, std::size_t MOS, typename I>
+void SmallObjectAllocator<CS, MOS, I>::doDeallocate(void* iPointer, std::size_t iSize)
 {
 	if (iSize > maxObjectSize_)
 	{
 		return operator delete(iPointer);
 	}
+	iSize = std::max(iSize, sizeof(TIndex));
 
 	if (lastDeallocate_ && lastDeallocate_->blockSize() == iSize)
 	{

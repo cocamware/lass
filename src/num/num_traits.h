@@ -80,9 +80,9 @@ template<class C> inline
 bool isNaN( const C& iV )
 {
 #ifdef LASS_ISNAN_MSVC_FLOAT_H
-	return _isnan(static_cast<double>(iV)) != 0;
+	return NumTraits<C>::hasNaN && _isnan(static_cast<double>(iV)) != 0;
 #else
-	return iV!=iV;
+	return iV != iV;
 #endif
 }
 

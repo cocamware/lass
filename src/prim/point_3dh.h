@@ -98,6 +98,7 @@ public:
 	Point3DH<T>& operator/=(TParam iB);
 
 	const bool isZero() const;
+	const bool isNaN() const;
 	const bool isInfinite() const;
 	const bool isValid() const;
 	const TParam weight() const;

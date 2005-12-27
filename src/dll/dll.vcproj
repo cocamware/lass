@@ -479,9 +479,6 @@ cd ..\dll
 				RelativePath="..\util\pymap.cpp">
 			</File>
 			<File 
-				RelativePath="..\util\pyobject_macros.cpp">
-			</File>
-			<File 
 				RelativePath="..\util\pyobject_plus.cpp">
 			</File>
 			<File 

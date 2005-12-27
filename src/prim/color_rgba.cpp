@@ -220,6 +220,15 @@ const bool ColorRGBA::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+const bool ColorRGBA::isNaN() const
+{
+	return num::isNaN(r) || num::isNaN(g) || num::isNaN(b) || num::isNaN(a);
+}
+
+
+
 /** return darkened colour without changing the opaqueness.
  *
  *  @pre @a *this are considered non-premultiplied

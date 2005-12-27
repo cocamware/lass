@@ -88,6 +88,7 @@ public:
 	const TValue brightness() const;
 	const bool isBlack() const;
 	const bool isZero() const;
+	const bool isNaN() const;
 
 	const ColorRGBA darkened( TParam iFactor ) const;
 	const ColorRGBA dissolved( TParam iFactor) const;

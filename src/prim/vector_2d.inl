@@ -241,6 +241,16 @@ const bool Vector2D<T>::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+template<typename T> inline
+const bool Vector2D<T>::isNaN() const
+{
+	return num::isNaN(x) || num::isNaN(y);
+}
+
+
+
 /** Return squared norm of vector.
  */
 template<typename T> inline

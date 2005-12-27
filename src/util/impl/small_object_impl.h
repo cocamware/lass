@@ -44,6 +44,8 @@
 #include "../shared_ptr.h"
 #include "../singleton.h"
 
+#define LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
+
 namespace lass
 {
 namespace util
@@ -56,7 +58,7 @@ namespace impl
  */
 template
 <
-	typename AtomType
+	typename IndexType
 >
 class FixedAllocator: public NonCopyable
 {
@@ -80,18 +82,18 @@ public:
 
 private:
 
-	typedef AtomType TAtom;
+	typedef IndexType TIndex;
 
 	struct Chunk
 	{
-		void init(std::size_t iBlockSize, TAtom iBlocks);
+		void init(std::size_t iBlockSize, TIndex iBlocks);
 		void release();
 		void* allocate(std::size_t iBlockSize);
 		void deallocate(void* iPointer, std::size_t iBlockSize);
 
-		TAtom* data_;
-		TAtom firstAvailableBlock_;
-		TAtom blocksAvailable_;
+		char* data_;
+		TIndex firstAvailableBlock_;
+		TIndex blocksAvailable_;
 	};
 
 	typedef std::vector<Chunk> TChunks;
@@ -100,7 +102,7 @@ private:
 	Chunk* vicinityFind(void* iPointer);
 
 	std::size_t blockSize_;
-	TAtom numBlocks_;
+	TIndex numBlocks_;
 	TChunks chunks_;
 	Chunk* allocateChunk_;
 	Chunk* deallocateChunk_;
@@ -114,7 +116,7 @@ template
 <
 	std::size_t iChunkSize,
 	std::size_t iMaxObjectSize,
-	typename AtomType
+	typename IndexType
 >
 class SmallObjectAllocator: public NonCopyable
 {
@@ -122,12 +124,44 @@ public:
 
 	SmallObjectAllocator();
 
-	void* allocate(std::size_t iSize);
-	void deallocate(void* iPointer, std::size_t iSize);
+#ifdef LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
+	~SmallObjectAllocator()
+	{
+		if (!allocatedObjects_.empty())
+		{
+			std::cout << "[LASS DEBUG MSG]: Following small objects are not deallocated successfully: " 
+				<< allocatedObjects_ << std::endl;
+		}
+	}
+
+	void* allocate(std::size_t iSize)
+	{
+		void* const result = doAllocate(iSize);
+		allocatedObjects_.insert(result);
+		if (result == (void*)0x01121B00)
+		{
+			int a = 5;
+		}
+		return result;
+	}
+
+	void deallocate(void* iPointer, std::size_t iSize)
+	{
+		allocatedObjects_.erase(iPointer);
+		doDeallocate(iPointer, iSize);
+	}
+
+#else
+
+	void* allocate(std::size_t iSize) { return doAllocate(iSize); }
+	void deallocate(void* iPointer, std::size_t iSize) { doDeallocate(iPointer, iSize); }
+
+#endif
 
 private:
 
-	typedef FixedAllocator<AtomType> TFixedAllocator;
+	typedef IndexType TIndex;
+	typedef FixedAllocator<IndexType> TFixedAllocator;
 	typedef util::SharedPtr<TFixedAllocator, util::ObjectStorage,
 		util::IntrusiveCounter<TFixedAllocator, int, &TFixedAllocator::uglyReferenceCount_> >
 		TFixedAllocatorPtr;
@@ -148,9 +182,16 @@ private:
 		maxObjectSize_ = iMaxObjectSize
 	};
 
+	void* doAllocate(std::size_t iSize);
+	void doDeallocate(void* iPointer, std::size_t iSize);
+
 	TPool pool_;
 	TFixedAllocator* lastAllocate_;
 	TFixedAllocator* lastDeallocate_;
+
+#ifdef LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
+	std::set<void*> allocatedObjects_;
+#endif
 };
 
 
@@ -160,11 +201,11 @@ template
 <
 	std::size_t iChunkSize,
 	std::size_t iMaxObjectSize,
-	typename AtomType
+	typename IndexType
 >
-inline SmallObjectAllocator<iChunkSize, iMaxObjectSize, AtomType>* smallObjectAllocator()
+inline SmallObjectAllocator<iChunkSize, iMaxObjectSize, IndexType>* smallObjectAllocator()
 {
-	typedef SmallObjectAllocator<iChunkSize, iMaxObjectSize, AtomType> TAllocator;
+	typedef SmallObjectAllocator<iChunkSize, iMaxObjectSize, IndexType> TAllocator;
 	return Singleton<TAllocator, 1>::instance();
 }
 

@@ -46,7 +46,6 @@ TUnitTests testSpat()
 
 	typedef void(*TTestCase)();
 
-	//LASS_WARNING( "Tests for planar mesh and mesh interpolator are not active." );
 	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
 	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
 

@@ -177,6 +177,16 @@ const bool Point3D<T>::isZero() const
 
 
 
+/** Return true if at least one of the components is NaN
+ */
+template<typename T> inline
+const bool Point3D<T>::isNaN() const
+{
+	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z);
+}
+
+
+
 // --- FREE FUNCTIONS ---------------------------------------------------------------------------
 
 /** @relates lass::prim::Point3D
