@@ -44,7 +44,7 @@
 #include "../shared_ptr.h"
 #include "../singleton.h"
 
-#define LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
+//#define LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
 
 namespace lass
 {
