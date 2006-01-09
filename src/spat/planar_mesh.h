@@ -627,7 +627,14 @@ namespace spat
 
 		TQuadEdgeList::iterator it = std::find(quadEdgeList_.begin(),quadEdgeList_.end(),e->quadEdge());
         std::swap(*it, quadEdgeList_.back());
+
+		TQuadEdge* qe = quadEdgeList_.back();
+		qe->edgeDeconstrain();
+		qe->faceDeconstrain();
+		qe->dispose();
 		quadEdgeList_.pop_back();
+		delete qe;
+
 		edgeCount_ -= 2;
 		return true;
 	}
