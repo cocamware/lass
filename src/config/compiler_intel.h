@@ -56,11 +56,15 @@
 #	define LASS_COMPILER_VERSION 700
 #endif
 
-// use __int8 and friends
-#define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
+#if !defined(_CHAR_UNSIGNED)
+#	define LASS_CHAR_IS_SIGNED
+#endif
 
-// use _isnan from <float.h>
-#define LASS_ISNAN_MSVC_FLOAT_H
+// use __int8 and friends
+#define LASS_NUM_BASIC_TYPES_HAVE_MSVC
+
+// use _isnan from MSVC <float.h>
+#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 
 #define LASS_DLL_IMPORT __declspec( dllimport )
 #define LASS_DLL_EXPORT __declspec( dllexport )

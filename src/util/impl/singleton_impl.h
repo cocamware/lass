@@ -41,7 +41,7 @@ namespace impl
 
 /** @internal
  */
-typedef Mutex TSingletonLock;
+typedef CriticalSection TSingletonLock;
 
 /** @internal
  */

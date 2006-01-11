@@ -625,8 +625,8 @@ namespace spat
 		TQuadEdge::splice( e, e->oPrev() );
 		TQuadEdge::splice( e->sym(), e->sym()->oPrev() );
 
-		TQuadEdgeList::iterator it = std::find(quadEdgeList_.begin(),quadEdgeList_.end(),e->quadEdge());
-        std::swap(*it, quadEdgeList_.back());
+		typename TQuadEdgeList::iterator it = std::find(quadEdgeList_.begin(),quadEdgeList_.end(),e->quadEdge());
+		std::swap(*it, quadEdgeList_.back());
 
 		TQuadEdge* qe = quadEdgeList_.back();
 		qe->edgeDeconstrain();

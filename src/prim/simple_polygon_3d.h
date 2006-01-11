@@ -147,6 +147,9 @@ SimplePolygon3D<T, EP2, NP2> clip(const Plane3D<T, EP1, NP1>& iPlane,
 template <typename T, class EP, class NP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T, EP, NP>& iPolygon);
 
+template <typename T, class EP, class NP>
+std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon3D<T, EP, NP>& iPolygon);
+
 }
 
 }

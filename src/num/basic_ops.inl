@@ -164,6 +164,7 @@ template <typename T> inline T sqrt(const T& iV)
 
 /** return exp(iPow * log(iV));
  *  @ingroup BasicOps
+ *  @warning GENERIC FUNCTION USES EXP AND LOG!
  */
 template <typename T> inline T pow(const T& iV, const T& iPow) 
 { 
@@ -324,11 +325,11 @@ long double mod(long double iV, long double iMod)
 
 #ifdef LASS_CHAR_IS_SIGNED
 
-char pow(char iV, char iPow)			{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+char pow(char iV, char iPow)			{ return impl::IntPow<char>::eval(iV, static_cast<signed char>(iPow)); }	/**< @ingroup BasicOps */
 char pow(char iV, unsigned char iPow)	{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-char div(char iV, char iMod)			{ return impl::IntDiv<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char div(char iV, char iMod)			{ return impl::IntDiv<char>::eval(iV, static_cast<signed char>(iMod)); }	/**< @ingroup BasicOps */
 char div(char iV, unsigned char iMod)	{ return impl::IntDiv<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
-char mod(char iV, char iMod)			{ return impl::IntMod<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char mod(char iV, char iMod)			{ return impl::IntMod<char>::eval(iV, static_cast<signed char>(iMod)); }	/**< @ingroup BasicOps */
 char mod(char iV, unsigned char iMod)	{ return impl::IntMod<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
 
 #else

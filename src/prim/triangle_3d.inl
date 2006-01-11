@@ -273,7 +273,7 @@ const bool Triangle3D<T>::isInRange(int iIndexOfVertex) const
 
 // --- free ----------------------------------------------------------------------------------------
 
-/** @relates lass::prim::Triangle2D
+/** @relates lass::prim::Triangle3D
  */
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTriangle)
@@ -284,6 +284,18 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTria
 		ioOStream << "<vertex id='" << i << "'>" << iTriangle[i] << "</vertex>\n";
 	}
 	ioOStream << "</Triangle3D>\n";
+	return ioOStream;
+}
+
+
+
+/** @relates lass::prim::Triangle3D
+ */
+template <typename T>
+std::ostream& operator<<(std::ostream& ioOStream, const Triangle3D<T>& iTriangle)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "{" << iTriangle[0] << ", " << iTriangle[1] << ", " << iTriangle[2] << "}";
 	return ioOStream;
 }
 

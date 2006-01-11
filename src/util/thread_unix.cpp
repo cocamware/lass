@@ -25,409 +25,503 @@
 
 #include "util_common.h"
 
+#if 0
+
 #ifdef LASS_THREAD_POSIX
 
 #include "thread.h"
+#include "impl/lass_errno.h"
+#include <errno.h>
 #include <pthread.h>
-#include <time.h>
 
 namespace lass
 {
 namespace util
 {
-class MutexInternal
+
+namespace impl
 {
-public:
-	MutexInternal()
+	class MutexInternal
 	{
-		int ret = pthread_mutex_init(&m_mutex,NULL);
-		if ( !ret )
+	public:
+		MutexInternal():
+			lockCount_(0)
 		{
-			LASS_LOG("Can not create mutex");
+			pthread_mutexattr_t mutexattr;
+			LASS_ENFORCE_CLIB_RC(pthread_mutexattr_init(&mutexattr));
+			LASS_ENFORCE_CLIB_RC(pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE_NP));
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_init(&mutex_,&mutexattr));
+			LASS_ENFORCE_CLIB_RC(pthread_mutexattr_destroy(&mutexattr));
 		}
-	}
-	~MutexInternal() {  pthread_mutex_destroy(&m_mutex); }
-public:
-	pthread_mutex_t m_mutex;
-};
+		~MutexInternal() 
+		{
+			LASS_ASSERT(lockCount_ == 0);
+			if (lockCount_ > 0)
+			{
+				std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+					<< "destroying a mutex that still has " << lockCount_
+					<< "locks." << std::endl;
+			}
+			const int ret = pthread_mutex_destroy(&mutex_);
+			LASS_ASSERT(ret == 0);
+			if (ret != 0)
+			{
+				std::cerr << "[LASS RUN MSG] WARNING: pthread_mutex_destroy failed: (" 
+					<< ret << ") " << impl::lass_strerror(ret) << std::endl;
+			}
+		}
+		void lock()
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
+			++lockCount_;
+		}
+		const LockResult tryLock()
+		{
+			const int ret = pthread_mutex_trylock(&mutex_);
+			if (ret == 0)
+			{
+				++lockCount_;
+				return lockSuccess;
+			}
+			else if (ret == EBUSY)
+			{
+				return lockBusy;
+			}
+			LASS_THROW("pthread_mutex_trylock failed: (" 
+				<< ret << ") " << impl::lass_strerror(ret));
+		}
+		void unlock()
+		{
+			LASS_ASSERT(lockCount_ > 0);
+			if (lockCount_ == 0)
+			{
+				LASS_THROW("attempting to unlock an unlocked mutex");
+			}
+			--lockCount_;
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_unlock(&mutex_));
+		}
+		const unsigned lockCount() const 
+		{
+			return lockCount_;
+		}
+	public:
+		pthread_mutex_t mutex_;
+		unsigned lockCount_;
+	};
+}
 
 Mutex::Mutex(void )
 {
-	m_internal = new MutexInternal;
-	m_locked = 0;
+	pimpl_ = new impl::MutexInternal;
 }
 
 Mutex::~Mutex(void)
 {
-	if ( m_locked > 0 )
-		LASS_LOG("warning: freeing a locked mutex with nonzero locks).");
-	delete m_internal;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 
-MutexError Mutex::lock()
+void Mutex::lock()
 {
-	if (!pthread_mutex_lock(&m_internal->m_mutex))
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
+}
+
+const LockResult Mutex::tryLock()
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
+}
+
+void Mutex::unlock()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
+}
+
+const bool Mutex::isLocked() const
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
+}
+
+
+
+namespace impl
+{
+	class CriticalSectionInternal
 	{
-		LASS_LOG("could not lock mutex");
-		return MUTEX_MISC_ERROR;
-	}
-	else
-		m_locked++;
-	return MUTEX_NO_ERROR;
-}
-
-MutexError Mutex::tryLock()
-{
-	int ret;
-
-	ret = pthread_mutex_trylock(&m_internal->m_mutex);
-#pragma LASS_FIXME("also check for other return conditions")
-	if (ret != 0)
-		return MUTEX_BUSY;
-
-	m_locked++;
-	return MUTEX_NO_ERROR;
-}
-
-MutexError Mutex::unlock()
-{
-	if (m_locked > 0)
-		m_locked--;
-	pthread_mutex_unlock(&m_internal->m_mutex);
-	return MUTEX_NO_ERROR;
-}
-
-
-
-class CriticalSectionInternal
-{
-public:
-	CriticalSectionInternal()
-	{
-		int ret = pthread_mutex_init(&m_mutex,NULL);
-		if ( !ret )
+	public:
+		void lock()
 		{
-			LASS_LOG("Can not create mutex");
+			mutex_.lock();
 		}
-	}
-	~CriticalSectionInternal() {  pthread_mutex_destroy(&m_mutex); }
-public:
-	pthread_mutex_t m_mutex;
-};
+		const LockResult tryLock()
+		{
+			return mutex_.tryLock();
+		}
+		void unlock()
+		{
+			mutex_.unlock();
+		}
+		const unsigned lockCount() const 
+		{ 
+			return mutex_.lockCount(); 
+		}	
+	private:
+		MutexInternal mutex_;
+	};
+}
 
 
 CriticalSection::CriticalSection(void )
 {
-	internal_ = new CriticalSectionInternal;
+	pimpl_ = new impl::CriticalSectionInternal;
 }
 
 CriticalSection::~CriticalSection(void)
 {
-	delete internal_;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 
 void CriticalSection::lock()
 {
-	if (!pthread_mutex_lock(&internal_->m_mutex))
-		LASS_LOG("could not lock mutex");
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
 }
 
-CriticalSectionError CriticalSection::tryLock()
+const LockResult CriticalSection::tryLock()
 {
-	int ret = pthread_mutex_trylock(&internal_->m_mutex);
-#pragma LASS_FIXME("also check for other return conditions")
-	if (ret != 0)
-		return CRITICALSECTION_TRYLOCK_FAILED;
-
-	return CRITICALSECTION_NO_ERROR;
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
 }
 
 void CriticalSection::unlock()
 {
-	pthread_mutex_unlock(&internal_->m_mutex);
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
+}
+
+const bool CriticalSection::isLocked() const
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
 }
 
 
 
-class ConditionInternal
+namespace impl
 {
-	pthread_cond_t condition_;
-	pthread_mutex_t mutex_;
-public:
-	ConditionInternal()
+	class ConditionInternal
 	{
-		if ( !pthread_cond_init(&condition_,NULL) ||
-			 !pthread_mutex_init(&mutex_,NULL))
-			LASS_LOG("Can not create condition");
-	}
-	void wait()
-	{
-		pthread_cond_wait(&condition_,&mutex_);
-	}
-
-	bool wait(long iSec,long iNSec)
-	{
-		struct timespec timeToWaitTo;
-		clock_gettime(CLOCK_REALTIME,&timeToWaitTo);
-		timeToWaitTo.tv_sec+=iSec;
-		timeToWaitTo.tv_nsec+=iNSec;
-		int ret=pthread_cond_timedwait(&condition_,&mutex_,&timeToWaitTo);
-		return !ret;
-	}
-	void signal()
-	{
-		pthread_cond_signal(&condition_);
-	}
-	void broadcast()
-	{
-		pthread_cond_broadcast(&condition_);
-	}
-	virtual  ~ConditionInternal()
-	{
-		if (!pthread_mutex_destroy(&mutex_) || !pthread_cond_destroy(&condition_))
+	public:
+		ConditionInternal():
+			threadsWaiting_(0),
+			signalFlag_(false),
+			broadcastFlag_(false)
 		{
-		  LASS_LOG("could not destroy condition");
+			LASS_ENFORCE_CLIB_RC(pthread_cond_init(&condition_, NULL));
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_init(&mutex_, NULL));
 		}
-	}
-};
+		~ConditionInternal()
+		{
+			int ret = pthread_mutex_destroy(&mutex_);
+			LASS_ASSERT(ret == 0);
+			if (ret != 0)
+			{
+				std::cerr << "[LASS RUN MSG] WARNING: pthread_mutex_destroy failed: (" 
+					<< ret << ") " << impl::lass_strerror(ret) << std::endl;
+			}
+			ret = pthread_cond_destroy(&condition_);
+			LASS_ASSERT(ret == 0);
+			if (ret != 0)
+			{
+				std::cerr << "[LASS RUN MSG] WARNING: pthread_cond_destroy failed: (" 
+					<< ret << ") " << impl::lass_strerror(ret) << std::endl;
+			}
+		}		
+		void wait()
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
+			
+			int retWait = 0;
+			++threadsWaiting_;
+			while (retWait == 0 && !(signalFlag_ || broadcastFlag_))
+			{
+				retWait = pthread_cond_wait(&condition_, &mutex_);
+				LASS_ASSERT(retWait == 0);
+			}
+			--threadsWaiting_;
+			signalFlag_ = false;
+			broadcastFlag_ &= (threadsWaiting_ > 0);		
+			
+			const int retUnlock = pthread_mutex_unlock(&mutex_);
+			LASS_ASSERT(retUnlock == 0);
+			if (retWait != 0)
+			{
+				LASS_THROW("pthread_cond_wait failed: (" 
+					<< retWait << ") " << impl::lass_strerror(retWait));
+			}
+			if (retUnlock != 0)
+			{
+				LASS_THROW("pthread_mutex_unlock failed: (" 
+					<< retUnlock << ") " << impl::lass_strerror(retUnlock));
+			}
+		}	
+		const WaitResult wait(long iSec,long iNSec)
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
+			
+			struct timespec timeToWaitTo;
+			clock_gettime(CLOCK_REALTIME,&timeToWaitTo);
+			timeToWaitTo.tv_sec+=iSec;
+			timeToWaitTo.tv_nsec+=iNSec;
+			
+			++threadsWaiting_;
+			int retWait = 0;
+			while (retWait == 0 && !(signalFlag_ || broadcastFlag_))
+			{
+				retWait = pthread_cond_timedwait(&condition_,&mutex_,&timeToWaitTo);
+				LASS_ASSERT(retWait == 0 || retWait == ETIMEDOUT);
+			}
+			
+			--threadsWaiting_;
+			signalFlag_ = false;
+			broadcastFlag_ &= (threadsWaiting_ > 0);		
 
+			const int retUnlock = pthread_mutex_unlock(&mutex_);
+			LASS_ASSERT(retUnlock == 0);
+			if (retWait != 0 && retWait != ETIMEDOUT)
+			{
+				LASS_THROW("pthread_cond_timedwait failed: (" 
+					<< retWait << ") " << impl::lass_strerror(retWait));
+			}
+			if (retUnlock != 0)
+			{
+				LASS_THROW("pthread_mutex_unlock failed: (" 
+					<< retUnlock << ") " << impl::lass_strerror(retUnlock));
+			}
+
+			LASS_ASSERT(retWait == 0 || retWait == ETIMEDOUT);
+			return retWait == 0 ? waitSuccess : waitTimeout;
+		}
+		void signal()
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
+			signalFlag_ = true;
+			pthread_cond_signal(&condition_);
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_unlock(&mutex_));
+		}
+		void broadcast()
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
+			signalFlag_ = true;
+			pthread_cond_broadcast(&condition_);
+			LASS_ENFORCE_CLIB_RC(pthread_mutex_unlock(&mutex_));
+		}
+	private:
+		pthread_mutex_t mutex_;
+		pthread_cond_t condition_;
+		unsigned threadsWaiting_;
+		bool signalFlag_;
+		bool broadcastFlag_;
+	};
+}
 
 Condition::Condition(void)
 {
-	m_internal = new ConditionInternal;
+	pimpl_ = new impl::ConditionInternal;
 }
 Condition::~Condition(void)
 {
-	delete m_internal;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 void Condition::wait()
 {
-	m_internal->wait();
+	LASS_ASSERT(pimpl_);
+	pimpl_->wait();
 }
-bool Condition::wait(unsigned long sec,unsigned long nsec)
+const WaitResult Condition::wait(unsigned long sec,unsigned long nsec)
 {
-	return m_internal->wait(sec,nsec);
+	LASS_ASSERT(pimpl_);
+	return pimpl_->wait(sec,nsec);
 }
 void Condition::signal()
 {
-	m_internal->signal();
+	LASS_ASSERT(pimpl_);
+	pimpl_->signal();
 }
 void Condition::broadcast()
 {
-	m_internal->broadcast();
+	LASS_ASSERT(pimpl_);
+	pimpl_->broadcast();
 }
 
 
 
-// ThreadInternal class
-// ----------------------
-
-class ThreadInternal
+namespace impl
 {
-public:
- 
-	ThreadInternal()
+	class ThreadInternal
 	{
-		thread_ = 0;
-		state_ = STATE_NEW;
-	}
-	~ThreadInternal()
-	{
-		free();
-	}
-	void free()
-	{
-		pthread_attr_destroy(&attr_);
-	}
-	// create a new (suspended) thread (for the given thread object)
-	bool create(Thread *thread);
-	// suspend/resume/terminate
-	bool suspend();
-	bool resume();
-	void cancel() { state_ = STATE_CANCELED; }
-	// thread state
+	public:
+	
+		ThreadInternal(Thread& iThread, ThreadKind iKind):
+			thread_(iThread),
+			isJoinable_(iKind == threadJoinable),
+			isCreated_(false)
+		{
 
-	// thread handle and id
-	pthread_t thread() const { return thread_; }
-	ThreadState getState() const { return state_; }
+		}
+		
+		~ThreadInternal()
+		{
+		}
+		
+		/** run thread.
+		 */
+		void run()
+		{
+			if (isCreated_)
+			{
+				LASS_THROW("You can run a thread only once");
+			}
+			LASS_ENFORCE_CLIB_RC(pthread_create(
+				&handle_, 0, &ThreadInternal::staticThreadStart, this));
+			runCondition_.wait();
+		}
+		
+		void join()
+		{			
+			if (!(isJoinable_ && isCreated_))
+			{
+				LASS_THROW("Can not wait for uncreated or detached threads");
+			}
+			else
+			{
+				pthread_join(handle_, 0);
+				isJoinable_ = false;
+			}
+		}
+		
+		static void sleep(unsigned long iMilliSeconds)
+		{
+			timespec timeOut;
+			if (iMilliSeconds < 1000)
+			{
+				timeOut.tv_sec = 0;
+				timeOut.tv_nsec = iMilliSeconds * 1000000;
+			}
+			else
+			{
+				timeOut.tv_sec = iMilliSeconds / 1000;
+				timeOut.tv_nsec = (iMilliSeconds % 1000) * 1000000;
+			}
+			
+			// nanosleep may return earlier than expected if there's a signal
+			// that should be handled by the calling thread.  I don't really
+			// expect that to happen.  But we'll deal with it with a nice
+			// message. [Bramz]
+			//
+			timespec timeRemaining;
+			while (true)
+			{
+				const int ret = nanosleep(&timeOut, &timeRemaining);
+				if (ret == 0)
+				{
+					// we're done =)
+					return; 
+				}
+				const int errnum = impl::lass_errno();
+				if (errnum != EINTR)
+				{
+					// there was an error :(
+					LASS_THROW("nanosleep failed: (" << errnum
+						<< ") " << impl::lass_strerror(errnum));
+				}
+				// if we're here, there was only an sleep interruption
+				// go back to sleep.
+				std::cerr << "[LASS RUN MSG] nanosleep in Thread::sleep "
+				 	<< "interrupted by signal.  Going back to sleep ...\n";
+				timeOut.tv_sec = timeRemaining.tv_sec;
+				timeOut.tv_nsec = timeRemaining.tv_nsec;
+			}
+		}
+		
+		static void yield()
+		{
+			LASS_ENFORCE_CLIB_RC(pthread_yield());
+		}
+	
+		// thread function
+		static void* staticThreadStart(void* iPimpl)
+		{
+			LASS_ASSERT(iPimpl);
+			std::cout << "in staticThreadStart\n";
+			ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
+			pimpl->isCreated_ = true;
+			pimpl->runCondition_.signal();
+			std::cout << "about to run\n";
+			pimpl->thread_.doRun();
+			std::cout << "done\n";
+			if (!pimpl->isJoinable_)
+			{
+				delete &pimpl->thread_;
+			}
+			return 0;
+		}
+	
+	private:
 
-	// thread function
-	static void* posixThreadStart(void* iThread);
-
-private:
-	pthread_t       thread_;    // handle of the thread
-	pthread_attr_t  attr_;      // attributes of the posix thread
-	ThreadState     state_;      // state, see ThreadState enum
-	unsigned int    priority_;   // thread priority in units
-};
-
-void* ThreadInternal::posixThreadStart(void* iThread)
-{
-  Thread* thread = static_cast<Thread*>(iThread);
-	bool wasCancelled=false;
-
-	Thread::ExitCode rc = thread->entry();
-	thread->onExit();
-	// if the thread was cancelled (from Delete()), then its handle is still
-	// needed there
-	if ( thread->isDetached() && !wasCancelled )
-	{
-		// auto delete
-		delete thread;
-	}
-	//else: the joinable threads handle will be closed when Wait() is done
+		Thread& thread_;
+		pthread_t handle_;	 // handle of the thread
+		Condition runCondition_;
+		bool isJoinable_;
+		bool isCreated_;
+	};
 }
 
-bool ThreadInternal::create(Thread *thread)
+
+
+Thread::Thread(ThreadKind iKind)
 {
-	pthread_attr_init(&attr_);
-	int ret = pthread_create(&thread_, &attr_, &ThreadInternal::posixThreadStart, thread);
-
-	if ( ret != 0 )
-	{
-		LASS_LOG("Can not create thread");
-		return false;
-	}
-	return true;
-}
-
-bool ThreadInternal::suspend()
-{
-	LASS_THROW("suspend not supported");
-	return false;
-}
-
-bool ThreadInternal::resume()
-{
-	LASS_THROW("resume not supported");
-	return false;
-}
-
-// ctor and dtor
-// -------------
-
-Thread::Thread(ThreadKind kind)
-{
-	m_internal = new ThreadInternal();
-	m_isDetached = kind == THREAD_DETACHED;
+	pimpl_ = new impl::ThreadInternal(*this, iKind);
 }
 
 Thread::~Thread()
 {
-	delete m_internal;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 
-// create/start thread
-// -------------------
-
-ThreadError Thread::create()
+void Thread::run()
 {
-	MutexLocker lock(m_mutex);
-	if ( !m_internal->create(this) )
-		return THREAD_NO_RESOURCE;
-	return THREAD_NO_ERROR;
+	LASS_ASSERT(pimpl_);
+	pimpl_->run();
 }
 
-ThreadError Thread::run()
+void Thread::join()
 {
-	MutexLocker lock(m_mutex);
-
-	if ( m_internal->getState() != STATE_NEW )
-	{
-		// actually, it may be almost any state at all, not only STATE_RUNNING
-		return THREAD_RUNNING;
-	}
-
-	// the thread has just been created and is still suspended - let it run
-	return resume();
+	LASS_ASSERT(pimpl_);
+	pimpl_->join();
 }
 
-// suspend/resume thread
-// ---------------------
-ThreadError Thread::pause()
+void Thread::sleep(unsigned long iMilliSeconds)
 {
-	MutexLocker lock(m_mutex);
-	return m_internal->suspend() ? THREAD_NO_ERROR : THREAD_MISC_ERROR;
+	impl::ThreadInternal::sleep(iMilliSeconds);
 }
 
-ThreadError Thread::resume()
+void Thread::yield()
 {
-	MutexLocker lock(m_mutex);
-	return m_internal->resume() ? THREAD_NO_ERROR : THREAD_MISC_ERROR;
-}
-
-// stopping thread
-// ---------------
-
-Thread::ExitCode Thread::wait()
-{
-	// although under Windows we can wait for any thread, it's an error to
-	// wait for a detached one in Win API
-	if (isDetached())
-	{
-		LASS_LOG("Can not wait for detached thread");
-		return (ExitCode)-1;
-	}
-	else
-	{
-		pthread_join(m_internal->thread(),NULL);
-		m_internal->free();
-	}
-	ExitCode rc = (ExitCode)-1;
-	return rc;
-}
-
-ThreadError Thread::kill()
-{
-	if ( !isRunning() )
-		return THREAD_NOT_RUNNING;
-
-
-	if ( pthread_cancel(m_internal->thread()) )
-	{
-		LASS_LOG("Could not terminate thread");
-		return THREAD_MISC_ERROR;
-	}
-
-	m_internal->free();
-	if ( isDetached() )
-	{
-		delete this;
-	}
-	return THREAD_NO_ERROR;
-}
-
-void Thread::exit(ExitCode status)
-{
-	m_internal->free();
-
-	if ( isDetached() )
-	{
-		delete this;
-	}
-	LASS_LOG("Could not return from ExitThread()!");
-}
-
-bool Thread::isRunning() const
-{
-	MutexLocker lock((Mutex &)m_mutex);
-	return m_internal->getState() == STATE_RUNNING;
-}
-
-bool Thread::isAlive() const
-{
-	MutexLocker lock((Mutex &)m_mutex);
-	return (m_internal->getState() == STATE_RUNNING) ||
-		   (m_internal->getState() == STATE_PAUSED);
-}
-
-bool Thread::isPaused() const
-{
-	MutexLocker lock((Mutex &)m_mutex);
-	return m_internal->getState() == STATE_PAUSED;
+	impl::ThreadInternal::yield();
 }
 
 }
 }
 
 #endif
+
+#endif
+
+// EOF

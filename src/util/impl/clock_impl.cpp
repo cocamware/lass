@@ -72,11 +72,11 @@ const ClockImpl::TTick ClockImpl::tick()
 // --- standard c ----------------------------------------------------------------------------------
 
 #if defined(LASS_UTIL_CLOCK_STANDARD_C)
-#	if !defined(CLK_TCK)
-#		include <unistd.h>
-#		define CLK_TCK sysconf(_SC_CLK_TCK)
-#	endif
-#	pragma LASS_NOTE("util::Clock: using standard C implementation")
+//#	if !defined(CLK_TCK)
+//#		include <unistd.h>
+//#		define CLK_TCK sysconf(_SC_CLK_TCK)
+//#	endif
+//#	pragma LASS_NOTE("util::Clock: using standard C implementation")
 
 namespace lass
 {
@@ -87,7 +87,7 @@ namespace impl
 
 const ClockImpl::TTick ClockImpl::frequency()
 {
-	return CLK_TCK;
+	return CLOCKS_PER_SEC;
 }
 
 

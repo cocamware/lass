@@ -165,7 +165,6 @@ Transformation3D<T>::inverse() const
 			inverseMatrix_.reset();
 			LASS_THROW("transformation not invertible");
 		}
-		const TValue invDet = num::inv(det);
 		std::transform(inverseMatrix_.get(), inverseMatrix_.get() + 16,
 			inverseMatrix_.get(),
 			std::bind2nd(std::multiplies<TValue>(), num::inv(det)));

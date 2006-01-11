@@ -62,11 +62,15 @@
 #	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #endif
 
+#if !defined(_CHAR_UNSIGNED)
+#	define LASS_CHAR_IS_SIGNED
+#endif
+
 // use __int8, __int16, ...
-#define LASS_COMPATIBLE_INTEGERS_MSVC_STYLE
+#define LASS_NUM_BASIC_TYPES_HAVE_MSVC
 
 // use _isnan from <float.h>
-#define LASS_ISNAN_MSVC_FLOAT_H
+#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 
 
 

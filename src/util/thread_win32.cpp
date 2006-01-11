@@ -25,6 +25,8 @@
 
 #include "util_common.h"
 
+#if 0
+
 #ifdef LASS_THREAD_WIN32
 #pragma LASS_NOTE("util::Threading: using win32 implementation")
 
@@ -505,3 +507,7 @@ bool Thread::isPaused() const
 }
 
 #endif
+
+#endif
+
+// EOF

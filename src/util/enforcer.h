@@ -95,6 +95,45 @@
 
 
 
+/** Enforces the result of the expression to be zero.
+ *  @ingroup Enforcers
+ */
+#define LASS_ENFORCE_ZERO(expression__) \
+	(*lass::util::impl::makeEnforcer<lass::util::impl::ZeroPredicate,\
+									 lass::util::impl::ZeroRaiser>(\
+		(expression__), "'" LASS_STRINGIFY(expression__) "' in '" LASS_HERE "'."))
+
+
+
+/** Enforces the return code of a CLIB function call to be different than -1.
+ *  @ingroup Enforcers
+ *  Some CLIB functions return zero on failure.  An error code indicating the failure
+ *  can be found using errno.  LASS_ENFORCE_CLIB will enforce that the return
+ *  value of the function call is not -1.  If it is -1, it will rais a runtime
+ *  exception with the error code errno and its string message translated by strerror().
+ */
+#define LASS_ENFORCE_CLIB(functionCall_)\
+	(*lass::util::impl::makeEnforcer<\
+		lass::util::impl::ClibPredicate, lass::util::impl::ClibRaiser>(\
+		(functionCall_), "'" LASS_STRINGIFY(functionCall_) "' in '" LASS_HERE "'"))
+	
+
+	
+/** Enforces the return code of a CLIB function call to be zero.
+ *  @ingroup Enforcers
+ *  Some CLIB functions return zero on success and an error code on failure.
+ *  This error code can be translated to a string message with strerror().
+ *  LASS_ENFORCE_CLIB_RC will enforce that the return code of the function call
+ *  is zero.  If it's not, it will raise a runtime exception with the translated
+ *  error code.
+ */
+#define LASS_ENFORCE_CLIB_RC(functionCall_)\
+	(*lass::util::impl::makeEnforcer<\
+		lass::util::impl::ZeroPredicate, lass::util::impl::ClibRcRaiser>(\
+		(functionCall_), "'" LASS_STRINGIFY(functionCall_) "' in '" LASS_HERE "'"))
+
+
+		
 /** Enforces the HRESULT of a COM call to be 0 or more.
  *  @ingroup Enforcers
  */

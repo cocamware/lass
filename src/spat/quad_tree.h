@@ -91,13 +91,13 @@ private:
 	typedef std::list< ObjectType > TListType;
 	struct QuadNode
 	{
-		bool leaf;                      /**< true for leaf nodes */
-		int level;                      /**< level in tree */
 		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
 		TPoint center;                  /**< center of quadnode */
 		TVector extents;                /**< x = half of widht, y = half of height */
 		TListType data;                 /**< the list containing the data */
 		int listSize;                   /**< helping the std::list :) */
+		int level;                      /**< level in tree */
+		bool leaf;                      /**< true for leaf nodes */
 
 		QuadNode();
 		QuadNode(const TPoint& aCenter, const TVector& aExtents);
@@ -347,9 +347,9 @@ template
 	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode( const TPoint& iCenter, const TVector& iExtents) :
-	extents(iExtents), center(iCenter), leaf(true), listSize(0), level(0)
+	extents(iExtents), center(iCenter), listSize(0), level(0), leaf(true)
 {
-	for (int i=subNodeCount;i>=0;--i)
+	for (int i=subNodeCount-1;i>=0;--i)
 		node[i] = NULL;
 }
 
@@ -388,7 +388,7 @@ template
 void QuadTree< ObjectType, ObjectTraits >::add(const ObjectType& iObject,int iMaxSize, int iMaxLevel)
 {
 	if (!root_->add(iObject, iMaxSize, iMaxLevel))
-		throw util::Exception( "Could not add object to QuadTree", "here" );
+		LASS_THROW("Could not add object to QuadTree");
 }
 
 template
@@ -435,7 +435,7 @@ typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, O
 			++listSize;
 			return this;
 		}
-		throw util::Exception("Object not placeable in node","here");
+		LASS_THROW("Object not placeable in node");
 	}
 
 }
@@ -453,7 +453,11 @@ typename QuadTree< ObjectType, ObjectTraits >::TAabb QuadTree< ObjectType, Objec
 	*  interest.  Storing the aabb would give too much overhead in comparison with the gain
 	*  in speed.
 	*/
-	return TAabb(center-extents,center+extents);
+	//std::cout << "center:"<<center << std::endl;
+	//std::cout << "extents:"<<extents << std::endl;
+	TAabb result(center-extents,center+extents);
+	//std::cout << "result:"<<result << std::endl;
+	return result;
 }
 
 template

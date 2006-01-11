@@ -32,9 +32,11 @@
 #define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_WIN32
 #define LASS_PLATFORM "Win32"
 #define LASS_LIB_PLATFORM "win32"
+
 #define LASS_LITTLE_ENDIAN  1
 #define LASS_BIG_ENDIAN 0
-#define LASS_THREAD_WIN32
+
+#define LASS_UTIL_THREAD_HAVE_WIN32
 
 #pragma message("[LASS BUILD MSG] Build on MS Windows requires Windows 2000 or higher!")
 #define _WIN32_WINNT 0x500

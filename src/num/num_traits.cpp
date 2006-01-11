@@ -31,6 +31,10 @@
 #include "interval.h"
 #include <limits>
 
+#ifdef LASS_CHAR_IS_SIGNED
+#	pragma LASS_NOTE("char is configured as signed char")
+#endif
+
 namespace lass
 {
 namespace num
@@ -99,16 +103,16 @@ const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = 1.7724538
 */
 
 /** code generating macro for integral types */
-#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( __LASS_type, __LASS_min, __LASS_max ) \
-const int   NumTraits<__LASS_type>::memorySize = sizeof(__LASS_type);\
-const __LASS_type NumTraits<__LASS_type>::one = 1;\
-const __LASS_type NumTraits<__LASS_type>::zero= 0;\
-const __LASS_type NumTraits<__LASS_type>::epsilon = 1;\
-const __LASS_type NumTraits<__LASS_type>::min = __LASS_min;\
-const __LASS_type NumTraits<__LASS_type>::max = __LASS_max;\
-const __LASS_type NumTraits<__LASS_type>::minStrictPositive = 1;\
+#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( t_type, v_min, v_max ) \
+const int   NumTraits<t_type>::memorySize = sizeof(t_type);\
+const t_type NumTraits<t_type>::one = 1;\
+const t_type NumTraits<t_type>::zero= 0;\
+const t_type NumTraits<t_type>::epsilon = 1;\
+const t_type NumTraits<t_type>::min = v_min;\
+const t_type NumTraits<t_type>::max = v_max;\
+const t_type NumTraits<t_type>::minStrictPositive = 1;\
 
-#if defined(_MSC_VER)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, CHAR_MIN , CHAR_MAX )
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, 0 , UCHAR_MAX)
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, SCHAR_MIN , SCHAR_MAX )
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, 0 , USHRT_MAX)
@@ -117,24 +121,6 @@ LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, 0 , UINT_MAX )
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, INT_MIN , INT_MAX )
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, 0 , ULONG_MAX )
 LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, LONG_MIN , LONG_MAX )
-#else
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, -128, 127 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, 0, 255 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, 0 , 0xffff)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, (-32768) , 32767 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, 0 , 0xffffffff )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, (-2147483647 - 1) , 2147483647 )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, 0 , 0xffffffff )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, (-2147483647 - 1) , 2147483647 )
-#endif
-
-#ifdef LASS_CHAR_IS_SIGNED
-#pragma LASS_NOTE("char is configured as signed char")
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, -128, 127 )
-#else
-#pragma LASS_NOTE("char is configured as unsigned char")
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, 0, 255 )
-#endif
 
 }
 }

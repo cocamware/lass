@@ -40,6 +40,9 @@
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 
+
+#include <iostream>
+#include <limits.h>
 int main(int argc, char* argv[])
 {
 	using namespace lass;

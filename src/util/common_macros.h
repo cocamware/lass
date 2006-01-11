@@ -99,7 +99,7 @@
 
 #include "common_macros.inl"
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(NDEBUG)
 //# define LASS_THROW( iMessage )               LASS_THROW_IMPL( iMessage )
 #	define LASS_THROW_EXCEPTION( iException )   LASS_THROW_EXCEPTION_IMPL( iException )
 #	define LASS_ASSERT( iExpression )           LASS_ASSERT_IMPL( iExpression )

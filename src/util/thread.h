@@ -27,21 +27,6 @@
  *      known as wxWindows) adapted to the LASS style guide.
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_H
-
-#include "util_common.h"
-#include "non_copyable.h"
-
-#ifdef LASS_THREAD_WIN32
-#	include <windows.h>
-#endif
-
-namespace lass
-{
-namespace util
-{
-
 /**
 *   @defgroup   Threading Threading
 *   Threading functions.  The Mutex and Thread classes for WIN32 are almost literal copy and pastes
@@ -64,91 +49,53 @@ namespace util
 *               interthread and intrathread synchronisation. Not implemented in UNIX build.
 */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_H
 
-/** MutexError.
-*   @ingroup Threading
-*   @see     Mutex,MutexLocker
-*/
-enum MutexError
+#include "util_common.h"
+#include "non_copyable.h"
+
+namespace lass
 {
-	MUTEX_NO_ERROR = 0,
-	MUTEX_DEAD_LOCK,      /**< Mutex has been already locked by THE CALLING thread */
-	MUTEX_BUSY,           /**< Mutex has been already locked by ONE thread */
-	MUTEX_UNLOCKED,
-	MUTEX_MISC_ERROR
+namespace util
+{
+namespace impl
+{
+	class MutexInternal;
+	class CriticalSectionInternal;
+	class ConditionInternal;
+	class ThreadInternal;
+}
+
+/** Return code for lock functions
+ *  @ingroup Threading
+ *  @see Mutex,CriticalSection
+ */
+enum LockResult
+{
+	lockSuccess,		/**< Mutex/CriticalSection is succesfully locked by this thread */
+	lockBusy,		/**< Mutex/CriticalSection is locked by another thread */
 };
 
-
-/** CriticalSectionError.
-*   @ingroup Threading
-*   @see     CriticalSection,CriticalSectionLocker
-*/
-enum CriticalSectionError
+/** Return code for wait functions
+ *  @ingroup Threading
+ *  @see Condition
+ */
+enum WaitResult
 {
-	CRITICALSECTION_NO_ERROR = 0,        /**< No error or the lock succeeded */
-	CRITICALSECTION_TRYLOCK_FAILED,      /**< Try lock failed */
-};
-
-
-/** ThreadError.
-*   @ingroup Threading
-*   @see     Thread,ThreadKind
-*/
-enum ThreadError
-{
-	THREAD_NO_ERROR = 0,      /**< No error */
-	THREAD_NO_RESOURCE,       /**< No resource left to create a new thread */
-	THREAD_RUNNING,           /**< The thread is already running */
-	THREAD_NOT_RUNNING,       /**< The thread isn't running */
-	THREAD_KILLED,            /**< Thread we waited for had to be killed */
-	THREAD_MISC_ERROR         /**< Some other error */
+	waitSuccess,	/**< Wait is successfully terminated */ 
+	waitTimeout,	/**< Wait failed because of a timeout */
 };
 
 /** ThreadKind.
 *   @ingroup Threading
-*   @see Thread, ThreadError
+*   @see Thread
 */
 enum ThreadKind
 {
-	THREAD_DETACHED,            /**< detached thread */
-	THREAD_JOINABLE             /**< joinable thread, can be waited for */
+	threadDetached,		/**< detached thread */
+	threadJoinable,		/**< joinable thread, can be waited for */
 };
-
-/** ThreadState
- *  @ingroup Threading
- */
-enum ThreadState
-{
-	STATE_NEW,          // didn't start execution yet (=> RUNNING)
-	STATE_RUNNING,      // thread is running (=> PAUSED, CANCELED)
-	STATE_PAUSED,       // thread is temporarily suspended (=> RUNNING)
-	STATE_CANCELED,     // thread should terminate a.s.a.p. (=> EXITED)
-	STATE_EXITED        // thread is terminating
-};
-
-class ConditionInternal;
-
-/** Condition.
-*   @ingroup Threading
-*   A condition can be used to synchronize using messages were a condition waits for
-*   a signal or broadcast.  A signal will only release one waiter, a broadcast will release
-*   all current waiting wait-conditions.
-*/
-class Condition
-{
-	ConditionInternal * m_internal;
-public:
-	Condition(void);
-	virtual ~Condition(void);
-	void wait();
-	bool wait(unsigned long sec,unsigned long nsec);
-	void signal();
-	void broadcast();
-};
-
-
-class MutexInternal;
-class MutexLocker;
 
 /** Mutex.
 *   @ingroup Threading
@@ -159,24 +106,19 @@ class MutexLocker;
 class Mutex : NonCopyable
 {
 public:
-	// constructor & destructor
-	Mutex(void);
-	~Mutex(void);
+	Mutex();
+	~Mutex();
 	// Lock the mutex.
-	MutexError lock();
+	void lock();
 	// Try to lock the mutex: if it can't, returns immediately with an error.
-	MutexError tryLock();
+	const LockResult tryLock();
 	// Unlock the mutex.
-	MutexError unlock();
+	void unlock();
 	// Returns true if the mutex is locked.
-	bool isLocked() const { return (m_locked > 0); }
+	const bool isLocked() const;
 
-protected:
-	friend class Condition;
-	friend class MutexLocker;
-
-	int m_locked;
-	MutexInternal *m_internal;
+private:
+	impl::MutexInternal *pimpl_;
 };
 
 
@@ -187,15 +129,13 @@ protected:
 */
 class MutexLocker: NonCopyable
 {
-	Mutex&  m_mutex;
 public:
-	MutexLocker(  Mutex& iMutex );
-	operator bool() const { return false; }
-	virtual ~MutexLocker();
+	MutexLocker(Mutex& iMutex);
+	~MutexLocker();
+private:
+	Mutex& mutex_;
 };
 
-
-class CriticalSectionInternal;
 /** CriticalSection.
 *   @ingroup Threading
 *   @see CriticalSectionLocker
@@ -207,18 +147,20 @@ class CriticalSectionInternal;
 class CriticalSection : NonCopyable
 {
 public:
-	// constructor & destructor
-	CriticalSection(void);
-	~CriticalSection(void);
+	CriticalSection();
+	~CriticalSection();
+	
 	// Lock the critical section.
 	void lock();
 	// Try to lock the critical section: if it can't, returns immediately with an error.
-	CriticalSectionError tryLock();
+	const LockResult tryLock();
 	// Unlock the mutex.
 	void unlock();
+	
+	const bool isLocked() const;
 
-protected:
-	CriticalSectionInternal* internal_;
+private:
+	impl::CriticalSectionInternal* pimpl_;
 };
 
 /** CriticalSectionLocker.
@@ -228,114 +170,67 @@ protected:
 */
 class CriticalSectionLocker: NonCopyable
 {
-	CriticalSection&    m_criticalsection;
+	CriticalSection& criticalSection_;
 public:
-	CriticalSectionLocker(  CriticalSection& iSection );
-	operator bool() const { return false; }
-	virtual ~CriticalSectionLocker();
+	CriticalSectionLocker(CriticalSection& iSection);
+	~CriticalSectionLocker();
 };
 
-
-class ThreadInternal;
-/** Thread.
+/** Condition.
 *   @ingroup Threading
-*   A base class for threads.  The virtual function entry() needs to be overriden and
-*   after creation of the thread on the heap and the call of the create() function, the
-*   thread is in a state ready to be run.  The run() function actually starts the thread.
-*   JOINABLE threads can be waited for, DETACHED threads can not be waited for.
+*   A condition can be used to synchronize using messages were a condition waits for
+*   a signal or broadcast.  A signal will only release one waiter, a broadcast will release
+*   all current waiting wait-conditions.
 */
-class Thread
+class Condition
 {
 public:
-	// the return type for the thread function
-	typedef void *ExitCode;
+	Condition();
+	~Condition();
+	void wait();
+	const WaitResult wait(unsigned long iMilliSeconds);
+	void signal();
+	void broadcast();
+private:
+	impl::ConditionInternal* pimpl_;
+};
 
-	Thread(ThreadKind kind = THREAD_DETACHED);
+/** A base class for threads.
+*   @ingroup Threading
+*   The virtual function doRun() needs to be overriden and after creation of the 
+*   thread on the heap or stack, the thread is in a state ready to be run.  
+*   The run() function actually starts the thread.
+*
+*   JOINABLE threads can be waited for, DETACHED threads can not be waited for.
+*/
+class Thread: NonCopyable
+{
+public:
 
-	// functions that change the thread state: all these can only be called
-	// from _another_ thread (typically the thread that created this one, e.g.
-	// the main thread), not from the thread itself
-
-		// create a new thread - call Run() to start it
-	ThreadError create();
-
-		// starts execution of the thread - from the moment Run() is called
-		// the execution of wxThread::Entry() may start at any moment, caller
-		// shouldn't suppose that it starts after (or before) Run() returns.
-	ThreadError run();
-
-		// waits for a joinable thread to finish and returns its exit code
-		//
-		// Returns (ExitCode)-1 on error (for example, if the thread is not
-		// joinable)
-	ExitCode wait();
-
-		// kills the thread without giving it any chance to clean up - should
-		// not be used in normal circumstances, use Delete() instead. It is a
-		// dangerous function that should only be used in the most extreme
-		// cases!
-		//
-		// The wxThread object is deleted by Kill() if the thread is
-		// detachable, but you still have to delete it manually for joinable
-		// threads.
-	ThreadError kill();
-
-		// pause a running thread: as Delete(), this only works if the thread
-		// calls TestDestroy() regularly
-	ThreadError pause();
-
-		// resume a paused thread
-	ThreadError resume();
-
-	// thread status inquiries
-		// Returns true if the thread is alive: i.e. running or suspended
-	bool isAlive() const;
-		// Returns true if the thread is running (not paused, not killed).
-	bool isRunning() const;
-		// Returns true if the thread is suspended
-	bool isPaused() const;
-
-		// is the thread of detached kind?
-	bool isDetached() const { return m_isDetached; }
-
-	// called when the thread exits - in the context of this thread
-	//
-	// NB: this function will not be called if the thread is Kill()ed
-	virtual void onExit() { }
-
-	// dtor is public, but the detached threads should never be deleted - use
-	// Delete() instead (or leave the thread terminate by itself)
 	virtual ~Thread();
+	
+	void run();
+	void join();
+	
+	static void sleep(unsigned long iMilliseconds);
+	static void yield();
 
 protected:
-   // exits from the current thread - can be called only from this thread
-	void exit(ExitCode exitcode = 0);
 
-	// entry point for the thread - called by Run() and executes in the context
-	// of this thread.
-	virtual ExitCode entry() = 0;
+	Thread(ThreadKind iKind = threadDetached);
 
 private:
-	// no copy ctor/assignment operator
-	Thread(const Thread&);
-	Thread& operator=(const Thread&);
 
-	friend class ThreadInternal;
+	friend class impl::ThreadInternal;
 
-	// the (platform-dependent) thread class implementation
-	ThreadInternal *m_internal;
+	virtual void doRun() = 0;
 
-	// protects access to any methods of wxThreadInternal object
-	Mutex m_mutex;
-
-	// true if the thread is detached, false if it is joinable
-	bool m_isDetached;
+	impl::ThreadInternal* pimpl_;
 };
 
 }
 
 }
-
 
 
 /** @brief Locks a @a iLock and starts a scope block in which it remains locked.
@@ -382,7 +277,7 @@ private:
 	if (const lass::util::impl::GenericLockerBase& lassUtilImplGenericLocker =\
 		lass::util::impl::makeGenericLocker(iLock))\
 	{\
-		LASS_ASSERT(false);\
+		LASS_ASSERT_UNREACHABLE;\
 	}\
 	else
 

@@ -43,6 +43,7 @@ namespace clone_factory
 	{
 	public:
 		Base(const std::string& iName): name_(iName) {}
+		virtual ~Base() {}
 		virtual std::string who() const { return std::string("Base ") + name_; }
 		virtual Base* clone() const { return new Base(*this); }
 	protected:

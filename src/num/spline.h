@@ -53,6 +53,8 @@ public:
 	typedef ScalarType TScalar;
 	typedef DataType TData;
 
+	virtual ~Spline() {}
+
 	virtual const TData operator()(TScalar iX) const = 0;
 	virtual const TData derivative(TScalar iX) const = 0;
 	virtual const TData derivative2(TScalar iX) const = 0;

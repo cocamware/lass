@@ -128,6 +128,9 @@ private:
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon);
 
+template <typename T, class DP>
+std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon);
+
 /** C = A \ B */
 template <typename T, class DP>
 bool set_difference(const SimplePolygon2D<T, DP>& iPolygonA,const SimplePolygon2D<T, DP>& iPolygonB, std::vector<SimplePolygon2D<T, DP> >& oPolygonsC);

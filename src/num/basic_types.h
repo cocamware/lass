@@ -29,7 +29,7 @@
 #include "num_common.h"
 #include "../meta/meta_assert.h"
 
-#if defined(LASS_COMPATIBLE_INTEGERS_STDINT)
+#if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)
 #	include <stdint.h>
 #endif
 
@@ -38,7 +38,7 @@ namespace lass
 namespace num
 {
 
-#if defined(LASS_COMPATIBLE_INTEGERS_STDINT)
+#if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)
 
 	typedef int8_t Tint8;
 	typedef uint8_t Tuint8;
@@ -49,7 +49,7 @@ namespace num
 	typedef int64_t Tint64;
 	typedef uint64_t Tuint64;
 
-#elif defined(LASS_COMPATIBLE_INTEGERS_MSVC_STYLE)
+#elif defined(LASS_NUM_BASIC_TYPES_HAVE_MSVC)
 
 	typedef __int8 Tint8;
 	typedef unsigned __int8 Tuint8;
@@ -80,7 +80,7 @@ typedef double Tfloat64;	/**< 64-bit floating point */
 
 
 
-template <size_t iNumberOfBits> struct BasicType;
+template <size_t iNumberOfBits> struct BasicType {};
 template <> struct BasicType< 8> { typedef Tint8  Tint; typedef Tuint8  Tuint; };
 template <> struct BasicType<16> { typedef Tint16 Tint; typedef Tuint16 Tuint; };
 template <> struct BasicType<32> { typedef Tint32 Tint; typedef Tuint32 Tuint; typedef Tfloat32 Tfloat; };

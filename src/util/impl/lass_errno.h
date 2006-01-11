@@ -24,25 +24,26 @@
  */
 
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ERRNO_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ERRNO_H
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_CYGWIN_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_CYGWIN_H
-
-
-#define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_CYGWIN
-#define LASS_PLATFORM "Cygwin"
-#define LASS_LIB_PLATFORM "Cygwin"
-
-#define LASS_LITTLE_ENDIAN  1
-#define LASS_BIG_ENDIAN 0
-
-#define LASS_UTIL_THREAD_HAVE_POSIX
+#include "../util_common.h"
 
 namespace lass
 {
+namespace util
+{
+namespace impl
+{
 
-const int bitsPerByte = 8;
-
+const int lass_errno();
+void lass_reset_errno();
+const std::string lass_strerror(int iErrorNumber);
+ 
+}
+}
 }
 
 #endif
+
+// EOF

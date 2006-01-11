@@ -30,7 +30,8 @@
 
 #include "prim_common.h"
 #include "triangle_2d.h"
-#include "ray_2d.h"
+#pragma LASS_FIXME("We should try to get rid of the line dependency [Bramz]")
+#include "line_2d.h"
 
 namespace lass
 {
@@ -320,7 +321,22 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTria
 	return ioOStream;
 }
 
-/** Returns the surface of the partial Voronoi cell constructed around vertex 
+
+
+/** @relates lass::prim::Triangle2D
+ */
+template <typename T>
+std::ostream& operator<<(std::ostream& ioOStream, const Triangle2D<T>& iTriangle)
+{
+	LASS_ENFORCE_STREAM(ioOStream) 
+		<< "{" << iTriangle[0] << ", " << iTriangle[1] << ", " << iTriangle[2] << "}";
+	return ioOStream;
+}
+
+
+
+/** @relates lass::prim::Triangle2D
+*   Returns the surface of the partial Voronoi cell constructed around vertex 
 *   iIndexOfVertex (say vertex a in triangle abc).  Then the surface is determined by
 *   the quad built by a, the two midpoints on ab and ac and the intersection of the two
 *	perpendicular bisectors.
@@ -329,9 +345,9 @@ template <typename T>
 T partialVoronoiArea(const Triangle2D<T> iT, int iIndexOfVertex)
 {
 	// compute the two midpoints
-	typedef Triangle2D<T>::TPoint	TPoint;
-	typedef Triangle2D<T>::TPointH	TPointH;
-	typedef Triangle2D<T>::TVector	TVector;
+	typedef typename Triangle2D<T>::TPoint	TPoint;
+	typedef typename Triangle2D<T>::TPointH	TPointH;
+	typedef typename Triangle2D<T>::TVector	TVector;
 	typedef Line2D<T> TLine;
 	TPoint a = iT.at(iIndexOfVertex);
 	TPoint b = iT.at(iIndexOfVertex+1);

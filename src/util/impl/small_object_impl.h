@@ -138,10 +138,6 @@ public:
 	{
 		void* const result = doAllocate(iSize);
 		allocatedObjects_.insert(result);
-		if (result == (void*)0x01121B00)
-		{
-			int a = 5;
-		}
 		return result;
 	}
 

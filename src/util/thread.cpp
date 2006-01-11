@@ -26,30 +26,245 @@
 #include "util_common.h"
 #include "thread.h"
 
+#if defined(LASS_UTIL_THREAD_HAVE_POSIX)
+#	include "impl/thread_posix.inl"
+#elif defined(LASS_UTIL_THREAD_HAVE_WIN32)
+#	include "impl/thread_win32.inl"
+#else
+#	error "Threading not supported for this platform"
+#endif
+
 namespace lass
 {
 namespace util
 {
 
+// --- Mutex ---------------------------------------------------------------------------------------
 
-MutexLocker::MutexLocker( Mutex& iMutex ) : m_mutex(iMutex)
+Mutex::Mutex(void )
 {
-	m_mutex.lock();
+	pimpl_ = new impl::MutexInternal;
 }
+
+Mutex::~Mutex(void)
+{
+	LASS_ASSERT(pimpl_);
+	LASS_ASSERT(pimpl_->lockCount() == 0);
+	if (pimpl_->lockCount() > 0)
+	{
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+			<< "destroying a CriticalSection that still has " 
+			<< pimpl_->lockCount() << "locks." << std::endl;
+	}
+	delete pimpl_;
+	pimpl_ = 0;
+}
+
+void Mutex::lock()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
+}
+
+const LockResult Mutex::tryLock()
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
+}
+
+void Mutex::unlock()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
+}
+
+const bool Mutex::isLocked() const
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
+}
+
+
+
+// --- MutexLocker ---------------------------------------------------------------------------------
+
+MutexLocker::MutexLocker( Mutex& iMutex ) : 
+	mutex_(iMutex)
+{
+	mutex_.lock();
+}
+
 MutexLocker::~MutexLocker()
 {
-	m_mutex.unlock();
+	try
+	{
+		mutex_.unlock();
+	}
+	catch (std::exception& error)
+	{
+		std::cerr << "[LASS RUN MSG] WARNING: exception thrown in ~MutexLocker(): "
+			<< error.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "[LASS RUN MSG] WARNING: unknown exception thrown in ~MutexLocker()" 
+			<< std::endl;
+	}
 }
 
-CriticalSectionLocker::CriticalSectionLocker( CriticalSection& iCriticalSection) : m_criticalsection(iCriticalSection)
+
+
+// --- CriticalSection -----------------------------------------------------------------------------
+
+CriticalSection::CriticalSection(void )
 {
-	m_criticalsection.lock();
+	pimpl_ = new impl::CriticalSectionInternal;
 }
+
+CriticalSection::~CriticalSection(void)
+{
+	LASS_ASSERT(pimpl_);
+	LASS_ASSERT(pimpl_->lockCount() == 0);
+	if (pimpl_->lockCount() > 0)
+	{
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+			<< "destroying a CriticalSection that still has " 
+			<< pimpl_->lockCount() << "locks." << std::endl;
+	}
+	delete pimpl_;
+	pimpl_ = 0;
+}
+
+void CriticalSection::lock()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
+}
+
+const LockResult CriticalSection::tryLock()
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
+}
+
+void CriticalSection::unlock()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
+}
+
+const bool CriticalSection::isLocked() const
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
+}
+
+
+
+// --- CriticalSectionLocker -----------------------------------------------------------------------
+
+CriticalSectionLocker::CriticalSectionLocker( CriticalSection& iCriticalSection) :
+	criticalSection_(iCriticalSection)
+{
+	criticalSection_.lock();
+}
+
 CriticalSectionLocker::~CriticalSectionLocker()
 {
-	m_criticalsection.unlock();
+	try
+	{
+		criticalSection_.unlock();
+	}
+	catch (std::exception& error)
+	{
+		std::cerr << "[LASS RUN MSG] WARNING: exception thrown in ~CriticalSectionLocker(): "
+			<< error.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "[LASS RUN MSG] WARNING: unknown exception thrown in ~CriticalSectionLocker()" 
+			<< std::endl;
+	}
+}
+
+
+
+// --- Condition -----------------------------------------------------------------------------------
+
+Condition::Condition(void)
+{
+	pimpl_ = new impl::ConditionInternal;
+}
+
+Condition::~Condition(void)
+{
+	delete pimpl_;
+	pimpl_ = 0;
+}
+
+void Condition::wait()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->wait();
+}
+
+const WaitResult Condition::wait(unsigned long iMilliSeconds)
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->wait(iMilliSeconds);
+}
+
+void Condition::signal()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->signal();
+}
+
+void Condition::broadcast()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->broadcast();
+}
+
+
+
+// --- Thread --------------------------------------------------------------------------------------
+
+Thread::Thread(ThreadKind iKind)
+{
+	pimpl_ = new impl::ThreadInternal(*this, iKind);
+}
+
+Thread::~Thread()
+{
+	delete pimpl_;
+	pimpl_ = 0;
+}
+
+void Thread::run()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->run();
+}
+
+void Thread::join()
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->join();
+}
+
+void Thread::sleep(unsigned long iMilliSeconds)
+{
+	impl::ThreadInternal::sleep(iMilliSeconds);
+}
+
+void Thread::yield()
+{
+	impl::ThreadInternal::yield();
 }
 
 
 }
 }
+
+// EOF

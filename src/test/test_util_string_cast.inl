@@ -55,7 +55,9 @@ void testUtilStringCast()
 	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(five), "5");
 
 	void* p = reinterpret_cast<void*>(0x1a2b3c4d);
-	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(p), "1A2B3C4D");
+	std::stringstream reference;
+	reference << p;
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(p), reference.str());
 }
 
 

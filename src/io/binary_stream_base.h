@@ -61,7 +61,7 @@ public:
 protected:
 
 	BinaryStreamBase(num::Endianness iEndianness = num::littleEndian);
-	~BinaryStreamBase();
+	virtual ~BinaryStreamBase();
 
 private:
 

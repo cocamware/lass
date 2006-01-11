@@ -28,6 +28,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 #define LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 
+
+
 /** @def LASS_PYTHON_HAS_DEBUG_BUILD
  *  @brief Define this one if your Python distribution has a debug build that can be used for the
  *      debug build of Lass.  If not, the release build of Python will be used instead.
@@ -61,15 +63,6 @@
  *           not want to compile, or you'll have bad performance on some stuff.
  */
 #define LASS_BOOST_IF_BROKEN
-
-/** @def LASS_CHAR_IS_SIGNED
- *  Define this if you want the "char" type to be the "equivalent" of the "signed char".
- *  This is implementation dependent and can be set in the compiler options.  The default
- *  assumes the "unsigned char" and hence there is no need to define the "LASS_CHAR_IS_SIGNED".
- */
-//#define LASS_CHAR_IS_SIGNED
-
-
 
 // go check compiler and platform support
 //

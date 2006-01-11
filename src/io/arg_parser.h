@@ -219,8 +219,8 @@ private:
 	void checkMode(int iArgMode) const;
 
 	TValues values_;
-	TValue default_;
 	std::string description_;
+	TValue default_;
 	bool hasDefault_;
 };
 

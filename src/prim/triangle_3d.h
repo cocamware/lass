@@ -105,6 +105,8 @@ private:
 
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTriangle);
+template <typename T, class DP>
+std::ostream& operator<<(std::ostream& ioOStream, const Triangle3D<T>& iTriangle);
 
 
 

@@ -46,12 +46,11 @@ template <typename T> void testPrimVector2D()
 {
 	using namespace prim;
 
-	T a0 = T(1), a1 = T(2);
-	T b0 = T(3), b1 = T(4);
-	T zero = Vector2D<T>::TNumTraits::zero;
-	T one = Vector2D<T>::TNumTraits::one;
-	T two = T(2), half = one / two;
-	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
+	const T a0 = T(1), a1 = T(2);
+	const T b0 = T(3), b1 = T(4);
+	const T one = Vector2D<T>::TNumTraits::one;
+	const T two = T(2), half = one / two;
+	const T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector2D<T> a;
 	LASS_TEST_CHECK(a.isZero());
@@ -102,12 +101,12 @@ template <typename T> void testPrimVector3D()
 {
 	using namespace prim;
 
-	T a0 = T(1), a1 = T(2), a2 = T(3);
-	T b0 = T(4), b1 = T(5), b2 = T(6);
-	T zero = Vector3D<T>::TNumTraits::zero;
-	T one = Vector3D<T>::TNumTraits::one;
-	T two = T(2), half = one / two;
-	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
+	const T a0 = T(1), a1 = T(2), a2 = T(3);
+	const T b0 = T(4), b1 = T(5), b2 = T(6);
+	const T zero = Vector3D<T>::TNumTraits::zero;
+	const T one = Vector3D<T>::TNumTraits::one;
+	const T two = T(2), half = one / two;
+	const T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector3D<T> a;
 	LASS_TEST_CHECK(a.isZero());
@@ -165,12 +164,11 @@ template <typename T> void testPrimVector4D()
 {
 	using namespace prim;
 
-	T a0 = T(1), a1 = T(2), a2 = T(3), a3 = T(4);
-	T b0 = T(4), b1 = T(5), b2 = T(6), b3 = T(7);
-	T zero = Vector3D<T>::TNumTraits::zero;
-	T one = Vector3D<T>::TNumTraits::one;
-	T two = T(2), half = one / two;
-	T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
+	const T a0 = T(1), a1 = T(2), a2 = T(3), a3 = T(4);
+	const T b0 = T(4), b1 = T(5), b2 = T(6), b3 = T(7);
+	const T one = Vector3D<T>::TNumTraits::one;
+	const T two = T(2), half = one / two;
+	const T epsilon = T(LASS_TEST_PRIM_VECTORS_EPSILON);
 
 	Vector4D<T> a;
 	LASS_TEST_CHECK(a.isZero());

@@ -53,12 +53,12 @@ IdGenerator<T>::IdGenerator( typename CallTraits<T>::TParam iFirstId ):
  *  Each call to this operator will give you a new ID incremented by one.
  *  @throw an exception is thrown if the generator can no longer increment the id field.
  *      Since the generator stores the id that will be returned on the next call, this means
- *      the maximum id returned will be @c num::NumTraits<T>::max
+ *      the maximum id returned will be @c num::NumTraits<T>::max-1
  */
 template <typename T>
 typename CallTraits<T>::TValue IdGenerator<T>::operator()()
 {
-	const typename CallTraits<T>::TValue result(nextId_);
+	const typename CallTraits<T>::TValue result = nextId_;
 	++nextId_;
 	if (nextId_ < result)
 	{

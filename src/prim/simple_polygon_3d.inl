@@ -700,6 +700,25 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon3D<T, E
 	return ioOStream;
 }
 
+/** @relates lass::prim::SimplePolygon3D
+ */
+template <typename T, class EP, class NP>
+std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon3D<T, EP, NP>& iPolygon)
+{
+	const size_t n = iPolygon.size();
+	LASS_ENFORCE_STREAM(ioOStream) << "{";
+	if (n > 0)
+	{
+		ioOStream << iPolygon[0];
+	}	
+	for (size_t i = 1; i < n; ++i)
+	{
+		ioOStream << ", " << iPolygon[i];
+	}
+	ioOStream << "}";
+	return ioOStream;
+}
+
 
 
 }

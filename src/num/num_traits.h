@@ -30,7 +30,7 @@
 #include "num_common.h"
 #include "../util/call_traits.h"
 
-#ifdef LASS_ISNAN_MSVC_FLOAT_H
+#ifdef LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 #	include <float.h>
 #endif
 
@@ -79,7 +79,7 @@ struct LASS_DLL NumTraits
 template<class C> inline
 bool isNaN( const C& iV )
 {
-#ifdef LASS_ISNAN_MSVC_FLOAT_H
+#ifdef LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 	return NumTraits<C>::hasNaN && _isnan(static_cast<double>(iV)) != 0;
 #else
 	return iV != iV;

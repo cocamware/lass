@@ -118,7 +118,7 @@ template <unsigned N, typename T>
 Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther)
 {
 	value_ += iOther.value_;
-	if (value_ >= N)
+	if (value_ >= static_cast<T>(N))
 	{
 		value_ -= N;
 	}

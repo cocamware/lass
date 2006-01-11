@@ -38,7 +38,8 @@
  *  foo(5, "hello");
  *
  *  // through thread
- *  Thread* thread = threadFun(foo, 5, "hello");
+ *  threadFun(foo, 5, "hello")->run();
+ * 
  *  @endcode
  *
  *  threadFun2 allocates a new thread with the necessary information to call the function,
@@ -50,10 +51,12 @@
  *
  *  @code
  *  // run two threads at the same time.
- *  util::ScopedPtr<Thread> a = threadFun(foo, 5, "hello", THREAD_JOINABLE);
- *  util::ScopedPtr<Thread> b = threadFun(foo, 6, "world!", THREAD_JOINABLE);
- *  a->wait();
- *  b->wait();
+ *  util::ScopedPtr<Thread> a = threadFun(foo, 5, "hello", threadJoinable);
+ *  util::ScopedPtr<Thread> b = threadFun(foo, 6, "world!", threadJoinable);
+ *  a->run();
+ *  b->run();
+ *  a->join();
+ *  b->join();
  *  @endcode
  *
  *  You can also call member functions of specific objects in the thread, both const as non-const
@@ -67,10 +70,12 @@
  *  };
  *
  *  Bar bar;
- *  util::ScopedPtr<Thread> a = threadFun(bar, Bar::fun, 3.14, THREAD_JOINABLE);
- *  util::ScopedPtr<Thread> b = threadFun(bar, Bar::beer, THREAD_JOINABLE);
- *  a->wait();
- *  b->wait();
+ *  util::ScopedPtr<Thread> a = threadFun(bar, Bar::fun, 3.14, threadJoinable);
+ *  util::ScopedPtr<Thread> b = threadFun(bar, Bar::beer, threadJoinable);
+ *  a->run();
+ *  b->run();
+ *  a->join();
+ *  b->join();
  *  @endcode
  *
  *  Limitations:
@@ -104,21 +109,21 @@ namespace util
 class ThreadFun0: public Thread
 {
 public:
-	ThreadFun0(const Callback0& iFun, ThreadKind iKind = THREAD_DETACHED);
-	virtual void* entry();
+	ThreadFun0(const Callback0& iFun, ThreadKind iKind = threadDetached);
 private:
+	void doRun();
 	Callback0 fun_;
 };
 
 template <typename Function>
 ThreadFun0* threadFun(
 	Function iFunction,
-	ThreadKind iKind = THREAD_DETACHED);
+	ThreadKind iKind = threadDetached);
 
 template <typename ObjectPtr, typename Method>
 ThreadFun0* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
-	ThreadKind iKind = THREAD_DETACHED);
+	ThreadKind iKind = threadDetached);
 
 
 
@@ -135,9 +140,9 @@ class ThreadFun$x: public Thread
 public:
 	ThreadFun$x(const Callback$x<$(P$x)$>& iFun,
 			   $(typename CallTraits<P$x>::TParam iP$x)$,
-			   ThreadKind iKind = THREAD_DETACHED);
-	virtual void* entry();
+			   ThreadKind iKind = threadDetached);
 private:
+	void doRun();
 	Callback$x<$(P$x)$> fun_;$(
 	typename meta::TypeTraits<P$x>::TStorage p$x_;)$
 };
@@ -146,13 +151,13 @@ template <$(typename P$x)$, typename Function>
 ThreadFun$x<$(P$x)$>* threadFun(
 	Function iFunction,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind = THREAD_DETACHED);
+	ThreadKind iKind = threadDetached);
 
 template <$(typename P$x)$, typename ObjectPtr, typename Method>
 ThreadFun$x<$(P$x)$>* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind = THREAD_DETACHED);
+	ThreadKind iKind = threadDetached);
 ]$
 
 }

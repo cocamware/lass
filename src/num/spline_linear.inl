@@ -330,7 +330,6 @@ template <typename S, typename D, typename T>
 const typename SplineLinear<S, D, T>::TNodeConstIterator
 SplineLinear<S, D, T>::findNode(TScalar iX) const
 {
-	const typename TNodes::size_type size = nodes_.size();
 	LASS_ASSERT(nodes_.size() >= 2);
 
 	// early outs

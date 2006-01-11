@@ -617,6 +617,25 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, D
 }
 
 
+/** @relates lass::prim::SimplePolygon2D
+ */
+template <typename T, class DP>
+std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon)
+{
+	const size_t n = iPolygon.size();
+	LASS_ENFORCE_STREAM(ioOStream) << "{";
+	if (n > 0)
+	{
+		ioOStream << iPolygon[0];
+	}	
+	for (size_t i = 1; i < n; ++i)
+	{
+		ioOStream << ", " << iPolygon[i];
+	}
+	ioOStream << "}";
+	return ioOStream;
+}
+
 
 }
 

@@ -51,10 +51,9 @@ ThreadFun0::ThreadFun0(
 
 
 inline
-void* ThreadFun0::entry()
+void ThreadFun0::doRun()
 {
 	fun_();
-	return 0;
 }
 
 
@@ -67,10 +66,7 @@ ThreadFun0* threadFun(
 	Function iFunction,
 	ThreadKind iKind)
 {
-	ThreadFun0* result = new ThreadFun0(Callback0(iFunction), iKind);
-	result->create();
-	result->run();
-	return result;
+	return new ThreadFun0(Callback0(iFunction), iKind);
 }
 
 
@@ -83,10 +79,7 @@ ThreadFun0* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	ThreadKind iKind)
 {
-	ThreadFun0* result = new ThreadFun0(Callback0(iObject, iMethod), iKind);
-	result->create();
-	result->run();
-	return result;
+	return new ThreadFun0(Callback0(iObject, iMethod), iKind);
 }
 
 
@@ -109,10 +102,9 @@ ThreadFun$x<$(P$x)$>::ThreadFun$x(
 
 
 template <$(typename P$x)$>
-void* ThreadFun$x<$(P$x)$>::entry()
+void ThreadFun$x<$(P$x)$>::doRun()
 {
 	fun_($(p$x_)$);
-	return 0;
 }
 
 
@@ -126,11 +118,7 @@ ThreadFun$x<$(P$x)$>* threadFun(
 	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
-	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFunction), $(iP$x)$, iKind);
-	result->create();
-	result->run();
-	return result;
+	return new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFunction), $(iP$x)$, iKind);
 }
 
 
@@ -144,11 +132,7 @@ ThreadFun$x<$(P$x)$>* threadMemFun(
 	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
-	ThreadFun$x<$(P$x)$>* result =
-		new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
-	result->create();
-	result->run();
-	return result;
+	return new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
 }
 
 

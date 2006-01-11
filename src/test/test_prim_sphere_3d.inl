@@ -33,8 +33,6 @@
 
 #include "../prim/sphere_3d.h"
 
-#define LASS_TEST_PRIM_SPHERE_3D_EPSILON 1e-5
-
 namespace lass
 {
 namespace test
@@ -51,7 +49,6 @@ void testPrimSphere3D()
 	typedef prim::Vector3D<T> TVector;
 	typedef num::NumTraits<T> TNumTraits;
 
-	const T epsilon = T(LASS_TEST_PRIM_RAY_EPSILON);
 	const TPoint origin;
 
 	TSphere sphere;

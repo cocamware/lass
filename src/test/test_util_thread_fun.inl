@@ -34,76 +34,92 @@
 #include "../util/thread_fun.h"
 #include "../util/scoped_ptr.h"
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#	include <windows.h>
-#else
-#	include <time.h>
-#endif
-
 namespace lass
 {
 namespace test
 {
 namespace thread_test
 {
-
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-	void sleep(int iMilliSeconds)
-	{
-		Sleep(iMilliSeconds);
-	}
-#else
-	void sleep(int iMilliSeconds)
-	{
-		timespec timeOut, remains;
-		timeOut.tv_sec = 0;
-		timeOut.tv_nsec = iMilliSeconds * 1000000;
-		nanosleep(&timeOut, &remains);
-	}
-#endif
-
 	bool functionIsCalled = false;
 
-	void foo(int a, int b) { functionIsCalled = true; }
+	void foo(int a, int b) 
+	{ 
+		std::cerr << "i'm foo!\n";
+		util::Thread::sleep(500); 
+		functionIsCalled = true; 
+	}
+	
 	class Bar
 	{
 	public:
-		void spam() { functionIsCalled = true; }
-		void ham(int a) const { functionIsCalled = true; }
+		void spam() 
+		{ 
+			util::Thread::sleep(500); 
+			functionIsCalled = true; 
+		}
+		void ham(int a) const 
+		{ 
+			util::Thread::sleep(500); 
+			functionIsCalled = true; 
+		}
 	};
 
-	void eggs() { sleep(10); functionIsCalled = true;}
+	void eggs() 
+	{ 
+		std::cerr << "cooking eggs ...\n";
+		util::Thread::sleep(100); 
+		std::cerr << "eggs are cooked!\n"; 
+		functionIsCalled = true;
+	}
 }
 
 void testUtilThreadFun()
 {
+	LASS_COUT << "thread foo ...\n";
 	thread_test::functionIsCalled = false;
-	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::THREAD_JOINABLE));
-	thread->wait();
+	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
 	thread_test::Bar bar;
 
+	LASS_COUT << "thread spam ...\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::THREAD_JOINABLE));
-	thread->wait();
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
+	LASS_COUT << "thread ham\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::THREAD_JOINABLE));
-	thread->wait();
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
+	LASS_COUT << "thread ham via makeCallback ...\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::THREAD_JOINABLE));
-	thread->wait();
+	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
-
+	LASS_COUT << "thread eggs ...\n";
 	thread_test::functionIsCalled = false;
-	util::threadFun(thread_test::eggs);
+	util::threadFun(thread_test::eggs, util::threadDetached)->run();
 	LASS_TEST_CHECK(!thread_test::functionIsCalled);
-	thread_test::sleep(100);
+	LASS_COUT << "sleeping\n";
+	util::Thread::sleep(1000);
+	LASS_COUT << "finishing\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 }
 

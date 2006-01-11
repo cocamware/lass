@@ -34,10 +34,10 @@
 #include "../util/stop_watch.h"
 
 #include <ctime>
-#ifndef CLK_TCK
-#	include <unistd.h>
-#	define CLK_TCK sysconf(_SC_CLK_TCK)
-#endif
+//#ifndef CLK_TCK
+//#	include <unistd.h>
+//#	define CLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
+//#endif
 
 namespace lass
 {
@@ -59,29 +59,32 @@ void testUtilClock()
 
 	double testSeconds = 1;
 
-	const ::clock_t stdBegin = ::clock();
-	const ::clock_t stdEnd = stdBegin + static_cast< ::clock_t >(testSeconds * CLK_TCK);
+	const std::clock_t stdBegin = std::clock();
+	const std::clock_t stdEnd = stdBegin + static_cast< std::clock_t >(testSeconds * CLOCKS_PER_SEC);
 
-	while (::clock() <= stdBegin)
+	LASS_EVAL(std::clock());
+	while (std::clock() <= stdBegin)
 	{
 		++i;
 	}
 	const util::Clock::TTime dutBegin = deviceUnderTest.time();
 	LASS_EVAL(i);
 
-	while (::clock() <= stdEnd)
+	LASS_EVAL(std::clock());
+	while (std::clock() <= stdEnd)
 	{
 		++i;
 	}
 	const util::Clock::TTime dutEnd = deviceUnderTest.time();
 	LASS_EVAL(i);
+	LASS_EVAL(std::clock());
 
 	LASS_EVAL(stdBegin);
 	LASS_EVAL(stdEnd);
 	LASS_EVAL(dutBegin);
 	LASS_EVAL(dutEnd);
 
-	LASS_TEST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, (10. / CLK_TCK));
+	LASS_TEST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, (10. / CLOCKS_PER_SEC));
 
 
 	const util::Clock::TTick tick1 = deviceUnderTest.tick();

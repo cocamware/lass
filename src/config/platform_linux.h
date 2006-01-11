@@ -30,11 +30,13 @@
 
 
 #define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_LINUX
-#define LASS_PLATFORM "Linux"
-#define LASS_LIB_PLATFORM "Linux"
+#define LASS_PLATFORM "linux"
+#define LASS_LIB_PLATFORM "linux"
+
 #define LASS_LITTLE_ENDIAN  1
 #define LASS_BIG_ENDIAN 0
-#define LASS_THREAD_POSIX
+
+#define LASS_UTIL_THREAD_HAVE_POSIX
 
 namespace lass
 {

@@ -31,6 +31,13 @@
 #include "../io/file_attribute.h"
 #include <fstream>
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	define LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_FORWARD_SLASHES
+#	define LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_BACKWARD_SLASHES
+#else
+#	define LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_FORWARD_SLASHES
+#endif
+
 namespace lass
 {
 namespace test
@@ -59,31 +66,40 @@ void testIoFileAttributes()
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar."), "foo.bar");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutExtension("foo.bar.fun"), "foo.bar");
 
+	#ifdef LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_FORWARD_SLASHES
 	LASS_TEST_CHECK_EQUAL(io::filePath(""), "");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo"), "");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo/"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar/"), "foo/bar");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo/bar/fun"), "foo/bar");
+	#endif
+	#ifdef LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_BACKWARD_SLASHES
 	LASS_TEST_CHECK_EQUAL(io::filePath(""), "");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo"), "");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar\\"), "foo\\bar");
 	LASS_TEST_CHECK_EQUAL(io::filePath("foo\\bar\\fun"), "foo\\bar");
-
+	#endif
+	
+	#ifdef LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_FORWARD_SLASHES
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath(""), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/"), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar"), "bar");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/"), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo/bar/fun"), "fun");
+	#endif
+	#ifdef LASS_TEST_IO_FILE_ATTRIBUTES_HAVE_BACKWARD_SLASHES
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath(""), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo"), "foo");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\"), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar"), "bar");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\"), "");
 	LASS_TEST_CHECK_EQUAL(io::fileWithoutPath("foo\\bar\\fun"), "fun");
+	#endif
+
 }
 
 }

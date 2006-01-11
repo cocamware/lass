@@ -69,7 +69,8 @@ def clean_unix():
 
 	files_to_be_removed = ['aclocal.m4', 'config.guess', 'config.h', 'config.h.in', 'config.log', 
 		'config.status', 'config.sub', 'configure', 'configure.ac', 'depcomp', 'install-sh',
-		'libtool', 'ltmain.sh', 'missing', 'mkinstalldirs', 'stamp-h1', 'tmp', 'lass-0.1.tar.gz']
+		'libtool', 'ltmain.sh', 'missing', 'mkinstalldirs', 'stamp-h1', 'tmp', 
+		'lass-?.?.?.pc.in', 'lass-?.?.?.tar.gz']
 	files_to_be_removed += [os.path.join('src', x) for x in generated_files]
 	for x in files_to_be_removed:
 		try:
@@ -88,7 +89,7 @@ def clean_unix():
 				os.remove(os.path.join(dirname, f))
 	os.path.walk('.', file_destroyer, files_to_be_searched_and_destroyed)
 	
-	extensions_to_be_searched_and_destroyed = ['o', 'lo', 'Po', 'Plo', 'a', 'la', 'Pa', 'Pla']
+	extensions_to_be_searched_and_destroyed = ['am', 'in', 'o', 'lo', 'Po', 'Plo', 'a', 'la', 'Pa', 'Pla', 'gz']
 	def extension_destroyer(targets, dirname, files):
 		for f in files:
 			ext = os.path.splitext(f)[1]

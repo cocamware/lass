@@ -28,6 +28,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_ENFORCER_IMPL_H
 
 #include "../util_common.h"
+#include "lass_errno.h"
 
 namespace lass
 {
@@ -86,7 +87,7 @@ struct StreamPredicate
  *  @internal
  *  @author Bram de Greve [Bramz].
  *
- *  checks iObj against -1.  Handles are assumed to return -1 as error code.  If a handle equals
+ *  checks iHandle against -1.  Handles are assumed to return -1 as error code.  If a handle equals
  *  -1, then something is wrong and the predicate will return true (the enforce will raise).
  *  For any other value of the handle, the enforcer will not raise and the program will continue.
  *
@@ -98,6 +99,66 @@ struct HandlePredicate
 	static bool LASS_CALL wrong(const T& iHandle)
 	{
 		return iHandle == -1;
+	}
+};
+
+
+
+/** Predicate for zero enforcers, used by LASS_ENFORCE_ZERO.
+ *  @internal
+ *  @author Bram de Greve [Bramz].
+ *
+ *  This is usefull for functions that return zero for success.  The predicate will check the
+ *  value against zero, and if it's different then the predicate will be raised.  If it is zero
+ *  The predicate will not raise and the program will continue.
+ *
+ *  @pre type T must be comparable (operator==) to zero.
+ */
+struct ZeroPredicate
+{
+	template <typename T>
+	static bool LASS_CALL wrong(const T& iResult)
+	{
+		return iResult != 0;
+	}
+};
+
+
+
+/** Predicate for clib enforcers, used by LASS_ENFORCE_CLIB.
+ *  @internal
+ *  @author Bram de Greve [Bramz].
+ *
+ *  This is usefull for functions that return -1 for failure.  The predicate will check the
+ *  value against -1, and if it's equal then the predicate will be raised.  If it is any
+ *  other value, the predicate will not raise and the program will continue.
+ *
+ *  @pre type T must be comparable (operator==) to -1.
+ */
+struct ClibPredicate
+{
+	template <typename T>
+	static bool LASS_CALL wrong(const T& iResult)
+	{
+		return iResult == -1;
+	}
+};
+
+
+
+/** Predicate for calls to COM interfaces, used by LASS_ENFORCE_COM
+ *  @internal
+ *  @author Bram de Greve[Bramz]
+ *
+ *  This predicate checks if the HRESULT return value of a COM call is non-negative (0 or more).
+ *  It returns true if the return value is negative, so the enforcer will raise.
+ */
+struct ComPredicate
+{
+	template <typename T>
+	static bool LASS_CALL wrong(const T& iHResult)
+	{
+		return iHResult < 0;
 	}
 };
 
@@ -151,24 +212,6 @@ struct IndexPredicate<0>
 
 
 
-/** Predicate for calls to COM interfaces, used by LASS_ENFORCE_COM
- *  @internal
- *  @author Bram de Greve[Bramz]
- *
- *  This predicate checks if the HRESULT return value of a COM call is non-negative (0 or more).
- *  It returns true if the return value is negative, so the enforcer will raise.
- */
-struct ComPredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iHResult)
-	{
-		return iHResult < 0;
-	}
-};
-
-
-
 // --- Raisers -------------------------------------------------------------------------------------
 
 /** Throw a runtime error
@@ -198,29 +241,71 @@ struct DefaultRaiser
 
 
 
-/** Throw a range error for LASS_ENFORCE_INDEX.
+inline void raiserAddMessage(std::ostringstream& oBuffer, const std::string& iMessage)
+{
+	if (!iMessage.empty())
+	{
+		oBuffer << ":\n" << iMessage;
+	}
+}
+
+
+/** Throws an run time exception for raising LASS_ENFORCE_ZERO
  *  @internal
  *  @author Bram de Greve.
- *  @pre type T must be streamable to a std::ostream.
  */
-template <size_t size>
-struct IndexRaiser
+struct ZeroRaiser
 {
 	template <typename T>
-	static void raise(const T& iIndex, const std::string& iMessage,
-					  const char* iLocus)
+	static void raise(const T& iResult, const std::string& iMessage, const char* iLocus)
 	{
-		std::ostringstream locus;
-		locus << "Value '" << iIndex << "' out of range [0, " << size << ") in '" << iLocus << "'";
+		std::ostringstream buffer;
+		buffer << "Expression " << iLocus << " resulted in a non-zero value '" << iResult << "'";
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
+	}
+};
 
-		if (iMessage.empty())
-		{
-			LASS_THROW(locus.str());
-		}
-		else
-		{
-			LASS_THROW(locus.str() << ":\n" << iMessage);
-		}
+
+
+/** Throws a run time exception for raisng LASS_ENFORCE_CLIB.
+ *  @internal
+ *  @author Bram de Greve
+ *  retrieves an error code from errno.  iRc should be -1.
+ */
+ struct ClibRaiser
+ {
+ 	template <typename T>
+	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
+	{
+		LASS_ASSERT(iRc == -1);
+		const int errnum = lass_errno();
+		std::ostringstream buffer;
+		buffer << "Function call " << iLocus << " failed with errno: ("
+			<< errnum << ") " << lass_strerror(errnum);			
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
+	}
+};
+
+
+
+/** Throws a run time exception for raisng LASS_ENFORCE_CLIB_RC.
+ *  @internal
+ *  @author Bram de Greve
+ *  iRc contains error code and should not be zero.
+ */
+ struct ClibRcRaiser
+ {
+ 	template <typename T>
+	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
+	{
+		LASS_ASSERT(iRc != 0);
+		std::ostringstream buffer;
+		buffer << "Function call " << iLocus << " failed with return code: ("
+			<< iRc << ") " << lass_strerror(iRc);			
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
 	}
 };
 
@@ -235,17 +320,31 @@ struct ComRaiser
 	template <typename T>
 	static void raise(const T& iHResult, const std::string& iMessage, const char* iLocus)
 	{
-		std::ostringstream locus;
-		locus << "Failure HRESULT '" << iHResult << "' returned by " << iLocus;
+		std::ostringstream buffer;
+		buffer << "Failure HRESULT '" << iHResult << "' returned by " << iLocus;
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
+	}
+};
 
-		if (iMessage.empty())
-		{
-			LASS_THROW(locus.str());
-		}
-		else
-		{
-			LASS_THROW(locus.str() << ":\n" << iMessage);
-		}
+
+
+/** Throw a range error for LASS_ENFORCE_INDEX.
+ *  @internal
+ *  @author Bram de Greve.
+ *  @pre type T must be streamable to a std::ostream.
+ */
+template <size_t size>
+struct IndexRaiser
+{
+	template <typename T>
+	static void raise(const T& iIndex, const std::string& iMessage,
+					  const char* iLocus)
+	{
+		std::ostringstream buffer;
+		buffer << "Value '" << iIndex << "' out of range [0, " << size << ") in '" << iLocus << "'";
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
 	}
 };
 
