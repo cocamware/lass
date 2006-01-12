@@ -27,7 +27,7 @@
 #include "lass_errno.h"
 
 #ifdef HAVE_CONFIG_H
-#	include "../../config.h"
+#	include "lass_auto_config.h"
 #endif
 #include <errno.h>
 #include <string.h>

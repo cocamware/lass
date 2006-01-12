@@ -48,7 +48,7 @@ def gather_sources(basedir, directories):
 	result = [f for f in result if check_extension(f, ('h', 'inl', 'cpp')) and not f in ignore_list]
 	
 	os.chdir(current)
-	print result
+	#print result
 	return result
 
 
@@ -72,36 +72,33 @@ def gather_headers(basedir, directories):
 	
 	
 def gather_extra_dist():
-	extensions = ('py', 'tmpl.h', 'tmpl.inl', 'tmpl.cpp')
+	extensions = ('py', 'tmpl.h', 'tmpl.inl', 'tmpl.cpp', 'sln', 'vcproj')
 	def walker(extra_dist, dirname, files):
 		d = dirname[2:]
 		extra_dist += [os.path.join(d, f) for f in files if max([f.endswith('.'+e) for e in extensions])]
 	
 	result = []
 	os.path.walk('.', walker, result)
-	#result += gather_headers('test')
+	result += ['src/test/mt19937ar.out']
+	result += ['docs/gpl.txt', 'docs/license.txt']
+	result += ['docs/Simple-Color.xsl', 'docs/sloc.xml']
+	result += ['docs/doxygen/footer.html', 'docs/doxygen/header.html', 'docs/doxygen/lass.doxygen', 'docs/doxygen/stylesheet.css']
+	result += ['docs/codestyle/codestyle.tex']
 	#result += gather_sources('test')
-	print result
+	#print result
 	return result
 	
 
 def write_configure():
+	print "- configure.ac"
 	configure=open('configure.ac','w+')
 	configure.write(r'''
-dnl --------------------------------
-dnl Initialization macros.
-dnl --------------------------------
-
 AC_PREREQ(2.59)
 AC_INIT(lass, %s.%s.%s, bramz@sourceforge.net)
-AM_CONFIG_HEADER(src/config.h)
+AM_CONFIG_HEADER(lass_auto_config.h)
 ''' % version)
 
 	configure.write(r'''
-dnl -----------------------------------------------
-dnl Package name and version number (user defined)
-dnl -----------------------------------------------
-
 GENERIC_LIBRARY_NAME=lass
 
 GENERIC_MAJOR_VERSION=%s
@@ -182,9 +179,10 @@ AC_OUTPUT(Makefile src/Makefile src/test/Makefile lass-1.0.0.pc)
 
 
 def write_makefile(extra_dist):
+	print "- Makefile.am"
 	makefile=open('Makefile.am','w+')
 	makefile.write(r'''
-AUTOMAKE_OPTIONS = foreign 1.4
+AUTOMAKE_OPTIONS = 1.7
 SUBDIRS = src
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -192,11 +190,20 @@ pkgconfig_DATA = lass-1.0.0.pc
 
 EXTRA_DIST=%s
 ''' % ' '.join(extra_dist))
+
+	makefile.write(r'''
+clean-local:
+	-rm -rf ./src/test/*.log
+	-rm -rf ./src/test/*.txt
+	-rm -rf ./src/test/*.xml
+	-rm -rf ./src/test/*.m
+''')
 	makefile.close()
 
 
 
 def write_src_makefile(sources_list, headers_dict):
+	print "- src/Makefile.am"
 	makefile=open('src/Makefile.am','w+')
 	
 	includes = ' '.join(['-I' + i for i in include_directories])
@@ -227,6 +234,7 @@ liblass_1_0_0_la_LDFLAGS = -lpython2.3 -lrt -lpthread -version-info $(GENERIC_LI
 	
 	
 def write_src_test_makefile(test_sources_list):
+	print "- src/test/Makefile.am"
 	makefile=open('src/test/Makefile.am','w+')
 	
 	includes = ' '.join(['-I' + i for i in include_directories])
@@ -237,15 +245,18 @@ INCLUDES= $(all_includes) %s
 	test_sources = ' '.join(test_sources_list)
 	makefile.write(r'''
 # test
-noinst_PROGRAMS = lass_test
+check_PROGRAMS = lass_test
 lass_test_SOURCES = %s
 lass_test_CPPFLAGS = -g -Wall
 lass_test_LDADD = ../liblass-1.0.0.la
+
+TESTS = lass_test
 ''' % test_sources)
 
 
 
 def write_pc_file():
+	print "- lass-1.0.0.pc.in"
 	pc_file = open('lass-1.0.0.pc.in', 'w')
 	pc_file.write(r'''
 prefix=@prefix@
@@ -263,16 +274,16 @@ Cflags: -I${includedir}/lass-1.0.0 -I${libdir}/lass-1.0.0/include
 
 
 
-def build():
-	print "LIBTOOLIZE"
+def autogen():
+	print "- libtoolize"
         os.system('libtoolize --force')
-	print "ACLOCAL"
+	print "- aclocal"
 	os.system('aclocal')
-	print "AUTOCONF"
+	print "- autoconf"
 	os.system('autoconf')
-	print "AUTOHEADER"
+	print "- autoheader"
 	os.system('autoheader')
-	print "AUTOMAKE"
+	print "- automake"
 	os.system('automake -a')
 	#os.system('make distclean')
 	#os.system('./configure')
@@ -280,8 +291,10 @@ def build():
 
 
 
-
+print "* GENERATING SOURCE FILES"
 pre_build()
+
+print "\n* GENERATING MAKE FILES"
 write_configure()
 extra_dist = gather_extra_dist()
 write_makefile(extra_dist)
@@ -291,4 +304,6 @@ write_src_makefile(sources, headers)
 test_sources = gather_sources('src/test', '.')
 write_src_test_makefile(test_sources)
 write_pc_file()
-build()
+
+print "\n* AUTOGEN"
+autogen()

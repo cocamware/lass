@@ -100,7 +100,9 @@ namespace test
 namespace impl { class UnitTest; }
 typedef std::vector<impl::UnitTest> TUnitTests;
 
-void runTests(const TUnitTests& iTests);
+bool runTests(const TUnitTests& iTests);
+
+std::string workPath();
 
 class TestStream
 {

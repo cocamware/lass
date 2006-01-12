@@ -55,6 +55,9 @@ LASS_DLL std::string LASS_CALL fileWithoutExtension(const std::string& iFileName
 LASS_DLL std::string LASS_CALL filePath(const std::string& iFileName);
 LASS_DLL std::string LASS_CALL fileWithoutPath(const std::string& iFileName);
 
+LASS_DLL std::string fileJoinExtension(const std::string& iFilename, const std::string& iExtension);
+LASS_DLL std::string fileJoinPath(const std::string& iPath, const std::string& iFilename);
+
 }
 
 }

@@ -45,12 +45,12 @@ namespace test
 
 void testIoFileAttributes()
 {
-	std::ofstream test("this_file_does_exist");
+	std::ofstream test("this_file_does_exist.txt");
 	test << "foobar";
 	test.close();
 
-	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_exist"), true);
-	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_not_exist"), false);
+	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_exist.txt"), true);
+	LASS_TEST_CHECK_EQUAL(io::fileDoesExist("this_file_does_not_exist.txt"), false);
 
 	LASS_TEST_CHECK_EQUAL(io::fileExtension(""), "");
 	LASS_TEST_CHECK_EQUAL(io::fileExtension("foo"), "");

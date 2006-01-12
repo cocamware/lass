@@ -1,0 +1,6 @@
+LASS - Library of Assembled Shared Sources
+
+http://lass.sourceforge.net
+
+version 1.0.0 (2006-01-12)
+	Bramz: We finally fixed the Linux build of Lass.  We now do have a complete Linux port.  Huray! =)

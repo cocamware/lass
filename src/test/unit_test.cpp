@@ -27,12 +27,16 @@
 #include "test_common.h"
 #include "unit_test.h"
 
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
+#	include <stdlib.h>
+#endif
+
 namespace lass
 {
 namespace test
 {
 
-void runTests(const TUnitTests& iTests)
+bool runTests(const TUnitTests& iTests)
 {
 	impl::errors() = 0;
 	impl::fatalErrors() = 0;
@@ -55,9 +59,20 @@ void runTests(const TUnitTests& iTests)
 	else
 	{
 		LASS_COUT << "\n*** Congratulations, no errors detected" << std::endl << std::flush;
+		return true;
 	}
+	return false;
 }
 
+std::string workPath()
+{
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+	const char* result = 0;
+#else
+	const char* result = getenv("srcdir");
+#endif
+	return result ? result : ".";
+}
 
 TestStream::TestStream() 
 {
@@ -66,10 +81,21 @@ TestStream::TestStream()
 TestStream::TestStream(const std::string& iPatternFile)
 {
 	std::ifstream file(iPatternFile.c_str());
-	std::string line;
-	while (std::getline(LASS_ENFORCE_STREAM(file), line, '\n'))
+	if (!file)
 	{
-		pattern_ += line + '\n';
+		LASS_THROW("Pattern file '" << iPatternFile << "' not found.");
+	}
+	try
+	{
+		std::string line;
+		while (std::getline(LASS_ENFORCE_STREAM(file), line, '\n'))
+		{
+			pattern_ += line + '\n';
+		}
+	}
+	catch (std::exception& error)
+	{
+		LASS_THROW("Reading pattern file '" << iPatternFile << "' failed: " << error.what());
 	}
 }
 

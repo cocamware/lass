@@ -25,6 +25,7 @@
 
 #include "io_common.h"
 #include "file_attribute.h"
+#include "../stde/extended_string.h"
 
 #include <stdio.h>
 
@@ -119,6 +120,37 @@ std::string fileWithoutPath(const std::string& iFileName)
 }
 
 
+
+/** @ingroup FileAttribute
+ */
+std::string fileJoinExtension(const std::string& iFilename, const std::string& iExtension)
+{
+	const char seperator [] = { extensionSeperator, '\0' };
+	if (stde::begins_with(iExtension, std::string(seperator)))
+	{
+		return iFilename + iExtension;
+	}
+	return iFilename + seperator + iExtension;
+}
+
+
+
+/** @ingroup FileAttribute
+ */
+std::string fileJoinPath(const std::string& iPath, const std::string& iFilename)
+{
+	const char seperator [] = { pathSeperator, '\0' };
+	if (stde::ends_with(iPath, std::string(seperator)))
+	{
+		return iPath + iFilename;
+	}
+	const char alternativeSeperator [] = { pathAlternativeSeperator, '\0' };
+	if (pathAlternativeSeperator && stde::ends_with(iPath, std::string(alternativeSeperator)))
+	{
+		return iPath + iFilename;
+	}
+	return iPath + seperator + iFilename;
+}
 
 }
 

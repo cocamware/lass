@@ -41,11 +41,14 @@
 #include "../io/logger.h"
 
 
-#include <iostream>
-#include <limits.h>
+//#include <iostream>
+//#include <limits.h>
+
 int main(int argc, char* argv[])
 {
 	using namespace lass;
+	
+	LASS_EVAL(test::workPath());
 
 	io::proxyMan()->clog()->remove(&std::clog);
 
@@ -63,9 +66,9 @@ int main(int argc, char* argv[])
 	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
 	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
 
-	test::runTests(unitTests);
+	const bool success = test::runTests(unitTests);
 
-	return 0;
+	return success ? 0 : 1;
 }
 
 // EOF

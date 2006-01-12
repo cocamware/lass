@@ -34,6 +34,8 @@
 
 #include "../util/scoped_ptr.h"
 #include "../util/shared_ptr.h"
+#include "../io/file_attribute.h"
+#include "../stde/extended_string.h"
 
 namespace lass
 {
@@ -42,10 +44,16 @@ namespace test
 
 void testUtilPython()
 {
-	std::string commandStr = "execfile('test_bar.py')";
+	std::string testFile = io::fileJoinPath(test::workPath(), "test_bar.py");
+	
+	std::string commandStr = "execfile('" + testFile + "')";
 	//commandStr = "from code import interact\ninteract()";
+		
+	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
 	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( commandStr.c_str() ) , 0 );
 
+	
+	
 	typedef std::vector<double> TV;
 	TV vec;
 	python::impl::PySequence pyseqtest(vec);

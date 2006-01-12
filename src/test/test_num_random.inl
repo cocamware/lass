@@ -33,6 +33,7 @@
 
 #include "../num/random.h"
 #include "../num/distribution.h"
+#include "../io/file_attribute.h"
 
 namespace lass
 {
@@ -43,7 +44,7 @@ void testNumRandomMersenne()
 {
 	// we use a test file provided by the mersenne twister authors.
 	//
-	TestStream output("mt19937ar.out");
+	TestStream output(io::fileJoinPath(test::workPath(), "mt19937ar.out"));
 
 	// just something in the file
 	//
