@@ -73,6 +73,11 @@
 
 #include "config/config.h"
 
+#ifdef LASS_UTIL_THREAD_HAVE_POSIX
+#	define _REENTRANT
+#endif
+
+
 // --- Check if we have RTTI and warn if we don't ---
 
 // If you have the Intel C++ Compiler 7.1 installed, it screws up the part of MSVC's IDE
@@ -82,19 +87,6 @@
 #	pragma message("[LASS BUILD MSG] RTTI not enabled ... Add /GR to commandline options if you need it.")
 #endif
 
-#ifdef LASS_THREAD_POSIX
-#	define _REENTRANT
-#endif
-
-
-/** @def LASS_CHAR_IS_SIGNED
- *  This macro will be defined if the @c char type is signed (-128 to 127)
- *  If it is unsigned, @c LASS_CHAR_IS_SIGNED will not be defined.
- *  This is implementation dependent and can be set in the compiler options.
- */
-#if (static_cast<char>(0) - static_cast<char>(1)) < static_cast<char>(0)
-#	define LASS_CHAR_IS_SIGNED
-#endif
 
 
 // --- Here we'll define some stuff on the name of libraries lass creates ---

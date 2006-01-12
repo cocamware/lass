@@ -54,7 +54,7 @@ Mutex::~Mutex(void)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl_->lockCount() << "locks." << std::endl;
+			<< pimpl_->lockCount() << " locks." << std::endl;
 	}
 	delete pimpl_;
 	pimpl_ = 0;
@@ -129,7 +129,7 @@ CriticalSection::~CriticalSection(void)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl_->lockCount() << "locks." << std::endl;
+			<< pimpl_->lockCount() << " locks." << std::endl;
 	}
 	delete pimpl_;
 	pimpl_ = 0;

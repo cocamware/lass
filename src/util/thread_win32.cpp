@@ -25,6 +25,12 @@
 
 #include "util_common.h"
 
+// ------------------------------------------------------------------------------------------------
+// THIS FILE IS SCHEDULED FOR REMOVAL.  
+// PLEASE CHECK OUT thread.cpp and impl/thread_win32.inl FOR REPLACING CODE
+// [Bramz]
+// ------------------------------------------------------------------------------------------------
+
 #if 0
 
 #ifdef LASS_THREAD_WIN32

@@ -57,6 +57,7 @@
 					RequireProcExt="3"
 					Parallelization="1"
 					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
@@ -599,10 +600,19 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					</FileConfiguration>
 				</File>
 				<File 
+					RelativePath=".\impl\lass_errno.cpp">
+				</File>
+				<File 
 					RelativePath="impl\singleton_impl.cpp">
 				</File>
 				<File 
 					RelativePath=".\impl\small_object_impl.inl">
+				</File>
+				<File 
+					RelativePath=".\impl\thread_posix.inl">
+				</File>
+				<File 
+					RelativePath=".\impl\thread_win32.inl">
 				</File>
 			</Filter>
 		</Filter>
@@ -1087,6 +1097,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				</File>
 				<File 
 					RelativePath="impl\enforcer_impl.h">
+				</File>
+				<File 
+					RelativePath=".\impl\lass_errno.h">
 				</File>
 				<File 
 					RelativePath="impl\singleton_impl.h">

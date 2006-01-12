@@ -30,6 +30,7 @@
 #include "../thread.h"
 #include "lass_errno.h"
 #include <process.h>
+#include <windows.h>
 
 namespace lass
 {
@@ -146,7 +147,7 @@ public:
 	}
 	~CriticalSectionInternal()
 	{
-		LASS_ASSERT(criticalSection_.LockCount == 0);
+		LASS_ASSERT(criticalSection_.LockCount == -1);
 		DeleteCriticalSection(&criticalSection_);
 	}
 	void lock()
@@ -159,12 +160,12 @@ public:
 	}
 	void unlock()
 	{
-		LASS_ASSERT(criticalSection_.LockCount > 0);
+		LASS_ASSERT(criticalSection_.RecursionCount > 0);
 		LeaveCriticalSection(&criticalSection_);
 	}
 	const unsigned lockCount() const 
 	{ 
-		return criticalSection_.LockCount; 
+		return criticalSection_.RecursionCount; 
 	}	
 private:
 	CRITICAL_SECTION criticalSection_;
@@ -181,12 +182,13 @@ public:
 	ConditionInternal():
 		threadsWaiting_(0)
 	{
-		LASS_ENFORCE_HANDLE(event_ = ::CreateEvent(
+		event_ = ::CreateEvent(
 			NULL,   // default secutiry
 			FALSE,  // not manual reset
 			FALSE,  // nonsignaled initially
 			NULL    // nameless event
-		));
+		);
+		LASS_ENFORCE_HANDLE(event_);
 	}
 	~ConditionInternal()
 	{
@@ -235,7 +237,7 @@ public:
 		const BOOL ret = ::SetEvent(event_);
 		if (ret == 0)
 		{
-			LASS_THROW(SetEvent failed: " << GetLastError());
+			LASS_THROW("SetEvent failed: " << GetLastError());
 		}
 	}
 	void broadcast()
@@ -243,17 +245,17 @@ public:
 		// we need to save the original value as m_nWaiters is goign to be
 		// decreased by the signalled thread resulting in the loop being
 		// executed less times than needed
-		LONG nWaiters = m_nWaiters;
+		LONG nWaiters = threadsWaiting_;
 
 		// this works because all these threads are already waiting and so each
 		// SetEvent() inside Signal() is really a PulseEvent() because the
 		// event state is immediately returned to non-signaled
-		for ( LONG n = 0; n < nWaiters; n++ )
+		for ( LONG n = 0; n < nWaiters; ++n )
 			signal();
 	}
 private:
 	HANDLE event_;
-	unsigned threadsWaiting_;
+	LONG threadsWaiting_;
 };
 
 
@@ -284,7 +286,7 @@ public:
 		{
 			LASS_THROW("You can run a thread only once");
 		}
-		handle_ = (HANDLE) _beginthreadex(NULL, 0, &ThreadInternal::staticThreadStart, &thread_, 0, &id_);
+		handle_ = (HANDLE) _beginthreadex(NULL, 0, &ThreadInternal::staticThreadStart, this, 0, &id_);
 		if (handle_ == 0)
 		{
 			const int errnum = lass_errno();
@@ -301,7 +303,7 @@ public:
 		}
 		else
 		{
-			const DWORD ret = WaitForSingleObject(mutex_, INFINITE);
+			const DWORD ret = WaitForSingleObject(handle_, INFINITE);
 			switch ( ret )
 			{
 				case WAIT_OBJECT_0:

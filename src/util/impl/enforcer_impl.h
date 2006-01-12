@@ -91,14 +91,14 @@ struct StreamPredicate
  *  -1, then something is wrong and the predicate will return true (the enforce will raise).
  *  For any other value of the handle, the enforcer will not raise and the program will continue.
  *
- *  @pre type T must be comparable (operator==) to a integer constant.
+ *  @pre type T must be comparable (operator==) to HANDLE constant.
  */
 struct HandlePredicate
 {
 	template <typename T>
 	static bool LASS_CALL wrong(const T& iHandle)
 	{
-		return iHandle == -1;
+		return iHandle == ((HANDLE)-1);
 	}
 };
 
