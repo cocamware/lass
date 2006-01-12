@@ -1,0 +1,37 @@
+LASS - Library of Assembled Shared Sources
+
+http://lass.sourceforge.net
+
+Tom De Muer <tomdemuer@users.sourceforge.net>
+Bram de Greve <bramz@users.sourceforge.net>
+
+LASS is an open source C++ library written by Tom De Muer and Bram de Greve 
+to help the authors writing better code. It includes an interfacing library 
+to Python, templated geometric primitives and spatial subdivision schemes, 
+several design patterns and other utilities the authors use in their 
+day-to-day codings. LASS is licensed under the GNU GPL and hosted by 
+SourceForge (http://sourceforge.net/) where you can find LASS' project page.
+
+
+BUILDING and INSTALLING
+=======================
+
+UNIX
+----
+
+If you're on a UNIX style platform, you can can build and install LASS
+in the usual './configure; make install' way.  See INSTALL if you don't 
+know what that is.
+
+LASS also includes a self-test, which can be build and run by invoking
+'make check'.
+
+For developers only: if you've added new source files or you've
+edited source files that require a prebuild, you should run
+autoconfiscate_unix.py to update the necessarey configure and makefiles.
+Once you've done that, you can run configure and make.
+
+WIN32
+-----
+
+See INSTALL.win32.txt for more information ...
