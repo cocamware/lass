@@ -31,7 +31,7 @@ def check_extension(filename, extensions):
 def gather_sources(basedir, directories):
 	ignore_list = []
 	for s in directories:
-		ignore_list.append('%s/%s_common.cpp' % (s, s))
+		#ignore_list.append('%s/%s_common.cpp' % (s, s))
 		if s != 'test':
 			ignore_list.append('%s/%s.cpp' % (s, s))
 
