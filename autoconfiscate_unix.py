@@ -8,8 +8,8 @@ lib_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde',
 test_dirs = ['test']
 
 debug_info_flags = '-g'
-code_generation_flags = '-msse2 -march=pentium4 -mfpmath=sse'
-warning_flags = '-Wall -Wextra -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
+code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
+warning_flags = '-Wall -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
 
 import os
 import os.path
@@ -168,6 +168,7 @@ AC_LANG_CPLUSPLUS
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
+AC_CHECK_FUNCS([atexit clock_gettime])
 #AC_C_CONST
 #AC_C_INLINE
 #AC_TYPE_SIZE_T
@@ -233,7 +234,7 @@ liblass_1_0_0_la_CPPFLAGS = %s %s %s
 	
 	library_dirs = ' '.join(['-L' + i for i in library_directories])
 	makefile.write(r'''
-liblass_1_0_0_la_LDFLAGS = %s -lpython%s -lpthread -version-info $(GENERIC_LIBRARY_VERSION) -release $(GENERIC_RELEASE)
+liblass_1_0_0_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(GENERIC_LIBRARY_VERSION) -release $(GENERIC_RELEASE)
 ''' % (library_dirs, python_version))
 
 	for subdir in headers_dict.keys():

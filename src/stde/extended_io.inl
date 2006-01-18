@@ -129,18 +129,17 @@ struct pair_traits
 	static bool read(std::basic_istream<Char, Traits>& istream, std::pair<T, U>& value,
 					 Char inter_seperator, Char intra_seperator, Char closer)
 	{
-		T t;
-		if (!value_traits::read<Char>(istream, t, intra_seperator, 0, intra_seperator))
+		std::pair<T, U> result;
+		if (!value_traits::read<Char>(istream, result.first, intra_seperator, 0, intra_seperator))
 		{
 			return false;
 		}
 		istream.ignore();
-		U u;
-		if (!value_traits::read<Char>(istream, u, inter_seperator, 0, closer))
+		if (!value_traits::read<Char>(istream, result.second, inter_seperator, 0, closer))
 		{
 			return false;
 		}
-		value = std::pair<T, U>(t, u);
+		value = result;
 		return true;
 	}
 };
