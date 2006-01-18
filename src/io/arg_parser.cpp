@@ -304,7 +304,9 @@ bool ArgParser::parseShort(const TArguments& iArguments, TSize& ioIndex)
 
 	// first one can have a value.  scan all parameters to see if you can find it
 	//
-	std::string shortName(1, arg[1]); // in above example shortName is 'a'
+	std::string shortName(arg, 1, 1); // in above example shortName is 'a'
+	LASS_ASSERT(shortName.length() == 1);
+	LASS_ASSERT(shortName[0] == arg[1]);
 	if (writeVersionOrHelp(shortName))
 	{
 		return false;
@@ -350,7 +352,9 @@ bool ArgParser::parseShort(const TArguments& iArguments, TSize& ioIndex)
 	//
 	for (std::string::size_type i = 2; i < arg.length(); ++i)
 	{
-		std::string shortName(1, arg[i]);
+		shortName = arg.substr(i, 1);
+		LASS_ASSERT(shortName.length() == 1);
+		LASS_ASSERT(shortName[0] == arg[i]);
 		if (writeVersionOrHelp(shortName))
 		{
 			return false;
@@ -655,7 +659,7 @@ const std::string ArgParameter::doFormat() const
 
 
 
-const bool ArgParameter::doSetValue(const std::string& iValue)
+const bool ArgParameter::doSetValue(const std::string& /* iValue */)
 {
 	//LASS_LOG("parameter '" << names() << "' is set.");
 	set();

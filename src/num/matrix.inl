@@ -33,17 +33,19 @@
 #include "impl/matrix_solve.h"
 #include "../meta/meta_assert.h"
 
-#define LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(iA, iB)\
-	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
-									 lass::util::impl::DefaultRaiser>\
-	((iA).rows() == (iB).rows() && (iA).columns() == (iB).columns(), "Matrices '" LASS_STRINGIFY(iA)\
-	 "' and '" LASS_STRINGIFY(iB) "' have different dimensions in '" LASS_HERE "'."))
+#define LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(a, b)\
+	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		(a).rows() == (b).rows() && (a).columns() == (b).columns(),\
+		"Matrices '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different dimensions in '" LASS_HERE "'.")
 
-#define LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(iA, iB)\
-	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
-									 lass::util::impl::DefaultRaiser>\
-	((iA).columns() == (iB).rows(), "Matrices '" LASS_STRINGIFY(iA) "' and '" LASS_STRINGIFY(iB)\
-	 "' have no matching dimensions for operation at '" LASS_HERE "'."))
+#define LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(a, b)\
+	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		(a).columns() == (b).rows(),\
+		"Matrices '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have no matching dimensions for operation at '" LASS_HERE "'.")
 
 namespace lass
 {

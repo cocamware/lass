@@ -32,12 +32,12 @@
 #include "vector.h"
 #include "../meta/is_integral_type.h"
 
-#define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(iA, iB)\
-	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
-									 lass::util::impl::DefaultRaiser>\
-	((iA).size() == (iB).size(), "Vectors '" LASS_STRINGIFY(iA) "' and '" \
-	 LASS_STRINGIFY(iB) "' have different dimensions in '" LASS_HERE "'."))
-
+#define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(a, b)\
+	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		(a).size() == (b).size(), \
+		"Vectors '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different dimensions in '" LASS_HERE "'.")
 
 namespace lass
 {

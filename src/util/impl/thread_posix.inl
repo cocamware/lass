@@ -30,6 +30,7 @@
 #include "lass_errno.h"
 #include <errno.h>
 #include <pthread.h>
+#include <sched.h>
 
 namespace lass
 {
@@ -49,7 +50,7 @@ public:
 	{
 		pthread_mutexattr_t mutexattr;
 		LASS_ENFORCE_CLIB_RC(pthread_mutexattr_init(&mutexattr));
-		LASS_ENFORCE_CLIB_RC(pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE_NP));
+		LASS_ENFORCE_CLIB_RC(pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE));
 		LASS_ENFORCE_CLIB_RC(pthread_mutex_init(&mutex_,&mutexattr));
 		LASS_ENFORCE_CLIB_RC(pthread_mutexattr_destroy(&mutexattr));
 	}
@@ -351,7 +352,7 @@ public:
 	
 	static void yield()
 	{
-		LASS_ENFORCE_CLIB_RC(pthread_yield());
+		LASS_ENFORCE_CLIB(sched_yield());
 	}
 
 	// thread function

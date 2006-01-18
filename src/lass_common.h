@@ -73,7 +73,7 @@
 
 #include "config/config.h"
 
-#ifdef LASS_UTIL_THREAD_HAVE_POSIX
+#if defined(LASS_UTIL_THREAD_HAVE_POSIX) && !defined(_REENTRANT)
 #	define _REENTRANT
 #endif
 
@@ -83,8 +83,10 @@
 // If you have the Intel C++ Compiler 7.1 installed, it screws up the part of MSVC's IDE
 // were you can enable RTTI.  Therefore, you must add /GR to the commandline explicitely
 // http://tinyurl.com/8usvw
-#ifndef _CPPRTTI
-#	pragma message("[LASS BUILD MSG] RTTI not enabled ... Add /GR to commandline options if you need it.")
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_WIN32
+#	if !defined(_CPPRTTI)
+#		pragma message("[LASS BUILD MSG] RTTI not enabled ... Add /GR to commandline options if you need it.")
+#	endif
 #endif
 
 

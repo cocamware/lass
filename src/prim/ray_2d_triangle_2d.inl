@@ -70,6 +70,7 @@ Result intersect(const Triangle2D<T>& iTriangle,
 
 	if (good)
 	{
+		LASS_ASSERT(tNear > iMinT);
 		oT = tNear;
 		return rOne;
 	}

@@ -347,7 +347,7 @@ template
 	template <class> class ObjectTraits
 >
 QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode( const TPoint& iCenter, const TVector& iExtents) :
-	extents(iExtents), center(iCenter), listSize(0), level(0), leaf(true)
+	center(iCenter), extents(iExtents), listSize(0), level(0), leaf(true)
 {
 	for (int i=subNodeCount-1;i>=0;--i)
 		node[i] = NULL;
@@ -410,7 +410,8 @@ typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, O
 	}
 	else
 	{
-		QuadNode* lastNode = NULL;
+		// unused?  [Bramz]
+		//QuadNode* lastNode = NULL;
 
 		TAabb aBox = ObjectTraits<ObjectType>::aabb(iObject);
 		int intersectionCount = 0;

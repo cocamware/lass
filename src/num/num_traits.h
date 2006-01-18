@@ -53,7 +53,7 @@ struct LASS_DLL NumTraits
 		isNative = 0,       /**< true for the native types, ie char, int , ... */
 		isSigned = 0,		/**< true for signed types */
 		hasInfinity = 0,    /**< true for types having infinity */
-		hasNaN = 0,			/**< true for types have the concept of Not a Number */
+		hasNaN = 0			/**< true for types have the concept of Not a Number */
 	};
 
 	static const int   memorySize;      /**< memory footprint */
@@ -109,7 +109,7 @@ struct NumTraits<ttype>\
 		isNative = true,\
 		isSigned = true,\
 		hasInfinity = true,\
-		hasNaN = true,\
+		hasNaN = true\
 	};\
 	static const int   memorySize;\
 	static const std::string name() { return tname ; }\
@@ -142,7 +142,7 @@ struct NumTraits< ttype >\
 		isNative = false,\
 		isSigned = true,\
 		hasInfinity = false,\
-		hasNaN = true,\
+		hasNaN = true\
 	};\
 	static const int   memorySize;\
 	static const std::string name() { return tname ; }\

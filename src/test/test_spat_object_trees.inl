@@ -109,6 +109,7 @@ OutputIterator generateObjects(const prim::Aabb3D<T>& iBound,
 template <typename T, size_t dim>
 void testSpatObjectTrees()
 {
+	const T tolerance = 1e-5f;
 
 	const T extent = T(1000);
 	const T maxSize = T(10);
@@ -229,16 +230,26 @@ void testSpatObjectTrees()
 		T aabbT = TNumTraits::infinity;
 		TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
 		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
-		LASS_TEST_CHECK_EQUAL(naiveT, aabbT);
+		if (naiveT == TNumTraits::infinity)
+		{
+			LASS_TEST_CHECK_EQUAL(naiveT, aabbT);
+		}
+		else
+		{
+			LASS_TEST_CHECK_CLOSE(naiveT, aabbT, tolerance);
+		}
 
 		T aabpT = TNumTraits::infinity;
 		const TObject* aabpIntersection = aabpTree.intersect(ray, aabpT);
-		if (aabpIntersection != aabbIntersection || aabpT != naiveT)
-		{
-			LASS_COUT << i << "\n";
-		}
 		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
-		LASS_TEST_CHECK_EQUAL(naiveT, aabpT);
+		if (naiveT == TNumTraits::infinity)
+		{
+			LASS_TEST_CHECK_EQUAL(naiveT, aabpT);
+		}
+		else
+		{
+			LASS_TEST_CHECK_CLOSE(naiveT, aabpT, tolerance);
+		}
 	}
 
 	// SPEED TESTS

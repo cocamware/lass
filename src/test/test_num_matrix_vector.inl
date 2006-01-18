@@ -67,6 +67,13 @@ template <typename T>
 void testNumVector()
 {
 	using namespace num;
+
+	typedef Vector<T> TVector;
+	typedef typename TVector::TNumTraits TNumTraits;
+	typedef typename TVector::TValue TValue;
+	typedef typename TNumTraits::baseType TBase;
+
+	const TBase tolerance = 1e-5f;
 /*
 
 	typedef Vector<T> TVector;
@@ -167,7 +174,7 @@ void testNumVector()
 
 	d -= b;
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
-	for (i = 0; i < n; ++i) LASS_TEST_CHECK_EQUAL(d[i], a[i] - c[i] - b[i]);
+	for (i = 0; i < n; ++i) LASS_TEST_CHECK_CLOSE(d[i], a[i] - c[i] - b[i], tolerance);
 
 	d = a;
 	d *= b;
@@ -176,7 +183,7 @@ void testNumVector()
 
 	d /= c;
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
-	for (i = 0; i < n; ++i) LASS_TEST_CHECK_EQUAL(d[i], (a[i] * b[i]) / c[i]);
+	for (i = 0; i < n; ++i) LASS_TEST_CHECK_CLOSE(d[i], (a[i] * b[i]) / c[i], tolerance);
 
 	d = a;
 	d += T(1);
@@ -185,7 +192,7 @@ void testNumVector()
 
 	d -= T(2);
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
-	for (i = 0; i < n; ++i) LASS_TEST_CHECK(num::sqrt(num::norm(d[i] - ((a[i] + T(1)) - T(2)))) < 1e-7);
+	for (i = 0; i < n; ++i) LASS_TEST_CHECK_CLOSE(d[i] , (a[i] + T(1)) - T(2), tolerance);
 
 	d = b;
 	d *= T(2);

@@ -130,7 +130,9 @@ private:
 
 }
 
-LASS_EXECUTE_BEFORE_MAIN_EX(lassUtilImplSingletonBase,
-							lass::util::impl::SingletonBase::initLock();)
+LASS_EXECUTE_BEFORE_MAIN_EX(
+	lassUtilImplSingletonBase,
+	lass::util::impl::SingletonBase::initLock();
+)
 
 #endif

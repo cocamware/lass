@@ -56,7 +56,7 @@ AabpTree<O, OT>::AabpTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	heap_.resize(2 * size_);
 
 	TBoundedObjects input;
-    input.reserve(size_);
+	input.reserve(size_);
 	for (TObjectIterator i = begin_; i != end_; ++i)
 	{
 		input.push_back(BoundedObject(TObjectTraits::aabb(i), i));
@@ -227,8 +227,8 @@ void AabpTree<O, OT>::balance(size_t iIndex, const TAabb& iAabb,
 
 	const TAabb aabbLeft = findAabb(iBegin, median);
 	const TAabb aabbRight = findAabb(median, iEnd);
-    const TValue boundLeft = TObjectTraits::coordinate(TObjectTraits::max(aabbLeft), split);
-    const TValue boundRight = TObjectTraits::coordinate(TObjectTraits::min(aabbRight), split);
+	const TValue boundLeft = TObjectTraits::coordinate(TObjectTraits::max(aabbLeft), split);
+	const TValue boundRight = TObjectTraits::coordinate(TObjectTraits::min(aabbRight), split);
 
 	assignInternal(iIndex, split, boundLeft, boundRight);
 	balance(2 * iIndex + 1, aabbLeft, iBegin, median);
@@ -255,10 +255,10 @@ template <class O, class OT>
 typename AabpTree<O, OT>::TAxis
 AabpTree<O, OT>::findSplitAxis(const TAabb& iAabb) const
 {
-    const TPoint min = TObjectTraits::min(iAabb);
+	const TPoint min = TObjectTraits::min(iAabb);
 	const TPoint max = TObjectTraits::max(iAabb);
 	TAxis axis = 0;
-    TValue maxDistance = TObjectTraits::coordinate(max, 0) - TObjectTraits::coordinate(min, 0);
+	TValue maxDistance = TObjectTraits::coordinate(max, 0) - TObjectTraits::coordinate(min, 0);
 	for (TAxis k = 1; k < dimension; ++k)
 	{
 		const TValue distance = TObjectTraits::coordinate(max, k) - TObjectTraits::coordinate(min, k);
@@ -283,7 +283,7 @@ inline void AabpTree<O, OT>::assignLeaf(size_t iIndex, TBoundedObjectIterator iO
 		heap_.resize(iIndex + 1);
 	}
 	heap_[iIndex].split = leafNode_;
-    heap_[iIndex].object = iObject->object;
+	heap_[iIndex].object = iObject->object;
 }
 
 
@@ -297,8 +297,8 @@ inline void AabpTree<O, OT>::assignInternal(size_t iIndex, TAxis iSplitAxis, TPa
 		heap_.resize(iIndex + 1);
 	}
 	heap_[iIndex].split = iSplitAxis;
-    heap_[iIndex].leftBound = iLeftBound;
-    heap_[iIndex].rightBound = iRightBound;
+	heap_[iIndex].leftBound = iLeftBound;
+	heap_[iIndex].rightBound = iRightBound;
 }
 
 
@@ -310,24 +310,24 @@ const bool AabpTree<O, OT>::doContains(size_t iIndex, const TPoint& iPoint,
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
 
-    if (node.split == leafNode_)
-    {
-        // check object in leaf node
-        return TObjectTraits::contains(node.object, iPoint, iInfo);
-    }
+	if (node.split == leafNode_)
+	{
+		// check object in leaf node
+		return TObjectTraits::contains(node.object, iPoint, iInfo);
+	}
 
-    // try both childs
-    //
+	// try both childs
+	//
 	const TValue x = TObjectTraits::coordinate(iPoint, node.split);
-    if (x <= node.leftBound && doContains(2 * iIndex + 1, iPoint, iInfo))
-    {
-        return true;
-    }
-    if (x >= node.rightBound && doContains(2 * iIndex + 2, iPoint, iInfo))
-    {
-        return true;
-    }
-    return false;
+	if (x <= node.leftBound && doContains(2 * iIndex + 1, iPoint, iInfo))
+	{
+		return true;
+	}
+	if (x >= node.rightBound && doContains(2 * iIndex + 2, iPoint, iInfo))
+	{
+		return true;
+	}
+	return false;
 }
 
 
@@ -340,15 +340,15 @@ OutputIterator AabpTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint,
 	LASS_ASSERT(iIndex < heap_.size());
 	const Node& node = heap_[iIndex];
 
-    if (node.split == leafNode_)
-    {
-        // check object in leaf node
-        if (TObjectTraits::contains(node.object, iPoint, iInfo))
+	if (node.split == leafNode_)
+	{
+        	// check object in leaf node
+		if (TObjectTraits::contains(node.object, iPoint, iInfo))
 		{
 			*iResult = node.object;
 			++iResult;
 		}
-    }
+	}
 	else
 	{
 		// try both childs
@@ -362,7 +362,7 @@ OutputIterator AabpTree<O, OT>::doFind(size_t iIndex, const TPoint& iPoint,
 			iResult = doFind(2 * iIndex + 2, iPoint, iResult, iInfo);
 		}
 	}
-    return iResult;
+	return iResult;
 }
 
 
@@ -376,18 +376,24 @@ AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, const TVector& iRe
 	LASS_ASSERT(iTMax > iTMin);
 	const Node& node = heap_[iIndex];
 
-    if (node.split == leafNode_)
-    {
-        // check object in leaf node
+	if (node.split == leafNode_)
+	{
+		// check object in leaf node
 		TValue t;
 		if (TObjectTraits::intersect(node.object, iRay, t, iTMin, iInfo))
 		{
-			LASS_ASSERT(t > iTMin && t < iTMax);
+			//LASS_ASSERT(t > iTMin && t < iTMax);
+			if (!(t > iTMin && t < iTMax))
+			{
+				LASS_EVAL(t);
+				LASS_EVAL(iTMin);
+				LASS_EVAL(iTMax);
+			}
 			oT = t;
 			return node.object;
 		}
 		return end_;
-    }
+	}
 	else
 	{
 		// check children
@@ -448,13 +454,15 @@ AabpTree<O, OT>::doIntersect(size_t iIndex, const TRay& iRay, const TVector& iRe
 		{
 			if (objectRight != end_ && tRight < tLeft)
 			{
-				LASS_ASSERT(tRight > iTMin && tRight < iTMax);
+				//LASS_ASSERT(tRight > iTMin && tRight < iTMax);
+				if (!(tRight > iTMin && tRight < iTMax)) { LASS_EVAL(tRight); LASS_EVAL(iTMin); LASS_EVAL(iTMax); }
 				oT = tRight;
 				return objectRight;
 			}
 			else
 			{
-				LASS_ASSERT(tLeft > iTMin && tLeft < iTMax);
+				//LASS_ASSERT(tLeft > iTMin && tLeft < iTMax);
+				if (!(tLeft > iTMin && tLeft < iTMax)) { LASS_EVAL(tLeft); LASS_EVAL(iTMin); LASS_EVAL(iTMax); }
 				oT = tLeft;
 				return objectLeft;
 			}
@@ -481,17 +489,23 @@ const bool AabpTree<O, OT>::doIntersects(size_t iIndex, const TRay& iRay,
 	LASS_ASSERT(iTMax > iTMin);
 	const Node& node = heap_[iIndex];
 
-    if (node.split == leafNode_)
-    {
-        // check object in leaf node
+	if (node.split == leafNode_)
+	{
+		// check object in leaf node
 		TValue t;
 		if (TObjectTraits::intersect(node.object, iRay, t, iTMin, iInfo))
 		{
-			LASS_ASSERT(t > iTMin && t < iTMax);
+			//LASS_ASSERT(t > iTMin && t < iTMax);
+			if (!(t > iTMin && t < iTMax))
+			{
+				LASS_EVAL(t);
+				LASS_EVAL(iTMin);
+				LASS_EVAL(iTMax);
+			}
 			return true;
 		}
 		return false;
-    }
+	}
 	else
 	{
 		// check children

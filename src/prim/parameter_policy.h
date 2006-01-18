@@ -67,9 +67,23 @@ namespace prim
 struct Bounded
 {
 	template <class T>
-	static bool wrong(const T& iObj)
+	static void enforceRange(const T& iT, const T& iMin, const T& iMax)
 	{
-		return !iObj;
+		if (!(iT >= iMin && iT <= iMax))
+		{
+			LASS_THROW("parameter '" << iT << "' outside valid range ["
+				<< iMin << ", " << iMax << "].");
+		}
+	}
+
+	template <class T>
+	static void enforceRange(const T& iT, const T& iMin)
+	{
+		if (!(iT >= iMin))
+		{
+			LASS_THROW("parameter '" << iT << "' outside valid range ["
+				<< iMin << ", +inf].");
+		}
 	}
 };
 
@@ -89,62 +103,22 @@ struct Bounded
  */
 struct Unbounded
 {
-	template <class T>
-	static bool wrong(const T& iObj)
+	template <typename T>
+	static void enforceRange(const T& /*iT*/, const T& /*iMin*/, const T& /*iMax*/)
 	{
-		return false;
+	}
+
+	template <typename T>
+	static void enforceRange(const T& /*iT*/, const T& /*iMin*/)
+	{
 	}
 };
 
 }
 
 }
-
-/** enforce a range condition @a iRange following the @a iParameterPolicy
- *  @ingroup ParameterPolicy
- *
- *  If @a iParameterPolicy is Bounded, then the range condition @a iRange is checked and an
- *  exception is thrown if condition is not fullfilled.  In case of the Unbounded parameter
- *  policy, no exception is ever thrown.
- *
- *  @param ParameterPolicy__ type of used parameter policy, is used as enforcer predicate.
- *  @param rangePredicate__ boolean expression to check the range.
- *  @throw std::exception if predicate fails.
- */
-#define LASS_PRIM_ENFORCE_RANGE(ParameterPolicy__, rangePredicate__)\
-	(*lass::util::impl::makeEnforcer<ParameterPolicy__, lass::prim::impl::ParameterRaiser>(\
-		(rangePredicate__),\
-		"Parameter out of range '" LASS_STRINGIFY(rangePredicate__) "' in '" LASS_HERE "'"))
-
-
-
-// --- implementation ------------------------------------------------------------------------------
-
-namespace lass
-{
-namespace prim
-{
-namespace impl
-{
-
-/** raises exception in case parameter is out of range and we have a bounded policy
- *  @relates lass::prim::Bounded
- */
-struct ParameterRaiser
-{
-	template <class T>
-	static void raise(const T&, const std::string& iMessage, const char* iLocus)
-	{
-		LASS_THROW(iMessage << '\n' << iLocus);
-	}
-};
-
-}
-
-}
-
-}
-
-
 
 #endif
+
+// EOF
+

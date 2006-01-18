@@ -98,7 +98,7 @@ struct HandlePredicate
 	template <typename T>
 	static bool LASS_CALL wrong(const T& iHandle)
 	{
-		return iHandle == ((T)-1);
+		return iHandle == static_cast<T>(-1);
 	}
 };
 
@@ -278,7 +278,7 @@ struct ZeroRaiser
  	template <typename T>
 	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
 	{
-		LASS_ASSERT(iRc == -1);
+		//LASS_ASSERT(iRc == -1);
 		const int errnum = lass_errno();
 		std::ostringstream buffer;
 		buffer << "Function call " << iLocus << " failed with errno: ("
@@ -300,7 +300,7 @@ struct ZeroRaiser
  	template <typename T>
 	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
 	{
-		LASS_ASSERT(iRc != 0);
+		//LASS_ASSERT(iRc != 0);
 		std::ostringstream buffer;
 		buffer << "Function call " << iLocus << " failed with return code: ("
 			<< iRc << ") " << lass_strerror(iRc);			
@@ -375,6 +375,11 @@ public:
 		t_(iT),
 		locus_(PredicateType::wrong(iT) ? iLocus : 0)
 	{
+		//LASS_ASSERT(iLocus);
+		if (!iLocus)
+		{
+			std::cerr << "NO LOCUS!" << std::endl;
+		}
 	}
 
 	Ref operator*() const
@@ -406,7 +411,28 @@ private:
 	const char* const locus_;
 };
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC && LASS_COMPILER_VERSION < 40000
 
+template <class P, class R>
+struct EnforcerMaker
+{
+	template <typename T> inline
+	static Enforcer<T&, P, R> make(T& iT, const char* iLocus)
+	{
+		return Enforcer<T&, P, R>(iT, iLocus);
+	}
+
+	template <typename T> inline
+	static Enforcer<const T&, P, R> make(const T& iT, const char* iLocus)
+	{
+		return Enforcer<const T&, P, R>(iT, iLocus);
+	}
+};
+
+#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, locus)\
+	::lass::util::impl::EnforcerMaker<predicate, raiser>::make(t, locus)
+
+#else
 
 /** helper function to create enforcers
  *  @internal
@@ -424,25 +450,16 @@ inline Enforcer<T&, P, R> makeEnforcer(T& iT, const char* iLocus)
 	return Enforcer<T&, P, R>(iT, iLocus);
 }
 
-
-
-/** helper function to create enforcers
- *  @internal
- *  @relates lass::util::impl::Enforcer
- *
- *  taken from:
- *  ALEXANDRESCU A. & MARGINEAN P. (2003), Enforcements. June 2003, C++ Experts Forum,
- *  http://www.cuj.com.
- *
- *  http://www.cuj.com/documents/s=8250/cujcexp2106alexandr
- */
 template <class P, class R, typename T>
 inline Enforcer<const T&, P, R> makeEnforcer(const T& iT, const char* iLocus)
 {
 	return Enforcer<const T&, P, R>(iT, iLocus);
 }
 
+#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, locus)\
+	::lass::util::impl::makeEnforcer<predicate, raiser>(t, locus)
 
+#endif
 
 }
 

@@ -296,32 +296,32 @@ protected:
 
 	DefaultCounter(): count_(0) {}
 
-	template <typename TStorage> void init(TStorage& iPointee)
+	template <typename TStorage> void init(TStorage& /*iPointee*/)
 	{
 		impl::initHeapCounter(count_, 1);
 		LASS_ASSERT(count_ && *count_ == 1);
 	}
 
-	template <typename TStorage> void dispose(TStorage& iPointee)
+	template <typename TStorage> void dispose(TStorage& /*iPointee*/)
 	{
 		LASS_ASSERT(count_ && *count_ == 0);
 		impl::disposeHeapCounter(count_);
 	}
 
-	template <typename TStorage> void increment(TStorage& iPointee)
+	template <typename TStorage> void increment(TStorage& /*iPointee*/)
 	{
 		LASS_ASSERT(count_ && *count_ > 0);
 		++*count_;
 	}
 
-	template <typename TStorage> bool decrement(TStorage& iPointee)
+	template <typename TStorage> bool decrement(TStorage& /*iPointee*/)
 	{
 		LASS_ASSERT(count_ && *count_ > 0);
 		--*count_;
 		return *count_ < 1;
 	}
 
-	template <typename TStorage> TCount count(TStorage& iPointee) const
+	template <typename TStorage> TCount count(TStorage& /*iPointee*/) const
 	{
 		LASS_ASSERT(count_ && *count_ > 0);
 		return *count_;
@@ -419,7 +419,7 @@ protected:
 		return iPointee->*referenceCounter;
 	}
 
-	void swap(TSelf& iOther)
+	void swap(TSelf& /*iOther*/)
 	{
 	}
 };

@@ -59,7 +59,7 @@ struct Revertor<0>
 template <>
 struct Revertor<1>
 {
-	static void revert(void* ioIn)
+	static void revert(void* /* ioIn */)
 	{
 	}
 };

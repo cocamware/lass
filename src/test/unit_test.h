@@ -249,6 +249,17 @@ void checkClose(const T& iA, const T& iB, const T& iRelativeTolerance, const std
 	}
 }
 
+template <typename T>
+void checkClose(const std::complex<T>& iA, const std::complex<T>& iB, const T& iRelativeTolerance, 
+	const std::string& iAString, const std::string& iBString, const std::string& iFile, unsigned iLine)
+{
+	if (!num::almostEqual(iA.real(), iB.real(), iRelativeTolerance) || !num::almostEqual(iA.imag(), iB.imag(), iRelativeTolerance))
+	{
+		LASS_TEST_IMPL_ERROR("test '" << iAString << " == " << iBString << "' failed (" << iA << " != " << iB
+			<< " withing relative tolerance " << iRelativeTolerance << ").", iFile, iLine);
+	}
+}
+
 template <typename V, typename T>
 void checkCloseArray(const V& iA, const V& iB, const T& iRelativeTolerance, size_t iSize, const std::string& iAString,
 				const std::string& iBString, const std::string& iFile, unsigned iLine)

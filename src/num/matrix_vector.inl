@@ -36,11 +36,12 @@ namespace lass
 namespace num
 {
 
-#define LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(iA, iB)\
-	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
-									 lass::util::impl::DefaultRaiser>\
-	((iA).columns() == (iB).size(), "Matrix '" LASS_STRINGIFY(iA) "' and Vector '"\
-	 LASS_STRINGIFY(iB) "' have no adjacent dimensions for multiplication in '" LASS_HERE "'."))
+#define LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(a, b)\
+	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		(a).columns() == (b).size(), \
+		"Matrix '" LASS_STRINGIFY(a) "' and Vector '" LASS_STRINGIFY(b) "' have no adjacent dimensions for multiplication in '" LASS_HERE "'.")
 
 
 

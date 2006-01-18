@@ -112,7 +112,7 @@ void doTestQuadTree()
 	{
 		resultQuery.clear();
 		int hitcount = tree.contains( TPoint(10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX), resultQuery);
-		LASS_TEST_CHECK_EQUAL( hitcount, resultQuery.size() );
+		LASS_TEST_CHECK_EQUAL( hitcount, static_cast<int>(resultQuery.size()) );
 	}
 
 
@@ -149,7 +149,7 @@ void doTestOctTree()
 	{
 		resultQuery.clear();
 		int hitcount = tree.contains( TPoint(10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX,10.0+80.0*(double)rand()/(double)RAND_MAX), resultQuery);
-		LASS_TEST_CHECK_EQUAL( hitcount, resultQuery.size() );
+		LASS_TEST_CHECK_EQUAL( hitcount, static_cast<int>(resultQuery.size()) );
 	}
 
 	LASS_COUT << "Oct tree max depth : " << tree.maxDepth() << std::endl;

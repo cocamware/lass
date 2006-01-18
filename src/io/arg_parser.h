@@ -56,7 +56,7 @@ enum ArgMode
 	amOptional = 4,         /**< if argument is used, it can take a value, but is not required */
 	amMultiple = 8,         /**< argument can have multiple values. */
 
-	amDefault = amRequired, /**< default mode for arguments. */
+	amDefault = amRequired	/**< default mode for arguments. */
 };
 
 

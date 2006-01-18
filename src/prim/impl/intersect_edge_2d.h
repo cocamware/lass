@@ -42,6 +42,8 @@ bool intersectEdge2D(const Point& iSupport, const Vector& iDirection,
 {
 	typedef typename Point::TNumTraits TNumTraits;
 
+	LASS_ASSERT(oTNear > iMinT);
+
 	const Vector edge = iHead - iTail;
 	const T denominator = perpDot(iDirection, -edge);
 	if (denominator != TNumTraits::zero)
@@ -49,9 +51,10 @@ bool intersectEdge2D(const Point& iSupport, const Vector& iDirection,
 		const Vector difference = iTail - iSupport;
 		const T tRay = perpDot(difference, -edge) / denominator;
 		const T tEdge = perpDot(iDirection, difference) / denominator;
-		if (tRay > iMinT && (tEdge >= TNumTraits::zero && tEdge <= TNumTraits::one))
+		if ((tRay > iMinT && tRay < oTNear) && (tEdge >= TNumTraits::zero && tEdge <= TNumTraits::one))
 		{
-			oTNear = std::min(oTNear, tRay);
+			oTNear = tRay;
+			LASS_ASSERT(oTNear > iMinT);
 			return true;
 		}
 	}

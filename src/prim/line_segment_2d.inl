@@ -105,7 +105,7 @@ template <typename T, class PP>
 const typename LineSegment2D<T, PP>::TPoint
 LineSegment2D<T, PP>::point(TParam iT) const
 {
-	LASS_PRIM_ENFORCE_RANGE(PP, iT >= TNumTraits::zero && iT <= TNumTraits::one);
+	TParameterPolicy::enforceRange(iT, TNumTraits::zero, TNumTraits::one);
 	return tail_ + iT * vector();
 }
 

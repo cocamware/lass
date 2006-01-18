@@ -111,7 +111,7 @@ struct Normalized
 	 *  @pre iNormObject is supposed to be normalized!
 	 */
 	template<typename ValueType, typename VectorType>
-	static ValueType divideByNorm(ValueType iValue, const VectorType& iNormObject)
+	static ValueType divideByNorm(ValueType iValue, const VectorType& /*iNormObject*/)
 	{
 		return iValue;
 	}
@@ -121,8 +121,7 @@ struct Normalized
 	 *  @pre iNormObject is supposed to be normalized!
 	 */
 	template<typename ValueType, typename VectorType>
-	static ValueType divideBySquaredNorm(ValueType iValue,
-										 const VectorType& iNormObject)
+	static ValueType divideBySquaredNorm(ValueType iValue, const VectorType& /*iNormObject*/)
 	{
 		return iValue;
 	}
@@ -136,7 +135,7 @@ struct Unnormalized
 	 *  this is a noop.
 	 */
 	template<typename VectorType>
-	static void normalize(VectorType& ioSubject)
+	static void normalize(VectorType& /*ioSubject*/)
 	{
 	}
 
@@ -144,7 +143,7 @@ struct Unnormalized
 	/** Don't normalize and don't scale
 	 */
 	template<typename VectorType, typename ValueType>
-	static void normalizeAndScale(VectorType& ioSubject, ValueType& ioExtraValue)
+	static void normalizeAndScale(VectorType& /*ioSubject*/, ValueType& /*ioExtraValue*/)
 	{
 	}
 
@@ -159,8 +158,7 @@ struct Unnormalized
 	/** @return iValue divided by the squared norm of iNormObject
 	 */
 	template<typename ValueType, typename VectorType>
-	static ValueType divideBySquaredNorm(ValueType iValue,
-										 const VectorType& iNormObject)
+	static ValueType divideBySquaredNorm(ValueType iValue, const VectorType& iNormObject)
 	{
 		return iValue / iNormObject.squaredNorm();
 	}

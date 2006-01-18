@@ -78,7 +78,7 @@ class LASS_DLL ProxyOStream
 public:
 
 	typedef unsigned TMask;
-	static const TMask acceptAll = (TMask) -1;
+	static const TMask acceptAll = static_cast<TMask>(-1);
 
 	// innerclasses
 
@@ -104,7 +104,7 @@ public:
 
 		/** On the end of the lock, flush the proxy.
 		 */
-		ProxyOStream::Lock::~Lock()
+		~Lock()
 		{
 			if (proxy_)
 			{
@@ -115,7 +115,8 @@ public:
 		/** distribute input over all destination streams.
 		*  Only distribute input if it's still locking a proxy (i.e. if proxy_ != Null).
 		*/
-		template <typename T> Lock& operator<< ( const T& iIn )
+		template <typename T> 
+		Lock& operator<< ( const T& iIn )
 		{
 			if (proxy_)
 			{

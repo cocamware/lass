@@ -7,11 +7,18 @@ library_version = (1, 0, 0)
 lib_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
 test_dirs = ['test']
 
+debug_info_flags = '-g'
+code_generation_flags = '-msse2 -march=pentium4 -mfpmath=sse'
+warning_flags = '-Wall -Wextra -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
+
 import os
 import os.path
 import sys
 
-include_directories = ['%s/include/python%s' % (sys.prefix, sys.version[:3])]
+python_version = sys.version[:3]
+include_directories = ['%s/include/python%s' % (sys.prefix, python_version)]
+library_directories = ['%s/lib/python%s/config' % (sys.prefix, python_version)]
+
 version_string = "%s.%s" % (version[0], version[1])
 
 
@@ -167,11 +174,13 @@ AC_HEADER_STDBOOL
 #AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-#AC_FUNC_ERROR_AT_LINE
 AC_FUNC_STRERROR_R
+
+#AC_FUNC_ERROR_AT_LINE
 #AC_HEADER_STDC
 #AC_TYPE_SIGNAL
 #AC_CHECK_FUNCS([atexit floor memset pow sqrt clock_gettime])
+
 
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile lass-1.0.0.pc)
 ''') 
@@ -216,9 +225,16 @@ INCLUDES= $(all_includes) %s
 	makefile.write(r'''
 lib_LTLIBRARIES = liblass-1.0.0.la
 liblass_1_0_0_la_SOURCES = %s
-liblass_1_0_0_la_CPPFLAGS = -g -Wall
-liblass_1_0_0_la_LDFLAGS = -lpython2.3 -lrt -lpthread -version-info $(GENERIC_LIBRARY_VERSION) -release $(GENERIC_RELEASE)
 ''' % sources)
+
+	makefile.write(r'''
+liblass_1_0_0_la_CPPFLAGS = %s %s %s
+''' % (debug_info_flags, code_generation_flags, warning_flags))
+	
+	library_dirs = ' '.join(['-L' + i for i in library_directories])
+	makefile.write(r'''
+liblass_1_0_0_la_LDFLAGS = %s -lpython%s -lpthread -version-info $(GENERIC_LIBRARY_VERSION) -release $(GENERIC_RELEASE)
+''' % (library_dirs, python_version))
 
 	for subdir in headers_dict.keys():
 		incdir = subdir
@@ -247,11 +263,17 @@ INCLUDES= $(all_includes) %s
 # test
 check_PROGRAMS = lass_test
 lass_test_SOURCES = %s
-lass_test_CPPFLAGS = -g -Wall
+''' % test_sources)
+
+	makefile.write(r'''
+lass_test_CPPFLAGS = %s %s %s
+''' % (debug_info_flags, code_generation_flags, warning_flags))
+
+	makefile.write(r'''
 lass_test_LDADD = ../liblass-1.0.0.la
 
 TESTS = lass_test
-''' % test_sources)
+''')
 
 
 

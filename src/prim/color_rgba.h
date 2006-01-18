@@ -71,8 +71,8 @@ public:
 	const TVector vector() const { return TVector(r, g, b, a); }
 	TConstReference operator[](unsigned iIndex) const { return *(&r + iIndex); }
 	TReference operator[](unsigned iIndex) { return *(&r + iIndex); }
-	TConstReference at(signed iIndex) const { return *(&r + num::mod(iIndex, dimension)); }
-	TReference at(signed iIndex) { return *(&r + num::mod(iIndex, dimension)); }
+	TConstReference at(signed iIndex) const { return *(&r + num::mod(iIndex, static_cast<unsigned>(dimension))); }
+	TReference at(signed iIndex) { return *(&r + num::mod(iIndex, static_cast<unsigned>(dimension))); }
 
 	const ColorRGBA& operator+() const;
 	const ColorRGBA operator-() const;

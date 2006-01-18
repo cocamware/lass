@@ -58,7 +58,8 @@ class SimplePolygon2D
 public:
 
 	typedef SimplePolygon2D<T, NoDegenerate> TSelf;
-
+	typedef DegeneratePolicy TDegeneratePolicy;
+	
 	typedef Point2D<T> TPoint;
 	typedef Point2DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;

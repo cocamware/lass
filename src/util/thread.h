@@ -74,7 +74,7 @@ namespace impl
 enum LockResult
 {
 	lockSuccess,		/**< Mutex/CriticalSection is succesfully locked by this thread */
-	lockBusy,		/**< Mutex/CriticalSection is locked by another thread */
+	lockBusy		/**< Mutex/CriticalSection is locked by another thread */
 };
 
 /** Return code for wait functions
@@ -84,7 +84,7 @@ enum LockResult
 enum WaitResult
 {
 	waitSuccess,	/**< Wait is successfully terminated */ 
-	waitTimeout,	/**< Wait failed because of a timeout */
+	waitTimeout	/**< Wait failed because of a timeout */
 };
 
 /** ThreadKind.
@@ -94,7 +94,7 @@ enum WaitResult
 enum ThreadKind
 {
 	threadDetached,		/**< detached thread */
-	threadJoinable,		/**< joinable thread, can be waited for */
+	threadJoinable		/**< joinable thread, can be waited for */
 };
 
 /** Mutex.
@@ -233,6 +233,7 @@ private:
 }
 
 
+
 /** @brief Locks a @a iLock and starts a scope block in which it remains locked.
  *  @author [Bramz]
  *  @ingroup Threading
@@ -274,7 +275,7 @@ private:
  *      be the reason ...
  */
 #define LASS_LOCK(iLock)\
-	if (const lass::util::impl::GenericLockerBase& lassUtilImplGenericLocker =\
+	if (const lass::util::impl::GenericLockerBase& LASS_UNUSED(lassUtilImplGenericLocker) =\
 		lass::util::impl::makeGenericLocker(iLock))\
 	{\
 		LASS_ASSERT_UNREACHABLE;\

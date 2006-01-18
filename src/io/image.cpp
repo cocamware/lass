@@ -33,11 +33,12 @@
 #include "../stde/range_algorithm.h"
 #include "../stde/static_vector.h"
 
-#define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(iA, iB)\
-	(*lass::util::impl::makeEnforcer<lass::util::impl::DefaultPredicate,\
-									 lass::util::impl::DefaultRaiser>\
-	((iA).rows() == (iB).rows() && (iA).cols() == (iB).cols(), "Images '" LASS_STRINGIFY(iA)\
-	 "' and '" LASS_STRINGIFY(iB) "' have different size in '" LASS_HERE "'."))
+#define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
+	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		((a).rows() == (b).rows() && (a).cols() == (b).cols()),\
+		"Images '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different size in '" LASS_HERE "'.")
 
 namespace lass
 {
@@ -806,7 +807,6 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 	const std::ptrdiff_t deltaX = header.xIncreasing ? 1 : -1;
 
 	std::vector<impl::Bytes4> buffer(header.width);
-	impl::Bytes4 rgbe;
 	unsigned rleCount = 0;
 	unsigned rleCountByte = 0;
 
@@ -814,9 +814,9 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 	{
 		// unpack scanline to buffer
 		//
-		std::ptrdiff_t x = firstX;
-		while (x != lastX)
+		for (std::ptrdiff_t x = firstX; x != lastX; /* increment in loop */ )
 		{
+			impl::Bytes4 rgbe;
 			iStream.read(rgbe.get(), 4);
 			if (rgbe[0] == 2 && rgbe[1] == 2 && (rgbe[2] & 0x80) == 0)
 			{
@@ -883,7 +883,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 		TPixel* scanline = &raster_[y * header.width];	
 		for (std::ptrdiff_t x = firstX; x != lastX; x += deltaX)
 		{
-			const impl::Bytes4& rgbe = buffer[x];
+			const impl::Bytes4 rgbe = buffer[x];
 			TPixel& pixel = scanline[x];
 			const float exponent = exponents[rgbe[3]];
 			for (unsigned k = 0; k < 3; ++k)

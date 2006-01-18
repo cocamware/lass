@@ -259,7 +259,7 @@ struct UncheckedMinMax
 	/** correct @a ioMin and @a ioMax so that they are indeed then minimum and maximum.
 	 */
 	template <typename PointType>
-	static void checkMinMax(PointType& ioMin, PointType& ioMax)
+	static void checkMinMax(PointType& /*ioMin*/, PointType& /*ioMax*/)
 	{
 	}
 };

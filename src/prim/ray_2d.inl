@@ -138,7 +138,7 @@ template <typename T, class NP, class PP>
 const typename Ray2D<T, NP, PP>::TPoint
 Ray2D<T, NP, PP>::point(TParam iT) const
 {
-	LASS_PRIM_ENFORCE_RANGE(PP, iT >= TNumTraits::zero);
+	TParameterPolicy::enforceRange(iT, TNumTraits::zero);
 	return support_ + iT * direction_;
 }
 

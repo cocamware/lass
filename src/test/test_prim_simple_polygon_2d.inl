@@ -67,14 +67,14 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_THROW(polygon.insert(37, TPoint(51, 95)), util::Exception);
 	LASS_TEST_CHECK_THROW(polygon.erase(37), util::Exception);
 	LASS_TEST_CHECK(polygon.isEmpty());
-	LASS_TEST_CHECK_EQUAL(polygon.size(), 0);
+	LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(0));
 	LASS_TEST_CHECK_NO_THROW(polygon.signedArea());
 	LASS_TEST_CHECK_NO_THROW(polygon.area());
 	LASS_TEST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
 	LASS_TEST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
 	if (isStrictNoDegenerate || isNoDegenerate)
 	{
-	   LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
+		LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
 	}
 	else
 	{
@@ -108,14 +108,14 @@ void testPrimSimplePolygon2D()
 		LASS_TEST_CHECK_EQUAL(polygon.vector(37).squaredNorm(), TNumTraits::zero);
 	}
 	LASS_TEST_CHECK(!polygon.isEmpty());
-	LASS_TEST_CHECK_EQUAL(polygon.size(), 1);
+	LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(1));
 	LASS_TEST_CHECK_NO_THROW(polygon.signedArea());
 	LASS_TEST_CHECK_NO_THROW(polygon.area());
 	LASS_TEST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
 	LASS_TEST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
 	if (isStrictNoDegenerate || isNoDegenerate)
 	{
-	   LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
+		LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
 	}
 	else
 	{
@@ -141,7 +141,7 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_NO_THROW(polygon.erase(37)); // 37 => 0
 	LASS_TEST_CHECK_NO_THROW(polygon.add(p0));
 	LASS_TEST_CHECK_NO_THROW(polygon.insert(37, TPoint(51, 95))); // 37 => 0
-	LASS_TEST_CHECK_EQUAL(polygon.size(), 2);
+	LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(2));
 	LASS_TEST_CHECK_NO_THROW(polygon.erase(37)); // 37 => 1
 
 	// a vector of points
@@ -153,7 +153,7 @@ void testPrimSimplePolygon2D()
 	points.push_back(TPoint(5, 10));
 	points.push_back(TPoint(0, 0));
 	polygon = TPolygon(points.begin(), points.end());
-	LASS_TEST_CHECK_EQUAL(polygon.size(), 5);
+	LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(5));
 	for (int i = 0; i < 5; ++i)
 	{
 		LASS_TEST_CHECK_EQUAL(polygon[i], points[i]);

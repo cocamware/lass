@@ -59,7 +59,11 @@
 /** user breakpoint
  *  @ingroup CommonMacros
  */
-#define LASS_BREAK_HERE                 __asm { int 3 }
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#	define LASS_BREAK_HERE	__asm__("int3")
+#else
+#	define LASS_BREAK_HERE	__asm { int 3 }
+#endif
 
 /** create a unique name based on a prefix and line number
  *  @ingroup CommonMacros
@@ -80,18 +84,19 @@
  */
 #define LASS_LINE                       __LINE__
 
+#define LASS_HERE                       LASS_FILE "(" LASS_STRINGIFY(LASS_LINE) ")"
+
 /** current function
  *  @ingroup CommonMacros
  */
 #ifdef __FUNCTION__
-#define LASS_FUNCTION                   __FUNCTION__
-#define LASS_PRETTY_FUNCTION            LASS_FUNCTION
+#	define LASS_FUNCTION			__FUNCTION__
+#	define LASS_PRETTY_FUNCTION		LASS_FUNCTION
 #else
-#define LASS_FUNCTION                   "??"
-#define LASS_PRETTY_FUNCTION            LASS_FILE << "(" << LASS_LINE << ")"
+#	define LASS_FUNCTION			"??"
+#	define LASS_PRETTY_FUNCTION		LASS_HERE
 #endif
 
-#define LASS_HERE                       LASS_FILE "(" LASS_STRINGIFY(LASS_LINE) ")"
 
 
 
@@ -99,7 +104,7 @@
 
 #include "common_macros.inl"
 
-#if defined(_DEBUG) && !defined(NDEBUG)
+#if !defined(NDEBUG)
 //# define LASS_THROW( iMessage )               LASS_THROW_IMPL( iMessage )
 #	define LASS_THROW_EXCEPTION( iException )   LASS_THROW_EXCEPTION_IMPL( iException )
 #	define LASS_ASSERT( iExpression )           LASS_ASSERT_IMPL( iExpression )
@@ -128,11 +133,16 @@
  *  @ingroup CommonMacros
  */
 #define LASS_EXECUTE_BEFORE_MAIN_EX( iPrefix, x ) \
-	namespace { inline bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) () { \
-	x \
-	return true; \
-	}; \
-	const bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var ) = LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) (); }
+	namespace \
+	{ \
+		inline bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) () \
+		{ \
+			x \
+			return true; \
+		} \
+		const bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var ) = \
+			LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) (); \
+	}
 
 
 // now some pragma's you can use to leave messages behind
@@ -157,5 +167,24 @@
 	message(LASS_FILE "(" LASS_STRINGIFY(LASS_LINE) "):\n[LASS BUILD MSG] *** FIXME: " iMessage " ***")
 
 
+// some other usefull macros
+
+/** @def LASS_UNUSED
+ *  tell the compiler that some variable may stay unused.
+ *  @ingroup CommonMacros
+ *  Some compilers throw warnings at us if a variable stays unused.
+ *  Often this is a good thing, but sometimes that's exactly what we want.
+ *  This macro will attempt to avoid the warning (as long as the 
+ *  compiler suports such an attempt).
+ *
+ *  @code
+ *  int LASS_UNUSED(foobar) = 0;
+ *  @endcode
+ */
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#	define LASS_UNUSED(x) x __attribute__((unused))
+#else
+#	define LASS_UNUSED(x) x
+#endif
 
 #endif

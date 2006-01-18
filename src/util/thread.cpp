@@ -31,7 +31,7 @@
 #elif defined(LASS_UTIL_THREAD_HAVE_WIN32)
 #	include "impl/thread_win32.inl"
 #else
-#	error "Threading not supported for this platform"
+#	error "[LASS BUILD MSG] Threading not supported for this platform"
 #endif
 
 namespace lass

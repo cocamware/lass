@@ -328,7 +328,7 @@ template <typename I> inline
 typename integral_range_t<I>::self_type&
 integral_range_t<I>::operator+=(difference_type n)
 {
-	LASS_ASSERT((step_ > 0) ? (first + n * step_ <= last_) : (first + n * step_ >= last_));
+	LASS_ASSERT((step_ > 0) ? (first_ + n * step_ <= last_) : (first_ + n * step_ >= last_));
 	first_ += n * step_;
 }
 

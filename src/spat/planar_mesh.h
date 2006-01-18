@@ -226,8 +226,8 @@ namespace spat
 		public:
 			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		private:
-			lass::io::MatlabOStream& stream_;
 			TPlanarMesh* mesh_;
+			lass::io::MatlabOStream& stream_;
 		public:
 			EdgeToMatlab( TPlanarMesh* iMesh, lass::io::MatlabOStream& ioOStream ) : mesh_(iMesh), stream_( ioOStream ) {}
 			bool edgeToMatlab( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge )
@@ -692,7 +692,6 @@ namespace spat
 				typename TPoint2D::TValue d2 = squaredDistance(iPoint,p2);
 				typename TPoint2D::TValue d3 = squaredDistance(iPoint,p3);
 
-				int s = 0;
 				if ((d1<d2) && (d1<d3))
 				{
 					return e;
@@ -846,7 +845,8 @@ namespace spat
 			return e->sym();
 		}
 
-		int chOrder = chainOrder(e);
+		// unused?  [Bramz]
+		// int chOrder = chainOrder(e);
 
 		PointHandle* pH = pointHandle(e);
 		TEdge* base = makeEdge(org(e),iPoint,false);

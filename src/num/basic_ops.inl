@@ -294,6 +294,29 @@ double mod(double iV, double iMod)
 
 // --- long double ---------------------------------------------------------------------------------
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_CYGWIN
+
+long double abs(long double iV)	{ return static_cast<long double>(abs(static_cast<double>(iV))); }
+long double inv(long double iV) { return static_cast<long double>(inv(static_cast<double>(iV))); }
+long double sqrt(long double iV) { return static_cast<long double>(sqrt(static_cast<double>(iV))); }
+long double pow(long double iV, long double iPow) { return static_cast<long double>(pow(static_cast<double>(iV), static_cast<double>(iPow))); }
+long double exp(long double iV) { return static_cast<long double>(exp(static_cast<double>(iV))); }
+long double log(long double iV) { return static_cast<long double>(log(static_cast<double>(iV))); }
+long double cos(long double iV) { return static_cast<long double>(cos(static_cast<double>(iV))); }
+long double sin(long double iV) { return static_cast<long double>(sin(static_cast<double>(iV))); }
+long double tan(long double iV) { return static_cast<long double>(tan(static_cast<double>(iV))); }
+long double acos(long double iV) { return static_cast<long double>(acos(static_cast<double>(iV))); }
+long double asin(long double iV) { return static_cast<long double>(asin(static_cast<double>(iV))); }
+long double atan(long double iV) { return static_cast<long double>(atan(static_cast<double>(iV))); }
+long double atan2(long double iX, long double iY) { return static_cast<long double>(atan2(static_cast<double>(iX), static_cast<double>(iY))); }
+long double floor(long double iV) { return static_cast<long double>(floor(static_cast<double>(iV))); }
+long double ceil(long double iV) { return static_cast<long double>(ceil(static_cast<double>(iV))); }
+long double round(long double iV) { return static_cast<long double>(round(static_cast<double>(iV))); }
+long double fractional(long double iV) { return static_cast<long double>(fractional(static_cast<double>(iV))); }
+long double mod(long double iV, long double iMod) { return static_cast<long double>(mod(static_cast<double>(iV), static_cast<double>(iMod))); } 
+
+#else
+
 long double abs(long double iV)						{ return ::fabsl(iV); }			/**< @ingroup BasicOps */
 long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
 long double sqrt(long double iV)					{ return ::sqrtl(iV); }			/**< @ingroup BasicOps */
@@ -319,6 +342,7 @@ long double mod(long double iV, long double iMod)
 	return result < 0. ? result + iMod : result;
 }	
 
+#endif
 
 
 // --- char ----------------------------------------------------------------------------------------

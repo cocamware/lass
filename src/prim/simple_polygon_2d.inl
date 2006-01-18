@@ -253,9 +253,7 @@ SimplePolygon2D<T, DP>::area() const
 template <typename T, class DP>
 const Orientation SimplePolygon2D<T, DP>::orientation() const
 {
-	const TValue signArea = signedArea(); // DP::enforceSimple(*this);
-	LASS_PRIM_ENFORCE_NO_DEGENERATE(DP, signArea != TNumTraits::zero);
-
+	const TValue signArea = TDegeneratePolicy::enforceNonZeroSignedArea(*this); // DP::enforceSimple(*this);
 	return signArea == TNumTraits::zero ? oInvalid :
 		(signArea < TNumTraits::zero ? oClockWise : oCounterClockWise);
 }

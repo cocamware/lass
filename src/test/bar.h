@@ -45,8 +45,8 @@ namespace test
 {
 	class Bar : public lass::python::PyObjectPlus
 	{
-		PY_HEADER( lass::python::PyObjectPlus );
-
+		PY_HEADER( lass::python::PyObjectPlus )
+	private:
 		virtual std::string pyRepr(void);
 		virtual std::string pyStr(void);
 
@@ -96,7 +96,7 @@ namespace test
 
 		class InnerClass : public lass::python::PyObjectPlus
 		{
-			PY_HEADER( lass::python::PyObjectPlus );
+			PY_HEADER( lass::python::PyObjectPlus )
 		public:
 			InnerClass(const std::string& iSayWhat);
 			std::string talkTo(const std::string& iName);

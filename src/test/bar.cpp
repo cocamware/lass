@@ -108,7 +108,7 @@ namespace test
 		void Bar::complexArguments( const std::string& iA )
 		{
 			LASS_COUT << "complexArguments: '" << iA << "'\n";
-		};
+		}
 
 		prim::Point3D<float> Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation)

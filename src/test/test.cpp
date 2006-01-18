@@ -40,17 +40,13 @@
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 
-
-//#include <iostream>
-//#include <limits.h>
-
 int main(int argc, char* argv[])
 {
 	using namespace lass;
-	
+
 	LASS_EVAL(test::workPath());
 
-	io::proxyMan()->clog()->remove(&std::clog);
+	//io::proxyMan()->clog()->remove(&std::clog);
 
 	io::Logger logger("test_" LASS_TEST_VERSION ".log");
 	logger.subscribeTo(io::proxyMan()->cout());
@@ -58,13 +54,13 @@ int main(int argc, char* argv[])
 	logger.subscribeTo(io::proxyMan()->cerr());
 
 	test::TUnitTests unitTests;
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
-	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
+	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
 	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
 	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
 	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
 	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
+	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 
 	const bool success = test::runTests(unitTests);
 

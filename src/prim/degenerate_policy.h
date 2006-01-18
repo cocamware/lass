@@ -63,12 +63,6 @@ namespace prim
  */
 struct NoDegenerate
 {
-	template <class T>
-	static bool wrong(const T& iObj)
-	{
-		return !iObj;
-	}
-
 	template <class Primitive>
 	static void enforceEdge(const Primitive& iPrimitive, int iIndexOfTailVertex)
 	{
@@ -79,8 +73,19 @@ struct NoDegenerate
 	}
 
 	template <class Primitive>
-	static void enforceSimple(const Primitive& iPrimitive)
+	static void enforceSimple(const Primitive& /*iPrimitive*/)
 	{
+	}
+
+	template <class Primitive>
+	static const typename Primitive::TValue enforceNonZeroSignedArea(const Primitive& iPrimitive)
+	{
+		const typename Primitive::TValue result = iPrimitive.signedArea();
+		if (result == Primitive::TNumTraits::zero)
+		{
+			LASS_THROW("Area of primitive is zero.");
+		}
+		return result;
 	}
 };
 
@@ -96,12 +101,6 @@ struct NoDegenerate
  */
 struct StrictNoDegenerate
 {
-	template <class T>
-	static bool wrong(const T& iObj)
-	{
-		return !iObj;
-	}
-
 	template <class Primitive>
 	static void enforceEdge(const Primitive& iPrimitive, int iIndexOfTailVertex)
 	{
@@ -119,6 +118,17 @@ struct StrictNoDegenerate
 			LASS_THROW("polygon is not simple.");
 		}
 	}
+
+	template <class Primitive>
+	static const typename Primitive::TValue enforceNonZeroSignedArea(const Primitive& iPrimitive)
+	{
+		const typename Primitive::TValue result = iPrimitive.signedArea();
+		if (result == Primitive::TNumTraits::zero)
+		{
+			LASS_THROW("Area of primitive is zero.");
+		}
+		return result;
+	}
 };
 
 
@@ -130,20 +140,20 @@ struct StrictNoDegenerate
  */
 struct AllowDegenerate
 {
-	template <class T>
-	static bool wrong(const T& iObj)
-	{
-		return false;
-	}
-
 	template <class Primitive>
-	static void enforceEdge(const Primitive& iPrimitive, int iIndexOfTailVertex)
+	static void enforceEdge(const Primitive& /*iPrimitive*/, int /*iIndexOfTailVertex*/)
 	{
 	}
 
 	template <class Primitive>
-	static void enforceSimple(const Primitive& iPrimitive)
+	static void enforceSimple(const Primitive& /*iPrimitive*/)
 	{
+	}
+
+	template <class Primitive>
+	static const typename Primitive::TValue enforceNonZeroSignedArea(const Primitive& iPrimitive)
+	{
+		return iPrimitive.signedArea();
 	}
 };
 
@@ -151,25 +161,6 @@ struct AllowDegenerate
 }
 
 }
-
-/** enforce a primitive condition @a degeneratePredicate__ following the @a DegeneratePolicy__
- *  @ingroup DegeneratePolicy
- *
- *  If @a DegeneratePolicy__ is restricting, then the condition @a iDegeneratePredicate__ is
- *  checked and an exception is thrown if condition is not fullfilled.  In case of non restricting
- *  degenerate policy, no exception is ever thrown.
- *
- *  @param DegeneratePolicy__ type of used degenerate policy, is used as enforcer predicate.
- *  @param degeneratePredicate__ boolean expression to check the primitive.
- *  @throw std::exception if predicate fails.
- */
-#define LASS_PRIM_ENFORCE_NO_DEGENERATE(DegeneratePolicy__, noDegeneratePredicate__)\
-	(*lass::util::impl::makeEnforcer<DegeneratePolicy__, lass::prim::impl::DegenerateRaiser>(\
-		(noDegeneratePredicate__),\
-		"Degenerate primitive detected. Condition '" LASS_STRINGIFY(noDegeneratePredicate__)\
-		"' is not fullfilled in '" LASS_HERE "'"))
-
-
 
 // --- implementation ------------------------------------------------------------------------------
 

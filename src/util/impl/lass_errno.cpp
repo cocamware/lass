@@ -26,7 +26,7 @@
 #include "util_common.h"
 #include "lass_errno.h"
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #	include "lass_auto_config.h"
 #endif
 #include <errno.h>
@@ -57,7 +57,7 @@ const std::string lass_strerror(int iErrnum)
 	char buffer[bufferLength + 1];
 	errno = 0;
 #	if STRERROR_R_CHAR_P
-	const char* result = strerror_r(iErrnum, buffer, bufferLength);
+	const char* result = ::strerror_r(iErrnum, buffer, bufferLength);
 	if (errno != 0)
 	{
 		result = 0;
