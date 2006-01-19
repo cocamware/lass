@@ -30,20 +30,24 @@
 
 // identify the compiler
 //
-#if _MSC_VER == 1200
-#	define LASS_COMPILER_VERSION 6.0
+#define LASS_COMPILER_VERSION _MSC_VER
+
+#if LASS_COMPILER_VERSION == 1200
+#	define LASS_COMPILER "Microsoft Visual C++ version 6.0"
 #	define LASS_LIB_COMPILER "vc6"
-#elif _MSC_VER == 1300
-#	define LASS_COMPILER_VERSION 7.0
+
+#elif LASS_COMPILER_VERSION == 1300
+#	define LASS_COMPILER "Microsoft Visual C++ .NET 2002"
 #	define LASS_LIB_COMPILER "vc7"
-#elif _MSC_VER == 1310
-#	define LASS_COMPILER_VERSION 7.1
+
+#elif LASS_COMPILER_VERSION == 1310
+#	define LASS_COMPILER "Microsoft Visual C++ .NET 2003"
 #	define LASS_LIB_COMPILER "vc71"
+
 #else
-#	define LASS_COMPILER_VERSION _MSC_VER
+#	define LASS_LIB_COMPILER "Microsoft Visual C++"
 #	define LASS_LIB_COMPILER "vc"
 #endif
-#define LASS_COMPILER "Microsoft Visual C++ version " LASS_STRINGIFY(LASS_COMPILER_VERSION)
 
 
 
@@ -58,7 +62,7 @@
 
 // broken compilers ...
 //
-#if _MSC_VER <= 1300 // 1300 == 7.0
+#if LASS_COMPILER_VERSION <= 1300 // 1300 == 7.0
 #	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 #endif
 

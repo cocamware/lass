@@ -512,6 +512,9 @@ cd ..\dll
 				RelativePath="..\util\impl\dispatcher_python.cpp">
 			</File>
 			<File 
+				RelativePath="..\util\impl\lass_errno.cpp">
+			</File>
+			<File 
 				RelativePath="..\util\impl\singleton_impl.cpp">
 			</File>
 		</Filter>

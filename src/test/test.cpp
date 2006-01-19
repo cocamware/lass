@@ -39,19 +39,24 @@
 
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
+#include "../io/file_attribute.h"
 
 int main(int argc, char* argv[])
 {
 	using namespace lass;
 
-	LASS_EVAL(test::workPath());
-
-	//io::proxyMan()->clog()->remove(&std::clog);
-
-	io::Logger logger("test_" LASS_TEST_VERSION ".log");
+	const std::string logFile = 
+		io::fileJoinPath(test::workPath(), "test_" LASS_TEST_VERSION ".log");
+	io::Logger logger(logFile);
 	logger.subscribeTo(io::proxyMan()->cout());
 	logger.subscribeTo(io::proxyMan()->clog());
 	logger.subscribeTo(io::proxyMan()->cerr());
+
+	LASS_LOG(logFile);
+	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
+	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
+	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
+	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
 	test::TUnitTests unitTests;
 	stde::copy_r(test::testIo(), std::back_inserter(unitTests));

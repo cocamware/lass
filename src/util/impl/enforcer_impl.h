@@ -98,7 +98,7 @@ struct HandlePredicate
 	template <typename T>
 	static bool LASS_CALL wrong(const T& iHandle)
 	{
-		return iHandle == static_cast<T>(-1);
+		return iHandle == reinterpret_cast<T>(-1);
 	}
 };
 
