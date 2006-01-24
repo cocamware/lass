@@ -33,6 +33,8 @@
 #include "test_num_db.inl"
 #include "test_num_spline.inl"
 #include "test_num_matrix_vector.inl"
+#include "test_num_polynomial.inl"
+#include "test_num_filters.inl"
 #include "test_num_random.inl"
 #include "test_num_tri_bool.inl"
 #include "test_num_fn_sampled8.inl"
@@ -52,11 +54,14 @@ TUnitTests testNum()
 	result.push_back(LASS_UNIT_TEST(testNumSpline));
 
 	result.push_back(LASS_UNIT_TEST(testNumMatrix<double>));
-	result.push_back(LASS_UNIT_TEST(testNumMatrix<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumMatrix< std::complex<double> >));
 	result.push_back(LASS_UNIT_TEST(testNumVector<double>));
-	result.push_back(LASS_UNIT_TEST(testNumVector<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumVector< std::complex<double> >));
 	result.push_back(LASS_UNIT_TEST(testNumSolve<double>));
-	result.push_back(LASS_UNIT_TEST(testNumSolve<std::complex<double> >));
+	result.push_back(LASS_UNIT_TEST(testNumSolve< std::complex<double> >));
+
+	result.push_back(LASS_UNIT_TEST(testNumPolynomial<double>));
+	result.push_back(LASS_UNIT_TEST(testNumFilters<double>));
 
 	result.push_back(LASS_UNIT_TEST(testNumRandomMersenne));
 	result.push_back(LASS_UNIT_TEST(testNumDistributions));

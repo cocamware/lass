@@ -216,13 +216,9 @@ namespace lass
 		PyObject*
 		toPySharedPtrCast(T& iObj)
 		{
-			if (iObj.get())
-				return iObj.get()->PyPlus_INCREF();
-			else
-			{
-				Py_INCREF( Py_None );
-				return Py_None;
-			}
+			PyObject* obj = iObj ? iObj.get() : Py_None;
+			Py_INCREF(obj);
+			return obj;
 		}
 
 		/** meta function to detect if a type is a PyObject-derived type

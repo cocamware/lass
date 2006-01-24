@@ -1169,9 +1169,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="..\config\config.h">
 			</File>
 			<File 
-				RelativePath="..\lass_common.h">
-			</File>
-			<File 
 				RelativePath="..\config\platform_cygwin.h">
 			</File>
 			<File 
