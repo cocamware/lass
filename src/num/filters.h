@@ -118,6 +118,8 @@ public:
 	IirFilter(const TValues& iNominator, const TValues& iDenominator);
 	IirFilter(const TValuesPair& iCoefficients);
 private:
+	typedef std::vector<size_t> TIndexTable;
+
 	TOutputIterator doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput);
 	void doReset();
 	void init(const TValuesPair& iCoefficients);
