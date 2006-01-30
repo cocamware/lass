@@ -764,7 +764,7 @@ $[
  *      PY_HEADER(python::PyObjectPlus)
  *  public:
  *      void barA(int a);
- *      void barB(const std::string& b);
+ *      void barB(const std::string& b) const;
  *  };
  *
  *  // foo.cpp
@@ -860,6 +860,9 @@ $[
  *  This macro will help you to solve this ambiguity by explicitely specifying return type
  *  and parameter types.
  *
+ *  Just like PY_CLASS_METHOD_EX, PY_CLASS_METHOD_QUALIFIED_EX allows for overloading.  These
+ *  overloads may be mixed with PY_CLASS_METHOD_EX methods.
+ *
  *  @code
  *  // foo.h
  *  class Foo
@@ -867,7 +870,7 @@ $[
  *      PY_HEADER(python::PyObjectPlus)
  *  public:
  *      void bar(int a);
- *      void bar(const std::string& b);
+ *      void bar(const std::string& b) const;
  *  };
  *
  *  // foo.cpp
@@ -1032,6 +1035,112 @@ $[
 		i_cppClass, i_cppMethod, t_return, \
 		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_cppClass)) )
 ]$
+
+
+// --- "free" methods ------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  @brief Exports a C/C++ free function as Python method
+ *
+ *  @param t_cppClass
+ *      the C++ class you're exporting the method for
+ *  @param i_cppFreeMethod
+ *      the name of the C++ function you're exporting as free method
+ *  @param s_methodName
+ *      the name the method will have in Python
+ *  @param s_doc
+ *      documentation of method as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *      per exported C++ class/method pair.
+ *
+ *  This macro allows you to export a C/C++ free function as a Python method.  This allows you to
+ *  export additional functions that are written outside the class definition as methods in the 
+ *  Python class.  This is extremely usefull when using shadow classes to export a C++ class,
+ *  because in such case, it's often undesirable or impossible to write the function as a method.
+ *
+ *  The free function has to accept a pointer or reference to the object as first argument.
+ *  This may be a const or non-const pointer/reference.
+ *
+ *  Just like PY_CLASS_METHOD_EX, PY_CLASS_FREE_METHOD_EX allows for overloading.  These
+ *  overloads may be mixed with PY_CLASS_METHOD_EX methods.
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  };
+ *
+ *  void barA(Foo* foo, int a);
+ *  void barB(const Foo&, const std::string& b);
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_FREE_METHOD_EX(Foo, barA, "bar", 0, foo_bar_a)
+ *  PY_CLASS_FREE_METHOD_EX(Foo, barB, "bar", 0, foo_bar_b)
+ *  @endcode
+ */
+#define PY_CLASS_FREE_METHOD_EX( t_cppClass, i_cppFreeMethod, s_methodName, s_doc, i_dispatcher)\
+	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
+	inline PyObject* i_dispatcher( PyObject* iObject, PyObject* iArgs )\
+	{\
+		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
+		{\
+			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iObject, iArgs);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return ::lass::python::impl::CallMethod<TCppClass>::callFree(\
+			iArgs, cppObject, i_cppFreeMethod );\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_dispatcher),\
+		::lass::python::impl::addClassMethod< t_cppClass >(\
+			s_methodName, s_doc, i_dispatcher, LASS_CONCATENATE(pyOverloadChain_, i_dispatcher));\
+	)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_FREE_METHOD_EX with
+ *  @a i_dispatcher = py @a i_cppClass @a i_cppFreeMethod __LINE__.
+ */
+#define PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, s_methodName, s_doc )\
+		PY_CLASS_FREE_METHOD_EX(\
+			i_cppClass, i_cppFreeMethod, s_methodName, s_doc,\
+			LASS_UNIQUENAME(LASS_CONCATENATE_3(py, i_cppClass, i_cppFreeMethod)))
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_FREE_METHOD_NAME_DOC with @a s_doc = 0.
+ */
+#define PY_CLASS_FREE_METHOD_NAME( i_cppClass, i_cppFreeMethod, s_methodName )\
+		PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, s_methodName, 0 )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_FREE_METHOD_NAME_DOC with @a s_methodName = "@a i_cppFreeMethod".
+ */
+#define PY_CLASS_FREE_METHOD_DOC( i_cppClass, i_cppFreeMethod, s_doc )\
+		PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, LASS_STRINGIFY(i_cppFreeMethod), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_FREE_METHOD_NAME_DOC  with @a s_methodName = "@a i_cppFreeMethod"
+ *  and @a s_doc = 0.
+ */
+#define PY_CLASS_FREE_METHOD( i_cppClass, i_cppFreeMethod )\
+		PY_CLASS_FREE_METHOD_DOC( i_cppClass, i_cppFreeMethod, 0 )
+
 
 
 

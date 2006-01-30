@@ -212,6 +212,19 @@ print test.tester(box, "y", matrix)
 
 
 
+print "\n* Testing free methods"
+try:
+	test.freeMethodA("been here")
+except:
+	reportError("Bar seems to have troubles with freeMethodA")
+try:
+	test.freeMethodB("done that")
+except:
+	reportError("Bar seems to have troubles with freeMethodB")
+print "\n"
+
+
+
 print "\n* Testing class constants"
 try:
     print "Bar.CONST:\n", embedding.Bar.CONST

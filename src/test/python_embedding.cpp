@@ -183,6 +183,18 @@ PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
 PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
 PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
 
+// free function as method
+void freeMethodA(const Bar& bar, const std::string& a)
+{
+	LASS_COUT << "void (const Bar&, const std::string&): " << &bar << " " << a << std::endl;
+}
+void freeMethodB(Bar* bar, const std::string& a)
+{
+	LASS_COUT << "void (Bar*, const std::string&): " << bar << " " << a << std::endl;
+}
+PY_CLASS_FREE_METHOD(Bar, freeMethodA);
+PY_CLASS_FREE_METHOD(Bar, freeMethodB);
+
 // a const value as class member
 PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );
 

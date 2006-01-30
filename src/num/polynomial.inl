@@ -227,7 +227,7 @@ Polynomial<T>& Polynomial<T>::operator*=(TParam iScalar)
 	{
 		a_[i] *= iScalar;
 	}
-	return result;
+	return *this;
 }
 
 
@@ -240,7 +240,7 @@ Polynomial<T>& Polynomial<T>::operator/=(TParam iScalar)
 	{
 		a_[i] /= iScalar;
 	}
-	return result;
+	return *this;
 }
 
 
@@ -288,7 +288,7 @@ Polynomial<T> Polynomial<T>::pow(unsigned iPower) const
 	Polynomial<T> result(1);
 	for (unsigned i = 0; i < iPower; ++i)
 	{
-		result *= iPower;
+		result *= *this;
 	}
 	return result;
 }

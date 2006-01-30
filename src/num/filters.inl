@@ -28,6 +28,7 @@
 
 #include "num_common.h"
 #include "filters.h"
+#include "../stde/extended_iterator.h"
 
 namespace lass
 {
@@ -44,6 +45,11 @@ FirFilter<T, InIt, OutIt>::FirFilter(const TValues& iImpulseResponse):
 	tapSize_(iImpulseResponse.size()),
 	bufferIndex_(0)
 {
+	if (iImpulseResponse.empty())
+	{
+		LASS_THROW("Cannot use an empty vector as impulse response");
+	}
+
 	for (size_t i = 0; i < tapSize_; ++i)
 	{
 		nextIndex_[i] = (i - 1 + tapSize_) % tapSize_;
@@ -93,9 +99,9 @@ IirFilter<T, InIt, OutIt>::IirFilter(const TValues& iNominator, const TValues& i
 
 
 template <typename T, typename InIt, typename OutIt>
-IirFilter<T, InIt, OutIt>::IirFilter(const TValuesPair& iCoefficients):
+IirFilter<T, InIt, OutIt>::IirFilter(const TValuesPair& iCoefficients)
 {
-	init(std::make_pair(iCoefficients));
+	init(iCoefficients);
 	reset();
 }
 
@@ -119,7 +125,7 @@ IirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast,
 		}
 		for (size_t i = 0; i < yTapSize_; ++i)
 		{
-			accumulator += yTaps[i] * yBuf[i];
+			accumulator -= yTaps[i] * yBuf[i];
 		}
 		xBufferIndex_ = xNextIndex_[xBufferIndex_];
 		yBufferIndex_ = yNextIndex_[yBufferIndex_];
@@ -143,18 +149,27 @@ void IirFilter<T, InIt, OutIt>::doReset()
 template <typename T, typename InIt, typename OutIt>
 void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
 {
+	if (iCoefficients.first.empty() || iCoefficients.second.empty())
+	{
+		LASS_THROW("Cannot use an empty vector as coefficients");
+	}
+	if (iCoefficients.second[0] == TNumTraits::zero)
+	{
+		LASS_THROW("Cannot use an zero as first element in the denominator");
+	}
+
 	xTaps_ = iCoefficients.first;
 	yTaps_.assign(stde::next(iCoefficients.second.begin()), iCoefficients.second.end());
 	xTapSize_ = xTaps_.size();
 	yTapSize_ = yTaps_.size();
 	const TValue scaler = num::inv(iCoefficients.second[0]);
-	for (size_t i = 0; i < xTaps_; ++i)
+	for (size_t i = 0; i < xTapSize_; ++i)
 	{
-		xTaps_[i] /= scaler;
+		xTaps_[i] *= scaler;
 	}
-	for (size_t i = 0; i < yTaps_; ++i)
+	for (size_t i = 0; i < yTapSize_; ++i)
 	{
-		yTaps_[i] /= scaler;
+		yTaps_[i] *= scaler;
 	}
     xBuffer_.resize(2 * xTapSize_);
     yBuffer_.resize(2 * yTapSize_);
@@ -179,7 +194,7 @@ void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
 template <typename T, typename InIt, typename OutIt>
 LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, 
 									  TParam iSamplingFrequency):
-	IirFilter(laplaceToZ(std::make_pair(iNominator, iDenominator), iSamplingFrequency))
+	IirFilter<T, InIt, OutIt>(laplaceToZ(std::make_pair(iNominator, iDenominator), iSamplingFrequency))
 {
 }
 
@@ -187,7 +202,7 @@ LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValues& iNominator, co
 
 template <typename T, typename InIt, typename OutIt>
 LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency):
-	IirFilter(laplaceToZ(iCoefficients, iSamplingFrequency))
+	IirFilter<T, InIt, OutIt>(laplaceToZ(iCoefficients, iSamplingFrequency))
 {
 }
 
@@ -199,7 +214,7 @@ LaplaceIirFilter<T, InIt, OutIt>::laplaceToZ(const TValuesPair& iCoefficients, T
 {
 	TPolynomial num = laplaceToZHelper(iCoefficients.first, iSamplingFrequency);
 	TPolynomial den = laplaceToZHelper(iCoefficients.second, iSamplingFrequency);
-	TPolynomial onePlusZ = 1 + TPolynomial::x();
+	TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
 	const size_t m = iCoefficients.first.size();
 	const size_t n = iCoefficients.second.size();
 	if (n > m)
@@ -221,8 +236,8 @@ LaplaceIirFilter<T, InIt, OutIt>::laplaceToZHelper(const TValues& iCoefficients,
 {
 	TValue twoFs = 2 * iSamplingFrequency;
 
-	TPolynomial oneMinZ = 2 * iSamplingFrequency * (1 - TPolynomial::x());
-	TPolynomial onePlusZ = 1 + TPolynomial::x();
+	TPolynomial oneMinZ = 2 * iSamplingFrequency * (TNumTraits::one - TPolynomial::x());
+	TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
 	TPolynomial result;
 	const size_t n = iCoefficients.size();
 	for (size_t i = 0; i < n; ++i)
