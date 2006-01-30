@@ -7,7 +7,7 @@
  *
  *  The LASS License:
  *
- *  Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004-2006 Bram de Greve and Tom De Muer
  *
  *  LASS is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -46,6 +46,9 @@ TUnitTests testStde();
 
 /*
  * $Log$
+ * Revision 1.3  2005/11/09 18:11:02  bramz
+ * rolling our own unit tests ...
+ *
  * Revision 1.2  2005/02/14 16:42:58  bramz
  * - fixing tabs
  *
