@@ -6,7 +6,7 @@
  *
  *  The LASS License:
  *
- *  Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004-2006 Bram de Greve and Tom De Muer
  *
  *  LASS is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@
  *
  *  The LASS License:
  *
- *  Copyright 2004 Bram de Greve and Tom De Muer
+ *  Copyright 2004-2006 Bram de Greve and Tom De Muer
  *
  *  LASS is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

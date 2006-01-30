@@ -106,6 +106,14 @@ Global
 		{4EA29846-A487-4B4D-88E6-28054D7CB15E}.win32_vc71_d.ActiveCfg = win32_vc71_d|Win32
 		{4EA29846-A487-4B4D-88E6-28054D7CB15E}.win32_vc71_d.Build.0 = win32_vc71_d|Win32
 	EndGlobalSection
+	GlobalSection(SolutionItems) = postSolution
+		..\AUTHORS = ..\AUTHORS
+		..\ChangeLog = ..\ChangeLog
+		..\COPYING = ..\COPYING
+		..\INSTALL = ..\INSTALL
+		..\NEWS = ..\NEWS
+		..\README = ..\README
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution
