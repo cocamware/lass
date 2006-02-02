@@ -164,11 +164,16 @@ PY_CLASS_METHOD( Bar, aMoreComplexFunction )
 PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
 PY_CLASS_METHOD( Bar, complexArguments );
 PY_CLASS_METHOD( Bar, primArguments );
-
 PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
+PY_CLASS_METHOD_EX( Bar, operator(), "__call__", 0, BarCallOperator )
+PY_CLASS_METHOD_NAME( Bar, call, "__call__")
+PY_CLASS_FREE_METHOD(Bar, freeMethodA);
+PY_CLASS_FREE_METHOD(Bar, freeMethodB);
+PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, "__call__");
+
 PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );
 PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );
 PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
@@ -183,17 +188,6 @@ PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
 PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
 PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
 
-// free function as method
-void freeMethodA(const Bar& bar, const std::string& a)
-{
-	LASS_COUT << "void (const Bar&, const std::string&): " << &bar << " " << a << std::endl;
-}
-void freeMethodB(Bar* bar, const std::string& a)
-{
-	LASS_COUT << "void (Bar*, const std::string&): " << bar << " " << a << std::endl;
-}
-PY_CLASS_FREE_METHOD(Bar, freeMethodA);
-PY_CLASS_FREE_METHOD(Bar, freeMethodB);
 
 // a const value as class member
 PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );

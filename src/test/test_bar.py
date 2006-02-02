@@ -225,6 +225,29 @@ print "\n"
 
 
 
+print "\n* Testing __call__ operator"
+try:
+	result = test(4)
+	print result
+	assert(result == 8)
+except:
+	reportError("Bar seems to have troubles with __call__")
+try:
+	result = test("hallo")
+	print result
+	assert(result == "HALLO")
+except:
+	reportError("Bar seems to have troubles with __call__")
+try:
+	result = test(3.5)
+	print result
+	assert(result == 1.75)
+except:
+	reportError("Bar seems to have troubles with __call__")
+print "\n"
+
+
+
 print "\n* Testing class constants"
 try:
     print "Bar.CONST:\n", embedding.Bar.CONST

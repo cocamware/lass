@@ -332,22 +332,31 @@ inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentati
 /** @internal
  */
 template <typename CppClass>
-void addClassMethod(char* iMethodName, char* iDocumentation, PyCFunction iMethodDispatcher,
-					PyCFunction& oOverloadChain)
+void addClassMethod(char* iMethodName, char* iDocumentation, 
+					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
+					ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain) 
 {
-	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
-		CppClass::Methods.begin(), CppClass::Methods.end(),	PyMethodEqual(iMethodName));
-	if (i == CppClass::Methods.end())
+	if (strcmp(iMethodName, "__call__") == 0)
 	{
-		CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
-			iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
-		oOverloadChain = 0;
+		oTernaryOverloadChain = CppClass::Type.tp_call;
+		CppClass::Type.tp_call = iTernaryDispatcher;
 	}
 	else
 	{
-		oOverloadChain = i->ml_meth;
-		i->ml_meth = iMethodDispatcher;
-	};
+		::std::vector<PyMethodDef>::iterator i = ::std::find_if(
+			CppClass::Methods.begin(), CppClass::Methods.end(),	PyMethodEqual(iMethodName));
+		if (i == CppClass::Methods.end())
+		{
+			CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
+				iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
+			oOverloadChain = 0;
+		}
+		else
+		{
+			oOverloadChain = i->ml_meth;
+			i->ml_meth = iMethodDispatcher;
+		};
+	}
 }
 
 

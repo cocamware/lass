@@ -307,7 +307,8 @@ namespace lass
 
 			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
 			template <typename CppClass> void addClassMethod(char* iMethodName, char* iDocumentation, 
-				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
+				ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain);
 			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);
 			template <typename InnerCppClass> void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
                 const char* iInnerClassName, const char* iDocumentation);
@@ -317,8 +318,9 @@ namespace lass
 			template <typename Integer> int pyGetUnsignedObject( PyObject* iValue, Integer& oV );
 			template <typename Float> int pyGetFloatObject( PyObject* iValue, Float& oV );
 
+			LASS_DLL void addMessageHeader(const std::string& iHeader);
+			LASS_DLL bool checkSequenceSize(PyObject* iValue, int iExpectedSize);
 		}
-
 	}
 }
 

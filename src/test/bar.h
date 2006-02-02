@@ -69,6 +69,9 @@ namespace test
 		void overloaded( int iA );
 		void overloaded( const std::string& iB );
 
+		int operator()( int iA ) const;
+		std::string call(const std::string& iA) const;
+
 		static int aStaticMethod( float ia );
 
 		int getInt() const;
@@ -106,8 +109,9 @@ namespace test
 	};
 
 	void listInfo( PyObject* iObject );
-
-
+	void freeMethodA(const Bar& bar, const std::string& a);
+	void freeMethodB(Bar* bar, const std::string& a);
+	float freeCall(const Bar* bar, float a);
 }
 
 }

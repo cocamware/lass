@@ -50,6 +50,70 @@ namespace lass
 		PY_CLASS_METHOD( FNSampled8, getNonspecificity );
 		PY_CLASS_METHOD( FNSampled8, getDiscord );
 		PY_CLASS_METHOD_QUALIFIED_1( FNSampled8, getSupport, FNSampled8::TInterval, lass::util::CallTraits<FNSampled8::TBaseType>::TParam );
+		/*typedef lass::meta::TypeList< 
+			lass::util::CallTraits<FNSampled8::TBaseType>::TParam , 
+			lass::meta::NullType 
+		> 
+		pyClassMethodParams_FNSampled852; 
+		static PyCFunction pyFNSampled8getSupport52_OverloadChain = 0; 
+		static ternaryfunc pyFNSampled8getSupport52_Ternary_OverloadChain = 0; 
+		PyObject* pyFNSampled8getSupport52(PyObject* iObject, PyObject* iArgs) 
+		{ 
+			if (pyFNSampled8getSupport52_OverloadChain) 
+			{ 
+				PyObject* result = pyFNSampled8getSupport52_OverloadChain(iObject, iArgs); 
+				if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)) 
+				{ 
+					PyErr_Clear(); 
+				} 
+				else 
+				{ 
+					return result; 
+				} 
+			} 
+			typedef ::lass::python::impl::ShadowTraits< FNSampled8 > TShadowTraits; 
+			typedef TShadowTraits::TCppClass TCppClass; 
+			TCppClass* const cppObject = TShadowTraits::cppObject(iObject); 
+			if (!cppObject) 
+			{ 
+				return 0; 
+			} 
+			return (::lass::python::impl::ExplicitResolver<TCppClass, FNSampled8::TInterval, pyClassMethodParams_FNSampled852>::TImpl::callMethod)
+				(iArgs, cppObject, &TCppClass::getSupport); 
+		} 
+		PyObject* pyFNSampled8getSupport52_Ternary(PyObject* iObject, PyObject* iArgs, PyObject* iKw) 
+		{ 
+			if (pyFNSampled8getSupport52_Ternary_OverloadChain) 
+			{ 
+				PyObject* result = pyFNSampled8getSupport52_Ternary_OverloadChain(iObject, iArgs, iKw); 
+				if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)) 
+				{ 
+					PyErr_Clear(); 
+				} 
+				else 
+				{ 
+					return result; 
+				} 
+			} 
+			if (iKw) 
+			{ 
+				PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported"); 
+				return 0; 
+			} 
+			return pyFNSampled8getSupport52(iObject, iArgs); 
+		} 
+		namespace 
+		{ 
+			inline bool pyFNSampled8getSupport52_ExecuteBeforeMain52func () 
+			{ 
+				::lass::python::impl::addClassMethod< FNSampled8 >( "getSupport", 0, 
+				pyFNSampled8getSupport52, pyFNSampled8getSupport52_OverloadChain, 
+				pyFNSampled8getSupport52_Ternary, pyFNSampled8getSupport52_Ternary_OverloadChain); 
+				return true; 
+			} 
+			const bool pyFNSampled8getSupport52_ExecuteBeforeMain52var = pyFNSampled8getSupport52_ExecuteBeforeMain52func (); 
+		};*/
+
 		PY_CLASS_METHOD( FNSampled8, defuzzifyCentroid );
 		PY_CLASS_METHOD( FNSampled8, defuzzifyMaxMembership );
 

@@ -28,6 +28,7 @@
 
 #include "test_common.h"
 #include "bar.h"
+#include "../stde/extended_string.h"
 
 namespace lass
 {
@@ -128,6 +129,17 @@ namespace test
 			LASS_COUT << "Bar::overloaded(const std::string&): " << iB << std::endl;
 		}
 
+		int Bar::operator()(int iA) const
+		{
+			LASS_COUT << "Bar::operator()(int): " << this << " " << iA << std::endl;
+			return 2 * iA;
+		}
+		std::string Bar::call(const std::string& iA) const
+		{
+			LASS_COUT << "Bar::call(const std::string&): " << this << " " << iA << std::endl;
+			return stde::toupper(iA);
+		}
+
 		int Bar::getInt() const
 		{
 			return privateInt_;
@@ -176,6 +188,20 @@ namespace test
 		std::string Bar::InnerClass::talkTo(const std::string& iName)
 		{
 			return iName + ", " + sayWhat_ + ".\n";
+		}
+
+		void freeMethodA(const Bar& bar, const std::string& a)
+		{
+			LASS_COUT << "void (const Bar&, const std::string&): " << &bar << " " << a << std::endl;
+		}
+		void freeMethodB(Bar* bar, const std::string& a)
+		{
+			LASS_COUT << "void (Bar*, const std::string&): " << bar << " " << a << std::endl;
+		}
+		float freeCall(const Bar* bar, float a)
+		{
+			LASS_COUT << "float freeCall(const Bar*, float a): " << bar << " " << a << std::endl;
+			return a / 2;
 		}
 
 		// --- shadow classes ---

@@ -44,7 +44,6 @@ namespace thread_test
 
 	void foo(int a, int b) 
 	{ 
-		std::cerr << "i'm foo!\n";
 		util::Thread::sleep(500); 
 		functionIsCalled = true; 
 	}

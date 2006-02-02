@@ -112,7 +112,7 @@ typename IirFilter<T, InIt, OutIt>::TOutputIterator
 IirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput)
 {
 	const T* const xTaps = &xTaps_[0];
-	const T* const yTaps = &yTaps_[0];
+	const T* const yTaps = yTaps_.empty() ? 0 : &yTaps_[0];
 	while (iFirst != iLast)
 	{
 		xBuffer_[xTapSize_ + xBufferIndex_] = xBuffer_[xBufferIndex_] = *iFirst++;
@@ -171,20 +171,24 @@ void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
 	{
 		yTaps_[i] *= scaler;
 	}
-    xBuffer_.resize(2 * xTapSize_);
-    yBuffer_.resize(2 * yTapSize_);
+	
+	const size_t xBufferSize = xTapSize_;
+	const size_t yBufferSize = std::max<size_t>(yTapSize_, 1);
+	xBuffer_.resize(2 * xBufferSize);
+    yBuffer_.resize(2 * yBufferSize);
+	xNextIndex_.resize(xBufferSize);
+	yNextIndex_.resize(yBufferSize);
+	for (size_t i = 0; i < xBufferSize; ++i)
+	{
+		xNextIndex_[i] = (i + xBufferSize - 1) % xBufferSize;
+	}
+	for (size_t i = 0; i < yBufferSize; ++i)
+	{
+		yNextIndex_[i] = (i + yBufferSize - 1) % yBufferSize;
+	}
+
 	xBufferIndex_ = 0;
 	yBufferIndex_ = 0;
-	xNextIndex_.resize(xTapSize_);
-	yNextIndex_.resize(yTapSize_);
-	for (size_t i = 0; i < xTapSize_; ++i)
-	{
-		xNextIndex_[i] = (i + xTapSize_ - 1) % xTapSize_;
-	}
-	for (size_t i = 0; i < yTapSize_; ++i)
-	{
-		yNextIndex_[i] = (i + yTapSize_ - 1) % yTapSize_;
-	}
 }
 
 

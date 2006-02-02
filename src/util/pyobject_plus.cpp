@@ -204,6 +204,54 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodN
 	};
 }
 
+/** @internal
+*/
+void addMessageHeader(const std::string& iHeader)
+{
+	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
+	{
+		return;
+	}
+	PyObject *type, *value, *traceback;
+	PyErr_Fetch(&type, &value, &traceback);
+	try
+	{
+		if (PyString_Check(value))
+		{
+			std::ostringstream buffer;
+			buffer << iHeader << ": " << PyString_AsString(value);
+			PyObject* temp = PyString_FromString(buffer.str().c_str());
+			std::swap(value, temp);
+			Py_DECREF(temp);
+		}
+	}
+	catch (const std::exception&)
+	{
+	}
+	PyErr_Restore(type, value, traceback);
+}
+
+/** @internal
+*/
+bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
+{
+	if (!PySequence_Check(iValue))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a python sequence (tuple, list, ...)");
+		return false;
+	}
+	const int size = PySequence_Size(iValue);
+	if (size != iExpectedSize)
+	{
+		std::ostringstream buffer;
+		buffer << "tuple/list is not of expected size " << iExpectedSize
+			<< " (size is " << size << ")";
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return false;
+	}
+	return true;
+}
+
 }
 }
 }

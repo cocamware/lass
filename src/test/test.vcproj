@@ -574,6 +574,14 @@
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
+					Name="win32_vc71_d|Win32">
+					<Tool 
+						Name="VCCLCompilerTool">
+						<IntelOptions 
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;test_common.h&quot; /Fp&quot;win32_vc71_d/lass_test_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_test_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
+					</Tool>
+				</FileConfiguration>
+				<FileConfiguration 
 					Name="win32_vc71|Win32">
 					<Tool 
 						Name="VCCLCompilerTool">
