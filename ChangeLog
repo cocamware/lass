@@ -4,3 +4,30 @@ http://lass.sourceforge.net
 
 2006-01-25 Bramz
 	updated date in copyright notice from 2004 to 2004-2006
+2006-02-04 Bramz
+	Python:
+	- the "__call__" method requires special treatment since it does not use the regular
+	  method mechanism, but rather a special hook.  Also its required function signature
+	  differs from regular methods.  We've added support for this __call__ method
+	  to PY_CLASS_METHOD_EX in such a way that it no longer matters to the user.
+	  If the user exports a method with the name "__call__", it will use the special hook.
+	- BACKWARDS INCOMPATIBLE CHANGES: the export macros for member data (both public and 
+	  through accessors) had different signatures than the other macros.  E.g. it was not 
+	  possible to explicitely specify the dispatcher name.  I've altered the signatures
+	  to mach with the rest of the library, and I've added appropriate wrapper macros
+	  for your convenience.
+	Enforcers:
+	- BACKWARDS INCOMPATIBLE CHANGES: the () around the complete macro definitions
+	  disallowed the use of the function operator to add extra information to the error
+	  message.  We've removed them.  However that might give some problems like this one:
+		LASS_ENFORCE_POINTER(p)->foo();
+	  Because the -> seems to have higher priority than the leading * in the definition.
+	  The solution is simple:
+		(LASS_ENFORCE_POINTER(p))->foo();
+	- BACKWARDS INCOMPATIBLE CHANGES: LASS_ENFORCE_DYNAMIC_REF_CAST is gone because
+	  it didn't really fit the Enforcer scheme.  If a dynamic_cast fails on a reference,
+	  you get an exception anyway so that's not really a problem.  Do not tempt to use
+	  LASS_ENFORCE_DYNAMIC_CAST for references!
+	- BACKWARDS INCOMPATIBLE CHANGES: LASS_ENFORCE_DYNAMIC_CAST and 
+	  LASS_ENFORCE_DYNAMIC_PY_CAST no longer take the type of the pointee, but of the pointer
+	  itself!  The idea is to eventually merge them to a single macro.

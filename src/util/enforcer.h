@@ -182,7 +182,7 @@
 		lass::util::impl::DefaultPredicate,\
 		lass::util::impl::DefaultRaiser,\
 		(dynamic_cast<t_DestPointer>(v_pointer)),\
-		"Unable to cast to '" LASS_STRINGIY(t_DestPointer) "': '" LASS_STRINGIFY(v_pointer)\
+		"Unable to cast to '" LASS_STRINGIFY(t_DestPointer) "': '" LASS_STRINGIFY(v_pointer)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 
 
@@ -200,10 +200,10 @@
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::DefaultPredicate,\
 		lass::util::impl::DefaultRaiser,\
-		t_DestPointee(::lass::python::PyPlus_INCREF(\
+		t_DestPyObjectPtr(::lass::python::PyPlus_INCREF(\
 			dynamic_cast<typename t_DestPyObjectPtr::TPointer>(\
 				(v_pyObjectPtr).get()))),\
-		"Unable to cast to '" LASS_STRINGIY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
+		"Unable to cast to '" LASS_STRINGIFY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 
 #endif
