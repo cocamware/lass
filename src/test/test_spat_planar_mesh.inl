@@ -42,7 +42,7 @@ typedef double TestType;
 
 int countCalls = 0;
 
-bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
+bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* /*e*/)
 {
 	++countCalls;
 	return true;
@@ -80,7 +80,7 @@ bool ComputeVoronoiArea( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* 
 	return true;
 }
 
-bool CountCallsLong( ::lass::spat::PlanarMesh<long,int,int,int>::TEdge* e)
+bool CountCallsLong( ::lass::spat::PlanarMesh<long,int,int,int>::TEdge* /*e*/)
 {
 	++countCalls;
 	return true;

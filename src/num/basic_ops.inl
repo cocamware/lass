@@ -366,15 +366,15 @@ char mod(char iV, char iPow)	{ return iV % iPow; }		/**< @ingroup BasicOps */
 
 #endif
 
-char floor(char iV)			{ return iV; }									/**< @ingroup BasicOps */
-char ceil(char iV)			{ return iV; }									/**< @ingroup BasicOps */
-char round(char iV)			{ return iV; }									/**< @ingroup BasicOps */
-char fractional(char iV)	{ return 0; }									/**< @ingroup BasicOps */
+char floor(char iV)				{ return iV; }				/**< @ingroup BasicOps */
+char ceil(char iV)				{ return iV; }				/**< @ingroup BasicOps */
+char round(char iV)				{ return iV; }				/**< @ingroup BasicOps */
+char fractional(char /*iV*/)	{ return 0; }				/**< @ingroup BasicOps */
 
-void inpfloor(char& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(char& ioV)			{}				/**< @ingroup BasicOps */
-void inpround(char& ioV)		{}				/**< @ingroup BasicOps */
-void inpfractional(char& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpfloor(char& /*ioV*/)	{}							/**< @ingroup BasicOps */
+void inpceil(char& /*ioV*/)		{}							/**< @ingroup BasicOps */
+void inpround(char& /*ioV*/)	{}							/**< @ingroup BasicOps */
+void inpfractional(char& ioV)	{ ioV = 0; }				/**< @ingroup BasicOps */
 
 // --- signed char ----------------------------------------------------------------------------------
 
@@ -384,35 +384,35 @@ signed char pow(signed char iV, unsigned char iPow)		{ return impl::IntPow<char>
 signed char floor(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
 signed char ceil(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
 signed char round(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed char fractional(signed char iV)					{ return 0; }									/**< @ingroup BasicOps */
+signed char fractional(signed char /*iV*/)				{ return 0; }									/**< @ingroup BasicOps */
 signed char div(signed char iV, signed char iPow)		{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed char div(signed char iV, unsigned char iPow)		{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed char mod(signed char iV, signed char iPow)		{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed char mod(signed char iV, unsigned char iPow)		{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 
-void inpfloor(signed char& ioV)			{}				/**< @ingroup BasicOps */
-void inpceil(signed char& ioV)			{}				/**< @ingroup BasicOps */
-void inpround(signed char& ioV)			{}				/**< @ingroup BasicOps */
+void inpfloor(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpceil(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpround(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
 void inpfractional(signed char& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- unsigned char ----------------------------------------------------------------------------------
 
-unsigned char abs(unsigned char iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned char sign(unsigned char iV)					{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned char abs(unsigned char iV)						{ return iV; }				/**< @ingroup BasicOps */
+unsigned char sign(unsigned char iV)					{ return iV > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
 unsigned char pow(unsigned char iV, unsigned char iPow)	{ return impl::IntPow<unsigned char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-unsigned char floor(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned char ceil(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned char round(unsigned char iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned char fractional(unsigned char iV)				{ return 0; }											/**< @ingroup BasicOps */
-unsigned char div(unsigned char iV, unsigned char iPow)	{ return iV / iPow; }									/**< @ingroup BasicOps */
-unsigned char mod(unsigned char iV, unsigned char iPow)	{ return iV % iPow; }									/**< @ingroup BasicOps */
+unsigned char floor(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
+unsigned char ceil(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
+unsigned char round(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
+unsigned char fractional(unsigned char /*iV*/)			{ return 0; }				/**< @ingroup BasicOps */
+unsigned char div(unsigned char iV, unsigned char iPow)	{ return iV / iPow; }		/**< @ingroup BasicOps */
+unsigned char mod(unsigned char iV, unsigned char iPow)	{ return iV % iPow; }		/**< @ingroup BasicOps */
 
-void inpabs(unsigned char& ioV)			{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned char& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(unsigned char& ioV)		{}				/**< @ingroup BasicOps */
-void inpround(unsigned char& ioV)		{}				/**< @ingroup BasicOps */
+void inpabs(unsigned char& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpfloor(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpceil(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpround(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
 void inpfractional(unsigned char& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
@@ -425,15 +425,15 @@ signed short pow(signed short iV, unsigned short iPow)	{ return impl::IntPow<sho
 signed short floor(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
 signed short ceil(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
 signed short round(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
-signed short fractional(signed short iV)				{ return 0; }										/**< @ingroup BasicOps */
+signed short fractional(signed short /*iV*/)			{ return 0; }										/**< @ingroup BasicOps */
 signed short div(signed short iV, signed short iPow)	{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
 signed short div(signed short iV, unsigned short iPow)	{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
 signed short mod(signed short iV, signed short iPow)	{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
 signed short mod(signed short iV, unsigned short iPow)	{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
 
-void inpfloor(signed short& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(signed short& ioV)			{}				/**< @ingroup BasicOps */
-void inpround(signed short& ioV)		{}				/**< @ingroup BasicOps */
+void inpfloor(signed short& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpceil(signed short& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpround(signed short& /*ioV*/)	{}				/**< @ingroup BasicOps */
 void inpfractional(signed short& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
@@ -446,14 +446,14 @@ unsigned short pow(unsigned short iV, unsigned short iPow)	{ return impl::IntPow
 unsigned short floor(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
 unsigned short ceil(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
 unsigned short round(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned short fractional(unsigned short iV)				{ return 0; }											/**< @ingroup BasicOps */
+unsigned short fractional(unsigned short /*iV*/)			{ return 0; }											/**< @ingroup BasicOps */
 unsigned short div(unsigned short iV, unsigned short iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
 unsigned short mod(unsigned short iV, unsigned short iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
 
-void inpabs(unsigned short& ioV)		{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned short& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(unsigned short& ioV)		{}				/**< @ingroup BasicOps */
-void inpround(unsigned short& ioV)		{}				/**< @ingroup BasicOps */
+void inpabs(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpfloor(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpceil(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpround(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
 void inpfractional(unsigned short& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
@@ -466,15 +466,15 @@ signed int pow(signed int iV, unsigned int iPow)	{ return impl::IntPow<int>::eva
 signed int floor(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
 signed int ceil(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
 signed int round(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
-signed int fractional(signed int iV)				{ return 0; }								/**< @ingroup BasicOps */
+signed int fractional(signed int /*iV*/)			{ return 0; }								/**< @ingroup BasicOps */
 signed int div(signed int iV, signed int iPow)		{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed int div(signed int iV, unsigned int iPow)	{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed int mod(signed int iV, signed int iPow)		{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed int mod(signed int iV, unsigned int iPow)	{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 
-void inpfloor(signed int& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(signed int& ioV)		{}				/**< @ingroup BasicOps */
-void inpround(signed int& ioV)		{}				/**< @ingroup BasicOps */
+void inpfloor(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpceil(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpround(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
 void inpfractional(signed int& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
@@ -487,14 +487,15 @@ unsigned int pow(unsigned int iV, unsigned int iPow)	{ return impl::IntPow<unsig
 unsigned int floor(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
 unsigned int ceil(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
 unsigned int round(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned int fractional(unsigned int iV)				{ return 0; }											/**< @ingroup BasicOps */
+unsigned int fractional(unsigned int /*iV*/)			{ return 0; }											/**< @ingroup BasicOps */
 unsigned int div(unsigned int iV, unsigned int iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
 unsigned int mod(unsigned int iV, unsigned int iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
 
-void inpabs(unsigned int& ioV)		{}	/**< @ingroup BasicOps */
-void inpfloor(unsigned int& ioV)	{}	/**< @ingroup BasicOps */
-void inpceil(unsigned int& ioV)		{}	/**< @ingroup BasicOps */
-void inpround(unsigned int& ioV)	{}	/**< @ingroup BasicOps */
+void inpabs(unsigned int& /*ioV*/)		{}	/**< @ingroup BasicOps */
+void inpfloor(unsigned int& /*ioV*/)	{}	/**< @ingroup BasicOps */
+void inpceil(unsigned int& /*ioV*/)		{}	/**< @ingroup BasicOps */
+void inpround(unsigned int& /*ioV*/)	{}	/**< @ingroup BasicOps */
+void inpfractional(unsigned int& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
 
@@ -506,15 +507,15 @@ signed long pow(signed long iV, unsigned long iPow)		{ return impl::IntPow<long>
 signed long floor(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
 signed long ceil(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
 signed long round(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed long fractional(signed long iV)					{ return 0; }									/**< @ingroup BasicOps */
+signed long fractional(signed long /*iV*/)				{ return 0; }									/**< @ingroup BasicOps */
 signed long div(signed long iV, signed long iPow)		{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed long div(signed long iV, unsigned long iPow)		{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed long mod(signed long iV, signed long iPow)		{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 signed long mod(signed long iV, unsigned long iPow)		{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
 
-void inpfloor(signed long& ioV)			{}				/**< @ingroup BasicOps */
-void inpceil(signed long& ioV)			{}				/**< @ingroup BasicOps */
-void inpround(signed long& ioV)			{}				/**< @ingroup BasicOps */
+void inpfloor(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpceil(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpround(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
 void inpfractional(signed long& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 
@@ -527,14 +528,14 @@ unsigned long pow(unsigned long iV, unsigned long iPow)	{ return impl::IntPow<un
 unsigned long floor(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
 unsigned long ceil(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
 unsigned long round(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned long fractional(unsigned long iV)				{ return 0; }											/**< @ingroup BasicOps */
+unsigned long fractional(unsigned long /*iV*/)				{ return 0; }											/**< @ingroup BasicOps */
 unsigned long div(unsigned long iV, unsigned long iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
 unsigned long mod(unsigned long iV, unsigned long iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
 
-void inpabs(unsigned long& ioV)			{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned long& ioV)		{}				/**< @ingroup BasicOps */
-void inpceil(unsigned long& ioV)		{}				/**< @ingroup BasicOps */
-void inpround(unsigned long& ioV)		{}				/**< @ingroup BasicOps */
+void inpabs(unsigned long& /*ioV*/)		{}				/**< @ingroup BasicOps */
+void inpfloor(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpceil(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
+void inpround(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
 void inpfractional(unsigned long& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
 
 

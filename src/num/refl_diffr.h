@@ -187,13 +187,13 @@ namespace num
 	};
 	struct UTD_CilindricalWavePolicy
 	{
-		static double L(double rS, double rR, double thetaI) { return ((rS*rR)/(rS+rR)); }
-		static float L(float rS, float rR, float thetaI) { return ((rS*rR)/(rS+rR)); }
+		static double L(double rS, double rR, double /*thetaI*/) { return ((rS*rR)/(rS+rR)); }
+		static float L(float rS, float rR, float /*thetaI*/) { return ((rS*rR)/(rS+rR)); }
 	};
 	struct UTD_PlaneWavePolicy
 	{
-		static double L(double rS, double rR, double thetaI) { return rR*pow(sin(thetaI),2.0); }
-		static float L(float rS, float rR, float thetaI) { return rR*powf(sinf(thetaI),2.0); }
+		static double L(double /*rS*/, double rR, double thetaI) { return rR*pow(sin(thetaI),2.0); }
+		static float L(float /*rS*/, float rR, float thetaI) { return rR*powf(sinf(thetaI),2.0); }
 	};
 
 	template<typename WP>

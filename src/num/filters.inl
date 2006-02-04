@@ -54,7 +54,7 @@ FirFilter<T, InIt, OutIt>::FirFilter(const TValues& iImpulseResponse):
 	{
 		nextIndex_[i] = (i - 1 + tapSize_) % tapSize_;
 	}
-	reset();
+	this->reset();
 }
 
 
@@ -92,8 +92,8 @@ void FirFilter<T, InIt, OutIt>::doReset()
 template <typename T, typename InIt, typename OutIt>
 IirFilter<T, InIt, OutIt>::IirFilter(const TValues& iNominator, const TValues& iDenominator)
 {
-	init(std::make_pair(iNominator, iDenominator));
-	reset();
+	this->init(std::make_pair(iNominator, iDenominator));
+	this->reset();
 }
 
 
@@ -101,8 +101,8 @@ IirFilter<T, InIt, OutIt>::IirFilter(const TValues& iNominator, const TValues& i
 template <typename T, typename InIt, typename OutIt>
 IirFilter<T, InIt, OutIt>::IirFilter(const TValuesPair& iCoefficients)
 {
-	init(iCoefficients);
-	reset();
+	this->init(iCoefficients);
+	this->reset();
 }
 
 

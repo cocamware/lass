@@ -91,7 +91,7 @@ struct value_traits
 {
 	template <typename Char, typename Traits, typename T>
 	static bool read(std::basic_istream<Char, Traits>& istream, T& value,
-					 Char inter_seperator, Char intra_seperator, Char closer)
+					 Char inter_seperator, Char /*intra_seperator*/, Char closer)
 	{
 		eat_whitespace(istream);
 

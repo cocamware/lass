@@ -82,6 +82,14 @@ template
 class FirFilter: public Filter<T, InputIterator, OutputIterator>
 {
 public:
+	typedef typename Filter<T, InputIterator, OutputIterator>::TValue TValue;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TParam TParam;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TReference TReference;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
+
 	typedef std::vector<T> TValues;
 
 	FirFilter(const TValues& iImpulseResponse);
@@ -112,6 +120,14 @@ template
 class IirFilter: public Filter<T, InputIterator, OutputIterator>
 {
 public:
+	typedef typename Filter<T, InputIterator, OutputIterator>::TValue TValue;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TParam TParam;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TReference TReference;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
+	typedef typename Filter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
+
 	typedef std::vector<T> TValues;
 	typedef std::pair<TValues, TValues> TValuesPair;
 
@@ -150,6 +166,16 @@ template
 class LaplaceIirFilter: public IirFilter<T, InputIterator, OutputIterator>
 {
 public:
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValue TValue;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TParam TParam;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TReference TReference;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValues TValues;
+	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
+
 	LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, TParam iSamplingFrequency);
 	LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency);
 private:

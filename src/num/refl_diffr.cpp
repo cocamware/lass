@@ -364,7 +364,7 @@ namespace impl
 
 
 #pragma warning(disable:4100)   // suppress "unreferenced formal parameter"
-template<class NTC> std::complex<NTC> reflQ(const NTC& psi,const NTC& k,const std::complex<NTC>& Z,const NTC& R)
+template<class NTC> std::complex<NTC> reflQ(const NTC& psi,const NTC& /*k*/,const std::complex<NTC>& Z,const NTC& /*R*/)
 {
 	std::complex<NTC>   Rp;
 	std::complex<NTC>   invZ;

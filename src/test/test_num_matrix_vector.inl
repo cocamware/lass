@@ -234,8 +234,8 @@ void testNumMatrix()
 	LASS_TEST_CHECK(!b.isIdentity());
 	LASS_TEST_CHECK(!b.isSquare());
 	LASS_TEST_CHECK(!b.isDiagonal());
-	LASS_TEST_CHECK_EQUAL(b.rows(), 3);
-	LASS_TEST_CHECK_EQUAL(b.columns(), 4);
+	LASS_TEST_CHECK_EQUAL(b.rows(), static_cast<size_t>(3));
+	LASS_TEST_CHECK_EQUAL(b.columns(), static_cast<size_t>(4));
 	LASS_TEST_CHECK_EQUAL(b, b);
 }
 

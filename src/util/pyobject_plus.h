@@ -144,8 +144,8 @@ namespace lass
 			typedef int TCount;
 		protected:
 			PyObjectCounter() {}
-			template <typename TStorage> void init(TStorage& iPointee) {}
-			template <typename TStorage> void dispose(TStorage& iPointee) {}
+			template <typename TStorage> void init(TStorage& /*iPointee*/) {}
+			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
 				Py_INCREF(iPointee);
@@ -161,7 +161,7 @@ namespace lass
 				LASS_ASSERT(iPointee);
 				return iPointee->ob_refcnt;
 			}
-			void swap(PyObjectCounter& iOther) {}
+			void swap(PyObjectCounter& /*iOther*/) {}
 		private:
 			//TCount counterToKeepCompilerFromDoingStupidThings_;
 		};

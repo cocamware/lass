@@ -94,7 +94,7 @@ struct DefaultObjectTraits
 	
 	/** return true if object contains a point, return false otherwise
 	 */
-	static const bool contains(TObjectIterator iObject, const TPoint& iPoint, const TInfo* iInfo) 
+	static const bool contains(TObjectIterator iObject, const TPoint& iPoint, const TInfo* /*iInfo*/) 
 	{ 
 		return iObject->contains(iPoint); 
 	}
@@ -102,7 +102,7 @@ struct DefaultObjectTraits
 	/** return true if object is intersected by ray
 	 */
 	static const bool intersect(TObjectIterator iObject, const TRay& iRay, 
-		TReference oT, TParam iMinT, const TInfo* iInfo)
+		TReference oT, TParam iMinT, const TInfo* /*iInfo*/)
 	{
 		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
 			*iObject, iRay, oT, iMinT);
@@ -112,7 +112,7 @@ struct DefaultObjectTraits
 	/** return true if object is intersected by ray
 	 */
 	static const bool intersects(TObjectIterator iObject, const TRay& iRay, 
-		TParam iMinT, TParam iMaxT, const TInfo* iInfo)
+		TParam iMinT, TParam iMaxT, const TInfo* /*iInfo*/)
 	{
 		TValue t;
 		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(

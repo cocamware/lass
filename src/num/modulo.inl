@@ -45,7 +45,7 @@ template <unsigned N, typename T>
 Modulo<N, T>::Modulo(TParam iValue):
 	value_(mod(iValue, N))
 {
-	LASS_ASSERT(N <= NumTraits<T>::max);
+	LASS_ASSERT(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
 }
 
 

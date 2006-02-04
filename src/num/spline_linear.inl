@@ -183,7 +183,7 @@ SplineLinear<S, D, T>::derivative(TScalar iX) const
  */
 template <typename S, typename D, typename T>
 const typename SplineLinear<S, D, T>::TData
-SplineLinear<S, D, T>::derivative2(TScalar iX) const
+SplineLinear<S, D, T>::derivative2(TScalar /*iX*/) const
 {
 	LASS_ASSERT(!isEmpty());
 

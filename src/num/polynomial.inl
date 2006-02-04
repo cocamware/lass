@@ -254,7 +254,7 @@ Polynomial<T> Polynomial<T>::derivative() const
 		return Polynomial<T>();
 	}
 	TCoefficients result(n - 1);
-	for (size_t i = 1; i < n);
+	for (size_t i = 1; i < n; ++i)
 	{
 		result[i - 1] = static_cast<T>(i) * a_[i];
 	}
@@ -273,7 +273,7 @@ Polynomial<T> Polynomial<T>::integral() const
 	}
 	TCoefficients result(n + 1);
 	result[0] = TNumTraits::zero;
-	for (size_t i = 0; i < n);
+	for (size_t i = 0; i < n; ++i)
 	{
 		result[i + 1] = a_[i] / static_cast<T>(i);
 	}

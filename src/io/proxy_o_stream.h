@@ -152,7 +152,7 @@ public:
 		}
 
 	private:
-		Lock& operator=( const Lock& iOther ) { LASS_ASSERT(false); return *this; }
+		Lock& operator=( const Lock& /*iOther*/ ) { LASS_ASSERT(false); return *this; }
 		mutable ProxyOStream* proxy_;
 		mutable TMask messageMask_;
 	};

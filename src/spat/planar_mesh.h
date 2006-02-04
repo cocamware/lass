@@ -443,7 +443,7 @@ namespace spat
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			LASS_ENFORCE(currentEdge->handle())->point_ = NULL;
+			(LASS_ENFORCE(currentEdge->handle()))->point_ = NULL;
 			currentEdge = currentEdge->oNext();
 		} while ( currentEdge != iEdge );
 		return true;
@@ -1223,7 +1223,7 @@ namespace spat
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			LASS_ENFORCE(currentEdge->handle())->pointHandle_ = iHandle;
+			(LASS_ENFORCE(currentEdge->handle()))->pointHandle_ = iHandle;
 			currentEdge = currentEdge->oNext();
 		} while ( currentEdge != iEdge );
 	}
@@ -1246,7 +1246,7 @@ namespace spat
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			LASS_ENFORCE(currentEdge->rot()->handle())->faceHandle_ = iHandle;
+			(LASS_ENFORCE(currentEdge->rot()->handle()))->faceHandle_ = iHandle;
 			if ( faceHandle( currentEdge ) != faceHandle( currentEdge->sym() ) )
 				currentEdge->quadEdge()->faceConstrain();
 			else

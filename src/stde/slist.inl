@@ -887,7 +887,7 @@ void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other)
  *  @b complexity: O(1)</tt>
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other, iterator before_x)
+void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& /*other*/, iterator before_x)
 {
 	splice_after(position.node_, before_x.node_, before_x.node_->next);
 }
@@ -907,7 +907,7 @@ void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other, it
  *  @b complexity: O(1)
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& other, iterator before_first,
+void slist<T, Alloc>::splice_after(iterator position, slist<T, Alloc>& /*other*/, iterator before_first,
 							   iterator before_last)
 {
 	splice_after(position.node_, before_first.node_, before_last.node_);

@@ -46,8 +46,8 @@ public:
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef size_t TSize;
 	MVColumn(VectorOperand1& iA): operand1_(iA) {}
-	TValue operator()(TSize iI, TSize iJ) const { return operand1_[iI]; }
-	TReference operator()(TSize iI, TSize iJ) { return operand1_[iI]; }
+	TValue operator()(TSize iI, TSize /*iJ*/) const { return operand1_[iI]; }
+	TReference operator()(TSize iI, TSize /*iJ*/) { return operand1_[iI]; }
 	TSize rows() const { return operand1_.size(); }\
 	TSize columns() const { return 1; }\
 

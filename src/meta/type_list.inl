@@ -322,7 +322,7 @@ template <typename TypeListType> int find(const util::TypeInfo& iType)
 template <>
 struct RunTimeFinder<NullType>
 {
-	static int result(const util::TypeInfo& iType)
+	static int result(const util::TypeInfo& /*iType*/)
 	{
 		return -1;
 	}

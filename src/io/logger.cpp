@@ -91,7 +91,7 @@ void Logger::unsubscribeTo(ProxyOStream* iProxy)
  */
 Logger::TMask Logger::filter(ProxyOStream* iProxy)
 {
-	return LASS_ENFORCE_POINTER(iProxy)->filter(&logFile_);
+	return (LASS_ENFORCE_POINTER(iProxy))->filter(&logFile_);
 }
 
 
@@ -103,7 +103,7 @@ Logger::TMask Logger::filter(ProxyOStream* iProxy)
  */
 void Logger::setFilter(ProxyOStream* iProxy, TMask iFilter)
 {
-	LASS_ENFORCE_POINTER(iProxy)->setFilter(&logFile_, iFilter);
+	(LASS_ENFORCE_POINTER(iProxy))->setFilter(&logFile_, iFilter);
 }
 
 

@@ -276,7 +276,7 @@ struct ZeroRaiser
  struct ClibRaiser
  {
  	template <typename T>
-	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
+	static void raise(const T& /*iRc*/, const std::string& iMessage, const char* iLocus)
 	{
 		//LASS_ASSERT(iRc == -1);
 		const int errnum = lass_errno();

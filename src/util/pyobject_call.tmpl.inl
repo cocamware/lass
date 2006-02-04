@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_INL
 
 #include "util_common.h"
+#include "pyshadow_object.h"
 #include "call_traits.h"
 #include "../meta/if.h"
 #include "../meta/type_2_type.h"

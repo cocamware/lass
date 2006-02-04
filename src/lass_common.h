@@ -74,7 +74,9 @@
 #include "config/config.h"
 
 #ifdef LASS_UTIL_THREAD_HAVE_POSIX
-#	define _REENTRANT
+#	ifndef _REENTRANT
+#		define _REENTRANT
+#	endif
 #endif
 
 

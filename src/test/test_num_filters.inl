@@ -57,6 +57,7 @@ void testNumFilters()
 	num::FirFilter<T> firFilter(firTaps);
 	std::vector<T> firResponse(impulsLength);
 	T* last = firFilter(&impuls[0], &impuls[impulsLength], &firResponse[0]);
+	LASS_TEST_CHECK_EQUAL(last, &firResponse[impulsLength]);
 
 	for (size_t i = 0; i < firOrder; ++i)
 	{

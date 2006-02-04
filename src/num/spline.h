@@ -162,8 +162,8 @@ struct DataTraitsStaticVector
 {
 	typedef DataType TData;
 	typedef typename DataType::TValue TScalar;
-	static size_t dimension(const TData& iY) { return TData::dimension; }
-	static void zero(TData& ioY, size_t iDim) { ioY = TData(); }
+	static size_t dimension(const TData& /*iY*/) { return TData::dimension; }
+	static void zero(TData& ioY, size_t /*iDim*/) { ioY = TData(); }
 	static TScalar get(const TData& iY, size_t iIndex) { return iY[iIndex]; }
 	static void set(TData& ioY, size_t iIndex, TScalar iV) { ioY[iIndex] = iV; }
 	static void scale(TData& ioAcc, TScalar iS) { ioAcc *= iS; }

@@ -59,11 +59,11 @@
  *  http://www.cuj.com/documents/s=8250/cujcexp2106alexandr
  */
 #define LASS_ENFORCE(expression)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::DefaultPredicate,\
 		 lass::util::impl::DefaultRaiser,\
 		(expression), \
-		"Expression '" LASS_STRINGIFY(expression) "' failed in '" LASS_HERE "'."))
+		"Expression '" LASS_STRINGIFY(expression) "' failed in '" LASS_HERE "'.")
 
 
 
@@ -71,11 +71,11 @@
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_POINTER(pointer) \
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::DefaultPredicate,\
 		lass::util::impl::DefaultRaiser,\
 		(pointer), \
-		"Null pointer '" LASS_STRINGIFY(pointer) "' detected in '" LASS_HERE "'."))
+		"Null pointer '" LASS_STRINGIFY(pointer) "' detected in '" LASS_HERE "'.")
 
 
 
@@ -83,22 +83,22 @@
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_STREAM(stream)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::StreamPredicate,\
 		lass::util::impl::DefaultRaiser,\
 		(stream),\
-		"Failing stream '" LASS_STRINGIFY(stream) "' detected in '" LASS_HERE "'.")) 
+		"Failing stream '" LASS_STRINGIFY(stream) "' detected in '" LASS_HERE "'.") 
 
 
 /** Enforces the handle to be different than -1.
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_HANDLE(handle) \
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::HandlePredicate,\
 		lass::util::impl::DefaultRaiser,\
 		(handle),\
-		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'."))
+		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'.")
 
 
 
@@ -106,11 +106,11 @@
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_ZERO(expression) \
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::ZeroPredicate,\
 		 lass::util::impl::ZeroRaiser>(\
 		(expression), \
-		"'" LASS_STRINGIFY(expression) "' in '" LASS_HERE "'."))
+		"'" LASS_STRINGIFY(expression) "' in '" LASS_HERE "'.")
 
 
 
@@ -122,11 +122,11 @@
  *  exception with the error code errno and its string message translated by strerror().
  */
 #define LASS_ENFORCE_CLIB(returnCode)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::ClibPredicate,\
 		lass::util::impl::ClibRaiser,\
 		(returnCode), \
-		"'" LASS_STRINGIFY(returnCode) "' in '" LASS_HERE "'"))
+		"'" LASS_STRINGIFY(returnCode) "' in '" LASS_HERE "'")
 	
 
 	
@@ -139,11 +139,11 @@
  *  error code.
  */
 #define LASS_ENFORCE_CLIB_RC(errorCode)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::ZeroPredicate,\
 		lass::util::impl::ClibRcRaiser,\
 		(errorCode), \
-		"'" LASS_STRINGIFY(errorCode) "' in '" LASS_HERE "'"))
+		"'" LASS_STRINGIFY(errorCode) "' in '" LASS_HERE "'")
 
 
 		
@@ -151,79 +151,59 @@
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_COM(comResult) \
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::ComPredicate,\
 		lass::util::impl::ComRaiser,\
 		(comResult), \
-		"'" LASS_STRINGIFY(comResult) "' in '" LASS_HERE "'."))
+		"'" LASS_STRINGIFY(comResult) "' in '" LASS_HERE "'.")
 
 
 /** Enforces an index to be in the half open range [0, iSize).
  *  @ingroup Enforcers
  */
 #define LASS_ENFORCE_INDEX(index, size)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::IndexPredicate<(size)>,\
 		lass::util::impl::IndexRaiser<(size)>,\
-		(index), LASS_HERE))
+		(index), LASS_HERE)
 
 
 
 /** Enforces a pointer to an object to be dynamic casted to related type.
  *  @ingroup Enforcers
- *  @param DestPointee 
- *	the type of the pointee (not the pointer) to be casted to.  So if you
- *  	want to cast to @c Foo*, @a DestPointee should be @c Foo.
- *  @param pointer 
- *	a pointer to be casted (note that we don't cast references, use
+ *  @param t_DestPointer 
+ *		the type of the pointer to be casted to.  
+ *  @param v_pointer 
+ *		a pointer to be casted (note that we don't cast references, use
  *      LASS_ENFORCE_DYNAMIC_REF_CAST for that)
  */
-#define LASS_ENFORCE_DYNAMIC_CAST(DestPointee, pointer)\
-	(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+#define LASS_ENFORCE_DYNAMIC_CAST(t_DestPointer, v_pointer)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		lass::util::impl::DefaultPredicate,\
 		lass::util::impl::DefaultRaiser,\
-		(dynamic_cast<DestPointee*>(iPointer)),\
-		"Unable to cast to '" LASS_STRINGIY(DestPointee) "*': '" LASS_STRINGIFY(iPointer)\
-		"' is a null pointer or is not of the correct type, '" LASS_HERE "'."))
-
-
-
-/** Enforces a reference to an object to be dynamic casted to related type.
- *  @ingroup Enforcers
- *  @param DestReferred 
- *	the type of referencee (not the reference) to be casted to.  So if you
- *	want to cast to @c Foo&, @a DestReferred should be @c Foo.
- *  @param reference 
- *	a reference to be casted (note that we don't cast pointers, use
- *      LASS_ENFORCE_DYNAMIC_CAST for that)
- */
-#define LASS_ENFORCE_DYNAMIC_REF_CAST(DestReferred, reference)\
-	(*(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::DefaultPredicate,\
-		lass::util::impl::DefaultRaiser,\
-		(dynamic_cast<DestReferred>(&reference)),\
-		"Unable to cast to '" LASS_STRINGIFY(DestReferred) "&': '" LASS_STRINGIFY(reference)\
-		"' is not of the correct type, '" LASS_HERE "'.")))
+		(dynamic_cast<t_DestPointer>(v_pointer)),\
+		"Unable to cast to '" LASS_STRINGIY(t_DestPointer) "': '" LASS_STRINGIFY(v_pointer)\
+		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 
 
 
 /** Enforces a python shared pointer to be dynamic casted to a related python shared pointer.
  *  @ingroup Enforcers
- *  @param DestPointee
- *	the type of pointee (not the python shared pointer) to be casted to. 
- *	So if you want to cast to @c PyObjectPtr<Foo>::Type, @a DestPointee should
- *	be @c Foo.
- *  @param pyObjectPointer
- *	a python shared pointer to be casted.
+ *  @param t_DestPyObjectPtr
+ *		the type of python shared pointer to be casted to. 
+ *		So if you want to cast to @c PyObjectPtr<Foo>::Type, @a t_DestPyObjectPtr should
+ *		be @c PyObjectPtr<Foo>::Type.
+ *  @param v_pyObjectPtr
+ *		a python shared pointer to be casted.
  */
-#define LASS_ENFORCE_DYNAMIC_PY_CAST(DestPointee__, pyObjectPointer__)\
-	(lass::python::PyObjectPtr<DestPointee__>::Type(lass::python::PyPlus_INCREF(\
-		(*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-			lass::util::impl::DefaultPredicate,\
-			lass::util::impl::DefaultRaiser,\
-			(dynamic_cast<DestPointee*>((pyObjectPointer__).get())),\
-			"Unable to cast to 'PyObjectPtr<" LASS_STRINGIFY(DestPointee__) ">::Type': '"\
-			LASS_STRINGIFY(pyObjectPointer__) "' is a null pointer or is not of the correct type, "\
-			LASS_HERE "'.")))))
+#define LASS_ENFORCE_DYNAMIC_PY_CAST(t_DestPyObjectPtr, v_pyObjectPtr)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		lass::util::impl::DefaultPredicate,\
+		lass::util::impl::DefaultRaiser,\
+		t_DestPointee(::lass::python::PyPlus_INCREF(\
+			dynamic_cast<typename t_DestPyObjectPtr::TPointer>(\
+				(v_pyObjectPtr).get()))),\
+		"Unable to cast to '" LASS_STRINGIY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
+		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 
 #endif

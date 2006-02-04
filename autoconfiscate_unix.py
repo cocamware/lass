@@ -1,8 +1,19 @@
 #! /usr/bin/python
 
-library_name = "lass"
-version = (1, 0, 0)
-library_version = (1, 0, 0)
+lass_name = "lass"
+lass_version = (1, 0, 0)
+library_version = (2, 0, 0)
+#                  |  |  |
+#            +-----+  |  +--+
+#            |        |     |
+#         current:revision:age
+#            |        |     |
+#            |        |     +- increment if interfaces have been added
+#            |        |        set to zero if interfaces have been removed
+#            |        |        or changed
+#            |        +- increment if source code has changed
+#            |           set to zero if current is incremented
+#            +- increment if interfaces have been added, removed or changed
 
 lib_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
 test_dirs = ['test']
@@ -18,8 +29,6 @@ import sys
 python_version = sys.version[:3]
 include_directories = ['%s/include/python%s' % (sys.prefix, python_version)]
 library_directories = ['%s/lib/python%s/config' % (sys.prefix, python_version)]
-
-version_string = "%s.%s" % (version[0], version[1])
 
 
 def pre_build():
@@ -99,56 +108,39 @@ def gather_extra_dist():
 def write_configure():
 	print "- configure.ac"
 	configure=open('configure.ac','w+')
+
 	configure.write(r'''
 AC_PREREQ(2.59)
-AC_INIT(lass, %s.%s.%s, bramz@sourceforge.net)
-AM_CONFIG_HEADER(lass_auto_config.h)
-''' % version)
+AC_INIT(%s, %s, bramz@sourceforge.net)
+''' % (lass_name, "%s.%s.%s" % lass_version))
 
 	configure.write(r'''
-GENERIC_LIBRARY_NAME=lass
-
-GENERIC_MAJOR_VERSION=%s
-GENERIC_MINOR_VERSION=%s
-GENERIC_MICRO_VERSION=%s
-GENERIC_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION.$GENERIC_MICRO_VERSION
-AC_SUBST(GENERIC_VERSION)
-''' % version)
+LASS_NAME=%s
+AC_SUBST(LASS_NAME)
+PACKAGE=$LASS_NAME
+''' % lass_name)
 
 	configure.write(r'''
-#shared library versioning
-GENERIC_LIBRARY_VERSION=%s:%s:%s
-#                       | | |
-#                +------+ | +---+
-#                |        |     |
-#             current:revision:age
-#                |        |     |
-#                |        |     +- increment if interfaces have been added
-#                |        |        set to zero if interfaces have been removed
-#                                  or changed
-#                |        +- increment if source code has changed
-#                |           set to zero if current is incremented
-#                +- increment if interfaces have been added, removed or changed
+LASS_MAJOR_VERSION=%s
+LASS_MINOR_VERSION=%s
+LASS_PATCH_VERSION=%s
+LASS_VERSION=$LASS_MAJOR_VERSION.$LASS_MINOR_VERSION.$LASS_MICRO_VERSION
+LASS_RELEASE=$LASS_MAJOR_VERSION.$LASS_MINOR_VERSION
+LASS_RELEASE_NAME=$LASS_NAME-$LASS_RELEASE
+AC_SUBST(LASS_RELEASE)
+AC_SUBST(LASS_VERSION)
+AC_SUBST(LASS_RELEASE_NAME)
+VERSION=$LASS_VERSION
+''' % lass_version)
+
+	configure.write(r'''
+LASS_LIBRARY_VERSION=%s:%s:%s
+AC_SUBST(LASS_LIBRARY_VERSION)
 ''' % library_version)
 
 	configure.write(r'''
-dnl --------------------------------
-dnl Package name and version number
-dnl --------------------------------
-
-AC_SUBST(GENERIC_LIBRARY_VERSION)
-
-PACKAGE=$GENERIC_LIBRARY_NAME
-AC_SUBST(GENERIC_LIBRARY_NAME)
-
-GENERIC_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION.$GENERIC_MICRO_VERSION
-GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
-AC_SUBST(GENERIC_RELEASE)
-AC_SUBST(GENERIC_VERSION)
-
-VERSION=$GENERIC_VERSION
-
 AC_CONFIG_SRCDIR([src/lass_common.h])
+AM_CONFIG_HEADER(lass_auto_config.h)
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
 
 # Checks for programs.
@@ -169,22 +161,20 @@ AC_LANG_CPLUSPLUS
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_CHECK_FUNCS([atexit clock_gettime])
-#AC_C_CONST
-#AC_C_INLINE
-#AC_TYPE_SIZE_T
-#AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
 AC_FUNC_STRERROR_R
+''')
 
-#AC_FUNC_ERROR_AT_LINE
-#AC_HEADER_STDC
-#AC_TYPE_SIGNAL
-#AC_CHECK_FUNCS([atexit floor memset pow sqrt clock_gettime])
-
-
-AC_OUTPUT(Makefile src/Makefile src/test/Makefile lass-1.0.0.pc)
-''') 
+	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
+	configure.write(r'''
+AC_OUTPUT([
+	Makefile 
+	src/Makefile 
+	src/test/Makefile 
+	%s.pc
+])
+''' % release_name) 
 	configure.close()
 
 
@@ -196,7 +186,7 @@ AUTOMAKE_OPTIONS = 1.7
 SUBDIRS = src
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = lass-1.0.0.pc
+pkgconfig_DATA = @LASS_RELEASE_NAME@.pc
 
 EXTRA_DIST=%s
 ''' % ' '.join(extra_dist))
@@ -222,20 +212,25 @@ SUBDIRS=. test
 INCLUDES= $(all_includes) %s
 ''' % includes)
 
+	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
+	makefile.write(r'''
+lib_LTLIBRARIES = lib%s.la
+''' % release_name)
+
+	simple_release_name = "%s_%s_%s" % (lass_name, lass_version[0], lass_version[1])
 	sources = ' '.join(sources_list)
 	makefile.write(r'''
-lib_LTLIBRARIES = liblass-1.0.0.la
-liblass_1_0_0_la_SOURCES = %s
-''' % sources)
+lib%s_la_SOURCES = %s
+''' % (simple_release_name, sources))
 
 	makefile.write(r'''
-liblass_1_0_0_la_CPPFLAGS = %s %s %s
-''' % (debug_info_flags, code_generation_flags, warning_flags))
+lib%s_la_CPPFLAGS = %s %s %s
+''' % (simple_release_name, debug_info_flags, code_generation_flags, warning_flags))
 	
 	library_dirs = ' '.join(['-L' + i for i in library_directories])
 	makefile.write(r'''
-liblass_1_0_0_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(GENERIC_LIBRARY_VERSION) -release $(GENERIC_RELEASE)
-''' % (library_dirs, python_version))
+lib%s_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
+''' % (simple_release_name, library_dirs, python_version))
 
 	for subdir in headers_dict.keys():
 		incdir = subdir
@@ -243,7 +238,7 @@ liblass_1_0_0_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(GENERIC_
 			incdir = '/' + incdir
 		incname = incdir.replace('/', '_')
 		incfiles = ' '.join([os.path.join(subdir, f) for f in headers_dict[subdir]])
-		makefile.write('include_lass%sdir = $(includedir)/lass-1.0.0/lass%s\n' % (incname, incdir))
+		makefile.write('include_lass%sdir = $(includedir)/@LASS_RELEASE_NAME@/lass%s\n' % (incname, incdir))
 		makefile.write('include_lass%s_HEADERS = %s\n' % (incname, incfiles))
 		
 	makefile.close()
@@ -271,7 +266,7 @@ lass_test_CPPFLAGS = %s %s %s
 ''' % (debug_info_flags, code_generation_flags, warning_flags))
 
 	makefile.write(r'''
-lass_test_LDADD = ../liblass-1.0.0.la
+lass_test_LDADD = ../lib@LASS_RELEASE_NAME@.la
 
 TESTS = lass_test
 ''')
@@ -279,8 +274,9 @@ TESTS = lass_test
 
 
 def write_pc_file():
-	print "- lass-1.0.0.pc.in"
-	pc_file = open('lass-1.0.0.pc.in', 'w')
+	file_name = "%s-%s.%s.pc.in" % (lass_name, lass_version[0], lass_version[1])
+	print "- %s" % file_name
+	pc_file = open(file_name, 'w')
 	pc_file.write(r'''
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -291,8 +287,8 @@ Name: LASS
 Description: Library of Assembled Shared Sources (http://liar.sourceforge.net)
 Requires: 
 Version: @VERSION@
-Libs: -L${libdir} -llass-1.0.0
-Cflags: -I${includedir}/lass-1.0.0 -I${libdir}/lass-1.0.0/include
+Libs: -L${libdir} -l@LASS_RELEASE_NAME@
+Cflags: -I${includedir}/@LASS_RELEASE_NAME@ -I${libdir}/@LASS_RELEASE_NAME@/include
 ''')
 
 
