@@ -294,14 +294,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 		return 1;
 	}
 
-	TAabb::TPoint min;
+	typename TAabb::TPoint min;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
-	TAabb::TPoint max;
+	typename TAabb::TPoint max;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: max");
@@ -406,14 +406,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV)
 		return 1;
 	}
 
-	TLineSegment::TPoint tail;
+	typename TLineSegment::TPoint tail;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
-	TLineSegment::TPoint head;
+	typename TLineSegment::TPoint head;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: head");
@@ -450,14 +450,14 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 		return 1;
 	}
 
-	TLineSegment::TPoint tail;
+	typename TLineSegment::TPoint tail;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
-	TLineSegment::TPoint head;
+	typename TLineSegment::TPoint head;
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: head");

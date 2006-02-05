@@ -2,7 +2,7 @@
 
 lass_name = "lass"
 lass_version = (1, 0, 0)
-library_version = (2, 0, 0)
+library_version = (2, 0, 1)
 #                  |  |  |
 #            +-----+  |  +--+
 #            |        |     |
@@ -157,13 +157,14 @@ AC_LANG_CPLUSPLUS
 # Checks for libraries.
 
 # Checks for header files.
+AC_HEADER_STDBOOL
+AC_CHECK_HEADERS([limits.h sys/resource.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_CHECK_FUNCS([atexit clock_gettime])
 
 # Checks for library functions.
 AC_FUNC_STRERROR_R
+AC_CHECK_FUNCS([atexit clock_gettime])
 ''')
 
 	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])

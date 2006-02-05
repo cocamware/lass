@@ -41,8 +41,6 @@ namespace lass
 namespace num
 {
 
-template <typename ScalarType, typename DataType> struct DefaultDataTraits;
-
 template 
 <
 	typename ScalarType,

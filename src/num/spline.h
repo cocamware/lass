@@ -170,6 +170,7 @@ struct DataTraitsStaticVector
 	static void multiplyAccumulate(TData& ioAcc, const TData& iY, TScalar iS)  { ioAcc += iY * iS; }
 };
 
+
 }
 
 }

@@ -29,34 +29,73 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PROCESS_H
 
 #include "util_common.h"
-
-// check platform support
-//
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#	define LASS_UTIL_PROCESS_WIN32
-#else
-#	define LASS_UTIL_PROCESS_NO_SUPPORT
-#	pragma LASS_NOTE("COMPATIBILTY WARNING: Process is not supported on this platform")
-#endif
+#include "dictionary.h"
+#include "singleton.h"
 
 /** @defgroup Process
  *  @brief module concerning process settings
  */
-
-#if !defined(LASS_UTIL_PROCESS_NO_SUPPORT)
 
 namespace lass
 {
 namespace util
 {
 
+/** different process priority levels
+ *  @ingroup Process
+ */
+enum ProcessPriority
+{
+	ppLow,
+	ppBelowNormal,
+	ppNormal,
+	ppAboveNormal,
+	ppHigh,
+	numberOfProcessPriorities
+};
+
+/** type of dictionary that can translate strings to ProcessPriority values.
+ *  @ingroup Process
+ *  Its keys are strings, its values are ProcessPriority values.
+ */
+typedef util::Dictionary<std::string, ProcessPriority> TProcessPriorityDictionary;
+
+/** singleton with dictionary that can translate strings to ProcessPriority.
+ *  @ingroup Process
+ *  Valid keys are "low", "belownormal", "normal", "abovenormal" and "high".
+ *  @code
+ *  ProcessPriority priority = processPriorityDictionary()["normal"];
+ *  @endcode
+ */
+inline TProcessPriorityDictionary& processPriorityDictionary()
+{
+	return *util::Singleton<TProcessPriorityDictionary>::instance();
+}
+
+/** set process priority by ProcessPriority value
+ *  @ingroup Process
+ *  @param iPriority
+ *		One of the values of ProcessPriority except numberOfProcessPriorities!
+ *  @throw Exception
+ *		An exception is thrown if setting the process priority fails.
+ */
+LASS_DLL void LASS_CALL setProcessPriority(ProcessPriority iPriority);
+
+/** set process priority by string
+ *  @ingroup Process
+ *  @param iPriority
+ *  	The key string which is looked up in processPriorityDictionary().
+ *  	The return is used to set the process priority.  
+ *		See TProcessPriorityDictionary for valid keys.
+ *  @throw Exception
+ *		An exception is thrown if @a iPriority is an invalid key or 
+ *		setting the process priority fails.
+ */
 LASS_DLL void LASS_CALL setProcessPriority(const std::string& iPriority);
 
 }
 
 }
-
-#endif
 
 #endif
 

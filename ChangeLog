@@ -4,6 +4,7 @@ http://lass.sourceforge.net
 
 2006-01-25 Bramz
 	updated date in copyright notice from 2004 to 2004-2006
+
 2006-02-04 Bramz
 	Python:
 	- the "__call__" method requires special treatment since it does not use the regular
@@ -31,3 +32,9 @@ http://lass.sourceforge.net
 	- BACKWARDS INCOMPATIBLE CHANGES: LASS_ENFORCE_DYNAMIC_CAST and 
 	  LASS_ENFORCE_DYNAMIC_PY_CAST no longer take the type of the pointee, but of the pointer
 	  itself!  The idea is to eventually merge them to a single macro.
+
+2006-02-05 Bramz
+	Process:
+	- added support for other platforms than Win32.  In particular for platforms with 
+	  sys/resource.h
+	- revamped the interface a bit (backwards compatible).

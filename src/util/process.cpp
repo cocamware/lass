@@ -25,59 +25,103 @@
 
 #include "util_common.h"
 #include "process.h"
-
-/** @fun lass::util::setProcessPriority
- *  @ingroup Process
- *  set priority of current process by a string value.
- *  @param iPriority
- *      valid values are @e low, @e belownormal, @e normal, @e abovenormal, @e high and @e realtime
- *  @warning
- *      Be carefull when setting the process priority.  Any value above @e normal might freeze your
- *      system (especially @e realtime does ;).
- */
-
-#if defined(LASS_UTIL_PROCESS_WIN32)
-#pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
-
 #include "dictionary.h"
-#include <windows.h>
+
+#if HAVE_CONFIG_H
+#	include "../../lass_auto_config.h"
+#endif
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
+#	define LASS_UTIL_PROCESS_HAVE_WIN32
+#elif HAVE_SYS_RESOURCE_H
+#	define LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE
+#else
+#	error lass/util/process.h is not supported on this platform
+#endif
+
+#if defined(LASS_UTIL_PROCESS_HAVE_WIN32)
+#	include <windows.h>
+#elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
+#	include <sys/resource.h>
+#	if HAVE_LIMITS_H
+#		include <limits.h>
+#		define LASS_UTIL_PROCESS_NZERO NZERO
+#	else
+#		define LASS_UTIL_PROCESS_NZERO 20
+#	endif
+#endif
 
 namespace lass
 {
 namespace util
 {
 
-void setProcessPriority(const std::string& iPriority)
+LASS_EXECUTE_BEFORE_MAIN_EX(lassImpl_processPriorityDictionary,
+		processPriorityDictionary().add("low", ppLow);
+		processPriorityDictionary().add("belownormal", ppBelowNormal);
+		processPriorityDictionary().add("normal", ppNormal);
+		processPriorityDictionary().add("abovenormal", ppAboveNormal);
+		processPriorityDictionary().add("high", ppHigh);
+	)
+
+void setProcessPriority(ProcessPriority iPriority)
 {
-	Dictionary<std::string, int> priorities;
-	priorities.add("low", IDLE_PRIORITY_CLASS);
-	priorities.add("belownormal", BELOW_NORMAL_PRIORITY_CLASS);
-	priorities.add("normal", NORMAL_PRIORITY_CLASS);
-	priorities.add("abovenormal", ABOVE_NORMAL_PRIORITY_CLASS);
-	priorities.add("high", HIGH_PRIORITY_CLASS);
-	priorities.add("realtime", REALTIME_PRIORITY_CLASS);
+	LASS_ASSERT(iPriority >= 0 && iPriority < numberOfProcessPriorities);
 
-	int priority;
-	try
-	{
-		priority = priorities[iPriority];
-	}
-	catch(util::Exception)
-	{
-		LASS_THROW("'" << iPriority << "' is an invalid priority setting.  "
-			"It should be one of these: " << priorities.keys() << ".");
-	}
-
+#if defined(LASS_UTIL_PROCESS_HAVE_WIN32)
+	static const int winPriorities[numberOfProcessPriorities] = 
+	{ 
+		IDLE_PRIORITY_CLASS, 
+		BELOW_NORMAL_PRIORITY_CLASS,
+		NORMAL_PRIORITY_CLASS,
+		ABOVE_NORMAL_PRIORITY_CLASS,
+		HIGH_PRIORITY_CLASS
+	};
+	const int priority = winPriorities[iPriority];
 	if (SetPriorityClass(GetCurrentProcess(), priority) == 0)
 	{
 		LASS_THROW("SetPriorityClass failed with error code '" << GetLastError() << "'.");
 	}
-}
-
-}
-
-}
-
+#elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
+	static const int niceValues[numberOfProcessPriorities] = 
+	{
+		LASS_UTIL_PROCESS_NZERO - 1,
+		LASS_UTIL_PROCESS_NZERO / 2 - 1,
+		0,
+		-LASS_UTIL_PROCESS_NZERO / 2,
+		-LASS_UTIL_PROCESS_NZERO
+	};
+	const int niceValue = niceValues[iPriority];
+	LASS_ENFORCE_CLIB(setpriority(PRIO_PROCESS, 0, niceValue));
+#else
+#	error setProcessPriority is not supported on this platform
 #endif
+}
+
+
+
+void setProcessPriority(const std::string& iPriority)
+{
+	ProcessPriority priority = ppNormal;
+	try
+	{
+		priority = processPriorityDictionary()[iPriority];
+	}
+	catch(util::Exception)
+	{
+		LASS_THROW("'" << iPriority << "' is an invalid priority setting.  "
+			"It should be one of these: " << processPriorityDictionary().keys() << ".");
+	}
+
+	setProcessPriority(priority);
+}
+
+
+
+}
+
+}
+
 
 // EOF
