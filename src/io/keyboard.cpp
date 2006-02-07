@@ -105,7 +105,7 @@ bool keyboardIsHit()
 /** get a character from the console without echo
  *  @ingroup Keyboard
  */
-bool keyboardGetUnbuffered()
+int keyboardGetKey()
 {
 #if defined(LASS_IO_KEYBOARD_HAVE_WIN32)
 	return _getch();

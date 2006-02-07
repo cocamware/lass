@@ -420,7 +420,7 @@ $[
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
 		i_module, f_cppFunction, t_return,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams),\
+		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams)),\
 		s_functionName, s_doc, i_dispatcher )
 ]$
 
