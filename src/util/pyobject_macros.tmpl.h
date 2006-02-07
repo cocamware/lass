@@ -311,11 +311,12 @@
 	)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_EX with @a i_uniqueId = @a i_outerCppClass ## @a i_innerCppClass.
+ *  convenience macro, wraps PY_MODULE_FUNCTION_EX with 
+ *	@a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__
  */
 #define PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, s_name, s_doc )\
 	PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_name, s_doc,\
-		LASS_CONCATENATE(i_module, f_cppFunction) )
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 
 /** @ingroup Python
  *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_doc = 0.
@@ -416,38 +417,40 @@ $[
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
 	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_dispatcher));\
+		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
 		i_module, f_cppFunction, t_return,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_dispatcher),\
+		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams),\
 		s_functionName, s_doc, i_dispatcher )
 ]$
 
 /** @ingroup Python
  *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX with
- *  @a i_dispatcher = py @a t_cppClass @a f_cppFunction __LINE__.
+ *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
-		PY_MODULE_FUNCTION_QUALIFIED_EX(\
-			i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc,\
-			LASS_UNIQUENAME(LASS_CONCATENATE_3(py, i_module, f_cppFunction)))
+	PY_MODULE_FUNCTION_QUALIFIED_EX(\
+		i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
+
 
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC for 0 arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX_0 with
+ *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
-	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
-		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName, s_doc )
+	PY_MODULE_FUNCTION_QUALIFIED_EX_0(\
+		i_module, f_cppFunction, t_return, s_functionName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 $[
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC for $x arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX_$x with
+ *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
-	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
-		i_module, f_cppFunction, t_return,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_functionName, s_doc )
+	PY_MODULE_FUNCTION_QUALIFIED_EX_$x(\
+		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 ]$
 
 /** @ingroup Python
@@ -458,71 +461,65 @@ $[
 			i_module, f_cppFunction, t_return, t_params, s_functionName, 0 )
 
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME for 0 arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0 with @a s_doc = 0.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_0( i_module, f_cppFunction, t_return, s_functionName )\
-	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
-		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName )
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0(\
+		i_module, f_cppFunction, t_return, s_functionName, 0 )
 $[
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME for $x arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x with @a s_doc = 0.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
-	PY_MODULE_FUNCTION_QUALIFIED_NAME( \
-		i_module, f_cppFunction, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_functionName )
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x(\
+		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, 0 )
 ]$
 
 /** @ingroup Python
  *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
- *  with @a s_functionName = "@a f_cppFunction".
+ *  with @a s_functionName = # @a f_cppFunction.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, s_doc )\
-		PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( \
-			i_module, f_cppFunction, t_return, t_params, LASS_STRINGIFY(f_cppFunction), s_doc)
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( \
+		i_module, f_cppFunction, t_return, t_params, LASS_STRINGIFY(f_cppFunction), s_doc)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_DOC for 0 arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0
+ *  with @a s_functionName = # @a f_cppFunction.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC_0( i_module, f_cppFunction, t_return, s_doc )\
-	PY_MODULE_FUNCTION_QUALIFIED_DOC( \
-		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_doc )
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0( \
+		i_module, f_cppFunction, t_return, LASS_STRINGIFY(f_cppFunction), s_doc)
 $[
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_DOC for $x arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x
+ *  with @a s_functionName = # @a f_cppFunction.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_doc )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
-	PY_MODULE_FUNCTION_QUALIFIED_DOC( \
-		i_module, f_cppFunction, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)), s_doc )
+	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x( \
+		i_module, f_cppFunction, t_return, $(t_P$x)$, LASS_STRINGIFY(f_cppFunction), s_doc)
 ]$
 
 /** @ingroup Python
  *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
- *  with @a s_functionName = "@a f_cppFunction" and @a s_doc = 0.
+ *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED( i_module, f_cppFunction, t_return, t_params )\
-		PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, 0 )
+	PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, 0 )
 
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED for 0 arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0
+ *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_0( i_module, f_cppFunction, t_return )\
-	PY_MODULE_FUNCTION_QUALIFIED( i_module, f_cppFunction, t_return, ::lass::meta::NullType )
+	PY_MODULE_FUNCTION_QUALIFIED_DOC_0( i_module, f_cppFunction, t_return, 0 )
 $[
 /** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED for $x arguments
+ *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x
+ *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_$x( i_module, f_cppFunction, t_return, $(t_P$x)$ )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module));\
-	PY_MODULE_FUNCTION_QUALIFIED( \
-		i_module, f_cppFunction, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(pyClassMethodParams_, i_module)) )
+	PY_MODULE_FUNCTION_QUALIFIED_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, 0 )
 ]$
 
 
@@ -779,12 +776,12 @@ $[
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_METHOD_EX with
- *  @a i_dispatcher = lassPyImpl_Dispatcher_ @a i_cppClass __LINE__.
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
  */
 #define PY_CLASS_METHOD_NAME_DOC( i_cppClass, i_cppMethod, s_methodName, s_doc )\
 		PY_CLASS_METHOD_EX(\
 			i_cppClass, i_cppMethod, s_methodName, s_doc,\
-			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_Method_, i_cppClass)))
+			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_METHOD_NAME_DOC with @a s_doc = 0.
@@ -793,13 +790,13 @@ $[
 		PY_CLASS_METHOD_NAME_DOC( i_cppClass, i_cppMethod, s_methodName, 0 )
 
 /** @ingroup Python
- *  convenience macro, wraps PY_CLASS_METHOD_NAME_DOC with @a s_methodName = "@a i_cppMethod".
+ *  convenience macro, wraps PY_CLASS_METHOD_NAME_DOC with @a s_methodName = # @a i_cppMethod.
  */
 #define PY_CLASS_METHOD_DOC( i_cppClass, i_cppMethod, s_doc )\
 		PY_CLASS_METHOD_NAME_DOC( i_cppClass, i_cppMethod, LASS_STRINGIFY(i_cppMethod), s_doc)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_CLASS_METHOD_NAME_DOC  with @a s_methodName = "@a i_cppMethod"
+ *  convenience macro, wraps PY_CLASS_METHOD_NAME_DOC  with @a s_methodName = # @a i_cppMethod
  *  and @a s_doc = 0.
  */
 #define PY_CLASS_METHOD( i_cppClass, i_cppMethod )\
@@ -860,26 +857,26 @@ $[
 /** @ingroup Python
  *  @sa PY_CLASS_FREE_METHOD_EX
  *  convenience macro, wraps PY_CLASS_FREE_METHOD_EX 
- *  with @a i_dispatcher = lassPyImpl_Dispatcher_ @a i_cppClass __LINE__.
+ *  with @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
  */
 #define PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, s_methodName, s_doc )\
-		PY_CLASS_FREE_METHOD_EX(\
-			i_cppClass, i_cppFreeMethod, s_methodName, s_doc,\
-			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_Method_, i_cppClass)))
+	PY_CLASS_FREE_METHOD_EX(\
+		i_cppClass, i_cppFreeMethod, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
 
 /** @ingroup Python
  *  @sa PY_CLASS_FREE_METHOD_EX
  *  convenience macro, wraps PY_CLASS_FREE_METHOD_NAME_DOC with @a s_doc = 0.
  */
 #define PY_CLASS_FREE_METHOD_NAME( i_cppClass, i_cppFreeMethod, s_methodName )\
-		PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, s_methodName, 0 )
+	PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, s_methodName, 0 )
 
 /** @ingroup Python
  *  @sa PY_CLASS_FREE_METHOD_EX
  *  convenience macro, wraps PY_CLASS_FREE_METHOD_NAME_DOC with @a s_methodName = "@a i_cppFreeMethod".
  */
 #define PY_CLASS_FREE_METHOD_DOC( i_cppClass, i_cppFreeMethod, s_doc )\
-		PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, LASS_STRINGIFY(i_cppFreeMethod), s_doc)
+	PY_CLASS_FREE_METHOD_NAME_DOC( i_cppClass, i_cppFreeMethod, LASS_STRINGIFY(i_cppFreeMethod), s_doc)
 
 /** @ingroup Python
  *  @sa PY_CLASS_FREE_METHOD_EX
@@ -887,7 +884,7 @@ $[
  *  and @a s_doc = 0.
  */
 #define PY_CLASS_FREE_METHOD( i_cppClass, i_cppFreeMethod )\
-		PY_CLASS_FREE_METHOD_DOC( i_cppClass, i_cppFreeMethod, 0 )
+	PY_CLASS_FREE_METHOD_DOC( i_cppClass, i_cppFreeMethod, 0 )
 
 
 
@@ -955,41 +952,42 @@ $[
  */
 #define PY_CLASS_METHOD_QUALIFIED_EX_$x( t_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher )\
 	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_dispatcher));\
+		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_CLASS_METHOD_QUALIFIED_EX(\
 		t_cppClass, i_cppMethod, t_return,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_dispatcher), s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams)), s_methodName, s_doc,\
 		i_dispatcher )
 ]$
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX with
- *  @a i_dispatcher = lassPyImpl_Dispatcher_ @a t_cppClass __LINE__.
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a t_cppClass ## __LINE__.
  */
 #define PY_CLASS_METHOD_QUALIFIED_NAME_DOC( i_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc )\
-		PY_CLASS_METHOD_QUALIFIED_EX(\
-			i_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc,\
-			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_Method_, i_cppClass)))
+	PY_CLASS_METHOD_QUALIFIED_EX(\
+		i_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC for 0 arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX_0 with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a t_cppClass ## __LINE__.
  */
-#define PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0( i_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc )\
-	PY_CLASS_METHOD_QUALIFIED_NAME_DOC(\
-		i_cppClass, i_cppMethod, t_return, ::lass::meta::NullType, s_methodName, s_doc )
+#define PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0( i_cppClass, i_cppMethod, t_return, s_methodName, s_doc )\
+	PY_CLASS_METHOD_QUALIFIED_EX_0(\
+		i_cppClass, i_cppMethod, t_return, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC for $x arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX_$x with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a t_cppClass ## __LINE__.
  */
 #define PY_CLASS_METHOD_QUALIFIED_NAME_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass));\
-	PY_CLASS_METHOD_QUALIFIED_NAME_DOC(\
-		i_cppClass, i_cppMethod, t_return,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass)), s_methodName, s_doc )
+	PY_CLASS_METHOD_QUALIFIED_EX_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
 ]$
 
 /** @ingroup Python
@@ -1002,78 +1000,72 @@ $[
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME for 0 arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0 with @a s_doc = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED_NAME_0( i_cppClass, i_cppMethod, t_return, s_methodName )\
-	PY_CLASS_METHOD_QUALIFIED_NAME_DOC(\
-		i_cppClass, i_cppMethod, t_return, ::lass::meta::NullType, s_methodName )
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0(\
+		i_cppClass, i_cppMethod, t_return, s_methodName )
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME for $x arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC_$x with @a s_doc = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED_NAME_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass));\
-	PY_CLASS_METHOD_QUALIFIED_NAME( \
-		i_cppClass, i_cppMethod, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass)), s_methodName )
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName )
 ]$
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
- *  with @a s_methodName = "@a i_cppMethod".
+ *  with @a s_methodName = # @a i_cppMethod.
  */
 #define PY_CLASS_METHOD_QUALIFIED_DOC( i_cppClass, i_cppMethod, t_return, t_params, s_doc )\
-		PY_CLASS_METHOD_QUALIFIED_NAME_DOC( \
-			i_cppClass, i_cppMethod, t_return, t_params, LASS_STRINGIFY(i_cppMethod), s_doc)
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC(\
+		i_cppClass, i_cppMethod, t_return, t_params, LASS_STRINGIFY(i_cppMethod), s_doc )
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for 0 arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod.
  */
 #define PY_CLASS_METHOD_QUALIFIED_DOC_0( i_cppClass, i_cppMethod, t_return, s_doc )\
-	PY_CLASS_METHOD_QUALIFIED_DOC( \
-		i_cppClass, i_cppMethod, t_return, ::lass::meta::NullType, s_doc )
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC_0(\
+		i_cppClass, i_cppMethod, t_return, LASS_STRINGIFY(i_cppMethod), s_doc )
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for $x arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod.
  */
 #define PY_CLASS_METHOD_QUALIFIED_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_doc )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass));\
-	PY_CLASS_METHOD_QUALIFIED_DOC( \
-		i_cppClass, i_cppMethod, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass)), s_doc )
+	PY_CLASS_METHOD_QUALIFIED_NAME_DOC_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, LASS_STRINGIFY(i_cppMethod), s_doc )
 ]$
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
- *  with @a s_methodName = "@a i_cppMethod" and @a s_doc = 0.
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED( i_cppClass, i_cppMethod, t_return, t_params )\
-		PY_CLASS_METHOD_QUALIFIED_DOC( i_cppClass, i_cppMethod, t_return, t_params, 0 )
+	PY_CLASS_METHOD_QUALIFIED_DOC( i_cppClass, i_cppMethod, t_return, t_params, 0 )
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for 0 arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED_0( i_cppClass, i_cppMethod, t_return )\
-	PY_CLASS_METHOD_QUALIFIED( i_cppClass, i_cppMethod, t_return, ::lass::meta::NullType )
+	PY_CLASS_METHOD_QUALIFIED_DOC_0( i_cppClass, i_cppMethod, t_return, 0 )
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_DOC for $x arguments
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
  */
 #define PY_CLASS_METHOD_QUALIFIED_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$ )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ ) \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass));\
-	PY_CLASS_METHOD_QUALIFIED( \
-		i_cppClass, i_cppMethod, t_return, \
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, i_cppClass)) )
+	PY_CLASS_METHOD_QUALIFIED_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, 0 )
 ]$
 
 
@@ -1295,7 +1287,7 @@ $[
 /** @ingroup Python
  *  @sa PY_CLASS_MEMBER_R_EX
  *  convenience macro, wraps PY_CLASS_MEMBER_R_EX with
- *  @a i_dispatcher = lassPyImpl_memberR_ @a t_cppClass __LINE__
+ *  @a i_dispatcher = lassPyImpl_memberR_ ## @a t_cppClass ## __LINE__
  */
 #define PY_CLASS_MEMBER_R_DOC(t_cppClass, s_memberName, i_cppGetter , s_doc)\
 	PY_CLASS_MEMBER_R_EX(t_cppClass, s_memberName, i_cppGetter, s_doc,\
@@ -1373,7 +1365,7 @@ $[
 /** @ingroup Python
  *  @sa PY_CLASS_PUBLIC_MEMBER_EX
  *  convenience macro, wraps PY_CLASS_PUBLIC_MEMBER_EX with
- *  @a dispatcher = lassPyImpl_publicMember_ @a i_cppClass __LINE__.
+ *  @a dispatcher = lassPyImpl_publicMember_ ## @a i_cppClass ## __LINE__.
  */
 #define PY_CLASS_PUBLIC_MEMBER_NAME_DOC( i_cppClass, i_cppMember, s_memberName, s_doc )\
 	PY_CLASS_PUBLIC_MEMBER_EX( i_cppClass, i_cppMember, s_memberName, s_doc,\
@@ -1463,7 +1455,7 @@ $[
 /** @ingroup Python
  *  @sa PY_CLASS_PUBLIC_MEMBER_R_EX
  *  convenience macro, wraps PY_CLASS_PUBLIC_MEMBER_R_EX with
- *  @a i_dispatcher = lassPyImpl_publicMemberR_ @a i_cppClass __LINE__.
+ *  @a i_dispatcher = lassPyImpl_publicMemberR_ ## @a i_cppClass ## __LINE__.
  */
 #define PY_CLASS_PUBLIC_MEMBER_R_NAME_DOC(i_cppClass, i_cppMember, s_memberName, s_doc)\
 	PY_CLASS_PUBLIC_MEMBER_R_EX(i_cppClass, i_cppMember, s_memberName, s_doc,\
@@ -1562,11 +1554,11 @@ $[
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with
- *  @a i_dispatcher = lassPyImpl_Constructor_ @a t_cppClass __LINE__
+ *  @a i_dispatcher = lassPyImpl_constructor_ ## @a i_cppClass ## __LINE__
  */
-#define PY_CLASS_CONSTRUCTOR( t_cppClass, t_params )\
-	PY_CLASS_CONSTRUCTOR_EX(t_cppClass, t_params,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_Constructor_, t_cppClass)))
+#define PY_CLASS_CONSTRUCTOR( i_cppClass, t_params )\
+	PY_CLASS_CONSTRUCTOR_EX(i_cppClass, t_params,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_constructor_, t_cppClass)))
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments
@@ -1636,7 +1628,8 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
+	0,	/*tp_weaklist*/\
+	0,	/*tp_del*/
 
 /** @internal
  */
@@ -1686,7 +1679,8 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
+	0,	/*tp_weaklist*/\
+	0,	/*tp_del*/
 
 /** @internal
  */

@@ -2,7 +2,7 @@
 
 lass_name = "lass"
 lass_version = (1, 0, 0)
-library_version = (2, 0, 1)
+library_version = (2, 0, 2)
 #                  |  |  |
 #            +-----+  |  +--+
 #            |        |     |
@@ -158,7 +158,7 @@ AC_LANG_CPLUSPLUS
 
 # Checks for header files.
 AC_HEADER_STDBOOL
-AC_CHECK_HEADERS([limits.h sys/resource.h])
+AC_CHECK_HEADERS([limits.h termios.h sys/ioctl.h sys/resource.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

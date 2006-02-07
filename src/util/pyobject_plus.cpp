@@ -57,7 +57,7 @@ PyObjectPlus::~PyObjectPlus()
 	if (this->ob_refcnt>0)
 	{
 		if (this->ob_refcnt>1)
-			std::cerr << "DANGLING REFERENCE to lass::python::PyObjectPlus" << std::endl;
+			std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" << std::endl;
 		--this->ob_refcnt;
 		_Py_ForgetReference( this );
 

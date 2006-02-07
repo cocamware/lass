@@ -38,3 +38,8 @@ http://lass.sourceforge.net
 	- added support for other platforms than Win32.  In particular for platforms with 
 	  sys/resource.h
 	- revamped the interface a bit (backwards compatible).
+
+2007-02-06 Bramz
+	Keyboard:
+	- added support for direct keyboard queries (like _kbhit() and _getch() in Win32).
+	  see src/io/keyboard.h and src/io/keyboard.cpp
