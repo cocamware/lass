@@ -27,7 +27,38 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #include "../util/pyobject_util.h"
+
+// forward declaration ...
+// this is a bit awkward because we need to have all these function signatures before attempting
+// to include callback_python.h
+
+namespace lass
+{
+namespace prim
+{
+template <typename T> class Vector2D;
+template <typename T> class Vector3D;
+template <typename T> class Vector4D;
+template <typename T> class Point2D;
+template <typename T> class Point3D;
+template <typename T, typename MMP> class Aabb2D;
+template <typename T, typename MMP> class Aabb3D;
+}
+namespace python
+{
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector2D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV);
+template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb2D<T, MMP>& iV);
+template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb3D<T, MMP>& iV);
+}
+}
+
 #endif
+
+// --- implementation ------------------------------------------------------------------------------
 
 namespace lass
 {

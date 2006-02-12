@@ -26,11 +26,6 @@ import os
 import os.path
 import sys
 
-python_version = sys.version[:3]
-include_directories = ['%s/include/python%s' % (sys.prefix, python_version)]
-library_directories = ['%s/lib/python%s/config' % (sys.prefix, python_version)]
-
-
 def pre_build():
 	current = os.getcwd()
 	os.chdir('src/util')
@@ -165,6 +160,19 @@ AC_CHECK_HEADERS([limits.h termios.h sys/ioctl.h sys/resource.h])
 # Checks for library functions.
 AC_FUNC_STRERROR_R
 AC_CHECK_FUNCS([atexit clock_gettime])
+
+AC_MSG_CHECKING(for Python)
+LASS_PY_PREFIX=`python -c 'import sys; print sys.prefix'`
+LASS_PY_EXEC_PREFIX=`python -c 'import sys; print sys.exec_prefix'`
+LASS_PY_VERSION=`python -c 'import sys; print sys.version[[:3]]'`
+LASS_PY_INCLUDES="-I${LASS_PY_PREFIX}/include/python${LASS_PY_VERSION} -I${LASS_PY_EXEC_PREFIX}/include/python${LASS_PY_VERSION}"
+LASS_PY_LDFLAGS="-L${LASS_PY_PREFIX}/lib/python${LASS_PY_VERSION}/config -lpython${LASS_PY_VERSION}"
+AC_SUBST(LASS_PY_PREFIX)
+AC_SUBST(LASS_PY_EXEC_PREFIX)
+AC_SUBST(LASS_PY_VERSION)
+AC_SUBST(LASS_PY_INCLUDES)
+AC_SUBST(LASS_PY_LDFLAGS)
+AC_MSG_RESULT(${LASS_PY_VERSION})
 ''')
 
 	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
@@ -187,7 +195,7 @@ AUTOMAKE_OPTIONS = 1.7
 SUBDIRS = src
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = @LASS_RELEASE_NAME@.pc
+pkgconfig_DATA = $(LASS_RELEASE_NAME).pc
 
 EXTRA_DIST=%s
 ''' % ' '.join(extra_dist))
@@ -207,11 +215,10 @@ def write_src_makefile(sources_list, headers_dict):
 	print "- src/Makefile.am"
 	makefile=open('src/Makefile.am','w+')
 	
-	includes = ' '.join(['-I' + i for i in include_directories])
 	makefile.write(r'''
 SUBDIRS=. test
-INCLUDES= $(all_includes) %s
-''' % includes)
+INCLUDES= $(all_includes) $(LASS_PY_INCLUDES)
+''')
 
 	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
 	makefile.write(r'''
@@ -228,10 +235,9 @@ lib%s_la_SOURCES = %s
 lib%s_la_CPPFLAGS = %s %s %s
 ''' % (simple_release_name, debug_info_flags, code_generation_flags, warning_flags))
 	
-	library_dirs = ' '.join(['-L' + i for i in library_directories])
 	makefile.write(r'''
-lib%s_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
-''' % (simple_release_name, library_dirs, python_version))
+lib%s_la_LDFLAGS = $(LASS_PY_LDFLAGS) -lrt -lpthread -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
+''' % simple_release_name)
 
 	for subdir in headers_dict.keys():
 		incdir = subdir
@@ -239,7 +245,7 @@ lib%s_la_LDFLAGS = %s -lpython%s -lrt -lpthread -version-info $(LASS_LIBRARY_VER
 			incdir = '/' + incdir
 		incname = incdir.replace('/', '_')
 		incfiles = ' '.join([os.path.join(subdir, f) for f in headers_dict[subdir]])
-		makefile.write('include_lass%sdir = $(includedir)/@LASS_RELEASE_NAME@/lass%s\n' % (incname, incdir))
+		makefile.write('include_lass%sdir = $(includedir)/$(LASS_RELEASE_NAME)/lass%s\n' % (incname, incdir))
 		makefile.write('include_lass%s_HEADERS = %s\n' % (incname, incfiles))
 		
 	makefile.close()
@@ -250,10 +256,9 @@ def write_src_test_makefile(test_sources_list):
 	print "- src/test/Makefile.am"
 	makefile=open('src/test/Makefile.am','w+')
 	
-	includes = ' '.join(['-I' + i for i in include_directories])
 	makefile.write(r'''
-INCLUDES= $(all_includes) %s
-''' % includes)
+INCLUDES= $(all_includes) $(LASS_PY_INCLUDES)
+''')
 	
 	test_sources = ' '.join(test_sources_list)
 	makefile.write(r'''
@@ -267,7 +272,7 @@ lass_test_CPPFLAGS = %s %s %s
 ''' % (debug_info_flags, code_generation_flags, warning_flags))
 
 	makefile.write(r'''
-lass_test_LDADD = ../lib@LASS_RELEASE_NAME@.la
+lass_test_LDADD = ../lib$(LASS_RELEASE_NAME).la
 
 TESTS = lass_test
 ''')
