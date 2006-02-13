@@ -419,6 +419,9 @@ cd ..\dll
 				RelativePath="..\io\io_fwd.cpp">
 			</File>
 			<File 
+				RelativePath="..\io\keyboard.cpp">
+			</File>
+			<File 
 				RelativePath="..\io\logger.cpp">
 			</File>
 			<File 

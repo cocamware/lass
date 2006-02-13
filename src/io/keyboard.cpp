@@ -30,7 +30,8 @@
 #	include "../../lass_auto_config.h"
 #endif
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_WIN32
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	pragma LASS_NOTE("io/keyboard: using win32 implementation")
 #	define LASS_IO_KEYBOARD_HAVE_WIN32
 #	include <conio.h>
 #elif HAVE_TERMIOS_H && HAVE_SYS_IOCTL_H

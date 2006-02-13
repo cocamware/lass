@@ -60,6 +60,7 @@
 					RequireProcExt="3"
 					Parallelization="1"
 					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
@@ -449,6 +450,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath="io_fwd.cpp">
+			</File>
+			<File 
+				RelativePath=".\keyboard.cpp">
 			</File>
 			<File 
 				RelativePath="logger.cpp">
