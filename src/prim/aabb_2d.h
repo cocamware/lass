@@ -167,11 +167,7 @@ io::MatlabOStream& operator<<(io::MatlabOStream& ioOStream, const Aabb2D<T, MMP>
 }
 
 #include "aabb_2d.inl"
-
-#define LASS_PRIM_PYOBJECT_UTIL_AABB_2D
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
-#	include "pyobject_util.h"
-#endif
+#include "pyobject_util.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
 #	include "aabb_2d_ray_2d.h"

@@ -321,6 +321,22 @@ namespace lass
 
 			LASS_DLL void addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool checkSequenceSize(PyObject* iValue, int iExpectedSize);
+
+			namespace experimental
+			{
+				template <typename Out, typename In> inline
+				Out	staticPyCast(const In& iIn)
+				{
+					return Out(::lass::python::PyPlus_INCREF(
+						static<typename Out::TPointer>(iIn.get())));
+				}
+				template <typename Out, typename In> inline
+				Out	dynamicPyCast(const In& iIn)
+				{
+					return Out(::lass::python::PyPlus_INCREF(
+						dynamic_cast<typename Out::TPointer>(iIn.get())));
+				}
+			}
 		}
 	}
 }

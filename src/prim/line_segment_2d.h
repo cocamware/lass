@@ -123,11 +123,7 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 }
 
 #include "line_segment_2d.inl"
-
-#define LASS_PRIM_PYOBJECT_UTIL_LINE_SEGMENT_2D
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
-#	include "pyobject_util.h"
-#endif
+#include "pyobject_util.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
 #	include "line_segment_2d_ray_2d.h"

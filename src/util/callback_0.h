@@ -232,10 +232,7 @@ Callback0 makeCallback(ObjectPtr iObject, void (Object::*iMethod)() const)
 
 }
 
-#define LASS_UTIL_CALLBACK_PYTHON_0
-#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
-#	include "callback_python.h"
-#endif
+#include "callback_python.inl"
 
 #endif
 

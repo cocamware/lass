@@ -222,10 +222,7 @@ Callback$x<$(P$x)$> makeCallback(ObjectPtr iObject, void (Object::*iMethod)($(P$
 
 }
 
-#define LASS_UTIL_CALLBACK_PYTHON_$x
-#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
-#	include "callback_python.h"
-#endif
+#include "callback_python.inl"
 
 #endif // Guardian of Inclusion
 

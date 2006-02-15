@@ -164,6 +164,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb3D<T, MMP>& iAab
 }
 
 #include "aabb_3d.inl"
+#include "pyobject_util.inl"
 
 #define LASS_PRIM_PYOBJECT_UTIL_AABB_3D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H

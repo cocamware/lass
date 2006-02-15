@@ -60,8 +60,8 @@
  */
 #define LASS_ENFORCE(expression)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::DefaultPredicate,\
-		 lass::util::impl::DefaultRaiser,\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
 		(expression), \
 		"Expression '" LASS_STRINGIFY(expression) "' failed in '" LASS_HERE "'.")
 
@@ -72,8 +72,8 @@
  */
 #define LASS_ENFORCE_POINTER(pointer) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::DefaultPredicate,\
-		lass::util::impl::DefaultRaiser,\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
 		(pointer), \
 		"Null pointer '" LASS_STRINGIFY(pointer) "' detected in '" LASS_HERE "'.")
 
@@ -84,8 +84,8 @@
  */
 #define LASS_ENFORCE_STREAM(stream)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::StreamPredicate,\
-		lass::util::impl::DefaultRaiser,\
+		::lass::util::impl::StreamPredicate,\
+		::lass::util::impl::DefaultRaiser,\
 		(stream),\
 		"Failing stream '" LASS_STRINGIFY(stream) "' detected in '" LASS_HERE "'.") 
 
@@ -95,8 +95,8 @@
  */
 #define LASS_ENFORCE_HANDLE(handle) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::HandlePredicate,\
-		lass::util::impl::DefaultRaiser,\
+		::lass::util::impl::HandlePredicate,\
+		::lass::util::impl::DefaultRaiser,\
 		(handle),\
 		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'.")
 
@@ -107,8 +107,8 @@
  */
 #define LASS_ENFORCE_ZERO(expression) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::ZeroPredicate,\
-		 lass::util::impl::ZeroRaiser>(\
+		::lass::util::impl::ZeroPredicate,\
+		::lass::util::impl::ZeroRaiser>(\
 		(expression), \
 		"'" LASS_STRINGIFY(expression) "' in '" LASS_HERE "'.")
 
@@ -123,8 +123,8 @@
  */
 #define LASS_ENFORCE_CLIB(returnCode)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::ClibPredicate,\
-		lass::util::impl::ClibRaiser,\
+		::lass::util::impl::ClibPredicate,\
+		::lass::util::impl::ClibRaiser,\
 		(returnCode), \
 		"'" LASS_STRINGIFY(returnCode) "' in '" LASS_HERE "'")
 	
@@ -140,8 +140,8 @@
  */
 #define LASS_ENFORCE_CLIB_RC(errorCode)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::ZeroPredicate,\
-		lass::util::impl::ClibRcRaiser,\
+		::lass::util::impl::ZeroPredicate,\
+		::lass::util::impl::ClibRcRaiser,\
 		(errorCode), \
 		"'" LASS_STRINGIFY(errorCode) "' in '" LASS_HERE "'")
 
@@ -152,8 +152,8 @@
  */
 #define LASS_ENFORCE_COM(comResult) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::ComPredicate,\
-		lass::util::impl::ComRaiser,\
+		::lass::util::impl::ComPredicate,\
+		::lass::util::impl::ComRaiser,\
 		(comResult), \
 		"'" LASS_STRINGIFY(comResult) "' in '" LASS_HERE "'.")
 
@@ -163,8 +163,8 @@
  */
 #define LASS_ENFORCE_INDEX(index, size)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::IndexPredicate<(size)>,\
-		lass::util::impl::IndexRaiser<(size)>,\
+		::lass::util::impl::IndexPredicate<(size)>,\
+		::lass::util::impl::IndexRaiser<(size)>,\
 		(index), LASS_HERE)
 
 
@@ -179,8 +179,8 @@
  */
 #define LASS_ENFORCE_DYNAMIC_CAST(t_DestPointer, v_pointer)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::DefaultPredicate,\
-		lass::util::impl::DefaultRaiser,\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
 		(dynamic_cast<t_DestPointer>(v_pointer)),\
 		"Unable to cast to '" LASS_STRINGIFY(t_DestPointer) "': '" LASS_STRINGIFY(v_pointer)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
@@ -198,11 +198,9 @@
  */
 #define LASS_ENFORCE_DYNAMIC_PY_CAST(t_DestPyObjectPtr, v_pyObjectPtr)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		lass::util::impl::DefaultPredicate,\
-		lass::util::impl::DefaultRaiser,\
-		t_DestPyObjectPtr(::lass::python::PyPlus_INCREF(\
-			dynamic_cast<typename t_DestPyObjectPtr::TPointer>(\
-				(v_pyObjectPtr).get()))),\
+		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		::lass::python::impl::experimental::dynamicPyCast<t_DestPyObjectPtr>(v_pyObjectPtr),\
 		"Unable to cast to '" LASS_STRINGIFY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 

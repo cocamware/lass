@@ -510,6 +510,12 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				</FileConfiguration>
 			</File>
 			<File 
+				RelativePath=".\pyobject_util.cpp">
+			</File>
+			<File 
+				RelativePath=".\pyobject_util.inl">
+			</File>
+			<File 
 				RelativePath="ray_2d.inl">
 			</File>
 			<File 

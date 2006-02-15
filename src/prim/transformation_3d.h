@@ -109,11 +109,7 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const 
 }
 
 #include "transformation_3d.inl"
-
-#define LASS_PRIM_PYOBJECT_UTIL_TRANSFORMATION_3D
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
-#	include "pyobject_util.h"
-#endif
+#include "pyobject_util.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
 #	include "aabb_3d_transformation_3d.h"

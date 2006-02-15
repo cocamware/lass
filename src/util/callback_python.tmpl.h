@@ -25,142 +25,40 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
+
 #include "util_common.h"
 #include "pyobject_plus.h"
-#endif
-
-#include "impl/dispatcher_python.h"
 
 namespace lass
 {
+namespace util
+{
+
+class Callback0;
+$[template <$(typename P$x)$> class Callback$x;
+]$
+template <typename R> class CallbackR0;
+$[template <typename R, $(typename P$x)$> class CallbackR$x;
+]$
+
+}
+
 namespace python
 {
 
-#ifdef LASS_UTIL_CALLBACK_PYTHON_0
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_0
-#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_0
-
-inline int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV )
-{
-	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
-	{
-		impl::addMessageHeader("Callback0");
-		return 1;
-	}
-	if (!callable)
-	{
-		oV.reset();
-		return 0;
-	}
-	if (!PyCallable_Check(callable.get()))
-	{
-		PyErr_SetString(PyExc_TypeError, "Callback0: not callable");
-		return 1;
-	}
-	oV = util::impl::Dispatcher0Python(callable);
-	return 0;
-}
-
-#	endif
-#endif
-
-$[
-#ifdef LASS_UTIL_CALLBACK_PYTHON_$x
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_$x
-#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_$x
-
-template <$(typename P$x)$>
-int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
-{
-	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
-	{
-		impl::addMessageHeader("Callback$x");
-		return 1;
-	}
-	if (!callable)
-	{
-		oV.reset();
-		return 0;
-	}
-	if (!PyCallable_Check(callable.get()))
-	{
-		PyErr_SetString(PyExc_TypeError, "Callback$x: not callable");
-		return 1;
-	}
-	oV = util::impl::Dispatcher$xPython<$(P$x)$>(callable);
-	return 0;
-}
-
-#	endif
-#endif
+int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV );
+$[template <$(typename P$x)$> int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV );
 ]$
-
-#ifdef LASS_UTIL_CALLBACK_PYTHON_R0
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R0
-#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R0
-
-template <typename R>
-int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV )
-{
-	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
-	{
-		impl::addMessageHeader("CallbackR0");
-		return 1;
-	}
-	if (!callable)
-	{
-		oV.reset();
-		return 0;
-	}
-	if (!PyCallable_Check(callable.get()))
-	{
-		PyErr_SetString(PyExc_TypeError, "CallbackR0: not callable");
-		return 1;
-	}
-	oV = util::impl::DispatcherR0Python<R>(callable);
-	return 0;
-}
-
-#	endif
-#endif
-
-$[
-#ifdef LASS_UTIL_CALLBACK_PYTHON_R$x
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R$x
-#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R$x
-
-template <typename R, $(typename P$x)$>
-inline int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV )
-{
-	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
-	{
-		impl::addMessageHeader("CallbackR$x");
-		return 1;
-	}
-	if (!callable)
-	{
-		oV.reset();
-		return 0;
-	}
-	if (!PyCallable_Check(callable.get()))
-	{
-		PyErr_SetString(PyExc_TypeError, "CallbackR$x: not callable");
-		return 1;
-	}
-	oV = util::impl::DispatcherR$xPython<R, $(P$x)$>(callable);
-	return 0;
-}
-
-#	endif
-#endif
+template <typename R> int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV );
+$[template <typename R, $(typename P$x)$> int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV );
 ]$
 
 }
 
 }
+
+#include "callback_python.inl"
+
+#endif
 
 // EOF

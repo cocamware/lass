@@ -155,10 +155,6 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const
 }
 
 #include "vector_2d.inl"
-
-#define LASS_PRIM_PYOBJECT_UTIL_VECTOR_2D
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
-#	include "pyobject_util.h"
-#endif
+#include "pyobject_util.inl"
 
 #endif
