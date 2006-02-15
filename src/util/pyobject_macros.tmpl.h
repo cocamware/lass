@@ -1558,7 +1558,7 @@ $[
  */
 #define PY_CLASS_CONSTRUCTOR( i_cppClass, t_params )\
 	PY_CLASS_CONSTRUCTOR_EX(i_cppClass, t_params,\
-		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_constructor_, t_cppClass)))
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_constructor_, i_cppClass)))
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments

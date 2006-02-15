@@ -38,6 +38,14 @@
 
 namespace lass
 {
+
+// a forward declaration in case string_cast.h doesn't make it ... 
+//
+namespace util
+{
+template <typename Out, typename In> Out stringCast(const In& iIn);
+}
+
 namespace stde
 {
 namespace impl
