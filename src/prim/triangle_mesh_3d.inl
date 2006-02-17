@@ -243,7 +243,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 			normals_[usedFaceNormals[i]] = faceNormals[i];
 		}
 	}
-	for (std::size_t j = 0; j < numVertices; ++j)
+	for (std::size_t i = 0; i < numVertices; ++i)
 	{
 		if (usedVertexNormals[i] != IndexTriangle::null())
 		{
@@ -261,12 +261,12 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 			std::size_t j = triangle.vertices[k] - &vertices_[0];
 			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
 			{
-				LASS_ASSERT(usedVertexNormals[j] != IndexTriangle::null())
+				LASS_ASSERT(usedVertexNormals[j] != IndexTriangle::null());
 				triangle.normals[k] = &normals_[usedVertexNormals[j]];
 			}
 			else
 			{
-				LASS_ASSERT(usedFaceNormals[i] != IndexTriangle::null())
+				LASS_ASSERT(usedFaceNormals[i] != IndexTriangle::null());
 				triangle.normals[k] = &normals_[usedFaceNormals[i]];
 			}
 		}

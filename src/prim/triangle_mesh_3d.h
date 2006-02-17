@@ -143,19 +143,19 @@ private:
 
 	struct ObjectTraits
 	{
-		typedef TTriangle TObject;
-		typedef TAabb TAabb;
-		typedef TRay TRay;
+		typedef typename TSelf::TTriangle TObject;
+		typedef typename TSelf::TAabb TAabb;
+		typedef typename TSelf::TRay TRay;
 
-		typedef TTriangleIterator TObjectIterator;
+		typedef typename TSelf::TTriangleIterator TObjectIterator;
 		typedef const TTriangle& TObjectReference;
 
-		typedef TPoint TPoint;
-		typedef TVector TVector;
-		typedef TValue TValue;
-		typedef TParam TParam;
-		typedef TReference TReference;
-		typedef TConstReference TConstReference;
+		typedef typename TSelf::TPoint TPoint;
+		typedef typename TSelf::TVector TVector;
+		typedef typename TSelf::TValue TValue;
+		typedef typename TSelf::TParam TParam;
+		typedef typename TSelf::TReference TReference;
+		typedef typename TSelf::TConstReference TConstReference;
 
 		typedef void TInfo;
 		

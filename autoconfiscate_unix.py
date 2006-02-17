@@ -15,12 +15,13 @@ library_version = (2, 0, 2)
 #            |           set to zero if current is incremented
 #            +- increment if interfaces have been added, removed or changed
 
-lib_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
+source_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
 test_dirs = ['test']
 
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
 warning_flags = '-Wall -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
+libs = '-lpthread'
 
 import os
 import os.path
@@ -153,7 +154,7 @@ AC_LANG_CPLUSPLUS
 
 # Checks for header files.
 AC_HEADER_STDBOOL
-AC_CHECK_HEADERS([limits.h termios.h sys/ioctl.h sys/resource.h])
+AC_CHECK_HEADERS([limits.h termios.h sys/ioctl.h sys/resource.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -236,8 +237,8 @@ lib%s_la_CPPFLAGS = %s %s %s
 ''' % (simple_release_name, debug_info_flags, code_generation_flags, warning_flags))
 	
 	makefile.write(r'''
-lib%s_la_LDFLAGS = $(LASS_PY_LDFLAGS) -lrt -lpthread -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
-''' % simple_release_name)
+lib%s_la_LDFLAGS = $(LASS_PY_LDFLAGS) %s -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
+''' % (simple_release_name, libs))
 
 	for subdir in headers_dict.keys():
 		incdir = subdir
@@ -288,14 +289,16 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
+lass_release_name=@LASS_RELEASE_NAME@
+lass_py_ldflags=@LASS_PY_LDFLAGS@
 
 Name: LASS
 Description: Library of Assembled Shared Sources (http://liar.sourceforge.net)
 Requires: 
 Version: @VERSION@
-Libs: -L${libdir} -l@LASS_RELEASE_NAME@
-Cflags: -I${includedir}/@LASS_RELEASE_NAME@ -I${libdir}/@LASS_RELEASE_NAME@/include
-''')
+Libs: -L${libdir} -l${lass_release_name} ${lass_py_ldflags} %s
+Cflags: -I${includedir}/${lass_release_name} -I${libdir}/${lass_release_name}/include
+''' % libs)
 
 
 
@@ -323,8 +326,8 @@ print "\n* GENERATING MAKE FILES"
 write_configure()
 extra_dist = gather_extra_dist()
 write_makefile(extra_dist)
-sources = gather_sources('src', lib_dirs)
-headers = gather_headers('src', lib_dirs)
+sources = gather_sources('src', source_dirs)
+headers = gather_headers('src', source_dirs)
 write_src_makefile(sources, headers)
 test_sources = gather_sources('src/test', '.')
 write_src_test_makefile(test_sources)

@@ -38,6 +38,9 @@
 #	define LASS_IO_KEYBOARD_HAVE_TERMIOS_H_AND_IOCTL_H
 #	include <termios.h>
 #	include <sys/ioctl.h>
+#	if HAVE_SYS_SOCKET_H
+#		include <sys/socket.h>
+#	endif
 #	include "../util/impl/lass_errno.h"
 #else
 #	error lass/io/keyboard.cpp not supported
