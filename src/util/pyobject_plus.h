@@ -328,7 +328,7 @@ namespace lass
 				Out	staticPyCast(const In& iIn)
 				{
 					return Out(::lass::python::PyPlus_INCREF(
-						static<typename Out::TPointer>(iIn.get())));
+						static_cast<typename Out::TPointer>(iIn.get())));
 				}
 				template <typename Out, typename In> inline
 				Out	dynamicPyCast(const In& iIn)
