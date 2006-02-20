@@ -123,32 +123,103 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 
 // --- triangle meshes -----------------------------------------------------------------------------
 
-inline int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
+namespace impl
 {
+	int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
+	{
+		typedef PyObjectPtr<PyObject>::Type TPyPtr;
+		if (!PySequence_Check(iIndices))
+		{
+			PyErr_SetString(PyExc_TypeError, "is not a sequence");
+			return 1;
+		}
+		const int size = PySequence_Size(iIndices);
+		if (size == -1)
+		{
+			return 1;
+		}
+		if (size == 0 || size > 3)
+		{
+			PyErr_SetString(PyExc_TypeError, "is not (v [, vn [, vt]])");
+			return 1;
+		}
+		const TPyPtr vertex(PySequence_ITEM(iIndices, 0));
+		if (!vertex)
+		{
+			return 1;
+		}
+		if (pyGetSimpleObject(vertex.get(), oVertex) != 0)
+		{
+			impl::addMessageHeader("v");
+			return 1;
+		}
+		if (size > 1)
+		{
+			const TPyPtr normal(PySequence_ITEM(iIndices, 1));
+			if (!normal)
+			{
+				return 1;
+			}
+			if (normal.get() != Py_None)
+			{
+				if (pyGetSimpleObject(normal.get(), oNormal) != 0)
+				{
+					impl::addMessageHeader("vn");
+					return 1;
+				}
+			}
+			else
+			{
+				oNormal = prim::IndexTriangle::null();
+			}
+		}
+		if (size > 2)
+		{
+			const TPyPtr uv(PySequence_ITEM(iIndices, 2));
+			if (!uv)
+			{
+				return 1;
+			}
+			if (uv.get() != Py_None)
+			{
+				if (pyGetSimpleObject(uv.get(), oUv) != 0)
+				{
+					impl::addMessageHeader("vt");
+					return 1;
+				}
+			}
+			else
+			{
+				oUv = prim::IndexTriangle::null();
+			}
+		}
+		return 0;
+	}
+}
+
+int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
+{
+	typedef PyObjectPtr<PyObject>::Type TPyPtr;
 	prim::IndexTriangle result = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (!impl::checkSequenceSize(iValue, 3))
 	{
 		impl::addMessageHeader("lass::prim::IndexTriangle");
 		return 1;
 	}
-	std::vector<std::size_t> vertex;
 	for (int k = 0; k < 3; ++k)
 	{
-		if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, k), vertex) != 0)
+		const TPyPtr indices(PySequence_ITEM(iValue, k));
+		if (!indices)
+		{
+			impl::addMessageHeader("lass::prim::IndexTriangle");
+			return 1;
+		}
+		if (impl::getIndexVertex(indices.get(), result.vertices[k], result.normals[k], result.uvs[k]) != 0)
 		{
 			impl::addMessageHeader("lass::prim::IndexTriangle: vertex " + 
 				util::stringCast<std::string>(k));
 			return 1;
 		}
-		std::size_t size = vertex.size();
-		if (size == 0 || size > 3)
-		{
-			PyErr_SetString(PyExc_TypeError, "vertex is not (v [, vt [, vn]])");
-			return 1;
-		}
-		result.vertices[k] = vertex[0];
-		result.uvs[k] = size > 1 ? vertex[1] : prim::IndexTriangle::null();
-		result.normals[k] = size > 2 ? vertex[2] : prim::IndexTriangle::null();
 	}
 	oTriangle = result;
 	return 0;

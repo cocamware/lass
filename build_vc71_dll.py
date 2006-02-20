@@ -2,7 +2,7 @@ import os
 import os.path
 import re
 
-projects = ['frb', 'gis', 'io', 'num', 'prim', 'spat', 'stde', 'util']
+projects = ['io', 'num', 'prim', 'spat', 'stde', 'util']
 project_file = 'src/dll/dll.vcproj'
 configurations = ['win32_vc71', 'win32_vc71_d']
 ignores = ['%s.cpp' % p for p in projects] + ['%s_common.cpp' % p for p in projects]

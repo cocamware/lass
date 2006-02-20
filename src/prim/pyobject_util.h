@@ -67,10 +67,10 @@ template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::Lin
 template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment3D<T, PP>& iV);
 template <typename T> PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV);
 
-LASS_DLL PyObject* pyBuildSimpleObject(const prim::XY& iV);
-LASS_DLL PyObject* pyBuildSimpleObject(const prim::XYZ& iV);
-LASS_DLL PyObject* pyBuildSimpleObject(const prim::XYZW& iV);
-LASS_DLL PyObject* pyBuildSimpleObject(const prim::ColorRGBA& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XY& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZ& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZW& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::ColorRGBA& iV);
 
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV);
@@ -83,11 +83,11 @@ template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim:
 template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV);
 
-LASS_DLL int pyGetSimpleObject(PyObject* iValue, prim::XY& oV);
-LASS_DLL int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV);
-LASS_DLL int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV);
-LASS_DLL int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV);
-LASS_DLL int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XY& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oV);
 
 }
 

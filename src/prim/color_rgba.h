@@ -143,10 +143,7 @@ LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorR
 
 }
 
-#define LASS_PRIM_PYOBJECT_UTIL_COLOR_RGBA
-#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
-#	include "pyobject_util.h"
-#endif
+#include "pyobject_util.inl"
 
 #endif
 

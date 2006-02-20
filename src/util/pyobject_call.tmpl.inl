@@ -341,8 +341,8 @@ struct CallMethod
 
 	/** call non const method without arguments
 	 */
-	template <typename R>
-	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)() )
+	template <typename C, typename R>
+	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (C::*iMethod)() )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -353,8 +353,8 @@ struct CallMethod
 $[
 	/** call non const method with $x arguments, translated from python arguments
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (C::*iMethod)($(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -370,8 +370,8 @@ $[
 
 	/** call const method without arguments
 	 */
-	template <typename R>
-	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)() const )
+	template <typename C, typename R>
+	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (C::*iMethod)() const )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -382,8 +382,8 @@ $[
 $[
 	/** call const method with $x argument, translated from python arguments
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (C::*iMethod)($(P$x)$) const )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -398,8 +398,8 @@ $[
 
 	/** call non const "free method" without arguments, passing iObject as pointer
 	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(CppClass* iObject) )
+	template <typename C, typename R>
+	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C* iObject) )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -411,8 +411,8 @@ $[
 	/** call non-const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(CppClass* iObject, $(P$x)$) )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C* iObject, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -428,8 +428,8 @@ $[
 
 	/** call non const "free method" without arguments, passing iObject as reference
 	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(CppClass& iObject) )
+	template <typename C, typename R>
+	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C& iObject) )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -442,8 +442,8 @@ $[
 	/** call non-const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as reference
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(CppClass& iObject, $(P$x)$) )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C& iObject, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -460,8 +460,8 @@ $[
 
 	/** call const "free method" without arguments, passing iObject as pointer
 	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const CppClass* iObject) )
+	template <typename C, typename R>
+	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C* iObject) )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -473,8 +473,8 @@ $[
 	/** call const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const CppClass* iObject, $(P$x)$) )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C* iObject, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -490,8 +490,8 @@ $[
 
 	/** call non const "free method" without arguments, passing iObject as pointer
 	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const CppClass& iObject) )
+	template <typename C, typename R>
+	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C& iObject) )
 	{
 		if( !getArguments(iArgs) )
 		{
@@ -504,8 +504,8 @@ $[
 	/** call const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const CppClass& iObject, $(P$x)$) )
+	template <typename C, typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C& iObject, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -522,16 +522,16 @@ $[
 
 	/** call const getter function
 	 */
-	template <typename R>
-	static PyObject* get( const CppClass* iObject, R (CppClass::*iMethod)() const)
+	template <typename C, typename R>
+	static PyObject* get( const CppClass* iObject, R (C::*iMethod)() const)
 	{
 		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
 	}
 
 	/** call getter function, for non-assignable, although not read-only members
 	 */
-	template <typename R>
-	static PyObject* get( CppClass* iObject, R (CppClass::*iMethod)() )
+	template <typename C, typename R>
+	static PyObject* get( CppClass* iObject, R (C::*iMethod)() )
 	{
 		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
 	}
@@ -539,8 +539,8 @@ $[
 
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* iArgs, CppClass* iObject, void (CppClass::*iMethod)(P) )
+	template <typename C, typename P>
+	static int set( PyObject* iArgs, CppClass* iObject, void (C::*iMethod)(P) )
 	{
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;
@@ -557,8 +557,8 @@ $[
 
 	/** call implicit setter function like <tt>Bar& Foo::bar()</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* iArgs, CppClass* iObject, P& (CppClass::*iMethod)() )
+	template <typename C, typename P>
+	static int set( PyObject* iArgs, CppClass* iObject, P& (C::*iMethod)() )
 	{
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;

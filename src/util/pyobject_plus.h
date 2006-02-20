@@ -267,7 +267,7 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( PyObject* iV );
 
 		template <typename T> int pyGetSimpleObjectByName(const std::string& iName, T& oV);
-		LASS_DLL PyObject* getPyObjectByName(const std::string& iName);
+		LASS_DLL PyObject* LASS_CALL getPyObjectByName(const std::string& iName);
 
 		namespace impl
 		{
@@ -296,14 +296,14 @@ namespace lass
 				const char* name_;
 			};
 
-			LASS_DLL PyMethodDef createPyMethodDef( char *ml_name, PyCFunction ml_meth, int ml_flags, char *ml_doc );
-			LASS_DLL PyGetSetDef createPyGetSetDef( char* name, getter get, setter set, char* doc, void* closure );
+			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef( char *ml_name, PyCFunction ml_meth, int ml_flags, char *ml_doc );
+			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef( char* name, getter get, setter set, char* doc, void* closure );
 
-			LASS_DLL void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
-			LASS_DLL void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
+			LASS_DLL void LASS_CALL injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
+			LASS_DLL void LASS_CALL finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 				std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
 				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation);
-			LASS_DLL void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
+			LASS_DLL void LASS_CALL addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 
 			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
@@ -319,8 +319,8 @@ namespace lass
 			template <typename Integer> int pyGetUnsignedObject( PyObject* iValue, Integer& oV );
 			template <typename Float> int pyGetFloatObject( PyObject* iValue, Float& oV );
 
-			LASS_DLL void addMessageHeader(const std::string& iHeader);
-			LASS_DLL bool checkSequenceSize(PyObject* iValue, int iExpectedSize);
+			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
+			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, int iExpectedSize);
 
 			namespace experimental
 			{

@@ -171,6 +171,10 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb3D<T, MMP>& iAab
 #	include "pyobject_util.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_H
+#	include "aabb_3d_parallelogram_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
 #	include "aabb_3d_ray_3d.h"
 #endif

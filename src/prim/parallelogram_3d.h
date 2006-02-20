@@ -25,13 +25,13 @@
 
 
 
-/** @class lass::prim::Triangle3D
+/** @class lass::prim::Parallelogram3D
  *  @brief A very simple 3D polygon :)
  *  @author Bram de Greve [BdG]
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRIANGLE_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_TRIANGLE_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_H
 
 #include "prim_common.h"
 #include "line_segment_3d.h"
@@ -43,16 +43,16 @@ namespace prim
 {
 
 template <typename T>
-class Triangle3D
+class Parallelogram3D
 {
 public:
 
-	typedef Triangle3D<T> TSelf;
+	typedef Parallelogram3D<T> TSelf;
 
 	typedef Point3D<T> TPoint;
 	typedef Point3DH<T> TPointH;
 	typedef typename TPoint::TVector TVector;
-	typedef LineSegment3D<T> TLineSegment;
+	typedef Point2D<T> TUV;
 	typedef Plane3D<T, Cartesian, Normalized> TPlane;
 
 	typedef typename TPoint::TValue TValue;
@@ -65,47 +65,46 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef Triangle3D<U> Type;
+		typedef Parallelogram3D<U> Type;
 	};
 
-	Triangle3D();
-	Triangle3D(const TPoint& iA, const TPoint& iB, const TPoint& iC);
+	Parallelogram3D();
+	Parallelogram3D(const TPoint& iSupport, const TVector& iSizeX, const TVector& iSizeY);
 
-	const TPoint& operator[](int iIndexOfVertex) const;
-	TPoint& operator[](int iIndexOfVertex);
-	const TPoint& at(int iIndexOfVertex) const;
-	TPoint& at(int iIndexOfVertex);
-	const TLineSegment edge(int iIndexOfTailVertex) const;
-	const TVector vector(int iIndexOfTailVertex) const;
+	const TPoint& support() const;
+	TPoint& support();
+	
+	const TVector& sizeU() const;
+	TVector& sizeU();
+	
+	const TVector& sizeV() const;
+	TVector& sizeV();
+
 	const TPlane plane() const;
-
-	const bool isEmpty() const;
-	const int size() const;
 
 	const TValue squaredArea() const;
 	const TValue area() const;
 	const TValue perimeter() const;
-	const TPointH vertexCentroid() const;
-	const TPointH surfaceCentroid() const;
+
+	const TPoint point(TParam iU, TParam iV) const;
+	const TPoint point(const TUV& iUV) const;
+	const TUV uv(const TPoint& iPoint) const;
 
 	const bool isSimple() const;
 	const bool isConvex() const;
-
 	const bool isReflex(int iIndexOfVertex) const;
 
 private:
 
-	const bool isInRange(int iIndexOfVertex) const;
-
-	enum { size_ = 3 };
-
-	TPoint vertices_[size_];
+	TPoint support_;
+	TVector sizeU_;
+	TVector sizeV_;
 };
 
 template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle3D<T>& iTriangle);
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Parallelogram3D<T>& iParallelogram);
 template <typename T>
-std::ostream& operator<<(std::ostream& ioOStream, const Triangle3D<T>& iTriangle);
+std::ostream& operator<<(std::ostream& ioOStream, const Parallelogram3D<T>& iParallelogram);
 
 
 
@@ -113,14 +112,14 @@ std::ostream& operator<<(std::ostream& ioOStream, const Triangle3D<T>& iTriangle
 
 }
 
-#include "triangle_3d.inl"
+#include "parallelogram_3d.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
-#	include "aabb_3d_triangle_3d.h"
+#	include "aabb_3d_parallelogram_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
-#	include "ray_3d_triangle_3d.h"
+#	include "parallelogram_3d_ray_3d.h"
 #endif
 
 #endif
