@@ -386,12 +386,6 @@ cd ..\dll
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File 
-				RelativePath="..\..\src\frb\.\frb.cpp">
-			</File>
-			<File 
-				RelativePath="..\..\src\gis\.\gis.cpp">
-			</File>
-			<File 
 				RelativePath="..\..\src\io\arg_parser.cpp">
 			</File>
 			<File 

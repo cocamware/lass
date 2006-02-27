@@ -86,33 +86,6 @@ const bool Mutex::isLocked() const
 
 
 
-// --- MutexLocker ---------------------------------------------------------------------------------
-
-MutexLocker::MutexLocker( Mutex& iMutex ) : 
-	mutex_(iMutex)
-{
-	mutex_.lock();
-}
-
-MutexLocker::~MutexLocker()
-{
-	try
-	{
-		mutex_.unlock();
-	}
-	catch (std::exception& error)
-	{
-		std::cerr << "[LASS RUN MSG] WARNING: exception thrown in ~MutexLocker(): "
-			<< error.what() << std::endl;
-	}
-	catch (...)
-	{
-		std::cerr << "[LASS RUN MSG] WARNING: unknown exception thrown in ~MutexLocker()" 
-			<< std::endl;
-	}
-}
-
-
 
 // --- CriticalSection -----------------------------------------------------------------------------
 
@@ -157,34 +130,6 @@ const bool CriticalSection::isLocked() const
 {
 	LASS_ASSERT(pimpl_);
 	return pimpl_->lockCount() > 0;
-}
-
-
-
-// --- CriticalSectionLocker -----------------------------------------------------------------------
-
-CriticalSectionLocker::CriticalSectionLocker( CriticalSection& iCriticalSection) :
-	criticalSection_(iCriticalSection)
-{
-	criticalSection_.lock();
-}
-
-CriticalSectionLocker::~CriticalSectionLocker()
-{
-	try
-	{
-		criticalSection_.unlock();
-	}
-	catch (std::exception& error)
-	{
-		std::cerr << "[LASS RUN MSG] WARNING: exception thrown in ~CriticalSectionLocker(): "
-			<< error.what() << std::endl;
-	}
-	catch (...)
-	{
-		std::cerr << "[LASS RUN MSG] WARNING: unknown exception thrown in ~CriticalSectionLocker()" 
-			<< std::endl;
-	}
 }
 
 

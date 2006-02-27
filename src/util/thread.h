@@ -103,7 +103,7 @@ enum ThreadKind
 *   A mutex is a systemwide synchronization object. It is heavier in use than a critical
 *   section.  For exception-safe basic use, the MutexLocker can be used.
 */
-class Mutex : NonCopyable
+class LASS_DLL Mutex : NonCopyable
 {
 public:
 	Mutex();
@@ -121,21 +121,6 @@ private:
 	impl::MutexInternal *pimpl_;
 };
 
-
-/** MutexLocker.
-*   @ingroup Threading
-*   @see Mutex
-*   Auto-locker-release of mutexes.
-*/
-class MutexLocker: NonCopyable
-{
-public:
-	MutexLocker(Mutex& iMutex);
-	~MutexLocker();
-private:
-	Mutex& mutex_;
-};
-
 /** CriticalSection.
 *   @ingroup Threading
 *   @see CriticalSectionLocker
@@ -144,7 +129,7 @@ private:
 *   Process wide synchronization object.  The recommended object for interthread synchronisation
 *   within a process in Windows.
 */
-class CriticalSection : NonCopyable
+class LASS_DLL CriticalSection : NonCopyable
 {
 public:
 	CriticalSection();
@@ -163,26 +148,13 @@ private:
 	impl::CriticalSectionInternal* pimpl_;
 };
 
-/** CriticalSectionLocker.
-*   @ingroup Threading
-*   @see CriticalSection
-*   Auto-locker-release of critical sections
-*/
-class CriticalSectionLocker: NonCopyable
-{
-	CriticalSection& criticalSection_;
-public:
-	CriticalSectionLocker(CriticalSection& iSection);
-	~CriticalSectionLocker();
-};
-
 /** Condition.
 *   @ingroup Threading
 *   A condition can be used to synchronize using messages were a condition waits for
 *   a signal or broadcast.  A signal will only release one waiter, a broadcast will release
 *   all current waiting wait-conditions.
 */
-class Condition
+class LASS_DLL Condition
 {
 public:
 	Condition();
@@ -203,7 +175,7 @@ private:
 *
 *   JOINABLE threads can be waited for, DETACHED threads can not be waited for.
 */
-class Thread: NonCopyable
+class LASS_DLL Thread: NonCopyable
 {
 public:
 
@@ -228,11 +200,85 @@ private:
 	impl::ThreadInternal* pimpl_;
 };
 
+
+/** Common base class for lockers
+ *  @ingroup Threading
+ */
+class LockerBase
+{
+public:
+	operator bool() const { return false; }
+};
+
+/** @ingroup Threading
+ */
+template <typename MutexType>
+class Locker: public LockerBase
+{
+public:
+	typedef MutexType TMutex;
+	Locker(MutexType& iMutex): 
+		mutex_(&iMutex) 
+	{ 
+		mutex_->lock(); 
+	}
+	~Locker() 
+	{
+		try
+		{
+			mutex_->unlock();
+		}
+		catch (std::exception& error)
+		{
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+				<< "exception thrown in ~Locker(): " << error.what() << std::endl;
+		}
+		catch (...)
+		{
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+				<< "unknown exception thrown in ~Locker()" << std::endl;
+		}
+	}
+	TMutex& mutex()
+	{ 
+		LASS_ASSERT(mutex_);
+		return *mutex_;
+	}
+	void swap(Locker& iOther)
+	{
+		std::swap(mutex_, iOther.mutex_);
+	}
+private:
+	MutexType* mutex_;
+};
+
+/** @ingroup Threading
+ *  @relates Locker
+ */
+template <typename T>
+inline Locker<T> makeLocker(T& iLock)
+{
+	return Locker<T>(iLock);
+}
+
+/** typedef of Locker for Mutex
+ *	@ingroup Threading
+ *	@sa Mutex
+ *  @sa Locker
+*/
+typedef Locker<Mutex> MutexLocker;
+
+/** typedef of Locker for CriticalSection
+ *	@ingroup Threading
+ *	@sa Mutex
+ *  @sa Locker
+*/
+typedef Locker<CriticalSection> CriticalSectionLocker;
+
+
 }
 
 }
-
-
 
 /** @brief Locks a @a iLock and starts a scope block in which it remains locked.
  *  @author [Bramz]
@@ -275,50 +321,11 @@ private:
  *      be the reason ...
  */
 #define LASS_LOCK(iLock)\
-	if (const lass::util::impl::GenericLockerBase& LASS_UNUSED(lassUtilImplGenericLocker) =\
-		lass::util::impl::makeGenericLocker(iLock))\
+	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) =\
+		::lass::util::makeLocker(iLock))\
 	{\
 		LASS_ASSERT_UNREACHABLE;\
 	}\
 	else
-
-
-
-// --- implementation details ----------------------------------------------------------------------
-
-namespace lass
-{
-namespace util
-{
-namespace impl
-{
-
-class GenericLockerBase
-{
-public:
-	operator bool() const { return false; }
-};
-
-template <typename LockType>
-class GenericLocker: public GenericLockerBase
-{
-public:
-	GenericLocker(LockType& iLock): lock_(&iLock) { lock_->lock(); }
-	~GenericLocker() { lock_->unlock(); }
-private:
-	LockType* lock_;
-};
-
-template <typename LockType>
-inline GenericLocker<LockType> makeGenericLocker(LockType& iLock)
-{
-	return GenericLocker<LockType>(iLock);
-}
-
-}
-
-}
-
-}
 
 #endif
