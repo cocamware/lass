@@ -97,7 +97,7 @@ namespace lass
 		{
 			if (!PyComplex_Check( iValue ))
 			{
-				impl::addMessageHeader("complex");
+				PyErr_SetString(PyExc_TypeError, "not a complex number");
 				return 1;
 			}
 			const C re = static_cast<C>( PyComplex_RealAsDouble( iValue ) );
