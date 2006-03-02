@@ -190,6 +190,7 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef std::vector<TValue> TValues;
+	typedef typename TValues::const_iterator TValueIterator;
 
 	ArgValue(ArgParser& iParser,
 			 const std::string& iShortName,
@@ -205,10 +206,12 @@ public:
 	ArgValue(ArgParser& iParser,
 			 const ArgFormat& iFormat);
 
+	const TValues& all() const;
 	size_t size() const;
 	typename ArgValue::TConstReference operator[](size_t iIndex) const;
 	typename ArgValue::TConstReference at(size_t iIndex) const;
-	TValues all() const;
+	TValueIterator begin() const;
+	TValueIterator end() const;
 
 private:
 
@@ -219,9 +222,8 @@ private:
 	void checkMode(int iArgMode) const;
 
 	TValues values_;
+	TValues default_;
 	std::string description_;
-	TValue default_;
-	bool hasDefault_;
 };
 
 

@@ -100,7 +100,7 @@ namespace test
 namespace impl { class UnitTest; }
 typedef std::vector<impl::UnitTest> TUnitTests;
 
-bool runTests(const TUnitTests& iTests);
+bool runTests(const TUnitTests& iTests, int argc, char* argv[]);
 
 std::string workPath();
 
@@ -108,23 +108,30 @@ class TestStream
 {
 public:
 
+	enum AllowSaving
+	{
+		asAllowSaving,
+		asForbidSaving
+	};
+
 	TestStream();
-	TestStream(const std::string& iPatternFile);
+	TestStream(const std::string& iPatternFile, AllowSaving iAllowSaving = asForbidSaving);
+	~TestStream();
 
 	template <typename T>
 	TestStream& operator<<(const T& iValue)
 	{
-		stream_ << iValue;
+		buffer_ << iValue;
 		return *this;
 	}
 	TestStream& operator<<(std::ostream& (*iManip) (std::ostream&))
 	{
-		stream_ << iManip;
+		buffer_ << iManip;
 		return *this;
 	}
 	TestStream& operator<<(std::ios_base& (*iManip) (std::ios_base&))
 	{
-		stream_ << iManip;
+		buffer_ << iManip;
 		return *this;
 	}
 	
@@ -132,8 +139,10 @@ public:
 	bool matchPattern();
 	std::ostream& stream();
 private:
-	std::stringstream stream_;
+	std::stringstream buffer_;
 	std::string pattern_;
+	std::string patternFile_;
+	AllowSaving allowSaving_;
 };
 
 }
@@ -216,6 +225,8 @@ private:
 ErrorStream& errorLog();
 unsigned& errors();
 unsigned& fatalErrors();
+std::set<std::string>& savePatterns();
+const bool isSavingPattern(const std::string& iFilename);
 
 // checkers ...
 

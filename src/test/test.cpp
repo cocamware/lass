@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	logger.subscribeTo(io::proxyMan()->clog());
 	logger.subscribeTo(io::proxyMan()->cerr());
 
-	LASS_LOG(logFile);
+	LASS_EVAL(logFile);
 	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
 	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
 	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 
-	const bool success = test::runTests(unitTests);
+	const bool success = test::runTests(unitTests, argc, argv);
 
 	return success ? 0 : 1;
 }

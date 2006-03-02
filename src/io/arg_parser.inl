@@ -45,8 +45,7 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 					  const std::string& iDescription,
 					  int iArgMode):
 	ArgParameter(iParser, iShortName, iLongName, iArgMode),
-	description_(iDescription),
-	hasDefault_(false)
+	description_(iDescription)
 {
 	checkMode(iArgMode);
 }
@@ -62,8 +61,7 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 					  TParam iDefault):
 	ArgParameter(iParser, iShortName, iLongName, iArgMode),
 	description_(iDescription),
-	default_(iDefault),
-	hasDefault_(true)
+	default_(1, iDefault)
 {
 	checkMode(iArgMode);
 }
@@ -75,10 +73,22 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 					  const ArgFormat& iFormat):
 	ArgParameter(iParser, iFormat.shortName, iFormat.longName, iFormat.argMode),
 	description_(iFormat.description),
-	default_(iFormat.hasDefault ? util::stringCast<T>(iFormat.defaultValue) : T()),
-	hasDefault_(iFormat.hasDefault)
 {
+	if (iFormat.hasDefault)
+	{
+		default_.push_back(util::stringCast<T>(iFormat.defaultValue));
+	}
 	checkMode(iFormat.argMode);
+}
+
+
+
+/** return all values
+ */
+template <typename T>
+typename const ArgValue<T>::TValues& ArgValue<T>::all() const
+{
+	return !values_.empty() ? values_ : default_;
 }
 
 
@@ -88,14 +98,7 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 template <typename T>
 size_t ArgValue<T>::size() const
 {
-	if (values_.size() == 0)
-	{
-		return hasDefault_ ? 1 : 0;
-	}
-	else
-	{
-		return values_.size();
-	}
+	return all().size();
 }
 
 
@@ -106,11 +109,7 @@ template <typename T>
 typename ArgValue<T>::TConstReference ArgValue<T>::operator[](size_t iIndex) const
 {
 	LASS_ASSERT(iIndex < size());
-	if (values_.size() == 0 && hasDefault_ && iIndex == 0)
-	{
-		return default_;
-	}
-	return values_[iIndex];
+	return all()[iIndex];
 }
 
 
@@ -120,34 +119,27 @@ typename ArgValue<T>::TConstReference ArgValue<T>::operator[](size_t iIndex) con
 template <typename T>
 typename ArgValue<T>::TConstReference ArgValue<T>::at(size_t iIndex) const
 {
-	if (values_.size() == 0 && hasDefault_)
-	{
-		if (iIndex != 0)
-		{
-			throw std::out_of_range("iIndex is out of range.");
-		}
-		return default_;
-	}
-	return values_.at(iIndex);
+	return all().at(iIndex);
 }
 
 
 
-/** return all values
+/** return iterator to first value
  */
 template <typename T>
-typename ArgValue<T>::TValues ArgValue<T>::all() const
+typename ArgValue<T>::TValueIterator ArgValue<T>::begin() const
 {
-	if (!values_.empty())
-	{
-		return values_;
-	}
-	TValues result;
-	if (hasDefault_)
-	{
-		result.push_back(default_);
-	}
-	return result;
+	return all().begin();
+}
+
+
+
+/** return iterator to last value
+ */
+template <typename T>
+typename ArgValue<T>::TValueIterator ArgValue<T>::end() const
+{
+	return all().end();
 }
 
 

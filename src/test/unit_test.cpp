@@ -26,6 +26,8 @@
 
 #include "test_common.h"
 #include "unit_test.h"
+#include "../io/arg_parser.h"
+#include "../io/file_attribute.h"
 
 #if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
 #	include <stdlib.h>
@@ -36,10 +38,19 @@ namespace lass
 namespace test
 {
 
-bool runTests(const TUnitTests& iTests)
+bool runTests(const TUnitTests& iTests, int argc, char* argv[])
 {
 	impl::errors() = 0;
 	impl::fatalErrors() = 0;
+
+	io::ArgParser parser(io::fileWithoutPath(argv[0]));
+	io::ArgValue<std::string> savePatterns(
+		parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
+	if (!parser.parse(argc, argv))
+	{
+		return false;
+	}
+	impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
 
 	for (TUnitTests::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
 	{
@@ -74,28 +85,62 @@ std::string workPath()
 	return result ? result : ".";
 }
 
-TestStream::TestStream() 
+TestStream::TestStream()
 {
 }
 
-TestStream::TestStream(const std::string& iPatternFile)
+TestStream::TestStream(const std::string& iPatternFile, AllowSaving iAllowSaving):
+	patternFile_(iPatternFile),
+	allowSaving_(iAllowSaving)
 {
-	std::ifstream file(iPatternFile.c_str());
-	if (!file)
+	if (!impl::isSavingPattern(patternFile_))
 	{
-		LASS_THROW("Pattern file '" << iPatternFile << "' not found.");
-	}
-	try
-	{
-		std::string line;
-		while (std::getline(LASS_ENFORCE_STREAM(file), line, '\n'))
+		const std::string filename = io::fileJoinPath(workPath(), patternFile_);
+		std::ifstream file(filename.c_str());
+		if (!file)
 		{
-			pattern_ += line + '\n';
+			LASS_THROW("Pattern file '" << filename << "' not found.");
+		}
+		try
+		{
+			std::string line;
+			while (std::getline(LASS_ENFORCE_STREAM(file), line, '\n'))
+			{
+				pattern_ += line + '\n';
+			}
+		}
+		catch (std::exception& error)
+		{
+			LASS_THROW("Reading pattern file '" << patternFile_ << "' failed: " << error.what());
 		}
 	}
-	catch (std::exception& error)
+}
+
+
+
+TestStream::~TestStream()
+{
+	if (impl::isSavingPattern(patternFile_))
 	{
-		LASS_THROW("Reading pattern file '" << iPatternFile << "' failed: " << error.what());
+		if (allowSaving_ == asAllowSaving)
+		{
+			try
+			{
+				const std::string filename = io::fileJoinPath(workPath(), patternFile_);
+				std::ofstream file(filename.c_str());
+				file << buffer_.str();
+				file.close();
+			}
+			catch (...)
+			{
+				LASS_CERR << "[LASS RUN MSG] WARNING: Failed to save test pattern '"
+					<< patternFile_ << "'." << std::endl;
+			}
+		}
+		else
+		{
+			LASS_LOG("Not allowed to save test pattern '" << patternFile_ << "'.");
+		}
 	}
 }
 
@@ -103,8 +148,8 @@ TestStream::TestStream(const std::string& iPatternFile)
 
 bool TestStream::isEqual(const std::string& iPattern)
 {
-	const bool result = stream_.str() == iPattern;
-	stream_.str("");
+	const bool result = buffer_.str() == iPattern;
+	buffer_.str("");
 	return result;
 }
 
@@ -112,27 +157,36 @@ bool TestStream::isEqual(const std::string& iPattern)
 
 bool TestStream::matchPattern() 
 {
-	std::string test = stream_.str();
-	stream_.str("");
-	std::string::size_type n = test.length();
-
-	if (n > pattern_.length())
+	if (impl::isSavingPattern(patternFile_))
 	{
-		pattern_ = "";
-		return false;
+		return true;
 	}
+	else
+	{
+		std::string test = buffer_.str();
+		buffer_.str("");
+		std::string::size_type n = test.length();
 
-	const bool success = test == pattern_.substr(0, n);
-	pattern_ = pattern_.substr(n);
+		LASS_ASSERT(n <= pattern_.length());
+		if (n > pattern_.length())
+		{
+			pattern_ = "";
+			return false;
+		}
 
-	return success;
+		const bool success = test == pattern_.substr(0, n);
+		LASS_ASSERT(success);
+		pattern_ = pattern_.substr(n);
+
+		return success;
+	}
 }
 
 
 
 std::ostream& TestStream::stream() 
 { 
-	return stream_; 
+	return buffer_; 
 }
 
 
@@ -167,14 +221,18 @@ void UnitTest::operator()() const
 
 struct TestStatus
 {
+	typedef std::set<std::string> TSavePatterns;
+
 	ErrorStream errorStream;
 	unsigned errorCount;
 	unsigned fatalErrorCount;
+	TSavePatterns savePatterns;
 
 	TestStatus(): 
 		errorStream("test_" LASS_TEST_VERSION "_errors.log"), 
 		errorCount(0), 
-		fatalErrorCount(0) 
+		fatalErrorCount(0),
+		savePatterns()
 	{
 	}
 };
@@ -192,6 +250,20 @@ unsigned& errors()
 unsigned& fatalErrors()
 {
 	return util::Singleton<TestStatus>::instance()->fatalErrorCount;
+}
+
+std::set<std::string>& savePatterns()
+{
+	return util::Singleton<TestStatus>::instance()->savePatterns;
+}
+
+const bool isSavingPattern(const std::string& iFilename)
+{
+	if (iFilename.empty())
+	{
+		return false;
+	}
+	return savePatterns().find(iFilename) != savePatterns().end();
 }
 
 }
