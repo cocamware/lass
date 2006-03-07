@@ -99,10 +99,8 @@ void ThreadPool<T, C>::add(typename util::CallTraits<TTask>::TParam iTask)
 template <typename T, typename C>
 void ThreadPool<T, C>::clearQueue()
 {
-	Lass_LOCK(mutex_)
-	{
-		tasks_.clear();
-	}
+	CriticalSectionLocker lock(mutex_);
+	tasks_.clear();
 }
 
 
@@ -121,10 +119,8 @@ void ThreadPool<T, C>::waitUntilEmpty()
 template <typename T, typename C>
 const bool ThreadPool<T, C>::isEmpty() const
 {
-	LASS_LOCK(mutex_)
-	{
-		return tasks_.empty();
-	}
+	CriticalSectionLocker lock(mutex_);
+	return tasks_.empty();
 }
 
 

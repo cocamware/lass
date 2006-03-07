@@ -266,7 +266,7 @@ protected:
 private:
 
 	virtual void doVisit(TVisitable& iVisited) = 0;
-	virtual void doVisitOnExit(TVisitable& iVisited) {}
+	virtual void doVisitOnExit(TVisitable& /*iVisited*/) {}
 };
 
 
@@ -282,10 +282,10 @@ private:
 template <typename VisitableType>
 struct VisitNonStrict
 {
-	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
+	static void onUnknownVisitor(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/) 
 	{
 	}
-	static void onUnknownVisitorOnExit(VisitableType& iVisited, VisitorBase& iVisitor)
+	static void onUnknownVisitorOnExit(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/)
 	{
 	}
 };

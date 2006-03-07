@@ -72,7 +72,7 @@ template <typename T>
 ArgValue<T>::ArgValue(ArgParser& iParser,
 					  const ArgFormat& iFormat):
 	ArgParameter(iParser, iFormat.shortName, iFormat.longName, iFormat.argMode),
-	description_(iFormat.description),
+	description_(iFormat.description)
 {
 	if (iFormat.hasDefault)
 	{
@@ -86,7 +86,7 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 /** return all values
  */
 template <typename T>
-typename const ArgValue<T>::TValues& ArgValue<T>::all() const
+const typename ArgValue<T>::TValues& ArgValue<T>::all() const
 {
 	return !values_.empty() ? values_ : default_;
 }

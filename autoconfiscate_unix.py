@@ -21,7 +21,7 @@ test_dirs = ['test']
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
 warning_flags = '-Wall -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
-libs = '-lpthread'
+libs = '-lpthread -lrt'
 
 import os
 import os.path
@@ -91,7 +91,7 @@ def gather_extra_dist():
 	
 	result = []
 	os.path.walk('.', walker, result)
-	result += ['src/test/mt19937ar.out']
+	result += ['src/test/mt19937ar.out', 'src/test/spline.in', 'src/test/spline_linear.pattern', 'src/test/spline_cubic.pattern']
 	result += ['docs/gpl.txt', 'docs/license.txt']
 	result += ['docs/Simple-Color.xsl', 'docs/sloc.xml']
 	result += ['docs/doxygen/footer.html', 'docs/doxygen/header.html', 'docs/doxygen/lass.doxygen', 'docs/doxygen/stylesheet.css']

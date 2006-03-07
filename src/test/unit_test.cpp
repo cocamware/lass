@@ -167,7 +167,7 @@ bool TestStream::matchPattern()
 		buffer_.str("");
 		std::string::size_type n = test.length();
 
-		LASS_ASSERT(n <= pattern_.length());
+		//LASS_ASSERT(n <= pattern_.length());
 		if (n > pattern_.length())
 		{
 			pattern_ = "";
@@ -175,7 +175,7 @@ bool TestStream::matchPattern()
 		}
 
 		const bool success = test == pattern_.substr(0, n);
-		LASS_ASSERT(success);
+		//LASS_ASSERT(success);
 		pattern_ = pattern_.substr(n);
 
 		return success;
