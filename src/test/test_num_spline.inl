@@ -41,7 +41,10 @@ namespace lass
 namespace test
 {
 
-inline std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
+namespace num_spline
+{
+
+std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 {
 	std::ostringstream buffer;
 	buffer << std::scientific << std::showpos << std::setprecision(iDigitsMantissa - 1) << iX;
@@ -61,6 +64,39 @@ inline std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExp
 	return buffer.str();
 }
 
+template <typename SplineType, typename T> 
+testSpline(const SplineType& iSpline, test::TestStream& ioPattern, 
+		T iBegin, T iEnd, T iDelta, T iIntegral0)
+{
+	typedef T TScalar;
+	typedef prim::Vector3D<T> TVector3D;
+
+	const size_t n = static_cast<size_t>(num::floor((iEnd - iBegin) / iDelta));
+	for (unsigned i = 0; i < n; ++i)
+	{
+		const TScalar f = iBegin + i * iDelta;
+		const TVector3D xyz = iSpline(f);
+		const TVector3D dXyz = iSpline.derivative(f);
+		const TVector3D ddXyz = iSpline.derivative2(f);
+		const TVector3D intXyz = iSpline.integral(iIntegral0, f);
+		ioPattern << doubleToString(f, 3, 3) << "\t"
+			<< doubleToString(xyz.x, 5, 3) << "\t" 
+			<< doubleToString(xyz.y, 5, 3) << "\t" 
+			<< doubleToString(xyz.z, 5, 3) << "\t"
+			<< doubleToString(dXyz.x, 5, 3) << "\t" 
+			<< doubleToString(dXyz.y, 5, 3) << "\t" 
+			<< doubleToString(dXyz.z, 5, 3) << "\t"
+			<< doubleToString(ddXyz.x, 5, 3) << "\t" 
+			<< doubleToString(ddXyz.y, 5, 3) << "\t" 
+			<< doubleToString(ddXyz.z, 5, 3) << "\t"
+			<< doubleToString(intXyz.x, 5, 3) << "\t" 
+			<< doubleToString(intXyz.y, 5, 3) << "\t" 
+			<< doubleToString(intXyz.z, 5, 3) << "\n";
+		LASS_TEST_CHECK(ioPattern.matchPattern());
+	}
+}
+
+}
 
 /*
 template 
@@ -115,53 +151,14 @@ void testNumSpline()
 	const TScalar integral0 = 380e-9f;
 
 	TestStream patternLinear("spline_linear.pattern", TestStream::asAllowSaving);
-	patternLinear << std::scientific;
-
 	num::SplineLinear<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > linear(
 		frequencies.begin(), frequencies.end(), responses.begin());
-	const size_t n = static_cast<size_t>(num::floor((end - begin) / delta));
-	for (unsigned i = 0; i < n; ++i)
-	{
-		const TScalar x = begin + i * delta;
-		const TVector3D y = linear(x);
-		const TVector3D dy = linear.derivative(x);
-		const TVector3D ddy = linear.derivative2(x);
-		const TVector3D inty = linear.integral(integral0, x);
-		patternLinear << doubleToString(x, 3, 3) << "\t"
-			<< doubleToString(y.x, 5, 3) << "\t" 
-			<< doubleToString(y.y, 5, 3) << "\t" 
-			<< doubleToString(y.z, 5, 3) << "\t"
-			<< doubleToString(dy.x, 5, 3) << "\t" 
-			<< doubleToString(dy.y, 5, 3) << "\t" 
-			<< doubleToString(dy.z, 5, 3) << "\t"
-			<< doubleToString(ddy.x, 5, 3) << "\t" 
-			<< doubleToString(ddy.y, 5, 3) << "\t" 
-			<< doubleToString(ddy.z, 5, 3) << "\t"
-			<< doubleToString(inty.x, 5, 3) << "\t" 
-			<< doubleToString(inty.y, 5, 3) << "\t" 
-			<< doubleToString(inty.z, 5, 3) << "\n";
-		LASS_TEST_CHECK(patternLinear.matchPattern());
-	}
+	num_spline::testSpline(linear, patternLinear, begin, end, delta, integral0);
 
 	TestStream patternCubic("spline_cubic.pattern",	TestStream::asAllowSaving);
-	patternCubic << std::scientific;
-
 	num::SplineCubic<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > cubic(
 		frequencies.begin(), frequencies.end(), responses.begin());
-	for (unsigned i = 0; i < n; ++i)
-	{
-		const TScalar x = begin + i * delta;
-		const TVector3D y = cubic(x);
-		const TVector3D dy = cubic.derivative(x);
-		const TVector3D ddy = cubic.derivative2(x);
-		const TVector3D inty = cubic.integral(integral0, x);
-		patternCubic << std::setprecision(2) << x << "\t" << std::setprecision(4)
-			<< y.x << "\t" << y.y << "\t" << y.z << "\t"
-			<< dy.x << "\t" << dy.y << "\t" << dy.z << "\t"
-			<< ddy.x << "\t" << ddy.y << "\t" << ddy.z << "\t"
-			<< inty.x << "\t" << inty.y << "\t" << inty.z << "\n";
-		LASS_TEST_CHECK(patternCubic.matchPattern());
-	}
+	num_spline::testSpline(cubic, patternCubic, begin, end, delta, integral0);
 }
 
 
