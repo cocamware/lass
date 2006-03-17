@@ -65,7 +65,7 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 }
 
 template <typename SplineType, typename T> 
-testSpline(const SplineType& iSpline, test::TestStream& ioPattern, 
+void testSpline(const SplineType& iSpline, test::TestStream& ioPattern, 
 		T iBegin, T iEnd, T iDelta, T iIntegral0)
 {
 	typedef T TScalar;
