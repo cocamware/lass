@@ -934,9 +934,66 @@ $[
  *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, LASS_TYPE_LIST_1(const std::string&), "bar", 0, foo_bar_b)
  *  @endcode
  */
+/*
 #define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	PY_CLASS_METHOD_IMPL(t_cppClass, &TCppClass::i_cppMethod, s_methodName, s_doc, i_dispatcher,\
-		(::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
+		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
+/*/
+#define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
+	static PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
+	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
+	{\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		{\
+			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return ::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod(\
+			iArgs, cppObject, &TCppClass::i_cppMethod); \
+	}\
+	static ternaryfunc LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain) = 0;\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _ternary)(PyObject* iObject, PyObject* iArgs, PyObject* iKw)\
+	{\
+		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
+		{\
+			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
+			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
+			{\
+				PyErr_Clear();\
+			}\
+			else\
+			{\
+				return result;\
+			}\
+		}\
+		if (iKw)\
+		{\
+			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");\
+			return 0;\
+		}\
+		return i_dispatcher(iObject, iArgs);\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		::lass::python::impl::addClassMethod< t_cppClass >(\
+			s_methodName, s_doc, \
+			i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain),\
+			LASS_CONCATENATE(i_dispatcher, _ternary), LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain));\
+	)
+/**/
 
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX

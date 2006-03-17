@@ -155,17 +155,17 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split)
 	}
 
 	size_type begin = 0;
-	size_type i = to_be_split.find_first_of(seperators);
-	while (i != string_type::npos)
+	size_type end = to_be_split.find_first_of(seperators);
+	while (end != string_type::npos)
 	{
-		result.push_back(to_be_split.substr(begin, i - begin));
-		begin = to_be_split.find_first_not_of(seperators, i);
+		result.push_back(to_be_split.substr(begin, end - begin));
+		begin = to_be_split.find_first_not_of(seperators, end);
 		if (begin == string_type::npos)
 		{
 			result.push_back(string_type());
 			return result;
 		}
-		i = to_be_split.find_first_of(seperators, begin);
+		end = to_be_split.find_first_of(seperators, begin);
 	}
 
 	result.push_back(to_be_split.substr(begin));
@@ -203,17 +203,18 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 	}
 
 	const size_type seperator_size = seperator.size();
+
 	size_type begin = 0;
 	while (result.size() < max_split)
 	{
-		size_type i = to_be_split.find(seperator);
-		if (i == string_type::npos)
+		const size_type end = to_be_split.find(seperator, begin);
+		if (end == string_type::npos)
 		{
 			break;
 		}
 
-		result.push_back(to_be_split.substr(begin, i - begin));
-		begin = i + seperator_size;
+		result.push_back(to_be_split.substr(begin, end - begin));
+		begin = end + seperator_size;
 	}
 
 	result.push_back(to_be_split.substr(begin));

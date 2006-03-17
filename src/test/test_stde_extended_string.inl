@@ -59,7 +59,9 @@ void testStdeExtendedString()
 	LASS_TEST_CHECK(!stde::ends_with(test, std::string("abc")));
 
 	typedef std::vector<std::string> string_vector;
-	LASS_TEST_CHECK_EQUAL(stde::split(std::string("")), string_vector());
+	string_vector a = stde::split(std::string(""));
+	string_vector b = string_vector();
+	LASS_TEST_CHECK_EQUAL(a, b);
 	string_vector splitted;
 	splitted.push_back("foo");
 	splitted.push_back("bar");

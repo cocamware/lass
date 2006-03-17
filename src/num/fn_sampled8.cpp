@@ -78,7 +78,7 @@ namespace lass
 			{ 
 				return 0; 
 			} 
-			return (::lass::python::impl::ExplicitResolver<TCppClass, FNSampled8::TInterval, pyClassMethodParams_FNSampled852>::TImpl::callMethod)
+			return ::lass::python::impl::ExplicitResolver<TCppClass, FNSampled8::TInterval, pyClassMethodParams_FNSampled852>::TImpl::callMethod
 				(iArgs, cppObject, &TCppClass::getSupport); 
 		} 
 		PyObject* pyFNSampled8getSupport52_Ternary(PyObject* iObject, PyObject* iArgs, PyObject* iKw) 
@@ -112,7 +112,7 @@ namespace lass
 				return true; 
 			} 
 			const bool pyFNSampled8getSupport52_ExecuteBeforeMain52var = pyFNSampled8getSupport52_ExecuteBeforeMain52func (); 
-		};*/
+		};/**/
 
 		PY_CLASS_METHOD( FNSampled8, defuzzifyCentroid );
 		PY_CLASS_METHOD( FNSampled8, defuzzifyMaxMembership );

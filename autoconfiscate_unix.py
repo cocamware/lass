@@ -20,7 +20,7 @@ test_dirs = ['test']
 
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
-warning_flags = '-Wall -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
+warning_flags = '-Wall'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
 libs = '-lpthread -lrt'
 
 import os

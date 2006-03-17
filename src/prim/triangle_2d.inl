@@ -195,8 +195,8 @@ Triangle2D<T>::vertexCentroid() const
 
 /** @copydoc SimplePolygon2D::vertexCentroid
  */
-template <typename T>
-const typename Triangle2D<T>::TPointH inline
+template <typename T> inline
+const typename Triangle2D<T>::TPointH
 Triangle2D<T>::surfaceCentroid() const
 {
 	return vertexCentroid();

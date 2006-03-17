@@ -35,11 +35,33 @@
 #include "../num/spline_cubic.h"
 #include "../prim/vector_3d.h"
 #include "../io/file_attribute.h"
-
+#include "../stde/extended_string.h"
 namespace lass
 {
 namespace test
 {
+
+inline std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
+{
+	std::ostringstream buffer;
+	buffer << std::scientific << std::showpos << std::setprecision(iDigitsMantissa - 1) << iX;
+
+	const std::vector<std::string> splitted = stde::split(buffer.str(), std::string("e"));
+	LASS_ASSERT(splitted.size() == 2);
+
+	const std::string mantissa = splitted[0];
+	const int exponent = util::stringCast<int>(splitted[1]);
+	LASS_ASSERT(mantissa.length() == iDigitsMantissa + 2);
+
+	buffer.str("");
+	buffer << mantissa << "e" << std::setw(iDigitsExponent + 1) << std::showpos << std::internal 
+		<< std::setfill('0') << exponent;
+	LASS_ASSERT(buffer.str().length() == iDigitsMantissa + iDigitsExponent + 4);
+
+	return buffer.str();
+}
+
+
 /*
 template 
 <
@@ -105,11 +127,19 @@ void testNumSpline()
 		const TVector3D dy = linear.derivative(x);
 		const TVector3D ddy = linear.derivative2(x);
 		const TVector3D inty = linear.integral(integral0, x);
-		patternLinear << std::setprecision(2) << x << "\t" << std::setprecision(4)
-			<< y.x << "\t" << y.y << "\t" << y.z << "\t"
-			<< dy.x << "\t" << dy.y << "\t" << dy.z << "\t"
-			<< ddy.x << "\t" << ddy.y << "\t" << ddy.z << "\t"
-			<< inty.x << "\t" << inty.y << "\t" << inty.z << "\n";
+		patternLinear << doubleToString(x, 3, 3) << "\t"
+			<< doubleToString(y.x, 5, 3) << "\t" 
+			<< doubleToString(y.y, 5, 3) << "\t" 
+			<< doubleToString(y.z, 5, 3) << "\t"
+			<< doubleToString(dy.x, 5, 3) << "\t" 
+			<< doubleToString(dy.y, 5, 3) << "\t" 
+			<< doubleToString(dy.z, 5, 3) << "\t"
+			<< doubleToString(ddy.x, 5, 3) << "\t" 
+			<< doubleToString(ddy.y, 5, 3) << "\t" 
+			<< doubleToString(ddy.z, 5, 3) << "\t"
+			<< doubleToString(inty.x, 5, 3) << "\t" 
+			<< doubleToString(inty.y, 5, 3) << "\t" 
+			<< doubleToString(inty.z, 5, 3) << "\n";
 		LASS_TEST_CHECK(patternLinear.matchPattern());
 	}
 

@@ -214,8 +214,8 @@ Triangle3D<T>::vertexCentroid() const
 
 /** @copydoc SimplePolygon3D::surfaceCentroid
  */
-template <typename T>
-const typename Triangle3D<T>::TPointH inline
+template <typename T> inline
+const typename Triangle3D<T>::TPointH
 Triangle3D<T>::surfaceCentroid() const
 {
 	return vertexCentroid();
