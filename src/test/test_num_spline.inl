@@ -52,9 +52,14 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 	const std::vector<std::string> splitted = stde::split(buffer.str(), std::string("e"));
 	LASS_ASSERT(splitted.size() == 2);
 
-	const std::string mantissa = splitted[0];
-	const int exponent = util::stringCast<int>(splitted[1]);
+	std::string mantissa = splitted[0];
 	LASS_ASSERT(mantissa.length() == iDigitsMantissa + 2);
+	if (mantissa == ("-0." + std::string('0', iDigitsMantissa - 1)))
+	{
+		mantissa[0] = '+';
+	}
+	
+	const int exponent = util::stringCast<int>(splitted[1]);
 
 	buffer.str("");
 	buffer << mantissa << "e" << std::setw(iDigitsExponent + 1) << std::showpos << std::internal 
