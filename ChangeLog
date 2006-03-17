@@ -49,4 +49,8 @@ http://lass.sourceforge.net
 	- the ./configure script will now check for itself which python version is to 
 	  be used.  It used to be autoconfiscate_unix.py that was doing this.  This
 	  change allow for the distribution tarball to be used on a system with
-	  a different python version than the one used to make the tarball 
+	  a different python version than the one used to make the tarball
+	  
+2006-03-17 Bramz
+	SplineCubic && num/impl/matrix_solve.inl:
+	- We have a working tridiagonal system solver which is now used to build the cubic spline.
