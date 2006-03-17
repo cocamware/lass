@@ -54,7 +54,9 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 
 	std::string mantissa = splitted[0];
 	LASS_ASSERT(mantissa.length() == iDigitsMantissa + 2);
-	if (mantissa == ("-0." + std::string('0', iDigitsMantissa - 1)))
+	const std::string negativeZero = "-0." + std::string(iDigitsMantissa - 1, '0');
+	LASS_ASSERT(negativeZero.length() == iDigitsMantissa + 2);
+	if (mantissa == negativeZero)
 	{
 		mantissa[0] = '+';
 	}

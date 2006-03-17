@@ -353,7 +353,7 @@ void SplineCubic<S, D, T>::init()
 
 	for (size_t k = 0; k < dataDimension_; ++k)
 	{
-		for (i = 0; i < numUnknowns; ++i)
+		for (size_t i = 0; i < numUnknowns; ++i)
 		{
 			// d_i / h_i - d_(i+1) * (h_i + h_(i+1)) / (h_i * h_(i+1)) + d_(i+2) / h_(i+1)
 			const TScalar d0 = TDataTraits::get(nodes_[i].d, k);
@@ -366,7 +366,7 @@ void SplineCubic<S, D, T>::init()
 		{
 			LASS_THROW("serious logic error, could not solve equation, contact [Bramz]");
 		}
-		for (i = 0; i < numUnknowns; ++i)
+		for (size_t i = 0; i < numUnknowns; ++i)
 		{
 			TDataTraits::set(nodes_[i + 1].b, k, unknowns[i]);
 		}
@@ -374,7 +374,7 @@ void SplineCubic<S, D, T>::init()
 
 	// find parameters for splines
 	//
-	for (i = 0; i < n - 1; ++i)
+	for (size_t i = 0; i < n - 1; ++i)
 	{
 		Node& node = nodes_[i];
 		const Node& nextNode = nodes_[i + 1];
