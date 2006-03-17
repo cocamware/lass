@@ -175,7 +175,7 @@ bool TestStream::matchPattern()
 		}
 
 		const bool success = test == pattern_.substr(0, n);
-		//LASS_ASSERT(success);
+		LASS_ASSERT(success);
 		pattern_ = pattern_.substr(n);
 
 		return success;

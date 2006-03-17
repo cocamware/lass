@@ -30,7 +30,7 @@
 
 #include "num_common.h"
 #include "spline_cubic.h"
-#include "matrix.h"
+#include "impl/matrix_solve.h"
 #include "../stde/extended_iterator.h"
 
 namespace lass
@@ -289,6 +289,8 @@ const bool SplineCubic<S, D, T>::isEmpty() const
 template <typename S, typename D, typename T>
 void SplineCubic<S, D, T>::init()
 {
+	typedef std::vector<TScalar> TVector;
+
 	// are there any nodes at all?  we need at least two!
 	//
 	const size_t n = nodes_.size();
@@ -303,9 +305,8 @@ void SplineCubic<S, D, T>::init()
 	// - precalculate h_i = x_(i+1) - x_i
 	//
 	dataDimension_ = TDataTraits::dimension(nodes_[0].d);
-	std::vector<TScalar> h;
-	size_t i;
-	for (i = 1; i < n; ++i)
+	TVector h;
+	for (size_t i = 1; i < n; ++i)
 	{
 		h.push_back(nodes_[i].x - nodes_[i - 1].x);
 
@@ -313,64 +314,63 @@ void SplineCubic<S, D, T>::init()
 		{
 			LASS_THROW("Nodes in cubic spline must have absolutely increasing control components.");
 		}
-
 		if (TDataTraits::dimension(nodes_[i].d) != dataDimension_)
 		{
 			LASS_THROW("All data elements in cubic spline must have same dimension.");
 		}
 	}
 
+	// --- init some elements ---
+
+	for (size_t i = 0; i < n; ++i)
+	{
+		TDataTraits::zero(nodes_[i].b, dataDimension_);
+	}
+
 	// --- precalculate coefficients. ---
 
 	// find coefficients for tridiagonal matrix
 	//
-	const size_t numUnknows = n - 2;
+	const size_t numUnknowns = n - 2;
 
-#pragma LASS_TODO("use a more efficient tridiagonal solver here! [Bramz]")
-	// a tridiagonal matrix with 1, 4, 1
-	num::Matrix<TScalar> m(numUnknows, numUnknows);
-	m(0, 0) = 2 * (h[0] + h[1]);
-	m(0, 1) = h[1];
-	for (i = 1; i < numUnknows - 1; ++i)
+	//*
+	TVector ma(numUnknowns);
+	TVector mb(numUnknowns);
+	TVector mc(numUnknowns);
+	TVector temp(numUnknowns);
+	TVector unknowns(numUnknowns);
+
+	mb[0] = 2 * (h[0] + h[1]);
+	mc[0] = h[1];
+	for (size_t i = 1; i < numUnknowns - 1; ++i)
 	{
-		m(i, i - 1) = h[i];
-		m(i, i) = 2 * (h[i] + h[i + 1]);
-		m(i, i + 1) = h[i + 1];
+		ma[i] = h[i];
+		mb[i] = 2 * (h[i] + h[i + 1]);
+		mc[i] = h[i + 1];
 	}
-	m(numUnknows - 1, numUnknows - 2) = h[numUnknows - 1];
-	m(numUnknows - 1, numUnknows - 1) = 2 * (h[numUnknows - 1] + h[numUnknows]);
+	ma[numUnknowns - 1] = h[numUnknowns - 1];
+	mb[numUnknowns - 1] = 2 * (h[numUnknowns - 1] + h[numUnknowns]);
 
-	num::Matrix<TScalar> unknowns(numUnknows, dataDimension_);
-	for (i = 0; i < numUnknows; ++i)
+	for (size_t k = 0; k < dataDimension_; ++k)
 	{
-		// d_i / h_i - d_(i+1) * (h_i + h_(i+1)) / (h_i * h_(i+1)) + d_(i+2) / h_(i+1)
-		TData d = nodes_[i].d;
-		TDataTraits::scale(d, 1 / h[i]);
-		TDataTraits::multiplyAccumulate(d, nodes_[i + 1].d, -(h[i] + h[i + 1]) / (h[i] * h[i + 1]));
-		TDataTraits::multiplyAccumulate(d, nodes_[i + 2].d, 1 / h[i + 1]);
-		TDataTraits::scale(d, 3);
-		for (size_t k = 0; k < dataDimension_; ++k)
+		for (i = 0; i < numUnknowns; ++i)
 		{
-			unknowns(i, k) = TDataTraits::get(d, k);
+			// d_i / h_i - d_(i+1) * (h_i + h_(i+1)) / (h_i * h_(i+1)) + d_(i+2) / h_(i+1)
+			const TScalar d0 = TDataTraits::get(nodes_[i].d, k);
+			const TScalar d1 = TDataTraits::get(nodes_[i + 1].d, k);
+			const TScalar d2 = TDataTraits::get(nodes_[i + 2].d, k);
+			unknowns[i] = 3 * (d0 / h[i] - d1 * (h[i] + h[i + 1]) / (h[i] * h[i + 1]) + d2 / h[i + 1]);
+		}
+		if (!num::impl::solveTridiagonal<TScalar>(\
+				ma.begin(), mb.begin(), mc.begin(), unknowns.begin(), temp.begin(), numUnknowns))
+		{
+			LASS_THROW("serious logic error, could not solve equation, contact [Bramz]");
+		}
+		for (i = 0; i < numUnknowns; ++i)
+		{
+			TDataTraits::set(nodes_[i + 1].b, k, unknowns[i]);
 		}
 	}
-
-	if (!num::solve(m, unknowns))
-	{
-		LASS_THROW("serious logic error, could not solve equation, contact [BdG]");
-	}
-
-	TDataTraits::zero(nodes_[0].b, dataDimension_);
-	for (i = 0; i < numUnknows; ++i)
-	{
-		TData& b = nodes_[i + 1].b;
-		TDataTraits::zero(b, dataDimension_);
-		for (size_t k = 0; k < dataDimension_; ++k)
-		{
-			TDataTraits::set(b, k, unknowns(i, k));
-		}
-	}
-	TDataTraits::zero(nodes_[n - 1].b, dataDimension_);
 
 	// find parameters for splines
 	//

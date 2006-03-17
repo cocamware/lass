@@ -90,6 +90,13 @@ template <typename T, typename RandomIterator1,	typename RandomIterator2>
 bool cramer3(RandomIterator1 iMatrixRowMajor,
 			 RandomIterator2 ioColumnFirst, RandomIterator2 ioColumnLast);
 
+
+
+
+template <typename T, typename RandomIterator1, typename RandomIterator2, typename RandomIterator3>
+bool solveTridiagonal(RandomIterator1 iA_1, RandomIterator1 iB_0, RandomIterator1 iC_0,
+					  RandomIterator2 ioSolution, RandomIterator3 ioTemp, std::size_t iSize);
+
 }
 
 }

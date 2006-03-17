@@ -38,37 +38,19 @@ namespace num
 namespace impl
 {
 
-// --- public --------------------------------------------------------------------------------------
-
-
-
-// --- protected -----------------------------------------------------------------------------------
-
-
-
-// --- private -------------------------------------------------------------------------------------
-
-
-
-// --- free ----------------------------------------------------------------------------------------
-
 /** Given a complex matrix iA, this routine replaces it by the LU decomposition
  *  of a rowwise permutation of itself.
- *  @param ioMatrix
- *		- INPUT and OUTPUT.
- *		- Random iterator to first element of of a @e square matrix in row major order.
- *      - ioMatrix is replaced by its LU decomposition.
- *		- [ioMatrix, ioMatrix + iSize * iSize) must be a valid range
- *  @param oIndex 
- *		- OUTPUT.
- *      - records the row permutations effected by the partial pivoting.
- *		- [oIndex, oIndex + iSize) must be a valid range.
- *	@param iSize
- *		- INPUT
- *		- size of matrix
- *  @param oD     
- *		- OUTPUT.
- *      - indicates the number of row interchanges was even (+1) or odd (-1).
+ *  @param ioMatrix [in,out]
+ *		@arg Random iterator to first element of of a @e square matrix in row major order.
+ *      @arg ioMatrix is replaced by its LU decomposition.
+ *		@arg [ioMatrix, ioMatrix + iSize * iSize) must be a valid range
+ *  @param oIndex [out]
+ *      @arg records the row permutations effected by the partial pivoting.
+ *		@arg [oIndex, oIndex + iSize) must be a valid range.
+ *	@param iSize [in]
+ *		@arg size of matrix
+ *  @param oD [out]
+ *      @arg indicates the number of row interchanges was even (+1) or odd (-1).
  *  @return - true: LU decomposition completed
  *          - false: matrix ioMatrix is singular
  *
@@ -190,25 +172,22 @@ bool ludecomp(RandomIterator1 ioMatrix,
 
 
 /** Solves the set of linear eqautions A X = B.
- *  @param iMatrix     
- *		- INPUT.
- *		- Random iterator to first element of A in row major order
- *      - A as LU decomposition.
- *      - A must be square.
- *		- [iMatrix, iMatrx + iSize * iSize) must be a valid range
- *  @param iIndex 
- *		- INPUT 
- *		- permutation sequence filled by ludecomp().
- *      - [iIndex, iIndex + iSize) must be a valid range
- *  @param ioColumn    
- *		- INPUT and OUTPUT
- *      - as input, it is the righthand side vector B.
- *      - as output it is the solution vector X.
- *      - must be of same length as iA
- *      - [ioColumn, ioColumn + iSize) must be a valid range
- *	@param iSize
- *		- INPUT
- *		- size of matrix
+ *  @internal
+ *  @param iMatrix [in] 
+ *		@arg Random iterator to first element of A in row major order
+ *      @arg A as LU decomposition.
+ *      @arg A must be square.
+ *		@arg [iMatrix, iMatrx + iSize * iSize) must be a valid range
+ *  @param iIndex [in]  
+ *		@arg permutation sequence filled by ludecomp().
+ *      @arg [iIndex, iIndex + iSize) must be a valid range
+ *  @param ioColumn [in,out]     
+ *      @arg as input, it is the righthand side vector B.
+ *      @arg as output it is the solution vector X.
+ *      @arg must be of same length as iA
+ *      @arg [ioColumn, ioColumn + iSize) must be a valid range
+ *	@param iSize [in]
+ *		@arg size of matrix
  *
  *  This routine can be used for successive calls with different right-hand
  *  sides B.
@@ -271,25 +250,23 @@ void lusolve(RandomIterator1 iMatrix,
 
 
 /** Improves a solution vector X of the linear set of equations A X = B.
- *  @param iMatrix     
- *		- INPUT
- *		- Random iterator to first element of matrix in row major order.
- *      - must be square.
- *		- [iMatrix, iMatrix + iSize * iSize) must be a valid range
- *  @param iMatrixLU   
- *		- INPUT
- *      - LU decompostion of A
- *      - must be square.
- *		- [iMatrixLU, iMatrixLU + iSize * iSize) must be a valid range
- *  @param iIndex 
- *		- INPUT
- *		- [iIndex, iIndex + iSize) must be a valid range
- *  @param iColumn 
- *		- INPUT
- *		- [iColumn, iColumn + iSize) must be a valid range
- *  @param ioX 
- *		- INPUT and OUTPUT
- *		- [ioX, ioX + iSize) must be a valid range
+ *  @internal
+ *  @param iMatrix [in]    
+ *		@arg Random iterator to first element of matrix in row major order.
+ *      @arg must be square.
+ *		@arg [iMatrix, iMatrix + iSize * iSize) must be a valid range
+ *  @param iMatrixLU [in]    
+ *      @arg LU decompostion of A
+ *      @arg must be square.
+ *		@arg [iMatrixLU, iMatrixLU + iSize * iSize) must be a valid range
+ *  @param iIndex [in]  
+ *		@arg [iIndex, iIndex + iSize) must be a valid range
+ *  @param iColumn [in]  
+ *		@arg [iColumn, iColumn + iSize) must be a valid range
+ *  @param ioX [in,out] 
+ *		@arg [ioX, ioX + iSize) must be a valid range
+ *  @param iSize [in]
+ *		@arg size of matrix
  */
 template
 <
@@ -332,16 +309,14 @@ void lumprove(RandomIterator1 iMatrix,
 
 
 /** Solve A X = B for 2x2 matrices with Cramer's rule.
- *  @param iMatrix     
- *		- INPUT
- *		- Random iterator to first element of matrix A in row major order.
- *      - A must be of size 2x2.
- *		- [iMatrix, iMatrix + 4) must be a valid range
- *  @param ioColumn 
- *		- INPUT and OUTPUT
- *		- Random iterator to first element of B as input
- *		- Random iterator to first element of X as output
- *		- [iColumn, iColumn + 2) must be a valid range
+ *  @param iMatrix [in]    
+ *		@arg Random iterator to first element of matrix A in row major order.
+ *      @arg A must be of size 2x2.
+ *		@arg [iMatrix, iMatrix + 4) must be a valid range
+ *  @param ioColumn [in,out]
+ *		@arg Random iterator to first element of B as input
+ *		@arg Random iterator to first element of X as output
+ *		@arg [iColumn, iColumn + 2) must be a valid range
  */
 template 
 <
@@ -379,16 +354,15 @@ bool cramer2(RandomIterator1 iMatrixRowMajor,
 
 
 /** Solve A X = B for 3x3 matrices with Cramer's rule.
- *  @param iMatrix     
- *		- INPUT
- *		- Random iterator to first element of matrix A in row major order.
- *      - A must be of size 3x3.
- *		- [iMatrix, iMatrix + 9) must be a valid range
- *  @param ioColumn 
- *		- INPUT and OUTPUT
- *		- Random iterator to first element of B as input
- *		- Random iterator to first element of X as output
- *		- [iColumn, iColumn + 3) must be a valid range
+ *  @internal
+ *  @param iMatrix [in]
+ *		@arg Random iterator to first element of matrix A in row major order.
+ *      @arg A must be of size 3x3.
+ *		@arg [iMatrix, iMatrix + 9) must be a valid range
+ *  @param ioColumn [in,out]
+ *		@arg Random iterator to first element of B as input
+ *		@arg Random iterator to first element of X as output
+ *		@arg [iColumn, iColumn + 3) must be a valid range
  */
 template 
 <
@@ -435,6 +409,63 @@ bool cramer3(RandomIterator1 iMatrixRowMajor,
 			m[6] * (m[1] * y - m[4] * x));
 	}
 
+	return true;
+}
+
+
+
+/** Solve system of linear equations with a tridiagonal matrix.
+ *  @internal
+ *  @param iA [in]
+ *		@arg Random iterator to first element of lower diagonal.
+ *      @arg This is actually the matrix element in the "zeroth" column of the first row.
+ *			So, iA[0] is being unused since it's not a valid matrix position.  The first
+ *			valid element is iA[1]
+ *		@arg [iA, iA + N) must be a valid range
+ *  @param iB [in]
+ *		@arg Random iterator to first element of main diagonal.
+ *      @arg This is actually the matrix element in the first column of the first row.
+ *		@arg [iB, iB + N) must be a valid range
+ *  @param iC [in]
+ *		@arg Random iterator to first element of upper diagonal.
+ *      @arg This is actually the matrix element in the second column of the first row.
+ *		@arg [iC, iC + N) must be a valid range
+ *		@arg The last element iC[N - 1] isn't really a valid element since it's a position
+ *			outside the matrix.
+ */
+template 
+<
+	typename T, 
+	typename RandomIterator1, 
+	typename RandomIterator2,
+	typename RandomIterator3
+>
+bool solveTridiagonal(RandomIterator1 iA, RandomIterator1 iB, RandomIterator1 iC,
+					  RandomIterator2 ioSolution, RandomIterator3 ioTemp,
+					  std::size_t iSize)
+{
+	typedef NumTraits<T> TNumTraits;
+
+	T beta = iB[0];
+	if (beta == TNumTraits::zero)
+	{
+		return false;
+	}
+	ioSolution[0] /= beta;
+	for (std::size_t i = 1; i <iSize; ++i)
+	{
+		ioTemp[i] = iC[i - 1] / beta;
+		beta = iB[i] - iA[i] * ioTemp[i];
+		if (beta == TNumTraits::zero)
+		{
+			return false;
+		}
+		ioSolution[i] = (ioSolution[i] - iA[i] * ioSolution[i - 1]) / beta;
+	}
+	for (std::size_t i = iSize - 1; i > 0; --i)
+	{
+		ioSolution[i - 1] -= ioTemp[i] * ioSolution[i];
+	}
 	return true;
 }
 
