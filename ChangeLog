@@ -54,3 +54,8 @@ http://lass.sourceforge.net
 2006-03-17 Bramz
 	SplineCubic && num/impl/matrix_solve.inl:
 	- We have a working tridiagonal system solver which is now used to build the cubic spline.
+	
+2006-03-27 Bramz
+	KdTree:
+	- fixed an embarrassing bug: when oNeighbourhood was "full", the heap was popped but not 
+	  the vector ...

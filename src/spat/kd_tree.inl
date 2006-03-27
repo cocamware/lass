@@ -478,6 +478,7 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 		if (oNeighbourhood.size() > iMaxCount)
 		{
 			std::pop_heap(oNeighbourhood.begin(), oNeighbourhood.end());
+			oNeighbourhood.pop_back();
 			ioSquaredRadius = oNeighbourhood.front().squaredDistance();
 		}
 	}
