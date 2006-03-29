@@ -82,6 +82,76 @@ Line2D<T, EP, NP>::Line2D(const TVector& iNormal, TParam iD):
 
 
 
+/** Return on what side a point is located.
+ */
+template<typename T, typename EP, typename NP>
+const Side Line2D<T, EP, NP>::classify(const TPoint& iPoint) const
+{
+	const TValue eq = this->equation(iPoint);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+}
+
+
+
+/** Return signed distance of point to line.
+ *  negative value means point is in the back.
+ */
+template<typename T, typename EP, typename NP>
+const typename Line2D<T, EP, NP>::TValue
+Line2D<T, EP, NP>::signedDistance(const TPoint& iPoint) const
+{
+	return NP::divideByNorm(this->equation(iPoint), this->normal());
+}
+
+
+
+/** Return signed distance of point to line.
+ *  negative value means point is in the back.
+ */
+template<typename T, typename EP, typename NP>
+const typename Line2D<T, EP, NP>::TValue
+Line2D<T, EP, NP>::squaredDistance(const TPoint& iPoint) const
+{
+	return num::sqr(this->signedDistance(iPoint));
+}
+
+
+
+/** Return on what side a point is located.
+ */
+template<typename T, typename EP, typename NP>
+const Side Line2D<T, EP, NP>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	const TValue eq = this->equation(iPoint, iRelativeTolerance);
+	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
+}
+
+
+
+/** Return signed distance of point to line.
+ *  negative value means point is in the back.
+ */
+template<typename T, typename EP, typename NP>
+const typename Line2D<T, EP, NP>::TValue
+Line2D<T, EP, NP>::signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	return NP::divideByNorm(this->equation(iPoint, iRelativeTolerance), this->normal());
+}
+
+
+
+/** Return signed distance of point to line.
+ *  negative value means point is in the back.
+ */
+template<typename T, typename EP, typename NP>
+const typename Line2D<T, EP, NP>::TValue
+Line2D<T, EP, NP>::squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const
+{
+	return num::sqr(this->signedDistance(iPoint, iRelativeTolerance));
+}
+
+
+
 // --- protected -----------------------------------------------------------------------------------
 
 

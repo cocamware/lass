@@ -160,17 +160,6 @@ const typename Line2DParametric<T, NP>::TValue Line2DParametric<T, NP>::d() cons
 
 
 
-/** Return on what side a point is located.
- */
-template<typename T, class NP>
-const Side Line2DParametric<T, NP>::classify(const TPoint& iPoint) const
-{
-	const TValue eq = equation(iPoint);
-	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
-}
-
-
-
 /** Return value of point in equation.
  */
 template<typename T, class NP>
@@ -185,14 +174,17 @@ Line2DParametric<T, NP>::equation(const TPoint& iPoint) const
 
 
 
-/** Return signed distance of point to line.
- *  negative value means point is in the back.
+/** Return value of point in equation.
  */
 template<typename T, class NP>
 const typename Line2DParametric<T, NP>::TValue
-Line2DParametric<T, NP>::signedDistance(const TPoint& iPoint) const
+Line2DParametric<T, NP>::equation(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
-	return NP::divideByNorm(equation(iPoint), normal());
+	TVector normal;
+	TValue d;
+	getCartesian(normal, d);
+	const TValue pn = dot(iPoint.position(), normal);
+	return num::almostEqual(pn, -d, iRelativeTolerance) ? TNumTraits::zero ? (pn + d);
 }
 
 

@@ -172,17 +172,6 @@ const typename Line2DCombined<T, NP>::TParam Line2DCombined<T, NP>::d() const
 
 
 
-/** Return on what side a point is located.
- */
-template<typename T, class NP>
-const Side Line2DCombined<T, NP>::classify(const TPoint& iPoint) const
-{
-	const TValue eq = equation(iPoint);
-	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
-}
-
-
-
 /** Return value of point in equation.
  */
 template<typename T, class NP>
@@ -194,14 +183,14 @@ Line2DCombined<T, NP>::equation(const TPoint& iPoint) const
 
 
 
-/** Return signed distance of point to line.
- *  negative value means point is in the back.
+/** Return value of point in equation.
  */
 template<typename T, class NP>
 const typename Line2DCombined<T, NP>::TValue
-Line2DCombined<T, NP>::signedDistance(const TPoint& iPoint) const
+Line2DCombined<T, NP>::equation(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
-	return NP::divideByNorm(equation(iPoint), normal_);
+	const TValue d = dot(iPoint.position(), normal_);
+	return num::almostEqual(d, -d_, iRelativeTolerance) ? TNumTraits::zero : (d + d_);
 }
 
 
