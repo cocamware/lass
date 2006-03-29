@@ -87,11 +87,13 @@ protected:
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
+	typedef std::vector<TPoint2D> TPolyline2D;
 
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
 
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
+	virtual void insertPolyline( const TPolyline2D& iPoly, const TPI& iPointInfo );
 	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
 };
 
@@ -117,6 +119,31 @@ void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPo
 
 	info_.push_back( iPointInfo );
 	TPlanarMesh::setPointHandle( e, &info_.back() );
+}
+
+template<typename T, typename TPI>
+void MeshInterpolator<T,TPI>::insertPolyline( const TPolyline2D& iPoly, const TPI& iPointInfo )
+{
+	for (size_t i = 0; i < iPoly.size(); ++i)
+	{
+        if (!aabb_.contains( iPoly[i] ))
+		{
+			LASS_THROW("MeshInterpolator: cannot insert point outside bounding box");
+		}
+	}
+
+	for (size_t i = 1; i < iPoly.size(); ++i)
+	{
+		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]));
+	}
+
+	info_.push_back( iPointInfo );
+	for (size_t i = 0; i < iPoly.size(); ++i)
+	{
+        typename TPlanarMesh::TEdge* e = mesh_.locate(iPoly[i]);
+		LASS_ASSERT(TPlanarMesh::org(e) == iPoly[i]);
+		TPlanarMesh::setPointHandle(e, &info_.back());
+	}
 }
 
 
