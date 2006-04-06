@@ -161,6 +161,8 @@ struct RaySphere<Normalized>
  *                          @a oT is not assigned.
  *          @arg rOne       a intersection with @a oT > @a iMinT is found
  *							@a oT is assigned.
+ *
+ *  http://flipcode.dxbug.com/wiki/index.php?title=Line-Sphere_%28Collision%29
  */
 template<typename T, class NP, class PP> inline
 Result intersect(const Sphere3D<T>& iSphere, 

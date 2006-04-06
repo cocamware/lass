@@ -59,3 +59,7 @@ http://lass.sourceforge.net
 	KdTree:
 	- fixed an embarrassing bug: when oNeighbourhood was "full", the heap was popped but not 
 	  the vector ...
+	  
+2006-03-30 Bramz
+	- Line2D has now versions of equation, classify, distance, ... with a relative tolerance
+	  argument.

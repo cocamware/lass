@@ -24,7 +24,7 @@ usual './configure; make install' way.  See INSTALL if you don't know what that
 is.
 
 If you've downloaded LASS from the CVS, you'll notice there's no 'configure'
-script yet.  You'll have to execute 'autoconfiscate_unix.py' first.  This
+script yet.  You'll have to execute 'autoconfiscate_unix.py' first.
 
 LASS also includes a self-test, which can be build and run by invoking
 'make check'.
@@ -35,7 +35,7 @@ NOTES:
   have Python installed on your system.  We recommend at least Python 2.3.
 
 - If you need to run 'autoconfiscate_unix.py', you will need to have installed
-  'autoconf' (>= 2.59) and 'automake' (>= 1.8).  'autoconfiscate_unix.py' 
+  'autoconf' (>= 2.57) and 'automake' (>= 1.6.5).  'autoconfiscate_unix.py' 
   generates 'configure.ac' and different 'Makefile.in' from the information it
   finds from scanning the source directories.  It then calls 'autoconf' and 
   'automake' to generated the needed 'configure' script and 'Makefile' files.

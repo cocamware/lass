@@ -38,7 +38,6 @@ ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConso
 	timeLeftBuffer_(0.f),
 	previousTimeElapsed_(0.f),
 	description_(iDescription),
-	backslash_(iConsoleWidth, '\b'),
 	whitespace_(iConsoleWidth, ' '),
 	consoleWidth_(iConsoleWidth),
 	current_(0),
@@ -47,7 +46,7 @@ ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConso
 	std::ostringstream stepInfo;
 	stepInfo.copyfmt(std::cout);
 	stepInfo << description_ << ": 0%; CPU 0s" << whitespace_;
-	std::cout << stepInfo.str().substr(0, consoleWidth_ - 1);
+	std::cout << stepInfo.str().substr(0, consoleWidth_ - 1) << std::flush;
 }
 
 /** print final message on destruction
@@ -57,7 +56,7 @@ ProgressIndicator::~ProgressIndicator()
 	std::ostringstream stepInfo;
 	stepInfo.copyfmt(std::cout);
 	stepInfo << description_ << ": 100%; CPU " << Clock::humanize(clock_.time()) << whitespace_;
-	std::cout << backslash_ << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
+	std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
 }
 
 /** update progress indicator
@@ -88,7 +87,7 @@ void ProgressIndicator::operator()(double iProgress)
 		stepInfo.copyfmt(std::cout);
 		stepInfo << description_ << ": " << procent << "%; CPU " << Clock::humanize(timeElapsed)
 			<< " [" << Clock::humanize(timeLeftBuffer_) << "]" << whitespace_;
-		std::cout << backslash_ << stepInfo.str().substr(0, consoleWidth_ - 1);
+		std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::flush;
 		current_ = procent;
 
 		previousTimeElapsed_ = timeElapsed;
