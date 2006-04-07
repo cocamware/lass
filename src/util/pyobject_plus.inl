@@ -371,7 +371,7 @@ inline void addClassStaticMethod(const char* iMethodName, const char* iDocumenta
 	}
 	else
 	{
-		LASS_ASSERT(i->ml_meth == METH_ARGVARS | METH_CLASS);
+		LASS_ASSERT(i->ml_flags == (METH_VARARGS | METH_CLASS));
 		oOverloadChain = i->ml_meth;
 		i->ml_meth = iMethodDispatcher;
 		if (i->ml_doc == 0)
