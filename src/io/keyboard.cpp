@@ -38,6 +38,9 @@
 #	define LASS_IO_KEYBOARD_HAVE_TERMIOS_H_AND_IOCTL_H
 #	include <termios.h>
 #	include <sys/ioctl.h>
+#	if HAVE_UNISTD_H
+#		include <unistd.h>
+#	endif
 #	if HAVE_SYS_SOCKET_H
 #		include <sys/socket.h>
 #	endif

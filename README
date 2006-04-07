@@ -32,7 +32,7 @@ LASS also includes a self-test, which can be build and run by invoking
 NOTES:
 
 - LASS contains an interface library to the Python language, so you have to 
-  have Python installed on your system.  We recommend at least Python 2.3.
+  have Python installed on your system.  We recommend at least Python 2.2.
 
 - If you need to run 'autoconfiscate_unix.py', you will need to have installed
   'autoconf' (>= 2.57) and 'automake' (>= 1.6.5).  'autoconfiscate_unix.py' 

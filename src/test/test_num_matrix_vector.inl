@@ -204,10 +204,10 @@ void testNumVector()
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
 	for (i = 0; i < n; ++i) LASS_TEST_CHECK_EQUAL(d[i], b[i] / T(4));
 
-	LASS_TEST_CHECK_EQUAL(a.sum(), std::accumulate(aRef.begin(), aRef.end(), T(0)));
+	LASS_TEST_CHECK_CLOSE(a.sum(), std::accumulate(aRef.begin(), aRef.end(), T(0)), tolerance);
 	//LASS_TEST_CHECK_EQUAL(a.min(), *std::min_element(aRef.begin(), aRef.end()));
 	//LASS_TEST_CHECK_EQUAL(a.max(), *std::max_element(aRef.begin(), aRef.end()));
-	LASS_TEST_CHECK_EQUAL(a.squaredNorm(), (a * a).sum());
+	LASS_TEST_CHECK_CLOSE(a.squaredNorm(), (a * a).sum(), tolerance);
 	LASS_TEST_CHECK_EQUAL(a.norm(), num::sqrt(a.squaredNorm()));
 }
 

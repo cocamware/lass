@@ -67,6 +67,16 @@ namespace lass
 {
 namespace meta
 {
+namespace impl
+{
+	template <typename ConvertedType, typename DestinationType>
+	struct IsConvertibleHelper
+	{
+		static meta::True test(DestinationType);
+		static meta::False test(...);
+		static ConvertedType makeTestObject();
+	};
+}
 
 template
 <
@@ -76,17 +86,9 @@ template
 struct IsConvertibleType
 {
 private:
-
-	static meta::True test(DestinationType);
-	static meta::False test(...);
-
-	static ConvertedType makeTestObject();
-
+	typedef impl::IsConvertibleHelper<ConvertedType, DestinationType> THelper;
 public:
-
-	void dummyFunctionToKeepGccHappy() {}
-
-	enum { value = sizeof(test(makeTestObject())) == sizeof(meta::True) };
+	enum { value = (sizeof(THelper::test(THelper::makeTestObject())) == sizeof(::lass::meta::True)) };
 	typedef typename Bool<value>::Type Type;
 };
 

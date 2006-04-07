@@ -75,8 +75,9 @@ struct IsDerivedType
 	enum
 	{
 		value = IsConvertibleType<const DerivedType*, const BaseType*>::value &&
-				!IsSameType<const BaseType*, const void*>::value
+			!IsSameType<const BaseType*, const void*>::value
 	};
+	typedef typename Bool<value>::Type Type;
 };
 
 template
@@ -89,7 +90,7 @@ struct IsDerivedTypeStrict
 	enum
 	{
 		value = IsDerivedType<DerivedType, BaseType>::value &&
-				!IsSameType<const DerivedType, const BaseType>::value
+			!IsSameType<const DerivedType, const BaseType>::value
 	};
 
 	typedef typename Bool<value>::Type Type;

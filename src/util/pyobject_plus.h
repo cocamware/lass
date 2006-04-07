@@ -284,6 +284,18 @@ namespace lass
 				const char* doc;
 			};
 
+			/** @internal
+			 *  predicate to find a StaticMember by name.
+			 */
+			class LASS_DLL StaticMemberEqual
+			{
+			public:
+				StaticMemberEqual(const char* iName);
+				bool operator()(const StaticMember& iMethod) const;
+			private:
+				const char* name_;
+			};
+
 			/**	@internal
 			*	predicate to check of a python method has the correct name.
 			*/
@@ -296,8 +308,14 @@ namespace lass
 				const char* name_;
 			};
 
-			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef( char *ml_name, PyCFunction ml_meth, int ml_flags, char *ml_doc );
-			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef( char* name, getter get, setter set, char* doc, void* closure );
+			LASS_DLL StaticMember LASS_CALL createStaticMember(
+				const char* iName, const char * iDocumentation, PyObject* iObject, 
+				PyTypeObject* iParentType = 0, std::vector<PyMethodDef>* iMethods = 0, 
+				std::vector<PyGetSetDef>* iGetSetters = 0, const std::vector<StaticMember>* iStatics = 0);
+			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
+				const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc);
+			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
+				const char* name, getter get, setter set, const char* doc, void* closure );
 
 			LASS_DLL void LASS_CALL injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
 			LASS_DLL void LASS_CALL finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
@@ -310,9 +328,11 @@ namespace lass
 			template <typename CppClass> void addClassMethod(char* iMethodName, char* iDocumentation, 
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
 				ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain);
+			template <typename CppClass> void addClassStaticMethod(char* iMethodName, char* iDocumentation,
+				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);
 			template <typename InnerCppClass> void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
-                const char* iInnerClassName, const char* iDocumentation);
+				const char* iInnerClassName, const char* iDocumentation);
 
 			template <typename In, typename Out> int pyNumericCast( In iIn, Out& oV );
 			template <typename Integer> int pyGetSignedObject( PyObject* iValue, Integer& oV );

@@ -184,7 +184,7 @@ Line2DParametric<T, NP>::equation(const TPoint& iPoint, TParam iRelativeToleranc
 	TValue d;
 	getCartesian(normal, d);
 	const TValue pn = dot(iPoint.position(), normal);
-	return num::almostEqual(pn, -d, iRelativeTolerance) ? TNumTraits::zero ? (pn + d);
+	return num::almostEqual(pn, -d, iRelativeTolerance) ? TNumTraits::zero : (pn + d);
 }
 
 

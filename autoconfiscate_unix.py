@@ -21,7 +21,7 @@ test_dirs = ['test']
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
 warning_flags = '-Wall'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
-libs = '-lpthread -lrt'
+libs = '-lpthread -lrt -ldl -lutil'
 
 import os
 import os.path
@@ -106,7 +106,7 @@ def write_configure():
 	configure=open('configure.ac','w+')
 
 	configure.write(r'''
-AC_PREREQ(2.59)
+AC_PREREQ(2.57)
 AC_INIT(%s, %s, bramz@sourceforge.net)
 ''' % (lass_name, "%s.%s.%s" % lass_version))
 
@@ -192,7 +192,7 @@ def write_makefile(extra_dist):
 	print "- Makefile.am"
 	makefile=open('Makefile.am','w+')
 	makefile.write(r'''
-AUTOMAKE_OPTIONS = 1.7
+AUTOMAKE_OPTIONS = 1.6
 SUBDIRS = src
 
 pkgconfigdir = $(libdir)/pkgconfig

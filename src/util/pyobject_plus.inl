@@ -341,12 +341,75 @@ void addClassMethod(char* iMethodName, char* iDocumentation,
 		}
 		else
 		{
+			LASS_ASSERT(i->ml_flags == METH_VARARGS);
 			oOverloadChain = i->ml_meth;
 			i->ml_meth = iMethodDispatcher;
+			if (i->ml_doc == 0)
+			{
+				i->ml_doc = const_cast<char*>(iDocumentation);
+			}
 		};
 	}
 }
 
+
+
+/** @intenal
+ */
+template <typename CppClass>
+inline void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
+		PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
+{
+#if PY_VERSION_HEX >= 0x02030000 // >= 2.3
+	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
+		CppClass::Methods.begin(), CppClass::Methods.end(), PyMethodEqual(iMethodName));
+	if (i == CppClass::Methods.end())
+	{
+		CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
+			iMethodName, iMethodDispatcher, METH_VARARGS | METH_STATIC, iDocumentation));
+		oOverloadChain = 0;
+	}
+	else
+	{
+		LASS_ASSERT(i->ml_meth == METH_ARGVARS | METH_CLASS);
+		oOverloadChain = i->ml_meth;
+		i->ml_meth = iMethodDispatcher;
+		if (i->ml_doc == 0)
+		{
+			i->ml_doc = const_cast<char*>(iDocumentation);
+		}
+	}
+#else
+	::std::vector<StaticMember>::iterator i = ::std::find_if(
+		CppClass::Statics.begin(), CppClass::Statics.end(), StaticMemberEqual(iMethodName));
+	if (i == CppClass::Statics.end())
+	{
+#pragma LASS_FIXME("make this error safe [Bramz]")
+		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(
+			iMethodName, iMethodDispatcher, METH_VARARGS, iDocumentation)));
+		PyObject* cFunction = PyCFunction_New(methodDef, 0);
+		PyObject* descr = PyStaticMethod_New(cFunction);
+		CppClass::Statics.push_back(createStaticMember(iMethodName, iDocumentation, descr));
+		oOverloadChain = 0;
+	}
+	else
+	{
+		PyObject* descr = i->object;
+		LASS_ASSERT(descr && PyObject_IsInstance(descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
+		PyObject* cFunction = PyStaticMethod_Type.tp_descr_get(descr, 0, 0);
+		LASS_ASSERT(cFunction && PyObject_IsInstance(cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
+		PyMethodDef* methodDef = reinterpret_cast<PyCFunctionObject*>(cFunction)->m_ml;
+		LASS_ASSERT(methodDef && methodDef->ml_flags == METH_VARARGS);
+		oOverloadChain = methodDef->ml_meth;
+		methodDef->ml_meth = iMethodDispatcher;
+		if (methodDef->ml_doc == 0)
+		{
+			methodDef->ml_doc = const_cast<char*>(iDocumentation);
+		}
+		i->doc = methodDef->ml_doc;
+	}	
+#endif
+}	
 
 
 /** @internal
@@ -354,15 +417,8 @@ void addClassMethod(char* iMethodName, char* iDocumentation,
 template <typename CppClass, typename T>
 inline void addClassStaticConst(const char* iName, const T& iValue)
 {
-	StaticMember temp;
-	temp.name = iName;
-	temp.object = pyBuildSimpleObject(iValue);
-	temp.parentType = 0;
-	temp.methods = 0;
-	temp.getSetters = 0;
-	temp.statics = 0;
-	temp.doc = 0;
-	CppClass::Statics.push_back(temp);
+	LASS_ASSERT(std::count_if(CppClass::Statics.begin(), CppClass::Statics.end(), StaticMemberEqual(iName)) == 0);
+	CppClass::Statics.push_back(createStaticMember(iName, 0, pyBuildSimpleObject(iValue)));
 }
 
 
@@ -371,17 +427,14 @@ inline void addClassStaticConst(const char* iName, const T& iValue)
  */
 template <typename InnerCppClass>
 inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
-							const char* iInnerClassName, const char* iDocumentation)
+		const char* iInnerClassName, const char* iDocumentation)
 {
-	StaticMember temp;
-	temp.name = iInnerClassName;
-	temp.object = reinterpret_cast<PyObject*>(&InnerCppClass::Type);
-	temp.parentType = InnerCppClass::GetParentType();
-	temp.methods = &InnerCppClass::Methods;
-	temp.getSetters = &InnerCppClass::GetSetters;
-	temp.statics = &InnerCppClass::Statics;
-	temp.doc = iDocumentation;
-	oOuterStatics.push_back(temp);
+	LASS_ASSERT(std::count_if(InnerCppClass::Statics.begin(), InnerCppClass::Statics.end(), 
+		StaticMemberEqual(iInnerClassName)) == 0);
+	oOuterStatics.push_back(createStaticMember(
+		iInnerClassName, iDocumentation, reinterpret_cast<PyObject*>(&InnerCppClass::Type),
+		InnerCppClass::GetParentType(), &InnerCppClass::Methods, &InnerCppClass::GetSetters, 
+		&InnerCppClass::Statics));
 }
 
 

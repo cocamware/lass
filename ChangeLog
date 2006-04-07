@@ -63,3 +63,11 @@ http://lass.sourceforge.net
 2006-03-30 Bramz
 	- Line2D has now versions of equation, classify, distance, ... with a relative tolerance
 	  argument.
+	  
+2006-04-07 Bramz
+	Python:
+	- Backported code to be compatible with at least Python2.2, autoconf 2.57 and automake 1.6.
+	  Main difference is support of static methods in Python2.2: METH_STATIC isn't available yet,
+	  so a workaround had to be found.  Meanwhile there were some small general improvements:
+	  static methods can also be overloaded now, and a reference-leak in the return path of
+	  overloaded methods/functions has been eliminated.

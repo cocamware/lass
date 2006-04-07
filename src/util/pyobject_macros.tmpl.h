@@ -35,8 +35,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
 
 #define LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR "Can not create object"
-
-
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL  "not bool"
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_INT  "not int"
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_LONG  "not long"
@@ -44,6 +42,9 @@
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE  "not double"
 #define LASS_PYTHON_ERR_MSG_ARG_NOT_STRING  "not string"
 
+#ifndef PySequence_ITEM
+#	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
+#endif
 
 /** @internal
  *  This macro is only used in the PyObjectPlus class and is for internal LASS
@@ -290,14 +291,12 @@
 		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
 		{\
 			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iIgnore, iArgs);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		return ::lass::python::impl::callFunction( iArgs, &f_cppFunction );\
 	}\
@@ -379,14 +378,12 @@
 		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
 		{\
 			PyObject* result = LASS_CONCATENATE( pyOverloadChain_, i_dispatcher )(iIgnore, iArgs);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		return ::lass::python::impl::ExplicitResolver\
 		<\
@@ -697,7 +694,8 @@ $[
 
 
 // --- methods -------------------------------------------------------------------------------------
-/**
+/** @ingroup Python
+*   @deprecated 
 *   This macro is provided when there is need for a function in Python where there is no
 *   direct equivalent in C++.  An example is when you would need a true polymorphic python list returned
 *   from a C++ function.  Or when you need sth very Python specific returning from your function where there
@@ -946,14 +944,12 @@ $[
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
 		{\
 			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -971,14 +967,12 @@ $[
 		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
 		{\
 			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		if (iKw)\
 		{\
@@ -1164,16 +1158,25 @@ $[
  *  @endcode
  */
 #define PY_CLASS_STATIC_METHOD_EX( t_cppClass, f_cppFunction, s_methodName, s_doc, i_dispatcher )\
+	PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
 	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		{\
+			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iIgnore, iArgs);\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
+			{\
+				return result;\
+			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
+		}\
 		return ::lass::python::impl::callFunction( iArgs, f_cppFunction );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
-		t_cppClass::Methods.insert(\
-			t_cppClass::Methods.begin(),\
-			::lass::python::impl::createPyMethodDef(\
-				s_methodName, (PyCFunction) i_dispatcher, METH_VARARGS  | METH_CLASS , s_doc));\
+		::lass::python::impl::addClassStaticMethod< t_cppClass >(\
+			s_methodName, s_doc, i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 
 /** @ingroup Python
@@ -1586,14 +1589,12 @@ $[
 		{\
 			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(\
 				iSubtype, iArgs, iKwds);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		return ::lass::python::impl::ExplicitResolver\
 		<\
@@ -1685,8 +1686,7 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/\
-	0,	/*tp_del*/
+	0,	/*tp_weaklist*/
 
 /** @internal
  */
@@ -1736,8 +1736,7 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/\
-	0,	/*tp_del*/
+	0,	/*tp_weaklist*/
 
 /** @internal
  */
@@ -1748,14 +1747,12 @@ $[
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
 		{\
 			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1772,14 +1769,12 @@ $[
 		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
 		{\
 			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
-			if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))\
-			{\
-				PyErr_Clear();\
-			}\
-			else\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
 			{\
 				return result;\
 			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
 		}\
 		if (iKw)\
 		{\

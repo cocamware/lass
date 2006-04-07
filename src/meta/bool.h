@@ -50,11 +50,13 @@ namespace meta
 /** meta true
  *  @relates Bool
  */
-struct True
+class True
 {
-	char dummy;
-	typedef char Type;
+public:
+	typedef True Type;
 	enum { value = true };
+private:
+	char dummy_;
 };
 
 /** meta false
@@ -62,25 +64,25 @@ struct True
  */
 struct False
 {
-	char lotsOfDummies[256];
-	typedef struct { char dummy[2]; } Type;
-	enum { value = false };
-};
-
-
-
-template <bool flag>
-struct Bool
-{
-	typedef True Type;
-	enum { value = true };
-};
-
-template <>
-struct Bool<false>
-{
+public:
 	typedef False Type;
 	enum { value = false };
+private:
+	True biggerThanTrue_[2];
+};
+
+
+
+template <bool flag> 
+struct Bool: 
+	public True 
+{
+};
+
+template <> 
+struct Bool<false>: 
+	public False 
+{
 };
 
 // --- logic operators -----------------------------------------------------------------------------
@@ -89,8 +91,8 @@ struct Bool<false>
  *  @relates Bool
  */
 template <typename Operand> struct Not;
-template <> struct Not<False>	{ typedef True Type; enum { value = true }; };
-template <> struct Not<True>	{ typedef False Type; enum { value = false }; };
+template <> struct Not<False>: public True {};
+template <> struct Not<True>: public False {};
 
 
 
@@ -98,10 +100,10 @@ template <> struct Not<True>	{ typedef False Type; enum { value = false }; };
  *  @relates Bool
  */
 template <typename Operand1, typename Operand2> struct And;
-template <> struct And<False, False>	{ typedef False Type; enum { value = false }; };
-template <> struct And<False, True>		{ typedef False Type; enum { value = false }; };
-template <> struct And<True, False>		{ typedef False Type; enum { value = false }; };
-template <> struct And<True, True>		{ typedef True Type; enum { value = true }; };
+template <> struct And<False, False>: public False {};
+template <> struct And<False, True>: public False {};
+template <> struct And<True, False>: public False {};
+template <> struct And<True, True>: public True {};
 
 
 
@@ -109,10 +111,10 @@ template <> struct And<True, True>		{ typedef True Type; enum { value = true }; 
  *  @relates Bool
  */
 template <typename Operand1, typename Operand2> struct Or;
-template <> struct Or<False, False>		{ typedef False Type; enum { value = false }; };
-template <> struct Or<False, True>		{ typedef True Type; enum { value = true }; };
-template <> struct Or<True, False>		{ typedef True Type; enum { value = true }; };
-template <> struct Or<True, True>		{ typedef True Type; enum { value = true }; };
+template <> struct Or<False, False>: public False {};
+template <> struct Or<False, True>: public True {};
+template <> struct Or<True, False>: public True {};
+template <> struct Or<True, True>: public True {};
 
 
 
@@ -120,10 +122,10 @@ template <> struct Or<True, True>		{ typedef True Type; enum { value = true }; }
  *  @relates Bool
  */
 template <typename Operand1, typename Operand2> struct Xor;
-template <> struct Xor<False, False>	{ typedef False Type; enum { value = false }; };
-template <> struct Xor<False, True>		{ typedef True Type; enum { value = true }; };
-template <> struct Xor<True, False>		{ typedef True Type; enum { value = true }; };
-template <> struct Xor<True, True>		{ typedef False Type; enum { value = false }; };
+template <> struct Xor<False, False>: public False {};
+template <> struct Xor<False, True>: public True {};
+template <> struct Xor<True, False>: public True {};
+template <> struct Xor<True, True>: public False {};
 
 
 }

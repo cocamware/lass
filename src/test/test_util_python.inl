@@ -50,7 +50,7 @@ void testUtilPython()
 	//commandStr = "from code import interact\ninteract()";
 		
 	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
-	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( commandStr.c_str() ) , 0 );
+	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
 
 	
 	

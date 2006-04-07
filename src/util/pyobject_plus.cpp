@@ -120,13 +120,23 @@ PyObject* getPyObjectByName(const std::string& iName)
 	}
 	PyObject* dict = PyModule_GetDict(module);
 	LASS_ASSERT(dict != 0);
-	return PyDict_GetItemString(dict, iName.c_str());
+	return PyDict_GetItemString(dict, const_cast<char*>(iName.c_str()));
 }
 
 // --- impl ----------------------------------------------------------------------------------------
 
 namespace impl
 {
+
+StaticMemberEqual::StaticMemberEqual(const char* iName):
+	name_(iName)
+{
+}
+
+bool StaticMemberEqual::operator()(const StaticMember& iMember) const
+{
+	return iMember.name && strcmp(iMember.name, name_) == 0;
+}
 
 PyMethodEqual::PyMethodEqual( const char* iName ):
 	name_(iName)
@@ -139,26 +149,43 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 }
 
 /** @internal
+ */
+StaticMember createStaticMember(const char* iName, const char* iDocumentation, PyObject* iObject,
+		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, std::vector<PyGetSetDef>* iGetSetters,
+		const std::vector<StaticMember>* iStatics)
+{
+	StaticMember temp;
+	temp.name = iName;
+	temp.doc = iDocumentation;
+	temp.object = iObject;
+	temp.parentType = iParentType;
+	temp.methods = iMethods;
+	temp.getSetters = iGetSetters;
+	temp.statics = iStatics;
+	return temp;
+}
+		
+/** @internal
 */
-PyMethodDef createPyMethodDef( char *ml_name, PyCFunction ml_meth, int ml_flags, char *ml_doc )
+PyMethodDef createPyMethodDef( const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc )
 {
 	PyMethodDef temp;
-	temp.ml_name = ml_name;
+	temp.ml_name = const_cast<char*>(ml_name);
 	temp.ml_meth = ml_meth;
 	temp.ml_flags = ml_flags;
-	temp.ml_doc = ml_doc;
+	temp.ml_doc = const_cast<char*>(ml_doc);
 	return temp;
 }
 
 /** @internal
 */
-PyGetSetDef createPyGetSetDef( char* name, getter get, setter set, char* doc, void* closure )
+PyGetSetDef createPyGetSetDef( const char* name, getter get, setter set, const char* doc, void* closure )
 {
 	PyGetSetDef temp;
-	temp.name = name;
+	temp.name = const_cast<char*>(name);
 	temp.get = get;
 	temp.set = set;
-	temp.doc = doc;
+	temp.doc = const_cast<char*>(doc);
 	temp.closure = closure;
 	return temp;
 }
@@ -174,7 +201,7 @@ void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>&
 			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
 				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
 		}
-		PyDict_SetItemString(iPyType.tp_dict, i->name, i->object);
+		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), i->object);
 	}
 }
 
