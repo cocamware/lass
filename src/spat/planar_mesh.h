@@ -139,7 +139,8 @@ namespace spat
 		TEdge*  locate( const TPoint2D& iPoint ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true);
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,bool makeDelaunay = true);
-		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,FaceHandle* iFaceHandle = NULL, bool makeDelaunay = true);
+		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true);
+		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
 		bool    deleteEdge( TEdge* iEdge );
 		long    edgeCount() const;
 		void    makeMaximalConvexPolygon();
@@ -201,7 +202,6 @@ namespace spat
 		void setInternalMarkingAroundVertex( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
-		void  markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
 	};
 
@@ -499,9 +499,11 @@ namespace spat
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::connect( TEdge* a, TEdge* b)
 	{
-		if ( faceHandle( a ) != faceHandle( b ) )
+		FaceHandle* fa = faceHandle(a);
+		FaceHandle* fb = faceHandle(b);
+		if ( fa != fb )
 		{
-			throw std::runtime_error("connect of edges would violate face constraint");
+           	LASS_THROW("connect of edges would violate face constraint");
 		}
 		PointHandle* hADest = pointHandle( a->sym() );
 		PointHandle* hB = pointHandle( b );
@@ -509,7 +511,7 @@ namespace spat
 		TQuadEdge::splice( e, a->lNext() );
 		TQuadEdge::splice( e->sym(), b );
 
-		setFaceHandle( e, faceHandle( a ) );
+		setFaceHandle( e, fa );
 		setPointHandle( a->sym(), hADest );
 		setPointHandle( b, hB );
 		return e;
@@ -1038,7 +1040,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,FaceHandle* iFaceHandle = NULL, bool makeDelaunay = true)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true)
 	{
 		TEdge* e = NULL;
 		for (int i=1;i<iPolygon.size();++i)
@@ -1053,7 +1055,13 @@ namespace spat
 	TEMPLATE_DEF
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle = NULL)
 	{	
-		TPoin2D bary = triangle(iStartEdge).surfaceCentroid().point();
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
+		TEdgeMarker edgeMarker( this, false );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+#pragma LASS_TODO("do a more efficient marking or allow for multiple marking")
+
 		floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle );
 		floodPolygon( iStartEdge->lNext()->sym(), iPolygon, iFaceHandle );
 		floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygon, iFaceHandle );
@@ -1061,15 +1069,15 @@ namespace spat
 	TEMPLATE_DEF
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle = NULL)
 	{	
-		TPoin2D bary = triangle(iStartEdge).surfaceCentroid().point();
-		if (iPolygon.contains(bary))
+		TPoint2D bary = triangle(iStartEdge).surfaceCentroid().affine();
+		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
 		{
+			setInternalMarking( iStartEdge, true );
+			setFaceHandle( iStartEdge, iFaceHandle );
 			floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle );
 			floodPolygon( iStartEdge->lNext()->sym(), iPolygon, iFaceHandle );
 			floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygon, iFaceHandle );
-
 		}
-		
 	}
 
 	TEMPLATE_DEF
@@ -1112,7 +1120,7 @@ namespace spat
 		{
 			LASS_THROW("PlanarMesh::triangle: edge not in primary mesh");
 		}
-		return TTriangle2D(org(iEdge),dest(iEdge),org(iEdge->lNext()));
+		return TTriangle2D(org(iEdge),dest(iEdge),dest(iEdge->lNext()));
 
 	}
 

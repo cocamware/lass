@@ -112,6 +112,9 @@ template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTriangle);
 template <typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Triangle2D<T>& iTriangle);
+template<typename T>
+lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
+									const Triangle2D<T>& iTriangle);
 
 template <typename T>
 T partialVoronoiArea(const Triangle2D<T> iT, int iIndexOfVertex);
