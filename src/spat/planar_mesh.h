@@ -141,6 +141,7 @@ namespace spat
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true);
 		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
+		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle*> iFaceHandles);
 		bool    deleteEdge( TEdge* iEdge );
 		long    edgeCount() const;
 		void    makeMaximalConvexPolygon();
@@ -1066,6 +1067,31 @@ namespace spat
 		floodPolygon( iStartEdge->lNext()->sym(), iPolygon, iFaceHandle );
 		floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygon, iFaceHandle );
 	}
+
+	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
+	TEMPLATE_DEF
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle*> iFaceHandles)
+	{	
+		if (iPolygons.size()!=iFaceHandles.size())
+		{
+			LASS_THROW("markPolygons: list of polygons must fit list of face handles");
+		}
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
+		TEdgeMarker edgeMarker( this, false );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+
+		for (int i=0;i<iPolygons.size();++i)
+		{
+			TEdge* iStartEdge = locate(iPolygons[i][0]);
+			floodPolygon( iStartEdge->sym(), iPolygons[i], iFaceHandles[i] );
+			floodPolygon( iStartEdge->lNext()->sym(), iPolygons[i], iFaceHandles[i] );
+			floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygons[i], iFaceHandles[i] );
+		}
+	}
+
+
 	TEMPLATE_DEF
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle = NULL)
 	{	
