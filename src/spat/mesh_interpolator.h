@@ -124,6 +124,11 @@ void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPo
 template<typename T, typename TPI>
 void MeshInterpolator<T,TPI>::insertPolyline( const TPolyline2D& iPoly, const TPI& iPointInfo )
 {
+	if (iPoly.size() < 2)
+	{
+		LASS_THROW("MeshInterpolator: A poly line needs at least two vertices ... poly, remember?");
+	}
+
 	for (size_t i = 0; i < iPoly.size(); ++i)
 	{
         if (!aabb_.contains( iPoly[i] ))
