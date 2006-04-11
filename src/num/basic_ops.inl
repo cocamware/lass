@@ -153,15 +153,6 @@ template <typename T> inline T inv(const T& iV)
 	return T(1) / iV;
 }
 
-/** return iV ^ 1/2
- *  @ingroup BasicOps
- *  @warning GENERIC FUNCTION USES EXP AND LOG!
- */
-template <typename T> inline T sqrt(const T& iV) 
-{ 
-	return exp(log(iV) / 2);
-}
-
 /** return exp(iPow * log(iV));
  *  @ingroup BasicOps
  *  @warning GENERIC FUNCTION USES EXP AND LOG!

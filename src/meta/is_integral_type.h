@@ -63,10 +63,8 @@ typedef type_list::Make
 
 
 template <typename T>
-struct IsIntegralType
+struct IsIntegralType: public Bool<type_list::Find<TIntegralTypes, T>::value != -1>
 {
-	enum { value = (type_list::Find<TIntegralTypes, T>::value != -1) };
-	typedef typename Bool<value>::Type Type;
 };
 
 

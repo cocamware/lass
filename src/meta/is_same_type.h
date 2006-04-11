@@ -78,50 +78,59 @@ template
 	typename A,
 	typename B
 >
-struct IsSameType
+struct IsSameType: public False
 {
-	enum { value = false };
-	typedef False Type;
 };
 
 template
 <
 	typename A
 >
-struct IsSameType<A, A>
+struct IsSameType<A, A>: public True
 {
-	enum { value = true };
-	typedef True Type;
 };
 
 #else
+
+namespace impl
+{
 
 template
 <
 	typename A,
 	typename B
 >
-struct IsSameType
+struct IsSameHelper
 {
 private:
 
 	template <typename T>
 	struct IsSameAsA
 	{
-		enum { value = false };
+		typedef False Result;
 	};
 
 	template <>
 	struct IsSameAsA<A>
 	{
-		enum { value = true };
+		typedef True Result;
 	};
 
 public:
 
-	enum { value = IsSameAsA<B>::value };
-	typedef typename Bool<value>::Type Type;
+	typedef typename IsSameAsA<B>::Result Result;
 };
+
+}
+
+template
+<
+	typename A,
+	typename B
+>
+struct IsSameType: public impl::IsSameHelper<A, B>::Result
+{
+}
 
 #endif
 

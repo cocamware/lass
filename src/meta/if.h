@@ -70,9 +70,8 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If
+struct If: public TrueType
 {
-	typedef typename TrueType::Type Type;
 };
 
 template
@@ -80,12 +79,14 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If<false, TrueType, FalseType>
+struct If<false, TrueType, FalseType>: public FalseType
 {
-	typedef typename FalseType::Type Type;
 };
 
 #else
+
+namespace impl
+{
 
 template
 <
@@ -93,25 +94,37 @@ template
 	typename TrueType,
 	typename FalseType
 >
-struct If
+struct IfHelper
 {
 private:
 
 	template <bool flag>
 	struct Impl
 	{
-		typedef TrueType::Type Type;
+		typedef TrueType Branch;
 	};
 
 	template <>
-	struct Impl<false>
+	struct Impl<false>: public FalseType
 	{
-		typedef FalseType::Type Type;
+		typedef FalseType Branch;
 	};
 
 public:
 
-	typedef Impl<flag>::Type Type;
+	typedef typename Impl<flag>::Branch Branch;
+};
+
+}
+
+template
+<
+	bool flag,
+	typename TrueType,
+	typename FalseType
+>
+struct If: public impl::IfHelper<flag, TrueType, FalseType>::Branch
+{
 };
 
 #endif

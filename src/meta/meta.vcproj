@@ -36,8 +36,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"
-				AdditionalOptions="">
+				DebugInformationFormat="3">
 				<IntelOptions 
 					Optimization="2"
 					GlobalOptimizations="1"
@@ -53,18 +52,15 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /Gd /TP"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/c  /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /Gd /TP"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
-				AdditionalOptions="">
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700/lass_meta_win32_intel700.lib&quot; /NOLOGO"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/OUT:&quot;win32_intel700/lass_meta_win32_intel700.lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -105,8 +101,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"
-				AdditionalOptions="">
+				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
 					StringPooling="0"
@@ -116,18 +111,15 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/vc70.pdb&quot; /Gd /TP"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/vc70.pdb&quot; /Gd /TP"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
-				AdditionalOptions="">
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700_d/lass_meta_win32_intel700_d.lib&quot; /NOLOGO"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/OUT:&quot;win32_intel700_d/lass_meta_win32_intel700_d.lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -179,18 +171,15 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/vc70.pdb&quot; /Gd /TP /Zm300"
-					MSOriginalAdditionalOptions="/Zm300"/>
+					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/vc70.pdb&quot; /Gd /TP /Zm300"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
-				AdditionalOptions="">
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71_d/lass_meta_win32_vc71_d.lib&quot; /NOLOGO"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/OUT:&quot;win32_vc71_d/lass_meta_win32_vc71_d.lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -248,18 +237,15 @@
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O2 /Ob1 /Oy /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/vc70.pdb&quot; /Gd /TP /Zm300"
-					MSOriginalAdditionalOptions="/Zm300"/>
+					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O2 /Ob1 /Oy /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/vc70.pdb&quot; /Gd /TP /Zm300"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
-				AdditionalOptions="">
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71/lass_meta_win32_vc71.lib&quot; /NOLOGO"
-					MSOriginalAdditionalOptions=""/>
+					AllOptions="/OUT:&quot;win32_vc71/lass_meta_win32_vc71.lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
@@ -316,9 +302,6 @@
 			</File>
 			<File 
 				RelativePath=".\is_derived_type.h">
-			</File>
-			<File 
-				RelativePath=".\is_empty_type.h">
 			</File>
 			<File 
 				RelativePath=".\is_integral_type.h">

@@ -47,7 +47,6 @@ template <typename T> inline T abs(const T& iV);
 template <typename T> inline T sign(const T& iV);
 template <typename T> inline T sqr(const T& iV);
 template <typename T> inline T inv(const T& iV);
-template <typename T> inline T sqrt(const T& iV);
 template <typename T> inline T cubic(const T& iV);
 template <typename T> inline T pow(const T& iV, const T& iPow);
 template <typename T> inline T norm(const T& iV);
