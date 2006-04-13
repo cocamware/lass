@@ -17,6 +17,7 @@ expandFile('impl/dispatcher_python.tmpl.h', 'impl/dispatcher_python.h', 10)
 
 expandFile('pyobject_macros.tmpl.h', 'pyobject_macros.h', 10)
 expandFile('pyobject_call.tmpl.inl', 'pyobject_call.inl', 10)
+expandFile('py_tuple.tmpl.h', 'py_tuple.h', 20)
 
 expandFile('thread_fun.tmpl.h', 'thread_fun.h', 10)
 expandFile('thread_fun.tmpl.inl', 'thread_fun.inl', 10)

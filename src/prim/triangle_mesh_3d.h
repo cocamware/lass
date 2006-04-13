@@ -129,6 +129,8 @@ public:
 	const TVertices& vertices() const;
 	const TNormals& normals() const;
 	const TUvs& uvs() const;
+	template <typename OutputIterator> 
+		OutputIterator indexTriangles(OutputIterator oTriangles) const;
 
 	const TAabb aabb() const;
 	const TValue area() const;

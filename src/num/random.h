@@ -60,6 +60,9 @@ public:
 
 	const TValue operator()() const;
 	const TValue operator()(TValue iSupremum) const;
+
+	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
+	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
 };
 
 
@@ -86,6 +89,9 @@ public:
 
 	const TValue operator()();
 	const TValue operator()(TValue iSupremum);
+
+	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
+	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
 
 private:
 
@@ -140,13 +146,13 @@ public:
 	const TValue operator()();
 	const TValue operator()(TValue iSupremum);
 
+	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
+	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
+
 private:
 
 	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32,
 		MersenneTwister_is_designed_to_be_a_32_bits_random_number_generator);
-
-	void reload();
-	const TValue twist(TValue iA, TValue iB, TValue iC) const;
 
 	enum
 	{
@@ -154,8 +160,11 @@ private:
 		shiftSize_  = 397,
 	};
 
+	void reload();
+	const TValue twist(TValue iA, TValue iB, TValue iC) const;
+
 	TValue state_[stateSize_];      /**< the array for the state vector. */
-	int index_;                     /**< index in state vector. */
+	TValue index_;                     /**< index in state vector. */
 
 	static TValue wordMask_;
 	static TValue lowerMask_;

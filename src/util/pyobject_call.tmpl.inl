@@ -27,17 +27,14 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_INL
 
 #include "util_common.h"
+#include "py_tuple.h"
 #include "pyshadow_object.h"
 #include "call_traits.h"
 #include "../meta/if.h"
 #include "../meta/type_2_type.h"
 #include "../meta/type_list.h"
 
-#define LASS_UTIL_PYOBJECT_CALL_TRY_EX(e_expression, v_errorReturnValue)\
-	try\
-	{\
-		e_expression;\
-	}\
+#define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(v_errorReturnValue)\
 	catch (lass::util::Exception& error)\
 	{\
 		std::ostringstream buffer;\
@@ -51,8 +48,8 @@
 		return v_errorReturnValue;\
 	}
 
-#define LASS_UTIL_PYOBJECT_CALL_TRY(e_expression)\
-	LASS_UTIL_PYOBJECT_CALL_TRY_EX(e_expression, 0)
+#define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN\
+	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(0)
 
 namespace lass
 {
@@ -138,45 +135,6 @@ template <typename T> struct ArgumentTraits<const T* const>
 
 
 
-
-// --- getParameters -------------------------------------------------------------------------------
-
-inline bool getArguments( PyObject* iArgs )
-{
-	return checkSequenceSize(iArgs, 0);
-}
-
-$[
-/** translates a tuple of $x PyObjects to C++ objects.
- */
-template <$(typename P$x)$>
-bool getArguments( PyObject* iArgs, $( P$x& oP$x)$ )
-{
-	PyObject $(*p$x)$;
-
-	if (!PyTuple_Check(iArgs))
-	{
-		PyErr_SetString(PyExc_TypeError, "lass internal error: iArgs isn't a tuple");
-		return false;
-	}
-
-
-	if (!PyArg_UnpackTuple( iArgs, "", $x, $x, $(&p$x)$ ))
-	{
-		return false;
-	}
-
-	$(if (pyGetSimpleObject( p$x, oP$x ) != 0)
-	{
-		impl::addMessageHeader("Bad Argument on $xth position");
-		return false;
-	}
-	)$
-	return true;
-}
-]$
-
-
 // --- actual callers ------------------------------------------------------------------------------
 
 /** calls the actual function with provided parameters, and returns result as a PyObject pointer.
@@ -188,14 +146,22 @@ struct Caller
 
 	static PyObject* function( R (*iFunction)() )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (*iFunction)() ) )
+		try
+		{
+			return pyBuildSimpleObject( (*iFunction)() );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
 	template <$(typename P$x)$>
 	static PyObject* function( R (*iFunction)($(P$x)$),
 							 $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (*iFunction)($(iP$x)$) ) )
+		try
+		{
+			return pyBuildSimpleObject( (*iFunction)($(iP$x)$) );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 	]$
 
@@ -204,14 +170,22 @@ struct Caller
 	template <class CppClass>
 	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)() )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (iObject->*iMethod)() ) )
+		try
+		{
+			return pyBuildSimpleObject( (iObject->*iMethod)() );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
 	template <class CppClass, $(typename P$x)$>
 	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)($(P$x)$),
 							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) ) )
+		try
+		{
+			return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 	]$
 
@@ -220,14 +194,22 @@ struct Caller
 	template <class CppClass>
 	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)() const )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (iObject->*iMethod)() ) )
+		try
+		{
+			return pyBuildSimpleObject( (iObject->*iMethod)() );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
 	template <class CppClass, $(typename P$x)$>
 	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const,
 							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) ) )
+		try
+		{
+			return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) );
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 	]$
 
@@ -242,7 +224,11 @@ struct Caller<void>
 
 	static PyObject* function( void (*iFunction)() )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (*iFunction)() )
+		try
+		{
+			(*iFunction)();
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	};
@@ -251,7 +237,11 @@ struct Caller<void>
 	static PyObject* function( void (*iFunction)($(P$x)$),
 							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (*iFunction)($(iP$x)$) )
+		try
+		{
+			(*iFunction)($(iP$x)$);
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	}
@@ -262,7 +252,11 @@ struct Caller<void>
 	template <class CppClass>
 	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)() )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (iObject->*iMethod)() )
+		try
+		{
+			(iObject->*iMethod)();
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	};
@@ -271,7 +265,11 @@ struct Caller<void>
 	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)($(P$x)$),
 							 $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (iObject->*iMethod)($(iP$x)$) )
+		try
+		{
+			(iObject->*iMethod)($(iP$x)$);
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	}
@@ -282,7 +280,11 @@ struct Caller<void>
 	template <class CppClass>
 	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)() const )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (iObject->*iMethod)() )
+		try
+		{
+			(iObject->*iMethod)();
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	};
@@ -291,7 +293,11 @@ struct Caller<void>
 	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)($(P$x)$) const,
 							 $( typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( (iObject->*iMethod)($(iP$x)$) )
+		try
+		{
+			(iObject->*iMethod)($(iP$x)$);
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	}
@@ -308,7 +314,7 @@ struct Caller<void>
 template <typename R>
 PyObject* callFunction( PyObject* iArgs, R (*iFunction)() )
 {
-	if( !getArguments(iArgs) )
+	if( decodeTuple(iArgs) != 0 )
 	{
 		return 0;
 	}
@@ -322,7 +328,7 @@ PyObject* callFunction( PyObject* iArgs, R (*iFunction)($(P$x)$) )
 {
 	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 	)$
-	if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+	if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 	{
 		return 0;
 	}
@@ -344,7 +350,7 @@ struct CallMethod
 	template <typename C, typename R>
 	static PyObject* call( PyObject* iArgs, CppClass* iObject, R (C::*iMethod)() )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -358,7 +364,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -373,7 +379,7 @@ $[
 	template <typename C, typename R>
 	static PyObject* call( PyObject* iArgs, const CppClass* iObject, R (C::*iMethod)() const )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -387,7 +393,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -401,7 +407,7 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C* iObject) )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -416,7 +422,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -431,7 +437,7 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)(C& iObject) )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -447,7 +453,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -463,7 +469,7 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C* iObject) )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -478,7 +484,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -493,7 +499,7 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* iArgs, const CppClass* iObject, R (*iFreeMethod)(const C& iObject) )
 	{
-		if( !getArguments(iArgs) )
+		if( decodeTuple(iArgs) != 0 )
 		{
 			return 0;
 		}
@@ -509,7 +515,7 @@ $[
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+		if( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
@@ -525,7 +531,11 @@ $[
 	template <typename C, typename R>
 	static PyObject* get( const CppClass* iObject, R (C::*iMethod)() const)
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
+		try
+		{
+			return pyBuildSimpleObject((iObject->*iMethod)());
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 
 	/** call getter function, for non-assignable, although not read-only members
@@ -533,7 +543,11 @@ $[
 	template <typename C, typename R>
 	static PyObject* get( CppClass* iObject, R (C::*iMethod)() )
 	{
-		LASS_UTIL_PYOBJECT_CALL_TRY( return pyBuildSimpleObject((iObject->*iMethod)()) )
+		try
+		{
+			return pyBuildSimpleObject((iObject->*iMethod)());
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 
 
@@ -550,8 +564,11 @@ $[
 			return -1;
 		}
 
-		LASS_UTIL_PYOBJECT_CALL_TRY_EX( (iObject->*iMethod)(TArg::arg(p)), -1 )
-		//Py_INCREF( Py_None ); [TDM] removed
+		try
+		{
+			(iObject->*iMethod)(TArg::arg(p));
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
 		return 0;
 	}
 
@@ -568,8 +585,11 @@ $[
 			return -1;
 		}
 
-		LASS_UTIL_PYOBJECT_CALL_TRY_EX( (iObject->*iMethod)() = TArg::arg(p), -1 )
-		//Py_INCREF( Py_None ); [TDM] removed
+		try
+		{
+			(iObject->*iMethod)() = TArg::arg(p);
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
 		return 0;
 	}
 };
@@ -586,17 +606,18 @@ PyObject* construct( PyObject* iArgs )
 	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
 	
-	if( !getArguments(iArgs) )
+	if( decodeTuple(iArgs) != 0 )
 	{
 		return 0;
 	}
 	
-	LASS_UTIL_PYOBJECT_CALL_TRY
-	(
+	try
+	{
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass );
 		result->ob_type = &PyObjectClass::Type;
 		return result;
-	)
+	}
+	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 }
 $[
 /** allocate a new object with $x arguments.
@@ -609,17 +630,18 @@ PyObject* construct( PyObject* iArgs )
 	$(typedef ArgumentTraits< P$x > TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 	)$
 
-	if ( !getArguments<$(S$x)$>( iArgs, $(p$x)$ ) )
+	if ( decodeTuple<$(S$x)$>( iArgs, $(p$x)$ ) != 0 )
 	{
 		return 0;
 	}
 
-	LASS_UTIL_PYOBJECT_CALL_TRY
-	(
+	try
+	{
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass( $(TArg$x::arg(p$x))$ ) );
 		result->ob_type = &PyObjectClass::Type;
 		return result;
-	)
+	}
+	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 }
 ]$
 

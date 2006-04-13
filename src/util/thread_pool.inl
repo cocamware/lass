@@ -225,7 +225,7 @@ template <typename T, typename C>
 void ThreadPool<T, C>::ConsumerThread::doRun()
 {
 	TTask task;
-	bool hasTask;
+	bool hasTask = false;
 	while (true)
 	{
 		LASS_LOCK(pool_.mutex_)

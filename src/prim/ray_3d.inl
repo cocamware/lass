@@ -63,6 +63,16 @@ Ray3D<T, NP, PP>::Ray3D(const TPoint& iSupport, const TVector& iDirection):
 
 
 template <typename T, class NP, class PP>
+Ray3D<T, NP, PP>::Ray3D(const TPoint& iSupport, const TVector& iNormalizedDirection,
+						IsAlreadyNormalized):
+	support_(iSupport),
+	direction_(iNormalizedDirection)
+{
+}
+
+
+
+template <typename T, class NP, class PP>
 Ray3D<T, NP, PP>::Ray3D(const TPoint& iSupport, const TPoint& iLookAt):
 	support_(iSupport),
 	direction_(iLookAt - iSupport)

@@ -125,6 +125,49 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
 
 namespace impl
 {
+	PyObject* buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv)
+	{
+		typedef PyObjectPtr<PyObject>::Type TPyPtr;
+
+		LASS_ASSERT(iVertex != prim::IndexTriangle::null());
+		if (iNormal == prim::IndexTriangle::null() && iUv == prim::IndexTriangle::null())
+		{
+			TPyPtr tuple(PyTuple_New(1));
+			if (!tuple) return 0;
+			if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
+				static_cast<unsigned long>(iVertex))) != 0) return 0;
+			return PyPlus_INCREF(tuple.get());
+		}
+
+		if (iUv == prim::IndexTriangle::null())
+		{
+			TPyPtr tuple(PyTuple_New(2));
+			if (!tuple) return 0;
+			if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
+				static_cast<unsigned long>(iVertex))) != 0) return 0;
+			if (PyTuple_SetItem(tuple.get(), 1, pyBuildSimpleObject(
+				static_cast<unsigned long>(iNormal))) != 0) return 0;
+			return PyPlus_INCREF(tuple.get());
+		}
+
+		TPyPtr tuple(PyTuple_New(3));
+		if (!tuple) return 0;
+		if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
+			static_cast<unsigned long>(iVertex))) != 0) return 0;
+		if (iNormal == prim::IndexTriangle::null())
+		{
+			if (PyTuple_SetItem(tuple.get(), 1, PyPlus_INCREF(Py_None)) != 0) return 0;
+		}
+		else
+		{
+			if (PyTuple_SetItem(tuple.get(), 1, pyBuildSimpleObject(
+				static_cast<unsigned long>(iNormal))) != 0) return 0;
+		}
+		if (PyTuple_SetItem(tuple.get(), 2, pyBuildSimpleObject(
+			static_cast<unsigned long>(iUv))) != 0) return 0;
+		return PyPlus_INCREF(tuple.get());
+	}
+
 	int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
 	{
 		typedef PyObjectPtr<PyObject>::Type TPyPtr;
@@ -196,6 +239,23 @@ namespace impl
 		return 0;
 	}
 }
+
+PyObject* pyBuildSimpleObject(const prim::IndexTriangle& iTriangle)
+{
+	typedef PyObjectPtr<PyObject>::Type TPyPtr;
+	TPyPtr triangle(PyTuple_New(3));
+	if (!triangle) return 0;
+	for (int k = 0; k < 3; ++k)
+	{
+		PyObject* vertex = impl::buildIndexVertex(
+			iTriangle.vertices[k], iTriangle.normals[k], iTriangle.uvs[k]);
+		if (!vertex) return 0;
+		if (PyTuple_SetItem(triangle.get(), k, vertex) != 0) return 0;
+	}
+	return PyPlus_INCREF(triangle.get());
+}
+
+
 
 int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
 {

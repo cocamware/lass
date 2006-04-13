@@ -26,6 +26,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_PYTHON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_PYTHON_H
 
+#include "../py_tuple.h"
+
 namespace lass
 {
 namespace util
@@ -118,9 +120,7 @@ public:
 	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr args(PyTuple_New($x));
-		$(PyTuple_SetItem(args.get(), $x - 1, python::pyBuildSimpleObject(iP$x));
-		)$
+		TPyPtr args(python::makeTuple($(iP$x)$));
 		TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{
@@ -209,9 +209,7 @@ public:
 	R operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr args(PyTuple_New($x));
-		$(PyTuple_SetItem(args.get(), $x - 1, python::pyBuildSimpleObject(iP$x));
-		)$
+		TPyPtr args(python::makeTuple($(iP$x)$));
 		TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{

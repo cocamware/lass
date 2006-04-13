@@ -229,7 +229,7 @@ template <typename T> void compinv(const T& iV, T& oV)			{ oV = num::inv(iV); }	
 
 float abs(float iV)				{ return ::fabsf(iV); }			/**< @ingroup BasicOps */
 float inv(float iV)				{ return 1.f / iV; }			/**< @ingroup BasicOps */
-float sqrt(float iV)			{ return ::sqrtf(iV); }			/**< @ingroup BasicOps */
+float sqrt(float iV)			{ LASS_ASSERT(iV >= 0.f); return ::sqrtf(iV); }	/**< @ingroup BasicOps */
 float pow(float iV, float iPow)	{ return ::powf(iV, iPow); }	/**< @ingroup BasicOps */
 float exp(float iV)				{ return ::expf(iV); }			/**< @ingroup BasicOps */
 float log(float iV)				{ return ::logf(iV); }			/**< @ingroup BasicOps */
@@ -258,7 +258,7 @@ float mod(float iV, float iMod)
 
 double abs(double iV)				{ return ::fabs(iV); }			/**< @ingroup BasicOps */
 double inv(double iV)				{ return 1. / iV; }				/**< @ingroup BasicOps */
-double sqrt(double iV)				{ return ::sqrt(iV); }			/**< @ingroup BasicOps */
+double sqrt(double iV)				{ LASS_ASSERT(iV >= 0.); return ::sqrt(iV); }	/**< @ingroup BasicOps */
 double pow(double iV, double iPow)	{ return ::pow(iV, iPow); }		/**< @ingroup BasicOps */
 double exp(double iV)				{ return ::exp(iV); }			/**< @ingroup BasicOps */
 double log(double iV)				{ return ::log(iV); }			/**< @ingroup BasicOps */
@@ -310,7 +310,7 @@ long double mod(long double iV, long double iMod) { return static_cast<long doub
 
 long double abs(long double iV)						{ return ::fabsl(iV); }			/**< @ingroup BasicOps */
 long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
-long double sqrt(long double iV)					{ return ::sqrtl(iV); }			/**< @ingroup BasicOps */
+long double sqrt(long double iV)					{ LASS_ASSERT(iV >= 0.); return ::sqrtl(iV); }	/**< @ingroup BasicOps */
 long double pow(long double iV, long double iPow)	{ return ::powl(iV, iPow); }	/**< @ingroup BasicOps */
 long double exp(long double iV)						{ return ::expl(iV); }			/**< @ingroup BasicOps */
 long double log(long double iV)						{ return ::logl(iV); }			/**< @ingroup BasicOps */

@@ -86,6 +86,7 @@ public:
 
 	Ray3D();
 	Ray3D(const TPoint& iSupport, const TVector& iDirection);
+	Ray3D(const TPoint& iSupport, const TVector& iNormalizedDirection, IsAlreadyNormalized);
 	Ray3D(const TPoint& iSupport, const TPoint& iLookAt);
 	template <typename NP2, typename PP2> Ray3D(const Ray3D<T, NP2, PP2>& iOther);
 

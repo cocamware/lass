@@ -55,7 +55,7 @@
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
-		virtual PyTypeObject *GetType(void) {return &Type;};
+		virtual PyTypeObject *GetType(void) const {return &Type;};
 
 /** @ingroup Python
  *  Place as first line of your Pythonized class.    
@@ -76,7 +76,7 @@
 		{\
 			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
 		}\
-		virtual PyTypeObject *GetType(void) {return &Type;};
+		virtual PyTypeObject *GetType(void) const {return &Type;};
 
 
 

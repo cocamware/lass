@@ -67,7 +67,13 @@
  *  vectors for start, because they often can avoid the square root.
  */
 
-
+/** @struct lass::prim::IsAlreadyNormalized
+ *  @ingroup NormalizingPolicy
+ *  @date 2006
+ *
+ *  Empty argument to tell a function the client assures the vector coming in is already
+ *  normalized, so the function doesn't has to.
+ */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_NORMALIZING_POLICY_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_NORMALIZING_POLICY_H
@@ -163,6 +169,13 @@ struct Unnormalized
 		return iValue / iNormObject.squaredNorm();
 	}
 };
+
+
+
+struct IsAlreadyNormalized
+{
+};
+
 
 
 

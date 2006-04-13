@@ -142,6 +142,30 @@ TriangleMesh3D<T, BHV>::uvs() const
 
 
 template <typename T, template <typename, typename> class BHV>
+template <typename OutputIterator> 
+OutputIterator TriangleMesh3D<T, BHV>::indexTriangles(OutputIterator oIndices) const
+{
+	typename TTriangles::const_iterator triangle;
+	for (triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
+	{
+		TIndexTriangle indexTriangle;
+		for (std::size_t k = 0; k < 3; ++k)
+		{
+			LASS_ASSERT(triangle->vertices[k]);
+			indexTriangle.vertices[k] = triangle->vertices[k] - &vertices_.front();
+			indexTriangle.normals[k] = triangle->normals[k] ?
+				triangle->normals[k] - &normals_.front() : IndexTriangle::null();
+			indexTriangle.uvs[k] = triangle->uvs[k] ?
+				triangle->uvs[k] - &uvs_.front() : IndexTriangle::null();
+		}
+		*oIndices++ = indexTriangle;
+	}
+	return oIndices;
+}
+
+
+
+template <typename T, template <typename, typename> class BHV>
 const typename TriangleMesh3D<T, BHV>::TAabb
 TriangleMesh3D<T, BHV>::aabb() const
 {
@@ -199,7 +223,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 		{
 			for (std::size_t prevK = 2, k = 0; k < 3; prevK = k++)
 			{
-				std::size_t j = triangle.vertices[k] - &vertices_[0];
+				std::size_t j = triangle.vertices[k] - &vertices_.front();
 				vertexNormals[j] += n * num::acos(-dot(edges[prevK], edges[k]));
 			}
 		}
@@ -216,7 +240,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 		const Triangle& triangle = triangles_[i];
 		for (std::size_t k = 0; k < 3; ++k)
 		{
-			std::size_t j = triangle.vertices[k] - &vertices_[0];
+			std::size_t j = triangle.vertices[k] - &vertices_.front();
 			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
 			{
 				if (usedVertexNormals[j] == IndexTriangle::null())
@@ -258,7 +282,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 		Triangle& triangle = triangles_[i];
 		for (std::size_t k = 0; k < 3; ++k)
 		{
-			std::size_t j = triangle.vertices[k] - &vertices_[0];
+			std::size_t j = triangle.vertices[k] - &vertices_.front();
 			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
 			{
 				LASS_ASSERT(usedVertexNormals[j] != IndexTriangle::null());

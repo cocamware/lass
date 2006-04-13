@@ -56,7 +56,11 @@ class PyShadowBase: public PyShadowBaseCommon
 public:
 	virtual ~PyShadowBase()
 	{
-		if (ownership_ == oOwner) delete cppObject_; cppObject_ = 0;
+		if (ownership_ == oOwner) 
+		{
+			delete cppObject_; 
+			cppObject_ = 0;
+		}
 	}
 	CppBase* cppObject() const
 	{
@@ -76,6 +80,14 @@ private:
 	CppBase* cppObject_;
 	Ownership ownership_;
 };
+
+
+template <typename T>
+struct IsShadowClass: public meta::IsDerivedType<T, PyShadowBaseCommon> 
+{
+};
+
+
 
 template <typename T>
 struct ShadowTraits
@@ -113,7 +125,7 @@ private:
 
 public:
 
-	enum { isShadow = meta::IsDerivedType<T, PyShadowBaseCommon>::value };
+	enum { isShadow = IsShadowClass<T>::value };
 	typedef typename Impl<T, isShadow>::TCppClass TCppClass;
 
 	static TCppClass* cppObject(PyObject* iPyObject)
@@ -257,8 +269,59 @@ inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass >
 {\
 	return new t_ShadowObject( iBySinkedPointer );\
 }\
+inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
+{\
+	if (t_ShadowObject::TCppClass* cppObject = impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
+	{\
+		oByCopy = *cppObject;\
+		return 0;\
+	}\
+	return 1;\
+}\
+inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
+{\
+	if (t_ShadowObject::TCppClass* cppObject = impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
+	{\
+		oByBorrowedPointer = cppObject;\
+		return 0;\
+	}\
+	return 1;\
+}\
 }\
 }
+
+
+/*namespace impl\
+{\
+template <> struct Converter<t_ShadowObject::TCppClass>\
+{\
+	static PyObject* toPython(const t_ShadowObject::TCppClass& iByCopy)\
+	{\
+		return pyBuildSimpleObject(iByCopy);\
+	}\
+	static int fromPython(PyObject* iObject, t_ShadowObject::TCppClass& oByCopy)\
+	{\
+		oByCopy = *ShadowTraits<t_ShadowObject>::cppObject(iObject);\
+		return 0;\
+	}\
+};\
+template <> struct Converter<t_ShadowObject::TCppClass*>\
+{\
+	static PyObject* toPython(t_ShadowObject::TCppClass* iByBorrowedPointer)\
+	{\
+		return pyBuildSimpleObject(iByBorrowedPointer);\
+	}\
+	static int fromPython(PyObject* iObject, t_ShadowObject::TCppClass* oByBorrowedPointer)\
+	{\
+		oByBorrowedPointer = ShadowTraits<t_ShadowObject>::cppObject(iObject);\
+		return 0;\
+	}\
+};\
+template <> struct Converter< std::auto_ptr< t_ShadowObject::TCppClass > >\
+{\
+	static PyObject* toPython(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject(iBySinkedPointer); }\
+};\
+}*/\
 
 
 

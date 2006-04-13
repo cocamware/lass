@@ -71,6 +71,7 @@ LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XY& iV);
 LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZ& iV);
 LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZW& iV);
 LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::ColorRGBA& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::IndexTriangle& iV);
 
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV);
