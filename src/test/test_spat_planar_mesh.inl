@@ -411,6 +411,7 @@ void doTestPlanarMesh()
 	testPoly1.add( TPoint2D(60,10) );
 	testPoly1.add( TPoint2D(60,60) );
 	testPoly1.add( TPoint2D(10,60) );
+#pragma LASS_FIXME("NULL forced to bool ... true or false? [Bramz]")
 	testMesh4.insertPolygon( testPoly1, &intHandles[0],&intHandles[0],NULL );
 	/*testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,10.0), TPoint2D(60.0,10.0) ),&intHandles[0],&intHandles[0] );
 	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(60.0,10.0), TPoint2D(60.0,60.0) ),&intHandles[0],&intHandles[0] );
@@ -445,12 +446,12 @@ void doTestPlanarMesh()
 
 	ColorEdges colorEdges;
 	colorEdges.stream.open("testPlanarMesh_colored.m");
-	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, ColorEdges::toMatlabOStream )  );
+	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
 	colorEdges.stream.close();
 
     ColorTriangles colorTriangles;
 	colorTriangles.stream.open("testPlanarMesh_coloredFaces.m");
-	testMesh4.forAllDualEdges( lass::util::makeCallback( &colorTriangles, ColorTriangles::toMatlabOStream )  );
+	testMesh4.forAllDualEdges( lass::util::makeCallback( &colorTriangles, &ColorTriangles::toMatlabOStream )  );
 	colorTriangles.stream.close();
 }
 

@@ -123,7 +123,7 @@ namespace spat
 		PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
 		PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c, const TPoint2D& d);
 		PlanarMesh( const prim::Aabb2D<T>& iAabb );
-		void setTolerance(const T& iTolerance) {tolerance_ = iTolerance}	//<* set the relative tolerance */
+		void setTolerance(const T& iTolerance) {tolerance_ = iTolerance;}	//<* set the relative tolerance */
 		const T& tolerance() { return tolerance_; }
 		virtual ~PlanarMesh();
 
@@ -1041,7 +1041,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, bool makeDelaunay)
 	{
 		TEdge* e = NULL;
 		for (int i=1;i<iPolygon.size();++i)

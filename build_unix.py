@@ -10,6 +10,6 @@ print '\n* AUTOCONFISCATE'
 os.system(sys.executable + ' autoconfiscate_unix.py')
 print '\n* CONFIGURE'
 os.system('./configure')
-print '\n* MAKE'
-os.system('make')
+print '\n* MAKE CHECK'
+os.system('make check')
 

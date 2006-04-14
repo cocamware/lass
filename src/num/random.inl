@@ -187,7 +187,7 @@ inline const RandomMT19937::TValue RandomMT19937::operator ()(const TValue iSupr
 template <typename OutputIterator>
 OutputIterator RandomMT19937::getState(OutputIterator iFirst) const
 {
-	*iFirst++ = 
+	*iFirst++ = index_;
 	return std::copy(state_, state_ + stateSize_, iFirst);
 }
 
