@@ -25,16 +25,16 @@
 
 
 
-/** @struct lass::prim::Sphere3D
- *  @brief 3D Sphere
- *  @author Bram de Greve
+/** @struct lass::prim::Capsule3D
+ *  @brief 3D Capsule
+ *  @author Tom Willems
  *  @date 2002-2003
  */
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUDION_PRIM_CAPSULE_3D_H
+#define LASS_GUARDIAN_OF_INCLUDION_PRIM_CAPSULE_3D_H
 
 
 
@@ -42,7 +42,7 @@
 // --- OLD INTERFACES ---------------------------------------------------------------------------
 
 #include "prim_common.h"
-#include "point_3d.h"
+#include "line_segment_3d.h"
 
 
 
@@ -54,14 +54,19 @@ namespace lass
 namespace prim
 {
 
-template<typename T>
-class Sphere3D
+template<
+	typename T,
+	class ParameterPolicy = Bounded
+>
+class Capsule3D
 {
 public:
 
-	typedef Sphere3D<T> TSelf;
+	typedef Capsule3D<T, ParameterPolicy> TSelf;
+	typedef ParameterPolicy TParameterPolicy;
 
-	typedef Point3D<T> TPoint;
+	typedef LineSegment3D<T,ParameterPolicy> TLineSegment;
+	typedef typename TLineSegment::TPoint TPoint;
 	typedef typename TPoint::TVector TVector;
 
 	typedef typename TPoint::TValue TValue;
@@ -74,14 +79,14 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef Sphere3D<U> Type;
+		typedef Capsule3D<U, ParameterPolicy> Type;
 	};
 
-	Sphere3D();
-	Sphere3D(const Point3D<T>& iCenter, TParam iRadius);
+	Capsule3D();
+	Capsule3D(const TLineSegment& iAxis, TParam iRadius);
 
-	const TPoint& center() const;
-	TPoint& center();
+	const TLineSegment& axis() const;
+	TLineSegment& axis();
 
 	TConstReference radius() const;
 	TReference radius();
@@ -89,32 +94,22 @@ public:
 	const TValue area() const;
 	const TValue volume() const;
 
-	const Side classify(const TPoint& iPoint) const;
-	const TValue equation(const TPoint& iPoint) const;
-	const TValue signedDistance(const TPoint& iPoint) const;
-	const TValue squaredDistance(const TPoint& iPoint) const;
-	const bool contains(const TPoint& iPoint) const;
-
-	const Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
-	const TValue equation(const TPoint& iPoint, TParam iRelativeTolerance) const;
-	const TValue signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
-	const TValue squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
-	const bool contains(const TPoint& iPoint, TParam iRelativeTolerance) const;
-
 	const bool isValid() const;
+	const bool contains(const TPoint& iPoint) const;
 
 private:
 
-	TPoint center_;     /**< center of sphere */
-	TValue radius_;     /**< radius of sphere */
+	TLineSegment	axis_;		 /**< axis of capsule */
+	TValue			radius_;     /**< radius of capsule */
+
 };
 
 
 
-template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Sphere3D<T>& iB);
+template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Capsule3D<T>& iB);
 
 template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iB);
+io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Capsule3D<T>& iB);
 
 
 
@@ -122,14 +117,14 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iB);
 
 }
 
-#include "sphere_3d.inl"
+#include "capsule_3d.inl"
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
-#	include "aabb_3d_sphere_3d.h"
+#	include "aabb_3d_capsule_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
-#include "ray_3d_sphere_3d.h"
+#include "capulse_3d_ray_3d.h"
 #endif
 
 #endif

@@ -93,6 +93,10 @@ public:
 	const TVector vector() const;
 	const TValue length() const;
 
+	const TValue distance(const TPoint& iPoint) const;
+	const TValue squaredDistance(const TPoint& iPoint) const;
+
+
 private:
 
 	TPoint tail_;

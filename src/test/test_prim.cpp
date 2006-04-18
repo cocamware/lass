@@ -30,6 +30,7 @@
 #include "test_prim.h"
 
 #include "test_prim_aabb.inl"
+#include "test_prim_capsule_3d.inl"
 #include "test_prim_line_2d.inl"
 #include "test_prim_line_3d.inl"
 #include "test_prim_line_segments.inl"
@@ -45,6 +46,7 @@
 #define LASS_TEST_PRIM_ADD_TEST_CASES(Type__)\
 	result.push_back(LASS_UNIT_TEST(testPrimAabb2D<Type__>));\
 	result.push_back(LASS_UNIT_TEST(testPrimAabb3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimCapsule3D<Type__>));\
 	result.push_back(LASS_UNIT_TEST((testPrimLine2D<Type__, prim::Unnormalized>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimLine2D<Type__,prim::Normalized>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimLine3D<Type__, prim::Unnormalized>)));\
@@ -64,7 +66,7 @@
 	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Unnormalized, prim::Bounded>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Normalized, prim::Unbounded>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimRay3D<Type__, prim::Normalized, prim::Bounded>)));\
-	result.push_back(LASS_UNIT_TEST(testPrimSphere3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST((testPrimSphere3D<Type__>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::NoDegenerate>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::StrictNoDegenerate>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::AllowDegenerate>)));\

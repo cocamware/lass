@@ -28,9 +28,6 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_INL
 
-
-
-
 #include "line_segment_3d.h"
 
 
@@ -124,8 +121,6 @@ LineSegment3D<T, PP>::t(const TPoint& iPoint) const
 	return t1 > t2 ? t : TNumTraits::one - t;
 }
 
-
-
 /** Return vector from tail to head.
  */
 template <typename T, class PP>
@@ -147,7 +142,29 @@ LineSegment3D<T, PP>::length() const
 	return v.norm();
 }
 
+/** Return squared distance of a point to line segment.
+ */
+template <typename T, class PP>
+const typename LineSegment3D<T, PP>::TValue
+LineSegment3D<T, PP>::squaredDistance(const TPoint& iPoint) const
+{
+	TParam t = this->t(iPoint);
+	if(t < 0)
+		return (iPoint - tail_).squaredNorm();
+	if(t > 1)
+		return (iPoint - head_).squaredNorm();
+	return (iPoint - this->point(t)).squaredNorm();
+}
 
+/** Return distance of point to line segment.
+ */
+template <typename T, class PP>
+const typename LineSegment3D<T, PP>::TValue
+LineSegment3D<T, PP>::distance(const TPoint& iPoint) const
+{
+	TValue squaredDistance = this->squaredDistance(iPoint);
+	return lass::num::sqrt(squaredDistance);
+}
 
 /** @relates lass::prim::LineSegment3D
  */

@@ -41,6 +41,12 @@ namespace lass
 namespace num
 {
 
+inline long sqrt(long iV) 
+{ 
+	LASS_THROW("Danger will robinson!"); 
+	return 0; 
+}
+
 // generic functions
 
 template <typename T> inline T abs(const T& iV);
