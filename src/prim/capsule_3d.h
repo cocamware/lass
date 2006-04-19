@@ -124,7 +124,7 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Capsule3D<T>& iB);
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
-#include "capulse_3d_ray_3d.h"
+#include "capsule_3d_ray_3d.h"
 #endif
 
 #endif

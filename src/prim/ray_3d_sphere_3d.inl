@@ -28,6 +28,7 @@
 
 #include "ray_3d_sphere_3d.h"
 #include "../num/basic_ops.h"
+#include "../num/floating_point_comparison.h"
 
 namespace lass
 {
@@ -35,6 +36,33 @@ namespace prim
 {
 namespace impl
 {
+
+template <typename T>
+class consistent
+{
+public:
+	explicit consistent(T iT): t_(iT) {}
+
+	friend bool operator==(const consistent<T>& a, const consistent<T>& b)
+	{
+		return a.t_ == b.t_;
+	}
+	friend bool operator<(const consistent<T>& a, const consistent<T>& b)
+	{
+		return a.t_ < b.t_;
+	}
+private:
+	T t_;
+};
+
+template <typename T> inline 
+operator>(const consistent<T>& a, const consistent<T>& b)
+{
+	return b < a;
+}
+
+
+
 
 /** @internal
  */
@@ -99,6 +127,8 @@ struct RaySphere<Normalized>
 							const Ray3D<T, Normalized, PP>& iRay, 
 							T& oT, const T& iMinT)
 	{
+		const consistent<T> minT(iMinT);
+
 		typedef Vector3D<T> TVector;
 		typedef typename TVector::TValue TValue;
 		typedef typename TVector::TNumTraits TNumTraits;
@@ -118,14 +148,19 @@ struct RaySphere<Normalized>
 		if (discriminant > TNumTraits::zero)
 		{
 			const TDouble sqrtD = num::sqrt(discriminant);
-			const TDouble t1 = (-b - sqrtD);
-			if (t1 > iMinT)
+			const T t1 = (-b - sqrtD);
+			consistent<T> ct1(t1);
+#pragma LASS_FIXME("can we do this in a more elegant way? [Bramz]")
+			//if (num::almostGreater(t1, iMinT, T(0.001)))
+			if (ct1 > minT)
 			{
 				oT = static_cast<TValue>(t1);
 				return rOne;
 			}
-			const TDouble t2 = (-b + sqrtD);
-			if (t2 > iMinT)
+			const T t2 = (-b + sqrtD);
+			consistent<T> ct2(t2);
+			//if (num::almostGreater(t2, iMinT, T(0.001)))
+			if (ct2 > minT)
 			{
 				oT = static_cast<TValue>(t2);
 				return rOne;
@@ -134,7 +169,8 @@ struct RaySphere<Normalized>
 		else if (discriminant == TNumTraits::zero)
 		{
 			const TDouble t = -b;
-			if (t > iMinT)
+			consistent<T> ct(t);
+			if (ct > minT)
 			{
 				oT = static_cast<TValue>(t);
 				return rOne;
