@@ -16,11 +16,17 @@ namespace prim
 template <typename T> 
 Aabb3D<T> aabb(const Capsule3D<T>& iCapsule)
 {
-	const typename Capsule3D<T>::TLineSegment& l = iCapsule.axis_();
+	const typename Capsule3D<T>::TLineSegment& l = iCapsule.axis();
 	const typename Capsule3D<T>::TValue r = iCapsule.radius();
-	Vector3D<T> v = l.vector();
-	const Vector3D<T> extent(sign(v)*r, sign(v)*r, sign(v)*r);
-	return Aabb3D<T>(l.head() - extent, l.tail() + extent);
+	const Point3D<T> tail = l.tail();
+	const Point3D<T> head = l.head();
+	const Point3D<T> min(tail.x < head.x ? tail.x - r : head.x - r,
+						 tail.y < head.y ? tail.y - r : head.y - r,
+						 tail.z < head.z ? tail.z - r : head.z - r);
+	const Point3D<T> max(tail.x > head.x ? tail.x + r : head.x + r,
+						 tail.y > head.y ? tail.y + r : head.y + r,
+						 tail.z > head.z ? tail.z + r : head.z + r);
+	return Aabb3D<T>(min, max);
 }
 }
 
