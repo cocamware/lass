@@ -71,3 +71,16 @@ http://lass.sourceforge.net
 	  so a workaround had to be found.  Meanwhile there were some small general improvements:
 	  static methods can also be overloaded now, and a reference-leak in the return path of
 	  overloaded methods/functions has been eliminated.
+	  
+2006-04-11 Bramz
+	Meta:
+	- Improved some of the operators by deriving directly from the result.
+	BasicOps:
+	- Removed generic sqrt.  If you want a sqrt, write your own ;)
+	
+2006-04-19 Bramz
+	Num:
+	- Added floating_point_consistency.h with a helper class to force the FPU to round intermediate
+	  results.
+	Prim:
+	- Ray3D/Sphere3D intersection now uses floating_point_conistency.h

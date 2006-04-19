@@ -77,6 +77,7 @@ struct RaySphere
 		typedef Vector3D<T> TVector;
 		typedef typename TVector::TValue TValue;
 		typedef typename TVector::TNumTraits TNumTraits;
+		typedef num::Consistent<T> TConsistent;
 
 		const TVector cs = iRay.support() - iSphere.center();
 
@@ -91,25 +92,25 @@ struct RaySphere
 		{
 			const TValue sqrtD = num::sqrt(discriminant);
 			const TValue invA = num::inv(a);
-			const TValue t1 = (-b - sqrtD) * invA;
+			const TConsistent t1 = (-b - sqrtD) * invA;
 			if (t1 > iMinT)
 			{
-				oT = t1;
+				oT = t1.value();
 				return rOne;
 			}
-			const TValue t2 = (-b + sqrtD) * invA;
+			const TConsistent t2 = (-b + sqrtD) * invA;
 			if (t2 > iMinT)
 			{
-				oT = t2;
+				oT = t2.value();
 				return rOne;
 			}
 		}
 		else if (discriminant == TNumTraits::zero)
 		{
-			const TValue t = -b / a;
+			const TConsistent t = -b / a;
 			if (t > iMinT)
 			{
-				oT = t;
+				oT = t.value();
 				return rOne;
 			}
 		}
@@ -132,6 +133,7 @@ struct RaySphere<Normalized>
 		typedef Vector3D<T> TVector;
 		typedef typename TVector::TValue TValue;
 		typedef typename TVector::TNumTraits TNumTraits;
+		typedef num::Consistent<T> TConsistent;
 
 		typedef typename num::DoublePrecision<T>::Type TDouble;
 		typedef Vector3D<TDouble> TVectorDouble;
@@ -154,7 +156,7 @@ struct RaySphere<Normalized>
 			//if (num::almostGreater(t1, iMinT, T(0.001)))
 			if (ct1 > minT)
 			{
-				oT = static_cast<TValue>(t1);
+				oT = t1.value();
 				return rOne;
 			}
 			const T t2 = (-b + sqrtD);
@@ -162,7 +164,7 @@ struct RaySphere<Normalized>
 			//if (num::almostGreater(t2, iMinT, T(0.001)))
 			if (ct2 > minT)
 			{
-				oT = static_cast<TValue>(t2);
+				oT = t2.value();
 				return rOne;
 			}
 		}
@@ -172,7 +174,7 @@ struct RaySphere<Normalized>
 			consistent<T> ct(t);
 			if (ct > minT)
 			{
-				oT = static_cast<TValue>(t);
+				oT = t.value();
 				return rOne;
 			}
 		}
@@ -205,7 +207,12 @@ Result intersect(const Sphere3D<T>& iSphere,
 				 const Ray3D<T, NP, PP>& iRay, 
 				 T& oT, const T& iMinT)
 {
+#ifdef NDEBUG
 	return impl::RaySphere<NP>::intersect(iSphere, iRay, oT, iMinT);
+#else
+	const Result result = impl::RaySphere<NP>::intersect(iSphere, iRay, oT, iMinT);
+	LASS_ASSERT(oT > iMinT || result == rNone);
+#endif
 }
 
 }
