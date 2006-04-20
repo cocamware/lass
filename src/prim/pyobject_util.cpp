@@ -170,6 +170,10 @@ namespace impl
 
 	int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
 	{
+		size_t vertex = prim::IndexTriangle::null();
+		size_t normal = prim::IndexTriangle::null();
+		size_t uv = prim::IndexTriangle::null();
+
 		typedef PyObjectPtr<PyObject>::Type TPyPtr;
 		if (!PySequence_Check(iIndices))
 		{
@@ -186,56 +190,42 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "is not (v [, vn [, vt]])");
 			return 1;
 		}
-		const TPyPtr vertex(PySequence_ITEM(iIndices, 0));
-		if (!vertex)
-		{
-			return 1;
-		}
-		if (pyGetSimpleObject(vertex.get(), oVertex) != 0)
+		const TPyPtr vertexItem(PySequence_ITEM(iIndices, 0));
+		LASS_ASSERT(vertexItem);
+		if (pyGetSimpleObject(vertexItem.get(), vertex) != 0)
 		{
 			impl::addMessageHeader("v");
 			return 1;
 		}
 		if (size > 1)
 		{
-			const TPyPtr normal(PySequence_ITEM(iIndices, 1));
-			if (!normal)
+			const TPyPtr normalItem(PySequence_ITEM(iIndices, 1));
+			LASS_ASSERT(normalItem);
+			if (normalItem.get() != Py_None)
 			{
-				return 1;
-			}
-			if (normal.get() != Py_None)
-			{
-				if (pyGetSimpleObject(normal.get(), oNormal) != 0)
+				if (pyGetSimpleObject(normalItem.get(), normal) != 0)
 				{
 					impl::addMessageHeader("vn");
 					return 1;
 				}
 			}
-			else
-			{
-				oNormal = prim::IndexTriangle::null();
-			}
 		}
 		if (size > 2)
 		{
-			const TPyPtr uv(PySequence_ITEM(iIndices, 2));
-			if (!uv)
+			const TPyPtr uvItem(PySequence_ITEM(iIndices, 2));
+			LASS_ASSERT(uvItem);
+			if (uvItem.get() != Py_None)
 			{
-				return 1;
-			}
-			if (uv.get() != Py_None)
-			{
-				if (pyGetSimpleObject(uv.get(), oUv) != 0)
+				if (pyGetSimpleObject(uvItem.get(), uv) != 0)
 				{
 					impl::addMessageHeader("vt");
 					return 1;
 				}
 			}
-			else
-			{
-				oUv = prim::IndexTriangle::null();
-			}
 		}
+		oVertex = vertex;
+		oNormal = normal;
+		oUv = uv;
 		return 0;
 	}
 }

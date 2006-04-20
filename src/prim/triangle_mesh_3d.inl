@@ -57,6 +57,8 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices,
 	for (typename IndexTriangleInputRange::const_iterator i = iTriangles.begin(); i != iTriangles.end(); ++i)
 	{
 		TTriangle triangle;
+		size_t numNormals = 0;
+		size_t numUvs = 0;
 		for (std::size_t k = 0; k < dimension; ++k)
 		{
 			const std::size_t vertex = i->vertices[k];
@@ -76,6 +78,7 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices,
 						<< " >= " << static_cast<unsigned long>(sizeNormals));
 				}
 				triangle.normals[k] = &normals_[normal];
+				++numNormals;
 			}
 			else
 			{
@@ -91,12 +94,23 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices,
 						<< " >= " << static_cast<unsigned long>(sizeUvs));
 				}
 				triangle.uvs[k] = &uvs_.begin()[uv];
+				++numUvs;
 			}
 			else
 			{
 				triangle.uvs[k] = 0;
 			}
 		}
+
+		if (!(numNormals == 0 || numNormals == 3))
+		{
+			LASS_THROW("Each triangle must have either zero or three normals vectors");
+		}
+		if (!(numUvs == 0 || numUvs == 3))
+		{
+			LASS_THROW("Each triangle must have either zero or three uv coordinates");
+		}
+
 		triangles_.push_back(triangle);
 	}
 
