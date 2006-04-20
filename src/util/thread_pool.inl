@@ -43,7 +43,7 @@ ThreadPool<T, C>::ThreadPool(
 		const TConsumer& iConsumerPrototype):
 	threads_(0),
 	mSecsToSleep_(100),
-	numThreads_(std::min<unsigned>(iNumberOfThreads, 1)),
+	numThreads_(std::max<unsigned>(iNumberOfThreads, 1)),
 	maxTasksInQueue_(iMaximumNumberOfTasksInQueue),
 	shutDown_(false)
 {
