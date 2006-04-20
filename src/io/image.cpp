@@ -710,12 +710,20 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 		LASS_THROW("image pixel size '" << iHeader.imagePixelSize << "' not supported.");
 	};
 
+	LASS_ASSERT(cols_ == iHeader.imageWidth);
+	const int xBegin = iHeader.flipHorizontalFlag() ? cols_ - 1 : 0;
+	const int xEnd   = iHeader.flipHorizontalFlag() ? -1 : cols_;
+	const int xDelta = iHeader.flipHorizontalFlag() ? -1 : 1;
+
+	LASS_ASSERT(rows_ == iHeader.imageHeight);
+	const int yBegin = iHeader.flipVerticalFlag() ? 0 : rows_ - 1;
+	const int yEnd   = iHeader.flipVerticalFlag() ? rows_ : -1;
+	const int yDelta = iHeader.flipVerticalFlag() ? 1 : -1;
+
 	iStream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
 		std::ios_base::cur);
-
-	LASS_ASSERT(cols_ == iHeader.imageWidth);
 	std::vector<impl::Bytes4> buffer(cols_);
-	for (unsigned y = rows_; y > 0; --y)
+	for (int y = yBegin; y != yEnd; y += yDelta)
 	{	
 		if (iHeader.imageType == 10)
 		{
@@ -759,15 +767,15 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 
 		// decode scanline
 		//
-		TPixel* scanline = &raster_[(y - 1) * cols_];
-		for (unsigned x = 0; x < cols_; ++x)
+		TPixel* pixel = &raster_[y * cols_];
+		for (int x = xBegin; x != xEnd; x += xDelta)
 		{
 			const impl::Bytes4& bytes = buffer[x];
-			TPixel& pixel = scanline[x];
-			pixel.r = static_cast<TValue>(bytes[2]) * scale;
-			pixel.g = static_cast<TValue>(bytes[1]) * scale;
-			pixel.b = static_cast<TValue>(bytes[0]) * scale;
-			pixel.a = numBytes == 3 ? TNumTraits::one : static_cast<TValue>(bytes[3]) * scale;
+			pixel->r = static_cast<TValue>(bytes[2]) * scale;
+			pixel->g = static_cast<TValue>(bytes[1]) * scale;
+			pixel->b = static_cast<TValue>(bytes[0]) * scale;
+			pixel->a = numBytes == 3 ? TNumTraits::one : static_cast<TValue>(bytes[3]) * scale;
+			++pixel;
 		}
 	}
 
