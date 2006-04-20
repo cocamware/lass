@@ -100,7 +100,10 @@ template <typename T, typename C>
 void ThreadPool<T, C>::clearQueue()
 {
 	CriticalSectionLocker lock(mutex_);
-	tasks_.clear();
+	while (!tasks_.empty())
+	{
+		tasks_.pop();
+	}
 }
 
 
