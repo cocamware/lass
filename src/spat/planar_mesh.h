@@ -42,6 +42,7 @@
 #include "../prim/ray_2d.h"
 #include "../prim/line_2d.h"
 #include "../prim/line_segment_2d.h"
+#include "../prim/triangle_2d.h"
 #include "../prim/side.h"
 #include "../util/callback_r_1.h"
 #include "../util/small_object.h"
