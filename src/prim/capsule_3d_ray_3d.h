@@ -22,3 +22,4 @@ Result intersect(const Capsule3D<T>& iCapsule, const Ray3D<T, NP, PP>& iRay,
 #include "capsule_3d_ray_3d.inl"
 
 #endif
+

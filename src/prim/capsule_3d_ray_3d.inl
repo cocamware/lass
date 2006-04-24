@@ -26,9 +26,9 @@ struct CapsuleRay
 		LineSegment3D<T> l(iCapsule.axis());
 
 		typedef Vector3D<T> TVector;
-		typedef TVector::TValue TValue;
-		typedef TVector::TParam TParam;
-		typedef TVector::TNumTraits TNumTraits;
+		typedef typename TVector::TValue TValue;
+		typedef typename TVector::TParam TParam;
+		typedef typename TVector::TNumTraits TNumTraits;
 		typedef Point3D<T> TPoint;
 		typedef Sphere3D<T> TSphere;
 
@@ -101,7 +101,7 @@ struct CapsuleRay
 			const TValue t2 = (-b + sqrtD)*invA;
 			if(t2 > iMinT)
 			{
-                if(iCapsule.contains(iRay.point(iMinT)))
+			if(iCapsule.contains(iRay.point(iMinT)))
 				{
 					const TValue test2 = l.t(iRay.point(t2));
 					if(test2 >= 0 && test2 <= 1)
@@ -134,7 +134,7 @@ struct CapsuleRay
 						return rOne;
 					}
 					oT = tHeadSphere;
-                    return rOne;
+					return rOne;
 				}
 				if(prim::intersect(tailSphere, iRay, tTailSphere, iMinT) == rOne)
 				{
@@ -161,7 +161,7 @@ struct CapsuleRay
 				if(test >= 0 && test <= 1)
 				{
 					oT = t;
-                    return rOne;
+					return rOne;
 				}
 			}
 		}
@@ -181,3 +181,4 @@ Result intersect(const Capsule3D<T>& iCapsule,
 }
 }
 #endif
+

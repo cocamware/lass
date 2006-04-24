@@ -82,3 +82,4 @@ const bool Capsule3D<T, PP>::contains(const TPoint &iPoint) const
 }
 
 #endif
+

@@ -4,7 +4,8 @@
 #include "test_common.h"
 
 #include "../prim/capsule_3d.h"
-#include "../prim/sphere_3d.h"
+#include "../prim/ray_3d.h"
+#include "../num/random.h"
 
 namespace lass
 {
@@ -56,3 +57,5 @@ void testPrimCapsule3D()
 
 
 #endif
+
+

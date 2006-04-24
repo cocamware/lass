@@ -130,3 +130,4 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Capsule3D<T>& iB);
 #endif
 
 // --- END OF FILE ------------------------------------------------------------------------------
+

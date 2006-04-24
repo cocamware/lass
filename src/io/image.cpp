@@ -711,13 +711,13 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 	};
 
 	LASS_ASSERT(cols_ == iHeader.imageWidth);
-	const int xBegin = iHeader.flipHorizontalFlag() ? cols_ - 1 : 0;
-	const int xEnd   = iHeader.flipHorizontalFlag() ? -1 : cols_;
+	const int xBegin = iHeader.flipHorizontalFlag() ? static_cast<int>(cols_) - 1 : 0;
+	const int xEnd   = iHeader.flipHorizontalFlag() ? -1 : static_cast<int>(cols_);
 	const int xDelta = iHeader.flipHorizontalFlag() ? -1 : 1;
 
 	LASS_ASSERT(rows_ == iHeader.imageHeight);
-	const int yBegin = iHeader.flipVerticalFlag() ? 0 : rows_ - 1;
-	const int yEnd   = iHeader.flipVerticalFlag() ? rows_ : -1;
+	const int yBegin = iHeader.flipVerticalFlag() ? 0 : static_cast<int>(rows_) - 1;
+	const int yEnd   = iHeader.flipVerticalFlag() ? static_cast<int>(rows_) : -1;
 	const int yDelta = iHeader.flipVerticalFlag() ? 1 : -1;
 
 	iStream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
