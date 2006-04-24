@@ -51,6 +51,7 @@
 #include "pyobject_util.h"
 #include "pyobject_macros.h"
 #include "call_traits.h"
+#include "thread.h"
 #include <cstdlib>
 
 typedef PyTypeObject * PyParentObject;// Define the PyParent Object
@@ -138,7 +139,7 @@ namespace lass
 		*  @author Tom De Muer [TDM]
 		*  @see DefaultCounter
 		*/
-		class PyObjectCounter
+		class LASS_DLL PyObjectCounter
 		{
 		public:
 			typedef int TCount;
@@ -148,10 +149,13 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
+				util::CriticalSectionLocker lock(mutex_);
 				Py_INCREF(iPointee);
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
+				LASS_ASSERT(iPointee);
+				util::CriticalSectionLocker lock(mutex_);
 				bool r = iPointee->ob_refcnt <=1;
 				Py_DECREF(iPointee);
 				return r;
@@ -164,6 +168,7 @@ namespace lass
 			void swap(PyObjectCounter& /*iOther*/) {}
 		private:
 			//TCount counterToKeepCompilerFromDoingStupidThings_;
+			static util::CriticalSection mutex_;
 		};
 
 		/** templated "typedef" to a python shared pointer

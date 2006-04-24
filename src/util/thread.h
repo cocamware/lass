@@ -61,9 +61,6 @@ namespace util
 {
 namespace impl
 {
-	class MutexInternal;
-	class CriticalSectionInternal;
-	class ConditionInternal;
 	class ThreadInternal;
 }
 
@@ -118,7 +115,7 @@ public:
 	const bool isLocked() const;
 
 private:
-	impl::MutexInternal *pimpl_;
+	void* pimpl_;
 };
 
 /** CriticalSection.
@@ -145,7 +142,7 @@ public:
 	const bool isLocked() const;
 
 private:
-	impl::CriticalSectionInternal* pimpl_;
+	void* pimpl_;
 };
 
 /** Condition.
@@ -164,7 +161,7 @@ public:
 	void signal();
 	void broadcast();
 private:
-	impl::ConditionInternal* pimpl_;
+	void* pimpl_;
 };
 
 /** A base class for threads.

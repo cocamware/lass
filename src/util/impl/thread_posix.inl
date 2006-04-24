@@ -104,33 +104,10 @@ public:
 	unsigned lockCount_;
 };
 
-
-
 /** @internal
  *  @ingroup Threading
  */
-class CriticalSectionInternal
-{
-public:
-	void lock()
-	{
-		mutex_.lock();
-	}
-	const LockResult tryLock()
-	{
-		return mutex_.tryLock();
-	}
-	void unlock()
-	{
-		mutex_.unlock();
-	}
-	const unsigned lockCount() const 
-	{ 
-		return mutex_.lockCount();
-	}	
-private:
-	MutexInternal mutex_;
-};
+typedef MutexInternal CriticalSectionInternal;
 
 
 

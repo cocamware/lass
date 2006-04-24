@@ -35,6 +35,7 @@ namespace python
 {
 
 PyTypeObject PyObjectPlus::Type = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
+util::CriticalSection PyObjectCounter::mutex_;
 
 std::vector<PyMethodDef> initAbstractMethods()
 {

@@ -48,40 +48,45 @@ Mutex::Mutex(void )
 
 Mutex::~Mutex(void)
 {
-	LASS_ASSERT(pimpl_);
-	LASS_ASSERT(pimpl_->lockCount() == 0);
-	if (pimpl_->lockCount() > 0)
+	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	LASS_ASSERT(pimpl->lockCount() == 0);
+	if (pimpl->lockCount() > 0)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl_->lockCount() << " locks." << std::endl;
+			<< pimpl->lockCount() << " locks." << std::endl;
 	}
-	delete pimpl_;
+	delete pimpl;
 	pimpl_ = 0;
 }
 
 void Mutex::lock()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->lock();
+	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->lock();
 }
 
 const LockResult Mutex::tryLock()
 {
-	LASS_ASSERT(pimpl_);
-	return pimpl_->tryLock();
+	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->tryLock();
 }
 
 void Mutex::unlock()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->unlock();
+	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->unlock();
 }
 
 const bool Mutex::isLocked() const
 {
-	LASS_ASSERT(pimpl_);
-	return pimpl_->lockCount() > 0;
+	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->lockCount() > 0;
 }
 
 
@@ -96,40 +101,45 @@ CriticalSection::CriticalSection(void )
 
 CriticalSection::~CriticalSection(void)
 {
-	LASS_ASSERT(pimpl_);
-	LASS_ASSERT(pimpl_->lockCount() == 0);
-	if (pimpl_->lockCount() > 0)
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	LASS_ASSERT(pimpl->lockCount() == 0);
+	if (pimpl->lockCount() > 0)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl_->lockCount() << " locks." << std::endl;
+			<< pimpl->lockCount() << " locks." << std::endl;
 	}
-	delete pimpl_;
-	pimpl_ = 0;
+	delete pimpl;
+	pimpl = 0;
 }
 
 void CriticalSection::lock()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->lock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->lock();
 }
 
 const LockResult CriticalSection::tryLock()
 {
-	LASS_ASSERT(pimpl_);
-	return pimpl_->tryLock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->tryLock();
 }
 
 void CriticalSection::unlock()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->unlock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->unlock();
 }
 
 const bool CriticalSection::isLocked() const
 {
-	LASS_ASSERT(pimpl_);
-	return pimpl_->lockCount() > 0;
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->lockCount() > 0;
 }
 
 
@@ -143,32 +153,37 @@ Condition::Condition(void)
 
 Condition::~Condition(void)
 {
-	delete pimpl_;
-	pimpl_ = 0;
+	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
+	delete pimpl;
+	pimpl = 0;
 }
 
 void Condition::wait()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->wait();
+	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->wait();
 }
 
 const WaitResult Condition::wait(unsigned long iMilliSeconds)
 {
-	LASS_ASSERT(pimpl_);
-	return pimpl_->wait(iMilliSeconds);
+	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->wait(iMilliSeconds);
 }
 
 void Condition::signal()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->signal();
+	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->signal();
 }
 
 void Condition::broadcast()
 {
-	LASS_ASSERT(pimpl_);
-	pimpl_->broadcast();
+	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->broadcast();
 }
 
 
