@@ -113,7 +113,8 @@ struct CapsuleRay
 					const TSphere sphere(test2<0 ? l.tail():l.head(), iCapsule.radius());
 					TParam tSphere;
 					prim::intersect(sphere, iRay, tSphere, iMinT);
-					prim::intersect(sphere, iRay, tSphere, tSphere);
+					TValue tempMinT = tSphere;
+					prim::intersect(sphere, iRay, tSphere, tempMinT);
 					if(tSphere > iMinT)
 					{
 						oT = tSphere;

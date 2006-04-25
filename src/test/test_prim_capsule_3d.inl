@@ -21,6 +21,10 @@ void testPrimCapsule3D()
 	typedef prim::Vector3D<T> TVector;
 	typedef prim::Ray3D<T> TRay;
 	typedef num::NumTraits<T> TNumTraits;
+	typedef prim::Aabb3D<T> TAabb;
+
+	const T tolerance = 1e-5f;
+	const unsigned n = 1000000;
 
 	const TPoint origin;
 
@@ -32,8 +36,8 @@ void testPrimCapsule3D()
 	LASS_TEST_CHECK_EQUAL(capsule.area(), 0);
 	LASS_TEST_CHECK_EQUAL(capsule.volume(), 0);
 
-	const TPoint tail(2, 5, 1);
-	const TPoint head(16, -1, 3);
+	const TPoint tail(5, 0, 0);
+	const TPoint head(10, 0, 0);
 	const TLineSegment axis(tail, head);
 	const T radius = 2;
 
@@ -44,12 +48,27 @@ void testPrimCapsule3D()
 	LASS_TEST_CHECK_EQUAL(capsule.radius(), radius);
 	LASS_TEST_CHECK_EQUAL(capsule.area(), T(2) * TNumTraits::pi * radius * axis.length() + T(4) * TNumTraits::pi * num::sqr(radius));
 
-	const unsigned n = 10000;
 	num::RandomMT19937 generator;
 
+	TAabb a = aabb(capsule);
+	a.grow(5);
+	TRay testRay;
+	T t;
 	for (unsigned i = 0; i < n; ++i)
 	{
-		
+		testRay = TRay(a.random(generator), TVector::random(generator));
+		if(intersect(capsule, testRay, t) == prim::rOne)
+		{
+            LASS_TEST_CHECK_CLOSE( capsule.axis().squaredDistance(testRay.point(t)), num::sqr(capsule.radius()), tolerance); 
+			LASS_TEST_CHECK(squaredDistance(capsule.axis(), testRay) <= num::sqr(capsule.radius())); 
+		}
+		else
+			if( squaredDistance(capsule.axis(), testRay) <= num::sqr(capsule.radius()))
+			{
+				intersect(capsule, testRay, t);
+				T test = squaredDistance(capsule.axis(), testRay);
+				LASS_TEST_CHECK(squaredDistance(capsule.axis(), testRay) > num::sqr(capsule.radius())); 
+			}
 	}
 }
 }

@@ -177,6 +177,7 @@ Result intersect(const Sphere3D<T>& iSphere,
 #else
 	const Result result = impl::RaySphere<NP>::intersect(iSphere, iRay, oT, iMinT);
 	LASS_ASSERT(oT > iMinT || result == rNone);
+	return result;
 #endif
 }
 
