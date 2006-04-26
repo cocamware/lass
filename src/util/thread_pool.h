@@ -104,8 +104,8 @@ public:
 	~ThreadPool();
 
 	void add(typename util::CallTraits<TTask>::TParam iTask);
+	void joinAll();
 	void clearQueue();
-	void waitUntilEmpty();
 	const bool isEmpty() const;
 
 private:
@@ -127,7 +127,7 @@ private:
 	void startThreads(const TConsumer& iConsumerPrototype);
 	void stopThreads(unsigned iNumAllocatedThreads);
 
-	TTaskQueue tasks_;
+	TTaskQueue waitingTasks_;
 	mutable CriticalSection mutex_;
 	Condition conditionProduction_;
 	Condition conditionConsumer_;
@@ -135,6 +135,7 @@ private:
 	unsigned long mSecsToSleep_;
 	unsigned numThreads_;
 	unsigned maxTasksInQueue_;
+	unsigned busyThreads_;
 	bool shutDown_;
 };
 

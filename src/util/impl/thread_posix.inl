@@ -298,9 +298,8 @@ public:
 		}
 		
 		// nanosleep may return earlier than expected if there's a signal
-		// that should be handled by the calling thread.  I don't really
-		// expect that to happen.  But we'll deal with it with a nice
-		// message. [Bramz]
+		// that should be handled by the calling thread.  If it happens,
+		// sleep again. [Bramz]
 		//
 		timespec timeRemaining;
 		while (true)
@@ -320,11 +319,10 @@ public:
 			}
 			// if we're here, there was only an sleep interruption
 			// go back to sleep.
-			std::cerr << "[LASS RUN MSG] nanosleep in Thread::sleep "
-				<< "interrupted by signal.  Going back to sleep ...\n";
 			timeOut.tv_sec = timeRemaining.tv_sec;
 			timeOut.tv_nsec = timeRemaining.tv_nsec;
 		}
+		LASS_ASSERT(timeRemaining.tv_sec == 0 && timeRemaining.tv_nsec == 0);
 	}
 	
 	static void yield()

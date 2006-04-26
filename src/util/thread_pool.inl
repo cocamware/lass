@@ -45,6 +45,7 @@ ThreadPool<T, C>::ThreadPool(
 	mSecsToSleep_(100),
 	numThreads_(std::max<unsigned>(iNumberOfThreads, 1)),
 	maxTasksInQueue_(iMaximumNumberOfTasksInQueue),
+	busyThreads_(0),
 	shutDown_(false)
 {
 	startThreads(iConsumerPrototype);
@@ -57,12 +58,12 @@ ThreadPool<T, C>::~ThreadPool()
 {
 	try
 	{
-		waitUntilEmpty();
+		joinAll();
 	}
 	catch (...)
 	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: failure while waiting "
-			"for tasks to complete in ~ThreadPool()." << std::endl;
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ~ThreadPool(): "
+			"failure while waiting for tasks to complete." << std::endl;
 	}
 	stopThreads(numThreads_);
 }
@@ -72,44 +73,33 @@ ThreadPool<T, C>::~ThreadPool()
 template <typename T, typename C>
 void ThreadPool<T, C>::add(typename util::CallTraits<TTask>::TParam iTask)
 {
-	bool ok = false;
-	while (!ok)
+	bool queueIsFull = true;
+	while (queueIsFull)
 	{
 		LASS_LOCK(mutex_)
 		{
-			if (tasks_.size() < maxTasksInQueue_ || maxTasksInQueue_ == 0)
+			const unsigned tasksInQueue = waitingTasks_.size() + busyThreads_;
+			if (tasksInQueue < maxTasksInQueue_ || maxTasksInQueue_ == 0)
 			{
-				tasks_.push(iTask);
-				ok = true;
+				queueIsFull = false;
+				waitingTasks_.push(iTask);
 			}
 		}
-		if (ok)
-		{
-			conditionConsumer_.signal();
-		}
-		else
+		if (queueIsFull)
 		{
 			conditionProduction_.wait(mSecsToSleep_);
 		}
+		else
+		{
+			conditionConsumer_.signal();
+		}
 	}
 }
 
 
 
 template <typename T, typename C>
-void ThreadPool<T, C>::clearQueue()
-{
-	CriticalSectionLocker lock(mutex_);
-	while (!tasks_.empty())
-	{
-		tasks_.pop();
-	}
-}
-
-
-
-template <typename T, typename C>
-void ThreadPool<T, C>::waitUntilEmpty()
+void ThreadPool<T, C>::joinAll()
 {
 	while (!isEmpty())
 	{
@@ -120,10 +110,29 @@ void ThreadPool<T, C>::waitUntilEmpty()
 
 
 template <typename T, typename C>
+void ThreadPool<T, C>::clearQueue()
+{
+	LASS_LOCK(mutex_)
+	{
+		while (!waitingTasks_.empty())
+		{
+			waitingTasks_.pop();
+		}
+	}
+	joinAll();
+}
+
+
+
+template <typename T, typename C>
 const bool ThreadPool<T, C>::isEmpty() const
 {
-	CriticalSectionLocker lock(mutex_);
-	return tasks_.empty();
+	bool result;
+	LASS_LOCK(mutex_)
+	{
+		result = waitingTasks_.empty() && busyThreads_ == 0;
+	}
+	return result;
 }
 
 
@@ -132,8 +141,8 @@ const bool ThreadPool<T, C>::isEmpty() const
 
 /** Allocate a bunch of threads and run them.
  *  We can't simply use a std::vector or an C-array, because the threads are neither
- *  copy-constructable or defaut construtable.  So we need to do our own household keeping.
- *  Don't worry folks, I know what I'm doing ;)
+ *  copy-constructable or default constructable.  So we need to do our own housekeeping.
+ *  Don't worry folks, I know what I'm doing ;) [Bramz]
  */
 template <typename T, typename C>
 void ThreadPool<T, C>::startThreads(const TConsumer& iConsumerPrototype)
@@ -164,14 +173,15 @@ void ThreadPool<T, C>::startThreads(const TConsumer& iConsumerPrototype)
 	}
 	catch (...)
 	{
-		stopThreads(i);
+		stopThreads(i); // i == number of threads already started.
 		throw;
 	}
 }
 
 
 
-/** Deallocate the threads and free memory
+/** Deallocate the threads and free memory.
+ *  @throw no exceptions should be throw, nor bubble up from this function ... ever!
  */
 template <typename T, typename C>
 void ThreadPool<T, C>::stopThreads(unsigned iNumAllocatedThreads)
@@ -186,8 +196,8 @@ void ThreadPool<T, C>::stopThreads(unsigned iNumAllocatedThreads)
 	}
 	catch (...)
 	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: failure while setting "
-			"flag while shutting down ThreadPool" << std::endl;
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ThreadPool: "
+			"failure while setting shutdown flag" << std::endl;
 		shutDown_ = true; // try it anyway, it's rather important.
 	}
 
@@ -200,13 +210,13 @@ void ThreadPool<T, C>::stopThreads(unsigned iNumAllocatedThreads)
 		}
 		catch (...)
 		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: failed to join thread "
-				"while shutting down ThreadPool" << std::endl;
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ThreadPool: "
+				"failure while joining thread" << std::endl;
 		}
-		threads_[i].~ConsumerThread();
+		threads_[i].~ConsumerThread(); // shouldn't throw anyway ...
 	}
 
-	free(threads_);
+	free(threads_); // shouldn't throw
 }
 
 
@@ -233,11 +243,12 @@ void ThreadPool<T, C>::ConsumerThread::doRun()
 	{
 		LASS_LOCK(pool_.mutex_)
 		{
-			hasTask = !pool_.tasks_.empty();
+			hasTask = !pool_.waitingTasks_.empty();
 			if (hasTask)
 			{
-				task = pool_.tasks_.front();
-				pool_.tasks_.pop();
+				task = pool_.waitingTasks_.front();
+				pool_.waitingTasks_.pop();
+				++pool_.busyThreads_;
 			}
 			else if (pool_.shutDown_)
 			{
@@ -248,6 +259,10 @@ void ThreadPool<T, C>::ConsumerThread::doRun()
 		{
 			pool_.conditionProduction_.signal();
 			consumer_(task);
+			LASS_LOCK(pool_.mutex_)
+			{
+				--pool_.busyThreads_;
+			}
 		}
 		else
 		{

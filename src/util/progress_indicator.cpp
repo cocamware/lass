@@ -53,10 +53,7 @@ ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConso
  */
 ProgressIndicator::~ProgressIndicator()
 {
-	std::ostringstream stepInfo;
-	stepInfo.copyfmt(std::cout);
-	stepInfo << description_ << ": 100%; CPU " << Clock::humanize(clock_.time()) << whitespace_;
-	std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
+	(*this)(num::NumTraits<double>::one);
 }
 
 /** update progress indicator
@@ -64,8 +61,23 @@ ProgressIndicator::~ProgressIndicator()
  */
 void ProgressIndicator::operator()(double iProgress)
 {
+	if (iProgress >= num::NumTraits<double>::one)
+	{
+		// final message
+		if (current_ != 666)
+		{
+			std::ostringstream stepInfo;
+			stepInfo.copyfmt(std::cout);
+			stepInfo << description_ << ": 100%; CPU " << Clock::humanize(clock_.time()) 
+				<< whitespace_;
+			std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
+			current_ = 666;
+		}
+		return;
+	}
+		
 	iProgress = num::clamp(iProgress, num::NumTraits<double>::zero, num::NumTraits<double>::one);
-	const int procent = static_cast<int>(100 *iProgress);
+	const int procent = static_cast<int>(100 * iProgress);
 
 	const Clock::TTime updateRate = 0.25f;
 

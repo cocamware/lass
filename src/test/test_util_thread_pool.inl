@@ -58,15 +58,14 @@ void testUtilThreadPool()
 	const unsigned maxNumberOfTasksInQueue = 20;
 	const unsigned numberOfTasks = 40;
 
+	util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
+	for (unsigned i = 0; i < numberOfTasks; ++i)
 	{
-		util::ThreadPool<> pool(16, 20);
-		for (unsigned i = 0; i < numberOfTasks; ++i)
-		{
-			pool.add(util::makeCallback(thread_pool::task));
-		}
-		// ~ThreadPool will wait for completion ...
+		pool.add(util::makeCallback(thread_pool::task));
 	}
-
+	pool.joinAll();
+	
+	LASS_TEST_CHECK(pool.isEmpty());
 	LASS_TEST_CHECK_EQUAL(thread_pool::counter, numberOfTasks);	
 }
 
