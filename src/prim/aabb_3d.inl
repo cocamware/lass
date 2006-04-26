@@ -203,7 +203,7 @@ void Aabb3D<T, MMP>::grow(TParam iDistance)
 	max_.y += iDistance;
 	min_.z -= iDistance;
 	max_.z += iDistance;
-	if (max_.y < min_.y)
+	if (max_.x < min_.x || max_.y < min_.y || max_.z < min_.z)
 	{
 		clear();
 	}
@@ -372,7 +372,8 @@ const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& iOther) const
 		doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
-	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y;
+	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y 
+		&& doubleCenterDistance.z <= doubleExtend.z;
 }
 
 
@@ -415,7 +416,8 @@ const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& iOther) const
 		doubleCenterToCenter.position().transform(num::abs);
 
 	const TVector doubleExtend = size() + iOther.size();
-	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y;
+	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y
+		&& doubleCenterDistance.z < doubleExtend.z;
 }
 
 

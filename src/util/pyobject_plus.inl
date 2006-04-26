@@ -320,7 +320,7 @@ inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentati
 /** @internal
  */
 template <typename CppClass>
-void addClassMethod(char* iMethodName, char* iDocumentation, 
+void addClassMethod(const char* iMethodName, const char* iDocumentation, 
 					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
 					ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain) 
 {
@@ -357,7 +357,7 @@ void addClassMethod(char* iMethodName, char* iDocumentation,
 /** @intenal
  */
 template <typename CppClass>
-inline void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
+void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
 		PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
 {
 #if PY_VERSION_HEX >= 0x02030000 // >= 2.3

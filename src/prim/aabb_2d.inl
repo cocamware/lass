@@ -205,7 +205,7 @@ void Aabb2D<T, MMP>::grow(TParam iDistance)
 	max_.x += iDistance;
 	min_.y -= iDistance;
 	max_.y += iDistance;
-	if (max_.y < min_.y)
+	if (max_.x < min_.x || max_.y < min_.y)
 	{
 		clear();
 	}

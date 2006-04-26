@@ -330,11 +330,11 @@ namespace lass
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 
 			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
-			template <typename CppClass> void addClassMethod(char* iMethodName, char* iDocumentation, 
+			template <typename CppClass> void addClassMethod(const char* iMethodName, const char* iDocumentation, 
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
 				ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain);
-			template <typename CppClass> void addClassStaticMethod(char* iMethodName, char* iDocumentation,
-				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+			template <typename CppClass> void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
+					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);
 			template <typename InnerCppClass> void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
 				const char* iInnerClassName, const char* iDocumentation);
