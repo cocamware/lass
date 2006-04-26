@@ -1,6 +1,5 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_CAPSULE_3D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_CAPSULE_3D_INL
-#pragma once
 
 #include "prim_common.h"
 #include "aabb_3d_capsule_3d.h"

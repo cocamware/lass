@@ -23,7 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#pragma once
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRIANGLE_3D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_TRIANGLE_3D_H
 

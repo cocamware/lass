@@ -42,7 +42,6 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PARAMETER_POLICY_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PARAMETER_POLICY_H
-#pragma once
 
 #include "prim_common.h"
 #include "../util/enforcer.h"

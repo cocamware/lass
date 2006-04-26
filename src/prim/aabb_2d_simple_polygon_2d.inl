@@ -25,7 +25,6 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_SIMPLE_POLYGON_2D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_SIMPLE_POLYGON_2D_INL
-#pragma once
 
 #include "prim_common.h"
 #include "aabb_2d_simple_polygon_2d.h"

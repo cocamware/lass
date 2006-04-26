@@ -25,7 +25,6 @@
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_TRANSFORMATION_2D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_TRANSFORMATION_2D_INL
-#pragma once
 
 #include "prim_common.h"
 #include "aabb_2d_transformation_2d.h"
