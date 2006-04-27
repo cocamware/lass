@@ -36,8 +36,8 @@ void testPrimCapsule3D()
 	LASS_TEST_CHECK_EQUAL(capsule.area(), 0);
 	LASS_TEST_CHECK_EQUAL(capsule.volume(), 0);
 
-	const TPoint tail(5, 0, 0);
-	const TPoint head(10, 0, 0);
+	const TPoint tail(-4, 0, 6);
+	const TPoint head(10, 2, 1);
 	const TLineSegment axis(tail, head);
 	const T radius = 2;
 
@@ -51,7 +51,7 @@ void testPrimCapsule3D()
 	num::RandomMT19937 generator;
 
 	TAabb a = aabb(capsule);
-	a.grow(5);
+	a.grow(radius);
 	TRay testRay;
 	T t;
 	for (unsigned i = 0; i < n; ++i)
@@ -63,12 +63,9 @@ void testPrimCapsule3D()
 			LASS_TEST_CHECK(squaredDistance(capsule.axis(), testRay) <= num::sqr(capsule.radius())); 
 		}
 		else
-			if( squaredDistance(capsule.axis(), testRay) <= num::sqr(capsule.radius()))
-			{
-				intersect(capsule, testRay, t);
-				T test = squaredDistance(capsule.axis(), testRay);
-				LASS_TEST_CHECK(squaredDistance(capsule.axis(), testRay) > num::sqr(capsule.radius())); 
-			}
+		{
+			LASS_TEST_CHECK(squaredDistance(capsule.axis(), testRay) > num::sqr(capsule.radius())); 
+		}
 	}
 }
 }
