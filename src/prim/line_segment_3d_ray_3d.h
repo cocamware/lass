@@ -55,3 +55,5 @@ Point3D<T> closestPoint(const LineSegment3D<T, PP1>& iLineSegment,
 #include "line_segment_3d_ray_3d.inl"
 
 #endif
+
+// EOF

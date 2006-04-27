@@ -46,7 +46,7 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
  				  const Ray3D<T, NP2, PP2>& iRay, 
 				  const T& iMinT) 
 { 
-	typedef LineSegment3D<T, PP1>::TValue TValue;
+	typedef typename LineSegment3D<T, PP1>::TValue TValue;
 	typedef Point3D<TValue> TPoint;
 	typedef Vector3D<TValue> TVector;
 
@@ -56,7 +56,7 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 	const TVector E = iLineSegment.vector();
 
 	TVector SR = R - S1;
-    const TVector N = cross(D,E);
+	const TVector N = cross(D,E);
 	if(N.squaredNorm() == 0)
 		return squaredDistance(S1, R);
 	const TPoint S = S1 + N.project(SR);
@@ -122,3 +122,5 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 
 
 #endif
+
+// EOF

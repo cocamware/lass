@@ -166,8 +166,8 @@ Parallelogram3D<T>::point(TParam iU, TParam iV) const
 
 
 
-template <typename T>
-const typename Parallelogram3D<T>::TPoint inline
+template <typename T> inline
+const typename Parallelogram3D<T>::TPoint
 Parallelogram3D<T>::point(const TUV& iUv) const
 {
 	return point(iUv.x, iUv.y);

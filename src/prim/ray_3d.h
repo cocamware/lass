@@ -170,3 +170,5 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB)
 #endif
 
 #endif
+
+// EOF

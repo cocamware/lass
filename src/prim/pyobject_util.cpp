@@ -127,44 +127,31 @@ namespace impl
 {
 	PyObject* buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv)
 	{
-		typedef PyObjectPtr<PyObject>::Type TPyPtr;
+		typedef PyObjectPtr<PyObject>::Type tuple;
 
 		LASS_ASSERT(iVertex != prim::IndexTriangle::null());
-		if (iNormal == prim::IndexTriangle::null() && iUv == prim::IndexTriangle::null())
-		{
-			TPyPtr tuple(PyTuple_New(1));
-			if (!tuple) return 0;
-			if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
-				static_cast<unsigned long>(iVertex))) != 0) return 0;
-			return PyPlus_INCREF(tuple.get());
-		}
-
-		if (iUv == prim::IndexTriangle::null())
-		{
-			TPyPtr tuple(PyTuple_New(2));
-			if (!tuple) return 0;
-			if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
-				static_cast<unsigned long>(iVertex))) != 0) return 0;
-			if (PyTuple_SetItem(tuple.get(), 1, pyBuildSimpleObject(
-				static_cast<unsigned long>(iNormal))) != 0) return 0;
-			return PyPlus_INCREF(tuple.get());
-		}
-
-		TPyPtr tuple(PyTuple_New(3));
-		if (!tuple) return 0;
-		if (PyTuple_SetItem(tuple.get(), 0, pyBuildSimpleObject(
-			static_cast<unsigned long>(iVertex))) != 0) return 0;
 		if (iNormal == prim::IndexTriangle::null())
 		{
-			if (PyTuple_SetItem(tuple.get(), 1, PyPlus_INCREF(Py_None)) != 0) return 0;
+			if (iUv == prim::IndexTriangle::null())
+			{
+				tuple = util::makeTuple(iVertex);
+			}
+			else
+			{
+				tuple = util::makeTuple(iVertex, Py_None, iUv);
+			}
 		}
 		else
 		{
-			if (PyTuple_SetItem(tuple.get(), 1, pyBuildSimpleObject(
-				static_cast<unsigned long>(iNormal))) != 0) return 0;
+			if (iUv == prim::IndexTriangle::null())
+			{
+				tuple = util::makeTuple(iVertex, iNormal);
+			}
+			else
+			{
+				tuple = util::makeTuple(iVertex, iNormal, iUv);
+			}
 		}
-		if (PyTuple_SetItem(tuple.get(), 2, pyBuildSimpleObject(
-			static_cast<unsigned long>(iUv))) != 0) return 0;
 		return PyPlus_INCREF(tuple.get());
 	}
 

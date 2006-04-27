@@ -242,7 +242,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 			}
 		}
 	}
-	stde::for_each_r(vertexNormals, std::mem_fun_ref(TVector::normalize));
+	stde::for_each_r(vertexNormals, std::mem_fun_ref(&TVector::normalize));
 
 	// 2nd pass: determine wether to use vertex or face normal
 	//

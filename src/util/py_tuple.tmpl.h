@@ -33,29 +33,10 @@ namespace lass
 namespace python
 {
 
-/*
-namespace impl
-{
-
-template <typename T> 
-struct Converter
-{
-	static PyObject* toPython(const T& iT)
-	{
-		return pyBuildSimpleObject(iT);
-	}
-	static int fromPython(PyObject* iObject, T& iT)
-	{
-		return pyGetSimpleObject(iObject, iT);
-	}
-};
-
-}
-*/
-
 inline const PyObjectPtr<PyObject>::Type makeTuple()
 {
-	PyObjectPtr<PyObject>::Type tuple(PyTuple_New(0));
+	typedef PyObjectPtr<PyObject>::Type TPyPtr;
+	TPyPtr tuple(PyTuple_New(0));
 	return tuple;
 }
 
@@ -63,8 +44,9 @@ $[
 template <$(typename P$x)$>
 const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
 {
-	PyObjectPtr<PyObject>::Type tuple(PyTuple_New($x));
-	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyBuildSimpleObject(iP$x)) != 0) return PyObjectPtr<PyObject>::Type();
+	typedef PyObjectPtr<PyObject>::Type TPyPtr;
+	TPyPtr tuple(PyTuple_New($x));
+	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyBuildSimpleObject(iP$x)) != 0) return TPyPtr();
 	)$
 	return tuple;
 }
