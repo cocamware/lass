@@ -242,7 +242,7 @@ const typename Plane3DCartesian<T, NP>::TValue
 Plane3DCartesian<T, NP>::equation(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
 	const TValue a = dot(iPoint.position(), normal_);
-	return almostEqual(a, -d, iRelativeTolerance) ? TNumTraits::zero : (a + d_);
+	return num::almostEqual(a, -d_, iRelativeTolerance) ? TNumTraits::zero : (a + d_);
 }
 
 
