@@ -127,32 +127,32 @@ namespace impl
 {
 	PyObject* buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv)
 	{
-		typedef PyObjectPtr<PyObject>::Type tuple;
-
+		python::PyObjectPtr<PyObject>::Type tuple;
+		
 		LASS_ASSERT(iVertex != prim::IndexTriangle::null());
 		if (iNormal == prim::IndexTriangle::null())
 		{
 			if (iUv == prim::IndexTriangle::null())
 			{
-				tuple = util::makeTuple(iVertex);
+				tuple = python::makeTuple(iVertex);
 			}
 			else
 			{
-				tuple = util::makeTuple(iVertex, Py_None, iUv);
+				tuple = python::makeTuple(iVertex, Py_None, iUv);
 			}
 		}
 		else
 		{
 			if (iUv == prim::IndexTriangle::null())
 			{
-				tuple = util::makeTuple(iVertex, iNormal);
+				tuple = python::makeTuple(iVertex, iNormal);
 			}
 			else
 			{
-				tuple = util::makeTuple(iVertex, iNormal, iUv);
+				tuple = python::makeTuple(iVertex, iNormal, iUv);
 			}
 		}
-		return PyPlus_INCREF(tuple.get());
+		return python::PyPlus_INCREF(tuple.get());
 	}
 
 	int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
