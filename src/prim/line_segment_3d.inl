@@ -141,6 +141,25 @@ LineSegment3D<T, PP>::length() const
 	const TVector v = vector();
 	return v.norm();
 }
+/** t is parameter of closests point and return squared distance of a point to the line segment. 
+*/
+template <typename T, class PP>
+const typename LineSegment3D<T, PP>::TValue
+LineSegment3D<T, PP>::closestsPoint(const TPoint &iPoint, T &oT) const
+{
+	oT = this->t(iPoint);
+	if(oT < 0)
+	{
+		oT = 0.0;
+		return (iPoint - tail_).squaredNorm();
+	}
+	if(oT > 1)
+	{
+		oT = 1.0;
+		return (iPoint - head_).squaredNorm();
+	}
+	return (iPoint - this->point(oT)).squaredNorm();
+}
 
 /** Return squared distance of a point to line segment.
  */

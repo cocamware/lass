@@ -117,6 +117,105 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 	
 	return iLineSegment.squaredDistance(S1);
 }
+
+template<typename T, class PP1, class NP2, class PP2>
+T closestsPoints(const LineSegment3D<T, PP1>& iLineSegment,
+						  const Ray3D<T, NP2, PP2>& iRay,
+						  T &tSeg,
+						  T &tRay,
+						  const T& iMinT)
+{
+	typedef typename LineSegment3D<T, PP1>::TValue TValue;
+	typedef Point3D<TValue> TPoint;
+	typedef Vector3D<TValue> TVector;
+
+	const TPoint S1 = iRay.point(iMinT);
+	const TVector D = iRay.direction();
+	const TPoint R = iLineSegment.tail();
+	const TVector E = iLineSegment.vector();
+
+	TVector SR = R - S1;
+	const TVector N = cross(D,E);
+	if(N.squaredNorm() == 0)
+		return squaredDistance(S1, R);
+	const TPoint S = S1 + N.project(SR);
+	SR = R - S;
+
+	// cramer
+	if(num::abs(N.z) > num::abs(N.x) &&
+	   num::abs(N.z) > num::abs(N.y))
+	{
+		tRay = (SR.x * E.y - SR.y * E.x) / N.z;
+		tSeg = (SR.x * D.y - SR.y * D.x) / N.z;
+	}
+	else if(num::abs(N.x) > num::abs(N.y))
+	{
+		tRay = (SR.y * E.z - SR.z * E.y) / N.x;
+		tSeg = (SR.y * D.z - SR.z * D.y) / N.x;
+	}else
+	{
+		tRay = (SR.z * E.x - SR.x * E.z) / N.y;
+		tSeg = (SR.z * D.x - SR.x * D.z) / N.y;	
+	}
+
+	if(tSeg > 1)
+	{
+		TValue tHead = iRay.t(iLineSegment.head());
+		if(tHead > iMinT)
+		{
+			tRay = tHead;
+			tSeg = 1.0;
+			return squaredDistance(iRay.point(tHead), iLineSegment.head());
+		}
+		else
+		{
+			tSeg = iLineSegment.t(S1);
+			tRay = 0.0;
+			if(tSeg < 0)
+			{
+				tSeg = 0.0;
+                return squaredDistance(S1, iLineSegment.tail());
+			}
+			if(tSeg > 1)
+			{
+				tSeg = 1.0;
+				return squaredDistance(S1, iLineSegment.head());
+			}
+			return squaredDistance(S1, iLineSegment.point(tSeg));
+		}
+	}
+	if(tSeg < 0)
+	{
+		TValue tTail = iRay.t(R);
+		if(tTail > iMinT)
+		{
+			tRay = tTail;
+			return squaredDistance(iRay.point(tTail), R);
+		}
+		else
+		{
+			tSeg = iLineSegment.t(S1);
+			tRay = 0.0;
+			if(tSeg < 0)
+			{
+				tSeg = 0.0;
+                return squaredDistance(S1, iLineSegment.tail());
+			}
+			if(tSeg > 1)
+			{
+				tSeg = 1.0;
+				return squaredDistance(S1, iLineSegment.head());
+			}
+			return squaredDistance(S1, iLineSegment.point(tSeg));
+		}
+	}
+
+	if(tRay > iMinT)
+        return squaredDistance(iRay.point(tRay), iLineSegment.point(tSeg));
+	
+	tRay = 0.0;
+	return iLineSegment.closestsPoint(S1, tSeg);
+}
 }
 }
 

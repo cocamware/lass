@@ -95,6 +95,8 @@ public:
 	const TValue distance(const TPoint& iPoint) const;
 	const TValue squaredDistance(const TPoint& iPoint) const;
 
+	const TValue closestsPoint(const TPoint &iPoint, T &oT) const;
+
 
 private:
 

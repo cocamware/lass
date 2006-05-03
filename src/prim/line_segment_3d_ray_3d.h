@@ -46,9 +46,11 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 				  const T& iMinT = T());
 
 template<typename T, class PP1, class NP2, class PP2>
-Point3D<T> closestPoint(const LineSegment3D<T, PP1>& iLineSegment,
-						const Ray3D<T, NP2, PP2>& iRay,
-						const T& iMinT = T());
+T closestsPoints(const LineSegment3D<T, PP1>& iLineSegment,
+						  const Ray3D<T, NP2, PP2>& iRay,
+						  T &tCilinder,
+						  T &tRay,
+						  const T& iMinT = T());
 }
 }
 
