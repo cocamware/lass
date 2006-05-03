@@ -149,13 +149,13 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
-				util::CriticalSectionLocker lock(mutex_);
+				//util::CriticalSectionLocker lock(mutex_);
 				Py_INCREF(iPointee);
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				LASS_ASSERT(iPointee);
-				util::CriticalSectionLocker lock(mutex_);
+				//util::CriticalSectionLocker lock(mutex_);
 				bool r = iPointee->ob_refcnt <=1;
 				Py_DECREF(iPointee);
 				return r;

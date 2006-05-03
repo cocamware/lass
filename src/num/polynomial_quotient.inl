@@ -137,9 +137,9 @@ PolynomialQuotient<T>::numerator() const
 
 template <typename T> inline
 const typename PolynomialQuotient<T>::TPolynomial& 
-PolynomialQuotient<T>::denumerator() const
+PolynomialQuotient<T>::denominator() const
 {
-	return denumerator_;
+	return denominator_;
 }
 
 
@@ -288,7 +288,7 @@ PolynomialQuotient<T> PolynomialQuotient<T>::pow(unsigned iPower) const
 
 
 template <typename T>
-PolynomialQuotient<T> PolynomialQuotient<T>::x() const
+PolynomialQuotient<T> PolynomialQuotient<T>::x()
 {
 	static TValue coefficients[2] = { 0, 1 };
 	static PolynomialQuotient result(coefficients, coefficients + 2);
@@ -346,7 +346,7 @@ PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const Polynomia
 
 
 template <typename T> inline
-PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB)
+PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB)
 {
 	PolynomialQuotient<T> result(iA);
 	result /= iB;

@@ -1,4 +1,4 @@
-# Doxyfile 1.4.0
+# Doxyfile 1.4.3
 
 #---------------------------------------------------------------------------
 # Project related configuration options
@@ -23,6 +23,7 @@ MULTILINE_CPP_IS_BRIEF = NO
 DETAILS_AT_TOP         = YES
 INHERIT_DOCS           = YES
 DISTRIBUTE_GROUP_DOC   = YES
+SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 4
 ALIASES                = 
 OPTIMIZE_OUTPUT_FOR_C  = YES
@@ -99,6 +100,7 @@ INLINE_SOURCES         = NO
 STRIP_CODE_COMMENTS    = NO
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
+USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
 #---------------------------------------------------------------------------
 # configuration options related to the alphabetical class index
@@ -209,7 +211,7 @@ UML_LOOK               = NO
 TEMPLATE_RELATIONS     = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
-CALL_GRAPH             = YES
+CALL_GRAPH             = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = png

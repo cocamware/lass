@@ -72,7 +72,7 @@ public:
 	template <typename InputIterator> PolynomialQuotient(InputIterator iNomBegin, InputIterator iNomEnd,
 		InputIterator iDenBegin, InputIterator iDenEnd);
 
-	const TPolynomial& numerator_() const;
+	const TPolynomial& numerator() const;
 	const TPolynomial& denominator() const;
 
 	const TValue operator()(TParam iX) const;
