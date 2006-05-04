@@ -47,6 +47,56 @@ bool CountCalls( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* /*e*/)
 	++countCalls;
 	return true;
 }
+/*
+
+class ColorEdges
+{
+	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
+public:
+	lass::io::MatlabOStream stream;
+
+	ColorEdges() {}
+	virtual ~ColorEdges() {}
+
+	bool toMatlabOStream(TPlanarMesh::TEdge* e)
+	{
+		int* edgeH= TPlanarMesh::edgeHandle(e);
+		if (edgeH)
+		{
+			switch (*edgeH)
+			{
+			case 0:
+				stream.setColor(lass::io::mcBlack);
+				break;
+			case 1:
+				stream.setColor(lass::io::mcBlue);
+				break;
+			case 2:
+				stream.setColor(lass::io::mcGreen);
+				break;
+			case 3:
+				stream.setColor(lass::io::mcRed);
+				break;
+			case 4:
+				stream.setColor(lass::io::mcCyan);
+				break;
+			case 5:
+				stream.setColor(lass::io::mcMagenta);
+				break;
+			default:
+				stream.setColor(lass::io::mcYellow);
+			}	
+		}
+		else
+		{
+			stream.setColor(lass::io::mcYellow);
+		}
+		stream << TPlanarMesh::TLineSegment2D(TPlanarMesh::org(e), TPlanarMesh::dest(e) );
+		return true;
+	}
+};
+
+*/
 
 class ColorEdges
 {
@@ -148,6 +198,7 @@ public:
 		return true;
 	}
 };
+
 
 bool ComputeVoronoiArea( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* e)
 {
@@ -384,6 +435,74 @@ void doTestPlanarMesh()
 	//LASS_COUT << "Number of faces = " << countCalls << "\n";
 	//countFaces = countCalls;
 
+	//testIo.open( "testPlanarMeshIO_nonDelaunay.m" );
+	//testIo << testMesh;
+	//testIo.close();
+
+	//testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
+	//for (int i=0;i<int(randomPoints.size());++i)
+	//	testMesh2.insertSite( randomPoints[i], true );
+
+	//testIo2.open( "testPlanarMeshIO_Delaunay.m" );
+	//testIo2 << testMesh2;
+	//testIo2.close();
+
+	//testMesh2.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
+	//testMesh2.makeMaximalConvexPolygon();
+	//testMesh2.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
+	//testIo2.open( "testPlanarMeshIO_convex.m" );
+	//testIo2 << testMesh2;
+	//testIo2.close();
+
+	//randomPointsLong.clear();
+	//for (long x=10;x<91;x+=10)
+	//	for (long y=10;y<91;y+=10)
+	//	{
+	//		randomPointsLong.push_back( TPoint2DLong(x,y ) );
+	//	}
+
+	////std::random_shuffle( randomPointsLong.begin(), randomPointsLong.end() );
+	//for (int i=0;i<int(randomPointsLong.size());++i)
+	//{
+	//	testMesh3.insertSite( randomPointsLong[i], true );
+	//}
+
+
+	//testIo2.open( "testPlanarMeshIO_sq_Delaunay.m" );
+	//testIo2 << testMesh3;
+	//testIo2.close();
+	//testMesh2.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
+
+	//testMesh3.makeMaximalConvexPolygon();
+	//testIo2.open( "testPlanarMeshIO_sq_convex.m" );
+	//testIo2 << testMesh3;
+	//testIo2.close();
+
+	//int countEdges = 0;
+	//int countVertices = 0;
+	//int countFaces = 0;
+
+	//countCalls = 0;
+	//testMesh3.forAllPrimaryUndirectedEdges( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
+	//LASS_COUT << "Number of edges = " << countCalls << "\n";
+	//countEdges = countCalls;
+
+	//countCalls = 0;
+	//testMesh3.forAllVertices( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
+	//LASS_COUT << "Number of vertices = " << countCalls << "\n";
+	//countVertices = countCalls;
+
+	//countCalls = 0;
+	//testMesh3.forAllFaces( TPlanarMeshLong::TEdgeCallback( CountCallsLong )  );
+	//LASS_COUT << "Number of faces = " << countCalls << "\n";
+	//countFaces = countCalls;
+
+	///* check euler relation */
+	//LASS_TEST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
+	
 	///* check euler relation */
 	//LASS_TEST_CHECK_EQUAL( countFaces - countEdges + countVertices, 2 );
 	
@@ -396,10 +515,43 @@ void doTestPlanarMesh()
 		testMesh4.insertSite( randomPoints[i], true);
 	*/
 	/* test insertion of constrained edges */
+	/*
 	testIo.open( "testPlanarMeshIO_constrained_b4.m" );
 	testIo << testMesh4;
 	testIo.close();
 
+	int intHandles[10];
+	for (int i=0;i<10;++i)
+	{
+		intHandles[i] = i+1;
+	}
+
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,10.0), TPoint2D(60.0,10.0) ),&intHandles[0],&intHandles[0] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(60.0,10.0), TPoint2D(60.0,60.0) ),&intHandles[0],&intHandles[0] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(60.0,60.0), TPoint2D(10.0,60.0) ),&intHandles[0],&intHandles[0] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,60.0), TPoint2D(10.0,10.0) ),&intHandles[0],&intHandles[0] );
+
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0,20.0), TPoint2D(65.0,20.0) ),&intHandles[1],&intHandles[1] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,30.0), TPoint2D(60.0,30.0) ),&intHandles[2],&intHandles[2] );
+
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,20.0), TPoint2D(15.0,25.0) ),&intHandles[3],&intHandles[3] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(8.0,18.0), TPoint2D(35.0,40.0) ),&intHandles[3],&intHandles[3] );
+	testMesh4.insertSite( TPoint2D(10.0,20.0) );
+
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(60.0,20.0) ),&intHandles[4],&intHandles[4] );
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0,60.0) ),&intHandles[5],&intHandles[5] );
+	for (int i=0;i<10;++i)
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),&intHandles[i],&intHandles[i] );
+
+	TSimplePolygon testPoly;
+	testPoly.add( TPoint2D(75,75) );
+	testPoly.add( TPoint2D(85,75) );
+	testPoly.add( TPoint2D(85,85) );
+	testPoly.add( TPoint2D(75,85) );
+	testMesh4.insertPolygon( testPoly, &intHandles[0],&intHandles[0],&intHandles[1] );
+
+	*/
+	//testMesh4.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 	int intHandles[10];
 	for (int i=0;i<10;++i)
 	{
@@ -411,6 +563,8 @@ void doTestPlanarMesh()
 	testPoly1.add( TPoint2D(60,10) );
 	testPoly1.add( TPoint2D(60,60) );
 	testPoly1.add( TPoint2D(10,60) );
+
+
 #pragma LASS_FIXME("NULL forced to bool ... true or false? [Bramz]")
 	testMesh4.insertPolygon( testPoly1, &intHandles[0],&intHandles[0],NULL );
 	/*testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,10.0), TPoint2D(60.0,10.0) ),&intHandles[0],&intHandles[0] );
@@ -446,9 +600,15 @@ void doTestPlanarMesh()
 
 	ColorEdges colorEdges;
 	colorEdges.stream.open("testPlanarMesh_colored.m");
-	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
+	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, ColorEdges::toMatlabOStream )  );
 	colorEdges.stream.close();
 
+	/*
+	ColorEdges colorEdges;
+	colorEdges.stream.open("testPlanarMesh_colored.m");
+	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
+	colorEdges.stream.close();
+	*/
     ColorTriangles colorTriangles;
 	colorTriangles.stream.open("testPlanarMesh_coloredFaces.m");
 	testMesh4.forAllDualEdges( lass::util::makeCallback( &colorTriangles, &ColorTriangles::toMatlabOStream )  );

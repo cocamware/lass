@@ -88,6 +88,7 @@ namespace spat
 			EdgeHandle*     edgeHandle_;
 			FaceHandle*     faceHandle_;
 			bool            mark_;
+#pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits");
 			std::vector<bool>   internalMark_;
 
 			ProxyHandle() : point_(NULL), pointHandle_(NULL), edgeHandle_(NULL), faceHandle_(NULL), mark_(false) { internalMark_ = std::vector<bool>(PLANAR_MESH_STACK_DEPTH,false); }
