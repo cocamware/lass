@@ -50,7 +50,7 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 	typedef Point3D<TValue> TPoint;
 	typedef Vector3D<TValue> TVector;
 
-	const TPoint S1 = iRay.point(iMinT);
+	const TPoint S1 = iRay.support();
 	const TVector D = iRay.direction();
 	const TPoint R = iLineSegment.tail();
 	const TVector E = iLineSegment.vector();
@@ -58,7 +58,7 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 	TVector SR = R - S1;
 	const TVector N = cross(D,E);
 	if(N.squaredNorm() == 0)
-		return squaredDistance(S1, R);
+		return squaredDistance(iRay.project(R), R);
 	const TPoint S = S1 + N.project(SR);
 	SR = R - S;
 
@@ -129,7 +129,7 @@ T closestsPoints(const LineSegment3D<T, PP1>& iLineSegment,
 	typedef Point3D<TValue> TPoint;
 	typedef Vector3D<TValue> TVector;
 
-	const TPoint S1 = iRay.point(iMinT);
+	const TPoint S1 = iRay.support();
 	const TVector D = iRay.direction();
 	const TPoint R = iLineSegment.tail();
 	const TVector E = iLineSegment.vector();
@@ -137,7 +137,7 @@ T closestsPoints(const LineSegment3D<T, PP1>& iLineSegment,
 	TVector SR = R - S1;
 	const TVector N = cross(D,E);
 	if(N.squaredNorm() == 0)
-		return squaredDistance(S1, R);
+		return squaredDistance(iRay.project(R), R);
 	const TPoint S = S1 + N.project(SR);
 	SR = R - S;
 
