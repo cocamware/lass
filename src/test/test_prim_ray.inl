@@ -104,6 +104,14 @@ void testPrimRay2D()
 	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() + ray.direction()), T(1), epsilon);
 	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
 	LASS_TEST_CHECK_CLOSE(ray.t(ray.support() - ray.direction()), T(-1), epsilon);
+
+	support = TPoint(0, 0);
+	direction = TVector(1, 0);
+	ray = TRay(support, direction);
+
+	LASS_TEST_CHECK_EQUAL( ray.classify(TPoint(0,1)), lass::prim::sLeft );
+	LASS_TEST_CHECK_EQUAL( ray.classify(TPoint(0,-1)), lass::prim::sRight );
+	LASS_TEST_CHECK_EQUAL( ray.classify(TPoint(0,0)), lass::prim::sSurface );
 }
 
 template

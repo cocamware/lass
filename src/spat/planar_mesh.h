@@ -88,7 +88,7 @@ namespace spat
 			EdgeHandle*     edgeHandle_;
 			FaceHandle*     faceHandle_;
 			bool            mark_;
-#pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits");
+#pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits")
 			std::vector<bool>   internalMark_;
 
 			ProxyHandle() : point_(NULL), pointHandle_(NULL), edgeHandle_(NULL), faceHandle_(NULL), mark_(false) { internalMark_ = std::vector<bool>(PLANAR_MESH_STACK_DEPTH,false); }
@@ -139,7 +139,9 @@ namespace spat
 		void    forAllVertices( const TEdgeCallback& iCallback );
 		void    forAllFaces( const TEdgeCallback& iCallback );
 
-		TEdge*  locate( const TPoint2D& iPoint ) const;
+		TEdge*  locate( const TPoint2D& iPoint ) const;		/**< locate an edge of the triangle containing iPoint */
+		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
+		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator& oCrossedEdges ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true);
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true);
@@ -721,17 +723,23 @@ namespace spat
 
 				if ((d1<d2) && (d1<d3))
 				{
+					lastLocateEdge_ = e;
 					return e;
 				}
 				if ((d2<d3) && (d2<d1))
 				{
+					lastLocateEdge_ = e->lNext();
 					return e->lNext();
 				}
+				lastLocateEdge_ = e->lPrev();
 				return e->lPrev();
 			}
 
 			if (onEdge(iPoint,e))
+			{
+				lastLocateEdge_ = e->sym();
 				return e->sym();
+			}
 
 			if (rightOf(iPoint, e->oPrev()))
 			{
@@ -746,6 +754,58 @@ namespace spat
 		}
 		//throw std::runtime_error("could not locate edge for point, probably point on edge which is not supported yet!");
 		return bruteForceLocate(iPoint);
+	}
+
+	/** method is polygon-safe */
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::shoot( const TRay2D& iRay ) const
+	{
+		TEdge* locateEdge = locate(iRay.support());
+		TEdge* startEdge = locateEdge;
+		if (!startEdge)
+			return NULL;
+		
+		do	// if we are unlucky enough the starting point is a vertex in the mesh and all hell breaks loose!
+		{
+			TEdge* e = startEdge;
+			lass::prim::Side lastSide = iRay.classify(org(e));
+			do
+			{
+				lass::prim::Side currentSide = iRay.classify(dest(e));
+				if (lastSide==lass::prim::sRight && lastSide!=currentSide)
+					return e;
+				lastSide = currentSide;
+				e = e->lNext();
+			}
+			while (e!=startEdge);
+			startEdge = startEdge->oNext();
+		} while (startEdge!=locateEdge);
+
+		return NULL;	// we give up
+	}
+
+	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
+	TEMPLATE_DEF
+	template <typename OutputIterator> 
+	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walk( const TLineSegment2D& iSegment, OutputIterator& oCrossedEdges ) const
+	{
+		TEdge* e = shoot(TRay2D(iSegment.tail(),iSegment.vector()));
+		if (!e)
+		{
+			LASS_THROW("Could not shoot initial ray in walk");
+		}
+		TLine2D lineTester(iSegment.tail(),iSegment.head());
+		
+		while (!leftOf(iSegment.head(),e))
+		{
+			(*oCrossedEdges++) = e;
+			TEdge* ne1 = e->sym()->lNext();
+			if (lineTester.classify(dest(ne1))==lass::prim::sRight)
+				e = ne1->lNext();
+			else
+				e = ne1;
+		}
+		return oCrossedEdges;
 	}
 
 

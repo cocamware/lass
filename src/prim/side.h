@@ -62,7 +62,9 @@ enum Side
 {
 	sInvalid    = 0x00,         /**< 0 is an invalid value */
 	sFront      = 0x01,         /**< in front of the surface */
+	sLeft		= 0x01,			/**< alias for sFront in 2D */
 	sBack       = 0x02,         /**< in back of the surface */
+	sRight		= 0x02,			/**< alias for sBack in 2D */
 	sInside     = 0x04,         /**< inside the surface */
 	sOutside    = 0x08,         /**< outside the surface */
 	sSurface    = 0x10          /**< right on the surface */

@@ -613,6 +613,21 @@ void doTestPlanarMesh()
 	colorTriangles.stream.open("testPlanarMesh_coloredFaces.m");
 	testMesh4.forAllDualEdges( lass::util::makeCallback( &colorTriangles, &ColorTriangles::toMatlabOStream )  );
 	colorTriangles.stream.close();
+
+	{
+		ColorEdges colorEdges;
+		colorEdges.stream.open("testPlanarMesh_coloredWalk.m");
+		std::vector< TPlanarMesh::TEdge* > crossedEdges;
+		//TPlanarMesh::TLineSegment2D lineSegment(TPlanarMesh::TPoint2D(10,10), TPlanarMesh::TPoint2D(88,70) );
+		TPlanarMesh::TLineSegment2D lineSegment(TPlanarMesh::TPoint2D(30,40), TPlanarMesh::TPoint2D(88,40) );
+		testMesh4.walk( lineSegment, std::back_inserter<std::vector< TPlanarMesh::TEdge* > >(crossedEdges) );
+		for (int i=0;i<crossedEdges.size();++i)
+		{
+			colorEdges.toMatlabOStream( crossedEdges[i] );
+		}
+		colorEdges.stream << lineSegment;
+		colorEdges.stream.close();
+	}
 }
 
 }

@@ -223,6 +223,20 @@ Ray2D<T, NP, PP>::reflect(const TPoint& iPoint) const
 
 
 
+/** Return on what side a point is located.
+ */
+template <typename T, class NP, class PP>
+const Side Ray2D<T, NP, PP>::classify(const TPoint& iPoint) const
+{
+	T surf = doubleTriangleArea(support_,support_+direction_,iPoint);
+	if (surf>0.0)
+		return sLeft;
+	if (surf<0.0)
+		return sRight;
+	return sSurface;
+}
+
+
 /** Return true if ray is valid (direction isn't a zero vector).
  */
 template <typename T, class NP, class PP>
