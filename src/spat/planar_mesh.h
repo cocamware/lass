@@ -1060,8 +1060,8 @@ namespace spat
 					{
 						// need a new edge
 						ne = connect(t->lNext(), ea);
-						setEdgeHandle( ne, iLeftHandle );
-						setEdgeHandle( ne->sym(), iRightHandle );
+						setEdgeHandle( ne, iRightHandle );
+						setEdgeHandle( ne->sym(), iLeftHandle );
 						ne->quadEdge()->edgeConstrain();
 						ea = t->lNext()->sym();
 						triangulate(ne->lNext());
