@@ -59,7 +59,6 @@
 					OptimizeForProcessor="3"
 					RequireProcExt="3"
 					Parallelization="1"
-					StringPooling="0"
 					RuntimeLibrary="2"
 					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
@@ -133,7 +132,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -212,7 +210,6 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
-					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -303,8 +300,6 @@
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="3"
-					StringPooling="0"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"

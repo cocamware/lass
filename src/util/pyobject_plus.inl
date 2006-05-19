@@ -318,16 +318,27 @@ inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentati
 
 
 /** @internal
- */
+ *//*
 template <typename CppClass>
 void addClassMethod(const char* iMethodName, const char* iDocumentation, 
-					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
-					ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain) 
+					PyCFunction iMethodDispatcher,
+					unaryfunc iUnaryDispatcher,
+					binaryfunc iBinaryDispatcher,
+					ternaryfunc iTernaryDispatcher, 
+					OverloadLink& oOverloadChain) 
 {
 	if (strcmp(iMethodName, "__call__") == 0)
 	{
-		oTernaryOverloadChain = CppClass::Type.tp_call;
+		oOverloadChain.setTernaryfunc(CppClass::Type.tp_call);
 		CppClass::Type.tp_call = iTernaryDispatcher;
+	}
+	else if (strcmp(iMethodName, "__neg__") == 0)
+	{
+		if (CppClass::Type.tp_as_number == 0)
+		{
+			CppClass::Type.tp_as_number = new PyNumberMethods;
+		}
+		CppClass::Type.tp_as_number->nb_negative = iUnaryDispatcher;
 	}
 	else
 	{
@@ -337,12 +348,12 @@ void addClassMethod(const char* iMethodName, const char* iDocumentation,
 		{
 			CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
 				iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
-			oOverloadChain = 0;
+			oOverloadChain.setNull();
 		}
 		else
 		{
 			LASS_ASSERT(i->ml_flags == METH_VARARGS);
-			oOverloadChain = i->ml_meth;
+			oOverloadChain.setPyCFunction(i->ml_meth);
 			i->ml_meth = iMethodDispatcher;
 			if (i->ml_doc == 0)
 			{
@@ -351,7 +362,7 @@ void addClassMethod(const char* iMethodName, const char* iDocumentation,
 		};
 	}
 }
-
+*/
 
 
 /** @intenal

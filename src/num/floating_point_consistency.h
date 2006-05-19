@@ -417,7 +417,7 @@ Consistent<T> mod(const Consistent<T>& iV, const Consistent<T>& iMod)
 }
 
 
-
+#if 0
 template <typename T>
 struct NumTraits< Consistent<T> >
 {
@@ -458,7 +458,7 @@ public:
 	static const T sqrt2 = TBaseTraits::sqrt2;
 	static const T sqrtPi = TBaseTraits::sqrtPi;
 };
-
+#endif 
 
 template<class T> inline
 bool isNaN( const Consistent<T>& iV )

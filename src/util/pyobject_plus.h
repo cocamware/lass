@@ -61,10 +61,6 @@ namespace lass
 {
 	namespace python
 	{
-
-		//inline PyMethodDef createPyMethodDef(  char *ml_name, PyCFunction  ml_meth, int ml_flags, char  *ml_doc );
-		//inline PyGetSetDef createPyGetSetDef ( char* name, getter get, setter set = NULL, char* doc = NULL, void* closure = NULL );
-
 		/** PyObjectPlus.  Base class for pythonable objects.
 		*   @ingroup Python
 		*   @author Tom De Muer
@@ -149,13 +145,13 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
-				//util::CriticalSectionLocker lock(mutex_);
+				//util::SemaphoreLocker lock(iPointee->lassPythonLock_);
 				Py_INCREF(iPointee);
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				LASS_ASSERT(iPointee);
-				//util::CriticalSectionLocker lock(mutex_);
+				//util::SemaphoreLocker lock(iPointee->lassPythonLock_);
 				bool r = iPointee->ob_refcnt <=1;
 				Py_DECREF(iPointee);
 				return r;
@@ -168,7 +164,7 @@ namespace lass
 			void swap(PyObjectCounter& /*iOther*/) {}
 		private:
 			//TCount counterToKeepCompilerFromDoingStupidThings_;
-			static util::CriticalSection mutex_;
+			//util::Semaphore sync_;
 		};
 
 		/** templated "typedef" to a python shared pointer
@@ -277,6 +273,70 @@ namespace lass
 		namespace impl
 		{
 			/** @internal
+			 */
+			class LASS_DLL OverloadLink
+			{
+			public:
+				enum FunctionType
+				{
+					ftNull,
+					ftPyCFunction,
+					ftUnaryfunc,
+					ftBinaryfunc,
+					ftTernaryfunc
+				};
+				OverloadLink();
+				void setNull();
+				void setPyCFunction(PyCFunction iOverload);
+				void setUnaryfunc(unaryfunc iOverload);
+				void setBinaryfunc(binaryfunc iOverload);
+				void setTernaryfunc(ternaryfunc iOverload);
+				bool operator()(PyObject* iSelf, PyObject* iArgs, PyObject*& result) const;
+			private:
+				void* overload_;
+				FunctionType type_;
+			};
+
+            template <PyCFunction DispatcherAddress>
+			PyObject* unaryDispatcher(PyObject* iSelf)
+			{
+				PyObjectPtr<PyObject>::Type args = makeTuple();
+				return DispatcherAddress(iSelf, args.get());
+			}
+
+            template <PyCFunction DispatcherAddress>
+			PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
+			{
+				PyObjectPtr<PyObject>::Type args = makeTuple(iOther);
+				return DispatcherAddress(iSelf, args.get());
+			}
+
+            template <PyCFunction DispatcherAddress>
+			PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+			{
+				if (iKw)
+				{
+					PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
+					return 0;
+				}
+				return DispatcherAddress(iSelf, iArgs);
+			}
+
+            template <PyCFunction DispatcherAddress>
+			struct DispatcherConvertor
+			{
+				static PyObject* asTernary(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+				{
+					if (iKw)
+					{
+						PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
+						return 0;
+					}
+					return DispatcherAddress(iSelf, iArgs);
+				}
+			};
+
+			/** @internal
 			*/
 			struct StaticMember
 			{
@@ -328,11 +388,17 @@ namespace lass
 				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation);
 			LASS_DLL void LASS_CALL addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& ioPyType, std::vector<PyMethodDef>& ioClassMethods,
+				const char* iMethodName, const char* iDocumentation,
+				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
+				binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
+				OverloadLink& oOverloadChain);
 
 			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
-			template <typename CppClass> void addClassMethod(const char* iMethodName, const char* iDocumentation, 
-				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain,
-				ternaryfunc iTernaryDispatcher, ternaryfunc& oTernaryOverloadChain);
+			/*template <typename CppClass> void addClassMethod(const char* iMethodName, const char* iDocumentation, 
+				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, binaryfunc iBinaryDispatcher, 
+				ternaryfunc iTernaryDispatcher, OverloadLink& oOverloadChain);*/
 			template <typename CppClass> void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
 					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);

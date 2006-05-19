@@ -51,6 +51,9 @@
  *  use.  Do not use in custom objects... DON'T!
  */
 #define PY_HEADER_INTERNAL \
+	/*private:\
+		util::Semaphore lassPythonlock_;\
+		friend class PyObjectCounter;*/\
 	public: \
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
@@ -854,19 +857,15 @@ $[
 		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
 /*/
 #define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
-	static PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
+	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
 	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
 	{\
-		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		PyObject* result = 0;\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs, result))\
 		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
+			return result;\
 		}\
+		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
 		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
@@ -877,31 +876,16 @@ $[
 		return ::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod(\
 			iArgs, cppObject, &TCppClass::i_cppMethod); \
 	}\
-	static ternaryfunc LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain) = 0;\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _ternary)(PyObject* iObject, PyObject* iArgs, PyObject* iKw)\
-	{\
-		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
-		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
-		}\
-		if (iKw)\
-		{\
-			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");\
-			return 0;\
-		}\
-		return i_dispatcher(iObject, iArgs);\
-	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod< t_cppClass >(\
+		::lass::python::impl::addClassMethod(\
+			t_cppClass::Type,\
+			t_cppClass::Methods,\
 			s_methodName, s_doc, \
-			i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain),\
-			LASS_CONCATENATE(i_dispatcher, _ternary), LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain));\
+			i_dispatcher,\
+			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
 
@@ -1175,19 +1159,15 @@ $[
 		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
 /*/
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX(t_cppClass, i_cppFreeMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
-	static PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
+	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
 	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
 	{\
-		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		PyObject* result = 0;\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs, result))\
 		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
+			return result;\
 		}\
+		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
 		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
@@ -1195,34 +1175,19 @@ $[
 		{\
 			return 0;\
 		}\
-		return ::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callFree(\
+		return ::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callFreeMethod(\
 			iArgs, cppObject, i_cppFreeMethod); \
 	}\
-	static ternaryfunc LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain) = 0;\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _ternary)(PyObject* iObject, PyObject* iArgs, PyObject* iKw)\
-	{\
-		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
-		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
-		}\
-		if (iKw)\
-		{\
-			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");\
-			return 0;\
-		}\
-		return i_dispatcher(iObject, iArgs);\
-	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod< t_cppClass >(\
+		::lass::python::impl::addClassMethod(\
+			t_cppClass::Type,\
+			t_cppClass::Methods,\
 			s_methodName, s_doc, \
-			i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain),\
-			LASS_CONCATENATE(i_dispatcher, _ternary), LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain));\
+			i_dispatcher,\
+			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
 
@@ -1978,53 +1943,34 @@ $[
 /** @internal
  */
 #define PY_CLASS_METHOD_IMPL(t_cppClass, i_cppMethod, s_methodName, s_doc, i_dispatcher, i_caller)\
-	static PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
-	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
+	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
+	PyObject* i_dispatcher(PyObject* iSelf, PyObject* iArgs)\
 	{\
-		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		PyObject* result = 0;\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iSelf, iArgs, result))\
 		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
+			return result;\
 		}\
+		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
-		if (!cppObject)\
+		TCppClass* const self = TShadowTraits::cppObject(iSelf);\
+		if (!self)\
 		{\
 			return 0;\
 		}\
-		return i_caller(iArgs, cppObject, i_cppMethod);\
-	}\
-	static ternaryfunc LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain) = 0;\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _ternary)(PyObject* iObject, PyObject* iArgs, PyObject* iKw)\
-	{\
-		if (LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain))\
-		{\
-			PyObject* result = LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain)(iObject, iArgs, iKw);\
-			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
-			{\
-				return result;\
-			}\
-			PyErr_Clear();\
-			Py_XDECREF(result);\
-		}\
-		if (iKw)\
-		{\
-			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");\
-			return 0;\
-		}\
-		return i_dispatcher(iObject, iArgs);\
+		return i_caller(iArgs, self, i_cppMethod);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod< t_cppClass >(\
+		::lass::python::impl::addClassMethod(\
+			t_cppClass::Type,\
+			t_cppClass::Methods,\
 			s_methodName, s_doc, \
-			i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain),\
-			LASS_CONCATENATE(i_dispatcher, _ternary), LASS_CONCATENATE(i_dispatcher, _ternary_overloadChain));\
+			i_dispatcher,\
+			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 
 #endif

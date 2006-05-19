@@ -25,6 +25,7 @@
 
 #include "util_common.h"
 #include "thread.h"
+#include "atomic.h"
 
 #if defined(LASS_UTIL_THREAD_HAVE_POSIX)
 #	include "impl/thread_posix.inl"
@@ -141,6 +142,76 @@ const bool CriticalSection::isLocked() const
 	LASS_ASSERT(pimpl);
 	return pimpl->lockCount() > 0;
 }
+
+
+
+// --- Semaphore -----------------------------------------------------------------------------------
+
+//Semaphore::Semaphore(unsigned iNumberOfSlots):
+//	freeSlots_(iNumberOfSlots)
+//{
+//}
+//
+//
+//
+///** Lock a free slot, block until you can.
+// */
+//void Semaphore::lock()
+//{
+//	unsigned oldSlots, newSlots;
+//	do
+//	{
+//		oldSlots = freeSlots_;
+//		while (oldSlots == 0)
+//		{
+//			Thread::yield();
+//			oldSlots = freeSlots_;
+//		}
+//		newSlots = oldSlots - 1;
+//	}
+//	while (!atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+//}
+//
+//
+//
+///** Try to lock a free slot, return immediately if not successful.
+// *  @return
+// *		@arg lockSuccess if a slot was successfully locked
+// *		@arg lockBusy if function was unable to lock a slot.
+// */
+//const LockResult Semaphore::tryLock()
+//{
+//	unsigned oldSlots, newSlots;
+//	do
+//	{
+//		oldSlots = freeSlots_;
+//		if (oldSlots == 0)
+//		{
+//			return lockBusy;
+//		}
+//		newSlots = oldSlots - 1;
+//	}
+//	while (!atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+//	return lockSuccess;
+//}
+//
+//
+//
+///** Free the locked slot.
+// */
+//void Semaphore::unlock()
+//{
+//	atomicIncrement(freeSlots_);
+//}
+//
+//
+//
+///** Return true if there's at least one free slot.
+// */
+//const bool Semaphore::isLocked() const
+//{
+//	return freeSlots_ == 0;
+//}
 
 
 

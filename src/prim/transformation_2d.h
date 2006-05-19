@@ -34,9 +34,12 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_2D_H
 
 #include "prim_common.h"
-#include "xy.h"
+#include "point_2d.h"
+#include "xyz.h"
+#include "../io/xml_o_stream.h"
 #include "../num/num_traits.h"
 #include "../util/shared_ptr.h"
+#include "../util/thread.h"
 
 namespace lass
 {
@@ -92,6 +95,8 @@ private:
 	mutable TMatrix inverseMatrix_;
 
 	static TMatrix identityMatrix_;
+
+	static util::Semaphore sync_;
 };
 
 template <typename T> Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformation2D<T>& iB);
@@ -105,6 +110,10 @@ template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, const Transformation2D<T>& iB);
 
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation2D<T>& iB);
+
+// static member initialisation
+
+template <typename T> util::Semaphore Transformation2D<T>::sync_;
 
 }
 

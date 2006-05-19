@@ -41,7 +41,8 @@ namespace spat
 template <class O, class OT>
 AabbTree<O, OT>::AabbTree():
 	begin_(),
-	end_()
+	end_(),
+	size_(0)
 {
 }
 
@@ -50,18 +51,21 @@ AabbTree<O, OT>::AabbTree():
 template <class O, class OT>
 AabbTree<O, OT>::AabbTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
-	end_(iEnd)
+	end_(iEnd),
+	size_(std::distance(begin_, end_))
 {
-	size_ = std::distance(begin_, end_);
-	heap_.resize(2 * size_, Node(TAabb(), end_));
-
-	TNodes input;
-	for (TObjectIterator i = begin_; i != end_; ++i)
+	if (!isEmpty())
 	{
-		input.push_back(Node(TObjectTraits::aabb(i), i));
-	}
+		heap_.resize(2 * size_, Node(TAabb(), end_));
 
-	balance(0, input.begin(), input.end());
+		TNodes input;
+		for (TObjectIterator i = begin_; i != end_; ++i)
+		{
+			input.push_back(Node(TObjectTraits::aabb(i), i));
+		}
+
+		balance(0, input.begin(), input.end());
+	}
 }
 
 
@@ -76,9 +80,13 @@ void AabbTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 
 
 template <class O, class OT> inline
-const typename AabbTree<O, OT>::TAabb&
+const typename AabbTree<O, OT>::TAabb
 AabbTree<O, OT>::aabb() const
 {
+	if (isEmpty())
+	{
+		return TObjectTraits::emptyAabb();
+	}
 	return heap_[0].aabb;
 }
 
@@ -133,7 +141,7 @@ void AabbTree<O, OT>::swap(TSelf& iOther)
 template <class O, class OT>
 const bool AabbTree<O, OT>::isEmpty() const
 {
-	return heap_.empty();
+	return begin_ == end_;
 }
 
 

@@ -54,6 +54,7 @@
 
 #include "util_common.h"
 #include "non_copyable.h"
+#include "atomic.h"
 
 namespace lass
 {
@@ -145,6 +146,8 @@ private:
 	void* pimpl_;
 };
 
+
+
 /** Condition.
 *   @ingroup Threading
 *   A condition can be used to synchronize using messages were a condition waits for
@@ -196,6 +199,65 @@ private:
 
 	impl::ThreadInternal* pimpl_;
 };
+
+
+
+/** Lean and mean synchronisation object, without OS support.
+*   @ingroup Threading
+*   @see SemaphoreLocker
+*   @author Bram de Greve
+*   @date 2004
+*   
+*	This semaphore is built upon atomic operations that are programmed in assembly.
+*/
+class LASS_DLL Semaphore : NonCopyable
+{
+public:
+	Semaphore(unsigned iNumberOfSlots = 1): 
+		freeSlots_(iNumberOfSlots)
+	{
+	}
+	
+	void lock()
+	{
+		unsigned oldSlots, newSlots;
+		do
+		{
+			oldSlots = freeSlots_;
+			newSlots = oldSlots - 1;
+		}
+		while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+	}
+	const LockResult tryLock()
+	{
+		unsigned oldSlots, newSlots;
+		do
+		{
+			oldSlots = freeSlots_;
+			if (oldSlots == 0)
+			{
+				return lockBusy;
+			}
+			newSlots = oldSlots - 1;
+		}
+		while (!atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+		return lockSuccess;
+	}
+	void unlock() 
+	{ 
+		atomicIncrement(freeSlots_); 
+	}
+	const bool isLocked() const 
+	{ 
+		return freeSlots_ == 0; 
+	}
+
+private:
+	unsigned freeSlots_;
+};
+
+
+
 
 
 /** Common base class for lockers
@@ -267,11 +329,17 @@ typedef Locker<Mutex> MutexLocker;
 
 /** typedef of Locker for CriticalSection
  *	@ingroup Threading
- *	@sa Mutex
+ *	@sa CriticalSection
  *  @sa Locker
 */
 typedef Locker<CriticalSection> CriticalSectionLocker;
 
+/** typedef of Locker for Semaphore
+ *	@ingroup Threading
+ *	@sa Semaphore
+ *  @sa Locker
+*/
+typedef Locker<Semaphore> SemaphoreLocker;
 
 }
 

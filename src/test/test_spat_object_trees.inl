@@ -119,7 +119,7 @@ void testSpatObjectTrees()
 	const size_t numberOfIntersectionValidations = 1000;
 	// speed tests
 	const size_t numberOfContainSpeedTestTargets = 1000;
-	const size_t numberOfContainSpeedTestRuns = 1000;
+	const size_t numberOfContainSpeedTestRuns = 10;
 	const size_t numberOfIntersectionSpeedTestTargets = 1000;
 	const size_t numberOfIntersectionSpeedTestRuns = 10;
 

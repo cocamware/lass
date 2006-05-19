@@ -700,6 +700,10 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 		{
 			return CallMethod<CppClass>::call( iArgs, iObject, iMethod );
 		}
+		static PyObject* callFreeMethod( PyObject* iArgs, CppClass* iObject, R (*iFreeMethod)($(P$x)$) )
+		{
+			return CallMethod<CppClass>::callFree( iArgs, iObject, iFreeMethod );
+		}
 		static PyObject* callConstructor( PyObject* iArgs )
 		{
 			return construct<CppClass, $(P$x)$>( iArgs );

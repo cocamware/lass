@@ -81,7 +81,13 @@ template <typename T> void testPrimVector2D()
 
 	LASS_TEST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
 	LASS_TEST_CHECK_EQUAL(dot(a, b), dot(b, a));
-	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	LASS_EVAL(a);
+	LASS_EVAL(b);
+	LASS_EVAL(a.project(b));
+	LASS_EVAL(a.reject(b));
+	LASS_EVAL(a.project(b) + a.reject(b));
+	const Vector2D<T> project_plus_reject = a.project(b) + a.reject(b); // compile fucks up
+	LASS_TEST_CHECK_EQUAL(project_plus_reject, b);
 	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector2D<T> n(b);
@@ -144,7 +150,8 @@ template <typename T> void testPrimVector3D()
 	LASS_TEST_CHECK_EQUAL(dot(cross(a, b), a), zero);
 	LASS_TEST_CHECK_EQUAL(dot(cross(a, b), b), zero);
 
-	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	const Vector3D<T> project_plus_reject = a.project(b) + a.reject(b); // compile fucks up
+	LASS_TEST_CHECK_EQUAL(project_plus_reject, b);
 	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector3D<T> n(b);
@@ -205,7 +212,8 @@ template <typename T> void testPrimVector4D()
 	LASS_TEST_CHECK_EQUAL(dot(a, a), a.squaredNorm());
 	LASS_TEST_CHECK_EQUAL(dot(a, b), dot(b, a));
 
-	LASS_TEST_CHECK_EQUAL(a.project(b) + a.reject(b), b);
+	const Vector4D<T> project_plus_reject = a.project(b) + a.reject(b); // compile fucks up
+	LASS_TEST_CHECK_EQUAL(project_plus_reject, b);
 	LASS_TEST_CHECK(dot(a.project(b), a.reject(b)) < epsilon);
 
 	Vector4D<T> n(b);

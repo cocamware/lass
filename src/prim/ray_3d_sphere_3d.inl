@@ -121,13 +121,13 @@ struct RaySphere<Normalized>
 		if (discriminant > TNumTraits::zero)
 		{
 			const TDouble sqrtD = num::sqrt(discriminant);
-			const TConsistent t1 = (-b - sqrtD);
+			const TConsistent t1 = static_cast<TValue>(-b - sqrtD);
 			if (t1 > iMinT)
 			{
 				oT = t1.value();
 				return rOne;
 			}
-			const TConsistent t2 = (-b + sqrtD);
+			const TConsistent t2 = static_cast<TValue>(-b + sqrtD);
 			if (t2 > iMinT)
 			{
 				oT = t2.value();
@@ -136,7 +136,7 @@ struct RaySphere<Normalized>
 		}
 		else if (discriminant == TNumTraits::zero)
 		{
-			const TConsistent t = -b;
+			const TConsistent t = static_cast<TValue>(-b);
 			if (t > iMinT)
 			{
 				oT = t.value();

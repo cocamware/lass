@@ -37,7 +37,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_PLANE_3D_IMPL_DETAIL_H
 
 #include "../prim_common.h"
-#include "../num/floating_point_comparison.h"
+#include "../../num/floating_point_comparison.h"
 
 namespace lass
 {

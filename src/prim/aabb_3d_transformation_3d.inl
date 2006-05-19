@@ -45,13 +45,18 @@ Aabb3D<T, MMP> transform(const Aabb3D<T, MMP>& iSubject,
 	typedef typename TAabb::TPoint TPoint;
 	typedef typename TAabb::TVector TVector;
 
+	if (iSubject.isEmpty())
+	{
+		return iSubject;
+	}
+
 	const TVector delta = iSubject.size();
 	const TPoint p0 = transform(iSubject.min(), iTransformation);
 	const TPoint px = p0 + transform(TVector(delta.x, 0, 0), iTransformation);
 	const TVector dy = transform(TVector(0, delta.y, 0), iTransformation);
 	const TVector dz = transform(TVector(0, 0, delta.z), iTransformation);
 
-	TAabb result(p0, px);
+	TAabb result = Aabb3D<T, AutoMinMax>(p0, px);
 	result += (p0 + dy);
 	result += (px + dy);
 	result += (p0 + dz);

@@ -197,6 +197,7 @@ private:
 			return prim::intersect(iAabb, iRay, oT, iMinT) != prim::rNone;
 		}
 
+		static const TAabb emptyAabb() { return TAabb(); }
 		static const TAabb join(const TAabb& iA, const TAabb& iB) { return iA + iB; }
 		static const TPoint min(const TAabb& iAabb) { return iAabb.min(); }
 		static const TPoint max(const TAabb& iAabb) { return iAabb.max(); }

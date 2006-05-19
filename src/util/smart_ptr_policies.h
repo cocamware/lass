@@ -154,6 +154,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_PTR_POLICIES_H
 
 #include "util_common.h"
+#include "atomic.h"
 #include "../meta/empty_type.h"
 
 namespace lass
@@ -310,15 +311,27 @@ protected:
 
 	template <typename TStorage> void increment(TStorage& /*iPointee*/)
 	{
-		LASS_ASSERT(count_ && *count_ > 0);
-		++*count_;
+		TCount oldCount = 0, newCount = 0;
+		do
+		{
+			LASS_ASSERT(count_ && *count_ > 0);
+			oldCount = *count_;
+			newCount = oldCount + 1;
+		}
+		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
 	}
 
 	template <typename TStorage> bool decrement(TStorage& /*iPointee*/)
 	{
-		LASS_ASSERT(count_ && *count_ > 0);
-		--*count_;
-		return *count_ < 1;
+		TCount oldCount = 0, newCount = 0;
+		do
+		{
+            LASS_ASSERT(count_ && *count_ > 0);
+			oldCount = *count_;
+			newCount = oldCount - 1;
+		}
+		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
+		return newCount == 0;
 	}
 
 	template <typename TStorage> TCount count(TStorage& /*iPointee*/) const
@@ -403,14 +416,26 @@ protected:
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
 		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
-		++(iPointee->*referenceCounter);
+		TCount oldCount = 0, newCount = 0;
+		do
+		{
+			oldCount = iPointee->*referenceCounter;
+			newCount = oldCount + 1;
+		}
+		while (!atomicCompareAndSwap(iPointee->*referenceCounter, oldCount, newCount));
 	}
 
 	template <typename TStorage> bool decrement(TStorage& iPointee)
 	{
 		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
-		--(iPointee->*referenceCounter);
-		return (iPointee->*referenceCounter) < 1;
+		TCount oldCount = 0, newCount = 0;
+		do
+		{
+			oldCount = iPointee->*referenceCounter;
+			newCount = oldCount + 1;
+		}
+		while (!atomicCompareAndSwap(iPointee->*referenceCounter, oldCount, newCount));
+		return newCount == 0;
 	}
 
 	template <typename TStorage> TCount count(TStorage& iPointee) const

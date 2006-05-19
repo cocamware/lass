@@ -154,6 +154,7 @@ namespace spat
 		static	TTriangle2D triangle( TEdge* iEdge);
 		static  const TPoint2D& org( TEdge* iEdge );
 		static  const TPoint2D& dest( TEdge* iEdge );
+		static	const TVector2D direction( TEdge* iEdge );
 		static  bool  rightOf( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  leftOf( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  onEdge( const TPoint2D& iPoint, TEdge* iEdge );
@@ -172,6 +173,7 @@ namespace spat
 		static  void setPointHandle( TEdge* iEdge, PointHandle* iHandle );
 		static  void setEdgeHandle( TEdge* iEdge, EdgeHandle* iHandle );
 		static  void setFaceHandle( TEdge* iEdge, FaceHandle* iHandle );
+		static  void setOrientedEdgeHandle( TEdge* iEdge, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, const TVector2D& iDirection );
 	private:
 		TEdge*  startEdge_;
 		TQuadEdgeList       quadEdgeList_;
@@ -209,6 +211,12 @@ namespace spat
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
+		
+#ifndef NDEBUG
+	public:
+		static unsigned numSetOrientedEdgeHandleCalls;
+		static unsigned numSetOrientedEdgeHandleSwaps;
+#endif
 	};
 
 	namespace impl
@@ -549,6 +557,7 @@ namespace spat
 	// is constrained, x is snapped onto the edge, and the new
 	// edge is also marked as constrained.
 	{
+		const TVector2D dir = direction(e);
 		PointHandle*    iE = pointHandle(e);
 		PointHandle*    iES= pointHandle(e->sym());
 		EdgeHandle*		iLE = edgeHandle(e);
@@ -564,8 +573,10 @@ namespace spat
 		TEdge* ne = connect( e, t );
 		if (e->isConstrained())
 		{
-			setEdgeHandle( ne, iLE );
-			setEdgeHandle( ne->sym(), iRE );
+			//setEdgeHandle(ne, iLE);
+			//setEdgeHandle(ne->sym(), iRE);
+			setOrientedEdgeHandle( e, iLE, iRE, dir );
+			setOrientedEdgeHandle( ne, iLE, iRE, dir );
 			ne->quadEdge()->edgeConstrain();
 		}
 
@@ -1060,8 +1071,7 @@ namespace spat
 					{
 						// need a new edge
 						ne = connect(t->lNext(), ea);
-						setEdgeHandle( ne, iRightHandle );
-						setEdgeHandle( ne->sym(), iLeftHandle );
+						setOrientedEdgeHandle( ne, iLeftHandle, iRightHandle, iSegment.vector() );
 						ne->quadEdge()->edgeConstrain();
 						ea = t->lNext()->sym();
 						triangulate(ne->lNext());
@@ -1082,8 +1092,9 @@ namespace spat
 							throw std::runtime_error("insertEdge: could not find intersection");
 						splitEdge(t->lNext(),x);
 						ne = connect(t->lNext(), ea);
-						setEdgeHandle( ne, iLeftHandle );
-						setEdgeHandle( ne->sym(), iRightHandle );
+						setOrientedEdgeHandle( ne, iLeftHandle, iRightHandle, iSegment.vector() );
+//						setEdgeHandle( ne, iLeftHandle );
+//						setEdgeHandle( ne->sym(), iRightHandle );
 						ne->quadEdge()->edgeConstrain();
 	
 						ea = t->lNext()->sym();
@@ -1224,10 +1235,16 @@ namespace spat
 		return *iEdge->handle()->point_;
 	}
 
-	TEMPLATE_DEF
+	TEMPLATE_DEF inline
 	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( TEdge* iEdge )
 	{
 		return org( iEdge->sym() );
+	}
+
+	TEMPLATE_DEF inline
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TVector2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::direction( TEdge* iEdge )
+	{
+		return dest( iEdge ) - org( iEdge );
 	}
 
 	TEMPLATE_DEF
@@ -1407,10 +1424,6 @@ namespace spat
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setEdgeHandle : edge not in primary mesh");
-		if ( iEdge->isConstrained() )
-		{
-			int i=0;
-		}
 		iEdge->handle()->edgeHandle_ = iHandle;
 	}
 
@@ -1432,6 +1445,23 @@ namespace spat
 		} while ( currentEdge != iEdge );
 	}
 
+	TEMPLATE_DEF
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setOrientedEdgeHandle( 
+			TEdge* iEdge, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, const TVector2D& iOrientation )
+	{
+#ifndef NDEBUG
+		++numSetOrientedEdgeHandleCalls;
+#endif
+		if (prim::dot(direction(iEdge), iOrientation) < 0)
+		{
+#ifndef NDEBUG
+			++numSetOrientedEdgeHandleSwaps;
+#endif
+			std::swap(iLeftHandle, iRightHandle);
+		}
+		setEdgeHandle(iEdge, iLeftHandle);
+		setEdgeHandle(iEdge->sym(), iRightHandle);
+	}
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryEdges( const TEdgeCallback& iCallback )
@@ -1560,6 +1590,12 @@ namespace spat
 			}
 		}
 	}
+
+#ifndef NDEBUG
+	TEMPLATE_DEF unsigned PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::numSetOrientedEdgeHandleCalls = 0;
+	TEMPLATE_DEF unsigned PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::numSetOrientedEdgeHandleSwaps = 0;
+#endif
+
 
 }
 

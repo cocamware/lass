@@ -123,6 +123,13 @@ struct DefaultObjectTraits
 
 	// AABB
 
+	/** return empty AABB
+	 */
+	static const TAabb emptyAabb()
+	{
+		return TAabb();
+	}
+
 	/** return true if AABB contains a point, return false otherwise
 	 */
 	static const bool contains(const TAabb& iAabb, const TPoint& iPoint) 

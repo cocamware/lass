@@ -35,7 +35,7 @@ namespace python
 {
 
 PyTypeObject PyObjectPlus::Type = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
-util::CriticalSection PyObjectCounter::mutex_;
+//util::Semaphore PyObjectCounter::sync_;
 
 std::vector<PyMethodDef> initAbstractMethods()
 {
@@ -128,6 +128,92 @@ PyObject* getPyObjectByName(const std::string& iName)
 
 namespace impl
 {
+
+OverloadLink::OverloadLink()
+{
+	setNull();
+}
+
+void OverloadLink::setNull()
+{
+	overload_ = 0;
+	type_ = ftNull;
+}
+
+void OverloadLink::setPyCFunction(PyCFunction iOverload)
+{
+	overload_ = iOverload;
+	type_ = overload_ ? ftPyCFunction : ftNull;
+}
+
+void OverloadLink::setUnaryfunc(unaryfunc iOverload)
+{
+	overload_ = iOverload;
+	type_ = overload_ ? ftUnaryfunc : ftNull;
+}
+
+void OverloadLink::setBinaryfunc(binaryfunc iOverload)
+{
+	overload_ = iOverload;
+	type_ = overload_ ? ftBinaryfunc : ftNull;
+}
+
+void OverloadLink::setTernaryfunc(ternaryfunc iOverload)
+{
+	overload_ = iOverload;
+	type_ = overload_ ? ftTernaryfunc : ftNull;
+}
+
+bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
+{
+	PyObject* temp = 0;
+	switch (type_)
+	{
+	case ftNull:
+		LASS_ASSERT(overload_ == 0);
+		return false;
+	case ftPyCFunction:
+		LASS_ASSERT(overload_ != 0);
+		temp = static_cast<PyCFunction>(overload_)(iSelf, iArgs);
+		break;
+	case ftUnaryfunc:
+		LASS_ASSERT(overload_ != 0);
+		if (decodeTuple(iArgs)  != 0)
+		{
+			return 0;
+		}
+		temp = static_cast<unaryfunc>(overload_)(iSelf);
+		break;
+	case ftBinaryfunc:
+		{
+			LASS_ASSERT(overload_ != 0);
+			PyObjectPtr<PyObject>::Type arg;
+			if (decodeTuple(iArgs, arg) != 0)
+			{
+				return 0;
+			}
+			temp = static_cast<binaryfunc>(overload_)(iSelf, arg.get());
+		}
+		break;
+	case ftTernaryfunc:
+		LASS_ASSERT(overload_ != 0);
+		temp = static_cast<ternaryfunc>(overload_)(iSelf, iArgs, 0);
+		break;
+	default:
+		LASS_ASSERT_UNREACHABLE;
+		return false;
+	}
+	if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
+	{
+		PyErr_Clear();
+		Py_XDECREF(temp);
+		return false;
+	}
+	oResult = temp;
+	return true;
+}
+
+
 
 StaticMemberEqual::StaticMemberEqual(const char* iName):
 	name_(iName)
@@ -250,6 +336,97 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodN
 		i->ml_meth = iMethodDispatcher;
 	};
 }
+
+
+
+#define LASS_PY_CLASS_SPECIAL_METHOD(s_name, i_protocol, t_protocol, i_hook, i_nary)\
+	if (strcmp(iMethodName, s_name) == 0)\
+	{\
+		if (ioPyType.i_protocol == 0)\
+		{\
+			ioPyType.i_protocol = new t_protocol;\
+			::memset(ioPyType.i_protocol, 0, sizeof(t_protocol));\
+		}\
+		oOverloadChain.LASS_CONCATENATE_3(set, i_nary, func)(ioPyType.i_protocol->i_hook);\
+		ioPyType.i_protocol->i_hook = LASS_CONCATENATE_3(i, i_nary, Dispatcher);\
+		return;\
+	}\
+	/**/
+
+
+/** @internal
+ */
+void addClassMethod(
+		PyTypeObject& ioPyType, std::vector<PyMethodDef>& ioClassMethods,
+		const char* iMethodName, const char* iDocumentation, 
+		PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
+		binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
+		OverloadLink& oOverloadChain) 
+{
+	const int n = static_cast<int>(strlen(iMethodName));
+	LASS_ASSERT(n >= 0);
+	if (n > 2 && iMethodName[0] == '_' && iMethodName[1] == '_')
+	{
+		if (strcmp(iMethodName, "__call__") == 0)
+		{
+			oOverloadChain.setTernaryfunc(ioPyType.tp_call);
+			ioPyType.tp_call = iTernaryDispatcher;
+			return;
+		}
+		LASS_PY_CLASS_SPECIAL_METHOD("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__sub__", tp_as_number, PyNumberMethods, nb_subtract, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__neg__", tp_as_number, PyNumberMethods, nb_negative, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__pos__", tp_as_number, PyNumberMethods, nb_positive, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__abs__", tp_as_number, PyNumberMethods, nb_absolute, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__invert__", tp_as_number, PyNumberMethods, nb_invert, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__int__", tp_as_number, PyNumberMethods, nb_int, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__long__", tp_as_number, PyNumberMethods, nb_long, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__float__", tp_as_number, PyNumberMethods, nb_float, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__oct__", tp_as_number, PyNumberMethods, nb_oct, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__hex__", tp_as_number, PyNumberMethods, nb_hex, Unary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
+		LASS_PY_CLASS_SPECIAL_METHOD("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
+	}
+
+	// normal method mechanism
+
+	std::vector<PyMethodDef>::iterator i = std::find_if(
+		ioClassMethods.begin(), ioClassMethods.end(), PyMethodEqual(iMethodName));
+	if (i == ioClassMethods.end())
+	{
+		ioClassMethods.insert(ioClassMethods.begin(), createPyMethodDef(
+			iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
+		oOverloadChain.setNull();
+	}
+	else
+	{
+		LASS_ASSERT(i->ml_flags == METH_VARARGS);
+		oOverloadChain.setPyCFunction(i->ml_meth);
+		i->ml_meth = iMethodDispatcher;
+		if (i->ml_doc == 0)
+		{
+			i->ml_doc = const_cast<char*>(iDocumentation);
+		}
+	};
+}
+
+
 
 /** @internal
 */

@@ -59,6 +59,16 @@
  *  shared_ptr<T> can be implicitly converted to shared_ptr<U> whenever T* can be implicitly
  *  converted to U*. In particular, shared_ptr<T> is implicitly convertible to shared_ptr<T const>,
  *  to shared_ptr<U> where U is an accessible base of T, and to shared_ptr<void>."</i>
+ *
+ *  @par Thread safety
+ *		The shared pointers are supposed to be thread safe concerning the reference count.
+ *		This means that as long as no SharedPtr are shared between threads, they should be thread safe.
+ *		In particular: if you have two threads with two shared pointers a and b, both pointing to the same 
+ *		data, and both threads try to inc/decrease the reference counts at once, this will be done in an 
+ *		atomic way.  
+ *		However, if you share a single SharedPtr between two threads, then operations that affect the
+ *		pointer itself (like a.swap(b)) are _NOT_ thread safe, since both the pointer and the reference
+ *		counter have to be altered at the same time.
  */
 
 
@@ -173,6 +183,8 @@ public:
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it sets
 	 *  itself to the default of the storage policy (usually this is the NULL pointer).
+	 *
+	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
 	void reset()
 	{
@@ -184,6 +196,8 @@ public:
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it takes
 	 *  iPointee as new pointee and it restarts reference counting.
+	 *
+	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
 	void reset(T* iPointee)
 	{
@@ -195,6 +209,8 @@ public:
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it steals
 	 *  the pointer of iOther as new pointee and it restarts reference counting.
+	 *
+	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
 	void reset(std::auto_ptr<T> iOther)
 	{
@@ -209,6 +225,8 @@ public:
 	 *
 	 *  Protects against self-assignment (i.e. if you do 'foo = bar' under the condition that
 	 *  'foo.get() == bar.get()', then nothing happens :)
+	 *
+	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
 	TSelf& operator=(const TSelf& iOther)
 	{
@@ -317,6 +335,8 @@ public:
 	}
 
 	/** exchange the pointees (and there reference counts) between two shared pointers
+	 *
+	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
 	void swap(TSelf& iOther)
 	{

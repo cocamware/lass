@@ -60,30 +60,31 @@ Result intersectTriangle3D(const Point& iVertex0, const Vector& iEdge1, const Ve
 		return rNone;
 	}
 
+	const T invDet = num::inv(det);
+
 	const Vector tvec = iSupport - iVertex0;
-	const T u = dot(tvec, pvec);
-	if (u < TNumTraits::zero || u > det)
+	const T u = dot(tvec, pvec) * invDet;
+	if (u < TNumTraits::zero || u > TNumTraits::one)
 	{
 		return rNone;
 	}
 
 	const Vector qvec = cross(tvec, iEdge1);
-	const T v = dot(iDirection, qvec);
-	if (v < TNumTraits::zero || (u + v) > det)
+	const T v = dot(iDirection, qvec) * invDet;
+	if (v < TNumTraits::zero || (u + v) > TNumTraits::one)
 	{
 		return rNone;
 	}
 
-	const T t = dot(iEdge2, qvec);
-	if (t <= (iMinT * det))
+	const T t = dot(iEdge2, qvec) * invDet;
+	if (t <= iMinT)
 	{
 		return rNone;
 	}
 
-	const T invDet = num::inv(det);
-	oU = u * invDet;
-	oV = v * invDet;
-	oT = t * invDet;
+	oU = u;
+	oV = v;
+	oT = t;
 	return rOne;
 }
 

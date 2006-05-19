@@ -80,7 +80,7 @@ public:
 
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-	const TAabb& aabb() const;
+	const TAabb aabb() const;
 
 	bool contains(const TPoint& iPoint, const TInfo* iInfo = 0) const;
 	template <typename OutputIterator> 

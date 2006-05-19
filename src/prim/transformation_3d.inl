@@ -97,77 +97,83 @@ Transformation3D<T>::inverse() const
 {
 	if (inverseMatrix_.isEmpty())
 	{
-		inverseMatrix_.reset(new TValue[16]);
+		TMatrix inverseMatrix(new TValue[16]);
+		const TValue* const mat = matrix_.get();
+		TValue* const inv = inverseMatrix.get();
 
-		const TValue v1015 = matrix_[10] * matrix_[15];
-		const TValue v1411 = matrix_[14] * matrix_[11];
-		const TValue v0615 = matrix_[ 6] * matrix_[15];
-		const TValue v1407 = matrix_[14] * matrix_[ 7];
-		const TValue v0611 = matrix_[ 6] * matrix_[11];
-		const TValue v1007 = matrix_[10] * matrix_[ 7];
-		const TValue v0215 = matrix_[ 2] * matrix_[15];
-		const TValue v1403 = matrix_[14] * matrix_[ 3];
-		const TValue v0211 = matrix_[ 2] * matrix_[11];
-		const TValue v1003 = matrix_[10] * matrix_[ 3];
-		const TValue v0207 = matrix_[ 2] * matrix_[ 7];
-		const TValue v0603 = matrix_[ 6] * matrix_[ 3];
+		const TValue v1015 = mat[10] * mat[15];
+		const TValue v1411 = mat[14] * mat[11];
+		const TValue v0615 = mat[ 6] * mat[15];
+		const TValue v1407 = mat[14] * mat[ 7];
+		const TValue v0611 = mat[ 6] * mat[11];
+		const TValue v1007 = mat[10] * mat[ 7];
+		const TValue v0215 = mat[ 2] * mat[15];
+		const TValue v1403 = mat[14] * mat[ 3];
+		const TValue v0211 = mat[ 2] * mat[11];
+		const TValue v1003 = mat[10] * mat[ 3];
+		const TValue v0207 = mat[ 2] * mat[ 7];
+		const TValue v0603 = mat[ 6] * mat[ 3];
 
-		inverseMatrix_[0] =  v1015 * matrix_[ 5] + v1407 * matrix_[ 9] + v0611 * matrix_[13];
-		inverseMatrix_[0] -= v1411 * matrix_[ 5] + v0615 * matrix_[ 9] + v1007 * matrix_[13];
-		inverseMatrix_[1] =  v1411 * matrix_[ 1] + v0215 * matrix_[ 9] + v1003 * matrix_[13];
-		inverseMatrix_[1] -= v1015 * matrix_[ 1] + v1403 * matrix_[ 9] + v0211 * matrix_[13];
-		inverseMatrix_[2] =  v0615 * matrix_[ 1] + v1403 * matrix_[ 5] + v0207 * matrix_[13];
-		inverseMatrix_[2] -= v1407 * matrix_[ 1] + v0215 * matrix_[ 5] + v0603 * matrix_[13];
-		inverseMatrix_[3] =  v1007 * matrix_[ 1] + v0211 * matrix_[ 5] + v0603 * matrix_[ 9];
-		inverseMatrix_[3] -= v0611 * matrix_[ 1] + v1003 * matrix_[ 5] + v0207 * matrix_[ 9];
-		inverseMatrix_[4] =  v1411 * matrix_[ 4] + v0615 * matrix_[ 8] + v1007 * matrix_[12];
-		inverseMatrix_[4] -= v1015 * matrix_[ 4] + v1407 * matrix_[ 8] + v0611 * matrix_[12];
-		inverseMatrix_[5] =  v1015 * matrix_[ 0] + v1403 * matrix_[ 8] + v0211 * matrix_[12];
-		inverseMatrix_[5] -= v1411 * matrix_[ 0] + v0215 * matrix_[ 8] + v1003 * matrix_[12];
-		inverseMatrix_[6] =  v1407 * matrix_[ 0] + v0215 * matrix_[ 4] + v0603 * matrix_[12];
-		inverseMatrix_[6] -= v0615 * matrix_[ 0] + v1403 * matrix_[ 4] + v0207 * matrix_[12];
-		inverseMatrix_[7] =  v0611 * matrix_[ 0] + v1003 * matrix_[ 4] + v0207 * matrix_[ 8];
-		inverseMatrix_[7] -= v1007 * matrix_[ 0] + v0211 * matrix_[ 4] + v0603 * matrix_[ 8];
+		inv[0] = v1015 * mat[ 5] + v1407 * mat[ 9] + v0611 * mat[13]
+		       - v1411 * mat[ 5] - v0615 * mat[ 9] - v1007 * mat[13];
+		inv[1] = v1411 * mat[ 1] + v0215 * mat[ 9] + v1003 * mat[13]
+		       - v1015 * mat[ 1] - v1403 * mat[ 9] - v0211 * mat[13];
+		inv[2] = v0615 * mat[ 1] + v1403 * mat[ 5] + v0207 * mat[13]
+		       - v1407 * mat[ 1] - v0215 * mat[ 5] - v0603 * mat[13];
+		inv[3] = v1007 * mat[ 1] + v0211 * mat[ 5] + v0603 * mat[ 9]
+		       - v0611 * mat[ 1] - v1003 * mat[ 5] - v0207 * mat[ 9];
+		inv[4] = v1411 * mat[ 4] + v0615 * mat[ 8] + v1007 * mat[12]
+		       - v1015 * mat[ 4] - v1407 * mat[ 8] - v0611 * mat[12];
+		inv[5] = v1015 * mat[ 0] + v1403 * mat[ 8] + v0211 * mat[12]
+		       - v1411 * mat[ 0] - v0215 * mat[ 8] - v1003 * mat[12];
+		inv[6] = v1407 * mat[ 0] + v0215 * mat[ 4] + v0603 * mat[12]
+		       - v0615 * mat[ 0] - v1403 * mat[ 4] - v0207 * mat[12];
+		inv[7] = v0611 * mat[ 0] + v1003 * mat[ 4] + v0207 * mat[ 8]
+		       - v1007 * mat[ 0] - v0211 * mat[ 4] - v0603 * mat[ 8];
 
-		const TValue v0813 = matrix_[ 8] * matrix_[13];
-		const TValue v1209 = matrix_[12] * matrix_[ 9];
-		const TValue v0413 = matrix_[ 4] * matrix_[13];
-		const TValue v1205 = matrix_[12] * matrix_[ 5];
-		const TValue v0409 = matrix_[ 4] * matrix_[ 9];
-		const TValue v0805 = matrix_[ 8] * matrix_[ 5];
-		const TValue v0013 = matrix_[ 0] * matrix_[13];
-		const TValue v1201 = matrix_[12] * matrix_[ 1];
-		const TValue v0009 = matrix_[ 0] * matrix_[ 9];
-		const TValue v0801 = matrix_[ 8] * matrix_[ 1];
-		const TValue v0005 = matrix_[ 0] * matrix_[ 5];
-		const TValue v0401 = matrix_[ 4] * matrix_[ 1];
+		const TValue v0813 = mat[ 8] * mat[13];
+		const TValue v1209 = mat[12] * mat[ 9];
+		const TValue v0413 = mat[ 4] * mat[13];
+		const TValue v1205 = mat[12] * mat[ 5];
+		const TValue v0409 = mat[ 4] * mat[ 9];
+		const TValue v0805 = mat[ 8] * mat[ 5];
+		const TValue v0013 = mat[ 0] * mat[13];
+		const TValue v1201 = mat[12] * mat[ 1];
+		const TValue v0009 = mat[ 0] * mat[ 9];
+		const TValue v0801 = mat[ 8] * mat[ 1];
+		const TValue v0005 = mat[ 0] * mat[ 5];
+		const TValue v0401 = mat[ 4] * mat[ 1];
 
-		inverseMatrix_[ 8]  = v0813 * matrix_[ 7] + v1205 * matrix_[11] + v0409 * matrix_[15];
-		inverseMatrix_[ 8] -= v1209 * matrix_[ 7] + v0413 * matrix_[11] + v0805 * matrix_[15];
-		inverseMatrix_[ 9]  = v1209 * matrix_[ 3] + v0013 * matrix_[11] + v0801 * matrix_[15];
-		inverseMatrix_[ 9] -= v0813 * matrix_[ 3] + v1201 * matrix_[11] + v0009 * matrix_[15];
-		inverseMatrix_[10]  = v0413 * matrix_[ 3] + v1201 * matrix_[ 7] + v0005 * matrix_[15];
-		inverseMatrix_[10] -= v1205 * matrix_[ 3] + v0013 * matrix_[ 7] + v0401 * matrix_[15];
-		inverseMatrix_[11]  = v0805 * matrix_[ 3] + v0009 * matrix_[ 7] + v0401 * matrix_[11];
-		inverseMatrix_[11] -= v0409 * matrix_[ 3] + v0801 * matrix_[ 7] + v0005 * matrix_[11];
-		inverseMatrix_[12]  = v0413 * matrix_[10] + v0805 * matrix_[14] + v1209 * matrix_[ 6];
-		inverseMatrix_[12] -= v0409 * matrix_[14] + v0813 * matrix_[ 6] + v1205 * matrix_[10];
-		inverseMatrix_[13]  = v0009 * matrix_[14] + v0813 * matrix_[ 2] + v1201 * matrix_[10];
-		inverseMatrix_[13] -= v0013 * matrix_[10] + v0801 * matrix_[14] + v1209 * matrix_[ 2];
-		inverseMatrix_[14]  = v0013 * matrix_[ 6] + v0401 * matrix_[14] + v1205 * matrix_[ 2];
-		inverseMatrix_[14] -= v0005 * matrix_[14] + v0413 * matrix_[ 2] + v1201 * matrix_[ 6];
-		inverseMatrix_[15]  = v0005 * matrix_[10] + v0409 * matrix_[ 2] + v0801 * matrix_[ 6];
-		inverseMatrix_[15] -= v0009 * matrix_[ 6] + v0401 * matrix_[10] + v0805 * matrix_[ 2];
+		inv[ 8] = v0813 * mat[ 7] + v1205 * mat[11] + v0409 * mat[15]
+		        - v1209 * mat[ 7] - v0413 * mat[11] - v0805 * mat[15];
+		inv[ 9] = v1209 * mat[ 3] + v0013 * mat[11] + v0801 * mat[15]
+		        - v0813 * mat[ 3] - v1201 * mat[11] - v0009 * mat[15];
+		inv[10] = v0413 * mat[ 3] + v1201 * mat[ 7] + v0005 * mat[15]
+		        - v1205 * mat[ 3] - v0013 * mat[ 7] - v0401 * mat[15];
+		inv[11] = v0805 * mat[ 3] + v0009 * mat[ 7] + v0401 * mat[11]
+		        - v0409 * mat[ 3] - v0801 * mat[ 7] - v0005 * mat[11];
+		inv[12] = v0413 * mat[10] + v0805 * mat[14] + v1209 * mat[ 6]
+		        - v0409 * mat[14] - v0813 * mat[ 6] - v1205 * mat[10];
+		inv[13] = v0009 * mat[14] + v0813 * mat[ 2] + v1201 * mat[10]
+		        - v0013 * mat[10] - v0801 * mat[14] - v1209 * mat[ 2];
+		inv[14] = v0013 * mat[ 6] + v0401 * mat[14] + v1205 * mat[ 2]
+		        - v0005 * mat[14] - v0413 * mat[ 2] - v1201 * mat[ 6];
+		inv[15] = v0005 * mat[10] + v0409 * mat[ 2] + v0801 * mat[ 6]
+		        - v0009 * mat[ 6] - v0401 * mat[10] - v0805 * mat[ 2];
 
-		const TValue det = matrix_[0] * inverseMatrix_[0] + matrix_[4] * inverseMatrix_[1] + matrix_[8] * inverseMatrix_[2] + matrix_[12] * inverseMatrix_[3];
+		const TValue det = mat[0] * inv[0] + mat[4] * inv[1] + mat[8] * inv[2] + mat[12] * inv[3];
 		if (det == TNumTraits::zero)
 		{
-			inverseMatrix_.reset();
 			LASS_THROW("transformation not invertible");
 		}
-		std::transform(inverseMatrix_.get(), inverseMatrix_.get() + 16,
-			inverseMatrix_.get(),
-			std::bind2nd(std::multiplies<TValue>(), num::inv(det)));
+		const TValue invDet = num::inv(det);
+		for (unsigned i = 0; i < 16; ++i)
+		{
+			inv[i] *= invDet;
+		}
+		sync_.lock();
+		inverseMatrix_.swap(inverseMatrix);
+		sync_.unlock();
 	}
 
 	LASS_ASSERT(inverseMatrix_ && matrix_);

@@ -90,30 +90,37 @@ Transformation2D<T>::inverse() const
 {
 	if (inverseMatrix_.isEmpty())
 	{
-		inverseMatrix_.reset(new TValue[matrixSize_]);
+		TMatrix inverseMatrix(new TValue[matrixSize_]);
+		const TValue* const mat = matrix_.get();
+		TValue* const inv = inverseMatrix.get();
 
-		inverseMatrix_[0] = matrix_[4] * matrix_[8] - matrix_[5] * matrix_[7];
-		inverseMatrix_[1] = matrix_[7] * matrix_[2] - matrix_[8] * matrix_[1];
-		inverseMatrix_[2] = matrix_[1] * matrix_[5] - matrix_[2] * matrix_[4];
+		inv[0] = mat[4] * mat[8] - mat[5] * mat[7];
+		inv[1] = mat[7] * mat[2] - mat[8] * mat[1];
+		inv[2] = mat[1] * mat[5] - mat[2] * mat[4];
 
-		inverseMatrix_[3] = matrix_[6] * matrix_[5] - matrix_[8] * matrix_[3];
-		inverseMatrix_[4] = matrix_[0] * matrix_[8] - matrix_[2] * matrix_[6];
-		inverseMatrix_[5] = matrix_[3] * matrix_[2] - matrix_[5] * matrix_[0];
+		inv[3] = mat[6] * mat[5] - mat[8] * mat[3];
+		inv[4] = mat[0] * mat[8] - mat[2] * mat[6];
+		inv[5] = mat[3] * mat[2] - mat[5] * mat[0];
 
-		inverseMatrix_[6] = matrix_[3] * matrix_[7] - matrix_[4] * matrix_[6];
-		inverseMatrix_[7] = matrix_[6] * matrix_[1] - matrix_[7] * matrix_[0];
-		inverseMatrix_[8] = matrix_[0] * matrix_[4] - matrix_[1] * matrix_[3];
+		inv[6] = mat[3] * mat[7] - mat[4] * mat[6];
+		inv[7] = mat[6] * mat[1] - mat[7] * mat[0];
+		inv[8] = mat[0] * mat[4] - mat[1] * mat[3];
 
-		const TValue det = matrix_[0] * inverseMatrix_[0] + matrix_[1] * inverseMatrix_[3] + matrix_[2] * inverseMatrix_[6];
+		const TValue det = mat[0] * inv[0] + mat[1] * inv[3] + mat[2] * inv[6];
 		if (det == TNumTraits::zero)
 		{
-			inverseMatrix_.reset();
+			inverseMatrix.reset();
 			LASS_THROW("transformation not invertible");
 		}
 		const TValue invDet = num::inv(det);
-		std::transform(inverseMatrix_.get(), inverseMatrix_.get() + matrixSize_,
-			inverseMatrix_.get(),
-			std::bind2nd(std::multiplies<TValue>(), num::inv(det)));
+		for (int i = 0; i < 9; ++i)
+		{
+			inv[i] *= invDet;
+		}
+
+		sync_.lock();
+		inverseMatrix_.swap(inverseMatrix);
+		sync_.unlock();
 	}
 
 	LASS_ASSERT(inverseMatrix_ && matrix_);

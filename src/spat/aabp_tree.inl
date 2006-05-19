@@ -41,7 +41,8 @@ namespace spat
 template <class O, class OT>
 AabpTree<O, OT>::AabpTree():
 	begin_(),
-	end_()
+	end_(),
+	size_(0)
 {
 }
 
@@ -50,20 +51,27 @@ AabpTree<O, OT>::AabpTree():
 template <class O, class OT>
 AabpTree<O, OT>::AabpTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
-	end_(iEnd)
+	end_(iEnd),
+	size_(std::distance(begin_, end_))
 {
-	size_ = std::distance(begin_, end_);
-	heap_.resize(2 * size_);
-
-	TBoundedObjects input;
-	input.reserve(size_);
-	for (TObjectIterator i = begin_; i != end_; ++i)
+	if (!isEmpty())
 	{
-		input.push_back(BoundedObject(TObjectTraits::aabb(i), i));
-	}
+		heap_.resize(2 * size_);
 
-	aabb_ = findAabb(input.begin(), input.end());
-	balance(0, aabb_, input.begin(), input.end());
+		TBoundedObjects input;
+		input.reserve(size_);
+		for (TObjectIterator i = begin_; i != end_; ++i)
+		{
+			input.push_back(BoundedObject(TObjectTraits::aabb(i), i));
+		}
+
+		aabb_ = findAabb(input.begin(), input.end());
+		balance(0, aabb_, input.begin(), input.end());
+	}
+	else
+	{
+		aabb_ = TObjectTraits::emptyAabb();
+	}
 }
 
 
@@ -89,7 +97,7 @@ AabpTree<O, OT>::aabb() const
 template <class O, class OT>
 const bool AabpTree<O, OT>::contains(const TPoint& iPoint, const TInfo* iInfo) const
 {
-	if (!TObjectTraits::contains(aabb_, iPoint))
+	if (isEmpty() || !TObjectTraits::contains(aabb_, iPoint))
 	{
 		return false;
 	}
@@ -103,7 +111,7 @@ template <typename OutputIterator>
 OutputIterator AabpTree<O, OT>::find(const TPoint& iPoint, OutputIterator iResult,
 									 const TInfo* iInfo) const
 {
-	if (!TObjectTraits::contains(aabb_, iPoint))
+	if (isEmpty() || !TObjectTraits::contains(aabb_, iPoint))
 	{
 		return iResult;
 	}
@@ -117,7 +125,7 @@ const typename AabpTree<O, OT>::TObjectIterator
 AabpTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMin, const TInfo* iInfo) const
 {
 	TValue tNear;
-	if (!TObjectTraits::intersect(aabb_, iRay, tNear, iMin))
+	if (isEmpty() || !TObjectTraits::intersect(aabb_, iRay, tNear, iMin))
 	{
 		return end_;
 	}
@@ -146,7 +154,7 @@ const bool AabpTree<O, OT>::intersects(const TRay& iRay, TParam iMin, TParam iMa
 									   const TInfo* iInfo) const
 {
 	TValue tNear;
-	if (!TObjectTraits::intersect(aabb_, iRay, tNear, iMin))
+	if (isEmpty() || !TObjectTraits::intersect(aabb_, iRay, tNear, iMin))
 	{
 		return false;
 	}
@@ -182,7 +190,7 @@ void AabpTree<O, OT>::swap(TSelf& iOther)
 template <class O, class OT>
 const bool AabpTree<O, OT>::isEmpty() const
 {
-	return heap_.empty();
+	return begin_ == end_;
 }
 
 
