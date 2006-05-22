@@ -67,6 +67,11 @@ namespace meta
 
 struct NullType
 {
+	NullType() {}
+	bool operator==(const NullType& iOtherNullType) { return true; }
+	bool operator!=(const NullType& iOtherNullType) { return false; }
+
+	static NullType&		Null() { static NullType theNull; return theNull; }
 };
 
 

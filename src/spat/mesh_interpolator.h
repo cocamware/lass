@@ -37,6 +37,7 @@
 
 #include "spat_common.h"
 #include "planar_mesh.h"
+#include "../meta/null_type.h"
 
 namespace lass
 {
@@ -77,7 +78,7 @@ class MeshInterpolator
 public:
 	typedef prim::Aabb2D<T> TAabb2D;
 protected:
-	typedef PlanarMesh<T, TPI, void, void >  TPlanarMesh;
+	typedef PlanarMesh<T, TPI*, lass::meta::NullType , lass::meta::NullType >  TPlanarMesh;
 	MeshInterpolator() {}
 
 	TPlanarMesh mesh_;
@@ -139,7 +140,7 @@ void MeshInterpolator<T,TPI>::insertPolyline( const TPolyline2D& iPoly, const TP
 
 	for (size_t i = 1; i < iPoly.size(); ++i)
 	{
-		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]));
+		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]),lass::meta::NullType(),lass::meta::NullType());
 	}
 
 	info_.push_back( iPointInfo );

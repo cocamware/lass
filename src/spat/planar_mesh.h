@@ -48,6 +48,7 @@
 #include "../util/callback_r_1.h"
 #include "../util/small_object.h"
 #include "../io/matlab_o_stream.h"
+#include "../meta/null_type.h"
 
 
 namespace lass
@@ -65,6 +66,40 @@ namespace spat
 		TEMPLATE_DEF class EdgeToMatlab;
 		TEMPLATE_DEF class EdgeGatherer;
 		TEMPLATE_DEF class EdgeMarker;
+	
+		template < typename PointHandle, typename EdgeHandle, typename FaceHandle >
+		class HandleHolder : public lass::util::SmallObject<16384,64,unsigned char>
+		{
+		public:
+			HandleHolder() : pointHandle_(), edgeHandle_(), faceHandle_() {}
+			const PointHandle	pointHandle() const { return pointHandle_; }
+			const EdgeHandle	edgeHandle() const { return edgeHandle_; }
+			const FaceHandle	faceHandle() const { return faceHandle_; }
+			PointHandle&		pointHandle(){ return pointHandle_; }
+			EdgeHandle&			edgeHandle() { return edgeHandle_; }
+			FaceHandle&			faceHandle() { return faceHandle_; }
+		private:
+			PointHandle	pointHandle_;
+			EdgeHandle	edgeHandle_;
+			FaceHandle	faceHandle_;
+		};
+
+		template < typename PointHandle >
+		class HandleHolder< PointHandle, lass::meta::NullType, lass::meta::NullType > // [this is too slow for really large meshes]: public lass::util::SmallObject<16384,64,unsigned char>
+		{
+		public:
+			typedef lass::meta::NullType EdgeHandle;
+			typedef lass::meta::NullType FaceHandle;
+			HandleHolder() : pointHandle_(NULL) {}
+			const PointHandle	pointHandle() const { return pointHandle_; }
+			const EdgeHandle	edgeHandle() const { return lass::meta::NullType::Null(); }
+			const FaceHandle	faceHandle() const { return lass::meta::NullType::Null(); }
+			PointHandle&		pointHandle(){ return pointHandle_; }
+			EdgeHandle&			edgeHandle() { return lass::meta::NullType::Null(); }
+			FaceHandle&			faceHandle() { return lass::meta::NullType::Null(); }
+		private:
+			PointHandle	pointHandle_;
+		};
 	}
 
 	TEMPLATE_DEF
@@ -79,21 +114,16 @@ namespace spat
 		typedef lass::prim::SimplePolygon2D<T> TSimplePolygon2D;
 		typedef lass::prim::Triangle2D<T> TTriangle2D;
 
-		static const int PLANAR_MESH_STACK_DEPTH = 8;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
+		static const int PLANAR_MESH_STACK_DEPTH = 4;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
 	private:
-		struct ProxyHandle : public lass::util::SmallObject<16384,64,unsigned char>
+		struct ProxyHandle : public impl::HandleHolder<typename PointHandle, typename EdgeHandle, typename FaceHandle> 
 		{
 			TPoint2D*       point_;
-			PointHandle*    pointHandle_;
-			EdgeHandle*     edgeHandle_;
-			FaceHandle*     faceHandle_;
-			bool            mark_;
 #pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits")
 			std::vector<bool>   internalMark_;
-
-			ProxyHandle() : point_(NULL), pointHandle_(NULL), edgeHandle_(NULL), faceHandle_(NULL), mark_(false) { internalMark_ = std::vector<bool>(PLANAR_MESH_STACK_DEPTH,false); }
+			bool            mark_;
+			ProxyHandle() : point_(NULL), mark_(false) { internalMark_ = std::vector<bool>(PLANAR_MESH_STACK_DEPTH,false); }
 		};
-
 		class StackIncrementer
 		{
 			int*    stackDepth_;    /**< pointer to int containing real stack depth */
@@ -143,10 +173,10 @@ namespace spat
 		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
 		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator& oCrossedEdges ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true);
-		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL,bool makeDelaunay = true);
-		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle* iLeftHandle = NULL, EdgeHandle* iRightHandle = NULL, bool makeDelaunay = true);
-		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
-		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle*> iFaceHandles);
+		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(),bool makeDelaunay = true);
+		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
+		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
+		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle> iFaceHandles);
 		bool    deleteEdge( TEdge* iEdge );
 		long    edgeCount() const;
 		void    makeMaximalConvexPolygon();
@@ -167,13 +197,13 @@ namespace spat
 		static  bool inDualMesh( TEdge* iEdge );
 		static  bool marking( TEdge* iEdge );
 		static  void setMarking( TEdge* iEdge, bool iMark );
-		static  PointHandle*    pointHandle( TEdge* iEdge );
-		static  EdgeHandle*     edgeHandle( TEdge* iEdge );
-		static  FaceHandle*     faceHandle( TEdge* iEdge );
-		static  void setPointHandle( TEdge* iEdge, PointHandle* iHandle );
-		static  void setEdgeHandle( TEdge* iEdge, EdgeHandle* iHandle );
-		static  void setFaceHandle( TEdge* iEdge, FaceHandle* iHandle );
-		static  void setOrientedEdgeHandle( TEdge* iEdge, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, const TVector2D& iDirection );
+		static  PointHandle    pointHandle( TEdge* iEdge );
+		static  EdgeHandle     edgeHandle( TEdge* iEdge );
+		static  FaceHandle     faceHandle( TEdge* iEdge );
+		static  void setPointHandle( TEdge* iEdge, PointHandle iHandle );
+		static  void setEdgeHandle( TEdge* iEdge, EdgeHandle iHandle );
+		static  void setFaceHandle( TEdge* iEdge, FaceHandle iHandle );
+		static  void setOrientedEdgeHandle( TEdge* iEdge, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, const TVector2D& iDirection );
 	private:
 		TEdge*  startEdge_;
 		TQuadEdgeList       quadEdgeList_;
@@ -210,7 +240,7 @@ namespace spat
 		void setInternalMarkingAroundVertex( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
-		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle );
+		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
 		
 #ifndef NDEBUG
 	public:
@@ -513,14 +543,14 @@ namespace spat
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::connect( TEdge* a, TEdge* b)
 	{
-		FaceHandle* fa = faceHandle(a);
-		FaceHandle* fb = faceHandle(b);
+		FaceHandle fa = faceHandle(a);
+		FaceHandle fb = faceHandle(b);
 		if ( fa != fb )
 		{
            	LASS_THROW("connect of edges would violate face constraint");
 		}
-		PointHandle* hADest = pointHandle( a->sym() );
-		PointHandle* hB = pointHandle( b );
+		PointHandle hADest = pointHandle( a->sym() );
+		PointHandle hB = pointHandle( b );
 		TEdge* e = makeEdge( dest(a), org(b), false);
 		TQuadEdge::splice( e, a->lNext() );
 		TQuadEdge::splice( e->sym(), b );
@@ -558,10 +588,10 @@ namespace spat
 	// edge is also marked as constrained.
 	{
 		const TVector2D dir = direction(e);
-		PointHandle*    iE = pointHandle(e);
-		PointHandle*    iES= pointHandle(e->sym());
-		EdgeHandle*		iLE = edgeHandle(e);
-		EdgeHandle*		iRE = edgeHandle(e->sym());
+		PointHandle    iE = pointHandle(e);
+		PointHandle    iES= pointHandle(e->sym());
+		EdgeHandle		iLE = edgeHandle(e);
+		EdgeHandle		iRE = edgeHandle(e->sym());
 
 		TPoint2D thePoint = iPoint;
 		if (e->isConstrained())
@@ -630,10 +660,10 @@ namespace spat
 				d
 
 		*/
-		PointHandle* hA = pointHandle(e->oNext()->sym());
-		PointHandle* hB = pointHandle(e);
-		PointHandle* hC = pointHandle(e->sym());
-		PointHandle* hD = pointHandle(e->oPrev()->sym());
+		PointHandle hA = pointHandle(e->oNext()->sym());
+		PointHandle hB = pointHandle(e);
+		PointHandle hC = pointHandle(e->sym());
+		PointHandle hD = pointHandle(e->oPrev()->sym());
 
 		TQuadEdge::splice( e, a );
 		TQuadEdge::splice( e->sym(), b );
@@ -946,7 +976,7 @@ namespace spat
 		// unused?  [Bramz]
 		// int chOrder = chainOrder(e);
 
-		PointHandle* pH = pointHandle(e);
+		PointHandle pH = pointHandle(e);
 		TEdge* base = makeEdge(org(e),iPoint,false);
 		TQuadEdge::splice(base,e);
 		setPointHandle(e, pH);
@@ -983,7 +1013,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, bool makeDelaunay )
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay )
 	{
 		
 		TEdge *ea, *eb;
@@ -1115,7 +1145,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, bool makeDelaunay)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay)
 	{
 		TEdge* e = NULL;
 		for (int i=1;i<iPolygon.size();++i)
@@ -1128,7 +1158,7 @@ namespace spat
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle = NULL)
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle())
 	{	
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
@@ -1144,7 +1174,7 @@ namespace spat
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle*> iFaceHandles)
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle> iFaceHandles)
 	{	
 		if (iPolygons.size()!=iFaceHandles.size())
 		{
@@ -1167,7 +1197,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle* iFaceHandle = NULL)
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle())
 	{	
 		TPoint2D bary = triangle(iStartEdge).surfaceCentroid().affine();
 		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
@@ -1345,27 +1375,27 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	PointHandle* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandle( TEdge* iEdge )
+	PointHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandle( TEdge* iEdge )
 	{
-		return inPrimaryMesh( iEdge ) ? iEdge->handle()->pointHandle_ : NULL;
+		return inPrimaryMesh( iEdge ) ? iEdge->handle()->pointHandle() : PointHandle();
 	}
 
 	TEMPLATE_DEF
-	EdgeHandle* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandle( TEdge* iEdge )
+	EdgeHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandle( TEdge* iEdge )
 	{
-		return inPrimaryMesh( iEdge ) ? iEdge->handle()->edgeHandle_ : NULL;
+		return inPrimaryMesh( iEdge ) ? iEdge->handle()->edgeHandle() : EdgeHandle();
 	}
 
 	TEMPLATE_DEF
-	FaceHandle* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::faceHandle( TEdge* iEdge )
+	FaceHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::faceHandle( TEdge* iEdge )
 	{
 		if ( inPrimaryMesh( iEdge ) )
 		{
 			ProxyHandle* temp = iEdge->rot()->handle();
 			if (temp)
-				return temp->faceHandle_;
+				return temp->faceHandle();
 		}
-		return NULL;
+		return FaceHandle();
 	}
 
 	TEMPLATE_DEF
@@ -1406,7 +1436,7 @@ namespace spat
 
 
 	TEMPLATE_DEF
-	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setPointHandle( TEdge* iEdge, PointHandle* iHandle )
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setPointHandle( TEdge* iEdge, PointHandle iHandle )
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setPointHandle : edge not in primary mesh");
@@ -1414,21 +1444,21 @@ namespace spat
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			(LASS_ENFORCE(currentEdge->handle()))->pointHandle_ = iHandle;
+			(LASS_ENFORCE(currentEdge->handle()))->pointHandle() = iHandle;
 			currentEdge = currentEdge->oNext();
 		} while ( currentEdge != iEdge );
 	}
 
 	TEMPLATE_DEF
-	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setEdgeHandle( TEdge* iEdge, EdgeHandle* iHandle )
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setEdgeHandle( TEdge* iEdge, EdgeHandle iHandle )
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setEdgeHandle : edge not in primary mesh");
-		iEdge->handle()->edgeHandle_ = iHandle;
+		iEdge->handle()->edgeHandle() = iHandle;
 	}
 
 	TEMPLATE_DEF
-	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setFaceHandle( TEdge* iEdge, FaceHandle* iHandle )
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setFaceHandle( TEdge* iEdge, FaceHandle iHandle )
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setFaceHandle : edge not in dual mesh");
@@ -1436,7 +1466,7 @@ namespace spat
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			(LASS_ENFORCE(currentEdge->rot()->handle()))->faceHandle_ = iHandle;
+			(LASS_ENFORCE(currentEdge->rot()->handle()))->faceHandle() = iHandle;
 			if ( faceHandle( currentEdge ) != faceHandle( currentEdge->sym() ) )
 				currentEdge->quadEdge()->faceConstrain();
 			else
@@ -1447,7 +1477,7 @@ namespace spat
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setOrientedEdgeHandle( 
-			TEdge* iEdge, EdgeHandle* iLeftHandle, EdgeHandle* iRightHandle, const TVector2D& iOrientation )
+			TEdge* iEdge, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, const TVector2D& iOrientation )
 	{
 #ifndef NDEBUG
 		++numSetOrientedEdgeHandleCalls;
