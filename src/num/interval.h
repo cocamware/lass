@@ -67,7 +67,7 @@ public:
 
 	static  const interval<C>   empty;
 
-	inline interval() {};
+	inline interval() { v[0]=v[1]=C();};
 	inline ~interval() {};
 	inline explicit interval(typename util::CallTraits<baseType>::TParam iValue);
 	inline explicit interval(typename util::CallTraits<baseType>::TParam iInf,typename util::CallTraits<baseType>::TParam iSup);

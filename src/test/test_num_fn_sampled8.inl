@@ -44,10 +44,13 @@ void testNumFNSampled8()
 	lass::num::interval<float>  i;
 	lass::num::FNSampled8 a;
 
+	LASS_TEST_CHECK_EQUAL(i.inf(), 0.f);
+	LASS_TEST_CHECK_EQUAL(i.sup(), 0.f);
+
 	lass::num::inpsqrt(a);
 	lass::num::inpsqrt(i);
 	lass::num::inpsqrt(i);
-
+	
 }
 
 
