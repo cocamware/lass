@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,39 +23,42 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @class lass::io::BinaryIMemoryBlock
+ *  @brief Input Stream from a memory block.
+ */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_SOCKET_H
+#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_SOCKET_H
 
-#include "test_common.h"
-#include "test_io.h"
-
-#include "test_io_avi.inl"
-#include "test_io_arg_parser.inl"
-#include "test_io_binary_stream.inl"
-#include "test_io_file_attributes.inl"
-#include "test_io_proxy_system.inl"
-#include "test_io_socket.inl"
-#include "../io/image.h"
+#include "io_common.h"
+#include "binary_i_stream.h"
 
 namespace lass
 {
-namespace test
+namespace io
 {
 
-TUnitTests testIo()
+class Socket;
+
+class LASS_DLL BinaryISocket: public BinaryIStream
 {
-	TUnitTests result;
+public:
 
-	//result.push_back(LASS_UNIT_TEST(testIoAvi));
-	result.push_back(LASS_UNIT_TEST(testIoArgParser));
-	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
-	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
-	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
-	result.push_back(LASS_UNIT_TEST(testIoSocket));
+	BinaryISocket(Socket& iSocket);
 
-	return result;
+private:
+
+	long doTellg() const;
+	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
+	void doRead(void* oOutput, size_t iNumberOfBytes);
+
+	Socket& socket_;
+};
+
+
+
 }
 
-
 }
 
-}
+#endif

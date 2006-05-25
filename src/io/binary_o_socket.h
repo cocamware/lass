@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,39 +23,57 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @class lass::io::BinaryOSocket
+ *  @brief BinaryOStream to socket.
+ */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_SOCKET_H
+#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_O_SOCKET_H
 
-#include "test_common.h"
-#include "test_io.h"
-
-#include "test_io_avi.inl"
-#include "test_io_arg_parser.inl"
-#include "test_io_binary_stream.inl"
-#include "test_io_file_attributes.inl"
-#include "test_io_proxy_system.inl"
-#include "test_io_socket.inl"
-#include "../io/image.h"
+#include "io_common.h"
+#include "binary_o_stream.h"
+#include "../util/scoped_ptr.h"
+#include "../util/thread.h"
 
 namespace lass
 {
-namespace test
+namespace io
 {
 
-TUnitTests testIo()
+class Socket;
+
+class LASS_DLL BinaryOSocket: public BinaryOStream
 {
-	TUnitTests result;
+public:
 
-	//result.push_back(LASS_UNIT_TEST(testIoAvi));
-	result.push_back(LASS_UNIT_TEST(testIoArgParser));
-	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
-	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
-	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
-	result.push_back(LASS_UNIT_TEST(testIoSocket));
+	BinaryOSocket(Socket& iSocket, std::size_t iBufferSize = 1024, 
+		unsigned long iFlushPeriod = 100);
+	~BinaryOSocket();
 
-	return result;
+private:
+
+	typedef std::vector<char> TBuffer;
+
+	long doTellp() const;
+	void doSeekp(long iOffset, std::ios_base::seekdir iDirection);
+	void doWrite(const void* iBytes, size_t iNumberOfBytes);
+	void doFlush();
+
+	void flusher();
+
+	Socket& socket_;
+	TBuffer buffer_;
+	std::size_t bufferSize_;
+	std::size_t current_;
+	util::Semaphore bufferLock_;
+	util::Condition flushCondition_;
+	util::ScopedPtr<util::Thread> flushThread_;
+	unsigned long flushPeriod_;
+	bool stopFlushThread_;
+};
+
 }
 
-
 }
 
-}
+#endif

@@ -34,12 +34,15 @@ namespace lass
 namespace util
 {
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-
 namespace impl
 {
 
 template <int byteSize> struct AtomicOperations;
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
+
+#pragma warning(push)
+#pragma warning(disable: 4035)
 
 template <>
 struct AtomicOperations<1>
@@ -118,6 +121,8 @@ struct AtomicOperations<4>
 };
 
 }
+
+#pragma warning(pop)
 
 #endif
 

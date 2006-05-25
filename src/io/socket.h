@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -26,37 +25,47 @@
 
 
 
-#include "test_common.h"
-#include "test_io.h"
+/** @class lass::io::Socket
+ *  @brief TCP/IP socket
+ */
 
-#include "test_io_avi.inl"
-#include "test_io_arg_parser.inl"
-#include "test_io_binary_stream.inl"
-#include "test_io_file_attributes.inl"
-#include "test_io_proxy_system.inl"
-#include "test_io_socket.inl"
-#include "../io/image.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_SOCKET_H
+#define LASS_GUARDIAN_OF_INCLUSION_IO_SOCKET_H
+
+#include "io_common.h"
+#include "../util/non_copyable.h"
 
 namespace lass
 {
-namespace test
+namespace io
 {
 
-TUnitTests testIo()
+class Socket: public util::NonCopyable
 {
-	TUnitTests result;
+public:
 
-	//result.push_back(LASS_UNIT_TEST(testIoAvi));
-	result.push_back(LASS_UNIT_TEST(testIoArgParser));
-	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
-	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
-	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
-	result.push_back(LASS_UNIT_TEST(testIoSocket));
+	Socket();
+	~Socket();
 
-	return result;
+	void bind(unsigned short iPort);
+	void listen();
+	void accept(Socket& oConnection);
+	void connect(const std::string& iIpAddress, unsigned short iPort);
+
+	const int send(const void* iBegin, int iLength);
+	const void* const send(const void* iBegin, const void* iEnd);
+	const int receive(void* iBegin, int iLength);
+	void* const receive(void* iBegin, void* iEnd);
+
+	void swap(Socket& ioOther);
+
+private:
+	void* pimpl_;
+};
+
+}
 }
 
+#endif
 
-}
-
-}
+// EOF

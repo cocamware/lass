@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,36 +23,62 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#include "test_common.h"
-#include "test_io.h"
-
-#include "test_io_avi.inl"
-#include "test_io_arg_parser.inl"
-#include "test_io_binary_stream.inl"
-#include "test_io_file_attributes.inl"
-#include "test_io_proxy_system.inl"
-#include "test_io_socket.inl"
-#include "../io/image.h"
+#include "io_common.h"
+#include "binary_i_socket.h"
+#include "socket.h"
 
 namespace lass
 {
-namespace test
+namespace io
 {
 
-TUnitTests testIo()
+BinaryISocket::BinaryISocket(Socket& iSocket):
+	BinaryIStream(),
+	socket_(iSocket)
 {
-	TUnitTests result;
+}
 
-	//result.push_back(LASS_UNIT_TEST(testIoAvi));
-	result.push_back(LASS_UNIT_TEST(testIoArgParser));
-	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
-	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));
-	result.push_back(LASS_UNIT_TEST(testIoProxySystem));
-	result.push_back(LASS_UNIT_TEST(testIoSocket));
 
-	return result;
+
+// --- private -------------------------------------------------------------------------------------
+
+void BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
+{
+	if (!good())
+	{
+		return;
+	}
+	char* begin = static_cast<char*>(oBegin);
+	while (iNumberOfBytes > 0)
+	{
+		try
+		{
+			const int read = socket_.receive(begin, iNumberOfBytes);
+			LASS_ASSERT(read >= 0 && read <= iNumberOfBytes);
+			begin += read;
+			iNumberOfBytes -= read;
+		}
+		catch (util::Exception&)
+		{
+			setstate(std::ios_base::badbit);
+			return;
+		}
+	}
+}
+
+
+
+long BinaryISocket::doTellg() const
+{
+	LASS_THROW("no position in network streams!");
+	return 0;
+}
+
+
+
+void BinaryISocket::doSeekg(long iOffset, std::ios_base::seekdir iDirection)
+{
+	LASS_THROW("no seeking in network streams!");
 }
 
 
