@@ -36,7 +36,7 @@ struct CapsuleRay
 
 		const TVector v1 = iRay.direction() - direction * dot(iRay.direction(), direction);
 		const TValue a = v1.squaredNorm();
-		if(a == 0)
+		if(a == 0) //parallel axes
 		{
 			TValue t = l.t(iRay.support());
 			const TValue squaredDistance((l.tail() - iRay.project(l.tail())).squaredNorm());
@@ -101,7 +101,7 @@ struct CapsuleRay
 			const TValue t2 = (-b + sqrtD)*invA;
 			if(t2 > iMinT)
 			{
-			if(iCapsule.contains(iRay.point(iMinT)))
+				if(iCapsule.contains(iRay.point(iMinT)))
 				{
 					const TValue test2 = l.t(iRay.point(t2));
 					if(test2 >= 0 && test2 <= 1)
