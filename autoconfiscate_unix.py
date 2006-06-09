@@ -21,7 +21,7 @@ test_dirs = ['test']
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
 warning_flags = '-Wall'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
-libs = '-lpthread -lrt -ldl -lutil'
+libs = '-lpthread -lutil'
 
 import os
 import os.path
@@ -151,6 +151,8 @@ AM_SANITY_CHECK
 AC_LANG_CPLUSPLUS
 
 # Checks for libraries.
+AC_CHECK_LIB(rt, clock_gettime, [LASS_LDFLAGS_RT="-lrt"], [LASS_LDFLAGS_RT=""])
+AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
 
 # Checks for header files.
 AC_HEADER_STDBOOL
@@ -175,6 +177,11 @@ AC_SUBST(LASS_PY_INCLUDES)
 AC_SUBST(LASS_PY_LDFLAGS)
 AC_MSG_RESULT(${LASS_PY_VERSION})
 ''')
+
+	configure.write(r'''
+LASS_LDFLAGS="%s ${LASS_LDFLAGS_RT} ${LASS_LDFLAGS_DL}"
+AC_SUBST(LASS_LDFLAGS)
+''' % libs)
 
 	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
 	configure.write(r'''
@@ -237,8 +244,8 @@ lib%s_la_CPPFLAGS = %s %s %s
 ''' % (simple_release_name, debug_info_flags, code_generation_flags, warning_flags))
 	
 	makefile.write(r'''
-lib%s_la_LDFLAGS = $(LASS_PY_LDFLAGS) %s -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
-''' % (simple_release_name, libs))
+lib%s_la_LDFLAGS = $(LASS_LDFLAGS) $(LASS_PY_LDFLAGS) -version-info $(LASS_LIBRARY_VERSION) -release $(LASS_RELEASE)
+''' % simple_release_name)
 
 	for subdir in headers_dict.keys():
 		incdir = subdir
@@ -290,15 +297,16 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 lass_release_name=@LASS_RELEASE_NAME@
+lass_ldflags=@LASS_LDFLAGS@
 lass_py_ldflags=@LASS_PY_LDFLAGS@
 
 Name: LASS
 Description: Library of Assembled Shared Sources (http://liar.sourceforge.net)
 Requires: 
 Version: @VERSION@
-Libs: -L${libdir} -l${lass_release_name} ${lass_py_ldflags} %s
+Libs: -L${libdir} -l${lass_release_name} ${lass_ldflags} ${lass_py_ldflags}
 Cflags: -I${includedir}/${lass_release_name} -I${libdir}/${lass_release_name}/include
-''' % libs)
+''')
 
 
 
