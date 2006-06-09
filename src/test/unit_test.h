@@ -100,9 +100,9 @@ namespace test
 namespace impl { class UnitTest; }
 typedef std::vector<impl::UnitTest> TUnitTests;
 
-bool runTests(const TUnitTests& iTests, int argc, char* argv[]);
+const bool runTests(const TUnitTests& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* 		oNumFatalErrors);
 
-std::string workPath();
+const std::string workPath();
 
 class TestStream
 {

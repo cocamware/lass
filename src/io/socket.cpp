@@ -26,8 +26,18 @@
 #include "io_common.h"
 #include "socket.h"
 
+#if HAVE_CONFIG_H
+#	include "lass_auto_config.h"
+#endif
+
+#if HAVE_SYS_SOCKET_H && !defined(LASS_IO_SOCKET_HAVE_LIBC)
+#	define LASS_IO_SOCKET_HAVE_LIBC
+#endif
+
 #if defined(LASS_IO_SOCKET_HAVE_WINSOCK)
 #	include "impl/socket_winsock.inl"
+#elif defined(LASS_IO_SOCKET_HAVE_LIBC)
+#	include "impl/socket_libc.inl"
 #else
 #	error "[LASS BUILD MSG] Socket not supported for this platform"
 #endif

@@ -136,71 +136,69 @@ OverloadLink::OverloadLink()
 
 void OverloadLink::setNull()
 {
-	overload_ = 0;
-	type_ = ftNull;
+	pyCFunction_ = 0;
+	unaryfunc_ = 0;
+	binaryfunc_ = 0;
+	ternaryfunc_ = 0;
 }
 
 void OverloadLink::setPyCFunction(PyCFunction iOverload)
 {
-	overload_ = iOverload;
-	type_ = overload_ ? ftPyCFunction : ftNull;
+	setNull();
+	pyCFunction_ = iOverload;
 }
 
 void OverloadLink::setUnaryfunc(unaryfunc iOverload)
 {
-	overload_ = iOverload;
-	type_ = overload_ ? ftUnaryfunc : ftNull;
+	setNull();
+	unaryfunc_ = iOverload;
 }
 
 void OverloadLink::setBinaryfunc(binaryfunc iOverload)
 {
-	overload_ = iOverload;
-	type_ = overload_ ? ftBinaryfunc : ftNull;
+	setNull();
+	binaryfunc_ = iOverload;
 }
 
 void OverloadLink::setTernaryfunc(ternaryfunc iOverload)
 {
-	overload_ = iOverload;
-	type_ = overload_ ? ftTernaryfunc : ftNull;
+	setNull();
+	ternaryfunc_ = iOverload;
 }
 
 bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
 {
 	PyObject* temp = 0;
-	switch (type_)
+	if (pyCFunction_)
 	{
-	case ftNull:
-		LASS_ASSERT(overload_ == 0);
-		return false;
-	case ftPyCFunction:
-		LASS_ASSERT(overload_ != 0);
-		temp = static_cast<PyCFunction>(overload_)(iSelf, iArgs);
-		break;
-	case ftUnaryfunc:
-		LASS_ASSERT(overload_ != 0);
+		LASS_ASSERT(unaryfunc_ == 0 && binaryfunc_ == 0 && ternaryfunc_ == 0);
+		temp = pyCFunction_(iSelf, iArgs);
+	}
+	else if (unaryfunc_)
+	{
+		LASS_ASSERT(binaryfunc_ == 0 && ternaryfunc_ == 0);
 		if (decodeTuple(iArgs)  != 0)
 		{
 			return 0;
 		}
-		temp = static_cast<unaryfunc>(overload_)(iSelf);
-		break;
-	case ftBinaryfunc:
+		temp = unaryfunc_(iSelf);
+	}
+	else if (binaryfunc_)
+	{
+		LASS_ASSERT(ternaryfunc_ == 0);
+		PyObjectPtr<PyObject>::Type arg;
+		if (decodeTuple(iArgs, arg) != 0)
 		{
-			LASS_ASSERT(overload_ != 0);
-			PyObjectPtr<PyObject>::Type arg;
-			if (decodeTuple(iArgs, arg) != 0)
-			{
-				return 0;
-			}
-			temp = static_cast<binaryfunc>(overload_)(iSelf, arg.get());
+			return 0;
 		}
-		break;
-	case ftTernaryfunc:
-		LASS_ASSERT(overload_ != 0);
-		temp = static_cast<ternaryfunc>(overload_)(iSelf, iArgs, 0);
-		break;
-	default:
-		LASS_ASSERT_UNREACHABLE;
+		temp = binaryfunc_(iSelf, arg.get());
+	}
+	else if (ternaryfunc_)
+	{
+		temp = ternaryfunc_(iSelf, iArgs, 0);
+	}
+	else
+	{
 		return false;
 	}
 	if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))

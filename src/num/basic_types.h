@@ -88,9 +88,10 @@ template <> struct BasicType<64> { typedef Tint64 Tint; typedef Tuint64 Tuint; t
 
 
 
-template <typename T> struct DoublePrecision { typedef T Type; }; // fall back to original type
-template <> struct DoublePrecision<Tfloat32> { typedef Tfloat64 Type; };
-template <> struct DoublePrecision<Tfloat64> { typedef Tfloat64 Type; };
+template <typename T> struct DoublePrecision { };
+template <> struct DoublePrecision<float> { typedef double Type; };
+template <> struct DoublePrecision<double> { typedef long double Type; };
+template <> struct DoublePrecision<long double> { typedef long double Type; };
 
 
 

@@ -116,7 +116,7 @@ namespace spat
 
 		static const int PLANAR_MESH_STACK_DEPTH = 4;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
 	private:
-		struct ProxyHandle : public impl::HandleHolder<typename PointHandle, typename EdgeHandle, typename FaceHandle> 
+		struct ProxyHandle : public impl::HandleHolder<PointHandle, EdgeHandle, FaceHandle> 
 		{
 			TPoint2D*       point_;
 #pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits")
@@ -171,7 +171,7 @@ namespace spat
 
 		TEdge*  locate( const TPoint2D& iPoint ) const;		/**< locate an edge of the triangle containing iPoint */
 		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
-		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator& oCrossedEdges ) const;
+		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true);
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(),bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
@@ -828,7 +828,7 @@ namespace spat
 	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
 	TEMPLATE_DEF
 	template <typename OutputIterator> 
-	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walk( const TLineSegment2D& iSegment, OutputIterator& oCrossedEdges ) const
+	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walk( const TLineSegment2D& iSegment, OutputIterator crossedEdges ) const
 	{
 		TEdge* e = shoot(TRay2D(iSegment.tail(),iSegment.vector()));
 		if (!e)
@@ -839,14 +839,14 @@ namespace spat
 		
 		while (!leftOf(iSegment.head(),e))
 		{
-			(*oCrossedEdges++) = e;
+			(*crossedEdges++) = e;
 			TEdge* ne1 = e->sym()->lNext();
 			if (lineTester.classify(dest(ne1))==lass::prim::sRight)
 				e = ne1->lNext();
 			else
 				e = ne1;
 		}
-		return oCrossedEdges;
+		return crossedEdges;
 	}
 
 

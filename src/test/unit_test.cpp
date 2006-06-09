@@ -38,10 +38,13 @@ namespace lass
 namespace test
 {
 
-bool runTests(const TUnitTests& iTests, int argc, char* argv[])
+const bool runTests(const TUnitTests& iTests, int argc, char* argv[], 
+		unsigned* oNumErrors, unsigned* oNumFatalErrors)
 {
 	impl::errors() = 0;
 	impl::fatalErrors() = 0;
+	if (oNumErrors) *oNumErrors = 0;
+	if (oNumFatalErrors) *oNumFatalErrors = 0;
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
 	io::ArgValue<std::string> savePatterns(
@@ -58,6 +61,9 @@ bool runTests(const TUnitTests& iTests, int argc, char* argv[])
 	}
 	impl::errorLog() << std::flush;
 
+	if (oNumErrors) *oNumErrors = impl::errors();
+	if (oNumFatalErrors) *oNumFatalErrors = impl::fatalErrors();
+	
 	if (impl::fatalErrors())
 	{
 		LASS_COUT << "\n*** " << impl::fatalErrors() << " fatal errors, " << impl::errors() 
@@ -75,7 +81,7 @@ bool runTests(const TUnitTests& iTests, int argc, char* argv[])
 	return false;
 }
 
-std::string workPath()
+const std::string workPath()
 {
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	const char* result = 0;

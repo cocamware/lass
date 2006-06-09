@@ -277,14 +277,6 @@ namespace lass
 			class LASS_DLL OverloadLink
 			{
 			public:
-				enum FunctionType
-				{
-					ftNull,
-					ftPyCFunction,
-					ftUnaryfunc,
-					ftBinaryfunc,
-					ftTernaryfunc
-				};
 				OverloadLink();
 				void setNull();
 				void setPyCFunction(PyCFunction iOverload);
@@ -293,8 +285,10 @@ namespace lass
 				void setTernaryfunc(ternaryfunc iOverload);
 				bool operator()(PyObject* iSelf, PyObject* iArgs, PyObject*& result) const;
 			private:
-				void* overload_;
-				FunctionType type_;
+				PyCFunction pyCFunction_;
+				unaryfunc unaryfunc_;
+				binaryfunc binaryfunc_;
+				ternaryfunc ternaryfunc_;
 			};
 
             template <PyCFunction DispatcherAddress>

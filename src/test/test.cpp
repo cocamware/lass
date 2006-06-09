@@ -59,16 +59,23 @@ int main(int argc, char* argv[])
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
 	test::TUnitTests unitTests;
+	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
 	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
 	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
 	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
 	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
 	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	const bool success = test::runTests(unitTests, argc, argv);
+	unsigned errors = 0;
+	unsigned fatalErrors = 0;
+	const bool success = test::runTests(unitTests, argc, argv, &errors, &fatalErrors);
 
-	return success ? 0 : 1;
+	if (success)
+	{
+		return 0;
+	}
+	const unsigned totalErrors = errors + fatalErrors;
+	return totalErrors < 255 ? static_cast<int>(totalErrors) : 255;
 }
 
 // EOF
