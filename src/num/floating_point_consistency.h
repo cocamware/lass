@@ -88,7 +88,7 @@ template <typename T> inline
 Consistent<T> operator+(const Consistent<T>& iA, const Consistent<T>& iB)  
 { 
 	Consistent<T> result(iA); 
-	iA += iB; 
+	result += iB; 
 	return result; 
 }
 
@@ -96,7 +96,7 @@ template <typename T> inline
 Consistent<T> operator-(const Consistent<T>& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA -= iB;
+	result -= iB;
 	return result;
 }
 
@@ -104,7 +104,7 @@ template <typename T> inline
 Consistent<T> operator*(const Consistent<T>& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA *= iB;
+	result *= iB;
 	return result;
 }
 
@@ -112,7 +112,7 @@ template <typename T> inline
 Consistent<T> operator/(const Consistent<T>& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA /= iB;
+	result /= iB;
 	return result;
 }
 
@@ -159,7 +159,7 @@ template <typename T> inline
 Consistent<T> operator+(const Consistent<T>& iA, const T& iB)  
 { 
 	Consistent<T> result(iA); 
-	iA += iB; 
+	result += iB; 
 	return result; 
 }
 
@@ -167,7 +167,7 @@ template <typename T> inline
 Consistent<T> operator-(const Consistent<T>& iA, const T& iB) 
 {
 	Consistent<T> result(iA);
-	iA -= iB;
+	result -= iB;
 	return result;
 }
 
@@ -175,7 +175,7 @@ template <typename T> inline
 Consistent<T> operator*(const Consistent<T>& iA, const T& iB) 
 {
 	Consistent<T> result(iA);
-	iA *= iB;
+	result *= iB;
 	return result;
 }
 
@@ -183,7 +183,7 @@ template <typename T> inline
 Consistent<T> operator/(const Consistent<T>& iA, const T& iB) 
 {
 	Consistent<T> result(iA);
-	iA /= iB;
+	result /= iB;
 	return result;
 }
 
@@ -232,7 +232,7 @@ template <typename T> inline
 Consistent<T> operator+(const T& iA, const Consistent<T>& iB)  
 { 
 	Consistent<T> result(iA); 
-	iA += iB; 
+	result += iB; 
 	return result; 
 }
 
@@ -240,7 +240,7 @@ template <typename T> inline
 Consistent<T> operator-(const T& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA -= iB;
+	result -= iB;
 	return result;
 }
 
@@ -248,7 +248,7 @@ template <typename T> inline
 Consistent<T> operator*(const T& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA *= iB;
+	result *= iB;
 	return result;
 }
 
@@ -256,7 +256,7 @@ template <typename T> inline
 Consistent<T> operator/(const T& iA, const Consistent<T>& iB) 
 {
 	Consistent<T> result(iA);
-	iA /= iB;
+	result /= iB;
 	return result;
 }
 

@@ -72,14 +72,14 @@ struct AtomicOperations<1>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) and defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		T* const addr = &dest;
 		__asm 
 		{
-			mov cl, newValue
 			mov al, expectedValue
-			mov edx, addr
-			lock cmpxchg [edx], cl
+			mov dl, newValue
+			mov edi, addr
+			lock cmpxchg [edi], dl
 		}
 		/* return eax */
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -96,7 +96,14 @@ struct AtomicOperations<1>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_GCC)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &value;
+		__asm 
+		{
+			mov edi, addr
+			lock inc byte ptr [edi]
+		}
+#elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
 			"lock; incb %0;"
 			: "=m"(value)
@@ -110,7 +117,14 @@ struct AtomicOperations<1>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_GCC)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &value;
+		__asm 
+		{
+			mov edi, addr
+			lock dec byte ptr [edi]
+		}
+#elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
 			"lock; decb %0;"
 			: "=m"(value)
@@ -131,14 +145,14 @@ struct AtomicOperations<2>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) and defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		T* const addr = &dest;
 		__asm 
 		{
-			mov cx, newValue
 			mov ax, expectedValue
-			mov edx, addr
-			lock cmpxchg [edx], cx
+			mov dx, newValue
+			mov edi, addr
+			lock cmpxchg [edi], dx
 		}
 		/* return eax */
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -155,7 +169,14 @@ struct AtomicOperations<2>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_GCC)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &value;
+		__asm 
+		{
+			mov edi, addr
+			lock inc word ptr [edi]
+		}
+#elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
 			"lock; incw %0;"
 			: "=m"(value)
@@ -169,7 +190,14 @@ struct AtomicOperations<2>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_GCC)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &value;
+		__asm 
+		{
+			mov edi, addr
+			lock dec word ptr [edi]
+		}
+#elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
 			"lock; decw %0;"
 			: "=m"(value)
@@ -190,14 +218,14 @@ struct AtomicOperations<4>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) and defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		T* const addr = &dest;
 		__asm 
 		{
-			mov ecx, newValue
 			mov eax, expectedValue
-			mov edx, addr
-			lock cmpxchg [edx], ecx
+			mov edx, newValue
+			mov edi, addr
+			lock cmpxchg [edi], edx
 		}
 		/* return eax */
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -214,12 +242,12 @@ struct AtomicOperations<4>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) and defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		T* const addr = &value;
 		__asm 
 		{
-			mov edx, addr
-			lock inc [edx]
+			mov edi, addr
+			lock inc dword ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
@@ -235,12 +263,12 @@ struct AtomicOperations<4>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) and defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		T* const addr = &value;
 		__asm 
 		{
-			mov edx, addr
-			lock dec [edx]
+			mov edi, addr
+			lock dec dword ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
 		__asm__ __volatile__(
@@ -255,8 +283,6 @@ struct AtomicOperations<4>
 };
 
 }
-
-
 
 template <typename T> inline 
 bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)

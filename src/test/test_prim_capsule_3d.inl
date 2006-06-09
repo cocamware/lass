@@ -23,7 +23,7 @@ void testPrimCapsule3D()
 	typedef num::NumTraits<T> TNumTraits;
 	typedef prim::Aabb3D<T> TAabb;
 
-	const T tolerance = 1e-5f;
+	const T tolerance = 1e-4f;
 	const unsigned n = 100000;
 
 	const TPoint origin;

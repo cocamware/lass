@@ -59,6 +59,7 @@
 #pragma warning(4: 4251)    // class needs to have dll-interface to be used by clients of class 'type2'
 #pragma warning(4: 4505)    // unreferenced local function removed
 #pragma warning(4: 4710)    // inline function was not inlined
+#pragma warning(error: 4035)	// no return value
 
 // broken compilers ...
 //

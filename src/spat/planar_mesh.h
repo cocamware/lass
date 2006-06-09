@@ -176,7 +176,9 @@ namespace spat
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(),bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
 		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
-		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle> iFaceHandles);
+		template <typename InputPolygonIterator, typename InputFaceHandleIterator>
+		void	markPolygons( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle);
+		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle>& iFaceHandles);
 		bool    deleteEdge( TEdge* iEdge );
 		long    edgeCount() const;
 		void    makeMaximalConvexPolygon();
@@ -1071,8 +1073,9 @@ namespace spat
 			// check to see if an edge is already there:
 			if ( ab.classify(dest(ea),tolerance_)==prim::sSurface)
 			{
-				setEdgeHandle( ea, iLeftHandle );
-				setEdgeHandle( ea->sym(), iRightHandle );
+				//setEdgeHandle( ea, iLeftHandle );
+				//setEdgeHandle( ea->sym(), iRightHandle );
+				setOrientedEdgeHandle( ea, iLeftHandle, iRightHandle, iSegment.vector() );
 				ea->quadEdge()->edgeConstrain();
 				aa = dest(ea);
 				if (aa==bb)
@@ -1174,25 +1177,35 @@ namespace spat
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle> iFaceHandles)
-	{	
-		if (iPolygons.size()!=iFaceHandles.size())
-		{
-			LASS_THROW("markPolygons: list of polygons must fit list of face handles");
-		}
+	template <typename InputPolygonIterator, typename InputFaceHandleIterator>
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle )
+	{
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		TEdgeMarker edgeMarker( this, false );
 		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 
-		for (int i=0;i<iPolygons.size();++i)
+		while (iFirstPolygon != iLastPolygon)
 		{
-			TEdge* iStartEdge = locate(iPolygons[i][0]);
-			floodPolygon( iStartEdge->sym(), iPolygons[i], iFaceHandles[i] );
-			floodPolygon( iStartEdge->lNext()->sym(), iPolygons[i], iFaceHandles[i] );
-			floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygons[i], iFaceHandles[i] );
+			TEdge* iStartEdge = locate(*iFirstPolygon[0]);
+			floodPolygon( iStartEdge->sym(), *iFirstPolygon, *iFirstFaceHandle );
+			floodPolygon( iStartEdge->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
+			floodPolygon( iStartEdge->lNext()->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
+			++iFirstPolygon;
+			++iFirstFaceHandle;
 		}
+	}
+
+	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
+	TEMPLATE_DEF
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle>& iFaceHandles)
+	{	
+		if (iPolygons.size()!=iFaceHandles.size())
+		{
+			LASS_THROW("markPolygons: list of polygons must fit list of face handles");
+		}
+		markPolygons(iPolygons.begin(), iPolygons.end(), iFaceHandles.begin());
 	}
 
 
