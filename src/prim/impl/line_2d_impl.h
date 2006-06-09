@@ -34,7 +34,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_LINE_2D_IMPL_H
 
 #include "../prim_common.h"
-#include "../num/floating_point_comparison.h"
+#include "../../num/floating_point_comparison.h"
 #include "line_2d_cartesian.h"
 #include "line_2d_parametric.h"
 #include "line_2d_combined.h"
