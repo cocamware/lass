@@ -306,6 +306,37 @@ namespace impl
 
 /** @internal
  */
+template <PyCFunction DispatcherAddress>
+PyObject* unaryDispatcher(PyObject* iSelf)
+{
+	PyObjectPtr<PyObject>::Type args = makeTuple();
+	return DispatcherAddress(iSelf, args.get());
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
+{
+	PyObjectPtr<PyObject>::Type args = makeTuple(iOther);
+	return DispatcherAddress(iSelf, args.get());
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+{
+	if (iKw)
+	{
+		PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
+		return 0;
+	}
+	return DispatcherAddress(iSelf, iArgs);
+}
+
+/** @internal
+ */
 template <typename CppClass>
 inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
 {

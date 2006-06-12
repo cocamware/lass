@@ -30,18 +30,18 @@
 #include "../num/basic_types.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
+#	define LASS_UTIL_ATOMIC_MSVC
 #	if defined(_M_IA64)
 #		define LASS_UTIL_ATOMIC_UNSUPPORTED
 #	else
-#		define LASS_UTIL_ATOMIC_MSVC
 #		define LASS_UTIL_ATOMIC_32
 #	endif
 #elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#	define LASS_UTIL_ATOMIC_GCC
 #	if defined(_LP64) || defined(__LP64__)
-#		define LASS_UTIL_ATOMIC_GCC
 #		define LASS_UTIL_ATOMIC_64
 #	else
-#		define LASS_UTIL_ATOMIC_UNSUPPORTED
+#		define LASS_UTIL_ATOMIC_32
 #	endif
 #else
 #	define LASS_UTIL_ATOMIC_UNSUPPORTED

@@ -291,32 +291,11 @@ namespace lass
 				ternaryfunc ternaryfunc_;
 			};
 
-            template <PyCFunction DispatcherAddress>
-			PyObject* unaryDispatcher(PyObject* iSelf)
-			{
-				PyObjectPtr<PyObject>::Type args = makeTuple();
-				return DispatcherAddress(iSelf, args.get());
-			}
+			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(PyObject* iSelf);
+			template <PyCFunction DispatcherAddress> PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther);
+			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
 
-            template <PyCFunction DispatcherAddress>
-			PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
-			{
-				PyObjectPtr<PyObject>::Type args = makeTuple(iOther);
-				return DispatcherAddress(iSelf, args.get());
-			}
-
-            template <PyCFunction DispatcherAddress>
-			PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
-			{
-				if (iKw)
-				{
-					PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
-					return 0;
-				}
-				return DispatcherAddress(iSelf, iArgs);
-			}
-
-            template <PyCFunction DispatcherAddress>
+			template <PyCFunction DispatcherAddress>
 			struct DispatcherConvertor
 			{
 				static PyObject* asTernary(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
@@ -426,6 +405,7 @@ namespace lass
 	}
 }
 
+#include "py_tuple.h"
 #include "pyobject_plus.inl"
 #include "pyshadow_object.h"
 #include "py_stl.h"
