@@ -78,7 +78,7 @@ public:
 	}
 
 private:
-	TValue t_;
+	volatile TValue t_;
 };
 
 
@@ -464,6 +464,22 @@ template<class T> inline
 bool isNaN( const Consistent<T>& iV )
 {
 	return num::isNaN(iV.value());
+}
+
+template <typename T, typename Char, typename Traits>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const Consistent<T>& v)
+{
+	stream << v.value();
+	return stream;
+}
+
+template <typename T, typename Char, typename Traits>
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& stream, Consistent<T>& v)
+{
+	T temp;
+	stream >> temp;
+	v = Consistent<T>(temp);
+	return stream;
 }
 
 }

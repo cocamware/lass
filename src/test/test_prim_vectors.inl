@@ -219,7 +219,7 @@ template <typename T> void testPrimVector4D()
 	Vector4D<T> n(b);
 	n.normalize();
 	LASS_TEST_CHECK_EQUAL(n, b.normal());
-	LASS_TEST_CHECK_EQUAL(n.norm(), one);
+	LASS_TEST_CHECK_CLOSE(n.norm(), one, epsilon);
 
 	std::stringstream ss;
 	ss << a;

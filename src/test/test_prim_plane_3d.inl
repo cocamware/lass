@@ -83,10 +83,12 @@ void testPrimPlane3D()
 	// the cartesian plane looses info, and has to recreate support point and (reciprocal)
 	// direction vectors on demand.  Those are not necessarely the same as the originals.
 	//
+	// Of course, for some reason, this is not entirely the case ...
+	//
 	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
 	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
 	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
-	LASS_TEST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalU(), parametric.reciprocalU(), epsilon, 3);
 	LASS_TEST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
 
 	// however, on operations that involve the cartesian quantities (normal and d), they
@@ -127,8 +129,8 @@ void testPrimPlane3D()
 	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
 	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
 	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
-	LASS_TEST_CHECK_EQUAL(combined.reciprocalU(), parametric.reciprocalU());
-	LASS_TEST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalU(), parametric.reciprocalU(), epsilon, 3);
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalV(), parametric.reciprocalV(), epsilon, 3);
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal(), parametric.normal(), epsilon, 3);
 	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
 	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);

@@ -26,6 +26,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_EDGE_2D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_EDGE_2D_H
 
+#include "../../num/floating_point_consistency.h"
+
 namespace lass
 {
 namespace prim
@@ -41,6 +43,7 @@ bool intersectEdge2D(const Point& iSupport, const Vector& iDirection,
 					 T& oTNear, const T& iMinT)
 {
 	typedef typename Point::TNumTraits TNumTraits;
+	typedef num::Consistent<T> TConsistent;
 
 	LASS_ASSERT(oTNear > iMinT);
 
@@ -49,11 +52,12 @@ bool intersectEdge2D(const Point& iSupport, const Vector& iDirection,
 	if (denominator != TNumTraits::zero)
 	{
 		const Vector difference = iTail - iSupport;
-		const T tRay = perpDot(difference, -edge) / denominator;
+		const TConsistent tRay = perpDot(difference, -edge) / denominator;
 		const T tEdge = perpDot(iDirection, difference) / denominator;
-		if ((tRay > iMinT && tRay < oTNear) && (tEdge >= TNumTraits::zero && tEdge <= TNumTraits::one))
+		if ((tRay > iMinT && tRay < oTNear) && 
+			(tEdge >= TNumTraits::zero && tEdge <= TNumTraits::one))
 		{
-			oTNear = tRay;
+			oTNear = tRay.value();
 			LASS_ASSERT(oTNear > iMinT);
 			return true;
 		}
