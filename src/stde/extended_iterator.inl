@@ -31,8 +31,10 @@
 #include "stde_common.h"
 #include "extended_iterator.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4244)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244)
+#endif
 
 namespace lass
 {
@@ -80,7 +82,9 @@ Iterator prior(Iterator iterator, Distance distance)
 
 }
 
-#pragma warning(pop)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

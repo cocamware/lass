@@ -46,9 +46,8 @@
 ///** name of library
 // */
 //#define LASS_LIB_SPAT LASS_LIB_PREFIX "spat" LASS_LIB_SUFFIX
-////#pragma message("LASS_LIB_SPAT: " LASS_LIB_SPAT)
 //
-//#if defined(LASS_LIB_AUTO_LINK)
+//#if defined(LASS_LIB_AUTO_LINK) && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 //#	pragma comment(lib, LASS_LIB_SPAT)
 //#endif
 

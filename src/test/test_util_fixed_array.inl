@@ -91,10 +91,6 @@ void testUtilFixedArray()
 
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-#	pragma warning(pop)
-#endif
-
 #endif
 
 // EOF

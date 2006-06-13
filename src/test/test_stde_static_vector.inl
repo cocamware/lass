@@ -32,8 +32,10 @@
 #include "test_common.h"
 #include "../stde/static_vector.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4552) // '!=' : operator has no effect; expected operator with side-effect
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4552) // '!=' : operator has no effect; expected operator with side-effect
+#endif
 
 namespace lass
 {
@@ -217,7 +219,9 @@ void testStdeStaticVector()
 
 }
 
-#pragma warning(pop)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

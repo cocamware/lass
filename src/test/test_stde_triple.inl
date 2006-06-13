@@ -31,8 +31,10 @@
 
 #include "test_common.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4244)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244)
+#endif
 
 #include "../stde/triple.h"
 
@@ -72,7 +74,9 @@ void testStdeTriple()
 
 }
 
-#pragma warning(pop)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

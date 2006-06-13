@@ -27,7 +27,9 @@
 #include "../socket.h"
 #include <winsock.h>
 
-#pragma comment(lib, "ws2_32.lib")
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	pragma comment(lib, "ws2_32.lib")
+#endif
 
 namespace lass
 {

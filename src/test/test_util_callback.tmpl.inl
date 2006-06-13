@@ -29,8 +29,10 @@
 
 #include "test_common.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4244) // float to int
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244) // float to int
+#endif
 
 #include "../util/callback_0.h"
 $(#include "../util/callback_$x.h"
@@ -301,7 +303,9 @@ $[
 
 }
 
-#pragma warning(pop)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

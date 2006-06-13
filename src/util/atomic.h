@@ -308,7 +308,6 @@ void atomicDecrement(T& value)
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(pop)
-#	pragma warning(disable: 4035)
 #endif
 
 #endif

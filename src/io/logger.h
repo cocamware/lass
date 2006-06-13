@@ -49,9 +49,10 @@
 #include "proxy_o_stream.h"
 #include <fstream>
 
-#pragma warning(push)
-#pragma warning(disable: 4251) // on STL in dll interface ...
-
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4251) // on STL in dll interface ...
+#endif
 
 
 namespace lass
@@ -96,7 +97,9 @@ private:
 
 }
 
-#pragma warning(pop)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

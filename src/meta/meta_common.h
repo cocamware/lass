@@ -98,7 +98,7 @@
 ///** name of library
 // */
 //#define LASS_LIB_META LASS_LIB_PREFIX "meta" LASS_LIB_SUFFIX
-//#if defined(LASS_LIB_AUTO_LINK)
+//#if defined(LASS_LIB_AUTO_LINK) && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 //#   pragma comment(lib, LASS_LIB_META)
 //#endif
 

@@ -39,7 +39,9 @@
 
 #include "impl/easyAVI.h"
 
-#pragma comment(lib, "vfw32.lib")
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	pragma comment(lib, "vfw32.lib")
+#endif
 
 namespace lass
 {

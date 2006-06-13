@@ -29,7 +29,9 @@
 #include "vector_3d.h"
 
 // for this translation unit, we don't want any warnings on numerical conversions.
-#pragma warning(disable: 4305 4244)
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4305 4244)
+#endif
 
 namespace lass
 {

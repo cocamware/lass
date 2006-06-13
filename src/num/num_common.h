@@ -36,9 +36,8 @@
 #include "../lass_common.h"
 
 #define LASS_LIB_NUM LASS_LIB_PREFIX "num" LASS_LIB_SUFFIX
-//#pragma message("LASS_LIB_NUM: " LASS_LIB_NUM)
 
-#if defined(LASS_LIB_AUTO_LINK)
+#if defined(LASS_LIB_AUTO_LINK) && LASS_PLATFORM_TYPE == LASS_PLATFORM_WIN32
 #	pragma comment(lib, LASS_LIB_NUM)
 #endif
 
