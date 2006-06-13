@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_RAY_3D_INL
 
 #include "plane_3d_ray_3d.h"
+#include "../num/floating_point_consistency.h"
 
 namespace lass
 {
@@ -58,6 +59,7 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 {
 	typedef typename Vector3D<T>::TValue TValue;
 	typedef typename Vector3D<T>::TNumTraits TNumTraits;
+	typedef num::Consistent<T> TConsistent;
 
 	if (!iPlane.isValid() || !iRay.isValid())
 	{
@@ -74,11 +76,11 @@ Result intersect(const Plane3D<T, EPPlane, NPPlane>& iPlane,
 	}
 	else
 	{
-		const TValue t = -iPlane.equation(iRay.support()) / nd;
+		const TConsistent t = -iPlane.equation(iRay.support()) / nd;
 		LASS_ASSERT(!num::isNaN(t));
 		if (t > iMinT)
 		{
-			oT = t;
+			oT = t.value();
 			return rOne;
 		}
 		return rNone;

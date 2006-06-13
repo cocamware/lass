@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_AABB_SLAB_H
 
 #include "../prim_common.h"
+#include "../../num/floating_point_consistency.h"
 
 namespace lass
 {
@@ -40,13 +41,15 @@ namespace impl
 template <typename T> inline
 bool interectSlab(const T& iMin, const T& iMax, const T& iSupport, const T& iDirection, T& ioTNear, T& ioTFar)
 {
+	typedef num::Consistent<T> TConsistent;
+	
 	if (iDirection == num::NumTraits<T>::zero)
 	{
 		return iSupport >= iMin && iSupport <= iMax;
 	}
 	
-	T tNear = (iMin - iSupport) / iDirection;
-	T tFar = (iMax - iSupport) / iDirection;
+	TConsistent tNear = (iMin - iSupport) / iDirection;
+	TConsistent tFar = (iMax - iSupport) / iDirection;
 	if (tFar < tNear)
 	{
 		std::swap(tNear, tFar);
@@ -56,8 +59,8 @@ bool interectSlab(const T& iMin, const T& iMax, const T& iSupport, const T& iDir
 	{
 		return false;
 	}
-	ioTNear = std::max(ioTNear, tNear);
-	ioTFar = std::min(ioTFar, tFar);
+	ioTNear = std::max(ioTNear, tNear.value());
+	ioTFar = std::min(ioTFar, tFar.value());
 	return true;
 }
 

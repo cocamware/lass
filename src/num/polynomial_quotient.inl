@@ -72,18 +72,18 @@ PolynomialQuotient<T>::PolynomialQuotient(const TPolynomial& iNominator):
 
 
 template <typename T>
-PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TCoefficients& iDenumerator):
+PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TCoefficients& iDenomirator):
 	numerator_(iScalar),
-	denumerator_(iDenumerator)
+	denominator_(iDenomirator)
 {
 }
 
 
 
 template <typename T>
-PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TPolynomial& iDenumerator):
+PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TPolynomial& iDenomirator):
 	numerator_(iScalar),
-	denumerator_(iDenumerator)
+	denominator_(iDenomirator)
 {
 }
 
@@ -92,16 +92,16 @@ PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TPolynomial& iDe
 template <typename T>
 PolynomialQuotient<T>::PolynomialQuotient(const TCoefficients& iNominator, const TCoefficients& iDenumerator):
 	numerator_(iNominator),
-	denumerator_(iDenumerator)
+	denominator_(iDenomirator)
 {
 }
 
 
 
 template <typename T>
-PolynomialQuotient<T>::PolynomialQuotient(const TPolynomial& iNominator, const TPolynomial& iDenumerator):
+PolynomialQuotient<T>::PolynomialQuotient(const TPolynomial& iNominator, const TPolynomial& iDenomirator):
 	numerator_(iNominator),
-	denumerator_(iDenumerator)
+	denominator_(iDenomirator)
 {
 }
 
@@ -118,9 +118,9 @@ PolynomialQuotient<T>::PolynomialQuotient(InputIterator iNomBegin, InputIterator
 template <typename T>
 template <typename InputIterator> 
 PolynomialQuotient<T>::PolynomialQuotient(InputIterator iNomBegin, InputIterator iNomEnd,
-										  InputIterator iDenBegin, InputIterator iDenEnd):
-	numerator_(iNomBegin, iNomEnd)
-	denumerator_(iDenBegin, iDenEnd)
+		InputIterator iDenBegin, InputIterator iDenEnd):
+	numerator_(iNomBegin, iNomEnd),
+	denominator_(iDenBegin, iDenEnd)
 {
 }
 
@@ -148,7 +148,7 @@ template <typename T>
 const typename PolynomialQuotient<T>::TValue 
 PolynomialQuotient<T>::operator()(TParam iX) const
 {
-	return numerator_(iX) / denumerator_(iX);
+	return numerator_(iX) / denominator_(iX);
 }
 
 
@@ -164,7 +164,7 @@ const PolynomialQuotient<T>& PolynomialQuotient<T>::operator+() const
 template <typename T>
 const PolynomialQuotient<T> PolynomialQuotient<T>::operator-() const
 {
-	return TSelf(-numerator_, denumerator_);
+	return TSelf(-numerator_, denominator_);
 }
 
 
@@ -172,8 +172,8 @@ const PolynomialQuotient<T> PolynomialQuotient<T>::operator-() const
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const TSelf& iOther)
 {
-	numerator_ = numerator_ * iOther.denumerator_ + iOther.numerator_ * iOther.denumerator_
-	denumerator_ *= iOther.denumerator_;
+	numerator_ = numerator_ * iOther.denominator_ + iOther.numerator_ * iOther.denominator_;
+	denominator_ *= iOther.denominator_;
 }
 
 
@@ -181,8 +181,8 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const TSelf& iOther)
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(const TSelf& iOther)
 {
-	numerator_ = numerator_ * iOther.denumerator_ - iOther.numerator_ * iOther.denumerator_
-	denumerator_ *= iOther.denumerator_;
+	numerator_ = numerator_ * iOther.denominator_ - iOther.numerator_ * iOther.denominator_;
+	denominator_ *= iOther.denominator_;
 }
 
 
@@ -191,7 +191,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(const TSelf& iOther)
 {
 	numerator_ *= iOther.numerator_;
-	denumerator_ *= iOther.denumerator_;
+	denominator_ *= iOther.denominator_;
 }
 
 
@@ -199,8 +199,8 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(const TSelf& iOther)
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const TSelf& iOther)
 {
-	numerator_ *= iOther.denumerator_;
-	denumerator_ *= iOther.numerator_;
+	numerator_ *= iOther.denominator_;
+	denominator_ *= iOther.numerator_;
 }
 
 
@@ -208,7 +208,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const TSelf& iOther)
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const Polynomial<T>& iOther)
 {
-	numerator_ += iOther * denumerator_;
+	numerator_ += iOther * denominator_;
 }
 
 
@@ -216,7 +216,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const Polynomial<T>& iO
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(const Polynomial<T>& iOther)
 {
-	numerator_ -= iOther * denumerator_;
+	numerator_ -= iOther * denominator_;
 }
 
 
@@ -232,7 +232,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(const Polynomial<T>& iO
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const Polynomial<T>& iOther)
 {
-	denumerator_ *= iOther;
+	denominator_ *= iOther;
 }
 
 
@@ -240,7 +240,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const Polynomial<T>& iO
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(TParam iScalar)
 {
-	numerator_ += iScalar * denumerator_;
+	numerator_ += iScalar * denominator_;
 }
 
 
@@ -248,7 +248,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(TParam iScalar)
 template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(TParam iScalar)
 {
-	numerator_ -= iScalar * denumerator_;
+	numerator_ -= iScalar * denominator_;
 }
 
 
@@ -282,7 +282,7 @@ PolynomialQuotient<T> PolynomialQuotient<T>::derivative() const
 template <typename T>
 PolynomialQuotient<T> PolynomialQuotient<T>::pow(unsigned iPower) const
 {
-	return PolynomialQuotient<T>(numerator_.pow(iPower), denumerator_.pow(iPower)); 
+	return PolynomialQuotient<T>(numerator_.pow(iPower), denominator_.pow(iPower)); 
 }
 
 

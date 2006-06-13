@@ -152,7 +152,7 @@ AC_LANG_CPLUSPLUS
 
 # Checks for libraries.
 AC_CHECK_LIB(rt, clock_gettime, [LASS_LDFLAGS_RT="-lrt"], [LASS_LDFLAGS_RT=""])
-AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
+# AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
 
 # Checks for header files.
 AC_HEADER_STDBOOL

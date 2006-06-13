@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_2D_RAY_2D_INL
 
 #include "line_2d_ray_2d.h"
+#include "../num/floating_point_consistency.h"
 
 namespace lass
 {
@@ -58,6 +59,7 @@ Result intersect(const Line2D<T, EP1, NP1>& iLine,
 {
 	typedef typename Vector2D<T>::TValue TValue;
 	typedef typename Vector2D<T>::TNumTraits TNumTraits;
+	typedef num::Consistent<T> TConsistent;
 
 	if (!iLine.isValid() || !iRay.isValid())
 	{
@@ -74,11 +76,11 @@ Result intersect(const Line2D<T, EP1, NP1>& iLine,
 	}
 	else
 	{
-		const TValue t = -iLine.equation(iRay.support()) / nd;
+		const TConsistent t = -iLine.equation(iRay.support()) / nd;
 		LASS_ASSERT(!num::isNaN(t));
 		if (t > iMinT)
 		{
-			oT = t;
+			oT = t.value();
 			return rOne;
 		}
 		return rNone;

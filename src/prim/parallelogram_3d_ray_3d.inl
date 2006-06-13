@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_RAY_3D_INL
 
 #include "parallelogram_3d_ray_3d.h"
+#include "../num/floating_point_consistency.h"
 
 namespace lass
 {
@@ -96,37 +97,37 @@ Result intersect(const Parallelogram3D<T>& iParallelogram,
 	typedef typename Parallelogram3D<T>::TNumTraits TNumTraits;
 
 	const TVector pvec = cross(iRay.direction(), iParallelogram.sizeV());
+	
 	const TValue det = dot(pvec, iParallelogram.sizeU());
-
 	if (det == TNumTraits::zero)
 	{
 		return rNone;
 	}
+	const TValue invDet = num::inv(det);
 
 	const TVector tvec = iRay.support() - iParallelogram.support();
-	const TValue u = dot(tvec, pvec);
-	if (u < TNumTraits::zero || u > det)
+	const TValue u = dot(tvec, pvec) * invDet;
+	if (u < TNumTraits::zero || u > TNumTraits::one)
 	{
 		return rNone;
 	}
 
 	const TVector qvec = cross(tvec, iParallelogram.sizeU());
-	const T v = dot(iRay.direction(), qvec);
-	if (v < TNumTraits::zero || v > det)
+	const T v = dot(iRay.direction(), qvec) * invDet;
+	if (v < TNumTraits::zero || v > TNumTraits::one)
 	{
 		return rNone;
 	}
 
-	const TValue t = dot(iParallelogram.sizeV(), qvec);
-	if (t <= (iMinT * det))
+	const TConsistent t = dot(iParallelogram.sizeV(), qvec) * invDet;
+	if (t <= iMinT)
 	{
 		return rNone;
 	}
 
-	const TValue invDet = num::inv(det);
-	oU = u * invDet;
-	oV = v * invDet;
-	oT = t * invDet;
+	oU = u;
+	oV = v;
+	oT = t.value();
 	return rOne;
 }
 

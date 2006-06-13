@@ -90,7 +90,7 @@ T squaredDistance(const LineSegment3D<T, PP1>& iLineSegment,
 		{
 			tSeg = iLineSegment.t(S1);
 			if(tSeg < 0)
-                return squaredDistance(S1, iLineSegment.tail());
+				return squaredDistance(S1, iLineSegment.tail());
 			if(tSeg > 1)
 				return squaredDistance(S1, iLineSegment.head());
 			return squaredDistance(S1, iLineSegment.point(tSeg));

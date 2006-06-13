@@ -18,7 +18,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received iA copy of the GNU General Public License
+ *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
@@ -46,8 +46,8 @@ public:
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef num::NumTraits<T> TNumTraits;
 
-	Consistent(TParam iT): 
-		t_(iT) 
+	Consistent(TParam t): 
+		t_(t) 
 	{
 	}
 
@@ -56,25 +56,30 @@ public:
 		return t_; 
 	}
 
-	TSelf& operator+=(const TSelf& iOther) 
+	TSelf& operator+=(const TSelf& other) 
 	{ 
-		t_ += iOther.t_; 
+		t_ += other.t_; 
 		return *this; 
 	}
-	TSelf& operator-=(const TSelf& iOther) 
+	TSelf& operator-=(const TSelf& other) 
 	{ 
-		t_ -= iOther.t_; 
+		t_ -= other.t_; 
 		return *this; 
 	}
-	TSelf& operator*=(const TSelf& iOther) 
+	TSelf& operator*=(const TSelf& other) 
 	{ 
-		t_ *= iOther.t_; 
+		t_ *= other.t_; 
 		return *this; 
 	}
-	TSelf& operator/=(const TSelf& iOther)
+	TSelf& operator/=(const TSelf& other)
 	{ 
-		t_ /= iOther.t_; 
+		t_ /= other.t_; 
 		return *this; 
+	}
+	
+	void swap(TSelf& other)
+	{
+		std::swap(t_, other.t_);
 	}
 
 private:
@@ -85,217 +90,213 @@ private:
 
 
 template <typename T> inline
-Consistent<T> operator+(const Consistent<T>& iA, const Consistent<T>& iB)  
+Consistent<T> operator+(const Consistent<T>& a, const Consistent<T>& b)  
 { 
-	Consistent<T> result(iA); 
-	result += iB; 
+	Consistent<T> result(a); 
+	result += b; 
 	return result; 
 }
 
 template <typename T> inline
-Consistent<T> operator-(const Consistent<T>& iA, const Consistent<T>& iB) 
+Consistent<T> operator-(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result -= iB;
+	Consistent<T> result(a);
+	result -= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator*(const Consistent<T>& iA, const Consistent<T>& iB) 
+Consistent<T> operator*(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result *= iB;
+	Consistent<T> result(a);
+	result *= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator/(const Consistent<T>& iA, const Consistent<T>& iB) 
+Consistent<T> operator/(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result /= iB;
+	Consistent<T> result(a);
+	result /= b;
 	return result;
 }
 
 template <typename T> inline
-bool operator==(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator==(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return iA.value() == iB.value();
+	return a.value() == b.value();
 }
 
 template <typename T> inline
-bool operator!=(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator!=(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 template <typename T> inline
-bool operator<(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator<(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return iA.value() < iB.value();
+	return a.value() < b.value();
 }
 
 template <typename T> inline
-bool operator>(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator>(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return iB < iA;
+	return b < a;
 }
 
 template <typename T> inline
-bool operator<=(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator<=(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return !(iB < iA);
+	return !(b < a);
 }
 
 template <typename T> inline
-bool operator>=(const Consistent<T>& iA, const Consistent<T>& iB) 
+bool operator>=(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	return !(iA < iB);
+	return !(a < b);
 }
 
 
 
 
 template <typename T> inline
-Consistent<T> operator+(const Consistent<T>& iA, const T& iB)  
+Consistent<T> operator+(const Consistent<T>& a, const T& b)  
 { 
-	Consistent<T> result(iA); 
-	result += iB; 
+	Consistent<T> result(a); 
+	result += b; 
 	return result; 
 }
 
 template <typename T> inline
-Consistent<T> operator-(const Consistent<T>& iA, const T& iB) 
+Consistent<T> operator-(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(iA);
-	result -= iB;
+	Consistent<T> result(a);
+	result -= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator*(const Consistent<T>& iA, const T& iB) 
+Consistent<T> operator*(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(iA);
-	result *= iB;
+	Consistent<T> result(a);
+	result *= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator/(const Consistent<T>& iA, const T& iB) 
+Consistent<T> operator/(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(iA);
-	result /= iB;
+	Consistent<T> result(a);
+	result /= b;
 	return result;
 }
 
 template <typename T> inline
-bool operator==(const Consistent<T>& iA, const T& iB) 
+bool operator==(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> b(iB);
-	return iA == b;
+	return a == Consistent<T>(b);
 }
 
 template <typename T> inline
-bool operator!=(const Consistent<T>& iA, const T& iB) 
+bool operator!=(const Consistent<T>& a, const T& b) 
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 template <typename T> inline
-bool operator<(const Consistent<T>& iA, const T& iB) 
+bool operator<(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> b(iB);
-	return iA < b;
+	return a < Consistent<T>(b);
 }
 
 template <typename T> inline
-bool operator>(const Consistent<T>& iA, const T& iB) 
+bool operator>(const Consistent<T>& a, const T& b) 
 {
-	return iB < iA;
+	return b < a;
 }
 
 template <typename T> inline
-bool operator<=(const Consistent<T>& iA, const T& iB) 
+bool operator<=(const Consistent<T>& a, const T& b) 
 {
-	return !(iB < iA);
+	return !(b < a);
 }
 
 template <typename T> inline
-bool operator>=(const Consistent<T>& iA, const T& iB) 
+bool operator>=(const Consistent<T>& a, const T& b) 
 {
-	return !(iA < iB);
+	return !(a < b);
 }
 
 
 
 
 template <typename T> inline
-Consistent<T> operator+(const T& iA, const Consistent<T>& iB)  
+Consistent<T> operator+(const T& a, const Consistent<T>& b)  
 { 
-	Consistent<T> result(iA); 
-	result += iB; 
+	Consistent<T> result(a); 
+	result += b; 
 	return result; 
 }
 
 template <typename T> inline
-Consistent<T> operator-(const T& iA, const Consistent<T>& iB) 
+Consistent<T> operator-(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result -= iB;
+	Consistent<T> result(a);
+	result -= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator*(const T& iA, const Consistent<T>& iB) 
+Consistent<T> operator*(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result *= iB;
+	Consistent<T> result(a);
+	result *= b;
 	return result;
 }
 
 template <typename T> inline
-Consistent<T> operator/(const T& iA, const Consistent<T>& iB) 
+Consistent<T> operator/(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(iA);
-	result /= iB;
+	Consistent<T> result(a);
+	result /= b;
 	return result;
 }
 
 template <typename T> inline
-bool operator==(const T& iA, const Consistent<T>& iB) 
+bool operator==(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> a(iA);
-	return a == iB;
+	return Consistent<T>(a) == b;
 }
 
 template <typename T> inline
-bool operator!=(const T& iA, const Consistent<T>& iB) 
+bool operator!=(const T& a, const Consistent<T>& b) 
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 template <typename T> inline
-bool operator<(const T& iA, const Consistent<T>& iB) 
+bool operator<(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> a(iA);
-	return a < iB;
+	return Consistent<T>(a) < b;
 }
 
 template <typename T> inline
-bool operator>(const T& iA, const Consistent<T>& iB) 
+bool operator>(const T& a, const Consistent<T>& b) 
 {
-	return iB < iA;
+	return b < a;
 }
 
 template <typename T> inline
-bool operator<=(const T& iA, const Consistent<T>& iB) 
+bool operator<=(const T& a, const Consistent<T>& b) 
 {
-	return !(iB < iA);
+	return !(b < a);
 }
 
 template <typename T> inline
-bool operator>=(const T& iA, const Consistent<T>& iB) 
+bool operator>=(const T& a, const Consistent<T>& b) 
 {
-	return !(iA < iB);
+	return !(a < b);
 }
 
 
@@ -303,185 +304,224 @@ bool operator>=(const T& iA, const Consistent<T>& iB)
 
 
 template <typename T> inline
-Consistent<T> abs(const Consistent<T>& iV)
+Consistent<T> abs(const Consistent<T>& v)
 {
-	return num::abs(iV.value());
+	return num::abs(v.value());
 }
 
 template <typename T> inline
-Consistent<T> inv(const Consistent<T>& iV)
+Consistent<T> inv(const Consistent<T>& v)
 {
-	return num::inv(iV.value());
+	return num::inv(v.value());
 }
 
 template <typename T> inline
-Consistent<T> sqrt(const Consistent<T>& iV)
+Consistent<T> sqrt(const Consistent<T>& v)
 {
-	return num::sqrt(iV.value());
+	return num::sqrt(v.value());
 }
 
 template <typename T> inline
-Consistent<T> pow(const Consistent<T>& iV, const Consistent<T>& iPow)
+Consistent<T> pow(const Consistent<T>& v, const Consistent<T>& p)
 {
-	return num::pow(iV.value(), iPow.value());
+	return num::pow(v.value(), p.value());
 }
 
 template <typename T> inline
-Consistent<T> exp(const Consistent<T>& iV)
+Consistent<T> exp(const Consistent<T>& v)
 {
-	return num::exp(iV.value());
+	return num::exp(v.value());
 }
 
 template <typename T> inline
-Consistent<T> log(const Consistent<T>& iV)
+Consistent<T> log(const Consistent<T>& v)
 {
-	return num::log(iV.value());
+	return num::log(v.value());
 }
 
 template <typename T> inline
-Consistent<T> cos(const Consistent<T>& iV)
+Consistent<T> cos(const Consistent<T>& v)
 {
-	return num::cos(iV.value());
+	return num::cos(v.value());
 }
 
 template <typename T> inline
-Consistent<T> sin(const Consistent<T>& iV)
+Consistent<T> sin(const Consistent<T>& v)
 {
-	return num::sin(iV.value());
+	return num::sin(v.value());
 }
 
 template <typename T> inline
-Consistent<T> tan(const Consistent<T>& iV)
+Consistent<T> tan(const Consistent<T>& v)
 {
-	return num::tan(iV.value());
+	return num::tan(v.value());
 }
 
 template <typename T> inline
-Consistent<T> acos(const Consistent<T>& iV)
+Consistent<T> acos(const Consistent<T>& v)
 {
-	return num::acos(iV.value());
+	return num::acos(v.value());
 }
 
 template <typename T> inline
-Consistent<T> asin(const Consistent<T>& iV)
+Consistent<T> asin(const Consistent<T>& v)
 {
-	return num::asin(iV.value());
+	return num::asin(v.value());
 }
 
 template <typename T> inline
-Consistent<T> atan(const Consistent<T>& iV)
+Consistent<T> atan(const Consistent<T>& v)
 {
-	return num::atan(iV.value());
+	return num::atan(v.value());
 }
 
 template <typename T> inline
-Consistent<T> atan2(const Consistent<T>& iX, const Consistent<T>& iY)
+Consistent<T> atan2(const Consistent<T>& x, const Consistent<T>& y)
 {
-	return num::atan2(iX.value(), iY.value());
+	return num::atan2(x.value(), y.value());
 }
 
 template <typename T> inline
-Consistent<T> floor(const Consistent<T>& iV)
+Consistent<T> floor(const Consistent<T>& v)
 {
-	return num::floor(iV.value());
+	return num::floor(v.value());
 }
 
 template <typename T> inline
-Consistent<T> ceil(const Consistent<T>& iV)
+Consistent<T> ceil(const Consistent<T>& v)
 {
-	return num::ceil(iV.value());
+	return num::ceil(v.value());
 }
 
 template <typename T> inline
-Consistent<T> round(const Consistent<T>& iV)
+Consistent<T> round(const Consistent<T>& v)
 {
-	return num::round(iV.value());
+	return num::round(v.value());
 }
 
 template <typename T> inline
-Consistent<T> fractional(const Consistent<T>& iV)
+Consistent<T> fractional(const Consistent<T>& v)
 {
-	return num::fractional(iV.value());
+	return num::fractional(v.value());
 }
 
 template <typename T> inline
-Consistent<T> div(const Consistent<T>& iV, const Consistent<T>& iMod)
+Consistent<T> div(const Consistent<T>& v, const Consistent<T>& m)
 {
-	return num::div(iV.value(), iMod.value());
+	return num::div(v.value(), m.value());
 }
 
 template <typename T> inline
-Consistent<T> mod(const Consistent<T>& iV, const Consistent<T>& iMod)
+Consistent<T> mod(const Consistent<T>& v, const Consistent<T>& m)
 {
-	return num::mod(iV.value(), iMod.value());
+	return num::mod(v.value(), m.value());
 }
 
 
-#if 0
-template <typename T>
-struct NumTraits< Consistent<T> >
-{
-private:
-	typedef NumTraits<T> TBaseTraits;
-
-public:
-	typedef Consistent<T> selfType;	/**< our own type */
-	typedef T   baseType;			/**< is the base type where selfType is based on */
-	typedef T   intervalType;		/**< type of the support, useful for distributions */
-
-	enum
-	{
-		isDistribution = TBaseTraits::isDistribution,	/**< true for distribution like types */
-		isIntegral = TBaseTraits::isIntegral,		/**< true for integral types, ie supporting ++ and -- fi */
-		isNative = TBaseTraits::isNative,       /**< true for the native types, ie char, int , ... */
-		isSigned = TBaseTraits::isSigned,		/**< true for signed types */
-		hasInfinity = TBaseTraits::hasInfinity,    /**< true for types having infinity */
-		hasNaN = TBaseTraits::hasNaN			/**< true for types have the concept of Not a Number */
+#define LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(type)\
+	template <>\
+	struct NumTraits< Consistent< type > >\
+	{\
+	private:\
+		typedef NumTraits< type > TBaseTraits;\
+	public:\
+		typedef Consistent< type > selfType;\
+		typedef type baseType;\
+		typedef type intervalType;\
+		enum\
+		{\
+			isDistribution = TBaseTraits::isDistribution,\
+			isIntegral = TBaseTraits::isIntegral,\
+			isNative = TBaseTraits::isNative,\
+			isSigned = TBaseTraits::isSigned,\
+			hasInfinity = TBaseTraits::hasInfinity,\
+			hasNaN = TBaseTraits::hasNaN\
+		};\
+		static const int memorySize;\
+		static const std::string name() { return "Consistent<" + TBaseTraits::name() + ">" ; }\
+		static const selfType one;\
+		static const selfType zero;\
+		static const selfType sNaN;\
+		static const selfType qNaN;\
+		static const selfType epsilon;\
+		static const selfType infinity;\
+		static const selfType min;\
+		static const selfType max;\
+		static const selfType minStrictPositive;\
+		static const selfType pi;\
+		static const selfType e;\
+		static const selfType sqrt2;\
+		static const selfType sqrtPi;\
 	};
 
-	static const int   memorySize;      /**< memory footprint */
-	static const std::string name() { return "Consistent<" + TBaseTraits::name() + ">" ; }   /**< name of the selfType */
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(float)
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(double)
 
-	static const T  one = TBaseTraits::one;                /**< definition of one */
-	static const T  zero = TBaseTraits::zero;               /**< definition of zero */
+#define LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(type)\
+	template <>\
+	struct NumTraits< Consistent< type > >\
+	{\
+	private:\
+		typedef NumTraits< type > TBaseTraits;\
+	public:\
+		typedef Consistent< type > selfType;\
+		typedef type baseType;\
+		typedef type intervalType;\
+		enum\
+		{\
+			isDistribution = TBaseTraits::isDistribution,\
+			isIntegral = TBaseTraits::isIntegral,\
+			isNative = TBaseTraits::isNative,\
+			isSigned = TBaseTraits::isSigned,\
+			hasInfinity = TBaseTraits::hasInfinity,\
+			hasNaN = TBaseTraits::hasNaN\
+		};\
+		static const int memorySize;\
+		static const std::string name() { return "Consistent<" + TBaseTraits::name() + ">" ; }\
+		static const selfType one;\
+		static const selfType zero;\
+		static const selfType pi;\
+		static const selfType e;\
+		static const selfType sqrt2;\
+		static const selfType sqrtPi;\
+	};
 
-	/* some constants */
-	static const T  sNaN = TBaseTraits::sNaN;               /**< signaling Nan, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
-	static const T  qNaN = TBaseTraits::qNaN ;               /**< quiet NaN, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
-	static const T  epsilon = TBaseTraits::epsilon;            /**< the smallest positive value such that one + epsilon != one*/
-	static const T infinity = TBaseTraits::infinity;            /**< infinity */
-	static const T min = TBaseTraits::min;                 /**< the smallest value representable */
-	static const T  max = TBaseTraits::max;                /**< the largest positive value */
-	static const T minStrictPositive = TBaseTraits::minStrictPositive;   /**< the smallest strictly positive value */
-	static const T pi = TBaseTraits::pi;
-	static const T e = TBaseTraits::e;
-	static const T sqrt2 = TBaseTraits::sqrt2;
-	static const T sqrtPi = TBaseTraits::sqrtPi;
-};
-#endif 
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(std::complex<float>)
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(std::complex<double>)
 
 template<class T> inline
-bool isNaN( const Consistent<T>& iV )
+bool isNaN( const Consistent<T>& v )
 {
-	return num::isNaN(iV.value());
+	return num::isNaN(v.value());
 }
 
 template <typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const Consistent<T>& v)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& s, const Consistent<T>& v)
 {
-	stream << v.value();
-	return stream;
+	s << v.value();
+	return s;
 }
 
 template <typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& stream, Consistent<T>& v)
+std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& s, Consistent<T>& v)
 {
 	T temp;
-	stream >> temp;
+	s >> temp;
 	v = Consistent<T>(temp);
-	return stream;
+	return s;
 }
 
+}
+
+}
+
+namespace std
+{
+
+template <typename T>
+void swap(::lass::num::Consistent<T>& a, ::lass::num::Consistent<T>& b)
+{
+	a.swap(b);
 }
 
 }

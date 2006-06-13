@@ -42,10 +42,8 @@ namespace prim
 template <typename T, template <typename, typename> class BHV>
 template <typename VertexInputRange, typename NormalInputRange,
 	typename UvInputRange, typename IndexTriangleInputRange>
-TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices, 
-									   const NormalInputRange& iNormals,
-									   const UvInputRange& iUvs, 
-									   const IndexTriangleInputRange& iTriangles):
+TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices, const NormalInputRange& iNormals, 
+		const UvInputRange& iUvs, const IndexTriangleInputRange& iTriangles):
 	vertices_(iVertices.begin(), iVertices.end()),
 	normals_(iNormals.begin(), iNormals.end()),
 	uvs_(iUvs.begin(), iUvs.end())
@@ -315,7 +313,7 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 
 template <typename T, template <typename, typename> class BHV>
 const Result TriangleMesh3D<T, BHV>::intersect(const TRay& iRay, TTriangleIterator& oTriangle,
-											   TReference oT, TParam iMinT, IntersectionContext* oContext) const
+		TReference oT, TParam iMinT, IntersectionContext* oContext) const
 {
 	TValue t;
 	const TTriangleIterator triangle =  tree_.intersect(iRay, t, iMinT);
@@ -340,9 +338,7 @@ const bool TriangleMesh3D<T, BHV>::intersects(const TRay& iRay, TParam iMinT, TP
 
 template <typename T, template <typename, typename> class BHV>
 const Result TriangleMesh3D<T, BHV>::Triangle::intersect(const TRay& iRay, 
-														 TReference oT, 
-														 TParam iMinT, 
-														 IntersectionContext* oContext) const
+		TReference oT, TParam iMinT, IntersectionContext* oContext) const
 {
 	LASS_ASSERT(vertices[0] && vertices[1] && vertices[2]);
 	const TPoint point0 = *vertices[0];

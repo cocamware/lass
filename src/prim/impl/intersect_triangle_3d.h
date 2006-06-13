@@ -26,6 +26,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_TRIANGLE_3D_H
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_INTERSECT_TRIANGLE_3D_H
 
+#include "../../num/floating_point_consistency.h"
+
 namespace lass
 {
 namespace prim
@@ -51,6 +53,7 @@ Result intersectTriangle3D(const Point& iVertex0, const Vector& iEdge1, const Ve
 						   T& oU, T& oV, T& oT, const T& iMinT)
 {
 	typedef typename Vector::TNumTraits TNumTraits;
+	typedef num::Consistent<T> TConsistent;
 
 	const Vector pvec = cross(iDirection, iEdge2);
 	const T det = dot(pvec, iEdge1);
@@ -76,7 +79,7 @@ Result intersectTriangle3D(const Point& iVertex0, const Vector& iEdge1, const Ve
 		return rNone;
 	}
 
-	const T t = dot(iEdge2, qvec) * invDet;
+	const TConsistent t = dot(iEdge2, qvec) * invDet;
 	if (t <= iMinT)
 	{
 		return rNone;
@@ -84,7 +87,7 @@ Result intersectTriangle3D(const Point& iVertex0, const Vector& iEdge1, const Ve
 
 	oU = u;
 	oV = v;
-	oT = t;
+	oT = t.value();
 	return rOne;
 }
 
