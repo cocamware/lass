@@ -94,7 +94,6 @@ private:
 
 
 
-
 template <typename T> inline
 Consistent<T> operator+(const Consistent<T>& a, const Consistent<T>& b)  
 { 
@@ -462,38 +461,7 @@ Consistent<T> mod(const Consistent<T>& v, const Consistent<T>& m)
 
 LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(float)
 LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(double)
-
-#define LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(type)\
-	template <>\
-	struct NumTraits< Consistent< type > >\
-	{\
-	private:\
-		typedef NumTraits< type > TBaseTraits;\
-	public:\
-		typedef Consistent< type > selfType;\
-		typedef type baseType;\
-		typedef type intervalType;\
-		enum\
-		{\
-			isDistribution = TBaseTraits::isDistribution,\
-			isIntegral = TBaseTraits::isIntegral,\
-			isNative = TBaseTraits::isNative,\
-			isSigned = TBaseTraits::isSigned,\
-			hasInfinity = TBaseTraits::hasInfinity,\
-			hasNaN = TBaseTraits::hasNaN\
-		};\
-		static const int memorySize;\
-		static const std::string name() { return "Consistent<" + TBaseTraits::name() + ">" ; }\
-		static const selfType one;\
-		static const selfType zero;\
-		static const selfType pi;\
-		static const selfType e;\
-		static const selfType sqrt2;\
-		static const selfType sqrtPi;\
-	};
-
-LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(std::complex<float>)
-LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS_COMPLEX(std::complex<double>)
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(long double)
 
 template<class T> inline
 bool isNaN( const Consistent<T>& v )

@@ -33,35 +33,23 @@ namespace num
 
 #define LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS(type)\
 	const int NumTraits< Consistent< type > >::memorySize = sizeof(Consistent< type >);\
-	const Consistent< type > NumTraits< Consistent< type > >::one = NumTraits< type >::one;\
-	const Consistent< type > NumTraits< Consistent< type > >::zero = NumTraits< type >::zero;\
-	const Consistent< type > NumTraits< Consistent< type > >::qNaN = NumTraits< type >::qNaN;\
-	const Consistent< type > NumTraits< Consistent< type > >::sNaN = NumTraits< type >::sNaN;\
-	const Consistent< type > NumTraits< Consistent< type > >::infinity = NumTraits< type >::infinity;\
-	const Consistent< type > NumTraits< Consistent< type > >::epsilon = NumTraits< type >::epsilon;\
-	const Consistent< type > NumTraits< Consistent< type > >::min = NumTraits< type >::min;\
-	const Consistent< type > NumTraits< Consistent< type > >::max = NumTraits< type >::max;\
-	const Consistent< type > NumTraits< Consistent< type > >::minStrictPositive = \
-		NumTraits< type >::minStrictPositive;\
-	const Consistent< type > NumTraits< Consistent< type > >::pi = NumTraits< type >::pi;\
-	const Consistent< type > NumTraits< Consistent< type > >::e = NumTraits< type >::e;\
-	const Consistent< type > NumTraits< Consistent< type > >::sqrt2 = NumTraits< type >::sqrt2;\
-	const Consistent< type > NumTraits< Consistent< type > >::sqrtPi = NumTraits< type >::sqrtPi;
+	const Consistent< type > NumTraits< Consistent< type > >::one = Consistent< type >(NumTraits< type >::one);\
+	const Consistent< type > NumTraits< Consistent< type > >::zero = Consistent< type >(NumTraits< type >::zero);\
+	const Consistent< type > NumTraits< Consistent< type > >::qNaN = Consistent< type >(NumTraits< type >::qNaN);\
+	const Consistent< type > NumTraits< Consistent< type > >::sNaN = Consistent< type >(NumTraits< type >::sNaN);\
+	const Consistent< type > NumTraits< Consistent< type > >::infinity = Consistent< type >(NumTraits< type >::infinity);\
+	const Consistent< type > NumTraits< Consistent< type > >::epsilon = Consistent< type >(NumTraits< type >::epsilon);\
+	const Consistent< type > NumTraits< Consistent< type > >::min = Consistent< type >(NumTraits< type >::min);\
+	const Consistent< type > NumTraits< Consistent< type > >::max = Consistent< type >(NumTraits< type >::max);\
+	const Consistent< type > NumTraits< Consistent< type > >::minStrictPositive = Consistent< type >(NumTraits< type >::minStrictPositive);\
+	const Consistent< type > NumTraits< Consistent< type > >::pi = Consistent< type >(NumTraits< type >::pi);\
+	const Consistent< type > NumTraits< Consistent< type > >::e = Consistent< type >(NumTraits< type >::e);\
+	const Consistent< type > NumTraits< Consistent< type > >::sqrt2 = Consistent< type >(NumTraits< type >::sqrt2);\
+	const Consistent< type > NumTraits< Consistent< type > >::sqrtPi = Consistent< type >(NumTraits< type >::sqrtPi);
  
 LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS(float)
 LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS(double)
-
-#define LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS_COMPLEX(type)\
-	const int NumTraits< Consistent< type > >::memorySize = sizeof(Consistent< type >);\
-	const Consistent< type > NumTraits< Consistent< type > >::one = NumTraits< type >::one;\
-	const Consistent< type > NumTraits< Consistent< type > >::zero = NumTraits< type >::zero;\
-	const Consistent< type > NumTraits< Consistent< type > >::pi = NumTraits< type >::pi;\
-	const Consistent< type > NumTraits< Consistent< type > >::e = NumTraits< type >::e;\
-	const Consistent< type > NumTraits< Consistent< type > >::sqrt2 = NumTraits< type >::sqrt2;\
-	const Consistent< type > NumTraits< Consistent< type > >::sqrtPi = NumTraits< type >::sqrtPi;
-
-LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS_COMPLEX(std::complex<float>)
-LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS_COMPLEX(std::complex<double>)
+LASS_NUM_FLOATING_POINT_CONSISTENCY_DEFINE_NUMTRAITS(long double)
 
 }
 }
