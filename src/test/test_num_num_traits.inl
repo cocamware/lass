@@ -48,7 +48,7 @@ namespace num_traits
 		volatile char minusOne = zero - one;
 
 		const bool isSigned = minusOne < one;
-#if LASS_CHAR_IS_SIGNED
+#ifdef LASS_CHAR_IS_SIGNED
 		LASS_TEST_CHECK(isSigned);
 #else
 		LASS_TEST_CHECK(!isSigned);
