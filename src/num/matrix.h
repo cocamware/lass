@@ -55,6 +55,7 @@ public:
 
 	typedef Matrix<T, S> TSelf;
 	typedef S TStorage;
+	typedef typename TStorage::TSize TSize;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -62,7 +63,6 @@ public:
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef num::NumTraits<T> TNumTraits;
 	typedef TValue* TPointer;
-	typedef size_t TSize;
 
 	template <typename U> struct Rebind
 	{

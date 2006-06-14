@@ -33,6 +33,7 @@
 #include "test_num_db.inl"
 #include "test_num_spline.inl"
 #include "test_num_matrix_vector.inl"
+#include "test_num_num_traits.inl"
 #include "test_num_polynomial.inl"
 #include "test_num_filters.inl"
 #include "test_num_random.inl"
@@ -52,6 +53,8 @@ TUnitTests testNum()
 	result.push_back(LASS_UNIT_TEST(testNumDb<double>));
 
 	result.push_back(LASS_UNIT_TEST(testNumSpline));
+
+	result.push_back(LASS_UNIT_TEST(testNumNumTraits));
 
 	result.push_back(LASS_UNIT_TEST(testNumMatrix<double>));
 	result.push_back(LASS_UNIT_TEST(testNumMatrix< std::complex<double> >));

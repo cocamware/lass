@@ -71,6 +71,7 @@ void testNumVector()
 	typedef Vector<T> TVector;
 	typedef typename TVector::TNumTraits TNumTraits;
 	typedef typename TVector::TValue TValue;
+	typedef typename TVector::TSize TSize;
 	typedef typename TNumTraits::baseType TBase;
 
 	const TBase tolerance = 1e-5f;
@@ -108,8 +109,8 @@ void testNumVector()
 */
 	// let's go a bit wild :)
 	//
-	unsigned n = 100;
-	unsigned i;
+	const TSize n = 100;
+	TSize i;
 	std::vector<T> aRef(n);
 	std::vector<T> bRef(n);
 	std::vector<T> cRef(n);
@@ -219,6 +220,7 @@ void testNumMatrix()
 	using namespace num;
 
 	typedef Matrix<T> TMatrix;
+	typedef typename TMatrix::TSize TSize;
 
 	TMatrix a;
 	LASS_TEST_CHECK(a.isEmpty());
@@ -234,8 +236,9 @@ void testNumMatrix()
 	LASS_TEST_CHECK(!b.isIdentity());
 	LASS_TEST_CHECK(!b.isSquare());
 	LASS_TEST_CHECK(!b.isDiagonal());
-	LASS_TEST_CHECK_EQUAL(b.rows(), static_cast<size_t>(3));
-	LASS_TEST_CHECK_EQUAL(b.columns(), static_cast<size_t>(4));
+	LASS_TEST_CHECK_EQUAL(b.rows(), 3);
+
+	LASS_TEST_CHECK_EQUAL(b.columns(), 4);
 	LASS_TEST_CHECK_EQUAL(b, b);
 }
 

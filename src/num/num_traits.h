@@ -142,7 +142,7 @@ struct NumTraits< ttype >\
 		isNative = false,\
 		isSigned = true,\
 		hasInfinity = false,\
-		hasNaN = true\
+		hasNaN = false\
 	};\
 	static const int   memorySize;\
 	static const std::string name() { return tname ; }\
@@ -159,6 +159,9 @@ LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< float > , "complex<float
 
 LASS_NUM_DECLARE_FLOATING_TRAITS( double , "double" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< double > , "complex<double>" )
+
+LASS_NUM_DECLARE_FLOATING_TRAITS( long double, "long double" )
+LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< long double > , "complex<long double>" )
 
 template<>
 struct NumTraits<char>

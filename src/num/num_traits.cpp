@@ -29,11 +29,17 @@
 
 #include "num_traits.h"
 #include "interval.h"
-#include <limits>
+#include <climits>
+#include <cfloat>
 
 #ifdef LASS_CHAR_IS_SIGNED
 #	pragma LASS_NOTE("char is configured as signed char")
 #endif
+
+#define LASS_NUM_PI			3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
+#define LASS_NUM_E			2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274
+#define LASS_NUM_SQRT_2		1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727
+#define LASS_NUM_SQRT_PI	1.772453850905516027298167483341145
 
 namespace lass
 {
@@ -53,23 +59,23 @@ const float NumTraits<float>::zero = 0.f;
 const float NumTraits<float>::qNaN = std::numeric_limits<float>::quiet_NaN();
 const float NumTraits<float>::sNaN = std::numeric_limits<float>::signaling_NaN();
 const float NumTraits<float>::infinity = std::numeric_limits<float>::infinity();
-const float NumTraits<float>::epsilon = 1.192092896e-07F;
-const float NumTraits<float>::min = -3.402823466e+38F;
-const float NumTraits<float>::max = 3.402823466e+38F;
-const float NumTraits<float>::minStrictPositive = 1.175494351e-38F;
-const float NumTraits<float>::pi = 3.1415926535897932384626433832795f;
-const float NumTraits<float>::e = 2.7182818284590452353602874713527f;
-const float NumTraits<float>::sqrt2 = 1.4142135623730950488016887242097f;
-const float NumTraits<float>::sqrtPi = 1.7724538509055160272981674833411f;
+const float NumTraits<float>::epsilon = FLT_EPSILON;
+const float NumTraits<float>::min = -FLT_MAX;
+const float NumTraits<float>::max = FLT_MAX;
+const float NumTraits<float>::minStrictPositive = FLT_MIN;
+const float NumTraits<float>::pi = LASS_NUM_PI;
+const float NumTraits<float>::e = LASS_NUM_E;
+const float NumTraits<float>::sqrt2 = LASS_NUM_SQRT_2;
+const float NumTraits<float>::sqrtPi = LASS_NUM_SQRT_PI;
 
 // complex specialisation
 const int   NumTraits<std::complex<float> >::memorySize = sizeof(std::complex<float>);
 const std::complex<float>   NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
 const std::complex<float>   NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
-const std::complex<float>   NumTraits<std::complex<float> >::pi = 3.1415926535897932384626433832795f;
-const std::complex<float>   NumTraits<std::complex<float> >::e = 2.7182818284590452353602874713527f;
-const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = 1.4142135623730950488016887242097f;
-const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = 1.7724538509055160272981674833411f;
+const std::complex<float>   NumTraits<std::complex<float> >::pi = LASS_NUM_PI;
+const std::complex<float>   NumTraits<std::complex<float> >::e = LASS_NUM_E;
+const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = LASS_NUM_SQRT_2;
+const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = LASS_NUM_SQRT_PI;
 
 /***********************************************************************
 * double num trait
@@ -80,23 +86,50 @@ const double NumTraits<double>::zero= 0.0;
 const double    NumTraits<double>::qNaN = std::numeric_limits<double>::quiet_NaN();
 const double    NumTraits<double>::sNaN = std::numeric_limits<double>::signaling_NaN();
 const double NumTraits<double>::infinity = std::numeric_limits<double>::infinity();
-const double NumTraits<double>::epsilon = 2.2204460492503131e-016;
-const double    NumTraits<double>::min = -1.7976931348623158e+308;
-const double    NumTraits<double>::max = 1.7976931348623158e+308;
-const double    NumTraits<double>::minStrictPositive = 2.2250738585072014e-308;
-const double    NumTraits<double>::pi = 3.1415926535897932384626433832795;
-const double    NumTraits<double>::e = 2.7182818284590452353602874713527;
-const double    NumTraits<double>::sqrt2 = 1.4142135623730950488016887242097;
-const double    NumTraits<double>::sqrtPi = 1.7724538509055160272981674833411;
+const double NumTraits<double>::epsilon = DBL_EPSILON;
+const double    NumTraits<double>::min = -DBL_MAX;
+const double    NumTraits<double>::max = DBL_MAX;
+const double    NumTraits<double>::minStrictPositive = DBL_MIN;
+const double    NumTraits<double>::pi = LASS_NUM_PI;
+const double    NumTraits<double>::e = LASS_NUM_E;
+const double    NumTraits<double>::sqrt2 = LASS_NUM_SQRT_2;
+const double    NumTraits<double>::sqrtPi = LASS_NUM_SQRT_PI;
 
 // complex specialisation
 const int   NumTraits<std::complex<double> >::memorySize = sizeof(std::complex<double>);
 const std::complex<double>  NumTraits<std::complex<double> >::one = std::complex<double>(1.0, 0.0);
 const std::complex<double>  NumTraits<std::complex<double> >::zero = std::complex<double>(0.0, 0.0);
-const std::complex<double>  NumTraits<std::complex<double> >::pi = 3.1415926535897932384626433832795;
-const std::complex<double>  NumTraits<std::complex<double> >::e = 2.7182818284590452353602874713527;
-const std::complex<double>  NumTraits<std::complex<double> >::sqrt2 = 1.4142135623730950488016887242097;
-const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = 1.7724538509055160272981674833411;
+const std::complex<double>  NumTraits<std::complex<double> >::pi = LASS_NUM_PI;
+const std::complex<double>  NumTraits<std::complex<double> >::e = LASS_NUM_E;
+const std::complex<double>  NumTraits<std::complex<double> >::sqrt2 = LASS_NUM_SQRT_2;
+const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = LASS_NUM_SQRT_PI;
+
+/***********************************************************************
+* long double num trait
+*/
+const int   NumTraits<long double>::memorySize = sizeof(long double);
+const long double    NumTraits<long double>::one = 1.0;
+const long double NumTraits<long double>::zero= 0.0;
+const long double    NumTraits<long double>::qNaN = std::numeric_limits<long double>::quiet_NaN();
+const long double    NumTraits<long double>::sNaN = std::numeric_limits<long double>::signaling_NaN();
+const long double NumTraits<long double>::infinity = std::numeric_limits<long double>::infinity();
+const long double NumTraits<long double>::epsilon = LDBL_EPSILON;
+const long double    NumTraits<long double>::min = -LDBL_MAX;
+const long double    NumTraits<long double>::max = LDBL_MAX;
+const long double    NumTraits<long double>::minStrictPositive = LDBL_MIN;
+const long double    NumTraits<long double>::pi = LASS_NUM_PI;
+const long double    NumTraits<long double>::e = LASS_NUM_E;
+const long double    NumTraits<long double>::sqrt2 = LASS_NUM_SQRT_2;
+const long double    NumTraits<long double>::sqrtPi = LASS_NUM_SQRT_PI;
+
+// complex specialisation
+const int   NumTraits<std::complex<long double> >::memorySize = sizeof(std::complex<long double>);
+const std::complex<long double>  NumTraits<std::complex<long double> >::one = std::complex<long double>(1.0, 0.0);
+const std::complex<long double>  NumTraits<std::complex<long double> >::zero = std::complex<long double>(0.0, 0.0);
+const std::complex<long double>  NumTraits<std::complex<long double> >::pi = LASS_NUM_PI;
+const std::complex<long double>  NumTraits<std::complex<long double> >::e = LASS_NUM_E;
+const std::complex<long double>  NumTraits<std::complex<long double> >::sqrt2 = LASS_NUM_SQRT_2;
+const std::complex<long double>  NumTraits<std::complex<long double> >::sqrtPi = LASS_NUM_SQRT_PI;
 
 /***********************************************************************
 * unsigned/signed char/short/int/long num trait

@@ -29,6 +29,7 @@
 
 #include "num_common.h"
 #include "../util/call_traits.h"
+#include <complex>
 
 namespace lass
 {
@@ -48,6 +49,11 @@ public:
 
 	Consistent(TParam t): 
 		t_(t) 
+	{
+	}
+
+	Consistent(const TSelf& other):
+		t_(other.t_)
 	{
 	}
 
