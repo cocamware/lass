@@ -84,7 +84,7 @@ protected:
 	TPlanarMesh mesh_;
 	TAabb2D		aabb_;
 
-	typedef std::list<TPI> TInfoList;    /**< type must support stable iterators */
+	typedef std::deque<TPI> TInfoList;    /**< type must support stable iterators */
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;

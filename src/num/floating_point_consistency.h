@@ -47,6 +47,10 @@ public:
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef num::NumTraits<T> TNumTraits;
 
+	Consistent() : t_() 
+	{
+	}
+
 	Consistent(TParam t): 
 		t_(t) 
 	{
@@ -60,6 +64,16 @@ public:
 	TParam value() const 
 	{ 
 		return t_; 
+	}
+
+	TSelf operator-() const
+	{
+		return TSelf(-t_);
+	}
+
+	TSelf operator+() const
+	{
+		return *this;
 	}
 
 	TSelf& operator+=(const TSelf& other) 

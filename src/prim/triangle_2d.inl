@@ -154,7 +154,7 @@ template <typename T>
 const typename Triangle2D<T>::TValue Triangle2D<T>::signedArea() const
 {
 	LASS_ASSERT(size_ == 3);
-	return perpDot(vertices_[1] - vertices_[0], vertices_[2] - vertices_[0]) / 2;
+	return perpDot(vertices_[1] - vertices_[0], vertices_[2] - vertices_[0]) / T(2);
 }
 
 

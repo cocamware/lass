@@ -401,7 +401,7 @@ bool inCircle( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC,
 	T det = (az * doubleTriangleArea(iB, iC, iD) - bz * doubleTriangleArea(iA, iC, iD)
 		+    cz * doubleTriangleArea(iA, iB, iD) - dz * doubleTriangleArea(iA, iB, iC));
 
-	return (det > 0);
+	return (det > T(0));
 }
 
 
