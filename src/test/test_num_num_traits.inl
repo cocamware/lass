@@ -123,7 +123,7 @@ namespace num_traits
 		LASS_TEST_CHECK_EQUAL(TNumTraits::minStrictPositive, std::numeric_limits<T>::min());
 		LASS_TEST_CHECK_CLOSE(TNumTraits::pi, T(4) * num::atan(T(1)), tolerance);
 		LASS_TEST_CHECK_CLOSE(TNumTraits::e, num::exp(T(1)), tolerance);
-		LASS_TEST_CHECK_EQUAL(TNumTraits::sqrt2, num::sqrt(T(2)));
+		LASS_TEST_CHECK_CLOSE(TNumTraits::sqrt2, num::sqrt(T(2)), tolerance);
 		LASS_TEST_CHECK_CLOSE(TNumTraits::sqrtPi, num::sqrt(TNumTraits::pi), tolerance);
 	}
 
@@ -150,10 +150,11 @@ namespace num_traits
 		LASS_TEST_CHECK_CLOSE(TNumTraits::pi.real(), TBase(4) * num::atan(TBase(1)), tolerance);
 		LASS_TEST_CHECK_EQUAL(TNumTraits::pi.imag(), TBase(0));
 		LASS_TEST_CHECK_CLOSE(TNumTraits::e.real(), num::exp(T(1)).real(), tolerance);
-		LASS_TEST_CHECK_EQUAL(TNumTraits::e.imag(), TBase(0));
-		LASS_TEST_CHECK_EQUAL(TNumTraits::sqrt2, num::sqrt(T(2)));
+		LASS_TEST_CHECK_EQUAL(TNumTraits::e.imag(), num::exp(T(1)).imag());
+		LASS_TEST_CHECK_CLOSE(TNumTraits::sqrt2.real(), num::sqrt(T(2)).real(), tolerance);
+		LASS_TEST_CHECK_EQUAL(TNumTraits::sqrt2.imag(), num::sqrt(T(2)).imag());
 		LASS_TEST_CHECK_CLOSE(TNumTraits::sqrtPi.real(), num::sqrt(TNumTraits::pi).real(), tolerance);
-		LASS_TEST_CHECK_EQUAL(TNumTraits::sqrtPi.imag(), TBase(0));
+		LASS_TEST_CHECK_EQUAL(TNumTraits::sqrtPi.imag(), num::sqrt(TNumTraits::pi).imag());
 	}
 
 }
