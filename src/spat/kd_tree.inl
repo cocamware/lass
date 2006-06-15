@@ -115,32 +115,33 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 	iMaxCount = std::min(iMaxCount, size_);
 
 	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
-	LASS_ASSERT(iMaxCount > 0);
     
 	TValue squaredRadius = iMaxRadius * iMaxRadius;
 	oNeighbourhood.clear();
 	oNeighbourhood.reserve(iMaxCount + 1);
 
 	doRangeSearch(iTarget, squaredRadius, iMaxCount, oNeighbourhood, 0);
-	return oNeighbourhood.empty() ? TValue() : oNeighbourhood.front().squaredDistance();
-}
 
-
-#pragma LASS_TODO("Integrate this lean and mean range search more properly, avoiding code duplication [Bramz]")
-template <class O, class OT>
-void KdTree<O, OT>::rangeSearchLeanAndMean(const TPoint& iTarget, TParam iMaxRadius, TNeighbourhood& oNeighbourhood) const
-{
-	if (isEmpty())
+	if (oNeighbourhood.empty())
 	{
-		LASS_THROW("can't perform range search in empty KdTree");
+		return TValue();
 	}
-
-	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
-    
-	TValue squaredRadius = iMaxRadius * iMaxRadius;
-	oNeighbourhood.clear();
-
-	doRangeSearchLeanAndMean(iTarget, squaredRadius, oNeighbourhood, 0);
+	if (iMaxCount == 0)
+	{
+		// oNeighbourhood is not a heap, find maximum squared distance
+		TValue maxSquaredDistance = TValue();
+		const TNeighbourhood::const_iterator end = oNeighbourhood.end();
+		for (TNeighbourhood::const_iterator i = oNeighbourhood.begin(); i != end; ++i)
+		{
+			const TValue sqrDist = i->squaredDistance();
+			if (sqrDist > maxSquaredDistance)
+			{
+				maxSquaredDistance = sqrDist;
+			}
+		}
+		return maxSquaredDistance;
+	}
+    return oNeighbourhood.front().squaredDistance();
 }
 
 
@@ -389,51 +390,6 @@ void KdTree<O, OT>::doNearestNeighbour(const TPoint& iTarget, Neighbour& ioNeare
 
 
 template <class O, class OT>
-void KdTree<O, OT>::doRangeSearchLeanAndMean(const TPoint& iTarget,
-											 TReference ioSquaredRadius,
-											 TNeighbourhood& oNeighbourhood,
-											 size_t iNode) const
-{
-	if (iNode >= heap_.size() || heap_[iNode] == end_)
-	{
-		return;
-	}
-
-	const TPoint pivot = TObjectTraits::position(heap_[iNode]);
-	const TAxis split = splits_[iNode];
-	if (split != dummyAxis_)
-	{
-		const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
-		if (delta < TValue())
-		{
-			// we are left of the plane - search left node first
-			doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 1);
-			if (num::sqr(delta) < ioSquaredRadius)
-			{
-				doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 2);
-			}
-		}
-		else
-		{
-			// we are right of the plane - search right node first
-			doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 2);
-			if (num::sqr(delta) < ioSquaredRadius)
-			{
-				doRangeSearchLeanAndMean(iTarget, ioSquaredRadius, oNeighbourhood, 2 * iNode + 1);
-			}
-		}
-	}
-
-	const TValue sqrDistance = squaredDistance(pivot, iTarget);
-	if (sqrDistance < ioSquaredRadius)
-	{
-		oNeighbourhood.push_back(Neighbour(heap_[iNode], sqrDistance));
-	}
-}
-
-
-
-template <class O, class OT>
 void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 								  TReference ioSquaredRadius,
 								  size_t iMaxCount,
@@ -474,12 +430,15 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 	if (sqrDistance < ioSquaredRadius)
 	{
 		oNeighbourhood.push_back(Neighbour(heap_[iNode], sqrDistance));
-		std::push_heap(oNeighbourhood.begin(), oNeighbourhood.end());
-		if (oNeighbourhood.size() > iMaxCount)
+		if (iMaxCount > 0)
 		{
-			std::pop_heap(oNeighbourhood.begin(), oNeighbourhood.end());
-			oNeighbourhood.pop_back();
-			ioSquaredRadius = oNeighbourhood.front().squaredDistance();
+			std::push_heap(oNeighbourhood.begin(), oNeighbourhood.end());
+			if (oNeighbourhood.size() > iMaxCount)
+			{
+				std::pop_heap(oNeighbourhood.begin(), oNeighbourhood.end());
+				oNeighbourhood.pop_back();
+				ioSquaredRadius = oNeighbourhood.front().squaredDistance();
+			}
 		}
 	}
 }

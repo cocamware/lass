@@ -95,6 +95,10 @@ AabbTree<O, OT>::aabb() const
 template <class O, class OT> inline
 bool AabbTree<O, OT>::contains(const TPoint& iPoint, const TInfo* iInfo) const
 {
+	if (isEmpty())
+	{
+		return false;
+	}
 	return doContains(0, iPoint, iInfo);
 }
 
@@ -105,6 +109,10 @@ template <typename OutputIterator> inline
 OutputIterator AabbTree<O, OT>::find(const TPoint& iPoint, OutputIterator iFirst, 
 									 const TInfo* iInfo) const
 {
+	if (isEmpty())
+	{
+		return iFirst;
+	}
 	return doFind(0, iPoint, iFirst, iInfo);
 }
 
@@ -114,6 +122,10 @@ template <class O, class OT>
 typename AabbTree<O, OT>::TObjectIterator inline
 AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const
 {
+	if (isEmpty())
+	{
+		return end_;
+	}
 	return doIntersect(0, iRay, oT, iMinT, iInfo);
 }
 
@@ -122,6 +134,10 @@ AabbTree<O, OT>::intersect(const TRay& iRay, TReference oT, TParam iMinT, const 
 template <class O, class OT>
 bool inline AabbTree<O, OT>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const
 {
+	if (isEmpty())
+	{
+		return false;
+	}
 	return doIntersects(0, iRay, iMinT, iMaxT, iInfo);
 }
 
