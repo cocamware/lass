@@ -51,6 +51,7 @@
 #include "../io/matlab_o_stream.h"
 #include "../meta/null_type.h"
 
+#define DEBUG_MESH	0
 
 namespace lass
 {
@@ -159,6 +160,8 @@ namespace spat
 		PlanarMesh( const prim::Aabb2D<T>& iAabb );
 		void setTolerance(const T& iTolerance) {tolerance_ = iTolerance;}	//<* set the relative tolerance */
 		const T& tolerance() { return tolerance_; }
+		void setPointDistanceTolerance(const T& iPointDistanceTolerance) {pointDistanceTolerance_ = iPointDistanceTolerance;}	//<* set the relative tolerance */
+		const T& pointDistanceTolerance() { return pointDistanceTolerance_; }
 		virtual ~PlanarMesh();
 
 		TEdge*  startEdge() const;
@@ -195,6 +198,8 @@ namespace spat
 		static  bool  hasRightFace( TEdge* iEdge );
 		static  int   chainOrder( TEdge* iEdge );
 		static  int   vertexOrder( TEdge* iEdge );
+		static	bool  allEqualChainOrder( TEdge* iEdge );
+
 
 		static  bool inPrimaryMesh( TEdge* iEdge );
 		static  bool inDualMesh( TEdge* iEdge );
@@ -210,9 +215,11 @@ namespace spat
 	private:
 		TEdge*  startEdge_;
 		TQuadEdgeList       quadEdgeList_;
+		std::vector<TPoint2D>	boundingPoints_;
 
 		mutable TEdge*  lastLocateEdge_;
 		T		tolerance_;
+		T		pointDistanceTolerance_;
 		long    edgeCount_;
 		int     stackDepth_;
 	private:
@@ -226,9 +233,15 @@ namespace spat
 		void triangulate( TEdge* iEdge );
 		void fixEdge( TEdge* e );
 		void splitEdge(TEdge *e, const TPoint2D& iPoint );
+		TEdge*  pointLocate( const TPoint2D& iPoint ) const;		/**< locate an edge of which the org is the same as iPoint, useful for known degeneracy point location */
+		TEdge*	pointShoot( const TRay2D& iRay ) const;				/**< locate the edge found by shooting the ray from within the triangle with the support of the ray as a known point */
+		bool  isBoundingPoint( const TPoint2D& iPoint) const;		/**< true for points defining the boundary */
+		template <typename OutputIterator>	OutputIterator pointWalk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
+		void safeSplitEdge(TEdge *e, const TPoint2D& iPoint );
 		TPoint2D snap(const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
 
 		TEdge*  bruteForceLocate( const TPoint2D& iPoint ) const;
+		TEdge*  bruteForceExactLocate( const TPoint2D& iPoint ) const;
 
 		static  void setOrg( const TPoint2D& iOrg, TEdge* iEdge );
 		static  void setDest( const TPoint2D& iDest, TEdge* iEdge );
@@ -357,6 +370,25 @@ namespace spat
 		};
 
 		TEMPLATE_DEF
+		class BrutePointExactLocator
+		{
+			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+			typename TPlanarMesh::TPoint2D  point_;
+		public:
+			typename TPlanarMesh::TEdge*    edge;
+			BrutePointExactLocator( const typename TPlanarMesh::TPoint2D& iPoint ) : point_(iPoint), edge(NULL) {}
+			bool findPoint( typename TPlanarMesh::TEdge* e )
+			{
+				if (TPlanarMesh::org(e)==point_)
+				{	
+					edge = e;
+					return false;
+				}
+				return true;
+			}
+		};
+
+		TEMPLATE_DEF
 		class BrutePointLocator
 		{
 			typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
@@ -375,9 +407,9 @@ namespace spat
 				}
 				// now search the closest point
 				ce = e;
-				T d1 = distance(TPlanarMesh::org(e),point_);
-				T d2 = distance(TPlanarMesh::dest(e),point_);
-				T d3 = distance(TPlanarMesh::dest(e->lNext()),point_);
+				T d1 = squaredDistance(TPlanarMesh::org(e),point_);
+				T d2 = squaredDistance(TPlanarMesh::dest(e),point_);
+				T d3 = squaredDistance(TPlanarMesh::dest(e->lNext()),point_);
 
 				if (d1<d2)
 				{
@@ -410,6 +442,7 @@ namespace spat
 			{
 				TPlanarMesh::TEdge* ce = e;
 				stream << "---\n";
+				stream << std::setprecision(20);
 				for (int i=0;i<3;++i)
 				{
 					stream << TPlanarMesh::org(ce) << "-->" << TPlanarMesh::dest(ce) << ":" << prim::doubleTriangleArea(point_,TPlanarMesh::dest(ce),TPlanarMesh::org(ce)) << "\n";
@@ -421,9 +454,9 @@ namespace spat
 				}
 				// now search the closest point
 				ce = e;
-				T d1 = distance(TPlanarMesh::org(e),point_);
-				T d2 = distance(TPlanarMesh::dest(e),point_);
-				T d3 = distance(TPlanarMesh::dest(e->lNext()),point_);
+				T d1 = squaredDistance(TPlanarMesh::org(e),point_);
+				T d2 = squaredDistance(TPlanarMesh::dest(e),point_);
+				T d3 = squaredDistance(TPlanarMesh::dest(e->lNext()),point_);
 
 				if (d1<d2)
 				{
@@ -499,6 +532,7 @@ namespace spat
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c)
 	{
 		tolerance_ = 1.0e-8;
+		pointDistanceTolerance_ = 1.0e-8;
 		TEdge* ea = makeEdge(a, b, true);
 		TEdge* eb = makeEdge(b, c, true);
 		TEdge* ec = makeEdge(c, a, true);
@@ -512,11 +546,18 @@ namespace spat
 		lastLocateEdge_ = startEdge_;
 		edgeCount_ = 6;
 		stackDepth_ = 0;
+
+		boundingPoints_.push_back(a);
+		boundingPoints_.push_back(b);
+		boundingPoints_.push_back(c);
 	}
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::init4( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c, const TPoint2D& d)
 	{
+		tolerance_ = 1.0e-8;
+		pointDistanceTolerance_ = 1.0e-8;
+
 		TEdge* ea = makeEdge(a, b, true);
 		TEdge* eb = makeEdge(b, c, true);
 		TEdge* ec = makeEdge(c, d, true);
@@ -536,12 +577,16 @@ namespace spat
 		lastLocateEdge_ = startEdge_;
 		edgeCount_ = 10;
 		stackDepth_ = 0;
+
+		boundingPoints_.push_back(a);
+		boundingPoints_.push_back(b);
+		boundingPoints_.push_back(c);
+		boundingPoints_.push_back(d);
 	}
 
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::PlanarMesh( const prim::Aabb2D<T>& iAabb )
 	{
-		tolerance_ = 1.0e-6;
 		TPoint2D    topleft(iAabb.min().x, iAabb.max().y);
 		TPoint2D    topright(iAabb.max().x, iAabb.max().y);
 		TPoint2D    bottomleft(iAabb.min().x, iAabb.min().y);
@@ -552,7 +597,6 @@ namespace spat
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c, const TPoint2D& d)
 	{
-		tolerance_ = 1.0e-8;
 		init4(a, b, c, d);
 	}
 
@@ -645,12 +689,42 @@ namespace spat
 		}
 	}
 
+
+	TEMPLATE_DEF
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::safeSplitEdge(TEdge *e, const TPoint2D& iPoint )
+	// checks that when the point iPoint is on the edge e that is 
+	// really between the org and the dest of e
+	// due to numerical roundoff this could be otherwise
+	//
+	// only call this routine when you are splitting an edge e in two 
+	// collinear (or at least expected collinear within numerical roundoff) parts
+	{
+		TRay2D	testRay1(org(e),dest(e));
+		if (testRay1.t(dest(e))<=testRay1.t(iPoint))
+		{
+			LASS_THROW("Inconsistent splitting of constrained edge");
+		}
+		TRay2D	testRay2(dest(e),org(e));
+		if (testRay2.t(org(e))<=testRay2.t(iPoint))
+		{
+			LASS_THROW("Inconsistent splitting of constrained edge");
+		}
+		splitEdge(e,iPoint);
+	}
+
+
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::splitEdge(TEdge *e, const TPoint2D& iPoint )
 	// Shorten edge e s.t. its destination becomes x. Connect
 	// x to the previous destination of e by a new edge. If e
 	// is constrained, x is snapped onto the edge, and the new
 	// edge is also marked as constrained.
+
+	// remember that this function is rather dumb
+	// no snapping is performed to constrained edges
+	// all these operations have to be performed _before_ entering this routine
+	// the edge e is readily available so it is the responsible of the caller to 
+	// make meaningful splits
 	{
 		const TVector2D dir = direction(e);
 		PointHandle    iE = pointHandle(e);
@@ -658,19 +732,7 @@ namespace spat
 		EdgeHandle		iLE = edgeHandle(e);
 		EdgeHandle		iRE = edgeHandle(e->sym());
 
-		/*
-		if (distance(iPoint,dest(e))<tolerance_)
-			return;
-		*/
 		TPoint2D thePoint = iPoint;
-		if (e->isConstrained())
-		{
-			thePoint = snap( iPoint, org(e), dest(e));
-			if (thePoint!=iPoint)
-			{
-				int b = 0;
-			}
-		}
 		TEdge* t = e->lNext();
 		TQuadEdge::splice( e->sym(), t );
 		setDest( thePoint, e );
@@ -803,6 +865,7 @@ namespace spat
 		{
 			impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator( iPoint );
 			const_cast<TPlanarMesh*>(this)->forAllPrimaryEdges( TEdgeCallback( &bruteLocator, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
+//#if DEBUG_MESH
 			if (bruteLocator.edge==NULL)
 			{
 				impl::BrutePointLocatorVerbose<T, PointHandle, EdgeHandle, FaceHandle> bruteLocatorVerbose( iPoint );
@@ -811,9 +874,31 @@ namespace spat
 				bruteLocatorVerbose.stream.close();
 				return bruteLocatorVerbose.edge;
 			}
+//#endif
 			return bruteLocator.edge;
 		}
 		return bruteLocator.edge;
+	}
+
+	// searches for an exact vertex
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::bruteForceExactLocate( const TPoint2D& iPoint ) const
+	{
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		impl::BrutePointExactLocator<T, PointHandle, EdgeHandle, FaceHandle> brutePointLocator( iPoint );
+		const_cast<TPlanarMesh*>(this)->forAllVertices( TEdgeCallback( &brutePointLocator, &impl::BrutePointExactLocator<T, PointHandle, EdgeHandle, FaceHandle>::findPoint ) );
+		return brutePointLocator.edge;
+	}
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::isBoundingPoint( const TPoint2D& iPoint ) const
+	{
+		for (int i=0;i<boundingPoints_.size();++i)
+		{
+			if (boundingPoints_[i]==iPoint)
+				return true;
+		}
+		return false;
 	}
 
 
@@ -902,11 +987,63 @@ namespace spat
 		return bruteForceLocate(iPoint);
 	}
 
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointLocate( const TPoint2D& iPoint ) const
+	{
+		long edgesPassed = 0;
+		TEdge* e = lastLocateEdge_;
+
+		while (edgesPassed<(edgeCount_+2))
+		{
+			++edgesPassed;
+			if ( org( e ) == iPoint )
+				return e;
+			if ( dest( e ) == iPoint )
+				return e->sym();
+			if ( rightOf( iPoint, e ) )
+				e = e->sym();
+
+			if (hasLeftFace(e))
+			{
+				if ( iPoint == org(e->lPrev()) )
+					return e->lPrev();
+				if ( leftOf( iPoint, e->oNext()) )
+				{
+					e = e->oNext();
+					continue;
+				}
+				if ( leftOf( iPoint, e->dPrev()) )
+				{
+					e = e->dPrev();
+					continue;
+				}
+			}
+
+			if (rightOf(iPoint, e->oPrev()))
+			{
+				e = e->oPrev()->sym();
+				continue;
+			}
+			if (rightOf(iPoint,e->dNext()))
+			{
+				e = e->dNext()->sym();
+				continue;
+			}
+		}
+		//throw std::runtime_error("could not locate edge for point, probably point on edge which is not supported yet!");
+		e = bruteForceExactLocate(iPoint);
+		LASS_ASSERT(e!=NULL);
+		return e;
+		LASS_THROW( "pointLocate: could not find point");
+	}
+
+
 	/** method is polygon-safe */
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::shoot( const TRay2D& iRay ) const
 	{
 		TEdge* locateEdge = locate(iRay.support());
+		LASS_ASSERT(isBoundingPoint(org(locateEdge)) || allEqualChainOrder(locateEdge));
 		TEdge* startEdge = locateEdge;
 		if (!startEdge)
 			return NULL;
@@ -932,7 +1069,7 @@ namespace spat
 			e = e;
 		}
 
-		do	// if we are unlucky enough the starting point is a vertex in the mesh and all hell breaks loose!
+		do	
 		{
 			TEdge* e(startEdge);
 			lass::prim::Side lastSide = iRay.classify(org(e));
@@ -948,8 +1085,90 @@ namespace spat
 			startEdge = startEdge->oNext();
 		} while (startEdge!=locateEdge);
 
+		// recreate the same situation for debugging purposes
+		{
+			lass::io::MatlabOStream bugMesh;
+			bugMesh.open( "shoot_ray.m" );
+			bugMesh << std::setprecision(15);
+			bugMesh << *const_cast<typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>*>(this);
+			bugMesh.close();
+			bugMesh.open( "shoot_ray_edges.m" );
+			bugMesh.setColor(lass::io::mcBlue);
+			bugMesh << TLineSegment2D(iRay.support(),iRay.point(1.0));
+			do	
+			{
+				TEdge* e(startEdge);
+				lass::prim::Side lastSide = iRay.classify(org(e));
+				bugMesh.setColor(lass::io::mcRed);
+				bugMesh << TLineSegment2D(org(startEdge),dest(startEdge));
+				do
+				{
+					bugMesh.setColor(lass::io::mcGreen);
+					bugMesh << TLineSegment2D(org(e),dest(e));
+					lass::prim::Side currentSide = iRay.classify(dest(e));
+					if (lastSide==lass::prim::sRight && lastSide!=currentSide)
+						return e;
+					lastSide = currentSide;
+					e = e->lNext();
+				}
+				while (e!=startEdge);
+				startEdge = startEdge->oNext();
+			} while (startEdge!=locateEdge);
+			bugMesh.close();
+		}
+
 		return NULL;	// we give up
 	}
+
+	/** method is polygon-safe */
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointShoot( const TRay2D& iRay ) const
+	{
+		TEdge* locateEdge = pointLocate(iRay.support());
+		LASS_ASSERT(isBoundingPoint(org(locateEdge)) || allEqualChainOrder(locateEdge));
+		TEdge* startEdge = locateEdge;
+		if (!startEdge)
+			return NULL;
+		
+		TEdge* e(startEdge);
+		lass::prim::Side lastSide = iRay.classify(org(e));
+		int vOrder = vertexOrder(e);
+		for (int i=0;i<vOrder+1;++i)
+		{
+			/*
+			lass::prim::Side currentSide = iRay.classify(dest(e));
+			if (lastSide==lass::prim::sRight && lastSide!=currentSide)
+				return e;
+			lastSide = currentSide;
+			*/
+			if (	num::abs(prim::doubleTriangleArea(iRay.support(),iRay.point(T(1)),dest(e)))<tolerance_
+				&&	iRay.t(dest(e)) > T(0) )
+				return e;
+			e = e->oNext();
+		}
+		e = e;
+
+		do	
+		{
+			TEdge* e(startEdge);
+			lass::prim::Side lastSide = iRay.classify(org(e));
+			do
+			{
+				lass::prim::Side currentSide = iRay.classify(dest(e));
+				if (lastSide==lass::prim::sRight && lastSide!=currentSide)
+					return e;
+				lastSide = currentSide;
+				e = e->lNext();
+			}
+			while (e!=startEdge);
+			startEdge = startEdge->oNext();
+		} while (startEdge!=locateEdge);
+
+		LASS_THROW("pointShoot, could not find suitable triangle");
+		return NULL;
+	}
+
+
 
 	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
 	TEMPLATE_DEF
@@ -958,6 +1177,7 @@ namespace spat
 	{
 		TEdge* e=NULL;
 		e = shoot(TRay2D(iSegment.tail(),iSegment.vector()));
+		LASS_ASSERT(isBoundingPoint(org(e)) || allEqualChainOrder(e));
 		if (!e)
 		{
 			LASS_THROW("Could not shoot initial ray in walk");
@@ -968,9 +1188,38 @@ namespace spat
 			return crossedEdges;
 		}
 
-		TLine2D lineTester(iSegment.tail(),iSegment.head());
-		
-//#pragma LASS_TODO("check for infinite loop")
+		while (	!leftOf(iSegment.head(),e) 
+			||	(	(num::abs(prim::doubleTriangleArea(dest(e),iSegment.head(),iSegment.tail()))<tolerance_ )
+			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
+		{
+			(*crossedEdges++) = e;
+			TEdge* ne1 = e->sym()->lNext();
+			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
+				e = ne1->lNext();
+			else
+				e = ne1;
+		}
+		return crossedEdges;
+	}
+
+	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
+	TEMPLATE_DEF
+	template <typename OutputIterator> 
+	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointWalk( const TLineSegment2D& iSegment, OutputIterator crossedEdges ) const
+	{
+		TEdge* e=NULL;
+		e = pointShoot(TRay2D(iSegment.tail(),iSegment.vector()));
+		LASS_ASSERT(isBoundingPoint(org(e)) || allEqualChainOrder(e));
+		if (!e)
+		{
+			LASS_THROW("Could not shoot initial ray in pointWalk");
+		}
+		if (dest(e)==iSegment.head())
+		{
+			(*crossedEdges++) = e;
+			return crossedEdges;
+		}
+
 		while (	!leftOf(iSegment.head(),e) 
 			||	(	(num::abs(prim::doubleTriangleArea(dest(e),iSegment.head(),iSegment.tail()))<tolerance_ )
 			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
@@ -1050,9 +1299,12 @@ namespace spat
 			locate( iPoint );
 			LASS_ASSERT( e!=NULL);
 		}
-		if (distance(org(e),iPoint)<tolerance_)
+		T sqDistOrg	= prim::squaredDistance(org(e),iPoint);
+		T sqDistDest = prim::squaredDistance(dest(e),iPoint);
+
+		if (sqDistOrg<pointDistanceTolerance_*pointDistanceTolerance_)
 			return e;
-		if (distance(dest(e),iPoint)<tolerance_)
+		if (sqDistDest<pointDistanceTolerance_*pointDistanceTolerance_)
 			return e->sym();
 
 		bool hasLeft = hasLeftFace(e);
@@ -1068,10 +1320,54 @@ namespace spat
 		}
 
 		bool isOnEdge = onEdge(iPoint, e) || forceOnEdge;
+		// the distance to lines is enlarged a bit for greater stability towards distances to line calculations
+		if (!isOnEdge && TLine2D(org(e),dest(e)).squaredDistance(iPoint)<1.05*pointDistanceTolerance_*pointDistanceTolerance_)
+		{
+			// snap the point to the line, this is a precaution to avoid numerical 
+			// instability later on
+			isOnEdge = true;
+			TPoint2D x = snap(iPoint, org(e), dest(e));
+			return insertSite(x,makeDelaunay,true);
+		}
+
 		bool insideLeft  = hasLeft && (isOnEdge || leftOf(iPoint, e)) &&
 						   rightOf(iPoint, e->oNext()) && rightOf(iPoint, e->dPrev());
 		bool insideRight = hasRight && (isOnEdge || rightOf(iPoint, e)) &&
 						   leftOf(iPoint, e->oPrev()) && leftOf(iPoint, e->dNext());
+
+		// check for numerical stability
+		// we check if upon insertion the orientation tests still give meaningful results
+		{
+			TPoint2D p1 = org(e);
+			TPoint2D p2 = dest(e);
+			TPoint2D p3 = dest(e->lNext());
+
+			T s1 = prim::doubleTriangleArea(iPoint,p1,p2);
+			T s2 = prim::doubleTriangleArea(iPoint,p2,p3);
+			T s3 = prim::doubleTriangleArea(iPoint,p3,p1);
+			
+			if (isOnEdge)
+			{
+				if ( s1*s2 < T(0) || s2*s3 < T(0) || s1*s3 < T(0) )
+				{
+					if (squaredDistance(org(e),iPoint)<squaredDistance(dest(e),iPoint))
+					{
+						return insertSite(org(e),makeDelaunay,true);
+					}
+					else
+					{
+						return insertSite(dest(e),makeDelaunay,true);
+					}
+				}
+			}
+			else
+			{
+				LASS_ASSERT( s1*s2 > T(0) );
+				LASS_ASSERT( s2*s3 > T(0) );
+				LASS_ASSERT( s1*s3 > T(0) );
+			}
+		}
+
 
 		if (insideLeft  && iPoint == dest(e->oNext()))
 			return e->lPrev();
@@ -1080,11 +1376,16 @@ namespace spat
 
 		if ( isOnEdge )
 		{
+			static int passCount2 = 0;
+			++passCount2;
 			// snap x to e, and check for coincidence:
 			TPoint2D x = snap(iPoint, org(e), dest(e));
-			if (x == org(e))
+			T sqDistOrg	= prim::squaredDistance(org(e),x);
+			T sqDistDest = prim::squaredDistance(dest(e),x);
+
+			if (sqDistOrg<pointDistanceTolerance_*pointDistanceTolerance_)
 				return e;
-			if (x == dest(e))
+			if (sqDistDest<pointDistanceTolerance_*pointDistanceTolerance_)
 				return e->sym();
 
 			// bummer
@@ -1096,7 +1397,7 @@ namespace spat
 				b = e->dNext();
 				c = e->lNext();
 				d = e->lPrev();
-				splitEdge(e, iPoint);
+				safeSplitEdge(e, x);
 				connect(e, e->lPrev());
 				connect(e->oPrev(), e->sym());
 				fixEdge(a);
@@ -1111,11 +1412,15 @@ namespace spat
 					e = e->sym();
 				TEdge *c = e->lNext();
 				TEdge *d = e->lPrev();
-				splitEdge(e, iPoint);
+				safeSplitEdge(e, x);
 				connect(e, e->lPrev());
 				fixEdge(c);
 				fixEdge(d);
 			}
+			int vOrder = vertexOrder(e->sym());
+			LASS_ASSERT(vOrder>2);
+			LASS_ASSERT(x==dest(e));
+			LASS_ASSERT(allEqualChainOrder(e->sym()));
 			return e->sym();
 		}
 
@@ -1154,6 +1459,10 @@ namespace spat
 				}
 			}
 		}
+		int vOrder = vertexOrder(base->sym());
+		LASS_ASSERT(vOrder>2);
+		LASS_ASSERT(iPoint==dest(base));
+		LASS_ASSERT(allEqualChainOrder(base->sym()));
 		return base->sym();
 	}
 
@@ -1161,7 +1470,9 @@ namespace spat
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay )
 	{
-//		std::cout << "Inserting : " << iSegment << "\n";
+#if DEBUG_MESH
+		std::cout << "Inserting : " << iSegment << "\n";
+#endif
 		TEdge *ea, *eb;
 		TPoint2D aa, bb, fbb, faa;
 		if (ea = insertSite(iSegment.tail()),makeDelaunay)
@@ -1172,41 +1483,47 @@ namespace spat
 		faa = aa;
 
 		if (ea == NULL || eb == NULL)
-			throw std::runtime_error("insertEdge: could not insert endpoints of edge");
+		{
+			LASS_THROW("insertEdge: could not insert endpoints of edge");
+		}
 
 		if (org(ea)!=aa)
 		{
 			ea=locate(aa);
 			if (ea==NULL)
-				throw std::runtime_error("insertEdge: could not locate an endpoint");
+			{
+				LASS_THROW("insertEdge: could not locate an endpoint");
+			}
 
 			if (!(aa == org(ea)))
 				ea = ea->sym();
 			if (!(aa == org(ea)))
-				throw std::runtime_error("insertEdge: point a is not an endpoint of ea");
+			{
+				LASS_THROW("insertEdge: point a is not an endpoint of ea");
+			}
 		}
 
-		if (aa == bb)
-			throw std::runtime_error("insertEdge: both ends map to same vertex");
-
-			
-		//{
-		//	lass::io::MatlabOStream bugMesh;
-		//	bugMesh.open( "progress_after_insertion.m" );
-		//	bugMesh << *this;
-		//	bugMesh.close();
-		//}
+		if (distance(aa,bb)<pointDistanceTolerance_ )
+		{
+			LASS_THROW("insertEdge: both ends map to same vertex within requested numerical precision");
+		}
 
 		TVector2D segmentDirection(fbb-faa);
 		std::vector< TEdge* >	insertedEdges;		// edges having as origin newly inserted points
 		std::vector< TPoint2D > insertedPoints;		// newly inserted points
 		std::vector< TPoint2D > finalInsertedPoints;		// newly inserted points
-		std::vector< TPoint2D > checkPoints;		// newly inserted points
-		std::vector< TEdge* >	toConstrainEdges;		// edges already present in mesh
 		std::vector< TEdge* >	crossedEdges;			// crossed edges by new segment
 		bool tookAction = false;
-		walk(TLineSegment2D(iSegment.tail(),iSegment.head()),std::back_inserter(crossedEdges));
-//		std::cout << "Walk returned segments " << crossedEdges.size() << "\n";
+		static int passCount=0;
+		++passCount;
+
+		LASS_ASSERT(allEqualChainOrder(ea));
+		LASS_ASSERT(allEqualChainOrder(eb));
+		pointWalk(TLineSegment2D(faa,fbb),std::back_inserter(crossedEdges));
+#if DEBUG_MESH
+		std::cout << "Walk returned segments " << crossedEdges.size() << "\n";
+		std::cout << std::setprecision(15);
+#endif 
 
 		// search all edges to split
 		insertedPoints.push_back(faa);
@@ -1219,14 +1536,30 @@ namespace spat
 				TLine2D other(eorg,edest);
 				TPoint2D x;
 
-				if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
+				// we _need_ to repeat the _same_ test here as in the next part where the actual constraining
+				// takes place, if not then numerical roundoff will create a different path in the algorithm
+				// which contradicts with this flow of control
+				T onEdgeOrg = num::abs(prim::doubleTriangleArea(faa,fbb,eorg));
+				T onEdgeDest = num::abs(prim::doubleTriangleArea(faa,fbb,edest));
+				if (!(onEdgeOrg<tolerance_ && onEdgeDest<tolerance_))
 				{
-					insertedPoints.push_back(x);
-//						std::cout << "-> Intersection " << x << "\n";
+					if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
+					{
+						insertedPoints.push_back(x);
+#if DEBUG_MESH
+						std::cout << "-> Intersection " << x << "\n";
+#endif
+					}
 				}
 			}
 		}
 		insertedPoints.push_back(fbb);
+		// by introducing a minimum tolerance on the point insertion, the effective straight line
+		// from segment tail to head may not be straight anymore
+		// this can cause points to snap to either left or right endpoints on consecutive edges
+		// ensuring that the walk from one point to another may again cross _other_ constrained 
+		// edges.  This means that we recursively need to walk the parts as well to create all
+		// points of insertion.
 
 		// insert all the vertices caused by edge splitting
 		finalInsertedPoints.push_back(faa);
@@ -1236,42 +1569,52 @@ namespace spat
 			if (org(e)!=finalInsertedPoints.back())
 			{
 				finalInsertedPoints.push_back(org(e));
-//					std::cout << "-> Final insertion" << org(e) << "\n";
+#if DEBUG_MESH
+				std::cout << "-> Final insertion" << org(e) << "\n";
+#endif
 			}
+#if DEBUG_MESH
+			if (insertedPoints[i]!=org(e))
+			{
+				std::cout << "-> Ignored " << insertedPoints[i] << ", replaced by " << org(e) << "\n";
+			}
+#endif
 		}
 		if (fbb!=finalInsertedPoints.back())
 			finalInsertedPoints.push_back(fbb);
-
-		//{
-		//	lass::io::MatlabOStream bugMesh;
-		//	bugMesh.open( "progress_after_intersection.m" );
-		//	bugMesh << *this;
-		//	bugMesh.close();
-		//}
 
 		// now connect all the points
 		for (int i=0;i<finalInsertedPoints.size()-1;++i)
 		{
 			crossedEdges.clear();
-			walk(TLineSegment2D(finalInsertedPoints[i],finalInsertedPoints[i+1]),std::back_inserter(crossedEdges));
-//			std::cout << "Walk from : " << finalInsertedPoints[i] << " to " << finalInsertedPoints[i+1] << ": " << crossedEdges.size() << "\n";
+#if DEBUG_MESH
+			std::cout << "Walk from : " << finalInsertedPoints[i] << " to " << finalInsertedPoints[i+1] << ": ";
+			std::cout.flush();
+#endif
+			pointWalk(TLineSegment2D(finalInsertedPoints[i],finalInsertedPoints[i+1]),std::back_inserter(crossedEdges));
+#if DEBUG_MESH
+			std::cout << crossedEdges.size() << "\n";
+#endif
 			TPoint2D lastdest;
 			for (int j=0;j<crossedEdges.size();++j)
 			{
 				TPoint2D eorg = org(crossedEdges[j]);
 				TPoint2D edest= dest(crossedEdges[j]);
 				// this avoids some degenerate cases by checking for new destination
-				if (j==0 || (lastdest!=edest))
+				//if (j==0 || (lastdest!=edest))
+				if (true)
 				{
-					T onEdgeOrg = num::abs(prim::doubleTriangleArea(faa,fbb,eorg));
-					T onEdgeDest = num::abs(prim::doubleTriangleArea(faa,fbb,edest));
+					T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],eorg));
+					T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],edest));
+					T reverseTest1 = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],eorg,edest));
+					T reverseTest2 = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i+1],eorg,edest));
 					if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
 					{
 						crossedEdges[j]->quadEdge()->edgeConstrain();
 						tookAction = true;
-//						std::cout << "@ Constraining " << eorg << "-->" << edest << "\n";
-						checkPoints.push_back(eorg);
-						checkPoints.push_back(edest);
+#if DEBUG_MESH
+						std::cout << "@ Constraining " << eorg << "-->" << edest << "\n";
+#endif
 						setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle, iSegment.vector() );
 					}
 					else
@@ -1289,22 +1632,42 @@ namespace spat
 								}
 								TPoint2D neorg = org(crossedEdges[j]);
 								TPoint2D nedest= dest(crossedEdges[j]);
-								T onEdgeOrg = num::abs(prim::doubleTriangleArea(faa,fbb,neorg));
-								T onEdgeDest = num::abs(prim::doubleTriangleArea(faa,fbb,nedest));
+								edest = nedest;
+								T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],neorg));
+								T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],nedest));
 								if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
 								{
 									crossedEdges[j]->quadEdge()->edgeConstrain();
-									checkPoints.push_back(neorg);
-									checkPoints.push_back(nedest);
-//									std::cout << "@ Constraining swapped " << eorg << "-->" << edest << "\n";
+#if DEBUG_MESH
+									std::cout << "@ Constraining swapped " << eorg << "-->" << edest << "\n";
+#endif
 									setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle , iSegment.vector());
 									tookAction = true;
 								}
 							}
 							else
 							{
+#if DEBUG_MESH
 								std::cout << "Trying to swap constrained edge " << eorg << "-->" << edest << "\n";
-								LASS_THROW("Tried to swap constrained edge, bailing out");
+								lass::io::MatlabOStream bugMesh;
+								bugMesh.open( "swap_constrained.m" );
+								bugMesh << *this;
+								bugMesh.close();
+								bugMesh.open( "swap_constrained_edges.m" );
+								for (int k=0;k<crossedEdges.size();++k)
+								{
+									if (k!=j)
+										bugMesh.setColor(lass::io::mcGreen);
+									else
+										bugMesh.setColor(lass::io::mcRed);
+									bugMesh << TLineSegment2D(org(crossedEdges[k]),dest(crossedEdges[k]));
+								}
+								bugMesh.setColor(lass::io::mcBlue);
+								bugMesh << TLineSegment2D(finalInsertedPoints[i],finalInsertedPoints[i+1]);
+								bugMesh.close();
+								std::cout << "///////// Tried to swap constrained edge, walking around it... ///////////\n";
+#endif
+								insertEdge(TLineSegment2D(eorg,finalInsertedPoints[i+1]), iLeftHandle, iRightHandle, makeDelaunay );
 							}
 						}
 					}
@@ -1313,7 +1676,6 @@ namespace spat
 			}
 			if (!tookAction)
 			{
-				std::cout << "Oops! Forgot to constrain an edge!\n";
 				LASS_THROW("Oops! Forgot to constrain an edge!");
 			}
 		}
@@ -1529,6 +1891,24 @@ namespace spat
 		} while (currentEdge!=iEdge);
 		return order;
 	}
+
+	/** allEqualchainOrder.  returns true when the chainorder of all edges which share org(iEdge)
+	*	is equal, f.i. when they are all triangles/quadriliterals
+	*
+	*/
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::allEqualChainOrder( TEdge* iEdge ) 
+	{
+		int chOrd = chainOrder(iEdge);
+		for (int i=1;i<vertexOrder(iEdge);++i)
+		{
+			iEdge = iEdge->oNext();
+			if (chainOrder(iEdge)!=chOrd)
+				return false;
+		}
+		return true;
+	}
+
 
 	/** vertexOrder.  returns the order of the vertex defined by the origin of iEdge
 	*	This is the number of undirected edges connected to this origin.
