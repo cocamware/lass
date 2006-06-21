@@ -29,6 +29,7 @@
 #include "test_spat.h"
 #include "../spat/planar_mesh.h"
 #include "../io/matlab_o_stream.h"
+#include "../io/file_attribute.h"
 #include "../prim/triangle_2d.h"
 #include "../num/floating_point_consistency.h"
 
@@ -470,6 +471,50 @@ void doTestPlanarMesh()
 
 	TPlanarMesh     testMesh4( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 	TPlanarMesh     testMesh5( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
+	double offsetX = 708000;
+	double offsetY = 5251350;
+	TPlanarMesh     testMeshContours( TPoint2D(708000-offsetX,5251350-offsetY), TPoint2D(710500-offsetX,5251350-offsetY),
+									  TPoint2D(710500-offsetX,5253350-offsetY), TPoint2D(708000-offsetX,5253350-offsetY));
+
+	std::ifstream contoursTest;
+	
+	if (io::fileDoesExist("contours.txt"))
+	{
+		contoursTest.open("contours.txt");
+		char buf[256];
+		int segmentCount = 0;
+		while (contoursTest.getline(buf,255))
+		{
+			double x1,y1,x2,y2;
+			sscanf(buf,"%lf %lf %lf %lf",&x1,&y1,&x2,&y2);
+			x1 -= offsetX;
+			x2 -= offsetX;
+			y1 -= offsetY;
+			y2 -= offsetY;
+
+			if (	x1>0 && x2>0 && y1<2000 && y2<2000 
+				&&	x1<2500 && x2<2500 && y1>0 && y2> 0)
+			{
+				std::cout << x1 << "\t" << y1 << "\t" << x2 << "\t" << y2 << "\n";
+				testMeshContours.insertEdge( 
+					TPlanarMesh::TLineSegment2D( TPoint2D(x1,y1), TPoint2D(x2,y2) ),3,3 );
+				++segmentCount;
+				if (segmentCount%25==-1)
+				{
+					ColorEdges colorEdges;
+					sprintf(buf,"contour%d.m",segmentCount);
+					colorEdges.stream.open(buf);	
+					testMeshContours.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	
+					colorEdges.stream.close();
+				}
+			}
+		}
+		contoursTest.close();
+	}
+	else
+	{
+		std::cout << "*** Could not find contours.txt for testing ***\n";
+	}
 
 	/*
 	for (int i=0;i<int(randomPoints.size());++i)
@@ -572,9 +617,10 @@ void doTestPlanarMesh()
 		colorEdges.stream.open(filen.c_str());	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 	}
 
-	testMesh4.setTolerance(1e-8);
+	testMesh4.setTolerance(1e-12);
+	testMesh4.setPointDistanceTolerance(1e-5);
 	{
-		for (int j=0;j<15;++j)
+		for (int j=0;j<7;++j)
 		{
 			for (int i=0;i<15;++i)
 			{
