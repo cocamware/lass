@@ -334,14 +334,35 @@ std::istream& operator>>(std::istream& ioIStream, Point2D<T>& oB)
 /** returns twice signed area of triangle iA,iB,iC
  *  @relates lass::prim::Point2D
  */
+// based on floating point number theory the ordening of computation is optimised
+// for floating point or filtered arithmetic
+// when T is an exact type, a faster computation could be devised
+// see work from Shewchuk, Fortune and Van Wyck
+// the basic idea is to translate points iA and iB by iC
 template<typename T>
 T doubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
 {
+	return perpDot(iA-iC,iB-iC);
+	/* more intuitive (and faster) but less precise version...
 	const Vector2D<T> a = iA.position();
 	const Vector2D<T> b = iB.position();
 	const Vector2D<T> c = iC.position();
 	return perpDot(b, c) - perpDot(a, c) + perpDot(a, b);
+	*/
 }
+
+// based on floating point number theory the ordening of computation is optimised
+// for floating point or filtered arithmetic
+// when T is an exact type, a faster computation could be devised
+// see work from Shewchuk, Fortune and Van Wyck
+// the basic idea is to translate points iA and iB by iC
+template<typename T>
+T preciseDoubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+{
+	return perpDot(iA-iC,iB-iC);
+}
+
+
 
 
 
