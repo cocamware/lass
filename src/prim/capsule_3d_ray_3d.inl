@@ -3,6 +3,7 @@
 
 #include "capsule_3d_ray_3d.h"
 #include "sphere_3d.h"
+#include "../num/floating_point_consistency.h"
 
 
 namespace lass
@@ -31,6 +32,7 @@ struct CapsuleRay
 		typedef typename TVector::TNumTraits TNumTraits;
 		typedef Point3D<T> TPoint;
 		typedef Sphere3D<T> TSphere;
+		typedef num::Consistent<T> TConsistent;
 
 		const TVector direction(l.vector().normal());
 
@@ -38,26 +40,27 @@ struct CapsuleRay
 		const TValue a = v1.squaredNorm();
 		if(a == 0) //parallel axes
 		{
-			TValue t = l.t(iRay.support());
 			const TValue squaredDistance((l.tail() - iRay.project(l.tail())).squaredNorm());
 			const TValue squaredRadius(num::sqr(iCapsule.radius()));
 			if(squaredDistance  <= squaredRadius)
 			{
-				const TValue t1 = iRay.t(l.tail() - num::sqrt(squaredRadius - squaredDistance) * l.vector().normal());
-				const TValue t2 = iRay.t(l.head() + num::sqrt(squaredRadius - squaredDistance) * l.vector().normal());
+				const TConsistent t1 = iRay.t(l.tail() - 
+					num::sqrt(squaredRadius - squaredDistance) * l.vector().normal());
+				const TConsistent t2 = iRay.t(l.head() + 
+					num::sqrt(squaredRadius - squaredDistance) * l.vector().normal());
 				if(t1 > iMinT)
 				{
 					if(t2 > iMinT)
 					{
-						oT = t1 < t2 ? t1 : t2;
+						oT = t1 < t2 ? t1.value() : t2.value();
 						return rOne;
 					}
-					oT = t1;
+					oT = t1.value();
 					return rOne;
 				}
 				if(t2 > iMinT)
 				{
-					oT = t2;
+					oT = t2.value();
 					return rOne;
 				}
 			}
@@ -79,13 +82,13 @@ struct CapsuleRay
 			const TValue sqrtD = num::sqrt(discriminant);
 			const TValue invA = num::inv(a); 
 			
-			const TValue t1 = (-b - sqrtD)*invA;
+			const TConsistent t1 = (-b - sqrtD)*invA;
 			if( t1 > iMinT)
 			{
-				const TValue test1 = l.t(iRay.point(t1));
+				const TValue test1 = l.t(iRay.point(t1.value()));
 				if(test1 >= 0 && test1 <= 1)
 				{
-					oT = t1;
+					oT = t1.value();
 					return rOne;
 				}
 				const TSphere sphere((test1<0) ? l.tail():l.head(), iCapsule.radius());
@@ -98,15 +101,15 @@ struct CapsuleRay
 				return rNone;
 			}
 
-			const TValue t2 = (-b + sqrtD)*invA;
+			const TConsistent t2 = (-b + sqrtD)*invA;
 			if(t2 > iMinT)
 			{
 				if(iCapsule.contains(iRay.point(iMinT)))
 				{
-					const TValue test2 = l.t(iRay.point(t2));
+					const TValue test2 = l.t(iRay.point(t2.value()));
 					if(test2 >= 0 && test2 <= 1)
 					{
-						oT = t2;
+						oT = t2.value();
 						return rOne;
 					}
 
@@ -125,27 +128,30 @@ struct CapsuleRay
 
 				const TSphere headSphere(l.head(), iCapsule.radius());
 				const TSphere tailSphere(l.tail(), iCapsule.radius());
-				TParam tHeadSphere;
-				TParam tTailSphere;
+				TValue tHeadSphere;
+				TValue tTailSphere;
 				if(prim::intersect(headSphere, iRay, tHeadSphere, iMinT) == rOne)
 				{
 					if(prim::intersect(tailSphere, iRay, tTailSphere, iMinT) == rOne)
 					{
 						oT = std::min(tTailSphere, tHeadSphere);
+						LASS_ASSERT(oT > iMinT);
 						return rOne;
 					}
+					LASS_ASSERT(tHeadSphere > iMinT);
 					oT = tHeadSphere;
 					return rOne;
 				}
 				if(prim::intersect(tailSphere, iRay, tTailSphere, iMinT) == rOne)
 				{
+					LASS_ASSERT(tTailSphere > iMinT);
 					oT = tTailSphere;
 					return rOne;
 				}
-				const TValue test2 = l.t(iRay.point(t2));
+				const TValue test2 = l.t(iRay.point(t2.value()));
 				if(test2 >= 0 && test2 <= 1)
 				{
-					oT = t2;
+					oT = t2.value();
 					return rOne;
 				}
 				return rNone;
@@ -155,13 +161,13 @@ struct CapsuleRay
 		
 		if (discriminant == TNumTraits::zero)
 		{
-			const TValue t = -b/a;
+			const TConsistent t = -b/a;
 			if (t > iMinT)
 			{
-				TValue test = l.t(iRay.point(t));
+				TValue test = l.t(iRay.point(t.value()));
 				if(test >= 0 && test <= 1)
 				{
-					oT = t;
+					oT = t.value();
 					return rOne;
 				}
 			}

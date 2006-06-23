@@ -398,7 +398,7 @@ namespace spat
 			BrutePointLocator( const typename TPlanarMesh::TPoint2D& iPoint ) : point_(iPoint), edge(NULL) {}
 			bool findEdge( typename TPlanarMesh::TEdge* e )
 			{
-				TPlanarMesh::TEdge* ce = e;
+				typename TPlanarMesh::TEdge* ce = e;
 				for (int i=0;i<3;++i)
 				{
 					if (TPlanarMesh::rightOf(point_,ce))
@@ -440,12 +440,16 @@ namespace spat
 			BrutePointLocatorVerbose( const typename TPlanarMesh::TPoint2D& iPoint ) : point_(iPoint), edge(NULL) {}
 			bool findEdge( typename TPlanarMesh::TEdge* e )
 			{
-				TPlanarMesh::TEdge* ce = e;
+				typename TPlanarMesh::TEdge* ce = e;
+#if DEBUG_MESH
 				stream << "---\n";
 				stream << std::setprecision(20);
+#endif
 				for (int i=0;i<3;++i)
 				{
+#if DEBUG_MESH
 					stream << TPlanarMesh::org(ce) << "-->" << TPlanarMesh::dest(ce) << ":" << prim::doubleTriangleArea(point_,TPlanarMesh::dest(ce),TPlanarMesh::org(ce)) << "\n";
+#endif
 					if (prim::doubleTriangleArea(point_,TPlanarMesh::dest(ce),TPlanarMesh::org(ce))>1e-12)
 						return true;
 					//if (TPlanarMesh::rightOf(point_,ce))
@@ -1085,12 +1089,13 @@ namespace spat
 			startEdge = startEdge->oNext();
 		} while (startEdge!=locateEdge);
 
+#if DEBUG_MESH
 		// recreate the same situation for debugging purposes
 		{
 			lass::io::MatlabOStream bugMesh;
 			bugMesh.open( "shoot_ray.m" );
 			bugMesh << std::setprecision(15);
-			bugMesh << *const_cast<typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>*>(this);
+			bugMesh << *const_cast<PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>*>(this);
 			bugMesh.close();
 			bugMesh.open( "shoot_ray_edges.m" );
 			bugMesh.setColor(lass::io::mcBlue);
@@ -1116,6 +1121,7 @@ namespace spat
 			} while (startEdge!=locateEdge);
 			bugMesh.close();
 		}
+#endif
 
 		return NULL;	// we give up
 	}
@@ -1312,10 +1318,12 @@ namespace spat
 
 		if (!hasLeft && !hasRight)
 		{
+#if DEBUG_MESH
 			lass::io::MatlabOStream bugMesh;
 			bugMesh.open( "bugMesh.m" );
 			bugMesh << *this;
 			bugMesh.close();
+#endif
 			throw std::runtime_error("insertSite: edge does not have any faces");
 		}
 

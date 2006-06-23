@@ -85,7 +85,7 @@
 // If you have the Intel C++ Compiler 7.1 installed, it screws up the part of MSVC's IDE
 // were you can enable RTTI.  Therefore, you must add /GR to the commandline explicitely
 // http://tinyurl.com/8usvw
-#ifndef _CPPRTTI
+#if !defined(_CPPRTTI) && LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma message("[LASS BUILD MSG] RTTI not enabled ... Add /GR to commandline options if you need it.")
 #endif
 

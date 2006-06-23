@@ -30,7 +30,6 @@
 
 #include "prim_common.h"
 #include "triangle_2d.h"
-#pragma LASS_FIXME("We should try to get rid of the line dependency [Bramz]")
 #include "line_2d.h"
 
 namespace lass

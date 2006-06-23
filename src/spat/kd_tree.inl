@@ -130,8 +130,8 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 	{
 		// oNeighbourhood is not a heap, find maximum squared distance
 		TValue maxSquaredDistance = TValue();
-		const TNeighbourhood::const_iterator end = oNeighbourhood.end();
-		for (TNeighbourhood::const_iterator i = oNeighbourhood.begin(); i != end; ++i)
+		const typename TNeighbourhood::const_iterator end = oNeighbourhood.end();
+		for (typename TNeighbourhood::const_iterator i = oNeighbourhood.begin(); i != end; ++i)
 		{
 			const TValue sqrDist = i->squaredDistance();
 			if (sqrDist > maxSquaredDistance)
