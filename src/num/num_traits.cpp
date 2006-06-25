@@ -54,6 +54,7 @@ namespace num
 *   and at first and second glance the standard also likes it [TDM]
 */
 const int   NumTraits<float>::memorySize = sizeof(float);
+const int   NumTraits<float>::mantisseSize = std::numeric_limits<float>::digits;			
 const float NumTraits<float>::one = 1.f;
 const float NumTraits<float>::zero = 0.f;
 const float NumTraits<float>::qNaN = std::numeric_limits<float>::quiet_NaN();
@@ -81,6 +82,7 @@ const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = LASS_NUM_S
 * double num trait
 */
 const int   NumTraits<double>::memorySize = sizeof(double);
+const int   NumTraits<double>::mantisseSize = std::numeric_limits<double>::digits;
 const double    NumTraits<double>::one = 1.0;
 const double NumTraits<double>::zero= 0.0;
 const double    NumTraits<double>::qNaN = std::numeric_limits<double>::quiet_NaN();
@@ -108,6 +110,7 @@ const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = LASS_NUM_
 * long double num trait
 */
 const int   NumTraits<long double>::memorySize = sizeof(long double);
+const int   NumTraits<long double>::mantisseSize = std::numeric_limits<long double>::digits;
 const long double    NumTraits<long double>::one = 1.0;
 const long double NumTraits<long double>::zero= 0.0;
 const long double    NumTraits<long double>::qNaN = std::numeric_limits<long double>::quiet_NaN();
@@ -138,6 +141,7 @@ const std::complex<long double>  NumTraits<std::complex<long double> >::sqrtPi =
 /** code generating macro for integral types */
 #define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( t_type, v_min, v_max ) \
 const int   NumTraits<t_type>::memorySize = sizeof(t_type);\
+const int   NumTraits<t_type>::mantisseSize = 0;\
 const t_type NumTraits<t_type>::one = 1;\
 const t_type NumTraits<t_type>::zero= 0;\
 const t_type NumTraits<t_type>::epsilon = 1;\

@@ -53,10 +53,12 @@ struct LASS_DLL NumTraits
 		isNative = 0,       /**< true for the native types, ie char, int , ... */
 		isSigned = 0,		/**< true for signed types */
 		hasInfinity = 0,    /**< true for types having infinity */
-		hasNaN = 0			/**< true for types have the concept of Not a Number */
+		hasNaN = 0,			/**< true for types have the concept of Not a Number */
+		isFloatingPoint = 0 /**< true for floating point types */
 	};
 
 	static const int   memorySize;      /**< memory footprint */
+	static const int   mantisseSize;	/**< number of bits used for mantisse, useful for error analysis */
 	static const std::string name() { return "unknown"; }   /**< name of the selfType */
 
 	static const C  one;                /**< definition of one */
@@ -109,9 +111,11 @@ struct NumTraits<ttype>\
 		isNative = true,\
 		isSigned = true,\
 		hasInfinity = true,\
-		hasNaN = true\
+		hasNaN = true,\
+		isFloatingPoint = true\
 	};\
 	static const int   memorySize;\
+	static const int   mantisseSize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
 	static const ttype zero;\
@@ -142,9 +146,11 @@ struct NumTraits< ttype >\
 		isNative = false,\
 		isSigned = true,\
 		hasInfinity = false,\
-		hasNaN = false\
+		hasNaN = false,\
+		isFloatingPoint = NumTraits< baseType >::isFloatingPoint\
 	};\
 	static const int   memorySize;\
+	static const int   mantisseSize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
 	static const ttype zero;\
@@ -182,9 +188,11 @@ struct NumTraits<char>
 		isSigned = 0,
 #endif
 		hasInfinity = 0,
-		hasNaN = 0
+		hasNaN = 0,
+		isFloatingPoint = 0
 	};
 	static const int   memorySize;
+	static const int   mantisseSize;
 	static const std::string name() { return LASS_STRINGIFY(char); }
 	static const selfType one;
 	static const selfType zero;
@@ -210,9 +218,11 @@ struct NumTraits<sign type> \
 		isNative = 1,\
 		isSigned = is_signed,\
 		hasInfinity = 0,\
-		hasNaN = 0\
+		hasNaN = 0,\
+		isFloatingPoint = 0\
 	};\
 	static const int   memorySize;\
+	static const int   mantisseSize;\
 	static const std::string name() { return LASS_STRINGIFY(sign type); }\
 	static const selfType one;\
 	static const selfType zero;\

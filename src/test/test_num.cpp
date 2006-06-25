@@ -39,6 +39,7 @@
 #include "test_num_random.inl"
 #include "test_num_tri_bool.inl"
 #include "test_num_fn_sampled8.inl"
+#include "test_num_filtered_float.inl"
 
 namespace lass
 {
@@ -72,6 +73,7 @@ TUnitTests testNum()
 	result.push_back(LASS_UNIT_TEST(testNumTriBool));
 
 	result.push_back(LASS_UNIT_TEST(testNumFNSampled8));
+	result.push_back(LASS_UNIT_TEST(testNumFilteredFloat));
 
 	return result;
 }

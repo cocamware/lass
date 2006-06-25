@@ -110,7 +110,7 @@ namespace spat
 	public:
 		typedef lass::prim::Point2D<T> TPoint2D;
 		typedef lass::prim::Vector2D<T> TVector2D;
-		typedef lass::prim::Line2D<T> TLine2D;
+		typedef lass::prim::Line2D<T, prim::Cartesian, prim::Unnormalized > TLine2D;
 		typedef lass::prim::Ray2D<T, prim::Unnormalized, prim::Unbounded > TRay2D;
 		typedef lass::prim::LineSegment2D<T> TLineSegment2D;
 		typedef lass::prim::SimplePolygon2D<T> TSimplePolygon2D;
@@ -348,7 +348,7 @@ namespace spat
 				{
 					T dArea = num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext())))
 							+ num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())));
-					if (lastArea_ == 0)
+					if (lastArea_ == T(0))
 					{
 						lastArea_ = dArea;
 						edgeList.push_back( e );
@@ -450,8 +450,10 @@ namespace spat
 #if DEBUG_MESH
 					stream << TPlanarMesh::org(ce) << "-->" << TPlanarMesh::dest(ce) << ":" << prim::doubleTriangleArea(point_,TPlanarMesh::dest(ce),TPlanarMesh::org(ce)) << "\n";
 #endif
+#pragma LASS_TODO("Get rid of the epsilon!")
 					if (prim::doubleTriangleArea(point_,TPlanarMesh::dest(ce),TPlanarMesh::org(ce))>1e-12)
 						return true;
+
 					//if (TPlanarMesh::rightOf(point_,ce))
 					//	return true;
 					ce = ce->lNext();
@@ -869,7 +871,7 @@ namespace spat
 		{
 			impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator( iPoint );
 			const_cast<TPlanarMesh*>(this)->forAllPrimaryEdges( TEdgeCallback( &bruteLocator, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
-//#if DEBUG_MESH
+#if DEBUG_MESH
 			if (bruteLocator.edge==NULL)
 			{
 				impl::BrutePointLocatorVerbose<T, PointHandle, EdgeHandle, FaceHandle> bruteLocatorVerbose( iPoint );
@@ -878,7 +880,7 @@ namespace spat
 				bruteLocatorVerbose.stream.close();
 				return bruteLocatorVerbose.edge;
 			}
-//#endif
+#endif
 			return bruteLocator.edge;
 		}
 		return bruteLocator.edge;
