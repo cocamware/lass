@@ -405,8 +405,50 @@ namespace spat
 						return true;
 					ce = ce->lNext();
 				}
-				// now search the closest point
+				// now search the closest edge
 				ce = e;
+
+				if (point_==TPlanarMesh::org(e))
+				{
+					edge = e;
+					return false;
+				}
+				if (point_==TPlanarMesh::dest(e))
+				{
+					edge = e->sym();
+					return false;
+				}
+				if (point_==TPlanarMesh::dest(e->lNext()))
+				{
+					edge = e->lNext()->sym();
+					return false;
+				}
+
+				TPlanarMesh::TRay2D  R1(TPlanarMesh::org(e), TPlanarMesh::dest(e));
+				TPlanarMesh::TPoint2D    p1 = R1.point( R1.t( point_ ) );
+				TPlanarMesh::TRay2D  R2(TPlanarMesh::dest(e), TPlanarMesh::org(e->lPrev()));
+				TPlanarMesh::TPoint2D    p2 = R2.point( R2.t( point_ ) );
+				TPlanarMesh::TRay2D  R3(TPlanarMesh::org(e->lPrev()), TPlanarMesh::org(e));
+				TPlanarMesh::TPoint2D    p3 = R3.point( R3.t( point_ ) );
+
+				typename TPlanarMesh::TPoint2D::TValue d1 = squaredDistance(point_,p1);
+				typename TPlanarMesh::TPoint2D::TValue d2 = squaredDistance(point_,p2);
+				typename TPlanarMesh::TPoint2D::TValue d3 = squaredDistance(point_,p3);
+
+				if ((d1<d2) && (d1<d3))
+				{
+					edge = e;
+					return false;
+				}
+				if ((d2<d3) && (d2<=d1))
+				{
+					edge = e->lNext();
+					return false;
+				}
+				edge = e->lPrev();
+				return false;
+
+				/*
 				T d1 = squaredDistance(TPlanarMesh::org(e),point_);
 				T d2 = squaredDistance(TPlanarMesh::dest(e),point_);
 				T d3 = squaredDistance(TPlanarMesh::dest(e->lNext()),point_);
@@ -426,6 +468,7 @@ namespace spat
 						edge=e->lNext()->sym();
 				}
 				return false;
+				*/
 			}
 		};
 
@@ -826,6 +869,13 @@ namespace spat
 
 		setPointHandle( e, hD );
 		setPointHandle( e->sym(), hA );
+
+		LASS_ASSERT( leftOf( dest(e->lNext()), e ) );
+		LASS_ASSERT( leftOf( dest(e->lNext()->lNext()), e->lNext() ) );
+		LASS_ASSERT( leftOf( dest(e->lNext()->lNext()->lNext()), e->lNext()->lNext() ) );
+		LASS_ASSERT( leftOf( dest(e->sym()->lNext()), e->sym() ) );
+		LASS_ASSERT( leftOf( dest(e->sym()->lNext()->lNext()), e->sym()->lNext() ) );
+		LASS_ASSERT( leftOf( dest(e->sym()->lNext()->lNext()->lNext()), e->sym()->lNext()->lNext() ) );
 
 		LASS_ASSERT( pointHandle( e->oNext()->sym() ) == hB );
 		LASS_ASSERT( pointHandle( e->oPrev()->sym() ) == hC );
@@ -1539,7 +1589,8 @@ namespace spat
 		insertedPoints.push_back(faa);
 		for (int i=0;i<crossedEdges.size();++i)
 		{
-			if (crossedEdges[i]->isConstrained())
+			bool computeIntersection = (crossedEdges[i]->isConstrained());
+			if (computeIntersection)
 			{
 				TPoint2D eorg = org(crossedEdges[i]);
 				TPoint2D edest= dest(crossedEdges[i]);
@@ -1635,6 +1686,16 @@ namespace spat
 						{
 							if (!crossedEdges[j]->isConstrained())
 							{
+								// is the edge swappable without creating an inside-out triangle?
+								TPoint2D a = org(crossedEdges[j]);
+								TPoint2D b = dest(crossedEdges[j]);
+								TPoint2D c = dest(crossedEdges[j]->lNext());
+								TPoint2D d = dest(crossedEdges[j]->sym()->lNext());
+								bool swappedCcw1 = prim::ccw(d,b,c);
+								bool swappedCcw2 = prim::ccw(a,d,c);
+								LASS_ASSERT(swappedCcw1 && swappedCcw2);
+
+
                                 swap(crossedEdges[j]);
 								if (prim::dot(direction(crossedEdges[j]), segmentDirection) < T(0))
 								{
