@@ -1647,6 +1647,7 @@ namespace spat
 		// now connect all the points
 		for (int i=0;i<finalInsertedPoints.size()-1;++i)
 		{
+retryEdge:
 			crossedEdges.clear();
 #if DEBUG_MESH
 			std::cout << "Walk from : " << finalInsertedPoints[i] << " to " << finalInsertedPoints[i+1] << ": ";
@@ -1693,27 +1694,44 @@ namespace spat
 								TPoint2D d = dest(crossedEdges[j]->sym()->lNext());
 								bool swappedCcw1 = prim::ccw(d,b,c);
 								bool swappedCcw2 = prim::ccw(a,d,c);
-								LASS_ASSERT(swappedCcw1 && swappedCcw2);
 
-
-                                swap(crossedEdges[j]);
-								if (prim::dot(direction(crossedEdges[j]), segmentDirection) < T(0))
+								if (!swappedCcw1 || !swappedCcw2)
 								{
-									crossedEdges[j] = crossedEdges[j]->sym();
+									TPoint2D x;
+									TLine2D	other(a,b);
+									if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
+									{
+										insertSite(x,true,true);
+										// ok, this is not so elegant, we should make this a more recursive algorithm
+										// so we can get rid of the dangerously looking goto :)
+										goto retryEdge;
+									}
+									else
+									{
+										LASS_THROW("Could not find intersection with unconstrained, nonswappable edge");
+									}
 								}
-								TPoint2D neorg = org(crossedEdges[j]);
-								TPoint2D nedest= dest(crossedEdges[j]);
-								edest = nedest;
-								T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],neorg));
-								T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],nedest));
-								if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
+								else
 								{
-									crossedEdges[j]->quadEdge()->edgeConstrain();
+									swap(crossedEdges[j]);
+									if (prim::dot(direction(crossedEdges[j]), segmentDirection) < T(0))
+									{
+										crossedEdges[j] = crossedEdges[j]->sym();
+									}
+									TPoint2D neorg = org(crossedEdges[j]);
+									TPoint2D nedest= dest(crossedEdges[j]);
+									edest = nedest;
+									T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],neorg));
+									T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],nedest));
+									if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
+									{
+										crossedEdges[j]->quadEdge()->edgeConstrain();
 #if DEBUG_MESH
-									std::cout << "@ Constraining swapped " << eorg << "-->" << edest << "\n";
+										std::cout << "@ Constraining swapped " << eorg << "-->" << edest << "\n";
 #endif
-									setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle , iSegment.vector());
-									tookAction = true;
+										setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle , iSegment.vector());
+										tookAction = true;
+									}
 								}
 							}
 							else
