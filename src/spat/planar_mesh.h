@@ -177,7 +177,7 @@ namespace spat
 		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
 		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true, bool forceOnEdge = false);
-		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(),bool makeDelaunay = true);
+		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), PointHandle iPointHandle = PointHandle(), bool forcePointHandle = false, bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
 		void    markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
 		template <typename InputPolygonIterator, typename InputFaceHandleIterator>
@@ -1527,8 +1527,12 @@ namespace spat
 	}
 
 
+	/** insertEdge.  Inserts a constrained edge into the planar mesh.  Edges on the lefthand
+	*	side of the edge will be assigned iLeftHandle, others, iRightHandle.  All inserted points
+	*	will be assigned the point handle, in case the iPointHandle is different from the NullType.
+	*/
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay )
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, PointHandle iPointHandle, bool iForcePointHandle, bool makeDelaunay )
 	{
 #if DEBUG_MESH
 		std::cout << "Inserting : " << iSegment << "\n";
@@ -1536,9 +1540,18 @@ namespace spat
 		TEdge *ea, *eb;
 		TPoint2D aa, bb, fbb, faa;
 		if (ea = insertSite(iSegment.tail()),makeDelaunay)
+		{
 			aa = org(ea);
+			if (iForcePointHandle)
+				setPointHandle(ea, iPointHandle);
+
+		}
 		if (eb = insertSite(iSegment.head()),makeDelaunay)
+		{
 			bb = org(eb);
+			if (iForcePointHandle)
+				setPointHandle(eb, iPointHandle);
+		}
 		fbb = bb;
 		faa = aa;
 
@@ -1701,7 +1714,9 @@ retryEdge:
 									TLine2D	other(a,b);
 									if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
 									{
-										insertSite(x,true,true);
+										TEdge* ex = insertSite(x,true,true);
+										if (iForcePointHandle)
+											setPointHandle(ex, iPointHandle);
 										// ok, this is not so elegant, we should make this a more recursive algorithm
 										// so we can get rid of the dangerously looking goto :)
 										goto retryEdge;
@@ -1756,7 +1771,7 @@ retryEdge:
 								bugMesh.close();
 								std::cout << "///////// Tried to swap constrained edge, walking around it... ///////////\n";
 #endif
-								insertEdge(TLineSegment2D(eorg,finalInsertedPoints[i+1]), iLeftHandle, iRightHandle, makeDelaunay );
+								insertEdge(TLineSegment2D(eorg,finalInsertedPoints[i+1]), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
 							}
 						}
 					}

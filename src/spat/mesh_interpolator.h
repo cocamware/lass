@@ -138,18 +138,20 @@ void MeshInterpolator<T,TPI>::insertPolyline( const TPolyline2D& iPoly, const TP
 		}
 	}
 
+	info_.push_back( iPointInfo );
 	for (size_t i = 1; i < iPoly.size(); ++i)
 	{
-		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]),lass::meta::NullType(),lass::meta::NullType());
+		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]),lass::meta::NullType(),lass::meta::NullType(),&info_.back(), true);
 	}
 
-	info_.push_back( iPointInfo );
+	/*
 	for (size_t i = 0; i < iPoly.size(); ++i)
 	{
         typename TPlanarMesh::TEdge* e = mesh_.locate(iPoly[i]);
 		LASS_ASSERT(TPlanarMesh::org(e) == iPoly[i]);
 		TPlanarMesh::setPointHandle(e, &info_.back());
 	}
+	*/
 }
 
 
