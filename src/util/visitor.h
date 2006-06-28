@@ -29,9 +29,16 @@
  *  @author (original code: Andrei Alexandrescu, 2001)
  *  @date 2004
  *
- *  This module is an implementation of the acyclic visitor pattern as described by Alexandrescu [1].
- *  It uses RTTI to visit all elements (what means some slow down on performance), but has the
- *  benefit of a very low dependency between the visitor and the visited hierarchy.
+ *  This module is an implementation of the acyclic visitor pattern, inspired by the one written by
+ *	Andrei Alexandrescu [1].  It uses RTTI to visit all elements (what means some slow down on 
+ *  performance), but has the benefit of a very low dependency between the visitor and the visited
+ *  hierarchy.
+ *
+ *  The main differences between the Lass implementation and Alexandrescu's are the fact that it doesn't
+ *	do the return value on visits and accepts (it's hard to define a general return type on a visitable
+ *	hierarchy anyway), and it the visitables have a second visit called visitOnExit which use is explained
+ *  below.  Plus it uses a slightly different way to implemnt the doAccept (to avoid a second dynamic_cast
+ *  for visitOnExit).
  *
  *  @par original code by Andrei Alexandrescu:
  *      <i>The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
@@ -88,14 +95,17 @@
  *  public:
  *      void addChild(Spam* iChild): children_.push_back(iChild) {}
  *  private:
- *      virtual TVisitReturn doAccept(lass::util::VisitorBase& iVisitor)
+ *      virtual void doAccept(lass::util::VisitorBase& iVisitor)
  *      {
- *			visit(*this, iVisitor);
- *          for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
- *          {
- *              (*i)->accept(iVisitor);
- *          }
- *          visitOnExit(*this, iVisitor);
+ *			if (Visitor<Spam>* p = doMatchVisitor(*this, iVisitor))
+ *			{
+ *				p->visit(*this);
+ *				for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
+ *				{
+ *					(*i)->accept(iVisitor);
+ *				}
+ *				p->visitOnExit(*this);
+ *			}
  *      }
  *
  *      typedef std::list<Spam*> TChildren;
@@ -106,17 +116,12 @@
  *  @c doAccept should call both @c visit and @c visitOnExit.  The former should be called before
  *	visiting children, the latter after.
  *
- *  if @c visit or @c visitOnExit don't know how to accept the visitor (or the visitor doesn't know
+ *  if @c doMatchVisitor don't know how to match the visitor (the visitor doesn't know
  *  how to visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is 
  *  called. @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default 
  *  the policy VisitNonStrict is used, what means the call is silently ignored and you can move on
  *  with the visit. Another one is VisitStrict which will throw an exception on every unknown visit.
  *  What you want is your choice, and you can always write your own policy.
- *
- *  <i>What about TVisitReturn?  We didn't talk about that one yet, did we?  Well, by default this will
- *  be @c void, meaning the acceptors and visits don't have a return value.  However, if it suits
- *  your needs, you could make it return something interesting.  That's when you can use
- *  TVisitReturn.</i> <b>[disabled]</b>
  *
  *  @subsection visitors
  *
@@ -285,9 +290,6 @@ struct VisitNonStrict
 	static void onUnknownVisitor(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/) 
 	{
 	}
-	static void onUnknownVisitorOnExit(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/)
-	{
-	}
 };
 
 
@@ -303,11 +305,6 @@ struct VisitStrict
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
 		LASS_THROW("Unacceptable visit: '" << typeid(iVisited).name() << "' can't accept '"
-			<< typeid(iVisitor).name() << "' as visitor.");
-	}
-	static void onUnknownVisitorOnExit(VisitableType& iVisited, VisitorBase& iVisitor)
-	{
-		LASS_THROW("Unacceptable visitOnExit: '" << typeid(iVisited).name() << "' can't accept '"
 			<< typeid(iVisitor).name() << "' as visitor.");
 	}
 };
@@ -331,33 +328,31 @@ public:
 
 	void accept(VisitorBase& iVisitor) { doAccept(iVisitor); }
 
+protected:
+
 	template <typename T>
-	static void doVisit(T& iVisited, VisitorBase& iVisitor)
+	static Visitor<T>* doMatchVisitor(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
-			p->visit(iVisited);
+			return p;
 		}
 		else
 		{
 			CatchAll<T>::onUnknownVisitor(iVisited, iVisitor);
+			return 0;
 		}
 	}
 
 	template <typename T>
-	static void doVisitOnExit(T& iVisited, VisitorBase& iVisitor)
+	static void doDefaultAccept(T& iVisited, VisitorBase& iVisitor)
 	{
-		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
+		if (Visitor<T>* p = doMatchVisitor(iVisited, iVisitor))
 		{
+			p->visit(iVisited);
 			p->visitOnExit(iVisited);
 		}
-		else
-		{
-			CatchAll<T>::onUnknownVisitorOnExit(iVisited, iVisitor);
-		}
 	}
-
-protected:
 
 	VisitableBase(const VisitableBase&) {}
 	VisitableBase& operator=(const VisitableBase&) { return *this; }
@@ -379,8 +374,7 @@ private:
 #define LASS_UTIL_ACCEPT_VISITOR\
 	virtual void doAccept(lass::util::VisitorBase& iVisitor)\
 	{\
-		doVisit(*this, iVisitor);\
-		doVisitOnExit(*this, iVisitor);\
+		doDefaultAccept(*this, iVisitor);\
 	}
 
 #endif

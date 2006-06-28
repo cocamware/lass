@@ -67,6 +67,8 @@ namespace meta
 
 struct NullType
 {
+	typedef NullType Type;
+
 	NullType() {}
 	bool operator==(const NullType& iOtherNullType) { return true; }
 	bool operator!=(const NullType& iOtherNullType) { return false; }

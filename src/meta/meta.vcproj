@@ -318,9 +318,6 @@
 				RelativePath=".\is_derived_type.h">
 			</File>
 			<File 
-				RelativePath=".\is_empty_type.h">
-			</File>
-			<File 
 				RelativePath=".\is_integral_type.h">
 			</File>
 			<File 

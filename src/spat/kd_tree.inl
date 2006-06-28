@@ -45,6 +45,8 @@ namespace spat
 
 // --- public --------------------------------------------------------------------------------------
 
+/** Constructs an empty k-d tree
+ */
 template <class O, class OT>
 KdTree<O, OT>::KdTree():
 	begin_(),
@@ -54,6 +56,9 @@ KdTree<O, OT>::KdTree():
 
 
 
+/** Constructs a k-d tree from objects in range [iBegin, iEnd).
+ *  @warning [iBegin, iEnd) must stay a valid range during the entire lifespan of the k-d tree!
+ */
 template <class O, class OT>
 KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 	begin_(iBegin),
@@ -74,6 +79,9 @@ KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 
 
 
+/** Resets to a new k-d tree of objects in range [iBegin, iEnd).
+ *  @warning [iBegin, iEnd) must stay a valid range during the entire lifespan of the k-d tree!
+ */
 template <class O, class OT>
 void KdTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 {
@@ -83,6 +91,8 @@ void KdTree<O, OT>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 
 
 
+/** Locates the object that's nearest to a target position
+ */
 template <class O, class OT>
 typename KdTree<O, OT>::Neighbour
 KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
@@ -102,6 +112,17 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
 
 
 
+/** Locates objects within a spherical range around a target position.
+ *  @param iTarget [in] the center of the spherical range
+ *  @param iMaxRadius [in] the radius of the range
+ *  @param iMaxCount [in] the maximum number of objects to be returned.
+ *		@arg If this is zero, then all objects in the range are returned.
+ *		@arg If this is non-zero, then up to @a iMaxCount objects are returned.
+ *			These will be the ones closest to @a iTarget
+ *	@param oNeighbourhood [out] a std::vector that will be filled with the found objects.
+ *			The vector will be @b cleared before use.
+ *  @return the squared distance between @a iTarget and the furthest found object.
+ */
 template <class O, class OT>
 typename KdTree<O, OT>::TValue
 KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMaxCount,
@@ -146,6 +167,8 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 
 
 
+/** Swap the representation of two k-d trees.
+ */
 template <class O, class OT>
 void KdTree<O, OT>::swap(TSelf& iOther)
 {
@@ -158,6 +181,8 @@ void KdTree<O, OT>::swap(TSelf& iOther)
 
 
 
+/** returns true if there are no objects in the k-d tree
+ */
 template <class O, class OT>
 const bool KdTree<O, OT>::isEmpty() const
 {
@@ -166,6 +191,8 @@ const bool KdTree<O, OT>::isEmpty() const
 
 
 
+/** resest the k-d tree to an empty one.
+ */
 template <class O, class OT>
 void KdTree<O, OT>::clear()
 {

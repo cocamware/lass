@@ -56,6 +56,8 @@
 					OptimizeForProcessor="3"
 					RequireProcExt="3"
 					Parallelization="1"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
@@ -126,6 +128,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -201,6 +204,7 @@
 				DebugInformationFormat="4">
 				<IntelOptions 
 					Optimization="0"
+					StringPooling="0"
 					MinimalRebuild="1"
 					SmallerTypeCheck="1"
 					BasicRuntimeChecks="3"
@@ -292,6 +296,8 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="3"
+					StringPooling="0"
+					MinimalRebuild="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
@@ -375,13 +381,16 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\progress_indicator.cpp">
 			</File>
 			<File 
+				RelativePath=".\pyiteratorrange.cpp">
+			</File>
+			<File 
 				RelativePath=".\pymap.cpp">
 				<FileConfiguration 
 					Name="win32_vc71_d|Win32">
 					<Tool 
 						Name="VCCLCompilerTool">
 						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
+							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_vc71_d/lass_util_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_util_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
@@ -857,6 +866,9 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\py_stl.h">
+			</File>
+			<File 
+				RelativePath=".\pyiteratorrange.h">
 			</File>
 			<File 
 				RelativePath=".\pymap.h">

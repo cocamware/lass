@@ -64,19 +64,19 @@ const float NumTraits<float>::epsilon = FLT_EPSILON;
 const float NumTraits<float>::min = -FLT_MAX;
 const float NumTraits<float>::max = FLT_MAX;
 const float NumTraits<float>::minStrictPositive = FLT_MIN;
-const float NumTraits<float>::pi = LASS_NUM_PI;
-const float NumTraits<float>::e = LASS_NUM_E;
-const float NumTraits<float>::sqrt2 = LASS_NUM_SQRT_2;
-const float NumTraits<float>::sqrtPi = LASS_NUM_SQRT_PI;
+const float NumTraits<float>::pi = float(LASS_NUM_PI);
+const float NumTraits<float>::e = float(LASS_NUM_E);
+const float NumTraits<float>::sqrt2 = float(LASS_NUM_SQRT_2);
+const float NumTraits<float>::sqrtPi = float(LASS_NUM_SQRT_PI);
 
 // complex specialisation
 const int   NumTraits<std::complex<float> >::memorySize = sizeof(std::complex<float>);
 const std::complex<float>   NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
 const std::complex<float>   NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
-const std::complex<float>   NumTraits<std::complex<float> >::pi = LASS_NUM_PI;
-const std::complex<float>   NumTraits<std::complex<float> >::e = LASS_NUM_E;
-const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = LASS_NUM_SQRT_2;
-const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = LASS_NUM_SQRT_PI;
+const std::complex<float>   NumTraits<std::complex<float> >::pi = float(LASS_NUM_PI);
+const std::complex<float>   NumTraits<std::complex<float> >::e = float(LASS_NUM_E);
+const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = float(LASS_NUM_SQRT_2);
+const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = float(LASS_NUM_SQRT_PI);
 
 /***********************************************************************
 * double num trait

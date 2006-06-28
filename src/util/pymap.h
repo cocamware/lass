@@ -62,8 +62,13 @@ namespace impl
 	class PyMapImpl : public PyMapImplBase
 	{
 	public:
-		PyMapImpl(M* iMap, bool iReadOnly = false) : map_(iMap), readOnly_(iReadOnly) {}
-		virtual ~PyMapImpl() {}
+		enum Ownership
+		{
+			oOwner,
+			oBorrowed
+		};
+		PyMapImpl(M* iMap, Ownership iOwnership = oBorrowed) : map_(iMap), ownership_(iOwnership) {}
+		virtual ~PyMapImpl();
 		virtual int PyMap_Length();
 		virtual PyObject* PyMap_Subscript( PyObject* iKey);
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
@@ -73,8 +78,13 @@ namespace impl
 		virtual PyObject* values() const;
 		virtual PyObject* PyMap_Iter();
 	private:
+
+		int doPyMap_AssSubscript( PyObject* iKey, PyObject* iValue, meta::True);
+		int doPyMap_AssSubscript( PyObject* iKey, PyObject* iValue, meta::False);
+
 		M* map_;
-		bool readOnly_;
+		Ownership ownership_;
+		enum { readOnly_ = meta::TypeTraits<M>::isConst };
 	};
 
 	/** PyMap.  Object for interfacing maps with Python 
@@ -85,14 +95,22 @@ namespace impl
 		static PyMappingMethods pyMappingMethods;
 
 	public:
+		template<typename M> PyMap( M* iStdMap ) : PyObjectPlus(&Type)
+		{
+			LASS_ASSERT(iStdMap);
+			pimpl_ = new PyMapImpl<M>(iStdMap); // also const M*
+			initialize();
+		}
 		template<typename M> PyMap( M& iStdMap ) : PyObjectPlus(&Type)
 		{
-            pimpl_ = new PyMapImpl<M>(&iStdMap);
+			pimpl_ = new PyMapImpl<M>(&iStdMap);
 			initialize();
 		}
 		template<typename M> PyMap( const M& iStdMap ) : PyObjectPlus(&Type)
 		{
-            pimpl_ = new PyMapImpl<M>(const_cast<M*>(&iStdMap), true);
+			std::auto_ptr<M> copy(new M(iStdMap));
+			pimpl_ = new PyMapImpl<const M>(copy.get(), PyMapImpl<const M>::oOwner);
+			copy.release();
 			initialize();
 		}
 		virtual ~PyMap();
@@ -108,6 +126,7 @@ namespace impl
 		static PyObject* PyMap_Iter( PyObject* iPO);
 		
 	private:
+
 		PyMap();
 		PyMapImplBase*	pimpl_;
 		static void initialize();
@@ -116,8 +135,19 @@ namespace impl
 
 
 	template<typename M>
+	PyMapImpl<M>::~PyMapImpl()
+	{
+		LASS_ASSERT(map_);
+		if (ownership_ == oOwner)
+		{
+			delete map_;
+		}
+	}
+
+	template<typename M>
 	int PyMapImpl<M>::PyMap_Length()
 	{
+		LASS_ASSERT(map_);
 		const int size = static_cast<int>(map_->size());
 		LASS_ASSERT(size >= 0);
 		return size;
@@ -134,6 +164,7 @@ namespace impl
 	template<typename M>
 	PyObject* PyMapImpl<M>::keys() const
 	{
+		LASS_ASSERT(map_);
 		std::vector<typename M::key_type> temp;
 		for (typename M::const_iterator it=map_->begin();it!=map_->end();++it)
 			temp.push_back(it->first);
@@ -143,6 +174,7 @@ namespace impl
 	template<typename M>
 	PyObject* PyMapImpl<M>::values() const
 	{
+		LASS_ASSERT(map_);
 		std::vector<typename M::mapped_type> temp;
 		for (typename M::const_iterator it=map_->begin();it!=map_->end();++it)
 			temp.push_back(it->second);
@@ -153,6 +185,7 @@ namespace impl
 	template<typename M>
 	PyObject* PyMapImpl<M>::PyMap_Subscript( PyObject* iKey)
 	{
+		LASS_ASSERT(map_);
 		typename M::key_type cppKey;
 		int r = pyGetSimpleObject( iKey, cppKey );
 		if (r)
@@ -174,12 +207,20 @@ namespace impl
 	template<typename M>
 	int PyMapImpl<M>::PyMap_AssSubscript( PyObject* iKey, PyObject* iData)
 	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Map is not writeable");
-			return 1;
-		}
+		return PyMapImpl<M>::doPyMap_AssSubscript( iKey, iData, meta::Bool<readOnly_>());
+	}
 
+	template<typename M>
+	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject* iKey, PyObject* iData, meta::True)
+	{
+		PyErr_SetString(PyExc_TypeError, "Map is not writeable");
+		return 1;
+	}
+
+	template<typename M>
+	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject* iKey, PyObject* iData, meta::False)
+	{
+		LASS_ASSERT(map_);
 		if (iData == NULL)		
 		{
 			typename M::key_type cppKey;
@@ -217,12 +258,14 @@ namespace impl
 	template<typename M>
 	std::string PyMapImpl<M>::pyStr( void)
 	{
+		LASS_ASSERT(map_);
 		return  pyRepr();
 	}
 
 	template<typename M>
 	std::string PyMapImpl<M>::pyRepr( void)
 	{
+		LASS_ASSERT(map_);
 		return util::stringCast<std::string>(*map_);
 	}
 
@@ -231,19 +274,50 @@ namespace impl
 
 
 /** @ingroup Python
-	*  build a copy of a std::map as a Python dictionary
+	*  wrap a "borrowed" const std::map as Python dictionary
 	*  @note you build a reference to the std::map, but the map is read-only
+	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
+	*	not-so-good-idea.
+	*/
+template<class K, class V, typename P, typename A>
+PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>* iV )
+{
+	return new impl::PyMap( iV );
+}
+
+/** @ingroup Python
+	*  wrap a "borrowed" std::map as Python dictionary
+	*  @note you build a reference to the std::map, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
+	*	not-so-good-idea.
+	*/
+template<class K, class V, typename P, typename A>
+PyObject* pyBuildSimpleObject( std::map<K, V, P, A>* iV )
+{
+	return new impl::PyMap( iV );
+}
+
+
+
+/** @ingroup Python
+	*  build a copy of a std::map as a Python dictionary
+	*  @note the constructed dictionary is made read only.
+	*  @note a completely fresh copy of the std::map is made, so it's perfectly safe to use this
+	*	to cast temporary function return values to Python.
 	*/
 template<class K, class V, typename P, typename A>
 PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
 {
-	return impl::pyBuildMap(iV.begin(),iV.end());
+	return new impl::PyMap( iV );
 }
 
 /** @ingroup Python
-	*  build a copy of a std::map as a Python dictionary
+	*  wrap a "borrowed" std::map as Python dictionary
 	*  @note you build a reference to the std::map, any changes done in Python
 	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
+	*	not-so-good-idea.
 	*/
 template<class K, class V, typename P, typename A>
 PyObject* pyBuildSimpleObject( std::map<K, V, P, A>& iV )

@@ -172,16 +172,18 @@ namespace impl
 
 				A1 = num::cos(temp1);
 				B1 = num::sin(temp1);
-				C1 = num::exp(-y*(NumTraits<double>::pi*0.5)/h)-cos(x*(NumTraits<double>::pi*0.5)/h);
-				D1 = num::sin(x*(NumTraits<double>::pi*0.5)/h);
+				C1 = num::exp(-y*(NumTraits<double>::pi*2.0)/h)-cos(x*(NumTraits<double>::pi*2.0)/h);
+				D1 = num::sin(x*(NumTraits<double>::pi*2.0)/h);
 
 				NTC t;
 
-				t = 2.0*exp(-(x*x+(y*(NumTraits<double>::pi*0.5)/h)-y*y))/(C1*C1+D1*D1);
+				t = 2.0*exp(-(x*x+(y*(NumTraits<double>::pi*2.0)/h)-y*y))/(C1*C1+D1*D1);
 				P2 = t* (A1*C1 - B1*D1);
 				Q2 = t* (A1*D1 + B1*C1);
 
+				NTC th, tk;
 				t = 0.0;
+				tk = 0.0;
 
 				long i;
 				NTC n,tn;
@@ -193,19 +195,21 @@ namespace impl
 					n+=1.0;
 					tn = n*n*h*h;
 
-					NTC t2,n2;
+					NTC t2h,t2k,n2;
 					n2 = (temp3+tn);
 					n2*= n2;
 					n2+= temp1*temp1;
-					t2 = num::exp(-tn)*(temp2+tn)/n2;
-					t += t2;
+					t2h = num::exp(-tn)*(temp2+tn)/n2;
+					t2k = num::exp(-tn)*(temp2-tn)/n2;
+					th += t2h;
+					tk += t2k;
 				}
 
 				H = (h*y)/(NumTraits<double>::pi*(temp2));
-				H+= y*h*t/(NumTraits<double>::pi*0.5);
+				H+= y*h*th/(NumTraits<double>::pi*0.5);
 
 				K = (h*x)/(NumTraits<double>::pi*(temp2));
-				K+= x*h*t/(NumTraits<double>::pi*0.5);
+				K+= x*h*tk/(NumTraits<double>::pi*0.5);
 
 				if (y>((NumTraits<double>::pi)/h))
 				{

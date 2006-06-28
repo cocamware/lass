@@ -66,6 +66,7 @@ template <int i>
 struct Int2Type
 {
 	enum { value = i };
+	typedef Int2Type<i> Type;
 };
 
 

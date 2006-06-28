@@ -455,15 +455,15 @@ const ColorRGBA ColorRGBA::mapJet(TParam iValue)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(0., 0., .5),
-		ColorRGBA(0., 0., 1.),
-		ColorRGBA(0., .5, 1.),
-		ColorRGBA(0., 1., 1.),
-		ColorRGBA(.5, 1., .5),
-		ColorRGBA(1., 1., 0.),
-		ColorRGBA(1., .5, 0.),
-		ColorRGBA(1., .0, 0.),
-		ColorRGBA(.5, .0, 0.)
+		ColorRGBA(0., 0., .5), // 240
+		ColorRGBA(0., 0., 1.), // 240
+		ColorRGBA(0., .5, 1.), // 210
+		ColorRGBA(0., 1., 1.), // 180
+		ColorRGBA(.5, 1., .5), // 90
+		ColorRGBA(1., 1., 0.), // 60
+		ColorRGBA(1., .5, 0.), // 30
+		ColorRGBA(1., .0, 0.), // 0
+		ColorRGBA(.5, .0, 0.)  // 0
 	};
 
 	return doMap(iValue, keys, 9);

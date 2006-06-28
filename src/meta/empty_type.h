@@ -67,6 +67,7 @@ namespace meta
 
 struct EmptyType
 {
+	typedef EmptyType Type;
 };
 
 
