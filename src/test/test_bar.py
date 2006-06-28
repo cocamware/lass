@@ -60,9 +60,14 @@ print "values=",barC.writeableMap.values()
 
 # subsequent test fails, probably need a partial sequence-protocol in the mapping
 # protocol embedded
-#for x in barC.writeableMap:
-#	print "map iterator",x
+for x in barC.writeableMap:
+	print "map iterator",x
 
+try:
+    barC.constMap['test'] = 'notok'
+    reportError("Could write to const map")
+except:
+    pass
 
 def testSequence(seq):
 	seq.clear()

@@ -52,6 +52,7 @@ namespace impl
 		if (!isInitialized)
 		{
 			PyMap::Type.tp_as_mapping = &pyMappingMethods;
+			PyMap::Type.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
 			finalizePyType( PyMap::Type, 
 							*PyMap::GetParentType(), 
 							PyMap::Methods,
@@ -91,6 +92,11 @@ namespace impl
 		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_AssSubscript(iKey, iValue);
 	}
 
+
+	PyObject* PyMap::PyMap_Iter( PyObject* iPO)
+	{
+		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Iter();
+	}
 
 
 }

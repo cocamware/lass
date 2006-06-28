@@ -34,6 +34,7 @@
 #include "pyobject_plus.h"
 #include "pyobject_util.h"
 #include "string_cast.h"
+#include "pyiteratorrange.h"
 
 namespace lass
 {
@@ -41,7 +42,6 @@ namespace python
 {
 namespace impl
 {
-
 	class PyMapImplBase
 	{
 	public:
@@ -54,6 +54,8 @@ namespace impl
 		virtual std::string pyRepr(void) = 0;
 		virtual PyObject* keys() const = 0;
 		virtual PyObject* values() const = 0;
+		virtual PyObject* PyMap_Iter() = 0;
+
 	};
 
 	template<typename M> 
@@ -69,6 +71,7 @@ namespace impl
 		virtual std::string pyRepr(void);
 		virtual PyObject* keys() const;
 		virtual PyObject* values() const;
+		virtual PyObject* PyMap_Iter();
 	private:
 		M* map_;
 		bool readOnly_;
@@ -101,6 +104,8 @@ namespace impl
 		static int PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
 		static int PyMap_AssSubscript( PyObject* iPO, PyObject* iKey, PyObject* iValue);
+
+		static PyObject* PyMap_Iter( PyObject* iPO);
 		
 	private:
 		PyMap();
@@ -117,6 +122,14 @@ namespace impl
 		LASS_ASSERT(size >= 0);
 		return size;
 	}
+
+	template<typename M>
+	PyObject* PyMapImpl<M>::PyMap_Iter()
+	{
+		PyIteratorRange*	itRange=new PyIteratorRange(map_->begin(), map_->end());
+		return itRange;
+	}
+
 
 	template<typename M>
 	PyObject* PyMapImpl<M>::keys() const
