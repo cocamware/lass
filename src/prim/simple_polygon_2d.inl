@@ -634,6 +634,25 @@ std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon2D<T, DP>& 
 	return ioOStream;
 }
 
+/** @relates lass::prim::SimplePolygon2D
+ */
+template <typename T, class DP>
+lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
+									const SimplePolygon2D<T, DP>& iPolygon)
+{
+	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = patch(";
+	oOStream << "[" << iPolygon[0].x;
+	for (int i=1;i<iPolygon.size();++i)
+		oOStream << "," << iPolygon[i].x;
+	oOStream << "],";
+	oOStream << "[" << iPolygon[0].y;
+	for (int i=1;i<iPolygon.size();++i)
+		oOStream << "," << iPolygon[i].y;
+	oOStream << "],";
+	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;
+	return oOStream;
+}
+
 
 }
 
