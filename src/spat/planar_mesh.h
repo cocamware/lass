@@ -1970,8 +1970,10 @@ retryEdge:
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasLeftFace( TEdge* e )
 	{
-		return ( org(e->lPrev()) == dest(e->lNext()) &&
-				 leftOf(org(e->lPrev()), e));
+//#pragma LASS_TODO("This only works for triangular faces... update to general convex polygonal faces")
+//		return ( org(e->lPrev()) == dest(e->lNext()) &&
+//				 leftOf(org(e->lPrev()), e));
+		return leftOf(dest(e->lNext()), e);
 	}
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasRightFace( TEdge* iEdge )
