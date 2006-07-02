@@ -967,6 +967,7 @@ namespace spat
 
 		while (edgesPassed<(edgeCount_+2))
 		{
+continueSearch:
 			++edgesPassed;
 			if ( org( e ) == iPoint )
 				return e;
@@ -984,10 +985,18 @@ namespace spat
 					e = e->oNext();
 					continue;
 				}
-				if ( leftOf( iPoint, e->dPrev()) )
+				TEdge* ce = e;
+#pragma LASS_TODO("Optimize")
+				// this for loop is introduced for point location in non-triangular, general
+				// convex cells
+				for (int i=0;i<chainOrder(e)-2;++i)
 				{
-					e = e->dPrev();
-					continue;
+					if ( leftOf( iPoint, ce->dPrev()) )
+					{
+						e = ce->dPrev();
+						goto continueSearch;
+					}
+					ce = ce->lNext();
 				}
 
 				TRay2D  R1(org(e), dest(e));
