@@ -1929,7 +1929,7 @@ retryEdge:
 		{
 			poly.add(org(cEdge));
 			cEdge = cEdge->lNext();
-		} while (cEdge!=iEdge)
+		} while (cEdge!=iEdge);
 		return poly;
 	}
 
@@ -1946,7 +1946,7 @@ retryEdge:
 			if (rightOf(iPoint, cEdge))
 				return false;
 			cEdge = cEdge->lNext();
-		} while (cEdge!=iEdge)
+		} while (cEdge!=iEdge);
 		return true;
 	}
 
