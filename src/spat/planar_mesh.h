@@ -187,7 +187,8 @@ namespace spat
 		long    edgeCount() const { return edgeCount_; }
 		void    makeMaximalConvexPolygon();
 
-		static	TTriangle2D triangle( TEdge* iEdge);
+		static	TTriangle2D triangle( TEdge* iEdge);	
+		static	TSimplePolygon2D polygon( TEdge* iEdge);
 		static  const TPoint2D& org( TEdge* iEdge );
 		static  const TPoint2D& dest( TEdge* iEdge );
 		static	const TVector2D direction( TEdge* iEdge );
@@ -199,7 +200,7 @@ namespace spat
 		static  int   chainOrder( TEdge* iEdge );
 		static  int   vertexOrder( TEdge* iEdge );
 		static	bool  allEqualChainOrder( TEdge* iEdge );
-
+		static  bool  inConvexCell( const TPoint2D& iPoint, TEdge* iEdge );
 
 		static  bool inPrimaryMesh( TEdge* iEdge );
 		static  bool inDualMesh( TEdge* iEdge );
@@ -1913,9 +1914,41 @@ retryEdge:
 			LASS_THROW("PlanarMesh::triangle: edge not in primary mesh");
 		}
 		return TTriangle2D(org(iEdge),dest(iEdge),dest(iEdge->lNext()));
-
 	}
 
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TSimplePolygon2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::polygon( TEdge* iEdge)
+	{
+		if (!inPrimaryMesh(iEdge))
+		{
+			LASS_THROW("PlanarMesh::polygon: edge not in primary mesh");
+		}
+		TSimplePolygon2D poly;
+		TEdge* cEdge = iEdge;
+		do
+		{
+			poly.add(org(cEdge));
+			cEdge = cEdge->lNext();
+		} while (cEdge!=iEdge)
+		return poly;
+	}
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inConvexCell( const TPoint2D& iPoint, TEdge* iEdge)
+	{
+		if (!inPrimaryMesh(iEdge))
+		{
+			LASS_THROW("PlanarMesh::polygon: edge not in primary mesh");
+		}
+		TEdge* cEdge = iEdge;
+		do
+		{
+			if (rightOf(iPoint, cEdge))
+				return false;
+			cEdge = cEdge->lNext();
+		} while (cEdge!=iEdge)
+		return true;
+	}
 
 	TEMPLATE_DEF
 	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::org( TEdge* iEdge )
