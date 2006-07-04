@@ -890,9 +890,9 @@ namespace spat
 			return false;
 		}
 
-		if (startEdge_==e)
+		while (startEdge_->quadEge()==e->quadEge())
 			startEdge_=e->lNext();
-		if (lastLocateEdge_==e)
+		if (lastLocateEdge_->quadEge()==e->quadEge())
 			lastLocateEdge_ = startEdge_;
 
 		TQuadEdge::splice( e, e->oPrev() );
