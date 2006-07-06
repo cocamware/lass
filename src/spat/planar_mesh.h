@@ -1586,16 +1586,50 @@ continueSearch:
 			}
 		}
 
+		if (aa==bb)
+		{
+			return ea;
+		}
+		
+		// first case : edge is present, constrain it
+		TEdge* ce = ea;
+		int vOrder = vertexOrder(ea);
+		for (int i=0;i<vOrder;++i)
+		{
+			if (dest(ce)==fbb)
+			{
+				ce->quadEdge()->edgeConstrain();
+				setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
+				return ce;
+			}
+			ce = ce->oNext();
+		}
 		if (distance(aa,bb)<pointDistanceTolerance_ )
 		{
 			LASS_THROW("insertEdge: both ends map to same vertex within requested numerical precision");
 		}
+		ce = ea;
+		for (int i=0;i<vOrder;++i)
+		{
+			// if is almost in line we also take it
+			if (	prim::dot(direction(ce), iSegment.vector()) > T(0)	
+				&&	num::abs(lass::prim::doubleTriangleArea(dest(ce),faa,fbb))<tolerance_) 
+			{
+				ce->quadEdge()->edgeConstrain();
+				setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
 
+				return insertEdge( TLineSegment2D( dest(ce), fbb), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
+			}
+
+			ce = ce->oNext();
+		}
+		
 		TVector2D segmentDirection(fbb-faa);
 		std::vector< TEdge* >	insertedEdges;		// edges having as origin newly inserted points
 		std::vector< TPoint2D > insertedPoints;		// newly inserted points
 		std::vector< TPoint2D > finalInsertedPoints;		// newly inserted points
 		std::vector< TEdge* >	crossedEdges;			// crossed edges by new segment
+		std::vector< TEdge* >	filteredEdges;			// crossed edges by new segment
 		bool tookAction = false;
 		static int passCount=0;
 		++passCount;
@@ -1613,187 +1647,133 @@ continueSearch:
 		for (int i=0;i<crossedEdges.size();++i)
 		{
 			bool computeIntersection = (crossedEdges[i]->isConstrained());
-			if (computeIntersection)
+			TPoint2D eorg = org(crossedEdges[i]);
+			TPoint2D edest= dest(crossedEdges[i]);
+			bool noCommonPoints = eorg!=faa && eorg!=fbb &&  edest!=faa && edest!=fbb;
+			if (	computeIntersection	
+				&&	noCommonPoints)
 			{
-				TPoint2D eorg = org(crossedEdges[i]);
-				TPoint2D edest= dest(crossedEdges[i]);
 				TLine2D other(eorg,edest);
 				TPoint2D x;
 
-				// we _need_ to repeat the _same_ test here as in the next part where the actual constraining
-				// takes place, if not then numerical roundoff will create a different path in the algorithm
-				// which contradicts with this flow of control
-				T onEdgeOrg = num::abs(prim::doubleTriangleArea(faa,fbb,eorg));
-				T onEdgeDest = num::abs(prim::doubleTriangleArea(faa,fbb,edest));
-				if (!(onEdgeOrg<tolerance_ && onEdgeDest<tolerance_))
+				if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
 				{
-					if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
+					TEdge* npe = insertSite(x,true,true);
+					TPoint2D nx = org(npe);
+
+					// the reverse test now for degeneration avoidance
+					// this avoids that the crossed edges is only touching the walked path
+					// noCommonPoints =  nx != eorg && nx != edest;
+
+					if (nx!=insertedPoints.back())
 					{
-						insertedPoints.push_back(x);
+						insertedPoints.push_back(nx);
 #if DEBUG_MESH
-						std::cout << "-> Intersection " << x << "\n";
+						std::cout << "-> Intersection " << x << " filtered to " << nx << "\n";
 #endif
+						break;
 					}
 				}
 			}
+			if (noCommonPoints)
+				filteredEdges.push_back(crossedEdges[i]);
 		}
-		insertedPoints.push_back(fbb);
-		// by introducing a minimum tolerance on the point insertion, the effective straight line
-		// from segment tail to head may not be straight anymore
-		// this can cause points to snap to either left or right endpoints on consecutive edges
-		// ensuring that the walk from one point to another may again cross _other_ constrained 
-		// edges.  This means that we recursively need to walk the parts as well to create all
-		// points of insertion.
-
-		// insert all the vertices caused by edge splitting
-		finalInsertedPoints.push_back(faa);
-		for (int i=0;i<insertedPoints.size();++i)
+		if (fbb!=insertedPoints.back())
+			insertedPoints.push_back(fbb);
+		
+		// we found some intersections, recursively insert the subparts of the line segments
+		if (insertedPoints.size()>2)
 		{
-			TEdge* e = insertSite(insertedPoints[i],true,true);
-			if (org(e)!=finalInsertedPoints.back())
+			TEdge* ce = NULL;
+			TEdge* bce = NULL;
+			for (int i=0;i<insertedPoints.size()-1;++i)
 			{
-				finalInsertedPoints.push_back(org(e));
-#if DEBUG_MESH
-				std::cout << "-> Final insertion" << org(e) << "\n";
-#endif
+				ce = insertEdge( TLineSegment2D(insertedPoints[i],insertedPoints[i+1]), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
+				if (i==0)
+					bce = ce;
 			}
-#if DEBUG_MESH
-			if (insertedPoints[i]!=org(e))
+			if ( org(bce) != faa )
 			{
-				std::cout << "-> Ignored " << insertedPoints[i] << ", replaced by " << org(e) << "\n";
+				bce = pointLocate( faa );
 			}
-#endif
+			LASS_ASSERT( org(bce)==faa);
+
+			return bce;
 		}
-		if (fbb!=finalInsertedPoints.back())
-			finalInsertedPoints.push_back(fbb);
 
-		// now connect all the points
-		for (int i=0;i<finalInsertedPoints.size()-1;++i)
+		std::vector< TEdge* >	toSwapEdges;		// edges which are not swappable yet will be hold back till the end
+													// this will only happen once, if not we have a problem and we retry
+													// clearing the path recursively
+		bool madeConstraint = false;
+		// no intersections found, we clear the path by swapping edges
+		for (int i=0;i<filteredEdges.size();++i)
 		{
-retryEdge:
-			crossedEdges.clear();
-#if DEBUG_MESH
-			std::cout << "Walk from : " << finalInsertedPoints[i] << " to " << finalInsertedPoints[i+1] << ": ";
-			std::cout.flush();
-#endif
-			pointWalk(TLineSegment2D(finalInsertedPoints[i],finalInsertedPoints[i+1]),std::back_inserter(crossedEdges));
-#if DEBUG_MESH
-			std::cout << crossedEdges.size() << "\n";
-#endif
-			TPoint2D lastdest;
-			for (int j=0;j<crossedEdges.size();++j)
+			// is the edge swappable without creating an inside-out triangle?
+			TPoint2D a = org(filteredEdges[i]);
+			TPoint2D b = dest(filteredEdges[i]);
+			TPoint2D c = dest(filteredEdges[i]->lNext());
+			TPoint2D d = dest(filteredEdges[i]->sym()->lNext());
+			bool swappedCcw1 = prim::ccw(d,b,c);
+			bool swappedCcw2 = prim::ccw(a,d,c);
+			if (!swappedCcw1 || !swappedCcw2)
 			{
-				TPoint2D eorg = org(crossedEdges[j]);
-				TPoint2D edest= dest(crossedEdges[j]);
-				// this avoids some degenerate cases by checking for new destination
-				//if (j==0 || (lastdest!=edest))
-				if (true)
+#if DEBUG_MESH
+				lass::io::MatlabOStream bugMesh;
+				bugMesh.open( "swap_constrained.m" );
+				bugMesh << *this;
+				for (int j=0;j<filteredEdges.size();++j)
 				{
-					T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],eorg));
-					T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],edest));
-					T reverseTest1 = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],eorg,edest));
-					T reverseTest2 = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i+1],eorg,edest));
-					if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
-					{
-						crossedEdges[j]->quadEdge()->edgeConstrain();
-						tookAction = true;
-#if DEBUG_MESH
-						std::cout << "@ Constraining " << eorg << "-->" << edest << "\n";
-#endif
-						setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle, iSegment.vector() );
-					}
-					else
-					{
-						// if only one vertex maps to the line, this means that the walk has passed
-						// degenerated points
-						if (onEdgeOrg>=tolerance_ && onEdgeDest>=tolerance_)
-						{
-							if (!crossedEdges[j]->isConstrained())
-							{
-								// is the edge swappable without creating an inside-out triangle?
-								TPoint2D a = org(crossedEdges[j]);
-								TPoint2D b = dest(crossedEdges[j]);
-								TPoint2D c = dest(crossedEdges[j]->lNext());
-								TPoint2D d = dest(crossedEdges[j]->sym()->lNext());
-								bool swappedCcw1 = prim::ccw(d,b,c);
-								bool swappedCcw2 = prim::ccw(a,d,c);
-
-								if (!swappedCcw1 || !swappedCcw2)
-								{
-									TPoint2D x;
-									TLine2D	other(a,b);
-									if (prim::intersect(TLine2D(aa,bb),other,x)==prim::rOne)
-									{
-										TEdge* ex = insertSite(x,true,true);
-										if (iForcePointHandle)
-											setPointHandle(ex, iPointHandle);
-										// ok, this is not so elegant, we should make this a more recursive algorithm
-										// so we can get rid of the dangerously looking goto :)
-										goto retryEdge;
-									}
-									else
-									{
-										LASS_THROW("Could not find intersection with unconstrained, nonswappable edge");
-									}
-								}
-								else
-								{
-									swap(crossedEdges[j]);
-									if (prim::dot(direction(crossedEdges[j]), segmentDirection) < T(0))
-									{
-										crossedEdges[j] = crossedEdges[j]->sym();
-									}
-									TPoint2D neorg = org(crossedEdges[j]);
-									TPoint2D nedest= dest(crossedEdges[j]);
-									edest = nedest;
-									T onEdgeOrg = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],neorg));
-									T onEdgeDest = num::abs(prim::doubleTriangleArea(finalInsertedPoints[i],finalInsertedPoints[i+1],nedest));
-									if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
-									{
-										crossedEdges[j]->quadEdge()->edgeConstrain();
-#if DEBUG_MESH
-										std::cout << "@ Constraining swapped " << eorg << "-->" << edest << "\n";
-#endif
-										setOrientedEdgeHandle( crossedEdges[j], iLeftHandle, iRightHandle , iSegment.vector());
-										tookAction = true;
-									}
-								}
-							}
-							else
-							{
-#if DEBUG_MESH
-								std::cout << "Trying to swap constrained edge " << eorg << "-->" << edest << "\n";
-								lass::io::MatlabOStream bugMesh;
-								bugMesh.open( "swap_constrained.m" );
-								bugMesh << *this;
-								bugMesh.close();
-								bugMesh.open( "swap_constrained_edges.m" );
-								for (int k=0;k<crossedEdges.size();++k)
-								{
-									if (k!=j)
-										bugMesh.setColor(lass::io::mcGreen);
-									else
-										bugMesh.setColor(lass::io::mcRed);
-									bugMesh << TLineSegment2D(org(crossedEdges[k]),dest(crossedEdges[k]));
-								}
-								bugMesh.setColor(lass::io::mcBlue);
-								bugMesh << TLineSegment2D(finalInsertedPoints[i],finalInsertedPoints[i+1]);
-								bugMesh.close();
-								std::cout << "///////// Tried to swap constrained edge, walking around it... ///////////\n";
-#endif
-								insertEdge(TLineSegment2D(eorg,finalInsertedPoints[i+1]), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
-							}
-						}
-					}
+					bugMesh.setColor( lass::io::mcBlue);
+					bugMesh << TLineSegment2D(org(filteredEdges[j]),dest(filteredEdges[j]));
 				}
-				lastdest=edest;
+				bugMesh.setColor( lass::io::mcRed );
+				bugMesh << TLineSegment2D(a,b);
+				bugMesh.setColor( lass::io::mcGreen );
+				bugMesh << TLineSegment2D(faa,fbb);
+				bugMesh.close();
+#endif
+				toSwapEdges.push_back(filteredEdges[i]);
+
+				//LASS_THROW("could not swap edge without creating inside-out triangle");
 			}
-			if (!tookAction)
+			else
 			{
-				LASS_THROW("Oops! Forgot to constrain an edge!");
+				if (filteredEdges[i]->quadEdge()->isConstrained())
+				{
+					LASS_THROW("found constrained edge where I should not find one!");
+				}
+				swap(filteredEdges[i]);
+				TPoint2D eorg = org(filteredEdges[i]);
+				TPoint2D edest =  dest(filteredEdges[i]);
+				T onEdgeOrg = num::abs(prim::doubleTriangleArea(eorg,edest,faa));
+				T onEdgeDest = num::abs(prim::doubleTriangleArea(eorg,edest,fbb));
+				T reverseTest1 = num::abs(prim::doubleTriangleArea(eorg,faa,fbb));
+				T reverseTest2 = num::abs(prim::doubleTriangleArea(edest,faa,fbb));
+				if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
+				{
+					filteredEdges[i]->quadEdge()->edgeConstrain();
+	#if DEBUG_MESH
+					std::cout << "@ Constraining " << org(filteredEdges[i]) << "-->" << dest(filteredEdges[i]) << "\n";
+	#endif
+					setOrientedEdgeHandle( filteredEdges[i], iLeftHandle, iRightHandle, iSegment.vector() );
+					if (toSwapEdges.size()>0)
+					{
+						LASS_THROW("edges for delayed swapping found");
+					}
+					madeConstraint = true;
+					break;
+				}
 			}
 		}
-		return locate(iSegment.tail());
+
+		if (toSwapEdges.size()>0)
+			return insertEdge( iSegment, iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
+		if (!madeConstraint)
+		{
+			LASS_THROW("could not force constrained edge");
+		}
+		LASS_ASSERT( org(ea) == faa );
+		return ea;
 	}
 
 
