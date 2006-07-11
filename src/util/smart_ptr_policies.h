@@ -303,6 +303,14 @@ protected:
 		LASS_ASSERT(count_ && *count_ == 1);
 	}
 
+	/** takes over the count and shares it */
+	void initSharedCount(const DefaultCounter& iOther/*iPointee*/)
+	{
+		count_ = iOther.count_;
+		LASS_ASSERT(count_);
+	}
+
+
 	template <typename TStorage> void dispose(TStorage& /*iPointee*/)
 	{
 		LASS_ASSERT(count_ && *count_ == 0);

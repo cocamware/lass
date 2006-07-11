@@ -150,6 +150,19 @@ public:
 		}
 	}
 
+	/** Up/downcast constructor.
+	 *  Copy another SharedPtr, and increase the reference count.
+	 */
+	template<typename C> explicit SharedPtr(const SharedPtr<C, StoragePolicy, CounterPolicy >& iOther):
+		TStoragePolicy(dynamic_cast<T*>(iOther.get()))
+	{
+		if (!isEmpty())
+		{
+			CounterPolicy::initSharedCount(iOther);
+			CounterPolicy::increment(TStoragePolicy::storage());
+		}
+	}
+
 	/** Constructs by stealing pointer from a std::auto_ptr.
 	 *  The reference counting starts here.
 	*/
