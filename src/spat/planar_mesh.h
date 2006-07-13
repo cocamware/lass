@@ -209,6 +209,9 @@ namespace spat
 		static  PointHandle    pointHandle( TEdge* iEdge );
 		static  EdgeHandle     edgeHandle( TEdge* iEdge );
 		static  FaceHandle     faceHandle( TEdge* iEdge );
+		static  PointHandle&   pointHandleRef( TEdge* iEdge );
+		static  EdgeHandle&    edgeHandleRef( TEdge* iEdge );
+		static  FaceHandle&    faceHandleRef( TEdge* iEdge );
 		static  void setPointHandle( TEdge* iEdge, PointHandle iHandle );
 		static  void setEdgeHandle( TEdge* iEdge, EdgeHandle iHandle );
 		static  void setFaceHandle( TEdge* iEdge, FaceHandle iHandle );
@@ -2092,6 +2095,35 @@ continueSearch:
 				return temp->faceHandle();
 		}
 		return FaceHandle();
+	}
+
+
+	TEMPLATE_DEF
+	PointHandle& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandleRef( TEdge* iEdge )
+	{
+		if (inPrimaryMesh(iEdge))
+			return iEdge->handle()->pointHandle();
+		LASS_THROW("no point handle available");
+	}
+
+	TEMPLATE_DEF
+	EdgeHandle& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandleRef( TEdge* iEdge )
+	{
+		if (inPrimaryMesh(iEdge))
+			return iEdge->handle()->edgeHandle();
+		LASS_THROW("no edge handle available");
+	}
+
+	TEMPLATE_DEF
+	FaceHandle& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::faceHandleRef( TEdge* iEdge )
+	{
+		if ( inPrimaryMesh( iEdge ) )
+		{
+			ProxyHandle* temp = iEdge->rot()->handle();
+			if (temp)
+				return temp->faceHandle();
+		}
+		LASS_THROW("no face handle available");
 	}
 
 	TEMPLATE_DEF

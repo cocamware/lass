@@ -98,6 +98,10 @@ private:
 	TPoint head_;
 };
 
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB);
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB);
+
+
 template <typename T, class PPa, class PPb>
 Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB,
 				 T& oTa, T& oTb);

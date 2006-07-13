@@ -104,6 +104,9 @@ private:
 	TPoint head_;
 };
 
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment3D<T, PPa>& iA, const LineSegment3D<T, PPb>& iB);
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment3D<T, PPa>& iA, const LineSegment3D<T, PPb>& iB);
+
 template <typename T, class PPa, class PPb>
 Result intersect(const LineSegment3D<T, PPa>& iA, const LineSegment3D<T, PPb>& iB,
 				 T& oTa, T& oTb);

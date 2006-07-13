@@ -187,6 +187,21 @@ LineSegment3D<T, PP>::distance(const TPoint& iPoint) const
 
 /** @relates lass::prim::LineSegment3D
  */
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment3D<T, PPa>& iA, const LineSegment3D<T, PPb>& iB)
+{
+	return iA.tail()==iB.tail() && iA.head()==iB.head();
+}
+
+/** @relates lass::prim::LineSegment3D
+ */
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment3D<T, PPa>& iA, const LineSegment3D<T, PPb>& iB)
+{
+	return !(iA==iB);
+}
+
+
+/** @relates lass::prim::LineSegment3D
+ */
 template<typename T, class PP>
 std::ostream& operator<<(std::ostream& ioOStream, const LineSegment3D<T, PP>& iLineSegment)
 {

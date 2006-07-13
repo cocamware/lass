@@ -61,6 +61,8 @@ namespace spat
 			EdgeHandle*&    handle() { if (!edgeHandle_) edgeHandle_ = new EdgeHandle; return edgeHandle_;}
 			EdgeHandle const* const handle() const { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
+			bool isEdgeConstrained() const { return quadEdge()->isEdgeConstrained(); }
+			bool isFaceConstrained() const { return quadEdge()->isFaceConstrained(); }
 
 			int index() const { return index_; }
 			void dispose()	  { delete edgeHandle_; edgeHandle_ = NULL;}
@@ -78,6 +80,8 @@ namespace spat
 		void    faceConstrain();
 		void    faceDeconstrain();
 		bool    isConstrained() const;
+		bool    isEdgeConstrained() const;
+		bool    isFaceConstrained() const;
 		Edge*   edges();
 		void	dispose();	/**< disposes all the edgehandles */
 
@@ -154,6 +158,14 @@ namespace spat
 	template< typename EdgeHandle > bool QuadEdge<EdgeHandle>::isConstrained() const
 	{
 		return edgeConstrained_ || faceConstrained_;
+	}
+	template< typename EdgeHandle > bool QuadEdge<EdgeHandle>::isEdgeConstrained() const
+	{
+		return edgeConstrained_;
+	}
+	template< typename EdgeHandle > bool QuadEdge<EdgeHandle>::isFaceConstrained() const
+	{
+		return faceConstrained_;
 	}
 	template< typename EdgeHandle > typename QuadEdge<EdgeHandle>::Edge* QuadEdge<EdgeHandle>::edges()
 	{

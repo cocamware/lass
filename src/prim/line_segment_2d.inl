@@ -248,6 +248,20 @@ Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& i
 }
 
 
+/** @relates lass::prim::LineSegment2D
+ */
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB)
+{
+	return iA.tail()==iB.tail() && iA.head()==iB.head();
+}
+
+/** @relates lass::prim::LineSegment2D
+ */
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB)
+{
+	return !(iA==iB);
+}
+
 
 /** @relates lass::prim::LineSegment2D
  */
