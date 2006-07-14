@@ -1264,11 +1264,14 @@ continueSearch:
 			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
 		{
 			(*crossedEdges++) = e;
-			TEdge* ne1 = e->sym()->lNext();
-			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
-				e = ne1->lNext();
-			else
-				e = ne1;
+			TEdge* ne1 = e->sym();
+			do
+			{
+				ne1 = ne1->lNext();
+			}
+			while (	!weakCw(iSegment.tail(),iSegment.head(),org(ne1)) 
+				||	!ccw(iSegment.tail(),iSegment.head(),dest(ne1)) );
+			e = ne1;
 		}
 		return crossedEdges;
 	}
