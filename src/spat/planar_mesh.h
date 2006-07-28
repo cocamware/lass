@@ -191,6 +191,10 @@ namespace spat
 		static	TSimplePolygon2D polygon( TEdge* iEdge);
 		static  const TPoint2D& org( TEdge* iEdge );
 		static  const TPoint2D& dest( TEdge* iEdge );
+		static  const TPoint2D& fastOrg( TEdge* iEdge );
+		static  const TPoint2D& fastDest( TEdge* iEdge );
+		static  TPoint2D along( TEdge* iEdge, const T& iParam );
+		static  TPoint2D fastAlong( TEdge* iEdge, const T& iParam );
 		static	const TVector2D direction( TEdge* iEdge );
 		static  bool  rightOf( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  leftOf( const TPoint2D& iPoint, TEdge* iEdge );
@@ -1248,7 +1252,7 @@ continueSearch:
 	{
 		TEdge* e=NULL;
 		e = shoot(TRay2D(iSegment.tail(),iSegment.vector()));
-		LASS_ASSERT(isBoundingPoint(org(e)) || allEqualChainOrder(e));
+		//LASS_ASSERT(isBoundingPoint(org(e)) || allEqualChainOrder(e));
 		if (!e)
 		{
 			LASS_THROW("Could not shoot initial ray in walk");
@@ -1264,14 +1268,11 @@ continueSearch:
 			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
 		{
 			(*crossedEdges++) = e;
-			TEdge* ne1 = e->sym();
-			do
-			{
-				ne1 = ne1->lNext();
-			}
-			while (	!weakCw(iSegment.tail(),iSegment.head(),org(ne1)) 
-				||	!ccw(iSegment.tail(),iSegment.head(),dest(ne1)) );
-			e = ne1;
+			TEdge* ne1 = e->sym()->lNext();
+			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
+				e = ne1->lNext();
+			else
+				e = ne1;
 		}
 		return crossedEdges;
 	}
@@ -1787,7 +1788,7 @@ continueSearch:
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay)
 	{
 		TEdge* e = NULL;
-		for (int i=1;i<iPolygon.size();++i)
+		for (size_t i=1;i<iPolygon.size();++i)
 		{
 			e=insertEdge(TLineSegment2D(iPolygon[i-1],iPolygon[i]),iLeftHandle,iRightHandle);
 		}
@@ -1946,10 +1947,47 @@ continueSearch:
 		return *iEdge->handle()->point_;
 	}
 
+	TEMPLATE_DEF
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastOrg( TEdge* iEdge )
+	{
+		return *iEdge->handle()->point_;
+	}
+
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::along( TEdge* iEdge, const T& iParam )
+	{
+		if (!inPrimaryMesh( iEdge ))
+		{
+			LASS_THROW("PlanarMesh::along: edge not in primary mesh");
+		}
+		const TPoint2D& eOrg = *iEdge->handle()->point_;
+		const TPoint2D& eDest = *iEdge->sym()->handle()->point_;
+		const T oX = eDest.x*iParam + (1-iParam)*eOrg.x;
+		const T oY = eDest.y*iParam + (1-iParam)*eOrg.y;
+		return TPoint2D(oX,oY);
+	}
+
+	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastAlong( TEdge* iEdge, const T& iParam )
+	{
+		const TPoint2D& eOrg = *iEdge->handle()->point_;
+		const TPoint2D& eDest = *iEdge->sym()->handle()->point_;
+		const T oX = eDest.x*iParam + (1-iParam)*eOrg.x;
+		const T oY = eDest.y*iParam + (1-iParam)*eOrg.y;
+		return TPoint2D(oX,oY);
+	}
+
+
 	TEMPLATE_DEF inline
 	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( TEdge* iEdge )
 	{
 		return org( iEdge->sym() );
+	}
+
+	TEMPLATE_DEF inline
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastDest( TEdge* iEdge )
+	{
+		return fastOrg( iEdge->sym() );
 	}
 
 	TEMPLATE_DEF inline

@@ -258,9 +258,11 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 	}
 	else
 	{
+		/*
 		LASS_TEST_CHECK_THROW( TPlanarMesh::setPointHandle( e, 0 ), std::runtime_error );
 		LASS_TEST_CHECK_THROW( TPlanarMesh::setEdgeHandle( e, 0 ), std::runtime_error );
 		LASS_TEST_CHECK_THROW( TPlanarMesh::setFaceHandle( e, 0 ), std::runtime_error );
+		*/
 	}
 
 	return true;
@@ -409,8 +411,8 @@ void doTestPlanarMesh()
 	TPlanarMesh     testMesh5( TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 	double offsetX = 708000;
 	double offsetY = 5251350;
-	TPlanarMesh     testMeshContours( TPoint2D(708000-offsetX,5251350-offsetY), TPoint2D(710500-offsetX,5251350-offsetY),
-									  TPoint2D(710500-offsetX,5253350-offsetY), TPoint2D(708000-offsetX,5253350-offsetY));
+	TPlanarMesh     testMeshContours( TPoint2D(708000-offsetX,5251350-offsetY), TPoint2D(708000+10000-offsetX,5251350-offsetY),
+									  TPoint2D(708000+10000-offsetX,5251350+10000-offsetY), TPoint2D(708000-offsetX,5251350+10000-offsetY));
 
 	std::ifstream contoursTest;
 	
@@ -428,8 +430,8 @@ void doTestPlanarMesh()
 			y1 -= offsetY;
 			y2 -= offsetY;
 
-			if (	x1>0 && x2>0 && y1<2000 && y2<2000 
-				&&	x1<2500 && x2<2500 && y1>0 && y2> 0)
+			if (	x1>0 && x2>0 && y1<12000 && y2<12000 
+				 && y1>0 && y2>0 &&	x1<12500 && x2<12500)
 			{
 				std::cout << x1 << "\t" << y1 << "\t" << x2 << "\t" << y2 << "\n";
 				testMeshContours.insertEdge( 
@@ -467,6 +469,14 @@ void doTestPlanarMesh()
 	testPoly1.add( TPoint2D(60,60) );
 	testPoly1.add( TPoint2D(10,60) );
 	ColorEdges colorEdges;
+
+	for (int i=0;i<3;++i)
+        testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0+i*10,60.0), TPoint2D(15.0+i*10,60.0) ),intHandles[1],intHandles[1] );
+	for (int i=0;i<3;++i)
+        testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0+i*10,65.0), TPoint2D(15.0+i*10,65.0) ),intHandles[1],intHandles[1] );
+	for (int i=0;i<3;++i)
+        testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0+i*10,62.0), TPoint2D(15.0+i*10,62.0) ),intHandles[1],intHandles[1] );
+
 
 	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0,20.0), TPoint2D(65.0,20.0) ),intHandles[1],intHandles[1] );
 	colorEdges.stream.open("test2.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
