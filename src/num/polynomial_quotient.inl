@@ -90,9 +90,9 @@ PolynomialQuotient<T>::PolynomialQuotient(TParam iScalar, const TPolynomial& iDe
 
 
 template <typename T>
-PolynomialQuotient<T>::PolynomialQuotient(const TCoefficients& iNominator, const TCoefficients& iDenumerator):
+PolynomialQuotient<T>::PolynomialQuotient(const TCoefficients& iNominator, const TCoefficients& iDenominator):
 	numerator_(iNominator),
-	denominator_(iDenomirator)
+	denominator_(iDenominator)
 {
 }
 
@@ -174,6 +174,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const TSelf& iOther)
 {
 	numerator_ = numerator_ * iOther.denominator_ + iOther.numerator_ * iOther.denominator_;
 	denominator_ *= iOther.denominator_;
+	return *this;
 }
 
 
@@ -183,6 +184,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(const TSelf& iOther)
 {
 	numerator_ = numerator_ * iOther.denominator_ - iOther.numerator_ * iOther.denominator_;
 	denominator_ *= iOther.denominator_;
+	return *this;
 }
 
 
@@ -192,6 +194,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(const TSelf& iOther)
 {
 	numerator_ *= iOther.numerator_;
 	denominator_ *= iOther.denominator_;
+	return *this;
 }
 
 
@@ -201,6 +204,7 @@ PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const TSelf& iOther)
 {
 	numerator_ *= iOther.denominator_;
 	denominator_ *= iOther.numerator_;
+	return *this;
 }
 
 
@@ -209,6 +213,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(const Polynomial<T>& iOther)
 {
 	numerator_ += iOther * denominator_;
+	return *this;
 }
 
 
@@ -217,6 +222,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(const Polynomial<T>& iOther)
 {
 	numerator_ -= iOther * denominator_;
+	return *this;
 }
 
 
@@ -225,6 +231,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(const Polynomial<T>& iOther)
 {
 	numerator_ *= iOther;
+	return *this;
 }
 
 
@@ -233,6 +240,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(const Polynomial<T>& iOther)
 {
 	denominator_ *= iOther;
+	return *this;
 }
 
 
@@ -241,6 +249,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator+=(TParam iScalar)
 {
 	numerator_ += iScalar * denominator_;
+	return *this;
 }
 
 
@@ -249,6 +258,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator-=(TParam iScalar)
 {
 	numerator_ -= iScalar * denominator_;
+	return *this;
 }
 
 
@@ -257,6 +267,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator*=(TParam iScalar)
 {
 	numerator_ *= iScalar;
+	return *this;
 }
 
 
@@ -265,6 +276,7 @@ template <typename T>
 PolynomialQuotient<T>& PolynomialQuotient<T>::operator/=(TParam iScalar)
 {
 	numerator_ /= iScalar;
+	return *this;
 }
 
 

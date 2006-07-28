@@ -182,7 +182,7 @@ namespace impl
 				Q2 = t* (A1*D1 + B1*C1);
 
 				NTC th, tk;
-				t = 0.0;
+				th = 0.0;
 				tk = 0.0;
 
 				long i;

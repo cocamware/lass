@@ -490,6 +490,9 @@ cd ..\dll
 				RelativePath="..\..\src\util\.\progress_indicator.cpp">
 			</File>
 			<File 
+				RelativePath="..\..\src\util\.\pyiteratorrange.cpp">
+			</File>
+			<File 
 				RelativePath="..\..\src\util\.\pymap.cpp">
 			</File>
 			<File 

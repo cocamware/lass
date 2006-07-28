@@ -95,6 +95,7 @@ Result intersect(const Parallelogram3D<T>& iParallelogram,
 	typedef typename Parallelogram3D<T>::TVector TVector;
 	typedef typename Parallelogram3D<T>::TValue TValue;
 	typedef typename Parallelogram3D<T>::TNumTraits TNumTraits;
+	typedef num::Consistent<T> TConsistent;
 
 	const TVector pvec = cross(iRay.direction(), iParallelogram.sizeV());
 	
