@@ -42,7 +42,7 @@ namespace spat
 		{
 			friend class QuadEdge<EdgeHandle>;
 		public:
-			Edge() : next_(NULL), edgeHandle_(NULL) {}
+			Edge() : next_(NULL), edgeHandle_(new EdgeHandle) {}
 			~Edge() { dispose(); }
 
 			Edge* rot()   { return (index_ < 3) ? this + 1 : this - 3; }
@@ -58,7 +58,7 @@ namespace spat
 			Edge* rPrev() { return sym()->oNext(); }
 
 			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
-			EdgeHandle*&    handle() { if (!edgeHandle_) edgeHandle_ = new EdgeHandle; return edgeHandle_;}
+			EdgeHandle*&    handle() { return edgeHandle_;}
 			EdgeHandle const* const handle() const { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
 			bool isEdgeConstrained() const { return quadEdge()->isEdgeConstrained(); }

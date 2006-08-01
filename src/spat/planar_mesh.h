@@ -311,9 +311,15 @@ namespace spat
 			bool edgeToMatlab( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge )
 			{
 				if (!mesh_->internalMarking( iEdge ))
+				{
+					if (iEdge->isConstrained())
+						stream_.setColor(mcRed);
+					else
+						stream_.setColor(mcBlack);
 					stream_ << typename TPlanarMesh::TLineSegment2D( 
 						TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) 
 						<< std::endl;
+				}
 				else
 					return true;
 				mesh_->setInternalMarking( iEdge, true );
@@ -1429,11 +1435,23 @@ continueSearch:
 				{
 					if (squaredDistance(org(e),iPoint)<squaredDistance(dest(e),iPoint))
 					{
-						return insertSite(org(e),makeDelaunay,true);
+						if (squaredDistance(org(e),iPoint)<pointDistanceTolerance_*pointDistanceTolerance_)
+							return insertSite(org(e),makeDelaunay,true);
+						else
+						{
+							// we have come across a situation which is combinatorially not possible except for
+							// numerical issues, we just continue as the algorithm can cope with this
+						}
 					}
 					else
 					{
-						return insertSite(dest(e),makeDelaunay,true);
+						if (squaredDistance(dest(e),iPoint)<pointDistanceTolerance_*pointDistanceTolerance_)
+							return insertSite(dest(e),makeDelaunay,true);
+						else
+						{
+							// we have come across a situation which is combinatorially not possible except for
+							// numerical issues, we just continue as the algorithm can cope with this
+						}
 					}
 				}
 			}
@@ -1553,6 +1571,14 @@ continueSearch:
 	{
 #if DEBUG_MESH
 		std::cout << "Inserting : " << iSegment << "\n";
+		static int passCountMesh = 0;
+		++passCountMesh;
+		char buf[128];
+		sprintf(buf,"debug_mesh_%d.m",passCountMesh);
+		lass::io::MatlabOStream debugMesh;
+		debugMesh.open(buf);
+		debugMesh << *this;
+		debugMesh.close();
 #endif
 		TEdge *ea, *eb;
 		TPoint2D aa, bb, fbb, faa;
