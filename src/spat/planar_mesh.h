@@ -313,9 +313,9 @@ namespace spat
 				if (!mesh_->internalMarking( iEdge ))
 				{
 					if (iEdge->isConstrained())
-						stream_.setColor(mcRed);
+						stream_.setColor(lass::io::mcRed);
 					else
-						stream_.setColor(mcBlack);
+						stream_.setColor(lass::io::mcBlack);
 					stream_ << typename TPlanarMesh::TLineSegment2D( 
 						TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) 
 						<< std::endl;
