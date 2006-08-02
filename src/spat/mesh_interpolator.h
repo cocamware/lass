@@ -114,9 +114,8 @@ void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPo
 	}
 
 	typename TPlanarMesh::TEdge* e = mesh_.insertSite( iPoint );
-	e = mesh_.locate( iPoint );
-
-	LASS_ASSERT( TPlanarMesh::org(e) == iPoint );
+	//e = mesh_.locate( iPoint );
+	//LASS_ASSERT( TPlanarMesh::org(e) == iPoint );
 
 	info_.push_back( iPointInfo );
 	TPlanarMesh::setPointHandle( e, &info_.back() );
