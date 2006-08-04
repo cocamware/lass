@@ -173,9 +173,11 @@ namespace spat
 		void    forAllVertices( const TEdgeCallback& iCallback );
 		void    forAllFaces( const TEdgeCallback& iCallback );
 
-		TEdge*  locate( const TPoint2D& iPoint ) const;		/**< locate an edge of the triangle containing iPoint */
+		TEdge*  locate( const TPoint2D& iPoint ) const;				/**< locate an edge of the triangle containing iPoint */
+		TEdge*  pointLocate( const TPoint2D& iPoint ) const;		/**< locate an edge of which the org is the same as iPoint, useful for known degeneracy point location, possibly slower than the regular locate */
 		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
 		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
+		template <typename OutputIterator>	OutputIterator walkIntersections( const TLineSegment2D& iSegment, OutputIterator oIntersections ) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true, bool forceOnEdge = false);
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), PointHandle iPointHandle = PointHandle(), bool forcePointHandle = false, bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
@@ -241,7 +243,6 @@ namespace spat
 		void triangulate( TEdge* iEdge );
 		void fixEdge( TEdge* e );
 		void splitEdge(TEdge *e, const TPoint2D& iPoint );
-		TEdge*  pointLocate( const TPoint2D& iPoint ) const;		/**< locate an edge of which the org is the same as iPoint, useful for known degeneracy point location */
 		TEdge*	pointShoot( const TRay2D& iRay ) const;				/**< locate the edge found by shooting the ray from within the triangle with the support of the ray as a known point */
 		bool  isBoundingPoint( const TPoint2D& iPoint) const;		/**< true for points defining the boundary */
 		template <typename OutputIterator>	OutputIterator pointWalk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
@@ -266,15 +267,46 @@ namespace spat
 
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
 		
-//#ifndef NDEBUG
+#ifndef NDEBUG
 	public:
 		static unsigned numSetOrientedEdgeHandleCalls;
 		static unsigned numSetOrientedEdgeHandleSwaps;
-//#endif
+#endif
 	};
 
 	namespace impl
 	{
+		/** fastIntersect.  Returns the intersection of line iAiB with iCiD.  This routine is aimed
+			at speed and less at accuracy.  This routines assumes there is an intersection point and won't try to be more specific about the error 
+			when there is not.  It is used for calculating intersections with walking paths in meshes
+		*/
+		template <typename T>
+		lass::prim::Result fastIntersect(	const lass::prim::Point2D<T>& iA, const lass::prim::Point2D<T>& iB,
+								const lass::prim::Point2D<T>& iC, const lass::prim::Point2D<T>& iD, lass::prim::Point2D<T>& oP)
+		{
+			typedef lass::num::NumTraits<T> TNumTraits;
+			const lass::prim::Vector2D<T> dirA=iB-iA;
+			const lass::prim::Vector2D<T> difference=iC-iA;
+			const lass::prim::Vector2D<T> dirB=iD-iC;
+
+			const T denominator = lass::prim::perpDot(dirA, dirB);
+			const T denominator2= denominator*2.0;		// this is (and should be) optimised by adding denominator to itself
+			oP = iA;									// interwoven instruction as we assume the zero equality is seldom encountered
+			if (denominator == denominator2)
+			{
+				// we don't bother finding out which case, we only need to know that
+				// the result is not what we are looking for
+				return lass::prim::rInvalid;
+			}
+			else
+			{
+				const T oTa = perpDot(difference, dirB) / denominator;
+				oP.x += dirA.x*oTa;
+				oP.y += dirA.y*oTa;
+				return lass::prim::rOne; // intersecting
+			}
+		}
+
 		TEMPLATE_DEF
 		class EdgeMarker
 		{
@@ -1122,7 +1154,6 @@ continueSearch:
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::shoot( const TRay2D& iRay ) const
 	{
 		TEdge* locateEdge = locate(iRay.support());
-		LASS_ASSERT(isBoundingPoint(org(locateEdge)) || allEqualChainOrder(locateEdge));
 		TEdge* startEdge = locateEdge;
 		if (!startEdge)
 			return NULL;
@@ -1155,6 +1186,8 @@ continueSearch:
 			do
 			{
 				lass::prim::Side currentSide = iRay.classify(dest(e));
+				if (currentSide==lass::prim::sSurface)
+					return e->sym();
 				if (lastSide==lass::prim::sRight && lastSide!=currentSide)
 					return e;
 				lastSide = currentSide;
@@ -1250,8 +1283,35 @@ continueSearch:
 	}
 
 
+	/* _Adds_ the intersection points of the crossed edges to the output vector, method is polygon safe */
+	TEMPLATE_DEF
+	template <typename OutputIterator> 
+	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walkIntersections( const TLineSegment2D& iSegment, OutputIterator oIntersections) const
+	{
+		std::vector<TEdge*> crossedEdges;
+		walk(iSegment,std::back_inserter(crossedEdges));
+		for (int i=0;i<crossedEdges.size();++i)
+		{
+			TPoint2D intersection;
+			if (impl::fastIntersect(iSegment.tail(),iSegment.head(),fastOrg(crossedEdges[i]),fastDest(crossedEdges[i]),intersection)!=lass::prim::rOne)
+			{
+				// we make the bold assumption that we have parallel coinciding lines
+				(*oIntersections++) = fastOrg(crossedEdges[i]);
+				if (squaredDistance(fastOrg(crossedEdges[i]),fastDest(crossedEdges[i]))<squaredDistance(iSegment.tail(),iSegment.head()))
+					(*oIntersections++) = fastDest(crossedEdges[i]);
+				else
+					(*oIntersections++) = iSegment.head();
+			}
+			else
+			{
+				(*oIntersections++) = intersection;
+			}
+		}
+		return oIntersections;
+	}
 
-	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
+
+	/* _Adds_ the crossed edges to the output vector, method is polygon safe */
 	TEMPLATE_DEF
 	template <typename OutputIterator> 
 	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walk( const TLineSegment2D& iSegment, OutputIterator crossedEdges ) const
@@ -1274,16 +1334,31 @@ continueSearch:
 			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
 		{
 			(*crossedEdges++) = e;
+			/*
 			TEdge* ne1 = e->sym()->lNext();
 			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
 				e = ne1->lNext();
 			else
 				e = ne1;
+			*/
+			TEdge* ce = e->sym()->lNext();
+#pragma LASS_TODO("Optimize")
+			// this for loop is introduced for point location in non-triangular, general
+			// convex cells
+			for (int i=0;i<chainOrder(e)-1;++i)
+			{
+				if ( weakCcw( iSegment.tail(), iSegment.head(), dest(ce) ) )
+				{
+					e = ce;
+					break;
+				}
+				ce = ce->lNext();
+			}
 		}
 		return crossedEdges;
 	}
 
-	/* _Adds_ the crossed edges to the output vector, method is NOT polygon safe */
+	/* _Adds_ the crossed edges to the output vector, method is polygon safe */
 	TEMPLATE_DEF
 	template <typename OutputIterator> 
 	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointWalk( const TLineSegment2D& iSegment, OutputIterator crossedEdges ) const
@@ -1306,11 +1381,26 @@ continueSearch:
 			&&		(num::abs(prim::doubleTriangleArea(org(e),iSegment.head(),iSegment.tail()))<tolerance_ ) ) )
 		{
 			(*crossedEdges++) = e;
+			/*
 			TEdge* ne1 = e->sym()->lNext();
 			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
 				e = ne1->lNext();
 			else
 				e = ne1;
+			*/
+			TEdge* ce = e->sym()->lNext();
+#pragma LASS_TODO("Optimize")
+			// this for loop is introduced for point location in non-triangular, general
+			// convex cells
+			for (int i=0;i<chainOrder(e)-1;++i)
+			{
+				if ( weakCcw( iSegment.tail(), iSegment.head(), dest(ce) ) )
+				{
+					e = ce;
+					break;
+				}
+				ce = ce->lNext();
+			}
 		}
 		return crossedEdges;
 	}

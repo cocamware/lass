@@ -88,14 +88,15 @@ protected:
 	TInfoList info_;
 public:
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
-	typedef std::vector<TPoint2D> TPolyline2D;
+	typedef std::vector<TPoint2D> TPolyLine2D;
 
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
 
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
-	virtual void insertPolyline( const TPolyline2D& iPoly, const TPI& iPointInfo );
+	virtual void insertPolyline( const TPolyLine2D& iPoly, const TPI& iPointInfo );
 	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
+	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const = 0;
 };
 
 
@@ -122,7 +123,7 @@ void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPo
 }
 
 template<typename T, typename TPI>
-void MeshInterpolator<T,TPI>::insertPolyline( const TPolyline2D& iPoly, const TPI& iPointInfo )
+void MeshInterpolator<T,TPI>::insertPolyline( const TPolyLine2D& iPoly, const TPI& iPointInfo )
 {
 	if (iPoly.size() < 2)
 	{
@@ -171,6 +172,8 @@ class LinearMeshInterpolator : public MeshInterpolator<T,TPI>
 	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
 
 	LinearMeshInterpolator() {}
+	virtual TPI interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* iEdge ) const;
+
 public:
 	typedef typename MeshInterpolator<T,TPI>::TPoint2D TPoint2D;
 	typedef typename MeshInterpolator<T,TPI>::TAabb2D TAabb2D;
@@ -178,6 +181,7 @@ public:
 	LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside );
 	virtual ~LinearMeshInterpolator() {}
 	virtual TPI interpolate( const TPoint2D& iQuery ) const;
+	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
 };
 
 
@@ -212,12 +216,8 @@ LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, con
 }
 
 template<typename T, typename TPI>
-TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
+TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* e ) const
 {
-	typename TPlanarMesh::TEdge* e = this->mesh_.locate(iQuery);
-	if (!TPlanarMesh::hasLeftFace(e))
-		e = e->sym();
-
 	TPoint2D a = TPlanarMesh::org(e);
 	TPoint2D b = TPlanarMesh::dest(e);
 	TPoint2D c = TPlanarMesh::dest(e->lNext());
@@ -231,6 +231,42 @@ TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
 	barycenters(iQuery, a, b, c, ba, bb, bc);
 
 	return (*ia)*ba+(*ib)*bb+(*ic)*bc;
+}
+
+
+template<typename T, typename TPI>
+TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
+{
+	typename TPlanarMesh::TEdge* e = this->mesh_.locate(iQuery);
+	if (!TPlanarMesh::hasLeftFace(e))
+		e = e->sym();
+	return interpolate(iQuery,e);
+}
+
+template<typename T, typename TPI>
+template <typename OutputIterator> 
+OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const
+{
+	LASS_ENFORCE(iQuery.size()>1);
+	TPolyLine2D crossings;
+	for (int i=0;i<iQuery.size()-1;++i)
+	{
+		crossings.push_back(iQuery[i]);
+		mesh_.walkIntersections(TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),std::back_inserter(crossings));
+	}
+	crossings.push_back(iQuery.back());
+
+	TPoint2D lastInterpolate = crossings[0];
+	(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[0],interpolate(crossings[0]));
+	for (int i=1;i<crossings.size();++i)
+	{
+		if (crossings[i]!=lastInterpolate)
+		{
+			(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[i],interpolate(crossings[i]));
+			lastInterpolate = crossings[i];
+		}
+	}
+	return oOutput;
 }
 
 

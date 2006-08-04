@@ -63,6 +63,18 @@ namespace test
 			meshIO << std::endl;
 		}
 		meshIO.close();
+
+		std::vector<std::pair<TPoint2D, double> > result;
+		TLinearMeshInterpolator::TPolyLine2D polyLine;
+		polyLine.push_back(TPoint2D(10,10));
+		polyLine.push_back(TPoint2D(20,10));
+		polyLine.push_back(TPoint2D(30,10));
+		polyLine.push_back(TPoint2D(40,10));
+		interpolator.interpolate(polyLine,std::back_inserter(result));
+		for (int i=0;i<result.size();++i)
+		{
+			std::cout << "Interpolation " << i << " : " << result[i].first << " -> " << result[i].second << "\n";
+		}
 	}
 }
 }
