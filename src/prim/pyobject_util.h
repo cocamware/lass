@@ -39,6 +39,8 @@ template <typename T> struct Vector3D;
 template <typename T> struct Vector4D;
 template <typename T> struct Point2D;
 template <typename T> struct Point3D;
+template <typename T, class DegeneratePolicy > class SimplePolygon2D;
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > class SimplePolygon3D;
 template <typename T, typename MMP> class Aabb2D;
 template <typename T, typename MMP> class Aabb3D;
 template <typename T, typename PP> class LineSegment2D;
@@ -61,6 +63,8 @@ template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV)
 template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV);
 template <typename T> PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV);
 template <typename T> PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV);
+template <typename T, class DegeneratePolicy > PyObject* pyBuildSimpleObject(const prim::SimplePolygon2D<T, DegeneratePolicy>& iV);
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > PyObject* pyBuildSimpleObject(const prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& iV);
 template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb2D<T, MMP>& iV);
 template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb3D<T, MMP>& iV);
 template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment2D<T, PP>& iV);
@@ -78,6 +82,8 @@ template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>&
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV);
+template <typename T, class DegeneratePolicy > int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV);
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& oV);
 template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV);
 template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV);
 template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV);

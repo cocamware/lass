@@ -93,8 +93,10 @@ public:
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
 
+	const TPlanarMesh& const mesh() const { return mesh_; }
+
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
-	virtual void insertPolyline( const TPolyLine2D& iPoly, const TPI& iPointInfo );
+	virtual void insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo );
 	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
 	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const = 0;
 };
@@ -123,7 +125,7 @@ void MeshInterpolator<T,TPI>::insertSite( const TPoint2D& iPoint, const TPI& iPo
 }
 
 template<typename T, typename TPI>
-void MeshInterpolator<T,TPI>::insertPolyline( const TPolyLine2D& iPoly, const TPI& iPointInfo )
+void MeshInterpolator<T,TPI>::insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo )
 {
 	if (iPoly.size() < 2)
 	{

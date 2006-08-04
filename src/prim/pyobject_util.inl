@@ -123,7 +123,6 @@ int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV)
 #endif
 
 
-
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_VECTOR_4D_H
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_VECTOR_4D
 #	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_VECTOR_4D
@@ -521,6 +520,70 @@ int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV)
 	}
 
 	oV = prim::Transformation3D<T>(values, values + 16);
+	return 0;
+}
+
+#	endif
+#endif
+
+
+// --- simplepolygons -----------------------------------------------------------------------------
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_2D_H
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_SIMPLE_POLYGON_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_SIMPLE_POLYGON_2D
+
+template <typename T, class DegeneratePolicy>
+PyObject* pyBuildSimpleObject(const prim::SimplePolygon2D<T, DegeneratePolicy>& iV)
+{
+	std::vector< prim::Point2D<T> > points;
+	for (unsigned i = 0; i < iV.size(); ++i)
+		points.push_back(iV[i]);
+	return pyBuildSimpleObject( points );
+}
+
+template <typename T, class DegeneratePolicy>
+int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV)
+{
+	std::vector< prim::Point2D<T> > points;
+	int rv = pyGetSimpleObject(iValue, oV);
+	if (rv)
+	{
+		impl::addMessageHeader("SimplePolygon2D");
+		return 1;
+	}
+	oV = prim::SimplePolygon2D<T, DegeneratePolicy>(points.begin(), points.end());
+	return 0;
+}
+
+#	endif
+#endif
+
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SIMPLE_POLYGON_3D_H
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_SIMPLE_POLYGON_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_SIMPLE_POLYGON_3D
+
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy>
+PyObject* pyBuildSimpleObject(const prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& iV)
+{
+	std::vector< prim::Point3D<T> > points;
+	for (unsigned i = 0; i < iV.size(); ++i)
+		points.push_back(iV[i]);
+	return pyBuildSimpleObject( points );
+}
+
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy>
+int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& oV)
+{
+	std::vector< prim::Point3D<T> > points;
+	int rv = pyGetSimpleObject(iValue, oV);
+	if (rv)
+	{
+		impl::addMessageHeader("SimplePolygon3D");
+		return 1;
+	}
+	oV = prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>(points.begin(), points.end());
 	return 0;
 }
 
