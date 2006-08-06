@@ -100,6 +100,7 @@ public:
 	iterator erase(iterator position);
 	iterator erase(iterator first, iterator last);
 	void clear();
+	void swap(static_vector<T, maxsize>& iOther);
 
 private:
 

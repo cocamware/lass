@@ -546,7 +546,7 @@ template <typename T, class DegeneratePolicy>
 int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV)
 {
 	std::vector< prim::Point2D<T> > points;
-	int rv = pyGetSimpleObject(iValue, oV);
+	int rv = pyGetSimpleObject(iValue, points);
 	if (rv)
 	{
 		impl::addMessageHeader("SimplePolygon2D");

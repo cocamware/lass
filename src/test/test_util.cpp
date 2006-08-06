@@ -42,7 +42,7 @@
 #include "test_util_string_cast.inl"
 #include "test_util_thread_fun.inl"
 #include "test_util_thread_pool.inl"
-#include "test_util_visitor.inl"
+//#include "test_util_visitor.inl"
 
 namespace lass
 {
@@ -80,7 +80,7 @@ TUnitTests testUtil()
 
 	result.push_back(LASS_UNIT_TEST(testUtilThreadPool));
 
-	result.push_back(LASS_UNIT_TEST(testUtilVisitor));
+//	result.push_back(LASS_UNIT_TEST(testUtilVisitor));
 
 	result.push_back(LASS_UNIT_TEST(testUtilPython));
 

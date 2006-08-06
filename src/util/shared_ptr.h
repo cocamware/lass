@@ -158,7 +158,7 @@ public:
 	{
 		if (!isEmpty())
 		{
-			CounterPolicy::initSharedCount(iOther);
+			CounterPolicy::initSharedCount(storage(), iOther.storage(), iOther);
 			CounterPolicy::increment(TStoragePolicy::storage());
 		}
 	}

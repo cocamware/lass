@@ -161,6 +161,13 @@ namespace lass
 				LASS_ASSERT(iPointee);
 				return iPointee->ob_refcnt;
 			}
+			/** takes over the count and shares it */
+			template <typename TOStorage, typename TIStorage>
+			void initSharedCount(TOStorage& oStorage, const TIStorage& iStorage, const PyObjectCounter& iOther)
+			{
+				oStorage->ob_refcnt = iStorage->ob_refcnt;
+				LASS_ASSERT(oStorage->ob_refcnt);
+			}
 			void swap(PyObjectCounter& /*iOther*/) {}
 		private:
 			//TCount counterToKeepCompilerFromDoingStupidThings_;

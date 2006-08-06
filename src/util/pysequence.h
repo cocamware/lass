@@ -34,6 +34,7 @@
 #include "pyobject_plus.h"
 #include "pyobject_util.h"
 #include "../stde/extended_algorithm.h"
+#include "../stde/static_vector.h"
 #include "string_cast.h"
 
 namespace lass
@@ -43,7 +44,7 @@ namespace python
 namespace impl
 {
 
-		template<typename C>
+	template<typename C>
 	struct ContainerTraits
 	{
 		static const typename C::value_type&		element_at(const C& iC, int i) { return iC[i]; };
@@ -526,6 +527,28 @@ PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
 
 
 /** @ingroup Python
+	*  build a copy of a stde::static_vector as a Python list
+	*  @note you build a reference to the stde::static_vector, but the list is read-only
+	*/
+template< class V, size_t maxsize>
+PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+/** @ingroup Python
+	*  build a copy of a stde::static_vector as a Python ;ost
+	*  @note you build a reference to the stde::static_vector, any changes done in Python
+	*  will be reflected in the original object, as far as the typesystem allows it of course
+	*/
+template<typename V, size_t maxsize>
+PyObject* pyBuildSimpleObject( stde::static_vector<V, maxsize>& iV )
+{
+	return new impl::PySequence( iV );
+}
+
+
+/** @ingroup Python
 	*  get a copy of a Python sequence as a std::vector.
 	*  @note you get a COPY of the sequence, not the original sequence itself!
 	*/
@@ -567,6 +590,16 @@ int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
 	return impl::pyGetSequenceObject( iValue, oV );
 }
 
+
+/** @ingroup Python
+	*  get a copy of a Python sequence as a stde::static_vector.
+	*  @note you get a COPY of the sequence, not the original sequence itself!
+	*/
+template<typename V, size_t maxsize>
+int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
+{
+	return impl::pyGetSequenceObject( iValue, oV );
+}
 
 }
 

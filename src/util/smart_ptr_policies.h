@@ -304,7 +304,8 @@ protected:
 	}
 
 	/** takes over the count and shares it */
-	void initSharedCount(const DefaultCounter& iOther/*iPointee*/)
+	template <typename TOStorage, typename TIStorage>
+	void initSharedCount(TOStorage& oStorage, const TIStorage& iStorage, const DefaultCounter& iOther/*iPointee*/)
 	{
 		count_ = iOther.count_;
 		LASS_ASSERT(count_);

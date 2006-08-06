@@ -413,6 +413,15 @@ void static_vector<T, maxsize>::clear()
 	size_ = 0;
 }
 
+template <typename T, size_t maxsize>
+void static_vector<T, maxsize>::swap(static_vector<T, maxsize>& iOther)
+{
+	for (size_type i = 0; i < std::max(size(),iOther.size()); ++i)
+	{
+		std::swap(operator[](i), iOther[i]);
+	}
+	std::swap(size_,iOther.size_);
+}
 
 	
 // --- private -------------------------------------------------------------------------------------
