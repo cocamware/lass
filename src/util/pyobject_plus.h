@@ -76,7 +76,7 @@ namespace lass
 		public:
 			typedef PyObjectPlus    TSelf;
 
-			PyObjectPlus(PyTypeObject *T); 
+			PyObjectPlus(); 
 			virtual ~PyObjectPlus();
 
 			PyObjectPlus* PyPlus_INCREF(void);// incref method
@@ -272,7 +272,7 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( long double iV );
 		inline PyObject* pyBuildSimpleObject( const char* iV );
 		inline PyObject* pyBuildSimpleObject( const std::string& iV );
-		inline PyObject* pyBuildSimpleObject( PyObject* iV );
+		//inline PyObject* pyBuildSimpleObject( PyObject* iV );
 
 		template <typename T> int pyGetSimpleObjectByName(const std::string& iName, T& oV);
 		LASS_DLL PyObject* LASS_CALL getPyObjectByName(const std::string& iName);

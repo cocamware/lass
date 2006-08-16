@@ -154,7 +154,7 @@ public:
 	 *  Copy another SharedPtr, and increase the reference count.
 	 */
 	template<typename C> explicit SharedPtr(const SharedPtr<C, StoragePolicy, CounterPolicy >& iOther):
-		TStoragePolicy(dynamic_cast<T*>(iOther.get()))
+		TStoragePolicy(static_cast<T*>(iOther.get()))
 	{
 		if (!isEmpty())
 		{

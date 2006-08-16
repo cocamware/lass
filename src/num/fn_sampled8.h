@@ -61,7 +61,7 @@ namespace lass
 		protected:
 			TInterval   alpha_[4];  /**< 0->alpha = 0; 1->alpha = 0.33; 2->alpha = 0.66; 3->alpha = 1.0 */
 
-			FNSampled8(const TInterval& ialphacut0,const TInterval& ialphacut1,const TInterval& ialphacut2,const TInterval& ialphacut3) : PyObjectPlus( &Type )
+			FNSampled8(const TInterval& ialphacut0,const TInterval& ialphacut1,const TInterval& ialphacut2,const TInterval& ialphacut3) 
 			{
 				alpha_[0] = ialphacut0;
 				alpha_[1] = ialphacut1;
@@ -86,7 +86,7 @@ namespace lass
 			*   not demand such a constructor.
 			*/
 			FNSampled8(util::CallTraits<TBaseType>::TParam iV);
-			FNSampled8(const FNSampled8& sV) : PyObjectPlus( &Type ) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
+			FNSampled8(const FNSampled8& sV) { int i=3; for (i=3;i>=0;--i) alpha_[i] = sV.alpha_[i]; };
 			~FNSampled8();
 
 			TInterval   getSupport() const  { return alpha_[0]; }

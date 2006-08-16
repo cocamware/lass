@@ -172,7 +172,9 @@ inline int pyGetSimpleObject( PyObject* iValue,
 }
 
 /** @ingroup Python
+	@deprecated
 	*/
+/*
 inline PyObject* pyBuildSimpleObject( PyObject* iV )
 {
 	if (iV==NULL)
@@ -183,12 +185,21 @@ inline PyObject* pyBuildSimpleObject( PyObject* iV )
 	Py_INCREF(iV);
 	return iV;
 }
+*/
 
 /** @ingroup Python
 	*/
 template<class C>
 PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV )
 {
+	if (lass::meta::IsDerivedType<C, lass::python::PyObjectPlus>::value)
+	{
+		lass::python::PyObjectPlus* pyObjectPlus = static_cast<lass::python::PyObjectPlus*>(iV.get());
+		if (pyObjectPlus && !pyObjectPlus->ob_type)
+		{
+			pyObjectPlus->ob_type = pyObjectPlus->GetType();
+		}
+	}
 	return toPySharedPtrCast(iV);
 }
 

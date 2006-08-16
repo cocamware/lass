@@ -55,7 +55,7 @@ namespace lass
 
 		FNSampled8::TBaseType FNSampled8::alphaLevel_[4] = {TBaseType(0.0),TBaseType(0.05),TBaseType(0.31),TBaseType(0.99)};
 
-		FNSampled8::FNSampled8() :PyObjectPlus( &Type )
+		FNSampled8::FNSampled8() 
 		{
 			makeZero();
 		}
@@ -134,7 +134,6 @@ namespace lass
 		}
 
 		FNSampled8::FNSampled8(util::CallTraits<FNSampled8::TBaseType>::TParam iV)
-			: PyObjectPlus( &Type )
 		{
 			int i;
 			for (i=3;i>=0;--i)

@@ -64,7 +64,7 @@ namespace impl
 	}
 
 
-	PyMap::PyMap() : PyObjectPlus(&Type)
+	PyMap::PyMap() 
 	{
 		LASS_THROW( "PyMap needs a std::map to initialize" );
 	}

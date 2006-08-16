@@ -77,14 +77,14 @@ namespace test
 			return static_cast<int>(ia);
 		}
 
-		Bar::Bar() : PyObjectPlus(&Type )
+		Bar::Bar() 
 		{
 			privateInt_ = 0;
 			privateString_ = "uninitialized string";
 			coolMember_ = 1.f;
 		}
 
-		Bar::Bar(int iA, const std::string& iB) : PyObjectPlus(&Type )
+		Bar::Bar(int iA, const std::string& iB) 
 		{
 			privateInt_ = iA;
 			privateString_ = iB;
@@ -180,7 +180,6 @@ namespace test
 		}
 
 		Bar::InnerClass::InnerClass(const std::string& iSayWhat):
-			PyObjectPlus(&Type),
 			sayWhat_(iSayWhat)
 		{
 		}

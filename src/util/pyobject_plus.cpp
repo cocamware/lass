@@ -47,9 +47,10 @@ std::vector<PyMethodDef> initAbstractMethods()
 std::vector<PyMethodDef> PyObjectPlus::Methods = initAbstractMethods();
 
 
-PyObjectPlus::PyObjectPlus(PyTypeObject *T)
+PyObjectPlus::PyObjectPlus()
 {
-	this->ob_type = T;
+	// initializing the type to NULL, when the object is exported to python the type is fixed
+	this->ob_type = NULL;	
 	_Py_NewReference( this );
 };
 

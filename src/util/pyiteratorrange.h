@@ -100,8 +100,9 @@ class PyIteratorRange : public lass::python::PyObjectPlus
 {
 	PY_HEADER(PyObjectPlus);
 public:
-	template<typename CI> PyIteratorRange( CI iBegin, CI iEnd ) : PyObjectPlus(&Type)
+	template<typename CI> PyIteratorRange( CI iBegin, CI iEnd ) 
 	{
+		PY_PYTHONIZE;
 		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
 		initialize();
 	}

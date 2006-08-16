@@ -95,23 +95,26 @@ namespace impl
 		static PyMappingMethods pyMappingMethods;
 
 	public:
-		template<typename M> PyMap( M* iStdMap ) : PyObjectPlus(&Type)
+		template<typename M> PyMap( M* iStdMap ) 
 		{
+			initialize();
+			this->ob_type = &Type;
 			LASS_ASSERT(iStdMap);
 			pimpl_ = new PyMapImpl<M>(iStdMap); // also const M*
-			initialize();
 		}
-		template<typename M> PyMap( M& iStdMap ) : PyObjectPlus(&Type)
+		template<typename M> PyMap( M& iStdMap ) 
 		{
+			initialize();
+			this->ob_type = &Type;
 			pimpl_ = new PyMapImpl<M>(&iStdMap);
-			initialize();
 		}
-		template<typename M> PyMap( const M& iStdMap ) : PyObjectPlus(&Type)
+		template<typename M> PyMap( const M& iStdMap ) 
 		{
+			initialize();
+			this->ob_type = &Type;
 			std::auto_ptr<M> copy(new M(iStdMap));
 			pimpl_ = new PyMapImpl<const M>(copy.get(), PyMapImpl<const M>::oOwner);
 			copy.release();
-			initialize();
 		}
 		virtual ~PyMap();
 		virtual std::string pyStr(void) { return pimpl_->pyStr(); }

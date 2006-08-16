@@ -56,7 +56,7 @@ namespace test
 
 	public:
 		PythonFoo ();
-		PythonFoo (int iA, const std::string& iB): PyObjectPlus(&Type), privateInt_(iA), privateString_(iB) {}
+		PythonFoo (int iA, const std::string& iB): privateInt_(iA), privateString_(iB) {}
 		virtual ~PythonFoo ();
 
 		float aFooMoreComplexFunction( float iA, float iB );

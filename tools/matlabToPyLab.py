@@ -2,7 +2,7 @@ import sys
 import pylab
 import operator
 
-c = (250,250)
+c = (8862,2847)
 w = 250
 
 box_min = (c[0]-w, c[1]-w)
