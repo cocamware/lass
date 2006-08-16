@@ -601,7 +601,7 @@ $[
 /** allocate a new object with default constructor.
  */
 template <class PyObjectClass>
-PyObject* construct( PyObject* iArgs )
+PyObject* construct( PyTypeObject* iSubtype, PyObject* iArgs )
 {
 	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
@@ -614,7 +614,9 @@ PyObject* construct( PyObject* iArgs )
 	try
 	{
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass );
-		result->ob_type = &PyObjectClass::Type;
+		// actually the iSubType should be used but appearently the tp_dict does not get properly initialized
+		// so for now, old-style, consequence: no inheritance from extension classes
+		result->ob_type = iSubtype;
 		return result;
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
@@ -623,7 +625,7 @@ $[
 /** allocate a new object with $x arguments.
  */
 template <class PyObjectClass, $(typename P$x)$>
-PyObject* construct( PyObject* iArgs )
+PyObject* construct( PyTypeObject* iSubtype, PyObject* iArgs )
 {
 	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
 	typedef typename TPyShadowTraits::TCppClass TCppClass;
@@ -638,7 +640,7 @@ PyObject* construct( PyObject* iArgs )
 	try
 	{
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass( $(TArg$x::arg(p$x))$ ) );
-		result->ob_type = &PyObjectClass::Type;
+		result->ob_type = iSubtype;
 		return result;
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
@@ -675,9 +677,9 @@ struct ExplicitResolver<CppClass, R, lass::meta::NullType>
 		{
 			return CallMethod<CppClass>::call( iArgs, iObject, iMethod );
 		}
-		static PyObject* callConstructor( PyObject* iArgs )
+		static PyObject* callConstructor( PyTypeObject* iSubtype, PyObject* iArgs )
 		{
-			return construct<CppClass>( iArgs );
+			return construct<CppClass>( iSubtype, iArgs );
 		}
 	};
 	typedef Impl TImpl;
@@ -704,9 +706,9 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 		{
 			return CallMethod<CppClass>::callFree( iArgs, iObject, iFreeMethod );
 		}
-		static PyObject* callConstructor( PyObject* iArgs )
+		static PyObject* callConstructor( PyTypeObject* iSubtype, PyObject* iArgs )
 		{
-			return construct<CppClass, $(P$x)$>( iArgs );
+			return construct<CppClass, $(P$x)$>( iSubtype, iArgs );
 		}
 	};
 	typedef Impl TImpl;

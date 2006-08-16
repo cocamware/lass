@@ -102,7 +102,7 @@ PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 
 PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 {
-	LASS_ASSERT(this->ob_type == iOther.ob_type);
+	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
 	return *this;
 }
 

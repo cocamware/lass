@@ -1804,7 +1804,7 @@ $[
 			::lass::meta::NullType,\
 			t_params\
 		>\
-		::TImpl::callConstructor(iArgs);\
+		::TImpl::callConstructor(iSubtype, iArgs);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
