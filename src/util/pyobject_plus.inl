@@ -192,6 +192,10 @@ inline PyObject* pyBuildSimpleObject( PyObject* iV )
 template<class C>
 PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV )
 {
+	if (!iV)
+	{
+		Py_RETURN_NONE;
+	}
 	if (lass::meta::IsDerivedType<C, lass::python::PyObjectPlus>::value)
 	{
 		lass::python::PyObjectPlus* pyObjectPlus = static_cast<lass::python::PyObjectPlus*>(iV.get());
@@ -329,7 +333,7 @@ PyObject* unaryDispatcher(PyObject* iSelf)
 template <PyCFunction DispatcherAddress>
 PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
 {
-	PyObjectPtr<PyObject>::Type args = makeTuple(iOther);
+	PyObjectPtr<PyObject>::Type args = makeTuple(fromNakedToSharedPtrCast<PyObject>(iOther));
 	return DispatcherAddress(iSelf, args.get());
 }
 

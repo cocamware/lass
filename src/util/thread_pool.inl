@@ -127,12 +127,10 @@ void ThreadPool<T, C>::clearQueue()
 template <typename T, typename C>
 const bool ThreadPool<T, C>::isEmpty() const
 {
-	bool result;
 	LASS_LOCK(mutex_)
 	{
-		result = waitingTasks_.empty() && busyThreads_ == 0;
+		return waitingTasks_.empty() && busyThreads_ == 0;
 	}
-	return result;
 }
 
 

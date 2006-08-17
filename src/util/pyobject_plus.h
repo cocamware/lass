@@ -194,23 +194,8 @@ namespace lass
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 		fromNakedToSharedPtrCast(PyObject* iObj)
 		{
-			// TODO: think of a way to assert this without breaking for T == PyObject [Bramz]
-			// LASS_ASSERT( PyType_IsSubtype(iObj->ob_type, &T::Type) );
-			Py_INCREF(iObj);
+			Py_XINCREF(iObj);
 			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
-		}
-
-		/** fromNakedToSharedPtrCast.
-		*   @ingroup Python
-		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
-		*   object for use in C++.  Reference counts are taken care of.
-		*/
-		template<> inline
-		lass::util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>
-		fromNakedToSharedPtrCast(PyObject* iObj)
-		{
-			Py_INCREF(iObj);
-			return lass::util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter>( static_cast<PyObject*>(iObj) );
 		}
 
 		/** fromSharedPtrToNakedCast.
@@ -221,11 +206,10 @@ namespace lass
 		*/
 		template<class T>
 		PyObject*
-		fromSharedPtrToNakedCast(T& iObj)
+		fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iObj)
 		{
-			PyObject* obj = iObj ? iObj.get() : Py_None;
-			Py_INCREF(obj);
-			return obj;
+			Py_XINCREF(iObj.get());
+			return iObj.get();
 		}
 
 		/** meta function to detect if a type is a PyObject-derived type

@@ -41,16 +41,33 @@ namespace lass
 			}
 
 			template<typename ForwardIterator>
+			PyObjectPtr<PyObject>::Type pyBuildTuple(ForwardIterator iB, ForwardIterator iE )
+			{
+				const int size = static_cast<int>(std::distance(iB,iE));
+				LASS_ASSERT(size >= 0);
+				PyObjectPtr<PyObject>::Type r(PyTuple_New(size));
+				if (r)
+				{
+					for (int i=0;iB!=iE;++iB,++i)
+					{
+						PyTuple_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
+					}
+				}
+				return r;
+			}
+
+			template<typename ForwardIterator>
 			PyObjectPtr<PyObject>::Type pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
 				const int size = static_cast<int>(std::distance(iB,iE));
 				LASS_ASSERT(size >= 0);
-				PyObjectPtr<PyObject> r = PyList_New(size);
-				if (r==NULL)
-					return NULL;
-                for (int i=0;iB!=iE;++iB,++i)
+				PyObjectPtr<PyObject>::Type r(PyList_New(size));
+				if (r)
 				{
-					PyList_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
+					for (int i=0;iB!=iE;++iB,++i)
+					{
+						PyList_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
+					}
 				}
 				return r;
 			}
@@ -59,15 +76,16 @@ namespace lass
 			PyObjectPtr<PyObject>::Type pyBuildMap(InputIterator iB, InputIterator iE )
 			{
 				PyObjectPtr<PyObject>::Type r = PyDict_New();
-				if (r==NULL)
-					return NULL;
-                for (int i=0;iB!=iE;++iB,++i)
+				if (r)
 				{
-					if (PyDict_SetItem( r.get(), pyBuildSimpleObject(iB->first), pyBuildSimpleObject(iB->second)))
+					for (int i=0;iB!=iE;++iB,++i)
 					{
-						// failed
-						PyDict_Clear(r.get());	// should we clean up more than this?!
-						return 0;
+						if (PyDict_SetItem( r.get(), pyBuildSimpleObject(iB->first), pyBuildSimpleObject(iB->second)))
+						{
+							// failed
+							PyDict_Clear(r.get());	// should we clean up more than this?!
+							return 0;
+						}
 					}
 				}
 				return r;

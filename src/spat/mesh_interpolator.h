@@ -98,7 +98,7 @@ public:
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
 	virtual void insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo );
 	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
-	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const = 0;
+	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
 };
 
 

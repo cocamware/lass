@@ -241,13 +241,13 @@ namespace impl
 		}
 		Container result(*cont_);
 		result.insert(result.end(), toConcat.begin(), toConcat.end());
-		return pyBuildList(result.begin(),result.end());
+		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(int n)
 	{
 		Container result = stde::repeat_c(*cont_,n);
-		return pyBuildList(result.begin(),result.end());
+		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
@@ -278,8 +278,9 @@ namespace impl
 		else if (ihigh > size)
 			ihigh = size;
 		len = ihigh - ilow;
-		return pyBuildList(	ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
-							ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) );
+		return fromSharedPtrToNakedCast(pyBuildList(
+			ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
+			ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) ));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(int i, PyObject *v)
@@ -386,11 +387,11 @@ namespace impl
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return NULL;
+			return PyObjectPtr<PyObject>::Type();
 		}
 		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
-		return pyBuildSimpleObject(temp);
+		return fromNakedToSharedPtrCast<PyObject>(pyBuildSimpleObject(temp));
 	}
 
 	template<typename Container, typename ContainerOwnerShipPolicy>
@@ -443,17 +444,17 @@ namespace impl
 }
 
 /** @ingroup Python
-	*  build a copy of a std::vector as a Python list
-	*  @note you build a reference to the std::vector, but the list is read-only
+	*  build a copy of a std::vector as a Python tuple
+	*  @note you get a read-only COPY of the vector!
 	*/
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 {
-	return fromSharedPtrToNakedCast(impl::pyBuildList(iV.begin(),iV.end()));
+	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
 
 /** @ingroup Python
-	*  build a copy of a std::vector as a Python ;ost
+	*  expose a std::vector to python as a reference.
 	*  @note you build a reference to the std::vector, any changes done in Python
 	*  will be reflected in the original object, as far as the typesystem allows it of course
 	*/
@@ -464,16 +465,16 @@ PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
 }
 
 /** @ingroup Python
-	*  build a copy of a std::list as a Python list
-	*  @note you build a reference to the std::list, but the list is read-only
+	*  build a copy of a std::list as a Python tuple
+	*  @note you get a read-only COPY of the list!
 	*/
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 {
-	return fromSharedPtrToNakedCast(impl::pyBuildList(iV.begin(),iV.end() ));
+	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end() ));
 }
 /** @ingroup Python
-	*  build a copy of a std::list as a Python ;ost
+	*  expose a std::list to python as a reference.
 	*  @note you build a reference to the std::list, any changes done in Python
 	*  will be reflected in the original object, as far as the typesystem allows it of course
 	*/
@@ -484,39 +485,16 @@ PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
 }
 
 /** @ingroup Python
-	*  build a copy of a std::queue as a Python list
-	*  @note you build a reference to the std::queue, but the list is read-only
-	*/
-/*
-template< class V, typename A>
-PyObject* pyBuildSimpleObject( const std::queue<V, A>& iV )
-{
-	return new impl::PySequence( iV, true );
-}
-*/
-/** @ingroup Python
-	*  build a copy of a std::queue as a Python ;ost
-	*  @note you build a reference to the std::queue, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*/
-/*
-template<class V, class A>
-PyObject* pyBuildSimpleObject( std::queue<V, A>& iV )
-{
-	return new impl::PySequence( iV );
-}
-*/
-/** @ingroup Python
-	*  build a copy of a std::deque as a Python list
+	*  build a copy of a std::deque as a Python tuple
 	*  @note you build a reference to the std::deque, but the list is read-only
 	*/
 template< class V, class A>
-PyObjectPtr<PyObject>::Type pyBuildSimpleObject( const std::deque<V,A>& iV )
+PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
 {
-	return impl::pyBuildList(iV.begin(),iV.end() );
+	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
 /** @ingroup Python
-	*  build a copy of a std::deque as a Python ;ost
+	*  expose a std::deque to python as a reference.
 	*  @note you build a reference to the std::deque, any changes done in Python
 	*  will be reflected in the original object, as far as the typesystem allows it of course
 	*/
@@ -528,17 +506,17 @@ PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
 
 
 /** @ingroup Python
-	*  build a copy of a stde::static_vector as a Python list
+	*  build a copy of a stde::static_vector as a Python tuple
 	*  @note you build a reference to the stde::static_vector, but the list is read-only
 	*/
 template< class V, size_t maxsize>
 PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
 {
-	return new impl::PySequence( iV );
+	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
 
 /** @ingroup Python
-	*  build a copy of a stde::static_vector as a Python ;ost
+	*  expose a stde::static_vector to python as a reference.
 	*  @note you build a reference to the stde::static_vector, any changes done in Python
 	*  will be reflected in the original object, as far as the typesystem allows it of course
 	*/

@@ -138,7 +138,7 @@ namespace impl
 			}
 			else
 			{
-				tuple = python::makeTuple(iVertex, Py_None, iUv);
+				tuple = python::makeTuple(iVertex, python::fromNakedToSharedPtrCast<PyObject>(Py_None), iUv);
 			}
 		}
 		else
