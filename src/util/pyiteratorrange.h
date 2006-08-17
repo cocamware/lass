@@ -102,9 +102,9 @@ class PyIteratorRange : public lass::python::PyObjectPlus
 public:
 	template<typename CI> PyIteratorRange( CI iBegin, CI iEnd ) 
 	{
-		PY_PYTHONIZE;
-		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
 		initialize();
+		this->ob_type = &Type;
+		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
 	}
 
 	virtual ~PyIteratorRange() {}
