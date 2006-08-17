@@ -32,7 +32,6 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-#include "pyobject_util.h"
 #include "string_cast.h"
 
 namespace lass

@@ -27,7 +27,6 @@
 
 #include "util_common.h"
 #include "pysequence.h"
-#include "pyobject_util.h"
 
 namespace lass
 {

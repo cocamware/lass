@@ -48,7 +48,6 @@
 #include "../num/num_traits.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
-#include "pyobject_util.h"
 #include "pyobject_macros.h"
 #include "call_traits.h"
 #include "thread.h"
@@ -186,14 +185,14 @@ namespace lass
 		template<class T>   T*  PyPlus_INCREF(T* iObj)  { Py_INCREF(iObj); return iObj; }
 		template<class T>   T*  PyPlus_DECREF(T* iObj)  { Py_DECREF(iObj); return iObj; }
 
-		/** fromPySharedPtrCast.
+		/** fromNakedToSharedPtrCast.
 		*   @ingroup Python
 		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
 		*   object for use in C++.  Reference counts are taken care of.
 		*/
 		template<class T>
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
-		fromPySharedPtrCast(PyObject* iObj)
+		fromNakedToSharedPtrCast(PyObject* iObj)
 		{
 			// TODO: think of a way to assert this without breaking for T == PyObject [Bramz]
 			// LASS_ASSERT( PyType_IsSubtype(iObj->ob_type, &T::Type) );
@@ -201,20 +200,20 @@ namespace lass
 			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
 		}
 
-		/** fromPySharedPtrCast.
+		/** fromNakedToSharedPtrCast.
 		*   @ingroup Python
 		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
 		*   object for use in C++.  Reference counts are taken care of.
 		*/
 		template<> inline
 		lass::util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>
-		fromPySharedPtrCast(PyObject* iObj)
+		fromNakedToSharedPtrCast(PyObject* iObj)
 		{
 			Py_INCREF(iObj);
 			return lass::util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter>( static_cast<PyObject*>(iObj) );
 		}
 
-		/** toPySharedPtrCast.
+		/** fromSharedPtrToNakedCast.
 		*   @ingroup Python
 		*   Helper function casting an object used in C++ for use in Python.  The key operation
 		*   done here is to take care of the reference counting. Failing to use this function may
@@ -222,7 +221,7 @@ namespace lass
 		*/
 		template<class T>
 		PyObject*
-		toPySharedPtrCast(T& iObj)
+		fromSharedPtrToNakedCast(T& iObj)
 		{
 			PyObject* obj = iObj ? iObj.get() : Py_None;
 			Py_INCREF(obj);
@@ -411,13 +410,13 @@ namespace lass
 		}
 	}
 }
-
+#include "pyobject_util.h"
 #include "py_tuple.h"
 #include "pyobject_plus.inl"
 #include "pyshadow_object.h"
-#include "py_stl.h"
 #include "../prim/pyobject_util.h"
 #include "pyobject_call.inl"
 #include "callback_python.h"
+#include "py_stl.h"
 
 #endif

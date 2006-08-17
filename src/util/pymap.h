@@ -32,7 +32,6 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-#include "pyobject_util.h"
 #include "string_cast.h"
 #include "pyiteratorrange.h"
 
@@ -52,8 +51,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
 		virtual std::string pyStr(void) = 0;
 		virtual std::string pyRepr(void) = 0;
-		virtual PyObject* keys() const = 0;
-		virtual PyObject* values() const = 0;
+		virtual PyObjectPtr<PyObject>::Type keys() const = 0;
+		virtual PyObjectPtr<PyObject>::Type values() const = 0;
 		virtual PyObject* PyMap_Iter() = 0;
 
 	};
@@ -74,8 +73,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
 		virtual std::string pyStr(void);
 		virtual std::string pyRepr(void);
-		virtual PyObject* keys() const;
-		virtual PyObject* values() const;
+		virtual PyObjectPtr<PyObject>::Type keys() const;
+		virtual PyObjectPtr<PyObject>::Type values() const;
 		virtual PyObject* PyMap_Iter();
 	private:
 
@@ -119,8 +118,8 @@ namespace impl
 		virtual ~PyMap();
 		virtual std::string pyStr(void) { return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
-		virtual PyObject* keys() const { return pimpl_->keys(); }
-		virtual PyObject* values() const { return pimpl_->values(); }
+		virtual PyObjectPtr<PyObject>::Type keys() const { return pimpl_->keys(); }
+		virtual PyObjectPtr<PyObject>::Type values() const { return pimpl_->values(); }
 
 		static int PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
@@ -165,7 +164,7 @@ namespace impl
 
 
 	template<typename M>
-	PyObject* PyMapImpl<M>::keys() const
+	PyObjectPtr<PyObject>::Type PyMapImpl<M>::keys() const
 	{
 		LASS_ASSERT(map_);
 		std::vector<typename M::key_type> temp;
@@ -175,7 +174,7 @@ namespace impl
 	}
 
 	template<typename M>
-	PyObject* PyMapImpl<M>::values() const
+	PyObjectPtr<PyObject>::Type PyMapImpl<M>::values() const
 	{
 		LASS_ASSERT(map_);
 		std::vector<typename M::mapped_type> temp;

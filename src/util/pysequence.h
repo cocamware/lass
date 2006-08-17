@@ -32,7 +32,6 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-#include "pyobject_util.h"
 #include "../stde/extended_algorithm.h"
 #include "../stde/static_vector.h"
 #include "string_cast.h"
@@ -109,7 +108,7 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
 		virtual int PySequence_InplaceRepeat(int n) = 0;
 		virtual void append(PyObject* i) = 0;
-		virtual PyObject* pop(int i) = 0;
+		virtual PyObjectPtr<PyObject>::Type pop(int i) = 0;
 		virtual bool pointsToSameContainer(void* iO) = 0;
 		virtual std::string pyStr(void) = 0;
 		virtual std::string pyRepr(void) = 0;
@@ -148,7 +147,7 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other);
 		virtual int PySequence_InplaceRepeat(int n);
 		virtual void append(PyObject* i);
-		virtual PyObject* pop(int i);
+		virtual PyObjectPtr<PyObject>::Type pop(int i);
 		virtual bool pointsToSameContainer(void* iO) 
 		{ 
 			return (iO == (void*)cont_);
@@ -186,7 +185,7 @@ namespace impl
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
 		virtual void clear()				{ pimpl_->clear(); }
 		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
-		virtual PyObject* pop(int i)		{ return pimpl_->pop(i); }
+		virtual PyObjectPtr<PyObject>::Type pop(int i)		{ return pimpl_->pop(i); }
 		virtual std::string pyStr(void)		{ return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void)	{ return pimpl_->pyRepr(); }
 
@@ -382,7 +381,7 @@ namespace impl
 		cont_->push_back( temp );
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
+	PyObjectPtr<PyObject>::Type PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
 	{
 		if (readOnly_)
 		{
@@ -450,7 +449,7 @@ namespace impl
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 {
-	return impl::pyBuildList(iV.begin(),iV.end() );
+	return fromSharedPtrToNakedCast(impl::pyBuildList(iV.begin(),iV.end()));
 }
 
 /** @ingroup Python
@@ -471,7 +470,7 @@ PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 {
-	return impl::pyBuildList(iV.begin(),iV.end() );
+	return fromSharedPtrToNakedCast(impl::pyBuildList(iV.begin(),iV.end() ));
 }
 /** @ingroup Python
 	*  build a copy of a std::list as a Python ;ost
@@ -512,7 +511,7 @@ PyObject* pyBuildSimpleObject( std::queue<V, A>& iV )
 	*  @note you build a reference to the std::deque, but the list is read-only
 	*/
 template< class V, class A>
-PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
+PyObjectPtr<PyObject>::Type pyBuildSimpleObject( const std::deque<V,A>& iV )
 {
 	return impl::pyBuildList(iV.begin(),iV.end() );
 }

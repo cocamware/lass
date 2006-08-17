@@ -41,32 +41,32 @@ namespace lass
 			}
 
 			template<typename ForwardIterator>
-			PyObject* pyBuildList(ForwardIterator iB, ForwardIterator iE )
+			PyObjectPtr<PyObject>::Type pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
 				const int size = static_cast<int>(std::distance(iB,iE));
 				LASS_ASSERT(size >= 0);
-				PyObject* r = PyList_New(size);
+				PyObjectPtr<PyObject> r = PyList_New(size);
 				if (r==NULL)
 					return NULL;
                 for (int i=0;iB!=iE;++iB,++i)
 				{
-					PyList_SET_ITEM(r,i,pyBuildSimpleObject(*iB));
+					PyList_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
 				}
 				return r;
 			}
 
 			template<typename InputIterator>
-			PyObject* pyBuildMap(InputIterator iB, InputIterator iE )
+			PyObjectPtr<PyObject>::Type pyBuildMap(InputIterator iB, InputIterator iE )
 			{
-				PyObject* r = PyDict_New();
+				PyObjectPtr<PyObject>::Type r = PyDict_New();
 				if (r==NULL)
 					return NULL;
                 for (int i=0;iB!=iE;++iB,++i)
 				{
-					if (PyDict_SetItem( r, pyBuildSimpleObject(iB->first), pyBuildSimpleObject(iB->second)))
+					if (PyDict_SetItem( r.get(), pyBuildSimpleObject(iB->first), pyBuildSimpleObject(iB->second)))
 					{
 						// failed
-						PyDict_Clear(r);	// should we clean up more than this?!
+						PyDict_Clear(r.get());	// should we clean up more than this?!
 						return 0;
 					}
 				}

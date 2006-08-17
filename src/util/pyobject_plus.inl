@@ -149,7 +149,7 @@ int pyGetSimpleObject( PyObject* iValue,
 			PyErr_Format(PyExc_TypeError,"not castable to %s",C::Type.tp_name);
 			return 1;
 		}
-		oV = fromPySharedPtrCast<C>(iValue);
+		oV = fromNakedToSharedPtrCast<C>(iValue);
 	}
 	return 0;
 }
@@ -166,7 +166,7 @@ inline int pyGetSimpleObject( PyObject* iValue,
 	}
 	else
 	{
-		oV = fromPySharedPtrCast<PyObject>(iValue);
+		oV = fromNakedToSharedPtrCast<PyObject>(iValue);
 	}
 	return 0;
 }
@@ -200,7 +200,7 @@ PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjec
 			pyObjectPlus->ob_type = pyObjectPlus->GetType();
 		}
 	}
-	return toPySharedPtrCast(iV);
+	return fromSharedPtrToNakedCast(iV);
 }
 
 /** @ingroup Python
