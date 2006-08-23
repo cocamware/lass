@@ -28,12 +28,100 @@
 
 #include "num_common.h"
 #include "filters.h"
+#include "polynomial.h"
 #include "../stde/extended_iterator.h"
 
 namespace lass
 {
 namespace num
 {
+namespace impl
+{
+	template <typename T>
+	num::Polynomial<T> laplaceToZHelper(const std::vector<T>& iCoefficients, const T& iSamplingFrequency)
+	{
+		typedef num::NumTraits<T> TNumTraits;
+		typedef num::Polynomial<T> TPolynomial;
+
+		const T twoFs = 2 * iSamplingFrequency;
+
+		TPolynomial oneMinZ = 2 * iSamplingFrequency * (TNumTraits::one - TPolynomial::x());
+		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
+		TPolynomial result;
+		const size_t n = iCoefficients.size();
+		for (size_t i = 0; i < n; ++i)
+		{
+			result += iCoefficients[i] * oneMinZ.pow(i) * onePlusZ.pow(n - i - 1);
+		}
+		return result;
+	}
+
+	template <typename T>
+	std::pair< std::vector<T>, std::vector<T> >
+	laplaceToZ(const std::pair< std::vector<T>, std::vector<T> >& iCoefficients, const T& iSamplingFrequency)
+	{
+		typedef num::NumTraits<T> TNumTraits;
+		typedef num::Polynomial<T> TPolynomial;
+
+		TPolynomial num = laplaceToZHelper(iCoefficients.first, iSamplingFrequency);
+		TPolynomial den = laplaceToZHelper(iCoefficients.second, iSamplingFrequency);
+		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
+		const size_t m = iCoefficients.first.size();
+		const size_t n = iCoefficients.second.size();
+		if (n > m)
+		{
+			num *= onePlusZ.pow(n - m);
+		}
+		else
+		{
+			den *= onePlusZ.pow(m - n);
+		}
+		return std::make_pair(num.coefficients(), den.coefficients());
+	}
+
+	template <typename T>
+	std::pair< std::vector<T>, std::vector<T> > 
+	lowpassButterworthCoefficients(unsigned n, const T& cutoff, const T& gain)
+	{
+		typedef num::NumTraits<T> TNumTraits;
+		typedef num::Polynomial<T> TPolynomial;
+		
+		const TPolynomial s = TPolynomial::x() / cutoff;
+		const TPolynomial s2 = s * s;
+
+		TPolynomial den(TNumTraits::one);
+		if (n % 2 == 1)
+			den += s;
+		for (unsigned k = 0; k < n / 2; ++k)
+		{
+			const T theta = (TNumTraits::pi * (2 * k + n + 1)) / (2 * n)
+			den *= s2 - 2 * num::cos(theta) * s + TNumTraits::one;
+		}
+		return std::make_pair(TPolynomial::one().coefficients(), den.coefficients());
+	}
+
+	template <typename T>
+	std::pair< std::vector<T>, std::vector<T> > 
+	highpassButterworthCoefficients(unsigned n, const T& cutoff, const T& gain)
+	{
+		typedef num::NumTraits<T> TNumTraits;
+		typedef std::pair< std::vector<T>, std::vector<T> > TValuesPair;
+
+		TValuesPair result = lowpassButterworthCoefficients<T>(n, TNumTraits::one, TNumTraits::one);
+
+		std::reverse(result.second.begin(), result.second.end());
+		for (size_t k = 0; k < result.second.size())
+		{
+			result.second[k] /= num::pow(cutoff, T(k));
+		}
+
+		result.first.resize(n + 1);
+		std::fill(result.first.begin(), result.first.end(), TNumTraits::zero);
+		result.first[n] = gain / num::pow(cutoff, T(n));
+
+		return result;
+	}
+}
 
 // --- FirFilter -----------------------------------------------------------------------------------
 
@@ -198,7 +286,7 @@ void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
 template <typename T, typename InIt, typename OutIt>
 LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, 
 									  TParam iSamplingFrequency):
-	IirFilter<T, InIt, OutIt>(laplaceToZ(std::make_pair(iNominator, iDenominator), iSamplingFrequency))
+	IirFilter<T, InIt, OutIt>(impl::laplaceToZ(std::make_pair(iNominator, iDenominator), iSamplingFrequency))
 {
 }
 
@@ -206,50 +294,36 @@ LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValues& iNominator, co
 
 template <typename T, typename InIt, typename OutIt>
 LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency):
-	IirFilter<T, InIt, OutIt>(laplaceToZ(iCoefficients, iSamplingFrequency))
+	IirFilter<T, InIt, OutIt>(impl::laplaceToZ(iCoefficients, iSamplingFrequency))
 {
 }
 
 
+
+// --- LowpassButterworthFilter --------------------------------------------------------------------
 
 template <typename T, typename InIt, typename OutIt>
-typename LaplaceIirFilter<T, InIt, OutIt>::TValuesPair
-LaplaceIirFilter<T, InIt, OutIt>::laplaceToZ(const TValuesPair& iCoefficients, TParam iSamplingFrequency)
+LowpassButterworthFilter<T, InIt, OutIt>::LowpassButterworthFilter(
+		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain):
+	LaplaceIirFilter<T, InIt, OutIt>(impl::lowpassButterworthCoefficients(
+		filterOrder, cutoffAngularFrequency, gain))
 {
-	TPolynomial num = laplaceToZHelper(iCoefficients.first, iSamplingFrequency);
-	TPolynomial den = laplaceToZHelper(iCoefficients.second, iSamplingFrequency);
-	TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
-	const size_t m = iCoefficients.first.size();
-	const size_t n = iCoefficients.second.size();
-	if (n > m)
-	{
-		num *= onePlusZ.pow(n - m);
-	}
-	else
-	{
-		den *= onePlusZ.pow(m - n);
-	}
-	return std::make_pair(num.coefficients(), den.coefficients());
 }
 
 
+
+// --- HighpassButterworthFilter --------------------------------------------------------------------
 
 template <typename T, typename InIt, typename OutIt>
-typename LaplaceIirFilter<T, InIt, OutIt>::TPolynomial
-LaplaceIirFilter<T, InIt, OutIt>::laplaceToZHelper(const TValues& iCoefficients, TParam iSamplingFrequency)
+HighpassButterworthFilter<T, InIt, OutIt>::HighpassButterworthFilter(
+		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain):
+	LaplaceIirFilter<T, InIt, OutIt>(impl::highpassButterworthCoefficients(
+		filterOrder, cutoffAngularFrequency, gain))
 {
-	TValue twoFs = 2 * iSamplingFrequency;
-
-	TPolynomial oneMinZ = 2 * iSamplingFrequency * (TNumTraits::one - TPolynomial::x());
-	TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
-	TPolynomial result;
-	const size_t n = iCoefficients.size();
-	for (size_t i = 0; i < n; ++i)
-	{
-		result += iCoefficients[i] * oneMinZ.pow(i) * onePlusZ.pow(n - i - 1);
-	}
-	return result;
 }
+
+
+
 
 
 

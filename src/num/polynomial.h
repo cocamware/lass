@@ -86,6 +86,7 @@ public:
 	Polynomial<T> integral() const;
 	Polynomial<T> pow(unsigned iPower) const;
 
+	static Polynomial<T> one();
 	static Polynomial<T> x();
 
 private:

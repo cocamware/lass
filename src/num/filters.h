@@ -32,7 +32,6 @@
 
 #include "num_common.h"
 #include "num_traits.h"
-#include "polynomial.h"
 
 namespace lass
 {
@@ -178,10 +177,62 @@ public:
 
 	LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, TParam iSamplingFrequency);
 	LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency);
-private:
-	typedef num::Polynomial<T> TPolynomial;
-	static TValuesPair laplaceToZ(const TValuesPair& iCoefficients, TParam iSamplingFrequency);
-	static TPolynomial laplaceToZHelper(const TValues& iCoefficients, TParam iSamplingFrequency);
+};
+
+
+
+/** Wrapper for IirFilter with a low-pass Butterworth transfer function.
+ *  @ingroup Filters
+ */
+template 
+<	
+	typename T,
+	typename InputIterator = const T*,
+	typename OutputIterator = T*
+>
+class LowpassButterworthFilter: public LaplaceIirFilter<T, InputIterator, OutputIterator>
+{
+public:
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValue TValue;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TParam TParam;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TReference TReference;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
+
+	LowpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency = TNumTraits::one, 
+		TParam gain = TNumTraits::one);
+};
+
+
+
+/** Wrapper for IirFilter with a high-pass Butterworth transfer function.
+ *  @ingroup Filters
+ */
+template 
+<	
+	typename T,
+	typename InputIterator = const T*,
+	typename OutputIterator = T*
+>
+class HighpassButterworthFilter: public LaplaceIirFilter<T, InputIterator, OutputIterator>
+{
+public:
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValue TValue;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TParam TParam;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TReference TReference;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
+	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
+
+	HighpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency = TNumTraits::one, 
+		TParam gain = TNumTraits::one);
 };
 
 }

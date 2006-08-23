@@ -296,6 +296,15 @@ Polynomial<T> Polynomial<T>::pow(unsigned iPower) const
 
 
 template <typename T>
+Polynomial<T> Polynomial<T>::one()
+{
+	static Polynomial<T> result(1);
+	return result;
+}
+
+
+
+template <typename T>
 Polynomial<T> Polynomial<T>::x()
 {
 	static TValue coefficients[2] = { 0, 1 };

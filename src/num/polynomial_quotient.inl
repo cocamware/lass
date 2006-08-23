@@ -300,6 +300,15 @@ PolynomialQuotient<T> PolynomialQuotient<T>::pow(unsigned iPower) const
 
 
 template <typename T>
+PolynomialQuotient<T> PolynomialQuotient<T>::one()
+{
+	static PolynomialQuotient result(1);
+	return result;
+}
+
+
+
+template <typename T>
 PolynomialQuotient<T> PolynomialQuotient<T>::x()
 {
 	static TValue coefficients[2] = { 0, 1 };

@@ -98,6 +98,7 @@ public:
 	TSelf derivative() const;
 	TSelf pow(unsigned iPower) const;
 
+	static TSelf one();
 	static TSelf x();
 
 private:
