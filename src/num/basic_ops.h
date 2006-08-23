@@ -34,18 +34,12 @@
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_OPS_H
 
 #include <cmath>
-#include "num_traits.h"
+//#include "num_traits.h"
 
 namespace lass
 {
 namespace num
 {
-
-inline long sqrt(long iV) 
-{ 
-	LASS_THROW("Danger will robinson!"); 
-	return 0; 
-}
 
 // generic functions
 
@@ -104,6 +98,7 @@ inline float acos(float iV);
 inline float asin(float iV);
 inline float atan(float iV);
 inline float atan2(float iX, float iY);
+inline float sinc(float iV);
 inline float floor(float iV);
 inline float ceil(float iV);
 inline float round(float iV);
@@ -128,6 +123,7 @@ inline double acos(double iV);
 inline double asin(double iV);
 inline double atan(double iV);
 inline double atan2(double iX, double iY);
+inline double sinc(double iV);
 inline double floor(double iV);
 inline double ceil(double iV);
 inline double round(double iV);
@@ -152,6 +148,7 @@ inline long double acos(long double iV);
 inline long double asin(long double iV);
 inline long double atan(long double iV);
 inline long double atan2(long double iX, long double iY);
+inline long double sinc(long double iV);
 inline long double floor(long double iV);
 inline long double ceil(long double iV);
 inline long double round(long double iV);

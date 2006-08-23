@@ -26,7 +26,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_TYPES_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_TYPES_H
 
-#include "num_common.h"
+//#include "num_common.h"
 #include "../meta/meta_assert.h"
 
 #if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)

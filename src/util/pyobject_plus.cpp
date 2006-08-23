@@ -309,6 +309,7 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 	iPyType.tp_getset = &iGetSetters[0];
 	iPyType.tp_doc = const_cast<char*>(iDocumentation);
 	iPyType.tp_base = &iPyParentType;
+	Py_XINCREF( iPyType.tp_base );
 	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
 	Py_INCREF( &iPyType );
 

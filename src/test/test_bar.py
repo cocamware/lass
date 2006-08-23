@@ -309,6 +309,9 @@ print "\n"
 print "\n* Testing shadow objects"
 shadowB = embedding.Bacon()
 print "shadowB.who():", shadowB.who()
+print "shadowB.__class__:", shadowB.__class__
+print "shadowB.__class__.__bases__:", shadowB.__class__.__bases__
+print "super(shadowB.__class__):", super(shadowB.__class__)
 shadowB2 = embedding.Ham()
 print "shadowB2.who():", shadowB2.who()
 shadowC = embedding.Eggs(3)

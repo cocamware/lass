@@ -23,6 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "basic_types.h"
+
 // --- implementation details ----------------------------------------------------------------------
 
 namespace impl
@@ -196,18 +198,18 @@ template<typename T,typename f> T applyFunction(const T& iV, f func )
 
 // --- generic inplace rerouters -------------------------------------------------------------------
 
-template <typename T> void inpabs(T& ioV)						{ ioV = num::abs(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpabs(T& ioV)						{ ioV = num::abs(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpsign(T& ioV)						{ ioV = num::sign(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpinv(T& ioV)						{ ioV = num::inv(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpinv(T& ioV)						{ ioV = num::inv(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpsqrt(T& ioV)						{ ioV = num::sqrt(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsqr(T& ioV)						{ ioV = num::sqr(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpsqr(T& ioV)						{ ioV = num::sqr(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpcubic(T& ioV)						{ ioV = num::cubic(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inppow(T& ioV, const T& iPow)		{ ioV = num::pow(ioV, iPow); }			/**< @ingroup BasicOps */
-template <typename T> void inpexp(T& ioV)						{ ioV = num::exp(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inplog(T& ioV)						{ ioV = num::log(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpcos(T& ioV)						{ ioV = num::cos(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inpsin(T& ioV)						{ ioV = num::sin(ioV); }					/**< @ingroup BasicOps */
-template <typename T> void inptan(T& ioV)						{ ioV = num::tan(ioV); }					/**< @ingroup BasicOps */
+template <typename T> void inpexp(T& ioV)						{ ioV = num::exp(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inplog(T& ioV)						{ ioV = num::log(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpcos(T& ioV)						{ ioV = num::cos(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inpsin(T& ioV)						{ ioV = num::sin(ioV); }				/**< @ingroup BasicOps */
+template <typename T> void inptan(T& ioV)						{ ioV = num::tan(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpacos(T& ioV)						{ ioV = num::acos(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpasin(T& ioV)						{ ioV = num::asin(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpatan(T& ioV)						{ ioV = num::atan(ioV); }				/**< @ingroup BasicOps */
@@ -240,6 +242,7 @@ float acos(float iV)			{ return ::acosf(iV); }			/**< @ingroup BasicOps */
 float asin(float iV)			{ return ::asinf(iV); }			/**< @ingroup BasicOps */
 float atan(float iV)			{ return ::atanf(iV); }			/**< @ingroup BasicOps */
 float atan2(float iX, float iY)	{ return ::atan2f(iX, iY); }	/**< @ingroup BasicOps */
+float sinc(float iV)			{ return ::fabsf(iV) < 1e-4f ? 1.f : (::sinf(iV) / iV); }	/**< @ingroup BasicOps */
 float floor(float iV)			{ return ::floorf(iV); }		/**< @ingroup BasicOps */
 float ceil(float iV)			{ return ::ceilf(iV); }			/**< @ingroup BasicOps */
 float round(float iV)			{ return ::floorf(iV + .5f); }	/**< @ingroup BasicOps */
@@ -269,6 +272,7 @@ double acos(double iV)				{ return ::acos(iV); }			/**< @ingroup BasicOps */
 double asin(double iV)				{ return ::asin(iV); }			/**< @ingroup BasicOps */
 double atan(double iV)				{ return ::atan(iV); }			/**< @ingroup BasicOps */
 double atan2(double iX, double iY)	{ return ::atan2(iX, iY); }		/**< @ingroup BasicOps */
+double sinc(double iV)				{ return ::fabs(iV) < 1e-8 ? 1. : (::sin(iV) / iV); }	/**< @ingroup BasicOps */
 double floor(double iV)				{ return ::floor(iV); }			/**< @ingroup BasicOps */
 double ceil(double iV)				{ return ::ceil(iV); }			/**< @ingroup BasicOps */
 double round(double iV)				{ return ::floor(iV + .5); }	/**< @ingroup BasicOps */
@@ -300,6 +304,7 @@ long double acos(long double iV) { return static_cast<long double>(acos(static_c
 long double asin(long double iV) { return static_cast<long double>(asin(static_cast<double>(iV))); }
 long double atan(long double iV) { return static_cast<long double>(atan(static_cast<double>(iV))); }
 long double atan2(long double iX, long double iY) { return static_cast<long double>(atan2(static_cast<double>(iX), static_cast<double>(iY))); }
+long double sinc(long double iV) { return static_cast<long double>(sinc(static_cast<double>(iV))); }
 long double floor(long double iV) { return static_cast<long double>(floor(static_cast<double>(iV))); }
 long double ceil(long double iV) { return static_cast<long double>(ceil(static_cast<double>(iV))); }
 long double round(long double iV) { return static_cast<long double>(round(static_cast<double>(iV))); }
@@ -321,6 +326,7 @@ long double acos(long double iV)					{ return ::acosl(iV); }			/**< @ingroup Bas
 long double asin(long double iV)					{ return ::asinl(iV); }			/**< @ingroup BasicOps */
 long double atan(long double iV)					{ return ::atanl(iV); }			/**< @ingroup BasicOps */
 long double atan2(long double iX, long double iY)	{ return ::atan2l(iX, iY); }	/**< @ingroup BasicOps */
+long double sinc(long double iV)					{ return ::fabsl(iV) < 1e-8 ? 1. : (::sinl(iV) / iV); }	/**< @ingroup BasicOps */
 long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
 long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
 long double round(long double iV)					{ return ::floorl(iV + .5); }	/**< @ingroup BasicOps */

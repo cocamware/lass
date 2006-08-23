@@ -42,15 +42,12 @@ namespace python
 namespace impl
 {
 
-PyShadowBaseCommon::PyShadowBaseCommon(PyTypeObject* iType)
+PyShadowBaseCommon::PyShadowBaseCommon()
 {
-	this->ob_type = iType;
 }
 
 PyShadowBaseCommon::PyShadowBaseCommon(const PyShadowBaseCommon& iOther)
-//: PyObjectPlus(iOther.ob_type)
 {
-	this->ob_type = iOther.ob_type;
 }
 
 PyShadowBaseCommon::~PyShadowBaseCommon()

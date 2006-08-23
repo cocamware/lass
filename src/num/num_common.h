@@ -42,14 +42,16 @@
 #endif
 
 #include "basic_types.h"
+#include "num_traits.h"
+#include "basic_ops.h"
 
 // we can't include basic_ops.h while we're including num_common.h from inside
 // num_traits.h.  That's because basic_ops.h needs NumTraits to be defined first.
 // Delay inclusion of basic_ops.h to end of num_traits.h (go and see there) [Bramz]
 //
-#ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H
-#	include "basic_ops.h"
-#endif
+//#if !defined(LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H) 
+//#	include "basic_ops.h"
+//#endif
 
 #include "stringify.h"
 

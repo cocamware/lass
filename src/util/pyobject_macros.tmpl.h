@@ -541,7 +541,7 @@ $[
  */
 #define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier ) \
 	PyTypeObject t_cppClass::Type = {\
-		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, ::lass::meta::NullType, s_className ) };\
+		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className ) };\
 	std::vector<PyMethodDef> t_cppClass::Methods;\
 	std::vector<PyGetSetDef> t_cppClass::GetSetters;\
 	std::vector< ::lass::python::impl::StaticMember > t_cppClass::Statics;\
@@ -1892,7 +1892,7 @@ $[
 
 /** @internal
  */
-#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, t_cppParentClass, s_className )    \
+#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
 	PyObject_HEAD_INIT(&PyType_Type)\
 	0,	/*ob_size*/\
 	(char*)( s_className ), /*tp_name*/\

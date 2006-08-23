@@ -30,6 +30,7 @@
 #include "test_common.h"
 #include "test_num.h"
 
+#include "test_num_basic_ops.inl"
 #include "test_num_db.inl"
 #include "test_num_spline.inl"
 #include "test_num_matrix_vector.inl"
@@ -50,8 +51,13 @@ TUnitTests testNum()
 {
 	TUnitTests result;
 
+	result.push_back(LASS_UNIT_TEST(testNumBasicOps<float>));
+	result.push_back(LASS_UNIT_TEST(testNumBasicOps<double>));
+	result.push_back(LASS_UNIT_TEST(testNumBasicOps<long double>));
+
 	result.push_back(LASS_UNIT_TEST(testNumDb<float>));
 	result.push_back(LASS_UNIT_TEST(testNumDb<double>));
+	result.push_back(LASS_UNIT_TEST(testNumDb<long double>));
 
 	result.push_back(LASS_UNIT_TEST(testNumSpline));
 

@@ -44,7 +44,7 @@ namespace impl
 class LASS_DLL PyShadowBaseCommon: public PyObjectPlus
 {
 protected:
-	PyShadowBaseCommon(PyTypeObject* iType);
+	PyShadowBaseCommon();
 	PyShadowBaseCommon(const PyShadowBaseCommon& iOther);
 	~PyShadowBaseCommon();
 	PyShadowBaseCommon& operator=(const PyShadowBaseCommon& iOther);	
@@ -72,8 +72,8 @@ protected:
 		oOwner,
 		oBorrowed
 	};
-	PyShadowBase(PyTypeObject* iType, CppBase* iCppObject, Ownership iOwnership):
-		PyShadowBaseCommon(iType), cppObject_(iCppObject), ownership_(iOwnership)
+	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
+		cppObject_(iCppObject), ownership_(iOwnership)
 	{
 	}
 private:
@@ -156,14 +156,14 @@ public:
 	public:\
 		typedef t_CppClass TCppClass;\
 		i_PyObjectShadowClass(const TCppClass& iByCopy):\
-			t_PyObjectBase(&Type, new TCppClass(iByCopy), oOwner) {}\
+			t_PyObjectBase(new TCppClass(iByCopy), oOwner) {}\
 		i_PyObjectShadowClass(TCppClass* iByBorrowedPointer):\
-			t_PyObjectBase(&Type, iByBorrowedPointer, oBorrowed) {}\
+			t_PyObjectBase(iByBorrowedPointer, oBorrowed) {}\
 		i_PyObjectShadowClass(std::auto_ptr<TCppClass> iBySinkedPointer):\
-			t_PyObjectBase(&Type, iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
+			t_PyObjectBase(iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
 	protected:\
-		i_PyObjectShadowClass(PyTypeObject* iType, TCppClass* iValue, Ownership iOwnership):\
-			t_PyObjectBase(iType, iValue, iOwnership) {}\
+		i_PyObjectShadowClass(TCppClass* iValue, Ownership iOwnership):\
+			t_PyObjectBase(iValue, iOwnership) {}\
 	};
 
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\

@@ -97,15 +97,12 @@
  *  private:
  *      virtual void doAccept(lass::util::VisitorBase& iVisitor)
  *      {
- *			if (Visitor<Spam>* p = doMatchVisitor(*this, iVisitor))
- *			{
- *				p->visit(*this);
- *				for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
- *				{
- *					(*i)->accept(iVisitor);
- *				}
- *				p->visitOnExit(*this);
- *			}
+ *			visit(*this, iVisitor);
+ *          for (TChilderen::iterator i = children_.begin(); i != children_.end(); ++i)
+ *          {
+ *              (*i)->accept(iVisitor);
+ *          }
+ *          visitOnExit(*this, iVisitor);
  *      }
  *
  *      typedef std::list<Spam*> TChildren;
@@ -116,7 +113,7 @@
  *  @c doAccept should call both @c visit and @c visitOnExit.  The former should be called before
  *	visiting children, the latter after.
  *
- *  if @c doMatchVisitor don't know how to match the visitor (the visitor doesn't know
+ *  if @c visit or @c visitOnExit don't know how to accept the visitor (or the visitor doesn't know
  *  how to visit the visitable), the @c onUnknownVisitor function of the @e CatchAll policy is 
  *  called. @c CatchAll of VisitableBase determines what to do on undetermined visits.  By default 
  *  the policy VisitNonStrict is used, what means the call is silently ignored and you can move on
@@ -290,6 +287,9 @@ struct VisitNonStrict
 	static void onUnknownVisitor(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/) 
 	{
 	}
+	static void onUnknownVisitorOnExit(VisitableType& /*iVisited*/, VisitorBase& /*iVisitor*/)
+	{
+	}
 };
 
 
@@ -305,6 +305,11 @@ struct VisitStrict
 	static void onUnknownVisitor(VisitableType& iVisited, VisitorBase& iVisitor)
 	{
 		LASS_THROW("Unacceptable visit: '" << typeid(iVisited).name() << "' can't accept '"
+			<< typeid(iVisitor).name() << "' as visitor.");
+	}
+	static void onUnknownVisitorOnExit(VisitableType& iVisited, VisitorBase& iVisitor)
+	{
+		LASS_THROW("Unacceptable visitOnExit: '" << typeid(iVisited).name() << "' can't accept '"
 			<< typeid(iVisitor).name() << "' as visitor.");
 	}
 };
@@ -328,31 +333,33 @@ public:
 
 	void accept(VisitorBase& iVisitor) { doAccept(iVisitor); }
 
-protected:
-
 	template <typename T>
-	static Visitor<T>* doMatchVisitor(T& iVisited, VisitorBase& iVisitor)
+	static void doVisit(T& iVisited, VisitorBase& iVisitor)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
-			return p;
+			p->visit(iVisited);
 		}
 		else
 		{
 			CatchAll<T>::onUnknownVisitor(iVisited, iVisitor);
-			return 0;
 		}
 	}
 
 	template <typename T>
-	static void doDefaultAccept(T& iVisited, VisitorBase& iVisitor)
+	static void doVisitOnExit(T& iVisited, VisitorBase& iVisitor)
 	{
-		if (Visitor<T>* p = doMatchVisitor(iVisited, iVisitor))
+		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&iVisitor))
 		{
-			p->visit(iVisited);
 			p->visitOnExit(iVisited);
 		}
+		else
+		{
+			CatchAll<T>::onUnknownVisitorOnExit(iVisited, iVisitor);
+		}
 	}
+
+protected:
 
 	VisitableBase(const VisitableBase&) {}
 	VisitableBase& operator=(const VisitableBase&) { return *this; }
@@ -374,7 +381,8 @@ private:
 #define LASS_UTIL_ACCEPT_VISITOR\
 	virtual void doAccept(lass::util::VisitorBase& iVisitor)\
 	{\
-		doDefaultAccept(*this, iVisitor);\
+		doVisit(*this, iVisitor);\
+		doVisitOnExit(*this, iVisitor);\
 	}
 
 #endif
