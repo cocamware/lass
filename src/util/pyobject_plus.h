@@ -95,6 +95,20 @@ namespace lass
 			PyObjectPlus& operator=(const PyObjectPlus& iOther);
 		};
 
+		namespace impl
+		{
+			/** @internal
+			*  On creation, PyObjectPlus are typeless (ob_type == 0), call this function to fix that for you.
+			*/
+			template <typename T> void initObjectType(PyObject* iObject)
+			{
+				if (meta::IsDerivedType<T, PyObjectPlus>::value && iObject && !iObject->ob_type)
+				{
+					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
+				}
+			}
+		}
+
 		/** @class PyObjectStorage
 		*  @ingroup Python
 		*  @brief Recommended storage policy for single PyObject objects, implementation of StoragePolicy concept
@@ -117,7 +131,10 @@ namespace lass
 		protected:
 
 			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-			PyObjectStorage(T* iPointee): Cascade(), storage_(iPointee) {}
+			PyObjectStorage(T* iPointee): Cascade(), storage_(iPointee) 
+			{ 
+				impl::initObjectType<T>(iPointee); 
+			}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }

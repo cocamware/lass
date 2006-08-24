@@ -196,14 +196,6 @@ PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjec
 	{
 		Py_RETURN_NONE;
 	}
-	if (lass::meta::IsDerivedType<C, lass::python::PyObjectPlus>::value)
-	{
-		lass::python::PyObjectPlus* pyObjectPlus = static_cast<lass::python::PyObjectPlus*>(iV.get());
-		if (pyObjectPlus && !pyObjectPlus->ob_type)
-		{
-			pyObjectPlus->ob_type = pyObjectPlus->GetType();
-		}
-	}
 	return fromSharedPtrToNakedCast(iV);
 }
 
