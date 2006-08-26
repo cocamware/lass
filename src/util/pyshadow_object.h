@@ -259,15 +259,15 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
 }\
 inline PyObject* pyBuildSimpleObject( const t_ShadowObject::TCppClass& iByCopy )\
 {\
-	return new t_ShadowObject( iByCopy );\
+	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByCopy ));\
 }\
 inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPointer )\
 {\
-	return new t_ShadowObject( iByBorrowedPointer );\
+	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByBorrowedPointer ));\
 }\
 inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
 {\
-	return new t_ShadowObject( iBySinkedPointer );\
+	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
 }\
 inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
 {\
