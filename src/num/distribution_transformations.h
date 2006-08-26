@@ -42,15 +42,17 @@ namespace lass
 namespace num
 {
 
+template <typename T>
 const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 {
 	const T z = 1 - 2 * sample.x;
 	const T rho = sqrt(std::max<T>(0, 1 - z * z));
-	const T theta = 2 * TNumTraits::pi * sample.y;
+	const T theta = 2 * num::NumTraits<T>::pi * sample.y;
 	pdf = inv(4 * num::NumTraits<T>::pi);
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
+template <typename T>
 const prim::Point2D<T> sampleCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
 {
 	const T z = cosThetaMax + sample.x * (1 - minCosTheta);
@@ -60,6 +62,7 @@ const prim::Point2D<T> sampleCone(const prim::Point2D<T>& sample, T minCosTheta,
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
+template <typename T>
 const prim::Point2D<T> sampleDisk(const prim::Point2D<T>& sample, T& pdf)
 {
 	T rho, theta;
