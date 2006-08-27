@@ -53,17 +53,17 @@ const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 }
 
 template <typename T>
-const prim::Point2D<T> sampleCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
+const prim::Point2D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
 {
 	const T z = cosThetaMax + sample.x * (1 - minCosTheta);
 	const T rho = sqrt(std::max<T>(0, 1 - z * z));
-	const T theta = 2 * TNumTraits::pi * sample.y;
-	pdf = inv(2 * num::NumTraits<T>::pi * (1 - cosThetaMax));
+	const T theta = 2 * NumTraits<T>::pi * sample.y;
+	pdf = inv(2 * NumTraits<T>::pi * (1 - cosThetaMax));
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
 template <typename T>
-const prim::Point2D<T> sampleDisk(const prim::Point2D<T>& sample, T& pdf)
+const prim::Point2D<T> uniformDisk(const prim::Point2D<T>& sample, T& pdf)
 {
 	T rho, theta;
 	const T x = 2 * sample.x - 1;
@@ -104,7 +104,7 @@ const prim::Point2D<T> sampleDisk(const prim::Point2D<T>& sample, T& pdf)
 		}
 	}
 
-	pdf = inv(sqr(TNumTraits::pi));
+	pdf = inv(sqr(NumTraits<T>::pi));
 	return prim::Point2D<T>(rho * cos(theta), rho * sin(theta));
 }
 

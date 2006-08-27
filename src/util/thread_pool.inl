@@ -78,7 +78,8 @@ void ThreadPool<T, C>::add(typename util::CallTraits<TTask>::TParam iTask)
 	{
 		LASS_LOCK(mutex_)
 		{
-			const unsigned tasksInQueue = waitingTasks_.size() + busyThreads_;
+			const unsigned tasksInQueue = 
+				static_cast<unsigned>(waitingTasks_.size()) + busyThreads_;
 			if (tasksInQueue < maxTasksInQueue_ || maxTasksInQueue_ == 0)
 			{
 				queueIsFull = false;
@@ -127,10 +128,12 @@ void ThreadPool<T, C>::clearQueue()
 template <typename T, typename C>
 const bool ThreadPool<T, C>::isEmpty() const
 {
+	bool result = false;
 	LASS_LOCK(mutex_)
 	{
-		return waitingTasks_.empty() && busyThreads_ == 0;
+		result = waitingTasks_.empty() && busyThreads_ == 0;
 	}
+	return result;
 }
 
 
