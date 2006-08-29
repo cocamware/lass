@@ -53,12 +53,12 @@ const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 }
 
 template <typename T>
-const prim::Point2D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
+const prim::Point3D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
 {
-	const T z = cosThetaMax + sample.x * (1 - minCosTheta);
+	const T z = minCosTheta + sample.x * (1 - minCosTheta);
 	const T rho = sqrt(std::max<T>(0, 1 - z * z));
 	const T theta = 2 * NumTraits<T>::pi * sample.y;
-	pdf = inv(2 * NumTraits<T>::pi * (1 - cosThetaMax));
+	pdf = inv(2 * NumTraits<T>::pi * (1 - minCosTheta));
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
