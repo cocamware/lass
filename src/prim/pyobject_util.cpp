@@ -30,6 +30,8 @@
 #include "xyzw.h"
 #include "triangle_mesh_3d.h"
 #include "color_rgba.h"
+#include "../util/py_tuple.h"
+#include "../util/py_stl.h"
 
 namespace lass
 {

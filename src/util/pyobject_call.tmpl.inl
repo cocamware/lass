@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_INL
 
 #include "util_common.h"
+#include "pyobject_plus.h"
 #include "py_tuple.h"
 #include "pyshadow_object.h"
 #include "call_traits.h"

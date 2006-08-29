@@ -123,7 +123,7 @@ public:
 		T err1 = x-(ahi*bhi);
 		T err2 = err1-(alo*blo);
 		T err3 = err2-(ahi*blo);
-		T y = (alo*blo)-err3
+		T y = (alo*blo)-err3;
 		t_ = x; 
 		e_ = y;
 		return *this; 

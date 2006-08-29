@@ -33,8 +33,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_OPS_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_OPS_H
 
+#include "num_common.h"
 #include <cmath>
-//#include "num_traits.h"
 
 namespace lass
 {

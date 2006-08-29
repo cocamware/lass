@@ -24,16 +24,7 @@
  */
 
 #include "util_common.h"
-
-// normally, we would #include "pyshadow_object.h" here.  But!  that one needs pyobject_plus.h which 
-// includes pyobject_call.inl which needs pyshadow_object.h.  But at that moment pyshadow_object.h
-// is being included itself, so pyobject_call.inl doesn't get what it need at the right time.
-//
-// Instead, we include poobject_plus.h directly, so everything gets defined in the right order.
-//
-// [Bramz]
-//
-#include "pyobject_plus.h" 
+#include "pyshadow_object.h" 
 
 namespace lass
 {

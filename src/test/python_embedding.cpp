@@ -33,12 +33,10 @@
 #include "python_shadow.h"
 #include <iostream>
 
-#include "../util/pyshadow_object.h"
 #include "../util/callback_0.h"
 #include "../util/callback_1.h"
 #include "../util/callback_r_0.h"
 #include "../util/callback_r_2.h"
-#include "../util/callback_python.h"
 
 namespace lass
 {

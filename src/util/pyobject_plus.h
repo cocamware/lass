@@ -40,21 +40,55 @@
 #	include "Python.h"
 #endif
 
+#ifndef PySequence_ITEM
+#	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
+#endif
+
 #include "../meta/bool.h"
 #include "../meta/is_derived_type.h"
-#include "../meta/type_traits.h"
-#include "../meta/type_2_type.h"
-#include "../meta/int_2_type.h"
-#include "../num/num_traits.h"
+//#include "../meta/type_traits.h"
+//#include "../meta/type_2_type.h"
+//#include "../meta/int_2_type.h"
+//#include "../num/num_traits.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
-#include "pyobject_macros.h"
-#include "call_traits.h"
-#include "thread.h"
+//#include "call_traits.h"
+//#include "thread.h"
 #include <cstdlib>
 
-typedef PyTypeObject * PyParentObject;// Define the PyParent Object
+/** @internal
+ *  This macro is only used in the PyObjectPlus class and is for internal LASS
+ *  use.  Do not use in custom objects... DON'T!
+ */
+#define PY_HEADER_INTERNAL \
+	public: \
+		static PyTypeObject   Type; \
+		static ::std::vector<PyMethodDef>    Methods; \
+		static ::std::vector<PyGetSetDef>    GetSetters; \
+		virtual PyTypeObject *GetType(void) const {return &Type;};
 
+/** @ingroup Python
+ *  Place as first line of your Pythonized class.    
+ *
+ *  For @a t_parentClass use the C++ class from which you wish the python object inherits.  
+ *	@a t_parentClass must also be a Pythonized class or use lass::python::PyObjectPlus as default.
+ *
+ *   @remark Any declarations coming after this macro are public!
+ */
+#define PY_HEADER( t_parentClass ) \
+	public: \
+		typedef t_parentClass TPyParent;\
+		static PyTypeObject   Type; \
+		static ::std::vector<PyMethodDef>    Methods; \
+		static ::std::vector<PyGetSetDef>    GetSetters; \
+		static ::std::vector< ::lass::python::impl::StaticMember >	Statics; \
+		static PyTypeObject* GetParentType(void)\
+		{\
+			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
+		}\
+		virtual PyTypeObject *GetType(void) const {return &Type;};
+
+typedef PyTypeObject * PyParentObject;// Define the PyParent Object
 
 namespace lass
 {
@@ -183,9 +217,6 @@ namespace lass
 				LASS_ASSERT(oStorage->ob_refcnt);
 			}
 			void swap(PyObjectCounter& /*iOther*/) {}
-		private:
-			//TCount counterToKeepCompilerFromDoingStupidThings_;
-			//util::Semaphore sync_;
 		};
 
 		/** templated "typedef" to a python shared pointer
@@ -252,9 +283,9 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, float& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
-		template <typename T> int pyGetSimpleObject( PyObject* iValue, T*& oV );
+		//inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
+		template <typename T> int pyGetSimpleObject( 
+			PyObject* iValue,  util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& oV );
 
 		inline PyObject* pyBuildSimpleObject( bool iV );
 		inline PyObject* pyBuildSimpleObject( signed char iV );
@@ -269,11 +300,12 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( double iV );
 		inline PyObject* pyBuildSimpleObject( long double iV );
 		inline PyObject* pyBuildSimpleObject( const char* iV );
-		inline PyObject* pyBuildSimpleObject( const std::string& iV );
 		//inline PyObject* pyBuildSimpleObject( PyObject* iV );
+		template <typename T> PyObject* pyBuildSimpleObject( 
+			const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iV );
 
-		template <typename T> int pyGetSimpleObjectByName(const std::string& iName, T& oV);
-		LASS_DLL PyObject* LASS_CALL getPyObjectByName(const std::string& iName);
+		LASS_DLL PyObjectPtr<PyObject>::Type LASS_CALL getPyObjectByName(
+			const std::string& iName);
 
 		namespace impl
 		{
@@ -409,13 +441,7 @@ namespace lass
 		}
 	}
 }
-#include "pyobject_util.h"
-#include "py_tuple.h"
+
 #include "pyobject_plus.inl"
-#include "pyshadow_object.h"
-#include "../prim/pyobject_util.h"
-#include "pyobject_call.inl"
-#include "callback_python.h"
-#include "py_stl.h"
 
 #endif

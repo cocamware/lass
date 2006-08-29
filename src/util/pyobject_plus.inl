@@ -35,7 +35,7 @@ inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 	int result = PyObject_IsTrue(iValue);
 	if (result == -1)
 	{
-		PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL);
+		PyErr_SetString(PyExc_TypeError, "does not evaluate to a boolean");
 		return 1;
 	}
 	oV = (result != 0);
@@ -120,7 +120,9 @@ inline int pyGetSimpleObject( PyObject* iValue, long double& oV )
 }
 
 /** @ingroup Python
+ *  @deprecated
 	*/
+/*
 inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 {
 	if ( iValue == Py_None )
@@ -132,12 +134,14 @@ inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 	}
 	return 0;
 }
+*/
+
 
 /** @ingroup Python
-	*/
+ */
 template<class C>
 int pyGetSimpleObject( PyObject* iValue,
-						util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
+		util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
 {
 	const bool isNone = (iValue == Py_None );
 	if (isNone)
@@ -155,9 +159,9 @@ int pyGetSimpleObject( PyObject* iValue,
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue,
-								util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV )
+		util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV )
 {
 	const bool isNone = (iValue == Py_None );
 	if (isNone)
@@ -194,7 +198,8 @@ PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjec
 {
 	if (!iV)
 	{
-		Py_RETURN_NONE;
+		Py_INCREF( Py_None );
+		return Py_None;
 	}
 	return fromSharedPtrToNakedCast(iV);
 }

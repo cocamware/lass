@@ -81,7 +81,7 @@ namespace lass
 		{
 			if (!PyString_Check(iValue))
 			{
-				PyErr_SetString(PyExc_TypeError, LASS_PYTHON_ERR_MSG_ARG_NOT_STRING);
+				PyErr_SetString(PyExc_TypeError, "not a string");
 				return 1;
 			}
 			oV = std::string( PyString_AS_STRING( iValue ) );

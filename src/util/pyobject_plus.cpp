@@ -27,6 +27,9 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "pyobject_macros.h"
+#include "py_stl.h"
+#include "py_tuple.h"
 
 namespace lass
 {
@@ -107,21 +110,24 @@ PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 
 /** @ingroup Python
  *  @brief retrieve pointer to PyObject by its name in the script.
- *  @return borrowed reference to PyObject @a iName or NULL if 
- *		@a iName does not exist (_without_ setting an exception!)
- *	@throw Never
+ *  @return 
+ *	new reference to PyObject @a iName or NULL if 
+ *	@a iName does not exist (_without_ setting an exception!)
+ *  @throw Never
  */
-PyObject* getPyObjectByName(const std::string& iName)
+PyObjectPtr<PyObject>::Type getPyObjectByName(const std::string& iName)
 {
 	PyObject* module = PyImport_AddModule("__main__");
 	if (!module)
 	{
 		PyErr_Clear();
-		return 0;
+		return PyObjectPtr<PyObject>::Type();
 	}
 	PyObject* dict = PyModule_GetDict(module);
 	LASS_ASSERT(dict != 0);
-	return PyDict_GetItemString(dict, const_cast<char*>(iName.c_str()));
+	PyObject* object = PyDict_GetItemString(dict, const_cast<char*>(iName.c_str()));
+	Py_XINCREF(object);
+	return PyObjectPtr<PyObject>::Type(object);
 }
 
 // --- impl ----------------------------------------------------------------------------------------

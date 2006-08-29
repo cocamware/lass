@@ -94,7 +94,7 @@ namespace impl
 			den += s;
 		for (unsigned k = 0; k < n / 2; ++k)
 		{
-			const T theta = (TNumTraits::pi * (2 * k + n + 1)) / (2 * n)
+			const T theta = (TNumTraits::pi * (2 * k + n + 1)) / (2 * n);
 			den *= s2 - 2 * num::cos(theta) * s + TNumTraits::one;
 		}
 		return std::make_pair(TPolynomial::one().coefficients(), den.coefficients());
@@ -110,7 +110,7 @@ namespace impl
 		TValuesPair result = lowpassButterworthCoefficients<T>(n, TNumTraits::one, TNumTraits::one);
 
 		std::reverse(result.second.begin(), result.second.end());
-		for (size_t k = 0; k < result.second.size())
+		for (size_t k = 0; k < result.second.size(); ++k)
 		{
 			result.second[k] /= num::pow(cutoff, T(k));
 		}

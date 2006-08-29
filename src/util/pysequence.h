@@ -170,13 +170,13 @@ namespace impl
 	public:
 		template<typename Container> PySequence( Container& iCont )
 		{
-			PY_PYTHONIZE;
+			//PY_PYTHONIZE;
 			pimpl_ = new PySequenceContainer<Container>(&iCont);
 			initialize();
 		}
 		template<typename Container> PySequence( const Container& iCont ) 
 		{
-			PY_PYTHONIZE;
+			//PY_PYTHONIZE;
 			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
 			initialize();
 		}

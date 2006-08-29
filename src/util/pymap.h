@@ -32,8 +32,8 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-#include "string_cast.h"
 #include "pyiteratorrange.h"
+#include "../meta/type_traits.h"
 
 namespace lass
 {

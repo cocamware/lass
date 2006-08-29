@@ -34,70 +34,22 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
 
-#define LASS_PYTHON_ERR_MSG_NO_NEW_OPERATOR "Can not create object"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_BOOL  "not bool"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_INT  "not int"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_LONG  "not long"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_FLOAT  "not float"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_DOUBLE  "not double"
-#define LASS_PYTHON_ERR_MSG_ARG_NOT_STRING  "not string"
-
-#ifndef PySequence_ITEM
-#	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
-#endif
-
-/** @internal
- *  This macro is only used in the PyObjectPlus class and is for internal LASS
- *  use.  Do not use in custom objects... DON'T!
- */
-#define PY_HEADER_INTERNAL \
-	/*private:\
-		util::Semaphore lassPythonlock_;\
-		friend class PyObjectCounter;*/\
-	public: \
-		static PyTypeObject   Type; \
-		static ::std::vector<PyMethodDef>    Methods; \
-		static ::std::vector<PyGetSetDef>    GetSetters; \
-		virtual PyTypeObject *GetType(void) const {return &Type;};
-
-/** @ingroup Python
- *  Place as first line of your Pythonized class.    
- *
- *  For @a t_parentClass use the C++ class from which you wish the python object inherits.  
- *	@a t_parentClass must also be a Pythonized class or use lass::python::PyObjectPlus as default.
- *
- *   @remark Any declarations coming after this macro are public!
- */
-#define PY_HEADER( t_parentClass ) \
-	public: \
-		typedef t_parentClass TPyParent;\
-		static PyTypeObject   Type; \
-		static ::std::vector<PyMethodDef>    Methods; \
-		static ::std::vector<PyGetSetDef>    GetSetters; \
-		static ::std::vector< ::lass::python::impl::StaticMember >	Statics; \
-		static PyTypeObject* GetParentType(void)\
-		{\
-			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
-		}\
-		virtual PyTypeObject *GetType(void) const {return &Type;};
-
-
+#include "pyobject_call.inl"
 
 /** @ingroup Python
 *
-*	@deprecated You should use protected constructors in base classes to pass the python type
-*	from the most derived class to PyObjectPluse
+*   @deprecated Objects derived from PyObjectPlus should set this on in a clever way:
+*	impl::fixObjectType is called on an appropriate time and gets the object type through
+*	a virtual call to GetType().  If you get in a situation where ob_type seems to be NULL,
+*	try to solve the situation with a manual call to impl::fixObjectType first.
 *
-*	Use this macro to make objects derived from PyObjectPlus have
-*   a type in Python too.  If you don't use this macro you can still derive from the PyObjectPlus
-*   parent class with the type as argument for the constructor.  For single inheritance this last
-*   method is preferred.  For classes with a multitude of constructors the PYTHONIZE macro can
-*   be considered.
+* Call this macro inside some class method, and it will set ob_type to the static type of that class.
+* Normally, you should never use this.  And if you must, then you better know what you're doing!
 */
+/*
 #define PY_PYTHONIZE \
 	{this->ob_type = &this->Type;}
-
-
+*/
 
 // --- modules -------------------------------------------------------------------------------------
 

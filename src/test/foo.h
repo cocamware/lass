@@ -30,9 +30,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_FOO_H
 
 #include "test_common.h"
-#include "../util/pyobject_plus.h"
-#include "../util/pyobject_util.h"
-#include "../util/pyshadow_object.h"
+#include "../util/python_api.h"
 
 
 namespace lass

@@ -23,10 +23,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_TUPLE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_TUPLE_INL
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_TUPLE_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_TUPLE_H
 
 #include "util_common.h"
+#include "pyobject_plus.h"
 
 namespace lass
 {

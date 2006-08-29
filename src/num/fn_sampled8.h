@@ -34,7 +34,7 @@
 #include "../util/call_traits.h"
 #include "../io/binary_i_stream.h"
 #include "../io/binary_o_stream.h"
-#include "../util/pyobject_plus.h"
+#include "../util/python_api.h"
 
 namespace lass
 {

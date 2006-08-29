@@ -104,6 +104,7 @@ public:
 		initialize();
 		this->ob_type = &Type;
 		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
+		impl::fixObjectType(this);
 	}
 
 	virtual ~PyIteratorRange() {}
@@ -113,7 +114,6 @@ public:
 	static PyObject* PyIteratorRange_IterNext( PyObject* iPO) { return static_cast<PyIteratorRange*>(iPO)->pimpl_->PyIteratorRange_IterNext(); }
 	
 private:
-	PyIteratorRange();
 	impl::PyIteratorRangeImplBase* pimpl_;
 	static void initialize();
 	static bool isInitialized;

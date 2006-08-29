@@ -93,7 +93,7 @@ public:
 	MeshInterpolator( const TAabb2D& iAabb );
 	virtual ~MeshInterpolator() {}
 
-	const TPlanarMesh& const mesh() const { return mesh_; }
+	const TPlanarMesh& mesh() const { return mesh_; }
 
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
 	virtual void insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo );
@@ -171,19 +171,21 @@ void MeshInterpolator<T,TPI>::insertPolyLine( const TPolyLine2D& iPoly, const TP
 template<typename T, typename TPI>
 class LinearMeshInterpolator : public MeshInterpolator<T,TPI>
 {
-	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
-
-	LinearMeshInterpolator() {}
-	virtual TPI interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* iEdge ) const;
-
 public:
 	typedef typename MeshInterpolator<T,TPI>::TPoint2D TPoint2D;
 	typedef typename MeshInterpolator<T,TPI>::TAabb2D TAabb2D;
+	typedef typename MeshInterpolator<T,TPI>::TPolyLine2D TPolyLine2D;
 
 	LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside );
 	virtual ~LinearMeshInterpolator() {}
 	virtual TPI interpolate( const TPoint2D& iQuery ) const;
 	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
+	
+private:
+	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
+
+	LinearMeshInterpolator() {}
+	virtual TPI interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* iEdge ) const;
 };
 
 
@@ -254,7 +256,8 @@ OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& i
 	for (int i=0;i<iQuery.size()-1;++i)
 	{
 		crossings.push_back(iQuery[i]);
-		mesh_.walkIntersections(TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),std::back_inserter(crossings));
+		mesh_.walkIntersections(typename TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),
+			std::back_inserter(crossings));
 	}
 	crossings.push_back(iQuery.back());
 

@@ -27,7 +27,7 @@
 
 #include "util_common.h"
 #include "pymap.h"
-#include "pyobject_util.h"
+#include "pyobject_macros.h"
 
 namespace lass
 {

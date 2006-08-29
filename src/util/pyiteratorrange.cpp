@@ -27,6 +27,7 @@
 
 #include "util_common.h"
 #include "pyiteratorrange.h"
+#include "pyobject_macros.h"
 
 namespace lass
 {

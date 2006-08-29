@@ -43,8 +43,6 @@ void testNumBasicOps()
 {
 	typedef num::NumTraits<T> TNumTraits;
 
-	const T epsilon = T(1e-5);
-
 	// sinc
 	T x = TNumTraits::one;
 	T y;

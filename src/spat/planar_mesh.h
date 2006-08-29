@@ -470,12 +470,12 @@ namespace spat
 					return false;
 				}
 
-				TPlanarMesh::TRay2D  R1(TPlanarMesh::org(e), TPlanarMesh::dest(e));
-				TPlanarMesh::TPoint2D    p1 = R1.point( R1.t( point_ ) );
-				TPlanarMesh::TRay2D  R2(TPlanarMesh::dest(e), TPlanarMesh::org(e->lPrev()));
-				TPlanarMesh::TPoint2D    p2 = R2.point( R2.t( point_ ) );
-				TPlanarMesh::TRay2D  R3(TPlanarMesh::org(e->lPrev()), TPlanarMesh::org(e));
-				TPlanarMesh::TPoint2D    p3 = R3.point( R3.t( point_ ) );
+				typename TPlanarMesh::TRay2D  R1(TPlanarMesh::org(e), TPlanarMesh::dest(e));
+				typename TPlanarMesh::TPoint2D    p1 = R1.point( R1.t( point_ ) );
+				typename TPlanarMesh::TRay2D  R2(TPlanarMesh::dest(e), TPlanarMesh::org(e->lPrev()));
+				typename TPlanarMesh::TPoint2D    p2 = R2.point( R2.t( point_ ) );
+				typename TPlanarMesh::TRay2D  R3(TPlanarMesh::org(e->lPrev()), TPlanarMesh::org(e));
+				typename TPlanarMesh::TPoint2D    p3 = R3.point( R3.t( point_ ) );
 
 				typename TPlanarMesh::TPoint2D::TValue d1 = squaredDistance(point_,p1);
 				typename TPlanarMesh::TPoint2D::TValue d2 = squaredDistance(point_,p2);
