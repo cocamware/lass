@@ -304,9 +304,9 @@ LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValuesPair& iCoefficie
 
 template <typename T, typename InIt, typename OutIt>
 LowpassButterworthFilter<T, InIt, OutIt>::LowpassButterworthFilter(
-		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain):
+		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency):
 	LaplaceIirFilter<T, InIt, OutIt>(impl::lowpassButterworthCoefficients(
-		filterOrder, cutoffAngularFrequency, gain))
+		filterOrder, cutoffAngularFrequency, gain), samplingFrequency)
 {
 }
 
@@ -316,9 +316,9 @@ LowpassButterworthFilter<T, InIt, OutIt>::LowpassButterworthFilter(
 
 template <typename T, typename InIt, typename OutIt>
 HighpassButterworthFilter<T, InIt, OutIt>::HighpassButterworthFilter(
-		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain):
+		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency):
 	LaplaceIirFilter<T, InIt, OutIt>(impl::highpassButterworthCoefficients(
-		filterOrder, cutoffAngularFrequency, gain))
+		filterOrder, cutoffAngularFrequency, gain), samplingFrequency)
 {
 }
 

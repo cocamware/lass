@@ -203,8 +203,8 @@ public:
 	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
 	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
 
-	LowpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency = TNumTraits::one, 
-		TParam gain = TNumTraits::one);
+	LowpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, 
+		TParam samplingFrequency);
 };
 
 
@@ -231,8 +231,8 @@ public:
 	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
 	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
 
-	HighpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency = TNumTraits::one, 
-		TParam gain = TNumTraits::one);
+	HighpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, 
+		TParam samplingFrequency);
 };
 
 }
