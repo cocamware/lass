@@ -324,7 +324,7 @@ long double acos(long double iV)					{ return ::acosl(iV); }			/**< @ingroup Bas
 long double asin(long double iV)					{ return ::asinl(iV); }			/**< @ingroup BasicOps */
 long double atan(long double iV)					{ return ::atanl(iV); }			/**< @ingroup BasicOps */
 long double atan2(long double iX, long double iY)	{ return ::atan2l(iX, iY); }	/**< @ingroup BasicOps */
-long double sinc(long double iV)					{ return ::fabsl(iV) < 1e-8 ? 1. : (::sinl(iV) / iV); }	/**< @ingroup BasicOps */
+long double sinc(long double iV)					{ return ::fabsl(iV) < 1e-10 ? 1. : (::sinl(iV) / iV); }	/**< @ingroup BasicOps */
 long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
 long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
 long double round(long double iV)					{ return ::floorl(iV + .5); }	/**< @ingroup BasicOps */
