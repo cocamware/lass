@@ -650,8 +650,8 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::init4( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c, const TPoint2D& d)
 	{
-		tolerance_ = 1.0e-8;
-		pointDistanceTolerance_ = 1.0e-8;
+		tolerance_ = T(1.0e-8);
+		pointDistanceTolerance_ = T(1.0e-8);
 
 		TEdge* ea = makeEdge(a, b, true);
 		TEdge* eb = makeEdge(b, c, true);
@@ -1767,7 +1767,7 @@ continueSearch:
 
 		// search all edges to split
 		insertedPoints.push_back(faa);
-		for (int i=0;i<crossedEdges.size();++i)
+		for (size_t i=0;i<crossedEdges.size();++i)
 		{
 			bool computeIntersection = (crossedEdges[i]->isConstrained());
 			TPoint2D eorg = org(crossedEdges[i]);
@@ -1809,7 +1809,7 @@ continueSearch:
 		{
 			TEdge* ce = NULL;
 			TEdge* bce = NULL;
-			for (int i=0;i<insertedPoints.size()-1;++i)
+			for (size_t i=0;i<insertedPoints.size()-1;++i)
 			{
 				ce = insertEdge( TLineSegment2D(insertedPoints[i],insertedPoints[i+1]), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
 				if (i==0)
@@ -1829,7 +1829,7 @@ continueSearch:
 													// clearing the path recursively
 		bool madeConstraint = false;
 		// no intersections found, we clear the path by swapping edges
-		for (int i=0;i<filteredEdges.size();++i)
+		for (size_t i=0;i<filteredEdges.size();++i)
 		{
 			// is the edge swappable without creating an inside-out triangle?
 			TPoint2D a = org(filteredEdges[i]);
