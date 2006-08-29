@@ -97,20 +97,20 @@ namespace impl
 		template<typename M> PyMap( M* iStdMap ) 
 		{
 			initialize();
-			this->ob_type = &Type;
+			impl::fixObjectType(this);
 			LASS_ASSERT(iStdMap);
 			pimpl_ = new PyMapImpl<M>(iStdMap); // also const M*
 		}
 		template<typename M> PyMap( M& iStdMap ) 
 		{
 			initialize();
-			this->ob_type = &Type;
+			impl::fixObjectType(this);
 			pimpl_ = new PyMapImpl<M>(&iStdMap);
 		}
 		template<typename M> PyMap( const M& iStdMap ) 
 		{
 			initialize();
-			this->ob_type = &Type;
+			impl::fixObjectType(this);
 			std::auto_ptr<M> copy(new M(iStdMap));
 			pimpl_ = new PyMapImpl<const M>(copy.get(), PyMapImpl<const M>::oOwner);
 			copy.release();
@@ -158,8 +158,7 @@ namespace impl
 	template<typename M>
 	PyObject* PyMapImpl<M>::PyMap_Iter()
 	{
-		PyIteratorRange*	itRange=new PyIteratorRange(map_->begin(), map_->end());
-		return itRange;
+		return new PyIteratorRange(map_->begin(), map_->end());
 	}
 
 

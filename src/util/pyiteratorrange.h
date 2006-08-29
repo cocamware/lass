@@ -102,9 +102,8 @@ public:
 	template<typename CI> PyIteratorRange( CI iBegin, CI iEnd ) 
 	{
 		initialize();
-		this->ob_type = &Type;
-		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
 		impl::fixObjectType(this);
+		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
 	}
 
 	virtual ~PyIteratorRange() {}

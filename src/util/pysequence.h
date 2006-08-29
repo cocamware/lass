@@ -170,15 +170,15 @@ namespace impl
 	public:
 		template<typename Container> PySequence( Container& iCont )
 		{
-			//PY_PYTHONIZE;
-			pimpl_ = new PySequenceContainer<Container>(&iCont);
 			initialize();
+			impl::fixObjectType(this);
+			pimpl_ = new PySequenceContainer<Container>(&iCont);
 		}
 		template<typename Container> PySequence( const Container& iCont ) 
 		{
-			//PY_PYTHONIZE;
-			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
 			initialize();
+			impl::fixObjectType(this);
+			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
 		}
 		//PySequence( PyObject* iP );
 		virtual ~PySequence();
