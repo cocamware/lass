@@ -151,6 +151,7 @@ public:
 	void setDefault(const TKey& iKey, const TValue& iValue);
 	void clearDefault();
 	bool hasDefault() const;
+	void enableSuggestions(bool enable = true);
 
 	const TValue& operator[](TKeyParam iKey) const;
 	const TKey& key(TValueParam iValue) const;
@@ -176,6 +177,7 @@ private:
 	TKeyLess keyLess_;
 	TValueLess valueLess_;
 	bool hasDefault_;
+	bool enableSuggestions_;
 };
 
 

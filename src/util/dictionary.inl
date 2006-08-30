@@ -41,7 +41,8 @@ namespace util
 template <typename K, typename V, typename KL, typename VL>
 Dictionary<K, V, KL, VL>::Dictionary():
 	map_(),
-	hasDefault_(false)
+	hasDefault_(false),
+	enableSuggestions_(false)
 {
 }
 
@@ -51,7 +52,8 @@ template <typename K, typename V, typename KL, typename VL>
 Dictionary<K, V, KL, VL>::Dictionary(TKeyLess iKeyLess):
 	map_(),
 	keyLess_(iKeyLess),
-	hasDefault_(false)
+	hasDefault_(false),
+	enableSuggestions_(false)
 {
 }
 
@@ -62,7 +64,8 @@ Dictionary<K, V, KL, VL>::Dictionary(TKeyLess iKeyLess, TValueLess iValueLess):
 	map_(),
 	keyLess_(iKeyLess),
 	valueLess_(iValueLess),
-	hasDefault_(false)
+	hasDefault_(false),
+	enableSuggestions_(false)
 {
 }
 
@@ -140,6 +143,17 @@ bool Dictionary<K, V, KL, VL>::hasDefault() const
 
 
 
+/** if enabled, suggestions of valid keys or values will be included in the exception that
+ *	is thrown in case a key or value is not found and there's no default.
+ */
+template <typename K, typename V, typename KL, typename VL>
+void Dictionary<K, V, KL, VL>::enableSuggestions(bool enable)
+{
+	enableSuggestions_ = enable;
+}
+
+
+
 /** look up a value by key
  *  @return
  *      - the value that belongs to the key.
@@ -161,7 +175,15 @@ Dictionary<K, V, KL, VL>::operator[](TKeyParam iKey) const
 	{
 		if (!hasDefault_)
 		{
-			LASS_THROW("No key '" << iKey << "' is found in dictionary.");
+			if (enableSuggestions_)
+			{
+				LASS_THROW("Key '" << iKey << "' is not found in dictionary, please try one "
+					<< "of these: " << keys());
+			}
+			else
+			{
+				LASS_THROW("Key '" << iKey << "' is not found in dictionary.");
+			}
 		}
 		return defaultValue_;
 	}
@@ -194,7 +216,15 @@ Dictionary<K, V, KL, VL>::key(TValueParam iValue) const
 	}
 	if (!hasDefault_)
 	{
-		LASS_THROW("No value '" << iValue << "' is found in dictionary.");
+		if (enableSuggestions_)
+		{
+			LASS_THROW("Value '" << iValue << "' is not found in dictionary, please try one "
+				<< "of these: " << values());
+		}
+		else
+		{
+			LASS_THROW("Value '" << iValue << "' is not found in dictionary.");
+		}
 	}
 	return defaultKey_;
 }
