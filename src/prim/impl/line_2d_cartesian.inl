@@ -156,7 +156,7 @@ const typename Line2DCartesian<T, NP>::TVector& Line2DCartesian<T, NP>::normal()
 
 
 template<typename T, class NP>
-const typename Line2DCartesian<T, NP>::TParam Line2DCartesian<T, NP>::d() const
+typename Line2DCartesian<T, NP>::TParam Line2DCartesian<T, NP>::d() const
 {
 	return d_;
 }

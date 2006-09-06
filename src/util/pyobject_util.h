@@ -41,11 +41,11 @@ namespace lass
 			}
 
 			template<typename ForwardIterator>
-			PyObjectPtr<PyObject>::Type pyBuildTuple(ForwardIterator iB, ForwardIterator iE )
+			TPyObjPtr pyBuildTuple(ForwardIterator iB, ForwardIterator iE )
 			{
 				const int size = static_cast<int>(std::distance(iB,iE));
 				LASS_ASSERT(size >= 0);
-				PyObjectPtr<PyObject>::Type r(PyTuple_New(size));
+				TPyObjPtr r(PyTuple_New(size));
 				if (r)
 				{
 					for (int i=0;iB!=iE;++iB,++i)
@@ -57,11 +57,11 @@ namespace lass
 			}
 
 			template<typename ForwardIterator>
-			PyObjectPtr<PyObject>::Type pyBuildList(ForwardIterator iB, ForwardIterator iE )
+			TPyObjPtr pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
 				const int size = static_cast<int>(std::distance(iB,iE));
 				LASS_ASSERT(size >= 0);
-				PyObjectPtr<PyObject>::Type r(PyList_New(size));
+				TPyObjPtr r(PyList_New(size));
 				if (r)
 				{
 					for (int i=0;iB!=iE;++iB,++i)
@@ -73,9 +73,9 @@ namespace lass
 			}
 
 			template<typename InputIterator>
-			PyObjectPtr<PyObject>::Type pyBuildMap(InputIterator iB, InputIterator iE )
+			TPyObjPtr pyBuildMap(InputIterator iB, InputIterator iE )
 			{
-				PyObjectPtr<PyObject>::Type r = PyDict_New();
+				TPyObjPtr r = PyDict_New();
 				if (r)
 				{
 					for (int i=0;iB!=iE;++iB,++i)

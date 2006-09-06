@@ -73,7 +73,7 @@ public:
 
 	void getCartesian(TVector& oNormal, TReference oD) const;
 	const TVector& normal() const;
-	const TParam d() const;
+	TParam d() const;
 
 	const TValue equation(const TPoint& iPoint) const;
 	const TValue equation(const TPoint& iPoint, TParam iRelativeTolerance) const;

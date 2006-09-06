@@ -44,10 +44,9 @@ std::string fetchException()
 	PyObject *tempType, *tempValue, *tempTraceback;
 	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
 
-	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
-	TPyPtr type(tempType);
-	TPyPtr value(tempValue);
-	TPyPtr traceback(tempTraceback);
+	python::TPyObjPtr type(tempType);
+	python::TPyObjPtr value(tempValue);
+	python::TPyObjPtr traceback(tempTraceback);
 
 	std::ostringstream buffer;
 	if (PyErr_GivenExceptionMatches(type.get(), PyExc_TypeError))
@@ -59,10 +58,10 @@ std::string fetchException()
 		buffer << "Python function in callback failed: ";
 	}
 
-	TPyPtr typeStr(PyObject_Str(type.get()));
+	python::TPyObjPtr typeStr(PyObject_Str(type.get()));
 	buffer << (typeStr ? PyString_AsString(typeStr.get()) : "unknown python exception");
 
-	TPyPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
+	python::TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
 	if (valueStr)
 	{
 		buffer << ": '" << PyString_AsString(valueStr.get()) << "'";

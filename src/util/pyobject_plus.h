@@ -228,6 +228,11 @@ namespace lass
 			typedef util::SharedPtr<T, PyObjectStorage, PyObjectCounter> Type;
 		};
 
+		/** PyObjectPtr to a PyObject
+		 *  @ingroup Python
+		 */
+		typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
+
 		template<class T>   T*  PyPlus_INCREF(T* iObj)  { Py_INCREF(iObj); return iObj; }
 		template<class T>   T*  PyPlus_DECREF(T* iObj)  { Py_DECREF(iObj); return iObj; }
 
@@ -304,8 +309,7 @@ namespace lass
 		template <typename T> PyObject* pyBuildSimpleObject( 
 			const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iV );
 
-		LASS_DLL PyObjectPtr<PyObject>::Type LASS_CALL getPyObjectByName(
-			const std::string& iName);
+		LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
 
 		namespace impl
 		{

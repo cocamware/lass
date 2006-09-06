@@ -115,19 +115,19 @@ PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
  *	@a iName does not exist (_without_ setting an exception!)
  *  @throw Never
  */
-PyObjectPtr<PyObject>::Type getPyObjectByName(const std::string& iName)
+TPyObjPtr getPyObjectByName(const std::string& iName)
 {
 	PyObject* module = PyImport_AddModule("__main__");
 	if (!module)
 	{
 		PyErr_Clear();
-		return PyObjectPtr<PyObject>::Type();
+		return TPyObjPtr();
 	}
 	PyObject* dict = PyModule_GetDict(module);
 	LASS_ASSERT(dict != 0);
 	PyObject* object = PyDict_GetItemString(dict, const_cast<char*>(iName.c_str()));
 	Py_XINCREF(object);
-	return PyObjectPtr<PyObject>::Type(object);
+	return TPyObjPtr(object);
 }
 
 // --- impl ----------------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oRes
 	else if (binaryfunc_)
 	{
 		LASS_ASSERT(ternaryfunc_ == 0);
-		PyObjectPtr<PyObject>::Type arg;
+		TPyObjPtr arg;
 		if (decodeTuple(iArgs, arg) != 0)
 		{
 			return 0;

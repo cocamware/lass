@@ -108,7 +108,7 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
 		virtual int PySequence_InplaceRepeat(int n) = 0;
 		virtual void append(PyObject* i) = 0;
-		virtual PyObjectPtr<PyObject>::Type pop(int i) = 0;
+		virtual TPyObjPtr pop(int i) = 0;
 		virtual bool pointsToSameContainer(void* iO) = 0;
 		virtual std::string pyStr(void) = 0;
 		virtual std::string pyRepr(void) = 0;
@@ -147,7 +147,7 @@ namespace impl
 		virtual int PySequence_InplaceConcat(PyObject *other);
 		virtual int PySequence_InplaceRepeat(int n);
 		virtual void append(PyObject* i);
-		virtual PyObjectPtr<PyObject>::Type pop(int i);
+		virtual TPyObjPtr pop(int i);
 		virtual bool pointsToSameContainer(void* iO) 
 		{ 
 			return (iO == (void*)cont_);
@@ -185,7 +185,7 @@ namespace impl
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
 		virtual void clear()				{ pimpl_->clear(); }
 		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
-		virtual PyObjectPtr<PyObject>::Type pop(int i)		{ return pimpl_->pop(i); }
+		virtual TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
 		virtual std::string pyStr(void)		{ return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void)	{ return pimpl_->pyRepr(); }
 
@@ -382,12 +382,12 @@ namespace impl
 		cont_->push_back( temp );
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObjectPtr<PyObject>::Type PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
+	TPyObjPtr PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
 	{
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return PyObjectPtr<PyObject>::Type();
+			return TPyObjPtr();
 		}
 		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));

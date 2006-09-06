@@ -65,9 +65,7 @@ class Dispatcher0Python
 {
 public:
 
-	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
-
-	Dispatcher0Python(const TPyPtr& iCallable):
+	Dispatcher0Python(const python::TPyObjPtr& iCallable):
 		callable_(iCallable)
 	{
 	}
@@ -75,7 +73,7 @@ public:
 	void operator()() const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr result(PyObject_CallObject(callable_.get(), 0));
+		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), 0));
 		if (!result)
 		{
 			LASS_THROW(fetchException());
@@ -89,7 +87,7 @@ public:
 
 private:
 
-	TPyPtr callable_;
+	python::TPyObjPtr callable_;
 };
 
 #	endif
@@ -110,9 +108,7 @@ class Dispatcher$xPython
 {
 public:
 
-	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
-
-	Dispatcher$xPython(const TPyPtr& iCallable):
+	Dispatcher$xPython(const python::TPyObjPtr& iCallable):
 		callable_(iCallable)
 	{
 	}
@@ -120,8 +116,8 @@ public:
 	void operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr args(python::makeTuple($(iP$x)$));
-		TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
+		python::TPyObjPtr args(python::makeTuple($(iP$x)$));
+		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{
 			LASS_THROW(fetchException());
@@ -130,7 +126,7 @@ public:
 
 private:
 
-	TPyPtr callable_;
+	python::TPyObjPtr callable_;
 };
 
 #	endif
@@ -151,9 +147,7 @@ class DispatcherR0Python
 {
 public:
 
-	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
-
-	DispatcherR0Python(const TPyPtr& iCallable):
+	DispatcherR0Python(const python::TPyObjPtr& iCallable):
 		callable_(iCallable)
 	{
 	}
@@ -161,7 +155,7 @@ public:
 	R operator()() const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr result(PyObject_CallObject(callable_.get(), 0));
+		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), 0));
 		if (!result)
 		{
 			LASS_THROW(fetchException());
@@ -178,7 +172,7 @@ public:
 
 private:
 
-	TPyPtr callable_;
+	python::TPyObjPtr callable_;
 };
 
 #	endif
@@ -199,9 +193,7 @@ class DispatcherR$xPython
 {
 public:
 
-	typedef python::PyObjectPtr<PyObject>::Type TPyPtr;
-
-	DispatcherR$xPython(const TPyPtr& iCallable):
+	DispatcherR$xPython(const python::TPyObjPtr& iCallable):
 		callable_(iCallable)
 	{
 	}
@@ -209,8 +201,8 @@ public:
 	R operator()($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		LASS_ASSERT(callable_);
-		TPyPtr args(python::makeTuple($(iP$x)$));
-		TPyPtr result(PyObject_CallObject(callable_.get(), args.get()));
+		python::TPyObjPtr args(python::makeTuple($(iP$x)$));
+		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{
 			LASS_THROW(fetchException());
@@ -227,7 +219,7 @@ public:
 
 private:
 
-	TPyPtr callable_;
+	python::TPyObjPtr callable_;
 };
 
 #	endif

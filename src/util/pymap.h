@@ -51,8 +51,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
 		virtual std::string pyStr(void) = 0;
 		virtual std::string pyRepr(void) = 0;
-		virtual PyObjectPtr<PyObject>::Type keys() const = 0;
-		virtual PyObjectPtr<PyObject>::Type values() const = 0;
+		virtual TPyObjPtr keys() const = 0;
+		virtual TPyObjPtr values() const = 0;
 		virtual PyObject* PyMap_Iter() = 0;
 
 	};
@@ -73,8 +73,8 @@ namespace impl
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
 		virtual std::string pyStr(void);
 		virtual std::string pyRepr(void);
-		virtual PyObjectPtr<PyObject>::Type keys() const;
-		virtual PyObjectPtr<PyObject>::Type values() const;
+		virtual TPyObjPtr keys() const;
+		virtual TPyObjPtr values() const;
 		virtual PyObject* PyMap_Iter();
 	private:
 
@@ -118,8 +118,8 @@ namespace impl
 		virtual ~PyMap();
 		virtual std::string pyStr(void) { return pimpl_->pyStr(); }
 		virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
-		virtual PyObjectPtr<PyObject>::Type keys() const { return pimpl_->keys(); }
-		virtual PyObjectPtr<PyObject>::Type values() const { return pimpl_->values(); }
+		virtual TPyObjPtr keys() const { return pimpl_->keys(); }
+		virtual TPyObjPtr values() const { return pimpl_->values(); }
 
 		static int PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
@@ -163,7 +163,7 @@ namespace impl
 
 
 	template<typename M>
-	PyObjectPtr<PyObject>::Type PyMapImpl<M>::keys() const
+	TPyObjPtr PyMapImpl<M>::keys() const
 	{
 		LASS_ASSERT(map_);
 		std::vector<typename M::key_type> temp;
@@ -173,7 +173,7 @@ namespace impl
 	}
 
 	template<typename M>
-	PyObjectPtr<PyObject>::Type PyMapImpl<M>::values() const
+	TPyObjPtr PyMapImpl<M>::values() const
 	{
 		LASS_ASSERT(map_);
 		std::vector<typename M::mapped_type> temp;

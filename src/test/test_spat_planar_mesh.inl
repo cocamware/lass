@@ -362,7 +362,7 @@ void doTestPlanarMesh()
 		for (long y=10;y<91;y+=10)
 			randomPointsLong.push_back( TPoint2DLong(x,y ) );
 
-#pragma LASS_TODO("Make the test for integral types such as long working again... problem is sqrt");
+#pragma LASS_TODO("Make the test for integral types such as long working again... problem is sqrt")
 	/*
 	for (int i=0;i<int(randomPointsLong.size());++i)
 		testMesh3.insertSite( randomPointsLong[i], true );
