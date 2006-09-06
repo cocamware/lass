@@ -42,6 +42,8 @@ namespace lass
 namespace num
 {
 
+/** @ingroup DistributionTransformations
+ */
 template <typename T>
 const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 {
@@ -52,6 +54,8 @@ const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
+/** @ingroup DistributionTransformations
+ */
 template <typename T>
 const prim::Point3D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
 {
@@ -62,6 +66,8 @@ const prim::Point3D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta
 	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
 }
 
+/** @ingroup DistributionTransformations
+ */
 template <typename T>
 const prim::Point2D<T> uniformDisk(const prim::Point2D<T>& sample, T& pdf)
 {
@@ -106,6 +112,17 @@ const prim::Point2D<T> uniformDisk(const prim::Point2D<T>& sample, T& pdf)
 
 	pdf = inv(sqr(NumTraits<T>::pi));
 	return prim::Point2D<T>(rho * cos(theta), rho * sin(theta));
+}
+
+/** @ingroup DistributionTransformations
+ */
+template <typename T>
+const prim::Point3D<T> cosineHemisphere(const prim::Point2D<T>& sample, T& pdf)
+{
+	const prim::Point2D<T> xy = uniformDisk(sample, pdf);
+	const T z = num::sqrt(std::max(T(), 1 - xy.position().squaredNorm()));
+	pdf *= 2 * z;
+	return prim::Point3D<T>(xy.x, xy.y, z);
 }
 
 }

@@ -69,6 +69,43 @@ Transformation3D<T>::Transformation3D():
 
 
 
+/** construct an matrix from an origin and three base vectors
+ *  
+ *	@code
+ *	TVector3D<T> i, j, k;
+ *	TPoint3D<T> o, p;
+ *	// ...
+ *
+ *	Transformation3D<T> transformation(o, i, j, k);
+ *	LASS_ASSERT(transform(p, transformation) == (o + i * p.x + j * p.y + k * p.z));
+ *	@endcode
+ */
+template <typename T>
+Transformation3D<T>::Transformation3D(
+		const TPoint& origin, const TVector& baseX, const TVector& baseY, const TVector& baseZ):
+	matrix_(new TValue[16]),
+	inverseMatrix_(0)
+{
+	matrix_[ 0] = baseX.x;
+	matrix_[ 1] = baseY.x;
+	matrix_[ 2] = baseZ.x;
+	matrix_[ 3] = origin.x;
+	matrix_[ 4] = baseX.y;
+	matrix_[ 5] = baseY.y;
+	matrix_[ 6] = baseZ.y;
+	matrix_[ 7] = origin.y;
+	matrix_[ 8] = baseX.z;
+	matrix_[ 9] = baseY.z;
+	matrix_[10] = baseZ.z;
+	matrix_[11] = origin.z;
+	matrix_[12] = TNumTraits::zero;
+	matrix_[13] = TNumTraits::zero;
+	matrix_[14] = TNumTraits::zero;
+	matrix_[15] = TNumTraits::one;
+}
+
+
+
 /** construct a transformation from a 4x4 tranformation matrix.
  *  The elements of the 4x4 matrix will represented in a row major way by an iterator
  *  range [iBegin, iEnd) of 16 elements.

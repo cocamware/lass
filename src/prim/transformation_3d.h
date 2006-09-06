@@ -53,6 +53,8 @@ public:
 
 	typedef Transformation3D<T> TSelf;
 
+	typedef Point3D<T> TPoint;
+	typedef typename TPoint::TVector TVector;
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
@@ -60,7 +62,7 @@ public:
 	typedef num::NumTraits<T> TNumTraits;
 	typedef size_t TSize;
 
-	enum { dimension = 3 }; /**< number of dimensions of vector */
+	enum { dimension = TPoint::dimension }; /**< number of dimensions of vector */
 
 	template <typename U> struct Rebind
 	{
@@ -68,6 +70,8 @@ public:
 	};
 
 	Transformation3D();
+	Transformation3D(const TPoint& origin, const TVector& baseX, const TVector& baseY, 
+		const TVector& baseZ);
 	template <typename InputIterator> Transformation3D(InputIterator iBegin, InputIterator iEnd);
 
 	const TSelf inverse() const;
