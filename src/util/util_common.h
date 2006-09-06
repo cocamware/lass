@@ -52,7 +52,6 @@
  *  - @ref stringCast: casts a value to a type by using string streams, to cast to/from strings.
  *  - @ref Threading: basic threading library
  *  - @ref ThreadFun: Uses the Callback library to run existing functions in threads
- *  - TypeInfo: first class wrapper around typeid.
  *  - @ref VisitorPattern: implements Alexandrescu's visitor pattern.
  */
 

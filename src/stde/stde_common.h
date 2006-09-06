@@ -48,7 +48,6 @@
  *  - @ref stde_select: functors to to select members of std::pair or stde::triple.
  *  - slist: implements a single linked list, much like the one of SGI (and in STLport).
  *  - small_object_allocator: an std compliant allocator using the allocator from util::SmallObject
- *  - strong_insert
  *  - triple: a std::pair with tree elements
  *
  *  @note Currently, this libary is headers only.  This means no static library needs to be

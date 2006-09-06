@@ -68,11 +68,6 @@ void testMetaTypeList()
 	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, long double>::value), 2);
 	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, NullType>::value), -1);
 
-	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(float)), 0);
-	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(double)), 1);
-	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(long double)), 2);
-	LASS_TEST_CHECK_EQUAL(type_list::find<TFloats>(typeid(NullType)), -1);
-
 	typedef type_list::Merge<TSignedIntegers, AVeryLongInt>::Type TAllSignedIntegers;
 	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
 	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);

@@ -46,7 +46,6 @@
 
 #include "meta_common.h"
 #include "type_list.h"
-#include "../util/type_info.h"
 
 namespace lass
 {
@@ -300,46 +299,6 @@ private:
 	typedef typename Reverse<TailType>::Type TTempHead;
 public:
 	typedef typename Merge<TTempHead, HeadType>::Type Type;
-};
-
-
-
-
-// --- runtime algorithms --------------------------------------------------------------------------
-
-template <typename TypeListType> struct RunTimeFinder {};
-
-/** returns index of type in typelist at runtime, or -1 if not present
- *
- *  @sa TypeList
- */
-template <typename TypeListType> int find(const util::TypeInfo& iType)
-{
-	return RunTimeFinder<TypeListType>::result(iType);
-}
-
-
-template <>
-struct RunTimeFinder<NullType>
-{
-	static int result(const util::TypeInfo& /*iType*/)
-	{
-		return -1;
-	}
-};
-
-template <typename HeadType, typename TailType>
-struct RunTimeFinder<TypeList<HeadType, TailType> >
-{
-	static int result(const util::TypeInfo& iType)
-	{
-		if (typeid(HeadType) == iType.type_info())
-		{
-			return 0;
-		}
-		const int result = find< TailType >(iType);
-		return result == -1 ? -1 : result + 1;
-	}
 };
 
 }

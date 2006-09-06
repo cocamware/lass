@@ -115,6 +115,7 @@
 					OptimizeForProcessor="3"
 					RequireProcExt="3"
 					Parallelization="1"
+					StringPooling="0"
 					RuntimeLibrary="2"
 					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
@@ -257,6 +258,7 @@
 					FavorSizeOrSpeed="1"
 					OmitFramePointers="1"
 					OptimizeForProcessor="3"
+					StringPooling="0"
 					RuntimeLibrary="2"
 					StructMemberAlignment="0"
 					EnableFunctionLevelLinking="0"
@@ -419,9 +421,6 @@
 			</File>
 			<File 
 				RelativePath="stde_common.h">
-			</File>
-			<File 
-				RelativePath="strong_insert.h">
 			</File>
 			<File 
 				RelativePath=".\triple.h">

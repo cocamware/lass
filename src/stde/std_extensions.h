@@ -33,7 +33,6 @@
 #include "select.h"
 #include "deletor.h"
 #include "extended_io.h"
-#include "strong_insert.h"
 
 #endif
 

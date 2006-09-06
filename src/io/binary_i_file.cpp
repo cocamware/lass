@@ -26,7 +26,6 @@
 #include "io_common.h"
 #include "binary_i_file.h"
 #include "../meta/meta_assert.h"
-#include "../util/scoped_array.h"
 
 #include <cstdio>
 

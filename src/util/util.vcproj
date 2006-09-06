@@ -444,9 +444,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				</FileConfiguration>
 			</File>
 			<File 
-				RelativePath="scoped_array.inl">
-			</File>
-			<File 
 				RelativePath="singleton.inl">
 			</File>
 			<File 
@@ -492,9 +489,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\thread_pool.inl">
-			</File>
-			<File 
-				RelativePath=".\type_info.cpp">
 			</File>
 			<File 
 				RelativePath="util.cpp">
@@ -927,9 +921,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\pyshadow_object.h">
 			</File>
 			<File 
-				RelativePath="scoped_array.h">
-			</File>
-			<File 
 				RelativePath="scoped_ptr.h">
 			</File>
 			<File 
@@ -996,9 +987,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\thread_pool.h">
-			</File>
-			<File 
-				RelativePath="type_info.h">
 			</File>
 			<File 
 				RelativePath="util_common.h">
