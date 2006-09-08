@@ -23,15 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-/** @class lass::util::impl::SingletonBase
- *  @brief just a helper class of Singleton<> so it can be hold by the singleton guard.
- *  @author Bram de Greve [Bramz]
- */
-
-
-
 /** @class lass::util::Singleton
  *  @brief non-intrusive singleton holder.
  *  @author Bram de Greve
@@ -94,30 +85,17 @@
  *     Reusable Object-Oriented Software</i>, Addison-Wesley.
  */
 
-
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_H
-
-
 
 #include "util_common.h"
 #include "scoped_ptr.h"
 #include "impl/singleton_impl.h"
 
-
 namespace lass
 {
 namespace util
 {
-
-void destructSingletons();
-
-#define LASS_INIT_SINGLETON\
-	LASS_EXECUTE_BEFORE_MAIN_EX(lassInitSingleton, (lass::io::proxyMan(); )
-
-
 
 template<class T, int DestructPriority = 1000>
 class Singleton: public impl::SingletonBase
@@ -125,12 +103,14 @@ class Singleton: public impl::SingletonBase
 public:
 
 	typedef Singleton<T, DestructPriority> TSelf;
+
 	typedef T TInstance;
+	enum { destructPriority = DestructPriority };
 
 	Singleton();
 	virtual ~Singleton();
 
-	static TInstance* LASS_CALL instance();
+	static TInstance* instance();
 
 private:
 
@@ -139,12 +119,12 @@ private:
 	ScopedPtr<TInstance> instance_;
 };
 
-
-
 }
-
 }
 
 #include "singleton.inl"
 
 #endif
+
+// EOF
+

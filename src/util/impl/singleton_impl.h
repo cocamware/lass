@@ -28,9 +28,6 @@
 
 #include "../util_common.h"
 #include "../non_copyable.h"
-#include "../thread.h"
-
-#include <queue>
 
 namespace lass
 {
@@ -38,14 +35,6 @@ namespace util
 {
 namespace impl
 {
-
-/** @internal
- */
-typedef CriticalSection TSingletonLock;
-
-/** @internal
- */
-LASS_DLL void LASS_CALL singletonCleanUp();
 
 /** base class of all singletons.
  *  @internal
@@ -60,79 +49,19 @@ public:
 
 	int destructionPriority() const;
 
-	static void initLock();  ///< do NOT call this yourself, implementation detail!
-	static void cleanLock();    ///< do NOT call this yourself, implementation detail!
-
 protected:
 
 	void subscribeInstance(int iDestructionPriority);
-
-	static TSingletonLock* lock_;
 
 private:
 
 	int destructionPriority_;
 };
 
-
-
-/** helper class to compare destruction priorities fo lass::util::SingletonBase.
- *  @internal
- *  @author Bram de Greve [Bramz]
- */
-class LASS_DLL CompareDestructionPriority
-{
-public:
-
-	bool operator()(SingletonBase* iA, SingletonBase* iB);
-};
-
-
-
-/** The singleton guard will take care of the destruction of all singletons.
- *  @internal
- *  @author Bram de Greve [Bramz]
- *
- *  All singletons will subscribe them to this guard with a DestructionPriority.  On an explicit
- *  call of killEmAll() (or on destruction of the guard), all singletons will be destructed.
- *  The singletons with the highest DestructionPriority will be killed first.  The order in which
- *  singletons of the same priority are destructed is undefined.
- *
- *  The system of using this destruction priority controlled by a guard that is destructed by
- *  @c ::atexit() , is inspired by Alexandrescu's @e longevity singletons [1].
- *
- *  @warning you should never call @c killEmAll() yourself!
- *
- *  @b Reference:
- *  -# ALEXANDRESCU A. (2001), <i>Modern C++ Design: Generic Programming and Design Patterns
- *     applied</i>, C++ in depth series, Addison-Wesley, pages 129-156
-*/
-class LASS_DLL SingletonGuard
-{
-public:
-
-	~SingletonGuard();
-
-	void subscribe(SingletonBase* iSingleton);
-
-private:
-
-	typedef std::priority_queue
-		<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
-
-	TDeathRow deathRow_;
-	TSingletonLock lock_;
-};
-
 }
 
 }
 
 }
-
-LASS_EXECUTE_BEFORE_MAIN_EX(
-	lassUtilImplSingletonBase,
-	lass::util::impl::SingletonBase::initLock();
-)
 
 #endif

@@ -37,18 +37,6 @@ namespace lass
 namespace util
 {
 
-/** destroy and deallocate all current singletons.
- *  @relates Singleton
- *  to be used with care!
- *  @warning this isn't thread safe
- */
-inline void destructSingletons()
-{
-	impl::singletonCleanUp();
-}
-
-
-
 template <class T, int DP>
 Singleton<T, DP>::Singleton():
 	impl::SingletonBase(),
@@ -75,24 +63,25 @@ template <class T, int DP>
 typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 {
 	static TSelf* neo = 0;
+	static util::Semaphore lock;
 
 	if (deadReference(false))
 	{
-		std::cerr << "Dead reference detected at '" << neo << "' of singleton '" << typeid(T).name()
-			<< "' with destruction priority '" << DP << "'";
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Dead reference detected at '" << neo 
+			<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '" 
+			<< destructPriority << "'" << std::endl;
 		return 0;
 	}
 
 	// if instance hasn't been created yet, you might want to do it now :)
 	if (neo == 0)
 	{
-		initLock();
-		LASS_LOCK(*lock_)
+		LASS_LOCK(lock)
 		{
 			if (neo == 0)
 			{
 				neo = new TSelf;
-				neo->subscribeInstance(DP);
+				neo->subscribeInstance(destructPriority);
 			}
 		}
 	}
