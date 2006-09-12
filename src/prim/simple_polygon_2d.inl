@@ -642,11 +642,11 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 {
 	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = patch(";
 	oOStream << "[" << iPolygon[0].x;
-	for (int i=1;i<iPolygon.size();++i)
+	for (size_t i=1;i<iPolygon.size();++i)
 		oOStream << "," << iPolygon[i].x;
 	oOStream << "],";
 	oOStream << "[" << iPolygon[0].y;
-	for (int i=1;i<iPolygon.size();++i)
+	for (size_t i=1;i<iPolygon.size();++i)
 		oOStream << "," << iPolygon[i].y;
 	oOStream << "],";
 	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;

@@ -995,7 +995,7 @@ namespace spat
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::isBoundingPoint( const TPoint2D& iPoint ) const
 	{
-		for (int i=0;i<boundingPoints_.size();++i)
+		for (size_t i=0;i<boundingPoints_.size();++i)
 		{
 			if (boundingPoints_[i]==iPoint)
 				return true;

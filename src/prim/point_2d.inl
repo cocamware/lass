@@ -313,7 +313,8 @@ template<typename T>
 lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& ioOStream, const Point2D<T>& iB)
 {
 	LASS_ENFORCE_STREAM(ioOStream) << "lasthandle = line(";
-	ioOStream << iB.x << "," << iB.y << ");" << std::endl;
+	ioOStream << iB.x << "," << iB.y << ",";
+	ioOStream << "'Color'," << ioOStream.color() << ");" << std::endl;
 	ioOStream << "set(lasthandle,'Marker','o');" << std::endl;
 	ioOStream << "set(lasthandle,'markersize',2);" << std::endl;
 	return ioOStream;
