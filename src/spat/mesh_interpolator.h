@@ -77,16 +77,8 @@ class MeshInterpolator
 {
 public:
 	typedef prim::Aabb2D<T> TAabb2D;
-protected:
-	typedef PlanarMesh<T, TPI*, lass::meta::NullType , lass::meta::NullType >  TPlanarMesh;
-	MeshInterpolator() {}
-
-	TPlanarMesh mesh_;
-	TAabb2D		aabb_;
-
-	typedef std::deque<TPI> TInfoList;    /**< type must support stable iterators */
-	TInfoList info_;
 public:
+	typedef PlanarMesh<T, TPI*, lass::meta::NullType , lass::meta::NullType >  TPlanarMesh;
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
 	typedef std::vector<TPoint2D> TPolyLine2D;
 
@@ -99,6 +91,14 @@ public:
 	virtual void insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo );
 	virtual TPI   interpolate( const TPoint2D& iQuery ) const = 0;
 	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
+protected:
+	MeshInterpolator() {}
+
+	TPlanarMesh mesh_;
+	TAabb2D		aabb_;
+
+	typedef std::deque<TPI> TInfoList;    /**< type must support stable iterators */
+	TInfoList info_;
 };
 
 
@@ -175,6 +175,7 @@ public:
 	typedef typename MeshInterpolator<T,TPI>::TPoint2D TPoint2D;
 	typedef typename MeshInterpolator<T,TPI>::TAabb2D TAabb2D;
 	typedef typename MeshInterpolator<T,TPI>::TPolyLine2D TPolyLine2D;
+	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
 
 	LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside );
 	virtual ~LinearMeshInterpolator() {}
@@ -182,16 +183,16 @@ public:
 	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
 	
 private:
-	typedef typename MeshInterpolator<T,TPI>::TPlanarMesh TPlanarMesh;
-
 	LinearMeshInterpolator() {}
 	virtual TPI interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* iEdge ) const;
+	TPI valueOutside_;
 };
 
 
 template<typename T, typename TPI>
 LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside ) : MeshInterpolator<T,TPI>( iAabb )
 {
+	valueOutside_ = iValueOutside;
 	TPoint2D topleft( iAabb.min().x, iAabb.max().y );
 	TPoint2D topright( iAabb.max().x, iAabb.max().y );
 	TPoint2D bottomleft( iAabb.min().x, iAabb.min().y );
@@ -222,6 +223,9 @@ LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, con
 template<typename T, typename TPI>
 TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* e ) const
 {
+	if (!aabb_.contains(iQuery))
+		return valueOutside_;
+
 	TPoint2D a = TPlanarMesh::org(e);
 	TPoint2D b = TPlanarMesh::dest(e);
 	TPoint2D c = TPlanarMesh::dest(e->lNext());
