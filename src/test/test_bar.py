@@ -28,7 +28,18 @@ class TestClass:
         return a
     def normalFunction2(self,b):
         return a
-    
+
+
+class TestDerivation(embedding.Bar):
+	def __init__(self):
+		self.id = 1
+	def testFunc(self):
+		print self.id
+
+print "Creating embedding derived instance"
+t = TestDerivation()
+print "Calling function from derived instance"
+t.testFunc()
 #print dir( TestClass() )
 #print embedding.listInfo( TestClass() )
 #print TestClass().__class__
