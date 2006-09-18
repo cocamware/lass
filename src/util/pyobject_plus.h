@@ -134,7 +134,7 @@ namespace lass
 		{
 			template <typename T> int dictionaryOffset(T* iObject)
 			{
-				return -1;
+				return 0;
 			}
 
 			template<> inline int dictionaryOffset<PyObjectPlus>(PyObjectPlus* iObject)
