@@ -53,6 +53,8 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;	
+	this->dict_ = PyDict_New();
+	Py_INCREF(this->dict_);
 	_Py_NewReference( this );
 };
 
@@ -289,18 +291,35 @@ void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>&
 	{
 		if (PyType_Check(i->object))
 		{
-			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
-				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
+			// we have an innerclass
+#pragma LASS_TODO("Innerclass working is broken")
+			if (i->object->ob_type == &PyType_Type)
+			{
+				finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
+					*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc, false,true);
+			}
+			else
+			{
+				LASS_ASSERT(false);
+				finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
+					*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc, false);
+			}
 		}
 		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), i->object);
 	}
 }
 
+int defaultInquiryNoGc(PyObject* self)
+{
+	return 0;
+}	
+
 /** @internal
+*	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
 void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 	std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation)
+	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation, bool iFinal, bool iInnerClass)
 {
 	std::string fullName;
 	if (iModuleName)
@@ -315,10 +334,26 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 	iPyType.tp_getset = &iGetSetters[0];
 	iPyType.tp_doc = const_cast<char*>(iDocumentation);
 	iPyType.tp_base = &iPyParentType;
+	// we take care of collecting garbage ourselves
+	iPyType.tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+	iPyType.tp_is_gc = &lass::python::impl::defaultInquiryNoGc;
+	if (!iFinal && !iInnerClass)
+	{
+#pragma LASS_TODO("Check this for completeness and read comment here...")
+		// For some reason, when enabling this code for PyMap, the interpreter crashes when it requests the keys.  It looks
+		// like it bypasses the keys() function and tries to go via the dict_, although that should work as well, ... well it
+		// doesn't.  [TDM] 
+		PyObjectPlus dummyObject;
+		iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
+	}
+	else
+	{
+		iPyType.tp_flags &= (~Py_TPFLAGS_BASETYPE );
+	}
 	Py_XINCREF( iPyType.tp_base );
 	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
 	Py_INCREF( &iPyType );
-
+ 
 	injectStaticMembers(iPyType, iStatics);
 }
 

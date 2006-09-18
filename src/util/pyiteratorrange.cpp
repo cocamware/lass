@@ -45,7 +45,7 @@ namespace python
 							*PyIteratorRange::GetParentType(), 
 							PyIteratorRange::Methods,
 							PyIteratorRange::GetSetters, 
-							PyIteratorRange::Statics, NULL, NULL );
+							PyIteratorRange::Statics, NULL, NULL, true );
 			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
 			isInitialized = true;
 		}

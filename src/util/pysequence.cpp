@@ -85,7 +85,7 @@ namespace impl
 							*PySequence::GetParentType(), 
 							PySequence::Methods,
 							PySequence::GetSetters, 
-							PySequence::Statics, NULL, NULL );
+							PySequence::Statics, NULL, NULL, true );
 			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
 			isInitialized = true;
 		}

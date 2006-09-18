@@ -57,7 +57,7 @@ namespace impl
 							*PyMap::GetParentType(), 
 							PyMap::Methods,
 							PyMap::GetSetters, 
-							PyMap::Statics, NULL, NULL );
+							PyMap::Statics, NULL, NULL, true );
 			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
 			isInitialized = true;
 		}

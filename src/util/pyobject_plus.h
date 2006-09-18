@@ -65,7 +65,8 @@
 		static PyTypeObject   Type; \
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
-		virtual PyTypeObject *GetType(void) const {return &Type;};
+		virtual PyTypeObject *GetType(void) const {return &Type;};\
+		PyObject* dict_;
 
 /** @ingroup Python
  *  Place as first line of your Pythonized class.    
@@ -399,7 +400,7 @@ namespace lass
 			LASS_DLL void LASS_CALL injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
 			LASS_DLL void LASS_CALL finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 				std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation);
+				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation, bool iFinal=false, bool iInnerClass=false);
 			LASS_DLL void LASS_CALL addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			LASS_DLL void LASS_CALL addClassMethod(

@@ -1,6 +1,8 @@
 import sys
 import embedding
 
+print "The Python version used is ", sys.version
+
 if 0:
 	import code
 	s = code.InteractiveConsole()
@@ -30,6 +32,10 @@ class TestClass:
         return a
 
 
+e = embedding.Bar()
+e.aMoreComplexFunction(1,2)
+
+
 class TestDerivation(embedding.Bar):
 	def __init__(self):
 		self.id = 1
@@ -40,6 +46,7 @@ print "Creating embedding derived instance"
 t = TestDerivation()
 print "Calling function from derived instance"
 t.testFunc()
+
 #print dir( TestClass() )
 #print embedding.listInfo( TestClass() )
 #print TestClass().__class__
@@ -66,8 +73,8 @@ if not exceptionCaught:
 print barC.writeableMap
 for i in range(3):
 	barC.writeableMap[str(i)] = str(i+1)
-print "keys=",barC.writeableMap.keys()
 print "values=",barC.writeableMap.values()
+print "keys=",barC.writeableMap.keys()
 
 # subsequent test fails, probably need a partial sequence-protocol in the mapping
 # protocol embedded
@@ -194,6 +201,7 @@ if not exceptionCaught:
 import gc
 
 # testing reference counting
+print "Testing reference counting"
 for i in xrange(100):
     test = embedding.Bar()
     gc.collect()

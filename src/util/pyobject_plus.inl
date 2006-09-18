@@ -353,8 +353,10 @@ template <typename CppClass>
 inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
 {
 	char* shortName = CppClass::Type.tp_name; // finalizePyType will expand tp_name with module name.
+#pragma LASS_FIXME("Shadow classes are declared as final")
+	typedef lass::python::impl::ShadowTraits<CppClass> TShadowTraits;
 	finalizePyType(CppClass::Type, *CppClass::GetParentType(), CppClass::Methods, CppClass::GetSetters,
-		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation);
+		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation, TShadowTraits::isShadow);
 	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
 }
 
@@ -485,6 +487,10 @@ inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics,
 {
 	LASS_ASSERT(std::count_if(InnerCppClass::Statics.begin(), InnerCppClass::Statics.end(), 
 		StaticMemberEqual(iInnerClassName)) == 0);
+	/* InnerClasses stopped working with the dict_ now operational.  So make the InnerCppClass
+	*  a final class to avoid this problem (for now).
+	*/
+#pragma LASS_TODO("Fix the inner class working")
 	oOuterStatics.push_back(createStaticMember(
 		iInnerClassName, iDocumentation, reinterpret_cast<PyObject*>(&InnerCppClass::Type),
 		InnerCppClass::GetParentType(), &InnerCppClass::Methods, &InnerCppClass::GetSetters, 
