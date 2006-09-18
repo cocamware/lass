@@ -116,6 +116,13 @@ namespace test
 		virtual float aMoreComplexFunction( float iA, float iB );
 	};
 
+	typedef lass::python::PyObjectPtr<Bar>::Type TBarPtr;
+
+	inline TBarPtr testPolymorphism()
+	{
+		return TBarPtr(new DerivedBar);
+	}
+
 	void listInfo( PyObject* iObject );
 	void freeMethodA(const Bar& bar, const std::string& a);
 	void freeMethodB(Bar* bar, const std::string& a);

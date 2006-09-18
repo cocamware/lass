@@ -132,6 +132,17 @@ namespace lass
 
 		namespace impl
 		{
+			template <typename T> int dictionaryOffset(T* iObject)
+			{
+				return -1;
+			}
+
+			template<> inline int dictionaryOffset<PyObjectPlus>(PyObjectPlus* iObject)
+			{
+				PyObject* temp = static_cast<PyObject*>(iObject);
+				return (unsigned char*)(&iObject->dict_)-(unsigned char*)(temp);
+			}
+
 			/** @internal
 			*  On creation, PyObjectPlus are typeless (ob_type == 0), call this function to fix that for you.
 			*/
@@ -140,6 +151,8 @@ namespace lass
 				if (meta::IsDerivedType<T, PyObjectPlus>::value && iObject && !iObject->ob_type)
 				{
 					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
+					PyObject* temp = static_cast<PyObject*>(iObject);
+					iObject->ob_type->tp_dictoffset = dictionaryOffset(static_cast<PyObjectPlus*>(iObject));
 				}
 				return iObject;
 			}

@@ -53,7 +53,7 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;	
-	this->dict_ = PyDict_New();
+	this->dict_ = Py_None;
 	Py_INCREF(this->dict_);
 	_Py_NewReference( this );
 };
@@ -343,8 +343,11 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 		// For some reason, when enabling this code for PyMap, the interpreter crashes when it requests the keys.  It looks
 		// like it bypasses the keys() function and tries to go via the dict_, although that should work as well, ... well it
 		// doesn't.  [TDM] 
-		PyObjectPlus dummyObject;
-		iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
+		
+		//This is now handled by the fixObjectType which can more accurately determine the offset at runtime for non-trivial
+		//classes (such as derived objects).
+		//PyObjectPlus dummyObject;
+		//iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
 	}
 	else
 	{

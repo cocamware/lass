@@ -39,6 +39,10 @@ assert(e.aMoreComplexFunction(1,2)==3)
 e = embedding.DerivedBar()
 print e.aMoreComplexFunction(1,2)
 assert(e.aMoreComplexFunction(1,2)==2)
+e = embedding.testPolymorphism()
+print e.aMoreComplexFunction(1,2)
+assert(e.aMoreComplexFunction(1,2)==2)
+
 
 
 class TestDerivation(embedding.Bar):
