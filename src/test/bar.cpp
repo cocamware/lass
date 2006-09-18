@@ -184,6 +184,12 @@ namespace test
 		{
 		}
 
+		float DerivedBar::aMoreComplexFunction( float iA, float iB )
+		{
+			return iA*iB;
+		}
+
+
 		std::string Bar::InnerClass::talkTo(const std::string& iName)
 		{
 			return iName + ", " + sayWhat_ + ".\n";

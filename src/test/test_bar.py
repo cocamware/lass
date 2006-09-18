@@ -32,8 +32,13 @@ class TestClass:
         return a
 
 
+print "Testing derived classes behavior"
 e = embedding.Bar()
-e.aMoreComplexFunction(1,2)
+print e.aMoreComplexFunction(1,2)
+assert(e.aMoreComplexFunction(1,2)==3)
+e = embedding.DerivedBar()
+print e.aMoreComplexFunction(1,2)
+assert(e.aMoreComplexFunction(1,2)==2)
 
 
 class TestDerivation(embedding.Bar):

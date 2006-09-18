@@ -58,7 +58,7 @@ namespace test
 		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
 
-		float aMoreComplexFunction( float iA, float iB );
+		virtual float aMoreComplexFunction( float iA, float iB );
 		void  testAutomaticFunctionExport( int iA, float iB );
 		void complexArguments( const std::string& iA );
 		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
@@ -104,6 +104,16 @@ namespace test
 		private:
 			std::string sayWhat_;
 		};
+	};
+
+	class DerivedBar : public Bar
+	{
+		PY_HEADER( Bar );
+
+	public:
+		DerivedBarBar() {}
+		virtual ~DerivedBar() {}
+		virtual float aMoreComplexFunction( float iA, float iB );
 	};
 
 	void listInfo( PyObject* iObject );

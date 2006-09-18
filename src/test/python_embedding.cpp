@@ -157,6 +157,9 @@ PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
 PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
 PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 
+PY_DECLARE_CLASS( DerivedBar )
+PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
+
 // expose member methods of object instances
 PY_CLASS_METHOD( Bar, aMoreComplexFunction )
 PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
@@ -199,7 +202,8 @@ PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
 
 // inject the class in the module and provide documentation for it
 LASS_EXECUTE_BEFORE_MAIN(
-	PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );)
+	PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
+	PY_INJECT_CLASS_IN_MODULE( DerivedBar, embedding, "Documentation for class DerivedBar." );)
 
 }
 }
