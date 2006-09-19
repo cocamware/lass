@@ -344,10 +344,12 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 		// like it bypasses the keys() function and tries to go via the dict_, although that should work as well, ... well it
 		// doesn't.  [TDM] 
 		
-		//This is now handled by the fixObjectType which can more accurately determine the offset at runtime for non-trivial
-		//classes (such as derived objects).
-		//PyObjectPlus dummyObject;
-		//iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
+		//This is also handled by the fixObjectType which can more accurately determine the offset at runtime for non-trivial
+		//classes (such as derived objects).  For object deriving from simple embedded classes following works ok but there should
+		//a more definitive piece of code taking care of all cases.  The problem is that the vptr table may be allocated before the
+		//dict_ resulting in a shift in offset.
+		PyObjectPlus dummyObject;
+		iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
 	}
 	else
 	{
