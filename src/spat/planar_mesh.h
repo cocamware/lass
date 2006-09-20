@@ -1323,6 +1323,8 @@ continueSearch:
 		{
 			LASS_THROW("Could not shoot initial ray in walk");
 		}
+		if (inConvexCell(iSegment.head(),e))
+			return crossedEdges;
 		if (dest(e)==iSegment.head())
 		{
 			(*crossedEdges++) = e;
