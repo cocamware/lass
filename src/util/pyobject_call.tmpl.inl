@@ -617,7 +617,19 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* iArgs )
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass );
 		// actually the iSubType should be used but appearently the tp_dict does not get properly initialized
 		// so for now, old-style, consequence: no inheritance from extension classes
+		impl::fixObjectType(result);
 		result->ob_type = iSubtype;
+		// do not track the object using GC
+#pragma LASS_TODO("Check if we have created memory leak... yes we have :-/, read the comments here.")
+		/* The reason why we can't use the GC mechanism of Python is that objects needs extra members for this and we don't 
+		   want to add them to PyObjectPlus.  So we do our own GC... tricky but one needs to live on the edge >:-D 
+		   In the future this should happen:
+		   - PyObjectPlus objects should be final... so no derivation and no GC problems.
+		   - PyObjectPlusSuperDeluxe will support everything.
+		   The shadowclasses can then be the 'deluxe' version 
+		*/
+		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		Py_INCREF(result->ob_type);
 		return result;
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
@@ -641,7 +653,10 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* iArgs )
 	try
 	{
 		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass( $(TArg$x::arg(p$x))$ ) );
+		impl::fixObjectType(result);
 		result->ob_type = iSubtype;
+		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		Py_INCREF(result->ob_type);
 		return result;
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN

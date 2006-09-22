@@ -153,9 +153,26 @@ namespace lass
 					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
 					PyObject* temp = static_cast<PyObject*>(iObject);
 					iObject->ob_type->tp_dictoffset = dictionaryOffset(static_cast<PyObjectPlus*>(iObject));
+					iObject->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
 				}
 				return iObject;
 			}
+			/** @internal
+			*  On creation, PyObjectPlus may have a type but not all members may be initialized properly, 
+			*  call this function to fix that for you.  This overwrites any type information previously available.  This
+			*  call is necessary for objects migrating from C++ directly to Python without passing the fixObjectType.
+			*/
+			template <typename T> T* enforceObjectType(T* iObject)
+			{
+				if (meta::IsDerivedType<T, PyObjectPlus>::value && iObject)
+				{
+					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
+					PyObject* temp = static_cast<PyObject*>(iObject);
+					iObject->ob_type->tp_dictoffset = dictionaryOffset(static_cast<PyObjectPlus*>(iObject));
+				}
+				return iObject;
+			}
+
 		}
 
 		/** @class PyObjectStorage

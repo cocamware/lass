@@ -54,8 +54,9 @@ PyObjectPlus::PyObjectPlus()
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;	
 	this->dict_ = Py_None;
-	Py_INCREF(this->dict_);
+	Py_XINCREF(this->dict_);
 	_Py_NewReference( this );
+	//PyObject_GC_Track( this );
 };
 
 PyObjectPlus::~PyObjectPlus()
@@ -65,6 +66,7 @@ PyObjectPlus::~PyObjectPlus()
 		if (this->ob_refcnt>1)
 			std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" << std::endl;
 		--this->ob_refcnt;
+		Py_XDECREF(this->dict_);
 		_Py_ForgetReference( this );
 
 	}
@@ -73,7 +75,15 @@ PyObjectPlus::~PyObjectPlus()
 
 void PyObjectPlus::__dealloc(PyObject *P)
 {
-	delete ((PyObjectPlus *) P);
+	PyObjectPlus *pp = (PyObjectPlus *)P;
+	if (P->ob_refcnt==0)
+	{
+		// objects deriving from pyobjectplus may have dictionaries allocated not reachable anymore by the destructor phase
+		// of PyObjectPlus, discard them here.  The problem of GC still remains for the objects, read the comments in pyboject_call.tmpl.inl
+		// on a proposal for solution.
+		Py_XDECREF(pp->dict_);
+	}
+	delete pp;
 };
 
 PyObject*   PyObjectPlus::__repr(PyObject *PyObj)
