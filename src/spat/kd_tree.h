@@ -102,18 +102,23 @@ public:
 		TValue squaredDistance_;
 	};
 
-	typedef std::vector<Neighbour> TNeighbourhood;
+	typedef  TNeighbourhood;
 
 	KdTree();
 	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
-	Neighbour nearestNeighbour(const TPoint& iLocation) const;
+	Neighbour nearestNeighbour(const TPoint& iLocation) const;	
 	TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
-		TNeighbourhood& oNeighbourhood) const;
-	void rangeSearchLeanAndMean(const TPoint& iCenter, TParam iMaxRadius,
-		TNeighbourhood& oNeighbourhood) const;
+			TNeighbourhood& oNeighbourhood) const;
+
+	template <typename OutputIterator> 
+	OutputIterator rangeSearch(const TPoint& iCenter, TParam iMaxRadius, 
+			OutputIterator iFirst) const;	
+	template <typename RandomIterator>
+	RandomIterator rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
+			RandomIterator iFirst) const;	
 
 	void swap(TSelf& iOther);
 	const bool isEmpty() const;
@@ -152,10 +157,12 @@ private:
 	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
 
 	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
-	void doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, size_t iMaxCount,
-		TNeighbourhood& oNeighbourhood, size_t iNode) const;
-	void doRangeSearchLeanAndMean(const TPoint& iCenter, TReference ioSquaredRadius,
-		TNeighbourhood& oNeighbourhood, size_t iNode) const;
+	template <typename OutputIterator>
+	OutputIterator doRangeSearch(const TPoint& iCenter, TParam iSquaredRadius,
+			OutputIterator iFirst, size_t iNode) const;
+	template <typename RandomIterator>
+	RandomIterator doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius,
+		size_t iMaxCount, RandomIterator iFirst, RandomIterator iLast, size_t iNode) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
 

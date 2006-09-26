@@ -511,9 +511,6 @@ cd ..\dll
 				RelativePath="..\..\src\util\.\thread.cpp">
 			</File>
 			<File 
-				RelativePath="..\..\src\util\.\type_info.cpp">
-			</File>
-			<File 
 				RelativePath="..\..\src\util\.\visitor.cpp">
 			</File>
 			<File 

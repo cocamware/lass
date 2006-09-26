@@ -31,7 +31,6 @@
  *
  *  - lass::util::ScopedPtr: a smart pointer for single ownership, deallocates on end of scope.
  *  - lass::util::SharedPtr: a smart pointer for shared ownership, keeping track of reference count.
- *  - lass::util::ScopedArray: deprecated, use @c ScopedPtr<T,ArrayStorage> now.
  *  - lass::util::SmartI: a smart pointer to COM interfaces.
  *
  *  @section StoragePolicy
@@ -323,8 +322,9 @@ protected:
 		TCount oldCount = 0, newCount = 0;
 		do
 		{
-			LASS_ASSERT(count_ && *count_ > 0);
+			LASS_ASSERT(count_);
 			oldCount = *count_;
+			LASS_ASSERT(oldCount > 0);
 			newCount = oldCount + 1;
 		}
 		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
@@ -335,8 +335,9 @@ protected:
 		TCount oldCount = 0, newCount = 0;
 		do
 		{
-            LASS_ASSERT(count_ && *count_ > 0);
+            LASS_ASSERT(count_);
 			oldCount = *count_;
+			LASS_ASSERT(oldCount > 0);
 			newCount = oldCount - 1;
 		}
 		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
@@ -424,11 +425,12 @@ protected:
 
 	template <typename TStorage> void increment(TStorage& iPointee)
 	{
-		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
+		LASS_ASSERT(iPointee);
 		TCount oldCount = 0, newCount = 0;
 		do
 		{
 			oldCount = iPointee->*referenceCounter;
+			LASS_ASSERT(oldCount > 0);
 			newCount = oldCount + 1;
 		}
 		while (!atomicCompareAndSwap(iPointee->*referenceCounter, oldCount, newCount));
@@ -436,12 +438,13 @@ protected:
 
 	template <typename TStorage> bool decrement(TStorage& iPointee)
 	{
-		LASS_ASSERT(iPointee && (iPointee->*referenceCounter) > 0);
+		LASS_ASSERT(iPointee);
 		TCount oldCount = 0, newCount = 0;
 		do
 		{
 			oldCount = iPointee->*referenceCounter;
-			newCount = oldCount + 1;
+			LASS_ASSERT(oldCount > 0);
+			newCount = oldCount - 1;
 		}
 		while (!atomicCompareAndSwap(iPointee->*referenceCounter, oldCount, newCount));
 		return newCount == 0;

@@ -113,6 +113,9 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& iTarget) const
 
 
 /** Locates objects within a spherical range around a target position.
+ *
+ *	@deprecated USE OVERLOADS WITH ITERATORS INSTEAD
+ *
  *  @param iTarget [in] the center of the spherical range
  *  @param iMaxRadius [in] the radius of the range
  *  @param iMaxCount [in] the maximum number of objects to be returned.
@@ -133,22 +136,11 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 		LASS_THROW("can't perform range search in empty KdTree");
 	}
 
-	iMaxCount = std::min(iMaxCount, size_);
-
-	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
-    
-	TValue squaredRadius = iMaxRadius * iMaxRadius;
-	oNeighbourhood.clear();
-	oNeighbourhood.reserve(iMaxCount + 1);
-
-	doRangeSearch(iTarget, squaredRadius, iMaxCount, oNeighbourhood, 0);
-
-	if (oNeighbourhood.empty())
-	{
-		return TValue();
-	}
 	if (iMaxCount == 0)
 	{
+		oNeighbourhood.clear();
+		rangeSearch(iTarget, iMaxRadius, std::back_inserter(oNeighbourhood));
+		
 		// oNeighbourhood is not a heap, find maximum squared distance
 		TValue maxSquaredDistance = TValue();
 		const typename TNeighbourhood::const_iterator end = oNeighbourhood.end();
@@ -162,7 +154,89 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 		}
 		return maxSquaredDistance;
 	}
-    return oNeighbourhood.front().squaredDistance();
+
+	iMaxCount = std::min(iMaxCount, size_);
+	oNeighbourhood.resize(iMaxCount + 1);
+
+	TNeighbourhood::iterator last = rangeSearch(
+		iTarget, iMaxRadius, oNeighbourhood.begin(), oNeighbourhood.end());
+	oNeighbourhood.erase(last, oNeighbourhood.end());
+	
+	if (oNeighbourhood.empty())
+	{
+		return TValue();
+	}
+	return oNeighbourhood.front().squaredDistance();
+}
+
+
+
+/** Find all objects in a radius of @a iMaxRadius of @a iTarget.
+ *  @param iTarget [in] center of range.
+ *	@param iMaxRadius [in] radius of range
+ *	@param iFirst [in] output iterator dereferencable to Neighbour.
+ *	@return output iterator @e last so that [@a iFirst, last) is the range of all found objects.
+ *
+ *	@note
+ *		The range starting at @a iFirst must be large enough to contain all found objects.  
+ *		But since this number is probably unknown beforehand, you better use one of those
+ *		inserter kind of iterators to add the results to a dynamic sized container. 
+ *
+ *	@note
+ *		If you wish to use a fixed sized range, you best use the other rangeSearch overload
+ *		taking a random access iterator and an extra parameter @a iMaxCount.
+ */
+template <class O, class OT>
+template <typename OutputIterator>
+OutputIterator
+KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, OutputIterator iFirst) const
+{
+	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
+	if (isEmpty())
+	{
+		return iFirst;
+	}
+	const TValue squaredRadius = iMaxRadius * iMaxRadius;
+	return doRangeSearch(iTarget, squaredRadius, iFirst, 0);
+}
+
+
+
+/** Find up to a fixed number of objects in a radius of @a iMaxRadius of @a iTarget.
+ *  @param iTarget [in] center of range.
+ *	@param iMaxRadius [in] radius of range
+ *	@param iMaxCount [in] maximum number of objects to be found.
+ *	@param iFirst [in] random access iterator dereferencable to Neighbour, 
+ *		[@a iFirst, @a iFirst + @a iMaxCount + 1) must be a valid range.
+ *	@return output iterator @e last so that [@a iFirst, last) is the range of all found objects.
+ *
+ *	@note
+ *		This overload will search for a maximum number of @a iMaxCount objects at a maximum
+ *		distance of @a iMaxRadius of the center @a iTarget.  When more than @a iMaxCount objects
+ *		are within this distance, the closest objects will be selected.
+ *		To select the closest objects, a heap is constructed on the iterator range, which is
+ *		why random access iterators are required instead of regular output iterators.  This
+ *		is also why there's need of an extra position in the range pointed to by @a iFirst:
+ *		there's need of an extra position to swap in/out new/old objects.  That's why you
+ *		must make sure [@a iFirst, @a iFirst + @a iMaxCount + 1) is a valid range.
+ *
+ *	@note
+ *		If you wish to find all points within the range of @a iMaxRadius, you better use the
+ *		overload with the regular output iterator and without @a iMaxCount.
+ */
+template <class O, class OT>
+template <typename RandomAccessIterator>
+RandomAccessIterator
+KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMaxCount,
+		RandomAccessIterator iFirst) const
+{
+	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
+	if (isEmpty())
+	{
+		return iFirst;
+	}
+	const TValue squaredRadius = iMaxRadius * iMaxRadius;
+	return doRangeSearch(iTarget, squaredRadius, iMaxCount, iFirst, iFirst, 0);
 }
 
 
@@ -417,11 +491,57 @@ void KdTree<O, OT>::doNearestNeighbour(const TPoint& iTarget, Neighbour& ioNeare
 
 
 template <class O, class OT>
-void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
-								  TReference ioSquaredRadius,
-								  size_t iMaxCount,
-								  TNeighbourhood& oNeighbourhood,
-								  size_t iNode) const
+template <typename OutputIterator>
+OutputIterator KdTree<O, OT>::doRangeSearch(
+		const TPoint& iTarget, TParam iSquaredRadius,
+		OutputIterator iFirst, size_t iNode) const
+{
+	if (iNode >= heap_.size() || heap_[iNode] == end_)
+	{
+		return iFirst;
+	}
+
+	const TPoint pivot = TObjectTraits::position(heap_[iNode]);
+	const TAxis split = splits_[iNode];
+	if (split != dummyAxis_)
+	{
+		const TValue delta = iTarget[split] - pivot[split]; // distance to splitting plane
+		if (delta < TValue())
+		{
+			// we are left of the plane - search left node first
+			iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 1);
+			if (num::sqr(delta) < ioSquaredRadius)
+			{
+				iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 2);
+			}
+			return last;
+		}
+		else
+		{
+			// we are right of the plane - search right node first
+			iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 2);
+			if (num::sqr(delta) < ioSquaredRadius)
+			{
+				iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 1);
+			}
+		}
+	}
+
+	const TValue sqrDistance = squaredDistance(pivot, iTarget);
+	if (sqrDistance < iSquaredRadius)
+	{
+		*iFirst++ = Neighbour(heap_[iNode], sqrDistance);
+	}
+	return iFirst;
+}
+
+
+
+template <class O, class OT>
+template <typename RandomIterator>
+RandomIterator KdTree<O, OT>::doRangeSearch(
+		const TPoint& iTarget, TReference ioSquaredRadius, size_t iMaxCount,
+		RandomIterator iFirst, RandomIterator iLast, size_t iNode) const
 {
 	if (iNode >= heap_.size() || heap_[iNode] == end_)
 	{
@@ -436,19 +556,23 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 		if (delta < TValue())
 		{
 			// we are left of the plane - search left node first
-			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+			iLast = doRangeSearch(
+				iTarget, ioSquaredRadius, iMaxCount, iFirst, iLast, 2 * iNode + 1);
 			if (num::sqr(delta) < ioSquaredRadius)
 			{
-				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+				iLast = doRangeSearch(
+					iTarget, ioSquaredRadius, iMaxCount, First, iLast, 2 * iNode + 2);
 			}
 		}
 		else
 		{
 			// we are right of the plane - search right node first
-			doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 2);
+			iLast = doRangeSearch(
+				iTarget, ioSquaredRadius, iMaxCount, iFirst, iLast, 2 * iNode + 2);
 			if (num::sqr(delta) < ioSquaredRadius)
 			{
-				doRangeSearch(iTarget, ioSquaredRadius, iMaxCount, oNeighbourhood, 2 * iNode + 1);
+				iLast = doRangeSearch(
+					iTarget, ioSquaredRadius, iMaxCount, iFirst, iLast, 2 * iNode + 1);
 			}
 		}
 	}
@@ -456,18 +580,16 @@ void KdTree<O, OT>::doRangeSearch(const TPoint& iTarget,
 	const TValue sqrDistance = squaredDistance(pivot, iTarget);
 	if (sqrDistance < ioSquaredRadius)
 	{
-		oNeighbourhood.push_back(Neighbour(heap_[iNode], sqrDistance));
-		if (iMaxCount > 0)
+		*iLast++ = Neighbour(heap_[iNode], sqrDistance);
+		std::push_heap(iFirst, iLast);
+		if (iLast - iFirst > iMaxCount)
 		{
-			std::push_heap(oNeighbourhood.begin(), oNeighbourhood.end());
-			if (oNeighbourhood.size() > iMaxCount)
-			{
-				std::pop_heap(oNeighbourhood.begin(), oNeighbourhood.end());
-				oNeighbourhood.pop_back();
-				ioSquaredRadius = oNeighbourhood.front().squaredDistance();
-			}
+			std::pop_heap(iFirst, iLast);
+			--iLast;
+			ioSquaredRadius = iFirst->squaredDistance();
 		}
 	}
+	return iLast;
 }
 
 

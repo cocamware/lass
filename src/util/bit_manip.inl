@@ -221,7 +221,7 @@ void flipMasked(T& a_bits, const T& a_mask)
 template<typename T>
 void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-	setBit(a_bits, a_condition ? a_mask : 0);
+	setMasked(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -239,7 +239,7 @@ void setMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-	clearBit(a_bits, a_condition ? a_mask : 0);
+	clearMasked(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -257,7 +257,7 @@ void clearMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 {
-	flipBit(a_bits, a_condition ? a_mask : 0);
+	flipMasked(a_bits, a_condition ? a_mask : 0);
 }
 
 
@@ -275,8 +275,8 @@ void flipMaskedIf(T& a_bits, const T& a_mask, bool a_condition)
 template<typename T>
 void setMaskedTo(T& a_bits, const T& a_mask, bool a_state)
 {
-	clearBit(a_bits, a_mask);
-	setBitIf(a_bits, a_mask, a_state);
+	clearMasked(a_bits, a_mask);
+	setMaskedIf(a_bits, a_mask, a_state);
 }
 
 
