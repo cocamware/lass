@@ -295,6 +295,38 @@ Polynomial<T> Polynomial<T>::pow(unsigned iPower) const
 
 
 
+/** return size of coefficients.
+ */
+template <typename T>
+const typename Polynomial<T>::size_type Polynomial<T>::size() const
+{
+	return a_.size();
+}
+
+
+
+/** return iterator to first (lowest) coefficient
+ */
+template <typename T>
+const typename Polynomial<T>::const_iterator Polynomial<T>::begin() const
+{
+	return a_.begin();
+}
+
+
+
+/** return iterator to last (highest) coefficient
+ */
+template <typename T>
+const typename Polynomial<T>::const_iterator Polynomial<T>::end() const
+{
+	return a_.end();
+}
+
+
+
+/** return constant polynomial 1
+ */
 template <typename T>
 Polynomial<T> Polynomial<T>::one()
 {
@@ -304,6 +336,8 @@ Polynomial<T> Polynomial<T>::one()
 
 
 
+/** return linear polynomial x
+ */
 template <typename T>
 Polynomial<T> Polynomial<T>::x()
 {

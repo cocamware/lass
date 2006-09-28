@@ -37,51 +37,56 @@ namespace num
 {
 namespace impl
 {
-	template <typename T>
-	num::Polynomial<T> laplaceToZHelper(const std::vector<T>& iCoefficients, const T& iSamplingFrequency)
+	template <typename T, typename ForwardIterator>
+	num::Polynomial<T> laplaceToZHelper(ForwardIterator first, ForwardIterator last, const T& samplingFrequency)
 	{
 		typedef num::NumTraits<T> TNumTraits;
 		typedef num::Polynomial<T> TPolynomial;
 
-		const T twoFs = 2 * iSamplingFrequency;
+		const T twoFs = 2 * samplingFrequency;
 
-		TPolynomial oneMinZ = 2 * iSamplingFrequency * (TNumTraits::one - TPolynomial::x());
+		TPolynomial oneMinZ = 2 * samplingFrequency * (TNumTraits::one - TPolynomial::x());
 		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
 		TPolynomial result;
-		const size_t n = iCoefficients.size();
-		for (size_t i = 0; i < n; ++i)
+		const int n = std::distance(first, last);
+		int i = 0;
+		while (first != last)
 		{
-			result += iCoefficients[i] * oneMinZ.pow(i) * onePlusZ.pow(n - i - 1);
+			result += *first * oneMinZ.pow(i) * onePlusZ.pow(n - i - 1);
+			++first;
+			++i;
 		}
 		return result;
 	}
 
-	template <typename T>
+	template <typename T, typename ForwardIterator1, typename ForwardIterator2>
 	std::pair< std::vector<T>, std::vector<T> >
-	laplaceToZ(const std::pair< std::vector<T>, std::vector<T> >& iCoefficients, const T& iSamplingFrequency)
+	laplaceToZ(ForwardIterator1 numeratorFirst, ForwardIterator1 numeratorLast, 
+			ForwardIterator2 denominatorFirst, ForwardIterator2 denominatorLast, 
+			const T& samplingFrequency)
 	{
 		typedef num::NumTraits<T> TNumTraits;
 		typedef num::Polynomial<T> TPolynomial;
 
-		TPolynomial num = laplaceToZHelper(iCoefficients.first, iSamplingFrequency);
-		TPolynomial den = laplaceToZHelper(iCoefficients.second, iSamplingFrequency);
+		TPolynomial num = laplaceToZHelper(numeratorFirst, numeratorLast, samplingFrequency);
+		TPolynomial den = laplaceToZHelper(denominatorFirst, denominatorLast, samplingFrequency);
 		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
-		const size_t m = iCoefficients.first.size();
-		const size_t n = iCoefficients.second.size();
+		const size_t m = num.size();
+		const size_t n = den.size();
 		if (n > m)
 		{
-			num *= onePlusZ.pow(n - m);
+			num *= onePlusZ.pow(static_cast<unsigned>(n - m));
 		}
 		else
 		{
-			den *= onePlusZ.pow(m - n);
+			den *= onePlusZ.pow(static_cast<unsigned>(m - n));
 		}
 		return std::make_pair(num.coefficients(), den.coefficients());
 	}
 
 	template <typename T>
 	std::pair< std::vector<T>, std::vector<T> > 
-	lowpassButterworthCoefficients(unsigned n, const T& cutoff, const T& gain)
+	laplaceButterworthLowPass(unsigned n, const T& cutoff, const T& gain)
 	{
 		typedef num::NumTraits<T> TNumTraits;
 		typedef num::Polynomial<T> TPolynomial;
@@ -97,17 +102,18 @@ namespace impl
 			const T theta = (TNumTraits::pi * (2 * k + n + 1)) / (2 * n);
 			den *= s2 - 2 * num::cos(theta) * s + TNumTraits::one;
 		}
+
 		return std::make_pair(TPolynomial::one().coefficients(), den.coefficients());
 	}
 
 	template <typename T>
 	std::pair< std::vector<T>, std::vector<T> > 
-	highpassButterworthCoefficients(unsigned n, const T& cutoff, const T& gain)
+	laplaceButterworthHighPass(unsigned n, const T& cutoff, const T& gain)
 	{
 		typedef num::NumTraits<T> TNumTraits;
 		typedef std::pair< std::vector<T>, std::vector<T> > TValuesPair;
 
-		TValuesPair result = lowpassButterworthCoefficients<T>(n, TNumTraits::one, TNumTraits::one);
+		TValuesPair result = laplaceButterworthLowPass<T>(n, TNumTraits::one, TNumTraits::one);
 
 		std::reverse(result.second.begin(), result.second.end());
 		for (size_t k = 0; k < result.second.size(); ++k)
@@ -126,14 +132,14 @@ namespace impl
 // --- FirFilter -----------------------------------------------------------------------------------
 
 template <typename T, typename InIt, typename OutIt>
-FirFilter<T, InIt, OutIt>::FirFilter(const TValues& iImpulseResponse):
-	taps_(iImpulseResponse),
-	buffer_(2 * iImpulseResponse.size()),
-	nextIndex_(iImpulseResponse.size()),
-	tapSize_(iImpulseResponse.size()),
+FirFilter<T, InIt, OutIt>::FirFilter(const TValues& impulseResponse):
+	taps_(impulseResponse),
+	buffer_(2 * impulseResponse.size()),
+	nextIndex_(impulseResponse.size()),
+	tapSize_(impulseResponse.size()),
 	bufferIndex_(0)
 {
-	if (iImpulseResponse.empty())
+	if (impulseResponse.empty())
 	{
 		LASS_THROW("Cannot use an empty vector as impulse response");
 	}
@@ -149,12 +155,12 @@ FirFilter<T, InIt, OutIt>::FirFilter(const TValues& iImpulseResponse):
 
 template <typename T, typename InIt, typename OutIt>
 typename FirFilter<T, InIt, OutIt>::TOutputIterator
-FirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput)
+FirFilter<T, InIt, OutIt>::doFilter(TInputIterator first, TInputIterator last, TOutputIterator output)
 {
 	const T* const taps = &taps_[0];
-	while (iFirst != iLast)
+	while (first != last)
 	{
-		buffer_[tapSize_ + bufferIndex_] = buffer_[bufferIndex_] = *iFirst++;
+		buffer_[tapSize_ + bufferIndex_] = buffer_[bufferIndex_] = *first++;
 		const T* const buf = &buffer_[bufferIndex_];
 		TValue accumulator = TNumTraits::zero;
 		for (size_t i = 0; i < tapSize_; ++i)
@@ -162,9 +168,9 @@ FirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast,
 			accumulator += taps[i] * buf[i];
 		}
 		bufferIndex_ = nextIndex_[bufferIndex_];
-		*oOutput++ = accumulator;
+		*output++ = accumulator;
 	}
-	return oOutput;
+	return output;
 }
 
 
@@ -175,35 +181,171 @@ void FirFilter<T, InIt, OutIt>::doReset()
 	std::fill(buffer_.begin(), buffer_.end(), TNumTraits::zero);
 }
 
+
+
 // --- IirFilter -----------------------------------------------------------------------------------
 
+/** construct IIR filter
+ *
+ * @code
+ *        a[0] + a[1] * z^-1 + a[2] * z^-2 + ... + a[m-1] * z^-(m-1)
+ * H(z) = ----------------------------------------------------------
+ *        b[0] + b[1] * z^-1 + b[2] * z^-2 + ... + b[m-1] * z^-(m-1)
+ * @endcode
+ *
+ * @param numerator [in] coefficients a[i] of transfer function H(z).
+ * @param denominator [in] coefficients b[i] of transfer function H(z).
+ */
 template <typename T, typename InIt, typename OutIt>
-IirFilter<T, InIt, OutIt>::IirFilter(const TValues& iNominator, const TValues& iDenominator)
+IirFilter<T, InIt, OutIt>::IirFilter(const TValues& numerator, const TValues& denominator)
 {
-	this->init(std::make_pair(iNominator, iDenominator));
+	this->init(numerator, denominator);
 	this->reset();
 }
 
 
 
+/** construct IIR filter
+ *
+ * @param coefficients [in] numerator (=first) and denominator (=second) of transfer function H(z).
+ */
 template <typename T, typename InIt, typename OutIt>
-IirFilter<T, InIt, OutIt>::IirFilter(const TValuesPair& iCoefficients)
+IirFilter<T, InIt, OutIt>::IirFilter(const TValuesPair& coefficients)
 {
-	this->init(iCoefficients);
+	this->init(coefficients.first, coefficients.second);
 	this->reset();
+}
+
+
+
+/* make an IIR filter from a transfer function H(s) in Laplace domain.
+ *
+ * @code
+ *        a[0] + a[1] * s + a[2] * s^2 + ... + a[m-1] * s^m-1
+ * H(s) = ---------------------------------------------------
+ *        b[0] + b[1] * s + b[2] * s^2 + ... + b[n-1] * s^n-1
+ * @endcode
+ *
+ * @param numerator [in] coefficients a[i] of Laplace transfer function H(s).
+ * @param denominator [in] coefficients b[i] of Laplace transfer function H(s).
+ * @param samplingFrequency [in] sampling frequency of the digital signal.
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeLaplace(
+		const TValues& numerator, const TValues& denominator, TParam samplingFrequency)
+{
+	return doMakeLaplace(numerator.begin(), numerator.end(), denominator.begin(), denominator.end(), samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing a low-pass butterworth filter.
+ *
+ *	@param order [in] order of filter.  filter rolls of at (order * 6) dB per decade.
+ *	@param cutoffAngularFrequency [in] cutoff frequency measured in radians per sec (w = 2 pi f).
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeButterworthLowPass(
+		unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency)
+{
+	return doMakeLaplace(impl::laplaceButterworthLowPass(order, cutoffAngularFrequency, gain), samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing a high-pass butterworth filter.
+ *
+ *	@param order [in] order of filter.  filter rolls of at (order * 6) dB per decade.
+ *	@param cutoffAngularFrequency [in] cutoff frequency measured in radians per sec (w = 2 pi f).
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeButterworthHighPass(
+		unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency)
+{
+	return doMakeLaplace(impl::laplaceButterworthHighPass(order, cutoffAngularFrequency, gain), samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing an low-pass RLC circuit.
+ *
+ *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (Q > 1 for resonance peak, Q = 1/sqrt(2) for 2nd order butterworth).
+ *  @param cutoffAngularFrequency [in] cutoff frequency measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcLowPass(
+		TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency)
+{
+	TValue num[] = { gain };
+	TValue den[] = { TNumTraits::one, num::inv(cutoffAngularFrequency * qFactor), num::inv(num::sqr(cutoffAngularFrequency)) };
+	return doMakeLaplace(num, num + 1, den, den + 3, samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing an notch RLC circuit.
+ *
+ *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (greater Q is more narrow stop band).
+ *  @param angularFrequency [in] frequency to be filter out, measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcNotch(
+		TParam qFactor, TParam angularFrequency, TParam gain, TParam samplingFrequency)
+{
+	TValue num[] = { gain, TNumTraits::zero, gain / num::sqr(angularFrequency) };
+	TValue den[] = { TNumTraits::one, num::inv(angularFrequency * qFactor), num::inv(num::sqr(angularFrequency)) };
+	return doMakeLaplace(num, num + 3, den, den + 3, samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing a perfect integrator
+ *
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeIntegrator(TParam gain, TParam samplingFrequency)
+{
+	TValue num[] = { gain };
+	TValue den[] = { TNumTraits::zero, TNumTraits::one, };
+	return doMakeLaplace(num, num + 1, den, den + 2, samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing a perfect differentiator
+ *
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeDifferentiator(TParam gain, TParam samplingFrequency)
+{
+	TValue num[] = { TNumTraits::zero, gain, };
+	TValue den[] = { TNumTraits::one, };
+	return doMakeLaplace(num, num + 2, den, den + 1, samplingFrequency);
 }
 
 
 
 template <typename T, typename InIt, typename OutIt>
 typename IirFilter<T, InIt, OutIt>::TOutputIterator
-IirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput)
+IirFilter<T, InIt, OutIt>::doFilter(TInputIterator first, TInputIterator last, TOutputIterator output)
 {
 	const T* const xTaps = &xTaps_[0];
 	const T* const yTaps = yTaps_.empty() ? 0 : &yTaps_[0];
-	while (iFirst != iLast)
+	while (first != last)
 	{
-		xBuffer_[xTapSize_ + xBufferIndex_] = xBuffer_[xBufferIndex_] = *iFirst++;
+		xBuffer_[xTapSize_ + xBufferIndex_] = xBuffer_[xBufferIndex_] = *first++;
 		const T* const xBuf = &xBuffer_[xBufferIndex_];
 		const T* const yBuf = &yBuffer_[yBufferIndex_];
 		TValue accumulator = TNumTraits::zero;
@@ -218,9 +360,9 @@ IirFilter<T, InIt, OutIt>::doFilter(TInputIterator iFirst, TInputIterator iLast,
 		xBufferIndex_ = xNextIndex_[xBufferIndex_];
 		yBufferIndex_ = yNextIndex_[yBufferIndex_];
 		yBuffer_[yTapSize_ + yBufferIndex_] = yBuffer_[yBufferIndex_] = accumulator;
-		*oOutput++ = accumulator;
+		*output++ = accumulator;
 	}
-	return oOutput;
+	return output;
 }
 
 
@@ -235,22 +377,22 @@ void IirFilter<T, InIt, OutIt>::doReset()
 
 
 template <typename T, typename InIt, typename OutIt>
-void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
+void IirFilter<T, InIt, OutIt>::init(const TValues& numerator, const TValues& denominator)
 {
-	if (iCoefficients.first.empty() || iCoefficients.second.empty())
+	if (numerator.empty() || denominator.empty())
 	{
-		LASS_THROW("Cannot use an empty vector as coefficients");
+		LASS_THROW("Cannot use an empty vector as numerator or denominator");
 	}
-	if (iCoefficients.second[0] == TNumTraits::zero)
+	if (denominator[0] == TNumTraits::zero)
 	{
-		LASS_THROW("Cannot use an zero as first element in the denominator");
+		LASS_THROW("Cannot use a zero as first element in the denominator");
 	}
 
-	xTaps_ = iCoefficients.first;
-	yTaps_.assign(stde::next(iCoefficients.second.begin()), iCoefficients.second.end());
+	xTaps_ = numerator;
+	yTaps_.assign(stde::next(denominator.begin()), denominator.end());
 	xTapSize_ = xTaps_.size();
 	yTapSize_ = yTaps_.size();
-	const TValue scaler = num::inv(iCoefficients.second[0]);
+	const TValue scaler = num::inv(denominator[0]);
 	for (size_t i = 0; i < xTapSize_; ++i)
 	{
 		xTaps_[i] *= scaler;
@@ -281,51 +423,28 @@ void IirFilter<T, InIt, OutIt>::init(const TValuesPair& iCoefficients)
 
 
 
-// --- LaplaceIirFilter ----------------------------------------------------------------------------
-
+/** little private helper
+ */
 template <typename T, typename InIt, typename OutIt>
-LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, 
-									  TParam iSamplingFrequency):
-	IirFilter<T, InIt, OutIt>(impl::laplaceToZ(std::make_pair(iNominator, iDenominator), iSamplingFrequency))
+template <typename FwdIt1, typename FwdIt2>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::doMakeLaplace(
+		FwdIt1 numFirst, FwdIt1 numLast, FwdIt2 denFirst, FwdIt2 denLast, TParam samplingFrequency)
 {
+	return IirFilter<T, InIt, OutIt>(impl::laplaceToZ(numFirst, numLast, denFirst, denLast, samplingFrequency));
 }
 
 
 
+/** little private helper
+ */
 template <typename T, typename InIt, typename OutIt>
-LaplaceIirFilter<T, InIt, OutIt>::LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency):
-	IirFilter<T, InIt, OutIt>(impl::laplaceToZ(iCoefficients, iSamplingFrequency))
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::doMakeLaplace(
+		const TValuesPair& coefficients, TParam samplingFrequency)
 {
+	return doMakeLaplace(coefficients.first.begin(), coefficients.first.end(),
+		coefficients.second.begin(), coefficients.second.end(), 
+		samplingFrequency);
 }
-
-
-
-// --- LowpassButterworthFilter --------------------------------------------------------------------
-
-template <typename T, typename InIt, typename OutIt>
-LowpassButterworthFilter<T, InIt, OutIt>::LowpassButterworthFilter(
-		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency):
-	LaplaceIirFilter<T, InIt, OutIt>(impl::lowpassButterworthCoefficients(
-		filterOrder, cutoffAngularFrequency, gain), samplingFrequency)
-{
-}
-
-
-
-// --- HighpassButterworthFilter --------------------------------------------------------------------
-
-template <typename T, typename InIt, typename OutIt>
-HighpassButterworthFilter<T, InIt, OutIt>::HighpassButterworthFilter(
-		unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency):
-	LaplaceIirFilter<T, InIt, OutIt>(impl::highpassButterworthCoefficients(
-		filterOrder, cutoffAngularFrequency, gain), samplingFrequency)
-{
-}
-
-
-
-
-
 
 }
 

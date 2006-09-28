@@ -45,27 +45,31 @@ print type(t)
 print t.id
 assert(t.id==1)
 
-import gc
-# testing the GC behaviour
-print "Trying to remove object"
-raw_input()
-print "Testing the derivation"
-print len(gc.get_objects()), "objects tracked (before)"
-for i in range(50000):
-	t = embedding.Bar()
-	del t
-print len(gc.get_objects()), "objects tracked (after)"
-raw_input()
-print "Testing the derivation"
-print len(gc.get_objects()), "objects tracked (before)"
-for i in range(100000):
-	t = TestDerivation()
-	t.id = 5
-	del t
-print len(gc.get_objects()), "objects tracked (after)"
-print "Object removed"
-raw_input()
-raise "stop"
+if False:
+	#
+	# I'VE DISABLED THIS TEST BECAUSE IT COMPLETELY WRECKED THE NIGHTLY TEST!  EXECUTION SIMPLY BLOCKS ON THIS! [Bramz]
+	#
+	import gc
+	# testing the GC behaviour
+	print "Trying to remove object"
+	raw_input()
+	print "Testing the derivation"
+	print len(gc.get_objects()), "objects tracked (before)"
+	for i in range(50000):
+		t = embedding.Bar()
+		del t
+	print len(gc.get_objects()), "objects tracked (after)"
+	raw_input()
+	print "Testing the derivation"
+	print len(gc.get_objects()), "objects tracked (before)"
+	for i in range(100000):
+		t = TestDerivation()
+		t.id = 5
+		del t
+	print len(gc.get_objects()), "objects tracked (after)"
+	print "Object removed"
+	raw_input()
+	raise "stop"
 
 
 #print dir( TestClass() )

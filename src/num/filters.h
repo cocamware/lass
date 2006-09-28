@@ -59,11 +59,11 @@ public:
 	typedef NumTraits<T> TNumTraits;
 
 	virtual ~Filter() {}
-	TOutputIterator operator()(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput) { return doFilter(iFirst, iLast, oOutput); }
+	TOutputIterator operator()(TInputIterator first, TInputIterator last, TOutputIterator output) { return doFilter(first, last, output); }
 	void reset() { doReset(); }
 
 private:
-	virtual TOutputIterator doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput) = 0;
+	virtual TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output) = 0;
 	virtual void doReset() {}
 };
 
@@ -91,11 +91,11 @@ public:
 
 	typedef std::vector<T> TValues;
 
-	FirFilter(const TValues& iImpulseResponse);
+	FirFilter(const TValues& impulseResponse);
 private:
 	typedef std::vector<size_t> TIndexTable;
 
-	TOutputIterator doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput);
+	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output);
 	void doReset();
 
 	TValues taps_;
@@ -130,14 +130,27 @@ public:
 	typedef std::vector<T> TValues;
 	typedef std::pair<TValues, TValues> TValuesPair;
 
-	IirFilter(const TValues& iNominator, const TValues& iDenominator);
-	IirFilter(const TValuesPair& iCoefficients);
+	IirFilter(const TValues& numerator, const TValues& denominator);
+	IirFilter(const TValuesPair& coefficients);
+
+	static IirFilter makeLaplace(const TValues& nominator, const TValues& denominator, TParam samplingFrequency);
+	static IirFilter makeButterworthLowPass(unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeButterworthHighPass(unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeRlcLowPass(TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeRlcNotch(TParam qFactor, TParam angularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeIntegrator(TParam gain, TParam samplingFrequency);
+	static IirFilter makeDifferentiator(TParam gain, TParam samplingFrequency);
+
 private:
 	typedef std::vector<size_t> TIndexTable;
 
-	TOutputIterator doFilter(TInputIterator iFirst, TInputIterator iLast, TOutputIterator oOutput);
+	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output);
 	void doReset();
-	void init(const TValuesPair& iCoefficients);
+	void init(const TValues& numerator, const TValues& denominator);
+	
+	template <typename FwdIt1, typename FwdIt2>
+	static IirFilter doMakeLaplace(FwdIt1 numFirst, FwdIt1 numLast, FwdIt2 denFirst, FwdIt2 denLast, TParam sampleFrequency);
+	static IirFilter doMakeLaplace(const TValuesPair& coefficients, TParam sampleFrequency);
 
 	TValues xTaps_;
 	TValues yTaps_;
@@ -149,90 +162,6 @@ private:
 	size_t yTapSize_;
 	size_t xBufferIndex_;
 	size_t yBufferIndex_;
-};
-
-
-
-/** Wrapper for IirFilter with transfer function in Laplace domain.
- *  @ingroup Filters
- */
-template 
-<	
-	typename T,
-	typename InputIterator = const T*,
-	typename OutputIterator = T*
->
-class LaplaceIirFilter: public IirFilter<T, InputIterator, OutputIterator>
-{
-public:
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValue TValue;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TParam TParam;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TReference TReference;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValues TValues;
-	typedef typename IirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
-
-	LaplaceIirFilter(const TValues& iNominator, const TValues& iDenominator, TParam iSamplingFrequency);
-	LaplaceIirFilter(const TValuesPair& iCoefficients, TParam iSamplingFrequency);
-};
-
-
-
-/** Wrapper for IirFilter with a low-pass Butterworth transfer function.
- *  @ingroup Filters
- */
-template 
-<	
-	typename T,
-	typename InputIterator = const T*,
-	typename OutputIterator = T*
->
-class LowpassButterworthFilter: public LaplaceIirFilter<T, InputIterator, OutputIterator>
-{
-public:
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValue TValue;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TParam TParam;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TReference TReference;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
-
-	LowpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, 
-		TParam samplingFrequency);
-};
-
-
-
-/** Wrapper for IirFilter with a high-pass Butterworth transfer function.
- *  @ingroup Filters
- */
-template 
-<	
-	typename T,
-	typename InputIterator = const T*,
-	typename OutputIterator = T*
->
-class HighpassButterworthFilter: public LaplaceIirFilter<T, InputIterator, OutputIterator>
-{
-public:
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValue TValue;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TParam TParam;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TReference TReference;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TConstReference TConstReference;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TInputIterator TInputIterator;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TOutputIterator TOutputIterator;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TNumTraits TNumTraits;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValues TValues;
-	typedef typename LaplaceIirFilter<T, InputIterator, OutputIterator>::TValuesPair TValuesPair;
-
-	HighpassButterworthFilter(unsigned filterOrder, TParam cutoffAngularFrequency, TParam gain, 
-		TParam samplingFrequency);
 };
 
 }

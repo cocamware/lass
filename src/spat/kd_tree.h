@@ -88,6 +88,7 @@ public:
 	class Neighbour
 	{
 	public:
+		Neighbour();
 		Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
 
 		TObjectIterator object() const;
@@ -102,7 +103,7 @@ public:
 		TValue squaredDistance_;
 	};
 
-	typedef  TNeighbourhood;
+	typedef std::vector<Neighbour> TNeighbourhood;
 
 	KdTree();
 	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
@@ -157,11 +158,12 @@ private:
 	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
 
 	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
+
 	template <typename OutputIterator>
-	OutputIterator doRangeSearch(const TPoint& iCenter, TParam iSquaredRadius,
-			OutputIterator iFirst, size_t iNode) const;
+	OutputIterator doRangeSearch(const TPoint& iCenter, TParam iSquaredRadius, 
+		OutputIterator iOutput, size_t iNode) const;
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius,
+	RandomIterator doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, 
 		size_t iMaxCount, RandomIterator iFirst, RandomIterator iLast, size_t iNode) const;
 
 	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);

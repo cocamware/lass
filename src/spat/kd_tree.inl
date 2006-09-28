@@ -146,11 +146,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 		const typename TNeighbourhood::const_iterator end = oNeighbourhood.end();
 		for (typename TNeighbourhood::const_iterator i = oNeighbourhood.begin(); i != end; ++i)
 		{
-			const TValue sqrDist = i->squaredDistance();
-			if (sqrDist > maxSquaredDistance)
-			{
-				maxSquaredDistance = sqrDist;
-			}
+			maxSquaredDistance = std::max(maxSquaredDistance, i->squaredDistance());
 		}
 		return maxSquaredDistance;
 	}
@@ -159,7 +155,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 	oNeighbourhood.resize(iMaxCount + 1);
 
 	TNeighbourhood::iterator last = rangeSearch(
-		iTarget, iMaxRadius, oNeighbourhood.begin(), oNeighbourhood.end());
+		iTarget, iMaxRadius, iMaxCount, oNeighbourhood.begin());
 	oNeighbourhood.erase(last, oNeighbourhood.end());
 	
 	if (oNeighbourhood.empty())
@@ -277,6 +273,15 @@ void KdTree<O, OT>::clear()
 
 
 // --- neighbour -----------------------------------------------------------------------------------
+
+template <class O, class OT>
+KdTree<O, OT>::Neighbour::Neighbour():
+	object_(),
+	squaredDistance_(0)
+{
+}
+
+
 
 template <class O, class OT>
 KdTree<O, OT>::Neighbour::Neighbour(TObjectIterator iObject, TValue iSquaredDistance):
@@ -494,11 +499,11 @@ template <class O, class OT>
 template <typename OutputIterator>
 OutputIterator KdTree<O, OT>::doRangeSearch(
 		const TPoint& iTarget, TParam iSquaredRadius,
-		OutputIterator iFirst, size_t iNode) const
+		OutputIterator iOutput, size_t iNode) const
 {
 	if (iNode >= heap_.size() || heap_[iNode] == end_)
 	{
-		return iFirst;
+		return iOutput;
 	}
 
 	const TPoint pivot = TObjectTraits::position(heap_[iNode]);
@@ -509,20 +514,19 @@ OutputIterator KdTree<O, OT>::doRangeSearch(
 		if (delta < TValue())
 		{
 			// we are left of the plane - search left node first
-			iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 1);
-			if (num::sqr(delta) < ioSquaredRadius)
+			iOutput = doRangeSearch(iTarget, iSquaredRadius, iOutput, 2 * iNode + 1);
+			if (num::sqr(delta) < iSquaredRadius)
 			{
-				iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 2);
+				iOutput = doRangeSearch(iTarget, iSquaredRadius, iOutput, 2 * iNode + 2);
 			}
-			return last;
 		}
 		else
 		{
 			// we are right of the plane - search right node first
-			iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 2);
-			if (num::sqr(delta) < ioSquaredRadius)
+			iOutput = doRangeSearch(iTarget, iSquaredRadius, iOutput, 2 * iNode + 2);
+			if (num::sqr(delta) < iSquaredRadius)
 			{
-				iFirst = doRangeSearch(iTarget, iSquaredRadius, iMaxCount, iFirst, 2 * iNode + 1);
+				iOutput = doRangeSearch(iTarget, iSquaredRadius, iOutput, 2 * iNode + 1);
 			}
 		}
 	}
@@ -530,9 +534,9 @@ OutputIterator KdTree<O, OT>::doRangeSearch(
 	const TValue sqrDistance = squaredDistance(pivot, iTarget);
 	if (sqrDistance < iSquaredRadius)
 	{
-		*iFirst++ = Neighbour(heap_[iNode], sqrDistance);
+		*iOutput++ = Neighbour(heap_[iNode], sqrDistance);
 	}
-	return iFirst;
+	return iOutput;
 }
 
 
@@ -545,7 +549,7 @@ RandomIterator KdTree<O, OT>::doRangeSearch(
 {
 	if (iNode >= heap_.size() || heap_[iNode] == end_)
 	{
-		return;
+		return iLast;
 	}
 
 	const TPoint pivot = TObjectTraits::position(heap_[iNode]);
@@ -561,7 +565,7 @@ RandomIterator KdTree<O, OT>::doRangeSearch(
 			if (num::sqr(delta) < ioSquaredRadius)
 			{
 				iLast = doRangeSearch(
-					iTarget, ioSquaredRadius, iMaxCount, First, iLast, 2 * iNode + 2);
+					iTarget, ioSquaredRadius, iMaxCount, iFirst, iLast, 2 * iNode + 2);
 			}
 		}
 		else

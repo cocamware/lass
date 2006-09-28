@@ -57,7 +57,10 @@ public:
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
+	
 	typedef std::vector<TValue> TCoefficients;
+	typedef typename TCoefficients::size_type size_type;
+	typedef typename TCoefficients::const_iterator const_iterator;
 
 	Polynomial();
 	explicit Polynomial(TParam iScalar);
@@ -85,6 +88,10 @@ public:
 	Polynomial<T> derivative() const;
 	Polynomial<T> integral() const;
 	Polynomial<T> pow(unsigned iPower) const;
+
+	const size_type size() const;
+	const const_iterator begin() const;
+	const const_iterator end() const;
 
 	static Polynomial<T> one();
 	static Polynomial<T> x();
