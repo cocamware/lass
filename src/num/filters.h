@@ -137,7 +137,9 @@ public:
 	static IirFilter makeButterworthLowPass(unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
 	static IirFilter makeButterworthHighPass(unsigned order, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
 	static IirFilter makeRlcLowPass(TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
-	static IirFilter makeRlcNotch(TParam qFactor, TParam angularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeRlcHighPass(TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeRlcBandPass(TParam qFactor, TParam centerAngularFrequency, TParam gain, TParam samplingFrequency);
+	static IirFilter makeRlcNotch(TParam qFactor, TParam centerAngularFrequency, TParam gain, TParam samplingFrequency);
 	static IirFilter makeIntegrator(TParam gain, TParam samplingFrequency);
 	static IirFilter makeDifferentiator(TParam gain, TParam samplingFrequency);
 

@@ -273,6 +273,14 @@ IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeButterworthHighPass(
 
 /** make an IIR filter implementing an low-pass RLC circuit.
  *
+ *	@code
+ *	 o---[R]---[sL]---*-----o
+ *	                  |
+ *	Vin            [1/sC]  Vout
+ *	                  |
+ *	 o----------------*-----o
+ *	@endcode
+ *
  *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (Q > 1 for resonance peak, Q = 1/sqrt(2) for 2nd order butterworth).
  *  @param cutoffAngularFrequency [in] cutoff frequency measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
  *	@param gain [in] DC gain
@@ -282,26 +290,88 @@ template <typename T, typename InIt, typename OutIt>
 IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcLowPass(
 		TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency)
 {
-	TValue num[] = { gain };
-	TValue den[] = { TNumTraits::one, num::inv(cutoffAngularFrequency * qFactor), num::inv(num::sqr(cutoffAngularFrequency)) };
+	const TValue num[] = { gain };
+	const TValue den[] = { TNumTraits::one, num::inv(cutoffAngularFrequency * qFactor), num::inv(num::sqr(cutoffAngularFrequency)) };
 	return doMakeLaplace(num, num + 1, den, den + 3, samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing an high-pass RLC circuit.
+ *
+ *	@code
+ *	 o---[R]---[1/sC]---*----o
+ *	                    |
+ *	Vin               [sL]  Vout
+ *	                    |
+ *	 o------------------*----o
+ *	@endcode
+ *
+ *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (Q > 1 for resonance peak, Q = 1/sqrt(2) for 2nd order butterworth).
+ *  @param cutoffAngularFrequency [in] cutoff frequency measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcHighPass(
+		TParam qFactor, TParam cutoffAngularFrequency, TParam gain, TParam samplingFrequency)
+{
+	const TValue num[] = { 0, 0, gain / num::sqr(cutoffAngularFrequency) };
+	const TValue den[] = { TNumTraits::one, num::inv(cutoffAngularFrequency * qFactor), num::inv(num::sqr(cutoffAngularFrequency)) };
+	return doMakeLaplace(num, num + 3, den, den + 3, samplingFrequency);
+}
+
+
+
+/** make an IIR filter implementing an band-pass RLC circuit.
+ *
+ *	@code
+ *	 o---[sL]---[1/sC]---*----o
+ *	                     |
+ *	Vin                 [R]  Vout
+ *	                     |
+ *	 o-------------------*----o
+ *	@endcode
+ *
+ *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (greater Q is more narrow stop band).
+ *  @param centerAngularFrequency [in] frequency to be filter out, measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
+ *	@param gain [in] DC gain
+ *	@param samplingFrequency [in] sampling frequency of digital signal
+ */
+template <typename T, typename InIt, typename OutIt>
+IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcBandPass(
+		TParam qFactor, TParam centerAngularFrequency, TParam gain, TParam samplingFrequency)
+{
+	const TValue num[] = { TNumTraits::zero, gain / (centerAngularFrequency * qFactor) };
+	const TValue den[] = { TNumTraits::one, num::inv(centerAngularFrequency * qFactor), num::inv(num::sqr(centerAngularFrequency)) };
+	return doMakeLaplace(num, num + 2, den, den + 3, samplingFrequency);
 }
 
 
 
 /** make an IIR filter implementing an notch RLC circuit.
  *
+ *	@code
+ *	 o---[R]---*----o
+ *	           |
+ *	         [sL]
+ *	Vin        |   Vout
+ *	        [1/sC]
+ *	           |
+ *	 o---------*----o
+ *	@endcode
+ *
  *  @param qFactor [in] quality factor Q = sqrt(L/C)/R (greater Q is more narrow stop band).
- *  @param angularFrequency [in] frequency to be filter out, measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
+ *  @param centerAngularFrequency [in] frequency to be filter out, measured in radians per sec (w = 2 pi f = 1 / sqrt(LC))
  *	@param gain [in] DC gain
  *	@param samplingFrequency [in] sampling frequency of digital signal
  */
 template <typename T, typename InIt, typename OutIt>
 IirFilter<T, InIt, OutIt> IirFilter<T, InIt, OutIt>::makeRlcNotch(
-		TParam qFactor, TParam angularFrequency, TParam gain, TParam samplingFrequency)
+		TParam qFactor, TParam centerAngularFrequency, TParam gain, TParam samplingFrequency)
 {
-	TValue num[] = { gain, TNumTraits::zero, gain / num::sqr(angularFrequency) };
-	TValue den[] = { TNumTraits::one, num::inv(angularFrequency * qFactor), num::inv(num::sqr(angularFrequency)) };
+	const TValue num[] = { gain, TNumTraits::zero, gain / num::sqr(centerAngularFrequency) };
+	const TValue den[] = { TNumTraits::one, num::inv(centerAngularFrequency * qFactor), num::inv(num::sqr(centerAngularFrequency)) };
 	return doMakeLaplace(num, num + 3, den, den + 3, samplingFrequency);
 }
 
