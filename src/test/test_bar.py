@@ -33,6 +33,7 @@ class TestClass:
 
 class TestDerivation(embedding.Bar):
 	def __init__(self):
+		embedding.Bar.__init__(self)
 		self.id = 1
 	def testFunc(self):
 		print self.id

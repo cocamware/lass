@@ -52,6 +52,8 @@ namespace test
 TUnitTests testUtil()
 {
 	TUnitTests result;
+
+	result.push_back(LASS_UNIT_TEST(testUtilPython));
 	
 	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
 
@@ -81,8 +83,6 @@ TUnitTests testUtil()
 	result.push_back(LASS_UNIT_TEST(testUtilThreadPool));
 
 //	result.push_back(LASS_UNIT_TEST(testUtilVisitor));
-
-	result.push_back(LASS_UNIT_TEST(testUtilPython));
 
 	return result;
 }

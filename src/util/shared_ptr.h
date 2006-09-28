@@ -146,6 +146,11 @@ public:
 	{
 		if (!isEmpty())
 		{
+			// MT safeness: as long as we're in here, we're quite sure that at least iOther has a
+			// reference to the storage (same thread), so that no other thread can get the 
+			// reference count to zero.  
+			// Proceed ...
+			//
 			CounterPolicy::increment(TStoragePolicy::storage());
 		}
 	}
@@ -158,6 +163,8 @@ public:
 	{
 		if (!isEmpty())
 		{
+			// MT safeness: same comment as in copy constructor ...
+			//
 			CounterPolicy::initSharedCount(storage(), iOther.storage(), iOther);
 			CounterPolicy::increment(TStoragePolicy::storage());
 		}
@@ -184,6 +191,11 @@ public:
 	{
 		if (!isEmpty())
 		{
+			// MT safeness: this is tricky, can two different threads reach zero at the same time?
+			// no, because if two threads own a reference, the count must be two at least.
+			// so maximum one can reach zero.
+			// Proceed ...
+			//
 			if (CounterPolicy::decrement(TStoragePolicy::storage()))
 			{
 				CounterPolicy::dispose(TStoragePolicy::storage());
@@ -353,6 +365,8 @@ public:
 	 */
 	void swap(TSelf& iOther)
 	{
+		// MT safeness: both shared pointers are guaranteed to own a reference
+		//
 		TStoragePolicy::swap(static_cast<TStoragePolicy&>(iOther));
 		CounterPolicy::swap(static_cast<CounterPolicy&>(iOther));
 	}
