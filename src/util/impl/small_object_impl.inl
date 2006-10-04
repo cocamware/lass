@@ -350,12 +350,12 @@ void* SmallObjectAllocator<CS, MOS, I>::doAllocate(std::size_t iSize)
 		return lastAllocate_->allocate();
 	}
 
-	typename TPool::iterator i =
-		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
+	typename TPool::iterator i = std::lower_bound(
+		pool_.begin(), pool_.end(), FixedAllocatorHolder(iSize, FixedAllocatorHolder::dummy));
 
-	if (i == pool_.end() || (*i)->blockSize() != iSize)
+	if (i == pool_.end() || i->blockSize() != iSize)
 	{
-		i = pool_.insert(i, TFixedAllocatorPtr(new TFixedAllocator(iSize, chunkSize_)));
+		i = pool_.insert(i, FixedAllocatorHolder(iSize));
 		lastDeallocate_ = pool_.begin()->get();
 	}
 
@@ -380,11 +380,11 @@ void SmallObjectAllocator<CS, MOS, I>::doDeallocate(void* iPointer, std::size_t 
 		return;
 	}
 
-	typename TPool::iterator pit =
-		std::lower_bound(pool_.begin(), pool_.end(), iSize, CompareFixedAllocatorSize());
-	LASS_ASSERT(pit != pool_.end());
-	LASS_ASSERT((*pit)->blockSize() == iSize);
-	lastDeallocate_ = pit->get();
+	typename TPool::iterator i = std::lower_bound(
+		pool_.begin(), pool_.end(), FixedAllocatorHolder(iSize, FixedAllocatorHolder::dummy));
+	LASS_ASSERT(i != pool_.end());
+	LASS_ASSERT(i->blockSize() == iSize);
+	lastDeallocate_ = i->get();
 	lastDeallocate_->deallocate(iPointer);
 }
 

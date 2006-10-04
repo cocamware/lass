@@ -92,6 +92,8 @@
 #include "util_common.h"
 #include "callback_0.h"$(
 #include "callback_$x.h")$
+#include "callback_r_0.h"$(
+#include "callback_r_$x.h")$
 #include "thread.h"
 #include "../meta/type_traits.h"
 

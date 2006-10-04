@@ -37,15 +37,19 @@
 #	define LASS_LIB_COMPILER "vc6"
 
 #elif LASS_COMPILER_VERSION == 1300
-#	define LASS_COMPILER "Microsoft Visual C++ .NET 2002"
+#	define LASS_COMPILER "Microsoft Visual C++ 2002"
 #	define LASS_LIB_COMPILER "vc7"
 
 #elif LASS_COMPILER_VERSION == 1310
-#	define LASS_COMPILER "Microsoft Visual C++ .NET 2003"
+#	define LASS_COMPILER "Microsoft Visual C++ 2003"
 #	define LASS_LIB_COMPILER "vc71"
 
+#elif LASS_COMPILER_VERSION == 1400
+#	define LASS_COMPILER "Microsoft Visual C++ 2005"
+#	define LASS_LIB_COMPILER "vc8"
+
 #else
-#	define LASS_LIB_COMPILER "Microsoft Visual C++"
+#	define LASS_COMPILER "Microsoft Visual C++"
 #	define LASS_LIB_COMPILER "vc"
 #endif
 

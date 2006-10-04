@@ -54,7 +54,7 @@ void testNumBasicOps()
 		LASS_TEST_CHECK_EQUAL(num::sinc(x), y);
 	}
 	while (y < TNumTraits::one);
-	LASS_COUT << "sinc(" << typeid(T).name() << ") == 1 for x < " << x << std::endl;
+	LASS_COUT << "sinc(" << typeid(T).name() << ") == 1 for x <= " << x << std::endl;
 }
 
 

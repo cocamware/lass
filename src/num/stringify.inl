@@ -28,9 +28,7 @@
  */
 std::string str(float iV)
 {
-	char buf[64];
-	sprintf(buf,"%f",iV);
-	return std::string(buf);
+	return util::stringCast<std::string>(iV);
 }
 
 
@@ -38,27 +36,21 @@ std::string str(float iV)
  */
 std::string str(double iV)
 {
-	char buf[64];
-	sprintf(buf,"%f",iV);
-	return std::string(buf);
+	return util::stringCast<std::string>(iV);
 }
 
 /** @deprecated use util::stringCast
  */
 std::string str(int iV)
 {
-	char buf[64];
-	sprintf(buf,"%d",iV);
-	return std::string(buf);
+	return util::stringCast<std::string>(iV);
 }
 
 /** @deprecated use util::stringCast
  */
 std::string str(long iV)
 {
-	char buf[64];
-	sprintf(buf,"%ld",iV);
-	return std::string(buf);
+	return util::stringCast<std::string>(iV);
 }
 
 /** @deprecated use util::stringCast

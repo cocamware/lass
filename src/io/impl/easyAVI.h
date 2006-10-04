@@ -105,7 +105,15 @@ void easyAVI::openAVI(char *filename, int framerate, int xr, int yr)
 
 	AVIFileInit();
 
-	result = AVIFileOpen(&aviFile,filename,OF_WRITE | OF_CREATE,NULL);
+#ifdef UNICODE
+	const size_t bufferLength = MultiByteToWideChar( CP_ACP, 0, filename, -1, 0, 0);
+	std::vector<WCHAR> buffer(bufferLength);
+	MultiByteToWideChar( CP_ACP, 0, filename, -1, &buffer[0], bufferLength);
+	LPCWSTR szFile = &buffer[0];
+#else
+	LPCSTR szFile = filename;
+#endif
+	result = AVIFileOpen(&aviFile,szFile,OF_WRITE | OF_CREATE,NULL);
 	if (result != AVIERR_OK)
 	{
 		LASS_WARNING("Error: AVIFileOpen failed.\n");

@@ -111,7 +111,7 @@ namespace test
 		PY_HEADER( Bar );
 
 	public:
-		DerivedBarBar() {}
+		DerivedBar() {}
 		virtual ~DerivedBar() {}
 		virtual float aMoreComplexFunction( float iA, float iB );
 	};

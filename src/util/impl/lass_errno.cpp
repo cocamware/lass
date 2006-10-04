@@ -70,8 +70,19 @@ const std::string lass_strerror(int iErrnum)
 	
 #elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
+#	if LASS_COMPILER_VERSION >= 1400
+	const size_t bufferLength = 256;
+	char buffer[bufferLength + 1];
+	const errno_t rc = strerror_s(buffer, bufferLength, iErrnum);
+	if (rc != 0)
+	{
+		return "[no error message due to strerror_s failure]";
+	}
+	return std::string(buffer);
+#	else
 	return strerror(iErrnum);
-	
+#	endif
+
 #else
 
 	std::ostringstream buffer;

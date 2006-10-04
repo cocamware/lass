@@ -43,6 +43,7 @@
 #include "../non_copyable.h"
 #include "../shared_ptr.h"
 #include "../singleton.h"
+#include "../thread.h"
 
 //#define LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
 
@@ -133,44 +134,76 @@ public:
 				<< allocatedObjects_ << std::endl;
 		}
 	}
+#endif
 
 	void* allocate(std::size_t iSize)
-	{
-		void* const result = doAllocate(iSize);
+	{		
+		void* result = 0;
+		LASS_LOCK(lock_)
+		{
+			result = doAllocate(iSize);
+#ifdef LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
 		allocatedObjects_.insert(result);
+#endif
+		}
+		if (result == 0)
+		{
+			throw std::bad_alloc();
+		}
 		return result;
 	}
 
 	void deallocate(void* iPointer, std::size_t iSize)
 	{
-		allocatedObjects_.erase(iPointer);
-		doDeallocate(iPointer, iSize);
-	}
-
-#else
-
-	void* allocate(std::size_t iSize) { return doAllocate(iSize); }
-	void deallocate(void* iPointer, std::size_t iSize) { doDeallocate(iPointer, iSize); }
-
+		LASS_LOCK(lock_)
+		{
+#ifdef LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
+			allocatedObjects_.erase(iPointer);
 #endif
+			doDeallocate(iPointer, iSize);
+		}
+	}
 
 private:
 
 	typedef IndexType TIndex;
 	typedef FixedAllocator<IndexType> TFixedAllocator;
+
 	typedef util::SharedPtr<TFixedAllocator, util::ObjectStorage,
 		util::IntrusiveCounter<TFixedAllocator, int, &TFixedAllocator::uglyReferenceCount_> >
 		TFixedAllocatorPtr;
-	typedef std::vector<TFixedAllocatorPtr> TPool;
 
-	struct CompareFixedAllocatorSize:
-		public std::binary_function<const TFixedAllocatorPtr&, std::size_t, bool>
+	class FixedAllocatorHolder
 	{
-		bool operator()(const TFixedAllocatorPtr& iAllocator, std::size_t iNumBytes) const
+	public:
+		enum Dummy { dummy };
+
+		explicit FixedAllocatorHolder(size_t blockSize):
+			allocator_(new TFixedAllocator(blockSize, chunkSize_)),
+			blockSize_(blockSize)
 		{
-			return iAllocator->blockSize() < iNumBytes;
-		}
+		};
+		FixedAllocatorHolder(size_t blockSize, Dummy):
+			allocator_(0),
+			blockSize_(blockSize)
+		{
+		};
+
+		TFixedAllocator* operator->() const { LASS_ASSERT(allocator_); return allocator_.get(); }
+		TFixedAllocator& operator*() const { LASS_ASSERT(allocator_); return *allocator_; }
+		TFixedAllocator* get() { return allocator_.get(); }
+
+		const size_t blockSize() const { return blockSize_; }
+
+		const bool operator<(const FixedAllocatorHolder& other) const { return blockSize_ < other.blockSize_; }
+
+	private:
+
+		TFixedAllocatorPtr allocator_;
+		size_t blockSize_;
 	};
+
+	typedef std::vector<FixedAllocatorHolder> TPool;
 
 	enum
 	{
@@ -184,6 +217,8 @@ private:
 	TPool pool_;
 	TFixedAllocator* lastAllocate_;
 	TFixedAllocator* lastDeallocate_;
+
+	Semaphore lock_;	
 
 #ifdef LASS_UTIL_SMALL_OBJECT_TRACK_ALLOCATIONS
 	std::set<void*> allocatedObjects_;
