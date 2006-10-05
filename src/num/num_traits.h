@@ -99,7 +99,7 @@ bool isInf( const C& iV )
 
 #define LASS_NUM_DECLARE_FLOATING_TRAITS( ttype, tname ) \
 template<> \
-struct NumTraits<ttype>\
+struct LASS_DLL NumTraits<ttype>\
 {\
 	typedef ttype   selfType;\
 	typedef ttype   baseType;\
@@ -134,7 +134,7 @@ struct NumTraits<ttype>\
 
 #define LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( ttype, tname ) \
 template<> \
-struct NumTraits< ttype >\
+struct LASS_DLL NumTraits< ttype >\
 {\
 	typedef ttype   selfType;\
 	typedef ttype::value_type   baseType;\
@@ -170,7 +170,7 @@ LASS_NUM_DECLARE_FLOATING_TRAITS( long double, "long double" )
 LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( std::complex< long double > , "complex<long double>" )
 
 template<>
-struct NumTraits<char>
+struct LASS_DLL NumTraits<char>
 {
 	typedef char selfType;
 	typedef char baseType;
@@ -204,7 +204,7 @@ struct NumTraits<char>
 
 #define LASS_NUM_DECLARE_INTEGRAL_TRAITS( sign, type, is_signed ) \
 template<> \
-struct NumTraits<sign type> \
+struct LASS_DLL NumTraits<sign type> \
 {\
 	typedef sign type selfType;\
 	typedef sign type baseType;\

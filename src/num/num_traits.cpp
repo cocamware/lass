@@ -53,6 +53,7 @@ namespace num
 /*  got rid of the template<> because VS2003 didn't like it although but we did
 *   and at first and second glance the standard also likes it [TDM]
 */
+template <> struct LASS_DLL NumTraits<float>;
 const int   NumTraits<float>::memorySize = sizeof(float);
 const int   NumTraits<float>::mantisseSize = std::numeric_limits<float>::digits;			
 const float NumTraits<float>::one = 1.f;
@@ -70,6 +71,7 @@ const float NumTraits<float>::sqrt2 = float(LASS_NUM_SQRT_2);
 const float NumTraits<float>::sqrtPi = float(LASS_NUM_SQRT_PI);
 
 // complex specialisation
+template <> struct LASS_DLL NumTraits< std::complex<float> >;
 const int   NumTraits<std::complex<float> >::memorySize = sizeof(std::complex<float>);
 const std::complex<float>   NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
 const std::complex<float>   NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
@@ -81,6 +83,7 @@ const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = float(LASS
 /***********************************************************************
 * double num trait
 */
+template <> struct LASS_DLL NumTraits<double>;
 const int   NumTraits<double>::memorySize = sizeof(double);
 const int   NumTraits<double>::mantisseSize = std::numeric_limits<double>::digits;
 const double    NumTraits<double>::one = 1.0;
@@ -98,6 +101,7 @@ const double    NumTraits<double>::sqrt2 = LASS_NUM_SQRT_2;
 const double    NumTraits<double>::sqrtPi = LASS_NUM_SQRT_PI;
 
 // complex specialisation
+template <> struct LASS_DLL NumTraits< std::complex<double> >;
 const int   NumTraits<std::complex<double> >::memorySize = sizeof(std::complex<double>);
 const std::complex<double>  NumTraits<std::complex<double> >::one = std::complex<double>(1.0, 0.0);
 const std::complex<double>  NumTraits<std::complex<double> >::zero = std::complex<double>(0.0, 0.0);
@@ -109,6 +113,7 @@ const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = LASS_NUM_
 /***********************************************************************
 * long double num trait
 */
+template <> struct LASS_DLL NumTraits<long double>;
 const int   NumTraits<long double>::memorySize = sizeof(long double);
 const int   NumTraits<long double>::mantisseSize = std::numeric_limits<long double>::digits;
 const long double    NumTraits<long double>::one = 1.0;
@@ -126,6 +131,7 @@ const long double    NumTraits<long double>::sqrt2 = LASS_NUM_SQRT_2;
 const long double    NumTraits<long double>::sqrtPi = LASS_NUM_SQRT_PI;
 
 // complex specialisation
+template <> struct LASS_DLL NumTraits< std::complex<long double> >;
 const int   NumTraits<std::complex<long double> >::memorySize = sizeof(std::complex<long double>);
 const std::complex<long double>  NumTraits<std::complex<long double> >::one = std::complex<long double>(1.0, 0.0);
 const std::complex<long double>  NumTraits<std::complex<long double> >::zero = std::complex<long double>(0.0, 0.0);
@@ -140,6 +146,7 @@ const std::complex<long double>  NumTraits<std::complex<long double> >::sqrtPi =
 
 /** code generating macro for integral types */
 #define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( t_type, v_min, v_max ) \
+template <> struct LASS_DLL NumTraits<t_type>;\
 const int   NumTraits<t_type>::memorySize = sizeof(t_type);\
 const int   NumTraits<t_type>::mantisseSize = 0;\
 const t_type NumTraits<t_type>::one = 1;\

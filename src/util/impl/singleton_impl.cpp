@@ -27,7 +27,7 @@
 
 #include "util_common.h"
 #include "singleton_impl.h"
-#include "../thread.h"
+#include "../atomic.h"
 #include <cstdlib>
 #include <queue>
 
@@ -81,6 +81,36 @@ private:
 
 	SingletonGuard() {}
 
+	/** Special semaphore for the guard.
+	 *  @internal
+	 *  The reason we need a custom semaphore implemented around a static int is because
+	 *	the util::Semaphore is susceptible to the static initialization order fiasco.
+	 *  To solve that, we need something that can be initialized statically (baked in
+	 *	executable), and that would be - in this case - an int.  It will appear to have
+	 *	been one since the beginning of the ages.  Case solved.
+	 */
+	class CustomSemaphore
+	{
+	public:
+		CustomSemaphore()
+		{
+			int oldSlots, newSlots;
+			do
+			{
+				oldSlots = freeSlots_;
+				LASS_ASSERT(oldSlots >= 0);
+				newSlots = oldSlots - 1;
+			}
+			while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+		}
+		~CustomSemaphore()
+		{
+			atomicIncrement(freeSlots_); 
+		}
+	private:
+		static int freeSlots_;
+	};
+
 	typedef std::priority_queue
 		<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
 
@@ -90,11 +120,11 @@ private:
 	static bool deadReference(bool iSetReferenceToDead = false);
 
 	static SingletonGuard* instance_;
-	static util::Semaphore lock_;
+	
 };
 
 SingletonGuard* SingletonGuard::instance_ = 0;
-util::Semaphore SingletonGuard::lock_;
+int SingletonGuard::CustomSemaphore::freeSlots_ = 1;
 
 
 
@@ -198,13 +228,11 @@ SingletonGuard* SingletonGuard::instance()
 
 	if (!instance_)
 	{
-		LASS_LOCK(lock_)
+		CustomSemaphore lock;
+		if (!instance_) // double check
 		{
-			if (!instance_) // double check
-			{
-				instance_ = new SingletonGuard;
-				::atexit(&SingletonGuard::killEmAll);
-			}
+			instance_ = new SingletonGuard;
+			::atexit(&SingletonGuard::killEmAll);
 		}
 	}
 
@@ -220,11 +248,9 @@ SingletonGuard* SingletonGuard::instance()
  */
 void SingletonGuard::killEmAll()
 {
-	LASS_LOCK(lock_)
-	{
-		delete instance_;
-		instance_ = 0;
-	}
+	CustomSemaphore lock;
+	delete instance_;
+	instance_ = 0;
 }
 
 

@@ -40,8 +40,8 @@ namespace stde
 
 template <typename I> inline
 iterator_range<I>::iterator_range(): 
-	first_(0), 
-	last_(0) 
+	first_(), 
+	last_() 
 {
 }
 

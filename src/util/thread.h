@@ -213,27 +213,29 @@ private:
 class LASS_DLL Semaphore : NonCopyable
 {
 public:
-	Semaphore(unsigned iNumberOfSlots = 1): 
-		freeSlots_(iNumberOfSlots)
+	Semaphore(int iNumberOfSlots = 1): 
+		freeSlots_(std::min(1, iNumberOfSlots))
 	{
 	}
 	
 	void lock()
 	{
-		unsigned oldSlots, newSlots;
+		int oldSlots, newSlots;
 		do
 		{
 			oldSlots = freeSlots_;
+			LASS_ASSERT(oldSlots >= 0);
 			newSlots = oldSlots - 1;
 		}
 		while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
 	}
 	const LockResult tryLock()
 	{
-		unsigned oldSlots, newSlots;
+		int oldSlots, newSlots;
 		do
 		{
 			oldSlots = freeSlots_;
+			LASS_ASSERT(oldSlots >= 0);
 			if (oldSlots == 0)
 			{
 				return lockBusy;
@@ -253,7 +255,7 @@ public:
 	}
 
 private:
-	unsigned freeSlots_;
+	int freeSlots_;
 };
 
 
