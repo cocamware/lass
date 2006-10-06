@@ -68,9 +68,11 @@
  *    priority.  It's not specified in which order singletons with identical destruction priorities
  *    will be destructed (i.e. its not guaranteed for such singletons that the last one constructed
  *    will be the first to be destroyed).  You can set the destruction priority by the second
- *    template argument of @c Singleton: @c lass::util::Singleton<Foo,200> will specify the
- *    singleton to have a destruction priority of 200.  The default destruction priority is set to
- *    be 1000.
+ *    template argument of @c Singleton: @c lass::util::Singleton<Foo,2000> will specify the
+ *    singleton to have a destruction priority of 2000.  The default destruction priority is set to
+ *    be 1000.  Priorities up to 500 are reserved for the Lass implementation (and for you who
+ *    know what you're doing ;)
+ *
  *    @b warning: lass::io::proxyMan() is a proxy man that is needed for the implementation of
  *    all logging activities etc.  Its destruction priority is set to 0 and there should be
  *    no other singleton have a destruction priority lower or equal than this.
@@ -97,7 +99,9 @@ namespace lass
 namespace util
 {
 
-template<class T, int DestructPriority = 1000>
+#define LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY 1000
+
+template<class T, int DestructPriority = LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY>
 class Singleton: public impl::SingletonBase
 {
 public:

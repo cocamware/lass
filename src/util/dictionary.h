@@ -94,7 +94,7 @@
  *
  *  TFooBarDictionary& fooBarDictionary()
  *  {
- *      return *lass::util::Singleton<TFooBarDictionary, 1>::instance();
+ *      return *lass::util::Singleton<TFooBarDictionary>::instance();
  *  }
  *
  *  LASS_EXECUTE_BEFORE_MAIN

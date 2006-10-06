@@ -25,6 +25,44 @@
 
 /** @defgroup Allocator
  *  @brief Custom allocator library
+ *
+ *	@section Introduction
+ *
+ *	This library provides a nice flexible set of custom allocators you can combine in
+ *	anyway you like, as long as it makes sense.
+ *
+ *	There are in general two kind of allocator interfaces: fixed-size and variable-size 
+ *	allocators, with the obvious meanings.  The former is constructed with the requested 
+ *	block size and (de)allocates blocks of at least that size.  The latter has a default 
+ *	constructor and the requested block size is passed at _both_ allocation and deallocation.
+ *	Some variable-size allocators (like AllocatorMalloc) also provide deallocate(void* mem) 
+ *  without the block size, but that's not a requirement.
+ *
+ *	@code
+ *	class FixedSizeAllocator
+ *	{
+ *	public:
+ *		FixedSizeAllocator(size_t size);
+ *		void* allocate();
+ *		void deallocate(void* mem);
+ *	};
+ *
+ *	class VariableSizeAllocator
+ *	{
+ *		VariableSizeAllocator();
+ *		void* allocate(size_t size);
+ *		void deallocate(void* mem, size_t size);
+ *	};
+ *	@endcode
+ *
+ *	There are bottom-level allocators (like AllocatorMalloc) that do real allocation work
+ *	and exist on there own.  And there are adaptor allocators (like AllocatorLocked) that
+ *	extend/adapt another allocator to provide some extra functionality.  Some of them
+ *	(like AllocatorLocked) implement both the fixed-size and variable-size interface.
+ *	Others (like AllocatorVariableSize) convert a fixed-size interface to variable-size.
+ *
+ *	On top of all that, there's AllocatorClassAdaptor you can use to overload class-specific
+ *	new and delete using a variable-size allocator.
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_ALLOCATOR_H
@@ -42,8 +80,18 @@ namespace experimental
 
 /** Use an Allocator to implement a class' new and delete
  *  @ingroup Allocator
+ *
+ *	Derive from this class to implement new and delete based on Allocator.
+ *	It uses a singleton of Allocator that is shared per 
+ *	<Allocator type, destruction priority> pair.  So if you have another
+ *	class using the same allocator and destruction priority, the allocator
+ *	singleton will be shared.
  */
-template <typename Allocator>
+template 
+<
+	typename Allocator,
+	int destructionPriority = LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY
+>
 class AllocatorClassAdaptor
 {
 public:
@@ -101,31 +149,31 @@ public:
 		return mem;
 	}
 
-	static void delete(void* mem, std::size_t size)
+	static void operator delete(void* mem, std::size_t size)
 	{
 		allocator()->deallocate(mem, size);
 	}
 
-	static void delete(void* mem, std::size_t size, std::nothrow_t)
+	static void operator delete(void* mem, std::size_t size, std::nothrow_t)
 	{
 		allocator()->deallocate(mem, size);
 	}
 
-	static void delete(void*, std::size_t, std::nothrow_t, void*)
+	static void operator delete(void*, std::size_t, std::nothrow_t, void*)
 	{
 	}
 
-	static void delete[](void* mem, std::size_t size)
-	{
-		allocator()->deallocate(mem, size);
-	}
-
-	static void delete[](void* mem, std::size_t size, std::nothrow_t)
+	static void operator delete[](void* mem, std::size_t size)
 	{
 		allocator()->deallocate(mem, size);
 	}
 
-	static void delete[](void*, std::size_t, std::nothrow_t, void*)
+	static void operator delete[](void* mem, std::size_t size, std::nothrow_t)
+	{
+		allocator()->deallocate(mem, size);
+	}
+
+	static void operator delete[](void*, std::size_t, std::nothrow_t, void*)
 	{
 	}
 
@@ -133,7 +181,7 @@ private:
 
 	static Allocator* allocator()
 	{
-		return util::Singleton<Allocator>::instance();
+		return util::Singleton<Allocator, destructionPriority>::instance();
 	}
 };
 
@@ -213,7 +261,7 @@ private:
  */
 template
 <
-	typename Allocator,
+	typename Allocator
 >
 class AllocatorPerThread
 {
@@ -258,23 +306,23 @@ class AllocatorVariableSize
 public:
 	void* allocate(size_t size)
 	{
-		fixedAllocator(size)->allocate();
+		return fixedAllocator(size).allocate();
 	}
-	void deallocate(void* mem, size_t)
+	void deallocate(void* mem, size_t size)
 	{
-		fixedAllocator(size)->deallocate(mem);
+		fixedAllocator(size).deallocate(mem);
 	}
 private:
-	typedef std::map<FixedAllocator> TFixedAllocators;
+	typedef std::map<size_t, FixedAllocator> TFixedAllocators;
 	
-	typename TFixedAllocators::iterator fixedAllocator(size_t size)
+	FixedAllocator& fixedAllocator(size_t size)
 	{
 		typename TFixedAllocators::iterator allocator = fixedAllocators_.find(size);
 		if (allocator == fixedAllocators_.end())
 		{
-			allocator = fixedAllocators_.insert(std::make_pair(size, FixedAllocator(size)));
+			allocator = fixedAllocators_.insert(std::make_pair(size, FixedAllocator(size))).first;
 		}
-		return allocator;
+		return allocator->second;
 	}
 	
 	TFixedAllocators fixedAllocators_;

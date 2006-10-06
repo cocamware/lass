@@ -239,16 +239,14 @@ public:
 
 	TValue* const get() const
 	{
-		if (TValue* ptr = static_cast<TValue*>(storage_.get()));
-		{
-			return *ptr;
-		}
-		else
+		TValue* ptr = static_cast<TValue*>(storage_.get());
+		if (!ptr)
 		{
 			std::auto_ptr<T> newCopy(new TValue(prototype_));
 			storage_.set(newCopy.get());
-			return *newCopy.release();
+			ptr = newCopy.release();
 		}
+		return ptr;
 	}
 
 	TValue* const operator->() const
