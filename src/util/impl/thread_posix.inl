@@ -354,6 +354,40 @@ private:
 	bool isCreated_;
 };
 
+
+
+/** @internal
+ *  @ingroup Threading
+ */
+class ThreadLocalStorageInternal: NonCopyable
+{
+public:
+	ThreadLocalStorageInternal(void (*destructor)(void*))
+	{
+		LASS_ENFORCE_CLIB_RC(pthread_key_create(&key_, destructor));
+	}
+	~ThreadLocalStorageInternal
+	{
+		int ret = pthread_key_delete(key_);
+		LASS_ASSERT(ret == 0);
+		if (ret != 0)
+		{
+			std::cerr << "[LASS RUN MSG] WARNING: pthread_key_delete failed: (" 
+				<< ret << ") " << impl::lass_strerror(ret) << std::endl;
+		}
+	}
+	void* const get() const
+	{
+		return pthread_getspecific(key_);
+	}
+	void set(const void* value)
+	{
+		LASS_ENFORCE_CLIB_RC(pthread_setspecific(key_, value);
+	}
+private:
+	pthread_key_t key_;
+};
+
 }
 }
 }

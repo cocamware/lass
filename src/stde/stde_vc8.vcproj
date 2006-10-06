@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\linear_map.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\slist.inl"
 				>
 			</File>
@@ -232,6 +236,10 @@
 			</File>
 			<File
 				RelativePath=".\iterator_range.h"
+				>
+			</File>
+			<File
+				RelativePath=".\linear_map.h"
 				>
 			</File>
 			<File

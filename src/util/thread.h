@@ -202,6 +202,78 @@ private:
 
 
 
+/** A primitive to provide Thread Local Storage functionality
+ *  @ingroup Threading
+ */
+class LASS_DLL ThreadLocalStorage: NonCopyable
+{
+public:
+	ThreadLocalStorage(void (*destructor)(void*) = 0);
+	~ThreadLocalStorage();
+	void* const get() const;
+	void set(void* value);
+private:
+	void* pimpl_;
+};
+
+
+
+
+/** A primitive to provide Thread Local Storage functionality
+ *  @ingroup Threading
+ */
+template <typename T>
+class ThreadLocalVariable: NonCopyable
+{
+public:
+	typedef typename CallTraits<T>::TValue TValue;
+	typedef typename CallTraits<T>::TParam TParam;
+	typedef typename CallTraits<T>::TConstReference TConstReference;
+	typedef typename CallTraits<T>::TReference TReference;
+
+	explicit ThreadLocalVariable(TParam prototype = T()):
+		prototype_(prototype),
+		storage_(&ThreadLocalVariable<T>::destructor)
+	{
+	}
+
+	TValue* const get() const
+	{
+		if (TValue* ptr = static_cast<TValue*>(storage_.get()));
+		{
+			return *ptr;
+		}
+		else
+		{
+			std::auto_ptr<T> newCopy(new TValue(prototype_));
+			storage_.set(newCopy.get());
+			return *newCopy.release();
+		}
+	}
+
+	TValue* const operator->() const
+	{
+		return get();
+	}
+
+	TReference operator*() const
+	{
+		return *get();
+	}
+
+private:
+
+	static void destructor(void* p)
+	{
+		delete static_cast<T*>(p);
+	}
+
+	TValue prototype_;
+	ThreadLocalStorage storage_;
+};
+
+
+
 /** Lean and mean synchronisation object, without OS support.
 *   @ingroup Threading
 *   @see SemaphoreLocker
@@ -273,21 +345,21 @@ public:
 
 /** @ingroup Threading
  */
-template <typename MutexType>
+template <typename LockType>
 class Locker: public LockerBase
 {
 public:
-	typedef MutexType TMutex;
-	Locker(MutexType& iMutex): 
-		mutex_(&iMutex) 
+	typedef LockType TLock;
+	Locker(TLock& iLock): 
+		lock_(&iLock) 
 	{ 
-		mutex_->lock(); 
+		lock_->lock(); 
 	}
 	~Locker() 
 	{
 		try
 		{
-			mutex_->unlock();
+			lock_->unlock();
 		}
 		catch (std::exception& error)
 		{
@@ -300,17 +372,17 @@ public:
 				<< "unknown exception thrown in ~Locker()" << std::endl;
 		}
 	}
-	TMutex& mutex()
+	TLock& mutex()
 	{ 
-		LASS_ASSERT(mutex_);
-		return *mutex_;
+		LASS_ASSERT(lock_);
+		return *lock_;
 	}
 	void swap(Locker& iOther)
 	{
-		std::swap(mutex_, iOther.mutex_);
+		std::swap(lock_, iOther.lock_);
 	}
 private:
-	MutexType* mutex_;
+	TLock* lock_;
 };
 
 /** @ingroup Threading

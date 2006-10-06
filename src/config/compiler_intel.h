@@ -70,5 +70,6 @@
 #define LASS_DLL_EXPORT __declspec( dllexport )
 #define LASS_CALL __cdecl
 #define LASS_NO_INLINE __declspec( noinline )
+#define LASS_PER_THREAD __thread
 
 #endif

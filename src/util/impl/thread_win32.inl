@@ -28,6 +28,7 @@
 
 #include "../util_common.h"
 #include "../thread.h"
+#include "../singleton.h"
 #include "lass_errno.h"
 #include <process.h>
 #include <windows.h>
@@ -263,6 +264,76 @@ private:
 /** @internal
  *  @ingroup Threading
  */
+class ThreadLocalStorageInternal: NonCopyable
+{
+public:
+	typedef void (*TDestructor)(void*);
+
+	ThreadLocalStorageInternal(void (*destructor)(void*))
+	{
+		index_ = TlsAlloc();
+		if (index_ == TLS_OUT_OF_INDEXES)
+		{
+			LASS_THROW("Failed to allocate thread local storage");
+		}
+
+		destructors()[index_] = destructor;
+	}
+	~ThreadLocalStorageInternal()
+	{
+		destructors().erase(index_);
+		if (!TlsFree(index_))
+		{
+			std::cerr << "[LASS RUN MSG] WARNING: TlsFree failed." << std::endl;
+		}
+	}
+	void* const get() const
+	{
+		void* result = TlsGetValue(index_);
+		if (result == 0 && GetLastError() != ERROR_SUCCESS)
+		{
+			LASS_THROW("Failed to get thread local storage value");
+		}
+		return result;
+	}
+	void set(void* value)
+	{
+		if (!TlsSetValue(index_, value))
+		{
+			LASS_THROW("Failed to set thread local storage value");
+		}
+	}
+
+	static void destructLocals()
+	{
+		for (TDestructors::iterator i = destructors().begin(); i != destructors().end(); ++i)
+		{
+			DWORD index = i->first;
+			TDestructor destructor = i->second;
+			if (destructor)
+			{
+				void* p = TlsGetValue(index);
+				destructor(p);
+				TlsSetValue(index, 0);
+			}
+		}
+	}
+private:
+
+	typedef std::map<DWORD, TDestructor> TDestructors;
+	
+	static TDestructors& destructors()
+	{
+		return *Singleton<TDestructors>::instance();
+	}
+	
+	DWORD index_;
+};
+
+
+/** @internal
+ *  @ingroup Threading
+ */
 class ThreadInternal
 {
 public:
@@ -336,6 +407,7 @@ public:
 		pimpl->isCreated_ = true;
 		pimpl->runCondition_.signal();
 		pimpl->thread_.doRun();
+		ThreadLocalStorageInternal::destructLocals();
 		if (!pimpl->isJoinable_)
 		{
 			delete &pimpl->thread_;
@@ -352,6 +424,7 @@ private:
 	bool isJoinable_;
 	bool isCreated_;
 };
+
 
 }
 }

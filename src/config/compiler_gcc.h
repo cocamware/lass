@@ -43,5 +43,6 @@
 #define LASS_DLL_EXPORT
 #define LASS_CALL
 #define LASS_NO_INLINE
+#define LASS_PER_THREAD __thread
 
 #endif

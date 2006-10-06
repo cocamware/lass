@@ -295,6 +295,34 @@ void Thread::yield()
 }
 
 
+
+// --- ThreadLocalStorage --------------------------------------------------------------------------
+
+ThreadLocalStorage::ThreadLocalStorage(void (*destructor)(void*))
+{
+	pimpl_ = new impl::ThreadLocalStorageInternal(destructor);
+}
+
+ThreadLocalStorage::~ThreadLocalStorage()
+{
+	delete pimpl_;
+	pimpl_ = 0;
+}
+
+void* const ThreadLocalStorage::get() const
+{
+	impl::ThreadLocalStorageInternal* pimpl = static_cast<impl::ThreadLocalStorageInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	return pimpl->get();
+}
+
+void ThreadLocalStorage::set(void* value)
+{
+	impl::ThreadLocalStorageInternal* pimpl = static_cast<impl::ThreadLocalStorageInternal*>(pimpl_);
+	LASS_ASSERT(pimpl);
+	pimpl->set(value);
+}
+
 }
 }
 
