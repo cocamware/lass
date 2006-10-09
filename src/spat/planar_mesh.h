@@ -1347,7 +1347,8 @@ continueSearch:
 #pragma LASS_TODO("Optimize")
 			// this for loop is introduced for point location in non-triangular, general
 			// convex cells
-			for (int i=0;i<chainOrder(e)-1;++i)
+			TEdge* oldE = e;
+			for (int i=0;i<chainOrder(e);++i)
 			{
 				if ( weakCcw( iSegment.tail(), iSegment.head(), dest(ce) ) )
 				{
@@ -1355,6 +1356,10 @@ continueSearch:
 					break;
 				}
 				ce = ce->lNext();
+			}
+			if (e==oldE)
+			{
+				LASS_THROW("Planarmesh: stuck in walk");
 			}
 		}
 		return crossedEdges;
