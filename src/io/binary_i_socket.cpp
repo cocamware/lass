@@ -49,14 +49,16 @@ void BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 		return;
 	}
 	char* begin = static_cast<char*>(oBegin);
-	while (iNumberOfBytes > 0)
+	int numberOfBytes = static_cast<int>(iNumberOfBytes);
+	LASS_ASSERT(numberOfBytes >= 0 && static_cast<size_t>(numberOfBytes) == iNumberOfBytes);
+	while (numberOfBytes > 0)
 	{
 		try
 		{
-			const int read = socket_.receive(begin, iNumberOfBytes);
-			LASS_ASSERT(read >= 0 && read <= iNumberOfBytes);
+			const int read = socket_.receive(begin, numberOfBytes);
+			LASS_ASSERT(read >= 0 && read <= numberOfBytes);
 			begin += read;
-			iNumberOfBytes -= read;
+			numberOfBytes -= read;
 		}
 		catch (util::Exception&)
 		{

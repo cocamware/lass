@@ -32,6 +32,7 @@
 #include "test_common.h"
 
 #include "../util/thread_pool.h"
+#include "../util/atomic.h"
 
 namespace lass
 {
@@ -40,21 +41,17 @@ namespace test
 namespace thread_pool
 {
 	unsigned counter = 0;
-	util::CriticalSection counterMutex;
 
 	void task()
 	{
 		util::Thread::sleep(50); 
-		LASS_LOCK(counterMutex)
-		{
-			++counter;
-		}
+		util::atomicIncrement(counter);
 	}
 }
 
 void testUtilThreadPool()
 {
-	const unsigned numberOfThreads = 10;
+	const unsigned numberOfThreads = 4;
 	const unsigned maxNumberOfTasksInQueue = 20;
 	const unsigned numberOfTasks = 40;
 

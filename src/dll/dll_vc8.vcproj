@@ -25,7 +25,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
-				CommandLine="cd ..\util&#x0D;&#x0A;pre_build.py&#x0D;&#x0A;cd ..\dll"
+				CommandLine="cd ..\util&#x0D;&#x0A;pre_build.py&#x0D;&#x0A;cd ..\dll&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -93,7 +93,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(SolutionDir)..\lib&quot; /Y&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.h&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.inl&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(SolutionDir)..\lib&quot; /Y&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.h&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.inl&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -107,7 +107,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
-				CommandLine="cd ..\util&#x0D;&#x0A;pre_build.py&#x0D;&#x0A;cd ..\dll"
+				CommandLine="cd ..\util&#x0D;&#x0A;pre_build.py&#x0D;&#x0A;cd ..\dll&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(SolutionDir)..\lib&quot; /Y&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.h&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.inl&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(SolutionDir)..\lib&quot; /Y&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.h&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.inl&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

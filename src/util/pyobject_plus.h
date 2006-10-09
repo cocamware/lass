@@ -140,7 +140,7 @@ namespace lass
 			template<> inline int dictionaryOffset<PyObjectPlus>(PyObjectPlus* iObject)
 			{
 				PyObject* temp = static_cast<PyObject*>(iObject);
-				return (unsigned char*)(&iObject->dict_)-(unsigned char*)(temp);
+				return static_cast<int>((unsigned char*)(&iObject->dict_)-(unsigned char*)(temp));
 			}
 
 			/** @internal

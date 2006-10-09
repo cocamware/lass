@@ -31,7 +31,7 @@
  *	This library provides a nice flexible set of custom allocators you can combine in
  *	anyway you like, as long as it makes sense.
  *
- *	There are in general two kind of allocator interfaces: fixed-size and variable-size 
+ *	There are in general two kind of allocator concepts: fixed-size and variable-size 
  *	allocators, with the obvious meanings.  The former is constructed with the requested 
  *	block size and (de)allocates blocks of at least that size.  The latter has a default 
  *	constructor and the requested block size is passed at _both_ allocation and deallocation.
@@ -58,7 +58,7 @@
  *	There are bottom-level allocators (like AllocatorMalloc) that do real allocation work
  *	and exist on there own.  And there are adaptor allocators (like AllocatorLocked) that
  *	extend/adapt another allocator to provide some extra functionality.  Some of them
- *	(like AllocatorLocked) implement both the fixed-size and variable-size interface.
+ *	(like AllocatorLocked) implement both the fixed-size and variable-size concept.
  *	Others (like AllocatorVariableSize) convert a fixed-size interface to variable-size.
  *
  *	On top of all that, there's AllocatorClassAdaptor you can use to overload class-specific
@@ -69,14 +69,43 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_ALLOCATOR_H
 
 #include "util_common.h"
+#include "atomic.h"
+#include "singleton.h"
 #include "thread.h"
+#include "../meta/bool.h"
 
 namespace lass
 {
 namespace util
 {
-namespace experimental
+namespace impl
 {
+	/** @ingroup Allocator
+	 *	@internal
+	 */
+	template <typename Allocator, typename AllocatorFun>
+	struct IsCompatibleAllocator
+	{
+	private:
+		static meta::True test(AllocatorFun);
+		static meta::False test(...);
+	public:
+		enum { value = (sizeof(test(&Allocator::allocate)) == sizeof(meta::True)) };
+		typedef typename meta::Bool<value>::Type Type;
+	};
+}
+
+/** @ingroup Allocator
+ */
+template <typename Allocator>
+struct IsFixedAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)()> {};
+
+/** @ingroup Allocator
+ */
+template <typename Allocator>
+struct IsVariableAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)(size_t)> {}; 
+
+
 
 /** Use an Allocator to implement a class' new and delete
  *  @ingroup Allocator
@@ -89,8 +118,8 @@ namespace experimental
  */
 template 
 <
-	typename Allocator,
-	int destructionPriority = LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY
+	typename VariableAllocator,
+	int destructionPriority = destructionPriorityDefault
 >
 class AllocatorClassAdaptor
 {
@@ -179,15 +208,16 @@ public:
 
 private:
 
-	static Allocator* allocator()
+	static VariableAllocator* allocator()
 	{
-		return util::Singleton<Allocator, destructionPriority>::instance();
+		return util::Singleton<VariableAllocator, destructionPriority>::instance();
 	}
 };
 
 
 
 /** @ingroup Allocator
+ *	@arg concept: FixedAllocator
  */
 class AllocatorMalloc
 {
@@ -208,8 +238,9 @@ public:
 
 
 
-/** @ingroup Allocator
- *  Guard a MT unsafe allocator with some lock
+/** Guard a MT unsafe allocator with some lock.
+ *	@ingroup Allocator
+ *  @arg concept: VariableAllocator or FixedAllocator, depending on template argument	
  */
 template
 <
@@ -256,8 +287,10 @@ private:
 
 /** Instantiates an Allocator per thread.
  *  @ingroup Allocator
+ *  @arg concept: VariableAllocator or FixedAllocator, depending on template argument
+ *	@arg requirements: Allocator must be copyconstructible
  *	@warning it is potentially unsafe to allocate and deallocate memory in two different threads 
- *		if you're using this one!
+ *		if you're using this one!  This depends on underlying Allocator
  */
 template
 <
@@ -298,10 +331,14 @@ private:
 
 /** A variable-size allocator built on top of a fixed-size allocator
  *  @ingroup Allocator
+ *  @arg concept: VariableAllocator
  *  @warning CURRENTLY THREAD UNSAFE!
  */
-template <typename FixedAllocator>
-class AllocatorVariableSize
+template 
+<
+	typename FixedAllocator
+>
+class AllocatorVariable
 {
 public:
 	void* allocate(size_t size)
@@ -328,7 +365,450 @@ private:
 	TFixedAllocators fixedAllocators_;
 };
 
-}
+
+
+/** fixes a variable-size allocator to one size.
+ */
+template
+<
+	typename VariableAllocator = AllocatorMalloc
+>
+class AllocatorFixed: private VariableAllocator
+{
+public:
+	AllocatorFixed(size_t size): 
+		size_(size)
+	{
+	}
+	void* allocate()
+	{
+		return VariableAllocator::allocate(size_);
+	}
+	void deallocate(void* mem)
+	{
+		VariableAllocator::deallocate(mem, size_);
+	}
+private:
+	size_t size_;
+};
+
+
+
+/** Variable-size allocator, using fixed-sized for small objects and variable-sized for large ones.
+ *  @ingroup Allocator
+ *  @arg concept: VariableAllocator
+ *	@arg thread safe
+ */
+template 
+<
+	typename FixedAllocator,
+	size_t maxFixedSize = 64,
+	typename VariableAllocator = AllocatorMalloc
+>
+class AllocatorVariableHybrid: private VariableAllocator
+{
+public:
+	AllocatorVariableHybrid()
+	{
+		initFixed();
+	}
+	AllocatorVariableHybrid(const AllocatorVariableHybrid& other)
+	{
+		copyInitFixed(other);
+	}
+	~AllocatorVariableHybrid()
+	{
+		destroyFixed(maxFixedSize);
+	}
+	void* allocate(size_t size)
+	{
+		if (size > maxFixedSize)
+		{
+			return VariableAllocator::allocate(size);
+		}
+		return fixedAllocators_[size - 1].allocate();
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		if (size > maxFixedSize)
+		{
+			VariableAllocator::deallocate(mem, size);
+		}
+		fixedAllocators_[size - 1].deallocate(mem);
+	}
+private:
+	AllocatorVariableHybrid& operator=(const AllocatorVariableHybrid&);
+	
+	void allocFixed()
+	{
+		fixedAllocators_ = static_cast<FixedAllocator*>(
+			VariableAllocator::allocate(maxFixedSize * sizeof(FixedAllocator)));
+		if (!fixedAllocators_)
+		{
+			throw std::bad_alloc();
+		}
+	}
+	void initFixed()
+	{
+		// Kids, don't try this at home.  We're trained professionals here! ;)
+		//
+		allocFixed();
+		for (size_t i = 0; i < maxFixedSize; ++i)
+		{
+			try
+			{
+				new(&fixedAllocators_[i]) FixedAllocator(i + 1);
+			}
+			catch (...)
+			{
+				destroyFixed(i);
+				throw;
+			}
+		}
+	}
+	void copyInitFixed(const AllocatorVariableHybrid& other)
+	{
+		// Kids, don't try this either.
+		//
+		allocFixed();
+		for (size_t i = 0; i < maxFixedSize; ++i)
+		{
+			try
+			{
+				new(&fixedAllocators_[i]) FixedAllocator(other.fixedAllocators_[i]);
+			}
+			catch (...)
+			{
+				destroyFixed(i);
+				throw;
+			}
+		}
+	}
+	void destroyFixed(size_t i)
+	{
+		// and neither this.
+		//
+		while (i > 0)
+		{
+			fixedAllocators_[--i].~FixedAllocator();
+		}
+		VariableAllocator::deallocate(fixedAllocators_, maxFixedSize * sizeof(FixedAllocator));
+	}
+
+	FixedAllocator* fixedAllocators_;
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: same as Allocator
+ */
+template
+<
+	typename Allocator,
+	size_t multiple = 8
+>
+class AllocatorPadded: public Allocator
+{
+public:
+	AllocatorPadded():
+		Allocator()
+	{
+	}
+	AllocatorPadded(size_t size):
+		Allocator(pad(size))
+	{
+	}
+	void* allocate(size_t size)
+	{
+		return Allocator::allocate(pad(size));
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		Allocator::deallocate(mem, pad(size));
+	}
+private:
+	size_t pad(size_t size) const
+	{
+		size_t padded = size + multiple - 1;
+		padded -= padded % multiple;
+		LASS_ASSERT(padded >= size && && padded < size + multiple && padded % multiple == 0);
+		return padded;
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: FixedAllocator except for the constructor.
+ */
+template
+<
+	typename FixedAllocator,
+	size_t size
+>
+class AllocatorCompileTimeFixed: public FixedAllocator
+{
+public:
+	AllocatorCompileTimeFixed():
+		FixedAllocator(size)
+	{
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: same as Allocator
+ */
+template
+<
+	typename Allocator
+>
+class AllocatorThrow: public Allocator
+{
+public:
+	AllocatorThrow():
+		Allocator()
+	{
+	}
+	AllocatorThrow(size_t size):
+		Allocator(size)
+	{
+	}
+	void* allocate()
+	{
+		if (void* p = Allocator::allocate())
+		{
+			return p;
+		}
+		throw std::bad_alloc();
+	}
+	void* allocate(size_t size)
+	{
+		if (void* p = Allocator::allocate(size))
+		{
+			return p;
+		}
+		throw std::bad_alloc();
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: same as Allocator
+ */
+template
+<
+	typename Allocator
+>
+class AllocatorNoThrow: public Allocator
+{
+public:
+	AllocatorNoThrow():
+		Allocator()
+	{
+	}
+	AllocatorNoThrow(size_t size):
+		Allocator(size)
+	{
+	}
+	void* allocate()
+	{
+		try
+		{
+			return Allocator::allocate();
+		}
+		catch (...)
+		{
+			return 0;
+		}
+	}
+	void* allocate(size_t size)
+	{
+		try
+		{
+			return Allocator::allocate(size);
+		}
+		catch (...)
+		{
+			return 0;
+		}
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: same as Allocator, except for the constructor if Allocator == FixedAllocator.
+ */
+template
+<
+	typename VariableAllocator,
+	int destructionPriority = destructionPriorityDefault
+>
+class AllocatorSingleton
+{
+public:
+	void* allocate()
+	{
+		return allocator()->allocate();
+	}
+	void* allocate(size_t size)
+	{
+		return allocator()->allocate(size);
+	}
+	void deallocate(void* mem)
+	{
+		return allocator()->deallocate(mem);
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		return allocator()->deallocate(mem, size);
+	}
+	VariableAllocator* allocator()
+	{
+		return util::Singleton<VariableAllocator, destructionPriority>::instance();
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@warning THREAD UNSAFE!
+ */
+template
+<
+	typename Allocator
+>
+class AllocatorStats: public Allocator
+{
+public:
+	AllocatorStats():
+		Allocator()
+	{
+	}
+	AllocatorStats(size_t size):
+		Allocator(size),
+	{
+		stats_.insert(std::make_pair(size, Stat()));
+	}
+	~AllocatorStats()
+	{
+		LASS_COUT << "~" << typeid(AllocatorStats).name() << ">" << std::endl;
+		LASS_COUT << "size: allocations/deallocations" << std::endl;
+		for (TStats::const_iterator i = stats_.begin(); i != stats_.end(); ++i)
+		{
+			LASS_COUT << i->first << ": " 
+				<< i->second.allocations << "/" << i->second.deallocations << std::endl;
+		}
+	}
+	void* allocate(size_t size)
+	{
+		++stats_[size].allocations;
+		return Allocator::allocate(size);
+	}
+	void* allocate()
+	{
+		++stats_.front().allocations;
+		return Allocator::allocate();
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		++stats_[size].deallocations;
+		Allocator::deallocate(mem, size);
+	}
+	void deallocate(void* mem)
+	{
+		++stats_.front().deallocations;
+		Allocator::deallocate(mem);
+	}
+private:
+	struct Stat
+	{
+		unsigned allocations;
+		unsigned deallocations;
+	};
+	typedef std::map<size_t, Stat> TStats;
+	TStats stats_;
+};
+
+
+
+
+
+/** A lock-free fixed-size free-list allocator
+ *	@ingroup Allocator
+ *	@arg concept: FixedAllocator
+ *	@arg thread safe
+ *	@arg copy-constructible, not assignable
+ */
+template 
+<
+	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
+>
+class AllocatorFreeList: public FixedAllocator
+{
+public:
+	AllocatorFreeList(size_t iSize):
+		FixedAllocator(std::max<size_t>(sizeof(AllocationNode),iSize)),
+		top_(0)
+	{
+	}
+	~AllocatorFreeList()
+	{
+		while (top_)
+		{
+			AllocationNode* node = top_;
+			top_ = node->next;
+			FixedAllocator::deallocate(node);
+		}
+	}
+	AllocatorFreeList(const AllocatorFreeList& iOther):
+		FixedAllocator(static_cast<const FixedAllocator&>(iOther)),
+		top_(0)
+	{
+	}
+	void* allocate()
+	{
+		AllocationNode* topNode;
+		AllocationNode* nextNode;
+		do
+		{
+			topNode = top_;
+			if (!topNode)
+			{
+				return FixedAllocator::allocate();
+			}
+			nextNode = topNode->next;
+		}
+		while (!lass::util::atomicCompareAndSwap(top_,topNode,nextNode));
+		return topNode;
+	}
+	void deallocate(void* iPointer)
+	{
+		if (!iPointer)
+			return;
+		AllocationNode* temp = 0;
+		do 
+		{
+			temp = static_cast<AllocationNode*>(iPointer);
+			temp->next = top_;
+			//top_ = temp; --> CAS-ed in
+		}
+		while (!lass::util::atomicCompareAndSwap(top_,temp->next,temp));
+	}
+private:
+	AllocatorFreeList& operator=(AllocatorFreeList&);
+
+	struct AllocationNode
+	{
+		AllocationNode* next;
+	};
+	AllocationNode* top_;
+};
+
 }
 }
 

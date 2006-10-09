@@ -69,7 +69,7 @@ typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Dead reference detected at '" << neo 
 			<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '" 
-			<< destructPriority << "'" << std::endl;
+			<< destructionPriority << "'" << std::endl;
 		return 0;
 	}
 
@@ -81,7 +81,7 @@ typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 			if (neo == 0)
 			{
 				neo = new TSelf;
-				neo->subscribeInstance(destructPriority);
+				neo->subscribeInstance(destructionPriority);
 			}
 		}
 	}

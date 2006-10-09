@@ -106,13 +106,9 @@ class LASS_DLL Mutex : NonCopyable
 public:
 	Mutex();
 	~Mutex();
-	// Lock the mutex.
 	void lock();
-	// Try to lock the mutex: if it can't, returns immediately with an error.
 	const LockResult tryLock();
-	// Unlock the mutex.
 	void unlock();
-	// Returns true if the mutex is locked.
 	const bool isLocked() const;
 
 private:
@@ -133,11 +129,8 @@ public:
 	CriticalSection();
 	~CriticalSection();
 	
-	// Lock the critical section.
 	void lock();
-	// Try to lock the critical section: if it can't, returns immediately with an error.
 	const LockResult tryLock();
-	// Unlock the mutex.
 	void unlock();
 	
 	const bool isLocked() const;
@@ -219,8 +212,18 @@ private:
 
 
 
-/** A primitive to provide Thread Local Storage functionality
+/** A primitive to provide Thread Local Storage functionality for a first-citizen class.
  *  @ingroup Threading
+ *
+ *	@arg requirements: T must be copyconstructible.
+ *
+ *	@warning 
+ *		On Win32 platform, you should _access_ a ThreadLocalVariable inside code running
+ *		from a util::Thread (or util::threadFun for that matter).  This is because the destructor
+ *		of the variable will _only_ be called on exit of a util::Thread.  If you access it from
+ *		any other thread (even the main thread), the variable will correctly constructed for that
+ *		thread, but it will _never_ be destructed!
+ *		On a POSIX platform, this is not a problem though!  The destructor will always be called.
  */
 template <typename T>
 class ThreadLocalVariable: NonCopyable
@@ -237,7 +240,7 @@ public:
 	{
 	}
 
-	TValue* const get() const
+	TValue* const get()
 	{
 		TValue* ptr = static_cast<TValue*>(storage_.get());
 		if (!ptr)
@@ -249,12 +252,12 @@ public:
 		return ptr;
 	}
 
-	TValue* const operator->() const
+	TValue* const operator->()
 	{
 		return get();
 	}
 
-	TReference operator*() const
+	TReference operator*()
 	{
 		return *get();
 	}

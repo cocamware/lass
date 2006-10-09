@@ -82,7 +82,7 @@ ProxyIStream* ProxyMan::cin()
  */
 ProxyMan* proxyMan()
 {
-	return util::Singleton<ProxyMan, 0>::instance();
+	return util::Singleton<ProxyMan, util::destructionPriorityInternalProxyMan>::instance();
 }
 
 

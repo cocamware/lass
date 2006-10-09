@@ -29,33 +29,30 @@
  *
  *  @code
  *  #include <lass/util/thread_pool.h>
- *  using namespace lass::util;
+ *	#include <lass/util/atomic.h>
+ *  using namespace lass;
  *
- *	const unsigned numberOfThreads = 10;
+ *	const unsigned numberOfThreads = 4;
  *	const unsigned maxNumberOfTasksInQueue = 20;
  *	const unsigned numberOfTasks = 40;
  *
  *  unsigned counter = 0;
- *	CriticalSection counterMutex;
  *
  *	void task()
  *	{
- *		Thread::sleep(50); 
- *		LASS_LOCK(counterMutex)
- *		{
- *			++counter;
- *		}
+ *		util::Thread::sleep(50);
+ *		util::atomicIncrement(counter);
  *	}
  *
  *  int main()
  *	{
  *		{
- *			util::ThreadPool<> pool(16, 20);
+ *			util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
  *			for (unsigned i = 0; i < numberOfTasks; ++i)
  *			{
- *				pool.add(util::makeCallback(thread_pool::task));
+ *				pool.add(util::makeCallback(thread_pool::task)); // blocks if queue is full.
  *			}
- *			// ~ThreadPool will wait for completion ...
+ *			// ~ThreadPool will wait for completion ...  You could also use pool.joinAll()
  *		}
  *		LASS_COUT << "counter: " << counter; // == numberOfTasks
  *	}

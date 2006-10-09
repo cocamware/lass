@@ -25,7 +25,7 @@
 
 #include "util_common.h"
 #include "smart_ptr_policies.h"
-#include "../stde/small_object_allocator.h"
+#include "allocator.h"
 
 namespace lass
 {
@@ -34,21 +34,27 @@ namespace util
 namespace impl
 {
 
+typedef AllocatorThrow<
+		AllocatorCompileTimeFixed< 
+			AllocatorFreeList<>, sizeof(int)
+		>
+	>
+	THeapCounterAllocator;
+
+THeapCounterAllocator& heapCounterAllocator()
+{
+	return *util::Singleton<THeapCounterAllocator, destructionPriorityInternalAllocators>::instance();
+}
+
 void initHeapCounter(int*& ioCounter, int iInitialValue)
 {
-	stde::small_object_allocator<int> allocator;
-	LASS_ASSERT(!ioCounter);
-	ioCounter = allocator.allocate(1);
-	LASS_ASSERT(ioCounter);
-	allocator.construct(ioCounter, iInitialValue);
+	ioCounter = static_cast<int*>(heapCounterAllocator().allocate());
+	*ioCounter = iInitialValue;
 }
 
 void disposeHeapCounter(int*& ioCounter)
 {
-	stde::small_object_allocator<int> allocator;
-	LASS_ASSERT(ioCounter);
-	allocator.destroy(ioCounter);
-	allocator.deallocate(ioCounter, 1);
+	heapCounterAllocator().deallocate(ioCounter);
 	ioCounter = 0;
 }
 

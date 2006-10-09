@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lass_allocator.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\linear_map.inl"
 				>
 			</File>
@@ -236,6 +240,10 @@
 			</File>
 			<File
 				RelativePath=".\iterator_range.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lass_allocator.h"
 				>
 			</File>
 			<File

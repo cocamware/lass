@@ -70,7 +70,7 @@
  *    will be the first to be destroyed).  You can set the destruction priority by the second
  *    template argument of @c Singleton: @c lass::util::Singleton<Foo,2000> will specify the
  *    singleton to have a destruction priority of 2000.  The default destruction priority is set to
- *    be 1000.  Priorities up to 500 are reserved for the Lass implementation (and for you who
+ *    be 1000.  Priorities below 500 are reserved for the Lass implementation (and for you who
  *    know what you're doing ;)
  *
  *    @b warning: lass::io::proxyMan() is a proxy man that is needed for the implementation of
@@ -99,17 +99,33 @@ namespace lass
 namespace util
 {
 
-#define LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY 1000
+/** Destruction priority constants.
+ *	@relates Singleton
+ *	Priorities levels below singletonDestructionPriorityBeginUserRange (=500) are reserved for the 
+ *	implementation of Lass, and should not be used by user code (unless you know what you're doing
+ *	of course ;)
+ */
+enum DestructionPriorities
+{
+	destructionPriorityDefault = 1000, /**< default priority level =) */
+	destructionPriorityBeginUser = 500, /**< lowest legal level for user code */
 
-template<class T, int DestructPriority = LASS_UTIL_SINGLETON_DEFAULT_DESTRUCTION_PRIORITY>
+	// the following levels are internal and should not be used by user code
+	//
+	destructionPriorityInternalProxyMan = 0, /**< @internal */
+	destructionPriorityInternalAllocators = 100, /**< @internal */
+	destructionPriorityInternalTlsDestructors = 200, /**< @internal */
+};
+
+template<class T, int destructPriority = destructionPriorityDefault>
 class Singleton: public impl::SingletonBase
 {
 public:
 
-	typedef Singleton<T, DestructPriority> TSelf;
+	typedef Singleton<T, destructPriority> TSelf;
 
 	typedef T TInstance;
-	enum { destructPriority = DestructPriority };
+	enum { destructionPriority = destructPriority };
 
 	Singleton();
 	virtual ~Singleton();

@@ -312,9 +312,11 @@ public:
 			TDestructor destructor = i->second;
 			if (destructor)
 			{
-				void* p = TlsGetValue(index);
-				destructor(p);
-				TlsSetValue(index, 0);
+				if (void* p = TlsGetValue(index))
+				{
+					destructor(p);
+					TlsSetValue(index, 0);
+				}
 			}
 		}
 	}
@@ -324,7 +326,7 @@ private:
 	
 	static TDestructors& destructors()
 	{
-		return *Singleton<TDestructors>::instance();
+		return *Singleton<TDestructors, destructionPriorityInternalTlsDestructors>::instance();
 	}
 	
 	DWORD index_;

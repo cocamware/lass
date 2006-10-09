@@ -25,7 +25,7 @@
 
 #include "util_common.h"
 #include "../pyobject_plus.h"
-//#include "dispatcher_python.h"
+#include "dispatcher_python.h"
 
 namespace lass
 {

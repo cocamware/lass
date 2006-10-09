@@ -106,7 +106,7 @@ void easyAVI::openAVI(char *filename, int framerate, int xr, int yr)
 	AVIFileInit();
 
 #ifdef UNICODE
-	const size_t bufferLength = MultiByteToWideChar( CP_ACP, 0, filename, -1, 0, 0);
+	const int bufferLength = MultiByteToWideChar( CP_ACP, 0, filename, -1, 0, 0);
 	std::vector<WCHAR> buffer(bufferLength);
 	MultiByteToWideChar( CP_ACP, 0, filename, -1, &buffer[0], bufferLength);
 	LPCWSTR szFile = &buffer[0];
