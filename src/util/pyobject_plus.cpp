@@ -37,7 +37,7 @@ namespace python
 {
 
 PyTypeObject PyObjectPlus::Type = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
-//util::Semaphore PyObjectCounter::sync_;
+util::CriticalSection PyObjectCounter::sync_;
 
 std::vector<PyMethodDef> initAbstractMethods()
 {
@@ -111,12 +111,33 @@ PyObjectPlus* PyObjectPlus::PyPlus_DECREF(void)
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 {
 	this->ob_type = iOther.ob_type;
+	if (iOther.dict_ == Py_None)
+	{
+		dict_ = Py_None;
+		Py_INCREF(dict_);
+	}
+	else
+	{
+		dict_ = LASS_ENFORCE_POINTER(PyDict_Copy(iOther.dict_));
+	}
 	_Py_NewReference( this );
 }
 
 PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
+	PyObject* temp = 0;
+	if (iOther.dict_ == Py_None)
+	{
+		temp = Py_None;
+		Py_INCREF(temp);
+	}
+	else
+	{
+		temp = LASS_ENFORCE_POINTER(PyDict_Copy(iOther.dict_));
+	}
+	std::swap(dict_, temp);
+	Py_DECREF(temp);
 	return *this;
 }
 

@@ -324,7 +324,7 @@ protected:
 		{
 			LASS_ASSERT(count_);
 			oldCount = *count_;
-			LASS_ASSERT(oldCount > 0);
+			LASS_ASSERT(oldCount != 0xbaadf00d && oldCount > 0);
 			newCount = oldCount + 1;
 		}
 		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
@@ -337,7 +337,7 @@ protected:
 		{
             LASS_ASSERT(count_);
 			oldCount = *count_;
-			LASS_ASSERT(oldCount > 0);
+			LASS_ASSERT(oldCount != 0xbaadf00d && oldCount > 0);
 			newCount = oldCount - 1;
 		}
 		while (!atomicCompareAndSwap(*count_, oldCount, newCount));

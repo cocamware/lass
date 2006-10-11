@@ -45,6 +45,7 @@
 // --- OLD INTERFACES ----------------------------------------------------------
 
 #include "util_common.h"
+#include "shared_ptr.h"
 #include "impl/dispatcher_0.h"
 
 
@@ -56,7 +57,6 @@ namespace lass
 {
 namespace util
 {
-
 
 // THE CALLBACK:
 // This is the actuall class you use to hold callbacks:

@@ -26,7 +26,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_R_0_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_R_0_H
 
-#include "../small_object.h"
+#include "dispatcher_allocator.h"
 
 // --- NEW INTERFACES ----------------------------------------------------------
 
@@ -46,7 +46,7 @@ template
 <
 	typename R
 >
-class DispatcherR0: public SmallObject<>
+class DispatcherR0: public TDispatcherAllocatorBase
 {
 public:
 

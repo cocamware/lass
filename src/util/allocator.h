@@ -119,7 +119,7 @@ struct IsVariableAllocator: public impl::IsCompatibleAllocator<Allocator, void*(
 template 
 <
 	typename VariableAllocator,
-	int destructionPriority = destructionPriorityDefault
+	int destructionPriority = destructionPriorityInternalAllocators
 >
 class AllocatorClassAdaptor
 {
@@ -547,10 +547,10 @@ template
 	typename FixedAllocator,
 	size_t size
 >
-class AllocatorCompileTimeFixed: public FixedAllocator
+class AllocatorStaticFixed: public FixedAllocator
 {
 public:
-	AllocatorCompileTimeFixed():
+	AllocatorStaticFixed():
 		FixedAllocator(size)
 	{
 	}
@@ -646,7 +646,7 @@ public:
 template
 <
 	typename VariableAllocator,
-	int destructionPriority = destructionPriorityDefault
+	int destructionPriority = destructionPriorityInternalAllocators
 >
 class AllocatorSingleton
 {
@@ -790,10 +790,9 @@ public:
 	{
 		if (!iPointer)
 			return;
-		AllocationNode* temp = 0;
+		AllocationNode* temp = static_cast<AllocationNode*>(iPointer);
 		do 
 		{
-			temp = static_cast<AllocationNode*>(iPointer);
 			temp->next = top_;
 			//top_ = temp; --> CAS-ed in
 		}

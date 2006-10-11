@@ -23,9 +23,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "util_common.h"
-#include "smart_ptr_policies.h"
-#include "allocator.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_ALLOCATOR_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_ALLOCATOR_H
+
+#include "../util_common.h"
+#include "../allocator.h"
 
 namespace lass
 {
@@ -34,36 +36,20 @@ namespace util
 namespace impl
 {
 
-typedef AllocatorThrow<
-		AllocatorPerThread<
-			AllocatorStaticFixed< 
-				AllocatorFreeList<>, sizeof(int)
-			>			
+typedef util::AllocatorClassAdaptor<
+		util::AllocatorPerThread<
+			util::AllocatorVariableHybrid<
+				util::AllocatorFreeList<>
+			>
 		>
 	>
-	THeapCounterAllocator;
-
-THeapCounterAllocator& heapCounterAllocator()
-{
-	return *util::Singleton<THeapCounterAllocator, destructionPriorityInternalAllocators>::instance();
-}
-
-void initHeapCounter(int*& ioCounter, int iInitialValue)
-{
-	ioCounter = static_cast<int*>(heapCounterAllocator().allocate());
-	*ioCounter = iInitialValue;
-}
-
-void disposeHeapCounter(int*& ioCounter)
-{
-	heapCounterAllocator().deallocate(ioCounter);
-	ioCounter = 0;
-}
+	TDispatcherAllocatorBase;
 
 }
-
+}
 }
 
-}
+#endif
 
 // EOF
+

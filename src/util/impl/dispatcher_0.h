@@ -26,7 +26,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_0_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_0_H
 
-#include "../small_object.h"
+#include "dispatcher_allocator.h"
 
 // --- NEW INTERFACES ----------------------------------------------------------
 
@@ -42,7 +42,7 @@ namespace impl
  *  @sa Callback0
  *  @author Bram de Greve [Bramz]
  */
-class Dispatcher0: public SmallObject<>
+class Dispatcher0: public TDispatcherAllocatorBase
 {
 public:
 

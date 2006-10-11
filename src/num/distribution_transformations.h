@@ -110,7 +110,7 @@ const prim::Point2D<T> uniformDisk(const prim::Point2D<T>& sample, T& pdf)
 		}
 	}
 
-	pdf = inv(sqr(NumTraits<T>::pi));
+	pdf = inv(NumTraits<T>::pi);
 	return prim::Point2D<T>(rho * cos(theta), rho * sin(theta));
 }
 
@@ -121,7 +121,7 @@ const prim::Point3D<T> cosineHemisphere(const prim::Point2D<T>& sample, T& pdf)
 {
 	const prim::Point2D<T> xy = uniformDisk(sample, pdf);
 	const T z = num::sqrt(std::max(T(), 1 - xy.position().squaredNorm()));
-	pdf *= 2 * z;
+	pdf *= z;
 	return prim::Point3D<T>(xy.x, xy.y, z);
 }
 

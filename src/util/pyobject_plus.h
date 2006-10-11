@@ -53,7 +53,7 @@
 #include "shared_ptr.h"
 #include "string_cast.h"
 //#include "call_traits.h"
-//#include "thread.h"
+#include "thread.h"
 #include <cstdlib>
 
 /** @internal
@@ -224,15 +224,20 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
-				//util::SemaphoreLocker lock(iPointee->lassPythonLock_);
-				Py_INCREF(iPointee);
+				LASS_LOCK(sync_)
+				{
+					Py_INCREF(iPointee);
+				}
 			}
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
-				LASS_ASSERT(iPointee);
-				//util::SemaphoreLocker lock(iPointee->lassPythonLock_);
-				bool r = iPointee->ob_refcnt <=1;
-				Py_DECREF(iPointee);
+				bool r = false;
+				LASS_LOCK(sync_)
+				{
+					LASS_ASSERT(iPointee);
+					r = iPointee->ob_refcnt <=1;
+					Py_DECREF(iPointee);
+				}
 				return r;
 			}
 			template <typename TStorage> TCount count(TStorage& iPointee) const
@@ -248,6 +253,8 @@ namespace lass
 				LASS_ASSERT(oStorage->ob_refcnt);
 			}
 			void swap(PyObjectCounter& /*iOther*/) {}
+		private:
+			static util::CriticalSection sync_;
 		};
 
 		/** templated "typedef" to a python shared pointer

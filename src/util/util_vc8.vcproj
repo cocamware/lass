@@ -514,6 +514,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\impl\dispatcher_allocator.h"
+					>
+				</File>
+				<File
 					RelativePath=".\impl\dispatcher_python.tmpl.h"
 					>
 				</File>
