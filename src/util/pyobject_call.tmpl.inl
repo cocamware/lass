@@ -145,22 +145,22 @@ struct Caller
 {
 	// free function
 
-	static PyObject* function( R (*iFunction)() )
+	template <typename Function>
+	static PyObject* function( Function iFunction )
 	{
 		try
 		{
-			return pyBuildSimpleObject( (*iFunction)() );
+			return pyBuildSimpleObject( iFunction() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <$(typename P$x)$>
-	static PyObject* function( R (*iFunction)($(P$x)$),
-							 $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
+	template <typename Function, $(typename P$x)$>
+	static PyObject* function( Function iFunction, $(P$x iP$x)$ )
 	{
 		try
 		{
-			return pyBuildSimpleObject( (*iFunction)($(iP$x)$) );
+			return pyBuildSimpleObject( iFunction($(iP$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -168,8 +168,8 @@ struct Caller
 
 	// method
 
-	template <class CppClass>
-	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)() )
+	template <typename CppClass, typename Method>
+	static PyObject* method( CppClass* iObject, Method iMethod )
 	{
 		try
 		{
@@ -178,9 +178,8 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( CppClass* iObject, R (CppClass::*iMethod)($(P$x)$),
-							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
+	template <typename CppClass, typename Method, $(typename P$x)$>
+	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x iP$x)$ )
 	{
 		try
 		{
@@ -189,58 +188,33 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
 	]$
-
-	// const method
-
-	template <class CppClass>
-	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)() const )
-	{
-		try
-		{
-			return pyBuildSimpleObject( (iObject->*iMethod)() );
-		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-	};
-	$[
-	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const,
-							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
-	{
-		try
-		{
-			return pyBuildSimpleObject( (iObject->*iMethod)($(iP$x)$) );
-		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-	}
-	]$
-
 };
 
-/** specialisation for functions with return value, alls function and returns Py_None.
+/** specialisation for functions without return value, calls function and returns Py_None.
  */
 template <>
 struct Caller<void>
 {
 	// free functions
 
-	static PyObject* function( void (*iFunction)() )
+	template <typename Function>
+	static PyObject* function( Function iFunction )
 	{
 		try
 		{
-			(*iFunction)();
+			iFunction();
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
 		return Py_None;
 	};
 	$[
-	template <$(typename P$x)$>
-	static PyObject* function( void (*iFunction)($(P$x)$),
-							 $(typename util::CallTraits<P$x>::TParam iP$x)$ )
+	template <typename Function, $(typename P$x)$>
+	static PyObject* function( Function iFunction, $(P$x iP$x)$ )
 	{
 		try
 		{
-			(*iFunction)($(iP$x)$);
+			iFunction($(iP$x)$);
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 		Py_INCREF( Py_None );
@@ -250,8 +224,8 @@ struct Caller<void>
 
 	// methods
 
-	template <class CppClass>
-	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)() )
+	template <typename CppClass, typename Method>
+	static PyObject* method( CppClass* iObject, Method iMethod )
 	{
 		try
 		{
@@ -262,9 +236,8 @@ struct Caller<void>
 		return Py_None;
 	};
 	$[
-	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( CppClass* iObject, void (CppClass::*iMethod)($(P$x)$),
-							 $(typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
+	template <typename CppClass, typename Method, $(typename P$x)$>
+	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x iP$x)$ )
 	{
 		try
 		{
@@ -275,35 +248,6 @@ struct Caller<void>
 		return Py_None;
 	}
 	]$
-
-	// const method
-
-	template <class CppClass>
-	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)() const )
-	{
-		try
-		{
-			(iObject->*iMethod)();
-		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
-	};
-	$[
-	template <class CppClass, $(typename P$x)$>
-	static PyObject* method( const CppClass* iObject, void (CppClass::*iMethod)($(P$x)$) const,
-							 $( typename lass::util::CallTraits<P$x>::TParam iP$x)$ )
-	{
-		try
-		{
-			(iObject->*iMethod)($(iP$x)$);
-		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
-	}
-	]$
-
 };
 
 

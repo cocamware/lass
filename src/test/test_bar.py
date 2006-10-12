@@ -84,7 +84,7 @@ print e.aMoreComplexFunction(1,2)
 assert(e.aMoreComplexFunction(1,2)==3)
 e = embedding.DerivedBar()
 print e.__class__
-assert(e.__class__=='embedding.DerivedBar')
+assert str(e.__class__)=="<type 'embedding.DerivedBar'>"
 e = embedding.testPolymorphism()
 print e.aMoreComplexFunction(1,2)
 assert(e.aMoreComplexFunction(1,2)==2)

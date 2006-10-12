@@ -39,7 +39,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{51327D5D-EA46-4D16-BB4D-15F154E66F08}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
-		{51327D5D-EA46-4D16-BB4D-15F154E66F08}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
 		{51327D5D-EA46-4D16-BB4D-15F154E66F08}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
 		{52E4B019-9E8F-4008-AAF2-B1B75CE55874}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
 		{52E4B019-9E8F-4008-AAF2-B1B75CE55874}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
@@ -50,10 +49,8 @@ Global
 		{69287D9D-0A18-4060-B698-49DF65CEF10E}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
 		{69287D9D-0A18-4060-B698-49DF65CEF10E}.win32_vc8|Win32.Build.0 = win32_vc8|Win32
 		{F8ED850D-FE0F-4C03-AF94-464D7580E6C1}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
-		{F8ED850D-FE0F-4C03-AF94-464D7580E6C1}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
 		{F8ED850D-FE0F-4C03-AF94-464D7580E6C1}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
 		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
-		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
 		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
 		{A49A7DAC-49F8-412D-9802-D91E4A357E56}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
 		{A49A7DAC-49F8-412D-9802-D91E4A357E56}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
