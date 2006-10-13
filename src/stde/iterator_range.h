@@ -45,10 +45,10 @@ class iterator_range
 public:
 
 	typedef iterator_type iterator;
-	typedef typename iterator_type::pointer pointer;
-	typedef typename iterator_type::reference reference;
-	typedef typename iterator_type::difference_type difference_type;
-	typedef typename iterator_type::iterator_category iterator_category;
+	typedef typename std::iterator_traits<iterator_type>::pointer pointer;
+	typedef typename std::iterator_traits<iterator_type>::reference reference;
+	typedef typename std::iterator_traits<iterator_type>::difference_type difference_type;
+	typedef typename std::iterator_traits<iterator_type>::iterator_category iterator_category;
 
 	iterator_range();
 	iterator_range(iterator first, iterator last);

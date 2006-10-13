@@ -23,13 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_INL
-
-
-
 
 #include "transformation_3d.h"
 
@@ -46,7 +41,7 @@ namespace prim
  */
 template <typename T>
 Transformation3D<T>::Transformation3D():
-	matrix_(new TValue[16]),
+	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
 	matrix_[ 0] = TNumTraits::one;
@@ -83,7 +78,7 @@ Transformation3D<T>::Transformation3D():
 template <typename T>
 Transformation3D<T>::Transformation3D(
 		const TPoint& origin, const TVector& baseX, const TVector& baseY, const TVector& baseZ):
-	matrix_(new TValue[16]),
+	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
 	matrix_[ 0] = baseX.x;
@@ -113,7 +108,7 @@ Transformation3D<T>::Transformation3D(
 template <typename T>
 template <typename InputIterator>
 Transformation3D<T>::Transformation3D(InputIterator iBegin, InputIterator iEnd):
-	matrix_(new TValue[16]),
+	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
 	LASS_ENFORCE(std::distance(iBegin, iEnd) == 16);
@@ -134,7 +129,7 @@ Transformation3D<T>::inverse() const
 {
 	if (inverseMatrix_.isEmpty())
 	{
-		TMatrix inverseMatrix(new TValue[16]);
+		TMatrix inverseMatrix(impl::allocateArray<T>(matrixSize_));
 		const TValue* const mat = matrix_.get();
 		TValue* const inv = inverseMatrix.get();
 

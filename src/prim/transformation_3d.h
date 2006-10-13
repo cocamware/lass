@@ -36,6 +36,7 @@
 #include "prim_common.h"
 #include "point_3d.h"
 #include "xyz.h"
+#include "impl/prim_allocator.h"
 #include "../io/xml_o_stream.h"
 #include "../num/num_traits.h"
 #include "../util/shared_ptr.h"
@@ -90,12 +91,26 @@ private:
 
 	enum { matrixSize_ = 16 };
 
-	typedef util::SharedPtr<TValue, util::ArrayStorage> TMatrix;
+	template <typename T, typename Cascade>
+	class MatrixStorage: public util::ArrayStorage<T, Cascade>
+	{
+	public:
+		MatrixStorage(): util::ArrayStorage<T, Cascade>() {}
+		MatrixStorage(T* p): util::ArrayStorage<T, Cascade>(p) {}
+	protected:
+		void dispose()
+		{
+			impl::deallocateArray(pointer(), matrixSize_);
+		}
+	};
+	typedef util::SharedPtr<TValue, MatrixStorage> TMatrix;
 
 	Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
 
 	TMatrix matrix_;
 	mutable TMatrix inverseMatrix_;
+
+	static T* allocate();
 
 	static util::Semaphore sync_;
 };

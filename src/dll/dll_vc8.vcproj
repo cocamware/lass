@@ -293,6 +293,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\prim\impl\prim_allocator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\util\process.cpp"
 				>
 			</File>

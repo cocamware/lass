@@ -23,13 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_2D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_2D_INL
-
-
-
 
 #include "transformation_2d.h"
 
@@ -46,7 +41,7 @@ namespace prim
  */
 template <typename T>
 Transformation2D<T>::Transformation2D():
-	matrix_(new TValue[matrixSize_]),
+	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
 	matrix_[ 0] = TNumTraits::one;
@@ -69,7 +64,7 @@ Transformation2D<T>::Transformation2D():
 template <typename T>
 template <typename InputIterator>
 Transformation2D<T>::Transformation2D(InputIterator iBegin, InputIterator iEnd):
-	matrix_(new TValue[matrixSize_]),
+	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
 	LASS_ENFORCE(std::distance(iBegin, iEnd) == matrixSize_);
@@ -90,7 +85,7 @@ Transformation2D<T>::inverse() const
 {
 	if (inverseMatrix_.isEmpty())
 	{
-		TMatrix inverseMatrix(new TValue[matrixSize_]);
+		TMatrix inverseMatrix(impl::allocateArray<T>(matrixSize_));
 		const TValue* const mat = matrix_.get();
 		TValue* const inv = inverseMatrix.get();
 

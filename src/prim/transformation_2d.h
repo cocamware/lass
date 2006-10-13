@@ -36,6 +36,7 @@
 #include "prim_common.h"
 #include "point_2d.h"
 #include "xyz.h"
+#include "impl/prim_allocator.h"
 #include "../io/xml_o_stream.h"
 #include "../num/num_traits.h"
 #include "../util/shared_ptr.h"
@@ -85,7 +86,19 @@ private:
 
 	enum { matrixSize_ = 9 };
 
-	typedef util::SharedPtr<TValue, util::ArrayStorage> TMatrix;
+	template <typename T, typename Cascade>
+	class MatrixStorage: public util::ArrayStorage<T, Cascade>
+	{
+	public:
+		MatrixStorage(): util::ArrayStorage<T, Cascade>() {}
+		MatrixStorage(T* p): util::ArrayStorage<T, Cascade>(p) {}
+	protected:
+		void dispose()
+		{
+			impl::deallocateArray(pointer(), matrixSize_);
+		}
+	};
+	typedef util::SharedPtr<TValue, MatrixStorage> TMatrix;
 
 	Transformation2D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
 

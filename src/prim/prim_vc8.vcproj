@@ -441,6 +441,10 @@
 					RelativePath=".\impl\plane_3d_parametric.inl"
 					>
 				</File>
+				<File
+					RelativePath=".\impl\prim_allocator.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -769,6 +773,14 @@
 				</File>
 				<File
 					RelativePath=".\impl\plane_3d_parametric.h"
+					>
+				</File>
+				<File
+					RelativePath=".\impl\prim_allocator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\impl\prim_common.h"
 					>
 				</File>
 			</Filter>
