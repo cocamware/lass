@@ -772,18 +772,14 @@ public:
 	}
 	void* allocate()
 	{
+		if (!top_)
+		{
+			return FixedAllocator::allocate();
+		}
 		AllocationNode* topNode;
 		AllocationNode* nextNode;
-		do
-		{
-			topNode = top_;
-			if (!topNode)
-			{
-				return FixedAllocator::allocate();
-			}
-			nextNode = topNode->next;
-		}
-		while (!lass::util::atomicCompareAndSwap(top_,topNode,nextNode));
+		topNode = top_;
+		top_ = topNode->next;
 		return topNode;
 	}
 	void deallocate(void* iPointer)
@@ -791,12 +787,8 @@ public:
 		if (!iPointer)
 			return;
 		AllocationNode* temp = static_cast<AllocationNode*>(iPointer);
-		do 
-		{
-			temp->next = top_;
-			//top_ = temp; --> CAS-ed in
-		}
-		while (!lass::util::atomicCompareAndSwap(top_,temp->next,temp));
+		temp->next = top_;
+		top_ = temp;
 	}
 private:
 	AllocatorFreeList& operator=(AllocatorFreeList&);
