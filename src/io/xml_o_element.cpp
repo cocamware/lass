@@ -38,7 +38,7 @@ XmlOElement::XmlOElement(XmlOStream& iParent, const std::string& iName):
 	parent_(iParent),
 	name_(iName)
 {
-	parent_ << "<" << name_ << ">" << std::endl;
+	parent_ << "<" << name_ << ">\n";
 	clear(parent_.rdstate()); // copy state from parent_ to io::StreamBase
 }
 
@@ -46,7 +46,7 @@ XmlOElement::XmlOElement(XmlOStream& iParent, const std::string& iName):
 
 XmlOElement::~XmlOElement()
 {
-	parent_ << "</" << name_ << ">" << std::endl;
+	parent_ << "</" << name_ << ">\n";
 }
 
 

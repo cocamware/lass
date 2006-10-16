@@ -95,8 +95,8 @@ void XmlOFile::open(const char* iFilename, const char* iRoot)
 {
 	file_.open(iFilename, std::ios::out | std::ios::trunc);
 	root_ = iRoot;
-	file_ << "<?xml version=\"1.0\"?>" << std::endl;
-	file_ << "<" << root_ << ">" << std::endl;
+	file_ << "<?xml version=\"1.0\"?>\n";
+	file_ << "<" << root_ << ">\n";
 	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase
 }
 
@@ -120,7 +120,7 @@ void XmlOFile::close()
 {
 	if (file_.is_open() && !root_.empty())
 	{
-		file_ << "</" << root_ << ">" << std::endl;
+		file_ << "</" << root_ << ">\n";
 	}
 	file_.close();
 	clear(file_.rdstate()); // copy state from std::ofstream to io::StreamBase

@@ -776,9 +776,7 @@ public:
 		{
 			return FixedAllocator::allocate();
 		}
-		AllocationNode* topNode;
-		AllocationNode* nextNode;
-		topNode = top_;
+		AllocationNode* topNode = top_;
 		top_ = topNode->next;
 		return topNode;
 	}

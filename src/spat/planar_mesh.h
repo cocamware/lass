@@ -349,8 +349,7 @@ namespace spat
 					else
 						stream_.setColor(lass::io::mcBlack);
 					stream_ << typename TPlanarMesh::TLineSegment2D( 
-						TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) ) 
-						<< std::endl;
+						TPlanarMesh::org(iEdge), TPlanarMesh::dest(iEdge) );
 				}
 				else
 					return true;
@@ -362,7 +361,7 @@ namespace spat
 			{
 				typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 				if ( !mesh_->internalMarking( iEdge ) )
-					stream_ << TPlanarMesh::org(iEdge) << std::endl;
+					stream_ << TPlanarMesh::org(iEdge);
 				else
 					return true;
 				mesh_->setInternalMarkingAroundVertex( iEdge, true );

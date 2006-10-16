@@ -341,7 +341,7 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = patch(";
 	oOStream << "[" << iTriangle[0].x << "," << iTriangle[1].x << "," << iTriangle[2].x << "],";
 	oOStream << "[" << iTriangle[0].y << "," << iTriangle[1].y << "," << iTriangle[2].y << "],";
-	oOStream << oOStream.color() << ");" << std::endl;
+	oOStream << oOStream.color() << ");\n";
 	return oOStream;
 }
 

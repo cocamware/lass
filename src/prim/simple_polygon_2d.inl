@@ -649,7 +649,7 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 	for (size_t i=1;i<iPolygon.size();++i)
 		oOStream << "," << iPolygon[i].y;
 	oOStream << "],";
-	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;
+	oOStream << "'Color'," << oOStream.color() << ");\n";
 	return oOStream;
 }
 

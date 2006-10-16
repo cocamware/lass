@@ -79,6 +79,17 @@ KdTree<O, OT>::KdTree(TObjectIterator iBegin, TObjectIterator iEnd):
 
 
 
+/** Resets to an empty tree.
+ */
+template <class O, class OT>
+void KdTree<O, OT>::reset()
+{
+	TSelf temp;
+	swap(temp);
+}
+
+
+
 /** Resets to a new k-d tree of objects in range [iBegin, iEnd).
  *  @warning [iBegin, iEnd) must stay a valid range during the entire lifespan of the k-d tree!
  */
@@ -586,7 +597,8 @@ RandomIterator KdTree<O, OT>::doRangeSearch(
 	{
 		*iLast++ = Neighbour(heap_[iNode], sqrDistance);
 		std::push_heap(iFirst, iLast);
-		if (iLast - iFirst > iMaxCount)
+		LASS_ASSERT(iLast >= iFirst);
+		if (static_cast<size_t>(iLast - iFirst) > iMaxCount)
 		{
 			std::pop_heap(iFirst, iLast);
 			--iLast;

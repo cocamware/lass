@@ -34,8 +34,8 @@ namespace lass
 namespace prim
 {
 
-/** determine axis aligned bounding box of a 3D sphere
- *  @relates Aabb3D
+/** @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Sphere3D
  */
 template <typename T> 
 Aabb3D<T> aabb(const Sphere3D<T>& iSphere)
@@ -44,6 +44,19 @@ Aabb3D<T> aabb(const Sphere3D<T>& iSphere)
 	const typename Sphere3D<T>::TValue r = iSphere.radius();
 	const Vector3D<T> extent(r, r, r);
 	return Aabb3D<T>(c - extent, c + extent);
+}
+
+
+
+/** @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Sphere3D
+ */
+template <typename T>
+Sphere3D<T> boundingSphere(const Aabb3D<T>& iBox)
+{
+	const typename Aabb3D<T>::TPoint center = iBox.center().affine();
+	const typename Aabb3D<T>::TValue radius = iBox.size().norm() / 2;
+	return Sphere3D<T>(center, radius);
 }
 
 }

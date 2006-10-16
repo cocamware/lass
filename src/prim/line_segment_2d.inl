@@ -297,7 +297,7 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream, const Lin
 	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = line(";
 	oOStream << "[" << iLineSegment.tail().x << "," << iLineSegment.head().x << "],";
 	oOStream << "[" << iLineSegment.tail().y << "," << iLineSegment.head().y << "],";
-	oOStream << "'Color'," << oOStream.color() << ");" << std::endl;
+	oOStream << "'Color'," << oOStream.color() << ");\n";
 	return oOStream;
 }
 

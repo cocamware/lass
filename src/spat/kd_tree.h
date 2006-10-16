@@ -108,6 +108,7 @@ public:
 	KdTree();
 	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
+	void reset();
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
 	Neighbour nearestNeighbour(const TPoint& iLocation) const;	

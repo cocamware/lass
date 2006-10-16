@@ -39,6 +39,9 @@ namespace prim
 template <typename T> 
 Aabb3D<T> aabb(const Sphere3D<T>& iSphere);
 
+template <typename T>
+Sphere3D<T> boundingSphere(const Aabb3D<T>& iAabb);
+
 }
 
 }

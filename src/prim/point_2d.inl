@@ -314,9 +314,9 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& ioOStream, const Po
 {
 	LASS_ENFORCE_STREAM(ioOStream) << "lasthandle = line(";
 	ioOStream << iB.x << "," << iB.y << ",";
-	ioOStream << "'Color'," << ioOStream.color() << ");" << std::endl;
-	ioOStream << "set(lasthandle,'Marker','o');" << std::endl;
-	ioOStream << "set(lasthandle,'markersize',2);" << std::endl;
+	ioOStream << "'Color'," << ioOStream.color() << ");\n";
+	ioOStream << "set(lasthandle,'Marker','o');\n";
+	ioOStream << "set(lasthandle,'markersize',2);\n";
 	return ioOStream;
 }
 
