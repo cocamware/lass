@@ -47,6 +47,7 @@
 // --- OLD INTERFACES ----------------------------------------------------------
 
 #include "util_common.h"
+#include "shared_ptr.h"
 #include "impl/dispatcher_r_$x.h"
 
 
