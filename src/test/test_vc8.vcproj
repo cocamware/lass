@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="test_vc8"
 	ProjectGUID="{A49A7DAC-49F8-412D-9802-D91E4A357E56}"
 	RootNamespace="test_vc8"
@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="win32_vc8_d|Win32"
-			OutputDirectory="$(SolutionDir)..\bin\$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -92,11 +92,12 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="win32_vc8|Win32"
-			OutputDirectory="$(SolutionDir)..\bin\"
+			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -177,6 +178,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"
 			/>
 		</Configuration>
 	</Configurations>
