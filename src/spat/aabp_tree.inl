@@ -213,44 +213,13 @@ AabpTree<O, OT, SH>::balance(TInputIterator iFirst, TInputIterator iLast)
 		return std::make_pair(addLeafNode(iFirst, iLast), split.aabb);
 	}
 
-	class Splitter
-	{
-	public:
-		Splitter(const SplitInfo<OT>& iSplit): split_(iSplit) {}
-		bool operator()(const TInput& iInput) const
-		{
-			const TValue x = 
-				(TObjectTraits::coordinate(TObjectTraits::min(iInput.second), split_.axis) +
-				TObjectTraits::coordinate(TObjectTraits::max(iInput.second), split_.axis)) / 2;
-			return x < split_.x;
-		}			
-	private:
-		SplitInfo<OT> split_;
-	};
-	TInputIterator middle = std::partition(iFirst, iLast, Splitter(split));
+	TInputIterator middle = std::partition(iFirst, iLast, impl::Splitter<TObjectTraits>(split));
 	
 	if (middle == iFirst || middle == iLast)
 	{
-		class LessDim
-		{
-		public:
-			LessDim(int iAxis): axis_(iAxis) {}
-			bool operator()(const TInput& a, const TInput& b) const
-			{
-				const TValue xa = 
-					(TObjectTraits::coordinate(TObjectTraits::min(a.second), axis_) +
-					TObjectTraits::coordinate(TObjectTraits::max(a.second), axis_)) / 2;
-				const TValue xb = 
-					(TObjectTraits::coordinate(TObjectTraits::min(b.second), axis_) +
-					TObjectTraits::coordinate(TObjectTraits::max(b.second), axis_)) / 2;
-				return xa < xb;
-			}			
-		private:
-			int axis_;
-		};
 		const ptrdiff_t halfSize = (iLast - iFirst) / 2;
 		middle = iFirst + halfSize;
-		std::nth_element(iFirst, middle, iLast, LessDim(split.axis));
+		std::nth_element(iFirst, middle, iLast, impl::LessAxis<TObjectTraits>(split.axis));
 	}
 
 	LASS_ASSERT(middle != iFirst && middle != iLast);
