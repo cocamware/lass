@@ -394,55 +394,105 @@ private:
 
 
 
-/** Variable-size allocator, using fixed-sized for small objects and variable-sized for large ones.
- *  @ingroup Allocator
- *  @arg concept: VariableAllocator
- *	@arg thread safe
+/** @ingroup Allocator
  */
-template 
+struct BinnerOne
+{
+	static size_t bin(size_t size)
+	{
+		return size - 1;
+	}
+	static size_t size(size_t bin)
+	{
+		return bin + 1;
+	}
+};
+
+/** @ingroup Allocator
+ */
+struct BinnerPower2
+{
+	static size_t bin(size_t size)
+	{
+		size_t bin = 0;
+		while (size > BinnerPower2::size(bin))
+		{
+			++bin;
+		}
+		return bin;
+	}
+	static size_t size(size_t bin)
+	{
+		return 1 << bin;
+	}
+};
+
+/** @ingroup Allocator
+ */
+template <size_t multiple>
+struct BinnerPadded
+{
+	static size_t bin(size_t size)
+	{
+		return (size - 1) / multiple;
+	}
+	static size_t size(size_t bin)
+	{
+		return (bin + 1) * multiple;
+	}
+};
+
+/** @ingroup Allocator
+ */
+template
 <
 	typename FixedAllocator,
-	size_t maxFixedSize = 64,
+	size_t maxBinSize = 64,
+	typename Binner = BinnerOne,
 	typename VariableAllocator = AllocatorMalloc
 >
-class AllocatorVariableHybrid: private VariableAllocator
+class AllocatorBinned: public VariableAllocator
 {
 public:
-	AllocatorVariableHybrid()
+	AllocatorBinned()
 	{
 		initFixed();
 	}
-	AllocatorVariableHybrid(const AllocatorVariableHybrid& other)
+	AllocatorBinned(const AllocatorBinned& other)
 	{
 		copyInitFixed(other);
 	}
-	~AllocatorVariableHybrid()
+	~AllocatorBinned()
 	{
-		destroyFixed(maxFixedSize);
+		destroyFixed(numBins());
 	}
 	void* allocate(size_t size)
 	{
-		if (size > maxFixedSize)
+		if (size > maxBinSize)
 		{
 			return VariableAllocator::allocate(size);
 		}
-		return fixedAllocators_[size - 1].allocate();
+		return fixedAllocators_[Binner::bin(size)].allocate();
 	}
 	void deallocate(void* mem, size_t size)
 	{
-		if (size > maxFixedSize)
+		if (size > maxBinSize)
 		{
 			VariableAllocator::deallocate(mem, size);
 		}
-		fixedAllocators_[size - 1].deallocate(mem);
+		fixedAllocators_[Binner::bin(size)].deallocate(mem);
 	}
 private:
-	AllocatorVariableHybrid& operator=(const AllocatorVariableHybrid&);
+	AllocatorBinned& operator=(const AllocatorBinned&);
 	
+	const size_t numBins() const
+	{
+		return Binner::bin(maxBinSize) + 1;
+	}
 	void allocFixed()
 	{
 		fixedAllocators_ = static_cast<FixedAllocator*>(
-			VariableAllocator::allocate(maxFixedSize * sizeof(FixedAllocator)));
+			VariableAllocator::allocate(numBins() * sizeof(FixedAllocator)));
 		if (!fixedAllocators_)
 		{
 			throw std::bad_alloc();
@@ -453,11 +503,12 @@ private:
 		// Kids, don't try this at home.  We're trained professionals here! ;)
 		//
 		allocFixed();
-		for (size_t i = 0; i < maxFixedSize; ++i)
+		const size_t n = numBins();
+		for (size_t i = 0; i < n; ++i)
 		{
 			try
 			{
-				new(&fixedAllocators_[i]) FixedAllocator(i + 1);
+				new(&fixedAllocators_[i]) FixedAllocator(Binner::size(i));
 			}
 			catch (...)
 			{
@@ -466,12 +517,13 @@ private:
 			}
 		}
 	}
-	void copyInitFixed(const AllocatorVariableHybrid& other)
+	void copyInitFixed(const AllocatorBinned& other)
 	{
 		// Kids, don't try this either.
 		//
 		allocFixed();
-		for (size_t i = 0; i < maxFixedSize; ++i)
+		const size_t n = numBins();
+		for (size_t i = 0; i < n; ++i)
 		{
 			try
 			{
@@ -492,49 +544,10 @@ private:
 		{
 			fixedAllocators_[--i].~FixedAllocator();
 		}
-		VariableAllocator::deallocate(fixedAllocators_, maxFixedSize * sizeof(FixedAllocator));
+		VariableAllocator::deallocate(fixedAllocators_, numBins() * sizeof(FixedAllocator));
 	}
 
 	FixedAllocator* fixedAllocators_;
-};
-
-
-
-/** @ingroup Allocator
- *	@arg concept: same as Allocator
- */
-template
-<
-	typename Allocator,
-	size_t multiple = 8
->
-class AllocatorPadded: public Allocator
-{
-public:
-	AllocatorPadded():
-		Allocator()
-	{
-	}
-	AllocatorPadded(size_t size):
-		Allocator(pad(size))
-	{
-	}
-	void* allocate(size_t size)
-	{
-		return Allocator::allocate(pad(size));
-	}
-	void deallocate(void* mem, size_t size)
-	{
-		Allocator::deallocate(mem, pad(size));
-	}
-private:
-	size_t pad(size_t size) const
-	{
-		size_t padded = size + multiple - 1;
-		padded -= padded % multiple;
-		LASS_ASSERT(padded >= size && && padded < size + multiple && padded % multiple == 0);
-		return padded;
-	}
 };
 
 

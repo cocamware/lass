@@ -55,7 +55,7 @@ lass_allocator<T, VA>::lass_allocator(const lass_allocator& other) throw():
 
 template <typename T, typename VA>
 template <typename U>
-lass_allocator<T, VA>::lass_allocator(const lass_allocator<U, VA>&) throw():
+lass_allocator<T, VA>::lass_allocator(const lass_allocator<U, VA>& other) throw():
 	VA(static_cast<const VA&>(other))
 {
 }

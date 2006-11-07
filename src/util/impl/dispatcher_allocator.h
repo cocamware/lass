@@ -38,7 +38,7 @@ namespace impl
 
 typedef util::AllocatorClassAdaptor<
 		util::AllocatorPerThread<
-			util::AllocatorVariableHybrid<
+			util::AllocatorBinned<
 				util::AllocatorFreeList<>
 			>
 		>

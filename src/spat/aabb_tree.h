@@ -39,6 +39,7 @@
 
 #include "spat_common.h"
 #include "default_object_traits.h"
+#include "split_heuristics.h"
 
 namespace lass
 {
@@ -47,8 +48,9 @@ namespace spat
 
 template
 <
-	class ObjectType,
-	class ObjectTraits = DefaultObjectTraits<ObjectType>
+	typename ObjectType,
+	typename ObjectTraits = DefaultObjectTraits<ObjectType>,
+	typename SplitHeuristics = DefaultSplitHeuristics<>
 >
 class AabbTree
 {
@@ -58,6 +60,7 @@ public:
 
 	typedef ObjectType TObject;
 	typedef ObjectTraits TObjectTraits;
+	typedef SplitHeuristics TSplitHeuristics;
 
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 	typedef typename TObjectTraits::TObjectReference TObjectReference;
@@ -96,48 +99,60 @@ public:
 
 private:
 
-	struct Node
-	{
-		TAabb aabb;
-		TObjectIterator object;
-		Node(const TAabb& iAabb, TObjectIterator iObject): aabb(iAabb), object(iObject) {}
-	};
+	typedef std::pair<TObjectIterator, TAabb> TInput;
+	typedef std::vector<TInput> TInputs;
+	typedef typename TInputs::iterator TInputIterator;
 
-	typedef std::vector<Node> TNodes;
-	typedef typename TNodes::iterator TNodeIterator;
-
-	typedef size_t TAxis;
-
-	class LessDim
+	class Node
 	{
 	public:
-		LessDim(TAxis iSplit): split_(iSplit) {}
-		bool operator()(const Node& iA, const Node& iB) const
+		explicit Node(const TAabb& iAabb): 
+			aabb_(iAabb), 
+			first_(-1) 
 		{
-			return TObjectTraits::coordinate(TObjectTraits::min(iA.aabb), split_)
-				< TObjectTraits::coordinate(TObjectTraits::min(iB.aabb), split_);
 		}
+		Node(const TAabb& iAabb, int iFirst, int iLast): 
+			aabb_(iAabb), 
+			first_(iFirst)
+		{
+			LASS_ASSERT(iFirst >= 0 && iLast > iFirst);
+			last_ = iLast; // do union stuff here
+		}
+
+		const bool isInternal() const { return first_ < 0; }
+		const TAabb& aabb() const { return aabb_; }
+		const int right() const { LASS_ASSERT(isInternal()); return right_; }
+		int& right() { LASS_ASSERT(isInternal()); return right_; }
+
+		const bool isLeaf() const { return first_ >= 0; }
+		const int first() const { LASS_ASSERT(isLeaf()); return first_; }
+		const int last() const { LASS_ASSERT(isLeaf()); return last_; }
 	private:
-		TAxis split_;
+		TAabb aabb_; // both
+		int first_; // ==-1:internal, >=0:leaf
+		union 
+		{
+			int right_; // internal
+			int last_; // leaf
+		};
 	};
 
-	void balance(size_t iIndex, TNodeIterator iBegin, TNodeIterator iEnd);
-	TAabb findAabb(TNodeIterator iBegin, TNodeIterator iEnd) const;
-	TAxis findSplitAxis(const TAabb& iAabb) const;
-	void assignNode(size_t iIndex, const Node& iObject);
+	typedef std::deque<Node> TNodes;
+	typedef std::vector<TObjectIterator> TObjectIterators;
 
-	bool doContains(size_t iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
+	const int balance(TInputIterator iFirst, TInputIterator iLast);
+	const int addLeafNode(const TAabb& iAabb, TInputIterator iFirst, TInputIterator Last);
+	const int addInternalNode(const TAabb& iAabb);
+
+	bool doContains(int iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t iIndex, const TPoint& iPoint, OutputIterator iFirst, const TInfo* iInfo) const;
-	TObjectIterator doIntersect(size_t iIndex, const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const;
-	bool doIntersects(size_t iIndex, const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const;
+	OutputIterator doFind(int iIndex, const TPoint& iPoint, OutputIterator iFirst, const TInfo* iInfo) const;
+	TObjectIterator doIntersect(int iIndex, const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const;
+	bool doIntersects(int iIndex, const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const;
 
-	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
-
-	TNodes heap_;
-	TObjectIterator begin_;
+	TObjectIterators objects_;
+	TNodes nodes_;
 	TObjectIterator end_;
-	size_t size_;
 };
 
 

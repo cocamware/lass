@@ -48,8 +48,9 @@ bool interectSlab(const T& iMin, const T& iMax, const T& iSupport, const T& iDir
 		return iSupport >= iMin && iSupport <= iMax;
 	}
 	
-	TConsistent tNear = (iMin - iSupport) / iDirection;
-	TConsistent tFar = (iMax - iSupport) / iDirection;
+	const T invDirection = num::inv(iDirection);
+	TConsistent tNear = (iMin - iSupport) * invDirection;
+	TConsistent tFar = (iMax - iSupport) * invDirection;
 	if (tFar < tNear)
 	{
 		std::swap(tNear, tFar);

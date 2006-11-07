@@ -37,12 +37,14 @@ namespace impl
 
 typedef util::AllocatorThrow<
 	util::AllocatorPerThread<
-		util::AllocatorVariableHybrid<
-			util::AllocatorFreeList<>, 128
-			>
+		util::AllocatorBinned<
+			util::AllocatorFreeList<>, 
+			4096,
+			util::BinnerPower2
 		>
 	>
-	TMemoryAllocator;
+>
+TMemoryAllocator;
 
 TMemoryAllocator& memoryAllocator()
 {

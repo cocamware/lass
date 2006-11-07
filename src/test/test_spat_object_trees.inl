@@ -136,8 +136,8 @@ void testSpatObjectTrees()
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 
-	typedef spat::AabbTree<TObject, TObjectTraits> TAabbTree;
-	typedef spat::AabpTree<TObject, TObjectTraits> TAabpTree;
+	typedef spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> > TAabbTree;
+	typedef spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> > TAabpTree;
 	
 	// set bounds
 	//
@@ -159,7 +159,6 @@ void testSpatObjectTrees()
 	TObjects objects;
 	object_trees::generateObjects(
 		bounds, maxSize, generator, numberOfObjects, std::back_inserter(objects));
-
 	const TObjectIterator objectBegin = &objects[0];
 	const TObjectIterator objectEnd = objectBegin + numberOfObjects;
 
@@ -176,32 +175,32 @@ void testSpatObjectTrees()
 	{
 		TPoint target = bounds.random(generator);
 		TObjectHits naiveHits;
-		bool naiveContain = false;
+		bool naiveContains = false;
 		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
 			if (obj->contains(target))
 			{
-				naiveContain = true;
+				naiveContains = true;
 				naiveHits.push_back(obj);
 			}
 		}
 		std::sort(naiveHits.begin(), naiveHits.end());
 
-		bool aabbContain = aabbTree.contains(target);
+		bool aabbContains = aabbTree.contains(target);
 		TObjectHits aabbHits;
 		aabbTree.find(target, std::back_inserter(aabbHits));
 		std::sort(aabbHits.begin(), aabbHits.end());
-		LASS_TEST_CHECK_EQUAL(naiveContain, aabbContain);
-		LASS_TEST_CHECK_EQUAL(naiveContain, !aabbHits.empty());
+		LASS_TEST_CHECK_EQUAL(naiveContains, aabbContains);
+		LASS_TEST_CHECK_EQUAL(naiveContains, !aabbHits.empty());
 		LASS_TEST_CHECK(naiveHits.size() == aabbHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabbHits.begin()));
 
-		bool aabpContain = aabpTree.contains(target);
+		bool aabpContains = aabpTree.contains(target);
 		TObjectHits aabpHits;
 		aabpTree.find(target, std::back_inserter(aabpHits));
 		std::sort(aabpHits.begin(), aabpHits.end());
-		LASS_TEST_CHECK_EQUAL(naiveContain, aabpContain);
-		LASS_TEST_CHECK_EQUAL(naiveContain, !aabpHits.empty());
+		LASS_TEST_CHECK_EQUAL(naiveContains, aabpContains);
+		LASS_TEST_CHECK_EQUAL(naiveContains, !aabpHits.empty());
 		LASS_TEST_CHECK(naiveHits.size() == aabpHits.size() && 
 			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
 	}
@@ -240,7 +239,7 @@ void testSpatObjectTrees()
 		}
 
 		T aabpT = TNumTraits::infinity;
-		const TObject* aabpIntersection = aabpTree.intersect(ray, aabpT);
+		TObjectIterator aabpIntersection = aabpTree.intersect(ray, aabpT);
 		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
 		if (naiveT == TNumTraits::infinity)
 		{

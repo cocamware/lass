@@ -35,6 +35,8 @@
 
 #include "spat_common.h"
 #include "../prim/result.h"
+#include "../meta/is_same_type.h"
+#include "../meta/type_2_type.h"
 
 namespace lass
 {
@@ -69,7 +71,7 @@ struct DefaultObjectTraits
 	typedef RayType TRay;						/**< an nD Ray */
 
 	typedef ObjectIterator TObjectIterator;		/**< iterator to object */
-	typedef const TObject& TObjectReference;	/**< reference to object */
+	typedef const TObject& TObjectReference;	/**< const reference to object */
 
 	typedef typename TAabb::TPoint TPoint;		/**< an nD point */
 	typedef typename TAabb::TVector TVector;	/**< an nD vector */
@@ -85,18 +87,25 @@ struct DefaultObjectTraits
 
 	// OBJECT
 
+	/** return reference to object
+	 */
+	static TObjectReference object(TObjectIterator iObject)
+	{
+		return *iObject;
+	}
+
 	/** return the AABB of an object
 	 */
 	static const TAabb aabb(TObjectIterator iObject) 
 	{ 
-		return impl::aabbHelper<TAabb, TObject>(*iObject); 
+		return impl::aabbHelper<TAabb, TObject>(object(iObject)); 
 	}
 	
 	/** return true if object contains a point, return false otherwise
 	 */
 	static const bool contains(TObjectIterator iObject, const TPoint& iPoint, const TInfo* /*iInfo*/) 
 	{ 
-		return iObject->contains(iPoint); 
+		return object(iObject).contains(iPoint); 
 	}
 
 	/** return true if object is intersected by ray
@@ -105,7 +114,7 @@ struct DefaultObjectTraits
 		TReference oT, TParam iMinT, const TInfo* /*iInfo*/)
 	{
 		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
-			*iObject, iRay, oT, iMinT);
+			object(iObject), iRay, oT, iMinT);
 		return hit != prim::rNone;
 	}
 
@@ -116,7 +125,7 @@ struct DefaultObjectTraits
 	{
 		TValue t;
 		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
-			*iObject, iRay, t, iMinT);
+			object(iObject), iRay, t, iMinT);
 		return hit != prim::rNone && t < iMaxT;
 	}
 	
