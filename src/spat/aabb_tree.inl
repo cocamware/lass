@@ -84,7 +84,7 @@ AabbTree<O, OT, SH>::aabb() const
 	{
 		return TObjectTraits::emptyAabb();
 	}
-	return nodes_[0].aabb;
+	return nodes_[0].aabb();
 }
 
 
