@@ -125,7 +125,7 @@ private:
 
 	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
-		return (object_->*method_)($(iP$x)$);
+		return ((*object_).*method_)($(iP$x)$);
 	}
 
 	ObjectPtr object_;

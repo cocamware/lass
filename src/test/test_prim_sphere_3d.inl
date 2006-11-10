@@ -52,6 +52,7 @@ void testPrimSphere3D()
 	const TPoint origin;
 
 	TSphere sphere;
+	LASS_EVAL(sphere.radius() == TSphere::TNumTraits::zero);
 	LASS_TEST_CHECK(sphere.isValid());
 	LASS_TEST_CHECK_EQUAL(sphere.center(), origin);
 	LASS_TEST_CHECK_EQUAL(sphere.radius(), 0);

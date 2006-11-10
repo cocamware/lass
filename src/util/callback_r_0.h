@@ -85,18 +85,18 @@ public:
 
 	/** Construct function callback
 	 */
-	template <typename FunctionType>
-	CallbackR0(FunctionType iFunction)
+	template <typename Function>
+	CallbackR0(Function iFunction):
+		dispatcher_(make(iFunction, meta::Type2Type<meta::IsDerivedType<Function, impl::DispatcherR0<R> >::Type>()))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::DispatcherR0Function<R, FunctionType>(iFunction));
 	}
 
 	/** Construct object/method callback.
 	 */
 	template <typename ObjectPtr, typename Method>
-	CallbackR0(ObjectPtr iObject, Method iMethod)
+	CallbackR0(ObjectPtr iObject, Method iMethod):
+		dispatcher_(new impl::DispatcherR0Method<R, ObjectPtr, Method>(iObject, iMethod))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::DispatcherR0Method<R, ObjectPtr, Method>(iObject, iMethod));
 	}
 
 	/** copy constructor
@@ -169,15 +169,19 @@ public:
 		dispatcher_.swap(iOther.dispatcher_);
 	}
 
-	/** return true if two callbacks call the same function/method,
-	 *  NEEDS RTTI!
-	 */
-	bool operator==(const TSelf& iOther) const
+private:
+
+	template <typename Function>
+	static TDispatcherPtr make(Function iFunction, meta::Type2Type<meta::False>)
 	{
-		return dispatcher_->isEquivalent(iOther.dispatcher_.get());
+		return TDispatcherPtr(new impl::DispatcherR0Function<R, Function>(iFunction));
 	}
 
-private:
+	template <typename Dispatcher>
+	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Type2Type<meta::True>)
+	{
+		return TDispatcherPtr(new Dispatcher(iDispatcher));
+	}
 
 	TDispatcherPtr dispatcher_;
 };

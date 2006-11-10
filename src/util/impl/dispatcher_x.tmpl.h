@@ -126,7 +126,7 @@ private:
 
 	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
-		(object_->*method_)($(iP$x)$);
+		((*object_).*method_)($(iP$x)$);
 	}
 
 	ObjectPtr object_;

@@ -47,7 +47,8 @@
 #include "util_common.h"
 #include "shared_ptr.h"
 #include "impl/dispatcher_0.h"
-
+#include "../meta/is_derived_type.h"
+#include "../meta/type_2_type.h"
 
 
 
@@ -79,17 +80,17 @@ public:
 	/** callback to function or other callable entity.
 	 */
 	template <typename Function>
-	Callback0(Function iFunction)
+	Callback0(Function iFunction):
+		dispatcher_(make(iFunction, meta::Type2Type<meta::IsDerivedType<Function, impl::Dispatcher0>::Type>()))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::Dispatcher0Function<Function>(iFunction));
 	}
 
 	/** callback to method of object
 	 */
 	template <typename ObjectPtr, typename Method>
-	Callback0(ObjectPtr iObject, Method iMethod)
+	Callback0(ObjectPtr iObject, Method iMethod):
+		dispatcher_(new impl::Dispatcher0Method<ObjectPtr, Method>(iObject, iMethod))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::Dispatcher0Method<ObjectPtr, Method>(iObject, iMethod));
 	}
 
 	/** copy constructor
@@ -172,6 +173,18 @@ public:
 	}
 
 private:
+
+	template <typename Function>
+	static TDispatcherPtr make(Function iFunction, meta::Type2Type<meta::False>)
+	{
+		return TDispatcherPtr(new impl::Dispatcher0Function<Function>(iFunction));
+	}
+
+	template <typename Dispatcher>
+	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Type2Type<meta::True>)
+	{
+		return TDispatcherPtr(new Dispatcher(iDispatcher));
+	}
 
 	TDispatcherPtr dispatcher_;
 };

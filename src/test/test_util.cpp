@@ -30,6 +30,7 @@
 #include "test_util.h"
 
 #include "test_util_atomic.inl"
+#include "test_util_bind.inl"
 #include "test_util_callback.inl"
 #include "test_util_clock.inl"
 #include "test_util_clone_factory.inl"
@@ -52,6 +53,8 @@ namespace test
 TUnitTests testUtil()
 {
 	TUnitTests result;
+
+	result.push_back(LASS_UNIT_TEST(testUtilBind));
 
 	result.push_back(LASS_UNIT_TEST(testUtilPython));
 	

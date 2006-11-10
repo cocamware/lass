@@ -21,3 +21,5 @@ expandFile('py_tuple.tmpl.h', 'py_tuple.h', 20)
 
 expandFile('thread_fun.tmpl.h', 'thread_fun.h', 10)
 expandFile('thread_fun.tmpl.inl', 'thread_fun.inl', 10)
+
+expandFile('bind.tmpl.h', 'bind.h', 10)

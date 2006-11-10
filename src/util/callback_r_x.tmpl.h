@@ -87,17 +87,17 @@ public:
 	/** Construct function callback
 	 */
 	template <typename FunctionType>
-	CallbackR$x(FunctionType iFunction)
+	CallbackR$x(FunctionType iFunction):
+		dispatcher_(new impl::DispatcherR$xFunction<R, $(P$x)$, FunctionType>(iFunction))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::DispatcherR$xFunction<R, $(P$x)$, FunctionType>(iFunction));
 	}
 
 	/** Construct object/method callback.
 	 */
 	template <typename ObjectPtr, typename Method>
-	CallbackR$x(ObjectPtr iObject, Method iMethod)
+	CallbackR$x(ObjectPtr iObject, Method iMethod):
+		dispatcher_(new impl::DispatcherR$xMethod<R, $(P$x)$, ObjectPtr, Method>(iObject, iMethod))
 	{
-		dispatcher_ = TDispatcherPtr(new impl::DispatcherR$xMethod<R, $(P$x)$, ObjectPtr, Method>(iObject, iMethod));
 	}
 
 	/** copy constructor

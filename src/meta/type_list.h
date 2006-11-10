@@ -160,6 +160,8 @@ struct TypeList
 {
 	typedef HeadType THead;
 	typedef TailType TTail;
+
+	typedef TypeList<HeadType, TailType> Type;
 };
 
 }

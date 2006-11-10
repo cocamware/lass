@@ -68,9 +68,8 @@ template
 	typename T15 = NullType, typename T16 = NullType, typename T17 = NullType,
 	typename T18 = NullType, typename T19 = NullType, typename T20 = NullType
 >
-struct Make
-{
-	typedef TypeList
+struct Make: 
+	public TypeList
 	<
 		T0,
 		typename Make
@@ -79,7 +78,7 @@ struct Make
 			T12, T13, T14, T15, T16, T17, T18, T19, T20
 		>::Type
 	>
-	Type;
+{
 };
 
 template <>

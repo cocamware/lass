@@ -53,11 +53,14 @@ public:
 	DispatcherR0() {}
 	R call() const { return doCall(); }
 
+protected:
+
+	DispatcherR0(const DispatcherR0<R>& iOther) {}
+
 private:
 
 	virtual R doCall() const = 0;
 
-	DispatcherR0(const DispatcherR0<R>& iOther);
 	DispatcherR0& operator=(const DispatcherR0<R>& iOther);
 };
 
@@ -122,7 +125,7 @@ private:
 
 	R doCall() const
 	{
-		return (object_->*method_)();
+		return ((*object_).*method_)();
 	}
 
 	ObjectPtr object_;

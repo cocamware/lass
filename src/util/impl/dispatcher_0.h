@@ -50,12 +50,15 @@ public:
 	void call() const { doCall(); }
 	bool isEquivalent(const Dispatcher0* iOther) const { return doIsEquivalent(iOther); }
 
+protected:
+
+	Dispatcher0(const Dispatcher0& iOther) {}
+
 private:
 
 	virtual void doCall() const = 0;
 	virtual bool doIsEquivalent(const Dispatcher0* iOther) const = 0;
-
-	Dispatcher0(const Dispatcher0& iOther);
+	
 	Dispatcher0& operator=(const Dispatcher0& iOther);
 };
 
@@ -129,7 +132,7 @@ private:
 
 	void doCall() const
 	{
-		(object_->*method_)();
+		((*object_).*method_)();
 	}
 
 	bool doIsEquivalent(const Dispatcher0* iOther) const
