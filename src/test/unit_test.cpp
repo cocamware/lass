@@ -28,7 +28,7 @@
 #include "unit_test.h"
 #include "../io/arg_parser.h"
 #include "../io/file_attribute.h"
-#include "../util/impl/lass_env.h"
+#include "../util/environment.h"
 
 namespace lass
 {
@@ -80,12 +80,15 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 
 const std::string workPath()
 {
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-	const char* result = 0;
-#else
-	const char* result = util::impl::lass_getenv("srcdir");
-#endif
-	return result ? result : ".";
+	std::string result = "";
+	try
+	{
+		result = util::getEnvironment<std::string>("srcdir");
+	}
+	catch (...)
+	{
+	}
+	return !result.empty() ? result : ".";
 }
 
 TestStream::TestStream()

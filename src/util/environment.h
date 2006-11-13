@@ -24,10 +24,10 @@
  */
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ENV_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ENV_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_ENVIRONMENT_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_ENVIRONMENT_H
 
-#include "../util_common.h"
+#include "util_common.h"
 
 namespace lass
 {
@@ -40,18 +40,45 @@ LASS_DLL const std::string LASS_CALL lass_getenv(const std::string& iName);
 LASS_DLL void LASS_CALL lass_putenv(const std::string& iName, const std::string& iValue);
 
 template <typename T>
-const T lass_getenv(const std::string& iName)
+struct Environment
 {
-	return stringCast<T>(lass_getenv(iName));
+	static const T get(const std::string& iName)
+	{
+		return stringCast<T>(lass_getenv(iName));
+	}
+	static void put(const std::string& iName, typename CallTraits<T>::TParam iValue)
+	{
+		lass_putenv(iName, stringCast<std::string>(iValue));
+	}
+};
+
+template <>
+struct Environment<std::string>
+{
+	static const std::string get(const std::string& iName)
+	{
+		return lass_getenv(iName);
+	}
+	static void put(const std::string& iName, const std::string& iValue)
+	{
+		lass_putenv(iName, iValue);
+	}
+};
+
 }
 
 template <typename T>
-void lass_putenv(const std::string& iName, const T& iValue)
-{
-	lass_putenv(iName, stringCast<std::string>(iValue));
+const T getEnvironment(const std::string& iName)
+{	
+	return impl::Environment<typename CallTraits<T>::TValue>::get(iName);
 }
 
+template <typename T>
+void putEnvironment(const std::string& iName, const T& iValue)
+{
+	impl::Environment<typename CallTraits<T>::TValue>::put(iName, iValue);
 }
+
 }
 }
 

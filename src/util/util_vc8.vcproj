@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\environment.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\id_generator.inl"
 				>
 			</File>
@@ -247,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\thread_fun.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\thread_fun.tmpl.inl"
 				>
 			</File>
@@ -287,10 +295,6 @@
 				</File>
 				<File
 					RelativePath=".\impl\dispatcher_python.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\impl\lass_env.cpp"
 					>
 				</File>
 				<File
@@ -386,6 +390,10 @@
 			</File>
 			<File
 				RelativePath=".\enforcer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\environment.h"
 				>
 			</File>
 			<File
@@ -553,10 +561,6 @@
 				</File>
 				<File
 					RelativePath=".\impl\enforcer_impl.h"
-					>
-				</File>
-				<File
-					RelativePath=".\impl\lass_env.h"
 					>
 				</File>
 				<File

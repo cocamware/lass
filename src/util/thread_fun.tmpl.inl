@@ -30,109 +30,64 @@
 
 #include "util_common.h"
 #include "thread_fun.h"
+#include "bind.h"
 
 namespace lass
 {
 namespace util
 {
 
-// --- ThreadFun0 ----------------------------------------------------------------------------------
+// --- 0 arguments ---------------------------------------------------------------------------------
 
-inline
-ThreadFun0::ThreadFun0(
-	const Callback0& iFun,
-	ThreadKind iKind):
-
-	Thread(iKind),
-	fun_(iFun)
-{
-}
-
-
-
-inline
-void ThreadFun0::doRun()
-{
-	fun_();
-}
-
-
-
-/** @relates ThreadFun0
- *  @ingroup ThreadFun
+/** @relates ThreadFun
  */
 template <typename Function>
-ThreadFun0* threadFun(
+ThreadFun* threadFun(
 	Function iFunction,
 	ThreadKind iKind)
 {
-	return new ThreadFun0(Callback0(iFunction), iKind);
+	return new ThreadFun(bind(iFunction), iKind);
 }
 
 
 
-/** @relates ThreadFun0
- *  @ingroup ThreadFun
+/** @relates ThreadFun
  */
 template <typename ObjectPtr, typename Method>
-ThreadFun0* threadMemFun(
+ThreadFun* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	ThreadKind iKind)
 {
-	return new ThreadFun0(Callback0(iObject, iMethod), iKind);
+	return new ThreadFun(bind(iMethod, iObject), iKind);
 }
 
 
 
 $[
-// --- ThreadFun$x --------------------------------------------------------------------------------
+// --- $x argument(s) -----------------------------------------------------------------------------
 
-template <$(typename P$x)$>
-ThreadFun$x<$(P$x)$>::ThreadFun$x(
-	const Callback$x<$(P$x)$>& iFun,
-	$(typename CallTraits<P$x>::TParam iP$x)$,
-	ThreadKind iKind):
-
-	Thread(iKind),
-	fun_(iFun),
-	$(p$x_(iP$x))$
-{
-}
-
-
-
-template <$(typename P$x)$>
-void ThreadFun$x<$(P$x)$>::doRun()
-{
-	fun_($(p$x_)$);
-}
-
-
-
-/** @relates ThreadFun$x
- *  @ingroup ThreadFun
+/** @relates ThreadFun
  */
 template <$(typename P$x)$, typename Function>
-ThreadFun$x<$(P$x)$>* threadFun(
+ThreadFun* threadFun(
 	Function iFunction,
 	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
-	return new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iFunction), $(iP$x)$, iKind);
+	return new ThreadFun(bind(iFunction, $(iP$x)$), iKind);
 }
 
 
 
-/** @relates ThreadFun$x
- *  @ingroup ThreadFun
+/** @relates ThreadFun
  */
 template <$(typename P$x)$, typename ObjectPtr, typename Method>
-ThreadFun$x<$(P$x)$>* threadMemFun(
+ThreadFun* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	$(const P$x& iP$x)$,
 	ThreadKind iKind)
 {
-	return new ThreadFun$x<$(P$x)$>(Callback$x<$(P$x)$>(iObject, iMethod), $(iP$x)$, iKind);
+	return new ThreadFun(bind(iMethod, iObject, $(iP$x)$), iKind);
 }
 
 

@@ -24,14 +24,14 @@
  */
 
 #include "util_common.h"
-#include "lass_env.h"
+#include "environment.h"
 
 #if HAVE_CONFIG_H
 #	include "lass_auto_config.h"
 #endif
 #include <stdlib.h>
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION >= 1400
 #	define LASS_UTIL_IMPL_HAVE_ENV_S
 #endif
 
@@ -55,7 +55,12 @@ const std::string lass_getenv(const std::string& iName)
 	LASS_ENFORCE_CLIB_RC(getenv_s(&size, &buffer[0], size, iName.c_str()));
 	return std::string(&buffer[0]);
 #else
-	return std::string(getenv(iName.c_str()));
+	const char* result = getenv(iName.c_str());
+	if (!result)
+	{
+		LASS_THROW("Could not find environment variable '" << iName << "'.");
+	}
+	return std::string(result);
 #endif
 }
 
@@ -66,7 +71,7 @@ void lass_putenv(const std::string& iName, const std::string& iValue)
 #else
 	std::stringstream buffer;
 	buffer << iName << "=" << iValue;
-	LASS_ENFORCE_ZERO(putenv(buffer.c_str()));
+	LASS_ENFORCE_CLIB_RC(putenv(buffer.str().c_str()));
 #endif
 }
 

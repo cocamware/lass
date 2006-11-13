@@ -23,7 +23,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @defgroup ThreadFun ThreadFun
+/** @class ThreadFun
  *  @brief library to run (member) functions in a thread
  *  @author [Bramz]
  *
@@ -90,10 +90,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_FUN_H
 
 #include "util_common.h"
-#include "callback_0.h"$(
-#include "callback_$x.h")$
-#include "callback_r_0.h"$(
-#include "callback_r_$x.h")$
+#include "callback_0.h"
 #include "thread.h"
 #include "../meta/type_traits.h"
 
@@ -102,61 +99,38 @@ namespace lass
 namespace util
 {
 
-// --- null arguments ------------------------------------------------------------------------------
-
-/** @class ThreadFun0
- *  @brief ThreadFun without arguments
- *  @ingroup ThreadFun
- */
-class ThreadFun0: public Thread
+class ThreadFun: public Thread
 {
 public:
-	ThreadFun0(const Callback0& iFun, ThreadKind iKind = threadDetached);
+	ThreadFun(const Callback0& iFun, ThreadKind iKind = threadDetached);
 private:
 	void doRun();
 	Callback0 fun_;
 };
 
+// --- 0 arguments ---------------------------------------------------------------------------------
+
 template <typename Function>
-ThreadFun0* threadFun(
+ThreadFun* threadFun(
 	Function iFunction,
 	ThreadKind iKind = threadDetached);
 
 template <typename ObjectPtr, typename Method>
-ThreadFun0* threadMemFun(
+ThreadFun* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	ThreadKind iKind = threadDetached);
-
-
 
 $[
 // --- $x argument(s) ----------------------------------------------------------------------------
 
-/** @class ThreadFun$x
- *  @brief ThreadFun with $x argument(s)
- *  @ingroup ThreadFun
- */
-template <$(typename P$x)$>
-class ThreadFun$x: public Thread
-{
-public:
-	ThreadFun$x(const Callback$x<$(P$x)$>& iFun,
-			   $(typename CallTraits<P$x>::TParam iP$x)$,
-			   ThreadKind iKind = threadDetached);
-private:
-	void doRun();
-	Callback$x<$(P$x)$> fun_;$(
-	typename meta::TypeTraits<P$x>::TStorage p$x_;)$
-};
-
 template <$(typename P$x)$, typename Function>
-ThreadFun$x<$(P$x)$>* threadFun(
+ThreadFun* threadFun(
 	Function iFunction,
 	$(const P$x& iP$x)$,
 	ThreadKind iKind = threadDetached);
 
 template <$(typename P$x)$, typename ObjectPtr, typename Method>
-ThreadFun$x<$(P$x)$>* threadMemFun(
+ThreadFun* threadMemFun(
 	ObjectPtr iObject, Method iMethod,
 	$(const P$x& iP$x)$,
 	ThreadKind iKind = threadDetached);
