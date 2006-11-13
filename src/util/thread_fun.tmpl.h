@@ -99,7 +99,7 @@ namespace lass
 namespace util
 {
 
-class ThreadFun: public Thread
+class LASS_DLL ThreadFun: public Thread
 {
 public:
 	ThreadFun(const Callback0& iFun, ThreadKind iKind = threadDetached);
