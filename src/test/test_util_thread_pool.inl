@@ -32,6 +32,7 @@
 #include "test_common.h"
 
 #include "../util/thread_pool.h"
+#include "../util/bind.h"
 #include "../util/atomic.h"
 
 namespace lass
@@ -40,13 +41,23 @@ namespace test
 {
 namespace thread_pool
 {
+	const unsigned numberOfTasks = 40;
+	bool taskIsDone[numberOfTasks];
 	unsigned counter = 0;
+	util::CriticalSection lock;
 
-	void task()
+	void task(int i)
 	{
 		util::Thread::sleep(50); 
+		LASS_LOCK(lock)
+		{
+			LASS_TEST_CHECK(!taskIsDone[i]);
+		}
+		taskIsDone[i] = true;
 		util::atomicIncrement(counter);
 	}
+
+
 }
 
 void testUtilThreadPool()
@@ -55,17 +66,23 @@ void testUtilThreadPool()
 
 	const unsigned numberOfThreads = 4;
 	const unsigned maxNumberOfTasksInQueue = 20;
-	const unsigned numberOfTasks = 40;
+
+	using namespace thread_pool;
+	std::fill(taskIsDone, taskIsDone + numberOfTasks, false);
 
 	util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
-	for (unsigned i = 0; i < numberOfTasks; ++i)
+	for (int i = 0; i < numberOfTasks; ++i)
 	{
-		pool.add(util::makeCallback(thread_pool::task));
+		pool.add(util::bind(task, i));
 	}
 	pool.joinAll();
 	
 	LASS_TEST_CHECK(pool.isEmpty());
-	LASS_TEST_CHECK_EQUAL(thread_pool::counter, numberOfTasks);	
+	LASS_TEST_CHECK_EQUAL(counter, numberOfTasks);
+	for (int i = 0; i < numberOfTasks; ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(taskIsDone[i], true);
+	}
 }
 
 }

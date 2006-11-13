@@ -57,6 +57,25 @@
  *		LASS_COUT << "counter: " << counter; // == numberOfTasks
  *	}
  *  @endcode
+ *
+ *	util::bind simplifies the use of ThreadPool for tasks with arguments
+ *
+ *  @code
+ *  #include <lass/util/thread_pool.h>
+ *	#include <lass/util/bind.h>
+ *	using namespace lass::util;
+ *
+ *	void parallelWork(int begin, int end);
+ *	const int n = 1000000;
+ *	const int step = 1000;
+ *
+ *	util::ThreadPool<> pool;
+ *	for (int i = 0; i < n; i += step)
+ *	{
+ *		pool.add(bind(parallelWork, i, std::min(i + step, n)));
+ *	}
+ *	pool.joinAll();
+ *	@endcode
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_POOL_H
