@@ -28,6 +28,7 @@
 
 #include "util_common.h"
 #include "atomic.h"
+#include "thread.h"	
 
 namespace lass
 {
@@ -38,19 +39,33 @@ namespace impl
 {
 } //namespace impl
 
-class RWLock : public NonCopyable
+
+/** Lean and mean synchronisation object, without OS support.
+*   @ingroup Threading
+*   @see RWLocker
+*   @author Tom De Muer
+*   @date 2006
+*   
+*	This lock is built upon atomic operations that are programmed in assembly.  It makes a difference
+*	between reading and writing.  A maximum number of readers is allowed while only 1 writer is allowed.
+*	The writer will only enter if there are no readers are reading at the same moment.  This RWLock is 
+*	a blocking and spinning synchronization object.
+*/
+
+class LASS_DLL RWLock : NonCopyable
 {
 
 public:
 	RWLock(util::CallTraits<size_t>::TParam iMaxReaders);
 	~RWLock();
 
-	void rlock();
-	void wlock();
-	void unlock();
+	void lockr();
+	void lockw();
+	void unlockr();
+	void unlockw();
 
-	void tryRlock();
-	void tryWlock();
+	const LockResult tryLockr();
+	const LockResult tryLockw();
 
 private:
 	size_t maxReaders_;		/**< the maximum of simultaneous readers allowed */
@@ -69,30 +84,72 @@ RWLock::~RWLock()
 	LASS_ENFORCE(spinLock_==maxReaders_);
 }
 
-void RWLock::rlock()
+void RWLock::lockr()
 {
-
+	int newSpinLock;
+	int oldSpinLock;
+	do
+	{
+		oldSpinLock = spinLock_;
+		LASS_ASSERT(oldSpinLock>=0);
+		newSpinLock = oldSpinLock-1;
+	} while (oldSpinLock==0 || !lass::util::atomicCompareAndSwap(spinLock_,oldSpinLock,newSpinLock));
 }
 
-void RWLock::wlock()
+void RWLock::lockw()
 {
-
+	do
+	{
+	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,maxReaders_,0));
 }
 
-void RWLock::unlock()
+void RWLock::unlockw()
 {
-
+	LASS_ENFORCE(spinLock_==0);
+	do
+	{
+	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,0,maxReaders_));
 }
 
-void RWLock::tryRlock()
+void RWLock::unlockr()
 {
-	
+	lass::util::atomicIncrement(spinLock_);
+	LASS_ASSERT(spinLock_<=maxReaders_);
 }
 
 
-void RWLock::tryWlock()
+const LockResult RWLock::tryLockr()
 {
+	int oldSpinLock;
+	int newSpinLock;
+	do
+	{
+		oldSpinLock = spinLock_;
+		LASS_ASSERT(spinLock_ >= 0);
+		if (spinLock_ == 0)
+		{
+			return lockBusy;
+		}
+		newSpinLock = oldSpinLock - 1;
+	}
+	while (!atomicCompareAndSwap(spinLock_, oldSpinLock, newSpinLock));
+	return lockSuccess;
+}
 
+
+const LockResult RWLock::tryLockw()
+{
+	int newSpinLock;
+	do
+	{
+		LASS_ASSERT(spinLock_ >= 0);
+		if (spinLock_ != maxReaders_)
+		{
+			return lockBusy;
+		}
+	}
+	while (!atomicCompareAndSwap<int>(spinLock_, maxReaders_, 0));
+	return lockSuccess;
 }
 
 } //namespace util

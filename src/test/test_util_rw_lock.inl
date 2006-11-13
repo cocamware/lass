@@ -49,10 +49,10 @@ namespace rwlock_test
 		{
 			for (int i=0;i<1000;++i)
 			{
-				util::Thread::sleep(1); 
-				lock_.rlock();
+				util::Thread::sleep(2);
+				lock_.lockr();
 				std::cout << "R";
-				lock_.unlock();
+				lock_.unlockr();
 			}
 		}
 		void doWrites() const 
@@ -60,11 +60,12 @@ namespace rwlock_test
 			for (int j=0;j<4;++j)
 			{
 				util::Thread::sleep(150);
-				for (int i=0;i<4;++i)
+				for (int i=0;i<16;++i)
 				{
-					lock_.wlock();
-					std::cout << "\t(W)\t";
-					lock_.unlock();
+					lock_.lockw();
+					util::Thread::sleep(1);
+					std::cout << "(W)";
+					lock_.unlockw();
 				}
 			}
 		}
