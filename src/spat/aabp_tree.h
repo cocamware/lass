@@ -56,7 +56,7 @@ class AabpTree
 {
 public:
 
-	typedef AabpTree<ObjectType, ObjectTraits> TSelf;
+	typedef AabpTree<ObjectType, ObjectTraits, SplitHeuristics> TSelf;
 
 	typedef ObjectType TObject;
 	typedef ObjectTraits TObjectTraits;

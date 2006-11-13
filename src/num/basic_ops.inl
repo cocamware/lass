@@ -25,6 +25,10 @@
 
 // --- implementation details ----------------------------------------------------------------------
 
+// http://pi.lacim.uqam.ca/eng/table_en.html
+#define LASS_NUM_INVLOG2  1.442695040888963407359924681001892137426645954152985934135449406931109219181185079885526622893506344
+#define LASS_NUM_INVLOG10 0.434294481903251827651128918916605082294397005803666566114453783165864649208870774729224949338431748
+
 namespace impl
 {
 
@@ -162,6 +166,24 @@ template <typename T> inline T pow(const T& iV, const T& iPow)
 	return exp(iPow * log(iV));
 }
 
+/** return log(iV) / log(2)
+ *  @ingroup BasicOps
+ *  @warning GENERIC FUNCTION USES DIVISION AND LOG!
+ */
+template <typename T> inline T log2(const T& iV, const T& iPow) 
+{ 
+	return log(iV) / log(T(2));
+}
+
+/** return log(iV) / log(10)
+ *  @ingroup BasicOps
+ *  @warning GENERIC FUNCTION USES DIVISION AND LOG!
+ */
+template <typename T> inline T log10(const T& iV, const T& iPow) 
+{ 
+	return log(iV) / log(T(10));
+}
+
 /** return norm of iV as if iV is real part of complex number: sqr(iV)
  *  @ingroup BasicOps
  */
@@ -233,6 +255,8 @@ float sqrt(float iV)			{ LASS_ASSERT(iV >= 0.f); return ::sqrtf(iV); }	/**< @ing
 float pow(float iV, float iPow)	{ return ::powf(iV, iPow); }	/**< @ingroup BasicOps */
 float exp(float iV)				{ return ::expf(iV); }			/**< @ingroup BasicOps */
 float log(float iV)				{ return ::logf(iV); }			/**< @ingroup BasicOps */
+float log2(float iV)			{ return float(LASS_NUM_INVLOG2) * ::logf(iV); } /**< @ingroup BasicOps */
+float log10(float iV)			{ return ::log10f(iV); }		/**< @ingroup BasicOps */
 float cos(float iV)				{ return ::cosf(iV); }			/**< @ingroup BasicOps */
 float sin(float iV)				{ return ::sinf(iV); }			/**< @ingroup BasicOps */
 float tan(float iV)				{ return ::tanf(iV); }			/**< @ingroup BasicOps */
@@ -263,6 +287,8 @@ double sqrt(double iV)				{ LASS_ASSERT(iV >= 0.); return ::sqrt(iV); }	/**< @in
 double pow(double iV, double iPow)	{ return ::pow(iV, iPow); }		/**< @ingroup BasicOps */
 double exp(double iV)				{ return ::exp(iV); }			/**< @ingroup BasicOps */
 double log(double iV)				{ return ::log(iV); }			/**< @ingroup BasicOps */
+double log2(double iV)				{ return double(LASS_NUM_INVLOG2) * ::log(iV); } /**< @ingroup BasicOps */
+double log10(double iV)				{ return ::log10(iV); }			/**< @ingroup BasicOps */
 double cos(double iV)				{ return ::cos(iV); }			/**< @ingroup BasicOps */
 double sin(double iV)				{ return ::sin(iV); }			/**< @ingroup BasicOps */
 double tan(double iV)				{ return ::tan(iV); }			/**< @ingroup BasicOps */
@@ -295,6 +321,8 @@ long double sqrt(long double iV) { return static_cast<long double>(sqrt(static_c
 long double pow(long double iV, long double iPow) { return static_cast<long double>(pow(static_cast<double>(iV), static_cast<double>(iPow))); }
 long double exp(long double iV) { return static_cast<long double>(exp(static_cast<double>(iV))); }
 long double log(long double iV) { return static_cast<long double>(log(static_cast<double>(iV))); }
+long double log2(long double iV) { return static_cast<long double>(log2(static_cast<double>(iV))); }
+long double log10(long double iV) { return static_cast<long double>(log10(static_cast<double>(iV))); }
 long double cos(long double iV) { return static_cast<long double>(cos(static_cast<double>(iV))); }
 long double sin(long double iV) { return static_cast<long double>(sin(static_cast<double>(iV))); }
 long double tan(long double iV) { return static_cast<long double>(tan(static_cast<double>(iV))); }
@@ -317,6 +345,8 @@ long double sqrt(long double iV)					{ LASS_ASSERT(iV >= 0.); return ::sqrtl(iV)
 long double pow(long double iV, long double iPow)	{ return ::powl(iV, iPow); }	/**< @ingroup BasicOps */
 long double exp(long double iV)						{ return ::expl(iV); }			/**< @ingroup BasicOps */
 long double log(long double iV)						{ return ::logl(iV); }			/**< @ingroup BasicOps */
+long double log2(long double iV)					{ return long double(LASS_NUM_INVLOG2) * ::logl(iV); } /**< @ingroup BasicOps */
+long double log10(long double iV)					{ return ::log10l(iV); }		/**< @ingroup BasicOps */
 long double cos(long double iV)						{ return ::cosl(iV); }			/**< @ingroup BasicOps */
 long double sin(long double iV)						{ return ::sinl(iV); }			/**< @ingroup BasicOps */
 long double tan(long double iV)						{ return ::tanl(iV); }			/**< @ingroup BasicOps */
@@ -544,6 +574,8 @@ template <typename T> std::complex<T> sqrt( const std::complex<T>& iV){ return s
 template <typename T> std::complex<T> pow(const std::complex<T>& iX, double iY) { return std::pow(iX, iY); }
 template <typename T> std::complex<T> exp( const std::complex<T>& iV) { return std::exp( iV ); }
 template <typename T> std::complex<T> log( const std::complex<T>& iV) { return std::log( iV ); }
+template <typename T> std::complex<T> log2( const std::complex<T>& iV) { return T(LASS_NUM_INVLOG2) * std::log( iV ); }
+template <typename T> std::complex<T> log10( const std::complex<T>& iV) { return T(LASS_NUM_INVLOG10) * std::log( iV ); }
 template <typename T> std::complex<T> cos( const std::complex<T>& iV) { return std::cos( iV ); }
 template <typename T> std::complex<T> sin( const std::complex<T>& iV) { return std::sin( iV ); }
 template <typename T> std::complex<T> tan( const std::complex<T>& iV) { return std::tan( iV ); }

@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,54 +23,55 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "util_common.h"
+#include "lass_env.h"
 
+#if HAVE_CONFIG_H
+#	include "lass_auto_config.h"
+#endif
+#include <stdlib.h>
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_POOL_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_POOL_INL
-
-#include "test_common.h"
-
-#include "../util/thread_pool.h"
-#include "../util/atomic.h"
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	define LASS_UTIL_IMPL_HAVE_ENV_S
+#endif
 
 namespace lass
 {
-namespace test
+namespace util
 {
-namespace thread_pool
+namespace impl
 {
-	unsigned counter = 0;
 
-	void task()
+const std::string lass_getenv(const std::string& iName)
+{
+#ifdef LASS_UTIL_IMPL_HAVE_ENV_S
+	size_t size;
+	LASS_ENFORCE_CLIB_RC(getenv_s(&size, 0, 0, iName.c_str()));
+	if (size == 0)
 	{
-		util::Thread::sleep(50); 
-		util::atomicIncrement(counter);
+		LASS_THROW("Could not find environment variable '" << iName << "'.");
 	}
-}
-
-void testUtilThreadPool()
-{
-	LASS_COUT << "number of processors: " << util::numberOfProcessors() << std::endl;
-
-	const unsigned numberOfThreads = 4;
-	const unsigned maxNumberOfTasksInQueue = 20;
-	const unsigned numberOfTasks = 40;
-
-	util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
-	for (unsigned i = 0; i < numberOfTasks; ++i)
-	{
-		pool.add(util::makeCallback(thread_pool::task));
-	}
-	pool.joinAll();
-	
-	LASS_TEST_CHECK(pool.isEmpty());
-	LASS_TEST_CHECK_EQUAL(thread_pool::counter, numberOfTasks);	
-}
-
-}
-
-}
-
+	std::vector<char> buffer(size);
+	LASS_ENFORCE_CLIB_RC(getenv_s(&size, &buffer[0], size, iName.c_str()));
+	return std::string(&buffer[0]);
+#else
+	return std::string(getenv(iName.c_str()));
 #endif
+}
+
+void lass_putenv(const std::string& iName, const std::string& iValue)
+{
+#ifdef LASS_UTIL_IMPL_HAVE_ENV_S
+	LASS_ENFORCE_CLIB_RC(_putenv_s(iName.c_str(), iValue.c_str()));
+#else
+	std::stringstream buffer;
+	buffer << iName << "=" << iValue;
+	LASS_ENFORCE_ZERO(putenv(buffer.c_str()));
+#endif
+}
+
+}
+}
+}
 
 // EOF

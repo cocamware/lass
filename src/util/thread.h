@@ -95,6 +95,10 @@ enum ThreadKind
 	threadJoinable		/**< joinable thread, can be waited for */
 };
 
+/** @ingroup Threading
+ */
+LASS_DLL const unsigned LASS_CALL numberOfProcessors();
+
 /** Mutex.
 *   @ingroup Threading
 *   @see MutexLocker

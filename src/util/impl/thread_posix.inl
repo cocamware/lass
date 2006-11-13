@@ -27,6 +27,7 @@
 
 #include "../util_common.h"
 #include "../thread.h"
+#include "../../stde/extended_string.h"
 #include "lass_errno.h"
 #include <errno.h>
 #include <pthread.h>
@@ -36,6 +37,28 @@ namespace lass
 {
 namespace util
 {
+
+unsigned numberOfProcessors()
+{
+	std::ifstream cpuinfo("/proc/cpuinfo");
+	if (!file.is_open())
+	{
+		LASS_THROW("could not open /proc/cpuinfo");
+	}
+
+	unsigned numProcessors = 0;
+	std::string line;
+	while (std::getline(LASS_ENFORCE_STREAM(cpuinfo), line, '\n'))
+	{
+		if (stde::begins_with(line, "processor"))
+		{
+			++numProcessors;
+		}
+	}
+	LASS_ENFORE(numProcessors > 0)
+	return numProcessors;
+}
+
 namespace impl
 {
 

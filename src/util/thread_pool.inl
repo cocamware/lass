@@ -43,11 +43,12 @@ ThreadPool<T, C>::ThreadPool(
 		const TConsumer& iConsumerPrototype):
 	threads_(0),
 	mSecsToSleep_(100),
-	numThreads_(std::max<unsigned>(iNumberOfThreads, 1)),
-	maxTasksInQueue_(iMaximumNumberOfTasksInQueue),
+	numThreads_(iNumberOfThreads == autoNumberOfThreads ? numberOfProcessors() : iNumberOfThreads),
+	maxTasksInQueue_(std::max<unsigned>(iMaximumNumberOfTasksInQueue, 1)),
 	busyThreads_(0),
 	shutDown_(false)
 {
+	LASS_ENFORCE(numThreads_ > 0);
 	startThreads(iConsumerPrototype);
 }
 
@@ -80,7 +81,7 @@ void ThreadPool<T, C>::add(typename util::CallTraits<TTask>::TParam iTask)
 		{
 			const unsigned tasksInQueue = 
 				static_cast<unsigned>(waitingTasks_.size()) + busyThreads_;
-			if (tasksInQueue < maxTasksInQueue_ || maxTasksInQueue_ == 0)
+			if (tasksInQueue < maxTasksInQueue_)
 			{
 				queueIsFull = false;
 				waitingTasks_.push(iTask);

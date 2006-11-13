@@ -28,10 +28,7 @@
 #include "unit_test.h"
 #include "../io/arg_parser.h"
 #include "../io/file_attribute.h"
-
-#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
-#	include <stdlib.h>
-#endif
+#include "../util/impl/lass_env.h"
 
 namespace lass
 {
@@ -86,7 +83,7 @@ const std::string workPath()
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	const char* result = 0;
 #else
-	const char* result = getenv("srcdir");
+	const char* result = util::impl::lass_getenv("srcdir");
 #endif
 	return result ? result : ".";
 }

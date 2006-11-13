@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -25,51 +24,35 @@
  */
 
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ENV_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ENV_H
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_POOL_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_POOL_INL
-
-#include "test_common.h"
-
-#include "../util/thread_pool.h"
-#include "../util/atomic.h"
+#include "../util_common.h"
 
 namespace lass
 {
-namespace test
+namespace util
 {
-namespace thread_pool
+namespace impl
 {
-	unsigned counter = 0;
 
-	void task()
-	{
-		util::Thread::sleep(50); 
-		util::atomicIncrement(counter);
-	}
+LASS_DLL const std::string LASS_CALL lass_getenv(const std::string& iName);
+LASS_DLL void LASS_CALL lass_putenv(const std::string& iName, const std::string& iValue);
+
+template <typename T>
+const T lass_getenv(const std::string& iName)
+{
+	return stringCast<T>(lass_getenv(iName));
 }
 
-void testUtilThreadPool()
+template <typename T>
+void lass_putenv(const std::string& iName, const T& iValue)
 {
-	LASS_COUT << "number of processors: " << util::numberOfProcessors() << std::endl;
-
-	const unsigned numberOfThreads = 4;
-	const unsigned maxNumberOfTasksInQueue = 20;
-	const unsigned numberOfTasks = 40;
-
-	util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
-	for (unsigned i = 0; i < numberOfTasks; ++i)
-	{
-		pool.add(util::makeCallback(thread_pool::task));
-	}
-	pool.joinAll();
-	
-	LASS_TEST_CHECK(pool.isEmpty());
-	LASS_TEST_CHECK_EQUAL(thread_pool::counter, numberOfTasks);	
+	lass_putenv(iName, stringCast<std::string>(iValue));
 }
 
 }
-
+}
 }
 
 #endif

@@ -281,6 +281,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\util\impl\lass_env.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\util\impl\lass_errno.cpp"
 				>
 			</File>

@@ -39,10 +39,14 @@ namespace prim
 
 // --- public --------------------------------------------------------------------------------------
 
-template <typename T, template <typename, typename> class BHV>
-template <typename VertexInputRange, typename NormalInputRange,
-	typename UvInputRange, typename IndexTriangleInputRange>
-TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices, const NormalInputRange& iNormals, 
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+template 
+<
+	typename VertexInputRange, typename NormalInputRange,
+	typename UvInputRange, typename IndexTriangleInputRange
+>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
+		const VertexInputRange& iVertices, const NormalInputRange& iNormals, 
 		const UvInputRange& iUvs, const IndexTriangleInputRange& iTriangles):
 	vertices_(iVertices.begin(), iVertices.end()),
 	normals_(iNormals.begin(), iNormals.end()),
@@ -117,45 +121,45 @@ TriangleMesh3D<T, BHV>::TriangleMesh3D(const VertexInputRange& iVertices, const 
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TTriangles&
-TriangleMesh3D<T, BHV>::triangles() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TTriangles&
+TriangleMesh3D<T, BHV, SH>::triangles() const
 {
 	return triangles_;
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TVertices&
-TriangleMesh3D<T, BHV>::vertices() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TVertices&
+TriangleMesh3D<T, BHV, SH>::vertices() const
 {
 	return vertices_;
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TNormals&
-TriangleMesh3D<T, BHV>::normals() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TNormals&
+TriangleMesh3D<T, BHV, SH>::normals() const
 {
 	return normals_;
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TUvs&
-TriangleMesh3D<T, BHV>::uvs() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TUvs&
+TriangleMesh3D<T, BHV, SH>::uvs() const
 {
 	return uvs_;
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 template <typename OutputIterator> 
-OutputIterator TriangleMesh3D<T, BHV>::indexTriangles(OutputIterator oIndices) const
+OutputIterator TriangleMesh3D<T, BHV, SH>::indexTriangles(OutputIterator oIndices) const
 {
 	typename TTriangles::const_iterator triangle;
 	for (triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
@@ -177,18 +181,18 @@ OutputIterator TriangleMesh3D<T, BHV>::indexTriangles(OutputIterator oIndices) c
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TAabb
-TriangleMesh3D<T, BHV>::aabb() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TAabb
+TriangleMesh3D<T, BHV, SH>::aabb() const
 {
 	return tree_.aabb();
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const typename TriangleMesh3D<T, BHV>::TValue
-TriangleMesh3D<T, BHV>::area() const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const typename TriangleMesh3D<T, BHV, SH>::TValue
+TriangleMesh3D<T, BHV, SH>::area() const
 {
 	TValue result = 0;
 
@@ -206,8 +210,8 @@ TriangleMesh3D<T, BHV>::area() const
 
 
 
-template <typename T, template <typename, typename> class BHV>
-void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+void TriangleMesh3D<T, BHV, SH>::smoothNormals(TParam iMaxAngleInRadians)
 {
 	const std::size_t numTriangles = triangles_.size();
 	const std::size_t numVertices = vertices_.size();
@@ -311,8 +315,8 @@ void TriangleMesh3D<T, BHV>::smoothNormals(TParam iMaxAngleInRadians)
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const Result TriangleMesh3D<T, BHV>::intersect(const TRay& iRay, TTriangleIterator& oTriangle,
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& iRay, TTriangleIterator& oTriangle,
 		TReference oT, TParam iMinT, IntersectionContext* oContext) const
 {
 	TValue t;
@@ -328,16 +332,16 @@ const Result TriangleMesh3D<T, BHV>::intersect(const TRay& iRay, TTriangleIterat
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const bool TriangleMesh3D<T, BHV>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const
 {
 	return tree_.intersects(iRay, iMinT, iMaxT);
 }
 
 
 
-template <typename T, template <typename, typename> class BHV>
-const Result TriangleMesh3D<T, BHV>::Triangle::intersect(const TRay& iRay, 
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& iRay, 
 		TReference oT, TParam iMinT, IntersectionContext* oContext) const
 {
 	LASS_ASSERT(vertices[0] && vertices[1] && vertices[2]);

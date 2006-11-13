@@ -30,6 +30,7 @@
 #include "../thread.h"
 #include "../singleton.h"
 #include "lass_errno.h"
+#include "lass_env.h"
 #include <process.h>
 #include <windows.h>
 
@@ -37,6 +38,12 @@ namespace lass
 {
 namespace util
 {
+
+const unsigned numberOfProcessors()
+{
+	return impl::lass_getenv<unsigned>("NUMBER_OF_PROCESSORS");
+}
+
 namespace impl
 {
 

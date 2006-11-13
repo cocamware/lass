@@ -96,8 +96,11 @@ public:
 	typedef ConsumerType TConsumer;
 	typedef ThreadPool<TaskType, ConsumerType> TSelf;
 
-	ThreadPool(unsigned iNumberOfThreads = 16, unsigned iMaximumNumberOfTasksInQueue = 0,
-			const TConsumer& iConsumerPrototype = TConsumer());
+	enum { autoNumberOfThreads = 0 };
+
+	ThreadPool(unsigned iNumberOfThreads = autoNumberOfThreads, 
+		unsigned iMaximumNumberOfTasksInQueue = 16, 
+		const TConsumer& iConsumerPrototype = TConsumer());
 	~ThreadPool();
 
 	void add(typename util::CallTraits<TTask>::TParam iTask);

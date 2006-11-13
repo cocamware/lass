@@ -114,6 +114,7 @@ public:
 	self_type& operator++(int) { return *this; }
 
 	const iterator get() const { return current_; }
+	void set(iterator i) { current_ = i; }
 
 private:
 

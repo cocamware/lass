@@ -58,13 +58,14 @@ struct IndexTriangle
 template 
 <
 	typename T,
-	template <typename T, typename ObjectTraits> class BoundingVolumeHierarchy
+	template <typename T, typename OT, typename SH> class BoundingVolumeHierarchy,
+	typename SplitHeuristics
 >
 class TriangleMesh3D
 {
 public:
 
-	typedef TriangleMesh3D<T, BoundingVolumeHierarchy> TSelf;
+	typedef TriangleMesh3D<T, BoundingVolumeHierarchy, SplitHeuristics> TSelf;
 
 	typedef Point3D<T> TPoint;
 	typedef typename TPoint::TVector TVector;
@@ -82,7 +83,7 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef TriangleMesh3D<U, BoundingVolumeHierarchy> Type;
+		typedef TriangleMesh3D<U, BoundingVolumeHierarchy, SplitHeuristics> Type;
 	};
 
 	struct IntersectionContext
@@ -208,7 +209,7 @@ private:
 		static const TVector reciprocal(const TVector& iVector) { return iVector.reciprocal(); }
 	};
 
-	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits> TTriangleTree;
+	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits, SplitHeuristics> TTriangleTree;
 
 	TTriangleTree tree_;
 	TTriangles triangles_;

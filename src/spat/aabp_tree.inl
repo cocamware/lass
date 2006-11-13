@@ -159,7 +159,7 @@ const bool AabpTree<O, OT, SH>::intersects(
 		tFar = tNear;
 		tNear = iMinT;
 	}
-	if (tNear > iMax || tFar < iMin)
+	if (tNear > iMaxT || tFar < iMinT)
 	{
 		return false;
 	}
@@ -505,12 +505,12 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	}
 	else // if (d == TNumTraits::zero)
 	{
-		if ((s <= node.leftBound) && doIntersects(rightIndex, iRay, iTMin, iTMax, iInfo,
+		if ((s <= node.leftBound()) && doIntersects(rightIndex, iRay, iTMin, iTMax, iInfo,
 				iReciprocalDirection, iTNear, iTFar))
 		{
 			return true;
 		}
-		if ((s >= node.rightBound) && doIntersects(rightIndex, iRay, iTMin, iTMax, iInfo,
+		if ((s >= node.rightBound()) && doIntersects(rightIndex, iRay, iTMin, iTMax, iInfo,
 				iReciprocalDirection, iTNear, iTFar))
 		{
 			return true;

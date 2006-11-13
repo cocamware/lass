@@ -290,6 +290,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\impl\lass_env.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\impl\lass_errno.cpp"
 					>
 				</File>
@@ -549,6 +553,10 @@
 				</File>
 				<File
 					RelativePath=".\impl\enforcer_impl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\impl\lass_env.h"
 					>
 				</File>
 				<File

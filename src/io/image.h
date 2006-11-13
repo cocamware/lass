@@ -60,6 +60,8 @@ public:
 	typedef prim::ColorRGBA::TParam TParam;
 	typedef prim::ColorRGBA::TNumTraits TNumTraits;
 
+	typedef TValue (*TFilterFunction)(TValue);
+
 	// STRUCTORS
 
 	Image();
@@ -120,6 +122,7 @@ public:
 	void filterGamma(TParam iGammaExponent);
 	void filterExposure(TParam iExposureTime);
 	void filterInverseExposure(TParam iExposureTime);
+	void filter(TFilterFunction function);
 
 private:
 
