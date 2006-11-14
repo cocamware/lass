@@ -480,7 +480,10 @@ public:
 		{
 			VariableAllocator::deallocate(mem, size);
 		}
-		fixedAllocators_[Binner::bin(size)].deallocate(mem);
+		else
+		{
+			fixedAllocators_[Binner::bin(size)].deallocate(mem);
+		}
 	}
 private:
 	AllocatorBinned& operator=(const AllocatorBinned&);
