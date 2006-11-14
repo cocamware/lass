@@ -49,7 +49,8 @@ namespace impl
 *	This lock is built upon atomic operations that are programmed in assembly.  It makes a difference
 *	between reading and writing.  A maximum number of readers is allowed while only 1 writer is allowed.
 *	The writer will only enter if there are no readers are reading at the same moment.  This RWLock is 
-*	a blocking and spinning synchronization object.
+*	a blocking and spinning synchronization object.  Priority is given over writers, as soon as a writer is
+*	trying to enter, only one subsequent reader will in worst case be able to enter.
 */
 
 class LASS_DLL RWLock : NonCopyable
@@ -70,6 +71,7 @@ public:
 private:
 	size_t maxReaders_;		/**< the maximum of simultaneous readers allowed */
 	int spinLock_;
+	int writersTrying_;		/**< the number of writers trying to enter */
 };
 
 
@@ -77,6 +79,7 @@ RWLock::RWLock(util::CallTraits<size_t>::TParam iMaxReaders)
 {
 	maxReaders_ = iMaxReaders;
 	spinLock_ = maxReaders_;
+	writersTrying_ = 0;
 }
 
 RWLock::~RWLock()
@@ -93,11 +96,12 @@ void RWLock::lockr()
 		oldSpinLock = spinLock_;
 		LASS_ASSERT(oldSpinLock>=0);
 		newSpinLock = oldSpinLock-1;
-	} while (oldSpinLock==0 || !lass::util::atomicCompareAndSwap(spinLock_,oldSpinLock,newSpinLock));
+	} while (writersTrying_!=0 || oldSpinLock==0 || !lass::util::atomicCompareAndSwap(spinLock_,oldSpinLock,newSpinLock));
 }
 
 void RWLock::lockw()
 {
+	lass::util::atomicIncrement(writersTrying_);
 	do
 	{
 	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,maxReaders_,0));
@@ -109,6 +113,7 @@ void RWLock::unlockw()
 	do
 	{
 	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,0,maxReaders_));
+	lass::util::atomicDecrement(writersTrying_);
 }
 
 void RWLock::unlockr()
@@ -139,12 +144,14 @@ const LockResult RWLock::tryLockr()
 
 const LockResult RWLock::tryLockw()
 {
+	lass::util::atomicIncrement(writersTrying_);
 	int newSpinLock;
 	do
 	{
 		LASS_ASSERT(spinLock_ >= 0);
 		if (spinLock_ != maxReaders_)
 		{
+			lass::util::atomicDecrement(writersTrying_);
 			return lockBusy;
 		}
 	}

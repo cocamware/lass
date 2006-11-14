@@ -49,7 +49,7 @@ namespace rwlock_test
 		{
 			for (int i=0;i<1000;++i)
 			{
-				util::Thread::sleep(2);
+				util::Thread::sleep(1);
 				lock_.lockr();
 				std::cout << "R";
 				lock_.unlockr();
@@ -63,7 +63,7 @@ namespace rwlock_test
 				for (int i=0;i<16;++i)
 				{
 					lock_.lockw();
-					util::Thread::sleep(1);
+					util::Thread::sleep(5);
 					std::cout << "(W)";
 					lock_.unlockw();
 				}
