@@ -469,8 +469,8 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	}
 
 	// check children
-	const size_t leftIndex = 2 * iIndex + 1;
-	const size_t rightIndex = leftIndex + 1;
+	const size_t leftIndex = iIndex + 1;
+	const size_t rightIndex = node.right();
 	const TValue s = TObjectTraits::coordinate(TObjectTraits::support(iRay), node.axis());
 	const TValue d = TObjectTraits::component(TObjectTraits::direction(iRay), node.axis());
 	const TValue invD = TObjectTraits::component(iReciprocalDirection, node.axis());

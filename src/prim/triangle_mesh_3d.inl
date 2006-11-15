@@ -225,6 +225,17 @@ void TriangleMesh3D<T, BHV, SH>::smoothNormals(TParam iMaxAngleInRadians)
 	{
 		const Triangle& triangle = triangles_[i];
 
+		bool isDegenerated = false;
+		for (std::size_t prevK = 2, k = 0; k < 3; prevK = k++)
+		{
+			isDegenerated |= (*triangle.vertices[k] == *triangle.vertices[prevK]);
+		}
+		if (isDegenerated)
+		{
+			faceNormals[i] = TVector();
+			continue;
+		}
+
 		const TVector edges[3] =
 		{
 			(*triangle.vertices[1] - *triangle.vertices[0]).normal(),
