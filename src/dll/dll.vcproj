@@ -666,6 +666,9 @@ cd ..\dll
 				RelativePath="..\..\src\util\.\clock.cpp">
 			</File>
 			<File 
+				RelativePath="..\..\src\util\.\environment.cpp">
+			</File>
+			<File 
 				RelativePath="..\..\src\util\.\process.cpp">
 			</File>
 			<File 
@@ -706,9 +709,6 @@ cd ..\dll
 			</File>
 			<File 
 				RelativePath="..\..\src\util\.\impl\dispatcher_python.cpp">
-			</File>
-			<File 
-				RelativePath="..\..\src\util\.\impl\lass_env.cpp">
 			</File>
 			<File 
 				RelativePath="..\..\src\util\.\impl\lass_errno.cpp">
