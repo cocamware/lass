@@ -233,7 +233,7 @@ template <typename T> void inptan(T& ioV)						{ ioV = num::tan(ioV); }				/**< 
 template <typename T> void inpacos(T& ioV)						{ ioV = num::acos(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpasin(T& ioV)						{ ioV = num::asin(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpatan(T& ioV)						{ ioV = num::atan(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpatan2(T& ioX, const T& iY)		{ ioX = num::atan2(ioX, iY); }			/**< @ingroup BasicOps */
+template <typename T> void inpatan2(T& ioY, const T& iX)		{ ioX = num::atan2(ioY, iX); }			/**< @ingroup BasicOps */
 template <typename T> void inpfloor(T& ioV)						{ ioV = num::floor(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpceil(T& ioV)						{ ioV = num::ceil(ioV); }				/**< @ingroup BasicOps */
 template <typename T> void inpround(T& ioV)						{ ioV = num::round(ioV); }				/**< @ingroup BasicOps */
@@ -263,7 +263,7 @@ float tan(float iV)				{ return ::tanf(iV); }			/**< @ingroup BasicOps */
 float acos(float iV)			{ return ::acosf(iV); }			/**< @ingroup BasicOps */
 float asin(float iV)			{ return ::asinf(iV); }			/**< @ingroup BasicOps */
 float atan(float iV)			{ return ::atanf(iV); }			/**< @ingroup BasicOps */
-float atan2(float iX, float iY)	{ return ::atan2f(iX, iY); }	/**< @ingroup BasicOps */
+float atan2(float iY, float iX)	{ return ::atan2f(iY, iX); }	/**< @ingroup BasicOps */
 float sinc(float iV)			{ return ::fabsf(iV) < 1e-4f ? 1.f : (::sinf(iV) / iV); }	/**< @ingroup BasicOps */
 float floor(float iV)			{ return ::floorf(iV); }		/**< @ingroup BasicOps */
 float ceil(float iV)			{ return ::ceilf(iV); }			/**< @ingroup BasicOps */
@@ -295,7 +295,7 @@ double tan(double iV)				{ return ::tan(iV); }			/**< @ingroup BasicOps */
 double acos(double iV)				{ return ::acos(iV); }			/**< @ingroup BasicOps */
 double asin(double iV)				{ return ::asin(iV); }			/**< @ingroup BasicOps */
 double atan(double iV)				{ return ::atan(iV); }			/**< @ingroup BasicOps */
-double atan2(double iX, double iY)	{ return ::atan2(iX, iY); }		/**< @ingroup BasicOps */
+double atan2(double iY, double iX)	{ return ::atan2(iY, iX); }		/**< @ingroup BasicOps */
 double sinc(double iV)				{ return ::fabs(iV) < 1e-8 ? 1. : (::sin(iV) / iV); }	/**< @ingroup BasicOps */
 double floor(double iV)				{ return ::floor(iV); }			/**< @ingroup BasicOps */
 double ceil(double iV)				{ return ::ceil(iV); }			/**< @ingroup BasicOps */
@@ -329,7 +329,7 @@ long double tan(long double iV) { return static_cast<long double>(tan(static_cas
 long double acos(long double iV) { return static_cast<long double>(acos(static_cast<double>(iV))); }
 long double asin(long double iV) { return static_cast<long double>(asin(static_cast<double>(iV))); }
 long double atan(long double iV) { return static_cast<long double>(atan(static_cast<double>(iV))); }
-long double atan2(long double iX, long double iY) { return static_cast<long double>(atan2(static_cast<double>(iX), static_cast<double>(iY))); }
+long double atan2(long double iY, long double iX) { return static_cast<long double>(atan2(static_cast<double>(iY), static_cast<double>(iX))); }
 long double sinc(long double iV) { return static_cast<long double>(sinc(static_cast<double>(iV))); }
 long double floor(long double iV) { return static_cast<long double>(floor(static_cast<double>(iV))); }
 long double ceil(long double iV) { return static_cast<long double>(ceil(static_cast<double>(iV))); }
@@ -353,7 +353,7 @@ long double tan(long double iV)						{ return ::tanl(iV); }			/**< @ingroup Basi
 long double acos(long double iV)					{ return ::acosl(iV); }			/**< @ingroup BasicOps */
 long double asin(long double iV)					{ return ::asinl(iV); }			/**< @ingroup BasicOps */
 long double atan(long double iV)					{ return ::atanl(iV); }			/**< @ingroup BasicOps */
-long double atan2(long double iX, long double iY)	{ return ::atan2l(iX, iY); }	/**< @ingroup BasicOps */
+long double atan2(long double iY, long double iX)	{ return ::atan2l(iY, iX); }	/**< @ingroup BasicOps */
 long double sinc(long double iV)					{ return ::fabsl(iV) < 1e-10 ? 1. : (::sinl(iV) / iV); }	/**< @ingroup BasicOps */
 long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
 long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
