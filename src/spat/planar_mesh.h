@@ -165,6 +165,7 @@ namespace spat
 		virtual ~PlanarMesh();
 
 		TEdge*  startEdge() const;
+		bool  isBoundingPoint( const TPoint2D& iPoint) const;		/**< true for points defining the boundary */
 
 		void    forAllPrimaryEdges( const TEdgeCallback& iCallback );
 		void    forAllPrimaryUndirectedEdges( const TEdgeCallback& iCallback );
@@ -199,9 +200,12 @@ namespace spat
 		static  TPoint2D fastAlong( TEdge* iEdge, const T& iParam );
 		static	const TVector2D direction( TEdge* iEdge );
 		static  bool  rightOf( const TPoint2D& iPoint, TEdge* iEdge );
+		static  bool  fastRightOf( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  leftOf( const TPoint2D& iPoint, TEdge* iEdge );
+		static  bool  fastLeftOf( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  onEdge( const TPoint2D& iPoint, TEdge* iEdge );
 		static  bool  hasLeftFace( TEdge* iEdge );
+		static  bool  fastHasLeftFace( TEdge* iEdge );
 		static  bool  hasRightFace( TEdge* iEdge );
 		static  int   chainOrder( TEdge* iEdge );
 		static  int   vertexOrder( TEdge* iEdge );
@@ -244,7 +248,6 @@ namespace spat
 		void fixEdge( TEdge* e );
 		void splitEdge(TEdge *e, const TPoint2D& iPoint );
 		TEdge*	pointShoot( const TRay2D& iRay ) const;				/**< locate the edge found by shooting the ray from within the triangle with the support of the ray as a known point */
-		bool  isBoundingPoint( const TPoint2D& iPoint) const;		/**< true for points defining the boundary */
 		template <typename OutputIterator>	OutputIterator pointWalk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
 		void safeSplitEdge(TEdge *e, const TPoint2D& iPoint );
 		TPoint2D snap(const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
@@ -994,7 +997,8 @@ namespace spat
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::isBoundingPoint( const TPoint2D& iPoint ) const
 	{
-		for (size_t i=0;i<boundingPoints_.size();++i)
+		size_t length = boundingPoints_.size();
+		for (size_t i=0;i<length;++i)
 		{
 			if (boundingPoints_[i]==iPoint)
 				return true;
@@ -1009,23 +1013,34 @@ namespace spat
 	{
 		long edgesPassed = 0;
 		TEdge* e = lastLocateEdge_;
-
 		while (edgesPassed<(edgeCount_+2))
 		{
 continueSearch:
 			++edgesPassed;
-			if ( org( e ) == iPoint )
+			const TPoint2D& eorg = fastOrg(e);
+			const TPoint2D& edest = fastDest(e);
+
+			if ( eorg == iPoint )
 				return e;
-			if ( dest( e ) == iPoint )
+			if ( edest == iPoint )
 				return e->sym();
-			if ( rightOf( iPoint, e ) )
+			if ( fastRightOf( iPoint, e ) )
 				e = e->sym();
 
-			if (hasLeftFace(e))
+			TEdge* elPrev= e->lPrev();
+			bool hasALeftFace = true;
+			if (isBoundingPoint(eorg))
+				hasALeftFace = fastHasLeftFace(e);
+			//bool hasALeftFace = fastLeftOf(edest,elPrev);
+			if (hasALeftFace)
 			{
-				if ( iPoint == org(e->lPrev()) )
+				/*
+				if ( iPoint == fastOrg(elPrev))
+				{
 					return e->lPrev();
-				if ( leftOf( iPoint, e->oNext()) )
+				}
+				*/
+				if ( fastLeftOf( iPoint, e->oNext()) )
 				{
 					e = e->oNext();
 					continue;
@@ -1034,9 +1049,10 @@ continueSearch:
 #pragma LASS_TODO("Optimize")
 				// this for loop is introduced for point location in non-triangular, general
 				// convex cells
-				for (int i=0;i<chainOrder(e)-2;++i)
+				size_t loopOrder = chainOrder(e)-2;
+				for (size_t i=0;i<loopOrder;++i)
 				{
-					if ( leftOf( iPoint, ce->dPrev()) )
+					if ( fastLeftOf( iPoint, ce->dPrev()) )
 					{
 						e = ce->dPrev();
 						goto continueSearch;
@@ -1044,11 +1060,11 @@ continueSearch:
 					ce = ce->lNext();
 				}
 
-				TRay2D  R1(org(e), dest(e));
+				TRay2D  R1(fastOrg(e), fastDest(e));
 				TPoint2D    p1 = R1.point( R1.t( iPoint ) );
-				TRay2D  R2(dest(e), org(e->lPrev()));
+				TRay2D  R2(fastDest(e), fastOrg(e->lPrev()));
 				TPoint2D    p2 = R2.point( R2.t( iPoint ) );
-				TRay2D  R3(org(e->lPrev()), org(e));
+				TRay2D  R3(fastOrg(e->lPrev()), fastOrg(e));
 				TPoint2D    p3 = R3.point( R3.t( iPoint ) );
 
 				typename TPoint2D::TValue d1 = squaredDistance(iPoint,p1);
@@ -1295,15 +1311,15 @@ continueSearch:
 			if (impl::fastIntersect(iSegment.tail(),iSegment.head(),fastOrg(crossedEdges[i]),fastDest(crossedEdges[i]),intersection)!=lass::prim::rOne)
 			{
 				// we make the bold assumption that we have parallel coinciding lines
-				(*oIntersections++) = fastOrg(crossedEdges[i]);
+				(*oIntersections++) = std::pair<TPoint2D,TEdge*>(fastOrg(crossedEdges[i]),crossedEdges[i]);
 				if (squaredDistance(fastOrg(crossedEdges[i]),fastDest(crossedEdges[i]))<squaredDistance(iSegment.tail(),iSegment.head()))
-					(*oIntersections++) = fastDest(crossedEdges[i]);
+					(*oIntersections++) = std::pair<TPoint2D,TEdge*>(fastDest(crossedEdges[i]),crossedEdges[i]);
 				else
-					(*oIntersections++) = iSegment.head();
+					(*oIntersections++) = std::pair<TPoint2D,TEdge*>(iSegment.head(),crossedEdges[i]);
 			}
 			else
 			{
-				(*oIntersections++) = intersection;
+				(*oIntersections++) = std::pair<TPoint2D,TEdge*>(intersection,crossedEdges[i]);
 			}
 		}
 		return oIntersections;
@@ -2078,10 +2094,13 @@ continueSearch:
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::along( TEdge* iEdge, const T& iParam )
 	{
+		LASS_ASSERT(inPrimaryMesh( iEdge ));
+		/*
 		if (!inPrimaryMesh( iEdge ))
 		{
 			LASS_THROW("PlanarMesh::along: edge not in primary mesh");
 		}
+		*/
 		const TPoint2D& eOrg = *iEdge->handle()->point_;
 		const TPoint2D& eDest = *iEdge->sym()->handle()->point_;
 		const T oX = eDest.x*iParam + (1-iParam)*eOrg.x;
@@ -2139,9 +2158,22 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastRightOf( const TPoint2D& iPoint, TEdge* iEdge )
+	{
+		return lass::prim::ccw( iPoint, fastDest(iEdge), fastOrg(iEdge) );
+	}
+
+
+	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::leftOf( const TPoint2D& iPoint, TEdge* iEdge )
 	{
 		return lass::prim::ccw( iPoint, org(iEdge), dest(iEdge) );
+	}
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastLeftOf( const TPoint2D& iPoint, TEdge* iEdge )
+	{
+		return lass::prim::ccw( iPoint, fastOrg(iEdge), fastDest(iEdge) );
 	}
 
 	TEMPLATE_DEF
@@ -2163,6 +2195,16 @@ continueSearch:
 //				 leftOf(org(e->lPrev()), e));
 		return leftOf(dest(e->lNext()), e);
 	}
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastHasLeftFace( TEdge* e )
+	{
+//#pragma LASS_TODO("This only works for triangular faces... update to general convex polygonal faces")
+//		return ( org(e->lPrev()) == dest(e->lNext()) &&
+//				 leftOf(org(e->lPrev()), e));
+		return fastLeftOf(fastDest(e->lNext()), e);
+	}
+
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasRightFace( TEdge* iEdge )
 	{

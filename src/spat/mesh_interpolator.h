@@ -226,9 +226,9 @@ TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery, typename
 	if (!aabb_.contains(iQuery))
 		return valueOutside_;
 
-	TPoint2D a = TPlanarMesh::org(e);
-	TPoint2D b = TPlanarMesh::dest(e);
-	TPoint2D c = TPlanarMesh::dest(e->lNext());
+	TPoint2D a = TPlanarMesh::fastOrg(e);
+	TPoint2D b = TPlanarMesh::fastDest(e);
+	TPoint2D c = TPlanarMesh::fastDest(e->lNext());
 
 	TPI* ia = TPlanarMesh::pointHandle(e);
 	TPI* ib = TPlanarMesh::pointHandle(e->lNext());
@@ -246,7 +246,7 @@ template<typename T, typename TPI>
 TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
 {
 	typename TPlanarMesh::TEdge* e = this->mesh_.locate(iQuery);
-	if (!TPlanarMesh::hasLeftFace(e))
+	if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(e)) && !TPlanarMesh::hasLeftFace(e))
 		e = e->sym();
 	return interpolate(iQuery,e);
 }
@@ -255,24 +255,41 @@ template<typename T, typename TPI>
 template <typename OutputIterator> 
 OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const
 {
+	/* This function can be optimized.  What is done now is compute all intersection points from a poly line with
+	   the mesh.  Subsequent for all these points the interpolated value is determined.  Each of these subsequent interpolations
+	   requires a locate (has now been partially optimized away) although it must be clear that that information has already been retrieved by the walkIntersections.  The
+	   points of intersection always lie on an edge (of course, or it wouldn't be intersections with edges) and computing the bary-
+	   centric coordinates is overkill.  So an optimization consists of:
+			* keeping track of the edges passed together with the intersection point
+			* compute the values on the org and dest of crossed edges and use this for interpolation
+	*/
+
 	LASS_ENFORCE(iQuery.size()>1);
-	TPolyLine2D crossings;
-	for (int i=0;i<iQuery.size()-1;++i)
+	typedef std::pair<TPoint2D, TPlanarMesh::TEdge*> TPointEdgePair;
+	std::vector<TPointEdgePair> crossings;
+	//TPolyLine2D crossings;
+	for (size_t i=0;i<iQuery.size()-1;++i)
 	{
-		crossings.push_back(iQuery[i]);
+		crossings.push_back(TPointEdgePair(iQuery[i],mesh_.locate(iQuery[i])));
 		mesh_.walkIntersections(typename TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),
 			std::back_inserter(crossings));
 	}
-	crossings.push_back(iQuery.back());
+	crossings.push_back(TPointEdgePair(iQuery.back(),mesh_.locate(iQuery.back())));
 
-	TPoint2D lastInterpolate = crossings[0];
-	(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[0],interpolate(crossings[0]));
-	for (int i=1;i<crossings.size();++i)
+	TPoint2D lastInterpolate = crossings[0].first;
+	TPlanarMesh::TEdge* interpEdge = crossings[0].second;
+	if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
+		interpEdge = interpEdge->sym();
+	(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[0].first,interpolate(crossings[0].first,interpEdge));
+	for (size_t i=1;i<crossings.size();++i)
 	{
-		if (crossings[i]!=lastInterpolate)
+		if (crossings[i].first!=lastInterpolate)
 		{
-			(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[i],interpolate(crossings[i]));
-			lastInterpolate = crossings[i];
+			interpEdge = crossings[i].second;
+			if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
+				interpEdge = interpEdge->sym();
+			(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[i].first,interpolate(crossings[i].first,crossings[i].second ));
+			lastInterpolate = crossings[i].first;
 		}
 	}
 	return oOutput;
