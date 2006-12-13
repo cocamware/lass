@@ -189,6 +189,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\aabb_3d_cylinder_3d.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\aabb_3d_parallelogram_3d.inl"
 				>
 			</File>
@@ -226,6 +230,22 @@
 			</File>
 			<File
 				RelativePath=".\color_rgba.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\cylinder_3d.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\cylinder_3d_ray_3d.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\half_edge_mesh_3d.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\half_edge_mesh_3d_triangle_mesh_3d.inl"
 				>
 			</File>
 			<File
@@ -483,6 +503,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\aabb_3d_cylinder_3d.h"
+				>
+			</File>
+			<File
 				RelativePath=".\aabb_3d_parallelogram_3d.h"
 				>
 			</File>
@@ -523,11 +547,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cylinder_3d.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cylinder_3d_ray_3d.h"
+				>
+			</File>
+			<File
 				RelativePath=".\degenerate_policy.h"
 				>
 			</File>
 			<File
 				RelativePath=".\equation_policy.h"
+				>
+			</File>
+			<File
+				RelativePath=".\half_edge_mesh_3d.h"
+				>
+			</File>
+			<File
+				RelativePath=".\half_edge_mesh_3d_triangle_mesh_3d.h"
 				>
 			</File>
 			<File

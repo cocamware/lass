@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="test_vc8"
 	ProjectGUID="{A49A7DAC-49F8-412D-9802-D91E4A357E56}"
 	RootNamespace="test_vc8"
@@ -455,6 +455,14 @@
 			<File
 				RelativePath=".\test_util.cpp"
 				>
+				<FileConfiguration
+					Name="win32_vc8|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\test_util_atomic.inl"
