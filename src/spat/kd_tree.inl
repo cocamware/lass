@@ -198,8 +198,7 @@ template <typename OutputIterator>
 OutputIterator
 KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, OutputIterator iFirst) const
 {
-	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
-	if (isEmpty())
+	if (isEmpty() || iMaxRadius == 0)
 	{
 		return iFirst;
 	}
@@ -237,8 +236,7 @@ RandomAccessIterator
 KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMaxCount,
 		RandomAccessIterator iFirst) const
 {
-	LASS_ASSERT(iMaxRadius > TValue()); // no initial zero radius allowed
-	if (isEmpty())
+	if (isEmpty() || iMaxRadius == 0)
 	{
 		return iFirst;
 	}
