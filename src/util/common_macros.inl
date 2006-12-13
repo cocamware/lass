@@ -33,6 +33,7 @@
 
 
 /** Throw an std::run_time_error with additional info on who has thrown it.
+ *  @internal
  */
 #define LASS_THROW_IMPL(iMessage)\
 	do\
@@ -45,6 +46,7 @@
 	while (false)
 
 /** Throw a given exception rather that a runtime error filled with given test.
+ *  @internal
  */
 #define LASS_THROW_EXCEPTION_IMPL(iException)\
 	do\
@@ -55,6 +57,7 @@
 	while (false)
 
 /** The usual assert
+ *  @internal
  */
 #define LASS_ASSERT_IMPL(iExpression)\
 	do\
@@ -68,7 +71,9 @@
 	}\
 	while (false)
 
-/** and assert that always fails (thus should be in unreachable code)
+
+/** an assert that always fails (thus should be in unreachable code)
+ *  @internal
  */
 #define LASS_ASSERT_UNREACHABLE_IMPL\
 	do\
@@ -79,18 +84,45 @@
 	}\
 	while (false)
 
+
+
+/** @internal
+ */
+#define LASS_WARNING_IMPL_ACTION(iMessage)\
+	LASS_CERR << "\n" << LASS_PRETTY_FUNCTION << ": WARNING: " << iMessage << "\n"
+
+
 /** Print a warning to the cerr proxy stream
+ *  @internal
  */
 #define LASS_WARNING_IMPL(iMessage)\
 	do\
 	{\
-		LASS_CERR << "\n" << LASS_PRETTY_FUNCTION << ": WARNING: " << iMessage << "\n";\
+		LASS_WARNING_IMPL_ACTION(iMessage);\
+	}\
+	while (false)
+
+
+
+/** Print a warning to the cerr proxy stream, but only once per run
+ *  @internal
+ */
+#define LASS_WARNING_ONCE_IMPL(iMessage, iUniqueName)\
+	do\
+	{\
+		static bool iUniqueName = false;\
+		if (!iUniqueName)\
+		{\
+			LASS_WARNING_IMPL_ACTION(iMessage);\
+			iUniqueName = true;\
+		}\
 	}\
 	while (false)
 
 
 
 /** Evaluates an expression and prints it to the clog proxy stream
+ *  @internal
  */
 #define LASS_EVAL_IMPL(iExpression)\
 	do\
@@ -103,6 +135,7 @@
 
 
 /** Prints a not to the clog proxy stream
+ *  @internal
  */
 #define LASS_LOG_IMPL(iMessage)\
 	do\

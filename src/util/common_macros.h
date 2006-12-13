@@ -110,6 +110,8 @@
 #	define LASS_ASSERT( iExpression )           LASS_ASSERT_IMPL( iExpression )
 #	define LASS_ASSERT_UNREACHABLE				LASS_ASSERT_UNREACHABLE_IMPL
 #	define LASS_WARNING( iMessage )             LASS_WARNING_IMPL( iMessage )
+#	define LASS_WARNING_ONCE_EX( iMessage, iUniqueName ) LASS_WARNING_ONCE_IMPL( iMessage, LASS_UNIQUENAME(iUniqueName) )
+#	define LASS_WARNING_ONCE( iMessage )        LASS_WARNING_ONCE_EX( iMessage, lassWarnOnce )
 #	define LASS_EVAL( iExpression )             LASS_EVAL_IMPL( iExpression )
 #	define LASS_LOG( iMessage )                 LASS_LOG_IMPL( iMessage )
 #else
@@ -118,6 +120,8 @@
 #	define LASS_ASSERT( iExpression )
 #	define LASS_ASSERT_UNREACHABLE
 #	define LASS_WARNING( iMessage )             LASS_WARNING_IMPL( iMessage )
+#	define LASS_WARNING_ONCE_EX( iMessage, iUniqueName ) LASS_WARNING_ONCE_IMPL( iMessage, LASS_UNIQUENAME(iUniqueName) )
+#	define LASS_WARNING_ONCE( iMessage )        LASS_WARNING_ONCE_EX( iMessage, lassWarnOnce )
 #	define LASS_EVAL( iExpression )             LASS_EVAL_IMPL( iExpression )
 #	define LASS_LOG( iMessage )                 LASS_LOG_IMPL( iMessage )
 #endif
