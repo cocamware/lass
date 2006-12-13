@@ -23,6 +23,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @defgroup BasicTypes
+ */
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_TYPES_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_BASIC_TYPES_H
 
@@ -40,46 +43,47 @@ namespace num
 
 #if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)
 
-	typedef int8_t Tint8;
-	typedef uint8_t Tuint8;
-	typedef int16_t Tint16;
-	typedef uint16_t Tuint16;
-	typedef int32_t Tint32;
-	typedef uint32_t Tuint32;
-	typedef int64_t Tint64;
-	typedef uint64_t Tuint64;
+	typedef int8_t Tint8;	/**< @ingroup BasicTypes */
+	typedef uint8_t Tuint8;	/**< @ingroup BasicTypes */
+	typedef int16_t Tint16;	/**< @ingroup BasicTypes */
+	typedef uint16_t Tuint16;	/**< @ingroup BasicTypes */
+	typedef int32_t Tint32;	/**< @ingroup BasicTypes */
+	typedef uint32_t Tuint32;	/**< @ingroup BasicTypes */
+	typedef int64_t Tint64;	/**< @ingroup BasicTypes */
+	typedef uint64_t Tuint64;	/**< @ingroup BasicTypes */
 
 #elif defined(LASS_NUM_BASIC_TYPES_HAVE_MSVC)
 
-	typedef __int8 Tint8;
-	typedef unsigned __int8 Tuint8;
-	typedef __int16 Tint16;
-	typedef unsigned __int16 Tuint16;
-	typedef __int32 Tint32;
-	typedef unsigned __int32 Tuint32;
-	typedef __int64 Tint64;
-	typedef unsigned __int64 Tuint64;
+	typedef __int8 Tint8;	/**< @ingroup BasicTypes */
+	typedef unsigned __int8 Tuint8;	/**< @ingroup BasicTypes */
+	typedef __int16 Tint16;	/**< @ingroup BasicTypes */
+	typedef unsigned __int16 Tuint16;	/**< @ingroup BasicTypes */
+	typedef __int32 Tint32;	/**< @ingroup BasicTypes */
+	typedef unsigned __int32 Tuint32;	/**< @ingroup BasicTypes */
+	typedef __int64 Tint64;	/**< @ingroup BasicTypes */
+	typedef unsigned __int64 Tuint64;	/**< @ingroup BasicTypes */
 
 #else
 
-	typedef signed char Tint8;
-	typedef unsigned char Tuint8;
-	typedef signed short Tint16;
-	typedef unsigned short Tuint16;
-	typedef signed int Tint32;
-	typedef unsigned int Tuint32;
-	typedef signed long long Tint64;
-	typedef unsigned long long Tuint64;
+	typedef signed char Tint8;	/**< @ingroup BasicTypes */
+	typedef unsigned char Tuint8;	/**< @ingroup BasicTypes */
+	typedef signed short Tint16;	/**< @ingroup BasicTypes */
+	typedef unsigned short Tuint16;	/**< @ingroup BasicTypes */
+	typedef signed int Tint32;	/**< @ingroup BasicTypes */
+	typedef unsigned int Tuint32;	/**< @ingroup BasicTypes */
+	typedef signed long long Tint64;	/**< @ingroup BasicTypes */
+	typedef unsigned long long Tuint64;	/**< @ingroup BasicTypes */
 
 #endif
 
 
 
-typedef float Tfloat32;		/**< 32-bit floating point */
-typedef double Tfloat64;	/**< 64-bit floating point */
+typedef float Tfloat32;	/**< @ingroup BasicTypes */
+typedef double Tfloat64;	/**< @ingroup BasicTypes */
 
 
-
+/** @ingroup BasicTypes
+ */
 template <size_t iNumberOfBits> struct BasicType {};
 template <> struct BasicType< 8> { typedef Tint8  Tint; typedef Tuint8  Tuint; };
 template <> struct BasicType<16> { typedef Tint16 Tint; typedef Tuint16 Tuint; };
@@ -88,6 +92,11 @@ template <> struct BasicType<64> { typedef Tint64 Tint; typedef Tuint64 Tuint; t
 
 
 
+typedef BasicType<sizeof(void*) * lass::bitsPerByte>::Tint TintPtr;	/**< @ingroup BasicTypes */
+typedef BasicType<sizeof(void*) * lass::bitsPerByte>::Tuint TuintPtr;	/**< @ingroup BasicTypes */
+
+/** @ingroup BasicTypes
+ */
 template <typename T> struct DoublePrecision { };
 template <> struct DoublePrecision<float> { typedef double Type; };
 template <> struct DoublePrecision<double> { typedef long double Type; };
