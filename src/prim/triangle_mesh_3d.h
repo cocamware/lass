@@ -52,6 +52,7 @@ struct IndexTriangle
 	std::size_t normals[3];
 	std::size_t uvs[3];
 
+	const size_t size() const { return 3; }
 	static const std::size_t null() { return static_cast<std::size_t>(-1); }
 };
 
@@ -99,12 +100,15 @@ public:
 
 	struct Triangle
 	{
-		const TPoint* vertices[dimension];
-		const TVector* normals[dimension];
-		const TUv* uvs[dimension];
+		const TPoint* vertices[3];
+		const TVector* normals[3];
+		const TUv* uvs[3];
+		Triangle* others[3]; /**< triangle on other side of vertices k,k+1 */
+		unsigned creaseLevel[3];   /**< crease level of side k,k+1 */
 
 		const Result intersect(const TRay& iRay, TReference oT, TParam iMinT = 0,
 			IntersectionContext* oContext = 0) const;
+		const size_t side(const TPoint* v) const;
 	};
 
 	typedef IntersectionContext TIntersectionContext;
@@ -137,10 +141,16 @@ public:
 	const TValue area() const;
 
 	void smoothNormals(TParam iMaxAngleInRadians);
+	void flatFaces();
+	void loopSubdivision(unsigned level);
+	void autoSew();
+	void autoCrease(unsigned level);
 
 	const Result intersect(const TRay& iRay, TTriangleIterator& oTriangle, TReference oT, 
 		TParam iMinT = 0, IntersectionContext* oContext = 0) const;
 	const bool intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const;
+
+	void swap(TSelf& ioOther);
 	
 private:
 
@@ -211,11 +221,14 @@ private:
 
 	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits, SplitHeuristics> TTriangleTree;
 
+	void connectTriangles();
+
 	TTriangleTree tree_;
 	TTriangles triangles_;
 	TVertices vertices_;
 	TNormals normals_;
 	TUvs uvs_;
+	unsigned numBoundaryEdges_;
 };
 
 }
@@ -224,6 +237,10 @@ private:
 
 #include "triangle_mesh_3d.inl"
 #include "pyobject_util.inl"
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_HALF_EDGE_MESH_3D_H
+#	include "half_edge_mesh_3d_triangle_mesh_3d.h"
+#endif
 
 #endif
 
