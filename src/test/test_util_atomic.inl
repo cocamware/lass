@@ -66,6 +66,7 @@ void testUtilAtomic()
 	testUtilAtomicType<num::Tuint8>();	
 	testUtilAtomicType<num::Tuint16>();	
 	testUtilAtomicType<num::Tuint32>();	
+	testUtilAtomicType<num::Tuint64>();
 }
 
 }
