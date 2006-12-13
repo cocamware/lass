@@ -51,22 +51,24 @@ OutputIterator triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygo
 	// we implement the easiest algorithm: ear clipping
 	// we try to find a non-reflex vertex and then clip it
 
-	SimplePolygon2D<T, DegenerationPolicy> temp(iPolygon);
-	while (temp.size()>3)
-	{
-		const int n = temp.size();
-		for (int i=0;i<n;++i)
-		{
-			if (temp.isReflex(i))
-			{
-				*oTriangles++ = push_back(Triangle2D<T>(temp.at(i-1),temp[i],temp.at(i+1)));
-				temp.erase(i);
-				break;
-			}
-		}
-	}
-	*oTriangles++ = Triangle2D<T>(temp[0],temp[1],temp[2]);
-	return oTriangles;
+#pragma LASS_FIXME("This naive implementation of ear clipping is broken, let's fix it later =) [Bramz]")
+	LASS_THROW("triangulation of concave polygons is not implemented yet [Bramz]");
+	//SimplePolygon2D<T, DegenerationPolicy> temp(iPolygon);
+	//while (temp.size()>3)
+	//{
+	//	const int n = temp.size();
+	//	for (int i=0;i<n;++i)
+	//	{
+	//		if (temp.isReflex(i))
+	//		{
+	//			*oTriangles++ = push_back(Triangle2D<T>(temp.at(i-1),temp[i],temp.at(i+1)));
+	//			temp.erase(i);
+	//			break;
+	//		}
+	//	}
+	//}
+	//*oTriangles++ = Triangle2D<T>(temp[0],temp[1],temp[2]);
+	//return oTriangles;
 }
 
 }
