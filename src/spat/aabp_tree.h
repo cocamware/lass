@@ -106,21 +106,19 @@ private:
 	class Node
 	{
 	public:
-		Node(int iAxis):
-			axis_(iAxis),
-			first_(-1) 
+		Node(int iAxis)
 		{
 			LASS_ASSERT(iAxis >= 0 && iAxis < dimension);
+			axis_ = iAxis;
 		}
-		Node(int iFirst, int iLast):
-			axis_(-1),
-			first_(iFirst)
+		Node(int iFirst, int iLast)
 		{
 			LASS_ASSERT(iFirst >= 0 && iLast > iFirst);
-			last_ = iLast; // do union stuff here
+			first_ = iFirst;
+			last_ = -iLast - 1; // do union stuff here
 		}
 
-		const bool isInternal() const { return first_ < 0; }
+		const bool isInternal() const { return axis_ >= 0; }
 		TParam leftBound() const { LASS_ASSERT(isInternal()); return leftBound_; }
 		TReference leftBound() { LASS_ASSERT(isInternal()); return leftBound_; }
 		TParam rightBound() const { LASS_ASSERT(isInternal()); return rightBound_; }
@@ -129,18 +127,21 @@ private:
 		const int right() const { LASS_ASSERT(isInternal()); return right_; }
 		int& right() { LASS_ASSERT(isInternal()); return right_; }
 
-		const bool isLeaf() const { return first_ >= 0; }
+		const bool isLeaf() const { return last_ < 0; }
 		const int first() const { LASS_ASSERT(isLeaf()); return first_; }
-		const int last() const { LASS_ASSERT(isLeaf()); return last_; }
+		const int last() const { LASS_ASSERT(isLeaf()); return -last_ - 1; }
 
 	private:
 		TValue leftBound_;	// internal
 		TValue rightBound_;	// internal
-		int axis_; // internal
-		int first_; // ==-1:internal, >=0:leaf
-		union 
+		union
 		{
 			int right_; // internal
+			int first_; // leaf
+		};
+		union
+		{
+			int axis_; // internal
 			int last_; // leaf
 		};
 	};
