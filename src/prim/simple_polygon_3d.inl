@@ -43,7 +43,7 @@ SimplePolygon3D<T, EP, NP>::SimplePolygon3D(const TPlane& iPlane) : plane_(iPlan
 
 template <typename T, class EP, class NP>
 SimplePolygon3D<T, EP, NP>::SimplePolygon3D(const TPoint& iA, const TPoint& iB, const TPoint& iC) :
-plane_(iA,iB,iC)
+	plane_(iA,iB,iC)
 {
 	add(iA);
 	add(iB);
@@ -440,15 +440,11 @@ const Orientation SimplePolygon3D<T, EP, NP>::orientation() const
 
 /** return true if inner angle of vertex is reflex (is > 180 degrees).
  *  @warning assumes polygon is simple
- *
- *  test if signedArea() and perdDot(...) have different sign.
- *  if one of them is zero, it will return false by default.
  */
 template <typename T, class EP, class NP>
 const bool SimplePolygon3D<T, EP, NP>::isReflex(int iIndexOfVertex) const
 {
-	const TValue pd = perdDot(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)); // Ax(-B) = BxA
-	return signedArea() * pd < TNumTraits::zero;
+	return dot(cross(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)), normal()) < 0;
 }
 
 
