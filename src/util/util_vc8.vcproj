@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="util_vc8"
 	ProjectGUID="{D2824E6F-9A04-4483-B824-77B3EF38903A}"
 	RootNamespace="util_vc8"
@@ -414,10 +414,6 @@
 			</File>
 			<File
 				RelativePath=".\object_factory.tmpl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\partial_bind.tmpl.h"
 				>
 			</File>
 			<File

@@ -498,8 +498,6 @@ inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics,
 }
 
 
-
-
 /** @internal
  *  helper for pyNumericCast
  */
@@ -508,28 +506,27 @@ struct PyNumericCaster
 {
 	template <typename In, typename Out> static int cast( In iIn, Out& oOut )
 	{
-		//LASS_COUT << ">>>> PyNumericCaster<" << typeid(In).name() << ", " << typeid(Out).name() << ">\n";
-
 		LASS_ASSERT(num::NumTraits<Out>::isSigned == true);
-		LASS_ASSERT(num::NumTraits<In>::min <= num::NumTraits<Out>::min);
-		if (iIn < static_cast<In>(num::NumTraits<Out>::min))
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
+		volatile Out min = num::NumTraits<Out>::min;
+		volatile Out max = num::NumTraits<Out>::max;
+#else
+		const Out min = num::NumTraits<Out>::min;
+		const Out max = num::NumTraits<Out>::max;
+#endif
+		if (iIn < min)
 		{
 			std::ostringstream buffer;
 			buffer << "not a " << num::NumTraits<Out>::name() << ": underflow: "
-				<< iIn << " < " << num::NumTraits<Out>::min;
+				<< iIn << " < " << min;
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
-		LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
-		const In maxIn = static_cast<In>(num::NumTraits<Out>::max);
-		const bool isOverflow = (iIn > maxIn);
-		//LASS_COUT << iIn << " > " << maxIn << "? "
-		//	<< (isOverflow) << " " << (iIn > maxIn) << "\n";
-		if (isOverflow)
+		if (iIn > max)
 		{
 			std::ostringstream buffer;
 			buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
-				<< iIn << " > " << num::NumTraits<Out>::max;
+				<< iIn << " > " << max;
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
@@ -547,12 +544,16 @@ struct PyNumericCaster<false> // In is unsigned
 	template <typename In, typename Out> static int cast( In iIn, Out& oOut )
 	{
 		LASS_ASSERT(num::NumTraits<Out>::isSigned == false);
-		LASS_ASSERT(num::NumTraits<In>::max >= num::NumTraits<Out>::max);
-		if (iIn > static_cast<In>(num::NumTraits<Out>::max))
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
+		volatile Out max = num::NumTraits<Out>::max;
+#else
+		const Out max = num::NumTraits<Out>::max;
+#endif
+		if (iIn > max)
 		{
 			std::ostringstream buffer;
 			buffer << "not a " << num::NumTraits<Out>::name() << ": overflow: "
-				<< iIn << " > " << num::NumTraits<Out>::max;
+				<< iIn << " > " << max;
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
