@@ -64,6 +64,8 @@ namespace util
 namespace impl
 {
 
+/** @internal 
+ */
 template <int byteSize> struct AtomicOperations;
 
 template <>

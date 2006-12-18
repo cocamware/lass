@@ -468,6 +468,64 @@ int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV)
 
 // --- transformations -----------------------------------------------------------------------------
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_2D_H
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_TRANSFORMATION_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_TRANSFORMATION_2D
+
+template <typename T>
+PyObject* pyBuildSimpleObject(const prim::Transformation2D<T>& iV)
+{
+	const T* const v = iV.matrix();
+	PyObject* const matrix = PyTuple_New(3);
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		PyObject* const row = PyTuple_New(3);
+		for (unsigned j = 0; j < 3; ++j)
+		{
+			PyTuple_SetItem(row, j, pyBuildSimpleObject(v[i * 3 + j]));
+		}
+		PyTuple_SetItem(matrix, i, row);
+	}
+	return matrix;
+}
+
+
+
+template <typename T>
+int pyGetSimpleObject(PyObject* iValue, prim::Transformation2D<T>& oV)
+{
+	if (!impl::checkSequenceSize(iValue, 3))
+	{
+		impl::addMessageHeader("Transformation2D");
+		return 1;
+	}
+	T values[9];
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		PyObject* row = PySequence_Fast_GET_ITEM(iValue, i);
+		if (!impl::checkSequenceSize(row, 3))
+		{
+			impl::addMessageHeader("Transformation2D: row " + util::stringCast<std::string>(i));
+			return 1;
+		}
+		for (unsigned j = 0; j < 3; ++j)
+		{
+			if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(row, j), values[3 * i + j]) != 0)
+			{
+				impl::addMessageHeader("Transformation2D: row " + util::stringCast<std::string>(i) +
+					", column " + util::stringCast<std::string>(j));
+				return 1;
+			}
+		}
+	}
+
+	oV = prim::Transformation2D<T>(values, values + 9);
+	return 0;
+}
+
+#	endif
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_TRANSFORMATION_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_INL_TRANSFORMATION_3D

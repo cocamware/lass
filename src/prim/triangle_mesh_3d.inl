@@ -430,7 +430,7 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						{
 							LASS_ASSERT(triangle->others[kCw]);
 							*lastCrease++ = neighbour2;
-							--triangle->creaseLevel[kCw];
+							//--triangle->creaseLevel[kCw];
 						}
 						triangle = triangle->others[k];
 					}

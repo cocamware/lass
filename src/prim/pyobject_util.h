@@ -45,6 +45,7 @@ template <typename T, typename MMP> class Aabb2D;
 template <typename T, typename MMP> class Aabb3D;
 template <typename T, typename PP> class LineSegment2D;
 template <typename T, typename PP> class LineSegment3D;
+template <typename T> class Transformation2D;
 template <typename T> class Transformation3D;
 
 class XY;
@@ -69,6 +70,7 @@ template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aa
 template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb3D<T, MMP>& iV);
 template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment2D<T, PP>& iV);
 template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment3D<T, PP>& iV);
+template <typename T> PyObject* pyBuildSimpleObject(const prim::Transformation2D<T>& iV);
 template <typename T> PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV);
 
 LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XY& iV);
@@ -88,6 +90,7 @@ template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim
 template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV);
 template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV);
 template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV);
+template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Transformation2D<T>& oV);
 template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV);
 
 LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XY& oV);
@@ -100,8 +103,8 @@ LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& 
 
 }
 
-#include "pyobject_util.inl"
-
 #endif
+
+#include "pyobject_util.inl" // allow repetitive includes ...
 
 // EOF

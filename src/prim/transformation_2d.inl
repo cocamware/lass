@@ -280,11 +280,11 @@ Vector2D<T> transform(const Vector2D<T>& iSubject, const Transformation2D<T>& iT
  *  @relates Transformation2D
  */
 template <typename T>
-Point3D<T> transform(const Point3D<T>& iSubject, const Transformation2D<T>& iTransformation)
+Point2D<T> transform(const Point2D<T>& iSubject, const Transformation2D<T>& iTransformation)
 {
 	const T* const mat = iTransformation.matrix();
 	const T weight = num::inv(mat[6] * iSubject.x + mat[7] * iSubject.y + mat[8]);
-	return Point3D<T>(
+	return Point2D<T>(
 		weight * (mat[0] * iSubject.x + mat[1] * iSubject.y + mat[2]),
 		weight * (mat[3] * iSubject.x + mat[4] * iSubject.y + mat[5]));
 

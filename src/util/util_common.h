@@ -29,6 +29,9 @@
  *  The util namespace contains general utilities, debug facilities, etc. used by our lass
  *  software.  The following stuff is provided:
  *
+ *	- Allocator: library of custom allocator building blocks
+ *	- Atomic: atomic operations on integers
+ *	- Bind: bind function and arguments to nullary callback
  *  - @ref BitManip: a set of bit  manipulation routines
  *  - @ref Callback: library to wrap callback functions in first class objects.
  *  - CallTraits: defines @e best types for arguments, references, etc.
@@ -38,8 +41,8 @@
  *  - Dictionary: a bidirectional dictonary wrapper around a std::map.
  *  - empty.h: an empty header for those moments you want to include absolutely @e nothing.
  *  - @ref Enforcers: release-time counterpart of assertions to ease condition verifying
+ *	- Environment: accessing environment variables
  *  - Exception: the exception class used by LASS
- *  - FixedArray: A STL compliant (english?) hybride between a C-array and a std::vector.
  *  - IdGenerator: Generates unique ID's of the type you want (well, not @e all types).
  *  - NonCopyable: boost::non_copyable
  *  - ObjectFactory: implements Alexandrescu's object factory.
@@ -50,15 +53,16 @@
  *  - SmallObject: base class for small objects that need a specialized allocator.
  *  - @ref SmartPtr: library of configurable smart pointers like ScopedPtr and SharedPtr
  *  - @ref stringCast: casts a value to a type by using string streams, to cast to/from strings.
- *  - @ref Threading: basic threading library
- *  - @ref ThreadFun: Uses the Callback library to run existing functions in threads
+ *  - @ref Threading: basic multithreading library
+ *  - @ref ThreadFun: Uses the Bind library to run existing functions in threads
+ *	- ThreadPool: producer/consumer pattern with multithreading ...
  *  - @ref VisitorPattern: implements Alexandrescu's visitor pattern.
  */
 
 
 
 /** @namespace lass::util::impl
- *  @brief implementation details of lass::util, not for clients.
+ *  @internal
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_UTIL_COMMON_H

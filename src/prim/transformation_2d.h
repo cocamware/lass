@@ -115,7 +115,7 @@ private:
 template <typename T> Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformation2D<T>& iB);
 
 template <typename T> Vector2D<T> transform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation);
-template <typename T> Point3D<T> transform(const Point3D<T>& iSubject, const Transformation2D<T>& iTransformation);
+template <typename T> Point2D<T> transform(const Point2D<T>& iSubject, const Transformation2D<T>& iTransformation);
 template <typename T> Vector2D<T> normalTransform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation);
 template <typename T> std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& iSubject, const Transformation2D<T>& iTransformation);
 
@@ -134,13 +134,12 @@ template <typename T> util::Semaphore Transformation2D<T>::sync_;
 
 #include "transformation_2d.inl"
 
-#define LASS_PRIM_PYOBJECT_UTIL_TRANSFORMATION_2D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
 #	include "pyobject_util.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_H
-#	include "aabb_3d_transformation_3d.h"
+#	include "aabb_2d_transformation_2d.h"
 #endif
 
 #endif
