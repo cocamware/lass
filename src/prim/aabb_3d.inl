@@ -260,7 +260,7 @@ const typename Aabb3D<T, MMP>::TValue
 Aabb3D<T, MMP>::area() const
 {
 	const TVector result = size();
-	return 2 * (result.x * result.y + result.y * result.z + result.z * result.y);
+	return 2 * (result.x * result.y + result.y * result.z + result.z * result.x);
 }
 
 
