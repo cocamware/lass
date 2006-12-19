@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\ChangeLog = ..\ChangeLog
 		..\COPYING = ..\COPYING
 		..\INSTALL = ..\INSTALL
+		lass_common.h = lass_common.h
 		..\NEWS = ..\NEWS
 		..\README = ..\README
 	EndProjectSection

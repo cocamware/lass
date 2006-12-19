@@ -183,10 +183,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\linear_map.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\slist.inl"
 				>
 			</File>
@@ -204,6 +200,10 @@
 			</File>
 			<File
 				RelativePath=".\triple.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\vector_map.inl"
 				>
 			</File>
 		</Filter>
@@ -249,10 +249,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\linear_map.h"
-				>
-			</File>
-			<File
 				RelativePath=".\range_algorithm.h"
 				>
 			</File>
@@ -282,6 +278,10 @@
 			</File>
 			<File
 				RelativePath=".\triple.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vector_map.h"
 				>
 			</File>
 		</Filter>

@@ -118,13 +118,6 @@ std::basic_ostream<Char, Traits>&
 operator<<(std::basic_ostream<Char, Traits>& ioOStream,
 		   const std::multiset<Key, Comp, Alloc>& iContainer);
 
-#ifdef _STLP_SLIST
-template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::slist<T, Alloc>& iContainer);
-#endif
-
 
 
 // input

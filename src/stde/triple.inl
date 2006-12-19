@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_TRIPLE_INL
-
-#include "stde_common.h"
-#include "triple.h"
-
 namespace lass
 {
 namespace stde
@@ -192,7 +184,5 @@ triple<T1, T2, T3> make_triple(const T1& a, const T2& b, const T3& c)
 }
 
 }
-
-#endif
 
 // EOF

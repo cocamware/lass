@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_INTEGRAL_RANGE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_INTEGRAL_RANGE_INL
-
-#include "stde_common.h"
-#include "integral_range.h"
-
 namespace lass
 {
 namespace stde
@@ -484,7 +476,5 @@ bool operator>=(const integral_range_t<I>& a, const integral_range_t<I>& b)
 }
 
 }
-
-#endif
 
 // EOF

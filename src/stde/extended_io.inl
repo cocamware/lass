@@ -23,13 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_IO_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_IO_INL
-
-#include "stde_common.h"
-#include "extended_io.h"
 #include "../util/string_cast.h"
 
 #include <cctype>
@@ -375,21 +368,6 @@ operator<<(std::basic_ostream<Char, Traits>& ostream,
 		ostream, container.begin(), container.end(), "{", ", ", "}");
 }
 
-#ifdef _STLP_SLIST
-
-/** @ingroup extended_io
- */
-template <typename T, typename Alloc, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ostream,
-		   const std::slist<T, Alloc>& container)
-{
-	return lass::stde::impl::print_sequence(
-		ostream, container.begin(), container.end(), "[", ", ", "]");
-}
-
-#endif
-
 
 
 // input
@@ -530,7 +508,5 @@ operator>>(std::basic_istream<Char, Traits>& istream,
 
 
 }
-
-#endif
 
 // EOF

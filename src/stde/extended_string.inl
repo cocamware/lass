@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_STRING_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_STRING_INL
-
-#include "stde_common.h"
-#include "extended_string.h"
-
 #include <locale>
 
 namespace lass
@@ -346,7 +338,5 @@ strip(const std::basic_string<Char, Traits, Alloc>& to_be_stripped)
 }
 
 }
-
-#endif
 
 // EOF

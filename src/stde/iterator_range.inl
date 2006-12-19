@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_ITERATOR_RANGE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_ITERATOR_RANGE_INL
-
-#include "stde_common.h"
-#include "iterator_range.h"
-
 namespace lass
 {
 namespace stde
@@ -207,7 +199,5 @@ const bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b)
 }
 
 }
-
-#endif
 
 // EOF

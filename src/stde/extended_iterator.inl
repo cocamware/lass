@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_INL
-
-#include "stde_common.h"
-#include "extended_iterator.h"
-
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4244)
@@ -84,8 +76,6 @@ Iterator prior(Iterator iterator, Distance distance)
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(pop)
-#endif
-
 #endif
 
 // EOF

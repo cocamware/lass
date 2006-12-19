@@ -23,14 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_LASS_ALLOCATOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_LASS_ALLOCATOR_INL
-
-#include "stde_common.h"
-#include "lass_allocator.h"
-
 namespace lass
 {
 namespace stde
@@ -162,7 +154,5 @@ bool operator!=(const lass_allocator<T1, VA>&, const lass_allocator<T2, VA>&)
 }
 
 }
-
-#endif
 
 // EOF
