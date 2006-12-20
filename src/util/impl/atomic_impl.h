@@ -95,6 +95,29 @@ struct AtomicOperations<1>
 #endif
 	}
 
+	template <typename T> inline 
+	static bool LASS_CALL compareAndSwap(
+			T& dest1, T expected1, T expected2, T new1, T new2)
+	{
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &dest1;
+		__asm 
+		{
+			mov al, expected1
+			mov dl, new1
+			mov ah, expected2
+			mov dh, new2
+			mov edi, addr
+			lock cmpxchg [edi], dx
+			mov eax, 0
+			setz al
+		}
+		/* return eax */
+#else
+#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
+#endif
+	}
+
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
@@ -141,6 +164,8 @@ struct AtomicOperations<1>
 
 
 
+// -------------------------------------------------------------------------------------------------
+
 template <>
 struct AtomicOperations<2>
 {
@@ -163,6 +188,31 @@ struct AtomicOperations<2>
 			: "=m"(dest), "=a"(expectedValue)
 			: "q"(newValue), "1"(expectedValue));
 		return expectedValue;
+#else
+#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
+#endif
+	}
+
+	template <typename T> inline 
+	static bool LASS_CALL compareAndSwap(
+			T& dest1, T expected1, T expected2, T new1, T new2)
+	{
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &dest1;
+		__asm 
+		{
+			mov ax, expected2
+			mov dx, new2
+			shl eax, 16
+			shl edx, 16
+			mov ax, expected1
+			mov dx, new1
+			mov edi, addr
+			lock cmpxchg [edi], edx
+			mov eax, 0
+			setz al
+		}
+		/* return eax */
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -213,6 +263,7 @@ struct AtomicOperations<2>
 
 
 
+// -------------------------------------------------------------------------------------------------
 
 template <>
 struct AtomicOperations<4>
@@ -236,6 +287,29 @@ struct AtomicOperations<4>
 			: "=m"(dest), "=a"(expectedValue)
 			: "q"(newValue), "1"(expectedValue));
 		return expectedValue;
+#else
+#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
+#endif
+	}
+
+	template <typename T> inline 
+	static bool LASS_CALL compareAndSwap(
+			T& dest1, T expected1, T expected2, T new1, T new2)
+	{
+#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+		T* const addr = &dest1;
+		__asm 
+		{
+			mov eax, expected1
+			mov edx, expected2
+			mov ebx, new1
+			mov ecx, new2
+			mov edi, addr
+			lock cmpxchg8b [edi]
+			mov eax, 0
+			setz al
+		}
+		/* return eax */
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -286,6 +360,8 @@ struct AtomicOperations<4>
 
 
 
+// -------------------------------------------------------------------------------------------------
+
 template <>
 struct AtomicOperations<8>
 {
@@ -305,7 +381,7 @@ struct AtomicOperations<8>
 			mov edi, addr
 			lock cmpxchg8b [edi]
 		}
-		/* return eax:edx */
+		/* return edx:eax */
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -341,6 +417,8 @@ struct AtomicOperations<8>
 #endif
 	}
 };
+
+
 
 }
 }

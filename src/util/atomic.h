@@ -46,6 +46,13 @@ bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
 		== expectedValue;
 }
 
+template <typename T> inline 
+bool atomicCompareAndSwap(T& dest1, T expected1, T expected2, T new1, T new2)
+{
+	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(
+		dest1, expected1, expected2, new1, new2);
+}
+
 template <typename T> inline
 void atomicIncrement(T& value)
 {

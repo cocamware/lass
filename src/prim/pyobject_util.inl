@@ -195,19 +195,19 @@ int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV)
 {
 	if (!impl::checkSequenceSize(iValue, 2))
 	{
-		impl::addMessageHeader("Point3D");
+		impl::addMessageHeader("Point2D");
 		return 1;
 	}
 	prim::Point2D<T> result;
 
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
-		impl::addMessageHeader("Point3D: x");
+		impl::addMessageHeader("Point2D: x");
 		return 1;
 	}
 	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
-		impl::addMessageHeader("Point3D: y");
+		impl::addMessageHeader("Point2D: y");
 		return 1;
 	}
 

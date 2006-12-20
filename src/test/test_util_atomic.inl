@@ -42,19 +42,36 @@ namespace atomic
 template <typename T>
 void testUtilAtomicType()
 {
-	T a = 1;
-	
+	const T old1 = 1;
+	const T new1 = 2;
+
+	T a = old1;
 	util::atomicIncrement(a);
-	LASS_TEST_CHECK_EQUAL(a, T(2));
-	
+	LASS_TEST_CHECK_EQUAL(a, new1);	
 	util::atomicDecrement(a);
-	LASS_TEST_CHECK_EQUAL(a, T(1));
+	LASS_TEST_CHECK_EQUAL(a, old1);
 	
-	util::atomicCompareAndSwap(a, T(666), T(3));
-	LASS_TEST_CHECK_EQUAL(a, T(1));
-	
-	util::atomicCompareAndSwap(a, T(1), T(3));
-	LASS_TEST_CHECK_EQUAL(a, T(3));
+	const T wrong1 = 10;
+	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a, wrong1, new1));
+	LASS_TEST_CHECK_EQUAL(a, old1);
+	LASS_TEST_CHECK(util::atomicCompareAndSwap(a, old1, new1));
+	LASS_TEST_CHECK_EQUAL(a, new1);
+}
+
+template <typename T>
+void testUtilAtomicAdjacentCas()
+{
+	const T old1 = 1, old2 = 2;
+	const T new1 = 3, new2 = 4;
+	const T wrong1 = 10, wrong2 = 11;
+
+	T a[2] = { old1, old2 };
+	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
+	LASS_TEST_CHECK_EQUAL(a[0], old1);
+	LASS_TEST_CHECK_EQUAL(a[1], old2);
+	LASS_TEST_CHECK(util::atomicCompareAndSwap(a[0], old1, old2, new1, new2));
+	LASS_TEST_CHECK_EQUAL(a[0], new1);
+	LASS_TEST_CHECK_EQUAL(a[1], new2);
 }
 
 }
@@ -67,6 +84,25 @@ void testUtilAtomic()
 	testUtilAtomicType<num::Tuint16>();	
 	testUtilAtomicType<num::Tuint32>();	
 	testUtilAtomicType<num::Tuint64>();
+
+	testUtilAtomicType<num::Tint8>();	
+	testUtilAtomicType<num::Tint16>();	
+	testUtilAtomicType<num::Tint32>();	
+	testUtilAtomicType<num::Tint64>();
+
+	testUtilAtomicAdjacentCas<num::Tuint8>();
+	testUtilAtomicAdjacentCas<num::Tuint16>();
+	testUtilAtomicAdjacentCas<num::Tuint32>();
+#ifdef LASS_UTIL_ATOMIC_64
+	testUtilAtomicAdjacentCas<num::Tuint64>();
+#endif
+
+	testUtilAtomicAdjacentCas<num::Tint8>();
+	testUtilAtomicAdjacentCas<num::Tint16>();
+	testUtilAtomicAdjacentCas<num::Tint32>();
+#ifdef LASS_UTIL_ATOMIC_64
+	testUtilAtomicAdjacentCas<num::Tint64>();
+#endif
 }
 
 }

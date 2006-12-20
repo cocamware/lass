@@ -54,12 +54,12 @@ TUnitTests testUtil()
 {
 	TUnitTests result;
 
+	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
+
 	result.push_back(LASS_UNIT_TEST(testUtilBind));
 
 	result.push_back(LASS_UNIT_TEST(testUtilPython));
 	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
-
 	result.push_back(LASS_UNIT_TEST(testUtilCallback));
 
 	result.push_back(LASS_UNIT_TEST(testUtilClock));
