@@ -75,12 +75,11 @@ struct AtomicOperations<1>
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest;
 		__asm 
 		{
 			mov al, expectedValue
 			mov dl, newValue
-			mov edi, addr
+			mov edi, dest
 			lock cmpxchg [edi], dl
 		}
 		/* return eax */
@@ -100,14 +99,13 @@ struct AtomicOperations<1>
 			T& dest1, T expected1, T expected2, T new1, T new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest1;
 		__asm 
 		{
 			mov al, expected1
 			mov dl, new1
 			mov ah, expected2
 			mov dh, new2
-			mov edi, addr
+			mov edi, dest1
 			lock cmpxchg [edi], dx
 			mov eax, 0
 			setz al
@@ -122,10 +120,9 @@ struct AtomicOperations<1>
 	static void LASS_CALL increment(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock inc byte ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -143,10 +140,9 @@ struct AtomicOperations<1>
 	static void LASS_CALL decrement(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock dec byte ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -173,12 +169,11 @@ struct AtomicOperations<2>
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest;
 		__asm 
 		{
 			mov ax, expectedValue
 			mov dx, newValue
-			mov edi, addr
+			mov edi, dest
 			lock cmpxchg [edi], dx
 		}
 		/* return eax */
@@ -198,7 +193,6 @@ struct AtomicOperations<2>
 			T& dest1, T expected1, T expected2, T new1, T new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest1;
 		__asm 
 		{
 			mov ax, expected2
@@ -207,7 +201,7 @@ struct AtomicOperations<2>
 			shl edx, 16
 			mov ax, expected1
 			mov dx, new1
-			mov edi, addr
+			mov edi, dest1
 			lock cmpxchg [edi], edx
 			mov eax, 0
 			setz al
@@ -222,10 +216,9 @@ struct AtomicOperations<2>
 	static void LASS_CALL increment(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock inc word ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -243,10 +236,9 @@ struct AtomicOperations<2>
 	static void LASS_CALL decrement(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock dec word ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -272,12 +264,11 @@ struct AtomicOperations<4>
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest;
 		__asm 
 		{
 			mov eax, expectedValue
 			mov edx, newValue
-			mov edi, addr
+			mov edi, dest
 			lock cmpxchg [edi], edx
 		}
 		/* return eax */
@@ -297,14 +288,13 @@ struct AtomicOperations<4>
 			T& dest1, T expected1, T expected2, T new1, T new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest1;
 		__asm 
 		{
 			mov eax, expected1
 			mov edx, expected2
 			mov ebx, new1
 			mov ecx, new2
-			mov edi, addr
+			mov edi, dest1
 			lock cmpxchg8b [edi]
 			mov eax, 0
 			setz al
@@ -319,10 +309,9 @@ struct AtomicOperations<4>
 	static void LASS_CALL increment(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock inc dword ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -340,10 +329,9 @@ struct AtomicOperations<4>
 	static void LASS_CALL decrement(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock dec dword ptr [edi]
 		}
 #elif defined(LASS_UTIL_ATOMIC_GCC)
@@ -369,7 +357,6 @@ struct AtomicOperations<8>
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &dest;
 		__asm 
 		{
 			lea esi, expectedValue
@@ -378,7 +365,7 @@ struct AtomicOperations<8>
 			mov edx, 4[esi]
 			mov ebx, [edi]
 			mov ecx, 4[edi]
-			mov edi, addr
+			mov edi, dest
 			lock cmpxchg8b [edi]
 		}
 		/* return edx:eax */
@@ -391,10 +378,9 @@ struct AtomicOperations<8>
 	static void LASS_CALL increment(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock inc qword ptr [edi]
 		}
 #else
@@ -406,10 +392,9 @@ struct AtomicOperations<8>
 	static void LASS_CALL decrement(T& value)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
-		T* const addr = &value;
 		__asm 
 		{
-			mov edi, addr
+			mov edi, value
 			lock dec qword ptr [edi]
 		}
 #else
