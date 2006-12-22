@@ -114,7 +114,7 @@ void ThreadPool<T, C, IP, PP>::joinAll()
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 const unsigned ThreadPool<T, C, IP, PP>::numberOfThreads() const
 {
-	return numberOfThreads_;
+	return numThreads_;
 }
 
 
