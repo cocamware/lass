@@ -54,7 +54,7 @@ public:
 	typedef std::pair<const Key, T> value_type;
 	typedef Compare key_compare;
 
-	typedef Allocator allocator_type;
+	typedef typename Allocator::template rebind<value_type>::other allocator_type;
 	typedef typename Allocator::reference reference;
 	typedef typename Allocator::const_reference const_reference;
 	typedef typename Allocator::pointer pointer;
