@@ -94,9 +94,9 @@ struct AtomicOperations<1>
 #endif
 	}
 
-	template <typename T> inline 
+	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T& dest1, T expected1, T expected2, T new1, T new2)
+			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		__asm 
@@ -188,9 +188,9 @@ struct AtomicOperations<2>
 #endif
 	}
 
-	template <typename T> inline 
+	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T& dest1, T expected1, T expected2, T new1, T new2)
+			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		__asm 
@@ -283,9 +283,9 @@ struct AtomicOperations<4>
 #endif
 	}
 
-	template <typename T> inline 
+	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T& dest1, T expected1, T expected2, T new1, T new2)
+			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
 		__asm 

@@ -754,10 +754,10 @@ private:
 
 
 
-/** A lock-free fixed-size free-list allocator
+/** A fixed-size free-list allocator
  *	@ingroup Allocator
  *	@arg concept: FixedAllocator
- *	@arg thread safe
+ *	@arg thread UNSAFE
  *	@arg copy-constructible, not assignable
  */
 template 
@@ -812,6 +812,85 @@ private:
 		AllocationNode* next;
 	};
 	AllocationNode* top_;
+};
+
+
+
+
+
+/** A fixed-size lock-free free-list allocator
+ *	@ingroup Allocator
+ *	@arg concept: FixedAllocator
+ *	@arg thread safe
+ *	@arg copy-constructible, not assignable
+ */
+template 
+<
+	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
+>
+class AllocatorConcurrentFreeList: public FixedAllocator
+{
+public:
+	AllocatorConcurrentFreeList(size_t iSize):
+		FixedAllocator(std::max<size_t>(sizeof(AllocationNode),iSize)),
+		top_(0)
+	{
+	}
+	~AllocatorConcurrentFreeList()
+	{
+		while (top_)
+		{
+			AllocationNode* node = top_;
+			top_ = node->next;
+			FixedAllocator::deallocate(node);
+		}
+	}
+	AllocatorConcurrentFreeList(const AllocatorConcurrentFreeList& iOther):
+		FixedAllocator(static_cast<const FixedAllocator&>(iOther)),
+		top_(0),
+		tag_(0)
+	{
+	}
+	void* allocate()
+	{
+		AllocationNode* topNode = 0;
+		TTag tag;
+		do
+		{
+			topNode = top_;
+			tag = tag_;
+			if (!topNode)
+			{
+				return FixedAllocator::allocate();
+			}
+		}
+		while (!atomicCompareAndSwap(top_, topNode, tag, topNode->next, tag + 1));
+		return topNode;
+	}
+	void deallocate(void* iPointer)
+	{
+		if (!iPointer)
+			return;
+		AllocationNode* temp = static_cast<AllocationNode*>(iPointer);
+		TTag tag;
+		do
+		{
+			temp->next = top_;
+			tag = tag_;
+		}
+		while (!atomicCompareAndSwap(top_, temp->next, tag, temp, tag + 1));
+	}
+private:
+	typedef num::TuintPtr TTag;
+	struct AllocationNode
+	{
+		AllocationNode* next;
+	};
+
+	AllocatorConcurrentFreeList& operator=(AllocatorConcurrentFreeList&);
+
+	AllocationNode* top_;
+	TTag tag_;
 };
 
 }

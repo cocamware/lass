@@ -23,55 +23,64 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_ATOMIC_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_ATOMIC_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_STACK_H
+#define LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_STACK_H
 
 #include "util_common.h"
-#include "impl/atomic_impl.h"
+#include "../util/allocator.h"
 
 namespace lass
 {
 namespace util
 {
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4035)
-#endif
+// NOT TESTED YET!!!!
 
-template <typename T> inline 
-bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
+template 
+<
+	typename T, 
+	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
+>
+class lock_free_stack: util::AllocatorConcurrentFreeList<FixedAllocator>
 {
-	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue) 
-		== expectedValue;
+public:
+
+	typedef T value_type;
+
+	lock_free_stack();
+	~lock_free_stack();
+
+	void push(const value_type& x);
+	bool pop(value_type& x);
+	bool pop_swap(value_type& x);
+
+private:
+
+	typedef num::TuintPtr tag_type;
+
+	struct node_t
+	{
+		node_t* next;
+		value_type value;
+	};
+	
+	lock_free_stack(const lock_free_stack&);
+	lock_free_stack& operator=(const lock_free_stack&);
+
+	node_t* const make_node(const value_type& x);
+	void free_node(node_t* node);
+	void push_node(node_t* node);
+	node_t* const pop_node();
+
+	node_t* top_;
+	tag_type tag_;
+};
+
 }
 
-template <typename T1, typename T2> inline 
-bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
-{
-	LASS_META_ASSERT(sizeof(T1) == sizeof(T2), T1_and_T2_must_be_of_same_size);
-	return impl::AtomicOperations< sizeof(T1) >::compareAndSwap(
-		dest1, expected1, expected2, new1, new2);
 }
 
-template <typename T> inline
-void atomicIncrement(T& value)
-{
-	impl::AtomicOperations< sizeof(T) >::increment(value);
-}
-
-template <typename T> inline
-void atomicDecrement(T& value)
-{
-	impl::AtomicOperations< sizeof(T) >::decrement(value);
-}
-
-}
-}
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
+#include "lock_free_stack.inl"
 
 #endif
 

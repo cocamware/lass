@@ -36,16 +36,17 @@ namespace util
 
 // --- public --------------------------------------------------------------------------------------
 
-template <typename T, typename C>
-ThreadPool<T, C>::ThreadPool(
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+ThreadPool<T, C, IP, PP>::ThreadPool(
 		unsigned iNumberOfThreads, 
 		unsigned iMaximumNumberOfTasksInQueue,
 		const TConsumer& iConsumerPrototype):
+	TParticipationPolicy(iConsumerPrototype),
 	threads_(0),
-	mSecsToSleep_(100),
 	numThreads_(iNumberOfThreads == autoNumberOfThreads ? numberOfProcessors() : iNumberOfThreads),
-	maxTasksInQueue_(std::max<unsigned>(iMaximumNumberOfTasksInQueue, 1)),
-	busyThreads_(0),
+	maxWaitingTasks_(iMaximumNumberOfTasksInQueue),
+	numWaitingTasks_(0),
+	numRunningTasks_(0),
 	shutDown_(false)
 {
 	LASS_ENFORCE(numThreads_ > 0);
@@ -54,8 +55,8 @@ ThreadPool<T, C>::ThreadPool(
 
 
 
-template <typename T, typename C>
-ThreadPool<T, C>::~ThreadPool()
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+ThreadPool<T, C, IP, PP>::~ThreadPool()
 {
 	try
 	{
@@ -66,75 +67,54 @@ ThreadPool<T, C>::~ThreadPool()
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ~ThreadPool(): "
 			"failure while waiting for tasks to complete." << std::endl;
 	}
-	stopThreads(numThreads_);
+	stopThreads(numDynamicThreads(numThreads_));
 }
 
 
 
-template <typename T, typename C>
-void ThreadPool<T, C>::add(typename util::CallTraits<TTask>::TParam iTask)
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::add(typename util::CallTraits<TTask>::TParam iTask)
 {
-	bool queueIsFull = true;
-	while (queueIsFull)
+	while (true)
 	{
-		LASS_LOCK(mutex_)
+		unsigned numWaitingTasks = numWaitingTasks_;
+		if (maxWaitingTasks_ == 0 || numWaitingTasks < maxWaitingTasks_)
 		{
-			const unsigned tasksInQueue = 
-				static_cast<unsigned>(waitingTasks_.size()) + busyThreads_;
-			if (tasksInQueue < maxTasksInQueue_)
+			if (util::atomicCompareAndSwap(numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
 			{
-				queueIsFull = false;
 				waitingTasks_.push(iTask);
+				signalConsumer();
+				return;
+			}
+			else
+			{
+				sleepProducer();
 			}
 		}
-		if (queueIsFull)
-		{
-			conditionProduction_.wait(mSecsToSleep_);
-		}
-		else
-		{
-			conditionConsumer_.signal();
-		}
 	}
 }
 
 
 
-template <typename T, typename C>
-void ThreadPool<T, C>::joinAll()
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::joinAll()
 {
-	while (!isEmpty())
+	while (numWaitingTasks_ > 0 || numRunningTasks_ > 0)
 	{
-		conditionProduction_.wait(mSecsToSleep_);
-	}
-}
-
-
-
-template <typename T, typename C>
-void ThreadPool<T, C>::clearQueue()
-{
-	LASS_LOCK(mutex_)
-	{
-		while (!waitingTasks_.empty())
+		if (participate(waitingTasks_))
 		{
-			waitingTasks_.pop();
+			atomicDecrement(numWaitingTasks_);
 		}
+		sleepProducer();
 	}
-	joinAll();
 }
 
 
 
-template <typename T, typename C>
-const bool ThreadPool<T, C>::isEmpty() const
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+const unsigned ThreadPool<T, C, IP, PP>::numberOfThreads() const
 {
-	bool result = false;
-	LASS_LOCK(mutex_)
-	{
-		result = waitingTasks_.empty() && busyThreads_ == 0;
-	}
-	return result;
+	return numberOfThreads_;
 }
 
 
@@ -146,11 +126,18 @@ const bool ThreadPool<T, C>::isEmpty() const
  *  copy-constructable or default constructable.  So we need to do our own housekeeping.
  *  Don't worry folks, I know what I'm doing ;) [Bramz]
  */
-template <typename T, typename C>
-void ThreadPool<T, C>::startThreads(const TConsumer& iConsumerPrototype)
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
 {
 	LASS_ASSERT(numThreads_ > 0);
-	threads_ = static_cast<ConsumerThread*>(malloc(numThreads_ * sizeof(ConsumerThread)));
+	const unsigned dynThreads = numDynamicThreads(numThreads_);
+	if (dynThreads == 0)
+	{
+		threads_ = 0;
+		return;
+	}
+
+	threads_ = static_cast<ConsumerThread*>(malloc(dynThreads * sizeof(ConsumerThread)));
 	if (!threads_)
 	{
 		throw std::bad_alloc();
@@ -159,7 +146,7 @@ void ThreadPool<T, C>::startThreads(const TConsumer& iConsumerPrototype)
 	unsigned i;
 	try
 	{
-		for (i = 0; i < numThreads_; ++i)
+		for (i = 0; i < dynThreads; ++i)
 		{
 			new (&threads_[i]) ConsumerThread(iConsumerPrototype, *this);
 			try
@@ -185,16 +172,13 @@ void ThreadPool<T, C>::startThreads(const TConsumer& iConsumerPrototype)
 /** Deallocate the threads and free memory.
  *  @throw no exceptions should be throw, nor bubble up from this function ... ever!
  */
-template <typename T, typename C>
-void ThreadPool<T, C>::stopThreads(unsigned iNumAllocatedThreads)
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
 {
 	try
 	{
-		LASS_LOCK(mutex_) 
-		{
-			shutDown_ = true;
-		}
-		conditionConsumer_.broadcast();
+		shutDown_ = true;
+		broadcastConsumers();
 	}
 	catch (...)
 	{
@@ -225,8 +209,8 @@ void ThreadPool<T, C>::stopThreads(unsigned iNumAllocatedThreads)
 
 // --- ConsumerThread ------------------------------------------------------------------------------
 
-template <typename T, typename C>
-ThreadPool<T, C>::ConsumerThread::ConsumerThread(const TConsumer& iConsumer, TSelf& iPool):
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(const TConsumer& iConsumer, TSelf& iPool):
 	Thread(threadJoinable), 
 	consumer_(iConsumer),
 	pool_(iPool) 
@@ -236,39 +220,28 @@ ThreadPool<T, C>::ConsumerThread::ConsumerThread(const TConsumer& iConsumer, TSe
 
 
 
-template <typename T, typename C>
-void ThreadPool<T, C>::ConsumerThread::doRun()
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 {
 	TTask task;
 	bool hasTask = false;
 	while (true)
 	{
-		LASS_LOCK(pool_.mutex_)
+		if (pool_.waitingTasks_.pop(task))
 		{
-			hasTask = !pool_.waitingTasks_.empty();
-			if (hasTask)
-			{
-				task = pool_.waitingTasks_.front();
-				pool_.waitingTasks_.pop();
-				++pool_.busyThreads_;
-			}
-			else if (pool_.shutDown_)
-			{
-				return;
-			}
-		}
-		if (hasTask)
-		{
-			pool_.conditionProduction_.signal();
+			util::atomicIncrement(pool_.numRunningTasks_);
+			util::atomicDecrement(pool_.numWaitingTasks_);
+			pool_.signalProducer();
 			consumer_(task);
-			LASS_LOCK(pool_.mutex_)
-			{
-				--pool_.busyThreads_;
-			}
+			util::atomicDecrement(pool_.numRunningTasks_);
+		}
+		else if (pool_.shutDown_)
+		{
+			return;
 		}
 		else
 		{
-			pool_.conditionConsumer_.wait(pool_.mSecsToSleep_);
+			pool_.sleepConsumer();
 		}
 	}
 }

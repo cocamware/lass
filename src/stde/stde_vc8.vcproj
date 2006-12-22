@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lock_free_queue.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\lock_free_stack.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\slist.inl"
 				>
 			</File>
@@ -246,6 +254,14 @@
 			</File>
 			<File
 				RelativePath=".\lass_allocator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lock_free_queue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lock_free_stack.h"
 				>
 			</File>
 			<File

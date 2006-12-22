@@ -24,6 +24,7 @@
  */
 
 /** @class ThreadPool
+ *  @ingroup Threading
  *  @brief Production-Consumer concurrency pattern
  *  @author Bramz
  *
@@ -84,6 +85,7 @@
 #include "util_common.h"
 #include "thread.h"
 #include "callback_0.h"
+#include "../stde/lock_free_queue.h"
 
 namespace lass
 {
@@ -91,6 +93,7 @@ namespace util
 {
 
 /** Default consumer calls operator() of task.
+ *  @ingroup Threading
  *  @sa ThreadPool
  */
 template <typename TaskType>
@@ -100,20 +103,84 @@ public:
 	void operator()(typename util::CallTraits<TaskType>::TParam iTask);
 };
 
+class Spinning
+{
+protected:
+	Spinning() {}
+	~Spinning() {}
+	void sleepProducer() {}
+	void sleepConsumer() {}
+	void signalProducer() {}
+	void signalConsumer() {}
+	void broadcastConsumers() {}
+};
+
+class Signaled
+{
+protected:
+	Signaled() {}
+	~Signaled() {}
+	void sleepProducer() { producer_.wait(mSecsToSleep_); }
+	void sleepConsumer() { consumer_.wait(mSecsToSleep_); }
+	void signalProducer() { producer_.signal(); }
+	void signalConsumer() { consumer_.signal(); }
+	void broadcastConsumers() { consumer_.broadcast(); }
+private:
+	enum { mSecsToSleep_ = 50 };
+	Condition producer_;
+	Condition consumer_;
+};
+
+template <typename TaskType, typename ConsumerType, typename IdlePolicy>
+class SelfParticipating: public IdlePolicy
+{
+protected:
+	SelfParticipating(const ConsumerType& prototype): IdlePolicy(), consumer_(prototype) {}
+	~SelfParticipating() {}
+	const unsigned numDynamicThreads(unsigned numThreads) const { return numThreads - 1; }
+	template <typename Queue> bool participate(Queue& queue)
+	{
+		TaskType task;
+		if (queue.pop(task))
+		{
+			consumer_(task);
+			return true;
+		}
+		return false;
+	}		
+private:
+	ConsumerType consumer_;
+};
+
+template <typename TaskType, typename ConsumerType, typename IdlePolicy>
+class NotParticipating: public IdlePolicy
+{
+protected:
+	NotParticipating(const ConsumerType& prototype): IdlePolicy() {}
+	~NotParticipating() {}
+	const unsigned numDynamicThreads(unsigned numThreads) const { return numThreads; }
+	template <typename Queue> bool participate(Queue&) { return false; }
+};
+
+
 
 
 template 
 <
 	typename TaskType = Callback0, 
-	typename ConsumerType = DefaultConsumer<TaskType>
+	typename ConsumerType = DefaultConsumer<TaskType>,
+	typename IdlePolicy = Signaled,
+	template <typename, typename, typename> class ParticipationPolicy = NotParticipating
 >
-class ThreadPool
+class ThreadPool: public ParticipationPolicy<TaskType, ConsumerType, IdlePolicy>
 {
 public:
 	
 	typedef TaskType TTask;
 	typedef ConsumerType TConsumer;
-	typedef ThreadPool<TaskType, ConsumerType> TSelf;
+	typedef IdlePolicy TIdlePolicy;
+	typedef ParticipationPolicy<TaskType, ConsumerType, IdlePolicy> TParticipationPolicy;
+	typedef ThreadPool<TaskType, ConsumerType, IdlePolicy, ParticipationPolicy> TSelf;
 
 	enum { autoNumberOfThreads = 0 };
 
@@ -124,12 +191,11 @@ public:
 
 	void add(typename util::CallTraits<TTask>::TParam iTask);
 	void joinAll();
-	void clearQueue();
-	const bool isEmpty() const;
+	const unsigned numberOfThreads() const;
 
 private:
 
-	typedef std::queue<TTask> TTaskQueue;
+	typedef stde::lock_free_queue<TTask> TTaskQueue;
 
 	friend class ConsumerThread;
 
@@ -147,14 +213,12 @@ private:
 	void stopThreads(unsigned iNumAllocatedThreads);
 
 	TTaskQueue waitingTasks_;
-	mutable CriticalSection mutex_;
-	Condition conditionProduction_;
-	Condition conditionConsumer_;
 	ConsumerThread* threads_;
 	unsigned long mSecsToSleep_;
 	unsigned numThreads_;
-	unsigned maxTasksInQueue_;
-	unsigned busyThreads_;
+	unsigned maxWaitingTasks_;
+	unsigned numWaitingTasks_;
+	unsigned numRunningTasks_;
 	bool shutDown_;
 };
 
