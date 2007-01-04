@@ -217,8 +217,8 @@ private:
 	unsigned long mSecsToSleep_;
 	unsigned numThreads_;
 	unsigned maxWaitingTasks_;
-	unsigned numWaitingTasks_;
-	unsigned numRunningTasks_;
+	volatile unsigned numWaitingTasks_;
+	volatile unsigned numRunningTasks_;
 	bool shutDown_;
 };
 

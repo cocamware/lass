@@ -41,6 +41,13 @@ bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
 		== expectedValue;
 }
 
+template <typename T> inline 
+bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
+{
+	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(const_cast<T&>(dest), expectedValue, newValue)
+		== expectedValue;
+}
+
 template <typename T1, typename T2> inline 
 bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 {
