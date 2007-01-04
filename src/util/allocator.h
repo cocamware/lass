@@ -856,7 +856,7 @@ private:
 #else
 	typedef num::TuintPtr TTag;
 	TaggedPtr(): ptr_(0), tag_(0) {}
-	TaggedPtr(void* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
+	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
 	T* const get() const { return ptr_; }
 	const TTag tag() const { return tag_; }
 	bool operator==(const TaggedPtr& other) const {	return ptr_ == other.ptr_ && tag_ == other.tag_; }
@@ -881,7 +881,7 @@ public:
 /** A fixed-size lock-free free-list allocator
  *	@ingroup Allocator
  *	@arg concept: FixedAllocator
- *	@arg thread safe
+ *	@arg thread safe, lock-free
  *	@arg copy-constructible, not assignable
  */
 template 
@@ -903,7 +903,7 @@ public:
 		{
 			AllocationNode* node = top;
 			top = node->next;
-			FixedAllocator::deallocate(top);
+			FixedAllocator::deallocate(node);
 		}
 	}
 	AllocatorConcurrentFreeList(const AllocatorConcurrentFreeList& iOther):

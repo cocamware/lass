@@ -93,16 +93,10 @@ void testUtilAtomic()
 	testUtilAtomicAdjacentCas<num::Tuint8>();
 	testUtilAtomicAdjacentCas<num::Tuint16>();
 	testUtilAtomicAdjacentCas<num::Tuint32>();
-#ifdef LASS_UTIL_ATOMIC_64
-	testUtilAtomicAdjacentCas<num::Tuint64>();
-#endif
 
 	testUtilAtomicAdjacentCas<num::Tint8>();
 	testUtilAtomicAdjacentCas<num::Tint16>();
 	testUtilAtomicAdjacentCas<num::Tint32>();
-#ifdef LASS_UTIL_ATOMIC_64
-	testUtilAtomicAdjacentCas<num::Tint64>();
-#endif
 }
 
 }
