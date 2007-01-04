@@ -32,9 +32,8 @@ namespace util
 
 template <typename T, typename A>
 lock_free_stack<T, A>::lock_free_stack():
-	util::AllocatorLockFreeFreeList<FixedAllocator>(sizeof node_t),
-	top_(0), 
-	tag_(0) 
+	util::AllocatorConcurrentFreeList<A>(sizeof(node_t)),
+	top_() 
 {
 }
 
@@ -43,19 +42,20 @@ lock_free_stack<T, A>::lock_free_stack():
 template <typename T, typename A>
 lock_free_stack<T, A>::~lock_free_stack()
 {
-	while (top_)
+	node_t top = top_.get();
+	while (top)
 	{
-		node_t* const next = top_->next;
-		free_node(top_);
-		top_ = next;
+		node_t* const next = top->next;
+		free_node(top);
+		top = next;
 	}
 }
 
 
 
-/**	push value on stack.
- *	@arg exception safe: if no node of could be allocatoed, or if copy constructor of x throws, 
- *		it fails gracefully.
+/** push value on stack.
+ *  @arg exception safe: if no node of could be allocatoed, or if copy constructor of x throws, 
+ *  	it fails gracefully.
  */
 template <typename T, typename A>
 void lock_free_stack<T, A>::push(const value_type& x)
@@ -151,11 +151,11 @@ void lock_free_stack<T, A>::push_node(node_t* node)
 {
 	do
 	{
-		tag_type tag = tag_;
-		node_base_t* top = top_;
-		node->next = top;
+		pointer_t top = top_;
+		node->next = top.get();
+		pointer_t new_top(node, top.tag() + 1);
 	}
-	while (!util::atomicCompareAndSwap(top_, top, tag, node, tag + 1));
+	while (!top_.atomicCompareAndSwap(top, new_top));
 }
 
 
@@ -164,28 +164,27 @@ template <typename T, typename A>
 typename lock_free_stack<T, A>::node_t* const 
 lock_free_stack<T, A>::pop_node()
 {
-	node_t* top = 0;
+	pointer_t top;
 	do
 	{
-		tag_type tag = tag_;
-		top = top_;
+		pointer_t top = top_;
 		if (!top)
 		{
 			return 0;
 		}
 
 		// This is the tricky part ... does top still exist? In theory, it can be freed by now.
-		// But here's the cunning part: the use AllocatorLockFreeFreeList ensures that at least
+		// But here's the cunning part: the use of AllocatorLockFreeFreeList ensures that at least
 		// the memory is not reclaimed (it merely is in purgatory instead).  
 		// So, it's somehow safe to access its next member (it may give a totally wacked up 
 		// result, but that doesn't really matter). 
 		// It comes at a sacrifice though: memory will only be reclaimed at the end of the 
 		// stack's lifecycle.
 		//
-		node_t* next = top->next;
+		pointer_t next(top->next, top.tag() + 1);
 	}
-	while (!util::atomicCompareAndSwap(top_, top, tag, next, tag + 1));
-	return top;
+	while (!top_.atomicCompareAndSwap(top, next));
+	return top.get();
 }
 
 }

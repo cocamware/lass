@@ -48,26 +48,37 @@ namespace stde
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc>
 tolower(const std::basic_string<Char, Traits, Alloc>& input,
-		const std::locale& locale = std::locale());
+	const std::locale& locale = std::locale());
 
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc>
 toupper(const std::basic_string<Char, Traits, Alloc>& input,
-		const std::locale& locale = std::locale());
+	const std::locale& locale = std::locale());
 
 template <typename Char, typename Traits, typename Alloc>
 std::basic_string<Char, Traits, Alloc>
 replace_all(const std::basic_string<Char, Traits, Alloc>& input,
-			const std::basic_string<Char, Traits, Alloc>& to_be_replaced,
-			const std::basic_string<Char, Traits, Alloc>& replacement);
+	const std::basic_string<Char, Traits, Alloc>& to_be_replaced,
+	const std::basic_string<Char, Traits, Alloc>& replacement);
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+replace_all(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* to_be_replaced,
+	const Char* replacement);
 
 template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
-				 const std::basic_string<Char, Traits, Alloc>& prefix);
+	const std::basic_string<Char, Traits, Alloc>& prefix);
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* prefix);
 
 template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
-			   const std::basic_string<Char, Traits, Alloc>& suffix);
+	const std::basic_string<Char, Traits, Alloc>& suffix);
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* suffix);
 
 template <typename Char, typename Traits, typename Alloc>
 std::vector< std::basic_string<Char, Traits, Alloc> >
@@ -77,6 +88,11 @@ template <typename Char, typename Traits, typename Alloc>
 std::vector< std::basic_string<Char, Traits, Alloc> >
 split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 	  const std::basic_string<Char, Traits, Alloc>& seperator,
+	  size_t max_split = 0);
+template <typename Char, typename Traits, typename Alloc>
+std::vector< std::basic_string<Char, Traits, Alloc> >
+split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
+	  const Char* seperator,
 	  size_t max_split = 0);
 
 template <typename Char, typename Traits, typename Alloc, typename InputIterator>

@@ -23,12 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_POOL_INL
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_POOL_INL
-
-#include "util_common.h"
-#include "thread_pool.h"
-
 namespace lass
 {
 namespace util
@@ -80,7 +74,8 @@ void ThreadPool<T, C, IP, PP>::add(typename util::CallTraits<TTask>::TParam iTas
 		unsigned numWaitingTasks = numWaitingTasks_;
 		if (maxWaitingTasks_ == 0 || numWaitingTasks < maxWaitingTasks_)
 		{
-			if (util::atomicCompareAndSwap(numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
+			if (util::atomicCompareAndSwap(
+				numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
 			{
 				waitingTasks_.push(iTask);
 				signalConsumer();
@@ -224,7 +219,6 @@ template <typename T, typename C, typename IP, template <typename, typename, typ
 void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 {
 	TTask task;
-	bool hasTask = false;
 	while (true)
 	{
 		if (pool_.waitingTasks_.pop(task))
@@ -259,7 +253,5 @@ void DefaultConsumer<T>::operator()(typename util::CallTraits<T>::TParam iTask)
 }
 
 }
-
-#endif
 
 // EOF

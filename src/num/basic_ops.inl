@@ -345,7 +345,7 @@ long double sqrt(long double iV)					{ LASS_ASSERT(iV >= 0.); return ::sqrtl(iV)
 long double pow(long double iV, long double iPow)	{ return ::powl(iV, iPow); }	/**< @ingroup BasicOps */
 long double exp(long double iV)						{ return ::expl(iV); }			/**< @ingroup BasicOps */
 long double log(long double iV)						{ return ::logl(iV); }			/**< @ingroup BasicOps */
-long double log2(long double iV)					{ return long double(LASS_NUM_INVLOG2) * ::logl(iV); } /**< @ingroup BasicOps */
+long double log2(long double iV)					{ return (long double)(LASS_NUM_INVLOG2) * ::logl(iV); } /**< @ingroup BasicOps */
 long double log10(long double iV)					{ return ::log10l(iV); }		/**< @ingroup BasicOps */
 long double cos(long double iV)						{ return ::cosl(iV); }			/**< @ingroup BasicOps */
 long double sin(long double iV)						{ return ::sinl(iV); }			/**< @ingroup BasicOps */

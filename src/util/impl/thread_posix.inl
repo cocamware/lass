@@ -38,10 +38,10 @@ namespace lass
 namespace util
 {
 
-unsigned numberOfProcessors()
+const unsigned numberOfProcessors()
 {
 	std::ifstream cpuinfo("/proc/cpuinfo");
-	if (!file.is_open())
+	if (!cpuinfo.is_open())
 	{
 		LASS_THROW("could not open /proc/cpuinfo");
 	}
@@ -55,7 +55,7 @@ unsigned numberOfProcessors()
 			++numProcessors;
 		}
 	}
-	LASS_ENFORE(numProcessors > 0)
+	LASS_ENFORCE(numProcessors > 0);
 	return numProcessors;
 }
 
@@ -389,7 +389,7 @@ public:
 	{
 		LASS_ENFORCE_CLIB_RC(pthread_key_create(&key_, destructor));
 	}
-	~ThreadLocalStorageInternal
+	~ThreadLocalStorageInternal()
 	{
 		int ret = pthread_key_delete(key_);
 		LASS_ASSERT(ret == 0);
@@ -405,7 +405,7 @@ public:
 	}
 	void set(const void* value)
 	{
-		LASS_ENFORCE_CLIB_RC(pthread_setspecific(key_, value);
+		LASS_ENFORCE_CLIB_RC(pthread_setspecific(key_, value));
 	}
 private:
 	pthread_key_t key_;

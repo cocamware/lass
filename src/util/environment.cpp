@@ -71,7 +71,7 @@ void lass_putenv(const std::string& iName, const std::string& iValue)
 #else
 	std::stringstream buffer;
 	buffer << iName << "=" << iValue;
-	LASS_ENFORCE_CLIB_RC(putenv(buffer.str().c_str()));
+	LASS_ENFORCE_CLIB_RC(putenv(const_cast<char*>(buffer.str().c_str())));
 #endif
 }
 

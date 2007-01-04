@@ -67,17 +67,32 @@ private:
 	}
 };
 
+#pragma LASS_TODO("Move this to somewhere else =) [Bramz]")
+typedef meta::type_list::Make
+<
+	signed char, signed short, signed int, signed long,
+	unsigned char, unsigned short, unsigned int, unsigned long,
+	bool, char, wchar_t, float, double, long double
+>
+::Type TTrivialTypes;
+	
+template <typename T>
+struct IsTrivialType: meta::Bool<meta::type_list::Find<TTrivialTypes, T>::value != -1>
+{
+};
+
 template <typename T>
 T* allocateArray(size_t n)
 {
-	return AllocatorHelper<T, meta::IsIntegralType<T>::value>::allocate(n);
+	return AllocatorHelper<T, IsTrivialType<T>::value>::allocate(n);
 }
 
 template <typename T>
 void deallocateArray(T* p, size_t n)
 {
-	AllocatorHelper<T, meta::IsIntegralType<T>::value>::deallocate(p, n);
+	AllocatorHelper<T, IsTrivialType<T>::value>::deallocate(p, n);
 }
+
 
 }
 }

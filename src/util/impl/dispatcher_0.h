@@ -47,6 +47,7 @@ class Dispatcher0: public TDispatcherAllocatorBase
 public:
 
 	Dispatcher0() {}
+	virtual ~Dispatcher0() {}
 	void call() const { doCall(); }
 	bool isEquivalent(const Dispatcher0* iOther) const { return doIsEquivalent(iOther); }
 

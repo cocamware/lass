@@ -207,7 +207,7 @@ template <typename O, typename OT, typename SH>
 const std::pair<int, typename AabpTree<O, OT, SH>::TAabb> 
 AabpTree<O, OT, SH>::balance(TInputIterator iFirst, TInputIterator iLast)
 {
-	const SplitInfo<OT> split = TSplitHeuristics::split<OT>(iFirst, iLast);	
+	const SplitInfo<OT> split = TSplitHeuristics::template split<OT>(iFirst, iLast);	
 	if (split.axis < 0)
 	{
 		return std::make_pair(addLeafNode(iFirst, iLast), split.aabb);
@@ -270,7 +270,7 @@ template <typename O, typename OT, typename SH>
 const bool AabpTree<O, OT, SH>::doContains(
 		int iIndex, const TPoint& iPoint, const TInfo* iInfo) const
 {
-	LASS_ASSERT(iIndex < nodes_.size());
+	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 	
 	if (node.isLeaf())
@@ -304,7 +304,7 @@ template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::doFind(
 		int iIndex, const TPoint& iPoint, OutputIterator iResult, const TInfo* iInfo) const
 {
-	LASS_ASSERT(iIndex < nodes_.size());
+	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 
 	if (node.isLeaf())
@@ -339,7 +339,7 @@ AabpTree<O, OT, SH>::doIntersect(
 		int iIndex, const TRay& iRay, TReference oT, TParam iTMin, const TInfo* iInfo,
 		const TVector& iReciprocalDirection, TParam iTNear, TParam iTFar) const
 {
-	LASS_ASSERT(iIndex < nodes_.size());
+	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	LASS_ASSERT(iTFar > iTNear);
 	const Node& node = nodes_[iIndex];
 
@@ -452,7 +452,7 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 		int iIndex, const TRay& iRay, TParam iTMin, TParam iTMax, const TInfo* iInfo,
 		const TVector& iReciprocalDirection, TParam iTNear, TParam iTFar) const
 {
-	LASS_ASSERT(iIndex < nodes_.size());
+	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	LASS_ASSERT(iTMax > iTMin);
 	const Node& node = nodes_[iIndex];
 

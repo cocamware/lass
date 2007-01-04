@@ -265,7 +265,7 @@ OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& i
 	*/
 
 	LASS_ENFORCE(iQuery.size()>1);
-	typedef std::pair<TPoint2D, TPlanarMesh::TEdge*> TPointEdgePair;
+	typedef std::pair<TPoint2D, typename TPlanarMesh::TEdge*> TPointEdgePair;
 	std::vector<TPointEdgePair> crossings;
 	//TPolyLine2D crossings;
 	for (size_t i=0;i<iQuery.size()-1;++i)
@@ -277,7 +277,7 @@ OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& i
 	crossings.push_back(TPointEdgePair(iQuery.back(),mesh_.locate(iQuery.back())));
 
 	TPoint2D lastInterpolate = crossings[0].first;
-	TPlanarMesh::TEdge* interpEdge = crossings[0].second;
+	typename TPlanarMesh::TEdge* interpEdge = crossings[0].second;
 	if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
 		interpEdge = interpEdge->sym();
 	(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[0].first,interpolate(crossings[0].first,interpEdge));

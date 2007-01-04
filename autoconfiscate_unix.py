@@ -20,7 +20,7 @@ test_dirs = ['test']
 
 debug_info_flags = '-g'
 code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
-warning_flags = '-Wall'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
+warning_flags = '-Wall -Wno-comments -Wno-unknown-pragmas'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
 libs = '-lpthread -lutil'
 
 import os
@@ -152,7 +152,7 @@ AC_LANG_CPLUSPLUS
 
 # Checks for libraries.
 AC_CHECK_LIB(rt, clock_gettime, [LASS_LDFLAGS_RT="-lrt"], [LASS_LDFLAGS_RT=""])
-# AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
+AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
 
 # Checks for header files.
 AC_HEADER_STDBOOL

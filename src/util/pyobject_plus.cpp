@@ -53,10 +53,7 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;	
-	this->dict_ = Py_None;
-	Py_XINCREF(this->dict_);
 	_Py_NewReference( this );
-	//PyObject_GC_Track( this );
 };
 
 PyObjectPlus::~PyObjectPlus()
@@ -64,9 +61,11 @@ PyObjectPlus::~PyObjectPlus()
 	if (this->ob_refcnt>0)
 	{
 		if (this->ob_refcnt>1)
-			std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" << std::endl;
+		{
+			std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" 
+				<< std::endl;
+		}
 		--this->ob_refcnt;
-		Py_XDECREF(this->dict_);
 		_Py_ForgetReference( this );
 
 	}
@@ -76,13 +75,6 @@ PyObjectPlus::~PyObjectPlus()
 void PyObjectPlus::__dealloc(PyObject *P)
 {
 	PyObjectPlus *pp = (PyObjectPlus *)P;
-	if (P->ob_refcnt==0)
-	{
-		// objects deriving from pyobjectplus may have dictionaries allocated not reachable anymore by the destructor phase
-		// of PyObjectPlus, discard them here.  The problem of GC still remains for the objects, read the comments in pyboject_call.tmpl.inl
-		// on a proposal for solution.
-		Py_XDECREF(pp->dict_);
-	}
 	delete pp;
 };
 
@@ -111,33 +103,12 @@ PyObjectPlus* PyObjectPlus::PyPlus_DECREF(void)
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 {
 	this->ob_type = iOther.ob_type;
-	if (iOther.dict_ == Py_None)
-	{
-		dict_ = Py_None;
-		Py_INCREF(dict_);
-	}
-	else
-	{
-		dict_ = LASS_ENFORCE_POINTER(PyDict_Copy(iOther.dict_));
-	}
 	_Py_NewReference( this );
 }
 
 PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
-	PyObject* temp = 0;
-	if (iOther.dict_ == Py_None)
-	{
-		temp = Py_None;
-		Py_INCREF(temp);
-	}
-	else
-	{
-		temp = LASS_ENFORCE_POINTER(PyDict_Copy(iOther.dict_));
-	}
-	std::swap(dict_, temp);
-	Py_DECREF(temp);
 	return *this;
 }
 
@@ -274,9 +245,10 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 
 /** @internal
  */
-StaticMember createStaticMember(const char* iName, const char* iDocumentation, PyObject* iObject,
-		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, std::vector<PyGetSetDef>* iGetSetters,
-		const std::vector<StaticMember>* iStatics)
+StaticMember createStaticMember(
+		const char* iName, const char* iDocumentation, PyObject* iObject, 
+		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, 
+		std::vector<PyGetSetDef>* iGetSetters, const std::vector<StaticMember>* iStatics)
 {
 	StaticMember temp;
 	temp.name = iName;
@@ -291,7 +263,7 @@ StaticMember createStaticMember(const char* iName, const char* iDocumentation, P
 		
 /** @internal
 */
-PyMethodDef createPyMethodDef( const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc )
+PyMethodDef createPyMethodDef(const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc)
 {
 	PyMethodDef temp;
 	temp.ml_name = const_cast<char*>(ml_name);
@@ -323,34 +295,19 @@ void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>&
 		if (PyType_Check(i->object))
 		{
 			// we have an innerclass
-#pragma LASS_TODO("Innerclass working is broken")
-			if (i->object->ob_type == &PyType_Type)
-			{
-				finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
-					*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc, false,true);
-			}
-			else
-			{
-				LASS_ASSERT(false);
-				finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
-					*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc, false);
-			}
+			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
+				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
 		}
 		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), i->object);
 	}
 }
-
-int defaultInquiryNoGc(PyObject* self)
-{
-	return 0;
-}	
 
 /** @internal
 *	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
 void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 	std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation, bool iFinal, bool iInnerClass)
+	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation)
 {
 	std::string fullName;
 	if (iModuleName)
@@ -367,29 +324,9 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 	iPyType.tp_base = &iPyParentType;
 	// we take care of collecting garbage ourselves
 	iPyType.tp_flags &= (~Py_TPFLAGS_HAVE_GC);
-	iPyType.tp_is_gc = &lass::python::impl::defaultInquiryNoGc;
-	if (!iFinal && !iInnerClass)
-	{
-#pragma LASS_TODO("Check this for completeness and read comment here...")
-		// For some reason, when enabling this code for PyMap, the interpreter crashes when it requests the keys.  It looks
-		// like it bypasses the keys() function and tries to go via the dict_, although that should work as well, ... well it
-		// doesn't.  [TDM] 
-		
-		//This is also handled by the fixObjectType which can more accurately determine the offset at runtime for non-trivial
-		//classes (such as derived objects).  For object deriving from simple embedded classes following works ok but there should
-		//a more definitive piece of code taking care of all cases.  The problem is that the vptr table may be allocated before the
-		//dict_ resulting in a shift in offset.
-		PyObjectPlus dummyObject;
-		iPyType.tp_dictoffset = (char*)(&dummyObject.dict_)-((char*)(&dummyObject));
-	}
-	else
-	{
-		iPyType.tp_flags &= (~Py_TPFLAGS_BASETYPE );
-	}
 	Py_XINCREF( iPyType.tp_base );
 	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
-	Py_INCREF( &iPyType );
- 
+	Py_INCREF( &iPyType ); 
 	injectStaticMembers(iPyType, iStatics);
 }
 
@@ -415,7 +352,7 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodN
 
 
 
-#define LASS_PY_CLASS_SPECIAL_METHOD(s_name, i_protocol, t_protocol, i_hook, i_nary)\
+#define LASS_PY_OPERATOR(s_name, i_protocol, t_protocol, i_hook, i_nary)\
 	if (strcmp(iMethodName, s_name) == 0)\
 	{\
 		if (ioPyType.i_protocol == 0)\
@@ -449,35 +386,35 @@ void addClassMethod(
 			ioPyType.tp_call = iTernaryDispatcher;
 			return;
 		}
-		LASS_PY_CLASS_SPECIAL_METHOD("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__sub__", tp_as_number, PyNumberMethods, nb_subtract, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__neg__", tp_as_number, PyNumberMethods, nb_negative, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__pos__", tp_as_number, PyNumberMethods, nb_positive, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__abs__", tp_as_number, PyNumberMethods, nb_absolute, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__invert__", tp_as_number, PyNumberMethods, nb_invert, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__int__", tp_as_number, PyNumberMethods, nb_int, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__long__", tp_as_number, PyNumberMethods, nb_long, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__float__", tp_as_number, PyNumberMethods, nb_float, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__oct__", tp_as_number, PyNumberMethods, nb_oct, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__hex__", tp_as_number, PyNumberMethods, nb_hex, Unary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
-		LASS_PY_CLASS_SPECIAL_METHOD("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
+		LASS_PY_OPERATOR("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
+		LASS_PY_OPERATOR("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
+		LASS_PY_OPERATOR("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
+		LASS_PY_OPERATOR("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
+		LASS_PY_OPERATOR("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
+		LASS_PY_OPERATOR("__neg__", tp_as_number, PyNumberMethods, nb_negative, Unary)
+		LASS_PY_OPERATOR("__pos__", tp_as_number, PyNumberMethods, nb_positive, Unary)
+		LASS_PY_OPERATOR("__abs__", tp_as_number, PyNumberMethods, nb_absolute, Unary)
+		LASS_PY_OPERATOR("__invert__", tp_as_number, PyNumberMethods, nb_invert, Unary)
+		LASS_PY_OPERATOR("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
+		LASS_PY_OPERATOR("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
+		LASS_PY_OPERATOR("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
+		LASS_PY_OPERATOR("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
+		LASS_PY_OPERATOR("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
+		LASS_PY_OPERATOR("__int__", tp_as_number, PyNumberMethods, nb_int, Unary)
+		LASS_PY_OPERATOR("__long__", tp_as_number, PyNumberMethods, nb_long, Unary)
+		LASS_PY_OPERATOR("__float__", tp_as_number, PyNumberMethods, nb_float, Unary)
+		LASS_PY_OPERATOR("__oct__", tp_as_number, PyNumberMethods, nb_oct, Unary)
+		LASS_PY_OPERATOR("__hex__", tp_as_number, PyNumberMethods, nb_hex, Unary)
+		LASS_PY_OPERATOR("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
+		LASS_PY_OPERATOR("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
+		LASS_PY_OPERATOR("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
+		LASS_PY_OPERATOR("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
+		LASS_PY_OPERATOR("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
+		LASS_PY_OPERATOR("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
+		LASS_PY_OPERATOR("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
+		LASS_PY_OPERATOR("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
+		LASS_PY_OPERATOR("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
+		LASS_PY_OPERATOR("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
 	}
 
 	// normal method mechanism

@@ -62,13 +62,13 @@
  *
  *  @par Thread safety
  *		The shared pointers are supposed to be thread safe concerning the reference count.
- *		This means that as long as no SharedPtr are shared between threads, they should be thread safe.
- *		In particular: if you have two threads with two shared pointers a and b, both pointing to the same 
- *		data, and both threads try to inc/decrease the reference counts at once, this will be done in an 
- *		atomic way.  
- *		However, if you share a single SharedPtr between two threads, then operations that affect the
- *		pointer itself (like a.swap(b)) are _NOT_ thread safe, since both the pointer and the reference
- *		counter have to be altered at the same time.
+ *		This means that as long as no SharedPtr are shared between threads, they should be 
+ *		thread safe. In particular: if you have two threads with two shared pointers a and b,
+ *		both pointing to the same data, and both threads try to inc/decrease the reference counts
+ *		at once, this will be done in an atomic way. However, if you share a single SharedPtr
+ *		between two threads, then operations that affect the pointer itself (like a.swap(b)) 
+ *		are _NOT_ thread safe, since both the pointer and the reference counter have to be
+ *		altered at the same time.
  */
 
 
@@ -91,7 +91,7 @@ template
 <
 	typename T,
 	template <typename, typename> class StoragePolicy = ObjectStorage,
-	class CounterPolicy = DefaultCounter
+	typename CounterPolicy = DefaultCounter
 >
 class SharedPtr: public StoragePolicy<T, CounterPolicy>
 {

@@ -53,11 +53,8 @@ namespace impl
 		{
 			PyMap::Type.tp_as_mapping = &pyMappingMethods;
 			PyMap::Type.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
-			finalizePyType( PyMap::Type, 
-							*PyMap::GetParentType(), 
-							PyMap::Methods,
-							PyMap::GetSetters, 
-							PyMap::Statics, NULL, NULL, true );
+			finalizePyType( PyMap::Type, *PyMap::GetParentType(), PyMap::Methods, 
+				PyMap::GetSetters, PyMap::Statics, NULL, NULL);
 			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
 			isInitialized = true;
 		}

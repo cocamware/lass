@@ -46,6 +46,21 @@ namespace lass
 {
 namespace prim
 {
+namespace impl
+{
+	template <typename T, typename Cascade>
+	class Transformation2DStorage: public util::ArrayStorage<T, Cascade>
+	{
+	public:
+		Transformation2DStorage(): util::ArrayStorage<T, Cascade>() {}
+		Transformation2DStorage(T* p): util::ArrayStorage<T, Cascade>(p) {}
+	protected:
+		void dispose()
+		{
+			impl::deallocateArray(pointer(), 9);
+		}
+	};
+}
 
 template <typename T>
 class Transformation2D
@@ -86,19 +101,7 @@ private:
 
 	enum { matrixSize_ = 9 };
 
-	template <typename T, typename Cascade>
-	class MatrixStorage: public util::ArrayStorage<T, Cascade>
-	{
-	public:
-		MatrixStorage(): util::ArrayStorage<T, Cascade>() {}
-		MatrixStorage(T* p): util::ArrayStorage<T, Cascade>(p) {}
-	protected:
-		void dispose()
-		{
-			impl::deallocateArray(pointer(), matrixSize_);
-		}
-	};
-	typedef util::SharedPtr<TValue, MatrixStorage> TMatrix;
+	typedef util::SharedPtr<TValue, impl::Transformation2DStorage> TMatrix;
 
 	Transformation2D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
 

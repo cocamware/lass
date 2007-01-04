@@ -176,7 +176,7 @@ void AabbTree<O, OT, SH>::clear()
 template <typename O, typename OT, typename SH>
 const int AabbTree<O, OT, SH>::balance(TInputIterator iFirst, TInputIterator iLast)
 {
-	const SplitInfo<OT> split = TSplitHeuristics::split<OT>(iFirst, iLast);	
+	const SplitInfo<OT> split = TSplitHeuristics::template split<OT>(iFirst, iLast);	
 	if (split.axis < 0)
 	{
 		return addLeafNode(split.aabb, iFirst, iLast);

@@ -29,7 +29,7 @@ namespace python
 {
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 {
 	int result = PyObject_IsTrue(iValue);
@@ -43,14 +43,14 @@ inline int pyGetSimpleObject( PyObject* iValue, bool& oV )
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, signed char& oV )
 {
 	return impl::pyGetSignedObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, unsigned char& oV )
 {
 	return impl::pyGetUnsignedObject( iValue, oV );
@@ -64,21 +64,21 @@ inline int pyGetSimpleObject( PyObject* iValue, signed short& oV )
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, unsigned short& oV )
 {
 	return impl::pyGetUnsignedObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, signed int& oV )
 {
 	return impl::pyGetSignedObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, unsigned int& oV )
 {
 	return impl::pyGetUnsignedObject( iValue, oV );
@@ -92,28 +92,28 @@ inline int pyGetSimpleObject( PyObject* iValue, signed long& oV )
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV )
 {
 	return impl::pyGetUnsignedObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, float& oV )
 {
 	return impl::pyGetFloatObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, double& oV )
 {
 	return impl::pyGetFloatObject( iValue, oV );
 }
 
 /** @ingroup Python
-	*/
+ */
 inline int pyGetSimpleObject( PyObject* iValue, long double& oV )
 {
 	return impl::pyGetFloatObject( iValue, oV );
@@ -121,7 +121,7 @@ inline int pyGetSimpleObject( PyObject* iValue, long double& oV )
 
 /** @ingroup Python
  *  @deprecated
-	*/
+ */
 /*
 inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 {
@@ -140,8 +140,7 @@ inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
 /** @ingroup Python
  */
 template<class C>
-int pyGetSimpleObject( PyObject* iValue,
-		util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV )
+int pyGetSimpleObject(PyObject* iValue, util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV)
 {
 	const bool isNone = (iValue == Py_None );
 	if (isNone)
@@ -160,8 +159,8 @@ int pyGetSimpleObject( PyObject* iValue,
 
 /** @ingroup Python
  */
-inline int pyGetSimpleObject( PyObject* iValue,
-		util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV )
+inline int pyGetSimpleObject(
+		PyObject* iValue, util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV)
 {
 	const bool isNone = (iValue == Py_None );
 	if (isNone)
@@ -176,8 +175,8 @@ inline int pyGetSimpleObject( PyObject* iValue,
 }
 
 /** @ingroup Python
-	@deprecated
-	*/
+ @deprecated
+ */
 /*
 inline PyObject* pyBuildSimpleObject( PyObject* iV )
 {
@@ -192,7 +191,7 @@ inline PyObject* pyBuildSimpleObject( PyObject* iV )
 */
 
 /** @ingroup Python
-	*/
+ */
 template<class C>
 PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV )
 {
@@ -205,49 +204,49 @@ PyObject* pyBuildSimpleObject( const util::SharedPtr<C, PyObjectStorage, PyObjec
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( bool iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( signed char iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( unsigned char iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( signed short iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( unsigned short iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( signed int iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( unsigned int iV )
 {
 	if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
@@ -261,14 +260,14 @@ inline PyObject* pyBuildSimpleObject( unsigned int iV )
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( signed long iV )
 {
 	return PyInt_FromLong(static_cast<long>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( unsigned long iV )
 {
 	if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
@@ -282,28 +281,28 @@ inline PyObject* pyBuildSimpleObject( unsigned long iV )
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( float iV )
 {
 	return PyFloat_FromDouble(static_cast<double>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( double iV )
 {
 	return PyFloat_FromDouble(iV);
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( long double iV )
 {
 	return PyFloat_FromDouble(static_cast<long double>(iV));
 }
 
 /** @ingroup Python
-	*/
+ */
 inline PyObject* pyBuildSimpleObject( const char* iV )
 {
 	return PyString_FromString(iV);
@@ -353,10 +352,8 @@ template <typename CppClass>
 inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
 {
 	char* shortName = CppClass::Type.tp_name; // finalizePyType will expand tp_name with module name.
-#pragma LASS_FIXME("Shadow classes are declared as final")
-	typedef lass::python::impl::ShadowTraits<CppClass> TShadowTraits;
 	finalizePyType(CppClass::Type, *CppClass::GetParentType(), CppClass::Methods, CppClass::GetSetters,
-		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation, TShadowTraits::isShadow);
+		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation);
 	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
 }
 
@@ -365,12 +362,10 @@ inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentati
 /** @internal
  *//*
 template <typename CppClass>
-void addClassMethod(const char* iMethodName, const char* iDocumentation, 
-					PyCFunction iMethodDispatcher,
-					unaryfunc iUnaryDispatcher,
-					binaryfunc iBinaryDispatcher,
-					ternaryfunc iTernaryDispatcher, 
-					OverloadLink& oOverloadChain) 
+void addClassMethod(
+		const char* iMethodName, const char* iDocumentation, PyCFunction iMethodDispatcher,
+		unaryfunc iUnaryDispatcher, binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
+		OverloadLink& oOverloadChain) 
 {
 	if (strcmp(iMethodName, "__call__") == 0)
 	{
@@ -388,7 +383,7 @@ void addClassMethod(const char* iMethodName, const char* iDocumentation,
 	else
 	{
 		::std::vector<PyMethodDef>::iterator i = ::std::find_if(
-			CppClass::Methods.begin(), CppClass::Methods.end(),	PyMethodEqual(iMethodName));
+			CppClass::Methods.begin(), CppClass::Methods.end(), PyMethodEqual(iMethodName));
 		if (i == CppClass::Methods.end())
 		{
 			CppClass::Methods.insert(CppClass::Methods.begin(), createPyMethodDef(
@@ -413,7 +408,8 @@ void addClassMethod(const char* iMethodName, const char* iDocumentation,
 /** @intenal
  */
 template <typename CppClass>
-void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
+void addClassStaticMethod(
+		const char* iMethodName, const char* iDocumentation,
 		PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
 {
 #if PY_VERSION_HEX >= 0x02030000 // >= 2.3
@@ -451,9 +447,11 @@ void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
 	else
 	{
 		PyObject* descr = i->object;
-		LASS_ASSERT(descr && PyObject_IsInstance(descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
+		LASS_ASSERT(descr && PyObject_IsInstance(
+			descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
 		PyObject* cFunction = PyStaticMethod_Type.tp_descr_get(descr, 0, 0);
-		LASS_ASSERT(cFunction && PyObject_IsInstance(cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
+		LASS_ASSERT(cFunction && PyObject_IsInstance(
+			cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
 		PyMethodDef* methodDef = reinterpret_cast<PyCFunctionObject*>(cFunction)->m_ml;
 		LASS_ASSERT(methodDef && methodDef->ml_flags == METH_VARARGS);
 		oOverloadChain = methodDef->ml_meth;
@@ -471,9 +469,10 @@ void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
 /** @internal
  */
 template <typename CppClass, typename T>
-inline void addClassStaticConst(const char* iName, const T& iValue)
+void addClassStaticConst(const char* iName, const T& iValue)
 {
-	LASS_ASSERT(std::count_if(CppClass::Statics.begin(), CppClass::Statics.end(), StaticMemberEqual(iName)) == 0);
+	LASS_ASSERT(std::count_if(
+		CppClass::Statics.begin(), CppClass::Statics.end(), StaticMemberEqual(iName)) == 0);
 	CppClass::Statics.push_back(createStaticMember(iName, 0, pyBuildSimpleObject(iValue)));
 }
 
@@ -482,15 +481,12 @@ inline void addClassStaticConst(const char* iName, const T& iValue)
 /** @internal
  */
 template <typename InnerCppClass>
-inline void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
+inline void addClassInnerClass(
+		std::vector<StaticMember>& oOuterStatics, 
 		const char* iInnerClassName, const char* iDocumentation)
 {
 	LASS_ASSERT(std::count_if(InnerCppClass::Statics.begin(), InnerCppClass::Statics.end(), 
 		StaticMemberEqual(iInnerClassName)) == 0);
-	/* InnerClasses stopped working with the dict_ now operational.  So make the InnerCppClass
-	*  a final class to avoid this problem (for now).
-	*/
-#pragma LASS_TODO("Fix the inner class working")
 	oOuterStatics.push_back(createStaticMember(
 		iInnerClassName, iDocumentation, reinterpret_cast<PyObject*>(&InnerCppClass::Type),
 		InnerCppClass::GetParentType(), &InnerCppClass::Methods, &InnerCppClass::GetSetters, 

@@ -46,13 +46,8 @@
 
 #include "../meta/bool.h"
 #include "../meta/is_derived_type.h"
-//#include "../meta/type_traits.h"
-//#include "../meta/type_2_type.h"
-//#include "../meta/int_2_type.h"
-//#include "../num/num_traits.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
-//#include "call_traits.h"
 #include "thread.h"
 #include <cstdlib>
 
@@ -66,7 +61,6 @@
 		static ::std::vector<PyMethodDef>    Methods; \
 		static ::std::vector<PyGetSetDef>    GetSetters; \
 		virtual PyTypeObject *GetType(void) const {return &Type;};\
-		PyObject* dict_;
 
 /** @ingroup Python
  *  Place as first line of your Pythonized class.    
@@ -132,43 +126,18 @@ namespace lass
 
 		namespace impl
 		{
-			template <typename T> int dictionaryOffset(T* iObject)
-			{
-				return 0;
-			}
-
-			template<> inline int dictionaryOffset<PyObjectPlus>(PyObjectPlus* iObject)
-			{
-				PyObject* temp = static_cast<PyObject*>(iObject);
-				return static_cast<int>((unsigned char*)(&iObject->dict_)-(unsigned char*)(temp));
-			}
-
 			/** @internal
-			*  On creation, PyObjectPlus are typeless (ob_type == 0), call this function to fix that for you.
-			*/
+			 *  On creation, PyObjectPlus are typeless (ob_type == 0), 
+			 *  call this function to fix that for you.  
+			 *  Objects created in C++ should call this at least once before
+			 *  being used in Python.
+			 */
 			template <typename T> T* fixObjectType(T* iObject)
 			{
-				if (meta::IsDerivedType<T, PyObjectPlus>::value && iObject && !iObject->ob_type)
+				if (meta::IsDerivedType<T, PyObjectPlus>::value && 
+					iObject && !iObject->ob_type)
 				{
 					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
-					PyObject* temp = static_cast<PyObject*>(iObject);
-					iObject->ob_type->tp_dictoffset = dictionaryOffset(static_cast<PyObjectPlus*>(iObject));
-					iObject->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
-				}
-				return iObject;
-			}
-			/** @internal
-			*  On creation, PyObjectPlus may have a type but not all members may be initialized properly, 
-			*  call this function to fix that for you.  This overwrites any type information previously available.  This
-			*  call is necessary for objects migrating from C++ directly to Python without passing the fixObjectType.
-			*/
-			template <typename T> T* enforceObjectType(T* iObject)
-			{
-				if (meta::IsDerivedType<T, PyObjectPlus>::value && iObject)
-				{
-					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
-					PyObject* temp = static_cast<PyObject*>(iObject);
-					iObject->ob_type->tp_dictoffset = dictionaryOffset(static_cast<PyObjectPlus*>(iObject));
 				}
 				return iObject;
 			}
@@ -197,7 +166,8 @@ namespace lass
 		protected:
 
 			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-			PyObjectStorage(T* iPointee): Cascade(), storage_(impl::fixObjectType(iPointee)) {} 
+			PyObjectStorage(T* iPointee): 
+				Cascade(), storage_(impl::fixObjectType(iPointee)) {} 
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }
@@ -247,7 +217,9 @@ namespace lass
 			}
 			/** takes over the count and shares it */
 			template <typename TOStorage, typename TIStorage>
-			void initSharedCount(TOStorage& oStorage, const TIStorage& iStorage, const PyObjectCounter& iOther)
+			void initSharedCount(
+					TOStorage& oStorage, const TIStorage& iStorage, 
+					const PyObjectCounter& iOther)
 			{
 				oStorage->ob_refcnt = iStorage->ob_refcnt;
 				LASS_ASSERT(oStorage->ob_refcnt);
@@ -284,7 +256,8 @@ namespace lass
 		fromNakedToSharedPtrCast(PyObject* iObj)
 		{
 			Py_XINCREF(iObj);
-			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>( static_cast<T*>(iObj) );
+			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(
+				static_cast<T*>(iObj) );
 		}
 
 		/** fromSharedPtrToNakedCast.
@@ -362,7 +335,8 @@ namespace lass
 				void setUnaryfunc(unaryfunc iOverload);
 				void setBinaryfunc(binaryfunc iOverload);
 				void setTernaryfunc(ternaryfunc iOverload);
-				bool operator()(PyObject* iSelf, PyObject* iArgs, PyObject*& result) const;
+				bool operator()(PyObject* iSelf, PyObject* iArgs, 
+					PyObject*& result) const;
 			private:
 				PyCFunction pyCFunction_;
 				unaryfunc unaryfunc_;
@@ -370,18 +344,23 @@ namespace lass
 				ternaryfunc ternaryfunc_;
 			};
 
-			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(PyObject* iSelf);
-			template <PyCFunction DispatcherAddress> PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther);
-			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
+			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(
+				PyObject* iSelf);
+			template <PyCFunction DispatcherAddress> PyObject* binaryDispatcher(
+				PyObject* iSelf, PyObject* iOther);
+			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(
+				PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
 
 			template <PyCFunction DispatcherAddress>
 			struct DispatcherConvertor
 			{
-				static PyObject* asTernary(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+				static PyObject* asTernary(
+						PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 				{
 					if (iKw)
 					{
-						PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
+						PyErr_SetString(PyExc_TypeError, 
+							"keyword arguments are not supported");
 						return 0;
 					}
 					return DispatcherAddress(iSelf, iArgs);
@@ -428,17 +407,25 @@ namespace lass
 			LASS_DLL StaticMember LASS_CALL createStaticMember(
 				const char* iName, const char * iDocumentation, PyObject* iObject, 
 				PyTypeObject* iParentType = 0, std::vector<PyMethodDef>* iMethods = 0, 
-				std::vector<PyGetSetDef>* iGetSetters = 0, const std::vector<StaticMember>* iStatics = 0);
+				std::vector<PyGetSetDef>* iGetSetters = 0, 
+				const std::vector<StaticMember>* iStatics = 0);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
-				const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc);
+				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
+				const char *ml_doc);
 			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
-				const char* name, getter get, setter set, const char* doc, void* closure );
+				const char* name, getter get, setter set, const char* doc, void* closure);
 
-			LASS_DLL void LASS_CALL injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
-			LASS_DLL void LASS_CALL finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
-				std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-				const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation, bool iFinal=false, bool iInnerClass=false);
-			LASS_DLL void LASS_CALL addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, char* iDocumentation,
+			LASS_DLL void LASS_CALL injectStaticMembers(
+				PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
+			LASS_DLL void LASS_CALL finalizePyType(
+				PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
+				std::vector<PyMethodDef>& iMethods, 
+				std::vector<PyGetSetDef>& iGetSetters, 
+				const std::vector<StaticMember>& iStatics, 
+				const char* iModuleName, const char* iDocumentation);
+			LASS_DLL void LASS_CALL addModuleFunction(
+				std::vector<PyMethodDef>& ioModuleMethods, 
+				char* iMethodName, char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			LASS_DLL void LASS_CALL addClassMethod(
 				PyTypeObject& ioPyType, std::vector<PyMethodDef>& ioClassMethods,
@@ -447,20 +434,29 @@ namespace lass
 				binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
 				OverloadLink& oOverloadChain);
 
-			template <typename CppClass> void injectClassInModule(PyObject* iModule, const char* iClassDocumentation);
-			/*template <typename CppClass> void addClassMethod(const char* iMethodName, const char* iDocumentation, 
-				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, binaryfunc iBinaryDispatcher, 
-				ternaryfunc iTernaryDispatcher, OverloadLink& oOverloadChain);*/
-			template <typename CppClass> void addClassStaticMethod(const char* iMethodName, const char* iDocumentation,
-					PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
-			template <typename CppClass, typename T> void addClassStaticConst(const char* iName, const T& iValue);
-			template <typename InnerCppClass> void addClassInnerClass(std::vector<StaticMember>& oOuterStatics, 
+			template <typename CppClass> void injectClassInModule(
+				PyObject* iModule, const char* iClassDocumentation);
+			/*template <typename CppClass> void addClassMethod(
+				const char* iMethodName, const char* iDocumentation, 
+				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
+				binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher,
+				OverloadLink& oOverloadChain);*/
+			template <typename CppClass> void addClassStaticMethod(
+				const char* iMethodName, const char* iDocumentation,
+				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
+			template <typename CppClass, typename T> void addClassStaticConst(
+				const char* iName, const T& iValue);
+			template <typename InnerCppClass> void addClassInnerClass(
+				std::vector<StaticMember>& oOuterStatics, 
 				const char* iInnerClassName, const char* iDocumentation);
 
-			template <typename In, typename Out> int pyNumericCast( In iIn, Out& oV );
-			template <typename Integer> int pyGetSignedObject( PyObject* iValue, Integer& oV );
-			template <typename Integer> int pyGetUnsignedObject( PyObject* iValue, Integer& oV );
-			template <typename Float> int pyGetFloatObject( PyObject* iValue, Float& oV );
+			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);
+			template <typename Integer> int pyGetSignedObject(
+				PyObject* iValue, Integer& oV);
+			template <typename Integer> int pyGetUnsignedObject(
+				PyObject* iValue, Integer& oV);
+			template <typename Float> int pyGetFloatObject(
+				PyObject* iValue, Float& oV);
 
 			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, int iExpectedSize);

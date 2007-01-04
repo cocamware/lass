@@ -34,11 +34,6 @@ namespace lass
 namespace util
 {
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4035)
-#endif
-
 template <typename T> inline 
 bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
 {
@@ -68,10 +63,6 @@ void atomicDecrement(T& value)
 
 }
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
 
 #endif
 

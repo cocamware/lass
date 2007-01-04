@@ -51,6 +51,7 @@ class DispatcherR$x: public TDispatcherAllocatorBase
 public:
 
 	DispatcherR$x() {}
+	virtual ~DispatcherR$x() {}
 
 	R call($(typename util::CallTraits<P$x>::TParam iP$x)$) const 
 	{ 

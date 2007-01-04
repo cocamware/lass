@@ -165,7 +165,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& iTarget, TParam iMaxRadius, size_t iMax
 	iMaxCount = std::min(iMaxCount, size_);
 	oNeighbourhood.resize(iMaxCount + 1);
 
-	TNeighbourhood::iterator last = rangeSearch(
+	typename TNeighbourhood::iterator last = rangeSearch(
 		iTarget, iMaxRadius, iMaxCount, oNeighbourhood.begin());
 	oNeighbourhood.erase(last, oNeighbourhood.end());
 	

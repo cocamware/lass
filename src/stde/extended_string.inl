@@ -97,6 +97,18 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& input,
 	return result;
 }
 
+/** @ingroup extended_string
+ *  replace all instances of @a to_be_replaced in @a input by @a replacement.
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::basic_string<Char, Traits, Alloc>
+replace_all(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* to_be_replaced,
+	const Char* replacement)
+{
+	return replace_all(input, std::string(to_be_replaced), std::string(replacement));
+}
+
 
 
 /** @ingroup extended_string
@@ -104,9 +116,19 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& input,
  */
 template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
-				 const std::basic_string<Char, Traits, Alloc>& prefix)
+	const std::basic_string<Char, Traits, Alloc>& prefix)
 {
 	return input.find(prefix) == 0;
+}
+
+/** @ingroup extended_string
+ *  returns true if @a input begins with the input @a prefix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* prefix)
+{
+	return begins_with(input, std::string(prefix));
 }
 
 
@@ -116,9 +138,19 @@ bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
  */
 template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
-			   const std::basic_string<Char, Traits, Alloc>& suffix)
+	const std::basic_string<Char, Traits, Alloc>& suffix)
 {
 	return input.rfind(suffix) == input.length() - suffix.length();
+}
+
+/** @ingroup extended_string
+ *  returns true if @a input ends with the input @a suffix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+	const Char* suffix)
+{
+	return ends_with(input, std::string(suffix));
 }
 
 
@@ -211,6 +243,18 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 
 	result.push_back(to_be_split.substr(begin));
 	return result;
+}
+
+/** @ingroup extended_string
+ *  Reflects the Python function @c split without seperator argument
+ */
+template <typename Char, typename Traits, typename Alloc>
+std::vector< std::basic_string<Char, Traits, Alloc> >
+split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
+	const Char* seperator,
+	size_t max_split)
+{
+	return split(to_be_split, std::string(seperator), max_split);
 }
 
 

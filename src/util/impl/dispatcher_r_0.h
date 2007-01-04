@@ -51,6 +51,7 @@ class DispatcherR0: public TDispatcherAllocatorBase
 public:
 
 	DispatcherR0() {}
+	virtual ~DispatcherR0() {}
 	R call() const { return doCall(); }
 
 protected:

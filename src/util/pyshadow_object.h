@@ -271,7 +271,8 @@ inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass >
 }\
 inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
 {\
-	if (t_ShadowObject::TCppClass* cppObject = impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
+	if (t_ShadowObject::TCppClass* cppObject = \
+		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
 	{\
 		oByCopy = *cppObject;\
 		return 0;\
@@ -280,7 +281,8 @@ inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByC
 }\
 inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
 {\
-	if (t_ShadowObject::TCppClass* cppObject = impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
+	if (t_ShadowObject::TCppClass* cppObject = \
+		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
 	{\
 		oByBorrowedPointer = cppObject;\
 		return 0;\
@@ -289,39 +291,6 @@ inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oBy
 }\
 }\
 }
-
-
-/*namespace impl\
-{\
-template <> struct Converter<t_ShadowObject::TCppClass>\
-{\
-	static PyObject* toPython(const t_ShadowObject::TCppClass& iByCopy)\
-	{\
-		return pyBuildSimpleObject(iByCopy);\
-	}\
-	static int fromPython(PyObject* iObject, t_ShadowObject::TCppClass& oByCopy)\
-	{\
-		oByCopy = *ShadowTraits<t_ShadowObject>::cppObject(iObject);\
-		return 0;\
-	}\
-};\
-template <> struct Converter<t_ShadowObject::TCppClass*>\
-{\
-	static PyObject* toPython(t_ShadowObject::TCppClass* iByBorrowedPointer)\
-	{\
-		return pyBuildSimpleObject(iByBorrowedPointer);\
-	}\
-	static int fromPython(PyObject* iObject, t_ShadowObject::TCppClass* oByBorrowedPointer)\
-	{\
-		oByBorrowedPointer = ShadowTraits<t_ShadowObject>::cppObject(iObject);\
-		return 0;\
-	}\
-};\
-template <> struct Converter< std::auto_ptr< t_ShadowObject::TCppClass > >\
-{\
-	static PyObject* toPython(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject(iBySinkedPointer); }\
-};\
-}*/\
 
 
 

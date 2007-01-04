@@ -51,7 +51,7 @@
  *			util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
  *			for (unsigned i = 0; i < numberOfTasks; ++i)
  *			{
- *				pool.add(util::makeCallback(thread_pool::task)); // blocks if queue is full.
+ *				pool.add(util::makeCallback(thread_pool::task)); // blocks if full.
  *			}
  *			// ~ThreadPool will wait for completion ...  You could also use pool.joinAll()
  *		}
@@ -62,7 +62,7 @@
  *	util::bind simplifies the use of ThreadPool for tasks with arguments
  *
  *  @code
- *  #include <lass/util/thread_pool.h>
+ *	#include <lass/util/thread_pool.h>
  *	#include <lass/util/bind.h>
  *	using namespace lass::util;
  *
@@ -76,7 +76,7 @@
  *		pool.add(bind(parallelWork, i, std::min(i + step, n)));
  *	}
  *	pool.joinAll();
- *	@endcode
+ *  @endcode
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_POOL_H

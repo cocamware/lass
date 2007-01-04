@@ -32,9 +32,9 @@ namespace stde
 
 template <typename T, typename A>
 lock_free_queue<T, A>::lock_free_queue():
-	util::AllocatorConcurrentFreeList<A>(sizeof node_t)
+	util::AllocatorConcurrentFreeList<A>(sizeof(node_t))
 {
-	pointer_t dummy = { make_node(value_type()), 0 };
+	pointer_t dummy(make_node(value_type()), 0);
 	head_ = dummy;
 	tail_ = dummy;
 }
@@ -44,10 +44,10 @@ lock_free_queue<T, A>::lock_free_queue():
 template <typename T, typename A>
 lock_free_queue<T, A>::~lock_free_queue()
 {
-	while (head_.ptr)
+	while (head_)
 	{
-		pointer_t next = head_.ptr->next;
-		free_node(head_.ptr);
+		pointer_t next = head_->next;
+		free_node(head_.get());
 		head_ = next;
 	}
 }
@@ -66,26 +66,26 @@ void lock_free_queue<T, A>::push(const value_type& x)
 	while (true)
 	{
 		tail = tail_;
-		pointer_t next = tail.ptr->next;
-		if (tail.ptr == tail_.ptr && tail.tag == tail_.tag)
+		pointer_t next = tail->next;
+		if (tail == tail_)
 		{
-			if (next.ptr == 0)
+			if (!next)
 			{
-				pointer_t new_next = { node, next.tag + 1 };
-				if (compare_and_swap(tail.ptr->next, next, new_next))
+				pointer_t new_next(node, next.tag() + 1);
+				if (tail->next.atomicCompareAndSwap(next, new_next))
 				{
 					break;
 				}
 			}
 			else
 			{
-				pointer_t new_tail = { next.ptr, tail.tag + 1 };
-				compare_and_swap(tail_, tail, new_tail);
+				pointer_t new_tail(next.get(), tail.tag() + 1);
+				tail_.atomicCompareAndSwap(tail, new_tail);
 			}
 		}
 	}
-	pointer_t new_tail = { node, tail.tag + 1 };
-	compare_and_swap(tail_, tail, new_tail);
+	pointer_t new_tail(node, tail.tag() + 1);
+	tail_.atomicCompareAndSwap(tail, new_tail);
 }
 
 
@@ -102,30 +102,31 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 	{
 		head = head_;
 		pointer_t tail = tail_;
-		pointer_t next = head.ptr->next;
-		if (head.ptr == head_.ptr && head.tag == head_.tag)
+		pointer_t next = head->next;
+		if (head == head_)
 		{
-			if (head.ptr == tail.ptr)
+			if (head.get() == tail.get())
 			{
-				if (next.ptr == 0)
+				if (!next)
 				{
 					return false;
 				}
-				pointer_t new_tail = { next.ptr, tail.tag + 1 };
-				compare_and_swap(tail_, tail, new_tail);
+				pointer_t new_tail(next.get(), tail.tag() + 1);
+				tail_.atomicCompareAndSwap(tail, new_tail);
 			}
 			else
 			{
-				x = next.ptr->value;
-				pointer_t new_head = { next.ptr, head.tag + 1 };
-				if (compare_and_swap(head_, head, new_head))
+				x = next->value;
+				pointer_t new_head(next.get(), head.tag() + 1);
+				if (head_.atomicCompareAndSwap(head, new_head))
 				{
 					break;
 				}
 			}
 		}
 	}
-	free_node(head.ptr);
+	free_node(head.get());
+	return true;
 }
 
 // --- private -------------------------------------------------------------------------------------
@@ -137,15 +138,23 @@ lock_free_queue<T, A>::make_node(const value_type& x)
 	node_t* node = static_cast<node_t*>(allocate());
 	try
 	{
-		new (&node->value) value_type(x);
+		new (&node->next) pointer_t();
 	}
 	catch (...)
 	{
 		deallocate(node);
 		throw;
 	}
-	node->next.ptr = 0;
-	node->next.tag = 0;
+	try
+	{
+		new (&node->value) value_type(x);
+	}
+	catch (...)
+	{
+		node->next.~pointer_t();
+		deallocate(node);
+		throw;
+	}
 	return node;
 }
 	
@@ -155,16 +164,8 @@ template <typename T, typename A>
 void lock_free_queue<T, A>::free_node(node_t* node)
 {
 	node->value.~value_type();
+	node->next.~pointer_t();
 	deallocate(node);
-}
-
-	
-
-template <typename T, typename A> inline 
-bool lock_free_queue<T, A>::compare_and_swap(
-		pointer_t& dest, const pointer_t& expected, const pointer_t& fresh)
-{
-	return util::atomicCompareAndSwap(dest.ptr, expected.ptr, expected.tag, fresh.ptr, fresh.tag);
 }
 
 }

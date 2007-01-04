@@ -73,6 +73,7 @@
 #include "singleton.h"
 #include "thread.h"
 #include "../meta/bool.h"
+#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -81,29 +82,29 @@ namespace util
 namespace impl
 {
 	/** @ingroup Allocator
-	 *	@internal
+	 *  @internal
 	 */
 	template <typename Allocator, typename AllocatorFun>
 	struct IsCompatibleAllocator
 	{
-	private:
 		static meta::True test(AllocatorFun);
 		static meta::False test(...);
-	public:
 		enum { value = (sizeof(test(&Allocator::allocate)) == sizeof(meta::True)) };
 		typedef typename meta::Bool<value>::Type Type;
 	};
+
+	/** @ingroup Allocator
+	 *  @internal
+	 */
+	template <typename Allocator>
+	struct IsFixedAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)()> {};
+	
+	/** @ingroup Allocator
+	 *  @internal
+	 */
+	template <typename Allocator>
+	struct IsVariableAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)(size_t)> {}; 
 }
-
-/** @ingroup Allocator
- */
-template <typename Allocator>
-struct IsFixedAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)()> {};
-
-/** @ingroup Allocator
- */
-template <typename Allocator>
-struct IsVariableAllocator: public impl::IsCompatibleAllocator<Allocator, void*(*)(size_t)> {}; 
 
 
 
@@ -357,7 +358,8 @@ private:
 		typename TFixedAllocators::iterator allocator = fixedAllocators_.find(size);
 		if (allocator == fixedAllocators_.end())
 		{
-			allocator = fixedAllocators_.insert(std::make_pair(size, FixedAllocator(size))).first;
+			allocator = fixedAllocators_.insert(
+				std::make_pair(size, FixedAllocator(size))).first;
 		}
 		return allocator->second;
 	}
@@ -706,7 +708,7 @@ public:
 	{
 	}
 	AllocatorStats(size_t size):
-		Allocator(size),
+		Allocator(size)
 	{
 		stats_.insert(std::make_pair(size, Stat()));
 	}
@@ -714,7 +716,7 @@ public:
 	{
 		LASS_COUT << "~" << typeid(AllocatorStats).name() << ">" << std::endl;
 		LASS_COUT << "size: allocations/deallocations" << std::endl;
-		for (TStats::const_iterator i = stats_.begin(); i != stats_.end(); ++i)
+		for (typename TStats::const_iterator i = stats_.begin(); i != stats_.end(); ++i)
 		{
 			LASS_COUT << i->first << ": " 
 				<< i->second.allocations << "/" << i->second.deallocations << std::endl;
@@ -814,6 +816,64 @@ private:
 	AllocationNode* top_;
 };
 
+template <typename T>
+class TaggedPtr
+{
+public:
+#if LASS_ACTUAL_ADDRESS_SIZE == 48
+	// We're in 64 bit space, but we don't have 128 bit CAS to do tagging ... Help!
+	// Luckely, only the least significant 48 bits of a pointer are really used.
+	// So, we have 16 bits we can fiddle with.  Should be enough for a counting tag.
+	// We store the the pointer in the most significant part for two reasons:
+	//	- order of the pointers is somewhat preserved
+	//	- we can use SAR to restore the sign bit.
+	//
+	typedef num::Tuint16 TTag;
+	TaggedPtr(): bits_(0) {}
+	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
+	T* const get() const 
+	{
+#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		T* ptr;
+		__asm__ __volatile__("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
+		return ptr;
+#	elif defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC)
+#		error Not implemented yet ...
+#	else
+		return (bits_ & 0xa000000000000000 == 0) ?
+			reinterpret_cast<T*>(bits_ >> 16) :
+			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
+#	endif
+	}
+	const TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
+	const bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	{
+		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
+	}
+private:
+	num::Tuint64 bits_;
+#else
+	typedef num::TuintPtr TTag;
+	TaggedPtr(): ptr_(0), tag_(0) {}
+	TaggedPtr(void* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
+	T* const get() const { return ptr_; }
+	const TTag tag() const { return tag_; }
+	bool operator==(const TaggedPtr& other) const {	return ptr_ == other.ptr_ && tag_ == other.tag_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	{
+		return util::atomicCompareAndSwap(
+			ptr_, expected.ptr_, expected.tag_, fresh.ptr_, fresh.tag_);
+	}
+private:
+	T* ptr_;
+	TTag tag_;
+#endif
+public:
+	T* const operator->() const { LASS_ASSERT(get()); return get(); }
+	const bool operator!() const { return get() == 0; }
+	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
+};
 
 
 
@@ -833,64 +893,66 @@ class AllocatorConcurrentFreeList: public FixedAllocator
 public:
 	AllocatorConcurrentFreeList(size_t iSize):
 		FixedAllocator(std::max<size_t>(sizeof(AllocationNode),iSize)),
-		top_(0)
+		top_()
 	{
 	}
 	~AllocatorConcurrentFreeList()
 	{
-		while (top_)
+		AllocationNode* top = top_.get();
+		while (top)
 		{
-			AllocationNode* node = top_;
-			top_ = node->next;
-			FixedAllocator::deallocate(node);
+			AllocationNode* node = top;
+			top = node->next;
+			FixedAllocator::deallocate(top);
 		}
 	}
 	AllocatorConcurrentFreeList(const AllocatorConcurrentFreeList& iOther):
 		FixedAllocator(static_cast<const FixedAllocator&>(iOther)),
-		top_(0),
-		tag_(0)
+		top_()
 	{
 	}
 	void* allocate()
 	{
-		AllocationNode* topNode = 0;
-		TTag tag;
+		TTaggedPtr topNode;
+		TTaggedPtr next;
 		do
 		{
 			topNode = top_;
-			tag = tag_;
 			if (!topNode)
 			{
 				return FixedAllocator::allocate();
 			}
+			next = TTaggedPtr(topNode->next, topNode.tag() + 1);
 		}
-		while (!atomicCompareAndSwap(top_, topNode, tag, topNode->next, tag + 1));
-		return topNode;
+		while (!top_.atomicCompareAndSwap(topNode, next));
+		return topNode.get();
 	}
 	void deallocate(void* iPointer)
 	{
 		if (!iPointer)
 			return;
 		AllocationNode* temp = static_cast<AllocationNode*>(iPointer);
-		TTag tag;
+		TTaggedPtr topNode;
+		TTaggedPtr newTop;
 		do
 		{
-			temp->next = top_;
-			tag = tag_;
+			topNode = top_;
+			temp->next = topNode.get();
+			newTop = TTaggedPtr(temp, topNode.tag() + 1);
 		}
-		while (!atomicCompareAndSwap(top_, temp->next, tag, temp, tag + 1));
+		while (!top_.atomicCompareAndSwap(topNode, newTop));
 	}
 private:
-	typedef num::TuintPtr TTag;
 	struct AllocationNode
 	{
 		AllocationNode* next;
 	};
+	
+	typedef TaggedPtr<AllocationNode> TTaggedPtr;
 
-	AllocatorConcurrentFreeList& operator=(AllocatorConcurrentFreeList&);
+	AllocatorConcurrentFreeList& operator=(const AllocatorConcurrentFreeList&);
 
-	AllocationNode* top_;
-	TTag tag_;
+	TTaggedPtr top_;
 };
 
 }

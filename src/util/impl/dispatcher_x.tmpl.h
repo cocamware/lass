@@ -53,6 +53,8 @@ class Dispatcher$x: public TDispatcherAllocatorBase
 public:
 
 	Dispatcher$x() {}
+	virtual ~Dispatcher$x() {}
+	
 	void call($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
 		doCall($(iP$x)$);

@@ -75,6 +75,9 @@
 #	define LASS_CHAR_IS_SIGNED
 #endif
 
+// use MSVC style inline assembly
+#define LASS_HAVE_INLINE_ASSEMBLY_MSVC
+
 // use __int8, __int16, ...
 #define LASS_NUM_BASIC_TYPES_HAVE_MSVC
 

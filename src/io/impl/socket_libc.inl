@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 
 namespace lass
 {

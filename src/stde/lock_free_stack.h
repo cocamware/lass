@@ -26,7 +26,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_STACK_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_STACK_H
 
-#include "util_common.h"
+#include "stde_common.h"
 #include "../util/allocator.h"
 
 namespace lass
@@ -41,7 +41,7 @@ template
 	typename T, 
 	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
 >
-class lock_free_stack: util::AllocatorConcurrentFreeList<FixedAllocator>
+class lock_free_stack: private util::AllocatorConcurrentFreeList<FixedAllocator>
 {
 public:
 
@@ -56,13 +56,13 @@ public:
 
 private:
 
-	typedef num::TuintPtr tag_type;
-
 	struct node_t
 	{
 		node_t* next;
 		value_type value;
 	};
+	
+	typedef util::TaggedPtr<node_t> pointer_t;
 	
 	lock_free_stack(const lock_free_stack&);
 	lock_free_stack& operator=(const lock_free_stack&);
@@ -72,8 +72,7 @@ private:
 	void push_node(node_t* node);
 	node_t* const pop_node();
 
-	node_t* top_;
-	tag_type tag_;
+	pointer_t;
 };
 
 }

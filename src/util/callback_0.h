@@ -81,7 +81,7 @@ public:
 	 */
 	template <typename Function>
 	Callback0(Function iFunction):
-		dispatcher_(make(iFunction, meta::Type2Type<meta::IsDerivedType<Function, impl::Dispatcher0>::Type>()))
+		dispatcher_(make(iFunction, meta::Type2Type<typename meta::IsDerivedType<Function, impl::Dispatcher0>::Type>()))
 	{
 	}
 

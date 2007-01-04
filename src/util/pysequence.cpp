@@ -81,11 +81,9 @@ namespace impl
 		{
 			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
 			PySequence::Type.tp_as_sequence= &pySequenceMethods;
-			finalizePyType( PySequence::Type, 
-							*PySequence::GetParentType(), 
-							PySequence::Methods,
-							PySequence::GetSetters, 
-							PySequence::Statics, NULL, NULL, true );
+			finalizePyType( PySequence::Type, *PySequence::GetParentType(), 
+				PySequence::Methods, PySequence::GetSetters, 
+				PySequence::Statics, NULL, NULL);
 			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
 			isInitialized = true;
 		}

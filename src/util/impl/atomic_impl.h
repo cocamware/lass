@@ -23,34 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_ATOMIC_IMPL_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_ATOMIC_IMPL_H
-
-#include "../util_common.h"
-#include "../../num/basic_types.h"
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-#	define LASS_UTIL_ATOMIC_MSVC
-#	if defined(_M_IA64)
-#		define LASS_UTIL_ATOMIC_UNSUPPORTED
-#	else
-#		define LASS_UTIL_ATOMIC_32
-#	endif
-#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
-#	define LASS_UTIL_ATOMIC_GCC
-#	if defined(_LP64) || defined(__LP64__)
-#		define LASS_UTIL_ATOMIC_64
-#	else
-#		define LASS_UTIL_ATOMIC_32
-#	endif
-#else
-#	define LASS_UTIL_ATOMIC_UNSUPPORTED
-#endif
-
-#ifdef LASS_UTIL_ATOMIC_UNSUPPORTED
-#	error [LASS BUILD MSG] lass/util/atomic.h not yet supported for your compiler!
-#endif
-
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4035)
@@ -74,7 +46,7 @@ struct AtomicOperations<1>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov al, expectedValue
@@ -83,11 +55,12 @@ struct AtomicOperations<1>
 			lock cmpxchg [edi], dl
 		}
 		/* return eax */
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; cmpxchgb %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue));
+			: "q"(newValue), "1"(expectedValue)
+			: "cc");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -98,7 +71,7 @@ struct AtomicOperations<1>
 	static bool LASS_CALL compareAndSwap(
 			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov al, expected1
@@ -108,9 +81,20 @@ struct AtomicOperations<1>
 			mov edi, dest1
 			lock cmpxchg [edi], dx
 			mov eax, 0
-			setz al
+			sete al
 		}
 		/* return eax */
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		bool result;
+		__asm__ __volatile__(
+			"movb %4, %%ah;"
+			"movb %5, %%dh;"
+			"lock; cmpxchgw %%dx, %0;"
+			"sete %1;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected1), "d"(new1), "g"(expected2), "g"(new2)
+			: "cc");
+		return result;		
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -119,18 +103,18 @@ struct AtomicOperations<1>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock inc byte ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; incb %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -139,18 +123,18 @@ struct AtomicOperations<1>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock dec byte ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; decb %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -168,7 +152,7 @@ struct AtomicOperations<2>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov ax, expectedValue
@@ -177,11 +161,12 @@ struct AtomicOperations<2>
 			lock cmpxchg [edi], dx
 		}
 		/* return eax */
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; cmpxchgw %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue));
+			: "q"(newValue), "1"(expectedValue)
+			: "cc");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -192,7 +177,7 @@ struct AtomicOperations<2>
 	static bool LASS_CALL compareAndSwap(
 			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov ax, expected2
@@ -204,9 +189,22 @@ struct AtomicOperations<2>
 			mov edi, dest1
 			lock cmpxchg [edi], edx
 			mov eax, 0
-			setz al
+			sete al
 		}
 		/* return eax */
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		bool result;
+		__asm__ __volatile__(
+			"shll $16, %%eax;"
+			"shll $16, %%edx;"
+			"movw %4, %%ax;"
+			"movw %5, %%dx;"
+			"lock; cmpxchgl %%edx, %0;"
+			"sete %1;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected2), "d"(new2), "g"(expected1), "g"(new1)
+			: "cc");
+		return result;		
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -215,18 +213,18 @@ struct AtomicOperations<2>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock inc word ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; incw %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -235,18 +233,18 @@ struct AtomicOperations<2>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock dec word ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; decw %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -263,7 +261,7 @@ struct AtomicOperations<4>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov eax, expectedValue
@@ -272,11 +270,12 @@ struct AtomicOperations<4>
 			lock cmpxchg [edi], edx
 		}
 		/* return eax */
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; cmpxchgl %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue));
+			: "q"(newValue), "1"(expectedValue)
+			: "cc");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -287,7 +286,7 @@ struct AtomicOperations<4>
 	static bool LASS_CALL compareAndSwap(
 			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov eax, expected1
@@ -297,9 +296,18 @@ struct AtomicOperations<4>
 			mov edi, dest1
 			lock cmpxchg8b [edi]
 			mov eax, 0
-			setz al
+			sete al
 		}
 		/* return eax */
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		bool result;
+		__asm__ __volatile__(
+			"lock; cmpxchg8b %0;"
+			"sete %1;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2)
+			: "cc");
+		return result;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -308,18 +316,18 @@ struct AtomicOperations<4>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock inc dword ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; incl %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -328,18 +336,18 @@ struct AtomicOperations<4>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock dec dword ptr [edi]
 		}
-#elif defined(LASS_UTIL_ATOMIC_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; decl %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "memory");
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -356,7 +364,7 @@ struct AtomicOperations<8>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			lea esi, expectedValue
@@ -368,21 +376,40 @@ struct AtomicOperations<8>
 			mov edi, dest
 			lock cmpxchg8b [edi]
 		}
-		/* return edx:eax */
+		/* return eax:edx */
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
+		__asm__ __volatile__(
+			"lock; cmpxchgq %2, %0;"
+			: "=m"(dest), "=a"(expectedValue)
+			: "q"(newValue), "1"(expectedValue)
+			: "cc");
+		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
 	}
 
+	// we assume we don't have a cmpxchg16b
+	//
+	//template <typename T1, typename T2> inline 
+	//static bool LASS_CALL compareAndSwap(
+	//		T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2);
+	
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock inc qword ptr [edi]
 		}
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		__asm__ __volatile__(
+			"lock; incq %0;"
+			: "=m"(value)
+			: "m"(value)
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -391,12 +418,18 @@ struct AtomicOperations<8>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_UTIL_ATOMIC_MSVC) && defined(LASS_UTIL_ATOMIC_32)
+#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
 			mov edi, value
 			lock dec qword ptr [edi]
 		}
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		__asm__ __volatile__(
+			"lock; decq %0;"
+			: "=m"(value)
+			: "m"(value)
+			: "cc");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -408,7 +441,5 @@ struct AtomicOperations<8>
 }
 }
 }
-
-#endif
 
 // EOF

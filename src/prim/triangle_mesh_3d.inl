@@ -60,7 +60,8 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 	const std::size_t sizeNormals = normals_.size();
 	const std::size_t sizeUvs = uvs_.size();
 
-	for (typename IndexTriangleInputRange::const_iterator i = iTriangles.begin(); i != iTriangles.end(); ++i)
+	for (typename IndexTriangleInputRange::const_iterator i = iTriangles.begin(); 
+		i != iTriangles.end(); ++i)
 	{
 		TTriangle triangle;
 		size_t numNormals = 0;
@@ -73,8 +74,9 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 			const std::size_t vertex = i->vertices[k];
 			if (vertex >= sizeVertices)
 			{
-				LASS_THROW("vertex index is out of range: " << static_cast<unsigned long>(vertex) 
-					<< " >= " << static_cast<unsigned long>(sizeVertices));
+				LASS_THROW("vertex index is out of range: "
+					<< static_cast<unsigned long>(vertex) << " >= " 
+					<< static_cast<unsigned long>(sizeVertices));
 			}
 			triangle.vertices[k] = &vertices_[vertex];
 
@@ -83,8 +85,9 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 			{				
 				if (normal >= sizeNormals)
 				{
-					LASS_THROW("normal index is out of range: " << static_cast<unsigned long>(normal) 
-						<< " >= " << static_cast<unsigned long>(sizeNormals));
+					LASS_THROW("normal index is out of range: " 
+						<< static_cast<unsigned long>(normal) << " >= " 
+						<< static_cast<unsigned long>(sizeNormals));
 				}
 				triangle.normals[k] = &normals_[normal];
 				++numNormals;
@@ -99,8 +102,9 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 			{
 				if (uv >= sizeUvs)
 				{
-					LASS_THROW("uv index is out of range: " << static_cast<unsigned long>(uv) 
-						<< " >= " << static_cast<unsigned long>(sizeUvs));
+					LASS_THROW("uv index is out of range: " 
+						<< static_cast<unsigned long>(uv) << " >= " 
+						<< static_cast<unsigned long>(sizeUvs));
 				}
 				triangle.uvs[k] = &uvs_.begin()[uv];
 				++numUvs;
@@ -340,7 +344,8 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 void TriangleMesh3D<T, BHV, SH>::flatFaces()
 {
 	normals_.clear();
-	for (TTriangles::iterator triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
+	for (typename TTriangles::iterator triangle = triangles_.begin(); 
+		triangle != triangles_.end(); ++triangle)
 	{
 		std::fill(triangle->normals, triangle->normals + 3, static_cast<TVector*>(0));
 	}
@@ -417,7 +422,8 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 				}
 				else
 				{
-					// boundary/crease edge, turn back to other "end", and use special formula.
+					// boundary/crease edge, turn back to other "end", 
+					// and use special formula.
 					const TPoint* neighbour2 = 0;
 					triangle = vertexTriangle;
 					while (triangle) //
@@ -434,11 +440,14 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						}
 						triangle = triangle->others[k];
 					}
-					// boundary edges count as 2 creases, so continue only if no other creases.
+					// boundary edges count as 2 creases, 
+					// so continue only if no other creases.
 					if (lastCrease.get() == creases.begin())
 					{
-						const TVector newPos = .75f * vertex.position() + 
-							.125f * (neighbour->position() + neighbour2->position());
+						const TVector newPos = 
+							.75f * vertex.position() + .125f * (
+								neighbour->position() + 
+								neighbour2->position());
 						LASS_ASSERT(newVertices.size() < newVertices.capacity());
 						newVertices.push_back(TPoint(newPos));
 					}
@@ -462,7 +471,8 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						// interior vertex
 						const size_t n = last.get() - ring.begin();
 						const TValue beta = n == 6 ? 
-							.0625f : (.625f - num::sqr(.375f + .25f * num::cos(2 * TNumTraits::pi / n))) / n;
+							.0625f : (.625f - num::sqr(.375f + .25f *
+								num::cos(2 * TNumTraits::pi / n))) / n;
 						newPos *= (1 - n * beta);
 						for (size_t i = 0; i < n; ++i)
 						{
@@ -473,7 +483,8 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 				case 2:
 					// same thing as boundary edge
 					newPos *= .75f;
-					newPos += .125f * (creases[0]->position() + creases[1]->position());
+					newPos += .125f * (
+						creases[0]->position() + creases[1]->position());
 					break;
 				default:
 					{
@@ -488,11 +499,11 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 
 		// III. now the fun starts, compute new stuff ...
 		//
-		//            2				- original vertex numbers are on outside
-		//			  *				- new vertex numbers are on inside
-		//           /2\			- triangle numbers are between braces (in the middle)
-		//          /   \		    - as always everything is counter clockwise
-		//         / (2) \			- number of edges (for 'others'): same number as it tail.
+		//            2             - original vertex numbers are on outside
+		//            *             - new vertex numbers are on inside
+		//           /2\            - triangle numbers are between braces (in the middle)
+		//          /   \           - as always everything is counter clockwise
+		//         / (2) \          - number of edges (for 'others'): same number as it tail.
 		//        /0     1\         - triangle (3) is called the oddTriangle
 		//       *---------*
 		//      /2\2     1/2\
@@ -525,27 +536,33 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						const size_t otherK = other->side(a);
 						LASS_ASSERT(otherK < 3);
 						LASS_ASSERT(other->vertices[(otherK + 2) % 3] == b);
-						LASS_ASSERT(triangle.creaseLevel[k] == other->creaseLevel[(otherK + 2) % 3]);
+						LASS_ASSERT(triangle.creaseLevel[k] == 
+							other->creaseLevel[(otherK + 2) % 3]);
 						if (triangle.creaseLevel[k] > 0)
 						{
 							--triangle.creaseLevel[k];
 							--other->creaseLevel[(otherK + 2) % 3];
-							newVertices.push_back(TPoint(.5f * (a->position() + b->position())));
+							newVertices.push_back(TPoint(
+								.5f * (a->position() + b->position())));
 						}
 						else
 						{
-							const TPoint* const d = other->vertices[(otherK + 1) % 3];
+							const TPoint* const d = 
+								other->vertices[(otherK + 1) % 3];
 							newVertices.push_back(TPoint(
 								.375f * (a->position() + b->position()) + 
 								.125f * (c->position() + d->position())));
 						}
-						Triangle& otherOddTriangle = newTriangles[4 * (other - firstTriangle) + 3];
-						otherOddTriangle.vertices[(otherK + 2) % 3] = &newVertices.back();
+						Triangle& otherOddTriangle = 
+							newTriangles[4 * (other - firstTriangle) + 3];
+						otherOddTriangle.vertices[(otherK + 2) % 3] =
+							&newVertices.back();
 					}
 					else
 					{
 						LASS_ASSERT(triangle.creaseLevel[k] == 0);
-						newVertices.push_back(TPoint(.5f * (a->position() + b->position())));
+						newVertices.push_back(TPoint(
+							.5f * (a->position() + b->position())));
 					}
 					oddTriangle.vertices[k] = &newVertices.back();
 				}			
@@ -570,16 +587,20 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 				{
 					const size_t otherK = other0->side(vertex0);
 					LASS_ASSERT(otherK < 3);
-					Triangle& otherTri = newTriangles[4 * (other0 - firstTriangle) + otherK];
-					LASS_ASSERT(otherTri.others[(otherK + 2) % 3] == 0 || otherTri.others[(otherK + 2) % 3] == &newTri);
+					Triangle& otherTri = 
+						newTriangles[4 * (other0 - firstTriangle) + otherK];
+					LASS_ASSERT(otherTri.others[(otherK + 2) % 3] == 0 || 
+						otherTri.others[(otherK + 2) % 3] == &newTri);
 					newTri.others[k0] = &otherTri;
 				}
 				if (const Triangle* other2 = triangle.others[k2])
 				{
 					const size_t otherK = other2->side(vertex0);
 					LASS_ASSERT(otherK < 3);
-					Triangle& otherTri = newTriangles[4 * (other2 - firstTriangle) + otherK];
-					LASS_ASSERT(otherTri.others[otherK] == 0 || otherTri.others[otherK] == &newTri);
+					Triangle& otherTri = 
+						newTriangles[4 * (other2 - firstTriangle) + otherK];
+					LASS_ASSERT(otherTri.others[otherK] == 0 || 
+						otherTri.others[otherK] == &newTri);
 					newTri.others[k2] = &otherTri;
 				}
 				newTri.creaseLevel[k0] = triangle.creaseLevel[k0];
@@ -610,7 +631,8 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 				for (size_t k0 = 0; k0 < 3; ++k0)
 				{
 					// set new pointer of even Normal
-					newTris[k0].normals[k0] = &newNormals[triangle.normals[k0] - firstNormal];
+					newTris[k0].normals[k0] = 
+						&newNormals[triangle.normals[k0] - firstNormal];
 					// if odd normal doesn't exist yet, compute
 					if (oddTriangle.normals[k0] == 0)
 					{
@@ -619,18 +641,23 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						LASS_ASSERT(newNormals.size() < newNormals.capacity());
 						newNormals.push_back((.5f * (a + b)).normal());
 						oddTriangle.normals[k0] = &newNormals.back();
-						// if other triangle uses same UVs, copy to odd triangle over there.
+						// if other triangle uses same UVs, 
+						// copy to odd triangle over there.
 						if (const Triangle* const other = triangle.others[k0])
 						{
-							const size_t otherK0 = other->side(triangle.vertices[k0]);
+							const size_t otherK0 = 
+								other->side(triangle.vertices[k0]);
 							LASS_ASSERT(otherK0 < 3);
 							const size_t otherK2 = (otherK0 + 2) % 3;
-							if (triangle.normals[k0] == other->normals[otherK0] && 
-								triangle.normals[k1] == other->normals[otherK2])
+							if (triangle.normals[k0] == 
+								other->normals[otherK0] && 
+								triangle.normals[k1] == 
+								other->normals[otherK2])
 							{
-								Triangle& otherOddTriangle = 
-									newTriangles[4 * (other - firstTriangle) + 3];
-								otherOddTriangle.normals[otherK2] = oddTriangle.normals[k0];
+								Triangle& otherOddTriangle = newTriangles[
+									4 * (other - firstTriangle) + 3];
+								otherOddTriangle.normals[otherK2] =
+									oddTriangle.normals[k0];
 							}
 						}
 					}
@@ -657,18 +684,21 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 						LASS_ASSERT(newUvs.size() < newUvs.capacity());
 						newUvs.push_back(TUv(.5f * (a.position() + b.position())));
 						oddTriangle.uvs[k0] = &newUvs.back();
-						// if other triangle uses same UVs, copy to odd triangle over there.
+						// if other triangle uses same UVs, 
+						// copy to odd triangle over there.
 						if (const Triangle* const other = triangle.others[k0])
 						{
-							const size_t otherK0 = other->side(triangle.vertices[k0]);
+							const size_t otherK0 = 
+								other->side(triangle.vertices[k0]);
 							LASS_ASSERT(otherK0 < 3);
 							const size_t otherK2 = (otherK0 + 2) % 3;
 							if (triangle.uvs[k0] == other->uvs[otherK0] && 
 								triangle.uvs[k1] == other->uvs[otherK2])
 							{
-								Triangle& otherOddTriangle = 
-									newTriangles[4 * (other - firstTriangle) + 3];
-								otherOddTriangle.uvs[otherK2] = oddTriangle.uvs[k0];
+								Triangle& otherOddTriangle = newTriangles[
+									4 * (other - firstTriangle) + 3];
+								otherOddTriangle.uvs[otherK2] =
+									oddTriangle.uvs[k0];
 							}
 						}
 					}
@@ -689,28 +719,6 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 		--level;
 	}
 	tree_.reset(triangles_.begin(), triangles_.end());
-
-	std::ofstream test("test.obj");
-	for (TVertices::const_iterator v = vertices_.begin(); v != vertices_.end(); ++v)
-	{
-		test << "v";
-		for (size_t k = 0; k < 3; ++k)
-		{
-			test << " " << (*v)[k];
-		}
-		test << "\n";
-	}
-	const TPoint* const firstVertex = &vertices_[0];
-	for (TTriangles::const_iterator t = triangles_.begin(); t != triangles_.end(); ++t)
-	{
-		test << "f";
-		for (size_t k = 0; k < 3; ++k)
-		{
-			test << " " << (t->vertices[k] - firstVertex + 1);
-		}
-		test << "\n";
-	}
-
 }
 
 
@@ -781,9 +789,10 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 			if (triangle.others[k1] == 0)
 			{
 				const Edge bait(&triangle, k2, k1); // reversed edge
-				const TEdges::const_iterator haul = 
+				const typename TEdges::const_iterator haul = 
 					std::lower_bound(edges.begin(), edges.end(), bait);
-				if (haul != edges.end() && !(bait < *haul) && haul->triangle->others[haul->k1] == 0)
+				if (haul != edges.end() && !(bait < *haul) && 
+					haul->triangle->others[haul->k1] == 0)
 				{
 					triangle.others[k1] = haul->triangle;
 					haul->triangle->others[haul->k1] = &triangle;
@@ -794,7 +803,8 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 						// turn right/left, and replace all otherV by v
 						Triangle* other = haul->triangle;
 						size_t k = s == 1 ? haul->k2 : haul->k1;
-						const TPoint* const v = triangle.vertices[s == 1 ? k1 : k2];
+						const TPoint* const v = 
+							triangle.vertices[s == 1 ? k1 : k2];
 						const TPoint* const otherV = other->vertices[k];
 						LASS_ASSERT(*v == *otherV);
 						if (v != otherV)
@@ -803,7 +813,8 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 							{
 								LASS_ASSERT(other->vertices[k] == otherV);
 								other->vertices[k] = v;
-								other = other->others[(k + (s == 1 ? 0 : 2)) % 3];
+								other = other->others[
+									(k + (s == 1 ? 0 : 2)) % 3];
 								k = other ? other->side(otherV) : 3;
 							}
 							while (other && k < 3);
@@ -1010,7 +1021,8 @@ void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
 		{
 			const Edge bait(0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
-			const TEdges::const_iterator haul = std::lower_bound(edges.begin(), edges.end(), bait);
+			const typename TEdges::const_iterator haul = std::lower_bound(
+				edges.begin(), edges.end(), bait);
 			if (haul != edges.end() && !(bait < *haul))
 			{
 				triangle.others[k1] = haul->triangle;
