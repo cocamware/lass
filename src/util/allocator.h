@@ -830,7 +830,9 @@ public:
 	//
 	typedef num::Tuint16 TTag;
 	TaggedPtr(): bits_(0) {}
-	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
+	TaggedPtr(T* ptr, TTag tag): 
+		bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | 
+		 (static_cast<num::Tuint64>(tag) & 0xffff)) {}
 	T* const get() const 
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
