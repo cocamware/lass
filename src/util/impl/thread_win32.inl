@@ -204,7 +204,8 @@ public:
 		LASS_ASSERT(ret != 0);
 		if (ret == 0)
 		{
-			std::cerr << "[LASS RUN MSG] WARNING:  CloseHandle failed in ~MutexInternal(): "
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+				<< " CloseHandle failed in ~MutexInternal(): "
 				<< GetLastError << std::endl;
 		}
 	}		
@@ -291,7 +292,7 @@ public:
 		destructors().erase(index_);
 		if (!TlsFree(index_))
 		{
-			std::cerr << "[LASS RUN MSG] WARNING: TlsFree failed." << std::endl;
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: TlsFree failed." << std::endl;
 		}
 	}
 	void* const get() const
