@@ -180,8 +180,10 @@
 // --- common lass stuff ---
 
 #include "util/common_macros.h"
+#include "util/call_traits.h"
 #include "util/exception.h"
 #include "util/enforcer.h"
+#include "util/string_cast.h"
 #include "io/io_fwd.h"
 #include "io/proxy_man.h"
 #include "stde/extended_io.h"

@@ -23,9 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-
 /** @defgroup Enforcers Enforcers
  *  @brief enforcers are release-time counterpart of assertions to ease condition verifying
  *  @author [Bramz]
@@ -38,16 +35,10 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_ENFORCER_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_ENFORCER_H
 
-
-
-#include "common_macros.h"
+#include "util_common.h"
 #include "impl/enforcer_impl.h"
-
-
 #include <string>
 #include <sstream>
-
-
 
 /** Enforces the expression to be "true", by using operator!.
  *  @ingroup Enforcers

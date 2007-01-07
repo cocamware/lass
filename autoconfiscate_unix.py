@@ -15,7 +15,7 @@ library_version = (2, 0, 2)
 #            |           set to zero if current is incremented
 #            +- increment if interfaces have been added, removed or changed
 
-source_dirs = ['config', 'frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
+source_dirs = ['config', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
 test_dirs = ['test']
 
 debug_info_flags = '-g'
@@ -298,6 +298,7 @@ libdir=@libdir@
 includedir=@includedir@
 lass_release_name=@LASS_RELEASE_NAME@
 lass_ldflags=@LASS_LDFLAGS@
+lass_py_includes=@LASS_PY_INCLUDES@
 lass_py_ldflags=@LASS_PY_LDFLAGS@
 
 Name: LASS
@@ -305,7 +306,7 @@ Description: Library of Assembled Shared Sources (http://liar.sourceforge.net)
 Requires: 
 Version: @VERSION@
 Libs: -L${libdir} -l${lass_release_name} ${lass_ldflags} ${lass_py_ldflags}
-Cflags: -I${includedir}/${lass_release_name} -I${libdir}/${lass_release_name}/include
+Cflags: -I${includedir}/${lass_release_name} ${lass_py_includes}
 ''')
 
 

@@ -76,33 +76,7 @@ void testStdeExtendedIo()
 	stream << vector;
 	LASS_TEST_CHECK(stream.isEqual(sequencePattern));
 	TVector vector2;
-	//LASS_TEST_CHECK_NO_THROW(vector2 = util::stringCast<TVector>(sequencePattern));
-		do 
-	{
-		try 
-		{ 
-			vector2 = util::stringCast<TVector>(sequencePattern); 
-		} 
-		catch (const ::lass::util::Exception& error)
-		{ 
-			++::lass::test::impl::errors(); 
-			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::lass::util::Exception" << " (" << error.what() << ")." << std::endl; 
-			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::lass::util::Exception" << " (" << error.what() << ")." << std::endl; 
-		} 
-		catch (const ::std::exception& error) 
-		{ 
-			++::lass::test::impl::errors(); 
-			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::std::exception" << " (" << error.what() << ")." << std::endl; 
-			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": " << "::std::exception" << " (" << error.what() << ")." << std::endl; 
-		} 
-		catch (...) 
-		{ 
-			++::lass::test::impl::errors(); 
-			(lass::io::cout()) << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": unknown exception." << std::endl; 
-			::lass::test::impl::errorLog() << "d:\\bram\\visual_studio_projects\\lass\\src\\test\\test_stde_extended_io.inl" << "(" << 79 << "): " << "exception was thrown by '" "vector2 = util::stringCast<TVector>(sequencePattern)" "'" << ": unknown exception." << std::endl; 
-		} 
-	} 
-	while (false);
+	LASS_TEST_CHECK_NO_THROW(vector2 = util::stringCast<TVector>(sequencePattern));
 	LASS_TEST_CHECK(extended_io::safe_equal(vector, vector2));
 
 	typedef std::list<std::string> TList;
@@ -174,16 +148,6 @@ void testStdeExtendedIo()
 	TMultiset multiset2;
 	LASS_TEST_CHECK_NO_THROW(multiset2 = util::stringCast<TMultiset>(multisetPattern));
 	LASS_TEST_CHECK(extended_io::safe_equal(multiset, multiset2));
-
-#ifdef _STLP_SLIST
-	std::slist<int> slist;
-	slist.push_back(1);
-	slist.push_back(2);
-	slist.push_back(3);
-	stream << slist;
-	LASS_TEST_CHECK(stream.isEqual("[1, 2, 3]"));
-#endif
-
 }
 
 }

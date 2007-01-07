@@ -70,7 +70,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_STRING_CAST_H
 
 #include "util_common.h"
-#include "call_traits.h"
 #include <limits>
 
 namespace lass

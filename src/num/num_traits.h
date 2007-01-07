@@ -27,8 +27,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_TRAITS_H
 
-//#include "num_common.h"
-#include "../util/call_traits.h"
+#include "num_common.h"
 
 #ifdef LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 #	include <float.h>
@@ -249,6 +248,6 @@ LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, long, 0 )
 // because basic_ops.h needs NumTraits to be defined first.  So now it's time
 // to include basic_ops.h anyway [Bramz]
 //
-//#include "basic_ops.h"
+#include "basic_ops.h"
 
 #endif

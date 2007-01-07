@@ -46,8 +46,8 @@ TUnitTests testStde()
 {
 	TUnitTests result;
 
-	result.push_back(LASS_UNIT_TEST(testStdeCompose));
 	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
+	result.push_back(LASS_UNIT_TEST(testStdeCompose));
 	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
 	result.push_back(LASS_UNIT_TEST(testStdeSlist));
 	result.push_back(LASS_UNIT_TEST(testStdeSmallObjectAllocator));
