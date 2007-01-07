@@ -30,53 +30,79 @@
  *
  *  @code
  *  #include <lass/util/thread_pool.h>
- *	#include <lass/util/atomic.h>
- *  using namespace lass;
+ *  #include <lass/util/bind.h>
+ *  using namespace lass::util;
  *
- *	const unsigned numberOfThreads = 4;
- *	const unsigned maxNumberOfTasksInQueue = 20;
- *	const unsigned numberOfTasks = 40;
+ *  void parallelWork(int begin, int end);
+ *  const int n = 1000000;
+ *  const int step = 1000;
  *
- *  unsigned counter = 0;
- *
- *	void task()
- *	{
- *		util::Thread::sleep(50);
- *		util::atomicIncrement(counter);
- *	}
- *
- *  int main()
- *	{
- *		{
- *			util::ThreadPool<> pool(numberOfThreads, maxNumberOfTasksInQueue);
- *			for (unsigned i = 0; i < numberOfTasks; ++i)
- *			{
- *				pool.add(util::makeCallback(thread_pool::task)); // blocks if full.
- *			}
- *			// ~ThreadPool will wait for completion ...  You could also use pool.joinAll()
- *		}
- *		LASS_COUT << "counter: " << counter; // == numberOfTasks
- *	}
+ *  util::ThreadPool<> pool;
+ *  for (int i = 0; i < n; i += step)
+ *  {
+ *  	pool.addTask(bind(parallelWork, i, std::min(i + step, n)));
+ *  }
+ *  pool.completeAllTasks();
  *  @endcode
+ * 
+ *  @section Good-Practice
  *
- *	util::bind simplifies the use of ThreadPool for tasks with arguments
+ *  Using the policies and constructor parameters, the ThreadPool can be operated in many
+ *  different configurations.  However, there are two that are particular interesting:
+ *
+ *  @subsection 1 fast synchronized thread pool
+ *
+ *  Best used when short bursts of a bounded number of tasks are followed by completeAllTasks().
+ *  Example: A single task is splitted in a parallel subtasks, all feeded to the pool at once,
+ *  	and completeAllTasks() is called to finish the grand tasks. 
+ 
+ *  @arg IdlePolicy: Spinning, for a fast reaction time
+ *  @arg ParticipationPolicy: SelfParticipating, so that during completeAllTasks() the cpu cycles 
+ *  	of the control thread are not wasted by spinning.
+ *  @arg numberOfThreads: autoNumberOfThreads
+ *  @arg maxNumberOfTasksInQueue: unlimitedNumberOfTasks, because the number of tasks in the queue
+ *  	can be (and should be) bounded by the application itself, and we want the control thread
+ *  	to go in completeAllTasks() ASAP, so it can donate cpu cycles to completing the tasks
+ *  	instead of waisting them spinning until another task can be added to the queue.
+ *
+ *  @subsection 2 slower continues thread pool
+ *
+ *  Best used when a continues (unbounded) stream of tasks reaches a server.
+ *
+ *  @arg IdlePolicy: Signaled, to avoid needing an extra cpu for the control thread.
+ *  @arg ParticipationPolicy: NotParticipating, because you'll never call completeAllTasks()
+ *  @arg numberOfThreads: autoNumberOfThreads
+ *  @arg maxNumberOfTasksInQueue: <A LIMITED NUMBER> to avoid an excessive queue size
+ *
+ *  @section Policies
+ *
+ *  @subsection IdlePolicy
  *
  *  @code
- *	#include <lass/util/thread_pool.h>
- *	#include <lass/util/bind.h>
- *	using namespace lass::util;
- *
- *	void parallelWork(int begin, int end);
- *	const int n = 1000000;
- *	const int step = 1000;
- *
- *	util::ThreadPool<> pool;
- *	for (int i = 0; i < n; i += step)
- *	{
- *		pool.add(bind(parallelWork, i, std::min(i + step, n)));
- *	}
- *	pool.joinAll();
+ *  class IdlePolicy
+ *  {
+ *  protected:
+ *  	void sleepProducer();
+ *  	void wakeProducer();
+ *  	void sleepConsumer();
+ *  	void wakeConsumer();
+ *  	void wakeAllConsumers();
+ *  };
  *  @endcode
+ *
+ *  @subsection ParticipationPolicy
+ *
+ *  @code
+ *  template <typename TaskType, typename ConsumerType, typename IdlePolicy>
+ *  class ParticipationPolicy: public IdlePolicy
+ *  {
+ *  protected:
+ *  	NotParticipating(const ConsumerType& prototype);
+ *  	const unsigned numDynamicThreads(unsigned numThreads) const;
+ *  	template <typename Queue> bool participate(Queue&);
+ *  };
+ *  @endcode
+ *
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_THREAD_POOL_H
@@ -103,34 +129,58 @@ public:
 	void operator()(typename util::CallTraits<TaskType>::TParam iTask);
 };
 
+/** implementation of ThreadPool's IdlePolicy
+ *  @ingroup Threading
+ *  @sa ThreadPool
+ *
+ *  Idle threads don't go to sleep, but spin until a condition is met.
+ *  This results in a faster response but it should only be used if each thread 
+ *  (including the control thread) can have it's own cpu or core.
+ */
 class Spinning
 {
 protected:
 	Spinning() {}
 	~Spinning() {}
 	void sleepProducer() {}
+	void wakeProducer() {}
 	void sleepConsumer() {}
-	void signalProducer() {}
-	void signalConsumer() {}
-	void broadcastConsumers() {}
+	void wakeConsumer() {}
+	void wakeAllConsumers() {}
 };
 
+/** implementation of ThreadPool's IdlePolicy
+ *  @ingroup Threading
+ *  @sa ThreadPool
+ *
+ *  Idle threads are put to sleep and signaled to awake when a condition is met.
+ *  It results in a slower response of the threads, but it avoids wasting cpu cycles
+ *  to idle threads.
+ */
 class Signaled
 {
 protected:
 	Signaled() {}
 	~Signaled() {}
 	void sleepProducer() { producer_.wait(mSecsToSleep_); }
+	void wakeProducer() { producer_.signal(); }
 	void sleepConsumer() { consumer_.wait(mSecsToSleep_); }
-	void signalProducer() { producer_.signal(); }
-	void signalConsumer() { consumer_.signal(); }
-	void broadcastConsumers() { consumer_.broadcast(); }
+	void wakeConsumer() { consumer_.signal(); }
+	void wakeAllConsumers() { consumer_.broadcast(); }
 private:
 	enum { mSecsToSleep_ = 50 };
 	Condition producer_;
 	Condition consumer_;
 };
 
+/** implementation of ThreadPool's ParticipationPolicy
+ *  @ingroup Threading
+ *  @sa ThreadPool
+ *
+ *  The control thread participates as producer while waiting to complete all tasks.
+ *  Is best used when short burst of adding a limited number of tasks to an 
+ *  unlimited queue, followed by a completeAllTasks().
+ */
 template <typename TaskType, typename ConsumerType, typename IdlePolicy>
 class SelfParticipating: public IdlePolicy
 {
@@ -152,6 +202,14 @@ private:
 	ConsumerType consumer_;
 };
 
+/** implementation of ThreadPool's ParticipationPolicy
+ *  @ingroup Threading
+ *  @sa ThreadPool
+ *
+ *  The control thread will not participate as producer thread at any time.
+ *  Should be used when there's a continues stream of added tasks too a limited queue,
+ *  and when completeAllTasks() is never called.
+ */
 template <typename TaskType, typename ConsumerType, typename IdlePolicy>
 class NotParticipating: public IdlePolicy
 {
@@ -182,15 +240,20 @@ public:
 	typedef ParticipationPolicy<TaskType, ConsumerType, IdlePolicy> TParticipationPolicy;
 	typedef ThreadPool<TaskType, ConsumerType, IdlePolicy, ParticipationPolicy> TSelf;
 
-	enum { autoNumberOfThreads = 0 };
+	enum 
+	{ 
+		autoNumberOfThreads = 0,
+		unlimitedNumberOfTasks = 0
+	};
 
 	ThreadPool(unsigned iNumberOfThreads = autoNumberOfThreads, 
-		unsigned iMaximumNumberOfTasksInQueue = 16, 
+		unsigned iMaximumNumberOfTasksInQueue = unlimitedQueue, 
 		const TConsumer& iConsumerPrototype = TConsumer());
 	~ThreadPool();
 
-	void add(typename util::CallTraits<TTask>::TParam iTask);
-	void joinAll();
+	void addTask(typename util::CallTraits<TTask>::TParam iTask);
+	void completeAllTasks();
+	void clearQueue();
 	const unsigned numberOfThreads() const;
 
 private:

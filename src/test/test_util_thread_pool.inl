@@ -71,9 +71,9 @@ namespace thread_pool
 		TThreadPool pool(numberOfThreads, maxNumberOfTasksInQueue);
 		for (unsigned i = 0; i < numberOfTasks; ++i)
 		{
-			pool.add(util::bind(task, i));
+			pool.addTask(util::bind(task, i));
 		}
-		pool.joinAll();
+		pool.completeAllTasks();
 		
 		LASS_TEST_CHECK_EQUAL(counter, numberOfTasks);
 		for (unsigned i = 0; i < numberOfTasks; ++i)

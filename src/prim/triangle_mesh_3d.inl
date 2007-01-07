@@ -728,37 +728,7 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::autoSew()
 {
-	struct Edge
-	{
-		Triangle* triangle;
-		size_t k1;
-		size_t k2;
-		Edge(Triangle* iTriangle, size_t iK1, size_t iK2): 
-			triangle(iTriangle), k1(iK1), k2(iK2)
-		{
-			const TPoint& v1 = *triangle->vertices[k1];
-			x_[ 0] = v1.x; 
-			x_[ 1] = v1.y;
-			x_[ 2] = v1.z;
-			const TPoint& v2 = *triangle->vertices[k2];
-			x_[ 3] = v2.x;
-			x_[ 4] = v2.y;
-			x_[ 5] = v2.z;
-		}
-		const bool operator<(const Edge& iOther) const
-		{
-			for (size_t i = 0; i < size_; ++i)
-			{
-				if (x_[i] < iOther.x_[i]) return true;
-				if (x_[i] > iOther.x_[i]) return false;
-			}
-			return false;
-		}
-	private:
-		enum { size_ = 6 };
-		TValue x_[size_];
-	};
-	typedef std::vector<Edge> TEdges;
+	typedef std::vector<PositionalEdge> TEdges;
 
 	// I. make list of all boundary edges
 	//
@@ -772,7 +742,7 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 		{
 			if (triangle.others[k1] == 0)
 			{
-				edges.push_back(Edge(&triangle, k1, k2));
+				edges.push_back(PositionalEdge(&triangle, k1, k2));
 			}
 		}
 	}
@@ -788,7 +758,7 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 		{
 			if (triangle.others[k1] == 0)
 			{
-				const Edge bait(&triangle, k2, k1); // reversed edge
+				const PositionalEdge bait(&triangle, k2, k1); // reversed edge
 				const typename TEdges::const_iterator haul = 
 					std::lower_bound(edges.begin(), edges.end(), bait);
 				if (haul != edges.end() && !(bait < *haul) && 
@@ -978,19 +948,7 @@ const size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* v) const
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 {
-	struct Edge
-	{
-		Triangle* triangle;
-		const TPoint* tail;
-		const TPoint* head;
-		Edge(Triangle* iTriangle, const TPoint* iTail, const TPoint* iHead): 
-			triangle(iTriangle), tail(iTail), head(iHead) {}
-		bool operator<(const Edge& iOther) const
-		{
-			return tail < iOther.tail || (tail == iOther.tail && head < iOther.head);
-		}
-	};
-	typedef std::vector<Edge> TEdges;
+	typedef std::vector<LogicalEdge> TEdges;
 
 	numBoundaryEdges_ = 0;
 	const size_t numTriangles = triangles_.size();
@@ -1008,7 +966,8 @@ void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 		Triangle& triangle = triangles_[i];
 		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
 		{
-			edges.push_back(Edge(&triangle, triangle.vertices[k1], triangle.vertices[k2]));
+			edges.push_back(LogicalEdge(
+				&triangle, triangle.vertices[k1], triangle.vertices[k2]));
 		}
 	}
 	std::sort(edges.begin(), edges.end());
@@ -1020,7 +979,8 @@ void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 		Triangle& triangle = triangles_[i];
 		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
 		{
-			const Edge bait(0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
+			const LogicalEdge bait(
+				0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
 			const typename TEdges::const_iterator haul = std::lower_bound(
 				edges.begin(), edges.end(), bait);
 			if (haul != edges.end() && !(bait < *haul))

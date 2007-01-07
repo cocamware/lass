@@ -30,6 +30,11 @@ namespace util
 
 // --- public --------------------------------------------------------------------------------------
 
+/** @param iNumberOfThreads specify number of producer threads.  Specify @a autoNumberOfThreads
+ *  	to automatically use as many threads as processors.
+ *  @param mNumberOfTasksInQueue specifiy the maximum number of tasks that may be waiting in the
+ *  	queue.  Specify @a unlimitedNumberOfTasks to have an unlimited queue.
+ */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 ThreadPool<T, C, IP, PP>::ThreadPool(
 		unsigned iNumberOfThreads, 
@@ -54,7 +59,7 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
 {
 	try
 	{
-		joinAll();
+		completeAllTasks();
 	}
 	catch (...)
 	{
@@ -66,19 +71,23 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
 
 
 
+/** submit a task to the pool, and block if queue is full.
+ *  Function waits until tasks can be added to queue without participating as producer 
+ *  	(in case of SelfParticipating).
+ */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::add(typename util::CallTraits<TTask>::TParam iTask)
+void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam iTask)
 {
 	while (true)
 	{
 		unsigned numWaitingTasks = numWaitingTasks_;
-		if (maxWaitingTasks_ == 0 || numWaitingTasks < maxWaitingTasks_)
+		if (maxWaitingTasks_ == unlimitedNumberOfTasks || numWaitingTasks < maxWaitingTasks_)
 		{
 			if (util::atomicCompareAndSwap(
 				numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
 			{
 				waitingTasks_.push(iTask);
-				signalConsumer();
+				wakeConsumer();
 				return;
 			}
 			else
@@ -91,8 +100,11 @@ void ThreadPool<T, C, IP, PP>::add(typename util::CallTraits<TTask>::TParam iTas
 
 
 
+/** blocks until all tasks in the queue are completed
+ *  control thread participates as producer if policy allows for it.
+ */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::joinAll()
+void ThreadPool<T, C, IP, PP>::completeAllTasks()
 {
 	while (numWaitingTasks_ > 0 || numRunningTasks_ > 0)
 	{
@@ -101,6 +113,20 @@ void ThreadPool<T, C, IP, PP>::joinAll()
 			atomicDecrement(numWaitingTasks_);
 		}
 		sleepProducer();
+	}
+}
+
+
+
+/** clear queue without completing tasks.
+ *  All waiting tasks in the queue are simply thrown away without ever being completed.
+ */
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::clearQueue()
+{
+	TTask dummy;
+	while (waitingTasks_.pop(dummy))
+	{
 	}
 }
 
@@ -173,7 +199,7 @@ void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
 	try
 	{
 		shutDown_ = true;
-		broadcastConsumers();
+		wakeAllConsumers();
 	}
 	catch (...)
 	{
@@ -225,7 +251,7 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 		{
 			util::atomicIncrement(pool_.numRunningTasks_);
 			util::atomicDecrement(pool_.numWaitingTasks_);
-			pool_.signalProducer();
+			pool_.wakeProducer();
 			consumer_(task);
 			util::atomicDecrement(pool_.numRunningTasks_);
 		}

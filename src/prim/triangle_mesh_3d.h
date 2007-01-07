@@ -220,6 +220,50 @@ private:
 	};
 
 	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits, SplitHeuristics> TTriangleTree;
+	
+	struct LogicalEdge
+	{
+		Triangle* triangle;
+		const TPoint* tail;
+		const TPoint* head;
+		LogicalEdge(Triangle* iTriangle, const TPoint* iTail, const TPoint* iHead): 
+			triangle(iTriangle), tail(iTail), head(iHead) {}
+		bool operator<(const LogicalEdge& iOther) const
+		{
+			return tail < iOther.tail || (tail == iOther.tail && head < iOther.head);
+		}
+	};
+
+	struct PositionalEdge
+	{
+		Triangle* triangle;
+		size_t k1;
+		size_t k2;
+		PositionalEdge(Triangle* iTriangle, size_t iK1, size_t iK2): 
+			triangle(iTriangle), k1(iK1), k2(iK2)
+		{
+			const TPoint& v1 = *triangle->vertices[k1];
+			x_[ 0] = v1.x; 
+			x_[ 1] = v1.y;
+			x_[ 2] = v1.z;
+			const TPoint& v2 = *triangle->vertices[k2];
+			x_[ 3] = v2.x;
+			x_[ 4] = v2.y;
+			x_[ 5] = v2.z;
+		}
+		const bool operator<(const PositionalEdge& iOther) const
+		{
+			for (size_t i = 0; i < size_; ++i)
+			{
+				if (x_[i] < iOther.x_[i]) return true;
+				if (x_[i] > iOther.x_[i]) return false;
+			}
+			return false;
+		}
+	private:
+		enum { size_ = 6 };
+		TValue x_[size_];
+	};
 
 	void connectTriangles();
 
