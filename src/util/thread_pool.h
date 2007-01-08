@@ -247,7 +247,7 @@ public:
 	};
 
 	ThreadPool(unsigned iNumberOfThreads = autoNumberOfThreads, 
-		unsigned iMaximumNumberOfTasksInQueue = unlimitedQueue, 
+		unsigned iMaximumNumberOfTasksInQueue = unlimitedNumberOfTasks, 
 		const TConsumer& iConsumerPrototype = TConsumer());
 	~ThreadPool();
 
