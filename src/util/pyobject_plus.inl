@@ -329,7 +329,7 @@ PyObject* unaryDispatcher(PyObject* iSelf)
 template <PyCFunction DispatcherAddress>
 PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
 {
-	TPyObjPtr args(PyTuple_Pack(1, iOther));
+	TPyObjPtr args(Py_BuildValue("(O)", iOther));
 	return DispatcherAddress(iSelf, args.get());
 }
 
