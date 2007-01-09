@@ -36,6 +36,17 @@
 #include "num_common.h"
 #include <cmath>
 
+// The friendly folks of Cygwin have implemented log2 as a macro.
+// Well, actually, they forgot to undef it in cmath.  Do it now!
+//
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_CYGWIN && defined(log2)
+#	undef log2
+namespace std
+{
+    template <typename T> inline T log2(T x) { return std::log(x) / T(M_LN2); }
+}
+#endif
+
 namespace lass
 {
 namespace num

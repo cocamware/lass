@@ -28,7 +28,7 @@
 // http://pi.lacim.uqam.ca/eng/table_en.html
 #define LASS_NUM_INVLOG2  1.442695040888963407359924681001892137426645954152985934135449406931109219181185079885526622893506344
 #define LASS_NUM_INVLOG10 0.434294481903251827651128918916605082294397005803666566114453783165864649208870774729224949338431748
-
+	
 namespace impl
 {
 
@@ -315,27 +315,33 @@ double mod(double iV, double iMod)
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_CYGWIN
 
-long double abs(long double iV)	{ return static_cast<long double>(abs(static_cast<double>(iV))); }
-long double inv(long double iV) { return static_cast<long double>(inv(static_cast<double>(iV))); }
-long double sqrt(long double iV) { return static_cast<long double>(sqrt(static_cast<double>(iV))); }
-long double pow(long double iV, long double iPow) { return static_cast<long double>(pow(static_cast<double>(iV), static_cast<double>(iPow))); }
-long double exp(long double iV) { return static_cast<long double>(exp(static_cast<double>(iV))); }
-long double log(long double iV) { return static_cast<long double>(log(static_cast<double>(iV))); }
-long double log2(long double iV) { return static_cast<long double>(log2(static_cast<double>(iV))); }
-long double log10(long double iV) { return static_cast<long double>(log10(static_cast<double>(iV))); }
-long double cos(long double iV) { return static_cast<long double>(cos(static_cast<double>(iV))); }
-long double sin(long double iV) { return static_cast<long double>(sin(static_cast<double>(iV))); }
-long double tan(long double iV) { return static_cast<long double>(tan(static_cast<double>(iV))); }
-long double acos(long double iV) { return static_cast<long double>(acos(static_cast<double>(iV))); }
-long double asin(long double iV) { return static_cast<long double>(asin(static_cast<double>(iV))); }
-long double atan(long double iV) { return static_cast<long double>(atan(static_cast<double>(iV))); }
-long double atan2(long double iY, long double iX) { return static_cast<long double>(atan2(static_cast<double>(iY), static_cast<double>(iX))); }
-long double sinc(long double iV) { return static_cast<long double>(sinc(static_cast<double>(iV))); }
-long double floor(long double iV) { return static_cast<long double>(floor(static_cast<double>(iV))); }
-long double ceil(long double iV) { return static_cast<long double>(ceil(static_cast<double>(iV))); }
-long double round(long double iV) { return static_cast<long double>(round(static_cast<double>(iV))); }
-long double fractional(long double iV) { return static_cast<long double>(fractional(static_cast<double>(iV))); }
-long double mod(long double iV, long double iMod) { return static_cast<long double>(mod(static_cast<double>(iV), static_cast<double>(iMod))); } 
+long double abs(long double iV)						{ return __builtin_fabsl(iV); }			/**< @ingroup BasicOps */
+long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
+long double sqrt(long double iV)					{ LASS_ASSERT(iV >= 0.); return __builtin_sqrtl(iV); }	/**< @ingroup BasicOps */
+long double pow(long double iV, long double iPow)	{ return __builtin_powl(iV, iPow); }	/**< @ingroup BasicOps */
+long double exp(long double iV)						{ return __builtin_expl(iV); }			/**< @ingroup BasicOps */
+long double log(long double iV)						{ return __builtin_logl(iV); }			/**< @ingroup BasicOps */
+long double log2(long double iV)					{ return (long double)(LASS_NUM_INVLOG2) * __builtin_logl(iV); } /**< @ingroup BasicOps */
+long double log10(long double iV)					{ return __builtin_log10l(iV); }		/**< @ingroup BasicOps */
+long double cos(long double iV)						{ return __builtin_cosl(iV); }			/**< @ingroup BasicOps */
+long double sin(long double iV)						{ return __builtin_sinl(iV); }			/**< @ingroup BasicOps */
+long double tan(long double iV)						{ return __builtin_tanl(iV); }			/**< @ingroup BasicOps */
+long double acos(long double iV)					{ return __builtin_acosl(iV); }			/**< @ingroup BasicOps */
+long double asin(long double iV)					{ return __builtin_asinl(iV); }			/**< @ingroup BasicOps */
+long double atan(long double iV)					{ return __builtin_atanl(iV); }			/**< @ingroup BasicOps */
+long double atan2(long double iY, long double iX)	{ return __builtin_atan2l(iY, iX); }	/**< @ingroup BasicOps */
+long double sinc(long double iV)					{ return __builtin_fabsl(iV) < 1e-10 ? 1. : (__builtin_sinl(iV) / iV); }	/**< @ingroup BasicOps */
+long double floor(long double iV)					{ return __builtin_floorl(iV); }		/**< @ingroup BasicOps */
+long double ceil(long double iV)					{ return __builtin_ceill(iV); }			/**< @ingroup BasicOps */
+long double round(long double iV)					{ return __builtin_floorl(iV + .5); }	/**< @ingroup BasicOps */
+long double fractional(long double iV)				{ return iV - __builtin_floorl(iV); }	/**< @ingroup BasicOps */
+
+/** @ingroup BasicOps */
+long double mod(long double iV, long double iMod) 
+{ 
+	const long double result = __builtin_fmodl(iV, iMod);
+	return result < 0. ? result + iMod : result;
+}	
 
 #else
 
