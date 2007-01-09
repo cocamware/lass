@@ -86,6 +86,7 @@ public:
 	virtual ~MeshInterpolator() {}
 
 	const TPlanarMesh& mesh() const { return mesh_; }
+	const TAabb2D& aabb() const { return aabb_; }
 
 	virtual void insertSite( const TPoint2D& iPoint, const TPI& iPointInfo );
 	virtual void insertPolyLine( const TPolyLine2D& iPoly, const TPI& iPointInfo );
@@ -94,10 +95,13 @@ public:
 protected:
 	MeshInterpolator() {}
 
+	typedef std::deque<TPI> TInfoList;    /**< type must support stable iterators */
+	TInfoList& info() { return info_; }
+
+private:
 	TPlanarMesh mesh_;
 	TAabb2D		aabb_;
 
-	typedef std::deque<TPI> TInfoList;    /**< type must support stable iterators */
 	TInfoList info_;
 };
 
@@ -200,30 +204,30 @@ LinearMeshInterpolator<T,TPI>::LinearMeshInterpolator( const TAabb2D& iAabb, con
 
 	typename TPlanarMesh::TEdge*    e;
 
-	this->info_.push_back(iValueOutside);
+	this->info().push_back(iValueOutside);
 
-	e = this->mesh_.locate(topleft);
+	e = this->mesh().locate(topleft);
 	LASS_ASSERT(TPlanarMesh::org(e) == topleft);
-	TPlanarMesh::setPointHandle(e, &this->info_.back());
+	TPlanarMesh::setPointHandle(e, &this->info().back());
 
-	e = this->mesh_.locate(topright);
+	e = this->mesh().locate(topright);
 	LASS_ASSERT(TPlanarMesh::org(e) == topright);
-	TPlanarMesh::setPointHandle( e, &this->info_.back() );
+	TPlanarMesh::setPointHandle( e, &this->info().back() );
 
-	e = this->mesh_.locate(bottomleft);
+	e = this->mesh().locate(bottomleft);
 	LASS_ASSERT(TPlanarMesh::org(e) == bottomleft);
-	TPlanarMesh::setPointHandle(e, &this->info_.back());
+	TPlanarMesh::setPointHandle(e, &this->info().back());
 
-	e = this->mesh_.locate(bottomright);
+	e = this->mesh().locate(bottomright);
 	LASS_ASSERT(TPlanarMesh::org(e) == bottomright);
-	TPlanarMesh::setPointHandle( e, &this->info_.back() );
+	TPlanarMesh::setPointHandle( e, &this->info().back() );
 
 }
 
 template<typename T, typename TPI>
 TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery, typename TPlanarMesh::TEdge* e ) const
 {
-	if (!aabb_.contains(iQuery))
+	if (!this->aabb().contains(iQuery))
 		return valueOutside_;
 
 	TPoint2D a = TPlanarMesh::fastOrg(e);
@@ -245,8 +249,8 @@ TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery, typename
 template<typename T, typename TPI>
 TPI LinearMeshInterpolator<T,TPI>::interpolate( const TPoint2D& iQuery ) const
 {
-	typename TPlanarMesh::TEdge* e = this->mesh_.locate(iQuery);
-	if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(e)) && !TPlanarMesh::hasLeftFace(e))
+	typename TPlanarMesh::TEdge* e = this->mesh().locate(iQuery);
+	if (this->mesh().isBoundingPoint(TPlanarMesh::fastOrg(e)) && !TPlanarMesh::hasLeftFace(e))
 		e = e->sym();
 	return interpolate(iQuery,e);
 }
@@ -270,15 +274,15 @@ OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& i
 	//TPolyLine2D crossings;
 	for (size_t i=0;i<iQuery.size()-1;++i)
 	{
-		crossings.push_back(TPointEdgePair(iQuery[i],mesh_.locate(iQuery[i])));
-		mesh_.walkIntersections(typename TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),
+		crossings.push_back(TPointEdgePair(iQuery[i],this->mesh().locate(iQuery[i])));
+		this->mesh().walkIntersections(typename TPlanarMesh::TLineSegment2D(iQuery[i],iQuery[i+1]),
 			std::back_inserter(crossings));
 	}
-	crossings.push_back(TPointEdgePair(iQuery.back(),mesh_.locate(iQuery.back())));
+	crossings.push_back(TPointEdgePair(iQuery.back(),this->mesh().locate(iQuery.back())));
 
 	TPoint2D lastInterpolate = crossings[0].first;
 	typename TPlanarMesh::TEdge* interpEdge = crossings[0].second;
-	if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
+	if (this->mesh().isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
 		interpEdge = interpEdge->sym();
 	(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[0].first,interpolate(crossings[0].first,interpEdge));
 	for (size_t i=1;i<crossings.size();++i)
@@ -286,7 +290,7 @@ OutputIterator LinearMeshInterpolator<T,TPI>::interpolate(  const TPolyLine2D& i
 		if (crossings[i].first!=lastInterpolate)
 		{
 			interpEdge = crossings[i].second;
-			if (this->mesh_.isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
+			if (this->mesh().isBoundingPoint(TPlanarMesh::fastOrg(interpEdge)) && !TPlanarMesh::hasLeftFace(interpEdge))
 				interpEdge = interpEdge->sym();
 			(*oOutput++) = std::pair<TPoint2D, TPI>(crossings[i].first,interpolate(crossings[i].first,crossings[i].second ));
 			lastInterpolate = crossings[i].first;

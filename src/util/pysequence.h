@@ -32,6 +32,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "pyobject_util.h"
 #include "../stde/extended_algorithm.h"
 #include "../stde/static_vector.h"
 #include "string_cast.h"
@@ -416,7 +417,7 @@ namespace impl
 			return 1;
 		}
 		// check if we have our own PySequence object, then take a shortcut
-		if (isOfType( iValue, &PySequence::Type ) && ((PySequence*)iValue)->pointsToSameContainer(oV))
+		if (isOfType(iValue, &PySequence::Type) && ((PySequence*)iValue)->pointsToSameContainer(oV))
 		{
 			return 0;
 		}
@@ -444,9 +445,9 @@ namespace impl
 }
 
 /** @ingroup Python
-	*  build a copy of a std::vector as a Python tuple
-	*  @note you get a read-only COPY of the vector!
-	*/
+ *  build a copy of a std::vector as a Python tuple
+ *  @note you get a read-only COPY of the vector!
+ */
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 {
@@ -454,10 +455,10 @@ PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
 }
 
 /** @ingroup Python
-	*  expose a std::vector to python as a reference.
-	*  @note you build a reference to the std::vector, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*/
+ *  expose a std::vector to python as a reference.
+ *  @note you build a reference to the std::vector, any changes done in Python
+ *  will be reflected in the original object, as far as the typesystem allows it of course
+ */
 template<class V, typename A>
 PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
 {
@@ -465,19 +466,19 @@ PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
 }
 
 /** @ingroup Python
-	*  build a copy of a std::list as a Python tuple
-	*  @note you get a read-only COPY of the list!
-	*/
+ *  build a copy of a std::list as a Python tuple
+ *  @note you get a read-only COPY of the list!
+ */
 template< class V, typename A>
 PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end() ));
 }
 /** @ingroup Python
-	*  expose a std::list to python as a reference.
-	*  @note you build a reference to the std::list, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*/
+ *  expose a std::list to python as a reference.
+ *  @note you build a reference to the std::list, any changes done in Python
+ *  will be reflected in the original object, as far as the typesystem allows it of course
+ */
 template<class V, typename A>
 PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
 {
@@ -485,19 +486,19 @@ PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
 }
 
 /** @ingroup Python
-	*  build a copy of a std::deque as a Python tuple
-	*  @note you build a reference to the std::deque, but the list is read-only
-	*/
+ *  build a copy of a std::deque as a Python tuple
+ *  @note you build a reference to the std::deque, but the list is read-only
+ */
 template< class V, class A>
 PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
 /** @ingroup Python
-	*  expose a std::deque to python as a reference.
-	*  @note you build a reference to the std::deque, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*/
+ *  expose a std::deque to python as a reference.
+ *  @note you build a reference to the std::deque, any changes done in Python
+ *  will be reflected in the original object, as far as the typesystem allows it of course
+ */
 template<typename V,typename A>
 PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
 {
@@ -506,9 +507,9 @@ PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
 
 
 /** @ingroup Python
-	*  build a copy of a stde::static_vector as a Python tuple
-	*  @note you build a reference to the stde::static_vector, but the list is read-only
-	*/
+ *  build a copy of a stde::static_vector as a Python tuple
+ *  @note you build a reference to the stde::static_vector, but the list is read-only
+ */
 template< class V, size_t maxsize>
 PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
 {
@@ -516,10 +517,10 @@ PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
 }
 
 /** @ingroup Python
-	*  expose a stde::static_vector to python as a reference.
-	*  @note you build a reference to the stde::static_vector, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*/
+ *  expose a stde::static_vector to python as a reference.
+ *  @note you build a reference to the stde::static_vector, any changes done in Python
+ *  will be reflected in the original object, as far as the typesystem allows it of course
+ */
 template<typename V, size_t maxsize>
 PyObject* pyBuildSimpleObject( stde::static_vector<V, maxsize>& iV )
 {
@@ -528,9 +529,9 @@ PyObject* pyBuildSimpleObject( stde::static_vector<V, maxsize>& iV )
 
 
 /** @ingroup Python
-	*  get a copy of a Python sequence as a std::vector.
-	*  @note you get a COPY of the sequence, not the original sequence itself!
-	*/
+ *  get a copy of a Python sequence as a std::vector.
+ *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
 template<class C, typename A>
 int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
 {
@@ -538,9 +539,9 @@ int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
 }
 
 /** @ingroup Python
-	*  get a copy of a Python sequence as a std::list.
-	*  @note you get a COPY of the sequence, not the original sequence itself!
-	*/
+ *  get a copy of a Python sequence as a std::list.
+ *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
 template<class C, typename A>
 int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
 {
@@ -548,9 +549,9 @@ int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
 }
 
 /** @ingroup Python
-	*  get a copy of a Python sequence as a std::queue.
-	*  @note you get a COPY of the sequence, not the original sequence itself!
-	*/
+ *  get a copy of a Python sequence as a std::queue.
+ *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
 /*
 template<class C, typename A>
 int pyGetSimpleObject( PyObject* iValue, std::queue<C, A>& oV )
@@ -560,9 +561,9 @@ int pyGetSimpleObject( PyObject* iValue, std::queue<C, A>& oV )
 */
 
 /** @ingroup Python
-	*  get a copy of a Python sequence as a std::deque.
-	*  @note you get a COPY of the sequence, not the original sequence itself!
-	*/
+ *  get a copy of a Python sequence as a std::deque.
+ *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
 template<class C, typename A>
 int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
 {
@@ -571,9 +572,9 @@ int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
 
 
 /** @ingroup Python
-	*  get a copy of a Python sequence as a stde::static_vector.
-	*  @note you get a COPY of the sequence, not the original sequence itself!
-	*/
+ *  get a copy of a Python sequence as a stde::static_vector.
+ *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
 template<typename V, size_t maxsize>
 int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
 {

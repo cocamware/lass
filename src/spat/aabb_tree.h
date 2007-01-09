@@ -138,7 +138,6 @@ private:
 	};
 
 	typedef std::deque<Node> TNodes;
-	typedef std::vector<TObjectIterator> TObjectIterators;
 
 	const int balance(TInputIterator iFirst, TInputIterator iLast);
 	const int addLeafNode(const TAabb& iAabb, TInputIterator iFirst, TInputIterator Last);

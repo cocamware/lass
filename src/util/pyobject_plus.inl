@@ -320,7 +320,7 @@ namespace impl
 template <PyCFunction DispatcherAddress>
 PyObject* unaryDispatcher(PyObject* iSelf)
 {
-	TPyObjPtr args = makeTuple();
+	TPyObjPtr args(PyTuple_New(0));
 	return DispatcherAddress(iSelf, args.get());
 }
 
@@ -329,7 +329,7 @@ PyObject* unaryDispatcher(PyObject* iSelf)
 template <PyCFunction DispatcherAddress>
 PyObject* binaryDispatcher(PyObject* iSelf, PyObject* iOther)
 {
-	TPyObjPtr args = makeTuple(fromNakedToSharedPtrCast<PyObject>(iOther));
+	TPyObjPtr args(PyTuple_Pack(1, iOther));
 	return DispatcherAddress(iSelf, args.get());
 }
 

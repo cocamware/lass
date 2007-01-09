@@ -351,8 +351,8 @@ template <typename O, typename OT, typename SH>
 bool AabbTree<O, OT, SH>::doIntersects(
 		int iIndex, const TRay& iRay, TParam iMin, const TParam iMaxT, const TInfo* iInfo) const
 {
-	LASS_ASSERT(iIndex < heap_.size());
-	const Node& node = heap_[iIndex];
+	LASS_ASSERT(iIndex < nodes_.size());
+	const Node& node = nodes_[iIndex];
 
 	TValue t;
 	if (!TObjectTraits::intersect(node.aabb(), iRay, t, iMin))

@@ -23,6 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "../../num/basic_types.h"
+
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4035)
@@ -377,6 +379,14 @@ struct AtomicOperations<8>
 			lock cmpxchg8b [edi]
 		}
 		/* return eax:edx */
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+		__asm__ __volatile__(
+			"lock; cmpxchg8b %0;"
+			: "=m"(dest), "=A"(expectedValue)
+			: "1"(expectedValue), 
+			  "b"(reinterpret_cast<num::Tuint32*>(newValue)[0]), 
+			  "c"(reinterpret_cast<num::Tuint32*>(newValue)[1])	
+			: "cc");
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; cmpxchgq %2, %0;"

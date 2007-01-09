@@ -60,8 +60,8 @@ ArgValue<T>::ArgValue(ArgParser& iParser,
 					  int iArgMode,
 					  TParam iDefault):
 	ArgParameter(iParser, iShortName, iLongName, iArgMode),
-	description_(iDescription),
-	default_(1, iDefault)
+	default_(1, iDefault),
+	description_(iDescription)
 {
 	checkMode(iArgMode);
 }

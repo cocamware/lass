@@ -147,7 +147,6 @@ private:
 	};
 
 	typedef std::vector<Node> TNodes;
-	typedef std::vector<TObjectIterator> TObjectIterators;
 
 	const std::pair<int, TAabb> balance(TInputIterator iFirst, TInputIterator iLast);
 	const int addLeafNode(TInputIterator iFirst, TInputIterator iLast);

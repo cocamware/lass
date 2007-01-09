@@ -43,6 +43,9 @@ namespace num
  *	For more information we refer to the work of Shewchuck, Fortune, Van Wijck on forward
  *  error analysis.
  *
+ *  @arg J. R. Shewchuk 1997, "Adaptive Precision Floating-Point Arithmetic and Fast Robust 
+ *  Geometric Predicates", Discrete & Computational Geometry, 18(3), 305--363
+ *
  *	The filtered float here represents X with x+e, x and e non-overlapping and e the error on the
  *  previous operation.  If X+Y=Z with X=x+e and Y=y+f then error of Z is g with Z=(x+y)+g.  Thus
  *  <b>not</b> the error on (x+e)+(y+f) but only on (x+y)!
@@ -117,13 +120,13 @@ public:
 	}
 	TSelf& operator*=(const TSelf& other) 
 	{ 
-		T x = a*b;
-		TSelf aplit = split(a,(TNumTraits::mantisseSize+1)/2);
-		TSelf bplit = split(a,(TNumTraits::mantisseSize+1)/2);
-		T err1 = x-(ahi*bhi);
-		T err2 = err1-(alo*blo);
-		T err3 = err2-(ahi*blo);
-		T y = (alo*blo)-err3;
+		T x = t_ * other.t_;
+		TSelf a = split(t_,(TNumTraits::mantisseSize+1)/2);
+		TSelf b = split(other.t_,(TNumTraits::mantisseSize+1)/2);
+		T err1 = x-(a.t_*b.t_);
+		T err2 = err1-(a.e_*b.t_);
+		T err3 = err2-(a.t_*b.e_);
+		T y = (a.e_*b.e_)-err3;
 		t_ = x; 
 		e_ = y;
 		return *this; 

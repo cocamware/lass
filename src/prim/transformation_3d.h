@@ -57,7 +57,7 @@ namespace impl
 	protected:
 		void dispose()
 		{
-			deallocateArray(pointer(), 16);
+			deallocateArray(this->pointer(), 16);
 		}
 	};
 }

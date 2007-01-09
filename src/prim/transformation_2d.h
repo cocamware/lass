@@ -57,7 +57,7 @@ namespace impl
 	protected:
 		void dispose()
 		{
-			impl::deallocateArray(pointer(), 9);
+			impl::deallocateArray(this->pointer(), 9);
 		}
 	};
 }

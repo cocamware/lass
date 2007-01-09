@@ -33,65 +33,92 @@ namespace lass
 {
 namespace python
 {
-
-inline const PyObjectPtr<PyObject>::Type makeTuple()
+namespace impl
 {
-	typedef PyObjectPtr<PyObject>::Type TPyPtr;
-	TPyPtr tuple(PyTuple_New(0));
-	return tuple;
+	/** @ingroup Python
+	 *  @internal
+	 */
+	inline bool checkTuple(PyObject* iTuple)
+	{
+		LASS_ASSERT(iTuple);
+		if (!PyTuple_Check(iTuple))
+		{
+			PyErr_SetString(PyExc_TypeError, "iTuple isn't a tuple");
+			return false;
+		}
+		return true;
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P>
+	inline bool decodeObject(PyObject* in, P& out, int index)
+	{
+		if (pyGetSimpleObject(in, out) != 0)
+		{
+			std::ostringstream buffer;
+			buffer << "Bad Argument on " << index << "th position";
+			impl::addMessageHeader(buffer.str());
+			return false;
+		}
+		return true;
+	}
 }
 
+/** @ingroup Python
+ */
+inline const PyObjectPtr<PyObject>::Type makeTuple()
+{
+	return TPyObjPtr(PyTuple_New(0));
+}
+
+// we don't use PyTuple_Pack, because we want to steal references from pyBuildSimpleObject [Bramz]
 $[
+/** @ingroup Python
+ */
 template <$(typename P$x)$>
 const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
 {
-	typedef PyObjectPtr<PyObject>::Type TPyPtr;
-	TPyPtr tuple(PyTuple_New($x));
-	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyBuildSimpleObject(iP$x)) != 0) return TPyPtr();
-	)$
+	typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
+	TPyObjPtr tuple(PyTuple_New($x));
+ 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyBuildSimpleObject(iP$x)) != 0) return TPyObjPtr();
+ 	)$
 	return tuple;
 }
 ]$
 
+/** @ingroup Python
+ */
 inline int decodeTuple(PyObject* iTuple)
 {
 	LASS_ASSERT(iTuple);
 	return impl::checkSequenceSize(iTuple, 0) ? 0 : 1;
 }
 
+/** @ingroup Python
+ */
 inline int decodeTuple(const PyObjectPtr<PyObject>::Type& iTuple)
 {
 	return decodeTuple(iTuple.get());
 }
 
 $[
+/** @ingroup Python
+ */
 template <$(typename P$x)$>
 int decodeTuple(PyObject* iTuple, $(P$x& oP$x)$)
 {
 	PyObject $(*p$x)$;
+	return impl::checkTuple(iTuple)
+		&& PyArg_UnpackTuple(iTuple, "", $x, $x, $(&p$x)$)
+$(		&& impl::decodeObject(p$x, oP$x, $x) 
+)$		? 0 : 1;
 
-	LASS_ASSERT(iTuple);
-	if (!PyTuple_Check(iTuple))
-	{
-		PyErr_SetString(PyExc_TypeError, "iTuple isn't a tuple");
-		return 1;
-	}
-
-
-	if (!PyArg_UnpackTuple(iTuple, "", $x, $x, $(&p$x)$))
-	{
-		return 1;
-	}
-
-	$(if (pyGetSimpleObject(p$x, oP$x) != 0)
-	{
-		impl::addMessageHeader("Bad Argument on $xth position");
-		return 1;
-	}
-	)$
-	return 0;
 }
 
+/** @ingroup Python
+ */
 template <$(typename P$x)$> inline
 int decodeTuple(const PyObjectPtr<PyObject>::Type& iTuple, $(P$x& oP$x)$)
 {

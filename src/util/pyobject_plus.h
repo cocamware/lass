@@ -79,7 +79,8 @@
 		static ::std::vector< ::lass::python::impl::StaticMember >	Statics; \
 		static PyTypeObject* GetParentType(void)\
 		{\
-			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ? &TPyParent::Type : &PyBaseObject_Type;\
+			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ?\
+				&TPyParent::Type : &PyBaseObject_Type;\
 		}\
 		virtual PyTypeObject *GetType(void) const {return &Type;};
 

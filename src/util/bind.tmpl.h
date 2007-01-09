@@ -110,7 +110,7 @@ template <typename R>
 typename impl::BindCallback<R>::Type 
 bind(R (*fun)())
 {
-	return impl::BindCallback<R>::Type(fun);
+	return typename impl::BindCallback<R>::Type(fun);
 }
 
 /** @ingroup Bind
