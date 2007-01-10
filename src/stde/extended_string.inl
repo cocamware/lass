@@ -118,7 +118,7 @@ template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const std::basic_string<Char, Traits, Alloc>& prefix)
 {
-	return input.find(prefix) == 0;
+	return prefix.length() <= input.length() && std::equal(prefix.begin(), prefix.end(), input.begin());
 }
 
 /** @ingroup extended_string
@@ -140,7 +140,8 @@ template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const std::basic_string<Char, Traits, Alloc>& suffix)
 {
-	return input.rfind(suffix) == input.length() - suffix.length();
+	return suffix.length() <= input.length() && 
+		std::equal(suffix.begin(), suffix.end(), input.begin() + input.length() - suffix.length());
 }
 
 /** @ingroup extended_string
