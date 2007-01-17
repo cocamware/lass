@@ -23,6 +23,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @class lass::stde::lock_free_queue
+ *  @brief Non-blocking, lock-free FIFO data structure
+ *
+ *  M. M. Michael, M. L. Scott, "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent
+ *  Queue Algorithms", Proc. of the 15th Annual ACM Symposium on Principles of Distributed
+ *  Computing (PODC' 96), New York, USA, pp. 267-275 (1996).
+ */
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_QUEUE_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_LOCK_FREE_QUEUE_H
 

@@ -116,6 +116,7 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 			}
 			else
 			{
+#pragma LASS_FIXME("what happens if next is already reclaimed? ... Exactly [Bramz]")
 				x = next->value;
 				pointer_t new_head(next.get(), head.tag() + 1);
 				if (head_.atomicCompareAndSwap(head, new_head))

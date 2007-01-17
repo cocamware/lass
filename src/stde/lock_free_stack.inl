@@ -68,7 +68,7 @@ void lock_free_stack<T, A>::push(const value_type& x)
 
 /** Try to pop a value and copy it in @a x .
  *  @return false if stack is empty
- *  @arg strongly exception safe: it copy-constructor of x throws, 
+ *  @arg somewhat strongly exception safe: it copy-constructor of x throws, 
  *		node is put back on top and exception is propagated
  */
 template <typename T, typename A>
@@ -97,8 +97,8 @@ bool lock_free_stack<T, A>::pop(value_type& x)
 
 /** Try to pop a value and swap it in @a x .
  *  @return false if stack is empty
- *	@arg condition on @a value_type: x.swap(y) must be a valid, non throwing operation.
- *  @arg strongly exception safe: shoudln't throw.
+ *	@arg condition on @a value_type: x.swap(y) must be a valid, non-throwing operation.
+ *  @arg strongly exception safe: shoudln't throw as long as swap is non-throwing
  */
 template <typename T, typename A>
 bool lock_free_stack<T, A>::pop_swap(value_type& x)
@@ -179,7 +179,13 @@ lock_free_stack<T, A>::pop_node()
 		// So, it's somehow safe to access its next member (it may give a totally wacked up 
 		// result, but that doesn't really matter). 
 		// It comes at a sacrifice though: memory will only be reclaimed at the end of the 
-		// stack's lifecycle.
+		// stack's lifecycle. [Bramz]
+		//
+		// Update: This is not entirely true ... if top is currently "in use", then top->next may
+		// correspond with a bit pattern that isn't a valid pointer at all (and most likely,
+		// if it is a valid bit pattern, it won't point to allocated memory).  Anyway, this
+		// means that the behaviour is pretty undefined.  The machine can do whatever it wants:
+		// halt, reboot, make funny noises or make some coffee ... [Bramz]
 		//
 		pointer_t next(top->next, top.tag() + 1);
 	}
