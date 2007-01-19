@@ -95,7 +95,7 @@ public:
 	}
 	const LockResult tryLock()
 	{
-		const DWORD ret = WaitForSingleObject(mutex_, INFINITE);
+		const DWORD ret = WaitForSingleObject(mutex_, 0);
 		switch ( ret )
 		{
 			case WAIT_ABANDONED:
