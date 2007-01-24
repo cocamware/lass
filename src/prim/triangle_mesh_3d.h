@@ -266,9 +266,9 @@ private:
 	};
 
 	typedef std::vector<const Triangle*> TVertexTriangles;
-	typedef std::vector<const TPoint> TVertexRing;
-	typedef std::vector<const TVector> TNormalRing;
-	typedef std::vector<const TUv> TUvRing;
+	typedef std::vector<TPoint> TVertexRing;
+	typedef std::vector<TVector> TNormalRing;
+	typedef std::vector<TUv> TUvRing;
 
 	void findVertexTriangles(TVertexTriangles& vertexTriangles) const;
 	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, 

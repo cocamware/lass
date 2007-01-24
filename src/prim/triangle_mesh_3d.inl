@@ -430,7 +430,8 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 
 		// step III: adjust pointers and decrease crease levels
 		//
-		for (TTriangles::iterator triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
+		for (typename TTriangles::iterator triangle = triangles_.begin();
+			triangle != triangles_.end(); ++triangle)
 		{
 			for (size_t k = 0; k < 3; ++k)
 			{
