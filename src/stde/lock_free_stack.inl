@@ -68,7 +68,7 @@ void lock_free_stack<T, A>::push(const value_type& x)
 
 /** Try to pop a value and copy it in @a x .
  *  @return false if stack is empty
- *  @arg somewhat strongly exception safe: it copy-constructor of x throws, 
+ *  @arg strong exception safety: if copy-constructor of x throws, 
  *		node is put back on top and exception is propagated
  */
 template <typename T, typename A>
@@ -97,8 +97,8 @@ bool lock_free_stack<T, A>::pop(value_type& x)
 
 /** Try to pop a value and swap it in @a x .
  *  @return false if stack is empty
- *	@arg condition on @a value_type: x.swap(y) must be a valid, non-throwing operation.
- *  @arg strongly exception safe: shoudln't throw as long as swap is non-throwing
+ *	@arg condition on @a value_type: x.swap(y) must be a valid, non throwing operation.
+ *  @arg exception safety: no-throw guarantee (if x.swap(y) plays by the rules)
  */
 template <typename T, typename A>
 bool lock_free_stack<T, A>::pop_swap(value_type& x)

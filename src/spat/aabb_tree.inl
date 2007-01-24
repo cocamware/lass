@@ -68,6 +68,15 @@ AabbTree<O, OT, SH>::AabbTree(TObjectIterator iBegin, TObjectIterator iEnd):
 
 
 template <typename O, typename OT, typename SH>
+void AabbTree<O, OT, SH>::reset()
+{
+	TSelf temp;
+	swap(temp);
+}
+
+
+
+template <typename O, typename OT, typename SH>
 void AabbTree<O, OT, SH>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
 {
 	TSelf temp(iBegin, iEnd);

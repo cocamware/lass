@@ -265,7 +265,16 @@ private:
 		TValue x_[size_];
 	};
 
+	typedef std::vector<const Triangle*> TVertexTriangles;
+	typedef std::vector<const TPoint> TVertexRing;
+	typedef std::vector<const TVector> TNormalRing;
+	typedef std::vector<const TUv> TUvRing;
+
+	void findVertexTriangles(TVertexTriangles& vertexTriangles) const;
+	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, 
+			TVertexRing& ring, TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const;
 	void connectTriangles();
+	void subdivide();
 
 	TTriangleTree tree_;
 	TTriangles triangles_;

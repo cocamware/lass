@@ -197,6 +197,7 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 const typename TriangleMesh3D<T, BHV, SH>::TAabb
 TriangleMesh3D<T, BHV, SH>::aabb() const
 {
+	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
 	return tree_.aabb();
 }
 
@@ -352,7 +353,6 @@ void TriangleMesh3D<T, BHV, SH>::flatFaces()
 }
 
 
-
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 {
@@ -362,365 +362,91 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 		return;
 	}
 
-	while (level > 0)
+	while (level-- > 0)
 	{
-		const size_t numTriangles = triangles_.size();
-		const size_t numVertices = vertices_.size();
-
-		// step I: first, of each vertex, we need to find an adjacent triangle
+		// step I: subdivide triangles with simple interpolation
 		//
-		typedef std::vector<Triangle*> TVertexTriangles;
-		TVertexTriangles vertexTriangles(numVertices, 0);
-		const TPoint* const firstVertex = &vertices_[0];
-		for (size_t i = 0; i < numTriangles; ++i)
-		{
-			Triangle& triangle = triangles_[i];
-			for (size_t k = 0; k < 3; ++k)
-			{
-				const size_t j = triangle.vertices[k] - firstVertex;
-				vertexTriangles[j] = &triangle;
-			}
-		}
+		subdivide();
 
-		// step II: compute new even vertices
-		//	
-		LASS_ASSERT((3 * numTriangles + numBoundaryEdges_) % 2 == 0);
-		const size_t numEvenVertices = (3 * numTriangles + numBoundaryEdges_) / 2;
-		typedef std::vector<const TPoint*> TRing;
-		TRing ring;
-		TRing creases;
-		TVertices newVertices;
-		newVertices.reserve(numVertices + numEvenVertices);
+		// copying should "reduce" the extra reserve we don't need
+		TVertices newVertices = vertices_;
+		TNormals newNormals = normals_;
+		TUvs newUvs = uvs_;
+		const TPoint* const firstVertex = &vertices_[0];
+		const TVector* const firstNormal = &normals_[0];
+		const TUv* const firstUv = &uvs_[0];
+
+		// step II: smooth mesh
+		//
+		//*
+		TVertexTriangles vertexTriangles;
+		findVertexTriangles(vertexTriangles);
+		TVertexRing ring;
+		TVertexRing creases;
+		TNormalRing normalRing;
+		TUvRing uvRing;
+		const size_t numVertices = vertices_.size();
 		for (size_t i = 0; i < numVertices; ++i)
 		{
-			const TPoint& vertex = vertices_[i];
-			Triangle* const vertexTriangle = vertexTriangles[i];
-			Triangle* triangle = vertexTriangle;
-			if (!triangle)
+			if (const Triangle* const vertexTriangle = vertexTriangles[i])
 			{
-				newVertices.push_back(vertex);
-				continue;
-			}
-			stde::overwrite_insert_iterator<TRing> last(ring);
-			stde::overwrite_insert_iterator<TRing> lastCrease(creases);
-			do
-			{
-				const size_t k = triangle->side(&vertex);
-				LASS_ASSERT(k < 3);
-				const size_t kCcw = (k + 2) % 3;
-				const TPoint* neighbour = triangle->vertices[kCcw];
-				if (triangle->creaseLevel[kCcw] > 0)
+				const TPoint& vertex = vertices_[i];	
+				findVertexRing(vertex, vertexTriangle, ring, creases, normalRing, uvRing);
+				const size_t nRing = ring.size();
+				const size_t nCreases = creases.size();
+				LASS_ASSERT(nRing >= 2);
+				if (nCreases == 2)
 				{
-					LASS_ASSERT(triangle->others[kCcw]);
-					*lastCrease++ = neighbour;
-					//--triangle->creaseLevel[kCcw];
+					// crease or boundary (boundary edges count as creases)
+					newVertices[i] = TPoint(.75f * vertex.position() + .125f * (creases[0].position() + creases[1].position()));
 				}
-				triangle = triangle->others[kCcw];
-				if (triangle)
+				else if (nRing > 2 && nCreases == 0)
 				{
-					*last++ = neighbour;
-				}
-				else
-				{
-					// boundary/crease edge, turn back to other "end", 
-					// and use special formula.
-					const TPoint* neighbour2 = 0;
-					triangle = vertexTriangle;
-					while (triangle) //
+					// interior vertex
+					const TValue beta = nRing == 6 ? 
+						.125f : 2 * (.625f - num::sqr(.375f + .25f * num::cos(2 * TNumTraits::pi / nRing))) / nRing;
+					TVector newVertex = (1 - nRing * beta) * vertex.position();
+					for (size_t k = 0; k < nRing; ++k)
 					{
-						const size_t k = triangle->side(&vertex);
-						LASS_ASSERT(k < 3);
-						const size_t kCw = (k + 1) % 3;
-						neighbour2 = triangle->vertices[kCw];
-						if (triangle->creaseLevel[kCw] > 0)
+						newVertex += beta * ring[k].position();
+					}
+					newVertices[i] = TPoint(newVertex);
+					if (!uvRing.empty())
+					{
+						const size_t k = vertexTriangle->side(&vertex);
+						LASS_ASSERT(k < 3 && vertexTriangle->uvs[k]);
+						const TUv& uv = *vertexTriangle->uvs[k];
+						typename TUv::TVector newUv = (1 - nRing * beta) * uv.position();
+						for (size_t k = 0; k < nRing; ++k)
 						{
-							LASS_ASSERT(triangle->others[kCw]);
-							*lastCrease++ = neighbour2;
-							//--triangle->creaseLevel[kCw];
+							newUv += beta * uvRing[k].position();
 						}
-						triangle = triangle->others[k];
-					}
-					// boundary edges count as 2 creases, 
-					// so continue only if no other creases.
-					if (lastCrease.get() == creases.begin())
-					{
-						const TVector newPos = 
-							.75f * vertex.position() + .125f * (
-								neighbour->position() + 
-								neighbour2->position());
-						LASS_ASSERT(newVertices.size() < newVertices.capacity());
-						newVertices.push_back(TPoint(newPos));
-					}
-					else
-					{
-						// more than three "creases", don't move!
-						LASS_ASSERT(newVertices.size() < newVertices.capacity());
-						newVertices.push_back(vertex);
+						newUvs[&uv - firstUv] = TUv(newUv);
 					}
 				}
-			}
-			while (triangle && triangle != vertexTriangle);
-			if (triangle)
-			{
-				const size_t nCreases = lastCrease.get() - creases.begin();
-				TVector newPos = vertex.position();
-				switch (nCreases)
-				{
-				case 0:
-					{
-						// interior vertex
-						const size_t n = last.get() - ring.begin();
-						const TValue beta = n == 6 ? 
-							.0625f : (.625f - num::sqr(.375f + .25f *
-								num::cos(2 * TNumTraits::pi / n))) / n;
-						newPos *= (1 - n * beta);
-						for (size_t i = 0; i < n; ++i)
-						{
-							newPos += beta * ring[i]->position();
-						}
-					}
-					break;
-				case 2:
-					// same thing as boundary edge
-					newPos *= .75f;
-					newPos += .125f * (
-						creases[0]->position() + creases[1]->position());
-					break;
-				default:
-					{
-						int a = 5;
-					}
-					break;
-				}
-				LASS_ASSERT(newVertices.size() < newVertices.capacity());
-				newVertices.push_back(TPoint(newPos));
 			}
 		}
+		/**/
 
-		// III. now the fun starts, compute new stuff ...
+		// step III: adjust pointers and decrease crease levels
 		//
-		//            2             - original vertex numbers are on outside
-		//            *             - new vertex numbers are on inside
-		//           /2\            - triangle numbers are between braces (in the middle)
-		//          /   \           - as always everything is counter clockwise
-		//         / (2) \          - number of edges (for 'others'): same number as it tail.
-		//        /0     1\         - triangle (3) is called the oddTriangle
-		//       *---------*
-		//      /2\2     1/2\
-		//     /   \ (3) /   \
-		//    / (0) \   / (1) \
-		//   /0     1\0/0     1\
-		//  *---------*---------*
-		// 0                     1
-		//
-		TTriangles newTriangles(4 * numTriangles);
-		const Triangle* const firstTriangle = &triangles_[0];
-		for (size_t i = 0; i < numTriangles; ++i)
+		for (TTriangles::iterator triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
 		{
-			Triangle& triangle = triangles_[i];
-			Triangle* const newTris = &newTriangles[4 * i];
-
-			// III.1 compute odd vertrices
-			//
-			Triangle& oddTriangle = newTris[3];
-			const TPoint* b = triangle.vertices[1];
-			const TPoint* c = triangle.vertices[2];
 			for (size_t k = 0; k < 3; ++k)
 			{
-				const TPoint* const a = triangle.vertices[k];
-				if (oddTriangle.vertices[k] == 0)
-				{
-					LASS_ASSERT(newVertices.size() < newVertices.capacity());
-					if (Triangle* const other = triangle.others[k])
-					{
-						const size_t otherK = other->side(a);
-						LASS_ASSERT(otherK < 3);
-						LASS_ASSERT(other->vertices[(otherK + 2) % 3] == b);
-						LASS_ASSERT(triangle.creaseLevel[k] == 
-							other->creaseLevel[(otherK + 2) % 3]);
-						if (triangle.creaseLevel[k] > 0)
-						{
-							--triangle.creaseLevel[k];
-							--other->creaseLevel[(otherK + 2) % 3];
-							newVertices.push_back(TPoint(
-								.5f * (a->position() + b->position())));
-						}
-						else
-						{
-							const TPoint* const d = 
-								other->vertices[(otherK + 1) % 3];
-							newVertices.push_back(TPoint(
-								.375f * (a->position() + b->position()) + 
-								.125f * (c->position() + d->position())));
-						}
-						Triangle& otherOddTriangle = 
-							newTriangles[4 * (other - firstTriangle) + 3];
-						otherOddTriangle.vertices[(otherK + 2) % 3] =
-							&newVertices.back();
-					}
-					else
-					{
-						LASS_ASSERT(triangle.creaseLevel[k] == 0);
-						newVertices.push_back(TPoint(
-							.5f * (a->position() + b->position())));
-					}
-					oddTriangle.vertices[k] = &newVertices.back();
-				}			
-				b = c;
-				c = a;
-			}
-
-			// III.2 reconnect some things
-			//
-			size_t k1 = 1;
-			size_t k2 = 2;
-			for (size_t k0 = 0; k0 < 3; ++k0)
-			{
-				const TPoint* const vertex0 = triangle.vertices[k0];
-				Triangle& newTri = newTris[k0];
-				newTri.vertices[k0] = &newVertices[vertex0 - firstVertex];
-				newTri.vertices[k1] = oddTriangle.vertices[k0];
-				newTri.vertices[k2] = oddTriangle.vertices[k2];
-				oddTriangle.others[k2] = &newTri;
-				newTri.others[k1] = &oddTriangle;
-				if (const Triangle* other0 = triangle.others[k0])
-				{
-					const size_t otherK = other0->side(vertex0);
-					LASS_ASSERT(otherK < 3);
-					Triangle& otherTri = 
-						newTriangles[4 * (other0 - firstTriangle) + otherK];
-					LASS_ASSERT(otherTri.others[(otherK + 2) % 3] == 0 || 
-						otherTri.others[(otherK + 2) % 3] == &newTri);
-					newTri.others[k0] = &otherTri;
-				}
-				if (const Triangle* other2 = triangle.others[k2])
-				{
-					const size_t otherK = other2->side(vertex0);
-					LASS_ASSERT(otherK < 3);
-					Triangle& otherTri = 
-						newTriangles[4 * (other2 - firstTriangle) + otherK];
-					LASS_ASSERT(otherTri.others[otherK] == 0 || 
-						otherTri.others[otherK] == &newTri);
-					newTri.others[k2] = &otherTri;
-				}
-				newTri.creaseLevel[k0] = triangle.creaseLevel[k0];
-				newTri.creaseLevel[k2] = triangle.creaseLevel[k2];
-				k1 = k2;
-				k2 = k0;
+				triangle->vertices[k] = &newVertices[triangle->vertices[k] - firstVertex];
+				triangle->normals[k] = triangle->normals[k] ? &newNormals[triangle->normals[k] - firstNormal] : 0;
+				triangle->uvs[k] = triangle->uvs[k] ? &newUvs[triangle->uvs[k] - firstUv] : 0;
+				triangle->creaseLevel[k] = triangle->creaseLevel[k] > 0 ? triangle->creaseLevel[k] - 1 : 0;
 			}
 		}
-
-		// IV. recompute UVs and normals
-		//
-		TNormals newNormals(normals_);
-		TUvs newUvs(uvs_);
-		newNormals.reserve(normals_.size() + 3 * numTriangles);
-		newUvs.reserve(uvs_.size() + 3 * numTriangles);
-		const TVector* firstNormal = !normals_.empty() ? &normals_.front() : 0;
-		const TUv* firstUv = !uvs_.empty() ? &uvs_.front() : 0;
-		for (size_t i = 0; i < numTriangles; ++i)
-		{
-			const Triangle& triangle = triangles_[i];
-			Triangle* newTris = &newTriangles[4 * i];
-			Triangle& oddTriangle = newTris[3];
-			if (triangle.normals[0])
-			{
-				LASS_ASSERT(triangle.normals[1] && triangle.normals[2]);
-				size_t k1 = 1;
-				size_t k2 = 2;
-				for (size_t k0 = 0; k0 < 3; ++k0)
-				{
-					// set new pointer of even Normal
-					newTris[k0].normals[k0] = 
-						&newNormals[triangle.normals[k0] - firstNormal];
-					// if odd normal doesn't exist yet, compute
-					if (oddTriangle.normals[k0] == 0)
-					{
-						const TVector a = *triangle.normals[k0];
-						const TVector b = *triangle.normals[k1];
-						LASS_ASSERT(newNormals.size() < newNormals.capacity());
-						newNormals.push_back((.5f * (a + b)).normal());
-						oddTriangle.normals[k0] = &newNormals.back();
-						// if other triangle uses same UVs, 
-						// copy to odd triangle over there.
-						if (const Triangle* const other = triangle.others[k0])
-						{
-							const size_t otherK0 = 
-								other->side(triangle.vertices[k0]);
-							LASS_ASSERT(otherK0 < 3);
-							const size_t otherK2 = (otherK0 + 2) % 3;
-							if (triangle.normals[k0] == 
-								other->normals[otherK0] && 
-								triangle.normals[k1] == 
-								other->normals[otherK2])
-							{
-								Triangle& otherOddTriangle = newTriangles[
-									4 * (other - firstTriangle) + 3];
-								otherOddTriangle.normals[otherK2] =
-									oddTriangle.normals[k0];
-							}
-						}
-					}
-					newTris[k0].normals[k1] = oddTriangle.normals[k0];
-					newTris[k1].normals[k0] = oddTriangle.normals[k0];
-					k1 = k2;
-					k2 = k0;
-				}
-			}
-			if (triangle.uvs[0])
-			{
-				LASS_ASSERT(triangle.uvs[1] && triangle.uvs[2]);
-				size_t k1 = 1;
-				size_t k2 = 2;
-				for (size_t k0 = 0; k0 < 3; ++k0)
-				{
-					// set new pointer of even UV
-					newTris[k0].uvs[k0] = &newUvs[triangle.uvs[k0] - firstUv];
-					// if odd UV doesn't exist yet, compute
-					if (oddTriangle.uvs[k0] == 0)
-					{
-						const TUv a = *triangle.uvs[k0];
-						const TUv b = *triangle.uvs[k1];
-						LASS_ASSERT(newUvs.size() < newUvs.capacity());
-						newUvs.push_back(TUv(.5f * (a.position() + b.position())));
-						oddTriangle.uvs[k0] = &newUvs.back();
-						// if other triangle uses same UVs, 
-						// copy to odd triangle over there.
-						if (const Triangle* const other = triangle.others[k0])
-						{
-							const size_t otherK0 = 
-								other->side(triangle.vertices[k0]);
-							LASS_ASSERT(otherK0 < 3);
-							const size_t otherK2 = (otherK0 + 2) % 3;
-							if (triangle.uvs[k0] == other->uvs[otherK0] && 
-								triangle.uvs[k1] == other->uvs[otherK2])
-							{
-								Triangle& otherOddTriangle = newTriangles[
-									4 * (other - firstTriangle) + 3];
-								otherOddTriangle.uvs[otherK2] =
-									oddTriangle.uvs[k0];
-							}
-						}
-					}
-					newTris[k0].uvs[k1] = oddTriangle.uvs[k0];
-					newTris[k1].uvs[k0] = oddTriangle.uvs[k0];
-					k1 = k2;
-					k2 = k0;
-				}
-			}
-		}
-
 		vertices_.swap(newVertices);
 		normals_.swap(newNormals);
 		uvs_.swap(newUvs);
-		triangles_.swap(newTriangles);
-		numBoundaryEdges_ *= 2;
-
-		--level;
 	}
 	tree_.reset(triangles_.begin(), triangles_.end());
 }
-
+	
 
 
 /** automatically sews (unconnected) triangles by comparing geometrical vertices and normals
@@ -833,6 +559,7 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& iRay, TTriangleIterator& oTriangle,
 		TReference oT, TParam iMinT, IntersectionContext* oContext) const
 {
+	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
 	TValue t;
 	const TTriangleIterator triangle =  tree_.intersect(iRay, t, iMinT);
 	if (triangle == triangles_.end())
@@ -849,6 +576,7 @@ const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& iRay, TTriangleIt
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 const bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const
 {
+	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
 	return tree_.intersects(iRay, iMinT, iMaxT);
 }
 
@@ -865,6 +593,8 @@ void TriangleMesh3D<T, BHV, SH>::swap(TSelf& ioOther)
 }
 
 
+
+// --- Triangle ------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& iRay, 
@@ -946,6 +676,97 @@ const size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* v) const
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
+void TriangleMesh3D<T, BHV, SH>::findVertexTriangles(TVertexTriangles& vertexTriangles) const
+{
+	TVertexTriangles result(vertices_.size(), 0);
+	const TPoint* const firstVertex = &vertices_[0];
+	for (typename TTriangles::const_iterator i = triangles_.begin(); i != triangles_.end(); ++i)
+	{
+		const Triangle& triangle = *i;
+		for (size_t k = 0; k < 3; ++k)
+		{
+			const size_t j = triangle.vertices[k] - firstVertex;
+			LASS_ASSERT(j < result.size());
+			result[j] = &triangle;
+		}
+	}
+	vertexTriangles.swap(result);
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+void TriangleMesh3D<T, BHV, SH>::findVertexRing(
+		const TPoint& vertex, const Triangle* vertexTriangle, TVertexRing& ring, 
+		TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const
+{
+	ring.resize(0); // normaly, this should not shrink memory (*)
+	creases.resize(0);
+	normals.resize(0);
+	uvs.resize(0);
+
+	bool hasUvRing = true;
+	const TUv* vertexUv = 0;
+	const Triangle* triangle = vertexTriangle;
+	do
+	{
+		const size_t k = triangle->side(&vertex);
+		LASS_ASSERT(k < 3);
+		const size_t kCcw = (k + 2) % 3;
+		const TPoint& neighbour = *triangle->vertices[kCcw];
+		const Triangle* const other = triangle->others[kCcw];
+		if (triangle->creaseLevel[kCcw] > 0 || !other)
+		{
+			LASS_ASSERT(triangle->others[kCcw]);
+			creases.push_back(neighbour);
+		}
+
+		if (!vertexUv)
+		{
+			vertexUv = triangle->uvs[k];
+		}
+		hasUvRing &= vertexUv != 0 && vertexUv == triangle->uvs[k];
+		if (hasUvRing)
+		{
+			LASS_ASSERT(triangle->uvs[kCcw]);
+			uvs.push_back(*triangle->uvs[kCcw]);
+		}
+
+		if (!other) 
+		{
+			// we've hit a boundary edge, turn back to other "end".
+			// ring will only consist of that one + this neighbour
+			//
+			const Triangle* triangle2 = vertexTriangle;
+			const TPoint* neighbour2 = 0;
+			while (triangle2)
+			{
+				const size_t k = triangle2->side(&vertex);
+				LASS_ASSERT(k < 3);
+				const size_t kCw = (k + 1) % 3;
+				neighbour2 = triangle2->vertices[kCw];
+				const Triangle* other2 = triangle2->others[k];
+				if (triangle2->creaseLevel[kCw] > 0 || !other2)
+				{
+					LASS_ASSERT(triangle2->others[kCw]);
+					creases.push_back(*neighbour2);
+				}
+				triangle2 = other2;
+			}
+			ring.resize(1, *neighbour2);
+			uvs.resize(0);
+		}
+		ring.push_back(neighbour);
+		triangle = other;
+	}
+	while (triangle && triangle != vertexTriangle);
+
+	// (*) so says the standard, as as we all know, _every_ compiler follows the standard, don't they?
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 {
 	typedef std::vector<LogicalEdge> TEdges;
@@ -994,6 +815,152 @@ void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 			}
 		}
 	}
+}
+
+
+
+/** subdivide every triangle in 4 new ones by splitting the edges
+ *  @warning tree_ will be reset and must be recreated manually after calling this function!
+ */
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+void TriangleMesh3D<T, BHV, SH>::subdivide()
+{
+	if (triangles_.empty())
+	{
+		return;
+	}
+
+	const size_t numTriangles = triangles_.size();
+	const size_t numVertices = vertices_.size();
+	const size_t numUvs = uvs_.size();
+	const size_t numNormals = normals_.size();
+	LASS_ASSERT((3 * numTriangles + numBoundaryEdges_) % 2 == 0);
+	const size_t numOddVertices = (3 * numTriangles + numBoundaryEdges_) / 2;
+
+	TTriangles newTriangles(4 * numTriangles);
+	TVertices newVertices = vertices_;
+	TNormals newNormals = normals_;
+	TUvs newUvs = uvs_;
+	newVertices.reserve(numVertices + numOddVertices);
+	newNormals.reserve(numNormals + 3 * numTriangles);
+	newUvs.reserve(numUvs + 3 * numTriangles);
+
+	const Triangle* const firstTriangle = &triangles_[0];
+	const TPoint* const firstVertex = &vertices_[0];
+	const TVector* const firstNormal = &normals_[0];
+	const TUv* const firstUv = &uvs_[0];
+
+	//            2             - original vertex numbers are on outside
+	//            *             - new vertex numbers are on inside
+	//           /2\            - triangle numbers are between braces: (#)
+	//          /   \           - as always everything is counter clockwise
+	//         / (2) \          - number of edges (for 'others'): same number as it tail.
+	//        /0     1\         - triangle (3) is called the oddTriangle
+	//       *---------*
+	//      /2\2     1/2\
+	//     /   \ (3) /   \
+	//    / (0) \   / (1) \
+	//   /0     1\0/0     1\
+	//  *---------*---------*
+	// 0                     1
+	//
+	for (size_t i = 0; i < numTriangles; ++i)
+	{
+		const Triangle& triangle = triangles_[i];
+		Triangle* const newTris = &newTriangles[4 * i];
+		Triangle& oddTriangle = newTris[3];
+	
+		// compute new vertices, normals and Uvs, and store in odd triangle
+		//
+		for (size_t k0 = 2, k1 = 0; k1 < 3; k0 = k1++)
+		{
+			const Triangle* const other = triangle.others[k0];
+			Triangle* const oddOther = other ? &newTriangles[4 * (other - firstTriangle) + 3] : 0;
+			const size_t h0 = other ? other->side(triangle.vertices[k1]) : size_t(-1);
+			const size_t h1 = other ? other->side(triangle.vertices[k0]) : size_t(-1);
+			LASS_ASSERT(h0 < 3 && h1 == (h0 + 1) % 3 || other == 0);
+
+			if (!oddTriangle.vertices[k0])
+			{	
+				LASS_ASSERT(newVertices.size() < newVertices.capacity());
+				newVertices.push_back(TPoint(.5 * (triangle.vertices[k0]->position() + triangle.vertices[k1]->position())));
+				oddTriangle.vertices[k0] = &newVertices.back();
+				if (other)
+				{
+					oddOther->vertices[h0] = &newVertices.back();
+				}
+			}
+			if (triangle.normals[k0] && !oddTriangle.normals[k0])
+			{
+				LASS_ASSERT(triangle.normals[k1]);
+				LASS_ASSERT(newNormals.size() < newNormals.capacity());
+				newNormals.push_back(.5 * (*triangle.normals[k0] + *triangle.normals[k1]));
+				oddTriangle.normals[k0] = &newNormals.back();
+				if (other && triangle.normals[k0] == other->normals[h1] && triangle.normals[k1] == other->normals[h0])
+				{
+					oddOther->normals[h0] = &newNormals.back();
+				}
+			}		
+			if (triangle.uvs[k0] && !oddTriangle.uvs[k0])
+			{
+				LASS_ASSERT(newUvs.size() < newUvs.capacity());
+				LASS_ASSERT(triangle.uvs[k1]);
+				newUvs.push_back(TUv(.5 * (triangle.uvs[k0]->position() + triangle.uvs[k1]->position())));
+				oddTriangle.uvs[k0] = &newUvs.back();
+				if (other && triangle.uvs[k0] == other->uvs[h1] && triangle.uvs[k1] == other->uvs[h0])
+				{
+					oddOther->uvs[h0] = &newUvs.back();
+				}
+			}		
+			oddTriangle.others[k0] = &newTris[k1];
+			oddTriangle.creaseLevel[k0] = 0;
+		}
+
+		// connect other triangles
+		//
+		for (size_t k0 = 0, k1 = 1, k2 = 2; k0 < 3; k1 = k2, k2 = k0, ++k0)
+		{
+			Triangle& newTriangle = newTris[k0];
+			newTriangle.vertices[k0] = &newVertices[triangle.vertices[k0] - firstVertex];
+			newTriangle.vertices[k1] = oddTriangle.vertices[k0];
+			newTriangle.vertices[k2] = oddTriangle.vertices[k2];
+			newTriangle.normals[k0] = triangle.normals[k0] ? &newNormals[triangle.normals[k0] - firstNormal] : 0;
+			newTriangle.normals[k1] = oddTriangle.normals[k0];
+			newTriangle.normals[k2] = oddTriangle.normals[k2];
+			newTriangle.uvs[k0] = triangle.uvs[k0] ? &newUvs[triangle.uvs[k0] - firstUv] : 0;
+			newTriangle.uvs[k1] = oddTriangle.uvs[k0];
+			newTriangle.uvs[k2] = oddTriangle.uvs[k2];
+			if (const Triangle* other0 = triangle.others[k0])
+			{
+				const size_t j = other0 - firstTriangle;
+				const size_t h = other0->side(triangle.vertices[k0]);
+				LASS_ASSERT(h < 3);
+				Triangle& newOther = newTriangles[4 * j + h];
+				LASS_ASSERT(newOther.others[(h + 2) % 3] == 0 || newOther.others[(h + 2) % 3] == &newTriangle);
+				newTriangle.others[k0] = &newOther;
+			}
+			newTriangle.others[k1] = &oddTriangle;
+			if (const Triangle* other2 = triangle.others[k2])
+			{
+				const size_t j = other2 - firstTriangle;
+				const size_t h = other2->side(triangle.vertices[k0]);
+				LASS_ASSERT(h < 3);
+				Triangle& newOther = newTriangles[4 * j + h];
+				LASS_ASSERT(newOther.others[h] == 0 || newOther.others[h] == &newTriangle);
+				newTriangle.others[k2] = &newOther;
+			}
+			newTriangle.creaseLevel[k0] = triangle.creaseLevel[k0];
+			newTriangle.creaseLevel[k1] = 0;
+			newTriangle.creaseLevel[k2] = triangle.creaseLevel[k2];
+		}
+	}
+
+	triangles_.swap(newTriangles);
+	vertices_.swap(newVertices);
+	normals_.swap(newNormals);
+	uvs_.swap(newUvs);
+	tree_.reset();
+	numBoundaryEdges_ *= 2;
 }
 
 

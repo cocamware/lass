@@ -81,6 +81,7 @@ public:
 	AabbTree();
 	AabbTree(TObjectIterator iBegin, TObjectIterator iEnd);
 
+	void reset();
 	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
 
 	const TAabb aabb() const;
