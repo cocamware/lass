@@ -1,0 +1,124 @@
+LASS - Library of Assembled Shared Sources
+
+http://lass.sourceforge.net
+
+Tom De Muer <tomdemuer@users.sourceforge.net>
+Bram de Greve <bramz@users.sourceforge.net>
+
+LASS is an open source C++ library written by Tom De Muer and Bram de Greve to
+help the authors writing better code. It includes an interfacing library to 
+Python, templated geometric primitives and spatial subdivision schemes, several
+design patterns and other utilities the authors use in their day-to-day 
+codings. LASS is licensed under the GNU GPL and hosted by SourceForge 
+(http://sourceforge.net/) where you can find LASS' project page.
+
+0. CONTENTS
+===========
+
+0. CONTENTS
+I. DOWNLOAD LASS SOURCE
+	1. Download from CVS
+II. CHECK YOU VISUAL C++ INSTALLATION
+	1. Visual C++ 2005 Express
+III. INSTALL PYTHON
+IV. BUILD LASS
+	1. static libraries
+	2. dynamic libraries
+V. INSTALL LASS
+
+
+
+I. DOWNLOAD LASS SOURCE
+=======================
+
+Since you're reading this, you've probably already done so.  Here it is anyway:
+
+1. Download from CVS
+--------------------
+
+You can get the very latest Lass sourcecode right from CVS using the following parameters:
+cvsroot = :pserver:anonymous@lass.cvs.sourceforge.net:/cvsroot/lass 
+modulename = Lass
+
+If you don't have a CVS client yet, you can try TortoiseCVS (http://www.tortoisecvs.org).
+It's a free CVS client that integrates in Windows Explorer
+
+More information about the Lass CVS repository can be found here:
+http://sourceforge.net/cvs/?group_id=118315
+
+
+
+II. CHECK YOU VISUAL C++ INSTALLATION
+=====================================
+
+Lass can be build using Microsoft Visual C++.  Solution files for versions 7.1 (2003) and
+8.0 (2005) are included.  If you don't have Microsoft Visual C++, you can install a free
+version of it called Visual C++ 2005 Express.
+
+1. Visual C++ 2005 Express
+--------------------------
+
+Homepage: http://msdn.microsoft.com/vstudio/express/
+
+If you haven't yet installed Visual C++ 2005 Express, go to 
+http://msdn.microsoft.com/vstudio/express/visualc/ from where you can download
+and install it.  At the end of the installation, you will be asked to register your copy,
+do so.
+
+Visual C++ 2005 Express is a limited edition and is not capable of building Win32 
+applications out of the box (it can build .NET applications though).  Fortunately,
+you can solve that by installing the Windows Platform SDK:
+
+- download and install the Windows Platform SDK: 
+  http://www.microsoft.com/downloads/details.aspx?familyid=484269E2-3B89-47E3-8EB7-1F2BE6D7123A&displaylang=en
+
+- Add the following VC++ directories in the "Projects and Solutions" section of the Options
+  dialog box:
+
+  executable files: C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin
+  include files: C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include
+  library files: C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib
+
+More information about using the Windows Platform SDK with Visual C++ 2005 Express can be
+found here: http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+
+
+
+III. INSTALL PYTHON
+===================
+
+If you don't have Python yet, now is the time to install it since you're going to need it.
+Go to http://python.org/ and install the latest version.  
+
+We've had successful builds with Python versions starting from 2.2, but we recommend
+at least Python 2.3.
+
+Once you've installed Python, you will have to add some VC++ directories to the 
+"Projects and Solutions" section of the Options dialog box (here, it is assumed that you've
+installed python to C:\Python25):
+
+include files: C:\Python25\include
+library files: C:\Python25\libs
+executable files: C:\Python25 (in case Visual C++ is unable to find python.exe during pre-build)
+
+
+
+IV. BUILD LASS
+===============
+
+1. static libraries
+-------------------
+
+The static libraries can be build and tested from the solution files src\lass.sln (7.1) and 
+src\lass_vc8.sln (8.0).
+
+2. dynamic libraries
+--------------------
+
+The static libraries can be build from the solution files src\dll\dll.sln (7.1) and 
+src\dll\dll_vc8.sln (8.0).
+
+
+
+V. INSTALL LASS
+================

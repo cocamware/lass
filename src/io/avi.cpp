@@ -41,6 +41,8 @@
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma comment(lib, "vfw32.lib")
+#	pragma comment(lib, "user32.lib")
+#	pragma comment(lib, "gdi32.lib")
 #endif
 
 namespace lass

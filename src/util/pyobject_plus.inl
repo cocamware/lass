@@ -351,7 +351,7 @@ PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 template <typename CppClass>
 inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
 {
-	char* shortName = CppClass::Type.tp_name; // finalizePyType will expand tp_name with module name.
+	char* shortName = const_cast<char*>(CppClass::Type.tp_name); // finalizePyType will expand tp_name with module name.
 	finalizePyType(CppClass::Type, *CppClass::GetParentType(), CppClass::Methods, CppClass::GetSetters,
 		CppClass::Statics, PyModule_GetName(iModule), iClassDocumentation);
 	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::Type));
