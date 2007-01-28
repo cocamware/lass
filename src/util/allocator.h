@@ -402,7 +402,7 @@ struct BinnerOne
 {
 	static size_t bin(size_t size)
 	{
-		return size - 1;
+		return size > 0 ? size - 1 : 0;
 	}
 	static size_t size(size_t bin)
 	{
@@ -436,7 +436,7 @@ struct BinnerPadded
 {
 	static size_t bin(size_t size)
 	{
-		return (size - 1) / multiple;
+		return size > 0 ? (size - 1) / multiple : 0;
 	}
 	static size_t size(size_t bin)
 	{
