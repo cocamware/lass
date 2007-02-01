@@ -313,7 +313,7 @@ double mod(double iV, double iMod)
 
 // --- long double ---------------------------------------------------------------------------------
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_CYGWIN
+#ifdef LASS_NUM_BASIC_OPS_USE_BUILTIN_LONG_DOUBLE
 
 long double abs(long double iV)						{ return __builtin_fabsl(iV); }			/**< @ingroup BasicOps */
 long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */

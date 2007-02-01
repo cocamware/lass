@@ -66,7 +66,7 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ~ThreadPool(): "
 			"failure while waiting for tasks to complete." << std::endl;
 	}
-	stopThreads(numDynamicThreads(numThreads_));
+	stopThreads(this->numDynamicThreads(numThreads_));
 }
 
 
@@ -87,12 +87,12 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 				numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
 			{
 				waitingTasks_.push(iTask);
-				wakeConsumer();
+				this->wakeConsumer();
 				return;
 			}
 			else
 			{
-				sleepProducer();
+				this->sleepProducer();
 			}
 		}
 	}
@@ -108,11 +108,11 @@ void ThreadPool<T, C, IP, PP>::completeAllTasks()
 {
 	while (numWaitingTasks_ > 0 || numRunningTasks_ > 0)
 	{
-		if (participate(waitingTasks_))
+		if (this->participate(waitingTasks_))
 		{
 			atomicDecrement(numWaitingTasks_);
 		}
-		sleepProducer();
+		this->sleepProducer();
 	}
 }
 
@@ -151,7 +151,7 @@ template <typename T, typename C, typename IP, template <typename, typename, typ
 void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
 {
 	LASS_ASSERT(numThreads_ > 0);
-	const unsigned dynThreads = numDynamicThreads(numThreads_);
+	const unsigned dynThreads = this->numDynamicThreads(numThreads_);
 	if (dynThreads == 0)
 	{
 		threads_ = 0;
@@ -199,7 +199,7 @@ void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
 	try
 	{
 		shutDown_ = true;
-		wakeAllConsumers();
+		this->wakeAllConsumers();
 	}
 	catch (...)
 	{

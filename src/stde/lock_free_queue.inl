@@ -136,14 +136,14 @@ template <typename T, typename A>
 typename lock_free_queue<T, A>::node_t* const
 lock_free_queue<T, A>::make_node(const value_type& x)
 {
-	node_t* node = static_cast<node_t*>(allocate());
+	node_t* node = static_cast<node_t*>(this->allocate());
 	try
 	{
 		new (&node->next) pointer_t();
 	}
 	catch (...)
 	{
-		deallocate(node);
+		this->deallocate(node);
 		throw;
 	}
 	try
@@ -153,7 +153,7 @@ lock_free_queue<T, A>::make_node(const value_type& x)
 	catch (...)
 	{
 		node->next.~pointer_t();
-		deallocate(node);
+		this->deallocate(node);
 		throw;
 	}
 	return node;
@@ -166,7 +166,7 @@ void lock_free_queue<T, A>::free_node(node_t* node)
 {
 	node->value.~value_type();
 	node->next.~pointer_t();
-	deallocate(node);
+	this->deallocate(node);
 }
 
 }

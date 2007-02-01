@@ -46,9 +46,9 @@
 #	include <sys/resource.h>
 #	if HAVE_LIMITS_H
 #		include <limits.h>
-#		define LASS_UTIL_PROCESS_NZERO NZERO
-#	else
-#		define LASS_UTIL_PROCESS_NZERO 20
+#	endif
+#	ifndef NZERO
+#		define NZERO 20
 #	endif
 #endif
 
@@ -64,6 +64,8 @@ LASS_EXECUTE_BEFORE_MAIN_EX(lassImpl_processPriorityDictionary,
 		processPriorityDictionary().add("abovenormal", ppAboveNormal);
 		processPriorityDictionary().add("high", ppHigh);
 	)
+
+
 
 void setProcessPriority(ProcessPriority iPriority)
 {
@@ -83,17 +85,19 @@ void setProcessPriority(ProcessPriority iPriority)
 	{
 		LASS_THROW("SetPriorityClass failed with error code '" << GetLastError() << "'.");
 	}
+
 #elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
 	static const int niceValues[numberOfProcessPriorities] = 
 	{
-		LASS_UTIL_PROCESS_NZERO - 1,
-		LASS_UTIL_PROCESS_NZERO / 2 - 1,
+		NZERO - 1,
+		NZERO / 2 - 1,
 		0,
-		-LASS_UTIL_PROCESS_NZERO / 2,
-		-LASS_UTIL_PROCESS_NZERO
+		-NZERO / 2,
+		-NZERO
 	};
 	const int niceValue = niceValues[iPriority];
 	LASS_ENFORCE_CLIB(setpriority(PRIO_PROCESS, 0, niceValue));
+
 #else
 #	error setProcessPriority is not supported on this platform
 #endif

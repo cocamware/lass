@@ -40,6 +40,15 @@
 
 #include "stde_common.h"
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_BSD
+#	ifdef toupper
+#		undef toupper
+#	endif
+#	ifdef tolower
+#		undef tolower
+#	endif
+#endif
+
 namespace lass
 {
 namespace stde

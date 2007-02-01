@@ -31,19 +31,16 @@
 #define LASS_PLATFORM_TYPE_WIN32 1
 #define LASS_PLATFORM_TYPE_LINUX 2
 #define LASS_PLATFORM_TYPE_CYGWIN 3
+#define LASS_PLATFORM_TYPE_BSD 4
 
 #if defined(linux) || defined(__linux) || defined(__linux__)
-// linux:
 #	include "platform_linux.h"
-
 #elif defined(__CYGWIN__)
-// cygwin:
 #	include "platform_cygwin.h"
-
 #elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-// win32:
 #	include "platform_win32.h"
-
+#elif defined(__FreeBSD__)
+#	include "platform_bsd.h"
 #else
 #	error "Unknown platform - please configure and report the results to the LASS team"
 #endif

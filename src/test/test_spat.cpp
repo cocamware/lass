@@ -29,6 +29,13 @@
 #include "test_common.h"
 #include "test_spat.h"
 
+// due to a unfortunate design of num/basic_ops, we have a problem using classes that overload them
+// the two-phase name lookup doesn't work because we always use qualified names when calling basic_ops
+// therefore, we need to make sure all overloads are known before any template that uses them is defined
+// So, include this as early as possible ...
+//
+#include "../num/floating_point_consistency.h"
+
 #include "test_spat_object_trees.inl"
 #include "test_spat_kd_tree.inl"
 #include "test_spat_quad_tree.inl"

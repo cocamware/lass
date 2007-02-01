@@ -121,14 +121,14 @@ template <typename T, typename A>
 typename lock_free_stack<T, A>::node_t* const 
 lock_free_stack<T, A>::make_node(const value_type& x)
 {
-	node_t* node = static_cast<node_t*>(allocate());
+	node_t* node = static_cast<node_t*>(this->allocate());
 	try
 	{
 		new (&node->value) value_type(x);
 	}
 	catch (...)
 	{
-		deallocate(node);
+		this->deallocate(node);
 		throw;
 	}
 	node->next = 0;
@@ -141,7 +141,7 @@ template <typename T, typename A>
 void lock_free_stack<T, A>::free_node(node_t* node)
 {
 	node->value.~value_type();
-	deallocate(node);
+	this->deallocate(node);
 }
 
 
@@ -184,7 +184,7 @@ lock_free_stack<T, A>::pop_node()
 		// Update: This is not entirely true ... if top is currently "in use", then top->next may
 		// correspond with a bit pattern that isn't a valid pointer at all (and most likely,
 		// if it is a valid bit pattern, it won't point to allocated memory).  Anyway, this
-		// means that the behaviour is pretty undefined.  The machine can do whatever it wants:
+		// means that the behaviour is pretty much undefined.  The machine can do whatever it wants:
 		// halt, reboot, make funny noises or make some coffee ... [Bramz]
 		//
 		pointer_t next(top->next, top.tag() + 1);

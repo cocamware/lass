@@ -63,7 +63,7 @@ const std::string lass_strerror(int iErrnum)
 		result = 0;
 	}
 #	else
-	const int rc = strerror_r(iErrnum, buffer, bufLen);
+	const int rc = ::strerror_r(iErrnum, buffer, bufferLength);
 	const char* result = (rc != 0 && errno == EINVAL) ? buffer : 0;
 #	endif
 	return result ? std::string(buffer) : std::string("unknown error code");

@@ -33,6 +33,14 @@
 #include <pthread.h>
 #include <sched.h>
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_BSD
+#	define HAVE_SYS_SYSCTL_H
+#endif
+
+#ifdef HAVE_SYS_SYSCTL_H
+#	include <sys/sysctl.h>
+#endif
+
 namespace lass
 {
 namespace util
@@ -40,6 +48,15 @@ namespace util
 
 const unsigned numberOfProcessors()
 {
+#ifdef HAVE_SYS_SYSCTL_H
+	const int mib_len = 2;
+	int mib[mib_len] = { CTL_HW, HW_NCPU };//HW_AVAILCPU };
+	int numProcessors = -1;
+	size_t len = sizeof(numProcessors);
+	LASS_ENFORCE_CLIB(sysctl(mib, mib_len, &numProcessors, &len, 0, 0));
+	LASS_ENFORCE(numProcessors > 0);
+	return static_cast<unsigned>(numProcessors);
+#else
 	std::ifstream cpuinfo("/proc/cpuinfo");
 	if (!cpuinfo.is_open())
 	{
@@ -57,6 +74,7 @@ const unsigned numberOfProcessors()
 	}
 	LASS_ENFORCE(numProcessors > 0);
 	return numProcessors;
+#endif
 }
 
 namespace impl

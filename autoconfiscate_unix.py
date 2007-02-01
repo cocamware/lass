@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 lass_name = "lass"
 lass_version = (1, 0, 0)

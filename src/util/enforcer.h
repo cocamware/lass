@@ -107,7 +107,7 @@
 
 /** Enforces the return code of a CLIB function call to be different than -1.
  *  @ingroup Enforcers
- *  Some CLIB functions return zero on failure.  An error code indicating the failure
+ *  Some CLIB functions return -1 on failure.  An error code indicating the failure
  *  can be found using errno.  LASS_ENFORCE_CLIB will enforce that the return
  *  value of the function call is not -1.  If it is -1, it will rais a runtime
  *  exception with the error code errno and its string message translated by strerror().

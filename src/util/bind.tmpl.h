@@ -26,42 +26,42 @@
 /** @defgroup Bind
  *  @brief bind call and arguments to a nullary callback.
  *
- *	@code
- *	#include <lass/util/bind.h>
- *	#include <lass/util/shared_ptr.h>
- *	namespace using lass::util;
+ *  @code
+ *  #include <lass/util/bind.h>
+ *  #include <lass/util/shared_ptr.h>
+ *  namespace using lass::util;
  *
- *	void fun(const std::string& a);
- *	float moreFun(float a, float b);
+ *  void fun(const std::string& a);
+ *  float moreFun(float a, float b);
  *  class Spam
- *	{
- *		void ham(const std::string& something);
- *		std::string eggs(int num) const;
- *	};
+ *  {
+ *  	void ham(const std::string& something);
+ *  	std::string eggs(int num) const;
+ *  };
  *
- *	// ...
+ *  // ...
  *
- *	// regulare function call
- *	Callback0 boundFun = bind(fun, "hello world!");
+ *  // regulare function call
+ *  Callback0 boundFun = bind(fun, "hello world!");
  *
  *  // with return value.  type conversion is allowed both on arguments and result
- *	CallbackR1<double> boundMoreFun(moreFun, 5, 6);
+ *  CallbackR1<double> boundMoreFun(moreFun, 5, 6);
  *
- *	// bound method call, you have to make sure spam1 is still alive when call is executed!
- *	Spam spam1;
+ *  // bound method call, you have to make sure spam1 is still alive when call is executed!
+ *  Spam spam1;
  *  Callback0 boundHam = bind(&Spam::ham, &spam1, "eggs");
  *
- *	// bound method call with smart pointer, return value is ignored
- *	SharedPtr<Spam> spam2(new Spam);
- *	Callback0 boundEggs = bind(&Spam::eggs, spam2, 3);
+ *  // bound method call with smart pointer, return value is ignored
+ *  SharedPtr<Spam> spam2(new Spam);
+ *  Callback0 boundEggs = bind(&Spam::eggs, spam2, 3);
  *
- *	// ...
+ *  // ...
  *
- *	boundFun();
- *	double result = boundMoreFun();
- *	boundHam();
- *	boundEggs();
- *	@endcode
+ *  boundFun();
+ *  double result = boundMoreFun();
+ *  boundHam();
+ *  boundEggs();
+ *  @endcode
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_BIND_H
@@ -191,8 +191,9 @@ typename impl::BindCallback<R>::Type
 bind(R (*fun)($(P$x)$), $(X$x x$x)$)
 {
 	typedef R (*TFun)($(P$x)$);
-	return impl::BindCallback<R>::Type(impl::DispatcherBindFun$x<R, TFun, $(X$x)$>(
-		fun, $(x$x)$));
+	typedef typename impl::BindCallback<R>::Type TCallback;
+	typedef impl::DispatcherBindFun$x<R, TFun, $(X$x)$> TDispatcher;
+	return TCallback(TDispatcher(fun, $(x$x)$));
 }
 
 /** @ingroup Bind
@@ -202,8 +203,9 @@ typename impl::BindCallback<R>::Type
 bind(R (Obj::*fun)($(P$x)$), ObjPtr obj, $(X$x x$x)$)
 {
 	typedef R (Obj::*TFun)($(P$x)$);
-	return impl::BindCallback<R>::Type(impl::DispatcherBindMemFun$x<R, ObjPtr, TFun, $(X$x)$>(
-		obj, fun, $(x$x)$));
+	typedef typename impl::BindCallback<R>::Type TCallback;
+	typedef impl::DispatcherBindMemFun$x<R, ObjPtr, TFun, $(X$x)$> TDispatcher;
+	return TCallback(TDispatcher(obj, fun, $(x$x)$));
 }
 
 /** @ingroup Bind
@@ -213,8 +215,9 @@ typename impl::BindCallback<R>::Type
 bind(R (Obj::*fun)($(P$x)$) const, ObjPtr obj, $(X$x x$x)$)
 {
 	typedef R (Obj::*TFun)($(P$x)$) const;
-	return impl::BindCallback<R>::Type(impl::DispatcherBindMemFun$x<R, ObjPtr, TFun, $(X$x)$>(
-		obj, fun, $(x$x)$));
+	typedef typename impl::BindCallback<R>::Type TCallback;
+	typedef impl::DispatcherBindMemFun$x<R, ObjPtr, TFun, $(X$x)$> TDispatcher;
+	return TCallback(TDispatcher(obj, fun, $(x$x)$));
 }
 
 /** @ingroup Bind
@@ -224,8 +227,9 @@ CallbackR0<R>
 bind(const CallbackR$x<R, $(P$x)$>& fun, $(X$x x$x)$)
 {
 	typedef CallbackR$x<R, $(P$x)$> TFun;
-	return CallbackR0<R>(impl::DispatcherBindFun$x<R, TFun, $(X$x)$>(
-		fun, $(x$x)$));
+	typedef CallbackR0<R> TCallback;
+	typedef impl::DispatcherBindFun$x<R, TFun, $(X$x)$> TDispatcher;
+	return TCallback(TDispatcher(fun, $(x$x)$));
 }
 
 /** @ingroup Bind
@@ -235,8 +239,9 @@ Callback0
 bind(const Callback$x<$(P$x)$>& fun, $(X$x x$x)$)
 {
 	typedef Callback$x<$(P$x)$> TFun;
-	return Callback0(impl::DispatcherBindFun$x<void, TFun, $(X$x)$>(
-		fun, $(x$x)$));
+	typedef Callback0 TCallback;
+	typedef impl::DispatcherBindFun$x<void, TFun, $(X$x)$> TDispatcher;
+	return TCallback(TDispatcher(fun, $(x$x)$));
 }
 
 ]$

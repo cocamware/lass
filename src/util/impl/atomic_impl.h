@@ -384,9 +384,10 @@ struct AtomicOperations<8>
 			"lock; cmpxchg8b %0;"
 			: "=m"(dest), "=A"(expectedValue)
 			: "1"(expectedValue), 
-			  "b"(reinterpret_cast<num::Tuint32*>(newValue)[0]), 
-			  "c"(reinterpret_cast<num::Tuint32*>(newValue)[1])	
+			  "b"(reinterpret_cast<num::Tuint32*>(&newValue)[0]), 
+			  "c"(reinterpret_cast<num::Tuint32*>(&newValue)[1])	
 			: "cc");
+		return expectedValue;
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; cmpxchgq %2, %0;"
