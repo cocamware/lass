@@ -61,8 +61,8 @@ struct AtomicOperations<1>
 		__asm__ __volatile__(
 			"lock; cmpxchgb %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue)
-			: "cc");
+			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			: "cc", "memory");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -93,9 +93,10 @@ struct AtomicOperations<1>
 			"movb %5, %%dh;"
 			"lock; cmpxchgw %%dx, %0;"
 			"sete %1;"
-			: "=m"(dest1), "=q"(result)
-			: "a"(expected1), "d"(new1), "g"(expected2), "g"(new2)
-			: "cc");
+			: "=m"(reinterpret_cast<num::Tuint16&>(dest1)), "=q"(result)
+			: "a"(expected1), "d"(new1), "g"(expected2), "g"(new2), 
+			  "m"(reinterpret_cast<num::Tuint16&>(dest1))
+			: "cc", "memory");
 		return result;		
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -116,7 +117,7 @@ struct AtomicOperations<1>
 			"lock; incb %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -136,7 +137,7 @@ struct AtomicOperations<1>
 			"lock; decb %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -167,8 +168,8 @@ struct AtomicOperations<2>
 		__asm__ __volatile__(
 			"lock; cmpxchgw %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue)
-			: "cc");
+			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			: "cc", "memory");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -203,9 +204,10 @@ struct AtomicOperations<2>
 			"movw %5, %%dx;"
 			"lock; cmpxchgl %%edx, %0;"
 			"sete %1;"
-			: "=m"(dest1), "=q"(result)
-			: "a"(expected2), "d"(new2), "g"(expected1), "g"(new1)
-			: "cc");
+			: "=m"(reinterpret_cast<num::Tuint32&>(dest1)), "=q"(result)
+			: "a"(expected2), "d"(new2), "g"(expected1), "g"(new1),
+			  "m"(reinterpret_cast<num::Tuint32&>(dest1))
+			: "cc", "memory");
 		return result;		
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -226,7 +228,7 @@ struct AtomicOperations<2>
 			"lock; incw %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -246,7 +248,7 @@ struct AtomicOperations<2>
 			"lock; decw %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -276,8 +278,8 @@ struct AtomicOperations<4>
 		__asm__ __volatile__(
 			"lock; cmpxchgl %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue)
-			: "cc");
+			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			: "cc", "memory");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -307,8 +309,8 @@ struct AtomicOperations<4>
 			"lock; cmpxchg8b %0;"
 			"sete %1;"
 			: "=m"(dest1), "=q"(result)
-			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2)
-			: "cc");
+			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2), "m"(dest1)
+			: "cc", "memory");
 		return result;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -329,7 +331,7 @@ struct AtomicOperations<4>
 			"lock; incl %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -349,7 +351,7 @@ struct AtomicOperations<4>
 			"lock; decl %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
@@ -383,18 +385,19 @@ struct AtomicOperations<8>
 		__asm__ __volatile__(
 			"lock; cmpxchg8b %0;"
 			: "=m"(dest), "=A"(expectedValue)
-			: "a"(reinterpret_cast<num::Tuint32*>(&expectedValue)[0]), 
+			: "m"(dest),
+			  "a"(reinterpret_cast<num::Tuint32*>(&expectedValue)[0]), 
 			  "d"(reinterpret_cast<num::Tuint32*>(&expectedValue)[1]),	
 			  "b"(reinterpret_cast<num::Tuint32*>(&newValue)[0]), 
 			  "c"(reinterpret_cast<num::Tuint32*>(&newValue)[1])	
-			: "cc");
+			: "cc", "memory");
 		return expectedValue;
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; cmpxchgq %2, %0;"
 			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue)
-			: "cc");
+			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			: "cc", "memory");
 		return expectedValue;
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
@@ -417,19 +420,20 @@ struct AtomicOperations<8>
 			lock inc qword ptr [edi]
 		}
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
-		// for not knowing any better, mimic incq with cas loop
-		T old;
+		// not knowing any better, we emulate incq with cas loop
+		T old, fresh;
 		do
 		{
 			old = value;
+			fresh = old + 1;
 		}
-		while (!atomicCompareAndSwap(value, old, old + 1));		
+		while (!atomicCompareAndSwap(value, old, fresh));		
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; incq %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif		
@@ -445,19 +449,20 @@ struct AtomicOperations<8>
 			lock dec qword ptr [edi]
 		}
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
-		// for not knowing any better, mimic decq with cas loop
-		T old;
+		// not knowing any better, we emulate decq with cas loop
+		T old, fresh;
 		do
 		{
 			old = value;
+			fresh = old - 1;
 		}
-		while (!atomicCompareAndSwap(value, old, old - 1));		
+		while (!atomicCompareAndSwap(value, old, fresh));		
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; decq %0;"
 			: "=m"(value)
 			: "m"(value)
-			: "cc");
+			: "cc", "memory");
 #else
 #	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif

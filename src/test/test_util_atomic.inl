@@ -42,7 +42,7 @@ namespace atomic
 template <typename T>
 void testUtilAtomicType()
 {
-	std::cout << typeid(T).name() << std::endl;
+	std::cout << (8*sizeof(T)) << "bits\n";
 
 	const T old1 = 1;
 	const T new1 = 2;
