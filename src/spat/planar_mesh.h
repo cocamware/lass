@@ -1027,7 +1027,7 @@ continueSearch:
 			if ( fastRightOf( iPoint, e ) )
 				e = e->sym();
 
-			TEdge* elPrev= e->lPrev();
+			//TEdge* elPrev= e->lPrev();
 			bool hasALeftFace = true;
 			if (isBoundingPoint(eorg))
 				hasALeftFace = fastHasLeftFace(e);
@@ -1071,11 +1071,11 @@ continueSearch:
 				typename TPoint2D::TValue d2 = squaredDistance(iPoint,p2);
 				typename TPoint2D::TValue d3 = squaredDistance(iPoint,p3);
 
-				if (d1*d2*d3 == T(0))
+				/*if (d1*d2*d3 == T(0))
 				{
 					// yes, we are unlucky
 					int a = 0;
-				}
+				}*/
 
 				if ((d1<d2) && (d1<d3))
 				{
@@ -1176,7 +1176,7 @@ continueSearch:
 		if (org(startEdge)==iRay.support())
 		{
 			TEdge* e(startEdge);
-			lass::prim::Side lastSide = iRay.classify(org(e));
+			//lass::prim::Side lastSide = iRay.classify(org(e));
 			int vOrder = vertexOrder(e);
 			for (int i=0;i<vOrder+1;++i)
 			{
@@ -1260,7 +1260,7 @@ continueSearch:
 			return NULL;
 		
 		TEdge* e(startEdge);
-		lass::prim::Side lastSide = iRay.classify(org(e));
+		//lass::prim::Side lastSide = iRay.classify(org(e));
 		int vOrder = vertexOrder(e);
 		for (int i=0;i<vOrder+1;++i)
 		{
@@ -1305,7 +1305,8 @@ continueSearch:
 	{
 		std::vector<TEdge*> crossedEdges;
 		walk(iSegment,std::back_inserter(crossedEdges));
-		for (int i=0;i<crossedEdges.size();++i)
+		const size_t n = crossedEdges.size();
+		for (size_t i=0;i<n;++i)
 		{
 			TPoint2D intersection;
 			if (impl::fastIntersect(iSegment.tail(),iSegment.head(),fastOrg(crossedEdges[i]),fastDest(crossedEdges[i]),intersection)!=lass::prim::rOne)
@@ -1775,7 +1776,7 @@ continueSearch:
 		std::vector< TPoint2D > finalInsertedPoints;		// newly inserted points
 		std::vector< TEdge* >	crossedEdges;			// crossed edges by new segment
 		std::vector< TEdge* >	filteredEdges;			// crossed edges by new segment
-		bool tookAction = false;
+		//bool tookAction = false;
 		static int passCount=0;
 		++passCount;
 
@@ -1892,8 +1893,8 @@ continueSearch:
 				TPoint2D edest =  dest(filteredEdges[i]);
 				T onEdgeOrg = num::abs(prim::doubleTriangleArea(eorg,edest,faa));
 				T onEdgeDest = num::abs(prim::doubleTriangleArea(eorg,edest,fbb));
-				T reverseTest1 = num::abs(prim::doubleTriangleArea(eorg,faa,fbb));
-				T reverseTest2 = num::abs(prim::doubleTriangleArea(edest,faa,fbb));
+				//T reverseTest1 = num::abs(prim::doubleTriangleArea(eorg,faa,fbb));
+				//T reverseTest2 = num::abs(prim::doubleTriangleArea(edest,faa,fbb));
 				if (onEdgeOrg<tolerance_ && onEdgeDest<tolerance_)
 				{
 					filteredEdges[i]->quadEdge()->edgeConstrain();

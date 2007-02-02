@@ -266,7 +266,7 @@ const typename Vector2D<T>::TValue Vector2D<T>::squaredNorm() const
 template<typename T> inline
 const typename Vector2D<T>::TValue Vector2D<T>::norm() const
 {
-	return num::sqrt(squaredNorm());
+	return ::lass::num::sqrt(squaredNorm());
 }
 
 

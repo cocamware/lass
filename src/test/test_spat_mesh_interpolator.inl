@@ -71,7 +71,9 @@ namespace test
 		polyLine.push_back(TPoint2D(30,10));
 		polyLine.push_back(TPoint2D(40,10));
 		interpolator.interpolate(polyLine,std::back_inserter(result));
-		for (int i=0;i<result.size();++i)
+		const int n = static_cast<int>(result.size());
+		LASS_ASSERT(n >= 0);
+		for (int i=0;i<n;++i)
 		{
 			std::cout << "Interpolation " << i << " : " << result[i].first << " -> " << result[i].second << "\n";
 		}

@@ -239,7 +239,7 @@ PyObject* pyBuildSimpleObject(const prim::IndexTriangle& iTriangle)
 int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
 {
 	typedef PyObjectPtr<PyObject>::Type TPyPtr;
-	prim::IndexTriangle result = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	prim::IndexTriangle result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 	if (!impl::checkSequenceSize(iValue, 3))
 	{
 		impl::addMessageHeader("lass::prim::IndexTriangle");

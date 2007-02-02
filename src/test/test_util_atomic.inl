@@ -42,6 +42,8 @@ namespace atomic
 template <typename T>
 void testUtilAtomicType()
 {
+	std::cout << typeid(T).name() << std::endl;
+
 	const T old1 = 1;
 	const T new1 = 2;
 

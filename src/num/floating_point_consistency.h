@@ -333,9 +333,15 @@ Consistent<T> inv(const Consistent<T>& v)
 {
 	return num::inv(v.value());
 }
-
+/*
 template <typename T> inline
 Consistent<T> sqrt(const Consistent<T>& v)
+{
+	return num::sqrt(v.value());
+}
+*/
+template <typename T> inline
+Consistent<T> sqrt(Consistent<T> v)
 {
 	return num::sqrt(v.value());
 }

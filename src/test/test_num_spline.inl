@@ -61,14 +61,22 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 		mantissa[0] = '+';
 	}
 	
-	const int exponent = util::stringCast<int>(splitted[1]);
-
+	const int e = util::stringCast<int>(splitted[1]);
 	buffer.str("");
-	buffer << mantissa << "e" << std::setw(iDigitsExponent + 1) << std::showpos << std::internal 
-		<< std::setfill('0') << exponent;
-	LASS_ASSERT(buffer.str().length() == iDigitsMantissa + iDigitsExponent + 4);
+	buffer << std::setw(iDigitsExponent + 1) << std::showpos << std::internal 
+		<< std::setfill('0') << e;
+	std::string exponent = buffer.str();
+	LASS_ASSERT(exponent.length() == iDigitsExponent + 1);
+	if (exponent[0] == '0')
+	{
+		LASS_ASSERT(e == 0);
+		exponent[0] = '+';
+	}
 
-	return buffer.str();
+	const std::string result = mantissa + "e" + exponent;
+	LASS_ASSERT(result.length() == iDigitsMantissa + iDigitsExponent + 4);
+
+	return result;
 }
 
 template <typename SplineType, typename T> 

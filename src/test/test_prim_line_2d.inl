@@ -95,8 +95,8 @@ void testPrimLine2D()
 	//
 	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
 	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
-	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
+	LASS_TEST_CHECK_CLOSE(combined.d(), cartesian.d(), epsilon);
 
 	// parametric equation can also be initialized with two points.
 	//
@@ -112,7 +112,7 @@ void testPrimLine2D()
 	LASS_TEST_CHECK_EQUAL(combined.direction(), cartesian.direction());
 	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
 	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
 	LASS_TEST_CHECK_CLOSE(combined.d(), cartesian.d(), epsilon); // should be equal ...
 
 
@@ -155,7 +155,7 @@ void testPrimLine2D()
 	//
 	LASS_TEST_CHECK_EQUAL(combined.normal(), parametric.normal());
 	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
-	LASS_TEST_CHECK_EQUAL(combined.d(), parametric.d());
+	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
 	LASS_TEST_CHECK_CLOSE(combined.d(), cartesian.d(), epsilon); // should be equal
 	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
 	LASS_TEST_CHECK_EQUAL(combined.direction(), parametric.direction());
@@ -175,8 +175,8 @@ void testPrimLine2D()
 	LASS_TEST_CHECK_EQUAL(combined.classify(back), sBack);
 	LASS_TEST_CHECK_EQUAL(parametric.classify(back), sBack);
 	LASS_TEST_CHECK_EQUAL(cartesian.classify(back), sBack);
-	LASS_TEST_CHECK_EQUAL(combined.classify(support), sSurface);
-	LASS_TEST_CHECK_EQUAL(parametric.classify(support), sSurface);
+	LASS_TEST_CHECK_EQUAL(combined.classify(support, epsilon), sSurface);
+	LASS_TEST_CHECK_EQUAL(parametric.classify(support, epsilon), sSurface);
 	LASS_TEST_CHECK_EQUAL(cartesian.classify(support, epsilon), sSurface);
 
 	LASS_TEST_CHECK_CLOSE(combined.equation(front), parametric.equation(front), epsilon);

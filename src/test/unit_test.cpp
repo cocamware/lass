@@ -186,7 +186,7 @@ bool TestStream::matchPattern()
 			LASS_EVAL(test);
 			LASS_EVAL(pattern_.substr(0, n));
 		}
-		LASS_ASSERT(success);
+		//LASS_ASSERT(success);
 		pattern_ = pattern_.substr(n);
 
 		return success;

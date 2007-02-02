@@ -27,11 +27,11 @@
 
 #include "test_common.h"
 #include "test_spat.h"
+#include "../num/floating_point_consistency.h"
 #include "../spat/planar_mesh.h"
 #include "../io/matlab_o_stream.h"
 #include "../io/file_attribute.h"
 #include "../prim/triangle_2d.h"
-#include "../num/floating_point_consistency.h"
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
 
@@ -41,7 +41,7 @@ namespace lass
 namespace test
 {
 
-	typedef num::Consistent<double> TestType;
+typedef num::Consistent<double> TestType;
 
 int countCalls = 0;
 

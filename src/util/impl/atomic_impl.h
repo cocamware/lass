@@ -378,12 +378,13 @@ struct AtomicOperations<8>
 			mov edi, dest
 			lock cmpxchg8b [edi]
 		}
-		/* return eax:edx */
+		/* return edx:eax */
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
 		__asm__ __volatile__(
 			"lock; cmpxchg8b %0;"
 			: "=m"(dest), "=A"(expectedValue)
-			: "1"(expectedValue), 
+			: "a"(reinterpret_cast<num::Tuint32*>(&expectedValue)[0]), 
+			  "d"(reinterpret_cast<num::Tuint32*>(&expectedValue)[1]),	
 			  "b"(reinterpret_cast<num::Tuint32*>(&newValue)[0]), 
 			  "c"(reinterpret_cast<num::Tuint32*>(&newValue)[1])	
 			: "cc");
@@ -415,7 +416,15 @@ struct AtomicOperations<8>
 			mov edi, value
 			lock inc qword ptr [edi]
 		}
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+		// for not knowing any better, mimic incq with cas loop
+		T old;
+		do
+		{
+			old = value;
+		}
+		while (!atomicCompareAndSwap(value, old, old + 1));		
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; incq %0;"
 			: "=m"(value)
@@ -435,7 +444,15 @@ struct AtomicOperations<8>
 			mov edi, value
 			lock dec qword ptr [edi]
 		}
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+		// for not knowing any better, mimic decq with cas loop
+		T old;
+		do
+		{
+			old = value;
+		}
+		while (!atomicCompareAndSwap(value, old, old - 1));		
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
 			"lock; decq %0;"
 			: "=m"(value)
