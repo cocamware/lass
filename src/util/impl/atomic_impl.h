@@ -413,13 +413,7 @@ struct AtomicOperations<8>
 	template <typename T> inline
 	static void LASS_CALL increment(T& value)
 	{
-#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
-		__asm 
-		{
-			mov edi, value
-			lock inc qword ptr [edi]
-		}
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+#if (LASS_ADDRESS_SIZE == 32)
 		// not knowing any better, we emulate incq with cas loop
 		T old, fresh;
 		do
@@ -428,7 +422,7 @@ struct AtomicOperations<8>
 			fresh = old + 1;
 		}
 		while (!atomicCompareAndSwap(value, old, fresh));		
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
+#elif (LASS_ADDRESS_SIZE == 64) && defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; incq %0;"
 			: "=m"(value)
@@ -442,13 +436,7 @@ struct AtomicOperations<8>
 	template <typename T> inline
 	static void LASS_CALL decrement(T& value)
 	{
-#if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
-		__asm 
-		{
-			mov edi, value
-			lock dec qword ptr [edi]
-		}
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+#if (LASS_ADDRESS_SIZE == 32)
 		// not knowing any better, we emulate decq with cas loop
 		T old, fresh;
 		do
@@ -457,7 +445,7 @@ struct AtomicOperations<8>
 			fresh = old - 1;
 		}
 		while (!atomicCompareAndSwap(value, old, fresh));		
-#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
+#elif (LASS_ADDRESS_SIZE == 64) && defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		__asm__ __volatile__(
 			"lock; decq %0;"
 			: "=m"(value)

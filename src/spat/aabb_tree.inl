@@ -236,8 +236,8 @@ const int AabbTree<O, OT, SH>::addInternalNode(const TAabb& aabb)
 template <typename O, typename OT, typename SH>
 bool AabbTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo* info) const
 {
-	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
-	const Node& node = nodes_[iIndex];
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
 
 	if (!TObjectTraits::contains(node.aabb(), point))
 	{
@@ -264,8 +264,8 @@ template <typename OutputIterator>
 OutputIterator AabbTree<O, OT, SH>::doFind(
 		int index, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
-	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
-	const Node& node = nodes_[iIndex];
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
 
 	if (!TObjectTraits::contains(node.aabb(), point))
 	{
@@ -293,8 +293,8 @@ typename AabbTree<O, OT, SH>::TObjectIterator
 AabbTree<O, OT, SH>::doIntersect(
 		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
-	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
-	const Node& node = nodes_[iIndex];
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
 
 	TValue tDummy;
 	if (!TObjectTraits::intersect(node.aabb(), ray, tDummy, tMin))
