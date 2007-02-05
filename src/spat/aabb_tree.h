@@ -79,45 +79,48 @@ public:
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
 	AabbTree();
-	AabbTree(TObjectIterator iBegin, TObjectIterator iEnd);
+	AabbTree(TObjectIterator first, TObjectIterator last);
 
-	void reset();
-	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
+	void reset(TObjectIterator first, TObjectIterator last);
 
 	const TAabb aabb() const;
 
-	bool contains(const TPoint& iPoint, const TInfo* iInfo = 0) const;
+	bool contains(const TPoint& point, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
-	OutputIterator find(const TPoint& iPoint, OutputIterator iResult, const TInfo* iInfo = 0) const;
-	TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0, 
-		const TInfo* iInfo = 0) const;
-	bool intersects(const TRay& iRay, TParam iMinT = 0, 
-		TParam iMaxT = std::numeric_limits<TValue>::infinity(), const TInfo* iInfo = 0) const;
+	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
+	TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, const TInfo* info = 0) const;
+	bool intersects(const TRay& ray, TParam tMin = 0, 
+		TParam tMax = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
 
-	void swap(TSelf& iOther);
+	void swap(TSelf& other);
 	const bool isEmpty() const;
 	void clear();
 
 private:
 
-	typedef std::pair<TObjectIterator, TAabb> TInput;
-	typedef std::vector<TInput> TInputs;
+	struct Input
+	{
+		TAabb aabb;
+		TObjectIterator object;
+		Input(const TAabb& aabb, TObjectIterator object): aabb(aabb), object(object) {}
+	};
+	typedef std::vector<Input> TInputs;
 	typedef typename TInputs::iterator TInputIterator;
 
 	class Node
 	{
 	public:
-		explicit Node(const TAabb& iAabb): 
-			aabb_(iAabb), 
+		explicit Node(const TAabb& aabb): 
+			aabb_(aabb), 
 			first_(-1) 
 		{
 		}
-		Node(const TAabb& iAabb, int iFirst, int iLast): 
-			aabb_(iAabb), 
-			first_(iFirst)
+		Node(const TAabb& aabb, int first, int last): 
+			aabb_(aabb), 
+			first_(first)
 		{
-			LASS_ASSERT(iFirst >= 0 && iLast > iFirst);
-			last_ = iLast; // do union stuff here
+			LASS_ASSERT(first >= 0 && last > first);
+			last_ = last; // do union stuff here
 		}
 
 		const bool isInternal() const { return first_ < 0; }
@@ -137,18 +140,17 @@ private:
 			int last_; // leaf
 		};
 	};
-
 	typedef std::deque<Node> TNodes;
 
-	const int balance(TInputIterator iFirst, TInputIterator iLast);
-	const int addLeafNode(const TAabb& iAabb, TInputIterator iFirst, TInputIterator Last);
-	const int addInternalNode(const TAabb& iAabb);
+	const int balance(TInputIterator first, TInputIterator last);
+	const int addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
+	const int addInternalNode(const TAabb& aabb);
 
-	bool doContains(int iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
+	bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(int iIndex, const TPoint& iPoint, OutputIterator iFirst, const TInfo* iInfo) const;
-	TObjectIterator doIntersect(int iIndex, const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const;
-	bool doIntersects(int iIndex, const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const;
+	OutputIterator doFind(int index, const TPoint& point, OutputIterator first, const TInfo* info) const;
+	TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const;
+	bool doIntersects(int iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
 
 	TObjectIterators objects_;
 	TNodes nodes_;

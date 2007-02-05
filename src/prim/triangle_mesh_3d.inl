@@ -406,20 +406,21 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 					const TValue beta = nRing == 6 ? 
 						.125f : 2 * (.625f - num::sqr(.375f + .25f * num::cos(2 * TNumTraits::pi / nRing))) / nRing;
 					TVector newVertex = (1 - nRing * beta) * vertex.position();
-					for (size_t k = 0; k < nRing; ++k)
+					for (size_t j = 0; j < nRing; ++j)
 					{
-						newVertex += beta * ring[k].position();
+						newVertex += beta * ring[j].position();
 					}
 					newVertices[i] = TPoint(newVertex);
 					if (!uvRing.empty())
 					{
+						LASS_ASSERT(uvRing.size() == nRing);
 						const size_t k = vertexTriangle->side(&vertex);
 						LASS_ASSERT(k < 3 && vertexTriangle->uvs[k]);
 						const TUv& uv = *vertexTriangle->uvs[k];
 						typename TUv::TVector newUv = (1 - nRing * beta) * uv.position();
-						for (size_t k = 0; k < nRing; ++k)
+						for (size_t j = 0; j < nRing; ++j)
 						{
-							newUv += beta * uvRing[k].position();
+							newUv += beta * uvRing[j].position();
 						}
 						newUvs[&uv - firstUv] = TUv(newUv);
 					}
@@ -718,7 +719,7 @@ void TriangleMesh3D<T, BHV, SH>::findVertexRing(
 		const Triangle* const other = triangle->others[kCcw];
 		if (triangle->creaseLevel[kCcw] > 0 || !other)
 		{
-			LASS_ASSERT(triangle->others[kCcw]);
+			//LASS_ASSERT(triangle->others[kCcw]);
 			creases.push_back(neighbour);
 		}
 
@@ -749,19 +750,23 @@ void TriangleMesh3D<T, BHV, SH>::findVertexRing(
 				const Triangle* other2 = triangle2->others[k];
 				if (triangle2->creaseLevel[kCw] > 0 || !other2)
 				{
-					LASS_ASSERT(triangle2->others[kCw]);
+					//LASS_ASSERT(triangle2->others[kCw]);
 					creases.push_back(*neighbour2);
 				}
 				triangle2 = other2;
 			}
 			ring.resize(1, *neighbour2);
-			uvs.resize(0);
+			hasUvRing = false;
 		}
 		ring.push_back(neighbour);
 		triangle = other;
 	}
 	while (triangle && triangle != vertexTriangle);
 
+	if (!hasUvRing)
+	{
+		uvs.resize(0);
+	}
 	// (*) so says the standard, as as we all know, _every_ compiler follows the standard, don't they?
 }
 

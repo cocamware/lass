@@ -49,18 +49,18 @@ AabbTree<O, OT, SH>::AabbTree():
 
 
 template <typename O, typename OT, typename SH>
-AabbTree<O, OT, SH>::AabbTree(TObjectIterator iBegin, TObjectIterator iEnd):
+AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last):
 	objects_(),
 	nodes_(),
-	end_(iEnd)
+	end_(last)
 {
-	TInputs inputs;
-	for (TObjectIterator i = iBegin; i != iEnd; ++i)
+	if (first != last)
 	{
-		inputs.push_back(std::make_pair(i, TObjectTraits::aabb(i)));
-	}
-	if (iBegin != iEnd)
-	{
+		TInputs inputs;
+		for (TObjectIterator i = first; i != last; ++i)
+		{
+			inputs.push_back(Input(TObjectTraits::aabb(i), i));
+		}
 		balance(inputs.begin(), inputs.end());
 	}
 }
@@ -68,18 +68,9 @@ AabbTree<O, OT, SH>::AabbTree(TObjectIterator iBegin, TObjectIterator iEnd):
 
 
 template <typename O, typename OT, typename SH>
-void AabbTree<O, OT, SH>::reset()
+void AabbTree<O, OT, SH>::reset(TObjectIterator first, TObjectIterator last)
 {
-	TSelf temp;
-	swap(temp);
-}
-
-
-
-template <typename O, typename OT, typename SH>
-void AabbTree<O, OT, SH>::reset(TObjectIterator iBegin, TObjectIterator iEnd)
-{
-	TSelf temp(iBegin, iEnd);
+	TSelf temp(first, last);
 	swap(temp);
 }
 
@@ -99,62 +90,62 @@ AabbTree<O, OT, SH>::aabb() const
 
 
 template <typename O, typename OT, typename SH> inline
-bool AabbTree<O, OT, SH>::contains(const TPoint& iPoint, const TInfo* iInfo) const
+bool AabbTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 {
 	if (isEmpty())
 	{
 		return false;
 	}
-	return doContains(0, iPoint, iInfo);
+	return doContains(0, point, info);
 }
 
 
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator> inline
-OutputIterator AabbTree<O, OT, SH>::find(const TPoint& iPoint, OutputIterator iFirst, 
-									 const TInfo* iInfo) const
+OutputIterator AabbTree<O, OT, SH>::find(
+		const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	if (isEmpty())
 	{
-		return iFirst;
+		return result;
 	}
-	return doFind(0, iPoint, iFirst, iInfo);
+	return doFind(0, point, result, info);
 }
 
 
 
 template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator inline
-AabbTree<O, OT, SH>::intersect(const TRay& iRay, TReference oT, TParam iMinT, const TInfo* iInfo) const
+AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
 	if (isEmpty())
 	{
 		return end_;
 	}
-	return doIntersect(0, iRay, oT, iMinT, iInfo);
+	return doIntersect(0, ray, t, tMin, info);
 }
 
 
 
 template <typename O, typename OT, typename SH>
-bool inline AabbTree<O, OT, SH>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT, const TInfo* iInfo) const
+bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
 	if (isEmpty())
 	{
 		return false;
 	}
-	return doIntersects(0, iRay, iMinT, iMaxT, iInfo);
+	return doIntersects(0, ray, tMin, tMax, info);
 }
 
 
 
 template <typename O, typename OT, typename SH>
-void AabbTree<O, OT, SH>::swap(TSelf& iOther)
+void AabbTree<O, OT, SH>::swap(TSelf& other)
 {
-	nodes_.swap(iOther.nodes_);
-	objects_.swap(iOther.objects_);
-	std::swap(end_, iOther.end_);
+	nodes_.swap(other.nodes_);
+	objects_.swap(other.objects_);
+	std::swap(end_, other.end_);
 }
 
 
@@ -183,29 +174,28 @@ void AabbTree<O, OT, SH>::clear()
 // --- private -------------------------------------------------------------------------------------
 
 template <typename O, typename OT, typename SH>
-const int AabbTree<O, OT, SH>::balance(TInputIterator iFirst, TInputIterator iLast)
+const int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 {
-	const SplitInfo<OT> split = TSplitHeuristics::template split<OT>(iFirst, iLast);	
+	const SplitInfo<OT> split = TSplitHeuristics::template split<OT>(first, last);	
 	if (split.axis < 0)
 	{
-		return addLeafNode(split.aabb, iFirst, iLast);
+		return addLeafNode(split.aabb, first, last);
 	}
 
-	TInputIterator middle = std::partition(iFirst, iLast, impl::Splitter<TObjectTraits>(split));
-	
-	if (middle == iFirst || middle == iLast)
+	TInputIterator middle = std::partition(first, last, impl::Splitter<TObjectTraits>(split));
+		if (middle == first || middle == last)
 	{
-		const ptrdiff_t halfSize = (iLast - iFirst) / 2;
-		middle = iFirst + halfSize;
-		std::nth_element(iFirst, middle, iLast, impl::LessAxis<TObjectTraits>(split.axis));
+		const ptrdiff_t halfSize = (last - first) / 2;
+		LASS_ASSERT(halfSize > 0);
+		middle = first + halfSize;
+		std::nth_element(first, middle, last, impl::LessAxis<TObjectTraits>(split.axis));
 	}
-
-	LASS_ASSERT(middle != iFirst && middle != iLast);
+	LASS_ASSERT(middle != first && middle != last);
 
 	const int node = addInternalNode(split.aabb);
-	const int left = balance(iFirst, middle);
+	const int left = balance(first, middle);
 	LASS_ASSERT(left == node + 1);
-	const int right = balance(middle, iLast);
+	const int right = balance(middle, last);
 	nodes_[node].right() = right;
 	return node;
 }
@@ -214,49 +204,52 @@ const int AabbTree<O, OT, SH>::balance(TInputIterator iFirst, TInputIterator iLa
 
 template <typename O, typename OT, typename SH>
 const int AabbTree<O, OT, SH>::addLeafNode(
-		const TAabb& iAabb, TInputIterator iFirst, TInputIterator iLast)
+		const TAabb& aabb, TInputIterator first, TInputIterator last)
 {
-	const int first = objects_.size();
-	while (iFirst != iLast)
+	const int begin = static_cast<int>(objects_.size());
+	while (first != last)
 	{
-		TObjectIterator object = iFirst->first;
-		objects_.push_back(object);
-		++iFirst;
+		objects_.push_back((first++)->object);
 	}
-	const int last = objects_.size();
+	const int end = static_cast<int>(objects_.size());
+	
+	LASS_ASSERT(begin >= 0 && end >= 0);
+	nodes_.push_back(Node(aabb, begin, end));
 
-	nodes_.push_back(Node(iAabb, first, last));
-	return nodes_.size() - 1;
+	LASS_ASSERT(static_cast<int>(nodes_.size()) > 0);
+	return static_cast<int>(nodes_.size()) - 1;
 }
 
 
 
 template <typename O, typename OT, typename SH>
-const int AabbTree<O, OT, SH>::addInternalNode(const TAabb& iAabb)
+const int AabbTree<O, OT, SH>::addInternalNode(const TAabb& aabb)
 {
-	nodes_.push_back(Node(iAabb));
-	return nodes_.size() - 1;
+	nodes_.push_back(Node(aabb));
+
+	LASS_ASSERT(static_cast<int>(nodes_.size()) > 0);
+	return static_cast<int>(nodes_.size()) - 1;
 }
 
 
 
 template <typename O, typename OT, typename SH>
-bool AabbTree<O, OT, SH>::doContains(int iIndex, const TPoint& iPoint, const TInfo* iInfo) const
+bool AabbTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo* info) const
 {
 	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 
-	if (!TObjectTraits::contains(node.aabb(), iPoint))
+	if (!TObjectTraits::contains(node.aabb(), point))
 	{
 		return false;
 	}
 	if (node.isInternal())
 	{
-		return doContains(iIndex + 1, iPoint, iInfo) || doContains(node.right(), iPoint, iInfo);
+		return doContains(index + 1, point, info) || doContains(node.right(), point, info);
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::contains(objects_[i], iPoint, iInfo))
+		if (TObjectTraits::contains(objects_[i], point, info))
 		{
 			return true;
 		}
@@ -268,29 +261,29 @@ bool AabbTree<O, OT, SH>::doContains(int iIndex, const TPoint& iPoint, const TIn
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(int iIndex, const TPoint& iPoint, OutputIterator iOutput,
-									   const TInfo* iInfo) const
+OutputIterator AabbTree<O, OT, SH>::doFind(
+		int index, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 
-	if (!TObjectTraits::contains(node.aabb(), iPoint))
+	if (!TObjectTraits::contains(node.aabb(), point))
 	{
-		return iOutput;
+		return result;
 	}
 	if (node.isInternal())
 	{
-		iOutput = doFind(iIndex + 1, iPoint, iOutput, iInfo);
-		return doFind(node.right(), iPoint, iOutput, iInfo);
+		result = doFind(index + 1, point, result, info);
+		return doFind(node.right(), point, result, info);
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::contains(objects_[i], iPoint, iInfo))
+		if (TObjectTraits::contains(objects_[i], point, info))
 		{
-			*iOutput++ = objects_[i];
+			*result++ = objects_[i];
 		}
 	}
-	return iOutput;
+	return result;
 }
 
 
@@ -298,84 +291,81 @@ OutputIterator AabbTree<O, OT, SH>::doFind(int iIndex, const TPoint& iPoint, Out
 template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator 
 AabbTree<O, OT, SH>::doIntersect(
-		int iIndex, const TRay& iRay, TReference oT, TParam iMin, const TInfo* iInfo) const
+		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
 	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 
-	TValue t;
-	if (!TObjectTraits::intersect(node.aabb(), iRay, t, iMin))
+	TValue tDummy;
+	if (!TObjectTraits::intersect(node.aabb(), ray, tDummy, tMin))
 	{
 		return end_;
 	}
+
 	if (node.isInternal())
 	{
 		TValue tLeft;
-		TObjectIterator left = doIntersect(iIndex + 1, iRay, tLeft, iMin, iInfo);
+		TObjectIterator left = doIntersect(index + 1, ray, tLeft, tMin, info);
 		TValue tRight;
-		TObjectIterator right = doIntersect(node.right(), iRay, tRight, iMin, iInfo);
+		TObjectIterator right = doIntersect(node.right(), ray, tRight, tMin, info);
 
-		if (left != end_)
+		if (left != end_ && (right == end_ || tLeft < tRight))
 		{
-			if (right != end_ && tRight < tLeft)
-			{
-				oT = tRight;
-				return right;
-			}
-			oT = tLeft;
+			t = tLeft;
 			return left;
 		}
 		if (right != end_)
 		{
-			oT = tRight;
+			LASS_ASSERT(left == end_ || !(tLeft < tRight));
+			t = tRight;
 			return right;
 		}
 		return end_;
 	}
 
-	TValue closestT = 0;
-	TObjectIterator closestObject = end_;
+	TValue tBest = 0;
+	TObjectIterator best = end_;
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		TValue t;
-		if (TObjectTraits::intersect(objects_[i], iRay, t, iMin, iInfo))
+		TValue tCandidate;
+		if (TObjectTraits::intersect(objects_[i], ray, tCandidate, tMin, info))
 		{
-			if (closestObject == end_ || t < closestT)
+			if (best == end_ || tCandidate < tBest)
 			{
-				closestT = t;
-				closestObject = objects_[i];
+				tBest = tCandidate;
+				best = objects_[i];
 			}
 		}
 	}
-	if (closestObject != end_)
+	if (best != end_)
 	{
-		oT = closestT;
+		t = tBest;
 	}
-	return closestObject;
+	return best;
 }
 
 
 
 template <typename O, typename OT, typename SH>
 bool AabbTree<O, OT, SH>::doIntersects(
-		int iIndex, const TRay& iRay, TParam iMin, const TParam iMaxT, const TInfo* iInfo) const
+		int index, const TRay& ray, TParam tMin, const TParam tMax, const TInfo* info) const
 {
 	LASS_ASSERT(iIndex >= 0 && static_cast<size_t>(iIndex) < nodes_.size());
 	const Node& node = nodes_[iIndex];
 
-	TValue t;
-	if (!TObjectTraits::intersect(node.aabb(), iRay, t, iMin))
+	TValue tDummy;
+	if (!TObjectTraits::intersect(node.aabb(), ray, tDummy, tMin))
 	{
 		return false;
 	}
 	if (node.isInternal())
 	{
-		return doIntersects(iIndex, iRay, iMin, iMaxT, iInfo)
-			|| doIntersects(node.right(), iRay, iMin, iMaxT, iInfo);
+		return doIntersects(index + 1, ray, tMin, tMax, info)
+			|| doIntersects(node.right(), ray, tMin, tMax, info);
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::intersects(objects_[i], iRay, iMin, iMaxT, iInfo))
+		if (TObjectTraits::intersects(objects_[i], ray, tMin, tMax, info))
 		{
 			return true;
 		}

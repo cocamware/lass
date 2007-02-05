@@ -79,44 +79,50 @@ public:
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
 	AabpTree();
-	AabpTree(TObjectIterator iBegin, TObjectIterator iEnd);
+	AabpTree(TObjectIterator first, TObjectIterator last);
 
 	void reset();
-	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
+	void reset(TObjectIterator first, TObjectIterator last);
 
 	const TAabb& aabb() const;
 
-	const bool contains(const TPoint& iPoint, const TInfo* iInfo = 0) const;
+	const bool contains(const TPoint& point, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
-	OutputIterator find(const TPoint& iPoint, OutputIterator iResult, const TInfo* iInfo = 0) const;
-	const TObjectIterator intersect(const TRay& iRay, TReference oT, TParam iMinT = 0, 
-		const TInfo* iInfo = 0) const;
-	const bool intersects(const TRay& iRay, TParam iMinT = 0, 
-		TParam iMaxT = std::numeric_limits<TValue>::infinity(), const TInfo* iInfo = 0) const;
+	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
+	const TObjectIterator intersect(const TRay& ray, TReference t, TParam minT = 0, 
+		const TInfo* info = 0) const;
+	const bool intersects(const TRay& ray, TParam minT = 0, 
+		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
 
-	void swap(TSelf& iOther);
+	void swap(TSelf& other);
 	const bool isEmpty() const;
 	void clear();
 
 private:
 
-	typedef std::pair<TObjectIterator, TAabb> TInput;
-	typedef std::vector<TInput> TInputs;
+	struct Input
+	{
+		TAabb aabb;
+		TObjectIterator object;
+		Input(const TAabb& aabb, TObjectIterator object): aabb(aabb), object(object) {}
+	};
+	typedef std::vector<Input> TInputs;
 	typedef typename TInputs::iterator TInputIterator;
 
 	class Node
 	{
 	public:
-		Node(int iAxis)
+		Node(int axis)
 		{
-			LASS_ASSERT(iAxis >= 0 && iAxis < dimension);
-			axis_ = iAxis;
+			LASS_ASSERT(axis >= 0 && axis < dimension);
+			axis_ = axis;
 		}
-		Node(int iFirst, int iLast)
+		Node(int first, int last)
 		{
-			LASS_ASSERT(iFirst >= 0 && iLast > iFirst);
-			first_ = iFirst;
-			last_ = -iLast - 1; // do union stuff here
+			LASS_ASSERT(first >= 0 && last > iFirst);
+			first_ = first;
+			last_ = -last - 1;
+			LASS_ASSERT(last_ < 0);
 		}
 
 		const bool isInternal() const { return axis_ >= 0; }
@@ -146,10 +152,16 @@ private:
 			int last_; // leaf
 		};
 	};
-
 	typedef std::vector<Node> TNodes;
 
-	const std::pair<int, TAabb> balance(TInputIterator iFirst, TInputIterator iLast);
+	struct BalanceResult
+	{
+		TAabb aabb;
+		int index;
+		BalanceResult(const TAabb& aabb, int index): aabb(aabb), index(index) {}
+	};
+
+	const BalanceResult balance(TInputIterator iFirst, TInputIterator iLast);
 	const int addLeafNode(TInputIterator iFirst, TInputIterator iLast);
 	const int addInternalNode(int iAxis);
 

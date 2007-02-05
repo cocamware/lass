@@ -40,8 +40,8 @@ struct SplitInfo
 	typedef typename ObjectTraits::TValue TValue;
 	typedef int TAxis;
 
-	SplitInfo(const TAabb& iAabb, TValue iX, TAxis iAxis):
-		aabb(iAabb), x(iX), axis(iAxis)
+	SplitInfo(const TAabb& aabb, TValue x, TAxis axis):
+		aabb(aabb), x(x), axis(axis)
 	{
 	}
 
@@ -53,8 +53,10 @@ struct SplitInfo
 template <int numObjectsPerLeaf = 1>
 struct DefaultSplitHeuristics
 {
+	LASS_META_ASSERT(numObjectsPerLeaf > 0, numObjectsPerLeaf_must_be_strict_positive);
+	
 	template <typename ObjectTraits, typename RandomIterator>
-	static SplitInfo<ObjectTraits> split(RandomIterator iFirst, RandomIterator iLast)
+	static SplitInfo<ObjectTraits> split(RandomIterator first, RandomIterator last)
 	{
 		typedef typename ObjectTraits::TAabb TAabb;
 		typedef typename ObjectTraits::TPoint TPoint;
@@ -63,12 +65,12 @@ struct DefaultSplitHeuristics
 		LASS_ASSERT(numObjectsPerLeaf > 0);
 
 		TAabb aabb = ObjectTraits::emptyAabb();
-		for (RandomIterator i = iFirst; i != iLast; ++i)
+		for (RandomIterator i = first; i != last; ++i)
 		{
-			aabb = ObjectTraits::join(aabb, i->second);
+			aabb = ObjectTraits::join(aabb, i->aabb);
 		}
 
-		const int n = static_cast<int>(iLast - iFirst);
+		const int n = static_cast<int>(last - first);
 		if (n <= numObjectsPerLeaf)
 		{
 			return SplitInfo<ObjectTraits>(aabb, 0, -1);
@@ -102,12 +104,12 @@ template <typename ObjectTraits>
 class Splitter
 {
 public:
-	Splitter(const SplitInfo<ObjectTraits>& iSplit): split_(iSplit) {}
-	template <typename Input> bool operator()(const Input& iInput) const
+	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
+	template <typename Input> bool operator()(const Input& input) const
 	{
 		const typename ObjectTraits::TValue x = 
-			(ObjectTraits::coordinate(ObjectTraits::min(iInput.second), split_.axis) +
-			ObjectTraits::coordinate(ObjectTraits::max(iInput.second), split_.axis)) / 2;
+			(ObjectTraits::coordinate(ObjectTraits::min(input.aabb), split_.axis) +
+			ObjectTraits::coordinate(ObjectTraits::max(input.aabb), split_.axis)) / 2;
 		return x < split_.x;
 	}			
 private:
@@ -122,11 +124,11 @@ public:
 	template <typename Input> bool operator()(const Input& a, const Input& b) const
 	{
 		const typename ObjectTraits::TValue xa = 
-			(ObjectTraits::coordinate(ObjectTraits::min(a.second), axis_) +
-			ObjectTraits::coordinate(ObjectTraits::max(a.second), axis_)) / 2;
+			(ObjectTraits::coordinate(ObjectTraits::min(a.aabb), axis_) +
+			ObjectTraits::coordinate(ObjectTraits::max(a.aabb), axis_)) / 2;
 		const typename ObjectTraits::TValue xb = 
-			(ObjectTraits::coordinate(ObjectTraits::min(b.second), axis_) +
-			ObjectTraits::coordinate(ObjectTraits::max(b.second), axis_)) / 2;
+			(ObjectTraits::coordinate(ObjectTraits::min(b.aabb), axis_) +
+			ObjectTraits::coordinate(ObjectTraits::max(b.aabb), axis_)) / 2;
 		return xa < xb;
 	}			
 private:
