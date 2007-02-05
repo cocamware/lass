@@ -1389,11 +1389,11 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_MEMBER_RW_EX(Foo, "bar", getBar, setBar, "regular get and setter")
- *  PY_CLASS_MEMBER_RW_EX(Foo, "spam", spam, spam, "cool get and setter")
+ *  PY_CLASS_MEMBER_RW_EX(Foo, getBar, setBar, "bar", "regular get and setter")
+ *  PY_CLASS_MEMBER_RW_EX(Foo, spam, spam, "spam", "cool get and setter")
  *  @endcode
  */
-#define PY_CLASS_MEMBER_RW_EX( t_cppClass, s_memberName, i_cppGetter, i_cppSetter, s_doc, i_dispatcher)\
+#define PY_CLASS_MEMBER_RW_EX( t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc, i_dispatcher)\
 	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* iClosure)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
@@ -1435,16 +1435,30 @@ $[
  *  convenience macro, wraps PY_CLASS_MEMBER_RW_EX with
  *  @a i_dispatcher = lassPyImpl_memberR_ @a t_cppClass __LINE__
  */
-#define PY_CLASS_MEMBER_RW_DOC(t_cppClass, s_memberName, i_cppGetter, i_cppSetter, s_doc)\
-	PY_CLASS_MEMBER_RW_EX(t_cppClass, s_memberName, i_cppGetter, i_cppSetter, s_doc,\
+#define PY_CLASS_MEMBER_RW_NAME_DOC(t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc)\
+	PY_CLASS_MEMBER_RW_EX(t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc,\
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_memberRW, t_cppClass)))
 
 /** @ingroup Python
  *  @sa PY_CLASS_MEMBER_RW_EX
- *  convenience macro, wraps PY_CLASS_MEMBER_RW_DOC with @a s_doc = 0.
+ *  convenience macro, wraps PY_CLASS_MEMBER_RW_NAME_DOC with @a s_doc = 0
  */
-#define PY_CLASS_MEMBER_RW(t_cppClass, s_memberName, i_cppGetter, i_cppSetter)\
-	PY_CLASS_MEMBER_RW_DOC(t_cppClass, s_memberName, i_cppGetter, i_cppSetter, 0)
+#define PY_CLASS_MEMBER_RW_NAME(t_cppClass, i_cppGetter, i_cppSetter, s_memberName)\
+	PY_CLASS_MEMBER_RW_NAME_DOC(t_cppClass, i_cppGetter, i_cppSetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_RW_NAME_DOC with @a s_name = "s_cppGetter"
+ */
+#define PY_CLASS_MEMBER_RW_DOC(t_cppClass, i_cppGetter, i_cppSetter, s_doc)\
+	PY_CLASS_MEMBER_RW_NAME_DOC(t_cppClass, i_cppGetter, i_cppSetter, LASS_STRINGIFY(i_cppGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_RW_NAME_DOC with @a s_name = "s_cppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_MEMBER_RW(t_cppClass, i_cppGetter, i_cppSetter)\
+	PY_CLASS_MEMBER_RW_DOC(t_cppClass, i_cppGetter, i_cppSetter, 0)
 
 
 
@@ -1473,10 +1487,10 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_MEMBER_R_EX(Foo, "bar", getBar, "regular get and setter")
+ *  PY_CLASS_MEMBER_R_EX(Foo, getBar, "bar", "regular get and setter")
  *  @endcode
  */
-#define PY_CLASS_MEMBER_R_EX( t_cppClass, s_memberName, i_cppGetter, s_doc, i_dispatcher )\
+#define PY_CLASS_MEMBER_R_EX( t_cppClass, i_cppGetter, s_memberName, s_doc, i_dispatcher )\
 	PyObject* LASS_CONCATENATE(i_dispatcher, _getter) ( PyObject* iObject, void* iClosure)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
@@ -1503,16 +1517,30 @@ $[
  *  convenience macro, wraps PY_CLASS_MEMBER_R_EX with
  *  @a i_dispatcher = lassPyImpl_memberR_ ## @a t_cppClass ## __LINE__
  */
-#define PY_CLASS_MEMBER_R_DOC(t_cppClass, s_memberName, i_cppGetter , s_doc)\
-	PY_CLASS_MEMBER_R_EX(t_cppClass, s_memberName, i_cppGetter, s_doc,\
+#define PY_CLASS_MEMBER_R_NAME_DOC(t_cppClass, i_cppGetter, s_memberName, s_doc)\
+	PY_CLASS_MEMBER_R_EX(t_cppClass, i_cppGetter, s_memberName, s_doc,\
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_memberR, t_cppClass)))
 
 /** @ingroup Python
- *  @sa PY_CLASS_MEMBER_R_DOC
- *  convenience macro, wraps PY_CLASS_MEMBER_R_EX with @a s_doc = 0.
+ *  @sa PY_CLASS_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_doc = 0
  */
-#define PY_CLASS_MEMBER_R(t_cppClass, s_memberName, i_cppGetter)\
-	PY_CLASS_MEMBER_R_DOC(t_cppClass, s_memberName, i_cppGetter, 0)
+#define PY_CLASS_MEMBER_R_NAME(t_cppClass, i_cppGetter, s_memberName)\
+	PY_CLASS_MEMBER_R_NAME_DOC(t_cppClass, i_cppGetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_cppGetter"
+ */
+#define PY_CLASS_MEMBER_R_DOC(t_cppClass, i_cppGetter, s_doc)\
+	PY_CLASS_MEMBER_R_NAME_DOC(t_cppClass, i_cppGetter, LASS_STRINGIFY(i_cppGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_DOC
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_cppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_MEMBER_R(t_cppClass, i_cppGetter)\
+	PY_CLASS_MEMBER_R_DOC(t_cppClass, i_cppGetter, 0)
 
 
 
@@ -1539,7 +1567,7 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_PUBLIC_MEMBER_EX(Foo, bar, "bar", "regular get and setter")
+ *  PY_CLASS_PUBLIC_MEMBER_EX(Foo, bar, "bar", "blablabla")
  *  @endcode
  */
 #define PY_CLASS_PUBLIC_MEMBER_EX(i_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher)\

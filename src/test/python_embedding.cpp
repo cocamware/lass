@@ -176,9 +176,9 @@ PY_CLASS_FREE_METHOD(Bar, freeMethodA);
 PY_CLASS_FREE_METHOD(Bar, freeMethodB);
 PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, "__call__");
 
-PY_CLASS_MEMBER_RW( Bar, "int", getInt, setInt );
-PY_CLASS_MEMBER_RW( Bar, "foo", getFoo, setFoo );
-PY_CLASS_MEMBER_RW( Bar, "cool", coolMember, coolMember );
+PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
+PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
+PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
@@ -220,7 +220,7 @@ namespace test
 
 PY_DECLARE_CLASS_NAME(PySpam, "Spam")
 PY_CLASS_METHOD(PySpam, who)
-PY_CLASS_MEMBER_R(PySpam, "address", address)
+PY_CLASS_MEMBER_R(PySpam, address)
 LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam");)
 
 PY_DECLARE_CLASS_NAME(PyHam, "Ham")
@@ -234,7 +234,7 @@ LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow b
 
 PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
-PY_CLASS_MEMBER_RW(PyEggs, "number", number, setNumber)
+PY_CLASS_MEMBER_RW(PyEggs, number, setNumber)
 LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");)
 
 }
