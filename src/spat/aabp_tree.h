@@ -119,7 +119,7 @@ private:
 		}
 		Node(int first, int last)
 		{
-			LASS_ASSERT(first >= 0 && last > iFirst);
+			LASS_ASSERT(first >= 0 && last > first);
 			first_ = first;
 			last_ = -last - 1;
 			LASS_ASSERT(last_ < 0);
