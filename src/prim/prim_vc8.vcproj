@@ -165,55 +165,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\aabb_2d_ray_2d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_2d_simple_polygon_2d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_2d_transformation_2d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_2d_triangle_2d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\aabb_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_capsule_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_cylinder_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_parallelogram_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_ray_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_simple_polygon_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_sphere_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_transformation_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\aabb_3d_triangle_3d.inl"
 				>
 			</File>
 			<File
@@ -225,10 +177,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\capsule_3d_ray_3d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\color_rgba.cpp"
 				>
 			</File>
@@ -237,23 +185,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cylinder_3d_ray_3d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\half_edge_mesh_3d.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\half_edge_mesh_3d_triangle_mesh_3d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\line_2d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\line_2d_ray_2d.inl"
 				>
 			</File>
 			<File
@@ -265,27 +201,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\line_segment_2d_ray_2d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\line_segment_3d.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\line_segment_3d_plane_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\line_segment_3d_ray_3d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\parallelogram_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\parallelogram_3d_ray_3d.inl"
 				>
 			</File>
 			<File
@@ -294,10 +214,6 @@
 			</File>
 			<File
 				RelativePath=".\plane_3d_ray_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\plane_3d_transformation_3d.inl"
 				>
 			</File>
 			<File
@@ -349,10 +265,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ray_2d_simple_polygon_2d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\ray_2d_triangle_2d.inl"
 				>
 			</File>
@@ -361,15 +273,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ray_3d_simple_polygon_3d.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\ray_3d_sphere_3d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\ray_3d_transformation_3d.inl"
 				>
 			</File>
 			<File
@@ -378,10 +282,6 @@
 			</File>
 			<File
 				RelativePath=".\simple_polygon_2d.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\simple_polygon_2d_triangle_2d.inl"
 				>
 			</File>
 			<File
@@ -548,10 +448,6 @@
 			</File>
 			<File
 				RelativePath=".\cylinder_3d.h"
-				>
-			</File>
-			<File
-				RelativePath=".\cylinder_3d_ray_3d.h"
 				>
 			</File>
 			<File

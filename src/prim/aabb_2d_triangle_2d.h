@@ -32,18 +32,22 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** determine axis aligned bounding box of a 2D triangle
+ *  @relates Aabb2D
+ */
 template <typename T> 
-Aabb2D<T> aabb(const Triangle2D<T>& iTriangle);
-
+Aabb2D<T> aabb(const Triangle2D<T>& triangle)
+{
+	Aabb2D<T, AutoMinMax> result(triangle[0], triangle[1]);
+	result += triangle[2];
+	return result;
 }
 
 }
-
-#include "aabb_2d_triangle_2d.inl"
+}
 
 #endif
 

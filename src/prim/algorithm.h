@@ -29,7 +29,7 @@
 #include "simple_polygon_2d.h"
 #include "triangle_2d.h"
 
-#pragma LASS_FIXME("THIS HEADER IS DEPRACTED.  USE TRIANGULATE FROM AUTOMATIC HEADER SIMPLE_POLYGON_2D_TRIANGLE_2D.H! [Bramz]")
+#pragma LASS_FIXME("THIS HEADER IS DEPRECATED.  USE TRIANGULATE FROM AUTOMATIC HEADER simple_polygon_2d_triangle_2d.h! [Bramz]")
 
 namespace lass
 {

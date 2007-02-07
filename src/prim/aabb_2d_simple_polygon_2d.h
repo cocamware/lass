@@ -32,18 +32,26 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** determine axis aligned bounding box of a 2D simple polygon
+ *  @relates Aabb2D
+ */
 template <typename T, class DegeneratePolicy> 
-Aabb2D<T> aabb(const SimplePolygon2D<T, DegeneratePolicy>& iPolygon);
-
+Aabb2D<T> aabb(const SimplePolygon2D<T, DegeneratePolicy>& polygon)
+{
+	Aabb2D<T> result;
+	const size_t n = polygon.size();
+	for (size_t i = 0; i < n; ++i)
+	{
+		result += polygon[i];
+	}
+	return result;
 }
 
 }
-
-#include "aabb_2d_simple_polygon_2d.inl"
+}
 
 #endif
 

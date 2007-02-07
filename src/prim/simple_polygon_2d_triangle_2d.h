@@ -35,19 +35,45 @@ namespace lass
 namespace prim
 {
 
-/** triangulate.  Takes a simple polygon and triangulates it.  Convex as well as
-*   concave polygons are accepted.
-*
-*/
-template<typename T, class DegeneratePolicy, typename OutputIterator>
-OutputIterator triangulate(const SimplePolygon2D<T, DegenerationPolicy>& iPolygon,
-						   OutputIterator oTriangles);
-	
+template <typename T, class DegeneratePolicy, typename OutputIterator>
+OutputIterator triangulate(
+		const SimplePolygon2D<T, DegenerationPolicy>& polygon, OutputIterator triangles)
+{
+	if (polygon.isConvex())
+	{
+		// this is the easy one :)
+		const size_t n = polygon.size() - 3;
+		for (size_t i = 0; i < n; ++i)
+		{
+			*triangles++ = Triangle2D<T>(polygon[0],polygon[i+1],polygon[i+2]);
+		}
+		return triangles;
+	}
 
+	// we implement the easiest algorithm: ear clipping
+	// we try to find a non-reflex vertex and then clip it
+
+#pragma LASS_FIXME("This naive implementation of ear clipping is broken, let's fix it later =) [Bramz]")
+	LASS_THROW("triangulation of concave polygons is not implemented yet [Bramz]");
+	//SimplePolygon2D<T, DegenerationPolicy> temp(polygon);
+	//while (temp.size()>3)
+	//{
+	//	const int n = temp.size();
+	//	for (int i=0;i<n;++i)
+	//	{
+	//		if (temp.isReflex(i))
+	//		{
+	//			*triangles++ = push_back(Triangle2D<T>(temp.at(i-1),temp[i],temp.at(i+1)));
+	//			temp.erase(i);
+	//			break;
+	//		}
+	//	}
+	//}
+	//*triangles++ = Triangle2D<T>(temp[0],temp[1],temp[2]);
+	//return triangles;
 }
 
 }
-
-#include "simple_polygon_2d_triangle_2d.inl"
+}
 
 #endif

@@ -29,21 +29,52 @@
 #include "prim_common.h"
 #include "line_segment_2d.h"
 #include "ray_2d.h"
+#include "impl/intersect_edge_2d.h"
 
 namespace lass
 {
 namespace prim
 {
 
+/** Find the intersection of a ray and a line segment by parameter t on the ray.
+ *  @relates lass::prim::LineSegment2D
+ *  @relates lass::prim::Ray2D
+ *
+ *  @param lineSegment [in] the line segment
+ *  @param ray [in] the ray
+ *  @param t [out] the parameter of the intersection point > @a tMin.
+ *  @param tMin [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a t > @a tMin found
+ *                          @a t is not assigned.
+ *          @arg rOne       a intersection with @a t > @a tMin is found
+ *							@a t is assigned.
+ */
 template<typename T, class PP1, class NP2, class PP2>
-Result intersect(const LineSegment2D<T, PP1>& iLineSegment, const Ray2D<T, NP2, PP2>& iRay,
-				 T& oT, const T& iMinT = T());
+Result intersect(const LineSegment2D<T, PP1>& lineSegment, 
+				 const Ray2D<T, NP2, PP2>& ray, 
+				 T& t, const T& tMin = T())
+{
+	typedef Point2D<T> TPoint;
+	typedef Vector2D<T> TVector;
+	typedef typename TVector::TValue TValue;
+	typedef typename TVector::TNumTraits TNumTraits;
 
+	const TPoint& support = ray.support();
+	const TVector& direction = ray.direction();
+
+	TValue tNear = TNumTraits::infinity;
+	const bool good = impl::intersectEdge2D(
+		support, direction, lineSegment.tail(), lineSegment.head(), tNear, tMin);
+	if (good)
+	{
+		t = tNear;
+		return rOne;
+	}
+	return rNone;
 }
 
 }
-
-#include "line_segment_2d_ray_2d.inl"
+}
 
 #endif
 

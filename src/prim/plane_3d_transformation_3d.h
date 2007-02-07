@@ -32,27 +32,50 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
-template<typename T, class NP>
-Plane3D<T, Cartesian, NP> transform(const Plane3D<T, Cartesian, NP>& iPlane, 
-									const Transformation3D<T>& iTransformation);
 
+/** apply transformation to cartesian plane
+ *  @relates Transformation3D
+ */
 template<typename T, class NP>
-Plane3D<T, Parametric, NP> transform(const Plane3D<T, Parametric, NP>& iPlane, 
-									 const Transformation3D<T>& iTransformation);
+Plane3D<T, Cartesian, NP> transform(
+		const Plane3D<T, Cartesian, NP>& plane, const Transformation3D<T>& transformation)
+{
+	const std::pair<Vector3D<T>, T> result = 
+		transform(std::make_pair(plane.normal(), plane.d()), transformation);
+	return Plane3D<T, Cartesian, NP>(result.first, result.second);
+}
 
+
+
+/** apply transformation to parametric plane
+ *  @relates Transformation3D
+ */
 template<typename T, class NP>
-Plane3D<T, Combined, NP> transform(const Plane3D<T, Combined, NP>& iPlane, 
-								   const Transformation3D<T>& iTransformation);
+Plane3D<T, Parametric, NP> transform(
+		const Plane3D<T, Parametric, NP>& plane, const Transformation3D<T>& transformation)
+{
+	return Plane3D<T, Parametric, NP>(
+		transform(plane.support()), transform(plane.directionU()), transform(plane.directionV()));
+}
 
+
+
+/** apply transformation to combined plane
+ *  @relates Transformation3D
+ */
+template<typename T, class NP>
+Plane3D<T, Combined, NP> transform(
+		const Plane3D<T, Combined, NP>& plane, const Transformation3D<T>& transformation)
+{
+	return Plane3D<T, Combined, NP>(
+		transform(plane.support()),	transform(plane.directionU()), transform(plane.directionV()));
 }
 
 }
-
-#include "plane_3d_transformation_3d.inl"
+}
 
 #endif
 

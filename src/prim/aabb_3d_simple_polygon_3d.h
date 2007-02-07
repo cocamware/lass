@@ -32,22 +32,120 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** determine axis aligned bounding box of a 3D simple polygon
+ *  @relates Aabb3D
+ */
 template <typename T, class EP, class NP> 
-Aabb3D<T> aabb(const SimplePolygon3D<T, EP, NP>& iPolygon);
+Aabb3D<T> aabb(const SimplePolygon3D<T, EP, NP>& polygon)
+{
+	Aabb3D<T> result;
+	const size_t n = polygon.size();
+	for (size_t i = 0; i < n; ++i)
+	{
+		result += polygon[i];
+	}
+	return result;
+}
 
-template<typename T, class EP, class NP, class MMP>
+/** Clip a plane to an AABB and get a polygon.
+ *  @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Plane3D
+ *  @relates lass::prim::SimplePolygon3D
+ *
+ *  @param iAabb [in] the Aabb to clip to
+ *  @param iPlane [in] the plane to be clipped
+ *  @return the clipped polygon.
+ */
+template <typename T, class EP, class NP, class MMP>
 SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb, 
-								const Plane3D<T, EP, NP>& iPlane);
+		const Plane3D<T, EP, NP>& iPlane)
+{
+	typedef Plane3D<T, EP, NP> TPlane;
+	typedef SimplePolygon3D<T, EP, NP> TPolygon;
+	typedef Point3D<T> TPoint;
+	typedef typename TPoint::TVector TVector;
+	typedef typename TPoint::TValue TValue;
+	TPolygon poly(iPlane);
+
+	const TPoint& min = iAabb.min();
+	const TPoint& max = iAabb.max();
+	
+	TVector normal;
+	TValue d;
+	iPlane.getCartesian(normal, d);
+
+	TVector m;
+	switch (iPlane.majorAxis())
+	{
+		case 0: // x
+		{
+        		TPoint p[4] = 
+			{
+				TPoint(0.0, min.y, min.z), TPoint(0.0, max.y, min.z),
+				TPoint(0.0, max.y, max.z), TPoint(0.0, min.y, max.z)
+			};
+			if (iPlane.normal().x < 0)
+			{
+				std::reverse(p, p + 4);
+			}
+			for (size_t i = 0; i < 4; ++i)
+			{
+				p[i].x = -(dot(normal, p[i].position()) + d) / normal.x;
+				poly.add(p[i]);
+			}
+			m = TVector(1.0, 0.0, 0.0);
+			break;
+		}
+		case 1: // y
+		{
+			TPoint p[4] = 
+			{
+				TPoint(min.x, 0.0, min.z), TPoint(min.x, 0.0, max.z),
+				TPoint(max.x, 0.0, max.z), TPoint(max.x, 0.0, min.z)
+			};
+			if (iPlane.normal().y < 0)
+			{
+				std::reverse(p, p + 4);
+			}
+			for (size_t i = 0; i < 4; ++i)
+			{
+				p[i].y = -(dot(normal, p[i].position()) + d) / normal.y;
+				poly.add(p[i]);
+			}
+			m = TVector(0.0, 1.0, 0.0);
+			break;
+		}
+		case 2: // z
+		{
+			TPoint p[4] = 
+			{
+				TPoint(min.x, min.y, 0.0), TPoint(max.x, min.y, 0.0),
+				TPoint(max.x, max.y, 0.0), TPoint(min.x, max.y, 0.0)
+			};
+			if (iPlane.normal().z < 0)
+			{
+				std::reverse(p, p + 4);
+			}
+			for (size_t i = 0; i < 4; ++i)
+			{
+				p[i].z = -(dot(normal, p[i].position()) + d) / normal.z;
+				poly.add(p[i]);
+			}
+			m = TVector(0.0, 0.0, 1.0);
+		}
+		default:
+			LASS_THROW("unreachable code");
+	};
+
+	// clip against those 'm' borders
+	return clip(TPlane(m, min), clip(TPlane(-m, max), poly));
+}       
 
 }
-
 }
-
-#include "aabb_3d_simple_polygon_3d.inl"
 
 #endif
 

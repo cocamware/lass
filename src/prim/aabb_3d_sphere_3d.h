@@ -32,21 +32,36 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Sphere3D
+ */
 template <typename T> 
-Aabb3D<T> aabb(const Sphere3D<T>& iSphere);
+Aabb3D<T> aabb(const Sphere3D<T>& sphere)
+{
+	const typename Sphere3D<T>::TPoint& c = sphere.center();
+	const typename Sphere3D<T>::TValue r = sphere.radius();
+	const Vector3D<T> extent(r, r, r);
+	return Aabb3D<T>(c - extent, c + extent);
+}
 
+
+
+/** @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Sphere3D
+ */
 template <typename T>
-Sphere3D<T> boundingSphere(const Aabb3D<T>& iAabb);
-
+Sphere3D<T> boundingSphere(const Aabb3D<T>& box)
+{
+	const typename Aabb3D<T>::TPoint center = box.center().affine();
+	const typename Aabb3D<T>::TValue radius = box.size().norm() / 2;
+	return Sphere3D<T>(center, radius);
 }
 
 }
-
-#include "aabb_3d_sphere_3d.inl"
+}
 
 #endif
 

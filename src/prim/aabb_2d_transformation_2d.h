@@ -36,15 +36,35 @@ namespace lass
 namespace prim
 {
 
+/** apply transformation to axis aligned bounding box
+ *  @relates Transformation3D
+ */
 template<typename T, class MMP>
-Aabb2D<T, MMP> transform(const Aabb2D<T, MMP>& iSubject, 
-						 const Transformation2D<T>& iTransformation);
+Aabb2D<T, MMP> transform(const Aabb2D<T, MMP>& subject, const Transformation2D<T>& transformation)
+{
+	typedef Aabb2D<T, MMP> TAabb;
+	typedef typename TAabb::TPoint TPoint;
+	typedef typename TAabb::TVector TVector;
 
+	if (subject.isEmpty())
+	{
+		return subject;
+	}
+
+	const TVector delta = subject.size();
+	const TPoint p0 = transform(subject.min(), transformation);
+	const TPoint px = p0 + transform(TVector(delta.x, 0), transformation);
+	const TVector dy = transform(TVector(0, delta.y), transformation);
+
+	TAabb result = Aabb2D<T, AutoMinMax>(p0, px);
+	result += (p0 + dy);
+	result += (px + dy);
+	return result;
 }
 
 }
 
-#include "aabb_2d_transformation_2d.inl"
+}
 
 #endif
 

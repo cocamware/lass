@@ -32,18 +32,31 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** determine axis aligned bounding box of a 3D capsule
+ *  @relates Aabb3D
+ */
 template <typename T> 
-Aabb3D<T> aabb(const Capsule3D<T>& iCapsule);
-
+Aabb3D<T> aabb(const Capsule3D<T>& capsule)
+{
+	const typename Capsule3D<T>::TLineSegment& l = capsule.axis();
+	const typename Capsule3D<T>::TValue r = capsule.radius();
+	const Point3D<T> tail = l.tail();
+	const Point3D<T> head = l.head();
+	const Point3D<T> min(tail.x < head.x ? tail.x - r : head.x - r,
+						 tail.y < head.y ? tail.y - r : head.y - r,
+						 tail.z < head.z ? tail.z - r : head.z - r);
+	const Point3D<T> max(tail.x > head.x ? tail.x + r : head.x + r,
+						 tail.y > head.y ? tail.y + r : head.y + r,
+						 tail.z > head.z ? tail.z + r : head.z + r);
+	return Aabb3D<T>(min, max);
 }
 
 }
-
-#include "aabb_3d_capsule_3d.inl"
+}
 
 #endif
 
+// EOF

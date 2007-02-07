@@ -35,16 +35,41 @@ namespace lass
 namespace prim
 {
 
+/** Find the intersection of a ray and a simple polygon by their parameter t on the ray.
+ *  @relates lass::prim::Ray3D
+ *  @relates lass::prim::SimplePolygon3D
+ *
+ *  @param polygon [in] the simple polygon
+ *  @param triangle [in] the ray
+ *  @param t [out] the parameter of the intersection point > @a tMin.
+ *  @param tMin [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections with @a t > @a tMin found
+ *                          @a t is not assigned.
+ *          @arg rOne       a intersection with @a t > @a tMin is found
+ *							@a t is assigned.
+ */
 template<typename T, class EP1, class NP1, class NP2, class PP2>
-Result intersect(const SimplePolygon3D<T, EP1, NP1>& iPolygon, 
-				 const Ray3D<T, NP2, PP2>& iRay,
-				 T& oT, const T& iMinT = T());
+Result intersect(
+		const SimplePolygon3D<T, EP1, NP1>& polygon, const Ray3D<T, NP2, PP2>& triangle, 
+		T& t, const T& tMin)
+{
+	typedef Point2D<T> TPoint;
+	typedef typename TPoint::TValue TValue;
 
+	TValue tCandidate;
+	if (intersect(polygon.plane(), triangle, tCandidate, tMin) == rOne)
+	{
+		if (polygon.contains(triangle.point(tCandidate)))
+		{
+			t = tCandidate;
+			return rOne;
+		}
+	}
+	return rNone;
 }
 
 }
-
-#include "ray_3d_simple_polygon_3d.inl"
+}
 
 #endif
 

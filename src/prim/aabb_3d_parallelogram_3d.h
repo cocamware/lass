@@ -32,18 +32,24 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** determine axis aligned bounding box of a 3D parallelogram
+ *  @relates Aabb3D
+ */
 template <typename T> 
-Aabb3D<T> aabb(const Parallelogram3D<T>& iParallelogram);
-
+Aabb3D<T> aabb(const Parallelogram3D<T>& parallelogram)
+{
+	const typename Parallelogram3D<T>::TPoint supportU = 
+		parallelogram.support() + parallelogram.sizeU();
+	Aabb3D<T, AutoMinMax> result(parallelogram.support(), supportU);
+	result += parallelogram.support() + parallelogram.sizeV();
+	result += supportU + parallelogram.sizeV();
+	return result;
 }
 
 }
-
-#include "aabb_3d_parallelogram_3d.inl"
 
 #endif
 

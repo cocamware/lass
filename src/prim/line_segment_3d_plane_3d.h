@@ -35,22 +35,88 @@ namespace lass
 namespace prim
 {
 
-template<typename T, class EP, class NP, class PP>
-Result intersect(const Plane3D<T, EP, NP>& iPlane,
-				 const LineSegment3D<T, PP>& iSegment,
-				 T& oT, const T& iMinT = T());
+/** Find the intersection of a plane and line segment by their parameter t on the ray.
+ *  @relates lass::prim::Plane3D
+ *  @relates lass::prim::LineSegment3D
+ *
+ *  @param plane [in] the plane
+ *  @param lineSegment [in] the line segment
+ *  @param t [out] the parameter of the intersection point > @a tMin.
+ *  @param tMin [in] the minimum t that may be returned as valid intersection.
+ *  @return @arg rNone      no intersections > @a tMin found
+ *                          @a t is not assigned.
+ *          @arg rOne       exactly one intersection > @a tMin found
+ *                          @a t represents it.
+ *          @arg rInfinite  infinite many intersections found (segment is coincident with plane),
+ *                          @a t is not assigned.
+ *          @arg rInvalid   @a plane or @a iRay is invalid, no intersection.
+ *                          @a t is not assigned.
+ */
+template<typename T, class EPPlane, class NPPlane, class PPRay>
+Result intersect(
+		const Plane3D<T, EPPlane, NPPlane>& plane, const LineSegment3D<T, PPRay>& lineSegment,
+		T& t, const T& tMin = T())
+{
+	typedef typename Vector3D<T>::TValue TValue;
+	typedef typename Vector3D<T>::TNumTraits TNumTraits;
 
+	if (!plane.isValid())
+	{
+		return rInvalid;
+	}
+
+    const TValue eTail = plane.equation(lineSegment.tail());
+    const TValue eHead = plane.equation(lineSegment.head());
+
+	if (eTail == eHead)
+    {
+		return eTail == TNumTraits::zero ? rInfinite : rNone;
+    }
+    else
+    {
+        // find candidate of intersection.
+		const TValue tCandidate = eTail / (eTail - eHead);
+		if (tCandidate >= TNumTraits::zero && tCandidate <= TNumTraits::one)
+		{
+			t = tCandidate;
+			return rOne;
+		}
+		return rNone;
+    }
+}
+
+/** reflect a linesegment in a plane.
+ *  @relates lass::prim::LineSegment3D
+ *  @relates lass::prim::Plane3D
+ *
+ *  @param plane [in] the reflection plane
+ *  @param lineSegment [in] the line segment to be reflected
+ *  @return the reflected line segment
+ */
 template <typename T, class EP, class NP, class PP>
-LineSegment3D<T, PP> reflect(const Plane3D<T, EP, NP>& iPlane, const LineSegment3D<T, PP>& iSegment);
+LineSegment3D<T, PP> reflect(
+		const Plane3D<T, EP, NP>& plane, const LineSegment3D<T, PP>& lineSegment)
+{
+	return LineSegment3D<T, PP>(plane.reflect(lineSegment.tail()), plane.reflect(lineSegment.head()));
+}
 
+/** project a linesegment on a plane.
+ *  @relates lass::prim::LineSegment3D
+ *  @relates lass::prim::Plane3D
+ *
+ *  @param plane [in] the projection plane
+ *  @param lineSegment [in] the line segment to be projected
+ *  @return the projected line segment
+ */
 template <typename T, class EP, class NP, class PP>
-LineSegment3D<T, PP> project(const Plane3D<T, EP, NP>& iPlane, const LineSegment3D<T, PP>& iSegment);
-
+LineSegment3D<T, PP> project(
+		const Plane3D<T, EP, NP>& plane, const LineSegment3D<T, PP>& lineSegment)
+{
+	return LineSegment3D<T, PP>(plane.project(lineSegment.tail()), plane.project(lineSegment.head()));
 }
 
 }
-
-#include "line_segment_3d_plane_3d.inl"
+}
 
 #endif
 

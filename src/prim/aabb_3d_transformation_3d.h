@@ -32,19 +32,44 @@
 
 namespace lass
 {
-
 namespace prim
 {
 
+/** apply transformation to axis aligned bounding box
+ *  @relates Transformation3D
+ */
 template<typename T, class MMP>
-Aabb3D<T, MMP> transform(const Aabb3D<T, MMP>& iSubject, 
-						 const Transformation3D<T>& iTransformation);
+Aabb3D<T, MMP> transform(const Aabb3D<T, MMP>& subject, const Transformation3D<T>& transformation)
+{
+	typedef Aabb3D<T, MMP> TAabb;
+	typedef typename TAabb::TPoint TPoint;
+	typedef typename TAabb::TVector TVector;
 
+	if (subject.isEmpty())
+	{
+		return subject;
+	}
+
+	const TVector delta = subject.size();
+	const TPoint p0 = transform(subject.min(), transformation);
+	const TPoint px = p0 + transform(TVector(delta.x, 0, 0), transformation);
+	const TVector dy = transform(TVector(0, delta.y, 0), transformation);
+	const TVector dz = transform(TVector(0, 0, delta.z), transformation);
+
+	TAabb result = Aabb3D<T, AutoMinMax>(p0, px);
+	result += (p0 + dy);
+	result += (px + dy);
+	result += (p0 + dz);
+	result += (px + dz);
+	const TVector dyz = dy + dz;
+	result += (p0 + dyz);
+	result += (px + dyz);
+
+	return result;
 }
 
 }
-
-#include "aabb_3d_transformation_3d.inl"
+}
 
 #endif
 
