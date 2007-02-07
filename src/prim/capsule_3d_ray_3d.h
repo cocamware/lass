@@ -4,6 +4,7 @@
 #include "prim_common.h"
 #include "ray_3d.h"
 #include "capsule_3d.h"
+#include "sphere_3d.h"
 #include "../num/floating_point_consistency.h"
 
 namespace lass
