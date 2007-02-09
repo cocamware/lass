@@ -106,8 +106,8 @@ public:
 		Triangle* others[3]; /**< triangle on other side of vertices k,k+1 */
 		unsigned creaseLevel[3];   /**< crease level of side k,k+1 */
 
-		const Result intersect(const TRay& iRay, TReference oT, TParam iMinT = 0,
-			IntersectionContext* oContext = 0) const;
+		const Result intersect(const TRay& ray, TReference t, TParam tMin = 0,
+			IntersectionContext* context = 0) const;
 		const size_t side(const TPoint* v) const;
 	};
 
@@ -124,33 +124,37 @@ public:
 	typedef typename TNormals::const_iterator TNormalIterator;
 	typedef typename TUvs::const_iterator TUvIterator;
 
+	TriangleMesh3D();
+	template <typename VertexInputRange, typename IndexTriangleInputRange>
+	TriangleMesh3D(
+		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles);
 	template <typename VertexInputRange, typename NormalInputRange,
 		typename UvInputRange, typename IndexTriangleInputRange>
 	TriangleMesh3D(
-		const VertexInputRange& iVertices, const NormalInputRange& iNormals,
-		const UvInputRange& iUvs, const IndexTriangleInputRange& iTriangles);
+		const VertexInputRange& vertices, const NormalInputRange& normals,
+		const UvInputRange& uvs, const IndexTriangleInputRange& triangles);
 
 	const TTriangles& triangles() const;
 	const TVertices& vertices() const;
 	const TNormals& normals() const;
 	const TUvs& uvs() const;
 	template <typename OutputIterator> 
-		OutputIterator indexTriangles(OutputIterator oTriangles) const;
+		OutputIterator indexTriangles(OutputIterator triangles) const;
 
 	const TAabb aabb() const;
 	const TValue area() const;
 
-	void smoothNormals(TParam iMaxAngleInRadians);
+	void smoothNormals(TParam maxAngleInRadians);
 	void flatFaces();
 	void loopSubdivision(unsigned level);
 	void autoSew();
 	void autoCrease(unsigned level);
 
-	const Result intersect(const TRay& iRay, TTriangleIterator& oTriangle, TReference oT, 
-		TParam iMinT = 0, IntersectionContext* oContext = 0) const;
-	const bool intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const;
+	const Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, 
+		TParam tMin = 0, IntersectionContext* context = 0) const;
+	const bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
 
-	void swap(TSelf& ioOther);
+	void swap(TSelf& other);
 	
 private:
 
@@ -174,49 +178,49 @@ private:
 		
 		enum { dimension = TSelf::dimension };
 
-		static const TAabb aabb(TObjectIterator iObject) 
+		static const TAabb aabb(TObjectIterator object) 
 		{
 			TAabb result;
-			result += *iObject->vertices[0]; 
-			result += *iObject->vertices[1];
-			result += *iObject->vertices[2];
+			result += *object->vertices[0]; 
+			result += *object->vertices[1];
+			result += *object->vertices[2];
 			return result;
 		}
 
-		static const bool intersect(TObjectIterator iObject, const TRay& iRay, 
-			TReference oT, TParam iMinT, const TInfo* iInfo)
+		static const bool intersect(TObjectIterator object, const TRay& ray, 
+			TReference t, TParam tMin, const TInfo* info)
 		{
-			return iObject->intersect(iRay, oT, iMinT) == rOne;
+			return object->intersect(ray, t, tMin) == rOne;
 		}
 
-		static const bool intersects(TObjectIterator iObject, const TRay& iRay, 
-			TParam iMinT, TParam iMaxT, const TInfo* iInfo)
+		static const bool intersects(TObjectIterator object, const TRay& ray, 
+			TParam tMin, TParam tMax, const TInfo* info)
 		{
 			TValue t;
-			Result hit = iObject->intersect(iRay, t, iMinT);
-			return hit == rOne && t < iMaxT;
+			Result hit = object->intersect(ray, t, tMin);
+			return hit == rOne && t < tMax;
 		}
 
-		static const bool contains(const TAabb& iAabb, const TPoint& iPoint) 
+		static const bool contains(const TAabb& aabb, const TPoint& point) 
 		{ 
-			return iAabb.contains(iPoint); 
+			return aabb.contains(point); 
 		}
 
-		static const bool intersect(const TAabb& iAabb, const TRay& iRay, 
-			TReference oT, const TParam iMinT)
+		static const bool intersect(const TAabb& aabb, const TRay& ray, 
+			TReference t, const TParam tMin)
 		{
-			return prim::intersect(iAabb, iRay, oT, iMinT) != prim::rNone;
+			return prim::intersect(aabb, ray, t, tMin) != prim::rNone;
 		}
 
 		static const TAabb emptyAabb() { return TAabb(); }
-		static const TAabb join(const TAabb& iA, const TAabb& iB) { return iA + iB; }
-		static const TPoint min(const TAabb& iAabb) { return iAabb.min(); }
-		static const TPoint max(const TAabb& iAabb) { return iAabb.max(); }
-		static const TPoint support(const TRay& iRay) {	return iRay.support(); }
-		static const TVector direction(const TRay& iRay) { return iRay.direction();	}
-		static const TValue coordinate(const TPoint& iPoint, size_t iAxis) { return iPoint[iAxis]; }
-		static const TValue component(const TVector& iVector, size_t iAxis) { return iVector[iAxis]; }
-		static const TVector reciprocal(const TVector& iVector) { return iVector.reciprocal(); }
+		static const TAabb join(const TAabb& a, const TAabb& b) { return a + b; }
+		static const TPoint min(const TAabb& aabb) { return aabb.min(); }
+		static const TPoint max(const TAabb& aabb) { return aabb.max(); }
+		static const TPoint support(const TRay& ray) {	return ray.support(); }
+		static const TVector direction(const TRay& ray) { return ray.direction();	}
+		static const TValue coordinate(const TPoint& point, size_t axis) { return point[axis]; }
+		static const TValue component(const TVector& vector, size_t axis) { return vector[axis]; }
+		static const TVector reciprocal(const TVector& vector) { return vector.reciprocal(); }
 	};
 
 	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits, SplitHeuristics> TTriangleTree;
@@ -226,11 +230,11 @@ private:
 		Triangle* triangle;
 		const TPoint* tail;
 		const TPoint* head;
-		LogicalEdge(Triangle* iTriangle, const TPoint* iTail, const TPoint* iHead): 
-			triangle(iTriangle), tail(iTail), head(iHead) {}
-		bool operator<(const LogicalEdge& iOther) const
+		LogicalEdge(Triangle* triangle, const TPoint* tail, const TPoint* head): 
+			triangle(triangle), tail(tail), head(head) {}
+		bool operator<(const LogicalEdge& other) const
 		{
-			return tail < iOther.tail || (tail == iOther.tail && head < iOther.head);
+			return tail < other.tail || (tail == other.tail && head < other.head);
 		}
 	};
 
@@ -239,8 +243,8 @@ private:
 		Triangle* triangle;
 		size_t k1;
 		size_t k2;
-		PositionalEdge(Triangle* iTriangle, size_t iK1, size_t iK2): 
-			triangle(iTriangle), k1(iK1), k2(iK2)
+		PositionalEdge(Triangle* triangle, size_t k1, size_t k2): 
+			triangle(triangle), k1(k1), k2(k2)
 		{
 			const TPoint& v1 = *triangle->vertices[k1];
 			x_[ 0] = v1.x; 
@@ -251,12 +255,12 @@ private:
 			x_[ 4] = v2.y;
 			x_[ 5] = v2.z;
 		}
-		const bool operator<(const PositionalEdge& iOther) const
+		const bool operator<(const PositionalEdge& other) const
 		{
 			for (size_t i = 0; i < size_; ++i)
 			{
-				if (x_[i] < iOther.x_[i]) return true;
-				if (x_[i] > iOther.x_[i]) return false;
+				if (x_[i] < other.x_[i]) return true;
+				if (x_[i] > other.x_[i]) return false;
 			}
 			return false;
 		}
@@ -270,10 +274,12 @@ private:
 	typedef std::vector<TVector> TNormalRing;
 	typedef std::vector<TUv> TUvRing;
 
+	template <typename IndexTriangleInputRange> 
+	void buildMesh(const IndexTriangleInputRange& triangles);
+	void connectTriangles();
 	void findVertexTriangles(TVertexTriangles& vertexTriangles) const;
 	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, 
 			TVertexRing& ring, TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const;
-	void connectTriangles();
 	void subdivide();
 
 	TTriangleTree tree_;

@@ -57,10 +57,10 @@ TUnitTests testSpat()
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
 	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
 	TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
-	result.push_back(LASS_UNIT_TEST(objectTreesFloat2));
-	result.push_back(LASS_UNIT_TEST(objectTreesFloat3));
 	result.push_back(LASS_UNIT_TEST(objectTreesDouble2));
 	result.push_back(LASS_UNIT_TEST(objectTreesDouble3));
+	result.push_back(LASS_UNIT_TEST(objectTreesFloat2));
+	result.push_back(LASS_UNIT_TEST(objectTreesFloat3));
 
 	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<float> >));
 	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<float> >));

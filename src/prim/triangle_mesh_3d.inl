@@ -44,91 +44,42 @@ namespace prim
 // --- public --------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D()
+{
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+template 
+<
+	typename VertexInputRange, typename IndexTriangleInputRange
+>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
+		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles):
+	vertices_(vertices.begin(), vertices.end()),
+	normals_(),
+	uvs_()
+{
+	buildMesh(triangles);
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 template 
 <
 	typename VertexInputRange, typename NormalInputRange,
 	typename UvInputRange, typename IndexTriangleInputRange
 >
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
-		const VertexInputRange& iVertices, const NormalInputRange& iNormals, 
-		const UvInputRange& iUvs, const IndexTriangleInputRange& iTriangles):
-	vertices_(iVertices.begin(), iVertices.end()),
-	normals_(iNormals.begin(), iNormals.end()),
-	uvs_(iUvs.begin(), iUvs.end())
+		const VertexInputRange& vertices, const NormalInputRange& normals, 
+		const UvInputRange& uvs, const IndexTriangleInputRange& triangles):
+	vertices_(vertices.begin(), vertices.end()),
+	normals_(normals.begin(), normals.end()),
+	uvs_(uvs.begin(), uvs.end())
 {
-	const std::size_t sizeVertices = vertices_.size();
-	const std::size_t sizeNormals = normals_.size();
-	const std::size_t sizeUvs = uvs_.size();
-
-	for (typename IndexTriangleInputRange::const_iterator i = iTriangles.begin(); 
-		i != iTriangles.end(); ++i)
-	{
-		TTriangle triangle;
-		size_t numNormals = 0;
-		size_t numUvs = 0;
-		for (std::size_t k = 0; k < 3; ++k)
-		{
-			triangle.others[k] = 0;
-			triangle.creaseLevel[k] = 0;
-
-			const std::size_t vertex = i->vertices[k];
-			if (vertex >= sizeVertices)
-			{
-				LASS_THROW("vertex index is out of range: "
-					<< static_cast<unsigned long>(vertex) << " >= " 
-					<< static_cast<unsigned long>(sizeVertices));
-			}
-			triangle.vertices[k] = &vertices_[vertex];
-
-			const std::size_t normal = i->normals[k];
-			if (normal != IndexTriangle::null())
-			{				
-				if (normal >= sizeNormals)
-				{
-					LASS_THROW("normal index is out of range: " 
-						<< static_cast<unsigned long>(normal) << " >= " 
-						<< static_cast<unsigned long>(sizeNormals));
-				}
-				triangle.normals[k] = &normals_[normal];
-				++numNormals;
-			}
-			else
-			{
-				triangle.normals[k] = 0;
-			}
-
-			const std::size_t uv = i->uvs[k];
-			if (uv != IndexTriangle::null())
-			{
-				if (uv >= sizeUvs)
-				{
-					LASS_THROW("uv index is out of range: " 
-						<< static_cast<unsigned long>(uv) << " >= " 
-						<< static_cast<unsigned long>(sizeUvs));
-				}
-				triangle.uvs[k] = &uvs_.begin()[uv];
-				++numUvs;
-			}
-			else
-			{
-				triangle.uvs[k] = 0;
-			}
-		}
-
-		if (!(numNormals == 0 || numNormals == 3))
-		{
-			LASS_THROW("Each triangle must have either zero or three normals vectors");
-		}
-		if (!(numUvs == 0 || numUvs == 3))
-		{
-			LASS_THROW("Each triangle must have either zero or three uv coordinates");
-		}
-
-		triangles_.push_back(triangle);
-	}
-
-	connectTriangles();
-	tree_.reset(triangles_.begin(), triangles_.end());
+	buildMesh(triangles);
 }
 
 
@@ -171,7 +122,7 @@ TriangleMesh3D<T, BHV, SH>::uvs() const
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 template <typename OutputIterator> 
-OutputIterator TriangleMesh3D<T, BHV, SH>::indexTriangles(OutputIterator oIndices) const
+OutputIterator TriangleMesh3D<T, BHV, SH>::indexTriangles(OutputIterator triangles) const
 {
 	typename TTriangles::const_iterator triangle;
 	for (triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
@@ -186,9 +137,9 @@ OutputIterator TriangleMesh3D<T, BHV, SH>::indexTriangles(OutputIterator oIndice
 			indexTriangle.uvs[k] = triangle->uvs[k] ?
 				triangle->uvs[k] - &uvs_.front() : IndexTriangle::null();
 		}
-		*oIndices++ = indexTriangle;
+		*triangles++ = indexTriangle;
 	}
-	return oIndices;
+	return triangles;
 }
 
 
@@ -224,11 +175,11 @@ TriangleMesh3D<T, BHV, SH>::area() const
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-void TriangleMesh3D<T, BHV, SH>::smoothNormals(TParam iMaxAngleInRadians)
+void TriangleMesh3D<T, BHV, SH>::smoothNormals(TParam maxAngleInRadians)
 {
 	const std::size_t numTriangles = triangles_.size();
 	const std::size_t numVertices = vertices_.size();
-	const TValue minDot = num::cos(iMaxAngleInRadians);
+	const TValue minDot = num::cos(maxAngleInRadians);
 
 	// first pass: determine possible vertex normals
 	//
@@ -558,40 +509,38 @@ void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level)
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& iRay, TTriangleIterator& oTriangle,
-		TReference oT, TParam iMinT, IntersectionContext* oContext) const
+const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& ray, TTriangleIterator& triangle,
+		TReference t, TParam tMin, IntersectionContext* context) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	TValue t;
-	const TTriangleIterator triangle =  tree_.intersect(iRay, t, iMinT);
-	if (triangle == triangles_.end())
+	const TTriangleIterator candidate =  tree_.intersect(ray, t, tMin);
+	if (candidate == triangles_.end())
 	{
 		return rNone;
 	}
-	oTriangle = triangle;
-	oT = t;
+	triangle = candidate;
 	return rOne;
 }
 
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& iRay, TParam iMinT, TParam iMaxT) const
+const bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	return tree_.intersects(iRay, iMinT, iMaxT);
+	return tree_.intersects(ray, tMin, tMax);
 }
 
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-void TriangleMesh3D<T, BHV, SH>::swap(TSelf& ioOther)
+void TriangleMesh3D<T, BHV, SH>::swap(TSelf& other)
 {
-	tree_.swap(ioOther.tree_);
-	triangles_.swap(ioOther.trtriangles_ee_);
-	vertices_.swap(ioOther.vertices_);
-	normals_.swap(ioOther.normals_);
-	uvs_.swap(ioOther.uvs_);
+	tree_.swap(other.tree_);
+	triangles_.swap(other.trtriangles_ee_);
+	vertices_.swap(other.vertices_);
+	normals_.swap(other.normals_);
+	uvs_.swap(other.uvs_);
 }
 
 
@@ -599,25 +548,23 @@ void TriangleMesh3D<T, BHV, SH>::swap(TSelf& ioOther)
 // --- Triangle ------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& iRay, 
-		TReference oT, TParam iMinT, IntersectionContext* oContext) const
+const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray, 
+		TReference t, TParam tMin, IntersectionContext* context) const
 {
 	LASS_ASSERT(vertices[0] && vertices[1] && vertices[2]);
 	const TPoint point0 = *vertices[0];
 	const TVector dPoint_dR = *vertices[1] - point0;
 	const TVector dPoint_dS = *vertices[2] - point0;
 
-	TValue r, s, t;
+	TValue r, s;
 	const Result hit = impl::intersectTriangle3D(
-		point0, dPoint_dR, dPoint_dS, iRay.support(), iRay.direction(), r, s, t, iMinT);
+		point0, dPoint_dR, dPoint_dS, ray.support(), ray.direction(), r, s, t, tMin);
 	if (hit != rOne)
 	{
 		return hit;
 	}
 
-	oT = t;
-
-	if (oContext)
+	if (context)
 	{
 		TUv dRs_dU(1, 0);
 		TUv dRs_dV(0, 1);
@@ -627,39 +574,39 @@ const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& iRay,
 			const TUv uv0 = *uvs[0];
 			const typename TUv::TVector dUv_dR = *uvs[1] - uv0;
 			const typename TUv::TVector dUv_dS = *uvs[2] - uv0;
-			oContext->uv = uv0 + r * dUv_dR + s * dUv_dS;
+			context->uv = uv0 + r * dUv_dR + s * dUv_dS;
 		
 			const TValue matrix[4] = { dUv_dR.x, dUv_dS.x, dUv_dR.y, dUv_dS.y };
 			TValue solution[4] = { 1, 0, 0, 1 };
 			num::impl::cramer2<TValue>(matrix, solution, solution + 4);
 			dRs_dU = TUv(solution[0], solution[2]);
 			dRs_dV = TUv(solution[1], solution[3]);
-			oContext->dPoint_dU = dPoint_dR * dRs_dU.x + dPoint_dS * dRs_dU.y;
-			oContext->dPoint_dV = dPoint_dR * dRs_dV.x + dPoint_dS * dRs_dV.y;
+			context->dPoint_dU = dPoint_dR * dRs_dU.x + dPoint_dS * dRs_dU.y;
+			context->dPoint_dV = dPoint_dR * dRs_dV.x + dPoint_dS * dRs_dV.y;
 		}
 		else
 		{
-			oContext->uv = TUv(r, s);
-			oContext->dPoint_dU = dPoint_dR;
-			oContext->dPoint_dV = dPoint_dS;
+			context->uv = TUv(r, s);
+			context->dPoint_dU = dPoint_dR;
+			context->dPoint_dV = dPoint_dS;
 		}
 
-		oContext->geometricNormal = cross(dPoint_dR, dPoint_dS).normal();
+		context->geometricNormal = cross(dPoint_dR, dPoint_dS).normal();
 		if (normals[0])
 		{
 			LASS_ASSERT(normals[1] && normals[2]);
 			const TVector normal0 = *normals[0];
 			const TVector dNormal_dR = *normals[1] - normal0;
 			const TVector dNormal_dS = *normals[2] - normal0;
-			oContext->normal = (normal0 + r * dNormal_dR + s * dNormal_dS).normal();
-			oContext->dNormal_dU = dNormal_dR * dRs_dU.x + dNormal_dS * dRs_dU.y;
-			oContext->dNormal_dV = dNormal_dR * dRs_dV.x + dNormal_dS * dRs_dV.y;
+			context->normal = (normal0 + r * dNormal_dR + s * dNormal_dS).normal();
+			context->dNormal_dU = dNormal_dR * dRs_dU.x + dNormal_dS * dRs_dU.y;
+			context->dNormal_dV = dNormal_dR * dRs_dV.x + dNormal_dS * dRs_dV.y;
 		}
 		else
 		{
-			oContext->normal = oContext->geometricNormal;
-			oContext->dNormal_dU = TVector();
-			oContext->dNormal_dV = TVector();
+			context->normal = context->geometricNormal;
+			context->dNormal_dU = TVector();
+			context->dNormal_dV = TVector();
 		}
 	}
 	return rOne;
@@ -668,14 +615,94 @@ const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& iRay,
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH> inline
-const size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* v) const 
+const size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* vertex) const 
 { 
-	return vertices[0] == v ? 0 : (vertices[1] == v ? 1 : (vertices[2] == v ? 2 : size_t(-1))); 
+	return vertices[0] == vertex ? 0 : (vertices[1] == vertex ? 1 : (vertices[2] == vertex ? 2 : size_t(-1))); 
 }
 
 
 
 // --- private -------------------------------------------------------------------------------------
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+template <typename IndexTriangleInputRange>
+void TriangleMesh3D<T, BHV, SH>::buildMesh(const IndexTriangleInputRange& triangles)
+{
+	const std::size_t sizeVertices = vertices_.size();
+	const std::size_t sizeNormals = normals_.size();
+	const std::size_t sizeUvs = uvs_.size();
+
+	for (typename IndexTriangleInputRange::const_iterator i = triangles.begin(); i != triangles.end(); ++i)
+	{
+		TTriangle triangle;
+		size_t numNormals = 0;
+		size_t numUvs = 0;
+		for (std::size_t k = 0; k < 3; ++k)
+		{
+			triangle.others[k] = 0;
+			triangle.creaseLevel[k] = 0;
+
+			const std::size_t vertex = i->vertices[k];
+			if (vertex >= sizeVertices)
+			{
+				LASS_THROW("vertex index is out of range: "
+					<< static_cast<unsigned long>(vertex) << " >= " 
+					<< static_cast<unsigned long>(sizeVertices));
+			}
+			triangle.vertices[k] = &vertices_[vertex];
+
+			const std::size_t normal = i->normals[k];
+			if (normal != IndexTriangle::null())
+			{				
+				if (normal >= sizeNormals)
+				{
+					LASS_THROW("normal index is out of range: " 
+						<< static_cast<unsigned long>(normal) << " >= " 
+						<< static_cast<unsigned long>(sizeNormals));
+				}
+				triangle.normals[k] = &normals_[normal];
+				++numNormals;
+			}
+			else
+			{
+				triangle.normals[k] = 0;
+			}
+
+			const std::size_t uv = i->uvs[k];
+			if (uv != IndexTriangle::null())
+			{
+				if (uv >= sizeUvs)
+				{
+					LASS_THROW("uv index is out of range: " 
+						<< static_cast<unsigned long>(uv) << " >= " 
+						<< static_cast<unsigned long>(sizeUvs));
+				}
+				triangle.uvs[k] = &uvs_.begin()[uv];
+				++numUvs;
+			}
+			else
+			{
+				triangle.uvs[k] = 0;
+			}
+		}
+
+		if (!(numNormals == 0 || numNormals == 3))
+		{
+			LASS_THROW("Each triangle must have either zero or three normals vectors");
+		}
+		if (!(numUvs == 0 || numUvs == 3))
+		{
+			LASS_THROW("Each triangle must have either zero or three uv coordinates");
+		}
+
+		triangles_.push_back(triangle);
+	}
+
+	connectTriangles();
+	tree_.reset(triangles_.begin(), triangles_.end());
+}
+
+
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::findVertexTriangles(TVertexTriangles& vertexTriangles) const
@@ -693,6 +720,59 @@ void TriangleMesh3D<T, BHV, SH>::findVertexTriangles(TVertexTriangles& vertexTri
 		}
 	}
 	vertexTriangles.swap(result);
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+void TriangleMesh3D<T, BHV, SH>::connectTriangles()
+{
+	typedef std::vector<LogicalEdge> TEdges;
+
+	numBoundaryEdges_ = 0;
+	const size_t numTriangles = triangles_.size();
+	if (numTriangles == 0)
+	{
+		return;
+	}
+
+	// step 1: build list of edges and sort.
+	//
+	TEdges edges;
+	edges.reserve(3 * numTriangles);
+	for (size_t i = 0; i < numTriangles; ++i)
+	{
+		Triangle& triangle = triangles_[i];
+		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
+		{
+			edges.push_back(LogicalEdge(
+				&triangle, triangle.vertices[k1], triangle.vertices[k2]));
+		}
+	}
+	std::sort(edges.begin(), edges.end());
+
+	// step 2: build topological information of triangles
+	//
+	for (size_t i = 0; i < numTriangles; ++i)
+	{
+		Triangle& triangle = triangles_[i];
+		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
+		{
+			const LogicalEdge bait(
+				0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
+			const typename TEdges::const_iterator haul = std::lower_bound(
+				edges.begin(), edges.end(), bait);
+			if (haul != edges.end() && !(bait < *haul))
+			{
+				triangle.others[k1] = haul->triangle;
+			}
+			else
+			{
+				triangle.others[k1] = 0;
+				++numBoundaryEdges_;
+			}
+		}
+	}
 }
 
 
@@ -768,59 +848,6 @@ void TriangleMesh3D<T, BHV, SH>::findVertexRing(
 		uvs.resize(0);
 	}
 	// (*) so says the standard, as as we all know, _every_ compiler follows the standard, don't they?
-}
-
-
-
-template <typename T, template <typename, typename, typename> class BHV, typename SH>
-void TriangleMesh3D<T, BHV, SH>::connectTriangles()
-{
-	typedef std::vector<LogicalEdge> TEdges;
-
-	numBoundaryEdges_ = 0;
-	const size_t numTriangles = triangles_.size();
-	if (numTriangles == 0)
-	{
-		return;
-	}
-
-	// step 1: build list of edges and sort.
-	//
-	TEdges edges;
-	edges.reserve(3 * numTriangles);
-	for (size_t i = 0; i < numTriangles; ++i)
-	{
-		Triangle& triangle = triangles_[i];
-		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
-		{
-			edges.push_back(LogicalEdge(
-				&triangle, triangle.vertices[k1], triangle.vertices[k2]));
-		}
-	}
-	std::sort(edges.begin(), edges.end());
-
-	// step 2: build topological information of triangles
-	//
-	for (size_t i = 0; i < numTriangles; ++i)
-	{
-		Triangle& triangle = triangles_[i];
-		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
-		{
-			const LogicalEdge bait(
-				0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
-			const typename TEdges::const_iterator haul = std::lower_bound(
-				edges.begin(), edges.end(), bait);
-			if (haul != edges.end() && !(bait < *haul))
-			{
-				triangle.others[k1] = haul->triangle;
-			}
-			else
-			{
-				triangle.others[k1] = 0;
-				++numBoundaryEdges_;
-			}
-		}
-	}
 }
 
 
