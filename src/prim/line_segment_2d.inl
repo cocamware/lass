@@ -23,22 +23,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_INL
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_2D_INL
 
-
-
-
 #include "line_segment_2d.h"
 #include "point_2dh.h"
-
-
+#include "../num/floating_point_consistency.h"
 
 namespace lass
 {
-
 namespace prim
 {
 
@@ -54,9 +47,9 @@ LineSegment2D<T, PP>::LineSegment2D():
 
 
 template <typename T, class PP>
-LineSegment2D<T, PP>::LineSegment2D(const TPoint& iTail, const TPoint& iHead):
-	tail_(iTail),
-	head_(iHead)
+LineSegment2D<T, PP>::LineSegment2D(const TPoint& tail, const TPoint& head):
+	tail_(tail),
+	head_(head)
 {
 }
 
@@ -103,10 +96,10 @@ LineSegment2D<T, PP>::head()
  */
 template <typename T, class PP>
 const typename LineSegment2D<T, PP>::TPoint
-LineSegment2D<T, PP>::point(TParam iT) const
+LineSegment2D<T, PP>::point(TParam t) const
 {
-	TParameterPolicy::enforceRange(iT, TNumTraits::zero, TNumTraits::one);
-	return tail_ + iT * vector();
+	TParameterPolicy::enforceRange(t, TNumTraits::zero, TNumTraits::one);
+	return tail_ + t * vector();
 }
 
 
@@ -116,11 +109,11 @@ LineSegment2D<T, PP>::point(TParam iT) const
  */
 template <typename T, class PP>
 const typename LineSegment2D<T, PP>::TValue
-LineSegment2D<T, PP>::t(const TPoint& iPoint) const
+LineSegment2D<T, PP>::t(const TPoint& point) const
 {
 	const TVector v = vector();
-	const TValue t1 =  dot(iPoint - tail_, v);
-	const TValue t2 = -dot(iPoint - head_, v);
+	const TValue t1 =  dot(point - tail_, v);
+	const TValue t2 = -dot(point - head_, v);
 	const TValue t = std::max(t1,t2) / (t1 + t2);
 	return t1 > t2 ? t : TNumTraits::one - t;
 }
@@ -150,35 +143,54 @@ LineSegment2D<T, PP>::length() const
 
 
 
+template <typename T, class PP>
+T squaredDistance(const LineSegment2D<T, PP>& segment, const Point2D<T>& point)
+{
+	const T dTail = squaredDistance(segment.tail(), point);
+	const T dHead = squaredDistance(segment.head(), point);
+	const T dLine = segment.vector().reject(point - segment.tail()).squaredNorm();
+	return std::min(dLine, std::min(dTail, dHead));
+}
+
+
+
+template <typename T, class PP>
+T distance(const LineSegment2D<T, PP>& segment, const Point2D<T>& point)
+{
+	return num::sqrt(squaredDistance(segment, point));
+}
+
+
+
 /** intersection of two line segments
  *  @relates LineSegment2D
- *  @param iA   line segment A
- *  @param iB   line segment B
- *  @param oTa  parameter of intersection point on line segment A
- *  @param oTb  parameter of intersection point on line segment B
+ *  @param a [in]	line segment A
+ *  @param b [in]	line segment B
+ *  @param aT [out]	parameter of intersection point on line segment A
+ *  @param bT [out]	parameter of intersection point on line segment B
  *  @return @arg rNone      the line segments don't intersect, they have no points in common.
- *                          @a oTa and @a oTb are not assigned.
+ *                          @a tA and @a tB are not assigned.
  *          @arg rOne       both line segments have exactly one point in common.
- *                          @a oTa and @a oTb contain parameters of intersection point.
+ *                          @a tA and @a tB contain parameters of intersection point.
  *          @arg rInfinite  the line segments have more than one point in common, they overlap.
- *                          @a oTa and @a oTb are not assigned.
+ *                          @a tA and @a tB are not assigned.
  */
 template <typename T, class PPa, class PPb>
-Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB,
-				 T& oTa, T& oTb)
+Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b, T& tA, T& tB)
 {
 	typedef typename LineSegment2D<T, PPa>::TVector TVector;
 	typedef typename LineSegment2D<T, PPa>::TValue TValue;
 	typedef typename LineSegment2D<T, PPa>::TNumTraits TNumTraits;
+	typedef num::Consistent<TValue> TConsistent;
 
-	const TVector dirA(iA.vector());
-	const TVector dirB(iB.vector());
+	const TVector dirA(a.vector());
+	const TVector dirB(b.vector());
 
 	const TValue denominator = -perpDot(dirA, dirB);
 	if (denominator == TNumTraits::zero)
 	{
-		const TValue tTail = iA.t(iB.tail());
-		const TValue tHead = iB.t(iB.head());
+		const TValue tTail = a.t(b.tail());
+		const TValue tHead = b.t(b.head());
 		if ((tTail < TNumTraits::zero && tHead < TNumTraits::zero) ||
 			(tTail > TNumTraits::one && tHead > TNumTraits::one))
 		{
@@ -188,7 +200,7 @@ Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& i
 		{
 			// overlapping on axis, yet, they can lay on "different" axes.
 			//
-			if (doubleTriangleArea(iA.tail(), iA.head(), iB.tail()) == TNumTraits::zero)
+			if (doubleTriangleArea(a.tail(), a.head(), b.tail()) == TNumTraits::zero)
 			{
 				return rInfinite; // coincident axes
 			}
@@ -200,18 +212,18 @@ Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& i
 	}
 	else
 	{
-		const TVector difference = iB.tail() - iA.tail();
-		const TValue tA = -perpDot(difference, dirB) / denominator;
-		const TValue tB = perpDot(dirA, difference) / denominator;
-		if (tA < TNumTraits::zero || tA > TNumTraits::one ||
-			tB < TNumTraits::zero || tB > TNumTraits::one)
+		const TVector difference = b.tail() - a.tail();
+		const TConsistent candidateA = -perpDot(difference, dirB) / denominator;
+		const TConsistent candidateB = perpDot(dirA, difference) / denominator;
+		if (candidateA < TNumTraits::zero || candidateA > TNumTraits::one ||
+			candidateB < TNumTraits::zero || candidateB > TNumTraits::one)
 		{
 			return rNone;
 		}
 		else
 		{
-			oTa = tA;
-			oTb = tB;
+			tA = candidateA.value();
+			tB = candidateB.value();
 			return rOne;
 		}
 	}
@@ -221,28 +233,27 @@ Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& i
 
 /** intersection of two line segments
  *  @relates Line2D
- *  @param iA   line segment A
- *  @param iB   line segment B
- *  @param oPoint   intersection point
+ *  @param a [in]	line segment A
+ *  @param b [in]	line segment B
+ *  @param point [out]	intersection point
  *  @return @arg rNone      the line segments don't intersect, they have no points in common.
- *                          @a oPoint is not assigned.
+ *                          @a point is not assigned.
  *          @arg rOne       both line segments have exactly one point in common.
- *                          @a oPoint contains intersection point.
+ *                          @a point contains intersection point.
  *          @arg rInfinite  the line segments have more than one point in common, they overlap.
- *                          @a oPoint is not assigned.
+ *                          @a point is not assigned.
  */
 template <typename T, class PPa, class PPb>
-Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB,
-				 Point2D<T>& oPoint)
+Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b, Point2D<T>& point)
 {
 	T tA;
 	T tB;
-	const Result result = intersect(iA, iB, tA, tB);
+	const Result result = intersect(a, b, tA, tB);
 	if (result == rOne)
 	{
-		Point2DH<T> intersection(iA.point(tA));
-		intersection += iB.point(tB);
-		oPoint = intersection.affine(); // take average for more stable point.
+		Point2DH<T> intersection(a.point(tA));
+		intersection += b.point(tB);
+		point = intersection.affine(); // take average for more stable point.
 	}
 	return result;
 }
@@ -250,55 +261,55 @@ Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& i
 
 /** @relates lass::prim::LineSegment2D
  */
-template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB)
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b)
 {
-	return iA.tail()==iB.tail() && iA.head()==iB.head();
+	return a.tail()==b.tail() && a.head()==b.head();
 }
 
 /** @relates lass::prim::LineSegment2D
  */
-template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB)
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b)
 {
-	return !(iA==iB);
+	return !(a==b);
 }
-
-
-/** @relates lass::prim::LineSegment2D
- */
-template<typename T, class PP>
-std::ostream& operator<<(std::ostream& ioOStream, const LineSegment2D<T, PP>& iLineSegment)
-{
-	LASS_ENFORCE_STREAM(ioOStream) << "{T=" << iLineSegment.tail() << ", H=" << iLineSegment.head() << "}";
-	return ioOStream;
-}
-
 
 
 /** @relates lass::prim::LineSegment2D
  */
 template<typename T, class PP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const LineSegment2D<T, PP>& iLineSegment)
+std::ostream& operator<<(std::ostream& stream, const LineSegment2D<T, PP>& segment)
 {
-	LASS_ENFORCE_STREAM(ioOStream)
+	LASS_ENFORCE_STREAM(stream) << "{T=" << segment.tail() << ", H=" << segment.head() << "}";
+	return stream;
+}
+
+
+
+/** @relates lass::prim::LineSegment2D
+ */
+template<typename T, class PP>
+io::XmlOStream& operator<<(io::XmlOStream& stream, const LineSegment2D<T, PP>& segment)
+{
+	LASS_ENFORCE_STREAM(stream)
 		<< "<LineSegment2D>\n"
-		<< "<tail>" << iLineSegment.tail() << "</tail>\n"
-		<< "<head>" << iLineSegment.head() << "</head>\n"
+		<< "<tail>" << segment.tail() << "</tail>\n"
+		<< "<head>" << segment.head() << "</head>\n"
 		<< "</LineSegment2D>\n";
 
-	return ioOStream;
+	return stream;
 }
 
 
 /** @relates lass::prim::LineSegment2D
  */
 template<typename T, class PP>
-lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream, const LineSegment2D<T, PP>& iLineSegment)
+lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const LineSegment2D<T, PP>& segment)
 {
-	LASS_ENFORCE_STREAM(oOStream) << "lasthandle = line(";
-	oOStream << "[" << iLineSegment.tail().x << "," << iLineSegment.head().x << "],";
-	oOStream << "[" << iLineSegment.tail().y << "," << iLineSegment.head().y << "],";
-	oOStream << "'Color'," << oOStream.color() << ");\n";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream) << "lasthandle = line(";
+	stream << "[" << segment.tail().x << "," << segment.head().x << "],";
+	stream << "[" << segment.tail().y << "," << segment.head().y << "],";
+	stream << "'Color'," << stream.color() << ");\n";
+	return stream;
 }
 
 

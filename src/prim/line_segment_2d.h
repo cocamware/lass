@@ -80,15 +80,15 @@ public:
 	};
 
 	LineSegment2D();
-	LineSegment2D(const TPoint& iTail, const TPoint& iHead);
+	LineSegment2D(const TPoint& tail, const TPoint& head);
 
 	const TPoint& tail() const;
 	TPoint& tail();
 	const TPoint& head() const;
 	TPoint& head();
 
-	const TPoint point(TParam iT) const;
-	const TValue t(const TPoint& iPoint) const;
+	const TPoint point(TParam t) const;
+	const TValue t(const TPoint& point) const;
 	const TVector vector() const;
 	const TValue length() const;
 
@@ -98,28 +98,29 @@ private:
 	TPoint head_;
 };
 
-template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB);
-template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB);
+template <typename T, class PPa, class PPb> bool operator==(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b);
+template <typename T, class PPa, class PPb> bool operator!=(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b);
 
+template <typename T, class PP>
+T squaredDistance(const LineSegment2D<T, PP>& segment, const Point2D<T>& point);
+
+template <typename T, class PP>
+T distance(const LineSegment2D<T, PP>& segment, const Point2D<T>& point);
 
 template <typename T, class PPa, class PPb>
-Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB,
-				 T& oTa, T& oTb);
+Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b, T& tA, T& tB);
 
 template <typename T, class PPa, class PPb>
-Result intersect(const LineSegment2D<T, PPa>& iA, const LineSegment2D<T, PPb>& iB,
-				 Point2D<T>& oPoint);
+Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b, Point2D<T>& point);
 
 template<typename T, class PP>
-std::ostream& operator<<(std::ostream& oOStream, const LineSegment2D<T, PP>& iB);
+std::ostream& operator<<(std::ostream& stream, const LineSegment2D<T, PP>& segment);
 
 template<typename T, class PP>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const LineSegment2D<T, PP>& iB);
+io::XmlOStream& operator<<(io::XmlOStream& stream, const LineSegment2D<T, PP>& segment);
 
 template<typename T, class PP>
-lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
-									const LineSegment2D<T, PP>& iLineSegment);
-
+lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const LineSegment2D<T, PP>& segment);
 
 }
 
