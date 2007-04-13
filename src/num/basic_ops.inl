@@ -38,14 +38,15 @@ struct IntPow
 	typedef typename NumTraits<T>::signedType TSigned;
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
 
-	static T eval(TSigned iX, TSigned iY)
-	{		LASS_ASSERT(iY >= 0);
-		return eval(iX, static_cast<TUnsigned>(iY));
+	static T eval(TSigned x, TSigned p)
+	{		
+		LASS_ASSERT(p >= 0);
+		return eval(x, static_cast<TUnsigned>(p));
 	}
 
-	static T eval(TSigned iX, TUnsigned iY)
+	static T eval(TSigned x, TUnsigned p)
 	{
-		if (iY == 0)
+		if (p == 0)
 		{
 			return 1;
 		}
@@ -54,14 +55,14 @@ struct IntPow
 		TSigned partialPower = 1;
 		do
 		{
-			partialPower *= iX;
-			if (iY & 0x1)
+			partialPower *= x;
+			if (p & 0x1)
 			{
 				result += partialPower;
 			}
-			iY >>= 1;
+			p >>= 1;
 		}
-		while (iY);
+		while (p);
 		return result;
 	}
 };
@@ -72,20 +73,20 @@ struct IntDiv
 	typedef typename NumTraits<T>::signedType TSigned;
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
 
-	static T eval(TSigned iV, TSigned iMod)
+	static T eval(TSigned x, TSigned m)
 	{
-		LASS_ASSERT(iMod > 0);
-		const TSigned tempDiv = iV / iMod;
-		return iV % iMod >= 0 ? tempDiv : (tempDiv - 1);
+		LASS_ASSERT(m > 0);
+		const TSigned tempDiv = x / m;
+		return x % m >= 0 ? tempDiv : (tempDiv - 1);
 	}
 
-	static T eval(TSigned iV, TUnsigned iMod)
+	static T eval(TSigned x, TUnsigned m)
 	{
-		LASS_ASSERT(iMod > 0);
-		const TSigned signedMod = static_cast<TSigned>(iMod);
+		LASS_ASSERT(m > 0);
+		const TSigned signedMod = static_cast<TSigned>(m);
 		LASS_ASSERT(signedMod >= 0);
-		const TSigned tempDiv = iV / signedMod;
-		return iV % signedMod >= 0 ? tempDiv : (tempDiv - 1);
+		const TSigned tempDiv = x / signedMod;
+		return x % signedMod >= 0 ? tempDiv : (tempDiv - 1);
 	}
 };
 
@@ -95,19 +96,19 @@ struct IntMod
 	typedef typename NumTraits<T>::signedType TSigned;
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
 
-	static T eval(TSigned iV, TSigned iMod)
+	static T eval(TSigned x, TSigned m)
 	{
-		LASS_ASSERT(iMod > 0);
-		const TSigned tempMod = iV % iMod;
-		return tempMod >= 0 ? tempMod : (tempMod + iMod);
+		LASS_ASSERT(m > 0);
+		const TSigned tempMod = x % m;
+		return tempMod >= 0 ? tempMod : (tempMod + m);
 	}
 
-	static T eval(TSigned iV, TUnsigned iMod)
+	static T eval(TSigned x, TUnsigned m)
 	{
-		LASS_ASSERT(iMod > 0);
-		const TSigned signedMod = static_cast<TSigned>(iMod);
+		LASS_ASSERT(m > 0);
+		const TSigned signedMod = static_cast<TSigned>(m);
 		LASS_ASSERT(signedMod >= 0);
-		const TSigned tempMod = iV % signedMod;
+		const TSigned tempMod = x % signedMod;
 		return tempMod >= 0 ? tempMod : (tempMod + signedMod);
 	}
 };
@@ -116,197 +117,203 @@ struct IntMod
 
 // --- generic functions ---------------------------------------------------------------------------
 
-/** if iV < 0 return -iV, else return iV.
+/** if x < 0 return -x, else return x.
  *  @ingroup BasicOps
  */
-template <typename T> inline T abs(const T& iV)
+template <typename T> inline T abs(const T& x)
 {
-	return iV < T() ? -iV : iV;
+	return x < T() ? -x : x;
 }
 
-/** if iV < 0 return -1, else if iV > 0 return 1, else return 0.
+/** if x < 0 return -1, else if x > 0 return 1, else return 0.
  *  @ingroup BasicOps
  */
-template <typename T> inline T sign(const T& iV)
+template <typename T> inline T sign(const T& x)
 {
 	const T zero = T();
-	return iV > zero ? T(1) : (iV < zero ? T(-1) : zero);
+	return x > zero ? T(1) : (x < zero ? T(-1) : zero);
 }
 
-/** return iV * iV
+/** return x * x
  *  @ingroup BasicOps
  */
-template <typename T> inline T sqr(const T& iV) 
+template <typename T> inline T sqr(const T& x) 
 { 
-	return iV * iV; 
+	return x * x; 
 }
 
-/** return iV * iV * iV
+/** return x * x * x
  *  @ingroup BasicOps
  */
-template <typename T> inline T cubic(const T& iV) 
+template <typename T> inline T cubic(const T& x) 
 { 
-	return iV * iV * iV; 
+	return x * x * x; 
 }
 
-/** return iV ^ -1
+/** return x ^ -1
  *  @ingroup BasicOps
  */
-template <typename T> inline T inv(const T& iV) 
+template <typename T> inline T inv(const T& x) 
 { 
-	return T(1) / iV;
+	return T(1) / x;
 }
 
-/** return exp(iPow * log(iV));
+/** return exp(p * log(x));
  *  @ingroup BasicOps
  *  @warning GENERIC FUNCTION USES EXP AND LOG!
  */
-template <typename T> inline T pow(const T& iV, const T& iPow) 
+template <typename T> inline T pow(const T& x, const T& p) 
 { 
-	return exp(iPow * log(iV));
+	return exp(p * log(x));
 }
 
-/** return log(iV) / log(2)
+/** return log(x) / log(2)
  *  @ingroup BasicOps
- *  @warning GENERIC FUNCTION USES DIVISION AND LOG!
  */
-template <typename T> inline T log2(const T& iV, const T& iPow) 
+template <typename T> inline T log2(const T& x, const T& p) 
 { 
-	return log(iV) / log(T(2));
+	return T(LASS_NUM_INVLOG2) * log(x);
 }
 
-/** return log(iV) / log(10)
+/** return log(x) / log(10)
  *  @ingroup BasicOps
- *  @warning GENERIC FUNCTION USES DIVISION AND LOG!
  */
-template <typename T> inline T log10(const T& iV, const T& iPow) 
+template <typename T> inline T log10(const T& x, const T& p) 
 { 
-	return log(iV) / log(T(10));
+	return T(LASS_NUM_INVLOG10) * log(x);
 }
 
-/** return norm of iV as if iV is real part of complex number: sqr(iV)
+/** return norm of x as if x is real part of complex number: sqr(x)
  *  @ingroup BasicOps
  */
-template <typename T> inline T norm(const T& iV)
+template <typename T> inline T norm(const T& x)
 {
-	return sqr(iV);
+	return sqr(x);
 }
 
-/** return conjugate as if iV is a complex number: iV
+/** return conjugate as if x is a complex number: x
  */
-template <typename T> inline T conj(const T& iV)
+template <typename T> inline T conj(const T& x)
 {
-	return iV;
+	return x;
 }
 
-/** if iV < iMin return iMin, else if iV > iMax return iMax, else return iV.
+/** if x < min return min, else if x > max return max, else return x.
  *  @ingroup BasicOps
  */
-template <typename T> inline const T& clamp(const T& iV, const T& iMin, const T& iMax)
+template <typename T> inline const T& clamp(const T& x, const T& min, const T& max)
 {
-	return iV < iMin ? iMin : (iV > iMax ? iMax : iV);
+	return x < min ? min : (x > max ? max : x);
+}
+
+/** linear interpolation between @a a and @a b
+ *  @ingroup BasicOps
+ */
+template <typename T> inline T lerp(const T& a, const T& b, const T& f)
+{
+	return a + f * (b - a);
 }
 
 /** @ingroup BasicOps
  */
-template<typename T,typename f> T applyFunction(const T& iV, f func ) 
+template<typename T,typename f> T applyFunction(const T& x, f func ) 
 { 
-	return func(iV); 
+	return func(x); 
 }
 
 
 
 // --- generic inplace rerouters -------------------------------------------------------------------
 
-template <typename T> void inpabs(T& ioV)						{ ioV = num::abs(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsign(T& ioV)						{ ioV = num::sign(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpinv(T& ioV)						{ ioV = num::inv(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsqrt(T& ioV)						{ ioV = num::sqrt(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsqr(T& ioV)						{ ioV = num::sqr(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpcubic(T& ioV)						{ ioV = num::cubic(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inppow(T& ioV, const T& iPow)		{ ioV = num::pow(ioV, iPow); }			/**< @ingroup BasicOps */
-template <typename T> void inpexp(T& ioV)						{ ioV = num::exp(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inplog(T& ioV)						{ ioV = num::log(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpcos(T& ioV)						{ ioV = num::cos(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpsin(T& ioV)						{ ioV = num::sin(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inptan(T& ioV)						{ ioV = num::tan(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpacos(T& ioV)						{ ioV = num::acos(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpasin(T& ioV)						{ ioV = num::asin(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpatan(T& ioV)						{ ioV = num::atan(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpatan2(T& ioY, const T& iX)		{ ioY = num::atan2(ioY, iX); }			/**< @ingroup BasicOps */
-template <typename T> void inpfloor(T& ioV)						{ ioV = num::floor(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpceil(T& ioV)						{ ioV = num::ceil(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpround(T& ioV)						{ ioV = num::round(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpfractional(T& ioV)				{ ioV -= num::floor(ioV); }				/**< @ingroup BasicOps */
-template <typename T> void inpdiv(T& ioV, const T& iMod)		{ ioV = num::div(ioV, iMod); }			/**< @ingroup BasicOps */
-template <typename T> void inpmod(T& ioV, const T& iMod)		{ ioV = num::mod(ioV, iMod); }			/**< @ingroup BasicOps */
-template <typename T> void inpclamp(T& ioV, const T& iMin, const T& iMax)	{ ioV = num::clamp(ioV, iMin, iMax); }	/** @ingroup BasicOps */
+template <typename T> void inpabs(T& x)					{ x = num::abs(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpsign(T& x)				{ x = num::sign(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpinv(T& x)					{ x = num::inv(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpsqrt(T& x)				{ x = num::sqrt(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpsqr(T& x)					{ x = num::sqr(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpcubic(T& x)				{ x = num::cubic(x); }		/**< @ingroup BasicOps */
+template <typename T> void inppow(T& x, const T& p)		{ x = num::pow(x, p); }		/**< @ingroup BasicOps */
+template <typename T> void inpexp(T& x)					{ x = num::exp(x); }		/**< @ingroup BasicOps */
+template <typename T> void inplog(T& x)					{ x = num::log(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpcos(T& x)					{ x = num::cos(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpsin(T& x)					{ x = num::sin(x); }		/**< @ingroup BasicOps */
+template <typename T> void inptan(T& x)					{ x = num::tan(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpacos(T& x)				{ x = num::acos(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpasin(T& x)				{ x = num::asin(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpatan(T& x)				{ x = num::atan(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpatan2(T& y, const T& x)	{ y = num::atan2(y, x); }	/**< @ingroup BasicOps */
+template <typename T> void inpfloor(T& x)				{ x = num::floor(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpceil(T& x)				{ x = num::ceil(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpround(T& x)				{ x = num::round(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpfractional(T& x)			{ x -= num::floor(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpdiv(T& x, const T& m)		{ x = num::div(x, m); }		/**< @ingroup BasicOps */
+template <typename T> void inpmod(T& x, const T& m)		{ x = num::mod(x, m); }		/**< @ingroup BasicOps */
+template <typename T> void inpclamp(T& x, const T& min, const T& max)	{ x = num::clamp(x, min, max); }	/** @ingroup BasicOps */
 
-template <typename T> void compnorm(const T& iV, T& oV)			{ oV = num::norm(iV); }					/**< @ingroup BasicOps */
-template <typename T> void compinv(const T& iV, T& oV)			{ oV = num::inv(iV); }					/**< @ingroup BasicOps */
+template <typename T> void compnorm(const T& x, T& y)	{ y = num::norm(x); }		/**< @ingroup BasicOps */
+template <typename T> void compinv(const T& x, T& y)	{ y = num::inv(x); }		/**< @ingroup BasicOps */
 
 
 
 // --- float ---------------------------------------------------------------------------------------
 
-float abs(float iV)				{ return ::fabsf(iV); }			/**< @ingroup BasicOps */
-float inv(float iV)				{ return 1.f / iV; }			/**< @ingroup BasicOps */
-float sqrt(float iV)			{ LASS_ASSERT(!(iV < 0.f)); return ::sqrtf(iV); }	/**< @ingroup BasicOps */
-float pow(float iV, float iPow)	{ return ::powf(iV, iPow); }	/**< @ingroup BasicOps */
-float exp(float iV)				{ return ::expf(iV); }			/**< @ingroup BasicOps */
-float log(float iV)				{ return ::logf(iV); }			/**< @ingroup BasicOps */
-float log2(float iV)			{ return float(LASS_NUM_INVLOG2) * ::logf(iV); } /**< @ingroup BasicOps */
-float log10(float iV)			{ return ::log10f(iV); }		/**< @ingroup BasicOps */
-float cos(float iV)				{ return ::cosf(iV); }			/**< @ingroup BasicOps */
-float sin(float iV)				{ return ::sinf(iV); }			/**< @ingroup BasicOps */
-float tan(float iV)				{ return ::tanf(iV); }			/**< @ingroup BasicOps */
-float acos(float iV)			{ return ::acosf(iV); }			/**< @ingroup BasicOps */
-float asin(float iV)			{ return ::asinf(iV); }			/**< @ingroup BasicOps */
-float atan(float iV)			{ return ::atanf(iV); }			/**< @ingroup BasicOps */
-float atan2(float iY, float iX)	{ return ::atan2f(iY, iX); }	/**< @ingroup BasicOps */
-float sinc(float iV)			{ return ::fabsf(iV) < 1e-4f ? 1.f : (::sinf(iV) / iV); }	/**< @ingroup BasicOps */
-float floor(float iV)			{ return ::floorf(iV); }		/**< @ingroup BasicOps */
-float ceil(float iV)			{ return ::ceilf(iV); }			/**< @ingroup BasicOps */
-float round(float iV)			{ return ::floorf(iV + .5f); }	/**< @ingroup BasicOps */
-float fractional(float iV)		{ return iV - ::floorf(iV); }	/**< @ingroup BasicOps */
+float abs(float x)			{ return ::fabsf(x); }			/**< @ingroup BasicOps */
+float inv(float x)			{ return 1.f / x; }				/**< @ingroup BasicOps */
+float sqrt(float x)			{ LASS_ASSERT(!(x < 0.f)); return ::sqrtf(x); }	/**< @ingroup BasicOps */
+float pow(float x, float p)	{ return ::powf(x, p); }		/**< @ingroup BasicOps */
+float exp(float x)			{ return ::expf(x); }			/**< @ingroup BasicOps */
+float log(float x)			{ return ::logf(x); }			/**< @ingroup BasicOps */
+float log2(float x)			{ return float(LASS_NUM_INVLOG2) * ::logf(x); } /**< @ingroup BasicOps */
+float log10(float x)		{ return ::log10f(x); }			/**< @ingroup BasicOps */
+float cos(float x)			{ return ::cosf(x); }			/**< @ingroup BasicOps */
+float sin(float x)			{ return ::sinf(x); }			/**< @ingroup BasicOps */
+float tan(float x)			{ return ::tanf(x); }			/**< @ingroup BasicOps */
+float acos(float x)			{ return ::acosf(x); }			/**< @ingroup BasicOps */
+float asin(float x)			{ return ::asinf(x); }			/**< @ingroup BasicOps */
+float atan(float x)			{ return ::atanf(x); }			/**< @ingroup BasicOps */
+float atan2(float p, float x)	{ return ::atan2f(p, x); }	/**< @ingroup BasicOps */
+float sinc(float x)			{ return ::fabsf(x) < 1e-4f ? 1.f : (::sinf(x) / x); }	/**< @ingroup BasicOps */
+float floor(float x)		{ return ::floorf(x); }			/**< @ingroup BasicOps */
+float ceil(float x)			{ return ::ceilf(x); }			/**< @ingroup BasicOps */
+float round(float x)		{ return ::floorf(x + .5f); }	/**< @ingroup BasicOps */
+float fractional(float x)	{ return x - ::floorf(x); }		/**< @ingroup BasicOps */
 
 /** @ingroup BasicOps */
-float mod(float iV, float iMod) 
+float mod(float x, float m) 
 { 
-	const float result = ::fmodf(iV, iMod);
-	return result < 0.f ? result + iMod : result;
+	const float result = ::fmodf(x, m);
+	return result < 0.f ? result + m : result;
 }	
 
 
 
 // --- double --------------------------------------------------------------------------------------
 
-double abs(double iV)				{ return ::fabs(iV); }			/**< @ingroup BasicOps */
-double inv(double iV)				{ return 1. / iV; }				/**< @ingroup BasicOps */
-double sqrt(double iV)				{ LASS_ASSERT(!(iV < 0.)); return ::sqrt(iV); }	/**< @ingroup BasicOps */
-double pow(double iV, double iPow)	{ return ::pow(iV, iPow); }		/**< @ingroup BasicOps */
-double exp(double iV)				{ return ::exp(iV); }			/**< @ingroup BasicOps */
-double log(double iV)				{ return ::log(iV); }			/**< @ingroup BasicOps */
-double log2(double iV)				{ return double(LASS_NUM_INVLOG2) * ::log(iV); } /**< @ingroup BasicOps */
-double log10(double iV)				{ return ::log10(iV); }			/**< @ingroup BasicOps */
-double cos(double iV)				{ return ::cos(iV); }			/**< @ingroup BasicOps */
-double sin(double iV)				{ return ::sin(iV); }			/**< @ingroup BasicOps */
-double tan(double iV)				{ return ::tan(iV); }			/**< @ingroup BasicOps */
-double acos(double iV)				{ return ::acos(iV); }			/**< @ingroup BasicOps */
-double asin(double iV)				{ return ::asin(iV); }			/**< @ingroup BasicOps */
-double atan(double iV)				{ return ::atan(iV); }			/**< @ingroup BasicOps */
-double atan2(double iY, double iX)	{ return ::atan2(iY, iX); }		/**< @ingroup BasicOps */
-double sinc(double iV)				{ return ::fabs(iV) < 1e-8 ? 1. : (::sin(iV) / iV); }	/**< @ingroup BasicOps */
-double floor(double iV)				{ return ::floor(iV); }			/**< @ingroup BasicOps */
-double ceil(double iV)				{ return ::ceil(iV); }			/**< @ingroup BasicOps */
-double round(double iV)				{ return ::floor(iV + .5); }	/**< @ingroup BasicOps */
-double fractional(double iV)		{ return iV - ::floor(iV); }	/**< @ingroup BasicOps */
+double abs(double x)			{ return ::fabs(x); }			/**< @ingroup BasicOps */
+double inv(double x)			{ return 1. / x; }				/**< @ingroup BasicOps */
+double sqrt(double x)			{ LASS_ASSERT(!(x < 0.)); return ::sqrt(x); }	/**< @ingroup BasicOps */
+double pow(double x, double p)	{ return ::pow(x, p); }			/**< @ingroup BasicOps */
+double exp(double x)			{ return ::exp(x); }			/**< @ingroup BasicOps */
+double log(double x)			{ return ::log(x); }			/**< @ingroup BasicOps */
+double log2(double x)			{ return double(LASS_NUM_INVLOG2) * ::log(x); } /**< @ingroup BasicOps */
+double log10(double x)			{ return ::log10(x); }			/**< @ingroup BasicOps */
+double cos(double x)			{ return ::cos(x); }			/**< @ingroup BasicOps */
+double sin(double x)			{ return ::sin(x); }			/**< @ingroup BasicOps */
+double tan(double x)			{ return ::tan(x); }			/**< @ingroup BasicOps */
+double acos(double x)			{ return ::acos(x); }			/**< @ingroup BasicOps */
+double asin(double x)			{ return ::asin(x); }			/**< @ingroup BasicOps */
+double atan(double x)			{ return ::atan(x); }			/**< @ingroup BasicOps */
+double atan2(double p, double x)	{ return ::atan2(p, x); }	/**< @ingroup BasicOps */
+double sinc(double x)			{ return ::fabs(x) < 1e-8 ? 1. : (::sin(x) / x); }	/**< @ingroup BasicOps */
+double floor(double x)			{ return ::floor(x); }			/**< @ingroup BasicOps */
+double ceil(double x)			{ return ::ceil(x); }			/**< @ingroup BasicOps */
+double round(double x)			{ return ::floor(x + .5); }		/**< @ingroup BasicOps */
+double fractional(double x)		{ return x - ::floor(x); }		/**< @ingroup BasicOps */
 
 /** @ingroup BasicOps */
-double mod(double iV, double iMod) 
+double mod(double x, double m) 
 { 
-	const double result = ::fmod(iV, iMod);
-	return result < 0. ? result + iMod : result;
+	const double result = ::fmod(x, m);
+	return result < 0. ? result + m : result;
 }	
 
 
@@ -315,62 +322,62 @@ double mod(double iV, double iMod)
 
 #ifdef LASS_NUM_BASIC_OPS_USE_BUILTIN_LONG_DOUBLE
 
-long double abs(long double iV)						{ return __builtin_fabsl(iV); }			/**< @ingroup BasicOps */
-long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
-long double sqrt(long double iV)					{ LASS_ASSERT(!(iV < 0.)); return __builtin_sqrtl(iV); }	/**< @ingroup BasicOps */
-long double pow(long double iV, long double iPow)	{ return __builtin_powl(iV, iPow); }	/**< @ingroup BasicOps */
-long double exp(long double iV)						{ return __builtin_expl(iV); }			/**< @ingroup BasicOps */
-long double log(long double iV)						{ return __builtin_logl(iV); }			/**< @ingroup BasicOps */
-long double log2(long double iV)					{ return (long double)(LASS_NUM_INVLOG2) * __builtin_logl(iV); } /**< @ingroup BasicOps */
-long double log10(long double iV)					{ return __builtin_log10l(iV); }		/**< @ingroup BasicOps */
-long double cos(long double iV)						{ return __builtin_cosl(iV); }			/**< @ingroup BasicOps */
-long double sin(long double iV)						{ return __builtin_sinl(iV); }			/**< @ingroup BasicOps */
-long double tan(long double iV)						{ return __builtin_tanl(iV); }			/**< @ingroup BasicOps */
-long double acos(long double iV)					{ return __builtin_acosl(iV); }			/**< @ingroup BasicOps */
-long double asin(long double iV)					{ return __builtin_asinl(iV); }			/**< @ingroup BasicOps */
-long double atan(long double iV)					{ return __builtin_atanl(iV); }			/**< @ingroup BasicOps */
-long double atan2(long double iY, long double iX)	{ return __builtin_atan2l(iY, iX); }	/**< @ingroup BasicOps */
-long double sinc(long double iV)					{ return __builtin_fabsl(iV) < 1e-10 ? 1. : (__builtin_sinl(iV) / iV); }	/**< @ingroup BasicOps */
-long double floor(long double iV)					{ return __builtin_floorl(iV); }		/**< @ingroup BasicOps */
-long double ceil(long double iV)					{ return __builtin_ceill(iV); }			/**< @ingroup BasicOps */
-long double round(long double iV)					{ return __builtin_floorl(iV + .5); }	/**< @ingroup BasicOps */
-long double fractional(long double iV)				{ return iV - __builtin_floorl(iV); }	/**< @ingroup BasicOps */
+long double abs(long double x)					{ return __builtin_fabsl(x); }		/**< @ingroup BasicOps */
+long double inv(long double x)					{ return 1. / x; }					/**< @ingroup BasicOps */
+long double sqrt(long double x)					{ LASS_ASSERT(!(x < 0.)); return __builtin_sqrtl(x); }	/**< @ingroup BasicOps */
+long double pow(long double x, long double p)	{ return __builtin_powl(x, p); }	/**< @ingroup BasicOps */
+long double exp(long double x)					{ return __builtin_expl(x); }		/**< @ingroup BasicOps */
+long double log(long double x)					{ return __builtin_logl(x); }		/**< @ingroup BasicOps */
+long double log2(long double x)					{ return (long double)(LASS_NUM_INVLOG2) * __builtin_logl(x); } /**< @ingroup BasicOps */
+long double log10(long double x)				{ return __builtin_log10l(x); }		/**< @ingroup BasicOps */
+long double cos(long double x)					{ return __builtin_cosl(x); }		/**< @ingroup BasicOps */
+long double sin(long double x)					{ return __builtin_sinl(x); }		/**< @ingroup BasicOps */
+long double tan(long double x)					{ return __builtin_tanl(x); }		/**< @ingroup BasicOps */
+long double acos(long double x)					{ return __builtin_acosl(x); }		/**< @ingroup BasicOps */
+long double asin(long double x)					{ return __builtin_asinl(x); }		/**< @ingroup BasicOps */
+long double atan(long double x)					{ return __builtin_atanl(x); }		/**< @ingroup BasicOps */
+long double atan2(long double p, long double x)	{ return __builtin_atan2l(p, x); }	/**< @ingroup BasicOps */
+long double sinc(long double x)					{ return __builtin_fabsl(x) < 1e-10 ? 1. : (__builtin_sinl(x) / x); }	/**< @ingroup BasicOps */
+long double floor(long double x)				{ return __builtin_floorl(x); }		/**< @ingroup BasicOps */
+long double ceil(long double x)					{ return __builtin_ceill(x); }		/**< @ingroup BasicOps */
+long double round(long double x)				{ return __builtin_floorl(x + .5); }	/**< @ingroup BasicOps */
+long double fractional(long double x)			{ return x - __builtin_floorl(x); }	/**< @ingroup BasicOps */
 
 /** @ingroup BasicOps */
-long double mod(long double iV, long double iMod) 
+long double mod(long double x, long double m) 
 { 
-	const long double result = __builtin_fmodl(iV, iMod);
-	return result < 0. ? result + iMod : result;
+	const long double result = __builtin_fmodl(x, m);
+	return result < 0. ? result + m : result;
 }	
 
 #else
 
-long double abs(long double iV)						{ return ::fabsl(iV); }			/**< @ingroup BasicOps */
-long double inv(long double iV)						{ return 1. / iV; }				/**< @ingroup BasicOps */
-long double sqrt(long double iV)					{ LASS_ASSERT(!(iV < 0.)); return ::sqrtl(iV); }	/**< @ingroup BasicOps */
-long double pow(long double iV, long double iPow)	{ return ::powl(iV, iPow); }	/**< @ingroup BasicOps */
-long double exp(long double iV)						{ return ::expl(iV); }			/**< @ingroup BasicOps */
-long double log(long double iV)						{ return ::logl(iV); }			/**< @ingroup BasicOps */
-long double log2(long double iV)					{ return (long double)(LASS_NUM_INVLOG2) * ::logl(iV); } /**< @ingroup BasicOps */
-long double log10(long double iV)					{ return ::log10l(iV); }		/**< @ingroup BasicOps */
-long double cos(long double iV)						{ return ::cosl(iV); }			/**< @ingroup BasicOps */
-long double sin(long double iV)						{ return ::sinl(iV); }			/**< @ingroup BasicOps */
-long double tan(long double iV)						{ return ::tanl(iV); }			/**< @ingroup BasicOps */
-long double acos(long double iV)					{ return ::acosl(iV); }			/**< @ingroup BasicOps */
-long double asin(long double iV)					{ return ::asinl(iV); }			/**< @ingroup BasicOps */
-long double atan(long double iV)					{ return ::atanl(iV); }			/**< @ingroup BasicOps */
-long double atan2(long double iY, long double iX)	{ return ::atan2l(iY, iX); }	/**< @ingroup BasicOps */
-long double sinc(long double iV)					{ return ::fabsl(iV) < 1e-10 ? 1. : (::sinl(iV) / iV); }	/**< @ingroup BasicOps */
-long double floor(long double iV)					{ return ::floorl(iV); }		/**< @ingroup BasicOps */
-long double ceil(long double iV)					{ return ::ceill(iV); }			/**< @ingroup BasicOps */
-long double round(long double iV)					{ return ::floorl(iV + .5); }	/**< @ingroup BasicOps */
-long double fractional(long double iV)				{ return iV - ::floorl(iV); }	/**< @ingroup BasicOps */
+long double abs(long double x)					{ return ::fabsl(x); }			/**< @ingroup BasicOps */
+long double inv(long double x)					{ return 1. / x; }				/**< @ingroup BasicOps */
+long double sqrt(long double x)					{ LASS_ASSERT(!(x < 0.)); return ::sqrtl(x); }	/**< @ingroup BasicOps */
+long double pow(long double x, long double p)	{ return ::powl(x, p); }		/**< @ingroup BasicOps */
+long double exp(long double x)					{ return ::expl(x); }			/**< @ingroup BasicOps */
+long double log(long double x)					{ return ::logl(x); }			/**< @ingroup BasicOps */
+long double log2(long double x)					{ return (long double)(LASS_NUM_INVLOG2) * ::logl(x); } /**< @ingroup BasicOps */
+long double log10(long double x)				{ return ::log10l(x); }			/**< @ingroup BasicOps */
+long double cos(long double x)					{ return ::cosl(x); }			/**< @ingroup BasicOps */
+long double sin(long double x)					{ return ::sinl(x); }			/**< @ingroup BasicOps */
+long double tan(long double x)					{ return ::tanl(x); }			/**< @ingroup BasicOps */
+long double acos(long double x)					{ return ::acosl(x); }			/**< @ingroup BasicOps */
+long double asin(long double x)					{ return ::asinl(x); }			/**< @ingroup BasicOps */
+long double atan(long double x)					{ return ::atanl(x); }			/**< @ingroup BasicOps */
+long double atan2(long double p, long double x)	{ return ::atan2l(p, x); }		/**< @ingroup BasicOps */
+long double sinc(long double x)					{ return ::fabsl(x) < 1e-10 ? 1. : (::sinl(x) / x); }	/**< @ingroup BasicOps */
+long double floor(long double x)				{ return ::floorl(x); }			/**< @ingroup BasicOps */
+long double ceil(long double x)					{ return ::ceill(x); }			/**< @ingroup BasicOps */
+long double round(long double x)				{ return ::floorl(x + .5); }	/**< @ingroup BasicOps */
+long double fractional(long double x)			{ return x - ::floorl(x); }		/**< @ingroup BasicOps */
 
 /** @ingroup BasicOps */
-long double mod(long double iV, long double iMod) 
+long double mod(long double x, long double m) 
 { 
-	const long double result = ::fmodl(iV, iMod);
-	return result < 0. ? result + iMod : result;
+	const long double result = ::fmodl(x, m);
+	return result < 0. ? result + m : result;
 }	
 
 #endif
@@ -380,214 +387,214 @@ long double mod(long double iV, long double iMod)
 
 #ifdef LASS_CHAR_IS_SIGNED
 
-char pow(char iV, char iPow)			{ return impl::IntPow<char>::eval(iV, static_cast<signed char>(iPow)); }	/**< @ingroup BasicOps */
-char pow(char iV, unsigned char iPow)	{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-char div(char iV, char iMod)			{ return impl::IntDiv<char>::eval(iV, static_cast<signed char>(iMod)); }	/**< @ingroup BasicOps */
-char div(char iV, unsigned char iMod)	{ return impl::IntDiv<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
-char mod(char iV, char iMod)			{ return impl::IntMod<char>::eval(iV, static_cast<signed char>(iMod)); }	/**< @ingroup BasicOps */
-char mod(char iV, unsigned char iMod)	{ return impl::IntMod<char>::eval(iV, iMod); }	/**< @ingroup BasicOps */
+char pow(char x, char p)			{ return impl::IntPow<char>::eval(x, static_cast<signed char>(p)); }	/**< @ingroup BasicOps */
+char pow(char x, unsigned char p)	{ return impl::IntPow<char>::eval(x, p); }	/**< @ingroup BasicOps */
+char div(char x, char m)			{ return impl::IntDiv<char>::eval(x, static_cast<signed char>(m)); }	/**< @ingroup BasicOps */
+char div(char x, unsigned char m)	{ return impl::IntDiv<char>::eval(x, m); }	/**< @ingroup BasicOps */
+char mod(char x, char m)			{ return impl::IntMod<char>::eval(x, static_cast<signed char>(m)); }	/**< @ingroup BasicOps */
+char mod(char x, unsigned char m)	{ return impl::IntMod<char>::eval(x, m); }	/**< @ingroup BasicOps */
 
 #else
 
-char abs(char iV)				{ return iV; }				/**< @ingroup BasicOps */
-char sign(char iV)				{ return iV > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
-char pow(char iV, char iPow)	{ return impl::IntPow<char>::eval(iV, static_cast<unsigned char>(iPow)); }	/**< @ingroup BasicOps */
-char div(char iV, char iPow)	{ return iV / iPow; }		/**< @ingroup BasicOps */
-char mod(char iV, char iPow)	{ return iV % iPow; }		/**< @ingroup BasicOps */
+char abs(char x)			{ return x; }				/**< @ingroup BasicOps */
+char sign(char x)			{ return x > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
+char pow(char x, char p)	{ return impl::IntPow<char>::eval(x, static_cast<unsigned char>(p)); }	/**< @ingroup BasicOps */
+char div(char x, char p)	{ return x / p; }			/**< @ingroup BasicOps */
+char mod(char x, char p)	{ return x % p; }			/**< @ingroup BasicOps */
 
 #endif
 
-char floor(char iV)				{ return iV; }				/**< @ingroup BasicOps */
-char ceil(char iV)				{ return iV; }				/**< @ingroup BasicOps */
-char round(char iV)				{ return iV; }				/**< @ingroup BasicOps */
-char fractional(char /*iV*/)	{ return 0; }				/**< @ingroup BasicOps */
+char floor(char x)			{ return x; }				/**< @ingroup BasicOps */
+char ceil(char x)			{ return x; }				/**< @ingroup BasicOps */
+char round(char x)			{ return x; }				/**< @ingroup BasicOps */
+char fractional(char /*x*/)	{ return 0; }				/**< @ingroup BasicOps */
 
-void inpfloor(char& /*ioV*/)	{}							/**< @ingroup BasicOps */
-void inpceil(char& /*ioV*/)		{}							/**< @ingroup BasicOps */
-void inpround(char& /*ioV*/)	{}							/**< @ingroup BasicOps */
-void inpfractional(char& ioV)	{ ioV = 0; }				/**< @ingroup BasicOps */
+void inpfloor(char& /*x*/)	{}							/**< @ingroup BasicOps */
+void inpceil(char& /*x*/)	{}							/**< @ingroup BasicOps */
+void inpround(char& /*x*/)	{}							/**< @ingroup BasicOps */
+void inpfractional(char& x)	{ x = 0; }					/**< @ingroup BasicOps */
 
 // --- signed char ----------------------------------------------------------------------------------
 
-signed char abs(signed char iV)							{ return static_cast<signed char>(::abs(iV)); }	/**< @ingroup BasicOps */
-signed char pow(signed char iV, signed char iPow)		{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed char pow(signed char iV, unsigned char iPow)		{ return impl::IntPow<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed char floor(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed char ceil(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed char round(signed char iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed char fractional(signed char /*iV*/)				{ return 0; }									/**< @ingroup BasicOps */
-signed char div(signed char iV, signed char iPow)		{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed char div(signed char iV, unsigned char iPow)		{ return impl::IntDiv<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed char mod(signed char iV, signed char iPow)		{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed char mod(signed char iV, unsigned char iPow)		{ return impl::IntMod<char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed char abs(signed char x)						{ return static_cast<signed char>(::abs(x)); }	/**< @ingroup BasicOps */
+signed char pow(signed char x, signed char p)		{ return impl::IntPow<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char pow(signed char x, unsigned char p)		{ return impl::IntPow<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char floor(signed char x)					{ return x; }									/**< @ingroup BasicOps */
+signed char ceil(signed char x)						{ return x; }									/**< @ingroup BasicOps */
+signed char round(signed char x)					{ return x; }									/**< @ingroup BasicOps */
+signed char fractional(signed char /*x*/)			{ return 0; }									/**< @ingroup BasicOps */
+signed char div(signed char x, signed char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char div(signed char x, unsigned char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char mod(signed char x, signed char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char mod(signed char x, unsigned char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
 
-void inpfloor(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpceil(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpround(signed char& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpfractional(signed char& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpfloor(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
+void inpceil(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
+void inpround(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
+void inpfractional(signed char& x)	{ x = 0; }		/**< @ingroup BasicOps */
 
 
 
 // --- unsigned char ----------------------------------------------------------------------------------
 
-unsigned char abs(unsigned char iV)						{ return iV; }				/**< @ingroup BasicOps */
-unsigned char sign(unsigned char iV)					{ return iV > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
-unsigned char pow(unsigned char iV, unsigned char iPow)	{ return impl::IntPow<unsigned char>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-unsigned char floor(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
-unsigned char ceil(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
-unsigned char round(unsigned char iV)					{ return iV; }				/**< @ingroup BasicOps */
-unsigned char fractional(unsigned char /*iV*/)			{ return 0; }				/**< @ingroup BasicOps */
-unsigned char div(unsigned char iV, unsigned char iPow)	{ return iV / iPow; }		/**< @ingroup BasicOps */
-unsigned char mod(unsigned char iV, unsigned char iPow)	{ return iV % iPow; }		/**< @ingroup BasicOps */
+unsigned char abs(unsigned char x)					{ return x; }				/**< @ingroup BasicOps */
+unsigned char sign(unsigned char x)					{ return x > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
+unsigned char pow(unsigned char x, unsigned char p)	{ return impl::IntPow<unsigned char>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned char floor(unsigned char x)				{ return x; }				/**< @ingroup BasicOps */
+unsigned char ceil(unsigned char x)					{ return x; }				/**< @ingroup BasicOps */
+unsigned char round(unsigned char x)				{ return x; }				/**< @ingroup BasicOps */
+unsigned char fractional(unsigned char /*x*/)		{ return 0; }				/**< @ingroup BasicOps */
+unsigned char div(unsigned char x, unsigned char p)	{ return x / p; }			/**< @ingroup BasicOps */
+unsigned char mod(unsigned char x, unsigned char p)	{ return x % p; }			/**< @ingroup BasicOps */
 
-void inpabs(unsigned char& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpceil(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpround(unsigned char& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfractional(unsigned char& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpabs(unsigned char& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfloor(unsigned char& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpceil(unsigned char& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpround(unsigned char& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfractional(unsigned char& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- signed short ----------------------------------------------------------------------------------
 
-signed short abs(signed short iV)						{ return static_cast<signed short>(::abs(iV)); }	/**< @ingroup BasicOps */
-signed short pow(signed short iV, signed short iPow)	{ return impl::IntPow<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
-signed short pow(signed short iV, unsigned short iPow)	{ return impl::IntPow<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
-signed short floor(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
-signed short ceil(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
-signed short round(signed short iV)						{ return iV; }										/**< @ingroup BasicOps */
-signed short fractional(signed short /*iV*/)			{ return 0; }										/**< @ingroup BasicOps */
-signed short div(signed short iV, signed short iPow)	{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
-signed short div(signed short iV, unsigned short iPow)	{ return impl::IntDiv<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
-signed short mod(signed short iV, signed short iPow)	{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
-signed short mod(signed short iV, unsigned short iPow)	{ return impl::IntMod<short>::eval(iV, iPow); }		/**< @ingroup BasicOps */
+signed short abs(signed short x)					{ return static_cast<signed short>(::abs(x)); }	/**< @ingroup BasicOps */
+signed short pow(signed short x, signed short p)	{ return impl::IntPow<short>::eval(x, p); }		/**< @ingroup BasicOps */
+signed short pow(signed short x, unsigned short p)	{ return impl::IntPow<short>::eval(x, p); }		/**< @ingroup BasicOps */
+signed short floor(signed short x)					{ return x; }									/**< @ingroup BasicOps */
+signed short ceil(signed short x)					{ return x; }									/**< @ingroup BasicOps */
+signed short round(signed short x)					{ return x; }									/**< @ingroup BasicOps */
+signed short fractional(signed short /*x*/)			{ return 0; }									/**< @ingroup BasicOps */
+signed short div(signed short x, signed short p)	{ return impl::IntDiv<short>::eval(x, p); }		/**< @ingroup BasicOps */
+signed short div(signed short x, unsigned short p)	{ return impl::IntDiv<short>::eval(x, p); }		/**< @ingroup BasicOps */
+signed short mod(signed short x, signed short p)	{ return impl::IntMod<short>::eval(x, p); }		/**< @ingroup BasicOps */
+signed short mod(signed short x, unsigned short p)	{ return impl::IntMod<short>::eval(x, p); }		/**< @ingroup BasicOps */
 
-void inpfloor(signed short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpceil(signed short& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpround(signed short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfractional(signed short& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpfloor(signed short& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(signed short& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpround(signed short& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(signed short& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- unsigned short ----------------------------------------------------------------------------------
 
-unsigned short abs(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned short sign(unsigned short iV)						{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
-unsigned short pow(unsigned short iV, unsigned short iPow)	{ return impl::IntPow<unsigned short>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-unsigned short floor(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned short ceil(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned short round(unsigned short iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned short fractional(unsigned short /*iV*/)			{ return 0; }											/**< @ingroup BasicOps */
-unsigned short div(unsigned short iV, unsigned short iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
-unsigned short mod(unsigned short iV, unsigned short iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+unsigned short abs(unsigned short x)					{ return x; }											/**< @ingroup BasicOps */
+unsigned short sign(unsigned short x)					{ return x > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
+unsigned short pow(unsigned short x, unsigned short p)	{ return impl::IntPow<unsigned short>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned short floor(unsigned short x)					{ return x; }											/**< @ingroup BasicOps */
+unsigned short ceil(unsigned short x)					{ return x; }											/**< @ingroup BasicOps */
+unsigned short round(unsigned short x)					{ return x; }											/**< @ingroup BasicOps */
+unsigned short fractional(unsigned short /*x*/)			{ return 0; }											/**< @ingroup BasicOps */
+unsigned short div(unsigned short x, unsigned short p)	{ return x / p; }										/**< @ingroup BasicOps */
+unsigned short mod(unsigned short x, unsigned short p)	{ return x % p; }										/**< @ingroup BasicOps */
 
-void inpabs(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpceil(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpround(unsigned short& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfractional(unsigned short& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpabs(unsigned short& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfloor(unsigned short& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(unsigned short& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpround(unsigned short& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(unsigned short& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- signed int ----------------------------------------------------------------------------------
 
-signed int abs(signed int iV)						{ return ::abs(iV); }						/**< @ingroup BasicOps */
-signed int pow(signed int iV, signed int iPow)		{ return impl::IntPow<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed int pow(signed int iV, unsigned int iPow)	{ return impl::IntPow<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed int floor(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
-signed int ceil(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
-signed int round(signed int iV)						{ return iV; }								/**< @ingroup BasicOps */
-signed int fractional(signed int /*iV*/)			{ return 0; }								/**< @ingroup BasicOps */
-signed int div(signed int iV, signed int iPow)		{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed int div(signed int iV, unsigned int iPow)	{ return impl::IntDiv<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed int mod(signed int iV, signed int iPow)		{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed int mod(signed int iV, unsigned int iPow)	{ return impl::IntMod<int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed int abs(signed int x)					{ return ::abs(x); }						/**< @ingroup BasicOps */
+signed int pow(signed int x, signed int p)		{ return impl::IntPow<int>::eval(x, p); }	/**< @ingroup BasicOps */
+signed int pow(signed int x, unsigned int p)	{ return impl::IntPow<int>::eval(x, p); }	/**< @ingroup BasicOps */
+signed int floor(signed int x)					{ return x; }								/**< @ingroup BasicOps */
+signed int ceil(signed int x)					{ return x; }								/**< @ingroup BasicOps */
+signed int round(signed int x)					{ return x; }								/**< @ingroup BasicOps */
+signed int fractional(signed int /*x*/)			{ return 0; }								/**< @ingroup BasicOps */
+signed int div(signed int x, signed int p)		{ return impl::IntDiv<int>::eval(x, p); }	/**< @ingroup BasicOps */
+signed int div(signed int x, unsigned int p)	{ return impl::IntDiv<int>::eval(x, p); }	/**< @ingroup BasicOps */
+signed int mod(signed int x, signed int p)		{ return impl::IntMod<int>::eval(x, p); }	/**< @ingroup BasicOps */
+signed int mod(signed int x, unsigned int p)	{ return impl::IntMod<int>::eval(x, p); }	/**< @ingroup BasicOps */
 
-void inpfloor(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpceil(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpround(signed int& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfractional(signed int& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpfloor(signed int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(signed int& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpround(signed int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(signed int& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- unsigned int ----------------------------------------------------------------------------------
 
-unsigned int abs(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned int sign(unsigned int iV)						{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
-unsigned int pow(unsigned int iV, unsigned int iPow)	{ return impl::IntPow<unsigned int>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-unsigned int floor(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned int ceil(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned int round(unsigned int iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned int fractional(unsigned int /*iV*/)			{ return 0; }											/**< @ingroup BasicOps */
-unsigned int div(unsigned int iV, unsigned int iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
-unsigned int mod(unsigned int iV, unsigned int iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+unsigned int abs(unsigned int x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned int sign(unsigned int x)					{ return x > 0 ? 1 : 0; }							/**< @ingroup BasicOps */
+unsigned int pow(unsigned int x, unsigned int p)	{ return impl::IntPow<unsigned int>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned int floor(unsigned int x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned int ceil(unsigned int x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned int round(unsigned int x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned int fractional(unsigned int /*x*/)			{ return 0; }										/**< @ingroup BasicOps */
+unsigned int div(unsigned int x, unsigned int p)	{ return x / p; }									/**< @ingroup BasicOps */
+unsigned int mod(unsigned int x, unsigned int p)	{ return x % p; }									/**< @ingroup BasicOps */
 
-void inpabs(unsigned int& /*ioV*/)		{}	/**< @ingroup BasicOps */
-void inpfloor(unsigned int& /*ioV*/)	{}	/**< @ingroup BasicOps */
-void inpceil(unsigned int& /*ioV*/)		{}	/**< @ingroup BasicOps */
-void inpround(unsigned int& /*ioV*/)	{}	/**< @ingroup BasicOps */
-void inpfractional(unsigned int& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpabs(unsigned int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfloor(unsigned int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(unsigned int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpround(unsigned int& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(unsigned int& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- signed long ----------------------------------------------------------------------------------
 
-signed long abs(signed long iV)							{ return ::labs(iV); }							/**< @ingroup BasicOps */
-signed long pow(signed long iV, signed long iPow)		{ return impl::IntPow<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed long pow(signed long iV, unsigned long iPow)		{ return impl::IntPow<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed long floor(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed long ceil(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed long round(signed long iV)						{ return iV; }									/**< @ingroup BasicOps */
-signed long fractional(signed long /*iV*/)				{ return 0; }									/**< @ingroup BasicOps */
-signed long div(signed long iV, signed long iPow)		{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed long div(signed long iV, unsigned long iPow)		{ return impl::IntDiv<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed long mod(signed long iV, signed long iPow)		{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-signed long mod(signed long iV, unsigned long iPow)		{ return impl::IntMod<long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
+signed long abs(signed long x)						{ return ::labs(x); }						/**< @ingroup BasicOps */
+signed long pow(signed long x, signed long p)		{ return impl::IntPow<long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long pow(signed long x, unsigned long p)		{ return impl::IntPow<long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long floor(signed long x)					{ return x; }								/**< @ingroup BasicOps */
+signed long ceil(signed long x)						{ return x; }								/**< @ingroup BasicOps */
+signed long round(signed long x)					{ return x; }								/**< @ingroup BasicOps */
+signed long fractional(signed long /*x*/)			{ return 0; }								/**< @ingroup BasicOps */
+signed long div(signed long x, signed long p)		{ return impl::IntDiv<long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long div(signed long x, unsigned long p)		{ return impl::IntDiv<long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long mod(signed long x, signed long p)		{ return impl::IntMod<long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long mod(signed long x, unsigned long p)		{ return impl::IntMod<long>::eval(x, p); }	/**< @ingroup BasicOps */
 
-void inpfloor(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpceil(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpround(signed long& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpfractional(signed long& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpfloor(signed long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(signed long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpround(signed long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(signed long& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 // --- unsigned long ----------------------------------------------------------------------------------
 
-unsigned long abs(unsigned long iV)						{ return iV; }											/**< @ingroup BasicOps */
-unsigned long sign(unsigned long iV)					{ return iV > 0 ? 1 : 0; }								/**< @ingroup BasicOps */
-unsigned long pow(unsigned long iV, unsigned long iPow)	{ return impl::IntPow<unsigned long>::eval(iV, iPow); }	/**< @ingroup BasicOps */
-unsigned long floor(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned long ceil(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned long round(unsigned long iV)					{ return iV; }											/**< @ingroup BasicOps */
-unsigned long fractional(unsigned long /*iV*/)				{ return 0; }											/**< @ingroup BasicOps */
-unsigned long div(unsigned long iV, unsigned long iPow)	{ return iV / iPow; }										/**< @ingroup BasicOps */
-unsigned long mod(unsigned long iV, unsigned long iPow)	{ return iV % iPow; }										/**< @ingroup BasicOps */
+unsigned long abs(unsigned long x)					{ return x; }	/**< @ingroup BasicOps */
+unsigned long sign(unsigned long x)					{ return x > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
+unsigned long pow(unsigned long x, unsigned long p)	{ return impl::IntPow<unsigned long>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned long floor(unsigned long x)				{ return x; }										/**< @ingroup BasicOps */
+unsigned long ceil(unsigned long x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned long round(unsigned long x)				{ return x; }										/**< @ingroup BasicOps */
+unsigned long fractional(unsigned long /*x*/)		{ return 0; }										/**< @ingroup BasicOps */
+unsigned long div(unsigned long x, unsigned long p)	{ return x / p; }									/**< @ingroup BasicOps */
+unsigned long mod(unsigned long x, unsigned long p)	{ return x % p; }									/**< @ingroup BasicOps */
 
-void inpabs(unsigned long& /*ioV*/)		{}				/**< @ingroup BasicOps */
-void inpfloor(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpceil(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpround(unsigned long& /*ioV*/)	{}				/**< @ingroup BasicOps */
-void inpfractional(unsigned long& ioV)	{ ioV = 0; }	/**< @ingroup BasicOps */
+void inpabs(unsigned long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfloor(unsigned long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpceil(unsigned long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpround(unsigned long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfractional(unsigned long& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
 
 // --- complex numbers -----------------------------------------------------------------------------
 
-template <typename T> std::complex<T> abs( const std::complex<T>& iV) { return std::abs( iV ); }
-template <typename T> std::complex<T> inv( const std::complex<T>& iV) { return T(1)/iV; }
-template <typename T> std::complex<T> sqrt( const std::complex<T>& iV){ return std::sqrt( iV ); }
-template <typename T> std::complex<T> pow(const std::complex<T>& iX, double iY) { return std::pow(iX, iY); }
-template <typename T> std::complex<T> exp( const std::complex<T>& iV) { return std::exp( iV ); }
-template <typename T> std::complex<T> log( const std::complex<T>& iV) { return std::log( iV ); }
-template <typename T> std::complex<T> log2( const std::complex<T>& iV) { return T(LASS_NUM_INVLOG2) * std::log( iV ); }
-template <typename T> std::complex<T> log10( const std::complex<T>& iV) { return T(LASS_NUM_INVLOG10) * std::log( iV ); }
-template <typename T> std::complex<T> cos( const std::complex<T>& iV) { return std::cos( iV ); }
-template <typename T> std::complex<T> sin( const std::complex<T>& iV) { return std::sin( iV ); }
-template <typename T> std::complex<T> tan( const std::complex<T>& iV) { return std::tan( iV ); }
-template <typename T> std::complex<T> acos( const std::complex<T>& iV){ return std::acos( iV ); }
-template <typename T> std::complex<T> asin( const std::complex<T>& iV){ return std::asin( iV ); }
-template <typename T> std::complex<T> atan( const std::complex<T>& iV){ return std::atan( iV ); }
+template <typename T> std::complex<T> abs( const std::complex<T>& x) { return std::abs( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> inv( const std::complex<T>& x) { return T(1)/x; }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> sqrt( const std::complex<T>& x){ return std::sqrt( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> pow(const std::complex<T>& x, double p) { return std::pow(x, p); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> exp( const std::complex<T>& x) { return std::exp( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> log( const std::complex<T>& x) { return std::log( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> log2( const std::complex<T>& x) { return T(LASS_NUM_INVLOG2) * std::log( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> log10( const std::complex<T>& x) { return T(LASS_NUM_INVLOG10) * std::log( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> cos( const std::complex<T>& x) { return std::cos( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> sin( const std::complex<T>& x) { return std::sin( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> tan( const std::complex<T>& x) { return std::tan( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> acos( const std::complex<T>& x){ return std::acos( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> asin( const std::complex<T>& x){ return std::asin( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> atan( const std::complex<T>& x){ return std::atan( x ); }	/**< @ingroup BasicOps */
 
-template <typename T> T norm(const std::complex<T>& iV) { return std::norm( iV ); }
-template <typename T> std::complex<T> conj(const std::complex<T>& iV) { return std::conj(iV); }
+template <typename T> T norm(const std::complex<T>& x) { return std::norm( x ); }	/**< @ingroup BasicOps */
+template <typename T> std::complex<T> conj(const std::complex<T>& x) { return std::conj(x); }	/**< @ingroup BasicOps */
