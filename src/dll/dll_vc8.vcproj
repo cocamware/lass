@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="dll_vc8"
 	ProjectGUID="{CA974D9E-7123-4209-9C12-7545FCCF9B1A}"
 	RootNamespace="dll_vc8"
@@ -123,10 +123,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="4"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
 				PreprocessorDefinitions="LASS_BUILD_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;DLL_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"

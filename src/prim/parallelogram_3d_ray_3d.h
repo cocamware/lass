@@ -54,7 +54,7 @@ namespace prim
 template<typename T, class NP, class PP> inline
 Result intersect(
 		const Parallelogram3D<T>& parallelogram, const Ray3D<T, NP, PP>& ray, 
-		T& t, const T& tMin = ())
+		T& t, const T& tMin = T())
 {
 	T u;
 	T v;

@@ -25,6 +25,7 @@ IV. BUILD LASS
 	1. static libraries
 	2. dynamic libraries
 V. INSTALL LASS
+VI. USING LASS (important for users of the DLL!)
 
 
 
@@ -104,7 +105,7 @@ executable files: C:\Python25 (in case Visual C++ is unable to find python.exe d
 
 
 IV. BUILD LASS
-===============
+==============
 
 1. static libraries
 -------------------
@@ -121,4 +122,19 @@ src\dll\dll_vc8.sln (8.0).
 
 
 V. INSTALL LASS
-================
+===============
+
+
+
+VI. USING LASS
+==============
+
+!!! THE FOLLOWING MESSAGE IS IMPORTANT FOR PEOPLE WHO WANT TO USE THE LASS DLL !!!
+
+Normally, if you include any Lass header, the linker will automatically be instructed to
+link against the static Lass libraries.  If you want to link against the dynamic libraries,
+you must insert the next line before you include any header of Lass:
+
+#define LASS_USE_DLL
+
+Failing to do so will result in linkage against the static libraries.

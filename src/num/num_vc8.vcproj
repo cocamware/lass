@@ -109,7 +109,6 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NUM_VC8_EXPORTS"
 				StringPooling="true"

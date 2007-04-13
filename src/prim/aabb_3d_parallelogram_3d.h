@@ -51,6 +51,8 @@ Aabb3D<T> aabb(const Parallelogram3D<T>& parallelogram)
 
 }
 
+}
+
 #endif
 
 // EOF

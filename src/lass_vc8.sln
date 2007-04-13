@@ -34,6 +34,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_vc8", "test\test_vc8.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "util_vc8", "util\util_vc8.vcproj", "{D2824E6F-9A04-4483-B824-77B3EF38903A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stde_vc8", "stde\stde_vc8.vcproj", "{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		win32_vc8_d|Win32 = win32_vc8_d|Win32
@@ -68,6 +70,10 @@ Global
 		{D2824E6F-9A04-4483-B824-77B3EF38903A}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
 		{D2824E6F-9A04-4483-B824-77B3EF38903A}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
 		{D2824E6F-9A04-4483-B824-77B3EF38903A}.win32_vc8|Win32.Build.0 = win32_vc8|Win32
+		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8_d|Win32.ActiveCfg = win32_vc8_d|Win32
+		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8_d|Win32.Build.0 = win32_vc8_d|Win32
+		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8|Win32.ActiveCfg = win32_vc8|Win32
+		{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}.win32_vc8|Win32.Build.0 = win32_vc8|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

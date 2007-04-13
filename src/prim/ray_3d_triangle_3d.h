@@ -29,6 +29,7 @@
 #include "prim_common.h"
 #include "ray_3d.h"
 #include "triangle_3d.h"
+#include "impl/intersect_triangle_3d.h"
 
 namespace lass
 {
