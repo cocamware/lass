@@ -32,9 +32,10 @@ namespace stde
 
 template <typename T, typename A>
 lock_free_queue<T, A>::lock_free_queue():
-	util::AllocatorConcurrentFreeList<A>(sizeof(node_t))
+	node_allocator_(sizeof(node_t)),
+	value_allocator_(sizeof(value_type))
 {
-	pointer_t dummy(make_node(value_type()), 0);
+	pointer_t dummy(make_node(0), 0);
 	head_ = dummy;
 	tail_ = dummy;
 }
@@ -61,7 +62,17 @@ lock_free_queue<T, A>::~lock_free_queue()
 template <typename T, typename A>
 void lock_free_queue<T, A>::push(const value_type& x)
 {
-	node_t* const node = make_node(x);
+	value_type* const value = make_value(x);
+	node_t* node = 0;
+	try
+	{
+		node = make_node(value);
+	}
+	catch (...)
+	{
+		free_value(value);
+		throw;
+	}
 	pointer_t tail;
 	while (true)
 	{
@@ -98,6 +109,7 @@ template <typename T, typename A>
 bool lock_free_queue<T, A>::pop(value_type& x)
 {
 	pointer_t head;
+	value_type* value;
 	while (true)
 	{
 		head = head_;
@@ -116,46 +128,74 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 			}
 			else
 			{
-#pragma LASS_FIXME("what happens if next is already reclaimed? ... Exactly [Bramz]")
-				x = next->value;
+				// 'next' might be reclaimed here, but that's not really a problem:
+				// a) its memory will still exist, so at most value will contain rubbish but that's
+				//		ok to copy because it's just used as a pointer
+				// b) if it is reclaimed, the following CAS will fail so that value will never be
+				//		used so we don't care if it contains rubbish.
+				// SEE ALSO: lock_free_stack::pop_node, and why the above is not entirely true ...				
+				// [Bramz]
+				//
+				value = next->value; 
+
 				pointer_t new_head(next.get(), head.tag() + 1);
 				if (head_.atomicCompareAndSwap(head, new_head))
 				{
-					break;
+					x = *value;
+					free_value(value);
+					free_node(head.get());
+					return true;
 				}
 			}
 		}
 	}
-	free_node(head.get());
-	return true;
 }
 
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, typename A>
-typename lock_free_queue<T, A>::node_t* const
-lock_free_queue<T, A>::make_node(const value_type& x)
+typename lock_free_queue<T, A>::value_type* const
+lock_free_queue<T, A>::make_value(const value_type& x)
 {
-	node_t* node = static_cast<node_t*>(this->allocate());
+	value_type* value = static_cast<value_type*>(value_allocator_.allocate());
+	try
+	{
+		new (value) value_type(x);
+	}
+	catch (...)
+	{
+		value_allocator_.deallocate(value);
+		throw;
+	}
+	return value;
+}
+
+
+
+template <typename T, typename A>
+void lock_free_queue<T, A>::free_value(value_type* value)
+{
+	value->~value_type();
+	value_allocator_.deallocate(value);
+}
+
+
+
+template <typename T, typename A>
+typename lock_free_queue<T, A>::node_t* const
+lock_free_queue<T, A>::make_node(value_type* value)
+{
+	node_t* node = static_cast<node_t*>(node_allocator_.allocate());
 	try
 	{
 		new (&node->next) pointer_t();
 	}
 	catch (...)
 	{
-		this->deallocate(node);
+		node_allocator_.deallocate(node);
 		throw;
 	}
-	try
-	{
-		new (&node->value) value_type(x);
-	}
-	catch (...)
-	{
-		node->next.~pointer_t();
-		this->deallocate(node);
-		throw;
-	}
+	node->value = value;
 	return node;
 }
 	
@@ -164,9 +204,8 @@ lock_free_queue<T, A>::make_node(const value_type& x)
 template <typename T, typename A>
 void lock_free_queue<T, A>::free_node(node_t* node)
 {
-	node->value.~value_type();
 	node->next.~pointer_t();
-	this->deallocate(node);
+	node_allocator_.deallocate(node);
 }
 
 }

@@ -47,7 +47,7 @@ template
 	typename T, 
 	typename FixedAllocator = util::AllocatorFixed<util::AllocatorMalloc>
 >
-class lock_free_queue: private util::AllocatorConcurrentFreeList<FixedAllocator>
+class lock_free_queue
 {
 public:
 
@@ -66,17 +66,23 @@ private:
 	struct node_t
 	{
 		pointer_t next;
-		value_type value;
+		value_type* value;
 	};
+
+	typedef util::AllocatorThrow< util::AllocatorConcurrentFreeList<FixedAllocator> > allocator_t;
 
 	lock_free_queue(const lock_free_queue&);
 	lock_free_queue& operator=(const lock_free_queue&);
 
-	node_t* const make_node(const value_type& x);
-	void free_node(node_t* node);	
+	value_type* const make_value(const value_type& x);
+	void free_value(value_type* value);
+	node_t* const make_node(value_type* x);
+	void free_node(node_t* node);
 
 	pointer_t head_;
 	pointer_t tail_;
+	allocator_t node_allocator_;
+	allocator_t value_allocator_;
 };
 
 }
