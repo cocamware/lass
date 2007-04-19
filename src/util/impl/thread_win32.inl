@@ -282,18 +282,33 @@ public:
 		index_ = TlsAlloc();
 		if (index_ == TLS_OUT_OF_INDEXES)
 		{
-			LASS_THROW("Failed to allocate thread local storage");
+			LASS_THROW("Failed to allocate thread local storage: TlsAlloc failed");
 		}
-
-		destructors()[index_] = destructor;
+		if (TDestructors* destrs = destructors())
+		{
+			try
+			{
+				(*destrs)[index_] = destructor;
+			}
+			catch (...)
+			{
+				freeSlot(index_);
+				throw;
+			}
+		}
+		else
+		{
+			freeSlot(index_);
+			LASS_THROW("Failed to allocate thread local storage: dead destructor singleton");
+		}
 	}
 	~ThreadLocalStorageInternal()
 	{
-		destructors().erase(index_);
-		if (!TlsFree(index_))
+		if (TDestructors* destrs = destructors())
 		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: TlsFree failed." << std::endl;
+			destrs->erase(index_);
 		}
+		freeSlot(index_);
 	}
 	void* const get() const
 	{
@@ -312,33 +327,71 @@ public:
 		}
 	}
 
+	/** destruct the local copies of the variables in a thread.
+	 *  to be called at end of thread's life time ...
+	 */
 	static void destructLocals()
 	{
-		for (TDestructors::iterator i = destructors().begin(); i != destructors().end(); ++i)
+		if (TDestructors* destrs = destructors())
 		{
-			DWORD index = i->first;
-			TDestructor destructor = i->second;
-			if (destructor)
+			for (TDestructors::iterator i = destrs->begin(); i != destrs->end(); ++i)
 			{
-				if (void* p = TlsGetValue(index))
+				DWORD index = i->first;
+				TDestructor destructor = i->second;
+				if (destructor)
 				{
-					destructor(p);
-					TlsSetValue(index, 0);
+					if (void* p = TlsGetValue(index))
+					{
+						destructor(p);
+						TlsSetValue(index, 0);
+					}
 				}
 			}
 		}
 	}
+
 private:
 
 	typedef std::map<DWORD, TDestructor> TDestructors;
-	
-	static TDestructors& destructors()
+
+	void freeSlot(DWORD index)
 	{
-		return *Singleton<TDestructors, destructionPriorityInternalTlsDestructors>::instance();
+		if (!TlsFree(index))
+		{
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: TlsFree failed." << std::endl;
+		}
+	}
+	
+	static TDestructors* destructors()
+	{
+		return Singleton<TDestructors, destructionPriorityInternalTlsDestructors>::instance();
 	}
 	
 	DWORD index_;
 };
+
+
+
+/** @internal
+ *	@ingroup Threading
+ *  Abuse singleton mechanism to destroy the local thread storage instances of the main thread
+ *  before the destructor map (which is a singleton as well) goes out of business.  We do that
+ *	by creating a helper singleton that has higher destruction priority
+ */
+class MainLocalStorageDestroyer
+{
+public:
+	~MainLocalStorageDestroyer()
+	{
+		ThreadLocalStorageInternal::destructLocals();
+	}
+private:
+	static MainLocalStorageDestroyer* forceIntoExistance;
+};
+
+MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
+	Singleton<MainLocalStorageDestroyer, destructionPriorityInternalTlsLocalsMain>::instance();
+
 
 
 /** @internal
@@ -367,7 +420,7 @@ public:
 		{
 			LASS_THROW("You can run a thread only once");
 		}
-		handle_ = (HANDLE) _beginthreadex(NULL, 0, &ThreadInternal::staticThreadStart, this, 0, &id_);
+		handle_ = (HANDLE) _beginthreadex(NULL, 0, &ThreadInternal::startThread, this, 0, &id_);
 		if (handle_ == 0)
 		{
 			const int errnum = lass_errno();
@@ -410,19 +463,23 @@ public:
 	}
 
 	// thread function
-	static unsigned __stdcall staticThreadStart(void* iPimpl)
+	static unsigned __stdcall startThread(void* iPimpl)
 	{
 		LASS_ASSERT(iPimpl);
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
 		pimpl->isCreated_ = true;
 		pimpl->runCondition_.signal();
 		pimpl->thread_.doRun();
-		ThreadLocalStorageInternal::destructLocals();
 		if (!pimpl->isJoinable_)
 		{
 			delete &pimpl->thread_;
 		}
 		return 0;
+	}
+
+	static void onThreadDetach()
+	{
+		ThreadLocalStorageInternal::destructLocals();
 	}
 
 private:
@@ -439,6 +496,52 @@ private:
 }
 }
 }
+
+#ifdef LASS_BUILD_DLL
+
+extern "C" BOOL WINAPI DllMain(HINSTANCE, DWORD dwReason, LPVOID)
+{
+	switch (dwReason)
+	{
+	case DLL_PROCESS_DETACH:
+	case DLL_THREAD_DETACH:
+		lass::util::impl::ThreadInternal::onThreadDetach();
+		break;
+	}
+}
+
+#else
+
+namespace 
+{
+
+static void NTAPI onThreadCallback(PVOID, DWORD dwReason, PVOID)
+{
+	if(dwReason == DLL_THREAD_DETACH)
+	{
+		lass::util::impl::ThreadInternal::onThreadDetach();
+	}
+}
+
+#if (_MSC_VER >= 1310)
+#   pragma data_seg(push, oldSegment)
+#endif
+
+#pragma data_seg(".CRT$XLB")
+PIMAGE_TLS_CALLBACK threadCallback = onThreadCallback;
+#pragma data_seg()
+
+#if (_MSC_VER >= 1310) // 1310 == VC++ 7.1
+#   pragma data_seg(pop, oldSegment)
+#endif
+
+#pragma comment(linker, "/INCLUDE:__tls_used")
+
+}
+
+#endif
+
+
 
 #endif
  

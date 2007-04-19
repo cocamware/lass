@@ -115,6 +115,7 @@ enum DestructionPriorities
 	destructionPriorityInternalProxyMan = 0, /**< @internal */
 	destructionPriorityInternalTlsDestructors = 100, /**< @internal */
 	destructionPriorityInternalAllocators = 200, /**< @internal */
+	destructionPriorityInternalTlsLocalsMain = 400, /**< @internal */
 };
 
 template<class T, int destructPriority = destructionPriorityDefault>
