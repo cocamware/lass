@@ -33,17 +33,53 @@
 #include "num_common.h"
 #include "num_traits.h"
 
+#define LASS_NUM_DB_10_OVER_LN10 4.3429448190325182765112891891661
+#define LASS_NUM_DB_20_OVER_LN10 8.6858896380650365530225783783321
+#define LASS_NUM_DB_LN10_OVER_10 0.23025850929940456840179914546844
+#define LASS_NUM_DB_LN10_OVER_20 0.11512925464970228420089957273422
+
 namespace lass
 {
 	namespace num
 	{
+		/** power to decibels: y = 10 * log10(x)
+		 *  @ingroup dB
+		 */
+		template <typename T> inline T pow2dB(const T& power)
+		{
+			return T(LASS_NUM_DB_10_OVER_LN10) * num::log(power);
+		}
 
-		/** Converts a pressure into decibels.
+		/** amplitude to decibels: y = 20 * log10(x)
+		 *	@ingroup dB
+		 */
+		template <typename T> inline T amp2dB(const T& amplitude)
+		{
+			return T(LASS_NUM_DB_20_OVER_LN10) * num::log(amplitude);
+		}
+
+		/** decibels to power: y = num::pow(10, x / 10)
+		 *  @ingroup dB
+		 */
+		template <typename T> inline T dB2pow(const T& decibels)
+		{
+			return num::exp(T(LASS_NUM_DB_LN10_OVER_10) * decibels);
+		}
+
+		/** decibels to amplitude: y = num::pow(10, x / 20)
+		 *  @ingroup dB
+		 */
+		template <typename T> inline T dB2amp(const T& decibels)
+		{
+			return num::exp(T(LASS_NUM_DB_LN10_OVER_20) * decibels);
+		}
+
+		/** Converts an absolute acoustical pressure into decibels.
 		 *  @ingroup dB
 		 */
 		template< typename T >  T   p2dB( const T& iValue );
 
-		/** Converts a power into decibels.
+		/** Converts a absolute acoustical power into decibels.
 		 *  @ingroup dB
 		 */
 		template< typename T >  T   W2dB( const T& iValue );

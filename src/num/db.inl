@@ -36,67 +36,64 @@ namespace lass
 		#define LASS_NUM_REFERENCE_INTENSITY_I0     1.e-12
 		#define LASS_NUM_REFERENCE_POWER_W0         1.e-12
 
-		template< typename T >  T   p2dB( const T& iValue )
+		template< typename T >  T   p2dB( const T& pressure )
 		{
-			if (iValue>=T(0))
+			if (pressure>=T(0))
 			{
-				return T(20)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_PRESSURE_P0))/lass::num::log(T(10));
+				return T(LASS_NUM_DB_20_OVER_LN10) * num::log(pressure / T(LASS_NUM_REFERENCE_PRESSURE_P0));
 			}
-			if (!isNaN(iValue))
+			if (!isNaN(pressure))
 			{
-				LASS_THROW( "Negative argument '" << iValue << "'" );
+				LASS_THROW( "Negative argument '" << pressure << "'" );
 			}
-			return iValue; // nan
+			return pressure; // nan
 		}
 
-		template< typename T >  T   W2dB( const T& iValue )
+		template< typename T >  T   W2dB( const T& power )
 		{
-			if (iValue>=T(0))
+			if (power>=T(0))
 			{
-				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_POWER_W0))/lass::num::log(T(10));
+				return T(LASS_NUM_DB_10_OVER_LN10) * num::log(power / T(LASS_NUM_REFERENCE_POWER_W0));
 			}
-			if (!isNaN(iValue))
+			if (!isNaN(power))
 			{
-				LASS_THROW( "Negative argument '" << iValue << "'" );
+				LASS_THROW( "Negative argument '" << power << "'" );
 			}
-			return iValue; // nan
+			return power; // nan
 		}
 
-		template< typename T >  T   I2dB( const T& iValue )
+		template< typename T >  T   I2dB( const T& intensity )
 		{
-			if (iValue>=T(0))
+			if (intensity>=T(0))
 			{
-				return T(10)*lass::num::log(iValue/T(LASS_NUM_REFERENCE_INTENSITY_I0))/lass::num::log(T(10));
+				return T(LASS_NUM_DB_10_OVER_LN10) * num::log(intensity / T(LASS_NUM_REFERENCE_INTENSITY_I0));
 			}
-			if (!isNaN(iValue))
+			if (!isNaN(intensity))
 			{
-				LASS_THROW( "Negative argument '" << iValue << "'" );
+				LASS_THROW( "Negative argument '" << intensity << "'" );
 			}
-			return iValue; // nan
+			return intensity; // nan
 		}
 
-		template< typename T >  T   dB2p( const T& iValue )
+		template< typename T >  T   dB2p( const T& decibels )
 		{
-			const T log10by20 = lass::num::log(T(10)) / T(20);
-			return iValue == -NumTraits<T>::infinity ?
+			return decibels == -NumTraits<T>::infinity ?
 				NumTraits<T>::zero :
-				T(LASS_NUM_REFERENCE_PRESSURE_P0) * lass::num::exp(iValue * log10by20);
+				T(LASS_NUM_REFERENCE_PRESSURE_P0) * num::exp(decibels * T(LASS_NUM_DB_LN10_OVER_20));
 		}
 
-		template< typename T >  T   dB2W( const T& iValue )
+		template< typename T >  T   dB2W( const T& decibels )
 		{
-			const T log10by10 = lass::num::log(T(10)) / T(10);
-			return iValue == -NumTraits<T>::infinity ?
+			return decibels == -NumTraits<T>::infinity ?
 				NumTraits<T>::zero :
-				T(LASS_NUM_REFERENCE_POWER_W0) * lass::num::exp(iValue * log10by10);
+				T(LASS_NUM_REFERENCE_POWER_W0) * num::exp(decibels * T(LASS_NUM_DB_LN10_OVER_10));
 		}
 
-		template< typename T >  T   dB2I( const T& iValue )
+		template< typename T >  T   dB2I( const T& decibels )
 		{
-			const T log10by10 = lass::num::log(T(10)) / T(10);
-			return iValue == -NumTraits<T>::infinity ?
+			return decibels == -NumTraits<T>::infinity ?
 				NumTraits<T>::zero :
-				T(LASS_NUM_REFERENCE_INTENSITY_I0) * lass::num::exp(iValue * log10by10);
+				T(LASS_NUM_REFERENCE_INTENSITY_I0) * num::exp(decibels * T(LASS_NUM_DB_LN10_OVER_10));
 		}
 	}
 }
