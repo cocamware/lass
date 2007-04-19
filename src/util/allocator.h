@@ -714,12 +714,16 @@ public:
 	}
 	~AllocatorStats()
 	{
-		LASS_COUT << "~" << typeid(AllocatorStats).name() << ">" << std::endl;
-		LASS_COUT << "size: allocations/deallocations" << std::endl;
+		LASS_CLOG << "~" << typeid(AllocatorStats).name() << "()" << std::endl;
+		LASS_CLOG << "size: allocations/deallocations" << std::endl;
 		for (typename TStats::const_iterator i = stats_.begin(); i != stats_.end(); ++i)
 		{
-			LASS_COUT << i->first << ": " 
-				<< i->second.allocations << "/" << i->second.deallocations << std::endl;
+			Stat stat = i->second;
+			LASS_CLOG << i->first << ": " << stat.allocations << "/" << stat.deallocations << std::endl;
+			if (stat.allocations != stat.deallocations)
+			{
+				LASS_CERR << "[LASS RUN MSG] Allocation unbalance detected in AllocatorStats" << std::endl;
+			}
 		}
 	}
 	void* allocate(size_t size)
@@ -729,7 +733,7 @@ public:
 	}
 	void* allocate()
 	{
-		++stats_.front().allocations;
+		++stats_.begin()->second.allocations;
 		return Allocator::allocate();
 	}
 	void deallocate(void* mem, size_t size)
@@ -739,7 +743,7 @@ public:
 	}
 	void deallocate(void* mem)
 	{
-		++stats_.front().deallocations;
+		++stats_.begin()->second.deallocations;
 		Allocator::deallocate(mem);
 	}
 private:
