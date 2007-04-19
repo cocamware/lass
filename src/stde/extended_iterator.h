@@ -90,17 +90,24 @@ public:
 	typedef typename Container::iterator iterator;
 
 	explicit overwrite_insert_iterator(container_type& container): 
-		container_(container),
+		container_(&container),
 		current_(container.begin())
 	{
 	}
 
+	self_type& operator=(const self_type& other)
+	{
+		container_ = other.container_;
+		current_ = other.current_;
+		return *this;
+	}
+
 	self_type& operator=(const value_type& value)
 	{
-		if (current_ == container_.end())
+		if (current_ == container_->end())
 		{
-			container_.push_back(value);
-			current_ = container_.end();
+			container_->push_back(value);
+			current_ = container_->end();
 		}
 		else
 		{
@@ -118,12 +125,12 @@ public:
 
 private:
 
-	container_type& container_;
+	container_type* container_;
 	iterator current_;
 };
 
 template <typename Container>
-overwrite_insert_iterator<Container> overwrite_insertor(Container& container)
+overwrite_insert_iterator<Container> overwrite_inserter(Container& container)
 {
 	return overwrite_insert_iterator<Container>(container);
 }
