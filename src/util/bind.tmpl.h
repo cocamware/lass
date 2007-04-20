@@ -74,6 +74,11 @@ $(#include "callback_$x.h"
 $(#include "callback_r_$x.h"
 )$
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // for size_t parameters ...
+#endif
+
 namespace lass
 {
 namespace util
@@ -250,6 +255,9 @@ bind(const Callback$x<$(P$x)$>& fun, $(X$x x$x)$)
 
 }
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 
