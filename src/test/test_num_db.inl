@@ -62,14 +62,12 @@ void testNumDb()
 	LASS_TEST_CHECK_CLOSE(num::dB2pow(T(0)), T(1), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2pow(T(10)), T(10), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2pow(T(20)), T(100), epsilon);
-	LASS_TEST_CHECK_EQUAL(num::dB2pow(-num::NumTraits<T>::infinity), T(0));
 
 	LASS_TEST_CHECK_CLOSE(num::dB2amp(T(-40)), T(0.01), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2amp(T(-20)), T(0.1), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2amp(T(0)), T(1), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2amp(T(20)), T(10), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2amp(T(40)), T(100), epsilon);
-	LASS_TEST_CHECK_EQUAL(num::dB2amp(-num::NumTraits<T>::infinity), T(0));
 
 
 
