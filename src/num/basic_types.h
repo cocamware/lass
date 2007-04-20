@@ -110,16 +110,18 @@ namespace impl
 {
 
 LASS_META_ASSERT(lass::bitsPerByte == 8, one_byte_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint8) * lass::bitsPerByte == 8, Tint8_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint8) * lass::bitsPerByte == 8, Tuint8_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint16) * lass::bitsPerByte == 16, Tint16_is_not_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint16) * lass::bitsPerByte == 16, Tuint16_is_not_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint32) * lass::bitsPerByte == 32, Tint32_is_not_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint32) * lass::bitsPerByte == 32, Tuint32_is_not_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint64) * lass::bitsPerByte == 64, Tint64_is_not_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint64) * lass::bitsPerByte == 64, Tuint64_is_not_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tfloat32) * lass::bitsPerByte == 32, Tfloat32_is_not_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tfloat64) * lass::bitsPerByte == 64, Tfloat64_is_not_64_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tint8) * lass::bitsPerByte == 8, Tint8_must_be_8_bits_);
+LASS_META_ASSERT(sizeof(lass::num::Tuint8) * lass::bitsPerByte == 8, Tuint8_must_be_8_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tint16) * lass::bitsPerByte == 16, Tint16_must_be_16_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tuint16) * lass::bitsPerByte == 16, Tuint16_must_be_16_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tint32) * lass::bitsPerByte == 32, Tint32_must_be_32_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tuint32) * lass::bitsPerByte == 32, Tuint32_must_be_32_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tint64) * lass::bitsPerByte == 64, Tint64_must_be_64_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tuint64) * lass::bitsPerByte == 64, Tuint64_must_be_64_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tfloat32) * lass::bitsPerByte == 32, Tfloat32_must_be_32_bits);
+LASS_META_ASSERT(sizeof(lass::num::Tfloat64) * lass::bitsPerByte == 64, Tfloat64_must_be_64_bits);
+LASS_META_ASSERT(sizeof(lass::num::TintPtr) == sizeof(void*), TintPtr_must_be_size_of_pointer);
+LASS_META_ASSERT(sizeof(lass::num::TuintPtr) == sizeof(void*), TuintPtr_must_be_size_of_pointer);
 
 }
 
