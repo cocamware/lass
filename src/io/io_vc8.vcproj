@@ -220,10 +220,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\io.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\io_common.cpp"
 				>
 				<FileConfiguration
