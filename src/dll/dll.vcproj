@@ -416,7 +416,6 @@ cd ..\dll
 <File RelativePath="..\..\src\io\.\binary_stream_base.cpp"></File>
 <File RelativePath="..\..\src\io\.\file_attribute.cpp"></File>
 <File RelativePath="..\..\src\io\.\image.cpp"></File>
-<File RelativePath="..\..\src\io\.\io.cpp"></File>
 <File RelativePath="..\..\src\io\.\io_common.cpp"></File>
 <File RelativePath="..\..\src\io\.\io_fwd.cpp"></File>
 <File RelativePath="..\..\src\io\.\keyboard.cpp"></File>
