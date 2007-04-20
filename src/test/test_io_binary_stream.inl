@@ -43,7 +43,7 @@ void testIoBinaryStream()
 {
 	using namespace io;
 
-	long a = 5;
+	num::Tint32 a = 5;
 	std::string b = "This is a test";
 
 	{
@@ -54,7 +54,7 @@ void testIoBinaryStream()
 
 	{
 	BinaryIFile testI("temp.txt");
-	long t;
+	num::Tint32 t;
 	std::string tstr;
 
 	testI >> t;

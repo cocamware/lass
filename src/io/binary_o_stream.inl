@@ -40,18 +40,18 @@ namespace io
 {
 
 template <typename T>
-BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& iIn)
+BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& x)
 {
 	typedef typename std::vector<T>::size_type size_type;
-	const size_type size = iIn.size();
-	const num::Tuint32 n = static_cast<unsigned>(size);
-	LASS_ASSERT(size == static_cast<size_t>(n));
+	const size_type size = x.size();
+	const num::Tuint64 n = static_cast<num::Tuint64>(size);
+	LASS_ASSERT(size == static_cast<size_type>(n));
 	*this << n;
 
 	for (size_type i = 0; i < size; ++i)
 	{
-		LASS_ASSERT(i < iIn.size());
-		*this << iIn[i];
+		LASS_ASSERT(i < x.size());
+		*this << x[i];
 	}
 	return *this;
 }
@@ -59,9 +59,9 @@ BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& iIn)
 
 
 template <typename T>
-BinaryOStream& BinaryOStream::operator<<(const std::complex<T>& iIn)
+BinaryOStream& BinaryOStream::operator<<(const std::complex<T>& x)
 {
-	*this << iIn.real() << iIn.imag();
+	*this << x.real() << x.imag();
 	return *this;
 }
 

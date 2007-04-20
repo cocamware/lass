@@ -53,63 +53,95 @@ long BinaryIStream::tellg() const
 
 
 
-BinaryIStream& BinaryIStream::seekg(long iPosition)
+BinaryIStream& BinaryIStream::seekg(long position)
 {
-	doSeekg(iPosition, std::ios_base::beg);
+	doSeekg(position, std::ios_base::beg);
 	return *this;
 }
 
 
 
-BinaryIStream& BinaryIStream::seekg(long iOffset, std::ios_base::seekdir iDirection)
+BinaryIStream& BinaryIStream::seekg(long offset, std::ios_base::seekdir directioin)
 {
-	doSeekg(iOffset, iDirection);
+	doSeekg(offset, directioin);
 	return *this;
 }
 
 
 
 #define LASS_IO_BINARY_I_STREAM_EXTRACTOR( type )\
-BinaryIStream& BinaryIStream::operator>>( type & oOut )\
+BinaryIStream& BinaryIStream::operator>>( type & x )\
 {\
-	type temp;\
-	doRead(&temp, sizeof(type));\
-	oOut = num::fixEndianness(temp, endianness());\
+	if (good())\
+	{\
+		type temp;\
+		doRead(&temp, sizeof(type));\
+		if (good())\
+		{\
+			x = num::fixEndianness(temp, endianness());\
+		}\
+	}\
 	return *this;\
 }
 
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(char)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(signed char)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(unsigned char)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(signed int)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(unsigned int)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(signed short)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(unsigned short)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(signed long)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(unsigned long)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(float)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(double)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(long double)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(bool)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(void*)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint8)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint8)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint16)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint16)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint32)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint32)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint64)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint64)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tfloat32)
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tfloat64)
 
-
-
-BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
+BinaryIStream& BinaryIStream::operator>>(bool& x)
 {
 	if (good())
 	{
-		num::Tuint32 n;
+		num::Tuint8 temp;
+		*this >> temp;
+		if (good())
+		{
+			x = temp ? true : false;
+		}
+	}
+	return *this;
+}
+
+BinaryIStream& BinaryIStream::operator>>(void*& x)
+{
+	if (good())
+	{
+		num::Tint64 temp;
+		*this >> temp;
+		if (good())
+		{
+#pragma LASS_FIXME("do something special here if cast causes truncation [Bramz]")
+			x = reinterpret_cast<void*>(static_cast<num::TintPtr>(temp));
+		}
+	}
+	return *this;
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( std::string& x )
+{
+	if (good())
+	{
+		num::Tuint64 n;
 		*this >> n;
 		size_t length = static_cast<size_t>(n);
-		LASS_ASSERT(n == static_cast<num::Tuint32>(n));
+#pragma LASS_FIXME("do something special if there's an overflow [Bramz]")
+		LASS_ASSERT(n == static_cast<num::Tuint64>(n));
 		if (good())
 		{
 			std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
 			doRead(&buffer[0], length);
 			if (good())
 			{
-				oOut = std::string(&buffer[0]);
+				x = std::string(&buffer[0]);
 			}
 		}
 	}
@@ -121,13 +153,13 @@ BinaryIStream& BinaryIStream::operator>>( std::string& oOut )
 /** read a number of bytes from stream to buffer
  *
  *  @param iBytes 
- *		pointer to buffer.  Must be able to contain at least @a iNumberOfBytes bytes.
- *  @param 
- *		iNumberOfBytes number of bytes to be read
+ *		pointer to buffer.  Must be able to contain at least @a numBytes bytes.
+ *  @param numBytes 
+ *		number of bytes to be read
  */
-void BinaryIStream::read(void* oOutput, size_t iNumberOfBytes)
+void BinaryIStream::read(void* output, size_t numBytes)
 {
-	doRead(oOutput, iNumberOfBytes);
+	doRead(output, numBytes);
 }
 
 

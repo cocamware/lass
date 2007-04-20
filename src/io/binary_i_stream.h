@@ -54,20 +54,18 @@ public:
 	BinaryIStream& seekg(long iPosition);
 	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
 
-	BinaryIStream& operator>>( char& oOut );
-	BinaryIStream& operator>>( signed char& oOut );
-	BinaryIStream& operator>>( unsigned char& oOut );
-	BinaryIStream& operator>>( signed short& oOut );
-	BinaryIStream& operator>>( unsigned short& oOut );
-	BinaryIStream& operator>>( signed int& oOut );
-	BinaryIStream& operator>>( unsigned int& oOut );
-	BinaryIStream& operator>>( signed long& oOut );
-	BinaryIStream& operator>>( unsigned long& oOut );
-	BinaryIStream& operator>>( float& oOut );
-	BinaryIStream& operator>>( double& oOut );
-	BinaryIStream& operator>>( long double& oOut );
-	BinaryIStream& operator>>( bool& oOut );
-	BinaryIStream& operator>>( void*& oOut );
+	BinaryIStream& operator>>( num::Tint8& x );
+	BinaryIStream& operator>>( num::Tuint8& x );
+	BinaryIStream& operator>>( num::Tint16& x );
+	BinaryIStream& operator>>( num::Tuint16& x );
+	BinaryIStream& operator>>( num::Tint32& x );
+	BinaryIStream& operator>>( num::Tuint32& x );
+	BinaryIStream& operator>>( num::Tint64& x );
+	BinaryIStream& operator>>( num::Tuint64& x );
+	BinaryIStream& operator>>( num::Tfloat32& x );
+	BinaryIStream& operator>>( num::Tfloat64& x );
+	BinaryIStream& operator>>( bool& x );
+	BinaryIStream& operator>>( void*& x );
 
 	BinaryIStream& operator>>( std::string& oOut );
 	template <typename T> BinaryIStream& operator>>( std::vector<T>& oOut );

@@ -53,17 +53,17 @@ long BinaryOStream::tellp() const
 
 
 
-BinaryOStream& BinaryOStream::seekp(long iPosition)
+BinaryOStream& BinaryOStream::seekp(long position)
 {
-	doSeekp(iPosition, std::ios_base::beg);
+	doSeekp(position, std::ios_base::beg);
 	return *this;
 }
 
 
 
-BinaryOStream& BinaryOStream::seekp(long iOffset, std::ios_base::seekdir iDirection)
+BinaryOStream& BinaryOStream::seekp(long offset, std::ios_base::seekdir direction)
 {
-	doSeekp(iOffset, iDirection);
+	doSeekp(offset, direction);
 	return *this;
 }
 
@@ -77,57 +77,63 @@ void BinaryOStream::flush()
 
 
 #define LASS_IO_BINARY_O_STREAM_INSERTOR( type )\
-BinaryOStream& BinaryOStream::operator<<( type iIn )\
+BinaryOStream& BinaryOStream::operator<<( type x )\
 {\
-	type temp = num::fixEndianness(iIn, endianness());\
+	type temp = num::fixEndianness(x, endianness());\
 	doWrite(&temp, sizeof(type));\
 	return *this;\
 }
 
-LASS_IO_BINARY_O_STREAM_INSERTOR(char)
-LASS_IO_BINARY_O_STREAM_INSERTOR(signed char)
-LASS_IO_BINARY_O_STREAM_INSERTOR(unsigned char)
-LASS_IO_BINARY_O_STREAM_INSERTOR(signed int)
-LASS_IO_BINARY_O_STREAM_INSERTOR(unsigned int)
-LASS_IO_BINARY_O_STREAM_INSERTOR(signed short)
-LASS_IO_BINARY_O_STREAM_INSERTOR(unsigned short)
-LASS_IO_BINARY_O_STREAM_INSERTOR(signed long)
-LASS_IO_BINARY_O_STREAM_INSERTOR(unsigned long)
-LASS_IO_BINARY_O_STREAM_INSERTOR(float)
-LASS_IO_BINARY_O_STREAM_INSERTOR(double)
-LASS_IO_BINARY_O_STREAM_INSERTOR(long double)
-LASS_IO_BINARY_O_STREAM_INSERTOR(bool)
-LASS_IO_BINARY_O_STREAM_INSERTOR(const void*)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint8)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint8)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint16)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint16)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint32)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint32)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint64)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint64)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tfloat32)
+LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tfloat64)
 
-BinaryOStream& BinaryOStream::operator<<(const char* iIn)
+BinaryOStream& BinaryOStream::operator<<(bool x)
 {
-	const size_t length = strlen(iIn);
-	const num::Tuint32 n = static_cast<unsigned>(length);
-	LASS_ASSERT(length == static_cast<size_t>(n));
-	*this << n;
+	return *this << (x ? num::Tuint8(1) : num::Tuint8(0));
+}
 
-	doWrite(iIn, length);
+BinaryOStream& BinaryOStream::operator<<(const void* x)
+{
+	return *this << static_cast<num::Tint64>(reinterpret_cast<num::TintPtr>(x));
+}
+
+BinaryOStream& BinaryOStream::operator<<(const char* x)
+{
+	writeString(x, strlen(x));
 	return *this;
 }
 
-BinaryOStream& BinaryOStream::operator<<(const std::string& iIn)
+BinaryOStream& BinaryOStream::operator<<(const std::string& x)
 {
-	const size_t length = iIn.length();
-	const num::Tuint32 n = static_cast<unsigned>(length);
-	LASS_ASSERT(length == static_cast<size_t>(n));
-	*this << n;
-
-	doWrite(iIn.c_str(), length);
+	writeString(x.data(), x.length());
 	return *this;
 }
 
 /** write a buffer of bytes to the stream
- *  @param iBytes pointer to buffer.
- *  @param iNumberOfBytes length of buffer in bytes.
+ *  @param bytes pointer to buffer.
+ *  @param numBytes length of buffer in bytes.
  */
-void BinaryOStream::write(const void* iBytes, size_t iNumberOfBytes)
+void BinaryOStream::write(const void* bytes, size_t numBytes)
 {
-	doWrite(iBytes, iNumberOfBytes);
+	doWrite(bytes, numBytes);
+}
+
+// --- private -------------------------------------------------------------------------------------
+
+void BinaryOStream::writeString(const char* string, size_t length)
+{
+	const num::Tuint64 n = static_cast<num::Tuint64>(length);
+	LASS_ASSERT(length == static_cast<size_t>(n));
+	*this << n;
+	doWrite(string, length);
 }
 
 }

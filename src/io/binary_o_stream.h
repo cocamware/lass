@@ -53,37 +53,37 @@ public:
 	~BinaryOStream();
 
 	long tellp() const;
-	BinaryOStream& seekp(long iPosition);
-	BinaryOStream& seekp(long iOffset, std::ios_base::seekdir iDirection); 
+	BinaryOStream& seekp(long position);
+	BinaryOStream& seekp(long offset, std::ios_base::seekdir direction); 
 	void flush();
 
-	BinaryOStream& operator<<( char iIn );
-	BinaryOStream& operator<<( signed char iIn );
-	BinaryOStream& operator<<( unsigned char iIn );
-	BinaryOStream& operator<<( signed short iIn );
-	BinaryOStream& operator<<( unsigned short iIn );
-	BinaryOStream& operator<<( signed int iIn );
-	BinaryOStream& operator<<( unsigned int iIn );
-	BinaryOStream& operator<<( signed long iIn );
-	BinaryOStream& operator<<( unsigned long iIn );
-	BinaryOStream& operator<<( float iIn );
-	BinaryOStream& operator<<( double iIn );
-	BinaryOStream& operator<<( long double iIn );
-	BinaryOStream& operator<<( bool iIn );
-	BinaryOStream& operator<<( const void* iIn );
-	BinaryOStream& operator<<( const char* iIn );
-	BinaryOStream& operator<<( const std::string& iIn );
-	template<typename T> BinaryOStream& operator<<( const std::vector<T>& iIn );
-	template<typename T> BinaryOStream& operator<<( const std::complex<T>& iIn );
+	BinaryOStream& operator<<( num::Tint8 x );
+	BinaryOStream& operator<<( num::Tuint8 x );
+	BinaryOStream& operator<<( num::Tint16 x );
+	BinaryOStream& operator<<( num::Tuint16 x );
+	BinaryOStream& operator<<( num::Tint32 x );
+	BinaryOStream& operator<<( num::Tuint32 x );
+	BinaryOStream& operator<<( num::Tint64 x );
+	BinaryOStream& operator<<( num::Tuint64 x );
+	BinaryOStream& operator<<( num::Tfloat32 x );
+	BinaryOStream& operator<<( num::Tfloat64 x );
+	BinaryOStream& operator<<( bool x );
+	BinaryOStream& operator<<( const void* x );
+	BinaryOStream& operator<<( const char* x );
+	BinaryOStream& operator<<( const std::string& x );
+	template<typename T> BinaryOStream& operator<<( const std::vector<T>& x );
+	template<typename T> BinaryOStream& operator<<( const std::complex<T>& x );
 
-	void write(const void* iBuffer, size_t iByteLength);
+	void write(const void* buffer, size_t byteLength);
 
 private:
 
+	void writeString(const char* string, size_t length);
+
 	virtual long doTellp() const = 0;
-	virtual void doSeekp(long iOffset, std::ios_base::seekdir iDirection) = 0;
+	virtual void doSeekp(long offset, std::ios_base::seekdir direction) = 0;
 	virtual void doFlush() = 0;
-	virtual void doWrite(const void* iBytes, size_t iNumberOfBytes) = 0;
+	virtual void doWrite(const void* bytes, size_t numberOfBytes) = 0;
 };
 
 }
