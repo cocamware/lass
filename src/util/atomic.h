@@ -28,12 +28,26 @@
 
 #include "util_common.h"
 #include "impl/atomic_impl.h"
+#include "../num/safe_bool.h"
+
+/** @defgroup atomic
+ *  @brief atomic operations and tools for lock-free algorithms
+ */
 
 namespace lass
 {
 namespace util
 {
 
+/** @ingroup atomic
+ *  
+ *  Performs the following pseudocode in an atomic way (no other threads can intervene):
+ *  @code
+ *      if (dest != expectedValue) return false;
+ *      dest = newValue;
+ *      return true;
+ *  @endcode
+ */
 template <typename T> inline 
 bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
 {
@@ -41,6 +55,17 @@ bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
 		== expectedValue;
 }
 
+
+
+/** @ingroup atomic
+ *  
+ *  Performs the following pseudocode in an atomic way (no other threads can intervene):
+ *  @code
+ *      if (dest != expectedValue) return false;
+ *      dest = newValue;
+ *      return true;
+ *  @endcode
+ */
 template <typename T> inline 
 bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
 {
@@ -48,6 +73,20 @@ bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
 		== expectedValue;
 }
 
+
+
+/** @ingroup atomic
+ *  
+ *  Performs the following pseudocode in an atomic way (no other threads can intervene):
+ *  @code
+ *      if (dest1 != expectedValue1 || *(T2*)(&dest1 + sizeof(T1)) != expected2) return false;
+ *      dest1 = new1;
+ *      dest2 = new2;
+ *      return true;
+ *  @endcode
+ *
+ *  Does not exist for 64-bit types (there's no 128-bit CAS).
+ */
 template <typename T1, typename T2> inline 
 bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 {
@@ -56,17 +95,103 @@ bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new
 		dest1, expected1, expected2, new1, new2);
 }
 
+
+
+/** @ingroup atomic
+ *  
+ *  Performs the following pseudocode in an atomic way (no other threads can intervene):
+ *  @code
+ *      ++value;
+ *  @endcode
+ */
 template <typename T> inline
 void atomicIncrement(T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::increment(value);
 }
 
+
+
+/** @ingroup atomic
+ *  
+ *  Performs the following pseudocode in an atomic way (no other threads can intervene):
+ *  @code
+ *      --value;
+ *  @endcode
+ */
 template <typename T> inline
 void atomicDecrement(T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::decrement(value);
 }
+
+
+
+/** Pointer with a tag for ABA salvation
+ *  @ingroup atomic
+ *  Some lock-free algorithms suffer from the ABA problem when acting on pointers.
+ *  This can be solved (read: be make very unlikely) by adding a tag to the pointer.
+ */
+template <typename T>
+class TaggedPtr
+{
+public:
+#if LASS_ACTUAL_ADDRESS_SIZE == 48
+	// We're in 64 bit space, but we don't have 128 bit CAS to do tagging ... Help!
+	// Luckely, only the least significant 48 bits of a pointer are really used.
+	// So, we have 16 bits we can fiddle with.  Should be enough for a counting tag.
+	// We store the the pointer in the most significant part for two reasons:
+	//	- order of the pointers is somewhat preserved
+	//	- we can use SAR to restore the sign bit.
+	//
+	typedef num::Tuint16 TTag;
+	TaggedPtr(): bits_(0) {}
+	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
+	T* const get() const 
+	{
+#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		T* ptr;
+		__asm__ __volatile__("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
+		return ptr;
+#	elif defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC)
+#		error Not implemented yet ...
+#	else
+		return (bits_ & 0xa000000000000000 == 0) ?
+			reinterpret_cast<T*>(bits_ >> 16) :
+			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
+#	endif
+	}
+	const TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
+	const bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	{
+		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
+	}
+private:
+	num::Tuint64 bits_;
+#else
+	// We're in 32 bit space, so we use a 64 bit CAS to do tagging
+	//
+	typedef num::TuintPtr TTag;
+	TaggedPtr(): ptr_(0), tag_(0) {}
+	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
+	T* const get() const { return ptr_; }
+	const TTag tag() const { return tag_; }
+	bool operator==(const TaggedPtr& other) const {	return ptr_ == other.ptr_ && tag_ == other.tag_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	{
+		return util::atomicCompareAndSwap(
+			ptr_, expected.ptr_, expected.tag_, fresh.ptr_, fresh.tag_);
+	}
+private:
+	T* ptr_;
+	TTag tag_;
+#endif
+public:
+	T* const operator->() const { LASS_ASSERT(get()); return get(); }
+	const bool operator!() const { return get() == 0; }
+	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
+};
 
 }
 }

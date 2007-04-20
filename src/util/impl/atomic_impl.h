@@ -38,10 +38,14 @@ namespace util
 namespace impl
 {
 
-/** @internal 
+/** @ingroup atomic
+ *  @internal 
  */
 template <int byteSize> struct AtomicOperations;
 
+/** @ingroup atomic
+ *  @internal 
+ */
 template <>
 struct AtomicOperations<1>
 {
@@ -149,6 +153,9 @@ struct AtomicOperations<1>
 
 // -------------------------------------------------------------------------------------------------
 
+/** @ingroup atomic
+ *  @internal 
+ */
 template <>
 struct AtomicOperations<2>
 {
@@ -259,6 +266,9 @@ struct AtomicOperations<2>
 
 // -------------------------------------------------------------------------------------------------
 
+/** @ingroup atomic
+ *  @internal 
+ */
 template <>
 struct AtomicOperations<4>
 {
@@ -362,6 +372,9 @@ struct AtomicOperations<4>
 
 // -------------------------------------------------------------------------------------------------
 
+/** @ingroup atomic
+ *  @internal 
+ */
 template <>
 struct AtomicOperations<8>
 {
