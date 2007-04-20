@@ -508,6 +508,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE, DWORD dwReason, LPVOID)
 		lass::util::impl::ThreadInternal::onThreadDetach();
 		break;
 	}
+	return TRUE;
 }
 
 #else
