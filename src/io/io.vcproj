@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject 
+<VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="io"
@@ -7,11 +7,11 @@
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
-		<Platform 
+		<Platform
 			Name="Win32"/>
 	</Platforms>
 	<Configurations>
-		<Configuration 
+		<Configuration
 			Name="win32_intel700|Win32"
 			OutputDirectory="win32_intel700"
 			IntermediateDirectory="win32_intel700"
@@ -20,7 +20,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2"
 			WholeProgramOptimization="FALSE">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="2"
@@ -48,60 +48,37 @@
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="3"
-					GlobalOptimizations="1"
-					InlineFunctionExpansion="2"
-					EnableIntrinsicFunctions="1"
-					FavorSizeOrSpeed="1"
-					OmitFramePointers="1"
-					OptimizeForProcessor="3"
-					UseProcExt="4"
-					RequireProcExt="4"
-					Parallelization="1"
-					StringPooling="0"
-					MinimalRebuild="0"
-					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="0"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="3"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700/lass_io_win32_intel700.lib&quot; /NOLOGO"/>
-			</Tool>
-			<Tool 
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"/>
+			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName=".\Release/io.tlb"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Collect library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;"/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="2067"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_intel700_d|Win32"
 			OutputDirectory="win32_intel700_d"
 			IntermediateDirectory="win32_intel700_d"
@@ -109,7 +86,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="0"
@@ -134,52 +111,37 @@
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					SmallerTypeCheck="1"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					BufferSecurityCheck="1"
-					EnableFunctionLevelLinking="1"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;io_common.h&quot; /Fp&quot;win32_intel700_d/lass_io_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_io_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="4"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700_d/lass_io_win32_intel700_d.lib&quot; /NOLOGO"/>
-			</Tool>
-			<Tool 
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"/>
+			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName=".\Debug/io.tlb"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Collect library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;"/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="2067"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_vc71_d|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -187,7 +149,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="0"
@@ -215,58 +177,39 @@
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					StringPooling="0"
-					MinimalRebuild="1"
-					SmallerTypeCheck="1"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					BufferSecurityCheck="1"
-					EnableFunctionLevelLinking="1"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;io_common.h&quot; /Fp&quot;win32_vc71_d/lass_io_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_io_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="4"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71_d/lass_io_win32_vc71_d.lib&quot; /NOLOGO"/>
-			</Tool>
-			<Tool 
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"/>
+			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName=".\Debug/io.tlb"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Collect library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;
 copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(TargetName).pdb&quot;
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="2067"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="1"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_vc71|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -274,7 +217,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="3"
@@ -304,269 +247,231 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="4"
-					GlobalOptimizations="1"
-					InlineFunctionExpansion="2"
-					EnableIntrinsicFunctions="1"
-					FavorSizeOrSpeed="1"
-					OmitFramePointers="1"
-					OptimizeForProcessor="3"
-					StringPooling="0"
-					MinimalRebuild="0"
-					RuntimeLibrary="2"
-					StructMemberAlignment="0"
-					EnableFunctionLevelLinking="0"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /Ox /Og /Ob2 /Oi /Ot /Oy /G7 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="3"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71/lass_io_win32_vc71.lib&quot; /NOLOGO"/>
-			</Tool>
-			<Tool 
+				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"/>
+			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName=".\Release/io.tlb"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Collect library file $(TargetFileName) ..."
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\lib\$(TargetFileName)&quot;
 copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(TargetName).pdb&quot;
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="2067"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="1"/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
-		<Filter 
+		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
-			<File 
+			<File
 				RelativePath="arg_parser.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="arg_parser.inl">
 			</File>
-			<File 
+			<File
 				RelativePath="avi.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_memory_block.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="binary_i_stream.inl">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="binary_o_stream.inl">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_stream_base.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="file_attribute.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="image.cpp">
 			</File>
-			<File 
-				RelativePath="io.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="io_common.cpp">
-				<FileConfiguration 
+				<FileConfiguration
 					Name="win32_intel700|Win32">
-					<Tool 
+					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
-						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /Oy /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;io_common.h&quot; /Fp&quot;win32_intel700/lass_io_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_io_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
-					</Tool>
+						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
-				<FileConfiguration 
+				<FileConfiguration
 					Name="win32_intel700_d|Win32">
-					<Tool 
+					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
-						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;io_common.h&quot; /Fp&quot;win32_intel700_d/lass_io_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_io_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"/>
-					</Tool>
+						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
-				<FileConfiguration 
+				<FileConfiguration
 					Name="win32_vc71_d|Win32">
-					<Tool 
+					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
-						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yc&quot;io_common.h&quot; /Fp&quot;win32_vc71_d/lass_io_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_io_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
-					</Tool>
+						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
-				<FileConfiguration 
+				<FileConfiguration
 					Name="win32_vc71|Win32">
-					<Tool 
+					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1">
-						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /Ox /Og /Ob2 /Oi /Ot /Oy /G7 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;io_common.h&quot; /Fp&quot;win32_vc71/lass_io_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_io_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
-					</Tool>
+						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
 			</File>
-			<File 
+			<File
 				RelativePath="io_fwd.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\keyboard.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="logger.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="proxy_i_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="proxy_man.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\proxy_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\xml_o_element.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath=".\xml_o_file.cpp">
 			</File>
-			<Filter 
+			<Filter
 				Name="impl"
 				Filter="">
-				<File 
+				<File
 					RelativePath=".\impl\socket_winsock.inl">
 				</File>
 			</Filter>
 		</Filter>
-		<Filter 
+		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
-			<File 
+			<File
 				RelativePath="arg_parser.h">
 			</File>
-			<File 
+			<File
 				RelativePath="avi.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_file.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_memory_block.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_socket.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_i_stream.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_file.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_socket.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_o_stream.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\binary_stream_base.h">
 			</File>
-			<File 
+			<File
 				RelativePath="file_attribute.h">
 			</File>
-			<File 
+			<File
 				RelativePath="image.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\io_common.h">
 			</File>
-			<File 
+			<File
 				RelativePath="io_fwd.h">
 			</File>
-			<File 
+			<File
 				RelativePath="logger.h">
 			</File>
-			<File 
+			<File
 				RelativePath="matlab_o_stream.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\proxy_i_stream.h">
 			</File>
-			<File 
+			<File
 				RelativePath="proxy_man.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\proxy_o_stream.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\socket.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\stream_base.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\xml_o_element.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\xml_o_file.h">
 			</File>
-			<File 
+			<File
 				RelativePath=".\xml_o_stream.h">
 			</File>
-			<Filter 
+			<Filter
 				Name="impl"
 				Filter="">
-				<File 
+				<File
 					RelativePath="impl\easyAVI.h">
 				</File>
 			</Filter>
@@ -575,4 +480,3 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 	<Globals>
 	</Globals>
 </VisualStudioProject>
-
