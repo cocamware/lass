@@ -736,12 +736,12 @@ namespace spat
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::deletePoint( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge)
 	{
-		if (iEdge->handle()->point_)
-			free(iEdge->handle()->point_);
+		if (iEdge->handle().point_)
+			free(iEdge->handle().point_);
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			(LASS_ENFORCE(currentEdge->handle()))->point_ = NULL;
+			currentEdge->handle().point_ = NULL;
 			currentEdge = currentEdge->oNext();
 		} while ( currentEdge != iEdge );
 		return true;
@@ -2039,8 +2039,8 @@ continueSearch:
 
 		TPoint2D*   na = make(a);
 		TPoint2D*   nb = make(b);
-		e->handle()->point_ = na;
-		e->sym()->handle()->point_ = nb;
+		e->handle().point_ = na;
+		e->sym()->handle().point_ = nb;
 
 		return e;
 	}
@@ -2116,13 +2116,13 @@ continueSearch:
 		{
 			LASS_THROW("PlanarMesh::org: edge not in primary mesh");
 		}
-		return *iEdge->handle()->point_;
+		return *iEdge->handle().point_;
 	}
 
 	TEMPLATE_DEF
 	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastOrg( TEdge* iEdge )
 	{
-		return *iEdge->handle()->point_;
+		return *iEdge->handle().point_;
 	}
 
 	TEMPLATE_DEF
@@ -2175,14 +2175,14 @@ continueSearch:
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setOrg( const TPoint2D& iPoint, TEdge* iEdge )
 	{
 		LASS_ASSERT( inPrimaryMesh( iEdge ) );
-		*iEdge->handle()->point_ = iPoint;
+		*iEdge->handle().point_ = iPoint;
 	}
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setDest( const TPoint2D& iPoint, TEdge* iEdge )
 	{
 		LASS_ASSERT( inPrimaryMesh( iEdge ) );
-		*iEdge->sym()->handle()->point_ = iPoint;
+		*iEdge->sym()->handle().point_ = iPoint;
 	}
 
 	TEMPLATE_DEF
@@ -2300,28 +2300,26 @@ continueSearch:
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::marking( TEdge* iEdge )
 	{
-		LASS_ENFORCE( iEdge->handle() );
 		return iEdge->handle()->mark_;
 	}
 
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::internalMarking( TEdge* iEdge )
 	{
-		LASS_ENFORCE( iEdge->handle() );
-		return iEdge->handle()->internalMark_[stackDepth_];
+		return iEdge->handle().internalMark_[stackDepth_];
 	}
 
 
 	TEMPLATE_DEF
 	PointHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandle( TEdge* iEdge )
 	{
-		return inPrimaryMesh( iEdge ) ? iEdge->handle()->pointHandle() : PointHandle();
+		return inPrimaryMesh( iEdge ) ? iEdge->handle().pointHandle() : PointHandle();
 	}
 
 	TEMPLATE_DEF
 	EdgeHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandle( TEdge* iEdge )
 	{
-		return inPrimaryMesh( iEdge ) ? iEdge->handle()->edgeHandle() : EdgeHandle();
+		return inPrimaryMesh( iEdge ) ? iEdge->handle().edgeHandle() : EdgeHandle();
 	}
 
 	TEMPLATE_DEF
@@ -2329,9 +2327,7 @@ continueSearch:
 	{
 		if ( inPrimaryMesh( iEdge ) )
 		{
-			ProxyHandle* temp = iEdge->rot()->handle();
-			if (temp)
-				return temp->faceHandle();
+			return iEdge->rot()->handle().faceHandle();
 		}
 		return FaceHandle();
 	}
@@ -2368,15 +2364,13 @@ continueSearch:
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setMarking( TEdge* iEdge, bool iMark )
 	{
-		LASS_ENFORCE( iEdge->handle() );
 		iEdge->handle()->mark_ = iMark;
 	}
 
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setInternalMarking( TEdge* iEdge, bool iMark )
 	{
-		LASS_ENFORCE( iEdge->handle() );
-		iEdge->handle()->internalMark_.set(stackDepth_, iMark);
+		iEdge->handle().internalMark_.set(stackDepth_, iMark);
 	}
 
 	TEMPLATE_DEF
@@ -2411,7 +2405,7 @@ continueSearch:
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			(LASS_ENFORCE(currentEdge->handle()))->pointHandle() = iHandle;
+			currentEdge->handle().pointHandle() = iHandle;
 			currentEdge = currentEdge->oNext();
 		} while ( currentEdge != iEdge );
 	}
@@ -2421,7 +2415,7 @@ continueSearch:
 	{
 		if (! inPrimaryMesh( iEdge ) )
 			throw std::runtime_error("setEdgeHandle : edge not in primary mesh");
-		iEdge->handle()->edgeHandle() = iHandle;
+		iEdge->handle().edgeHandle() = iHandle;
 	}
 
 	TEMPLATE_DEF
@@ -2433,7 +2427,7 @@ continueSearch:
 		TEdge*  currentEdge = iEdge;
 		do
 		{
-			(LASS_ENFORCE(currentEdge->rot()->handle()))->faceHandle() = iHandle;
+			currentEdge->rot()->handle().faceHandle() = iHandle;
 			if ( faceHandle( currentEdge ) != faceHandle( currentEdge->sym() ) )
 				currentEdge->quadEdge()->faceConstrain();
 			else

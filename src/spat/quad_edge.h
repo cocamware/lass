@@ -57,8 +57,8 @@ namespace spat
 			Edge* rPrev() { return sym()->oNext(); }
 
 			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
-			EdgeHandle* const handle() { return &edgeHandle_;}
-			const EdgeHandle* const handle() const { return &edgeHandle_; }
+			const EdgeHandle& handle() const { return edgeHandle_;}
+			EdgeHandle& handle() { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
 			bool isEdgeConstrained() const { return quadEdge()->isEdgeConstrained(); }
 			bool isFaceConstrained() const { return quadEdge()->isFaceConstrained(); }
@@ -66,8 +66,8 @@ namespace spat
 			int index() const { return index_; }
 		private:
 
-			Edge* next_;
 			EdgeHandle edgeHandle_;
+			Edge* next_;
 			int index_;
 		};
 
