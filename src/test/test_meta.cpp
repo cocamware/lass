@@ -31,6 +31,7 @@
 #include "../meta/meta_assert.h"
 #include "test_meta_type_list.inl"
 #include "test_meta_type_traits.inl"
+#include "test_meta_tuple.inl"
 #include "test_meta_various.inl"
 
 namespace lass
@@ -51,6 +52,7 @@ TUnitTests testMeta()
 	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<int>));
 	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<float>));
 	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<std::string>));
+	result.push_back(LASS_UNIT_TEST(testMetaTuple));
 	result.push_back(LASS_UNIT_TEST(testMetaIsConvertibleType));
 
 	return result;

@@ -49,7 +49,7 @@
 #include "../util/callback_r_1.h"
 #include "../util/small_object.h"
 #include "../io/matlab_o_stream.h"
-#include "../meta/null_type.h"
+#include "../meta/tuple.h"
 
 #define DEBUG_MESH	0
 
@@ -68,41 +68,6 @@ namespace spat
 		TEMPLATE_DEF class EdgeToMatlab;
 		TEMPLATE_DEF class EdgeGatherer;
 		TEMPLATE_DEF class EdgeMarker;
-	
-		template < typename PointHandle, typename EdgeHandle, typename FaceHandle >
-		class HandleHolder
-		{
-		public:
-			HandleHolder() : pointHandle_(), edgeHandle_(), faceHandle_() {}
-			const PointHandle	pointHandle() const { return pointHandle_; }
-			const EdgeHandle	edgeHandle() const { return edgeHandle_; }
-			const FaceHandle	faceHandle() const { return faceHandle_; }
-			PointHandle&		pointHandle(){ return pointHandle_; }
-			EdgeHandle&			edgeHandle() { return edgeHandle_; }
-			FaceHandle&			faceHandle() { return faceHandle_; }
-		private:
-			PointHandle	pointHandle_;
-			EdgeHandle	edgeHandle_;
-			FaceHandle	faceHandle_;
-		};
-
-		template < typename PointHandle >
-		class HandleHolder< PointHandle, lass::meta::NullType, lass::meta::NullType > 
-		{
-		public:
-			typedef lass::meta::NullType EdgeHandle;
-			typedef lass::meta::NullType FaceHandle;
-			HandleHolder() : pointHandle_(NULL) {}
-			const PointHandle	pointHandle() const { return pointHandle_; }
-			const EdgeHandle	edgeHandle() const { return lass::meta::NullType::Null(); }
-			const FaceHandle	faceHandle() const { return lass::meta::NullType::Null(); }
-			PointHandle&		pointHandle(){ return pointHandle_; }
-			EdgeHandle&			edgeHandle() { return lass::meta::NullType::Null(); }
-			FaceHandle&			faceHandle() { return lass::meta::NullType::Null(); }
-		private:
-			PointHandle	pointHandle_;
-		};
-
 	}
 
 	namespace experimental
@@ -179,12 +144,22 @@ namespace spat
 
 		static const int PLANAR_MESH_STACK_DEPTH = TBitField::size;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
 	private:
-		struct ProxyHandle : public impl::HandleHolder<PointHandle, EdgeHandle, FaceHandle> 
+		struct ProxyHandle: private meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)>
 		{
 			TPoint2D* point_;
 			TBitField internalMark_;
 			bool mark_;
-			ProxyHandle() : point_(NULL), internalMark_(0x00), mark_(false) {}
+
+			ProxyHandle(): point_(NULL), internalMark_(0x00), mark_(false) {}
+			const PointHandle&	pointHandle() const { return meta::tuple::field<0>(static_cast<const THandles&>(*this)); }
+			const EdgeHandle&	edgeHandle() const { return meta::tuple::field<1>(static_cast<const THandles&>(*this)); }
+			const FaceHandle&	faceHandle() const { return meta::tuple::field<2>(static_cast<const THandles&>(*this)); }
+			PointHandle&		pointHandle() { return meta::tuple::field<0>(static_cast<THandles&>(*this)); }
+			EdgeHandle&			edgeHandle() { return meta::tuple::field<1>(static_cast<THandles&>(*this)); }
+			FaceHandle&			faceHandle() { return meta::tuple::field<2>(static_cast<THandles&>(*this)); }
+
+		private:
+			typedef meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)> THandles;
 		};
 		class StackIncrementer
 		{

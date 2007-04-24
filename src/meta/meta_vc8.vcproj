@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tuple.h"
+				>
+			</File>
+			<File
 				RelativePath=".\type_2_type.h"
 				>
 			</File>

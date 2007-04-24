@@ -264,6 +264,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\test_meta_tuple.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\test_meta_type_list.inl"
 				>
 			</File>
@@ -386,6 +390,20 @@
 			<File
 				RelativePath=".\test_spat.cpp"
 				>
+				<FileConfiguration
+					Name="win32_vc8_d|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="win32_vc8|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\test_spat_aabb_tree.inl"
