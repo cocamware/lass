@@ -142,24 +142,27 @@ namespace spat
 		typedef lass::prim::Triangle2D<T> TTriangle2D;
 		typedef experimental::BitField<num::Tuint32> TBitField;
 
-		static const int PLANAR_MESH_STACK_DEPTH = TBitField::size;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
+		static const int PLANAR_MESH_STACK_DEPTH = TBitField::size - 1;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
+		enum 
+		{
+			stackDepth = TBitField::size - 1,
+			publicMarkIndex = TBitField::size - 1 
+		};
 	private:
 		struct ProxyHandle: private meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)>
 		{
+			typedef meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)> THandles;
+
 			TPoint2D* point_;
 			TBitField internalMark_;
-			bool mark_;
 
-			ProxyHandle(): point_(NULL), internalMark_(0x00), mark_(false) {}
+			ProxyHandle(): point_(NULL), internalMark_(0x00) {}
 			const PointHandle&	pointHandle() const { return meta::tuple::field<0>(static_cast<const THandles&>(*this)); }
 			const EdgeHandle&	edgeHandle() const { return meta::tuple::field<1>(static_cast<const THandles&>(*this)); }
 			const FaceHandle&	faceHandle() const { return meta::tuple::field<2>(static_cast<const THandles&>(*this)); }
 			PointHandle&		pointHandle() { return meta::tuple::field<0>(static_cast<THandles&>(*this)); }
 			EdgeHandle&			edgeHandle() { return meta::tuple::field<1>(static_cast<THandles&>(*this)); }
 			FaceHandle&			faceHandle() { return meta::tuple::field<2>(static_cast<THandles&>(*this)); }
-
-		private:
-			typedef meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)> THandles;
 		};
 		class StackIncrementer
 		{
@@ -2300,7 +2303,7 @@ continueSearch:
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::marking( TEdge* iEdge )
 	{
-		return iEdge->handle()->mark_;
+		return iEdge->handle().internalMark_[publicMarkIndex];
 	}
 
 	TEMPLATE_DEF
@@ -2364,7 +2367,7 @@ continueSearch:
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setMarking( TEdge* iEdge, bool iMark )
 	{
-		iEdge->handle()->mark_ = iMark;
+		iEdge->handle().internalMark_.set(publicMarkIndex, iMark);
 	}
 
 	TEMPLATE_DEF

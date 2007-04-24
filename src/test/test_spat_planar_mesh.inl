@@ -291,6 +291,13 @@ void doTestPlanarMesh()
 	typedef TPlanarMesh::TEdge      TEdge;
 	typedef TPlanarMeshLong::TPoint2D   TPoint2DLong;
 
+	LASS_EVAL(sizeof(TPlanarMesh::TQuadEdge));
+	LASS_EVAL(sizeof(TPlanarMesh::TQuadEdge::Edge));
+	LASS_EVAL(sizeof(TPlanarMesh::TQuadEdge::TEdgeHandle));
+	LASS_EVAL(sizeof(TPlanarMesh::TQuadEdge::TEdgeHandle::THandles));
+	LASS_EVAL(sizeof(TPlanarMesh::TBitField));
+	LASS_EVAL(sizeof(TPoint2D));
+
 	TPlanarMesh		voronoiTest(TPoint2D(0,0), TPoint2D(100,0), TPoint2D(100,100), TPoint2D(0,100));
 	for (int x=10;x<90;x+=10)
 	{

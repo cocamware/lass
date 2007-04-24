@@ -38,6 +38,8 @@ namespace spat
 	class QuadEdge
 	{
 	public:
+		typedef EdgeHandle TEdgeHandle;
+
 		class Edge
 		{
 			friend class QuadEdge<EdgeHandle>;
