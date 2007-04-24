@@ -42,8 +42,7 @@ namespace spat
 		{
 			friend class QuadEdge<EdgeHandle>;
 		public:
-			Edge() : next_(NULL), edgeHandle_(new EdgeHandle) {}
-			~Edge() { dispose(); }
+			Edge() : next_(NULL) {}
 
 			Edge* rot()   { return (index_ < 3) ? this + 1 : this - 3; }
 			Edge* invRot(){ return (index_ > 0) ? this - 1 : this + 3; }
@@ -58,23 +57,26 @@ namespace spat
 			Edge* rPrev() { return sym()->oNext(); }
 
 			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
-			EdgeHandle*&    handle() { return edgeHandle_;}
-			EdgeHandle const* const handle() const { return edgeHandle_; }
+			EdgeHandle* const handle() { return &edgeHandle_;}
+			const EdgeHandle* const handle() const { return &edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }
 			bool isEdgeConstrained() const { return quadEdge()->isEdgeConstrained(); }
 			bool isFaceConstrained() const { return quadEdge()->isFaceConstrained(); }
 
 			int index() const { return index_; }
-			void dispose()	  { delete edgeHandle_; edgeHandle_ = NULL;}
 		private:
-			Edge*           next_;
-			EdgeHandle*     edgeHandle_;
-			int             index_;
+
+			Edge* next_;
+			EdgeHandle edgeHandle_;
+			int index_;
 		};
 
 	public:
 		QuadEdge(bool makeConstrained=false);
+		QuadEdge(const QuadEdge& other);
 		~QuadEdge();
+		QuadEdge& operator=(const QuadEdge& other);
+
 		void    edgeConstrain();
 		void    edgeDeconstrain();
 		void    faceConstrain();
@@ -83,12 +85,15 @@ namespace spat
 		bool    isEdgeConstrained() const;
 		bool    isFaceConstrained() const;
 		Edge*   edges();
-		void	dispose();	/**< disposes all the edgehandles */
 
 		static void splice( Edge* a, Edge* b);
 
 	private:
 		// don't touch the position of the edges_, they must be the first data type in the POD or else you will be crucified!
+
+		void initEdges();
+		void copyEdges(const QuadEdge& other);
+
 		Edge    edges_[4];
 		bool    edgeConstrained_;       /**< the edge is forced into the mesh, stay off! */
 		bool    faceConstrained_;       /**< the faces adjacent the edge have their handles set differently, cannot do stuff with the edge! */
@@ -100,20 +105,22 @@ namespace spat
 	{
 		edgeConstrained_ = makeEdgeConstrained;
 		faceConstrained_ = false;
-		for (int i=0;i<4;++i)
-			edges_[i].index_ = i;
-		edges_[0].next_ = &edges_[0];
-		edges_[1].next_ = &edges_[3];
-		edges_[2].next_ = &edges_[2];
-		edges_[3].next_ = &edges_[1];
+		initEdges();
 	}
 
-	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::dispose()
+	template< typename EdgeHandle > QuadEdge<EdgeHandle>::QuadEdge(const QuadEdge& other):
+		edgeConstrained_(other.edgeConstrained_),
+		faceConstrained_(other.faceConstrained_)
 	{
-		for (int i=0;i<4;++i)
-			edges_[i].dispose();
+		initEdges();
+		copyEdges(other);
 	}
 
+	template< typename EdgeHandle > QuadEdge<EdgeHandle>& QuadEdge<EdgeHandle>::operator=(const QuadEdge& other)
+	{
+		copyEdges(other);
+		return *this;
+	}
 
 	template< typename EdgeHandle > QuadEdge<EdgeHandle>::~QuadEdge()
 	{
@@ -221,6 +228,22 @@ namespace spat
 		return sym()->oNext();
 	}
 	*/
+
+	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::initEdges()
+	{
+		for (int i=0;i<4;++i)
+			edges_[i].index_ = i;
+		edges_[0].next_ = &edges_[0];
+		edges_[1].next_ = &edges_[3];
+		edges_[2].next_ = &edges_[2];
+		edges_[3].next_ = &edges_[1];
+	}
+
+	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::copyEdges(const QuadEdge& other)
+	{
+		for (int i=0;i<4;++i)
+			edges_[i].edgeHandle_ = other.edges_[i].edgeHandle_;
+	}
 }
 
 }

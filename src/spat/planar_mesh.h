@@ -70,7 +70,7 @@ namespace spat
 		TEMPLATE_DEF class EdgeMarker;
 	
 		template < typename PointHandle, typename EdgeHandle, typename FaceHandle >
-		class HandleHolder : public lass::util::SmallObject<16384,64,unsigned char>
+		class HandleHolder
 		{
 		public:
 			HandleHolder() : pointHandle_(), edgeHandle_(), faceHandle_() {}
@@ -87,7 +87,7 @@ namespace spat
 		};
 
 		template < typename PointHandle >
-		class HandleHolder< PointHandle, lass::meta::NullType, lass::meta::NullType > // [this is too slow for really large meshes]: public lass::util::SmallObject<16384,64,unsigned char>
+		class HandleHolder< PointHandle, lass::meta::NullType, lass::meta::NullType > 
 		{
 		public:
 			typedef lass::meta::NullType EdgeHandle;
@@ -102,10 +102,70 @@ namespace spat
 		private:
 			PointHandle	pointHandle_;
 		};
+
+	}
+
+	namespace experimental
+	{
+		struct ObjectAllocator: 
+			private util::AllocatorThrow<
+				util::AllocatorBinned<
+					util::AllocatorSimpleBlock<>, 512
+				>
+			>		
+		{
+			template <typename T> T* const make(const T& x)
+			{
+				T* const p = static_cast<T*>(allocate(sizeof(T)));
+				new (p) T(x);
+				return p;
+			}
+			template <typename T> void free(T* p)
+			{
+				if (p)
+				{
+					p->~T();
+					deallocate(p, sizeof(T));
+				}
+			}
+		};
+
+		template <typename T> 
+		class BitField
+		{
+		public:
+			enum { size = 8 * sizeof(T) };
+			BitField(T bits = 0x0): bits_(bits) {}
+			const bool operator[](size_t i) 
+			{ 
+				return bits_ & mask(i) ? true : false; 
+			}
+			void set(size_t i) 
+			{ 
+				bits_ |= mask(i); 
+			}
+			void set(size_t i, bool value) 
+			{ 
+				const T m = mask(i); 
+				bits_ &= ~m; 
+				bits_ |= (value ? m : 0);
+			}
+			void unset(size_t i)
+			{
+				bits_ &= ~mask(i);
+			}
+		private:
+			const T mask(size_t i)
+			{
+				LASS_ASSERT(i < size);
+				return 1 << i;
+			}
+			T bits_;
+		};
 	}
 
 	TEMPLATE_DEF
-	class PlanarMesh
+	class PlanarMesh: private experimental::ObjectAllocator 
 	{
 	public:
 		typedef lass::prim::Point2D<T> TPoint2D;
@@ -115,16 +175,16 @@ namespace spat
 		typedef lass::prim::LineSegment2D<T> TLineSegment2D;
 		typedef lass::prim::SimplePolygon2D<T> TSimplePolygon2D;
 		typedef lass::prim::Triangle2D<T> TTriangle2D;
+		typedef experimental::BitField<num::Tuint32> TBitField;
 
-		static const int PLANAR_MESH_STACK_DEPTH = 4;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
+		static const int PLANAR_MESH_STACK_DEPTH = TBitField::size;   /**< this determines the maximum nesting depth of forAllVertices and forAllFaces */
 	private:
 		struct ProxyHandle : public impl::HandleHolder<PointHandle, EdgeHandle, FaceHandle> 
 		{
-			TPoint2D*       point_;
-//#pragma LASS_TODO("Use a long for amortized marking but reuse it for the stack by using the individual bits")
-			std::vector<bool>   internalMark_;
-			bool            mark_;
-			ProxyHandle() : point_(NULL), mark_(false) { internalMark_ = std::vector<bool>(PLANAR_MESH_STACK_DEPTH,false); }
+			TPoint2D* point_;
+			TBitField internalMark_;
+			bool mark_;
+			ProxyHandle() : point_(NULL), internalMark_(0x00), mark_(false) {}
 		};
 		class StackIncrementer
 		{
@@ -263,13 +323,13 @@ namespace spat
 		friend class impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle>;
 
 		bool internalMarking( TEdge* iEdge );
-		static bool deletePoint( TEdge* e);
+		bool deletePoint( TEdge* e);
 		void setInternalMarking( TEdge* iEdge, bool iMark );
 		void setInternalMarkingAroundVertex( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
-		
+
 #ifndef NDEBUG
 	public:
 		static unsigned numSetOrientedEdgeHandleCalls;
@@ -702,7 +762,7 @@ namespace spat
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::deletePoint( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge)
 	{
 		if (iEdge->handle()->point_)
-			delete iEdge->handle()->point_;
+			free(iEdge->handle()->point_);
 		TEdge*  currentEdge = iEdge;
 		do
 		{
@@ -715,21 +775,20 @@ namespace spat
 	TEMPLATE_DEF
 	PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::~PlanarMesh( )
 	{
-		forAllVertices( deletePoint );
+		forAllVertices( TEdgeCallback(this, &PlanarMesh::deletePoint) );
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
 			(*qIt)->edgeDeconstrain();
 			(*qIt)->faceDeconstrain();
-			(*qIt)->dispose();
-			delete *qIt;
+			free(*qIt);
 		}
 	}
 
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeEmptyEdge( bool makeConstrained )
 	{
-		TQuadEdge* qe = new TQuadEdge(makeConstrained);
+		TQuadEdge* qe = make(TQuadEdge(makeConstrained));
 		quadEdgeList_.push_back( qe );
 		edgeCount_ += 2;
 		
@@ -951,9 +1010,8 @@ namespace spat
 		TQuadEdge* qe = quadEdgeList_.back();
 		qe->edgeDeconstrain();
 		qe->faceDeconstrain();
-		qe->dispose();
 		quadEdgeList_.pop_back();
-		delete qe;
+		free(qe);
 
 		edgeCount_ -= 2;
 		return true;
@@ -2004,8 +2062,8 @@ continueSearch:
 	{
 		TEdge* e(makeEmptyEdge( makeConstrained ));
 
-		TPoint2D*   na(new TPoint2D( a ));
-		TPoint2D*   nb(new TPoint2D( b ));
+		TPoint2D*   na = make(a);
+		TPoint2D*   nb = make(b);
 		e->handle()->point_ = na;
 		e->sym()->handle()->point_ = nb;
 
@@ -2343,7 +2401,7 @@ continueSearch:
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::setInternalMarking( TEdge* iEdge, bool iMark )
 	{
 		LASS_ENFORCE( iEdge->handle() );
-		iEdge->handle()->internalMark_[stackDepth_] = iMark;
+		iEdge->handle()->internalMark_.set(stackDepth_, iMark);
 	}
 
 	TEMPLATE_DEF
@@ -2554,6 +2612,8 @@ continueSearch:
 			}
 		}
 	}
+
+
 
 #ifndef NDEBUG
 	TEMPLATE_DEF unsigned PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::numSetOrientedEdgeHandleCalls = 0;

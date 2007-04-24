@@ -900,6 +900,105 @@ private:
 	TTaggedPtr top_;
 };
 
+
+
+/** A simple fixed-size block allocator
+ *	@ingroup Allocator
+ *	@arg concept: FixedAllocator
+ *	@arg thread UNSAFE.
+ *	@arg not copy-constructible, not assignable
+ *  @arg The blocks are only deallocated at destruction time to simplify the allocation/deallocation logic.
+ *      However, nodes that are deallocate can still be reused.
+ *  @arg It is NOT SAFE to deallocate memory using another instance of AllocatorSimpleBlock than the one
+ *      used to allocate it.
+ */
+template 
+<
+	size_t requestedBlockSize = 8192,
+	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
+>
+class AllocatorSimpleBlock: public FixedAllocator
+{
+public:
+	AllocatorSimpleBlock(size_t size):
+		FixedAllocator(blockSize(size, 0, 0)),
+		blocks_(0),
+		pool_(0)
+	{
+		blockSize(size, &size_, &allocationsPerBlock_);
+	}
+	~AllocatorSimpleBlock()
+	{
+		while (blocks_)
+		{
+			Node* const node = blocks_;
+			blocks_ = node->next;
+			FixedAllocator::deallocate(node);
+		}
+	}
+	void* allocate()
+	{
+		if (!pool_ && !grow())
+		{
+			return 0;
+		}
+		LASS_ASSERT(pool_);
+		Node* p = pool_;
+		pool_ = p->next;
+		return p;
+	}
+	void deallocate(void* pointer)
+	{
+		Node* p = static_cast<Node*>(pointer);
+		p->next = pool_;
+		pool_ = p;
+	}
+
+private:
+	
+	struct Node
+	{
+		Node* next;
+	};
+
+	const bool grow()
+	{
+		char* mem = static_cast<char*>(FixedAllocator::allocate());
+		if (!mem)
+		{
+			return false;
+		}
+		Node* const block = reinterpret_cast<Node*>(mem);
+		block->next = blocks_;
+		blocks_ = block;
+		mem += sizeof(Node);
+		for (size_t i = 0; i < allocationsPerBlock_; ++i)
+		{
+			deallocate(mem); // pushes in pool
+			mem += size_;
+		}
+		return true;
+	}
+	static const size_t blockSize(size_t size, size_t* pSize, size_t* pAllocationsPerBlock)
+	{
+		size = std::max(sizeof(Node), size);
+		const size_t maxBlockSize = std::max(sizeof(Node), requestedBlockSize);
+		const size_t allocationsPerBlock = std::max(size_t(1), (maxBlockSize - sizeof(Node)) / size);
+		const size_t blockSize = sizeof(Node) + allocationsPerBlock * size;
+		if (pSize) *pSize = size;
+		if (pAllocationsPerBlock) *pAllocationsPerBlock = allocationsPerBlock;
+		return blockSize;
+	}
+
+	AllocatorSimpleBlock(const AllocatorSimpleBlock&);
+	AllocatorSimpleBlock& operator=(const AllocatorSimpleBlock&);
+
+	Node* blocks_;
+	Node* pool_;
+	size_t size_;
+	size_t allocationsPerBlock_;
+};
+
 }
 }
 

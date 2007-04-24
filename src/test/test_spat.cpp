@@ -53,6 +53,9 @@ TUnitTests testSpat()
 
 	typedef void(*TTestCase)();
 
+	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
+	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
+
 	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
 	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
@@ -69,9 +72,6 @@ TUnitTests testSpat()
 
 	result.push_back(LASS_UNIT_TEST(doTestQuadTree));
 	result.push_back(LASS_UNIT_TEST(doTestOctTree));
-
-	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
-	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
 
 	return result;
 }
