@@ -75,22 +75,8 @@ namespace impl
 	template <typename TupleType, size_t i, typename ReturnType> struct Accessor;
 
 	template <typename Head, typename Tail, size_t i, typename ReturnType>
-	struct Accessor<Tuple< TypeList<Head, Tail> >, i, ReturnType>
-	{
-		typedef Tuple< TypeList<Head, Tail> > TTuple;
-		static ReturnType& access(TTuple& tuple)
-		{
-			typedef Tuple<Tail> TTailTuple;
-			TTailTuple& tail = static_cast<TTailTuple&>(tuple);
-			return Accessor<TTailTuple, i - 1, ReturnType>::access(tuple);
-		}
-		static const ReturnType& access(const TTuple& tuple)
-		{
-			typedef Tuple<Tail> TTailTuple;
-			const TTailTuple& tail = static_cast<const TTailTuple&>(tuple);
-			return Accessor<TTailTuple, i - 1, ReturnType>::access(tuple);
-		}
-	};
+	struct Accessor<Tuple< TypeList<Head, Tail> >, i, ReturnType>:
+		public Accessor<Tuple<Tail>, i - 1, ReturnType> {};
 
 	template <typename Head, typename Tail, typename ReturnType>
 	struct Accessor<Tuple< TypeList<Head, Tail> >, 0, ReturnType>
