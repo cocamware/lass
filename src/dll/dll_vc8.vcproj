@@ -130,6 +130,93 @@
 				PreprocessorDefinitions="LASS_BUILD_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;DLL_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
+				DefaultCharIsUnsigned="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\lass_$(ConfigurationName).dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="exporting files"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)..\bin&quot; /Y&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(SolutionDir)..\lib&quot; /Y&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.h&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)*.inl&quot; &quot;$(SolutionDir)..\lass&quot; /E /I /R /Y&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="win32_vc8_sse2|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="generating source code"
+				CommandLine="cd ..\util&#x0D;&#x0A;pre_build.py&#x0D;&#x0A;cd ..\dll&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				PreprocessorDefinitions="LASS_BUILD_DLL;WIN32;NDEBUG;_WINDOWS;_USRDLL;DLL_VC8_EXPORTS"
+				StringPooling="true"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="0"
