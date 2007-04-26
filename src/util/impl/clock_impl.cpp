@@ -33,6 +33,8 @@
 #if defined(LASS_UTIL_CLOCK_WIN32)
 #	pragma LASS_NOTE("util::Clock: using win32 implementation")
 
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 namespace lass
@@ -45,10 +47,8 @@ namespace impl
 const ClockImpl::TTick ClockImpl::frequency()
 {
 	TTick result;
-	if (!QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&result)))
-	{
-		LASS_THROW("Hardware does not support a high-resolution performance counter.");
-	}
+	LASS_ENFORCE_WINAPI(QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&result)))
+		("Hardware does not support a high-resolution performance counter.");
 	return result;
 }
 
@@ -57,7 +57,7 @@ const ClockImpl::TTick ClockImpl::frequency()
 const ClockImpl::TTick ClockImpl::tick()
 {
 	TTick result;
-	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&result));
+	LASS_ENFORCE_WINAPI(QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&result)));
 	return result;
 }
 

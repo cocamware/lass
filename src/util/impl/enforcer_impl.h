@@ -163,6 +163,27 @@ struct ComPredicate
 };
 
 
+#ifdef LASS_HAS_GETLASTERROR
+
+/** Predicate for calls to the Windows API that return 0 on error _and_ have GetLastError() != 0.
+ *  @internal
+ *  @author Bram de Greve[Bramz]
+ *
+ *  This predicate checks if the return value of the function.  If it is zero, there possibly is
+ *  an error.  It then also checks GetLastError().  If that one differs from zero, an error indeed happened.
+ */
+struct WinAPIPredicate
+{
+	template <typename T>
+	static bool LASS_CALL wrong(const T& returnCode)
+	{
+		return returnCode == 0 && lass_GetLastError() != 0;
+	}
+};
+
+#endif
+
+
 
 /** Predicate for index checking, used by LASS_ENFORCE_INDEX
  *  @internal
@@ -327,6 +348,30 @@ struct ComRaiser
 	}
 };
 
+
+
+#ifdef LASS_HAS_GETLASTERROR
+
+/** Throws an exception using GetLastError() and FormatMessage().
+ *  @internal
+ *  @author Bram de Greve
+ *  @arg only available on Windows platform
+ */
+struct LastErrorRaiser
+{
+ 	template <typename T>
+	static void raise(const T& /*iRc*/, const std::string& iMessage, const char* iLocus)
+	{
+		std::ostringstream buffer;
+		const unsigned lastError = lass_GetLastError();
+		buffer << "Function call " << iLocus << " failed with last-error: ("
+			<< lastError << ") " << lass_FormatMessage(lastError);
+		raiserAddMessage(buffer, iMessage);
+		LASS_THROW(buffer.str());
+	}
+};
+
+#endif
 
 
 /** Throw a range error for LASS_ENFORCE_INDEX.

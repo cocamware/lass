@@ -317,6 +317,91 @@ bool checkMaskedSome(T a_bits, const T& a_mask)
 }
 
 
+
+namespace impl
+{
+	/** lookup table of number of bits in a byte
+	 *  @ingroup BitManip
+	 *  @internal
+	 */
+	const size_t bitsInByte[256] = 
+	{
+		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+	};
+
+	/** countBits helper 
+	 *  @ingroup BitManip
+	 *  @internal
+	 */
+	template <size_t numBytes> struct BitCounter;
+
+	template <>
+	struct BitCounter<1>
+	{
+		template <typename T> static const size_t count(T bits)
+		{
+			return bitsInByte[(num::Tuint8) bits];
+		}
+	};
+
+	template <>
+	struct BitCounter<2>
+	{
+		template <typename T> static const size_t count(T bits)
+		{
+			const num::Tuint16 x = (num::Tuint16) bits;
+			return impl::bitsInByte[x >> 8] + impl::bitsInByte[x & 0xff];
+		}
+	};
+
+	template <>
+	struct BitCounter<4>
+	{
+		template <typename T> static const size_t count(T bits)
+		{
+			const num::Tuint32 x = (num::Tuint32) bits;
+			return impl::bitsInByte[x >> 24] + impl::bitsInByte[(x >> 16) & 0xff] + 
+				impl::bitsInByte[(x >> 8) & 0xff] + impl::bitsInByte[x & 0xff];
+		}
+	};
+
+	template <>
+	struct BitCounter<8>
+	{
+		template <typename T> static const size_t count(T bits)
+		{
+			const num::Tuint64 x = (num::Tuint64) bits;
+			return impl::bitsInByte[x >> 56] + impl::bitsInByte[(x >> 48) & 0xff] +
+				impl::bitsInByte[(x >> 40) & 0xff] + impl::bitsInByte[(x >> 32) & 0xff] +
+				impl::bitsInByte[(x >> 24) & 0xff] + impl::bitsInByte[(x >> 16) & 0xff] +
+				impl::bitsInByte[(x >> 8) & 0xff] + impl::bitsInByte[x & 0xff];
+		}
+	};
+}
+
+/** returns number of set bits in @a bits
+ *  @ingroup BitManip
+ */
+template <typename T> inline const size_t countBits(T bits)
+{
+	return impl::BitCounter<sizeof T>::count(bits);
+}
+
 }
 
 }

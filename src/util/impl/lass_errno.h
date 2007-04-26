@@ -23,6 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/** @defgroup LassErrno
+ *  @internal
+ *	@brief shields some last-error and error messages functions.
+ */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ERRNO_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_LASS_ERRNO_H
@@ -39,7 +43,15 @@ namespace impl
 const int lass_errno();
 void lass_reset_errno();
 const std::string lass_strerror(int iErrorNumber);
- 
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+
+#define LASS_HAS_GETLASTERROR
+const unsigned lass_GetLastError();
+const std::string lass_FormatMessage(unsigned error);
+
+#endif
+
 }
 }
 }

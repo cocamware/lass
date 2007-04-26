@@ -323,6 +323,11 @@ public:
 			isJoinable_ = false;
 		}
 	}
+
+	void bind(unsigned processor)
+	{
+		LASS_WARNING("not implemented yet");
+	}
 	
 	static void sleep(unsigned long iMilliSeconds)
 	{
@@ -369,6 +374,11 @@ public:
 	static void yield()
 	{
 		LASS_ENFORCE_CLIB(sched_yield());
+	}
+
+	static void bindCurrent(unsigned processor)
+	{
+		LASS_WARNING("not implemented yet");
 	}
 
 	// thread function

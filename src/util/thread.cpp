@@ -214,6 +214,14 @@ void Thread::join()
 	pimpl_->join();
 }
 
+/** bind this thread to a processor (this as in this-pointer)
+ */
+void Thread::bind(unsigned processor)
+{
+	LASS_ASSERT(pimpl_);
+	pimpl_->bind(processor);
+}
+
 void Thread::sleep(unsigned long iMilliSeconds)
 {
 	impl::ThreadInternal::sleep(iMilliSeconds);
@@ -222,6 +230,13 @@ void Thread::sleep(unsigned long iMilliSeconds)
 void Thread::yield()
 {
 	impl::ThreadInternal::yield();
+}
+
+/** bind current thread to a processor (current as in callee's context)
+ */
+void Thread::bindCurrent(unsigned processor)
+{
+	impl::ThreadInternal::bindCurrent(processor);
 }
 
 

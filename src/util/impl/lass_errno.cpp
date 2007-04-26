@@ -32,6 +32,13 @@
 #include <errno.h>
 #include <string.h>
 
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#	define NOMINMAX
+#	define WIN32_LEAN_AND_MEAN
+#	include <windows.h>
+#	include "../../meta/meta_assert.h"
+#endif
+
 namespace lass
 {
 namespace util
@@ -39,16 +46,28 @@ namespace util
 namespace impl
 {
 
+/** returns CLIB errno
+ *  @ingroup LassErrno
+ *  @internal
+ */
 const int lass_errno()
 {
 	return errno;
 }
 
+/** sets CLIB errno to zero.
+ *  @ingroup LassErrno
+ *  @internal
+ */
 void lass_reset_errno()
 {
 	errno = 0;
 }
 
+/** returns message associated to an CLIB error code
+ *  @ingroup LassErrno
+ *  @internal
+ */
 const std::string lass_strerror(int iErrnum)
 {
 #if HAVE_DECL_STRERROR_R
@@ -66,7 +85,7 @@ const std::string lass_strerror(int iErrnum)
 	const int rc = ::strerror_r(iErrnum, buffer, bufferLength);
 	const char* result = (rc != 0 && errno == EINVAL) ? buffer : 0;
 #	endif
-	return result ? std::string(buffer) : std::string("unknown error code");
+	return result ? std::string(buffer) : std::string("[no error message due to strerror_r failure]");
 	
 #elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
@@ -91,6 +110,43 @@ const std::string lass_strerror(int iErrnum)
 	
 #endif
 }
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+
+LASS_META_ASSERT(sizeof(DWORD) <= sizeof(unsigned), unsigned_should_be_big_enough_for_a_DWORD);
+
+/** returns GetLastError()
+ *  @ingroup LassErrno
+ *  @internal
+ *  @arg only available on Windows platforms
+ */
+const unsigned lass_GetLastError()
+{
+	return GetLastError();
+}
+
+/** returns message associated to an Win API error code.
+ *  @ingroup LassErrno
+ *  @internal
+ *  @arg only available on Windows platforms
+ */
+const std::string lass_FormatMessage(unsigned error)
+{
+	LASS_ASSERT(static_cast<DWORD>(error) == error);
+	LASS_ASSERT(error != 0);
+
+	LPSTR buffer;
+	if (!FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 
+			0, static_cast<DWORD>(error), 0, (LPTSTR) &buffer, 0, 0))
+	{
+		return "[no error message due to FormatMessage failure]";
+	}
+	std::string result = buffer;
+	LocalFree(buffer);
+	return result;
+}
+
+#endif
 
 }
 }

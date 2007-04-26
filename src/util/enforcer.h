@@ -149,6 +149,23 @@
 		"'" LASS_STRINGIFY(comResult) "' in '" LASS_HERE "'.")
 
 
+
+#ifdef LASS_HAS_GETLASTERROR
+
+/** Enforces a Win API call to return non-zero and uses GetLastError() to retrieve error code.
+ *  @ingroup Enforcers
+ */
+#define LASS_ENFORCE_WINAPI(functionCall)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	::lass::util::impl::WinAPIPredicate,\
+		::lass::util::impl::LastErrorRaiser,\
+		(functionCall), \
+		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
+
+#endif
+
+
+
 /** Enforces an index to be in the half open range [0, iSize).
  *  @ingroup Enforcers
  */

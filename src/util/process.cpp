@@ -41,6 +41,8 @@
 #endif
 
 #if defined(LASS_UTIL_PROCESS_HAVE_WIN32)
+#	define NOMINMAX
+#	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
 #	include <sys/resource.h>
@@ -81,10 +83,8 @@ void setProcessPriority(ProcessPriority iPriority)
 		HIGH_PRIORITY_CLASS
 	};
 	const int priority = winPriorities[iPriority];
-	if (SetPriorityClass(GetCurrentProcess(), priority) == 0)
-	{
-		LASS_THROW("SetPriorityClass failed with error code '" << GetLastError() << "'.");
-	}
+	LASS_ENFORCE_WINAPI(SetPriorityClass(GetCurrentProcess(), priority))
+		("Failed to set process priority");
 
 #elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
 	static const int niceValues[numberOfProcessPriorities] = 

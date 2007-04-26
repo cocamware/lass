@@ -30,7 +30,11 @@
 #include "../thread.h"
 #include "../singleton.h"
 #include "../environment.h"
+#include "../bit_manip.h"
 #include "lass_errno.h"
+
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <process.h>
 #include <windows.h>
 
@@ -39,9 +43,26 @@ namespace lass
 namespace util
 {
 
-const unsigned numberOfProcessors()
+const size_t numberOfProcessors()
 {
-	return getEnvironment<unsigned>("NUMBER_OF_PROCESSORS");
+	DWORD systemAffinityMask;
+	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), 0, &systemAffinityMask));
+
+	// we're doing an assumption here ... We think, we hope, that the mask
+	// is a continuous series of bits starting from the LSB.  We'll test for this
+	// until we are sure that our assumption is correct. [Bramz]
+	//
+	DWORD test = systemAffinityMask;
+	while (test)
+	{
+		if (!(test & 0x1))
+		{
+			LASS_THROW("our assumption is wrong!");
+		}
+		test >>= 1;
+	}
+
+	return util::countBits(systemAffinityMask);
 }
 
 namespace impl
@@ -66,8 +87,9 @@ public:
 		LASS_ASSERT(ret != 0);
 		if (ret == 0)
 		{
-			std::cerr << "[LASS RUN MSG] WARNING:  CloseHandle failed in ~MutexInternal(): "
-				<< GetLastError << std::endl;
+			const unsigned lastError = impl::lass_GetLastError();
+			std::cerr << "[LASS RUN MSG] WARNING:  CloseHandle failed in ~MutexInternal(): ("
+				<< lastError << ") " << impl::lass_FormatMessage(lastError) << std::endl;
 		}
 	}
 	void lock()
@@ -86,7 +108,11 @@ public:
 				// ok
 				break;
 			case WAIT_FAILED:
-				LASS_THROW("WaitForSingleObject failed: " << GetLastError());
+				{
+					const unsigned lastError = impl::lass_GetLastError();
+					LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
+						<< impl::lass_FormatMessage(lastError));
+				}
 			case WAIT_TIMEOUT:
 			default:
 				LASS_THROW("impossible return value of WaitForSingleObject: " << ret);
@@ -109,7 +135,11 @@ public:
 				// ok
 				break;
 			case WAIT_FAILED:
-				LASS_THROW("WaitForSingleObject failed: " << GetLastError());
+				{
+					const unsigned lastError = impl::lass_GetLastError();
+					LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
+						<< impl::lass_FormatMessage(lastError));
+				}
 			case WAIT_TIMEOUT:
 				return lockBusy;
 			default:
@@ -126,11 +156,7 @@ public:
 			LASS_THROW("attempting to unlock an unlocked mutex");
 		}
 		--lockCount_;
-		const BOOL ret = ReleaseMutex(mutex_);
-		if (ret == 0)
-		{
-			LASS_THROW("ReleaseMutex failed: " << GetLastError());
-		}
+		LASS_ENFORCE_WINAPI(ReleaseMutex(mutex_));
 	}
 	const unsigned lockCount() const 
 	{
@@ -204,9 +230,10 @@ public:
 		LASS_ASSERT(ret != 0);
 		if (ret == 0)
 		{
+			const unsigned lastError = impl::lass_GetLastError();
 			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
-				<< " CloseHandle failed in ~MutexInternal(): "
-				<< GetLastError << std::endl;
+				<< " CloseHandle failed in ~MutexInternal(): (" 
+				<< lastError << ") " << impl::lass_FormatMessage(lastError) << std::endl;
 		}
 	}		
 	void wait()
@@ -231,7 +258,11 @@ public:
 			case WAIT_TIMEOUT:
 				return waitTimeout;
 			case WAIT_FAILED:
-				LASS_THROW("WaitForSingleObject failed: " << GetLastError());
+				{
+					const unsigned lastError = impl::lass_GetLastError();
+					LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
+						<< impl::lass_FormatMessage(lastError));
+				}
 			default:
 				LASS_THROW("impossible return value of WaitForSingleObject: " << ret);
 		}
@@ -243,11 +274,7 @@ public:
 		// state until someone waits on it. In any case, the system will return
 		// it to a non signalled state afterwards. If multiple threads are
 		// waiting, only one will be woken up.
-		const BOOL ret = ::SetEvent(event_);
-		if (ret == 0)
-		{
-			LASS_THROW("SetEvent failed: " << GetLastError());
-		}
+		LASS_ENFORCE_WINAPI(::SetEvent(event_));
 	}
 	void broadcast()
 	{
@@ -282,7 +309,9 @@ public:
 		index_ = TlsAlloc();
 		if (index_ == TLS_OUT_OF_INDEXES)
 		{
-			LASS_THROW("Failed to allocate thread local storage: TlsAlloc failed");
+			const unsigned lastError = impl::lass_GetLastError();
+			LASS_THROW("Failed to allocate thread local storage: TlsAlloc failed: ("
+				<< lastError << ") " << impl::lass_FormatMessage(lastError));
 		}
 		if (TDestructors* destrs = destructors())
 		{
@@ -312,19 +341,11 @@ public:
 	}
 	void* const get() const
 	{
-		void* result = TlsGetValue(index_);
-		if (result == 0 && GetLastError() != ERROR_SUCCESS)
-		{
-			LASS_THROW("Failed to get thread local storage value");
-		}
-		return result;
+		return LASS_ENFORCE_WINAPI(TlsGetValue(index_))("Failed to get thread local storage value");
 	}
 	void set(void* value)
 	{
-		if (!TlsSetValue(index_, value))
-		{
-			LASS_THROW("Failed to set thread local storage value");
-		}
+		LASS_ENFORCE_WINAPI(TlsSetValue(index_, value))("Failed to set thread local storage value");
 	}
 
 	/** destruct the local copies of the variables in a thread.
@@ -358,7 +379,9 @@ private:
 	{
 		if (!TlsFree(index))
 		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: TlsFree failed." << std::endl;
+			const unsigned lastError = impl::lass_GetLastError();
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: TlsFree failed: ("
+				<< lastError << ") " << impl::lass_FormatMessage(lastError) << std::endl;
 		}
 	}
 	
@@ -391,6 +414,33 @@ private:
 
 MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
 	Singleton<MainLocalStorageDestroyer, destructionPriorityInternalTlsLocalsMain>::instance();
+
+
+
+/** @internal
+ *  @ingroup Threading
+ */
+void bindThread(HANDLE thread, unsigned processor)
+{
+	DWORD affinityMask = 0;
+	if (processor == Thread::anyProcessor)
+	{
+		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), 0, &affinityMask))
+			("Failed to get affinity mask of process");
+	}
+	else
+	{
+		const size_t numProcessors = numberOfProcessors();
+		if (processor >= numProcessors)
+		{
+			LASS_THROW("'" << processor << "' is an invalid processor index. "
+				<< "Valid range is [0, " << numProcessors << ").");
+		}
+		affinityMask = 1 << processor;
+	}
+	LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask))
+		("Failed to bind thread to processor ")(processor);
+}
 
 
 
@@ -444,12 +494,21 @@ public:
 					// ok
 					break;
 				case WAIT_FAILED:
-					LASS_THROW("WaitForSingleObject failed: " << GetLastError());
+					{
+						const unsigned lastError = impl::lass_GetLastError();
+						LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
+							<< impl::lass_FormatMessage(lastError));
+					}
 				default:
 					LASS_THROW("impossible return value of WaitForSingleObject: " << ret);
 			}
 			isJoinable_ = false;
 		}
+	}
+
+	void bind(unsigned processor)
+	{
+		bindThread(handle_, processor);
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)
@@ -460,6 +519,11 @@ public:
 	static void yield()
 	{
 		Sleep(0);
+	}
+
+	static void bindCurrent(unsigned processor)
+	{
+		bindThread(GetCurrentThread(), processor);
 	}
 
 	// thread function

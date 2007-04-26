@@ -97,7 +97,7 @@ enum ThreadKind
 
 /** @ingroup Threading
  */
-LASS_DLL const unsigned LASS_CALL numberOfProcessors();
+LASS_DLL const size_t LASS_CALL numberOfProcessors();
 
 /** Mutex.
 *   @ingroup Threading
@@ -176,13 +176,20 @@ class LASS_DLL Thread: NonCopyable
 {
 public:
 
+	enum 
+	{ 
+		anyProcessor = unsigned(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
+	};
+
 	virtual ~Thread();
 	
 	void run();
 	void join();
+	void bind(unsigned processor);
 	
 	static void sleep(unsigned long iMilliseconds);
 	static void yield();
+	static void bindCurrent(unsigned processor);
 
 protected:
 
