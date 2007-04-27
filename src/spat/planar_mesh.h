@@ -2138,8 +2138,8 @@ continueSearch:
 			LASS_THROW("PlanarMesh::along: edge not in primary mesh");
 		}
 		*/
-		const TPoint2D& eOrg = *iEdge->handle()->point_;
-		const TPoint2D& eDest = *iEdge->sym()->handle()->point_;
+		const TPoint2D& eOrg = *iEdge->handle().point_;
+		const TPoint2D& eDest = *iEdge->sym()->handle().point_;
 		const T oX = eDest.x*iParam + (1-iParam)*eOrg.x;
 		const T oY = eDest.y*iParam + (1-iParam)*eOrg.y;
 		return TPoint2D(oX,oY);
@@ -2357,9 +2357,7 @@ continueSearch:
 	{
 		if ( inPrimaryMesh( iEdge ) )
 		{
-			ProxyHandle* temp = iEdge->rot()->handle();
-			if (temp)
-				return temp->faceHandle();
+			return iEdge->rot()->handle().faceHandle();
 		}
 		LASS_THROW("no face handle available");
 	}
