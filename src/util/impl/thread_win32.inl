@@ -45,8 +45,8 @@ namespace util
 
 const size_t numberOfProcessors()
 {
-	DWORD systemAffinityMask;
-	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), 0, &systemAffinityMask));
+	DWORD processAffinityMask, systemAffinityMask;
+	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
 
 	// we're doing an assumption here ... We think, we hope, that the mask
 	// is a continuous series of bits starting from the LSB.  We'll test for this
@@ -425,8 +425,9 @@ void bindThread(HANDLE thread, unsigned processor)
 	DWORD affinityMask = 0;
 	if (processor == Thread::anyProcessor)
 	{
-		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), 0, &affinityMask))
-			("Failed to get affinity mask of process");
+		DWORD processAffinityMask, systemAffinityMask;
+		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
+		affinityMask = systemAffinityMask;
 	}
 	else
 	{
