@@ -59,10 +59,10 @@ int main(int argc, char* argv[])
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
 	test::TUnitTests unitTests;
+	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
 	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
 	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
 	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
 	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
 	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
 	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));

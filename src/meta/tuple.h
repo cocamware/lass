@@ -74,6 +74,7 @@ namespace impl
 {
 	template <typename TupleType, size_t i, typename ReturnType> struct Accessor;
 
+
 	template <typename Head, typename Tail, size_t i, typename ReturnType>
 	struct Accessor<Tuple< TypeList<Head, Tail> >, i, ReturnType>:
 		public Accessor<Tuple<Tail>, i - 1, ReturnType> {};
@@ -83,7 +84,6 @@ namespace impl
 	{
 		typedef Tuple< TypeList<Head, Tail> > TTuple;
 		static ReturnType& access(TTuple& tuple) { return tuple.value; }
-		static const ReturnType& access(const TTuple& tuple) { return tuple.value; }
 	};
 
 	template <typename Tail, typename ReturnType>
@@ -91,12 +91,39 @@ namespace impl
 	{
 		typedef Tuple< TypeList<NullType, Tail> > TTuple;
 		static ReturnType& access(TTuple& tuple) { return NullType::Null(); }
+	};
+
+
+	template <typename Head, typename Tail, size_t i, typename ReturnType>
+	struct Accessor<const Tuple< TypeList<Head, Tail> >, i, ReturnType>:
+		public Accessor<const Tuple<Tail>, i - 1, ReturnType> {};
+
+	template <typename Head, typename Tail, typename ReturnType>
+	struct Accessor<const Tuple< TypeList<Head, Tail> >, 0, ReturnType>
+	{
+		typedef Tuple< TypeList<Head, Tail> > TTuple;
+		static const ReturnType& access(const TTuple& tuple) { return tuple.value; }
+	};
+
+	template <typename Tail, typename ReturnType>
+	struct Accessor<const Tuple< TypeList<NullType, Tail> >, 0, ReturnType>
+	{
+		typedef Tuple< TypeList<NullType, Tail> > TTuple;
 		static const ReturnType& access(const TTuple& tuple) { return NullType::Null(); }
 	};
 }
 
-template <typename TupleType, size_t index>	struct Field:
-	public type_list::At<typename TupleType::TList, index> {};
+template <typename TupleType, size_t index>	
+struct Field
+{
+	typedef typename type_list::At<typename TupleType::TList, index>::Type Type;
+};
+
+template <typename TupleType, size_t index>	
+struct Field<const TupleType, index>
+{
+	typedef const typename type_list::At<typename TupleType::TList, index>::Type Type;
+};
 
 template <size_t index, typename TupleType> 
 typename Field<TupleType, index>::Type& field(TupleType& tuple)
@@ -104,14 +131,14 @@ typename Field<TupleType, index>::Type& field(TupleType& tuple)
 	typedef typename Field<TupleType, index>::Type TReturn;
 	return impl::Accessor<TupleType, index, TReturn>::access(tuple);
 }
-
+/*
 template <size_t index, typename TupleType> 
 const typename Field<TupleType, index>::Type& field(const TupleType& tuple)
 {
 	typedef typename Field<TupleType, index>::Type TReturn;
 	return impl::Accessor<TupleType, index, TReturn>::access(tuple);
 }
-
+*/
 
 }
 
