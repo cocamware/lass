@@ -897,7 +897,7 @@ private:
 
 	AllocatorConcurrentFreeList& operator=(const AllocatorConcurrentFreeList&);
 
-	TTaggedPtr top_;
+	volatile TTaggedPtr top_;
 };
 
 

@@ -185,8 +185,8 @@ template <typename TaskType, typename ConsumerType, typename IdlePolicy>
 class SelfParticipating: public IdlePolicy
 {
 protected:
-	SelfParticipating(const ConsumerType& prototype): IdlePolicy(), consumer_(prototype) {}
-	~SelfParticipating() {}
+	SelfParticipating(const ConsumerType& prototype): IdlePolicy(), consumer_(prototype) { Thread::bindCurrent(0); }
+	~SelfParticipating() { Thread::bindCurrent(Thread::anyProcessor); }
 	const unsigned numDynamicThreads(unsigned numThreads) const { return numThreads - 1; }
 	template <typename Queue> bool participate(Queue& queue)
 	{
@@ -282,7 +282,7 @@ private:
 	unsigned maxWaitingTasks_;
 	volatile unsigned numWaitingTasks_;
 	volatile unsigned numRunningTasks_;
-	bool shutDown_;
+	volatile bool shutDown_;
 };
 
 

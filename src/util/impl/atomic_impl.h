@@ -50,7 +50,7 @@ template <>
 struct AtomicOperations<1>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
+	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -75,7 +75,7 @@ struct AtomicOperations<1>
 
 	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -108,7 +108,7 @@ struct AtomicOperations<1>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL increment(T& value)
+	static void LASS_CALL increment(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -128,7 +128,7 @@ struct AtomicOperations<1>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL decrement(T& value)
+	static void LASS_CALL decrement(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -160,7 +160,7 @@ template <>
 struct AtomicOperations<2>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
+	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -185,7 +185,7 @@ struct AtomicOperations<2>
 
 	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -222,7 +222,7 @@ struct AtomicOperations<2>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL increment(T& value)
+	static void LASS_CALL increment(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -242,7 +242,7 @@ struct AtomicOperations<2>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL decrement(T& value)
+	static void LASS_CALL decrement(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -273,7 +273,7 @@ template <>
 struct AtomicOperations<4>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
+	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -298,7 +298,7 @@ struct AtomicOperations<4>
 
 	template <typename T1, typename T2> inline 
 	static bool LASS_CALL compareAndSwap(
-			T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -328,7 +328,7 @@ struct AtomicOperations<4>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL increment(T& value)
+	static void LASS_CALL increment(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -348,7 +348,7 @@ struct AtomicOperations<4>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL decrement(T& value)
+	static void LASS_CALL decrement(volatile T& value)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -379,7 +379,7 @@ template <>
 struct AtomicOperations<8>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(T& dest, T expectedValue, T newValue)
+	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
@@ -424,7 +424,7 @@ struct AtomicOperations<8>
 	//		T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2);
 	
 	template <typename T> inline
-	static void LASS_CALL increment(T& value)
+	static void LASS_CALL increment(volatile T& value)
 	{
 #if (LASS_ADDRESS_SIZE == 32)
 		// not knowing any better, we emulate incq with cas loop
@@ -447,7 +447,7 @@ struct AtomicOperations<8>
 	}
 
 	template <typename T> inline
-	static void LASS_CALL decrement(T& value)
+	static void LASS_CALL decrement(volatile T& value)
 	{
 #if (LASS_ADDRESS_SIZE == 32)
 		// not knowing any better, we emulate decq with cas loop

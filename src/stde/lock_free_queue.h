@@ -79,8 +79,8 @@ private:
 	node_t* const make_node(value_type* x);
 	void free_node(node_t* node);
 
-	pointer_t head_;
-	pointer_t tail_;
+	volatile pointer_t head_;
+	volatile pointer_t tail_;
 	allocator_t node_allocator_;
 	allocator_t value_allocator_;
 };

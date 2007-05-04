@@ -339,7 +339,7 @@ public:
 	}
 
 private:
-	int freeSlots_;
+	volatile int freeSlots_;
 };
 
 

@@ -152,6 +152,8 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
 {
 	LASS_ASSERT(numThreads_ > 0);
 	const unsigned dynThreads = this->numDynamicThreads(numThreads_);
+	const unsigned bindOffset = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
+	const unsigned numProcessors = util::numberOfProcessors();
 	if (dynThreads == 0)
 	{
 		threads_ = 0;
@@ -173,6 +175,7 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
 			try
 			{
 				threads_[i].run();
+				threads_[i].bind((bindOffset + i) % numProcessors);
 			}
 			catch (...)
 			{

@@ -72,7 +72,7 @@ private:
 	void push_node(node_t* node);
 	node_t* const pop_node();
 
-	pointer_t;
+	volatile pointer_t top_;
 };
 
 }

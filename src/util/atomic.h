@@ -49,27 +49,9 @@ namespace util
  *  @endcode
  */
 template <typename T> inline 
-bool atomicCompareAndSwap(T& dest, T expectedValue, T newValue)
-{
-	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue) 
-		== expectedValue;
-}
-
-
-
-/** @ingroup atomic
- *  
- *  Performs the following pseudocode in an atomic way (no other threads can intervene):
- *  @code
- *      if (dest != expectedValue) return false;
- *      dest = newValue;
- *      return true;
- *  @endcode
- */
-template <typename T> inline 
 bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
 {
-	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(const_cast<T&>(dest), expectedValue, newValue)
+	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue) 
 		== expectedValue;
 }
 
@@ -88,7 +70,7 @@ bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
  *  Does not exist for 64-bit types (there's no 128-bit CAS).
  */
 template <typename T1, typename T2> inline 
-bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+bool atomicCompareAndSwap(volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 {
 	LASS_META_ASSERT(sizeof(T1) == sizeof(T2), T1_and_T2_must_be_of_same_size);
 	return impl::AtomicOperations< sizeof(T1) >::compareAndSwap(
@@ -105,7 +87,7 @@ bool atomicCompareAndSwap(T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new
  *  @endcode
  */
 template <typename T> inline
-void atomicIncrement(T& value)
+void atomicIncrement(volatile T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::increment(value);
 }
@@ -120,7 +102,7 @@ void atomicIncrement(T& value)
  *  @endcode
  */
 template <typename T> inline
-void atomicDecrement(T& value)
+void atomicDecrement(volatile T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::decrement(value);
 }
@@ -140,6 +122,10 @@ public:
 	// We're in 64 bit space, but we don't have 128 bit CAS to do tagging ... Help!
 	// Luckely, only the least significant 48 bits of a pointer are really used.
 	// So, we have 16 bits we can fiddle with.  Should be enough for a counting tag.
+	// Well, theoretically it isn't enough (no number of bits is ever enough to 
+	// completely remove the possibility of a wrap-over, but at least it decreases
+	// the odds somewhat ;)
+	//
 	// We store the the pointer in the most significant part for two reasons:
 	//	- order of the pointers is somewhat preserved
 	//	- we can use SAR to restore the sign bit.
@@ -147,7 +133,9 @@ public:
 	typedef num::Tuint16 TTag;
 	TaggedPtr(): bits_(0) {}
 	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
-	T* const get() const 
+	TaggedPtr(const volatile TaggedPtr& other): bits_(other.bits_) {}
+	TaggedPtr operator=(const volatile TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
+	T* const get() const volatile
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		T* ptr;
@@ -161,9 +149,9 @@ public:
 			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
 #	endif
 	}
-	const TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
-	const bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
-	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	const TTag tag() const volatile { return static_cast<TTag>(bits_ & 0xffff); }
+	const bool operator==(const volatile TaggedPtr& other) const volatile { return bits_ == other.bits_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
 	{
 		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
 	}
@@ -175,10 +163,12 @@ private:
 	typedef num::TuintPtr TTag;
 	TaggedPtr(): ptr_(0), tag_(0) {}
 	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
-	T* const get() const { return ptr_; }
-	const TTag tag() const { return tag_; }
-	bool operator==(const TaggedPtr& other) const {	return ptr_ == other.ptr_ && tag_ == other.tag_; }
-	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh)
+	TaggedPtr(const volatile TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
+	TaggedPtr operator=(const volatile TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	T* const get() const volatile { return ptr_; }
+	const TTag tag() const volatile { return tag_; }
+	bool operator==(const volatile TaggedPtr& other) const volatile { return ptr_ == other.ptr_ && tag_ == other.tag_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
 	{
 		return util::atomicCompareAndSwap(
 			ptr_, expected.ptr_, expected.tag_, fresh.ptr_, fresh.tag_);
@@ -188,9 +178,9 @@ private:
 	TTag tag_;
 #endif
 public:
-	T* const operator->() const { LASS_ASSERT(get()); return get(); }
-	const bool operator!() const { return get() == 0; }
-	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
+	T* const operator->() const volatile { LASS_ASSERT(get()); return get(); }
+	const bool operator!() const volatile { return get() == 0; }
+	operator num::SafeBool() const volatile { return get() ? num::safeTrue : num::safeFalse; }
 };
 
 }
