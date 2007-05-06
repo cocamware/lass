@@ -40,7 +40,7 @@ namespace test
 {
 namespace thread_test
 {
-	bool functionIsCalled = false;
+	volatile bool functionIsCalled = false;
 
 	void foo(int a, int b) 
 	{ 
