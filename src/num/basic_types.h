@@ -54,13 +54,13 @@ namespace num
 
 #elif defined(LASS_NUM_BASIC_TYPES_HAVE_MSVC)
 
-	typedef __int8 Tint8;	/**< @ingroup BasicTypes */
+	typedef signed __int8 Tint8;	/**< @ingroup BasicTypes */
 	typedef unsigned __int8 Tuint8;	/**< @ingroup BasicTypes */
-	typedef __int16 Tint16;	/**< @ingroup BasicTypes */
+	typedef signed __int16 Tint16;	/**< @ingroup BasicTypes */
 	typedef unsigned __int16 Tuint16;	/**< @ingroup BasicTypes */
-	typedef __int32 Tint32;	/**< @ingroup BasicTypes */
+	typedef signed __int32 Tint32;	/**< @ingroup BasicTypes */
 	typedef unsigned __int32 Tuint32;	/**< @ingroup BasicTypes */
-	typedef __int64 Tint64;	/**< @ingroup BasicTypes */
+	typedef signed __int64 Tint64;	/**< @ingroup BasicTypes */
 	typedef unsigned __int64 Tuint64;	/**< @ingroup BasicTypes */
 
 #else
