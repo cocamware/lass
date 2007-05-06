@@ -69,7 +69,7 @@ private:
 	util::Condition flushCondition_;
 	util::ScopedPtr<util::Thread> flushThread_;
 	unsigned long flushPeriod_;
-	bool stopFlushThread_;
+	volatile bool stopFlushThread_;
 };
 
 }
