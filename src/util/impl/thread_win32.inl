@@ -430,10 +430,10 @@ void bindThread(HANDLE thread, size_t processor)
 	}
 	else
 	{
-		if (processor >= numberOfProcessors)
+		if (processor >= util::numberOfProcessors)
 		{
 			LASS_THROW("'" << processor << "' is an invalid processor index. "
-				<< "Valid range is [0, " << numberOfProcessors << ").");
+				<< "Valid range is [0, " << util::numberOfProcessors << ").");
 		}
 		affinityMask = 1 << processor;
 	}
@@ -505,7 +505,7 @@ public:
 		}
 	}
 
-	void bind(unsigned processor)
+	void bind(size_t processor)
 	{
 		bindThread(handle_, processor);
 	}
@@ -520,7 +520,7 @@ public:
 		Sleep(0);
 	}
 
-	static void bindCurrent(unsigned processor)
+	static void bindCurrent(size_t processor)
 	{
 		bindThread(GetCurrentThread(), processor);
 	}
