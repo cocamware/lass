@@ -399,7 +399,7 @@ namespace impl
  */
 template <typename T> inline const size_t countBits(T bits)
 {
-	return impl::BitCounter<sizeof T>::count(bits);
+	return impl::BitCounter<sizeof(T)>::count(bits);
 }
 
 }

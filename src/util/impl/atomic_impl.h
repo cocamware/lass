@@ -97,9 +97,9 @@ struct AtomicOperations<1>
 			"movb %5, %%dh;"
 			"lock; cmpxchgw %%dx, %0;"
 			"sete %1;"
-			: "=m"(reinterpret_cast<num::Tuint16&>(dest1)), "=q"(result)
+			: "=m"(reinterpret_cast<volatile num::Tuint16&>(dest1)), "=q"(result)
 			: "a"(expected1), "d"(new1), "g"(expected2), "g"(new2), 
-			  "m"(reinterpret_cast<num::Tuint16&>(dest1))
+			  "m"(reinterpret_cast<volatile num::Tuint16&>(dest1))
 			: "cc", "memory");
 		return result;		
 #else
@@ -211,9 +211,9 @@ struct AtomicOperations<2>
 			"movw %5, %%dx;"
 			"lock; cmpxchgl %%edx, %0;"
 			"sete %1;"
-			: "=m"(reinterpret_cast<num::Tuint32&>(dest1)), "=q"(result)
+			: "=m"(reinterpret_cast<volatile num::Tuint32&>(dest1)), "=q"(result)
 			: "a"(expected2), "d"(new2), "g"(expected1), "g"(new1),
-			  "m"(reinterpret_cast<num::Tuint32&>(dest1))
+			  "m"(reinterpret_cast<volatile num::Tuint32&>(dest1))
 			: "cc", "memory");
 		return result;		
 #else
@@ -399,10 +399,10 @@ struct AtomicOperations<8>
 			"lock; cmpxchg8b %0;"
 			: "=m"(dest), "=A"(expectedValue)
 			: "m"(dest),
-			  "a"(reinterpret_cast<num::Tuint32*>(&expectedValue)[0]), 
-			  "d"(reinterpret_cast<num::Tuint32*>(&expectedValue)[1]),	
-			  "b"(reinterpret_cast<num::Tuint32*>(&newValue)[0]), 
-			  "c"(reinterpret_cast<num::Tuint32*>(&newValue)[1])	
+			  "a"(reinterpret_cast<volatile num::Tuint32*>(&expectedValue)[0]), 
+			  "d"(reinterpret_cast<volatile num::Tuint32*>(&expectedValue)[1]),	
+			  "b"(reinterpret_cast<volatile num::Tuint32*>(&newValue)[0]), 
+			  "c"(reinterpret_cast<volatile num::Tuint32*>(&newValue)[1])	
 			: "cc", "memory");
 		return expectedValue;
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)

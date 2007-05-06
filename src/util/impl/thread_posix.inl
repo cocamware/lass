@@ -33,52 +33,45 @@
 #include <pthread.h>
 #include <sched.h>
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_BSD
-#	define HAVE_SYS_SYSCTL_H
-#endif
-
-#ifdef HAVE_SYS_SYSCTL_H
-#	include <sys/sysctl.h>
-#endif
-
 namespace lass
 {
 namespace util
 {
-
-const unsigned numberOfProcessors()
-{
-#ifdef HAVE_SYS_SYSCTL_H
-	const int mib_len = 2;
-	int mib[mib_len] = { CTL_HW, HW_NCPU };//HW_AVAILCPU };
-	int numProcessors = -1;
-	size_t len = sizeof(numProcessors);
-	LASS_ENFORCE_CLIB(sysctl(mib, mib_len, &numProcessors, &len, 0, 0));
-	LASS_ENFORCE(numProcessors > 0);
-	return static_cast<unsigned>(numProcessors);
-#else
-	std::ifstream cpuinfo("/proc/cpuinfo");
-	if (!cpuinfo.is_open())
-	{
-		LASS_THROW("could not open /proc/cpuinfo");
-	}
-
-	unsigned numProcessors = 0;
-	std::string line;
-	while (std::getline(LASS_ENFORCE_STREAM(cpuinfo), line, '\n'))
-	{
-		if (stde::begins_with(line, "processor"))
-		{
-			++numProcessors;
-		}
-	}
-	LASS_ENFORCE(numProcessors > 0);
-	return numProcessors;
-#endif
-}
-
 namespace impl
 {
+
+size_t numberOfProcessors()
+{
+	// we'll need to cache this if we want this to ever work ...
+	
+	cpu_set_t mask;
+	CPU_ZERO(&mask);	
+	LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &mask));
+	
+	size_t count = 0;
+	int i = 0;
+	while (CPU_ISSET(i++, &mask))
+	{
+		++count;
+	}
+	
+	// we're doing an assumption here ... We think, we hope, that the mask
+	// is a continuous series of bits starting from the LSB.  We'll test for this
+	// until we are sure that our assumption is correct. [Bramz]
+	//
+	while (i < CPU_SETSIZE)
+	{
+		if (CPU_ISSET(i++, &mask))
+		{
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: "
+				"numberOfProcessors' assumption is wrong!\n" << std::endl;
+		}
+	}
+	
+	return count;
+}
+
+
 
 /** @internal
  *  @ingroup Threading
@@ -282,6 +275,39 @@ private:
 /** @internal
  *  @ingroup Threading
  */
+void bindThread(pid_t pid, size_t processor)
+{
+	cpu_set_t mask;
+	CPU_ZERO(&mask);
+	
+	if (processor == Thread::anyProcessor)
+	{
+		const int n = static_cast<int>(util::numberOfProcessors);
+		LASS_ASSERT(n > 0);
+		for (int i = 0; i < n; ++i)
+		{
+			CPU_SET(i, &mask);
+		}
+	}
+	else
+	{
+		if (processor >= util::numberOfProcessors)
+		{
+			LASS_THROW("'" << processor << "' is an invalid processor index. "
+				<< "Valid range is [0, " << util::numberOfProcessors << ").");
+		}
+		LASS_ASSERT(static_cast<int>(processor) >= 0);
+		CPU_SET(static_cast<int>(processor), &mask);
+	}
+	
+	LASS_ENFORCE_CLIB(sched_setaffinity(pid, sizeof(cpu_set_t), &mask));	
+}
+
+
+
+/** @internal
+ *  @ingroup Threading
+ */
 class ThreadInternal
 {
 public:
@@ -308,7 +334,10 @@ public:
 		}
 		LASS_ENFORCE_CLIB_RC(pthread_create(
 			&handle_, 0, &ThreadInternal::staticThreadStart, this));
-		runCondition_.wait();
+		while (!isCreated_)
+		{
+			runCondition_.wait(100);
+		}
 	}
 	
 	void join()
@@ -324,9 +353,9 @@ public:
 		}
 	}
 
-	void bind(unsigned processor)
+	void bind(size_t processor)
 	{
-		LASS_WARNING("not implemented yet");
+		bindThread(tid_, processor);
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)
@@ -376,9 +405,9 @@ public:
 		LASS_ENFORCE_CLIB(sched_yield());
 	}
 
-	static void bindCurrent(unsigned processor)
+	static void bindCurrent(size_t processor)
 	{
-		LASS_WARNING("not implemented yet");
+		bindThread(0, processor);
 	}
 
 	// thread function
@@ -386,6 +415,7 @@ public:
 	{
 		LASS_ASSERT(iPimpl);
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
+		pimpl->tid_ = getpid();
 		pimpl->isCreated_ = true;
 		pimpl->runCondition_.signal();
 		pimpl->thread_.doRun();
@@ -401,8 +431,9 @@ private:
 	Thread& thread_;
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
-	bool isJoinable_;
-	bool isCreated_;
+	pid_t tid_;
+	volatile bool isJoinable_;
+	volatile bool isCreated_;
 };
 
 

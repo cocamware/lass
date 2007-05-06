@@ -54,6 +54,7 @@ public:
 	BinaryIStream& seekg(long iPosition);
 	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
 
+	BinaryIStream& operator>>( char& x );
 	BinaryIStream& operator>>( num::Tint8& x );
 	BinaryIStream& operator>>( num::Tuint8& x );
 	BinaryIStream& operator>>( num::Tint16& x );

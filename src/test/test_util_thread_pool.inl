@@ -90,7 +90,7 @@ void testUtilThreadPool()
 	thread_pool::test<Signaled, NotParticipating>(4, 20);
 	thread_pool::test<Signaled, SelfParticipating>(4, 0);
 	thread_pool::test<Spinning, NotParticipating>(
-		std::max<unsigned>(util::numberOfProcessors() - 1, 1), 20);
+		std::max<unsigned>(util::numberOfProcessors - 1, 1), 20);
 	thread_pool::test<Spinning, SelfParticipating>(0, 0);
 }
 

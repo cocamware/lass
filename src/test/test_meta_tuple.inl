@@ -43,7 +43,10 @@ void testMetaTuple()
 
 	typedef Tuple< type_list::Make<int, std::string, NullType, int>::Type > MyTuple;
 
-	LASS_TEST_CHECK_EQUAL(sizeof(MyTuple), 2 * sizeof(int) + sizeof(std::string));
+	// check to see if the NullType fields doesn't take any place
+	//
+	LASS_TEST_CHECK_EQUAL(sizeof(MyTuple), sizeof(Tuple< type_list::Make<int, std::string, int>::Type >));
+	
 	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 0>::Type, int>::value));
 	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 1>::Type, std::string>::value));
 	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 2>::Type, NullType>::value));

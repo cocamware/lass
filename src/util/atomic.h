@@ -133,8 +133,10 @@ public:
 	typedef num::Tuint16 TTag;
 	TaggedPtr(): bits_(0) {}
 	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
+	TaggedPtr(const TaggedPtr& other): bits_(other.bits_) {}
 	TaggedPtr(const volatile TaggedPtr& other): bits_(other.bits_) {}
-	TaggedPtr operator=(const volatile TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
+	volatile TaggedPtr& operator=(const TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
+	volatile TaggedPtr& operator=(const volatile TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
 	T* const get() const volatile
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
@@ -163,8 +165,10 @@ private:
 	typedef num::TuintPtr TTag;
 	TaggedPtr(): ptr_(0), tag_(0) {}
 	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
+	TaggedPtr(const TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
 	TaggedPtr(const volatile TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
-	TaggedPtr operator=(const volatile TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	volatile TaggedPtr& operator=(const TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	volatile TaggedPtr& operator=(const volatile TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
 	T* const get() const volatile { return ptr_; }
 	const TTag tag() const volatile { return tag_; }
 	bool operator==(const volatile TaggedPtr& other) const volatile { return ptr_ == other.ptr_ && tag_ == other.tag_; }

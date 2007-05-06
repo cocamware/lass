@@ -84,6 +84,7 @@ BinaryOStream& BinaryOStream::operator<<( type x )\
 	return *this;\
 }
 
+LASS_IO_BINARY_O_STREAM_INSERTOR(char)
 LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint8)
 LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint8)
 LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint16)

@@ -42,6 +42,8 @@ namespace lass
 {
 namespace util
 {
+namespace impl
+{
 
 const size_t numberOfProcessors()
 {
@@ -64,9 +66,6 @@ const size_t numberOfProcessors()
 
 	return util::countBits(systemAffinityMask);
 }
-
-namespace impl
-{
 
 /** @internal
  *  @ingroup Threading
@@ -420,7 +419,7 @@ MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(HANDLE thread, unsigned processor)
+void bindThread(HANDLE thread, size_t processor)
 {
 	DWORD affinityMask = 0;
 	if (processor == Thread::anyProcessor)
@@ -431,11 +430,10 @@ void bindThread(HANDLE thread, unsigned processor)
 	}
 	else
 	{
-		const size_t numProcessors = numberOfProcessors();
-		if (processor >= numProcessors)
+		if (processor >= numberOfProcessors)
 		{
 			LASS_THROW("'" << processor << "' is an invalid processor index. "
-				<< "Valid range is [0, " << numProcessors << ").");
+				<< "Valid range is [0, " << numberOfProcessors << ").");
 		}
 		affinityMask = 1 << processor;
 	}

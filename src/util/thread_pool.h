@@ -126,7 +126,7 @@ template <typename TaskType>
 class DefaultConsumer
 {
 public:
-	void operator()(typename util::CallTraits<TaskType>::TParam iTask);
+	void operator()(typename util::CallTraits<TaskType>::TParam task);
 };
 
 /** implementation of ThreadPool's IdlePolicy
@@ -187,7 +187,7 @@ class SelfParticipating: public IdlePolicy
 protected:
 	SelfParticipating(const ConsumerType& prototype): IdlePolicy(), consumer_(prototype) { Thread::bindCurrent(0); }
 	~SelfParticipating() { Thread::bindCurrent(Thread::anyProcessor); }
-	const unsigned numDynamicThreads(unsigned numThreads) const { return numThreads - 1; }
+	const size_t numDynamicThreads(size_t numThreads) const { return numThreads - 1; }
 	template <typename Queue> bool participate(Queue& queue)
 	{
 		TaskType task;
@@ -216,7 +216,7 @@ class NotParticipating: public IdlePolicy
 protected:
 	NotParticipating(const ConsumerType& prototype): IdlePolicy() {}
 	~NotParticipating() {}
-	const unsigned numDynamicThreads(unsigned numThreads) const { return numThreads; }
+	const size_t numDynamicThreads(size_t numThreads) const { return numThreads; }
 	template <typename Queue> bool participate(Queue&) { return false; }
 };
 
@@ -246,15 +246,15 @@ public:
 		unlimitedNumberOfTasks = 0
 	};
 
-	ThreadPool(unsigned iNumberOfThreads = autoNumberOfThreads, 
-		unsigned iMaximumNumberOfTasksInQueue = unlimitedNumberOfTasks, 
-		const TConsumer& iConsumerPrototype = TConsumer());
+	ThreadPool(size_t numberOfThreads = autoNumberOfThreads, 
+		size_t maximumNumberOfTasksInQueue = unlimitedNumberOfTasks, 
+		const TConsumer& consumerPrototype = TConsumer());
 	~ThreadPool();
 
-	void addTask(typename util::CallTraits<TTask>::TParam iTask);
+	void addTask(typename util::CallTraits<TTask>::TParam task);
 	void completeAllTasks();
 	void clearQueue();
-	const unsigned numberOfThreads() const;
+	const size_t numberOfThreads() const;
 
 private:
 
@@ -265,23 +265,23 @@ private:
 	class ConsumerThread: public Thread
 	{
 	public:
-		ConsumerThread(const TConsumer& iConsumer, TSelf& iPool);
+		ConsumerThread(const TConsumer& consumer, TSelf& pool);
 	private:
 		void doRun();
 		TConsumer consumer_;
 		TSelf& pool_;
 	};
 
-	void startThreads(const TConsumer& iConsumerPrototype);
-	void stopThreads(unsigned iNumAllocatedThreads);
+	void startThreads(const TConsumer& consumerPrototype);
+	void stopThreads(size_t numAllocatedThreads);
 
 	TTaskQueue waitingTasks_;
 	ConsumerThread* threads_;
 	unsigned long mSecsToSleep_;
-	unsigned numThreads_;
-	unsigned maxWaitingTasks_;
-	volatile unsigned numWaitingTasks_;
-	volatile unsigned numRunningTasks_;
+	size_t numThreads_;
+	size_t maxWaitingTasks_;
+	volatile size_t numWaitingTasks_;
+	volatile size_t numRunningTasks_;
 	volatile bool shutDown_;
 };
 

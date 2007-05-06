@@ -37,19 +37,19 @@ namespace util
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 ThreadPool<T, C, IP, PP>::ThreadPool(
-		unsigned iNumberOfThreads, 
-		unsigned iMaximumNumberOfTasksInQueue,
-		const TConsumer& iConsumerPrototype):
-	TParticipationPolicy(iConsumerPrototype),
+		size_t numberOfThreads, 
+		size_t maximumNumberOfTasksInQueue,
+		const TConsumer& consumerPrototype):
+	TParticipationPolicy(consumerPrototype),
 	threads_(0),
-	numThreads_(iNumberOfThreads == autoNumberOfThreads ? numberOfProcessors() : iNumberOfThreads),
-	maxWaitingTasks_(iMaximumNumberOfTasksInQueue),
+	numThreads_(numberOfThreads == autoNumberOfThreads ? numberOfProcessors : numberOfThreads),
+	maxWaitingTasks_(maximumNumberOfTasksInQueue),
 	numWaitingTasks_(0),
 	numRunningTasks_(0),
 	shutDown_(false)
 {
 	LASS_ENFORCE(numThreads_ > 0);
-	startThreads(iConsumerPrototype);
+	startThreads(consumerPrototype);
 }
 
 
@@ -76,17 +76,17 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
  *  	(in case of SelfParticipating).
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam iTask)
+void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam task)
 {
 	while (true)
 	{
-		unsigned numWaitingTasks = numWaitingTasks_;
+		size_t numWaitingTasks = numWaitingTasks_;
 		if (maxWaitingTasks_ == unlimitedNumberOfTasks || numWaitingTasks < maxWaitingTasks_)
 		{
 			if (util::atomicCompareAndSwap(
 				numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
 			{
-				waitingTasks_.push(iTask);
+				waitingTasks_.push(task);
 				this->wakeConsumer();
 				return;
 			}
@@ -101,7 +101,7 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 
 
 /** blocks until all tasks in the queue are completed
- *  control thread participates as producer if policy allows for it.
+ *  control thread participates as consumer if policy allows for it.
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 void ThreadPool<T, C, IP, PP>::completeAllTasks()
@@ -133,7 +133,7 @@ void ThreadPool<T, C, IP, PP>::clearQueue()
 
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-const unsigned ThreadPool<T, C, IP, PP>::numberOfThreads() const
+const size_t ThreadPool<T, C, IP, PP>::numberOfThreads() const
 {
 	return numThreads_;
 }
@@ -148,12 +148,11 @@ const unsigned ThreadPool<T, C, IP, PP>::numberOfThreads() const
  *  Don't worry folks, I know what I'm doing ;) [Bramz]
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
+void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype)
 {
 	LASS_ASSERT(numThreads_ > 0);
-	const unsigned dynThreads = this->numDynamicThreads(numThreads_);
-	const unsigned bindOffset = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
-	const unsigned numProcessors = util::numberOfProcessors();
+	const size_t dynThreads = this->numDynamicThreads(numThreads_);
+	const size_t bindOffset = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
 	if (dynThreads == 0)
 	{
 		threads_ = 0;
@@ -166,16 +165,16 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
 		throw std::bad_alloc();
 	}
 
-	unsigned i;
+	size_t i;
 	try
 	{
 		for (i = 0; i < dynThreads; ++i)
 		{
-			new (&threads_[i]) ConsumerThread(iConsumerPrototype, *this);
+			new (&threads_[i]) ConsumerThread(consumerPrototype, *this);
 			try
 			{
 				threads_[i].run();
-				threads_[i].bind((bindOffset + i) % numProcessors);
+				threads_[i].bind((bindOffset + i) % numberOfProcessors);
 			}
 			catch (...)
 			{
@@ -197,7 +196,7 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& iConsumerPrototype)
  *  @throw no exceptions should be throw, nor bubble up from this function ... ever!
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
+void ThreadPool<T, C, IP, PP>::stopThreads(size_t numAllocatedThreads)
 {
 	try
 	{
@@ -211,19 +210,19 @@ void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
 		shutDown_ = true; // try it anyway, it's rather important.
 	}
 
-	LASS_ASSERT(static_cast<int>(iNumAllocatedThreads) >= 0);
-	for (int i = static_cast<int>(iNumAllocatedThreads) - 1; i >= 0; --i)
+	LASS_ASSERT(static_cast<int>(numAllocatedThreads) >= 0);
+	for (size_t n = numAllocatedThreads; n > 0; --n)
 	{
 		try
 		{
-			threads_[i].join();
+			threads_[n - 1].join();
 		}
 		catch (...)
 		{
 			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ThreadPool: "
 				"failure while joining thread" << std::endl;
 		}
-		threads_[i].~ConsumerThread(); // shouldn't throw anyway ...
+		threads_[n - 1].~ConsumerThread(); // shouldn't throw anyway ...
 	}
 
 	free(threads_); // shouldn't throw
@@ -234,10 +233,10 @@ void ThreadPool<T, C, IP, PP>::stopThreads(unsigned iNumAllocatedThreads)
 // --- ConsumerThread ------------------------------------------------------------------------------
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(const TConsumer& iConsumer, TSelf& iPool):
+ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(const TConsumer& consumer, TSelf& pool):
 	Thread(threadJoinable), 
-	consumer_(iConsumer),
-	pool_(iPool) 
+	consumer_(consumer),
+	pool_(pool) 
 {
 }
 
@@ -272,9 +271,9 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 // --- DefaultConsumer -----------------------------------------------------------------------------
 
 template <typename T> inline
-void DefaultConsumer<T>::operator()(typename util::CallTraits<T>::TParam iTask)
+void DefaultConsumer<T>::operator()(typename util::CallTraits<T>::TParam task)
 {
-	iTask();
+	task();
 }
 
 

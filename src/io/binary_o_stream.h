@@ -57,6 +57,7 @@ public:
 	BinaryOStream& seekp(long offset, std::ios_base::seekdir direction); 
 	void flush();
 
+	BinaryOStream& operator<<( char x );
 	BinaryOStream& operator<<( num::Tint8 x );
 	BinaryOStream& operator<<( num::Tuint8 x );
 	BinaryOStream& operator<<( num::Tint16 x );

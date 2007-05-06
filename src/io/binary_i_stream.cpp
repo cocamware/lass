@@ -84,6 +84,7 @@ BinaryIStream& BinaryIStream::operator>>( type & x )\
 	return *this;\
 }
 
+LASS_IO_BINARY_I_STREAM_EXTRACTOR(char)
 LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint8)
 LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint8)
 LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint16)
