@@ -109,6 +109,11 @@ void atomicDecrement(volatile T& value)
 
 
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4521) // multiple copy constructors specified
+#endif
+
 /** Pointer with a tag for ABA salvation
  *  @ingroup atomic
  *  Some lock-free algorithms suffer from the ABA problem when acting on pointers.
@@ -186,6 +191,10 @@ public:
 	const bool operator!() const volatile { return get() == 0; }
 	operator num::SafeBool() const volatile { return get() ? num::safeTrue : num::safeFalse; }
 };
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 }
 }
