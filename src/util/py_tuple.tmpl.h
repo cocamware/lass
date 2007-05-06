@@ -29,6 +29,11 @@
 #include "util_common.h"
 #include "pyobject_plus.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int', possible loss of data
+#endif
+
 namespace lass
 {
 namespace python
@@ -129,6 +134,10 @@ int decodeTuple(const PyObjectPtr<PyObject>::Type& iTuple, $(P$x& oP$x)$)
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 
