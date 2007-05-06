@@ -45,7 +45,7 @@ namespace bind_test
 		functionIsCalled = true;
 	}
 
-	float moreFun(float a, float b)
+	int moreFun(int a, int b)
 	{
 		functionIsCalled = true;
 		return a * b;
@@ -78,7 +78,7 @@ void testUtilBind()
 	fun();
 	LASS_TEST_CHECK(bind_test::functionIsCalled);
 
-	CallbackR0<float> moreFun = bind(bind_test::moreFun, 2, 3);
+	CallbackR0<int> moreFun = bind(bind_test::moreFun, 2, 3);
 	bind_test::functionIsCalled = false;
 	LASS_TEST_CHECK_EQUAL(moreFun(), 6);
 	LASS_TEST_CHECK(bind_test::functionIsCalled);
