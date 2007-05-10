@@ -46,19 +46,32 @@ namespace spat
 		public:
 			Edge() : next_(NULL) {}
 
-			Edge* rot()   { return (index_ < 3) ? this + 1 : this - 3; }
-			Edge* invRot(){ return (index_ > 0) ? this - 1 : this + 3; }
-			Edge* sym()   { return (index_ < 2) ? this + 2 : this - 2; }
-			Edge* oNext() { return next_; }
-			Edge* oPrev() { return rot()->oNext()->rot(); }
-			Edge* dNext() { return sym()->oNext()->sym(); }
-			Edge* dPrev() { return invRot()->oNext()->invRot(); }
-			Edge* lNext() { return invRot()->oNext()->rot(); }
-			Edge* lPrev() { return oNext()->sym(); }
-			Edge* rNext() { return rot()->oNext()->invRot(); }
-			Edge* rPrev() { return sym()->oNext(); }
+			Edge* const rot()   { return (index_ < 3) ? this + 1 : this - 3; }
+			Edge* const invRot(){ return (index_ > 0) ? this - 1 : this + 3; }
+			Edge* const sym()   { return (index_ < 2) ? this + 2 : this - 2; }
+			Edge* const oNext() { return next_; }
+			Edge* const oPrev() { return rot()->oNext()->rot(); }
+			Edge* const dNext() { return sym()->oNext()->sym(); }
+			Edge* const dPrev() { return invRot()->oNext()->invRot(); }
+			Edge* const lNext() { return invRot()->oNext()->rot(); }
+			Edge* const lPrev() { return oNext()->sym(); }
+			Edge* const rNext() { return rot()->oNext()->invRot(); }
+			Edge* const rPrev() { return sym()->oNext(); }
 
-			QuadEdge* quadEdge() const { return (QuadEdge*)(this - index_); }
+			const Edge* const rot() const   { return (index_ < 3) ? this + 1 : this - 3; }
+			const Edge* const invRot() const{ return (index_ > 0) ? this - 1 : this + 3; }
+			const Edge* const sym() const   { return (index_ < 2) ? this + 2 : this - 2; }
+			const Edge* const oNext() const { return next_; }
+			const Edge* const oPrev() const { return rot()->oNext()->rot(); }
+			const Edge* const dNext() const { return sym()->oNext()->sym(); }
+			const Edge* const dPrev() const { return invRot()->oNext()->invRot(); }
+			const Edge* const lNext() const { return invRot()->oNext()->rot(); }
+			const Edge* const lPrev() const { return oNext()->sym(); }
+			const Edge* const rNext() const { return rot()->oNext()->invRot(); }
+			const Edge* const rPrev() const { return sym()->oNext(); }
+
+			const QuadEdge* const quadEdge() const { return (QuadEdge*)(this - index_); }
+			QuadEdge* const quadEdge() { return (QuadEdge*)(this - index_); }
 			const EdgeHandle& handle() const { return edgeHandle_;}
 			EdgeHandle& handle() { return edgeHandle_; }
 			bool isConstrained() const { return quadEdge()->isConstrained(); }

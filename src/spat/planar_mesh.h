@@ -101,7 +101,7 @@ namespace spat
 		public:
 			enum { size = 8 * sizeof(T) };
 			BitField(T bits = 0x0): bits_(bits) {}
-			const bool operator[](size_t i) 
+			const bool operator[](size_t i) const
 			{ 
 				return bits_ & mask(i) ? true : false; 
 			}
@@ -120,7 +120,7 @@ namespace spat
 				bits_ &= ~mask(i);
 			}
 		private:
-			const T mask(size_t i)
+			const T mask(size_t i) const
 			{
 				LASS_ASSERT(i < size);
 				return 1 << i;
@@ -228,35 +228,35 @@ namespace spat
 		long    edgeCount() const { return edgeCount_; }
 		void    makeMaximalConvexPolygon();
 
-		static	TTriangle2D triangle( TEdge* iEdge);	
-		static	TSimplePolygon2D polygon( TEdge* iEdge);
-		static  const TPoint2D& org( TEdge* iEdge );
-		static  const TPoint2D& dest( TEdge* iEdge );
-		static  const TPoint2D& fastOrg( TEdge* iEdge );
-		static  const TPoint2D& fastDest( TEdge* iEdge );
-		static  TPoint2D along( TEdge* iEdge, const T& iParam );
-		static  TPoint2D fastAlong( TEdge* iEdge, const T& iParam );
-		static	const TVector2D direction( TEdge* iEdge );
-		static  bool  rightOf( const TPoint2D& iPoint, TEdge* iEdge );
-		static  bool  fastRightOf( const TPoint2D& iPoint, TEdge* iEdge );
-		static  bool  leftOf( const TPoint2D& iPoint, TEdge* iEdge );
-		static  bool  fastLeftOf( const TPoint2D& iPoint, TEdge* iEdge );
-		static  bool  onEdge( const TPoint2D& iPoint, TEdge* iEdge );
-		static  bool  hasLeftFace( TEdge* iEdge );
-		static  bool  fastHasLeftFace( TEdge* iEdge );
-		static  bool  hasRightFace( TEdge* iEdge );
-		static  int   chainOrder( TEdge* iEdge );
-		static  int   vertexOrder( TEdge* iEdge );
-		static	bool  allEqualChainOrder( TEdge* iEdge );
-		static  bool  inConvexCell( const TPoint2D& iPoint, TEdge* iEdge );
+		static	TTriangle2D triangle( const TEdge* iEdge);	
+		static	TSimplePolygon2D polygon( const TEdge* iEdge);
+		static  const TPoint2D& org( const TEdge* iEdge );
+		static  const TPoint2D& dest( const TEdge* iEdge );
+		static  const TPoint2D& fastOrg( const TEdge* iEdge );
+		static  const TPoint2D& fastDest( const TEdge* iEdge );
+		static  TPoint2D along( const TEdge* iEdge, const T& iParam );
+		static  TPoint2D fastAlong( const TEdge* iEdge, const T& iParam );
+		static	const TVector2D direction( const TEdge* iEdge );
+		static  bool  rightOf( const TPoint2D& iPoint, const TEdge* iEdge );
+		static  bool  fastRightOf( const TPoint2D& iPoint, const TEdge* iEdge );
+		static  bool  leftOf( const TPoint2D& iPoint, const TEdge* iEdge );
+		static  bool  fastLeftOf( const TPoint2D& iPoint, const TEdge* iEdge );
+		static  bool  onEdge( const TPoint2D& iPoint, const TEdge* iEdge );
+		static  bool  hasLeftFace( const TEdge* iEdge );
+		static  bool  fastHasLeftFace( const TEdge* iEdge );
+		static  bool  hasRightFace( const TEdge* iEdge );
+		static  int   chainOrder( const TEdge* iEdge );
+		static  int   vertexOrder( const TEdge* iEdge );
+		static	bool  allEqualChainOrder( const TEdge* iEdge );
+		static  bool  inConvexCell( const TPoint2D& iPoint, const TEdge* iEdge );
 
-		static  bool inPrimaryMesh( TEdge* iEdge );
-		static  bool inDualMesh( TEdge* iEdge );
-		static  bool marking( TEdge* iEdge );
+		static  bool inPrimaryMesh( const TEdge* iEdge );
+		static  bool inDualMesh( const TEdge* iEdge );
+		static  bool marking( const TEdge* iEdge );
 		static  void setMarking( TEdge* iEdge, bool iMark );
-		static  PointHandle    pointHandle( TEdge* iEdge );
-		static  EdgeHandle     edgeHandle( TEdge* iEdge );
-		static  FaceHandle     faceHandle( TEdge* iEdge );
+		static  PointHandle    pointHandle( const TEdge* iEdge );
+		static  EdgeHandle     edgeHandle( const TEdge* iEdge );
+		static  FaceHandle     faceHandle( const TEdge* iEdge );
 		static  PointHandle&   pointHandleRef( TEdge* iEdge );
 		static  EdgeHandle&    edgeHandleRef( TEdge* iEdge );
 		static  FaceHandle&    faceHandleRef( TEdge* iEdge );
@@ -300,7 +300,7 @@ namespace spat
 		friend class impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle>;
 		friend class impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle>;
 
-		bool internalMarking( TEdge* iEdge );
+		bool internalMarking( const TEdge* iEdge );
 		bool deletePoint( TEdge* e);
 		void setInternalMarking( TEdge* iEdge, bool iMark );
 		void setInternalMarkingAroundVertex( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
@@ -2057,19 +2057,19 @@ continueSearch:
 
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inPrimaryMesh( TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inPrimaryMesh( const TEdge* iEdge )
 	{
 		return (iEdge->index() == 2) || (iEdge->index() == 0);
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inDualMesh( TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inDualMesh( const TEdge* iEdge )
 	{
 		return !inPrimaryMesh( iEdge );
 	}
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TTriangle2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::triangle( TEdge* iEdge)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TTriangle2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::triangle( const TEdge* iEdge)
 	{
 		if (!inPrimaryMesh(iEdge))
 		{
@@ -2079,14 +2079,14 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TSimplePolygon2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::polygon( TEdge* iEdge)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TSimplePolygon2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::polygon( const TEdge* iEdge)
 	{
 		if (!inPrimaryMesh(iEdge))
 		{
 			LASS_THROW("PlanarMesh::polygon: edge not in primary mesh");
 		}
 		TSimplePolygon2D poly;
-		TEdge* cEdge = iEdge;
+		const TEdge* cEdge = iEdge;
 		do
 		{
 			poly.add(org(cEdge));
@@ -2096,13 +2096,13 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inConvexCell( const TPoint2D& iPoint, TEdge* iEdge)
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::inConvexCell( const TPoint2D& iPoint, const TEdge* iEdge)
 	{
 		if (!inPrimaryMesh(iEdge))
 		{
 			LASS_THROW("PlanarMesh::polygon: edge not in primary mesh");
 		}
-		TEdge* cEdge = iEdge;
+		const TEdge* cEdge = iEdge;
 		do
 		{
 			if (rightOf(iPoint, cEdge))
@@ -2113,7 +2113,7 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::org( TEdge* iEdge )
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::org( const TEdge* iEdge )
 	{
 		if (!inPrimaryMesh( iEdge ))
 		{
@@ -2123,13 +2123,13 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastOrg( TEdge* iEdge )
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastOrg( const TEdge* iEdge )
 	{
 		return *iEdge->handle().point_;
 	}
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::along( TEdge* iEdge, const T& iParam )
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::along( const TEdge* iEdge, const T& iParam )
 	{
 		LASS_ASSERT(inPrimaryMesh( iEdge ));
 		/*
@@ -2146,7 +2146,7 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastAlong( TEdge* iEdge, const T& iParam )
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastAlong( const TEdge* iEdge, const T& iParam )
 	{
 		const TPoint2D& eOrg = *iEdge->handle()->point_;
 		const TPoint2D& eDest = *iEdge->sym()->handle()->point_;
@@ -2157,19 +2157,19 @@ continueSearch:
 
 
 	TEMPLATE_DEF inline
-	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( TEdge* iEdge )
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::dest( const TEdge* iEdge )
 	{
 		return org( iEdge->sym() );
 	}
 
 	TEMPLATE_DEF inline
-	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastDest( TEdge* iEdge )
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TPoint2D& PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastDest( const TEdge* iEdge )
 	{
 		return fastOrg( iEdge->sym() );
 	}
 
 	TEMPLATE_DEF inline
-	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TVector2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::direction( TEdge* iEdge )
+	const typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TVector2D PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::direction( const TEdge* iEdge )
 	{
 		return dest( iEdge ) - org( iEdge );
 	}
@@ -2189,32 +2189,32 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::rightOf( const TPoint2D& iPoint, TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::rightOf( const TPoint2D& iPoint, const TEdge* iEdge )
 	{
 		return lass::prim::ccw( iPoint, dest(iEdge), org(iEdge) );
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastRightOf( const TPoint2D& iPoint, TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastRightOf( const TPoint2D& iPoint, const TEdge* iEdge )
 	{
 		return lass::prim::ccw( iPoint, fastDest(iEdge), fastOrg(iEdge) );
 	}
 
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::leftOf( const TPoint2D& iPoint, TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::leftOf( const TPoint2D& iPoint, const TEdge* iEdge )
 	{
 		return lass::prim::ccw( iPoint, org(iEdge), dest(iEdge) );
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastLeftOf( const TPoint2D& iPoint, TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastLeftOf( const TPoint2D& iPoint, const TEdge* iEdge )
 	{
 		return lass::prim::ccw( iPoint, fastOrg(iEdge), fastDest(iEdge) );
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::onEdge( const TPoint2D& iPoint, TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::onEdge( const TPoint2D& iPoint, const TEdge* iEdge )
 	{
 		if (prim::doubleTriangleArea( iPoint, org(iEdge), dest(iEdge)) == T(0) )
 		{
@@ -2225,7 +2225,7 @@ continueSearch:
 		return false;
 	}
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasLeftFace( TEdge* e )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasLeftFace( const TEdge* e )
 	{
 //#pragma LASS_TODO("This only works for triangular faces... update to general convex polygonal faces")
 //		return ( org(e->lPrev()) == dest(e->lNext()) &&
@@ -2234,7 +2234,7 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastHasLeftFace( TEdge* e )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::fastHasLeftFace( const TEdge* e )
 	{
 //#pragma LASS_TODO("This only works for triangular faces... update to general convex polygonal faces")
 //		return ( org(e->lPrev()) == dest(e->lNext()) &&
@@ -2243,7 +2243,7 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasRightFace( TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::hasRightFace( const TEdge* iEdge )
 	{
 		return hasLeftFace( iEdge->sym() );
 	}
@@ -2253,10 +2253,10 @@ continueSearch:
 	*	in the polygon on the left of iEdge.
 	*/
 	TEMPLATE_DEF
-	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::chainOrder( TEdge* iEdge )
+	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::chainOrder( const TEdge* iEdge )
 	{
 		int order = 0;
-		TEdge* currentEdge = iEdge;
+		const TEdge* currentEdge = iEdge;
 		do
 		{
 			++order;
@@ -2270,7 +2270,7 @@ continueSearch:
 	*
 	*/
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::allEqualChainOrder( TEdge* iEdge ) 
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::allEqualChainOrder( const TEdge* iEdge ) 
 	{
 		int chOrd = chainOrder(iEdge);
 		for (int i=1;i<vertexOrder(iEdge);++i)
@@ -2287,10 +2287,10 @@ continueSearch:
 	*	This is the number of undirected edges connected to this origin.
 	*/
 	TEMPLATE_DEF
-	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::vertexOrder( TEdge* iEdge )
+	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::vertexOrder( const TEdge* iEdge )
 	{
 		int order = 0;
-		TEdge* currentEdge = iEdge;
+		const TEdge* currentEdge = iEdge;
 		do
 		{
 			++order;
@@ -2301,32 +2301,32 @@ continueSearch:
 
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::marking( TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::marking( const TEdge* iEdge )
 	{
 		return iEdge->handle().internalMark_[publicMarkIndex];
 	}
 
 	TEMPLATE_DEF
-	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::internalMarking( TEdge* iEdge )
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::internalMarking( const TEdge* iEdge )
 	{
 		return iEdge->handle().internalMark_[stackDepth_];
 	}
 
 
 	TEMPLATE_DEF
-	PointHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandle( TEdge* iEdge )
+	PointHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointHandle( const TEdge* iEdge )
 	{
 		return inPrimaryMesh( iEdge ) ? iEdge->handle().pointHandle() : PointHandle();
 	}
 
 	TEMPLATE_DEF
-	EdgeHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandle( TEdge* iEdge )
+	EdgeHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::edgeHandle( const TEdge* iEdge )
 	{
 		return inPrimaryMesh( iEdge ) ? iEdge->handle().edgeHandle() : EdgeHandle();
 	}
 
 	TEMPLATE_DEF
-	FaceHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::faceHandle( TEdge* iEdge )
+	FaceHandle PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::faceHandle(const  TEdge* iEdge )
 	{
 		if ( inPrimaryMesh( iEdge ) )
 		{
