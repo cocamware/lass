@@ -64,10 +64,10 @@ struct DefaultSplitHeuristics
 
 		LASS_ASSERT(numObjectsPerLeaf > 0);
 
-		TAabb aabb = ObjectTraits::emptyAabb();
+		TAabb aabb = ObjectTraits::aabbEmpty();
 		for (RandomIterator i = first; i != last; ++i)
 		{
-			aabb = ObjectTraits::join(aabb, i->aabb);
+			aabb = ObjectTraits::aabbJoin(aabb, i->aabb);
 		}
 
 		const int n = static_cast<int>(last - first);
@@ -76,14 +76,14 @@ struct DefaultSplitHeuristics
 			return SplitInfo<ObjectTraits>(aabb, 0, -1);
 		}
 		
-		const TPoint min = ObjectTraits::min(aabb);
-		const TPoint max = ObjectTraits::max(aabb);
+		const TPoint min = ObjectTraits::aabbMin(aabb);
+		const TPoint max = ObjectTraits::aabbMax(aabb);
 		int axis = 0;
-		TValue maxDistance = ObjectTraits::coordinate(max, 0) - ObjectTraits::coordinate(min, 0);
+		TValue maxDistance = ObjectTraits::pointCoordinate(max, 0) - ObjectTraits::pointCoordinate(min, 0);
 		for (int k = 1; k < ObjectTraits::dimension; ++k)
 		{
 			const TValue distance = 
-				ObjectTraits::coordinate(max, k) - ObjectTraits::coordinate(min, k);
+				ObjectTraits::pointCoordinate(max, k) - ObjectTraits::pointCoordinate(min, k);
 			if (distance > maxDistance)
 			{
 				axis = k;
@@ -92,7 +92,7 @@ struct DefaultSplitHeuristics
 		}
 
 		const TValue x = 
-			(ObjectTraits::coordinate(min, axis) + ObjectTraits::coordinate(max, axis)) / 2;
+			(ObjectTraits::pointCoordinate(min, axis) + ObjectTraits::pointCoordinate(max, axis)) / 2;
 		return SplitInfo<ObjectTraits>(aabb, x, axis);
 	}
 };
@@ -101,15 +101,14 @@ namespace impl
 {
 
 template <typename ObjectTraits>
-class Splitter
+class Splitter: private ObjectTraits
 {
 public:
 	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
 	template <typename Input> bool operator()(const Input& input) const
 	{
-		const typename ObjectTraits::TValue x = 
-			(ObjectTraits::coordinate(ObjectTraits::min(input.aabb), split_.axis) +
-			ObjectTraits::coordinate(ObjectTraits::max(input.aabb), split_.axis)) / 2;
+		const typename TValue x = 
+			(pointCoordinate(aabbMin(input.aabb), split_.axis) + pointCoordinate(aabbMax(input.aabb), split_.axis)) / 2;
 		return x < split_.x;
 	}			
 private:
@@ -117,18 +116,14 @@ private:
 };
 
 template <typename ObjectTraits>
-class LessAxis
+class LessAxis: private ObjectTraits
 {
 public:
 	LessAxis(int iAxis): axis_(iAxis) {}
 	template <typename Input> bool operator()(const Input& a, const Input& b) const
 	{
-		const typename ObjectTraits::TValue xa = 
-			(ObjectTraits::coordinate(ObjectTraits::min(a.aabb), axis_) +
-			ObjectTraits::coordinate(ObjectTraits::max(a.aabb), axis_)) / 2;
-		const typename ObjectTraits::TValue xb = 
-			(ObjectTraits::coordinate(ObjectTraits::min(b.aabb), axis_) +
-			ObjectTraits::coordinate(ObjectTraits::max(b.aabb), axis_)) / 2;
+		const TValue xa = (pointCoordinate(aabbMin(a.aabb), axis_) + pointCoordinate(aabbMax(a.aabb), axis_)) / 2;
+		const TValue xb = (pointCoordinate(aabbMin(b.aabb), axis_) + pointCoordinate(aabbMax(b.aabb), axis_)) / 2;
 		return xa < xb;
 	}			
 private:

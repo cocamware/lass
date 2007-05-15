@@ -43,19 +43,114 @@ namespace lass
 namespace spat
 {
 
-namespace impl
+template
+<
+	typename AabbType, 
+	typename RayType
+>
+struct DefaultAabbRayTraits
 {
-template <typename Aabb, typename Object> inline 
-Aabb aabbHelper(const Object& iObject) 
-{ 
-	return aabb(iObject); 
-}
-template <typename Object, typename Ray, typename Ref, typename Param> inline 
-prim::Result intersectHelper(const Object& iObject, const Ray& iRay, Ref oT, Param iMinT) 
-{
-	return intersect(iObject, iRay, oT, iMinT);
-}
-}
+	typedef AabbType TAabb;						/**< an nD AABB */
+	typedef RayType TRay;						/**< an nD Ray */
+
+	typedef typename TAabb::TPoint TPoint;		/**< an nD point */
+	typedef typename TAabb::TVector TVector;	/**< an nD vector */
+	typedef typename TAabb::TValue TValue;		/**< numerical type used in TPoint and TVector */
+	typedef typename TAabb::TParam TParam;		/**< best type for function parameters of TValue */
+	typedef typename TAabb::TReference TReference;	/**< reference to TValue */
+	typedef typename TAabb::TConstReference TConstReference; /**< const reference to TValue */
+	typedef typename TAabb::TNumTraits TNumTraits;
+	
+	enum { dimension = TAabb::dimension };		/**< nD = number of dimensions of TPoint */
+
+	// AABB
+
+	/** return empty AABB
+	 */
+	static const TAabb aabbEmpty()
+	{
+		return TAabb();
+	}
+
+	/** return true if AABB contains a point, return false otherwise
+	 */
+	static const bool aabbContains(const TAabb& aabb, const TPoint& point) 
+	{ 
+		return aabb.contains(point); 
+	}
+
+	/** return true if AABB is intersected by ray
+	 */
+	static const bool aabbIntersect(const TAabb& aabb, const TRay& ray, TReference t, const TParam tMin)
+	{
+		return intersect(aabb, ray, t, tMin) != prim::rNone;
+	}
+	
+	/** join two AABBs and return the result
+	 */
+	static const TAabb aabbJoin(const TAabb& a, const TAabb& b) 
+	{ 
+		return a + b; 
+	}
+	
+	/** return the minimum corner of the AABB
+	 */
+	static const TPoint aabbMin(const TAabb& aabb) 
+	{ 
+		return aabb.min(); 
+	}
+
+	/** return the maximum corner of the AABB 
+	 */
+	static const TPoint aabbMax(const TAabb& aabb) 
+	{ 
+		return aabb.max(); 
+	}
+
+
+	// RAY
+
+	/** return the support point of the ray
+	 */
+	static const TPoint raySupport(const TRay& ray)
+	{
+		return ray.support();
+	}
+
+	/** return the direction vector of the ray
+	 */
+	static const TVector rayDirection(const TRay& ray)
+	{
+		return ray.direction();
+	}
+
+
+
+	// POINTS AND VECTORS
+
+	/** return the @a axis coordinate value of @a point.
+	 */
+	static const TValue pointCoordinate(const TPoint& point, size_t axis) 
+	{ 
+		return point[axis]; 
+	}
+
+	/** return the @a axis component value of @a vector.
+	 */
+	static const TValue vectorComponent(const TVector& vector, size_t axis)
+	{
+		return vector[axis];
+	}
+
+	/** return the reciprocal vector of @a vector
+	 */
+	static const TVector vectorReciprocal(const TVector& vector)
+	{
+		return vector.reciprocal();
+	}
+};
+
+
 
 template 
 <
@@ -64,157 +159,47 @@ template
 	typename RayType = typename ObjectType::TRay,
 	typename ObjectIterator = const ObjectType*
 >
-struct DefaultObjectTraits
+struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 {
 	typedef ObjectType TObject;					/**< type of nD object */
-	typedef AabbType TAabb;						/**< an nD AABB */
-	typedef RayType TRay;						/**< an nD Ray */
-
 	typedef ObjectIterator TObjectIterator;		/**< iterator to object */
 	typedef const TObject& TObjectReference;	/**< const reference to object */
-
-	typedef typename TAabb::TPoint TPoint;		/**< an nD point */
-	typedef typename TAabb::TVector TVector;	/**< an nD vector */
-	typedef typename TAabb::TValue TValue;		/**< numerical type used in TPoint and TVector */
-	typedef typename TAabb::TParam TParam;		/**< best type for function parameters of TValue */
-	typedef typename TAabb::TReference TReference;	/**< reference to TValue */
-	typedef typename TAabb::TConstReference TConstReference; /**< const reference to TValue */
-
-	typedef void TInfo;
-	
-	enum { dimension = TAabb::dimension };		/**< nD = number of dimensions of TPoint */
-
-
-	// OBJECT
+	typedef void TInfo;							/**< extra info for contain/intersect operations */
 
 	/** return reference to object
 	 */
-	static TObjectReference object(TObjectIterator iObject)
+	static TObjectReference object(TObjectIterator it)
 	{
-		return *iObject;
+		return *it;
 	}
 
 	/** return the AABB of an object
 	 */
-	static const TAabb aabb(TObjectIterator iObject) 
+	static const TAabb objectAabb(TObjectIterator it) 
 	{ 
-		return impl::aabbHelper<TAabb, TObject>(object(iObject)); 
+		return aabb(object(it));
 	}
 	
 	/** return true if object contains a point, return false otherwise
 	 */
-	static const bool contains(TObjectIterator iObject, const TPoint& iPoint, const TInfo* /*iInfo*/) 
+	static const bool objectContains(TObjectIterator it, const TPoint& point, const TInfo* /*iInfo*/) 
 	{ 
-		return object(iObject).contains(iPoint); 
+		return object(it).contains(point); 
 	}
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool intersect(TObjectIterator iObject, const TRay& iRay, 
-		TReference oT, TParam iMinT, const TInfo* /*iInfo*/)
+	static const bool objectIntersect(TObjectIterator it, const TRay& ray, TReference t, TParam tMin, const TInfo* /*iInfo*/)
 	{
-		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
-			object(iObject), iRay, oT, iMinT);
-		return hit != prim::rNone;
+		return intersect(object(it), ray, t, tMin) != prim::rNone;
 	}
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool intersects(TObjectIterator iObject, const TRay& iRay, 
-		TParam iMinT, TParam iMaxT, const TInfo* /*iInfo*/)
+	static const bool objectIntersects(TObjectIterator it, const TRay& ray, TParam tMin, TParam tMax, const TInfo* /*iInfo*/)
 	{
 		TValue t;
-		const prim::Result hit = impl::intersectHelper<TObject, TRay, TReference, TParam>(
-			object(iObject), iRay, t, iMinT);
-		return hit != prim::rNone && t < iMaxT;
-	}
-	
-
-	// AABB
-
-	/** return empty AABB
-	 */
-	static const TAabb emptyAabb()
-	{
-		return TAabb();
-	}
-
-	/** return true if AABB contains a point, return false otherwise
-	 */
-	static const bool contains(const TAabb& iAabb, const TPoint& iPoint) 
-	{ 
-		return iAabb.contains(iPoint); 
-	}
-
-	/** return true if AABB is intersected by ray
-	 */
-	static const bool intersect(const TAabb& iAabb, const TRay& iRay, TReference oT, const TParam iMinT)
-	{
-		return impl::intersectHelper<TAabb, TRay, TReference, TParam>(
-			iAabb, iRay, oT, iMinT) != prim::rNone;
-	}
-	
-	/** join two AABBs and return the result
-	 */
-	static const TAabb join(const TAabb& iA, const TAabb& iB) 
-	{ 
-		return iA + iB; 
-	}
-	
-	/** return the minimum corner of the AABB
-	 */
-	static const TPoint min(const TAabb& iAabb) 
-	{ 
-		return iAabb.min(); 
-	}
-
-	/** return the maximum corner of the AABB 
-	 */
-	static const TPoint max(const TAabb& iAabb) 
-	{ 
-		return iAabb.max(); 
-	}
-
-
-	// RAY
-
-	/** return the support point of the ray
-	 */
-	static const TPoint support(const TRay& iRay)
-	{
-		return iRay.support();
-	}
-
-	/** return the direction vector of the ray
-	 */
-	static const TVector direction(const TRay& iRay)
-	{
-		return iRay.direction();
-	}
-
-
-
-	// POINTS AND VECTORS
-
-	/** return the @a iAxis coordinate value of @a iPoint.
-	 */
-	static const TValue coordinate(const TPoint& iPoint, size_t iAxis) 
-	{ 
-		return iPoint[iAxis]; 
-	}
-
-	/** return the @a iAxis component value of @a iVector.
-	 */
-	static const TValue component(const TVector& iVector, size_t iAxis)
-	{
-		return iVector[iAxis];
-	}
-
-	/** return the reciprocal vector of @a iVector
-	 */
-	static const TVector reciprocal(const TVector& iVector)
-	{
-		return iVector.reciprocal();
+		return intersect(object(it), ray, t, tMin) != prim::rNone && t < tMax;
 	}
 };
 

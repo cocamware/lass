@@ -40,6 +40,7 @@
 #include "impl/intersect_triangle_3d.h"
 #include "../stde/iterator_range.h"
 #include "../num/impl/matrix_solve.h"
+#include "../spat/default_object_traits.h"
 
 namespace lass
 {
@@ -158,72 +159,35 @@ public:
 	
 private:
 
-	struct ObjectTraits
+	struct TriangleTraits: public spat::DefaultAabbRayTraits<TAabb, TRay>
 	{
 		typedef typename TSelf::TTriangle TObject;
-		typedef typename TSelf::TAabb TAabb;
-		typedef typename TSelf::TRay TRay;
-
 		typedef typename TSelf::TTriangleIterator TObjectIterator;
 		typedef const TTriangle& TObjectReference;
-
-		typedef typename TSelf::TPoint TPoint;
-		typedef typename TSelf::TVector TVector;
-		typedef typename TSelf::TValue TValue;
-		typedef typename TSelf::TParam TParam;
-		typedef typename TSelf::TReference TReference;
-		typedef typename TSelf::TConstReference TConstReference;
-
 		typedef void TInfo;
-		
-		enum { dimension = TSelf::dimension };
-
-		static const TAabb aabb(TObjectIterator object) 
+		static const TAabb objectAabb(TObjectIterator triangle) 
 		{
 			TAabb result;
-			result += *object->vertices[0]; 
-			result += *object->vertices[1];
-			result += *object->vertices[2];
+			result += *(triangle->vertices[0]); 
+			result += *(triangle->vertices[1]);
+			result += *(triangle->vertices[2]);
 			return result;
 		}
-
-		static const bool intersect(TObjectIterator object, const TRay& ray, 
+		static const bool objectIntersect(TObjectIterator triangle, const TRay& ray, 
 			TReference t, TParam tMin, const TInfo* info)
 		{
-			return object->intersect(ray, t, tMin) == rOne;
+			return triangle->intersect(ray, t, tMin) == rOne;
 		}
-
-		static const bool intersects(TObjectIterator object, const TRay& ray, 
+		static const bool objectIntersects(TObjectIterator triangle, const TRay& ray, 
 			TParam tMin, TParam tMax, const TInfo* info)
 		{
 			TValue t;
-			Result hit = object->intersect(ray, t, tMin);
+			Result hit = triangle->intersect(ray, t, tMin);
 			return hit == rOne && t < tMax;
 		}
-
-		static const bool contains(const TAabb& aabb, const TPoint& point) 
-		{ 
-			return aabb.contains(point); 
-		}
-
-		static const bool intersect(const TAabb& aabb, const TRay& ray, 
-			TReference t, const TParam tMin)
-		{
-			return prim::intersect(aabb, ray, t, tMin) != prim::rNone;
-		}
-
-		static const TAabb emptyAabb() { return TAabb(); }
-		static const TAabb join(const TAabb& a, const TAabb& b) { return a + b; }
-		static const TPoint min(const TAabb& aabb) { return aabb.min(); }
-		static const TPoint max(const TAabb& aabb) { return aabb.max(); }
-		static const TPoint support(const TRay& ray) {	return ray.support(); }
-		static const TVector direction(const TRay& ray) { return ray.direction();	}
-		static const TValue coordinate(const TPoint& point, size_t axis) { return point[axis]; }
-		static const TValue component(const TVector& vector, size_t axis) { return vector[axis]; }
-		static const TVector reciprocal(const TVector& vector) { return vector.reciprocal(); }
 	};
 
-	typedef BoundingVolumeHierarchy<TTriangle, ObjectTraits, SplitHeuristics> TTriangleTree;
+	typedef BoundingVolumeHierarchy<TTriangle, TriangleTraits, SplitHeuristics> TTriangleTree;
 	
 	struct LogicalEdge
 	{

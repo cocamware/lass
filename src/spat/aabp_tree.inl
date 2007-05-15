@@ -40,7 +40,7 @@ namespace spat
 
 template <typename O, typename OT, typename SH>
 AabpTree<O, OT, SH>::AabpTree():
-	aabb_(TObjectTraits::emptyAabb()),
+	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
 	end_()
@@ -51,7 +51,7 @@ AabpTree<O, OT, SH>::AabpTree():
 
 template <typename O, typename OT, typename SH>
 AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last):
-	aabb_(TObjectTraits::emptyAabb()),
+	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
 	end_(last)
@@ -61,8 +61,8 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last):
 		TInputs inputs;
 		for (TObjectIterator i = first; i != last; ++i)
 		{
-			TAabb aabb = TObjectTraits::aabb(i);
-			aabb_ = TObjectTraits::join(aabb_, aabb);
+			TAabb aabb = TObjectTraits::objectAabb(i);
+			aabb_ = TObjectTraits::aabbJoin(aabb_, aabb);
 			inputs.push_back(Input(aabb, i));
 		}
 		balance(inputs.begin(), inputs.end());
@@ -101,7 +101,7 @@ AabpTree<O, OT, SH>::aabb() const
 template <typename O, typename OT, typename SH>
 const bool AabpTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 {
-	if (isEmpty() || !TObjectTraits::contains(aabb_, point))
+	if (isEmpty() || !TObjectTraits::aabbContains(aabb_, point))
 	{
 		return false;
 	}
@@ -115,7 +115,7 @@ template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::find(
 		const TPoint& point, OutputIterator result, const TInfo* info) const
 {
-	if (isEmpty() || !TObjectTraits::contains(aabb_, point))
+	if (isEmpty() || !TObjectTraits::aabbContains(aabb_, point))
 	{
 		return result;
 	}
@@ -129,17 +129,17 @@ const typename AabpTree<O, OT, SH>::TObjectIterator
 AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam minT, const TInfo* info) const
 {
 	TValue tNear;
-	if (isEmpty() || !TObjectTraits::intersect(aabb_, ray, tNear, minT))
+	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, minT))
 	{
 		return end_;
 	}
 	TValue tFar;
-	if (!TObjectTraits::intersect(aabb_, ray, tFar, tNear))
+	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
 	{
 		tFar = tNear;
 		tNear = minT;
 	}
-	const TVector reciprocalDirection = TObjectTraits::reciprocal(TObjectTraits::direction(ray));
+	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
 	TObjectIterator hit = doIntersect(0, ray, t, minT, info, reciprocalDirection, tNear, tFar);
 	LASS_ASSERT(t > minT || hit == end_);
 	return hit;
@@ -152,12 +152,12 @@ const bool AabpTree<O, OT, SH>::intersects(
 		const TRay& ray, TParam minT, TParam maxT, const TInfo* info) const
 {
 	TValue tNear;
-	if (isEmpty() || !TObjectTraits::intersect(aabb_, ray, tNear, minT))
+	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, minT))
 	{
 		return false;
 	}
 	TValue tFar;
-	if (!TObjectTraits::intersect(aabb_, ray, tFar, tNear))
+	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
 	{
 		tFar = tNear;
 		tNear = minT;
@@ -166,7 +166,7 @@ const bool AabpTree<O, OT, SH>::intersects(
 	{
 		return false;
 	}
-	const TVector reciprocalDirection = TObjectTraits::reciprocal(TObjectTraits::direction(ray));
+	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
 	return doIntersects(0, ray, minT, maxT, info, reciprocalDirection, tNear, tFar);
 }
 
@@ -231,8 +231,8 @@ AabpTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	const BalanceResult right = balance(middle, last);
 	
 	Node& node = nodes_[index];
-	node.leftBound() = TObjectTraits::coordinate(TObjectTraits::max(left.aabb), split.axis);
-	node.rightBound() = TObjectTraits::coordinate(TObjectTraits::min(right.aabb), split.axis);
+	node.leftBound() = TObjectTraits::pointCoordinate(TObjectTraits::aabbMax(left.aabb), split.axis);
+	node.rightBound() = TObjectTraits::pointCoordinate(TObjectTraits::aabbMin(right.aabb), split.axis);
 	LASS_ASSERT(left.index == index + 1);
 	node.right() = right.index;
 	
@@ -280,7 +280,7 @@ const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
-			if (TObjectTraits::contains(objects_[i], point, info))
+			if (TObjectTraits::objectContains(objects_[i], point, info))
 			{
 				return true;
 			}
@@ -288,7 +288,7 @@ const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const
 		return false;
 	}
 
-	const TValue x = TObjectTraits::coordinate(point, node.axis());
+	const TValue x = TObjectTraits::pointCoordinate(point, node.axis());
 	if (x <= node.leftBound() && doContains(index + 1, point, info))
 	{
 		return true;
@@ -314,7 +314,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
-			if (TObjectTraits::contains(objects_[i], point, info))
+			if (TObjectTraits::objectContains(objects_[i], point, info))
 			{
 				*result++ = objects_[i];
 			}
@@ -322,7 +322,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 		return result;
 	}
 
-	const TValue x = TObjectTraits::coordinate(point, node.axis());
+	const TValue x = TObjectTraits::pointCoordinate(point, node.axis());
 	if (x <= node.leftBound())
 	{
 		result = doFind(index + 1, point, result, info);
@@ -353,7 +353,7 @@ AabpTree<O, OT, SH>::doIntersect(
 		for (int i = node.first(); i != node.last(); ++i)
 		{
 			TValue tCandidate;
-			if (TObjectTraits::intersect(objects_[i], ray, tCandidate, tMin, info))
+			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 			{
 				LASS_ASSERT(tCandidate > tMin);
 				if (best == end_ || tCandidate < tBest)
@@ -373,9 +373,9 @@ AabpTree<O, OT, SH>::doIntersect(
 	// check children
 	const int leftIndex = index + 1;
 	const int rightIndex = node.right();
-	const TValue s = TObjectTraits::coordinate(TObjectTraits::support(ray), node.axis());
-	const TValue d = TObjectTraits::component(TObjectTraits::direction(ray), node.axis());
-	const TValue invD = TObjectTraits::component(reciprocalDirection, node.axis());
+	const TValue s = TObjectTraits::pointCoordinate(TObjectTraits::raySupport(ray), node.axis());
+	const TValue d = TObjectTraits::vectorComponent(TObjectTraits::rayDirection(ray), node.axis());
+	const TValue invD = TObjectTraits::vectorComponent(reciprocalDirection, node.axis());
 	const TValue tLeftBound = (node.leftBound() - s) * invD;
 	const TValue tRightBound = (node.rightBound() - s) * invD;
 	
@@ -455,7 +455,7 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
-			if (TObjectTraits::intersects(objects_[i], ray, tMin, tMax, info))
+			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
 			{
 				return true;
 			}
@@ -466,9 +466,9 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	// check children
 	const int leftIndex = index + 1;
 	const int rightIndex = node.right();
-	const TValue s = TObjectTraits::coordinate(TObjectTraits::support(ray), node.axis());
-	const TValue d = TObjectTraits::component(TObjectTraits::direction(ray), node.axis());
-	const TValue invD = TObjectTraits::component(reciprocalDirection, node.axis());
+	const TValue s = TObjectTraits::pointCoordinate(TObjectTraits::raySupport(ray), node.axis());
+	const TValue d = TObjectTraits::vectorComponent(TObjectTraits::rayDirection(ray), node.axis());
+	const TValue invD = TObjectTraits::vectorComponent(reciprocalDirection, node.axis());
 	const TValue tLeftBound = (node.leftBound() - s) * invD;
 	const TValue tRightBound = (node.rightBound() - s) * invD;
 	

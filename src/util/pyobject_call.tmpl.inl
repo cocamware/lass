@@ -52,6 +52,11 @@
 #define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN\
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(0)
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int', possible loss of data
+#endif
+
 namespace lass
 {
 namespace python
@@ -695,6 +700,9 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, meta::TypeList<Head, Tail> >
 
 }
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

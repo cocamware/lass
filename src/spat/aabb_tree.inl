@@ -59,7 +59,7 @@ AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last):
 		TInputs inputs;
 		for (TObjectIterator i = first; i != last; ++i)
 		{
-			inputs.push_back(Input(TObjectTraits::aabb(i), i));
+			inputs.push_back(Input(TObjectTraits::objectAabb(i), i));
 		}
 		balance(inputs.begin(), inputs.end());
 	}
@@ -82,7 +82,7 @@ AabbTree<O, OT, SH>::aabb() const
 {
 	if (isEmpty())
 	{
-		return TObjectTraits::emptyAabb();
+		return TObjectTraits::aabbEmpty();
 	}
 	return nodes_[0].aabb();
 }
@@ -239,7 +239,7 @@ bool AabbTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
-	if (!TObjectTraits::contains(node.aabb(), point))
+	if (!TObjectTraits::aabbContains(node.aabb(), point))
 	{
 		return false;
 	}
@@ -249,7 +249,7 @@ bool AabbTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::contains(objects_[i], point, info))
+		if (TObjectTraits::objectContains(objects_[i], point, info))
 		{
 			return true;
 		}
@@ -267,7 +267,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
-	if (!TObjectTraits::contains(node.aabb(), point))
+	if (!TObjectTraits::aabbContains(node.aabb(), point))
 	{
 		return result;
 	}
@@ -278,7 +278,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::contains(objects_[i], point, info))
+		if (TObjectTraits::objectContains(objects_[i], point, info))
 		{
 			*result++ = objects_[i];
 		}
@@ -297,7 +297,7 @@ AabbTree<O, OT, SH>::doIntersect(
 	const Node& node = nodes_[index];
 
 	TValue tDummy;
-	if (!TObjectTraits::intersect(node.aabb(), ray, tDummy, tMin))
+	if (!TObjectTraits::aabbIntersect(node.aabb(), ray, tDummy, tMin))
 	{
 		return end_;
 	}
@@ -328,7 +328,7 @@ AabbTree<O, OT, SH>::doIntersect(
 	for (int i = node.first(); i != node.last(); ++i)
 	{
 		TValue tCandidate;
-		if (TObjectTraits::intersect(objects_[i], ray, tCandidate, tMin, info))
+		if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 		{
 			if (best == end_ || tCandidate < tBest)
 			{
@@ -354,7 +354,7 @@ bool AabbTree<O, OT, SH>::doIntersects(
 	const Node& node = nodes_[index];
 
 	TValue tDummy;
-	if (!TObjectTraits::intersect(node.aabb(), ray, tDummy, tMin))
+	if (!TObjectTraits::aabbIntersect(node.aabb(), ray, tDummy, tMin))
 	{
 		return false;
 	}
@@ -365,7 +365,7 @@ bool AabbTree<O, OT, SH>::doIntersects(
 	}
 	for (int i = node.first(); i != node.last(); ++i)
 	{
-		if (TObjectTraits::intersects(objects_[i], ray, tMin, tMax, info))
+		if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
 		{
 			return true;
 		}
