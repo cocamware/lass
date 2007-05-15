@@ -108,9 +108,6 @@ namespace lass
 			PyObjectPlus(); 
 			virtual ~PyObjectPlus();
 
-			PyObjectPlus* PyPlus_INCREF(void);// incref method
-			PyObjectPlus* PyPlus_DECREF(void);// decref method
-
 			static void __dealloc(PyObject *P);
 
 			static  PyObject*   __repr(PyObject *PyObj);
@@ -127,6 +124,11 @@ namespace lass
 
 		namespace impl
 		{
+			/** @internal
+			 *  Fast reentrant lock for reference count operations
+			 */
+			extern LASS_DLL util::CriticalSection referenceMutex;
+
 			/** @internal
 			 *  On creation, PyObjectPlus are typeless (ob_type == 0), 
 			 *  call this function to fix that for you.  
@@ -195,7 +197,7 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
 			template <typename TStorage> void increment(TStorage& iPointee)
 			{
-				LASS_LOCK(sync_)
+				LASS_LOCK(impl::referenceMutex)
 				{
 					Py_INCREF(iPointee);
 				}
@@ -203,7 +205,7 @@ namespace lass
 			template <typename TStorage> bool decrement(TStorage& iPointee)
 			{
 				bool r = false;
-				LASS_LOCK(sync_)
+				LASS_LOCK(impl::referenceMutex)
 				{
 					LASS_ASSERT(iPointee);
 					r = iPointee->ob_refcnt <=1;
@@ -226,8 +228,6 @@ namespace lass
 				LASS_ASSERT(oStorage->ob_refcnt);
 			}
 			void swap(PyObjectCounter& /*iOther*/) {}
-		private:
-			static util::CriticalSection sync_;
 		};
 
 		/** templated "typedef" to a python shared pointer
@@ -244,9 +244,6 @@ namespace lass
 		 */
 		typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 
-		template<class T>   T*  PyPlus_INCREF(T* iObj)  { Py_INCREF(iObj); return iObj; }
-		template<class T>   T*  PyPlus_DECREF(T* iObj)  { Py_DECREF(iObj); return iObj; }
-
 		/** fromNakedToSharedPtrCast.
 		*   @ingroup Python
 		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
@@ -254,11 +251,13 @@ namespace lass
 		*/
 		template<class T>
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
-		fromNakedToSharedPtrCast(PyObject* iObj)
+		fromNakedToSharedPtrCast(PyObject* object)
 		{
-			Py_XINCREF(iObj);
-			return lass::util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(
-				static_cast<T*>(iObj) );
+			LASS_LOCK(impl::referenceMutex) 
+			{
+				Py_XINCREF(object);
+			}
+			return util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(static_cast<T*>(object));
 		}
 
 		/** fromSharedPtrToNakedCast.
@@ -269,10 +268,14 @@ namespace lass
 		*/
 		template<class T>
 		PyObject*
-		fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iObj)
+		fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& object)
 		{
-			Py_XINCREF(iObj.get());
-			return iObj.get();
+			PyObject* const obj = object.get();
+			LASS_LOCK(impl::referenceMutex) 
+			{
+				Py_XINCREF(obj);
+			}
+			return obj;
 		}
 
 		/** meta function to detect if a type is a PyObject-derived type

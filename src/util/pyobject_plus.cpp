@@ -37,7 +37,6 @@ namespace python
 {
 
 PyTypeObject PyObjectPlus::Type = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
-util::CriticalSection PyObjectCounter::sync_;
 
 std::vector<PyMethodDef> initAbstractMethods()
 {
@@ -88,18 +87,6 @@ PyObject*   PyObjectPlus::__str(PyObject *PyObj)
 	return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr());
 }
 
-PyObjectPlus* PyObjectPlus::PyPlus_INCREF(void)
-{
-	Py_INCREF(this);
-	return this;
-};
-
-PyObjectPlus* PyObjectPlus::PyPlus_DECREF(void)
-{
-	Py_DECREF(this);
-	return this;
-}
-
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 {
 	this->ob_type = iOther.ob_type;
@@ -138,6 +125,8 @@ TPyObjPtr getPyObjectByName(const std::string& iName)
 
 namespace impl
 {
+
+util::CriticalSection referenceMutex;
 
 OverloadLink::OverloadLink()
 {

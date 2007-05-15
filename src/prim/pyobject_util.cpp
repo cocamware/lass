@@ -154,7 +154,7 @@ namespace impl
 				tuple = python::makeTuple(iVertex, iNormal, iUv);
 			}
 		}
-		return python::PyPlus_INCREF(tuple.get());
+		return python::fromSharedPtrToNakedCast(tuple);
 	}
 
 	int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
@@ -231,7 +231,7 @@ PyObject* pyBuildSimpleObject(const prim::IndexTriangle& iTriangle)
 		if (!vertex) return 0;
 		if (PyTuple_SetItem(triangle.get(), k, vertex) != 0) return 0;
 	}
-	return PyPlus_INCREF(triangle.get());
+	return fromSharedPtrToNakedCast(triangle);
 }
 
 
