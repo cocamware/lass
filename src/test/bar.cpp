@@ -62,12 +62,12 @@ namespace test
 			return i+1;
 		}
 
-		std::string Bar::pyRepr(void)
+		std::string Bar::doPyRepr(void)
 		{
 			return std::string( "The representation of Bar object at " + lass::util::stringCast<std::string>(this) );
 		}
 
-		std::string Bar::pyStr(void)
+		std::string Bar::doPyStr(void)
 		{
 			return std::string( "The string of Bar object at " + lass::util::stringCast<std::string>(this) );
 		}

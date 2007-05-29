@@ -183,12 +183,12 @@ namespace impl
 		}
 		//PySequence( PyObject* iP );
 		virtual ~PySequence();
+		virtual std::string doPyStr(void)		{ return pimpl_->pyStr(); }
+		virtual std::string doPyRepr(void)	{ return pimpl_->pyRepr(); }
 		virtual void append(PyObject* i)	{ pimpl_->append(i); }
 		virtual void clear()				{ pimpl_->clear(); }
 		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
 		virtual TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
-		virtual std::string pyStr(void)		{ return pimpl_->pyStr(); }
-		virtual std::string pyRepr(void)	{ return pimpl_->pyRepr(); }
 
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
@@ -417,7 +417,7 @@ namespace impl
 			return 1;
 		}
 		// check if we have our own PySequence object, then take a shortcut
-		if (isOfType(iValue, &PySequence::Type) && ((PySequence*)iValue)->pointsToSameContainer(oV))
+		if (isOfType(iValue, &PySequence::_lassPyType) && ((PySequence*)iValue)->pointsToSameContainer(oV))
 		{
 			return 0;
 		}

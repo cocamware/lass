@@ -41,12 +41,12 @@ namespace test
 {
 namespace thread_pool
 {
-	const unsigned numberOfTasks = 40;
+	const size_t numberOfTasks = 40;
 	bool taskIsDone[numberOfTasks];
-	unsigned counter = 0;
+	size_t counter = 0;
 	util::CriticalSection lock;
 
-	void task(unsigned i)
+	void task(size_t i)
 	{
 		util::Thread::sleep(50); 
 		LASS_LOCK(lock)
@@ -58,7 +58,7 @@ namespace thread_pool
 	}
 
 	template <typename IdlePolicy, template <typename, typename, typename> class ParticipatingPolicy>
-	void test(unsigned numberOfThreads, unsigned maxNumberOfTasksInQueue)
+	void test(size_t numberOfThreads, size_t maxNumberOfTasksInQueue)
 	{	
 		using namespace util;
 		typedef ThreadPool<Callback0, DefaultConsumer<util::Callback0>, IdlePolicy, ParticipatingPolicy> 
@@ -69,14 +69,14 @@ namespace thread_pool
 		counter = 0;
 
 		TThreadPool pool(numberOfThreads, maxNumberOfTasksInQueue);
-		for (unsigned i = 0; i < numberOfTasks; ++i)
+		for (size_t i = 0; i < numberOfTasks; ++i)
 		{
 			pool.addTask(util::bind(task, i));
 		}
 		pool.completeAllTasks();
 		
 		LASS_TEST_CHECK_EQUAL(counter, numberOfTasks);
-		for (unsigned i = 0; i < numberOfTasks; ++i)
+		for (size_t i = 0; i < numberOfTasks; ++i)
 		{
 			LASS_TEST_CHECK_EQUAL(taskIsDone[i], true);
 		}
@@ -90,7 +90,7 @@ void testUtilThreadPool()
 	thread_pool::test<Signaled, NotParticipating>(4, 20);
 	thread_pool::test<Signaled, SelfParticipating>(4, 0);
 	thread_pool::test<Spinning, NotParticipating>(
-		std::max<unsigned>(util::numberOfProcessors - 1, 1), 20);
+		std::max<size_t>(util::numberOfProcessors - 1, 1), 20);
 	thread_pool::test<Spinning, SelfParticipating>(0, 0);
 }
 

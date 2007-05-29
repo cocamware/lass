@@ -130,9 +130,9 @@ public:
 
 	static TCppClass* cppObject(PyObject* iPyObject)
 	{
-		if (!PyType_IsSubtype(iPyObject->ob_type , &T::Type ))
+		if (!PyType_IsSubtype(iPyObject->ob_type , &T::_lassPyType ))
 		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::Type.tp_name);
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyType.tp_name);
 			return 0;
 		}
 		return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject));

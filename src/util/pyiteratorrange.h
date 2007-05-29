@@ -34,6 +34,11 @@
 #include "pyobject_plus.h"
 #include "string_cast.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244)
+#endif
+
 namespace lass
 {
 namespace python
@@ -107,14 +112,15 @@ public:
 	}
 
 	virtual ~PyIteratorRange() {}
-	virtual std::string pyStr(void) { return pimpl_->pyStr(); }
-	virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
+	virtual std::string doPyStr(void) { return pimpl_->pyStr(); }
+	virtual std::string doPyRepr(void) { return pimpl_->pyRepr(); }
 
 	static PyObject* PyIteratorRange_IterNext( PyObject* iPO) { return static_cast<PyIteratorRange*>(iPO)->pimpl_->PyIteratorRange_IterNext(); }
 	
 private:
-	impl::PyIteratorRangeImplBase* pimpl_;
 	static void initialize();
+
+	impl::PyIteratorRangeImplBase* pimpl_;
 	static bool isInitialized;
 };
 
@@ -122,5 +128,9 @@ private:
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif

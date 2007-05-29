@@ -45,8 +45,6 @@ namespace test
 	{
 		PY_HEADER( lass::python::PyObjectPlus )
 	private:
-		virtual std::string pyRepr(void);
-		virtual std::string pyStr(void);
 
 		int privateInt_;
 		std::string privateString_;
@@ -57,6 +55,8 @@ namespace test
 		Bar();
 		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
+		virtual std::string doPyRepr(void);
+		virtual std::string doPyStr(void);
 
 		virtual float aMoreComplexFunction( float iA, float iB );
 		void  testAutomaticFunctionExport( int iA, float iB );

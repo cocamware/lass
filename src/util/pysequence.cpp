@@ -80,11 +80,11 @@ namespace impl
 		if (!isInitialized)
 		{
 			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
-			PySequence::Type.tp_as_sequence= &pySequenceMethods;
-			finalizePyType( PySequence::Type, *PySequence::GetParentType(), 
-				PySequence::Methods, PySequence::GetSetters, 
-				PySequence::Statics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
+			PySequence::_lassPyType.tp_as_sequence= &pySequenceMethods;
+			finalizePyType( PySequence::_lassPyType, *PySequence::_lassPyGetParentType(), 
+				PySequence::_lassPyMethods, PySequence::_lassPyGetSetters, 
+				PySequence::_lassPyStatics, NULL, NULL);
+			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
 			isInitialized = true;
 		}
 	}

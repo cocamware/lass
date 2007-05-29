@@ -36,7 +36,7 @@ namespace lass
 namespace python
 {
 
-PyTypeObject PyObjectPlus::Type = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
+PyTypeObject PyObjectPlus::_lassPyType = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
 
 std::vector<PyMethodDef> initAbstractMethods()
 {
@@ -45,8 +45,7 @@ std::vector<PyMethodDef> initAbstractMethods()
 	return temp;
 
 }
-std::vector<PyMethodDef> PyObjectPlus::Methods = initAbstractMethods();
-
+std::vector<PyMethodDef> PyObjectPlus::_lassPyMethods = initAbstractMethods();
 
 PyObjectPlus::PyObjectPlus()
 {
@@ -70,22 +69,6 @@ PyObjectPlus::~PyObjectPlus()
 	}
 	LASS_ASSERT(this->ob_refcnt==0);
 };
-
-void PyObjectPlus::__dealloc(PyObject *P)
-{
-	PyObjectPlus *pp = (PyObjectPlus *)P;
-	delete pp;
-};
-
-PyObject*   PyObjectPlus::__repr(PyObject *PyObj)
-{
-	return pyBuildSimpleObject(((TSelf*)PyObj)->pyRepr());
-}
-
-PyObject*   PyObjectPlus::__str(PyObject *PyObj)
-{
-	return pyBuildSimpleObject(((TSelf*)PyObj)->pyStr());
-}
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 {
@@ -127,6 +110,27 @@ namespace impl
 {
 
 util::CriticalSection referenceMutex;
+
+/** @internal
+ */
+void dealloc(PyObject* obj)
+{
+	delete static_cast<PyObjectPlus*>(obj);
+};
+
+/** @internal
+ */
+PyObject* repr(PyObject* obj)
+{
+	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyRepr());
+}
+
+/** @internal
+ */
+PyObject* str(PyObject* obj)
+{
+	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
+}
 
 OverloadLink::OverloadLink()
 {
@@ -237,7 +241,7 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 StaticMember createStaticMember(
 		const char* iName, const char* iDocumentation, PyObject* iObject, 
 		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, 
-		std::vector<PyGetSetDef>* iGetSetters, const std::vector<StaticMember>* iStatics)
+		std::vector<PyGetSetDef>* iGetSetters, const TStaticMembers* iStatics)
 {
 	StaticMember temp;
 	temp.name = iName;
@@ -277,9 +281,9 @@ PyGetSetDef createPyGetSetDef( const char* name, getter get, setter set, const c
 
 /** @internal
 */
-void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics)
+void injectStaticMembers(PyTypeObject& iPyType, const TStaticMembers& iStatics)
 {
-	for (std::vector<StaticMember>::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
+	for (TStaticMembers::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
 	{
 		if (PyType_Check(i->object))
 		{
@@ -296,7 +300,7 @@ void injectStaticMembers(PyTypeObject& iPyType, const std::vector<StaticMember>&
 */
 void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 	std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-	const std::vector<StaticMember>& iStatics, const char* iModuleName, const char* iDocumentation)
+	const TStaticMembers& iStatics, const char* iModuleName, const char* iDocumentation)
 {
 	std::string fullName;
 	if (iModuleName)
@@ -342,37 +346,46 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodN
 
 
 #define LASS_PY_OPERATOR(s_name, i_protocol, t_protocol, i_hook, i_nary)\
-	if (strcmp(iMethodName, s_name) == 0)\
+	if (strcmp(methodName, s_name) == 0)\
 	{\
-		if (ioPyType.i_protocol == 0)\
+		if (pyType.i_protocol == 0)\
 		{\
-			ioPyType.i_protocol = new t_protocol;\
-			::memset(ioPyType.i_protocol, 0, sizeof(t_protocol));\
+			pyType.i_protocol = new t_protocol;\
+			::memset(pyType.i_protocol, 0, sizeof(t_protocol));\
 		}\
-		oOverloadChain.LASS_CONCATENATE_3(set, i_nary, func)(ioPyType.i_protocol->i_hook);\
-		ioPyType.i_protocol->i_hook = LASS_CONCATENATE_3(i, i_nary, Dispatcher);\
+		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(pyType.i_protocol->i_hook);\
+		pyType.i_protocol->i_hook = LASS_CONCATENATE(dispatcher, i_nary);\
 		return;\
 	}\
 	/**/
 
 
+
+#define LASS_PY_COMPARATOR(s_name, v_op)\
+	if (strcmp(methodName, s_name) == 0)\
+	{\
+		compareFuncs.push_back(CompareFunc(dispatcher, v_op));\
+	}\
+		
+
 /** @internal
  */
 void addClassMethod(
-		PyTypeObject& ioPyType, std::vector<PyMethodDef>& ioClassMethods,
-		const char* iMethodName, const char* iDocumentation, 
-		PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
-		binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
-		OverloadLink& oOverloadChain) 
+		PyTypeObject& pyType, 
+		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		const char* methodName, const char* documentation, 
+		PyCFunction dispatcher, unaryfunc dispatcherUnary, 
+		binaryfunc dispatcherBinary, ternaryfunc dispatcherTernary, 
+		OverloadLink& overloadChain) 
 {
-	const int n = static_cast<int>(strlen(iMethodName));
+	const int n = static_cast<int>(strlen(methodName));
 	LASS_ASSERT(n >= 0);
-	if (n > 2 && iMethodName[0] == '_' && iMethodName[1] == '_')
+	if (n > 2 && methodName[0] == '_' && methodName[1] == '_')
 	{
-		if (strcmp(iMethodName, "__call__") == 0)
+		if (strcmp(methodName, "__call__") == 0)
 		{
-			oOverloadChain.setTernaryfunc(ioPyType.tp_call);
-			ioPyType.tp_call = iTernaryDispatcher;
+			overloadChain.setTernaryfunc(pyType.tp_call);
+			pyType.tp_call = dispatcherTernary;
 			return;
 		}
 		LASS_PY_OPERATOR("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
@@ -404,26 +417,32 @@ void addClassMethod(
 		LASS_PY_OPERATOR("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
 		LASS_PY_OPERATOR("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
 		LASS_PY_OPERATOR("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
+		LASS_PY_COMPARATOR("__lt__", Py_LT)
+		LASS_PY_COMPARATOR("__le__", Py_LE)
+		LASS_PY_COMPARATOR("__eq__", Py_EQ)
+		LASS_PY_COMPARATOR("__ne__", Py_NE)
+		LASS_PY_COMPARATOR("__gt__", Py_GT)
+		LASS_PY_COMPARATOR("__ge__", Py_GE)
 	}
 
 	// normal method mechanism
 
 	std::vector<PyMethodDef>::iterator i = std::find_if(
-		ioClassMethods.begin(), ioClassMethods.end(), PyMethodEqual(iMethodName));
-	if (i == ioClassMethods.end())
+		classMethods.begin(), classMethods.end(), PyMethodEqual(methodName));
+	if (i == classMethods.end())
 	{
-		ioClassMethods.insert(ioClassMethods.begin(), createPyMethodDef(
-			iMethodName, iMethodDispatcher, METH_VARARGS , iDocumentation));
-		oOverloadChain.setNull();
+		classMethods.insert(classMethods.begin(), createPyMethodDef(
+			methodName, dispatcher, METH_VARARGS , documentation));
+		overloadChain.setNull();
 	}
 	else
 	{
 		LASS_ASSERT(i->ml_flags == METH_VARARGS);
-		oOverloadChain.setPyCFunction(i->ml_meth);
-		i->ml_meth = iMethodDispatcher;
+		overloadChain.setPyCFunction(i->ml_meth);
+		i->ml_meth = dispatcher;
 		if (i->ml_doc == 0)
 		{
-			i->ml_doc = const_cast<char*>(iDocumentation);
+			i->ml_doc = const_cast<char*>(documentation);
 		}
 	};
 }

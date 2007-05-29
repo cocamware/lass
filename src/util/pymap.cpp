@@ -51,11 +51,11 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			PyMap::Type.tp_as_mapping = &pyMappingMethods;
-			PyMap::Type.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
-			finalizePyType( PyMap::Type, *PyMap::GetParentType(), PyMap::Methods, 
-				PyMap::GetSetters, PyMap::Statics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
+			PyMap::_lassPyType.tp_as_mapping = &pyMappingMethods;
+			PyMap::_lassPyType.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
+			finalizePyType( PyMap::_lassPyType, *PyMap::_lassPyGetParentType(), PyMap::_lassPyMethods, 
+				PyMap::_lassPyGetSetters, PyMap::_lassPyStatics, NULL, NULL);
+			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
 			isInitialized = true;
 		}
 	}

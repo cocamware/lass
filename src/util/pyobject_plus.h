@@ -57,10 +57,11 @@
  */
 #define PY_HEADER_INTERNAL \
 	public: \
-		static PyTypeObject   Type; \
-		static ::std::vector<PyMethodDef>    Methods; \
-		static ::std::vector<PyGetSetDef>    GetSetters; \
-		virtual PyTypeObject *GetType(void) const {return &Type;};\
+		static PyTypeObject   _lassPyType; \
+		static ::std::vector<PyMethodDef>    _lassPyMethods; \
+		static ::std::vector<PyGetSetDef>    _lassPyGetSetters; \
+		virtual PyTypeObject *_lassPyGetType(void) const {return &_lassPyType;};\
+	private:
 
 /** @ingroup Python
  *  Place as first line of your Pythonized class.    
@@ -68,23 +69,27 @@
  *  For @a t_parentClass use the C++ class from which you wish the python object inherits.  
  *	@a t_parentClass must also be a Pythonized class or use lass::python::PyObjectPlus as default.
  *
- *   @remark Any declarations coming after this macro are public!
+ *   @remark Any declarations coming after this macro are private!
  */
 #define PY_HEADER( t_parentClass ) \
 	public: \
-		typedef t_parentClass TPyParent;\
-		static PyTypeObject   Type; \
-		static ::std::vector<PyMethodDef>    Methods; \
-		static ::std::vector<PyGetSetDef>    GetSetters; \
-		static ::std::vector< ::lass::python::impl::StaticMember >	Statics; \
-		static PyTypeObject* GetParentType(void)\
+		typedef t_parentClass _lassPyParentType;\
+		static PyTypeObject _lassPyType; \
+		static ::std::vector<PyMethodDef> _lassPyMethods; \
+		static ::std::vector<PyGetSetDef> _lassPyGetSetters; \
+		static ::lass::python::impl::TStaticMembers	_lassPyStatics; \
+		static ::lass::python::impl::TCompareFuncs _lassPyCompareFuncs;\
+		virtual PyTypeObject* _lassPyGetType(void) const {return &_lassPyType;};\
+		static PyTypeObject* _lassPyGetParentType(void)\
 		{\
-			return &TPyParent::Type != &::lass::python::PyObjectPlus::Type ?\
-				&TPyParent::Type : &PyBaseObject_Type;\
+			return &_lassPyParentType::_lassPyType != &::lass::python::PyObjectPlus::_lassPyType ?\
+				&_lassPyParentType::_lassPyType : &PyBaseObject_Type;\
 		}\
-		virtual PyTypeObject *GetType(void) const {return &Type;};
+	private:
 
+/*
 typedef PyTypeObject * PyParentObject;// Define the PyParent Object
+*/
 
 namespace lass
 {
@@ -103,23 +108,16 @@ namespace lass
 		{
 			PY_HEADER_INTERNAL;
 		public:
-			typedef PyObjectPlus    TSelf;
-
 			PyObjectPlus(); 
 			virtual ~PyObjectPlus();
-
-			static void __dealloc(PyObject *P);
-
-			static  PyObject*   __repr(PyObject *PyObj);
-			virtual std::string pyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
-
-			static  PyObject*   __str(PyObject *PyObj);
-			virtual std::string pyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
+			virtual std::string doPyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
+			virtual std::string doPyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
 
 		protected:
-
 			PyObjectPlus(const PyObjectPlus& iOther);
 			PyObjectPlus& operator=(const PyObjectPlus& iOther);
+
+		private:
 		};
 
 		namespace impl
@@ -140,7 +138,7 @@ namespace lass
 				if (meta::IsDerivedType<T, PyObjectPlus>::value && 
 					iObject && !iObject->ob_type)
 				{
-					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->GetType();
+					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->_lassPyGetType();
 				}
 				return iObject;
 			}
@@ -281,12 +279,7 @@ namespace lass
 		/** meta function to detect if a type is a PyObject-derived type
 		*   @ingroup Python
 		*/
-		template <typename T>
-		struct IsPyObject
-		{
-			enum { value = meta::IsDerivedType<T, PyObject>::value };
-			typedef typename meta::Bool<value>::Type Type;
-		};
+		template <typename T> struct IsPyObject: meta::IsDerivedType<T, PyObject> {};
 
 		/* conversion from PyObject* to given types, a check should be performed
 		*  wether the conversion is possible, if not a returnvalue of 1 should be used
@@ -328,6 +321,10 @@ namespace lass
 
 		namespace impl
 		{
+			LASS_DLL void LASS_CALL dealloc(PyObject* obj);
+			LASS_DLL PyObject* LASS_CALL repr(PyObject* obj);
+			LASS_DLL PyObject* LASS_CALL str(PyObject* obj);
+
 			/** @internal
 			 */
 			class LASS_DLL OverloadLink
@@ -372,6 +369,56 @@ namespace lass
 			};
 
 			/** @internal
+			 */
+			struct LASS_DLL CompareFunc
+			{
+				PyCFunction dispatcher;
+				int op;
+				CompareFunc(PyCFunction dispatcher, int op): dispatcher(dispatcher), op(op) {}
+			};
+			typedef std::vector<CompareFunc> TCompareFuncs;
+
+			/** @internal
+			 */
+			template <typename CppClass>
+			struct RichCompare
+			{
+				static PyObject* call(PyObject* self, PyObject* other, int op)
+				{
+					TPyObjPtr args(Py_BuildValue("(O)", other));
+					const TCompareFuncs::const_iterator end = CppClass::_lassPyCompareFuncs.end();
+					for (TCompareFuncs::const_iterator i = CppClass::_lassPyCompareFuncs.begin(); i != end; ++i)
+					{
+						if (i->op == op)
+						{
+							PyObject* result = (i->dispatcher)(self, args.get());\
+							if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
+							{
+								return result;
+							}
+						}
+					}
+					return RichCompare<typename CppClass::_lassPyParentType>::call(self, other, op);
+				}
+			};
+
+			/** @internal
+			 */
+			template <>
+			struct RichCompare<PyObjectPlus>
+			{
+				static PyObject* call(PyObject* self, PyObject* other, int op)
+				{
+					static char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
+					LASS_ASSERT(op >= 0 && op <= Py_GE);
+					std::ostringstream buffer;
+					buffer << "Comparison operator " << symbols[op] << " not implemented for this type";
+					PyErr_SetString(PyExc_NotImplementedError, buffer.str().c_str());
+					return 0;				
+				}
+			};
+
+			/** @internal
 			*/
 			struct StaticMember
 			{
@@ -383,6 +430,7 @@ namespace lass
 				const char* name;
 				const char* doc;
 			};
+			typedef std::vector<StaticMember> TStaticMembers;
 
 			/** @internal
 			 *  predicate to find a StaticMember by name.
@@ -412,7 +460,7 @@ namespace lass
 				const char* iName, const char * iDocumentation, PyObject* iObject, 
 				PyTypeObject* iParentType = 0, std::vector<PyMethodDef>* iMethods = 0, 
 				std::vector<PyGetSetDef>* iGetSetters = 0, 
-				const std::vector<StaticMember>* iStatics = 0);
+				const TStaticMembers* iStatics = 0);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
 				const char *ml_doc);
@@ -420,23 +468,24 @@ namespace lass
 				const char* name, getter get, setter set, const char* doc, void* closure);
 
 			LASS_DLL void LASS_CALL injectStaticMembers(
-				PyTypeObject& iPyType, const std::vector<StaticMember>& iStatics);
+				PyTypeObject& iPyType, const TStaticMembers& iStatics);
 			LASS_DLL void LASS_CALL finalizePyType(
 				PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
 				std::vector<PyMethodDef>& iMethods, 
 				std::vector<PyGetSetDef>& iGetSetters, 
-				const std::vector<StaticMember>& iStatics, 
+				const TStaticMembers& iStatics, 
 				const char* iModuleName, const char* iDocumentation);
 			LASS_DLL void LASS_CALL addModuleFunction(
 				std::vector<PyMethodDef>& ioModuleMethods, 
 				char* iMethodName, char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			LASS_DLL void LASS_CALL addClassMethod(
-				PyTypeObject& ioPyType, std::vector<PyMethodDef>& ioClassMethods,
-				const char* iMethodName, const char* iDocumentation,
-				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
-				binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher, 
-				OverloadLink& oOverloadChain);
+				PyTypeObject& pyType, 
+				std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const char* methodName, const char* documentation,
+				PyCFunction dispatcher, unaryfunc dispatcherUnary, 
+				binaryfunc dispatcherBinary, ternaryfunc dispatcherTernary, 
+				OverloadLink& overloadChain);
 
 			template <typename CppClass> void injectClassInModule(
 				PyObject* iModule, const char* iClassDocumentation);
@@ -451,7 +500,7 @@ namespace lass
 			template <typename CppClass, typename T> void addClassStaticConst(
 				const char* iName, const T& iValue);
 			template <typename InnerCppClass> void addClassInnerClass(
-				std::vector<StaticMember>& oOuterStatics, 
+				TStaticMembers& oOuterStatics,
 				const char* iInnerClassName, const char* iDocumentation);
 
 			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);

@@ -58,7 +58,7 @@
 		Object* object = static_cast<Object*>(iObject);\
 		return lass::python::impl::PyCallMethod<Object>::call( iArgs, object, Object::method );\
 	}\
-	EXECUTE( Object::Methods.insert(Object::Methods.begin(),\
+	EXECUTE( Object::_lassPyMethods.insert(Object::_lassPyMethods.begin(),\
 		lass::python::createPyMethodDef(pyName, (PyCFunction) pyFunction, PY_NEWARGS, NULL)); )
 
 

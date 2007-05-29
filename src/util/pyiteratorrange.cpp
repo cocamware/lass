@@ -40,12 +40,12 @@ namespace python
 	{
 		if (!isInitialized)
 		{
-			PyIteratorRange::Type.tp_iternext = 
+			PyIteratorRange::_lassPyType.tp_iternext = 
 				(iternextfunc) &PyIteratorRange::PyIteratorRange_IterNext;
-			finalizePyType( PyIteratorRange::Type, *PyIteratorRange::GetParentType(), 
-				PyIteratorRange::Methods, PyIteratorRange::GetSetters, 
-				PyIteratorRange::Statics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &Type ) >= 0 );
+			finalizePyType( PyIteratorRange::_lassPyType, *PyIteratorRange::_lassPyGetParentType(), 
+				PyIteratorRange::_lassPyMethods, PyIteratorRange::_lassPyGetSetters, 
+				PyIteratorRange::_lassPyStatics, NULL, NULL);
+			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
 			isInitialized = true;
 		}
 	}
