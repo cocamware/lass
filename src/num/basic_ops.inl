@@ -270,7 +270,7 @@ float tan(float x)			{ return ::tanf(x); }			/**< @ingroup BasicOps */
 float acos(float x)			{ return ::acosf(x); }			/**< @ingroup BasicOps */
 float asin(float x)			{ return ::asinf(x); }			/**< @ingroup BasicOps */
 float atan(float x)			{ return ::atanf(x); }			/**< @ingroup BasicOps */
-float atan2(float p, float x)	{ return ::atan2f(p, x); }	/**< @ingroup BasicOps */
+float atan2(float y, float x)	{ return ::atan2f(y, x); }	/**< @ingroup BasicOps */
 float sinc(float x)			{ return ::fabsf(x) < 1e-4f ? 1.f : (::sinf(x) / x); }	/**< @ingroup BasicOps */
 float floor(float x)		{ return ::floorf(x); }			/**< @ingroup BasicOps */
 float ceil(float x)			{ return ::ceilf(x); }			/**< @ingroup BasicOps */
@@ -302,7 +302,7 @@ double tan(double x)			{ return ::tan(x); }			/**< @ingroup BasicOps */
 double acos(double x)			{ return ::acos(x); }			/**< @ingroup BasicOps */
 double asin(double x)			{ return ::asin(x); }			/**< @ingroup BasicOps */
 double atan(double x)			{ return ::atan(x); }			/**< @ingroup BasicOps */
-double atan2(double p, double x)	{ return ::atan2(p, x); }	/**< @ingroup BasicOps */
+double atan2(double y, double x)	{ return ::atan2(y, x); }	/**< @ingroup BasicOps */
 double sinc(double x)			{ return ::fabs(x) < 1e-8 ? 1. : (::sin(x) / x); }	/**< @ingroup BasicOps */
 double floor(double x)			{ return ::floor(x); }			/**< @ingroup BasicOps */
 double ceil(double x)			{ return ::ceil(x); }			/**< @ingroup BasicOps */
@@ -336,7 +336,7 @@ long double tan(long double x)					{ return __builtin_tanl(x); }		/**< @ingroup 
 long double acos(long double x)					{ return __builtin_acosl(x); }		/**< @ingroup BasicOps */
 long double asin(long double x)					{ return __builtin_asinl(x); }		/**< @ingroup BasicOps */
 long double atan(long double x)					{ return __builtin_atanl(x); }		/**< @ingroup BasicOps */
-long double atan2(long double p, long double x)	{ return __builtin_atan2l(p, x); }	/**< @ingroup BasicOps */
+long double atan2(long double y, long double x)	{ return __builtin_atan2l(y, x); }	/**< @ingroup BasicOps */
 long double sinc(long double x)					{ return __builtin_fabsl(x) < 1e-10 ? 1. : (__builtin_sinl(x) / x); }	/**< @ingroup BasicOps */
 long double floor(long double x)				{ return __builtin_floorl(x); }		/**< @ingroup BasicOps */
 long double ceil(long double x)					{ return __builtin_ceill(x); }		/**< @ingroup BasicOps */
@@ -366,7 +366,7 @@ long double tan(long double x)					{ return ::tanl(x); }			/**< @ingroup BasicOp
 long double acos(long double x)					{ return ::acosl(x); }			/**< @ingroup BasicOps */
 long double asin(long double x)					{ return ::asinl(x); }			/**< @ingroup BasicOps */
 long double atan(long double x)					{ return ::atanl(x); }			/**< @ingroup BasicOps */
-long double atan2(long double p, long double x)	{ return ::atan2l(p, x); }		/**< @ingroup BasicOps */
+long double atan2(long double y, long double x)	{ return ::atan2l(y, x); }		/**< @ingroup BasicOps */
 long double sinc(long double x)					{ return ::fabsl(x) < 1e-10 ? 1. : (::sinl(x) / x); }	/**< @ingroup BasicOps */
 long double floor(long double x)				{ return ::floorl(x); }			/**< @ingroup BasicOps */
 long double ceil(long double x)					{ return ::ceill(x); }			/**< @ingroup BasicOps */

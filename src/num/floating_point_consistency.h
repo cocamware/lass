@@ -401,9 +401,9 @@ Consistent<T> atan(const Consistent<T>& v)
 }
 
 template <typename T> inline
-Consistent<T> atan2(const Consistent<T>& x, const Consistent<T>& y)
+Consistent<T> atan2(const Consistent<T>& y, const Consistent<T>& x)
 {
-	return num::atan2(x.value(), y.value());
+	return num::atan2(y.value(), x.value());
 }
 
 template <typename T> inline

@@ -453,9 +453,9 @@ FilteredFloat<T> atan(const FilteredFloat<T>& v)
 }
 
 template <typename T> inline
-FilteredFloat<T> atan2(const FilteredFloat<T>& x, const FilteredFloat<T>& y)
+FilteredFloat<T> atan2(const FilteredFloat<T>& y, const FilteredFloat<T>& x)
 {
-	return num::atan2(x.value(), y.value());
+	return num::atan2(y.value(), x.value());
 }
 
 template <typename T> inline
