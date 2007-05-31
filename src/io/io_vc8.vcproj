@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\binary_i_memory_map.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\binary_i_socket.cpp"
 				>
 			</File>
@@ -307,6 +311,10 @@
 			</File>
 			<File
 				RelativePath=".\binary_i_memory_block.h"
+				>
+			</File>
+			<File
+				RelativePath=".\binary_i_memory_map.h"
 				>
 			</File>
 			<File

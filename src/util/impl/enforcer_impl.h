@@ -87,8 +87,8 @@ struct StreamPredicate
  *  @internal
  *  @author Bram de Greve [Bramz].
  *
- *  checks iHandle against -1.  Handles are assumed to return -1 as error code.  If a handle equals
- *  -1, then something is wrong and the predicate will return true (the enforce will raise).
+ *  checks iHandle against INVALID_HANDLE_VALUE.  If a handle equals INVALID_HANDLE_VALUE,
+ *  then something is wrong and the predicate will return true (the enforce will raise).
  *  For any other value of the handle, the enforcer will not raise and the program will continue.
  *
  *  @pre type T must be comparable (operator==) to HANDLE constant.
@@ -98,7 +98,7 @@ struct HandlePredicate
 	template <typename T>
 	static bool LASS_CALL wrong(const T& iHandle)
 	{
-		return iHandle == reinterpret_cast<T>(-1);
+		return iHandle == INVALID_HANDLE_VALUE;
 	}
 };
 

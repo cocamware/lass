@@ -76,7 +76,7 @@ public:
 	MutexInternal():
 		lockCount_(0)
 	{
-		LASS_ENFORCE_HANDLE(mutex_ = ::CreateMutex(NULL, FALSE, NULL));
+		mutex_ = LASS_ENFORCE_WINAPI(::CreateMutex(NULL, FALSE, NULL));
 
 	}
 	~MutexInternal() 
@@ -215,13 +215,12 @@ public:
 	ConditionInternal():
 		threadsWaiting_(0)
 	{
-		event_ = ::CreateEvent(
+		event_ = LASS_ENFORCE_WINAPI(::CreateEvent(
 			NULL,   // default secutiry
 			FALSE,  // not manual reset
 			FALSE,  // nonsignaled initially
 			NULL    // nameless event
-		);
-		LASS_ENFORCE_HANDLE(event_);
+		));
 	}
 	~ConditionInternal()
 	{

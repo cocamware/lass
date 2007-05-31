@@ -81,17 +81,6 @@
 		"Failing stream '" LASS_STRINGIFY(stream) "' detected in '" LASS_HERE "'.") 
 
 
-/** Enforces the handle to be different than -1.
- *  @ingroup Enforcers
- */
-#define LASS_ENFORCE_HANDLE(handle) \
-	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::HandlePredicate,\
-		::lass::util::impl::DefaultRaiser,\
-		(handle),\
-		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'.")
-
-
 
 /** Enforces the result of the expression to be zero.
  *  @ingroup Enforcers
@@ -161,6 +150,17 @@
 		::lass::util::impl::LastErrorRaiser,\
 		(functionCall), \
 		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
+
+
+/** Enforces the handle to be different than INVALID_HANDLE_VALUE and uses GetLastError() to retrieve error code.
+ *  @ingroup Enforcers
+ */
+#define LASS_ENFORCE_HANDLE(handle) \
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::HandlePredicate,\
+		::lass::util::impl::LastErrorRaiser,\
+		(handle),\
+		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'.")
 
 #endif
 
