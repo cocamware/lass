@@ -51,9 +51,9 @@ Vector2D<T>::Vector2D():
 
 
 template<typename T> inline
-Vector2D<T>::Vector2D(TParam iX, TParam iY):
-	x(iX),
-	y(iY)
+Vector2D<T>::Vector2D(TParam x, TParam y):
+	x(x),
+	y(y)
 {
 }
 
@@ -61,9 +61,9 @@ Vector2D<T>::Vector2D(TParam iX, TParam iY):
 
 template <typename T>
 template <typename U>
-Vector2D<T>::Vector2D(const Vector2D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)),
-	y(static_cast<TValue>(iOther.y))
+Vector2D<T>::Vector2D(const Vector2D<U>& other):
+	x(static_cast<TValue>(other.x)),
+	y(static_cast<TValue>(other.y))
 {
 }
 
@@ -71,38 +71,28 @@ Vector2D<T>::Vector2D(const Vector2D<U>& iOther):
 
 template <typename T>
 template <typename U>
-Vector2D<T>::Vector2D(const U& iX, const U& iY):
-	x(static_cast<TValue>(iX)),
-	y(static_cast<TValue>(iY))
+Vector2D<T>::Vector2D(const U& x, const U& y):
+	x(static_cast<TValue>(x)),
+	y(static_cast<TValue>(y))
 {
 }
 
 
 
 template<typename T> inline
-typename Vector2D<T>::TConstReference Vector2D<T>::operator[](size_t iIndex) const
+typename Vector2D<T>::TConstReference Vector2D<T>::operator[](size_t index) const
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
 
 template<typename T> inline
-typename Vector2D<T>::TReference Vector2D<T>::operator[](size_t iIndex)
+typename Vector2D<T>::TReference Vector2D<T>::operator[](size_t index)
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
-}
-
-
-
-/** Wrap index around range.
- */
-template<typename T> inline
-typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
-{
-	return *(&x + num::mod(iIndex, dimension));
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
@@ -110,9 +100,19 @@ typename Vector2D<T>::TConstReference Vector2D<T>::at(signed iIndex) const
 /** Wrap index around range.
  */
 template<typename T> inline
-typename Vector2D<T>::TReference Vector2D<T>::at(signed iIndex)
+typename Vector2D<T>::TConstReference Vector2D<T>::at(signed index) const
 {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
+}
+
+
+
+/** Wrap index around range.
+ */
+template<typename T> inline
+typename Vector2D<T>::TReference Vector2D<T>::at(signed index)
+{
+	return *(&x + num::mod(index, dimension));
 }
 
 
@@ -138,10 +138,10 @@ const Vector2D<T> Vector2D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator+=(const Vector2D<T>& iB)
+Vector2D<T>& Vector2D<T>::operator+=(const Vector2D<T>& other)
 {
-	x += iB.x;
-	y += iB.y;
+	x += other.x;
+	y += other.y;
 	return *this;
 }
 
@@ -150,10 +150,10 @@ Vector2D<T>& Vector2D<T>::operator+=(const Vector2D<T>& iB)
 /** componentwise subtraction
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator-=(const Vector2D<T>& iB)
+Vector2D<T>& Vector2D<T>::operator-=(const Vector2D<T>& other)
 {
-	x -= iB.x;
-	y -= iB.y;
+	x -= other.x;
+	y -= other.y;
 	return *this;
 }
 
@@ -162,10 +162,10 @@ Vector2D<T>& Vector2D<T>::operator-=(const Vector2D<T>& iB)
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator*=(const Vector2D<T>& iB)
+Vector2D<T>& Vector2D<T>::operator*=(const Vector2D<T>& other)
 {
-	x *= iB.x;
-	y *= iB.y;
+	x *= other.x;
+	y *= other.y;
 	return *this;
 }
 
@@ -174,58 +174,58 @@ Vector2D<T>& Vector2D<T>::operator*=(const Vector2D<T>& iB)
 /** Componentwise division.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator/=(const Vector2D<T>& iB)
+Vector2D<T>& Vector2D<T>::operator/=(const Vector2D<T>& other)
 {
-	x /= iB.x;
-	y /= iB.y;
+	x /= other.x;
+	y /= other.y;
 	return *this;
 }
 
 
 
-/** add iB to each component of this.
+/** add other to each component of this.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator+=(TParam iB)
+Vector2D<T>& Vector2D<T>::operator+=(TParam other)
 {
-	x += iB;
-	y += iB;
+	x += other;
+	y += other;
 	return *this;
 }
 
 
 
-/** subtract iB of each component of this.
+/** subtract other of each component of this.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator-=(TParam iB)
+Vector2D<T>& Vector2D<T>::operator-=(TParam other)
 {
-	x -= iB;
-	y -= iB;
+	x -= other;
+	y -= other;
 	return *this;
 }
 
 
 
-/** multiply each component of this with iB.
+/** multiply each component of this with other.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator*=(TParam iB)
+Vector2D<T>& Vector2D<T>::operator*=(TParam other)
 {
-	x *= iB;
-	y *= iB;
+	x *= other;
+	y *= other;
 	return *this;
 }
 
 
 
-/** divide each component of this by iB.
+/** divide each component of this by other.
  */
 template<typename T> inline
-Vector2D<T>& Vector2D<T>::operator/=(TParam iB)
+Vector2D<T>& Vector2D<T>::operator/=(TParam other)
 {
-	x /= iB;
-	y /= iB;
+	x /= other;
+	y /= other;
 	return *this;
 }
 
@@ -312,10 +312,10 @@ const Vector2D<T> Vector2D<T>::perp() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector2D<T> Vector2D<T>::project(const Vector2D<T>& iB) const
+const Vector2D<T> Vector2D<T>::project(const Vector2D<T>& other) const
 {
 	Vector2D<T> result(*this);
-	result *= dot(iB, *this);
+	result *= dot(other, *this);
 	result /= squaredNorm();
 	return result;
 }
@@ -325,17 +325,17 @@ const Vector2D<T> Vector2D<T>::project(const Vector2D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector2D<T> Vector2D<T>::reject(const Vector2D<T>& iB) const
+const Vector2D<T> Vector2D<T>::reject(const Vector2D<T>& other) const
 {
-	return iB - project(iB);
+	return other - project(other);
 }
 
 
 
 template<typename T> inline
-const Vector2D<T> Vector2D<T>::reflect(const Vector2D<T>& iB) const
+const Vector2D<T> Vector2D<T>::reflect(const Vector2D<T>& other) const
 {
-	return 2 * project(iB) - iB;
+	return 2 * project(other) - other;
 }
 
 
@@ -343,9 +343,9 @@ const Vector2D<T> Vector2D<T>::reflect(const Vector2D<T>& iB) const
 /** apply a function to every component
  */
 template <typename T>
-const Vector2D<T> Vector2D<T>::transform(T (*iOperator)(T)) const
+const Vector2D<T> Vector2D<T>::transform(T (*op)(T)) const
 {
-	return Vector2D<T>(iOperator(x), iOperator(y));
+	return Vector2D<T>(op(x), op(y));
 }
 
 
@@ -364,10 +364,10 @@ void Vector2D<T>::normalize()
  */
 template <typename T>
 template <class RandomGenerator>
-Vector2D<T> Vector2D<T>::random(RandomGenerator& ioGenerator)
+Vector2D<T> Vector2D<T>::random(RandomGenerator& generator)
 {
 	num::DistributionUniform<T, RandomGenerator, num::rtRightOpen> distribution(
-		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
+		generator, TNumTraits::zero, 2 * TNumTraits::pi);
 	const TValue theta = distribution();
 	return Vector2D<T>(num::cos(theta), num::sin(theta));
 }
@@ -378,9 +378,9 @@ Vector2D<T> Vector2D<T>::random(RandomGenerator& ioGenerator)
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB)
+typename Vector2D<T>::TValue dot(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return iA.x * iB.x + iA.y * iB.y;
+	return a.x * b.x + a.y * b.y;
 }
 
 
@@ -393,14 +393,14 @@ typename Vector2D<T>::TValue dot(const Vector2D<T>& iA, const Vector2D<T>& iB)
  *  to the left defined by Hill (1994)</i>, http://mathworld.wolfram.com/PerpDotProduct.html.
  *
  *  It reminds a lot to the 3D cross product, as its result is equal to the z-value of the
- *  cross product of iA and iB extended to 3D space by setting their z-value to 0:
+ *  cross product of a and b extended to 3D space by setting their z-value to 0:
  *  Vector3D<T> c = cross(Vector3D<T>(a.x, a.y, 0), Vector3D<T>(b.x, b.y, 0)).  We know of this
- *  that c.x and c.y are both zero, and that c.z equals the perp dot product between iA and iB.
+ *  that c.x and c.y are both zero, and that c.z equals the perp dot product between a and b.
  */
 template<typename T> inline
-typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& iB)
+typename Vector2D<T>::TValue perpDot(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return iA.x * iB.y - iA.y * iB.x;
+	return a.x * b.y - a.y * b.x;
 }
 
 
@@ -408,9 +408,9 @@ typename Vector2D<T>::TValue perpDot(const Vector2D<T>& iA, const Vector2D<T>& i
 /** @relates lass::prim::Vector2D
  */
 template<typename T> inline
-bool operator==(const Vector2D<T>& iA, const Vector2D<T>& iB)
+bool operator==(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return iA.x == iB.x && iA.y == iB.y;
+	return a.x == b.x && a.y == b.y;
 }
 
 
@@ -418,9 +418,9 @@ bool operator==(const Vector2D<T>& iA, const Vector2D<T>& iB)
 /** @relates lass::prim::Vector2D
  */
 template<typename T> inline
-bool operator!=(const Vector2D<T>& iA, const Vector2D<T>& iB)
+bool operator!=(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 
@@ -429,10 +429,10 @@ bool operator!=(const Vector2D<T>& iA, const Vector2D<T>& iB)
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator+(const Vector2D<T>& iA, const Vector2D<T>& iB)
+Vector2D<T> operator+(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(iA);
-	result += iB;
+	Vector2D<T> result(a);
+	result += b;
 	return result;
 }
 
@@ -442,10 +442,10 @@ Vector2D<T> operator+(const Vector2D<T>& iA, const Vector2D<T>& iB)
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator-(const Vector2D<T>& iA, const Vector2D<T>& iB)
+Vector2D<T> operator-(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(iA);
-	result -= iB;
+	Vector2D<T> result(a);
+	result -= b;
 	return result;
 }
 
@@ -455,10 +455,10 @@ Vector2D<T> operator-(const Vector2D<T>& iA, const Vector2D<T>& iB)
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator*(const Vector2D<T>& iA, const Vector2D<T>& iB)
+Vector2D<T> operator*(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(iA);
-	result *= iB;
+	Vector2D<T> result(a);
+	result *= b;
 	return result;
 }
 
@@ -468,123 +468,138 @@ Vector2D<T> operator*(const Vector2D<T>& iA, const Vector2D<T>& iB)
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator/(const Vector2D<T>& iA, const Vector2D<T>& iB)
+Vector2D<T> operator/(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(iA);
-	result /= iB;
+	Vector2D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iB to all components of iA.
+/** add b to all components of a.
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator+(const Vector2D<T>& iA, typename Vector2D<T>::TParam iB)
+Vector2D<T> operator+(const Vector2D<T>& a, typename Vector2D<T>::TParam b)
 {
-	Vector2D<T> result(iA);
-	result += iB;
+	Vector2D<T> result(a);
+	result += b;
 	return result;
 }
 
 
 
-/** subtract iB of all components of iA.
+/** subtract b of all components of a.
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator-(const Vector2D<T>& iA, typename Vector2D<T>::TParam iB)
+Vector2D<T> operator-(const Vector2D<T>& a, typename Vector2D<T>::TParam b)
 {
-	Vector2D<T> result(iA);
-	result -= iB;
+	Vector2D<T> result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** muliply all components of iA by iB
+/** muliply all components of a by b
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator*(const Vector2D<T>& iA, typename Vector2D<T>::TParam iB)
+Vector2D<T> operator*(const Vector2D<T>& a, typename Vector2D<T>::TParam b)
 {
-	Vector2D<T> result(iA);
-	result *= iB;
+	Vector2D<T> result(a);
+	result *= b;
 	return result;
 }
 
 
 
-/** divide all components of iA by iB
+/** divide all components of a by b
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator/(const Vector2D<T>& iA, typename Vector2D<T>::TParam iB)
+Vector2D<T> operator/(const Vector2D<T>& a, typename Vector2D<T>::TParam b)
 {
-	Vector2D<T> result(iA);
-	result /= iB;
+	Vector2D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iA to all components of iB
+/** add a to all components of b
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator+(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
+Vector2D<T> operator+(typename Vector2D<T>::TParam a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(iB);
-	result += iA;
+	Vector2D<T> result(b);
+	result += a;
 	return result;
 }
 
 
 
-/** subtract iA of all components of iB
+/** subtract a of all components of b
  *  @relates lass::prim::Vector2D
  */
 template<typename T> inline
-Vector2D<T> operator-(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
+Vector2D<T> operator-(typename Vector2D<T>::TParam a, const Vector2D<T>& b)
 {
-	Vector2D<T> result(-iB);
-	result += iA;
+	Vector2D<T> result(-b);
+	result += a;
 	return result;
 }
 
 
 
-/** return a vector with, for each coordinate, the minimum value of @a iA and @a iB
+/** multiply all components of b with a
+ *  @relates lass::prim::Vector2D
+ */
+template<typename T> inline
+Vector2D<T> operator*(typename Vector2D<T>::TParam a, const Vector2D<T>& b)
+{
+	Vector2D<T> result(b);
+	result *= a;
+	return result;
+}
+
+
+
+/** return a vector with, for each coordinate, the minimum value of @a a and @a b
  *  @relates lass::prim::Vector2D
  */
 template<typename T>
-inline Vector2D<T> pointwiseMin(const Vector2D<T>& iA, const Vector2D<T>& iB)
+inline Vector2D<T> pointwiseMin(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return Vector2D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y));
+	return Vector2D<T>(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
 
 
-/** return a vector with, for each coordinate, the maximum value of @a iA and @a iB
+/** return a vector with, for each coordinate, the maximum value of @a a and @a b
  *  @relates lass::prim::Vector2D
  */
 template<typename T>
-inline Vector2D<T> pointwiseMax(const Vector2D<T>& iA, const Vector2D<T>& iB)
+inline Vector2D<T> pointwiseMax(const Vector2D<T>& a, const Vector2D<T>& b)
 {
-	return Vector2D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y));
+	return Vector2D<T>(std::max(a.x, b.x), std::max(a.y, b.y));
 }
 
 
 
-/** multiply all components of iB with iA
+/** interpolate linearly between two vectors: a + t * (b - a)
  *  @relates lass::prim::Vector2D
  */
-template<typename T> inline
-Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
+template<typename T>
+inline Vector2D<T> lerp(const Vector2D<T>& a, const Vector2D<T>& b, typename Vector2D<T>::TParam t)
 {
-	Vector2D<T> result(iB);
-	result *= iA;
+	Vector2D<T> result = b;
+	result -= a;
+	result *= t;
+	result += a;
 	return result;
 }
 
@@ -593,12 +608,12 @@ Vector2D<T> operator*(typename Vector2D<T>::TParam iA, const Vector2D<T>& iB)
 /** @relates lass::prim::Vector2D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
-											 const Vector2D<T>& iB)
+std::basic_ostream<Char, Traits>& operator<<(
+		std::basic_ostream<Char, Traits>& stream, const Vector2D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y  << ")";
+	LASS_ENFORCE_STREAM(stream) << "(" << b.x << ", " << b.y  << ")";
 
-	return oOStream;
+	return stream;
 }
 
 
@@ -606,38 +621,38 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates lass::prim::Vector2D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
-											 Vector2D<T>& oB)
+std::basic_istream<Char, Traits>& operator>>(
+		std::basic_istream<Char, Traits>& stream, Vector2D<T>& b)
 {
 	Vector2D<T> result;
 
 	Char c = 0;
-	ioIStream >> c;
+	stream >> c;
 	if (c != '(')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.x >> c;
+	stream >> result.x >> c;
 
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.y >> c;
+	stream >> result.y >> c;
 	if (c != ')')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
-	oB = result;
-	return ioIStream;
+	b = result;
+	return stream;
 }
 
 
@@ -645,11 +660,11 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 /** @relates lass::prim::Vector2D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector2D<T>& iB)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Vector2D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream)
-		<< "<Vector2D>" << iB.x << " " << iB.y << "</Vector2D>\n";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream)
+		<< "<Vector2D>" << b.x << " " << b.y << "</Vector2D>\n";
+	return stream;
 }
 
 

@@ -55,10 +55,10 @@ Vector3D<T>::Vector3D():
 
 
 template<typename T>
-Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
-	x(iX),
-	y(iY),
-	z(iZ)
+Vector3D<T>::Vector3D(TParam x, TParam y, TParam z):
+	x(x),
+	y(y),
+	z(z)
 {
 }
 
@@ -66,10 +66,10 @@ Vector3D<T>::Vector3D(TParam iX, TParam iY, TParam iZ):
 
 template <typename T>
 template <typename U>
-Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)),
-	y(static_cast<TValue>(iOther.y)),
-	z(static_cast<TValue>(iOther.z))
+Vector3D<T>::Vector3D(const Vector3D<U>& other):
+	x(static_cast<TValue>(other.x)),
+	y(static_cast<TValue>(other.y)),
+	z(static_cast<TValue>(other.z))
 {
 }
 
@@ -77,29 +77,29 @@ Vector3D<T>::Vector3D(const Vector3D<U>& iOther):
 
 template <typename T>
 template <typename U>
-Vector3D<T>::Vector3D(const U& iX, const U& iY, const U& iZ):
-	x(static_cast<TValue>(iX)),
-	y(static_cast<TValue>(iY)),
-	z(static_cast<TValue>(iZ))
+Vector3D<T>::Vector3D(const U& x, const U& y, const U& z):
+	x(static_cast<TValue>(x)),
+	y(static_cast<TValue>(y)),
+	z(static_cast<TValue>(z))
 {
 }
 
 
 
 template<typename T>
-typename Vector3D<T>::TConstReference Vector3D<T>::operator[](size_t iIndex) const
+typename Vector3D<T>::TConstReference Vector3D<T>::operator[](size_t index) const
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
 
 template<typename T>
-typename Vector3D<T>::TReference Vector3D<T>::operator[](size_t iIndex)
+typename Vector3D<T>::TReference Vector3D<T>::operator[](size_t index)
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
@@ -107,9 +107,9 @@ typename Vector3D<T>::TReference Vector3D<T>::operator[](size_t iIndex)
 /** Wrap index around range.
  */
 template<typename T>
-typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
+typename Vector3D<T>::TConstReference Vector3D<T>::at(signed index) const
  {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
 }
 
 
@@ -117,9 +117,9 @@ typename Vector3D<T>::TConstReference Vector3D<T>::at(signed iIndex) const
 /** Wrap index around range.
  */
 template<typename T>
-typename Vector3D<T>::TReference Vector3D<T>::at(signed iIndex)
+typename Vector3D<T>::TReference Vector3D<T>::at(signed index)
 {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
 }
 
 
@@ -145,11 +145,11 @@ const Vector3D<T> Vector3D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& other)
 {
-	x += iB.x;
-	y += iB.y;
-	z += iB.z;
+	x += other.x;
+	y += other.y;
+	z += other.z;
 	return *this;
 }
 
@@ -158,11 +158,11 @@ Vector3D<T>& Vector3D<T>::operator+=(const Vector3D<T>& iB)
 /** componentwise subtraction
  */
 template<typename T>
-Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& other)
 {
-	x -= iB.x;
-	y -= iB.y;
-	z -= iB.z;
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
 	return *this;
 }
 
@@ -171,11 +171,11 @@ Vector3D<T>& Vector3D<T>::operator-=(const Vector3D<T>& iB)
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& other)
 {
-	x *= iB.x;
-	y *= iB.y;
-	z *= iB.z;
+	x *= other.x;
+	y *= other.y;
+	z *= other.z;
 	return *this;
 }
 
@@ -184,63 +184,63 @@ Vector3D<T>& Vector3D<T>::operator*=(const Vector3D<T>& iB)
 /** Componentwise division.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& iB)
+Vector3D<T>& Vector3D<T>::operator/=(const Vector3D<T>& other)
 {
-	x /= iB.x;
-	y /= iB.y;
-	z /= iB.z;
+	x /= other.x;
+	y /= other.y;
+	z /= other.z;
 	return *this;
 }
 
 
 
-/** add iB to each component of this.
+/** add other to each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator+=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator+=(TParam other)
 {
-	x += iB;
-	y += iB;
-	z += iB;
+	x += other;
+	y += other;
+	z += other;
 	return *this;
 }
 
 
 
-/** subtract iB of each component of this.
+/** subtract other of each component of this.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator-=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator-=(TParam other)
 {
-	x -= iB;
-	y -= iB;
-	z -= iB;
+	x -= other;
+	y -= other;
+	z -= other;
 	return *this;
 }
 
 
 
-/** multiply each component of this with iB.
+/** multiply each component of this with other.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator*=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator*=(TParam other)
 {
-	x *= iB;
-	y *= iB;
-	z *= iB;
+	x *= other;
+	y *= other;
+	z *= other;
 	return *this;
 }
 
 
 
-/** divide each component of this by iB.
+/** divide each component of this by other.
  */
 template<typename T> inline
-Vector3D<T>& Vector3D<T>::operator/=(TParam iB)
+Vector3D<T>& Vector3D<T>::operator/=(TParam other)
 {
-	x /= iB;
-	y /= iB;
-	z /= iB;
+	x /= other;
+	y /= other;
+	z /= other;
 	return *this;
 }
 
@@ -317,10 +317,10 @@ const Vector3D<T> Vector3D<T>::reciprocal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
+const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& other) const
 {
 	Vector3D<T> result(*this);
-	result *= dot(iB, *this);
+	result *= dot(other, *this);
 	result /= squaredNorm();
 	return result;
 }
@@ -330,17 +330,17 @@ const Vector3D<T> Vector3D<T>::project(const Vector3D<T>& iB) const
 /** Reject vector from this one
  */
 template<typename T> inline
-const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& iB) const
+const Vector3D<T> Vector3D<T>::reject(const Vector3D<T>& other) const
 {
-	return iB - project(iB);
+	return other - project(other);
 }
 
 
 
 template<typename T> inline
-const Vector3D<T> Vector3D<T>::reflect(const Vector3D<T>& iB) const
+const Vector3D<T> Vector3D<T>::reflect(const Vector3D<T>& other) const
 {
-	return 2 * project(iB) - iB;
+	return 2 * project(other) - other;
 }
 
 
@@ -348,9 +348,9 @@ const Vector3D<T> Vector3D<T>::reflect(const Vector3D<T>& iB) const
 /** apply a function to every component
  */
 template <typename T>
-const Vector3D<T> Vector3D<T>::transform(T (*iOperator)(T)) const
+const Vector3D<T> Vector3D<T>::transform(T (*op)(T)) const
 {
-	return Vector3D<T>(iOperator(x), iOperator(y), iOperator(z));
+	return Vector3D<T>(op(x), op(y), op(z));
 }
 
 
@@ -369,15 +369,15 @@ void Vector3D<T>::normalize()
  */
 template <typename T>
 template <class RandomGenerator>
-Vector3D<T> Vector3D<T>::random(RandomGenerator& ioGenerator)
+Vector3D<T> Vector3D<T>::random(RandomGenerator& generator)
 {
 	num::DistributionUniform<TValue, RandomGenerator> zGenerator(
-		ioGenerator, -TNumTraits::one, TNumTraits::one);
+		generator, -TNumTraits::one, TNumTraits::one);
 	const TValue z = zGenerator();
 	const TValue r = num::sqrt(1 - num::sqr(z));
 
 	num::DistributionUniform<TValue, RandomGenerator> thetaGenerator(
-		ioGenerator, TNumTraits::zero, 2 * TNumTraits::pi);
+		generator, TNumTraits::zero, 2 * TNumTraits::pi);
 	const TValue theta = thetaGenerator();
 
 	return Vector3D<T>(r * num::cos(theta), r * num::sin(theta), z);
@@ -389,9 +389,9 @@ Vector3D<T> Vector3D<T>::random(RandomGenerator& ioGenerator)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB)
+typename Vector3D<T>::TValue dot(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return iA.x * iB.x + iA.y * iB.y + iA.z * iB.z;
+	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 
@@ -400,11 +400,11 @@ typename Vector3D<T>::TValue dot(const Vector3D<T>& iA, const Vector3D<T>& iB)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB)
+Vector3D<T> cross(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return Vector3D<T>(iA.y * iB.z - iA.z * iB.y,
-					   iA.z * iB.x - iA.x * iB.z,
-					   iA.x * iB.y - iA.y * iB.x);
+	return Vector3D<T>(a.y * b.z - a.z * b.y,
+					   a.z * b.x - a.x * b.z,
+					   a.x * b.y - a.y * b.x);
 }
 
 
@@ -412,9 +412,9 @@ Vector3D<T> cross(const Vector3D<T>& iA, const Vector3D<T>& iB)
 /** @relates lass::prim::Vector3D
  */
 template<typename T> inline
-bool operator==(const Vector3D<T>& iA, const Vector3D<T>& iB)
+bool operator==(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return iA.x == iB.x && iA.y == iB.y && iA.z == iB.z;
+	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 
@@ -422,9 +422,9 @@ bool operator==(const Vector3D<T>& iA, const Vector3D<T>& iB)
 /** @relates lass::prim::Vector3D
  */
 template<typename T> inline
-bool operator!=(const Vector3D<T>& iA, const Vector3D<T>& iB)
+bool operator!=(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 
@@ -433,10 +433,10 @@ bool operator!=(const Vector3D<T>& iA, const Vector3D<T>& iB)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator+(const Vector3D<T>& iA, const Vector3D<T>& iB)
+Vector3D<T> operator+(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iA);
-	result += iB;
+	Vector3D<T> result(a);
+	result += b;
 	return result;
 }
 
@@ -446,10 +446,10 @@ Vector3D<T> operator+(const Vector3D<T>& iA, const Vector3D<T>& iB)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator-(const Vector3D<T>& iA, const Vector3D<T>& iB)
+Vector3D<T> operator-(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iA);
-	result -= iB;
+	Vector3D<T> result(a);
+	result -= b;
 	return result;
 }
 
@@ -459,10 +459,10 @@ Vector3D<T> operator-(const Vector3D<T>& iA, const Vector3D<T>& iB)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator*(const Vector3D<T>& iA, const Vector3D<T>& iB)
+Vector3D<T> operator*(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iA);
-	result *= iB;
+	Vector3D<T> result(a);
+	result *= b;
 	return result;
 }
 
@@ -472,124 +472,139 @@ Vector3D<T> operator*(const Vector3D<T>& iA, const Vector3D<T>& iB)
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator/(const Vector3D<T>& iA, const Vector3D<T>& iB)
+Vector3D<T> operator/(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iA);
-	result /= iB;
+	Vector3D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iB to all components of iA.
+/** add b to all components of a.
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator+(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB)
+Vector3D<T> operator+(const Vector3D<T>& a, typename Vector3D<T>::TParam b)
 {
-	Vector3D<T> result(iA);
-	result += iB;
+	Vector3D<T> result(a);
+	result += b;
 	return result;
 }
 
 
 
-/** subtract iB of all components of iA.
+/** subtract b of all components of a.
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator-(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB)
+Vector3D<T> operator-(const Vector3D<T>& a, typename Vector3D<T>::TParam b)
 {
-	Vector3D<T> result(iA);
-	result -= iB;
+	Vector3D<T> result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** muliply all components of iA by iB
+/** muliply all components of a by b
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator*(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB)
+Vector3D<T> operator*(const Vector3D<T>& a, typename Vector3D<T>::TParam b)
 {
-	Vector3D<T> result(iA);
-	result *= iB;
+	Vector3D<T> result(a);
+	result *= b;
 	return result;
 }
 
 
 
-/** divide all components of iA by iB
+/** divide all components of a by b
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator/(const Vector3D<T>& iA, typename Vector3D<T>::TParam iB)
+Vector3D<T> operator/(const Vector3D<T>& a, typename Vector3D<T>::TParam b)
 {
-	Vector3D<T> result(iA);
-	result /= iB;
+	Vector3D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iA to all components of iB
+/** add a to all components of b
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator+(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB)
+Vector3D<T> operator+(typename Vector3D<T>::TParam a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iB);
-	result += iA;
+	Vector3D<T> result(b);
+	result += a;
 	return result;
 }
 
 
 
-/** subtract iA of all components of iB
+/** subtract a of all components of b
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator-(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB)
+Vector3D<T> operator-(typename Vector3D<T>::TParam a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(-iB);
-	result += iA;
+	Vector3D<T> result(-b);
+	result += a;
 	return result;
 }
 
 
 
-/** multiply all components of iB with iA
+/** multiply all components of b with a
  *  @relates lass::prim::Vector3D
  */
 template<typename T> inline
-Vector3D<T> operator*(typename Vector3D<T>::TParam iA, const Vector3D<T>& iB)
+Vector3D<T> operator*(typename Vector3D<T>::TParam a, const Vector3D<T>& b)
 {
-	Vector3D<T> result(iB);
-	result *= iA;
+	Vector3D<T> result(b);
+	result *= a;
 	return result;
 }
 
 
 
-/** return a vector with, for each coordinate, the minimum value of @a iA and @a iB
+/** return a vector with, for each coordinate, the minimum value of @a a and @a b
  *  @relates lass::prim::Vector3D
  */
 template<typename T>
-inline Vector3D<T> pointwiseMin(const Vector3D<T>& iA, const Vector3D<T>& iB)
+inline Vector3D<T> pointwiseMin(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return Vector3D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y), std::min(iA.z, iB.z));
+	return Vector3D<T>(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
 }
 
 
 
-/** return a vector with, for each coordinate, the maximum value of @a iA and @a iB
+/** return a vector with, for each coordinate, the maximum value of @a a and @a b
  *  @relates lass::prim::Vector3D
  */
 template<typename T>
-inline Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB)
+inline Vector3D<T> pointwiseMax(const Vector3D<T>& a, const Vector3D<T>& b)
 {
-	return Vector3D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y), std::max(iA.z, iB.z));
+	return Vector3D<T>(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+}
+
+
+
+/** interpolate linearly between two vectors: a + t * (b - a)
+ *  @relates lass::prim::Vector3D
+ */
+template<typename T>
+inline Vector3D<T> lerp(const Vector3D<T>& a, const Vector3D<T>& b, typename Vector3D<T>::TParam t)
+{
+	Vector3D<T> result = b;
+	result -= a;
+	result *= t;
+	result += a;
+	return result;
 }
 
 
@@ -597,11 +612,11 @@ inline Vector3D<T> pointwiseMax(const Vector3D<T>& iA, const Vector3D<T>& iB)
 /** @relates lass::prim::Vector3D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
-											 const Vector3D<T>& iB)
+std::basic_ostream<Char, Traits>& operator<<(
+		std::basic_ostream<Char, Traits>& stream, const Vector3D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ")";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream) << "(" << b.x << ", " << b.y << ", " << b.z << ")";
+	return stream;
 }
 
 
@@ -609,45 +624,45 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates lass::prim::Vector3D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
-											 Vector3D<T>& oB)
+std::basic_istream<Char, Traits>& operator>>(
+		std::basic_istream<Char, Traits>& stream, Vector3D<T>& b)
 {
 	Vector3D<T> result;
 
 	char c = 0;
-	ioIStream >> c;
+	stream >> c;
 	if (c != '(')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.x >> c;
+	stream >> result.x >> c;
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.y >> c;
+	stream >> result.y >> c;
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.z >> c;
+	stream >> result.z >> c;
 	if (c != ')')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
-	oB = result;
-	return ioIStream;
+	b = result;
+	return stream;
 }
 
 
@@ -655,11 +670,11 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 /** @relates lass::prim::Vector3D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector3D<T>& iB)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Vector3D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream)
-		<< "<Vector3D>" << iB.x << " " << iB.y << " " << iB.z << "</Vector3D>\n";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream)
+		<< "<Vector3D>" << b.x << " " << b.y << " " << b.z << "</Vector3D>\n";
+	return stream;
 }
 
 

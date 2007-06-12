@@ -182,7 +182,7 @@ public:
 /** @ingroup ArgParser
  */
 template <typename T>
-class LASS_DLL ArgValue: public ArgParameter
+class ArgValue: public ArgParameter
 {
 public:
 

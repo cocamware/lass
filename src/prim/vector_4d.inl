@@ -53,11 +53,11 @@ Vector4D<T>::Vector4D() :
 
 
 template<typename T> inline
-Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) :
-	x(iX),
-	y(iY),
-	z(iZ),
-	w(iW)
+Vector4D<T>::Vector4D(TParam x, TParam y, TParam z, TParam w) :
+	x(x),
+	y(y),
+	z(z),
+	w(w)
 {
 }
 
@@ -65,11 +65,11 @@ Vector4D<T>::Vector4D(TParam iX, TParam iY, TParam iZ, TParam iW) :
 
 template <typename T>
 template <typename U>
-Vector4D<T>::Vector4D(const Vector4D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)),
-	y(static_cast<TValue>(iOther.y)),
-	z(static_cast<TValue>(iOther.z)),
-	w(static_cast<TValue>(iOther.w))
+Vector4D<T>::Vector4D(const Vector4D<U>& other):
+	x(static_cast<TValue>(other.x)),
+	y(static_cast<TValue>(other.y)),
+	z(static_cast<TValue>(other.z)),
+	w(static_cast<TValue>(other.w))
 {
 }
 
@@ -77,40 +77,30 @@ Vector4D<T>::Vector4D(const Vector4D<U>& iOther):
 
 template <typename T>
 template <typename U>
-Vector4D<T>::Vector4D(const U& iX, const U& iY, const U& iZ, const U& iW):
-	x(static_cast<TValue>(iX)),
-	y(static_cast<TValue>(iY)),
-	z(static_cast<TValue>(iZ)),
-	w(static_cast<TValue>(iW))
+Vector4D<T>::Vector4D(const U& x, const U& y, const U& z, const U& w):
+	x(static_cast<TValue>(x)),
+	y(static_cast<TValue>(y)),
+	z(static_cast<TValue>(z)),
+	w(static_cast<TValue>(w))
 {
 }
 
 
 
 template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::operator[](size_t iIndex) const
+typename Vector4D<T>::TConstReference Vector4D<T>::operator[](size_t index) const
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
 
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::operator[](size_t iIndex)
+typename Vector4D<T>::TReference Vector4D<T>::operator[](size_t index)
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
-}
-
-
-
-/** Wrap index around range.
- */
-template<typename T> inline
-typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
-{
-	return *(&x + num::mod(iIndex, dimension));
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
@@ -118,9 +108,19 @@ typename Vector4D<T>::TConstReference Vector4D<T>::at(signed iIndex) const
 /** Wrap index around range.
  */
 template<typename T> inline
-typename Vector4D<T>::TReference Vector4D<T>::at(signed iIndex)
+typename Vector4D<T>::TConstReference Vector4D<T>::at(signed index) const
 {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
+}
+
+
+
+/** Wrap index around range.
+ */
+template<typename T> inline
+typename Vector4D<T>::TReference Vector4D<T>::at(signed index)
+{
+	return *(&x + num::mod(index, dimension));
 }
 
 
@@ -146,12 +146,12 @@ const Vector4D<T> Vector4D<T>::operator-() const
 /** componentwise addition
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& other)
 {
-	x += iB.x;
-	y += iB.y;
-	z += iB.z;
-	w += iB.w;
+	x += other.x;
+	y += other.y;
+	z += other.z;
+	w += other.w;
 	return *this;
 }
 
@@ -160,12 +160,12 @@ Vector4D<T>& Vector4D<T>::operator+=(const Vector4D<T>& iB)
 /** componentwise subtraction
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& other)
 {
-	x -= iB.x;
-	y -= iB.y;
-	z -= iB.z;
-	w -= iB.w;
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
+	w -= other.w;
 	return *this;
 }
 
@@ -174,12 +174,12 @@ Vector4D<T>& Vector4D<T>::operator-=(const Vector4D<T>& iB)
 /** Componentwise multiplication.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& other)
 {
-	x *= iB.x;
-	y *= iB.y;
-	z *= iB.z;
-	w *= iB.w;
+	x *= other.x;
+	y *= other.y;
+	z *= other.z;
+	w *= other.w;
 	return *this;
 }
 
@@ -188,68 +188,68 @@ Vector4D<T>& Vector4D<T>::operator*=(const Vector4D<T>& iB)
 /** Componentwise division.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator/=(const Vector4D<T>& iB)
+Vector4D<T>& Vector4D<T>::operator/=(const Vector4D<T>& other)
 {
-	x /= iB.x;
-	y /= iB.y;
-	z /= iB.z;
-	w /= iB.w;
+	x /= other.x;
+	y /= other.y;
+	z /= other.z;
+	w /= other.w;
 	return *this;
 }
 
 
 
-/** add iB to each component of this.
+/** add other to each component of this.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator+=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator+=(TParam other)
 {
-	x += iB;
-	y += iB;
-	z += iB;
-	w += iB;
+	x += other;
+	y += other;
+	z += other;
+	w += other;
 	return *this;
 }
 
 
 
-/** subtract iB of each component of this.
+/** subtract other of each component of this.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator-=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator-=(TParam other)
 {
-	x -= iB;
-	y -= iB;
-	z -= iB;
-	w -= iB;
+	x -= other;
+	y -= other;
+	z -= other;
+	w -= other;
 	return *this;
 }
 
 
 
-/** multiply each component of this with iB.
+/** multiply each component of this with other.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator*=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator*=(TParam other)
 {
-	x *= iB;
-	y *= iB;
-	z *= iB;
-	w *= iB;
+	x *= other;
+	y *= other;
+	z *= other;
+	w *= other;
 	return *this;
 }
 
 
 
-/** divide each component of this by iB.
+/** divide each component of this by other.
  */
 template<typename T> inline
-Vector4D<T>& Vector4D<T>::operator/=(TParam iB)
+Vector4D<T>& Vector4D<T>::operator/=(TParam other)
 {
-	x /= iB;
-	y /= iB;
-	z /= iB;
-	w /= iB;
+	x /= other;
+	y /= other;
+	z /= other;
+	w /= other;
 	return *this;
 }
 
@@ -315,10 +315,10 @@ const Vector4D<T> Vector4D<T>::normal() const
 /** Project vector on this one
  */
 template <typename T>
-const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
+const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& other) const
 {
 	Vector4D<T> result(*this);
-	result *= dot(iB, *this);
+	result *= dot(other, *this);
 	result /= squaredNorm();
 	return result;
 }
@@ -328,17 +328,17 @@ const Vector4D<T> Vector4D<T>::project(const Vector4D<T>& iB) const
 /** Project vector on this one
  */
 template<typename T> inline
-const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& iB) const
+const Vector4D<T> Vector4D<T>::reject(const Vector4D<T>& other) const
 {
-	return iB - project(iB);
+	return other - project(other);
 }
 
 
 
 template<typename T> inline
-const Vector4D<T> Vector4D<T>::reflect(const Vector4D<T>& iB) const
+const Vector4D<T> Vector4D<T>::reflect(const Vector4D<T>& other) const
 {
-	return 2 * project(iB) - iB;
+	return 2 * project(other) - other;
 }
 
 
@@ -367,9 +367,9 @@ void Vector4D<T>::normalize()
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB)
+typename Vector4D<T>::TValue dot(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	return iA.x * iB.x + iA.y * iB.y + iA.z * iB.z + iA.w * iB.w;
+	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
 
@@ -377,9 +377,9 @@ typename Vector4D<T>::TValue dot(const Vector4D<T>& iA, const Vector4D<T>& iB)
 /** @relates lass::prim::Vector4D
  */
 template<typename T> inline
-bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB)
+bool operator==(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	return iA.x == iB.x && iA.y == iB.y && iA.z == iB.z && iA.w == iB.w;
+	return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
 
 
@@ -387,9 +387,9 @@ bool operator==(const Vector4D<T>& iA, const Vector4D<T>& iB)
 /** @relates lass::prim::Vector4D
  */
 template<typename T> inline
-bool operator!=(const Vector4D<T>& iA, const Vector4D<T>& iB)
+bool operator!=(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 
@@ -398,10 +398,10 @@ bool operator!=(const Vector4D<T>& iA, const Vector4D<T>& iB)
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator+(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> operator+(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iA);
-	result += iB;
+	Vector4D<T> result(a);
+	result += b;
 	return result;
 }
 
@@ -411,10 +411,10 @@ Vector4D<T> operator+(const Vector4D<T>& iA, const Vector4D<T>& iB)
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator-(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> operator-(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iA);
-	result -= iB;
+	Vector4D<T> result(a);
+	result -= b;
 	return result;
 }
 
@@ -424,10 +424,10 @@ Vector4D<T> operator-(const Vector4D<T>& iA, const Vector4D<T>& iB)
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator*(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> operator*(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iA);
-	result *= iB;
+	Vector4D<T> result(a);
+	result *= b;
 	return result;
 }
 
@@ -437,126 +437,141 @@ Vector4D<T> operator*(const Vector4D<T>& iA, const Vector4D<T>& iB)
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator/(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> operator/(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iA);
-	result /= iB;
+	Vector4D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iB to all components of iA.
+/** add b to all components of a.
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator+(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB)
+Vector4D<T> operator+(const Vector4D<T>& a, typename Vector4D<T>::TParam b)
 {
-	Vector4D<T> result(iA);
-	result += iB;
+	Vector4D<T> result(a);
+	result += b;
 	return result;
 }
 
 
 
-/** subtract iB of all components of iA.
+/** subtract b of all components of a.
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator-(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB)
+Vector4D<T> operator-(const Vector4D<T>& a, typename Vector4D<T>::TParam b)
 {
-	Vector4D<T> result(iA);
-	result -= iB;
+	Vector4D<T> result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** muliply all components of iA by iB
+/** muliply all components of a by b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator*(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB)
+Vector4D<T> operator*(const Vector4D<T>& a, typename Vector4D<T>::TParam b)
 {
-	Vector4D<T> result(iA);
-	result *= iB;
+	Vector4D<T> result(a);
+	result *= b;
 	return result;
 }
 
 
 
-/** divide all components of iA by iB
+/** divide all components of a by b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator/(const Vector4D<T>& iA, typename Vector4D<T>::TParam iB)
+Vector4D<T> operator/(const Vector4D<T>& a, typename Vector4D<T>::TParam b)
 {
-	Vector4D<T> result(iA);
-	result /= iB;
+	Vector4D<T> result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** add iA to all components of iB
+/** add a to all components of b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator+(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB)
+Vector4D<T> operator+(typename Vector4D<T>::TParam a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iB);
-	result += iA;
+	Vector4D<T> result(b);
+	result += a;
 	return result;
 }
 
 
 
-/** subtract iA of all components of iB
+/** subtract a of all components of b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator-(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB)
+Vector4D<T> operator-(typename Vector4D<T>::TParam a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(-iB);
-	result += iA;
+	Vector4D<T> result(-b);
+	result += a;
 	return result;
 }
 
 
 
-/** multiply all components of iB with iA
+/** multiply all components of b with a
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> operator*(typename Vector4D<T>::TParam iA, const Vector4D<T>& iB)
+Vector4D<T> operator*(typename Vector4D<T>::TParam a, const Vector4D<T>& b)
 {
-	Vector4D<T> result(iB);
-	result *= iA;
+	Vector4D<T> result(b);
+	result *= a;
 	return result;
 }
 
 
 
-/** return a vector with, for each coordinate, the minimum value of @a iA and @a iB
+/** return a vector with, for each coordinate, the minimum value of @a a and @a b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> pointwiseMin(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> pointwiseMin(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	return Vector4D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y),
-					   std::min(iA.z, iB.z), std::min(iA.w, iB.w));
+	return Vector4D<T>(std::min(a.x, b.x), std::min(a.y, b.y),
+					   std::min(a.z, b.z), std::min(a.w, b.w));
 }
 
 
 
-/** return a vector with, for each coordinate, the maximum value of @a iA and @a iB
+/** return a vector with, for each coordinate, the maximum value of @a a and @a b
  *  @relates lass::prim::Vector4D
  */
 template<typename T> inline
-Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB)
+Vector4D<T> pointwiseMax(const Vector4D<T>& a, const Vector4D<T>& b)
 {
-	return Vector4D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y),
-					   std::max(iA.z, iB.z), std::max(iA.w, iB.w));
+	return Vector4D<T>(std::max(a.x, b.x), std::max(a.y, b.y),
+					   std::max(a.z, b.z), std::max(a.w, b.w));
+}
+
+
+
+/** interpolate linearly between two vectors: a + t * (b - a)
+ *  @relates lass::prim::Vector4D
+ */
+template<typename T>
+inline Vector4D<T> lerp(const Vector4D<T>& a, const Vector4D<T>& b, typename Vector4D<T>::TParam t)
+{
+	Vector4D<T> result = b;
+	result -= a;
+	result *= t;
+	result += a;
+	return result;
 }
 
 
@@ -564,11 +579,11 @@ Vector4D<T> pointwiseMax(const Vector4D<T>& iA, const Vector4D<T>& iB)
 /** @relates lass::prim::Vector4D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
-											 const Vector4D<T>& iB)
+std::basic_ostream<Char, Traits>& operator<<(
+		std::basic_ostream<Char, Traits>& stream, const Vector4D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream) << "(" << iB.x << ", " << iB.y << ", " << iB.z << ", " << iB.w << ")";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream) << "(" << b.x << ", " << b.y << ", " << b.z << ", " << b.w << ")";
+	return stream;
 }
 
 
@@ -576,53 +591,53 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates lass::prim::Vector4D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& ioIStream,
-											 Vector4D<T>& oB)
+std::basic_istream<Char, Traits>& operator>>(
+		std::basic_istream<Char, Traits>& stream, Vector4D<T>& b)
 {
 	Vector4D<T> result;
 
 	char c = 0;
-	ioIStream >> c;
+	stream >> c;
 	if (c != '(')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.x >> c;
+	stream >> result.x >> c;
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.y >> c;
+	stream >> result.y >> c;
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.z >> c;
+	stream >> result.z >> c;
 	if (c != ',')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
 	c = 0;
-	ioIStream >> result.w >> c;
+	stream >> result.w >> c;
 	if (c != ')')
 	{
-		ioIStream.clear(std::ios::failbit);
-		return ioIStream;
+		stream.clear(std::ios::failbit);
+		return stream;
 	}
 
-	oB = result;
-	return ioIStream;
+	b = result;
+	return stream;
 }
 
 
@@ -630,11 +645,11 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 /** @relates lass::prim::Vector4D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Vector4D<T>& iB)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Vector4D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream)
-		<< "<Vector4D>" << iB.x << " " << iB.y << " " << iB.z << " " << iB.w << "</Vector4D>\n";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream)
+		<< "<Vector4D>" << b.x << " " << b.y << " " << b.z << " " << b.w << "</Vector4D>\n";
+	return stream;
 }
 
 

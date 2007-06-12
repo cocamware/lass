@@ -90,6 +90,13 @@ template <typename T> void testPrimVector2D()
 	LASS_TEST_CHECK_EQUAL(n, b.normal());
 	LASS_TEST_CHECK_EQUAL(n.norm(), one);
 
+	a = Vector2D<T>(a0, a1);
+	b = Vector2D<T>(b0, b1);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+
 	std::stringstream ss;
 	ss << a;
 	ss >> b;
@@ -154,6 +161,14 @@ template <typename T> void testPrimVector3D()
 	LASS_TEST_CHECK_EQUAL(n, b.normal());
 	LASS_TEST_CHECK_CLOSE(n.norm(), one, epsilon);
 
+	a = Vector3D<T>(a0, a1, a2);
+	b = Vector3D<T>(b0, b1, b2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).z, (a.z + b.z) / 2);
+
 	std::stringstream ss;
 	ss << a;
 	ss >> b;
@@ -215,6 +230,15 @@ template <typename T> void testPrimVector4D()
 	n.normalize();
 	LASS_TEST_CHECK_EQUAL(n, b.normal());
 	LASS_TEST_CHECK_CLOSE(n.norm(), one, epsilon);
+
+	a = Vector4D<T>(a0, a1, a2, a3);
+	b = Vector4D<T>(b0, b1, b2, b3);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).z, (a.z + b.z) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).w, (a.w + b.w) / 2);
 
 	std::stringstream ss;
 	ss << a;

@@ -46,9 +46,9 @@ Point2D<T>::Point2D():
 
 
 template<typename T> inline
-Point2D<T>::Point2D(TParam iX, TParam iY):
-	x(iX),
-	y(iY)
+Point2D<T>::Point2D(TParam x, TParam y):
+	x(x),
+	y(y)
 {
 }
 
@@ -56,9 +56,9 @@ Point2D<T>::Point2D(TParam iX, TParam iY):
 
 template<typename T>
 template<typename U>
-Point2D<T>::Point2D(const Point2D<U>& iOther):
-	x(static_cast<TValue>(iOther.x)),
-	y(static_cast<TValue>(iOther.y))
+Point2D<T>::Point2D(const Point2D<U>& other):
+	x(static_cast<TValue>(other.x)),
+	y(static_cast<TValue>(other.y))
 {
 }
 
@@ -66,9 +66,9 @@ Point2D<T>::Point2D(const Point2D<U>& iOther):
 
 template<typename T>
 template<typename U>
-Point2D<T>::Point2D(const Vector2D<U>& iPositionVector):
-	x(static_cast<TValue>(iPositionVector.x)),
-	y(static_cast<TValue>(iPositionVector.y))
+Point2D<T>::Point2D(const Vector2D<U>& position):
+	x(static_cast<TValue>(position.x)),
+	y(static_cast<TValue>(position.y))
 {
 }
 
@@ -76,9 +76,9 @@ Point2D<T>::Point2D(const Vector2D<U>& iPositionVector):
 
 template<typename T>
 template<typename U>
-Point2D<T>::Point2D(const U& iX, const U& iY):
-	x(static_cast<TValue>(iX)),
-	y(static_cast<TValue>(iY))
+Point2D<T>::Point2D(const U& x, const U& y):
+	x(static_cast<TValue>(x)),
+	y(static_cast<TValue>(y))
 {
 }
 
@@ -95,20 +95,20 @@ Point2D<T>::position() const
 
 template<typename T> inline
 typename Point2D<T>::TConstReference
-Point2D<T>::operator[](size_t iIndex) const
+Point2D<T>::operator[](size_t index) const
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
 
 template<typename T> inline
 typename Point2D<T>::TReference
-Point2D<T>::operator[](size_t iIndex)
+Point2D<T>::operator[](size_t index)
 {
-	LASS_ASSERT(iIndex < dimension);
-	return *(&x + iIndex);
+	LASS_ASSERT(index < dimension);
+	return *(&x + index);
 }
 
 
@@ -117,9 +117,9 @@ Point2D<T>::operator[](size_t iIndex)
  */
 template<typename T> inline
 typename Point2D<T>::TConstReference
-Point2D<T>::at(signed iIndex) const
+Point2D<T>::at(signed index) const
 {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
 }
 
 
@@ -128,19 +128,19 @@ Point2D<T>::at(signed iIndex) const
  */
 template<typename T> inline
 typename Point2D<T>::TReference
-Point2D<T>::at(signed iIndex)
+Point2D<T>::at(signed index)
 {
-	return *(&x + num::mod(iIndex, dimension));
+	return *(&x + num::mod(index, dimension));
 }
 
 
 
 template<typename T>
 Point2D<T>&
-Point2D<T>::operator+=(const Vector2D<T>& iB)
+Point2D<T>::operator+=(const Vector2D<T>& offset)
 {
-	x += iB.x;
-	y += iB.y;
+	x += offset.x;
+	y += offset.y;
 	return *this;
 }
 
@@ -148,10 +148,10 @@ Point2D<T>::operator+=(const Vector2D<T>& iB)
 
 template<typename T>
 Point2D<T>&
-Point2D<T>::operator-=(const Vector2D<T>& iB)
+Point2D<T>::operator-=(const Vector2D<T>& offset)
 {
-	x -= iB.x;
-	y -= iB.y;
+	x -= offset.x;
+	y -= offset.y;
 	return *this;
 }
 
@@ -180,9 +180,9 @@ const bool Point2D<T>::isNaN() const
 /** @relates lass::prim::Point2D
  */
 template<typename T>
-bool operator==(const Point2D<T>& iA, const Point2D<T>& iB)
+bool operator==(const Point2D<T>& a, const Point2D<T>& b)
 {
-	return iA.x == iB.x && iA.y == iB.y;
+	return a.x == b.x && a.y == b.y;
 }
 
 
@@ -190,9 +190,9 @@ bool operator==(const Point2D<T>& iA, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-bool operator!=(const Point2D<T>& iA, const Point2D<T>& iB)
+bool operator!=(const Point2D<T>& a, const Point2D<T>& b)
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 
@@ -200,10 +200,10 @@ bool operator!=(const Point2D<T>& iA, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-Point2D<T> operator+(const Point2D<T>& iA, const Vector2D<T>& iB)
+Point2D<T> operator+(const Point2D<T>& a, const Vector2D<T>& b)
 {
-	Point2D<T> result(iA);
-	result += iB;
+	Point2D<T> result(a);
+	result += b;
 	return result;
 }
 
@@ -212,10 +212,10 @@ Point2D<T> operator+(const Point2D<T>& iA, const Vector2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-Point2D<T> operator+(const Vector2D<T>& iA, const Point2D<T>& iB)
+Point2D<T> operator+(const Vector2D<T>& a, const Point2D<T>& b)
 {
-	Point2D<T> result(iB);
-	result += iA;
+	Point2D<T> result(b);
+	result += a;
 	return result;
 }
 
@@ -224,10 +224,10 @@ Point2D<T> operator+(const Vector2D<T>& iA, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-Point2D<T> operator-(const Point2D<T>& iA, const Vector2D<T>& iB)
+Point2D<T> operator-(const Point2D<T>& a, const Vector2D<T>& b)
 {
-	Point2D<T> result(iA);
-	result -= iB;
+	Point2D<T> result(a);
+	result -= b;
 	return result;
 }
 
@@ -236,9 +236,9 @@ Point2D<T> operator-(const Point2D<T>& iA, const Vector2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-Vector2D<T> operator-(const Point2D<T>& iA, const Point2D<T>& iB)
+Vector2D<T> operator-(const Point2D<T>& a, const Point2D<T>& b)
 {
-	return Vector2D<T>(iA.x - iB.x, iA.y - iB.y);
+	return Vector2D<T>(a.x - b.x, a.y - b.y);
 }
 
 
@@ -246,40 +246,51 @@ Vector2D<T> operator-(const Point2D<T>& iA, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-typename Point2D<T>::TValue distance(const Point2D<T>& iA, const Point2D<T>& iB)
+typename Point2D<T>::TValue distance(const Point2D<T>& a, const Point2D<T>& b)
 {
-	const Vector2D<T> difference = iA - iB;
+	const Vector2D<T> difference = a - b;
 	return difference.norm();
 }
 
 /** @relates lass::prim::Point2D
  */
 template<typename T> inline
-typename Point2D<T>::TValue squaredDistance(const Point2D<T>& iA, const Point2D<T>& iB)
+typename Point2D<T>::TValue squaredDistance(const Point2D<T>& a, const Point2D<T>& b)
 {
-	const Vector2D<T> difference = iA - iB;
+	const Vector2D<T> difference = a - b;
 	return difference.squaredNorm();
 }
 
 
-/** return a point with, for each coordinate, the minimum value of iA and iB
+/** return a point with, for each coordinate, the minimum value of a and b
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-Point2D<T> pointwiseMin(const Point2D<T>& iA, const Point2D<T>& iB)
+Point2D<T> pointwiseMin(const Point2D<T>& a, const Point2D<T>& b)
 {
-	return Point2D<T>(std::min(iA.x, iB.x), std::min(iA.y, iB.y));
+	return Point2D<T>(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
 
 
-/** return a point with, for each coordinate, the maximum value of iA and iB
+/** return a point with, for each coordinate, the maximum value of a and b
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-Point2D<T> pointwiseMax(const Point2D<T>& iA, const Point2D<T>& iB)
+Point2D<T> pointwiseMax(const Point2D<T>& a, const Point2D<T>& b)
 {
-	return Point2D<T>(std::max(iA.x, iB.x), std::max(iA.y, iB.y));
+	return Point2D<T>(std::max(a.x, b.x), std::max(a.y, b.y));
+}
+
+
+
+/** interpolate linearly between two points: a + t * (b - a)
+ *  @relates lass::prim::Point2D
+ */
+template<typename T>
+inline Point2D<T> lerp(const Point2D<T>& a, const Point2D<T>& b, typename Point2D<T>::TParam t)
+{
+	return Point2D<T>(lerp(a.position(), b.position(), t));
 }
 
 
@@ -287,10 +298,10 @@ Point2D<T> pointwiseMax(const Point2D<T>& iA, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T>
-std::ostream& operator<<(std::ostream& ioOStream, const Point2D<T>& iB)
+std::ostream& operator<<(std::ostream& stream, const Point2D<T>& b)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << iB.position();
-	return ioOStream;
+	LASS_ENFORCE_STREAM(stream) << b.position();
+	return stream;
 }
 
 
@@ -298,11 +309,11 @@ std::ostream& operator<<(std::ostream& ioOStream, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2D<T>& iB)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Point2D<T>& b)
 {
-	LASS_ENFORCE_STREAM(oOStream)
-		<< "<Point2D>" << iB.x << " " << iB.y << "</Point2D>\n";
-	return oOStream;
+	LASS_ENFORCE_STREAM(stream)
+		<< "<Point2D>" << b.x << " " << b.y << "</Point2D>\n";
+	return stream;
 }
 
 
@@ -310,44 +321,44 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2D<T>& iB)
 /** @relates lass::prim::Point2D
  */
 template<typename T>
-lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& ioOStream, const Point2D<T>& iB)
+lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const Point2D<T>& b)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << "lasthandle = line(";
-	ioOStream << iB.x << "," << iB.y << ",";
-	ioOStream << "'Color'," << ioOStream.color() << ");\n";
-	ioOStream << "set(lasthandle,'Marker','o');\n";
-	ioOStream << "set(lasthandle,'markersize',2);\n";
-	return ioOStream;
+	LASS_ENFORCE_STREAM(stream) << "lasthandle = line(";
+	stream << b.x << "," << b.y << ",";
+	stream << "'Color'," << stream.color() << ");\n";
+	stream << "set(lasthandle,'Marker','o');\n";
+	stream << "set(lasthandle,'markersize',2);\n";
+	return stream;
 }
 
 
 /** @relates lass::prim::Point2D
  */
 template<typename T>
-std::istream& operator>>(std::istream& ioIStream, Point2D<T>& oB)
+std::istream& operator>>(std::istream& stream, Point2D<T>& b)
 {
 	Vector2D<T> temp;
-	LASS_ENFORCE_STREAM(ioIStream) >> temp;
-	oB = Point2D<T>(temp);
-	return ioIStream;
+	LASS_ENFORCE_STREAM(stream) >> temp;
+	b = Point2D<T>(temp);
+	return stream;
 }
 
-/** returns twice signed area of triangle iA,iB,iC
+/** returns twice signed area of triangle a,b,c
  *  @relates lass::prim::Point2D
  */
 // based on floating point number theory the ordening of computation is optimised
 // for floating point or filtered arithmetic
 // when T is an exact type, a faster computation could be devised
 // see work from Shewchuk, Fortune and Van Wyck
-// the basic idea is to translate points iA and iB by iC
+// the basic idea is to translate points a and b by c
 template<typename T>
-T doubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+T doubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return perpDot(iA-iC,iB-iC);
+	return perpDot(a-c,b-c);
 	/* more intuitive (and faster) but less precise version...
-	const Vector2D<T> a = iA.position();
-	const Vector2D<T> b = iB.position();
-	const Vector2D<T> c = iC.position();
+	const Vector2D<T> a = a.position();
+	const Vector2D<T> b = b.position();
+	const Vector2D<T> c = c.position();
 	return perpDot(b, c) - perpDot(a, c) + perpDot(a, b);
 	*/
 }
@@ -356,72 +367,72 @@ T doubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<
 // for floating point or filtered arithmetic
 // when T is an exact type, a faster computation could be devised
 // see work from Shewchuk, Fortune and Van Wyck
-// the basic idea is to translate points iA and iB by iC
+// the basic idea is to translate points a and b by c
 template<typename T>
-T preciseDoubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+T preciseDoubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return perpDot(iA-iC,iB-iC);
+	return perpDot(a-c,b-c);
 }
 
 
 
 
 
-/** returns true when the line iB->iC is counter clockwise oriented with respect to iA->iB
+/** returns true when the line b->c is counter clockwise oriented with respect to a->b
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-bool ccw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+bool ccw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(iA,iB,iC) > num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) > num::NumTraits<T>::zero;
 }
 
-/** returns true when the line iB->iC is clockwise oriented with respect to iA->iB
+/** returns true when the line b->c is clockwise oriented with respect to a->b
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-bool cw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+bool cw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(iA,iB,iC) < num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) < num::NumTraits<T>::zero;
 }
 
 
-/** returns true when the line iB->iC is counter clockwise oriented with respect to iA->iB.
- *  When iC is in line of iA and iB also returns true.
+/** returns true when the line b->c is counter clockwise oriented with respect to a->b.
+ *  When c is in line of a and b also returns true.
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-bool weakCcw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+bool weakCcw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(iA,iB,iC) >= num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) >= num::NumTraits<T>::zero;
 }
 
-/** returns true when the line iB->iC is counter clockwise oriented with respect to iA->iB.
- *  When iC is in line of iA and iB also returns true.
+/** returns true when the line b->c is counter clockwise oriented with respect to a->b.
+ *  When c is in line of a and b also returns true.
  *  @relates lass::prim::Point2D
  */
 template<typename T>
-bool weakCw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC )
+bool weakCw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(iA,iB,iC) <= num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) <= num::NumTraits<T>::zero;
 }
 
-/** returns true when the point iD is strictly (within numerical precision) in the circle
- *  going through iA, iB and iC.
+/** returns true when the point d is strictly (within numerical precision) in the circle
+ *  going through a, b and c.
  *  @relates lass::prim::Point2D
  *  @note this test is used for establishing Delaunay neighborhoods and this tests
  *        numerical stability determines the overall stability of the Delaunay meshers
  */
 template<typename T>
-bool inCircle( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC, const Point2D<T>& iD )
+bool inCircle( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c, const Point2D<T>& d )
 {
-	const T az = iA.position().squaredNorm();
-	const T bz = iB.position().squaredNorm();
-	const T cz = iC.position().squaredNorm();
-	const T dz = iD.position().squaredNorm();
+	const T az = a.position().squaredNorm();
+	const T bz = b.position().squaredNorm();
+	const T cz = c.position().squaredNorm();
+	const T dz = d.position().squaredNorm();
 
-	T det = (az * doubleTriangleArea(iB, iC, iD) - bz * doubleTriangleArea(iA, iC, iD)
-		+    cz * doubleTriangleArea(iA, iB, iD) - dz * doubleTriangleArea(iA, iB, iC));
+	T det = (az * doubleTriangleArea(b, c, d) - bz * doubleTriangleArea(a, c, d)
+		+    cz * doubleTriangleArea(a, b, d) - dz * doubleTriangleArea(a, b, c));
 
 	return (det > T(0));
 }

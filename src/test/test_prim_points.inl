@@ -62,6 +62,11 @@ template <typename T> void testPrimPoint2D()
 	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
 	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
 	LASS_TEST_CHECK((q - b).isZero());
+
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
 }
 
 
@@ -88,6 +93,12 @@ template <typename T> void testPrimPoint3D()
 	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
 	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
 	LASS_TEST_CHECK((q - b).isZero());
+
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).z, (a.z + b.z) / 2);
 }
 
 

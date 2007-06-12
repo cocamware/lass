@@ -74,49 +74,50 @@ public:
 	TValue y;
 
 	Point2D();
-	Point2D(TParam iX, TParam iY);
-	template <typename U> explicit Point2D(const Point2D<U>& iOther);
-	template <typename U> explicit Point2D(const Vector2D<U>& iPositionVector);
-	template <typename U> explicit Point2D(const U& iX, const U& iY);
+	Point2D(TParam x, TParam y);
+	template <typename U> explicit Point2D(const Point2D<U>& other);
+	template <typename U> explicit Point2D(const Vector2D<U>& position);
+	template <typename U> explicit Point2D(const U& x, const U& y);
 
 	const TVector position() const;
-	TConstReference operator[](size_t iIndex) const;
-	TReference operator[](size_t iIndex);
-	TConstReference at(signed iIndex) const;
-	TReference at(signed iIndex);
+	TConstReference operator[](size_t index) const;
+	TReference operator[](size_t index);
+	TConstReference at(signed index) const;
+	TReference at(signed index);
 
-	Point2D<T>& operator+=(const Vector2D<T>& iOffset);
-	Point2D<T>& operator-=(const Vector2D<T>& iOffset);
+	Point2D<T>& operator+=(const Vector2D<T>& offset);
+	Point2D<T>& operator-=(const Vector2D<T>& offset);
 
 	const bool isZero() const;
 	const bool isNaN() const;
 };
 
-template<typename T> bool operator==(const Point2D<T>& iA, const Point2D<T>& iB);
-template<typename T> bool operator!=(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> bool operator==(const Point2D<T>& a, const Point2D<T>& b);
+template<typename T> bool operator!=(const Point2D<T>& a, const Point2D<T>& b);
 
-template<typename T> Point2D<T> operator+(const Point2D<T>& iA, const Vector2D<T>& iB);
-template<typename T> Point2D<T> operator+(const Vector2D<T>& iA, const Point2D<T>& iB);
-template<typename T> Point2D<T> operator-(const Point2D<T>& iA, const Vector2D<T>& iB);
-template<typename T> Vector2D<T> operator-(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> Point2D<T> operator+(const Point2D<T>& a, const Vector2D<T>& b);
+template<typename T> Point2D<T> operator+(const Vector2D<T>& a, const Point2D<T>& b);
+template<typename T> Point2D<T> operator-(const Point2D<T>& a, const Vector2D<T>& b);
+template<typename T> Vector2D<T> operator-(const Point2D<T>& a, const Point2D<T>& b);
 
-template<typename T> typename Point2D<T>::TValue distance(const Point2D<T>& iA, const Point2D<T>& iB);
-template<typename T> typename Point2D<T>::TValue squaredDistance(const Point2D<T>& iA, const Point2D<T>& iB);
-template<typename T> Point2D<T> pointwiseMin(const Point2D<T>& iA, const Point2D<T>& iB);
-template<typename T> Point2D<T> pointwiseMax(const Point2D<T>& iA, const Point2D<T>& iB);
+template<typename T> typename Point2D<T>::TValue distance(const Point2D<T>& a, const Point2D<T>& b);
+template<typename T> typename Point2D<T>::TValue squaredDistance(const Point2D<T>& a, const Point2D<T>& b);
+template<typename T> Point2D<T> pointwiseMin(const Point2D<T>& a, const Point2D<T>& b);
+template<typename T> Point2D<T> pointwiseMax(const Point2D<T>& a, const Point2D<T>& b);
+template<typename T> Point2D<T> lerp(const Point2D<T>& a, const Point2D<T>& b, typename Point2D<T>::TParam t);
 
-template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Point2D<T>& iB);
-template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point2D<T>& iB);
-template<typename T> std::istream& operator>>(std::istream& ioIStream, Point2D<T>& oB);
-template<typename T> lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream, const Point2D<T>& iB);
+template<typename T> std::ostream& operator<<(std::ostream& stream, const Point2D<T>& b);
+template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Point2D<T>& b);
+template<typename T> std::istream& operator>>(std::istream& stream, Point2D<T>& b);
+template<typename T> lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const Point2D<T>& b);
 
 
-template<typename T> T doubleTriangleArea( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
-template<typename T> bool cw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
-template<typename T> bool ccw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
-template<typename T> bool weakCw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
-template<typename T> bool weakCcw( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC );
-template<typename T> bool inCircle( const Point2D<T>& iA, const Point2D<T>& iB, const Point2D<T>& iC, const Point2D<T>& iD );
+template<typename T> T doubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c );
+template<typename T> bool cw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c );
+template<typename T> bool ccw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c );
+template<typename T> bool weakCw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c );
+template<typename T> bool weakCcw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c );
+template<typename T> bool inCircle( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c, const Point2D<T>& d );
 
 }
 

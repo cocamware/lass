@@ -76,40 +76,41 @@ public:
 	TValue z;
 
 	Point3D();
-	Point3D(TParam iX, TParam iY, TParam iZ);
-	template <typename U> explicit Point3D(const Point3D<U>& iOther);
-	template <typename U> explicit Point3D(const Vector3D<U>& iPositionVector);
-	template <typename U> explicit Point3D(const U& iX, const U& iY, const U& iZ);
+	Point3D(TParam x, TParam y, TParam z);
+	template <typename U> explicit Point3D(const Point3D<U>& other);
+	template <typename U> explicit Point3D(const Vector3D<U>& position);
+	template <typename U> explicit Point3D(const U& x, const U& y, const U& z);
 
 	const TVector position() const;
-	TConstReference operator[](size_t iIndex) const;
-	TReference operator[](size_t iIndex);
-	TConstReference at(signed iIndex) const;
-	TReference at(signed iIndex);
+	TConstReference operator[](size_t index) const;
+	TReference operator[](size_t index);
+	TConstReference at(signed index) const;
+	TReference at(signed index);
 
-	Point3D<T>& operator+=(const Vector3D<T>& iOffset);
-	Point3D<T>& operator-=(const Vector3D<T>& iOffset);
+	Point3D<T>& operator+=(const Vector3D<T>& offset);
+	Point3D<T>& operator-=(const Vector3D<T>& offset);
 
 	const bool isZero() const;
 	const bool isNaN() const;
 };
 
-template<typename T> bool operator==(const Point3D<T>& iA, const Point3D<T>& iB);
-template<typename T> bool operator!=(const Point3D<T>& iA, const Point3D<T>& iB);
+template<typename T> bool operator==(const Point3D<T>& a, const Point3D<T>& b);
+template<typename T> bool operator!=(const Point3D<T>& a, const Point3D<T>& b);
 
-template<typename T> Point3D<T> operator+(const Point3D<T>& iA, const Vector3D<T>& iB);
-template<typename T> Point3D<T> operator+(const Vector3D<T>& iA, const Point3D<T>& iB);
-template<typename T> Point3D<T> operator-(const Point3D<T>& iA, const Vector3D<T>& iB);
-template<typename T> Vector3D<T> operator-(const Point3D<T>& iA, const Point3D<T>& iB);
+template<typename T> Point3D<T> operator+(const Point3D<T>& a, const Vector3D<T>& b);
+template<typename T> Point3D<T> operator+(const Vector3D<T>& a, const Point3D<T>& b);
+template<typename T> Point3D<T> operator-(const Point3D<T>& a, const Vector3D<T>& b);
+template<typename T> Vector3D<T> operator-(const Point3D<T>& a, const Point3D<T>& b);
 
-template<typename T> typename Point3D<T>::TValue distance(const Point3D<T>& iA, const Point3D<T>& iB);
-template<typename T> typename Point3D<T>::TValue squaredDistance(const Point3D<T>& iA, const Point3D<T>& iB);
-template<typename T> Point3D<T> pointwiseMin(const Point3D<T>& iA, const Point3D<T>& iB);
-template<typename T> Point3D<T> pointwiseMax(const Point3D<T>& iA, const Point3D<T>& iB);
+template<typename T> typename Point3D<T>::TValue distance(const Point3D<T>& a, const Point3D<T>& b);
+template<typename T> typename Point3D<T>::TValue squaredDistance(const Point3D<T>& a, const Point3D<T>& b);
+template<typename T> Point3D<T> pointwiseMin(const Point3D<T>& a, const Point3D<T>& b);
+template<typename T> Point3D<T> pointwiseMax(const Point3D<T>& a, const Point3D<T>& b);
+template<typename T> Point3D<T> lerp(const Point3D<T>& a, const Point3D<T>& b, typename Point3D<T>::TParam t);
 
-template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Point3D<T>& iB);
-template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Point3D<T>& iB);
-template<typename T> std::istream& operator>>(std::istream& ioIStream, Point3D<T>& oB);
+template<typename T> std::ostream& operator<<(std::ostream& stream, const Point3D<T>& b);
+template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Point3D<T>& b);
+template<typename T> std::istream& operator>>(std::istream& stream, Point3D<T>& b);
 
 
 
