@@ -53,7 +53,7 @@ namespace impl
 		num::Tuint8& operator[](std::size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
 		const num::Tuint8* get() const { return values_; }
 		num::Tuint8* get() { return values_; }
-		bool operator==(const Bytes4& iOther) const { return std::equal(values_, values_ + 4, iOther.values_); }
+		bool operator==(const Bytes4& other) const { return std::equal(values_, values_ + 4, other.values_); }
 	private:
 		num::Tuint8 values_[4];
 	};
@@ -72,42 +72,44 @@ Image::Image():
 	cols_(0),
 	raster_()
 {
+	defaultChromaticities();
 }
 
 
 
 /** Construct image of given width and height.
  */
-Image::Image(unsigned iRows, unsigned iCols):
+Image::Image(unsigned rows, unsigned cols):
 	rows_(0),
 	cols_(0),
 	raster_()
 {
 	const TPixel black;
-	resize(iRows, iCols);
+	resize(rows, cols);
 	std::fill(raster_.begin(), raster_.end(), black);
+	defaultChromaticities();
 }
 
 
 
 /** Construct image from given file.
  */
-Image::Image(const std::string& iFilename):
+Image::Image(const std::string& filename):
 	rows_(0),
 	cols_(0),
 	raster_()
 {
-	open(iFilename);
+	open(filename);
 }
 
 
 
 /** Copy constructor
  */
-Image::Image(const Image& iOther):
-	rows_(iOther.rows_),
-	cols_(iOther.cols_),
-	raster_(iOther.raster_)
+Image::Image(const Image& other):
+	rows_(other.rows_),
+	cols_(other.cols_),
+	raster_(other.raster_)
 {
 }
 
@@ -135,9 +137,9 @@ void Image::reset()
 
 /** Reset image to (black) image of given width.
  */
-void Image::reset(unsigned iRows, unsigned iCols)
+void Image::reset(unsigned rows, unsigned cols)
 {
-	Image temp(iRows, iCols);
+	Image temp(rows, cols);
 	swap(temp);
 }
 
@@ -145,9 +147,9 @@ void Image::reset(unsigned iRows, unsigned iCols)
 
 /** Reset image to the one in the given file.
  */
-void Image::reset(const std::string& iFilename)
+void Image::reset(const std::string& filename)
 {
-	Image temp(iFilename);
+	Image temp(filename);
 	swap(temp);
 }
 
@@ -155,9 +157,9 @@ void Image::reset(const std::string& iFilename)
 
 /** Reset image to copy of given image.
  */
-void Image::reset(const Image& iOther)
+void Image::reset(const Image& other)
 {
-	Image temp(iOther);
+	Image temp(other);
 	swap(temp);
 }
 
@@ -165,21 +167,21 @@ void Image::reset(const Image& iOther)
 
 /** Open image from file
  */
-void Image::open(const std::string& iFilename)
+void Image::open(const std::string& filename)
 {
 	try
 	{
-		BinaryIFile file(iFilename);
+		BinaryIFile file(filename);
 		if (!file)
 		{
 			LASS_THROW("could not open file to read.");
 		}
 
-		open(file, fileExtension(iFilename));
+		open(file, fileExtension(filename));
 	}
 	catch (const util::Exception& error)
 	{
-		LASS_THROW("'" << iFilename << "': " << error.message());
+		LASS_THROW("'" << filename << "': " << error.message());
 	}
 }
 
@@ -187,22 +189,22 @@ void Image::open(const std::string& iFilename)
 
 /** Open image from binary stream
  */
-void Image::open(BinaryIStream& iStream, const std::string& iFormatTag)
+void Image::open(BinaryIStream& stream, const std::string& formatTag)
 {
 	Image temp;
-	TFileOpener opener = findFormat(iFormatTag).open;
+	TFileOpener opener = findFormat(formatTag).open;
 	if (!opener)
 	{
-		LASS_THROW("cannot open images in file format '" << iFormatTag << "'.");
+		LASS_THROW("cannot open images in file format '" << formatTag << "'.");
 	}
 
-	(temp.*opener)(iStream);
+	(temp.*opener)(stream);
 
-	if (iStream.good())
+	if (stream.good())
 	{
 		swap(temp);
 	}
-	else if (iStream.eof())
+	else if (stream.eof())
 	{
 		LASS_THROW("tried to read past end of file.");
 	}
@@ -216,21 +218,21 @@ void Image::open(BinaryIStream& iStream, const std::string& iFormatTag)
 
 /** Save image to file
  */
-void Image::save(const std::string& iFilename)
+void Image::save(const std::string& filename)
 {
 	try
 	{
-		BinaryOFile file(iFilename);
+		BinaryOFile file(filename);
 		if (!file)
 		{
 			LASS_THROW("could not open file to write.");
 		}
 
-		save(file, fileExtension(iFilename));
+		save(file, fileExtension(filename));
 	}
 	catch (const util::Exception& error)
 	{
-		LASS_THROW("'" << iFilename << "': " << error.message());
+		LASS_THROW("'" << filename << "': " << error.message());
 	}
 }
 
@@ -238,21 +240,21 @@ void Image::save(const std::string& iFilename)
 
 /** Save image to file
  */
-void Image::save(BinaryOStream& iStream, const std::string& iFormatTag)
+void Image::save(BinaryOStream& stream, const std::string& formatTag)
 {
-	TFileSaver saver = findFormat(iFormatTag).save;
+	TFileSaver saver = findFormat(formatTag).save;
 	if (!saver)
 	{
-		LASS_THROW("cannot save images in file format '" << iFormatTag << "'.");
+		LASS_THROW("cannot save images in file format '" << formatTag << "'.");
 	}
 
-	(this->*saver)(iStream);
+	(this->*saver)(stream);
 
-	if (iStream.eof())
+	if (stream.eof())
 	{
 		LASS_THROW("tried to read past end of file.");
 	}
-	if (!iStream.good())
+	if (!stream.good())
 	{
 		LASS_THROW("unknown failure in file.");
 	}
@@ -260,11 +262,11 @@ void Image::save(BinaryOStream& iStream, const std::string& iFormatTag)
 
 
 
-/** Copy iOther into this image.
+/** Copy other into this image.
  */
-Image& Image::operator=(const Image& iOther)
+Image& Image::operator=(const Image& other)
 {
-	Image temp(iOther);
+	Image temp(other);
 	swap(temp);
 	return *this;
 }
@@ -273,60 +275,60 @@ Image& Image::operator=(const Image& iOther)
 
 /** swap two images
  */
-void Image::swap(Image& iOther)
+void Image::swap(Image& other)
 {
-	std::swap(rows_, iOther.rows_);
-	std::swap(cols_, iOther.cols_);
-	raster_.swap(iOther.raster_);
+	std::swap(rows_, other.rows_);
+	std::swap(cols_, other.cols_);
+	raster_.swap(other.raster_);
 }
 
 
 
-/** Return const pixel at position iRow, iCol.
- *  @param iRow row of pixel, y coordinate.
- *  @param iCol column of pixel, x coordinate.
+/** Return const pixel at position row, col.
+ *  @param row row of pixel, y coordinate.
+ *  @param col column of pixel, x coordinate.
  */
-const Image::TPixel& Image::operator()(unsigned iRow, unsigned iCol) const
+const Image::TPixel& Image::operator()(unsigned row, unsigned col) const
 {
-	LASS_ASSERT(iRow < rows_ && iCol < cols_);
-	return raster_[flatIndex(iRow, iCol)];
+	LASS_ASSERT(row < rows_ && col < cols_);
+	return raster_[flatIndex(row, col)];
 }
 
 
 
-/** Return reference to pixel at position iRow, iCol.
- *  @param iRow row of pixel, y coordinate.
- *  @param iCol column of pixel, x coordinate.
+/** Return reference to pixel at position row, col.
+ *  @param row row of pixel, y coordinate.
+ *  @param col column of pixel, x coordinate.
  */
-Image::TPixel& Image::operator()(unsigned iRow, unsigned iCol)
+Image::TPixel& Image::operator()(unsigned row, unsigned col)
 {
-	LASS_ASSERT(iRow < rows_ && iCol < cols_);
-	return raster_[flatIndex(iRow, iCol)];
+	LASS_ASSERT(row < rows_ && col < cols_);
+	return raster_[flatIndex(row, col)];
 }
 
 
 
-/** Return const pixel at position iRow, iCol.  position is wrapped around.
- *  @param iRow row of pixel, y coordinate.
- *  @param iCol column of pixel, x coordinate.
+/** Return const pixel at position row, col.  position is wrapped around.
+ *  @param row row of pixel, y coordinate.
+ *  @param col column of pixel, x coordinate.
  */
-const Image::TPixel& Image::at(signed iRow, signed iCol) const
+const Image::TPixel& Image::at(signed row, signed col) const
 {
-	const unsigned i = num::mod(iRow, rows_);
-	const unsigned j = num::mod(iCol, cols_);
+	const unsigned i = num::mod(row, rows_);
+	const unsigned j = num::mod(col, cols_);
 	return raster_[flatIndex(i, j)];
 }
 
 
 
-/** Return reference to pixel at position iRow, iCol. position is wrapped around.
- *  @param iRow row of pixel, y coordinate.
- *  @param iCol column of pixel, x coordinate.
+/** Return reference to pixel at position row, col. position is wrapped around.
+ *  @param row row of pixel, y coordinate.
+ *  @param col column of pixel, x coordinate.
  */
-Image::TPixel& Image::at(signed iRow, signed iCol)
+Image::TPixel& Image::at(signed row, signed col)
 {
-	const unsigned i = num::mod(iRow, rows_);
-	const unsigned j = num::mod(iCol, cols_);
+	const unsigned i = num::mod(row, rows_);
+	const unsigned j = num::mod(col, cols_);
 	return raster_[flatIndex(i, j)];
 }
 
@@ -346,6 +348,24 @@ const Image::TPixel* const Image::data() const
 Image::TPixel* const Image::data()
 {
 	return &raster_[0];
+}
+
+
+
+/** Return chromaticities of image data
+ */
+const Image::Chromaticities& Image::chromaticities() const
+{
+	return chromaticities_;
+}
+
+
+
+/** Return chromaticities of image data
+ */
+Image::Chromaticities& Image::chromaticities()
+{
+	return chromaticities_;
 }
 
 
@@ -379,116 +399,116 @@ const bool Image::isEmpty() const
 
 /** this = this over other
  */
-void Image::over(const Image& iOther)
+void Image::over(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::over);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::over);
 }
 
 
 
 /** this = this in other
  */
-void Image::in(const Image& iOther)
+void Image::in(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::in);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::in);
 }
 
 
 
 /** this = this out other
  */
-void Image::out(const Image& iOther)
+void Image::out(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::out);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::out);
 }
 
 
 
 /** this = this atop other
  */
-void Image::atop(const Image& iOther)
+void Image::atop(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::atop);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::atop);
 }
 
 
 
 /** this = this through other
  */
-void Image::through(const Image& iOther)
+void Image::through(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::through);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::through);
 }
 
 
 
 /** this = other over this
  */
-void Image::rover(const Image& iOther)
+void Image::rover(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::over);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(other.raster_.begin(), other.raster_.end(), raster_.begin(), raster_.begin(), prim::over);
 }
 
 
 
 /** this = other in this
  */
-void Image::rin(const Image& iOther)
+void Image::rin(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::in);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(other.raster_.begin(), other.raster_.end(), raster_.begin(), raster_.begin(), prim::in);
 }
 
 
 
 /** this = other out this
  */
-void Image::rout(const Image& iOther)
+void Image::rout(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::out);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(other.raster_.begin(), other.raster_.end(), raster_.begin(), raster_.begin(), prim::out);
 }
 
 
 
 /** this = other atop this
  */
-void Image::ratop(const Image& iOther)
+void Image::ratop(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::atop);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(other.raster_.begin(), other.raster_.end(), raster_.begin(), raster_.begin(), prim::atop);
 }
 
 
 
 /** this = other through this
  */
-void Image::rthrough(const Image& iOther)
+void Image::rthrough(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(iOther.raster_.begin(), iOther.raster_.end(), raster_.begin(), raster_.begin(), prim::through);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(other.raster_.begin(), other.raster_.end(), raster_.begin(), raster_.begin(), prim::through);
 }
 
 
 
 /** this = this plus other = other plus this
  */
-void Image::plus(const Image& iOther)
+void Image::plus(const Image& other)
 {
-	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, iOther);
-	std::transform(raster_.begin(), raster_.end(), iOther.raster_.begin(), raster_.begin(), prim::plus);
+	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
+	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::plus);
 }
 
 
 
 /** Apply a median filter on image.
- *  @param iBoxSize size of box filter, must be odd.
+ *  @param boxSize size of box filter, must be odd.
  *
  *  - Filters only pixels with alphachannel != 0.
  *  - We use the vector median filter for colour images, as described on page
@@ -496,16 +516,16 @@ void Image::plus(const Image& iOther)
  *    Sangwine S. J. & Horne R. E. N. (Eds.) The Colour Image Processing
  *    Handbook. London, Chapman & Hall, 149-162.
  */
-void Image::filterMedian(unsigned iBoxSize)
+void Image::filterMedian(unsigned boxSize)
 {
-	if ((iBoxSize & 0x1) == 0)
+	if ((boxSize & 0x1) == 0)
 	{
-		LASS_THROW("iBoxSize '" << iBoxSize << "' isn't odd as requested.");
+		LASS_THROW("boxSize '" << boxSize << "' isn't odd as requested.");
 		return;
 	}
 
-	const unsigned boxArea = iBoxSize * iBoxSize;
-	const int boxRadius = (iBoxSize - 1) / 2;
+	const unsigned boxArea = boxSize * boxSize;
+	const int boxRadius = (boxSize - 1) / 2;
 
 	TRaster box(boxArea);
 	std::vector<float> distances(boxArea);
@@ -582,12 +602,12 @@ void Image::filterMedian(unsigned iBoxSize)
 
 /** apply gamma correction to image
  */
-void Image::filterGamma(TParam iGammaExponent)
+void Image::filterGamma(TParam gammaExponent)
 {
 	const TRaster::size_type size = raster_.size();
 	for (TRaster::size_type i = 0; i < size; ++i)
 	{
-		raster_[i] = raster_[i].gammaCorrected(iGammaExponent);
+		raster_[i] = raster_[i].gammaCorrected(gammaExponent);
 	}
 }
 
@@ -595,12 +615,12 @@ void Image::filterGamma(TParam iGammaExponent)
 
 /** apply exposure to image
  */
-void Image::filterExposure(TParam iExposureTime)
+void Image::filterExposure(TParam exposureTime)
 {
 	const TRaster::size_type size = raster_.size();
 	for (TRaster::size_type i = 0; i < size; ++i)
 	{
-		raster_[i] = raster_[i].exposed(iExposureTime);
+		raster_[i] = raster_[i].exposed(exposureTime);
 	}
 }
 
@@ -608,12 +628,12 @@ void Image::filterExposure(TParam iExposureTime)
 
 /** apply exposure to image
  */
-void Image::filterInverseExposure(TParam iExposureTime)
+void Image::filterInverseExposure(TParam exposureTime)
 {
 	const TRaster::size_type size = raster_.size();
 	for (TRaster::size_type i = 0; i < size; ++i)
 	{
-		raster_[i] = raster_[i].invExposed(iExposureTime);
+		raster_[i] = raster_[i].invExposed(exposureTime);
 	}
 }
 
@@ -628,72 +648,97 @@ void Image::filterInverseExposure(TParam iExposureTime)
 
 /** (re)allocate data chunck
  */
-unsigned Image::resize(unsigned iRows, unsigned iCols)
+unsigned Image::resize(unsigned rows, unsigned cols)
 {
-	const unsigned size = iRows * iCols;
+	const unsigned size = rows * cols;
 	raster_.resize(size);
-	rows_ = iRows;
-	cols_ = iCols;
+	rows_ = rows;
+	cols_ = cols;
 	return size;
+}
+
+
+
+void Image::defaultChromaticities()
+{
+	chromaticities_.red = TChromaticity(0.6400f, 0.3300f);
+	chromaticities_.green = TChromaticity(0.3000f, 0.6000f);
+	chromaticities_.blue = TChromaticity(0.1500f, 0.0600f);
+	chromaticities_.white = TChromaticity(0.3127f, 0.3290f);
 }
 
 
 
 /** Open LASS Raw file.
  */
-BinaryIStream& Image::openRaw(BinaryIStream& iStream)
+BinaryIStream& Image::openLass(BinaryIStream& stream)
 {
-	HeaderRaw header;
-	header.readFrom(iStream);
-	if (!iStream || header.lass != magicLass_ || header.version != 1)
+	HeaderLass header;
+	header.readFrom(stream);
+	if (!stream || header.lass != magicLass_ || header.version > 2)
 	{
-		LASS_THROW("not a LASS RAW version 1 file.");
+		LASS_THROW("not a LASS RAW version 1 - 2 file.");
 	}
 
-	EndiannessSetter(iStream, num::littleEndian);
+	EndiannessSetter(stream, num::littleEndian);
+
+	if (header.version >= 2)
+	{
+		for (size_t i = 0; i < numChromaticities; ++i)
+		{
+			LASS_META_ASSERT(sizeof(TChromaticity::TValue) == sizeof(num::Tfloat32), should_use_32_bit_floating_points_here);
+			stream >> chromaticities_[i].x >> chromaticities_[i].y;
+		}
+	}
+	else
+	{
+		defaultChromaticities();
+	}
+
 	resize(header.rows, header.cols);
 	num::Tfloat32 r, g, b, a;
 	for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
-		iStream >> r >> g >> b >> a;
+		stream >> r >> g >> b >> a;
 		i->r = r;
 		i->g = g;
 		i->b = b;
 		i->a = a;
 	}
 
-	return iStream;
+	return stream;
 }
 
 
 
 /** Open TARGA file.
  */
-BinaryIStream& Image::openTarga(BinaryIStream& iStream)
+BinaryIStream& Image::openTarga(BinaryIStream& stream)
 {
 	HeaderTarga header;
-	header.readFrom(iStream);
+	header.readFrom(stream);
+	defaultChromaticities();
 	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)
 	{
 	case 2:
 	case 10:
-		openTargaTrueColor(iStream, header);
+		openTargaTrueColor(stream, header);
 		break;
 	default:
 		LASS_THROW("unsupported image type '" << static_cast<unsigned>(header.imageType) << "'");
 		break;
 	};
 
-	return iStream;
+	return stream;
 }
 
 
 
 /** Open Type 2 and 11 TARGA file
  */
-BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTarga& iHeader)
+BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarga& iHeader)
 {
 	const TValue scale = num::inv(255.f);
 
@@ -720,7 +765,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 	const int yEnd   = iHeader.flipVerticalFlag() ? static_cast<int>(rows_) : -1;
 	const int yDelta = iHeader.flipVerticalFlag() ? 1 : -1;
 
-	iStream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
+	stream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
 		std::ios_base::cur);
 	std::vector<impl::Bytes4> buffer(cols_);
 	for (int y = yBegin; y != yEnd; y += yDelta)
@@ -733,12 +778,12 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 			while (x < cols_)
 			{
 				num::Tuint8 code;
-				iStream >> code;
+				stream >> code;
 				const num::Tuint8 packetSize = (code & 0x7f) + 1;
 				impl::Bytes4 bytes;
 				if (code & 0x80)
 				{
-					iStream.read(bytes.get(), numBytes);
+					stream.read(bytes.get(), numBytes);
 					for (num::Tuint8 i = 0; i < packetSize; ++i)
 					{
 						LASS_ASSERT(x < cols_);
@@ -749,7 +794,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 				{
 					for (num::Tuint8 i = 0; i < packetSize; ++i)
 					{
-						iStream.read(bytes.get(), numBytes);
+						stream.read(bytes.get(), numBytes);
 						LASS_ASSERT(x < cols_);
 						buffer[x++] = bytes;
 					}
@@ -761,7 +806,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 			LASS_ASSERT(iHeader.imageType == 2);
 			for (unsigned x = 0; x < cols_; ++x)
 			{
-				iStream.read(buffer[x].get(), numBytes);
+				stream.read(buffer[x].get(), numBytes);
 			}
 		}
 
@@ -779,18 +824,33 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& iStream, const HeaderTar
 		}
 	}
 
-	return iStream;
+	return stream;
 }
 
 
 
-BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
+BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 {
 	HeaderRadianceHdr header;
-	header.readFrom(iStream);
-	if (!iStream)
+	header.readFrom(stream);
+	if (!stream)
 	{
 		LASS_THROW("syntax error in RADIANCE HDR header.");
+	}
+
+	if (header.isRgb)
+	{
+		for (size_t i = 0; i < numChromaticities; ++i)
+		{
+			chromaticities_[i] = TChromaticity(header.primaries[2 * i], header.primaries[2 * i + 1]);
+		}
+	}
+	else
+	{
+		chromaticities_.red = TChromaticity(1, 0);
+		chromaticities_.green = TChromaticity(0, 1);
+		chromaticities_.blue = TChromaticity(0, 0);
+		chromaticities_.white = TChromaticity(1.f / 3, 1.f / 3);
 	}
 
 	float exponents[256];
@@ -825,7 +885,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 		for (std::ptrdiff_t x = firstX; x != lastX; /* increment in loop */ )
 		{
 			impl::Bytes4 rgbe;
-			iStream.read(rgbe.get(), 4);
+			stream.read(rgbe.get(), 4);
 			if (rgbe[0] == 2 && rgbe[1] == 2 && (rgbe[2] & 0x80) == 0)
 			{
 				// new rle
@@ -838,18 +898,18 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 					while (x2 != lastX2)
 					{
 						num::Tuint8 spanSize = 0, value = 0;
-						iStream >> spanSize;
+						stream >> spanSize;
 						const bool isHomogenousSpan = spanSize > 128;
 						if (isHomogenousSpan) 
 						{
 							spanSize -= 128;
-							iStream >> value;
+							stream >> value;
 						}
 						for (num::Tuint8 i = spanSize; i > 0; --i)
 						{
 							if (!isHomogenousSpan)
 							{
-								iStream >> value;
+								stream >> value;
 							}
 							LASS_ASSERT(x2 != lastX2);
 							buffer[x2][k] = value;
@@ -900,21 +960,28 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& iStream)
 			}
 		}
 	}	
-	return iStream;
+	return stream;
 }
 
 
 
-BinaryOStream& Image::saveRaw(BinaryOStream& oStream) const
+BinaryOStream& Image::saveLass(BinaryOStream& stream) const
 {
-	HeaderRaw header;
+	HeaderLass header;
 	header.lass = magicLass_;
-	header.version = 1;
+	header.version = 2;
 	header.rows = rows_;
 	header.cols = cols_;
-	header.writeTo(oStream);
+	header.writeTo(stream);
 
-	EndiannessSetter(oStream, num::littleEndian);
+	EndiannessSetter(stream, num::littleEndian);
+	
+	for (size_t i = 0; i < numChromaticities; ++i)
+	{
+		LASS_META_ASSERT(sizeof(TChromaticity::TValue) == sizeof(num::Tfloat32), should_use_32_bit_floating_points_here);
+		stream << chromaticities_[i].x << chromaticities_[i].y;
+	}
+
 	num::Tfloat32 r, g, b, a;
 	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
@@ -922,16 +989,16 @@ BinaryOStream& Image::saveRaw(BinaryOStream& oStream) const
 		g = i->g;
 		b = i->b;
 		a = i->a;
-		oStream << r << g << b << a;
+		stream << r << g << b << a;
 	}
 
-	return oStream;
+	return stream;
 }
 
 
 /** Save TARGA file (type 2, 32 bit).
  */
-BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
+BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 {
 	const TValue scale(255);
 	const TValue zero(0);
@@ -952,7 +1019,7 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 	header.imagePixelSize = 32;
 	header.imageDescriptor = 0x08; // 8 attribute bits
 
-	header.writeTo(oStream);
+	header.writeTo(stream);
 
 	std::vector<impl::Bytes4> buffer(header.imageWidth);
 	std::vector<impl::Bytes4> rleBuffer(128);
@@ -996,10 +1063,10 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 			}
 			if (numDiff == 128 || ((numSame > 1 || x == cols_) && numDiff > 0))
 			{
-				oStream << static_cast<num::Tuint8>(numDiff - 1);
+				stream << static_cast<num::Tuint8>(numDiff - 1);
 				for (num::Tuint8 i = 0; i < numDiff; ++i)
 				{
-					oStream.write(&rleBuffer[i], 4);
+					stream.write(&rleBuffer[i], 4);
 				}
 				totalLength += numDiff;
 				LASS_ASSERT(totalLength == x);
@@ -1007,8 +1074,8 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 			}
 			if (numSame > 1)
 			{
-				oStream << static_cast<num::Tuint8>((numSame - 1) | 0x80);
-				oStream.write(bytes.get(), 4);
+				stream << static_cast<num::Tuint8>((numSame - 1) | 0x80);
+				stream.write(bytes.get(), 4);
 				x = x2;
 				totalLength += numSame;
 				LASS_ASSERT(totalLength == x);
@@ -1018,13 +1085,13 @@ BinaryOStream& Image::saveTarga(BinaryOStream& oStream) const
 		LASS_ASSERT(totalLength == cols_);
 	}
 
-	return oStream;
+	return stream;
 }
 
 
 /** Save RADIANCE HDR
  */
-BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
+BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 {
 	if (cols_ > 0x7fff)
 	{
@@ -1035,7 +1102,13 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 	header.width = cols_;
 	header.yIncreasing = false;
 	header.xIncreasing = true;
-	header.writeTo(oStream);
+	header.isRgb = true;
+	for (size_t i = 0; i < numChromaticities; ++i)
+	{
+		header.primaries[2 * i] = chromaticities_[i].x;
+		header.primaries[2 * i + 1] = chromaticities_[i].y;
+	}
+	header.writeTo(stream);
 
 	std::vector<impl::Bytes4> buffer(cols_);
 	std::vector<num::Tuint8> rleBuffer(128);
@@ -1074,7 +1147,7 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 		bytes[1] = 2;
 		bytes[2] = (cols_ & 0x7f00) >> 8;
 		bytes[3] = cols_ & 0xff;
-		oStream.write(bytes, 4);
+		stream.write(bytes, 4);
 
 		for (unsigned k = 0; k < 4; ++k)
 		{
@@ -1094,20 +1167,20 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 				{
 					if (numDiff > 0)
 					{
-						oStream << numDiff;
-						oStream.write(&rleBuffer[0], numDiff);
+						stream << numDiff;
+						stream.write(&rleBuffer[0], numDiff);
 						numDiff = 0;
 					}
 					numSame += 128;
-					oStream << numSame << value;
+					stream << numSame << value;
 					x = x2;
 				}
 				else
 				{
 					if (numDiff == 128)
 					{
-						oStream << numDiff;
-						oStream.write(&rleBuffer[0], numDiff);
+						stream << numDiff;
+						stream.write(&rleBuffer[0], numDiff);
 						numDiff = 0;
 					}
 					rleBuffer[numDiff] = value;
@@ -1117,18 +1190,18 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& oStream) const
 			}
 			if (numDiff > 0)
 			{
-				oStream << numDiff;
-				oStream.write(&rleBuffer[0], numDiff);
+				stream << numDiff;
+				stream.write(&rleBuffer[0], numDiff);
 			}
 		}
 	}
-	return oStream;
+	return stream;
 }
 
 
-Image::FileFormat Image::findFormat(const std::string& iFormatTag)
+Image::FileFormat Image::findFormat(const std::string& formatTag)
 {
-	const std::string key = stde::tolower(iFormatTag);
+	const std::string key = stde::tolower(formatTag);
 	TFileFormats::const_iterator i = fileFormats_.find(key);
 	if (i == fileFormats_.end())
 	{
@@ -1142,19 +1215,20 @@ Image::FileFormat Image::findFormat(const std::string& iFormatTag)
 Image::TFileFormats Image::fillFileFormats()
 {
 	TFileFormats formats;
-	formats["raw"] = FileFormat(&Image::openRaw, &Image::saveRaw);
+	formats["lass"] = FileFormat(&Image::openLass, &Image::saveLass);
 	formats["targa"] = FileFormat(&Image::openTarga, &Image::saveTarga);
 	formats["tga"] = formats["targa"];
 	formats["hdr"] = FileFormat(&Image::openRadianceHdr, &Image::saveRadianceHdr);
-	formats["pic"] =formats["hdr"];
+	formats["pic"] = formats["hdr"];
+	formats["rgbe"] = formats["hdr"];
 	return formats;
 }
 
 
 
-// --- HeaderRaw -----------------------------------------------------------------------------------
+// --- HeaderLass -----------------------------------------------------------------------------------
 
-void Image::HeaderRaw::readFrom(BinaryIStream& ioIStream)
+void Image::HeaderLass::readFrom(BinaryIStream& ioIStream)
 {
 	EndiannessSetter(ioIStream, num::littleEndian);
 	ioIStream >> lass >> version >> rows >> cols;
@@ -1162,7 +1236,7 @@ void Image::HeaderRaw::readFrom(BinaryIStream& ioIStream)
 
 
 
-void Image::HeaderRaw::writeTo(BinaryOStream& ioOStream)
+void Image::HeaderLass::writeTo(BinaryOStream& ioOStream)
 {
 	EndiannessSetter(ioOStream, num::littleEndian);
 	ioOStream << lass << version << rows << cols;
@@ -1200,7 +1274,7 @@ Image::HeaderRadianceHdr::HeaderRadianceHdr():
 	width(0),
 	yIncreasing(false),
 	xIncreasing(true),
-	isRgb(false)	
+	isRgb(true)	
 {
 	std::fill_n(colorCorr, static_cast<int>(sizeColorCorr), 1.f);
 	const float defaultPrimaries[sizePrimaries] = 
@@ -1208,12 +1282,12 @@ Image::HeaderRadianceHdr::HeaderRadianceHdr():
 	stde::copy_n(defaultPrimaries, static_cast<int>(sizePrimaries), primaries);
 }
 
-void Image::HeaderRadianceHdr::readFrom(BinaryIStream& iStream)
+void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 {
 	std::size_t magicSize = magicRadiance_.size();
 	std::vector<char> magic(magicSize);
-	iStream.read(&magic[0], magicSize);
-	if (!iStream.good() || !stde::equal_r(magicRadiance_, magic))
+	stream.read(&magic[0], magicSize);
+	if (!stream.good() || !stde::equal_r(magicRadiance_, magic))
 	{
 		LASS_THROW("file is not of RADIANCE file format");
 	}
@@ -1222,8 +1296,8 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& iStream)
 	//
 	while (true)
 	{
-		std::string line = readString(iStream);
-		if (!iStream.good())
+		std::string line = readString(stream);
+		if (!stream.good())
 		{
 			LASS_THROW("syntax error in header of RADIANCE HDR file");
 		}
@@ -1282,8 +1356,8 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& iStream)
 	}
 
 	// second, interpret the resolution line
-	std::string line = readString(iStream);
-	if (!iStream.good())
+	std::string line = readString(stream);
+	if (!stream.good())
 	{
 		LASS_THROW("syntax error in resolution line of RADIANCE HDR file");
 	}
@@ -1306,33 +1380,33 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& iStream)
 
 
 
-void Image::HeaderRadianceHdr::writeTo(BinaryOStream& oStream)
+void Image::HeaderRadianceHdr::writeTo(BinaryOStream& stream)
 {
-	oStream.write(magicRadiance_.data(), magicRadiance_.length());
-	writeString(oStream, "SOFTWARE=LASS, http://lass.sourceforge.net");
-	writeString(oStream, std::string("FORMAT=32-bit_rle_") + (isRgb ? "rgbe" : "xyze"));
-	writeString(oStream, "EXPOSURE=" + util::stringCast<std::string>(exposure));
-	writeString(oStream, std::string("COLORCORR=") + 
+	stream.write(magicRadiance_.data(), magicRadiance_.length());
+	writeString(stream, "SOFTWARE=LASS, http://lass.sourceforge.net");
+	writeString(stream, std::string("FORMAT=32-bit_rle_") + (isRgb ? "rgbe" : "xyze"));
+	writeString(stream, "EXPOSURE=" + util::stringCast<std::string>(exposure));
+	writeString(stream, std::string("COLORCORR=") + 
 		stde::join(std::string(" "), colorCorr, colorCorr + sizeColorCorr));
-	writeString(oStream, std::string("PRIMARIES=") + 
+	writeString(stream, std::string("PRIMARIES=") + 
 		stde::join(std::string(" "), primaries, primaries + sizePrimaries));
-	writeString(oStream, "");
+	writeString(stream, "");
 	std::ostringstream resolution;
 	resolution << (yIncreasing ? "+Y" : "-Y") << " " << height;
 	resolution << (xIncreasing ? "+X" : "-X") << " " << width;
-	writeString(oStream, resolution.str());
+	writeString(stream, resolution.str());
 }
 
 
 
-std::string Image::HeaderRadianceHdr::readString(BinaryIStream& iStream)
+std::string Image::HeaderRadianceHdr::readString(BinaryIStream& stream)
 {
 	std::string result;
-	while (iStream.good())
+	while (stream.good())
 	{
 		char character;
-		iStream >> character;
-		if (iStream.good())
+		stream >> character;
+		if (stream.good())
 		{
 			if (character == '\n')
 			{
@@ -1349,10 +1423,10 @@ std::string Image::HeaderRadianceHdr::readString(BinaryIStream& iStream)
 
 
 
-void Image::HeaderRadianceHdr::writeString(BinaryOStream& oStream, const std::string& iString)
+void Image::HeaderRadianceHdr::writeString(BinaryOStream& stream, const std::string& iString)
 {
-	oStream.write(iString.data(), iString.size());
-	oStream << '\n';
+	stream.write(iString.data(), iString.size());
+	stream << '\n';
 }
 
 
