@@ -41,7 +41,7 @@ namespace python
 {
 namespace impl
 {
-	class PyMapImplBase
+	class LASS_DLL PyMapImplBase
 	{
 	public:
 		PyMapImplBase() {};

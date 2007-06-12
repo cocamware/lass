@@ -24,6 +24,7 @@
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_POSIX_INL
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_POSIX_INL
 
 #include "../util_common.h"
 #include "../thread.h"
@@ -76,7 +77,7 @@ size_t numberOfProcessors()
 /** @internal
  *  @ingroup Threading
  */
-class MutexInternal
+class MutexInternal: NonCopyable
 {
 public:
 	MutexInternal():
@@ -148,7 +149,7 @@ typedef MutexInternal CriticalSectionInternal;
 /** @internal
  *  @ingroup Threading
  */
-class ConditionInternal
+class ConditionInternal: NonCopyable
 {
 public:
 	ConditionInternal():
@@ -308,7 +309,7 @@ void bindThread(pid_t pid, size_t processor)
 /** @internal
  *  @ingroup Threading
  */
-class ThreadInternal
+class ThreadInternal: NonCopyable
 {
 public:
 

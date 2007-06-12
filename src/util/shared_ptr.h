@@ -126,11 +126,11 @@ public:
 	{
 	}
 
-	/** Constructs from iPointee allocated in agreement with storage policy or be @c NULL.
+	/** Constructs from pointee allocated in agreement with storage policy or be @c NULL.
 	 *  The reference counting starts here.
 	 */
-	explicit SharedPtr(T* iPointee):
-		TStoragePolicy(iPointee)
+	explicit SharedPtr(T* pointee):
+		TStoragePolicy(pointee)
 	{
 		if (!isEmpty())
 		{
@@ -141,12 +141,12 @@ public:
 	/** Copy constructor.
 	 *  Copy another SharedPtr, and increase the reference count.
 	 */
-	SharedPtr(const TSelf& iOther):
-		TStoragePolicy(static_cast<const TStoragePolicy&>(iOther))
+	SharedPtr(const TSelf& other):
+		TStoragePolicy(static_cast<const TStoragePolicy&>(other))
 	{
 		if (!isEmpty())
 		{
-			// MT safeness: as long as we're in here, we're quite sure that at least iOther has a
+			// MT safeness: as long as we're in here, we're quite sure that at least other has a
 			// reference to the storage (same thread), so that no other thread can get the 
 			// reference count to zero.  
 			// Proceed ...
@@ -158,14 +158,13 @@ public:
 	/** Up/downcast constructor.
 	 *  Copy another SharedPtr, and increase the reference count.
 	 */
-	template<typename C> explicit SharedPtr(const SharedPtr<C, StoragePolicy, CounterPolicy >& iOther):
-		TStoragePolicy(static_cast<T*>(iOther.get()))
+	template<typename C> explicit SharedPtr(const SharedPtr<C, StoragePolicy, CounterPolicy >& other):
+		TStoragePolicy(static_cast<T*>(other.get()), static_cast<const CounterPolicy&>(other))
 	{
 		if (!isEmpty())
 		{
 			// MT safeness: same comment as in copy constructor ...
 			//
-			CounterPolicy::initSharedCount(storage(), iOther.storage(), iOther);
 			CounterPolicy::increment(TStoragePolicy::storage());
 		}
 	}
@@ -173,8 +172,8 @@ public:
 	/** Constructs by stealing pointer from a std::auto_ptr.
 	 *  The reference counting starts here.
 	*/
-	SharedPtr(std::auto_ptr<T> iOther):
-		TStoragePolicy(iOther.release())
+	SharedPtr(std::auto_ptr<T> other):
+		TStoragePolicy(other.release())
 	{
 		if (!isEmpty())
 		{
@@ -220,44 +219,44 @@ public:
 	/** Reset the shared pointer to another naked pointer.
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it takes
-	 *  iPointee as new pointee and it restarts reference counting.
+	 *  pointee as new pointee and it restarts reference counting.
 	 *
 	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
-	void reset(T* iPointee)
+	void reset(T* pointee)
 	{
-		TSelf temp(iPointee);
+		TSelf temp(pointee);
 		swap(temp);
 	}
 
 	/** Reset the shared pointer to pointer of a std::auto_ptr.
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it steals
-	 *  the pointer of iOther as new pointee and it restarts reference counting.
+	 *  the pointer of other as new pointee and it restarts reference counting.
 	 *
 	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
-	void reset(std::auto_ptr<T> iOther)
+	void reset(std::auto_ptr<T> other)
 	{
-		TSelf temp(iOther);
+		TSelf temp(other);
 		swap(temp);
 	}
 
 	/** assign the shared pointer with another one.
 	 *
 	 *  Decreases the reference count and if it drops to zero, disposes the pointee.  Then it copies
-	 *  storage and counter from @c iOther and in increases the reference count.
+	 *  storage and counter from @c other and in increases the reference count.
 	 *
 	 *  Protects against self-assignment (i.e. if you do 'foo = bar' under the condition that
 	 *  'foo.get() == bar.get()', then nothing happens :)
 	 *
 	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
-	TSelf& operator=(const TSelf& iOther)
+	TSelf& operator=(const TSelf& other)
 	{
-		if (TStoragePolicy::storage() != static_cast<const TStoragePolicy&>(iOther).storage())
+		if (TStoragePolicy::storage() != static_cast<const TStoragePolicy&>(other).storage())
 		{
-			TSelf temp(iOther);
+			TSelf temp(other);
 			swap(temp);
 		}
 		return *this;
@@ -363,12 +362,12 @@ public:
 	 *
 	 *  @warning Thread unsafe on individual SharedPtr level
 	 */
-	void swap(TSelf& iOther)
+	void swap(TSelf& other)
 	{
 		// MT safeness: both shared pointers are guaranteed to own a reference
 		//
-		TStoragePolicy::swap(static_cast<TStoragePolicy&>(iOther));
-		CounterPolicy::swap(static_cast<CounterPolicy&>(iOther));
+		TStoragePolicy::swap(static_cast<TStoragePolicy&>(other));
+		CounterPolicy::swap(static_cast<CounterPolicy&>(other));
 	}
 };
 

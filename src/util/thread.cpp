@@ -51,45 +51,40 @@ Mutex::Mutex(void )
 
 Mutex::~Mutex(void)
 {
-	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	LASS_ASSERT(pimpl->lockCount() == 0);
-	if (pimpl->lockCount() > 0)
+	LASS_ASSERT(pimpl_);
+	LASS_ASSERT(pimpl_->lockCount() == 0);
+	if (pimpl_->lockCount() > 0)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl->lockCount() << " locks." << std::endl;
+			<< pimpl_->lockCount() << " locks." << std::endl;
 	}
-	delete pimpl;
+	delete pimpl_;
 	pimpl_ = 0;
 }
 
 void Mutex::lock()
 {
-	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->lock();
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
 }
 
 const LockResult Mutex::tryLock()
 {
-	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->tryLock();
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
 }
 
 void Mutex::unlock()
 {
-	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->unlock();
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
 }
 
 const bool Mutex::isLocked() const
 {
-	impl::MutexInternal* pimpl = static_cast<impl::MutexInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->lockCount() > 0;
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
 }
 
 
@@ -104,45 +99,40 @@ CriticalSection::CriticalSection(void )
 
 CriticalSection::~CriticalSection(void)
 {
-	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	LASS_ASSERT(pimpl->lockCount() == 0);
-	if (pimpl->lockCount() > 0)
+	LASS_ASSERT(pimpl_);
+	LASS_ASSERT(pimpl_->lockCount() == 0);
+	if (pimpl_->lockCount() > 0)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl->lockCount() << " locks." << std::endl;
+			<< pimpl_->lockCount() << " locks." << std::endl;
 	}
-	delete pimpl;
-	pimpl = 0;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 
 void CriticalSection::lock()
 {
-	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->lock();
+	LASS_ASSERT(pimpl_);
+	pimpl_->lock();
 }
 
 const LockResult CriticalSection::tryLock()
 {
-	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->tryLock();
+	LASS_ASSERT(pimpl_);
+	return pimpl_->tryLock();
 }
 
 void CriticalSection::unlock()
 {
-	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->unlock();
+	LASS_ASSERT(pimpl_);
+	pimpl_->unlock();
 }
 
 const bool CriticalSection::isLocked() const
 {
-	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->lockCount() > 0;
+	LASS_ASSERT(pimpl_);
+	return pimpl_->lockCount() > 0;
 }
 
 
@@ -156,37 +146,32 @@ Condition::Condition(void)
 
 Condition::~Condition(void)
 {
-	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
-	delete pimpl;
-	pimpl = 0;
+	delete pimpl_;
+	pimpl_ = 0;
 }
 
 void Condition::wait()
 {
-	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->wait();
+	LASS_ASSERT(pimpl_);
+	pimpl_->wait();
 }
 
 const WaitResult Condition::wait(unsigned long iMilliSeconds)
 {
-	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->wait(iMilliSeconds);
+	LASS_ASSERT(pimpl_);
+	return pimpl_->wait(iMilliSeconds);
 }
 
 void Condition::signal()
 {
-	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->signal();
+	LASS_ASSERT(pimpl_);
+	pimpl_->signal();
 }
 
 void Condition::broadcast()
 {
-	impl::ConditionInternal* pimpl = static_cast<impl::ConditionInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->broadcast();
+	LASS_ASSERT(pimpl_);
+	pimpl_->broadcast();
 }
 
 
@@ -252,23 +237,20 @@ ThreadLocalStorage::ThreadLocalStorage(void (*destructor)(void*))
 
 ThreadLocalStorage::~ThreadLocalStorage()
 {
-	impl::ThreadLocalStorageInternal* pimpl = static_cast<impl::ThreadLocalStorageInternal*>(pimpl_);
-	delete pimpl;
+	delete pimpl_;
 	pimpl_ = 0;
 }
 
 void* const ThreadLocalStorage::get() const
 {
-	impl::ThreadLocalStorageInternal* pimpl = static_cast<impl::ThreadLocalStorageInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	return pimpl->get();
+	LASS_ASSERT(pimpl_);
+	return pimpl_->get();
 }
 
 void ThreadLocalStorage::set(void* value)
 {
-	impl::ThreadLocalStorageInternal* pimpl = static_cast<impl::ThreadLocalStorageInternal*>(pimpl_);
-	LASS_ASSERT(pimpl);
-	pimpl->set(value);
+	LASS_ASSERT(pimpl_);
+	pimpl_->set(value);
 }
 
 }

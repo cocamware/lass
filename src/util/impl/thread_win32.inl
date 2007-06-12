@@ -24,6 +24,8 @@
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_WIN32_INL
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_WIN32_INL
+
 #pragma LASS_NOTE("util::Threading: using win32 implementation")
 
 #include "../util_common.h"
@@ -70,7 +72,7 @@ const size_t numberOfProcessors()
 /** @internal
  *  @ingroup Threading
  */
-class MutexInternal
+class MutexInternal: NonCopyable
 {
 public:
 	MutexInternal():
@@ -171,7 +173,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-class CriticalSectionInternal
+class CriticalSectionInternal: NonCopyable
 {
 public:
 	CriticalSectionInternal()
@@ -209,7 +211,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-class ConditionInternal
+class ConditionInternal: NonCopyable
 {
 public:
 	ConditionInternal():
@@ -399,7 +401,7 @@ private:
  *  before the destructor map (which is a singleton as well) goes out of business.  We do that
  *	by creating a helper singleton that has higher destruction priority
  */
-class MainLocalStorageDestroyer
+class MainLocalStorageDestroyer: NonCopyable
 {
 public:
 	~MainLocalStorageDestroyer()
@@ -445,7 +447,7 @@ void bindThread(HANDLE thread, size_t processor)
 /** @internal
  *  @ingroup Threading
  */
-class ThreadInternal
+class ThreadInternal: NonCopyable
 {
 public:
 

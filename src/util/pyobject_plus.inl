@@ -436,7 +436,6 @@ void addClassStaticMethod(
 		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iMethodName));
 	if (i == CppClass::_lassPyStatics.end())
 	{
-#pragma LASS_FIXME("make this error safe [Bramz]")
 		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(
 			iMethodName, iMethodDispatcher, METH_VARARGS, iDocumentation)));
 		PyObject* cFunction = PyCFunction_New(methodDef, 0);

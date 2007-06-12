@@ -92,7 +92,7 @@ private:
 }
 
 /** a nice wrapper around util::Exception to throw an exception.
- *  @sa lass::Util::Exception
+ *  @relates lass::Util::Exception
  *
  *  To throw an exception like util::Exception, you could fill in the message and location yourself,
  *  or ... you could use this macro.  This macro will fill in the location by itself so that you only
@@ -115,6 +115,22 @@ private:
 		std::ostringstream location;\
 		location << LASS_PRETTY_FUNCTION;\
 		throw lass::util::Exception(message.str(), location.str());\
+	}\
+	while (false)
+
+
+
+/** always throws an exception telling uncreachable code has been reached.
+ *  @relates lass::Util::Exception
+ *
+ *  Put this one in places where you know normal code flow should never go.
+ */
+#define LASS_THROW_UNREACHABLE\
+	do\
+	{\
+		throw lass::util::Exception(\
+			"Unreachable code reached",\
+			LASS_PRETTY_FUNCTION);\
 	}\
 	while (false)
 

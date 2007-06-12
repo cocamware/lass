@@ -89,7 +89,7 @@ namespace impl
 
 
 
-	class PySequenceImplBase
+	class LASS_DLL PySequenceImplBase
 	{
 	public:
 		PySequenceImplBase() {};

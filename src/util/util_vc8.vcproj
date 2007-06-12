@@ -182,6 +182,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crash_dump.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dictionary.inl"
 				>
 			</File>
@@ -297,6 +301,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\impl\crash_dump_win32.inl"
+					>
+				</File>
+				<File
 					RelativePath=".\impl\dispatcher_python.cpp"
 					>
 				</File>
@@ -381,6 +389,10 @@
 			</File>
 			<File
 				RelativePath=".\common_macros.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crash_dump.h"
 				>
 			</File>
 			<File

@@ -62,7 +62,11 @@ namespace util
 {
 namespace impl
 {
+	class MutexInternal;
+	class CriticalSectionInternal;
+	class ConditionInternal;
 	class ThreadInternal;
+	class ThreadLocalStorageInternal;
 }
 
 /** Return code for lock functions
@@ -116,7 +120,7 @@ public:
 	const bool isLocked() const;
 
 private:
-	void* pimpl_;
+	impl::MutexInternal* pimpl_;
 };
 
 /** CriticalSection.
@@ -140,7 +144,7 @@ public:
 	const bool isLocked() const;
 
 private:
-	void* pimpl_;
+	impl::CriticalSectionInternal* pimpl_;
 };
 
 
@@ -151,7 +155,7 @@ private:
 *   a signal or broadcast.  A signal will only release one waiter, a broadcast will release
 *   all current waiting wait-conditions.
 */
-class LASS_DLL Condition
+class LASS_DLL Condition: NonCopyable
 {
 public:
 	Condition();
@@ -161,7 +165,7 @@ public:
 	void signal();
 	void broadcast();
 private:
-	void* pimpl_;
+	impl::ConditionInternal* pimpl_;
 };
 
 /** A base class for threads.
@@ -217,7 +221,7 @@ public:
 	void* const get() const;
 	void set(void* value);
 private:
-	void* pimpl_;
+	impl::ThreadLocalStorageInternal* pimpl_;
 };
 
 

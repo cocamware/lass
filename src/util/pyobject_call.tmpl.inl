@@ -569,7 +569,7 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* iArgs )
 		impl::fixObjectType(result);
 		result->ob_type = iSubtype;
 		// do not track the object using GC
-#pragma LASS_TODO("Check if we have created memory leak... yes we have :-/, read the comments here.")
+//#pragma LASS_TODO("Check if we have created memory leak... yes we have :-/, read the comments here.")
 		/* The reason why we can't use the GC mechanism of Python is that objects needs extra members for this and we don't 
 		   want to add them to PyObjectPlus.  So we do our own GC... tricky but one needs to live on the edge >:-D 
 		   In the future this should happen:

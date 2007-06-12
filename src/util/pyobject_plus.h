@@ -114,8 +114,8 @@ namespace lass
 			virtual std::string doPyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
 
 		protected:
-			PyObjectPlus(const PyObjectPlus& iOther);
-			PyObjectPlus& operator=(const PyObjectPlus& iOther);
+			PyObjectPlus(const PyObjectPlus& other);
+			PyObjectPlus& operator=(const PyObjectPlus& other);
 
 		private:
 		};
@@ -167,12 +167,14 @@ namespace lass
 		protected:
 
 			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-			PyObjectStorage(T* iPointee): 
-				Cascade(), storage_(impl::fixObjectType(iPointee)) {} 
+			PyObjectStorage(T* pointee): 
+				Cascade(), storage_(impl::fixObjectType(pointee)) {}
+			PyObjectStorage(T* pointee, const Cascade& cascade): 
+				Cascade(cascade), storage_(impl::fixObjectType(pointee)) {}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }
-			void swap(TSelf& iOther) { std::swap(storage_, iOther.storage_);   }
+			void swap(TSelf& other) { std::swap(storage_, other.storage_);   }
 			static TStorage defaultStorage() { return 0; }
 		private:
 			TStorage storage_;
@@ -191,41 +193,32 @@ namespace lass
 			typedef int TCount;
 		protected:
 			PyObjectCounter() {}
-			template <typename TStorage> void init(TStorage& /*iPointee*/) {}
-			template <typename TStorage> void dispose(TStorage& /*iPointee*/) {}
-			template <typename TStorage> void increment(TStorage& iPointee)
+			template <typename TStorage> void init(TStorage& /*pointee*/) {}
+			template <typename TStorage> void dispose(TStorage& /*pointee*/) {}
+			template <typename TStorage> void increment(TStorage& pointee)
 			{
 				LASS_LOCK(impl::referenceMutex)
 				{
-					Py_INCREF(iPointee);
+					Py_INCREF(pointee);
 				}
 			}
-			template <typename TStorage> bool decrement(TStorage& iPointee)
+			template <typename TStorage> bool decrement(TStorage& pointee)
 			{
 				bool r = false;
 				LASS_LOCK(impl::referenceMutex)
 				{
-					LASS_ASSERT(iPointee);
-					r = iPointee->ob_refcnt <=1;
-					Py_DECREF(iPointee);
+					LASS_ASSERT(pointee);
+					r = pointee->ob_refcnt <=1;
+					Py_DECREF(pointee);
 				}
 				return r;
 			}
-			template <typename TStorage> TCount count(TStorage& iPointee) const
+			template <typename TStorage> TCount count(TStorage& pointee) const
 			{
-				LASS_ASSERT(iPointee);
-				return iPointee->ob_refcnt;
+				LASS_ASSERT(pointee);
+				return pointee->ob_refcnt;
 			}
-			/** takes over the count and shares it */
-			template <typename TOStorage, typename TIStorage>
-			void initSharedCount(
-					TOStorage& oStorage, const TIStorage& iStorage, 
-					const PyObjectCounter& iOther)
-			{
-				oStorage->ob_refcnt = iStorage->ob_refcnt;
-				LASS_ASSERT(oStorage->ob_refcnt);
-			}
-			void swap(PyObjectCounter& /*iOther*/) {}
+			void swap(PyObjectCounter& /*other*/) {}
 		};
 
 		/** templated "typedef" to a python shared pointer
@@ -348,7 +341,7 @@ namespace lass
 			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(
 				PyObject* iSelf);
 			template <PyCFunction DispatcherAddress> PyObject* binaryDispatcher(
-				PyObject* iSelf, PyObject* iOther);
+				PyObject* iSelf, PyObject* other);
 			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(
 				PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
 

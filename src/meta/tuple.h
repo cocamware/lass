@@ -21,17 +21,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_META_TUPLE_H
