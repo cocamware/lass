@@ -30,6 +30,20 @@
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	define LASS_IO_MEMORY_MAP_WIN
 #	include <windows.h>
+#else
+#	if HAVE_CONFIG_H
+#		include "lass_auto_config.h"
+#	endif
+#	if HAVE_SYS_MMAN_H && HAVE_SYS_STAT_H && HAVE_FCNTL_H && HAVE_UNISTD_H
+#		define LASS_IO_MEMORY_MAP_MMAP
+#		include <unistd.h>
+#		include <fcntl.h>
+#		include <sys/stat.h>
+#		include <sys/mman.h>
+#		if !defined(_STAT_VER_KERNEL)
+#			error "blah"
+#		endif
+#	endif
 #endif
 
 namespace lass
@@ -42,74 +56,125 @@ namespace impl
 	class BinaryIMemoryMapImpl
 	{
 	public:
-		BinaryIMemoryMapImpl(const char* filename)
+		BinaryIMemoryMapImpl(const char* filename):
+			view_(0)
 		{
 #if defined(LASS_IO_MEMORY_MAP_WIN)
+			pageSize _ = 4096;
 			map_ = 0;
-			view_ = 0;
-#ifdef UNICODE
+#	ifdef UNICODE
 			const int bufferLength = MultiByteToWideChar(CP_UTF8, 0, filename, -1, 0, 0);
 			std::vector<WCHAR> buffer(bufferLength);
 			MultiByteToWideChar(CP_UTF8, 0, filename, -1, &buffer[0], bufferLength);
 			LPCWSTR szFile = &buffer[0];
-#else
+#	else
 			LPCSTR szFile = filename;
-#endif
-			file_ = LASS_ENFORCE_WINAPI(::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ, 0, 
-				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
-			fileSize_ = GetFileSize(file_, 0);
-			if (fileSize_ == INVALID_FILE_SIZE)
+#	endif
+			file_ = LASS_ENFORCE_WINAPI(::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ,
+				0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
+			const DWORD fsize = GetFileSize(file_, 0);
+			if (fsize == INVALID_FILE_SIZE)
 			{
 				const unsigned lastError = util::impl::lass_GetLastError();
 				LASS_THROW("Failed to get file size: (" << lastError << ") "
 					<< util::impl::lass_FormatMessage(lastError));
 			}
+			fileSize_ = static_cast<long>(fsize);
+			if (fileSize_ < 0 || static_cast<DWORD>(fileSize_) != fSize)
+			{
+				LASS_THROW("Filesize overflow");
+			}
 			map_ = LASS_ENFORCE_WINAPI(::CreateFileMapping(file_, 0, PAGE_READONLY, 0, 0, 0));
+#elif defined(LASS_IO_MEMORY_MAP_MMAP)
+			pageSize_ = LASS_ENFORCE_CLIB(::sysconf(_SC_PAGE_SIZE));
+			file_ = LASS_ENFORCE_CLIB(::open(filename, O_RDONLY));
+			struct stat buf;
+			LASS_ENFORCE_CLIB(::fstat(file_, &buf));
+			fileSize_ = static_cast<long>(buf.st_size);
+			if (fileSize_ < 0 || static_cast<off_t>(fileSize_) != buf.st_size)
+			{
+				LASS_THROW("Filesize overflow");
+			}			
 #else
-			LASS_THROW("BinaryIMemoryMap not supported for this platform");
+#	error "[LASS BUILD MSG] no implementation for BinaryIMemoryMap"
 #endif
 		}
+		
+		
 		~BinaryIMemoryMapImpl()
 		{
+			unmap();
 #if defined(LASS_IO_MEMORY_MAP_WIN)
-			UnmapViewOfFile(view_);
-			view_ = 0;
-			CloseHandle(map_);
+			LASS_WARN_WINAPI(::CloseHandle(map_));
 			map_ = 0;
-			CloseHandle(file_);
+			LASS_WARN_WINAPI(::CloseHandle(file_));
+			file_ = 0;
+#elif defined(LASS_IO_MEMORY_MAP_MMAP)
+			LASS_WARN_CLIB(::close(file_));
 			file_ = 0;
 #endif
 		}
+		
+		
 		const long fileSize() const
 		{
 			return fileSize_;
 		}
+		
+		
 		char* const remap(long newBegin, long& begin, long& end)
-		{
-#if defined(LASS_IO_MEMORY_MAP_WIN)
-			const long newEnd = std::min<long>(newBegin + maxMapSize_, fileSize_);
-			LASS_ASSERT(newEnd >= newBegin);
-			const long n = newEnd - newBegin;
-			if (view_)
+		{			
+			newBegin = pageSize_ * (newBegin / pageSize_); // down to nearest boundary
+			long newEnd = newBegin + pageSize_;
+			if (newEnd > fileSize_ || newEnd < 0)
 			{
-				LASS_ENFORCE_WINAPI(::UnmapViewOfFile(view_));
+				newEnd = fileSize_;
 			}
-			view_ = static_cast<char*>(
-				LASS_ENFORCE_WINAPI(MapViewOfFile(map_, FILE_MAP_READ, 0, newBegin, n)));
-			begin = newBegin;
-			end = newEnd;
-			return view_;	
+			LASS_ASSERT(newEnd >= newBegin);
+			const long mapSize = newEnd - newBegin;
+#if defined(LASS_IO_MEMORY_MAP_WIN)
+			char* view = static_cast<char*>(LASS_ENFORCE_WINAPI(
+				::MapViewOfFile(map_, FILE_MAP_READ, 0, newBegin, mapSize)));
+#elif defined(LASS_IO_MEMORY_MAP_MMAP)
+			char* view = static_cast<char*>(LASS_ENFORCE_CLIB_EX(
+				::mmap(0, mapSize, PROT_READ, MAP_SHARED, file_, newBegin),
+				(char*)MAP_FAILED));
 #else
 			return 0;
 #endif
+			unmap();
+			mapSize_ = mapSize;
+			view_ = view;
+			begin = newBegin;
+			end = newEnd;
+			return view_;
 		}
+		
 	private:
+		
+		void unmap()
+		{
+			if (!view_)
+			{
+				return;
+			}
 #if defined(LASS_IO_MEMORY_MAP_WIN)
-		enum { maxMapSize_ = 0x01400000 };
+			LASS_WARN_WINAPI(::UnmapViewOfFile(view_));
+#elif defined(LASS_IO_MEMORY_MAP_MMAP)
+			LASS_WARN_CLIB(::munmap(view_, mapSize_));
+#endif
+			view_ = 0;
+		}
+		
+		long pageSize_;
+		long fileSize_;
+		long mapSize_;
+		char* view_;
+#if defined(LASS_IO_MEMORY_MAP_WIN)
 		HANDLE file_;
 		HANDLE map_;
-		DWORD fileSize_;
-		char* view_;
+#elif defined(LASS_IO_MEMORY_MAP_MMAP)
+		int file_;
 #endif
 	};
 }
@@ -231,6 +296,8 @@ void BinaryIMemoryMap::doSeekg(long offset, std::ios_base::seekdir direction)
 		break;
 	default:
 		LASS_ASSERT_UNREACHABLE;
+		setstate(std::ios_base::badbit);
+		return;
 	};
 	if (position_ < begin_ || position_ >= end_)
 	{

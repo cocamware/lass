@@ -35,9 +35,10 @@
 
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		((a).rows() == (b).rows() && (a).cols() == (b).cols()),\
+		int(0),\
 		"Images '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different size in '" LASS_HERE "'.")
 
 namespace lass

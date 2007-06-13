@@ -42,7 +42,7 @@ namespace impl
 /** Predicate for enforcers using operator!, used by LASS_ENFORCE and LASS_ENFORCE_POINTER.
  *  @internal
  *
- *  the value iObj is taken and evaluated by using the operator!.
+ *  the value @a t is evaluated by using the operator!.
  *  if this returns true, the predicate will return true and the enforcer will raise.
  *  if this is false, the predicate will return false and the program will continue
  *
@@ -54,12 +54,91 @@ namespace impl
  *
  *  @pre type T must support bool operator!(const T&).
  */
-struct DefaultPredicate
+struct TruePredicate
 {
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iObj)
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& t, const C& /* closure */)
 	{
-		return !iObj;
+		return !t;
+	}
+};
+
+
+
+/** value must be equal to closure
+ *  @internal
+ *
+ *  the value @a t is compared to the value of @a closure using operator==.
+ *  If they are equal, the predicate returns fals and nothing happens.
+ *  Otherwise, the predicate returns true and the enforcer will raise.
+ *
+ *  @pre T and C must be comparable using operator==(const T&, const C&).
+ */
+struct EqualPredicate
+{
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& t, const C& closure)
+	{
+		return !(t == closure);
+	}
+};
+
+
+
+/** value must be different than closure
+ *  @internal
+ *
+ *  the value @a t is compared to the value of @a closure using operator==.
+ *  If they are equal, the predicate returns true and the enforcer will raise.
+ *  Otherwise, the predicate returns fals and nothing happens.
+ *
+ *  @pre T and C must be comparable using operator==(const T&, const C&).
+ */
+struct UnequalPredicate
+{
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& t, const C& closure)
+	{
+		return t == closure;
+	}
+};
+
+
+
+/** value must be greater than or equal to closure
+ *  @internal
+ *
+ *  the value @a t is compared to the value of @a closure using operator<.
+ *  If t is less, the predicate returns true and the enforcer will raise.
+ *  Otherwise, the predicate returns false and nothing happens.
+ *
+ *  @pre T and C must be comparable using operator<(const T&, const C&).
+ */
+struct GreaterEqualPredicate
+{
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& t, const C& closure)
+	{
+		return t < closure;
+	}
+};
+
+
+
+/** value must be in range [0, closure)
+ *  @internal
+ *
+ *  If t is out of range, the predicate returns true and the enforcer will raise.
+ *  Otherwise, the predicate returns false and nothing happens.
+ *
+ *  @pre T and C must be comparable using operator<(const T&, const C&).
+ */
+struct RangePredicate
+{
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& t, const C& closure)
+	{
+		return t < C(0) || !(t < closure);
 	}
 };
 
@@ -74,93 +153,14 @@ struct DefaultPredicate
  */
 struct StreamPredicate
 {
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iStream)
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& stream, const C& /* closure */)
 	{
-		return iStream.fail();
+		return stream.fail();
 	}
 };
 
 
-
-/** Predicate for enforcers for handles, used by LASS_ENFORCE_HANDLE.
- *  @internal
- *  @author Bram de Greve [Bramz].
- *
- *  checks iHandle against INVALID_HANDLE_VALUE.  If a handle equals INVALID_HANDLE_VALUE,
- *  then something is wrong and the predicate will return true (the enforce will raise).
- *  For any other value of the handle, the enforcer will not raise and the program will continue.
- *
- *  @pre type T must be comparable (operator==) to HANDLE constant.
- */
-struct HandlePredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iHandle)
-	{
-		return iHandle == INVALID_HANDLE_VALUE;
-	}
-};
-
-
-
-/** Predicate for zero enforcers, used by LASS_ENFORCE_ZERO.
- *  @internal
- *  @author Bram de Greve [Bramz].
- *
- *  This is usefull for functions that return zero for success.  The predicate will check the
- *  value against zero, and if it's different then the predicate will be raised.  If it is zero
- *  The predicate will not raise and the program will continue.
- *
- *  @pre type T must be comparable (operator==) to zero.
- */
-struct ZeroPredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iResult)
-	{
-		return iResult != 0;
-	}
-};
-
-
-
-/** Predicate for clib enforcers, used by LASS_ENFORCE_CLIB.
- *  @internal
- *  @author Bram de Greve [Bramz].
- *
- *  This is usefull for functions that return -1 for failure.  The predicate will check the
- *  value against -1, and if it's equal then the predicate will be raised.  If it is any
- *  other value, the predicate will not raise and the program will continue.
- *
- *  @pre type T must be comparable (operator==) to -1.
- */
-struct ClibPredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iResult)
-	{
-		return iResult == -1;
-	}
-};
-
-
-
-/** Predicate for calls to COM interfaces, used by LASS_ENFORCE_COM
- *  @internal
- *  @author Bram de Greve[Bramz]
- *
- *  This predicate checks if the HRESULT return value of a COM call is non-negative (0 or more).
- *  It returns true if the return value is negative, so the enforcer will raise.
- */
-struct ComPredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iHResult)
-	{
-		return iHResult < 0;
-	}
-};
 
 
 #ifdef LASS_HAS_GETLASTERROR
@@ -185,54 +185,6 @@ struct WinAPIPredicate
 
 
 
-/** Predicate for index checking, used by LASS_ENFORCE_INDEX
- *  @internal
- *  @author Bram de Greve[Bramz]
- *
- *  This predicate checks if an value iIndex fits in the half-open range [0, size), determined
- *  by the template parameter.  It's ideal for checking valid indices in arrays etc., hence the
- *  name.  It returns true if the index is out of the range, so the enforcer will raise.
- *
- *  @pre type T must be comparable with operator< against 0 and size_t.
- */
-template <size_t size>
-struct IndexPredicate
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iIndex)
-	{
-		return iIndex < 0 || iIndex >= size;
-	}
-	static bool LASS_CALL wrong(unsigned char iIndex)
-	{
-		return iIndex >= size;
-	}
-	static bool LASS_CALL wrong(unsigned short iIndex)
-	{
-		return iIndex >= size;
-	}
-	static bool LASS_CALL wrong(unsigned int iIndex)
-	{
-		return iIndex >= size;
-	}
-	static bool LASS_CALL wrong(unsigned long iIndex)
-	{
-		return iIndex >= size;
-	}
-};
-
-template <>
-struct IndexPredicate<0>
-{
-	template <typename T>
-	static bool LASS_CALL wrong(const T& iIndex)
-	{
-		return true;
-	}
-};
-
-
-
 // --- Raisers -------------------------------------------------------------------------------------
 
 /** Throw a runtime error
@@ -246,27 +198,27 @@ struct IndexPredicate<0>
  */
 struct DefaultRaiser
 {
-	template <typename T>
-	static void raise(const T&, const std::string& iMessage, const char* iLocus)
+	template <typename T, typename C>
+	static void raise(const T&, const C&, const std::string& message, const char* locus)
 	{
-		if (iMessage.empty())
+		if (message.empty())
 		{
-			LASS_THROW(iLocus);
+			LASS_THROW(locus);
 		}
 		else
 		{
-			LASS_THROW(iLocus << ":\n" << iMessage);
+			LASS_THROW(locus << ":\n" << message);
 		}
 	}
 };
 
 
 
-inline void raiserAddMessage(std::ostringstream& oBuffer, const std::string& iMessage)
+inline void raiserAddMessage(std::ostream& stream, const std::string& message)
 {
-	if (!iMessage.empty())
+	if (!message.empty())
 	{
-		oBuffer << ":\n" << iMessage;
+		stream << ":\n" << message;
 	}
 }
 
@@ -277,12 +229,12 @@ inline void raiserAddMessage(std::ostringstream& oBuffer, const std::string& iMe
  */
 struct ZeroRaiser
 {
-	template <typename T>
-	static void raise(const T& iResult, const std::string& iMessage, const char* iLocus)
+	template <typename T, typename C>
+	static void raise(const T& result, const C&, const std::string& message, const char* locus)
 	{
 		std::ostringstream buffer;
-		buffer << "Expression " << iLocus << " resulted in a non-zero value '" << iResult << "'";
-		raiserAddMessage(buffer, iMessage);
+		buffer << "Expression " << locus << " resulted in a non-zero value '" << result << "'";
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
 	}
 };
@@ -292,20 +244,42 @@ struct ZeroRaiser
 /** Throws a run time exception for raisng LASS_ENFORCE_CLIB.
  *  @internal
  *  @author Bram de Greve
- *  retrieves an error code from errno.  iRc should be -1.
+ *  retrieves an error code from errno.
  */
  struct ClibRaiser
  {
- 	template <typename T>
-	static void raise(const T& /*iRc*/, const std::string& iMessage, const char* iLocus)
+ 	template <typename T, typename C>
+	static void raise(const T&, const C&, const std::string& message, const char* locus)
 	{
 		//LASS_ASSERT(iRc == -1);
 		const int errnum = lass_errno();
 		std::ostringstream buffer;
-		buffer << "Function call " << iLocus << " failed with errno: ("
+		buffer << "Function call " << locus << " failed with errno: ("
 			<< errnum << ") " << lass_strerror(errnum);			
-		raiserAddMessage(buffer, iMessage);
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
+	}
+};
+
+
+
+/** Prints warning to std::cerr for LASS_WARN_CLIB.
+ *  @internal
+ *  @author Bram de Greve
+ *  retrieves an error code from errno.  rc should be -1.
+ */
+ struct ClibWarner
+ {
+ 	template <typename T, typename C>
+	static void raise(const T&, const C&, const std::string& message, const char* locus)
+	{
+		const int errnum = lass_errno();
+		std::ostringstream buffer;
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: "
+			<< "Function call " << locus << " failed with errno: ("
+			<< errnum << ") " << lass_strerror(errnum);			
+		raiserAddMessage(std::cerr, message);
+		std::cerr << ".\n" << std::flush;
 	}
 };
 
@@ -318,15 +292,35 @@ struct ZeroRaiser
  */
  struct ClibRcRaiser
  {
- 	template <typename T>
-	static void raise(const T& iRc, const std::string& iMessage, const char* iLocus)
+ 	template <typename T, typename C>
+	static void raise(const T& rc, const C&, const std::string& message, const char* locus)
 	{
 		//LASS_ASSERT(iRc != 0);
 		std::ostringstream buffer;
-		buffer << "Function call " << iLocus << " failed with return code: ("
-			<< iRc << ") " << lass_strerror(iRc);			
-		raiserAddMessage(buffer, iMessage);
+		buffer << "Function call " << locus << " failed with return code: ("
+			<< rc << ") " << lass_strerror(rc);			
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
+	}
+};
+
+
+
+/** Throws a run time exception for raisng LASS_ENFORCE_CLIB_RC.
+ *  @internal
+ *  @author Bram de Greve
+ *  iRc contains error code and should not be zero.
+ */
+ struct ClibRcWarner
+ {
+ 	template <typename T, typename C>
+	static void raise(const T& rc, const C&, const std::string& message, const char* locus)
+	{
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: "
+			<< "Function call " << locus << " failed with return code: ("
+			<< rc << ") " << lass_strerror(rc);			
+		raiserAddMessage(std::cerr, message);
+		std::cerr << std::endl << std::flush;
 	}
 };
 
@@ -338,12 +332,12 @@ struct ZeroRaiser
  */
 struct ComRaiser
 {
-	template <typename T>
-	static void raise(const T& iHResult, const std::string& iMessage, const char* iLocus)
+	template <typename T, typename C>
+	static void raise(const T& hResult, const C&, const std::string& message, const char* locus)
 	{
 		std::ostringstream buffer;
-		buffer << "Failure HRESULT '" << iHResult << "' returned by " << iLocus;
-		raiserAddMessage(buffer, iMessage);
+		buffer << "Failure HRESULT '" << hResult << "' returned by " << locus;
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
 	}
 };
@@ -359,15 +353,33 @@ struct ComRaiser
  */
 struct LastErrorRaiser
 {
- 	template <typename T>
-	static void raise(const T& /*iRc*/, const std::string& iMessage, const char* iLocus)
+ 	template <typename T, typename C>
+	static void raise(const T&, const C&, const std::string& message, const char* locus)
 	{
 		std::ostringstream buffer;
 		const unsigned lastError = lass_GetLastError();
-		buffer << "Function call " << iLocus << " failed with last-error: ("
+		buffer << "Function call " << locus << " failed with last-error: ("
 			<< lastError << ") " << lass_FormatMessage(lastError);
-		raiserAddMessage(buffer, iMessage);
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
+	}
+};
+
+/** Writes warning to std::cerr using GetLastError() and FormatMessage().
+ *  @internal
+ *  @author Bram de Greve
+ *  @arg only available on Windows platform
+ */
+struct LastErrorWarner
+{
+ 	template <typename T, typename C>
+	static void raise(const T&, const C&, const std::string& message, const char* locus)
+	{
+		const unsigned lastError = lass_GetLastError();
+		std::cerr << "Function call " << locus << " failed with last-error: ("
+			<< lastError << ") " << lass_FormatMessage(lastError);
+		raiserAddMessage(std::cerr, message);
+		std::cerr << std::endl << std::flush;
 	}
 };
 
@@ -379,16 +391,15 @@ struct LastErrorRaiser
  *  @author Bram de Greve.
  *  @pre type T must be streamable to a std::ostream.
  */
-template <size_t size>
 struct IndexRaiser
 {
-	template <typename T>
-	static void raise(const T& iIndex, const std::string& iMessage,
-					  const char* iLocus)
+	template <typename T, typename C>
+	static void raise(const T& index, const C& size, const std::string& message, const char* locus)
 	{
 		std::ostringstream buffer;
-		buffer << "Value '" << iIndex << "' out of range [0, " << size << ") in '" << iLocus << "'";
-		raiserAddMessage(buffer, iMessage);
+		buffer << "Value '" << index << "' is out of range [0, " << size << ") in '"
+			<< locus << "'";
+		raiserAddMessage(buffer, message);
 		LASS_THROW(buffer.str());
 	}
 };
@@ -408,42 +419,43 @@ struct IndexRaiser
  */
 template
 <
-	typename Ref,
 	typename PredicateType,
-	typename RaiserType
+	typename RaiserType,
+	typename T,
+	typename ClosureType
 >
 class Enforcer
 {
 public:
-
-	Enforcer(Ref iT, const char* iLocus):
-		t_(iT),
-		locus_(PredicateType::wrong(iT) ? iLocus : 0)
+	Enforcer(T t, ClosureType closure, const char* locus):
+		t_(t),
+		closure_(closure),
+		locus_(PredicateType::wrong(t, closure) ? locus : 0)
 	{
-		//LASS_ASSERT(iLocus);
-		if (!iLocus)
+		if (!locus)
 		{
-			std::cerr << "NO LOCUS!" << std::endl;
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
+				"Enforcer did not get a locus!\n" << std::flush;
 		}
 	}
 
-	Ref operator*() const
+	T operator*() const
 	{
 		if (locus_)
 		{
-			RaiserType::raise(t_, msg_, locus_);
+			RaiserType::raise(t_, closure_, msg_, locus_);
 		}
 		return t_;
 	}
 
 	template <class MsgType>
-	Enforcer& operator()(const MsgType& iMsg)
+	Enforcer& operator()(const MsgType& msg)
 	{
 		if (locus_)
 		{
 			// Here we have time; no need to be super-efficient
 			std::ostringstream ss;
-			ss << iMsg;
+			ss << msg;
 			msg_ += ss.str();
 		}
 		return *this;
@@ -451,31 +463,36 @@ public:
 
 private:
 
-	Ref t_;
+	T t_;
+	ClosureType closure_;
 	std::string msg_;
 	const char* const locus_;
 };
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC && LASS_COMPILER_VERSION < 40000
 
-template <class P, class R>
+template <typename PredicateType, typename RaiserType>
 struct EnforcerMaker
 {
-	template <typename T> inline
-	static Enforcer<T&, P, R> make(T& iT, const char* iLocus)
+	template <typename T, typename C> inline
+	static Enforcer<PredicateType, RaiserType, T&, const C&> make(
+			T& t, const C& closure, const char* locus)
 	{
-		return Enforcer<T&, P, R>(iT, iLocus);
+		return Enforcer<PredicateType, RaiserType, T&, const C&>(
+			t, closure, locus);
 	}
 
-	template <typename T> inline
-	static Enforcer<const T&, P, R> make(const T& iT, const char* iLocus)
+	template <typename T, typename C> inline
+	static Enforcer<PredicateType, RaiserType, const T&, const C&> make(
+			const T& t, const C& closure, const char* locus)
 	{
-		return Enforcer<const T&, P, R>(iT, iLocus);
+		return Enforcer<PredicateType, RaiserType, const T&, const C&>(
+			t, closure, locus);
 	}
 };
 
-#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, locus)\
-	::lass::util::impl::EnforcerMaker<predicate, raiser>::make(t, locus)
+#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, closure, locus)\
+	::lass::util::impl::EnforcerMaker<predicate, raiser>::make(t, closure, locus)
 
 #else
 
@@ -489,20 +506,24 @@ struct EnforcerMaker
  *
  *  http://www.cuj.com/documents/s=8250/cujcexp2106alexandr
  */
-template <class P, class R, typename T>
-inline Enforcer<T&, P, R> makeEnforcer(T& iT, const char* iLocus)
+template <typename PredicateType, typename RaiserType, typename T>
+inline Enforcer<PredicateType, RaiserType, T&, const C&> makeEnforcer(
+		T& t, const C& closure, const char* locus)
 {
-	return Enforcer<T&, P, R>(iT, iLocus);
+	return Enforcer<PredicateType, RaiserType, T&, const C&>(
+		t, closure, locus);
 }
 
-template <class P, class R, typename T>
-inline Enforcer<const T&, P, R> makeEnforcer(const T& iT, const char* iLocus)
+template <typename PredicateType, typename RaiserType>
+inline Enforcer<PredicateType, RaiserType, const T&, const C&> makeEnforcer(
+		const T& t, const C& closure, const char* locus)
 {
-	return Enforcer<const T&, P, R>(iT, iLocus);
+	return Enforcer<PredicateType, RaiserType, T&, const C&>(
+		t, closure, locus);
 }
 
-#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, locus)\
-	::lass::util::impl::makeEnforcer<predicate, raiser>(t, locus)
+#define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, closure, locus)\
+	::lass::util::impl::makeEnforcer<predicate, raiser>(t, closure, locus)
 
 #endif
 

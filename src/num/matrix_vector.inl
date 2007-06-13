@@ -38,9 +38,10 @@ namespace num
 
 #define LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
-		(a).columns() == (b).size(), \
+		(a).columns(), \
+		(b).size(), \
 		"Matrix '" LASS_STRINGIFY(a) "' and Vector '" LASS_STRINGIFY(b) "' have no adjacent dimensions for multiplication in '" LASS_HERE "'.")
 
 

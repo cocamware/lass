@@ -100,39 +100,44 @@ CriticalSection::CriticalSection(void )
 CriticalSection::~CriticalSection(void)
 {
 	LASS_ASSERT(pimpl_);
-	LASS_ASSERT(pimpl_->lockCount() == 0);
-	if (pimpl_->lockCount() > 0)
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	LASS_ASSERT(pimpl->lockCount() == 0);
+	if (pimpl->lockCount() > 0)
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 			<< "destroying a CriticalSection that still has " 
-			<< pimpl_->lockCount() << " locks." << std::endl;
+			<< pimpl->lockCount() << " locks." << std::endl;
 	}
-	delete pimpl_;
+	delete pimpl;
 	pimpl_ = 0;
 }
 
 void CriticalSection::lock()
 {
 	LASS_ASSERT(pimpl_);
-	pimpl_->lock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	pimpl->lock();
 }
 
 const LockResult CriticalSection::tryLock()
 {
 	LASS_ASSERT(pimpl_);
-	return pimpl_->tryLock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	return pimpl->tryLock();
 }
 
 void CriticalSection::unlock()
 {
 	LASS_ASSERT(pimpl_);
-	pimpl_->unlock();
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	pimpl->unlock();
 }
 
 const bool CriticalSection::isLocked() const
 {
 	LASS_ASSERT(pimpl_);
-	return pimpl_->lockCount() > 0;
+	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
+	return pimpl->lockCount() > 0;
 }
 
 

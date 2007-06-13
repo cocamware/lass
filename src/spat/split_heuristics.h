@@ -101,14 +101,16 @@ namespace impl
 {
 
 template <typename ObjectTraits>
-class Splitter: private ObjectTraits
+class Splitter
 {
 public:
 	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
 	template <typename Input> bool operator()(const Input& input) const
 	{
-		const typename TValue x = 
-			(pointCoordinate(aabbMin(input.aabb), split_.axis) + pointCoordinate(aabbMax(input.aabb), split_.axis)) / 2;
+		typedef ObjectTraits OT;
+		const typename OT::TValue x = 
+			(OT::pointCoordinate(OT::aabbMin(input.aabb), split_.axis) +
+			 OT::pointCoordinate(OT::aabbMax(input.aabb), split_.axis)) / 2;
 		return x < split_.x;
 	}			
 private:
@@ -116,14 +118,19 @@ private:
 };
 
 template <typename ObjectTraits>
-class LessAxis: private ObjectTraits
+class LessAxis
 {
 public:
 	LessAxis(int iAxis): axis_(iAxis) {}
 	template <typename Input> bool operator()(const Input& a, const Input& b) const
 	{
-		const TValue xa = (pointCoordinate(aabbMin(a.aabb), axis_) + pointCoordinate(aabbMax(a.aabb), axis_)) / 2;
-		const TValue xb = (pointCoordinate(aabbMin(b.aabb), axis_) + pointCoordinate(aabbMax(b.aabb), axis_)) / 2;
+		typedef ObjectTraits OT;
+		const typename OT::TValue xa = 
+			(OT::pointCoordinate(OT::aabbMin(a.aabb), axis_) +
+			 OT::pointCoordinate(OT::aabbMax(a.aabb), axis_)) / 2;
+		const typename OT::TValue xb = 
+			(OT::pointCoordinate(OT::aabbMin(b.aabb), axis_) +
+			 OT::pointCoordinate(OT::aabbMax(b.aabb), axis_)) / 2;
 		return xa < xb;
 	}			
 private:

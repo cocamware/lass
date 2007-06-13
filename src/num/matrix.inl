@@ -35,16 +35,18 @@
 
 #define LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(a).rows() == (b).rows() && (a).columns() == (b).columns(),\
+		int(0), \
 		"Matrices '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different dimensions in '" LASS_HERE "'.")
 
 #define LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
-		(a).columns() == (b).rows(),\
+		(a).columns(),\
+		(b).rows(),\
 		"Matrices '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have no matching dimensions for operation at '" LASS_HERE "'.")
 
 namespace lass

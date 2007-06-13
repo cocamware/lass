@@ -159,12 +159,25 @@ public:
 	
 private:
 
-	struct TriangleTraits: public spat::DefaultAabbRayTraits<TAabb, TRay>
+	typedef spat::DefaultAabbRayTraits<TAabb, TRay> TAabbRayTraits;
+	
+	struct TriangleTraits: public TAabbRayTraits
 	{
 		typedef typename TSelf::TTriangle TObject;
 		typedef typename TSelf::TTriangleIterator TObjectIterator;
 		typedef const TTriangle& TObjectReference;
 		typedef void TInfo;
+		
+		typedef typename TAabbRayTraits::TAabb TAabb;
+		typedef typename TAabbRayTraits::TRay TRay;
+		typedef typename TAabbRayTraits::TPoint TPoint;
+		typedef typename TAabbRayTraits::TVector TVector;
+		typedef typename TAabbRayTraits::TValue TValue;
+		typedef typename TAabbRayTraits::TParam TParam;
+		typedef typename TAabbRayTraits::TReference TReference;
+		typedef typename TAabbRayTraits::TConstReference TConstReference;
+		typedef typename TAabbRayTraits::TNumTraits TNumTraits;
+	
 		static const TAabb objectAabb(TObjectIterator triangle) 
 		{
 			TAabb result;

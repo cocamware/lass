@@ -63,7 +63,6 @@ namespace util
 namespace impl
 {
 	class MutexInternal;
-	class CriticalSectionInternal;
 	class ConditionInternal;
 	class ThreadInternal;
 	class ThreadLocalStorageInternal;
@@ -144,7 +143,7 @@ public:
 	const bool isLocked() const;
 
 private:
-	impl::CriticalSectionInternal* pimpl_;
+	void* pimpl_;
 };
 
 

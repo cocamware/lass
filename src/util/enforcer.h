@@ -51,9 +51,10 @@
  */
 #define LASS_ENFORCE(expression)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(expression), \
+		int(0), \
 		"Expression '" LASS_STRINGIFY(expression) "' failed in '" LASS_HERE "'.")
 
 
@@ -63,9 +64,10 @@
  */
 #define LASS_ENFORCE_POINTER(pointer) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(pointer), \
+		int(0), \
 		"Null pointer '" LASS_STRINGIFY(pointer) "' detected in '" LASS_HERE "'.")
 
 
@@ -78,6 +80,7 @@
 		::lass::util::impl::StreamPredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(stream),\
+		int(0), \
 		"Failing stream '" LASS_STRINGIFY(stream) "' detected in '" LASS_HERE "'.") 
 
 
@@ -87,9 +90,10 @@
  */
 #define LASS_ENFORCE_ZERO(expression) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::ZeroPredicate,\
+		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::ZeroRaiser>(\
 		(expression), \
+		int(0), \
 		"'" LASS_STRINGIFY(expression) "' in '" LASS_HERE "'.")
 
 
@@ -101,13 +105,29 @@
  *  value of the function call is not -1.  If it is -1, it will rais a runtime
  *  exception with the error code errno and its string message translated by strerror().
  */
-#define LASS_ENFORCE_CLIB(returnCode)\
+#define LASS_ENFORCE_CLIB(functionCall)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::ClibPredicate,\
+		::lass::util::impl::UnequalPredicate,\
 		::lass::util::impl::ClibRaiser,\
-		(returnCode), \
-		"'" LASS_STRINGIFY(returnCode) "' in '" LASS_HERE "'")
-	
+		(functionCall), \
+		int(-1), \
+		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
+
+#define LASS_ENFORCE_CLIB_EX(functionCall, errorValue)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::UnequalPredicate,\
+		::lass::util::impl::ClibRaiser,\
+		(functionCall), \
+		(errorValue), \
+		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
+
+#define LASS_WARN_CLIB(functionCall)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::UnequalPredicate,\
+		::lass::util::impl::ClibWarner,\
+		(functionCall), \
+		int(-1), \
+		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
 
 	
 /** Enforces the return code of a CLIB function call to be zero.
@@ -120,9 +140,27 @@
  */
 #define LASS_ENFORCE_CLIB_RC(errorCode)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::ZeroPredicate,\
+		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::ClibRcRaiser,\
 		(errorCode), \
+		int(0), \
+		"'" LASS_STRINGIFY(errorCode) "' in '" LASS_HERE "'")
+
+	
+/** Enforces the return code of a CLIB function call to be zero.
+ *  @ingroup Enforcers
+ *  Some CLIB functions return zero on success and an error code on failure.
+ *  This error code can be translated to a string message with strerror().
+ *  LASS_ENFORCE_CLIB_RC will enforce that the return code of the function call
+ *  is zero.  If it's not, it will raise a runtime exception with the translated
+ *  error code.
+ */
+#define LASS_WARN_CLIB_RC(errorCode)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::EqualPredicate,\
+		::lass::util::impl::ClibRcWarner,\
+		(errorCode), \
+		int(0), \
 		"'" LASS_STRINGIFY(errorCode) "' in '" LASS_HERE "'")
 
 
@@ -132,9 +170,10 @@
  */
 #define LASS_ENFORCE_COM(comResult) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::ComPredicate,\
+		::lass::util::impl::GreaterEqualPredicate,\
 		::lass::util::impl::ComRaiser,\
 		(comResult), \
+		int(0), \
 		"'" LASS_STRINGIFY(comResult) "' in '" LASS_HERE "'.")
 
 
@@ -146,9 +185,18 @@
  */
 #define LASS_ENFORCE_WINAPI(functionCall)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-	::lass::util::impl::WinAPIPredicate,\
+		::lass::util::impl::WinAPIPredicate,\
 		::lass::util::impl::LastErrorRaiser,\
 		(functionCall), \
+		int(0), \
+		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
+
+#define LASS_ENFORCE_WINAPI(functionCall)\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::WinAPIPredicate,\
+		::lass::util::impl::LastErrorWarner,\
+		(functionCall), \
+		int(0), \
 		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
 
 
@@ -157,9 +205,10 @@
  */
 #define LASS_ENFORCE_HANDLE(handle) \
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::HandlePredicate,\
+		::lass::util::impl::UnequalPredicate,\
 		::lass::util::impl::LastErrorRaiser,\
 		(handle),\
+		INVALID_HANDLE_VALUE, \
 		"Invalid handle '" LASS_STRINGIFY(handle) "' in '" LASS_HERE "'.")
 
 #endif
@@ -171,9 +220,9 @@
  */
 #define LASS_ENFORCE_INDEX(index, size)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::IndexPredicate<(size)>,\
-		::lass::util::impl::IndexRaiser<(size)>,\
-		(index), LASS_HERE)
+		::lass::util::impl::RangePredicate,\
+		::lass::util::impl::RangeRaiser,\
+		(index), (size), LASS_HERE)
 
 
 
@@ -187,9 +236,10 @@
  */
 #define LASS_ENFORCE_DYNAMIC_CAST(t_DestPointer, v_pointer)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(dynamic_cast<t_DestPointer>(v_pointer)),\
+		int(0), \
 		"Unable to cast to '" LASS_STRINGIFY(t_DestPointer) "': '" LASS_STRINGIFY(v_pointer)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 
@@ -206,9 +256,10 @@
  */
 #define LASS_ENFORCE_DYNAMIC_PY_CAST(t_DestPyObjectPtr, v_pyObjectPtr)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		::lass::python::impl::experimental::dynamicPyCast<t_DestPyObjectPtr>(v_pyObjectPtr),\
+		int(0), \
 		"Unable to cast to '" LASS_STRINGIFY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
 

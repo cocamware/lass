@@ -92,13 +92,7 @@ public:
 	~MutexInternal() 
 	{
 		LASS_ASSERT(lockCount_ == 0);
-		const int ret = pthread_mutex_destroy(&mutex_);
-		LASS_ASSERT(ret == 0);
-		if (ret != 0)
-		{
-			std::cerr << "[LASS RUN MSG] WARNING: pthread_mutex_destroy failed: (" 
-				<< ret << ") " << impl::lass_strerror(ret) << std::endl;
-		}
+		LASS_WARN_CLIB_RC(pthread_mutex_destroy(&mutex_));
 	}
 	void lock()
 	{
@@ -162,20 +156,8 @@ public:
 	}
 	~ConditionInternal()
 	{
-		int ret = pthread_mutex_destroy(&mutex_);
-		LASS_ASSERT(ret == 0);
-		if (ret != 0)
-		{
-			std::cerr << "[LASS RUN MSG] WARNING: pthread_mutex_destroy failed: (" 
-				<< ret << ") " << impl::lass_strerror(ret) << std::endl;
-		}
-		ret = pthread_cond_destroy(&condition_);
-		LASS_ASSERT(ret == 0);
-		if (ret != 0)
-		{
-			std::cerr << "[LASS RUN MSG] WARNING: pthread_cond_destroy failed: (" 
-				<< ret << ") " << impl::lass_strerror(ret) << std::endl;
-		}
+		LASS_WARN_CLIB_RC(pthread_mutex_destroy(&mutex_));
+		LASS_WARN_CLIB_RC(pthread_cond_destroy(&condition_));
 	}		
 	void wait()
 	{
@@ -451,13 +433,7 @@ public:
 	}
 	~ThreadLocalStorageInternal()
 	{
-		int ret = pthread_key_delete(key_);
-		LASS_ASSERT(ret == 0);
-		if (ret != 0)
-		{
-			std::cerr << "[LASS RUN MSG] WARNING: pthread_key_delete failed: (" 
-				<< ret << ") " << impl::lass_strerror(ret) << std::endl;
-		}
+		LASS_WARN_CLIB_RC(pthread_key_delete(key_));
 	}
 	void* const get() const
 	{

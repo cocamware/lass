@@ -34,9 +34,10 @@
 
 #define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::DefaultPredicate,\
+		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
-		(a).size() == (b).size(), \
+		(a).size(), \
+		(b).size(), \
 		"Vectors '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different dimensions in '" LASS_HERE "'.")
 
 namespace lass

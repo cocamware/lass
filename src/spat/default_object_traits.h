@@ -161,10 +161,20 @@ template
 >
 struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 {
-	typedef ObjectType TObject;					/**< type of nD object */
-	typedef ObjectIterator TObjectIterator;		/**< iterator to object */
+	typedef ObjectType TObject;	/**< type of nD object */
+	typedef ObjectIterator TObjectIterator;	/**< iterator to object */
 	typedef const TObject& TObjectReference;	/**< const reference to object */
-	typedef void TInfo;							/**< extra info for contain/intersect operations */
+	typedef void TInfo;	/**< extra info for contain/intersect operations */
+	
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TAabb TAabb;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TRay TRay;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TPoint TPoint;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TVector TVector;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TValue TValue;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TParam TParam;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TReference TReference;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TConstReference TConstReference;
+	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TNumTraits TNumTraits;
 
 	/** return reference to object
 	 */

@@ -156,7 +156,7 @@ AC_CHECK_LIB(dl, dlopen, [LASS_LDFLAGS_DL="-ldl"], [LASS_LDFLAGS_DL=""])
 
 # Checks for header files.
 AC_HEADER_STDBOOL
-AC_CHECK_HEADERS([limits.h termios.h sys/ioctl.h sys/resource.h sys/socket.h])
+AC_CHECK_HEADERS([limits.h termios.h uinstd.h sys/ioctl.h sys/resource.h sys/socket.h sys/mman.h fcntl.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
