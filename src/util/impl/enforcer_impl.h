@@ -174,8 +174,8 @@ struct StreamPredicate
  */
 struct WinAPIPredicate
 {
-	template <typename T>
-	static bool LASS_CALL wrong(const T& returnCode)
+	template <typename T, typename C>
+	static bool LASS_CALL wrong(const T& returnCode, const C& /* closure */)
 	{
 		return returnCode == 0 && lass_GetLastError() != 0;
 	}
@@ -506,7 +506,7 @@ struct EnforcerMaker
  *
  *  http://www.cuj.com/documents/s=8250/cujcexp2106alexandr
  */
-template <typename PredicateType, typename RaiserType, typename T>
+template <typename PredicateType, typename RaiserType, typename T, typename C>
 inline Enforcer<PredicateType, RaiserType, T&, const C&> makeEnforcer(
 		T& t, const C& closure, const char* locus)
 {
@@ -514,11 +514,11 @@ inline Enforcer<PredicateType, RaiserType, T&, const C&> makeEnforcer(
 		t, closure, locus);
 }
 
-template <typename PredicateType, typename RaiserType>
+template <typename PredicateType, typename RaiserType, typename T, typename C>
 inline Enforcer<PredicateType, RaiserType, const T&, const C&> makeEnforcer(
 		const T& t, const C& closure, const char* locus)
 {
-	return Enforcer<PredicateType, RaiserType, T&, const C&>(
+	return Enforcer<PredicateType, RaiserType, const T&, const C&>(
 		t, closure, locus);
 }
 

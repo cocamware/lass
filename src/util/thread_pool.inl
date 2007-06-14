@@ -26,6 +26,7 @@
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4267) // conversion from 'size_t' to 'lass::num::Tuint32', possible loss of data
+#	pragma warning(disable: 4996) // this function or variable may be unsafe
 #endif
 
 namespace lass
@@ -44,7 +45,8 @@ template <typename T, typename C, typename IP, template <typename, typename, typ
 ThreadPool<T, C, IP, PP>::ThreadPool(
 		size_t numberOfThreads, 
 		size_t maximumNumberOfTasksInQueue,
-		const TConsumer& consumerPrototype):
+		const TConsumer& consumerPrototype,
+		const char* name):
 	TParticipationPolicy(consumerPrototype),
 	threads_(0),
 	numThreads_(numberOfThreads == autoNumberOfThreads ? numberOfProcessors : numberOfThreads),
@@ -54,7 +56,7 @@ ThreadPool<T, C, IP, PP>::ThreadPool(
 	shutDown_(false)
 {
 	LASS_ENFORCE(numThreads_ > 0);
-	startThreads(consumerPrototype);
+	startThreads(consumerPrototype, name);
 }
 
 
@@ -153,7 +155,7 @@ const size_t ThreadPool<T, C, IP, PP>::numberOfThreads() const
  *  Don't worry folks, I know what I'm doing ;) [Bramz]
  */
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype)
+void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, const char* name)
 {
 	LASS_ASSERT(numThreads_ > 0);
 	const size_t dynThreads = this->numDynamicThreads(numThreads_);
@@ -163,6 +165,17 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype)
 		threads_ = 0;
 		return;
 	}
+
+	const size_t bufferSize = 10;
+	char nameBuffer[bufferSize] = "consumers";
+	if (name)
+	{
+		strncpy(nameBuffer, name, bufferSize);
+	}
+	nameBuffer[bufferSize - 1] = '\0';
+	const size_t length = strlen(nameBuffer);
+	const size_t indexLength = 2;
+	char* indexBuffer = nameBuffer + std::min(length, bufferSize - indexLength - 1);	
 
 	threads_ = static_cast<ConsumerThread*>(malloc(dynThreads * sizeof(ConsumerThread)));
 	if (!threads_)
@@ -175,7 +188,16 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype)
 	{
 		for (i = 0; i < dynThreads; ++i)
 		{
-			new (&threads_[i]) ConsumerThread(consumerPrototype, *this);
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+			_snprintf(
+#else
+			snprintf(
+#endif
+				indexBuffer, indexLength + 1, "%02X", int(i & 0xff));
+			indexBuffer[indexLength] = '\0';
+
+			new (&threads_[i]) ConsumerThread(consumerPrototype, *this, nameBuffer);
 			try
 			{
 				threads_[i].run();
@@ -238,8 +260,9 @@ void ThreadPool<T, C, IP, PP>::stopThreads(size_t numAllocatedThreads)
 // --- ConsumerThread ------------------------------------------------------------------------------
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(const TConsumer& consumer, TSelf& pool):
-	Thread(threadJoinable), 
+ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(
+		const TConsumer& consumer, TSelf& pool, const char* name):
+	Thread(threadJoinable, name), 
 	consumer_(consumer),
 	pool_(pool) 
 {

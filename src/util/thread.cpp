@@ -183,9 +183,9 @@ void Condition::broadcast()
 
 // --- Thread --------------------------------------------------------------------------------------
 
-Thread::Thread(ThreadKind iKind)
+Thread::Thread(ThreadKind iKind, const char* name)
 {
-	pimpl_ = new impl::ThreadInternal(*this, iKind);
+	pimpl_ = new impl::ThreadInternal(*this, iKind, name);
 }
 
 Thread::~Thread()

@@ -60,7 +60,7 @@ namespace impl
 			view_(0)
 		{
 #if defined(LASS_IO_MEMORY_MAP_WIN)
-			pageSize _ = 4096;
+			pageSize_ = 4096;
 			map_ = 0;
 #	ifdef UNICODE
 			const int bufferLength = MultiByteToWideChar(CP_UTF8, 0, filename, -1, 0, 0);
@@ -80,7 +80,7 @@ namespace impl
 					<< util::impl::lass_FormatMessage(lastError));
 			}
 			fileSize_ = static_cast<long>(fsize);
-			if (fileSize_ < 0 || static_cast<DWORD>(fileSize_) != fSize)
+			if (fileSize_ < 0 || static_cast<DWORD>(fileSize_) != fsize)
 			{
 				LASS_THROW("Filesize overflow");
 			}

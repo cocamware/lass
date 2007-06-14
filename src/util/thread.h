@@ -190,13 +190,13 @@ public:
 	void join();
 	void bind(size_t processor);
 	
-	static void sleep(unsigned long iMilliseconds);
+	static void sleep(unsigned long milliseconds);
 	static void yield();
 	static void bindCurrent(size_t processor);
 
 protected:
 
-	Thread(ThreadKind iKind = threadDetached);
+	Thread(ThreadKind kind = threadDetached, const char* name = 0);
 
 private:
 

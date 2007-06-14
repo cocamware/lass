@@ -40,7 +40,8 @@ namespace impl
 	{
 	public:
 		typedef CrashDump::TCallback TCallback;
-		CrashDumpImpl(char* name, TCallback callback, void* callbackClosure) {}
+		CrashDumpImpl(const std::string& name, TCallback callback, void* callbackClosure) {}
+		void init() {}
 		~CrashDumpImpl() {}
 	};
 }
@@ -54,9 +55,10 @@ namespace lass
 namespace util
 {
 
-CrashDump::CrashDump(char* name, TCallback callback, void* callbackClosure):
+CrashDump::CrashDump(const std::string& name, TCallback callback, void* callbackClosure):
 	pimpl_(new impl::CrashDumpImpl(name, callback, callbackClosure))
 {
+	pimpl_->init();
 }
 
 CrashDump::~CrashDump()

@@ -101,8 +101,8 @@ void testIoSocket()
 
 	typedef util::ScopedPtr<util::Thread> TThreadPtr;
 
-	TThreadPtr server(util::threadFun(serverThread, util::threadJoinable));
-	TThreadPtr client(util::threadFun(clientThread, util::threadJoinable));
+	TThreadPtr server(util::threadFun(serverThread, util::threadJoinable, "server"));
+	TThreadPtr client(util::threadFun(clientThread, util::threadJoinable, "client"));
 
 	server->run();
 	util::Thread::sleep(500);

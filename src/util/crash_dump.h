@@ -27,6 +27,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CRASH_DUMP_H
 
 #include "util_common.h"
+#include "non_copyable.h"
 
 namespace lass
 {
@@ -37,11 +38,11 @@ namespace impl
 	class CrashDumpImpl;
 }
 
-class CrashDump
+class LASS_DLL CrashDump: NonCopyable
 {
 public:
 	typedef void (*TCallback)(const char* /* filename */, void* /* closure */);
-	CrashDump(char* name, TCallback callback = 0, void* callbackClosure = 0);
+	CrashDump(const std::string& name, TCallback callback = 0, void* callbackClosure = 0);
 	~CrashDump();
 private:
 	impl::CrashDumpImpl* pimpl_;

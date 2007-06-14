@@ -191,7 +191,7 @@
 		int(0), \
 		"'" LASS_STRINGIFY(functionCall) "' in '" LASS_HERE "'")
 
-#define LASS_ENFORCE_WINAPI(functionCall)\
+#define LASS_WARN_WINAPI(functionCall)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::WinAPIPredicate,\
 		::lass::util::impl::LastErrorWarner,\

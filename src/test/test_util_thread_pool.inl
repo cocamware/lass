@@ -61,14 +61,15 @@ namespace thread_pool
 	void test(size_t numberOfThreads, size_t maxNumberOfTasksInQueue)
 	{	
 		using namespace util;
-		typedef ThreadPool<Callback0, DefaultConsumer<util::Callback0>, IdlePolicy, ParticipatingPolicy> 
+		typedef DefaultConsumer<util::Callback0> TConsumer;
+		typedef ThreadPool<Callback0, TConsumer, IdlePolicy, ParticipatingPolicy> 
 			TThreadPool;
 		LASS_COUT << typeid(TThreadPool).name() << std::endl;
 
 		std::fill(taskIsDone, taskIsDone + numberOfTasks, false);
 		counter = 0;
 
-		TThreadPool pool(numberOfThreads, maxNumberOfTasksInQueue);
+		TThreadPool pool(numberOfThreads, maxNumberOfTasksInQueue, TConsumer(), "pool");
 		for (size_t i = 0; i < numberOfTasks; ++i)
 		{
 			pool.addTask(util::bind(task, i));

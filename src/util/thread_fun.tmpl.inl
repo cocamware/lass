@@ -43,10 +43,11 @@ namespace util
  */
 template <typename Function>
 ThreadFun* threadFun(
-	Function iFunction,
-	ThreadKind iKind)
+	Function function,
+	ThreadKind kind,
+	const char* name)
 {
-	return new ThreadFun(bind(iFunction), iKind);
+	return new ThreadFun(bind(function), kind, name);
 }
 
 
@@ -55,10 +56,11 @@ ThreadFun* threadFun(
  */
 template <typename ObjectPtr, typename Method>
 ThreadFun* threadMemFun(
-	ObjectPtr iObject, Method iMethod,
-	ThreadKind iKind)
+	ObjectPtr object, Method method,
+	ThreadKind kind,
+	const char* name)
 {
-	return new ThreadFun(bind(iMethod, iObject), iKind);
+	return new ThreadFun(bind(method, object), kind, name);
 }
 
 
@@ -70,11 +72,12 @@ $[
  */
 template <$(typename P$x)$, typename Function>
 ThreadFun* threadFun(
-	Function iFunction,
+	Function function,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind)
+	ThreadKind kind,
+	const char* name)
 {
-	return new ThreadFun(bind(iFunction, $(iP$x)$), iKind);
+	return new ThreadFun(bind(function, $(iP$x)$), kind, name);
 }
 
 
@@ -83,11 +86,12 @@ ThreadFun* threadFun(
  */
 template <$(typename P$x)$, typename ObjectPtr, typename Method>
 ThreadFun* threadMemFun(
-	ObjectPtr iObject, Method iMethod,
+	ObjectPtr object, Method method,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind)
+	ThreadKind kind,
+	const char* name)
 {
-	return new ThreadFun(bind(iMethod, iObject, $(iP$x)$), iKind);
+	return new ThreadFun(bind(method, object, $(iP$x)$), kind, name);
 }
 
 

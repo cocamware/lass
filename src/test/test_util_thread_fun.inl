@@ -76,7 +76,7 @@ void testUtilThreadFun()
 {
 	LASS_COUT << "thread foo ...\n";
 	thread_test::functionIsCalled = false;
-	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable));
+	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable, "foo"));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();
@@ -87,7 +87,7 @@ void testUtilThreadFun()
 
 	LASS_COUT << "thread spam ...\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::threadJoinable));
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::threadJoinable, "spam"));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();
@@ -96,7 +96,7 @@ void testUtilThreadFun()
 
 	LASS_COUT << "thread ham\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::threadJoinable));
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::threadJoinable, "ham"));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();
@@ -108,7 +108,7 @@ void testUtilThreadFun()
 #else
 	LASS_COUT << "thread ham via makeCallback ...\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::threadJoinable));
+	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham, "ham"), 3, util::threadJoinable));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();
@@ -118,7 +118,7 @@ void testUtilThreadFun()
 
 	LASS_COUT << "thread eggs ...\n";
 	thread_test::functionIsCalled = false;
-	util::threadFun(thread_test::eggs, util::threadDetached)->run();
+	util::threadFun(thread_test::eggs, util::threadDetached, "eggs")->run();
 	LASS_TEST_CHECK(!thread_test::functionIsCalled);
 	LASS_COUT << "sleeping\n";
 	util::Thread::sleep(1000);

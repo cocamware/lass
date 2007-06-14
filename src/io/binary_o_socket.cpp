@@ -46,7 +46,7 @@ BinaryOSocket::BinaryOSocket(Socket& iSocket, size_t iBufferSize, unsigned long 
 	stopFlushThread_(false)
 {
 	flushThread_.reset(util::threadFun(
-		util::makeCallback(this, &BinaryOSocket::flusher), util::threadJoinable));
+		util::makeCallback(this, &BinaryOSocket::flusher), util::threadJoinable, "lassSockt"));
 	flushThread_->run();
 }
 

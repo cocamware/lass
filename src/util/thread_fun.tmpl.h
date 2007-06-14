@@ -102,7 +102,7 @@ namespace util
 class LASS_DLL ThreadFun: public Thread
 {
 public:
-	ThreadFun(const Callback0& iFun, ThreadKind iKind = threadDetached);
+	ThreadFun(const Callback0& fun, ThreadKind kind = threadDetached, const char* name = 0);
 private:
 	void doRun();
 	Callback0 fun_;
@@ -112,28 +112,32 @@ private:
 
 template <typename Function>
 ThreadFun* threadFun(
-	Function iFunction,
-	ThreadKind iKind = threadDetached);
+	Function function,
+	ThreadKind kind = threadDetached,
+	const char* name = 0);
 
 template <typename ObjectPtr, typename Method>
 ThreadFun* threadMemFun(
-	ObjectPtr iObject, Method iMethod,
-	ThreadKind iKind = threadDetached);
+	ObjectPtr object, Method method,
+	ThreadKind kind = threadDetached,
+	const char* name = 0);
 
 $[
 // --- $x argument(s) ----------------------------------------------------------------------------
 
 template <$(typename P$x)$, typename Function>
 ThreadFun* threadFun(
-	Function iFunction,
+	Function function,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind = threadDetached);
+	ThreadKind kind = threadDetached,
+	const char* name = 0);
 
 template <$(typename P$x)$, typename ObjectPtr, typename Method>
 ThreadFun* threadMemFun(
-	ObjectPtr iObject, Method iMethod,
+	ObjectPtr object, Method method,
 	$(const P$x& iP$x)$,
-	ThreadKind iKind = threadDetached);
+	ThreadKind kind = threadDetached,
+	const char* name = 0);
 ]$
 
 }

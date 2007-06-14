@@ -248,7 +248,8 @@ public:
 
 	ThreadPool(size_t numberOfThreads = autoNumberOfThreads, 
 		size_t maximumNumberOfTasksInQueue = unlimitedNumberOfTasks, 
-		const TConsumer& consumerPrototype = TConsumer());
+		const TConsumer& consumerPrototype = TConsumer(),
+		const char* name = 0);
 	~ThreadPool();
 
 	void addTask(typename util::CallTraits<TTask>::TParam task);
@@ -265,14 +266,14 @@ private:
 	class ConsumerThread: public Thread
 	{
 	public:
-		ConsumerThread(const TConsumer& consumer, TSelf& pool);
+		ConsumerThread(const TConsumer& consumer, TSelf& pool, const char* name);
 	private:
 		void doRun();
 		TConsumer consumer_;
 		TSelf& pool_;
 	};
 
-	void startThreads(const TConsumer& consumerPrototype);
+	void startThreads(const TConsumer& consumerPrototype, const char* name);
 	void stopThreads(size_t numAllocatedThreads);
 
 	TTaskQueue waitingTasks_;

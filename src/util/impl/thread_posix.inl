@@ -295,7 +295,7 @@ class ThreadInternal: NonCopyable
 {
 public:
 
-	ThreadInternal(Thread& iThread, ThreadKind iKind):
+	ThreadInternal(Thread& iThread, ThreadKind iKind, const char* /*name*/):
 		thread_(iThread),
 		isJoinable_(iKind == threadJoinable),
 		isCreated_(false)

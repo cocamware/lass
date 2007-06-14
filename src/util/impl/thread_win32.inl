@@ -444,6 +444,37 @@ void bindThread(HANDLE thread, size_t processor)
 
 
 
+void setThreadName(DWORD threadId, const char* threadName)
+{
+	char buffer[10];
+	strncpy(buffer, threadName, 10);
+	buffer[9] = '\0';
+
+	struct THREADNAME_INFO
+	{
+		DWORD dwType; // must be 0x1000
+		LPCSTR szName; // pointer to name (in user addr space)
+		DWORD dwThreadID; // thread ID (-1=caller thread)
+		DWORD dwFlags; // reserved for future use, must be zero
+	};
+
+	THREADNAME_INFO info;
+	info.dwType = 0x1000;
+	info.szName = threadName;
+	info.dwThreadID = threadId;
+	info.dwFlags = 0;
+
+	__try
+	{
+		RaiseException(0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info);
+	}
+	__except(EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+}
+
+
+
 /** @internal
  *  @ingroup Threading
  */
@@ -451,8 +482,9 @@ class ThreadInternal: NonCopyable
 {
 public:
 
-	ThreadInternal(Thread& iThread, ThreadKind iKind):
+	ThreadInternal(Thread& iThread, ThreadKind iKind, const char* name):
 		thread_(iThread),
+		name_(name),
 		isJoinable_(iKind == threadJoinable),
 		isCreated_(false)
 	{
@@ -475,6 +507,10 @@ public:
 		{
 			const int errnum = lass_errno();
 			LASS_THROW("_beginthreadex failed: (" << errnum << ") " << lass_strerror(errnum));
+		}
+		if (name_)
+		{
+			setThreadName(id_, name_);
 		}
 		runCondition_.wait();
 	}
@@ -550,6 +586,7 @@ private:
 
 	Thread& thread_;
 	HANDLE handle_;	 // handle of the thread
+	const char* name_;
 	unsigned id_;
 	Condition runCondition_;
 	bool isJoinable_;
