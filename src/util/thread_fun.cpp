@@ -31,8 +31,8 @@ namespace lass
 namespace util
 {
 
-ThreadFun::ThreadFun(const Callback0& fun, ThreadKind kind, const char* name):
-	Thread(kind, name),
+ThreadFun::ThreadFun(const Callback0& fun, ThreadKind kind):
+	Thread(kind),
 	fun_(fun)
 {
 }

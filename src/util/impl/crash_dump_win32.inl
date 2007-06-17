@@ -142,7 +142,7 @@ public:
 			::GetProcAddress(dbghelp_, "MiniDumpWriteDump")));
 
 		isExiting_ = false;
-		handlerThread_.reset(util::threadMemFun(this, &CrashDumpImpl::handlerThread, util::threadJoinable, "crashdump"));
+		handlerThread_.reset(util::threadMemFun(this, &CrashDumpImpl::handlerThread, util::threadJoinable));
 		handlerThread_->run();
 
 		oldFilter_ = ::SetUnhandledExceptionFilter(unhandledExceptionFilter);
