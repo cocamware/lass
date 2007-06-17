@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
-	//static_cast<char*>(0)[1] = 0;
+	static_cast<char*>(0)[1] = 0;
 
 	test::TUnitTests unitTests;
 	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));

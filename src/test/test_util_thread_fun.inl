@@ -108,7 +108,7 @@ void testUtilThreadFun()
 #else
 	LASS_COUT << "thread ham via makeCallback ...\n";
 	thread_test::functionIsCalled = false;
-	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham, "ham"), 3, util::threadJoinable));
+	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::threadJoinable, "ham"));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();
