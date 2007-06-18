@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="dll_vc8"
 	ProjectGUID="{CA974D9E-7123-4209-9C12-7545FCCF9B1A}"
 	RootNamespace="dll_vc8"
@@ -329,6 +329,10 @@
 			</File>
 			<File
 				RelativePath="..\prim\color_rgba.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\util\crash_dump.cpp"
 				>
 			</File>
 			<File
