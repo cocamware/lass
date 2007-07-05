@@ -48,6 +48,18 @@ namespace prim
 {
 
 /** @ingroup DegeneratePolicy
+ */
+class DegenerationError: public util::Exception
+{
+public:
+	DegenerationError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(DegenerationError)
+};
+
+
+
+/** @ingroup DegeneratePolicy
  *
  *  This is the default policy
  *
@@ -67,7 +79,7 @@ struct NoDegenerate
 	{
 		if (iPrimitive.at(iIndexOfTailVertex) == iPrimitive.at(iIndexOfTailVertex + 1))
 		{
-			LASS_THROW("Degenerate edge detected at tail vertex '" << iIndexOfTailVertex << "'.");
+			LASS_THROW_EX(DegenerationError, "Degenerate edge detected at tail vertex '" << iIndexOfTailVertex << "'.");
 		}
 	}
 
@@ -82,7 +94,7 @@ struct NoDegenerate
 		const typename Primitive::TValue result = iPrimitive.signedArea();
 		if (result == Primitive::TNumTraits::zero)
 		{
-			LASS_THROW("Area of primitive is zero.");
+			LASS_THROW_EX(DegenerationError, "Area of primitive is zero.");
 		}
 		return result;
 	}
@@ -105,7 +117,7 @@ struct StrictNoDegenerate
 	{
 		if (iPrimitive.at(iIndexOfTailVertex) == iPrimitive.at(iIndexOfTailVertex + 1))
 		{
-			LASS_THROW("Degenerate edge detected at tail vertex '" << iIndexOfTailVertex << "'.");
+			LASS_THROW_EX(DegenerationError, "Degenerate edge detected at tail vertex '" << iIndexOfTailVertex << "'.");
 		}
 	}
 
@@ -114,7 +126,7 @@ struct StrictNoDegenerate
 	{
 		if (!iPrimitive.isSimple())
 		{
-			LASS_THROW("polygon is not simple.");
+			LASS_THROW_EX(DegenerationError, "polygon is not simple.");
 		}
 	}
 
@@ -124,7 +136,7 @@ struct StrictNoDegenerate
 		const typename Primitive::TValue result = iPrimitive.signedArea();
 		if (result == Primitive::TNumTraits::zero)
 		{
-			LASS_THROW("Area of primitive is zero.");
+			LASS_THROW_EX(DegenerationError, "Area of primitive is zero.");
 		}
 		return result;
 	}
@@ -173,14 +185,16 @@ namespace impl
 /** raises exception in case primitive is degenerate and we have restricting
  *  @relates lass::prim::Bounded
  */
+/*
 struct DegenerateRaiser
 {
 	template <class T>
 	static void raise(const T&, const std::string& iMessage, const char* iLocus)
 	{
-		LASS_THROW(iMessage << '\n' << iLocus);
+		LASS_THROW_EX(DegenerationError, iMessage << '\n' << iLocus);
 	}
 };
+*/
 
 }
 

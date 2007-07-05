@@ -203,11 +203,11 @@ struct DefaultRaiser
 	{
 		if (message.empty())
 		{
-			LASS_THROW(locus);
+			LASS_THROW_EX(EnforceFailure, locus);
 		}
 		else
 		{
-			LASS_THROW(locus << ":\n" << message);
+			LASS_THROW_EX(EnforceFailure, locus << ":\n" << message);
 		}
 	}
 };
@@ -235,7 +235,7 @@ struct ZeroRaiser
 		std::ostringstream buffer;
 		buffer << "Expression " << locus << " resulted in a non-zero value '" << result << "'";
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 
@@ -257,7 +257,7 @@ struct ZeroRaiser
 		buffer << "Function call " << locus << " failed with errno: ("
 			<< errnum << ") " << lass_strerror(errnum);			
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 
@@ -300,7 +300,7 @@ struct ZeroRaiser
 		buffer << "Function call " << locus << " failed with return code: ("
 			<< rc << ") " << lass_strerror(rc);			
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 
@@ -338,7 +338,7 @@ struct ComRaiser
 		std::ostringstream buffer;
 		buffer << "Failure HRESULT '" << hResult << "' returned by " << locus;
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 
@@ -361,7 +361,7 @@ struct LastErrorRaiser
 		buffer << "Function call " << locus << " failed with last-error: ("
 			<< lastError << ") " << lass_FormatMessage(lastError);
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 
@@ -400,7 +400,7 @@ struct IndexRaiser
 		buffer << "Value '" << index << "' is out of range [0, " << size << ") in '"
 			<< locus << "'";
 		raiserAddMessage(buffer, message);
-		LASS_THROW(buffer.str());
+		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}
 };
 

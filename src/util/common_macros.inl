@@ -31,31 +31,6 @@
 #include "common_macros.h"
 #include "../io/io_fwd.h"
 
-
-/** Throw an std::run_time_error with additional info on who has thrown it.
- *  @internal
- */
-#define LASS_THROW_IMPL(iMessage)\
-	do\
-	{\
-		std::ostringstream message;\
-		message << LASS_PRETTY_FUNCTION << ": RUNTIME ERROR: " << iMessage << "\n";\
-		LASS_LOG(message.str());\
-		throw std::runtime_error(message.str());\
-	}\
-	while (false)
-
-/** Throw a given exception rather that a runtime error filled with given test.
- *  @internal
- */
-#define LASS_THROW_EXCEPTION_IMPL(iException)\
-	do\
-	{\
-		/*LASS_LOG(iException.what());*/\
-		throw iException;\
-	}\
-	while (false)
-
 /** The usual assert
  *  @internal
  */

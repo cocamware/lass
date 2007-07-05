@@ -105,8 +105,6 @@
 #include "common_macros.inl"
 
 #if !defined(NDEBUG)
-//# define LASS_THROW( iMessage )               LASS_THROW_IMPL( iMessage )
-#	define LASS_THROW_EXCEPTION( iException )   LASS_THROW_EXCEPTION_IMPL( iException )
 #	define LASS_ASSERT( iExpression )           LASS_ASSERT_IMPL( iExpression )
 #	define LASS_ASSERT_UNREACHABLE				LASS_ASSERT_UNREACHABLE_IMPL
 #	define LASS_WARNING( iMessage )             LASS_WARNING_IMPL( iMessage )
@@ -115,8 +113,6 @@
 #	define LASS_EVAL( iExpression )             LASS_EVAL_IMPL( iExpression )
 #	define LASS_LOG( iMessage )                 LASS_LOG_IMPL( iMessage )
 #else
-//# define LASS_THROW( iMessage )               LASS_THROW_IMPL( iMessage )
-#	define LASS_THROW_EXCEPTION( iException )   LASS_THROW_EXCEPTION_IMPL( iException )
 #	define LASS_ASSERT( iExpression )
 #	define LASS_ASSERT_UNREACHABLE
 #	define LASS_WARNING( iMessage )             LASS_WARNING_IMPL( iMessage )

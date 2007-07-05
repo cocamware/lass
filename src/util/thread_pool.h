@@ -112,6 +112,7 @@
 #include "thread.h"
 #include "callback_0.h"
 #include "../stde/lock_free_queue.h"
+#include "future.h"
 
 namespace lass
 {
@@ -277,6 +278,7 @@ private:
 	void stopThreads(size_t numAllocatedThreads);
 
 	TTaskQueue waitingTasks_;
+	std::auto_ptr<experimental::RemoteExceptionBase> error_;
 	ConsumerThread* threads_;
 	unsigned long mSecsToSleep_;
 	size_t numThreads_;
@@ -284,6 +286,7 @@ private:
 	volatile size_t numWaitingTasks_;
 	volatile size_t numRunningTasks_;
 	volatile bool shutDown_;
+	volatile bool abort_;
 };
 
 

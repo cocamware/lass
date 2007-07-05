@@ -126,10 +126,10 @@ OutputIterator AabpTree<O, OT, SH>::find(
 
 template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::TObjectIterator
-AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam minT, const TInfo* info) const
+AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
 	TValue tNear;
-	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, minT))
+	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
 	{
 		return end_;
 	}
@@ -137,11 +137,11 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam minT, const
 	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
 	{
 		tFar = tNear;
-		tNear = minT;
+		tNear = tMin;
 	}
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
-	TObjectIterator hit = doIntersect(0, ray, t, minT, info, reciprocalDirection, tNear, tFar);
-	LASS_ASSERT(t > minT || hit == end_);
+	TObjectIterator hit = doIntersect(0, ray, t, tMin, info, reciprocalDirection, tNear, tFar);
+	LASS_ASSERT((t > tMin && t >= tNear && t <= tFar) || hit == end_);
 	return hit;
 }
 
@@ -149,10 +149,10 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam minT, const
 
 template <typename O, typename OT, typename SH>
 const bool AabpTree<O, OT, SH>::intersects(
-		const TRay& ray, TParam minT, TParam maxT, const TInfo* info) const
+		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
 	TValue tNear;
-	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, minT))
+	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
 	{
 		return false;
 	}
@@ -160,14 +160,14 @@ const bool AabpTree<O, OT, SH>::intersects(
 	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
 	{
 		tFar = tNear;
-		tNear = minT;
+		tNear = tMin;
 	}
-	if (tNear > maxT || tFar < minT)
+	if (tNear > tMax || tFar < tMin)
 	{
 		return false;
 	}
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
-	return doIntersects(0, ray, minT, maxT, info, reciprocalDirection, tNear, tFar);
+	return doIntersects(0, ray, tMin, tMax, info, reciprocalDirection, tNear, tFar);
 }
 
 
@@ -358,6 +358,7 @@ AabpTree<O, OT, SH>::doIntersect(
 				LASS_ASSERT(tCandidate > tMin);
 				if (best == end_ || tCandidate < tBest)
 				{
+					LASS_ASSERT(tCandidate > tMin && tCandidate >= tNear && tCandidate <= tFar);
 					best = objects_[i];
 					tBest = tCandidate;
 				}

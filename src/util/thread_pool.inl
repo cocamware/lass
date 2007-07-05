@@ -68,12 +68,7 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
 	{
 		completeAllTasks();
 	}
-	catch (...)
-	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ~ThreadPool(): "
-			"failure while waiting for tasks to complete." << std::endl;
-	}
-	stopThreads(this->numDynamicThreads(numThreads_));
+	LASS_CATCH_TO_WARNING
 }
 
 
@@ -100,6 +95,11 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 			else
 			{
 				this->sleepProducer();
+				if (error_.get())
+				{
+					abort_ = true;
+					error_->throwSelf();
+				}
 			}
 		}
 	}
@@ -120,6 +120,11 @@ void ThreadPool<T, C, IP, PP>::completeAllTasks()
 			atomicDecrement(numWaitingTasks_);
 		}
 		this->sleepProducer();
+		if (error_.get())
+		{
+			abort_ = true;
+			error_->throwSelf();
+		}
 	}
 }
 
@@ -225,17 +230,12 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 void ThreadPool<T, C, IP, PP>::stopThreads(size_t numAllocatedThreads)
 {
+	shutDown_ = true;
 	try
 	{
-		shutDown_ = true;
 		this->wakeAllConsumers();
 	}
-	catch (...)
-	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ThreadPool: "
-			"failure while setting shutdown flag" << std::endl;
-		shutDown_ = true; // try it anyway, it's rather important.
-	}
+	LASS_CATCH_TO_WARNING
 
 	LASS_ASSERT(static_cast<int>(numAllocatedThreads) >= 0);
 	for (size_t n = numAllocatedThreads; n > 0; --n)
@@ -244,11 +244,7 @@ void ThreadPool<T, C, IP, PP>::stopThreads(size_t numAllocatedThreads)
 		{
 			threads_[n - 1].join();
 		}
-		catch (...)
-		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: ThreadPool: "
-				"failure while joining thread" << std::endl;
-		}
+		LASS_CATCH_TO_WARNING
 		threads_[n - 1].~ConsumerThread(); // shouldn't throw anyway ...
 	}
 
@@ -270,20 +266,43 @@ ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(
 
 
 
+#define LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(exception_type)\
+catch (const exception_type& error)\
+{\
+	pool_.error_.reset(new experimental::RemoteExceptionWrapper<exception_type>(error));\
+	return;\
+}
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
 void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 {
 	TTask task;
-	while (true)
+	while (!pool_.abort_)
 	{
 		if (pool_.waitingTasks_.pop(task))
 		{
 			util::atomicIncrement(pool_.numRunningTasks_);
 			util::atomicDecrement(pool_.numWaitingTasks_);
 			pool_.wakeProducer();
-			consumer_(task);
-			util::atomicDecrement(pool_.numRunningTasks_);
+			try
+			{
+				consumer_(task);
+			}
+			catch (const experimental::RemoteExceptionBase& error)
+			{
+				pool_.error_ = error.clone();
+				return;
+			}
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::domain_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::invalid_argument)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::length_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::out_of_range)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::range_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::overflow_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::underflow_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::runtime_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::logic_error)
+			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::exception)
 		}
 		else if (pool_.shutDown_)
 		{

@@ -16,6 +16,7 @@ def build_dll(solution_file, project_file, configurations, comntools):
 def update_project_file(project_file):
 	subdirs = [os.path.join('src', p) for p in subprojects]
 	files = find_sources(subdirs, ignores)
+	files.append(os.path.join('src', 'dll', 'dll_main.cpp'))
 	
 	proj = file(project_file)
 	project = proj.read()

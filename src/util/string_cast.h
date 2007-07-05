@@ -77,6 +77,16 @@ namespace lass
 namespace util
 {
 
+/** @relates stringCast
+ */
+class BadStringCast: public Exception
+{
+public:
+	BadStringCast(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadStringCast)
+};
+
 // --- implementation ------------------------------------------------------------------------------
 
 namespace impl
@@ -138,7 +148,7 @@ Out stringCast(const In& iIn)
 	impl::StringCaster<TOut, TIn> caster;
 	if (!(caster << iIn && caster >> result))
 	{
-		LASS_THROW("stringCast has failed");
+		LASS_THROW_EX(BadStringCast, "stringCast has failed");
 	}
 	return result;
 }

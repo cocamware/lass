@@ -38,6 +38,10 @@
 #include "../thread_fun.h"
 #include "../scoped_ptr.h"
 
+#if LASS_BUILD_DLL
+#	include "../../dll/dll_main.h"
+#endif
+
 #include <windows.h>
 #include <dbghelp.h>
 #include <objbase.h>
@@ -186,24 +190,16 @@ public:
 	{
 		HMODULE library = 0;
 
-		// try to load from module directory
-		//
-		TCHAR modulePath[bufferSize_];
-		const DWORD pathLength = ::GetModuleFileName(0, modulePath, bufferSize_);
-		if (pathLength != 0 && pathLength < bufferSize_)
+		// try to load from exe directory
+		library = loadSideLibrary(libraryName, 0);
+		
+#if LASS_BUILD_DLL
+		if (!library && dll::getLassInstance())
 		{
-			TCHAR* const lastBackSlash = ::_tcsrchr(modulePath, _T('\\'));
-			if (lastBackSlash)
-			{
-				TCHAR* const filename = lastBackSlash + 1;
-				::_tcsncpy(filename, libraryName, (bufferSize_ - 1) - (filename - modulePath));
-				modulePath[bufferSize_ - 1] = _T('\0');
-				if (::_tcscmp(filename, libraryName) == 0)
-				{
-					library = ::LoadLibrary(modulePath);
-				}
-			}
+			// try to load from LASS DLL directory
+			library = loadSideLibrary(libraryName, dll::getLassInstance());
 		}
+#endif
 
 		if (!library) 
 		{
@@ -217,6 +213,27 @@ public:
 		}
 
 		return library;
+	}
+
+	const HMODULE loadSideLibrary(const TCHAR* libraryName, HMODULE me) const
+	{
+		TCHAR modulePath[bufferSize_];
+		const DWORD pathLength = ::GetModuleFileName(me, modulePath, bufferSize_);
+		if (pathLength != 0 && pathLength < bufferSize_)
+		{
+			TCHAR* const lastBackSlash = ::_tcsrchr(modulePath, _T('\\'));
+			if (lastBackSlash)
+			{
+				TCHAR* const filename = lastBackSlash + 1;
+				::_tcsncpy(filename, libraryName, (bufferSize_ - 1) - (filename - modulePath));
+				modulePath[bufferSize_ - 1] = _T('\0');
+				if (::_tcscmp(filename, libraryName) == 0)
+				{
+					return ::LoadLibrary(modulePath);
+				}
+			}
+		}
+		return 0;
 	}
 
 	/** @internal

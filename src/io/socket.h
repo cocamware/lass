@@ -40,6 +40,16 @@ namespace lass
 namespace io
 {
 
+/** @relates lass::io::Socket
+ */
+class SocketError: public util::Exception
+{
+public:
+	SocketError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+};
+
+
+
 class Socket: public util::NonCopyable
 {
 public:

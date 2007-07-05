@@ -202,10 +202,12 @@ const bool ArgValue<T>::doSetValue(const std::string& iValue)
 	{
 		if (mode() & amRequired)
 		{
-			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-				<< "Bad program arguments: you didn't provide a value for the parameter '"
-				<< names() << "' as required.\n";
-			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+			if (!parserIsQuiet())
+			{
+				LASS_THROW_EX(ArgBadArgument,
+					"Bad program arguments: you didn't provide a value for the parameter '"
+					<< names() << "' as required.\n");
+			}
 			return false;
 		}
 
@@ -215,11 +217,13 @@ const bool ArgValue<T>::doSetValue(const std::string& iValue)
 	{
 		if (values_.size() != 0 && !(mode() & amMultiple))
 		{
-			(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-				<< "Bad program arguments: parameter '" << names() << "' already has a value '"
-				<< values_[0] << "' assigned, you can't assign another value '" << iValue
-				<< "' because this parameter cannot be multiple valued.\n";
-			if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+			if (!parserIsQuiet())
+			{
+				LASS_THROW_EX(ArgBadArgument,
+					"Bad program arguments: parameter '" << names() << "' already has a value '"
+					<< values_[0] << "' assigned, you can't assign another value '" << iValue
+					<< "' because this parameter cannot be multiple valued.\n");
+			}
 			return false;
 		}
 		else
@@ -228,12 +232,15 @@ const bool ArgValue<T>::doSetValue(const std::string& iValue)
 			{
 				values_.push_back(util::stringCast<T>(iValue));
 			}
-			catch(util::Exception)
+			catch (const util::BadStringCast& error)
 			{
-				(parserIsQuiet() ? LASS_CLOG : LASS_COUT)
-					<< "Bad program arguments: could not interpret '" << iValue
-					<< "' as a value of type '" << typeid(T).name() << "'.\n";
-				if (!parserIsQuiet()) LASS_THROW_EXCEPTION(ArgBadArgument(names()));
+				if (!parserIsQuiet())
+				{
+					LASS_THROW_EX(ArgBadArgument,
+						"Bad program arguments: could not interpret '" << iValue
+						<< "' as a value of type '" << typeid(T).name() 
+						<< "' for parameter '" << names() << ".\n");
+				}
 				return false;
 			}
 

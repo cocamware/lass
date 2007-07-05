@@ -55,6 +55,18 @@ namespace prim
 {
 
 /** @ingroup ParameterPolicy
+ */
+class ParameterError: public util::Exception
+{
+public:
+	ParameterError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ParameterError)
+};
+
+
+
+/** @ingroup ParameterPolicy
  *  @brief Parameters supplied to functions must be in the range of the primitive.
  *  @author Bram de Greve [BdG]
  *  @date 2003
@@ -70,7 +82,7 @@ struct Bounded
 	{
 		if (!(iT >= iMin && iT <= iMax))
 		{
-			LASS_THROW("parameter '" << iT << "' outside valid range ["
+			LASS_THROW_EX(ParameterError, "parameter '" << iT << "' outside valid range ["
 				<< iMin << ", " << iMax << "].");
 		}
 	}
@@ -80,7 +92,7 @@ struct Bounded
 	{
 		if (!(iT >= iMin))
 		{
-			LASS_THROW("parameter '" << iT << "' outside valid range ["
+			LASS_THROW_EX(ParameterError, "parameter '" << iT << "' outside valid range ["
 				<< iMin << ", +inf].");
 		}
 	}

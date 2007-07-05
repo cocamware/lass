@@ -364,6 +364,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\callback_common.h"
+				>
+			</File>
+			<File
 				RelativePath=".\callback_python.tmpl.h"
 				>
 			</File>
@@ -417,6 +421,10 @@
 			</File>
 			<File
 				RelativePath=".\fixed_array.h"
+				>
+			</File>
+			<File
+				RelativePath=".\future.h"
 				>
 			</File>
 			<File

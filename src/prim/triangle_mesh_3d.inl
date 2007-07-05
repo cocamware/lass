@@ -643,24 +643,12 @@ void TriangleMesh3D<T, BHV, SH>::buildMesh(const IndexTriangleInputRange& triang
 			triangle.creaseLevel[k] = 0;
 
 			const std::size_t vertex = i->vertices[k];
-			if (vertex >= sizeVertices)
-			{
-				LASS_THROW("vertex index is out of range: "
-					<< static_cast<unsigned long>(vertex) << " >= " 
-					<< static_cast<unsigned long>(sizeVertices));
-			}
-			triangle.vertices[k] = &vertices_[vertex];
+			triangle.vertices[k] = &vertices_[LASS_ENFORCE_INDEX(vertex, sizeVertices)];
 
 			const std::size_t normal = i->normals[k];
 			if (normal != IndexTriangle::null())
 			{				
-				if (normal >= sizeNormals)
-				{
-					LASS_THROW("normal index is out of range: " 
-						<< static_cast<unsigned long>(normal) << " >= " 
-						<< static_cast<unsigned long>(sizeNormals));
-				}
-				triangle.normals[k] = &normals_[normal];
+				triangle.normals[k] = &normals_[LASS_ENFORCE_INDEX(normal, sizeNormals)];
 				++numNormals;
 			}
 			else
@@ -671,13 +659,7 @@ void TriangleMesh3D<T, BHV, SH>::buildMesh(const IndexTriangleInputRange& triang
 			const std::size_t uv = i->uvs[k];
 			if (uv != IndexTriangle::null())
 			{
-				if (uv >= sizeUvs)
-				{
-					LASS_THROW("uv index is out of range: " 
-						<< static_cast<unsigned long>(uv) << " >= " 
-						<< static_cast<unsigned long>(sizeUvs));
-				}
-				triangle.uvs[k] = &uvs_.begin()[uv];
+				triangle.uvs[k] = &uvs_.begin()[LASS_ENFORCE_INDEX(uv, sizeUvs)];
 				++numUvs;
 			}
 			else

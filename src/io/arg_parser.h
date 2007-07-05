@@ -232,14 +232,12 @@ private:
 /** @ingroup ArgParser
  *  Exception thrown in case of bad arguments.
  */
-class ArgBadArgument: public std::runtime_error
+class ArgBadArgument: public util::Exception
 {
 public:
-	ArgBadArgument(const std::string& iArgument):
-		runtime_error("Bad program argument '" + iArgument +
-			"': see standard output for more details.")
-	{
-	}
+	ArgBadArgument(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ArgBadArgument)
 };
 
 

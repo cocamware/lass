@@ -56,6 +56,19 @@ namespace lass
 namespace prim
 {
 
+/** Exception thrown by StrictMinMax
+ *  @ingroup MinMaxPolicy
+ */
+class MinMaxError: public util::Exception
+{
+public:
+	MinMaxError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(MinMaxError)
+};
+
+
+
 /** @ingroup MinMaxPolicy
  *  @brief MinMaxPolicy enforcing strict rules for the minima and maxima
  *  @author Bram de Greve
@@ -95,7 +108,7 @@ struct StrictMinMax
 	{
 		if (pointwiseMin(iMin, iMax) != iMin)
 		{
-			LASS_THROW("client tries to set invalid minimum '" << iMin
+			LASS_THROW_EX(MinMaxError, "client tries to set invalid minimum '" << iMin
 				<< "' with maximum '" << iMax << "'");
 		}
 		oMin = iMin;
@@ -109,7 +122,7 @@ struct StrictMinMax
 	{
 		if (pointwiseMin(iMin, iMax) != iMin)
 		{
-			LASS_THROW("client tries to set invalid maximum '" << iMax
+			LASS_THROW_EX(MinMaxError, "client tries to set invalid maximum '" << iMax
 				<< "' with minimum '" << iMin << "'");
 		}
 		oMax = iMax;
@@ -123,7 +136,7 @@ struct StrictMinMax
 	{
 		if (pointwiseMin(iMin, iMax) != iMin)
 		{
-			LASS_THROW("inconsistent mininum '" << iMin << "' and maximum '" << iMax << "'");
+			LASS_THROW_EX(MinMaxError, "inconsistent mininum '" << iMin << "' and maximum '" << iMax << "'");
 		}
 	}
 };

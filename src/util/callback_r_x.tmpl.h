@@ -48,6 +48,7 @@
 
 #include "util_common.h"
 #include "shared_ptr.h"
+#include "callback_common.h"
 #include "impl/dispatcher_r_$x.h"
 
 
@@ -127,7 +128,7 @@ public:
 	{
 		if (isEmpty())
 		{
-			LASS_THROW("You've tried to call an empty CallbackR$x.  Can't return a value.");
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR$x.  Can't return a value.");
 		}
 		return dispatcher_->call($(iP$x)$);
 	}

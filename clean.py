@@ -12,25 +12,25 @@ generated_files += ['util/callback_%d.h' % i for i in range(1, 11)] + ['util/cal
 def remove_tree(dirpath):
 	if dirpath[-1] == os.sep: dirpath = dirpath[:-1]
 	try:
-        	items = os.listdir(dirpath)
+			items = os.listdir(dirpath)
 	except:
 		return
-        for f in items:
-                if f == os.curdir or f == os.pardir: continue
-                path = dirpath + os.sep + f
-                if os.path.isdir(path):
-                        remove_tree(path)
-                else:
-                        os.remove(path)
-        os.rmdir(dirpath)
+		for f in items:
+				if f == os.curdir or f == os.pardir: continue
+				path = dirpath + os.sep + f
+				if os.path.isdir(path):
+						remove_tree(path)
+				else:
+						os.remove(path)
+		os.rmdir(dirpath)
 
 
 
 def clean_win32():
 	print "cleaning up win32 build ..."
 
-	projects = ['frb', 'gis', 'io', 'num', 'prim', 'spat', 'stde', 'test', 'util'];
-	configurations = ['win32_vc7', 'win32_vc7_d', 'win32_vc71', 'win32_vc71_d', 'win32_intel700', 'win32_intel700_d']
+	projects = ['frb', 'gis', 'io', 'num', 'prim', 'spat', 'stde', 'test', 'util', 'dll'];
+	configurations = ['win32_vc7', 'win32_vc7_d', 'win32_vc71', 'win32_vc71_d', 'win32_intel700', 'win32_intel700_d', 'win32_vc8', 'win32_vc8_d', 'win32_vc8_sse2']
 
 	os.chdir('bin')
 	os.system('del *.exe /F /Q')
@@ -45,8 +45,8 @@ def clean_win32():
 
 	os.chdir('src')
 	for p in projects:
-    		for c in configurations:
-    			os.system('rmdir ' + p + '\\' + c + ' /S /Q')
+			for c in configurations:
+				os.system('rmdir ' + p + '\\' + c + ' /S /Q')
 	os.chdir('..')
 
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 	# os table
 	os_to_clean = {
 		'win32': clean_win32,
-                'nt': clean_win32,
+				'nt': clean_win32,
 		'posix': clean_unix
 		}
 		

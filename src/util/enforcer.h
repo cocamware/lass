@@ -40,6 +40,26 @@
 #include <string>
 #include <sstream>
 
+
+namespace lass
+{
+namespace util
+{
+
+/** Exception thrown by enforcers
+ *  @ingroup Enforcers
+ */
+class EnforceFailure: public Exception
+{
+public:
+	EnforceFailure(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(EnforceFailure)
+};
+
+}
+}
+
 /** Enforces the expression to be "true", by using operator!.
  *  @ingroup Enforcers
  *
@@ -262,5 +282,18 @@
 		int(0), \
 		"Unable to cast to '" LASS_STRINGIFY(t_DestPyObjectPtr) "': '" LASS_STRINGIFY(v_pyObjectPtr)\
 		"' is a null pointer or is not of the correct type, '" LASS_HERE "'.")
+
+
+
+/** always-failing enforcer to block unreachable code paths
+ */
+#define LASS_ENFORCE_UNREACHABLE\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::TruePredicate,\
+		::lass::util::impl::DefaultRaiser,\
+		::lass::python::impl::experimental::dynamicPyCast<t_DestPyObjectPtr>(v_pyObjectPtr),\
+		int(0), \
+		"You have reached unreachable code in '" LASS_HERE "'.")\
+		(false)
 
 #endif

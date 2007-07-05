@@ -48,12 +48,12 @@ public:
 		WSADATA wsaData;
 		if (WSAStartup(0x0202, &wsaData) != 0)
 		{
-			LASS_THROW("Failed to startup Windows Socket API.");
+			LASS_THROW_EX(SocketError, "Failed to startup Windows Socket API.");
 		}
 		if (wsaData.wVersion != 0x0202)
 		{
 			WSACleanup();
-			LASS_THROW("Windows Socket API is not version 2.2.");
+			LASS_THROW_EX(SocketError, "Windows Socket API is not version 2.2.");
 		}
 	}
 
@@ -80,7 +80,7 @@ public:
 
 		if (::bind(socket_, (LPSOCKADDR)&addr, sizeof(addr)) != 0)
 		{
-			LASS_THROW("Failed to bind socket to port " << iPortNumber);
+			LASS_THROW_EX(SocketError, "Failed to bind socket to port " << iPortNumber);
 		}
 	}
 
@@ -96,7 +96,7 @@ public:
 		SOCKET connnection = ::accept(socket_, 0, 0);
 		if (connnection == INVALID_SOCKET)
 		{
-			LASS_THROW("Failed to accept connection");
+			LASS_THROW_EX(SocketError, "Failed to accept connection");
 		}
 		LASS_ASSERT(oConnection);
 		oConnection->socket_ = connnection;
@@ -113,7 +113,7 @@ public:
 		const int ret = ::connect(socket_, reinterpret_cast<SOCKADDR*>(&dest), sizeof(dest));
 		if (ret == SOCKET_ERROR)
 		{
-			LASS_THROW("could not connect " << iIpAddress << ":" << iPortNumber);
+			LASS_THROW_EX(SocketError, "could not connect " << iIpAddress << ":" << iPortNumber);
 		}
 	}
 
@@ -123,7 +123,7 @@ public:
 		const int ret = ::send(socket_, static_cast<const char*>(iBegin), iLength, 0);
 		if (ret == SOCKET_ERROR)
 		{
-			LASS_THROW("Failure to send data: " << WSAGetLastError());
+			LASS_THROW_EX(SocketError, "Failure to send data: " << WSAGetLastError());
 		}
 		LASS_ASSERT(ret >= 0);
 		return ret;
@@ -134,7 +134,7 @@ public:
 		const int ret = ::recv(socket_, static_cast<char*>(iBegin), iLength, 0);
 		if (ret == SOCKET_ERROR)
 		{
-			LASS_THROW("Failure to receive data: " << WSAGetLastError());
+			LASS_THROW_EX(SocketError, "Failure to receive data: " << WSAGetLastError());
 		}
 		LASS_ASSERT(ret >= 0);
 		return ret;
@@ -149,7 +149,7 @@ private:
 			socket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if (socket_ == INVALID_SOCKET)
 			{
-				LASS_THROW("Failed to create socket.");
+				LASS_THROW_EX(SocketError, "Failed to create socket.");
 			}
 		}
 	}

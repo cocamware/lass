@@ -40,19 +40,76 @@
 #include <string>
 #include <sstream>
 
+#define LASS_UTIL_EXCEPTION_PRIVATE_IMPL(t_exception)\
+		virtual void doThrowSelf() const { throw *this; }\
+		virtual ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase> doClone() const { return new t_exception(*this); }\
+	/**/
+
 namespace lass
 {
 namespace util
 {
+namespace experimental
+{
+	class RemoteExceptionBase
+	{
+	public:
+		virtual ~RemoteExceptionBase() {}
+		void throwSelf() const { doThrowSelf(); }
+		std::auto_ptr<RemoteExceptionBase> clone() const
+		{
+			std::auto_ptr<RemoteExceptionBase> copy = doClone();
+			if (typeid(*copy) != typeid(*this))
+			{
+				std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: Cloned exception has been sliced from '"
+					<< typeid(*this).name() << "' to '" << typeid(*copy).name() << "'." << std::endl;
+			}
+			return copy;
+		}
+	private:
+		virtual void doThrowSelf() const = 0;
+		virtual std::auto_ptr<RemoteExceptionBase> doClone() const = 0;
+	};
 
-class Exception: public std::exception
+	template <typename LocalException>
+	class RemoteExceptionWrapper:
+		public LocalException,
+		public RemoteExceptionBase
+	{
+	public:
+		RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
+	private:
+		void doThrowSelf() const { throw *this; }
+		std::auto_ptr<RemoteExceptionBase> doClone() const { return new RemoteExceptionWrapper<LocalException>(*this); }
+	};
+}
+
+
+
+class Exception: 
+	public std::exception,
+	public experimental::RemoteExceptionBase
 {
 public:
 
-	Exception(const std::string& iMessage, const std::string& iLocation):
+	Exception(const std::string& message, const std::string& location):
 		std::exception(),
-		message_(iMessage),
-		location_(iLocation)
+		message_(message),
+		location_(location)
+	{
+	}
+
+	explicit Exception(const std::string& message):
+		std::exception(),
+		message_(message),
+		location_("no location")
+	{
+	}
+
+	Exception():
+		std::exception(),
+		message_("no message"),
+		location_("no location")
 	{
 	}
 
@@ -79,60 +136,72 @@ public:
 		return location_;
 	}
 
+
 private:
 
 	std::string message_;
 	std::string location_;
+
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(Exception)
 };
 
-
-
 }
 
 }
 
-/** a nice wrapper around util::Exception to throw an exception.
- *  @relates lass::Util::Exception
+/** @relates lass::util::Exception
+ *  
+ *  To throw an exception like util::Exception that accepts a message and a location string, you 
+ *  can supply those strings yourself, ore you can use this macro for your convenience.
  *
- *  To throw an exception like util::Exception, you could fill in the message and location yourself,
- *  or ... you could use this macro.  This macro will fill in the location by itself so that you only
- *  have to worry about the message.  And as an extra, the message is streamed, so you can use the regular
- *  @c operator<< to concatenate variables in the message
+ *  This macro will fill in the location by itself so that you only have to worry about the message.  
+ *  And as an extra, the message is streamed, so you can use the regular @c operator<< to 
+ *  concatenate variables in the message.
  *
  *  @code
  *  int foo = -5;
  *  if (foo < 0)
  *  {
- *      LASS_THROW("foo '" << foo << "' is less than zero");
+ *      LASS_THROW_EX(util::Exception, "foo '" << foo << "' is less than zero");
  *  }
  *  @endcode
  */
-#define LASS_THROW(iMessage)\
+#define LASS_THROW_EX(t_exception, s_message)\
 	do\
 	{\
-		std::ostringstream message;\
-		message << iMessage;\
-		std::ostringstream location;\
-		location << LASS_PRETTY_FUNCTION;\
-		throw lass::util::Exception(message.str(), location.str());\
+		::std::ostringstream buffer;\
+		buffer << s_message;\
+		throw t_exception(buffer.str(), LASS_PRETTY_FUNCTION);\
 	}\
 	while (false)
 
 
 
-/** always throws an exception telling uncreachable code has been reached.
+/** LASS_THROW_EX for ::lass::util::Exception
  *  @relates lass::Util::Exception
  *
- *  Put this one in places where you know normal code flow should never go.
+ *  LASS_THROW(something) is identical to LASS_THROW_EX(util::Exception, something)
  */
-#define LASS_THROW_UNREACHABLE\
-	do\
+#define LASS_THROW(s_message) LASS_THROW_EX(::lass::util::Exception, s_message)
+
+
+
+/** @relates lass::Util::Exception
+ *
+ *  catches all exceptions and prints an undefined behaviour warning to std::cerr
+ */
+#define LASS_CATCH_TO_WARNING\
+	catch (const ::std::exception& error)\
 	{\
-		throw lass::util::Exception(\
-			"Unreachable code reached",\
-			LASS_PRETTY_FUNCTION);\
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: Exception caught in "\
+			<< LASS_PRETTY_FUNCTION << ":\n" << error.what() << std::endl;\
 	}\
-	while (false)
+	catch (...)\
+	{\
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: Unknown exception caught in "\
+			<< LASS_PRETTY_FUNCTION << std::endl;\
+	}\
+	/**/
 
 #endif
 

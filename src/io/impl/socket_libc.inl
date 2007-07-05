@@ -72,7 +72,7 @@ public:
 		if (::bind(socket_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Failed to bind socket to port " << portNumber 
+			LASS_THROW_EX(SocketError, "Failed to bind socket to port " << portNumber 
 				<< ": " << util::impl::lass_strerror(err));
 		}
 	}
@@ -83,7 +83,7 @@ public:
 		if (::listen(socket_, SOMAXCONN) != 0)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Failed to listen: " << util::impl::lass_strerror(err));
+			LASS_THROW(SocketError, "Failed to listen: " << util::impl::lass_strerror(err));
 		}
 	}
 
@@ -94,7 +94,7 @@ public:
 		if (socket == invalidSocket)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Failed to accept connection: " << util::impl::lass_strerror(err));
+			LASS_THROW_EX(SocketError, "Failed to accept connection: " << util::impl::lass_strerror(err));
 		}
 		LASS_ASSERT(connection);
 		connection->socket_ = socket;
@@ -107,7 +107,7 @@ public:
 		::hostent* other = gethostbyname(ipAddress.c_str());
 		if (!other)
 		{
-			LASS_THROW("could not connect " << ipAddress << ":" << portNumber
+			LASS_THROW_EX(SocketError, "could not connect " << ipAddress << ":" << portNumber
 				<< " : failed to lookup hostname.");
 		}		
 
@@ -119,7 +119,7 @@ public:
 		if (ret != 0)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Could not connect " << ipAddress << ":" << portNumber 
+			LASS_THROW_EX(SocketError, "Could not connect " << ipAddress << ":" << portNumber 
 				<< " : " << util::impl::lass_strerror(err));
 		}
 	}
@@ -131,7 +131,7 @@ public:
 		if (ret == -1)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Failed to send data: " << util::impl::lass_strerror(err));
+			LASS_THROW_EX(SocketError, "Failed to send data: " << util::impl::lass_strerror(err));
 		}
 		LASS_ASSERT(ret >= 0);
 		return ret;
@@ -143,7 +143,7 @@ public:
 		if (ret == -1)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW("Failed to receive data: " << util::impl::lass_strerror(err));
+			LASS_THROW_EX(SocketError, "Failed to receive data: " << util::impl::lass_strerror(err));
 		}
 		LASS_ASSERT(ret >= 0);
 		return ret;
@@ -161,7 +161,7 @@ private:
 			if (socket_ == invalidSocket)
 			{
 				const int err = util::impl::lass_errno();
-				LASS_THROW("Failed to create socket: " << util::impl::lass_strerror(err));
+				LASS_THROW_EX(SocketError, "Failed to create socket: " << util::impl::lass_strerror(err));
 			}
 		}
 	}
@@ -175,7 +175,7 @@ private:
 			if (ret != 0)
 			{
 				const int err = util::impl::lass_errno();
-				LASS_THROW("Failed to close socket: " << util::impl::lass_strerror(err));
+				LASS_THROW_EX(SocketError, "Failed to close socket: " << util::impl::lass_strerror(err));
 			} 
 		}
 	}
