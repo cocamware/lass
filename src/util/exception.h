@@ -42,7 +42,10 @@
 
 #define LASS_UTIL_EXCEPTION_PRIVATE_IMPL(t_exception)\
 		virtual void doThrowSelf() const { throw *this; }\
-		virtual ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase> doClone() const { return new t_exception(*this); }\
+		virtual ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase> doClone() const \
+		{ \
+			return ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase>(new t_exception(*this)); \
+		}\
 	/**/
 
 namespace lass
@@ -80,7 +83,10 @@ namespace experimental
 		RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
 	private:
 		void doThrowSelf() const { throw *this; }
-		std::auto_ptr<RemoteExceptionBase> doClone() const { return new RemoteExceptionWrapper<LocalException>(*this); }
+		std::auto_ptr<RemoteExceptionBase> doClone() const 
+		{ 
+			return std::auto_ptr<RemoteExceptionBase>(new RemoteExceptionWrapper<LocalException>(*this)); 
+		}
 	};
 }
 

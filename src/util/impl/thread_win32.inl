@@ -40,6 +40,11 @@
 #include <process.h>
 #include <windows.h>
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4239) //  nonstandard extension used : 'argument' : conversion from 'T' to 'T&'
+#endif
+
 namespace lass
 {
 namespace util
@@ -630,6 +635,10 @@ private:
 }
 }
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #ifdef LASS_BUILD_DLL
 

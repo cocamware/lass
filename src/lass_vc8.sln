@@ -32,6 +32,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_vc8", "io\io_vc8.vcproj"
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "num_vc8", "num\num_vc8.vcproj", "{52E4B019-9E8F-4008-AAF2-B1B75CE55874}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D2824E6F-9A04-4483-B824-77B3EF38903A} = {D2824E6F-9A04-4483-B824-77B3EF38903A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
