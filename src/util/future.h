@@ -27,7 +27,7 @@
  *  @class lass::util::experimental::Future
  *
  *  See:
- *  @arg "Transporting Values and Exceptions between Threads", 
+ *  @arg Peter Dimov: "Transporting Values and Exceptions between Threads", 
  *		http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2096.html
  *	@arg Matti Rintala: "Handling Multiple Concurrent Exceptions in C++ Using Futures", 
  *		teoksessa Advanced Topics in Exception Handling Techniques, 

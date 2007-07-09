@@ -182,7 +182,7 @@
 #define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, v_value )\
 	{\
 		PyModule_AddStringConstant(\
-			LASS_CONCATENATE( lassPythonModule_, i_module ),	s_name, v_value);\
+			LASS_CONCATENATE( lassPythonModule_, i_module ), s_name, const_cast<char*>(v_value));\
 	}
 
 // --- free module functions -----------------------------------------------------------------------

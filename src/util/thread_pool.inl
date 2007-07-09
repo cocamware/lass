@@ -53,7 +53,8 @@ ThreadPool<T, C, IP, PP>::ThreadPool(
 	maxWaitingTasks_(maximumNumberOfTasksInQueue),
 	numWaitingTasks_(0),
 	numRunningTasks_(0),
-	shutDown_(false)
+	shutDown_(false),
+	abort_(false)
 {
 	LASS_ENFORCE(numThreads_ > 0);
 	startThreads(consumerPrototype, name);
@@ -69,6 +70,7 @@ ThreadPool<T, C, IP, PP>::~ThreadPool()
 		completeAllTasks();
 	}
 	LASS_CATCH_TO_WARNING
+	stopThreads(this->numDynamicThreads(numThreads_));
 }
 
 
@@ -92,15 +94,12 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 				this->wakeConsumer();
 				return;
 			}
-			else
-			{
-				this->sleepProducer();
-				if (error_.get())
-				{
-					abort_ = true;
-					error_->throwSelf();
-				}
-			}
+		}
+		this->sleepProducer();
+		if (error_.get())
+		{
+			abort_ = true;
+			error_->throwSelf();
 		}
 	}
 }
@@ -303,6 +302,7 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::runtime_error)
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::logic_error)
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::exception)
+			util::atomicDecrement(pool_.numRunningTasks_);
 		}
 		else if (pool_.shutDown_)
 		{

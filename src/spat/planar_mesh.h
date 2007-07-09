@@ -50,6 +50,7 @@
 #include "../util/small_object.h"
 #include "../io/matlab_o_stream.h"
 #include "../meta/tuple.h"
+#include "../stde/extended_iterator.h"
 
 #define DEBUG_MESH	0
 
@@ -127,6 +128,81 @@ namespace spat
 			}
 			T bits_;
 		};
+
+		template <typename T>
+		class ResetableThreadLocalVariable
+		{
+		public:
+			ResetableThreadLocalVariable(const T& proto = T()): 
+				proto_(proto) 
+			{
+				TTls* tls = reinterpret_cast<TTls*>(tls_);
+				new (tls) TTls(Impl(this));
+			}
+			~ResetableThreadLocalVariable()
+			{
+				TTls* tls = reinterpret_cast<TTls*>(tls_);
+				tls->~TTls();
+			}
+			T& operator*()
+			{
+				return *(*reinterpret_cast<TTls*>(tls_))->it;
+			}
+			const T& operator*() const
+			{
+				return *(*reinterpret_cast<TTls*>(tls_))->it;
+			}
+			void reset(const T& proto)
+			{
+				LASS_LOCK(mutex_)
+				{
+					proto_ = proto;
+					std::fill(values_.begin(), values_.end(), proto_);
+				}
+			}
+		private:
+			struct Impl
+			{
+				Impl(ResetableThreadLocalVariable* self): self(self)
+				{
+					self->registerImpl(this);
+				}
+				Impl(const Impl& other): self(other.self)
+				{
+					self->registerImpl(this);
+				}			
+				~Impl()
+				{
+					self->unregisterImpl(this);
+				}
+				ResetableThreadLocalVariable* self;
+				typename std::list<T>::iterator it;
+			};
+
+			typedef util::ThreadLocalVariable<Impl> TTls;
+
+			void registerImpl(Impl* impl)
+			{
+				LASS_LOCK(mutex_)
+				{
+					values_.push_back(proto_);
+					impl->it = stde::prior(values_.end());
+				}
+			}
+			void unregisterImpl(Impl* impl)
+			{
+				LASS_LOCK(mutex_)
+				{
+					values_.erase(impl->it);
+				}
+			}
+
+			char tls_[sizeof TTls];
+			std::list<T> values_;
+			T proto_;
+			util::Semaphore mutex_;	
+		};
+
 	}
 
 	TEMPLATE_DEF
@@ -268,12 +344,14 @@ namespace spat
 		TEdge*  startEdge_;
 		TQuadEdgeList       quadEdgeList_;
 		std::vector<TPoint2D>	boundingPoints_;
-
-		mutable TEdge*  lastLocateEdge_;
 		T		tolerance_;
 		T		pointDistanceTolerance_;
 		long    edgeCount_;
 		int     stackDepth_;
+
+
+		mutable experimental::ResetableThreadLocalVariable<TEdge*> lastLocateEdge_;
+
 	private:
 		PlanarMesh();
 		void init4( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c, const TPoint2D& d);
@@ -678,7 +756,7 @@ namespace spat
 		TQuadEdge::splice(ec->sym(), ea);
 
 		startEdge_ = ec;
-		lastLocateEdge_ = startEdge_;
+		lastLocateEdge_.reset(startEdge_);
 		edgeCount_ = 6;
 		stackDepth_ = 0;
 
@@ -709,7 +787,8 @@ namespace spat
 			connect( eb, ea );
 
 		startEdge_ = ed;
-		lastLocateEdge_ = startEdge_;
+		lastLocateEdge_.reset(startEdge_);
+
 		edgeCount_ = 10;
 		stackDepth_ = 0;
 
@@ -976,8 +1055,7 @@ namespace spat
 
 		while (startEdge_->quadEdge()==e->quadEdge())
 			startEdge_=e->lNext();
-		if (lastLocateEdge_->quadEdge()==e->quadEdge())
-			lastLocateEdge_ = startEdge_;
+		lastLocateEdge_.reset(startEdge_);
 
 		TQuadEdge::splice( e, e->oPrev() );
 		TQuadEdge::splice( e->sym(), e->sym()->oPrev() );
@@ -1047,8 +1125,10 @@ namespace spat
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::locate( const TPoint2D& iPoint ) const
 	{
+		TEdge*& lastLocateEdge = *lastLocateEdge_;
 		long edgesPassed = 0;
-		TEdge* e = lastLocateEdge_;
+
+		TEdge* e = lastLocateEdge;
 		while (edgesPassed<(edgeCount_+2))
 		{
 continueSearch:
@@ -1057,9 +1137,16 @@ continueSearch:
 			const TPoint2D& edest = fastDest(e);
 
 			if ( eorg == iPoint )
+			{
+				lastLocateEdge = e;
 				return e;
+			}
 			if ( edest == iPoint )
-				return e->sym();
+			{
+				e = e->sym();
+				lastLocateEdge = e;
+				return e;
+			}
 			if ( fastRightOf( iPoint, e ) )
 				e = e->sym();
 
@@ -1115,22 +1202,25 @@ continueSearch:
 
 				if ((d1<d2) && (d1<d3))
 				{
-					lastLocateEdge_ = e;
-					return lastLocateEdge_;
+					lastLocateEdge = e;
+					return e;
 				}
 				if ((d2<d3) && (d2<=d1))
 				{
-					lastLocateEdge_ = e->lNext();
-					return lastLocateEdge_;
+					e = e->lNext();
+					lastLocateEdge = e;
+					return e;
 				}
-				lastLocateEdge_ = e->lPrev();
-				return lastLocateEdge_;
+				e = e->lPrev();
+				lastLocateEdge = e;
+				return e;
 			}
 
 			if (onEdge(iPoint,e))
 			{
-				lastLocateEdge_ = e->sym();
-				return e->sym();
+				e = e->sym();
+				lastLocateEdge = e;
+				return e;
 			}
 
 			if (rightOf(iPoint, e->oPrev()))
@@ -1146,29 +1236,43 @@ continueSearch:
 		}
 		//throw std::runtime_error("could not locate edge for point, probably point on edge which is not supported yet!");
 		
-		return bruteForceLocate(iPoint);
+		e = bruteForceLocate(iPoint);
+		lastLocateEdge = e;
+		return e;
 	}
 
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointLocate( const TPoint2D& iPoint ) const
 	{
+		TEdge*& lastLocateEdge = *lastLocateEdge_;
 		long edgesPassed = 0;
-		TEdge* e = lastLocateEdge_;
 
+		TEdge* e = lastLocateEdge;
 		while (edgesPassed<(edgeCount_+2))
 		{
 			++edgesPassed;
 			if ( org( e ) == iPoint )
+			{
+				lastLocateEdge = e;
 				return e;
+			}
 			if ( dest( e ) == iPoint )
-				return e->sym();
+			{
+				e = e->sym();
+				lastLocateEdge = e;
+				return e;
+			}
 			if ( rightOf( iPoint, e ) )
 				e = e->sym();
 
 			if (hasLeftFace(e))
 			{
 				if ( iPoint == org(e->lPrev()) )
-					return e->lPrev();
+				{
+					e = e->lPrev();
+					lastLocateEdge = e;
+					return e;
+				}
 				if ( leftOf( iPoint, e->oNext()) )
 				{
 					e = e->oNext();
@@ -1195,6 +1299,7 @@ continueSearch:
 		//throw std::runtime_error("could not locate edge for point, probably point on edge which is not supported yet!");
 		e = bruteForceExactLocate(iPoint);
 		LASS_ASSERT(e!=NULL);
+		lastLocateEdge = e;
 		return e;
 		LASS_THROW( "pointLocate: could not find point");
 	}
@@ -2582,8 +2687,6 @@ continueSearch:
 			}
 		}
 	}
-
-
 
 #ifndef NDEBUG
 	TEMPLATE_DEF unsigned PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::numSetOrientedEdgeHandleCalls = 0;

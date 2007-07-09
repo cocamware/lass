@@ -106,6 +106,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="4"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
@@ -113,7 +114,8 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IO_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
+				FloatingPointModel="2"
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="io_common.h"

@@ -41,14 +41,6 @@
 #include "../io/logger.h"
 #include "../io/file_attribute.h"
 
-#include "../util/crash_dump.h"
-//#include "../util/impl/crash_dump_win32.inl"
-
-void crashDumpCallback(const char* name, void* /* closure */)
-{
-	LASS_COUT << "\n*** CrashDump " << name << std::endl << std::flush;
-}
-
 int main(int argc, char* argv[])
 {
 	using namespace lass;
@@ -60,19 +52,11 @@ int main(int argc, char* argv[])
 	logger.subscribeTo(io::proxyMan()->clog());
 	logger.subscribeTo(io::proxyMan()->cerr());
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION >= 1400
-	util::CrashDump crashDump(io::fileJoinPath(test::workPath(), "test_" LASS_TEST_VERSION), crashDumpCallback);
-#endif
-
 	LASS_EVAL(logFile);
 	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
 	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION >= 1400
-	static_cast<char*>(0)[1] = 0;
-#endif
 
 	test::TUnitTests unitTests;
 	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));

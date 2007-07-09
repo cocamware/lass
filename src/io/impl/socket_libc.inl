@@ -83,7 +83,7 @@ public:
 		if (::listen(socket_, SOMAXCONN) != 0)
 		{
 			const int err = util::impl::lass_errno();
-			LASS_THROW(SocketError, "Failed to listen: " << util::impl::lass_strerror(err));
+			LASS_THROW_EX(SocketError, "Failed to listen: " << util::impl::lass_strerror(err));
 		}
 	}
 

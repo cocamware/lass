@@ -266,12 +266,34 @@ public:
 		return ptr;
 	}
 
+	const TValue* const get() const
+	{
+		const TValue* ptr = static_cast<const TValue*>(storage_.get());
+		if (!ptr)
+		{
+			std::auto_ptr<T> newCopy(new TValue(prototype_));
+			storage_.set(newCopy.get());
+			ptr = newCopy.release();
+		}
+		return ptr;
+	}
+
 	TValue* const operator->()
 	{
 		return get();
 	}
 
+	const TValue* const operator->() const
+	{
+		return get();
+	}
+
 	TReference operator*()
+	{
+		return *get();
+	}
+
+	TConstReference operator*() const
 	{
 		return *get();
 	}
@@ -284,7 +306,7 @@ private:
 	}
 
 	TValue prototype_;
-	ThreadLocalStorage storage_;
+	mutable ThreadLocalStorage storage_;
 };
 
 
