@@ -87,6 +87,16 @@ private:
 	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadStringCast)
 };
 
+/** @relates stringCast
+ */
+class BadWStringCast: public Exception
+{
+public:
+	BadWStringCast(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadWStringCast)
+};
+
 // --- implementation ------------------------------------------------------------------------------
 
 namespace impl
@@ -132,6 +142,47 @@ private:
 	std::stringstream buffer_;
 };
 
+
+template <typename Out, typename In>
+class WStringCaster
+{
+public:
+
+	WStringCaster()
+	{
+		buffer_.unsetf(std::ios::skipws);
+		if (std::numeric_limits<Out>::is_specialized)
+		{
+			buffer_.precision(std::numeric_limits<Out>::digits10 + 1);
+		}
+		else if(std::numeric_limits<In>::is_specialized)
+		{
+			buffer_.precision(std::numeric_limits<In>::digits10 + 1);
+		}
+	}
+
+	bool operator<<(const In& iIn)
+	{
+		return !(buffer_ << iIn).fail();
+	}
+
+	template <typename T>
+	bool operator>>(T& oOut)
+	{
+		return buffer_ >> oOut && (buffer_ >> std::ws).eof();
+	}
+
+	bool operator>>(std::wstring& oOut)
+	{
+		oOut = buffer_.str();
+		return true;
+	}
+
+private:
+
+	std::wstringstream buffer_;
+};
+
 }
 
 
@@ -146,6 +197,21 @@ Out stringCast(const In& iIn)
 	
 	TOut result;
 	impl::StringCaster<TOut, TIn> caster;
+	if (!(caster << iIn && caster >> result))
+	{
+		LASS_THROW_EX(BadStringCast, "stringCast has failed");
+	}
+	return result;
+}
+
+template <typename Out, typename In>
+Out wstringCast(const In& iIn)
+{
+	typedef typename util::CallTraits<Out>::TValue TOut;
+	typedef typename util::CallTraits<In>::TValue TIn;
+	
+	TOut result;
+	impl::WStringCaster<TOut, TIn> caster;
 	if (!(caster << iIn && caster >> result))
 	{
 		LASS_THROW_EX(BadStringCast, "stringCast has failed");
