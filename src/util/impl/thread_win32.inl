@@ -43,6 +43,7 @@
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4239) //  nonstandard extension used : 'argument' : conversion from 'T' to 'T&'
+#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int'
 #endif
 
 namespace lass

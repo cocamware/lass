@@ -21,7 +21,7 @@
 			<Tool 
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR /Oy-"
-				Optimization="2"
+				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
@@ -47,7 +47,7 @@
 				WarningLevel="3"
 				DebugInformationFormat="3">
 				<IntelOptions 
-					Optimization="3"
+					Optimization="5"
 					GlobalOptimizations="1"
 					InlineFunctionExpansion="2"
 					EnableIntrinsicFunctions="1"
@@ -55,16 +55,13 @@
 					OmitFramePointers="0"
 					OptimizeForProcessor="3"
 					UseProcExt="4"
-					RequireProcExt="4"
 					Parallelization="1"
 					StringPooling="1"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR /Oy-"/>
+					AllOptions="/c  /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR /Oy-"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -298,10 +295,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					OmitFramePointers="0"
 					OptimizeForProcessor="3"
 					StringPooling="1"
-					MinimalRebuild="0"
 					RuntimeLibrary="2"
-					StructMemberAlignment="0"
-					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -460,7 +454,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					<Tool 
 						Name="VCCLCompilerTool">
 						<IntelOptions 
-							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
@@ -499,7 +493,7 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1">
 						<IntelOptions 
-							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /O3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yc&quot;util_common.h&quot; /Fp&quot;win32_intel700/lass_util_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_util_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 

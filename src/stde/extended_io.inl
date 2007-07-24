@@ -24,6 +24,7 @@
  */
 
 #include <cctype>
+#include "extended_string.h"
 
 // --- implemenation details -----------------------------------------------------------------------
 
@@ -120,8 +121,7 @@ struct value_traits
 private:
 	static bool cast(const std::string& buffer, std::string& value)
 	{
-	#pragma LASS_FIXME("strip? [Bramz]")
-		value = buffer;
+		value = rstrip(buffer);
 		return true;
 	}
 	template <typename T>
