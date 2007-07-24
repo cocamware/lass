@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject 
+<VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="dll"
@@ -7,17 +7,17 @@
 	RootNamespace="dll"
 	Keyword="Win32Proj">
 	<Platforms>
-		<Platform 
+		<Platform
 			Name="Win32"/>
 	</Platforms>
 	<Configurations>
-		<Configuration 
+		<Configuration
 			Name="win32_vc71_d|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="0"
@@ -33,21 +33,10 @@
 				ProgramDataBaseFileName="$(IntDir)/$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					MinimalRebuild="1"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					RuntimeTypeInfo="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_WINDOWS&quot; /D &quot;_USRDLL&quot; /D &quot;_WINDLL&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /GR /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_win32_vc71_d.pdb&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="4"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/lass_$(ConfigurationName).dll"
 				SuppressStartupBanner="TRUE"
@@ -55,13 +44,10 @@
 				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/$(TargetName).lib"
-				TargetMachine="1">
-				<IntelOptions 
-					AllOptions="/NOLOGO /DLL /OUT:&quot;win32_vc71_d/lass_win32_vc71_d.dll&quot; /DEBUG /PDB:&quot;win32_vc71_d/lass_win32_vc71_d.pdb&quot; /SUBSYSTEM:WINDOWS /TLBID:1 /IMPLIB:&quot;win32_vc71_d/lass_win32_vc71_d.lib&quot; /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
-			</Tool>
-			<Tool 
+				TargetMachine="1"/>
+			<Tool
 				Name="VCMIDLTool"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\..\bin&quot; /Y
@@ -71,37 +57,35 @@ copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(ProjectDir)..\..\lib&quot
 xcopy &quot;$(ProjectDir)..\*.h&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 xcopy &quot;$(ProjectDir)..\*.inl&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
 				CommandLine="cd ..\util
 pre_build.py
 cd ..\dll
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebDeploymentTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="1"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_vc71|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="4"
@@ -121,25 +105,10 @@ cd ..\dll
 				ProgramDataBaseFileName="$(IntDir)/$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="5"
-					GlobalOptimizations="1"
-					InlineFunctionExpansion="2"
-					EnableIntrinsicFunctions="1"
-					FavorSizeOrSpeed="1"
-					OmitFramePointers="0"
-					OptimizeForProcessor="3"
-					RuntimeLibrary="2"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					RuntimeTypeInfo="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /Og /Ob2 /Oi /Ot /G7 /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_WINDOWS&quot; /D &quot;_USRDLL&quot; /D &quot;DLL_EXPORTS&quot; /D &quot;_WINDLL&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_win32_vc71.pdb&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="3"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/lass_$(ConfigurationName).dll"
 				LinkIncremental="1"
@@ -149,13 +118,10 @@ cd ..\dll
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				ImportLibrary="$(OutDir)/$(TargetName).lib"
-				TargetMachine="1">
-				<IntelOptions 
-					AllOptions="/NOLOGO /DLL /OUT:&quot;win32_vc71/lass_win32_vc71.dll&quot; /INCREMENTAL:NO /DEBUG /PDB:&quot;win32_vc71/dll.pdb&quot; /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /TLBID:1 /IMPLIB:&quot;win32_vc71/lass_win32_vc71.lib&quot; /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
-			</Tool>
-			<Tool 
+				TargetMachine="1"/>
+			<Tool
 				Name="VCMIDLTool"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\..\bin&quot; /Y
@@ -165,37 +131,35 @@ copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(ProjectDir)..\..\lib&quot
 xcopy &quot;$(ProjectDir)..\*.h&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 xcopy &quot;$(ProjectDir)..\*.inl&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
 				CommandLine="cd ..\util
 pre_build.py
 cd ..\dll
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebDeploymentTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-			<IntelOptions 
-				CompilerName="1"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_intel700|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="2"
@@ -215,28 +179,10 @@ cd ..\dll
 				ProgramDataBaseFileName="$(IntDir)/$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="3"
-					GlobalOptimizations="1"
-					InlineFunctionExpansion="2"
-					EnableIntrinsicFunctions="1"
-					FavorSizeOrSpeed="1"
-					OmitFramePointers="0"
-					OptimizeForProcessor="3"
-					UseProcExt="4"
-					RequireProcExt="4"
-					Parallelization="1"
-					RuntimeLibrary="2"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					RuntimeTypeInfo="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_WINDOWS&quot; /D &quot;_USRDLL&quot; /D &quot;DLL_EXPORTS&quot; /D &quot;_WINDLL&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /GR /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_win32_intel700.pdb&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="3"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/lass_$(ConfigurationName).dll"
 				LinkIncremental="1"
@@ -246,13 +192,10 @@ cd ..\dll
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				ImportLibrary="$(OutDir)/$(TargetName).lib"
-				TargetMachine="1">
-				<IntelOptions 
-					AllOptions="/NOLOGO /DLL /OUT:&quot;win32_intel700/lass_win32_intel700.dll&quot; /INCREMENTAL:NO /DEBUG /PDB:&quot;win32_intel700/dll.pdb&quot; /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /TLBID:1 /IMPLIB:&quot;win32_intel700/lass_win32_intel700.lib&quot; /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
-			</Tool>
-			<Tool 
+				TargetMachine="1"/>
+			<Tool
 				Name="VCMIDLTool"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\..\bin&quot; /Y
@@ -262,35 +205,35 @@ copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(ProjectDir)..\..\lib&quot
 xcopy &quot;$(ProjectDir)..\*.h&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 xcopy &quot;$(ProjectDir)..\*.inl&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
 				CommandLine="cd ..\util
 pre_build.py
 cd ..\dll
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebDeploymentTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
-		<Configuration 
+		<Configuration
 			Name="win32_intel700_d|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
-			<Tool 
+			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/GR"
 				Optimization="0"
@@ -306,21 +249,10 @@ cd ..\dll
 				ProgramDataBaseFileName="$(IntDir)/$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					MinimalRebuild="1"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					RuntimeTypeInfo="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;LASS_BUILD_DLL&quot; /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_WINDOWS&quot; /D &quot;_USRDLL&quot; /D &quot;_WINDLL&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /GR /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_win32_intel700_d.pdb&quot; /Gd /TP /GR"/>
-			</Tool>
-			<Tool 
+				DebugInformationFormat="4"/>
+			<Tool
 				Name="VCCustomBuildTool"/>
-			<Tool 
+			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/lass_$(ConfigurationName).dll"
 				SuppressStartupBanner="TRUE"
@@ -328,13 +260,10 @@ cd ..\dll
 				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/$(TargetName).lib"
-				TargetMachine="1">
-				<IntelOptions 
-					AllOptions="/NOLOGO /DLL /OUT:&quot;win32_intel700_d/lass_win32_intel700_d.dll&quot; /DEBUG /PDB:&quot;win32_intel700_d/lass_win32_intel700_d.pdb&quot; /SUBSYSTEM:WINDOWS /TLBID:1 /IMPLIB:&quot;win32_intel700_d/lass_win32_intel700_d.lib&quot; /MACHINE:IX86  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"/>
-			</Tool>
-			<Tool 
+				TargetMachine="1"/>
+			<Tool
 				Name="VCMIDLTool"/>
-			<Tool 
+			<Tool
 				Name="VCPostBuildEventTool"
 				Description="exporting files"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\..\bin&quot; /Y
@@ -344,376 +273,379 @@ copy &quot;$(TargetDir)$(TargetName).lib&quot; &quot;$(ProjectDir)..\..\lib&quot
 xcopy &quot;$(ProjectDir)..\*.h&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 xcopy &quot;$(ProjectDir)..\*.inl&quot; &quot;$(ProjectDir)..\..\lass&quot; /E /I /R /Y
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreBuildEventTool"
 				Description="generating source code"
 				CommandLine="cd ..\util
 pre_build.py
 cd ..\dll
 "/>
-			<Tool 
+			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool 
+			<Tool
 				Name="VCResourceCompilerTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCWebDeploymentTool"/>
-			<Tool 
+			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
+			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
-		<Filter 
+		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
-			<File 
-				RelativePath="..\..\src\io\arg_parser.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\arg_parser.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\.\avi.cpp">
+			<File
+				RelativePath="..\..\src\io\arg_parser.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\avi.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\io\.\avi.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\io\.\binary_i_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_memory_block.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_memory_block.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_i_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_stream_base.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\binary_stream_base.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\clock.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\clock.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\clock_impl.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\clock_impl.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\prim\.\color_rgba.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\color_rgba.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\prim\.\color_rgba.cpp">
+			</File>
+			<File
 				RelativePath="..\util\crash_dump.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\dispatcher_python.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\dispatcher_python.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath=".\dll_main.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\util\.\environment.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\environment.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\.\file_attribute.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\file_attribute.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\io\.\file_attribute.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\num\.\filtered_float.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\floating_point_consistency.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\floating_point_consistency.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\num\.\fn_sampled8.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\fn_sampled8.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\.\image.cpp">
+			<File
+				RelativePath="..\..\src\num\.\fn_sampled8.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\image.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\num\.\interval.cpp">
+			<File
+				RelativePath="..\..\src\io\.\image.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\interval.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\num\.\interval.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\io\.\io_common.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\.\io_fwd.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\io_fwd.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\io\.\io_fwd.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\io\.\keyboard.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\keyboard.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\lass_errno.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\lass_errno.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\.\logger.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\logger.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\io\.\logger.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\num\.\num_common.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\num_traits.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\num_traits.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\impl\prim_allocator.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\impl\prim_allocator.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\prim_common.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\process.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\process.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\progress_indicator.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\progress_indicator.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\proxy_i_stream.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\proxy_i_stream.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\io\proxy_man.cpp">
+			<File
+				RelativePath="..\..\src\io\proxy_i_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\proxy_man.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\io\proxy_man.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\io\.\proxy_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\proxy_o_stream.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\py_num.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pyiteratorrange.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pyiteratorrange.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pymap.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pymap.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\util\pyobject_plus.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pyobject_plus.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\util\pyobject_plus.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\prim\.\pyobject_util.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\pyobject_util.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pysequence.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pysequence.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pyshadow_object.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\pyshadow_object.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\random.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\random.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\num\refl_diffr.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\.\refl_diffr.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\num\refl_diffr.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\util\impl\singleton_impl.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\impl\singleton_impl.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\smart_ptr_policies.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\smart_ptr_policies.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\socket.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\spat\.\spat_common.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\stde\.\stde_common.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\thread.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\thread.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\thread_fun.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\thread_fun.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\num\.\tri_bool.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\num\tri_bool.cpp">
 			</File>
-			<File 
+			<File
+				RelativePath="..\..\src\num\.\tri_bool.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\util\.\util_common.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\visitor.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\util\.\visitor.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\xml_o_element.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\xml_o_element.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\xml_o_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\io\.\xml_o_file.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\xy.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\xy.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\xyz.cpp">
 			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\xyz.cpp">
 			</File>
-			<File 
-				RelativePath="..\..\src\prim\xyzw.cpp">
-			</File>
-			<File 
+			<File
 				RelativePath="..\..\src\prim\.\xyzw.cpp">
 			</File>
+			<File
+				RelativePath="..\..\src\prim\xyzw.cpp">
+			</File>
 		</Filter>
-		<Filter 
+		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 		</Filter>
-		<Filter 
+		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
@@ -722,4 +654,3 @@ cd ..\dll
 	<Globals>
 	</Globals>
 </VisualStudioProject>
-
