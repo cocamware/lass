@@ -31,6 +31,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 
 #include "util_common.h"
+#include "singleton.h"
 
 #if defined(_DEBUG) && !defined(LASS_PYTHON_HAS_DEBUG_BUILD)
 #	undef _DEBUG
@@ -125,7 +126,11 @@ namespace lass
 			/** @internal
 			 *  Fast reentrant lock for reference count operations
 			 */
-			extern LASS_DLL util::CriticalSection referenceMutex;
+			inline util::CriticalSection& referenceMutex()
+			{
+				using namespace util;
+				return *Singleton<CriticalSection, destructionPriorityInternalPythonMutex>::instance();
+			}
 
 			/** @internal
 			 *  On creation, PyObjectPlus are typeless (ob_type == 0), 
@@ -197,7 +202,7 @@ namespace lass
 			template <typename TStorage> void dispose(TStorage& /*pointee*/) {}
 			template <typename TStorage> void increment(TStorage& pointee)
 			{
-				LASS_LOCK(impl::referenceMutex)
+				LASS_LOCK(impl::referenceMutex())
 				{
 					Py_INCREF(pointee);
 				}
@@ -205,7 +210,7 @@ namespace lass
 			template <typename TStorage> bool decrement(TStorage& pointee)
 			{
 				bool r = false;
-				LASS_LOCK(impl::referenceMutex)
+				LASS_LOCK(impl::referenceMutex())
 				{
 					LASS_ASSERT(pointee);
 					r = pointee->ob_refcnt <=1;
@@ -244,7 +249,7 @@ namespace lass
 		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 		fromNakedToSharedPtrCast(PyObject* object)
 		{
-			LASS_LOCK(impl::referenceMutex) 
+			LASS_LOCK(impl::referenceMutex()) 
 			{
 				Py_XINCREF(object);
 			}
@@ -262,7 +267,7 @@ namespace lass
 		fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& object)
 		{
 			PyObject* const obj = object.get();
-			LASS_LOCK(impl::referenceMutex) 
+			LASS_LOCK(impl::referenceMutex()) 
 			{
 				Py_XINCREF(obj);
 			}

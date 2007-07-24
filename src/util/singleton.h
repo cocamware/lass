@@ -113,6 +113,7 @@ enum DestructionPriorities
 	// the following levels are internal and should not be used by user code
 	//
 	destructionPriorityInternalProxyMan = 0, /**< @internal */
+	destructionPriorityInternalPythonMutex = 50, /**< @internal */
 	destructionPriorityInternalTlsDestructors = 100, /**< @internal */
 	destructionPriorityInternalAllocators = 200, /**< @internal */
 	destructionPriorityInternalTlsLocalsMain = 400, /**< @internal */

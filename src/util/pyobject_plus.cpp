@@ -109,8 +109,6 @@ TPyObjPtr getPyObjectByName(const std::string& iName)
 namespace impl
 {
 
-util::CriticalSection referenceMutex;
-
 /** @internal
  */
 void dealloc(PyObject* obj)
