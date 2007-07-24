@@ -232,7 +232,7 @@ const bool ArgValue<T>::doSetValue(const std::string& iValue)
 			{
 				values_.push_back(util::stringCast<T>(iValue));
 			}
-			catch (const util::BadStringCast& error)
+			catch (const util::BadStringCast&)
 			{
 				if (!parserIsQuiet())
 				{

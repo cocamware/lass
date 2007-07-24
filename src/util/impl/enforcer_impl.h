@@ -133,7 +133,7 @@ struct GreaterEqualPredicate
  *
  *  @pre T and C must be comparable using operator<(const T&, const C&).
  */
-struct RangePredicate
+struct IndexPredicate
 {
 	template <typename T, typename C>
 	static bool LASS_CALL wrong(const T& t, const C& closure)

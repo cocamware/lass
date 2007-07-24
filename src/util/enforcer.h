@@ -240,8 +240,8 @@ private:
  */
 #define LASS_ENFORCE_INDEX(index, size)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
-		::lass::util::impl::RangePredicate,\
-		::lass::util::impl::RangeRaiser,\
+		::lass::util::impl::IndexPredicate,\
+		::lass::util::impl::IndexRaiser,\
 		(index), (size), LASS_HERE)
 
 
