@@ -114,13 +114,15 @@
 					OmitFramePointers="0"
 					OptimizeForProcessor="3"
 					UseProcExt="4"
+					RequireProcExt="4"
 					Parallelization="1"
 					StringPooling="1"
 					RuntimeLibrary="2"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;stde_common.h&quot; /Fp&quot;win32_intel700/stde.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR /Oy-"/>
+					AllOptions="/c  /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;stde_common.h&quot; /Fp&quot;win32_intel700/stde.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP /GR /Oy-"/>
 			</Tool>
 			<Tool 
 				Name="VCCustomBuildTool"/>
@@ -259,6 +261,8 @@
 					OptimizeForProcessor="3"
 					StringPooling="1"
 					RuntimeLibrary="2"
+					StructMemberAlignment="0"
+					EnableFunctionLevelLinking="0"
 					DefaultCharIsUnsigned="1"
 					TreatWChar_tAsBuiltInType="1"
 					ForceConformanceInForLoopScope="1"
@@ -344,7 +348,7 @@
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0">
 						<IntelOptions 
-							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
+							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
 					</Tool>
 				</FileConfiguration>
 				<FileConfiguration 
