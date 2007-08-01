@@ -83,7 +83,15 @@ namespace spat
 			template <typename T> T* const make(const T& x)
 			{
 				T* const p = static_cast<T*>(allocate(sizeof(T)));
-				new (p) T(x);
+				try
+				{
+					new (p) T(x);
+				}
+				catch (...)
+				{
+					deallocate(p, sizeof(T));
+					throw;
+				}
 				return p;
 			}
 			template <typename T> void free(T* p)
@@ -136,6 +144,7 @@ namespace spat
 			ResetableThreadLocalVariable(const T& proto = T()): 
 				proto_(proto) 
 			{
+				// *this must be fully initizalized before constructing Impl
 				TTls* tls = reinterpret_cast<TTls*>(tls_);
 				new (tls) TTls(Impl(this));
 			}
@@ -197,7 +206,7 @@ namespace spat
 				}
 			}
 
-			char tls_[sizeof TTls];
+			char tls_[sizeof(TTls)];
 			std::list<T> values_;
 			T proto_;
 			util::Semaphore mutex_;	

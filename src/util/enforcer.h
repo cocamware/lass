@@ -36,10 +36,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_ENFORCER_H
 
 #include "util_common.h"
-#include "impl/enforcer_impl.h"
-#include <string>
-#include <sstream>
-
 
 namespace lass
 {
@@ -295,5 +291,9 @@ private:
 		int(0), \
 		"You have reached unreachable code in '" LASS_HERE "'.")\
 		(false)
+
+#include "impl/enforcer_impl.h"
+#include <string>
+#include <sstream>
 
 #endif

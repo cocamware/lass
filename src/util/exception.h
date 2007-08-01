@@ -42,9 +42,9 @@
 
 #define LASS_UTIL_EXCEPTION_PRIVATE_IMPL(t_exception)\
 		virtual void doThrowSelf() const { throw *this; }\
-		virtual ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase> doClone() const \
+		virtual ::std::auto_ptr< ::lass::util::experimental::RemoteExceptionBase > doClone() const \
 		{ \
-			return ::std::auto_ptr<::lass::util::experimental::RemoteExceptionBase>(new t_exception(*this)); \
+			return ::std::auto_ptr< ::lass::util::experimental::RemoteExceptionBase >(new t_exception(*this)); \
 		}\
 	/**/
 
@@ -81,6 +81,7 @@ namespace experimental
 	{
 	public:
 		RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
+		~RemoteExceptionWrapper() throw() {}
 	private:
 		void doThrowSelf() const { throw *this; }
 		std::auto_ptr<RemoteExceptionBase> doClone() const 
@@ -175,9 +176,9 @@ private:
 #define LASS_THROW_EX(t_exception, s_message)\
 	do\
 	{\
-		::std::ostringstream buffer;\
-		buffer << s_message;\
-		throw t_exception(buffer.str(), LASS_PRETTY_FUNCTION);\
+		::std::ostringstream lassUtilExceptionImplBuffer;\
+		lassUtilExceptionImplBuffer << s_message;\
+		throw t_exception(lassUtilExceptionImplBuffer.str(), LASS_PRETTY_FUNCTION);\
 	}\
 	while (false)
 
