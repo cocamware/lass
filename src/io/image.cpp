@@ -180,6 +180,10 @@ void Image::open(const std::string& filename)
 
 		open(file, fileExtension(filename));
 	}
+	catch (const BadFormat& error)
+	{
+		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
+	}
 	catch (const util::Exception& error)
 	{
 		LASS_THROW("'" << filename << "': " << error.message());
@@ -196,7 +200,7 @@ void Image::open(BinaryIStream& stream, const std::string& formatTag)
 	TFileOpener opener = findFormat(formatTag).open;
 	if (!opener)
 	{
-		LASS_THROW("cannot open images in file format '" << formatTag << "'.");
+		LASS_THROW_EX(BadFormat, "cannot open images in file format '" << formatTag << "'.");
 	}
 
 	(temp.*opener)(stream);
@@ -207,11 +211,11 @@ void Image::open(BinaryIStream& stream, const std::string& formatTag)
 	}
 	else if (stream.eof())
 	{
-		LASS_THROW("tried to read past end of file.");
+		LASS_THROW_EX(BadFormat, "tried to read past end of file.");
 	}
 	else
 	{
-		LASS_THROW("unknown failure in file.");
+		LASS_THROW_EX(BadFormat, "unknown failure in file.");
 	}
 }
 
@@ -231,9 +235,13 @@ void Image::save(const std::string& filename)
 
 		save(file, fileExtension(filename));
 	}
+	catch (const BadFormat& error)
+	{
+		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
+	}
 	catch (const util::Exception& error)
 	{
-		LASS_THROW("'" << filename << "': " << error.message());
+		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
 	}
 }
 
@@ -246,18 +254,18 @@ void Image::save(BinaryOStream& stream, const std::string& formatTag)
 	TFileSaver saver = findFormat(formatTag).save;
 	if (!saver)
 	{
-		LASS_THROW("cannot save images in file format '" << formatTag << "'.");
+		LASS_THROW_EX(BadFormat, "cannot save images in file format '" << formatTag << "'.");
 	}
 
 	(this->*saver)(stream);
 
 	if (stream.eof())
 	{
-		LASS_THROW("tried to read past end of file.");
+		LASS_THROW_EX(BadFormat, "tried to write past end of file.");
 	}
 	if (!stream.good())
 	{
-		LASS_THROW("unknown failure in file.");
+		LASS_THROW_EX(BadFormat, "unknown failure in file.");
 	}
 }
 
@@ -678,7 +686,7 @@ BinaryIStream& Image::openLass(BinaryIStream& stream)
 	header.readFrom(stream);
 	if (!stream || header.lass != magicLass_ || header.version > 2)
 	{
-		LASS_THROW("not a LASS RAW version 1 - 2 file.");
+		LASS_THROW_EX(BadFormat, "not a LASS RAW version 1 - 2 file.");
 	}
 
 	EndiannessSetter(stream, num::littleEndian);
@@ -728,7 +736,7 @@ BinaryIStream& Image::openTarga(BinaryIStream& stream)
 		openTargaTrueColor(stream, header);
 		break;
 	default:
-		LASS_THROW("unsupported image type '" << static_cast<unsigned>(header.imageType) << "'");
+		LASS_THROW_EX(BadFormat, "unsupported image type '" << static_cast<unsigned>(header.imageType) << "'");
 		break;
 	};
 
@@ -753,7 +761,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 		numBytes = 4;
 		break;
 	default:
-		LASS_THROW("image pixel size '" << iHeader.imagePixelSize << "' not supported.");
+		LASS_THROW_EX(BadFormat, "image pixel size '" << iHeader.imagePixelSize << "' not supported.");
 	};
 
 	LASS_ASSERT(cols_ == iHeader.imageWidth);
@@ -836,7 +844,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 	header.readFrom(stream);
 	if (!stream)
 	{
-		LASS_THROW("syntax error in RADIANCE HDR header.");
+		LASS_THROW_EX(BadFormat, "syntax error in RADIANCE HDR header.");
 	}
 
 	if (header.isRgb)
@@ -961,6 +969,50 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 			}
 		}
 	}	
+	return stream;
+}
+
+
+
+BinaryIStream& Image::openPfm(BinaryIStream& stream)
+{
+	HeaderPfm header;
+	header.readFrom(stream);
+	if (!stream)
+	{
+		LASS_THROW_EX(BadFormat, "not a PFM file.");
+	}
+
+	defaultChromaticities();
+
+	resize(header.height, header.width);
+	EndiannessSetter(stream, header.endianness);
+
+	if (header.isGrey)
+	{
+		num::Tfloat32 y;
+		for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+		{
+			stream >> y;
+			i->r = y;
+			i->g = y;
+			i->b = y;
+			i->a = 1;
+		}
+	}
+	else
+	{
+		num::Tfloat32 r, g, b;
+		for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+		{
+			stream >> r >> g >> b;
+			i->r = r;
+			i->g = g;
+			i->b = b;
+			i->a = 1;
+		}
+	}
+
 	return stream;
 }
 
@@ -1096,7 +1148,7 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 {
 	if (cols_ > 0x7fff)
 	{
-		LASS_THROW("cannot save this as RADIANCE HDR, because image is too wide");
+		LASS_THROW_EX(BadFormat, "cannot save this as RADIANCE HDR, because image is too wide");
 	}
 	HeaderRadianceHdr header;
 	header.height = rows_;
@@ -1200,15 +1252,71 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 }
 
 
+
+BinaryOStream& Image::savePfm(BinaryOStream& stream) const
+{
+	HeaderPfm header;
+	header.height = rows_;
+	header.width = cols_;
+	header.writeTo(stream);
+
+	EndiannessSetter(stream, header.endianness);
+
+	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
+	{
+		const num::Tfloat32 r = i->r;
+		const num::Tfloat32 g = i->g;
+		const num::Tfloat32 b = i->b;
+		stream << r << g << b;
+	}
+
+	return stream;
+}
+
+
+
 Image::FileFormat Image::findFormat(const std::string& formatTag)
 {
 	const std::string key = stde::tolower(formatTag);
 	TFileFormats::const_iterator i = fileFormats_.find(key);
 	if (i == fileFormats_.end())
 	{
-		LASS_THROW("unknown fileformat '" << key << "'.");
+		LASS_THROW_EX(BadFormat, "unknown fileformat '" << key << "'.");
 	}
 	return i->second;
+}
+
+
+
+BinaryIStream& Image::readLine(BinaryIStream& stream, std::string& line)
+{
+	std::string result;
+	while (stream.good())
+	{
+		char character;
+		stream >> character;
+		if (stream.good())
+		{
+			if (character == '\n')
+			{
+				line.swap(result);
+			}
+			else
+			{
+				result += character;
+			}
+		}
+	}
+	return stream;
+}
+
+
+
+BinaryOStream& Image::writeLine(BinaryOStream& stream, const std::string& iString)
+{
+	stream.write(iString.data(), iString.size());
+	stream << '\n';
+	return stream;
 }
 
 
@@ -1222,6 +1330,7 @@ Image::TFileFormats Image::fillFileFormats()
 	formats["hdr"] = FileFormat(&Image::openRadianceHdr, &Image::saveRadianceHdr);
 	formats["pic"] = formats["hdr"];
 	formats["rgbe"] = formats["hdr"];
+	formats["pfm"] = FileFormat(&Image::openPfm, &Image::savePfm);
 	return formats;
 }
 
@@ -1290,17 +1399,18 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 	stream.read(&magic[0], magicSize);
 	if (!stream.good() || !stde::equal_r(magicRadiance_, magic))
 	{
-		LASS_THROW("file is not of RADIANCE file format");
+		LASS_THROW_EX(BadFormat, "file is not of RADIANCE file format");
 	}
 
 	// first, read the real header
 	//
 	while (true)
 	{
-		std::string line = readString(stream);
+		std::string line;
+		readLine(stream, line);
 		if (!stream.good())
 		{
-			LASS_THROW("syntax error in header of RADIANCE HDR file");
+			LASS_THROW_EX(BadFormat, "syntax error in header of RADIANCE HDR file");
 		}
 		if (line.empty())
 		{
@@ -1313,7 +1423,7 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 		std::vector<std::string> splitted = stde::split(line, std::string("="), 1);
 		if (splitted.size() != 2)
 		{
-			LASS_THROW("syntax error in header of RADIANCE HDR file");
+			LASS_THROW_EX(BadFormat, "syntax error in header of RADIANCE HDR file");
 		}
 		std::string command = stde::toupper(splitted[0]);
 		std::string value = stde::strip(splitted[1]);
@@ -1329,7 +1439,7 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 			}
 			else
 			{
-				LASS_THROW("unknown value for FORMAT field of header of RADIANCE HDR file");
+				LASS_THROW_EX(BadFormat, "unknown value for FORMAT field of header of RADIANCE HDR file");
 			}
 		}
 		else if (command == "EXPOSURE")
@@ -1341,7 +1451,7 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 			std::vector<std::string> values = stde::split(value);
 			if (values.size() != sizeColorCorr)
 			{
-				LASS_THROW("syntax error in COLORCORR field of header of RADIANCE HDR file");
+				LASS_THROW_EX(BadFormat, "syntax error in COLORCORR field of header of RADIANCE HDR file");
 			}
 			stde::transform_r(values, colorCorr, util::stringCast<float, std::string>);
 		}
@@ -1350,28 +1460,29 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 			std::vector<std::string> values = stde::split(value);
 			if (values.size() != sizePrimaries)
 			{
-				LASS_THROW("syntax error in PRIMARIES field of header of RADIANCE HDR file");
+				LASS_THROW_EX(BadFormat, "syntax error in PRIMARIES field of header of RADIANCE HDR file");
 			}
 			stde::transform_r(values, primaries, util::stringCast<float, std::string>);
 		}
 	}
 
 	// second, interpret the resolution line
-	std::string line = readString(stream);
+	std::string line;
+	readLine(stream, line);
 	if (!stream.good())
 	{
-		LASS_THROW("syntax error in resolution line of RADIANCE HDR file");
+		LASS_THROW_EX(BadFormat, "syntax error in resolution line of RADIANCE HDR file");
 	}
 	std::vector<std::string> splitted = stde::split(line);
 	if (splitted.size() != 4)
 	{
-		LASS_THROW("resolution line of RADIANCE HDR file not of 4 elements");
+		LASS_THROW_EX(BadFormat, "resolution line of RADIANCE HDR file not of 4 elements");
 	}
 	std::string y = stde::toupper(splitted[0]);
 	std::string x = stde::toupper(splitted[2]);
 	if (!(y == "+Y" || y == "-Y") || !(x == "+X" || x == "-X"))
 	{
-		LASS_THROW("syntax error in resolution line of RADIANCE HDR file");
+		LASS_THROW_EX(BadFormat, "syntax error in resolution line of RADIANCE HDR file");
 	}
 	yIncreasing = y == "+Y";
 	xIncreasing = x == "+X";
@@ -1384,52 +1495,99 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 void Image::HeaderRadianceHdr::writeTo(BinaryOStream& stream)
 {
 	stream.write(magicRadiance_.data(), magicRadiance_.length());
-	writeString(stream, "SOFTWARE=LASS, http://lass.sourceforge.net");
-	writeString(stream, std::string("FORMAT=32-bit_rle_") + (isRgb ? "rgbe" : "xyze"));
-	writeString(stream, "EXPOSURE=" + util::stringCast<std::string>(exposure));
-	writeString(stream, std::string("COLORCORR=") + 
+	writeLine(stream, "SOFTWARE=LASS, http://lass.sourceforge.net");
+	writeLine(stream, std::string("FORMAT=32-bit_rle_") + (isRgb ? "rgbe" : "xyze"));
+	writeLine(stream, "EXPOSURE=" + util::stringCast<std::string>(exposure));
+	writeLine(stream, std::string("COLORCORR=") + 
 		stde::join(std::string(" "), colorCorr, colorCorr + sizeColorCorr));
-	writeString(stream, std::string("PRIMARIES=") + 
+	writeLine(stream, std::string("PRIMARIES=") + 
 		stde::join(std::string(" "), primaries, primaries + sizePrimaries));
-	writeString(stream, "");
+	writeLine(stream, "");
 	std::ostringstream resolution;
 	resolution << (yIncreasing ? "+Y" : "-Y") << " " << height;
 	resolution << (xIncreasing ? "+X" : "-X") << " " << width;
-	writeString(stream, resolution.str());
+	writeLine(stream, resolution.str());
 }
 
 
 
-std::string Image::HeaderRadianceHdr::readString(BinaryIStream& stream)
+// --- HeaderPfm -----------------------------------------------------------------------------------
+
+Image::HeaderPfm::HeaderPfm():
+	width(0),
+	height(0),
+	aspect(1),
+	endianness(num::littleEndian),
+	isGrey(false)	
 {
-	std::string result;
-	while (stream.good())
+}
+
+
+
+void Image::HeaderPfm::readFrom(BinaryIStream& stream)
+{
+	const std::string magicPF = "PF";
+	const std::string magicPf = "Pf";
+	LASS_ASSERT(magicPF.length() == magicPf.length());
+	const size_t magicSize = magicPF.length();
+	std::vector<char> magic(magicSize);
+	stream.read(&magic[0], magicSize);
+	if (!stream.good() || !(stde::equal_r(magicPF, magic) || stde::equal_r(magicPf, magic)))
 	{
-		char character;
-		stream >> character;
-		if (stream.good())
+		LASS_THROW_EX(BadFormat, "file is not a PFM file");
+	}
+
+	isGrey = stde::equal_r(magicPf, magic);
+
+	// we need to read a number of attributes that may be spread across one or more lines
+	//
+	const size_t numAttributes = 3;
+	std::string attributes[numAttributes];
+	size_t k = 0;
+	std::string line;
+	std::string attr;
+	while (k < numAttributes)
+	{
+		Image::readLine(stream, line);
+		if (!stream.good())
 		{
-			if (character == '\n')
+			LASS_THROW_EX(BadFormat, "syntax error in header of PFM file");
+		}
+		const size_t startComments = line.find("#");
+		std::istringstream buffer(line.substr(0, startComments));
+		while (k < numAttributes && buffer.good())
+		{
+			buffer >> attr;
+			if (buffer.good())
 			{
-				return result;
-			}
-			else
-			{
-				result += character;
+				attributes[k++] = attr;
 			}
 		}
 	}
-	return "";
+
+	try
+	{
+		width = util::stringCast<unsigned>(attributes[0]);
+		height = util::stringCast<unsigned>(attributes[1]);
+		aspect = util::stringCast<float>(attributes[2]);
+	}
+	catch (const util::BadStringCast&)
+	{
+		LASS_THROW_EX(BadFormat, "syntax error in header of PFM file");
+	}
+
+	endianness = aspect < 0 ? num::littleEndian : num::bigEndian;
+	aspect = num::abs(aspect);
 }
 
 
 
-void Image::HeaderRadianceHdr::writeString(BinaryOStream& stream, const std::string& iString)
+void Image::HeaderPfm::writeTo(BinaryOStream& stream)
 {
-	stream.write(iString.data(), iString.size());
-	stream << '\n';
+	std::ostringstream buffer;
+	buffer << "PF\n" << width << " " << height << "\n" << (endianness == num::littleEndian ? -aspect : aspect);
+	writeLine(stream, buffer.str());
 }
-
 
 
 

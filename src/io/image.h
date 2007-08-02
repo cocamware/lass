@@ -36,6 +36,7 @@
 #include "io_common.h"
 
 #include "../num/num_common.h"
+#include "../num/endianness.h"
 #include "../prim/color_rgba.h"
 #include "../prim/point_2d.h"
 
@@ -76,38 +77,46 @@ public:
 		TChromaticity& operator[](size_t index) { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
 	};
 
+	class BadFormat: public util::Exception
+	{
+	public:
+		BadFormat(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+	private:
+		LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadFormat)
+	};
+
 	// STRUCTORS
 
 	Image();
-	Image(unsigned iRows, unsigned iCols);
-	Image(const std::string& iFilename);
-	Image(const Image& iOther);
+	Image(unsigned rows, unsigned cols);
+	Image(const std::string& filename);
+	Image(const Image& other);
 	~Image();
 
 
 	// METHODS
 
 	void reset();
-	void reset(unsigned iRows, unsigned iCols);
-	void reset(const std::string& iFilename);
-	void reset(const Image& iOther);
+	void reset(unsigned rows, unsigned cols);
+	void reset(const std::string& filename);
+	void reset(const Image& other);
 
-	void open(const std::string& iFilename);
-	void open(BinaryIStream& iStream, const std::string& iFormatTag);
-	void save(const std::string& iFilename);
-	void save(BinaryOStream& iStream, const std::string& iFormatTag);
+	void open(const std::string& filename);
+	void open(BinaryIStream& stream, const std::string& formatTag);
+	void save(const std::string& filename);
+	void save(BinaryOStream& stream, const std::string& formatTag);
 
-	Image& operator=(const Image& iOther);
-	void swap(Image& iOther);
+	Image& operator=(const Image& other);
+	void swap(Image& other);
 
-	const TPixel& operator[](unsigned iFlatIndex) const { return raster_[iFlatIndex]; }
-	TPixel& operator[](unsigned iFlatIndex) { return raster_[iFlatIndex]; }
+	const TPixel& operator[](unsigned flatIndex) const { return raster_[flatIndex]; }
+	TPixel& operator[](unsigned flatIndex) { return raster_[flatIndex]; }
 
-	const TPixel& operator()(unsigned iRow, unsigned iCol) const;
-	TPixel& operator()(unsigned iRow, unsigned iCol);
+	const TPixel& operator()(unsigned row, unsigned col) const;
+	TPixel& operator()(unsigned row, unsigned col);
 
-	const TPixel& at(signed iRow, signed iCol) const;
-	TPixel& at(signed iRow, signed iCol);
+	const TPixel& at(signed row, signed col) const;
+	TPixel& at(signed row, signed col);
 
 	const TPixel* const data() const;
 	TPixel* const data();
@@ -121,24 +130,24 @@ public:
 
 	// OPERATIONS
 
-	void over(const Image& iOther);
-	void in(const Image& iOther);
-	void out(const Image& iOther);
-	void atop(const Image& iOther);
-	void through(const Image& iOther);
-	void rover(const Image& iOther);
-	void rin(const Image& iOther);
-	void rout(const Image& iOther);
-	void ratop(const Image& iOther);
-	void rthrough(const Image& iOther);
-	void plus(const Image& iOther);
+	void over(const Image& other);
+	void in(const Image& other);
+	void out(const Image& other);
+	void atop(const Image& other);
+	void through(const Image& other);
+	void rover(const Image& other);
+	void rin(const Image& other);
+	void rout(const Image& other);
+	void ratop(const Image& other);
+	void rthrough(const Image& other);
+	void plus(const Image& other);
 
 	// FILTERS
 
-	void filterMedian(unsigned iBoxSize);
-	void filterGamma(TParam iGammaExponent);
-	void filterExposure(TParam iExposureTime);
-	void filterInverseExposure(TParam iExposureTime);
+	void filterMedian(unsigned boxSize);
+	void filterGamma(TParam gammaExponent);
+	void filterExposure(TParam exposureTime);
+	void filterInverseExposure(TParam exposureTime);
 	void filter(TFilterFunction function);
 
 private:
@@ -150,8 +159,8 @@ private:
 		num::Tuint32 rows;
 		num::Tuint32 cols;
 
-		void readFrom(BinaryIStream& ioIStream);
-		void writeTo(BinaryOStream& ioOStream);
+		void readFrom(BinaryIStream& stream);
+		void writeTo(BinaryOStream& stream);
 	};
 
 	struct HeaderTarga
@@ -174,8 +183,8 @@ private:
 		const bool flipVerticalFlag() const { return ((imageDescriptor >> 5) & 0x01) == 0x01; }
 		const bool interleavingFlag() const { return ((imageDescriptor >> 6) & 0x01) == 0x01; }
 
-		void readFrom(BinaryIStream& ioIStream);
-		void writeTo(BinaryOStream& ioOStream);
+		void readFrom(BinaryIStream& stream);
+		void writeTo(BinaryOStream& stream);
 	};
 
 	struct HeaderRadianceHdr
@@ -196,12 +205,21 @@ private:
 		bool isRgb;
 
 		HeaderRadianceHdr();
-		void readFrom(BinaryIStream& ioIStream);
-		void writeTo(BinaryOStream& ioOStream);
+		void readFrom(BinaryIStream& stream);
+		void writeTo(BinaryOStream& stream);
+	};
 
-	private:
-		static std::string readString(BinaryIStream& iStream);
-		static void writeString(BinaryOStream& stream, const std::string& iString);
+	struct HeaderPfm
+	{
+		unsigned width;
+		unsigned height;
+		float aspect;
+		num::Endianness endianness;
+		bool isGrey;
+
+		HeaderPfm();
+		void readFrom(BinaryIStream& stream);
+		void writeTo(BinaryOStream& stream);
 	};
 
 	typedef BinaryIStream& (Image::*TFileOpener)(BinaryIStream&);
@@ -217,25 +235,30 @@ private:
 
 	typedef std::map<std::string, FileFormat> TFileFormats;
 
-	unsigned resize(unsigned iRows, unsigned iCols);
-	unsigned flatIndex(unsigned iRows, unsigned iCols) const 
+	unsigned resize(unsigned rows, unsigned cols);
+	unsigned flatIndex(unsigned rows, unsigned cols) const 
 	{ 
-		return iRows * cols_ + iCols;
+		return rows * cols_ + cols;
 	}
 
 	void defaultChromaticities();
 
-	BinaryIStream& openLass(BinaryIStream& iStream);
-	BinaryIStream& openTarga(BinaryIStream& iStream);
-	BinaryIStream& openTargaTrueColor(BinaryIStream& iStream, const HeaderTarga& iHeader);
-	BinaryIStream& openRadianceHdr(BinaryIStream& iStream);
+	BinaryIStream& openLass(BinaryIStream& stream);
+	BinaryIStream& openTarga(BinaryIStream& stream);
+	BinaryIStream& openTargaTrueColor(BinaryIStream& stream, const HeaderTarga& iHeader);
+	BinaryIStream& openRadianceHdr(BinaryIStream& stream);
+	BinaryIStream& openPfm(BinaryIStream& stream);
 
 	BinaryOStream& saveLass(BinaryOStream& stream) const;
 	BinaryOStream& saveTarga(BinaryOStream& stream) const;
 	BinaryOStream& saveRadianceHdr(BinaryOStream& stream) const;
+	BinaryOStream& savePfm(BinaryOStream& stream) const;
 	
-	FileFormat findFormat(const std::string& iFormatTag);
-	std::string readRadianceHdrString(BinaryIStream& iStream) const;
+	FileFormat findFormat(const std::string& formatTag);
+	std::string readRadianceHdrString(BinaryIStream& stream) const;
+		
+	static BinaryIStream& readLine(BinaryIStream& stream, std::string& line);
+	static BinaryOStream& writeLine(BinaryOStream& stream, const std::string& line);
 
 	static TFileFormats fillFileFormats();
 
