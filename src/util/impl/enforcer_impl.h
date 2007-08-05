@@ -28,7 +28,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_ENFORCER_IMPL_H
 
 #include "../util_common.h"
-#include "lass_errno.h"
 
 namespace lass
 {
