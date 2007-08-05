@@ -265,6 +265,10 @@ inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPoin
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByBorrowedPointer ));\
 }\
+inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass& iByBorrowedPointer )\
+{\
+	return pyBuildSimpleObject( &iByBorrowedPointer );\
+}\
 inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
