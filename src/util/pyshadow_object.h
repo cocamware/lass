@@ -50,13 +50,13 @@ protected:
 	PyShadowBaseCommon& operator=(const PyShadowBaseCommon& iOther);	
 };
 
-template <class CppBase>
+template <class CppBase, bool weak = false>
 class PyShadowBase: public PyShadowBaseCommon
 {
 public:
 	virtual ~PyShadowBase()
 	{
-		if (ownership_ == oOwner) 
+		if (!weak && ownership_ == oOwner) 
 		{
 			delete cppObject_; 
 			cppObject_ = 0;
@@ -81,6 +81,17 @@ private:
 	Ownership ownership_;
 };
 
+
+/** a weak shadow class NEVER EVER owns the object, USE AT YOUR OWN RISK!  
+*	Consult your local Lass::Python guru to gain insight when the use of this
+*	class is appropriate.  A rule of thumb is that any properly designed 
+*	C++ interface should never be exposed using weak shadow objects.
+ */
+template <class CppBase>
+struct PyShadowBaseWeak
+{
+	typedef PyShadowBase<CppBase,true> Type;
+};
 
 template <typename T>
 struct IsShadowClass: public meta::IsDerivedType<T, PyShadowBaseCommon> 
@@ -169,6 +180,16 @@ public:
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS_EX(\
 		dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBase< t_CppClass >,\
+		::lass::python::PyObjectPlus)
+
+/** a weak shadow class NEVER EVER owns the object, USE AT YOUR OWN RISK!  
+*	Consult your local Lass::Python guru to gain insight when the use of this
+*	class is appropriate.  A rule of thumb is that any properly designed 
+*	C++ interface should never be exposed using weak shadow objects.
+ */
+#define PY_WEAK_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
+	PY_SHADOW_CLASS_EX(\
+	dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBaseWeak< t_CppClass >::Type ,\
 		::lass::python::PyObjectPlus)
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
@@ -267,7 +288,7 @@ inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPoin
 }\
 inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass& iByBorrowedPointer )\
 {\
-	return pyBuildSimpleObject( &iByBorrowedPointer );\
+	return pyBuildSimpleObject(&iByBorrowedPointer);\
 }\
 inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
 {\
