@@ -3,7 +3,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PRIM_IMPL_ALLOCATOR_H
 
 #include "../prim_common.h"
-#include "../../meta/is_integral_type.h"
+#include "../../meta/is_integral.h"
+#include "../../meta/is_trivial.h"
 
 namespace lass
 {
@@ -67,30 +68,16 @@ private:
 	}
 };
 
-#pragma LASS_TODO("Move this to somewhere else =) [Bramz]")
-typedef meta::type_list::Make
-<
-	signed char, signed short, signed int, signed long,
-	unsigned char, unsigned short, unsigned int, unsigned long,
-	bool, char, wchar_t, float, double, long double
->
-::Type TTrivialTypes;
-	
-template <typename T>
-struct IsTrivialType: meta::Bool<meta::type_list::Find<TTrivialTypes, T>::value != -1>
-{
-};
-
 template <typename T>
 T* allocateArray(size_t n)
 {
-	return AllocatorHelper<T, IsTrivialType<T>::value>::allocate(n);
+	return AllocatorHelper<T, meta::IsTrivial<T>::value>::allocate(n);
 }
 
 template <typename T>
 void deallocateArray(T* p, size_t n)
 {
-	AllocatorHelper<T, IsTrivialType<T>::value>::deallocate(p, n);
+	AllocatorHelper<T, meta::IsTrivial<T>::value>::deallocate(p, n);
 }
 
 
