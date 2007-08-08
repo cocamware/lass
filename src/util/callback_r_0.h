@@ -88,7 +88,7 @@ public:
 	 */
 	template <typename Function>
 	CallbackR0(Function iFunction):
-		dispatcher_(make(iFunction, meta::Type2Type<typename meta::IsDerivedType<Function, impl::DispatcherR0<R> >::Type>()))
+		dispatcher_(make(iFunction, meta::Wrap<typename meta::IsDerived<Function, impl::DispatcherR0<R> >::Type>()))
 	{
 	}
 
@@ -173,13 +173,13 @@ public:
 private:
 
 	template <typename Function>
-	static TDispatcherPtr make(Function iFunction, meta::Type2Type<meta::False>)
+	static TDispatcherPtr make(Function iFunction, meta::Wrap<meta::False>)
 	{
 		return TDispatcherPtr(new impl::DispatcherR0Function<R, Function>(iFunction));
 	}
 
 	template <typename Dispatcher>
-	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Type2Type<meta::True>)
+	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Wrap<meta::True>)
 	{
 		return TDispatcherPtr(new Dispatcher(iDispatcher));
 	}

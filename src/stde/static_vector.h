@@ -34,7 +34,7 @@
 #include "stde_common.h"
 #include "extended_io.h"
 #include "../meta/bool.h"
-#include "../meta/type_2_type.h"
+#include "../meta/wrap.h"
 
 namespace lass
 {
@@ -109,12 +109,12 @@ private:
 	pointer get_element(size_type i) { return reinterpret_cast<pointer>(data_) + i; }
 	const_pointer get_element(size_type i) const { return reinterpret_cast<const_pointer>(data_) + i; }
 	void insert(iterator position, size_type n, value_type value, 
-		meta::Type2Type<meta::True> parameter_is_integral);
+		meta::Wrap<meta::True> parameter_is_integral);
 	template <typename InputIterator> void insert(iterator position, InputIterator first, 
-		InputIterator last, meta::Type2Type<meta::False> parameter_is_iterator);
-	void assign(size_type n, value_type value, meta::Type2Type<meta::True> parameter_is_integral);
+		InputIterator last, meta::Wrap<meta::False> parameter_is_iterator);
+	void assign(size_type n, value_type value, meta::Wrap<meta::True> parameter_is_integral);
 	template <typename InputIterator> void assign(InputIterator first, InputIterator last, 
-		meta::Type2Type<meta::False> parameter_is_iterator);
+		meta::Wrap<meta::False> parameter_is_iterator);
 	void move_to_back(iterator first, iterator last, size_type step);
 	void move_to_front(iterator first, iterator last, size_type step);
 	void enforce_valid_size(size_type new_size) const;

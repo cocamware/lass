@@ -21,108 +21,51 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
- */
-
-
-
-/** @class lass::meta::Select
- *  @brief selects type based on boolean value
- *  @author Bram de Greve [BdG]
- *
- *  @code
- *  typedef meta::Select<true, int, float>::Type A; // A = int
- *  typedef meta::Select<false, char*, std::string>::Type B; // B = std::string
- *  @endcode
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_META_SELECT_H
 #define LASS_GUARDIAN_OF_INCLUSION_META_SELECT_H
 
 #include "meta_common.h"
+#include "bool.h"
 
 namespace lass
 {
 namespace meta
 {
 
-#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+/**	Select a type based on a meta condition that evaluates to meta::True or meta::False.
+ *
+ *	It differs from meta::If by the fact that TrueType and FalseType do not have to be
+ *	meta expressions, as a typedef is used rather than inheritance to select the type.
+ *	meta::Select is useful if TrueType and FalseType are regular types like for example
+ *	int or std::string.
+ *
+ *	Using meta::Wrap, you can express the functionality of meta::Select in terms
+ *	of meta::If as following:
+ *
+ *	@code
+ *	Select<Cond, A, B>::Type <-> If<Cond, Wrap<A>, Wrap<B> >::Type;
+ *  @endcode
+ */
+template <typename Condition, typename TrueType, typename FalseType> 
+struct Select: public Select<typename Condition::Type, TrueType, FalseType>
+{
+};
 
-template
-<
-	bool flag,
-	typename TrueType,
-	typename FalseType
->
-struct Select
+template <typename TrueType, typename FalseType>
+struct Select<True, TrueType, FalseType>
 {
 	typedef TrueType Type;
 };
 
-template
-<
-	typename TrueType,
-	typename FalseType
->
-struct Select<false, TrueType, FalseType>
+template <typename TrueType, typename FalseType>
+struct Select<False, TrueType, FalseType>
 {
 	typedef FalseType Type;
 };
 
-#else
-
-template
-<
-	bool flag,
-	typename TrueType,
-	typename FalseType
->
-struct Select
-{
-private:
-
-	template <bool flag>
-	struct Impl
-	{
-		typedef TrueType Type;
-	};
-
-	template <>
-	struct Impl<false>
-	{
-		typedef FalseType Type;
-	};
-
-public:
-
-	typedef Impl<flag>::Type Type;
-};
-
-#endif
-
 }
-
 }
 
 #endif

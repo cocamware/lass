@@ -51,7 +51,7 @@ void testSpatKdTree()
 
 	typedef typename meta::Select
 	<
-		TPoint::dimension == 2,
+		meta::Bool< TPoint::dimension == 2 >,
 		prim::Aabb2D<TValue>,
 		prim::Aabb3D<TValue>
 	>::Type TAabb;

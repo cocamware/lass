@@ -34,7 +34,7 @@
 #include "stde_common.h"
 #include "extended_io.h"
 #include "../meta/bool.h"
-#include "../meta/type_2_type.h"
+#include "../meta/wrap.h"
 
 namespace lass
 {
@@ -219,9 +219,9 @@ private:
 		node_base_t* before_last) const;
 
 	void insert_after(iterator position, size_type n, const value_type& value,
-		meta::Type2Type<meta::True> parameter_is_integral);
+		meta::Wrap<meta::True> parameter_is_integral);
 	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
-		InputIterator last, meta::Type2Type<meta::False> parameter_is_iterator);
+		InputIterator last, meta::Wrap<meta::False> parameter_is_iterator);
 
 	node_base_t head_;
 };

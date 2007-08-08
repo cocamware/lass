@@ -1,5 +1,4 @@
 /** @file
- *  @internal
  *  @author Bram de Greve (bramz@users.sourceforge.net)
  *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
@@ -24,42 +23,48 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_META_IS_CONVERTIBLE_H
+#define LASS_GUARDIAN_OF_INCLUSION_META_IS_CONVERTIBLE_H
 
+#include "meta_common.h"
+#include "bool.h"
 
-#include "test_common.h"
-#include "test_meta.h"
-#include "../meta/meta_assert.h"
-#include "test_meta_type_list.inl"
-#include "test_meta_type_traits.inl"
-#include "test_meta_tuple.inl"
-#include "test_meta_various.inl"
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244) // conversion from 'foo' to 'bar': possible loss of data
+#endif
 
 namespace lass
 {
-namespace test
+namespace meta
 {
-
-TUnitTests testMeta()
+namespace impl
 {
-	TUnitTests result;
-
-	// test meta assert (if you're curious, try change the expression 1 + 1 == 2 into something
-	// false like 1 + 1 == 3, and see what happens =) BdG]
-	//
-	LASS_META_ASSERT(1 + 1 == 2, it_s_the_end_of_the_world);
-
-	result.push_back(LASS_UNIT_TEST(testMetaTypeList));
-	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<int>));
-	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<float>));
-	result.push_back(LASS_UNIT_TEST(testMetaTypeTraits<std::string>));
-	result.push_back(LASS_UNIT_TEST(testMetaTuple));
-	result.push_back(LASS_UNIT_TEST(testMetaIsConvertible));
-
-	return result;
+	template <typename Src, typename Dest> struct ConvTest
+	{
+		static Src dut(); // device under test =)
+		static meta::True test(Dest);
+		static meta::False test(...);
+		typedef meta::Bool<sizeof(test(dut())) == sizeof(True)> Type;
+	};
 }
 
-
+template 
+<
+	typename Src,
+	typename Dest
+>
+struct IsConvertible: public impl::ConvTest<Src, Dest>::Type
+{
+};
 
 }
-
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
+
+#endif
+
+// EOF

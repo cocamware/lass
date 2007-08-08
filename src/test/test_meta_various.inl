@@ -31,9 +31,9 @@
 
 #include "test_common.h"
 
-#include "../meta/is_same_type.h"
-#include "../meta/is_convertible_type.h"
-#include "../meta/is_derived_type.h"
+#include "../meta/is_same.h"
+#include "../meta/is_convertible.h"
+#include "../meta/is_derived.h"
 
 namespace lass
 {
@@ -43,52 +43,52 @@ namespace test
 class Spam {};
 class Ham: public Spam {};
 
-void testMetaIsConvertibleType()
+void testMetaIsConvertible()
 {
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<float, int>::value), true);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<int, float>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float, int>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<int, float>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<std::string, const char*>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<const char*, std::string>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<std::string, const char*>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<const char*, std::string>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, int*>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, void*>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float*, int*>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float*, void*>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<const float*, float*>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<float*, const float*>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<const float*, float*>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float*, const float*>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam, int>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<int, Spam>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam, Ham>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<Spam, int>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<int, Spam>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<Spam, Ham>::value), false);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<Spam*, Ham*>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertibleType<Ham*, Spam*>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<Spam*, Ham*>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<Ham*, Spam*>::value), true);
 }
 
 
 
 void testMetaIsDerivedType()
 {
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<float, int>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<float, int>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<float, int>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<float, int>::value), false);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<float, float>::value), true);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<float, float>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<float, float>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<float, float>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, void>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, void>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Spam, void>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Spam, void>::value), false);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<void, void>::value), true);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<void, void>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<void, void>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<void, void>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, Ham>::value), false);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Spam, Ham>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Spam, Ham>::value), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Spam, Ham>::value), false);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham, Spam>::value), true);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham, Spam>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham, Spam>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham, Spam>::value), true);
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham*, Spam*>::value), true);
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerivedType<Ham*, Spam*>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham*, Spam*>::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham*, Spam*>::value), true);
 }
 
 }

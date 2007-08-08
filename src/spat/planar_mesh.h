@@ -234,9 +234,9 @@ namespace spat
 			publicMarkIndex = TBitField::size - 1 
 		};
 	private:
-		struct ProxyHandle: private meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)>
+		struct ProxyHandle: private meta::Tuple< typename meta::type_list::Make<PointHandle, EdgeHandle, FaceHandle>::Type >
 		{
-			typedef meta::Tuple<LASS_TYPE_LIST_3(PointHandle, EdgeHandle, FaceHandle)> THandles;
+			typedef meta::Tuple< typename meta::type_list::Make<PointHandle, EdgeHandle, FaceHandle>::Type > THandles;
 
 			TPoint2D* point_;
 			TBitField internalMark_;

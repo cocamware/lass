@@ -45,8 +45,7 @@
 #	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
 #endif
 
-#include "../meta/bool.h"
-#include "../meta/is_derived_type.h"
+#include "../meta/is_derived.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
 #include "thread.h"
@@ -140,7 +139,7 @@ namespace lass
 			 */
 			template <typename T> T* fixObjectType(T* iObject)
 			{
-				if (meta::IsDerivedType<T, PyObjectPlus>::value && 
+				if (meta::IsDerived<T, PyObjectPlus>::value && 
 					iObject && !iObject->ob_type)
 				{
 					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->_lassPyGetType();
@@ -277,7 +276,7 @@ namespace lass
 		/** meta function to detect if a type is a PyObject-derived type
 		*   @ingroup Python
 		*/
-		template <typename T> struct IsPyObject: meta::IsDerivedType<T, PyObject> {};
+		template <typename T> struct IsPyObject: meta::IsDerived<T, PyObject> {};
 
 		/* conversion from PyObject* to given types, a check should be performed
 		*  wether the conversion is possible, if not a returnvalue of 1 should be used

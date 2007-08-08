@@ -23,7 +23,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "../meta/is_integral_type.h"
+#include "../meta/is_integral.h"
 
 namespace lass
 {
@@ -648,7 +648,7 @@ template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last)
 {
-	insert_after(position, first, last, meta::Type2Type<typename meta::IsIntegralType<InputIterator>::Type>());
+	insert_after(position, first, last, meta::Wrap<typename meta::IsIntegral<InputIterator>::Type>());
 }
 
 
@@ -1247,7 +1247,7 @@ void slist<T, Alloc>::splice_after(node_base_t* position, node_base_t* before_fi
  */
 template <typename T, class Alloc>
 void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_type& value,
-								   meta::Type2Type<meta::True>)
+								   meta::Wrap<meta::True>)
 {
 	node_base_t* node = position.node_;
 	for (size_type i = 0; i < n; ++i)
@@ -1265,7 +1265,7 @@ void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_t
 template <typename T, class Alloc>
 template <typename InputIterator>
 void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last,
-								   meta::Type2Type<meta::False>)
+								   meta::Wrap<meta::False>)
 {
 	while (first != last)
 	{

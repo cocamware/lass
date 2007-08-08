@@ -428,6 +428,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\spline_cubic_bezier.h"
+				>
+			</File>
+			<File
 				RelativePath=".\spline_linear.h"
 				>
 			</File>

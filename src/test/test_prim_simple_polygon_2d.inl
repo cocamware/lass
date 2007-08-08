@@ -34,7 +34,7 @@
 #include "../prim/simple_polygon_2d.h"
 #include "../prim/aabb_2d.h"
 #include "../prim/ray_3d.h"
-#include "../meta/is_same_type.h"
+#include "../meta/is_same.h"
 
 #define LASS_TEST_PRIM_RAY_EPSILON 1e-5
 
@@ -55,8 +55,8 @@ void testPrimSimplePolygon2D()
 	typedef prim::Vector2D<T> TVector;
 	typedef typename TVector::TNumTraits TNumTraits;
 
-	const bool isNoDegenerate = meta::IsSameType<DegeneratePolicy, prim::NoDegenerate>::value;
-	const bool isStrictNoDegenerate = meta::IsSameType<DegeneratePolicy, prim::StrictNoDegenerate>::value;
+	const bool isNoDegenerate = meta::IsSame<DegeneratePolicy, prim::NoDegenerate>::value;
+	const bool isStrictNoDegenerate = meta::IsSame<DegeneratePolicy, prim::StrictNoDegenerate>::value;
 
 	// empty polygon
 	//

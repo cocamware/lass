@@ -90,7 +90,10 @@ struct Bool<false>:
 /** meta NOT
  *  @relates Bool
  */
-template <typename Operand> struct Not;
+template <typename Operand> struct Not: 
+	public Not<typename Operand::Type> 
+{
+};
 template <> struct Not<False>: public True {};
 template <> struct Not<True>: public False {};
 
@@ -99,7 +102,10 @@ template <> struct Not<True>: public False {};
 /** meta AND
  *  @relates Bool
  */
-template <typename Operand1, typename Operand2> struct And;
+template <typename Operand1, typename Operand2> struct And:
+	public And<typename Operand1::Type, typename Operand2::Type> 
+{
+};
 template <> struct And<False, False>: public False {};
 template <> struct And<False, True>: public False {};
 template <> struct And<True, False>: public False {};
@@ -110,7 +116,10 @@ template <> struct And<True, True>: public True {};
 /** meta OR
  *  @relates Bool
  */
-template <typename Operand1, typename Operand2> struct Or;
+template <typename Operand1, typename Operand2> struct Or:
+	public Or<typename Operand1::Type, typename Operand2::Type> 
+{
+};
 template <> struct Or<False, False>: public False {};
 template <> struct Or<False, True>: public True {};
 template <> struct Or<True, False>: public True {};
@@ -121,7 +130,10 @@ template <> struct Or<True, True>: public True {};
 /** meta XOR
  *  @relates Bool
  */
-template <typename Operand1, typename Operand2> struct Xor;
+template <typename Operand1, typename Operand2> struct Xor:
+	public Xor<typename Operand1::Type, typename Operand2::Type> 
+{
+};
 template <> struct Xor<False, False>: public False {};
 template <> struct Xor<False, True>: public True {};
 template <> struct Xor<True, False>: public True {};

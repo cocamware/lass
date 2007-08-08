@@ -33,7 +33,7 @@
 
 #include "../prim/ray_2d.h"
 #include "../prim/ray_3d.h"
-#include "../meta/is_same_type.h"
+#include "../meta/is_same.h"
 
 #define LASS_TEST_PRIM_RAY_EPSILON 1e-5
 
@@ -56,8 +56,8 @@ void testPrimRay2D()
 
 	const T epsilon = T(LASS_TEST_PRIM_RAY_EPSILON);
 
-	const bool isNormalized = meta::IsSameType<NormalizingPolicy, prim::Normalized>::value;
-	const bool isBounded = meta::IsSameType<ParameterPolicy, prim::Bounded>::value;
+	const bool isNormalized = meta::IsSame<NormalizingPolicy, prim::Normalized>::value;
+	const bool isBounded = meta::IsSame<ParameterPolicy, prim::Bounded>::value;
 
 	TRay ray;
 	LASS_TEST_CHECK(!ray.isValid());
@@ -128,8 +128,8 @@ void testPrimRay3D()
 
 	const T epsilon = T(LASS_TEST_PRIM_RAY_EPSILON);
 
-	const bool isNormalized = meta::IsSameType<NormalizingPolicy, prim::Normalized>::value;
-	const bool isBounded = meta::IsSameType<ParameterPolicy, prim::Bounded>::value;
+	const bool isNormalized = meta::IsSame<NormalizingPolicy, prim::Normalized>::value;
+	const bool isBounded = meta::IsSame<ParameterPolicy, prim::Bounded>::value;
 
 	TRay ray;
 	LASS_TEST_CHECK(!ray.isValid());

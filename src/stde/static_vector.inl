@@ -23,7 +23,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "../meta/is_integral_type.h"
+#include "../meta/is_integral.h"
 	
 namespace lass
 {
@@ -67,7 +67,7 @@ template <typename T, size_t maxsize> inline
 static_vector<T, maxsize>::static_vector(size_type n, const value_type& value):
 	size_(0)
 {
-	insert(end(), n, value, meta::Type2Type<meta::True>());
+	insert(end(), n, value, meta::Wrap<meta::True>());
 }
 
 
@@ -77,7 +77,7 @@ template <typename InputIterator> inline
 static_vector<T, maxsize>::static_vector(InputIterator first, InputIterator last):
 	size_(0)
 {
-	insert(end(), first, last, meta::Type2Type<typename meta::IsIntegralType<InputIterator>::Type>());       				
+	insert(end(), first, last, meta::Wrap<typename meta::IsIntegral<InputIterator>::Type>());       				
 }
 
 
@@ -86,7 +86,7 @@ template <typename T, size_t maxsize> inline
 void static_vector<T, maxsize>::assign(size_type n, const value_type& value)
 {
 	erase(begin(), end());
-	insert(end(), n, value, meta::Type2Type<meta::True>());
+	insert(end(), n, value, meta::Wrap<meta::True>());
 }
 
 
@@ -96,7 +96,7 @@ template <typename InputIterator> inline
 void static_vector<T, maxsize>::assign(InputIterator first, InputIterator last)
 {
 	erase(begin(), end());
-	insert(end(), first, last, meta::Type2Type<typename meta::IsIntegralType<InputIterator>::Type>());
+	insert(end(), first, last, meta::Wrap<typename meta::IsIntegral<InputIterator>::Type>());
 }
 
 
@@ -354,7 +354,7 @@ void static_vector<T, maxsize>::insert(iterator position, const value_type& valu
 template <typename T, size_t maxsize> inline
 void static_vector<T, maxsize>::insert(iterator position, size_type n, const value_type& value)
 {
-	insert(position, n, value, meta::Type2Type<meta::True>());
+	insert(position, n, value, meta::Wrap<meta::True>());
 }
 
 
@@ -363,7 +363,7 @@ template <typename T, size_t maxsize>
 template <typename InputIterator> inline
 void static_vector<T, maxsize>::insert(iterator position, InputIterator first, InputIterator last)
 {
-	insert(position, first, last, meta::Type2Type<typename meta::IsIntegralType<InputIterator>::Type>());
+	insert(position, first, last, meta::Wrap<typename meta::IsIntegral<InputIterator>::Type>());
 }
 
 
@@ -447,7 +447,7 @@ void static_vector<T, maxsize>::move_to_front(iterator first, iterator last, siz
 
 template <typename T, size_t maxsize>
 void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type value,  
-									   meta::Type2Type<meta::True>)
+									   meta::Wrap<meta::True>)
 {
 	enforce_valid_size(size_ + n);
 	move_to_back(position, end(), n);
@@ -463,7 +463,7 @@ void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type v
 template <typename T, size_t maxsize>
 template <typename InputIterator> 
 void static_vector<T, maxsize>::insert(iterator position, InputIterator first, InputIterator last,
-										meta::Type2Type<meta::False>)
+										meta::Wrap<meta::False>)
 {
 	const size_type n = std::distance(first, last);
 	enforce_valid_size(size_ + n);
@@ -478,11 +478,11 @@ void static_vector<T, maxsize>::insert(iterator position, InputIterator first, I
 
 
 template <typename T, size_t maxsize>
-void static_vector<T, maxsize>::assign(size_t n, value_type value, meta::Type2Type<meta::True>)
+void static_vector<T, maxsize>::assign(size_t n, value_type value, meta::Wrap<meta::True>)
 {
 	enforce_valid_size(n);
 	clear();
-	insert(begin(), n, value, meta::Type2Type<meta::True>());     				
+	insert(begin(), n, value, meta::Wrap<meta::True>());     				
 }
 	
 
@@ -490,12 +490,12 @@ void static_vector<T, maxsize>::assign(size_t n, value_type value, meta::Type2Ty
 template <typename T, size_t maxsize>
 template <typename InputIterator> 
 void static_vector<T, maxsize>::assign(InputIterator first, InputIterator last,
-									   meta::Type2Type<meta::False>)
+									   meta::Wrap<meta::False>)
 {
 	const size_type n = std::distance(first, last);
 	enforce_valid_size(n);
 	clear();
-	insert(begin(), first, last, meta::Type2Type<meta::False>());     				
+	insert(begin(), first, last, meta::Wrap<meta::False>());     				
 }
 
 

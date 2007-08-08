@@ -21,116 +21,63 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
-
-
-/** @class lass::meta::If
- *  @brief selects type based on boolean value
- *  @author Bram de Greve [BdG]
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_META_IF_H
-#define LASS_GUARDIAN_OF_INCLUSION_META_IF_H
+#ifndef LASS_GUADIAN_OF_INCLUSION_META_IF_H
+#define LASS_GUADIAN_OF_INCLUSION_META_IF_H
 
 #include "meta_common.h"
+#include "bool.h"
 
 namespace lass
 {
 namespace meta
 {
-
-#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
-
-template
-<
-	bool flag,
-	typename TrueType,
-	typename FalseType
->
-struct If: public TrueType
-{
-};
-
-template
-<
-	typename TrueType,
-	typename FalseType
->
-struct If<false, TrueType, FalseType>: public FalseType
-{
-};
-
-#else
-
 namespace impl
 {
 
-template
-<
-	bool flag,
-	typename TrueType,
-	typename FalseType
->
-struct IfHelper
-{
-private:
-
-	template <bool flag>
-	struct Impl
-	{
-		typedef TrueType Branch;
-	};
-
-	template <>
-	struct Impl<false>: public FalseType
-	{
-		typedef FalseType Branch;
-	};
-
-public:
-
-	typedef typename Impl<flag>::Branch Branch;
-};
+template <typename Bool, typename TrueType, typename FalseType> struct IfImpl;
 
 }
 
-template
-<
-	bool flag,
-	typename TrueType,
-	typename FalseType
->
-struct If: public impl::IfHelper<flag, TrueType, FalseType>::Branch
+/**	Evaluates meta expression TrueType or FalseType based on a meta condition Condition.
+ *  
+ *	Depending on whether Condition is meta::True or meta::False, meta::If derives from
+ *	TrueType or FalseType, thereby selecting the meta code path.
+ *  
+ *	meta::If can roughly be expressed as meta::Select if only the resulting Type is needed.
+ *
+ *	@code
+ *	If<Cond, A, B>::Type <-> Select<Cond, A::Type, B::Type>::Type
+ *	@endcode
+ *
+ *	Apart from being the shorter expression, using meta::If has the following benefits:
+ *	@arg meta::It is faster. Using meta::Select requires the compiler to both evaluate A::Type and B::Type,
+ *		regardless fo the outcome.  meta::If postpones the evaluation by deriving from the result.
+ *	@arg meta::Select only has the Type field as result.  If other fields are needed, you should
+ *		use meta::If as it derives directly from A or B.  Any field that is available in A or B
+ *		is thus also available in the result.
+ *
+ *	meta::If however cannot be used with fundamental types as you need to be able to derive from the result.
+ *	This is not really a short coming, as meta::If is designed to select meta code paths, and not to select
+ *	a type.  Use meta::Select instead.
+ */
+template <typename Condition, typename TrueType, typename FalseType>
+struct If: public If<typename Condition::Type, TrueType, FalseType> 
 {
 };
 
-#endif
+template <typename TrueType, typename FalseType> 
+struct If<True, TrueType, FalseType>: public TrueType 
+{
+};
+
+template <typename TrueType, typename FalseType> 
+struct If<False, TrueType, FalseType>: public FalseType 
+{
+};
 
 }
-
 }
 
 #endif

@@ -35,8 +35,8 @@
 
 #include "spat_common.h"
 #include "../prim/result.h"
-#include "../meta/is_same_type.h"
-#include "../meta/type_2_type.h"
+#include "../meta/is_same.h"
+#include "../meta/wrap.h"
 
 namespace lass
 {

@@ -30,7 +30,7 @@
 
 #include "num_common.h"
 #include "vector.h"
-#include "../meta/is_integral_type.h"
+#include "../meta/is_integral.h"
 
 #define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
@@ -109,7 +109,7 @@ template <typename T, typename S>
 template <typename VectorType>
 Vector<T, S>::Vector(const VectorType& iVector)
 {
-	init(iVector, meta::Type2Type<typename meta::IsIntegralType<VectorType>::Type>());
+	init(iVector, meta::Wrap<typename meta::IsIntegral<VectorType>::Type>());
 }
 
 
@@ -746,7 +746,7 @@ void Vector<T, S>::swap(Vector<T, S>& iOther)
 
 template <typename T, typename S>
 template <typename IntegralType>
-void Vector<T, S>::init(IntegralType iDimension, meta::Type2Type<meta::True>)
+void Vector<T, S>::init(IntegralType iDimension, meta::Wrap<meta::True>)
 {
 	TStorage temp(iDimension, T());
 	storage_.swap(temp);
@@ -756,7 +756,7 @@ void Vector<T, S>::init(IntegralType iDimension, meta::Type2Type<meta::True>)
 
 template <typename T, typename S>
 template <typename VectorType>
-void Vector<T, S>::init(const VectorType& iVector, meta::Type2Type<meta::False>)
+void Vector<T, S>::init(const VectorType& iVector, meta::Wrap<meta::False>)
 {
 	TSize n = iVector.size();
 	TStorage temp(n, T());

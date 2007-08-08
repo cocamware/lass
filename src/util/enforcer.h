@@ -288,10 +288,9 @@ private:
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
-		::lass::python::impl::experimental::dynamicPyCast<t_DestPyObjectPtr>(v_pyObjectPtr),\
+		(false),\
 		int(0), \
-		"You have reached unreachable code in '" LASS_HERE "'.")\
-		(false)
+		"You have reached unreachable code in '" LASS_HERE "'.")
 
 #include "impl/enforcer_impl.h"
 #include <string>

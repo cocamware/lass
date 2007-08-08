@@ -23,26 +23,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-/** @class lass::meta::IsIntegralType
- *  @brief meta function that evaluates true a type is a standard integral type.
- *  @author Bram de Greve [BdG]
- *
- *  @code
- *  bool a = lass::meta::IsSameType<int>::value; // a = true;
- *  bool b = lass::meta::IsSameType<int>::value; // b = false;
- *
- *  // you can also evaluate to meta::True and meta::False
- *  typedef lass::meta::IsSameType<std::string>::Type C; // C = meta::False
- *  @encode
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_META_IS_INTEGRAL_TYPE_H
-#define LASS_GUARDIAN_OF_INCLUSION_META_IS_INTEGRAL_TYPE_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_META_TRIVIAL_H
+#define LASS_GUARDIAN_OF_INCLUSION_META_TRIVIAL_H
 
 #include "meta_common.h"
-#include "bool.h"
 #include "type_list.h"
 
 namespace lass
@@ -50,27 +34,17 @@ namespace lass
 namespace meta
 {
 
-/** @relates IsIntegralType
- */
 typedef type_list::Make
 <
 	signed char, signed short, signed int, signed long,
 	unsigned char, unsigned short, unsigned int, unsigned long,
-	bool, char, wchar_t
+	bool, char, wchar_t, float, double, long double
 >
-::Type TIntegralTypes;
-
-
-
-template <typename T>
-struct IsIntegralType: public Bool<type_list::Find<TIntegralTypes, T>::value != -1>
-{
-};
-
-
+::Type TTrivialTypes;
+	
+template <typename T> struct IsTrivial: public type_list::Contains<TTrivialTypes, T> {};
 
 }
-
 }
 
 #endif

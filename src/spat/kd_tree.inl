@@ -626,7 +626,7 @@ KdTree<O, OT>::squaredDistance(const TPoint& iA, const TPoint& iB)
 template <class O, class OT>
 void KdTree<O, OT>::diagnostics()
 {
-	typedef typename meta::Select<dimension == 2, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;
+	typedef typename meta::Select< meta::Bool<dimension == 2>, prim::Aabb2D<TValue>, prim::Aabb3D<TValue> >::Type TAabb;
 	class Visitor
 	{
 	public:

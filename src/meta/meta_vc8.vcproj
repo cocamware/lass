@@ -148,14 +148,6 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\type_list.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\type_list_no_partial.inl"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -175,23 +167,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\int_2_type.h"
+				RelativePath=".\is_convertible.h"
 				>
 			</File>
 			<File
-				RelativePath=".\is_convertible_type.h"
+				RelativePath=".\is_derived.h"
 				>
 			</File>
 			<File
-				RelativePath=".\is_derived_type.h"
+				RelativePath=".\is_integral.h"
 				>
 			</File>
 			<File
-				RelativePath=".\is_integral_type.h"
+				RelativePath=".\is_same.h"
 				>
 			</File>
 			<File
-				RelativePath=".\is_same_type.h"
+				RelativePath=".\is_trivial.h"
 				>
 			</File>
 			<File
@@ -215,15 +207,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\type_2_type.h"
-				>
-			</File>
-			<File
 				RelativePath=".\type_list.h"
 				>
 			</File>
 			<File
 				RelativePath=".\type_traits.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wrap.h"
 				>
 			</File>
 		</Filter>

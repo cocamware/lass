@@ -21,38 +21,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
- */
-
-
-
-/** @class lass::meta::NullType
- *  @brief the i'm-not-a-type type
- *  @author Bram de Greve [BdG]
- *
- *  You usually don't create objects of type lass::util::NullType.  Its only use is to indicate
- *  "I am not an interesting type", or "I am not a valid type".  It's used by TypeInfo.
- *
- *  @par original code by Andrei Alexandrescu:
- *  The Loki Library, Copyright (c) 2001 by Andrei Alexandrescu\n
- *  This code (Loki) accompanies the book:\n
- *  Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design Patterns Applied".
- *  Copyright (c) 2001. Addison-Wesley.\n
- *  <i>Permission to use, copy, modify, distribute and sell this software (Loki) for any purpose is
- *  hereby granted without fee, provided that the above copyright notice appear in all copies and
- *  that both that copyright notice and this permission notice appear in supporting documentation.\n
- *  The author or Addison-Wesley Longman make no representations about the suitability of this
- *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_META_NULL_TYPE_H
@@ -69,17 +37,10 @@ struct NullType
 {
 	typedef NullType Type;
 
-	NullType() {}
-	bool operator==(const NullType& iOtherNullType) { return true; }
-	bool operator!=(const NullType& iOtherNullType) { return false; }
-
-	static NullType&		Null() { static NullType theNull; return theNull; }
+	static NullType& instance() { static NullType instance; return instance; }
 };
 
-
-
 }
-
 }
 
 #endif

@@ -123,9 +123,9 @@ void testSpatObjectTrees()
 	const size_t numberOfIntersectionSpeedTestTargets = 1000;
 	const size_t numberOfIntersectionSpeedTestRuns = 10;
 
-	typedef typename meta::Select< dim == 2, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
-	typedef typename meta::Select< dim == 2, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
-	typedef typename meta::Select< dim == 2, prim::Ray2D<T>, prim::Ray3D<T> >::Type TRay;
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Ray2D<T>, prim::Ray3D<T> >::Type TRay;
 
 	typedef typename TObject::TPoint TPoint;
 	typedef typename TObject::TVector TVector;

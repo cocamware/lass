@@ -28,6 +28,7 @@
 
 #include "meta_common.h"
 #include "type_list.h"
+#include "empty_type.h"
 
 namespace lass
 {
@@ -36,71 +37,43 @@ namespace meta
 
 template <typename TList> struct Tuple;
 
-template <typename Head, typename Tail>
-struct Tuple< TypeList<Head, Tail> >: Tuple<Tail>
+template <typename H, typename Ts>
+class Tuple< TypeList<H, Ts> >: public Tuple<Ts>
 {
-	typedef TypeList<Head, Tail> TList;
-	Head value;
-	Tuple(): Tuple<Tail>(), value() {}
+public:
+	typedef H TValue;
+	typedef Tuple<Ts> TTail;
+	typedef TypeList<H, Ts> TList;
+	Tuple(): value_() {}
+	const H& value() const { return value_; }
+	H& value() { return value_; }
+private:
+	H value_;
 };
 
-template <typename Tail>
-struct Tuple< TypeList<meta::NullType, Tail> >: Tuple<Tail>
+template <typename Ts>
+class Tuple< TypeList<meta::EmptyType, Ts> >: public Tuple<Ts>
 {
-	typedef TypeList<meta::NullType, Tail> TList;
-	Tuple(): Tuple<Tail>() {}
+public:
+	typedef meta::EmptyType TValue;
+	typedef Tuple<Ts> TTail;
+	typedef TypeList<meta::EmptyType, Ts> TList;
+	const meta::EmptyType& value() const { return meta::EmptyType::instance(); }
+	meta::EmptyType& value() { return meta::EmptyType::instance(); }
 };
 
 template <>
-struct Tuple< meta::NullType >
+struct Tuple<meta::NullType>
 {
+	typedef meta::NullType TValue;
+	typedef meta::NullType TTail;
 	typedef meta::NullType TList;
 };
 
+
+
 namespace tuple
 {
-namespace impl
-{
-	template <typename TupleType, size_t i, typename ReturnType> struct Accessor;
-
-
-	template <typename Head, typename Tail, size_t i, typename ReturnType>
-	struct Accessor<Tuple< TypeList<Head, Tail> >, i, ReturnType>:
-		public Accessor<Tuple<Tail>, i - 1, ReturnType> {};
-
-	template <typename Head, typename Tail, typename ReturnType>
-	struct Accessor<Tuple< TypeList<Head, Tail> >, 0, ReturnType>
-	{
-		typedef Tuple< TypeList<Head, Tail> > TTuple;
-		static ReturnType& access(TTuple& tuple) { return tuple.value; }
-	};
-
-	template <typename Tail, typename ReturnType>
-	struct Accessor<Tuple< TypeList<NullType, Tail> >, 0, ReturnType>
-	{
-		typedef Tuple< TypeList<NullType, Tail> > TTuple;
-		static ReturnType& access(TTuple& tuple) { return NullType::Null(); }
-	};
-
-
-	template <typename Head, typename Tail, size_t i, typename ReturnType>
-	struct Accessor<const Tuple< TypeList<Head, Tail> >, i, ReturnType>:
-		public Accessor<const Tuple<Tail>, i - 1, ReturnType> {};
-
-	template <typename Head, typename Tail, typename ReturnType>
-	struct Accessor<const Tuple< TypeList<Head, Tail> >, 0, ReturnType>
-	{
-		typedef Tuple< TypeList<Head, Tail> > TTuple;
-		static const ReturnType& access(const TTuple& tuple) { return tuple.value; }
-	};
-
-	template <typename Tail, typename ReturnType>
-	struct Accessor<const Tuple< TypeList<NullType, Tail> >, 0, ReturnType>
-	{
-		typedef Tuple< TypeList<NullType, Tail> > TTuple;
-		static const ReturnType& access(const TTuple& tuple) { return NullType::Null(); }
-	};
-}
 
 template <typename TupleType, size_t index>	
 struct Field
@@ -108,26 +81,36 @@ struct Field
 	typedef typename type_list::At<typename TupleType::TList, index>::Type Type;
 };
 
-template <typename TupleType, size_t index>	
-struct Field<const TupleType, index>
+
+
+template <typename TupleType, size_t index> struct SubType;
+
+template <typename H, typename Ts, size_t index> 
+struct SubType< Tuple< TypeList<H, Ts> >, index >: public SubType< Tuple<Ts>, index - 1 >
 {
-	typedef const typename type_list::At<typename TupleType::TList, index>::Type Type;
 };
+
+template <typename H, typename Ts> 
+struct SubType< Tuple< TypeList<H, Ts> >, 0 >
+{
+	typedef Tuple< TypeList<H, Ts> > Type;
+};
+
+
 
 template <size_t index, typename TupleType> 
 typename Field<TupleType, index>::Type& field(TupleType& tuple)
 {
-	typedef typename Field<TupleType, index>::Type TReturn;
-	return impl::Accessor<TupleType, index, TReturn>::access(tuple);
+	typedef typename SubType<TupleType, index>::Type TSubType;
+	return static_cast<TSubType&>(tuple).value();
 }
-/*
+
 template <size_t index, typename TupleType> 
 const typename Field<TupleType, index>::Type& field(const TupleType& tuple)
 {
-	typedef typename Field<TupleType, index>::Type TReturn;
-	return impl::Accessor<TupleType, index, TReturn>::access(tuple);
+	typedef typename SubType<TupleType, index>::Type TSubType;
+	return static_cast<const TSubType&>(tuple).value();
 }
-*/
 
 }
 

@@ -48,8 +48,8 @@
 #include "callback_common.h"
 #include "shared_ptr.h"
 #include "impl/dispatcher_0.h"
-#include "../meta/is_derived_type.h"
-#include "../meta/type_2_type.h"
+#include "../meta/is_derived.h"
+#include "../meta/wrap.h"
 
 
 
@@ -82,7 +82,7 @@ public:
 	 */
 	template <typename Function>
 	Callback0(Function iFunction):
-		dispatcher_(make(iFunction, meta::Type2Type<typename meta::IsDerivedType<Function, impl::Dispatcher0>::Type>()))
+		dispatcher_(make(iFunction, meta::Wrap<typename meta::IsDerived<Function, impl::Dispatcher0>::Type>()))
 	{
 	}
 
@@ -176,13 +176,13 @@ public:
 private:
 
 	template <typename Function>
-	static TDispatcherPtr make(Function iFunction, meta::Type2Type<meta::False>)
+	static TDispatcherPtr make(Function iFunction, meta::Wrap<meta::False>)
 	{
 		return TDispatcherPtr(new impl::Dispatcher0Function<Function>(iFunction));
 	}
 
 	template <typename Dispatcher>
-	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Type2Type<meta::True>)
+	static TDispatcherPtr make(Dispatcher iDispatcher, meta::Wrap<meta::True>)
 	{
 		return TDispatcherPtr(new Dispatcher(iDispatcher));
 	}

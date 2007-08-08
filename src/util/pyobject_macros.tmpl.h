@@ -322,8 +322,8 @@
  *	void bar(int a);
  *  void bar(const std::string& b);
  *
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, LASS_TYPE_LIST_1(int), "bar", 0, foo_bar_a)
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, LASS_TYPE_LIST_1(const std::string&), "bar", 0, foo_bar_b)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::type_list::Make<const std::string&>::Type, "bar", 0, foo_bar_b)
  *  @endcode
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX(i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc, i_dispatcher)\
@@ -368,7 +368,7 @@ $[
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
+	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
 		i_module, f_cppFunction, t_return,\
@@ -800,8 +800,8 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, LASS_TYPE_LIST_1(int), "bar", 0, foo_bar_a)
- *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, LASS_TYPE_LIST_1(const std::string&), "bar", 0, foo_bar_b)
+ *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
+ *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<const std::string&>::Type, "bar", 0, foo_bar_b)
  *  @endcode
  */
 /*
@@ -855,7 +855,7 @@ $[
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_CLASS_METHOD_QUALIFIED_EX_$x( t_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
+	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_CLASS_METHOD_QUALIFIED_EX(\
 		t_cppClass, i_cppMethod, t_return,\
@@ -1102,8 +1102,8 @@ $[
 
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, LASS_TYPE_LIST_1(int), "bar", 0, foo_bar_a)
- *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, LASS_TYPE_LIST_1(const std::string&), "bar", 0, foo_bar_b)
+ *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
+ *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<const std::string&>::Type), "bar", 0, foo_bar_b)
  *  @endcode
  */
 /*
@@ -1157,7 +1157,7 @@ $[
  *  convenience macro, wraps PY_CLASS_FREE_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX_$x( t_cppClass, i_cppFreeMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher )\
-	typedef LASS_TYPE_LIST_$x( $(t_P$x)$ )\
+	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type\
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_CLASS_FREE_METHOD_QUALIFIED_EX(\
 		t_cppClass, i_cppFreeMethod, t_return,\
@@ -1810,8 +1810,8 @@ $[
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
  */
-#define PY_CLASS_CONSTRUCTOR_$x( t_cppClass, $(P$x__)$ )\
-	typedef LASS_TYPE_LIST_$x( $(P$x__)$ ) \
+#define PY_CLASS_CONSTRUCTOR_$x( t_cppClass, $(t_P$x)$ )\
+	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass));\
 	PY_CLASS_CONSTRUCTOR(\
 		t_cppClass, LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass)))

@@ -32,7 +32,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSHADOW_OBJECT_H
 
 #include "pyobject_plus.h"
-#include "../meta/is_derived_type.h"
+#include "../meta/is_derived.h"
 
 namespace lass
 {
@@ -94,7 +94,7 @@ struct PyShadowBaseWeak
 };
 
 template <typename T>
-struct IsShadowClass: public meta::IsDerivedType<T, PyShadowBaseCommon> 
+struct IsShadowClass: public meta::IsDerived<T, PyShadowBaseCommon> 
 {
 };
 

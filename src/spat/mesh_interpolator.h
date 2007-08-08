@@ -78,7 +78,7 @@ class MeshInterpolator
 public:
 	typedef prim::Aabb2D<T> TAabb2D;
 public:
-	typedef PlanarMesh<T, TPI*, lass::meta::NullType , lass::meta::NullType >  TPlanarMesh;
+	typedef PlanarMesh<T, TPI*, meta::EmptyType , meta::EmptyType >  TPlanarMesh;
 	typedef typename TPlanarMesh::TPoint2D  TPoint2D;
 	typedef std::vector<TPoint2D> TPolyLine2D;
 
@@ -147,7 +147,7 @@ void MeshInterpolator<T,TPI>::insertPolyLine( const TPolyLine2D& iPoly, const TP
 	info_.push_back( iPointInfo );
 	for (size_t i = 1; i < iPoly.size(); ++i)
 	{
-		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]),lass::meta::NullType(),lass::meta::NullType(),&info_.back(), true);
+		mesh_.insertEdge(typename TPlanarMesh::TLineSegment2D(iPoly[i - 1], iPoly[i]), meta::EmptyType(),meta::EmptyType(),&info_.back(), true);
 	}
 
 	/*

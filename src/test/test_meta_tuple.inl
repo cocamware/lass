@@ -30,7 +30,7 @@
 #include "test_common.h"
 
 #include "../meta/tuple.h"
-#include "../meta/is_same_type.h"
+#include "../meta/is_same.h"
 
 namespace lass
 {
@@ -41,22 +41,22 @@ void testMetaTuple()
 {
 	using namespace meta;
 
-	typedef Tuple< type_list::Make<int, std::string, NullType, int>::Type > MyTuple;
+	typedef Tuple< type_list::Make<int, std::string, meta::EmptyType, int>::Type > MyTuple;
 
 	// check to see if the NullType fields doesn't take any place
 	//
 	LASS_TEST_CHECK_EQUAL(sizeof(MyTuple), sizeof(Tuple< type_list::Make<int, std::string, int>::Type >));
 	
-	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 0>::Type, int>::value));
-	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 1>::Type, std::string>::value));
-	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 2>::Type, NullType>::value));
-	LASS_TEST_CHECK((IsSameType<tuple::Field<MyTuple, 3>::Type, int>::value));
+	LASS_TEST_CHECK((IsSame<tuple::Field<MyTuple, 0>::Type, int>::value));
+	LASS_TEST_CHECK((IsSame<tuple::Field<MyTuple, 1>::Type, std::string>::value));
+	LASS_TEST_CHECK((IsSame<tuple::Field<MyTuple, 2>::Type, EmptyType>::value));
+	LASS_TEST_CHECK((IsSame<tuple::Field<MyTuple, 3>::Type, int>::value));
 
 	MyTuple myTuple;
 
 	tuple::field<0>(myTuple) = 15;
 	tuple::field<1>(myTuple) = "Hello World!";
-	tuple::field<2>(myTuple) = NullType::Null();
+	tuple::field<2>(myTuple) = EmptyType::instance();
 	tuple::field<3>(myTuple) = 42;
 
 	const MyTuple yourTuple = myTuple;
