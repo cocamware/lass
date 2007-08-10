@@ -81,6 +81,12 @@ struct Field
 	typedef typename type_list::At<typename TupleType::TList, index>::Type Type;
 };
 
+template <typename TupleType, size_t index>	
+struct Field<const TupleType, index>
+{
+	typedef const typename type_list::At<typename TupleType::TList, index>::Type Type;
+};
+
 
 
 template <typename TupleType, size_t index> struct SubType;
@@ -96,6 +102,17 @@ struct SubType< Tuple< TypeList<H, Ts> >, 0 >
 	typedef Tuple< TypeList<H, Ts> > Type;
 };
 
+template <typename H, typename Ts, size_t index> 
+struct SubType< const Tuple< TypeList<H, Ts> >, index >: public SubType< const Tuple<Ts>, index - 1 >
+{
+};
+
+template <typename H, typename Ts> 
+struct SubType< const Tuple< TypeList<H, Ts> >, 0 >
+{
+	typedef const Tuple< TypeList<H, Ts> > Type;
+};
+
 
 
 template <size_t index, typename TupleType> 
@@ -103,13 +120,6 @@ typename Field<TupleType, index>::Type& field(TupleType& tuple)
 {
 	typedef typename SubType<TupleType, index>::Type TSubType;
 	return static_cast<TSubType&>(tuple).value();
-}
-
-template <size_t index, typename TupleType> 
-const typename Field<TupleType, index>::Type& field(const TupleType& tuple)
-{
-	typedef typename SubType<TupleType, index>::Type TSubType;
-	return static_cast<const TSubType&>(tuple).value();
 }
 
 }

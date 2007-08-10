@@ -45,7 +45,8 @@ namespace impl
 		static Src dut(); // device under test =)
 		static meta::True test(Dest);
 		static meta::False test(...);
-		typedef meta::Bool<sizeof(test(dut())) == sizeof(True)> Type;
+		enum { value = sizeof(test(dut())) == sizeof(True) };
+		typedef typename meta::Bool<value>::Type Type;
 	};
 }
 
