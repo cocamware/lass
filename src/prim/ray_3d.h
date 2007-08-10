@@ -161,10 +161,6 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB)
 #	include "ray_3d_triangle_3d.h"
 #endif
 
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_CAPSULE_3D_H
-#	include "capsule_3d_ray_3d.h"
-#endif
-
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_LINE_SEGMENT_3D_H
 #	include "line_segment_3d_ray_3d.h"
 #endif

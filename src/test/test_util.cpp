@@ -39,7 +39,6 @@
 #include "test_util_fixed_array.inl"
 #include "test_util_id_generator.inl"
 #include "test_util_python.inl"
-#include "test_util_small_object.inl"
 #include "test_util_string_cast.inl"
 #include "test_util_thread_fun.inl"
 #include "test_util_thread_pool.inl"
@@ -76,8 +75,6 @@ TUnitTests testUtil()
 	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<int>));
 	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<char>));
 	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<unsigned long>));
-
-	result.push_back(LASS_UNIT_TEST(testUtilSmallObject));
 
 	result.push_back(LASS_UNIT_TEST(testUtilStringCast));
 

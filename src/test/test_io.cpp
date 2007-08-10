@@ -29,7 +29,6 @@
 #include "test_common.h"
 #include "test_io.h"
 
-#include "test_io_avi.inl"
 #include "test_io_arg_parser.inl"
 #include "test_io_binary_stream.inl"
 #include "test_io_file_attributes.inl"
@@ -46,7 +45,6 @@ TUnitTests testIo()
 {
 	TUnitTests result;
 
-	//result.push_back(LASS_UNIT_TEST(testIoAvi));
 	result.push_back(LASS_UNIT_TEST(testIoArgParser));
 	result.push_back(LASS_UNIT_TEST(testIoBinaryStream));
 	result.push_back(LASS_UNIT_TEST(testIoFileAttributes));

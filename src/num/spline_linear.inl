@@ -312,7 +312,7 @@ void SplineLinear<S, D, T>::init()
 	}
 
 	// extend last node with same derivative as last edge.
-	stde::prior(end)->dy = stde::prior(end, 2)->dy;
+	stde::prev(end)->dy = stde::prev(end, 2)->dy;
 }
 
 
@@ -340,7 +340,7 @@ SplineLinear<S, D, T>::findNode(TScalar iX) const
 	}
 	if (iX >= nodes_.back().x)
 	{
-		return stde::prior(nodes_.end());
+		return stde::prev(nodes_.end());
 	}
 
 	// binary search

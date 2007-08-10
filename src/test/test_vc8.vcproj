@@ -242,10 +242,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test_io_avi.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\test_io_binary_stream.inl"
 				>
 			</File>
@@ -302,10 +298,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test_num_fn_sampled8.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\test_num_matrix_vector.inl"
 				>
 			</File>
@@ -335,10 +327,6 @@
 			</File>
 			<File
 				RelativePath=".\test_prim_aabb.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\test_prim_capsule_3d.inl"
 				>
 			</File>
 			<File
@@ -426,10 +414,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test_stde_compose.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\test_stde_extended_io.inl"
 				>
 			</File>
@@ -443,10 +427,6 @@
 			</File>
 			<File
 				RelativePath=".\test_stde_slist.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\test_stde_small_object_allocator.inl"
 				>
 			</File>
 			<File
@@ -511,10 +491,6 @@
 			</File>
 			<File
 				RelativePath=".\test_util_python.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\test_util_small_object.inl"
 				>
 			</File>
 			<File

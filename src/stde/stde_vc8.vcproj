@@ -164,10 +164,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\extended_iterator.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\extended_string.inl"
 				>
 			</File>
@@ -222,10 +218,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\compose.h"
-				>
-			</File>
-			<File
 				RelativePath=".\deletor.h"
 				>
 			</File>
@@ -263,6 +255,10 @@
 			</File>
 			<File
 				RelativePath=".\lock_free_stack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\overwrite_insert_iterator.h"
 				>
 			</File>
 			<File

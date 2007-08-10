@@ -29,11 +29,9 @@
 #include "test_common.h"
 #include "test_stde.h"
 
-#include "test_stde_compose.inl"
 #include "test_stde_extended_io.inl"
 #include "test_stde_extended_string.inl"
 #include "test_stde_slist.inl"
-#include "test_stde_small_object_allocator.inl"
 #include "test_stde_static_vector.inl"
 #include "test_stde_triple.inl"
 
@@ -47,10 +45,8 @@ TUnitTests testStde()
 	TUnitTests result;
 
 	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeCompose));
 	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
 	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeSmallObjectAllocator));
 	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
 	result.push_back(LASS_UNIT_TEST(testStdeTriple));
 

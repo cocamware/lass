@@ -171,14 +171,14 @@ namespace lass
 		protected:
 
 			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-			PyObjectStorage(T* pointee): 
-				Cascade(), storage_(impl::fixObjectType(pointee)) {}
-			PyObjectStorage(T* pointee, const Cascade& cascade): 
-				Cascade(cascade), storage_(impl::fixObjectType(pointee)) {}
+			explicit PyObjectStorage(T* pointee): Cascade(), storage_(impl::fixObjectType(pointee)) {}
+			PyObjectStorage(const PyObjectStorage& other): Cascade(other), storage_(other.storage_) {}
+			template <typename U> PyObjectStorage(const PyObjectStorage<U, Cascade>& other): 
+				Cascade(other), storage_(other.pointee_) {}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }
-			void swap(TSelf& other) { std::swap(storage_, other.storage_);   }
+			void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_);   }
 			static TStorage defaultStorage() { return 0; }
 		private:
 			TStorage storage_;

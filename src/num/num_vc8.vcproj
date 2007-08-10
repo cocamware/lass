@@ -190,30 +190,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fn_sampled8.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\fn_sampled8.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\fuzzy_functions_default.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\fuzzy_functions_double.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\fuzzy_functions_float.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\fuzzy_functions_fn_sampled8.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\interval.cpp"
 				>
 			</File>
@@ -266,10 +242,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\py_num.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\random.cpp"
 				>
 			</File>
@@ -279,10 +251,6 @@
 			</File>
 			<File
 				RelativePath=".\ray_event.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\refl_diffr.cpp"
 				>
 			</File>
 			<File
@@ -360,14 +328,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fn_sampled8.h"
-				>
-			</File>
-			<File
-				RelativePath=".\fuzzy_functions.h"
-				>
-			</File>
-			<File
 				RelativePath=".\interval.h"
 				>
 			</File>
@@ -400,19 +360,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\py_num.h"
-				>
-			</File>
-			<File
 				RelativePath=".\random.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ray_event.h"
-				>
-			</File>
-			<File
-				RelativePath=".\refl_diffr.h"
 				>
 			</File>
 			<File
@@ -433,10 +381,6 @@
 			</File>
 			<File
 				RelativePath=".\spline_linear.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stringify.h"
 				>
 			</File>
 			<File

@@ -192,8 +192,9 @@ public:
 protected:
 
 	ObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-	ObjectStorage(T* pointee): Cascade(), storage_(pointee) {}
-	ObjectStorage(T* pointee, const Cascade& cascade): Cascade(cascade), storage_(pointee) {}
+	explicit ObjectStorage(T* pointee): Cascade(), storage_(pointee) {}
+	ObjectStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
+	template <typename U> ObjectStorage(const ObjectStorage<U, Cascade>& other): Cascade(other), storage_(other.pointee) {} 
 
 	TPointer pointer() const { return storage_; }
 
@@ -204,7 +205,7 @@ protected:
 	}
 
 	bool isNull() const { return !storage_; }
-	void swap(TSelf& other) { std::swap(storage_, other.storage_); }
+	void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_); }
 
 	static TStorage defaultStorage() { return 0; }
 
@@ -244,8 +245,9 @@ public:
 protected:
 
 	ArrayStorage(): Cascade(), storage_(defaultStorage()) { }
-	ArrayStorage(T* pointee): Cascade(), storage_(pointee) { }
-	ArrayStorage(T* pointee, const Cascade& cascade): Cascade(cascade), storage_(pointee) { }
+	explicit ArrayStorage(T* pointee): Cascade(), storage_(pointee) { }
+	ArrayStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
+	template <typename U> ArrayStorage(const ArrayStorage<U, Cascade>& other): Cascade(other), storage_(other.pointee) {} 
 
 	TPointer pointer() const { return storage_; }
 	TReference at(size_t index) const { return storage_[index]; }
@@ -257,7 +259,7 @@ protected:
 	}
 
 	bool isNull() const { return !storage_; }
-	void swap(TSelf& other) { std::swap(storage_, other.storage_);  }
+	void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_);  }
 
 	static TStorage defaultStorage() { return 0; }
 

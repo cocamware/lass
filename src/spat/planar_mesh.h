@@ -47,7 +47,6 @@
 #include "../prim/triangle_2d.h"
 #include "../prim/side.h"
 #include "../util/callback_r_1.h"
-#include "../util/small_object.h"
 #include "../io/matlab_o_stream.h"
 #include "../meta/tuple.h"
 #include "../stde/extended_iterator.h"
@@ -195,7 +194,7 @@ namespace spat
 				LASS_LOCK(mutex_)
 				{
 					values_.push_back(proto_);
-					impl->it = stde::prior(values_.end());
+					impl->it = stde::prev(values_.end());
 				}
 			}
 			void unregisterImpl(Impl* impl)

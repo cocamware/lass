@@ -23,123 +23,21 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-
-/** @defgroup extended_iterator
- *  @brief extra iterator functionality
- *  @author Bram de Greve [BdG]
- *
- *  @section next_prior next() and prior()
- *
- *  These are copied from the boost libary, and are original written by Dave Abrahams and
- *  Daniel Walker (boost/next_prior.hpp)
- *
- *  <i>(C) Copyright Boost.org 1999-2003. Permission to copy, use, modify, sell
- *  and distribute this software is granted provided this copyright
- *  notice appears in all copies. This software is provided "as is" without
- *  express or implied warranty, and with no claim as to its suitability for
- *  any purpose.</i>
- *
- *  @subsection next_prior_doc documentation
- *
- *  This documentation is copied (and adapted) from boost
- *  (http://www.boost.org/libs/utility/utility.htm)
- *
- *  Certain data types, such as the C++ Standard Library's forward and bidirectional iterators,
- *  do not provide addition and subtraction via operator+() or operator-().  This means that
- *  non-modifying computation of the next or prior value requires a temporary, even though
- *  operator++() or operator--() is provided.  It also means that writing code like itr+1 inside a
- *  template restricts the iterator category to random access iterators.
- *
- *  The next() and prior() functions provide a simple way around these problems.  Usage is simple:
- *
- *  @code
- *  const std::list<T>::iterator p = get_some_iterator();
- *  const std::list<T>::iterator prev = stde::prior(p);
- *  const std::list<T>::iterator next = stde::next(prev, 2);
- *  @endcode
- *
- *  The distance from the given iterator should be supplied as an absolute value. For example, the
- *  iterator four iterators prior to the given iterator p may be obtained by prior(p, 4).
- */
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_H
-
-#include "stde_common.h"
 
 namespace lass
 {
 namespace stde
 {
 
-template <typename Iterator> Iterator next(Iterator iterator);
-template <typename Iterator> Iterator prior(Iterator iterator);
-template <typename Iterator, typename Distance> Iterator next(Iterator iterator, Distance distance);
-template <typename Iterator, typename Distance> Iterator prior(Iterator iterator, Distance distance);
-
-template <typename Container> 
-class overwrite_insert_iterator: 
-	public std::iterator<std::output_iterator_tag, void, void, void, void>
-{
-public:
-
-	typedef overwrite_insert_iterator<Container> self_type;
-	typedef Container container_type;
-	typedef typename Container::value_type value_type;
-	typedef typename Container::iterator iterator;
-
-	explicit overwrite_insert_iterator(container_type& container): 
-		container_(&container),
-		current_(container.begin())
-	{
-	}
-
-	self_type& operator=(const self_type& other)
-	{
-		container_ = other.container_;
-		current_ = other.current_;
-		return *this;
-	}
-
-	self_type& operator=(const value_type& value)
-	{
-		if (current_ == container_->end())
-		{
-			container_->push_back(value);
-			current_ = container_->end();
-		}
-		else
-		{
-			*current_++ = value;
-		}
-		return *this;
-	}
-
-	self_type& operator*() { return *this; }
-	self_type& operator++() { return *this; }
-	self_type& operator++(int) { return *this; }
-
-	const iterator get() const { return current_; }
-	void set(iterator i) { current_ = i; }
-
-private:
-
-	container_type* container_;
-	iterator current_;
-};
-
-template <typename Container>
-overwrite_insert_iterator<Container> overwrite_inserter(Container& container)
-{
-	return overwrite_insert_iterator<Container>(container);
-}
+template <typename Iter> Iter prev(Iter i) { --i; return i; }
+template <typename Iter> Iter next(Iter i) { ++i; return i; }
+template <typename Iter, typename Diff> Iter prev(Iter i, Diff d) { std::advance(i, -d); return i; }
+template <typename Iter, typename Diff> Iter next(Iter i, Diff d) { std::advance(i, +d); return i; }
 
 }
-
 }
-
-#include "extended_iterator.inl"
 
 #endif
 

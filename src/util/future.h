@@ -91,7 +91,6 @@ public:
 	{
 		return pimpl_->condition_.wait() == WaitSuccess && isBound() ? WaitSuccess : WaitTimeout;
 	}
-	void join() { wait(); }
 	
 	const T& operator()() const
 	{

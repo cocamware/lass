@@ -427,7 +427,7 @@ SplineCubic<S, D, T>::findNode(TScalar iX) const
 	}
 	if (iX >= nodes_[size - 2].x)
 	{
-		return stde::prior(nodes_.end(), 2);
+		return stde::prev(nodes_.end(), 2);
 	}
 
 	// binary search

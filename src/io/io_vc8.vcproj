@@ -170,10 +170,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\avi.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\binary_i_file.cpp"
 				>
 			</File>
@@ -304,10 +300,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\avi.h"
-				>
-			</File>
-			<File
 				RelativePath=".\binary_i_file.h"
 				>
 			</File>
@@ -406,10 +398,6 @@
 			<Filter
 				Name="impl"
 				>
-				<File
-					RelativePath=".\impl\easyAVI.h"
-					>
-				</File>
 			</Filter>
 		</Filter>
 	</Files>

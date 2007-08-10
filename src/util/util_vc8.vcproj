@@ -244,10 +244,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\small_object_impl.inl"
-				>
-			</File>
-			<File
 				RelativePath=".\smart_ptr_policies.cpp"
 				>
 			</File>
@@ -316,10 +312,6 @@
 				</File>
 				<File
 					RelativePath=".\impl\singleton_impl.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\impl\small_object_impl.inl"
 					>
 				</File>
 				<File
@@ -506,19 +498,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\small_object.h"
-				>
-			</File>
-			<File
 				RelativePath=".\smart_i.h"
 				>
 			</File>
 			<File
 				RelativePath=".\smart_ptr_policies.h"
-				>
-			</File>
-			<File
-				RelativePath=".\spinning_thread_pool.h"
 				>
 			</File>
 			<File
