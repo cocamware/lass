@@ -35,21 +35,11 @@ VisitorBase::VisitorBase()
 {
 }
 
-VisitorBase::VisitorBase(const VisitorBase&)
-{
-}
-
 VisitorBase::~VisitorBase()
 {
 }
 
-VisitorBase& VisitorBase::operator=(const VisitorBase&)
-{
-	return *this;
 }
-
-}
-
 }
 
 // EOF

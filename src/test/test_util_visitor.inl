@@ -42,17 +42,17 @@ namespace util_visitor
 {
 	class DocElement: public util::VisitableBase<>
 	{
-		LASS_UTIL_ACCEPT_VISITOR
+		LASS_UTIL_VISITOR_DO_ACCEPT
 	};
 
 	class Paragraph: public DocElement
 	{
-		LASS_UTIL_ACCEPT_VISITOR
+		LASS_UTIL_VISITOR_DO_ACCEPT
 	};
 
 	class Invisible: public DocElement
 	{
-		LASS_UTIL_ACCEPT_VISITOR
+		LASS_UTIL_VISITOR_DO_ACCEPT
 	};
 
 	class List: public DocElement
@@ -67,12 +67,12 @@ namespace util_visitor
 
 		void doAccept(util::VisitorBase& ioVisitor)
 		{
-			doVisit(*this, ioVisitor);
+			preAccept(ioVisitor, *this);
 			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
 			{
 				(*i)->accept(ioVisitor);
 			}
-			doVisitOnExit(*this, ioVisitor);
+			postAccept(ioVisitor, *this);
 		}
 
 	private:
@@ -94,10 +94,10 @@ namespace util_visitor
 		int lists_;
 
 	private:
-		void doVisit(DocElement&) { ++docElements_; }
-		void doVisit(Paragraph&) { ++paragraphs_; }
-		void doVisit(List&) { ++lists_; }
-		void doVisitOnExit(List&) { LASS_COUT << "visit on exit\n"; }
+		void doPreVisit(DocElement&) { ++docElements_; }
+		void doPreVisit(Paragraph&) { ++paragraphs_; }
+		void doPreVisit(List&) { ++lists_; }
+		void doPostVisit(List&) { LASS_COUT << "visit on exit\n"; }
 	};
 }
 
