@@ -68,8 +68,6 @@
 			::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ;\
 	)
 
-
-
 /** @ingroup Python
  *	Inject a python module so Python is aware of it.
  *
@@ -112,6 +110,37 @@
 #define PY_INJECT_MODULE( i_module )\
 	PY_INJECT_MODULE_EX( i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), 0)
 
+
+
+/** @ingroup Python
+ *	Inject a python module so Python is aware of it and produce all necessary code so a
+ *  module can be used as extension of Python.  A limitation in comparison with embedded
+ *  modules is that the name of the module cannot be changed anymore upon injection.
+ *
+ *  @param i_module
+ *		the identifier of a module declared by PY_DECLARE_MODULE
+ *	@param s_doc
+ *      documentation of module as shown in Python (zero terminated C string)
+ */
+#define PY_EXTENSION_MODULE_EX( i_module, s_doc ) \
+	extern "C" __declspec(dllexport)\
+	void LASS_CONCATENATE(init, i_module) () {\
+		PY_INJECT_MODULE_EX(i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), s_doc);\
+	}
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_EXTENSION_MODULE_EX with
+ *  @a s_moduleName = # @a i_module
+ */
+#define PY_EXTENSION_MODULE_DOC( i_module, s_doc )\
+	PY_EXTENSION_MODULE_EX( i_module, s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_EXTENSION_MODULE_EX with
+ *  @a s_moduleName = # @a i_module and s_doc = 0
+ */
+#define PY_EXTENSION_MODULE( i_module )\
+	PY_EXTENSION_MODULE_EX( i_module, 0)
 
 
 // --- module variables ----------------------------------------------------------------------------
