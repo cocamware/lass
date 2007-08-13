@@ -89,22 +89,22 @@ public:
 	}
 	const WaitResult wait(unsigned long milliSeconds)
 	{
-		return pimpl_->condition_.wait() == WaitSuccess && isBound() ? WaitSuccess : WaitTimeout;
+		return pimpl_->condition_.wait() == waitSuccess && isBound() ? waitSuccess : waitTimeout;
 	}
 	
 	const T& operator()() const
 	{
 		wait();
 		TLocker lock(pimpl_->mutex_);
-		if (pimpl_.isBadAlloc_)
+		if (pimpl_->isBadAlloc_)
 		{
 			throw std::bad_alloc("::lass::Future::bindError: failed to clone exception");
 		}
-		if (pimpl_.error_.get())
+		if (pimpl_->error_.get())
 		{
-			error_->throwSelf();
+			pimpl_->error_->throwSelf();
 		}
-		return *reinterpret_cast<T*>(value_);
+		return *reinterpret_cast<T*>(pimpl_->value_);
 	}
 
 	void bind(const T& value)
@@ -114,9 +114,9 @@ public:
 		{
 			LASS_THROW_EX(FutureBindError, "Future is already bound");
 		}
-		new (reinterpret_cast<T*>(value_)) T(value_);
+		new (reinterpret_cast<T*>(pimpl_->value_)) T(value);
 		pimpl_->isBound_ = true;
-		condition_.broadcast();
+		pimpl_->condition_.broadcast();
 	}
 	void unbind()
 	{
@@ -133,9 +133,9 @@ public:
 		}
 		catch (std::bad_alloc)
 		{
-			isBadAlloc_ = true;
+			pimpl_->isBadAlloc_ = true;
 		}
-		condition_.broadcast();
+		pimpl_->condition_.broadcast();
 	}
 	template <typename ExceptionType>
 	void error(const ExceptionType& error)
@@ -147,9 +147,9 @@ public:
 		}
 		catch (std::bad_alloc)
 		{
-			isBadAlloc_ = true;
+			pimpl_->isBadAlloc_ = true;
 		}
-		condition_.broadcast();
+		pimpl_->condition_.broadcast();
 	}
 
 private:
@@ -159,18 +159,18 @@ private:
 
 	struct Impl
 	{
+		char value_[sizeof(T)];
+		std::auto_ptr<experimental::RemoteExceptionBase> error_;
 		Condition condition_;
 		TMutex mutex_;
 		size_t referenceCount_;
-		std::auto_ptr<experimental::RemoteExceptionBase> error_;
-		char value_[sizeof(T)];
 		volatile bool isBound_;
 		volatile bool isBadAlloc_;
 
 		Impl(): isBound_(false) {}
 		~Impl() 
 		{
-			unset();
+			unbind();
 		}
 		void unbind()
 		{

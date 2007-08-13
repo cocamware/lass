@@ -514,16 +514,20 @@ namespace lass
 			namespace experimental
 			{
 				template <typename Out, typename In> inline
-				Out	staticPyCast(const In& iIn)
+				Out staticPyCast(const In& in)
 				{
-					return Out(::lass::python::PyPlus_INCREF(
-						static_cast<typename Out::TPointer>(iIn.get())));
+					typedef typename Out::TPointer TPtr;
+					TPtr p = static_cast<TPtr>(in.get());
+					Py_XINCREF(p);
+					return Out(p);
 				}
 				template <typename Out, typename In> inline
-				Out	dynamicPyCast(const In& iIn)
+				Out dynamicPyCast(const In& in)
 				{
-					return Out(::lass::python::PyPlus_INCREF(
-						dynamic_cast<typename Out::TPointer>(iIn.get())));
+					typedef typename Out::TPointer TPtr;
+					TPtr p = dynamic_cast<TPtr>(in.get());
+					Py_XINCREF(p);
+					return Out(p);
 				}
 			}
 		}

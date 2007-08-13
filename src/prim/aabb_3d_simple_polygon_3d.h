@@ -137,7 +137,7 @@ SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb,
 			m = TVector(0.0, 0.0, 1.0);
 		}
 		default:
-			LASS_ENFORCE_UNREACHBLE;
+			LASS_ENFORCE_UNREACHABLE;
 	};
 
 	// clip against those 'm' borders
