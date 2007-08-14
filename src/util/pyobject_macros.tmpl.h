@@ -86,12 +86,13 @@
 	{\
 		Py_Initialize(); \
 		LASS_CONCATENATE( lassPythonModule_, i_module ) = Py_InitModule3(\
-			s_moduleName, \
-			&LASS_CONCATENATE( lassPythonModuleMethods_, i_module )[0], s_doc ); \
+			const_cast<char*>(s_moduleName), \
+			&LASS_CONCATENATE( lassPythonModuleMethods_, i_module )[0], \
+			const_cast<char*>(s_doc) ); \
 		for (size_t i=0;i<LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).size() ;++i)\
 		{\
 			PyModule_AddObject( LASS_CONCATENATE( lassPythonModule_, i_module ), \
-								LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].first.c_str(),\
+								const_cast<char*>(LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].first.c_str()),\
 								LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].second);\
 		}\
 	}
@@ -108,14 +109,14 @@
  *  @a s_moduleName = # @a i_module
  */
 #define PY_INJECT_MODULE_DOC( i_module, s_doc )\
-	PY_INJECT_MODULE_EX( i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), s_doc)
+	PY_INJECT_MODULE_EX( i_module, LASS_STRINGIFY(i_module), s_doc)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_INJECT_MODULE_EX with
  *  @a s_moduleName = # @a i_module and s_doc = 0
  */
 #define PY_INJECT_MODULE( i_module )\
-	PY_INJECT_MODULE_EX( i_module, const_cast<char*>( LASS_STRINGIFY(i_module) ), 0)
+	PY_INJECT_MODULE_EX( i_module, LASS_STRINGIFY(i_module), 0)
 
 
 
