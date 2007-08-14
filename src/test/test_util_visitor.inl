@@ -40,7 +40,7 @@ namespace test
 {
 namespace util_visitor
 {
-	class DocElement: public util::VisitableBase<>
+	class DocElement: public util::VisitableBase<util::IgnoreUnknownVisit>
 	{
 		LASS_UTIL_VISITOR_DO_ACCEPT
 	};
