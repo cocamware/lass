@@ -346,15 +346,27 @@ PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 	return DispatcherAddress(iSelf, iArgs);
 }
 
+/** @internal 
+ *  Returns a  pair<short name, pyobject pointing at the class object>
+ *  We have to work around the static initializer fiasco by demanding the iModuleName instead of pealing 
+ *	it from the module object (which may not be initialized yet... and then we have *kaboom*)
+ */
+template <typename CppClass>
+inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const char* iModuleName, const char* iClassDocumentation)
+{
+	char* shortName = const_cast<char*>(CppClass::_lassPyType.tp_name); // finalizePyType will expand tp_name with module name.
+	finalizePyType(CppClass::_lassPyType, *CppClass::_lassPyGetParentType(), CppClass::_lassPyMethods, CppClass::_lassPyGetSetters,
+		CppClass::_lassPyStatics, iModuleName, iClassDocumentation);
+	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
+}
+
 /** @internal
  */
 template <typename CppClass>
 inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
 {
-	char* shortName = const_cast<char*>(CppClass::_lassPyType.tp_name); // finalizePyType will expand tp_name with module name.
-	finalizePyType(CppClass::_lassPyType, *CppClass::_lassPyGetParentType(), CppClass::_lassPyMethods, CppClass::_lassPyGetSetters,
-		CppClass::_lassPyStatics, PyModule_GetName(iModule), iClassDocumentation);
-	PyModule_AddObject(iModule, shortName, reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
+	std::pair< std::string, PyObject* > classForModule = prepareClassForModuleInjection<CppClass>(PyModule_GetName(iModule),iClassDocumentation);
+	PyModule_AddObject(iModule, classForModule.first.c_str(), classForModule.second);
 }
 
 

@@ -62,6 +62,7 @@
 #define PY_DECLARE_MODULE( i_module ) \
 	PyObject* LASS_CONCATENATE( lassPythonModule_, i_module ) = 0;\
 	std::vector<PyMethodDef> LASS_CONCATENATE( lassPythonModuleMethods_, i_module ); \
+	std::vector< std::pair<std::string, PyObject* > > LASS_CONCATENATE( lassPythonModuleObjects_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE( lassExecutePyDeclareModule_, i_module ), \
 		LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).push_back( \
@@ -87,6 +88,12 @@
 		LASS_CONCATENATE( lassPythonModule_, i_module ) = Py_InitModule3(\
 			s_moduleName, \
 			&LASS_CONCATENATE( lassPythonModuleMethods_, i_module )[0], s_doc ); \
+		for (size_t i=0;i<LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).size() ;++i)\
+		{\
+			PyModule_AddObject( LASS_CONCATENATE( lassPythonModule_, i_module ), \
+								LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].first.c_str(),\
+								LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].second);\
+		}\
 	}
 
 /** @ingroup Python
@@ -555,12 +562,33 @@ $[
 	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
 
 
+/** @ingroup Python
+ *  Inject a class in a module
+ *
+ *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+ *	function called by main.
+ *
+ *  @param t_cppClass
+ *		the type of the class to be injected
+ *	@param i_module
+ *		the identifier of the module object to inject the class in.
+ *	@param s_doc
+ *		documentation of class as shown in Python (zero terminated C string)
+ */
+namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject; }
+#define PY_MODULE_CLASS( i_module, t_cppClass, s_doc ) \
+	LASS_EXECUTE_BEFORE_MAIN( {\
+		impl::TPairStringPyObject classForModule = ::lass::python::impl::prepareClassForModuleInjection< t_cppClass >(LASS_STRINGIFY(i_module), s_doc);\
+		LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).push_back( classForModule );\
+	} )
+
 
 /** @ingroup Python
  *  Inject a class in a module
  *
  *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
  *	function called by main.
+ *  @deprecated use PY_MODULE_CLASS instead
  *
  *  @param t_cppClass
  *		the type of the class to be injected
