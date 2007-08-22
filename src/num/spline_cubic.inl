@@ -301,6 +301,19 @@ const bool SplineCubic<S, D, T>::isEmpty() const
 
 
 
+/** return the range of control values for which the spline can interpolate.
+ *  @par complexity: 
+ *		O(1)
+ */
+template <typename S, typename D, typename T>
+const typename SplineCubic<S, D, T>::ControlRange
+SplineCubic<S, D, T>::controlRange() const
+{
+	return ControlRange(nodes_.front().x, nodes_.back().x);
+}
+
+
+
 // --- private -------------------------------------------------------------------------------------
 
 template <typename S, typename D, typename T>

@@ -22,11 +22,14 @@ def update_project_file(project_file):
 	project = proj.read()
 	proj.close()
 
-	project = insert_files_in_project(project, files)
-
-	proj = file(project_file, 'w')
-	proj.write(project)
-	proj.close()
+	new_project = insert_files_in_project(project, files)
+	
+	print project_file
+	if new_project != project:
+		print "SAVE IT!"
+		proj = file(project_file, 'w')
+		proj.write(new_project)
+		proj.close()
 
 
 
@@ -72,15 +75,23 @@ def insert_files_in_project(project, files):
 		escaper = re.compile(r'\\', re.DOTALL)
 		return escaper.sub(r'\\\\', x)		
 
-	regex = re.compile(r'<File .+</File>', re.DOTALL)
-	repl = '\n'.join([r'<File RelativePath="..\..\%s"></File>' % f for f in files])
-	return regex.sub(do_escape(repl),project)
+	regex = re.compile(r'<Filter(.+?)Name="Source Files"(.*?)>(.+)</Filter>', re.DOTALL)
+	files = '\n'.join([r'<File RelativePath="..\..\%s"></File>' % f for f in files])
+	repl = r'<Filter\1Name="Source Files"\2>%s</Filter>' % do_escape(files)
+	return regex.sub(repl,project)
 
 
 
 def build_solution_file(solution_file, configurations, comntools):
 	vs_dir = '\\'.join(os.getenv(comntools).split('\\')[:-3])
-	os.system(r'"%s\vc\bin\vcvars32.bat"' % vs_dir)
+	
+	for vc in ['Vc7', 'vc']:
+		vcvars_bat = r'%s\%s\bin\vcvars32.bat' % (vs_dir, vc)
+		if os.path.exists(vcvars_bat):
+			break
+	assert os.path.exists(vcvars_bat), "whoops, no VCVARS32.BAT???"
+		
+	os.system('call "%s"' % vcvars_bat)
 	try:
 		os.mkdir('logs')
 	except:

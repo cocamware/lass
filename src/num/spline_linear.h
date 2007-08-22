@@ -86,6 +86,7 @@ public:
 	const TData integral(TScalar iA, TScalar iB) const;
 
 	const bool isEmpty() const;
+	const ControlRange controlRange() const;
 
 private:
 
