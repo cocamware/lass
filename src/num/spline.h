@@ -69,6 +69,17 @@ public:
 
 	typedef ScalarType TScalar;
 	typedef DataType TData;
+	
+	class ControlRange
+	{
+	public:
+		ControlRange(TScalar begin, TScalar end): begin_(begin), end_(end) {}
+		const TScalar begin() const { return begin_; }
+		const TScalar end() const { return end_; }
+	private:
+		TScalar begin_;
+		TScalar end_;
+	};
 
 	virtual ~Spline() {}
 
@@ -78,6 +89,7 @@ public:
 	virtual const TData integral(TScalar iA, TScalar iB) const = 0;
 
 	virtual const bool isEmpty() const = 0;
+	virtual const ControlRange controlRange() const = 0;
 };
 
 

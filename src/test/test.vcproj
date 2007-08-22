@@ -565,9 +565,6 @@
 				RelativePath="test_prim_aabb.inl">
 			</File>
 			<File 
-				RelativePath=".\test_prim_capsule_3d.inl">
-			</File>
-			<File 
 				RelativePath="test_prim_line_2d.inl">
 			</File>
 			<File 
@@ -638,9 +635,6 @@
 			</File>
 			<File 
 				RelativePath=".\test_stde_slist.inl">
-			</File>
-			<File 
-				RelativePath=".\test_stde_small_object_allocator.inl">
 			</File>
 			<File 
 				RelativePath=".\test_stde_static_vector.inl">

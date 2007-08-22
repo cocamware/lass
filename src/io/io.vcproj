@@ -375,9 +375,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="arg_parser.inl">
 			</File>
 			<File 
-				RelativePath="avi.cpp">
-			</File>
-			<File 
 				RelativePath=".\binary_i_file.cpp">
 			</File>
 			<File 
@@ -494,9 +491,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="arg_parser.h">
 			</File>
 			<File 
-				RelativePath="avi.h">
-			</File>
-			<File 
 				RelativePath=".\binary_i_file.h">
 			</File>
 			<File 
@@ -565,9 +559,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			<Filter 
 				Name="impl"
 				Filter="">
-				<File 
-					RelativePath="impl\easyAVI.h">
-				</File>
 			</Filter>
 		</Filter>
 	</Files>

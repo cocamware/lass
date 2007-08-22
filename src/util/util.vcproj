@@ -552,9 +552,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 					RelativePath="impl\singleton_impl.cpp">
 				</File>
 				<File 
-					RelativePath=".\impl\small_object_impl.inl">
-				</File>
-				<File 
 					RelativePath=".\impl\thread_posix.inl">
 				</File>
 				<File 
@@ -878,9 +875,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath="singleton.h">
 			</File>
 			<File 
-				RelativePath="small_object.h">
-			</File>
-			<File 
 				RelativePath=".\smart_i.h">
 			</File>
 			<File 
@@ -1067,9 +1061,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				</File>
 				<File 
 					RelativePath="impl\singleton_impl.h">
-				</File>
-				<File 
-					RelativePath="impl\small_object_impl.h">
 				</File>
 				<File 
 					RelativePath=".\impl\util_common.h">

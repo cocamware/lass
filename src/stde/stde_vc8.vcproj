@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="stde_vc8"
 	ProjectGUID="{CB0F5B2D-7785-4FF2-9AA0-CB4372B43A75}"
 	RootNamespace="stde_vc8"
@@ -159,6 +159,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;inl;inc"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\aligned_vector.inl"
+				>
+			</File>
 			<File
 				RelativePath=".\extended_io.inl"
 				>

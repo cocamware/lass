@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="num_vc8"
 	ProjectGUID="{52E4B019-9E8F-4008-AAF2-B1B75CE55874}"
 	RootNamespace="num_vc8"
@@ -369,6 +369,10 @@
 			</File>
 			<File
 				RelativePath=".\spline.h"
+				>
+			</File>
+			<File
+				RelativePath=".\spline_bezier_path.h"
 				>
 			</File>
 			<File

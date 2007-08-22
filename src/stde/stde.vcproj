@@ -382,9 +382,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File 
-				RelativePath=".\compose.h">
-			</File>
-			<File 
 				RelativePath="deletor.h">
 			</File>
 			<File 
@@ -413,9 +410,6 @@
 			</File>
 			<File 
 				RelativePath=".\slist.h">
-			</File>
-			<File 
-				RelativePath=".\small_object_allocator.h">
 			</File>
 			<File 
 				RelativePath=".\static_vector.h">

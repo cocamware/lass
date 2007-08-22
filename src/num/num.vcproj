@@ -389,45 +389,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\floating_point_consistency.cpp">
 			</File>
 			<File 
-				RelativePath="fn_sampled8.cpp">
-				<FileConfiguration 
-					Name="win32_intel700|Win32">
-					<Tool 
-						Name="VCCLCompilerTool">
-						<IntelOptions 
-							AllOptions="/c /GR /Oy- /Zi /nologo /W3 /Og /Ob2 /Oi /Ot /G7 /QaxW /QxW /Qparallel /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;num_common.h&quot; /Fp&quot;win32_intel700/lass_num_win32_intel700.pch&quot; /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/lass_num_win32_intel700.pdb&quot; /FR&quot;win32_intel700/&quot; /Gd /TP"/>
-					</Tool>
-				</FileConfiguration>
-				<FileConfiguration 
-					Name="win32_intel700_d|Win32">
-					<Tool 
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0">
-						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;num_common.h&quot; /Fp&quot;win32_intel700_d/lass_num_win32_intel700_d.pch&quot; /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/lass_num_win32_intel700_d.pdb&quot; /FR&quot;win32_intel700_d/&quot; /Gd /TP"/>
-					</Tool>
-				</FileConfiguration>
-				<FileConfiguration 
-					Name="win32_vc71_d|Win32">
-					<Tool 
-						Name="VCCLCompilerTool">
-						<IntelOptions 
-							AllOptions="/c /GR /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /Gm /EHsc /RTCc /RTC1 /MDd /GS /Gy /J /Zc:wchar_t /Zc:forScope /Yu&quot;num_common.h&quot; /Fp&quot;win32_vc71_d/lass_num_win32_vc71_d.pch&quot; /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/lass_num_win32_vc71_d.pdb&quot; /FR&quot;win32_vc71_d/&quot; /Gd /TP"/>
-					</Tool>
-				</FileConfiguration>
-				<FileConfiguration 
-					Name="win32_vc71|Win32">
-					<Tool 
-						Name="VCCLCompilerTool">
-						<IntelOptions 
-							AllOptions="/c /GR /Zi /nologo /W3 /Wp64 /Og /Ob2 /Oi /Ot /G7 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_CONSOLE&quot; /D &quot;_MBCS&quot; /GF /FD /EHsc /MD /J /Zc:wchar_t /Zc:forScope /Yu&quot;num_common.h&quot; /Fp&quot;win32_vc71/lass_num_win32_vc71.pch&quot; /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/lass_num_win32_vc71.pdb&quot; /FR&quot;win32_vc71/&quot; /Gd /TP"/>
-					</Tool>
-				</FileConfiguration>
-			</File>
-			<File 
-				RelativePath="fn_sampled8.inl">
-			</File>
-			<File 
 				RelativePath="interval.cpp">
 			</File>
 			<File 
@@ -438,9 +399,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath="modulo.inl">
-			</File>
-			<File 
-				RelativePath="num.cpp">
 			</File>
 			<File 
 				RelativePath="num_common.cpp">
@@ -497,12 +455,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\random.inl">
 			</File>
 			<File 
-				RelativePath="ray_event.inl">
-			</File>
-			<File 
-				RelativePath="refl_diffr.cpp">
-			</File>
-			<File 
 				RelativePath=".\spline_cubic.inl">
 			</File>
 			<File 
@@ -550,24 +502,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 				RelativePath=".\floating_point_comparison.h">
 			</File>
 			<File 
-				RelativePath="fn_sampled8.h">
-			</File>
-			<File 
-				RelativePath="fuzzy_functions.h">
-			</File>
-			<File 
-				RelativePath="fuzzy_functions_default.inl">
-			</File>
-			<File 
-				RelativePath="fuzzy_functions_double.inl">
-			</File>
-			<File 
-				RelativePath="fuzzy_functions_float.inl">
-			</File>
-			<File 
-				RelativePath="fuzzy_functions_fn_sampled8.inl">
-			</File>
-			<File 
 				RelativePath="interval.h">
 			</File>
 			<File 
@@ -596,12 +530,6 @@ copy &quot;$(TargetDir)\$(TargetName).pdb&quot; &quot;$(SolutionDir)..\lib\$(Tar
 			</File>
 			<File 
 				RelativePath=".\random.h">
-			</File>
-			<File 
-				RelativePath="ray_event.h">
-			</File>
-			<File 
-				RelativePath="refl_diffr.h">
 			</File>
 			<File 
 				RelativePath="safe_bool.h">

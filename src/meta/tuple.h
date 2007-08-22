@@ -52,7 +52,7 @@ namespace lass
 namespace meta
 {
 
-template <typename TList> struct Tuple;
+template <typename TList> class Tuple;
 
 template <typename H, typename Ts>
 class Tuple< TypeList<H, Ts> >: public Tuple<Ts>
@@ -80,8 +80,9 @@ public:
 };
 
 template <>
-struct Tuple<meta::NullType>
+class Tuple<meta::NullType>
 {
+public:
 	typedef meta::NullType TValue;
 	typedef meta::NullType TTail;
 	typedef meta::NullType TList;
