@@ -125,6 +125,7 @@ namespace lass
 		{
 			PY_HEADER_INTERNAL;
 		public:
+			typedef void TCppClass;
 			PyObjectPlus(); 
 			virtual ~PyObjectPlus();
 			virtual std::string doPyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
