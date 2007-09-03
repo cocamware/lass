@@ -211,7 +211,7 @@ protected:
 	ObjectStorage(): Cascade(), storage_(defaultStorage()) {}
 	explicit ObjectStorage(T* pointee): Cascade(), storage_(pointee) {}
 	ObjectStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
-	template <typename U> ObjectStorage(const ObjectStorage<U, Cascade>& other): Cascade(other), storage_(other.pointee) {} 
+	template <typename U> ObjectStorage(const ObjectStorage<U, Cascade>& other): Cascade(other), storage_(other.storage()) {} 
 
 	TPointer pointer() const { return storage_; }
 
