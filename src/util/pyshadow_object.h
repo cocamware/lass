@@ -187,12 +187,16 @@ public:
 			t_PyObjectBase(iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
 	\
 		typedef PyObject* (*TConstructorChainMethod)(TCppClass*);\
-		static std::vector<TConstructorChainMethod> constructors;\
+		static std::vector<TConstructorChainMethod>& constructors()\
+		{\
+			static std::vector<TConstructorChainMethod> constructors;\
+			return constructors;\
+		}\
 		static PyObject* pyBuildSimpleObject_fromPtr(TCppClass* iPtr)\
 		{\
-			for (size_t i=0;i<constructors.size();++i)\
+			for (size_t i=0;i<constructors().size();++i)\
 			{\
-				PyObject* tempObj = constructors[i](iPtr);\
+				PyObject* tempObj = constructors()[i](iPtr);\
 				if ( (tempObj!=0) && (tempObj!=Py_None))\
 					return tempObj;\
 			}\
@@ -202,7 +206,6 @@ public:
 		i_PyObjectShadowClass(TCppClass* iValue, Ownership iOwnership):\
 			t_PyObjectBase(iValue, iOwnership) {}\
 	};\
-	std::vector<i_PyObjectShadowClass::TConstructorChainMethod> i_PyObjectShadowClass::constructors;
 
 
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
@@ -480,7 +483,7 @@ struct ParentClassInjectorSelector_##t_ShadowObject\
 {\
 	static void doStuff()\
 	{\
-		t_ShadowObject::TPyParentClass::constructors.push_back(& LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent));	\
+		t_ShadowObject::TPyParentClass::constructors().push_back(& LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent));	\
 	}\
 };\
 template <> \
