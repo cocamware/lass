@@ -133,8 +133,8 @@ namespace impl
 			copy.release();
 		}
 		virtual ~PyMap();
-		virtual std::string pyStr(void) { return pimpl_->pyStr(); }
-		virtual std::string pyRepr(void) { return pimpl_->pyRepr(); }
+		virtual std::string doPyStr(void) { return pimpl_->pyStr(); }
+		virtual std::string doPyRepr(void) { return pimpl_->pyRepr(); }
 		virtual TPyObjPtr keys() const { return pimpl_->keys(); }
 		virtual TPyObjPtr values() const { return pimpl_->values(); }
 

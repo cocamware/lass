@@ -406,6 +406,33 @@ namespace lass
 					{
 						if (i->op == op)
 						{
+							// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast
+							// from None but if you give that thing to a reference, then you are in big trouble
+							if (other==Py_None)
+							{
+								switch (op)
+								{
+								case Py_EQ:
+									{
+										if (self==other)
+											return pyBuildSimpleObject(true);
+										else
+											return pyBuildSimpleObject(false);
+										break;
+									}
+								case Py_NE:
+									{
+										if (self!=other)
+											return pyBuildSimpleObject(true);
+										else
+											return pyBuildSimpleObject(false);
+										break;
+									}
+								// don't define any order relation on None
+								default:
+									return pyBuildSimpleObject(false);
+								};
+							}
 							PyObject* result = (i->dispatcher)(self, args.get());\
 							if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
 							{

@@ -88,6 +88,12 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
 
+// -- Define the current lass version/revision
+
+#define LASS_MAJOR_VERSION 0
+#define LASS_MINOR_VERSION 0
+#define LASS_REVISION	   1
+
 #include "config/config.h"
 
 #ifdef LASS_UTIL_THREAD_HAVE_POSIX

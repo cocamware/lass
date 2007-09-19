@@ -1,43 +1,31 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @file
+ *  @author Bram de Greve (bramz@users.sourceforge.net)
+ *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	*** BEGIN LICENSE INFORMATION ***
- *	
- *	The contents of this file are subject to the Common Public Attribution License 
- *	Version 1.0 (the "License"); you may not use this file except in compliance with 
- *	the License. You may obtain a copy of the License at 
- *	http://lass.sourceforge.net/cpal-license. The License is based on the 
- *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
- *	use of software over a computer network and provide for limited attribution for 
- *	the Original Developer. In addition, Exhibit A has been modified to be consistent 
- *	with Exhibit B.
- *	
- *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
- *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
- *	language governing rights and limitations under the License.
- *	
- *	The Original Code is LASS - Library of Assembled Shared Sources.
- *	
- *	The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
- *	The Original Developer is the Initial Developer.
- *	
- *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
- *	All Rights Reserved.
- *	
- *	Contributor(s):
+ *  Distributed under the terms of the GPL (GNU Public License)
  *
- *	Alternatively, the contents of this file may be used under the terms of the 
- *	GNU General Public License Version 2 or later (the GPL), in which case the 
- *	provisions of GPL are applicable instead of those above.  If you wish to allow use
- *	of your version of this file only under the terms of the GPL and not to allow 
- *	others to use your version of this file under the CPAL, indicate your decision by 
- *	deleting the provisions above and replace them with the notice and other 
- *	provisions required by the GPL License. If you do not delete the provisions above,
- *	a recipient may use your version of this file under either the CPAL or the GPL.
- *	
- *	*** END LICENSE INFORMATION ***
+ *  The LASS License:
+ *
+ *  Copyright 2004-2006 Bram de Greve and Tom De Muer
+ *
+ *  LASS is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  @note
+ *      This header bundles the _EXPERIMENTAL_ code for quasi automatic
+ *      wrapping of C++ object hierarchies into python shadow objects.  This
+ *      code is still heavily under development and not ready for production use.
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSHADOW_OBJECT_H
@@ -45,11 +33,13 @@
 
 #include "pyobject_plus.h"
 #include "../meta/is_derived.h"
+#include <set>
 
 namespace lass
 {
 namespace python
 {
+
 namespace impl
 {
 
@@ -62,8 +52,66 @@ protected:
 	PyShadowBaseCommon& operator=(const PyShadowBaseCommon& iOther);	
 };
 
+template <class CppBase>
+class PyShadowBaseTracked : public PyShadowBaseCommon
+{
+public:
+	PyShadowBaseTracked(CppBase* iObject=0, bool iTrack=false) : cppObject_(iObject)
+	{
+		if (iTrack)
+			PyShadowBaseTracked<CppBase>::trackShadow(this);
+	}
+	virtual ~PyShadowBaseTracked()
+	{
+		PyShadowBaseTracked<CppBase>::forgetShadow(this);
+	}
+	class AutomaticObjectInvalidator
+	{
+	public:
+		AutomaticObjectInvalidator() {}
+		virtual ~AutomaticObjectInvalidator()
+		{
+			PyShadowBaseTracked<CppBase>::invalidateBase(static_cast<CppBase*>(this));
+		}
+	};
+	static bool invalidateBase(CppBase* iBase)
+	{
+		std::set<PyShadowBaseTracked*>::iterator it = shadows_->begin();
+		for (;it!=shadows_->end();++it)
+		{
+			if ((*it)->cppObject_==iBase)
+			{
+				(*it)->cppObject_ = NULL;		// invalidate
+				Py_INCREF(Py_None);
+				*(static_cast<PyObject*>(*it)) = *Py_None;
+			}
+		}
+		return true;
+	}
+	static std::set<PyShadowBaseTracked*>* shadows_;
+	static bool trackShadow(PyShadowBaseTracked* iShadow)
+	{
+		if (!shadows_)
+			shadows_ = new std::set<PyShadowBaseTracked*>;
+		if (shadows_)
+			shadows_->insert(iShadow);
+		return true;
+	}
+	static bool forgetShadow(PyShadowBaseTracked* iShadow)
+	{
+		if (shadows_)
+			shadows_->erase(iShadow);
+		return true;
+	}
+protected:
+	CppBase* cppObject_;
+};
+
+template <class CppBase> std::set<PyShadowBaseTracked<CppBase>*>* PyShadowBaseTracked<CppBase>::shadows_;
+
+
 template <class CppBase, bool weak = false>
-class PyShadowBase: public PyShadowBaseCommon
+class PyShadowBase: public PyShadowBaseTracked<CppBase>
 {
 public:
 	virtual ~PyShadowBase()
@@ -78,6 +126,8 @@ public:
 	{
 		return cppObject_;
 	}
+	static bool doTracking;
+
 protected:
 	enum Ownership
 	{
@@ -85,19 +135,40 @@ protected:
 		oBorrowed
 	};
 	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
-		cppObject_(iCppObject), ownership_(iOwnership)
+		ownership_(iOwnership), PyShadowBaseTracked<CppBase>(iCppObject,doTracking)
 	{
+		cppObject_ = iCppObject;
 	}
 private:
-	CppBase* cppObject_;
 	Ownership ownership_;
 };
+template <class CppBase, bool weak> bool PyShadowBase<CppBase,weak>::doTracking = false;
+}
 
+template <typename CppBase>
+struct ShadowObjectInvalidator
+{
+	typedef typename impl::PyShadowBaseTracked<CppBase>::AutomaticObjectInvalidator Type;
+};
+
+template<typename CppBase>
+void invalidateShadowingObject(CppBase* iPointerReferenceToInvalidate)
+{
+	impl::PyShadowBaseTracked<CppBase>::invalidateBase(iPointerReferenceToInvalidate);
+}
+
+namespace impl
+{
 
 /** a weak shadow class NEVER EVER owns the object, USE AT YOUR OWN RISK!  
 *	Consult your local Lass::Python guru to gain insight when the use of this
 *	class is appropriate.  A rule of thumb is that any properly designed 
 *	C++ interface should never be exposed using weak shadow objects.
+*   For your own safety, use weak shadow objects always in conjunction with the
+*	automatic object invalidator.  This at least assures that when you access 
+*	a weak shadow object from within Python that you don't get a dereference of 
+*	a dangling pointer.  You will notice that in Python a "C++ deleted" weak
+*	shadow object is transformed into None.
  */
 template <class CppBase>
 struct PyShadowBaseWeak
@@ -222,6 +293,10 @@ public:
 	PY_SHADOW_CLASS_EX(\
 	dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::impl::PyShadowBaseWeak< t_CppClass >::Type ,\
 		::lass::python::PyObjectPlus)
+
+/** a macro to enable automatic invalidation for a given shadow class */
+#define PY_SHADOW_CLASS_ENABLE_AUTOMATIC_INVALIDATION(i_PyObjectShadowClass)\
+	i_PyObjectShadowClass::doTracking = true;
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_EX(\
