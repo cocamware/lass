@@ -264,7 +264,7 @@ protected:
 	ArrayStorage(): Cascade(), storage_(defaultStorage()) { }
 	explicit ArrayStorage(T* pointee): Cascade(), storage_(pointee) { }
 	ArrayStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
-	template <typename U> ArrayStorage(const ArrayStorage<U, Cascade>& other): Cascade(other), storage_(other.pointee) {} 
+	template <typename U> ArrayStorage(const ArrayStorage<U, Cascade>& other): Cascade(other), storage_(other.storage()) {} 
 
 	TPointer pointer() const { return storage_; }
 	TReference at(size_t index) const { return storage_[index]; }
