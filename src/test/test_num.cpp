@@ -46,9 +46,9 @@
 #include "test_common.h"
 #include "test_num.h"
 
+#include "test_num_spline.inl"
 #include "test_num_basic_ops.inl"
 #include "test_num_db.inl"
-#include "test_num_spline.inl"
 #include "test_num_matrix_vector.inl"
 #include "test_num_num_traits.inl"
 #include "test_num_polynomial.inl"

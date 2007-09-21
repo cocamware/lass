@@ -47,11 +47,13 @@
 
 #include "test_common.h"
 
+#include "../num/spline_bezier_path.h"
 #include "../num/spline_linear.h"
 #include "../num/spline_cubic.h"
 #include "../prim/vector_3d.h"
 #include "../io/file_attribute.h"
 #include "../stde/extended_string.h"
+
 namespace lass
 {
 namespace test
@@ -181,15 +183,20 @@ void testNumSpline()
 	const TScalar delta = 1e-9f;
 	const TScalar integral0 = 380e-9f;
 
-	TestStream patternLinear("spline_linear.pattern", TestStream::asAllowSaving);
+	TestStream patternLinear("spline_linear.pattern", TestStream::asForbidSaving);
 	num::SplineLinear<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > linear(
 		frequencies.begin(), frequencies.end(), responses.begin());
 	num_spline::testSpline(linear, patternLinear, begin, end, delta, integral0);
 
-	TestStream patternCubic("spline_cubic.pattern",	TestStream::asAllowSaving);
+	TestStream patternCubic("spline_cubic.pattern",	TestStream::asForbidSaving);
 	num::SplineCubic<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > cubic(
 		frequencies.begin(), frequencies.end(), responses.begin());
 	num_spline::testSpline(cubic, patternCubic, begin, end, delta, integral0);
+
+	TestStream patternBezierPath("spline_bezier_path.pattern", TestStream::asAllowSaving);
+	num::SplineBezierPath<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > bezierPath(
+		frequencies.begin(), frequencies.end(), responses.begin());
+	num_spline::testSpline(bezierPath, patternBezierPath, begin, end, delta, integral0);
 }
 
 
