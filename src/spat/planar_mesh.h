@@ -2130,7 +2130,7 @@ continueSearch:
 
 		while (iFirstPolygon != iLastPolygon)
 		{
-			TEdge* iStartEdge = locate(*iFirstPolygon[0]);
+			TEdge* iStartEdge = locate((*iFirstPolygon)[0]);
 			floodPolygon( iStartEdge->sym(), *iFirstPolygon, *iFirstFaceHandle );
 			floodPolygon( iStartEdge->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
 			floodPolygon( iStartEdge->lNext()->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
