@@ -54,6 +54,12 @@
 #define LASS_PYTHON_HAS_DEBUG_BUILD
 
 
+/** @def LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+ *  @brief Define this one if you want to be able to derive from embedding Python objects at the cost
+ *	of some extra memory per object.
+ */
+//#define LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+
 
 /** @def #define LASS_BOOST_ALWAYS
  *  @brief Define this if you have Boost (www.boost.org) around, and you always want to fall back

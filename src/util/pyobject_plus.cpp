@@ -67,7 +67,10 @@ std::vector<PyMethodDef> PyObjectPlus::_lassPyMethods = initAbstractMethods();
 PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
-	this->ob_type = NULL;	
+	this->ob_type = NULL;
+#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+	dict_ = PyDict_New();
+#endif
 	_Py_NewReference( this );
 };
 
@@ -84,18 +87,30 @@ PyObjectPlus::~PyObjectPlus()
 		_Py_ForgetReference( this );
 
 	}
+#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+	//if (dict_)
+	//	Py_XDECREF(dict_);
+#endif
 	LASS_ASSERT(this->ob_refcnt==0);
 };
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
 {
 	this->ob_type = iOther.ob_type;
+#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+	// [TDM] or just copy the reference? 
+	dict_ = PyDict_Copy(iOther.dict_);
+#endif
 	_Py_NewReference( this );
 }
 
 PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
+#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+	// [TDM] or just copy the reference? 
+	dict_ = PyDict_Copy(iOther.dict_);
+#endif
 	return *this;
 }
 

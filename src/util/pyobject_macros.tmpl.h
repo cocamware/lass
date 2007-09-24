@@ -1946,6 +1946,7 @@ $[
 	0,	/*tp_subclasses*/\
 	0,	/*tp_weaklist*/
 
+ #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 /** @internal
  */
 #define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
@@ -1969,7 +1970,57 @@ $[
 	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
 	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
 	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/*tp_flags*/\
+	0,	/*tp_doc*/\
+	0,	/*tp_traverse*/\
+	0,	/*tp_clear*/\
+	::lass::python::impl::RichCompare<t_cppClass>::call, /*tp_richcompare*/\
+	0,	/*tp_weaklistoffset*/\
+	0,	/*tp_iter*/\
+	0,	/*tp_iternext*/\
+	0,	/*tp_methods*/\
+	0,	/*tp_members*/\
+	0,	/*tp_getset*/\
+	0,	/*tp_base*/\
+	0,	/*tp_dict*/\
+	0,	/*tp_descr_get*/\
+	0,	/*tp_descr_set*/\
+	offsetof(PyObjectPlus,dict_),	/*tp_dictoffset*/\
+	0,	/*tp_init*/\
+	0,	/*tp_alloc*/\
+	0,	/*tp_new*/\
+	0,	/*tp_free*/\
+	0,	/*tp_is_gc*/\
+	0,	/*tp_bases*/\
+	0,	/*tp_mro*/\
+	0,	/*tp_cache*/\
+	0,	/*tp_subclasses*/\
+	0,	/*tp_weaklist*/
+#else
+/** @internal
+ */
+#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
+	PyObject_HEAD_INIT(&PyType_Type)\
+	0,	/*ob_size*/\
+	(char*)( s_className ), /*tp_name*/\
+	sizeof( t_cppClass ),	/*tp_basicsize*/\
+	0,	/*tp_itemsize*/\
+	::lass::python::impl::dealloc,	/*tp_dealloc*/\
+	0,	/*tp_print*/\
+	0,	/*tp_getattr*/\
+	0,	/*tp_setattr*/\
+	0,	/*tp_compare*/\
+	::lass::python::impl::repr,	/*tp_repr*/\
+	0,	/*tp_as_number*/\
+	0,	/*tp_as_sequence*/\
+	0,	/*tp_as_mapping*/\
+	0,	/*tp_hash*/\
+	0,	/*tp_call */\
+	::lass::python::impl::str,	/*tp_str */\
+	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
+	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
+	0,	/*tp_as_buffer*/\
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/*tp_flags*/\
 	0,	/*tp_doc*/\
 	0,	/*tp_traverse*/\
 	0,	/*tp_clear*/\
@@ -1995,7 +2046,7 @@ $[
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
 	0,	/*tp_weaklist*/
-
+#endif
 /** @internal
  */
 #define PY_CLASS_METHOD_IMPL(t_cppClass, i_cppMethod, s_methodName, s_doc, i_dispatcher, i_caller)\

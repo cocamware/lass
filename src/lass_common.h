@@ -92,7 +92,7 @@
 
 #define LASS_MAJOR_VERSION 0
 #define LASS_MINOR_VERSION 0
-#define LASS_REVISION	   1
+#define LASS_REVISION	   2
 
 #include "config/config.h"
 

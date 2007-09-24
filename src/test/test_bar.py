@@ -1,6 +1,26 @@
-import sys
 import embedding
+barC = embedding.Bar()
+print "values=",barC.writeableMap
+print "values=",barC.writeableMap.values()
 
+##class SubType(embedding.Bar):
+##    def __init__(self):
+##        pass
+##
+##class DerivedBar(SubType):
+##    def __init__(self):
+##        self.test = 5
+##        print "test ",self.test
+##    def doSomething(self):
+##        print "did something"
+##print dir(embedding.Bar)
+##b = DerivedBar()
+##print type(b)
+##print dir(b)
+##b.doSomething()
+##print b.test
+
+import sys
 print "The Python version used is ", sys.version
 
 if 0:
@@ -9,6 +29,8 @@ if 0:
 	s.interact()
 
 numberOfErrors = 0
+
+
 
 def reportError(description):
     global numberOfErrors
