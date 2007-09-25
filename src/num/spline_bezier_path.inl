@@ -46,24 +46,6 @@ SplineBezierPath<S, D, T>::SplineBezierPath()
 
 
 
-/** construct a spline from a range of control/datatriplet pairs.
- *
- *  Each node consists of a control value and a data triplet.  This contstructor accepts a single 
- *	range [first, last) of control/data pairs.  The iterator type should have two fields
- *  @c first and @c second that contain respectively the control value and data triplet.  This is
- *  choosen so that a std::pair can be used as a representation of the control/data pair.
- *
- *  @pre
- *  @arg [first, last) is a valid range.
- *  @arg @c PairInputIterator has a member @c first containing the control value
- *  @arg @c PairInputIterator has a member @c second containing the data triplet
- *
- *  @par complexity: 
- *		O(D * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg N = number of nodes
- */
 template <typename S, typename D, typename T>
 template <typename PairInputIterator>
 SplineBezierPath<S, D, T>::SplineBezierPath(
@@ -74,23 +56,6 @@ SplineBezierPath<S, D, T>::SplineBezierPath(
 
 
 
-/** construct a spline from seperate ranges.
- *
- *  Each node consists of a control value and a data triplet.  This contstructor accepts seperate
- *  ranges for control values and data triplets.  The control values are given by the range 
- *  [firstControl , lastControl).  Of the range of the data triplets, only the iterator
- *  firstData to the the first element is given.
- *
- *  @pre
- *  @arg [firstControl, lastControl) is a valid range.
- *  @arg [firstData, firstData + (lastControl - firstControl)) is a valid range.
- *
- *  @par complexity: 
- *		O(D * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg N = number of nodes
- */
 template <typename S, typename D, typename T>
 template <typename ScalarInputIterator, typename DataInputIterator>
 SplineBezierPath<S, D, T>::SplineBezierPath(ScalarInputIterator firstControl, 
@@ -102,16 +67,6 @@ SplineBezierPath<S, D, T>::SplineBezierPath(ScalarInputIterator firstControl,
 
 
 
-/** Get the linear interpolated data value that corresponds with constrol value @a iX.
- *
- *  @pre this->isEmpty() == false
- *
- *  @par complexity: 
- *		O(D * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg N = number of nodes
- */
 template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TData
 SplineBezierPath<S, D, T>::operator ()(TScalar x) const
@@ -142,20 +97,6 @@ SplineBezierPath<S, D, T>::operator ()(TScalar x) const
 
 
 
-/** Get the first derivative of data value that corresponds with constrol value @a iX.
- *
- *  As long as @a iX is exact on a node, it equals to lim_{dx->0} (*this(iX + dx) - *this(iX)) / dx.
- *  With linear splines, in theory the first derivative does not exist on the nodes.  This
- *  function however will return the first derivative on the right of the node. *  
- *
- *  @pre this->isEmpty() == false
- *
- *  @par complexity: 
- *		O(D * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg N = number of nodes
- */
 template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TData
 SplineBezierPath<S, D, T>::derivative(TScalar x) const
@@ -185,19 +126,6 @@ SplineBezierPath<S, D, T>::derivative(TScalar x) const
 
 
 
-/** Get the second derivative of data value that corresponds with constrol value @a iX.
- *
- *  For a linear spline, the second derivative is always zero, except on the nodes where it
- *  does not exist.  This function however will always return zero, even on the nodes.
- *
- *  @pre this->isEmpty() == false
- *
- *  @par complexity: 
- *		O(D * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg N = number of nodes
- */
 template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TData
 SplineBezierPath<S, D, T>::derivative2(TScalar x) const
@@ -215,14 +143,13 @@ SplineBezierPath<S, D, T>::derivative2(TScalar x) const
 	const TData& d = second->knot();
 	const TScalar dx = second->x - first->x;
 	const TScalar t = (x - first->x) / dx;
-	const TScalar s = 1 - t;
 
-	// 6*(1-t)*A+6*t*B-12*(1-t)*B-12*t*C+6*(1-t)*C+6*t*D
+	// (6-6*t)*A+(18*t-12)*B+(-18*t+6)*C+6*t*D
 
 	TData dy = a;
-	TDataTraits::scale(dy, 6 * s);
-	TDataTraits::multiplyAccumulate(dy, b, 6 * (t - 2 * s));
-	TDataTraits::multiplyAccumulate(dy, c, 6 * (s - 2 * t));
+	TDataTraits::scale(dy, 6 - 6 * t);
+	TDataTraits::multiplyAccumulate(dy, b, 18 * t - 12);
+	TDataTraits::multiplyAccumulate(dy, c, -18 * t + 6);
 	TDataTraits::multiplyAccumulate(dy, d, 6 * t);
 	TDataTraits::scale(dy, num::inv(num::sqr(dx)));
 	return dy;
@@ -230,17 +157,6 @@ SplineBezierPath<S, D, T>::derivative2(TScalar x) const
 
 
 
-/** Get the integrated data value between control points @a iA and @a iB.
- *
- *  @pre this->isEmpty() == false
- *
- *  @par complexity: 
- *		O(D * M * log(N)) with 
- *		@arg D = a figure that indicates the complexity of operations on data values.
- *				 Is most probably linear with the dimension of the data value
- *		@arg M = number of nodes between @a iA and @a iB.
- *		@arg N = total number of nodes in spline
- */
 template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TData
 SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
@@ -254,9 +170,6 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 	typename TNodes::const_iterator last = findNode(end);
 	LASS_ASSERT(last != nodes_.end());
 
-	TData inty;
-	TDataTraits::zero(inty, TDataTraits::dimension(first->knot()));
-
 	if (first == last)
 	{
 		const typename TNodes::const_iterator second = stde::next(first);
@@ -267,16 +180,22 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 		const TData& c = second->left();
 		const TData& d = second->knot();
 
-		const TScalar t2 = num::sqr(end) - num::sqr(begin);
-		const TScalar t3 = num::cubic(end) - num::cubic(begin);
-		const TScalar t4 = num::sqr(num::sqr(end)) - num::sqr(num::sqr(begin));
+		const TScalar dx = second->x - first->x;
+		const TScalar invDx = num::inv(dx);
+		const TScalar s = invDx * (begin - first->x);
+		const TScalar t = invDx * (end - first->x);
+
+		const TScalar st = t - s;
+		const TScalar st2 = num::sqr(t) - num::sqr(s);
+		const TScalar st3 = num::cubic(t) - num::cubic(s);
+		const TScalar st4 = num::sqr(num::sqr(t)) - num::sqr(num::sqr(s));
 		const TScalar s4 = num::sqr(num::sqr(1 - end)) - num::sqr(num::sqr(1 - begin));
 
 		TData inty(a);
-		TDataTraits::scale(inty, -s4 / 4);
-		TDataTraits::multiplyAccumulate(inty, b, 3 * t4 / 4 - 2 * t3 + 3 * t2 / 2);
-		TDataTraits::multiplyAccumulate(inty, c, -3 * t4 / 4 + t3);
-		TDataTraits::multiplyAccumulate(inty, d, t4 / 4);
+		TDataTraits::scale(inty, dx * (-.25f * st4 + st3 - 1.5f * st2 + st));
+		TDataTraits::multiplyAccumulate(inty, b, dx * (.75f * st4 - 2 * st3 + 1.5f * st2));
+		TDataTraits::multiplyAccumulate(inty, c, dx * (-.75f * st4 + st3));
+		TDataTraits::multiplyAccumulate(inty, d, dx * .25f * st4);
 		TDataTraits::scale(inty, second->x - first->x);
 		return inty;
 	}
@@ -293,6 +212,7 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 		typename TNodes::const_iterator second = stde::next(first);
 		LASS_ASSERT(second != nodes_.end());
 
+		TData inty(first->knot());
 		{
 			const TScalar dx = second->x - first->x;
 			const TScalar s = (begin - first->x) / dx;
@@ -300,11 +220,10 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 			const TScalar s3 = num::cubic(s);
 			const TScalar s4 = num::sqr(s2);
 
-			TData inty(first->knot());
-			TDataTraits::scale(inty, dx * (1 + s4 - 4 * s3 + 6 * s2 - 4 * s) / 4);
-			TDataTraits::multiplyAccumulate(inty, first->right(), dx * (1 - 3 * s4 + 8 * s3 - 6 * s2) / 4);
-			TDataTraits::multiplyAccumulate(inty, second->left(), dx * (1 - 3 * s4 - 4 * s3) / 4);
-			TDataTraits::multiplyAccumulate(inty, second->knot(), dx * (1 - s4) / 4);
+			TDataTraits::scale(inty, dx * (.25f + .25f * s4 - s3 + 1.5f * s2 - s));
+			TDataTraits::multiplyAccumulate(inty, first->right(), dx * (.25f - .75f * s4 + 2 * s3 - 1.5f * s2));
+			TDataTraits::multiplyAccumulate(inty, second->left(), dx * (.25f + .75f * s4 - s3));
+			TDataTraits::multiplyAccumulate(inty, second->knot(), dx * .25f * (1 - s4));
 		}
 
 		first = second;
@@ -314,10 +233,10 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 		while (first != last)
 		{
 			const TScalar dx = second->x - first->x;
-			TDataTraits::multiplyAccumulate(inty, first->knot(), dx / 4);
-			TDataTraits::multiplyAccumulate(inty, first->right(), dx / 4);
-			TDataTraits::multiplyAccumulate(inty, second->left(), dx / 4);
-			TDataTraits::multiplyAccumulate(inty, second->knot(), dx / 4);
+			TDataTraits::multiplyAccumulate(inty, first->knot(), dx * .25f);
+			TDataTraits::multiplyAccumulate(inty, first->right(), dx * .25f);
+			TDataTraits::multiplyAccumulate(inty, second->left(), dx * .25f);
+			TDataTraits::multiplyAccumulate(inty, second->knot(), dx * .25f);
 			first = second;
 			second += 1;
 			LASS_ASSERT(second != nodes_.end());
@@ -331,13 +250,13 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 			const TScalar t4 = num::sqr(t2);
 
 			TDataTraits::multiplyAccumulate(inty, first->knot(), 
-				dx * (-t4 + 4 * t3 - 6 * t2 + t) / 4);
+				dx * (-.25f * t4 + t3 - 1.5f * t2 + t));
 			TDataTraits::multiplyAccumulate(inty, first->right(), 
-				dx * (3 * t4 - 8 * t3 + 6 * t2) / 4);
+				dx * (.75f * t4 - 2 * t3 + 1.5f * t2));
 			TDataTraits::multiplyAccumulate(inty, second->left(), 
-				dx * (-3 * t4 + 4 * t3) / 4);
+				dx * (-.75f * t4 + t3));
 			TDataTraits::multiplyAccumulate(inty, second->knot(), 
-				dx * t4 / 4);
+				dx * .25f * t4);
 		}
 		
 		TDataTraits::scale(inty, multiplier);
@@ -437,60 +356,60 @@ void SplineBezierPath<S, D, T>::makeFullNodes(const TSimpleNodes& simpleNodes)
 {
 	const TScalar dt = 1./3;
 	const typename TNodes::size_type size = simpleNodes.size();
-	if (size == 0)
+
+	TNodes nodes;
+	switch (size)
 	{
-		return;
+	case 0:
+		break;
+
+	case 1:
+		{
+			const TData& knot = simpleNodes[0].second;
+			TData null;
+			TDataTraits::zero(null, TDataTraits::dimension(knot));
+			nodes.push_back(Node(DataTriplet(null, knot, null), simpleNodes[0].first));
+		}
+		break;
+
+	default:
+		{
+			const TData& knot = simpleNodes[0].second;
+			TData dy = simpleNodes[1].second;
+			TDataTraits::multiplyAccumulate(dy, knot, -1);
+			TData right = knot;
+			TDataTraits::multiplyAccumulate(right, dy, dt);
+			TData left = knot;
+			TDataTraits::multiplyAccumulate(left, dy, -dt);
+			nodes.push_back(Node(DataTriplet(left, knot, right), simpleNodes[0].first));
+		}
+
+		for (size_t i = 1; i < size - 1; ++i)
+		{
+			const TData& knot = simpleNodes[i].second;
+			TData dy = simpleNodes[i + 1].second;
+			TDataTraits::multiplyAccumulate(dy, simpleNodes[i - 1].second, -1);
+			TDataTraits::scale(dy, .5);
+			TData right = knot;
+			TDataTraits::multiplyAccumulate(right, dy, dt);
+			TData left = knot;
+			TDataTraits::multiplyAccumulate(left, dy, -dt);
+			nodes.push_back(Node(DataTriplet(left, knot, right), simpleNodes[i].first));
+		}
+
+		{
+			const TData& knot = simpleNodes[size - 1].second;
+			TData dy = knot;
+			TDataTraits::multiplyAccumulate(dy, simpleNodes[size - 2].second, -1);
+			TData right = knot;
+			TDataTraits::multiplyAccumulate(right, dy, dt);
+			TData left = knot;
+			TDataTraits::multiplyAccumulate(left, dy, -dt);
+			nodes.push_back(Node(DataTriplet(left, knot, right), simpleNodes[size - 1].first));
+		}
 	}
 
-	if (size == 1)
-	{
-		const TData& knot = simpleNodes[0].second;
-		TData null;
-		TDataTraits::zero(null, TDataTraits::dimension(knot));
-		nodes_.push_back(Node(DataTriplet(null, knot, null), simpleNodes[0].first));
-		return;
-	}
-
-	{
-		const TScalar x = simpleNodes[0].first;
-		const TScalar dx = simpleNodes[1].first - x;
-		const TData& knot = simpleNodes[0].second;
-		TData dy = simpleNodes[1].second;
-		TDataTraits::multiplyAccumulate(dy, knot, -1);
-		TData right = knot;
-		TDataTraits::multiplyAccumulate(right, dy, dt);
-		TData left = knot;
-		TDataTraits::multiplyAccumulate(left, dy, -dt);
-		nodes_.push_back(Node(DataTriplet(left, knot, right), x));
-	}
-
-	for (size_t i = 1; i < size - 1; ++i)
-	{
-		const TScalar x = simpleNodes[i].first;
-		const TScalar dx = simpleNodes[i + 1].first - simpleNodes[i - 1].first;
-		const TData& knot = simpleNodes[i].second;
-		TData dy = simpleNodes[i + 1].second;
-		TDataTraits::multiplyAccumulate(dy, simpleNodes[i - 1].second, -1);
-		TDataTraits::scale(dy, .5);
-		TData right = knot;
-		TDataTraits::multiplyAccumulate(right, dy, dt);
-		TData left = knot;
-		TDataTraits::multiplyAccumulate(left, dy, -dt);
-		nodes_.push_back(Node(DataTriplet(left, knot, right), x));
-	}
-
-	{
-		const TScalar x = simpleNodes[size - 1].first;
-		const TScalar dx = x - simpleNodes[size - 2].first;
-		const TData& knot = simpleNodes[size - 1].second;
-		TData dy = knot;
-		TDataTraits::multiplyAccumulate(dy, simpleNodes[size - 2].second, -1);
-		TData right = knot;
-		TDataTraits::multiplyAccumulate(right, dy, dt);
-		TData left = knot;
-		TDataTraits::multiplyAccumulate(left, dy, -dt);
-		nodes_.push_back(Node(DataTriplet(left, knot, right), x));
-	}
+	nodes_.swap(nodes);
 }
 
 template <typename S, typename D, typename T>
@@ -530,28 +449,28 @@ void SplineBezierPath<S, D, T>::finalInit()
 
 
 
-/** binary search to find node that belongs to iX
+/** binary search to find node that belongs to x
  *
  *  @return
- *  @arg the index @a i if @a iX is in the interval [@c nodes_[i].x, @c nodes_[i+1].x)
- *  @arg 0 if @a iX is smaller than @c nodes_[0].x</tt>
- *  @arg @c nodes_.size()-2 if @a iX is greater than @c nodes_[nodes_.size()-1].x
+ *  @arg the iterator to node such that @a x is in the interval [@c node->x, @c next(node)->x)
+ *  @arg nodes_.begin() @a x is smaller than @c nodes_.front().x</tt>
+ *  @arg prev(nodes_.end(), 2) if @a x is greater than @c nodes_.back().x
  *
  *  complexity: O(ln N)
  */
 template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TNodeConstIterator
-SplineBezierPath<S, D, T>::findNode(TScalar iX) const
+SplineBezierPath<S, D, T>::findNode(TScalar x) const
 {
 	LASS_ASSERT(nodes_.size() >= 2);
 
 	// early outs
 	//
-	if (iX < nodes_.front().x)
+	if (x < nodes_.front().x)
 	{
 		return nodes_.begin();
 	}
-	if (iX >= nodes_.back().x)
+	if (x >= nodes_.back().x)
 	{
 		return stde::prev(nodes_.end(), 2);
 	}
@@ -565,7 +484,7 @@ SplineBezierPath<S, D, T>::findNode(TScalar iX) const
 		TNodeConstIterator middle = stde::next(first, std::distance(first, last) / 2);
 		LASS_ASSERT(middle != first && middle != last);
 
-		if (middle->x <= iX)
+		if (middle->x <= x)
 		{
 			first = middle;
 		}
@@ -576,38 +495,8 @@ SplineBezierPath<S, D, T>::findNode(TScalar iX) const
 		LASS_ASSERT(first != last);
 	}
 
-	LASS_ASSERT(first->x <= iX && last->x > iX);
+	LASS_ASSERT(first->x <= x && last->x > x);
 	return first;
-}
-
-
-
-template <typename S, typename D, typename T>
-const typename SplineBezierPath<S, D, T>::TData
-SplineBezierPath<S, D, T>::extrapolate(const TData& a, const TData& b, TScalar t) const
-{
-	TData result(a);
-	TDataTraits::scale(result, 1 - t);
-	TDataTraits::multiplyAccumulate(result, b, t);
-	return result;
-}
-
-
-
-template <typename S, typename D, typename T>
-const typename SplineBezierPath<S, D, T>::TData
-SplineBezierPath<S, D, T>::interpolate(const TData& a, const TData& b, const TData& c, const TData& d, TScalar t) const
-{
-	const TScalar s = 1 - t;
-	const TScalar t2 = t * t;
-	const TScalar s2 = s * s;
-
-	TData result(a);
-	TDataTraits::scale(result, s2 * s);
-	TDataTraits::multiplyAccumulate(result, b, 3 * s2 * t);
-	TDataTraits::multiplyAccumulate(result, c, 3 * s * t2);
-	TDataTraits::multiplyAccumulate(result, d, t * t2);
-	return result;
 }
 
 

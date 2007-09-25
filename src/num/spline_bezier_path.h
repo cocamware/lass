@@ -94,8 +94,8 @@ private:
 		TScalar x;
 
 		Node(const DataTriplet& triplet, TScalar x): triplet(triplet), x(x) {}
-		const TData& left() const { return triplet.right(); }
-		const TData& knot() const { return triplet.right(); }
+		const TData& left() const { return triplet.left(); }
+		const TData& knot() const { return triplet.knot(); }
 		const TData& right() const { return triplet.right(); }
 
 		static bool less(const Node& iA, const Node& iB) { return iA.x < iB.x; }
@@ -120,9 +120,6 @@ private:
 	void finalInit();
 
 	const TNodeConstIterator findNode(TScalar iX) const;
-
-	const TData extrapolate(const TData& a, const TData& b, TScalar t) const;
-	const TData interpolate(const TData& a, const TData& b, const TData& c, const TData& d, TScalar t) const;
 
 	TNodes nodes_;
 	size_t dataDimension_;
