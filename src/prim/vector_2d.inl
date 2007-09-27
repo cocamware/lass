@@ -402,6 +402,17 @@ typename Vector2D<T>::TValue dot(const Vector2D<T>& a, const Vector2D<T>& b)
 
 
 
+/** returns cosine of angle between both vectors.
+ *  @relates lass::prim::Vector2D
+ */
+template<typename T> inline
+typename Vector2D<T>::TValue cos(const Vector2D<T>& a, const Vector2D<T>& b)
+{
+	return dot(a, b) / num::sqrt(a.squaredNorm() * b.squaredNorm());
+}
+
+
+
 /** perp dot product (cross product for 2D vectors).
  *  @relates lass::prim::Vector2D
  *

@@ -134,6 +134,7 @@ struct Vector2D
 
 template<typename T> typename Vector2D<T>::TValue dot(const Vector2D<T>& a, const Vector2D<T>& b);
 template<typename T> typename Vector2D<T>::TValue perpDot(const Vector2D<T>& a, const Vector2D<T>& b);
+template<typename T> typename Vector2D<T>::TValue cos(const Vector2D<T>& a, const Vector2D<T>& b);
 
 template<typename T> bool operator==(const Vector2D<T>& a, const Vector2D<T>& b);
 template<typename T> bool operator!=(const Vector2D<T>& a, const Vector2D<T>& b);
