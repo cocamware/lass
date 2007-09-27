@@ -235,7 +235,7 @@ private:
 
 
 /** @ingroup Allocator
- *	@arg concept: FixedAllocator
+ *	@arg concept: VariableAllocator
  */
 class AllocatorMalloc
 {
@@ -1014,6 +1014,98 @@ private:
 	Node* pool_;
 	size_t size_;
 	size_t allocationsPerBlock_;
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: VariableAllocator
+ *
+ *	AllocatorAligned adds @a alignment bytes to the requested block size to be able to shift
+ *	the pointer to a alignment boundary.
+ */
+template
+<
+	unsigned char alignment,
+	typename VariableAllocator = AllocatorMalloc
+>
+class AllocatorAligned: public VariableAllocator
+{
+public:
+	void* allocate(size_t size)
+	{
+		return align(VariableAllocator::allocate(size + alignment));
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		VariableAllocator::deallocate(unalign(mem), size + alignment);
+	}
+private:
+	void* align(void* mem)
+	{
+		const num::TuintPtr address = reinterpret_cast<num::TuintPtr>(mem);
+		const unsigned char offset = alignment - (address % alignment);
+		LASS_ASSERT(offset > 0);
+		unsigned char* const aligned = static_cast<unsigned char*>(mem) + offset;
+		*(aligned - 1) = offset;
+		return aligned;
+	}
+	void* unalign(void* mem)
+	{
+		unsigned char* const aligned = static_cast<unsigned char*>(mem);
+		const unsigned char offset = *(aligned - 1);
+		return aligned - offset;
+	}
+};
+
+
+
+/** @ingroup Allocator
+ *	@arg concept: VariableAllocator
+ *
+ *	AllocatorSized adds sizeof(size_t) bytes in front of the returned pointer to store the
+ *	requested block size.  Because of that, you can use the simpler form 
+ *  <tt>void deallocate(void* mem)</tt> to deallocate the memory.
+ *
+ *  @warning the fact that this allocator supports <tt>void deallocate(void* mem)</tt> does
+ *		@b NOT mean it implements the FixedAllocator concept, not even partially.  So when
+ *		you use AllocatorSized as a base for an allocator that implements both the 
+ *		VariableAllocator as FixedAllocator concept depending on the base allocator (such as
+ *		AllocatorStats), the result will be a VariableAllocator.  You cannot generally assume 
+ *		you will be able to use <tt>void deallocate(void* mem)</tt> on the resulting allocator
+ *		as well.  Particularly for AllocatorStats, it is know that this will cause undefined
+ *		behaviour.  However, using AllocatorStats as base AllocatorSized will achieve the 
+ *		desired effect perfectly well, and will cause no problem (= using AllocatorSized
+ *		on top-level)
+ *
+ *	<b>it is advised to use AllocatorSized as a top-level allocator.  Using AllocatorSized
+ *	as a base allocator for others can cause undefined behaviour.  A notable exception is
+ *	AllocatorSingleton, it is safe to use that one on top of AllocatorSized.</b>
+ */
+template
+<
+	typename VariableAllocator = AllocatorMalloc
+>
+class AllocatorSized: public VariableAllocator
+{
+public:
+	void* allocate(size_t size)
+	{
+		size_t* p = static_cast<size_t*>(VariableAllocator::allocate(size + sizeof(size_t)));
+		*p = size;
+		return p + 1;
+	}
+	void deallocate(void* mem, size_t size)
+	{
+		size_t* p = static_cast<size_t*>(mem) - 1;
+		LASS_ASSERT(*p == size);
+		VariableAllocator::deallocate(p, size + sizeof(size_t));
+	}
+	void deallocate(void* mem)
+	{
+		size_t* p = static_cast<size_t*>(mem) - 1;
+		VariableAllocator::deallocate(p, *p + sizeof(size_t));
+	}
 };
 
 }
