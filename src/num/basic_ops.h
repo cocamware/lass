@@ -141,6 +141,8 @@ inline float fractional(float x);
 inline float div(float x, float d);
 inline float mod(float x, float d);
 
+inline float fastSin(float x);
+
 
 
 // double
@@ -168,6 +170,8 @@ inline double fractional(double x);
 inline double div(double x, double d);
 inline double mod(double x, double d);
 
+inline double fastSin(double x);
+
 
 
 // long double
@@ -194,6 +198,8 @@ inline long double round(long double x);
 inline long double fractional(long double x);
 inline long double div(long double x, long double d);
 inline long double mod(long double x, long double d);
+
+inline long double fastSin(long double x);
 
 
 

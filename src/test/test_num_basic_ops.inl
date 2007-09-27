@@ -71,6 +71,17 @@ void testNumBasicOps()
 	}
 	while (y < TNumTraits::one);
 	LASS_COUT << "sinc(" << typeid(T).name() << ") == 1 for x <= " << x << std::endl;
+
+	// fastSin
+	const T x0 = -TNumTraits::pi;
+	const T dx = 1e-3f;
+	int i = 0;
+	x = x0;
+	while (x <= TNumTraits::pi)
+	{
+		LASS_TEST_CHECK(num::abs(num::sin(x) - num::fastSin(x)) < T(0.0012));
+		x = x0 + i++ * dx;
+	}
 }
 
 

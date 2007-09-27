@@ -301,6 +301,15 @@ float mod(float x, float m)
 	return result < 0.f ? result + m : result;
 }	
 
+/** @ingroup BasicOps */
+float fastSin(float x)
+{
+	const float a = 1.2732395447351628f;
+	const float b = -0.4052847345693511f;
+	const float c = 0.2248391028f;
+	const float y = a * x + b * x * fabsf(x);
+	return c * (y * fabsf(y) - y) + y;
+}
 
 
 // --- double --------------------------------------------------------------------------------------
@@ -332,6 +341,16 @@ double mod(double x, double m)
 	const double result = ::fmod(x, m);
 	return result < 0. ? result + m : result;
 }	
+
+/** @ingroup BasicOps */
+double fastSin(double x)
+{
+	const double a = 1.2732395447351628;
+	const double b = -0.4052847345693511;
+	const double c = 0.2248391028;
+	const double y = a * x + b * x * fabs(x);
+	return c * (y * fabs(y) - y) + y;
+}
 
 
 
@@ -396,6 +415,16 @@ long double mod(long double x, long double m)
 	const long double result = ::fmodl(x, m);
 	return result < 0. ? result + m : result;
 }	
+
+/** @ingroup BasicOps */
+long double fastSin(long double x)
+{
+	const long double a = 1.2732395447351628;
+	const long double b = -0.4052847345693511;
+	const long double c = 0.2248391028;
+	const long double y = a * x + b * x * fabs(x);
+	return c * (y * fabs(y) - y) + y;
+}
 
 #endif
 
