@@ -51,16 +51,14 @@ namespace stde
 {
 
 template <typename Container>
-class overwrite_insert_iterator: std::iterator<std::output_iterator_tag, void, void, void, void>
+class overwrite_insert_iterator: public std::iterator<std::output_iterator_tag, void, void, void, void>
 {
 public:
 
 	typedef Container container_type;
-	typedef typename Container::iterator iterator;
-	typedef typename Container::const_iterator const_iterator;
 
 	explicit overwrite_insert_iterator(container_type& container): 
-		container_(container),
+		container_(&container),
 		end_(container.begin())
 	{
 	}
@@ -74,14 +72,14 @@ public:
 
 	overwrite_insert_iterator& operator=(typename Container::const_reference x)
 	{
-		if (end_ != container_.end())
+		if (end_ != container_->end())
 		{
 			*end_++ = x;
 		}
 		else
 		{
-			container_.push_back(x);
-			end_ = container_.end();
+			container_->push_back(x);
+			end_ = container_->end();
 		}
 		return *this;
 	}
@@ -90,15 +88,14 @@ public:
 	overwrite_insert_iterator& operator++() { return *this; }
 	overwrite_insert_iterator& operator++(int) { return *this; }
 
-	typename Container::iterator begin() { return container_.begin(); }
+	typename Container::iterator begin() { return container_->begin(); }
 	typename Container::iterator end() { return end_; }
-	typename Container::const_iterator begin() const { return container_.begin(); }
+	typename Container::const_iterator begin() const { return container_->begin(); }
 	typename Container::const_iterator end() const { return end_; }
-	//void end(typename Container::iterator i) { end_ = i; }
 
 private:
 
-	Container& container_;
+	Container* container_;
 	typename Container::iterator end_;
 };
 
