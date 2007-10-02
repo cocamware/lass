@@ -52,8 +52,8 @@ namespace lass
 namespace prim
 {
 
-/** @relates lass::prim::Aabb3D
- *  @relates lass::prim::Sphere3D
+/** @relates lass::prim::Sphere3D
+ *	@sa lass::prim::Aabb3D
  */
 template <typename T> 
 Aabb3D<T> aabb(const Sphere3D<T>& sphere)
@@ -67,15 +67,42 @@ Aabb3D<T> aabb(const Sphere3D<T>& sphere)
 
 
 /** @relates lass::prim::Aabb3D
- *  @relates lass::prim::Sphere3D
+ *	@sa lass::prim::Sphere3D
  */
-template <typename T>
-Sphere3D<T> boundingSphere(const Aabb3D<T>& box)
+template <typename T, typename MMP>
+Sphere3D<T> boundingSphere(const Aabb3D<T, MMP>& box)
 {
-	const typename Aabb3D<T>::TPoint center = box.center().affine();
-	const typename Aabb3D<T>::TValue radius = box.size().norm() / 2;
+	const typename Aabb3D<T, MMP>::TPoint center = box.center().affine();
+	const typename Aabb3D<T, MMP>::TValue radius = box.size().norm() / 2;
 	return Sphere3D<T>(center, radius);
 }
+
+
+
+/** @relates lass::prim::Aabb3D
+ *	@sa lass::prim::Sphere3D
+ */
+template <typename T, typename MMP>
+const bool collides(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
+{
+	typedef typename Sphere3D<T>::TPoint TPoint;
+	typedef typename Sphere3D<T>::TVector TVector;
+	const TVector dist = pointwiseMax(aabb.min() - sphere.center(), sphere.center() - aabb.max());
+	return pointwiseMax(dist, TVector()).squaredNorm() < num::sqr(sphere.radius());
+}
+
+
+
+/** @relates lass::prim::Sphere3D
+ *	@sa lass::prim::Aabb3D
+ */
+template <typename T, typename MMP>
+const bool collides(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
+{
+	return collides(aabb, sphere);
+}
+
+
 
 }
 }

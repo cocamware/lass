@@ -190,6 +190,20 @@ const bool AabpTree<O, OT, SH>::intersects(
 
 
 template <typename O, typename OT, typename SH>
+const typename AabpTree<O, OT, SH>::Neighbour
+AabpTree<O, OT, SH>::nearestNeighbour(const TPoint& point, const TInfo* info) const
+{
+	Neighbour nearest(end_, std::numeric_limits<TValue>::infinity());
+	if (!isEmpty())
+	{
+		doNearestNeighbour(0, point, info, nearest);
+	}
+	return nearest;
+}
+
+
+
+template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::swap(TSelf& other)
 {
 	std::swap(aabb_, other.aabb_);
@@ -209,10 +223,10 @@ const bool AabpTree<O, OT, SH>::isEmpty() const
 
 
 template <typename O, typename OT, typename SH>
-void AabpTree<O, OT, SH>::clear()
+const typename AabpTree<O, OT, SH>::TObjectIterator
+AabpTree<O, OT, SH>::end() const
 {
-	TSelf temp;
-	swap(temp);
+	return end_;
 }
 
 
@@ -248,8 +262,8 @@ AabpTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	const BalanceResult right = balance(middle, last);
 	
 	Node& node = nodes_[index];
-	node.leftBound() = TObjectTraits::pointCoordinate(TObjectTraits::aabbMax(left.aabb), split.axis);
-	node.rightBound() = TObjectTraits::pointCoordinate(TObjectTraits::aabbMin(right.aabb), split.axis);
+	node.leftBound() = TObjectTraits::coord(TObjectTraits::aabbMax(left.aabb), split.axis);
+	node.rightBound() = TObjectTraits::coord(TObjectTraits::aabbMin(right.aabb), split.axis);
 	LASS_ASSERT(left.index == index + 1);
 	node.right() = right.index;
 	
@@ -305,7 +319,7 @@ const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const
 		return false;
 	}
 
-	const TValue x = TObjectTraits::pointCoordinate(point, node.axis());
+	const TValue x = TObjectTraits::coord(point, node.axis());
 	if (x <= node.leftBound() && doContains(index + 1, point, info))
 	{
 		return true;
@@ -339,7 +353,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 		return result;
 	}
 
-	const TValue x = TObjectTraits::pointCoordinate(point, node.axis());
+	const TValue x = TObjectTraits::coord(point, node.axis());
 	if (x <= node.leftBound())
 	{
 		result = doFind(index + 1, point, result, info);
@@ -391,9 +405,9 @@ AabpTree<O, OT, SH>::doIntersect(
 	// check children
 	const int leftIndex = index + 1;
 	const int rightIndex = node.right();
-	const TValue s = TObjectTraits::pointCoordinate(TObjectTraits::raySupport(ray), node.axis());
-	const TValue d = TObjectTraits::vectorComponent(TObjectTraits::rayDirection(ray), node.axis());
-	const TValue invD = TObjectTraits::vectorComponent(reciprocalDirection, node.axis());
+	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
+	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
+	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
 	const TValue tLeftBound = (node.leftBound() - s) * invD;
 	const TValue tRightBound = (node.rightBound() - s) * invD;
 	
@@ -484,9 +498,9 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	// check children
 	const int leftIndex = index + 1;
 	const int rightIndex = node.right();
-	const TValue s = TObjectTraits::pointCoordinate(TObjectTraits::raySupport(ray), node.axis());
-	const TValue d = TObjectTraits::vectorComponent(TObjectTraits::rayDirection(ray), node.axis());
-	const TValue invD = TObjectTraits::vectorComponent(reciprocalDirection, node.axis());
+	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
+	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
+	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
 	const TValue tLeftBound = (node.leftBound() - s) * invD;
 	const TValue tRightBound = (node.rightBound() - s) * invD;
 	
@@ -531,6 +545,53 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	}
 	return false;
 }
+
+
+
+template <typename O, typename OT, typename SH>
+void AabpTree<O, OT, SH>::doNearestNeighbour(
+		int index, const TPoint& point, const TInfo* info, Neighbour& best) const
+{
+	LASS_ASSERT(best.squaredDistance() >= 0);
+
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
+	{
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			const TValue squaredDistance = 
+				TObjectTraits::objectSquaredDistance(objects_[i], point, info);
+			if (squaredDistance < best.squaredDistance())
+			{
+				best = Neighbour(objects_[i], squaredDistance);
+			}
+		}
+	}
+	else
+	{
+		int i1 = index + 1;
+		int i2 = node.right();
+		const TValue x = TObjectTraits::coord(point, node.axis());
+		TValue d1 = x - node.leftBound();
+		TValue d2 = node.rightBound() - x;
+		if (d2 < d1)
+		{
+			std::swap(i1, i2);
+			std::swap(d1, d2);
+		}
+		if (d1 <= 0 || (d1 * d1) < best.squaredDistance())
+		{
+			doNearestNeighbour(i1, point, info, best);
+		}
+		if (d2 <= 0 || (d2 * d2) < best.squaredDistance())
+		{
+			doNearestNeighbour(i2, point, info, best);
+		}
+	}
+}
+
+
 
 // --- free ----------------------------------------------------------------------------------------
 

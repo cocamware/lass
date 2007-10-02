@@ -96,6 +96,11 @@ struct DefaultAabbRayTraits
 		return aabb.contains(point); 
 	}
 
+	static const bool aabbContains(const TAabb& aabb, const TAabb& other)
+	{
+		return aabb.contains(other);
+	}
+
 	/** return true if AABB is intersected by ray
 	 */
 	static const bool aabbIntersect(const TAabb& aabb, const TRay& ray, TReference t, const TParam tMin)
@@ -147,16 +152,30 @@ struct DefaultAabbRayTraits
 
 	/** return the @a axis coordinate value of @a point.
 	 */
-	static const TValue pointCoordinate(const TPoint& point, size_t axis) 
+	static const TValue coord(const TPoint& point, size_t axis) 
 	{ 
 		return point[axis]; 
 	}
 
+	/** set the @a axis coordinate value of @a point.
+	 */
+	static void coord(TPoint& point, size_t axis, TParam value) 
+	{ 
+		point[axis] = value;
+	}
+
 	/** return the @a axis component value of @a vector.
 	 */
-	static const TValue vectorComponent(const TVector& vector, size_t axis)
+	static const TValue coord(const TVector& vector, size_t axis)
 	{
 		return vector[axis];
+	}
+
+	/** set the @a axis component value of @a vector.
+	 */
+	static void coord(TVector& vector, size_t axis, TParam value)
+	{
+		vector[axis] = value;
 	}
 
 	/** return the reciprocal vector of @a vector
@@ -227,6 +246,20 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 	{
 		TValue t;
 		return intersect(object(it), ray, t, tMin) != prim::rNone && t < tMax;
+	}
+
+	/** return true if part of the object is inside the bounding box
+	 */
+	static const bool objectOverlaps(TObjectIterator it, const TAabb& aabb)
+	{
+		return collides(object(it), aabb);
+	}
+
+	/** return squared distance between object and point)
+	 */
+	static const TValue objectSquaredDistance(TObjectIterator it, const TPoint& point, const TInfo* /* info */)
+	{
+		return squaredDistance(object(it), point);
 	}
 };
 

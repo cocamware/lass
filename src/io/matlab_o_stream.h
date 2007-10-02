@@ -112,7 +112,7 @@ public:
 	{
 	}
 
-	MatlabOStream(const char* iFilename, std::ios::openmode iOpenMode): 
+	MatlabOStream(const char* iFilename, std::ios::openmode iOpenMode = std::ios::out | std::ios::trunc): 
 		std::ofstream(iFilename, iOpenMode), 
 		color_(mcBlack)
 	{

@@ -279,6 +279,26 @@ const bool Sphere3D<T>::isValid() const
 
 /** @relates lass::prim::Sphere3D
  */
+template <typename T>
+const T squaredDistance(const Sphere3D<T>& sphere, const Point3D<T>& point)
+{
+	return sphere.squaredDistance(point);
+}
+
+
+
+/** @relates lass::prim::Sphere3D
+ */
+template <typename T>
+const T distance(const Sphere3D<T>& sphere, const Point3D<T>& point)
+{
+	return num::sqrt(sphere.squaredDistance(point));
+}
+
+
+
+/** @relates lass::prim::Sphere3D
+ */
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Sphere3D<T>& iSphere)
 {

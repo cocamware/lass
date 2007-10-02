@@ -158,6 +158,20 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 
 
 template <typename O, typename OT, typename SH>
+const typename AabbTree<O, OT, SH>::Neighbour
+AabbTree<O, OT, SH>::nearestNeighbour(const TPoint& point, const TInfo* info) const
+{
+	Neighbour nearest(end_, std::numeric_limits<TValue>::infinity());
+	if (!isEmpty())
+	{
+		doNearestNeighbour(0, point, info, nearest);
+	}
+	return nearest;
+}
+
+
+
+template <typename O, typename OT, typename SH>
 void AabbTree<O, OT, SH>::swap(TSelf& other)
 {
 	nodes_.swap(other.nodes_);
@@ -176,7 +190,16 @@ const bool AabbTree<O, OT, SH>::isEmpty() const
 
 
 template <typename O, typename OT, typename SH>
-void AabbTree<O, OT, SH>::clear()
+const typename AabbTree<O, OT, SH>::TObjectIterator
+AabbTree<O, OT, SH>::end() const
+{
+	return end_;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+void AabbTree<O, OT, SH>::reset()
 {
 	TSelf temp;
 	swap(temp);
@@ -388,6 +411,69 @@ bool AabbTree<O, OT, SH>::doIntersects(
 		}
 	}
 	return false;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+void AabbTree<O, OT, SH>::doNearestNeighbour(
+		int index, const TPoint& point, const TInfo* info, Neighbour& best) const
+{
+	LASS_ASSERT(best.squaredDistance() >= 0);
+
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
+	{
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			const TValue squaredDistance = TObjectTraits::objectSquaredDistance(objects_[i], point, info);
+			if (squaredDistance < best.squaredDistance())
+			{
+				best = Neighbour(objects_[i], squaredDistance);
+			}
+		}
+	}
+	else
+	{
+		// find distances to children first
+		const size_t children[2] = { index + 1, node.right() };
+		TValue sqrDistAabb[2] = { 0, 0 };
+		for (size_t i = 0; i < 2; ++i)
+		{
+			const Node& child = nodes_[children[i]];
+			const TPoint& min = TObjectTraits::aabbMin(child.aabb());
+			const TPoint& max = TObjectTraits::aabbMax(child.aabb());
+			for (size_t k = 0; k < dimension; ++k)
+			{
+				const TValue x = TObjectTraits::coord(point, k);
+				const TValue d = std::max(TObjectTraits::coord(min, k) - x, x - TObjectTraits::coord(max, k));
+				if (d > 0)
+				{
+					sqrDistAabb[i] += d * d;
+				}
+			}
+		}
+
+		// visit children, but visit closest one first =)
+		//
+		if (sqrDistAabb[0] < sqrDistAabb[1] && sqrDistAabb[0] < best.squaredDistance())
+		{
+			doNearestNeighbour(index + 1, point, info, best);
+			if (sqrDistAabb[1] < best.squaredDistance())
+			{
+				doNearestNeighbour(node.right(), point, info, best);
+			}
+		}
+		else if (sqrDistAabb[1] < best.squaredDistance())
+		{
+			doNearestNeighbour(node.right(), point, info, best);
+			if (sqrDistAabb[0] < best.squaredDistance())
+			{
+				doNearestNeighbour(index + 1, point, info, best);
+			}
+		}
+	}
 }
 
 

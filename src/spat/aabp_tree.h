@@ -95,6 +95,21 @@ public:
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
+	class Neighbour
+	{
+	public:
+		Neighbour(TObjectIterator object, TValue squaredDistance): 
+			object_(object), squaredDistance_(squaredDistance) {}
+		TObjectIterator object() const { return object_; }
+		TValue squaredDistance() const { return squaredDistance_; }
+		TObjectIterator operator->() const { return object_; }
+		TObjectReference operator*() const { return TObjectTraits::object(object_); }
+		bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+	private:
+		TObjectIterator object_;
+		TValue squaredDistance_;
+	};
+
 	AabpTree();
 	AabpTree(TObjectIterator first, TObjectIterator last);
 
@@ -110,10 +125,11 @@ public:
 		const TInfo* info = 0) const;
 	const bool intersects(const TRay& ray, TParam minT = 0, 
 		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
+	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;
 
 	void swap(TSelf& other);
 	const bool isEmpty() const;
-	void clear();
+	const TObjectIterator end() const;
 
 private:
 
@@ -182,14 +198,15 @@ private:
 	const int addLeafNode(TInputIterator iFirst, TInputIterator iLast);
 	const int addInternalNode(int iAxis);
 
-	const bool doContains(int iIndex, const TPoint& iPoint, const TInfo* iInfo) const;
+	const bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(int iIndex, const TPoint& iPoint, 
-		OutputIterator iResult, const TInfo* iInfo) const;
-	const TObjectIterator doIntersect(int iIndex, const TRay& iRay, TReference oT, TParam iTMin,
-		const TInfo* iInfo, const TVector& iReciprocalDirection, TParam iTNear, TParam iTFar) const;
-	const bool doIntersects(int iIndex, const TRay& iRay, TParam iTMin, TParam iMax,
-		const TInfo* iInfo, const TVector& iReciprocalDirection, TParam iTNear, TParam iTFar) const;
+	OutputIterator doFind(int index, const TPoint& point, 
+		OutputIterator iResult, const TInfo* info) const;
+	const TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin,
+		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+	const bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax,
+		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 
 	TAabb aabb_;
 	TObjectIterators objects_;

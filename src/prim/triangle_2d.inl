@@ -326,6 +326,62 @@ const bool Triangle2D<T>::isInRange(int iIndexOfVertex) const
 /** @relates lass::prim::Triangle2D
  */
 template <typename T>
+const T squaredDistance(const Triangle2D<T>& triangle, const Point2D<T>& point)
+{
+	typedef typename Triangle2D<T>::TPoint TPoint;
+	typedef typename Triangle2D<T>::TVector TVector;
+	typedef typename Triangle2D<T>::TValue TValue;
+
+	TValue sqrBest = 0;
+	bool hasBest = false;
+	for (int k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
+	{
+		const TPoint& tail = triangle[k0];
+		const TPoint& head = triangle[k1];
+		const TVector vector = point - tail;
+		const TVector edge = head - tail;
+		const TValue t = dot(vector, edge);
+		if (t <= 0)
+		{
+			continue;
+		}
+		const TValue tMax = dot(edge, edge);
+		if (t < tMax)
+		{
+			const TVector rejected = vector - edge * (t / tMax);
+			const TValue sqrCandidate = rejected.squaredNorm();
+			if (!hasBest || sqrCandidate < sqrBest)
+			{
+				sqrBest = sqrCandidate;
+				hasBest = true;
+			}
+		}
+	}
+
+	if (hasBest)
+	{
+		return sqrBest;
+	}
+
+	return std::min(squaredDistance(point, triangle[0]), 
+		std::min(squaredDistance(point, triangle[1]), squaredDistance(point, triangle[2])));
+}
+
+
+
+/** @relates lass::prim::Triangle2D
+ */
+template <typename T>
+const T distance(const Triangle2D<T>& triangle, const Point2D<T>& point)
+{
+	return num::sqrt(squaredDistance(triangle, point));
+}
+
+
+
+/** @relates lass::prim::Triangle2D
+ */
+template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTriangle)
 {
 	LASS_ENFORCE_STREAM(ioOStream) << "<Triangle2D>\n";

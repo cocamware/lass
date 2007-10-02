@@ -45,10 +45,15 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
 
+#define LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
+
 #include "test_common.h"
 #include "../spat/aabb_tree.h"
 #include "../spat/aabp_tree.h"
+#include "../spat/quad_tree.h"
 #include "../meta/select.h"
+#include "../meta/tuple.h"
+#include "../meta/type_list.h"
 #include "../num/distribution.h"
 #include "../num/random.h"
 #include "../prim/aabb_2d.h"
@@ -59,6 +64,8 @@
 #include "../prim/triangle_2d.h"
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
+#include "../io/xml_o_file.h"
+#include "../io/matlab_o_stream.h"
 
 namespace lass
 {
@@ -120,6 +127,211 @@ OutputIterator generateObjects(const prim::Aabb3D<T>& iBound,
 	return iObjects;
 }
 
+template <typename ObjectIterator>
+class TreeConstructor
+{
+public: 
+	TreeConstructor(ObjectIterator first, ObjectIterator last): first_(first), last_(last) {}
+	template <typename Tree> void operator()(Tree& tree) const
+	{
+		tree.reset(first_, last_);
+	}
+private:
+	ObjectIterator first_;
+	ObjectIterator last_;
+};
+
+template <typename Point, typename ObjectHits>
+class ContainValidityTest
+{
+public:
+	ContainValidityTest(const Point& target, const ObjectHits& bruteHits, bool bruteContains): 
+		target_(target), bruteHits_(bruteHits), bruteContains_(bruteContains) 
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		const bool treeContains = tree.contains(target_);
+		ObjectHits treeHits;
+		tree.find(target_, std::back_inserter(treeHits));
+		std::sort(treeHits.begin(), treeHits.end());
+		LASS_TEST_CHECK_EQUAL(treeContains, bruteContains_);
+		LASS_TEST_CHECK(treeHits.size() == bruteHits_.size() && std::equal(treeHits.begin(), treeHits.end(), bruteHits_.begin()));
+	}
+private:
+	Point target_;
+	const ObjectHits& bruteHits_;
+	bool bruteContains_;
+};
+
+
+template <typename Ray, typename ObjectIterator>
+class IntersectionValidityTest
+{
+public:
+	typedef typename Ray::TValue TValue;
+	IntersectionValidityTest(const Ray& ray, ObjectIterator bruteHit, TValue bruteT):
+		ray_(ray), bruteHit_(bruteHit), bruteT_(bruteT) 
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		typedef typename Ray::TNumTraits TNumTraits;
+		TValue treeT = TNumTraits::infinity;
+		ObjectIterator treeHit = tree.intersect(ray_, treeT);
+		LASS_TEST_CHECK_EQUAL(treeHit, bruteHit_);
+		if (treeT == TNumTraits::infinity)
+		{
+			LASS_TEST_CHECK_EQUAL(treeT, bruteT_);
+		}
+		else
+		{
+			LASS_TEST_CHECK_CLOSE(treeT, bruteT_, TValue(1e-5f));
+		}
+	}
+private:
+	const Ray& ray_;
+	ObjectIterator bruteHit_;
+	TValue bruteT_;
+};
+
+
+
+template <typename Point, typename ObjectIterator>
+class NearestNeighbourValidityTest
+{
+public:
+	typedef typename Point::TValue TValue;
+	NearestNeighbourValidityTest(const Point& point, ObjectIterator bruteNearest, TValue bruteSqrDist):
+		point_(point), bruteNearest_(bruteNearest), bruteSqrDist_(bruteSqrDist) 
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		const typename Tree::Neighbour treeNearest = tree.nearestNeighbour(point_);
+		if (treeNearest.object() != bruteNearest_)
+		{
+			typename Tree::Neighbour temp = tree.nearestNeighbour(point_);
+		}
+		LASS_TEST_CHECK_EQUAL(treeNearest.object(), bruteNearest_);
+		if (bruteSqrDist_ == Point::TNumTraits::infinity)
+		{
+			LASS_TEST_CHECK_EQUAL(treeNearest.squaredDistance(), bruteSqrDist_);
+		}
+		else
+		{
+			LASS_TEST_CHECK_CLOSE(treeNearest.squaredDistance(), bruteSqrDist_, TValue(1e-5f));
+		}
+	}
+private:
+	const Point& point_;
+	ObjectIterator bruteNearest_;
+	TValue bruteSqrDist_;
+};
+
+
+
+template <typename Targets>
+class ContainSpeedTest
+{
+public:
+	ContainSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		size_t hits = 0;
+		stopWatch_.restart();
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator end = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != end; ++i)
+			{
+				hits += tree.contains(*i) ? 1 : 0;
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop();
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+template <typename Targets>
+class IntersectionSpeedTest
+{
+public:
+	IntersectionSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		typedef typename Tree::TValue TValue;
+		typedef num::NumTraits<TValue> TNumTraits;
+		TValue total = 0;
+		stopWatch_.restart();
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator targetEnd = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != targetEnd; ++i)
+			{
+				TValue t = TNumTraits::infinity;
+				if (tree.intersect(*i, t) != tree.end())
+				{
+					total += t;
+				}
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop();
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+
+
+template <typename Targets>
+class NearestNeighbourSpeedTest
+{
+public:
+	NearestNeighbourSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		typedef typename Tree::TValue TValue;
+		typedef num::NumTraits<TValue> TNumTraits;
+		TValue total = 0;
+		stopWatch_.restart();
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator targetEnd = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != targetEnd; ++i)
+			{
+				const typename Tree::Neighbour nearest = tree.nearestNeighbour(*i);
+				if (nearest.object() != tree.end())
+				{
+					total += nearest.squaredDistance();
+				}
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop();
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
 }
 
 template <typename T, size_t dim>
@@ -130,14 +342,16 @@ void testSpatObjectTrees()
 	const T extent = T(1000);
 	const T maxSize = T(10);
 	const size_t numberOfObjects = 10000;
+	const size_t numberOfPointTestTargets = 1000;
+	const size_t numberOfRayTestTargets = 1000;
 	// validation
 	const size_t numberOfContainValidations = 1000;
 	const size_t numberOfIntersectionValidations = 1000;
+	const size_t numberOfNearestNeighbourValidations = 1000;
 	// speed tests
-	const size_t numberOfContainSpeedTestTargets = 1000;
 	const size_t numberOfContainSpeedTestRuns = 10;
-	const size_t numberOfIntersectionSpeedTestTargets = 1000;
 	const size_t numberOfIntersectionSpeedTestRuns = 10;
+	const size_t numberOfNearestNeighbourSpeedTestRuns = 10;
 
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -152,9 +366,14 @@ void testSpatObjectTrees()
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 
-	typedef spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> > TAabbTree;
-	typedef spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> > TAabpTree;
-	
+	typedef meta::type_list::Make<
+		spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> >,
+		spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> >,
+		spat::QuadTree<TObject, TObjectTraits>
+	>::Type TObjectTreeTypes;
+
+	typedef meta::Tuple<TObjectTreeTypes> TObjectTrees;
+
 	// set bounds
 	//
 	TPoint min;
@@ -180,8 +399,11 @@ void testSpatObjectTrees()
 
 	// create trees
 	//
-	TAabbTree aabbTree(objectBegin, objectEnd);
-	TAabpTree aabpTree(objectBegin, objectEnd);
+	TObjectTrees trees;
+	object_trees::TreeConstructor<TObjectIterator> construct(objectBegin, objectEnd);
+	meta::tuple::forEach(trees, construct);
+
+	LASS_COUT << meta::tuple::field<2>(trees).depth() << "\t" << meta::tuple::field<2>(trees).averageDepth() << std::endl;
 
 	typedef std::vector<TObjectIterator> TObjectHits;
 
@@ -190,35 +412,20 @@ void testSpatObjectTrees()
 	for (unsigned i = 0; i < numberOfContainValidations; ++i)
 	{
 		TPoint target = bounds.random(generator);
-		TObjectHits naiveHits;
-		bool naiveContains = false;
+		TObjectHits bruteHits;
+		bool bruteContains = false;
 		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
 			if (obj->contains(target))
 			{
-				naiveContains = true;
-				naiveHits.push_back(obj);
+				bruteContains = true;
+				bruteHits.push_back(obj);
 			}
 		}
-		std::sort(naiveHits.begin(), naiveHits.end());
+		std::sort(bruteHits.begin(), bruteHits.end());
 
-		bool aabbContains = aabbTree.contains(target);
-		TObjectHits aabbHits;
-		aabbTree.find(target, std::back_inserter(aabbHits));
-		std::sort(aabbHits.begin(), aabbHits.end());
-		LASS_TEST_CHECK_EQUAL(naiveContains, aabbContains);
-		LASS_TEST_CHECK_EQUAL(naiveContains, !aabbHits.empty());
-		LASS_TEST_CHECK(naiveHits.size() == aabbHits.size() && 
-			std::equal(naiveHits.begin(), naiveHits.end(), aabbHits.begin()));
-
-		bool aabpContains = aabpTree.contains(target);
-		TObjectHits aabpHits;
-		aabpTree.find(target, std::back_inserter(aabpHits));
-		std::sort(aabpHits.begin(), aabpHits.end());
-		LASS_TEST_CHECK_EQUAL(naiveContains, aabpContains);
-		LASS_TEST_CHECK_EQUAL(naiveContains, !aabpHits.empty());
-		LASS_TEST_CHECK(naiveHits.size() == aabpHits.size() && 
-			std::equal(naiveHits.begin(), naiveHits.end(), aabpHits.begin()));
+		object_trees::ContainValidityTest<TPoint, TObjectHits> test(target, bruteHits, bruteContains);
+		meta::tuple::forEach(trees, test);
 	}
 
 	// intersection test
@@ -229,120 +436,87 @@ void testSpatObjectTrees()
 		TVector direction = TVector::random(generator);
 		TRay ray(support, direction);
 
-		T naiveT = TNumTraits::infinity;
-		TObjectIterator naiveIntersection = objectEnd;
+		T bruteT = TNumTraits::infinity;
+		TObjectIterator bruteHit = objectEnd;
 		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
 			T t;
 			const prim::Result result = prim::intersect(*obj, ray, t);
-			if (result != prim::rNone && t < naiveT)
+			if (result != prim::rNone && t < bruteT)
 			{
-				naiveIntersection = obj;
-				naiveT = t;
+				bruteHit = obj;
+				bruteT = t;
 			}
 		}
 
-		T aabbT = TNumTraits::infinity;
-		TObjectIterator aabbIntersection = aabbTree.intersect(ray, aabbT);
-		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabbIntersection);
-		if (naiveT == TNumTraits::infinity)
+		object_trees::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// nearest neighbour test
+	//
+	for (unsigned i = 0; i < numberOfNearestNeighbourValidations; ++i)
+	{
+		TPoint point = bounds.random(generator);
+
+		T bruteSqrDist = TNumTraits::infinity;
+		TObjectIterator bruteNearest = objectEnd;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
-			LASS_TEST_CHECK_EQUAL(naiveT, aabbT);
-		}
-		else
-		{
-			LASS_TEST_CHECK_CLOSE(naiveT, aabbT, tolerance);
+			const T sqrDist = prim::squaredDistance(*obj, point);
+			if (sqrDist < bruteSqrDist)
+			{
+				bruteNearest = obj;
+				bruteSqrDist = sqrDist;
+			}
 		}
 
-		T aabpT = TNumTraits::infinity;
-		TObjectIterator aabpIntersection = aabpTree.intersect(ray, aabpT);
-		LASS_TEST_CHECK_EQUAL(naiveIntersection, aabpIntersection);
-		if (naiveT == TNumTraits::infinity)
-		{
-			LASS_TEST_CHECK_EQUAL(naiveT, aabpT);
-		}
-		else
-		{
-			LASS_TEST_CHECK_CLOSE(naiveT, aabpT, tolerance);
-		}
+		object_trees::NearestNeighbourValidityTest<TPoint, TObjectIterator> test(point, bruteNearest, bruteSqrDist);
+		meta::tuple::forEach(trees, test);
 	}
 
 	// SPEED TESTS
 	//
 	LASS_COUT << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
-
-	// contain speed test
-	//
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
-	std::vector<TPoint> containTargets;
-	for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
-	{
-		containTargets.push_back(bounds.random(generator));
-	}	
-	size_t aabbHits = 0;
-	stopWatch.restart();
-	for (size_t k = 0; k < numberOfContainSpeedTestRuns; ++k)
-	{
-		for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
-		{
-			aabbHits += aabbTree.contains(containTargets[i]) ? 1 : 0;
-		}
-	}
-	const util::Clock::TTime aabbContainTime = stopWatch.stop();	
-	size_t aabpHits = 0;
-	stopWatch.restart();
-	for (size_t k = 0; k < numberOfContainSpeedTestRuns; ++k)
-	{
-		for (size_t i = 0; i < numberOfContainSpeedTestTargets; ++i)
-		{
-			aabpHits += aabpTree.contains(containTargets[i]) ? 1 : 0;
-		}
-	}
-	const util::Clock::TTime aabpContainTime = stopWatch.stop();
-	LASS_TEST_CHECK_EQUAL(aabbHits, aabpHits);
-	LASS_COUT << "contains: aabb " << aabbContainTime << "\taabp " << aabpContainTime << std::endl;
 
-	// intersection speed test
-	//
-	std::vector<TRay> intersectionTargets;
-	for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
+	typedef std::vector<TPoint> TPointTargets;
+	TPointTargets pointTargets;
+	for (size_t i = 0; i < numberOfPointTestTargets; ++i)
+	{
+		pointTargets.push_back(bounds.random(generator));
+	}
+
+	typedef std::vector<TRay> TRayTargets;
+	TRayTargets rayTargets;
+	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
 	{
 		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
-		intersectionTargets.push_back(TRay(support, direction));
+		rayTargets.push_back(TRay(support, direction));
 	}
-	T aabbTotal = 0;
-	stopWatch.restart();
-	for (size_t k = 0; k < numberOfIntersectionSpeedTestRuns; ++k)
-	{
-		for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
-		{
-			T aabbT = TNumTraits::infinity;
-			if (aabbTree.intersect(intersectionTargets[i], aabbT) != objectEnd)
-			{
-				aabbTotal += aabbT;
-			}
-		}
-	}
-	const util::Clock::TTime aabbIntersectionTime = stopWatch.stop();
-	T aabpTotal = 0;
-	stopWatch.restart();
-	for (size_t k = 0; k < numberOfIntersectionSpeedTestRuns; ++k)
-	{
-		for (size_t i = 0; i < numberOfIntersectionSpeedTestTargets; ++i)
-		{
-			T aabpT = TNumTraits::infinity;
-			if (aabpTree.intersect(intersectionTargets[i], aabpT) != objectEnd)
-			{
-				aabpTotal += aabpT;
-			}
-		}
-	}
-	const util::Clock::TTime aabpIntersectionTime = stopWatch.stop();
-	LASS_TEST_CHECK_EQUAL(aabbTotal, aabpTotal);
-	LASS_COUT << "intersection: aabb " << aabbIntersectionTime 
-		<< "\taabp " << aabpIntersectionTime << std::endl;
+
+	// contain speed test
+	//
+	LASS_COUT << "contain tests:\n";
+	object_trees::ContainSpeedTest<TPointTargets> containSpeedTest(
+		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
+	meta::tuple::forEach(trees, containSpeedTest);
+
+	// intersection speed test
+	//
+	LASS_COUT << "intersection tests:\n";
+	object_trees::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
+		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
+	meta::tuple::forEach(trees, intersectionSpeedTest);
+
+	// intersection speed test
+	//
+	LASS_COUT << "nearest neighbour tests:\n";
+	object_trees::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(
+		pointTargets, stopWatch, numberOfNearestNeighbourSpeedTestRuns);
+	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
 }
 
 

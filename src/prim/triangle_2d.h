@@ -125,6 +125,8 @@ private:
 	TPoint vertices_[size_];
 };
 
+template <typename T> const T distance(const Triangle2D<T>& triangle, const Point2D<T>& point);
+
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTriangle);
 template <typename T>

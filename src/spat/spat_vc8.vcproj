@@ -172,6 +172,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\quad_tree.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\spat_common.cpp"
 				>
 			</File>
@@ -221,6 +225,14 @@
 				RelativePath=".\split_heuristics.h"
 				>
 			</File>
+			<Filter
+				Name="impl"
+				>
+				<File
+					RelativePath=".\impl\quad_tree_helper.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

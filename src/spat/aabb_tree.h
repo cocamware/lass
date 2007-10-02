@@ -73,7 +73,7 @@ class AabbTree
 {
 public:
 
-	typedef AabbTree<ObjectType, ObjectTraits> TSelf;
+	typedef AabbTree<ObjectType, ObjectTraits, SplitHeuristics> TSelf;
 
 	typedef ObjectType TObject;
 	typedef ObjectTraits TObjectTraits;
@@ -95,9 +95,25 @@ public:
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
+	class Neighbour
+	{
+	public:
+		Neighbour(TObjectIterator object, TValue squaredDistance): 
+			object_(object), squaredDistance_(squaredDistance) {}
+		TObjectIterator object() const { return object_; }
+		TValue squaredDistance() const { return squaredDistance_; }
+		TObjectIterator operator->() const { return object_; }
+		TObjectReference operator*() const { return TObjectTraits::object(object_); }
+		bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+	private:
+		TObjectIterator object_;
+		TValue squaredDistance_;
+	};
+
 	AabbTree();
 	AabbTree(TObjectIterator first, TObjectIterator last);
 
+	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);
 
 	const TAabb aabb() const;
@@ -108,10 +124,11 @@ public:
 	TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, const TInfo* info = 0) const;
 	bool intersects(const TRay& ray, TParam tMin = 0, 
 		TParam tMax = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
+	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;
 
-	void swap(TSelf& other);
 	const bool isEmpty() const;
-	void clear();
+	const TObjectIterator end() const;
+	void swap(TSelf& other);
 
 private:
 
@@ -168,6 +185,7 @@ private:
 	OutputIterator doFind(int index, const TPoint& point, OutputIterator first, const TInfo* info) const;
 	TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const;
 	bool doIntersects(int iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
+	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 
 	TObjectIterators objects_;
 	TNodes nodes_;

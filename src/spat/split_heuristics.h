@@ -96,11 +96,10 @@ struct DefaultSplitHeuristics
 		const TPoint min = ObjectTraits::aabbMin(aabb);
 		const TPoint max = ObjectTraits::aabbMax(aabb);
 		int axis = 0;
-		TValue maxDistance = ObjectTraits::pointCoordinate(max, 0) - ObjectTraits::pointCoordinate(min, 0);
+		TValue maxDistance = ObjectTraits::coord(max, 0) - ObjectTraits::coord(min, 0);
 		for (int k = 1; k < ObjectTraits::dimension; ++k)
 		{
-			const TValue distance = 
-				ObjectTraits::pointCoordinate(max, k) - ObjectTraits::pointCoordinate(min, k);
+			const TValue distance = ObjectTraits::coord(max, k) - ObjectTraits::coord(min, k);
 			if (distance > maxDistance)
 			{
 				axis = k;
@@ -108,8 +107,7 @@ struct DefaultSplitHeuristics
 			}
 		}
 
-		const TValue x = 
-			(ObjectTraits::pointCoordinate(min, axis) + ObjectTraits::pointCoordinate(max, axis)) / 2;
+		const TValue x = (ObjectTraits::coord(min, axis) + ObjectTraits::coord(max, axis)) / 2;
 		return SplitInfo<ObjectTraits>(aabb, x, axis);
 	}
 };
@@ -126,8 +124,7 @@ public:
 	{
 		typedef ObjectTraits OT;
 		const typename OT::TValue x = 
-			(OT::pointCoordinate(OT::aabbMin(input.aabb), split_.axis) +
-			 OT::pointCoordinate(OT::aabbMax(input.aabb), split_.axis)) / 2;
+			(OT::coord(OT::aabbMin(input.aabb), split_.axis) + OT::coord(OT::aabbMax(input.aabb), split_.axis)) / 2;
 		return x < split_.x;
 	}			
 private:
@@ -143,11 +140,9 @@ public:
 	{
 		typedef ObjectTraits OT;
 		const typename OT::TValue xa = 
-			(OT::pointCoordinate(OT::aabbMin(a.aabb), axis_) +
-			 OT::pointCoordinate(OT::aabbMax(a.aabb), axis_)) / 2;
+			(OT::coord(OT::aabbMin(a.aabb), axis_) + OT::coord(OT::aabbMax(a.aabb), axis_)) / 2;
 		const typename OT::TValue xb = 
-			(OT::pointCoordinate(OT::aabbMin(b.aabb), axis_) +
-			 OT::pointCoordinate(OT::aabbMax(b.aabb), axis_)) / 2;
+			(OT::coord(OT::aabbMin(b.aabb), axis_) + OT::coord(OT::aabbMax(b.aabb), axis_)) / 2;
 		return xa < xb;
 	}			
 private:

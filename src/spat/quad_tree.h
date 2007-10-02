@@ -48,7 +48,7 @@
  *  particular ObjectType.  The traits class needs as a basis the following interface:
  *  <tt>
  *      static TAabb aabb(const TSimplePolygon3D& iP);
- *      static bool contains( const TSimplePolygon3D& iP, const TPoint& iPoint)
+ *      static bool contains( const TSimplePolygon3D& iP, const TPoint& point)
  *  </tt>
  *  The above functions are only examples.  The dimensionality of the primitives must
  *  match but can be of any order.  So the quad tree can be used to classify in
@@ -66,550 +66,170 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_QUAD_TREE_H
 
 #include "spat_common.h"
+#include "impl/quad_tree_helper.h"
 
 namespace lass
 {
 namespace spat
 {
 
-namespace impl
-{
-	template<
-		int dimension,
-		class ObjectType,
-		template <class> class ObjectTraits
-	>
-	struct
-	TreeSpatializer;
-}
-
 template
 <
 	class ObjectType,
-	template <class> class ObjectTraits
+	class ObjectTraits = DefaultObjectTraits<ObjectType>
 >
-class QuadTree
+class QuadTree: private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
 {
 public:
+
+	typedef QuadTree<ObjectType, ObjectTraits> TSelf;
 	typedef ObjectType TObjectType;
-	typedef ObjectTraits<ObjectType> TObjectTraits;
+	typedef ObjectTraits TObjectTraits;
 
-	typedef typename ObjectTraits<ObjectType>::TPoint TPoint;
-	typedef typename ObjectTraits<ObjectType>::TPoint::TNumTraits::selfType TBaseType;
-	typedef typename ObjectTraits<ObjectType>::TAabb TAabb;
-	typedef typename ObjectTraits<ObjectType>::TSeparator TSeparator;
+	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+	typedef typename TObjectTraits::TObjectReference TObjectReference;
+	typedef typename TObjectTraits::TAabb TAabb;
+	typedef typename TObjectTraits::TRay TRay;
+	typedef typename TObjectTraits::TPoint TPoint;
+	typedef typename TObjectTraits::TVector TVector;
+	typedef typename TObjectTraits::TValue TValue;
+	typedef typename TObjectTraits::TParam TParam;
+	typedef typename TObjectTraits::TReference TReference;
+	typedef typename TObjectTraits::TConstReference TConstReference;
+	typedef typename TObjectTraits::TInfo TInfo;
 
-	typedef typename TPoint::TVector TVector;
-	typedef typename TPoint::TValue TValue;
+	enum { dimension = TObjectTraits::dimension };
 
-private:
-	enum { dimension = TPoint::dimension };
-	static const int subNodeCount=1<<dimension;
-	typedef std::list< ObjectType > TListType;
-	struct QuadNode
+	class Neighbour
 	{
-		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
-		TPoint center;                  /**< center of quadnode */
-		TVector extents;                /**< x = half of widht, y = half of height */
-		TListType data;                 /**< the list containing the data */
-		int listSize;                   /**< helping the std::list :) */
-		int level;                      /**< level in tree */
-		bool leaf;                      /**< true for leaf nodes */
-
-		QuadNode();
-		QuadNode(const TPoint& aCenter, const TVector& aExtents);
-		~QuadNode();
-
-		QuadNode* add(const TObjectType& an,int iMaxSize = 100,int iMaxLevel = 10);
-
-		int objectCount() const;            /**< number of objects in this node and all its children */
-		int maxDepth() const;               /**< maximum depth of the child tree */
-		void decompose();                   /**< split the current node into 4 children */
-		void absorb();                      /**< absorb all children into the current node */
-
-		TAabb aabb() const;
-		int contains(const TPoint& ap, std::vector<ObjectType*>& oObjects) const;
+	public:
+		Neighbour(TObjectIterator object, TValue squaredDistance): 
+			object_(object), squaredDistance_(squaredDistance) {}
+		TObjectIterator object() const { return object_; }
+		TValue squaredDistance() const { return squaredDistance_; }
+		TObjectIterator operator->() const { return object_; }
+		TObjectReference operator*() const { return TObjectTraits::object(object_); }
+		bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+	private:
+		TObjectIterator object_;
+		TValue squaredDistance_;
 	};
-	friend struct impl::TreeSpatializer<dimension, ObjectType, ObjectTraits>;
 
-	QuadNode*   root_;
-	QuadTree();
-public:
+	//typedef typename TObjectTraits::TSeparator TSeparator; // ???
+
+	/** constructor that computes bounding box automatically from objects
+	 */
+	QuadTree(size_t maxSize = 100, size_t maxLevel = 10);
+
+	/** constructor that computes bounding box automatically from objects
+	 */
+	QuadTree(TObjectIterator first, TObjectIterator last, size_t maxSize = 10, size_t maxLevel = 10);
+
 	/** constructor.
-	*  @param iCenter       the center of the spatial tree
-	*  @param iExtents      the extents of the spatial tree in each direction,
+	*  @param center       the center of the spatial tree
+	*  @param extents      the extents of the spatial tree in each direction,
 	*                       thus the total width of the tree is twice the extents
 	*/
-	QuadTree(const TPoint& iCenter, const TVector& iExtents);
+	//QuadTree(TObjectIterator first, TObjectIterator last, const TPoint& center, const TVector& extents, size_t maxSize = 100, size_t maxLevel = 10);
+
 	/** constructor.
-	*  @param iBox          the bounding box of the spatial tree
+	*  @param box          the bounding box of the spatial tree
 	*/
-	QuadTree(const TAabb& iBox);
+	//QuadTree(TObjectIterator first, TObjectIterator last, const TAabb& box, size_t maxSize = 100, size_t maxLevel = 10);
+
 	~QuadTree();
 
-	/** contains.  Returns the number of object that returned true on contains and _adds_ them
-	*   to the vector oObjects.
+	void reset();
+	void reset(TObjectIterator first, TObjectIterator last);
+
+	/** return true if any of the objects contains point.
 	*
 	* Required :
-	* <tt>static bool ObjectTypeTraits::contains( const Object& iObject, const TPoint& iPoint );</tt>
+	* <tt>static bool ObjectTypeTraits::contains( const Object& object, const TPoint& point, const TInfo* info );</tt>
 	*/
-	int contains( const TPoint& iPoint, std::vector<ObjectType*>& oObjects ) const;
+	const bool contains(const TPoint& p, const TInfo* info = 0) const;
+
+	/** find objects containing point and write them to the output iterator.
+	*
+	* Required :
+	* <tt>static bool ObjectTypeTraits::contains( const Object& object, const TPoint& point, const TInfo* info );</tt>
+	*/
+	template <typename OutputIterator>
+	OutputIterator find(const TPoint& p, OutputIterator result, const TInfo* info = 0) const;
+
+	const TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, 
+		const TInfo* info = 0) const;
+	
+	const bool intersects(const TRay& ray, TParam tMin = 0, 
+		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
+
+	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;	
 
 	/** contains.  Returns the number of object that returned sFront on all the lines
 	*   provided in the iFrustum vector and _adds_ them to the vector oObjects.  An example
 	*   of use is frustum culling.
 	*
 	* Required :
-	*  <tt>static bool ObjectTypeTraits::contains( const Object& iObject, const TPoint& iPoint );</tt>
+	*  <tt>static bool ObjectTypeTraits::contains( const Object& object, const TPoint& point );</tt>
 	*/
-	int visible( const std::vector<TSeparator>& iFrustum, std::vector<ObjectType*>& oObjects ) const;
+	//size_t visible( const std::vector<TSeparator>& iFrustum, std::vector<ObjectType*>& oObjects ) const;
 
-	/** clear.  Clears the entire quadtree. */
-	void clear();
-	void add(const ObjectType& iObject,int iMaxSize = 100, int iMaxLevel = 10);
-	int objectCount() const;
+	void add(TObjectIterator object);
+	size_t objectCount() const;
 
-	/** maxDepth. Returns the maximum depth of the tree */
-	int maxDepth() const;
+	/** depth. Returns the depth of the tree */
+	const size_t depth() const;
+	const TValue averageDepth() const;
+
+	void swap(QuadTree& other);
+	const TObjectIterator end() const;
+
+private:
+	enum { subNodeCount = 1 << dimension };
+	typedef std::vector<TObjectIterator> TObjectIterators;
+	struct QuadNode
+	{
+		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
+		TPoint center;                  /**< center of quadnode */
+		TVector extents;                /**< x = half of widht, y = half of height */
+		TObjectIterators data;          /**< the list containing the data */
+		bool leaf;                      /**< true for leaf nodes */
+
+		QuadNode();
+		QuadNode(const TPoint& aCenter, const TVector& aExtents);
+		~QuadNode();
+
+		void add(TObjectIterator object, size_t maxSize, size_t maxLevel, size_t level = 0, bool mayDecompose = true);
+
+		size_t objectCount() const;            /**< number of objects in this node and all its children */
+		size_t depth() const;					/**< depth of the child tree */
+		const TValue averageDepth() const;
+		void decompose(size_t maxSize, size_t maxLevel, size_t level = 0);	/**< split the current node into 4 children */
+		void absorb();                      /**< absorb all children into the current node */
+
+		TAabb aabb() const;
+	};
+	
+	const TObjectIterator doIntersect(const QuadNode* node, const TRay& ray, TReference t, TParam tMin, 
+		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+	const bool doIntersects(const QuadNode* node, const TRay& ray, TParam tMin, TParam tMax, 
+		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+	void doNearestNeighbour(const QuadNode* node, const TPoint& point, const TInfo* info,
+		Neighbour& best) const;
+
+	TAabb aabb_;
+	QuadNode*   root_;
+	TObjectIterator end_;
+	size_t maxSize_;
+	size_t maxLevel_;
 };
 
 
-namespace impl
-{
-	template<
-		int dimension,
-		class ObjectType,
-		template <class> class ObjectTraits
-	>
-	struct
-	TreeSpatializer
-	{
-	};
-
-	template<
-		class ObjectType,
-		template <class> class ObjectTraits
-	>
-	struct
-	TreeSpatializer<2, ObjectType, ObjectTraits>
-	{
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TVector TVector;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
-
-		static void buildSubNodes(QuadNode* ioParentNode)
-		{
-			TVector newExtents(ioParentNode->extents);
-			newExtents*=0.5;
-
-			const TValue cx = ioParentNode->center[0];
-			const TValue cy = ioParentNode->center[1];
-			const TValue ex = newExtents[0];
-			const TValue ey = newExtents[1];
-			ioParentNode->node[0] = new QuadNode(TPoint(cx-ex,cy+ey),newExtents);
-			ioParentNode->node[1] = new QuadNode(TPoint(cx+ex,cy+ey),newExtents);
-			ioParentNode->node[2] = new QuadNode(TPoint(cx+ex,cy-ey),newExtents);
-			ioParentNode->node[3] = new QuadNode(TPoint(cx-ex,cy-ey),newExtents);
-		}
-
-		static int findSubNode(QuadNode const* iNode, const TPoint& iPoint)
-		{
-			const TPoint& center = iNode->center;
-			if ( iPoint[1] >= center[1] )
-				if ( iPoint[0] >= center[0] )
-					return 1;
-				else
-					return 0;
-			else
-				if ( iPoint[0] >= center[0] )
-					return 2;
-				else
-					return 3;
-		}
-	};
-
-
-	template<
-		class ObjectType,
-		template <class> class ObjectTraits
-	>
-	struct
-	TreeSpatializer<3, ObjectType, ObjectTraits>
-	{
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TPoint TPoint;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TVector TVector;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::TValue TValue;
-		typedef typename QuadTree<ObjectType,ObjectTraits>::QuadNode QuadNode;
-
-		static void buildSubNodes(QuadNode* ioParentNode)
-		{
-			TVector newExtents(ioParentNode->extents);
-			newExtents*=0.5;
-
-			const TValue cx = ioParentNode->center[0];
-			const TValue cy = ioParentNode->center[1];
-			const TValue cz = ioParentNode->center[2];
-			const TValue ex = newExtents[0];
-			const TValue ey = newExtents[1];
-			const TValue ez = newExtents[2];
-
-			ioParentNode->node[0] = new QuadNode(TPoint(cx-ex,cy+ey,cz+ez),newExtents);
-			ioParentNode->node[1] = new QuadNode(TPoint(cx+ex,cy+ey,cz+ez),newExtents);
-			ioParentNode->node[2] = new QuadNode(TPoint(cx+ex,cy-ey,cz+ez),newExtents);
-			ioParentNode->node[3] = new QuadNode(TPoint(cx-ex,cy-ey,cz+ez),newExtents);
-
-			ioParentNode->node[4] = new QuadNode(TPoint(cx-ex,cy+ey,cz-ez),newExtents);
-			ioParentNode->node[5] = new QuadNode(TPoint(cx+ex,cy+ey,cz-ez),newExtents);
-			ioParentNode->node[6] = new QuadNode(TPoint(cx+ex,cy-ey,cz-ez),newExtents);
-			ioParentNode->node[7] = new QuadNode(TPoint(cx-ex,cy-ey,cz-ez),newExtents);
-		}
-
-		static int findSubNode(QuadNode const* iNode, const TPoint& iPoint)
-		{
-			const TPoint& center = iNode->center;
-			int baseCell = 0;
-			if ( iPoint[1] >= center[1] )
-				if ( iPoint[0] >= center[0] )
-					baseCell=1;
-				else
-					baseCell=0;
-			else
-				if ( iPoint[0] >= center[0] )
-					baseCell=2;
-				else
-					baseCell=3;
-			if (iPoint[2] < center[2])
-				baseCell+=4;
-			return baseCell;
-		}
-	};
-
-};
-
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits >::QuadTree()
-{
-	root_ = NULL;
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits>::~QuadTree()
-{
-	clear();
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits>::QuadTree(const TPoint& iCenter,const TVector& iExtents)
-{
-	root_ = new QuadNode(iCenter, iExtents);
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits >::QuadTree(const TAabb& iBox)
-{
-	TVector extents = iBox.max()-iBox.min();
-	extents *= 0.5;
-	root_ = new QuadNode(iBox.center(), extents);
-}
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-void QuadTree< ObjectType, ObjectTraits >::clear()
-{
-	delete root_;
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::objectCount() const
-{
-	return root_->objectCount();
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode() : leaf(true), level(0), listSize(0)
-{
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits >::QuadNode::QuadNode( const TPoint& iCenter, const TVector& iExtents) :
-	center(iCenter), extents(iExtents), listSize(0), level(0), leaf(true)
-{
-	for (int i=subNodeCount-1;i>=0;--i)
-		node[i] = NULL;
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-QuadTree< ObjectType, ObjectTraits >::QuadNode::~QuadNode()
-{
-	for (int i=0;i<subNodeCount;++i)
-		delete node[i];
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::QuadNode::objectCount() const
-{
-	int cumulCount = listSize;
-	for (int i=0;i<subNodeCount;++i)
-	{
-		if (node[i])
-			cumulCount += node[i]->objectCount();
-	}
-	return cumulCount;
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-void QuadTree< ObjectType, ObjectTraits >::add(const ObjectType& iObject,int iMaxSize, int iMaxLevel)
-{
-	if (!root_->add(iObject, iMaxSize, iMaxLevel))
-		LASS_THROW("Could not add object to QuadTree");
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-typename QuadTree< ObjectType, ObjectTraits >::QuadNode* QuadTree< ObjectType, ObjectTraits >::QuadNode::add(const ObjectType& iObject,int iMaxSize, int iMaxLevel)
-{
-	if (leaf)
-	{
-		data.push_back(iObject);
-		++listSize;
-		if ( (listSize>iMaxSize) && (level<iMaxLevel))
-		{
-			decompose();
-		}
-		return this;
-	}
-	else
-	{
-		// unused?  [Bramz]
-		//QuadNode* lastNode = NULL;
-
-		TAabb aBox = ObjectTraits<ObjectType>::aabb(iObject);
-		int intersectionCount = 0;
-		int lastIntersection = 0;
-		for (int i=0;i<subNodeCount;++i)
-		{
-			if (aBox.intersects(node[i]->aabb()))
-			{
-				++intersectionCount;
-				lastIntersection = i;
-				if (intersectionCount>1)
-					break;
-			}
-		}
-		if (intersectionCount==1)
-		{
-			return node[lastIntersection]->add(iObject, iMaxSize, iMaxLevel);
-		}
-		if (intersectionCount>1)
-		{
-			data.push_back(iObject);
-			++listSize;
-			return this;
-		}
-		LASS_THROW("Object not placeable in node");
-	}
-
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-typename QuadTree< ObjectType, ObjectTraits >::TAabb QuadTree< ObjectType, ObjectTraits >::QuadNode::aabb() const
-{
-	/* Reconstruction of the aabb everytime an object gets inserted to the quadnode
-	*  Altough this is not very efficient, it is only needed during construction.  Better
-	*  storage via center and dx,dy can give more efficient lookup code which is the main
-	*  interest.  Storing the aabb would give too much overhead in comparison with the gain
-	*  in speed.
-	*/
-	//std::cout << "center:"<<center << std::endl;
-	//std::cout << "extents:"<<extents << std::endl;
-	TAabb result(center-extents,center+extents);
-	//std::cout << "result:"<<result << std::endl;
-	return result;
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-void QuadTree< ObjectType, ObjectTraits >::QuadNode::decompose()
-{
-	if (leaf) // only decompose leaf nodes, others are already decomposed
-	{
-		impl::TreeSpatializer<dimension, ObjectType, ObjectTraits>::buildSubNodes(this);
-
-		for (int i=0;i<subNodeCount;++i)
-			node[i]->level = level+1;
-		leaf = false;
-
-		typename TListType::iterator vit = data.begin();
-
-		TAabb nodeAabb[subNodeCount];       // cache node aabb
-		for (int i=0;i<subNodeCount;++i)
-			nodeAabb[i] = node[i]->aabb();
-
-		while (vit!=data.end())
-		{
-			typename TListType::iterator bit=vit;
-			++bit;
-			TAabb tempAabb = ObjectTraits<ObjectType>::aabb( *vit );
-			/* for each object we test wether it is contained in one of the
-			*  subnodes of the quadnode.  If it is completely in one then move
-			*  the object down the tree, but only one level
-			*/
-			for (int i=0;i<subNodeCount;++i)
-				if (nodeAabb[i].contains(tempAabb))
-				{
-					node[i]->add(*vit);
-					--listSize;
-					data.erase(vit);
-					break;
-				}
-			vit=bit;
-		}
-	}
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-void QuadTree< ObjectType, ObjectTraits >::QuadNode::absorb()
-{
-	if (!leaf)
-	{
-		for (int i=0;i<subNodeCount;++i)
-		{
-			node[i].absorb();
-			std::copy(node[i]->data.begin(), node[i]->data.end(), data.end());
-			listSize += node[i]->listSize;
-			delete node[i];
-		}
-		leaf = true;
-	}
-}
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::QuadNode::maxDepth() const
-{
-	if (leaf)
-		return level;
-	else
-	{
-		int maxLevel=node[0]->maxDepth();
-		for (int i=1;i<subNodeCount;++i)
-			maxLevel = std::max(maxLevel,node[i]->maxDepth());
-		return maxLevel;
-	}
-}
-
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::maxDepth() const
-{
-	return root_->maxDepth();
-}
-
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::QuadNode::contains(const TPoint& iPoint, std::vector<ObjectType*>& oObjects) const
-{
-	int hitCount=0;
-	typename TListType::const_iterator lIt = data.begin();
-	for (;lIt!=data.end();++lIt)
-	{
-		if (ObjectTraits<ObjectType>::contains(*lIt,iPoint))
-		{
-			++hitCount;
-			oObjects.push_back(const_cast<ObjectType*>(&(*lIt)));
-		}
-	}
-	if (!leaf)
-	{
-		return   hitCount+
-				 node[impl::TreeSpatializer<dimension, ObjectType, ObjectTraits>::findSubNode(this,iPoint)]->contains(iPoint,oObjects);
-	}
-	return hitCount;
-}
-
-
-template
-<
-	class ObjectType,
-	template <class> class ObjectTraits
->
-int QuadTree< ObjectType, ObjectTraits >::contains(const TPoint& iPoint, std::vector<ObjectType*>& oObjects) const
-{
-	return root_->contains(iPoint, oObjects);
-}
-
 
 }
 }
+
+#include "quad_tree.inl"
 
 #endif
 
