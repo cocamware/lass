@@ -76,7 +76,7 @@ public:
 	};
 	static bool invalidateBase(CppBase* iBase)
 	{
-		std::set<PyShadowBaseTracked*>::iterator it = shadows_->begin();
+		typename std::set<PyShadowBaseTracked*>::iterator it = shadows_->begin();
 		for (;it!=shadows_->end();++it)
 		{
 			if ((*it)->cppObject_==iBase)
@@ -135,7 +135,8 @@ protected:
 		oBorrowed
 	};
 	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
-		ownership_(iOwnership), PyShadowBaseTracked<CppBase>(iCppObject,doTracking)
+		PyShadowBaseTracked<CppBase>(iCppObject,doTracking),
+		ownership_(iOwnership)
 	{
 		cppObject_ = iCppObject;
 	}
