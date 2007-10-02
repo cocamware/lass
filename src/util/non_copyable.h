@@ -57,7 +57,7 @@ class LASS_DLL NonCopyable
 protected:
 	NonCopyable() {}
 	~NonCopyable() {}
-	void swap(const NonCopyable&) {}
+	void swap(NonCopyable&) {}
 private:
 	NonCopyable(const NonCopyable&);
 	NonCopyable& operator=(const NonCopyable&);

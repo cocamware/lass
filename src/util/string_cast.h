@@ -44,6 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_STRING_CAST_H
 
 #include "util_common.h"
+#include "../stde/extended_io.h"
 #include <limits>
 
 namespace lass
@@ -62,13 +63,14 @@ private:
 namespace impl
 {
 
-class LASS_DLL StringCast
+class StringCast
 {
 public:
 	StringCast(const std::string& in):
 		buffer_(in)
 	{		
 	}
+	~StringCast() {}
 	template <typename In> StringCast(const In& in)
 	{
 		typedef std::numeric_limits<typename CallTraits<In>::TValue> TLimits;

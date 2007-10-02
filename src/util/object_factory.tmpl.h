@@ -82,7 +82,7 @@ public:
 	}
 	$[
 	template <$(typename P$x)$>
-	TPointer make(typename CallTraits<TKey>::TParam key, $(const P$x p$x)$) const
+	TPointer make(typename CallTraits<TKey>::TParam key, $(P$x& p$x)$) const
 	{
 		const typename TMakers::const_iterator i = makers_.find(key);
 		if (i == makers_.end())

@@ -195,7 +195,7 @@ namespace lass
 			explicit PyObjectStorage(T* pointee): Cascade(), storage_(impl::fixObjectType(pointee)) {}
 			PyObjectStorage(const PyObjectStorage& other): Cascade(other), storage_(other.storage_) {}
 			template <typename U> PyObjectStorage(const PyObjectStorage<U, Cascade>& other): 
-				Cascade(other), storage_(other.pointee_) {}
+				Cascade(other), storage_(other.storage()) {}
 			TPointer pointer() const { return storage_; }
 			void dispose() { storage_ = 0; }
 			bool isNull() const { return !storage_; }
@@ -294,6 +294,30 @@ namespace lass
 			return obj;
 		}
 
+		/** static_cast for python pointers
+		 *  @ingroup Python
+		 */  
+		template <typename Out, typename In> inline
+		Out	staticPyCast(const In& in)
+		{
+			typedef typename Out::TPointer TPtr;
+			TPtr ptr = static_cast<typename TPtr>(in.get());
+			Py_XINCREF(ptr);
+			return Out(ptr);
+		}
+
+		/** dynamic_cast for python pointers
+		 *  @ingroup Python
+		 */  
+		template <typename Out, typename In> inline
+		Out	dynamicPyCast(const In& in)
+		{
+			typedef typename Out::TPointer TPtr;
+			TPtr ptr = dynamic_cast<typename TPtr>(in.get());
+			Py_XINCREF(ptr);
+			return Out(ptr);
+		}
+
 		/** meta function to detect if a type is a PyObject-derived type
 		*   @ingroup Python
 		*/
@@ -343,7 +367,8 @@ namespace lass
 			LASS_DLL PyObject* LASS_CALL repr(PyObject* obj);
 			LASS_DLL PyObject* LASS_CALL str(PyObject* obj);
 
-			/** @internal
+			/**	@ingroup
+			 *	@internal
 			 */
 			class LASS_DLL OverloadLink
 			{
@@ -370,6 +395,9 @@ namespace lass
 			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(
 				PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
 
+			/**	@ingroup
+			 *	@internal
+			 */
 			template <PyCFunction DispatcherAddress>
 			struct DispatcherConvertor
 			{
@@ -386,7 +414,8 @@ namespace lass
 				}
 			};
 
-			/** @internal
+			/**	@ingroup
+			 *	@internal
 			 */
 			struct LASS_DLL CompareFunc
 			{
@@ -394,9 +423,14 @@ namespace lass
 				int op;
 				CompareFunc(PyCFunction dispatcher, int op): dispatcher(dispatcher), op(op) {}
 			};
+
+			/**	@ingroup
+			 *	@internal
+			 */
 			typedef std::vector<CompareFunc> TCompareFuncs;
 
-			/** @internal
+			/**	@ingroup
+			 *	@internal
 			 */
 			template <typename CppClass>
 			struct RichCompare
@@ -447,7 +481,8 @@ namespace lass
 				}
 			};
 
-			/** @internal
+			/**	@ingroup
+			 *	@internal
 			 */
 			template <>
 			struct RichCompare<PyObjectPlus>
@@ -463,8 +498,9 @@ namespace lass
 				}
 			};
 
-			/** @internal
-			*/
+			/**	@ingroup
+			 *	@internal
+			 */
 			struct StaticMember
 			{
 				PyObject* object;
@@ -477,7 +513,8 @@ namespace lass
 			};
 			typedef std::vector<StaticMember> TStaticMembers;
 
-			/** @internal
+			/**	@ingroup
+			 *	@internal
 			 *  predicate to find a StaticMember by name.
 			 */
 			class LASS_DLL StaticMemberEqual
@@ -489,9 +526,10 @@ namespace lass
 				const char* name_;
 			};
 
-			/**	@internal
-			*	predicate to check of a python method has the correct name.
-			*/
+			/**	@ingroup
+			 *	@internal
+			 *	predicate to check of a python method has the correct name.
+			 */
 			class LASS_DLL PyMethodEqual
 			{
 			public:
@@ -534,11 +572,6 @@ namespace lass
 
 			template <typename CppClass> void injectClassInModule(
 				PyObject* iModule, const char* iClassDocumentation);
-			/*template <typename CppClass> void addClassMethod(
-				const char* iMethodName, const char* iDocumentation, 
-				PyCFunction iMethodDispatcher, unaryfunc iUnaryDispatcher, 
-				binaryfunc iBinaryDispatcher, ternaryfunc iTernaryDispatcher,
-				OverloadLink& oOverloadChain);*/
 			template <typename CppClass> void addClassStaticMethod(
 				const char* iMethodName, const char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
@@ -558,26 +591,6 @@ namespace lass
 
 			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, int iExpectedSize);
-
-			namespace experimental
-			{
-				template <typename Out, typename In> inline
-				Out staticPyCast(const In& in)
-				{
-					typedef typename Out::TPointer TPtr;
-					TPtr p = static_cast<TPtr>(in.get());
-					Py_XINCREF(p);
-					return Out(p);
-				}
-				template <typename Out, typename In> inline
-				Out dynamicPyCast(const In& in)
-				{
-					typedef typename Out::TPointer TPtr;
-					TPtr p = dynamic_cast<TPtr>(in.get());
-					Py_XINCREF(p);
-					return Out(p);
-				}
-			}
 		}
 	}
 }

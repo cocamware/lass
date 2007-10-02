@@ -103,9 +103,9 @@
 	{\
 		Py_Initialize(); \
 		LASS_CONCATENATE( lassPythonModule_, i_module ) = Py_InitModule3(\
-			const_cast<char*>(s_moduleName), \
+			(char*)(s_moduleName), \
 			&LASS_CONCATENATE( lassPythonModuleMethods_, i_module )[0], \
-			const_cast<char*>(s_doc) ); \
+			(char*)(s_doc) ); \
 		for (size_t i=0;i<LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).size() ;++i)\
 		{\
 			PyModule_AddObject( LASS_CONCATENATE( lassPythonModule_, i_module ), \
