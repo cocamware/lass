@@ -140,6 +140,45 @@ typename Field<TupleType, index>::Type& field(TupleType& tuple)
 	return static_cast<TSubType&>(tuple).value();
 }
 
+
+
+namespace impl
+{
+	template <typename TupleType> struct ForEach;
+	template <typename H, typename Ts>
+	struct ForEach< Tuple< TypeList<H, Ts> > >
+	{
+		template <typename Functor> static void call(Tuple< TypeList<H, Ts> >& tuple, Functor& fun)
+		{
+			fun(tuple.value());
+			ForEach< Tuple<Ts> >::call(tuple, fun);
+		}
+	};
+	template <typename Ts>
+	struct ForEach< Tuple< TypeList<meta::EmptyType, Ts> > >
+	{
+		template <typename Functor> static void call(Tuple< TypeList<meta::EmptyType, Ts> >& tuple, Functor& fun)
+		{
+			ForEach< Tuple<Ts> >::call(tuple, fun);
+		}
+	};
+	template <>
+	struct ForEach< Tuple< meta::NullType> >
+	{
+		template <typename Functor> static void call(Tuple<meta::NullType>& tuple, Functor& fun)
+		{
+		}
+	};
+}
+
+template <typename TupleType, typename Functor>
+void forEach(TupleType& tuple, Functor& fun)
+{
+	impl::ForEach<TupleType>::call(tuple, fun);
+}
+
+
+
 }
 
 }

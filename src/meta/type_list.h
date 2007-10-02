@@ -111,6 +111,35 @@ struct At<TypeList<H, Ts>, 0>
 };
 
 
+
+template <typename Ts, typename X> struct PushBack;
+
+template <typename H, typename Ts, typename X>
+struct PushBack<TypeList<H, Ts>, X>
+{
+	typedef TypeList<H, typename PushBack<Ts, X>::Type> Type;
+};
+
+template <typename X>
+struct PushBack<NullType, X>
+{
+	typedef TypeList<X, NullType> Type;
+};
+
+
+
+template <typename Ts, typename Tail = NullType> struct Reverse;
+
+template <typename H, typename Ts, typename Tail>
+struct Reverse<TypeList<H, Ts>, Tail>: public Reverse< Ts, TypeList<H, Tail> > {};
+
+template <typename Tail>
+struct Reverse<NullType, Tail>
+{
+	typedef Tail Type;
+};
+
+
 }
 }
 }
