@@ -73,7 +73,7 @@ struct KdTreeObjectTraits
 	typedef typename TPoint::TConstReference TConstReference;
 	enum { dimension = TPoint::dimension };
 
-	static const TPoint& position(TObjectIterator iObject) { return *iObject; }
+	static const TPoint& position(TObjectIterator object) { return *object; }
 };
 
 
@@ -106,7 +106,7 @@ public:
 	{
 	public:
 		Neighbour();
-		Neighbour(TObjectIterator iObject, TValue iSquaredDistance);
+		Neighbour(TObjectIterator object, TValue squaredDistance);
 
 		TObjectIterator object() const;
 		TPoint position() const;
@@ -114,7 +114,7 @@ public:
 
 		TObjectIterator operator->() const;
 		TObjectReference operator*() const;
-		bool operator<(const Neighbour& iOther) const;
+		bool operator<(const Neighbour& other) const;
 	private:
 		TObjectIterator object_;
 		TValue squaredDistance_;
@@ -123,23 +123,23 @@ public:
 	typedef std::vector<Neighbour> TNeighbourhood;
 
 	KdTree();
-	KdTree(TObjectIterator iBegin, TObjectIterator iEnd);
+	KdTree(TObjectIterator first, TObjectIterator last);
 
 	void reset();
-	void reset(TObjectIterator iBegin, TObjectIterator iEnd);
+	void reset(TObjectIterator first, TObjectIterator last);
 
-	Neighbour nearestNeighbour(const TPoint& iLocation) const;	
-	TValue rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
-			TNeighbourhood& oNeighbourhood) const;
+	Neighbour nearestNeighbour(const TPoint& target) const;	
+	TValue rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCount,
+			TNeighbourhood& neighbourhood) const;
 
 	template <typename OutputIterator> 
-	OutputIterator rangeSearch(const TPoint& iCenter, TParam iMaxRadius, 
-			OutputIterator iFirst) const;	
+	OutputIterator rangeSearch(const TPoint& target, TParam maxRadius, 
+			OutputIterator first) const;	
 	template <typename RandomIterator>
-	RandomIterator rangeSearch(const TPoint& iCenter, TParam iMaxRadius, size_t iMaxCount,
-			RandomIterator iFirst) const;	
+	RandomIterator rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCount,
+			RandomIterator first) const;	
 
-	void swap(TSelf& iOther);
+	void swap(TSelf& other);
 	const bool isEmpty() const;
 	void clear();
 
@@ -162,34 +162,46 @@ private:
 	class LessDim
 	{
 	public:
-		LessDim(TAxis iSplit): split_(iSplit) {}
-		bool operator()(const TObjectIterator& iA, const TObjectIterator& iB) const
+		LessDim(TAxis split): split_(split) {}
+		bool operator()(const TObjectIterator& a, const TObjectIterator& b) const
 		{
-			return TObjectTraits::position(iA)[split_] < TObjectTraits::position(iB)[split_];
+			return TObjectTraits::position(a)[split_] < TObjectTraits::position(b)[split_];
 		}
 	private:
 		TAxis split_;
 	};
 
-	void buildHeap();
-	void balance(size_t iNode, TIteratorIterator iBegin, TIteratorIterator iEnd);
-	TAxis findSplitAxis(TIteratorIterator iBegin, TIteratorIterator iEnd) const;
-	void assignNode(size_t iNode, TObjectIterator iObject, TAxis iSplitAxis);
-	size_t findNode(const TPoint& iTarget, size_t iStartNode) const;
+	class Node
+	{
+	public:
+		Node(TObjectIterator object, TAxis axis = dummyAxis_): object_(object), axis_(axis) {}
+		const TObjectIterator& object() const { return object_; }
+		const TAxis axis() const { return axis_; }
+		const TPoint position() const { return TObjectTraits::position(object_); }
+	private:
+		TObjectIterator object_;
+		TAxis axis_;
+	};
+	typedef std::vector<Node> TNodes;
 
-	void doNearestNeighbour(const TPoint& iTarget, Neighbour& oNeighbour, size_t iNode) const;
+	void buildHeap();
+	void balance(size_t index, TIteratorIterator first, TIteratorIterator last);
+	TAxis findSplitAxis(TIteratorIterator first, TIteratorIterator last) const;
+	void assignNode(size_t index, TObjectIterator object, TAxis splitAxis);
+	size_t findNode(size_t index, const TPoint& target) const;
+
+	void doNearestNeighbour(size_t index, const TPoint& target, Neighbour& best) const;
 
 	template <typename OutputIterator>
-	OutputIterator doRangeSearch(const TPoint& iCenter, TParam iSquaredRadius, 
-		OutputIterator iOutput, size_t iNode) const;
+	OutputIterator doRangeSearch(size_t index, const TPoint& target, 
+		TParam squaredRadius, OutputIterator output) const;
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(const TPoint& iCenter, TReference ioSquaredRadius, 
-		size_t iMaxCount, RandomIterator iFirst, RandomIterator iLast, size_t iNode) const;
+	RandomIterator doRangeSearch(size_t index, const TPoint& target, TReference squaredRadius, 
+		size_t maxCount, RandomIterator first, RandomIterator last) const;
 
-	static TValue squaredDistance(const TPoint& iA, const TPoint& iB);
+	static TValue squaredDistance(const TPoint& a, const TPoint& b);
 
-	TObjectIterators heap_;
-	TAxes splits_;
+	TNodes heap_;
 	TObjectIterator begin_;
 	TObjectIterator end_;
 	size_t size_;
