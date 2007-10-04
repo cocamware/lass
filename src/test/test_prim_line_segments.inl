@@ -49,6 +49,8 @@
 
 #include "../prim/line_segment_2d.h"
 #include "../prim/line_segment_3d.h"
+#include "../num/random.h"
+#include "../num/distribution.h"
 
 namespace lass
 {
@@ -62,7 +64,7 @@ void testPrimLineSegment2D()
 	typedef prim::LineSegment2D<T, prim::Unbounded> TLineSegUnbounded;
 	typedef prim::Point2D<T> TPoint;
 
-	const T epsilon = static_cast<T>(1e-5);
+	const T epsilon = static_cast<T>(1e-4);
 
 	TPoint a(53, 16);
 	TPoint b(46, 37);
@@ -108,6 +110,15 @@ void testPrimLineSegment2D()
 	LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, p), prim::rOne);
 	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), p, epsilon, 2);
 	LASS_TEST_CHECK_CLOSE_ARRAY(unbounded.point(u), p, epsilon, 2);
+
+	num::RandomMT19937 random;
+	num::DistributionUniform<T, num::RandomMT19937> uniform(random);
+	for (size_t i = 0; i < 100; ++i)
+	{
+		const T t = uniform();
+		LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
+		LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
+	}
 }
 
 
@@ -118,6 +129,8 @@ void testPrimLineSegment3D()
 	typedef prim::LineSegment3D<T, prim::Bounded> TLineSegBounded;
 	typedef prim::LineSegment3D<T, prim::Unbounded> TLineSegUnbounded;
 	typedef prim::Point3D<T> TPoint;
+
+	const T epsilon = static_cast<T>(1e-4);
 
 	TPoint a(53, 16, 85);
 	TPoint b(46, 37, 30);
@@ -152,6 +165,15 @@ void testPrimLineSegment3D()
 	LASS_TEST_CHECK_EQUAL(bounded.point(T(1)), bounded.head());
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
+
+	num::RandomMT19937 random;
+	num::DistributionUniform<T, num::RandomMT19937> uniform(random);
+	for (size_t i = 0; i < 100; ++i)
+	{
+		const T t = uniform();
+		LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
+		LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
+	}
 }
 
 

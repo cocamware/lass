@@ -163,10 +163,22 @@ LineSegment2D<T, PP>::length() const
 template <typename T, class PP>
 T squaredDistance(const LineSegment2D<T, PP>& segment, const Point2D<T>& point)
 {
-	const T dTail = squaredDistance(segment.tail(), point);
-	const T dHead = squaredDistance(segment.head(), point);
-	const T dLine = segment.vector().reject(point - segment.tail()).squaredNorm();
-	return std::min(dLine, std::min(dTail, dHead));
+	typedef typename LineSegment2D<T, PP>::TVector TVector;
+	typedef typename LineSegment2D<T, PP>::TValue TValue;
+
+	const TVector edge = segment.vector();
+	const TVector v = point - segment.tail();
+	const TValue t = dot(v, edge);
+	const TValue tMax = dot(edge, edge);
+	if (t <= 0)
+	{
+		return v.squaredNorm();
+	}
+	if (t >= tMax)
+	{
+		return squaredDistance(segment.head(), point);
+	}
+	return (v - edge * (t / tMax)).squaredNorm();
 }
 
 

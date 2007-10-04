@@ -191,14 +191,31 @@ const bool AabpTree<O, OT, SH>::intersects(
 
 template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::Neighbour
-AabpTree<O, OT, SH>::nearestNeighbour(const TPoint& point, const TInfo* info) const
+AabpTree<O, OT, SH>::nearestNeighbour(const TPoint& target, const TInfo* info) const
 {
 	Neighbour nearest(end_, std::numeric_limits<TValue>::infinity());
 	if (!isEmpty())
 	{
-		doNearestNeighbour(0, point, info, nearest);
+		doNearestNeighbour(0, target, info, nearest);
 	}
 	return nearest;
+}
+
+
+
+template <class O, class OT, typename SH>
+template <typename RandomAccessIterator>
+RandomAccessIterator
+AabpTree<O, OT, SH>::rangeSearch(
+		const TPoint& target, TParam maxRadius, size_t maxCount, RandomAccessIterator first, 
+		const TInfo* info) const
+{
+	if (isEmpty() || maxRadius == 0)
+	{
+		return first;
+	}
+	TValue squaredRadius = maxRadius * maxRadius;
+	return doRangeSearch(0, target, squaredRadius, maxCount, first, first, info);
 }
 
 
@@ -304,6 +321,7 @@ const int AabpTree<O, OT, SH>::addInternalNode(int axis)
 template <typename O, typename OT, typename SH>
 const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo* info) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 	
@@ -311,6 +329,7 @@ const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectContains(objects_[i], point, info))
 			{
 				return true;
@@ -338,6 +357,7 @@ template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::doFind(
 		int index, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
@@ -345,6 +365,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectContains(objects_[i], point, info))
 			{
 				*result++ = objects_[i];
@@ -373,6 +394,7 @@ AabpTree<O, OT, SH>::doIntersect(
 		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	LASS_ASSERT(tFar > tNear);
 	const Node& node = nodes_[index];
@@ -383,6 +405,7 @@ AabpTree<O, OT, SH>::doIntersect(
 		TObjectIterator best = end_;
 		for (int i = node.first(); i != node.last(); ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			TValue tCandidate;
 			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 			{
@@ -479,6 +502,7 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 		int index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	LASS_ASSERT(tMax > tMin);
 	const Node& node = nodes_[index];
@@ -487,6 +511,7 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
 			{
 				return true;
@@ -550,8 +575,9 @@ const bool AabpTree<O, OT, SH>::doIntersects(
 
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::doNearestNeighbour(
-		int index, const TPoint& point, const TInfo* info, Neighbour& best) const
+		int index, const TPoint& target, const TInfo* info, Neighbour& best) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(best.squaredDistance() >= 0);
 
 	const Node& node = nodes_[index];
@@ -560,8 +586,9 @@ void AabpTree<O, OT, SH>::doNearestNeighbour(
 	{
 		for (int i = node.first(); i != node.last(); ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			const TValue squaredDistance = 
-				TObjectTraits::objectSquaredDistance(objects_[i], point, info);
+				TObjectTraits::objectSquaredDistance(objects_[i], target, info);
 			if (squaredDistance < best.squaredDistance())
 			{
 				best = Neighbour(objects_[i], squaredDistance);
@@ -570,24 +597,89 @@ void AabpTree<O, OT, SH>::doNearestNeighbour(
 	}
 	else
 	{
-		int i1 = index + 1;
-		int i2 = node.right();
-		const TValue x = TObjectTraits::coord(point, node.axis());
-		TValue d1 = x - node.leftBound();
-		TValue d2 = node.rightBound() - x;
-		if (d2 < d1)
+		int children[2];
+		TValue signedDist[2];
+		getChildren(index, target, children, signedDist);
+		if (signedDist[0] <= 0 || (signedDist[0] * signedDist[0]) < best.squaredDistance())
 		{
-			std::swap(i1, i2);
-			std::swap(d1, d2);
+			doNearestNeighbour(children[0], target, info, best);
+			if (signedDist[1] <= 0 || (signedDist[1] * signedDist[1]) < best.squaredDistance())
+			{
+				doNearestNeighbour(children[1], target, info, best);
+			}
 		}
-		if (d1 <= 0 || (d1 * d1) < best.squaredDistance())
+	}
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename RandomIterator>
+RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
+	int index, const TPoint& target, TReference squaredRadius, size_t maxCount,
+	RandomIterator first, RandomIterator last, const TInfo* info) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(squaredRadius >= 0);
+
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
+	{
+		for (int i = node.first(); i != node.last(); ++i)
 		{
-			doNearestNeighbour(i1, point, info, best);
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			const TValue sqrDist = TObjectTraits::objectSquaredDistance(objects_[i], target, info);
+			if (sqrDist < squaredRadius)
+			{
+				*last++ = Neighbour(objects_[i], sqrDist);
+				std::push_heap(first, last);
+				LASS_ASSERT(last >= first);
+				if (static_cast<size_t>(last - first) > maxCount)
+				{
+					std::pop_heap(first, last);
+					--last;
+					squaredRadius = first->squaredDistance();
+				}
+			}
 		}
-		if (d2 <= 0 || (d2 * d2) < best.squaredDistance())
+		return last;
+	}
+
+	int i1 = index + 1;
+	int i2 = node.right();
+	
+	int children[2];
+	TValue signedDist[2];
+	getChildren(index, target, children, signedDist);
+	if (signedDist[0] <= 0 || (signedDist[0] * signedDist[0]) < squaredRadius)
+	{
+		last = doRangeSearch(children[0], target, squaredRadius, maxCount, first, last, info);
+		if (signedDist[1] <= 0 || (signedDist[1] * signedDist[1]) < squaredRadius)
 		{
-			doNearestNeighbour(i2, point, info, best);
+			last = doRangeSearch(children[1], target, squaredRadius, maxCount, first, last, info);
 		}
+	}
+	return last;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+void AabpTree<O, OT, SH>::getChildren(
+		int index, const TPoint& target, int indices[2], TValue signedDistances[2]) const
+{
+	const Node& node = nodes_[index];
+	indices[0] = index + 1;
+	indices[1] = node.right();
+	const TValue x = TObjectTraits::coord(target, node.axis());
+	signedDistances[0] = x - node.leftBound(); 
+	signedDistances[1] = node.rightBound() - x; 
+
+	if (signedDistances[1] < signedDistances[0])
+	{
+		std::swap(signedDistances[0], signedDistances[1]);
+		std::swap(indices[0], indices[1]);
 	}
 }
 

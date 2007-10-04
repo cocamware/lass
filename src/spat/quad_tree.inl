@@ -189,15 +189,18 @@ const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info = 0)
 		return false;
 	}
 
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	QuadNode* node = root_;
 	while (!node->leaf)
 	{
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
 		node = node->node[findSubNode(node->center, point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
 	for (TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
 	{
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 		if (TObjectTraits::objectContains(*i, point, info))
 		{
 			return true;
@@ -217,15 +220,18 @@ OutputIterator QuadTree<O, OT>::find(const TPoint& point, OutputIterator result,
 		return result;
 	}
 
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	QuadNode* node = root_;
 	while (!node->leaf)
 	{
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
 		node = node->node[findSubNode(node->center, point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
 	for (TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
 	{
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 		if (TObjectTraits::objectContains(*i, point, info))
 		{
 			*result++ = *i;
@@ -245,10 +251,6 @@ QuadTree<O, OT>::intersect(
 	{
 		return end_;
 	}
-
-#ifdef LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
-	if (info) (*(io::XmlOStream*)info) << ray;
-#endif
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
@@ -318,6 +320,23 @@ QuadTree<O, OT>::nearestNeighbour(const TPoint& point, const TInfo* info) const
 
 
 template <typename O, typename OT>
+template <typename RandomAccessIterator>
+RandomAccessIterator
+QuadTree<O, OT>::rangeSearch(
+		const TPoint& target, TParam maxRadius, size_t maxCount, RandomAccessIterator first, 
+		const TInfo* info) const
+{
+	if (!root_ || maxRadius == 0)
+	{
+		return first;
+	}
+	TValue squaredRadius = maxRadius * maxRadius;
+	return doRangeSearch(root_, target, squaredRadius, maxCount, first, first, info);
+}
+
+
+
+template <typename O, typename OT>
 size_t QuadTree<O, OT>::objectCount() const
 {
 	return root_ ? root_->objectCount() : 0;
@@ -373,14 +392,12 @@ QuadTree<O, OT>::doIntersect(
 		const TRay& ray, TReference t, TParam tMin, const TInfo* info,
 		const TVector& tNear, const TVector& tFar, size_t flipMask) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	if (!node || minComponent(tFar) < tMin)
 	{
 		return end_;
 	}
 
-#ifdef LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
-	if (info) (*(io::XmlOStream*)info) << node->aabb();
-#endif
 
 	if (node->leaf)
 	{
@@ -391,6 +408,7 @@ QuadTree<O, OT>::doIntersect(
 		TObjectIterator best = end_;
 		for (size_t i = 0; i < n; ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			TValue tCandidate;
 			if (TObjectTraits::objectIntersect(node->data[i], ray, tCandidate, tMin, info))
 			{
@@ -459,6 +477,7 @@ const bool QuadTree<O, OT>::doIntersects(
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
 		const TVector& tNear, const TVector& tFar, size_t flipMask) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	if (!node || minComponent(tFar) < tMin || maxComponent(tNear) > tMax)
 	{
 		return false;
@@ -473,6 +492,7 @@ const bool QuadTree<O, OT>::doIntersects(
 		TObjectIterator best = end_;
 		for (size_t i = 0; i < n; ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			TValue tCandidate;
 			if (TObjectTraits::objectIntersects(node->data[i], ray, tMin, tMax, info))
 			{
@@ -509,11 +529,13 @@ template <typename O, typename OT>
 void QuadTree<O, OT>::doNearestNeighbour(
 		const QuadNode* node, const TPoint& point, const TInfo* info, Neighbour& best) const
 {
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	if (node->leaf)
 	{
 		const size_t n = node->data.size();
 		for (size_t i = 0; i < n; ++i)
 		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			const TValue squaredDistance = 
 				TObjectTraits::objectSquaredDistance(node->data[i], point, info);
 			if (squaredDistance < best.squaredDistance())
@@ -560,6 +582,82 @@ void QuadTree<O, OT>::doNearestNeighbour(
 			}
 		}
 	}
+}
+
+
+
+template <typename O, typename OT>
+template <typename RandomIterator>
+RandomIterator QuadTree<O, OT>::doRangeSearch(
+	const QuadNode* node, const TPoint& target, TReference squaredRadius, size_t maxCount,
+	RandomIterator first, RandomIterator last, const TInfo* info) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(squaredRadius >= 0);
+
+	if (node->leaf)
+	{
+		const size_t n = node->data.size();
+		for (size_t i = 0; i < n; ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			const TValue sqrDist = TObjectTraits::objectSquaredDistance(node->data[i], target, info);
+			if (sqrDist < squaredRadius)
+			{
+				Neighbour candidate(node->data[i], sqrDist);
+#pragma LASS_FIXME("use letterboxing to avoid duplicates instead of naive search [Bramz]")
+				if (std::find(first, last, candidate) == last)
+				{
+					*last++ = candidate;
+					std::push_heap(first, last);
+					LASS_ASSERT(last >= first);
+					if (static_cast<size_t>(last - first) > maxCount)
+					{
+						std::pop_heap(first, last);
+						--last;
+						squaredRadius = first->squaredDistance();
+					}
+				}
+			}
+		}
+		return last;
+	}
+
+	// first, determine squared distances to children and find closest one.
+	TValue sqrNodeDists[subNodeCount];
+	size_t nearestNode = 0;
+	for (size_t i = 0; i < subNodeCount; ++i)
+	{
+		sqrNodeDists[i] = 0;
+		const TPoint& center = node->node[i]->center;
+		const TVector& extents = node->node[i]->extents;
+		for (size_t k = 0; k < dimension; ++k)
+		{
+			const TValue d = num::abs(TObjectTraits::coord(center, k) - TObjectTraits::coord(target, k)) -
+				TObjectTraits::coord(extents, k);
+			if (d > 0)
+			{
+				sqrNodeDists[i] += d * d;
+			}
+		}
+		if (sqrNodeDists[i] < sqrNodeDists[nearestNode])
+		{
+			nearestNode = i;
+		}
+	}
+
+	if (sqrNodeDists[nearestNode] < squaredRadius)
+	{
+		last = doRangeSearch(node->node[nearestNode], target, squaredRadius, maxCount, first, last, info);
+	}
+	for (size_t i = 0; i < subNodeCount; ++i)
+	{
+		if (sqrNodeDists[i] < squaredRadius && i != nearestNode)
+		{
+			last = doRangeSearch(node->node[i], target, squaredRadius, maxCount, first, last, info);
+		}
+	}
+	return last;
 }
 
 

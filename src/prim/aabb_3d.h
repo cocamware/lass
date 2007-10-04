@@ -110,19 +110,19 @@ public:
 	};
 
 	Aabb3D();
-	Aabb3D(const TPoint& iMin, const TPoint& iMax);
-	explicit Aabb3D(const TPoint& iPoint);
-	template <class MMP2> Aabb3D(const Aabb3D<T, MMP2>& iOther);
+	Aabb3D(const TPoint& min, const TPoint& max);
+	explicit Aabb3D(const TPoint& point);
+	template <class MMP2> Aabb3D(const Aabb3D<T, MMP2>& other);
 
 	const TPoint& min() const;
 	const TPoint& max() const;
-	void setMin(const TPoint& iMin);
-	void setMax(const TPoint& iMax);
+	void setMin(const TPoint& min);
+	void setMax(const TPoint& max);
 
-	template <class MMP2> TSelf& operator=(const Aabb3D<T, MMP2>& iOther);
+	template <class MMP2> TSelf& operator=(const Aabb3D<T, MMP2>& other);
 
-	TSelf& operator+=(const TPoint& iPoint);
-	template<class MMP2> TSelf& operator+=(const Aabb3D<T, MMP2>& iOther);
+	TSelf& operator+=(const TPoint& point);
+	template<class MMP2> TSelf& operator+=(const Aabb3D<T, MMP2>& other);
 	void grow(TParam iDistance);
 	void scale(TParam iScale);
 
@@ -131,19 +131,19 @@ public:
 	const TValue area() const;
 	const TValue volume() const;
 
-	const Side classify(const TPoint& iPoint) const;
-	const bool contains(const TPoint& iPoint) const;
-	template <class MMP2> const bool contains(const Aabb3D<T, MMP2>& iOther) const;
-	template <class MMP2> const bool intersects(const Aabb3D<T, MMP2>& iOther) const;
-	template <class MMP2> const bool collides(const Aabb3D<T, MMP2>& iOther) const;
+	const Side classify(const TPoint& point) const;
+	const bool contains(const TPoint& point) const;
+	template <class MMP2> const bool contains(const Aabb3D<T, MMP2>& other) const;
+	template <class MMP2> const bool intersects(const Aabb3D<T, MMP2>& other) const;
+	template <class MMP2> const bool collides(const Aabb3D<T, MMP2>& other) const;
 
-	template <class RandomGenerator> const TPoint random(RandomGenerator& ioRandom) const;
+	template <class RandomGenerator> const TPoint random(RandomGenerator& random) const;
 
 	void clear();
 	const bool isEmpty() const;
 	const bool isValid() const;
 
-	template <typename MMP2> void swap(Aabb3D<T, MMP2>& iOther);
+	template <typename MMP2> void swap(Aabb3D<T, MMP2>& other);
 
 private:
 
@@ -152,28 +152,49 @@ private:
 };
 
 template <typename T, class MMPa, class MMPb>
-const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB);
+const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
 
 template <typename T, class MMP>
-const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB);
+const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
 
 template <typename T, class MMP>
-const Aabb3D<T, MMP> operator+(const Point3D<T>& iA, const Aabb3D<T, MMP>& iB);
+const Aabb3D<T, MMP> operator+(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
+
+template <typename T>
+const Aabb3D<T> aabb(const Point3D<T>& point);
 
 template <typename T, class MMP>
-T distance(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB);
+T distance(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
 
 template <typename T, class MMPa, class MMPb>
-T distance(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB);
+T distance(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
 
 template <typename T, class MMPa, class MMPb, class MMPr>
-Result intersect(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB, Aabb3D<T, MMPr>& oResult);
+Result intersect(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b, Aabb3D<T, MMPr>& result);
+
+template <typename T, class MMPa, class MMPb>
+const bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
 
 template <typename T, class MMP>
-std::ostream& operator<<(std::ostream& ioOStream, const Aabb3D<T, MMP>& iAabb);
+const bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
 
 template <typename T, class MMP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb3D<T, MMP>& iAabb);
+const bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
+
+template <typename T, class MMPa, class MMPb>
+const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
+
+template <typename T, class MMP>
+const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
+
+template <typename T, class MMP>
+const bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
+
+template <typename T, class MMP>
+std::ostream& operator<<(std::ostream& stream, const Aabb3D<T, MMP>& aabb);
+
+template <typename T, class MMP>
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Aabb3D<T, MMP>& aabb);
 
 }
 

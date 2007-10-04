@@ -103,6 +103,7 @@ public:
 	class Neighbour
 	{
 	public:
+		Neighbour() {}
 		Neighbour(TObjectIterator object, TValue squaredDistance): 
 			object_(object), squaredDistance_(squaredDistance) {}
 		TObjectIterator object() const { return object_; }
@@ -110,6 +111,7 @@ public:
 		TObjectIterator operator->() const { return object_; }
 		TObjectReference operator*() const { return TObjectTraits::object(object_); }
 		bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+		bool operator==(const Neighbour& other) const { return object_ == other.object_; }
 	private:
 		TObjectIterator object_;
 		TValue squaredDistance_;
@@ -165,6 +167,10 @@ public:
 
 	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;	
 
+	template <typename RandomIterator>
+	RandomIterator rangeSearch(const TPoint& center, TParam maxRadius, size_t maxCount,
+			RandomIterator first, const TInfo* info = 0) const;	
+
 	/** contains.  Returns the number of object that returned sFront on all the lines
 	*   provided in the iFrustum vector and _adds_ them to the vector oObjects.  An example
 	*   of use is frustum culling.
@@ -216,6 +222,9 @@ private:
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
 	void doNearestNeighbour(const QuadNode* node, const TPoint& point, const TInfo* info,
 		Neighbour& best) const;
+	template <typename RandomIterator>
+	RandomIterator doRangeSearch(const QuadNode* node, const TPoint& target, TReference squaredRadius, 
+		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
 	TAabb aabb_;
 	QuadNode*   root_;

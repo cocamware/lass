@@ -98,6 +98,7 @@ public:
 	class Neighbour
 	{
 	public:
+		Neighbour() {}
 		Neighbour(TObjectIterator object, TValue squaredDistance): 
 			object_(object), squaredDistance_(squaredDistance) {}
 		TObjectIterator object() const { return object_; }
@@ -126,6 +127,9 @@ public:
 	const bool intersects(const TRay& ray, TParam minT = 0, 
 		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
 	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;
+	template <typename RandomIterator>
+	RandomIterator rangeSearch(const TPoint& center, TParam maxRadius, size_t maxCount,
+			RandomIterator first, const TInfo* info = 0) const;	
 
 	void swap(TSelf& other);
 	const bool isEmpty() const;
@@ -207,6 +211,11 @@ private:
 	const bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax,
 		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
 	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
+	template <typename RandomIterator>
+	RandomIterator doRangeSearch(int index, const TPoint& point, TReference squaredRadius, 
+		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
+
+	void getChildren(int index, const TPoint& target, int indices[2], TValue signedDistances[2]) const;
 
 	TAabb aabb_;
 	TObjectIterators objects_;

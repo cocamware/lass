@@ -69,12 +69,12 @@ Aabb3D<T, MMP>::Aabb3D():
 
 
 
-/** Construct bounding box, spanned by iMin and iMax
+/** Construct bounding box, spanned by min and max
  */
 template <typename T, class MMP>
-Aabb3D<T, MMP>::Aabb3D(const TPoint& iMin, const TPoint& iMax):
-	min_(iMin),
-	max_(iMax)
+Aabb3D<T, MMP>::Aabb3D(const TPoint& min, const TPoint& max):
+	min_(min),
+	max_(max)
 {
 	MMP::checkMinMax(min_, max_);
 	LASS_ASSERT(isValid());
@@ -85,9 +85,9 @@ Aabb3D<T, MMP>::Aabb3D(const TPoint& iMin, const TPoint& iMax):
 /** Construct bounding box around a single point (min == max)
  */
 template <typename T, class MMP>
-Aabb3D<T, MMP>::Aabb3D(const TPoint& iPoint):
-	min_(iPoint),
-	max_(iPoint)
+Aabb3D<T, MMP>::Aabb3D(const TPoint& point):
+	min_(point),
+	max_(point)
 {
 	LASS_ASSERT(isValid());
 }
@@ -98,9 +98,9 @@ Aabb3D<T, MMP>::Aabb3D(const TPoint& iPoint):
  */
 template <typename T, class MMP>
 template <class MMP2>
-Aabb3D<T, MMP>::Aabb3D(const Aabb3D<T, MMP2>& iOther):
-	min_(iOther.min()),
-	max_(iOther.max())
+Aabb3D<T, MMP>::Aabb3D(const Aabb3D<T, MMP2>& other):
+	min_(other.min()),
+	max_(other.max())
 {
 }
 
@@ -133,16 +133,16 @@ Aabb3D<T, MMP>::max() const
 /** set corner with smallest component values
  */
 template <typename T, class MMP>
-void Aabb3D<T, MMP>::setMin(const TPoint& iMin)
+void Aabb3D<T, MMP>::setMin(const TPoint& min)
 {
 	if (isEmpty())
 	{
-		min_ = iMin;
-		max_ = iMin;
+		min_ = min;
+		max_ = min;
 	}
 	else
 	{
-		MMP::setMin(min_, max_, iMin);
+		MMP::setMin(min_, max_, min);
 	}
 }
 
@@ -151,16 +151,16 @@ void Aabb3D<T, MMP>::setMin(const TPoint& iMin)
 /** set corner with larges component values
  */
 template <typename T, class MMP>
-void Aabb3D<T, MMP>::setMax(const TPoint& iMax)
+void Aabb3D<T, MMP>::setMax(const TPoint& max)
 {
 	if (isEmpty())
 	{
-		min_ = iMax;
-		max_ = iMax;
+		min_ = max;
+		max_ = max;
 	}
 	else
 	{
-		MMP::setMax(min_, max_, iMax);
+		MMP::setMax(min_, max_, max);
 	}
 }
 
@@ -171,24 +171,24 @@ void Aabb3D<T, MMP>::setMax(const TPoint& iMax)
 template <typename T, class MMP>
 template <class MMP2>
 typename Aabb3D<T, MMP>::TSelf&
-Aabb3D<T, MMP>::operator=(const Aabb3D<T, MMP2>& iOther)
+Aabb3D<T, MMP>::operator=(const Aabb3D<T, MMP2>& other)
 {
-	TSelf temp(iOther);
+	TSelf temp(other);
 	swap(temp);
 	return *this;
 }
 
 
 
-/** Expand bounding box so it contains iPoint.
+/** Expand bounding box so it contains point.
  */
 template <typename T, class MMP>
 typename Aabb3D<T, MMP>::TSelf&
-Aabb3D<T, MMP>::operator+=(const TPoint& iPoint)
+Aabb3D<T, MMP>::operator+=(const TPoint& point)
 {
 	LASS_ASSERT(isValid());
-	min_ = pointwiseMin(min_, iPoint);
-	max_ = pointwiseMax(max_, iPoint);
+	min_ = pointwiseMin(min_, point);
+	max_ = pointwiseMax(max_, point);
 	return *this;
 }
 
@@ -199,11 +199,11 @@ Aabb3D<T, MMP>::operator+=(const TPoint& iPoint)
 template <typename T, class MMP>
 template <class MMP2>
 typename Aabb3D<T, MMP>::TSelf&
-Aabb3D<T, MMP>::operator+=(const Aabb3D<T, MMP2>& iOther)
+Aabb3D<T, MMP>::operator+=(const Aabb3D<T, MMP2>& other)
 {
 	LASS_ASSERT(isValid());
-	min_ = pointwiseMin(min_, iOther.min());
-	max_ = pointwiseMax(max_, iOther.max());
+	min_ = pointwiseMin(min_, other.min());
+	max_ = pointwiseMax(max_, other.max());
 	return *this;
 }
 
@@ -297,20 +297,20 @@ Aabb3D<T, MMP>::volume() const
  *  @return sInside, sSurface, sOutside
  */
 template <typename T, class MMP>
-const Side Aabb3D<T, MMP>::classify(const TPoint& iPoint) const
+const Side Aabb3D<T, MMP>::classify(const TPoint& point) const
 {
 	LASS_ASSERT(isValid());
 
-	if (iPoint.x > min_.x && iPoint.x < max_.x &&
-		iPoint.y > min_.y && iPoint.y < max_.y &&
-		iPoint.z > min_.z && iPoint.z < max_.z)
+	if (point.x > min_.x && point.x < max_.x &&
+		point.y > min_.y && point.y < max_.y &&
+		point.z > min_.z && point.z < max_.z)
 	{
 		return sInside;
 	}
 
-	if (iPoint.x < min_.x || iPoint.x > max_.x ||
-		iPoint.y < min_.y || iPoint.y > max_.y ||
-		iPoint.z < min_.z || iPoint.z > max_.z)
+	if (point.x < min_.x || point.x > max_.x ||
+		point.y < min_.y || point.y > max_.y ||
+		point.z < min_.z || point.z > max_.z)
 	{
 		return sOutside;
 	}
@@ -321,32 +321,32 @@ const Side Aabb3D<T, MMP>::classify(const TPoint& iPoint) const
 
 
 /** Returns true if point is inside bounding box or on its surface.
- *  Is equivalent to this->classify(iPoint) != sOutside, but might be faster.
+ *  Is equivalent to this->classify(point) != sOutside, but might be faster.
  */
 template <typename T, class MMP>
-const bool Aabb3D<T, MMP>::contains(const TPoint& iPoint) const
+const bool Aabb3D<T, MMP>::contains(const TPoint& point) const
 {
 	LASS_ASSERT(isValid());
-	return  iPoint.x >= min_.x && iPoint.x <= max_.x &&
-			iPoint.y >= min_.y && iPoint.y <= max_.y &&
-			iPoint.z >= min_.z && iPoint.z <= max_.z;
+	return  point.x >= min_.x && point.x <= max_.x &&
+			point.y >= min_.y && point.y <= max_.y &&
+			point.z >= min_.z && point.z <= max_.z;
 }
 
 
 
-/** Returns true if the AABB iOther is inside (or on its surface) this AABB.
- *  - Is equivalent to this->contains(iOther.min()) && this->contains(iOther.max()).
- *  - if iOther is an empty AABB, it will always return true (an empty set is always a part of
+/** Returns true if the AABB other is inside (or on its surface) this AABB.
+ *  - Is equivalent to this->contains(other.min()) && this->contains(other.max()).
+ *  - if other is an empty AABB, it will always return true (an empty set is always a part of
  *    any other set).
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& iOther) const
+const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& other) const
 {
-	LASS_ASSERT(isValid() && iOther.isValid());
-	return iOther.min().x >= min_.x && iOther.max().x <= max_.x
-		&& iOther.min().y >= min_.y && iOther.max().y <= max_.y
-		&& iOther.min().z >= min_.z && iOther.max().z <= max_.z;
+	LASS_ASSERT(isValid() && other.isValid());
+	return other.min().x >= min_.x && other.max().x <= max_.x
+		&& other.min().y >= min_.y && other.max().y <= max_.y
+		&& other.min().z >= min_.z && other.max().z <= max_.z;
 }
 
 
@@ -355,7 +355,7 @@ const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& iOther) const
  *  @return @arg false      intersection of the AABBs is empty.
  *          @arg true       intersection of the AABBs is not empty.
  *
- *  @par FAQ: What's the difference between @c this->intersects(iOther) and @c this->collides(iOther) ?
+ *  @par FAQ: What's the difference between @c this->intersects(other) and @c this->collides(other) ?
  *      When two AABB are touching each other (surface to surface), the intersection isn't empty.
  *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.
  *      In that case, the intersection is a degenerated AABB though, one with @c volume()==0.
@@ -372,23 +372,23 @@ const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& iOther) const
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& iOther) const
+const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& other) const
 {
-	LASS_ASSERT(isValid() && iOther.isValid());
+	LASS_ASSERT(isValid() && other.isValid());
 
 	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
-	// notice that the weight of the homogenous points iA.center() and iB.center() is two,
+	// notice that the weight of the homogenous points a.center() and b.center() is two,
 	// so we can avond the division by two of doubleExtend.
 	// that's why we also have to just take the sum of the sizes and not the half sum.
 
-	LASS_ASSERT(center().weight() == 2 && iOther.center().weight() == 2);
-	const TPointH doubleCenterToCenter = center() - iOther.center();
+	LASS_ASSERT(center().weight() == 2 && other.center().weight() == 2);
+	const TPointH doubleCenterToCenter = center() - other.center();
 
 	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
 	const typename TPointH::TVector doubleCenterDistance =
 		doubleCenterToCenter.position().transform(num::abs);
 
-	const TVector doubleExtend = size() + iOther.size();
+	const TVector doubleExtend = size() + other.size();
 	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y 
 		&& doubleCenterDistance.z <= doubleExtend.z;
 }
@@ -399,7 +399,7 @@ const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& iOther) const
  *  @return @arg true       the AABBs do collide.
  *          @arg false      they don't.
  *
- *  @par FAQ: What's the difference between @c this->intersects(iOther) and @c this->collides(iOther) ?
+ *  @par FAQ: What's the difference between @c this->intersects(other) and @c this->collides(other) ?
  *      When two AABB are touching each other (surface to surface), the intersection isn't empty.
  *      i.e. the intersection is the line of points that belong to both the surfaces of the AABBs.
  *      In that case, the intersection is a degenerated AABB though, one with @c volume()==0.
@@ -416,23 +416,23 @@ const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& iOther) const
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& iOther) const
+const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& other) const
 {
-	LASS_ASSERT(isValid() && iOther.isValid());
+	LASS_ASSERT(isValid() && other.isValid());
 
 	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
-	// notice that the weight of the homogenous points iA.center() and iB.center() is two,
+	// notice that the weight of the homogenous points a.center() and b.center() is two,
 	// so we can avond the division by two of doubleExtend.
 	// that's why we also have to just take the sum of the sizes and not the half sum.
 
-	LASS_ASSERT(center().weight() == 2 && iOther.center().weight() == 2);
-	const TPointH doubleCenterToCenter = center() - iOther.center();
+	LASS_ASSERT(center().weight() == 2 && other.center().weight() == 2);
+	const TPointH doubleCenterToCenter = center() - other.center();
 
 	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
 	const typename TPointH::TVector doubleCenterDistance =
 		doubleCenterToCenter.position().transform(num::abs);
 
-	const TVector doubleExtend = size() + iOther.size();
+	const TVector doubleExtend = size() + other.size();
 	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y
 		&& doubleCenterDistance.z < doubleExtend.z;
 }
@@ -447,10 +447,10 @@ const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& iOther) const
 template <typename T, class MMP>
 template <class RandomGenerator>
 const typename Aabb3D<T, MMP>::TPoint
-Aabb3D<T, MMP>::random(RandomGenerator& ioGenerator) const
+Aabb3D<T, MMP>::random(RandomGenerator& generator) const
 {
 	LASS_ASSERT(isValid());
-	num::DistributionUniform<TValue, RandomGenerator> uniform(ioGenerator);
+	num::DistributionUniform<TValue, RandomGenerator> uniform(generator);
 	const TVector t(uniform(), uniform(), uniform());
 	const TPoint result(min_ + t * (max_ - min_));
 	LASS_ASSERT(contains(result));
@@ -510,10 +510,10 @@ const bool Aabb3D<T, MMP>::isValid() const
  */
 template <typename T, class MMP>
 template <typename MMP2>
-void Aabb3D<T, MMP>::swap(Aabb3D<T, MMP2>& iOther)
+void Aabb3D<T, MMP>::swap(Aabb3D<T, MMP2>& other)
 {
-	std::swap(min_, iOther.min_);
-	std::swap(max_, iOther.max_);
+	std::swap(min_, other.min_);
+	std::swap(max_, other.max_);
 }
 
 
@@ -524,10 +524,10 @@ void Aabb3D<T, MMP>::swap(Aabb3D<T, MMP2>& iOther)
  *  @relates Aabb3D
  */
 template <typename T, class MMPa, class MMPb> inline
-const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB)
+const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 {
-	Aabb3D<T, MMPa> result(iA);
-	result += iB;
+	Aabb3D<T, MMPa> result(a);
+	result += b;
 	return result;
 }
 
@@ -537,10 +537,10 @@ const Aabb3D<T, MMPa> operator+(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>
  *  @relates Aabb3D
  */
 template <typename T, class MMP> inline
-const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB)
+const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 {
-	Aabb3D<T, MMP> result(iA);
-	result += iB;
+	Aabb3D<T, MMP> result(a);
+	result += b;
 	return result;
 }
 
@@ -550,54 +550,64 @@ const Aabb3D<T, MMP> operator+(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB)
  *  @relates Aabb3D
  */
 template <typename T, class MMP> inline
-const Aabb3D<T, MMP> operator+(const Point3D<T>& iA, const Aabb3D<T, MMP>& iB)
+const Aabb3D<T, MMP> operator+(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
 {
-	Aabb3D<T, MMP> result(iB);
-	result += iA;
+	Aabb3D<T, MMP> result(b);
+	result += a;
 	return result;
+}
+
+
+
+/** @relates Aabb3D
+ */
+template <typename T>
+const Aabb3D<T> aabb(const Point3D<T>& point)
+{
+	return Aabb3D<T>(point, point);
 }
 
 
 
 /** distance between AABB and point
  *  @relates Aabb3D
- *  @param iA   AABB
- *  @param iB   point
+ *  @param a   AABB
+ *  @param b   point
  *  @return absolute distance between point and AABB.  If point is inside AABB, distance is 0.
- *  @pre @a iA should not be empty.  Undefined behaviour if it is empty.
+ *  @pre @a a should not be empty.  Undefined behaviour if it is empty.
  */
 template <typename T, class MMP> inline
-T distance(const Aabb3D<T, MMP>& iA, const Point3D<T>& iB)
+T distance(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 {
-	LASS_ASSERT(!iA.isEmpty());
+	LASS_ASSERT(!a.isEmpty());
 	typedef Vector3D<T> TVector;
-	return pointwiseMax(pointwiseMax(iA.min() - iB, iB - iA.max()), TVector()).norm();
+	return pointwiseMax(pointwiseMax(a.min() - b, b - a.max()), TVector()).norm();
 }
 
 
 
 /** distance between two AABBs
  *  @relates Aabb3D
- *  @param iA   AABB
- *  @param iB   AABB
+ *  @param a   AABB
+ *  @param b   AABB
  *  @return absolute distance.  If one AABB is completely inside the other, distance is 0.
- *  @pre @a iA and @a iB should not be empty.  Undefined behaviour if they are.
+ *  @pre @a a and @a b should not be empty.  Undefined behaviour if they are.
  */
 template <typename T, class MMPa, class MMPb> inline
-T distance(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB)
+T distance(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 {
-	LASS_ASSERT(!iA.isEmpty() && !iB.isEmpty());
+	LASS_ASSERT(!a.isEmpty() && !b.isEmpty());
 	typedef Vector3D<T> TVector;
-	return pointwiseMax(pointwiseMax(iA.min() - iB.max(), iB.min() - iA.max()), TVector()).norm();
+	return pointwiseMax(pointwiseMax(a.min() - b.max(), b.min() - a.max()), TVector()).norm();
 }
 
 
 
 /** Calculate the intersection of two axis aligned bounding boxes.
  *  @relates lass::prim::Aabb3D
- *  @param iA the first AABB :)
- *  @param iB the second AABB
- *  @param oResult the intersection of @a iA and @a iB.  In contrary to other intersection
+ *  @param a the first AABB :)
+ *  @param b the second AABB
+ *  @param result the intersection of @a a and @a b.  In contrary to other intersection
  *                 functions, this output argument will @e always be assigned, even if there's no
  *                 result.  By no result we mean: the intersection is empty.  For most other
  *                 intersection functions, we can't assign a meaning full value if there's no
@@ -606,26 +616,87 @@ T distance(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB)
  *                 if the return value suggests otherwise (in fact, you don't have to bother the
  *                 return value this time)
  *  @return @arg rNone      intersection of the AABBs is empty.
- *                          @a oResult is an @e empty AABB.
+ *                          @a result is an @e empty AABB.
  *          @arg rOne       intersection of the AABBs is not empty.
- *                          @a oResult contains intersection.
+ *                          @a result contains intersection.
  */
 template <typename T, class MMPa, class MMPb, class MMPr>
-Result intersect(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB, Aabb3D<T, MMPr>& oResult)
+Result intersect(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b, Aabb3D<T, MMPr>& result)
 {
-	LASS_ASSERT(iA.isValid() && iB.isValid());
+	LASS_ASSERT(a.isValid() && b.isValid());
 
-	if (!iA.intersects(iB))
+	if (!a.intersects(b))
 	{
-		oResult = Aabb3D<T, MMPr>(); // empty box
+		result = Aabb3D<T, MMPr>(); // empty box
 		return rNone;
 	}
 
 	// by now, we're sure they are intersecting.  now, we only need the highest minimum
 	// and lowest maximum.
 	//
-	oResult = Aabb3D<T, MMPr>(pointwiseMax(iA.min(), iB.min()), pointwiseMin(iA.max(), iB.max()));
+	result = Aabb3D<T, MMPr>(pointwiseMax(a.min(), b.min()), pointwiseMin(a.max(), b.max()));
 	return rOne;
+}
+
+
+
+template <typename T, class MMPa, class MMPb> inline
+const bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
+{
+	return a.intersects(b);
+}
+
+
+
+/** @relates lass::prim::Aabb2D
+ */
+template <typename T, typename MMP> inline
+const bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
+{
+	return a.contains(b);
+}
+
+
+
+/** @relates lass::prim::Aabb2D
+ */
+template <typename T, typename MMP> inline
+const bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
+{
+	return b.contains(a);
+}
+
+
+
+template <typename T, class MMPa, class MMPb> inline
+const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
+{
+	return a.collides(b);
+}
+
+
+
+/** @relates lass::prim::Aabb2D
+ */
+template <typename T, typename MMP> inline
+const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
+{
+	typedef typename Aabb2D<T, MMP>::TPoint TPoint;
+	const TPoint& min = a.min();
+	const TPoint& max = a.max();
+	return min.x < b.x && b.x < max.x && 
+		min.y < b.y && b.y < max.y &&
+		min.z < b.z && b.z < max.z;
+}
+
+
+
+/** @relates lass::prim::Aabb2D
+ */
+template <typename T, typename MMP> inline
+const bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
+{
+	return collides(b, a);
 }
 
 
@@ -633,10 +704,10 @@ Result intersect(const Aabb3D<T, MMPa>& iA, const Aabb3D<T, MMPb>& iB, Aabb3D<T,
 /** @relates lass::prim::Aabb3D
  */
 template <typename T, class MMP>
-std::ostream& operator<<(std::ostream& ioOStream, const Aabb3D<T, MMP>& iAabb)
+std::ostream& operator<<(std::ostream& stream, const Aabb3D<T, MMP>& aabb)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << "{m=" << iAabb.min() << ", M=" << iAabb.max() << "}";
-	return ioOStream;
+	LASS_ENFORCE_STREAM(stream) << "{m=" << aabb.min() << ", M=" << aabb.max() << "}";
+	return stream;
 }
 
 
@@ -644,15 +715,15 @@ std::ostream& operator<<(std::ostream& ioOStream, const Aabb3D<T, MMP>& iAabb)
 /** @relates lass::prim::Aabb3D
  */
 template<typename T, class MMP>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Aabb3D<T, MMP>& iAabb)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Aabb3D<T, MMP>& aabb)
 {
-	LASS_ENFORCE_STREAM(ioOStream)
+	LASS_ENFORCE_STREAM(stream)
 		<< "<Aabb3D>\n"
-		<< "<min>" << iAabb.min() << "</min>\n"
-		<< "<max>" << iAabb.max() << "</max>\n"
+		<< "<min>" << aabb.min() << "</min>\n"
+		<< "<max>" << aabb.max() << "</max>\n"
 		<< "</Aabb3D>\n";
 
-	return ioOStream;
+	return stream;
 }
 
 

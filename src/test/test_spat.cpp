@@ -53,8 +53,6 @@
 #include "../num/floating_point_consistency.h"
 
 #include "test_spat_object_trees.inl"
-#include "test_spat_kd_tree.inl"
-//#include "test_spat_quad_tree.inl"
 #include "test_spat_planar_mesh.inl"
 #include "test_spat_mesh_interpolator.inl"
 
@@ -67,6 +65,11 @@ TUnitTests testSpat()
 {
 	TUnitTests result;
 
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<float> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<float> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<double> >));
+	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<double> >));
+
 	typedef void(*TTestCase)();
 	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
 	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
@@ -77,16 +80,8 @@ TUnitTests testSpat()
 	result.push_back(LASS_UNIT_TEST(objectTreesFloat2));
 	result.push_back(LASS_UNIT_TEST(objectTreesFloat3));
 
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<float> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<float> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<double> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<double> >));
-
 	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
 	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
-
-	//result.push_back(LASS_UNIT_TEST(doTestQuadTree));
-	//result.push_back(LASS_UNIT_TEST(doTestOctTree));
 
 	return result;
 }

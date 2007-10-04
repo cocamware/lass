@@ -331,8 +331,9 @@ const T squaredDistance(const Triangle2D<T>& triangle, const Point2D<T>& point)
 	typedef typename Triangle2D<T>::TPoint TPoint;
 	typedef typename Triangle2D<T>::TVector TVector;
 	typedef typename Triangle2D<T>::TValue TValue;
+	typedef typename Triangle2D<T>::TNumTraits TNumTraits;
 
-	TValue sqrBest = 0;
+	TValue sqrBest = TNumTraits::infinity;
 	bool hasBest = false;
 	for (int k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
 	{
@@ -341,30 +342,16 @@ const T squaredDistance(const Triangle2D<T>& triangle, const Point2D<T>& point)
 		const TVector vector = point - tail;
 		const TVector edge = head - tail;
 		const TValue t = dot(vector, edge);
-		if (t <= 0)
-		{
-			continue;
-		}
 		const TValue tMax = dot(edge, edge);
-		if (t < tMax)
+		if (t > 0 && t < tMax)
 		{
 			const TVector rejected = vector - edge * (t / tMax);
-			const TValue sqrCandidate = rejected.squaredNorm();
-			if (!hasBest || sqrCandidate < sqrBest)
-			{
-				sqrBest = sqrCandidate;
-				hasBest = true;
-			}
+			sqrBest = std::min(sqrBest, rejected.squaredNorm());
 		}
+		sqrBest = std::min(sqrBest, vector.squaredNorm());
 	}
 
-	if (hasBest)
-	{
-		return sqrBest;
-	}
-
-	return std::min(squaredDistance(point, triangle[0]), 
-		std::min(squaredDistance(point, triangle[1]), squaredDistance(point, triangle[2])));
+	return sqrBest;
 }
 
 

@@ -64,6 +64,69 @@ Aabb2D<T> aabb(const Triangle2D<T>& triangle)
 	return result;
 }
 
+
+
+/*  @relates lass::prim::Triangle2D
+ *	@sa lass::prim::Aabb2D
+ */
+template <typename T, typename MMP>
+const bool intersects(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
+{
+	if (!box.intersects(aabb(triangle)))
+	{
+		return false;
+	}
+
+	typedef typename Triangle2D<T>::TPoint TPoint;
+	typedef typename Triangle2D<T>::TVector TVector;
+	typedef typename Triangle2D<T>::TValue TValue;
+	int k1 = 1, k2 = 2;
+	for (int k0 = 0; k0 < 3; ++k0)
+	{
+		const TPoint& tail = triangle[k0];
+		const TVector edge = triangle[k1] - tail;
+		const TVector min = box.min() - tail;
+		const TVector max = box.max() - tail;
+		
+		const TValue t[4] = {
+			perpDot(edge, min),
+			perpDot(edge, max),
+			perpDot(edge, TVector(min.x, max.y)),
+			perpDot(edge, TVector(max.x, min.y))
+		};
+
+		if (t[0] < 0 && t[1] < 0 && t[2] < 0 && t[3] < 0)
+		{
+			return false;
+		}
+
+		const TValue tMax = perpDot(edge, triangle[k2] - tail);
+		LASS_ASSERT(tMax >= 0);
+		if (t[0] > tMax && t[1] > tMax && t[2] > tMax && t[3] > tMax)
+		{
+			return false;
+		}
+
+		k1 = k2;
+		k2 = k0;
+	}
+
+	return true;
+}
+
+
+
+/*  @relates lass::prim::Aabb2D
+ *	@sa lass::prim::Triangle2D
+ */
+template <typename T, typename MMP>
+const bool intersects(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
+{
+	return intersects(triangle, box);
+}
+
+
+
 /*  @relates lass::prim::Triangle2D
  *	@sa lass::prim::Aabb2D
  */

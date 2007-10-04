@@ -27,8 +27,7 @@
  *	All Rights Reserved.
  *	
  *	Contributor(s):
- *
- *	Alternatively, the contents of this file may be used under the terms of the 
+ * *	Alternatively, the contents of this file may be used under the terms of the 
  *	GNU General Public License Version 2 or later (the GPL), in which case the 
  *	provisions of GPL are applicable instead of those above.  If you wish to allow use
  *	of your version of this file only under the terms of the GPL and not to allow 
@@ -45,12 +44,14 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
 
-#define LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
+//#define LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
+#define LASS_SPAT_KD_TREE_DIAGNOSTICS
 
 #include "test_common.h"
 #include "../spat/aabb_tree.h"
 #include "../spat/aabp_tree.h"
 #include "../spat/quad_tree.h"
+#include "../spat/kd_tree.h"
 #include "../meta/select.h"
 #include "../meta/tuple.h"
 #include "../meta/type_list.h"
@@ -127,6 +128,26 @@ OutputIterator generateObjects(const prim::Aabb3D<T>& iBound,
 	return iObjects;
 }
 
+
+template <typename ObjectIterator, typename T>
+class Neighbour
+{
+public:
+	Neighbour(ObjectIterator object, T squaredDistance): object_(object), squaredDistance_(squaredDistance) {}
+	const ObjectIterator& object() const { return object_; }
+	const T& squaredDistance() const { return squaredDistance_; }
+	const bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+	template <typename Other> const bool operator==(const Other& other) const
+	{
+		return object_ == other.object() && squaredDistance_ == other.squaredDistance();
+	}
+private:
+	ObjectIterator object_;
+	T squaredDistance_;
+};
+
+
+
 template <typename ObjectIterator>
 class TreeConstructor
 {
@@ -140,6 +161,8 @@ private:
 	ObjectIterator first_;
 	ObjectIterator last_;
 };
+
+
 
 template <typename Point, typename ObjectHits>
 class ContainValidityTest
@@ -227,6 +250,35 @@ private:
 	const Point& point_;
 	ObjectIterator bruteNearest_;
 	TValue bruteSqrDist_;
+};
+
+
+
+template <typename Point, typename BruteNeighbours>
+class RangeSearchValidityTest
+{
+public:
+	typedef typename Point::TValue TValue;
+	typedef typename Point::TParam TParam;
+	RangeSearchValidityTest(
+			const Point& target, const BruteNeighbours& bruteHits, TParam maxRadius, size_t maxCount): 
+		target_(target), bruteHits_(bruteHits), maxRadius_(maxRadius), maxCount_(maxCount)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		typedef std::vector<typename Tree::Neighbour> TTreeNeighbours;
+		TTreeNeighbours treeHits(maxCount_ + 1);
+		typename TTreeNeighbours::iterator last = tree.rangeSearch(target_, maxRadius_, maxCount_, treeHits.begin());
+		const TTreeNeighbours::difference_type treeN = last - treeHits.begin();
+		std::sort_heap(treeHits.begin(), last);
+		LASS_TEST_CHECK(bruteHits_.size() == treeN && std::equal(bruteHits_.begin(), bruteHits_.end(), treeHits.begin()));
+	}
+private:
+	Point target_;
+	const BruteNeighbours& bruteHits_;
+	TValue maxRadius_;
+	size_t maxCount_;
 };
 
 
@@ -332,6 +384,45 @@ private:
 	size_t numberOfRuns_;
 };
 
+
+
+template <typename Targets, typename T>
+class RangeSearchSpeedTest
+{
+public:
+	RangeSearchSpeedTest(const Targets& targets, T maxRadius, size_t maxCount, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), maxRadius_(maxRadius), maxCount_(maxCount), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		typedef typename Tree::Neighbour TNeighbour;
+		typedef std::vector<TNeighbour> TNeighbours;
+		TNeighbours hits(maxCount_ + 1);
+		size_t count = 0;
+		stopWatch_.restart();
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator end = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != end; ++i)
+			{
+				typename TNeighbours::iterator last = tree.rangeSearch(*i, maxRadius_, maxCount_, hits.begin());
+				count += (last - hits.begin());
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop();
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+	}
+private:
+	const Targets& targets_;
+	T maxRadius_;
+	size_t maxCount_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+
+
 }
 
 template <typename T, size_t dim>
@@ -344,14 +435,18 @@ void testSpatObjectTrees()
 	const size_t numberOfObjects = 10000;
 	const size_t numberOfPointTestTargets = 1000;
 	const size_t numberOfRayTestTargets = 1000;
+	const T maxRangeRadius = 50;
+	const size_t maxRangeCount = 10;
 	// validation
 	const size_t numberOfContainValidations = 1000;
 	const size_t numberOfIntersectionValidations = 1000;
 	const size_t numberOfNearestNeighbourValidations = 1000;
+	const size_t numberOfRangeSearchValidations = 1000;
 	// speed tests
 	const size_t numberOfContainSpeedTestRuns = 10;
 	const size_t numberOfIntersectionSpeedTestRuns = 10;
 	const size_t numberOfNearestNeighbourSpeedTestRuns = 10;
+	const size_t numberOfRangeSearchSpeedTestRuns = 10;
 
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -475,6 +570,40 @@ void testSpatObjectTrees()
 		meta::tuple::forEach(trees, test);
 	}
 
+	// range search test
+	//
+	typedef object_trees::Neighbour<TObjectIterator, T> TNeighbour;
+	typedef std::vector<TNeighbour> TNeighbours;
+	TNeighbours bruteHits;
+	for (unsigned i = 0; i < numberOfRangeSearchValidations; ++i)
+	{
+		const TPoint target = bounds.random(generator);
+		bruteHits.clear();
+		T bruteSquareRadius = num::sqr(maxRangeRadius);
+
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			const T sqrDist = prim::squaredDistance(*obj, target);
+			if (sqrDist < bruteSquareRadius)
+			{
+				bruteHits.push_back(TNeighbour(obj, sqrDist));
+				std::push_heap(bruteHits.begin(), bruteHits.end());
+				if (bruteHits.size() > maxRangeCount)
+				{
+					std::pop_heap(bruteHits.begin(), bruteHits.end());
+					bruteHits.pop_back();
+				}
+				LASS_ASSERT(bruteHits.size() <= maxRangeCount);
+			}
+		}
+		std::sort_heap(bruteHits.begin(), bruteHits.end());
+
+		object_trees::RangeSearchValidityTest<TPoint, TNeighbours> test(target, bruteHits, maxRangeRadius, maxRangeCount);
+		meta::tuple::forEach(trees, test);
+	}
+
+
+
 	// SPEED TESTS
 	//
 	LASS_COUT << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
@@ -497,26 +626,138 @@ void testSpatObjectTrees()
 		rayTargets.push_back(TRay(support, direction));
 	}
 
-	// contain speed test
-	//
 	LASS_COUT << "contain tests:\n";
 	object_trees::ContainSpeedTest<TPointTargets> containSpeedTest(
 		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
 	meta::tuple::forEach(trees, containSpeedTest);
 
-	// intersection speed test
-	//
 	LASS_COUT << "intersection tests:\n";
 	object_trees::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
 		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
 	meta::tuple::forEach(trees, intersectionSpeedTest);
 
-	// intersection speed test
-	//
 	LASS_COUT << "nearest neighbour tests:\n";
 	object_trees::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(
 		pointTargets, stopWatch, numberOfNearestNeighbourSpeedTestRuns);
 	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
+
+	LASS_COUT << "range search tests:\n";
+	object_trees::RangeSearchSpeedTest<TPointTargets, T> rangeSearchSpeedTest(
+		pointTargets, maxRangeRadius, maxRangeCount, stopWatch, numberOfRangeSearchSpeedTestRuns);
+	meta::tuple::forEach(trees, rangeSearchSpeedTest);
+}
+
+
+
+template <typename TPoint>
+void testSpatKdTree()
+{
+	typedef typename TPoint::TValue TValue;
+	typedef typename meta::Select
+	<
+		meta::Bool< TPoint::dimension == 2 >,
+		prim::Aabb2D<TValue>,
+		prim::Aabb3D<TValue>
+	>::Type TAabb;
+	typedef const TPoint* TPointIterator;
+
+	// set bounds
+	//
+	TPoint min;
+	TPoint max;
+	for (unsigned i = 0; i < TPoint::dimension; ++i)
+	{
+		min[i] = TValue(-1000);
+		max[i] = TValue(+1000);
+	}
+	const TAabb bounds(min, max);
+
+	// generate points
+	//
+	const unsigned n = 1000;
+	num::RandomMT19937 generator;
+	TPoint points[n];
+	for (unsigned i = 0; i < n; ++i)
+	{
+		points[i] = bounds.random(generator);
+	}
+
+	// make single tree, and do diagnostics on itµ
+	//
+	typedef spat::KdTree<TPoint> TKdTree;
+	TKdTree tree(points, points + n);
+	tree.diagnostics();
+
+	// make tree set
+	//
+	typedef spat::DefaultObjectTraits<TPoint, TAabb, meta::NullType, TPointIterator> TPointTraits;
+	typedef meta::type_list::Make<
+		TKdTree,
+		spat::AabbTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<2> >,
+		spat::AabpTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<2> >
+		//spat::QuadTree<TPoint, TPointTraits> // apparently, QuadTrees are no good idea for points
+	>::Type TTreeTypes;
+	typedef meta::Tuple<TTreeTypes> TTrees;
+	TTrees trees;
+	object_trees::TreeConstructor<TPointIterator> construct(points, points + n);
+	meta::tuple::forEach(trees, construct);
+
+	// VALIDATION TESTS
+	//
+	const unsigned nNearestTests = 1000;
+	for (unsigned i = 0; i < nNearestTests; ++i)
+	{
+		TPoint target = bounds.random(generator);
+
+		// naive nearest
+		//
+		size_t naiveNearest = 0;
+		TValue naiveSqrDistance = squaredDistance(target, points[0]);
+		for (unsigned k = 1; k < n; ++k)
+		{
+			const TValue sqrDist = squaredDistance(target, points[k]);
+			if (sqrDist < naiveSqrDistance)
+			{
+				naiveNearest = k;
+				naiveSqrDistance = sqrDist;
+			}
+		}
+
+		// kd tree nearest
+		//
+		TPoint kdTreeNearest = tree.nearestNeighbour(target).position();
+
+		LASS_TEST_CHECK_EQUAL(kdTreeNearest, points[naiveNearest]);
+
+		object_trees::NearestNeighbourValidityTest<TPoint, TPointIterator> test(target, &points[naiveNearest], naiveSqrDistance);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// SPEED TESTS
+	//
+	util::Clock clock;
+	util::StopWatch stopWatch(clock);
+
+	const size_t nTargets = 1000;
+	const size_t nRuns = 10;
+	const TValue maxRadius = 50;
+	const size_t maxCount = 10;
+	typedef std::vector<TPoint> TTargets;
+	TTargets targets;
+	for (size_t i = 0; i < nTargets; ++i)
+	{
+		targets.push_back(bounds.random(generator));
+	}
+
+	LASS_COUT << "nearest neighbour tests:\n";
+	object_trees::NearestNeighbourSpeedTest<TTargets> nearestNeighbourSpeedTest(
+		targets, stopWatch, nRuns);
+	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
+
+	LASS_COUT << "range search tests:\n";
+	object_trees::RangeSearchSpeedTest<TTargets, TValue> rangeSearchSpeedTest(
+		targets, maxRadius, maxCount, stopWatch, nRuns);
+	meta::tuple::forEach(trees, rangeSearchSpeedTest);	
 }
 
 

@@ -55,6 +55,7 @@
 #include "test_prim_sphere_3d.inl"
 #include "test_prim_simple_polygon_2d.inl"
 #include "test_prim_transformation_3d.inl"
+#include "test_prim_triangle.inl"
 #include "test_prim_vectors.inl"
 #include "test_prim_xml.inl"
 
@@ -85,6 +86,7 @@
 	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::StrictNoDegenerate>)));\
 	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<Type__, prim::AllowDegenerate>)));\
 	result.push_back(LASS_UNIT_TEST(testPrimTransformation3D<Type__>));\
+	result.push_back(LASS_UNIT_TEST(testPrimTriangle2D<Type__>));\
 	result.push_back(LASS_UNIT_TEST(testPrimVector2D<Type__>));\
 	result.push_back(LASS_UNIT_TEST(testPrimVector3D<Type__>));\
 	result.push_back(LASS_UNIT_TEST(testPrimVector4D<Type__>));\

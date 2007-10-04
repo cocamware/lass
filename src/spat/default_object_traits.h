@@ -52,8 +52,6 @@
 
 #include "spat_common.h"
 #include "../prim/result.h"
-#include "../meta/is_same.h"
-#include "../meta/wrap.h"
 
 namespace lass
 {
@@ -76,7 +74,6 @@ struct DefaultAabbRayTraits
 	typedef typename TAabb::TParam TParam;		/**< best type for function parameters of TValue */
 	typedef typename TAabb::TReference TReference;	/**< reference to TValue */
 	typedef typename TAabb::TConstReference TConstReference; /**< const reference to TValue */
-	typedef typename TAabb::TNumTraits TNumTraits;
 	
 	enum { dimension = TAabb::dimension };		/**< nD = number of dimensions of TPoint */
 
@@ -210,7 +207,6 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TParam TParam;
 	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TReference TReference;
 	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TConstReference TConstReference;
-	typedef typename DefaultAabbRayTraits<AabbType, RayType>::TNumTraits TNumTraits;
 
 	/** return reference to object
 	 */
@@ -252,7 +248,7 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 	 */
 	static const bool objectOverlaps(TObjectIterator it, const TAabb& aabb)
 	{
-		return collides(object(it), aabb);
+		return intersects(object(it), aabb);
 	}
 
 	/** return squared distance between object and point)

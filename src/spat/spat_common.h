@@ -69,5 +69,51 @@
 //#endif
 
 
+namespace lass
+{
+namespace spat
+{
+
+#ifdef LASS_SPAT_OBJECT_TREES_DIAGNOSTICS
+
+namespace impl
+{
+	template <typename InfoType>
+	struct ObjectTreesDiagnostics
+	{
+		ObjectTreesDiagnostics(InfoType* info): info(info), visitedObjects(0), visitedNodes(0) {}
+
+		const InfoType* info;
+		size_t visitedObjects;
+		size_t visitedNodes;
+	};
+}
+
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(t_info, v_info)\
+		::lass::spat::impl::ObjectTreesDiagnostics< t_info >* _lass_spat_object_trees_diagnostics =\
+			(::lass::spat::impl::ObjectTreesDiagnostics< t_info >*) v_info;\
+		if (_lass_spat_object_trees_diagnostics) {\
+			v_info = _lass_spat_object_trees_diagnostics->info;\
+			_lass_spat_object_trees_diagnostics->visitedNodes += 1;\
+		} else {}
+
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE\
+		if (_lass_spat_object_trees_diagnostics) { _lass_spat_object_trees_diagnostics->visitedNodes += 1; } else {}
+
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT\
+		if (_lass_spat_object_trees_diagnostics) { _lass_spat_object_trees_diagnostics->visitedObjects += 1; } else {}
+
+#else
+
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(t_info, v_info)
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE
+#	define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT
+
 #endif
 
+}
+}
+
+#endif
+
+// EOF

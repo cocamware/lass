@@ -143,6 +143,8 @@ public:
 	const bool isEmpty() const;
 	void clear();
 
+	const TObjectIterator end() const;
+
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 	void diagnostics();
 #endif

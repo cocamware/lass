@@ -298,6 +298,15 @@ void KdTree<O, OT>::clear()
 
 
 
+template <class O, class OT> inline
+const typename KdTree<O, OT>::TObjectIterator
+KdTree<O, OT>::end() const
+{
+	return end_;
+}
+
+
+
 // --- neighbour -----------------------------------------------------------------------------------
 
 template <class O, class OT>
