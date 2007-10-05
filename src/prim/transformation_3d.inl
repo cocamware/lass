@@ -45,6 +45,11 @@
 
 #include "transformation_3d.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996) // std::copy: function call with parameters that may be unsafe
+#endif
+
 namespace lass
 {
 
@@ -517,5 +522,9 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation3D<T>& 
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif

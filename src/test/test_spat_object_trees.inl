@@ -674,7 +674,7 @@ void testSpatKdTree()
 
 	// generate points
 	//
-	const unsigned n = 1000;
+	const unsigned n = 10000;
 	num::RandomMT19937 generator;
 	TPoint points[n];
 	for (unsigned i = 0; i < n; ++i)
@@ -693,8 +693,8 @@ void testSpatKdTree()
 	typedef spat::DefaultObjectTraits<TPoint, TAabb, meta::NullType, TPointIterator> TPointTraits;
 	typedef meta::type_list::Make<
 		TKdTree,
-		spat::AabbTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<2> >,
-		spat::AabpTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<2> >
+		spat::AabbTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<32> >,
+		spat::AabpTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<8> >
 		//spat::QuadTree<TPoint, TPointTraits> // apparently, QuadTrees are no good idea for points
 	>::Type TTreeTypes;
 	typedef meta::Tuple<TTreeTypes> TTrees;
