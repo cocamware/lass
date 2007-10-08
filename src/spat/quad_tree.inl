@@ -182,7 +182,7 @@ void QuadTree<O, OT>::add(TObjectIterator object)
 
 
 template <typename O, typename OT>
-const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info = 0) const
+const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info) const
 {
 	if (!root_ || !TObjectTraits::aabbContains(aabb_, point))
 	{
@@ -213,7 +213,7 @@ const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info = 0)
 
 template <typename O, typename OT>
 template <typename OutputIterator>
-OutputIterator QuadTree<O, OT>::find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const
+OutputIterator QuadTree<O, OT>::find(const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	if (!root_ || !TObjectTraits::aabbContains(aabb_, point))
 	{
