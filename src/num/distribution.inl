@@ -97,7 +97,7 @@ struct RangePolicy<rtOpen>
  */
 template <typename T, class RG, RangeType RT>
 DistributionUniform<T, RG, RT>::DistributionUniform():
-	generator_(0),
+	generator_(0)
 {
 }
 
@@ -155,7 +155,7 @@ T distributeUniform(RandomGenerator& generator, T infimum, T supremum)
  */
 template <typename T, class RG>
 DistributionExponential<T, RG>::DistributionExponential():
-	generator_(0),
+	generator_(0)
 {
 }
 
@@ -212,7 +212,7 @@ T distributeExponential(RandomGenerator& generator, T rateOfChange)
  */
 template <typename T, class RG>
 DistributionNormal<T, RG>::DistributionNormal():
-	generator_(0),
+	generator_(0)
 {
 }
 

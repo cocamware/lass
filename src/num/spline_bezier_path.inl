@@ -189,7 +189,7 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
 		const TScalar st2 = num::sqr(t) - num::sqr(s);
 		const TScalar st3 = num::cubic(t) - num::cubic(s);
 		const TScalar st4 = num::sqr(num::sqr(t)) - num::sqr(num::sqr(s));
-		const TScalar s4 = num::sqr(num::sqr(1 - end)) - num::sqr(num::sqr(1 - begin));
+		//const TScalar s4 = num::sqr(num::sqr(1 - end)) - num::sqr(num::sqr(1 - begin));
 
 		TData inty(a);
 		TDataTraits::scale(inty, dx * (-.25f * st4 + st3 - 1.5f * st2 + st));
@@ -283,7 +283,7 @@ const bool SplineBezierPath<S, D, T>::isEmpty() const
  *		O(1)
  */
 template <typename S, typename D, typename T>
-const typename SplineBezierPath<S, D, T>::ControlRange
+const typename SplineBezierPath<S, D, T>::TControlRange
 SplineBezierPath<S, D, T>::controlRange() const
 {
 	return ControlRange(nodes_.front().x, nodes_.back().x);

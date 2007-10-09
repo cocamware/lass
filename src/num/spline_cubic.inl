@@ -306,7 +306,7 @@ const bool SplineCubic<S, D, T>::isEmpty() const
  *		O(1)
  */
 template <typename S, typename D, typename T>
-const typename SplineCubic<S, D, T>::ControlRange
+const typename SplineCubic<S, D, T>::TControlRange
 SplineCubic<S, D, T>::controlRange() const
 {
 	return ControlRange(nodes_.front().x, nodes_.back().x);

@@ -292,7 +292,7 @@ const bool SplineLinear<S, D, T>::isEmpty() const
  *		O(1)
  */
 template <typename S, typename D, typename T>
-const typename SplineLinear<S, D, T>::ControlRange
+const typename SplineLinear<S, D, T>::TControlRange
 SplineLinear<S, D, T>::controlRange() const
 {
 	return ControlRange(nodes_.front().x, nodes_.back().x);

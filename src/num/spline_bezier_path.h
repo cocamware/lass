@@ -55,6 +55,7 @@ public:
 	typedef Spline<ScalarType, DataType> TSplineBase;
 	typedef typename TSplineBase::TScalar TScalar;
 	typedef typename TSplineBase::TData TData;
+	typedef typename TSplineBase::ControlRange TControlRange;
 
 	class DataTriplet
 	{
@@ -84,7 +85,7 @@ public:
 	const TData integral(TScalar iA, TScalar iB) const;
 
 	const bool isEmpty() const;
-	const ControlRange controlRange() const;
+	const TControlRange controlRange() const;
 
 private:
 
