@@ -301,7 +301,7 @@ namespace lass
 		Out	staticPyCast(const In& in)
 		{
 			typedef typename Out::TPointer TPtr;
-			TPtr ptr = static_cast<typename TPtr>(in.get());
+			TPtr ptr = static_cast<TPtr>(in.get());
 			Py_XINCREF(ptr);
 			return Out(ptr);
 		}
@@ -313,7 +313,7 @@ namespace lass
 		Out	dynamicPyCast(const In& in)
 		{
 			typedef typename Out::TPointer TPtr;
-			TPtr ptr = dynamic_cast<typename TPtr>(in.get());
+			TPtr ptr = dynamic_cast<TPtr>(in.get());
 			Py_XINCREF(ptr);
 			return Out(ptr);
 		}

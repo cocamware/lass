@@ -270,7 +270,7 @@ public:
 		typedef std::vector<typename Tree::Neighbour> TTreeNeighbours;
 		TTreeNeighbours treeHits(maxCount_ + 1);
 		typename TTreeNeighbours::iterator last = tree.rangeSearch(target_, maxRadius_, maxCount_, treeHits.begin());
-		const TTreeNeighbours::difference_type treeN = last - treeHits.begin();
+		const size_t treeN = static_cast<size_t>(last - treeHits.begin());
 		std::sort_heap(treeHits.begin(), last);
 		LASS_TEST_CHECK(bruteHits_.size() == treeN && std::equal(bruteHits_.begin(), bruteHits_.end(), treeHits.begin()));
 	}
@@ -428,7 +428,7 @@ private:
 template <typename T, size_t dim>
 void testSpatObjectTrees()
 {
-	const T tolerance = 1e-5f;
+	// const T tolerance = 1e-5f;
 
 	const T extent = T(1000);
 	const T maxSize = T(10);
@@ -461,7 +461,7 @@ void testSpatObjectTrees()
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 
-	typedef meta::type_list::Make<
+	typedef typename meta::type_list::Make<
 		spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> >,
 		spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> >,
 		spat::QuadTree<TObject, TObjectTraits>
@@ -691,7 +691,7 @@ void testSpatKdTree()
 	// make tree set
 	//
 	typedef spat::DefaultObjectTraits<TPoint, TAabb, meta::NullType, TPointIterator> TPointTraits;
-	typedef meta::type_list::Make<
+	typedef typename meta::type_list::Make<
 		TKdTree,
 		spat::AabbTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<32> >,
 		spat::AabpTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<8> >

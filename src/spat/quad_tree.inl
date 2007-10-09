@@ -198,7 +198,7 @@ const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info) con
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
-	for (TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
+	for (typename TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 		if (TObjectTraits::objectContains(*i, point, info))
@@ -229,7 +229,7 @@ OutputIterator QuadTree<O, OT>::find(const TPoint& point, OutputIterator result,
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
-	for (TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
+	for (typename TObjectIterators::const_iterator i = node->data.begin(); i != node->data.end(); ++i)
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 		if (TObjectTraits::objectContains(*i, point, info))
@@ -665,13 +665,6 @@ RandomIterator QuadTree<O, OT>::doRangeSearch(
 // --- QuadNode ------------------------------------------------------------------------------------
 
 template <typename O, typename OT>
-QuadTree<O, OT>::QuadNode::QuadNode() : leaf(true), level(0), listSize(0)
-{
-}
-
-
-
-template <typename O, typename OT>
 QuadTree<O, OT>::QuadNode::QuadNode( const TPoint& center, const TVector& extents) :
 	center(center), extents(extents), leaf(true)
 {
@@ -763,7 +756,7 @@ void QuadTree<O, OT>::QuadNode::decompose(size_t maxSize, size_t maxLevel, size_
 		for (size_t i=0;i<subNodeCount;++i)
 			nodeAabb[i] = node[i]->aabb();
 
-		const size_t maxCopies = subNodeCount * data.size() * 2 / 3;
+		//const size_t maxCopies = subNodeCount * data.size() * 2 / 3;
 		size_t copies = 0;
 		for (typename TObjectIterators::iterator vit = data.begin(); vit != data.end(); ++vit)
 		{
@@ -801,7 +794,7 @@ void QuadTree<O, OT>::QuadNode::absorb()
 			delete node[i];
 		}
 		std::sort(data.begin(), data.end());
-		TObjectIterators::iterator last = std::unique(data.begin(), data.end());
+		typename TObjectIterators::iterator last = std::unique(data.begin(), data.end());
 		data.erase(last, data.end());
 		leaf = true;
 	}

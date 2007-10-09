@@ -448,8 +448,11 @@ template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::vector<T, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::sequence_traits, ::lass::stde::impl::value_traits, T, Char>(
-		istream, container, '[', ',', 0, ']');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::sequence_traits, 
+		::lass::stde::impl::value_traits, 
+		T, Char>(
+			istream, container, '[', ',', 0, ']');
 }
 
 
@@ -460,8 +463,11 @@ template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::list<T, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::sequence_traits, ::lass::stde::impl::value_traits, T, Char>(
-		istream, container, '[', ',', 0, ']');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::sequence_traits, 
+		::lass::stde::impl::value_traits,
+		T, Char>(
+			istream, container, '[', ',', 0, ']');
 }
 
 
@@ -472,8 +478,11 @@ template <typename Char, typename Traits, typename T, typename Alloc>
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::deque<T, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::sequence_traits, ::lass::stde::impl::value_traits, T, Char>(
-		istream, container, '[', ',', 0, ']');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::sequence_traits, 
+		::lass::stde::impl::value_traits, 
+		T, Char>(
+			istream, container, '[', ',', 0, ']');
 }
 
 
@@ -484,8 +493,11 @@ template <typename Char, typename Traits, typename Key, typename Data, typename 
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::map<Key, Data, Comp, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::set_traits, ::lass::stde::impl::pair_traits, std::pair<Key, Data>, Char>(
-		istream, container, '{', ',', ':', '}');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::set_traits, 
+		::lass::stde::impl::pair_traits, 
+		std::pair<Key, Data>, Char>(
+			istream, container, '{', ',', ':', '}');
 }
 
 
@@ -497,8 +509,11 @@ std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream,
 		std::multimap<Key, Data, Comp, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::set_traits, ::lass::stde::impl::pair_traits, std::pair<Key, Data>, Char>(
-		istream, container, '{', ',', ':', '}');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::set_traits, 
+		::lass::stde::impl::pair_traits, 
+		std::pair<Key, Data>, Char>(
+			istream, container, '{', ',', ':', '}');
 }
 
 
@@ -509,8 +524,11 @@ template <typename Char, typename Traits, typename Key, typename Comp, typename 
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::set<Key, Comp, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::set_traits, ::lass::stde::impl::value_traits, Key, Char>(
-		istream, container, '{', ',', 0, '}');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::set_traits, 
+		::lass::stde::impl::value_traits, 
+		Key, Char>(
+			istream, container, '{', ',', 0, '}');
 }
 
 
@@ -521,8 +539,11 @@ template <typename Char, typename Traits, typename Key, typename Comp, typename 
 std::basic_istream<Char, Traits>& operator>>(
 		std::basic_istream<Char, Traits>& istream, std::multiset<Key, Comp, Alloc>& container)
 {
-	return ::lass::stde::impl::read_container<::lass::stde::impl::set_traits, ::lass::stde::impl::value_traits, Key, Char>(
-		istream, container, '{', ',', 0, '}');
+	return ::lass::stde::impl::read_container<
+		::lass::stde::impl::set_traits, 
+		::lass::stde::impl::value_traits, 
+		Key, Char>(
+			istream, container, '{', ',', 0, '}');
 }
 
 

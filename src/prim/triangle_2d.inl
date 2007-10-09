@@ -334,7 +334,6 @@ const T squaredDistance(const Triangle2D<T>& triangle, const Point2D<T>& point)
 	typedef typename Triangle2D<T>::TNumTraits TNumTraits;
 
 	TValue sqrBest = TNumTraits::infinity;
-	bool hasBest = false;
 	for (int k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
 	{
 		const TPoint& tail = triangle[k0];

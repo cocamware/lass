@@ -645,9 +645,6 @@ RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
 		}
 		return last;
 	}
-
-	int i1 = index + 1;
-	int i2 = node.right();
 	
 	int children[2];
 	TValue signedDist[2];

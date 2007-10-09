@@ -201,7 +201,6 @@ private:
 		TObjectIterators data;          /**< the list containing the data */
 		bool leaf;                      /**< true for leaf nodes */
 
-		QuadNode();
 		QuadNode(const TPoint& aCenter, const TVector& aExtents);
 		~QuadNode();
 
