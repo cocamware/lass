@@ -61,28 +61,28 @@ template <>
 struct RangePolicy<rtClosed>
 {
 	template <typename T>
-	static bool isInRange(const T& iX, const T& iInf, const T& iSupremum) { return iX >= iInf && iX <= iSupremum; }
+	static bool isInRange(const T& x, const T& inf, const T& sup) { return x >= inf && x <= sup; }
 };
 
 template <>
 struct RangePolicy<rtLeftOpen>
 {
 	template <typename T>
-	static bool isInRange(const T& iX, const T& iInf, const T& iSupremum) { return iX > iInf && iX <= iSupremum; }
+	static bool isInRange(const T& x, const T& inf, const T& sup) { return x > inf && x <= sup; }
 };
 
 template <>
 struct RangePolicy<rtRightOpen>
 {
 	template <typename T>
-	static bool isInRange(const T& iX, const T& iInf, const T& iSupremum) { return iX >= iInf && iX < iSupremum; }
+	static bool isInRange(const T& x, const T& inf, const T& sup) { return x >= inf && x < sup; }
 };
 
 template <>
 struct RangePolicy<rtOpen>
 {
 	template <typename T>
-	static bool isInRange(const T& iX, const T& iInf, const T& iSupremum) { return iX > iInf && iX < iSupremum; }
+	static bool isInRange(const T& x, const T& inf, const T& sup) { return x > inf && x < sup; }
 };
 
 }
@@ -91,19 +91,29 @@ struct RangePolicy<rtOpen>
 
 // --- DistributionUniform -------------------------------------------------------------------------
 
-/** construct a uniform distribution mapper
- *  @param ioGenerator random number generator to be used as input.  Lifespan of @a ioGenerator must
- *                     be at least that of the distribution.
- *  @param iInfimum infimum of the output range: [inf, sup], or (inf, sup] if range is left open.
- *  @param iSupremum supremum of the output range: [inf, sup], or [inf, sup) if range is right open.
+/** construct an empty distribution.
+ *  @warning drawing numbers from an empty distribution results in undefined behaviour, probably
+ *		causing an access violation.
  */
 template <typename T, class RG, RangeType RT>
-DistributionUniform<T, RG, RT>::DistributionUniform(TGenerator& ioGenerator,
-													TParam iInfimum, TParam iSupremum):
-	generator_(&ioGenerator),
-	infimum_(iInfimum),
-	supremum_(iSupremum),
-	scale_(static_cast<long double>(iSupremum - iInfimum) / TGenerator::max)
+DistributionUniform<T, RG, RT>::DistributionUniform():
+	generator_(0),
+{
+}
+
+/** construct a uniform distribution mapper
+ *  @param generator random number generator to be used as input.  Lifespan of @a generator must
+ *                     be at least that of the distribution.
+ *  @param infimum infimum of the output range: [inf, sup], or (inf, sup] if range is left open.
+ *  @param supremum supremum of the output range: [inf, sup], or [inf, sup) if range is right open.
+ */
+template <typename T, class RG, RangeType RT>
+DistributionUniform<T, RG, RT>::DistributionUniform(
+		TGenerator& generator, TParam infimum, TParam supremum):
+	generator_(&generator),
+	infimum_(infimum),
+	supremum_(supremum),
+	scale_(static_cast<long double>(supremum - infimum) / TGenerator::max)
 {
 }
 
@@ -113,6 +123,7 @@ template <typename T, class RG, RangeType RT> inline
 typename DistributionUniform<T, RG, RT>::TValue
 DistributionUniform<T, RG, RT>::operator()() const
 {
+	LASS_ASSERT(generator_);
 	TValue result;
 	do
 	{
@@ -124,13 +135,13 @@ DistributionUniform<T, RG, RT>::operator()() const
 
 
 
-/** draw a random number from iGenerator and transform it by a uniform distribution
+/** draw a random number from generator and transform it by a uniform distribution
  *  @relates DistributionUniform
  */
 template <typename T, typename RandomGenerator> inline
-T distributeUniform(RandomGenerator& iGenerator, T iInfimum, T iSupremum)
+T distributeUniform(RandomGenerator& generator, T infimum, T supremum)
 {
-	DistributionUniform<T, RandomGenerator> distribution(iGenerator, iInfimum, iSupremum);
+	DistributionUniform<T, RandomGenerator> distribution(generator, infimum, supremum);
 	return distribution();
 }
 
@@ -138,17 +149,28 @@ T distributeUniform(RandomGenerator& iGenerator, T iInfimum, T iSupremum)
 
 // --- DistributionExponential ---------------------------------------------------------------------
 
-/** construct a normal distribution mapper
- *  @param ioGenerator random number generator to be used as input.  Lifespan of @a ioGenerator must
- *                     be at least that of the distribution.
- *  @param iMean mean of distribution
- *  @param iStdDev standard deviation of
+/** construct an empty distribution.
+ *  @warning drawing numbers from an empty distribution results in undefined behaviour, probably
+ *		causing an access violation.
  */
 template <typename T, class RG>
-DistributionExponential<T, RG>::DistributionExponential(TGenerator& ioGenerator,
-														TParam iRateOfChange):
-	generator_(&ioGenerator),
-	rateOfChange_(iRateOfChange)
+DistributionExponential<T, RG>::DistributionExponential():
+	generator_(0),
+{
+}
+
+
+
+/** construct a normal distribution mapper
+ *  @param generator random number generator to be used as input.  Lifespan of @a generator must
+ *                     be at least that of the distribution.
+ *  @param mean mean of distribution
+ *  @param stddev standard deviation of
+ */
+template <typename T, class RG>
+DistributionExponential<T, RG>::DistributionExponential(TGenerator& generator, TParam rateOfChange):
+	generator_(&generator),
+	rateOfChange_(rateOfChange)
 {
 }
 
@@ -158,6 +180,7 @@ template <typename T, class RG> inline
 typename DistributionExponential<T, RG>::TValue
 DistributionExponential<T, RG>::operator()() const
 {
+	LASS_ASSERT(generator_);
 	TValue temp;
 	do
 	{
@@ -169,13 +192,13 @@ DistributionExponential<T, RG>::operator()() const
 
 
 
-/** draw a random number from iGenerator and transform it by a exponential distribution
+/** draw a random number from generator and transform it by a exponential distribution
  *  @relates DistributionExponential
  */
 template <typename T, typename RandomGenerator> inline
-T distributeExponential(RandomGenerator& iGenerator, T iRateOfChange)
+T distributeExponential(RandomGenerator& generator, T rateOfChange)
 {
-	DistributionExponential<T, RandomGenerator> distribution(iGenerator, iRateOfChange);
+	DistributionExponential<T, RandomGenerator> distribution(generator, rateOfChange);
 	return distribution();
 }
 
@@ -183,18 +206,30 @@ T distributeExponential(RandomGenerator& iGenerator, T iRateOfChange)
 
 // --- DistributionNormal --------------------------------------------------------------------------
 
-/** construct a normal distribution mapper
- *  @param ioGenerator random number generator to be used as input.  Lifespan of @a ioGenerator must
- *                     be at least that of the distribution.
- *  @param iMean mean of distribution
- *  @param iStandardDeviation standard deviation of distribution
+/** construct an empty distribution.
+ *  @warning drawing numbers from an empty distribution results in undefined behaviour, probably
+ *		causing an access violation.
  */
 template <typename T, class RG>
-DistributionNormal<T, RG>::DistributionNormal(TGenerator& ioGenerator,
-											  TParam iMean, TParam iStandardDeviation):
-	generator_(&ioGenerator),
-	mean_(iMean),
-	standardDeviation_(iStandardDeviation),
+DistributionNormal<T, RG>::DistributionNormal():
+	generator_(0),
+{
+}
+
+	
+	
+/** construct a normal distribution mapper
+ *  @param generator random number generator to be used as input.  Lifespan of @a generator must
+ *                     be at least that of the distribution.
+ *  @param mean mean of distribution
+ *  @param standardDeviation standard deviation of distribution
+ */
+template <typename T, class RG>
+DistributionNormal<T, RG>::DistributionNormal(
+		TGenerator& generator, TParam mean, TParam standardDeviation):
+	generator_(&generator),
+	mean_(mean),
+	standardDeviation_(standardDeviation),
 	iset_(false)
 {
 }
@@ -205,6 +240,8 @@ template <typename T, class RG> inline
 typename DistributionNormal<T, RG>::TValue
 DistributionNormal<T, RG>::operator()() const
 {
+	LASS_ASSERT(generator_);
+
 	if (iset_)
 	{
 		iset_ = false;
@@ -229,13 +266,13 @@ DistributionNormal<T, RG>::operator()() const
 
 
 
-/** draw a random number from iGenerator and transform it by a normal distribution
+/** draw a random number from generator and transform it by a normal distribution
  *  @relates DistributionNormal
  */
 template <typename T, typename RandomGenerator> inline
-T distributeNormal(RandomGenerator& iGenerator, T iMean, T iStandardDeviation)
+T distributeNormal(RandomGenerator& generator, T mean, T standardDeviation)
 {
-	DistributionNormal<T, RandomGenerator> distribution(iGenerator, iMean, iStandardDeviation);
+	DistributionNormal<T, RandomGenerator> distribution(generator, mean, standardDeviation);
 	return distribution();
 }
 
@@ -246,9 +283,9 @@ T distributeNormal(RandomGenerator& iGenerator, T iMean, T iStandardDeviation)
 /** @ingroup Distribution
  *  @return a uniform random sample from [0,1]
  */
-template<class T,class RG> T uniform(RG& iGenerator)
+template<class T,class RG> T uniform(RG& generator)
 {
-	return distributeUniform(iGenerator);
+	return distributeUniform(generator);
 }
 
 
@@ -256,22 +293,22 @@ template<class T,class RG> T uniform(RG& iGenerator)
 /** @ingroup Distribution
  *  @return a gaussian distributed (aka normal distributed) random with mean 0 and stddev 1
  */
-template<class T,class RG> T unitGauss(RG& iGenerator)
+template<class T,class RG> T unitGauss(RG& generator)
 {
-	return distributeNormal(iGenerator);
+	return distributeNormal(generator);
 }
 
 
 
 /** @ingroup Distribution
- *  @return a gaussian distributed (aka normal distributed) random sample with @a iMean and
- *      stddev @a iStdDev
+ *  @return a gaussian distributed (aka normal distributed) random sample with @a mean and
+ *      stddev @a stddev
  */
-template<class T,class RG> T gauss(RG& iGenerator,
-									typename util::CallTraits<T>::TParam iMean,
-									typename util::CallTraits<T>::TParam iStdDev)
+template<class T,class RG> T gauss(
+		RG& generator, typename util::CallTraits<T>::TParam mean, 
+		typename util::CallTraits<T>::TParam stddev)
 {
-	return distributeNormal(iGenerator, iMean, iStdDev);
+	return distributeNormal(generator, mean, stddev);
 }
 
 

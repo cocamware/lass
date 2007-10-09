@@ -64,57 +64,59 @@ inline const RandomStandard::TValue RandomStandard::operator ()() const
 
 
 
-/** draw a random number remapped to range [0, iSupremum)
+/** draw a random number remapped to range [0, supremum)
+ *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomStandard::TValue RandomStandard::operator ()(const TValue iSupremum) const
+inline const RandomStandard::TValue RandomStandard::operator ()(const TValue supremum) const
 {
-	return rand() % iSupremum;
+	return rand() % supremum;
 }
 
 
 
 template <typename OutputIterator>
-OutputIterator RandomStandard::getState(OutputIterator iFirst) const
+OutputIterator RandomStandard::getState(OutputIterator first) const
 {
-	return iFirst;
+	return first;
 }
 
 
 
 template <typename InputIterator>
-void RandomStandard::setState(InputIterator iFirst, InputIterator iLast)
+void RandomStandard::setState(InputIterator first, InputIterator last)
 {
-	LASS_ASSERT(iFirst == iLast);
+	LASS_ASSERT(first == last);
 }
 
 
 
 // --- RandomParkMiller ----------------------------------------------------------------------------
 
-/** draw a random number remapped to range [0, iSupremum)
+/** draw a random number remapped to range [0, supremum)
+ *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue iSupremum)
+inline const RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue supremum)
 {
-	return (*this)() % iSupremum;
+	return (*this)() % supremum;
 }
 
 
 
 template <typename OutputIterator>
-OutputIterator RandomParkMiller::getState(OutputIterator iFirst) const
+OutputIterator RandomParkMiller::getState(OutputIterator first) const
 {
-	*iFirst = buffer_;
-	return iFirst;
+	*first = buffer_;
+	return first;
 }
 
 
 
 template <typename InputIterator>
-void RandomParkMiller::setState(InputIterator iFirst, InputIterator iLast)
+void RandomParkMiller::setState(InputIterator first, InputIterator last)
 {
-	LASS_ASSERT(iFirst != iLast);
-	buffer_ = *iFirst++;
-	LASS_ASSERT(iFirst == iLast);
+	LASS_ASSERT(first != last);
+	buffer_ = *first++;
+	LASS_ASSERT(first == last);
 }
 
 
@@ -128,9 +130,9 @@ void RandomParkMiller::setState(InputIterator iFirst, InputIterator iLast)
  *           over the same range more than once.
  */
 template <typename ForwardIterator>
-RandomMT19937::RandomMT19937(ForwardIterator iBegin, ForwardIterator iEnd)
+RandomMT19937::RandomMT19937(ForwardIterator first, ForwardIterator last)
 {
-	seed(iBegin, iEnd);
+	seed(first, last);
 }
 
 
@@ -142,17 +144,17 @@ RandomMT19937::RandomMT19937(ForwardIterator iBegin, ForwardIterator iEnd)
  *           over the same range more than once.
  */
 template <typename ForwardIterator>
-void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
+void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 {
 	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32,
 		if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
 
 	seed(19650218UL);
 
-	const size_t keySize = std::distance(iBegin, iEnd);
+	const size_t keySize = std::distance(first, last);
 	int i = 1;
 	int j = 0;
-	ForwardIterator key = iBegin;
+	ForwardIterator key = first;
 	for (size_t k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1664525UL)) + *key + j;
@@ -167,9 +169,9 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 
 		++key;
 		++j;
-		if (key == iEnd)
+		if (key == last)
 		{
-			key = iBegin;
+			key = first;
 			j = 0;
 		}
 		LASS_ASSERT(static_cast<int>(keySize) >= 0);
@@ -192,31 +194,32 @@ void RandomMT19937::seed(ForwardIterator iBegin, ForwardIterator iEnd)
 
 
 
-/** draw a random number remapped to range [0, iSupremum)
+/** draw a random number remapped to range [0, supremum)
+ *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomMT19937::TValue RandomMT19937::operator ()(const TValue iSupremum)
+inline const RandomMT19937::TValue RandomMT19937::operator ()(const TValue supremum)
 {
-	return (*this)() % iSupremum;
+	return (*this)() % supremum;
 }
 
 
 
 template <typename OutputIterator>
-OutputIterator RandomMT19937::getState(OutputIterator iFirst) const
+OutputIterator RandomMT19937::getState(OutputIterator first) const
 {
-	*iFirst++ = index_;
-	return std::copy(state_, state_ + stateSize_, iFirst);
+	*first++ = index_;
+	return std::copy(state_, state_ + stateSize_, first);
 }
 
 
 
 template <typename InputIterator>
-void RandomMT19937::setState(InputIterator iFirst, InputIterator iLast)
+void RandomMT19937::setState(InputIterator first, InputIterator last)
 {
-	LASS_ASSERT(iFirst != iLast);
-	index_ = *iFirst++;
-	LASS_ASSERT(iFirst != iLast);
-	TValue* end = std::copy(iFirst, iLast, state_);
+	LASS_ASSERT(first != last);
+	index_ = *first++;
+	LASS_ASSERT(first != last);
+	TValue* end = std::copy(first, last, state_);
 	LASS_ASSERT(end == state_ + stateSize_);
 }
 

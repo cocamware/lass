@@ -74,12 +74,13 @@ public:
 	typedef int TValue;             /**< type of return value. */
 	static const TValue max;        /**< maximum return value. */
 
-
 	const TValue operator()() const;
-	const TValue operator()(TValue iSupremum) const;
+	const TValue operator()(TValue supremum) const;
 
-	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
-	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
+	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
+	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
+
+
 };
 
 
@@ -100,15 +101,15 @@ public:
 	static const TValue max;        /**< maximum return value. */
 
 	RandomParkMiller();
-	explicit RandomParkMiller(TValue iSeed);
+	explicit RandomParkMiller(TValue seed);
 
-	void seed(TValue iSeed);
+	void seed(TValue seed);
 
 	const TValue operator()();
-	const TValue operator()(TValue iSupremum);
+	const TValue operator()(TValue supremum);
 
-	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
-	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
+	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
+	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
 
 private:
 
@@ -154,17 +155,17 @@ public:
 	static const TValue max;        /**< maximum return value. */
 
 	RandomMT19937();
-	explicit RandomMT19937(TValue iSeed);
-	template <typename ForwardIterator> RandomMT19937(ForwardIterator iBegin, ForwardIterator iEnd);
+	explicit RandomMT19937(TValue seed);
+	template <typename ForwardIterator> RandomMT19937(ForwardIterator first, ForwardIterator last);
 
-	void seed(TValue iSeed);
-	template <typename ForwardIterator> void seed(ForwardIterator iBegin, ForwardIterator iEnd);
+	void seed(TValue seed);
+	template <typename ForwardIterator> void seed(ForwardIterator first, ForwardIterator last);
 
 	const TValue operator()();
-	const TValue operator()(TValue iSupremum);
+	const TValue operator()(TValue supremum);
 
-	template <typename OutputIterator> OutputIterator getState(OutputIterator iFirst) const;
-	template <typename InputIterator> void setState(InputIterator iFirst, InputIterator iLast);
+	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
+	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
 
 private:
 
@@ -178,7 +179,7 @@ private:
 	};
 
 	void reload();
-	const TValue twist(TValue iA, TValue iB, TValue iC) const;
+	const TValue twist(TValue a, TValue b, TValue c) const;
 
 	TValue state_[stateSize_];      /**< the array for the state vector. */
 	TValue index_;                     /**< index in state vector. */

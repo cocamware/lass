@@ -76,16 +76,16 @@ RandomParkMiller::RandomParkMiller()
 /** default constructor.
  *  will seed with default value
  */
-RandomParkMiller::RandomParkMiller(TValue iSeed)
+RandomParkMiller::RandomParkMiller(TValue seed)
 {
-	seed(iSeed);
+	this->seed(seed);
 }
 
 
 
-void RandomParkMiller::seed(TValue iSeed)
+void RandomParkMiller::seed(TValue seed)
 {
-	buffer_ = iSeed ^ seedMask_;
+	buffer_ = seed ^ seedMask_;
 }
 
 
@@ -117,18 +117,18 @@ RandomMT19937::RandomMT19937():
 
 /** construct with seed.
  */
-RandomMT19937::RandomMT19937(TValue iSeed)
+RandomMT19937::RandomMT19937(TValue seed)
 {
-	seed(iSeed);
+	this->seed(seed);
 }
 
 
 
 /** initializes with a seed.
  */
-void RandomMT19937::seed(TValue iSeed)
+void RandomMT19937::seed(TValue seed)
 {
-	state_[0] = iSeed; // & 0xffffffff;
+	state_[0] = seed; // & 0xffffffff;
 	for (unsigned i = 1; i < stateSize_; ++i)
 	{
 		state_[i] = (1812433253 * (state_[i - 1] ^ (state_[i - 1] >> 30)) + i);
@@ -189,12 +189,12 @@ void RandomMT19937::reload()
 }
 
 
-inline const RandomMT19937::TValue RandomMT19937::twist(TValue iA, TValue iB, TValue iC) const
+inline const RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) const
 {
 	static const TValue magic01[2] = { 0x0, 0x9908b0df }; // magic01[x] = x * magic_ for x = 0, 1
 
-	const TValue y = (iA & 0x80000000) | (iB & 0x7fffffff);
-	return iC ^ (y >> 1) ^ magic01[y & 0x1];
+	const TValue y = (a & 0x80000000) | (b & 0x7fffffff);
+	return c ^ (y >> 1) ^ magic01[y & 0x1];
 }
 
 
