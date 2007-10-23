@@ -270,11 +270,39 @@ public:
 		typedef std::vector<typename Tree::Neighbour> TTreeNeighbours;
 		TTreeNeighbours treeHits(maxCount_ + 1);
 		typename TTreeNeighbours::iterator last = tree.rangeSearch(target_, maxRadius_, maxCount_, treeHits.begin());
-		const size_t treeN = static_cast<size_t>(last - treeHits.begin());
+		size_t treeN = static_cast<size_t>(last - treeHits.begin());
 		std::sort_heap(treeHits.begin(), last);
-		LASS_TEST_CHECK(bruteHits_.size() == treeN && std::equal(bruteHits_.begin(), bruteHits_.end(), treeHits.begin()));
+		LASS_TEST_CHECK(closeNeighbourhood(bruteHits_.begin(), bruteHits_.end(), treeHits.begin(), last, 1e-5f));
 	}
 private:
+
+	/** @pre the ranges [first1, last1) and [first2, last2) are both expected to be sorted in the 
+	 *		same way so that first1[k] can be matched with first2[k].
+	 */
+	template <typename RandomIt1, typename RandomIt2>
+	static const bool closeNeighbourhood(
+			RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2, TValue tolerance)
+	{
+		if ((last1 - first1) != (last2 - first2))
+		{
+			return false;
+		}
+		while (first1 != last1)
+		{
+			if (first1->object() != first2->object())
+			{
+				return false;
+			}
+			if (!num::almostEqual(first1->squaredDistance(), first2->squaredDistance(), tolerance))
+			{
+				return false;
+			}
+			++first1;
+			++first2;
+		}
+		return true;
+	}
+
 	Point target_;
 	const BruteNeighbours& bruteHits_;
 	TValue maxRadius_;
