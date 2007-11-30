@@ -61,6 +61,7 @@
 #	pragma warning(push)
 #	pragma warning(disable: 4239) //  nonstandard extension used : 'argument' : conversion from 'T' to 'T&'
 #	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int'
+#	pragma warning(disable: 4996) // This function or variable may be unsafe ...
 #endif
 
 namespace lass
@@ -364,7 +365,15 @@ public:
 	}
 	void* const get() const
 	{
-		return LASS_ENFORCE_WINAPI(TlsGetValue(index_))("Failed to get thread local storage value");
+		void* const result = TlsGetValue(index_);
+		if (result == 0)
+		{
+			// getting the value must be pretty fast at times, so only do this enforcer if 
+			// result indicates that something _may_ be wrong [Bramz]
+			//
+			return LASS_ENFORCE_WINAPI(result)("Failed to get thread local storage value");
+		}
+		return result;
 	}
 	void set(void* value)
 	{
@@ -464,8 +473,6 @@ void bindThread(HANDLE thread, size_t processor)
 	LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask))
 		("Failed to bind thread to processor ")(processor);
 }
-
-
 
 void setThreadName(DWORD threadId, const char* threadName)
 {
