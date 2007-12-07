@@ -365,7 +365,7 @@ public:
 	}
 	void* const get() const
 	{
-		void* const result = TlsGetValue(index_);
+		void* result = TlsGetValue(index_); // intel700 doesn't like void* const here [Bramz]
 		if (result == 0)
 		{
 			// getting the value must be pretty fast at times, so only do this enforcer if 
