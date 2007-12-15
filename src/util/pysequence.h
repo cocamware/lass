@@ -58,6 +58,7 @@ namespace lass
 {
 namespace python
 {
+
 namespace impl
 {
 
@@ -230,6 +231,40 @@ namespace impl
 		static void initialize();
 	};
 
+	template <typename Sequence>
+	int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
+	{
+		if (!PySequence_Check(iValue))
+		{
+			PyErr_SetString(PyExc_TypeError, "not a python sequence");
+			return 1;
+		}
+		// check if we have our own PySequence object, then take a shortcut
+		if (isOfType(iValue, &PySequence::_lassPyType) && ((PySequence*)iValue)->pointsToSameContainer(oV))
+		{
+			return 0;
+		}
+		else
+		{
+			Sequence result;
+			const int size = PySequence_Length(iValue);
+			for (int i = 0; i < size; ++i)
+			{
+				typename Sequence::value_type temp;
+				if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
+				{
+					impl::addMessageHeader(
+						std::string("sequence element ") + util::stringCast<std::string>(i));
+					return 1;
+				}
+				result.push_back( temp );
+			}
+			oV.swap(result);
+		}
+		return 0;
+	}
+
+
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::clear()
 	{
@@ -251,7 +286,7 @@ namespace impl
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Concat(PyObject *bb)
 	{
 		Container toConcat;
-		int r = pyGetSimpleObject(bb,toConcat);
+		int r = pyGetSequenceObject(bb,toConcat);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
@@ -326,7 +361,7 @@ namespace impl
 			return -1;
 		}
 		Container temp;
-		int r = pyGetSimpleObject(v,temp);
+		int r = pyGetSequenceObject(v,temp);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to type for slice assignment");
@@ -362,7 +397,8 @@ namespace impl
 			return -1;
 		}
 		Container toConcat;
-		int r = pyGetSimpleObject(other,toConcat);
+		//int r = pyGetSimpleObject(other,toConcat);
+		int r = pyGetSequenceObject(other,toConcat);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
@@ -423,42 +459,6 @@ namespace impl
 	{
 		return util::stringCast<std::string>(*cont_);
 	}
-
-
-	template <typename Sequence>
-	int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
-	{
-		if (!PySequence_Check(iValue))
-		{
-			PyErr_SetString(PyExc_TypeError, "not a python sequence");
-			return 1;
-		}
-		// check if we have our own PySequence object, then take a shortcut
-		if (isOfType(iValue, &PySequence::_lassPyType) && ((PySequence*)iValue)->pointsToSameContainer(oV))
-		{
-			return 0;
-		}
-		else
-		{
-			Sequence result;
-			const int size = PySequence_Length(iValue);
-			for (int i = 0; i < size; ++i)
-			{
-				typename Sequence::value_type temp;
-				if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
-				{
-					impl::addMessageHeader(
-						std::string("sequence element ") + util::stringCast<std::string>(i));
-					return 1;
-				}
-				result.push_back( temp );
-			}
-			oV.swap(result);
-		}
-		return 0;
-	}
-
-
 }
 
 /** @ingroup Python
@@ -591,6 +591,10 @@ int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
 /** @ingroup Python
  *  get a copy of a Python sequence as a stde::static_vector.
  *  @note you get a COPY of the sequence, not the original sequence itself!
+ */
+/*
+template<typename V, size_t maxsize>
+int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
  */
 template<typename V, size_t maxsize>
 int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
