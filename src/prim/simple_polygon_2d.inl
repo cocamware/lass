@@ -241,7 +241,7 @@ SimplePolygon2D<T, DP>::signedArea() const
 	{
 		result += perpDot(vertices_[prevI].position(), vertices_[i].position());
 	}
-	return result / 2;
+	return result / T(2);
 }
 
 

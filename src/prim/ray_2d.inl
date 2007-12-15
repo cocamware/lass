@@ -246,9 +246,9 @@ template <typename T, class NP, class PP>
 const Side Ray2D<T, NP, PP>::classify(const TPoint& iPoint) const
 {
 	T surf = doubleTriangleArea(support_,support_+direction_,iPoint);
-	if (surf>0.0)
+	if (surf>T(0))
 		return sLeft;
-	if (surf<0.0)
+	if (surf<T(0))
 		return sRight;
 	return sSurface;
 }
