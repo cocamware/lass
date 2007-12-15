@@ -74,9 +74,12 @@ public:
 			PyShadowBaseTracked<CppBase>::invalidateBase(static_cast<CppBase*>(this));
 		}
 	};
+	static std::set<PyShadowBaseTracked<CppBase>*>* shadows_;
 	static bool invalidateBase(CppBase* iBase)
 	{
-		typename std::set<PyShadowBaseTracked*>::iterator it = shadows_->begin();
+		if (!shadows_)
+			return true;
+		typename std::set<PyShadowBaseTracked<CppBase>*>::iterator it = shadows_->begin();
 		for (;it!=shadows_->end();++it)
 		{
 			if ((*it)->cppObject_==iBase)
@@ -88,16 +91,15 @@ public:
 		}
 		return true;
 	}
-	static std::set<PyShadowBaseTracked*>* shadows_;
-	static bool trackShadow(PyShadowBaseTracked* iShadow)
+	static bool trackShadow(PyShadowBaseTracked<CppBase>* iShadow)
 	{
 		if (!shadows_)
-			shadows_ = new std::set<PyShadowBaseTracked*>;
+			shadows_ = new std::set<PyShadowBaseTracked<CppBase>*>;
 		if (shadows_)
 			shadows_->insert(iShadow);
 		return true;
 	}
-	static bool forgetShadow(PyShadowBaseTracked* iShadow)
+	static bool forgetShadow(PyShadowBaseTracked<CppBase>* iShadow)
 	{
 		if (shadows_)
 			shadows_->erase(iShadow);
@@ -118,13 +120,13 @@ public:
 	{
 		if (!weak && ownership_ == oOwner) 
 		{
-			delete cppObject_; 
-			cppObject_ = 0;
+			delete this->cppObject_; 
+			this->cppObject_ = 0;
 		}
 	}
 	CppBase* cppObject() const
 	{
-		return cppObject_;
+		return this->cppObject_;
 	}
 	static bool doTracking;
 
@@ -135,10 +137,9 @@ protected:
 		oBorrowed
 	};
 	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
-		PyShadowBaseTracked<CppBase>(iCppObject,doTracking),
-		ownership_(iOwnership)
+		ownership_(iOwnership), PyShadowBaseTracked<CppBase>(iCppObject,doTracking)
 	{
-		cppObject_ = iCppObject;
+		this->cppObject_ = iCppObject;
 	}
 private:
 	Ownership ownership_;
@@ -437,6 +438,7 @@ template <> struct ArgumentTraits< t_ShadowObject::TCppClass >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static const TCppClass& arg(const TStorage& iArg)\
 	{\
+		if (!iArg) LASS_THROW("Null pointer reference");\
 		return *static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -446,6 +448,7 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static const TCppClass& arg(const TStorage& iArg)\
 	{\
+		if (!iArg) LASS_THROW("Null pointer reference");\
 		return *static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -455,6 +458,7 @@ template <> struct ArgumentTraits< t_ShadowObject::TCppClass& >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static TCppClass& arg(const TStorage& iArg)\
 	{\
+		if (!iArg) LASS_THROW("Null pointer reference");\
 		return *static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -464,6 +468,7 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass& >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static const TCppClass& arg(const TStorage& iArg)\
 	{\
+		if (!iArg) LASS_THROW("Null pointer reference");\
 		return *static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -473,6 +478,7 @@ template <> struct ArgumentTraits< t_ShadowObject::TCppClass* >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static TCppClass* arg(const TStorage& iArg)\
 	{\
+		if (!iArg) return 0;\
 		return static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -482,6 +488,7 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static const TCppClass* arg(const TStorage& iArg)\
 	{\
+		if (!iArg) return 0;\
 		return static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -491,6 +498,7 @@ template <> struct ArgumentTraits< t_ShadowObject::TCppClass* const >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static TCppClass* const arg(const TStorage& iArg)\
 	{\
+		if (!iArg) return 0;\
 		return static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -500,6 +508,7 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
 	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
 	static const TCppClass* const arg(const TStorage& iArg)\
 	{\
+		if (!iArg) return 0;\
 		return static_cast<TCppClass*>(iArg->cppObject());\
 	}\
 };\
@@ -576,4 +585,5 @@ LASS_EXECUTE_BEFORE_MAIN_EX( t_ShadowObject, SelectorFor_##t_ShadowObject::doStu
 #endif
 
 // EOF
+
 
