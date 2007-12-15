@@ -453,6 +453,17 @@ void addClassMethod(
 		LASS_PY_COMPARATOR("__ne__", Py_NE)
 		LASS_PY_COMPARATOR("__gt__", Py_GT)
 		LASS_PY_COMPARATOR("__ge__", Py_GE)
+
+		if (strcmp(methodName, "__str__") == 0)
+		{
+			pyType.tp_str = dispatcherUnary;
+			return;
+		}
+		if (strcmp(methodName, "__repr__") == 0)
+		{
+			pyType.tp_repr = dispatcherUnary;
+			return;
+		}
 	}
 
 	// normal method mechanism
