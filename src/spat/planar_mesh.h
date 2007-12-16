@@ -64,6 +64,8 @@
 #include "../prim/triangle_2d.h"
 #include "../prim/side.h"
 #include "../util/callback_r_1.h"
+#include "../util/callback_r_2.h"
+#include "../util/callback_r_3.h"
 #include "../io/matlab_o_stream.h"
 #include "../meta/tuple.h"
 #include "../stde/extended_iterator.h"
@@ -292,6 +294,7 @@ namespace spat
 		typedef std::vector< TQuadEdge* >     TQuadEdgeList;
 		typedef std::vector< ProxyHandle* >   TProxyHandleList;
 		typedef lass::util::CallbackR1<bool,TEdge*> TEdgeCallback;
+		typedef lass::util::CallbackR3<bool,TEdge*,const TSimplePolygon2D&, FaceHandle> TEdgePolyFaceHandleCallback;
 
 	public:
 		PlanarMesh( const TPoint2D& a, const TPoint2D& b, const TPoint2D& c);
@@ -308,16 +311,21 @@ namespace spat
 
 		void    forAllPrimaryEdges( const TEdgeCallback& iCallback );
 		void    forAllPrimaryUndirectedEdges( const TEdgeCallback& iCallback );
+		void    forAllPrimaryUndirectedEdgesCached( const TEdgeCallback& iCallback );
 		void    forAllDualEdges( const TEdgeCallback& iCallback );
 		void    forAllEdges( const TEdgeCallback& iCallback );
 		void    forAllVertices( const TEdgeCallback& iCallback );
 		void    forAllFaces( const TEdgeCallback& iCallback );
+		template <typename InputPolygonIterator, typename InputFaceHandleIterator>
+		void	forAllPolygonFaces( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle, const TEdgePolyFaceHandleCallback& iCallback );
+
 
 		TEdge*  locate( const TPoint2D& iPoint ) const;				/**< locate an edge of the triangle containing iPoint */
 		TEdge*  pointLocate( const TPoint2D& iPoint ) const;		/**< locate an edge of which the org is the same as iPoint, useful for known degeneracy point location, possibly slower than the regular locate */
 		TEdge*	shoot( const TRay2D& iRay ) const;			/**< locate the edge found by shooting the ray from within the triangle containt the tail of the ray */
 		template <typename OutputIterator>	OutputIterator walk( const TLineSegment2D& iSegment, OutputIterator oCrossedEdges ) const;
 		template <typename OutputIterator>	OutputIterator walkIntersections( const TLineSegment2D& iSegment, OutputIterator oIntersections ) const;
+		TEdge*	walkTillConstrained( const TRay2D& iRay) const;
 		TEdge*  insertSite( const TPoint2D& iPoint, bool makeDelaunay = true, bool forceOnEdge = false);
 		TEdge*  insertEdge( const TLineSegment2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), PointHandle iPointHandle = PointHandle(), bool forcePointHandle = false, bool makeDelaunay = true);
 		TEdge*  insertPolygon( const TSimplePolygon2D& iSegment, EdgeHandle iLeftHandle = EdgeHandle(), EdgeHandle iRightHandle = EdgeHandle(), bool makeDelaunay = true);
@@ -325,9 +333,12 @@ namespace spat
 		template <typename InputPolygonIterator, typename InputFaceHandleIterator>
 		void	markPolygons( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle);
 		void	markPolygons( const std::vector<TSimplePolygon2D>& iPolygons, const std::vector<FaceHandle>& iFaceHandles);
-		bool    deleteEdge( TEdge* iEdge );
+		bool    deleteEdge( TEdge* iEdge );	  /**< delete edge without using gc */
+		bool    gcDeleteEdge( TEdge* iEdge ); /**< delete edge using garbage collector, useful for deletion avalanches */
+		int		gc(); /**< do garbage collection after deletion avalanches, returns number of quadedge collected */
 		long    edgeCount() const { return edgeCount_; }
-		void    makeMaximalConvexPolygon();
+		void    makeMaximalConvexPolygon(T iMaxSurface=T(-1.0));
+		void    makeRectangular(T minAngle, T maxAngle);
 
 		static	TTriangle2D triangle( const TEdge* iEdge);	
 		static	TSimplePolygon2D polygon( const TEdge* iEdge);
@@ -410,7 +421,7 @@ namespace spat
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
-
+		void  floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle(), const TEdgePolyFaceHandleCallback& iCallback = TEdgePolyFaceHandleCallback());
 #ifndef NDEBUG
 	public:
 		static unsigned numSetOrientedEdgeHandleCalls;
@@ -522,6 +533,9 @@ namespace spat
 		public:
 			typedef std::list< typename TPlanarMesh::TEdge* > TEdgeList;
 			TEdgeList   edgeList;
+			T angleConstraintMin;		/**< min angle for which pruning is considered */
+			T angleConstraintMax;		/**< max angle for which pruning is considered */
+			T maxSurface;				/**< max surface of convex polygon */
 
 			EdgeGatherer(  TPlanarMesh* iMesh ) : mesh_(iMesh), lastArea_(0) {}
 			virtual ~EdgeGatherer() {}
@@ -532,11 +546,19 @@ namespace spat
 				if ( mesh_->internalMarking( e ) || e->isConstrained())
 					return true;
 
-				if (    prim::ccw( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()))
-					&&  prim::ccw( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())) )
+				if (    prim::weakCcw( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()))
+					&&  prim::weakCcw( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())) )
 				{
 					T dArea = num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext())))
 							+ num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())));
+					if (maxSurface>T(0))
+					{
+						// use of maximum surface criterion
+						T leftArea = TPlanarMesh::polygon(e).area();
+						T rightArea = TPlanarMesh::polygon(e->sym()).area();
+						if (leftArea+rightArea>maxSurface)
+							return true;			// skip this edge
+					}
 					if (lastArea_ == T(0))
 					{
 						lastArea_ = dArea;
@@ -553,6 +575,46 @@ namespace spat
 							edgeList.push_back( e );
 					}
 					return false;
+				}
+				return true;
+			}
+			bool makeRectangular( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* e )
+			{
+				LASS_ASSERT( TPlanarMesh::inPrimaryMesh( e ) );
+				if ( mesh_->internalMarking( e ) || e->isConstrained())
+					return true;
+
+				if (    prim::ccw( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()))
+					&&  prim::ccw( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())) )
+				{
+					// angles will always be smaller than 180deg so we can use this test
+					TPlanarMesh::TVector2D v1 = TPlanarMesh::fastDest(e->lNext())-TPlanarMesh::fastDest(e);
+					TPlanarMesh::TVector2D v2 = TPlanarMesh::fastOrg(e)-TPlanarMesh::fastDest(e->lNext());
+					TPlanarMesh::TVector2D v3 = TPlanarMesh::fastDest(e->sym()->lNext())-TPlanarMesh::fastOrg(e);
+					TPlanarMesh::TVector2D v4 = TPlanarMesh::fastDest(e)-TPlanarMesh::fastDest(e->sym()->lNext());
+					v1.normalize();
+					v2.normalize();
+					v3.normalize();
+					v4.normalize();
+					T angle1 = lass::num::acos(lass::prim::dot( v1, v2));
+					T angle2 = lass::num::acos(lass::prim::dot( v2, v3));
+					T angle3 = lass::num::acos(lass::prim::dot( v3, v4));
+					T angle4 = lass::num::acos(lass::prim::dot( v4, v1));
+					if (	lass::num::abs(angle1)>angleConstraintMin 
+						&&	lass::num::abs(angle2)>angleConstraintMin 
+						&&	lass::num::abs(angle3)>angleConstraintMin 
+						&&	lass::num::abs(angle4)>angleConstraintMin 
+						&&	lass::num::abs(angle1)<=angleConstraintMax
+						&&	lass::num::abs(angle2)<=angleConstraintMax
+						&&	lass::num::abs(angle3)<=angleConstraintMax
+						&&	lass::num::abs(angle4)<=angleConstraintMax )
+					{
+						edgeList.push_back( e );
+						// mark the other connecting edges as hard constraints
+						//mesh_->setInternalMarking(e->dNext(),true);
+						//mesh_->setInternalMarking(e->lNext(),true);
+						return false;
+					}
 				}
 				return true;
 			}
@@ -744,26 +806,58 @@ namespace spat
 	}
 
 	TEMPLATE_DEF
-	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeMaximalConvexPolygon()
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeMaximalConvexPolygon(T iMaxSurface)
 	{
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 
+		TEdgeMarker edgeMarker( this, false );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 		while (true)
 		{
 			TEdgeGatherer edgeGatherer( this );
-			TEdgeMarker edgeMarker( this, false );
-			forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+			edgeGatherer.maxSurface = iMaxSurface;
 			edgeGatherer.edgeList.clear();
-			forAllPrimaryEdges( TEdgeCallback( &edgeGatherer, &TEdgeGatherer::makeConvexPolygon) );
+			forAllPrimaryUndirectedEdgesCached( TEdgeCallback( &edgeGatherer, &TEdgeGatherer::makeConvexPolygon) );
 			if (edgeGatherer.edgeList.size()>0)
-				deleteEdge( edgeGatherer.edgeList.front() );
+				gcDeleteEdge( edgeGatherer.edgeList.front() );
 			else
-				return;
+				break;
 		}
+#if DEBUG_MESH
+		std::cout << "PlanarMesh GC collected " << gc() << " edges" << std::endl;
+#endif
 	}
 
+	TEMPLATE_DEF
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeRectangular(T minAngle, T maxAngle)
+	{
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+
+		TEdgeMarker edgeMarker( this, false );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+		while (true)
+		{
+			TEdgeGatherer edgeGatherer( this );
+			edgeGatherer.edgeList.clear();
+			edgeGatherer.angleConstraintMin = minAngle;
+			edgeGatherer.angleConstraintMax = maxAngle;
+			forAllPrimaryUndirectedEdgesCached( TEdgeCallback( &edgeGatherer, &TEdgeGatherer::makeRectangular) );
+			if (edgeGatherer.edgeList.size()==0)
+				break;
+			if (edgeGatherer.edgeList.size()>0)
+			{
+				gcDeleteEdge( edgeGatherer.edgeList.back() );
+				edgeGatherer.edgeList.pop_back();
+			}
+		}
+#if DEBUG_MESH
+		std::cout << "PlanarMesh GC collected " << gc() << " edges" << std::endl;
+#endif
+	}
 
 
 	TEMPLATE_DEF
@@ -1009,7 +1103,7 @@ namespace spat
 
 		T t = std::max(t1,t2) / (t1 + t2);
 
-		if (prim::doubleTriangleArea(x,a,b)==0.0)
+		if (prim::doubleTriangleArea(x,a,b)==T(0))
 			return x;
 
 		if (t1>t2)
@@ -1097,6 +1191,69 @@ namespace spat
 		edgeCount_ -= 2;
 		return true;
 	}
+
+	TEMPLATE_DEF
+	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::gcDeleteEdge( TEdge* e )
+	{
+		if ( e->isConstrained() )
+		{
+			return false;
+		}
+
+		while (startEdge_->quadEdge()==e->quadEdge())
+			startEdge_=e->lNext();
+		lastLocateEdge_.reset(startEdge_);
+
+		TQuadEdge::splice( e, e->oPrev() );
+		TQuadEdge::splice( e->sym(), e->sym()->oPrev() );
+
+		TQuadEdge* qe = e->quadEdge();
+		qe->edgeDeconstrain();
+		qe->faceDeconstrain();
+		qe->detach();
+		qe->deleted = true;
+
+		edgeCount_ -= 2;
+		return true;
+	}
+	TEMPLATE_DEF
+	int PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::gc( )
+	{
+		// sort all the edges in the quadedgelist on the deleted value
+		// because there are only two values we can do an O(n) sort, yes you read that correctly =)
+		// we put all non-gc elements in front of the vector
+		// this algorithm will also work on lists using iterators, we just do it on random access containers here
+		// the iterator implementation is left as an exercise to the reader =)
+		int lastMarker = quadEdgeList_.size()-1;
+		int startMarker = 0;
+		int collected = 0;
+		int n = quadEdgeList_.size()-1;
+
+		while (startMarker<lastMarker)
+		{
+			// advance first marker till first gc element
+			while (!quadEdgeList_[startMarker]->deleted && startMarker<n)
+				++startMarker;
+			// advance last marker till first non-gc element
+			while (quadEdgeList_[lastMarker]->deleted && lastMarker>0)
+				--lastMarker;
+			// double check and do termination iteration
+			if (quadEdgeList_[startMarker]->deleted && !quadEdgeList_[lastMarker]->deleted )
+				std::swap(quadEdgeList_[startMarker],quadEdgeList_[lastMarker]);
+		}
+		// lastMarker should now point at the GC starting point
+		// we are too lazy to verify this, so we do backwards search again
+		// the whole algorithm is O(n) anyway
+		lastMarker = n;
+		while (quadEdgeList_[lastMarker]->deleted && lastMarker>0)
+		{
+			--lastMarker;
+			quadEdgeList_.pop_back();
+			++collected;
+		}
+		return collected;
+	}
+
 
 	TEMPLATE_DEF
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::bruteForceLocate( const TPoint2D& iPoint ) const
@@ -1549,6 +1706,52 @@ continueSearch:
 
 	/* _Adds_ the crossed edges to the output vector, method is polygon safe */
 	TEMPLATE_DEF
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::walkTillConstrained( const TRay2D& iRay) const
+	{
+		TEdge* e=NULL;
+		TLineSegment2D segment(iRay.support(),iRay.support()+iRay.direction());
+		e = shoot(iRay);
+		//LASS_ASSERT(isBoundingPoint(org(e)) || allEqualChainOrder(e));
+		if (!e)
+		{
+			LASS_THROW("Could not shoot initial ray in walk");
+		}
+		while (	!e->isConstrained()) 
+		{
+			/*
+			TEdge* ne1 = e->sym()->lNext();
+			if (cw(iSegment.tail(),iSegment.head(),dest(ne1)))
+				e = ne1->lNext();
+			else
+				e = ne1;
+			*/
+			TEdge* ce = e->sym()->lNext();
+#pragma LASS_TODO("Optimize")
+			// this for loop is introduced for point location in non-triangular, general
+			// convex cells
+			TEdge* oldE = e;
+			int n = chainOrder(e);
+			for (int i=0;i<n;++i)
+			{
+				if ( weakCcw( segment.tail(), segment.head(), dest(ce) ) )
+				{
+					e = ce;
+					break;
+				}
+				ce = ce->lNext();
+			}
+			if (e==oldE)
+			{
+				LASS_THROW("Planarmesh: stuck in walkTillConstrained");
+			}
+		}
+		return e;
+	}
+
+
+
+	/* _Adds_ the crossed edges to the output vector, method is polygon safe */
+	TEMPLATE_DEF
 	template <typename OutputIterator> 
 	OutputIterator PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::pointWalk( const TLineSegment2D& iSegment, OutputIterator crossedEdges ) const
 	{
@@ -1683,7 +1886,7 @@ continueSearch:
 
 		bool isOnEdge = onEdge(iPoint, e) || forceOnEdge;
 		// the distance to lines is enlarged a bit for greater stability towards distances to line calculations
-		if (!isOnEdge && TLine2D(org(e),dest(e)).squaredDistance(iPoint)<1.05*pointDistanceTolerance_*pointDistanceTolerance_)
+		if (!isOnEdge && TLine2D(org(e),dest(e)).squaredDistance(iPoint)<T(1.05)*pointDistanceTolerance_*pointDistanceTolerance_)
 		{
 			// snap the point to the line, this is a precaution to avoid numerical 
 			// instability later on
@@ -1710,7 +1913,11 @@ continueSearch:
 			
 			if (isOnEdge)
 			{
-				if ( s1*s2 < T(0) || s2*s3 < T(0) || s1*s3 < T(0) )
+				T s1s2 = s1*s2;
+				T s2s3 = s2*s3;
+				T s1s3 = s1*s3;
+
+				if ( s1s2 < T(0) || s2s3 < T(0) || s1s3 < T(0) )
 				{
 					if (squaredDistance(org(e),iPoint)<squaredDistance(dest(e),iPoint))
 					{
@@ -1720,6 +1927,9 @@ continueSearch:
 						{
 							// we have come across a situation which is combinatorially not possible except for
 							// numerical issues, we just continue as the algorithm can cope with this
+#if DEBUG_MESH
+							std::cout << "Numerical instability detected in lass::mesh, continuing as this can be dealt with.\n";
+#endif
 						}
 					}
 					else
@@ -1730,6 +1940,9 @@ continueSearch:
 						{
 							// we have come across a situation which is combinatorially not possible except for
 							// numerical issues, we just continue as the algorithm can cope with this
+#if DEBUG_MESH
+							std::cout << "Numerical instability detected in lass::mesh, continuing as this can be dealt with.\n";
+#endif
 						}
 					}
 				}
@@ -2112,9 +2325,12 @@ continueSearch:
 		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
 #pragma LASS_TODO("do a more efficient marking or allow for multiple marking")
 
-		floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle );
-		floodPolygon( iStartEdge->lNext()->sym(), iPolygon, iFaceHandle );
-		floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygon, iFaceHandle );
+		int n = chainOrder(iStartEdge);
+		for (int i=0;i<n;++i)
+		{
+			floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle );
+			iStartEdge = iStartEdge->lNext();
+		}
 	}
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
@@ -2131,13 +2347,42 @@ continueSearch:
 		while (iFirstPolygon != iLastPolygon)
 		{
 			TEdge* iStartEdge = locate((*iFirstPolygon)[0]);
-			floodPolygon( iStartEdge->sym(), *iFirstPolygon, *iFirstFaceHandle );
-			floodPolygon( iStartEdge->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
-			floodPolygon( iStartEdge->lNext()->lNext()->sym(), *iFirstPolygon, *iFirstFaceHandle );
+			int n = chainOrder(iStartEdge);
+			for (int i=0;i<n;++i)
+			{
+				floodPolygon( iStartEdge->sym(), *iFirstPolygon, *iFirstFaceHandle );
+				iStartEdge = iStartEdge->lNext();
+			}
 			++iFirstPolygon;
 			++iFirstFaceHandle;
 		}
 	}
+
+	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
+	TEMPLATE_DEF
+	template <typename InputPolygonIterator, typename InputFaceHandleIterator>
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPolygonFaces( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle, const TEdgePolyFaceHandleCallback& iCallback )
+	{
+		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
+		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
+		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
+		TEdgeMarker edgeMarker( this, false );
+		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
+
+		while (iFirstPolygon != iLastPolygon)
+		{
+			TEdge* iStartEdge = locate((*iFirstPolygon)[0]);
+			int n = chainOrder(iStartEdge);
+			for (int i=0;i<n;++i)
+			{
+				floodPolygonCallback( iStartEdge->sym(), *iFirstPolygon, *iFirstFaceHandle, iCallback );
+				iStartEdge = iStartEdge->lNext();
+			}
+			++iFirstPolygon;
+			++iFirstFaceHandle;
+		}
+	}
+
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
 	TEMPLATE_DEF
@@ -2154,14 +2399,35 @@ continueSearch:
 	TEMPLATE_DEF
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle())
 	{	
-		TPoint2D bary = triangle(iStartEdge).surfaceCentroid().affine();
+		TPoint2D bary = polygon(iStartEdge).surfaceCentroid().affine();
 		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
 		{
 			setInternalMarking( iStartEdge, true );
 			setFaceHandle( iStartEdge, iFaceHandle );
-			floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle );
-			floodPolygon( iStartEdge->lNext()->sym(), iPolygon, iFaceHandle );
-			floodPolygon( iStartEdge->lNext()->lNext()->sym(), iPolygon, iFaceHandle );
+			int n = chainOrder(iStartEdge);
+			for (int i=0;i<n;++i)
+			{
+				floodPolygon( iStartEdge->sym(), iPolygon, iFaceHandle);
+				iStartEdge = iStartEdge->lNext();
+			}
+		}
+	}
+
+	TEMPLATE_DEF
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle(), const TEdgePolyFaceHandleCallback& iCallback = TEdgePolyFaceHandleCallback() )
+	{	
+		TPoint2D bary = polygon(iStartEdge).surfaceCentroid().affine();
+		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
+		{
+			setInternalMarking( iStartEdge, true );
+			if (iCallback)
+				iCallback(iStartEdge, iPolygon,iFaceHandle);
+			int n = chainOrder(iStartEdge);
+			for (int i=0;i<n;++i)
+			{
+				floodPolygonCallback( iStartEdge->sym(), iPolygon, iFaceHandle, iCallback  );
+				iStartEdge = iStartEdge->lNext();
+			}
 		}
 	}
 
@@ -2350,7 +2616,7 @@ continueSearch:
 		{
 			TLineSegment2D eSeg(org(iEdge), dest(iEdge) );
 			T rt = eSeg.t(iPoint);
-			return (rt>=0.0) && (rt<=1.0);
+			return (rt>=T(0)) && (rt<=T(1));
 		}
 		return false;
 	}
@@ -2591,18 +2857,22 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			if (inPrimaryMesh( (*qIt)->edges() ) )
+			if (!(*qIt)->deleted)
 			{
-				if (!iCallback( (*qIt)->edges() )) return;
-				if (!iCallback( (*qIt)->edges()->sym() )) return;
-			}
-			else
-			{
-				if (!iCallback( (*qIt)->edges()->rot() )) return ;
-				if (!iCallback( (*qIt)->edges()->invRot() )) return;
+				if (inPrimaryMesh( (*qIt)->edges() ) )
+				{
+					if (!iCallback( (*qIt)->edges() )) return;
+					if (!iCallback( (*qIt)->edges()->sym() )) return;
+				}
+				else
+				{
+					if (!iCallback( (*qIt)->edges()->rot() )) return ;
+					if (!iCallback( (*qIt)->edges()->invRot() )) return;
+				}
 			}
 		}
 	}
+
 	/** forAllPrimaryUndirectedEdges.  Edges sharing endpoints are only listed once */
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryUndirectedEdges( const TEdgeCallback& iCallback )
@@ -2610,14 +2880,65 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			if (inPrimaryMesh( (*qIt)->edges() ) )
+			if (!(*qIt)->deleted)
 			{
-				if (!iCallback( (*qIt)->edges() )) return;
+				if (inPrimaryMesh( (*qIt)->edges() ) )
+				{
+					if (!iCallback( (*qIt)->edges() )) return;
+				}
+				else
+				{
+					if (!iCallback( (*qIt)->edges()->rot() )) return ;
+				}
 			}
-			else
+		}
+	}
+	/** forAllPrimaryUndirectedEdges.  Edges sharing endpoints are only listed once.  Random starting point */
+	TEMPLATE_DEF
+	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryUndirectedEdgesCached( const TEdgeCallback& iCallback )
+	{
+		typename TQuadEdgeList::iterator qIt;
+		static int start = 0;
+		int savedStart = start;
+
+		if (savedStart>quadEdgeList_.size()-1)
+		{
+			savedStart = 0;
+			start = 0;
+		}
+
+		for (int i = savedStart; i<quadEdgeList_.size();++i)
+		{
+			TQuadEdge* qe = quadEdgeList_[i];
+			if (!qe->deleted)
 			{
-				if (!iCallback( (*qIt)->edges()->rot() )) return ;
+				if (inPrimaryMesh( (qe)->edges() ) )
+				{
+					if (!iCallback( (qe)->edges() )) return;
+				}
+				else
+				{
+					if (!iCallback( (qe)->edges()->rot() )) return ;
+				}
 			}
+			++start;
+		}
+		start = 0;
+		for (int i = 0; i<savedStart;++i)
+		{
+			TQuadEdge* qe = quadEdgeList_[i];
+			if (!qe->deleted)
+			{
+				if (inPrimaryMesh( (qe)->edges() ) )
+				{
+					if (!iCallback( (qe)->edges() )) return;
+				}
+				else
+				{
+					if (!iCallback( (qe)->edges()->rot() )) return ;
+				}
+			}
+			++start;
 		}
 	}
 
@@ -2627,15 +2948,18 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			if (inDualMesh( (*qIt)->edges() ) )
+			if (!(*qIt)->deleted)
 			{
-				if (!iCallback( (*qIt)->edges() )) return;
-				if (!iCallback( (*qIt)->edges()->sym() )) return;
-			}
-			else
-			{
-				if (!iCallback( (*qIt)->edges()->rot() )) return;
-				if (!iCallback( (*qIt)->edges()->invRot() )) return;
+				if (inDualMesh( (*qIt)->edges() ) )
+				{
+					if (!iCallback( (*qIt)->edges() )) return;
+					if (!iCallback( (*qIt)->edges()->sym() )) return;
+				}
+				else
+				{
+					if (!iCallback( (*qIt)->edges()->rot() )) return;
+					if (!iCallback( (*qIt)->edges()->invRot() )) return;
+				}
 			}
 		}
 	}
@@ -2646,10 +2970,13 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			if (!iCallback( (*qIt)->edges() )) return;
-			if (!iCallback( (*qIt)->edges()->sym() )) return;
-			if (!iCallback( (*qIt)->edges()->rot() )) return;
-			if (!iCallback( (*qIt)->edges()->invRot() )) return;
+			if (!(*qIt)->deleted)
+			{
+				if (!iCallback( (*qIt)->edges() )) return;
+				if (!iCallback( (*qIt)->edges()->sym() )) return;
+				if (!iCallback( (*qIt)->edges()->rot() )) return;
+				if (!iCallback( (*qIt)->edges()->invRot() )) return;
+			}
 		}
 	}
 
@@ -2665,20 +2992,23 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			TEdge* baseEdge = (*qIt)->edges();
-			if (inDualMesh( baseEdge ) )
-				baseEdge = baseEdge->rot();
-
-			TEdge* e = baseEdge;
-			for (int i=0;i<2;++i)
+			if (!(*qIt)->deleted)
 			{
-				if ( !internalMarking( e ) )
+				TEdge* baseEdge = (*qIt)->edges();
+				if (inDualMesh( baseEdge ) )
+					baseEdge = baseEdge->rot();
+
+				TEdge* e = baseEdge;
+				for (int i=0;i<2;++i)
 				{
-					if (!iCallback( e ))
-						return;
-					setInternalMarkingAroundVertex( e, true );
+					if ( !internalMarking( e ) )
+					{
+						if (!iCallback( e ))
+							return;
+						setInternalMarkingAroundVertex( e, true );
+					}
+					e = e->sym();
 				}
-				e = e->sym();
 			}
 		}
 	}
@@ -2695,20 +3025,23 @@ continueSearch:
 		typename TQuadEdgeList::iterator qIt;
 		for (qIt = quadEdgeList_.begin(); qIt != quadEdgeList_.end();++qIt)
 		{
-			TEdge* baseEdge = (*qIt)->edges();
-			if (inDualMesh( baseEdge ) )
-				baseEdge = baseEdge->rot();
-
-			TEdge* e = baseEdge;
-			for (int i=0;i<2;++i)
+			if (!(*qIt)->deleted)
 			{
-				if ( !internalMarking( e ) )
+				TEdge* baseEdge = (*qIt)->edges();
+				if (inDualMesh( baseEdge ) )
+					baseEdge = baseEdge->rot();
+
+				TEdge* e = baseEdge;
+				for (int i=0;i<2;++i)
 				{
-					if (!iCallback( e ))
-						return;
-					setInternalMarkingInFace( e, true );
+					if ( !internalMarking( e ) )
+					{
+						if (!iCallback( e ))
+							return;
+						setInternalMarkingInFace( e, true );
+					}
+					e = e->sym();
 				}
-				e = e->sym();
 			}
 		}
 	}
