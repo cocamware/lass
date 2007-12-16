@@ -107,6 +107,7 @@ namespace spat
 		QuadEdge(bool makeConstrained=false);
 		QuadEdge(const QuadEdge& other);
 		~QuadEdge();
+		void detach();
 		QuadEdge& operator=(const QuadEdge& other);
 
 		void    edgeConstrain();
@@ -129,7 +130,8 @@ namespace spat
 		Edge    edges_[4];
 		bool    edgeConstrained_;       /**< the edge is forced into the mesh, stay off! */
 		bool    faceConstrained_;       /**< the faces adjacent the edge have their handles set differently, cannot do stuff with the edge! */
-
+	public:
+		bool	deleted;
 	};
 
 
@@ -137,12 +139,14 @@ namespace spat
 	{
 		edgeConstrained_ = makeEdgeConstrained;
 		faceConstrained_ = false;
+		deleted = false;
 		initEdges();
 	}
 
 	template< typename EdgeHandle > QuadEdge<EdgeHandle>::QuadEdge(const QuadEdge& other):
 		edgeConstrained_(other.edgeConstrained_),
-		faceConstrained_(other.faceConstrained_)
+		faceConstrained_(other.faceConstrained_),
+		deleted(other.deleted)
 	{
 		initEdges();
 		copyEdges(other);
@@ -150,6 +154,7 @@ namespace spat
 
 	template< typename EdgeHandle > QuadEdge<EdgeHandle>& QuadEdge<EdgeHandle>::operator=(const QuadEdge& other)
 	{
+		deleted = other.deleted;
 		copyEdges(other);
 		return *this;
 	}
@@ -158,9 +163,17 @@ namespace spat
 	{
 		LASS_ASSERT( !faceConstrained_ );
 		// detach edge from the subdivision:
+		//detach();
+	}
+	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::detach()
+	{
+		LASS_ASSERT( !faceConstrained_ );
+		// detach edge from the subdivision:
 		splice(edges_, edges_->oPrev());
 		splice(edges_->sym(), edges_->sym()->oPrev());
 	}
+
+
 
 	template< typename EdgeHandle > void QuadEdge<EdgeHandle>::splice( Edge* a, Edge* b )
 	{
