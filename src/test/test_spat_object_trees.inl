@@ -270,7 +270,7 @@ public:
 		typedef std::vector<typename Tree::Neighbour> TTreeNeighbours;
 		TTreeNeighbours treeHits(maxCount_ + 1);
 		typename TTreeNeighbours::iterator last = tree.rangeSearch(target_, maxRadius_, maxCount_, treeHits.begin());
-		size_t treeN = static_cast<size_t>(last - treeHits.begin());
+		//size_t treeN = static_cast<size_t>(last - treeHits.begin());
 		std::sort_heap(treeHits.begin(), last);
 		LASS_TEST_CHECK(closeNeighbourhood(bruteHits_.begin(), bruteHits_.end(), treeHits.begin(), last, 1e-5f));
 	}
