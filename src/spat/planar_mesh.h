@@ -337,7 +337,7 @@ namespace spat
 		bool    gcDeleteEdge( TEdge* iEdge ); /**< delete edge using garbage collector, useful for deletion avalanches */
 		int		gc(); /**< do garbage collection after deletion avalanches, returns number of quadedge collected */
 		long    edgeCount() const { return edgeCount_; }
-		void    makeMaximalConvexPolygon(T iMaxSurface=T(-1.0));
+		void    makeMaximalConvexPolygon(T iMaxSurface=-1.0);
 		void    makeRectangular(T minAngle, T maxAngle);
 
 		static	TTriangle2D triangle( const TEdge* iEdge);	
@@ -421,7 +421,7 @@ namespace spat
 		void setInternalMarkingInFace( typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* iEdge, bool iMark );
 
 		void  floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle );
-		void  floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle(), const TEdgePolyFaceHandleCallback& iCallback = TEdgePolyFaceHandleCallback());
+		void  floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle, const TEdgePolyFaceHandleCallback& iCallback);
 #ifndef NDEBUG
 	public:
 		static unsigned numSetOrientedEdgeHandleCalls;
@@ -551,7 +551,7 @@ namespace spat
 				{
 					T dArea = num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->dNext()), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext())))
 							+ num::abs(prim::doubleTriangleArea( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())));
-					if (maxSurface>T(0))
+					if (maxSurface>0.0)
 					{
 						// use of maximum surface criterion
 						T leftArea = TPlanarMesh::polygon(e).area();
@@ -588,10 +588,10 @@ namespace spat
 					&&  prim::ccw( TPlanarMesh::org(e->sym()->dNext()), TPlanarMesh::org(e), TPlanarMesh::dest(e->sym()->lNext())) )
 				{
 					// angles will always be smaller than 180deg so we can use this test
-					TPlanarMesh::TVector2D v1 = TPlanarMesh::fastDest(e->lNext())-TPlanarMesh::fastDest(e);
-					TPlanarMesh::TVector2D v2 = TPlanarMesh::fastOrg(e)-TPlanarMesh::fastDest(e->lNext());
-					TPlanarMesh::TVector2D v3 = TPlanarMesh::fastDest(e->sym()->lNext())-TPlanarMesh::fastOrg(e);
-					TPlanarMesh::TVector2D v4 = TPlanarMesh::fastDest(e)-TPlanarMesh::fastDest(e->sym()->lNext());
+					typename TPlanarMesh::TVector2D v1 = TPlanarMesh::fastDest(e->lNext())-TPlanarMesh::fastDest(e);
+					typename TPlanarMesh::TVector2D v2 = TPlanarMesh::fastOrg(e)-TPlanarMesh::fastDest(e->lNext());
+					typename TPlanarMesh::TVector2D v3 = TPlanarMesh::fastDest(e->sym()->lNext())-TPlanarMesh::fastOrg(e);
+					typename TPlanarMesh::TVector2D v4 = TPlanarMesh::fastDest(e)-TPlanarMesh::fastDest(e->sym()->lNext());
 					v1.normalize();
 					v2.normalize();
 					v3.normalize();
@@ -825,9 +825,7 @@ namespace spat
 			else
 				break;
 		}
-#if DEBUG_MESH
 		std::cout << "PlanarMesh GC collected " << gc() << " edges" << std::endl;
-#endif
 	}
 
 	TEMPLATE_DEF
@@ -854,9 +852,7 @@ namespace spat
 				edgeGatherer.edgeList.pop_back();
 			}
 		}
-#if DEBUG_MESH
 		std::cout << "PlanarMesh GC collected " << gc() << " edges" << std::endl;
-#endif
 	}
 
 
@@ -1103,7 +1099,7 @@ namespace spat
 
 		T t = std::max(t1,t2) / (t1 + t2);
 
-		if (prim::doubleTriangleArea(x,a,b)==T(0))
+		if (prim::doubleTriangleArea(x,a,b)==0.0)
 			return x;
 
 		if (t1>t2)
@@ -1886,7 +1882,7 @@ continueSearch:
 
 		bool isOnEdge = onEdge(iPoint, e) || forceOnEdge;
 		// the distance to lines is enlarged a bit for greater stability towards distances to line calculations
-		if (!isOnEdge && TLine2D(org(e),dest(e)).squaredDistance(iPoint)<T(1.05)*pointDistanceTolerance_*pointDistanceTolerance_)
+		if (!isOnEdge && TLine2D(org(e),dest(e)).squaredDistance(iPoint)<1.05*pointDistanceTolerance_*pointDistanceTolerance_)
 		{
 			// snap the point to the line, this is a precaution to avoid numerical 
 			// instability later on
@@ -1913,11 +1909,7 @@ continueSearch:
 			
 			if (isOnEdge)
 			{
-				T s1s2 = s1*s2;
-				T s2s3 = s2*s3;
-				T s1s3 = s1*s3;
-
-				if ( s1s2 < T(0) || s2s3 < T(0) || s1s3 < T(0) )
+				if ( s1*s2 < T(0) || s2*s3 < T(0) || s1*s3 < T(0) )
 				{
 					if (squaredDistance(org(e),iPoint)<squaredDistance(dest(e),iPoint))
 					{
@@ -1927,9 +1919,7 @@ continueSearch:
 						{
 							// we have come across a situation which is combinatorially not possible except for
 							// numerical issues, we just continue as the algorithm can cope with this
-#if DEBUG_MESH
-							std::cout << "Numerical instability detected in lass::mesh, continuing as this can be dealt with.\n";
-#endif
+							std::cout << "Numerical instability detected in lass::mesh\n";
 						}
 					}
 					else
@@ -1940,9 +1930,7 @@ continueSearch:
 						{
 							// we have come across a situation which is combinatorially not possible except for
 							// numerical issues, we just continue as the algorithm can cope with this
-#if DEBUG_MESH
-							std::cout << "Numerical instability detected in lass::mesh, continuing as this can be dealt with.\n";
-#endif
+							std::cout << "Numerical instability detected in lass::mesh\n";
 						}
 					}
 				}
@@ -2414,7 +2402,7 @@ continueSearch:
 	}
 
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle(), const TEdgePolyFaceHandleCallback& iCallback = TEdgePolyFaceHandleCallback() )
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle, const TEdgePolyFaceHandleCallback& iCallback )
 	{	
 		TPoint2D bary = polygon(iStartEdge).surfaceCentroid().affine();
 		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
@@ -2616,7 +2604,7 @@ continueSearch:
 		{
 			TLineSegment2D eSeg(org(iEdge), dest(iEdge) );
 			T rt = eSeg.t(iPoint);
-			return (rt>=T(0)) && (rt<=T(1));
+			return (rt>=0.0) && (rt<=1.0);
 		}
 		return false;
 	}

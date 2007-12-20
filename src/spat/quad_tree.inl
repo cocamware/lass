@@ -300,7 +300,7 @@ const bool QuadTree<O, OT>::intersects(
 		return false;
 	}
 
-	return doIntersects(node, ray, tMin, tMax, info, tNear, tFar, flipMask);
+	return doIntersects(root_, ray, tMin, tMax, info, tNear, tFar, flipMask);
 }
 
 
@@ -510,7 +510,7 @@ const bool QuadTree<O, OT>::doIntersects(
 		QuadNode* const child = node->node[i ^ flipMask];
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
-		childNearAndFar(tNearChild, tFarChild, tMiddle, i);
+		childNearAndFar(tChildNear, tChildFar, tMiddle, i);
 		TValue t;
 		if (doIntersects(child, ray, t, tMin, tMax, info, tChildNear, tChildFar, flipMask))
 		{
