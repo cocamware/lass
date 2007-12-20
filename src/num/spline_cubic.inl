@@ -309,7 +309,7 @@ template <typename S, typename D, typename T>
 const typename SplineCubic<S, D, T>::TControlRange
 SplineCubic<S, D, T>::controlRange() const
 {
-	return ControlRange(nodes_.front().x, nodes_.back().x);
+	return TControlRange(nodes_.front().x, nodes_.back().x);
 }
 
 

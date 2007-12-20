@@ -286,7 +286,7 @@ template <typename S, typename D, typename T>
 const typename SplineBezierPath<S, D, T>::TControlRange
 SplineBezierPath<S, D, T>::controlRange() const
 {
-	return ControlRange(nodes_.front().x, nodes_.back().x);
+	return TControlRange(nodes_.front().x, nodes_.back().x);
 }
 
 

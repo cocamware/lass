@@ -295,7 +295,8 @@ template <typename S, typename D, typename T>
 const typename SplineLinear<S, D, T>::TControlRange
 SplineLinear<S, D, T>::controlRange() const
 {
-	return ControlRange(nodes_.front().x, nodes_.back().x);
+	typedef typename SplineLinear<S, D, T>::TControlRange TRange;
+	return TRange(nodes_.front().x, nodes_.back().x);
 }
 
 
