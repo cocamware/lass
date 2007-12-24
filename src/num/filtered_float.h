@@ -84,7 +84,7 @@ public:
 	}
 
 	FilteredFloat(TParam t): 
-		t_(t), e_(TNumTraits::zero)
+		t_(t), e_(TNumTraits::epsilon*t)
 	{
 	}
 
@@ -95,7 +95,7 @@ public:
 
 
 	FilteredFloat(const TSelf& other):
-		t_(other.t_)
+		t_(other.t_), e_(other.e_)
 	{
 	}
 
@@ -111,7 +111,7 @@ public:
 
 	TSelf operator-() const
 	{
-		return TSelf(-t_,e_);
+		return TSelf(-t_,-e_);
 	}
 
 	TSelf operator+() const
@@ -127,12 +127,20 @@ public:
 		T br = other.t_-bv;
 		T ar = t_-av;
 		t_ = x; 
-		e_ = ar+br; 
+		e_ = ar+br;
+		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
 		return *this; 
 	}
 	TSelf& operator-=(const TSelf& other) 
 	{ 
-		*this += (-other);
+		T x = t_ - other.t_;
+		T bv = t_-x;
+		T av = x+bv;
+		T br = bv-other.t_;
+		T ar = t_-av;
+		t_ = x; 
+		e_ = ar+br;
+		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
 		return *this; 
 	}
 	TSelf& operator*=(const TSelf& other) 
@@ -146,6 +154,7 @@ public:
 		T y = (a.e_*b.e_)-err3;
 		t_ = x; 
 		e_ = y;
+		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
 		return *this; 
 	}
 	TSelf& operator/=(const TSelf& other)
@@ -153,6 +162,7 @@ public:
 #pragma LASS_TODO("We need to rederive the forward error for this operation!")
 		TSelf newOther(T(1)/other.value(),0.0);
 		this->operator *=(newOther);
+		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
 		return *this; 
 	}
 	
@@ -226,11 +236,16 @@ bool operator!=(const FilteredFloat<T>& a, const FilteredFloat<T>& b)
 template <typename T> inline
 bool operator<(const FilteredFloat<T>& a, const FilteredFloat<T>& b) 
 {
+	//return a.value()+a.error() < b.value()-b.error();;
+	LASS_ENFORCE( (a.value()+b.error() < b.value()-a.error()) == (a.value()<b.value()));
+	return a.value()<b.value();
+	/*
 	if (a.value()==b.value())
 	{
 		return a.error() < b.error();
 	}
 	return a.value() < b.value();
+	*/
 }
 
 template <typename T> inline
