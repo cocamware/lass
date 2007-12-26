@@ -51,11 +51,11 @@ namespace util
 namespace impl
 {
 
-std::string fetchException()
+void fetchAndThrowPythonException(const std::string& loc)
 {
 	if (!PyErr_Occurred())
 	{
-		return "internal error: fetchException called while Python exception is not set";
+		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
 	}
 
 	PyObject *tempType, *tempValue, *tempTraceback;
@@ -65,26 +65,7 @@ std::string fetchException()
 	python::TPyObjPtr value(tempValue);
 	python::TPyObjPtr traceback(tempTraceback);
 
-	std::ostringstream buffer;
-	if (PyErr_GivenExceptionMatches(type.get(), PyExc_TypeError))
-	{
-		buffer << "Python function does not match signature of C++ callback.  It complained with: ";
-	}
-	else
-	{
-		buffer << "Python function in callback failed: ";
-	}
-
-	python::TPyObjPtr typeStr(PyObject_Str(type.get()));
-	buffer << (typeStr ? PyString_AsString(typeStr.get()) : "unknown python exception");
-
-	python::TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
-	if (valueStr)
-	{
-		buffer << ": '" << PyString_AsString(valueStr.get()) << "'";
-	}
-
-	return buffer.str();
+	throw lass::python::experimental::PythonException(type, value, traceback, loc);
 }
 
 }

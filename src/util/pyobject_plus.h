@@ -260,6 +260,44 @@ namespace lass
 		 */
 		typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 
+		namespace experimental
+		{
+			class PythonException: public util::Exception
+			{
+			public:
+				PythonException(
+						const python::TPyObjPtr& type, const python::TPyObjPtr& value, 
+						const python::TPyObjPtr& traceback, const std::string& loc):
+					util::Exception(extractMessage(type, value), loc),
+					type_(type),
+					value_(value),
+					traceback_(traceback)
+				{
+				}
+				const python::TPyObjPtr& type() const { return type_; } 
+				const python::TPyObjPtr& value() const { return value_; } 
+				const python::TPyObjPtr& traceback() const { return traceback_; } 
+			private:
+				static const std::string extractMessage(
+						const python::TPyObjPtr& type, const python::TPyObjPtr& value)
+				{
+					std::ostringstream buffer;
+					python::TPyObjPtr typeStr(PyObject_Str(type.get()));
+					buffer << (typeStr ? PyString_AsString(typeStr.get()) : "unknown python exception");
+					python::TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
+					if (valueStr)
+					{
+						buffer << ": '" << PyString_AsString(valueStr.get()) << "'";
+					}
+					return buffer.str();
+				}
+				LASS_UTIL_EXCEPTION_PRIVATE_IMPL(PythonException)
+				python::TPyObjPtr type_;
+				python::TPyObjPtr value_;
+				python::TPyObjPtr traceback_;
+			};
+		}
+
 		/** fromNakedToSharedPtrCast.
 		*   @ingroup Python
 		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr

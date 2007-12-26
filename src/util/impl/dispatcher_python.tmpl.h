@@ -52,7 +52,8 @@ namespace util
 namespace impl
 {
 
-LASS_DLL std::string LASS_CALL fetchException(); // see dispatcher_python.cpp
+
+LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc); // see dispatcher_python.cpp
 
 }
 }
@@ -93,7 +94,7 @@ public:
 		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), 0));
 		if (!result)
 		{
-			LASS_THROW(fetchException());
+			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 	}
 
@@ -137,7 +138,7 @@ public:
 		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{
-			LASS_THROW(fetchException());
+			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 	}
 
@@ -175,7 +176,7 @@ public:
 		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), 0));
 		if (!result)
 		{
-			LASS_THROW(fetchException());
+			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 
 		typedef python::impl::ArgumentTraits<R> TraitsR;
@@ -222,7 +223,7 @@ public:
 		python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 		if (!result)
 		{
-			LASS_THROW(fetchException());
+			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 
 		typedef python::impl::ArgumentTraits<R> TraitsR;

@@ -54,9 +54,17 @@
 #include "../meta/type_list.h"
 
 #define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(v_errorReturnValue)\
+	catch (::lass::python::experimental::PythonException& error)\
+	{\
+		PyErr_Restore(\
+			::lass::python::fromSharedPtrToNakedCast(error.type()),\
+			::lass::python::fromSharedPtrToNakedCast(error.value()),\
+			::lass::python::fromSharedPtrToNakedCast(error.traceback()));\
+		return v_errorReturnValue;\
+	}\
 	catch (lass::util::Exception& error)\
 	{\
-		std::ostringstream buffer;\
+		::std::ostringstream buffer;\
 		buffer << error.message() << "\n\n(" << error.location() << ")";\
 		PyErr_SetString(PyExc_Exception, buffer.str().c_str());\
 		return v_errorReturnValue;\
