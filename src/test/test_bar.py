@@ -379,6 +379,17 @@ def callbackR0():
 embedding.callR0(callbackR0)
 print "CallbackR2:"
 embedding.callR2(lambda x, y: x * y)
-
+print "Callback with exceptions:"
+def callbackException():
+	raise KeyError, "some key"
+try:
+	embedding.call0(callbackException)
+except KeyError, msg:
+	if msg != "some key":
+		reportError("message of exception was not preserved")
+	else:
+		print "exception preserved."
+except:
+	reportError("exception was not preserved")
 
 print "\n"
