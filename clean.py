@@ -47,6 +47,8 @@ def clean_win32():
 	for p in projects:
 			for c in configurations:
 				os.system('rmdir ' + p + '\\' + c + ' /S /Q')
+	os.system('del *.ncb /F /Q')
+	os.system('del *.dat /F /Q')
 	os.chdir('..')
 
 
