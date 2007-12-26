@@ -368,7 +368,7 @@ std::istream& operator>>(std::istream& stream, Point2D<T>& b)
 // when T is an exact type, a faster computation could be devised
 // see work from Shewchuk, Fortune and Van Wyck
 // the basic idea is to translate points a and b by c
-template<typename T>
+template<typename T> inline
 T doubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
 	return perpDot(a-c,b-c);
@@ -385,7 +385,7 @@ T doubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>
 // when T is an exact type, a faster computation could be devised
 // see work from Shewchuk, Fortune and Van Wyck
 // the basic idea is to translate points a and b by c
-template<typename T>
+template<typename T> inline
 T preciseDoubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
 	return perpDot(a-c,b-c);
@@ -398,19 +398,19 @@ T preciseDoubleTriangleArea( const Point2D<T>& a, const Point2D<T>& b, const Poi
 /** returns true when the line b->c is counter clockwise oriented with respect to a->b
  *  @relates lass::prim::Point2D
  */
-template<typename T>
+template<typename T> inline
 bool ccw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(a,b,c) > num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) > T();
 }
 
 /** returns true when the line b->c is clockwise oriented with respect to a->b
  *  @relates lass::prim::Point2D
  */
-template<typename T>
+template<typename T> inline
 bool cw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(a,b,c) < num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) < T();
 }
 
 
@@ -418,20 +418,20 @@ bool cw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
  *  When c is in line of a and b also returns true.
  *  @relates lass::prim::Point2D
  */
-template<typename T>
+template<typename T> inline
 bool weakCcw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(a,b,c) >= num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) >= T();
 }
 
 /** returns true when the line b->c is counter clockwise oriented with respect to a->b.
  *  When c is in line of a and b also returns true.
  *  @relates lass::prim::Point2D
  */
-template<typename T>
+template<typename T> inline
 bool weakCw( const Point2D<T>& a, const Point2D<T>& b, const Point2D<T>& c )
 {
-	return  doubleTriangleArea(a,b,c) <= num::NumTraits<T>::zero;
+	return  doubleTriangleArea(a,b,c) <= T();
 }
 
 /** returns true when the point d is strictly (within numerical precision) in the circle

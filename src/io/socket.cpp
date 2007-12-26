@@ -59,6 +59,11 @@
 #	error "[LASS BUILD MSG] Socket not supported for this platform"
 #endif
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244) // conversion from '__w64 int' to 'cont int', possible loss of data
+#endif
+
 namespace lass
 {
 namespace io

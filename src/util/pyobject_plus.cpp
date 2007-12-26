@@ -48,6 +48,10 @@
 #include "py_stl.h"
 #include "py_tuple.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4996) // This function or variable may be unsafe ...
+#endif
+
 namespace lass
 {
 namespace python
@@ -541,3 +545,5 @@ bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
 }
 }
 }
+
+// EOF

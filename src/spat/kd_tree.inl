@@ -220,7 +220,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& target, TParam maxRadius, OutputIterato
 		return first;
 	}
 	const TValue squaredRadius = maxRadius * maxRadius;
-	return doRangeSearch(target, squaredRadius, first, 0);
+	return doRangeSearch(0, target, squaredRadius, first);
 }
 
 
@@ -566,7 +566,7 @@ OutputIterator KdTree<O, OT>::doRangeSearch(
 		}
 	}
 
-	const TValue sqrDistance = squaredDistance(pivot, target);
+	const TValue sqrDistance = this->squaredDistance(pivot, target);
 	if (sqrDistance < squaredDistance)
 	{
 		*output++ = Neighbour(node.object(), sqrDistance);
