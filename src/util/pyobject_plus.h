@@ -274,6 +274,7 @@ namespace lass
 					traceback_(traceback)
 				{
 				}
+				~PythonException() throw() {}
 				const python::TPyObjPtr& type() const { return type_; } 
 				const python::TPyObjPtr& value() const { return value_; } 
 				const python::TPyObjPtr& traceback() const { return traceback_; } 
