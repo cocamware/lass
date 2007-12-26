@@ -18,7 +18,7 @@
 		<Configuration
 			Name="win32_vc8_d|Win32"
 			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -48,6 +48,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="io_common.h"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -84,7 +85,7 @@
 		<Configuration
 			Name="win32_vc8|Win32"
 			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -119,6 +120,8 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="io_common.h"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
+				ProgramDataBaseFileName="$(IntDir)\$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"

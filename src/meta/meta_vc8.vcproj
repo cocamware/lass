@@ -18,7 +18,7 @@
 		<Configuration
 			Name="win32_vc8_d|Win32"
 			OutputDirectory="$(SolutionDir)..\lib"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -81,7 +81,7 @@
 		<Configuration
 			Name="win32_vc8|Win32"
 			OutputDirectory="$(SolutionDir)..\lib"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
