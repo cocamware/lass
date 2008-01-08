@@ -62,49 +62,49 @@ namespace test
 
 template 
 <
-    typename T
+	typename T
 > 
 void testPrimTransformation3D()
 {
-    const T epsilon = static_cast<T>(1e-2);
+	const T epsilon = static_cast<T>(1e-2);
 
-    typedef prim::Transformation3D<T> TTransformation;
-    typedef prim::Point3D<T> TPoint;
-    typedef prim::Vector3D<T> TVector;
-    typedef num::NumTraits<T> TNumTraits;
+	typedef prim::Transformation3D<T> TTransformation;
+	typedef prim::Point3D<T> TPoint;
+	typedef prim::Vector3D<T> TVector;
+	typedef num::NumTraits<T> TNumTraits;
 
-    TTransformation identity;
-    TTransformation transfo;
+	TTransformation identity;
+	TTransformation transfo;
 
-    num::RandomMT19937 random;
-    num::DistributionUniform<T, num::RandomMT19937> distribution(random);
+	num::RandomMT19937 random;
+	num::DistributionUniform<T, num::RandomMT19937> distribution(random);
 
-    for (unsigned k = 0; k < 100; ++k)
-    {
+	for (unsigned k = 0; k < 100; ++k)
+	{
 		T mat[16];
 		std::generate(mat, mat + 16, distribution);
 		transfo = TTransformation(mat, mat + 16);
 
-        try
-        {
-            TTransformation invTransfo = transfo.inverse();
-            TTransformation testTransfo = concatenate(transfo, invTransfo);
+		try
+		{
+			TTransformation invTransfo = transfo.inverse();
+			TTransformation testTransfo = concatenate(transfo, invTransfo);
 			const T* a = testTransfo.matrix();
 			const T* b = identity.matrix();
-            for (unsigned i = 0; i < 16; ++i)
-            {
+			for (unsigned i = 0; i < 16; ++i)
+			{
 				LASS_TEST_CHECK(num::abs(a[i] - b[i]) < epsilon);
 				if (num::abs(a[i] - b[i]) >= epsilon)
 				{
 					LASS_COUT << "i:" << i << "\ta[i]:" << a[i] << "\tb[i]" << b[i] << "\n";
 					LASS_COUT << testTransfo << "\n";
 				}
-            }
-        }
-        catch (...)
-        {
-        }
-    }
+			}
+		}
+		catch (const prim::SingularityError& error)
+		{
+		}
+	}
 /*
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
@@ -124,13 +124,22 @@ void testPrimTransformation3D()
 
 	const unsigned n = 1000000;
 	stopWatch.reset();
-    stopWatch.start();
+	stopWatch.start();
 	for (unsigned k = 0; k < n; ++k)
-    {
+	{
 		transform(aabb, transfo);
 	}
 	LASS_COUT << "time: " << ((stopWatch.stop() + correction) / n) << "\n";
 */
+
+	// test concatenation
+
+	TTransformation A = TTransformation::rotation('x', TNumTraits::pi / 2);
+	TTransformation B = TTransformation::rotation('y', TNumTraits::pi / 2);
+	TTransformation C = concatenate(A, B);
+	TVector k(0, 0, 1);
+	LASS_TEST_CHECK_CLOSE_ARRAY(transform(transform(k, A), B), transform(k, C), epsilon, 3);
+
 }   
 
 }

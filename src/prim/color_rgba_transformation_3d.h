@@ -40,58 +40,37 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_TRANSFORMATION_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_TRANSFORMATION_3D_H
 
+#include "prim_common.h"
+#include "color_rgba.h"
+#include "transformation_3d.h"
 
-#include "test_common.h"
-#include "unit_test.h"
-
-#include "test_io.h"
-#include "test_meta.h"
-#include "test_num.h"
-#include "test_prim.h"
-#include "test_spat.h"
-#include "test_stde.h"
-#include "test_util.h"
-
-#include "../stde/range_algorithm.h"
-#include "../io/logger.h"
-#include "../io/file_attribute.h"
-
-int main(int argc, char* argv[])
+namespace lass
 {
-	using namespace lass;
 
-	const std::string logFile = 
-		io::fileJoinPath(test::workPath(), "test_" LASS_TEST_VERSION ".log");
-	io::Logger logger(logFile);
-	logger.subscribeTo(io::proxyMan()->cout());
-	logger.subscribeTo(io::proxyMan()->clog());
-	logger.subscribeTo(io::proxyMan()->cerr());
+namespace prim
+{
 
-	LASS_EVAL(logFile);
-	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
-	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
-	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
-	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
-
-	test::TUnitTests unitTests;
-	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
-	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
-	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
-	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
-	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
-	unsigned errors = 0;
-	unsigned fatalErrors = 0;
-	const bool success = test::runTests(unitTests, argc, argv, &errors, &fatalErrors);
-
-	if (success)
-	{
-		return 0;
-	}
-	const unsigned totalErrors = errors + fatalErrors;
-	return totalErrors < 255 ? static_cast<int>(totalErrors) : 255;
+/** apply transformation to axis aligned bounding box
+ *  @relates Transformation3D
+ */
+template<typename T>
+ColorRGBA transform(const ColorRGBA& subject, const Transformation3D<T>& transformation)
+{
+	const T* const mat = transformation.matrix();
+	return ColorRGBA(
+		mat[ 0] * subject.r + mat[ 1] * subject.g + mat[ 2] * subject.b,
+		mat[ 4] * subject.r + mat[ 5] * subject.g + mat[ 6] * subject.b,
+		mat[ 8] * subject.r + mat[ 9] * subject.g + mat[10] * subject.b,
+		subject.a);
 }
+
+}
+
+}
+
+#endif
 
 // EOF

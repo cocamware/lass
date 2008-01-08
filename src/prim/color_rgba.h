@@ -162,6 +162,10 @@ LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorR
 
 #include "pyobject_util.inl"
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H
+#	include "color_rgba_transformation_3d.h"
+#endif
+
 #endif
 
 // EOF

@@ -92,6 +92,11 @@ public:
 		bool isFromFile;
 		const TChromaticity& operator[](size_t index) const { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
 		TChromaticity& operator[](size_t index) { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
+		const bool operator==(const Chromaticities& other) const 
+		{
+			return red == other.red && green == other.green && blue == other.blue && white == other.white;
+		}
+		const bool operator!=(const Chromaticities& other) const { return !(*this == other); }
 	};
 
 	class BadFormat: public util::Exception
@@ -140,6 +145,7 @@ public:
 
 	const Chromaticities& chromaticities() const;
 	Chromaticities& chromaticities();
+	void convertChromaticities(const Chromaticities& newChromaticities);
 
 	const unsigned rows() const;
 	const unsigned cols() const;
@@ -158,6 +164,8 @@ public:
 	void ratop(const Image& other);
 	void rthrough(const Image& other);
 	void plus(const Image& other);
+
+	void clampNegatives();
 
 	// FILTERS
 
@@ -239,6 +247,23 @@ private:
 		void writeTo(BinaryOStream& stream);
 	};
 
+	struct HeaderIgi
+	{
+		num::Tint32 magic;
+		num::Tint32 version;
+		num::Tfloat64 numSamples;
+		num::Tuint32 width;
+		num::Tuint32 height;
+		num::Tuint32 superSampling;
+		num::Tint32 zipped;
+		num::Tint32 dataSize;
+		num::Tuint32 rgb;
+		enum { padding = 5000 };
+		
+		void readFrom(BinaryIStream& stream);
+		void writeTo(BinaryOStream& stream);
+	};
+
 	typedef BinaryIStream& (Image::*TFileOpener)(BinaryIStream&);
 	typedef BinaryOStream& (Image::*TFileSaver)(BinaryOStream&) const;
 
@@ -258,26 +283,29 @@ private:
 		return rows * cols_ + cols;
 	}
 
-	void defaultChromaticities();
-
 	BinaryIStream& openLass(BinaryIStream& stream);
 	BinaryIStream& openTarga(BinaryIStream& stream);
 	BinaryIStream& openTargaTrueColor(BinaryIStream& stream, const HeaderTarga& iHeader);
 	BinaryIStream& openRadianceHdr(BinaryIStream& stream);
 	BinaryIStream& openPfm(BinaryIStream& stream);
+	BinaryIStream& openIgi(BinaryIStream& stream);
 
 	BinaryOStream& saveLass(BinaryOStream& stream) const;
 	BinaryOStream& saveTarga(BinaryOStream& stream) const;
 	BinaryOStream& saveRadianceHdr(BinaryOStream& stream) const;
 	BinaryOStream& savePfm(BinaryOStream& stream) const;
+	BinaryOStream& saveIgi(BinaryOStream& stream) const;
 	
 	FileFormat findFormat(const std::string& formatTag);
 	std::string readRadianceHdrString(BinaryIStream& stream) const;
-		
+	
 	static BinaryIStream& readLine(BinaryIStream& stream, std::string& line);
 	static BinaryOStream& writeLine(BinaryOStream& stream, const std::string& line);
 
 	static TFileFormats fillFileFormats();
+
+	static const Chromaticities defaultChromaticities();
+	static const Chromaticities xyzChromaticities();
 
 	Chromaticities chromaticities_;
 	unsigned rows_;
@@ -287,6 +315,7 @@ private:
 	static TFileFormats fileFormats_;
 	static num::Tuint32 magicLass_;
 	static std::string magicRadiance_;
+	static num::Tint32 magicIgi_;
 };
 
 

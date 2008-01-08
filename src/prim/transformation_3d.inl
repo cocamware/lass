@@ -125,16 +125,16 @@ Transformation3D<T>::Transformation3D(
 
 /** construct a transformation from a 4x4 tranformation matrix.
  *  The elements of the 4x4 matrix will represented in a row major way by an iterator
- *  range [iBegin, iEnd) of 16 elements.
+ *  range [first, last) of 16 elements.
  */
 template <typename T>
 template <typename InputIterator>
-Transformation3D<T>::Transformation3D(InputIterator iBegin, InputIterator iEnd):
+Transformation3D<T>::Transformation3D(InputIterator first, InputIterator last):
 	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
-	LASS_ENFORCE(std::distance(iBegin, iEnd) == 16);
-	std::copy(iBegin, iEnd, matrix_.get());
+	LASS_ENFORCE(std::distance(first, last) == 16);
+	std::copy(first, last, matrix_.get());
 }
 
 
@@ -218,7 +218,7 @@ Transformation3D<T>::inverse() const
 		const TValue det = mat[0] * inv[0] + mat[4] * inv[1] + mat[8] * inv[2] + mat[12] * inv[3];
 		if (det == TNumTraits::zero)
 		{
-			LASS_THROW("transformation not invertible");
+			LASS_THROW_EX(SingularityError, "transformation not invertible");
 		}
 		const TValue invDet = num::inv(det);
 		for (unsigned i = 0; i < 16; ++i)
@@ -270,12 +270,12 @@ const Transformation3D<T> Transformation3D<T>::identity()
 /** make a 3D transformation representing a translation
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& iOffset)
+const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& offset)
 {
 	TSelf result;
-	result.matrix_[3] = iOffset.x;
-	result.matrix_[7] = iOffset.y;
-	result.matrix_[11] = iOffset.z;
+	result.matrix_[3] = offset.x;
+	result.matrix_[7] = offset.y;
+	result.matrix_[11] = offset.z;
 	return result;
 }
 
@@ -284,12 +284,12 @@ const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& iO
 /** make a 3D transformation representing a uniform scaling
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::scaler(const T& iScale)
+const Transformation3D<T> Transformation3D<T>::scaler(const T& scale)
 {
 	TSelf result;
-	result.matrix_[0] = iScale;
-	result.matrix_[5] = iScale;
-	result.matrix_[10] = iScale;
+	result.matrix_[0] = scale;
+	result.matrix_[5] = scale;
+	result.matrix_[10] = scale;
 	return result;
 }
 
@@ -298,12 +298,12 @@ const Transformation3D<T> Transformation3D<T>::scaler(const T& iScale)
 /** make a 3D transformation representing a scaling with different factors per axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& iScale)
+const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& scale)
 {
 	TSelf result;
-	result.matrix_[0] = iScale.x;
-	result.matrix_[5] = iScale.y;
-	result.matrix_[10] = iScale.z;
+	result.matrix_[0] = scale.x;
+	result.matrix_[5] = scale.y;
+	result.matrix_[10] = scale.z;
 	return result;
 }
 
@@ -312,12 +312,12 @@ const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& iScale)
 /** make a 3D transformation representing a rotation around a primary axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::rotation(XYZ iAxis, TParam iRadians)
+const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians)
 {
-	const T c = num::cos(iRadians);
-	const T s = num::sin(iRadians);
-	const size_t a = (iAxis + 1);
-	const size_t b = (iAxis + 2);
+	const T c = num::cos(radians);
+	const T s = num::sin(radians);
+	const size_t a = (axis + 1);
+	const size_t b = (axis + 2);
 	LASS_ASSERT(a < 3 && b < 3);
 
 	Transformation3D<T> result;
@@ -333,11 +333,11 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ iAxis, TParam iRadia
 /** make a 3D transformation representing a rotation around an arbitrary axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& iAxis, TParam iRadians)
+const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& axis, TParam radians)
 {
-	Vector3D<T> a = iAxis.normal();
-	const T c = num::cos(iRadians);
-	const T s = num::sin(iRadians);
+	Vector3D<T> a = axis.normal();
+	const T c = num::cos(radians);
+	const T s = num::sin(radians);
 	const TValue oneMinusC = TNumTraits::one - c;
 
 	Transformation3D<T> result;
@@ -362,9 +362,9 @@ const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& iAxis
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T> inline
-Transformation3D<T>::Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool):
-	matrix_(iMatrix),
-	inverseMatrix_(iInverseMatrix)
+Transformation3D<T>::Transformation3D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool):
+	matrix_(matrix),
+	inverseMatrix_(inverseMatrix)
 {
 }
 
@@ -372,22 +372,23 @@ Transformation3D<T>::Transformation3D(const TMatrix& iMatrix, const TMatrix& iIn
 
 // --- free ----------------------------------------------------------------------------------------
 
-/** concatenate two transformations @a iA and @a iB in one.
+/** concatenate two transformations @a first and @a second in one.
  *  @relates Transformation3D
  *  The result is one transformation that performs the same actions as first performing
- *  @a iA and then @a iB.  Hence, the following lines of code are equivalent (ignoring
+ *  @a first and then @a second.  Hence, the following lines of code are equivalent (ignoring
  *  numerical imprecions):
  *
  *  @code
- *	y = transform(x, concatenate(iA, iB));
- *  y = transform(transform(x, iA), iB);
+ *	y = transform(x, concatenate(first, second));
+ *  y = transform(transform(x, first), second);
  *  @endcode
  */
 template <typename T>
-Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformation3D<T>& iB)
+Transformation3D<T> concatenate(const Transformation3D<T>& first, const Transformation3D<T>& second)
 {
-	const T* const a = iA.matrix();
-	const T* const b = iB.matrix();
+	// right-handed vector product, so it's @a second * @a first instead of @a first * @a second
+	const T* const a = second.matrix();
+	const T* const b = first.matrix();
 	T result[16];
 	for (size_t i = 0; i < 16; i += 4)
 	{
@@ -409,13 +410,13 @@ Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformat
  *  @relates Transformation3D
  */
 template <typename T>
-Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation)
+Vector3D<T> transform(const Vector3D<T>& subject, const Transformation3D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
+	const T* const mat = transformation.matrix();
 	return Vector3D<T>(
-		mat[ 0] * iSubject.x + mat[ 1] * iSubject.y + mat[ 2] * iSubject.z,
-		mat[ 4] * iSubject.x + mat[ 5] * iSubject.y + mat[ 6] * iSubject.z,
-		mat[ 8] * iSubject.x + mat[ 9] * iSubject.y + mat[10] * iSubject.z);
+		mat[ 0] * subject.x + mat[ 1] * subject.y + mat[ 2] * subject.z,
+		mat[ 4] * subject.x + mat[ 5] * subject.y + mat[ 6] * subject.z,
+		mat[ 8] * subject.x + mat[ 9] * subject.y + mat[10] * subject.z);
 }
 
 
@@ -424,14 +425,14 @@ Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iT
  *  @relates Transformation3D
  */
 template <typename T>
-Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTransformation)
+Point3D<T> transform(const Point3D<T>& subject, const Transformation3D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	const T weight = num::inv(mat[12] * iSubject.x + mat[13] * iSubject.y + mat[14] * iSubject.z + mat[15]);
+	const T* const mat = transformation.matrix();
+	const T weight = num::inv(mat[12] * subject.x + mat[13] * subject.y + mat[14] * subject.z + mat[15]);
 	return Point3D<T>(
-		weight * (mat[ 0] * iSubject.x + mat[ 1] * iSubject.y + mat[ 2] * iSubject.z + mat[ 3]),
-		weight * (mat[ 4] * iSubject.x + mat[ 5] * iSubject.y + mat[ 6] * iSubject.z + mat[ 7]),
-		weight * (mat[ 8] * iSubject.x + mat[ 9] * iSubject.y + mat[10] * iSubject.z + mat[11]));
+		weight * (mat[ 0] * subject.x + mat[ 1] * subject.y + mat[ 2] * subject.z + mat[ 3]),
+		weight * (mat[ 4] * subject.x + mat[ 5] * subject.y + mat[ 6] * subject.z + mat[ 7]),
+		weight * (mat[ 8] * subject.x + mat[ 9] * subject.y + mat[10] * subject.z + mat[11]));
 
 }
 
@@ -443,13 +444,13 @@ Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTra
  *  vectors.  Use this transformation function for normals.
  */
 template <typename T>
-Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation)
+Vector3D<T> normalTransform(const Vector3D<T>& subject, const Transformation3D<T>& transformation)
 {
-	const T* const invMat = iTransformation.inverse().matrix();
+	const T* const invMat = transformation.inverse().matrix();
 	return Vector3D<T>(
-		invMat[ 0] * iSubject.x + invMat[ 4] * iSubject.y + invMat[ 8] * iSubject.z,
-		invMat[ 1] * iSubject.x + invMat[ 5] * iSubject.y + invMat[ 9] * iSubject.z,
-		invMat[ 2] * iSubject.x + invMat[ 6] * iSubject.y + invMat[10] * iSubject.z);
+		invMat[ 0] * subject.x + invMat[ 4] * subject.y + invMat[ 8] * subject.z,
+		invMat[ 1] * subject.x + invMat[ 5] * subject.y + invMat[ 9] * subject.z,
+		invMat[ 2] * subject.x + invMat[ 6] * subject.y + invMat[10] * subject.z);
 }
 
 
@@ -468,12 +469,12 @@ Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<
  *  @endcode
  */
 template <typename T>
-std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubject, 
-										  const Transformation3D<T>& iTransformation)
+std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& subject, 
+										  const Transformation3D<T>& transformation)
 {
-	const T* const invMat = iTransformation.inverse().matrix();
-	const Vector3D<T>& n = iSubject.first;
-	const T d = iSubject.second;
+	const T* const invMat = transformation.inverse().matrix();
+	const Vector3D<T>& n = subject.first;
+	const T d = subject.second;
 	const Vector3D<T> transformedN(
 		invMat[ 0] * n.x + invMat[ 4] * n.y + invMat[ 8] * n.z + invMat[12] * d,
 		invMat[ 1] * n.x + invMat[ 5] * n.y + invMat[ 9] * n.z + invMat[13] * d,
@@ -488,16 +489,16 @@ std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubj
 /** @relates Transformation3D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
-											 const Transformation3D<T>& iTransformation)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream,
+											 const Transformation3D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	LASS_ENFORCE_STREAM(oOStream) << "(("
+	const T* const mat = transformation.matrix();
+	LASS_ENFORCE_STREAM(stream) << "(("
 		<< mat[ 0] << ", " << mat[ 1] << ", " << mat[ 2] << ", " << mat[ 3] << "), ("
 		<< mat[ 4] << ", " << mat[ 5] << ", " << mat[ 6] << ", " << mat[ 7] << "), ("
 		<< mat[ 8] << ", " << mat[ 9] << ", " << mat[10] << ", " << mat[11] << "), ("
 		<< mat[12] << ", " << mat[13] << ", " << mat[14] << ", " << mat[15] << "))";
-	return oOStream;
+	return stream;
 }
 
 
@@ -505,16 +506,16 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates Transformation3D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation3D<T>& iTransformation)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation3D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	LASS_ENFORCE_STREAM(oOStream) << "<Transformation3D>"
+	const T* const mat = transformation.matrix();
+	LASS_ENFORCE_STREAM(stream) << "<Transformation3D>"
 		<< mat[ 0] << " " << mat[ 1] << " " << mat[ 2] << " " << mat[ 3] << " "
 		<< mat[ 4] << " " << mat[ 5] << " " << mat[ 6] << " " << mat[ 7] << " "
 		<< mat[ 8] << " " << mat[ 9] << " " << mat[10] << " " << mat[11] << " "
 		<< mat[12] << " " << mat[13] << " " << mat[14] << " " << mat[15]
 		<< "</Transformation3D>\n";
-	return oOStream;
+	return stream;
 }
 
 

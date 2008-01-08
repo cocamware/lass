@@ -428,6 +428,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\color_gba_transformation_3d.h"
+				>
+			</File>
+			<File
 				RelativePath=".\color_rgba.h"
 				>
 			</File>

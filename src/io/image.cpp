@@ -49,6 +49,7 @@
 #include "../stde/extended_algorithm.h"
 #include "../stde/range_algorithm.h"
 #include "../stde/static_vector.h"
+#include "../prim/transformation_3d.h"
 
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
@@ -80,17 +81,18 @@ namespace impl
 Image::TFileFormats Image::fileFormats_ = Image::fillFileFormats();
 num::Tuint32 Image::magicLass_ = 0x7373616c; // 'lass' in little endian
 std::string Image::magicRadiance_ = "#?RADIANCE\n";
+num::Tint32 Image::magicIgi_ = 66613373;
 
 // --- public --------------------------------------------------------------------------------------
 
 /** Default constructor.  empty image.
  */
 Image::Image():
+	chromaticities_(defaultChromaticities()),
 	rows_(0),
 	cols_(0),
 	raster_()
 {
-	defaultChromaticities();
 }
 
 
@@ -98,6 +100,7 @@ Image::Image():
 /** Construct image of given width and height.
  */
 Image::Image(unsigned rows, unsigned cols):
+	chromaticities_(defaultChromaticities()),
 	rows_(0),
 	cols_(0),
 	raster_()
@@ -105,7 +108,6 @@ Image::Image(unsigned rows, unsigned cols):
 	const TPixel black;
 	resize(rows, cols);
 	std::fill(raster_.begin(), raster_.end(), black);
-	defaultChromaticities();
 }
 
 
@@ -125,6 +127,7 @@ Image::Image(const std::string& filename):
 /** Copy constructor
  */
 Image::Image(const Image& other):
+	chromaticities_(other.chromaticities_),
 	rows_(other.rows_),
 	cols_(other.cols_),
 	raster_(other.raster_)
@@ -303,6 +306,7 @@ Image& Image::operator=(const Image& other)
  */
 void Image::swap(Image& other)
 {
+	std::swap(chromaticities_, other.chromaticities_);
 	std::swap(rows_, other.rows_);
 	std::swap(cols_, other.cols_);
 	raster_.swap(other.raster_);
@@ -392,6 +396,57 @@ const Image::Chromaticities& Image::chromaticities() const
 Image::Chromaticities& Image::chromaticities()
 {
 	return chromaticities_;
+}
+
+
+
+void Image::convertChromaticities(const Chromaticities& newChromaticities)
+{
+	typedef prim::Transformation3D<TValue> TColorSpace;
+
+	struct Impl
+	{
+		static const TColorSpace colorSpace(const Chromaticities& chromaticities)
+		{
+			typedef TColorSpace::TVector TVector;
+			const Chromaticities& C = chromaticities;
+			TValue primaries[16] = 
+			{
+				C.red.x, C.green.x, C.blue.x, 0,
+				C.red.y, C.green.y, C.blue.y, 0,
+				1 - C.red.x - C.red.y, 1 - C.green.x - C.green.y, 1 - C.blue.x - C.blue.y, 0,
+				0, 0, 0, 1
+			};
+			TColorSpace M(primaries, primaries + 16);
+			const TVector w(C.white.x / C.white.y, 1, (1 - C.white.x - C.white.y) / C.white.y);
+			const TVector S = transform(w, M.inverse());
+			M = concatenate(TColorSpace::scaler(S), M);
+
+			TValue bradford[16] = 
+			{
+				 0.8951f,  0.2664f, -0.1614f, 0.f,
+				-0.7502f,  1.7135f,  0.0367f, 0.f,
+				 0.0389f, -0.0685f,  1.0296f, 0.f,
+				 0.f,      0.f,      0.f,     1.f
+			};
+			const TColorSpace B(bradford, bradford + 16);
+			const TVector sw = transform(w, B);
+			TColorSpace M_cat = concatenate(B, TColorSpace::scaler(sw.reciprocal()));
+			M_cat = concatenate(M_cat, B.inverse());
+			
+			return concatenate(M, M_cat);
+		}
+	};
+
+	const TColorSpace A = Impl::colorSpace(chromaticities_);
+	const TColorSpace B = Impl::colorSpace(newChromaticities);
+	const TColorSpace C = concatenate(A, B.inverse());
+
+	for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+	{
+		*i = transform(*i, C);
+	}
+	chromaticities_ = newChromaticities;
 }
 
 
@@ -529,6 +584,22 @@ void Image::plus(const Image& other)
 {
 	LASS_IO_IMAGE_ENFORCE_SAME_SIZE(*this, other);
 	std::transform(raster_.begin(), raster_.end(), other.raster_.begin(), raster_.begin(), prim::plus);
+}
+
+
+
+/** clamp all negative pixel components to zero.
+ */
+void Image::clampNegatives()
+{
+	const TRaster::iterator last = raster_.end();
+	for (TRaster::iterator i = raster_.begin(); i != last; ++i)
+	{
+		i->r = std::max(i->r, 0.f);
+		i->g = std::max(i->g, 0.f);
+		i->b = std::max(i->b, 0.f);
+		i->a = std::max(i->a, 0.f);
+	}
 }
 
 
@@ -685,16 +756,6 @@ unsigned Image::resize(unsigned rows, unsigned cols)
 
 
 
-void Image::defaultChromaticities()
-{
-	chromaticities_.red = TChromaticity(0.6400f, 0.3300f);
-	chromaticities_.green = TChromaticity(0.3000f, 0.6000f);
-	chromaticities_.blue = TChromaticity(0.1500f, 0.0600f);
-	chromaticities_.white = TChromaticity(0.3127f, 0.3290f);
-}
-
-
-
 /** Open LASS Raw file.
  */
 BinaryIStream& Image::openLass(BinaryIStream& stream)
@@ -718,7 +779,7 @@ BinaryIStream& Image::openLass(BinaryIStream& stream)
 	}
 	else
 	{
-		defaultChromaticities();
+		chromaticities_ = defaultChromaticities();
 	}
 
 	resize(header.rows, header.cols);
@@ -743,7 +804,7 @@ BinaryIStream& Image::openTarga(BinaryIStream& stream)
 {
 	HeaderTarga header;
 	header.readFrom(stream);
-	defaultChromaticities();
+	chromaticities_ = defaultChromaticities();
 	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)
@@ -1000,39 +1061,83 @@ BinaryIStream& Image::openPfm(BinaryIStream& stream)
 		LASS_THROW_EX(BadFormat, "not a PFM file.");
 	}
 
-	defaultChromaticities();
+	chromaticities_ = defaultChromaticities();
 
 	resize(header.height, header.width);
 	EndiannessSetter(stream, header.endianness);
 
-	if (header.isGrey)
+	for (unsigned k = rows_; k > 0; --k)
 	{
-		num::Tfloat32 y;
-		for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+		const TRaster::iterator first = raster_.begin() + (k - 1) * cols_;
+		const TRaster::iterator last = first + cols_;
+		if (header.isGrey)
 		{
-			stream >> y;
-			i->r = y;
-			i->g = y;
-			i->b = y;
-			i->a = 1;
+			num::Tfloat32 y;
+			for (TRaster::iterator i = first; i != last; ++i)
+			{
+				stream >> y;
+				i->r = y;
+				i->g = y;
+				i->b = y;
+				i->a = 1;
+			}
 		}
-	}
-	else
-	{
-		num::Tfloat32 r, g, b;
-		for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+		else
 		{
-			stream >> r >> g >> b;
-			i->r = r;
-			i->g = g;
-			i->b = b;
-			i->a = 1;
+			num::Tfloat32 r, g, b;
+			for (TRaster::iterator i = first; i != last; ++i)
+			{
+				stream >> r >> g >> b;
+				i->r = r;
+				i->g = g;
+				i->b = b;
+				i->a = 1;
+			}
 		}
 	}
 
 	return stream;
 }
 
+
+
+BinaryIStream& Image::openIgi(BinaryIStream& stream)
+{
+	HeaderIgi header;
+	header.readFrom(stream);
+
+	if (!stream || header.magic != magicIgi_ || header.version != 1)
+	{
+		LASS_THROW_EX(BadFormat, "not an IGI version 1 file.");
+	}
+	if (header.zipped)
+	{
+		LASS_THROW_EX(BadFormat, "cannot read zipped IGI files.");
+	}
+	if (header.dataSize != 12 * header.width * header.height)
+	{
+		LASS_THROW_EX(BadFormat, "error in dataSize field.");
+	}
+
+	// The current file format does not specify chromaticies, only distinguishes
+	// between RGB and XYZ.  Use default RGB space in case of the former.
+	chromaticities_ = header.rgb ? defaultChromaticities() : xyzChromaticities();
+	chromaticities_.isFromFile = !header.rgb;
+
+	resize(header.height, header.width);
+	num::Tfloat32 r, g, b;
+	EndiannessSetter(stream, num::littleEndian);
+	for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
+	{
+		stream >> r >> g >> b;
+		i->r = r;
+		i->g = g;
+		i->b = b;
+		i->a = 1;
+	}
+
+	return stream;
+}
 
 
 BinaryOStream& Image::saveLass(BinaryOStream& stream) const
@@ -1172,7 +1277,7 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 	header.width = cols_;
 	header.yIncreasing = false;
 	header.xIncreasing = true;
-	header.isRgb = true;
+	header.isRgb = chromaticities_ != xyzChromaticities();
 	for (size_t i = 0; i < numChromaticities; ++i)
 	{
 		header.primaries[2 * i] = chromaticities_[i].x;
@@ -1279,6 +1384,40 @@ BinaryOStream& Image::savePfm(BinaryOStream& stream) const
 
 	EndiannessSetter(stream, header.endianness);
 
+	for (unsigned k = rows_; k > 0; --k)
+	{
+		const TRaster::const_iterator first = raster_.begin() + (k - 1) * cols_;
+		const TRaster::const_iterator last = first + cols_;
+		for (TRaster::const_iterator i = first; i != last; ++i)
+		{
+			const num::Tfloat32 r = i->r;
+			const num::Tfloat32 g = i->g;
+			const num::Tfloat32 b = i->b;
+			stream << r << g << b;
+		}
+	}
+
+	return stream;
+}
+
+
+
+BinaryOStream& Image::saveIgi(BinaryOStream& stream) const
+{
+	HeaderIgi header;
+	header.magic = magicIgi_;
+	header.version = 1;
+	header.numSamples = rows_ * cols_;
+	header.width = cols_;
+	header.height = rows_;
+	header.superSampling = 1;
+	header.zipped = 0;
+	header.dataSize = 12 * rows_ * cols_;
+	header.rgb = chromaticities_ == xyzChromaticities() ? 0 : 1;
+	header.writeTo(stream);
+
+	EndiannessSetter(stream, num::littleEndian);
+
 	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
 		const num::Tfloat32 r = i->r;
@@ -1348,45 +1487,74 @@ Image::TFileFormats Image::fillFileFormats()
 	formats["pic"] = formats["hdr"];
 	formats["rgbe"] = formats["hdr"];
 	formats["pfm"] = FileFormat(&Image::openPfm, &Image::savePfm);
+	formats["igi"] = FileFormat(&Image::openIgi, &Image::saveIgi);
 	return formats;
+}
+
+
+
+/** return sRGB as chromaticities
+ */
+const Image::Chromaticities Image::defaultChromaticities()
+{
+	Chromaticities result;
+	result.red = TChromaticity(0.6400f, 0.3300f);
+	result.green = TChromaticity(0.3000f, 0.6000f);
+	result.blue = TChromaticity(0.1500f, 0.0600f);
+	result.white = TChromaticity(0.3127f, 0.3290f);
+	result.isFromFile = false;
+	return result;
+}
+
+
+
+const Image::Chromaticities Image::xyzChromaticities()
+{
+	Chromaticities result;
+	result.red = TChromaticity(1.f, 0.f);
+	result.green = TChromaticity(0.f, 1.f);
+	result.blue = TChromaticity(0.f, 0.f);
+	result.white = TChromaticity(1.f / 3, 1.f / 3);
+	result.isFromFile = false;
+	return result;
 }
 
 
 
 // --- HeaderLass -----------------------------------------------------------------------------------
 
-void Image::HeaderLass::readFrom(BinaryIStream& ioIStream)
+void Image::HeaderLass::readFrom(BinaryIStream& stream)
 {
-	EndiannessSetter(ioIStream, num::littleEndian);
-	ioIStream >> lass >> version >> rows >> cols;
+	EndiannessSetter(stream, num::littleEndian);
+	stream >> lass >> version >> rows >> cols;
 }
 
 
 
-void Image::HeaderLass::writeTo(BinaryOStream& ioOStream)
+void Image::HeaderLass::writeTo(BinaryOStream& stream)
 {
-	EndiannessSetter(ioOStream, num::littleEndian);
-	ioOStream << lass << version << rows << cols;
+	EndiannessSetter(stream, num::littleEndian);
+	stream << lass << version << rows << cols;
 }
 
 
 
 // --- HeaderTarga ---------------------------------------------------------------------------------
 
-void Image::HeaderTarga::readFrom(BinaryIStream& ioIStream)
+void Image::HeaderTarga::readFrom(BinaryIStream& stream)
 {
-	EndiannessSetter(ioIStream, num::littleEndian);
-	ioIStream >> idLength >> colorMapType >> imageType >> colorMapOrigin >> colorMapLength >>
+	EndiannessSetter(stream, num::littleEndian);
+	stream >> idLength >> colorMapType >> imageType >> colorMapOrigin >> colorMapLength >>
 		colorMapEntrySize >> imageXorigin >> imageYorigin >> imageWidth >> imageHeight >>
 		imagePixelSize >> imageDescriptor;
 }
 
 
 
-void Image::HeaderTarga::writeTo(BinaryOStream& ioOStream)
+void Image::HeaderTarga::writeTo(BinaryOStream& stream)
 {
-	EndiannessSetter(ioOStream, num::littleEndian);
-	ioOStream << idLength << colorMapType << imageType << colorMapOrigin << colorMapLength <<
+	EndiannessSetter(stream, num::littleEndian);
+	stream << idLength << colorMapType << imageType << colorMapOrigin << colorMapLength <<
 		colorMapEntrySize << imageXorigin << imageYorigin << imageWidth << imageHeight <<
 		imagePixelSize << imageDescriptor;
 }
@@ -1607,6 +1775,26 @@ void Image::HeaderPfm::writeTo(BinaryOStream& stream)
 }
 
 
+
+// --- HeaderIgi -----------------------------------------------------------------------------------
+
+void Image::HeaderIgi::readFrom(BinaryIStream& stream)
+{
+	EndiannessSetter(stream, num::littleEndian);
+	stream >> magic >> version >> numSamples >> width >> height >> superSampling >> zipped
+		>> dataSize >> rgb;
+	stream.seekg(padding, std::ios_base::cur);
+}
+
+
+
+void Image::HeaderIgi::writeTo(BinaryOStream& stream)
+{
+	EndiannessSetter(stream, num::littleEndian);
+	stream << magic << version << numSamples << width << height << superSampling << zipped
+		<< dataSize << rgb;
+	stream.seekp(padding, std::ios_base::cur);
+}
 
 // --- free ----------------------------------------------------------------------------------------
 

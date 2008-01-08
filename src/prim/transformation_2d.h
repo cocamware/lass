@@ -101,18 +101,18 @@ public:
 	};
 
 	Transformation2D();
-	template <typename InputIterator> Transformation2D(InputIterator iBegin, InputIterator iEnd);
+	template <typename InputIterator> Transformation2D(InputIterator first, InputIterator last);
 
 	const Transformation2D<T> inverse() const;
 
 	const TValue* matrix() const;
-	void swap(TSelf& ioOther);
+	void swap(TSelf& other);
 
 	static const TSelf identity();
-	static const TSelf translation(const Vector2D<T>& iOffset);
-	static const TSelf scaler(const T& iScale);
-	static const TSelf scaler(const Vector2D<T>& iScale);
-	static const TSelf rotation(TParam iRadians);
+	static const TSelf translation(const Vector2D<T>& offset);
+	static const TSelf scaler(const T& scale);
+	static const TSelf scaler(const Vector2D<T>& scale);
+	static const TSelf rotation(TParam radians);
 
 private:
 
@@ -120,7 +120,7 @@ private:
 
 	typedef util::SharedPtr<TValue, impl::Transformation2DStorage> TMatrix;
 
-	Transformation2D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
+	Transformation2D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool dummy);
 
 	static const TMatrix& getIdentityMatrix();
 
@@ -132,17 +132,17 @@ private:
 	static util::Semaphore sync_;
 };
 
-template <typename T> Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformation2D<T>& iB);
+template <typename T> Transformation2D<T> concatenate(const Transformation2D<T>& first, const Transformation2D<T>& second);
 
-template <typename T> Vector2D<T> transform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation);
-template <typename T> Point2D<T> transform(const Point2D<T>& iSubject, const Transformation2D<T>& iTransformation);
-template <typename T> Vector2D<T> normalTransform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation);
-template <typename T> std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& iSubject, const Transformation2D<T>& iTransformation);
+template <typename T> Vector2D<T> transform(const Vector2D<T>& subject, const Transformation2D<T>& transformation);
+template <typename T> Point2D<T> transform(const Point2D<T>& subject, const Transformation2D<T>& transformation);
+template <typename T> Vector2D<T> normalTransform(const Vector2D<T>& subject, const Transformation2D<T>& transformation);
+template <typename T> std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& subject, const Transformation2D<T>& transformation);
 
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, const Transformation2D<T>& iB);
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const Transformation2D<T>& transformation);
 
-template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation2D<T>& iB);
+template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation2D<T>& transformation);
 
 // static member initialisation
 

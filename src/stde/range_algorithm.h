@@ -52,6 +52,11 @@
 
 #include "stde_common.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996)
+#endif
+
 namespace lass
 {
 namespace stde
@@ -498,6 +503,10 @@ stable_partition_r(BidirectionalRange& range, Predicate pred)
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

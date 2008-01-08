@@ -76,16 +76,16 @@ Transformation2D<T>::Transformation2D():
 
 /** construct a transformation from a 3x3 tranformation matrix.
  *  The elements of the 3x3 matrix will represented in a row major way by an iterator
- *  range [iBegin, iEnd) of 9 elements.
+ *  range [first, last) of 9 elements.
  */
 template <typename T>
 template <typename InputIterator>
-Transformation2D<T>::Transformation2D(InputIterator iBegin, InputIterator iEnd):
+Transformation2D<T>::Transformation2D(InputIterator first, InputIterator last):
 	matrix_(impl::allocateArray<T>(matrixSize_)),
 	inverseMatrix_(0)
 {
-	LASS_ENFORCE(std::distance(iBegin, iEnd) == matrixSize_);
-	std::copy(iBegin, iEnd, matrix_.get());
+	LASS_ENFORCE(std::distance(first, last) == matrixSize_);
+	std::copy(first, last, matrix_.get());
 }
 
 
@@ -122,7 +122,7 @@ Transformation2D<T>::inverse() const
 		if (det == TNumTraits::zero)
 		{
 			inverseMatrix.reset();
-			LASS_THROW("transformation not invertible");
+			LASS_THROW_EX(SingularityError, "transformation not invertible");
 		}
 		const TValue invDet = num::inv(det);
 		for (int i = 0; i < 9; ++i)
@@ -154,10 +154,10 @@ Transformation2D<T>::matrix() const
 
 
 template <typename T>
-void Transformation2D<T>::swap(TSelf& ioOther)
+void Transformation2D<T>::swap(TSelf& other)
 {
-	matrix_.swap(ioOther.matrix_);
-	inverseMatrix_.swap(ioOther.inverseMatrix_);
+	matrix_.swap(other.matrix_);
+	inverseMatrix_.swap(other.inverseMatrix_);
 }
 
 
@@ -175,12 +175,12 @@ const Transformation2D<T> Transformation2D<T>::identity()
 /** make a 2D transformation representing a translation
  */
 template <typename T>
-const Transformation2D<T> Transformation2D<T>::translation(const Vector2D<T>& iOffset)
+const Transformation2D<T> Transformation2D<T>::translation(const Vector2D<T>& offset)
 {
 	Transformation2D<T> result;
-	result.matrix_[2] = iOffset.x;
-	result.matrix_[5] = iOffset.y;
-	result.matrix_[8] = iOffset.z;
+	result.matrix_[2] = offset.x;
+	result.matrix_[5] = offset.y;
+	result.matrix_[8] = offset.z;
 	return result;
 }
 
@@ -189,11 +189,11 @@ const Transformation2D<T> Transformation2D<T>::translation(const Vector2D<T>& iO
 /** make a 3D transformation representing a uniform scaling
  */
 template <typename T>
-const Transformation2D<T> Transformation2D<T>::scaler(const T& iScale)
+const Transformation2D<T> Transformation2D<T>::scaler(const T& scale)
 {
 	Transformation2D<T> result;
-	result.matrix_[0] = iScale;
-	result.matrix_[4] = iScale;
+	result.matrix_[0] = scale;
+	result.matrix_[4] = scale;
 	return result;
 }
 
@@ -202,11 +202,11 @@ const Transformation2D<T> Transformation2D<T>::scaler(const T& iScale)
 /** make a 3D transformation representing a scaling with different factors per axis
  */
 template <typename T>
-const Transformation2D<T> Transformation2D<T>::scaler(const Vector2D<T>& iScale)
+const Transformation2D<T> Transformation2D<T>::scaler(const Vector2D<T>& scale)
 {
 	Transformation2D<T> result;
-	result.matrix_[0] = iScale.x;
-	result.matrix_[4] = iScale.y;
+	result.matrix_[0] = scale.x;
+	result.matrix_[4] = scale.y;
 	return result;
 }
 
@@ -215,10 +215,10 @@ const Transformation2D<T> Transformation2D<T>::scaler(const Vector2D<T>& iScale)
 /** make a 3D transformation representing a counterclockwise rotation
  */
 template <typename T>
-const Transformation2D<T> Transformation2D<T>::rotation(TParam iRadians)
+const Transformation2D<T> Transformation2D<T>::rotation(TParam radians)
 {
-	const T c = num::cos(iRadians);
-	const T s = num::sin(iRadians);
+	const T c = num::cos(radians);
+	const T s = num::sin(radians);
 
 	Transformation2D<T> result;
 	result.matrix_[0] = c;
@@ -237,9 +237,9 @@ const Transformation2D<T> Transformation2D<T>::rotation(TParam iRadians)
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T> inline
-Transformation2D<T>::Transformation2D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool):
-	matrix_(iMatrix),
-	inverseMatrix_(iInverseMatrix)
+Transformation2D<T>::Transformation2D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool):
+	matrix_(matrix),
+	inverseMatrix_(inverseMatrix)
 {
 }
 
@@ -247,22 +247,23 @@ Transformation2D<T>::Transformation2D(const TMatrix& iMatrix, const TMatrix& iIn
 
 // --- free ----------------------------------------------------------------------------------------
 
-/** concatenate two transformations @a iA and @a iB in one.
+/** concatenate two transformations @a first and @a second in one.
  *  @relates Transformation2D
  *  The result is one transformation that performs the same actions as first performing
- *  @a iA and then @a iB.  Hence, the following lines of code are equivalent (ignoring
+ *  @a first and then @a second.  Hence, the following lines of code are equivalent (ignoring
  *  numerical imprecions):
  *
  *  @code
- *	y = transform(x, concatenate(iA, iB));
- *  y = transform(transform(x, iA), iB);
+ *	y = transform(x, concatenate(first, second));
+ *  y = transform(transform(x, first), second);
  *  @endcode
  */
 template <typename T>
-Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformation2D<T>& iB)
+Transformation2D<T> concatenate(const Transformation2D<T>& first, const Transformation2D<T>& second)
 {
-	const T* const a = iA.matrix();
-	const T* const b = iB.matrix();
+	// right-handed vector product, so it's @a second * @a first instead of @a first * @a second
+	const T* const a = second.matrix();
+	const T* const b = first.matrix();
 	T result[9];
 	for (size_t i = 0; i < 9; i += 3)
 	{
@@ -283,12 +284,12 @@ Transformation2D<T> concatenate(const Transformation2D<T>& iA, const Transformat
  *  @relates Transformation2D
  */
 template <typename T>
-Vector2D<T> transform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation)
+Vector2D<T> transform(const Vector2D<T>& subject, const Transformation2D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
+	const T* const mat = transformation.matrix();
 	return Vector2D<T>(
-		mat[0] * iSubject.x + mat[1] * iSubject.y,
-		mat[3] * iSubject.x + mat[4] * iSubject.y);
+		mat[0] * subject.x + mat[1] * subject.y,
+		mat[3] * subject.x + mat[4] * subject.y);
 }
 
 
@@ -297,13 +298,13 @@ Vector2D<T> transform(const Vector2D<T>& iSubject, const Transformation2D<T>& iT
  *  @relates Transformation2D
  */
 template <typename T>
-Point2D<T> transform(const Point2D<T>& iSubject, const Transformation2D<T>& iTransformation)
+Point2D<T> transform(const Point2D<T>& subject, const Transformation2D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	const T weight = num::inv(mat[6] * iSubject.x + mat[7] * iSubject.y + mat[8]);
+	const T* const mat = transformation.matrix();
+	const T weight = num::inv(mat[6] * subject.x + mat[7] * subject.y + mat[8]);
 	return Point2D<T>(
-		weight * (mat[0] * iSubject.x + mat[1] * iSubject.y + mat[2]),
-		weight * (mat[3] * iSubject.x + mat[4] * iSubject.y + mat[5]));
+		weight * (mat[0] * subject.x + mat[1] * subject.y + mat[2]),
+		weight * (mat[3] * subject.x + mat[4] * subject.y + mat[5]));
 
 }
 
@@ -315,12 +316,12 @@ Point2D<T> transform(const Point2D<T>& iSubject, const Transformation2D<T>& iTra
  *  vectors.  Use this transformation function for normals.
  */
 template <typename T>
-Vector2D<T> normalTransform(const Vector2D<T>& iSubject, const Transformation2D<T>& iTransformation)
+Vector2D<T> normalTransform(const Vector2D<T>& subject, const Transformation2D<T>& transformation)
 {
-	const T* const invMat = iTransformation.inverse().matrix();
+	const T* const invMat = transformation.inverse().matrix();
 	return Vector2D<T>(
-		invMat[0] * iSubject.x + invMat[3] * iSubject.y,
-		invMat[1] * iSubject.x + invMat[4] * iSubject.y);
+		invMat[0] * subject.x + invMat[3] * subject.y,
+		invMat[1] * subject.x + invMat[4] * subject.y);
 }
 
 
@@ -339,12 +340,12 @@ Vector2D<T> normalTransform(const Vector2D<T>& iSubject, const Transformation2D<
  *  @endcode
  */
 template <typename T>
-std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& iSubject, 
-										  const Transformation2D<T>& iTransformation)
+std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& subject, 
+										  const Transformation2D<T>& transformation)
 {
-	const T* const invMat = iTransformation.inverse().matrix();
-	const Vector2D<T>& n = iSubject.first;
-	const T c = iSubject.second;
+	const T* const invMat = transformation.inverse().matrix();
+	const Vector2D<T>& n = subject.first;
+	const T c = subject.second;
 	return std::make_pair(
 		Vector2D<T>(
 			invMat[0] * n.x + invMat[3] * n.y + invMat[6] * c,
@@ -357,15 +358,15 @@ std::pair<Vector2D<T>, T> normalTransform(const std::pair<Vector2D<T>, T>& iSubj
 /** @relates Transformation2D
  */
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream,
-											 const Transformation2D<T>& iTransformation)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream,
+											 const Transformation2D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	LASS_ENFORCE_STREAM(oOStream) << "(("
+	const T* const mat = transformation.matrix();
+	LASS_ENFORCE_STREAM(stream) << "(("
 		<< mat[0] << ", " << mat[1] << ", " << mat[2] << "), ("
 		<< mat[3] << ", " << mat[4] << ", " << mat[5] << "), ("
 		<< mat[6] << ", " << mat[7] << ", " << mat[9] << "))";
-	return oOStream;
+	return stream;
 }
 
 
@@ -373,15 +374,15 @@ std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& o
 /** @relates Transformation2D
  */
 template<typename T>
-io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation2D<T>& iTransformation)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation2D<T>& transformation)
 {
-	const T* const mat = iTransformation.matrix();
-	LASS_ENFORCE_STREAM(oOStream) << "<Transformation2D>"
+	const T* const mat = transformation.matrix();
+	LASS_ENFORCE_STREAM(stream) << "<Transformation2D>"
 		<< mat[0] << " " << mat[1] << " " << mat[2] << " "
 		<< mat[3] << " " << mat[4] << " " << mat[5] << " "
 		<< mat[6] << " " << mat[7] << " " << mat[9]
 		<< "</Transformation2D>\n";
-	return oOStream;
+	return stream;
 }
 
 

@@ -105,19 +105,19 @@ public:
 	Transformation3D();
 	Transformation3D(const TPoint& origin, const TVector& baseX, const TVector& baseY, 
 		const TVector& baseZ);
-	template <typename InputIterator> Transformation3D(InputIterator iBegin, InputIterator iEnd);
+	template <typename InputIterator> Transformation3D(InputIterator first, InputIterator last);
 
 	const TSelf inverse() const;
 
 	const TValue* matrix() const;
-	void swap(TSelf& ioOther);
+	void swap(TSelf& other);
 
 	static const TSelf identity();
-	static const TSelf translation(const Vector3D<T>& iOffset);
-	static const TSelf scaler(const T& iScale);
-	static const TSelf scaler(const Vector3D<T>& iScale);
-	static const TSelf rotation(XYZ iAxis, TParam iRadians);
-	static const TSelf rotation(const Vector3D<T>& iAxis, TParam iRadians);
+	static const TSelf translation(const Vector3D<T>& offset);
+	static const TSelf scaler(const T& scale);
+	static const TSelf scaler(const Vector3D<T>& scale);
+	static const TSelf rotation(XYZ axis, TParam radians);
+	static const TSelf rotation(const Vector3D<T>& axis, TParam radians);
 
 private:
 
@@ -125,7 +125,7 @@ private:
 
 	typedef util::SharedPtr<TValue, impl::Transformation3DStorage> TMatrix;
 
-	Transformation3D(const TMatrix& iMatrix, const TMatrix& iInverseMatrix, bool iDummy);
+	Transformation3D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool dummy);
 
 	TMatrix matrix_;
 	mutable TMatrix inverseMatrix_;
@@ -135,17 +135,17 @@ private:
 	static util::Semaphore sync_;
 };
 
-template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& iA, const Transformation3D<T>& iB);
+template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& first, const Transformation3D<T>& second);
 
-template <typename T> Vector3D<T> transform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation);
-template <typename T> Point3D<T> transform(const Point3D<T>& iSubject, const Transformation3D<T>& iTransformation);
-template <typename T> Vector3D<T> normalTransform(const Vector3D<T>& iSubject, const Transformation3D<T>& iTransformation);
-template <typename T> std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& iSubject, const Transformation3D<T>& iTransformation);
+template <typename T> Vector3D<T> transform(const Vector3D<T>& subject, const Transformation3D<T>& transformation);
+template <typename T> Point3D<T> transform(const Point3D<T>& subject, const Transformation3D<T>& transformation);
+template <typename T> Vector3D<T> normalTransform(const Vector3D<T>& subject, const Transformation3D<T>& transformation);
+template <typename T> std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& subject, const Transformation3D<T>& transformation);
 
 template<typename T, typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& oOStream, const Transformation3D<T>& iB);
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const Transformation3D<T>& transformation);
 
-template<typename T> io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Transformation3D<T>& iB);
+template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation3D<T>& transformation);
 
 // static member initialisation
 
@@ -168,6 +168,10 @@ template <typename T> util::Semaphore Transformation3D<T>::sync_;
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
 #	include "ray_3d_transformation_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_COLOR_RGBA_H
+#	include "color_rgba_transformation_3d.h"
 #endif
 
 #endif
