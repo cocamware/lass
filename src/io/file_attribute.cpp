@@ -46,6 +46,10 @@
 
 #include <stdio.h>
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
+#endif
+
 namespace lass
 {
 namespace io
