@@ -83,20 +83,21 @@ public:
 
 	typedef prim::Point2D<num::Tfloat32> TChromaticity;
 	enum { numChromaticities = 4 };
-	struct Chromaticities
+	struct ColorSpace
 	{
 		TChromaticity red;
 		TChromaticity green;
 		TChromaticity blue;
 		TChromaticity white;
+		num::Tfloat32 gamma;
 		bool isFromFile;
 		const TChromaticity& operator[](size_t index) const { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
 		TChromaticity& operator[](size_t index) { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
-		const bool operator==(const Chromaticities& other) const 
+		const bool operator==(const ColorSpace& other) const 
 		{
-			return red == other.red && green == other.green && blue == other.blue && white == other.white;
+			return red == other.red && green == other.green && blue == other.blue && white == other.white && gamma == other.gamma;
 		}
-		const bool operator!=(const Chromaticities& other) const { return !(*this == other); }
+		const bool operator!=(const ColorSpace& other) const { return !(*this == other); }
 	};
 
 	class BadFormat: public util::Exception
@@ -143,9 +144,9 @@ public:
 	const TPixel* const data() const;
 	TPixel* const data();
 
-	const Chromaticities& chromaticities() const;
-	Chromaticities& chromaticities();
-	void convertChromaticities(const Chromaticities& newChromaticities);
+	const ColorSpace& colorSpace() const;
+	ColorSpace& colorSpace();
+	void transformColors(const ColorSpace& newColorSpace);
 
 	const unsigned rows() const;
 	const unsigned cols() const;
@@ -195,7 +196,7 @@ private:
 		num::Tuint8 imageType;
 		num::Tuint16 colorMapOrigin;
 		num::Tuint16 colorMapLength;
-		num::Tuint8	colorMapEntrySize;
+		num::Tuint8 colorMapEntrySize;
 		num::Tuint16 imageXorigin;
 		num::Tuint16 imageYorigin;
 		num::Tuint16 imageWidth;
@@ -228,6 +229,7 @@ private:
 		bool yIncreasing;
 		bool xIncreasing;
 		bool isRgb;
+		bool isDefaultPrimaries;
 
 		HeaderRadianceHdr();
 		void readFrom(BinaryIStream& stream);
@@ -304,10 +306,10 @@ private:
 
 	static TFileFormats fillFileFormats();
 
-	static const Chromaticities defaultChromaticities();
-	static const Chromaticities xyzChromaticities();
+	static const ColorSpace defaultColorSpace();
+	static const ColorSpace xyzColorSpace();
 
-	Chromaticities chromaticities_;
+	ColorSpace colorSpace_;
 	unsigned rows_;
 	unsigned cols_;
 	TRaster raster_;

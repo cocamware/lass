@@ -88,7 +88,7 @@ num::Tint32 Image::magicIgi_ = 66613373;
 /** Default constructor.  empty image.
  */
 Image::Image():
-	chromaticities_(defaultChromaticities()),
+	colorSpace_(defaultColorSpace()),
 	rows_(0),
 	cols_(0),
 	raster_()
@@ -100,7 +100,7 @@ Image::Image():
 /** Construct image of given width and height.
  */
 Image::Image(unsigned rows, unsigned cols):
-	chromaticities_(defaultChromaticities()),
+	colorSpace_(defaultColorSpace()),
 	rows_(0),
 	cols_(0),
 	raster_()
@@ -115,6 +115,7 @@ Image::Image(unsigned rows, unsigned cols):
 /** Construct image from given file.
  */
 Image::Image(const std::string& filename):
+	colorSpace_(defaultColorSpace()),
 	rows_(0),
 	cols_(0),
 	raster_()
@@ -127,7 +128,7 @@ Image::Image(const std::string& filename):
 /** Copy constructor
  */
 Image::Image(const Image& other):
-	chromaticities_(other.chromaticities_),
+	colorSpace_(other.colorSpace_),
 	rows_(other.rows_),
 	cols_(other.cols_),
 	raster_(other.raster_)
@@ -306,7 +307,7 @@ Image& Image::operator=(const Image& other)
  */
 void Image::swap(Image& other)
 {
-	std::swap(chromaticities_, other.chromaticities_);
+	std::swap(colorSpace_, other.colorSpace_);
 	std::swap(rows_, other.rows_);
 	std::swap(cols_, other.cols_);
 	raster_.swap(other.raster_);
@@ -382,34 +383,52 @@ Image::TPixel* const Image::data()
 
 
 
-/** Return chromaticities of image data
+/** Return colorSpace of image data
  */
-const Image::Chromaticities& Image::chromaticities() const
+const Image::ColorSpace& Image::colorSpace() const
 {
-	return chromaticities_;
+	return colorSpace_;
 }
 
 
 
-/** Return chromaticities of image data
+/** Return colorSpace of image data
+ *
+ *  You can change the parameters of the current color space without transforming
+ *  the pixels.  This is most useful if you know that the pixels are in a different
+ *  color space that the current one is set to.  For example, if you know the pixels
+ *  have a gamma correction 2.2 applied, but the this->colorSpace().gamma == 1.
  */
-Image::Chromaticities& Image::chromaticities()
+Image::ColorSpace& Image::colorSpace()
 {
-	return chromaticities_;
+	return colorSpace_;
 }
 
 
 
-void Image::convertChromaticities(const Chromaticities& newChromaticities)
+/** Transform the colors from the current color spacer to @a destColorSpace.
+ *
+ *	The transformation consists of three stages:
+ *  @arg linearise pixels if gamma of current color space != 1
+ *  @arg transform colors to linearised destination colour space
+ *  @arg apply gamma correction if @a destColorSpace.gamma != 1
+ *
+ *  For the color transformation, two transformations are concatenated.
+ *  Both of them will also perform a chromatic adaption transform if 
+ *  the white point of either color space is not the equal energy one (E):
+ *  @arg from source RGB to XYZ
+ *  @arg from XYZ to dest RGB
+ */
+void Image::transformColors(const ColorSpace& newColorSpace)
 {
-	typedef prim::Transformation3D<TValue> TColorSpace;
+	typedef prim::Transformation3D<TValue> TTransformation;
 
 	struct Impl
 	{
-		static const TColorSpace colorSpace(const Chromaticities& chromaticities)
+		static const TTransformation rgb2xyz(const ColorSpace& colorSpace)
 		{
-			typedef TColorSpace::TVector TVector;
-			const Chromaticities& C = chromaticities;
+			typedef TTransformation::TVector TVector;
+			const ColorSpace& C = colorSpace;
 			TValue primaries[16] = 
 			{
 				C.red.x, C.green.x, C.blue.x, 0,
@@ -417,10 +436,10 @@ void Image::convertChromaticities(const Chromaticities& newChromaticities)
 				1 - C.red.x - C.red.y, 1 - C.green.x - C.green.y, 1 - C.blue.x - C.blue.y, 0,
 				0, 0, 0, 1
 			};
-			TColorSpace M(primaries, primaries + 16);
+			TTransformation M(primaries, primaries + 16);
 			const TVector w(C.white.x / C.white.y, 1, (1 - C.white.x - C.white.y) / C.white.y);
 			const TVector S = transform(w, M.inverse());
-			M = concatenate(TColorSpace::scaler(S), M);
+			M = concatenate(TTransformation::scaler(S), M);
 
 			TValue bradford[16] = 
 			{
@@ -429,24 +448,33 @@ void Image::convertChromaticities(const Chromaticities& newChromaticities)
 				 0.0389f, -0.0685f,  1.0296f, 0.f,
 				 0.f,      0.f,      0.f,     1.f
 			};
-			const TColorSpace B(bradford, bradford + 16);
+			const TTransformation B(bradford, bradford + 16);
 			const TVector sw = transform(w, B);
-			TColorSpace M_cat = concatenate(B, TColorSpace::scaler(sw.reciprocal()));
+			TTransformation M_cat = concatenate(B, TTransformation::scaler(sw.reciprocal()));
 			M_cat = concatenate(M_cat, B.inverse());
 			
 			return concatenate(M, M_cat);
 		}
 	};
 
-	const TColorSpace A = Impl::colorSpace(chromaticities_);
-	const TColorSpace B = Impl::colorSpace(newChromaticities);
-	const TColorSpace C = concatenate(A, B.inverse());
+	const TTransformation A = Impl::rgb2xyz(colorSpace_);
+	const TTransformation B = Impl::rgb2xyz(newColorSpace);
+	const TTransformation C = concatenate(A, B.inverse());
 
+	if (colorSpace_.gamma != 1)
+	{
+		filterGamma(1 / colorSpace_.gamma);
+	}
 	for (TRaster::iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
 		*i = transform(*i, C);
 	}
-	chromaticities_ = newChromaticities;
+	if (newColorSpace.gamma != 1)
+	{
+		filterGamma(newColorSpace.gamma);
+	}
+	colorSpace_ = newColorSpace;
+	colorSpace_.isFromFile = false;
 }
 
 
@@ -706,6 +734,7 @@ void Image::filterGamma(TParam gammaExponent)
 	{
 		raster_[i] = raster_[i].gammaCorrected(gammaExponent);
 	}
+	colorSpace_.gamma *= gammaExponent;
 }
 
 
@@ -762,9 +791,9 @@ BinaryIStream& Image::openLass(BinaryIStream& stream)
 {
 	HeaderLass header;
 	header.readFrom(stream);
-	if (!stream || header.lass != magicLass_ || header.version > 2)
+	if (!stream || header.lass != magicLass_ || header.version > 3)
 	{
-		LASS_THROW_EX(BadFormat, "not a LASS RAW version 1 - 2 file.");
+		LASS_THROW_EX(BadFormat, "not a LASS RAW version 1 - 3 file.");
 	}
 
 	EndiannessSetter(stream, num::littleEndian);
@@ -773,13 +802,22 @@ BinaryIStream& Image::openLass(BinaryIStream& stream)
 	{
 		for (size_t i = 0; i < numChromaticities; ++i)
 		{
-			LASS_META_ASSERT(sizeof(TChromaticity::TValue) == sizeof(num::Tfloat32), should_use_32_bit_floating_points_here);
-			stream >> chromaticities_[i].x >> chromaticities_[i].y;
+			num::Tfloat32 x, y;
+			stream >> x >> y;
+			colorSpace_[i] = TChromaticity(x, y);
 		}
+		colorSpace_.isFromFile = true;
 	}
 	else
 	{
-		chromaticities_ = defaultChromaticities();
+		colorSpace_ = defaultColorSpace();
+	}
+
+	if (header.version >= 3)
+	{
+		num::Tfloat32 g;
+		stream >> g;
+		colorSpace_.gamma = g;
 	}
 
 	resize(header.rows, header.cols);
@@ -804,7 +842,8 @@ BinaryIStream& Image::openTarga(BinaryIStream& stream)
 {
 	HeaderTarga header;
 	header.readFrom(stream);
-	chromaticities_ = defaultChromaticities();
+	colorSpace_ = defaultColorSpace();
+	colorSpace_.gamma = 2.2;
 	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)
@@ -929,16 +968,18 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 	{
 		for (size_t i = 0; i < numChromaticities; ++i)
 		{
-			chromaticities_[i] = TChromaticity(header.primaries[2 * i], header.primaries[2 * i + 1]);
+			colorSpace_[i] = TChromaticity(header.primaries[2 * i], header.primaries[2 * i + 1]);
 		}
 	}
 	else
 	{
-		chromaticities_.red = TChromaticity(1, 0);
-		chromaticities_.green = TChromaticity(0, 1);
-		chromaticities_.blue = TChromaticity(0, 0);
-		chromaticities_.white = TChromaticity(1.f / 3, 1.f / 3);
+		colorSpace_.red = TChromaticity(1, 0);
+		colorSpace_.green = TChromaticity(0, 1);
+		colorSpace_.blue = TChromaticity(0, 0);
+		colorSpace_.white = TChromaticity(1.f / 3, 1.f / 3);
 	}
+	colorSpace_.gamma = 1;
+	colorSpace_.isFromFile = true;
 
 	float exponents[256];
 	exponents[0] = 0.f;
@@ -1061,7 +1102,8 @@ BinaryIStream& Image::openPfm(BinaryIStream& stream)
 		LASS_THROW_EX(BadFormat, "not a PFM file.");
 	}
 
-	chromaticities_ = defaultChromaticities();
+	colorSpace_ = defaultColorSpace();
+	colorSpace_.gamma = 1;
 
 	resize(header.height, header.width);
 	EndiannessSetter(stream, header.endianness);
@@ -1121,8 +1163,9 @@ BinaryIStream& Image::openIgi(BinaryIStream& stream)
 
 	// The current file format does not specify chromaticies, only distinguishes
 	// between RGB and XYZ.  Use default RGB space in case of the former.
-	chromaticities_ = header.rgb ? defaultChromaticities() : xyzChromaticities();
-	chromaticities_.isFromFile = !header.rgb;
+	colorSpace_ = header.rgb ? defaultColorSpace() : xyzColorSpace();
+	colorSpace_.gamma = 1;
+	colorSpace_.isFromFile = true;
 
 	resize(header.height, header.width);
 	num::Tfloat32 r, g, b;
@@ -1153,9 +1196,13 @@ BinaryOStream& Image::saveLass(BinaryOStream& stream) const
 	
 	for (size_t i = 0; i < numChromaticities; ++i)
 	{
-		LASS_META_ASSERT(sizeof(TChromaticity::TValue) == sizeof(num::Tfloat32), should_use_32_bit_floating_points_here);
-		stream << chromaticities_[i].x << chromaticities_[i].y;
+		const num::Tfloat32 x = colorSpace_[i].x;
+		const num::Tfloat32 y = colorSpace_[i].y;
+		stream << x << y;
 	}
+
+	const num::Tfloat32 c = colorSpace_.gamma;
+	stream << c;
 
 	num::Tfloat32 r, g, b, a;
 	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
@@ -1277,11 +1324,11 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 	header.width = cols_;
 	header.yIncreasing = false;
 	header.xIncreasing = true;
-	header.isRgb = chromaticities_ != xyzChromaticities();
+	header.isRgb = colorSpace_ != xyzColorSpace();
 	for (size_t i = 0; i < numChromaticities; ++i)
 	{
-		header.primaries[2 * i] = chromaticities_[i].x;
-		header.primaries[2 * i + 1] = chromaticities_[i].y;
+		header.primaries[2 * i] = colorSpace_[i].x;
+		header.primaries[2 * i + 1] = colorSpace_[i].y;
 	}
 	header.writeTo(stream);
 
@@ -1413,7 +1460,7 @@ BinaryOStream& Image::saveIgi(BinaryOStream& stream) const
 	header.superSampling = 1;
 	header.zipped = 0;
 	header.dataSize = 12 * rows_ * cols_;
-	header.rgb = chromaticities_ == xyzChromaticities() ? 0 : 1;
+	header.rgb = colorSpace_ == xyzColorSpace() ? 0 : 1;
 	header.writeTo(stream);
 
 	EndiannessSetter(stream, num::littleEndian);
@@ -1493,28 +1540,30 @@ Image::TFileFormats Image::fillFileFormats()
 
 
 
-/** return sRGB as chromaticities
+/** return sRGB as colorSpace
  */
-const Image::Chromaticities Image::defaultChromaticities()
+const Image::ColorSpace Image::defaultColorSpace()
 {
-	Chromaticities result;
+	ColorSpace result;
 	result.red = TChromaticity(0.6400f, 0.3300f);
 	result.green = TChromaticity(0.3000f, 0.6000f);
 	result.blue = TChromaticity(0.1500f, 0.0600f);
 	result.white = TChromaticity(0.3127f, 0.3290f);
+	result.gamma = 1;
 	result.isFromFile = false;
 	return result;
 }
 
 
 
-const Image::Chromaticities Image::xyzChromaticities()
+const Image::ColorSpace Image::xyzColorSpace()
 {
-	Chromaticities result;
+	ColorSpace result;
 	result.red = TChromaticity(1.f, 0.f);
 	result.green = TChromaticity(0.f, 1.f);
 	result.blue = TChromaticity(0.f, 0.f);
 	result.white = TChromaticity(1.f / 3, 1.f / 3);
+	result.gamma = 1;
 	result.isFromFile = false;
 	return result;
 }
@@ -1569,7 +1618,8 @@ Image::HeaderRadianceHdr::HeaderRadianceHdr():
 	width(0),
 	yIncreasing(false),
 	xIncreasing(true),
-	isRgb(true)	
+	isRgb(true),
+	isDefaultPrimaries(true)
 {
 	std::fill_n(colorCorr, static_cast<int>(sizeColorCorr), 1.f);
 	const float defaultPrimaries[sizePrimaries] = 
@@ -1648,6 +1698,7 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 				LASS_THROW_EX(BadFormat, "syntax error in PRIMARIES field of header of RADIANCE HDR file");
 			}
 			stde::transform_r(values, primaries, util::stringCast<float, std::string>);
+			isDefaultPrimaries = false;
 		}
 	}
 
