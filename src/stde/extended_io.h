@@ -97,43 +97,35 @@ namespace std
 
 template <typename T1, typename T2, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::pair<T1, T2>& iPair);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::pair<T1, T2>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::vector<T, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::vector<T, Alloc>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::list<T, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::list<T, Alloc>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::deque<T, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::deque<T, Alloc>& x);
 
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::map<Key, Data, Comp, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::map<Key, Data, Comp, Alloc>& x);
 
 template <typename Key, typename Data, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::multimap<Key, Data, Comp, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::multimap<Key, Data, Comp, Alloc>& x);
 
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::set<Key, Comp, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::set<Key, Comp, Alloc>& x);
 
 template <typename Key, typename Comp, typename Alloc, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& ioOStream,
-		   const std::multiset<Key, Comp, Alloc>& iContainer);
+operator<<(std::basic_ostream<Char, Traits>& stream, const std::multiset<Key, Comp, Alloc>& x);
 
 
 
@@ -141,19 +133,19 @@ operator<<(std::basic_ostream<Char, Traits>& ioOStream,
 /*
 template <typename T1, typename T2, typename Char, typename Traits>
 std::basic_istream<Char, Traits>&
-operator>>(std::basic_istream<Char, Traits>& ioIStream, std::pair<T1, T2>& oPair);
+operator>>(std::basic_istream<Char, Traits>& stream, std::pair<T1, T2>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_istream<Char, Traits>&
-operator>>(std::basic_istream<Char, Traits>& ioIStream, std::vector<T, Alloc>& oContainer);
+operator>>(std::basic_istream<Char, Traits>& stream, std::vector<T, Alloc>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_istream<Char, Traits>&
-operator>>(std::basic_istream<Char, Traits>& ioIStream, std::list<T, Alloc>& oContainer);
+operator>>(std::basic_istream<Char, Traits>& stream, std::list<T, Alloc>& x);
 
 template <typename T, typename Alloc, typename Char, typename Traits>
 std::basic_istream<Char, Traits>&
-operator>>(std::basic_istream<Char, Traits>& ioIStream, std::deque<T, Alloc>& oContainer);
+operator>>(std::basic_istream<Char, Traits>& stream, std::deque<T, Alloc>& x);
 */
 }
 
