@@ -93,7 +93,7 @@ namespace impl
 // --- ArgumentTraits -----------------------------------------------------------------------------
 
 template <typename T>
-struct Blah
+struct ArgValue
 {
 	typedef T TStorage;
 protected:
@@ -101,7 +101,7 @@ protected:
 };
 
 template <typename T>
-struct Boohh
+struct ArgPyPtr
 {
 	typedef typename PyObjectPtr<T>::Type TStorage;
 protected:
@@ -112,49 +112,49 @@ protected:
 /** determines the right type for temporary storage of function arguments.
  */
 template <typename T>
-struct ArgumentTraits: public meta::If< IsPyObject<T>, meta::NullType, Blah<T> >
+struct ArgumentTraits: public meta::If< IsPyObject<T>, meta::NullType, ArgValue<T> >
 {
 	template <typename S> static const T& arg(const S& storage) { return *get(storage); }
 };
 
 template <typename T>
-struct ArgumentTraits<const T>: public meta::If< IsPyObject<T>, meta::NullType, Blah<T> >
+struct ArgumentTraits<const T>: public meta::If< IsPyObject<T>, meta::NullType, ArgValue<T> >
 {
 	template <typename S> static const T& arg(const S& storage) { return *get(storage); }
 };
 
 template <typename T> 
-struct ArgumentTraits<T&>: public meta::If< IsPyObject<T>, Boohh<T>, meta::NullType >
+struct ArgumentTraits<T&>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, meta::NullType >
 {
 	template <typename S> static T& arg(const S& storage) { return *get(storage); }
 };
 
 template <typename T>
-struct ArgumentTraits<const T&>: public meta::If< IsPyObject<T>, Boohh<T>, Blah<T> >
+struct ArgumentTraits<const T&>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, ArgValue<T> >
 {
 	template <typename S> static const T& arg(const S& storage) { return *get(storage); }
 };
 
 template <typename T> 
-struct ArgumentTraits<T*>: public meta::If< IsPyObject<T>, Boohh<T>, meta::NullType >
+struct ArgumentTraits<T*>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, meta::NullType >
 {
 	template <typename S> static T* arg(const S& storage) { return get(storage); }
 };
 
 template <typename T> 
-struct ArgumentTraits<const T*>: public meta::If< IsPyObject<T>, Boohh<T>, meta::NullType >
+struct ArgumentTraits<const T*>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, meta::NullType >
 {
 	template <typename S> static const T* arg(const S& storage) { return get(storage); }
 };
 
 template <typename T> 
-struct ArgumentTraits<T* const>: public meta::If< IsPyObject<T>, Boohh<T>, meta::NullType >
+struct ArgumentTraits<T* const>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, meta::NullType >
 {
 	template <typename S> static T* arg(const S& storage) { return get(storage); }
 };
 
 template <typename T> 
-struct ArgumentTraits<const T* const>: public meta::If< IsPyObject<T>, Boohh<T>, meta::NullType >
+struct ArgumentTraits<const T* const>: public meta::If< IsPyObject<T>, ArgPyPtr<T>, meta::NullType >
 {
 	template <typename S> static const T* arg(const S& storage) { return get(storage); }
 };
