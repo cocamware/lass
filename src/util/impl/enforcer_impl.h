@@ -539,7 +539,7 @@ inline Enforcer<PredicateType, RaiserType, const T&, const C&> makeEnforcer(
 }
 
 #define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, closure, locus)\
-	::lass::util::impl::makeEnforcer<predicate, raiser>(t, closure, locus)
+	::lass::util::impl::makeEnforcer< predicate, raiser >(t, closure, locus)
 
 #endif
 
