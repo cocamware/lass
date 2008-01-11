@@ -1741,7 +1741,7 @@ void Image::HeaderRadianceHdr::writeTo(BinaryOStream& stream)
 	writeLine(stream, "");
 	std::ostringstream resolution;
 	resolution << (yIncreasing ? "+Y" : "-Y") << " " << height;
-	resolution << (xIncreasing ? "+X" : "-X") << " " << width;
+	resolution << " " << (xIncreasing ? "+X" : "-X") << " " << width;
 	writeLine(stream, resolution.str());
 }
 
