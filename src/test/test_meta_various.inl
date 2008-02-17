@@ -50,6 +50,7 @@
 #include "../meta/is_same.h"
 #include "../meta/is_convertible.h"
 #include "../meta/is_derived.h"
+#include "../meta/is_member.h"
 
 namespace lass
 {
@@ -57,7 +58,13 @@ namespace test
 {
 
 class Spam {};
-class Ham: public Spam {};
+class Ham: public Spam 
+{
+public:
+	int nonConstMember() { return 0; }
+	int constMember() const { return 0; }
+	void nonConstMethodWithLotsOfArguments( int, double, int, std::string, Ham& ) {}
+};
 
 void testMetaIsConvertible()
 {
@@ -105,6 +112,24 @@ void testMetaIsDerivedType()
 
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham*, Spam*>::value), true);
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsDerived<Ham*, Spam*>::value), true);
+
+}
+
+void testMetaIsMember()
+{
+	typedef int (Ham::*THamNonConstMember)(void) ;
+	typedef int (Ham::*THamConstMember)(void) const;
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsMember< THamConstMember >::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsMember< THamNonConstMember >::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConstMember< THamConstMember >::value), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsConstMember< THamNonConstMember >::value), false);
+
+	typedef int (Ham::*TNonConstMethodWithLotsOfArguments)(int, double, int, std::string, Ham&);
+	LASS_TEST_CHECK_EQUAL(bool(meta::isMember( &Ham::nonConstMethodWithLotsOfArguments )), true);
+	LASS_TEST_CHECK_EQUAL(bool(meta::isConstMember( &Ham::nonConstMethodWithLotsOfArguments )), false);
+	LASS_TEST_CHECK_EQUAL(bool(meta::IsMember< TNonConstMethodWithLotsOfArguments >::value), true);
+
+
 }
 
 }
