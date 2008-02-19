@@ -85,7 +85,7 @@
 			Name="win32_vc8|Win32"
 			OutputDirectory="$(SolutionDir)..\lib\"
 			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="10"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -96,57 +96,7 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="4"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="false"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STDE_VC8_EXPORTS"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
-				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pch"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\lass_stde_$(ConfigurationName).lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -203,10 +153,6 @@
 			</File>
 			<File
 				RelativePath=".\static_vector.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\stde_common.cpp"
 				>
 			</File>
 			<File

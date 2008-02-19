@@ -65,7 +65,7 @@ void fetchAndThrowPythonException(const std::string& loc)
 	python::TPyObjPtr value(tempValue);
 	python::TPyObjPtr traceback(tempTraceback);
 
-	throw lass::python::experimental::PythonException(type, value, traceback, loc);
+	throw lass::python::PythonException(type, value, traceback, loc);
 }
 
 }

@@ -178,6 +178,15 @@ private:
 	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(KeyError)
 };
 
+
+class ValueError: public Exception
+{
+public:
+	ValueError(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ValueError)
+};
+
 }
 
 }

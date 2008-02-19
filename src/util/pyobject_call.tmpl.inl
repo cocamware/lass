@@ -54,24 +54,19 @@
 #include "../meta/type_list.h"
 
 #define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(v_errorReturnValue)\
-	catch (::lass::python::experimental::PythonException& error)\
+	catch (const ::lass::python::PythonException& error)\
 	{\
-		PyErr_Restore(\
-			::lass::python::fromSharedPtrToNakedCast(error.type()),\
-			::lass::python::fromSharedPtrToNakedCast(error.value()),\
-			::lass::python::fromSharedPtrToNakedCast(error.traceback()));\
+		handlePythonException(error);\
 		return v_errorReturnValue;\
 	}\
-	catch (lass::util::Exception& error)\
+	catch (const ::lass::util::Exception& error)\
 	{\
-		::std::ostringstream buffer;\
-		buffer << error.message() << "\n\n(" << error.location() << ")";\
-		PyErr_SetString(PyExc_Exception, buffer.str().c_str());\
+		handleLassException(error);\
 		return v_errorReturnValue;\
 	}\
-	catch (std::exception& error)\
+	catch (::std::exception& error)\
 	{\
-		PyErr_SetString(PyExc_Exception, error.what());\
+		handleStdException(error);\
 		return v_errorReturnValue;\
 	}
 
@@ -89,6 +84,28 @@ namespace python
 {
 namespace impl
 {
+
+// --- exception handlers -------------------------------------------------------------------------
+
+inline void handlePythonException(const PythonException& error)
+{
+	PyErr_Restore(
+		::lass::python::fromSharedPtrToNakedCast(error.type()),
+		::lass::python::fromSharedPtrToNakedCast(error.value()),
+		::lass::python::fromSharedPtrToNakedCast(error.traceback()));
+}
+
+inline void handleLassException(const util::Exception& error)
+{
+	::std::ostringstream buffer;
+	buffer << error.message() << "\n\n(" << error.location() << ")";
+	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
+}
+
+inline void handleStdException(const std::exception& error)
+{
+	PyErr_SetString(PyExc_Exception, error.what());
+}
 
 // --- ArgumentTraits -----------------------------------------------------------------------------
 
