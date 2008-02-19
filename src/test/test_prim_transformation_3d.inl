@@ -137,9 +137,8 @@ void testPrimTransformation3D()
 	TTransformation A = TTransformation::rotation('x', TNumTraits::pi / 2);
 	TTransformation B = TTransformation::rotation('y', TNumTraits::pi / 2);
 	TTransformation C = concatenate(A, B);
-	TVector k(0, 0, 1);
-	LASS_TEST_CHECK_CLOSE_ARRAY(transform(transform(k, A), B), transform(k, C), epsilon, 3);
-
+	TVector v(0, 0, 1);
+	LASS_TEST_CHECK_CLOSE_ARRAY(transform(transform(v, A), B), transform(v, C), epsilon, 3);
 }   
 
 }

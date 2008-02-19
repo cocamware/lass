@@ -12,259 +12,69 @@
 	<Configurations>
 		<Configuration 
 			Name="win32_intel700|Win32"
-			OutputDirectory="win32_intel700"
-			IntermediateDirectory="win32_intel700"
-			ConfigurationType="4"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="TRUE"
-				OptimizeForProcessor="2"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				StringPooling="FALSE"
-				MinimalRebuild="FALSE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				DefaultCharIsUnsigned="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="2"
-					GlobalOptimizations="1"
-					InlineFunctionExpansion="2"
-					EnableIntrinsicFunctions="1"
-					FavorSizeOrSpeed="1"
-					OmitFramePointers="1"
-					OptimizeForProcessor="2"
-					StringPooling="0"
-					MinimalRebuild="0"
-					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="1"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /O2 /Og /Ob2 /Oi /Ot /Oy /G6 /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700/&quot; /Fd&quot;win32_intel700/vc70.pdb&quot; /Gd /TP"/>
-			</Tool>
-			<Tool 
 				Name="VCCustomBuildTool"/>
-			<Tool 
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700/lass_meta_win32_intel700.lib&quot; /NOLOGO"/>
-			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
 			<Tool 
 				Name="VCPostBuildEventTool"/>
 			<Tool 
-				Name="VCPreBuildEventTool"/>
-			<Tool 
-				Name="VCPreLinkEventTool"/>
-			<Tool 
-				Name="VCResourceCompilerTool"/>
-			<Tool 
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
-			OutputDirectory="win32_intel700_d"
-			IntermediateDirectory="win32_intel700_d"
-			ConfigurationType="4"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				StringPooling="FALSE"
-				MinimalRebuild="FALSE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				DefaultCharIsUnsigned="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					StringPooling="0"
-					MinimalRebuild="0"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_intel700_d/&quot; /Fd&quot;win32_intel700_d/vc70.pdb&quot; /Gd /TP"/>
-			</Tool>
-			<Tool 
 				Name="VCCustomBuildTool"/>
-			<Tool 
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_intel700_d/lass_meta_win32_intel700_d.lib&quot; /NOLOGO"/>
-			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
 			<Tool 
 				Name="VCPostBuildEventTool"/>
 			<Tool 
-				Name="VCPreBuildEventTool"/>
-			<Tool 
-				Name="VCPreLinkEventTool"/>
-			<Tool 
-				Name="VCResourceCompilerTool"/>
-			<Tool 
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm300"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				StringPooling="FALSE"
-				MinimalRebuild="FALSE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				DefaultCharIsUnsigned="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4">
-				<IntelOptions 
-					Optimization="0"
-					StringPooling="0"
-					MinimalRebuild="0"
-					BasicRuntimeChecks="3"
-					RuntimeLibrary="3"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /ZI /nologo /W3 /Wp64 /Od /D &quot;WIN32&quot; /D &quot;_DEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /RTC1 /MDd /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71_d/&quot; /Fd&quot;win32_vc71_d/vc70.pdb&quot; /Gd /TP /Zm300"/>
-			</Tool>
-			<Tool 
 				Name="VCCustomBuildTool"/>
-			<Tool 
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71_d/lass_meta_win32_vc71_d.lib&quot; /NOLOGO"/>
-			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
 			<Tool 
 				Name="VCPostBuildEventTool"/>
 			<Tool 
-				Name="VCPreBuildEventTool"/>
-			<Tool 
-				Name="VCPreLinkEventTool"/>
-			<Tool 
-				Name="VCResourceCompilerTool"/>
-			<Tool 
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"/>
 			<IntelOptions 
 				CompilerName="1"/>
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm300"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				StringPooling="FALSE"
-				MinimalRebuild="FALSE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				DefaultCharIsUnsigned="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3">
-				<IntelOptions 
-					Optimization="2"
-					InlineFunctionExpansion="1"
-					OmitFramePointers="1"
-					StringPooling="0"
-					MinimalRebuild="0"
-					RuntimeLibrary="2"
-					EnableFunctionLevelLinking="1"
-					DefaultCharIsUnsigned="1"
-					TreatWChar_tAsBuiltInType="1"
-					ForceConformanceInForLoopScope="1"
-					AllOptions="/c  /Zi /nologo /W3 /Wp64 /O2 /Ob1 /Oy /D &quot;WIN32&quot; /D &quot;NDEBUG&quot; /D &quot;_LIB&quot; /D &quot;_MBCS&quot; /FD /EHsc /MD /Gy /J /Zc:wchar_t /Zc:forScope /Fo&quot;win32_vc71/&quot; /Fd&quot;win32_vc71/vc70.pdb&quot; /Gd /TP /Zm300"/>
-			</Tool>
-			<Tool 
 				Name="VCCustomBuildTool"/>
-			<Tool 
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
-				<IntelOptions 
-					AllOptions="/OUT:&quot;win32_vc71/lass_meta_win32_vc71.lib&quot; /NOLOGO"/>
-			</Tool>
 			<Tool 
 				Name="VCMIDLTool"/>
 			<Tool 
 				Name="VCPostBuildEventTool"/>
 			<Tool 
-				Name="VCPreBuildEventTool"/>
-			<Tool 
-				Name="VCPreLinkEventTool"/>
-			<Tool 
-				Name="VCResourceCompilerTool"/>
-			<Tool 
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool 
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool 
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool 
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"/>
 			<IntelOptions 
 				CompilerName="1"/>
 		</Configuration>
@@ -296,6 +106,9 @@
 			</File>
 			<File 
 				RelativePath=".\is_integral.h">
+			</File>
+			<File 
+				RelativePath=".\is_member.tmpl.h">
 			</File>
 			<File 
 				RelativePath=".\is_same.h">

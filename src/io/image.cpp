@@ -843,7 +843,7 @@ BinaryIStream& Image::openTarga(BinaryIStream& stream)
 	HeaderTarga header;
 	header.readFrom(stream);
 	colorSpace_ = defaultColorSpace();
-	colorSpace_.gamma = 2.2;
+	colorSpace_.gamma = 2.2f;
 	resize(header.imageHeight, header.imageWidth);
 
 	switch (header.imageType)

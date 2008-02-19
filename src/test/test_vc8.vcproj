@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="test_vc8"
 	ProjectGUID="{A49A7DAC-49F8-412D-9802-D91E4A357E56}"
 	RootNamespace="test_vc8"
@@ -17,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="win32_vc8_d|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\bin\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -50,7 +50,8 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="test_common.h"
 				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
-				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(TargetDir)\$(TargetName).pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -68,6 +69,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\lass_test_$(ConfigurationName).exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(SolutionDir)..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -83,6 +85,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -95,13 +98,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
 			Name="win32_vc8|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\bin\"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -138,7 +141,9 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="test_common.h"
 				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
-				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(TargetDir)\$(TargetName).pdb"
+				BrowseInformation="1"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -156,6 +161,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\lass_test_$(ConfigurationName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(SolutionDir)..\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -173,6 +179,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -185,7 +192,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\$(TargetFileName)&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>

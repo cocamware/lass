@@ -698,10 +698,7 @@ LASS_EXECUTE_BEFORE_MAIN_EX(
 
 #else
 
-namespace 
-{
-
-static void NTAPI onThreadCallback(PVOID, DWORD dwReason, PVOID)
+static void NTAPI lassOnThreadCallback(PVOID, DWORD dwReason, PVOID)
 {
 	if(dwReason == DLL_THREAD_DETACH)
 	{
@@ -710,20 +707,18 @@ static void NTAPI onThreadCallback(PVOID, DWORD dwReason, PVOID)
 }
 
 #if (_MSC_VER >= 1310)
-#   pragma data_seg(push, oldSegment)
+#   pragma data_seg(push, lassOldSegment)
 #endif
 
 #pragma data_seg(".CRT$XLB")
-PIMAGE_TLS_CALLBACK threadCallback = onThreadCallback;
+PIMAGE_TLS_CALLBACK lassThreadCallback = lassOnThreadCallback;
 #pragma data_seg()
 
 #if (_MSC_VER >= 1310) // 1310 == VC++ 7.1
-#   pragma data_seg(pop, oldSegment)
+#   pragma data_seg(pop, lassOldSegment)
 #endif
 
 #pragma comment(linker, "/INCLUDE:__tls_used")
-
-}
 
 #endif
 

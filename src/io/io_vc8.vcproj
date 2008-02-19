@@ -18,7 +18,7 @@
 		<Configuration
 			Name="win32_vc8_d|Win32"
 			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -48,7 +48,12 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="io_common.h"
-				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
+				PrecompiledHeaderFile="$(IntDir)$(TargetName).pch"
+				AssemblerListingLocation="$(IntDir)"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
+				XMLDocumentationFileName="$(IntDir)"
+				BrowseInformation="1"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -64,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\lass_io_$(ConfigurationName).lib"
+				OutputFile="$(OutDir)lass_io_$(ConfigurationName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -74,6 +79,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -85,7 +91,7 @@
 		<Configuration
 			Name="win32_vc8|Win32"
 			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -120,8 +126,12 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="io_common.h"
-				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
-				ProgramDataBaseFileName="$(IntDir)\$(TargetName).pdb"
+				PrecompiledHeaderFile="$(IntDir)$(TargetName).pch"
+				AssemblerListingLocation="$(IntDir)"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
+				XMLDocumentationFileName="$(IntDir)"
+				BrowseInformation="1"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -137,7 +147,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\lass_io_$(ConfigurationName).lib"
+				OutputFile="$(OutDir)lass_io_$(ConfigurationName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -147,6 +157,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
