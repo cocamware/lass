@@ -23,7 +23,7 @@
 			WholeProgramOptimization="FALSE">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -74,9 +74,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
+				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib&quot;">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_intel700.lib&quot; /NOLOGO"/>
+					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_intel700.lib&quot; /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"
@@ -110,7 +111,7 @@
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -152,9 +153,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
+				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib&quot;">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_intel700_d.lib&quot; /NOLOGO"/>
+					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_intel700_d.lib&quot; /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"
@@ -188,7 +190,7 @@
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -231,9 +233,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
+				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib&quot;">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_vc71_d.lib&quot; /NOLOGO"/>
+					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_vc71_d.lib&quot; /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"
@@ -269,7 +272,7 @@
 			CharacterSet="2">
 			<Tool 
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/GR "
+				AdditionalOptions="/GR"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -320,9 +323,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool 
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib">
+				OutputFile="$(OutDir)$(SolutionName)_$(ProjectName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib&quot;">
 				<IntelOptions 
-					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_vc71.lib&quot; /NOLOGO"/>
+					AllOptions="/OUT:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib\lass_prim_win32_vc71.lib&quot; /LIBPATH:&quot;D:\bram\visual_studio_projects\Lass\src\..\lib&quot; /NOLOGO"/>
 			</Tool>
 			<Tool 
 				Name="VCMIDLTool"
