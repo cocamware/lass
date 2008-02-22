@@ -493,4 +493,8 @@ struct AtomicOperations<8>
 }
 }
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
+
 // EOF
