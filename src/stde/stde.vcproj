@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration 
 			Name="win32_intel700_d|Win32"
-			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			OutputDirectory="..\..\lib\"
+			IntermediateDirectory="$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
@@ -27,8 +27,8 @@
 		</Configuration>
 		<Configuration 
 			Name="win32_intel700|Win32"
-			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			OutputDirectory="..\..\lib\"
+			IntermediateDirectory="$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="2"
 			WholeProgramOptimization="FALSE">
@@ -43,8 +43,8 @@
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71_d|Win32"
-			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			OutputDirectory="..\..\lib\"
+			IntermediateDirectory="$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
@@ -60,8 +60,8 @@
 		</Configuration>
 		<Configuration 
 			Name="win32_vc71|Win32"
-			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			OutputDirectory="..\..\lib\"
+			IntermediateDirectory="$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="2">
 			<Tool 
