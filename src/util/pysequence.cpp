@@ -62,16 +62,16 @@ namespace impl
 	PY_CLASS_METHOD( PySequence, reserve )
 
 	PySequenceMethods PySequence::pySequenceMethods = {
-	(inquiry)PySequence_Length,			/* sq_length */
+	(lenfunc)PySequence_Length,			/* sq_length */
 	(binaryfunc)PySequence_Concat,		/* sq_concat */
-	(intargfunc)PySequence_Repeat,		/* sq_repeat */
-	(intargfunc)PySequence_Item,			/* sq_item */
-	(intintargfunc)PySequence_Slice,		/* sq_slice */
-	(intobjargproc)PySequence_AssItem,		/* sq_ass_item */
-	(intintobjargproc)PySequence_AssSlice,	/* sq_ass_slice */
+	(ssizeargfunc)PySequence_Repeat,		/* sq_repeat */
+	(ssizeargfunc)PySequence_Item,			/* sq_item */
+	(ssizessizeargfunc)PySequence_Slice,		/* sq_slice */
+	(ssizeobjargproc)PySequence_AssItem,		/* sq_ass_item */
+	(ssizessizeobjargproc)PySequence_AssSlice,	/* sq_ass_slice */
 	(objobjproc)PySequence_Contains,		/* sq_contains */
 	(binaryfunc)PySequence_InplaceConcat,	/* sq_inplace_concat */
-	(intargfunc)PySequence_InplaceRepeat,	/* sq_inplace_repeat */
+	(ssizeargfunc)PySequence_InplaceRepeat,	/* sq_inplace_repeat */
 	};
 
 	bool PySequence::isInitialized = false;
@@ -112,7 +112,7 @@ namespace impl
 		}
 	}
 
-	int PySequence::PySequence_Length( PyObject* iPO)
+	Py_ssize_t PySequence::PySequence_Length( PyObject* iPO)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Length();
 	}
@@ -120,23 +120,23 @@ namespace impl
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Concat(bb);
 	}
-	PyObject* PySequence::PySequence_Repeat(PyObject *iPO, int n)
+	PyObject* PySequence::PySequence_Repeat(PyObject *iPO, Py_ssize_t n)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Repeat(n);
 	}
-	PyObject* PySequence::PySequence_Item(PyObject*iPO, int i)
+	PyObject* PySequence::PySequence_Item(PyObject*iPO, Py_ssize_t i)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Item(i);
 	}
-	PyObject* PySequence::PySequence_Slice(PyObject *iPO, int ilow, int ihigh)
+	PyObject* PySequence::PySequence_Slice(PyObject *iPO, Py_ssize_t ilow, Py_ssize_t ihigh)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Slice(ilow,ihigh);
 	}
-	int PySequence::PySequence_AssItem(PyObject *iPO, int i, PyObject *v)
+	int PySequence::PySequence_AssItem(PyObject *iPO, Py_ssize_t i, PyObject *v)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_AssItem(i,v);
 	}
-	int PySequence::PySequence_AssSlice(PyObject *iPO, int ilow, int ihigh, PyObject *v)
+	int PySequence::PySequence_AssSlice(PyObject *iPO, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
 	{
 		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_AssSlice(ilow,ihigh,v);
 	}
@@ -152,7 +152,7 @@ namespace impl
 		Py_INCREF(iPO);
 		return iPO;
 	}
-	PyObject * PySequence::PySequence_InplaceRepeat(PyObject *iPO, int n)
+	PyObject * PySequence::PySequence_InplaceRepeat(PyObject *iPO, Py_ssize_t n)
 	{
 		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceRepeat(n);
 		if (r)

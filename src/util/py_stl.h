@@ -166,7 +166,7 @@ namespace lass
 			TMap result;
 
 			PyObject *pyKey, *pyData;
-			int pos = 0;
+			Py_ssize_t pos = 0;
 
 			while (PyDict_Next(iValue, &pos, &pyKey, &pyData))
 			{

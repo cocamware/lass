@@ -79,7 +79,11 @@
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
 #	define LASS_BREAK_HERE	__asm__("int3")
 #else
-#	define LASS_BREAK_HERE	__asm { int 3 }
+#	if defined(_WIN64)
+#		define LASS_BREAK_HERE __debugbreak();
+#	else
+#		define LASS_BREAK_HERE	__asm { int 3 }
+#	endif
 #endif
 
 /** create a unique name based on a prefix and line number

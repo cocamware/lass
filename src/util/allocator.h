@@ -442,7 +442,7 @@ struct BinnerPower2
 	}
 	static size_t size(size_t bin)
 	{
-		return 1 << bin;
+		return size_t(1) << bin;
 	}
 };
 

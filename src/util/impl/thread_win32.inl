@@ -73,14 +73,14 @@ namespace impl
 
 const size_t numberOfProcessors()
 {
-	DWORD processAffinityMask, systemAffinityMask;
+	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
 
 	// we're doing an assumption here ... We think, we hope, that the mask
 	// is a continuous series of bits starting from the LSB.  We'll test for this
 	// until we are sure that our assumption is correct. [Bramz]
 	//
-	DWORD test = systemAffinityMask;
+	DWORD_PTR test = systemAffinityMask;
 	while (test)
 	{
 		if (!(test & 0x1))
@@ -454,10 +454,10 @@ MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
  */
 void bindThread(HANDLE thread, size_t processor)
 {
-	DWORD affinityMask = 0;
+	DWORD_PTR affinityMask = 0;
 	if (processor == Thread::anyProcessor)
 	{
-		DWORD processAffinityMask, systemAffinityMask;
+		DWORD_PTR processAffinityMask, systemAffinityMask;
 		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
 		affinityMask = systemAffinityMask;
 	}
@@ -468,7 +468,7 @@ void bindThread(HANDLE thread, size_t processor)
 			LASS_THROW("'" << processor << "' is an invalid processor index. "
 				<< "Valid range is [0, " << util::numberOfProcessors << ").");
 		}
-		affinityMask = 1 << processor;
+		affinityMask = DWORD_PTR(1) << processor;
 	}
 	LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask))
 		("Failed to bind thread to processor ")(processor);
@@ -496,7 +496,7 @@ void setThreadName(DWORD threadId, const char* threadName)
 
 	__try
 	{
-		RaiseException(0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info);
+		RaiseException(0x406D1388, 0, sizeof(info)/sizeof(DWORD), (ULONG_PTR*)&info);
 	}
 	__except(EXCEPTION_CONTINUE_EXECUTION)
 	{
@@ -718,7 +718,11 @@ PIMAGE_TLS_CALLBACK lassThreadCallback = lassOnThreadCallback;
 #   pragma data_seg(pop, lassOldSegment)
 #endif
 
-#pragma comment(linker, "/INCLUDE:__tls_used")
+#ifdef _WIN64
+#	pragma comment(linker, "/INCLUDE:_tls_used")
+#else
+#	pragma comment(linker, "/INCLUDE:__tls_used")
+#endif
 
 #endif
 

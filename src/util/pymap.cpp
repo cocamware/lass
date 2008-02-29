@@ -59,7 +59,7 @@ namespace impl
 	bool PyMap::isInitialized = false;
 
 	PyMappingMethods PyMap::pyMappingMethods = {
-		(inquiry)PyMap::PyMap_Length, /*mp_length*/
+		(lenfunc)PyMap::PyMap_Length, /*mp_length*/
 		(binaryfunc)PyMap::PyMap_Subscript, /*mp_subscript*/
 		(objobjargproc)PyMap::PyMap_AssSubscript, /*mp_ass_subscript*/
 	};
@@ -98,7 +98,7 @@ namespace impl
 
 #pragma LASS_TODO("check the IPO for a PyMap type")
 
-	int PyMap::PyMap_Length( PyObject* iPO)
+	Py_ssize_t PyMap::PyMap_Length( PyObject* iPO)
 	{
 		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Length();
 	}

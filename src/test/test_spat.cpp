@@ -38,6 +38,10 @@
  *	a recipient may use your version of this file under either the CPAL or the GPL.
  *	
  *	*** END LICENSE INFORMATION ***
+ *
+ *	@note 
+ *	This is the first file that has hit fatal error C1128: number of sections exceeded object file format limit.
+ *	(debug build on x64).  It is solved by adding /bigobj to the additional compiler settings ...
  */
 
 

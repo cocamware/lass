@@ -65,20 +65,20 @@ namespace impl
 	template<typename C>
 	struct ContainerTraits
 	{
-		static const typename C::value_type&		element_at(const C& iC, int i) { return iC[i]; };
-		static typename C::value_type&				element_at(C& iC, int i) { return iC[i]; };
-		static typename C::const_iterator			const_iterator_at(const C& iC, int i) { return iC.begin()+i; };
-		static typename C::iterator					iterator_at(C& iC, int i) { return iC.begin()+i; };
+		static const typename C::value_type&		element_at(const C& iC, Py_ssize_t i) { return iC[i]; };
+		static typename C::value_type&				element_at(C& iC, Py_ssize_t i) { return iC[i]; };
+		static typename C::const_iterator			const_iterator_at(const C& iC, Py_ssize_t i) { return iC.begin()+i; };
+		static typename C::iterator					iterator_at(C& iC, Py_ssize_t i) { return iC.begin()+i; };
 		static void reserve(C& iC, int iAmount)		{};
 	};
 
 	template<typename C, typename A>
 	struct ContainerTraits<std::vector<C, A> > 
 	{
-		static const typename std::vector<C, A>::value_type&		element_at(const std::vector<C, A>& iC, int i) { return iC[i]; };
-		static typename std::vector<C, A>::value_type&				element_at(std::vector<C, A>& iC, int i) { return iC[i]; };
-		static typename std::vector<C, A>::const_iterator			const_iterator_at(const std::vector<C, A>& iC, int i) { return iC.begin()+i; };
-		static typename std::vector<C, A>::iterator					iterator_at(std::vector<C, A>& iC, int i) { return iC.begin()+i; };
+		static const typename std::vector<C, A>::value_type&		element_at(const std::vector<C, A>& iC, Py_ssize_t i) { return iC[i]; };
+		static typename std::vector<C, A>::value_type&				element_at(std::vector<C, A>& iC, Py_ssize_t i) { return iC[i]; };
+		static typename std::vector<C, A>::const_iterator			const_iterator_at(const std::vector<C, A>& iC, Py_ssize_t i) { return iC.begin()+i; };
+		static typename std::vector<C, A>::iterator					iterator_at(std::vector<C, A>& iC, Py_ssize_t i) { return iC.begin()+i; };
 		static void reserve(std::vector<C, A>& iC, int iAmount)		{iC.reserve(iAmount);};
 	};
 
@@ -86,19 +86,19 @@ namespace impl
 	template<typename C, typename A>
 	struct ContainerTraits<std::list<C, A> >
 	{
-		static const C& element_at(const std::list<C,A>& iC, int i) { return *const_iterator_at(iC,i); };
-		static C& element_at(std::list<C,A>& iC, int i) { return *iterator_at(iC,i); };
-		static typename std::list<C, A>::const_iterator	const_iterator_at(const std::list<C,A>& iC, int i) 
+		static const C& element_at(const std::list<C,A>& iC, Py_ssize_t i) { return *const_iterator_at(iC,i); };
+		static C& element_at(std::list<C,A>& iC, Py_ssize_t i) { return *iterator_at(iC,i); };
+		static typename std::list<C, A>::const_iterator	const_iterator_at(const std::list<C,A>& iC, Py_ssize_t i) 
 		{ 
 			typename std::list<C,A>::const_iterator it = iC.begin();
-			for (int j=0;j<i;++j)
+			for (Py_ssize_t j=0;j<i;++j)
 				++it;
 			return it;
 		};
-		static typename std::list<C, A>::iterator	iterator_at(std::list<C,A>& iC, int i) 
+		static typename std::list<C, A>::iterator	iterator_at(std::list<C,A>& iC, Py_ssize_t i) 
 		{ 
 			typename std::list<C,A>::iterator it = iC.begin();
-			for (int j=0;j<i;++j)
+			for (Py_ssize_t j=0;j<i;++j)
 				++it;
 			return it;
 		};
@@ -116,16 +116,16 @@ namespace impl
 		virtual void reserve(int iAmount) = 0;
 
 
-		virtual int PySequence_Length() = 0;
+		virtual Py_ssize_t PySequence_Length() = 0;
 		virtual PyObject* PySequence_Concat(PyObject *bb) = 0;
-		virtual PyObject* PySequence_Repeat(int n) = 0;
-		virtual PyObject* PySequence_Item(int i) = 0;
-		virtual PyObject* PySequence_Slice(int ilow, int ihigh) = 0;
-		virtual int PySequence_AssItem(int i, PyObject *v) = 0;
-		virtual int PySequence_AssSlice(int ilow, int ihigh, PyObject *v) = 0;
+		virtual PyObject* PySequence_Repeat(Py_ssize_t n) = 0;
+		virtual PyObject* PySequence_Item(Py_ssize_t i) = 0;
+		virtual PyObject* PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh) = 0;
+		virtual int PySequence_AssItem(Py_ssize_t i, PyObject *v) = 0;
+		virtual int PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v) = 0;
 		virtual int PySequence_Contains(PyObject *el) = 0;
 		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
-		virtual int PySequence_InplaceRepeat(int n) = 0;
+		virtual int PySequence_InplaceRepeat(Py_ssize_t n) = 0;
 		virtual void append(PyObject* i) = 0;
 		virtual TPyObjPtr pop(int i) = 0;
 		virtual bool pointsToSameContainer(void* iO) = 0;
@@ -155,16 +155,16 @@ namespace impl
 		virtual void clear();
 		virtual void reserve(int iAmount);
 
-		virtual int PySequence_Length();
+		virtual Py_ssize_t PySequence_Length();
 		virtual PyObject* PySequence_Concat(PyObject *bb);
-		virtual PyObject* PySequence_Repeat(int n);
-		virtual PyObject* PySequence_Item(int i);
-		virtual PyObject* PySequence_Slice(int ilow, int ihigh);
-		virtual int PySequence_AssItem(int i, PyObject *v);
-		virtual int PySequence_AssSlice(int ilow, int ihigh, PyObject *v);
+		virtual PyObject* PySequence_Repeat(Py_ssize_t n);
+		virtual PyObject* PySequence_Item(Py_ssize_t i);
+		virtual PyObject* PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh);
+		virtual int PySequence_AssItem(Py_ssize_t i, PyObject *v);
+		virtual int PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
 		virtual int PySequence_Contains(PyObject *el);
 		virtual int PySequence_InplaceConcat(PyObject *other);
-		virtual int PySequence_InplaceRepeat(int n);
+		virtual int PySequence_InplaceRepeat(Py_ssize_t n);
 		virtual void append(PyObject* i);
 		virtual TPyObjPtr pop(int i);
 		virtual bool pointsToSameContainer(void* iO) 
@@ -210,16 +210,16 @@ namespace impl
 
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
-		static int PySequence_Length( PyObject* iPO);
+		static Py_ssize_t PySequence_Length( PyObject* iPO);
 		static PyObject* PySequence_Concat(PyObject *a, PyObject *bb);
-		static PyObject* PySequence_Repeat(PyObject *a, int n);
-		static PyObject* PySequence_Item(PyObject*a, int i);
-		static PyObject* PySequence_Slice(PyObject *a, int ilow, int ihigh);
-		static int PySequence_AssItem(PyObject *a, int i, PyObject *v);
-		static int PySequence_AssSlice(PyObject *a, int ilow, int ihigh, PyObject *v);
+		static PyObject* PySequence_Repeat(PyObject *a, Py_ssize_t n);
+		static PyObject* PySequence_Item(PyObject*a, Py_ssize_t i);
+		static PyObject* PySequence_Slice(PyObject *a, Py_ssize_t ilow, Py_ssize_t ihigh);
+		static int PySequence_AssItem(PyObject *a, Py_ssize_t i, PyObject *v);
+		static int PySequence_AssSlice(PyObject *a, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
 		static int PySequence_Contains(PyObject *a, PyObject *el);
 		static PyObject * PySequence_InplaceConcat(PyObject *self, PyObject *other);
-		static PyObject * PySequence_InplaceRepeat(PyObject *self, int n);
+		static PyObject * PySequence_InplaceRepeat(PyObject *self, Py_ssize_t n);
 
 		template<typename Container> bool pointsToSameContainer(Container& iO) 
 		{ 
@@ -247,8 +247,8 @@ namespace impl
 		else
 		{
 			Sequence result;
-			const int size = PySequence_Length(iValue);
-			for (int i = 0; i < size; ++i)
+			const Py_ssize_t size = PySequence_Length(iValue);
+			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Sequence::value_type temp;
 				if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
@@ -276,9 +276,9 @@ namespace impl
 		ContainerTraits<Container>::reserve(*cont_,iAmount);
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
+	Py_ssize_t PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
 	{
-		const int size = static_cast<int>(cont_->size());
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		LASS_ASSERT(size >= 0);
 		return size;
 	}
@@ -297,15 +297,15 @@ namespace impl
 		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(int n)
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(Py_ssize_t n)
 	{
 		Container result = stde::repeat_c(*cont_,n);
 		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(int i)
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(Py_ssize_t i)
 	{
-		const int size = static_cast<int>(cont_->size());
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		LASS_ASSERT(size >= 0);
 
 		if (i<0 || i>=size)
@@ -316,12 +316,12 @@ namespace impl
 		return pyBuildSimpleObject( ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(int ilow, int ihigh)
+	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh)
 	{
-		const int size = static_cast<int>(cont_->size());
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		LASS_ASSERT(size >= 0);
 
-		int len;
+		Py_ssize_t len;
 		if (ilow < 0)
 			ilow = 0;
 		else if (ilow > size)
@@ -336,7 +336,7 @@ namespace impl
 			ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) ));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(int i, PyObject *v)
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(Py_ssize_t i, PyObject *v)
 	{
 		if (readOnly_)
 		{
@@ -353,7 +353,7 @@ namespace impl
 		return pyGetSimpleObject(v,ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssSlice(int ilow, int ihigh, PyObject *v)
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
 	{
 		if (readOnly_)
 		{
@@ -408,7 +408,7 @@ namespace impl
 		return 0;
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceRepeat(int n)
+	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceRepeat(Py_ssize_t n)
 	{
 		if (readOnly_)
 		{

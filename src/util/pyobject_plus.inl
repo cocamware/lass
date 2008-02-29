@@ -115,6 +115,24 @@ inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV )
 	return impl::pyGetUnsignedObject( iValue, oV );
 }
 
+#ifdef HAVE_LONG_LONG
+
+/** @ingroup Python
+	*/
+inline int pyGetSimpleObject( PyObject* iValue, signed PY_LONG_LONG& oV )
+{
+	return impl::pyGetSignedObject( iValue, oV );
+}
+
+/** @ingroup Python
+ */
+inline int pyGetSimpleObject( PyObject* iValue, unsigned PY_LONG_LONG& oV )
+{
+	return impl::pyGetUnsignedObject( iValue, oV );
+}
+
+#endif
+
 /** @ingroup Python
  */
 inline int pyGetSimpleObject( PyObject* iValue, float& oV )
@@ -296,6 +314,24 @@ inline PyObject* pyBuildSimpleObject( unsigned long iV )
 		return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
 	}
 }
+
+#if HAVE_LONG_LONG
+
+/** @ingroup Python
+ */
+inline PyObject* pyBuildSimpleObject( signed PY_LONG_LONG iV )
+{
+	return PyLong_FromLongLong(iV);
+}
+
+/** @ingroup Python
+ */
+inline PyObject* pyBuildSimpleObject( unsigned PY_LONG_LONG iV )
+{
+	return PyLong_FromUnsignedLongLong(iV);
+}
+
+#endif
 
 /** @ingroup Python
  */
@@ -615,7 +651,11 @@ int pyGetSignedObject( PyObject* iValue, Integer& oV )
 	}
 	if (PyLong_Check(iValue))
 	{
+#if HAVE_LONG_LONG
+		PY_LONG_LONG temp = PyLong_AsLongLong(iValue);
+#else
 		long temp = PyLong_AsLong(iValue);
+#endif
 		if (PyErr_Occurred())
 		{
 			PyErr_Format(PyExc_TypeError, "not a %s: overflow",
@@ -650,7 +690,11 @@ int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 	}
 	if (PyLong_Check(iValue))
 	{
+#if HAVE_LONG_LONG
+		unsigned PY_LONG_LONG temp = PyLong_AsUnsignedLongLong(iValue);
+#else
 		unsigned long temp = PyLong_AsUnsignedLong(iValue);
+#endif
 		if (PyErr_Occurred())
 		{
 			PyErr_Format(PyExc_TypeError, "not a %s: overflow",

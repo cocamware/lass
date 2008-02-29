@@ -166,8 +166,8 @@ public:
 		T* ptr;
 		__asm__ __volatile__("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
 		return ptr;
-#	elif defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC)
-#		error Not implemented yet ...
+#	elif defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
+		return reinterpret_cast<T*>(__ll_rshift(*reinterpret_cast<const volatile __int64*>(&bits_), 16));
 #	else
 		return (bits_ & 0xa000000000000000 == 0) ?
 			reinterpret_cast<T*>(bits_ >> 16) :

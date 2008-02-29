@@ -93,10 +93,16 @@
 #endif
 
 // use MSVC style inline assembly
-#define LASS_HAVE_INLINE_ASSEMBLY_MSVC
+#if !defined(_WIN64)
+#	define LASS_HAVE_INLINE_ASSEMBLY_MSVC
+#endif
 
 // use __int8, __int16, ...
 #define LASS_NUM_BASIC_TYPES_HAVE_MSVC
+
+#if defined(_WIN64)
+#	define LASS_SIZE_T_IS_NOT_ULONG
+#endif
 
 // use _isnan from <float.h>
 #define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H

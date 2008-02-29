@@ -47,8 +47,14 @@
 
 
 #define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_WIN32
-#define LASS_PLATFORM "Win32"
-#define LASS_LIB_PLATFORM "win32"
+
+#ifdef _WIN64
+#	define LASS_PLATFORM "Win32 (x64)"
+#	define LASS_LIB_PLATFORM "x64"
+#else
+#	define LASS_PLATFORM "Win32"
+#	define LASS_LIB_PLATFORM "win32"
+#endif
 
 #define LASS_LITTLE_ENDIAN  1
 #define LASS_BIG_ENDIAN 0

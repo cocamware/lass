@@ -102,6 +102,7 @@ template<typename T> inline bool checkMaskedSome(T a_bits, const T& a_mask);
 
 template<typename T> inline const size_t countBits(T bits);
 
+/*
 inline const unsigned countBits(num::Tuint8 x);
 inline const unsigned countBits(num::Tint8 x);
 inline const unsigned countBits(num::Tuint16 x);
@@ -110,6 +111,7 @@ inline const unsigned countBits(num::Tuint32 x);
 inline const unsigned countBits(num::Tint32 x);
 inline const unsigned countBits(num::Tuint64 x);
 inline const unsigned countBits(num::Tint64 x);
+*/
 
 }
 

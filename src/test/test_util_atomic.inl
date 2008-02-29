@@ -60,16 +60,26 @@ void testUtilAtomicType()
 {
 	std::cout << (8*sizeof(T)) << "bits\n";
 
-	const T old1 = 1;
-	const T new1 = 2;
+	T multiplier = 0;
+	for (int i = 0; i < sizeof(T); ++i)
+	{
+		multiplier = (multiplier << 8) + 1;
+	}
 
+
+	T old1 = 1;
+	T new1 = 2;
 	T a = old1;
 	util::atomicIncrement(a);
 	LASS_TEST_CHECK_EQUAL(a, new1);	
 	util::atomicDecrement(a);
 	LASS_TEST_CHECK_EQUAL(a, old1);
-	
-	const T wrong1 = 10;
+
+	a *= multiplier;
+	old1 *= multiplier;
+	new1 *= multiplier;
+	T wrong1 = 10;
+
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a, wrong1, new1));
 	LASS_TEST_CHECK_EQUAL(a, old1);
 	LASS_TEST_CHECK(util::atomicCompareAndSwap(a, old1, new1));
@@ -79,9 +89,15 @@ void testUtilAtomicType()
 template <typename T>
 void testUtilAtomicAdjacentCas()
 {
-	const T old1 = 1, old2 = 2;
-	const T new1 = 3, new2 = 4;
-	const T wrong1 = 10, wrong2 = 11;
+	T multiplier = 0;
+	for (int i = 0; i < sizeof(T); ++i)
+	{
+		multiplier = (multiplier << 8) + 1;
+	}
+
+	const T old1 = 1 * multiplier, old2 = 2 * multiplier;
+	const T new1 = 3 * multiplier, new2 = 4 * multiplier;
+	const T wrong1 = 10 * multiplier, wrong2 = 11 * multiplier;
 
 	T a[2] = { old1, old2 };
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));

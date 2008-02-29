@@ -523,14 +523,14 @@ void addMessageHeader(const std::string& iHeader)
 
 /** @internal
 */
-bool checkSequenceSize(PyObject* iValue, int iExpectedSize)
+bool checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize)
 {
 	if (!PySequence_Check(iValue))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a python sequence (tuple, list, ...)");
 		return false;
 	}
-	const int size = PySequence_Size(iValue);
+	const Py_ssize_t size = PySequence_Size(iValue);
 	if (size != iExpectedSize)
 	{
 		std::ostringstream buffer;

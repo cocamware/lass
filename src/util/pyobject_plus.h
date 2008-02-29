@@ -62,6 +62,15 @@
 #	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
 #endif
 
+#if (PY_VERSION_HEX < 0x02050000)
+#	define Py_ssize_t int
+#	define lenfunc inquiry
+#	define ssizeargfunc intargfunc
+#	define ssizessizeargfunc intintargfunc
+#	define ssizeobjargproc intobjargproc
+#	define ssizessizeobjargproc intintobjargproc
+#endif
+
 #include "../meta/is_derived.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
@@ -371,6 +380,10 @@ namespace lass
 		inline int pyGetSimpleObject( PyObject* iValue, unsigned int& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, signed long& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV );
+#if HAVE_LONG_LONG
+		inline int pyGetSimpleObject( PyObject* iValue, signed PY_LONG_LONG& oV );
+		inline int pyGetSimpleObject( PyObject* iValue, unsigned PY_LONG_LONG& oV );
+#endif
 		inline int pyGetSimpleObject( PyObject* iValue, float& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, double& oV );
 		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
@@ -387,6 +400,10 @@ namespace lass
 		inline PyObject* pyBuildSimpleObject( unsigned int iV );
 		inline PyObject* pyBuildSimpleObject( signed long iV );
 		inline PyObject* pyBuildSimpleObject( unsigned long iV );
+#if HAVE_LONG_LONG
+		inline PyObject* pyBuildSimpleObject( signed PY_LONG_LONG iV );
+		inline PyObject* pyBuildSimpleObject( unsigned PY_LONG_LONG iV );
+#endif
 		inline PyObject* pyBuildSimpleObject( float iV );
 		inline PyObject* pyBuildSimpleObject( double iV );
 		inline PyObject* pyBuildSimpleObject( long double iV );
@@ -626,7 +643,7 @@ namespace lass
 				PyObject* iValue, Float& oV);
 
 			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
-			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, int iExpectedSize);
+			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
 		}
 	}
 }

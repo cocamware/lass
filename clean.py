@@ -30,7 +30,7 @@ def clean_win32():
 	print "cleaning up win32 build ..."
 
 	projects = ['frb', 'gis', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'test', 'util', 'dll'];
-	configurations = ['win32_vc7', 'win32_vc7_d', 'win32_vc71', 'win32_vc71_d', 'win32_intel700', 'win32_intel700_d', 'win32_vc8', 'win32_vc8_d', 'win32_vc8_sse2']
+	configurations = ['win32_vc7', 'win32_vc7_d', 'win32_vc71', 'win32_vc71_d', 'win32_intel700', 'win32_intel700_d', 'win32_vc8', 'win32_vc8_d', 'win32_vc8_sse2', 'x64_vc8', 'x64_vc8_d']
 
 	os.chdir('bin')
 	os.system('del *.exe /F /Q')

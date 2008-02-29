@@ -64,7 +64,7 @@
 
 
 
-#if defined(_M_IA64) || defined(_LP64) || defined(__LP64__)
+#if defined(_M_IA64) || defined(_M_X64) || defined(_LP64) || defined(__LP64__)
 #	define LASS_ADDRESS_SIZE 64
 	// HACK: Currently, we assume that all 64 bit platforms actually only use 48 bits
 #	define LASS_ACTUAL_ADDRESS_SIZE 48

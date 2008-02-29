@@ -63,7 +63,7 @@ namespace impl
 	public:
 		PyMapImplBase() {};
 		virtual ~PyMapImplBase() {};
-		virtual int PyMap_Length() = 0;
+		virtual Py_ssize_t PyMap_Length() = 0;
 		virtual PyObject* PyMap_Subscript( PyObject* iKey) = 0;
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
 		virtual std::string pyStr(void) = 0;
@@ -85,7 +85,7 @@ namespace impl
 		};
 		PyMapImpl(M* iMap, Ownership iOwnership = oBorrowed) : map_(iMap), ownership_(iOwnership) {}
 		virtual ~PyMapImpl();
-		virtual int PyMap_Length();
+		virtual Py_ssize_t PyMap_Length();
 		virtual PyObject* PyMap_Subscript( PyObject* iKey);
 		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
 		virtual std::string pyStr(void);
@@ -138,7 +138,7 @@ namespace impl
 		virtual TPyObjPtr keys() const { return pimpl_->keys(); }
 		virtual TPyObjPtr values() const { return pimpl_->values(); }
 
-		static int PyMap_Length( PyObject* iPO);
+		static Py_ssize_t PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
 		static int PyMap_AssSubscript( PyObject* iPO, PyObject* iKey, PyObject* iValue);
 
@@ -164,10 +164,10 @@ namespace impl
 	}
 
 	template<typename M>
-	int PyMapImpl<M>::PyMap_Length()
+	Py_ssize_t PyMapImpl<M>::PyMap_Length()
 	{
 		LASS_ASSERT(map_);
-		const int size = static_cast<int>(map_->size());
+		const Py_ssize_t size = static_cast<Py_ssize_t>(map_->size());
 		LASS_ASSERT(size >= 0);
 		return size;
 	}

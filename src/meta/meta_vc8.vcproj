@@ -11,14 +11,17 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="win32_vc8_d|Win32"
-			OutputDirectory="$(SolutionDir)..\lib"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			Name="vc8_d|Win32"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="1"
 			>
@@ -38,9 +41,32 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="win32_vc8|Win32"
-			OutputDirectory="$(SolutionDir)..\lib"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\"
+			Name="vc8_d|x64"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
+			ConfigurationType="10"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="vc8|Win32"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="10"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -54,6 +80,29 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="vc8|x64"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
+			ConfigurationType="10"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="python.exe pre_build.py"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

@@ -186,7 +186,7 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "is not a sequence");
 			return 1;
 		}
-		const int size = PySequence_Size(iIndices);
+		const Py_ssize_t size = PySequence_Size(iIndices);
 		if (size == -1)
 		{
 			return 1;
@@ -297,7 +297,7 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 		PyErr_SetString(PyExc_TypeError, "ColorRGBA: is not a tuple");
 		return 1;
 	}
-	const int size = PyTuple_Size(iValue);
+	const Py_ssize_t size = PyTuple_Size(iValue);
 	if (size != 3 && size != 4)
 	{
 		std::ostringstream buffer;
