@@ -65,6 +65,10 @@
 #	define LASS_COMPILER "Microsoft Visual C++ 2005"
 #	define LASS_LIB_COMPILER "vc8"
 
+#elif LASS_COMPILER_VERSION == 1500
+#	define LASS_COMPILER "Microsoft Visual C++ 2008"
+#	define LASS_LIB_COMPILER "vc9"
+
 #else
 #	define LASS_COMPILER "Microsoft Visual C++"
 #	define LASS_LIB_COMPILER "vc"
