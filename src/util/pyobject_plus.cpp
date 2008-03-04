@@ -166,6 +166,24 @@ PyObject* str(PyObject* obj)
 	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
 }
 
+
+/** @internal
+ */
+const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value)
+{
+	std::ostringstream buffer;
+	const TPyObjPtr typeStr(PyObject_Str(type.get()));
+	buffer << (typeStr ? PyString_AsString(typeStr.get()) : "unknown python exception");
+	const TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
+	if (valueStr)
+	{
+		buffer << ": '" << PyString_AsString(valueStr.get()) << "'";
+	}
+	return buffer.str();
+}
+
+
+
 OverloadLink::OverloadLink()
 {
 	setNull();

@@ -269,13 +269,19 @@ namespace lass
 		 */
 		typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 
+		namespace impl
+		{
+			LASS_DLL const std::string exceptionExtractMessage(
+					const TPyObjPtr& type, const TPyObjPtr& value);
+		}
+
 		class PythonException: public util::Exception
 		{
 		public:
 			PythonException(
-					const python::TPyObjPtr& type, const python::TPyObjPtr& value, 
-					const python::TPyObjPtr& traceback, const std::string& loc):
-				util::Exception(extractMessage(type, value), loc),
+					const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, 
+					const std::string& loc):
+				util::Exception(impl::exceptionExtractMessage(type, value), loc),
 				type_(type),
 				value_(value),
 				traceback_(traceback)
@@ -286,19 +292,6 @@ namespace lass
 			const python::TPyObjPtr& value() const { return value_; } 
 			const python::TPyObjPtr& traceback() const { return traceback_; } 
 		private:
-			static const std::string extractMessage(
-					const python::TPyObjPtr& type, const python::TPyObjPtr& value)
-			{
-				std::ostringstream buffer;
-				python::TPyObjPtr typeStr(PyObject_Str(type.get()));
-				buffer << (typeStr ? PyString_AsString(typeStr.get()) : "unknown python exception");
-				python::TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
-				if (valueStr)
-				{
-					buffer << ": '" << PyString_AsString(valueStr.get()) << "'";
-				}
-				return buffer.str();
-			}
 			LASS_UTIL_EXCEPTION_PRIVATE_IMPL(PythonException)
 			python::TPyObjPtr type_;
 			python::TPyObjPtr value_;
@@ -490,39 +483,38 @@ namespace lass
 			{
 				static PyObject* call(PyObject* self, PyObject* other, int op)
 				{
+					if (other==Py_None)
+					{
+						// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast
+						// from None but if you give that thing to a reference, then you are in big trouble
+						switch (op)
+						{
+						case Py_EQ:
+							{
+								if (self==other)
+									Py_RETURN_TRUE;
+								else
+									Py_RETURN_FALSE;
+							}
+						case Py_NE:
+							{
+								if (self!=other)
+									Py_RETURN_TRUE;
+								else
+									Py_RETURN_FALSE;
+							}
+						// don't define any order relation on None
+						default:
+							Py_RETURN_FALSE;
+						};
+					}
+
 					TPyObjPtr args(Py_BuildValue("(O)", other));
 					const TCompareFuncs::const_iterator end = CppClass::_lassPyCompareFuncs.end();
 					for (TCompareFuncs::const_iterator i = CppClass::_lassPyCompareFuncs.begin(); i != end; ++i)
 					{
 						if (i->op == op)
 						{
-							// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast
-							// from None but if you give that thing to a reference, then you are in big trouble
-							if (other==Py_None)
-							{
-								switch (op)
-								{
-								case Py_EQ:
-									{
-										if (self==other)
-											return pyBuildSimpleObject(true);
-										else
-											return pyBuildSimpleObject(false);
-										break;
-									}
-								case Py_NE:
-									{
-										if (self!=other)
-											return pyBuildSimpleObject(true);
-										else
-											return pyBuildSimpleObject(false);
-										break;
-									}
-								// don't define any order relation on None
-								default:
-									return pyBuildSimpleObject(false);
-								};
-							}
 							PyObject* result = (i->dispatcher)(self, args.get());\
 							if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
 							{
@@ -530,6 +522,7 @@ namespace lass
 							}
 						}
 					}
+
 					return RichCompare<typename CppClass::_lassPyParentType>::call(self, other, op);
 				}
 			};

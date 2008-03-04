@@ -494,13 +494,7 @@ void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neigh
 		return;
 	}
 	const Node& node = heap_[index];
-
 	const TPoint pivot = node.position();
-	const TValue sqrDistance = this->squaredDistance(pivot, target);
-	if (sqrDistance < best.squaredDistance())
-	{
-		best = Neighbour(node.object(), sqrDistance);
-	}
 
 	const TAxis split = node.axis();
 	if (split != dummyAxis_)
@@ -524,6 +518,12 @@ void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neigh
 				doNearestNeighbour(2 * index + 1, target, best);
 			}
 		}
+	}
+
+	const TValue sqrDistance = this->squaredDistance(pivot, target);
+	if (sqrDistance < best.squaredDistance())
+	{
+		best = Neighbour(node.object(), sqrDistance);
 	}
 }
 
