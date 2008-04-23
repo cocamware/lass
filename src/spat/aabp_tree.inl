@@ -158,7 +158,7 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 	}
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
 	TObjectIterator hit = doIntersect(0, ray, t, tMin, info, reciprocalDirection, tNear, tFar);
-	LASS_ASSERT((t > tMin && t >= tNear && t <= tFar) || hit == end_);
+	LASS_ASSERT((t > tMin && t >= tNear && t <= tFar * (1 + 1e-7f)) || hit == end_);
 	return hit;
 }
 
@@ -412,7 +412,7 @@ AabpTree<O, OT, SH>::doIntersect(
 				LASS_ASSERT(tCandidate > tMin);
 				if (best == end_ || tCandidate < tBest)
 				{
-					LASS_ASSERT(tCandidate > tMin && tCandidate >= tNear && tCandidate <= tFar);
+					//LASS_ASSERT(tCandidate > tMin && tCandidate >= tNear && tCandidate <= tFar * (1 + 1e-7f));
 					best = objects_[i];
 					tBest = tCandidate;
 				}

@@ -385,6 +385,12 @@ QuadTree<O, OT>::end() const
 
 // --- private -------------------------------------------------------------------------------------
 
+/**
+ *	Reference: J. Revelles, C. Urena, and M. Lastra. An efficient parametric algorithm for octree 
+ *	traversal. In Eighth International Conference in Central Europe on Computer Graphics, 
+ *	Visualization and Interactive Digital Media (WSCG 2000), pages 212–-219, Plzen, Czech Republic, 
+ *	2000.
+ */
 template <typename O, typename OT>
 const typename QuadTree<O, OT>::TObjectIterator 
 QuadTree<O, OT>::doIntersect(

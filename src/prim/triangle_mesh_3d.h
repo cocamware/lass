@@ -193,7 +193,6 @@ private:
 		typedef typename TAabbRayTraits::TParam TParam;
 		typedef typename TAabbRayTraits::TReference TReference;
 		typedef typename TAabbRayTraits::TConstReference TConstReference;
-		typedef typename TAabbRayTraits::TNumTraits TNumTraits;
 	
 		static const TAabb objectAabb(TObjectIterator triangle) 
 		{

@@ -176,7 +176,7 @@
 #		define LASS_LIB_AUTO_LINK
 #	endif
 #	if defined(LASS_USE_DLL)
-#		pragma comment(lib, LASS_LIB_PREFIX LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_DEBUG ".lib")
+#		pragma comment(lib, LASS_LIB_PREFIX LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_ARCH LASS_LIB_DEBUG ".lib")
 #	endif
 #endif
 
