@@ -551,6 +551,7 @@
 			><File RelativePath="..\..\src\io\arg_parser.cpp"></File>
 <File RelativePath="..\..\src\io\binary_i_file.cpp"></File>
 <File RelativePath="..\..\src\io\binary_i_memory_block.cpp"></File>
+<File RelativePath="..\..\src\io\binary_i_memory_map.cpp"></File>
 <File RelativePath="..\..\src\io\binary_i_socket.cpp"></File>
 <File RelativePath="..\..\src\io\binary_i_stream.cpp"></File>
 <File RelativePath="..\..\src\io\binary_o_file.cpp"></File>
@@ -591,6 +592,7 @@
 <File RelativePath="..\..\src\io\xml_o_element.cpp"></File>
 <File RelativePath="..\..\src\io\xml_o_file.cpp"></File>
 <File RelativePath="..\..\src\meta\dummy.cpp"></File>
+<File RelativePath="..\..\src\num\filtered_float.cpp"></File>
 <File RelativePath="..\..\src\num\floating_point_consistency.cpp"></File>
 <File RelativePath="..\..\src\num\interval.cpp"></File>
 <File RelativePath="..\..\src\num\num_traits.cpp"></File>
