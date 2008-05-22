@@ -41,7 +41,7 @@ def _build_helper(msvc_version, solution_file, configurations, do_collect_header
 	#print "\n* Overview logs:"
 	#for conf, plat in configurations:
 	#	print "%s, %s: %s" % (conf, plat, logs[solution_file, conf, plat])
-	#return logs
+	return logs
 
 
 
