@@ -112,13 +112,20 @@ namespace lass
 		template<class C>
 		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
 		{
+			C re, im;
+			if (impl::pyGetFloatObject( iValue, re ) == 0)
+			{
+				oV = std::complex<C>(re, 0);
+				return 0;
+			}
+			PyErr_Clear();
 			if (!PyComplex_Check( iValue ))
 			{
 				PyErr_SetString(PyExc_TypeError, "not a complex number");
 				return 1;
 			}
-			const C re = static_cast<C>( PyComplex_RealAsDouble( iValue ) );
-			const C im = static_cast<C>( PyComplex_ImagAsDouble( iValue ) );
+			re = static_cast<C>( PyComplex_RealAsDouble( iValue ) );
+			im = static_cast<C>( PyComplex_ImagAsDouble( iValue ) );
 			oV = std::complex<C>(re, im);
 			return 0;
 		}

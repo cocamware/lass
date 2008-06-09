@@ -124,6 +124,7 @@ public:
 	TSelf& operator+=(const TPoint& point);
 	template<class MMP2> TSelf& operator+=(const Aabb3D<T, MMP2>& other);
 	void grow(TParam iDistance);
+	void grow(TVector iDistance);
 	void scale(TParam iScale);
 
 	const TPointH center() const;

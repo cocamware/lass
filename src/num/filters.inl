@@ -48,7 +48,7 @@ namespace impl
 		TPolynomial oneMinZ = 2 * samplingFrequency * (TNumTraits::one - TPolynomial::x());
 		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
 		TPolynomial result;
-		const int n = std::distance(first, last);
+		const int n = static_cast<int>(std::distance(first, last));
 		int i = 0;
 		while (first != last)
 		{

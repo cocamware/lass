@@ -56,13 +56,19 @@
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 #include "../io/file_attribute.h"
+#include "../io/arg_parser.h"
 
 int main(int argc, char* argv[])
 {
 	using namespace lass;
 
-	const std::string logFile = 
-		io::fileJoinPath(test::workPath(), "test_" LASS_TEST_VERSION ".log");
+	io::ArgParser parser(io::fileWithoutPath(argv[0]));
+	io::ArgValue<std::string> output(parser, "o", "output", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
+	if (!parser.parse(argc, argv))
+	{
+		return false;
+	}
+	const std::string logFile = io::fileJoinPath(test::workPath(), output.at(0));
 	io::Logger logger(logFile);
 	logger.subscribeTo(io::proxyMan()->cout());
 	logger.subscribeTo(io::proxyMan()->clog());

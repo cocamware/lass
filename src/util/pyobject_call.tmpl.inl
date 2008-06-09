@@ -197,7 +197,7 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <typename Function, $(typename P$x)$>
+	template <$(typename P$x)$, typename Function>
 	static PyObject* function( Function iFunction, $(P$x p$x)$ )
 	{
 		try
@@ -220,7 +220,7 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <typename CppClass, typename Method, $(typename P$x)$>
+	template <$(typename P$x)$, typename CppClass, typename Method>
 	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x p$x)$ )
 	{
 		try
@@ -251,7 +251,7 @@ struct Caller<void>
 		return Py_None;
 	};
 	$[
-	template <typename Function, $(typename P$x)$>
+	template <$(typename P$x)$, typename Function>
 	static PyObject* function( Function iFunction, $(P$x p$x)$ )
 	{
 		try
@@ -278,7 +278,7 @@ struct Caller<void>
 		return Py_None;
 	};
 	$[
-	template <typename CppClass, typename Method, $(typename P$x)$>
+	template <$(typename P$x)$, typename CppClass, typename Method>
 	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x p$x)$ )
 	{
 		try
@@ -319,7 +319,8 @@ PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
 	{
 		return 0;
 	}
-	return Caller<R>::function( iFunction, $(TArg$x::arg(p$x))$ );
+	return Caller<R>::function<$(P$x)$>( 
+		iFunction, $(TArg$x::arg(p$x))$ );
 }
 ]$
 
@@ -341,7 +342,8 @@ struct CallMethod
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod );
+		return Caller<R>::method(
+			iObject, iMethod );
 	}
 $[
 	/** call non const method with $x arguments, translated from python arguments
@@ -355,7 +357,8 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::method<$(P$x)$>( 
+			iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -370,7 +373,8 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod );
+		return Caller<R>::method( 
+			iObject, iMethod );
 	}
 $[
 	/** call const method with $x argument, translated from python arguments
@@ -384,7 +388,8 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::method( iObject, iMethod, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::method<$(P$x)$>(
+			iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 	// "free" non-const methods passing iObject as pointer
@@ -392,20 +397,21 @@ $[
 	/** call non const "free method" without arguments, passing iObject as pointer
 	 */
 	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C* iObject) )
+	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*) )
 	{
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function( iFreeMethod, iObject );
+		return Caller<R>::function<C*>(
+			iFreeMethod, iObject );
 	}
 $[
 	/** call non-const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C* iObject, $(P$x)$) )
+	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -413,7 +419,8 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::function( iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::function<C*, $(P$x)$>(
+			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -422,21 +429,22 @@ $[
 	/** call non const "free method" without arguments, passing iObject as reference
 	 */
 	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C& iObject) )
+	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&) )
 	{
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function( iFreeMethod, *iObject );
+		return Caller<R>::function<C&>(
+			iFreeMethod, *iObject );
 	}
 $[
 	/** call non-const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as reference
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C& iObject, $(P$x)$) )
+	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -445,7 +453,8 @@ $[
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function( iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::function<C&, $(P$x)$>(
+			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -454,20 +463,21 @@ $[
 	/** call const "free method" without arguments, passing iObject as pointer
 	 */
 	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C* iObject) )
+	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*) )
 	{
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function( iFreeMethod, iObject );
+		return Caller<R>::function<const C*>(
+			iFreeMethod, iObject );
 	}
 $[
 	/** call const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C* iObject, $(P$x)$) )
+	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -475,7 +485,8 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::function( iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::function<const C*, $(P$x)$>(
+			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -484,21 +495,22 @@ $[
 	/** call non const "free method" without arguments, passing iObject as pointer
 	 */
 	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C& iObject) )
+	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&) )
 	{
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function( iFreeMethod, *iObject );
+		return Caller<R>::function<const C&>(
+			iFreeMethod, *iObject );
 	}
 $[
 	/** call const "free method" with $x arguments translated from python arguments, 
 	 *  passing iObject as pointer
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C& iObject, $(P$x)$) )
+	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&, $(P$x)$) )
 	{
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
@@ -507,7 +519,8 @@ $[
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function( iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::function<const C&, $(P$x)$>(
+			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 

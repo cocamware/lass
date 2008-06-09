@@ -214,12 +214,18 @@ Aabb3D<T, MMP>::operator+=(const Aabb3D<T, MMP2>& other)
 template <typename T, class MMP>
 void Aabb3D<T, MMP>::grow(TParam iDistance)
 {
-	min_.x -= iDistance;
-	max_.x += iDistance;
-	min_.y -= iDistance;
-	max_.y += iDistance;
-	min_.z -= iDistance;
-	max_.z += iDistance;
+	grow(TVector(iDistance, iDistance, iDistance));
+}
+
+/** Expand bounding box by axis-dependent distance.  Negative values causing
+ *  reversal of the bounding box will cause the box to shrink to the
+ *  empty box.
+ */
+template <typename T, class MMP>
+void Aabb3D<T, MMP>::grow(TVector iDistance)
+{
+	min_ -= iDistance;
+	max_ += iDistance;
 	if (max_.x < min_.x || max_.y < min_.y || max_.z < min_.z)
 	{
 		clear();
