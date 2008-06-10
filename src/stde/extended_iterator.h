@@ -43,6 +43,11 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_ITERATOR_H
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4244) // 'argument' : conversion from '__w64 int' to 'int', possible loss of data
+#endif
+
 namespace lass
 {
 namespace stde
@@ -55,6 +60,10 @@ template <typename Iter, typename Diff> Iter next(Iter i, Diff d) { std::advance
 
 }
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

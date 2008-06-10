@@ -33,7 +33,7 @@ def _build_helper(msvc_version, solution_file, configurations, do_collect_header
 
 	env = _msvc_environment(msvc_version)
 	for conf, plat in configurations:
-		logs[solution_file, conf, plat] = _build(env, solution_file, conf, plat)	
+		logs[solution_file, conf, plat] = _build(env, solution_file, conf, plat)
 
 	if do_collect_headers:
 		_collect_headers()
@@ -65,6 +65,7 @@ def _msvc_environment(msvc_version, platform = WIN32):
 			return None
 		vcvars_path = os.path.normpath(os.path.join(comntools, '..', '..', 'VC', 'vcvarsall.bat'))
 		vcvars = r'"%s" %s' % (vcvars_path, _VCVAR_PLATFORMS[platform])
+		
 	else:
 		assert False, "MSVC version %s is not configured in the build tools yet" % msvc_version
 
@@ -78,10 +79,12 @@ def _msvc_environment(msvc_version, platform = WIN32):
 def _build(msvc_env, solution_file, configuration, platform = WIN32):
 	if msvc_env.version >= 8.0:
 		conf = '"%s|%s"' % (configuration, platform)
+		name = '%s (%s)' % (configuration, platform)
 	else:
 		conf = configuration
+		name = configuration
 		
-	print "\n* Building %s %s ..." % (solution_file, conf)
+	print "\n* Building %s ..." % name
 
 	log_dir = 'logs'
 	log_file = os.path.join(log_dir, 'build.%s.%s.%s.log' % (os.path.basename(solution_file), configuration, platform))
@@ -107,7 +110,7 @@ def _build(msvc_env, solution_file, configuration, platform = WIN32):
 def _parse_log_file(log_file):
 	if os.path.exists(log_file):
 		log_text = file(log_file).read()
-                match = re.search(r"^=*\s+Build:([\s\w,-]*)", log_text, re.MULTILINE)
+		match = re.search(r"^=*\s+Build:([\s\w,-]*)", log_text, re.MULTILINE)
 		if match:
 			return match.group(1).strip()
 		return "bad log file"
@@ -207,7 +210,7 @@ def _get_files_from_project(project_file):
 			self.names.append(str(name))
 			self.current_characters = ''
 			if name == 'File' and self.names[:2] == ['VisualStudioProject', 'Files']:
-				self.files.append(str(attrs['RelativePath']))		
+				self.files.append(str(attrs['RelativePath']))
 		def characters(self, ch): 
 			self.current_characters += ch		
 		def endElement(self, name):
@@ -229,4 +232,3 @@ def _insert_files_in_project(project, files):
 	repl = r'<Filter\1Name="Source Files"\2>%s</Filter>' % do_escape(files)
 	return regex.sub(repl,project)
 
-			
