@@ -17,18 +17,18 @@ _DLL_ADDITIONAL_FILES = ["dll\\dll_main.cpp"]
 
 
 
-def build_static(msvc_version, solution_file, configurations, do_collect_headers = True):
-	return _build_helper(msvc_version, solution_file, configurations, do_collect_headers)
+def build_static(msvc_version, solution_file, configurations, do_rebuild = False, do_collect_headers = True):
+	return _build_helper(msvc_version, solution_file, configurations, do_rebuild, do_collect_headers)
 
 
 
-def build_dll(msvc_version, solution_file, project_file, configurations, do_collect_headers = True):
+def build_dll(msvc_version, solution_file, project_file, configurations, do_rebuild = False, do_collect_headers = True):
 	_update_project_file(project_file)
-	return _build_helper(msvc_version, solution_file, configurations, do_collect_headers)
+	return _build_helper(msvc_version, solution_file, configurations, do_rebuild, do_collect_headers)
 
 
 
-def _build_helper(msvc_version, solution_file, configurations, do_collect_headers):
+def _build_helper(msvc_version, solution_file, configurations, do_rebuild, do_collect_headers):
 	logs = {}
 
 	env = _msvc_environment(msvc_version)
@@ -76,7 +76,7 @@ def _msvc_environment(msvc_version, platform = WIN32):
 
 
 
-def _build(msvc_env, solution_file, configuration, platform = WIN32):
+def _build(msvc_env, solution_file, configuration, platform = WIN32, do_rebuild = False):
 	if msvc_env.version >= 8.0:
 		conf = '"%s|%s"' % (configuration, platform)
 		name = '%s (%s)' % (configuration, platform)
@@ -96,7 +96,11 @@ def _build(msvc_env, solution_file, configuration, platform = WIN32):
 	if msvc_env is None:
 		log = "no compiler found"
 	else:
-		cmd = r'call %s %s /build %s /out %s' % (msvc_env.devenv, solution_file, conf, log_file)
+		if do_rebuild:
+			build = 'rebuild'
+		else:
+			build = 'build'
+		cmd = r'call %s %s /%s %s /out %s' % (msvc_env.devenv, solution_file, build, conf, log_file)
 		print cmd
 		os.system(cmd)
 		log = _parse_log_file(log_file)
