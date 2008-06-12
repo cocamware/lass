@@ -76,44 +76,46 @@ public:
 	typedef typename util::CallTraits<T>::TReference TReference;
 	typedef typename util::CallTraits<T>::TConstReference TConstReference;
 	typedef std::vector<TValue> TCoefficients;
+	typedef std::pair<TCoefficients, TCoefficients> TCoefficientsPair;
 
 	PolynomialQuotient();
-	explicit PolynomialQuotient(TParam iScalar);
-	explicit PolynomialQuotient(const TCoefficients& iNominator);
-	explicit PolynomialQuotient(const TPolynomial& iNominator);
-	PolynomialQuotient(TParam iScalar, const TCoefficients& iDenominator);
-	PolynomialQuotient(TParam iScalar, const TPolynomial& iDenominator);
-	PolynomialQuotient(const TCoefficients& iNominator, const TCoefficients& iDenominator);
-	PolynomialQuotient(const TPolynomial& iNominator, const TPolynomial& iDenominator);
-	template <typename InputIterator> PolynomialQuotient(InputIterator iNomBegin, InputIterator iNomEnd);
-	template <typename InputIterator> PolynomialQuotient(InputIterator iNomBegin, InputIterator iNomEnd,
-		InputIterator iDenBegin, InputIterator iDenEnd);
+	explicit PolynomialQuotient(TParam scalar);
+	explicit PolynomialQuotient(const TCoefficients& numerator);
+	explicit PolynomialQuotient(const TPolynomial& numerator);
+	explicit PolynomialQuotient(const TCoefficientsPair& numeratorDenominator);
+	PolynomialQuotient(TParam scalar, const TCoefficients& denominator);
+	PolynomialQuotient(TParam scalar, const TPolynomial& denominator);
+	PolynomialQuotient(const TCoefficients& numerator, const TCoefficients& denominator);
+	PolynomialQuotient(const TPolynomial& numerator, const TPolynomial& denominator);
+	template <typename InputIterator> PolynomialQuotient(InputIterator numFirst, InputIterator numLast);
+	template <typename InputIterator> PolynomialQuotient(InputIterator numFirst, InputIterator numLast,
+		InputIterator denFirst, InputIterator denLast);
 
 	const TPolynomial& numerator() const;
 	const TPolynomial& denominator() const;
 
-	const TValue operator()(TParam iX) const;
+	const TValue operator()(TParam x) const;
 
 	const TSelf& operator+() const;
 	const TSelf operator-() const;
 
-	TSelf& operator+=(const TSelf& iOther);
-	TSelf& operator-=(const TSelf& iOther);
-	TSelf& operator*=(const TSelf& iOther);
-	TSelf& operator/=(const TSelf& iOther);
+	TSelf& operator+=(const TSelf& other);
+	TSelf& operator-=(const TSelf& other);
+	TSelf& operator*=(const TSelf& other);
+	TSelf& operator/=(const TSelf& other);
 
-	TSelf& operator+=(const TPolynomial& iOther);
-	TSelf& operator-=(const TPolynomial& iOther);
-	TSelf& operator*=(const TPolynomial& iOther);
-	TSelf& operator/=(const TPolynomial& iOther);
+	TSelf& operator+=(const TPolynomial& other);
+	TSelf& operator-=(const TPolynomial& other);
+	TSelf& operator*=(const TPolynomial& other);
+	TSelf& operator/=(const TPolynomial& other);
 
-	TSelf& operator+=(TParam iScalar);
-	TSelf& operator-=(TParam iScalar);
-	TSelf& operator*=(TParam iScalar);
-	TSelf& operator/=(TParam iScalar);
+	TSelf& operator+=(TParam scalar);
+	TSelf& operator-=(TParam scalar);
+	TSelf& operator*=(TParam scalar);
+	TSelf& operator/=(TParam scalar);
 
 	TSelf derivative() const;
-	TSelf pow(unsigned iPower) const;
+	TSelf pow(unsigned power) const;
 
 	static TSelf one();
 	static TSelf x();
@@ -124,39 +126,39 @@ private:
 	TPolynomial denominator_;
 };
 
-template <typename T> bool operator==(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> bool operator!=(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
+template <typename T> bool operator==(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> bool operator!=(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
 
-template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& iA, const PolynomialQuotient<T>& iB);
+template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& a, const PolynomialQuotient<T>& b);
 
-template <typename T> PolynomialQuotient<T> operator+(const Polynomial<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator-(const Polynomial<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& iA, const PolynomialQuotient<T>& iB);
+template <typename T> PolynomialQuotient<T> operator+(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator-(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
 
-template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& iA, const Polynomial<T>& iB);
-template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& iA, const Polynomial<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const Polynomial<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const Polynomial<T>& iB);
+template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
+template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
 
-template <typename T> PolynomialQuotient<T> operator+(const T& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator-(const T& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator*(const T& iA, const PolynomialQuotient<T>& iB);
-template <typename T> PolynomialQuotient<T> operator/(const T& iA, const PolynomialQuotient<T>& iB);
+template <typename T> PolynomialQuotient<T> operator+(const T& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator-(const T& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator*(const T& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator/(const T& a, const PolynomialQuotient<T>& b);
 
-template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& iA, const T& iB);
-template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& iA, const T& iB);
-template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& iA, const T& iB);
-template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& iA, const T& iB);
+template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& a, const T& b);
+template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& a, const T& b);
+template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const T& b);
+template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& a, const T& b);
 
-template <typename T> PolynomialQuotient<T> operator/(const Polynomial<T>& iA, const Polynomial<T>& iB);
+template <typename T> PolynomialQuotient<T> operator/(const Polynomial<T>& a, const Polynomial<T>& b);
 
 template <typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& iS, const PolynomialQuotient<T>& iA);
+operator<<(std::basic_ostream<Char, Traits>& s, const PolynomialQuotient<T>& a);
 
 
 }
