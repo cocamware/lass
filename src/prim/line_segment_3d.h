@@ -98,6 +98,8 @@ public:
 
 	LineSegment3D();
 	LineSegment3D(const TPoint& iTail, const TPoint& iHead);
+	template <typename PP2>
+	LineSegment3D(const LineSegment3D<T, PP2>& other);
 
 	const TPoint& tail() const;
 	TPoint& tail();

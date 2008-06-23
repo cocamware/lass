@@ -75,6 +75,16 @@ LineSegment3D<T, PP>::LineSegment3D(const TPoint& iTail, const TPoint& iHead):
 
 
 
+template <typename T, class PP>
+template <typename PP2>
+LineSegment3D<T, PP>::LineSegment3D(const LineSegment3D<T, PP2>& iOther):
+	tail_(iOther.tail()),
+	head_(iOther.head())
+{
+}
+
+
+
 template <typename T, class PP> inline
 const typename LineSegment3D<T, PP>::TPoint&
 LineSegment3D<T, PP>::tail() const
