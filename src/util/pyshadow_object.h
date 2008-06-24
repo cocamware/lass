@@ -118,7 +118,7 @@ class PyShadowBase: public PyShadowBaseTracked<CppBase>
 public:
 	virtual ~PyShadowBase()
 	{
-		if (!weak && ownership_ == oOwner) 
+		if (!weak && this->ownership_ == oOwner) 
 		{
 			delete this->cppObject_; 
 			this->cppObject_ = 0;
