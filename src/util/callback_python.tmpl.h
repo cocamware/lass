@@ -63,11 +63,11 @@ $[template <typename R, $(typename P$x)$> class CallbackR$x;
 namespace python
 {
 
-int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV );
-$[template <$(typename P$x)$> int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV );
+int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback0& oV );
+$[template <$(typename P$x)$> int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback$x<$(P$x)$>& oV );
 ]$
-template <typename R> int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV );
-$[template <typename R, $(typename P$x)$> int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV );
+template <typename R> int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR0<R>& oV );
+$[template <typename R, $(typename P$x)$> int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV );
 ]$
 
 }

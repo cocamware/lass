@@ -76,45 +76,64 @@ struct IndexTriangle;
 namespace python
 {
 
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector2D<T>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector3D<T>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Vector4D<T>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Point2D<T>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Point3D<T>& iV);
-template <typename T, class DegeneratePolicy > PyObject* pyBuildSimpleObject(const prim::SimplePolygon2D<T, DegeneratePolicy>& iV);
-template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > PyObject* pyBuildSimpleObject(const prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& iV);
-template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb2D<T, MMP>& iV);
-template <typename T, typename MMP> PyObject* pyBuildSimpleObject(const prim::Aabb3D<T, MMP>& iV);
-template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment2D<T, PP>& iV);
-template <typename T, typename PP> PyObject* pyBuildSimpleObject(const prim::LineSegment3D<T, PP>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Transformation2D<T>& iV);
-template <typename T> PyObject* pyBuildSimpleObject(const prim::Transformation3D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Vector2D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Vector3D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Vector4D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Point2D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Point3D<T>& iV);
+template <typename T, class DegeneratePolicy > PyObject* pyBuildSimpleObject_deprecated(const prim::SimplePolygon2D<T, DegeneratePolicy>& iV);
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > PyObject* pyBuildSimpleObject_deprecated(const prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& iV);
+template <typename T, typename MMP> PyObject* pyBuildSimpleObject_deprecated(const prim::Aabb2D<T, MMP>& iV);
+template <typename T, typename MMP> PyObject* pyBuildSimpleObject_deprecated(const prim::Aabb3D<T, MMP>& iV);
+template <typename T, typename PP> PyObject* pyBuildSimpleObject_deprecated(const prim::LineSegment2D<T, PP>& iV);
+template <typename T, typename PP> PyObject* pyBuildSimpleObject_deprecated(const prim::LineSegment3D<T, PP>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Transformation2D<T>& iV);
+template <typename T> PyObject* pyBuildSimpleObject_deprecated(const prim::Transformation3D<T>& iV);
 
-LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XY& iV);
-LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZ& iV);
-LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::XYZW& iV);
-LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::ColorRGBA& iV);
-LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject(const prim::IndexTriangle& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject_deprecated(const prim::XY& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject_deprecated(const prim::XYZ& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject_deprecated(const prim::XYZW& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject_deprecated(const prim::ColorRGBA& iV);
+LASS_DLL PyObject* LASS_CALL pyBuildSimpleObject_deprecated(const prim::IndexTriangle& iV);
 
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector2D<T>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector3D<T>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Vector4D<T>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Point2D<T>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Point3D<T>& oV);
-template <typename T, class DegeneratePolicy > int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV);
-template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& oV);
-template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim::Aabb2D<T, MMP>& oV);
-template <typename T, typename MMP> int pyGetSimpleObject(PyObject* iValue, prim::Aabb3D<T, MMP>& oV);
-template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment2D<T, PP>& oV);
-template <typename T, typename PP> int pyGetSimpleObject(PyObject* iValue, prim::LineSegment3D<T, PP>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Transformation2D<T>& oV);
-template <typename T> int pyGetSimpleObject(PyObject* iValue, prim::Transformation3D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector2D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector3D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector4D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point2D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point3D<T>& oV);
+template <typename T, class DegeneratePolicy > int pyGetSimpleObject_deprecated(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV);
+template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy > int pyGetSimpleObject_deprecated(PyObject* iValue, prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& oV);
+template <typename T, typename MMP> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb2D<T, MMP>& oV);
+template <typename T, typename MMP> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb3D<T, MMP>& oV);
+template <typename T, typename PP> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::LineSegment2D<T, PP>& oV);
+template <typename T, typename PP> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::LineSegment3D<T, PP>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Transformation2D<T>& oV);
+template <typename T> int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Transformation3D<T>& oV);
 
-LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XY& oV);
-LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV);
-LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV);
-LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV);
-LASS_DLL int LASS_CALL pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject_deprecated(PyObject* iValue, prim::XY& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZ& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZW& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject_deprecated(PyObject* iValue, prim::ColorRGBA& oV);
+LASS_DLL int LASS_CALL pyGetSimpleObject_deprecated(PyObject* iValue, prim::IndexTriangle& oV);
+
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Vector2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Vector3D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Point2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Point3D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Vector4D )
+PYEXPORTTRAITS_USINGDEPRECATED( prim::XY )
+PYEXPORTTRAITS_USINGDEPRECATED( prim::XYZ )
+PYEXPORTTRAITS_USINGDEPRECATED( prim::XYZW )
+PYEXPORTTRAITS_USINGDEPRECATED( prim::ColorRGBA )
+PYEXPORTTRAITS_USINGDEPRECATED( prim::IndexTriangle )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( prim::SimplePolygon2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_3( prim::SimplePolygon3D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( prim::Aabb2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( prim::Aabb3D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( prim::LineSegment2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( prim::LineSegment3D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Transformation2D )
+PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( prim::Transformation3D )
 
 }
 

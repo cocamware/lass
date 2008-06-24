@@ -329,20 +329,21 @@ struct NumTraits< interval<double> >
 
 namespace python
 {
-	template<class C> int pyGetSimpleObject( PyObject* iValue, lass::num::interval<C>& oV )
+	template<class C> int pyGetSimpleObject_deprecated( PyObject* iValue, lass::num::interval<C>& oV )
 	{
 		std::pair<C,C> temp;
-		int r=pyGetSimpleObject(iValue, temp);
+		int r=PyExportTraits<std::pair<C,C> >::get(iValue, temp);
 		if (r==0)
 		{
 			oV.set(temp.first , temp.second);
 		}
 		return r;
 	}
-	template<class C> PyObject* pyBuildSimpleObject( const lass::num::interval<C>& iV )
+	template<class C> PyObject* pyBuildSimpleObject_deprecated( const lass::num::interval<C>& iV )
 	{
-		return pyBuildSimpleObject( std::pair<C,C>(iV.inf(),iV.sup()) );
+		return PyExportTraits<std::pair<C,C> >::build( std::pair<C,C>(iV.inf(),iV.sup()) );
 	}
+	PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( lass::num::interval )
 
 }
 

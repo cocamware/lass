@@ -57,15 +57,15 @@ namespace python
 
 // --- axis iterators ------------------------------------------------------------------------------
 
-PyObject* pyBuildSimpleObject(const prim::XY& iV)
+PyObject* pyBuildSimpleObject_deprecated(const prim::XY& iV)
 {
-	return pyBuildSimpleObject(std::string(1, iV.axis()));
+	return pyExportTraitBuild(std::string(1, iV.axis()));
 }
 
-int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XY& oV)
 {
 	std::string axis;
-	if (pyGetSimpleObject(iValue, axis) != 0)
+	if (pyExportTraitGet(iValue, axis) != 0)
 	{
 		impl::addMessageHeader("XY");
 	}
@@ -84,15 +84,15 @@ int pyGetSimpleObject(PyObject* iValue, prim::XY& oV)
 	return 0;
 }
 
-PyObject* pyBuildSimpleObject(const prim::XYZ& iV)
+PyObject* pyBuildSimpleObject_deprecated(const prim::XYZ& iV)
 {
-	return pyBuildSimpleObject(std::string(1, iV.axis()));
+	return pyExportTraitBuild(std::string(1, iV.axis()));
 }
 
-int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZ& oV)
 {
 	std::string axis;
-	if (pyGetSimpleObject(iValue, axis) != 0)
+	if (pyExportTraitGet(iValue, axis) != 0)
 	{
 		impl::addMessageHeader("XYZ");
 	}
@@ -111,15 +111,15 @@ int pyGetSimpleObject(PyObject* iValue, prim::XYZ& oV)
 	return 0;
 }
 
-PyObject* pyBuildSimpleObject(const prim::XYZW& iV)
+PyObject* pyBuildSimpleObject_deprecated(const prim::XYZW& iV)
 {
-	return pyBuildSimpleObject(std::string(1, iV.axis()));
+	return pyExportTraitBuild(std::string(1, iV.axis()));
 }
 
-int pyGetSimpleObject(PyObject* iValue, prim::XYZW& oV)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZW& oV)
 {
 	std::string axis;
-	if (pyGetSimpleObject(iValue, axis) != 0)
+	if (pyExportTraitGet(iValue, axis) != 0)
 	{
 		impl::addMessageHeader("XYZW");
 	}
@@ -198,7 +198,7 @@ namespace impl
 		}
 		const TPyPtr vertexItem(PySequence_ITEM(iIndices, 0));
 		LASS_ASSERT(vertexItem);
-		if (pyGetSimpleObject(vertexItem.get(), vertex) != 0)
+		if (pyExportTraitGet(vertexItem.get(), vertex) != 0)
 		{
 			impl::addMessageHeader("v");
 			return 1;
@@ -209,7 +209,7 @@ namespace impl
 			LASS_ASSERT(normalItem);
 			if (normalItem.get() != Py_None)
 			{
-				if (pyGetSimpleObject(normalItem.get(), normal) != 0)
+				if (pyExportTraitGet(normalItem.get(), normal) != 0)
 				{
 					impl::addMessageHeader("vn");
 					return 1;
@@ -222,7 +222,7 @@ namespace impl
 			LASS_ASSERT(uvItem);
 			if (uvItem.get() != Py_None)
 			{
-				if (pyGetSimpleObject(uvItem.get(), uv) != 0)
+				if (pyExportTraitGet(uvItem.get(), uv) != 0)
 				{
 					impl::addMessageHeader("vt");
 					return 1;
@@ -236,7 +236,7 @@ namespace impl
 	}
 }
 
-PyObject* pyBuildSimpleObject(const prim::IndexTriangle& iTriangle)
+PyObject* pyBuildSimpleObject_deprecated(const prim::IndexTriangle& iTriangle)
 {
 	typedef PyObjectPtr<PyObject>::Type TPyPtr;
 	TPyPtr triangle(PyTuple_New(3));
@@ -253,7 +253,7 @@ PyObject* pyBuildSimpleObject(const prim::IndexTriangle& iTriangle)
 
 
 
-int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::IndexTriangle& oTriangle)
 {
 	typedef PyObjectPtr<PyObject>::Type TPyPtr;
 	prim::IndexTriangle result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
@@ -285,12 +285,12 @@ int pyGetSimpleObject(PyObject* iValue, prim::IndexTriangle& oTriangle)
 
 // --- colors --------------------------------------------------------------------------------------
 
-PyObject* pyBuildSimpleObject(const prim::ColorRGBA& iV)
+PyObject* pyBuildSimpleObject_deprecated(const prim::ColorRGBA& iV)
 {
-	return pyBuildSimpleObject(iV.vector());
+	return pyExportTraitBuild(iV.vector());
 }
 
-int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::ColorRGBA& oV)
 {
 	if (!PyTuple_Check(iValue))
 	{
@@ -308,24 +308,24 @@ int pyGetSimpleObject(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	prim::ColorRGBA result;
 
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.r) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.g) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.b) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 3), result.a) != 0)
+		if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("ColorRGBA: a");
 			return 1;

@@ -141,6 +141,74 @@ namespace lass
 {
 	namespace python
 	{
+		/** PyExportTraits.  A traits class that replaces the now deprecated pyBuildSimpleObject functionality.
+		*   Reason is to support the two-phase name lookup during template instantiation. (gcc >=3.4 )
+		*/
+		template<typename T>
+		struct PyExportTraits
+		{
+			//static PyObject* build(const T& it) { Py_XINCREF(Py_None);  return Py_None; }
+			//static int get(PyObject* iObject, T& ot) { return 1; } // probably should set an exception to match "UnImplemented" 
+		};
+		// a utility macro to easen the transition to the template based infrastructure
+		#define PYEXPORTTRAITS_USINGDEPRECATED( t_basicType )	\
+		template<>\
+		struct PyExportTraits< t_basicType >\
+		{\
+			static PyObject* build(const t_basicType & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+			static int get(PyObject* iv, t_basicType & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
+		};\
+		template<>\
+		struct PyExportTraits< const t_basicType >\
+		{\
+			static PyObject* build(const t_basicType & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+		};
+
+		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( t_basicType )	\
+		template< typename T >\
+		struct PyExportTraits< t_basicType< T > >\
+		{\
+			static PyObject* build(const t_basicType< T > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+			static int get(PyObject* iv, t_basicType< T > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
+		};
+		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( t_basicType )	\
+		template< typename T, typename U >\
+		struct PyExportTraits< t_basicType< T, U > >\
+		{\
+			static PyObject* build(const t_basicType< T, U > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+			static int get(PyObject* iv, t_basicType< T, U> & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
+		};
+		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_3( t_basicType )	\
+		template< typename T, typename U, typename V >\
+		struct PyExportTraits< t_basicType< T, U, V > >\
+		{\
+			static PyObject* build(const t_basicType< T, U, V > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+			static int get(PyObject* iv, t_basicType< T, U, V   > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
+		};
+		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_4( t_basicType )	\
+		template< typename T, typename U, typename V, typename W >\
+		struct PyExportTraits< t_basicType< T, U, V, W > >\
+		{\
+			static PyObject* build(const t_basicType< T, U, V, W > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
+			static int get(PyObject* iv, t_basicType< T, U, V, W > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
+		};
+
+		template<typename T>
+		PyObject* pyExportTraitBuild(T& iV)
+		{
+			return PyExportTraits<T>::build(iV);
+		}
+		template<typename T>
+		PyObject* pyExportTraitBuild(const T& iV)
+		{
+			return PyExportTraits<T>::build(iV);
+		}
+		template<typename T>
+		int pyExportTraitGet(PyObject* iV, T& oV)
+		{
+			return PyExportTraits<T>::get(iV,oV);
+		}
+
 		/** PyObjectPlus.  Base class for pythonable objects.
 		*   @ingroup Python
 		*   @author Tom De Muer
@@ -384,45 +452,45 @@ namespace lass
 		/* conversion from PyObject* to given types, a check should be performed
 		*  wether the conversion is possible, if not a returnvalue of 1 should be used
 		*/
-		inline int pyGetSimpleObject( PyObject* iValue, bool& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, signed char& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, unsigned char& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, signed short& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, unsigned short& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, signed int& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, unsigned int& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, signed long& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, unsigned long& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, bool& oV );
+		inline int pyGetSimpleObject_deprecated(PyObject* iValue, signed char& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned char& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed short& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned short& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed int& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned int& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed long& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned long& oV );
 #if HAVE_LONG_LONG
-		inline int pyGetSimpleObject( PyObject* iValue, signed PY_LONG_LONG& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, unsigned PY_LONG_LONG& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed PY_LONG_LONG& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned PY_LONG_LONG& oV );
 #endif
-		inline int pyGetSimpleObject( PyObject* iValue, float& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, double& oV );
-		inline int pyGetSimpleObject( PyObject* iValue, long double& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, float& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, double& oV );
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, long double& oV );
 		//inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
-		template <typename T> int pyGetSimpleObject( 
+		template <typename T> int pyGetSimpleObject_deprecated( 
 			PyObject* iValue,  util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& oV );
 
-		inline PyObject* pyBuildSimpleObject( bool iV );
-		inline PyObject* pyBuildSimpleObject( signed char iV );
-		inline PyObject* pyBuildSimpleObject( unsigned char iV );
-		inline PyObject* pyBuildSimpleObject( signed short iV );
-		inline PyObject* pyBuildSimpleObject( unsigned short iV );
-		inline PyObject* pyBuildSimpleObject( signed int iV );
-		inline PyObject* pyBuildSimpleObject( unsigned int iV );
-		inline PyObject* pyBuildSimpleObject( signed long iV );
-		inline PyObject* pyBuildSimpleObject( unsigned long iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( bool iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( signed char iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( unsigned char iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( signed short iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( unsigned short iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( signed int iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( unsigned int iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( signed long iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( unsigned long iV );
 #if HAVE_LONG_LONG
-		inline PyObject* pyBuildSimpleObject( signed PY_LONG_LONG iV );
-		inline PyObject* pyBuildSimpleObject( unsigned PY_LONG_LONG iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( signed PY_LONG_LONG iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( unsigned PY_LONG_LONG iV );
 #endif
-		inline PyObject* pyBuildSimpleObject( float iV );
-		inline PyObject* pyBuildSimpleObject( double iV );
-		inline PyObject* pyBuildSimpleObject( long double iV );
-		inline PyObject* pyBuildSimpleObject( const char* iV );
-		//inline PyObject* pyBuildSimpleObject( PyObject* iV );
-		template <typename T> PyObject* pyBuildSimpleObject( 
+		inline PyObject* pyBuildSimpleObject_deprecated( float iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( double iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( long double iV );
+		inline PyObject* pyBuildSimpleObject_deprecated( const char* iV );
+		//inline PyObject* pyBuildSimpleObject_deprecated( PyObject* iV );
+		template <typename T> PyObject* pyBuildSimpleObject_deprecated(
 			const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iV );
 
 		LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);

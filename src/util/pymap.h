@@ -205,7 +205,7 @@ namespace impl
 	{
 		LASS_ASSERT(map_);
 		typename M::key_type cppKey;
-		int r = pyGetSimpleObject( iKey, cppKey );
+		int r = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
@@ -217,7 +217,7 @@ namespace impl
 			PyErr_SetObject(PyExc_KeyError, iKey);
 			return NULL;
 		}
-		PyObject* rv = pyBuildSimpleObject( it->second );
+		PyObject* rv = PyExportTraits<M::mapped_type>::build( it->second );
 		Py_INCREF(rv);
 		return rv;
 	}
@@ -242,7 +242,7 @@ namespace impl
 		if (iData == NULL)		
 		{
 			typename M::key_type cppKey;
-			int r = pyGetSimpleObject( iKey, cppKey );
+			int r = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
 			if (!r)
 				map_->erase(cppKey);
 			else
@@ -256,13 +256,13 @@ namespace impl
 		{
 			typename M::key_type cppKey;
 			typename M::mapped_type cppData;
-			int rk = pyGetSimpleObject( iKey, cppKey );
+			int rk = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
 			if (rk)
 			{
 				PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
 				return 1;
 			}
-			int rv = pyGetSimpleObject( iData, cppData );
+			int rv = PyExportTraits<typename M::mapped_type>::get( iData, cppData );
 			if (rv)
 			{
 				PyErr_SetString(PyExc_TypeError, "Cannot convert data to appropriate type");
@@ -298,7 +298,7 @@ namespace impl
 	*	not-so-good-idea.
 	*/
 template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>* iV )
+PyObject* pyBuildSimpleObject_deprecated( const std::map<K, V, P, A>* iV )
 {
 	return new impl::PyMap( iV );
 }
@@ -311,7 +311,7 @@ PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>* iV )
 	*	not-so-good-idea.
 	*/
 template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject( std::map<K, V, P, A>* iV )
+PyObject* pyBuildSimpleObject_deprecated( std::map<K, V, P, A>* iV )
 {
 	return new impl::PyMap( iV );
 }
@@ -325,7 +325,7 @@ PyObject* pyBuildSimpleObject( std::map<K, V, P, A>* iV )
 	*	to cast temporary function return values to Python.
 	*/
 template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( const std::map<K, V, P, A>& iV )
 {
 	return new impl::PyMap( iV );
 }
@@ -338,10 +338,18 @@ PyObject* pyBuildSimpleObject( const std::map<K, V, P, A>& iV )
 	*	not-so-good-idea.
 	*/
 template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject( std::map<K, V, P, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( std::map<K, V, P, A>& iV )
 {
 	return new impl::PyMap( iV );
 }
+
+template< typename K, typename V, typename P, typename A>
+struct PyExportTraits< std::map<K, V, P, A> >
+{
+	static PyObject* build( const std::map<K, V, P, A>& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static PyObject* build( std::map<K, V, P, A>& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static int get( PyObject* iV, std::map<K, V, P, A>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
 
 }
 

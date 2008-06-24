@@ -181,7 +181,7 @@ public:
 
 		typedef python::impl::ArgumentTraits<R> TraitsR;
 		typename TraitsR::TStorage temp;
-		if (python::pyGetSimpleObject(result.get(), temp) != 0)
+		if (python::PyExportTraits< typename TraitsR::TStorage >::get(result.get(), temp) != 0)
 		{
 			LASS_THROW("bad result");
 		}
@@ -228,7 +228,7 @@ public:
 
 		typedef python::impl::ArgumentTraits<R> TraitsR;
 		typename TraitsR::TStorage temp;
-		if (python::pyGetSimpleObject(result.get(), temp) != 0)
+		if (python::PyExportTraits< typename TraitsR::TStorage >::get(result.get(), temp) != 0)
 		{
 			LASS_THROW("bad result");
 		}

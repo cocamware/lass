@@ -386,23 +386,23 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
 	}\
 };\
 }\
-inline PyObject* pyBuildSimpleObject( const t_ShadowObject::TCppClass& iByCopy )\
+inline PyObject* pyBuildSimpleObject_deprecated( const t_ShadowObject::TCppClass& iByCopy )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByCopy ));\
 }\
-inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass* iByBorrowedPointer )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByBorrowedPointer ));\
 }\
-inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass& iByBorrowedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass& iByBorrowedPointer )\
 {\
-	return pyBuildSimpleObject(&iByBorrowedPointer);\
+	return pyBuildSimpleObject_deprecated(&iByBorrowedPointer);\
 }\
-inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
 }\
-inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
+inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
 {\
 	if (t_ShadowObject::TCppClass* cppObject = \
 		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
@@ -412,7 +412,7 @@ inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByC
 	}\
 	return 1;\
 }\
-inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
+inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
 {\
 	if (t_ShadowObject::TCppClass* cppObject = \
 		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
@@ -422,6 +422,16 @@ inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oBy
 	}\
 	return 1;\
 }\
+template <> \
+struct PyExportTraits< t_ShadowObject::TCppClass > \
+{\
+	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
+};\
+template <> \
+struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
+{\
+	static PyObject* build(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject_deprecated(iBySinkedPointer); }\
+};\
 }\
 }
 
@@ -514,23 +524,23 @@ template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
 	}\
 };\
 }\
-inline PyObject* pyBuildSimpleObject( const t_ShadowObject::TCppClass& iByCopy )\
+inline PyObject* pyBuildSimpleObject_deprecated( const t_ShadowObject::TCppClass& iByCopy )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByCopy ));\
 }\
-inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass* iByBorrowedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass* iByBorrowedPointer )\
 {\
 	return t_ShadowObject::pyBuildSimpleObject_fromPtr( iByBorrowedPointer );\
 }\
-inline PyObject* pyBuildSimpleObject( t_ShadowObject::TCppClass& iByBorrowedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass& iByBorrowedPointer )\
 {\
-	return pyBuildSimpleObject(&iByBorrowedPointer);\
+	return pyBuildSimpleObject_deprecated(&iByBorrowedPointer);\
 }\
-inline PyObject* pyBuildSimpleObject( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
+inline PyObject* pyBuildSimpleObject_deprecated( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
 {\
 	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
 }\
-inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
+inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
 {\
 	if (t_ShadowObject::TCppClass* cppObject = \
 		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
@@ -540,7 +550,7 @@ inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass& oByC
 	}\
 	return 1;\
 }\
-inline int pyGetSimpleObject( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
+inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
 {\
 	if (t_ShadowObject::TCppClass* cppObject = \
 		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
@@ -560,7 +570,7 @@ inline PyObject* LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParen
 	if (dynamic_cast<t_ShadowObject::TCppClass*>(iByBorrowedPointer))\
 	{\
 		t_ShadowObject::TCppClass* downCastedObject = dynamic_cast<t_ShadowObject::TCppClass*>(iByBorrowedPointer);\
-		return lass::python::pyBuildSimpleObject(downCastedObject);\
+		return lass::python::pyBuildSimpleObject_deprecated(downCastedObject);\
 	}\
 	return 0;\
 }\

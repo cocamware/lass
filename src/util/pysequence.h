@@ -251,7 +251,7 @@ namespace impl
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Sequence::value_type temp;
-				if (pyGetSimpleObject( PySequence_ITEM(iValue, i) , temp ) != 0)
+				if (PyExportTraits<typename Sequence::value_type>::get( PySequence_ITEM(iValue, i) , temp ) != 0)
 				{
 					impl::addMessageHeader(
 						std::string("sequence element ") + util::stringCast<std::string>(i));
@@ -313,7 +313,7 @@ namespace impl
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
 		}
-		return pyBuildSimpleObject( ContainerTraits<Container>::element_at(*cont_,i));
+		return lass::python::PyExportTraits< Container::value_type >::build( ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh)
@@ -350,7 +350,7 @@ namespace impl
 		}
 		if (v == NULL)
 			return PySequence_AssSlice(i, i+1, v);
-		return pyGetSimpleObject(v,ContainerTraits<Container>::element_at(*cont_,i));
+		return PyExportTraits<typename Container::value_type>::get(v,ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
@@ -377,7 +377,7 @@ namespace impl
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Contains(PyObject *el)
 	{
 		typename Container::value_type temp;
-		int r = pyGetSimpleObject(el,temp);
+		int r = PyExportTraits<typename Container::value_type>::get(el,temp);
 		if (r)
 		{
 			// type is not convertible and hence is not found
@@ -427,7 +427,7 @@ namespace impl
 			return;
 		}
 		typename Container::value_type temp;
-		int r = pyGetSimpleObject(i,temp);
+		int r = PyExportTraits<typename Container::value_type>::get(i,temp);
 		if (r)
 		{
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to append type");
@@ -445,7 +445,7 @@ namespace impl
 		}
 		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
-		return fromNakedToSharedPtrCast<PyObject>(pyBuildSimpleObject(temp));
+		return fromNakedToSharedPtrCast<PyObject>(lass::python::PyExportTraits<Container::value_type>::build(temp));
 	}
 
 	template<typename Container, typename ContainerOwnerShipPolicy>
@@ -466,7 +466,7 @@ namespace impl
  *  @note you get a read-only COPY of the vector!
  */
 template< class V, typename A>
-PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( const std::vector<V, A>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
@@ -477,7 +477,7 @@ PyObject* pyBuildSimpleObject( const std::vector<V, A>& iV )
  *  will be reflected in the original object, as far as the typesystem allows it of course
  */
 template<class V, typename A>
-PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( std::vector<V, A>& iV )
 {
 	return new impl::PySequence( iV );
 }
@@ -487,7 +487,7 @@ PyObject* pyBuildSimpleObject( std::vector<V, A>& iV )
  *  @note you get a read-only COPY of the list!
  */
 template< class V, typename A>
-PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( const std::list<V, A>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end() ));
 }
@@ -497,7 +497,7 @@ PyObject* pyBuildSimpleObject( const std::list<V, A>& iV )
  *  will be reflected in the original object, as far as the typesystem allows it of course
  */
 template<class V, typename A>
-PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( std::list<V, A>& iV )
 {
 	return new impl::PySequence( iV );
 }
@@ -507,7 +507,7 @@ PyObject* pyBuildSimpleObject( std::list<V, A>& iV )
  *  @note you build a reference to the std::deque, but the list is read-only
  */
 template< class V, class A>
-PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( const std::deque<V,A>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
@@ -517,7 +517,7 @@ PyObject* pyBuildSimpleObject( const std::deque<V,A>& iV )
  *  will be reflected in the original object, as far as the typesystem allows it of course
  */
 template<typename V,typename A>
-PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
+PyObject* pyBuildSimpleObject_deprecated( std::deque<V,A>& iV )
 {
 	return new impl::PySequence( iV );
 }
@@ -528,7 +528,7 @@ PyObject* pyBuildSimpleObject( std::deque<V,A>& iV )
  *  @note you build a reference to the stde::static_vector, but the list is read-only
  */
 template< class V, size_t maxsize>
-PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
+PyObject* pyBuildSimpleObject_deprecated( const stde::static_vector<V, maxsize>& iV )
 {
 	return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
 }
@@ -539,7 +539,7 @@ PyObject* pyBuildSimpleObject( const stde::static_vector<V, maxsize>& iV )
  *  will be reflected in the original object, as far as the typesystem allows it of course
  */
 template<typename V, size_t maxsize>
-PyObject* pyBuildSimpleObject( stde::static_vector<V, maxsize>& iV )
+PyObject* pyBuildSimpleObject_deprecated( stde::static_vector<V, maxsize>& iV )
 {
 	return new impl::PySequence( iV );
 }
@@ -550,7 +550,7 @@ PyObject* pyBuildSimpleObject( stde::static_vector<V, maxsize>& iV )
  *  @note you get a COPY of the sequence, not the original sequence itself!
  */
 template<class C, typename A>
-int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, std::vector<C, A>& oV )
 {
 	return impl::pyGetSequenceObject( iValue, oV );
 }
@@ -560,7 +560,7 @@ int pyGetSimpleObject( PyObject* iValue, std::vector<C, A>& oV )
  *  @note you get a COPY of the sequence, not the original sequence itself!
  */
 template<class C, typename A>
-int pyGetSimpleObject( PyObject* iValue, std::list<C, A>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, std::list<C, A>& oV )
 {
 	return impl::pyGetSequenceObject( iValue, oV );
 }
@@ -582,7 +582,7 @@ int pyGetSimpleObject( PyObject* iValue, std::queue<C, A>& oV )
  *  @note you get a COPY of the sequence, not the original sequence itself!
  */
 template<class C, typename A>
-int pyGetSimpleObject( PyObject* iValue, std::deque<C, A>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, std::deque<C, A>& oV )
 {
 	return impl::pyGetSequenceObject( iValue, oV );
 }
@@ -597,10 +597,33 @@ template<typename V, size_t maxsize>
 int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
  */
 template<typename V, size_t maxsize>
-int pyGetSimpleObject( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, stde::static_vector<V, maxsize>& oV )
 {
 	return impl::pyGetSequenceObject( iValue, oV );
 }
+
+template< typename C, typename A>
+struct PyExportTraits< std::vector< C, A > >
+{
+	static PyObject* build( const std::vector< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static PyObject* build( std::vector< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static int get( PyObject* iV, std::vector< C, A >& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+template< typename C, typename A>
+struct PyExportTraits< std::deque< C, A > >
+{
+	static PyObject* build( const std::deque< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static PyObject* build( std::deque< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static int get( PyObject* iV, std::deque< C, A >& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+template< typename C, typename A>
+struct PyExportTraits< std::list< C, A > >
+{
+	static PyObject* build( const std::list< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static PyObject* build( std::list< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static int get( PyObject* iV, std::list< C, A >& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+
 
 }
 

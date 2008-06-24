@@ -156,14 +156,14 @@ void dealloc(PyObject* obj)
  */
 PyObject* repr(PyObject* obj)
 {
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyRepr());
+	return pyExportTraitBuild(static_cast<PyObjectPlus*>(obj)->doPyRepr());
 }
 
 /** @internal
  */
 PyObject* str(PyObject* obj)
 {
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
+	return pyExportTraitBuild(static_cast<PyObjectPlus*>(obj)->doPyStr());
 }
 
 

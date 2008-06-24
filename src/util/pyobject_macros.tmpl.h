@@ -187,7 +187,7 @@
 	{\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule_, i_module ), s_objectName,\
-			::lass::python::pyBuildSimpleObject(o_object) );\
+			lass::python::pyExportTraitBuild(o_object) );\
 	}
 
 /** @ingroup Python
@@ -642,7 +642,7 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
  *		name of static constant as shown in python (zero terminated C string)
  *	@param v_value
  *		the value of the constant.  it should be convertible to a PyObject by using the
- *		python::pyBuildSimpleObject functions
+ *		python::PyExportTraits::build functions
  */
 #define PY_CLASS_STATIC_CONST( i_cppClass, s_name, v_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -730,7 +730,7 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
 *   This macro is provided when there is need for a function in Python where there is no
 *   direct equivalent in C++.  An example is when you would need a true polymorphic python list returned
 *   from a C++ function.  Or when you need sth very Python specific returning from your function where there
-*   is no pyBuildSimpleObject defined for.
+*   is no PyExportTraits::build defined for.
 */
 #define PY_CLASS_PY_METHOD_EX( i_cppClass, i_cppMethod, s_methodName, s_doc  )\
 	inline PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
@@ -1656,7 +1656,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return ::lass::python::pyBuildSimpleObject(cppObject->i_cppMember);\
+		return lass::python::pyExportTraitBuild(cppObject->i_cppMember);\
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _setter)(PyObject* iObject,PyObject* iArgs, void* iClosure)\
 	{\
@@ -1667,7 +1667,7 @@ $[
 		{\
 			return -1;\
 		}\
-		return ::lass::python::pyGetSimpleObject(iArgs, cppObject->i_cppMember);\
+		return ::lass::python::pyExportTraitGet(iArgs, cppObject->i_cppMember);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -1750,7 +1750,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return ::lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
+		return lass::python::pyExportTraitBuild( cppObject->i_cppMember);\
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject,PyObject* iArgs, void* iClosure )\
 	{\

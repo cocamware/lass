@@ -53,10 +53,10 @@ namespace python
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_0
 #	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_0
 
-inline int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV )
+inline int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback0& oV )
 {
 	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
+	if (PyExportTraits< python::PyObjectPtr<PyObject>::Type >::get(iValue, callable) != 0)
 	{
 		impl::addMessageHeader("Callback0");
 		return 1;
@@ -75,6 +75,12 @@ inline int pyGetSimpleObject( PyObject* iValue, util::Callback0& oV )
 	return 0;
 }
 
+template <>
+struct PyExportTraits< util::Callback0 >
+{
+	static int get(PyObject* iV, util::Callback0& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+
 #	endif
 #endif
 
@@ -84,10 +90,10 @@ $[
 #	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_$x
 
 template <$(typename P$x)$>
-int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
 {
 	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
+	if (PyExportTraits< python::PyObjectPtr<PyObject>::Type >::get(iValue, callable) != 0)
 	{
 		impl::addMessageHeader("Callback$x");
 		return 1;
@@ -106,6 +112,13 @@ int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
 	return 0;
 }
 
+template <$(typename P$x)$>
+struct PyExportTraits< util::Callback$x<$(P$x)$> >
+{
+	static int get(PyObject* iV, util::Callback$x<$(P$x)$> & oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+
+
 #	endif
 #endif
 ]$
@@ -115,10 +128,10 @@ int pyGetSimpleObject( PyObject* iValue, util::Callback$x<$(P$x)$>& oV )
 #	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R0
 
 template <typename R>
-int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV )
+int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR0<R>& oV )
 {
 	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
+	if (PyExportTraits< python::PyObjectPtr<PyObject>::Type >::get(iValue, callable) != 0)
 	{
 		impl::addMessageHeader("CallbackR0");
 		return 1;
@@ -137,6 +150,12 @@ int pyGetSimpleObject( PyObject* iValue, util::CallbackR0<R>& oV )
 	return 0;
 }
 
+template <typename R>
+struct PyExportTraits< util::CallbackR0<R> >
+{
+	static int get(PyObject* iV, util::CallbackR0<R>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
+
 #	endif
 #endif
 
@@ -146,10 +165,10 @@ $[
 #	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_R$x
 
 template <typename R, $(typename P$x)$>
-inline int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV )
+inline int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV )
 {
 	python::PyObjectPtr<PyObject>::Type callable;
-	if (pyGetSimpleObject(iValue, callable) != 0)
+	if (PyExportTraits< python::PyObjectPtr<PyObject>::Type >::get(iValue, callable) != 0)
 	{
 		impl::addMessageHeader("CallbackR$x");
 		return 1;
@@ -167,6 +186,12 @@ inline int pyGetSimpleObject( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& o
 	oV = util::impl::DispatcherR$xPython<R, $(P$x)$>(callable);
 	return 0;
 }
+
+template <typename R, $(typename P$x)$>
+struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >
+{
+	static int get(PyObject* iV, util::CallbackR$x<R, $(P$x)$>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
 
 #	endif
 #endif

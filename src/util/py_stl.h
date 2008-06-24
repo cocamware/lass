@@ -62,39 +62,14 @@ namespace lass
 
 		/** @ingroup Python
 			*/
-		inline PyObject* pyBuildSimpleObject( const std::string& iV )
+		inline PyObject* pyBuildSimpleObject_deprecated( const std::string& iV )
 		{
 			return PyString_FromString(iV.c_str());
 		}
 
 		/** @ingroup Python
-		 *  build a copy of a std::complex as a Python complex number
-		 *  @note you build a COPY of the std::complex, not a reference to it!
-		 */
-		template<class C>
-		PyObject* pyBuildSimpleObject( const std::complex<C>& iV )
-		{
-			PyObject* newComplex = PyComplex_FromDoubles(iV.real(),iV.imag());
-			return newComplex;
-		}
-
-		/** @ingroup Python
-		 *  build a copy of a std::pair as a Python tuple
-		 *  @note you build a COPY of the std::pair, not a reference to it!
-		 */
-		template<class C1, class C2>
-		PyObject* pyBuildSimpleObject( const std::pair<C1, C2>& iV )
-		{
-			PyObject* newTuple = PyTuple_New(2);
-			PyTuple_SetItem( newTuple, 0, pyBuildSimpleObject( iV.first ) );
-			PyTuple_SetItem( newTuple, 1, pyBuildSimpleObject( iV.second ) );
-			return newTuple;
-		}
-
-
-		/** @ingroup Python
 			*/
-		inline int pyGetSimpleObject( PyObject* iValue, std::string& oV )
+		inline int pyGetSimpleObject_deprecated( PyObject* iValue, std::string& oV )
 		{
 			if (!PyString_Check(iValue))
 			{
@@ -105,12 +80,39 @@ namespace lass
 			return 0;
 		}
 
+		PYEXPORTTRAITS_USINGDEPRECATED( std::string )
+
+		/** @ingroup Python
+		 *  build a copy of a std::complex as a Python complex number
+		 *  @note you build a COPY of the std::complex, not a reference to it!
+		 */
+		template<class C>
+		PyObject* pyBuildSimpleObject_deprecated( const std::complex<C>& iV )
+		{
+			PyObject* newComplex = PyComplex_FromDoubles(iV.real(),iV.imag());
+			return newComplex;
+		}
+
+		/** @ingroup Python
+		 *  build a copy of a std::pair as a Python tuple
+		 *  @note you build a COPY of the std::pair, not a reference to it!
+		 */
+		template<class C1, class C2>
+		PyObject* pyBuildSimpleObject_deprecated( const std::pair<C1, C2>& iV )
+		{
+			PyObject* newTuple = PyTuple_New(2);
+			PyTuple_SetItem( newTuple, 0, PyExportTraits<C1>::build( iV.first ) );
+			PyTuple_SetItem( newTuple, 1, PyExportTraits<C2>::build( iV.second ) );
+			return newTuple;
+		}
+
+
 		/** @ingroup Python
 		 *  get a copy of a Python complex number as a std::complex.
 		 *  @note you get a COPY of the complex number, not the original number itself!
 		 */
 		template<class C>
-		int pyGetSimpleObject( PyObject* iValue, std::complex<C>& oV )
+		int pyGetSimpleObject_deprecated( PyObject* iValue, std::complex<C>& oV )
 		{
 			C re, im;
 			if (impl::pyGetFloatObject( iValue, re ) == 0)
@@ -135,7 +137,7 @@ namespace lass
 		 *  @note you get a COPY of the sequence, not the original sequence itself!
 		 */
 		template<class C1, class C2>
-		int pyGetSimpleObject( PyObject* iValue, std::pair<C1, C2>& oV )
+		int pyGetSimpleObject_deprecated( PyObject* iValue, std::pair<C1, C2>& oV )
 		{
 			std::pair<C1, C2> result;
 			if (!impl::checkSequenceSize(iValue, 2))
@@ -157,12 +159,15 @@ namespace lass
 			return 0;
 		}
 
+		PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( std::complex )
+		PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( std::pair )
+
 		/** @ingroup Python
 		 *  get a copy of a Python Dictionary as a std::map.
 		 *  @note you get a COPY of the dictionary, not the original dictionary itself!
 		 */
 		template<class K, class D, typename P, typename A>
-		int pyGetSimpleObject( PyObject* iValue, std::map<K, D, P, A>& oV )
+		int pyGetSimpleObject_deprecated( PyObject* iValue, std::map<K, D, P, A>& oV )
 		{
 			typedef std::map<K, D, P, A> TMap;
 			if (!PyDict_Check(iValue))
@@ -178,13 +183,13 @@ namespace lass
 			while (PyDict_Next(iValue, &pos, &pyKey, &pyData))
 			{
 				typename TMap::key_type cKey;
-				if (pyGetSimpleObject( pyKey , cKey ) != 0)
+				if (PyExportTraits<typename TMap::key_type >::get( pyKey , cKey ) != 0)
 				{
 					impl::addMessageHeader("dict: key");
 					return 1;
 				}
 				D cData;
-				if (pyGetSimpleObject( pyData , cData ) != 0)
+				if (PyExportTraits<D>::get( pyData , cData ) != 0)
 				{
 					impl::addMessageHeader("dict: data");
 					return 1;

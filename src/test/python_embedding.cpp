@@ -191,10 +191,14 @@ PY_CLASS_METHOD_NAME( Bar, call, "__call__")
 PY_CLASS_FREE_METHOD(Bar, freeMethodA);
 PY_CLASS_FREE_METHOD(Bar, freeMethodB);
 PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, "__call__");
+PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, "__repr__");
+PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, "__str__");
+
 
 PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
 PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
+
 
 PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
@@ -252,6 +256,7 @@ PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
 PY_CLASS_MEMBER_RW(PyEggs, number, setNumber)
 LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");)
+
 
 }
 }

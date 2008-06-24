@@ -77,7 +77,7 @@ namespace impl
 	template <typename P>
 	inline bool decodeObject(PyObject* in, P& out, int index)
 	{
-		if (pyGetSimpleObject(in, out) != 0)
+		if (lass::python::pyExportTraitGet(in, out) != 0)
 		{
 			std::ostringstream buffer;
 			buffer << "Bad Argument on " << index << "th position";
@@ -104,7 +104,7 @@ const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
 {
 	typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 	TPyObjPtr tuple(PyTuple_New($x));
- 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyBuildSimpleObject(iP$x)) != 0) return TPyObjPtr();
+ 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, lass::python::PyExportTraits< P$x >::build(iP$x)) != 0) return TPyObjPtr();
  	)$
 	return tuple;
 }
