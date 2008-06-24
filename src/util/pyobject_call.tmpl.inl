@@ -197,7 +197,7 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <$(typename P$x)$, typename Function>
+	template <typename Function, $(typename P$x)$>
 	static PyObject* function( Function iFunction, $(P$x p$x)$ )
 	{
 		try
@@ -210,8 +210,8 @@ struct Caller
 
 	// method
 
-	template <typename CppClass, typename Method>
-	static PyObject* method( CppClass* iObject, Method iMethod )
+	template <typename CppClassPtr, typename Method>
+	static PyObject* method( CppClassPtr iObject, Method iMethod )
 	{
 		try
 		{
@@ -220,8 +220,8 @@ struct Caller
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <$(typename P$x)$, typename CppClass, typename Method>
-	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x p$x)$ )
+	template <typename CppClassPtr, typename Method, $(typename P$x)$>
+	static PyObject* method( CppClassPtr iObject, Method iMethod, $(P$x p$x)$ )
 	{
 		try
 		{
@@ -251,7 +251,7 @@ struct Caller<void>
 		return Py_None;
 	};
 	$[
-	template <$(typename P$x)$, typename Function>
+	template <typename Function, $(typename P$x)$>
 	static PyObject* function( Function iFunction, $(P$x p$x)$ )
 	{
 		try
@@ -266,8 +266,8 @@ struct Caller<void>
 
 	// methods
 
-	template <typename CppClass, typename Method>
-	static PyObject* method( CppClass* iObject, Method iMethod )
+	template <typename CppClassPtr, typename Method>
+	static PyObject* method( CppClassPtr iObject, Method iMethod )
 	{
 		try
 		{
@@ -278,8 +278,8 @@ struct Caller<void>
 		return Py_None;
 	};
 	$[
-	template <$(typename P$x)$, typename CppClass, typename Method>
-	static PyObject* method( CppClass* iObject, Method iMethod, $(P$x p$x)$ )
+	template <typename CppClassPtr, typename Method, $(typename P$x)$>
+	static PyObject* method( CppClassPtr iObject, Method iMethod, $(P$x p$x)$ )
 	{
 		try
 		{
@@ -301,11 +301,12 @@ struct Caller<void>
 template <typename R>
 PyObject* callFunction( PyObject* args, R (*iFunction)() )
 {
+	typedef R(*TFunction)();
 	if( decodeTuple(args) != 0 )
 	{
 		return 0;
 	}
-	return Caller<R>::function( iFunction );
+	return Caller<R>::template function<TFunction>( iFunction );
 }
 $[
 /** calls C++ function with $x arguments, translated from python arguments
@@ -313,13 +314,14 @@ $[
 template <typename R, $(typename P$x)$>
 PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
 {
+	typedef R (*TFunction)($(P$x)$);
 	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 	)$
 	if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 	{
 		return 0;
 	}
-	return Caller<R>::function<$(P$x)$>( 
+	return Caller<R>::template function<TFunction, $(P$x)$>( 
 		iFunction, $(TArg$x::arg(p$x))$ );
 }
 ]$
@@ -338,11 +340,12 @@ struct CallMethod
 	template <typename C, typename R>
 	static PyObject* call( PyObject* args, CppClass* iObject, R (C::*iMethod)() )
 	{
+		typedef R (C::*TMethod)();
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::method(
+		return Caller<R>::template method<CppClass*, TMethod>(
 			iObject, iMethod );
 	}
 $[
@@ -351,13 +354,14 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* call( PyObject* args, CppClass* iObject, R (C::*iMethod)($(P$x)$) )
 	{
+		typedef R (C::*TMethod)($(P$x)$);
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::method<$(P$x)$>( 
+		return Caller<R>::template method<CppClass*, TMethod, $(P$x)$>( 
 			iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
@@ -369,11 +373,12 @@ $[
 	template <typename C, typename R>
 	static PyObject* call( PyObject* args, const CppClass* iObject, R (C::*iMethod)() const )
 	{
+		typedef R (C::*TMethod)() const;
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::method( 
+		return Caller<R>::template method<const CppClass*, TMethod>( 
 			iObject, iMethod );
 	}
 $[
@@ -382,13 +387,14 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* call( PyObject* args, const CppClass* iObject, R (C::*iMethod)($(P$x)$) const )
 	{
+		typedef R (C::*TMethod)($(P$x)$) const;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::method<$(P$x)$>(
+		return Caller<R>::template method<const CppClass*, TMethod, $(P$x)$>(
 			iObject, iMethod, $(TArg$x::arg(p$x))$ );
 	}
 ]$
@@ -399,11 +405,12 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*) )
 	{
+		typedef R (*TFunction)(C*);
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function<C*>(
+		return Caller<R>::template function<TFunction, C* >(
 			iFreeMethod, iObject );
 	}
 $[
@@ -413,13 +420,14 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*, $(P$x)$) )
 	{
+		typedef R (*TFunction)(C*, $(P$x)$);
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function<C*, $(P$x)$>(
+		return Caller<R>::template function<TFunction, C*, $(P$x)$>(
 			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
@@ -431,12 +439,13 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&) )
 	{
+		typedef R (*TFunction)(C&);
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function<C&>(
+		return Caller<R>::template function<TFunction, C& >(
 			iFreeMethod, *iObject );
 	}
 $[
@@ -446,6 +455,7 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&, $(P$x)$) )
 	{
+		typedef R (*TFunction)(C&, $(P$x)$);
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
@@ -453,7 +463,7 @@ $[
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function<C&, $(P$x)$>(
+		return Caller<R>::template function<TFunction, C&, $(P$x)$>(
 			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
@@ -465,11 +475,12 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*) )
 	{
+		typedef R (*TFunction)(const C*);
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function<const C*>(
+		return Caller<R>::template function<TFunction, const C* >(
 			iFreeMethod, iObject );
 	}
 $[
@@ -479,13 +490,14 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*, $(P$x)$) )
 	{
+		typedef R (*TFunction)(const C*, $(P$x)$);
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::function<const C*, $(P$x)$>(
+		return Caller<R>::template function<TFunction, const C*, $(P$x)$>(
 			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$
@@ -497,12 +509,13 @@ $[
 	template <typename C, typename R>
 	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&) )
 	{
+		typedef R (*TFunction)(const C&);
 		if( decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function<const C&>(
+		return Caller<R>::template function<TFunction, const C& >(
 			iFreeMethod, *iObject );
 	}
 $[
@@ -512,6 +525,7 @@ $[
 	template <typename C, typename R, $(typename P$x)$>
 	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&, $(P$x)$) )
 	{
+		typedef R (*TFunction)(const C&, $(P$x)$);
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
 		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
@@ -519,7 +533,7 @@ $[
 			return 0;
 		}
 		LASS_ASSERT(iObject);
-		return Caller<R>::function<const C&, $(P$x)$>(
+		return Caller<R>::template function<TFunction, const C&, $(P$x)$>(
 			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
 	}
 ]$

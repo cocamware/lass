@@ -62,9 +62,9 @@ template <typename R, typename C > struct IsMember<R (C::*) () const > : meta::T
 template <typename R, typename C > struct IsConstMember<R (C::*) () const > : meta::True {};
 
 $[
-template <typename R, typename C, $(typename P$x)$ > struct IsMember<R (C::*) ( $(typename P$x)$ )> : meta::True {};
-template <typename R, typename C, $(typename P$x)$ > struct IsMember<R (C::*) ( $(typename P$x)$ ) const > : meta::True {};
-template <typename R, typename C, $(typename P$x)$ > struct IsConstMember<R (C::*) ( $(typename P$x)$ ) const > : meta::True {};
+template <typename R, typename C, $(typename P$x)$ > struct IsMember<R (C::*) ( $(P$x)$ )> : meta::True {};
+template <typename R, typename C, $(typename P$x)$ > struct IsMember<R (C::*) ( $(P$x)$ ) const > : meta::True {};
+template <typename R, typename C, $(typename P$x)$ > struct IsConstMember<R (C::*) ( $(P$x)$ ) const > : meta::True {};
 ]$
 
 // following _functions_ work on instances
@@ -76,10 +76,10 @@ template <typename R, typename C > inline bool isConstMember(R (C::*iFunction)()
 
 
 $[
-	template <typename R, typename C, $(typename P$x)$ > inline bool isMember(R (C::*iFunction)( $(typename P$x)$ ) ) { return true; }
-	template <typename R, typename C, $(typename P$x)$ > inline bool isMember(R (C::*iFunction)( $(typename P$x)$ ) const ) { return true; }
-	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(typename P$x)$ ) ) { return false; }
-	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(typename P$x)$ ) const ) { return true; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isMember(R (C::*iFunction)( $(P$x)$ ) ) { return true; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isMember(R (C::*iFunction)( $(P$x)$ ) const ) { return true; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(P$x)$ ) ) { return false; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(P$x)$ ) const ) { return true; }
 ]$
 
 

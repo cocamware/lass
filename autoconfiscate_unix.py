@@ -31,6 +31,8 @@ def pre_build():
 	current = os.getcwd()
 	os.chdir('src/util')
 	os.system(sys.executable + ' pre_build.py')
+	os.chdir('../meta')
+	os.system(sys.executable + ' pre_build.py')
 	os.chdir('../test')
 	os.system(sys.executable + ' pre_build.py')
 	os.chdir(current)

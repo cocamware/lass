@@ -62,6 +62,18 @@
 #	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
 #endif
 
+#ifndef Py_RETURN_FALSE
+#	define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
+#endif
+
+#ifndef Py_RETURN_TRUE
+#	define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
+#endif
+
+#ifndef Py_RETURN_NONE
+#	define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#endif
+
 #if (PY_VERSION_HEX < 0x02050000)
 #	define Py_ssize_t int
 #	define lenfunc inquiry
