@@ -337,7 +337,7 @@ namespace spat
 		bool    gcDeleteEdge( TEdge* iEdge ); /**< delete edge using garbage collector, useful for deletion avalanches */
 		int		gc(); /**< do garbage collection after deletion avalanches, returns number of quadedge collected */
 		long    edgeCount() const { return edgeCount_; }
-		void    makeMaximalConvexPolygon(T iMaxSurface=-1.0);
+		void    makeMaximalConvexPolygon(T iMaxSurface=-1);
 		void    makeRectangular(T minAngle, T maxAngle);
 
 		static	TTriangle2D triangle( const TEdge* iEdge);	
@@ -2890,16 +2890,16 @@ continueSearch:
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryUndirectedEdgesCached( const TEdgeCallback& iCallback )
 	{
 		typename TQuadEdgeList::iterator qIt;
-		static int start = 0;
-		int savedStart = start;
+		static size_t start = 0;
+		size_t savedStart = start;
 
-		if (savedStart>quadEdgeList_.size()-1)
+		if (savedStart >= quadEdgeList_.size())
 		{
 			savedStart = 0;
 			start = 0;
 		}
 
-		for (int i = savedStart; i<quadEdgeList_.size();++i)
+		for (size_t i = savedStart; i<quadEdgeList_.size();++i)
 		{
 			TQuadEdge* qe = quadEdgeList_[i];
 			if (!qe->deleted)
@@ -2916,7 +2916,7 @@ continueSearch:
 			++start;
 		}
 		start = 0;
-		for (int i = 0; i<savedStart;++i)
+		for (size_t i = 0; i<savedStart;++i)
 		{
 			TQuadEdge* qe = quadEdgeList_[i];
 			if (!qe->deleted)

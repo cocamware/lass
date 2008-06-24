@@ -260,6 +260,7 @@ private:
 		num::Tint32 zipped;
 		num::Tint32 dataSize;
 		num::Tuint32 rgb;
+		// num::Tfloat64 render_time;  // we don't care!
 		enum { padding = 5000 };
 		
 		void readFrom(BinaryIStream& stream);

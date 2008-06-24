@@ -68,6 +68,16 @@ public:
 
 void testMetaIsConvertible()
 {
+	// These might cause some compiler warnings about floats being converted to ints
+	// and non-POD type objects being passed through ... (that will cause runtime crashes)
+	// this is actually OK, it means the stuff actually works.
+	//
+	// I unfortunately do not a know how to suppress the warnings on gcc, in a LOCAL way.
+	// If anyone knows, please let me know =)  I'm not interested in global ways to suppress
+	// the warnings as that would be dangerous (we wouldn't see it when it really matters).
+	//
+	// [Bramz]
+
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float, int>::value), true);
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<int, float>::value), true);
 

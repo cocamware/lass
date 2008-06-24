@@ -860,12 +860,13 @@ public:
 	}
 	~AllocatorConcurrentFreeList()
 	{
-		AllocationNode* top = top_.get();
-		while (top)
+		TTaggedPtr top = top_;
+		AllocationNode* node = top.get();
+		while (node)
 		{
-			AllocationNode* node = top;
-			top = node->next;
+			AllocationNode* next = node->next;
 			FixedAllocator::deallocate(node);
+			node = next;
 		}
 	}
 	AllocatorConcurrentFreeList(const AllocatorConcurrentFreeList& iOther):

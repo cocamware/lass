@@ -73,8 +73,8 @@ struct LASS_DLL NumTraits
 		isFloatingPoint = 0 /**< true for floating point types */
 	};
 
-	static const int   memorySize;      /**< memory footprint */
-	static const int   mantisseSize;	/**< number of bits used for mantisse, useful for error analysis */
+	static const size_t   memorySize;      /**< memory footprint */
+	static const size_t   mantisseSize;	/**< number of bits used for mantisse, useful for error analysis */
 	static const std::string name() { return "unknown"; }   /**< name of the selfType */
 
 	static const C  one;                /**< definition of one */
@@ -130,8 +130,8 @@ struct LASS_DLL NumTraits<ttype>\
 		hasNaN = true,\
 		isFloatingPoint = true\
 	};\
-	static const int   memorySize;\
-	static const int   mantisseSize;\
+	static const size_t   memorySize;\
+	static const size_t   mantisseSize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
 	static const ttype zero;\
@@ -165,8 +165,8 @@ struct LASS_DLL NumTraits< ttype >\
 		hasNaN = false,\
 		isFloatingPoint = NumTraits< baseType >::isFloatingPoint\
 	};\
-	static const int   memorySize;\
-	static const int   mantisseSize;\
+	static const size_t   memorySize;\
+	static const size_t   mantisseSize;\
 	static const std::string name() { return tname ; }\
 	static const ttype one;\
 	static const ttype zero;\
@@ -207,8 +207,8 @@ struct LASS_DLL NumTraits<char>
 		hasNaN = 0,
 		isFloatingPoint = 0
 	};
-	static const int   memorySize;
-	static const int   mantisseSize;
+	static const size_t   memorySize;
+	static const size_t   mantisseSize;
 	static const std::string name() { return LASS_STRINGIFY(char); }
 	static const selfType one;
 	static const selfType zero;
@@ -237,8 +237,8 @@ struct LASS_DLL NumTraits<sign type> \
 		hasNaN = 0,\
 		isFloatingPoint = 0\
 	};\
-	static const int   memorySize;\
-	static const int   mantisseSize;\
+	static const size_t   memorySize;\
+	static const size_t   mantisseSize;\
 	static const std::string name() { return LASS_STRINGIFY(sign type); }\
 	static const selfType one;\
 	static const selfType zero;\

@@ -61,7 +61,7 @@ void testUtilAtomicType()
 	std::cout << (8*sizeof(T)) << "bits\n";
 
 	T multiplier = 0;
-	for (int i = 0; i < sizeof(T); ++i)
+	for (size_t i = 0; i < sizeof(T); ++i)
 	{
 		multiplier = (multiplier << 8) + 1;
 	}
@@ -90,7 +90,7 @@ template <typename T>
 void testUtilAtomicAdjacentCas()
 {
 	T multiplier = 0;
-	for (int i = 0; i < sizeof(T); ++i)
+	for (size_t i = 0; i < sizeof(T); ++i)
 	{
 		multiplier = (multiplier << 8) + 1;
 	}

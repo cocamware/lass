@@ -206,7 +206,7 @@ typename Modulo<N, T>::TParam Modulo<N, T>::value() const
 template <unsigned N, typename T>
 bool Modulo<N, T>::isInRange(TParam iValue) const
 {
-	return iValue >= 0 && iValue < N;
+	return iValue >= 0 && iValue < static_cast<T>(N);
 }
 
 

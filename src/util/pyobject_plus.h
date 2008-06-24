@@ -50,6 +50,14 @@
 #include "util_common.h"
 #include "singleton.h"
 
+// Python.h is a bit blunt in (re)defining _POSIX_C_SOURCE causing a nice warning.
+// Undefing it before including Python.h will suppress that warning.
+// Remove this once Python plays nice again. 
+// [Bramz]
+#if defined(_POSIX_C_SOURCE)
+#	undef _POSIX_C_SOURCE
+#endif
+
 #if defined(_DEBUG) && !defined(LASS_PYTHON_HAS_DEBUG_BUILD)
 #	undef _DEBUG
 #	include "Python.h"

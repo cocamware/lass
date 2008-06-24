@@ -137,7 +137,8 @@ protected:
 		oBorrowed
 	};
 	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
-		ownership_(iOwnership), PyShadowBaseTracked<CppBase>(iCppObject,doTracking)
+		PyShadowBaseTracked<CppBase>(iCppObject,doTracking),
+		ownership_(iOwnership)
 	{
 		this->cppObject_ = iCppObject;
 	}

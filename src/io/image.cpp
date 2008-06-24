@@ -1148,15 +1148,15 @@ BinaryIStream& Image::openIgi(BinaryIStream& stream)
 	HeaderIgi header;
 	header.readFrom(stream);
 
-	if (!stream || header.magic != magicIgi_ || header.version != 1)
+	if (!stream || header.magic != magicIgi_ || header.version < 1 || header.version > 2)
 	{
-		LASS_THROW_EX(BadFormat, "not an IGI version 1 file.");
+		LASS_THROW_EX(BadFormat, "not an IGI version <= 2 file.");
 	}
 	if (header.zipped)
 	{
 		LASS_THROW_EX(BadFormat, "cannot read zipped IGI files.");
 	}
-	if (header.dataSize != 12 * header.width * header.height)
+	if (header.dataSize < 0 || static_cast<num::Tuint32>(header.dataSize) != 12 * header.width * header.height)
 	{
 		LASS_THROW_EX(BadFormat, "error in dataSize field.");
 	}

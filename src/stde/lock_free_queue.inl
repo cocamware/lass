@@ -52,9 +52,19 @@ lock_free_queue<T, A>::lock_free_queue():
 	node_allocator_(sizeof(node_t)),
 	value_allocator_(sizeof(value_type))
 {
-	pointer_t dummy(make_node(0), 0);
-	head_ = dummy;
-	tail_ = dummy;
+	pointer_t tail(make_node(0), 0);
+	
+	// Mentally equivalent to: head_ = tail_ = tail;
+	//
+	// the funny way to assign head_ and tail_ is because we don't support
+	// operator= on volatile TaggedPtrs 
+	// [Bramz]
+	//
+	pointer_t expected = head_;
+	head_.atomicCompareAndSwap(expected, tail);
+	expected = tail_;
+	tail_.atomicCompareAndSwap(expected, tail);
+	LASS_ASSERT(tail == head_ && tail == tail_);	
 }
 
 
@@ -62,11 +72,12 @@ lock_free_queue<T, A>::lock_free_queue():
 template <typename T, typename A>
 lock_free_queue<T, A>::~lock_free_queue()
 {
-	while (head_)
+	pointer_t head = head_;
+	while (head)
 	{
-		pointer_t next = head_->next;
-		free_node(head_.get());
-		head_ = next;
+		pointer_t next = head->next;
+		free_node(head.get());
+		head = next;
 	}
 }
 

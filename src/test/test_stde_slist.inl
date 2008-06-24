@@ -65,10 +65,10 @@ void testStdeSlist()
 
 	slist_type empty_list;
 	LASS_TEST_CHECK(empty_list.empty());
-	LASS_TEST_CHECK_EQUAL(empty_list.size(), 0);
+	LASS_TEST_CHECK_EQUAL(empty_list.size(), size_t(0));
 	LASS_TEST_CHECK(empty_list.begin() == empty_list.end());
 
-	const slist_type::size_type n = 5;
+	const size_t n = 5;
 	slist_type n_list(n, 37);
 	LASS_TEST_CHECK(!n_list.empty());
 	LASS_TEST_CHECK_EQUAL(n_list.size(), n);
@@ -84,7 +84,7 @@ void testStdeSlist()
 		}
 	}
 
-	const slist_type::size_type array_size = 7;
+	const size_t array_size = 7;
 	int array[array_size] = {4, 3, 6, 1, 0, 2, 5};
 	slist_type array_list(array, array + array_size);
 	LASS_TEST_CHECK_EQUAL(array_list.size(), array_size);
@@ -124,12 +124,12 @@ void testStdeSlist()
 	LASS_TEST_CHECK_EQUAL(*const_list.prior(const_list.end()), array[array_size - 1]);
 	LASS_TEST_CHECK(stde::next(array_list.before_begin()) == array_list.begin());
 	LASS_TEST_CHECK(stde::next(const_list.before_begin()) == const_list.begin());
-	LASS_TEST_CHECK_EQUAL(std::distance(array_list.begin(), array_list.end()), array_list.size());
-	LASS_TEST_CHECK_EQUAL(std::distance(const_list.begin(), const_list.end()), const_list.size());
+	LASS_TEST_CHECK_EQUAL(static_cast<size_t>(std::distance(array_list.begin(), array_list.end())), array_list.size());
+	LASS_TEST_CHECK_EQUAL(static_cast<size_t>(std::distance(const_list.begin(), const_list.end())), const_list.size());
 
 	// resize
 
-	slist_type::size_type m = 5;
+	const size_t m = 5;
 	n_list.resize(n + m, 69);
 	LASS_TEST_CHECK_EQUAL(n_list.size(), n + m);
 	i = n_list.begin();
@@ -155,7 +155,7 @@ void testStdeSlist()
 	n_list.resize(n);
 	LASS_TEST_CHECK_EQUAL(n_list.size(), n);
 	i = n_list.begin();
-	for (slist_type::size_type k = 0; k < n; ++k)
+	for (size_t k = 0; k < n; ++k)
 	{
 		LASS_TEST_CHECK_NO_THROW(i != n_list.end());
 		if (i != n_list.end()) // just a safety
@@ -170,15 +170,15 @@ void testStdeSlist()
 	slist_type some_list;
 	some_list.push_front(0);
 	LASS_TEST_CHECK(!some_list.empty());
-	LASS_TEST_CHECK_EQUAL(some_list.size(), 1);
+	LASS_TEST_CHECK_EQUAL(some_list.size(), size_t(1));
 	LASS_TEST_CHECK_EQUAL(some_list.front(), 0);
 
 	some_list.push_front(1);
-	LASS_TEST_CHECK_EQUAL(some_list.size(), 2);
+	LASS_TEST_CHECK_EQUAL(some_list.size(), size_t(2));
 	LASS_TEST_CHECK_EQUAL(some_list.front(), 1);
 
 	some_list.pop_front();
-	LASS_TEST_CHECK_EQUAL(some_list.size(), 1);
+	LASS_TEST_CHECK_EQUAL(some_list.size(), size_t(1));
 	LASS_TEST_CHECK_EQUAL(some_list.front(), 0);
 
 	// insert
@@ -216,7 +216,7 @@ void testStdeSlist()
 
 	int yet_another_array[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	slist_type yet_another_list(yet_another_array, yet_another_array + 16);
-	LASS_TEST_CHECK_EQUAL(yet_another_list.size(), 16);
+	LASS_TEST_CHECK_EQUAL(yet_another_list.size(), size_t(16));
 	stream << yet_another_list;
 	LASS_TEST_CHECK(stream.isEqual("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"));
 
@@ -246,7 +246,7 @@ void testStdeSlist()
 
 	LASS_TEST_CHECK_EQUAL(n_list.size(), n);
 	n_list.clear();
-	LASS_TEST_CHECK_EQUAL(n_list.size(), 0);
+	LASS_TEST_CHECK_EQUAL(n_list.size(), size_t(0));
 
 	yet_another_list.unique();
 	stream << yet_another_list;

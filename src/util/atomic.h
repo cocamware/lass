@@ -158,9 +158,9 @@ public:
 	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
 	TaggedPtr(const TaggedPtr& other): bits_(other.bits_) {}
 	TaggedPtr(const volatile TaggedPtr& other): bits_(other.bits_) {}
-	volatile TaggedPtr& operator=(const TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
-	volatile TaggedPtr& operator=(const volatile TaggedPtr& other) volatile { bits_ = other.bits_; return *this; }
-	T* const get() const volatile
+	TaggedPtr& operator=(const TaggedPtr& other) { bits_ = other.bits_; return *this; }
+	TaggedPtr& operator=(const volatile TaggedPtr& other) { bits_ = other.bits_; return *this; }
+	T* const get() const
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		T* ptr;
@@ -174,15 +174,16 @@ public:
 			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
 #	endif
 	}
-	const TTag tag() const volatile { return static_cast<TTag>(bits_ & 0xffff); }
-	const bool operator==(const volatile TaggedPtr& other) const volatile { return bits_ == other.bits_; }
+	const TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
+	const bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+	const bool operator==(const volatile TaggedPtr& other) const { return bits_ == other.bits_; }
 	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
 	{
 		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
 	}
 private:
 	num::Tuint64 bits_;
-#else
+#elif LASS_ACTUAL_ADDRESS_SIZE == 32
 	// We're in 32 bit space, so we use a 64 bit CAS to do tagging
 	//
 	typedef num::TuintPtr TTag;
@@ -190,11 +191,12 @@ private:
 	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
 	TaggedPtr(const TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
 	TaggedPtr(const volatile TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
-	volatile TaggedPtr& operator=(const TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
-	volatile TaggedPtr& operator=(const volatile TaggedPtr& other) volatile { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
-	T* const get() const volatile { return ptr_; }
-	const TTag tag() const volatile { return tag_; }
-	bool operator==(const volatile TaggedPtr& other) const volatile { return ptr_ == other.ptr_ && tag_ == other.tag_; }
+	TaggedPtr& operator=(const TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	TaggedPtr& operator=(const volatile TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	T* const get() const { return ptr_; }
+	const TTag tag() const { return tag_; }
+	bool operator==(const TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
+	bool operator==(const volatile TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
 	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
 	{
 		return util::atomicCompareAndSwap(
@@ -203,11 +205,13 @@ private:
 private:
 	T* ptr_;
 	TTag tag_;
+#else
+#	error "not implemented yet [Bramz]"
 #endif
 public:
-	T* const operator->() const volatile { LASS_ASSERT(get()); return get(); }
-	const bool operator!() const volatile { return get() == 0; }
-	operator num::SafeBool() const volatile { return get() ? num::safeTrue : num::safeFalse; }
+	T* const operator->() const { LASS_ASSERT(get()); return get(); }
+	const bool operator!() const { return get() == 0; }
+	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
 };
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC

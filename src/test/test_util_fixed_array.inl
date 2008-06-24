@@ -63,8 +63,8 @@ void testUtilFixedArray()
 
 	TFixedArray array;
 
-	LASS_TEST_CHECK_EQUAL(array.size(), 5);
-	LASS_TEST_CHECK_EQUAL(array.max_size(), 5);
+	LASS_TEST_CHECK_EQUAL(array.size(), size_t(5));
+	LASS_TEST_CHECK_EQUAL(array.max_size(), size_t(5));
 	LASS_TEST_CHECK_EQUAL(array.empty(), false);
 
 	T value(1);
@@ -94,8 +94,8 @@ void testUtilFixedArray()
 
 	FixedArray<T, 0> nullArray;
 
-	LASS_TEST_CHECK_EQUAL(nullArray.size(), 0);
-	LASS_TEST_CHECK_EQUAL(nullArray.max_size(), 0);
+	LASS_TEST_CHECK_EQUAL(nullArray.size(), size_t(0));
+	LASS_TEST_CHECK_EQUAL(nullArray.max_size(), size_t(0));
 	LASS_TEST_CHECK_EQUAL(nullArray.empty(), true);
 	LASS_TEST_CHECK(nullArray.begin() == nullArray.end());
 	LASS_TEST_CHECK(nullArray.rbegin() == nullArray.rend());

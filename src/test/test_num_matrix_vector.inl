@@ -170,7 +170,7 @@ void testNumVector()
 	// construct empty vector
 	//
 	Vector<T> d;
-	LASS_TEST_CHECK_EQUAL(d.size(), 0);
+	LASS_TEST_CHECK_EQUAL(d.size(), size_t(0));
 	LASS_TEST_CHECK(d.isEmpty());
 
 	d = a;
@@ -252,9 +252,9 @@ void testNumMatrix()
 	LASS_TEST_CHECK(!b.isIdentity());
 	LASS_TEST_CHECK(!b.isSquare());
 	LASS_TEST_CHECK(!b.isDiagonal());
-	LASS_TEST_CHECK_EQUAL(b.rows(), 3);
+	LASS_TEST_CHECK_EQUAL(b.rows(), size_t(3));
 
-	LASS_TEST_CHECK_EQUAL(b.columns(), 4);
+	LASS_TEST_CHECK_EQUAL(b.columns(), size_t(4));
 	LASS_TEST_CHECK_EQUAL(b, b);
 }
 
@@ -285,7 +285,7 @@ void testNumSolve()
 
 	Vector<T> x = b;
 	solve(a, x);
-	LASS_TEST_CHECK(num::norm((a * x - b).norm()) < 1e-12);
+	LASS_TEST_CHECK(num::norm((a * x - b).norm()) < 1e-12f);
 }
 
 
