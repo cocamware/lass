@@ -146,6 +146,8 @@ namespace test
 	void freeMethodA(const Bar& bar, const std::string& a);
 	void freeMethodB(Bar* bar, const std::string& a);
 	float freeCall(const Bar* bar, float a);
+	std::string freeStr(const Bar* bar);
+	std::string freeRepr(const Bar* bar);
 }
 
 }

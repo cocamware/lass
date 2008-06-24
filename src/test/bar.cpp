@@ -224,6 +224,14 @@ namespace test
 			LASS_COUT << "float freeCall(const Bar*, float a): " << bar << " " << a << std::endl;
 			return a / 2;
 		}
+		std::string freeStr(const Bar* bar)
+		{
+			return std::string("A free __str__ representation of Bar");
+		}
+		std::string freeRepr(const Bar* bar)
+		{
+			return std::string("A free __repr__ representation of Bar");
+		}
 
 		// --- shadow classes ---
 
