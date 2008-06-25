@@ -44,6 +44,13 @@
 #include "binary_i_stream.h"
 #include "../num/basic_types.h"
 
+// static_cast from TintPtr to pointer gives warning on MSVC, yet both are identical in size [Bramz]
+// 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4312) // 'reinterpret_cast' : conversion from 'lass::num::TintPtr' to 'void *' of greater size
+#endif
+
 namespace lass
 {
 
@@ -86,58 +93,105 @@ BinaryIStream& BinaryIStream::seekg(long offset, std::ios_base::seekdir directio
 
 
 
-#define LASS_IO_BINARY_I_STREAM_EXTRACTOR( type )\
-BinaryIStream& BinaryIStream::operator>>( type & x )\
-{\
-	if (good())\
-	{\
-		type temp;\
-		doRead(&temp, sizeof(type));\
-		if (good())\
-		{\
-			x = num::fixEndianness(temp, endianness());\
-		}\
-	}\
-	return *this;\
+BinaryIStream& BinaryIStream::operator>>( char& x )
+{
+	return readValue(x);
 }
 
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(char)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint8)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint8)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint16)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint16)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint32)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint32)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tint64)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tuint64)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tfloat32)
-LASS_IO_BINARY_I_STREAM_EXTRACTOR(num::Tfloat64)
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tint8& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tuint8& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tint16& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tuint16& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tint32& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tuint32& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tint64& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tuint64& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tfloat32& x )
+{
+	return readValue(x);
+}
+
+
+
+BinaryIStream& BinaryIStream::operator>>( num::Tfloat64& x )
+{
+	return readValue(x);
+}
+
+
 
 BinaryIStream& BinaryIStream::operator>>(bool& x)
 {
+	num::Tuint8 temp;
+	*this >> temp;
 	if (good())
 	{
-		num::Tuint8 temp;
-		*this >> temp;
-		if (good())
-		{
-			x = temp ? true : false;
-		}
+		x = temp ? true : false;
 	}
 	return *this;
 }
 
+
+
 BinaryIStream& BinaryIStream::operator>>(void*& x)
 {
+	LASS_META_ASSERT(sizeof(num::TintPtr) == sizeof(const void*), TintPtr_should_be_of_pointer_size);
+	num::Tint64 temp;
+	*this >> temp;
 	if (good())
 	{
-		num::Tint64 temp;
-		*this >> temp;
-		if (good())
-		{
 #pragma LASS_FIXME("do something special here if cast causes truncation [Bramz]")
-			x = reinterpret_cast<void*>(static_cast<num::TintPtr>(temp));
-		}
+		x = reinterpret_cast<void*>(static_cast<num::TintPtr>(temp));
 	}
 	return *this;
 }
@@ -146,21 +200,18 @@ BinaryIStream& BinaryIStream::operator>>(void*& x)
 
 BinaryIStream& BinaryIStream::operator>>( std::string& x )
 {
+	num::Tuint64 n;
+	*this >> n;
 	if (good())
 	{
-		num::Tuint64 n;
-		*this >> n;
 		size_t length = static_cast<size_t>(n);
 #pragma LASS_FIXME("do something special if there's an overflow [Bramz]")
 		LASS_ASSERT(n == static_cast<num::Tuint64>(n));
+		std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
+		doRead(&buffer[0], length);
 		if (good())
 		{
-			std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
-			doRead(&buffer[0], length);
-			if (good())
-			{
-				x = std::string(&buffer[0]);
-			}
+			x = std::string(&buffer[0]);
 		}
 	}
 	return *this;
@@ -180,6 +231,24 @@ void BinaryIStream::read(void* output, size_t numBytes)
 	doRead(output, numBytes);
 }
 
+
+
+// --- private -------------------------------------------------------------------------------------
+
+template <typename T>
+BinaryIStream& BinaryIStream::readValue(T& x)
+{
+	if (good())
+	{
+		T temp;
+		doRead(&temp, sizeof(T));
+		if (good())
+		{
+			x = num::fixEndianness(temp, endianness());
+		}
+	}
+	return *this;
+}
 
 
 }

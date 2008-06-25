@@ -96,7 +96,8 @@ public:
 
 private:
 
-	void writeString(const char* string, size_t length);
+	template <typename T> BinaryOStream& writeValue(T x);
+	BinaryOStream& writeString(const char* string, size_t length);
 
 	virtual long doTellp() const = 0;
 	virtual void doSeekp(long offset, std::ios_base::seekdir direction) = 0;

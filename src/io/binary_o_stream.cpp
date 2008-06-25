@@ -43,6 +43,12 @@
 #include "io_common.h"
 #include "binary_o_stream.h"
 
+// static_cast from pointer to TintPtr gives warning on MSVC, yet both are identical in size [Bramz]
+// 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4311) // 'reinterpret_cast' : 'reinterpret_cast' : pointer truncation from 'const void *' to 'lass::num::TintPtr'
+#endif
+
 namespace lass
 {
 namespace io
@@ -93,47 +99,111 @@ void BinaryOStream::flush()
 
 
 
-#define LASS_IO_BINARY_O_STREAM_INSERTOR( type )\
-BinaryOStream& BinaryOStream::operator<<( type x )\
-{\
-	type temp = num::fixEndianness(x, endianness());\
-	doWrite(&temp, sizeof(type));\
-	return *this;\
+BinaryOStream& BinaryOStream::operator<<( char x )
+{
+	return writeValue(x);
 }
 
-LASS_IO_BINARY_O_STREAM_INSERTOR(char)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint8)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint8)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint16)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint16)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint32)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint32)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tint64)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tuint64)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tfloat32)
-LASS_IO_BINARY_O_STREAM_INSERTOR(num::Tfloat64)
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tint8 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tuint8 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tint16 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tuint16 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tint32 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tuint32 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tint64 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tuint64 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tfloat32 x )
+{
+	return writeValue(x);
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<( num::Tfloat64 x )
+{
+	return writeValue(x);
+}
+
+
 
 BinaryOStream& BinaryOStream::operator<<(bool x)
 {
 	return *this << (x ? num::Tuint8(1) : num::Tuint8(0));
 }
 
+
+
 BinaryOStream& BinaryOStream::operator<<(const void* x)
 {
+	LASS_META_ASSERT(sizeof(num::TintPtr) == sizeof(const void*), TintPtr_should_be_of_pointer_size);
 	return *this << static_cast<num::Tint64>(reinterpret_cast<num::TintPtr>(x));
 }
 
+
+
 BinaryOStream& BinaryOStream::operator<<(const char* x)
 {
-	writeString(x, strlen(x));
-	return *this;
+	return writeString(x, strlen(x));
 }
+
+
 
 BinaryOStream& BinaryOStream::operator<<(const std::string& x)
 {
-	writeString(x.data(), x.length());
-	return *this;
+	return writeString(x.data(), x.length());
 }
+
+
 
 /** write a buffer of bytes to the stream
  *  @param bytes pointer to buffer.
@@ -146,12 +216,23 @@ void BinaryOStream::write(const void* bytes, size_t numBytes)
 
 // --- private -------------------------------------------------------------------------------------
 
-void BinaryOStream::writeString(const char* string, size_t length)
+template <typename T>
+BinaryOStream& BinaryOStream::writeValue(T x)
+{
+	const T temp = num::fixEndianness(x, endianness());
+	doWrite(&temp, sizeof(T));
+	return *this;
+}
+
+
+
+BinaryOStream& BinaryOStream::writeString(const char* string, size_t length)
 {
 	const num::Tuint64 n = static_cast<num::Tuint64>(length);
 	LASS_ASSERT(length == static_cast<size_t>(n));
 	*this << n;
 	doWrite(string, length);
+	return *this;
 }
 
 }

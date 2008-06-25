@@ -93,6 +93,8 @@ public:
 
 private:
 
+	template <typename T> BinaryIStream& readValue(T& x);
+
 	virtual long doTellg() const = 0;
 	virtual void doSeekg(long iOffset, std::ios_base::seekdir iDirection) = 0;
 	virtual void doRead(void* oOutput, size_t iNumberOfBytes) = 0;
