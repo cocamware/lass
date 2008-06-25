@@ -77,12 +77,13 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_IO_PROXY_O_STREAM_H
 #define LASS_GUARDIAN_OF_INCLUSION_IO_PROXY_O_STREAM_H
 
-
-
-
 #include "io_common.h"
 #include "../util/bit_manip.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+#endif
 
 namespace lass
 {
@@ -221,10 +222,12 @@ private:
 	TDestinations destinations_;
 };
 
-
-
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif

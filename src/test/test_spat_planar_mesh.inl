@@ -523,15 +523,14 @@ void doTestPlanarMesh()
 	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0,60.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test8.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 
-	int i=0;
-	i = 0; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),intHandles[0],intHandles[0] );
+	int k=0;
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test9.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	i = 1; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),intHandles[0],intHandles[0] );
+	k = 1; 
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test10.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	i = 2; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),intHandles[0],intHandles[0] );
+	k = 2; 
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test11.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 	
 

@@ -58,7 +58,7 @@ namespace util
 namespace impl
 {
 
-size_t numberOfProcessors()
+unsigned numberOfProcessors()
 {
 	// we'll need to cache this if we want this to ever work ...
 	
@@ -66,7 +66,7 @@ size_t numberOfProcessors()
 	CPU_ZERO(&mask);	
 	LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &mask));
 	
-	size_t count = 0;
+	unsigned count = 0;
 	int i = 0;
 	while (CPU_ISSET(i++, &mask))
 	{
@@ -275,7 +275,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pid_t pid, size_t processor)
+void bindThread(pid_t pid, unsigned processor)
 {
 	cpu_set_t mask;
 	CPU_ZERO(&mask);

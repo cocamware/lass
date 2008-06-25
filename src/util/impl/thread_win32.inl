@@ -71,7 +71,7 @@ namespace util
 namespace impl
 {
 
-const size_t numberOfProcessors()
+const unsigned numberOfProcessors()
 {
 	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
@@ -452,7 +452,7 @@ MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(HANDLE thread, size_t processor)
+void bindThread(HANDLE thread, unsigned processor)
 {
 	DWORD_PTR affinityMask = 0;
 	if (processor == Thread::anyProcessor)

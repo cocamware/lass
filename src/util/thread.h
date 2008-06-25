@@ -113,7 +113,7 @@ enum ThreadKind
 
 /** @ingroup Threading
  */
-LASS_DLL extern size_t numberOfProcessors;
+LASS_DLL extern unsigned numberOfProcessors;
 
 /** Mutex.
 *   @ingroup Threading
@@ -194,14 +194,14 @@ public:
 
 	enum 
 	{ 
-		anyProcessor = size_t(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
+		anyProcessor = unsigned(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
 	};
 
 	virtual ~Thread();
 	
 	void run();
 	void join();
-	void bind(size_t processor);
+	void bind(unsigned processor);
 	
 	static void sleep(unsigned long milliseconds);
 	static void yield();
