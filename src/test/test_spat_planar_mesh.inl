@@ -51,6 +51,9 @@
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	define _CRT_SECURE_NO_WARNINGS 1 // because someone is using sscanf && sprintf ;)
+#endif
 
 namespace lass
 {
@@ -442,12 +445,13 @@ void doTestPlanarMesh()
 	if (io::fileDoesExist("contours.txt"))
 	{
 		contoursTest.open("contours.txt");
-		char buf[256];
+		std::string line;
 		int segmentCount = 0;
-		while (contoursTest.getline(buf,255))
+		while (std::getline(contoursTest, line, '\n'))
 		{
+			std::istringstream stream(line);
 			double x1,y1,x2,y2;
-			sscanf(buf,"%lf %lf %lf %lf",&x1,&y1,&x2,&y2);
+			stream >> x1 >> y1 >> x2 >> y2;
 			x1 -= offsetX;
 			x2 -= offsetX;
 			y1 -= offsetY;
@@ -463,8 +467,9 @@ void doTestPlanarMesh()
 				if (segmentCount%25==-1)
 				{
 					ColorEdges colorEdges;
-					sprintf(buf,"contour%d.m",segmentCount);
-					colorEdges.stream.open(buf);	
+					std::ostringstream buf;
+					buf << "countour" << segmentCount << ".m";
+					colorEdges.stream.open(buf.str().c_str());	
 					testMeshContours.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	
 					colorEdges.stream.close();
 				}

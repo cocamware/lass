@@ -49,6 +49,11 @@
 
 #include "../util/fixed_array.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) //  'argument' : conversion from 'size_t' to 'const lass::num::Tuint32', possible loss of data
+#endif
+
 namespace lass
 {
 namespace test
@@ -106,6 +111,10 @@ void testUtilFixedArray()
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif
 

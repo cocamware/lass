@@ -526,8 +526,6 @@ void testSpatObjectTrees()
 	object_trees::TreeConstructor<TObjectIterator> construct(objectBegin, objectEnd);
 	meta::tuple::forEach(trees, construct);
 
-	LASS_COUT << meta::tuple::field<2>(trees).depth() << "\t" << meta::tuple::field<2>(trees).averageDepth() << std::endl;
-
 	typedef std::vector<TObjectIterator> TObjectHits;
 
 	// contain test

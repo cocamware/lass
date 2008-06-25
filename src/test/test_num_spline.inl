@@ -62,7 +62,7 @@ namespace test
 namespace num_spline
 {
 
-std::string doubleToString(double iX, size_t iDigitsMantissa, size_t iDigitsExponent)
+std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 {
 	std::ostringstream buffer;
 	buffer << std::scientific << std::showpos << std::setprecision(iDigitsMantissa - 1) << iX;
