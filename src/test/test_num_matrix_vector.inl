@@ -265,16 +265,14 @@ void testNumSolve()
 {
 	using namespace num;
 
-	typedef typename Matrix<T>::TSize TSize;
-
-	const TSize n = 3;
+	const int n = 3;
 	Matrix<T> a(n, n);
 	Vector<T> b(n);
 
 	int v = 0;
-	for (TSize i = 0; i < n; ++i)
+	for (int i = 0; i < n; ++i)
 	{
-		for (TSize j = 0; j < n; ++j)
+		for (int j = 0; j < n; ++j)
 		{
 			a(i, j) = static_cast<T>(++v);
 		}
