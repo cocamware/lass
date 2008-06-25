@@ -110,7 +110,7 @@ namespace impl
 	PyObject* PyIteratorRangeImpl<M>::PyIteratorRange_IterNext()
 	{
 		if (curIt_!=endIt_)
-			return PyExportTraits< M::value_type >::build(*curIt_++);
+			return PyExportTraits< typename M::value_type >::build(*curIt_++);
 		// according to python specs this is allowed and is equivalent of setting the 
 		// stopiteration exception
 		return NULL;	

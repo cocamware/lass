@@ -217,7 +217,7 @@ namespace impl
 			PyErr_SetObject(PyExc_KeyError, iKey);
 			return NULL;
 		}
-		PyObject* rv = PyExportTraits<M::mapped_type>::build( it->second );
+		PyObject* rv = PyExportTraits<typename M::mapped_type>::build( it->second );
 		Py_INCREF(rv);
 		return rv;
 	}

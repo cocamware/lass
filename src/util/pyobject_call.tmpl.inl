@@ -192,7 +192,7 @@ struct Caller
 	{
 		try
 		{
-			return lass::python::PyExportTraits< lass::util::CallTraits<R>::TValue >::build( iFunction() );
+			return PyExportTraits<R>::build( iFunction() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
@@ -202,7 +202,7 @@ struct Caller
 	{
 		try
 		{
-			return lass::python::PyExportTraits<R>::build( iFunction($(p$x)$) );
+			return PyExportTraits<R>::build( iFunction($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -215,7 +215,7 @@ struct Caller
 	{
 		try
 		{
-			return lass::python::PyExportTraits<R>::build( (iObject->*iMethod)() );
+			return PyExportTraits<R>::build( (iObject->*iMethod)() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
@@ -225,7 +225,7 @@ struct Caller
 	{
 		try
 		{
-			return lass::python::PyExportTraits<R>::build( (iObject->*iMethod)($(p$x)$) );
+			return PyExportTraits<R>::build( (iObject->*iMethod)($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}

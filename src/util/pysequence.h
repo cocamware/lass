@@ -313,7 +313,7 @@ namespace impl
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
 		}
-		return lass::python::PyExportTraits< Container::value_type >::build( ContainerTraits<Container>::element_at(*cont_,i));
+		return lass::python::PyExportTraits< typename Container::value_type >::build( ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh)
@@ -445,7 +445,7 @@ namespace impl
 		}
 		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
-		return fromNakedToSharedPtrCast<PyObject>(lass::python::PyExportTraits<Container::value_type>::build(temp));
+		return fromNakedToSharedPtrCast<PyObject>(lass::python::PyExportTraits<typename Container::value_type>::build(temp));
 	}
 
 	template<typename Container, typename ContainerOwnerShipPolicy>
