@@ -94,7 +94,7 @@ void testStdeStaticVector()
 	i = array_vector.begin();
 	for (size_t k = 0; k < array_size; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != array_vector.end());
+		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != array_vector.end());
 		if (i != array_vector.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, array[k]);
