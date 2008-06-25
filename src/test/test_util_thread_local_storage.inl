@@ -42,67 +42,60 @@
 
 
 
-#include "test_common.h"
-#include "test_util.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_LOCAL_STORAGE_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_LOCAL_STORAGE_INL
 
-#include "test_util_atomic.inl"
-#include "test_util_bind.inl"
-#include "test_util_callback.inl"
-#include "test_util_clock.inl"
-#include "test_util_clone_factory.inl"
-#include "test_util_dictionary.inl"
-#include "test_util_exception.inl"
-#include "test_util_fixed_array.inl"
-#include "test_util_id_generator.inl"
-#include "test_util_python.inl"
-#include "test_util_string_cast.inl"
-#include "test_util_thread_fun.inl"
-#include "test_util_thread_pool.inl"
-#include "test_util_thread_local_storage.inl"
+#include "test_common.h"
+
+#include "../util/thread_fun.h"
+#include "../util/scoped_ptr.h"
 
 namespace lass
 {
 namespace test
 {
-
-TUnitTests testUtil()
+namespace thread_local_storage
 {
-	TUnitTests result;
+	unsigned destructionCalls = 0;
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
+	class Foo
+	{
+	public:
+		~Foo()
+		{
+			++destructionCalls;
+		}
+	};
 
-	result.push_back(LASS_UNIT_TEST(testUtilBind));
-
-	result.push_back(LASS_UNIT_TEST(testUtilPython));
-	
-	result.push_back(LASS_UNIT_TEST(testUtilCallback));
-
-	result.push_back(LASS_UNIT_TEST(testUtilClock));
-
-	result.push_back(LASS_UNIT_TEST(testUtilCloneFactory));
-
-	result.push_back(LASS_UNIT_TEST(testUtilDictionary));
-
-	result.push_back(LASS_UNIT_TEST(testUtilException));
-
-	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<int>));
-	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<float>));
-
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<int>));
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<char>));
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<unsigned long>));
-
-	result.push_back(LASS_UNIT_TEST(testUtilStringCast));
-
-	result.push_back(LASS_UNIT_TEST(testUtilThreadFun));
-	result.push_back(LASS_UNIT_TEST(testUtilThreadPool));
-	result.push_back(LASS_UNIT_TEST(testUtilThreadLocalStorage));
-
-	return result;
+	void fun()
+	{
+		static util::ThreadLocalVariable<Foo> foo;
+		foo.get();
+	}
 }
 
+void testUtilThreadLocalStorage()
+{
+	using namespace thread_local_storage;
 
+	util::ScopedPtr<util::Thread> thread(util::threadFun(fun, util::threadJoinable));
+	thread->run();
+	thread->join();
 
+	LASS_TEST_CHECK_EQUAL(destructionCalls, 2); // once for constructor of ThreadLocalVariable, once for the TLS foo ...
+
+	// let's try that again =)
+	thread.reset(util::threadFun(fun, util::threadJoinable));
+	thread->run();
+	thread->join();
+
+	LASS_TEST_CHECK_EQUAL(destructionCalls, 3); // once for the TLS foo ...
 }
 
 }
+
+}
+
+#endif
+
+// EOF
