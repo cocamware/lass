@@ -85,19 +85,19 @@ void testIoArgParser()
 	LASS_TEST_CHECK(!hello);
 
 	LASS_TEST_CHECK(say);
-	LASS_TEST_CHECK_EQUAL(say.size(), 1);
+	LASS_TEST_CHECK_EQUAL(say.size(), size_t(1));
 	LASS_TEST_CHECK_EQUAL(say[0], "\"hello world!\"");
 
 	LASS_TEST_CHECK(path);
-	LASS_TEST_CHECK_EQUAL(path.size(), 2);
+	LASS_TEST_CHECK_EQUAL(path.size(), size_t(2));
 	LASS_TEST_CHECK_EQUAL(path[0], "c:\\foo");
 	LASS_TEST_CHECK_EQUAL(path[1], "c:\\my bar");
 
 	LASS_TEST_CHECK(diffraction);
-	LASS_TEST_CHECK_EQUAL(diffraction.size(), 1); // still default value
+	LASS_TEST_CHECK_EQUAL(diffraction.size(), size_t(1)); // still default value
 	LASS_TEST_CHECK_EQUAL(diffraction[0], 2);
 
-	LASS_TEST_CHECK_EQUAL(result.size(), 2);
+	LASS_TEST_CHECK_EQUAL(result.size(), size_t(2));
 	LASS_TEST_CHECK_EQUAL(result[0], "script.py");
 	LASS_TEST_CHECK_EQUAL(result[1], "0build.py");
 

@@ -79,7 +79,7 @@ void testStdeStaticVector()
 	static_vector_type::const_iterator i = n_vector.begin();
 	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_vector.end());
+		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
 		if (i != n_vector.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);
@@ -136,7 +136,7 @@ void testStdeStaticVector()
 	i = n_vector.begin();
 	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_vector.end());
+		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
 		if (i != n_vector.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);
@@ -145,7 +145,7 @@ void testStdeStaticVector()
 	}
 	for (size_t k = 0; k < m; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_vector.end());
+		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
 		if (i != n_vector.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 69);
@@ -158,7 +158,7 @@ void testStdeStaticVector()
 	i = n_vector.begin();
 	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_vector.end());
+		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
 		if (i != n_vector.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);

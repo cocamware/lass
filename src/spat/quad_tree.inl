@@ -415,7 +415,7 @@ QuadTree<O, OT>::doIntersect(
 		for (size_t i = 0; i < n; ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-			TValue tCandidate;
+			TValue tCandidate = 0;
 			if (TObjectTraits::objectIntersect(node->data[i], ray, tCandidate, tMin, info))
 			{
 				LASS_ASSERT(tCandidate > tMin);

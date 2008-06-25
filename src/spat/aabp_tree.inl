@@ -406,7 +406,7 @@ AabpTree<O, OT, SH>::doIntersect(
 		for (int i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-			TValue tCandidate;
+			TValue tCandidate = 0;
 			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 			{
 				LASS_ASSERT(tCandidate > tMin);

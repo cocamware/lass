@@ -390,7 +390,7 @@ AabbTree<O, OT, SH>::doIntersect(
 	for (int i = node.first(); i != node.last(); ++i)
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-		TValue tCandidate;
+		TValue tCandidate = 0;
 		if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 		{
 			if (best == end_ || tCandidate < tBest)
@@ -417,7 +417,7 @@ bool AabbTree<O, OT, SH>::doIntersects(
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
-	TValue tDummy;
+	TValue tDummy = 0;
 	if (!TObjectTraits::aabbIntersect(node.aabb(), ray, tDummy, tMin))
 	{
 		return false;
