@@ -201,8 +201,8 @@ template<typename C> interval<C> log(const interval<C>& i);
 template<typename C>    interval<C> set_union(const interval<C>& i1, const interval<C>& i2);
 template<typename C>    interval<C> set_intersect(const interval<C>& i1, const interval<C>& i2);
 
-#ifndef LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 // num traits partial specialisation
+
 template< class C >
 struct NumTraits< interval<C> >
 {
@@ -219,7 +219,7 @@ struct NumTraits< interval<C> >
 		hasInfinity = 0,
 	};
 
-	static const int   memorySize;
+	static const size_t memorySize;
 	static const std::string name();
 
 	static const interval<C>    one;
@@ -236,7 +236,7 @@ struct NumTraits< interval<C> >
 };
 
 
-template<class C> const int     NumTraits<interval<C> >::memorySize = sizeof(interval<C>);
+template<class C> const size_t NumTraits<interval<C> >::memorySize = sizeof(interval<C>);
 template<class C> const std::string NumTraits<interval<C> >::name() { return std::string("interval<")+NumTraits<baseType>::name()+ std::string(">"); }
 
 template<class C> const interval<C> NumTraits<interval<C> >::one = interval<C>( NumTraits<C>::one );
@@ -250,78 +250,6 @@ template<class C> const interval<C> NumTraits<interval<C> >::pi = interval<C>( N
 template<class C> const interval<C> NumTraits<interval<C> >::e = interval<C>( NumTraits<C>::e );
 template<class C> const interval<C> NumTraits<interval<C> >::sqrt2 = interval<C>( NumTraits<C>::sqrt2 );
 template<class C> const interval<C> NumTraits<interval<C> >::sqrtPi = interval<C>( NumTraits<C>::sqrtPi );
-
-#else
-// The "poor mans broken compiler" workaround
-#pragma LASS_NOTE( "NumTraits for Interval is only specialized for interval<float> and interval<double>" )
-
-template<>
-struct NumTraits< interval<float> >
-{
-	typedef interval<float> selfType;
-	typedef float           baseType;
-	typedef float           intervalType;
-
-	enum
-	{
-		isDistribution = 1,
-		isIntegral = 0,
-		isNative = 0,
-		isSigned = 1,
-		hasInfinity = 0,
-	};
-
-	static const int   memorySize;
-	static const std::string name();
-
-	static const interval<float>    one;
-	static const interval<float>    zero;
-
-	static const interval<float> epsilon;
-	static const interval<float> min;
-	static const interval<float> max;
-	static const interval<float> minStrictPositive;
-	static const interval<float> pi;
-	static const interval<float> e;
-	static const interval<float> sqrt2;
-	static const interval<float> sqrtPi;
-};
-
-
-template<>
-struct NumTraits< interval<double> >
-{
-	typedef interval<double>    selfType;
-	typedef double          baseType;
-	typedef double          intervalType;
-
-
-	enum
-	{
-		isDistribution = 1,
-		isIntegral = 0,
-		isNative = 0,
-		isSigned = 1,
-		hasInfinity = 0,
-	};
-
-	static const int   memorySize;
-	static const std::string name();
-
-	static const interval<double>   one;
-	static const interval<double>   zero;
-
-	static const interval<double> epsilon;
-	static const interval<double> min;
-	static const interval<double> max;
-	static const interval<double> minStrictPositive;
-	static const interval<double> pi;
-	static const interval<double> e;
-	static const interval<double> sqrt2;
-	static const interval<double> sqrtPi;
-};
-
-#endif
 
 #include "interval.inl"
 
