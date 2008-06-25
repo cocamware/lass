@@ -362,7 +362,8 @@ inline PyObject* pyBuildSimpleObject_deprecated( const char* iV )
 }
 
 PYEXPORTTRAITS_USINGDEPRECATED( bool )
-PYEXPORTTRAITS_USINGDEPRECATED( int )
+PYEXPORTTRAITS_USINGDEPRECATED( signed int )
+PYEXPORTTRAITS_USINGDEPRECATED( unsigned int )
 PYEXPORTTRAITS_USINGDEPRECATED( signed char )
 PYEXPORTTRAITS_USINGDEPRECATED( unsigned char )
 PYEXPORTTRAITS_USINGDEPRECATED( signed short )
@@ -376,19 +377,20 @@ PYEXPORTTRAITS_USINGDEPRECATED( unsigned PY_LONG_LONG)
 PYEXPORTTRAITS_USINGDEPRECATED( float )
 PYEXPORTTRAITS_USINGDEPRECATED( double )
 PYEXPORTTRAITS_USINGDEPRECATED( long double )
+
 template<>
 struct PyExportTraits< const char* >
 {
 	static PyObject* build(const char* iv) { return pyBuildSimpleObject_deprecated(iv); }
 };
-
+/*
 template<>
 struct PyExportTraits< size_t >
 {
 	static PyObject* build(const size_t& iv) { return pyBuildSimpleObject_deprecated(iv); }
 	static int get(PyObject* iV, size_t& ov) { return pyGetSimpleObject_deprecated(iV,ov); }
 };
-
+*/
 template<typename T>
 struct PyExportTraits< util::SharedPtr<T,PyObjectStorage,PyObjectCounter> >
 {
