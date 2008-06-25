@@ -57,7 +57,7 @@ namespace lass
 namespace util
 {
 
-size_t numberOfProcessors = impl::numberOfProcessors();
+unsigned numberOfProcessors = impl::numberOfProcessors();
 
 // --- Mutex ---------------------------------------------------------------------------------------
 
@@ -225,7 +225,7 @@ void Thread::join()
 
 /** bind this thread to a processor (this as in this-pointer)
  */
-void Thread::bind(size_t processor)
+void Thread::bind(unsigned processor)
 {
 	LASS_ASSERT(pimpl_);
 	pimpl_->bind(processor);
@@ -243,7 +243,7 @@ void Thread::yield()
 
 /** bind current thread to a processor (current as in callee's context)
  */
-void Thread::bindCurrent(size_t processor)
+void Thread::bindCurrent(unsigned processor)
 {
 	impl::ThreadInternal::bindCurrent(processor);
 }

@@ -582,7 +582,7 @@ public:
 		}
 	}
 
-	void bind(size_t processor)
+	void bind(unsigned processor)
 	{
 		bindThread(handle_, processor);
 	}
@@ -597,7 +597,7 @@ public:
 		Sleep(0);
 	}
 
-	static void bindCurrent(size_t processor)
+	static void bindCurrent(unsigned processor)
 	{
 		bindThread(GetCurrentThread(), processor);
 	}
@@ -698,7 +698,10 @@ LASS_EXECUTE_BEFORE_MAIN_EX(
 
 #else
 
-static void NTAPI lassOnThreadCallback(PVOID, DWORD dwReason, PVOID)
+namespace
+{
+
+void NTAPI lassOnThreadCallback(PVOID, DWORD dwReason, PVOID)
 {
 	if(dwReason == DLL_THREAD_DETACH)
 	{
@@ -706,17 +709,11 @@ static void NTAPI lassOnThreadCallback(PVOID, DWORD dwReason, PVOID)
 	}
 }
 
-#if (_MSC_VER >= 1310)
-#   pragma data_seg(push, lassOldSegment)
-#endif
+#pragma section(".CRT$XLB", read)
 
-#pragma data_seg(".CRT$XLB")
-PIMAGE_TLS_CALLBACK lassThreadCallback = lassOnThreadCallback;
-#pragma data_seg()
+extern "C" __declspec(allocate(".CRT$XLB")) PIMAGE_TLS_CALLBACK lassThreadCallback = lassOnThreadCallback;
 
-#if (_MSC_VER >= 1310) // 1310 == VC++ 7.1
-#   pragma data_seg(pop, lassOldSegment)
-#endif
+}
 
 #ifdef _WIN64
 #	pragma comment(linker, "/INCLUDE:_tls_used")

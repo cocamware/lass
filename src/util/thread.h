@@ -205,7 +205,7 @@ public:
 	
 	static void sleep(unsigned long milliseconds);
 	static void yield();
-	static void bindCurrent(size_t processor);
+	static void bindCurrent(unsigned processor);
 
 protected:
 
