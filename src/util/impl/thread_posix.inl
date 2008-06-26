@@ -206,8 +206,8 @@ public:
 	}	
 	const WaitResult wait(unsigned long iMilliSeconds)
 	{
-		const unsigned million =  1000000;
-		const unsigned trillion = 1000000000;
+		const long million =  1000000;
+		const long trillion = 1000000000;
 		
 		LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
 		

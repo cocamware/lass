@@ -56,7 +56,7 @@ namespace test
 {
 namespace thread_local_storage
 {
-	unsigned destructionCalls = 0;
+	int destructionCalls = 0;
 
 	class Foo
 	{
