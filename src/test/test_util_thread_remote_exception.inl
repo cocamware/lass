@@ -42,69 +42,45 @@
 
 
 
-#include "test_common.h"
-#include "test_util.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_REMOTE_EXCEPTION_INL
+#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_THREAD_REMOTE_EXCEPTION_INL
 
-#include "test_util_atomic.inl"
-#include "test_util_bind.inl"
-#include "test_util_callback.inl"
-#include "test_util_clock.inl"
-#include "test_util_clone_factory.inl"
-#include "test_util_dictionary.inl"
-#include "test_util_exception.inl"
-#include "test_util_fixed_array.inl"
-#include "test_util_id_generator.inl"
-#include "test_util_python.inl"
-#include "test_util_string_cast.inl"
-#include "test_util_thread_fun.inl"
-#include "test_util_thread_pool.inl"
-#include "test_util_thread_local_storage.inl"
-#include "test_util_thread_remote_exception.inl"
+#include "test_common.h"
+
+#include "../util/thread_fun.h"
+#include "../util/scoped_ptr.h"
 
 namespace lass
 {
 namespace test
 {
-
-TUnitTests testUtil()
+namespace thread_remote_exception
 {
-	TUnitTests result;
+	class Meltdown: public util::experimental::ExceptionMixin<Meltdown>
+	{
+	public:
+		Meltdown(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
+	};
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
-
-	result.push_back(LASS_UNIT_TEST(testUtilBind));
-
-	result.push_back(LASS_UNIT_TEST(testUtilPython));
-	
-	result.push_back(LASS_UNIT_TEST(testUtilCallback));
-
-	result.push_back(LASS_UNIT_TEST(testUtilClock));
-
-	result.push_back(LASS_UNIT_TEST(testUtilCloneFactory));
-
-	result.push_back(LASS_UNIT_TEST(testUtilDictionary));
-
-	result.push_back(LASS_UNIT_TEST(testUtilException));
-
-	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<int>));
-	result.push_back(LASS_UNIT_TEST(testUtilFixedArray<float>));
-
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<int>));
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<char>));
-	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<unsigned long>));
-
-	result.push_back(LASS_UNIT_TEST(testUtilStringCast));
-
-	result.push_back(LASS_UNIT_TEST(testUtilThreadFun));
-	result.push_back(LASS_UNIT_TEST(testUtilThreadPool));
-	result.push_back(LASS_UNIT_TEST(testUtilThreadLocalStorage));
-	result.push_back(LASS_UNIT_TEST(testUtilThreadRemoteException));
-
-	return result;
+	void test_chamber()
+	{
+		LASS_THROW_EX(Meltdown, "ooops, we've got a wormhole");
+	}
 }
 
+void testUtilThreadRemoteException()
+{
+	using namespace thread_remote_exception;
 
+	util::ScopedPtr<util::Thread> thread(util::threadFun(test_chamber, util::threadJoinable));
+	thread->run();
+	LASS_TEST_CHECK_THROW(thread->join(), Meltdown);
+}
 
 }
 
 }
+
+#endif
+
+// EOF
