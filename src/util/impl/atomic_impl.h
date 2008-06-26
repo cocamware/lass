@@ -126,12 +126,12 @@ struct AtomicOperations<1>
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		bool result;
 		__asm__ __volatile__(
-			"movb %4, %%ah;"
-			"movb %5, %%dh;"
+			"movb %%bl, %%ah;"
+			"movb %%cl, %%dh;"
 			"lock; cmpxchgw %%dx, %0;"
 			"sete %1;"
 			: "=m"(reinterpret_cast<volatile num::Tuint16&>(dest1)), "=q"(result)
-			: "a"(expected1), "d"(new1), "g"(expected2), "g"(new2), 
+			: "a"(expected1), "d"(new1), "b"(expected2), "c"(new2), 
 			  "m"(reinterpret_cast<volatile num::Tuint16&>(dest1))
 			: "cc", "memory");
 		return result;		
