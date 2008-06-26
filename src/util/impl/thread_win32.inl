@@ -709,7 +709,11 @@ void NTAPI lassOnThreadCallback(PVOID, DWORD dwReason, PVOID)
 	}
 }
 
-#pragma section(".CRT$XLB", read)
+#if _MSC_VER >= 1400 // VC8.0
+#	pragma section(".CRT$XLB", read)
+#else
+#	pragma section(".CRT$XLB", read, write)
+#endif
 
 extern "C" __declspec(allocate(".CRT$XLB")) PIMAGE_TLS_CALLBACK lassThreadCallback = lassOnThreadCallback;
 
