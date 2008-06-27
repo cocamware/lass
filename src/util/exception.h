@@ -169,22 +169,42 @@ private:
 	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(Exception)
 };
 
+namespace experimental
+{
 
-class KeyError: public Exception
+template <typename ExceptionType, typename ParentType = Exception>
+class ExceptionMixin: public ParentType
 {
 public:
-	KeyError(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
+	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
 private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(KeyError)
+	virtual void doThrowSelf() const 
+	{
+		LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
+		throw *static_cast<const ExceptionType*>(this); 
+	}
+	virtual ::std::auto_ptr<RemoteExceptionBase> doClone() const
+	{ 
+		LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
+		return ::std::auto_ptr<RemoteExceptionBase>(new ExceptionType(*static_cast<const ExceptionType*>(this)));
+	}
+};
+
+}
+
+
+
+class KeyError: public experimental::ExceptionMixin<KeyError>
+{
+public:
+	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
 };
 
 
-class ValueError: public Exception
+class ValueError: public experimental::ExceptionMixin<ValueError>
 {
 public:
-	ValueError(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ValueError)
+	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
 };
 
 }
