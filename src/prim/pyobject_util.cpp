@@ -78,7 +78,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XY& oV)
 	{
 		std::ostringstream buffer;
 		buffer << "XY: " << error.message();
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
 		return 1;
 	}
 	return 0;
@@ -105,7 +105,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZ& oV)
 	{
 		std::ostringstream buffer;
 		buffer << "XYZ: " << error.message();
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
 		return 1;
 	}
 	return 0;
@@ -132,7 +132,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::XYZW& oV)
 	{
 		std::ostringstream buffer;
 		buffer << "XYZW: " << error.message();
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
 		return 1;
 	}
 	return 0;
@@ -292,12 +292,12 @@ PyObject* pyBuildSimpleObject_deprecated(const prim::ColorRGBA& iV)
 
 int pyGetSimpleObject_deprecated(PyObject* iValue, prim::ColorRGBA& oV)
 {
-	if (!PyTuple_Check(iValue))
+	if (!PySequence_Check(iValue))
 	{
 		PyErr_SetString(PyExc_TypeError, "ColorRGBA: is not a tuple");
 		return 1;
 	}
-	const Py_ssize_t size = PyTuple_Size(iValue);
+	const Py_ssize_t size = PySequence_Size(iValue);
 	if (size != 3 && size != 4)
 	{
 		std::ostringstream buffer;
@@ -308,24 +308,24 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::ColorRGBA& oV)
 	}
 	prim::ColorRGBA result;
 
-	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.r) != 0)
+	if (pyExportTraitGet(PySequence_ITEM(iValue, 0), result.r) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: r");
 		return 1;
 	}
-	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.g) != 0)
+	if (pyExportTraitGet(PySequence_ITEM(iValue, 1), result.g) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: g");
 		return 1;
 	}
-	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 2), result.b) != 0)
+	if (pyExportTraitGet(PySequence_ITEM(iValue, 2), result.b) != 0)
 	{
 		impl::addMessageHeader("ColorRGBA: b");
 		return 1;
 	}
 	if (size == 4)
 	{
-		if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 3), result.a) != 0)
+		if (pyExportTraitGet(PySequence_ITEM(iValue, 3), result.a) != 0)
 		{
 			impl::addMessageHeader("ColorRGBA: a");
 			return 1;

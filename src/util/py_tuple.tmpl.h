@@ -60,20 +60,6 @@ namespace impl
 	/** @ingroup Python
 	 *  @internal
 	 */
-	inline bool checkTuple(PyObject* iTuple)
-	{
-		LASS_ASSERT(iTuple);
-		if (!PyTuple_Check(iTuple))
-		{
-			PyErr_SetString(PyExc_TypeError, "iTuple isn't a tuple");
-			return false;
-		}
-		return true;
-	}
-
-	/** @ingroup Python
-	 *  @internal
-	 */
 	template <typename P>
 	inline bool decodeObject(PyObject* in, P& out, int index)
 	{
@@ -104,7 +90,7 @@ const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
 {
 	typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 	TPyObjPtr tuple(PyTuple_New($x));
- 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, lass::python::PyExportTraits< P$x >::build(iP$x)) != 0) return TPyObjPtr();
+ 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyExportTraitBuild(iP$x)) != 0) return TPyObjPtr();
  	)$
 	return tuple;
 }
@@ -131,10 +117,8 @@ $[
 template <$(typename P$x)$>
 int decodeTuple(PyObject* iTuple, $(P$x& oP$x)$)
 {
-	PyObject $(*p$x)$;
-	return impl::checkTuple(iTuple)
-		&& PyArg_UnpackTuple(iTuple, "", $x, $x, $(&p$x)$)
-$(		&& impl::decodeObject(p$x, oP$x, $x) 
+	return impl::checkSequenceSize(iTuple, $x)
+$(		&& impl::decodeObject(PySequence_ITEM(iTuple, $x - 1), oP$x, $x) 
 )$		? 0 : 1;
 
 }
