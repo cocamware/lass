@@ -183,16 +183,19 @@ void testNumSpline()
 	const TScalar delta = 1e-9f;
 	const TScalar integral0 = 380e-9f;
 
+	LASS_COUT << "SplineLinear\n";
 	TestStream patternLinear("spline_linear.pattern", TestStream::asForbidSaving);
 	num::SplineLinear<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > linear(
 		frequencies.begin(), frequencies.end(), responses.begin());
 	num_spline::testSpline(linear, patternLinear, begin, end, delta, integral0);
 
+	LASS_COUT << "SplineCubic\n";
 	TestStream patternCubic("spline_cubic.pattern",	TestStream::asForbidSaving);
 	num::SplineCubic<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > cubic(
 		frequencies.begin(), frequencies.end(), responses.begin());
 	num_spline::testSpline(cubic, patternCubic, begin, end, delta, integral0);
 
+	LASS_COUT << "SplineBezierPath\n";
 	TestStream patternBezierPath("spline_bezier_path.pattern", TestStream::asAllowSaving);
 	num::SplineBezierPath<TScalar, TVector3D, num::DataTraitsStaticVector<TVector3D> > bezierPath(
 		frequencies.begin(), frequencies.end(), responses.begin());

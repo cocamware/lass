@@ -354,7 +354,7 @@ void SplineBezierPath<S, D, T>::init(
 template <typename S, typename D, typename T>
 void SplineBezierPath<S, D, T>::makeFullNodes(const TSimpleNodes& simpleNodes)
 {
-	const TScalar dt = 1.f/3;
+	const TScalar dt = TScalar(1) / 3;
 	const typename TNodes::size_type size = simpleNodes.size();
 
 	TNodes nodes;
