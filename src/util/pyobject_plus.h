@@ -158,11 +158,6 @@ namespace lass
 			static PyObject* build(const t_basicType & iv) { return pyBuildSimpleObject_deprecated(iv); }\
 			static int get(PyObject* iv, t_basicType & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 		};\
-		template<>\
-		struct PyExportTraits< const t_basicType >\
-		{\
-			static PyObject* build(const t_basicType & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-		};
 
 		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( t_basicType )	\
 		template< typename T >\

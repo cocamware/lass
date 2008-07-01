@@ -583,7 +583,7 @@ void addClassStaticConst(const char* iName, const T& iValue)
 {
 	LASS_ASSERT(std::count_if(
 		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, lass::python::PyExportTraits<T>::build(iValue)));
+	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, pyExportTraitBuild(iValue)));
 }
 
 

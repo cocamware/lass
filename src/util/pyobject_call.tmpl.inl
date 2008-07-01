@@ -192,7 +192,7 @@ struct Caller
 	{
 		try
 		{
-			return PyExportTraits<R>::build( iFunction() );
+			return pyExportTraitBuild( iFunction() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
@@ -202,7 +202,7 @@ struct Caller
 	{
 		try
 		{
-			return PyExportTraits<R>::build( iFunction($(p$x)$) );
+			return pyExportTraitBuild( iFunction($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -215,7 +215,7 @@ struct Caller
 	{
 		try
 		{
-			return PyExportTraits<R>::build( (iObject->*iMethod)() );
+			return pyExportTraitBuild( (iObject->*iMethod)() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
@@ -225,7 +225,7 @@ struct Caller
 	{
 		try
 		{
-			return PyExportTraits<R>::build( (iObject->*iMethod)($(p$x)$) );
+			return pyExportTraitBuild( (iObject->*iMethod)($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -573,7 +573,7 @@ $[
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;
 
-		if( PyExportTraits<typename TArg::TStorage >::get( args, p ) != 0 )
+		if( pyExportTraitGet( args, p ) != 0 )
 		{
 			return -1;
 		}
@@ -594,7 +594,7 @@ $[
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;
 
-		if( PyExportTraits<typename TArg::TStorage >::get( args, p ) != 0 )
+		if( pyExportTraitGet( args, p ) != 0 )
 		{
 			return -1;
 		}

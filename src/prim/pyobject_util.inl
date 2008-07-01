@@ -56,10 +56,7 @@ namespace python
 template <typename T>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Vector2D<T>& iV)
 {
-	PyObject* newTuple = PyTuple_New(2);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.x));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.y));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.x, iV.y));
 }
 
 template <typename T>
@@ -72,12 +69,12 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector2D<T>& oV)
 	}
 	prim::Vector2D<T> result;
 
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector2D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector2D: y");
 		return 1;
@@ -99,11 +96,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector2D<T>& oV)
 template <typename T>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Vector3D<T>& iV)
 {
-	PyObject* newTuple = PyTuple_New(3);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.x));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.y));
-	PyTuple_SetItem(newTuple, 2, PyExportTraits<T>::build(iV.z));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.x, iV.y, iV.z));
 }
 
 template <typename T>
@@ -116,17 +109,17 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector3D<T>& oV)
 	}
 	prim::Vector3D<T> result;
 
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector3D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector3D: z");
 		return 1;
@@ -147,12 +140,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector3D<T>& oV)
 template <typename T>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Vector4D<T>& iV)
 {
-	PyObject* newTuple = PyTuple_New(4);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.x));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.y));
-	PyTuple_SetItem(newTuple, 2, PyExportTraits<T>::build(iV.z));
-	PyTuple_SetItem(newTuple, 3, PyExportTraits<T>::build(iV.w));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.x, iV.y, iV.z, iV.w));
 }
 
 template <typename T>
@@ -165,22 +153,22 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector4D<T>& oV)
 	}
 	prim::Vector4D<T> result;
 
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Vector4D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Vector4D: y");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: z");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 3), result.z) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 3), result.z) != 0)
 	{
 		impl::addMessageHeader("Vector4D: w");
 		return 1;
@@ -204,7 +192,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Vector4D<T>& oV)
 template <typename T>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Point2D<T>& iV)
 {
-	return PyExportTraits<T>::build(iV.position());
+	return pyExportTraitBuild(iV.position());
 }
 
 template <typename T>
@@ -217,12 +205,12 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point2D<T>& oV)
 	}
 	prim::Point2D<T> result;
 
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
-		impl::addMessageHeader("Point2D: x");
+		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (pyGetSimpleObject(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point2D: y");
 		return 1;
@@ -244,7 +232,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point2D<T>& oV)
 template <typename T>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Point3D<T>& iV)
 {
-	return pyBuildSimpleObject_deprecated(iV.position());
+	return pyExportTraitBuild(iV.position());
 }
 
 template <typename T>
@@ -257,17 +245,17 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point3D<T>& oV)
 	}
 	prim::Point3D<T> result;
 
-	if (PyExportTraits<T >::get(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), result.x) != 0)
 	{
 		impl::addMessageHeader("Point3D: x");
 		return 1;
 	}
-	if (PyExportTraits<T >::get(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), result.y) != 0)
 	{
 		impl::addMessageHeader("Point3D: y");
 		return 1;
 	}
-	if (PyExportTraits<T >::get(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 2), result.z) != 0)
 	{
 		impl::addMessageHeader("Point3D: z");
 		return 1;
@@ -290,10 +278,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Point3D<T>& oV)
 template <typename T, class MMP>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Aabb2D<T, MMP>& iV)
 {
-	PyObject* newTuple = PyTuple_New(2);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.min()));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.max()));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.min(), iV.max()));
 }
 
 template <typename T, class MMP>
@@ -307,14 +292,14 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 	}
 
 	typename TAabb::TPoint min;
-	if (PyExportTraits<typename TAabb::TPoint >::get(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: min");
 		return 1;
 	}
 
 	typename TAabb::TPoint max;
-	if (PyExportTraits<typename TAabb::TPoint >::get(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb2D: max");
 		return 1;
@@ -344,10 +329,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb2D<T, MMP>& oV)
 template <typename T, class MMP>
 PyObject* pyBuildSimpleObject_deprecated(const prim::Aabb3D<T, MMP>& iV)
 {
-	PyObject* newTuple = PyTuple_New(2);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.min()));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.max()));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.min(), iV.max()));
 }
 
 template <typename T, class MMP>
@@ -361,14 +343,14 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 	}
 
 	typename TAabb::TPoint min;
-	if (PyExportTraits<typename TAabb::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), min) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: min");
 		return 1;
 	}
 
 	typename TAabb::TPoint max;
-	if (PyExportTraits<typename TAabb::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), max) != 0)
 	{
 		impl::addMessageHeader("Aabb3D: max");
 		return 1;
@@ -402,10 +384,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Aabb3D<T, MMP>& oV)
 template <typename T, class PP>
 PyObject* pyBuildSimpleObject_deprecated(const prim::LineSegment2D<T, PP>& iV)
 {
-	PyObject* newTuple = PyTuple_New(2);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.tail()));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.head()));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.tail(), iV.head()));
 }
 
 template <typename T, class PP>
@@ -419,14 +398,14 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::LineSegment2D<T, PP>& o
 	}
 
 	typename TLineSegment::TPoint tail;
-	if (PyObjectTraits<typename TLineSegment::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: tail");
 		return 1;
 	}
 
 	typename TLineSegment::TPoint head;
-	if (PyObjectTraits<typename TLineSegment::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment2D: head");
 		return 1;
@@ -446,10 +425,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::LineSegment2D<T, PP>& o
 template <typename T, class PP>
 PyObject* pyBuildSimpleObject_deprecated(const prim::LineSegment3D<T, PP>& iV)
 {
-	PyObject* newTuple = PyTuple_New(2);
-	PyTuple_SetItem(newTuple, 0, PyExportTraits<T>::build(iV.tail()));
-	PyTuple_SetItem(newTuple, 1, PyExportTraits<T>::build(iV.head()));
-	return newTuple;
+	return fromSharedPtrToNakedCast(makeTuple(iV.tail(), iV.head()));
 }
 
 template <typename T, class PP>
@@ -463,14 +439,14 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::LineSegment3D<T, PP>& o
 	}
 
 	typename TLineSegment::TPoint tail;
-	if (PyObjectTraits<typename TLineSegment::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 0), tail) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: tail");
 		return 1;
 	}
 
 	typename TLineSegment::TPoint head;
-	if (PyObjectTraits<typename TLineSegment::TPoint>::get(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
+	if (pyExportTraitGet(PySequence_Fast_GET_ITEM(iValue, 1), head) != 0)
 	{
 		impl::addMessageHeader("LineSegment3D: head");
 		return 1;
@@ -499,7 +475,7 @@ PyObject* pyBuildSimpleObject_deprecated(const prim::Transformation2D<T>& iV)
 		PyObject* const row = PyTuple_New(3);
 		for (unsigned j = 0; j < 3; ++j)
 		{
-			PyTuple_SetItem(row, j, PyExportTraits<T>::build(v[i * 3 + j]));
+			PyTuple_SetItem(row, j, pyExportTraitBuild(v[i * 3 + j]));
 		}
 		PyTuple_SetItem(matrix, i, row);
 	}
@@ -527,7 +503,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Transformation2D<T>& oV
 		}
 		for (unsigned j = 0; j < 3; ++j)
 		{
-			if (PyObjectTraits<T>::get(PySequence_Fast_GET_ITEM(row, j), values[3 * i + j]) != 0)
+			if (pyExportTraitGet(PySequence_Fast_GET_ITEM(row, j), values[3 * i + j]) != 0)
 			{
 				impl::addMessageHeader("Transformation2D: row " + util::stringCast<std::string>(i) +
 					", column " + util::stringCast<std::string>(j));
@@ -557,7 +533,7 @@ PyObject* pyBuildSimpleObject_deprecated(const prim::Transformation3D<T>& iV)
 		PyObject* const row = PyTuple_New(4);
 		for (unsigned j = 0; j < 4; ++j)
 		{
-			PyTuple_SetItem(row, j, PyExportTraits<T>::build(v[i * 4 + j]));
+			PyTuple_SetItem(row, j, pyExportTraitBuild(v[i * 4 + j]));
 		}
 		PyTuple_SetItem(matrix, i, row);
 	}
@@ -585,7 +561,7 @@ int pyGetSimpleObject_deprecated(PyObject* iValue, prim::Transformation3D<T>& oV
 		}
 		for (unsigned j = 0; j < 4; ++j)
 		{
-			if (PyExportTraits<T>::get(PySequence_Fast_GET_ITEM(row, j), values[4 * i + j]) != 0)
+			if (pyExportTraitGet(PySequence_Fast_GET_ITEM(row, j), values[4 * i + j]) != 0)
 			{
 				impl::addMessageHeader("Transformation3D: row " + util::stringCast<std::string>(i) +
 					", column " + util::stringCast<std::string>(j));
@@ -614,14 +590,14 @@ PyObject* pyBuildSimpleObject_deprecated(const prim::SimplePolygon2D<T, Degenera
 	std::vector< prim::Point2D<T> > points;
 	for (unsigned i = 0; i < iV.size(); ++i)
 		points.push_back(iV[i]);
-	return PyExportTraits< std::vector< prim::Point2D<T> > >::build( points );
+	return pyExportTraitBuild( points );
 }
 
 template <typename T, class DegeneratePolicy>
-int pyGetSimpleObject(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV)
+int pyGetSimpleObject_deprecated(PyObject* iValue, prim::SimplePolygon2D<T, DegeneratePolicy>& oV)
 {
 	std::vector< prim::Point2D<T> > points;
-	int rv = PyObjectTraits<std::vector< prim::Point2D<T> > >::get(iValue, points);
+	int rv = pyExportTraitGet(iValue, points);
 	if (rv)
 	{
 		impl::addMessageHeader("SimplePolygon2D");
@@ -645,14 +621,14 @@ PyObject* pyBuildSimpleObject_deprecated(const prim::SimplePolygon3D<T, PlaneEqu
 	std::vector< prim::Point3D<T> > points;
 	for (unsigned i = 0; i < iV.size(); ++i)
 		points.push_back(iV[i]);
-	return PyExportTraits<std::vector< prim::Point3D<T> > >::build( points );
+	return pyExportTraitBuild( points );
 }
 
 template <typename T, class PlaneEquationPolicy, class PlaneNormalizingPolicy>
 int pyGetSimpleObject_deprecated(PyObject* iValue, prim::SimplePolygon3D<T, PlaneEquationPolicy, PlaneNormalizingPolicy>& oV)
 {
 	std::vector< prim::Point3D<T> > points;
-	int rv = PyObjectTraits<std::vector< prim::Point3D<T> > >::get(iValue, oV);
+	int rv = pyExportTraitGet(iValue, oV);
 	if (rv)
 	{
 		impl::addMessageHeader("SimplePolygon3D");

@@ -101,8 +101,8 @@ namespace lass
 		PyObject* pyBuildSimpleObject_deprecated( const std::pair<C1, C2>& iV )
 		{
 			PyObject* newTuple = PyTuple_New(2);
-			PyTuple_SetItem( newTuple, 0, PyExportTraits<C1>::build( iV.first ) );
-			PyTuple_SetItem( newTuple, 1, PyExportTraits<C2>::build( iV.second ) );
+			PyTuple_SetItem( newTuple, 0, pyExportTraitBuild( iV.first ) );
+			PyTuple_SetItem( newTuple, 1, pyExportTraitBuild( iV.second ) );
 			return newTuple;
 		}
 
@@ -145,12 +145,12 @@ namespace lass
 				impl::addMessageHeader("pair");
 				return 1;
 			}
-			if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue,0), result.first ) != 0)
+			if (pyExportTraitGet( PySequence_Fast_GET_ITEM(iValue,0), result.first ) != 0)
 			{
 				impl::addMessageHeader("pair: first");
 				return 1;
 			}
-			if (pyGetSimpleObject( PySequence_Fast_GET_ITEM(iValue,1), result.second ) != 0)
+			if (pyExportTraitGet( PySequence_Fast_GET_ITEM(iValue,1), result.second ) != 0)
 			{
 				impl::addMessageHeader("pair: second");
 				return 1;
@@ -183,13 +183,13 @@ namespace lass
 			while (PyDict_Next(iValue, &pos, &pyKey, &pyData))
 			{
 				typename TMap::key_type cKey;
-				if (PyExportTraits<typename TMap::key_type >::get( pyKey , cKey ) != 0)
+				if (pyExportTraitGet( pyKey , cKey ) != 0)
 				{
 					impl::addMessageHeader("dict: key");
 					return 1;
 				}
 				D cData;
-				if (PyExportTraits<D>::get( pyData , cData ) != 0)
+				if (pyExportTraitGet( pyData , cData ) != 0)
 				{
 					impl::addMessageHeader("dict: data");
 					return 1;

@@ -67,7 +67,7 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						PyTuple_SET_ITEM(r.get(),i,PyExportTraits<typename ForwardIterator::value_type>::build(*iB));
+						PyTuple_SET_ITEM(r.get(),i,pyExportTraitBuild(*iB));
 					}
 				}
 				return r;
@@ -83,7 +83,7 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						PyList_SET_ITEM(r.get(),i,PyExportTraits<typename ForwardIterator::value_type>::build(*iB));
+						PyList_SET_ITEM(r.get(),i,pyExportTraitBuild(*iB));
 					}
 				}
 				return r;
@@ -97,8 +97,8 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						if (PyDict_SetItem( r.get(), PyExportTraits<typename InputIterator::value_type>::build(iB->first), 
-													 PyExportTraits<typename InputIterator::value_type>::build(iB->second)))
+						if (PyDict_SetItem( r.get(), pyExportTraitBuild(iB->first), 
+													 pyExportTraitBuild(iB->second)))
 						{
 							// failed
 							PyDict_Clear(r.get());	// should we clean up more than this?!

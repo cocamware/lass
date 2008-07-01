@@ -609,6 +609,13 @@ struct PyExportTraits< std::vector< C, A > >
 	static PyObject* build( std::vector< C, A >& iV) { return pyBuildSimpleObject_deprecated(iV); }
 	static int get( PyObject* iV, std::vector< C, A >& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
 };
+template< typename C, size_t maxsize>
+struct PyExportTraits< stde::static_vector< C, maxsize > >
+{
+	static PyObject* build( const stde::static_vector< C, maxsize >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static PyObject* build( stde::static_vector< C, maxsize >& iV) { return pyBuildSimpleObject_deprecated(iV); }
+	static int get( PyObject* iV, stde::static_vector< C, maxsize >& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+};
 template< typename C, typename A>
 struct PyExportTraits< std::deque< C, A > >
 {
