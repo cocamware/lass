@@ -199,6 +199,11 @@ namespace lass
 			return PyExportTraits<T>::build(iV);
 		}
 		template<typename T>
+		PyObject* pyExportTraitBuild(std::auto_ptr<T> iV)
+		{
+			return PyExportTraits< std::auto_ptr<T> >::build(iV);
+		}
+		template<typename T>
 		int pyExportTraitGet(PyObject* iV, T& oV)
 		{
 			return PyExportTraits<T>::get(iV,oV);
