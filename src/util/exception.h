@@ -180,12 +180,12 @@ public:
 private:
 	virtual void doThrowSelf() const 
 	{
-		LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
+		//LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
 		throw *static_cast<const ExceptionType*>(this); 
 	}
 	virtual ::std::auto_ptr<RemoteExceptionBase> doClone() const
 	{ 
-		LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
+		//LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
 		return ::std::auto_ptr<RemoteExceptionBase>(new ExceptionType(*static_cast<const ExceptionType*>(this)));
 	}
 };
@@ -197,14 +197,16 @@ private:
 class KeyError: public experimental::ExceptionMixin<KeyError>
 {
 public:
-	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
+	KeyError(const std::string& msg, const std::string& loc): 
+		experimental::ExceptionMixin<KeyError>(msg, loc) {}
 };
 
 
 class ValueError: public experimental::ExceptionMixin<ValueError>
 {
 public:
-	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
+	ValueError(const std::string& msg, const std::string& loc): 
+		experimental::ExceptionMixin<ValueError>(msg, loc) {}
 };
 
 }

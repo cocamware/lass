@@ -59,7 +59,10 @@ namespace thread_remote_exception
 	class Meltdown: public util::experimental::ExceptionMixin<Meltdown>
 	{
 	public:
-		Meltdown(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
+		Meltdown(const std::string& msg, const std::string& loc): 
+			util::experimental::ExceptionMixin<Meltdown>(msg, loc) 
+		{
+		}
 	};
 
 	void test_chamber()

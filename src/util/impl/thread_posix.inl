@@ -305,6 +305,12 @@ void bindThread(pid_t pid, unsigned processor)
 
 
 
+#define LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(exception_type)\
+	catch (const exception_type& error)\
+	{\
+		pimpl->error_.reset(new experimental::RemoteExceptionWrapper<exception_type>(error));\
+	}
+
 /** @internal
  *  @ingroup Threading
  */
@@ -350,6 +356,10 @@ public:
 		{
 			pthread_join(handle_, 0);
 			isJoinable_ = false;
+			if (error_.get())
+			{
+				error_->throwSelf();
+			}
 		}
 	}
 
@@ -417,10 +427,32 @@ public:
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
 		pimpl->tid_ = getpid();
 		pimpl->isCreated_ = true;
-		pimpl->runCondition_.signal();
-		pimpl->thread_.doRun();
-		if (!pimpl->isJoinable_)
+		if (pimpl->isJoinable_)
 		{
+			try
+			{
+				pimpl->runCondition_.signal();
+				pimpl->thread_.doRun();
+			}
+			catch (const experimental::RemoteExceptionBase& error)
+			{
+				pimpl->error_ = error.clone();
+			}
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::domain_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::invalid_argument)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::length_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::out_of_range)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::range_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::overflow_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::underflow_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::runtime_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::logic_error)
+			LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(::std::exception)
+		}
+		else
+		{
+			pimpl->runCondition_.signal();
+			pimpl->thread_.doRun();
 			delete &pimpl->thread_;
 		}
 		return 0;
@@ -431,6 +463,7 @@ private:
 	Thread& thread_;
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
+	std::auto_ptr<experimental::RemoteExceptionBase> error_;
 	pid_t tid_;
 	volatile bool isJoinable_;
 	volatile bool isCreated_;
