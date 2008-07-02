@@ -183,6 +183,8 @@ public:
 	void add(TObjectIterator object);
 	size_t objectCount() const;
 
+	const TAabb& aabb() const;
+
 	/** depth. Returns the depth of the tree */
 	const size_t depth() const;
 	const TValue averageDepth() const;

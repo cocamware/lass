@@ -285,13 +285,14 @@ const bool QuadTree<O, OT>::intersects(
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TVector size = subtract(max, min);
+	const TPoint center = middle(min, max);
+	//const TVector size = subtract(max, min);
 	TPoint support = TObjectTraits::raySupport(ray);
 	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = forcePositiveDirection(size, support, direction);
+	const size_t flipMask = forcePositiveDirection(center, support, direction);
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
-	const TVector tNear;
-	const TVector tFar;
+	TVector tNear;
+	TVector tFar;
 	nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
 	const TValue tNearMax = maxComponent(tNear);
 	const TValue tFarMin = minComponent(tFar);
@@ -340,6 +341,15 @@ template <typename O, typename OT>
 size_t QuadTree<O, OT>::objectCount() const
 {
 	return root_ ? root_->objectCount() : 0;
+}
+
+
+
+template <typename O, typename OT>
+const typename QuadTree<O, OT>::TAabb& 
+QuadTree<O, OT>::aabb() const
+{
+	return aabb_;
 }
 
 
@@ -499,7 +509,6 @@ const bool QuadTree<O, OT>::doIntersects(
 		for (size_t i = 0; i < n; ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-			TValue tCandidate;
 			if (TObjectTraits::objectIntersects(node->data[i], ray, tMin, tMax, info))
 			{
 				return true;
@@ -510,15 +519,14 @@ const bool QuadTree<O, OT>::doIntersects(
 	}
 
 	const TVector tMiddle = middle(tNear, tFar);
-	size_t i = entryNode(tNear);
+	size_t i = entryNode(tNear, tMiddle);
 	do
 	{
 		QuadNode* const child = node->node[i ^ flipMask];
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
 		childNearAndFar(tChildNear, tChildFar, tMiddle, i);
-		TValue t;
-		if (doIntersects(child, ray, t, tMin, tMax, info, tChildNear, tChildFar, flipMask))
+		if (doIntersects(child, ray, tMin, tMax, info, tChildNear, tChildFar, flipMask))
 		{
 			return true;
 		}
