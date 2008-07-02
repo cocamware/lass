@@ -45,370 +45,6 @@ namespace lass
 namespace python
 {
 
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, bool& oV )
-{
-	int result = PyObject_IsTrue(iValue);
-	if (result == -1)
-	{
-		PyErr_SetString(PyExc_TypeError, "does not evaluate to a boolean");
-		return 1;
-	}
-	oV = (result != 0);
-	return 0;
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed char& oV )
-{
-	return impl::pyGetSignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned char& oV )
-{
-	return impl::pyGetUnsignedObject( iValue, oV );
-}
-
-/** @ingroup Python
-	*/
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed short& oV )
-{
-	return impl::pyGetSignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned short& oV )
-{
-	return impl::pyGetUnsignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed int& oV )
-{
-	return impl::pyGetSignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned int& oV )
-{
-	return impl::pyGetUnsignedObject( iValue, oV );
-}
-
-/** @ingroup Python
-	*/
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed long& oV )
-{
-	return impl::pyGetSignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned long& oV )
-{
-	return impl::pyGetUnsignedObject( iValue, oV );
-}
-
-#ifdef HAVE_LONG_LONG
-
-/** @ingroup Python
-	*/
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed PY_LONG_LONG& oV )
-{
-	return impl::pyGetSignedObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned PY_LONG_LONG& oV )
-{
-	return impl::pyGetUnsignedObject( iValue, oV );
-}
-
-#endif
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, float& oV )
-{
-	return impl::pyGetFloatObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, double& oV )
-{
-	return impl::pyGetFloatObject( iValue, oV );
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated( PyObject* iValue, long double& oV )
-{
-	return impl::pyGetFloatObject( iValue, oV );
-}
-
-/** @ingroup Python
- *  @deprecated
- */
-/*
-inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV )
-{
-	if ( iValue == Py_None )
-		oV = NULL;
-	else
-	{
-		oV = iValue;
-		Py_INCREF( oV );
-	}
-	return 0;
-}
-*/
-
-
-/** @ingroup Python
- */
-template<class C>
-int pyGetSimpleObject_deprecated(PyObject* iValue, util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& oV)
-{
-	const bool isNone = (iValue == Py_None );
-	if (isNone)
-		oV = util::SharedPtr<C, PyObjectStorage, PyObjectCounter>();
-	else
-	{
-		if (!PyType_IsSubtype(iValue->ob_type , &C::_lassPyType ))
-		{
-			PyErr_Format(PyExc_TypeError,"not castable to %s",C::_lassPyType.tp_name);
-			return 1;
-		}
-		oV = fromNakedToSharedPtrCast<C>(iValue);
-	}
-	return 0;
-}
-
-/** @ingroup Python
- */
-inline int pyGetSimpleObject_deprecated(
-		PyObject* iValue, util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV)
-{
-	const bool isNone = (iValue == Py_None );
-	if (isNone)
-	{
-		oV = util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>();
-	}
-	else
-	{
-		oV = fromNakedToSharedPtrCast<PyObject>(iValue);
-	}
-	return 0;
-}
-
-/** @ingroup Python
- @deprecated
- */
-/*
-inline PyObject* pyBuildSimpleObject( PyObject* iV )
-{
-	if (iV==NULL)
-	{
-		Py_INCREF( Py_None );
-		return Py_None;
-	}
-	Py_INCREF(iV);
-	return iV;
-}
-*/
-
-/** @ingroup Python
- */
-template<class C>
-PyObject* pyBuildSimpleObject_deprecated( const util::SharedPtr<C, PyObjectStorage, PyObjectCounter>& iV )
-{
-	if (!iV)
-	{
-		Py_INCREF( Py_None );
-		return Py_None;
-	}
-	return fromSharedPtrToNakedCast(iV);
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( bool iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( signed char iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( unsigned char iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( signed short iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( unsigned short iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( signed int iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( unsigned int iV )
-{
-	if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
-	{
-		return PyInt_FromLong(static_cast<long>(iV));
-	}
-	else
-	{
-		return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
-	}
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( signed long iV )
-{
-	return PyInt_FromLong(static_cast<long>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( unsigned long iV )
-{
-	if (iV <= static_cast<unsigned int>(num::NumTraits<long>::max))
-	{
-		return PyInt_FromLong(static_cast<long>(iV));
-	}
-	else
-	{
-		return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
-	}
-}
-
-#if HAVE_LONG_LONG
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( signed PY_LONG_LONG iV )
-{
-	return PyLong_FromLongLong(iV);
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( unsigned PY_LONG_LONG iV )
-{
-	return PyLong_FromUnsignedLongLong(iV);
-}
-
-#endif
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( float iV )
-{
-	return PyFloat_FromDouble(static_cast<double>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( double iV )
-{
-	return PyFloat_FromDouble(iV);
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( long double iV )
-{
-	return PyFloat_FromDouble(static_cast<long double>(iV));
-}
-
-/** @ingroup Python
- */
-inline PyObject* pyBuildSimpleObject_deprecated( const char* iV )
-{
-	return PyString_FromString(iV);
-}
-
-PYEXPORTTRAITS_USINGDEPRECATED( bool )
-PYEXPORTTRAITS_USINGDEPRECATED( signed int )
-PYEXPORTTRAITS_USINGDEPRECATED( unsigned int )
-PYEXPORTTRAITS_USINGDEPRECATED( signed char )
-PYEXPORTTRAITS_USINGDEPRECATED( unsigned char )
-PYEXPORTTRAITS_USINGDEPRECATED( signed short )
-PYEXPORTTRAITS_USINGDEPRECATED( unsigned short)
-PYEXPORTTRAITS_USINGDEPRECATED( signed long )
-PYEXPORTTRAITS_USINGDEPRECATED( unsigned long )
-#if HAVE_LONG_LONG
-PYEXPORTTRAITS_USINGDEPRECATED( signed PY_LONG_LONG )
-PYEXPORTTRAITS_USINGDEPRECATED( unsigned PY_LONG_LONG)
-#endif
-PYEXPORTTRAITS_USINGDEPRECATED( float )
-PYEXPORTTRAITS_USINGDEPRECATED( double )
-PYEXPORTTRAITS_USINGDEPRECATED( long double )
-
-template<>
-struct PyExportTraits< const char* >
-{
-	static PyObject* build(const char* iv) { return pyBuildSimpleObject_deprecated(iv); }
-};
-/*
-template<>
-struct PyExportTraits< size_t >
-{
-	static PyObject* build(const size_t& iv) { return pyBuildSimpleObject_deprecated(iv); }
-	static int get(PyObject* iV, size_t& ov) { return pyGetSimpleObject_deprecated(iV,ov); }
-};
-*/
-template<typename T>
-struct PyExportTraits< util::SharedPtr<T,PyObjectStorage,PyObjectCounter> >
-{
-	typedef util::SharedPtr<T,PyObjectStorage,PyObjectCounter> TShrd;
-	static PyObject* build(const TShrd& iv) { return pyBuildSimpleObject_deprecated(iv); }
-	static int get(PyObject* iV, TShrd& ov) { return pyGetSimpleObject_deprecated(iV,ov); }
-};
-/*
-template<>
-struct PyExportTraits< util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter> >
-{
-	typedef util::SharedPtr<PyObject,PyObjectStorage,PyObjectCounter> TShrd;
-	static PyObject* build(const TShrd& iv) { return pyBuildSimpleObject_deprecated(iv); }
-	static int get(PyObject* iV, TShrd& ov) { return pyGetSimpleObject_deprecated(iV,ov); }
-};
-*/
-
-
 // --- impl ----------------------------------------------------------------------------------------
 
 namespace impl
@@ -583,7 +219,7 @@ void addClassStaticConst(const char* iName, const T& iValue)
 {
 	LASS_ASSERT(std::count_if(
 		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, pyExportTraitBuild(iValue)));
+	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, pyBuildSimpleObject(iValue)));
 }
 
 
@@ -786,8 +422,332 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 	return 1;
 }
 
-
 }
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<bool>
+{
+	static PyObject* build(bool iV)
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, bool& oV )
+	{
+		int result = PyObject_IsTrue(iValue);
+		if (result == -1)
+		{
+			PyErr_SetString(PyExc_TypeError, "does not evaluate to a boolean");
+			return 1;
+		}
+		oV = (result != 0);
+		return 0;
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<signed char>
+{
+	static PyObject* build( signed char iV )
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, signed char& oV )
+	{
+		return impl::pyGetSignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<unsigned char>
+{
+	static PyObject* build( unsigned char iV )
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, unsigned char& oV )
+	{
+		return impl::pyGetUnsignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<signed short>
+{
+	static PyObject* build( signed short iV )
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, signed short& oV )
+	{
+		return impl::pyGetSignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<unsigned short>
+{
+	inline PyObject* build( unsigned short iV )
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, unsigned short& oV )
+	{
+		return impl::pyGetUnsignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<signed int>
+{
+	static PyObject* build( signed int iV )
+	{
+		return PyInt_FromLong(static_cast<long>(iV));
+	}
+	static int get( PyObject* iValue, signed int& oV )
+	{
+		return impl::pyGetSignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<unsigned int>
+{
+	static PyObject* build( unsigned int iV )
+	{
+		return PyLong_FromUnsignedLong(static_cast<unsigned long>(iV));
+	}
+	static int get( PyObject* iValue, unsigned int& oV )
+	{
+		return impl::pyGetUnsignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<signed long>
+{
+	static PyObject* build( signed long iV )
+	{
+		return PyInt_FromLong(iV);
+	}
+	static int get( PyObject* iValue, signed long& oV )
+	{
+		return impl::pyGetSignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<unsigned long>
+{
+	static PyObject* build(unsigned long iV)
+	{
+		return PyLong_FromUnsignedLong(iV);
+	}
+	static int get( PyObject* iValue, unsigned long& oV )
+	{
+		return impl::pyGetUnsignedObject( iValue, oV );
+	}
+};
+
+#ifdef HAVE_LONG_LONG
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<signed PY_LONG_LONG>
+{
+	static PyObject* build( signed PY_LONG_LONG iV )
+	{
+		return PyLong_FromLongLong(iV);
+	}
+	static int get( PyObject* iValue, signed PY_LONG_LONG& oV )
+	{
+		return impl::pyGetSignedObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<unsigned PY_LONG_LONG>
+{
+	static PyObject* build( unsigned PY_LONG_LONG iV )
+	{
+		return PyLong_FromUnsignedLongLong(iV);
+	}
+	static int get( PyObject* iValue, unsigned PY_LONG_LONG& oV )
+	{
+		return impl::pyGetUnsignedObject( iValue, oV );
+	}
+};
+
+#endif
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<float>
+{
+	static PyObject* build( float iV )
+	{
+		return PyFloat_FromDouble(static_cast<double>(iV));
+	}
+	static int get( PyObject* iValue, float& oV )
+	{
+		return impl::pyGetFloatObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<double>
+{
+	static PyObject* build( double iV )
+	{
+		return PyFloat_FromDouble(iV);
+	}
+	static int get( PyObject* iValue, double& oV )
+	{
+		return impl::pyGetFloatObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<long double>
+{
+	static PyObject* build( long double iV )
+	{
+		return PyFloat_FromDouble(static_cast<double>(iV));
+	}
+	static int get( PyObject* iValue, long double& oV )
+	{
+		return impl::pyGetFloatObject( iValue, oV );
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<const char*>
+{
+	static PyObject* build( const char* iV )
+	{
+		return PyString_FromString(iV);
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <size_t N>
+struct PyExportTraits<const char [N]>
+{
+	static PyObject* build( const char iV[N] )
+	{
+		return PyString_FromString(iV);
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
+{
+	static PyObject* build( const util::SharedPtr<T, PyObjectStorage, PyObjectCounter>& iV )
+	{
+		if (!iV)
+		{
+			Py_RETURN_NONE;
+		}
+		return fromSharedPtrToNakedCast(iV);
+	}
+	static int get(PyObject* iValue, util::SharedPtr<T, PyObjectStorage, PyObjectCounter>& oV)
+	{
+		const bool isNone = (iValue == Py_None );
+		if (isNone)
+		{
+			oV = util::SharedPtr<T, PyObjectStorage, PyObjectCounter>();
+		}
+		else
+		{
+			if (!PyType_IsSubtype(iValue->ob_type , &T::_lassPyType ))
+			{
+				PyErr_Format(PyExc_TypeError,"not castable to %s",T::_lassPyType.tp_name);
+				return 1;
+			}
+			oV = fromNakedToSharedPtrCast<T>(iValue);
+		}
+		return 0;
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits< util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter> >
+{
+	static PyObject* build( const util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& iV )
+	{
+		if (!iV)
+		{
+			Py_RETURN_NONE;
+		}
+		return fromSharedPtrToNakedCast(iV);
+	}
+	static int get(PyObject* iValue, util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>& oV)
+	{
+		const bool isNone = (iValue == Py_None );
+		if (isNone)
+		{
+			oV = util::SharedPtr<PyObject, PyObjectStorage, PyObjectCounter>();
+		}
+		else
+		{
+			oV = fromNakedToSharedPtrCast<PyObject>(iValue);
+		}
+		return 0;
+	}
+};
+
+
+
 }
 }
 

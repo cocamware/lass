@@ -173,6 +173,11 @@ std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon3D<T, EP, N
 
 #include "simple_polygon_3d.inl"
 
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_SIMPLE_POLYGON_3D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
 #	include "aabb_3d_simple_polygon_3d.h"
 #endif

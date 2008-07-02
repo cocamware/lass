@@ -187,7 +187,7 @@
 	{\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule_, i_module ), s_objectName,\
-			lass::python::pyExportTraitBuild(o_object) );\
+			lass::python::pyBuildSimpleObject(o_object) );\
 	}
 
 /** @ingroup Python
@@ -1656,7 +1656,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return lass::python::pyExportTraitBuild(cppObject->i_cppMember);\
+		return lass::python::pyBuildSimpleObject(cppObject->i_cppMember);\
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _setter)(PyObject* iObject,PyObject* iArgs, void* iClosure)\
 	{\
@@ -1667,7 +1667,7 @@ $[
 		{\
 			return -1;\
 		}\
-		return ::lass::python::pyExportTraitGet(iArgs, cppObject->i_cppMember);\
+		return ::lass::python::pyGetSimpleObject(iArgs, cppObject->i_cppMember);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -1750,7 +1750,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return lass::python::pyExportTraitBuild( cppObject->i_cppMember);\
+		return lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject,PyObject* iArgs, void* iClosure )\
 	{\

@@ -156,14 +156,14 @@ void dealloc(PyObject* obj)
  */
 PyObject* repr(PyObject* obj)
 {
-	return pyExportTraitBuild(static_cast<PyObjectPlus*>(obj)->doPyRepr());
+	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyRepr());
 }
 
 /** @internal
  */
 PyObject* str(PyObject* obj)
 {
-	return pyExportTraitBuild(static_cast<PyObjectPlus*>(obj)->doPyStr());
+	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
 }
 
 
@@ -558,6 +558,25 @@ bool checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize)
 		return false;
 	}
 	return true;
+}
+
+/** @internal
+ *  Check that @a iValue is a sequence and of expected size, and return it as a "FAST sequence"
+ *  so that you can use PySequence_Fast_GET_ITEM to get its items with borrowed references.
+ */
+TPyObjPtr checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize)
+{
+	TPyObjPtr result(PySequence_Fast(iValue, "expected a sequence (tuple, list, ...)"));
+	const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
+	if (size != iExpectedSize)
+	{
+		std::ostringstream buffer;
+		buffer << "expected a sequence of size " << iExpectedSize
+			<< " (your size is " << size << ")";
+		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+		return TPyObjPtr();
+	}
+	return result;
 }
 
 }

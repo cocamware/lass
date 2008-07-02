@@ -150,7 +150,11 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 }
 
 #include "line_segment_3d.inl"
-#include "pyobject_util.inl"
+
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_3D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_H
 #	include "line_segment_3d_plane_3d.h"

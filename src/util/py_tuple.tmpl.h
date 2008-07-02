@@ -63,7 +63,7 @@ namespace impl
 	template <typename P>
 	inline bool decodeObject(PyObject* in, P& out, int index)
 	{
-		if (lass::python::pyExportTraitGet(in, out) != 0)
+		if (lass::python::pyGetSimpleObject(in, out) != 0)
 		{
 			std::ostringstream buffer;
 			buffer << "Bad Argument on " << index << "th position";
@@ -88,9 +88,8 @@ $[
 template <$(typename P$x)$>
 const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
 {
-	typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 	TPyObjPtr tuple(PyTuple_New($x));
- 	$(if (PyTuple_SetItem(tuple.get(), $x - 1, pyExportTraitBuild(iP$x)) != 0) return TPyObjPtr();
+ 	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(iP$x)) != 0) return TPyObjPtr();
  	)$
 	return tuple;
 }
@@ -117,8 +116,14 @@ $[
 template <$(typename P$x)$>
 int decodeTuple(PyObject* iTuple, $(P$x& oP$x)$)
 {
-	return impl::checkSequenceSize(iTuple, $x)
-$(		&& impl::decodeObject(PySequence_ITEM(iTuple, $x - 1), oP$x, $x) 
+	const TPyObjPtr tuple = impl::checkedFastSequence(iTuple, $x);
+	if (!tuple)
+	{
+		return 1;
+	}
+	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	return true
+$(		&& impl::decodeObject(objects[$w], oP$x, $x) 
 )$		? 0 : 1;
 
 }

@@ -144,7 +144,11 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const LineS
 }
 
 #include "line_segment_2d.inl"
-#include "pyobject_util.inl"
+
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_2D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H
 #	include "line_segment_2d_ray_2d.h"

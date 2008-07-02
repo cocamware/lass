@@ -70,6 +70,11 @@
 #	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
 #endif
 
+#ifndef PySequence_Fast_ITEMS
+#	define PySequence_Fast_ITEMS(o) \
+	(PyTuple_Check(o) ? ((PyTupleObject *)(o))->ob_item : ((PyListObject *)(o))->ob_item)
+#endif
+
 #ifndef Py_RETURN_FALSE
 #	define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
 #endif
@@ -133,9 +138,10 @@
 		}\
 	private:
 
-/*
-typedef PyTypeObject * PyParentObject;// Define the PyParent Object
-*/
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int', possible loss of data
+#endif
 
 namespace lass
 {
@@ -188,26 +194,73 @@ namespace lass
 			static int get(PyObject* iv, t_basicType< T, U, V, W > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 		};
 
+		/** @ingroup Python
+		 */
 		template<typename T>
-		PyObject* pyExportTraitBuild(T& iV)
+		PyObject* pyBuildSimpleObject(T& iV)
 		{
 			return PyExportTraits<T>::build(iV);
 		}
+
+		/** @ingroup Python
+		 */
 		template<typename T>
-		PyObject* pyExportTraitBuild(const T& iV)
+		PyObject* pyBuildSimpleObject(const T& iV)
 		{
 			return PyExportTraits<T>::build(iV);
 		}
+
+		/** @ingroup Python
+		 */
 		template<typename T>
-		PyObject* pyExportTraitBuild(std::auto_ptr<T> iV)
+		PyObject* pyBuildSimpleObject(std::auto_ptr<T> iV)
 		{
 			return PyExportTraits< std::auto_ptr<T> >::build(iV);
 		}
+
+		/** @ingroup Python
+		 */
 		template<typename T>
-		int pyExportTraitGet(PyObject* iV, T& oV)
+		int pyGetSimpleObject(PyObject* iV, T& oV)
 		{
 			return PyExportTraits<T>::get(iV,oV);
 		}
+
+		/**	Helper to specialise PyExportTraits for enumerations.
+		 *	@ingroup Python
+		 *
+		 *	When you want to export enumeration types, you need to specialize PyExportTraits for it.
+		 *	This structure will help you
+		 *
+		 *	@code
+		 *	enum MyEnumeration { meFoo, meBar, meFuz };
+		 *	namespace lass
+		 *	{
+		 *	namespace python
+		 *	{
+		 *	template <> struct PyExportTraits<MyEnumeration>: public PyExportTraitsEnum<MyEnumeration> {};
+		 *	}
+		 *	}
+		 *	@endcode
+		 */
+		template <typename EnumType, typename IntegerType = long>
+		struct PyExportTraitsEnum
+		{
+			static PyObject* build(const EnumType iv) 
+			{ 
+				return pyBuildSimpleObject(static_cast<IntegerType>(iv));
+			}
+			static int get(PyObject* iv, EnumType& ov) 
+			{ 
+				IntegerType temp;
+				if (pyGetSimpleObject(iv, temp) != 0)
+				{
+					return 1;
+				}
+				ov = static_cast<EnumType>(temp);
+				return 0;
+			}
+		};
 
 		/** PyObjectPlus.  Base class for pythonable objects.
 		*   @ingroup Python
@@ -449,50 +502,6 @@ namespace lass
 		*/
 		template <typename T> struct IsPyObject: meta::IsDerived<T, PyObject> {};
 
-		/* conversion from PyObject* to given types, a check should be performed
-		*  wether the conversion is possible, if not a returnvalue of 1 should be used
-		*/
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, bool& oV );
-		inline int pyGetSimpleObject_deprecated(PyObject* iValue, signed char& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned char& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed short& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned short& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed int& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned int& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed long& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned long& oV );
-#if HAVE_LONG_LONG
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, signed PY_LONG_LONG& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, unsigned PY_LONG_LONG& oV );
-#endif
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, float& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, double& oV );
-		inline int pyGetSimpleObject_deprecated( PyObject* iValue, long double& oV );
-		//inline int pyGetSimpleObject( PyObject* iValue, PyObject*& oV );
-		template <typename T> int pyGetSimpleObject_deprecated( 
-			PyObject* iValue,  util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& oV );
-
-		inline PyObject* pyBuildSimpleObject_deprecated( bool iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( signed char iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( unsigned char iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( signed short iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( unsigned short iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( signed int iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( unsigned int iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( signed long iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( unsigned long iV );
-#if HAVE_LONG_LONG
-		inline PyObject* pyBuildSimpleObject_deprecated( signed PY_LONG_LONG iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( unsigned PY_LONG_LONG iV );
-#endif
-		inline PyObject* pyBuildSimpleObject_deprecated( float iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( double iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( long double iV );
-		inline PyObject* pyBuildSimpleObject_deprecated( const char* iV );
-		//inline PyObject* pyBuildSimpleObject_deprecated( PyObject* iV );
-		template <typename T> PyObject* pyBuildSimpleObject_deprecated(
-			const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& iV );
-
 		LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
 
 		namespace impl
@@ -725,9 +734,14 @@ namespace lass
 
 			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
+			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize);
 		}
 	}
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #include "pyobject_plus.inl"
 

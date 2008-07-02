@@ -52,6 +52,8 @@
 #include "pyiteratorrange.h"
 #include "../meta/type_traits.h"
 
+#include <map>
+
 namespace lass
 {
 namespace python
@@ -71,7 +73,7 @@ namespace impl
 		virtual TPyObjPtr keys() const = 0;
 		virtual TPyObjPtr values() const = 0;
 		virtual PyObject* PyMap_Iter() = 0;
-
+		virtual bool pointsToSameContainer(void* iO) = 0;
 	};
 
 	template<typename M> 
@@ -93,6 +95,10 @@ namespace impl
 		virtual TPyObjPtr keys() const;
 		virtual TPyObjPtr values() const;
 		virtual PyObject* PyMap_Iter();
+		virtual bool pointsToSameContainer(void* iO) 
+		{ 
+			return iO == (void*)map_;
+		}
 	private:
 
 		int doPyMap_AssSubscript( PyObject* iKey, PyObject* iValue, meta::True);
@@ -111,6 +117,8 @@ namespace impl
 		static PyMappingMethods pyMappingMethods;
 
 	public:
+		/*
+		 * deprecated? [Bramz]
 		template<typename M> PyMap( M* iStdMap ) 
 		{
 			initialize();
@@ -118,6 +126,7 @@ namespace impl
 			LASS_ASSERT(iStdMap);
 			pimpl_ = new PyMapImpl<M>(iStdMap); // also const M*
 		}
+		*/
 		template<typename M> PyMap( M& iStdMap ) 
 		{
 			initialize();
@@ -143,7 +152,12 @@ namespace impl
 		static int PyMap_AssSubscript( PyObject* iPO, PyObject* iKey, PyObject* iValue);
 
 		static PyObject* PyMap_Iter( PyObject* iPO);
-		
+
+		template<typename Container> bool pointsToSameContainer(Container& iO) 
+		{ 
+			return pimpl_->pointsToSameContainer(&iO);
+		}
+
 	private:
 
 		PyMap();
@@ -291,64 +305,83 @@ namespace impl
 
 
 
-/** @ingroup Python
-	*  wrap a "borrowed" const std::map as Python dictionary
-	*  @note you build a reference to the std::map, but the map is read-only
-	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
-	*	not-so-good-idea.
-	*/
-template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject_deprecated( const std::map<K, V, P, A>* iV )
-{
-	return new impl::PyMap( iV );
-}
 
 /** @ingroup Python
-	*  wrap a "borrowed" std::map as Python dictionary
-	*  @note you build a reference to the std::map, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
-	*	not-so-good-idea.
-	*/
-template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject_deprecated( std::map<K, V, P, A>* iV )
+ *  @internal
+ */
+template <typename ContainerType>
+struct PyExportTraitsMap
 {
-	return new impl::PyMap( iV );
-}
+	typedef ContainerType TContainer;
 
+	/*	build a copy of a container as a Python dictionary	
+	 *	@note the constructed dictionary is made read only.
+	 *	@note a completely fresh copy of the container is made, so it's perfectly safe to use this
+	 *	to cast temporary function return values to Python.
+	 */
+	static PyObject* build( const TContainer& iV )
+	{
+		return new impl::PyMap(iV);
+	}
 
+	/** wrap a "borrowed" container as Python dictionary
+	 *	@note you build a reference to the container, any changes done in Python
+	 *	will be reflected in the original object, as far as the typesystem allows it of course
+	 *	@warning holding a reference to the dictionary, while the original container is destroyed is a 
+	 *	not-so-good-idea.
+	 */
+	static PyObject* build( TContainer& iV )
+	{
+		return new impl::PyMap(iV);
+	}
+
+	static int get( PyObject* iV, TContainer& oV )
+	{
+		if (!PyMapping_Check(iV))
+		{
+			PyErr_SetString(PyExc_TypeError, "python object doens't provide mapping protocol");
+			return 1;
+		}
+		// check if we have our own PyMap object, then take a shortcut
+		if (impl::isOfType(iV, &impl::PyMap::_lassPyType) && ((impl::PyMap*)iV)->pointsToSameContainer(oV))
+		{
+			return 0;
+		}
+		else
+		{
+			TContainer result;
+			const Py_ssize_t size = PyMapping_Length(iV);
+			TPyObjPtr items(PyMapping_Items(iV));
+			if (!items)
+			{
+				return 1;
+			}
+			LASS_ASSERT(PySequence_Size(items.get()) == size);
+			PyObject** pairs = PySequence_Fast_ITEMS(items.get());
+			for (Py_ssize_t i = 0; i < size; ++i)
+			{
+				typename TContainer::key_type key;
+				typename TContainer::mapped_type mapped;
+				if (decodeTuple(pairs[i], key, mapped) != 0)
+				{
+					impl::addMessageHeader("map");
+					return 1;
+				}
+				result[key] = mapped;
+			}
+			oV.swap(result);
+		}
+		return 0;
+	}
+};
 
 /** @ingroup Python
-	*  build a copy of a std::map as a Python dictionary
-	*  @note the constructed dictionary is made read only.
-	*  @note a completely fresh copy of the std::map is made, so it's perfectly safe to use this
-	*	to cast temporary function return values to Python.
-	*/
-template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject_deprecated( const std::map<K, V, P, A>& iV )
-{
-	return new impl::PyMap( iV );
-}
-
-/** @ingroup Python
-	*  wrap a "borrowed" std::map as Python dictionary
-	*  @note you build a reference to the std::map, any changes done in Python
-	*  will be reflected in the original object, as far as the typesystem allows it of course
-	*  @warning holding a reference to the dictionary, while the original map is destroyed is a 
-	*	not-so-good-idea.
-	*/
-template<class K, class V, typename P, typename A>
-PyObject* pyBuildSimpleObject_deprecated( std::map<K, V, P, A>& iV )
-{
-	return new impl::PyMap( iV );
-}
-
+ *  @internal
+ */
 template< typename K, typename V, typename P, typename A>
-struct PyExportTraits< std::map<K, V, P, A> >
+struct PyExportTraits< std::map<K, V, P, A> >:
+	public PyExportTraitsMap< std::map<K, V, P, A> >
 {
-	static PyObject* build( const std::map<K, V, P, A>& iV) { return pyBuildSimpleObject_deprecated(iV); }
-	static PyObject* build( std::map<K, V, P, A>& iV) { return pyBuildSimpleObject_deprecated(iV); }
-	static int get( PyObject* iV, std::map<K, V, P, A>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
 };
 
 }

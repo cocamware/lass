@@ -426,6 +426,7 @@ template <> \
 struct PyExportTraits< t_ShadowObject::TCppClass > \
 {\
 	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
+	static int get( PyObject* iValue, t_ShadowObject::TCppClass& oByCopy) { return pyGetSimpleObject_deprecated(iValue, oByCopy); }\
 };\
 template <> \
 struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \

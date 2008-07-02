@@ -67,7 +67,7 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						PyTuple_SET_ITEM(r.get(),i,pyExportTraitBuild(*iB));
+						PyTuple_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
 					}
 				}
 				return r;
@@ -83,7 +83,7 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						PyList_SET_ITEM(r.get(),i,pyExportTraitBuild(*iB));
+						PyList_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
 					}
 				}
 				return r;
@@ -97,8 +97,8 @@ namespace lass
 				{
 					for (int i=0;iB!=iE;++iB,++i)
 					{
-						if (PyDict_SetItem( r.get(), pyExportTraitBuild(iB->first), 
-													 pyExportTraitBuild(iB->second)))
+						if (PyDict_SetItem( r.get(), pyBuildSimpleObject(iB->first), 
+													 pyBuildSimpleObject(iB->second)))
 						{
 							// failed
 							PyDict_Clear(r.get());	// should we clean up more than this?!

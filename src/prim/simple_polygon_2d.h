@@ -173,6 +173,11 @@ bool set_intersect(const SimplePolygon2D<T, DP>& iPolygonA,const SimplePolygon2D
 
 #include "simple_polygon_2d.inl"
 
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_SIMPLE_POLYGON_2D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_2D_H
 #	include "aabb_2d_simple_polygon_2d.h"
 #endif

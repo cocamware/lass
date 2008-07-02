@@ -168,6 +168,10 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Ve
 }
 
 #include "vector_4d.inl"
-#include "pyobject_util.inl"
+
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_4D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
 
 #endif

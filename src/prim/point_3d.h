@@ -136,6 +136,10 @@ template<typename T> std::istream& operator>>(std::istream& stream, Point3D<T>& 
 }
 
 #include "point_3d.inl"
-#include "pyobject_util.inl"
+
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_3D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
+#	include "pyobject_util.h"
+#endif
 
 #endif

@@ -49,7 +49,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-#include "string_cast.h"
+//#include "string_cast.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)

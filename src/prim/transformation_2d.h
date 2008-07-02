@@ -154,7 +154,8 @@ template <typename T> util::Semaphore Transformation2D<T>::sync_;
 
 #include "transformation_2d.inl"
 
-#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PYOBJECT_UTIL_H
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_TRANSFORMATION_2D
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 #	include "pyobject_util.h"
 #endif
 
