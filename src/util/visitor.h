@@ -116,10 +116,8 @@ public:
 
 	void accept(VisitorBase& visitor) { doAccept(visitor); }
 
-protected:
-
 	template <typename T>
-	void preAccept(VisitorBase& visitor, T& visitable)
+	static void preAccept(VisitorBase& visitor, T& visitable)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&visitor))
 		{
@@ -132,7 +130,7 @@ protected:
 	}
 
 	template <typename T>
-	void postAccept(VisitorBase& visitor, T& visitable)
+	static void postAccept(VisitorBase& visitor, T& visitable)
 	{
 		if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&visitor))
 		{
