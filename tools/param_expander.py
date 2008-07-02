@@ -58,6 +58,8 @@ now = time.asctime()
 
 def _resolver(matchobj, i):
 	character = matchobj.group(1)
+	if character == 'w':
+		return str(i - 1)
 	if character == 'x':
 		return str(i)
 	elif character == 'y':
@@ -155,6 +157,9 @@ if __name__ == "__main__":
 # History:
 #
 # $Log$
+# Revision 1.6  2007/08/14 22:03:57  bramz
+# relicensing LASS under CPAL/GPL dual license.
+#
 # Revision 1.5  2005/11/04 00:36:01  bramz
 # *** empty log message ***
 #
