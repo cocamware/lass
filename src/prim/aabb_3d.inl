@@ -687,7 +687,7 @@ const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 template <typename T, typename MMP> inline
 const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 {
-	typedef typename Aabb2D<T, MMP>::TPoint TPoint;
+	typedef typename Aabb3D<T, MMP>::TPoint TPoint;
 	const TPoint& min = a.min();
 	const TPoint& max = a.max();
 	return min.x < b.x && b.x < max.x && 

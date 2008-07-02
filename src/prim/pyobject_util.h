@@ -226,7 +226,7 @@ struct PyExportTraitsPrimAabb
 		{
 			oV = TAabb(min, max);
 		}
-		catch (prim::MinMaxError& error)
+		catch (util::Exception& error)
 		{
 			std::ostringstream buffer;
 			buffer << ExportTraits::className() << ": " << error.message();
