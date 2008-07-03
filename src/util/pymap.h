@@ -49,6 +49,7 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "pyobject_util.h"
 #include "pyiteratorrange.h"
 #include "../meta/type_traits.h"
 
