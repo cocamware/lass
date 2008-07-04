@@ -641,7 +641,7 @@ struct PyExportTraits<prim::ColorRGBA>
 		}
 		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 		prim::ColorRGBA result;
-		for (Py_ssize_t k = 0; k < size; ++k)
+		for (int k = 0; k < static_cast<int>(size); ++k)
 		{
 			if (!impl::decodeObject(objects[k], result[k], k + 1))
 			{
