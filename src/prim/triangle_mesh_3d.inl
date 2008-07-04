@@ -536,6 +536,14 @@ const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& ray, TTriangleIte
 		return rNone;
 	}
 	triangle = candidate;
+	
+	if (context)
+	{
+		TValue temp;
+		const Result r = triangle->intersect(ray, temp, tMin, context);
+		LASS_ASSERT(r == rOne && t == temp);
+	}
+
 	return rOne;
 }
 
