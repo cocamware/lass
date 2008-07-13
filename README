@@ -9,8 +9,8 @@ LASS is an open source C++ library written by Tom De Muer and Bram de Greve to
 help the authors writing better code. It includes an interfacing library to 
 Python, templated geometric primitives and spatial subdivision schemes, several
 design patterns and other utilities the authors use in their day-to-day 
-codings. LASS is licensed under the GNU GPL and hosted by SourceForge 
-(http://sourceforge.net/) where you can find LASS' project page.
+codings. LASS is dual licensed under the GNU GPL and CPAL licenses and hosted 
+by SourceForge (http://sourceforge.net/) where you can find LASS' project page.
 
 
 BUILDING and INSTALLING
@@ -29,6 +29,9 @@ script yet.  You'll have to execute 'autoconfiscate_unix.py' first.
 LASS also includes a self-test, which can be build and run by invoking
 'make check'.
 
+Alternatively you can use the build_unix.py script that performs all these operations
+for you.
+
 NOTES:
 
 - LASS contains an interface library to the Python language, so you have to 
@@ -39,7 +42,9 @@ NOTES:
   generates 'configure.ac' and different 'Makefile.in' from the information it
   finds from scanning the source directories.  It then calls 'autoconf' and 
   'automake' to generated the needed 'configure' script and 'Makefile' files.
-
+  
+- If you are missing the automake tools, you can install them on a Debian-like
+  system by doing: sudo apt-get install g++ libtool automake autoconf.
 
 WIN32
 -----

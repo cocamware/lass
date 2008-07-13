@@ -84,3 +84,9 @@ http://lass.sourceforge.net
 	  results.
 	Prim:
 	- Ray3D/Sphere3D intersection now uses floating_point_conistency.h
+	
+2008-07-13 Tom
+	Process:
+	- Picked up again the ChangeLog =)
+	- Added support for VC9
+	- G++ 4.x support (two-phase name look up compliance of all Lass code)
