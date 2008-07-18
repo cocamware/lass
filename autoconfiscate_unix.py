@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 lass_name = "lass"
-lass_version = (1, 0, 0)
-library_version = (2, 0, 2)
+lass_version = (1, 1, 0)
+library_version = (3, 0, 3)
 #                  |  |  |
 #            +-----+  |  +--+
 #            |        |     |
@@ -86,14 +86,13 @@ def gather_headers(basedir, directories):
 	
 	
 def gather_extra_dist():
-	extensions = ('py', 'tmpl.h', 'tmpl.inl', 'tmpl.cpp', 'sln', 'vcproj')
+	extensions = ('py', 'tmpl.h', 'tmpl.inl', 'tmpl.cpp', 'sln', 'vcproj', 'in', 'out', 'pattern')
 	def walker(extra_dist, dirname, files):
 		d = dirname[2:]
 		extra_dist += [os.path.join(d, f) for f in files if max([f.endswith('.'+e) for e in extensions])]
 	
 	result = []
 	os.path.walk('.', walker, result)
-	result += ['src/test/mt19937ar.out', 'src/test/spline.in', 'src/test/spline_linear.pattern', 'src/test/spline_cubic.pattern']
 	result += ['docs/gpl.txt', 'docs/license.txt']
 	result += ['docs/Simple-Color.xsl', 'docs/sloc.xml']
 	result += ['docs/doxygen/footer.html', 'docs/doxygen/header.html', 'docs/doxygen/lass.doxygen', 'docs/doxygen/stylesheet.css']

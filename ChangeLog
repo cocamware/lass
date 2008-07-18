@@ -2,8 +2,72 @@ LASS - Library of Assembled Shared Sources
 
 http://lass.sourceforge.net
 
-2006-01-25 Bramz
-	updated date in copyright notice from 2004 to 2004-2006
+2008-07-18 Bramz
+	- Release of Lass 1.0.0: We had our first official release today. Let's throw a party! =)
+	- Prepped trunk for Lass 1.1
+	- Reversed Changelog so that newest items are on top =)
+
+2008-07-17 Bramz
+	- Migrated Lass from CVS to SVN
+
+2008-07-13 Tom
+	Process:
+	- Picked up again the ChangeLog =)
+	- Added support for VC9
+	- G++ 4.x support (two-phase name look up compliance of all Lass code)
+
+2006-04-19 Bramz
+	Num:
+	- Added floating_point_consistency.h with a helper class to force the FPU to round intermediate
+	  results.
+	Prim:
+	- Ray3D/Sphere3D intersection now uses floating_point_conistency.h
+
+2006-04-11 Bramz
+	Meta:
+	- Improved some of the operators by deriving directly from the result.
+	BasicOps:
+	- Removed generic sqrt.  If you want a sqrt, write your own ;)
+
+
+2006-04-07 Bramz
+	Python:
+	- Backported code to be compatible with at least Python2.2, autoconf 2.57 and automake 1.6.
+	  Main difference is support of static methods in Python2.2: METH_STATIC isn't available yet,
+	  so a workaround had to be found.  Meanwhile there were some small general improvements:
+	  static methods can also be overloaded now, and a reference-leak in the return path of
+	  overloaded methods/functions has been eliminated.
+
+2006-03-30 Bramz
+	- Line2D has now versions of equation, classify, distance, ... with a relative tolerance
+	  argument.
+	  
+2006-03-27 Bramz
+	KdTree:
+	- fixed an embarrassing bug: when oNeighbourhood was "full", the heap was popped but not 
+	  the vector ...
+	   
+2006-03-17 Bramz
+	SplineCubic && num/impl/matrix_solve.inl:
+	- We have a working tridiagonal system solver which is now used to build the cubic spline.
+
+2006-02-12 Bramz
+	./configure:
+	- the ./configure script will now check for itself which python version is to 
+	  be used.  It used to be autoconfiscate_unix.py that was doing this.  This
+	  change allow for the distribution tarball to be used on a system with
+	  a different python version than the one used to make the tarball
+
+2006-02-06 Bramz
+	Keyboard:
+	- added support for direct keyboard queries (like _kbhit() and _getch() in Win32).
+	  see src/io/keyboard.h and src/io/keyboard.cpp
+
+2006-02-05 Bramz
+	Process:
+	- added support for other platforms than Win32.  In particular for platforms with 
+	  sys/resource.h
+	- revamped the interface a bit (backwards compatible).
 
 2006-02-04 Bramz
 	Python:
@@ -33,60 +97,5 @@ http://lass.sourceforge.net
 	  LASS_ENFORCE_DYNAMIC_PY_CAST no longer take the type of the pointee, but of the pointer
 	  itself!  The idea is to eventually merge them to a single macro.
 
-2006-02-05 Bramz
-	Process:
-	- added support for other platforms than Win32.  In particular for platforms with 
-	  sys/resource.h
-	- revamped the interface a bit (backwards compatible).
-
-2006-02-06 Bramz
-	Keyboard:
-	- added support for direct keyboard queries (like _kbhit() and _getch() in Win32).
-	  see src/io/keyboard.h and src/io/keyboard.cpp
-
-2006-02-12 Bramz
-	./configure:
-	- the ./configure script will now check for itself which python version is to 
-	  be used.  It used to be autoconfiscate_unix.py that was doing this.  This
-	  change allow for the distribution tarball to be used on a system with
-	  a different python version than the one used to make the tarball
-	  
-2006-03-17 Bramz
-	SplineCubic && num/impl/matrix_solve.inl:
-	- We have a working tridiagonal system solver which is now used to build the cubic spline.
-	
-2006-03-27 Bramz
-	KdTree:
-	- fixed an embarrassing bug: when oNeighbourhood was "full", the heap was popped but not 
-	  the vector ...
-	  
-2006-03-30 Bramz
-	- Line2D has now versions of equation, classify, distance, ... with a relative tolerance
-	  argument.
-	  
-2006-04-07 Bramz
-	Python:
-	- Backported code to be compatible with at least Python2.2, autoconf 2.57 and automake 1.6.
-	  Main difference is support of static methods in Python2.2: METH_STATIC isn't available yet,
-	  so a workaround had to be found.  Meanwhile there were some small general improvements:
-	  static methods can also be overloaded now, and a reference-leak in the return path of
-	  overloaded methods/functions has been eliminated.
-	  
-2006-04-11 Bramz
-	Meta:
-	- Improved some of the operators by deriving directly from the result.
-	BasicOps:
-	- Removed generic sqrt.  If you want a sqrt, write your own ;)
-	
-2006-04-19 Bramz
-	Num:
-	- Added floating_point_consistency.h with a helper class to force the FPU to round intermediate
-	  results.
-	Prim:
-	- Ray3D/Sphere3D intersection now uses floating_point_conistency.h
-	
-2008-07-13 Tom
-	Process:
-	- Picked up again the ChangeLog =)
-	- Added support for VC9
-	- G++ 4.x support (two-phase name look up compliance of all Lass code)
+2006-01-25 Bramz
+	updated date in copyright notice from 2004 to 2004-2006
