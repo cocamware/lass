@@ -2,6 +2,11 @@ LASS - Library of Assembled Shared Sources
 
 http://lass.sourceforge.net
 
+2008-07-26 Bramz
+	- py_tuple.h: use TPyObjPtr instead of PyObjectPtr<PyObject>::Type
+	- callback_python.h and others: revamping callbacks to python functions.  
+	Use PyExportTraits now and streamline some of the code.  Still to do: move/rename dispatcher_python.cpp
+
 2008-07-18 Bramz
 	- Release of Lass 1.0.0: We had our first official release today. Let's throw a party! =)
 	- Prepped trunk for Lass 1.1

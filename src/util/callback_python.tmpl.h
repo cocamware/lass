@@ -40,42 +40,292 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
 
 #include "util_common.h"
 #include "pyobject_plus.h"
+#include "py_tuple.h"
 
 namespace lass
 {
-namespace util
-{
-
-class Callback0;
-$[template <$(typename P$x)$> class Callback$x;
-]$
-template <typename R> class CallbackR0;
-$[template <typename R, $(typename P$x)$> class CallbackR$x;
-]$
-
-}
-
 namespace python
 {
+namespace impl
+{
+	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc); // see impl/dispatcher_python.cpp
 
-int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback0& oV );
-$[template <$(typename P$x)$> int pyGetSimpleObject_deprecated( PyObject* iValue, util::Callback$x<$(P$x)$>& oV );
-]$
-template <typename R> int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR0<R>& oV );
-$[template <typename R, $(typename P$x)$> int pyGetSimpleObject_deprecated( PyObject* iValue, util::CallbackR$x<R, $(P$x)$>& oV );
-]$
+	/** Common implementation of a dispatcher to an python callback with void return type
+	 *  @internal
+	 *  @author Bramz
+	 */
+	class FunctorPythonBase
+	{
+	public:
+		FunctorPythonBase(const python::TPyObjPtr& callable): callable_(callable) {}
+		bool operator==(const FunctorPythonBase& other) const
+		{
+			return callable_.get() == other.callable_.get();
+		}
+	protected:
+		void call(const python::TPyObjPtr& args) const
+		{
+			LASS_ASSERT(callable_);
+			const python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
+			if (!result)
+			{
+				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+			}
+		}
+	private:
+		python::TPyObjPtr callable_;
+	};
 
+	/** Common implementation of a dispatcher to an python callback with non-void return type.
+	 *  @internal
+	 *  @author Bramz
+	 */
+	template <typename R>
+	class FunctorPythonRBase
+	{
+	public:
+		FunctorPythonRBase(const python::TPyObjPtr& callable): callable_(callable) {}
+		bool operator==(const FunctorPythonRBase<R>& other) const
+		{
+			return callable_.get() == other.callable_.get();
+		}
+	protected:
+		R call(const python::TPyObjPtr& args) const
+		{
+			LASS_ASSERT(callable_);
+			const python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
+			if (!result)
+			{
+				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+			}
+			typedef python::impl::ArgumentTraits<R> TraitsR;
+			typename TraitsR::TStorage temp;
+			if (python::PyExportTraits< typename TraitsR::TStorage >::get(result.get(), temp) != 0)
+			{
+				LASS_THROW("bad result");
+			}
+			return TraitsR::arg(temp);
+		}
+	private:
+		python::TPyObjPtr callable_;
+	};
 }
 
-}
+/** @internal
+ */
+template <typename CallbackType, typename FunctorType, typename ExportTraits>
+struct PyExportTraitsCallback
+{
+	static int get(PyObject* iValue, CallbackType& oV)
+	{
+		TPyObjPtr callable;
+		if (pyGetSimpleObject(iValue, callable) != 0)
+		{
+			impl::addMessageHeader(ExportTraits::className());
+			return 1;
+		}
+		if (!callable) // null pointer
+		{
+			oV.reset();
+			return 0;
+		}
+		if (!PyCallable_Check(callable.get()))
+		{
+			std::ostringstream buffer;
+			buffer << ExportTraits::className() << ": not callable";
+			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+			return 1;
+		}
+		oV = FunctorType(callable);
+		return 0;
+	}
+};
 
-#include "callback_python.inl"
+}
+}
 
 #endif
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_0)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_0
+#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_0
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+	/** @internal
+	 */
+	class Functor0Python: public FunctorPythonBase
+	{
+	public:
+		Functor0Python(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
+		void operator()() const
+		{
+			call(python::TPyObjPtr());
+		}
+	};
+}
+
+/** @internal
+ */
+template <>
+struct PyExportTraits< util::Callback0 >:
+	public PyExportTraitsCallback<
+		util::Callback0, 
+		impl::Functor0Python, 
+		PyExportTraits< util::Callback0 > 
+	>
+{
+	static const char* className() { return "Callback0"; }
+};
+
+}
+}
+
+#	endif
+#endif
+$[
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_$x)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_$x
+#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_$x
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+	/** @internal
+	 */
+	template <$(typename P$x)$>
+	class Functor$xPython: public FunctorPythonBase
+	{
+	public:
+		Functor$xPython(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
+		void operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
+		{
+			call(python::makeTuple($(p$x)$));
+		}
+	};
+}
+
+/** @internal
+ */
+template <$(typename P$x)$>
+struct PyExportTraits< util::Callback$x<$(P$x)$> >:
+	public PyExportTraitsCallback<
+		util::Callback$x<$(P$x)$>, 
+		impl::Functor$xPython<$(P$x)$>, 
+		PyExportTraits< util::Callback$x<$(P$x)$> > 
+	>
+{
+	static const char* className() { return "Callback$x"; }
+};
+
+}
+}
+
+#	endif
+#endif
+]$
+
+
+
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_R0)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_R0
+#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_R0
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+	/** @internal
+	 */
+	template <typename R>
+	class FunctorPythonR0: public FunctorPythonRBase<R>
+	{
+	public:
+		FunctorPythonR0(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
+		R operator()() const
+		{
+			return call(python::TPyObjPtr());
+		}
+	};
+}
+
+/** @internal
+ */
+template <typename R>
+struct PyExportTraits< util::CallbackR0<R> >:
+	public PyExportTraitsCallback<
+		util::CallbackR0<R>, 
+		impl::FunctorPythonR0<R>, 
+		PyExportTraits< util::CallbackR0<R> > 
+	>
+{
+	static const char* className() { return "CallbackR0"; }
+};
+
+}
+}
+
+#	endif
+#endif
+$[
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_R$x)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_R$x
+#	define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H_CALLBACK_R$x
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+	/** @internal
+	 */
+	template <typename R, $(typename P$x)$>
+	class FunctorPythonR$x: public FunctorPythonRBase<R>
+	{
+	public:
+		FunctorPythonR$x(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
+		R operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
+		{
+			return call(python::makeTuple($(p$x)$));
+		}
+	};
+}
+
+/** @internal
+ */
+template <typename R, $(typename P$x)$>
+struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >:
+	public PyExportTraitsCallback<
+		util::CallbackR$x<R, $(P$x)$>, 
+		impl::FunctorPythonR$x<R, $(P$x)$>, 
+		PyExportTraits< util::CallbackR$x<R, $(P$x)$> > 
+	>
+{
+	static const char* className() { return "CallbackR$x"; }
+};
+
+}
+}
+
+#	endif
+#endif
+]$
 
 // EOF

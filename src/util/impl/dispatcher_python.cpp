@@ -42,11 +42,11 @@
 
 #include "util_common.h"
 #include "../pyobject_plus.h"
-#include "dispatcher_python.h"
+#include "../callback_python.h"
 
 namespace lass
 {
-namespace util
+namespace python
 {
 namespace impl
 {
@@ -61,9 +61,9 @@ void fetchAndThrowPythonException(const std::string& loc)
 	PyObject *tempType, *tempValue, *tempTraceback;
 	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
 
-	python::TPyObjPtr type(tempType);
-	python::TPyObjPtr value(tempValue);
-	python::TPyObjPtr traceback(tempTraceback);
+	const TPyObjPtr type(tempType);
+	const TPyObjPtr value(tempValue);
+	const TPyObjPtr traceback(tempTraceback);
 
 	throw lass::python::PythonException(type, value, traceback, loc);
 }

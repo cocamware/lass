@@ -243,7 +243,10 @@ CallbackR$x<R, $(P$x)$> makeCallback(ObjectPtr iObject, R (Object::*iMethod)($(P
 
 }
 
-#include "callback_python.inl"
+#define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_R$x
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
+#	include "callback_python.h"
+#endif
 
 #endif // Guardian of Inclusion
 

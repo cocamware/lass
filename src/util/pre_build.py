@@ -14,7 +14,6 @@ expandFile('callback_python.tmpl.h', 'callback_python.h', N)
 expandFile('callback_python.tmpl.inl', 'callback_python.inl', N)
 expandFile('impl/dispatcher_x.tmpl.h', 'impl/dispatcher_$x.h', N)
 expandFile('impl/dispatcher_r_x.tmpl.h', 'impl/dispatcher_r_$x.h', N)
-expandFile('impl/dispatcher_python.tmpl.h', 'impl/dispatcher_python.h', N)
 
 expandFile('pyobject_macros.tmpl.h', 'pyobject_macros.h', N)
 expandFile('pyobject_call.tmpl.inl', 'pyobject_call.inl', N)
