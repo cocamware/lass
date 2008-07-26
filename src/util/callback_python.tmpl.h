@@ -47,6 +47,7 @@
 #include "util_common.h"
 #include "pyobject_plus.h"
 #include "py_tuple.h"
+#include "pyobject_call.inl"
 
 namespace lass
 {
@@ -104,7 +105,7 @@ namespace impl
 			{
 				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 			}
-			typedef python::impl::ArgumentTraits<R> TraitsR;
+			typedef ArgumentTraits<R> TraitsR;
 			typename TraitsR::TStorage temp;
 			if (python::PyExportTraits< typename TraitsR::TStorage >::get(result.get(), temp) != 0)
 			{
