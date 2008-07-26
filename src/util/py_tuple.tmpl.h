@@ -76,7 +76,7 @@ namespace impl
 
 /** @ingroup Python
  */
-inline const PyObjectPtr<PyObject>::Type makeTuple()
+inline const TPyObjPtr makeTuple()
 {
 	return TPyObjPtr(PyTuple_New(0));
 }
@@ -86,7 +86,7 @@ $[
 /** @ingroup Python
  */
 template <$(typename P$x)$>
-const PyObjectPtr<PyObject>::Type makeTuple($(const P$x& iP$x)$)
+const TPyObjPtr makeTuple($(const P$x& iP$x)$)
 {
 	TPyObjPtr tuple(PyTuple_New($x));
  	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(iP$x)) != 0) return TPyObjPtr();
@@ -105,7 +105,7 @@ inline int decodeTuple(PyObject* iTuple)
 
 /** @ingroup Python
  */
-inline int decodeTuple(const PyObjectPtr<PyObject>::Type& iTuple)
+inline int decodeTuple(const TPyObjPtr& iTuple)
 {
 	return decodeTuple(iTuple.get());
 }
@@ -131,7 +131,7 @@ $(		&& impl::decodeObject(objects[$w], oP$x, $x)
 /** @ingroup Python
  */
 template <$(typename P$x)$> inline
-int decodeTuple(const PyObjectPtr<PyObject>::Type& iTuple, $(P$x& oP$x)$)
+int decodeTuple(const TPyObjPtr& iTuple, $(P$x& oP$x)$)
 {
 	return decodeTuple(iTuple.get(), $(oP$x)$);
 }
