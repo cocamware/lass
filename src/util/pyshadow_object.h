@@ -590,6 +590,17 @@ struct ParentClassInjectorSelector_##t_ShadowObject <typename lass::meta::True::
 };\
 typedef ParentClassInjectorSelector_##t_ShadowObject < lass::meta::IsSame<t_ShadowObject::TPyParentClass, lass::python::PyObjectPlus>::Type > SelectorFor_##t_ShadowObject;\
 LASS_EXECUTE_BEFORE_MAIN_EX( t_ShadowObject, SelectorFor_##t_ShadowObject::doStuff(); )\
+template <> \
+struct PyExportTraits< t_ShadowObject::TCppClass > \
+{\
+	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
+	static int get( PyObject* iValue, t_ShadowObject::TCppClass& oByCopy) { return pyGetSimpleObject_deprecated(iValue, oByCopy); }\
+};\
+template <> \
+struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
+{\
+	static PyObject* build(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject_deprecated(iBySinkedPointer); }\
+};\
 }\
 }
 
