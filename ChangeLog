@@ -2,6 +2,9 @@ LASS - Library of Assembled Shared Sources
 
 http://lass.sourceforge.net
 
+2008-09-01 Bramz
+	- polynomial_quotient.h: fixing minor typo: double declaration of operator* instead of operator/
+
 2008-07-26 Bramz
 	- py_tuple.h: use TPyObjPtr instead of PyObjectPtr<PyObject>::Type
 	- callback_python.h and others: revamping callbacks to python functions.  
