@@ -137,12 +137,12 @@ template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T
 template <typename T> PolynomialQuotient<T> operator+(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
 template <typename T> PolynomialQuotient<T> operator-(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
 template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
-template <typename T> PolynomialQuotient<T> operator*(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
+template <typename T> PolynomialQuotient<T> operator/(const Polynomial<T>& a, const PolynomialQuotient<T>& b);
 
 template <typename T> PolynomialQuotient<T> operator+(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
 template <typename T> PolynomialQuotient<T> operator-(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
 template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
-template <typename T> PolynomialQuotient<T> operator*(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
+template <typename T> PolynomialQuotient<T> operator/(const PolynomialQuotient<T>& a, const Polynomial<T>& b);
 
 template <typename T> PolynomialQuotient<T> operator+(const T& a, const PolynomialQuotient<T>& b);
 template <typename T> PolynomialQuotient<T> operator-(const T& a, const PolynomialQuotient<T>& b);
