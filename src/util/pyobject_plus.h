@@ -58,7 +58,7 @@
 #	undef _POSIX_C_SOURCE
 #endif
 
-#if defined(_DEBUG) && !defined(LASS_PYTHON_HAS_DEBUG_BUILD)
+#if defined(_DEBUG) && LASS_PYTHON_HAS_DEBUG_BUILD == 0
 #	undef _DEBUG
 #	include "Python.h"
 #	define _DEBUG
@@ -97,10 +97,16 @@
 #endif
 
 #include "../meta/is_derived.h"
+#include "../meta/select.h"
 #include "shared_ptr.h"
 #include "string_cast.h"
 #include "thread.h"
 #include <cstdlib>
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int', possible loss of data
+#endif
 
 /** @internal
  *  This macro is only used in the PyObjectPlus class and is for internal LASS
@@ -138,10 +144,140 @@
 		}\
 	private:
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int', possible loss of data
-#endif
+namespace lass
+{
+namespace python
+{
+
+struct Caster
+{
+};
+
+template<typename T>
+struct IsACaster
+{
+	typedef lass::meta::False TValue;
+};
+template <typename T>
+struct NoCast : public Caster
+{
+	typedef T TSelf;
+	typedef T TTarget;
+	static TTarget cast(TSelf iArg) { return iArg; }
+};
+template <>
+struct NoCast<void> : public Caster
+{
+	typedef void TSelf;
+	typedef void TTarget;
+	static TTarget cast(void) {}
+};
+
+////
+template <typename T>
+struct PointerCast : public Caster
+{
+	typedef T TSelf;
+	typedef T* TPointer;
+	typedef TPointer TTarget;
+	static TSelf cast(TTarget iArg) { return *iArg; }
+};
+
+template<typename T>
+struct PointerCast<T&> : public Caster
+{
+	typedef T& TSelf;
+	typedef T* TPointer;
+	typedef TPointer TTarget;
+	static TSelf cast(TTarget iArg) { return *iArg; }
+};
+template<typename T>
+struct PointerCast<const T&> : public Caster
+{
+	typedef T& TSelf;
+	typedef T* TPointer;
+	typedef TPointer TTarget;
+	static TSelf cast(TTarget iArg) { return *iArg; }
+};
+template<typename T>
+struct PointerCast<T*> : public Caster
+{
+	typedef T* TSelf;
+	typedef T* TPointer;
+	typedef TPointer TTarget;
+	static TSelf cast(TTarget iArg) { return iArg; }
+};
+template<typename T>
+struct PointerCast<const T*> : public Caster
+{
+	typedef const T* TSelf;
+	typedef const T* TPointer;
+	typedef TPointer TTarget;
+	static TSelf cast(TTarget iArg) { return iArg; }
+};
+
+////
+ 
+template <typename T>
+struct CopyCast : public Caster
+{
+	typedef T TSelf;
+	typedef T TCopy;
+	typedef TCopy TTarget;
+	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
+};
+
+template<typename T>
+struct CopyCast<T&> : public Caster
+{
+	typedef T& TSelf;
+	typedef T TCopy;
+	typedef TCopy TTarget;
+	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
+};
+template<typename T>
+struct CopyCast<const T&> : public Caster
+{
+	typedef T& TSelf;
+	typedef T TCopy;
+	typedef TCopy TTarget;
+	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
+};
+template<typename T>
+struct CopyCast<T*> : public Caster
+{
+	typedef T* TSelf;
+	typedef T TCopy;
+	typedef TCopy TTarget;
+};
+template<typename T>
+struct CopyCast<const T*> : public Caster
+{
+	typedef const T* TSelf;
+	typedef const T TCopy;
+	typedef TCopy TTarget;
+};
+/////////
+template<typename T>
+struct IsACaster<PointerCast<T> >
+{
+	typedef lass::meta::True TValue;
+};
+template<typename T>
+struct IsACaster<CopyCast<T> >
+{
+	typedef lass::meta::True TValue;
+};
+
+template< typename T>
+struct OwnerCaster
+{
+	typedef typename lass::meta::Select< typename IsACaster<T>::TValue , T, NoCast<T> >::Type TCaster;
+};
+
+}
+}
+
 
 namespace lass
 {
@@ -641,12 +777,55 @@ namespace lass
 				}
 			};
 
+			class StaticMemberHelper
+			{
+			public:
+				virtual ~StaticMemberHelper() {}
+				virtual PyObject* build() const = 0;
+			};
+			typedef util::SharedPtr<StaticMemberHelper> TStaticMemberHelperPtr;
+			template <typename T>
+			class StaticMemberHelperObject: public StaticMemberHelper
+			{
+			public:
+				StaticMemberHelperObject(const T& obj): obj_(obj) {}
+				PyObject* build() const { return pyExportTraitBuild(obj_); }
+			private:
+				T obj_;
+			};
+			template <>
+			class StaticMemberHelperObject<PyObject*>: public StaticMemberHelper
+			{
+			public:
+				StaticMemberHelperObject(PyObject* obj): obj_(obj) {}
+ 				PyObject* build() const { return obj_; }
+			private:
+				PyObject* obj_;
+			};
+			template <typename T>
+			inline TStaticMemberHelperPtr staticMemberHelperObject(const T& obj)
+			{
+				return TStaticMemberHelperPtr(new StaticMemberHelperObject<T>(obj));
+			}
+			class StaticMemberHelperType: public StaticMemberHelper
+			{
+			public:
+				StaticMemberHelperType(PyTypeObject* type): type_(type) {}
+				PyObject* build() const { return reinterpret_cast<PyObject*>(type_); }
+			private:
+				PyTypeObject* type_;
+			};
+			inline TStaticMemberHelperPtr staticMemberHelperType(PyTypeObject* type)
+			{
+				return TStaticMemberHelperPtr(new StaticMemberHelperType(type));
+			}
+
 			/**	@ingroup
 			 *	@internal
 			 */
 			struct StaticMember
 			{
-				PyObject* object;
+				TStaticMemberHelperPtr member;
 				PyTypeObject* parentType;
 				std::vector<PyMethodDef>* methods;
 				std::vector<PyGetSetDef>* getSetters;
@@ -683,7 +862,7 @@ namespace lass
 			};
 
 			LASS_DLL StaticMember LASS_CALL createStaticMember(
-				const char* iName, const char * iDocumentation, PyObject* iObject, 
+				const char* iName, const char * iDocumentation, const TStaticMemberHelperPtr& iObject, 
 				PyTypeObject* iParentType = 0, std::vector<PyMethodDef>* iMethods = 0, 
 				std::vector<PyGetSetDef>* iGetSetters = 0, 
 				const TStaticMembers* iStatics = 0);

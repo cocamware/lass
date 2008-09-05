@@ -50,10 +50,8 @@
 #include "../prim/triangle_2d.h"
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	define _CRT_SECURE_NO_WARNINGS 1 // because someone is using sscanf && sprintf ;)
-#endif
+#include "../num/filtered_float.h"
+#include "../num/interval.h"
 
 namespace lass
 {
@@ -61,6 +59,9 @@ namespace test
 {
 
 typedef num::Consistent<double> TestType;
+//typedef num::FilteredFloat<double> TestType;
+//typedef double TestType;
+//typedef num::interval<double> TestType;
 
 int countCalls = 0;
 
@@ -186,7 +187,7 @@ bool ComputeVoronoiArea( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge* 
 {
 	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
 	int n = TPlanarMesh::vertexOrder(e);
-	TestType area = 0.0;
+	TestType area(0.0);
 	for (int i=0;i<n;++i)
 	{
 		lass::prim::Triangle2D<TestType> tri( TPlanarMesh::org(e), TPlanarMesh::dest(e), TPlanarMesh::dest(e->lNext()) );
@@ -287,6 +288,33 @@ bool TestPropertiesDouble( ::lass::spat::PlanarMesh<TestType,int,int,int>::TEdge
 	return true;
 }
 
+struct SplitConnectTest
+{
+	typedef ::lass::spat::PlanarMesh<TestType,int,int,int> TPlanarMesh;
+	TPlanarMesh* mesh;
+
+	bool testSplitConnect(TPlanarMesh::TEdge* iEdge)
+	{
+		if (TPlanarMesh::hasRightFace(iEdge))
+		{
+			TPlanarMesh::TEdge* oppEdge = iEdge->lNext()->lNext();
+			TPlanarMesh::TEdge* e = mesh->split(iEdge,0.5);
+			LASS_TEST_CHECK(TPlanarMesh::dest(iEdge)==TPlanarMesh::org(e));
+			LASS_TEST_CHECK(TPlanarMesh::org(iEdge->sym())==TPlanarMesh::dest(e->sym()));
+			LASS_TEST_CHECK(iEdge->lNext()==e);
+			LASS_TEST_CHECK(e->lPrev()==iEdge);
+			TPlanarMesh::TPoint2D conPoint = TPlanarMesh::org(oppEdge);
+			TPlanarMesh::TPoint2D splPoint = TPlanarMesh::dest(iEdge);
+			mesh->connect(iEdge,oppEdge);
+			return false;
+		}
+		return true;
+	};
+
+};
+
+
+
 void doTestPlanarMesh()
 {
 	using namespace prim;
@@ -298,7 +326,7 @@ void doTestPlanarMesh()
 	TTriangle testTriangle(TPoint(0,0),TPoint(1,0),TPoint(0,1));
 	LASS_TEST_CHECK_EQUAL( partialVoronoiArea(testTriangle,0)
 							+ partialVoronoiArea(testTriangle,1)
-							+ partialVoronoiArea(testTriangle,2), 0.5 );
+							+ partialVoronoiArea(testTriangle,2), TestType(0.5) );
 
 
 #pragma LASS_FIXME("PlanarMesh: Only the double typename is tested, due to broken compiler support!")
@@ -390,7 +418,7 @@ void doTestPlanarMesh()
 
 #pragma LASS_TODO("Make the test for integral types such as long working again... problem is sqrt")
 	/*
-	for (size_t i=0;i<randomPointsLong.size();++i)
+	for (int i=0;i<int(randomPointsLong.size());++i)
 		testMesh3.insertSite( randomPointsLong[i], true );
 	*/
 
@@ -523,14 +551,15 @@ void doTestPlanarMesh()
 	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0,60.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test8.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 
-	int k=0;
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
+	int ni=0;
+	ni = 0; 
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test9.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	k = 1; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
+	ni = 1; 
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test10.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	k = 2; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(k))*25.0,40.0+num::sin(float(k))*25.0) ),intHandles[0],intHandles[0] );
+	ni = 2; 
+	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
 	colorEdges.stream.open("test11.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 	
 
@@ -541,14 +570,14 @@ void doTestPlanarMesh()
 		colorEdges.stream.open(filen.c_str());	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
 	}
 
-	testMesh4.setTolerance(1e-12);
-	testMesh4.setPointDistanceTolerance(1e-5);
+	testMesh4.setTolerance(TestType(1e-12));
+	testMesh4.setPointDistanceTolerance(TestType(1e-5));
 
 	util::Clock aClock;
 	util::StopWatch stopWatch(aClock);
 	stopWatch.start();
 	{
-		for (int j=0;j<7;++j)
+		for (int j=0;j<1;++j)
 		{
 			double d = pow(10.0,-(j+1));
 			std::cout << "Level of detail = " << d << "\n";
@@ -575,7 +604,7 @@ void doTestPlanarMesh()
 	/*
 	 * SOMETHING GOES WRONG IN HERE !!!!!!
 	 * I've disabled this code because it breaks the nightly build and leaves ugly boxes open on my computer 
-	 *
+	 */
 
 	testIo.open( "testPlanarMeshIO_constrained.m" );
 	testIo << testMesh4;
@@ -630,8 +659,19 @@ void doTestPlanarMesh()
 		testMesh5.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
 		colorEdges.stream.close();
 	}
+	{
+		SplitConnectTest splitConnect;
+		splitConnect.mesh = &testMesh5;
+		for (int i=0;i<50;++i)
+			testMesh5.forAllPrimaryEdges( lass::util::makeCallback( &splitConnect, &SplitConnectTest::testSplitConnect)  );
+		ColorEdges colorEdges;
+		colorEdges.stream.open("testPlanarMesh_split_connect.m");
+		colorEdges.leftEdges = false;
+		testMesh5.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
+		colorEdges.stream.close();
+	}
 
-	*/
+	/**/
 
 }
 

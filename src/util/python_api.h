@@ -58,6 +58,7 @@
 #include "pysequence.h"
 #include "pymap.h"
 #include "../prim/pyobject_util.h"
+#include "../meta/is_member.h"
 
 #endif
  

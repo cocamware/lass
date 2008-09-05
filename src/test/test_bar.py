@@ -3,6 +3,8 @@ barC = embedding.Bar()
 print "values=",barC.writeableMap
 print "values=",barC.writeableMap.values()
 
+print "Testing print functionality", barC
+
 ##class SubType(embedding.Bar):
 ##    def __init__(self):
 ##        pass

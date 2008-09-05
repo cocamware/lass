@@ -60,31 +60,4 @@ TUnitTests testStde();
 
 #endif
 
-/*
- * $Log$
- * Revision 1.4  2006/01/30 16:24:27  bramz
- * updating year in copyright notice to 2004-2006
- *
- * Revision 1.3  2005/11/09 18:11:02  bramz
- * rolling our own unit tests ...
- *
- * Revision 1.2  2005/02/14 16:42:58  bramz
- * - fixing tabs
- *
- * Revision 1.1.1.2  2004/09/06 18:50:35  tomdemuer
- * *** empty log message ***
- *
- * Revision 1.4  2004/09/06 18:40:15  bdegreve
- * license change fixes
- *
- * Revision 1.3  2004/09/06 13:24:46  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.2  2004/09/06 13:08:44  tgdemuer
- * *** empty log message ***
- *
- * Revision 1.1  2004/06/21 16:53:19  bdegreve
- * testing extended io (and bug fixes :)
- *
- */
 // EOF

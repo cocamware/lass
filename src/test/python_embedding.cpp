@@ -260,3 +260,134 @@ LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eg
 
 }
 }
+
+#include "../util/non_copyable.h"
+
+namespace lass
+{
+	namespace test
+	{
+		class Base
+		{
+		public:
+			Base() {}
+			virtual ~Base() {}
+		};
+		class ClassA :  public Base 
+		{
+		public:
+			ClassA() {};
+			virtual ~ClassA() {};
+			virtual void abstractMethod() = 0;
+		};
+		class ClassB : public ClassA
+		{
+		public:
+			ClassB() {}
+			virtual ~ClassB() {}
+
+			void testConst(const ClassA& iArg) {}
+			void testNonConst(ClassA& iArg) {}
+			void testConstPtr(ClassA const * iArg) {}
+			void testNonConstPtr(ClassA* iArg) {}
+			virtual void abstractMethod() {}
+		};
+
+		PyObject* getMemberImagine(const ClassB const * iThis )
+		{
+			Py_XINCREF(Py_None);
+			return Py_None;
+		}
+		int setMemberImagine(const ClassB const * iThis, PyObject* iObject )
+		{
+			// success
+			return 0;
+		}
+
+		const ClassA& testFreeConst(const ClassA& iArg)
+		{
+			return *static_cast<ClassA const * >(&iArg);
+		}
+
+		void testCopyConstructor()
+		{
+			ClassB b;
+
+			b.testConst(b);
+			testFreeConst(b);
+		}
+
+		void testFree(ClassB* iThis, const ClassA& iArg )
+		{
+			return;
+		}
+
+		ClassB freeConstructor(int iTest)
+		{
+			return ClassB();
+		}
+
+		int testConvertor(PyObject* iObject, ClassB& oOut)
+		{
+			return 0;
+		}
+
+	}
+}
+
+
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
+PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyBase )
+PY_DECLARE_CLASS_NAME( PyBase, "Base")
+
+PY_SHADOW_CLASS_DERIVED_NOCONSTRUCTOR(LASS_DLL_EXPORT, PyClassA, lass::test::ClassA, PyBase)
+PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassA )
+PY_DECLARE_CLASS_NAME( PyClassA, "ClassA")
+
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassB, lass::test::ClassB, PyClassA)
+PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassB )
+PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
+PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
+//This won't be accepted due to A being an abstract class
+//PY_CLASS_METHOD_QUALIFIED_1( PyClassB, testConst, void, const lass::test::ClassA& )
+
+PY_CLASS_METHOD_CAST_1( PyClassB, testConst, void, lass::python::PointerCast<const lass::test::ClassA&>  )
+//PY_CLASS_METHOD_CAST_1( PyClassB, testNonConst, void, lass::python::PointerCast<lass::test::ClassA&>  )
+
+namespace lass { namespace python {
+template<typename T>
+struct CustomCast : public Caster
+{
+	typedef T TSelf;
+	typedef T TTarget;
+	static TSelf cast(TTarget iArg) 
+	{ 
+		TSelf temp = new TSelf();
+		*temp = iArg;
+		return temp; 
+	}
+};
+template<typename T>
+struct CustomCast<T&> : public Caster
+{
+	typedef T& TSelf;
+	typedef T* TTarget;
+	static TSelf cast(TTarget iArg) 
+	{ 
+		if (iArg)
+			return *iArg; 
+		LASS_THROW("Cannot use None as argument");
+	}
+};
+
+
+template<typename T>
+struct IsACaster<CustomCast<T> >
+{
+	typedef lass::meta::True TValue;
+};
+
+}
+}
+PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
+

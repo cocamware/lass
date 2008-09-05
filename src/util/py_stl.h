@@ -46,8 +46,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_STL_H
 
 #include "pyobject_plus.h"
-#include "pymap.h"
-#include "pysequence.h"
 #include "py_tuple.h"
 #include <complex>
 
@@ -135,5 +133,7 @@ namespace lass
 
 }
 }
+#include "pymap.h"
+#include "pysequence.h"
 
 #endif

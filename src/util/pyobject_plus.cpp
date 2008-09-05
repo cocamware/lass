@@ -291,14 +291,14 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 /** @internal
  */
 StaticMember createStaticMember(
-		const char* iName, const char* iDocumentation, PyObject* iObject, 
+		const char* iName, const char* iDocumentation, const TStaticMemberHelperPtr& iMember, 
 		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, 
 		std::vector<PyGetSetDef>* iGetSetters, const TStaticMembers* iStatics)
 {
 	StaticMember temp;
 	temp.name = iName;
 	temp.doc = iDocumentation;
-	temp.object = iObject;
+	temp.member = iMember;
 	temp.parentType = iParentType;
 	temp.methods = iMethods;
 	temp.getSetters = iGetSetters;
@@ -337,13 +337,14 @@ void injectStaticMembers(PyTypeObject& iPyType, const TStaticMembers& iStatics)
 {
 	for (TStaticMembers::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
 	{
-		if (PyType_Check(i->object))
+		PyObject* member = i->member->build();
+		if (PyType_Check(member))
 		{
 			// we have an innerclass
-			finalizePyType(*reinterpret_cast<PyTypeObject*>(i->object), *i->parentType, 
+			finalizePyType(*reinterpret_cast<PyTypeObject*>(member), *i->parentType, 
 				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
 		}
-		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), i->object);
+		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), member);
 	}
 }
 
@@ -377,8 +378,8 @@ void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType,
 
 /** @internal
 */
-void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, char* iMethodName, 
-	char* iDocumentation, PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
+void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iMethodName, 
+	const char* iDocumentation, PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
 {
 	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
 		ioModuleMethods.begin(), ioModuleMethods.end(),	PyMethodEqual(iMethodName));

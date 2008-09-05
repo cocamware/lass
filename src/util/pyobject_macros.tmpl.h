@@ -52,6 +52,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
 
 #include "pyobject_call.inl"
+#include "../meta/is_member.h"
 
 /** @ingroup Python
 *
@@ -593,13 +594,15 @@ $[
  *	@param s_doc
  *		documentation of class as shown in Python (zero terminated C string)
  */
+ /*  // executing this before the main has unwanted consequences: the module or python interpreter may not yet have been
+	// initialized
 namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject; }
 #define PY_MODULE_CLASS( i_module, t_cppClass, s_doc ) \
 	LASS_EXECUTE_BEFORE_MAIN( {\
 		impl::TPairStringPyObject classForModule = ::lass::python::impl::prepareClassForModuleInjection< t_cppClass >(LASS_STRINGIFY(i_module), s_doc);\
 		LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).push_back( classForModule );\
 	} )
-
+*/
 
 /** @ingroup Python
  *  Inject a class in a module
@@ -896,6 +899,14 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
 		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
+		const TCppClass* const constCppObject = TShadowTraits::constCppObject(iObject);\
+		if (::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::isConstMember( &TCppClass::i_cppMethod )) \
+		{\
+			if (!constCppObject)\
+				return 0;\
+			return ::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod(\
+				iArgs, const_cast<TCppClass*>(constCppObject), &TCppClass::i_cppMethod); \
+		}\
 		TCppClass* const cppObject = TShadowTraits::cppObject(iObject);\
 		if (!cppObject)\
 		{\
@@ -1350,6 +1361,191 @@ $[
 ]$
 
 
+// --- "casting" methods ------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  @sa PY_CLASS_CAST_EX
+ *  @brief Exports a C++ method to Python with fully qualified return type and parameters and with a casting policy
+ *		   on how to pass arguments back and forth.
+ *
+ *  @param t_cppClass
+ *      the C++ class you're exporting a method of
+ *  @param i_cppMethod
+ *      the name of the method in C++
+ *  @param t_return
+ *      the return type of @a i_cppMethod
+ *  @param t_params
+ *      a lass::meta::TypeList of the parameter types of @a i_cppMethod
+ *  @param s_methodName
+ *      the name the method will have in Python
+ *  @param s_doc
+ *      documentation of method as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *      per exported C++ class/method pair.
+ *
+ *  You can use this macro instead of PY_CLASS_METHOD_EX if there's a need to convert any types on the fly.
+ *
+ *  Just like PY_CLASS_METHOD_EX, PY_CLASS_METHOD_QUALIFIED_EX allows for overloading.  These
+ *  overloads may be mixed with PY_CLASS_METHOD_EX methods.
+ *  By default two casting operators are supported:
+ *	* PointerCast<_type> : will interpret the ownership rules as if a pointer is passed along
+ *	* CopyCast<_type> : will interpret the ownership rules as if a copy of the object is passed along
+ *
+ *	It is also possible to define own casting operators in a similar and easy way: look for the PointerCast code.
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      void bar(int a);
+ *      void bar(const std::string& b) const;
+ *  };
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_METHOD_CAST_EX_0(Foo, bar, void, CopyCast<const std::string&>, "bar", 0, foo_bar_a)
+ *  @endcode
+ */
+
+
+/** @ingroup Python
+ *  @sa PY_CLASS_CAST_QUALIFIED_EX_0
+ *  convenience macro, wraps PY_CLASS_CAST_QUALIFIED_EX for 0 arguments
+ */
+#define PY_CLASS_METHOD_CAST_EX_0(t_cppClass, i_cppMethod, t_return, s_methodName, s_doc, i_dispatcher, i_typename) \
+	::lass::python::OwnerCaster<t_return>::TCaster::TTarget i_dispatcher ( \
+	::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iThis\
+	)\
+	{\
+ 		return iThis->i_cppMethod ();\
+	}\
+	typedef lass::meta::type_list::Make< lass::python::impl::ShadowTraits< t_cppClass >::TCppClass* >::Type i_typename;\
+	PY_CLASS_FREE_METHOD_QUALIFIED_EX( t_cppClass, i_dispatcher, t_return, i_typename, s_methodName, s_doc, i_dispatcher );
+
+
+ $[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+ */
+ #define PY_CLASS_METHOD_CAST_EX_$x( t_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher, i_typename )\
+	::lass::python::OwnerCaster< t_return >::TCaster::TTarget i_dispatcher ( \
+	::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iThis,\
+	$(::lass::python::OwnerCaster< t_P$x >::TCaster::TTarget iArg$x)$ \
+	)\
+	{\
+ 		return iThis->i_cppMethod ( $(::lass::python::OwnerCaster< t_P$x >::TCaster::cast(iArg$x))$ );\
+	}\
+	typedef lass::meta::type_list::Make< lass::python::impl::ShadowTraits< t_cppClass >::TCppClass*, $(lass::python::OwnerCaster< t_P$x >::TCaster::TTarget)$ >::Type i_typename;\
+	PY_CLASS_FREE_METHOD_QUALIFIED_EX( t_cppClass, i_dispatcher, t_return, i_typename, s_methodName, s_doc, i_dispatcher );
+ ]$
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_EX_0 with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a t_cppClass ## __LINE__.
+ */
+#define PY_CLASS_METHOD_CAST_NAME_DOC_0( i_cppClass, i_cppMethod, t_return, s_methodName, s_doc )\
+	PY_CLASS_METHOD_CAST_EX_0(\
+		i_cppClass, i_cppMethod, t_return, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)),\
+		LASS_UNIQUENAME(LASS_CONCATENATE(TypelassPyImpl_method_, i_cppClass)))
+$[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_EX_$x with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a t_cppClass ## __LINE__.
+ */
+#define PY_CLASS_METHOD_CAST_NAME_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc )\
+	PY_CLASS_METHOD_CAST_EX_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)),\
+		LASS_UNIQUENAME(LASS_CONCATENATE(TypelassPyImpl_method_, i_cppClass)))
+]$
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC with @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST_NAME( i_cppClass, i_cppMethod, t_return, t_params, s_methodName )\
+		PY_CLASS_METHOD_CAST_NAME_DOC(\
+			i_cppClass, i_cppMethod, t_return, t_params, s_methodName, 0 )
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC_0 with @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST_NAME_0( i_cppClass, i_cppMethod, t_return, s_methodName )\
+	PY_CLASS_METHOD_CAST_NAME_DOC_0(\
+		i_cppClass, i_cppMethod, t_return, s_methodName, 0 )
+$[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC_$x with @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST_NAME_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName )\
+	PY_CLASS_METHOD_CAST_NAME_DOC_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, 0 )
+]$
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod.
+ */
+#define PY_CLASS_METHOD_CAST_DOC( i_cppClass, i_cppMethod, t_return, t_params, s_doc )\
+	PY_CLASS_METHOD_CAST_NAME_DOC(\
+		i_cppClass, i_cppMethod, t_return, t_params, LASS_STRINGIFY(i_cppMethod), s_doc )
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod.
+ */
+#define PY_CLASS_METHOD_CAST_DOC_0( i_cppClass, i_cppMethod, t_return, s_doc )\
+	PY_CLASS_METHOD_CAST_NAME_DOC_0(\
+		i_cppClass, i_cppMethod, t_return, LASS_STRINGIFY(i_cppMethod), s_doc )
+$[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod.
+ */
+#define PY_CLASS_METHOD_CAST_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_doc )\
+	PY_CLASS_METHOD_CAST_NAME_DOC_$x(\
+		i_cppClass, i_cppMethod, t_return, $(t_P$x)$, LASS_STRINGIFY(i_cppMethod), s_doc )
+]$
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST( i_cppClass, i_cppMethod, t_return, t_params )\
+	PY_CLASS_METHOD_CAST_DOC( i_cppClass, i_cppMethod, t_return, t_params, 0 )
+
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST_0( i_cppClass, i_cppMethod, t_return )\
+	PY_CLASS_METHOD_CAST_DOC_0( i_cppClass, i_cppMethod, t_return, 0 )
+$[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_CAST_NAME_DOC
+ *  with @a s_methodName = # @a i_cppMethod and @a s_doc = 0.
+ */
+#define PY_CLASS_METHOD_CAST_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$ )\
+	PY_CLASS_METHOD_CAST_DOC_$x( i_cppClass, i_cppMethod, t_return, $(t_P$x)$, 0 )
+]$
+
+
 
 // --- static methods ------------------------------------------------------------------------------
 
@@ -1425,6 +1621,34 @@ $[
 /** @ingroup Python
  *  @sa PY_CLASS_STATIC_METHOD_EX
  *  convenience macro, wraps PY_CLASS_STATIC_METHOD_EX
+ *  with @a f_cppFunction = @a i_cppClass :: @a i_cppMethod
+ *  and @a i_dispatcher = lassPyImpl_StaticMethod_ @a i_cppClass __LINE__
+ */
+#define PY_CLASS_STATIC_METHOD_NAME_DOC( i_cppClass, i_cppMethod, s_methodName, s_doc )\
+	PY_CLASS_STATIC_METHOD_EX(\
+		i_cppClass,\
+		&::lass::python::impl::ShadowTraits<i_cppClass>::TCppClass::i_cppMethod,\
+		s_methodName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_staticMethod_, i_cppClass)))
+
+
+/** @ingroup Python
+ *  @sa PY_CLASS_STATIC_METHOD_EX
+ *  convenience macro, wraps PY_CLASS_STATIC_METHOD_EX
+ *  with @a f_cppFunction = @a i_cppClass :: @a i_cppMethod
+ *  and @a i_dispatcher = lassPyImpl_StaticMethod_ @a i_cppClass __LINE__
+ */
+#define PY_CLASS_STATIC_METHOD_NAME( i_cppClass, i_cppMethod, s_methodName)\
+	PY_CLASS_STATIC_METHOD_EX(\
+		i_cppClass,\
+		&::lass::python::impl::ShadowTraits<i_cppClass>::TCppClass::i_cppMethod,\
+		s_methodName, "",\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_staticMethod_, i_cppClass)))
+
+
+/** @ingroup Python
+ *  @sa PY_CLASS_STATIC_METHOD_EX
+ *  convenience macro, wraps PY_CLASS_STATIC_METHOD_EX
  *  with f_cppFunction = @a i_cppClass :: @a i_cppMethod
  */
 #define PY_CLASS_STATIC_METHOD( i_cppClass, i_cppMethod )\
@@ -1474,7 +1698,7 @@ $[
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
 		if (!cppObject)\
 		{\
 			return 0;\
@@ -1571,7 +1795,7 @@ $[
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
 		if (!cppObject)\
 		{\
 			return 0;\
@@ -1618,6 +1842,199 @@ $[
 #define PY_CLASS_MEMBER_R(t_cppClass, i_cppGetter)\
 	PY_CLASS_MEMBER_R_DOC(t_cppClass, i_cppGetter, 0)
 
+// --- data members --------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  exports a pair of get and set accessors as an read/write attribute in Python by using free functions
+ *
+ *  @param t_cppClass
+ *      the C++ class you want to add the static method to.
+ *  @param s_memberName
+ *      the name of the attribute in python (zero terminated C string)
+ *  @param a_freeCppGetter
+ *      the free method in C++ used to get the attribute
+ *  @param a_freeCppSetter
+ *      the free method in C++ used to set the attribute
+ *  @param s_doc
+ *      documentation of member as shown in Python (zero terminated C string)
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      int bar;
+ *  };
+ *
+ *  PyObject getBar(const Foo const* iThis) 
+ *	{ 
+ *		return iThis->bar;
+ *	}
+ *  int setBar(Foo* iThis, PyObject* iBar) 
+ *  {	
+ *		int abar;
+ *		int r = pyGetSimpleObject(iBar,abar);
+ *		if (!r)
+ *			iBar->bar = abar;
+ *		return r;
+ *	}
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_FREE_MEMBER_RW_EX(Foo, getBar, setBar, "bar", "regular get and setter")
+ *  @endcode
+ */
+#define PY_CLASS_FREE_MEMBER_RW_EX( t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc, i_dispatcher)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter)( PyObject* iObject, void* iClosure)\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return i_cppFreeGetter( cppObject );\
+	}\
+	int LASS_CONCATENATE(i_dispatcher, _freeSetter)( PyObject* iObject, PyObject* iArgs, void* iClosure )\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		int r = i_cppFreeSetter( cppObject, iArgs );\
+		return r;\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		t_cppClass::_lassPyGetSetters.insert(\
+			t_cppClass::_lassPyGetSetters.begin(),\
+			::lass::python::impl::createPyGetSetDef(\
+				s_memberName,\
+				LASS_CONCATENATE(i_dispatcher, _freeGetter),\
+				LASS_CONCATENATE(i_dispatcher, _freeSetter),\
+				s_doc, 0));\
+	)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_EX with
+ *  @a i_dispatcher = lassPyImpl_memberR_ @a t_cppClass __LINE__
+ */
+#define PY_CLASS_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc)\
+	PY_CLASS_FREE_MEMBER_RW_EX(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_freeMemberRW, t_cppClass)))
+
+/** @ingroup Python
+ *  @sa PY_CLASS_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_doc = 0
+ */
+#define PY_CLASS_FREE_MEMBER_RW_NAME(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName)\
+	PY_CLASS_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_name = "s_cppFreeGetter"
+ */
+#define PY_CLASS_FREE_MEMBER_RW_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_doc)\
+	PY_CLASS_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, LASS_STRINGIFY(i_cppFreeGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_name = "s_freeCppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_FREE_MEMBER_RW(t_cppClass, i_cppFreeGetter, i_cppFreeSetter)\
+	PY_CLASS_FREE_MEMBER_RW_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, 0)
+
+
+
+/** @ingroup Python
+ *  exports a get accessor as an read-only attribute in Python as a free function
+ *
+ *  @param t_cppClass
+ *      the C++ class you want to add the static method to.
+ *  @param s_memberName
+ *      the name of the attribute in python (zero terminated C string)
+ *  @param a_freeCppGetter
+ *      a free function in C++ used to get the attribute
+ *  @param s_doc
+ *      documentation of member as shown in Python (zero terminated C string)
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      int bar;
+ *  };
+ *
+ *  PyObject getBar(const Foo const* iThis) 
+ *	{ 
+ *		return iThis->bar;
+ *	}
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_FREE_MEMBER_R_EX(Foo, getBar, "bar", "regular get and setter")
+ *  @endcode
+ */
+#define PY_CLASS_FREE_MEMBER_R_EX( t_cppClass, i_freeCppGetter, s_memberName, s_doc, i_dispatcher )\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter) ( PyObject* iObject, void* iClosure)\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return i_freeCppGetter( cppObject) ;\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		t_cppClass::_lassPyGetSetters.insert(\
+			t_cppClass::_lassPyGetSetters.begin(),\
+			::lass::python::impl::createPyGetSetDef(\
+				s_memberName, LASS_CONCATENATE(i_dispatcher, _freeGetter), 0, \
+				s_doc, 0));\
+	)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_EX with
+ *  @a i_dispatcher = lassPyImpl_memberR_ ## @a t_cppClass ## __LINE__
+ */
+#define PY_CLASS_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, s_memberName, s_doc)\
+	PY_CLASS_FREE_MEMBER_R_EX(t_cppClass, i_freeCppGetter, s_memberName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_freeMemberR, t_cppClass)))
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_doc = 0
+ */
+#define PY_CLASS_FREE_MEMBER_R_NAME(t_cppClass, i_freeCppGetter, s_memberName)\
+	PY_CLASS_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_freeCppGetter"
+ */
+#define PY_CLASS_FREE_MEMBER_R_DOC(t_cppClass, i_freeCppGetter, s_doc)\
+	PY_CLASS_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, LASS_STRINGIFY(i_freeCppGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_MEMBER_R_DOC
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_cppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_FREE_MEMBER_R(t_cppClass, i_freeCppGetter)\
+	PY_CLASS_FREE_MEMBER_R_DOC(t_cppClass, i_freeCppGetter, 0)
+
+
 
 
 /** @ingroup Python
@@ -1651,7 +2068,7 @@ $[
 	{\
 		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
 		if (!cppObject)\
 		{\
 			return 0;\
@@ -1745,7 +2162,7 @@ $[
 	{\
 		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
 		if (!cppObject)\
 		{\
 			return 0;\
@@ -2061,6 +2478,13 @@ $[
 		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
+		const TCppClass* const constSelf = TShadowTraits::constCppObject(iSelf);\
+		if (lass::meta::isPseudoConstMember( i_cppMethod))\
+		{\
+			if (!constSelf)\
+				return 0;\
+			return i_caller( iArgs, const_cast<TCppClass*>(constSelf), i_cppMethod );\
+		}\
 		TCppClass* const self = TShadowTraits::cppObject(iSelf);\
 		if (!self)\
 		{\

@@ -52,6 +52,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_MACRO_H
 
 
+#define LASS_WRAP(x)					x
 
 // first of all, the usual stuff on stringifying, concatenating and breakpoint preprocessor stuff.
 

@@ -79,6 +79,16 @@ template <>
 struct PyExportTraits< util::Callback0 >
 {
 	static int get(PyObject* iV, util::Callback0& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+	static PyObject* build( const util::Callback0& oV ) 
+	{
+		if (oV.isEmpty())
+		{
+			Py_XINCREF(Py_None);
+			return Py_None;
+		}
+		else
+			return PyExportTraits<int>::build(1);
+	}
 };
 
 #	endif
@@ -116,6 +126,16 @@ template <$(typename P$x)$>
 struct PyExportTraits< util::Callback$x<$(P$x)$> >
 {
 	static int get(PyObject* iV, util::Callback$x<$(P$x)$> & oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+	static PyObject* build( const util::Callback$x<$(P$x)$> & oV ) 
+	{
+		if (oV.isEmpty())
+		{
+			Py_XINCREF(Py_None);
+			return Py_None;
+		}
+		else
+			return PyExportTraits<int>::build(1);
+	}
 };
 
 
@@ -154,6 +174,16 @@ template <typename R>
 struct PyExportTraits< util::CallbackR0<R> >
 {
 	static int get(PyObject* iV, util::CallbackR0<R>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+	static PyObject* build( const util::CallbackR0<R>& oV ) 
+	{
+		if (oV.isEmpty())
+		{
+			Py_XINCREF(Py_None);
+			return Py_None;
+		}
+		else
+			return PyExportTraits<int>::build(1);
+	}
 };
 
 #	endif
@@ -191,6 +221,16 @@ template <typename R, $(typename P$x)$>
 struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >
 {
 	static int get(PyObject* iV, util::CallbackR$x<R, $(P$x)$>& oV) { return pyGetSimpleObject_deprecated(iV,oV); }
+	static PyObject* build( const util::CallbackR$x<R, $(P$x)$>& oV ) 
+	{
+		if (oV.isEmpty())
+		{
+			Py_XINCREF(Py_None);
+			return Py_None;
+		}
+		else
+			return PyExportTraits<int>::build(1);
+	}
 };
 
 #	endif

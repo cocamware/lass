@@ -73,7 +73,7 @@ public:
 
 protected:
 
-	DispatcherR0(const DispatcherR0<R>& iOther) {}
+	DispatcherR0(const DispatcherR0<R>& /*iOther*/) {}
 
 private:
 

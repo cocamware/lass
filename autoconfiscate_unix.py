@@ -102,7 +102,7 @@ def gather_extra_dist():
 	return result
 	
 
-def write_configure():
+def write_configure(options):
 	print "- configure.ac"
 	configure=open('configure.ac','w+')
 
@@ -164,19 +164,30 @@ AC_CHECK_HEADERS([limits.h termios.h uinstd.h sys/ioctl.h sys/resource.h sys/soc
 # Checks for library functions.
 AC_FUNC_STRERROR_R
 AC_CHECK_FUNCS([atexit clock_gettime])
+''')
 
+if options.python_include or options.python_ldflags:
+    assert options.python_include and options.python_ldflags
+    configure.write(r'''
+LASS_PY_INCLUDES="%s"
+LASS_PY_LDFLAGS="%s"
+''' % (options.python_include, options.python_ldflags))
+else:
+    configure.write(r'''
 AC_MSG_CHECKING(for Python)
 LASS_PY_PREFIX=`python -c 'import sys; print sys.prefix'`
 LASS_PY_EXEC_PREFIX=`python -c 'import sys; print sys.exec_prefix'`
 LASS_PY_VERSION=`python -c 'import sys; print sys.version[[:3]]'`
 LASS_PY_INCLUDES="-I${LASS_PY_PREFIX}/include/python${LASS_PY_VERSION} -I${LASS_PY_EXEC_PREFIX}/include/python${LASS_PY_VERSION}"
 LASS_PY_LDFLAGS="-L${LASS_PY_PREFIX}/lib/python${LASS_PY_VERSION}/config -lpython${LASS_PY_VERSION}"
-AC_SUBST(LASS_PY_PREFIX)
-AC_SUBST(LASS_PY_EXEC_PREFIX)
-AC_SUBST(LASS_PY_VERSION)
+AC_MSG_RESULT(${LASS_PY_VERSION})
+#AC_SUBST(LASS_PY_PREFIX)
+#AC_SUBST(LASS_PY_EXEC_PREFIX)
+#AC_SUBST(LASS_PY_VERSION)
+''')
+    configure.write(r'''
 AC_SUBST(LASS_PY_INCLUDES)
 AC_SUBST(LASS_PY_LDFLAGS)
-AC_MSG_RESULT(${LASS_PY_VERSION})
 ''')
 
 	configure.write(r'''
@@ -327,21 +338,29 @@ def autogen():
 	#os.system('./configure')
 	#os.system('make')
 
+if __name__ == "__main__":
+    from optparse import OptionParser
+    parser = OptionParser(usage = "%prog [options]")
+    parser.add_option("", "--python-include", dest=python_include, action="store", type="str") 
+    parser.add_option("", "--python-ldflags", dest=python_library, action="store", type="str")
+    options, args = parser.parse()
+    if options.python_include or options.python_library:
+        if not (options.python_include and options.python_library):
+            parser.error("If you use either --python-include or --python-ldflags, you also have to use the other one.")
 
+    print "* GENERATING SOURCE FILES"
+    pre_build()
 
-print "* GENERATING SOURCE FILES"
-pre_build()
+    print "\n* GENERATING MAKE FILES"
+    write_configure()
+    extra_dist = gather_extra_dist()
+    write_makefile(extra_dist)
+    sources = gather_sources('src', source_dirs)
+    headers = gather_headers('src', source_dirs)
+    write_src_makefile(sources, headers)
+    test_sources = gather_sources('src/test', '.')
+    write_src_test_makefile(test_sources)
+    write_pc_file()
 
-print "\n* GENERATING MAKE FILES"
-write_configure()
-extra_dist = gather_extra_dist()
-write_makefile(extra_dist)
-sources = gather_sources('src', source_dirs)
-headers = gather_headers('src', source_dirs)
-write_src_makefile(sources, headers)
-test_sources = gather_sources('src/test', '.')
-write_src_test_makefile(test_sources)
-write_pc_file()
-
-print "\n* AUTOGEN"
-autogen()
+    print "\n* AUTOGEN"
+    autogen()
