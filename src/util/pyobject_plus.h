@@ -789,7 +789,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T& obj): obj_(obj) {}
-				PyObject* build() const { return pyExportTraitBuild(obj_); }
+				PyObject* build() const { return pyBuildSimpleObject(obj_); }
 			private:
 				T obj_;
 			};
@@ -882,7 +882,7 @@ namespace lass
 				const char* iModuleName, const char* iDocumentation);
 			LASS_DLL void LASS_CALL addModuleFunction(
 				std::vector<PyMethodDef>& ioModuleMethods, 
-				char* iMethodName, char* iDocumentation,
+				const char* iMethodName, const char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			LASS_DLL void LASS_CALL addClassMethod(
 				PyTypeObject& pyType, 

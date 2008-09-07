@@ -6,7 +6,7 @@
  *
  *  The LASS License:
  *
- *  Copyright 2004-2006 Bram de Greve and Tom De Muer
+ *  Copyright 2004-2008 Bram de Greve and Tom De Muer
  *
  *  LASS is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -435,7 +435,6 @@ int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, la
 }
 
 
-
 #define PY_SHADOW_CASTERS(t_ShadowObject)\
 namespace lass\
 {\
@@ -741,7 +740,7 @@ struct PyExportTraits< t_ShadowObject::TCppClass* > \
 template <> \
 struct PyExportTraits< const t_ShadowObject::TCppClass* > \
 {\
-	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
+	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(*iByCopy); }\
 	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
 };\
 PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject) \

@@ -44,6 +44,8 @@
 
 #include "test_common.h"
 #include "python_embedding.h"
+#include "../util/python_api.h"
+#include "../util/pyshadow_object.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -65,7 +67,9 @@ PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyEggs, Eggs, PySpam)
 }
 }
 
-PY_SHADOW_CASTERS(lass::test::PySpam)
+typedef lass::test::PySpam TPySpam;
+
+PY_SHADOW_DOWN_CASTERS(TPySpam)
 
 namespace lass
 {
@@ -337,7 +341,8 @@ namespace lass
 
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
-PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyBase )
+//PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyBase )
+PY_SHADOW_DOWN_CASTERS( PyBase )
 PY_DECLARE_CLASS_NAME( PyBase, "Base")
 
 PY_SHADOW_CLASS_DERIVED_NOCONSTRUCTOR(LASS_DLL_EXPORT, PyClassA, lass::test::ClassA, PyBase)
@@ -345,7 +350,7 @@ PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassA )
 PY_DECLARE_CLASS_NAME( PyClassA, "ClassA")
 
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassB, lass::test::ClassB, PyClassA)
-PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassB )
+//PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassB )
 PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
 //This won't be accepted due to A being an abstract class
