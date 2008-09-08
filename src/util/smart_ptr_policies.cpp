@@ -51,18 +51,50 @@ namespace util
 namespace impl
 {
 
+// We used to utilize util::Singleton to implement the heap counter allocator,
+// but that can result in a static initilisation catastrophe.
+// So, we'll deploy a custom "leaking singleton" here.  So, memory is allocated
+// but never deallocated ...
+// [Bramz]
+
 typedef AllocatorThrow<
-		AllocatorPerThread<
-			AllocatorStaticFixed< 
-				AllocatorFreeList<>, sizeof(int)
-			>			
+		AllocatorStaticFixed<
+			AllocatorConcurrentFreeList<>, sizeof(int)
 		>
 	>
 	THeapCounterAllocator;
 
+THeapCounterAllocator* heapCounterAllocatorSingleton = 0;
+int heapCounterAllocatorSemaphore = 1;
+
 THeapCounterAllocator& heapCounterAllocator()
 {
-	return *util::Singleton<THeapCounterAllocator, destructionPriorityInternalAllocators>::instance();
+	if (!heapCounterAllocatorSingleton)
+	{
+		// enter semaphore
+		//
+		int oldSlots, newSlots;
+		do
+		{
+			oldSlots = heapCounterAllocatorSemaphore;
+			LASS_ASSERT(oldSlots >= 0);
+			newSlots = oldSlots - 1;
+		}
+		while (oldSlots == 0 || !atomicCompareAndSwap(heapCounterAllocatorSemaphore, oldSlots, newSlots));
+
+		// double check on create
+		//
+		if (heapCounterAllocatorSingleton == 0)
+		{
+			heapCounterAllocatorSingleton = new THeapCounterAllocator;
+		}
+
+		// leave semaphore
+		//
+		atomicIncrement(heapCounterAllocatorSemaphore);
+	}
+
+	return *heapCounterAllocatorSingleton;
 }
 
 void initHeapCounter(int*& ioCounter, int iInitialValue)
