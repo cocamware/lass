@@ -297,12 +297,12 @@ namespace lass
 			virtual void abstractMethod() {}
 		};
 
-		PyObject* getMemberImagine(const ClassB const * iThis )
+		PyObject* getMemberImagine(const ClassB * iThis )
 		{
 			Py_XINCREF(Py_None);
 			return Py_None;
 		}
-		int setMemberImagine(const ClassB const * iThis, PyObject* iObject )
+		int setMemberImagine(const ClassB * iThis, PyObject* iObject )
 		{
 			// success
 			return 0;

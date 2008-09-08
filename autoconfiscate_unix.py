@@ -19,9 +19,11 @@ source_dirs = ['config', 'io', 'meta', 'num', 'prim', 'spat', 'stde', 'util']
 test_dirs = ['test']
 
 debug_info_flags = '-g'
-code_generation_flags = ''#'-msse2 -march=pentium4 -mfpmath=sse'
+code_generation_flags = '-fno-strict-aliasing'#'-msse2 -march=pentium4 -mfpmath=sse'
 warning_flags = '-Wall -Wno-comments -Wno-unknown-pragmas'# -Wextra'#-Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Wold-style-casts -Wsign-promo'
 libs = '-lpthread -lutil'
+
+bug_report = 'bramz@users.sourceforge.net'
 
 import os
 import os.path
@@ -101,8 +103,8 @@ def write_configure(options):
 
 	configure.write(r'''
 AC_PREREQ(2.57)
-AC_INIT(%s, %s, bramz@sourceforge.net)
-''' % (lass_name, "%s.%s.%s" % lass_version))
+AC_INIT(%s, %s, %s)
+''' % (lass_name, "%s.%s.%s" % lass_version, bug_report))
 
 	configure.write(r'''
 LASS_NAME=%s

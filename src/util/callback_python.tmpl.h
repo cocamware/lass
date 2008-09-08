@@ -171,7 +171,7 @@ namespace impl
 		Functor0Python(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()() const
 		{
-			call(python::TPyObjPtr());
+			this->call(python::TPyObjPtr());
 		}
 	};
 }
@@ -214,7 +214,7 @@ namespace impl
 		Functor$xPython(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			call(python::makeTuple($(p$x)$));
+			this->call(python::makeTuple($(p$x)$));
 		}
 	};
 }
@@ -261,7 +261,7 @@ namespace impl
 		FunctorPythonR0(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()() const
 		{
-			return call(python::TPyObjPtr());
+			return this->call(python::TPyObjPtr());
 		}
 	};
 }
@@ -304,7 +304,7 @@ namespace impl
 		FunctorPythonR$x(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			return call(python::makeTuple($(p$x)$));
+			return this->call(python::makeTuple($(p$x)$));
 		}
 	};
 }

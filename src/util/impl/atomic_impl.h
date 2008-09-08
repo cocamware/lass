@@ -478,15 +478,33 @@ struct AtomicOperations<8>
 	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 32)
+		// cmpxchg8b and PIC mode don't play nice.  Push ebx before use!
+		// see http://www.technovelty.org/code/arch/pic-cas.html
+		//
+#	ifdef __PIC__
+		__asm__ __volatile__(
+			"pushl %%ebx;"
+			"movl %5,%%ebx;"
+			"lock; cmpxchg8b %0;"
+			"pop %%ebx;"
+			: "=m"(dest), "=A"(expectedValue)
+			: "m"(dest),
+			  "a"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[0]), 
+			  "d"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[1]),	
+			  "m"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[0]), 
+			  "c"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[1])	
+			: "cc", "memory");
+#	else
 		__asm__ __volatile__(
 			"lock; cmpxchg8b %0;"
 			: "=m"(dest), "=A"(expectedValue)
 			: "m"(dest),
-			  "a"(reinterpret_cast<volatile num::Tuint32*>(&expectedValue)[0]), 
-			  "d"(reinterpret_cast<volatile num::Tuint32*>(&expectedValue)[1]),	
-			  "b"(reinterpret_cast<volatile num::Tuint32*>(&newValue)[0]), 
-			  "c"(reinterpret_cast<volatile num::Tuint32*>(&newValue)[1])	
+			  "a"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[0]), 
+			  "d"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[1]),	
+			  "b"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[0]), 
+			  "c"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[1])	
 			: "cc", "memory");
+#	endif
 		return expectedValue;
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && (LASS_ADDRESS_SIZE == 64)
 		__asm__ __volatile__(
