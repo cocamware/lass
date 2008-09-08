@@ -28,14 +28,7 @@ import os.path
 import sys
 
 def pre_build():
-	current = os.getcwd()
-	os.chdir('src/util')
 	os.system(sys.executable + ' pre_build.py')
-	os.chdir('../meta')
-	os.system(sys.executable + ' pre_build.py')
-	os.chdir('../test')
-	os.system(sys.executable + ' pre_build.py')
-	os.chdir(current)
 
 
 def check_extension(filename, extensions):
@@ -166,14 +159,14 @@ AC_FUNC_STRERROR_R
 AC_CHECK_FUNCS([atexit clock_gettime])
 ''')
 
-if options.python_include or options.python_ldflags:
-    assert options.python_include and options.python_ldflags
-    configure.write(r'''
+	if options.python_include or options.python_ldflags:
+		assert options.python_include and options.python_ldflags
+		configure.write(r'''
 LASS_PY_INCLUDES="%s"
 LASS_PY_LDFLAGS="%s"
 ''' % (options.python_include, options.python_ldflags))
-else:
-    configure.write(r'''
+	else:
+		configure.write(r'''
 AC_MSG_CHECKING(for Python)
 LASS_PY_PREFIX=`python -c 'import sys; print sys.prefix'`
 LASS_PY_EXEC_PREFIX=`python -c 'import sys; print sys.exec_prefix'`
@@ -185,7 +178,8 @@ AC_MSG_RESULT(${LASS_PY_VERSION})
 #AC_SUBST(LASS_PY_EXEC_PREFIX)
 #AC_SUBST(LASS_PY_VERSION)
 ''')
-    configure.write(r'''
+
+	configure.write(r'''
 AC_SUBST(LASS_PY_INCLUDES)
 AC_SUBST(LASS_PY_LDFLAGS)
 ''')
@@ -196,6 +190,7 @@ AC_SUBST(LASS_LDFLAGS)
 ''' % libs)
 
 	release_name = "%s-%s.%s" % (lass_name, lass_version[0], lass_version[1])
+	print "foobar"
 	configure.write(r'''
 AC_OUTPUT([
 	Makefile 
@@ -314,7 +309,7 @@ lass_py_includes=@LASS_PY_INCLUDES@
 lass_py_ldflags=@LASS_PY_LDFLAGS@
 
 Name: LASS
-Description: Library of Assembled Shared Sources (http://liar.sourceforge.net)
+Description: Library of Assembled Shared Sources (http://lass.bramz.net)
 Requires: 
 Version: @VERSION@
 Libs: -L${libdir} -l${lass_release_name} ${lass_ldflags} ${lass_py_ldflags}
@@ -341,18 +336,18 @@ def autogen():
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser(usage = "%prog [options]")
-    parser.add_option("", "--python-include", dest=python_include, action="store", type="str") 
-    parser.add_option("", "--python-ldflags", dest=python_library, action="store", type="str")
-    options, args = parser.parse()
-    if options.python_include or options.python_library:
-        if not (options.python_include and options.python_library):
+    parser.add_option("", "--python-include", dest="python_include", action="store", type="string") 
+    parser.add_option("", "--python-ldflags", dest="python_ldflags", action="store", type="string")
+    options, args = parser.parse_args()
+    if options.python_include or options.python_ldflags:
+        if not (options.python_include and options.python_ldflags):
             parser.error("If you use either --python-include or --python-ldflags, you also have to use the other one.")
 
     print "* GENERATING SOURCE FILES"
     pre_build()
 
     print "\n* GENERATING MAKE FILES"
-    write_configure()
+    write_configure(options)
     extra_dist = gather_extra_dist()
     write_makefile(extra_dist)
     sources = gather_sources('src', source_dirs)

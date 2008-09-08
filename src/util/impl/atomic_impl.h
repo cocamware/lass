@@ -373,12 +373,28 @@ struct AtomicOperations<4>
 	{
 #if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		bool result;
+
+		// cmpxchg8b and PIC mode don't play nice.  Push ebx before use!
+		// see http://www.technovelty.org/code/arch/pic-cas.html
+		//
+#	ifdef __PIC__
+		__asm__ __volatile__(
+			"pushl %%ebx;"
+			"movl %4,%%ebx;"
+			"lock; cmpxchg8b %0;"
+			"sete %1;"
+			"pop %%ebx;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected1), "d"(expected2), "m"(new1), "c"(new2), "m"(dest1)
+			: "cc", "memory");
+#	else
 		__asm__ __volatile__(
 			"lock; cmpxchg8b %0;"
 			"sete %1;"
 			: "=m"(dest1), "=q"(result)
 			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2), "m"(dest1)
 			: "cc", "memory");
+#	endif
 		return result;
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
