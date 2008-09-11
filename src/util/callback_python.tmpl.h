@@ -123,10 +123,10 @@ namespace impl
 template <typename CallbackType, typename FunctorType, typename ExportTraits>
 struct PyExportTraitsCallback
 {
-	static int get(PyObject* iValue, CallbackType& oV)
+	static int get(PyObject* value, CallbackType& callback)
 	{
 		TPyObjPtr callable;
-		if (pyGetSimpleObject(iValue, callable) != 0)
+		if (pyGetSimpleObject(value, callable) != 0)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
@@ -145,6 +145,15 @@ struct PyExportTraitsCallback
 		}
 		oV = FunctorType(callable);
 		return 0;
+	}
+	static PyObject* build(const util::CallbackType& callback) 
+	{
+		if (!callback)
+		{
+			Py_RETURN_NONE;
+		}
+#pragma LASS_TODO("Return a real callback object ... [Bramz]")
+		Py_RETURN_TRUE;
 	}
 };
 
