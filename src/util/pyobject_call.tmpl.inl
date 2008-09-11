@@ -710,6 +710,8 @@ struct ExplicitResolver<CppClass, R, lass::meta::NullType>
 		{
 			return construct<CppClass>( iSubtype, args );
 		}
+		static bool isConstMember( R (CppClass::*iMethod)() ) { return false; }
+		static bool isConstMember( R (CppClass::*iMethod)() const ) { return true; }
 	};
 	typedef Impl TImpl;
 };

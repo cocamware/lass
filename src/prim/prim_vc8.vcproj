@@ -43,6 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PRIM_VC8_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -72,6 +73,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_prim_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -116,6 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PRIM_VC8_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -145,6 +148,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_prim_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -193,6 +197,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PRIM_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -223,6 +228,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_prim_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -272,6 +278,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PRIM_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -301,6 +308,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_prim_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
