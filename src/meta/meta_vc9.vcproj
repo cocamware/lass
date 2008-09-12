@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="python.exe pre_build.py"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

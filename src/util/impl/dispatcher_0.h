@@ -70,7 +70,7 @@ public:
 
 protected:
 
-	Dispatcher0(const Dispatcher0& iOther) {}
+	Dispatcher0(const Dispatcher0& /*iOther*/) {}
 
 private:
 

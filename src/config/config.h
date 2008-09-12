@@ -51,7 +51,9 @@
  *  @brief Define this one if your Python distribution has a debug build that can be used for the
  *      debug build of Lass.  If not, the release build of Python will be used instead.
  */
-#define LASS_PYTHON_HAS_DEBUG_BUILD
+#ifndef LASS_PYTHON_HAS_DEBUG_BUILD
+#	define LASS_PYTHON_HAS_DEBUG_BUILD 1
+#endif
 
 
 /** @def LASS_PYTHON_INHERITANCE_FROM_EMBEDDING

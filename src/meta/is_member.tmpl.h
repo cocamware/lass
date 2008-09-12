@@ -45,7 +45,7 @@
 
 #include "meta_common.h"
 #include "bool.h"
-#include "type_list.h"
+#include "is_const.h"
 
 namespace lass
 {
@@ -73,6 +73,12 @@ template <typename R, typename C > inline bool isMember(R (C::*iFunction)() ) { 
 template <typename R, typename C > inline bool isMember(R (C::*iFunction)() const ) { return true; }
 template <typename R, typename C > inline bool isConstMember(R (C::*iFunction)()  ) { return false; }
 template <typename R, typename C > inline bool isConstMember(R (C::*iFunction)() const ) { return true; }
+// pseudo const members are either const members or free function with as first argument a
+// const argument
+
+template <typename R, typename C > inline bool isPseudoConstMember(R (C::*iFunction)()  ) { return false; }
+template <typename R, typename C > inline bool isPseudoConstMember(R (C::*iFunction)() const ) { return true; }
+template <typename R, typename C > inline bool isPseudoConstMember(R (*iFunction)(C) ) { return IsConst<C>::value; }
 
 
 $[
@@ -80,6 +86,9 @@ $[
 	template <typename R, typename C, $(typename P$x)$ > inline bool isMember(R (C::*iFunction)( $(P$x)$ ) const ) { return true; }
 	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(P$x)$ ) ) { return false; }
 	template <typename R, typename C, $(typename P$x)$ > inline bool isConstMember(R (C::*iFunction)( $(P$x)$ ) const ) { return true; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isPseudoConstMember(R (C::*iFunction)( $(P$x)$ ) ) { return false; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isPseudoConstMember(R (C::*iFunction)( $(P$x)$ ) const ) { return true; }
+	template <typename R, typename C, $(typename P$x)$ > inline bool isPseudoConstMember(R (*iFunction)( C, $(P$x)$ ) ) { return IsConst<C>::value; }
 ]$
 
 

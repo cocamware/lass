@@ -187,7 +187,8 @@ void addClassStaticMethod(
 			iMethodName, iMethodDispatcher, METH_VARARGS, iDocumentation)));
 		PyObject* cFunction = PyCFunction_New(methodDef, 0);
 		PyObject* descr = PyStaticMethod_New(cFunction);
-		CppClass::_lassPyStatics.push_back(createStaticMember(iMethodName, iDocumentation, descr));
+		CppClass::_lassPyStatics.push_back(createStaticMember(
+			iMethodName, iDocumentation, staticMemberHelperObject(descr)));
 		oOverloadChain = 0;
 	}
 	else
@@ -219,7 +220,7 @@ void addClassStaticConst(const char* iName, const T& iValue)
 {
 	LASS_ASSERT(std::count_if(
 		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, pyBuildSimpleObject(iValue)));
+	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, staticMemberHelperObject(iValue)));
 }
 
 
@@ -233,7 +234,7 @@ inline void addClassInnerClass(
 	LASS_ASSERT(std::count_if(InnerCppClass::_lassPyStatics.begin(), InnerCppClass::_lassPyStatics.end(), 
 		StaticMemberEqual(iInnerClassName)) == 0);
 	oOuterStatics.push_back(createStaticMember(
-		iInnerClassName, iDocumentation, reinterpret_cast<PyObject*>(&InnerCppClass::_lassPyType),
+		iInnerClassName, iDocumentation, staticMemberHelperType(&InnerCppClass::_lassPyType),
 		InnerCppClass::_lassPyGetParentType(), &InnerCppClass::_lassPyMethods, &InnerCppClass::_lassPyGetSetters, 
 		&InnerCppClass::_lassPyStatics));
 }
@@ -421,6 +422,7 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Float>::name().c_str());
 	return 1;
 }
+
 
 }
 

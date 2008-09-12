@@ -123,17 +123,17 @@ namespace impl
 template <typename CallbackType, typename FunctorType, typename ExportTraits>
 struct PyExportTraitsCallback
 {
-	static int get(PyObject* iValue, CallbackType& oV)
+	static int get(PyObject* value, CallbackType& callback)
 	{
 		TPyObjPtr callable;
-		if (pyGetSimpleObject(iValue, callable) != 0)
+		if (pyGetSimpleObject(value, callable) != 0)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
 		}
 		if (!callable) // null pointer
 		{
-			oV.reset();
+			callback.reset();
 			return 0;
 		}
 		if (!PyCallable_Check(callable.get()))
@@ -143,8 +143,17 @@ struct PyExportTraitsCallback
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
-		oV = FunctorType(callable);
+		callback = FunctorType(callable);
 		return 0;
+	}
+	static PyObject* build(const CallbackType& callback) 
+	{
+		if (!callback)
+		{
+			Py_RETURN_NONE;
+		}
+#pragma LASS_TODO("Return a real callback object ... [Bramz]")
+		Py_RETURN_TRUE;
 	}
 };
 
@@ -171,7 +180,7 @@ namespace impl
 		Functor0Python(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()() const
 		{
-			call(python::TPyObjPtr());
+			this->call(python::TPyObjPtr());
 		}
 	};
 }
@@ -214,7 +223,7 @@ namespace impl
 		Functor$xPython(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			call(python::makeTuple($(p$x)$));
+			this->call(python::makeTuple($(p$x)$));
 		}
 	};
 }
@@ -261,7 +270,7 @@ namespace impl
 		FunctorPythonR0(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()() const
 		{
-			return call(python::TPyObjPtr());
+			return this->call(python::TPyObjPtr());
 		}
 	};
 }
@@ -304,7 +313,7 @@ namespace impl
 		FunctorPythonR$x(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			return call(python::makeTuple($(p$x)$));
+			return this->call(python::makeTuple($(p$x)$));
 		}
 	};
 }

@@ -37,15 +37,11 @@ a recipient may use your version of this file under either the CPAL or the GPL.
 *** END LICENSE INFORMATION ***
 """
 
-# last commit: 
-# $Revision$
-# $Date$
-# $Author$
-
 import re
 import string
 import sys
 import time
+import os.path
 
 
 
@@ -99,19 +95,16 @@ def _scan(text, n, level):
 
 
 
-def _generateFile(outFileName, text, i):
+def _generateFile(dirName, outFileName, text, i):
 	print outFileName,
+	outPath = os.path.join(dirName, outFileName)
 	try:
-		outFile = file(outFileName, 'r')
-		currentContent = outFile.read()
-		outFile.close()
-	except:
+		currentContent = file(outPath).read()
+	except IOError:
 		currentContent = ""
 	newContent = expand(text, i)
 	if newContent != currentContent:
-		outFile = file(outFileName, 'w')
-		outFile.write(newContent)
-		outFile.close()
+		file(outPath, 'w').write(newContent)
 		print "updated"
 	else:
 		print "still up to date"
@@ -131,49 +124,26 @@ If outFileName contains $x then for each value i in range [1, n], an output file
 with $x being replaced by i will be generated, and in each of these files the parameters
 will be expanded to the size of i instead of n.
 	"""
-def expandFile(inFileName, outFileName, n):
-	inFile = open(inFileName, 'r')
-	text = inFile.read()
-	inFile.close()
+def expandFile(dirName, inFileName, outFileName, n):
+	inPath = os.path.join(dirName, inFileName)
+	text = file(inPath).read()
 	if re.search(r'\$x', outFileName):
 		r = re.compile(r'\$x', re.MULTILINE | re.DOTALL)
 		for i in range(n):
-			_generateFile(r.sub(str(i + 1), outFileName), text, i + 1)
+			fname = r.sub(str(i + 1), outFileName)
+			_generateFile(dirName, fname, text, i + 1)
 	else:
-		_generateFile(outFileName, text, n)
+		_generateFile(dirName, outFileName, text, n)
 
 
 
 def main(argv):
 	argc = len(argv)
 	if argc == 4:
-		expandFile(argv[1], argv[2], int(argv[3]))
+		expandFile('.', argv[1], argv[2], int(argv[3]))
 
 
 if __name__ == "__main__":
 	main(sys.argv)
 
-
-# History:
-#
-# $Log$
-# Revision 1.6  2007/08/14 22:03:57  bramz
-# relicensing LASS under CPAL/GPL dual license.
-#
-# Revision 1.5  2005/11/04 00:36:01  bramz
-# *** empty log message ***
-#
-# Revision 1.4  2005/05/23 19:26:26  bramz
-# some operator changes to colors and images
-#
-# Revision 1.3  2004/11/28 17:08:11  bramz
-# fixed bug revealed by python2.4 and improved substitution scheme
-#
-# Revision 1.2  2004/09/13 16:07:15  bramz
-# *** empty log message ***
-#
-# Revision 1.1  2004/09/13 14:55:18  bramz
-# porting param_expander from perl to python
-#
-#
 # EOF

@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="python.exe pre_build.py"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -44,6 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UTIL_VC8_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -73,6 +74,83 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_util_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				OutputFile="$(IntDir)/$(TargetName).bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="vc8_d|x64"
+			OutputDirectory="$(SolutionDir)..\lib\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
+			ConfigurationType="4"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UTIL_VC8_EXPORTS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				SmallerTypeCheck="true"
+				RuntimeLibrary="3"
+				DefaultCharIsUnsigned="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="util_common.h"
+				PrecompiledHeaderFile="$(IntDir)$(TargetName).pch"
+				AssemblerListingLocation="$(IntDir)"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
+				XMLDocumentationFileName="$(IntDir)"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)lass_util_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -101,7 +179,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="python pre_build.py"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -122,6 +200,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UTIL_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -152,80 +231,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_util_$(PlatformName)_$(ConfigurationName).lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/$(TargetName).bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="vc8_d|x64"
-			OutputDirectory="$(SolutionDir)..\lib\"
-			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
-			ConfigurationType="4"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="python.exe pre_build.py"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UTIL_VC8_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				SmallerTypeCheck="true"
-				RuntimeLibrary="3"
-				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="util_common.h"
-				PrecompiledHeaderFile="$(IntDir)$(TargetName).pch"
-				AssemblerListingLocation="$(IntDir)"
-				ObjectFile="$(IntDir)"
-				ProgramDataBaseFileName="$(TargetDir)$(TargetName).pdb"
-				XMLDocumentationFileName="$(IntDir)"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)lass_util_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -254,7 +260,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="python pre_build.py"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -276,6 +282,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="$(LASS_BUILD_INCLUDE)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UTIL_VC8_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -305,6 +312,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)lass_util_$(PlatformName)_$(ConfigurationName).lib"
+				AdditionalLibraryDirectories="$(LASS_BUILD_LIBPATH)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -448,7 +456,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="vc8|Win32"
+					Name="vc8_d|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -456,7 +464,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="vc8_d|x64"
+					Name="vc8|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -483,14 +491,6 @@
 					RelativePath=".\impl\atomic_msvc_x86.asm"
 					>
 					<FileConfiguration
-						Name="vc8|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="vc8_d|x64"
 						>
 						<Tool
@@ -498,6 +498,14 @@
 							Description="MASMing"
 							CommandLine="ml64 -c -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-FR$(IntDir)\$(InputName).sbr&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 							Outputs="$(IntDir)\$(InputName).obj;$(IntDir)\$(InputName).sbr"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="vc8|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
 						/>
 					</FileConfiguration>
 					<FileConfiguration

@@ -2,6 +2,25 @@ LASS - Library of Assembled Shared Sources
 
 http://lass.sourceforge.net
 
+2008-09-12 Tom & Bramz
+	The big merge of all distant off-shore branches into the 1.1 trunk =)
+	- pre_build.py: remove all per-project pre builds, and merge them into a single pre_build.py at 
+	  root level.  The vcproj files no longer perform the pre build automatically.  DIY! =)
+	- autoconfiscate_unix.py: adding some options to "hardcode" the python include and lib paths.
+	  adding -fno-strict-aliasing to compiler switches, as 64-bits atomicCompareAndSwap fails
+	  with CMPXCHG8B (unix)
+	- meta/is_const.h: added
+	- meta/is_member.h: adding tests for pseudo members
+	- spat/planar_mesh.h: lots of changes =)
+	- util/pyobject_macros.h: adding argument casters to methods 
+	- util/callback_python.h: adding stub for pyExportTraits::build
+	- util/smart_ptr_policies.cpp: use hard hard coded "leaking" singleton instead of util::Singleton
+	  to make sure the shared pointers are still destructable after atexit(), which might be the 
+	  case when they are statics 
+	- util/impl/atomic_impl.h: fixing EBX register issues with CMPXCHG8B in PIC mode (unix)
+	- test/python_embedding.cpp: adding tests on shadowclasses and casters and stuff
+	- some other stuff =)
+
 2008-09-01 Bramz
 	- polynomial_quotient.h: fixing minor typo: double declaration of operator* instead of operator/
 

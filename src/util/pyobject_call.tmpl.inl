@@ -710,6 +710,8 @@ struct ExplicitResolver<CppClass, R, lass::meta::NullType>
 		{
 			return construct<CppClass>( iSubtype, args );
 		}
+		static bool isConstMember( R (CppClass::*iMethod)() ) { return false; }
+		static bool isConstMember( R (CppClass::*iMethod)() const ) { return true; }
 	};
 	typedef Impl TImpl;
 };
@@ -731,6 +733,8 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 		{
 			return CallMethod<CppClass>::call( args, iObject, iMethod );
 		}
+		static bool isConstMember( R (CppClass::*iMethod)($(P$x)$) ) { return false; }
+		static bool isConstMember( R (CppClass::*iMethod)($(P$x)$) const ) { return true; }
 		static PyObject* callFreeMethod( PyObject* args, CppClass* iObject, R (*iFreeMethod)($(P$x)$) )
 		{
 			return CallMethod<CppClass>::callFree( args, iObject, iFreeMethod );

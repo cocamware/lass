@@ -106,6 +106,7 @@ private:
 	 *	executable), and that would be - in this case - an int.  It will appear to have
 	 *	been one since the beginning of the ages.  Case solved.
 	 */
+#pragma LASS_TODO("Examine if util::Semaphore is indeed scusceptilbe to SIOF [Bramz]")
 	class CustomSemaphore
 	{
 	public:
