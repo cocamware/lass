@@ -133,7 +133,7 @@ struct PyExportTraitsCallback
 		}
 		if (!callable) // null pointer
 		{
-			oV.reset();
+			callback.reset();
 			return 0;
 		}
 		if (!PyCallable_Check(callable.get()))
@@ -143,10 +143,10 @@ struct PyExportTraitsCallback
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
-		oV = FunctorType(callable);
+		callback = FunctorType(callable);
 		return 0;
 	}
-	static PyObject* build(const util::CallbackType& callback) 
+	static PyObject* build(const CallbackType& callback) 
 	{
 		if (!callback)
 		{
