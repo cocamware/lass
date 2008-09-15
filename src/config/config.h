@@ -40,60 +40,14 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 #define LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
 
+#include "local_config.h"
 
-
-/** @def LASS_PYTHON_HAS_DEBUG_BUILD
- *  @brief Define this one if your Python distribution has a debug build that can be used for the
- *      debug build of Lass.  If not, the release build of Python will be used instead.
- */
-#ifndef LASS_PYTHON_HAS_DEBUG_BUILD
-#	define LASS_PYTHON_HAS_DEBUG_BUILD 1
-#endif
-
-
-/** @def LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
- *  @brief Define this one if you want to be able to derive from embedding Python objects at the cost
- *	of some extra memory per object.
- */
-//#define LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-
-
-/** @def #define LASS_BOOST_ALWAYS
- *  @brief Define this if you have Boost (www.boost.org) around, and you always want to fall back
- *         on it whenever possible.
- *
- *  This is when you always want to use the boost implementations of lass::util::CallTraits<>, ...
- *  Obviously, you'll have to have boost installed.
- *
- *  @warning if you neither define LASS_BOOST_ALWAYS or LASS_BOOST_IF_BROKEN, so stuff might
- *           not want to compile, or you'll have bad performance on some stuff.
- */
-//#define LASS_BOOST_ALWAYS
-
-/** @def LASS_BOOST_IF_BROKEN
- *  @brief Define this if you want to fall back on Boost (www.boost.org) for broken compilers only.
- *
- *  If you define this, we'll try to use our own implentations of lass::util::CallTraits<>, etc., but only
- *  if the compiler is willing to play it nicely.  If not, we'll fall back on boost.
- *
- *  So, if you have a nice compiler (like the intel one :), you won't need to have boost around to
- *  compile.  But if you have a broken compiler, you'll have to have boost if you want this to work.
- *
- *  @warning if you neither define LASS_BOOST_ALWAYS or LASS_BOOST_IF_BROKEN, some stuff might
- *           not want to compile, or you'll have bad performance on some stuff.
- */
-#define LASS_BOOST_IF_BROKEN
-
-// go check compiler and platform support
-//
 #include "compilers.h"
 #include "platforms.h"
 
-
-
 #endif
+
+// EOF

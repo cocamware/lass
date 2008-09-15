@@ -99,27 +99,10 @@
  *        to the lib is commented. [BdG]
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_META_META_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_META_META_COMMON_H
 
-
-
-
 #include "../lass_common.h"
-
-// Since no static lib is build, we shouldn't try to link to it.
-// Uncomment this if this changes [BdG]
-//
-///** name of library
-// */
-//#define LASS_LIB_META LASS_LIB_PREFIX "meta" LASS_LIB_SUFFIX
-//#if defined(LASS_LIB_AUTO_LINK) && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-//#   pragma comment(lib, LASS_LIB_META)
-//#endif
-
-
 
 #endif
 

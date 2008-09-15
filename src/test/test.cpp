@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
 	logger.subscribeTo(io::proxyMan()->cerr());
 
 	LASS_EVAL(logFile);
+	LASS_COUT << "LASS_VESION: " << LASS_VERSION << std::endl;
 	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
 	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
@@ -82,12 +83,12 @@ int main(int argc, char* argv[])
 
 	test::TUnitTests unitTests;
 	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testNum(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testIo(), std::back_inserter(unitTests));
+	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
+	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
+	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
+	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
+	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
+	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
 	unsigned errors = 0;
 	unsigned fatalErrors = 0;
 	const bool success = test::runTests(unitTests, argc, argv, &errors, &fatalErrors);

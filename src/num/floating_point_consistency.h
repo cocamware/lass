@@ -462,7 +462,7 @@ Consistent<T> mod(const Consistent<T>& v, const Consistent<T>& m)
 
 #define LASS_NUM_FLOATING_POINT_CONSISTENCY_DECLARE_NUMTRAITS(type)\
 	template <>\
-	struct NumTraits< Consistent< type > >\
+	struct LASS_DLL NumTraits< Consistent< type > >\
 	{\
 	private:\
 		typedef NumTraits< type > TBaseTraits;\

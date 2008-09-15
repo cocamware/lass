@@ -41,6 +41,9 @@
  */
 
 #include "dll_main.h"
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+
 #include <vector>
 
 namespace lass
@@ -89,3 +92,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 	}
 	return TRUE;
 }
+
+#endif
+
+// EOF

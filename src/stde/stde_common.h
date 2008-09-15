@@ -72,25 +72,10 @@
  *        to the lib is commented. [BdG]
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_STDE_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_STDE_COMMON_H
 
-
-
-
 #include "../lass_common.h"
-
-// Since no static lib is build, we shouldn't try to link to it.
-// Uncomment this if this changes [BdG]
-//
-//#define LASS_LIB_STDE LASS_LIB_PREFIX "stde" LASS_LIB_SUFFIX
-//#if defined(LASS_LIB_AUTO_LINK)
-//#   pragma comment(lib, LASS_LIB_STDE)
-//#endif
-
-
 
 #endif
 
