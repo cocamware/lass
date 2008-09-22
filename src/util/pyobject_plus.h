@@ -766,7 +766,7 @@ namespace lass
 			template <>
 			struct RichCompare<PyObjectPlus>
 			{
-				static PyObject* call(PyObject* self, PyObject* other, int op)
+				static PyObject* call(PyObject* /*self*/, PyObject* /*other*/, int op)
 				{
 					static char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
 					LASS_ASSERT(op >= 0 && op <= Py_GE);
