@@ -1694,7 +1694,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_RW_EX( t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1706,7 +1706,7 @@ $[
 		return ::lass::python::impl::CallMethod<TCppClass>::get(\
 			cppObject, &TCppClass::i_cppGetter );\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* iClosure )\
+	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* /*iClosure*/ )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1791,7 +1791,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_R_EX( t_cppClass, i_cppGetter, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter) ( PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _getter) ( PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1886,7 +1886,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_FREE_MEMBER_RW_EX( t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter)( PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter)( PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1897,7 +1897,7 @@ $[
 		}\
 		return i_cppFreeGetter( cppObject );\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _freeSetter)( PyObject* iObject, PyObject* iArgs, void* iClosure )\
+	int LASS_CONCATENATE(i_dispatcher, _freeSetter)( PyObject* iObject, PyObject* iArgs, void* /*iClosure*/ )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1984,7 +1984,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_FREE_MEMBER_R_EX( t_cppClass, i_freeCppGetter, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter) ( PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter) ( PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -2064,7 +2064,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_PUBLIC_MEMBER_EX(i_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -2158,7 +2158,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_PUBLIC_MEMBER_R_EX( i_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* iObject, void* iClosure)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* iObject, void* /*iClosure*/)\
 	{\
 		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -2169,7 +2169,7 @@ $[
 		}\
 		return lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject,PyObject* iArgs, void* iClosure )\
+	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject,PyObject* iArgs, void* /*iClosure*/ )\
 	{\
 		std::ostringstream buffer;\
 		buffer << "Object/reference " << s_memberName << " is read-only.";\
