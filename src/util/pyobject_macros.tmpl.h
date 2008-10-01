@@ -2361,7 +2361,8 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
+	0,	/*tp_weaklist*/\
+	0,	/*tp_del*/
 
  #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 /** @internal
@@ -2412,7 +2413,8 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
+	0,	/*tp_weaklist*/\
+	0,	/*tp_del*/
 #else
 /** @internal
  */
@@ -2462,7 +2464,8 @@ $[
 	0,	/*tp_mro*/\
 	0,	/*tp_cache*/\
 	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/
+	0,	/*tp_weaklist*/\
+	0,	/*tp_del*/
 #endif
 /** @internal
  */
