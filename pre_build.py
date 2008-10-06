@@ -9,7 +9,7 @@ def pre_build():
 	srcDir = 'src'
 	
 	utilDir = os.path.join(srcDir, 'util')
-	expandFile(utilDir, 'object_factory.tmpl.h', 'object_factory.h', N)
+	#expandFile(utilDir, 'object_factory.tmpl.h', 'object_factory.h', N)
 	expandFile(utilDir, 'clone_factory.tmpl.h', 'clone_factory.h', N)
 	expandFile(utilDir, 'callback.tmpl.h', 'callback.h', N)
 	expandFile(utilDir, 'callback_x.tmpl.h', 'callback_$x.h', N)

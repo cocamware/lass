@@ -95,9 +95,8 @@ def _scan(text, n, level):
 
 
 
-def _generateFile(dirName, outFileName, text, i):
-	print outFileName,
-	outPath = os.path.join(dirName, outFileName)
+def _generateFile(outPath, text, i):
+	print outPath,
 	try:
 		currentContent = file(outPath).read()
 	except IOError:
@@ -119,31 +118,26 @@ def expand(text, i):
 
 
 """
-Expands parameters in file inFileName to the size of n and save in file outFileName.
-If outFileName contains $x then for each value i in range [1, n], an output file
+Expands parameters in file inPath to the size of n and save in file outPath.
+If outPath contains $x then for each value i in range [1, n], an output file
 with $x being replaced by i will be generated, and in each of these files the parameters
 will be expanded to the size of i instead of n.
 	"""
-def expandFile(dirName, inFileName, outFileName, n):
-	inPath = os.path.join(dirName, inFileName)
+def expandFile2(inPath, outPath, n):
 	text = file(inPath).read()
-	if re.search(r'\$x', outFileName):
+	if re.search(r'\$x', outPath):
 		r = re.compile(r'\$x', re.MULTILINE | re.DOTALL)
 		for i in range(n):
-			fname = r.sub(str(i + 1), outFileName)
-			_generateFile(dirName, fname, text, i + 1)
+			fname = r.sub(str(i + 1), outPath)
+			_generateFile(fname, text, i + 1)
 	else:
-		_generateFile(dirName, outFileName, text, n)
+		_generateFile(outPath, text, n)
 
-
-
-def main(argv):
-	argc = len(argv)
-	if argc == 4:
-		expandFile('.', argv[1], argv[2], int(argv[3]))
-
+def expandFile(dirname, inFileName, outFileName, n):
+	expandFile(os.path.join(dirname, inFileName), os.path.join(dirname, outFileName), n)
 
 if __name__ == "__main__":
-	main(sys.argv)
+	inPath, outPath, n = sys.argv[1:]
+	expandFile2(inPath, outPath, int(n))
 
 # EOF
