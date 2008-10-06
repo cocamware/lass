@@ -2169,7 +2169,7 @@ $[
 		}\
 		return lass::python::pyBuildSimpleObject( cppObject->i_cppMember);\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject,PyObject* iArgs, void* )\
+	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject*, PyObject*, void* )\
 	{\
 		std::ostringstream buffer;\
 		buffer << "Object/reference " << s_memberName << " is read-only.";\
