@@ -83,7 +83,7 @@ def write_file(path, content):
 		
 def write_pre_build(dirname, source, dest, n):
 	source_path = '${CMAKE_SOURCE_DIR}/%(dirname)s/%(source)s' % { 'dirname': dirname, 'source': source }
-	dest_path = '${CMAKE_BINARY_DIR}/pre_build/%(dirname)s/%(dest)s' % { 'dirname': dirname, 'dest': dest }
+	dest_path = '${CMAKE_SOURCE_DIR}/%(dirname)s/%(dest)s' % { 'dirname': dirname, 'dest': dest }
 	if '$x' in dest_path:
 		output = ' '.join([dest_path.replace('$x', str(i+1)) for i in range(n)])
 	else:
@@ -195,7 +195,7 @@ if(BUILD_TESTING)
 	add_executable(test ${test_SRCS} ${test_HDRS})
 	target_link_libraries(test lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
 
-	add_test(test ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}test_driver.py ${CMAKE_BINARY_DIR}/test_work ${EXECUTABLE_OUTPUT_PATH}/test ${CMAKE_SOURCE_DIR}/test)
+	add_test(test ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test_driver.py ${CMAKE_BINARY_DIR}/test_work ${EXECUTABLE_OUTPUT_PATH}/test ${CMAKE_SOURCE_DIR}/test)
 endif(BUILD_TESTING)
 '''
 	
