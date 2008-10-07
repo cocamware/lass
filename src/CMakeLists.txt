@@ -1,0 +1,93 @@
+project(lass)
+cmake_minimum_required(VERSION 2.6)
+
+set(LASS_MAJOR_VERSION 1)
+set(LASS_MINOR_VERSION 1)
+set(LASS_PATCHLEVEL 1)
+set(LASS_SOVERSION 4)
+
+set(CMAKE_DEBUG_POSTFIX _d)
+
+option(BUILD_SHARED_LIBS "build shared lass library" on)
+if(BUILD_SHARED_LIBS)
+	set(LASS_SHARED_LIBRARY 1)
+else(BUILD_SHARED_LIBS)
+	set(LASS_SHARED_LIBRARY 0)
+endif(BUILD_SHARED_LIBS)
+
+include(FindPythonLibs)
+mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_PATH PYTHON_DEBUG_LIBRARY)
+include_directories(BEFORE ${PYTHON_INCLUDE_PATH})
+if(PYTHON_DEBUG_LIBRARY)
+	set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
+else(PYTHON_DEBUG_LIBRARY)
+	set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
+	set(PYTHON_DEBUG_LIBRARIES ${PYTHON_LIBRARIES})
+endif(PYTHON_DEBUG_LIBRARY)
+
+include(FindPythonInterp)
+mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
+
+configure_file(${lass_SOURCE_DIR}/config/local_config.h.in ${lass_SOURCE_DIR}/config/local_config.h)
+
+set(lass_subdirectories config io num prim spat stde util)
+if (WIN32 AND LASS_SHARED_LIBRARY)
+	set(lass_subdirectories ${lass_subdirectories} dll)
+endif()
+
+file(GLOB lass_SRCS *.cpp)
+file(GLOB lass_HDRS *.h *.inl)
+foreach(subdir ${lass_subdirectories})
+	file(GLOB_RECURSE temp_SRCS ${subdir}/*.cpp)
+	file(GLOB_RECURSE temp_HDRS ${subdir}/*.h ${subdir}/*.inl)
+	list(APPEND lass_SRCS ${temp_SRCS})
+	list(APPEND lass_HDRS ${temp_HDRS})
+endforeach()
+
+macro(prebuild output_list dirname infile outfile n)
+	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
+	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
+	if(outpath MATCHES "\\$x")
+		set(output)
+		foreach(i RANGE 1 ${n})
+			string(REPLACE "$x" ${i} out ${outpath})
+			set(output ${output} ${out})
+		endforeach()
+	else()
+		set(output ${outpath})
+	endif()
+	add_custom_command(
+		OUTPUT ${output}
+		DEPENDS ${inpath}
+		COMMAND ${PYTHON_EXECUTABLE}
+		ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n}
+		)
+	list(APPEND lass_PRE_BUILT_HDRS ${output})
+endmacro()
+
+set(N 15)
+prebuild(util object_factory.tmpl.h object_factory.h ${N})
+prebuild(util clone_factory.tmpl.h clone_factory.h ${N})
+prebuild(util callback.tmpl.h callback.h ${N})
+prebuild(util callback_x.tmpl.h callback_$x.h ${N})
+prebuild(util callback_r_x.tmpl.h callback_r_$x.h ${N})
+prebuild(util callback_python.tmpl.h callback_python.h ${N})
+prebuild(util pyobject_call.tmpl.inl pyobject_call.inl ${N})
+prebuild(util py_tuple.tmpl.h py_tuple.h ${N})
+prebuild(util thread_fun.tmpl.h thread_fun.h ${N})
+prebuild(util thread_fun.tmpl.inl thread_fun.inl ${N})
+prebuild(util bind.tmpl.h bind.h ${N})
+prebuild(util/impl dispatcher_x.tmpl.h dispatcher_$x.h ${N})
+prebuild(util/impl dispatcher_r_x.tmpl.h dispatcher_r_$x.h ${N})
+prebuild(meta is_member.tmpl.h is_member.h ${N})
+#prebuild(test test_util_callback.tmpl.inl test_util_callback.inl 3)
+
+set(lass_HDRS ${lass_HDRS} ${lass_PRE_BUILT_HDRS})
+list(REMOVE_DUPLICATES lass_HDRS)
+
+add_library(lass ${lass_SRCS} ${lass_HDRS})
+target_link_libraries(lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
+set_target_properties(lass PROPERTIES
+	DEFINE_SYMBOL LASS_EXPORTS
+	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
+	SOVERSION ${LASS_SOVERSION})
