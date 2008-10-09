@@ -28,8 +28,6 @@ endif(PYTHON_DEBUG_LIBRARY)
 include(FindPythonInterp)
 mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
 
-configure_file(${lass_SOURCE_DIR}/config/local_config.h.in ${lass_SOURCE_DIR}/config/local_config.h)
-
 set(lass_subdirectories config io num prim spat stde util)
 if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
@@ -44,7 +42,11 @@ foreach(subdir ${lass_subdirectories})
 	list(APPEND lass_HDRS ${temp_HDRS})
 endforeach()
 
-macro(prebuild output_list dirname infile outfile n)
+configure_file(${lass_SOURCE_DIR}/config/local_config.h.in ${lass_BINARY_DIR}/config/local_config.h)
+include_directories(${lass_BINARY_DIR}/config)
+list(APPEND lass_HDRS ${lass_BINARY_DIR}/config/local_config.h)
+
+macro(prebuild dirname infile outfile n)
 	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
 	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
 	if(outpath MATCHES "\\$x")
@@ -60,8 +62,7 @@ macro(prebuild output_list dirname infile outfile n)
 		OUTPUT ${output}
 		DEPENDS ${inpath}
 		COMMAND ${PYTHON_EXECUTABLE}
-		ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n}
-		)
+		ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n})
 	list(APPEND lass_PRE_BUILT_HDRS ${output})
 endmacro()
 
@@ -82,12 +83,50 @@ prebuild(util/impl dispatcher_r_x.tmpl.h dispatcher_r_$x.h ${N})
 prebuild(meta is_member.tmpl.h is_member.h ${N})
 #prebuild(test test_util_callback.tmpl.inl test_util_callback.inl 3)
 
-set(lass_HDRS ${lass_HDRS} ${lass_PRE_BUILT_HDRS})
+list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
 
-add_library(lass ${lass_SRCS} ${lass_HDRS})
-target_link_libraries(lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
+add_library(lass 
+	${lass_SRCS} 
+	${lass_HDRS})
+target_link_libraries(lass 
+	optimized ${PYTHON_LIBRARIES} 
+	debug ${PYTHON_DEBUG_LIBRARIES})
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION})
+	
+install(
+	TARGETS lass
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib)
+
+install(
+	DIRECTORY ./
+	DESTINATION include/lass
+	USE_SOURCE_PERMISSIONS
+	REGEX "\\.svn" EXCLUDE
+	PATTERN "*.tmpl.h" EXCLUDE
+	PATTERN "*.tmpl.inl" EXCLUDE
+	PATTERN "*.cmake" EXCLUDE
+	PATTERN "*.cpp" EXCLUDE
+	PATTERN "*.asm" EXCLUDE
+	PATTERN "*.txt" EXCLUDE
+	PATTERN "*.py" EXCLUDE
+	PATTERN "*.suo" EXCLUDE
+	PATTERN "*.ncb" EXCLUDE
+	)
+	
+install(
+	FILES ${lass_BINARY_DIR}/config/local_config.h
+	DESTINATION include/lass/config)
+	
+set (CPACK_PACKAGE_VERSION_MAJOR "${LASS_MAJOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_MINOR "${LASS_MINOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_PATCH "${LASS_PATCHLEVEL}")
+set (CPACK_RESOURCE_FILE_LICENSE "${lass_SOURCE_DIR}/../docs/license.txt")
+include(CPack)
+	
+#add_subdirectory(test)

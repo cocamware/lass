@@ -50,6 +50,23 @@ namespace lass
 {
 namespace test
 {
+namespace impl
+{
+
+bool parseArguments(int argc, char* argv[])
+{
+	io::ArgParser parser(io::fileWithoutPath(argv[0]));
+	io::ArgValue<std::string> savePatterns(
+		parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
+	if (!parser.parse(argc, argv))
+	{
+		return false;
+	}
+	impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
+	return true;
+}
+
+}
 
 const bool runTests(const TUnitTests& iTests, int argc, char* argv[], 
 		unsigned* oNumErrors, unsigned* oNumFatalErrors)
@@ -59,14 +76,10 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 	if (oNumErrors) *oNumErrors = 0;
 	if (oNumFatalErrors) *oNumFatalErrors = 0;
 
-	io::ArgParser parser(io::fileWithoutPath(argv[0]));
-	io::ArgValue<std::string> savePatterns(
-		parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
-	if (!parser.parse(argc, argv))
+	if (!impl::parseArguments(argc, argv))
 	{
 		return false;
 	}
-	impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
 
 	for (TUnitTests::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
 	{
@@ -92,6 +105,20 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 		return true;
 	}
 	return false;
+}
+
+const int runNakedTest(const util::Callback0& test, int argc, char* argv[], const std::string& name, const std::string& file, unsigned line)
+{
+	if (!impl::parseArguments(argc, argv))
+	{
+		return 1;
+	}
+	try
+	{
+		test();
+	}
+	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name + "'", file, line)
+	return std::min<int>(impl::errors() + impl::fatalErrors(), 255);
 }
 
 const std::string workPath()

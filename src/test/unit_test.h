@@ -50,6 +50,9 @@
 #define LASS_UNIT_TEST(o_functor) \
 	::lass::test::impl::UnitTest(::lass::util::makeCallback(o_functor), LASS_STRINGIFY(o_functor), LASS_FILE, LASS_LINE)
 
+#define LASS_RUN_NAKED_TEST(o_functor, i_argc, i_argv) \
+	::lass::test::runNakedTest(o_functor, i_argc, i_argv, LASS_STRINGIFY(o_functor), LASS_FILE, LASS_LINE)
+
 #define LASS_TEST_ERROR(s_message)\
 	LASS_TEST_IMPL_ERROR(s_message, LASS_FILE, LASS_LINE)
 
@@ -116,7 +119,8 @@ namespace test
 namespace impl { class UnitTest; }
 typedef std::vector<impl::UnitTest> TUnitTests;
 
-const bool runTests(const TUnitTests& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* 		oNumFatalErrors);
+const bool runTests(const TUnitTests& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
+const int runNakedTest(const util::Callback0& test, int argc, char* argv[], const std::string& name, const std::string& file, unsigned line);
 
 const std::string workPath();
 
