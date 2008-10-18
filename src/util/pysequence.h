@@ -73,7 +73,7 @@ namespace impl
 		static typename C::value_type&				element_at(C& iC, Py_ssize_t i) { return iC[i]; };
 		static typename C::const_iterator			const_iterator_at(const C& iC, Py_ssize_t i) { return iC.begin()+i; };
 		static typename C::iterator					iterator_at(C& iC, Py_ssize_t i) { return iC.begin()+i; };
-		static void reserve(C& iC, int iAmount)		{};
+		static void reserve(C& /*iC*/, int /*iAmount*/)		{};
 	};
 
 	template<typename C, typename A>
@@ -106,7 +106,7 @@ namespace impl
 				++it;
 			return it;
 		};
-		static void reserve(std::list<C, A>& iC, int iAmount)		{};
+		static void reserve(std::list<C, A>& /*iC*/, int /*iAmount*/)		{};
 	};
 
 
@@ -141,7 +141,7 @@ namespace impl
 	struct ContainerNotOwned
 	{
 		typedef Container* ContainerPtr;
-		static	void dispose(ContainerPtr ioC) {};
+		static	void dispose(ContainerPtr /*ioC*/) {};
 	};
 	template<typename Container>
 	struct ContainerOwned

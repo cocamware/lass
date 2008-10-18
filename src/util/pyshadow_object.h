@@ -128,10 +128,9 @@ public:
 	{
 		return this->cppObject_;
 	}
-	virtual const CppBase* constCppObject() const
+	const CppBase* constCppObject() const
 	{
-#pragma LASS_FIXME("revist this const_cast [Bramz]")
-		return const_cast<CppBase*>(this->cppObject_);
+		return this->cppObject_;
 	}
 	static bool doTracking;
 

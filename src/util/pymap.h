@@ -244,7 +244,7 @@ namespace impl
 	}
 
 	template<typename M>
-	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject* iKey, PyObject* iData, meta::True)
+	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject*, PyObject*, meta::True)
 	{
 		PyErr_SetString(PyExc_TypeError, "Map is not writeable");
 		return 1;
