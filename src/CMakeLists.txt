@@ -49,6 +49,7 @@ list(APPEND lass_HDRS ${lass_BINARY_DIR}/config/local_config.h)
 macro(prebuild dirname infile outfile n)
 	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
 	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
+	set(expander ${CMAKE_SOURCE_DIR}/../tools/param_expander.py)
 	if(outpath MATCHES "\\$x")
 		set(output)
 		foreach(i RANGE 1 ${n})
@@ -60,9 +61,9 @@ macro(prebuild dirname infile outfile n)
 	endif()
 	add_custom_command(
 		OUTPUT ${output}
-		DEPENDS ${inpath}
+		DEPENDS ${inpath} ${expander}
 		COMMAND ${PYTHON_EXECUTABLE}
-		ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n})
+		ARGS ${expander} ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n})
 	list(APPEND lass_PRE_BUILT_HDRS ${output})
 endmacro()
 
