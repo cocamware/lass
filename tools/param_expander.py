@@ -80,12 +80,20 @@ def _blockExpander(matchObj, Xs, blockTransform = _simple_substitute):
 	return before + joint.join(newBlocks) + after
 
 
+def _header(source):
+	return """/*
+ * *** ATTENTION!  DO NOT MODIFY THIS FILE DIRECTLY! ***
+ * 
+ * It has automatically been generated from %(source)s
+ * by %(generator)s on %(now)s.
+ */
 
+""" % {
+	'source': os.path.basename(source),
+	'generator': os.path.basename(__file__),
+	'now': now
+	}
 
-
-
-def _generateFile(outPath, text, i):
-	file(outPath, 'w').write(expandBlocksWithRange(text, i))
 
 
 def expandBlocksWithList(text, Xs):
@@ -111,8 +119,7 @@ def expandBlocksWithRange(text, n, level = 0):
 
 def expandFileWithList(source, dest, Xs):
 	text = open(source).read()
-	text = expandBlocksWithList(text, Xs)
-	open(dest, 'w').write(text)
+	open(dest, 'w').write(_header(source) + expandBlocksWithList(text, Xs))
 
 
 
@@ -127,9 +134,9 @@ def expandFileWithRange(source, dest, n):
 	if _symbolRegex('x').search(dest):
 		for i in range(1, n + 1):
 			path = _substituteSymbols(dest, {'x': i})
-			open(path, 'w').write(expandBlocksWithRange(text, i))
+			open(path, 'w').write(_header(source) + expandBlocksWithRange(text, i))
 	else:
-		open(dest, 'w').write(expandBlocksWithRange(text, n))
+		open(dest, 'w').write(_header(source) + expandBlocksWithRange(text, n))
 
 def expandFile(dirname, inFileName, outFileName, n):
 	expandFileWithRange(os.path.join(dirname, inFileName), os.path.join(dirname, outFileName), n)

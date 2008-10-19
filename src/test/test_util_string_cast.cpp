@@ -40,37 +40,40 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
-
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../util/string_cast.h"
 
 namespace lass
 {
 namespace test
 {
-
-TUnitTests test_stde()
+void testUtilStringCast()
 {
-	TUnitTests result;
+	std::string five = "5";
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(5), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(5), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(5), "5");
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(5.0), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(5.0), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(5.0), "5");
 
-	return result;
+	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(five), 5);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(five), 5.0);
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(five), "5");
+
+	void* p = reinterpret_cast<void*>(0x1a2b3c4d);
+	std::stringstream reference;
+	reference << p;
+	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(p), reference.str());
+}
+
+TUnitTests test_util_string_cast()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testUtilStringCast));
 }
 
 }
-
 }
 
 // EOF

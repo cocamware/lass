@@ -43,30 +43,71 @@
 
 
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../io/arg_parser.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+void testIoArgParser()
 {
-	TUnitTests result;
+	using namespace io;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	const std::string commandLine = "--path=c:\\foo -h --path=\"c:\\my bar\" -d -s\"\\\"hello world!\\\"\" script.py -- 0build.py";
 
-	return result;
+	TestStream testStream;
+	proxyMan()->cout()->add(&testStream.stream());
+	proxyMan()->cout()->remove(&std::cout);
+
+	ArgParser parser("testIoArgParser", "1.0.0", "script ...");
+
+	// flag, short name only
+	ArgFlag hello(parser, "H", "");
+
+	// required single value
+	ArgValue<std::string> say(parser, "s", "say", "text");
+
+	// required multiple string value, long name only
+	ArgValue<std::string> path(parser, "", "path", "", amMultiple | amRequired);
+
+	// flag with optional (single) integer value, and with 2 as default.
+	ArgValue<int> diffraction(parser, "d", "diffraction", "max. number of diffractions", amOptional, 2);
+
+	ArgParser::TArguments result;
+	parser.parse(commandLine, &result);
+
+	LASS_TEST_CHECK(testStream.isEqual("testIoArgParser version 1.0.0\n"
+		"usage: testIoArgParser [-v|--version] [-h|--help] [-H] [-s|--say <text>] [--path "
+		"<value> ...] [-d|--diffraction [<max. number of diffractions>]] script ...\n"));
+
+	LASS_TEST_CHECK(!hello);
+
+	LASS_TEST_CHECK(say);
+	LASS_TEST_CHECK_EQUAL(say.size(), size_t(1));
+	LASS_TEST_CHECK_EQUAL(say[0], "\"hello world!\"");
+
+	LASS_TEST_CHECK(path);
+	LASS_TEST_CHECK_EQUAL(path.size(), size_t(2));
+	LASS_TEST_CHECK_EQUAL(path[0], "c:\\foo");
+	LASS_TEST_CHECK_EQUAL(path[1], "c:\\my bar");
+
+	LASS_TEST_CHECK(diffraction);
+	LASS_TEST_CHECK_EQUAL(diffraction.size(), size_t(1)); // still default value
+	LASS_TEST_CHECK_EQUAL(diffraction[0], 2);
+
+	LASS_TEST_CHECK_EQUAL(result.size(), size_t(2));
+	LASS_TEST_CHECK_EQUAL(result[0], "script.py");
+	LASS_TEST_CHECK_EQUAL(result[1], "0build.py");
+
+	proxyMan()->cout()->add(&std::cout);
+	proxyMan()->cout()->remove(&testStream.stream());
+}
+
+TUnitTests test_io_arg_parser()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testIoArgParser));
 }
 
 }

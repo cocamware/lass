@@ -40,34 +40,55 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../num/basic_ops.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template <typename T>
+void testNumBasicOps()
 {
-	TUnitTests result;
+	typedef num::NumTraits<T> TNumTraits;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	// sinc
+	T x = TNumTraits::one;
+	T y;
+	do
+	{
+		x /= 10;
+		y = num::sin(x) / x;
+		LASS_TEST_CHECK(y <= TNumTraits::one);
+		LASS_TEST_CHECK_EQUAL(num::sinc(x), y);
+	}
+	while (y < TNumTraits::one);
+	LASS_COUT << "sinc(" << typeid(T).name() << ") == 1 for x <= " << x << std::endl;
 
-	return result;
+	// fastSin
+	const T x0 = -TNumTraits::pi;
+	const T dx = 1e-3f;
+	int i = 0;
+	x = x0;
+	while (x <= TNumTraits::pi)
+	{
+		LASS_TEST_CHECK(num::abs(num::sin(x) - num::fastSin(x)) < T(0.0012));
+		x = x0 + i++ * dx;
+	}
 }
+
+TUnitTests test_num_basic_ops()
+{
+	TUnitTests suite;
+	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<float>));
+	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<double>));
+	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<long double>));
+	return suite;
+}
+
+
 
 }
 

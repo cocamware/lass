@@ -65,7 +65,7 @@ namespace lass
 namespace test
 {
 
-TUnitTests testSpat()
+TUnitTests test_spat()
 {
 	TUnitTests result;
 

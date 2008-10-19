@@ -40,37 +40,44 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../num/polynomial.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template <typename T>
+void testNumPolynomial()
 {
-	TUnitTests result;
+	typedef num::Polynomial<T> TPolynomial;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	TPolynomial zero;
+	LASS_TEST_CHECK_LEXICAL(zero, "0");
 
-	return result;
+	TPolynomial one(1);
+	LASS_TEST_CHECK_LEXICAL(one, "1");
+
+	T a_coeff[2] = { 1, 1 };
+	TPolynomial a(a_coeff, a_coeff + 2);
+	LASS_TEST_CHECK_LEXICAL(a, "1 + 1x^1");
+
+	TPolynomial b = a * a;
+	LASS_TEST_CHECK_LEXICAL(b, "1 + 2x^1 + 1x^2");
+
+	TPolynomial c = b + a;
+	LASS_TEST_CHECK_LEXICAL(c, "2 + 3x^1 + 1x^2");
 }
 
+TUnitTests test_num_polynomial()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testNumPolynomial<double>));
 }
 
+
+}
 }
 
 // EOF

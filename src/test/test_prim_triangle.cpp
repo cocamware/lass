@@ -40,37 +40,75 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../prim/aabb_2d.h"
+#include "../prim/simple_polygon_2d.h"
+#include "../prim/triangle_2d.h"
+#include "../prim/line_segment_2d.h"
+#include "../num/random.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template
+<
+	typename T
+>
+void testPrimTriangle2D()
+{
+	typedef prim::Aabb2D<T> TAabb;
+	typedef prim::Triangle2D<T> TTriangle;
+	typedef prim::LineSegment2D<T> TLineSegment;
+	typedef prim::SimplePolygon2D<T> TPolygon;
+	typedef prim::Point2D<T> TPoint;
+	typedef prim::Vector2D<T> TVector;
+	typedef typename TVector::TNumTraits TNumTraits;
+
+	const T tolerance = 1e-3f;
+
+	TAabb bounds(TPoint(-100, -100), TPoint(100, 100));
+	num::RandomMT19937 random;
+
+	for (size_t i = 0; i < 1000; ++i)
+	{
+		const TPoint points[3] = 
+		{
+			bounds.random(random),
+			bounds.random(random),
+			bounds.random(random)
+		};
+
+		TTriangle triangle(points[0], points[1], points[2]);
+		TPolygon polygon(points, points + 3);
+
+		LASS_TEST_CHECK_CLOSE(triangle.area(), polygon.area(), tolerance);
+
+		// distance thing
+		const TPoint target = bounds.random(random);
+		T bruteSquareDistance = TNumTraits::infinity;
+		for (size_t k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
+		{
+			TLineSegment seg(points[k0], points[k1]);
+			bruteSquareDistance = std::min(bruteSquareDistance, squaredDistance(seg, target));
+		}
+		LASS_TEST_CHECK_CLOSE(squaredDistance(triangle, target), bruteSquareDistance, tolerance);
+	}
+}
+
+
+
+TUnitTests test_prim_triangle()
 {
 	TUnitTests result;
-
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
-
+	result.push_back(LASS_UNIT_TEST(testPrimTriangle2D<float>));\
+	result.push_back(LASS_UNIT_TEST(testPrimTriangle2D<double>));\
 	return result;
 }
 
 }
-
 }
 
 // EOF

@@ -40,34 +40,38 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../num/filtered_float.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+
+void testNumFilteredFloat()
 {
-	TUnitTests result;
+	typedef lass::num::FilteredFloat<float> FloatFiltered;
+	typedef lass::num::FilteredFloat<double> DoubleFiltered;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
-
-	return result;
+	for (int i=0;i<100;++i)
+	{
+		FloatFiltered	a(1.0);
+		FloatFiltered	b(lass::num::pow(float(2.0),-float(i)));
+		//std::cout << a.value() << "+" << b.value() << "=";
+        a+=b;
+		//std::cout << a.value() << "," << a.error() << "\n";
+		LASS_ASSERT(a.value()>a.error());
+	}
 }
+
+
+TUnitTests test_num_filtered_float()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testNumFilteredFloat));
+}
+
 
 }
 

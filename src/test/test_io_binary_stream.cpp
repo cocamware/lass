@@ -40,33 +40,46 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../io/binary_i_file.h"
+#include "../io/binary_o_file.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+void testIoBinaryStream()
 {
-	TUnitTests result;
+	using namespace io;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	num::Tint32 a = 5;
+	std::string b = "This is a test";
 
-	return result;
+	{
+	BinaryOFile testO("temp.txt");
+	testO << a;
+	testO << b;
+	}
+
+	{
+	BinaryIFile testI("temp.txt");
+	num::Tint32 t;
+	std::string tstr;
+
+	testI >> t;
+	testI >> tstr;
+
+	LASS_TEST_CHECK_EQUAL(t, a);
+	LASS_TEST_CHECK_EQUAL(tstr, b);
+	}
+}
+
+
+TUnitTests test_io_binary_stream()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testIoBinaryStream));
 }
 
 }

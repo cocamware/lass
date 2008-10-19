@@ -40,37 +40,53 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../num/filters.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template <typename T>
+void testNumFilters()
 {
-	TUnitTests result;
+	typedef num::NumTraits<T> TNumTraits;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	const size_t firOrder = 10;
+	std::vector<T> firTaps;
+	for (size_t i = 0; i < firOrder; ++i)
+	{
+		firTaps.push_back(TNumTraits::one / T(1 + i));
+	}
+	
+	const size_t impulsLength = 100;
+	std::vector<T> impuls(impulsLength, TNumTraits::zero);
+	impuls[0] = TNumTraits::one;
 
-	return result;
+	num::FirFilter<T> firFilter(firTaps);
+	std::vector<T> firResponse(impulsLength);
+	T* last = firFilter(&impuls[0], &impuls[0] + impulsLength, &firResponse[0]);
+	LASS_TEST_CHECK_EQUAL(last, &firResponse[0] + impulsLength);
+
+	for (size_t i = 0; i < firOrder; ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(firResponse[i], firTaps[i]);
+	}
+	for (size_t i = firOrder; i < impulsLength; ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(firResponse[i], TNumTraits::zero);
+	}
 }
 
+TUnitTests test_num_filters()
+{
+	return TUnitTests(1, LASS_UNIT_TEST(testNumFilters<double>));
 }
 
+
+}
 }
 
 // EOF

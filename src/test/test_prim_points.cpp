@@ -40,34 +40,98 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../prim/point_2d.h"
+#include "../prim/point_3d.h"
+#include "../prim/point_2dh.h"
+#include "../prim/point_3dh.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template <typename T> void testPrimPoint2D()
+{
+	using namespace prim;
+
+	Point2D<T> p;
+	LASS_TEST_CHECK(p.isZero());
+
+	Vector2D<T> a(1, 2);
+	Vector2D<T> b(4, 5);
+
+	p = Point2D<T>(a.x, a.y);
+	LASS_TEST_CHECK_EQUAL(p.position(), a);
+	LASS_TEST_CHECK_EQUAL(p.x, a.x);
+	LASS_TEST_CHECK_EQUAL(p.y, a.y);
+
+	Point2D<T> q(b);
+	LASS_TEST_CHECK_EQUAL(q.position(), b);
+
+	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
+	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
+	LASS_TEST_CHECK((q - b).isZero());
+
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+}
+
+
+
+template <typename T> void testPrimPoint3D()
+{
+	using namespace prim;
+
+	Point3D<T> p;
+	LASS_TEST_CHECK(p.isZero());
+
+	Vector3D<T> a(1, 2, 3);
+	Vector3D<T> b(4, 5, 6);
+
+	p = Point3D<T>(a.x, a.y, a.z);
+	LASS_TEST_CHECK_EQUAL(p.position(), a);
+	LASS_TEST_CHECK_EQUAL(p.x, a.x);
+	LASS_TEST_CHECK_EQUAL(p.y, a.y);
+	LASS_TEST_CHECK_EQUAL(p.z, a.z);
+
+	Point3D<T> q(b);
+	LASS_TEST_CHECK_EQUAL(q.position(), b);
+
+	LASS_TEST_CHECK_EQUAL(distance(p, q), (a - b).norm());
+	LASS_TEST_CHECK_EQUAL((p + b).position(), a + b);
+	LASS_TEST_CHECK((q - b).isZero());
+
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0), a);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 1), b);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).x, (a.x + b.x) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).y, (a.y + b.y) / 2);
+	LASS_TEST_CHECK_EQUAL(lerp(a, b, 0.5f).z, (a.z + b.z) / 2);
+}
+
+
+
+template<typename T> void testPrimPoint3DH()
+{
+	using namespace prim;
+}
+
+
+TUnitTests test_prim_points()
 {
 	TUnitTests result;
-
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
-
+	result.push_back(LASS_UNIT_TEST(testPrimPoint2D<float>));
+	result.push_back(LASS_UNIT_TEST(testPrimPoint2D<double>));
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3D<float>));
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3D<double>));
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3DH<float>));
+	result.push_back(LASS_UNIT_TEST(testPrimPoint3DH<double>));
 	return result;
 }
+
 
 }
 

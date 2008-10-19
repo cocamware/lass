@@ -40,37 +40,62 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../prim/sphere_3d.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests test_stde()
+template
+<
+	typename T
+>
+void testPrimSphere3D()
+{
+	typedef prim::Sphere3D<T> TSphere;
+	typedef prim::Point3D<T> TPoint;
+	typedef prim::Vector3D<T> TVector;
+	typedef num::NumTraits<T> TNumTraits;
+
+	const TPoint origin;
+
+	TSphere sphere;
+	LASS_TEST_CHECK(sphere.isValid());
+	LASS_TEST_CHECK_EQUAL(sphere.center(), origin);
+	LASS_TEST_CHECK_EQUAL(sphere.radius(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.area(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.volume(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.classify(origin), prim::sSurface);
+	LASS_TEST_CHECK_EQUAL(sphere.equation(origin), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(origin), 0);
+
+	const TPoint center(1, 2, 3);
+	const T radius = 4;
+
+	sphere = TSphere(center, radius);
+	LASS_TEST_CHECK(sphere.isValid());
+	LASS_TEST_CHECK_EQUAL(sphere.center(), center);
+	LASS_TEST_CHECK_EQUAL(sphere.radius(), radius);
+	LASS_TEST_CHECK_EQUAL(sphere.area(), T(4) * TNumTraits::pi * num::sqr(radius));
+	LASS_TEST_CHECK_EQUAL(sphere.volume(), T(4) / T(3) * TNumTraits::pi * num::sqr(radius) * radius);
+	LASS_TEST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
+	LASS_TEST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
+	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
+}
+
+
+
+TUnitTests test_prim_sphere_3d()
 {
 	TUnitTests result;
-
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
-
+	result.push_back(LASS_UNIT_TEST((testPrimSphere3D<float>)));
+	result.push_back(LASS_UNIT_TEST((testPrimSphere3D<double>)));
 	return result;
 }
 
 }
 
 }
-
-// EOF

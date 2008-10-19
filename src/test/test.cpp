@@ -45,18 +45,12 @@
 #include "test_common.h"
 #include "unit_test.h"
 
-#include "test_io.h"
-#include "test_meta.h"
-#include "test_num.h"
-#include "test_prim.h"
-#include "test_spat.h"
-#include "test_stde.h"
-#include "test_util.h"
-
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 #include "../io/file_attribute.h"
 #include "../io/arg_parser.h"
+
+::lass::test::TSuiteMap autoSuiteMap();
 
 int main(int argc, char* argv[])
 {
@@ -64,7 +58,8 @@ int main(int argc, char* argv[])
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
 	io::ArgValue<std::string> output(parser, "o", "output", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
-	if (!parser.parse(argc, argv))
+	io::ArgParser::TArguments selectedSuites;
+	if (!parser.parse(argc, argv, &selectedSuites))
 	{
 		return false;
 	}
@@ -81,17 +76,33 @@ int main(int argc, char* argv[])
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
-	test::TUnitTests unitTests;
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
-	stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
-	stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
-	stde::copy_r(test::testNum(), std::back_inserter(unitTests));
-	stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
-	stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	stde::copy_r(test::testIo(), std::back_inserter(unitTests));
+	test::TSuiteMap suiteMap = autoSuiteMap();	
+	test::TUnitTests testsToBeRun;
+
+	if (selectedSuites.empty())
+	{
+		for (test::TSuiteMap::const_iterator suite = suiteMap.begin(); suite != suiteMap.end(); ++suite)
+		{
+			stde::copy_r(suite->second, std::back_inserter(testsToBeRun));
+		}
+	}
+	else
+	{
+		const size_t n = selectedSuites.size();
+		for (test::TSuiteMap::const_iterator suite = suiteMap.begin(); suite != suiteMap.end(); ++suite)
+		{
+			for (size_t i = 0; i < n; ++i)
+			{
+				if (suite->first.find(selectedSuites[i]) != std::string::npos)
+				{
+					stde::copy_r(suite->second, std::back_inserter(testsToBeRun));
+				}
+			}
+		}
+	}
 	unsigned errors = 0;
 	unsigned fatalErrors = 0;
-	const bool success = test::runTests(unitTests, argc, argv, &errors, &fatalErrors);
+	const bool success = test::runTests(testsToBeRun, argc, argv, &errors, &fatalErrors);
 
 	if (success)
 	{

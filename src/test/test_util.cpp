@@ -45,7 +45,7 @@
 #include "test_common.h"
 #include "test_util.h"
 
-#include "test_util_atomic.inl"
+//#include "test_util_atomic.inl"
 #include "test_util_bind.inl"
 #include "test_util_callback.inl"
 #include "test_util_clock.inl"
@@ -55,7 +55,7 @@
 #include "test_util_fixed_array.inl"
 #include "test_util_id_generator.inl"
 #include "test_util_python.inl"
-#include "test_util_string_cast.inl"
+//#include "test_util_string_cast.inl"
 #include "test_util_thread_fun.inl"
 #include "test_util_thread_pool.inl"
 #include "test_util_thread_local_storage.inl"
@@ -66,11 +66,11 @@ namespace lass
 namespace test
 {
 
-TUnitTests testUtil()
+TUnitTests test_util()
 {
 	TUnitTests result;
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomic));
+	//result.push_back(LASS_UNIT_TEST(testUtilAtomic));
 
 	result.push_back(LASS_UNIT_TEST(testUtilBind));
 
@@ -93,7 +93,7 @@ TUnitTests testUtil()
 	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<char>));
 	result.push_back(LASS_UNIT_TEST(testUtilIdGenerator<unsigned long>));
 
-	result.push_back(LASS_UNIT_TEST(testUtilStringCast));
+	//result.push_back(LASS_UNIT_TEST(testUtilStringCast));
 
 	result.push_back(LASS_UNIT_TEST(testUtilThreadFun));
 	result.push_back(LASS_UNIT_TEST(testUtilThreadPool));
