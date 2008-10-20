@@ -28,6 +28,32 @@ endif(PYTHON_DEBUG_LIBRARY)
 include(FindPythonInterp)
 mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
 
+include(CheckIncludeFile)
+CHECK_INCLUDE_FILE("fcntl.h" LASS_HAVE_FCNTL_H)
+CHECK_INCLUDE_FILE("limits.h" LASS_HAVE_LIMITS_H)
+CHECK_INCLUDE_FILE("termios.h" LASS_HAVE_TERMIOS_H)
+CHECK_INCLUDE_FILE("unistd.h" LASS_HAVE_UNISTD_H)
+CHECK_INCLUDE_FILE("sys/ioctl.h" LASS_HAVE_SYS_IOCTL_H)
+CHECK_INCLUDE_FILE("sys/mman.h" LASS_HAVE_SYS_MMAN_H)
+CHECK_INCLUDE_FILE("sys/resource.h" LASS_HAVE_SYS_RESOURCE_H)
+CHECK_INCLUDE_FILE("sys/socket.h" LASS_HAVE_SYS_SOCKET_H)
+CHECK_INCLUDE_FILE("sys/stat.h" LASS_HAVE_SYS_STAT_H)
+
+include(CheckLibraryExists)
+CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
+CHECK_LIBRARY_EXISTS("dl" "dlopen" "" LASS_HAVE_LIBDL)
+
+include(CheckFunctionExists)
+CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
+if(LASS_HAVE_FUNC_STRERROR_R)
+	set(testdir "${CMAKE_BINARY_DIR}/config")
+	try_compile(
+		LASS_HAVE_STRERROR_R_CHAR_P
+		"${CMAKE_BINARY_DIR}/config"
+		"${CMAKE_SOURCE_DIR}/config/check_strerror_r_char_p.cpp"
+		)
+endif()
+
 set(lass_subdirectories config io num prim spat stde util)
 if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
@@ -36,7 +62,9 @@ endif()
 file(GLOB lass_SRCS *.cpp)
 file(GLOB lass_HDRS *.h *.inl)
 foreach(subdir ${lass_subdirectories})
-	file(GLOB_RECURSE temp_SRCS ${subdir}/*.cpp)
+	if(NOT subdir STREQUAL "config")
+		file(GLOB_RECURSE temp_SRCS ${subdir}/*.cpp)
+	endif()	       
 	file(GLOB_RECURSE temp_HDRS ${subdir}/*.h ${subdir}/*.inl)
 	list(APPEND lass_SRCS ${temp_SRCS})
 	list(APPEND lass_HDRS ${temp_HDRS})
@@ -47,40 +75,45 @@ include_directories(${lass_BINARY_DIR}/config)
 list(APPEND lass_HDRS ${lass_BINARY_DIR}/config/local_config.h)
 
 macro(prebuild dirname infile outfile n)
-	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
-	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
-	set(expander ${CMAKE_SOURCE_DIR}/../tools/param_expander.py)
-	if(outpath MATCHES "\\$x")
-		set(output)
-		foreach(i RANGE 1 ${n})
-			string(REPLACE "$x" ${i} out ${outpath})
-			set(output ${output} ${out})
-		endforeach()
-	else()
-		set(output ${outpath})
-	endif()
-	add_custom_command(
-		OUTPUT ${output}
-		DEPENDS ${inpath} ${expander}
-		COMMAND ${PYTHON_EXECUTABLE}
-		ARGS ${expander} ${inpath} ${CMAKE_SOURCE_DIR}/${dirname}/${outfile} ${n})
-	list(APPEND lass_PRE_BUILT_HDRS ${output})
+        if(${outfile} MATCHES "\\$x")
+                foreach(i RANGE 1 ${n})
+                        string(REPLACE "$x" ${i} temp ${outfile})
+                        set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
+                        set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${temp})
+                        add_custom_command(
+                                OUTPUT ${outpath}
+                                DEPENDS ${inpath}
+                                COMMAND ${PYTHON_EXECUTABLE}
+                                ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${i})
+                        set(lass_PRE_BUILT_HDRS ${lass_PRE_BUILT_HDRS} ${outpath})
+                endforeach()
+        else()
+                set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
+                set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
+                add_custom_command(
+                        OUTPUT ${outpath}
+                        DEPENDS ${inpath}
+                        COMMAND ${PYTHON_EXECUTABLE}
+                        ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${n})
+                set(lass_PRE_BUILT_HDRS ${lass_PRE_BUILT_HDRS} ${outpath})
+        endif()
 endmacro()
 
 set(N 15)
 prebuild(util object_factory.tmpl.h object_factory.h ${N})
 prebuild(util clone_factory.tmpl.h clone_factory.h ${N})
 prebuild(util callback.tmpl.h callback.h ${N})
-prebuild(util callback_x.tmpl.h callback_$x.h ${N})
-prebuild(util callback_r_x.tmpl.h callback_r_$x.h ${N})
+prebuild(util callback_x.tmpl.h "callback_$x.h" ${N})
+prebuild(util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
 prebuild(util callback_python.tmpl.h callback_python.h ${N})
+prebuild(util pyobject_macros.tmpl.h pyobject_macros.h ${N})
 prebuild(util pyobject_call.tmpl.inl pyobject_call.inl ${N})
-prebuild(util py_tuple.tmpl.h py_tuple.h ${N})
+prebuild(util py_tuple.tmpl.h py_tuple.h 20)
 prebuild(util thread_fun.tmpl.h thread_fun.h ${N})
 prebuild(util thread_fun.tmpl.inl thread_fun.inl ${N})
 prebuild(util bind.tmpl.h bind.h ${N})
-prebuild(util/impl dispatcher_x.tmpl.h dispatcher_$x.h ${N})
-prebuild(util/impl dispatcher_r_x.tmpl.h dispatcher_r_$x.h ${N})
+prebuild(util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
+prebuild(util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
 prebuild(meta is_member.tmpl.h is_member.h ${N})
 #prebuild(test test_util_callback.tmpl.inl test_util_callback.inl 3)
 
