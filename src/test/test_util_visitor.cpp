@@ -40,77 +40,110 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_ITERATOR_RANGE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_ITERATOR_RANGE_INL
-
 #include "test_common.h"
-#include "../stde/iterator_range.h"
+#include "../util/visitor.h"
 
 namespace lass
 {
 namespace test
 {
-
-void testStdeIteratorRange()
+namespace util_visitor
 {
-	typedef std::vector<int> TContainer;
-	typedef stde::iterator_range<TContainer::iterator> TRange;
-
-	TRange range;
-	LASS_TEST_CHECK(range.begin() == range.end());
-	LASS_TEST_CHECK_EQUAL(range.size(), 0);
-	LASS_TEST_CHECK(range.empty());
-	LASS_TEST_CHECK(!range);
-	LASS_TEST_CHECK(range ? false : true);
-
-	TContainer container;
-	const int n = 10;
-	for (int i = 0; i < n; ++i)
+	class DocElement: public util::VisitableBase<util::IgnoreUnknownVisit>
 	{
-		container.push_back(i);
-	}
+		LASS_UTIL_VISITOR_DO_ACCEPT
+	};
 
-	range = TRange(container.begin(), container.end());
-	LASS_TEST_CHECK(range.begin() == container.begin());
-	LASS_TEST_CHECK(range.end() == container.end());
-	LASS_TEST_CHECK_EQUAL(range.size(), n);
-	LASS_TEST_CHECK(!range.empty());
-	LASS_TEST_CHECK_EQUAL(!range, false);
-	LASS_TEST_CHECK(range);
-
-	for (int i = 0; i < n; ++i)
+	class Paragraph: public DocElement
 	{
-		LASS_TEST_CHECK_EQUAL(range[i], i);
-	}
+		LASS_UTIL_VISITOR_DO_ACCEPT
+	};
 
-	for (int i = 0; range; ++range, ++i)
+	class Invisible: public DocElement
 	{
-		LASS_TEST_CHECK_EQUAL(*range, i);
-	}
+		LASS_UTIL_VISITOR_DO_ACCEPT
+	};
 
-	TContainer other_container;
-	for (int i = 100; i < 200; ++i)
+	class List: public DocElement
 	{
-		other_container.push_back(i);
-	}
-	TRange other(other_container.begin(), other_container.end());
+	public:
+		typedef util::SharedPtr<DocElement> TDocElementPtr;
+		typedef std::list<TDocElementPtr> TDocElements;
 
-	LASS_TEST_CHECK(range == TRange());
-	LASS_TEST_CHECK(range != other);
-	
-	range = other++;
-	LASS_TEST_CHECK_EQUAL(range.size(), other.size() + 1);
-	
-	range.swap(other);
-	LASS_TEST_CHECK_EQUAL(range.size() + 1, other.size());
+		void add(std::auto_ptr<DocElement> iChild) { children_.push_back(iChild); }
+
+	private:
+
+		void doAccept(util::VisitorBase& ioVisitor)
+		{
+			preAccept(ioVisitor, *this);
+			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
+			{
+				(*i)->accept(ioVisitor);
+			}
+			postAccept(ioVisitor, *this);
+		}
+
+	private:
+		TDocElements children_;
+	};
+
+	struct TestVisitor:
+		public util::VisitorBase, // required
+		public util::Visitor<DocElement>,
+		public util::Visitor<Paragraph>,
+		public util::Visitor<List>
+	{
+	public:
+
+		TestVisitor(): docElements_(0), paragraphs_(0), lists_(0) {}
+
+		int docElements_;
+		int paragraphs_;
+		int lists_;
+
+	private:
+		void doPreVisit(DocElement&) { ++docElements_; }
+		void doPreVisit(Paragraph&) { ++paragraphs_; }
+		void doPreVisit(List&) { ++lists_; }
+		void doPostVisit(List&) { LASS_COUT << "visit on exit\n"; }
+	};
+}
+
+void testUtilVisitor()
+{
+	using namespace util_visitor;
+
+	typedef std::auto_ptr<DocElement> TElement;
+
+	List root;
+	root.add(TElement(new DocElement));
+	root.add(TElement(new Paragraph));
+	root.add(TElement(new Invisible));
+	root.add(TElement(new Paragraph));
+
+	std::auto_ptr<List> sub(new List);
+	sub->add(TElement(new Paragraph));
+	sub->add(TElement(new Invisible));
+	root.add(TElement(sub.release()));
+
+	TestVisitor visitor;
+	root.accept(visitor);
+
+	LASS_TEST_CHECK_EQUAL(visitor.docElements_, 1);
+	LASS_TEST_CHECK_EQUAL(visitor.paragraphs_, 3);
+	LASS_TEST_CHECK_EQUAL(visitor.lists_, 2);
+}
+
+
+TUnitTest test_util_visitor()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilVisitor));
+}
+
+
 }
 
 }
-
-}
-
-#endif
 
 // EOF

@@ -131,9 +131,9 @@ void testIoProxySystem()
 	proxyMan()->cerr()->remove(&testErr.stream());
 }
 
-TUnitTests test_io_proxy_system()
+TUnitTest test_io_proxy_system()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testIoProxySystem));
+	return TUnitTest(1, LASS_TEST_CASE(testIoProxySystem));
 }
 
 }

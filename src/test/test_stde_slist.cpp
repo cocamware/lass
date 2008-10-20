@@ -40,11 +40,6 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SLIST_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SLIST_INL
-
 #include "test_common.h"
 #include "../stde/slist.h"
 #include "../stde/extended_iterator.h"
@@ -334,10 +329,13 @@ void testStdeSlist()
 	LASS_TEST_CHECK(stream.isEqual("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]"));
 }
 
+TUnitTest test_stde_slist()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testStdeSlist));
 }
 
 }
 
-#endif
+}
 
 // EOF

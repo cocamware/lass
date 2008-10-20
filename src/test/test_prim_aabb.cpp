@@ -310,14 +310,14 @@ void testPrimAabb3D()
 	LASS_TEST_CHECK_EQUAL(c.max(), TPoint(10, 10, 10));
 }
 
-TUnitTests test_prim_aabb()
+TUnitTest test_prim_aabb()
 {
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testPrimAabb2D<float>));
-	suite.push_back(LASS_UNIT_TEST(testPrimAabb2D<double>));
-	suite.push_back(LASS_UNIT_TEST(testPrimAabb3D<float>));
-	suite.push_back(LASS_UNIT_TEST(testPrimAabb3D<double>));
-	return suite;
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimAabb2D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimAabb2D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimAabb3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimAabb3D<double>));
+	return result;
 }
 
 

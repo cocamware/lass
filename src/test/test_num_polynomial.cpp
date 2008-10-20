@@ -71,9 +71,9 @@ void testNumPolynomial()
 	LASS_TEST_CHECK_LEXICAL(c, "2 + 3x^1 + 1x^2");
 }
 
-TUnitTests test_num_polynomial()
+TUnitTest test_num_polynomial()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testNumPolynomial<double>));
+	return TUnitTest(1, LASS_TEST_CASE(testNumPolynomial<double>));
 }
 
 

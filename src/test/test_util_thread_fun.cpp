@@ -40,77 +40,110 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_RW_LOCK_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_RW_LOCK_INL
-
 #include "test_common.h"
 
 #include "../util/thread_fun.h"
 #include "../util/scoped_ptr.h"
-#include "../util/rw_lock.h"
 
 namespace lass
 {
 namespace test
 {
-namespace rwlock_test
-{	
+namespace thread_test
+{
+	volatile bool functionIsCalled = false;
+
+	void foo(int a, int b) 
+	{ 
+		util::Thread::sleep(500); 
+		functionIsCalled = true; 
+	}
+	
 	class Bar
 	{
 	public:
-		Bar() : lock_(10) {}
-		void doReads() 
-		{
-			for (int i=0;i<1000;++i)
-			{
-				util::Thread::sleep(1);
-				lock_.lockr();
-				std::cout << "R";
-				lock_.unlockr();
-			}
-		}
-		void doWrites() const 
+		void spam() 
 		{ 
-			for (int j=0;j<4;++j)
-			{
-				util::Thread::sleep(150);
-				for (int i=0;i<16;++i)
-				{
-					lock_.lockw();
-					util::Thread::sleep(5);
-					std::cout << "(W)";
-					lock_.unlockw();
-				}
-			}
+			util::Thread::sleep(500); 
+			functionIsCalled = true; 
 		}
-	private:
-		mutable util::RWLock lock_;
+		void ham(int a) const 
+		{ 
+			util::Thread::sleep(500); 
+			functionIsCalled = true; 
+		}
 	};
 
+	void eggs() 
+	{ 
+		std::cerr << "cooking eggs ...\n";
+		util::Thread::sleep(100); 
+		std::cerr << "eggs are cooked!\n"; 
+		functionIsCalled = true;
+	}
 }
 
-void testUtilRWLock()
+void testUtilThreadFun()
 {
-	rwlock_test::Bar bar;
+	LASS_COUT << "thread foo ...\n";
+	thread_test::functionIsCalled = false;
+	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
+
+	thread_test::Bar bar;
 
 	LASS_COUT << "thread spam ...\n";
-	util::ScopedPtr<util::Thread> readThread(util::threadMemFun(&bar, &rwlock_test::Bar::doReads, util::threadJoinable));
-	util::ScopedPtr<util::Thread> writeThread(util::threadMemFun(&bar, &rwlock_test::Bar::doWrites, util::threadJoinable));
-	readThread->run();
-	writeThread->run();
+	thread_test::functionIsCalled = false;
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::spam, util::threadJoinable));
+	thread->run();
 	LASS_COUT << "joining\n";
-	readThread->join();
-	writeThread->join();
+	thread->join();
 	LASS_COUT << "joined\n";
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
-}
+	LASS_COUT << "thread ham\n";
+	thread_test::functionIsCalled = false;
+	thread.reset(util::threadMemFun(&bar, &thread_test::Bar::ham, 3, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
-}
-
-}
-
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION == 1400
+#	pragma LASS_FIXME("vc8 hates this overload [Bramz]")
+#else
+	LASS_COUT << "thread ham via makeCallback ...\n";
+	thread_test::functionIsCalled = false;
+	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::threadJoinable));
+	thread->run();
+	LASS_COUT << "joining\n";
+	thread->join();
+	LASS_COUT << "joined\n";
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
 #endif
+
+	LASS_COUT << "thread eggs ...\n";
+	thread_test::functionIsCalled = false;
+	util::threadFun(thread_test::eggs, util::threadDetached)->run();
+	LASS_TEST_CHECK(!thread_test::functionIsCalled);
+	LASS_COUT << "sleeping\n";
+	util::Thread::sleep(1000);
+	LASS_COUT << "finishing\n";
+	LASS_TEST_CHECK(thread_test::functionIsCalled);
+}
+
+TUnitTest test_util_thread_fun()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilThreadFun));
+}
+
+}
+
+}
 
 // EOF

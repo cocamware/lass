@@ -40,11 +40,6 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_CLOCK_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_CLOCK_INL
-
 #include "test_common.h"
 #include "../util/clock.h"
 #include "../util/stop_watch.h"
@@ -117,12 +112,13 @@ void testUtilClock()
 	LASS_COUT << "delta stop watch: " << stopWatch.time() << std::endl;
 }
 
-
-
+TUnitTest test_util_clock()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilClock));
 }
 
 }
 
-#endif
+}
 
 // EOF

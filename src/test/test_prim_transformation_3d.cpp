@@ -138,11 +138,11 @@ void testPrimTransformation3D()
 
 
 
-TUnitTests test_prim_transformation_3d()
+TUnitTest test_prim_transformation_3d()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testPrimTransformation3D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimTransformation3D<double>));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimTransformation3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimTransformation3D<double>));
 	return result;
 }
 

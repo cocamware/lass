@@ -79,9 +79,9 @@ void testMetaTuple()
 	LASS_TEST_CHECK_EQUAL(tuple::field<3>(yourTuple), 42);
 }
 
-TUnitTests test_meta_tuple()
+TUnitTest test_meta_tuple()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testMetaTuple));
+	return TUnitTest(1, LASS_TEST_CASE(testMetaTuple));
 }
 
 }

@@ -39,13 +39,8 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_OBJECT_TREES_INL
-
 //#define LASS_TEST_SPAT_OBJECT_TREES_DIAGNOSTICS
-#define LASS_SPAT_KD_TREE_DIAGNOSTICS
+//#define LASS_SPAT_KD_TREE_DIAGNOSTICS
 
 #include "test_common.h"
 #include "../spat/aabb_tree.h"
@@ -471,10 +466,10 @@ void testSpatObjectTrees()
 	const size_t numberOfNearestNeighbourValidations = 1000;
 	const size_t numberOfRangeSearchValidations = 1000;
 	// speed tests
-	const size_t numberOfContainSpeedTestRuns = 10;
-	const size_t numberOfIntersectionSpeedTestRuns = 10;
-	const size_t numberOfNearestNeighbourSpeedTestRuns = 10;
-	const size_t numberOfRangeSearchSpeedTestRuns = 10;
+	const size_t numberOfContainSpeedTestRuns = 2;
+	const size_t numberOfIntersectionSpeedTestRuns = 2;
+	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
+	const size_t numberOfRangeSearchSpeedTestRuns = 2;
 
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -712,7 +707,7 @@ void testSpatKdTree()
 	//
 	typedef spat::KdTree<TPoint> TKdTree;
 	TKdTree tree(points, points + n);
-	tree.diagnostics();
+	//tree.diagnostics();
 
 	// make tree set
 	//
@@ -765,7 +760,7 @@ void testSpatKdTree()
 	util::StopWatch stopWatch(clock);
 
 	const size_t nTargets = 1000;
-	const size_t nRuns = 10;
+	const size_t nRuns = 2;
 	const TValue maxRadius = 50;
 	const size_t maxCount = 10;
 	typedef std::vector<TPoint> TTargets;
@@ -787,11 +782,23 @@ void testSpatKdTree()
 }
 
 
+TUnitTest test_spat_object_trees()
+{
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testSpatKdTree< prim::Point2D<float> >));
+	result.push_back(LASS_TEST_CASE(testSpatKdTree< prim::Point3D<float> >));
+	result.push_back(LASS_TEST_CASE(testSpatKdTree< prim::Point2D<double> >));
+	result.push_back(LASS_TEST_CASE(testSpatKdTree< prim::Point3D<double> >));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,2>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,2>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,3>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,3>)));
+	return result;
+}
+
 
 }
 
 }
-
-#endif
 
 // EOF

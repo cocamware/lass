@@ -120,15 +120,15 @@ template<typename T> void testPrimPoint3DH()
 }
 
 
-TUnitTests test_prim_points()
+TUnitTest test_prim_points()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testPrimPoint2D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimPoint2D<double>));
-	result.push_back(LASS_UNIT_TEST(testPrimPoint3D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimPoint3D<double>));
-	result.push_back(LASS_UNIT_TEST(testPrimPoint3DH<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimPoint3DH<double>));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimPoint2D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimPoint2D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimPoint3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimPoint3D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimPoint3DH<float>));
+	result.push_back(LASS_TEST_CASE(testPrimPoint3DH<double>));
 	return result;
 }
 

@@ -50,7 +50,7 @@
 #include "../io/file_attribute.h"
 #include "../io/arg_parser.h"
 
-::lass::test::TSuiteMap autoSuiteMap();
+::lass::test::TTestSuite autoTestSuite();
 
 int main(int argc, char* argv[])
 {
@@ -58,12 +58,14 @@ int main(int argc, char* argv[])
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
 	io::ArgValue<std::string> output(parser, "o", "output", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
-	io::ArgParser::TArguments selectedSuites;
-	if (!parser.parse(argc, argv, &selectedSuites))
+	io::ArgValue<std::string> savePatterns(parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
+	io::ArgParser::TArguments selectedTests;
+	if (!parser.parse(argc, argv, &selectedTests))
 	{
 		return false;
 	}
 	const std::string logFile = io::fileJoinPath(test::workPath(), output.at(0));
+	::lass::test::impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
 	io::Logger logger(logFile);
 	logger.subscribeTo(io::proxyMan()->cout());
 	logger.subscribeTo(io::proxyMan()->clog());
@@ -76,26 +78,26 @@ int main(int argc, char* argv[])
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
-	test::TSuiteMap suiteMap = autoSuiteMap();	
-	test::TUnitTests testsToBeRun;
+	test::TTestSuite testSuite = autoTestSuite();	
+	test::TUnitTest testsToBeRun;
 
-	if (selectedSuites.empty())
+	if (selectedTests.empty())
 	{
-		for (test::TSuiteMap::const_iterator suite = suiteMap.begin(); suite != suiteMap.end(); ++suite)
+		for (test::TTestSuite::const_iterator unitTest = testSuite.begin(); unitTest != testSuite.end(); ++unitTest)
 		{
-			stde::copy_r(suite->second, std::back_inserter(testsToBeRun));
+			stde::copy_r(unitTest->second, std::back_inserter(testsToBeRun));
 		}
 	}
 	else
 	{
-		const size_t n = selectedSuites.size();
-		for (test::TSuiteMap::const_iterator suite = suiteMap.begin(); suite != suiteMap.end(); ++suite)
+		const size_t n = selectedTests.size();
+		for (test::TTestSuite::const_iterator unitTest = testSuite.begin(); unitTest != testSuite.end(); ++unitTest)
 		{
 			for (size_t i = 0; i < n; ++i)
 			{
-				if (suite->first.find(selectedSuites[i]) != std::string::npos)
+				if (unitTest->first.find(selectedTests[i]) != std::string::npos)
 				{
-					stde::copy_r(suite->second, std::back_inserter(testsToBeRun));
+					stde::copy_r(unitTest->second, std::back_inserter(testsToBeRun));
 				}
 			}
 		}

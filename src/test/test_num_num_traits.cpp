@@ -170,29 +170,29 @@ namespace num_traits
 
 }
 
-TUnitTests test_num_num_traits()
+TUnitTest test_num_num_traits()
 {
 	using namespace num_traits;
 
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testChar));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testChar));
 	
-	suite.push_back(LASS_UNIT_TEST(testInteger<signed char>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<unsigned char>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<signed short>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<unsigned short>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<signed int>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<unsigned int>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<signed long>));
-	suite.push_back(LASS_UNIT_TEST(testInteger<unsigned long>));
+	result.push_back(LASS_TEST_CASE(testInteger<signed char>));
+	result.push_back(LASS_TEST_CASE(testInteger<unsigned char>));
+	result.push_back(LASS_TEST_CASE(testInteger<signed short>));
+	result.push_back(LASS_TEST_CASE(testInteger<unsigned short>));
+	result.push_back(LASS_TEST_CASE(testInteger<signed int>));
+	result.push_back(LASS_TEST_CASE(testInteger<unsigned int>));
+	result.push_back(LASS_TEST_CASE(testInteger<signed long>));
+	result.push_back(LASS_TEST_CASE(testInteger<unsigned long>));
 	
-	suite.push_back(LASS_UNIT_TEST(testFloat<float>));
-	suite.push_back(LASS_UNIT_TEST(testFloat<double>));
+	result.push_back(LASS_TEST_CASE(testFloat<float>));
+	result.push_back(LASS_TEST_CASE(testFloat<double>));
 
-	suite.push_back(LASS_UNIT_TEST(testComplex< std::complex<float> >));
-	suite.push_back(LASS_UNIT_TEST(testComplex< std::complex<double> >));
+	result.push_back(LASS_TEST_CASE(testComplex< std::complex<float> >));
+	result.push_back(LASS_TEST_CASE(testComplex< std::complex<double> >));
 
-	return suite;
+	return result;
 }
 
 

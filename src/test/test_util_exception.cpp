@@ -40,49 +40,46 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_PYTHON_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_PYTHON_INL
-
 #include "test_common.h"
-#include "bar.h"
 
-#include "../util/scoped_ptr.h"
-#include "../util/shared_ptr.h"
-#include "../io/file_attribute.h"
-#include "../stde/extended_string.h"
+#ifdef _DEBUG
+#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_THROW(x, e)
+#else
+#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_NO_THROW(x)
+#endif
 
 namespace lass
 {
 namespace test
 {
 
-void testUtilPython()
+void testUtilException()
 {
-	std::string testFile = io::fileJoinPath(test::workPath(), "test_bar.py");
-	
-	std::string commandStr = "execfile('" + testFile + "')";
-	//commandStr = "from code import interact\ninteract()";
-		
-	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
-	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
+	LASS_TEST_CHECK_NO_THROW(
+		try
+		{
+			LASS_THROW("this is a lass exception");
+		}
+		catch (util::Exception& lassException)
+		{
+			LASS_TEST_CHECK_EQUAL(lassException.message(), lassException.what());
+		}
+	);
 
-	
-	
-	typedef std::vector<double> TV;
-	TV vec;
-	python::impl::PySequence pyseqtest(vec);
-	LASS_TEST_CHECK_EQUAL( PySequence_Check(&pyseqtest) , 1);
-
-}
-
-
+	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), util::Exception);
+	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), std::exception);
 
 }
 
+
+TUnitTest test_util_exception()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilException));
 }
 
-#endif
+
+}
+
+}
 
 // EOF

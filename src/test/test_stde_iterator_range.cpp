@@ -40,44 +40,75 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SMALL_OBJECT_ALLOCATOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_SMALL_OBJECT_ALLOCATOR_INL
-
 #include "test_common.h"
-#include "../stde/small_object_allocator.h"
+#include "../stde/iterator_range.h"
 
 namespace lass
 {
 namespace test
 {
 
-void testStdeSmallObjectAllocator()
+void testStdeIteratorRange()
 {
-	int n = 1000;
+	typedef std::vector<int> TContainer;
+	typedef stde::iterator_range<TContainer::iterator> TRange;
 
-	typedef std::list<int, stde::small_object_allocator<int> > list_type;
-	list_type list;
-	for (int k = 0; k < n; ++k)
+	TRange range;
+	LASS_TEST_CHECK(range.begin() == range.end());
+	LASS_TEST_CHECK_EQUAL(range.size(), 0);
+	LASS_TEST_CHECK(range.empty());
+	LASS_TEST_CHECK(!range);
+	LASS_TEST_CHECK(range ? false : true);
+
+	TContainer container;
+	const int n = 10;
+	for (int i = 0; i < n; ++i)
 	{
-		list.push_back(k);
+		container.push_back(i);
 	}
 
-	list_type::const_iterator i = list.begin();
-	for (int k = 0; k < n; ++k)
+	range = TRange(container.begin(), container.end());
+	LASS_TEST_CHECK(range.begin() == container.begin());
+	LASS_TEST_CHECK(range.end() == container.end());
+	LASS_TEST_CHECK_EQUAL(range.size(), n);
+	LASS_TEST_CHECK(!range.empty());
+	LASS_TEST_CHECK_EQUAL(!range, false);
+	LASS_TEST_CHECK(range);
+
+	for (int i = 0; i < n; ++i)
 	{
-		LASS_TEST_CHECK(i != list.end());
-		LASS_TEST_CHECK_EQUAL(*i, k);
-		++i;
+		LASS_TEST_CHECK_EQUAL(range[i], i);
 	}
-	LASS_TEST_CHECK(i == list.end());
+
+	for (int i = 0; range; ++range, ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(*range, i);
+	}
+
+	TContainer other_container;
+	for (int i = 100; i < 200; ++i)
+	{
+		other_container.push_back(i);
+	}
+	TRange other(other_container.begin(), other_container.end());
+
+	LASS_TEST_CHECK(range == TRange());
+	LASS_TEST_CHECK(range != other);
+	
+	range = other++;
+	LASS_TEST_CHECK_EQUAL(range.size(), other.size() + 1);
+	
+	range.swap(other);
+	LASS_TEST_CHECK_EQUAL(range.size() + 1, other.size());
+}
+
+TUnitTest test_stde_iterator_range()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testStdeIteratorRange));
 }
 
 }
 
 }
-
-#endif
 
 // EOF

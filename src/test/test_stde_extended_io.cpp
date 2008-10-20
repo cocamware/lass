@@ -40,11 +40,6 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_EXTENDED_IO_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_EXTENDED_IO_INL
-
 #include "test_common.h"
 #include "../stde/extended_io.h"
 #include "../util/string_cast.h"
@@ -166,10 +161,13 @@ void testStdeExtendedIo()
 	LASS_TEST_CHECK(extended_io::safe_equal(multiset, multiset2));
 }
 
+TUnitTest test_stde_extended_io()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testStdeExtendedIo));
 }
 
 }
 
-#endif
+}
 
 // EOF

@@ -42,80 +42,62 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_FIXED_ARRAY_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_FIXED_ARRAY_INL
-
 #include "test_common.h"
-
-#include "../util/fixed_array.h"
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4267) //  'argument' : conversion from 'size_t' to 'const lass::num::Tuint32', possible loss of data
-#endif
+#include "../spat/mesh_interpolator.h"
+#include "../io/matlab_o_stream.h"
 
 namespace lass
 {
 namespace test
 {
-
-template <typename T>
-void testUtilFixedArray()
-{
-	using namespace util;
-
-	typedef FixedArray<T, 5> TFixedArray;
-
-	TFixedArray array;
-
-	LASS_TEST_CHECK_EQUAL(array.size(), size_t(5));
-	LASS_TEST_CHECK_EQUAL(array.max_size(), size_t(5));
-	LASS_TEST_CHECK_EQUAL(array.empty(), false);
-
-	T value(1);
-	for (typename TFixedArray::iterator it = array.begin(); it != array.end(); ++it)
+	void testSpatMeshInterpolator()
 	{
-		*it = value;
-		value += value;
+		typedef prim::Aabb2D<double> TAabb2D;
+		typedef prim::Point2D<double> TPoint2D;
+		typedef spat::LinearMeshInterpolator<double, double>    TLinearMeshInterpolator;
+		TAabb2D aabb(TPoint2D(0,0),TPoint2D(100,100));
+		TLinearMeshInterpolator interpolator(aabb, 0);
+
+		for (double y=10;y<90;y+=20)
+		{
+			for (double x=10;x<90;x+=20)
+			{
+				interpolator.insertSite(TPoint2D(x, y), x*y);
+			}
+		}
+
+		std::ofstream meshIO("meshinterp.txt");
+		for (double y=10;y<90;y+=2)
+		{
+			for (double x=10;x<90;x+=2)
+			{
+				double value = interpolator.interpolate(TPoint2D(x, y));
+				meshIO << value << "\t";
+			}
+			meshIO << std::endl;
+		}
+		meshIO.close();
+
+		std::vector<std::pair<TPoint2D, double> > result;
+		TLinearMeshInterpolator::TPolyLine2D polyLine;
+		polyLine.push_back(TPoint2D(10,10));
+		polyLine.push_back(TPoint2D(20,10));
+		polyLine.push_back(TPoint2D(30,10));
+		polyLine.push_back(TPoint2D(40,10));
+		interpolator.interpolate(polyLine,std::back_inserter(result));
+		const int n = static_cast<int>(result.size());
+		LASS_ASSERT(n >= 0);
+		for (int i=0;i<n;++i)
+		{
+			std::cout << "Interpolation " << i << " : " << result[i].first << " -> " << result[i].second << "\n";
+		}
 	}
 
-	LASS_TEST_CHECK_EQUAL(array[0], 1);
-	LASS_TEST_CHECK_EQUAL(array[1], 2);
-	LASS_TEST_CHECK_EQUAL(array[2], 4);
-	LASS_TEST_CHECK_EQUAL(array[3], 8);
-	LASS_TEST_CHECK_EQUAL(array[4], 16);
 
-	for (unsigned i = 0; i < array.size(); ++i)
+	TUnitTest test_spat_mesh_interpolator()
 	{
-		LASS_TEST_CHECK_EQUAL(array[i], array.at(i));
+		return TUnitTest(1, LASS_TEST_CASE(testSpatMeshInterpolator));
 	}
 
-	LASS_TEST_CHECK_EQUAL(array[0], array.front());
-	LASS_TEST_CHECK_EQUAL(*array.begin(), array.front());
-	LASS_TEST_CHECK_EQUAL(*array.rbegin(), array.back());
-
-	LASS_TEST_CHECK_THROW(array.at(static_cast<typename TFixedArray::size_type>(-1)) = 37, std::exception);
-	LASS_TEST_CHECK_THROW(array.at(5) = 37, std::exception);
-
-	FixedArray<T, 0> nullArray;
-
-	LASS_TEST_CHECK_EQUAL(nullArray.size(), size_t(0));
-	LASS_TEST_CHECK_EQUAL(nullArray.max_size(), size_t(0));
-	LASS_TEST_CHECK_EQUAL(nullArray.empty(), true);
-	LASS_TEST_CHECK(nullArray.begin() == nullArray.end());
-	LASS_TEST_CHECK(nullArray.rbegin() == nullArray.rend());
-
-	LASS_TEST_CHECK_THROW(nullArray.at(0) = 37, std::exception);
 }
-
 }
-
-}
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
-
-#endif
-
-// EOF

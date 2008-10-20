@@ -40,52 +40,72 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_COMPOSE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_COMPOSE_INL
-
 #include "test_common.h"
-#include "../stde/compose.h"
-#include "../stde/select.h"
-#include "../stde/integral_range.h"
-#include "../stde/range_algorithm.h"
+
+#include "../util/clone_factory.h"
 
 namespace lass
 {
 namespace test
 {
-
-void testStdeCompose()
+namespace clone_factory
 {
-	TestStream stream;
-
-	std::vector<int> a;
-	stde::transform_r(stde::integral_range(5), std::back_inserter(a),
-		stde::compose_f_gx(
-			std::negate<int>(),
-			std::bind2nd(std::multiplies<int>(), 2)));	
-	LASS_TEST_CHECK_LEXICAL(a, "[0, -2, -4, -6, -8]");
-
-	typedef std::pair<int, int> pair_type;
-	std::vector<pair_type> c;
-	std::vector<int> d;
-	for (int i = 0; i < 5; ++i)
+	class Base
 	{
-		c.push_back(std::make_pair(10 * i, i));
-	}
-	stde::transform_r(c, std::back_inserter(d),
-		stde::compose_f_gx_hx(
-			std::plus<int>(),
-			stde::select_1st<pair_type>(),
-			stde::select_2nd<pair_type>()));
-	LASS_TEST_CHECK_LEXICAL(d, "[0, 11, 22, 33, 44]");
+	public:
+		Base(const std::string& iName): name_(iName) {}
+		virtual ~Base() {}
+		virtual std::string who() const { return std::string("Base ") + name_; }
+		virtual Base* clone() const { return new Base(*this); }
+	protected:
+		std::string name_;
+	};
+
+	class Foo: public Base
+	{
+	public:
+		Foo(const std::string& iName): Base(iName) {}
+		virtual std::string who() const { return std::string("Foo ") + name_; }
+		virtual Base* clone() const { return new Foo(*this); }
+	};
+
+	class Bar: public Base
+	{
+	public:
+		Bar(const std::string& iName): Base(iName) {}
+		virtual std::string who() const { return std::string("Bar ") + name_; }
+		virtual Base* clone() const { return new Bar(*this); }
+	};
+
+	Base* clone(const Base& iPrototype) { return iPrototype.clone(); }
+}
+
+void testUtilCloneFactory()
+{
+	typedef util::CloneFactory<clone_factory::Base, std::string> TFactory;
+	typedef std::auto_ptr<clone_factory::Base> TBasePtr;
+
+	TFactory factory(clone_factory::clone);
+	factory.subscribe("Joe", TBasePtr(new clone_factory::Base("Joe")));
+	factory.subscribe("Moe", TBasePtr(new clone_factory::Foo("Moe")));
+	factory.subscribe("Doe", TBasePtr(new clone_factory::Bar("Doe")));
+
+	TBasePtr a(factory.make("Joe"));
+	LASS_TEST_CHECK_EQUAL(a->who(), "Base Joe");
+	TBasePtr b(factory.make("Moe"));
+	LASS_TEST_CHECK_EQUAL(b->who(), "Foo Moe");
+	TBasePtr c(factory.make("Doe"));
+	LASS_TEST_CHECK_EQUAL(c->who(), "Bar Doe");
+}
+
+
+TUnitTest test_util_clone_factory()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilCloneFactory));
 }
 
 }
 
 }
-
-#endif
 
 // EOF

@@ -40,24 +40,79 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_H
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_H
-
 #include "test_common.h"
+
+#include "../util/thread_pool.h"
+#include "../util/bind.h"
+#include "../util/atomic.h"
 
 namespace lass
 {
 namespace test
 {
+namespace thread_pool
+{
+	const size_t numberOfTasks = 40;
+	bool taskIsDone[numberOfTasks];
+	size_t counter = 0;
+	util::CriticalSection lock;
 
-TUnitTests testStde();
+	void task(size_t i)
+	{
+		util::Thread::sleep(50); 
+		LASS_LOCK(lock)
+		{
+			LASS_TEST_CHECK(!taskIsDone[i]);
+		}
+		taskIsDone[i] = true;
+		util::atomicIncrement(counter);
+	}
 
+	template <typename IdlePolicy, template <typename, typename, typename> class ParticipatingPolicy>
+	void test(size_t numberOfThreads, size_t maxNumberOfTasksInQueue)
+	{	
+		using namespace util;
+		typedef DefaultConsumer<util::Callback0> TConsumer;
+		typedef ThreadPool<Callback0, TConsumer, IdlePolicy, ParticipatingPolicy> 
+			TThreadPool;
+		LASS_COUT << typeid(TThreadPool).name() << std::endl;
+
+		std::fill(taskIsDone, taskIsDone + numberOfTasks, false);
+		counter = 0;
+
+		TThreadPool pool(numberOfThreads, maxNumberOfTasksInQueue, TConsumer(), "pool");
+		for (size_t i = 0; i < numberOfTasks; ++i)
+		{
+			pool.addTask(util::bind(task, i));
+		}
+		pool.completeAllTasks();
+		
+		LASS_TEST_CHECK_EQUAL(counter, numberOfTasks);
+		for (size_t i = 0; i < numberOfTasks; ++i)
+		{
+			LASS_TEST_CHECK_EQUAL(taskIsDone[i], true);
+		}
+	}
+}
+
+
+void testUtilThreadPool()
+{
+	using namespace util;
+	thread_pool::test<Signaled, NotParticipating>(4, 20);
+	thread_pool::test<Signaled, SelfParticipating>(4, 0);
+	thread_pool::test<Spinning, NotParticipating>(
+		std::max<size_t>(util::numberOfProcessors - 1, 1), 20);
+	thread_pool::test<Spinning, SelfParticipating>(0, 0);
+}
+
+TUnitTest test_util_thread_pool()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilThreadPool));
 }
 
 }
 
-#endif
+}
 
 // EOF

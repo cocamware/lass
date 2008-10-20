@@ -40,13 +40,13 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_VISITOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_VISITOR_INL
-
 #include "test_common.h"
-#include "../util/visitor.h"
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4244)
+#endif
+
+#include "../stde/triple.h"
 
 
 
@@ -54,100 +54,39 @@ namespace lass
 {
 namespace test
 {
-namespace util_visitor
+
+void testStdeTriple()
 {
-	class DocElement: public util::VisitableBase<util::IgnoreUnknownVisit>
-	{
-		LASS_UTIL_VISITOR_DO_ACCEPT
-	};
+	typedef stde::triple<char, float, std::string> triple1_type;
+	typedef stde::triple<int, double, std::string> triple2_type;
 
-	class Paragraph: public DocElement
-	{
-		LASS_UTIL_VISITOR_DO_ACCEPT
-	};
+	triple1_type triple1 = stde::make_triple(true, 1, std::string("hello world!"));
+	triple2_type triple2(triple1);
+	LASS_TEST_CHECK_EQUAL(triple1, triple2);
 
-	class Invisible: public DocElement
-	{
-		LASS_UTIL_VISITOR_DO_ACCEPT
-	};
+	triple2.first = 666;
+	LASS_TEST_CHECK(triple1 != triple2);
 
-	class List: public DocElement
-	{
-	public:
-		typedef util::SharedPtr<DocElement> TDocElementPtr;
-		typedef std::list<TDocElementPtr> TDocElements;
+	triple2 = triple1;
+	LASS_TEST_CHECK_EQUAL(triple1, triple2);
 
-		void add(std::auto_ptr<DocElement> iChild) { children_.push_back(iChild); }
+	triple2.second = 6.66;
+	LASS_TEST_CHECK(triple1 != triple2);
 
-	private:
-
-		void doAccept(util::VisitorBase& ioVisitor)
-		{
-			preAccept(ioVisitor, *this);
-			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
-			{
-				(*i)->accept(ioVisitor);
-			}
-			postAccept(ioVisitor, *this);
-		}
-
-	private:
-		TDocElements children_;
-	};
-
-	struct TestVisitor:
-		public util::VisitorBase, // required
-		public util::Visitor<DocElement>,
-		public util::Visitor<Paragraph>,
-		public util::Visitor<List>
-	{
-	public:
-
-		TestVisitor(): docElements_(0), paragraphs_(0), lists_(0) {}
-
-		int docElements_;
-		int paragraphs_;
-		int lists_;
-
-	private:
-		void doPreVisit(DocElement&) { ++docElements_; }
-		void doPreVisit(Paragraph&) { ++paragraphs_; }
-		void doPreVisit(List&) { ++lists_; }
-		void doPostVisit(List&) { LASS_COUT << "visit on exit\n"; }
-	};
+	triple2 = triple1;
+	triple2.third = "foo";
+	LASS_TEST_CHECK(triple1 != triple2);
 }
 
-void testUtilVisitor()
+
+TUnitTest test_stde_triple()
 {
-	using namespace util_visitor;
-
-	typedef std::auto_ptr<DocElement> TElement;
-
-	List root;
-	root.add(TElement(new DocElement));
-	root.add(TElement(new Paragraph));
-	root.add(TElement(new Invisible));
-	root.add(TElement(new Paragraph));
-
-	std::auto_ptr<List> sub(new List);
-	sub->add(TElement(new Paragraph));
-	sub->add(TElement(new Invisible));
-	root.add(TElement(sub.release()));
-
-	TestVisitor visitor;
-	root.accept(visitor);
-
-	LASS_TEST_CHECK_EQUAL(visitor.docElements_, 1);
-	LASS_TEST_CHECK_EQUAL(visitor.paragraphs_, 3);
-	LASS_TEST_CHECK_EQUAL(visitor.lists_, 2);
+	return TUnitTest(1, LASS_TEST_CASE(testStdeTriple));
 }
-
 
 
 }
 
 }
-
-#endif
 
 // EOF

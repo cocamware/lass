@@ -281,15 +281,15 @@ void testNumSolve()
 	LASS_TEST_CHECK(num::norm((a * x - b).norm()) < 1e-12f);
 }
 
-TUnitTests test_num_matrix_vector()
+TUnitTest test_num_matrix_vector()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testNumMatrix<double>));
-	result.push_back(LASS_UNIT_TEST(testNumMatrix< std::complex<double> >));
-	result.push_back(LASS_UNIT_TEST(testNumVector<double>));
-	result.push_back(LASS_UNIT_TEST(testNumVector< std::complex<double> >));
-	result.push_back(LASS_UNIT_TEST(testNumSolve<double>));
-	result.push_back(LASS_UNIT_TEST(testNumSolve< std::complex<double> >));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumMatrix<double>));
+	result.push_back(LASS_TEST_CASE(testNumMatrix< std::complex<double> >));
+	result.push_back(LASS_TEST_CASE(testNumVector<double>));
+	result.push_back(LASS_TEST_CASE(testNumVector< std::complex<double> >));
+	result.push_back(LASS_TEST_CASE(testNumSolve<double>));
+	result.push_back(LASS_TEST_CASE(testNumSolve< std::complex<double> >));
 	return result;
 }
 

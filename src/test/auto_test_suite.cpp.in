@@ -48,20 +48,20 @@ namespace lass
 namespace test
 {
 
-$(TUnitTests $x();
+$(TUnitTest $x();
 )$
 
 }
 }
 
-::lass::test::TSuiteMap autoSuiteMap()
+::lass::test::TTestSuite autoTestSuite()
 {
-	::lass::test::TSuiteMap result;
+	::lass::test::TTestSuite suite;
 	
-$(	result["$x"] = ::lass::test::$x();
+$(	suite["$x"] = ::lass::test::$x();
 )$
 
-	return result;
+	return suite;
 }
 
 // EOF

@@ -217,12 +217,12 @@ void testMetaTypeTraits()
 }
 
 
-TUnitTests test_meta_type_traits()
+TUnitTest test_meta_type_traits()
 {
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testMetaTypeTraits<int>));
-	suite.push_back(LASS_UNIT_TEST(testMetaTypeTraits<float>));
-	return suite;
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testMetaTypeTraits<int>));
+	result.push_back(LASS_TEST_CASE(testMetaTypeTraits<float>));
+	return result;
 }
 
 }

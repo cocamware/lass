@@ -47,8 +47,8 @@
 #include "../num/floating_point_comparison.h"
 #include "../util/callback_0.h"
 
-#define LASS_UNIT_TEST(o_functor) \
-	::lass::test::impl::UnitTest(::lass::util::makeCallback(o_functor), LASS_STRINGIFY(o_functor), LASS_FILE, LASS_LINE)
+#define LASS_TEST_CASE(o_functor) \
+	::lass::test::TestCase(::lass::util::makeCallback(o_functor), LASS_STRINGIFY(o_functor), LASS_FILE, LASS_LINE)
 
 #define LASS_TEST_ERROR(s_message)\
 	LASS_TEST_IMPL_ERROR(s_message, LASS_FILE, LASS_LINE)
@@ -113,12 +113,23 @@ namespace lass
 namespace test
 {
 
-namespace impl { class UnitTest; }
-typedef std::vector<impl::UnitTest> TUnitTests;
-typedef std::map<std::string, TUnitTests> TSuiteMap;
+class TestCase
+{
+public:
+	TestCase(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine);
+	void operator()() const;
+private:
+	util::Callback0 test_;
+	std::string name_;
+	std::string file_;
+	unsigned line_;
+};
 
-const bool runTests(const TUnitTests& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
-const int runNakedTest(const util::Callback0& test, int argc, char* argv[], const std::string& name, const std::string& file, unsigned line);
+typedef std::vector<TestCase> TTestCases;
+typedef TTestCases TUnitTest;
+typedef std::map<std::string, TUnitTest> TTestSuite;
+
+const bool runTests(const TTestCases& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
 
 const std::string workPath();
 
@@ -193,18 +204,6 @@ namespace test
 {
 namespace impl
 {
-
-class UnitTest
-{
-public:
-	UnitTest(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine);
-	void operator()() const;
-private:
-	util::Callback0 test_;
-	std::string name_;
-	std::string file_;
-	unsigned line_;
-};
 
 class ErrorStream
 {

@@ -105,9 +105,9 @@ void testIoArgParser()
 	proxyMan()->cout()->remove(&testStream.stream());
 }
 
-TUnitTests test_io_arg_parser()
+TUnitTest test_io_arg_parser()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testIoArgParser));
+	return TUnitTest(1, LASS_TEST_CASE(testIoArgParser));
 }
 
 }

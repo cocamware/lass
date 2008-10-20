@@ -40,57 +40,45 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_SMALL_OBJECT_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_SMALL_OBJECT_INL
-
 #include "test_common.h"
-#include "../util/small_object.h"
+#include "bar.h"
 
-
+#include "../util/scoped_ptr.h"
+#include "../util/shared_ptr.h"
+#include "../io/file_attribute.h"
+#include "../stde/extended_string.h"
 
 namespace lass
 {
 namespace test
 {
-namespace small_object
+
+void testUtilPython()
 {
-	class Small: public util::SmallObject<>
-	{
-	public:
-		Small() { std::cout << "Small::Small()\n"; }
-		~Small() { std::cout << "Small::~Small()\n"; }
-		int filling;
-	};
+	std::string testFile = io::fileJoinPath(test::workPath(), "test_bar.py");
+	
+	std::string commandStr = "execfile('" + testFile + "')";
+	//commandStr = "from code import interact\ninteract()";
+		
+	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
+	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
+
+	
+	
+	typedef std::vector<double> TV;
+	TV vec;
+	python::impl::PySequence pyseqtest(vec);
+	LASS_TEST_CHECK_EQUAL( PySequence_Check(&pyseqtest) , 1);
+
 }
 
-void testUtilSmallObject()
+TUnitTest test_util_python()
 {
-	using namespace small_object;
-
-	LASS_COUT << "sizeof Small: " << sizeof(Small) << std::endl;
-
-	LASS_COUT << "a\n";
-	Small* a = new Small;
-	delete a;
-
-	LASS_COUT << "b\n";
-	Small* b = new (std::nothrow) Small;
-	delete b;
-
-	LASS_COUT << "c\n";
-	char buffer[sizeof(Small)];
-	Small* c = new (buffer) Small;
-	c->~Small();
-}
-
-
-
+	return TUnitTest(1, LASS_TEST_CASE(testUtilPython));
 }
 
 }
 
-#endif
+}
 
 // EOF

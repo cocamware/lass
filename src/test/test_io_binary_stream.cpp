@@ -77,9 +77,9 @@ void testIoBinaryStream()
 }
 
 
-TUnitTests test_io_binary_stream()
+TUnitTest test_io_binary_stream()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testIoBinaryStream));
+	return TUnitTest(1, LASS_TEST_CASE(testIoBinaryStream));
 }
 
 }

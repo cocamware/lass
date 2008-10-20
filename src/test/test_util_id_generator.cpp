@@ -40,83 +40,54 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_BIND_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_BIND_INL
-
 #include "test_common.h"
 
-#include "../util/bind.h"
+#include "../util/id_generator.h"
 
 namespace lass
 {
 namespace test
 {
-namespace bind_test
-{
-	bool functionIsCalled = false;
 
-	void fun(const std::string& a)
-	{
-		LASS_COUT << "fun(a): " << a << std::endl;
-		functionIsCalled = true;
-	}
-
-	int moreFun(int a, int b)
-	{
-		functionIsCalled = true;
-		return a * b;
-	}
-
-	class Spam
-	{
-	public:
-		Spam() {}
-		void ham(const std::string& something)
-		{
-			std::cout << "Spam with ham and " << something << std::endl;
-			functionIsCalled = true;
-		}
-
-		std::string eggs(int num) const
-		{
-			functionIsCalled = true;
-			return util::stringCast<std::string>(num) + " eggs and spam";
-		}
-	};
-}
-
-void testUtilBind()
+template <typename T>
+void testUtilIdGenerator()
 {
 	using namespace util;
 
-	Callback0 fun = bind(bind_test::fun, "hello world!");
-	bind_test::functionIsCalled = false;
-	fun();
-	LASS_TEST_CHECK(bind_test::functionIsCalled);
+	IdGenerator<T> generator;
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(0));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(1));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(2));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(3));
 
-	CallbackR0<int> moreFun = bind(bind_test::moreFun, 2, 3);
-	bind_test::functionIsCalled = false;
-	LASS_TEST_CHECK_EQUAL(moreFun(), 6);
-	LASS_TEST_CHECK(bind_test::functionIsCalled);
+	generator.setNext(7);
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(7));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(8));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(9));
+	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(10));
 
-	using bind_test::Spam;
-	
-	Spam spam1;	
-	Callback0 spamAndHam = bind(&Spam::ham, &spam1, "spam");
-	bind_test::functionIsCalled = false;
-	spamAndHam();
-	LASS_TEST_CHECK(bind_test::functionIsCalled);
+	generator.setNext(num::NumTraits<T>::max - 1);
+	LASS_TEST_CHECK_EQUAL(generator(), num::NumTraits<T>::max - 1);
+	LASS_TEST_CHECK_THROW(generator(), std::exception);
 
-	SharedPtr<Spam> spam2(new Spam);
-	Callback0 spamAndEggs = bind(&Spam::eggs, spam2, 3); // ignore return value
-	bind_test::functionIsCalled = false;
-	spamAndEggs();	
-	LASS_TEST_CHECK(bind_test::functionIsCalled);
+	IdGenerator<T> generator2(10);
+	LASS_TEST_CHECK_EQUAL(generator2(), static_cast<T>(10));
+	LASS_TEST_CHECK_EQUAL(generator2(), static_cast<T>(11));
+	LASS_TEST_CHECK_EQUAL(generator2(), static_cast<T>(12));
+	LASS_TEST_CHECK_EQUAL(generator2(), static_cast<T>(13));
+}
+
+TUnitTest test_util_id_generator()
+{
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<int>));
+	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<char>));
+	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<unsigned long>));
+	return result;
 }
 
 }
-}
 
-#endif
+}
 
 // EOF

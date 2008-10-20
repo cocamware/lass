@@ -40,33 +40,71 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
 #include "test_common.h"
-#include "test_stde.h"
 
-#include "test_stde_extended_io.inl"
-#include "test_stde_extended_string.inl"
-#include "test_stde_slist.inl"
-#include "test_stde_static_vector.inl"
-#include "test_stde_triple.inl"
+#include "../util/thread_fun.h"
+#include "../util/scoped_ptr.h"
+#include "../util/rw_lock.h"
 
 namespace lass
 {
 namespace test
 {
+namespace rwlock_test
+{	
+	class Bar
+	{
+	public:
+		Bar() : lock_(10) {}
+		void doReads() 
+		{
+			for (int i=0;i<1000;++i)
+			{
+				util::Thread::sleep(1);
+				lock_.lockr();
+				std::cout << "R";
+				lock_.unlockr();
+			}
+		}
+		void doWrites() const 
+		{ 
+			for (int j=0;j<4;++j)
+			{
+				util::Thread::sleep(150);
+				for (int i=0;i<16;++i)
+				{
+					lock_.lockw();
+					util::Thread::sleep(5);
+					std::cout << "(W)";
+					lock_.unlockw();
+				}
+			}
+		}
+	private:
+		mutable util::RWLock lock_;
+	};
 
-TUnitTests test_stde()
+}
+
+void testUtilRWLock()
 {
-	TUnitTests result;
+	rwlock_test::Bar bar;
 
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedIo));
-	result.push_back(LASS_UNIT_TEST(testStdeExtendedString));
-	result.push_back(LASS_UNIT_TEST(testStdeSlist));
-	result.push_back(LASS_UNIT_TEST(testStdeStaticVector));
-	result.push_back(LASS_UNIT_TEST(testStdeTriple));
+	LASS_COUT << "thread spam ...\n";
+	util::ScopedPtr<util::Thread> readThread(util::threadMemFun(&bar, &rwlock_test::Bar::doReads, util::threadJoinable));
+	util::ScopedPtr<util::Thread> writeThread(util::threadMemFun(&bar, &rwlock_test::Bar::doWrites, util::threadJoinable));
+	readThread->run();
+	writeThread->run();
+	LASS_COUT << "joining\n";
+	readThread->join();
+	writeThread->join();
+	LASS_COUT << "joined\n";
 
-	return result;
+}
+
+TUnitTest test_util_rw_lock()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilRWLock));
 }
 
 }

@@ -85,7 +85,7 @@ macro(prebuild dirname infile outfile n)
                                 DEPENDS ${inpath}
                                 COMMAND ${PYTHON_EXECUTABLE}
                                 ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${i})
-                        set(lass_PRE_BUILT_HDRS ${lass_PRE_BUILT_HDRS} ${outpath})
+                        list(APPEND lass_PRE_BUILT_HDRS ${outpath})
                 endforeach()
         else()
                 set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
@@ -95,7 +95,7 @@ macro(prebuild dirname infile outfile n)
                         DEPENDS ${inpath}
                         COMMAND ${PYTHON_EXECUTABLE}
                         ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${n})
-                set(lass_PRE_BUILT_HDRS ${lass_PRE_BUILT_HDRS} ${outpath})
+                list(APPEND lass_PRE_BUILT_HDRS ${outpath})
         endif()
 endmacro()
 

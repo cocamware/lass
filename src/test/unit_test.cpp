@@ -50,25 +50,33 @@ namespace lass
 {
 namespace test
 {
-namespace impl
-{
 
-bool parseArguments(int argc, char* argv[])
+TestCase::TestCase(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine): 
+	test_(iTest), 
+	name_(iName),
+	file_(iFile),
+	line_(iLine)
 {
-	io::ArgParser parser(io::fileWithoutPath(argv[0]));
-	io::ArgValue<std::string> savePatterns(
-		parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
-	if (!parser.parse(argc, argv))
+}
+
+
+
+void TestCase::operator()() const
+{
+	LASS_CLOG << "* " << name_ << std::endl;
+	try
 	{
-		return false;
+		test_(); 
+		return;
 	}
-	impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
-	return true;
+	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name_ + "'", file_, line_)
+	--impl::errors();
+	++impl::fatalErrors();
 }
 
-}
 
-const bool runTests(const TUnitTests& iTests, int argc, char* argv[], 
+
+const bool runTests(const TTestCases& iTests, int argc, char* argv[], 
 		unsigned* oNumErrors, unsigned* oNumFatalErrors)
 {
 	impl::errors() = 0;
@@ -76,12 +84,7 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 	if (oNumErrors) *oNumErrors = 0;
 	if (oNumFatalErrors) *oNumFatalErrors = 0;
 
-	if (!impl::parseArguments(argc, argv))
-	{
-		return false;
-	}
-
-	for (TUnitTests::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
+	for (TTestCases::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
 	{
 		(*test)();
 	}
@@ -105,20 +108,6 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 		return true;
 	}
 	return false;
-}
-
-const int runNakedTest(const util::Callback0& test, int argc, char* argv[], const std::string& name, const std::string& file, unsigned line)
-{
-	if (!impl::parseArguments(argc, argv))
-	{
-		return 1;
-	}
-	try
-	{
-		test();
-	}
-	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name + "'", file, line)
-	return std::min<int>(impl::errors() + impl::fatalErrors(), 255);
 }
 
 const std::string workPath()
@@ -247,31 +236,6 @@ std::ostream& TestStream::stream()
 
 namespace impl
 {
-
-UnitTest::UnitTest(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine): 
-	test_(iTest), 
-	name_(iName),
-	file_(iFile),
-	line_(iLine)
-{
-}
-
-
-
-void UnitTest::operator()() const
-{
-	LASS_CLOG << "* " << name_ << std::endl;
-	try
-	{
-		test_(); 
-		return;
-	}
-	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name_ + "'", file_, line_)
-	--errors();
-	++fatalErrors();
-}
-
-
 
 struct TestStatus
 {

@@ -38,60 +38,50 @@
  *	a recipient may use your version of this file under either the CPAL or the GPL.
  *	
  *	*** END LICENSE INFORMATION ***
- *
- *	@note 
- *	This is the first file that has hit fatal error C1128: number of sections exceeded object file format limit.
- *	(debug build on x64).  It is solved by adding /bigobj to the additional compiler settings ...
  */
 
-
-
 #include "test_common.h"
-#include "test_spat.h"
 
-// due to a unfortunate design of num/basic_ops, we have a problem using classes that overload them
-// the two-phase name lookup doesn't work because we always use qualified names when calling basic_ops
-// therefore, we need to make sure all overloads are known before any template that uses them is defined
-// So, include this as early as possible ...
-//
-#include "../num/floating_point_consistency.h"
-
-#include "test_spat_object_trees.inl"
-#include "test_spat_planar_mesh.inl"
-#include "test_spat_mesh_interpolator.inl"
+#include "../util/thread_fun.h"
+#include "../util/scoped_ptr.h"
 
 namespace lass
 {
 namespace test
 {
-
-TUnitTests test_spat()
+namespace thread_remote_exception
 {
-	TUnitTests result;
+	class Meltdown: public util::experimental::ExceptionMixin<Meltdown>
+	{
+	public:
+		Meltdown(const std::string& msg, const std::string& loc): 
+			util::experimental::ExceptionMixin<Meltdown>(msg, loc) 
+		{
+		}
+	};
 
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<float> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<float> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point2D<double> >));
-	result.push_back(LASS_UNIT_TEST(testSpatKdTree<prim::Point3D<double> >));
-
-	typedef void(*TTestCase)();
-	TTestCase objectTreesFloat2 = testSpatObjectTrees<float, 2>;
-	TTestCase objectTreesFloat3 = testSpatObjectTrees<float, 3>;
-	TTestCase objectTreesDouble2 = testSpatObjectTrees<double, 2>;
-	TTestCase objectTreesDouble3 = testSpatObjectTrees<double, 3>;
-	result.push_back(LASS_UNIT_TEST(objectTreesDouble2));
-	result.push_back(LASS_UNIT_TEST(objectTreesDouble3));
-	result.push_back(LASS_UNIT_TEST(objectTreesFloat2));
-	result.push_back(LASS_UNIT_TEST(objectTreesFloat3));
-
-	result.push_back(LASS_UNIT_TEST(doTestPlanarMesh));
-	result.push_back(LASS_UNIT_TEST(doTestMeshInterpolator));
-
-	return result;
+	void test_chamber()
+	{
+		LASS_THROW_EX(Meltdown, "ooops, we've got a wormhole");
+	}
 }
 
+void testUtilThreadRemoteException()
+{
+	using namespace thread_remote_exception;
 
+	util::ScopedPtr<util::Thread> thread(util::threadFun(test_chamber, util::threadJoinable));
+	thread->run();
+	LASS_TEST_CHECK_THROW(thread->join(), Meltdown);
+}
 
+TUnitTest test_util_thread_remote_exception()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilThreadRemoteException));
 }
 
 }
+
+}
+
+// EOF

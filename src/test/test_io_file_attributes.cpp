@@ -118,9 +118,9 @@ void testIoFileAttributes()
 
 }
 
-TUnitTests test_io_file_attributes()
+TUnitTest test_io_file_attributes()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testIoFileAttributes));
+	return TUnitTest(1, LASS_TEST_CASE(testIoFileAttributes));
 }
 
 }

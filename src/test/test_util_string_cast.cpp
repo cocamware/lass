@@ -68,9 +68,9 @@ void testUtilStringCast()
 	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(p), reference.str());
 }
 
-TUnitTests test_util_string_cast()
+TUnitTest test_util_string_cast()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testUtilStringCast));
+	return TUnitTest(1, LASS_TEST_CASE(testUtilStringCast));
 }
 
 }

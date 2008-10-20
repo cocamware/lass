@@ -100,11 +100,11 @@ void testPrimTriangle2D()
 
 
 
-TUnitTests test_prim_triangle()
+TUnitTest test_prim_triangle()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testPrimTriangle2D<float>));\
-	result.push_back(LASS_UNIT_TEST(testPrimTriangle2D<double>));\
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<float>));\
+	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<double>));\
 	return result;
 }
 

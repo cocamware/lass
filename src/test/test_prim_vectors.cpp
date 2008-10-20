@@ -259,15 +259,15 @@ template <typename T> void testPrimVector4D()
 
 
 
-TUnitTests test_prim_vectors()
+TUnitTest test_prim_vectors()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testPrimVector2D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimVector2D<double>));
-	result.push_back(LASS_UNIT_TEST(testPrimVector3D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimVector3D<double>));
-	result.push_back(LASS_UNIT_TEST(testPrimVector4D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimVector4D<double>));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimVector2D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimVector2D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimVector3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimVector3D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimVector4D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimVector4D<double>));
 	return result;
 }
 

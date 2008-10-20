@@ -110,13 +110,13 @@ void testPrimLine3D()
 }
 
 
-TUnitTests test_prim_line_3d()
+TUnitTest test_prim_line_3d()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST((testPrimLine3D<float, prim::Unnormalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimLine3D<float,prim::Normalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimLine3D<double, prim::Unnormalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimLine3D<double,prim::Normalized>)));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testPrimLine3D<float, prim::Unnormalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimLine3D<float,prim::Normalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimLine3D<double, prim::Unnormalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimLine3D<double,prim::Normalized>)));
 	return result;
 }
 

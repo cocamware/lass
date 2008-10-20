@@ -125,9 +125,9 @@ void testNumTriBool()
 	LASS_TEST_CHECK(test.isEqual("1, 0, ?"));
 }
 
-TUnitTests test_num_tri_bool()
+TUnitTest test_num_tri_bool()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testNumTriBool));
+	return TUnitTest(1, LASS_TEST_CASE(testNumTriBool));
 }
 
 

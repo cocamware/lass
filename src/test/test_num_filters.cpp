@@ -80,9 +80,9 @@ void testNumFilters()
 	}
 }
 
-TUnitTests test_num_filters()
+TUnitTest test_num_filters()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testNumFilters<double>));
+	return TUnitTest(1, LASS_TEST_CASE(testNumFilters<double>));
 }
 
 

@@ -120,9 +120,9 @@ void testPrimXml()
 	xml << Vector4D<float>(1.f, 2.f, 3.f, 4.f);
 }
 
-TUnitTests test_prim_xml()
+TUnitTest test_prim_xml()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testPrimXml));
+	return TUnitTest(1, LASS_TEST_CASE(testPrimXml));
 }
 
 }

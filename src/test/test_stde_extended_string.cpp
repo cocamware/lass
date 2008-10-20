@@ -40,22 +40,58 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASST_GUARDIAN_OF_INCLUSION_TES_TEST_SPAT_H
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_SPAT_H
-
 #include "test_common.h"
+#include "../stde/extended_string.h"
 
 namespace lass
 {
 namespace test
 {
 
-TUnitTests testSpat();
+void testStdeExtendedString()
+{
+	const std::string testString = "This IS a MiXed CaSE stRINg";
 
+	const std::string lower = stde::tolower(testString);
+	LASS_TEST_CHECK_EQUAL(stde::tolower(testString), "this is a mixed case string");
+	LASS_TEST_CHECK_EQUAL(stde::toupper(testString), "THIS IS A MIXED CASE STRING");
+	LASS_TEST_CHECK_EQUAL(stde::replace_all(testString, std::string("S"), std::string("s")),
+		"This Is a MiXed CasE stRINg");
+
+	const std::string test = "abcdefabcdef";
+	LASS_TEST_CHECK(stde::begins_with(test, std::string("abc")));
+	LASS_TEST_CHECK(stde::begins_with(test, std::string("")));
+	LASS_TEST_CHECK(!stde::begins_with(test, std::string("abx")));
+	LASS_TEST_CHECK(!stde::begins_with(test, std::string("def")));
+
+	LASS_TEST_CHECK(stde::ends_with(test, std::string("def")));
+	LASS_TEST_CHECK(stde::ends_with(test, std::string("")));
+	LASS_TEST_CHECK(!stde::ends_with(test, std::string("xef")));
+	LASS_TEST_CHECK(!stde::ends_with(test, std::string("abc")));
+
+	typedef std::vector<std::string> string_vector;
+	string_vector a = stde::split(std::string(""));
+	string_vector b = string_vector();
+	LASS_TEST_CHECK_EQUAL(a, b);
+	string_vector splitted;
+	splitted.push_back("foo");
+	splitted.push_back("bar");
+	splitted.push_back("fun");
+	splitted.push_back("baz");
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz")), splitted);
+	splitted.push_back("");
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("foo bar\t fun \n baz ")), splitted);
+	splitted.insert(splitted.begin(), "");
+	LASS_TEST_CHECK_EQUAL(stde::split(std::string("\tfoo bar\t fun \n baz ")), splitted);
+}
+
+TUnitTest test_stde_extended_string()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testStdeExtendedString));
 }
 
 }
 
-#endif
+}
+
+// EOF

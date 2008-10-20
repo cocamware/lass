@@ -191,25 +191,25 @@ void testPrimRay3D()
 
 
 
-TUnitTests test_prim_ray()
+TUnitTest test_prim_ray()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<float, prim::Unnormalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<float, prim::Unnormalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<float, prim::Normalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<float, prim::Normalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<double, prim::Unnormalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<double, prim::Unnormalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<double, prim::Normalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay2D<double, prim::Normalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<float, prim::Unnormalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<float, prim::Unnormalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<float, prim::Normalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<float, prim::Normalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<double, prim::Unnormalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<double, prim::Unnormalized, prim::Bounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<double, prim::Normalized, prim::Unbounded>)));
-	result.push_back(LASS_UNIT_TEST((testPrimRay3D<double, prim::Normalized, prim::Bounded>)));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<float, prim::Unnormalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<float, prim::Unnormalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<float, prim::Normalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<float, prim::Normalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<double, prim::Unnormalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<double, prim::Unnormalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<double, prim::Normalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay2D<double, prim::Normalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<float, prim::Unnormalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<float, prim::Unnormalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<float, prim::Normalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<float, prim::Normalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<double, prim::Unnormalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<double, prim::Unnormalized, prim::Bounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<double, prim::Normalized, prim::Unbounded>)));
+	result.push_back(LASS_TEST_CASE((testPrimRay3D<double, prim::Normalized, prim::Bounded>)));
 	return result;
 }
 

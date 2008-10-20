@@ -40,13 +40,9 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_CALLBACK_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_CALLBACK_INL
-
 #include "test_common.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
 #	pragma warning(disable: 4244) // float to int
 #endif
 
@@ -121,11 +117,9 @@ $[    void const_mem$x($(int i_p$x)$) const { dispatcherIsCalled = true; }
 $[    int const_memR$x($(int i_p$x)$) const { dispatcherIsCalled = true; return 1;}
 ]$};
 
-void testUtilCallback()
+void testUtilCallback0()
 {
 	Foo foo;
-
-	// Callback0
 
 	util::Callback0 cb0_void_free(free0);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_free);
@@ -164,9 +158,13 @@ void testUtilCallback()
 	//LASS_TEST_CHECK(cb0_void == cb0_void_const_mem);
 	LASS_TEST_CALLBACK_CALL(cb0_void());
 	LASS_TEST_CALLBACK_CALL(cb0_void_const_mem());
+}
+
 $[
 
-	// Callback$x
+void testUtilCallback$x()
+{
+	Foo foo;
 
 	util::Callback$x<$(int)$> cb$x_int_free(free$x);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_free);
@@ -213,9 +211,13 @@ $[
 	//cb$x_float = cb$x_float_const_mem;
 	//LASS_TEST_CALLBACK_CALL(cb$x_float($($x.f)$));
 	//LASS_TEST_CALLBACK_CALL(cb$x_float_const_mem($($x.f)$));
+}
+
 ]$
 
-	// CallbackR0
+void testUtilCallbackR0()
+{
+	Foo foo;
 
 	util::CallbackR0<int> cbr0_int_void_free(freeR0);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_free);
@@ -261,10 +263,14 @@ $[
 
 	//cbr0_float_void = cbr0_float_void_const_mem;
 	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void());
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_const_mem());
+	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_const_mem();
+}
+
 $[
 
-	// CallbackR$x
+void testUtilCallbackR$x()
+{
+	Foo foo;
 
 	util::CallbackR$x<int, $(int)$> cbr$x_int_int_free(freeR$x);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_free);
@@ -312,17 +318,24 @@ $[
 	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float($($x.f)$));
 	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_const_mem($($x.f)$));
 	*/
+}
+
 ]$
+
+TUnitTests test_util_callback()
+{
+	TUnitTests result;
+	result.push_back(LASS_UNIT_TEST(testUtilCallback0));
+	$(result.push_back(LASS_UNIT_TEST(testUtilCallback$x));
+	)$
+	result.push_back(LASS_UNIT_TEST(testUtilCallbackR0));
+	$(result.push_back(LASS_UNIT_TEST(testUtilCallbackR$x));
+	)$
+	return result;
 }
 
 }
 
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
-
-#endif
 
 // EOF

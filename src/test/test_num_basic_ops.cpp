@@ -79,13 +79,13 @@ void testNumBasicOps()
 	}
 }
 
-TUnitTests test_num_basic_ops()
+TUnitTest test_num_basic_ops()
 {
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<float>));
-	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<double>));
-	suite.push_back(LASS_UNIT_TEST(testNumBasicOps<long double>));
-	return suite;
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumBasicOps<float>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOps<double>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOps<long double>));
+	return result;
 }
 
 

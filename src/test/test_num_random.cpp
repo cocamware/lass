@@ -190,11 +190,11 @@ void testNumDistributions()
 	LASS_TEST_CHECK_CLOSE(variance, 100. * 100., tolerance);
 }
 
-TUnitTests test_num_random()
+TUnitTest test_num_random()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testNumRandomMersenne));
-	result.push_back(LASS_UNIT_TEST(testNumDistributions));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumRandomMersenne));
+	result.push_back(LASS_TEST_CASE(testNumDistributions));
 	return result;
 }
 

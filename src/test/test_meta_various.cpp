@@ -135,13 +135,13 @@ void testMetaIsMember()
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsMember< TNonConstMethodWithLotsOfArguments >::value), true);
 }
 
-TUnitTests test_meta_various()
+TUnitTest test_meta_various()
 {
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testMetaIsConvertible));
-	suite.push_back(LASS_UNIT_TEST(testMetaIsDerivedType));
-	suite.push_back(LASS_UNIT_TEST(testMetaIsMember));
-	return suite;
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testMetaIsConvertible));
+	result.push_back(LASS_TEST_CASE(testMetaIsDerivedType));
+	result.push_back(LASS_TEST_CASE(testMetaIsMember));
+	return result;
 }
 
 }

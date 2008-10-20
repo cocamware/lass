@@ -88,11 +88,11 @@ void testPrimSphere3D()
 
 
 
-TUnitTests test_prim_sphere_3d()
+TUnitTest test_prim_sphere_3d()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST((testPrimSphere3D<float>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSphere3D<double>)));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testPrimSphere3D<float>)));
+	result.push_back(LASS_TEST_CASE((testPrimSphere3D<double>)));
 	return result;
 }
 

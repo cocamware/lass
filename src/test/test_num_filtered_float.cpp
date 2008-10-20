@@ -67,9 +67,9 @@ void testNumFilteredFloat()
 }
 
 
-TUnitTests test_num_filtered_float()
+TUnitTest test_num_filtered_float()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testNumFilteredFloat));
+	return TUnitTest(1, LASS_TEST_CASE(testNumFilteredFloat));
 }
 
 

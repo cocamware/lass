@@ -42,7 +42,6 @@
 
 
 #include "test_common.h"
-#include "test_spat.h"
 #include "../num/floating_point_consistency.h"
 #include "../spat/planar_mesh.h"
 #include "../io/matlab_o_stream.h"
@@ -315,7 +314,7 @@ struct SplitConnectTest
 
 
 
-void doTestPlanarMesh()
+void testSpatPlanarMesh()
 {
 	using namespace prim;
 	// this in preparation for a Voronoi surface test
@@ -673,6 +672,12 @@ void doTestPlanarMesh()
 
 	/**/
 
+}
+
+
+TUnitTest test_spat_planar_mesh()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testSpatPlanarMesh));
 }
 
 }

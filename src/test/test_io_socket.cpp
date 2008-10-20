@@ -128,9 +128,9 @@ void testIoSocket()
 	LASS_TEST_CHECK_EQUAL(messageSentClientToServer, messageReceivedClientToServer);
 }
 
-TUnitTests test_io_socket()
+TUnitTest test_io_socket()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testIoSocket));
+	return TUnitTest(1, LASS_TEST_CASE(testIoSocket));
 }
 
 }

@@ -70,7 +70,7 @@ namespace impl
 *	trying to enter, only one subsequent reader will in worst case be able to enter.
 */
 
-class LASS_DLL RWLock : NonCopyable
+class RWLock : NonCopyable
 {
 
 public:
@@ -162,7 +162,6 @@ const LockResult RWLock::tryLockr()
 const LockResult RWLock::tryLockw()
 {
 	lass::util::atomicIncrement(writersTrying_);
-	int newSpinLock;
 	do
 	{
 		LASS_ASSERT(spinLock_ >= 0);

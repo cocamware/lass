@@ -101,9 +101,9 @@ void testMetaTypeList()
   */
 }
 
-TUnitTests test_meta_type_list()
+TUnitTest test_meta_type_list()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testMetaTypeList));
+	return TUnitTest(1, LASS_TEST_CASE(testMetaTypeList));
 }
 
 }

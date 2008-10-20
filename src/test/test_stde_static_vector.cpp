@@ -40,16 +40,10 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_STATIC_VECTOR_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_STATIC_VECTOR_INL
-
 #include "test_common.h"
 #include "../stde/static_vector.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
 #	pragma warning(disable: 4552) // '!=' : operator has no effect; expected operator with side-effect
 #endif
 
@@ -231,14 +225,13 @@ void testStdeStaticVector()
 	LASS_TEST_CHECK_EQUAL(n_vector.size(), size_t(0));
 }
 
+TUnitTest test_stde_static_vector()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testStdeStaticVector));
 }
 
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
-
-#endif
+}
 
 // EOF

@@ -40,11 +40,6 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_DICTIONARY_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_DICTIONARY_INL
-
 #include "test_common.h"
 
 #include "../util/dictionary.h"
@@ -111,10 +106,14 @@ void testUtilDictionary()
 	LASS_TEST_CHECK_LEXICAL(dictionary.values(), "{1, 2, 3}");
 }
 
+
+TUnitTest test_util_dictionary()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilDictionary));
 }
 
 }
 
-#endif
+}
 
 // EOF

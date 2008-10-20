@@ -178,15 +178,15 @@ void testPrimSimplePolygon2D()
 
 
 
-TUnitTests test_prim_simple_polygon_2d()
+TUnitTest test_prim_simple_polygon_2d()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<float, prim::NoDegenerate>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<float, prim::StrictNoDegenerate>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<float, prim::AllowDegenerate>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<double, prim::NoDegenerate>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<double, prim::StrictNoDegenerate>)));
-	result.push_back(LASS_UNIT_TEST((testPrimSimplePolygon2D<double, prim::AllowDegenerate>)));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<float, prim::NoDegenerate>)));
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<float, prim::StrictNoDegenerate>)));
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<float, prim::AllowDegenerate>)));
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<double, prim::NoDegenerate>)));
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<double, prim::StrictNoDegenerate>)));
+	result.push_back(LASS_TEST_CASE((testPrimSimplePolygon2D<double, prim::AllowDegenerate>)));
 	return result;
 }
 

@@ -40,60 +40,60 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_TRIPLE_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_STDE_TRIPLE_INL
-
 #include "test_common.h"
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4244)
-#endif
-
-#include "../stde/triple.h"
-
-
+#include "../util/thread_fun.h"
+#include "../util/scoped_ptr.h"
 
 namespace lass
 {
 namespace test
 {
-
-void testStdeTriple()
+namespace thread_local_storage
 {
-	typedef stde::triple<char, float, std::string> triple1_type;
-	typedef stde::triple<int, double, std::string> triple2_type;
+	int destructionCalls = 0;
 
-	triple1_type triple1 = stde::make_triple(true, 1, std::string("hello world!"));
-	triple2_type triple2(triple1);
-	LASS_TEST_CHECK_EQUAL(triple1, triple2);
+	class Foo
+	{
+	public:
+		~Foo()
+		{
+			++destructionCalls;
+		}
+	};
 
-	triple2.first = 666;
-	LASS_TEST_CHECK(triple1 != triple2);
-
-	triple2 = triple1;
-	LASS_TEST_CHECK_EQUAL(triple1, triple2);
-
-	triple2.second = 6.66;
-	LASS_TEST_CHECK(triple1 != triple2);
-
-	triple2 = triple1;
-	triple2.third = "foo";
-	LASS_TEST_CHECK(triple1 != triple2);
+	void fun()
+	{
+		static util::ThreadLocalVariable<Foo> foo;
+		foo.get();
+	}
 }
 
+void testUtilThreadLocalStorage()
+{
+	using namespace thread_local_storage;
 
+	util::ScopedPtr<util::Thread> thread(util::threadFun(fun, util::threadJoinable));
+	thread->run();
+	thread->join();
 
+	LASS_TEST_CHECK_EQUAL(destructionCalls, 2); // once for constructor of ThreadLocalVariable, once for the TLS foo ...
+
+	// let's try that again =)
+	thread.reset(util::threadFun(fun, util::threadJoinable));
+	thread->run();
+	thread->join();
+
+	LASS_TEST_CHECK_EQUAL(destructionCalls, 3); // once for the TLS foo ...
+}
+
+TUnitTest test_util_thread_local_storage()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilThreadLocalStorage));
 }
 
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
-
-#endif
+}
 
 // EOF

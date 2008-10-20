@@ -134,13 +134,13 @@ void testNumDb()
 	LASS_TEST_CHECK_NO_THROW(num::dB2W(num::NumTraits<T>::qNaN));
 }
 
-TUnitTests test_num_db()
+TUnitTest test_num_db()
 {
-	TUnitTests suite;
-	suite.push_back(LASS_UNIT_TEST(testNumDb<float>));
-	suite.push_back(LASS_UNIT_TEST(testNumDb<double>));
-	suite.push_back(LASS_UNIT_TEST(testNumDb<long double>));
-	return suite;
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumDb<float>));
+	result.push_back(LASS_TEST_CASE(testNumDb<double>));
+	result.push_back(LASS_TEST_CASE(testNumDb<long double>));
+	return result;
 }
 
 

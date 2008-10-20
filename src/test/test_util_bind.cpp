@@ -40,49 +40,83 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_EXCEPTION_INL
-#define LASS_GUARDIAN_OF_INCLUSION_TEST_TEST_UTIL_EXCEPTION_INL
-
 #include "test_common.h"
 
-#ifdef _DEBUG
-#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_THROW(x, e)
-#else
-#	define LASS_TEST_CHECK_THROW_IN_DEBUG(x, e) LASS_TEST_CHECK_NO_THROW(x)
-#endif
+#include "../util/bind.h"
 
 namespace lass
 {
 namespace test
 {
-
-void testUtilException()
+namespace bind_test
 {
-	LASS_TEST_CHECK_NO_THROW(
-		try
+	bool functionIsCalled = false;
+
+	void fun(const std::string& a)
+	{
+		LASS_COUT << "fun(a): " << a << std::endl;
+		functionIsCalled = true;
+	}
+
+	int moreFun(int a, int b)
+	{
+		functionIsCalled = true;
+		return a * b;
+	}
+
+	class Spam
+	{
+	public:
+		Spam() {}
+		void ham(const std::string& something)
 		{
-			LASS_THROW("this is a lass exception");
+			std::cout << "Spam with ham and " << something << std::endl;
+			functionIsCalled = true;
 		}
-		catch (util::Exception& lassException)
+
+		std::string eggs(int num) const
 		{
-			LASS_TEST_CHECK_EQUAL(lassException.message(), lassException.what());
+			functionIsCalled = true;
+			return util::stringCast<std::string>(num) + " eggs and spam";
 		}
-	);
-
-	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), util::Exception);
-	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), std::exception);
-
+	};
 }
 
+void testUtilBind()
+{
+	using namespace util;
 
+	Callback0 fun = bind(bind_test::fun, "hello world!");
+	bind_test::functionIsCalled = false;
+	fun();
+	LASS_TEST_CHECK(bind_test::functionIsCalled);
 
+	CallbackR0<int> moreFun = bind(bind_test::moreFun, 2, 3);
+	bind_test::functionIsCalled = false;
+	LASS_TEST_CHECK_EQUAL(moreFun(), 6);
+	LASS_TEST_CHECK(bind_test::functionIsCalled);
+
+	using bind_test::Spam;
+	
+	Spam spam1;	
+	Callback0 spamAndHam = bind(&Spam::ham, &spam1, "spam");
+	bind_test::functionIsCalled = false;
+	spamAndHam();
+	LASS_TEST_CHECK(bind_test::functionIsCalled);
+
+	SharedPtr<Spam> spam2(new Spam);
+	Callback0 spamAndEggs = bind(&Spam::eggs, spam2, 3); // ignore return value
+	bind_test::functionIsCalled = false;
+	spamAndEggs();	
+	LASS_TEST_CHECK(bind_test::functionIsCalled);
+}
+
+TUnitTest test_util_bind()
+{
+	return TUnitTest(1, LASS_TEST_CASE(testUtilBind));
 }
 
 }
-
-#endif
+}
 
 // EOF

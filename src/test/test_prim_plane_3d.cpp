@@ -174,13 +174,13 @@ void testPrimPlane3D()
 
 
 
-TUnitTests test_prim_plane_3d()
+TUnitTest test_prim_plane_3d()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<float,prim::Normalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<float,prim::Unnormalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<double,prim::Normalized>)));
-	result.push_back(LASS_UNIT_TEST((testPrimPlane3D<double,prim::Unnormalized>)));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testPrimPlane3D<float,prim::Normalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimPlane3D<float,prim::Unnormalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimPlane3D<double,prim::Normalized>)));
+	result.push_back(LASS_TEST_CASE((testPrimPlane3D<double,prim::Unnormalized>)));
 	return result;
 }
 

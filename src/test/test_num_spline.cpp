@@ -197,9 +197,9 @@ void testNumSpline()
 	num_spline::testSpline(bezierPath, patternBezierPath, begin, end, delta, integral0);
 }
 
-TUnitTests test_num_spline()
+TUnitTest test_num_spline()
 {
-	return TUnitTests(1, LASS_UNIT_TEST(testNumSpline));
+	return TUnitTest(1, LASS_TEST_CASE(testNumSpline));
 }
 
 

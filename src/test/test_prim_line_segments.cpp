@@ -173,13 +173,13 @@ void testPrimLineSegment3D()
 
 
 
-TUnitTests test_prim_line_segments()
+TUnitTest test_prim_line_segments()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testPrimLineSegment2D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimLineSegment2D<double>));
-	result.push_back(LASS_UNIT_TEST(testPrimLineSegment3D<float>));
-	result.push_back(LASS_UNIT_TEST(testPrimLineSegment3D<double>));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testPrimLineSegment2D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimLineSegment2D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimLineSegment3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimLineSegment3D<double>));
 	return result;
 }
 

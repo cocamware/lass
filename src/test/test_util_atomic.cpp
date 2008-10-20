@@ -54,8 +54,6 @@ namespace atomic
 template <typename T>
 void testUtilAtomicType()
 {
-	std::cout << (8*sizeof(T)) << "bits\n";
-
 	T multiplier = 0;
 	for (size_t i = 0; i < sizeof(T); ++i)
 	{
@@ -106,29 +104,29 @@ void testUtilAtomicAdjacentCas()
 
 }
 
-TUnitTests test_util_atomic()
+TUnitTest test_util_atomic()
 {
 	using namespace atomic;
 
-	TUnitTests result;
+	TUnitTest result;
 	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tuint8>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tuint16>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tuint32>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tuint64>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint8>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint16>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint32>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint64>));
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tint8>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tint16>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tint32>));	
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicType<num::Tint64>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint8>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint16>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint32>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint64>));
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tuint8>));
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tuint16>));
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tuint32>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint8>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint16>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint32>));
 
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tint8>));
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tint16>));
-	result.push_back(LASS_UNIT_TEST(testUtilAtomicAdjacentCas<num::Tint32>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint8>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint16>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint32>));
 
 	return result;
 }
