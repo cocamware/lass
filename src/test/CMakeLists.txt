@@ -11,8 +11,6 @@ add_custom_command(
 	DEPENDS ${infile} ${generator}
 	COMMAND ${PYTHON_EXECUTABLE}
 	ARGS ${generator} ${infile} ${outfile} 3)
-list(REMOVE_ITEM test_SRCS ${outfile})
-list(APPEND test_SRCS ${outfile})
 
 foreach(fname ${test_SRCS})
 	if(${fname} MATCHES "/test_.*\\.cpp")
@@ -20,6 +18,7 @@ foreach(fname ${test_SRCS})
 		list(APPEND unit_tests ${test_name})
 	endif()
 endforeach()
+list(REMOVE_DUPLICATES unit_tests)
 list(REMOVE_ITEM unit_tests "test_common")
 
 set(infile ${CMAKE_SOURCE_DIR}/test/auto_test_suite.cpp.in)
@@ -29,17 +28,17 @@ add_custom_command(
 	DEPENDS ${infile} ${generator}
 	COMMAND ${PYTHON_EXECUTABLE}
 	ARGS ${generator} ${infile} ${outfile} ${unit_tests})
-list(REMOVE_ITEM test_SRCS ${outfile})
 list(APPEND test_SRCS ${outfile})
 
 include_directories(${CMAKE_SOURCE_DIR}/test)
 
+list(REMOVE_DUPLICATES test_SRCS)
 add_executable(test_suite ${test_HDRS} ${test_SRCS})
 target_link_libraries(test_suite lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
 
 if(MSVC)
-	option(USE_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
-	if(USE_PRECOMPILED_HEADERS)
+	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
+	if(BUILD_USING_PRECOMPILED_HEADERS)
 		set_target_properties(
 			test_suite
 			PROPERTIES

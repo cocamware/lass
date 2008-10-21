@@ -322,14 +322,14 @@ void testUtilCallbackR$x()
 
 ]$
 
-TUnitTests test_util_callback()
+TUnitTest test_util_callback()
 {
-	TUnitTests result;
-	result.push_back(LASS_UNIT_TEST(testUtilCallback0));
-	$(result.push_back(LASS_UNIT_TEST(testUtilCallback$x));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testUtilCallback0));
+	$(result.push_back(LASS_TEST_CASE(testUtilCallback$x));
 	)$
-	result.push_back(LASS_UNIT_TEST(testUtilCallbackR0));
-	$(result.push_back(LASS_UNIT_TEST(testUtilCallbackR$x));
+	result.push_back(LASS_TEST_CASE(testUtilCallbackR0));
+	$(result.push_back(LASS_TEST_CASE(testUtilCallbackR$x));
 	)$
 	return result;
 }
