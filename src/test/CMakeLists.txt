@@ -1,5 +1,5 @@
-file(GLOB test_HDRS *.h)
-file(GLOB test_SRCS *.cpp)
+file(GLOB test_HDRS test/*.h)
+file(GLOB test_SRCS test/*.cpp)
 
 set(sourcedir ${CMAKE_SOURCE_DIR}/test)
 
