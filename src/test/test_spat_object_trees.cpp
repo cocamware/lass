@@ -271,7 +271,7 @@ void testSpatObjectTrees()
 }
 
 
-TUnitTest test_spat_tree_test_helpers()
+TUnitTest test_spat_object_trees()
 {
 	TUnitTest result;
 	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,2>)));
