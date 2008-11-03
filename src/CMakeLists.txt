@@ -9,22 +9,29 @@ set(LASS_SOVERSION 4)
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
-option(BUILD_SHARED_LIBS "build shared lass library" on)
+# --- USER CONFIGURABLE STUFF ---
+
+option(BUILD_SHARED_LIBS "build shared lass library" on) # The exact name of this option is important!
 if(BUILD_SHARED_LIBS)
 	set(LASS_SHARED_LIBRARY 1)
-else(BUILD_SHARED_LIBS)
+else()
 	set(LASS_SHARED_LIBRARY 0)
-endif(BUILD_SHARED_LIBS)
+endif()
+
+option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
+
+
+# --- CHECK THE ENVIRONMENT ----
 
 include(FindPythonLibs)
 mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_PATH PYTHON_DEBUG_LIBRARY)
-include_directories(BEFORE ${PYTHON_INCLUDE_PATH})
+list(APPEND lass_INCLUDES ${PYTHON_INCLUDE_PATH})
 if(PYTHON_DEBUG_LIBRARY)
 	set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
-else(PYTHON_DEBUG_LIBRARY)
+else()
 	set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
 	set(PYTHON_DEBUG_LIBRARIES ${PYTHON_LIBRARIES})
-endif(PYTHON_DEBUG_LIBRARY)
+endif()
 
 include(FindPythonInterp)
 mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
@@ -70,6 +77,8 @@ if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
 endif()
 
+# --- SOURCE FILE GATHERING ---
+
 file(GLOB lass_SRCS *.cpp)
 file(GLOB lass_HDRS *.h *.inl)
 foreach(subdir ${lass_subdirectories})
@@ -81,33 +90,43 @@ foreach(subdir ${lass_subdirectories})
 	list(APPEND lass_HDRS ${temp_HDRS})
 endforeach()
 
-configure_file(${lass_SOURCE_DIR}/config/local_config.h.in ${lass_BINARY_DIR}/config/local_config.h)
-include_directories(${lass_BINARY_DIR}/config)
-list(APPEND lass_HDRS ${lass_BINARY_DIR}/config/local_config.h)
+# --- LOCAL CONFIGURATION FILE ---
+
+# This header goes in the build directory as it contains build specific information
+
+set(config_dir ${lass_SOURCE_DIR}/config)
+set(config_file ${config_dir}/local_config.h)
+configure_file(${config_dir}/local_config.h.in ${config_file})
+list(APPEND lass_HDRS ${config_file})
+list(APPEND lass_INCLUDES ${config_dir})
+
+# --- PREBUILD STUFF ---
+
+# These go in the source tree, as they are environment agnostic
+# This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
+
+macro(param_expander inpath outpath n)
+	set(generator ${CMAKE_SOURCE_DIR}/../tools/param_expander.py)
+	add_custom_command(
+		OUTPUT ${outpath}
+		DEPENDS ${inpath} ${generator}
+		COMMAND ${PYTHON_EXECUTABLE}
+		ARGS ${generator} ${inpath} ${outpath} ${n})
+endmacro()
 
 macro(prebuild dirname infile outfile n)
-        if(${outfile} MATCHES "\\$x")
-                foreach(i RANGE 1 ${n})
-                        string(REPLACE "$x" ${i} temp ${outfile})
-                        set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
-                        set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${temp})
-                        add_custom_command(
-                                OUTPUT ${outpath}
-                                DEPENDS ${inpath}
-                                COMMAND ${PYTHON_EXECUTABLE}
-                                ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${i})
-                        list(APPEND lass_PRE_BUILT_HDRS ${outpath})
-                endforeach()
-        else()
-                set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
-                set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
-                add_custom_command(
-                        OUTPUT ${outpath}
-                        DEPENDS ${inpath}
-                        COMMAND ${PYTHON_EXECUTABLE}
-                        ARGS ${CMAKE_SOURCE_DIR}/../tools/param_expander.py ${inpath} ${outpath} ${n})
-                list(APPEND lass_PRE_BUILT_HDRS ${outpath})
-        endif()
+	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
+	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
+	if(${outpath} MATCHES "\\$x")
+		foreach(i RANGE 1 ${n})
+			string(REPLACE "$x" ${i} temp ${outpath})
+			param_expander(${inpath} ${temp} ${i})
+			list(APPEND lass_PRE_BUILT_HDRS ${temp})
+		endforeach()
+	else()
+		param_expander(${inpath} ${outpath} ${n})
+		list(APPEND lass_PRE_BUILT_HDRS ${outpath})
+	endif()
 endmacro()
 
 set(N 15)
@@ -129,6 +148,10 @@ prebuild(meta is_member.tmpl.h is_member.h ${N})
 
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
+
+# --- THE LIBRARY ----
+
+include_directories(${lass_INCLUDES})
 
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
@@ -170,6 +193,16 @@ set_target_properties(lass PROPERTIES
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION})
 	
+# --- TESTING ---
+
+include(CTest)
+if(BUILD_TESTING)
+	enable_testing()
+	include(test/CMakeLists.txt)
+endif()
+	
+# --- INSTALLING ---
+	
 install(
 	TARGETS lass
 	RUNTIME DESTINATION bin
@@ -193,17 +226,13 @@ install(
 	)
 	
 install(
-	FILES ${lass_BINARY_DIR}/config/local_config.h
+	FILES ${config_file}
 	DESTINATION include/lass/config)
+	
+# --- PACKAGING ---
 	
 set (CPACK_PACKAGE_VERSION_MAJOR "${LASS_MAJOR_VERSION}")
 set (CPACK_PACKAGE_VERSION_MINOR "${LASS_MINOR_VERSION}")
 set (CPACK_PACKAGE_VERSION_PATCH "${LASS_PATCHLEVEL}")
 set (CPACK_RESOURCE_FILE_LICENSE "${lass_SOURCE_DIR}/../docs/license.txt")
 include(CPack)
-	
-include(CTest)
-if(BUILD_TESTING)
-	enable_testing()
-	include(test/CMakeLists.txt)
-endif()
