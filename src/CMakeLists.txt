@@ -1,5 +1,6 @@
 project(lass)
 cmake_minimum_required(VERSION 2.6)
+#list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
 set(LASS_MAJOR_VERSION 1)
 set(LASS_MINOR_VERSION 1)
@@ -115,10 +116,37 @@ prebuild(util bind.tmpl.h bind.h ${N})
 prebuild(util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
 prebuild(util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
 prebuild(meta is_member.tmpl.h is_member.h ${N})
-#prebuild(test test_util_callback.tmpl.inl test_util_callback.inl 3)
 
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
+
+if(CMAKE_CL_64)
+    # CMake doesn't really support adding assembly files to visual studio projects (yet)
+    # Work around it by adding the obj file as 'source file' and have it generated
+    set(sourcedir ${CMAKE_SOURCE_DIR}/util/impl)
+    set(fname atomic_msvc_x64)
+    set(sourcepath ${sourcedir}/${fname}.asm)
+    set(defpath ${sourcedir}/${fname}.def)
+    set(masm ml64.exe)
+    if(MSVC_IDE)
+        set(objpath ${CMAKE_BINARY_DIR}/lass.dir/${CMAKE_CFG_INTDIR}/${fname}.obj)
+    else()
+        set(objpath ${CMAKE_BINARY_DIR}/CMakeFiles/lass.dir/util/impl/${fname}.obj)
+    endif()
+    add_custom_command(
+        OUTPUT ${objpath}
+        DEPENDS ${sourcepath}
+        COMMAND ${masm}
+        ARGS /c "/Fo${objpath}" "${sourcepath}")
+    list(APPEND lass_SRCS ${objpath} ${defpath})
+    
+    # It should have been as easy as
+    #enable_language(ASM_MASM)
+    #set_source_files_properties(
+    #    ${sourcepath}
+    #    LANGUAGE ASM_MASM)
+    #list(APPEND lass_SRCS ${sourcepath} ${defpath})
+endif()
 
 add_library(lass 
 	${lass_SRCS} 
