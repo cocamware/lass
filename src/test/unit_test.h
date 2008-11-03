@@ -132,6 +132,8 @@ typedef std::map<std::string, TUnitTest> TTestSuite;
 const bool runTests(const TTestCases& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
 
 const std::string workPath();
+std::string& inputDir();
+std::string& outputDir();
 
 class TestStream
 {

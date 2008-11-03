@@ -55,7 +55,7 @@ namespace test
 
 void testUtilPython()
 {
-	std::string testFile = io::fileJoinPath(test::workPath(), "test_bar.py");
+	std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
 	
 	std::string commandStr = "execfile('" + testFile + "')";
 	//commandStr = "from code import interact\ninteract()";

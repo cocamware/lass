@@ -57,14 +57,18 @@ int main(int argc, char* argv[])
 	using namespace lass;
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
-	io::ArgValue<std::string> output(parser, "o", "output", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
+	io::ArgValue<std::string> log(parser, "l", "log", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
+	io::ArgValue<std::string> inputDir(parser, "i", "input-dir", "", io::amRequired, ".");
+	io::ArgValue<std::string> outputDir(parser, "o", "output-dir", "", io::amRequired);
 	io::ArgValue<std::string> savePatterns(parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
 	io::ArgParser::TArguments selectedTests;
 	if (!parser.parse(argc, argv, &selectedTests))
 	{
 		return false;
 	}
-	const std::string logFile = io::fileJoinPath(test::workPath(), output.at(0));
+	::lass::test::inputDir() = inputDir.at(0);
+	::lass::test::outputDir() = outputDir ? outputDir.at(0) : test::workPath();
+	const std::string logFile = io::fileJoinPath(::lass::test::outputDir(), log.at(0));
 	::lass::test::impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
 	io::Logger logger(logFile);
 	logger.subscribeTo(io::proxyMan()->cout());

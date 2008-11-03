@@ -133,11 +133,10 @@ TestStream::TestStream(const std::string& iPatternFile, AllowSaving iAllowSaving
 {
 	if (!impl::isSavingPattern(patternFile_))
 	{
-		const std::string filename = io::fileJoinPath(workPath(), patternFile_);
-		std::ifstream file(filename.c_str());
+		std::ifstream file(patternFile_.c_str());
 		if (!file)
 		{
-			LASS_THROW("Pattern file '" << filename << "' not found.");
+			LASS_THROW("Pattern file '" << patternFile_ << "' not found.");
 		}
 		try
 		{
@@ -245,6 +244,8 @@ struct TestStatus
 	unsigned errorCount;
 	unsigned fatalErrorCount;
 	TSavePatterns savePatterns;
+	std::string inputDir;
+	std::string outputDir;
 
 	TestStatus(): 
 		errorStream("test_" LASS_TEST_VERSION "_errors.log"), 
@@ -285,6 +286,17 @@ const bool isSavingPattern(const std::string& iFilename)
 }
 
 }
+
+std::string& inputDir()
+{
+	return util::Singleton<impl::TestStatus>::instance()->inputDir;
+}
+
+std::string& outputDir()
+{
+	return util::Singleton<impl::TestStatus>::instance()->outputDir;
+}
+
 }
 }
 
