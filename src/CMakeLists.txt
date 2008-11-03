@@ -42,7 +42,17 @@ CHECK_INCLUDE_FILE("sys/stat.h" LASS_HAVE_SYS_STAT_H)
 
 include(CheckLibraryExists)
 CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
+if (LASS_HAVE_LIBRT)
+   list(APPEND lass_LIBS "rt")
+endif()
 CHECK_LIBRARY_EXISTS("dl" "dlopen" "" LASS_HAVE_LIBDL)
+if (LASS_HAVE_LIBDL)
+   list(APPEND lass_LIBS "dl")
+endif()
+CHECK_LIBRARY_EXISTS("util" "openpty" "" LASS_HAVE_LIBUTIL)
+if (LASS_HAVE_LIBUTIL)
+   list(APPEND lass_LIBS "util")
+endif()
 
 include(CheckFunctionExists)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
@@ -151,7 +161,8 @@ endif()
 add_library(lass 
 	${lass_SRCS} 
 	${lass_HDRS})
-target_link_libraries(lass 
+target_link_libraries(lass
+	${lass_LIBS}
 	optimized ${PYTHON_LIBRARIES} 
 	debug ${PYTHON_DEBUG_LIBRARIES})
 set_target_properties(lass PROPERTIES

@@ -88,6 +88,7 @@
 
 #cmakedefine LASS_HAVE_LIBRT 1
 #cmakedefine LASS_HAVE_LIBDL 1
+#cmakedefine LASS_HAVE_LIBUTIL 1
 
 #cmakedefine LASS_HAVE_FUNC_STRERROR_R 1
 #cmakedefine LASS_HAVE_STRERROR_R_CHAR_P 1
