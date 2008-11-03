@@ -54,11 +54,15 @@ void testStdeIteratorRange()
 	typedef stde::iterator_range<TContainer::iterator> TRange;
 
 	TRange range;
+
+#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+	// MSVC's _HAS_ITERATOR_DEBUGGING doesn't like containerless iterators
 	LASS_TEST_CHECK(range.begin() == range.end());
 	LASS_TEST_CHECK_EQUAL(range.size(), 0);
 	LASS_TEST_CHECK(range.empty());
 	LASS_TEST_CHECK(!range);
 	LASS_TEST_CHECK(range ? false : true);
+#endif
 
 	TContainer container;
 	const int n = 10;
@@ -84,6 +88,7 @@ void testStdeIteratorRange()
 	{
 		LASS_TEST_CHECK_EQUAL(*range, i);
 	}
+	LASS_TEST_CHECK(range.empty());
 
 	TContainer other_container;
 	for (int i = 100; i < 200; ++i)
@@ -92,10 +97,13 @@ void testStdeIteratorRange()
 	}
 	TRange other(other_container.begin(), other_container.end());
 
-	LASS_TEST_CHECK(range == TRange());
+#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+	// MSVC's _HAS_ITERATOR_DEBUGGING doesn't like comparing cross-container iterators ... booh!
 	LASS_TEST_CHECK(range != other);
-	
+#endif
+
 	range = other++;
+	LASS_TEST_CHECK(range.end() == other.end());
 	LASS_TEST_CHECK_EQUAL(range.size(), other.size() + 1);
 	
 	range.swap(other);
