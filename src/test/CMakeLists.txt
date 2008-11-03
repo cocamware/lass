@@ -36,7 +36,7 @@ list(REMOVE_DUPLICATES test_SRCS)
 add_executable(test_suite ${test_HDRS} ${test_SRCS})
 target_link_libraries(test_suite lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
 
-if(MSVC)
+if(MSVC_IDE)
 	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
 	if(BUILD_USING_PRECOMPILED_HEADERS)
 		set_target_properties(
