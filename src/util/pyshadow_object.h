@@ -404,7 +404,7 @@ template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByB
 #pragma LASS_TODO("Check if the convertor macro's don't leak any memory")
 
 #define PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject )\
-int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>& oV)\
+inline int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>& oV)\
 {\
 	const bool isNone = (iValue == Py_None );\
 	if (isNone)\
