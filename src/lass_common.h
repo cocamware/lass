@@ -48,41 +48,57 @@
 
 
 
-/** @mainpage lass: Library for Assembled Shared Sources
- *  @author Bram de Greve (bramz@users.sourceforge.net)
- *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
+/** @mainpage lass: Library of Assembled Shared Sources
+ *  @author Bram de Greve (bram@www.cocamware.com)
+ *  @author Tom De Muer (tom@www.cocamware.com)
  *
- *  - lass::frb: fuzzy rule bases and systems for inference
- *  - lass::gis: wrappers around GDAL to comply with prim, etc.
  *  - lass::io: streams, binary streams, vrmlstreams, ...
  *  - lass::meta: a meta programming library for your cunning plans.
  *  - lass::num: numeric primitives and functions
- *  - lass::prim: geometric primitives and basic functionality
+ *  - lass::prim: geometric primitives
+ *  - lass:python: creating links back and forth between C++ and Python
  *  - lass::spat: spatial subdivisions, quadtrees, octrees, meshes in 2D and 3D, triangulators, ...
- *  - lass::stde: std extensions, ...
+ *  - lass::stde: std extensions often Python inspired in their nature
  *  - lass::util: general utility, debug facilities, ...
  *
- *  Distributed under the terms of the GPL (GNU Public License)
+ *  Distributed under the terms of CPAL
  *
  *  The LASS License:
  *
- *  Copyright 2004-2006 Bram de Greve and Tom De Muer
+ *	The contents of this file are subject to the Common Public Attribution License 
+ *	Version 1.0 (the "License"); you may not use this file except in compliance with 
+ *	the License. You may obtain a copy of the License at 
+ *	http://lass.cocamware.com/cpal-license. The License is based on the 
+ *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
+ *	use of software over a computer network and provide for limited attribution for 
+ *	the Original Developer. In addition, Exhibit A has been modified to be consistent 
+ *	with Exhibit B.
+ *	
+ *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
+ *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
+ *	language governing rights and limitations under the License.
+ *	
+ *	The Original Code is LASS - Library of Assembled Shared Sources.
+ *	
+ *	The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
+ *	The Original Developer is the Initial Developer.
+ *	
+ *	All portions of the code written by the Initial Developer are:
+ *	Copyright (C) 2004-2008 the Initial Developer.
+ *	All Rights Reserved.
+ *	
+ *	Contributor(s):
  *
- *  LASS is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *	Alternatively, the contents of this file may be used under the terms of the 
+ *	GNU General Public License Version 2 or later (the GPL), in which case the 
+ *	provisions of GPL are applicable instead of those above.  If you wish to allow use
+ *	of your version of this file only under the terms of the GPL and not to allow 
+ *	others to use your version of this file under the CPAL, indicate your decision by 
+ *	deleting the provisions above and replace them with the notice and other 
+ *	provisions required by the GPL License. If you do not delete the provisions above,
+ *	a recipient may use your version of this file under either the CPAL or the GPL.
+ *	
  */
-
 
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
