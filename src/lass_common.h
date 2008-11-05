@@ -88,15 +88,10 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
 #define LASS_GUARDIAN_OF_INCLUSION_LASS_COMMON_H
 
-// -- Define the current lass version/revision
+#include "config/config.h"
 
-#define LASS_MAJOR_VERSION	1
-#define LASS_MINOR_VERSION	1
-#define LASS_PATCHLEVEL	0
 #define LASS_HEX_VERSION (LASS_MAJOR_VERSION << 16 | LASS_MINOR_VERSION << 8 | LASS_PATCHLEVEL)
 #define LASS_VERSION LASS_STRINGIFY(LASS_MAJOR_VERSION) "." LASS_STRINGIFY(LASS_MINOR_VERSION) "." LASS_STRINGIFY(LASS_PATCHLEVEL)
-
-#include "config/config.h"
 
 #ifdef LASS_UTIL_THREAD_HAVE_POSIX
 #	ifndef _REENTRANT
@@ -143,15 +138,16 @@
 #endif
 
 
+
 /** @def LASS_LIB_PREFIX
  *  @brief prefix of all library names that will be made
  */
-#define LASS_LIB_PREFIX "lass_"
+//#define LASS_LIB_PREFIX "lass_"
 
 /** @def LASS_LIB_SUFFIX
  *  @brief suffix of all library names that will be made, indicates platform, compiler and build.
  */
-#define LASS_LIB_SUFFIX "_" LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_ARCH LASS_LIB_DEBUG ".lib"
+//#define LASS_LIB_SUFFIX "_" LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_ARCH LASS_LIB_DEBUG ".lib"
 
 /** @def LASS_DLL
  *  @brief DLL interface: import or export symbols?  or neither?
@@ -159,27 +155,14 @@
 #ifdef LASS_DLL
 #	undef LASS_DLL
 #endif
-#if defined(LASS_BUILD_DLL)
-#	define LASS_DLL LASS_DLL_EXPORT
-#elif defined(LASS_USE_DLL)
-#	define LASS_DLL LASS_DLL_IMPORT
-#else
-#	define LASS_DLL LASS_DLL_EXPORT
-#endif
-
-/** @def LASS_LIB_AUTO_LINK
- *  @brief if defined, try to automatically link the static libraries
- */
-#if defined(LASS_LIB_AUTO_LINK)
-#	undef LASS_LIB_AUTO_LINK
-#endif
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-#	if !defined(LASS_USE_DLL) && !defined(LASS_BUILD_DLL)
-#		define LASS_LIB_AUTO_LINK
+#if LASS_SHARED_LIBRARY
+#	if defined(LASS_EXPORTS) || defined (lass_EXPORTS)
+#		define LASS_DLL LASS_DLL_EXPORT
+#	else
+#		define LASS_DLL LASS_DLL_IMPORT
 #	endif
-#	if defined(LASS_USE_DLL)
-#		pragma comment(lib, LASS_LIB_PREFIX LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_ARCH LASS_LIB_DEBUG ".lib")
-#	endif
+#else 
+#	define LASS_DLL LASS_DLL_EXPORT
 #endif
 
 

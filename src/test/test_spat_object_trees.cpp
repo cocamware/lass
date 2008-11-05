@@ -1,0 +1,289 @@
+/**	@file
+ *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *
+ *	*** BEGIN LICENSE INFORMATION ***
+ *	
+ *	The contents of this file are subject to the Common Public Attribution License 
+ *	Version 1.0 (the "License"); you may not use this file except in compliance with 
+ *	the License. You may obtain a copy of the License at 
+ *	http://lass.sourceforge.net/cpal-license. The License is based on the 
+ *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
+ *	use of software over a computer network and provide for limited attribution for 
+ *	the Original Developer. In addition, Exhibit A has been modified to be consistent 
+ *	with Exhibit B.
+ *	
+ *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
+ *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
+ *	language governing rights and limitations under the License.
+ *	
+ *	The Original Code is LASS - Library of Assembled Shared Sources.
+ *	
+ *	The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
+ *	The Original Developer is the Initial Developer.
+ *	
+ *	All portions of the code written by the Initial Developer are:
+ *	Copyright (C) 2004-2007 the Initial Developer.
+ *	All Rights Reserved.
+ *	
+ *	Contributor(s):
+ * *	Alternatively, the contents of this file may be used under the terms of the 
+ *	GNU General Public License Version 2 or later (the GPL), in which case the 
+ *	provisions of GPL are applicable instead of those above.  If you wish to allow use
+ *	of your version of this file only under the terms of the GPL and not to allow 
+ *	others to use your version of this file under the CPAL, indicate your decision by 
+ *	deleting the provisions above and replace them with the notice and other 
+ *	provisions required by the GPL License. If you do not delete the provisions above,
+ *	a recipient may use your version of this file under either the CPAL or the GPL.
+ *	
+ *	*** END LICENSE INFORMATION ***
+ */
+
+//#define LASS_TEST_SPAT_tree_test_helpers_DIAGNOSTICS
+//#define LASS_SPAT_KD_TREE_DIAGNOSTICS
+
+#include "test_common.h"
+#include "tree_test_helpers.h"
+
+namespace lass
+{
+namespace test
+{
+
+template <typename T, size_t dim>
+void testSpatObjectTrees()
+{
+	// const T tolerance = 1e-5f;
+
+	const T extent = T(1000);
+	const T maxSize = T(10);
+	const size_t numberOfObjects = 10000;
+	const size_t numberOfPointTestTargets = 1000;
+	const size_t numberOfRayTestTargets = 1000;
+	const T maxRangeRadius = 50;
+	const size_t maxRangeCount = 10;
+	// validation
+	const size_t numberOfContainValidations = 1000;
+	const size_t numberOfIntersectionValidations = 1000;
+	const size_t numberOfNearestNeighbourValidations = 1000;
+	const size_t numberOfRangeSearchValidations = 1000;
+	// speed tests
+	const size_t numberOfContainSpeedTestRuns = 2;
+	const size_t numberOfIntersectionSpeedTestRuns = 2;
+	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
+	const size_t numberOfRangeSearchSpeedTestRuns = 2;
+
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
+	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Ray2D<T>, prim::Ray3D<T> >::Type TRay;
+
+	typedef typename TObject::TPoint TPoint;
+	typedef typename TObject::TVector TVector;
+	typedef typename TObject::TValue TValue;
+	typedef typename TObject::TNumTraits TNumTraits;
+
+	typedef std::vector<TObject> TObjects;
+	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
+	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
+
+	typedef typename meta::type_list::Make<
+		spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> >,
+		spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> >,
+		spat::QuadTree<TObject, TObjectTraits>
+	>::Type TObjectTreeTypes;
+
+	typedef meta::Tuple<TObjectTreeTypes> TObjectTrees;
+
+	// set bounds
+	//
+	TPoint min;
+	TPoint max;
+	for (size_t i = 0; i < dim; ++i)
+	{
+		min[i] = -extent;
+		max[i] = extent;
+	}
+	const TAabb bounds(min, max);
+
+	// random generator
+	//
+	num::RandomMT19937 generator;
+
+	// create test subjects
+	//
+	TObjects objects;
+	tree_test_helpers::generateObjects(
+		bounds, maxSize, generator, numberOfObjects, std::back_inserter(objects));
+	const TObjectIterator objectBegin = &objects[0];
+	const TObjectIterator objectEnd = objectBegin + numberOfObjects;
+
+	// create trees
+	//
+	TObjectTrees trees;
+	tree_test_helpers::TreeConstructor<TObjectIterator> construct(objectBegin, objectEnd);
+	meta::tuple::forEach(trees, construct);
+
+	typedef std::vector<TObjectIterator> TObjectHits;
+
+	// contain test
+	//
+	for (unsigned i = 0; i < numberOfContainValidations; ++i)
+	{
+		TPoint target = bounds.random(generator);
+		TObjectHits bruteHits;
+		bool bruteContains = false;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			if (obj->contains(target))
+			{
+				bruteContains = true;
+				bruteHits.push_back(obj);
+			}
+		}
+		std::sort(bruteHits.begin(), bruteHits.end());
+
+		tree_test_helpers::ContainValidityTest<TPoint, TObjectHits> test(target, bruteHits, bruteContains);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// intersection test
+	//
+	for (unsigned i = 0; i < numberOfIntersectionValidations; ++i)
+	{
+		TPoint support = bounds.random(generator);
+		TVector direction = TVector::random(generator);
+		TRay ray(support, direction);
+
+		T bruteT = TNumTraits::infinity;
+		TObjectIterator bruteHit = objectEnd;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			T t;
+			const prim::Result result = prim::intersect(*obj, ray, t);
+			if (result != prim::rNone && t < bruteT)
+			{
+				bruteHit = obj;
+				bruteT = t;
+			}
+		}
+
+		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// nearest neighbour test
+	//
+	for (unsigned i = 0; i < numberOfNearestNeighbourValidations; ++i)
+	{
+		TPoint point = bounds.random(generator);
+
+		T bruteSqrDist = TNumTraits::infinity;
+		TObjectIterator bruteNearest = objectEnd;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			const T sqrDist = prim::squaredDistance(*obj, point);
+			if (sqrDist < bruteSqrDist)
+			{
+				bruteNearest = obj;
+				bruteSqrDist = sqrDist;
+			}
+		}
+
+		tree_test_helpers::NearestNeighbourValidityTest<TPoint, TObjectIterator> test(point, bruteNearest, bruteSqrDist);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// range search test
+	//
+	typedef tree_test_helpers::Neighbour<TObjectIterator, T> TNeighbour;
+	typedef std::vector<TNeighbour> TNeighbours;
+	TNeighbours bruteHits;
+	for (unsigned i = 0; i < numberOfRangeSearchValidations; ++i)
+	{
+		const TPoint target = bounds.random(generator);
+		bruteHits.clear();
+		T bruteSquareRadius = num::sqr(maxRangeRadius);
+
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			const T sqrDist = prim::squaredDistance(*obj, target);
+			if (sqrDist < bruteSquareRadius)
+			{
+				bruteHits.push_back(TNeighbour(obj, sqrDist));
+				std::push_heap(bruteHits.begin(), bruteHits.end());
+				if (bruteHits.size() > maxRangeCount)
+				{
+					std::pop_heap(bruteHits.begin(), bruteHits.end());
+					bruteHits.pop_back();
+				}
+				LASS_ASSERT(bruteHits.size() <= maxRangeCount);
+			}
+		}
+		std::sort_heap(bruteHits.begin(), bruteHits.end());
+
+		tree_test_helpers::RangeSearchValidityTest<TPoint, TNeighbours> test(target, bruteHits, maxRangeRadius, maxRangeCount);
+		meta::tuple::forEach(trees, test);
+	}
+
+
+
+	// SPEED TESTS
+	//
+	LASS_COUT << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
+	util::Clock clock;
+	util::StopWatch stopWatch(clock);
+
+	typedef std::vector<TPoint> TPointTargets;
+	TPointTargets pointTargets;
+	for (size_t i = 0; i < numberOfPointTestTargets; ++i)
+	{
+		pointTargets.push_back(bounds.random(generator));
+	}
+
+	typedef std::vector<TRay> TRayTargets;
+	TRayTargets rayTargets;
+	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
+	{
+		TPoint support = bounds.random(generator);
+		TVector direction = TVector::random(generator);
+		rayTargets.push_back(TRay(support, direction));
+	}
+
+	LASS_COUT << "contain tests:\n";
+	tree_test_helpers::ContainSpeedTest<TPointTargets> containSpeedTest(
+		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
+	meta::tuple::forEach(trees, containSpeedTest);
+
+	LASS_COUT << "intersection tests:\n";
+	tree_test_helpers::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
+		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
+	meta::tuple::forEach(trees, intersectionSpeedTest);
+
+	LASS_COUT << "nearest neighbour tests:\n";
+	tree_test_helpers::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(
+		pointTargets, stopWatch, numberOfNearestNeighbourSpeedTestRuns);
+	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
+
+	LASS_COUT << "range search tests:\n";
+	tree_test_helpers::RangeSearchSpeedTest<TPointTargets, T> rangeSearchSpeedTest(
+		pointTargets, maxRangeRadius, maxRangeCount, stopWatch, numberOfRangeSearchSpeedTestRuns);
+	meta::tuple::forEach(trees, rangeSearchSpeedTest);
+}
+
+
+TUnitTest test_spat_object_trees()
+{
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,2>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,2>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,3>)));
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,3>)));
+	return result;
+}
+
+
+}
+
+}
+
+// EOF

@@ -1,74 +1,70 @@
-/**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+/**     @file
+ *      @author Bram de Greve (bramz@users.sourceforge.net)
+ *      @author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
- *	*** BEGIN LICENSE INFORMATION ***
- *	
- *	The contents of this file are subject to the Common Public Attribution License 
- *	Version 1.0 (the "License"); you may not use this file except in compliance with 
- *	the License. You may obtain a copy of the License at 
- *	http://lass.sourceforge.net/cpal-license. The License is based on the 
- *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
- *	use of software over a computer network and provide for limited attribution for 
- *	the Original Developer. In addition, Exhibit A has been modified to be consistent 
- *	with Exhibit B.
- *	
- *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
- *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
- *	language governing rights and limitations under the License.
- *	
- *	The Original Code is LASS - Library of Assembled Shared Sources.
- *	
- *	The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
- *	The Original Developer is the Initial Developer.
- *	
- *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
- *	All Rights Reserved.
- *	
- *	Contributor(s):
+ *      *** BEGIN LICENSE INFORMATION ***
+ *      
+ *      The contents of this file are subject to the Common Public Attribution License 
+ *      Version 1.0 (the "License"); you may not use this file except in compliance with 
+ *      the License. You may obtain a copy of the License at 
+ *      http://lass.sourceforge.net/cpal-license. The License is based on the 
+ *      Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
+ *      use of software over a computer network and provide for limited attribution for 
+ *      the Original Developer. In addition, Exhibit A has been modified to be consistent 
+ *      with Exhibit B.
+ *      
+ *      Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
+ *      WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
+ *      language governing rights and limitations under the License.
+ *      
+ *      The Original Code is LASS - Library of Assembled Shared Sources.
+ *      
+ *      The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
+ *      The Original Developer is the Initial Developer.
+ *      
+ *      All portions of the code written by the Initial Developer are:
+ *      Copyright (C) 2004-2007 the Initial Developer.
+ *      All Rights Reserved.
+ *      
+ *      Contributor(s):
  *
- *	Alternatively, the contents of this file may be used under the terms of the 
- *	GNU General Public License Version 2 or later (the GPL), in which case the 
- *	provisions of GPL are applicable instead of those above.  If you wish to allow use
- *	of your version of this file only under the terms of the GPL and not to allow 
- *	others to use your version of this file under the CPAL, indicate your decision by 
- *	deleting the provisions above and replace them with the notice and other 
- *	provisions required by the GPL License. If you do not delete the provisions above,
- *	a recipient may use your version of this file under either the CPAL or the GPL.
- *	
- *	*** END LICENSE INFORMATION ***
+ *      Alternatively, the contents of this file may be used under the terms of the 
+ *      GNU General Public License Version 2 or later (the GPL), in which case the 
+ *      provisions of GPL are applicable instead of those above.  If you wish to allow use
+ *      of your version of this file only under the terms of the GPL and not to allow 
+ *      others to use your version of this file under the CPAL, indicate your decision by 
+ *      deleting the provisions above and replace them with the notice and other 
+ *      provisions required by the GPL License. If you do not delete the provisions above,
+ *      a recipient may use your version of this file under either the CPAL or the GPL.
+ *      
+ *      *** END LICENSE INFORMATION ***
  */
 
 #include "util_common.h"
 #include "process.h"
 #include "dictionary.h"
 
-#if HAVE_CONFIG_H
-#	include "../../lass_auto_config.h"
-#endif
-
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#	pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
-#	define LASS_UTIL_PROCESS_HAVE_WIN32
-#elif HAVE_SYS_RESOURCE_H
-#	define LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE
+#       pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
+#       define LASS_UTIL_PROCESS_HAVE_WIN32
+#elif LASS_HAVE_SYS_RESOURCE_H
+#       define LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE
 #else
-#	error lass/util/process.h is not supported on this platform
+#       error lass/util/process.h is not supported on this platform
 #endif
 
 #if defined(LASS_UTIL_PROCESS_HAVE_WIN32)
-#	define NOMINMAX
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
+#       define NOMINMAX
+#       define WIN32_LEAN_AND_MEAN
+#       include <windows.h>
 #elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
-#	include <sys/resource.h>
-#	if HAVE_LIMITS_H
-#		include <limits.h>
-#	endif
-#	ifndef NZERO
-#		define NZERO 20
-#	endif
+#       include <sys/resource.h>
+#       if LASS_HAVE_LIMITS_H
+#               include <limits.h>
+#       endif
+#       ifndef NZERO
+#               define NZERO 20
+#       endif
 #endif
 
 namespace lass
@@ -77,46 +73,46 @@ namespace util
 {
 
 LASS_EXECUTE_BEFORE_MAIN_EX(lassImpl_processPriorityDictionary,
-		processPriorityDictionary().add("low", ppLow);
-		processPriorityDictionary().add("belownormal", ppBelowNormal);
-		processPriorityDictionary().add("normal", ppNormal);
-		processPriorityDictionary().add("abovenormal", ppAboveNormal);
-		processPriorityDictionary().add("high", ppHigh);
-	)
+                processPriorityDictionary().add("low", ppLow);
+                processPriorityDictionary().add("belownormal", ppBelowNormal);
+                processPriorityDictionary().add("normal", ppNormal);
+                processPriorityDictionary().add("abovenormal", ppAboveNormal);
+                processPriorityDictionary().add("high", ppHigh);
+        )
 
 
 
 void setProcessPriority(ProcessPriority iPriority)
 {
-	LASS_ASSERT(iPriority >= 0 && iPriority < numberOfProcessPriorities);
+        LASS_ASSERT(iPriority >= 0 && iPriority < numberOfProcessPriorities);
 
 #if defined(LASS_UTIL_PROCESS_HAVE_WIN32)
-	static const int winPriorities[numberOfProcessPriorities] = 
-	{ 
-		IDLE_PRIORITY_CLASS, 
-		BELOW_NORMAL_PRIORITY_CLASS,
-		NORMAL_PRIORITY_CLASS,
-		ABOVE_NORMAL_PRIORITY_CLASS,
-		HIGH_PRIORITY_CLASS
-	};
-	const int priority = winPriorities[iPriority];
-	LASS_ENFORCE_WINAPI(SetPriorityClass(GetCurrentProcess(), priority))
-		("Failed to set process priority");
+        static const int winPriorities[numberOfProcessPriorities] = 
+        { 
+                IDLE_PRIORITY_CLASS, 
+                BELOW_NORMAL_PRIORITY_CLASS,
+                NORMAL_PRIORITY_CLASS,
+                ABOVE_NORMAL_PRIORITY_CLASS,
+                HIGH_PRIORITY_CLASS
+        };
+        const int priority = winPriorities[iPriority];
+        LASS_ENFORCE_WINAPI(SetPriorityClass(GetCurrentProcess(), priority))
+                ("Failed to set process priority");
 
 #elif defined(LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE)
-	static const int niceValues[numberOfProcessPriorities] = 
-	{
-		NZERO - 1,
-		NZERO / 2 - 1,
-		0,
-		-NZERO / 2,
-		-NZERO
-	};
-	const int niceValue = niceValues[iPriority];
-	LASS_ENFORCE_CLIB(setpriority(PRIO_PROCESS, 0, niceValue));
+        static const int niceValues[numberOfProcessPriorities] = 
+        {
+                NZERO - 1,
+                NZERO / 2 - 1,
+                0,
+                -NZERO / 2,
+                -NZERO
+        };
+        const int niceValue = niceValues[iPriority];
+        LASS_ENFORCE_CLIB(setpriority(PRIO_PROCESS, 0, niceValue));
 
 #else
-#	error setProcessPriority is not supported on this platform
+#       error setProcessPriority is not supported on this platform
 #endif
 }
 
@@ -124,18 +120,18 @@ void setProcessPriority(ProcessPriority iPriority)
 
 void setProcessPriority(const std::string& iPriority)
 {
-	ProcessPriority priority = ppNormal;
-	try
-	{
-		priority = processPriorityDictionary()[iPriority];
-	}
-	catch(util::Exception)
-	{
-		LASS_THROW("'" << iPriority << "' is an invalid priority setting.  "
-			"It should be one of these: " << processPriorityDictionary().keys() << ".");
-	}
+        ProcessPriority priority = ppNormal;
+        try
+        {
+                priority = processPriorityDictionary()[iPriority];
+        }
+        catch(util::Exception)
+        {
+                LASS_THROW("'" << iPriority << "' is an invalid priority setting.  "
+                        "It should be one of these: " << processPriorityDictionary().keys() << ".");
+        }
 
-	setProcessPriority(priority);
+        setProcessPriority(priority);
 }
 
 

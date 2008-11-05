@@ -1,0 +1,8 @@
+LIBRARY
+EXPORTS 
+    lass_cas8
+    lass_inc8
+    lass_dec8
+    lass_dcas8
+    lass_dcas16
+    lass_dcas32

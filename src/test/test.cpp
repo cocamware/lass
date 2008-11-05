@@ -45,52 +45,70 @@
 #include "test_common.h"
 #include "unit_test.h"
 
-#include "test_io.h"
-#include "test_meta.h"
-#include "test_num.h"
-#include "test_prim.h"
-#include "test_spat.h"
-#include "test_stde.h"
-#include "test_util.h"
-
 #include "../stde/range_algorithm.h"
 #include "../io/logger.h"
 #include "../io/file_attribute.h"
 #include "../io/arg_parser.h"
+
+::lass::test::TTestSuite autoTestSuite();
 
 int main(int argc, char* argv[])
 {
 	using namespace lass;
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
-	io::ArgValue<std::string> output(parser, "o", "output", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
-	if (!parser.parse(argc, argv))
+	io::ArgValue<std::string> log(parser, "l", "log", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
+	io::ArgValue<std::string> inputDir(parser, "i", "input-dir", "", io::amRequired, ".");
+	io::ArgValue<std::string> outputDir(parser, "o", "output-dir", "", io::amRequired);
+	io::ArgValue<std::string> savePatterns(parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
+	io::ArgParser::TArguments selectedTests;
+	if (!parser.parse(argc, argv, &selectedTests))
 	{
 		return false;
 	}
-	const std::string logFile = io::fileJoinPath(test::workPath(), output.at(0));
+	::lass::test::inputDir() = inputDir.at(0);
+	::lass::test::outputDir() = outputDir ? outputDir.at(0) : test::workPath();
+	const std::string logFile = io::fileJoinPath(::lass::test::outputDir(), log.at(0));
+	::lass::test::impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
 	io::Logger logger(logFile);
 	logger.subscribeTo(io::proxyMan()->cout());
 	logger.subscribeTo(io::proxyMan()->clog());
 	logger.subscribeTo(io::proxyMan()->cerr());
 
 	LASS_EVAL(logFile);
+	LASS_COUT << "LASS_VESION: " << LASS_VERSION << std::endl;
 	LASS_COUT << "LASS_TEST_VERSION: " << LASS_TEST_VERSION << std::endl;
 	LASS_COUT << "LASS_PLATFORM: " << LASS_PLATFORM << std::endl;
 	LASS_COUT << "LASS_COMPILER: " << LASS_COMPILER << std::endl;
 	LASS_COUT << "LASS_COMPILER_VERSION: " << LASS_COMPILER_VERSION << std::endl;
 
-	test::TUnitTests unitTests;
-	stde::copy_r(test::testUtil(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testPrim(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testSpat(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testNum(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testMeta(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testStde(), std::back_inserter(unitTests));
-	//stde::copy_r(test::testIo(), std::back_inserter(unitTests));
+	test::TTestSuite testSuite = autoTestSuite();	
+	test::TUnitTest testsToBeRun;
+
+	if (selectedTests.empty())
+	{
+		for (test::TTestSuite::const_iterator unitTest = testSuite.begin(); unitTest != testSuite.end(); ++unitTest)
+		{
+			stde::copy_r(unitTest->second, std::back_inserter(testsToBeRun));
+		}
+	}
+	else
+	{
+		const size_t n = selectedTests.size();
+		for (test::TTestSuite::const_iterator unitTest = testSuite.begin(); unitTest != testSuite.end(); ++unitTest)
+		{
+			for (size_t i = 0; i < n; ++i)
+			{
+				if (unitTest->first.find(selectedTests[i]) != std::string::npos)
+				{
+					stde::copy_r(unitTest->second, std::back_inserter(testsToBeRun));
+				}
+			}
+		}
+	}
 	unsigned errors = 0;
 	unsigned fatalErrors = 0;
-	const bool success = test::runTests(unitTests, argc, argv, &errors, &fatalErrors);
+	const bool success = test::runTests(testsToBeRun, argc, argv, &errors, &fatalErrors);
 
 	if (success)
 	{

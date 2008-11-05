@@ -60,15 +60,6 @@
 
 #include "../lass_common.h"
 
-///** name of library
-// */
-//#define LASS_LIB_SPAT LASS_LIB_PREFIX "spat" LASS_LIB_SUFFIX
-//
-//#if defined(LASS_LIB_AUTO_LINK) && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-//#	pragma comment(lib, LASS_LIB_SPAT)
-//#endif
-
-
 namespace lass
 {
 namespace spat

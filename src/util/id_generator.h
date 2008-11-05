@@ -84,7 +84,7 @@ namespace util
 {
 
 template<typename T>
-class LASS_DLL IdGenerator
+class IdGenerator
 {
 public:
 

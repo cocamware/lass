@@ -51,7 +51,32 @@ namespace lass
 namespace test
 {
 
-const bool runTests(const TUnitTests& iTests, int argc, char* argv[], 
+TestCase::TestCase(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine): 
+	test_(iTest), 
+	name_(iName),
+	file_(iFile),
+	line_(iLine)
+{
+}
+
+
+
+void TestCase::operator()() const
+{
+	LASS_CLOG << "* " << name_ << std::endl;
+	try
+	{
+		test_(); 
+		return;
+	}
+	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name_ + "'", file_, line_)
+	--impl::errors();
+	++impl::fatalErrors();
+}
+
+
+
+const bool runTests(const TTestCases& iTests, int argc, char* argv[], 
 		unsigned* oNumErrors, unsigned* oNumFatalErrors)
 {
 	impl::errors() = 0;
@@ -59,16 +84,7 @@ const bool runTests(const TUnitTests& iTests, int argc, char* argv[],
 	if (oNumErrors) *oNumErrors = 0;
 	if (oNumFatalErrors) *oNumFatalErrors = 0;
 
-	io::ArgParser parser(io::fileWithoutPath(argv[0]));
-	io::ArgValue<std::string> savePatterns(
-		parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
-	if (!parser.parse(argc, argv))
-	{
-		return false;
-	}
-	impl::savePatterns().insert(savePatterns.begin(), savePatterns.end());
-
-	for (TUnitTests::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
+	for (TTestCases::const_iterator test = iTests.begin(); test != iTests.end(); ++test)
 	{
 		(*test)();
 	}
@@ -117,11 +133,10 @@ TestStream::TestStream(const std::string& iPatternFile, AllowSaving iAllowSaving
 {
 	if (!impl::isSavingPattern(patternFile_))
 	{
-		const std::string filename = io::fileJoinPath(workPath(), patternFile_);
-		std::ifstream file(filename.c_str());
+		std::ifstream file(patternFile_.c_str());
 		if (!file)
 		{
-			LASS_THROW("Pattern file '" << filename << "' not found.");
+			LASS_THROW("Pattern file '" << patternFile_ << "' not found.");
 		}
 		try
 		{
@@ -221,31 +236,6 @@ std::ostream& TestStream::stream()
 namespace impl
 {
 
-UnitTest::UnitTest(const util::Callback0& iTest, const std::string& iName, const std::string& iFile, unsigned iLine): 
-	test_(iTest), 
-	name_(iName),
-	file_(iFile),
-	line_(iLine)
-{
-}
-
-
-
-void UnitTest::operator()() const
-{
-	LASS_CLOG << "* " << name_ << std::endl;
-	try
-	{
-		test_(); 
-		return;
-	}
-	LASS_TEST_IMPL_CATCH_EXCEPTIONS("fatal error in unit test '" + name_ + "'", file_, line_)
-	--errors();
-	++fatalErrors();
-}
-
-
-
 struct TestStatus
 {
 	typedef std::set<std::string> TSavePatterns;
@@ -254,6 +244,8 @@ struct TestStatus
 	unsigned errorCount;
 	unsigned fatalErrorCount;
 	TSavePatterns savePatterns;
+	std::string inputDir;
+	std::string outputDir;
 
 	TestStatus(): 
 		errorStream("test_" LASS_TEST_VERSION "_errors.log"), 
@@ -294,6 +286,17 @@ const bool isSavingPattern(const std::string& iFilename)
 }
 
 }
+
+std::string& inputDir()
+{
+	return util::Singleton<impl::TestStatus>::instance()->inputDir;
+}
+
+std::string& outputDir()
+{
+	return util::Singleton<impl::TestStatus>::instance()->outputDir;
+}
+
 }
 }
 

@@ -67,7 +67,7 @@ public:
 
 
 
-class Socket: public util::NonCopyable
+class LASS_DLL Socket: public util::NonCopyable
 {
 public:
 
