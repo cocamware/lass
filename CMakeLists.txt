@@ -83,9 +83,9 @@ file(GLOB lass_SRCS *.cpp)
 file(GLOB lass_HDRS *.h *.inl)
 foreach(subdir ${lass_subdirectories})
 	if(NOT subdir STREQUAL "config")
-		file(GLOB_RECURSE temp_SRCS ${subdir}/*.cpp)
+		file(GLOB_RECURSE temp_SRCS src/${subdir}/*.cpp)
 	endif()	       
-	file(GLOB_RECURSE temp_HDRS ${subdir}/*.h ${subdir}/*.inl)
+	file(GLOB_RECURSE temp_HDRS src/${subdir}/*.h src/${subdir}/*.inl)
 	list(APPEND lass_SRCS ${temp_SRCS})
 	list(APPEND lass_HDRS ${temp_HDRS})
 endforeach()
@@ -94,7 +94,7 @@ endforeach()
 
 # This header goes in the build directory as it contains build specific information
 
-set(config_dir ${lass_SOURCE_DIR}/config)
+set(config_dir ${lass_SOURCE_DIR}/src/config)
 set(config_file ${config_dir}/local_config.h)
 configure_file(${config_dir}/local_config.h.in ${config_file})
 list(APPEND lass_HDRS ${config_file})
@@ -106,7 +106,7 @@ list(APPEND lass_INCLUDES ${config_dir})
 # This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
 
 macro(param_expander inpath outpath n)
-	set(generator ${CMAKE_SOURCE_DIR}/../tools/param_expander.py)
+	set(generator ${CMAKE_SOURCE_DIR}/tools/param_expander.py)
 	add_custom_command(
 		OUTPUT ${outpath}
 		DEPENDS ${inpath} ${generator}
@@ -130,21 +130,21 @@ macro(prebuild dirname infile outfile n)
 endmacro()
 
 set(N 15)
-prebuild(util object_factory.tmpl.h object_factory.h ${N})
-prebuild(util clone_factory.tmpl.h clone_factory.h ${N})
-prebuild(util callback.tmpl.h callback.h ${N})
-prebuild(util callback_x.tmpl.h "callback_$x.h" ${N})
-prebuild(util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
-prebuild(util callback_python.tmpl.h callback_python.h ${N})
-prebuild(util pyobject_macros.tmpl.h pyobject_macros.h ${N})
-prebuild(util pyobject_call.tmpl.inl pyobject_call.inl ${N})
-prebuild(util py_tuple.tmpl.h py_tuple.h 20)
-prebuild(util thread_fun.tmpl.h thread_fun.h ${N})
-prebuild(util thread_fun.tmpl.inl thread_fun.inl ${N})
-prebuild(util bind.tmpl.h bind.h ${N})
-prebuild(util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
-prebuild(util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
-prebuild(meta is_member.tmpl.h is_member.h ${N})
+prebuild(src/util object_factory.tmpl.h object_factory.h ${N})
+prebuild(src/util clone_factory.tmpl.h clone_factory.h ${N})
+prebuild(src/util callback.tmpl.h callback.h ${N})
+prebuild(src/util callback_x.tmpl.h "callback_$x.h" ${N})
+prebuild(src/util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
+prebuild(src/util callback_python.tmpl.h callback_python.h ${N})
+prebuild(src/util pyobject_macros.tmpl.h pyobject_macros.h ${N})
+prebuild(src/util pyobject_call.tmpl.inl pyobject_call.inl ${N})
+prebuild(src/util py_tuple.tmpl.h py_tuple.h 20)
+prebuild(src/util thread_fun.tmpl.h thread_fun.h ${N})
+prebuild(src/util thread_fun.tmpl.inl thread_fun.inl ${N})
+prebuild(src/util bind.tmpl.h bind.h ${N})
+prebuild(src/util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
+prebuild(src/util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
+prebuild(src/meta is_member.tmpl.h is_member.h ${N})
 
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
@@ -156,7 +156,7 @@ include_directories(${lass_INCLUDES})
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
     # Work around it by adding the obj file as 'source file' and have it generated
-    set(sourcedir ${CMAKE_SOURCE_DIR}/util/impl)
+    set(sourcedir ${CMAKE_SOURCE_DIR}/src/util/impl)
     set(fname atomic_msvc_x64)
     set(sourcepath ${sourcedir}/${fname}.asm)
     set(defpath ${sourcedir}/${fname}.def)
@@ -198,7 +198,7 @@ set_target_properties(lass PROPERTIES
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
-	include(test/CMakeLists.txt)
+	include(src/test/CMakeLists.txt)
 endif()
 	
 # --- INSTALLING ---
@@ -210,7 +210,7 @@ install(
 	ARCHIVE DESTINATION lib)
 
 install(
-	DIRECTORY ./
+	DIRECTORY src/
 	DESTINATION include/lass
 	USE_SOURCE_PERMISSIONS
 	REGEX "\\.svn" EXCLUDE
@@ -234,5 +234,5 @@ install(
 set (CPACK_PACKAGE_VERSION_MAJOR "${LASS_MAJOR_VERSION}")
 set (CPACK_PACKAGE_VERSION_MINOR "${LASS_MINOR_VERSION}")
 set (CPACK_PACKAGE_VERSION_PATCH "${LASS_PATCHLEVEL}")
-set (CPACK_RESOURCE_FILE_LICENSE "${lass_SOURCE_DIR}/../docs/license.txt")
+set (CPACK_RESOURCE_FILE_LICENSE "${lass_SOURCE_DIR}/docs/license.txt")
 include(CPack)

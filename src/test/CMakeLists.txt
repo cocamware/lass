@@ -1,9 +1,9 @@
-file(GLOB test_HDRS test/*.h)
-file(GLOB test_SRCS test/*.cpp)
+set(sourcedir ${CMAKE_SOURCE_DIR}/src/test)
 
-set(sourcedir ${CMAKE_SOURCE_DIR}/test)
+file(GLOB test_HDRS ${sourcedir}/*.h)
+file(GLOB test_SRCS ${sourcedir}/*.cpp)
 
-set(generator ${CMAKE_SOURCE_DIR}/../tools/param_expander.py)
+set(generator ${CMAKE_SOURCE_DIR}/tools/param_expander.py)
 set(infile ${sourcedir}/test_util_callback.cpp.in)
 set(outfile ${sourcedir}/test_util_callback.cpp)
 add_custom_command(
@@ -21,9 +21,8 @@ endforeach()
 list(REMOVE_DUPLICATES unit_tests)
 list(REMOVE_ITEM unit_tests "test_common")
 
-set(srcdir ${CMAKE_SOURCE_DIR}/test)
-set(infile ${srcdir}/auto_test_suite.cpp.in)
-set(outfile ${CMAKE_SOURCE_DIR}/test/auto_test_suite.cpp)
+set(infile ${sourcedir}/auto_test_suite.cpp.in)
+set(outfile ${sourcedir}/auto_test_suite.cpp)
 add_custom_command(
 	OUTPUT ${outfile}
 	DEPENDS ${infile} ${generator}
@@ -31,7 +30,7 @@ add_custom_command(
 	ARGS ${generator} ${infile} ${outfile} ${unit_tests})
 list(APPEND test_SRCS ${outfile})
 
-include_directories(${srcdir})
+include_directories(${sourcedir})
 
 list(REMOVE_DUPLICATES test_SRCS)
 add_executable(test_suite ${test_HDRS} ${test_SRCS})
@@ -44,12 +43,12 @@ if(MSVC_IDE)
 			PROPERTIES
 			COMPILE_FLAGS /Yutest_common.h)
 		set_source_files_properties(
-			${srcdir}/test_common.cpp 
+			${sourcedir}/test_common.cpp 
 			PROPERTIES
 			COMPILE_FLAGS /Yctest_common.h)
 	endif()
 endif()
 
 foreach(test_name ${unit_tests})
-	add_test(${test_name} test_suite --log=${test_name}.log --input-dir=${srcdir} ${test_name})
+	add_test(${test_name} test_suite --log=${test_name}.log --input-dir=${sourcedir} ${test_name})
 endforeach()
