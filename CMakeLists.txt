@@ -64,11 +64,11 @@ endif()
 include(CheckFunctionExists)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
-	set(testdir "${CMAKE_BINARY_DIR}/config")
+	set(testdir "${lass_BINARY_DIR}/local")
 	try_compile(
 		LASS_HAVE_STRERROR_R_CHAR_P
-		"${CMAKE_BINARY_DIR}/config"
-		"${CMAKE_SOURCE_DIR}/config/check_strerror_r_char_p.cpp"
+		"${lass_BINARY_DIR}/local"
+		"${lass_SOURCE_DIR}/src/config/check_strerror_r_char_p.cpp"
 		)
 endif()
 
@@ -94,9 +94,9 @@ endforeach()
 
 # This header goes in the build directory as it contains build specific information
 
-set(config_dir ${lass_SOURCE_DIR}/src/config)
+set(config_dir ${lass_BINARY_DIR}/local)
 set(config_file ${config_dir}/local_config.h)
-configure_file(${config_dir}/local_config.h.in ${config_file})
+configure_file(${lass_SOURCE_DIR}/src/config/local_config.h.in ${config_file})
 list(APPEND lass_HDRS ${config_file})
 list(APPEND lass_INCLUDES ${config_dir})
 
