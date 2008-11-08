@@ -307,6 +307,14 @@ namespace lass
 			// success
 			return 0;
 		}
+		int properGetMemberImagine(const ClassB * iThis )
+		{
+			return 1;
+		}
+		void properSetMemberImagine(ClassB * iThis, int iWhat)
+		{
+
+		}
 
 		const ClassA& testFreeConst(const ClassA& iArg)
 		{
@@ -352,7 +360,12 @@ PY_DECLARE_CLASS_NAME( PyClassA, "ClassA")
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassB, lass::test::ClassB, PyClassA)
 //PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassB )
 PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
-PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
+PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
+PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::getMemberImagine, "imagine", "blabla")
+PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
+PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
+
+
 //This won't be accepted due to A being an abstract class
 //PY_CLASS_METHOD_QUALIFIED_1( PyClassB, testConst, void, const lass::test::ClassA& )
 

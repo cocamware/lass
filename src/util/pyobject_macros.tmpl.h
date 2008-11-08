@@ -1857,6 +1857,7 @@ $[
  *      the free method in C++ used to set the attribute
  *  @param s_doc
  *      documentation of member as shown in Python (zero terminated C string)
+ *  @deprecated
  *
  *  @code
  *  // foo.h
@@ -1867,17 +1868,13 @@ $[
  *      int bar;
  *  };
  *
- *  PyObject getBar(const Foo const* iThis) 
+ *  int getBar(const Foo const* iThis) 
  *	{ 
  *		return iThis->bar;
  *	}
- *  int setBar(Foo* iThis, PyObject* iBar) 
+ *  void setBar(Foo* iThis, int iBar) 
  *  {	
- *		int abar;
- *		int r = pyGetSimpleObject(iBar,abar);
- *		if (!r)
- *			iBar->bar = abar;
- *		return r;
+ *		iBar->bar = abar;
  *	}
  *
  *  // foo.cpp
@@ -1885,6 +1882,21 @@ $[
  *  PY_CLASS_FREE_MEMBER_RW_EX(Foo, getBar, setBar, "bar", "regular get and setter")
  *  @endcode
  */
+
+// we need to define a special template here which can deduct the second argument of a function
+// it is only specialized for functions that qualify as setters: ie, where the "this" is writeable
+// without hard recasting it
+//template < typename TClass, typename IArg > struct SecondArgTraitForSet { typedef void* TArg; };
+namespace impl
+{
+template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*, IArg), PyObject* iArgs, int& r )
+{
+	IArg arg;
+	r = ::lass::python::pyGetSimpleObject(iArgs,arg);
+	return arg;
+}
+}
+
 #define PY_CLASS_FREE_MEMBER_RW_EX( t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc, i_dispatcher)\
 	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter)( PyObject* iObject, void* )\
 	{\
@@ -1895,7 +1907,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return i_cppFreeGetter( cppObject );\
+		return ::lass::python::pyBuildSimpleObject(i_cppFreeGetter( cppObject ));\
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _freeSetter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
@@ -1906,8 +1918,14 @@ $[
 		{\
 			return 0;\
 		}\
-		int r = i_cppFreeSetter( cppObject, iArgs );\
-		return r;\
+		int rsecondarg;\
+		impl::secondArgGet( i_cppFreeSetter, iArgs, rsecondarg);\
+		if (rsecondarg)\
+		{\
+			return 1;\
+		}\
+		i_cppFreeSetter( cppObject, impl::secondArgGet( i_cppFreeSetter, iArgs, rsecondarg) );\
+		return 0;\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -1963,6 +1981,7 @@ $[
  *      a free function in C++ used to get the attribute
  *  @param s_doc
  *      documentation of member as shown in Python (zero terminated C string)
+ *  @deprecated
  *
  *  @code
  *  // foo.h
@@ -1973,7 +1992,7 @@ $[
  *      int bar;
  *  };
  *
- *  PyObject getBar(const Foo const* iThis) 
+ *  int getBar(const Foo const* iThis) 
  *	{ 
  *		return iThis->bar;
  *	}
@@ -1993,7 +2012,7 @@ $[
 		{\
 			return 0;\
 		}\
-		return i_freeCppGetter( cppObject) ;\
+		return ::lass::python::pyBuildSimpleObject(i_freeCppGetter( cppObject)) ;\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -2035,7 +2054,203 @@ $[
 	PY_CLASS_FREE_MEMBER_R_DOC(t_cppClass, i_freeCppGetter, 0)
 
 
+// -- deprecated old style export of free members
 
+
+/** @ingroup Python
+ *  exports a pair of get and set accessors as an read/write attribute in Python by using free functions
+ *
+ *  @param t_cppClass
+ *      the C++ class you want to add the static method to.
+ *  @param s_memberName
+ *      the name of the attribute in python (zero terminated C string)
+ *  @param a_freeCppGetter
+ *      the free method in C++ used to get the attribute
+ *  @param a_freeCppSetter
+ *      the free method in C++ used to set the attribute
+ *  @param s_doc
+ *      documentation of member as shown in Python (zero terminated C string)
+ *  @deprecated
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      int bar;
+ *  };
+ *
+ *  PyObject getBar(const Foo const* iThis) 
+ *	{ 
+ *		return iThis->bar;
+ *	}
+ *  int setBar(Foo* iThis, PyObject* iBar) 
+ *  {	
+ *		int abar;
+ *		int r = pyGetSimpleObject(iBar,abar);
+ *		if (!r)
+ *			iBar->bar = abar;
+ *		return r;
+ *	}
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX(Foo, getBar, setBar, "bar", "regular get and setter")
+ *  @endcode
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX( t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc, i_dispatcher)\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter)( PyObject* iObject, void* )\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return i_cppFreeGetter( cppObject );\
+	}\
+	int LASS_CONCATENATE(i_dispatcher, _freeSetter)( PyObject* iObject, PyObject* iArgs, void* )\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = TShadowTraits::cppObject(iObject);\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		int r = i_cppFreeSetter( cppObject, iArgs );\
+		return r;\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		t_cppClass::_lassPyGetSetters.insert(\
+			t_cppClass::_lassPyGetSetters.begin(),\
+			::lass::python::impl::createPyGetSetDef(\
+				s_memberName,\
+				LASS_CONCATENATE(i_dispatcher, _freeGetter),\
+				LASS_CONCATENATE(i_dispatcher, _freeSetter),\
+				s_doc, 0));\
+	)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_EX with
+ *  @a i_dispatcher = lassPyImpl_memberR_ @a t_cppClass __LINE__
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_freeMemberRW, t_cppClass)))
+
+/** @ingroup Python
+ *  @sa PY_CLASS_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_doc = 0
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_name = "s_cppFreeGetter"
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_RW_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_doc)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, LASS_STRINGIFY(i_cppFreeGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_FREE_MEMBER_RW_EX
+ *  convenience macro, wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC with @a s_name = "s_freeCppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_RW(t_cppClass, i_cppFreeGetter, i_cppFreeSetter)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_RW_DOC(t_cppClass, i_cppFreeGetter, i_cppFreeSetter, 0)
+
+
+
+/** @ingroup Python
+ *  exports a get accessor as an read-only attribute in Python as a free function
+ *
+ *  @param t_cppClass
+ *      the C++ class you want to add the static method to.
+ *  @param s_memberName
+ *      the name of the attribute in python (zero terminated C string)
+ *  @param a_freeCppGetter
+ *      a free function in C++ used to get the attribute
+ *  @param s_doc
+ *      documentation of member as shown in Python (zero terminated C string)
+ *  @deprecated
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      int bar;
+ *  };
+ *
+ *  PyObject getBar(const Foo const* iThis) 
+ *	{ 
+ *		return iThis->bar;
+ *	}
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_DEPRECATED_FREE_MEMBER_R_EX(Foo, getBar, "bar", "regular get and setter")
+ *  @endcode
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_R_EX( t_cppClass, i_freeCppGetter, s_memberName, s_doc, i_dispatcher )\
+	PyObject* LASS_CONCATENATE(i_dispatcher, _freeGetter) ( PyObject* iObject, void* )\
+	{\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		typedef TShadowTraits::TCppClass TCppClass;\
+		TCppClass* cppObject = const_cast<TCppClass*>(TShadowTraits::constCppObject(iObject));\
+		if (!cppObject)\
+		{\
+			return 0;\
+		}\
+		return i_freeCppGetter( cppObject) ;\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		t_cppClass::_lassPyGetSetters.insert(\
+			t_cppClass::_lassPyGetSetters.begin(),\
+			::lass::python::impl::createPyGetSetDef(\
+				s_memberName, LASS_CONCATENATE(i_dispatcher, _freeGetter), 0, \
+				s_doc, 0));\
+	)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_EX with
+ *  @a i_dispatcher = lassPyImpl_memberR_ ## @a t_cppClass ## __LINE__
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, s_memberName, s_doc)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_R_EX(t_cppClass, i_freeCppGetter, s_memberName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_freeMemberR, t_cppClass)))
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_doc = 0
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME(t_cppClass, i_freeCppGetter, s_memberName)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, s_memberName, 0)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_MEMBER_R_EX
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_freeCppGetter"
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_R_DOC(t_cppClass, i_freeCppGetter, s_doc)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC(t_cppClass, i_freeCppGetter, LASS_STRINGIFY(i_freeCppGetter), s_doc)
+
+/** @ingroup Python
+ *  @sa PY_CLASS_DEPRECATED_MEMBER_R_DOC
+ *  convenience macro, wraps PY_CLASS_MEMBER_R_NAME_DOC with @a s_memberName = "i_cppGetter" and @a s_doc = 0
+ */
+#define PY_CLASS_DEPRECATED_FREE_MEMBER_R(t_cppClass, i_freeCppGetter)\
+	PY_CLASS_DEPRECATED_FREE_MEMBER_R_DOC(t_cppClass, i_freeCppGetter, 0)
+
+
+// -- end of deprecated 
 
 /** @ingroup Python
  *  exports a public data member as a read/write attribute in Python
