@@ -295,6 +295,10 @@ namespace lass
 			void testConstPtr(ClassA const * iArg) {}
 			void testNonConstPtr(ClassA* iArg) {}
 			virtual void abstractMethod() {}
+
+			int getitem(int i) { return i; }
+			int len() const { return 5; }
+			void setitem(int i, std::pair<float,int> iarg) { }
 		};
 
 		PyObject* getMemberImagine(const ClassB * iThis )
@@ -360,10 +364,21 @@ PY_DECLARE_CLASS_NAME( PyClassA, "ClassA")
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassB, lass::test::ClassB, PyClassA)
 //PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassB )
 PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
+PY_CLASS_CONSTRUCTOR_0( PyClassB)
 PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
 PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::getMemberImagine, "imagine", "blabla")
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
 PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
+PY_CLASS_METHOD_NAME( PyClassB, getitem, "__getitem__");
+PY_CLASS_METHOD_NAME( PyClassB, len, "__len__");
+PY_CLASS_METHOD_NAME( PyClassB, setitem, "__setitem__");
+
+namespace lass { namespace test {
+LASS_EXECUTE_BEFORE_MAIN(
+	PY_INJECT_CLASS_IN_MODULE( PyClassA, embedding, "Documentation for class A." );
+	PY_INJECT_CLASS_IN_MODULE( PyClassB, embedding, "Documentation for class B." );
+	)
+} }
 
 
 //This won't be accepted due to A being an abstract class

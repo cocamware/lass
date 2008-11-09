@@ -658,6 +658,14 @@ namespace lass
 				void setUnaryfunc(unaryfunc iOverload);
 				void setBinaryfunc(binaryfunc iOverload);
 				void setTernaryfunc(ternaryfunc iOverload);
+				
+				void setSsizeArgfunc(ssizeargfunc iOverload);
+				void setSsizeSsizeArgfunc(ssizessizeargfunc iOverload);
+				void setLenfunc(lenfunc iOverload);
+				void setSsizeObjArgProcfunc(ssizeobjargproc iOverload);
+				void setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload);
+				void setObjObjProcfunc(objobjproc iOverload);
+
 				bool operator()(PyObject* iSelf, PyObject* iArgs, 
 					PyObject*& result) const;
 			private:
@@ -665,6 +673,13 @@ namespace lass
 				unaryfunc unaryfunc_;
 				binaryfunc binaryfunc_;
 				ternaryfunc ternaryfunc_;
+
+				ssizeargfunc ssizeargfunc_;
+				ssizessizeargfunc ssizessizeargfunc_;
+				lenfunc lenfunc_;
+				ssizeobjargproc ssizeobjargproc_;
+				ssizessizeobjargproc ssizessizeobjargproc_;
+				objobjproc objobjproc_;
 			};
 
 			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(
@@ -673,6 +688,20 @@ namespace lass
 				PyObject* iSelf, PyObject* other);
 			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(
 				PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
+
+			template <PyCFunction DispatcherAddress> PyObject* ssizeargDispatcher(
+				PyObject *, Py_ssize_t);
+			template <PyCFunction DispatcherAddress> PyObject* ssizessizeargDispatcher(
+				PyObject *, Py_ssize_t, Py_ssize_t);
+			template <PyCFunction DispatcherAddress> Py_ssize_t lenDispatcher(
+				PyObject *);
+			template <PyCFunction DispatcherAddress> int ssizeobjargDispatcher(
+				PyObject *, Py_ssize_t, PyObject *);
+			template <PyCFunction DispatcherAddress> int ssizessizeobjargDispatcher(
+				PyObject *, Py_ssize_t, Py_ssize_t, PyObject *);
+			template <PyCFunction DispatcherAddress> int objobjDispatcher(
+				PyObject *, PyObject *);
+
 
 			/**	@ingroup
 			 *	@internal
@@ -890,6 +919,10 @@ namespace lass
 				const char* methodName, const char* documentation,
 				PyCFunction dispatcher, unaryfunc dispatcherUnary, 
 				binaryfunc dispatcherBinary, ternaryfunc dispatcherTernary, 
+				ssizeargfunc dispatcherSsizeArg, ssizessizeargfunc dispatcherSsizeSsizeArg,
+				lenfunc dispatcherLen, ssizeobjargproc dispatcherSsizeObjArgProc,
+				ssizessizeobjargproc dispatcherSsizeSsizeObjArgProc, 
+				objobjproc dispatcherObjObjProc,
 				OverloadLink& overloadChain);
 
 			template <typename CppClass> void injectClassInModule(

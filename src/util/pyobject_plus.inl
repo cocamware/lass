@@ -81,6 +81,72 @@ PyObject* ternaryDispatcher(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 	return DispatcherAddress(iSelf, iArgs);
 }
 
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+PyObject* ssizeargDispatcher( PyObject * iSelf, Py_ssize_t iSize)
+{
+	TPyObjPtr args(Py_BuildValue("(n)", iSize));
+	return DispatcherAddress(iSelf,args.get());
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+PyObject* ssizessizeargDispatcher( PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2)
+{
+	TPyObjPtr args(Py_BuildValue("(n,n)", iSize, iSize2));
+	return DispatcherAddress(iSelf,args.get());
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+Py_ssize_t lenDispatcher( PyObject * iSelf)
+{
+	TPyObjPtr args(Py_BuildValue("()"));
+	PyObject* temp = DispatcherAddress(iSelf,args.get());
+	if (!temp)
+		return 0;
+	return PyInt_AsSsize_t(temp);
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+int ssizeobjargDispatcher( PyObject * iSelf, Py_ssize_t iSize, PyObject * iOther)
+{
+	TPyObjPtr args(Py_BuildValue("(n,O)",iSize,iOther));
+	PyObject* temp = DispatcherAddress(iSelf,args.get());
+	if (!temp)
+		return 1;
+	return 0;
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+int  ssizessizeobjargDispatcher( PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2, PyObject * iOther)
+{
+	TPyObjPtr args(Py_BuildValue("(n,n,O)",iSize,iSize2,iOther));
+	PyObject* temp = DispatcherAddress(iSelf,args.get());
+	if (!temp)
+		return 1;
+	return 0;
+}
+
+/** @internal
+*/
+template <PyCFunction DispatcherAddress>
+int objobjDispatcher( PyObject * iSelf, PyObject * iOther)
+{
+	TPyObjPtr args(Py_BuildValue("(O)",iOther));
+	PyObject* temp = DispatcherAddress(iSelf,args.get());
+	if (!temp)
+		return 1;
+	return 0;
+}
+
 /** @internal 
  *  Returns a  pair<short name, pyobject pointing at the class object>
  *  We have to work around the static initializer fiasco by demanding the iModuleName instead of pealing 

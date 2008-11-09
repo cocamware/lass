@@ -330,6 +330,15 @@ embedding.overloaded(1 + 2j)
 print "\n"
 
 
+print "\n* Testing special functions and operator overloads"
+c = embedding.ClassB()
+print "Sequence protocol testing"
+assert(c[1]==1)
+assert(len(c)==5)
+c[2]=(3.0,5)
+c[2]=(70,5)
+c[2]=(70,5,2)
+
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)
 test.overloaded('hello!')

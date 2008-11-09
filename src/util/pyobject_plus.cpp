@@ -220,6 +220,37 @@ void OverloadLink::setTernaryfunc(ternaryfunc iOverload)
 	setNull();
 	ternaryfunc_ = iOverload;
 }
+void OverloadLink::setSsizeArgfunc(ssizeargfunc iOverload)
+{
+	setNull();
+	ssizeargfunc_ = iOverload;
+}
+void OverloadLink::setSsizeSsizeArgfunc(ssizessizeargfunc iOverload)
+{
+	setNull();
+	ssizessizeargfunc_ = iOverload;
+}
+void OverloadLink::setLenfunc(lenfunc iOverload)
+{
+	setNull();
+	lenfunc_ = iOverload;
+}
+void OverloadLink::setSsizeObjArgProcfunc(ssizeobjargproc iOverload)
+{
+	setNull();
+	ssizeobjargproc_ = iOverload;
+}
+void OverloadLink::setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload)
+{
+	setNull();
+	ssizessizeobjargproc_ = iOverload;
+}
+void OverloadLink::setObjObjProcfunc(objobjproc iOverload)
+{
+	setNull();
+	objobjproc_ = iOverload;
+}
+
 
 bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
 {
@@ -234,7 +265,7 @@ bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oRes
 		LASS_ASSERT(binaryfunc_ == 0 && ternaryfunc_ == 0);
 		if (decodeTuple(iArgs)  != 0)
 		{
-			return 0;
+			return false;
 		}
 		temp = unaryfunc_(iSelf);
 	}
@@ -244,13 +275,56 @@ bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oRes
 		TPyObjPtr arg;
 		if (decodeTuple(iArgs, arg) != 0)
 		{
-			return 0;
+			return false;
 		}
 		temp = binaryfunc_(iSelf, arg.get());
 	}
 	else if (ternaryfunc_)
 	{
 		temp = ternaryfunc_(iSelf, iArgs, 0);
+	}
+	else if (ssizeargfunc_)
+	{
+		Py_ssize_t size1;
+		if (decodeTuple(iArgs, size1) != 0)
+			return false;
+		temp = ssizeargfunc_(iSelf, size1 );
+	}
+	else if (ssizessizeargfunc_)
+	{
+		Py_ssize_t size1;
+		Py_ssize_t size2;
+		if (decodeTuple(iArgs, size1, size2) != 0)
+			return false;
+		temp = ssizessizeargfunc_(iSelf, size1, size2 );
+	}
+	else if (lenfunc_)
+	{
+		temp = PyInt_FromSsize_t(lenfunc_(iSelf));
+	}
+	else if (ssizeobjargproc_)
+	{
+		Py_ssize_t size1;
+		TPyObjPtr obj1;
+		if (decodeTuple(iArgs, size1, obj1) != 0)
+			return false;
+		temp = PyInt_FromLong(ssizeobjargproc_(iSelf,size1,obj1.get()));
+	}
+	else if (ssizessizeobjargproc_)
+	{
+		Py_ssize_t size1;
+		Py_ssize_t size2;
+		TPyObjPtr obj1;
+		if (decodeTuple(iArgs, size1, size2, obj1) != 0)
+			return false;
+		temp = PyInt_FromLong(ssizessizeobjargproc_(iSelf,size1,size2,obj1.get()));
+	}
+	else if (objobjproc_)
+	{
+		TPyObjPtr obj1;
+		if (decodeTuple(iArgs, obj1) != 0)
+			return false;
+		temp = PyInt_FromLong(objobjproc_(iSelf,obj1.get()));		
 	}
 	else
 	{
@@ -429,6 +503,10 @@ void addClassMethod(
 		const char* methodName, const char* documentation, 
 		PyCFunction dispatcher, unaryfunc dispatcherUnary, 
 		binaryfunc dispatcherBinary, ternaryfunc dispatcherTernary, 
+		ssizeargfunc dispatcherSsizeArg, ssizessizeargfunc dispatcherSsizeSsizeArg,
+		lenfunc dispatcherLen, ssizeobjargproc dispatcherSsizeObjArgProc,
+		ssizessizeobjargproc dispatcherSsizeSsizeObjArgProc, 
+		objobjproc dispatcherObjObjProc,
 		OverloadLink& overloadChain) 
 {
 	const int n = static_cast<int>(strlen(methodName));
@@ -441,6 +519,7 @@ void addClassMethod(
 			pyType.tp_call = dispatcherTernary;
 			return;
 		}
+		// number protocol
 		LASS_PY_OPERATOR("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
 		LASS_PY_OPERATOR("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
 		LASS_PY_OPERATOR("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
@@ -476,6 +555,18 @@ void addClassMethod(
 		LASS_PY_COMPARATOR("__ne__", Py_NE)
 		LASS_PY_COMPARATOR("__gt__", Py_GT)
 		LASS_PY_COMPARATOR("__ge__", Py_GE)
+	
+		// sequence protocol
+		LASS_PY_OPERATOR("__len__", tp_as_sequence, PySequenceMethods, sq_length, Len) 
+		LASS_PY_OPERATOR("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
+		LASS_PY_OPERATOR("__repeat__", tp_as_sequence, PySequenceMethods, sq_repeat, SsizeArg) 
+		LASS_PY_OPERATOR("__getitem__", tp_as_sequence, PySequenceMethods, sq_item, SsizeArg) 
+		LASS_PY_OPERATOR("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg) 
+		LASS_PY_OPERATOR("__setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
+		LASS_PY_OPERATOR("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc) 
+		LASS_PY_OPERATOR("__contains__", tp_as_sequence, PySequenceMethods, sq_contains, ObjObjProc) 
+		LASS_PY_OPERATOR("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary) 
+		LASS_PY_OPERATOR("__irepeat__", tp_as_sequence, PySequenceMethods, sq_inplace_repeat, SsizeArg) 
 
 		if (strcmp(methodName, "__str__") == 0)
 		{

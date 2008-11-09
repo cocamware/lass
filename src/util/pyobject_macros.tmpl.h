@@ -924,6 +924,12 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
 			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::lenDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
@@ -1226,6 +1232,12 @@ $[
 			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::lenDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
@@ -2719,6 +2731,12 @@ $[
 			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
+			::lass::python::impl::lenDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
+			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 
