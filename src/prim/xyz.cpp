@@ -42,7 +42,7 @@
 
 
 
-#include "prim_common.h"
+#include "lass_common.h"
 #include "xyz.h"
 
 namespace lass

@@ -42,7 +42,7 @@
 
 
 
-#include "num_common.h"
+#include "lass_common.h"
 #include "random.h"
 
 namespace lass

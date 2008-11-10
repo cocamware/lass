@@ -40,7 +40,7 @@
  *      *** END LICENSE INFORMATION ***
  */
 
-#include "util_common.h"
+#include "lass_common.h"
 #include "lass_errno.h"
 
 #include <errno.h>

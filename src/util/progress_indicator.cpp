@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "util_common.h"
+#include "lass_common.h"
 #include "progress_indicator.h"
 #include "../num/basic_ops.h"
 

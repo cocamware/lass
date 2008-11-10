@@ -61,43 +61,37 @@
  *  respectively.
  */
 
-
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_IO_PROXY_MAN_H
 #define LASS_GUARDIAN_OF_INCLUSION_IO_PROXY_MAN_H
-
-// included interfaces
 
 #include "io_common.h"
 #include "proxy_o_stream.h"
 #include "proxy_i_stream.h"
-
-
-
-// new interfaces
+#include "../util/non_copyable.h"
 
 namespace lass
 {
 namespace io
 {
 
-class LASS_DLL ProxyMan
+class LASS_DLL ProxyMan: util::NonCopyable
 {
 public:
 
 	ProxyMan();
+	~ProxyMan();
 
-	ProxyOStream* cout();
-	ProxyOStream* cerr();
-	ProxyOStream* clog();
-	ProxyIStream* cin();
+	ProxyOStream* cout() { return cout_; }
+	ProxyOStream* cerr() { return cerr_; }
+	ProxyOStream* clog() { return clog_; }
+	ProxyIStream* cin() { return cin_; }
 
 private:
 
-	ProxyOStream cout_;
-	ProxyOStream cerr_;
-	ProxyOStream clog_;
-	ProxyIStream cin_;
+	ProxyOStream* cout_;
+	ProxyOStream* cerr_;
+	ProxyOStream* clog_;
+	ProxyIStream* cin_;
 };
 
 LASS_DLL ProxyMan* LASS_CALL proxyMan();

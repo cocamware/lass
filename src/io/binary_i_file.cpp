@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "binary_i_file.h"
 #include "../meta/meta_assert.h"
 

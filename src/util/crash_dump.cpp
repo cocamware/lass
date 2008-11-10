@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "util_common.h"
+#include "lass_common.h"
 #include "crash_dump.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32

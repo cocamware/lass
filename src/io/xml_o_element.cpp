@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "xml_o_element.h"
 
 namespace lass

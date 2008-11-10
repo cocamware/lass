@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "num_common.h"
+#include "lass_common.h"
 #include "filtered_float.h"
 
 namespace lass

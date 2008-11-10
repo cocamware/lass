@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "file_attribute.h"
 #include "../stde/extended_string.h"
 

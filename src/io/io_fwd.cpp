@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "io_fwd.h"
 #include "proxy_man.h"
 

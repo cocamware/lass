@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "image.h"
 #include "binary_i_file.h"
 #include "binary_o_file.h"

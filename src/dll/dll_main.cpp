@@ -40,6 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+#include "lass_common.h"
 #include "dll_main.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32

@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "proxy_man.h"
 #include "../util/singleton.h"
 
@@ -49,48 +49,22 @@ namespace lass
 namespace io
 {
 
-ProxyMan::ProxyMan():
-	cout_(&std::cout, ProxyOStream::acceptAll),
-	cerr_(&std::cerr, ProxyOStream::acceptAll),
-	clog_(&std::clog, ProxyOStream::acceptAll),
-	cin_(&std::cin)
+ProxyMan::ProxyMan()
 {
+	cout_ = new ProxyOStream(&std::cout, ProxyOStream::acceptAll);
+	cerr_ = new ProxyOStream(&std::cerr, ProxyOStream::acceptAll);
+	clog_ = new ProxyOStream(&std::clog, ProxyOStream::acceptAll);
+	cin_ = new ProxyIStream(&std::cin);
 }
 
 
 
-/** return pointer to 'cout' proxy.
- */
-ProxyOStream* ProxyMan::cout()
+ProxyMan::~ProxyMan()
 {
-	return &cout_;
-}
-
-
-
-/** return pointer to 'cerr' proxy.
- */
-ProxyOStream* ProxyMan::cerr()
-{
-	return &cerr_;
-}
-
-
-
-/** return pointer to 'clog' proxy.
- */
-ProxyOStream* ProxyMan::clog()
-{
-	return &clog_;
-}
-
-
-
-/** return pointer to 'cin' proxy.
- */
-ProxyIStream* ProxyMan::cin()
-{
-	return &cin_;
+	delete cin_;
+	delete clog_;
+	delete cerr_;
+	delete cout_;
 }
 
 

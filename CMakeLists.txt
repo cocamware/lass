@@ -8,6 +8,8 @@ set(LASS_PATCHLEVEL 1)
 set(LASS_SOVERSION 4)
 
 set(CMAKE_DEBUG_POSTFIX _d)
+set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
+set(CMAKE_RELWITHDEBINFO_POSTFIX _relwithdebinfo)
 
 # --- USER CONFIGURABLE STUFF ---
 
@@ -72,15 +74,15 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 		)
 endif()
 
+# --- SOURCE FILE GATHERING ---
+
 set(lass_subdirectories config io num prim spat stde util)
 if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
 endif()
 
-# --- SOURCE FILE GATHERING ---
-
-file(GLOB lass_SRCS *.cpp)
-file(GLOB lass_HDRS *.h *.inl)
+file(GLOB lass_SRCS src/*.cpp)
+file(GLOB lass_HDRS src/*.h src/*.inl)
 foreach(subdir ${lass_subdirectories})
 	if(NOT subdir STREQUAL "config")
 		file(GLOB_RECURSE temp_SRCS src/${subdir}/*.cpp)
@@ -149,9 +151,52 @@ prebuild(src/meta is_member.tmpl.h is_member.h ${N})
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
 
+# --- PRECOMPILED HEADERS ---
+
+macro(add_precompiled_header target hdrfile srcpath)
+	if(BUILD_USING_PRECOMPILED_HEADERS)
+		if(MSVC_IDE)
+			set(pchpath ${lass_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch)
+		else()
+			set(pchpath ${lass_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch)
+		endif()
+		if(MSVC)
+			set_target_properties(
+				lass
+				PROPERTIES
+				COMPILE_FLAGS /Fp"${pchpath}"
+				COMPILE_FLAGS /Yu"${hdrfile}"
+				COMPILE_DEFINITIONS BUILD_USING_PRECOMPILED_HEADERS
+				)
+			set_source_files_properties(
+				${srcpath} 
+				PROPERTIES
+				COMPILE_FLAGS /Yc"${hdrfile}")
+			if (NOT MSVC_IDE)
+				set_source_files_properties(
+					${${target}_SRCS}
+					PROPERTIES
+					OBJECT_DEPENDS "${pchpath}")
+			endif()
+		else()
+			#add_custom_command(
+			#	OUTPUT ${pchpath}
+			#	DEPENDS ${hdrfile}
+			#	COMMAND ...)
+			#set_source_files_properties(
+			#	${test_SRCS}
+			#	PROPERTIES
+			#	OBJECT_DEPENDS ${pchpath})
+		endif()
+	endif()
+endmacro()
+	
 # --- THE LIBRARY ----
 
 include_directories(${lass_INCLUDES})
+if(NOT BUILD_USING_PRECOMPILED_HEADERS)
+	include_directories(${lass_SOURCE_DIR}/src) # for lass_common.h
+endif()
 
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
@@ -192,6 +237,10 @@ set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION})
+add_precompiled_header(
+	lass 
+	lass_common.h 
+	${lass_SOURCE_DIR}/src/lass_common.cpp)
 	
 # --- TESTING ---
 

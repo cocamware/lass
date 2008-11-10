@@ -41,7 +41,7 @@
  */
 
 
-#include "prim_common.h"
+#include "lass_common.h"
 #include "color_rgba.h"
 #include "vector_3d.h"
 

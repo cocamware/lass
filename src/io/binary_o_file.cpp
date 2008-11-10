@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "binary_o_file.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC

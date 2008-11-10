@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "prim_common.h"
+#include "lass_common.h"
 #include "pyobject_util.h"
 #include "triangle_mesh_3d.h"
 

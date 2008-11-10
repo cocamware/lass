@@ -42,8 +42,7 @@
 
 
 
-#include "num_common.h"
-
+#include "lass_common.h"
 #include "num_traits.h"
 #include "interval.h"
 #include <climits>

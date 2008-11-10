@@ -43,6 +43,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_VISITOR_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_VISITOR_H
 
+#include "util_common.h"
+
 namespace lass
 {
 namespace util

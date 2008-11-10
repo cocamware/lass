@@ -42,7 +42,7 @@
 
 
 
-#include "num_common.h"
+#include "lass_common.h"
 #include "tri_bool.h"
 #include "../util/bit_manip.h"
 

@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "binary_o_socket.h"
 #include "socket.h"
 #include "../util/callback_0.h"

@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "prim_common.h"
+#include "lass_common.h"
 #include "prim_allocator.h"
 #include "../../util/allocator.h"
 #include "../../util/singleton.h"

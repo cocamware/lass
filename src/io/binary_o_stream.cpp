@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "io_common.h"
+#include "lass_common.h"
 #include "binary_o_stream.h"
 
 // static_cast from pointer to TintPtr gives warning on MSVC, yet both are identical in size [Bramz]
