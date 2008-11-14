@@ -422,8 +422,14 @@ private:
 		return Singleton<TDestructors, destructionPriorityInternalTlsDestructors>::instance();
 	}
 	
+	static TDestructors* forceIntoExistance;
+	
 	DWORD index_;
 };
+
+// MainLocalStorageDestroyer is going to need this singleton at exit-time. Make sure it exists [Bramz]
+ThreadLocalStorageInternal::TDestructors* ThreadLocalStorageInternal::forceIntoExistance = 
+	ThreadLocalStorageInternal::destructors();
 
 
 
