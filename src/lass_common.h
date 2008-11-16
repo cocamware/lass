@@ -56,7 +56,7 @@
  *  - lass::meta: a meta programming library for your cunning plans.
  *  - lass::num: numeric primitives and functions
  *  - lass::prim: geometric primitives
- *  - lass:python: creating links back and forth between C++ and Python
+ *  - lass::python: creating links back and forth between C++ and Python
  *  - lass::spat: spatial subdivisions, quadtrees, octrees, meshes in 2D and 3D, triangulators, ...
  *  - lass::stde: std extensions often Python inspired in their nature
  *  - lass::util: general utility, debug facilities, ...

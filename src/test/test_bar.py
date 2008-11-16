@@ -333,11 +333,18 @@ print "\n"
 print "\n* Testing special functions and operator overloads"
 c = embedding.ClassB()
 print "Sequence protocol testing"
+print "Testing len function"
+print len(c)
 assert(c[1]==1)
 assert(len(c)==5)
 c[2]=(3.0,5)
 c[2]=(70,5)
-c[2]=(70,5,2)
+try:
+	# this overload should not be accepted
+	c[2]=(70,5,2)
+	assert(False)
+except:
+	pass
 
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)

@@ -52,6 +52,136 @@ namespace impl
 
 /** @internal
  */
+template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher
+{
+	static PyObject* fun(PyObject* self, PyObject* args) { return dispatcher(self,args); }
+	typedef PyCFunction OverloadType;
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::UnarySlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf)
+	{
+		TPyObjPtr args(PyTuple_New(0));
+		return DispatcherAddress(iSelf, args.get());
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::BinarySlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf, PyObject* iOther)
+	{
+		TPyObjPtr args(Py_BuildValue("(O)", iOther));
+		return DispatcherAddress(iSelf, args.get());
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::TernarySlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+	{
+		if (iKw)
+		{
+			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
+			return 0;
+		}
+		return DispatcherAddress(iSelf, iArgs);
+	}
+};
+/** @internal
+*/
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::SsizeArgSlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize) 
+	{
+		TPyObjPtr args(Py_BuildValue("(n)", iSize));
+		return DispatcherAddress(iSelf,args.get());
+	}
+};
+/** @internal
+*/
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::SsizeSsizeArgSlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize, Py_ssize_t iSize2)
+	{
+		TPyObjPtr args(Py_BuildValue("(n,n)", iSize, iSize2));
+		return DispatcherAddress(iSelf,args.get());
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::LenSlot ,DispatcherAddress>
+{
+	static Py_ssize_t fun(PyObject* iSelf) 
+	{
+		TPyObjPtr args(Py_BuildValue("()"));
+		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		if (!temp)
+			return 0;
+		return PyInt_AsSsize_t(temp);
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::SsizeObjArgSlot ,DispatcherAddress>
+{
+	static int fun(PyObject * iSelf, Py_ssize_t iSize, PyObject * iOther)
+	{
+		TPyObjPtr args(Py_BuildValue("(n,O)",iSize,iOther));
+		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		if (!temp)
+			return 1;
+		return 0;
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::SsizeSsizeObjArgSlot ,DispatcherAddress>
+{
+	static int fun(PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2, PyObject * iOther)
+	{
+		TPyObjPtr args(Py_BuildValue("(n,n,O)",iSize,iSize2,iOther));
+		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		if (!temp)
+			return 1;
+		return 0;
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ObjObjSlot ,DispatcherAddress>
+{
+	static int fun(PyObject * iSelf, PyObject * iOther)
+	{
+		TPyObjPtr args(Py_BuildValue("(O)",iOther));
+		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		if (!temp)
+			return 1;
+		return 0;
+	}
+};
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ObjObjArgSlot ,DispatcherAddress>
+{
+	static int fun(PyObject * iSelf, PyObject * iOther, PyObject* iOther2)
+	{
+		TPyObjPtr args(Py_BuildValue("(O,O)",iOther,iOther2));
+		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		if (!temp)
+			return 1;
+		return 0;
+	}
+};
+/////////////////////////////////////////////
+
+
+
+/** @internal
+ */
 template <PyCFunction DispatcherAddress>
 PyObject* unaryDispatcher(PyObject* iSelf)
 {

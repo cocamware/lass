@@ -190,13 +190,13 @@ PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
 PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
-PY_CLASS_METHOD_EX( Bar, operator(), "__call__", 0, BarCallOperator )
-PY_CLASS_METHOD_NAME( Bar, call, "__call__")
+PY_CLASS_METHOD_EX( Bar, operator(), lass::python::methods::_call_, 0, BarCallOperator )
+PY_CLASS_METHOD_NAME( Bar, call, lass::python::methods::_call_)
 PY_CLASS_FREE_METHOD(Bar, freeMethodA);
 PY_CLASS_FREE_METHOD(Bar, freeMethodB);
-PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, "__call__");
-PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, "__repr__");
-PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, "__str__");
+PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, lass::python::methods::_call_);
+PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, lass::python::methods::_repr_);
+PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, lass::python::methods::_str_);
 
 
 PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
@@ -369,9 +369,11 @@ PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImag
 PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::getMemberImagine, "imagine", "blabla")
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
 PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
-PY_CLASS_METHOD_NAME( PyClassB, getitem, "__getitem__");
-PY_CLASS_METHOD_NAME( PyClassB, len, "__len__");
-PY_CLASS_METHOD_NAME( PyClassB, setitem, "__setitem__");
+PY_CLASS_METHOD_NAME( PyClassB, getitem, lass::python::methods::_getitem_);
+PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
+PY_CLASS_METHOD_NAME( PyClassB, setitem, lass::python::methods::_setitem_);
+
+PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
 
 namespace lass { namespace test {
 LASS_EXECUTE_BEFORE_MAIN(

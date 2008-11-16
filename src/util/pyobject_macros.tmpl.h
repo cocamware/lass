@@ -53,6 +53,7 @@
 
 #include "pyobject_call.inl"
 #include "../meta/is_member.h"
+#include "../meta/is_charptr.h"
 
 /** @ingroup Python
 *
@@ -2725,9 +2726,15 @@ $[
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
 			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, t_cppClass::_lassPyCompareFuncs,\
-			s_methodName, s_doc, \
-			i_dispatcher,\
+			t_cppClass::_lassPyMethods, \
+			t_cppClass::_lassPyCompareFuncs,\
+			s_methodName, \
+			s_doc, \
+			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
+			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
+	)
+
+/*
 			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
 			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
@@ -2737,9 +2744,7 @@ $[
 			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
 			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
 			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
-			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
-	)
-
+*/
 #endif
 
 // EOF

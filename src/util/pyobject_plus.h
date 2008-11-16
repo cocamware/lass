@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
+ *	Copyright (C) 2004-2008 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -144,192 +144,14 @@
 		}\
 	private:
 
-namespace lass
-{
-namespace python
-{
-
-struct Caster
-{
-};
-
-template<typename T>
-struct IsACaster
-{
-	typedef lass::meta::False TValue;
-};
-template <typename T>
-struct NoCast : public Caster
-{
-	typedef T TSelf;
-	typedef T TTarget;
-	static TTarget cast(TSelf iArg) { return iArg; }
-};
-template <>
-struct NoCast<void> : public Caster
-{
-	typedef void TSelf;
-	typedef void TTarget;
-	static TTarget cast(void) {}
-};
-
-////
-template <typename T>
-struct PointerCast : public Caster
-{
-	typedef T TSelf;
-	typedef T* TPointer;
-	typedef TPointer TTarget;
-	static TSelf cast(TTarget iArg) { return *iArg; }
-};
-
-template<typename T>
-struct PointerCast<T&> : public Caster
-{
-	typedef T& TSelf;
-	typedef T* TPointer;
-	typedef TPointer TTarget;
-	static TSelf cast(TTarget iArg) { return *iArg; }
-};
-template<typename T>
-struct PointerCast<const T&> : public Caster
-{
-	typedef T& TSelf;
-	typedef T* TPointer;
-	typedef TPointer TTarget;
-	static TSelf cast(TTarget iArg) { return *iArg; }
-};
-template<typename T>
-struct PointerCast<T*> : public Caster
-{
-	typedef T* TSelf;
-	typedef T* TPointer;
-	typedef TPointer TTarget;
-	static TSelf cast(TTarget iArg) { return iArg; }
-};
-template<typename T>
-struct PointerCast<const T*> : public Caster
-{
-	typedef const T* TSelf;
-	typedef const T* TPointer;
-	typedef TPointer TTarget;
-	static TSelf cast(TTarget iArg) { return iArg; }
-};
-
-////
- 
-template <typename T>
-struct CopyCast : public Caster
-{
-	typedef T TSelf;
-	typedef T TCopy;
-	typedef TCopy TTarget;
-	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
-};
-
-template<typename T>
-struct CopyCast<T&> : public Caster
-{
-	typedef T& TSelf;
-	typedef T TCopy;
-	typedef TCopy TTarget;
-	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
-};
-template<typename T>
-struct CopyCast<const T&> : public Caster
-{
-	typedef T& TSelf;
-	typedef T TCopy;
-	typedef TCopy TTarget;
-	static TSelf cast(TTarget iArg) { return TSelf(iArg); }
-};
-template<typename T>
-struct CopyCast<T*> : public Caster
-{
-	typedef T* TSelf;
-	typedef T TCopy;
-	typedef TCopy TTarget;
-};
-template<typename T>
-struct CopyCast<const T*> : public Caster
-{
-	typedef const T* TSelf;
-	typedef const T TCopy;
-	typedef TCopy TTarget;
-};
-/////////
-template<typename T>
-struct IsACaster<PointerCast<T> >
-{
-	typedef lass::meta::True TValue;
-};
-template<typename T>
-struct IsACaster<CopyCast<T> >
-{
-	typedef lass::meta::True TValue;
-};
-
-template< typename T>
-struct OwnerCaster
-{
-	typedef typename lass::meta::Select< typename IsACaster<T>::TValue , T, NoCast<T> >::Type TCaster;
-};
-
-}
-}
-
+#include "pyobject_casters.h"
+#include "pyobject_special_methods.h"
+#include "pyobject_export_deprecated.h"
 
 namespace lass
 {
 	namespace python
 	{
-		/** PyExportTraits.  A traits class that replaces the now deprecated pyBuildSimpleObject functionality.
-		*   Reason is to support the two-phase name lookup during template instantiation. (gcc >=3.4 )
-		*/
-		template<typename T>
-		struct PyExportTraits
-		{
-			//static PyObject* build(const T& it) { Py_XINCREF(Py_None);  return Py_None; }
-			//static int get(PyObject* iObject, T& ot) { return 1; } // probably should set an exception to match "UnImplemented" 
-		};
-		// a utility macro to easen the transition to the template based infrastructure
-		#define PYEXPORTTRAITS_USINGDEPRECATED( t_basicType )	\
-		template<>\
-		struct PyExportTraits< t_basicType >\
-		{\
-			static PyObject* build(const t_basicType & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-			static int get(PyObject* iv, t_basicType & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
-		};\
-
-		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( t_basicType )	\
-		template< typename T >\
-		struct PyExportTraits< t_basicType< T > >\
-		{\
-			static PyObject* build(const t_basicType< T > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-			static int get(PyObject* iv, t_basicType< T > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
-		};
-		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( t_basicType )	\
-		template< typename T, typename U >\
-		struct PyExportTraits< t_basicType< T, U > >\
-		{\
-			static PyObject* build(const t_basicType< T, U > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-			static int get(PyObject* iv, t_basicType< T, U> & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
-		};
-		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_3( t_basicType )	\
-		template< typename T, typename U, typename V >\
-		struct PyExportTraits< t_basicType< T, U, V > >\
-		{\
-			static PyObject* build(const t_basicType< T, U, V > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-			static int get(PyObject* iv, t_basicType< T, U, V   > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
-		};
-		#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_4( t_basicType )	\
-		template< typename T, typename U, typename V, typename W >\
-		struct PyExportTraits< t_basicType< T, U, V, W > >\
-		{\
-			static PyObject* build(const t_basicType< T, U, V, W > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
-			static int get(PyObject* iv, t_basicType< T, U, V, W > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
-		};
-
 		/** @ingroup Python
 		 */
 		template<typename T>
@@ -665,6 +487,7 @@ namespace lass
 				void setSsizeObjArgProcfunc(ssizeobjargproc iOverload);
 				void setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload);
 				void setObjObjProcfunc(objobjproc iOverload);
+				void setObjObjArgProcfunc(objobjargproc iOverload);
 
 				bool operator()(PyObject* iSelf, PyObject* iArgs, 
 					PyObject*& result) const;
@@ -680,7 +503,10 @@ namespace lass
 				ssizeobjargproc ssizeobjargproc_;
 				ssizessizeobjargproc ssizessizeobjargproc_;
 				objobjproc objobjproc_;
+				objobjargproc objobjargproc_;
 			};
+
+			template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;
 
 			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(
 				PyObject* iSelf);
@@ -813,6 +639,7 @@ namespace lass
 				virtual PyObject* build() const = 0;
 			};
 			typedef util::SharedPtr<StaticMemberHelper> TStaticMemberHelperPtr;
+
 			template <typename T>
 			class StaticMemberHelperObject: public StaticMemberHelper
 			{
@@ -822,6 +649,7 @@ namespace lass
 			private:
 				T obj_;
 			};
+
 			template <>
 			class StaticMemberHelperObject<PyObject*>: public StaticMemberHelper
 			{
@@ -836,6 +664,7 @@ namespace lass
 			{
 				return TStaticMemberHelperPtr(new StaticMemberHelperObject<T>(obj));
 			}
+
 			class StaticMemberHelperType: public StaticMemberHelper
 			{
 			public:
@@ -924,6 +753,61 @@ namespace lass
 				ssizessizeobjargproc dispatcherSsizeSsizeObjArgProc, 
 				objobjproc dispatcherObjObjProc,
 				OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs, 
+				const char* methodName, const char* documentation, 
+				PyCFunction i_dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::ComparatorSlot& methodName, const char* documentation, 
+				PyCFunction dispatcher, OverloadLink& overloadChain); 
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::UnarySlot& methodName, const char* documentation, 
+				unaryfunc dispatcher, OverloadLink& overloadChain); 
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::BinarySlot& methodName, const char* documentation, 
+				binaryfunc dispatcher, OverloadLink& overloadChain); 
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::TernarySlot& methodName, const char* documentation, 
+				ternaryfunc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::LenSlot&, const char* documentation, 
+				lenfunc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::SsizeArgSlot&, const char* documentation, 
+				ssizeargfunc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::SsizeSsizeArgSlot&, const char* documentation, 
+				ssizessizeargfunc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::SsizeObjArgSlot&, const char* documentation, 
+				ssizeobjargproc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::SsizeSsizeObjArgSlot&, const char* documentation, 
+				ssizessizeobjargproc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::ObjObjArgSlot&, const char* documentation, 
+				objobjargproc dispatcher, OverloadLink& overloadChain);
 
 			template <typename CppClass> void injectClassInModule(
 				PyObject* iModule, const char* iClassDocumentation);
