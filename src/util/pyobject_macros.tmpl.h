@@ -2524,6 +2524,87 @@ $[
 ]$
 
 
+/** @ingroup Python
+ *  @brief Exports a function to Python as a constructor method
+ *  @sa PY_CLASS_FREE_CONSTRUCTOR
+ *
+ *  @param t_cppClass
+ *      the C++ class you want to add the constructor method to.
+ *  @param f_cppFunction
+ *      the full name of the C++ function that implements the constructor method
+ *		if the return argument is not of type t_cppClass the compiler will flag this as an error.
+ *	    This is a design decision to protect against runtime surprises.
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *      per exported C++ class/method pair.
+ *  @remark No documentation can be provided for constructors, this is a limitation of Python.  Although
+ *		the automatic function prototype matching could resolve without specifying the number of arguments
+ *		of the constructor like function for the sake of uniformity with PY_CLASS_CONSTRUCTOR the same
+ *		format of macro is employed.  This also means that there is no need for a QUALIFIED version.
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *  public:
+ *  };
+ *
+ *  Foo spam(int iB);
+ *  Foo spamming(int iB, int iC);
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_FREE_CONSTRUCTOR_1(Foo, spam, int  )
+ *  PY_CLASS_FREE_CONSTRUCTOR_2(Foo, spamming, int, int  )
+ *  @endcode
+ */
+#define PY_CLASS_FREE_CONSTRUCTOR_EX( t_cppClass, f_cppFunction, t_params, i_dispatcher )\
+	static newfunc LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
+	inline PyObject* i_dispatcher( PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds )\
+	{\
+		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
+		{\
+			PyObject* result = LASS_CONCATENATE(i_dispatcher, _overloadChain)(iSubtype, iArgs, iKwds);\
+			if (!(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError)))\
+			{\
+				return result;\
+			}\
+			PyErr_Clear();\
+			Py_XDECREF(result);\
+		}\
+		return ::lass::python::impl::callFunction( iArgs, f_cppFunction );\
+	}\
+	LASS_EXECUTE_BEFORE_MAIN_EX(\
+		LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
+		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyType.tp_new;\
+		t_cppClass::_lassPyType.tp_new = i_dispatcher; \
+	)
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with
+ *  @a i_dispatcher = lassPyImpl_constructor_ ## @a i_cppClass ## __LINE__
+ */
+#define PY_CLASS_FREE_CONSTRUCTOR( i_cppClass, f_cppFunction, t_params )\
+	PY_CLASS_FREE_CONSTRUCTOR_EX(i_cppClass, f_cppFunction, t_params,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_constructor_, i_cppClass)))
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments
+ */
+#define PY_CLASS_FREE_CONSTRUCTOR_0( t_cppClass, f_cppFunction)\
+	PY_CLASS_FREE_CONSTRUCTOR( t_cppClass, f_cppFunction, ::lass::meta::NullType )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
+ */
+#define PY_CLASS_FREE_CONSTRUCTOR_$x( t_cppClass, f_cppFunction, $(t_P$x)$ )\
+	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass));\
+	PY_CLASS_FREE_CONSTRUCTOR(\
+		t_cppClass, f_cppFunction, LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass)))
+]$
+
+
 
 // --- internals -----------------------------------------------------------------------------------
 

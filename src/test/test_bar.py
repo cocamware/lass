@@ -360,6 +360,11 @@ barB = embedding.Bar(5, "hello")
 print barB
 print "\n"
 
+print "\n* Testing free constructor"
+classB = embedding.ClassB(5)
+
+
+
 print "\n* Testing shadow objects"
 shadowB = embedding.Bacon()
 print "shadowB.who():", shadowB.who()
