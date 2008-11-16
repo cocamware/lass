@@ -919,18 +919,11 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
 			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, t_cppClass::_lassPyCompareFuncs,\
-			s_methodName, s_doc, \
-			i_dispatcher,\
-			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::lenDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
+			t_cppClass::_lassPyMethods, \
+			t_cppClass::_lassPyCompareFuncs,\
+			s_methodName, \
+			s_doc, \
+			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
@@ -1227,18 +1220,11 @@ $[
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
 			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, t_cppClass::_lassPyCompareFuncs,\
-			s_methodName, s_doc, \
-			i_dispatcher,\
-			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::lenDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
+			t_cppClass::_lassPyMethods, \
+			t_cppClass::_lassPyCompareFuncs,\
+			s_methodName, \
+			s_doc, \
+			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 /**/
@@ -2733,18 +2719,6 @@ $[
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
-
-/*
-			::lass::python::impl::unaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::binaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ternaryDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeargDispatcher<i_dispatcher>,\
-			::lass::python::impl::lenDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::ssizessizeobjargDispatcher<i_dispatcher>,\
-			::lass::python::impl::objobjDispatcher<i_dispatcher>,\
-*/
 #endif
 
 // EOF

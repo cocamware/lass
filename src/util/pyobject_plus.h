@@ -508,27 +508,6 @@ namespace lass
 
 			template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;
 
-			template <PyCFunction DispatcherAddress> PyObject* unaryDispatcher(
-				PyObject* iSelf);
-			template <PyCFunction DispatcherAddress> PyObject* binaryDispatcher(
-				PyObject* iSelf, PyObject* other);
-			template <PyCFunction DispatcherAddress> PyObject* ternaryDispatcher(
-				PyObject* iSelf, PyObject* iArgs, PyObject* iKw);
-
-			template <PyCFunction DispatcherAddress> PyObject* ssizeargDispatcher(
-				PyObject *, Py_ssize_t);
-			template <PyCFunction DispatcherAddress> PyObject* ssizessizeargDispatcher(
-				PyObject *, Py_ssize_t, Py_ssize_t);
-			template <PyCFunction DispatcherAddress> Py_ssize_t lenDispatcher(
-				PyObject *);
-			template <PyCFunction DispatcherAddress> int ssizeobjargDispatcher(
-				PyObject *, Py_ssize_t, PyObject *);
-			template <PyCFunction DispatcherAddress> int ssizessizeobjargDispatcher(
-				PyObject *, Py_ssize_t, Py_ssize_t, PyObject *);
-			template <PyCFunction DispatcherAddress> int objobjDispatcher(
-				PyObject *, PyObject *);
-
-
 			/**	@ingroup
 			 *	@internal
 			 */
@@ -738,21 +717,11 @@ namespace lass
 				std::vector<PyGetSetDef>& iGetSetters, 
 				const TStaticMembers& iStatics, 
 				const char* iModuleName, const char* iDocumentation);
+
 			LASS_DLL void LASS_CALL addModuleFunction(
 				std::vector<PyMethodDef>& ioModuleMethods, 
 				const char* iMethodName, const char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
-			LASS_DLL void LASS_CALL addClassMethod(
-				PyTypeObject& pyType, 
-				std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
-				const char* methodName, const char* documentation,
-				PyCFunction dispatcher, unaryfunc dispatcherUnary, 
-				binaryfunc dispatcherBinary, ternaryfunc dispatcherTernary, 
-				ssizeargfunc dispatcherSsizeArg, ssizessizeargfunc dispatcherSsizeSsizeArg,
-				lenfunc dispatcherLen, ssizeobjargproc dispatcherSsizeObjArgProc,
-				ssizessizeobjargproc dispatcherSsizeSsizeObjArgProc, 
-				objobjproc dispatcherObjObjProc,
-				OverloadLink& overloadChain);
 
 			LASS_DLL void LASS_CALL addClassMethod(
 				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs, 
