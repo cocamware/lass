@@ -47,15 +47,15 @@ if(BUILD_USING_PRECOMPILED_HEADERS)
 			PROPERTIES
 			COMPILE_FLAGS /Yctest_common.h)
 	else()
-		set(pchfile ${test_suite_BINARY_DIR}/local/test_common.pch)
-		add_custom_command(
-			OUTPUT ${pchfile}
-			DEPENDS ${hdrfile}
-			COMMAND ...)
-		set_source_files_properties(
-			${test_SRCS}
-			PROPERTIES
-			OBJECT_DEPENDS ${pchfile})
+		#set(pchfile ${test_suite_BINARY_DIR}/local/test_common.pch)
+		#add_custom_command(
+		#	OUTPUT ${pchfile}
+		#	DEPENDS ${hdrfile}
+		#	COMMAND ...)
+		#set_source_files_properties(
+		#	${test_SRCS}
+		#	PROPERTIES
+		#	OBJECT_DEPENDS ${pchfile})
 	endif()
 endif()
 

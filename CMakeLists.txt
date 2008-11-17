@@ -196,6 +196,7 @@ macro(add_precompiled_header target hdrfile srcpath)
 			#	${test_SRCS}
 			#	PROPERTIES
 			#	OBJECT_DEPENDS ${pchpath})
+			include_directories(${lass_SOURCE_DIR}/src) # for lass_common.h
 		endif()
 	endif()
 endmacro()
