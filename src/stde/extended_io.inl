@@ -168,7 +168,8 @@ struct pair_traits
 		{
 			return false;
 		}
-		stream.ignore();
+		Char dummy;
+		stream >> dummy;
 		if (!value_traits::read<Char>(stream, value.second, inter_seperator, 0, closer))
 		{
 			return false;
@@ -423,7 +424,8 @@ std::basic_istream<Char, Traits>& operator>>(
 			if (impl::pair_traits::read<Char>(stream, temp, ')', ',', ')'))
 			{
 				x = temp;
-				stream.ignore();
+				Char dummy;
+				stream >> dummy;
 			}
 		}
 		else
