@@ -180,10 +180,13 @@ macro(add_precompiled_header target hdrfile srcpath)
 			set_source_files_properties(
 				${srcpath} 
 				PROPERTIES
-				COMPILE_FLAGS /Yc"${hdrfile}")
+				COMPILE_FLAGS /Yc"${hdrfile}"
+				OBJECT_OUTPUTS ${pchpath})
 			if (NOT MSVC_IDE)
+				set(other_srcs ${${target}_SRCS})
+				list(REMOVE_ITEM other_srcs ${srcpath})
 				set_source_files_properties(
-					${${target}_SRCS}
+					${other_srcs}
 					PROPERTIES
 					OBJECT_DEPENDS "${pchpath}")
 			endif()
@@ -200,6 +203,12 @@ macro(add_precompiled_header target hdrfile srcpath)
 		endif()
 	endif()
 endmacro()
+
+if(MSVC)
+	set(lass_C_FLAGS /EHsc)
+else()
+	set(lass_C_FLAGS -fno-strict-aliasing)
+endif()
 	
 # --- THE LIBRARY ----
 
@@ -219,7 +228,7 @@ if(CMAKE_CL_64)
     if(MSVC_IDE)
         set(objpath ${CMAKE_BINARY_DIR}/lass.dir/${CMAKE_CFG_INTDIR}/${fname}.obj)
     else()
-        set(objpath ${CMAKE_BINARY_DIR}/CMakeFiles/lass.dir/util/impl/${fname}.obj)
+        set(objpath ${CMAKE_BINARY_DIR}/local/${fname}.obj)
     endif()
     add_custom_command(
         OUTPUT ${objpath}
@@ -245,6 +254,7 @@ target_link_libraries(lass
 	debug ${PYTHON_DEBUG_LIBRARIES})
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS
+	COMPILE_FLAGS ${lass_C_FLAGS}
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION})
 add_precompiled_header(
@@ -254,6 +264,7 @@ add_precompiled_header(
 	
 # --- TESTING ---
 
+set(DART_TESTING_TIMEOUT 30 CACHE STRING "Maximum time allowed before CTest will kill the test.")
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()

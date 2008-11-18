@@ -10,7 +10,8 @@ add_custom_command(
 	OUTPUT ${outfile}
 	DEPENDS ${infile} ${generator}
 	COMMAND ${PYTHON_EXECUTABLE}
-	ARGS ${generator} ${infile} ${outfile} 3)
+	ARGS ${generator} ${infile} ${outfile} 3
+	)
 
 foreach(fname ${test_SRCS})
 	if(${fname} MATCHES "/test_.*\\.cpp")
@@ -27,25 +28,42 @@ add_custom_command(
 	OUTPUT ${outfile}
 	DEPENDS ${infile} ${generator}
 	COMMAND ${PYTHON_EXECUTABLE}
-	ARGS ${generator} ${infile} ${outfile} ${unit_tests})
+	ARGS ${generator} ${infile} ${outfile} ${unit_tests}
+	)
 list(APPEND test_SRCS ${outfile})
 
 include_directories(${sourcedir})
 
 list(REMOVE_DUPLICATES test_SRCS)
-add_executable(test_suite ${test_HDRS} ${test_SRCS})
-target_link_libraries(test_suite lass optimized ${PYTHON_LIBRARIES} debug ${PYTHON_DEBUG_LIBRARIES})
+add_executable(
+	test_suite 
+	${test_HDRS} 
+	${test_SRCS}
+	)
+target_link_libraries(
+	test_suite 
+	lass 
+	${lass_LIBS}
+	optimized ${PYTHON_LIBRARIES} 
+	debug ${PYTHON_DEBUG_LIBRARIES}
+	)
+set_target_properties(
+	test_suite PROPERTIES
+        COMPILE_FLAGS ${lass_C_FLAGS}
+	)
 
 if(BUILD_USING_PRECOMPILED_HEADERS)
 	if(MSVC_IDE)
 		set_target_properties(
 			test_suite
 			PROPERTIES
-			COMPILE_FLAGS /Yutest_common.h)
+			COMPILE_FLAGS /Yutest_common.h
+			)
 		set_source_files_properties(
 			${sourcedir}/test_common.cpp 
 			PROPERTIES
-			COMPILE_FLAGS /Yctest_common.h)
+			COMPILE_FLAGS /Yctest_common.h
+			)
 	else()
 		#set(pchfile ${test_suite_BINARY_DIR}/local/test_common.pch)
 		#add_custom_command(
