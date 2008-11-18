@@ -87,8 +87,8 @@ public:
 
 private:
 	size_t maxReaders_;		/**< the maximum of simultaneous readers allowed */
-	int spinLock_;
-	int writersTrying_;		/**< the number of writers trying to enter */
+	volatile int spinLock_;
+	volatile int writersTrying_;		/**< the number of writers trying to enter */
 };
 
 
