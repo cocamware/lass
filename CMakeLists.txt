@@ -264,7 +264,7 @@ add_precompiled_header(
 	
 # --- TESTING ---
 
-set(DART_TESTING_TIMEOUT 30 CACHE STRING "Maximum time allowed before CTest will kill the test.")
+set(DART_TESTING_TIMEOUT 120 CACHE STRING "Maximum time allowed before CTest will kill the test.")
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
