@@ -162,7 +162,7 @@ list(REMOVE_DUPLICATES lass_HDRS)
 
 # --- PRECOMPILED HEADERS ---
 
-macro(add_precompiled_header target hdrfile srcpath)
+macro(add_precompiled_header target hdrfile srcpath target_SRCS)
 	if(BUILD_USING_PRECOMPILED_HEADERS)
 		if(MSVC_IDE)
 			set(pchpath ${lass_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch)
@@ -171,7 +171,7 @@ macro(add_precompiled_header target hdrfile srcpath)
 		endif()
 		if(MSVC)
 			set_target_properties(
-				lass
+				${target}
 				PROPERTIES
 				COMPILE_FLAGS /Fp"${pchpath}"
 				COMPILE_FLAGS /Yu"${hdrfile}"
@@ -183,7 +183,7 @@ macro(add_precompiled_header target hdrfile srcpath)
 				COMPILE_FLAGS /Yc"${hdrfile}"
 				OBJECT_OUTPUTS ${pchpath})
 			if (NOT MSVC_IDE)
-				set(other_srcs ${${target}_SRCS})
+				set(other_srcs ${target_SRCS})
 				list(REMOVE_ITEM other_srcs ${srcpath})
 				set_source_files_properties(
 					${other_srcs}
@@ -260,7 +260,8 @@ set_target_properties(lass PROPERTIES
 add_precompiled_header(
 	lass 
 	lass_common.h 
-	${lass_SOURCE_DIR}/src/lass_common.cpp)
+	${lass_SOURCE_DIR}/src/lass_common.cpp
+	${lass_SRCS})
 	
 # --- TESTING ---
 
