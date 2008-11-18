@@ -96,7 +96,7 @@ void testPrimPlane3D()
 	//
 	// Of course, for some reason, this is not entirely the case ...
 	//
-	Lass_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
 	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
 	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalU(), parametric.reciprocalU(), epsilon, 3);
