@@ -96,11 +96,11 @@ void testPrimPlane3D()
 	//
 	// Of course, for some reason, this is not entirely the case ...
 	//
-	LASS_TEST_CHECK_EQUAL(combined.support(), parametric.support());
+	Lass_TEST_CHECK_EQUAL(combined.support(), parametric.support());
 	LASS_TEST_CHECK_EQUAL(combined.directionU(), parametric.directionU());
 	LASS_TEST_CHECK_EQUAL(combined.directionV(), parametric.directionV());
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalU(), parametric.reciprocalU(), epsilon, 3);
-	LASS_TEST_CHECK_EQUAL(combined.reciprocalV(), parametric.reciprocalV());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.reciprocalV(), parametric.reciprocalV(), epislon, 3);
 
 	// however, on operations that involve the cartesian quantities (normal and d), they
 	// all should act identical, becuase they all have to generate these out of the

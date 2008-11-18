@@ -304,9 +304,9 @@ void testPrimLine2D()
 	LASS_TEST_CHECK_EQUAL(combined.signedDistance(p), -distCo);
 	LASS_TEST_CHECK_EQUAL(parametric.signedDistance(p), -distPa);
 	LASS_TEST_CHECK_EQUAL(cartesian.signedDistance(p), -distCa);
-	LASS_TEST_CHECK_EQUAL(combined.t(p), -tCo);
+	LASS_TEST_CHECK_CLOSE(combined.t(p), -tCo, epsilon);
 	LASS_TEST_CHECK_EQUAL(parametric.t(p), -tPa);
-	LASS_TEST_CHECK_EQUAL(cartesian.t(p), -tCa);
+	LASS_TEST_CHECK_CLOSE(cartesian.t(p), -tCa, epsilon);
 
 	// alright, that's it folks =)
 }
