@@ -63,6 +63,8 @@ class SocketError: public util::Exception
 {
 public:
 	SocketError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(SocketError)
 };
 
 
