@@ -63,7 +63,7 @@ void testUtilAtomicType()
 
 	T old1 = 1;
 	T new1 = 2;
-	T a = old1;
+	volatile T a = old1;
 	util::atomicIncrement(a);
 	LASS_TEST_CHECK_EQUAL(a, new1);	
 	util::atomicDecrement(a);
@@ -93,7 +93,7 @@ void testUtilAtomicAdjacentCas()
 	const T new1 = 3 * multiplier, new2 = 4 * multiplier;
 	const T wrong1 = 10 * multiplier, wrong2 = 11 * multiplier;
 
-	T a[2] = { old1, old2 };
+	volatile T a[2] = { old1, old2 };
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
 	LASS_TEST_CHECK_EQUAL(a[0], old1);
 	LASS_TEST_CHECK_EQUAL(a[1], old2);
