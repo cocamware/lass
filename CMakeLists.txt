@@ -29,7 +29,7 @@ else()
 	set(LASS_SHARED_LIBRARY 0)
 endif()
 
-option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
+option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" OFF)
 
 
 # --- CHECK THE ENVIRONMENT ----
@@ -170,6 +170,8 @@ macro(add_precompiled_header target hdrfile srcpath target_SRCS)
 			set(pchpath ${lass_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch)
 		endif()
 		if(MSVC)
+			get_target_property(cflags ${target} COMPILE_FLAGS)
+			message("${clags}")
 			set_target_properties(
 				${target}
 				PROPERTIES
@@ -191,23 +193,22 @@ macro(add_precompiled_header target hdrfile srcpath target_SRCS)
 					OBJECT_DEPENDS "${pchpath}")
 			endif()
 		else()
-			#add_custom_command(
-			#	OUTPUT ${pchpath}
-			#	DEPENDS ${hdrfile}
-			#	COMMAND ...)
-			#set_source_files_properties(
-			#	${test_SRCS}
-			#	PROPERTIES
-			#	OBJECT_DEPENDS ${pchpath})
-			include_directories(${lass_SOURCE_DIR}/src) # for lass_common.h
+			add_custom_command(
+				OUTPUT ${pchpath}
+				DEPENDS ${hdrfile}
+				COMMAND ...)
+			set_source_files_properties(
+				${test_SRCS}
+				PROPERTIES
+				OBJECT_DEPENDS ${pchpath})
 		endif()
 	endif()
 endmacro()
 
 if(MSVC)
-	set(lass_C_FLAGS /EHsc)
+	set(lass_C_FLAGS "/EHsc")
 else()
-	set(lass_C_FLAGS -fno-strict-aliasing)
+	set(lass_C_FLAGS "-fno-strict-aliasing")
 endif()
 	
 # --- THE LIBRARY ----
@@ -262,10 +263,11 @@ add_precompiled_header(
 	lass_common.h 
 	${lass_SOURCE_DIR}/src/lass_common.cpp
 	${lass_SRCS})
+
 	
 # --- TESTING ---
 
-set(DART_TESTING_TIMEOUT 120 CACHE STRING "Maximum time allowed before CTest will kill the test.")
+set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest will kill the test.")
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
