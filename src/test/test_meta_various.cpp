@@ -73,7 +73,7 @@ void testMetaIsConvertible()
 	//
 	// [Bramz]
 
-	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float, int>::value), true);
+	// LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<float, int>::value), true);
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<int, float>::value), true);
 
 	LASS_TEST_CHECK_EQUAL(bool(meta::IsConvertible<std::string, const char*>::value), false);
