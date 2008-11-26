@@ -54,7 +54,11 @@ namespace test
 namespace socket
 {
 
-const short int port = 7331;
+typedef short int TPort;
+
+const TPort portBegin = 7331;
+const TPort portEnd = 7431;
+volatile TPort port = 0;
 
 const int numberSentServerToClient = 01234;	
 const int numberSentClientToServer = 56789;
@@ -66,11 +70,40 @@ int numberReceivedClientToServer = 0;
 std::string messageReceivedClientToServer;
 std::string messageReceivedServerToClient;
 
+const TPort bindRange(io::Socket& socket, TPort begin, TPort end)
+{
+	while (true)
+	{
+		try
+		{
+			socket.bind(begin);
+			return begin;
+		}
+		catch (io::SocketError& error)
+		{
+			++begin;
+			if (begin == end)
+			{
+				throw;
+			}
+		}
+	}
+}
+
 void serverThread()
 {
 	LASS_COUT << "starting server\n";
 	io::Socket server;
-	server.bind(port);
+	try
+	{
+		port = bindRange(server, portBegin, portEnd);
+	}
+	catch (io::SocketError& error)
+	{
+		port = -1;
+		throw;
+	}
+	LASS_COUT << "binded to port " << port << std::endl;
 	server.listen();
 	
 	io::Socket connection;
@@ -91,6 +124,14 @@ void clientThread()
 {
 	LASS_COUT << "starting client\n";
 	io::Socket client;
+	while (port == 0)
+	{
+		util::Thread::sleep(10);
+	}
+	if (port == -1)
+	{
+		return;
+	}
 	client.connect("127.0.0.1", port);
 
 	io::BinaryOSocket outgoing(client);
@@ -101,7 +142,7 @@ void clientThread()
 	
 	util::Thread::sleep(500);
 	outgoing << messageSentClientToServer;
-    incoming >> messageReceivedServerToClient;
+	incoming >> messageReceivedServerToClient;
 }
 
 }
