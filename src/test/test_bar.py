@@ -360,8 +360,13 @@ assert(len(c)==10)
 for v in c:
 	print v
 
+print "\n* Full Map and Iterator protocol testing"
+c = embedding.ClassMap()
+c["test"] = 1
+c["test2"] = 2
+for v in c:
+	print v
 
-	
 	
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)

@@ -327,7 +327,17 @@ namespace lass
 		public:
 			ClassMap() {}
 			virtual ~ClassMap() {}
+			void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
 		};
+
+		std::map<std::string,float>::const_iterator freeBegin(ClassMap* iThis)
+		{
+			return iThis->begin();
+		}
+		std::map<std::string,float>::const_iterator freeEnd(ClassMap* iThis)
+		{
+			return iThis->end();
+		}
 
 
 		PyObject* getMemberImagine(const ClassB * iThis )
@@ -431,8 +441,12 @@ PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)
 PY_SHADOW_DOWN_CASTERS( PyClassMap )
 PY_DECLARE_CLASS_NAME( PyClassMap, "ClassMap")
+PY_CLASS_CONSTRUCTOR_0( PyClassMap)
+PY_CLASS_METHOD_NAME( PyClassMap, setItem, lass::python::methods::map_setitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, operator[], lass::python::methods::map_getitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, size, lass::python::methods::map_len_);
+PY_CLASS_ITERFUNC( PyClassMap, begin, end )
+PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
 
 
 namespace lass { namespace test {

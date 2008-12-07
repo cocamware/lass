@@ -150,9 +150,102 @@ struct PyExportTraits<PyIteratorRange*>
 	}
 };
 
+
 }
 
 }
+
+// --- iterators -------------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  Exports a set of C++ iterators to Python
+ *
+ *  @param t_cppClass
+ *      the C++ class you're exporting an iterator of
+ *  @param i_cppBegin
+ *      the name of the method in C++ that provides the beginning of the exported iterator range 
+ *  @param i_cppEnd
+ *      the name of the method in C++ that provides the beginning of the exported iterator range 
+ *  @param s_doc
+ *      documentation of method as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *      per exported C++ class/method pair.
+ *
+ *  Invoke this macro to export an iterator range to python.  The returned object will support the 
+ *	iterator protocol by default.  The class generating the export will also support the iterator
+ *	generator protocol.
+ *
+ *  @note
+ *      the documentation of the Python method will be the @a s_doc of the first exported
+ *      overload.
+ *  @note
+ *      the iterator stability of C++ is inherited into Python.  It is the responsibility of the user
+ *		of these macro's to ensure or document the stability of the iterators.
+ *  @note
+ *      Although you can overload the __iter__ slot it is probably of little use.  The last assigned function
+ *		will return the iterator.  It could be useful if some of the overloaded function throw, in that case
+ *		the first non-throwing (if any) function will be chosen.
+ *
+ *  @code
+ *  // foo.h
+ *  class Foo
+ *  {
+ *      PY_HEADER(python::PyObjectPlus)
+ *  public:
+ *      void barA(int a);
+ *      std::vector<int>::const_iterator begin() const { return vector_.begin(); }
+ *      std::vector<int>::const_iterator end() const { return vector_.end(); }
+ *  private:
+ *		std::vector<int> vector_;
+ *  };
+ *
+ *  std::vector<int> temp;
+ *  std::vector<int>::const_iterator freeBegin(Foo* iObj) { return temp.begin(); }
+ *  std::vector<int>::const_iterator freeEnd(Foo* iObj) { return temp.end(); }
+ *
+ *  // foo.cpp
+ *  PY_DECLARE_CLASS(Foo)
+ *  PY_CLASS_ITERFUNC_EX(Foo, begin, end, 0, foo_bar_a)
+ *  PY_CLASS_FREE_ITERFUNC_EX(Foo, begin, end, 0, foo_bar_a)
+ *  @endcode
+ */
+#define PY_CLASS_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
+	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iObj) { \
+	return new lass::python::PyIteratorRange(iObj-> i_cppBegin (), iObj-> i_cppEnd ()); } \
+	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ), lass::python::methods::_iter_, s_doc)
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
+ */
+#define PY_CLASS_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, s_doc )\
+		PY_CLASS_ITERFUNC_EX(\
+			i_cppClass, i_cppBegin, icppEnd, s_doc,\
+			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_ITERFUNC_DOC with @a s_doc = 0.
+ */
+#define PY_CLASS_ITERFUNC( i_cppClass, i_cppBegin, icppEnd )\
+		PY_CLASS_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, 0 )
+
+#define PY_CLASS_FREE_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
+lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iObj) { \
+return new lass::python::PyIteratorRange(i_cppBegin(iObj), i_cppEnd(iObj)); } \
+	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ), lass::python::methods::_iter_, s_doc)
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
+ *  @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
+ */
+#define PY_CLASS_FREE_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, s_doc )\
+		PY_CLASS_FREE_ITERFUNC_EX(\
+			i_cppClass, i_cppBegin, icppEnd, s_doc,\
+			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
+/** @ingroup Python
+ *  convenience macro, wraps PY_CLASS_ITERFUNC_DOC with @a s_doc = 0.
+ */
+#define PY_CLASS_FREE_ITERFUNC( i_cppClass, i_cppBegin, icppEnd )\
+		PY_CLASS_FREE_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, 0 )
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(pop)
