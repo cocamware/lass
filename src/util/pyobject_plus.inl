@@ -176,6 +176,26 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		return 0;
 	}
 };
+/** @internal
+*/
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::IterSlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf)
+	{
+		TPyObjPtr args(PyTuple_New(0));
+		return DispatcherAddress(iSelf, args.get());
+	}
+};
+/** @internal
+*/
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::IterNextSlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf)
+	{
+		TPyObjPtr args(PyTuple_New(0));
+		return DispatcherAddress(iSelf, args.get());
+	}
+};
 /////////////////////////////////////////////
 
 

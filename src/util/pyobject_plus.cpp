@@ -272,6 +272,17 @@ void OverloadLink::setObjObjArgProcfunc(objobjargproc iOverload)
 	setNull();
 	objobjargproc_ = iOverload;
 }
+void OverloadLink::setIterfunc(getiterfunc iOverload)
+{
+	setNull();
+	getiterfunc_ = iOverload;
+}
+void OverloadLink::setIterNextfunc(iternextfunc iOverload)
+{
+	setNull();
+	iternextfunc_ = iOverload;
+}
+
 
 bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
 {
@@ -747,6 +758,34 @@ void addClassMethod(
 {
 	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
 }
+
+void addClassMethod(
+		PyTypeObject& pyType, 
+		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		const lass::python::impl::IterSlot& methodName, const char* documentation, 
+		getiterfunc dispatcher, 
+		OverloadLink& overloadChain) 
+{
+	if (methodName.name=="__iter__")
+	{
+		overloadChain.setIterfunc(pyType.tp_iter);
+		pyType.tp_iter = dispatcher;
+	}
+}
+void addClassMethod(
+		PyTypeObject& pyType, 
+		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		const lass::python::impl::IterNextSlot& methodName, const char* documentation, 
+		iternextfunc dispatcher, 
+		OverloadLink& overloadChain) 
+{
+	if (methodName.name=="next")
+	{
+		overloadChain.setIterNextfunc(pyType.tp_iternext);
+		pyType.tp_iternext = dispatcher;
+	}
+}
+
 
 
 /** @internal

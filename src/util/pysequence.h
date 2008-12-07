@@ -211,6 +211,7 @@ namespace impl
 		virtual void clear()				{ pimpl_->clear(); }
 		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
 		virtual TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
+		virtual TPyObjPtr popwo()		{ return pimpl_->pop(-1); }
 
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
@@ -312,11 +313,13 @@ namespace impl
 		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		LASS_ASSERT(size >= 0);
 
-		if (i<0 || i>=size)
+		if (i>=size)
 		{
 			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
 			return NULL;
 		}
+		if (i<0)
+			i = (size-(-i % size)) % size;
 		return lass::python::PyExportTraits< typename Container::value_type >::build( ContainerTraits<Container>::element_at(*cont_,i));
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
@@ -324,6 +327,11 @@ namespace impl
 	{
 		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		LASS_ASSERT(size >= 0);
+
+		if (ilow<0)
+			ilow = (size-(-ilow % size)) % size;
+		if (ihigh<0)
+			ihigh = (size-(-ihigh % size)) % size;
 
 		Py_ssize_t len;
 		if (ilow < 0)
@@ -342,16 +350,19 @@ namespace impl
 	template<typename Container, typename ContainerOwnerShipPolicy>
 	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(Py_ssize_t i, PyObject *v)
 	{
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
 		if (readOnly_)
 		{
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return -1;
 		}
-		if (i < 0 || i >= PySequence_Length()) 
+		if (i >= PySequence_Length()) 
 		{
 			PyErr_SetString(PyExc_IndexError,"list assignment index out of range");
 			return -1;
 		}
+		if (i<0)
+			i = (size-(-i % size)) % size;
 		if (v == NULL)
 			return PySequence_AssSlice(i, i+1, v);
 		return PyExportTraits<typename Container::value_type>::get(v,ContainerTraits<Container>::element_at(*cont_,i));
@@ -371,6 +382,21 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Cannot convert to type for slice assignment");
 			return -1;
 		}
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
+		if (ilow<0)
+			ilow = (size-(-ilow % size)) % size;
+		if (ihigh<0)
+			ihigh = (size-(-ihigh % size)) % size;
+
+		if (ilow < 0)
+			ilow = 0;
+		else if (ilow > size)
+			ilow = size;
+		if (ihigh < ilow)
+			ihigh = ilow;
+		else if (ihigh > size)
+			ihigh = size;
+
 		cont_->erase(	ContainerTraits<Container>::iterator_at(*cont_,ilow),
 						ContainerTraits<Container>::iterator_at(*cont_,ihigh) );
 		cont_->insert(	ContainerTraits<Container>::iterator_at(*cont_,ilow+1),
@@ -447,6 +473,9 @@ namespace impl
 			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
 			return TPyObjPtr();
 		}
+		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
+		if (i<0)
+			i = (size-(-i % size)) % size;
 		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
 		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
 		return fromNakedToSharedPtrCast<PyObject>(lass::python::PyExportTraits<typename Container::value_type>::build(temp));

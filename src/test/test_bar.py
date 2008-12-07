@@ -110,6 +110,7 @@ def testSequence(seq):
 	seq.clear()
 	for i in range(10):
 		seq.append(i)
+	seq.pop()
 	for i in range(5):
 		seq.pop(3)
 	seq[3] = 5
@@ -122,6 +123,10 @@ def testSequence(seq):
 	assert(len(seq)==4*l)
 	seq[0:4] = range(10)
 	assert(len(seq)==4*l+6)
+	for i,v in enumerate(seq):
+		print i,v
+	assert(5 in seq)
+	assert(-32132654 not in seq)
 
 barC.writeableVector = range(3)
 # we don't provide special iterator support
@@ -346,6 +351,18 @@ try:
 except:
 	pass
 
+print "\n* Full Sequence and Iterator protocol testing"
+c = embedding.ClassSeq()
+testSequence(c)
+c.clear()
+[c.append(i) for i in range(10)]
+assert(len(c)==10)
+for v in c:
+	print v
+
+
+	
+	
 print "\n* Testing qualified and overloaded methods"
 test.overloaded(5)
 test.overloaded('hello!')

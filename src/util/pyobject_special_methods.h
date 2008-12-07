@@ -68,6 +68,8 @@ namespace impl
 	struct SsizeSsizeObjArgSlot : public SpecialSlot { SsizeSsizeObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
 	struct ObjObjSlot : public SpecialSlot { ObjObjSlot(const std::string& iName) : SpecialSlot(iName) {} };
 	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
+	struct IterSlot : public SpecialSlot { IterSlot(const std::string& iName) : SpecialSlot(iName) {} };
+	struct IterNextSlot : public SpecialSlot { IterNextSlot(const std::string& iName) : SpecialSlot(iName) {} };
 
 	const int charPtrSlot = 1;
 	const int unarySlot = 2;
@@ -81,6 +83,8 @@ namespace impl
 	const int ssizeSsizeObjArgSlot = 10;
 	const int objObjSlot = 11;
 	const int objObjArgSlot = 12;
+	const int iterSlot = 13;
+	const int iterNextSlot = 14;
 
 
 	template<int value> struct MetaInt { volatile const char dummy[value]; };
@@ -100,6 +104,8 @@ namespace impl
 		static MetaInt<ssizeSsizeObjArgSlot> test(const SsizeSsizeObjArgSlot&);
 		static MetaInt<objObjSlot> test(const ObjObjSlot&);
 		static MetaInt<objObjArgSlot> test(const ObjObjArgSlot&);
+		static MetaInt<iterSlot> test(const IterSlot&);
+		static MetaInt<iterNextSlot> test(const IterNextSlot&);
 	};
 
 	template<int value>
@@ -118,6 +124,8 @@ namespace impl
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<ssizeSsizeObjArgSlot>)> { typedef SsizeSsizeObjArgSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<objObjSlot>)> { typedef ObjObjSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<objObjArgSlot>)> { typedef ObjObjArgSlot Type; };
+	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterSlot>)> { typedef IterSlot Type; };
+	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterNextSlot>)> { typedef IterNextSlot Type; };
 
 	#define SPECIAL_SLOT_TYPE( x ) lass::python::impl::IsSpecialSlotTesterValue<sizeof(lass::python::impl::IsSpecialSlotTester::test(x))>::Type
 
@@ -193,11 +201,12 @@ namespace methods
 
 	// PyMappingMethods
 	const lass::python::impl::LenSlot map_len_("__map_len__");
-	const lass::python::impl::BinarySlot map_get_item_("__map_getitem__");
-	const lass::python::impl::ObjObjArgSlot map_set_item_("__map_setitem__");
+	const lass::python::impl::BinarySlot map_getitem_("__map_getitem__");
+	const lass::python::impl::ObjObjArgSlot map_setitem_("__map_setitem__");
 
-
-
+	// Iterator Protocol
+	const lass::python::impl::IterSlot _iter_("__iter__");
+	const lass::python::impl::IterNextSlot next("next");
 }
 
 }

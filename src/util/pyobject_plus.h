@@ -489,6 +489,9 @@ namespace lass
 				void setObjObjProcfunc(objobjproc iOverload);
 				void setObjObjArgProcfunc(objobjargproc iOverload);
 
+				void setIterfunc(getiterfunc iOverload);
+				void setIterNextfunc(iternextfunc iOverload);
+
 				bool operator()(PyObject* iSelf, PyObject* iArgs, 
 					PyObject*& result) const;
 			private:
@@ -504,6 +507,9 @@ namespace lass
 				ssizessizeobjargproc ssizessizeobjargproc_;
 				objobjproc objobjproc_;
 				objobjargproc objobjargproc_;
+
+				getiterfunc getiterfunc_;
+				iternextfunc iternextfunc_;
 			};
 
 			template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;
@@ -777,6 +783,16 @@ namespace lass
 				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
 				const lass::python::impl::ObjObjArgSlot&, const char* documentation, 
 				objobjargproc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::IterSlot&, const char* documentation, 
+				getiterfunc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+				const lass::python::impl::IterNextSlot&, const char* documentation, 
+				iternextfunc dispatcher, OverloadLink& overloadChain);
 
 			template <typename CppClass> void injectClassInModule(
 				PyObject* iModule, const char* iClassDocumentation);

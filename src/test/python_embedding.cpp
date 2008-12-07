@@ -301,6 +301,35 @@ namespace lass
 			void setitem(int i, std::pair<float,int> iarg) { }
 		};
 
+		class ClassSeq : public std::vector<float>
+		{
+		public:
+			ClassSeq() {}
+			virtual ~ClassSeq() {}
+			void setItem(int i, float value) { at(i) = value; }
+			float pop(int i) { float temp = at(i); erase(begin()+i); return temp; }
+			float popwo() { float temp = back(); pop_back(); return temp; }
+			ClassSeq& irepeat(int n) { lass::stde::inplace_repeat_c(*this,n);  return *this;}
+			ClassSeq& iconcat(const std::vector<float>& iV) { insert(end(),iV.begin(), iV.end());  return *this;}
+			ClassSeq& setSlice(int ilow, int ihigh, const std::vector<float>& iV) 
+			{
+				erase(	begin()+ilow,begin()+ihigh );
+				insert(	begin()+ilow+1,iV.begin(),iV.end());			
+				return *this;
+			}
+
+			lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
+		};
+
+
+		class ClassMap : public std::map<std::string,float>
+		{
+		public:
+			ClassMap() {}
+			virtual ~ClassMap() {}
+		};
+
+
 		PyObject* getMemberImagine(const ClassB * iThis )
 		{
 			Py_XINCREF(Py_None);
@@ -370,16 +399,48 @@ PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImag
 PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::getMemberImagine, "imagine", "blabla")
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
 PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
+
+
+// Special methods
+// sequence protocol
 PY_CLASS_METHOD_NAME( PyClassB, getitem, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
 PY_CLASS_METHOD_NAME( PyClassB, setitem, lass::python::methods::_setitem_);
-
 PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
+
+// full sequence protocol
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassSeq, lass::test::ClassSeq)
+PY_SHADOW_DOWN_CASTERS( PyClassSeq )
+PY_DECLARE_CLASS_NAME( PyClassSeq, "ClassSeq")
+PY_CLASS_CONSTRUCTOR_0( PyClassSeq)
+PY_CLASS_METHOD_NAME( PyClassSeq, push_back, "append");
+PY_CLASS_METHOD_NAME( PyClassSeq, clear, "clear");
+PY_CLASS_METHOD_NAME( PyClassSeq, pop, "pop");
+PY_CLASS_METHOD_NAME( PyClassSeq, popwo, "pop");
+PY_CLASS_METHOD_NAME( PyClassSeq, irepeat, lass::python::methods::_irepeat_);
+PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
+
+PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
+PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
+
+PY_CLASS_METHOD_NAME( PyClassSeq, operator[], lass::python::methods::_getitem_);
+PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
+PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
+
+// full map protocol
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)
+PY_SHADOW_DOWN_CASTERS( PyClassMap )
+PY_DECLARE_CLASS_NAME( PyClassMap, "ClassMap")
+PY_CLASS_METHOD_NAME( PyClassMap, operator[], lass::python::methods::map_getitem_);
+PY_CLASS_METHOD_NAME( PyClassMap, size, lass::python::methods::map_len_);
+
 
 namespace lass { namespace test {
 LASS_EXECUTE_BEFORE_MAIN(
 	PY_INJECT_CLASS_IN_MODULE( PyClassA, embedding, "Documentation for class A." );
 	PY_INJECT_CLASS_IN_MODULE( PyClassB, embedding, "Documentation for class B." );
+	PY_INJECT_CLASS_IN_MODULE( PyClassSeq, embedding, "Documentation for class Seq." );
+	PY_INJECT_CLASS_IN_MODULE( PyClassMap, embedding, "Documentation for class Map." );
 	)
 } }
 

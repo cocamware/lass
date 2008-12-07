@@ -49,7 +49,6 @@
 
 #include "util_common.h"
 #include "pyobject_plus.h"
-//#include "string_cast.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -141,6 +140,15 @@ private:
 	static bool isInitialized;
 };
 
+template<>
+struct PyExportTraits<PyIteratorRange*>
+{
+	/** we take ownership! */
+	static PyObject* build( PyIteratorRange* iV )
+	{
+		return iV;
+	}
+};
 
 }
 

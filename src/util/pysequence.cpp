@@ -58,6 +58,7 @@ namespace impl
 
 	PY_CLASS_METHOD( PySequence, append )
 	PY_CLASS_METHOD( PySequence, pop )
+	PY_CLASS_METHOD_NAME( PySequence, popwo, "pop" )
 	PY_CLASS_METHOD( PySequence, clear )
 	PY_CLASS_METHOD( PySequence, reserve )
 
