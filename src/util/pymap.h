@@ -118,16 +118,6 @@ namespace impl
 		static PyMappingMethods pyMappingMethods;
 
 	public:
-		/*
-		 * deprecated? [Bramz]
-		template<typename M> PyMap( M* iStdMap ) 
-		{
-			initialize();
-			impl::fixObjectType(this);
-			LASS_ASSERT(iStdMap);
-			pimpl_ = new PyMapImpl<M>(iStdMap); // also const M*
-		}
-		*/
 		template<typename M> PyMap( M& iStdMap ) 
 		{
 			initialize();
@@ -142,11 +132,11 @@ namespace impl
 			pimpl_ = new PyMapImpl<const M>(copy.get(), PyMapImpl<const M>::oOwner);
 			copy.release();
 		}
-		virtual ~PyMap();
-		virtual std::string doPyStr(void) { return pimpl_->pyStr(); }
-		virtual std::string doPyRepr(void) { return pimpl_->pyRepr(); }
-		virtual TPyObjPtr keys() const { return pimpl_->keys(); }
-		virtual TPyObjPtr values() const { return pimpl_->values(); }
+		~PyMap();
+		std::string doPyStr(void) { return pimpl_->pyStr(); }
+		std::string doPyRepr(void) { return pimpl_->pyRepr(); }
+		TPyObjPtr keys() const { return pimpl_->keys(); }
+		TPyObjPtr values() const { return pimpl_->values(); }
 
 		static Py_ssize_t PyMap_Length( PyObject* iPO);
 		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);

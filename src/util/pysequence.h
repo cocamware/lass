@@ -204,14 +204,14 @@ namespace impl
 			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
 		}
 		//PySequence( PyObject* iP );
-		virtual ~PySequence();
-		virtual std::string doPyStr(void)		{ return pimpl_->pyStr(); }
-		virtual std::string doPyRepr(void)	{ return pimpl_->pyRepr(); }
-		virtual void append(PyObject* i)	{ pimpl_->append(i); }
-		virtual void clear()				{ pimpl_->clear(); }
-		virtual void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
-		virtual TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
-		virtual TPyObjPtr popwo()		{ return pimpl_->pop(-1); }
+		~PySequence();
+		std::string doPyStr(void)		{ return pimpl_->pyStr(); }
+		std::string doPyRepr(void)	{ return pimpl_->pyRepr(); }
+		void append(PyObject* i)	{ pimpl_->append(i); }
+		void clear()				{ pimpl_->clear(); }
+		void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
+		TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
+		TPyObjPtr popwo()		{ return pimpl_->pop(-1); }
 
 		//static PyObject* PySequence_ListIter(PyObject* iPO);
 
