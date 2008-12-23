@@ -54,6 +54,7 @@
 #include "../util/callback_0.h"
 #include "../util/callback_1.h"
 #include "../util/callback_r_0.h"
+#include "../util/callback_r_1.h"
 #include "../util/callback_r_2.h"
 
 namespace lass
@@ -321,6 +322,31 @@ namespace lass
 			lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
 		};
 
+		template<typename V>
+		class IteratorAdapter
+		{
+		public:
+			typedef lass::util::Callback1<size_t> TSizeCallback;
+			typedef typename lass::util::CallbackR1<V, size_t> TGetItemCallback;
+
+			enum SpecialValues { Begin, End, None } ;
+
+			IteratorAdapter(SpecialValues iValue, 
+							const TSizeCallback& iSizeCb, 
+							const TGetItemCallback& iItemCb) : specialValue_(iValue), cont_(iCont), currIndex_(0) 
+			{
+				if (iValue==End)
+					currIndex = TSizeCallback();
+			}
+			virtual ~IteratorAdapter() {}				/**< no ownership */
+			
+			const V& operator*() { return TGetItemCallback(currIndex_); }
+			V operator++(int) { V temp(TGetItemCallback(currIndex_)); ++currIndex; return temp; }
+		private:
+			size_t currIndex_;
+			SpecialValues specialValue_;
+		};
+
 
 		class ClassMap : public std::map<std::string,float>
 		{
@@ -433,7 +459,7 @@ PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
 PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
 PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
 
-PY_CLASS_METHOD_NAME( PyClassSeq, operator[], lass::python::methods::_getitem_);
+PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], std::vector<float>::const_reference, std::vector<float>::size_type, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
 
