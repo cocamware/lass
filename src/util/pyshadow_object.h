@@ -889,9 +889,9 @@ inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCpp
 	return 1;\
 }\
 template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass > \
+struct PyExportTraits< t_ShadowObject::TCppClass* > \
 {\
-	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
+	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(*iByCopy); }\
 	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
 };\
 template <> \
