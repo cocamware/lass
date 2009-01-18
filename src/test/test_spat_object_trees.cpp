@@ -50,6 +50,88 @@ namespace lass
 namespace test
 {
 
+template 
+<
+	typename ObjectTreesType, 
+	typename AabbType, 
+	typename GeneratorType
+>
+void testSpatObjectTreesSpeed(
+		const ObjectTreesType& trees, const AabbType& bounds, GeneratorType& generator)
+{
+	typedef typename meta::tuple::Field<ObjectTreesType, 0>::Type::TRay TRay;
+	typedef typename AabbType::TValue TValue;
+	typedef typename AabbType::TPoint TPoint;
+	typedef typename AabbType::TVector TVector;
+	enum { dimension = AabbType::dimension };
+
+	const size_t numberOfPointTestTargets = 1000;
+	const size_t numberOfRayTestTargets = 1000;
+	const TValue maxRangeRadius = 50;
+	const size_t maxRangeCount = 10;
+	const size_t numberOfContainSpeedTestRuns = 2;
+	const size_t numberOfIntersectionSpeedTestRuns = 2;
+	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
+	const size_t numberOfRangeSearchSpeedTestRuns = 2;
+
+	LASS_COUT << "object tree speed tests: " << typeid(TValue).name() << " " << dimension << "D\n";
+	util::Clock clock;
+	util::StopWatch stopWatch(clock);
+
+	typedef std::vector<TPoint> TPointTargets;
+	TPointTargets pointTargets;
+	for (size_t i = 0; i < numberOfPointTestTargets; ++i)
+	{
+		pointTargets.push_back(bounds.random(generator));
+	}
+
+	typedef std::vector<TRay> TRayTargets;
+	TRayTargets rayTargets;
+	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
+	{
+		TPoint support = bounds.random(generator);
+		TVector direction = TVector::random(generator);
+		rayTargets.push_back(TRay(support, direction));
+	}
+
+	LASS_COUT << "contain tests:\n";
+	tree_test_helpers::ContainSpeedTest<TPointTargets> containSpeedTest(
+		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
+	meta::tuple::forEach(trees, containSpeedTest);
+
+	LASS_COUT << "intersection tests:\n";
+	tree_test_helpers::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
+		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
+	meta::tuple::forEach(trees, intersectionSpeedTest);
+
+	LASS_COUT << "nearest neighbour tests:\n";
+	tree_test_helpers::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(
+		pointTargets, stopWatch, numberOfNearestNeighbourSpeedTestRuns);
+	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
+
+	LASS_COUT << "range search tests:\n";
+	tree_test_helpers::RangeSearchSpeedTest<TPointTargets, TValue> rangeSearchSpeedTest(
+		pointTargets, maxRangeRadius, maxRangeCount, stopWatch, numberOfRangeSearchSpeedTestRuns);
+	meta::tuple::forEach(trees, rangeSearchSpeedTest);
+}
+
+
+template 
+<
+	typename ObjectTreesType, 
+	typename AabbType, 
+	typename GeneratorType
+>
+void testSpatObjectTreesContain(
+		const ObjectTreesType& trees, const AabbType& bounds, GeneratorType& generator)
+{
+	typedef typename meta::tuple::Field<ObjectTreesType, 0>::Type::TRay TRay;
+	typedef typename AabbType::TValue TValue;
+	typedef typename AabbType::TPoint TPoint;
+	typedef typename AabbType::TVector TVector;
+	enum { dimension = AabbType::dimension };
+}
+
 template <typename T, size_t dim>
 void testSpatObjectTrees()
 {
@@ -68,10 +150,6 @@ void testSpatObjectTrees()
 	const size_t numberOfNearestNeighbourValidations = 1000;
 	const size_t numberOfRangeSearchValidations = 1000;
 	// speed tests
-	const size_t numberOfContainSpeedTestRuns = 2;
-	const size_t numberOfIntersectionSpeedTestRuns = 2;
-	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
-	const size_t numberOfRangeSearchSpeedTestRuns = 2;
 
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Triangle2D<T>, prim::Sphere3D<T> >::Type TObject;
 	typedef typename meta::Select< meta::Bool<dim == 2>, prim::Aabb2D<T>, prim::Aabb3D<T> >::Type TAabb;
@@ -225,49 +303,10 @@ void testSpatObjectTrees()
 		meta::tuple::forEach(trees, test);
 	}
 
-
-
-	// SPEED TESTS
-	//
-	LASS_COUT << "object tree speed tests: " << typeid(T).name() << " " << dim << "D\n";
-	util::Clock clock;
-	util::StopWatch stopWatch(clock);
-
-	typedef std::vector<TPoint> TPointTargets;
-	TPointTargets pointTargets;
-	for (size_t i = 0; i < numberOfPointTestTargets; ++i)
+	if (false)
 	{
-		pointTargets.push_back(bounds.random(generator));
+		testSpatObjectTreesSpeed(trees, bounds, generator);
 	}
-
-	typedef std::vector<TRay> TRayTargets;
-	TRayTargets rayTargets;
-	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
-	{
-		TPoint support = bounds.random(generator);
-		TVector direction = TVector::random(generator);
-		rayTargets.push_back(TRay(support, direction));
-	}
-
-	LASS_COUT << "contain tests:\n";
-	tree_test_helpers::ContainSpeedTest<TPointTargets> containSpeedTest(
-		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
-	meta::tuple::forEach(trees, containSpeedTest);
-
-	LASS_COUT << "intersection tests:\n";
-	tree_test_helpers::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
-		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
-	meta::tuple::forEach(trees, intersectionSpeedTest);
-
-	LASS_COUT << "nearest neighbour tests:\n";
-	tree_test_helpers::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(
-		pointTargets, stopWatch, numberOfNearestNeighbourSpeedTestRuns);
-	meta::tuple::forEach(trees, nearestNeighbourSpeedTest);
-
-	LASS_COUT << "range search tests:\n";
-	tree_test_helpers::RangeSearchSpeedTest<TPointTargets, T> rangeSearchSpeedTest(
-		pointTargets, maxRangeRadius, maxRangeCount, stopWatch, numberOfRangeSearchSpeedTestRuns);
-	meta::tuple::forEach(trees, rangeSearchSpeedTest);
 }
 
 

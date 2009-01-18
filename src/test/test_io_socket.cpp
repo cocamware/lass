@@ -79,7 +79,7 @@ const TPort bindRange(io::Socket& socket, TPort begin, TPort end)
 			socket.bind(begin);
 			return begin;
 		}
-		catch (io::SocketError& error)
+		catch (io::SocketError&)
 		{
 			++begin;
 			if (begin == end)
@@ -98,7 +98,7 @@ void serverThread()
 	{
 		port = bindRange(server, portBegin, portEnd);
 	}
-	catch (io::SocketError& error)
+	catch (io::SocketError&)
 	{
 		port = -1;
 		throw;
