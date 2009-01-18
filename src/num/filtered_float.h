@@ -159,7 +159,8 @@ public:
 	}
 	TSelf& operator/=(const TSelf& other)
 	{ 
-#pragma LASS_TODO("We need to rederive the forward error for this operation!")
+// TODO: We need to rederive the forward error for this operation!
+// https://sourceforge.net/tracker2/?func=detail&aid=2517783&group_id=118315&atid=680768
 		TSelf newOther(T(1)/other.value(),0.0);
 		this->operator *=(newOther);
 		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));

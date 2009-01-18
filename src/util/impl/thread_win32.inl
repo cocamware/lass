@@ -43,8 +43,6 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_WIN32_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_THREAD_WIN32_INL
 
-#pragma LASS_NOTE("util::Threading: using win32 implementation")
-
 #include "../util_common.h"
 #include "../thread.h"
 #include "../singleton.h"

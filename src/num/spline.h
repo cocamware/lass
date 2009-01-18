@@ -96,7 +96,7 @@ public:
 
 
 
-#pragma LASS_TODO("below are data traits that should move to a seperate header when appropriate, [Bramz]")
+//#pragma LASS_TODO("below are data traits that should move to a seperate header when appropriate, [Bramz]")
 
 /** @defgroup DataTraits
  *  A set of trait classes on how to manipulate data

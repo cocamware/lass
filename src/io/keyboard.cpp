@@ -44,7 +44,6 @@
 #include "keyboard.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#       pragma LASS_NOTE("io/keyboard: using win32 implementation")
 #       define LASS_IO_KEYBOARD_HAVE_WIN32
 #       include <conio.h>
 #elif LASS_HAVE_TERMIOS_H && LASS_HAVE_SYS_IOCTL_H

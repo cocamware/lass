@@ -324,7 +324,6 @@ void TriangleMesh3D<T, BHV, SH>::flatFaces()
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 {
-#pragma LASS_TODO("refactor this function [Bramz]")
 	if (triangles_.empty())
 	{
 		return;

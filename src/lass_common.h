@@ -228,12 +228,4 @@
 #include "io/proxy_man.h"
 #include "stde/extended_io.h"
 
-
-
-// --- the name of the game ---
-
-//#pragma LASS_NOTE("LASS_PLATFORM: " LASS_PLATFORM)
-//#pragma LASS_NOTE("LASS_COMPILER: " LASS_COMPILER)
-
-
 #endif

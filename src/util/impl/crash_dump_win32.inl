@@ -48,16 +48,10 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_CRASH_DUMP_WIN32_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_CRASH_DUMP_WIN32_INL
 
-#pragma LASS_NOTE("util::CrashDump: using win32 implementation")
-
 #include "../util_common.h"
 #include "lass_errno.h"
 #include "../thread_fun.h"
 #include "../scoped_ptr.h"
-
-#if LASS_BUILD_DLL
-#	include "../../dll/dll_main.h"
-#endif
 
 #include <windows.h>
 #include <dbghelp.h>

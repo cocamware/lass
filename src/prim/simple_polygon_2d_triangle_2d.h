@@ -70,7 +70,9 @@ OutputIterator triangulate(
 	// we implement the easiest algorithm: ear clipping
 	// we try to find a non-reflex vertex and then clip it
 
-#pragma LASS_FIXME("This naive implementation of ear clipping is broken, let's fix it later =) [Bramz]")
+// FIXME: This naive implementation of ear clipping is broken, let's fix it later =) [Bramz]
+// https://sourceforge.net/tracker2/?func=detail&aid=2517753&group_id=118315&atid=680765
+
 	LASS_THROW("triangulation of concave polygons is not implemented yet [Bramz]");
 	//SimplePolygon2D<T, DegenerationPolicy> temp(polygon);
 	//while (temp.size()>3)

@@ -48,7 +48,6 @@
 // --- win32 ---------------------------------------------------------------------------------------
 
 #if defined(LASS_UTIL_CLOCK_WIN32)
-#	pragma LASS_NOTE("util::Clock: using win32 implementation")
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
@@ -93,7 +92,6 @@ const ClockImpl::TTick ClockImpl::tick()
 //#		include <unistd.h>
 //#		define CLK_TCK sysconf(_SC_CLK_TCK)
 //#	endif
-//#	pragma LASS_NOTE("util::Clock: using standard C implementation")
 
 namespace lass
 {

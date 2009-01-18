@@ -45,7 +45,6 @@
 #include "dictionary.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#       pragma LASS_NOTE("util::setProcessPriority: using win32 implementation")
 #       define LASS_UTIL_PROCESS_HAVE_WIN32
 #elif LASS_HAVE_SYS_RESOURCE_H
 #       define LASS_UTIL_PROCESS_HAVE_SYS_RESOURCE

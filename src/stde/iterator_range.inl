@@ -59,7 +59,8 @@ namespace stde
  *		Moral of the story: while you can _create_ default constructed ranges, DO NOT USE THEM, 
  *		like EVER!
  */
-#pragma LASS_FIXME("Find a workaround for this containerless _HAS_ITERATOR_DEBUGGING madness [Bramz]")
+// TODO: Find a workaround for this containerless _HAS_ITERATOR_DEBUGGING madness [Bramz]
+// https://sourceforge.net/tracker2/?func=detail&aid=2517798&group_id=118315&atid=680765
 template <typename I> inline
 iterator_range<I>::iterator_range(): 
 	first_()

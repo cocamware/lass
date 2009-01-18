@@ -619,7 +619,8 @@ RandomIterator QuadTree<O, OT>::doRangeSearch(
 			if (sqrDist < squaredRadius)
 			{
 				Neighbour candidate(node->data[i], sqrDist);
-#pragma LASS_FIXME("use letterboxing to avoid duplicates instead of naive search [Bramz]")
+// TODO: use letterboxing to avoid duplicates instead of naive search [Bramz]
+// https://sourceforge.net/tracker2/?func=detail&aid=2517748&group_id=118315&atid=680768
 				if (std::find(first, last, candidate) == last)
 				{
 					*last++ = candidate;
