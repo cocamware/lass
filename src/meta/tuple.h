@@ -153,11 +153,20 @@ namespace impl
 			fun(tuple.value());
 			ForEach< Tuple<Ts> >::call(tuple, fun);
 		}
+		template <typename Functor> static void call(const Tuple< TypeList<H, Ts> >& tuple, Functor& fun)
+		{
+			fun(tuple.value());
+			ForEach< Tuple<Ts> >::call(tuple, fun);
+		}
 	};
 	template <typename Ts>
 	struct ForEach< Tuple< TypeList<meta::EmptyType, Ts> > >
 	{
 		template <typename Functor> static void call(Tuple< TypeList<meta::EmptyType, Ts> >& tuple, Functor& fun)
+		{
+			ForEach< Tuple<Ts> >::call(tuple, fun);
+		}
+		template <typename Functor> static void call(const Tuple< TypeList<meta::EmptyType, Ts> >& tuple, Functor& fun)
 		{
 			ForEach< Tuple<Ts> >::call(tuple, fun);
 		}
@@ -168,11 +177,20 @@ namespace impl
 		template <typename Functor> static void call(Tuple<meta::NullType>& tuple, Functor& fun)
 		{
 		}
+		template <typename Functor> static void call(const Tuple<meta::NullType>& tuple, Functor& fun)
+		{
+		}
 	};
 }
 
 template <typename TupleType, typename Functor>
 void forEach(TupleType& tuple, Functor& fun)
+{
+	impl::ForEach<TupleType>::call(tuple, fun);
+}
+
+template <typename TupleType, typename Functor>
+void forEach(const TupleType& tuple, Functor& fun)
 {
 	impl::ForEach<TupleType>::call(tuple, fun);
 }
