@@ -55,7 +55,8 @@ class Spam
 {
 public:
 	virtual ~Spam();
-	virtual std::string who() const;
+	virtual std::string virtualWho() const;
+	std::string overridenWho() const;
 	std::string address() const;
 };
 
@@ -63,7 +64,8 @@ class Ham: public Spam
 {
 public:
 	virtual ~Ham();
-	virtual std::string who() const;
+	virtual std::string virtualWho() const;
+	std::string overridenWho() const;
 	static void say(const std::string& iWhat);
 };
 
@@ -71,7 +73,8 @@ class Bacon: public Ham
 {
 public:
 	virtual ~Bacon();
-	virtual std::string who() const;
+	virtual std::string virtualWho() const;
+	std::string overridenWho() const;
 };
 
 class Eggs: public Spam
@@ -79,7 +82,8 @@ class Eggs: public Spam
 public:
 	Eggs(int iNumber = 2);
 	virtual ~Eggs();
-	virtual std::string who() const;
+	virtual std::string virtualWho() const;
+	std::string overridenWho() const;
 
 	int number() const;
 	void setNumber(int iNumber);
@@ -90,14 +94,22 @@ private:
 
 std::auto_ptr<Spam> makeSpam(const std::string& iWhat);
 
-void spamToCppByCopy(Spam iSpam);
-void spamToCppByConstReference(const Spam& iSpam);
-void spamToCppByReference(Spam& iSpam);
-void spamToCppByPointer(Spam* iSpam);
-void spamToCppByAutoPointer(std::auto_ptr<Spam> iSpam);
+Spam* spamToCppByPointer(Spam* a);
+bool spamToCppByCopy(Spam a, Spam* b);
+bool spamToCppByConstReference(const Spam& a, Spam* b);
+bool spamToCppByReference(Spam& a, Spam* b);
+
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam);
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyHam, Ham, PySpam)
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyBacon, Bacon, PyHam)
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyEggs, Eggs, PySpam)
+
 
 }
 
 }
+
+typedef lass::test::PySpam TPySpam;
+PY_SHADOW_DOWN_CASTERS(TPySpam)
 
 #endif

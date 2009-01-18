@@ -107,7 +107,7 @@ namespace impl
 			}
 			typedef ArgumentTraits<R> TraitsR;
 			typename TraitsR::TStorage temp;
-			if (python::PyExportTraits< typename TraitsR::TStorage >::get(result.get(), temp) != 0)
+			if (pyGetSimpleObject(result.get(), temp) != 0)
 			{
 				LASS_THROW("bad result");
 			}

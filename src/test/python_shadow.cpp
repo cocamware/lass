@@ -48,13 +48,37 @@ namespace lass
 namespace test
 {
 
+PY_DECLARE_CLASS_NAME(PySpam, "Spam")
+PY_CLASS_METHOD(PySpam, virtualWho)
+PY_CLASS_METHOD(PySpam, overridenWho)
+PY_CLASS_MEMBER_R(PySpam, address)
+
+PY_DECLARE_CLASS_NAME(PyHam, "Ham")
+PY_CLASS_CONSTRUCTOR_0(PyHam)
+PY_CLASS_METHOD(PyHam, overridenWho)
+PY_CLASS_STATIC_METHOD(PyHam, say)
+
+PY_DECLARE_CLASS_NAME(PyBacon, "Bacon")
+PY_CLASS_CONSTRUCTOR_0(PyBacon)
+PY_CLASS_METHOD(PyBacon, overridenWho)
+
+PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
+PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
+PY_CLASS_METHOD(PyEggs, overridenWho)
+PY_CLASS_MEMBER_RW(PyEggs, number, setNumber)
+
 // --- Spam ----------------------------------------------------------------------------------------
 
 Spam::~Spam()
 {
 }
 
-std::string Spam::who() const
+std::string Spam::virtualWho() const
+{
+	return "Spam";
+}
+
+std::string Spam::overridenWho() const
 {
 	return "Spam";
 }
@@ -70,7 +94,12 @@ Ham::~Ham()
 {
 }
 
-std::string Ham::who() const
+std::string Ham::virtualWho() const
+{
+	return "Ham";
+}
+
+std::string Ham::overridenWho() const
 {
 	return "Ham";
 }
@@ -86,7 +115,12 @@ Bacon::~Bacon()
 {
 }
 
-std::string Bacon::who() const
+std::string Bacon::virtualWho() const
+{
+	return "Bacon";
+}
+
+std::string Bacon::overridenWho() const
 {
 	return "Bacon";
 }
@@ -103,7 +137,12 @@ Eggs::~Eggs()
 {
 }
 
-std::string Eggs::who() const
+std::string Eggs::virtualWho() const
+{
+	return util::stringCast<std::string>(number_) + " Eggs";
+}
+
+std::string Eggs::overridenWho() const
 {
 	return util::stringCast<std::string>(number_) + " Eggs";
 }
@@ -146,29 +185,24 @@ std::auto_ptr<Spam> makeSpam(const std::string& iWhat)
 	return result;
 }
 
-void spamToCppByCopy(Spam iSpam)
+Spam* spamToCppByPointer(Spam* a)
 {
-	LASS_COUT << "spamToCppByCopy: " << iSpam.who() << " @ " << iSpam.address() << "\n";
+	return a;
 }
 
-void spamToCppByConstReference(const Spam& iSpam)
+bool spamToCppByCopy(Spam a, Spam* b)
 {
-	LASS_COUT << "spamToCppByConstReference: " << iSpam.who() << " @ " << iSpam.address() << "\n";
+	return &a == b;
 }
 
-void spamToCppByReference(Spam& iSpam)
+bool spamToCppByConstReference(const Spam& a, Spam* b)
 {
-	LASS_COUT << "spamToCppByReference: " << iSpam.who() << " @ " << iSpam.address() << "\n";
+	return &a == b;
 }
 
-void spamToCppByPointer(Spam* iSpam)
+bool spamToCppByReference(Spam& a, Spam* b)
 {
-	LASS_COUT << "spamToCppByPointer: " << iSpam->who() << " @ " << iSpam->address() << "\n";
-}
-
-void spamToCppByAutoPointer(std::auto_ptr<Spam> iSpam)
-{
-	LASS_COUT << "spamToCppByAutoPointer: " << iSpam->who() << " @ " << iSpam->address() << "\n";
+	return &a == b;
 }
 
 }

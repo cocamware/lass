@@ -61,21 +61,35 @@ namespace lass
 		{
 			static PyObject* build( const std::string& iV )
 			{
-				return PyString_FromString(iV.c_str());
+				return pyBuildSimpleObject(iV.c_str());
 			}
 			static int get( PyObject* iValue, std::string& oV )
 			{
-				if (!PyString_Check(iValue))
+#if PY_MAJOR_VERSION < 3
+				if (PyString_Check(iValue))
+				{
+					oV = std::string(PyString_AS_STRING(iValue));
+					return 0;
+				}
+#endif
+				if (!PyUnicode_Check(iValue))
 				{
 					PyErr_SetString(PyExc_TypeError, "not a string");
 					return 1;
 				}
-				oV = std::string( PyString_AS_STRING( iValue ) );
+				TPyObjPtr s(PyUnicode_AsUTF8String(iValue));
+				if (!s)
+				{
+					return 1;
+				}
+#if PY_MAJOR_VERSION < 3
+					oV = std::string(PyString_AS_STRING(s.get()));
+#else
+					oV = std::string(PyBytes_AS_STRING(s.get()));
+#endif
 				return 0;
 			}
 		};
-
-
 
 		/** @ingroup Python
 		 *  @internal

@@ -468,7 +468,38 @@ namespace lass
 			LASS_DLL PyObject* LASS_CALL repr(PyObject* obj);
 			LASS_DLL PyObject* LASS_CALL str(PyObject* obj);
 
-			/**	@ingroup
+			class LASS_DLL ModuleDefinition: util::NonCopyable
+			{
+			public:
+				ModuleDefinition(const char* name, const char* doc = 0);
+				const char* name() const { return name_.get(); }
+				ModuleDefinition& setName(const char* name);
+				const char* doc() const { return doc_.get(); }
+				ModuleDefinition& setDoc(const char* doc);
+				void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
+				template <typename CppClass> void injectClass(const char* doc);
+				PyObject* inject();
+			private:
+				typedef std::vector<PyMethodDef> TMethods;
+				struct NamedObject
+				{
+					char* name;
+					PyObject* object;
+				};
+				typedef std::vector<NamedObject> TObjects;
+				typedef util::ScopedPtr< char, util::ArrayStorage > TScopedCString;
+				TMethods methods_;
+				TObjects objects_;
+				TScopedCString name_;
+				TScopedCString doc_;
+				PyObject* module_;
+#if PY_MAJOR_VERSION >= 3
+				PyModuleDef def_;
+#endif
+				bool isInjected_;
+			};
+
+			/**	@ingroup Python
 			 *	@internal
 			 */
 			class LASS_DLL OverloadLink
@@ -634,7 +665,15 @@ namespace lass
 			private:
 				T obj_;
 			};
-
+			template <typename T, size_t N>
+			class StaticMemberHelperObject<T[N]>: public StaticMemberHelper
+			{
+			public:
+				StaticMemberHelperObject(T obj[N]): obj_(obj) {}
+				PyObject* build() const { return pyBuildSimpleObject(obj_); }
+			private:
+				T* obj_;
+			};
 			template <>
 			class StaticMemberHelperObject<PyObject*>: public StaticMemberHelper
 			{
@@ -724,11 +763,6 @@ namespace lass
 				const TStaticMembers& iStatics, 
 				const char* iModuleName, const char* iDocumentation);
 
-			LASS_DLL void LASS_CALL addModuleFunction(
-				std::vector<PyMethodDef>& ioModuleMethods, 
-				const char* iMethodName, const char* iDocumentation,
-				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
-
 			LASS_DLL void LASS_CALL addClassMethod(
 				PyTypeObject& pyType, std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs, 
 				const char* methodName, const char* documentation, 
@@ -794,8 +828,6 @@ namespace lass
 				const lass::python::impl::IterNextSlot&, const char* documentation, 
 				iternextfunc dispatcher, OverloadLink& overloadChain);
 
-			template <typename CppClass> void injectClassInModule(
-				PyObject* iModule, const char* iClassDocumentation);
 			template <typename CppClass> void addClassStaticMethod(
 				const char* iMethodName, const char* iDocumentation,
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);

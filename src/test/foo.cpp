@@ -50,6 +50,11 @@ namespace lass
 
 namespace test
 {
+		PY_DECLARE_CLASS_NAME( PythonFoo, "PythonFoo" )
+		PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
+		PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
+		PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
+
 		std::string PythonFoo ::pyRepr(void)
 		{
 			return std::string( "This string is the representation of Foo object at " + util::stringCast<std::string>(this));

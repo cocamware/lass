@@ -48,6 +48,16 @@
 #include "../io/file_attribute.h"
 #include "../stde/extended_string.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
+#endif
+
+#if PY_MAJOR_VERSION < 3
+void initembedding(void);
+#else
+PyObject* PyInit_embedding(void);
+#endif
+
 namespace lass
 {
 namespace test
@@ -56,14 +66,19 @@ namespace test
 void testUtilPython()
 {
 	std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
-	
-	std::string commandStr = "execfile('" + testFile + "')";
-	//commandStr = "from code import interact\ninteract()";
-		
-	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
-	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
-
-	
+	FILE* fp = ::fopen(testFile.c_str(), "r");
+	if (!fp)
+	{
+		LASS_THROW("Could not open " << testFile);
+	}
+#if PY_MAJOR_VERSION < 3
+	PyImport_AppendInittab("embedding", initembedding);
+#else
+	PyImport_AppendInittab("embedding", PyInit_embedding);
+#endif
+	Py_Initialize();
+	LASS_TEST_CHECK_EQUAL(PyRun_SimpleFile(fp, testFile.c_str()), 0);
+	::fclose(fp);
 	
 	typedef std::vector<double> TV;
 	TV vec;

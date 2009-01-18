@@ -147,13 +147,14 @@ namespace methods
 	const lass::python::impl::UnarySlot _int_(std::string("__int__"));
 	const lass::python::impl::UnarySlot _long_(std::string("__long__"));
 	const lass::python::impl::UnarySlot _float_(std::string("__float__"));
+#if PY_MAJOR_VERSION < 3
 	const lass::python::impl::UnarySlot _hex_(std::string("__hex__"));
 	const lass::python::impl::UnarySlot _oct_(std::string("__oct__"));
+#endif
 	// binary
 	const lass::python::impl::BinarySlot _add_("__add__");
 	const lass::python::impl::BinarySlot _sub_("__sub__");
 	const lass::python::impl::BinarySlot _mul_("__mul__");
-	const lass::python::impl::BinarySlot _div_("__div__");
 	const lass::python::impl::BinarySlot _mod_("__mod__");
 	const lass::python::impl::BinarySlot _lshift_("__lshift__");
 	const lass::python::impl::BinarySlot _rshift_("__rshift__");
@@ -163,13 +164,19 @@ namespace methods
 	const lass::python::impl::BinarySlot _iadd_("__iadd__");
 	const lass::python::impl::BinarySlot _isub_("__isub__");
 	const lass::python::impl::BinarySlot _imul_("__imul__");
-	const lass::python::impl::BinarySlot _idiv_("__idiv__");
 	const lass::python::impl::BinarySlot _imod_("__imod__");
 	const lass::python::impl::BinarySlot _ilshift_("__ilshift__");
 	const lass::python::impl::BinarySlot _irshift_("__irshift__");
 	const lass::python::impl::BinarySlot _iand_("__iand__");
 	const lass::python::impl::BinarySlot _ixor_("__ixor__");
 	const lass::python::impl::BinarySlot _ior_("__ior__");
+#if PY_VERSION_HEX >= 0x02060000
+	const lass::python::impl::BinarySlot _div_("__truediv__");
+#endif
+#if PY_MAJOR_VERSION < 3
+	const lass::python::impl::BinarySlot _truediv_("__truediv__");
+	const lass::python::impl::BinarySlot _itruediv_("__itruediv__");
+#endif
 
 	// Comparators
 	const lass::python::impl::ComparatorSlot _lt_("__lt__");

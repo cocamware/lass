@@ -50,6 +50,21 @@ namespace python
 namespace impl
 {
 
+// --- ModuleDefinition ----------------------------------------------------------------------------
+
+/** @internal
+ */
+template <typename CppClass>
+void ModuleDefinition::injectClass(const char* doc)
+{
+	std::pair<std::string, PyObject*> c = 
+		prepareClassForModuleInjection<CppClass>(name_.get(), doc);
+	PyModule_AddObject(module_, const_cast<char*>(c.first.c_str()), c.second);
+}
+
+
+
+
 /** @internal
  */
 template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher
@@ -118,10 +133,13 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static Py_ssize_t fun(PyObject* iSelf) 
 	{
 		TPyObjPtr args(Py_BuildValue("()"));
-		PyObject* temp = DispatcherAddress(iSelf,args.get());
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
 		if (!temp)
-			return 0;
-		return PyInt_AsSsize_t(temp);
+			return -1;
+		Py_ssize_t result;
+		if (pyGetSimpleObject(temp.get(), result) != 0)
+			return -1;
+		return result;
 	}
 };
 /** @internal
@@ -131,10 +149,8 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, PyObject * iOther)
 	{
 		TPyObjPtr args(Py_BuildValue("(n,O)",iSize,iOther));
-		PyObject* temp = DispatcherAddress(iSelf,args.get());
-		if (!temp)
-			return 1;
-		return 0;
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		return temp ? 0 : -1;
 	}
 };
 /** @internal
@@ -144,10 +160,8 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2, PyObject * iOther)
 	{
 		TPyObjPtr args(Py_BuildValue("(n,n,O)",iSize,iSize2,iOther));
-		PyObject* temp = DispatcherAddress(iSelf,args.get());
-		if (!temp)
-			return 1;
-		return 0;
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		return temp ? 0 : -1;
 	}
 };
 /** @internal
@@ -157,10 +171,8 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static int fun(PyObject * iSelf, PyObject * iOther)
 	{
 		TPyObjPtr args(Py_BuildValue("(O)",iOther));
-		PyObject* temp = DispatcherAddress(iSelf,args.get());
-		if (!temp)
-			return 1;
-		return 0;
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		return temp ? 0 : -1;
 	}
 };
 /** @internal
@@ -170,10 +182,8 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static int fun(PyObject * iSelf, PyObject * iOther, PyObject* iOther2)
 	{
 		TPyObjPtr args(Py_BuildValue("(O,O)",iOther,iOther2));
-		PyObject* temp = DispatcherAddress(iSelf,args.get());
-		if (!temp)
-			return 1;
-		return 0;
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		return temp ? 0 : -1;
 	}
 };
 /** @internal
@@ -213,16 +223,6 @@ inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const cha
 		CppClass::_lassPyStatics, iModuleName, iClassDocumentation);
 	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
 }
-
-/** @internal
- */
-template <typename CppClass>
-inline void injectClassInModule(PyObject* iModule, const char* iClassDocumentation)
-{
-	std::pair< std::string, PyObject* > classForModule = prepareClassForModuleInjection<CppClass>(PyModule_GetName(iModule),iClassDocumentation);
-	PyModule_AddObject(iModule, const_cast<char*>(classForModule.first.c_str()), classForModule.second);
-}
-
 
 /** @intenal
  */
@@ -399,11 +399,13 @@ int pyNumericCast(In iIn, Out& oOut)
 template <typename Integer>
 int pyGetSignedObject( PyObject* iValue, Integer& oV )
 {
+#if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(iValue))
 	{
 		long temp = PyInt_AS_LONG(iValue);
 		return pyNumericCast( temp, oV );
 	}
+#endif
 	if (PyLong_Check(iValue))
 	{
 #if HAVE_LONG_LONG
@@ -430,6 +432,7 @@ int pyGetSignedObject( PyObject* iValue, Integer& oV )
 template <typename Integer>
 int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 {
+#if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(iValue))
 	{
 		long temp = PyInt_AS_LONG(iValue);
@@ -443,6 +446,7 @@ int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 		}
 		return pyNumericCast( static_cast<unsigned long>(temp), oV );
 	}
+#endif
 	if (PyLong_Check(iValue))
 	{
 #if HAVE_LONG_LONG
@@ -474,12 +478,14 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 		double temp = PyFloat_AS_DOUBLE(iValue);
 		return pyNumericCast( temp, oV );
 	}
+#if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(iValue))
 	{
 		long temp = PyInt_AS_LONG(iValue);
 		oV = static_cast<Float>( temp );
 		return 0;
 	}
+#endif
 	if (PyLong_Check(iValue))
 	{
 		double temp = PyLong_AsDouble(iValue);
@@ -495,7 +501,6 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 	return 1;
 }
 
-
 }
 
 /** @ingroup Python
@@ -506,7 +511,7 @@ struct PyExportTraits<bool>
 {
 	static PyObject* build(bool iV)
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, bool& oV )
 	{
@@ -529,7 +534,7 @@ struct PyExportTraits<signed char>
 {
 	static PyObject* build( signed char iV )
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, signed char& oV )
 	{
@@ -545,7 +550,7 @@ struct PyExportTraits<unsigned char>
 {
 	static PyObject* build( unsigned char iV )
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, unsigned char& oV )
 	{
@@ -561,7 +566,7 @@ struct PyExportTraits<signed short>
 {
 	static PyObject* build( signed short iV )
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, signed short& oV )
 	{
@@ -577,7 +582,7 @@ struct PyExportTraits<unsigned short>
 {
 	inline PyObject* build( unsigned short iV )
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, unsigned short& oV )
 	{
@@ -593,7 +598,7 @@ struct PyExportTraits<signed int>
 {
 	static PyObject* build( signed int iV )
 	{
-		return PyInt_FromLong(static_cast<long>(iV));
+		return pyBuildSimpleObject(static_cast<long>(iV));
 	}
 	static int get( PyObject* iValue, signed int& oV )
 	{
@@ -625,7 +630,11 @@ struct PyExportTraits<signed long>
 {
 	static PyObject* build( signed long iV )
 	{
+#if PY_MAJOR_VERSION < 3
 		return PyInt_FromLong(iV);
+#else
+		return PyLong_FromLong(iV);
+#endif
 	}
 	static int get( PyObject* iValue, signed long& oV )
 	{
@@ -741,7 +750,11 @@ struct PyExportTraits<const char*>
 {
 	static PyObject* build( const char* iV )
 	{
+#if PY_MAJOR_VERSION < 3
 		return PyString_FromString(iV);
+#else
+		return PyUnicode_FromString(iV);
+#endif
 	}
 };
 
@@ -753,7 +766,7 @@ struct PyExportTraits<const char [N]>
 {
 	static PyObject* build( const char iV[N] )
 	{
-		return PyString_FromString(iV);
+		return pyBuildSimpleObject(&iV[0]);
 	}
 };
 

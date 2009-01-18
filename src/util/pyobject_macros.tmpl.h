@@ -78,15 +78,26 @@
  *  @param i_module 
  *		the identifier of the module to be used in C++
  */
+#define PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, s_doc ) \
+	::lass::python::impl::ModuleDefinition LASS_CONCATENATE( lassPythonModule_, i_module )( s_name, s_doc );
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = ""
+ */
+#define PY_DECLARE_MODULE_NAME( i_module ) \
+	PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, "")
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module
+ */
+#define PY_DECLARE_MODULE_DOC( i_module ) \
+	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), s_doc)
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module and @a s_doc = ""
+ */
 #define PY_DECLARE_MODULE( i_module ) \
-	PyObject* LASS_CONCATENATE( lassPythonModule_, i_module ) = 0;\
-	std::vector<PyMethodDef> LASS_CONCATENATE( lassPythonModuleMethods_, i_module ); \
-	std::vector< std::pair<std::string, PyObject* > > LASS_CONCATENATE( lassPythonModuleObjects_, i_module );\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE( lassExecutePyDeclareModule_, i_module ), \
-		LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).push_back( \
-			::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ;\
-	)
+	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), "")
 
 /** @ingroup Python
  *	Inject a python module so Python is aware of it.
@@ -96,46 +107,31 @@
  *
  *  @param i_module
  *		the identifier of a module declared by PY_DECLARE_MODULE
- *	@param s_moduleName
- *		name of module as shown in Python (zero terminated C string)
- *	@param s_doc
- *      documentation of module as shown in Python (zero terminated C string)
- */
-#define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
-	{\
-		Py_Initialize(); \
-		LASS_CONCATENATE( lassPythonModule_, i_module ) = Py_InitModule3(\
-			(char*)(s_moduleName), \
-			&LASS_CONCATENATE( lassPythonModuleMethods_, i_module )[0], \
-			(char*)(s_doc) ); \
-		for (size_t i=0;i<LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).size() ;++i)\
-		{\
-			PyModule_AddObject( LASS_CONCATENATE( lassPythonModule_, i_module ), \
-								const_cast<char*>(LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].first.c_str()),\
-								LASS_CONCATENATE( lassPythonModuleObjects_, i_module )[i].second);\
-		}\
-	}
-
-/** @ingroup Python
- *  convenience macro, wraps PY_INJECT_MODULE_EX with
- *  @a s_doc = 0
- */
-#define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
-	PY_INJECT_MODULE_EX( i_module, s_moduleName, 0)
-
-/** @ingroup Python
- *  convenience macro, wraps PY_INJECT_MODULE_EX with
- *  @a s_moduleName = # @a i_module
- */
-#define PY_INJECT_MODULE_DOC( i_module, s_doc )\
-	PY_INJECT_MODULE_EX( i_module, LASS_STRINGIFY(i_module), s_doc)
-
-/** @ingroup Python
- *  convenience macro, wraps PY_INJECT_MODULE_EX with
- *  @a s_moduleName = # @a i_module and s_doc = 0
  */
 #define PY_INJECT_MODULE( i_module )\
 	PY_INJECT_MODULE_EX( i_module, LASS_STRINGIFY(i_module), 0)
+
+/** @ingroup Python
+ *  @deprecated
+ */
+#define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName);\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc);\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
+
+/** @ingroup Python
+ *  @deprecated
+ */
+#define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName);\
+	PY_INJECT_MODULE_EX( i_module, s_moduleName, 0)
+
+/** @ingroup Python
+ *  @deprecated
+ */
+#define PY_INJECT_MODULE_DOC( i_module, s_doc )\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc);\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
 
 
 
@@ -189,6 +185,7 @@
  *		name of object as shown in the module (zero terminated C string)
  */
 #define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
+	LASS_CONCATENATE( lassPythonModule_, i_module ).injectObject( o_object, s_objectName );\
 	{\
 		PyModule_AddObject(\
 			LASS_CONCATENATE( lassPythonModule_, i_module ), s_objectName,\
@@ -246,19 +243,19 @@
 
 // --- free module functions -----------------------------------------------------------------------
 
-/* @ingroup Python
- * @depracated
- * Use this macro for backward compatibility when wrapper functions don't 
- * need to be automatically generated or you want specific Python behaviour.
- */
-#define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
-	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, f_cppFunction ),\
-		LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).insert(\
-			LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).begin(),\
-				::lass::python::impl::createPyMethodDef( s_functionName, f_cppFunction , METH_VARARGS  , s_doc ));\
-	)
+///* @ingroup Python
+// * @deprecated
+// * Use this macro for backward compatibility when wrapper functions don't 
+// * need to be automatically generated or you want specific Python behaviour.
+// */
+//#define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
+//	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
+//	LASS_EXECUTE_BEFORE_MAIN_EX\
+//	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, f_cppFunction ),\
+//		LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).insert(\
+//			LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).begin(),\
+//				::lass::python::impl::createPyMethodDef( s_functionName, f_cppFunction , METH_VARARGS  , s_doc ));\
+//	)
 
 
 
@@ -316,11 +313,11 @@
 	}\
 	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
-		lass::python::impl::addModuleFunction(\
-			LASS_CONCATENATE( lassPythonModuleMethods_, i_module ),\
-			s_functionName, s_doc, i_dispatcher,\
-			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) );\
+	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ), \
+		LASS_CONCATENATE( lassPythonModule_, i_module ).addFunctionDispatcher( \
+			i_dispatcher, s_functionName, s_doc, \
+			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) \
+			);\
 	)
 
 /** @ingroup Python
@@ -410,10 +407,10 @@
 	extern ::std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
-		::lass::python::impl::addModuleFunction(\
-			LASS_CONCATENATE( lassPythonModuleMethods_, i_module ),\
-			s_functionName, s_doc, i_dispatcher,\
-			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) );\
+		LASS_CONCATENATE( lassPythonModule_, i_module ).addFunctionDispatcher( \
+			i_dispatcher, s_functionName, s_doc, \
+			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) \
+		);\
 	)
 
 /** @ingroup Python
@@ -585,28 +582,28 @@ $[
 	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
 
 
-/** @ingroup Python
- *  Inject a class in a module
- *
- *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
- *	function called by main.
- *
- *  @param t_cppClass
- *		the type of the class to be injected
- *	@param i_module
- *		the identifier of the module object to inject the class in.
- *	@param s_doc
- *		documentation of class as shown in Python (zero terminated C string)
- */
- /*  // executing this before the main has unwanted consequences: the module or python interpreter may not yet have been
-	// initialized
-namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject; }
-#define PY_MODULE_CLASS( i_module, t_cppClass, s_doc ) \
-	LASS_EXECUTE_BEFORE_MAIN( {\
-		impl::TPairStringPyObject classForModule = ::lass::python::impl::prepareClassForModuleInjection< t_cppClass >(LASS_STRINGIFY(i_module), s_doc);\
-		LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).push_back( classForModule );\
-	} )
-*/
+///** @ingroup Python
+// *  Inject a class in a module
+// *
+// *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
+// *	function called by main.
+// *
+// *  @param t_cppClass
+// *		the type of the class to be injected
+// *	@param i_module
+// *		the identifier of the module object to inject the class in.
+// *	@param s_doc
+// *		documentation of class as shown in Python (zero terminated C string)
+// */
+//    // executing this before the main has unwanted consequences: the module or python interpreter may not yet have been
+//	// initialized
+//namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject; }
+//#define PY_MODULE_CLASS( i_module, t_cppClass, s_doc ) \
+//	LASS_EXECUTE_BEFORE_MAIN( {\
+//		impl::TPairStringPyObject classForModule = ::lass::python::impl::prepareClassForModuleInjection< t_cppClass >(LASS_STRINGIFY(i_module), s_doc);\
+//		LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).push_back( classForModule );\
+//	} )
+
 
 /** @ingroup Python
  *  Inject a class in a module
@@ -623,20 +620,17 @@ namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject
  *		documentation of class as shown in Python (zero terminated C string)
  */
 #define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
-	{\
-		::lass::python::impl::injectClassInModule< t_cppClass >(\
-			LASS_CONCATENATE(lassPythonModule_, i_module), s_doc);\
-	}
+	LASS_CONCATENATE(lassPythonModule_, i_module).injectClass< t_cppClass >( s_doc ); 
 
-/** @ingroup Python
- *  @deprecated
- */
-#define PY_INJECT_CLASS_IN_MODULE_BEFORE_MAIN( i_cppClass, i_module, s_doc ) \
-	extern PyObject* LASS_CONCATENATE( lassPythonModule_, i_module );\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE_3( lassExecutePyInjectClassInModule_, i_cppClass, i_module ),\
-		PY_INJECT_CLASS_IN_MODULE_AT_RUNTIME( i_cppClass, i_module, s_doc );\
-	)
+///** @ingroup Python
+// *  @deprecated
+// */
+//#define PY_INJECT_CLASS_IN_MODULE_BEFORE_MAIN( i_cppClass, i_module, s_doc ) \
+//	extern PyObject* LASS_CONCATENATE( lassPythonModule_, i_module );\
+//	LASS_EXECUTE_BEFORE_MAIN_EX\
+//	( LASS_CONCATENATE_3( lassExecutePyInjectClassInModule_, i_cppClass, i_module ),\
+//		PY_INJECT_CLASS_IN_MODULE_AT_RUNTIME( i_cppClass, i_module, s_doc );\
+//	)
 
 
 
@@ -2611,11 +2605,16 @@ $[
 
 // --- internals -----------------------------------------------------------------------------------
 
+#if PY_MAJOR_VERSION < 3
+#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+#else
+#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
+#endif
+
 /** @internal
  */
 #define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
-	PyObject_HEAD_INIT(&PyType_Type)\
-	0,	/*ob_size*/\
+	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
 	(char*)( s_className ),	/*tp_name*/\
 	sizeof( t_cppClass ),	/*tp_basicsize*/\
 	0,	/*tp_itemsize*/\
@@ -2666,8 +2665,7 @@ $[
 /** @internal
  */
 #define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
-	PyObject_HEAD_INIT(&PyType_Type)\
-	0,	/*ob_size*/\
+	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
 	(char*)( s_className ), /*tp_name*/\
 	sizeof( t_cppClass ),	/*tp_basicsize*/\
 	0,	/*tp_itemsize*/\
@@ -2717,8 +2715,7 @@ $[
 /** @internal
  */
 #define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
-	PyObject_HEAD_INIT(&PyType_Type)\
-	0,	/*ob_size*/\
+	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
 	(char*)( s_className ), /*tp_name*/\
 	sizeof( t_cppClass ),	/*tp_basicsize*/\
 	0,	/*tp_itemsize*/\

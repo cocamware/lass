@@ -48,9 +48,51 @@
 
 namespace lass
 {
+	namespace test
+	{
+		PY_DECLARE_CLASS( Bar )
+		PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
+		PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
+		PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
+		PY_CLASS_METHOD( Bar, aMoreComplexFunction )
+		PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
+		PY_CLASS_METHOD( Bar, complexArguments );
+		PY_CLASS_METHOD( Bar, primArguments );
+		PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
+		PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
+		PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
+		PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
+		PY_CLASS_METHOD_EX( Bar, operator(), lass::python::methods::_call_, 0, BarCallOperator )
+		PY_CLASS_METHOD_NAME( Bar, call, lass::python::methods::_call_)
+		PY_CLASS_FREE_METHOD(Bar, freeMethodA);
+		PY_CLASS_FREE_METHOD(Bar, freeMethodB);
+		PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, lass::python::methods::_call_);
+		PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, lass::python::methods::_repr_);
+		PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, lass::python::methods::_str_);
+		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
+		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
+		PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
+		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
+		PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
+		PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
+		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
+		PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
+		PY_CLASS_STATIC_CONST( Bar, "CONST", 5 ); // a const value as class member
 
-namespace test
-{
+		// innerclass of Bar
+		typedef Bar::InnerClass TBarInnerClass;
+		PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )
+		PY_CLASS_CONSTRUCTOR_1( TBarInnerClass, const std::string& );
+		PY_CLASS_METHOD( TBarInnerClass, talkTo );
+		PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
+
+		PY_DECLARE_CLASS( DerivedBar )
+		PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
+
 		void listInfo( PyObject* iObject )
 		{
 			LASS_COUT << "Name : " << iObject->ob_type->tp_name << "\n";

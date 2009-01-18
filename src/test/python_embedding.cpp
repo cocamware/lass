@@ -56,30 +56,12 @@
 #include "../util/callback_r_0.h"
 #include "../util/callback_r_1.h"
 #include "../util/callback_r_2.h"
+#include "../util/non_copyable.h"
 
 namespace lass
 {
 namespace test
 {
-PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam);
-PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyHam, Ham, PySpam)
-PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyBacon, Bacon, PyHam)
-PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyEggs, Eggs, PySpam)
-}
-}
-
-typedef lass::test::PySpam TPySpam;
-
-PY_SHADOW_DOWN_CASTERS(TPySpam)
-
-namespace lass
-{
-namespace test
-{
-
-PY_DECLARE_CLASS_NAME( PythonFoo, "PythonFoo" )
-
-
 
 int test()
 {
@@ -103,24 +85,24 @@ int anotherFreeFunction( int i )
 	return i+1;
 }
 
-void call0(const util::Callback0& iCallback)
+void call0(const util::Callback0& callback) 
 {
-	iCallback();
+	callback();
 }
 
-void call1(const util::Callback1<const std::string&>& iCallback)
+void call1(const util::Callback1<const std::string&>& callback, const std::string& x)
 {
-	iCallback("Hello world!");
+	callback(x);
 }
 
-void callR0(const util::CallbackR0<std::string>& iCallback)
+const std::string callR0(const util::CallbackR0<std::string>& callback)
 {
-	LASS_COUT << "Simon says: " << iCallback() << std::endl;
+	return callback();
 }
 
-void callR2(const util::CallbackR2<float, float, float>& iCallback)
+float callR2(const util::CallbackR2<float, float, float>& callback, float x, float y)
 {
-	LASS_COUT << "f(5, 6) = " << iCallback(5, 6) << std::endl;
+	return callback(x, y);
 }
 
 void overloadedA(int iA)
@@ -143,10 +125,10 @@ PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
 PY_MODULE_FUNCTION( embedding, listInfo )
 PY_MODULE_FUNCTION( embedding, getAFoo )
 PY_MODULE_FUNCTION( embedding, makeSpam )
+PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
 PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
 PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
 PY_MODULE_FUNCTION( embedding, spamToCppByReference )
-PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
 PY_MODULE_FUNCTION( embedding, call0 )
 PY_MODULE_FUNCTION( embedding, call1 )
 PY_MODULE_FUNCTION( embedding, callR0 )
@@ -156,264 +138,148 @@ PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
 
-LASS_EXECUTE_BEFORE_MAIN(
-	PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" ))
-
-
-//PY_DECLARE_CLASS( PythonFoo )
-
-// expose member methods of object instances
-
-PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
-PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
-PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
-//PY_CLASS_STATIC_METHOD( PythonFoo, getMeAFoo )
-
-// inject the class in the module and provide documentation for it
-LASS_EXECUTE_BEFORE_MAIN(
-	PY_INJECT_CLASS_IN_MODULE( PythonFoo, embedding, "Documentation for class Foo." );)
-
-// declare a new pythonable class
-PY_DECLARE_CLASS( Bar )
-PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
-PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
-PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
-
-PY_DECLARE_CLASS( DerivedBar )
-PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
-
-// expose member methods of object instances
-PY_CLASS_METHOD( Bar, aMoreComplexFunction )
-PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
-PY_CLASS_METHOD( Bar, complexArguments );
-PY_CLASS_METHOD( Bar, primArguments );
-PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
-PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
-PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
-PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, const std::string& )
-PY_CLASS_METHOD_EX( Bar, operator(), lass::python::methods::_call_, 0, BarCallOperator )
-PY_CLASS_METHOD_NAME( Bar, call, lass::python::methods::_call_)
-PY_CLASS_FREE_METHOD(Bar, freeMethodA);
-PY_CLASS_FREE_METHOD(Bar, freeMethodB);
-PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, lass::python::methods::_call_);
-PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, lass::python::methods::_repr_);
-PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, lass::python::methods::_str_);
-
-
-PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
-PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
-PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
-
-
-PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
-PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
-PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
-PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
-PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
-PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
-PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
-PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
-PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
-
-
-// a const value as class member
-PY_CLASS_STATIC_CONST( Bar, "CONST", 5 );
-
-// innerclass of Bar
-typedef Bar::InnerClass TBarInnerClass;
-PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )
-PY_CLASS_CONSTRUCTOR_1( TBarInnerClass, const std::string& );
-PY_CLASS_METHOD( TBarInnerClass, talkTo );
-PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
-
-// inject the class in the module and provide documentation for it
-LASS_EXECUTE_BEFORE_MAIN(
-	PY_INJECT_CLASS_IN_MODULE( Bar, embedding, "Documentation for class Bar." );
-	PY_INJECT_CLASS_IN_MODULE( DerivedBar, embedding, "Documentation for class DerivedBar." );)
-
-}
-}
-
-
-// --- shadow classes ------------------------------------------------------------------------------
-
-
-namespace lass
+class Base
 {
-namespace test
+public:
+	Base() {}
+	virtual ~Base() {}
+};
+class ClassA :  public Base 
 {
-
-PY_DECLARE_CLASS_NAME(PySpam, "Spam")
-PY_CLASS_METHOD(PySpam, who)
-PY_CLASS_MEMBER_R(PySpam, address)
-LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam");)
-
-PY_DECLARE_CLASS_NAME(PyHam, "Ham")
-PY_CLASS_CONSTRUCTOR_0(PyHam)
-PY_CLASS_STATIC_METHOD(PyHam, say)
-LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");)
-
-PY_DECLARE_CLASS_NAME(PyBacon, "Bacon")
-PY_CLASS_CONSTRUCTOR_0(PyBacon)
-LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");)
-
-PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
-PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
-PY_CLASS_MEMBER_RW(PyEggs, number, setNumber)
-LASS_EXECUTE_BEFORE_MAIN(PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");)
-
-
-}
-}
-
-#include "../util/non_copyable.h"
-
-namespace lass
+public:
+	ClassA() {};
+	virtual ~ClassA() {};
+	virtual void abstractMethod() = 0;
+};
+class ClassB : public ClassA
 {
-	namespace test
+public:
+	ClassB() {}
+	virtual ~ClassB() {}
+
+	void testConst(const ClassA& iArg) {}
+	void testNonConst(ClassA& iArg) {}
+	void testConstPtr(ClassA const * iArg) {}
+	void testNonConstPtr(ClassA* iArg) {}
+	virtual void abstractMethod() {}
+
+	int getitem(int i) { return i; }
+	int len() const { return 5; }
+	void setitem(int i, std::pair<float,int> iarg) { }
+};
+
+class ClassSeq : public std::vector<float>
+{
+public:
+	ClassSeq() {}
+	virtual ~ClassSeq() {}
+	void setItem(int i, float value) { at(i) = value; }
+	float pop(int i) { float temp = at(i); erase(begin()+i); return temp; }
+	float popwo() { float temp = back(); pop_back(); return temp; }
+	ClassSeq& irepeat(int n) { lass::stde::inplace_repeat_c(*this,n);  return *this;}
+	ClassSeq& iconcat(const std::vector<float>& iV) { insert(end(),iV.begin(), iV.end());  return *this;}
+	ClassSeq& setSlice(int ilow, int ihigh, const std::vector<float>& iV) 
 	{
-		class Base
-		{
-		public:
-			Base() {}
-			virtual ~Base() {}
-		};
-		class ClassA :  public Base 
-		{
-		public:
-			ClassA() {};
-			virtual ~ClassA() {};
-			virtual void abstractMethod() = 0;
-		};
-		class ClassB : public ClassA
-		{
-		public:
-			ClassB() {}
-			virtual ~ClassB() {}
-
-			void testConst(const ClassA& iArg) {}
-			void testNonConst(ClassA& iArg) {}
-			void testConstPtr(ClassA const * iArg) {}
-			void testNonConstPtr(ClassA* iArg) {}
-			virtual void abstractMethod() {}
-
-			int getitem(int i) { return i; }
-			int len() const { return 5; }
-			void setitem(int i, std::pair<float,int> iarg) { }
-		};
-
-		class ClassSeq : public std::vector<float>
-		{
-		public:
-			ClassSeq() {}
-			virtual ~ClassSeq() {}
-			void setItem(int i, float value) { at(i) = value; }
-			float pop(int i) { float temp = at(i); erase(begin()+i); return temp; }
-			float popwo() { float temp = back(); pop_back(); return temp; }
-			ClassSeq& irepeat(int n) { lass::stde::inplace_repeat_c(*this,n);  return *this;}
-			ClassSeq& iconcat(const std::vector<float>& iV) { insert(end(),iV.begin(), iV.end());  return *this;}
-			ClassSeq& setSlice(int ilow, int ihigh, const std::vector<float>& iV) 
-			{
-				erase(	begin()+ilow,begin()+ihigh );
-				insert(	begin()+ilow+1,iV.begin(),iV.end());			
-				return *this;
-			}
-
-			lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
-		};
-
-		template<typename V>
-		class IteratorAdapter
-		{
-		public:
-			typedef lass::util::Callback1<size_t> TSizeCallback;
-			typedef typename lass::util::CallbackR1<V, size_t> TGetItemCallback;
-
-			enum SpecialValues { Begin, End, None } ;
-
-			IteratorAdapter(SpecialValues iValue, 
-							const TSizeCallback& iSizeCb, 
-							const TGetItemCallback& iItemCb) : specialValue_(iValue), cont_(iCont), currIndex_(0) 
-			{
-				if (iValue==End)
-					currIndex = TSizeCallback();
-			}
-			virtual ~IteratorAdapter() {}				/**< no ownership */
-			
-			const V& operator*() { return TGetItemCallback(currIndex_); }
-			V operator++(int) { V temp(TGetItemCallback(currIndex_)); ++currIndex; return temp; }
-		private:
-			size_t currIndex_;
-			SpecialValues specialValue_;
-		};
-
-
-		class ClassMap : public std::map<std::string,float>
-		{
-		public:
-			ClassMap() {}
-			virtual ~ClassMap() {}
-			void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
-		};
-
-		std::map<std::string,float>::const_iterator freeBegin(ClassMap* iThis)
-		{
-			return iThis->begin();
-		}
-		std::map<std::string,float>::const_iterator freeEnd(ClassMap* iThis)
-		{
-			return iThis->end();
-		}
-
-
-		PyObject* getMemberImagine(const ClassB * iThis )
-		{
-			Py_XINCREF(Py_None);
-			return Py_None;
-		}
-		int setMemberImagine(const ClassB * iThis, PyObject* iObject )
-		{
-			// success
-			return 0;
-		}
-		int properGetMemberImagine(const ClassB * iThis )
-		{
-			return 1;
-		}
-		void properSetMemberImagine(ClassB * iThis, int iWhat)
-		{
-
-		}
-
-		const ClassA& testFreeConst(const ClassA& iArg)
-		{
-			return *static_cast<ClassA const * >(&iArg);
-		}
-
-		void testCopyConstructor()
-		{
-			ClassB b;
-
-			b.testConst(b);
-			testFreeConst(b);
-		}
-
-		void testFree(ClassB* iThis, const ClassA& iArg )
-		{
-			return;
-		}
-
-		ClassB freeConstructor(int iTest)
-		{
-			return ClassB();
-		}
-
-		int testConvertor(PyObject* iObject, ClassB& oOut)
-		{
-			return 0;
-		}
-
+		erase(	begin()+ilow,begin()+ihigh );
+		insert(	begin()+ilow+1,iV.begin(),iV.end());			
+		return *this;
 	}
+
+	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
+};
+
+template<typename V>
+class IteratorAdapter
+{
+public:
+	typedef lass::util::Callback1<size_t> TSizeCallback;
+	typedef typename lass::util::CallbackR1<V, size_t> TGetItemCallback;
+
+	enum SpecialValues { Begin, End, None } ;
+
+	IteratorAdapter(SpecialValues iValue, 
+					const TSizeCallback& iSizeCb, 
+					const TGetItemCallback& iItemCb) : specialValue_(iValue), cont_(iCont), currIndex_(0) 
+	{
+		if (iValue==End)
+			currIndex = TSizeCallback();
+	}
+	virtual ~IteratorAdapter() {}				/**< no ownership */
+	
+	const V& operator*() { return TGetItemCallback(currIndex_); }
+	V operator++(int) { V temp(TGetItemCallback(currIndex_)); ++currIndex; return temp; }
+private:
+	size_t currIndex_;
+	SpecialValues specialValue_;
+};
+
+
+class ClassMap : public std::map<std::string,float>
+{
+public:
+	ClassMap() {}
+	virtual ~ClassMap() {}
+	void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
+};
+
+std::map<std::string,float>::const_iterator freeBegin(ClassMap* iThis)
+{
+	return iThis->begin();
+}
+std::map<std::string,float>::const_iterator freeEnd(ClassMap* iThis)
+{
+	return iThis->end();
+}
+
+
+PyObject* getMemberImagine(const ClassB * iThis )
+{
+	Py_XINCREF(Py_None);
+	return Py_None;
+}
+int setMemberImagine(const ClassB * iThis, PyObject* iObject )
+{
+	// success
+	return 0;
+}
+int properGetMemberImagine(const ClassB * iThis )
+{
+	return 1;
+}
+void properSetMemberImagine(ClassB * iThis, int iWhat)
+{
+
+}
+
+const ClassA& testFreeConst(const ClassA& iArg)
+{
+	return *static_cast<ClassA const * >(&iArg);
+}
+
+void testCopyConstructor()
+{
+	ClassB b;
+
+	b.testConst(b);
+	testFreeConst(b);
+}
+
+void testFree(ClassB* iThis, const ClassA& iArg )
+{
+	return;
+}
+
+ClassB freeConstructor(int iTest)
+{
+	return ClassB();
+}
+
+int testConvertor(PyObject* iObject, ClassB& oOut)
+{
+	return 0;
+}
+
+}
 }
 
 
@@ -461,7 +327,9 @@ PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
 
 PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], std::vector<float>::const_reference, std::vector<float>::size_type, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
-PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
+#if PY_MAJOR_VERSION < 3
+	PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
+#endif
 
 // full map protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)
@@ -473,17 +341,6 @@ PY_CLASS_METHOD_NAME( PyClassMap, operator[], lass::python::methods::map_getitem
 PY_CLASS_METHOD_NAME( PyClassMap, size, lass::python::methods::map_len_);
 PY_CLASS_ITERFUNC( PyClassMap, begin, end )
 PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
-
-
-namespace lass { namespace test {
-LASS_EXECUTE_BEFORE_MAIN(
-	PY_INJECT_CLASS_IN_MODULE( PyClassA, embedding, "Documentation for class A." );
-	PY_INJECT_CLASS_IN_MODULE( PyClassB, embedding, "Documentation for class B." );
-	PY_INJECT_CLASS_IN_MODULE( PyClassSeq, embedding, "Documentation for class Seq." );
-	PY_INJECT_CLASS_IN_MODULE( PyClassMap, embedding, "Documentation for class Map." );
-	)
-} }
-
 
 //This won't be accepted due to A being an abstract class
 //PY_CLASS_METHOD_QUALIFIED_1( PyClassB, testConst, void, const lass::test::ClassA& )
@@ -528,3 +385,31 @@ struct IsACaster<CustomCast<T> >
 }
 PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
 
+#if PY_MAJOR_VERSION < 3
+void initembedding(void)
+#else
+PyObject* PyInit_embedding(void)
+#endif
+{
+	using namespace lass::test;
+	PyObject* mod = PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" )	
+
+	PY_INJECT_CLASS_IN_MODULE(PythonFoo, embedding, "Documentation for class Foo." );
+
+	PY_INJECT_CLASS_IN_MODULE(Bar, embedding, "Documentation for class Bar." );
+	PY_INJECT_CLASS_IN_MODULE(DerivedBar, embedding, "Documentation for class DerivedBar." );
+
+	PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam");
+	PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");
+	PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
+	PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");
+
+	PY_INJECT_CLASS_IN_MODULE(PyClassA, embedding, "Documentation for class A." );
+	PY_INJECT_CLASS_IN_MODULE(PyClassB, embedding, "Documentation for class B." );
+	PY_INJECT_CLASS_IN_MODULE(PyClassSeq, embedding, "Documentation for class Seq." );
+	PY_INJECT_CLASS_IN_MODULE(PyClassMap, embedding, "Documentation for class Map." );
+
+#if PY_MAJOR_VERSION >= 3
+	return mod;
+#endif
+}
