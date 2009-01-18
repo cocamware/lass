@@ -109,29 +109,25 @@
  *		the identifier of a module declared by PY_DECLARE_MODULE
  */
 #define PY_INJECT_MODULE( i_module )\
-	PY_INJECT_MODULE_EX( i_module, LASS_STRINGIFY(i_module), 0)
+	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName);\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc);\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName).setDoc(s_doc).inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName);\
-	PY_INJECT_MODULE_EX( i_module, s_moduleName, 0)
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName).inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_DOC( i_module, s_doc )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc);\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
+	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc).inject();
 
 
 
