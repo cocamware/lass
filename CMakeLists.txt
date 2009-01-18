@@ -278,9 +278,15 @@ endif()
 	
 install(
 	TARGETS lass
+	EXPORT LassTargets
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib)
+	
+install(
+	EXPORT LassTargets
+	DESTINATION lib
+	)
 
 install(
 	DIRECTORY src/
@@ -297,10 +303,25 @@ install(
 	PATTERN "*.suo" EXCLUDE
 	PATTERN "*.ncb" EXCLUDE
 	)
-	
+
 install(
 	FILES ${config_file}
-	DESTINATION include/lass/config)
+	DESTINATION include/lass/config
+	)
+	
+configure_file(
+	${lass_SOURCE_DIR}/LassConfig.cmake.in
+	${lass_BINARY_DIR}/local/LassConfig.cmake
+	@ONLY
+	)
+install(
+	FILES ${lass_BINARY_DIR}/local/LassConfig.cmake
+	DESTINATION lib
+	)
+
+
+	
+
 	
 # --- PACKAGING ---
 if (WIN32)
