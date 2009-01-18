@@ -185,8 +185,8 @@ BinaryOStream& BinaryOStream::operator<<(bool x)
 
 BinaryOStream& BinaryOStream::operator<<(const void* x)
 {
-	LASS_META_ASSERT(sizeof(num::TintPtr) == sizeof(const void*), TintPtr_should_be_of_pointer_size);
-	return *this << static_cast<num::Tint64>(reinterpret_cast<num::TintPtr>(x));
+	LASS_META_ASSERT(sizeof(num::TuintPtr) == sizeof(const void*), TuintPtr_should_be_of_pointer_size);
+	return *this << static_cast<num::Tuint64>(reinterpret_cast<num::TuintPtr>(x));
 }
 
 

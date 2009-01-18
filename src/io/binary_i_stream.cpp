@@ -186,12 +186,16 @@ BinaryIStream& BinaryIStream::operator>>(bool& x)
 BinaryIStream& BinaryIStream::operator>>(void*& x)
 {
 	LASS_META_ASSERT(sizeof(num::TintPtr) == sizeof(const void*), TintPtr_should_be_of_pointer_size);
-	num::Tint64 temp;
+	num::Tuint64 temp;
 	*this >> temp;
 	if (good())
 	{
-#pragma LASS_FIXME("do something special here if cast causes truncation [Bramz]")
-		x = reinterpret_cast<void*>(static_cast<num::TintPtr>(temp));
+		num::TuintPtr address = static_cast<num::TuintPtr>(temp);
+		if (temp != static_cast<num::Tuint64>(address))
+		{
+			LASS_THROW("address overflow" << std::hex << temp);
+		}
+		x = reinterpret_cast<void*>(address);
 	}
 	return *this;
 }
@@ -205,9 +209,11 @@ BinaryIStream& BinaryIStream::operator>>( std::string& x )
 	if (good())
 	{
 		size_t length = static_cast<size_t>(n);
-#pragma LASS_FIXME("do something special if there's an overflow [Bramz]")
-		LASS_ASSERT(n == static_cast<num::Tuint64>(n));
-		std::vector<char> buffer(length + 2, '\0'); // [TDM] null character storage + safety :o)
+		if (n != static_cast<num::Tuint64>(length) || (length + 1 < length))
+		{
+			LASS_THROW("length overflow" << n);
+		}
+		std::vector<char> buffer(length + 1, '\0'); // [TDM] null character storage :o)
 		doRead(&buffer[0], length);
 		if (good())
 		{
