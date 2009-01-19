@@ -162,7 +162,7 @@ LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorR
 
 #define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_COLOR_RGBA
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
-#	include "pyobject_util.h"
+#	include "../python/export_traits_prim.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRANSFORMATION_3D_H

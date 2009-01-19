@@ -144,7 +144,7 @@ template<typename T> bool inCircle( const Point2D<T>& a, const Point2D<T>& b, co
 
 #define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_2D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
-#	include "pyobject_util.h"
+#	include "../python/export_traits_prim.h"
 #endif
 
 #endif

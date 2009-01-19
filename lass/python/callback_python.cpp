@@ -40,25 +40,34 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-
-#include "util_common.h"
+#include "lass_common.h"
 #include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
 #include "callback_python.h"
-#include "py_tuple.h"
-#include "py_stl.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "../prim/pyobject_util.h"
-#include "../meta/is_member.h"
 
-#endif
- 
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+
+void fetchAndThrowPythonException(const std::string& loc)
+{
+	if (!PyErr_Occurred())
+	{
+		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
+	}
+
+	PyObject *tempType, *tempValue, *tempTraceback;
+	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
+
+	const TPyObjPtr type(tempType);
+	const TPyObjPtr value(tempValue);
+	const TPyObjPtr traceback(tempTraceback);
+
+	throw lass::python::PythonException(type, value, traceback, loc);
+}
+
+}
+}
+}

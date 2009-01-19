@@ -40,9 +40,9 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "lass_common.h"
-#include "../pyobject_plus.h"
-#include "../callback_python.h"
+#include "../lass_common.h"
+#include "export_traits_prim.h"
+#include "../prim/triangle_mesh_3d.h"
 
 namespace lass
 {
@@ -51,23 +51,94 @@ namespace python
 namespace impl
 {
 
-void fetchAndThrowPythonException(const std::string& loc)
+/** @ingroup Python
+ *  @internal
+ */
+PyObject* buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv)
 {
-	if (!PyErr_Occurred())
+	python::PyObjectPtr<PyObject>::Type tuple;
+	
+	LASS_ASSERT(iVertex != prim::IndexTriangle::null());
+	if (iNormal == prim::IndexTriangle::null())
 	{
-		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
+		if (iUv == prim::IndexTriangle::null())
+		{
+			tuple = python::makeTuple(iVertex);
+		}
+		else
+		{
+			tuple = python::makeTuple(iVertex, python::fromNakedToSharedPtrCast<PyObject>(Py_None), iUv);
+		}
 	}
-
-	PyObject *tempType, *tempValue, *tempTraceback;
-	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
-
-	const TPyObjPtr type(tempType);
-	const TPyObjPtr value(tempValue);
-	const TPyObjPtr traceback(tempTraceback);
-
-	throw lass::python::PythonException(type, value, traceback, loc);
+	else
+	{
+		if (iUv == prim::IndexTriangle::null())
+		{
+			tuple = python::makeTuple(iVertex, iNormal);
+		}
+		else
+		{
+			tuple = python::makeTuple(iVertex, iNormal, iUv);
+		}
+	}
+	return python::fromSharedPtrToNakedCast(tuple);
 }
 
+/** @ingroup Python
+ *  @internal
+ */
+int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
+{
+	size_t vertex = prim::IndexTriangle::null();
+	size_t normal = prim::IndexTriangle::null();
+	size_t uv = prim::IndexTriangle::null();
+
+	TPyObjPtr tuple(PySequence_Fast(iIndices, "expected a sequence (tuple, list, ...)"));
+	if (!tuple)
+	{
+		return 1;
+	}
+	const Py_ssize_t size = PySequence_Fast_GET_SIZE(tuple.get());
+	if (size == -1)
+	{
+		return 1;
+	}
+	if (size == 0 || size > 3)
+	{
+		PyErr_SetString(PyExc_TypeError, "is not (v [, vn [, vt]])");
+		return 1;
+	}
+	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	if (pyGetSimpleObject(objects[0], vertex) != 0)
+	{
+		impl::addMessageHeader("v");
+		return 1;
+	}
+	if (size > 1 && objects[1] != Py_None)
+	{
+		if (pyGetSimpleObject(objects[1], normal) != 0)
+		{
+			impl::addMessageHeader("vn");
+			return 1;
+		}
+	}
+	if (size > 2 && objects[2] != Py_None)
+	{
+		if (pyGetSimpleObject(objects[2], uv) != 0)
+		{
+			impl::addMessageHeader("vt");
+			return 1;
+		}
+	}
+	oVertex = vertex;
+	oNormal = normal;
+	oUv = uv;
+	return 0;
+}
+
+
 }
 }
 }
+
+// EOF

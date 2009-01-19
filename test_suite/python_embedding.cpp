@@ -44,8 +44,8 @@
 
 #include "test_common.h"
 #include "python_embedding.h"
-#include "../lass/util/python_api.h"
-#include "../lass/util/pyshadow_object.h"
+#include "../lass/python/python_api.h"
+#include "../lass/python/pyshadow_object.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"

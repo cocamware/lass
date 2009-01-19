@@ -159,7 +159,7 @@ template <typename T> util::Semaphore Transformation3D<T>::sync_;
 
 #define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_TRANSFORMATION_3D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
-#	include "pyobject_util.h"
+#	include "../python/export_traits_prim.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H

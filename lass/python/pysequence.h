@@ -47,10 +47,10 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
 
-#include "util_common.h"
+#include "../util/util_common.h"
 #include "pyobject_plus.h"
 #include "pyobject_util.h"
-#include "string_cast.h"
+#include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
 
 #include <vector>

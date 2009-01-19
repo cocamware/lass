@@ -265,7 +265,7 @@ Callback0 makeCallback(ObjectPtr iObject, void (Object::*iMethod)() const)
 
 #define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_CALLBACK_0
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_PYTHON_H
-#	include "callback_python.h"
+#	include "../python/callback_python.h"
 #endif
 
 #endif

@@ -47,8 +47,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 
-#include "util_common.h"
-#include "singleton.h"
+#include "../util/util_common.h"
+#include "../util/singleton.h"
 
 // Python.h is a bit blunt in (re)defining _POSIX_C_SOURCE causing a nice warning.
 // Undefing it before including Python.h will suppress that warning.
@@ -98,9 +98,9 @@
 
 #include "../meta/is_derived.h"
 #include "../meta/select.h"
-#include "shared_ptr.h"
-#include "string_cast.h"
-#include "thread.h"
+#include "../util/shared_ptr.h"
+#include "../util/string_cast.h"
+#include "../util/thread.h"
 #include <cstdlib>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC

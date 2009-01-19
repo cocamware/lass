@@ -48,7 +48,7 @@
 #include "num_common.h"
 #include "num_traits.h"
 #include "../util/call_traits.h"
-#include "../util/pyobject_plus.h"
+#include "../python/pyobject_plus.h"
 #include <iostream>
 
 namespace lass

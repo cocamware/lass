@@ -147,7 +147,7 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& stream, const LineS
 
 #define LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_2D
 #ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
-#	include "pyobject_util.h"
+#	include "../python/export_traits_prim.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_2D_H

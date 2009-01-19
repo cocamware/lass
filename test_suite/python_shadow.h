@@ -44,7 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_PYTHON_SHADOW_H
 
 #include "test_common.h"
-#include "../lass/util/python_api.h"
+#include "../lass/python/python_api.h"
 
 namespace lass
 {
