@@ -271,7 +271,7 @@ set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest wil
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
-	include(lass/test/CMakeLists.txt)
+	include(test_suite/CMakeLists.txt)
 endif()
 	
 # --- INSTALLING ---
