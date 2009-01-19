@@ -79,7 +79,7 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 	try_compile(
 		LASS_HAVE_STRERROR_R_CHAR_P
 		"${lass_BINARY_DIR}/local"
-		"${lass_SOURCE_DIR}/src/config/check_strerror_r_char_p.cpp"
+		"${lass_SOURCE_DIR}/lass/config/check_strerror_r_char_p.cpp"
 		)
 endif()
 
@@ -90,13 +90,13 @@ if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
 endif()
 
-file(GLOB lass_SRCS src/*.cpp)
-file(GLOB lass_HDRS src/*.h src/*.inl)
+file(GLOB lass_SRCS lass/*.cpp)
+file(GLOB lass_HDRS lass/*.h lass/*.inl)
 foreach(subdir ${lass_subdirectories})
 	if(NOT subdir STREQUAL "config")
-		file(GLOB_RECURSE temp_SRCS src/${subdir}/*.cpp)
+		file(GLOB_RECURSE temp_SRCS lass/${subdir}/*.cpp)
 	endif()	       
-	file(GLOB_RECURSE temp_HDRS src/${subdir}/*.h src/${subdir}/*.inl)
+	file(GLOB_RECURSE temp_HDRS lass/${subdir}/*.h lass/${subdir}/*.inl)
 	list(APPEND lass_SRCS ${temp_SRCS})
 	list(APPEND lass_HDRS ${temp_HDRS})
 endforeach()
@@ -107,7 +107,7 @@ endforeach()
 
 set(config_dir ${lass_BINARY_DIR}/local)
 set(config_file ${config_dir}/local_config.h)
-configure_file(${lass_SOURCE_DIR}/src/config/local_config.h.in ${config_file})
+configure_file(${lass_SOURCE_DIR}/lass/config/local_config.h.in ${config_file})
 list(APPEND lass_HDRS ${config_file})
 list(APPEND lass_INCLUDES ${config_dir})
 
@@ -141,21 +141,21 @@ macro(prebuild dirname infile outfile n)
 endmacro()
 
 set(N 15)
-prebuild(src/util object_factory.tmpl.h object_factory.h ${N})
-prebuild(src/util clone_factory.tmpl.h clone_factory.h ${N})
-prebuild(src/util callback.tmpl.h callback.h ${N})
-prebuild(src/util callback_x.tmpl.h "callback_$x.h" ${N})
-prebuild(src/util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
-prebuild(src/util callback_python.tmpl.h callback_python.h ${N})
-prebuild(src/util pyobject_macros.tmpl.h pyobject_macros.h ${N})
-prebuild(src/util pyobject_call.tmpl.inl pyobject_call.inl ${N})
-prebuild(src/util py_tuple.tmpl.h py_tuple.h 20)
-prebuild(src/util thread_fun.tmpl.h thread_fun.h ${N})
-prebuild(src/util thread_fun.tmpl.inl thread_fun.inl ${N})
-prebuild(src/util bind.tmpl.h bind.h ${N})
-prebuild(src/util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
-prebuild(src/util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
-prebuild(src/meta is_member.tmpl.h is_member.h ${N})
+prebuild(lass/util object_factory.tmpl.h object_factory.h ${N})
+prebuild(lass/util clone_factory.tmpl.h clone_factory.h ${N})
+prebuild(lass/util callback.tmpl.h callback.h ${N})
+prebuild(lass/util callback_x.tmpl.h "callback_$x.h" ${N})
+prebuild(lass/util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
+prebuild(lass/util callback_python.tmpl.h callback_python.h ${N})
+prebuild(lass/util pyobject_macros.tmpl.h pyobject_macros.h ${N})
+prebuild(lass/util pyobject_call.tmpl.inl pyobject_call.inl ${N})
+prebuild(lass/util py_tuple.tmpl.h py_tuple.h 20)
+prebuild(lass/util thread_fun.tmpl.h thread_fun.h ${N})
+prebuild(lass/util thread_fun.tmpl.inl thread_fun.inl ${N})
+prebuild(lass/util bind.tmpl.h bind.h ${N})
+prebuild(lass/util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
+prebuild(lass/util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
+prebuild(lass/meta is_member.tmpl.h is_member.h ${N})
 
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
@@ -215,13 +215,13 @@ endif()
 
 include_directories(${lass_INCLUDES})
 if(NOT BUILD_USING_PRECOMPILED_HEADERS)
-	include_directories(${lass_SOURCE_DIR}/src) # for lass_common.h
+	include_directories(${lass_SOURCE_DIR}/lass) # for lass_common.h
 endif()
 
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
     # Work around it by adding the obj file as 'source file' and have it generated
-    set(sourcedir ${CMAKE_SOURCE_DIR}/src/util/impl)
+    set(sourcedir ${CMAKE_SOURCE_DIR}/lass/util/impl)
     set(fname atomic_msvc_x64)
     set(sourcepath ${sourcedir}/${fname}.asm)
     set(defpath ${sourcedir}/${fname}.def)
@@ -261,7 +261,7 @@ set_target_properties(lass PROPERTIES
 add_precompiled_header(
 	lass 
 	lass_common.h 
-	${lass_SOURCE_DIR}/src/lass_common.cpp
+	${lass_SOURCE_DIR}/lass/lass_common.cpp
 	${lass_SRCS})
 
 	
@@ -271,7 +271,7 @@ set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest wil
 include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
-	include(src/test/CMakeLists.txt)
+	include(lass/test/CMakeLists.txt)
 endif()
 	
 # --- INSTALLING ---
@@ -289,7 +289,7 @@ install(
 	)
 
 install(
-	DIRECTORY src/
+	DIRECTORY lass/
 	DESTINATION include/lass
 	USE_SOURCE_PERMISSIONS
 	REGEX "\\.svn" EXCLUDE

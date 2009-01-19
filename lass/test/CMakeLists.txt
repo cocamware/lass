@@ -1,4 +1,4 @@
-set(sourcedir ${lass_SOURCE_DIR}/src/test)
+set(sourcedir ${lass_SOURCE_DIR}/lass/test)
 
 file(GLOB test_HDRS ${sourcedir}/*.h)
 file(GLOB test_SRCS ${sourcedir}/*.cpp)
@@ -54,7 +54,7 @@ set_target_properties(
 add_precompiled_header(
 	test_suite 
 	test_common.h 
-	${lass_SOURCE_DIR}/src/test/test_common.cpp
+	${lass_SOURCE_DIR}/lass/test/test_common.cpp
 	${test_SRCS}
 	)
 
