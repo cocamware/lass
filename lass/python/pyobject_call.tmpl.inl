@@ -43,11 +43,11 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_INL
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_INL
 
-#include "util_common.h"
+#include "python_common.h"
 #include "pyobject_plus.h"
 #include "py_tuple.h"
 #include "pyshadow_object.h"
-#include "call_traits.h"
+#include "../util/call_traits.h"
 #include "../meta/if.h"
 #include "../meta/select.h"
 #include "../meta/wrap.h"
