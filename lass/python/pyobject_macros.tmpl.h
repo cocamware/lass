@@ -79,7 +79,7 @@
  *		the identifier of the module to be used in C++
  */
 #define PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, s_doc ) \
-	::lass::python::impl::ModuleDefinition LASS_CONCATENATE( lassPythonModule_, i_module )( s_name, s_doc );
+	::lass::python::impl::ModuleDefinition i_module( s_name, s_doc );
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = ""
@@ -109,25 +109,25 @@
  *		the identifier of a module declared by PY_DECLARE_MODULE
  */
 #define PY_INJECT_MODULE( i_module )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).inject();
+	i_module.inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName).setDoc(s_doc).inject();
+	i_module.setName(s_moduleName).setDoc(s_doc).inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setName(s_moduleName).inject();
+	i_module.setName(s_moduleName).inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_DOC( i_module, s_doc )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).setDoc(s_doc).inject();
+	i_module.setDoc(s_doc).inject();
 
 
 
@@ -181,11 +181,8 @@
  *		name of object as shown in the module (zero terminated C string)
  */
 #define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
-	LASS_CONCATENATE( lassPythonModule_, i_module ).injectObject( o_object, s_objectName );\
 	{\
-		PyModule_AddObject(\
-			LASS_CONCATENATE( lassPythonModule_, i_module ), s_objectName,\
-			lass::python::pyBuildSimpleObject(o_object) );\
+		PyModule_AddObject(i_module, s_objectName, 	lass::python::pyBuildSimpleObject(o_object) );\
 	}
 
 /** @ingroup Python
@@ -212,8 +209,7 @@
  */
 #define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, s_value )\
 	{\
-		PyModule_AddIntConstant(\
-			LASS_CONCATENATE( lassPythonModule_, i_module ),	s_name, s_value);\
+		PyModule_AddIntConstant(i_module, s_name, s_value);\
 	}
 
 
@@ -233,8 +229,7 @@
  */
 #define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, v_value )\
 	{\
-		PyModule_AddStringConstant(\
-			LASS_CONCATENATE( lassPythonModule_, i_module ), s_name, const_cast<char*>(v_value));\
+		PyModule_AddStringConstant(i_module, s_name, const_cast<char*>(v_value));\
 	}
 
 // --- free module functions -----------------------------------------------------------------------
@@ -310,7 +305,7 @@
 	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ), \
-		LASS_CONCATENATE( lassPythonModule_, i_module ).addFunctionDispatcher( \
+		i_module.addFunctionDispatcher( \
 			i_dispatcher, s_functionName, s_doc, \
 			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) \
 			);\
@@ -403,7 +398,7 @@
 	extern ::std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
-		LASS_CONCATENATE( lassPythonModule_, i_module ).addFunctionDispatcher( \
+		i_module.addFunctionDispatcher( \
 			i_dispatcher, s_functionName, s_doc, \
 			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) \
 		);\
@@ -616,7 +611,7 @@ $[
  *		documentation of class as shown in Python (zero terminated C string)
  */
 #define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
-	LASS_CONCATENATE(lassPythonModule_, i_module).injectClass< t_cppClass >( s_doc ); 
+	i_module.injectClass< t_cppClass >( s_doc ); 
 
 ///** @ingroup Python
 // *  @deprecated
