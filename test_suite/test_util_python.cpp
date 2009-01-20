@@ -71,14 +71,19 @@ void testUtilPython()
 	{
 		LASS_THROW("Could not open " << testFile);
 	}
+	::fclose(fp);
+
 #if PY_MAJOR_VERSION < 3
 	PyImport_AppendInittab("embedding", initembedding);
 #else
 	PyImport_AppendInittab("embedding", PyInit_embedding);
 #endif
 	Py_Initialize();
-	LASS_TEST_CHECK_EQUAL(PyRun_SimpleFile(fp, testFile.c_str()), 0);
-	::fclose(fp);
+
+	// execfile is no longer part of python 3.0
+	std::string commandStr = "exec(file('" + testFile + "').read())";
+	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
+	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
 	
 	typedef std::vector<double> TV;
 	TV vec;
