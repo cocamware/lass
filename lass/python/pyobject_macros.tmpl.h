@@ -115,19 +115,23 @@
  *  @deprecated
  */
 #define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
-	i_module.setName(s_moduleName).setDoc(s_doc).inject();
+	i_module.setName(s_moduleName); \
+	i_module.setDoc(s_doc); \
+	i_module.inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
-	i_module.setName(s_moduleName).inject();
+	i_module.setName(s_moduleName); \
+	i_module.inject();
 
 /** @ingroup Python
  *  @deprecated
  */
 #define PY_INJECT_MODULE_DOC( i_module, s_doc )\
-	i_module.setDoc(s_doc).inject();
+	i_module.setDoc(s_doc);\
+	i_module.inject();
 
 
 
@@ -182,7 +186,7 @@
  */
 #define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
 	{\
-		PyModule_AddObject(i_module, s_objectName, 	lass::python::pyBuildSimpleObject(o_object) );\
+		PyModule_AddObject(i_module.module(), s_objectName, lass::python::pyBuildSimpleObject(o_object) );\
 	}
 
 /** @ingroup Python
@@ -209,7 +213,7 @@
  */
 #define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, s_value )\
 	{\
-		PyModule_AddIntConstant(i_module, s_name, s_value);\
+		PyModule_AddIntConstant(i_module.module(), s_name, s_value);\
 	}
 
 
@@ -229,7 +233,7 @@
  */
 #define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, v_value )\
 	{\
-		PyModule_AddStringConstant(i_module, s_name, const_cast<char*>(v_value));\
+		PyModule_AddStringConstant(i_module.module(), s_name, const_cast<char*>(v_value));\
 	}
 
 // --- free module functions -----------------------------------------------------------------------

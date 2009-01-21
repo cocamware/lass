@@ -473,9 +473,10 @@ namespace lass
 			public:
 				ModuleDefinition(const char* name, const char* doc = 0);
 				const char* name() const { return name_.get(); }
-				ModuleDefinition& setName(const char* name);
+				void setName(const char* name);
 				const char* doc() const { return doc_.get(); }
-				ModuleDefinition& setDoc(const char* doc);
+				void setDoc(const char* doc);
+				PyObject* module() const { return module_; }
 				void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
 				template <typename CppClass> void injectClass(const char* doc);
 				PyObject* inject();

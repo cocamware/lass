@@ -251,16 +251,14 @@ namespace experimental
 	}
 }
 
-ModuleDefinition& ModuleDefinition::setName(const char* name)
+void ModuleDefinition::setName(const char* name)
 {
 	experimental::assignScopedCString(name_, name);
-	return *this;
 }
 
-ModuleDefinition& ModuleDefinition::setDoc(const char* doc)
+void ModuleDefinition::setDoc(const char* doc)
 {
 	experimental::assignScopedCString(doc_, doc);
-	return *this;
 }
 
 void ModuleDefinition::addFunctionDispatcher(

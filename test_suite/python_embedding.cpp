@@ -392,7 +392,7 @@ PyObject* PyInit_embedding(void)
 #endif
 {
 	using namespace lass::test;
-	PyObject* mod = PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" )	
+	PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" )	
 
 	PY_INJECT_CLASS_IN_MODULE(PythonFoo, embedding, "Documentation for class Foo." );
 
@@ -410,6 +410,6 @@ PyObject* PyInit_embedding(void)
 	PY_INJECT_CLASS_IN_MODULE(PyClassMap, embedding, "Documentation for class Map." );
 
 #if PY_MAJOR_VERSION >= 3
-	return mod;
+	return embedding.module();
 #endif
 }
