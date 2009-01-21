@@ -84,6 +84,7 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 endif()
 
 # --- SOURCE FILE GATHERING ---
+
 set(lass_subdirectories config io num prim python spat stde util meta)
 
 if (WIN32 AND LASS_SHARED_LIBRARY)
@@ -94,11 +95,17 @@ file(GLOB lass_SRCS lass/*.cpp)
 file(GLOB lass_HDRS lass/*.h lass/*.inl)
 foreach(subdir ${lass_subdirectories})
 	if(NOT subdir STREQUAL "config")
-		file(GLOB_RECURSE temp_SRCS lass/${subdir}/*.cpp)
+		file(GLOB temp_SRCS lass/${subdir}/*.cpp)
+		file(GLOB temp_impl_SRCS lass/${subdir}/impl/*.cpp)
 	endif()	       
-	file(GLOB_RECURSE temp_HDRS lass/${subdir}/*.h lass/${subdir}/*.inl)
-	list(APPEND lass_SRCS ${temp_SRCS})
-	list(APPEND lass_HDRS ${temp_HDRS})
+	file(GLOB temp_HDRS lass/${subdir}/*.h lass/${subdir}/*.inl)
+	file(GLOB temp_impl_HDRS lass/${subdir}/impl/*.h lass/${subdir}/impl/*.inl)
+	list(APPEND lass_SRCS ${temp_SRCS} ${temp_impl_SRCS})
+	list(APPEND lass_HDRS ${temp_HDRS} ${temp_impl_HDRS})
+	source_group("Source Files\\${subdir}" FILES ${temp_SRCS})
+	source_group("Source Files\\${subdir}_impl" FILES ${temp_impl_SRCS})
+	source_group("Header Files\\${subdir}" FILES ${temp_HDRS})
+	source_group("Header Files\\${subdir}_impl" FILES ${temp_impl_HDRS})
 endforeach()
 
 # --- LOCAL CONFIGURATION FILE ---
