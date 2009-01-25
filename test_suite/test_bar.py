@@ -375,18 +375,14 @@ test.overloaded(5)
 test.overloaded('hello!')
 echo("\n")
 
-
-
-echo("\n* Testing overloaded constructor")
-barA = embedding.Bar()
-echo(barA)
-barB = embedding.Bar(5, "hello")
-echo(barB)
-echo("\n")
-
-echo("\n* Testing free constructor")
-classB = embedding.ClassB(5)
-
+class TestConstructors(unittest.TestCase):
+	def testOverloadedConstructors(self):
+		barA = embedding.Bar()
+		self.assertEqual(barA.int, 0)
+		barB = embedding.Bar(5, "hello")
+		self.assertEqual(barB.int, 5)
+	def testFreeConstructors(self):
+		classB = embedding.ClassB(5)
 
 class TestShadowHierarchy(unittest.TestCase):
 	def testBacon(self):
