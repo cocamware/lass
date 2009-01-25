@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "../lass_common.h"
+#include "lass_common.h"
 #include "export_traits_prim.h"
 #include "../prim/triangle_mesh_3d.h"
 

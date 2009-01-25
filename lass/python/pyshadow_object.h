@@ -31,6 +31,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSHADOW_OBJECT_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSHADOW_OBJECT_H
 
+#include "python_common.h"
 #include "pyobject_plus.h"
 #include "shadowee_traits.h"
 #include "../meta/is_derived.h"

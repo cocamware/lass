@@ -45,6 +45,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_STL_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PY_STL_H
 
+#include "python_common.h"
 #include "pyobject_plus.h"
 #include "py_tuple.h"
 #include <complex>

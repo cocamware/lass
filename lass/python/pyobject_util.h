@@ -45,6 +45,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_UTIL_H
 
+#include "python_common.h"
+
 namespace lass
 {
 	namespace python

@@ -47,7 +47,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
 
-#include "../util/util_common.h"
+#include "python_common.h"
 #include "pyobject_plus.h"
 #include "pyobject_util.h"
 #include "../util/string_cast.h"

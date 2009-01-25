@@ -43,6 +43,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CASTERS_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CASTERS_H
 
+#include "python_common.h"
 #include "../meta/select.h"
 
 namespace lass

@@ -47,7 +47,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYITERATORRANGE_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYITERATORRANGE_H
 
-#include "../util/util_common.h"
+#include "python_common.h"
 #include "pyobject_plus.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC

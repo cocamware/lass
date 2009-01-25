@@ -71,7 +71,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_CALL_H
 
-#include "util_common.h"
+#include "python_common.h"
 
 #define PY_CALLABLE_FILEMETHOD( function )\
 	PY_CALLABLE_FILEMETHOD_EX( function, LASS_CONCATENATE(py, function), LASS_STRINGIFY(function) )

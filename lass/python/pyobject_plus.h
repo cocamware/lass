@@ -47,7 +47,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 
-#include "../util/util_common.h"
+#include "python_common.h"
 #include "../util/singleton.h"
 
 // Python.h is a bit blunt in (re)defining _POSIX_C_SOURCE causing a nice warning.

@@ -44,6 +44,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H
 #define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H
 
+#include "python_common.h"
 #include "pyobject_plus.h"
 #include "py_tuple.h"
 
