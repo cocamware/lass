@@ -1,6 +1,6 @@
 /**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
- *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *	@author Bram de Greve (bram@cocamware.com)
+ *	@author Tom De Muer (tom@cocamware.com)
  *
  *	*** BEGIN LICENSE INFORMATION ***
  *	
@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
+ *	Copyright (C) 2004-2009 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -45,7 +45,7 @@
 /** @defgroup Callback Callback
  *  @brief library to wrap generalized callback functions in first class objects.
  *  @date 2002-2004
- *  @author Bram de Greve [Bramz] (contact: bramz@users.sourceforge.net)
+ *  @author Bram de Greve [Bramz] (contact: bram@cocamware.com)
  *
  *  The use of this library is to treat function calls as first class objects, so you can pass them
  *  around to be called at a later time.

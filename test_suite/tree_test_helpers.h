@@ -1,5 +1,5 @@
 /**	@file
- *	@author Bram de Greve (bramz@users.sourceforge.net)
+ *	@author Bram de Greve (bram@cocamware.com)
  *	@author Tom De Muer (tomdemuer@users.sourceforge.net)
  *
  *	*** BEGIN LICENSE INFORMATION ***
@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
+ *	Copyright (C) 2004-2009 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
