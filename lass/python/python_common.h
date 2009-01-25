@@ -78,7 +78,7 @@
 
 
 
-/** @namespace lass::util::impl
+/** @namespace lass::python::impl
  *  @internal
  */
 

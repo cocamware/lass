@@ -142,7 +142,7 @@ namespace test
 		return TBarPtr(new DerivedBar);
 	}
 
-	void listInfo( PyObject* iObject );
+	void listInfo( const python::TPyObjPtr& iObject );
 	void freeMethodA(const Bar& bar, const std::string& a);
 	void freeMethodB(Bar* bar, const std::string& a);
 	float freeCall(const Bar* bar, float a);

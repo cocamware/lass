@@ -43,21 +43,62 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_EXPORT_DEPRECATED_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_EXPORT_DEPRECATED_H
 
+#include "python_common.h"
+#include "shadowee_traits.h"
 
 namespace lass
 {
 namespace python
 {
-	/** PyExportTraits.  A traits class that replaces the now deprecated pyBuildSimpleObject functionality.
+	/** @ingroup Python
+	*   A traits class that replaces the now deprecated pyBuildSimpleObject functionality.
 	*   Reason is to support the two-phase name lookup during template instantiation. (gcc >=3.4 )
 	*/
-	template<typename T>
+	template <typename T> 
 	struct PyExportTraits
 	{
-		//static PyObject* build(const T& it) { Py_XINCREF(Py_None);  return Py_None; }
-		//static int get(PyObject* iObject, T& ot) { return 1; } // probably should set an exception to match "UnImplemented" 
+		typedef typename ShadoweeTraits<T>::TShadow TShadow;
+		static PyObject* build(const T& iv)
+		{
+			std::auto_ptr<T> v(new T(iv));
+			return TShadow::make(v);
+		}
 	};
-	// a utility macro to easen the transition to the template based infrastructure
+
+	template <typename T>
+	struct PyExportTraits< std::auto_ptr<T> >
+	{
+		typedef typename ShadoweeTraits<T>::TShadow TShadow;
+		static PyObject* build(std::auto_ptr<T>& iv)
+		{
+			return TShadow::make(iv);
+		}
+	};
+
+	template <typename T>
+	struct PyExportTraits< T* >
+	{
+		typedef typename ShadoweeTraits<T>::TShadow TShadow;
+		static PyObject* build(T* iv)
+		{
+			return TShadow::make(iv);
+		}
+	};
+
+	template <typename T>
+	struct PyExportTraits< const T* >
+	{
+		typedef typename ShadoweeTraits<T>::TShadow TShadow;
+		static PyObject* build(const T* iv)
+		{
+			return TShadow::make(iv);
+		}
+	};
+
+	/** @ingroup Python
+	 *  @deprecated
+	 *  a utility macro to easen the transition to the template based infrastructure
+	 */
 	#define PYEXPORTTRAITS_USINGDEPRECATED( t_basicType )	\
 	template<>\
 	struct PyExportTraits< t_basicType >\
@@ -66,6 +107,10 @@ namespace python
 		static int get(PyObject* iv, t_basicType & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 	};\
 
+	/** @ingroup Python
+	 *  @deprecated
+	 *  a utility macro to easen the transition to the template based infrastructure
+	 */
 	#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( t_basicType )	\
 	template< typename T >\
 	struct PyExportTraits< t_basicType< T > >\
@@ -73,6 +118,11 @@ namespace python
 		static PyObject* build(const t_basicType< T > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
 		static int get(PyObject* iv, t_basicType< T > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 	};
+
+	/** @ingroup Python
+	 *  @deprecated
+	 *  a utility macro to easen the transition to the template based infrastructure
+	 */
 	#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_2( t_basicType )	\
 	template< typename T, typename U >\
 	struct PyExportTraits< t_basicType< T, U > >\
@@ -80,6 +130,11 @@ namespace python
 		static PyObject* build(const t_basicType< T, U > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
 		static int get(PyObject* iv, t_basicType< T, U> & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 	};
+
+	/** @ingroup Python
+	 *  @deprecated
+	 *  a utility macro to easen the transition to the template based infrastructure
+	 */
 	#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_3( t_basicType )	\
 	template< typename T, typename U, typename V >\
 	struct PyExportTraits< t_basicType< T, U, V > >\
@@ -87,6 +142,11 @@ namespace python
 		static PyObject* build(const t_basicType< T, U, V > & iv) { return pyBuildSimpleObject_deprecated(iv); }\
 		static int get(PyObject* iv, t_basicType< T, U, V   > & ov) { return pyGetSimpleObject_deprecated(iv,ov); }\
 	};
+
+	/** @ingroup Python
+	 *  @deprecated
+	 *  a utility macro to easen the transition to the template based infrastructure
+	 */
 	#define PYEXPORTTRAITS_USINGDEPRECATED_TEMPL_4( t_basicType )	\
 	template< typename T, typename U, typename V, typename W >\
 	struct PyExportTraits< t_basicType< T, U, V, W > >\

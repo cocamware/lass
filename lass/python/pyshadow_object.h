@@ -32,8 +32,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSHADOW_OBJECT_H
 
 #include "pyobject_plus.h"
+#include "shadowee_traits.h"
 #include "../meta/is_derived.h"
-#include <set>
 
 namespace lass
 {
@@ -43,153 +43,117 @@ namespace python
 namespace impl
 {
 
-class LASS_DLL PyShadowBaseCommon: public PyObjectPlus
-{
-protected:
-	PyShadowBaseCommon();
-	PyShadowBaseCommon(const PyShadowBaseCommon& iOther);
-	~PyShadowBaseCommon();
-	PyShadowBaseCommon& operator=(const PyShadowBaseCommon& iOther);	
-};
-
-template <class CppBase>
-class PyShadowBaseTracked : public PyShadowBaseCommon
+/** @ingroup Python
+ *  @internal
+ */
+class ConstError: public util::experimental::ExceptionMixin<ConstError>
 {
 public:
-	PyShadowBaseTracked(CppBase* iObject=0, bool iTrack=false) : cppObject_(iObject)
-	{
-		if (iTrack)
-			PyShadowBaseTracked<CppBase>::trackShadow(this);
-	}
-	virtual ~PyShadowBaseTracked()
-	{
-		PyShadowBaseTracked<CppBase>::forgetShadow(this);
-	}
-	class AutomaticObjectInvalidator
-	{
-	public:
-		AutomaticObjectInvalidator() {}
-		virtual ~AutomaticObjectInvalidator()
-		{
-			PyShadowBaseTracked<CppBase>::invalidateBase(static_cast<CppBase*>(this));
-		}
-	};
-	static std::set<PyShadowBaseTracked<CppBase>*>* shadows_;
-	static bool invalidateBase(CppBase* iBase)
-	{
-		if (!shadows_)
-			return true;
-		typename std::set<PyShadowBaseTracked<CppBase>*>::iterator it = shadows_->begin();
-		for (;it!=shadows_->end();++it)
-		{
-			if ((*it)->cppObject_==iBase)
-			{
-				(*it)->cppObject_ = NULL;		// invalidate
-				Py_INCREF(Py_None);
-				*(static_cast<PyObject*>(*it)) = *Py_None;
-			}
-		}
-		return true;
-	}
-	static bool trackShadow(PyShadowBaseTracked<CppBase>* iShadow)
-	{
-		if (!shadows_)
-			shadows_ = new std::set<PyShadowBaseTracked<CppBase>*>;
-		if (shadows_)
-			shadows_->insert(iShadow);
-		return true;
-	}
-	static bool forgetShadow(PyShadowBaseTracked<CppBase>* iShadow)
-	{
-		if (shadows_)
-			shadows_->erase(iShadow);
-		return true;
-	}
-protected:
-	CppBase* cppObject_;
+	ConstError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
 };
 
-template <class CppBase> std::set<PyShadowBaseTracked<CppBase>*>* PyShadowBaseTracked<CppBase>::shadows_;
+/** @ingroup Python
+ *  @internal
+ */
+class LASS_DLL ShadowBaseCommon: public PyObjectPlus
+{
+protected:
+	ShadowBaseCommon();
+	~ShadowBaseCommon();
+private:
+	ShadowBaseCommon(const ShadowBaseCommon& other);
+	ShadowBaseCommon& operator=(const ShadowBaseCommon& other);	
+};
 
-
-template <class CppBase, bool weak = false>
-class PyShadowBase: public PyShadowBaseTracked<CppBase>
+/** @ingroup Python
+ *  @internal
+ */
+template <class ShadoweeType>
+class ShadowBase: public ShadowBaseCommon
 {
 public:
-	virtual ~PyShadowBase()
+	typedef ShadoweeType TShadowee;
+
+	virtual ~ShadowBase()
 	{
-		if (!weak && this->ownership_ == oOwner) 
+		if (ownership_ == oOwner)
 		{
-			delete this->cppObject_; 
-			this->cppObject_ = 0;
+			delete shadowee_;
 		}
 	}
-	CppBase* cppObject() const
+
+	TShadowee* cppObject() const
 	{
-		return this->cppObject_;
+		if (constness_ == cConst)
+		{
+			LASS_THROW_EX(ConstError, "Can't get write access through a const object pointer");
+		}
+		return shadowee_;
 	}
-	const CppBase* constCppObject() const
+	const TShadowee* constCppObject() const
 	{
-		return this->cppObject_;
+		return shadowee_;
 	}
-	static bool doTracking;
 
 protected:
 	enum Ownership
 	{
-		oOwner,
-		oBorrowed
+		oBorrowed,
+		oOwner
 	};
-	PyShadowBase(CppBase* iCppObject, Ownership iOwnership):
-		PyShadowBaseTracked<CppBase>(iCppObject,doTracking),
-		ownership_(iOwnership)
+	enum Constness
 	{
-		this->cppObject_ = iCppObject;
+		cConst,
+		cNonConst
+	};
+	typedef Ownership TOwnership;
+	typedef Constness TConstness;
+	typedef PyObjectPlus* (*TDerivedMaker)(TShadowee*, Ownership, Constness);
+
+	ShadowBase(TShadowee* shadowee, Ownership ownership, Constness constness): 
+		shadowee_(shadowee), ownership_(ownership),	constness_(constness)
+	{
 	}
+
+	static void registerDerivedMaker(TDerivedMaker derivedMaker)
+	{
+	}
+
 private:
+	TShadowee* shadowee_;
 	Ownership ownership_;
-};
-template <class CppBase, bool weak> bool PyShadowBase<CppBase,weak>::doTracking = false;
-}
-
-template <typename CppBase>
-struct ShadowObjectInvalidator
-{
-	typedef typename impl::PyShadowBaseTracked<CppBase>::AutomaticObjectInvalidator Type;
+	Constness constness_;
 };
 
-template<typename CppBase>
-void invalidateShadowingObject(CppBase* iPointerReferenceToInvalidate)
-{
-	impl::PyShadowBaseTracked<CppBase>::invalidateBase(iPointerReferenceToInvalidate);
-}
-
-namespace impl
-{
-
-/** a weak shadow class NEVER EVER owns the object, USE AT YOUR OWN RISK!  
-*	Consult your local Lass::Python guru to gain insight when the use of this
-*	class is appropriate.  A rule of thumb is that any properly designed 
-*	C++ interface should never be exposed using weak shadow objects.
-*   For your own safety, use weak shadow objects always in conjunction with the
-*	automatic object invalidator.  This at least assures that when you access 
-*	a weak shadow object from within Python that you don't get a dereference of 
-*	a dangling pointer.  You will notice that in Python a "C++ deleted" weak
-*	shadow object is transformed into None.
+/** @ingroup Python
+ *  @internal
  */
-template <class CppBase>
-struct PyShadowBaseWeak
-{
-	typedef PyShadowBase<CppBase,true> Type;
+template <typename ShadoweeType, typename ParentShadowType> 
+struct ShadowBaseSelector 
+{ 
+	typedef ParentShadowType Type;
 };
 
+/** @ingroup Python
+ *  @internal
+ */
+template <typename ShadoweeType> 
+struct ShadowBaseSelector<ShadoweeType, PyObjectPlus> 
+{ 
+	typedef ShadowBase<ShadoweeType> Type;
+};
+
+/** @ingroup Python
+ *  @internal
+ */
 template <typename T>
-struct IsShadowClass: public meta::IsDerived<T, PyShadowBaseCommon> 
+struct IsShadowClass: public meta::IsDerived<T, ShadowBaseCommon> 
 {
 };
 
-
-
+/** @ingroup Python
+ *  @internal
+ */
 template <typename T>
 struct ShadowTraits
 {
@@ -198,21 +162,20 @@ private:
 	template <typename U, bool shadow>
 	struct Impl
 	{
-		typedef typename U::TCppClass TCppClass;
-		static TCppClass* cppObject(U* iPyObject)
+		typedef typename U::TShadowee TCppClass;
+		static TCppClass* cppObject(U* pyObject)
 		{
-			return static_cast<TCppClass*>(iPyObject->cppObject());
+			return static_cast<TCppClass*>(pyObject->cppObject());
 		};
 		// this does nothing special in the general case, for specific use we
 		// can override this function to only allow const calls on const shadowed objects
-		static const TCppClass* constCppObject(U* iPyObject)
+		static const TCppClass* constCppObject(U* pyObject)
 		{
-			return static_cast<const TCppClass*>(iPyObject->constCppObject());
+			return static_cast<const TCppClass*>(pyObject->constCppObject());
 		};
-		static U* pyObject(TCppClass* iCppObject)
+		static U* pyObject(TCppClass* cppObject)
 		{
-			std::auto_ptr<TCppClass> cppObject(iCppObject);
-			return new U(cppObject);
+			return U::make(cppObject);
 		}
 	};
 
@@ -220,17 +183,17 @@ private:
 	struct Impl<U, false>
 	{
 		typedef U TCppClass;
-		static U* cppObject(U* iPyObject)
+		static U* cppObject(U* pyObject)
 		{
-			return iPyObject;
+			return pyObject;
 		};
-		static const U* constCppObject(U* iPyObject)
+		static const U* constCppObject(U* pyObject)
 		{
-			return const_cast<U*>(iPyObject);
+			return pyObject;
 		};
-		static U* pyObject(U* iCppObject)
+		static U* pyObject(U* cppObject)
 		{
-			return iCppObject;
+			return cppObject;
 		}
 	};
 
@@ -252,7 +215,15 @@ public:
 			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyType.tp_name);
 			return 0;
 		}
-		return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject));
+		try
+		{
+			return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject));
+		}
+		catch (ConstError&)
+		{
+			PyErr_SetString(PyExc_TypeError, "PyObject not writable");
+			return 0;
+		}
 	};
 	static const TCppClass* constCppObject(PyObject* iPyObject)
 	{
@@ -274,117 +245,157 @@ template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByB
 
 }
 
-}
-
-}
-
-#define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
-	class dllInterface i_PyObjectShadowClass: public t_PyObjectBase\
-	{\
-		PY_HEADER(t_PyObjectParent)\
-	public:\
-		typedef t_CppClass TCppClass;\
-		typedef t_PyObjectParent TPyParentClass;\
-		i_PyObjectShadowClass(const TCppClass& iByCopy):\
-			t_PyObjectBase(new TCppClass(iByCopy), oOwner) {}\
-		i_PyObjectShadowClass(TCppClass* iByBorrowedPointer):\
-			t_PyObjectBase(iByBorrowedPointer, oBorrowed) {}\
-		i_PyObjectShadowClass(std::auto_ptr<TCppClass> iBySinkedPointer):\
-			t_PyObjectBase(iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
-	\
-		typedef PyObject* (*TConstructorChainMethod)(TCppClass*);\
-		static std::vector<TConstructorChainMethod>& constructors()\
-		{\
-			static std::vector<TConstructorChainMethod> constructors;\
-			return constructors;\
-		}\
-		static PyObject* pyBuildSimpleObject_fromPtr(TCppClass* iPtr)\
-		{\
-			for (size_t i=0;i<constructors().size();++i)\
-			{\
-				PyObject* tempObj = constructors()[i](iPtr);\
-				if ( (tempObj!=0) && (tempObj!=Py_None))\
-					return tempObj;\
-			}\
-			return ::lass::python::impl::fixObjectType(new i_PyObjectShadowClass( iPtr ));\
-		}\
-	protected:\
-		i_PyObjectShadowClass(TCppClass* iValue, Ownership iOwnership):\
-			t_PyObjectBase(iValue, iOwnership) {}\
-	};\
-
-#define PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
-	class dllInterface i_PyObjectShadowClass: public t_PyObjectBase\
-	{\
-		PY_HEADER(t_PyObjectParent)\
-	public:\
-		typedef t_CppClass TCppClass;\
-		typedef t_PyObjectParent TPyParentClass;\
-		i_PyObjectShadowClass(TCppClass* iByBorrowedPointer):\
-			t_PyObjectBase(iByBorrowedPointer, oBorrowed) {}\
-		i_PyObjectShadowClass(std::auto_ptr<TCppClass> iBySinkedPointer):\
-			t_PyObjectBase(iBySinkedPointer.get(), oOwner) { iBySinkedPointer.release(); }\
-	\
-		typedef PyObject* (*TConstructorChainMethod)(TCppClass*);\
-		static std::vector<TConstructorChainMethod>& constructors()\
-		{\
-			static std::vector<TConstructorChainMethod> constructors;\
-			return constructors;\
-		}\
-		static PyObject* pyBuildSimpleObject_fromPtr(TCppClass* iPtr)\
-		{\
-			for (size_t i=0;i<constructors().size();++i)\
-			{\
-				PyObject* tempObj = constructors()[i](iPtr);\
-				if ( (tempObj!=0) && (tempObj!=Py_None))\
-					return tempObj;\
-			}\
-			return ::lass::python::impl::fixObjectType(new i_PyObjectShadowClass( iPtr ));\
-		}\
-	protected:\
-		i_PyObjectShadowClass(TCppClass* iValue, Ownership iOwnership):\
-			t_PyObjectBase(iValue, iOwnership) {}\
-	};\
-
-
-#define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_EX(\
-		dllInterface, i_PyObjectShadowClass, t_CppClass, lass::python::impl::PyShadowBase< t_CppClass >,\
-		lass::python::PyObjectPlus)
-
-#define PY_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(\
-		dllInterface, i_PyObjectShadowClass, t_CppClass, lass::python::impl::PyShadowBase< t_CppClass >,\
-		lass::python::PyObjectPlus)
-
-
-/** a weak shadow class NEVER EVER owns the object, USE AT YOUR OWN RISK!  
-*	Consult your local Lass::Python guru to gain insight when the use of this
-*	class is appropriate.  A rule of thumb is that any properly designed 
-*	C++ interface should never be exposed using weak shadow objects.
+/** @ingroup Python
+ *	@internal
  */
-#define PY_WEAK_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_EX(\
-	dllInterface, i_PyObjectShadowClass, t_CppClass, lass::python::impl::PyShadowBaseWeak< t_CppClass >::Type ,\
-		lass::python::PyObjectPlus)
+template 
+<
+	typename ShadowType,
+	typename ShadoweeType, 
+	typename ParentShadowType = PyObjectPlus
+>
+class ShadowClass: public impl::ShadowBaseSelector<ShadoweeType, ParentShadowType>::Type
+{
+	typedef typename impl::ShadowBaseSelector<ShadoweeType, ParentShadowType>::Type TBase;
+public:
+	typedef ShadowType TShadow;
+	typedef ShadoweeType TShadowee;
+	typedef ParentShadowType TParentShadow;
+	typedef typename TBase::TShadowee TParentShadowee;
 
-#define PY_WEAK_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(\
-	dllInterface, i_PyObjectShadowClass, t_CppClass, lass::python::impl::PyShadowBaseWeak< t_CppClass >::Type ,\
-		lass::python::PyObjectPlus)
+	static TShadow* make(TShadowee* shadowee)
+	{
+		return ShadowClass::make(shadowee, oBorrowed, cNonConst);
+	}
+	static TShadow* make(const TShadowee* shadowee)
+	{
+		return ShadowClass::make(const_cast<TShadowee*>(shadowee), oBorrowed, cConst);
+	}
+	static TShadow* make(std::auto_ptr<TShadowee>& shadowee)
+	{
+		TShadow* p = ShadowClass::make(shadowee.get(), oOwner, cNonConst);
+		shadowee.release();
+		return p;
+	}
+	static void registerWithParent()
+	{
+		TBase::registerDerivedMaker(ShadowClass::makeParent);
+	}
 
+protected:
+	typedef typename TBase::TOwnership TOwnership;
+	typedef typename TBase::TConstness TConstness;
+	typedef TShadow* (*TDerivedMaker)(TShadowee*, TOwnership, TConstness);
 
-/** a macro to enable automatic invalidation for a given shadow class */
-#define PY_SHADOW_CLASS_ENABLE_AUTOMATIC_INVALIDATION(i_PyObjectShadowClass)\
-	i_PyObjectShadowClass::doTracking = true;
+	ShadowClass(TShadowee* shadowee, TOwnership ownership, TConstness constness):
+		TBase(shadowee, ownership, constness)
+	{
+	}
+
+	static void registerDerivedMaker(TDerivedMaker derivedMaker)
+	{
+		if (!ShadowClass::derivedMakers_)
+		{
+			ShadowClass::derivedMakers_ = new ShadowClass::TDerivedMakers;
+		}
+		ShadowClass::derivedMakers_->push_back(derivedMaker);
+	}
+
+private:
+
+	typedef std::vector<TDerivedMaker> TDerivedMakers;
+
+	static TShadow* make(TShadowee* shadowee, TOwnership ownership, TConstness constness)
+	{
+		if (ShadowClass::derivedMakers_)
+		{
+			for (TDerivedMakers::const_iterator i = ShadowClass::derivedMakers_->begin(); i != ShadowClass::derivedMakers_->end(); ++i)
+			{
+				if(TShadow* p = (*i)(shadowee, ownership, constness))
+				{
+					return p;
+				}
+			}
+		}
+		return impl::fixObjectType(new TShadow(shadowee, ownership, constness));
+	}
+	static TParentShadow* makeParent(TParentShadowee* shadowee, TOwnership ownership, TConstness constness)
+	{
+		if (TShadowee* p = dynamic_cast<TShadowee*>(shadowee))
+		{
+			return ShadowClass::make(p, ownership, constness);
+		}
+		return 0;
+	}
+
+	static TDerivedMakers* derivedMakers_;
+};
+
+template <typename S, typename T, typename P> typename ShadowClass<S, T, P>::TDerivedMakers* ShadowClass<S, T, P>::derivedMakers_ = 0;
+
+}
+
+}
+
+/** @ingroup Python
+ */
+#define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent) \
+	class dllInterface i_PyObjectShadowClass: public ::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent> \
+	{ \
+		PY_HEADER(t_PyObjectParent) \
+	public: \
+		i_PyObjectShadowClass(TShadowee* shadowee, TOwnership ownership, TConstness constness): \
+			ShadowClass(shadowee, ownership, constness) \
+		{ \
+		} \
+	}; \
+	LASS_EXECUTE_BEFORE_MAIN_EX( \
+		LASS_CONCATENATE(lassPythonImplRegisterShadowWithParent_, i_PyObjectShadowClass), \
+		i_PyObjectShadowClass::registerWithParent(); \
+		)
+
+/** @ingroup Python
+ */
+#define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::PyObjectPlus)
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
-	PY_SHADOW_CLASS_EX(\
-		dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
 
+/** @ingroup Python
+ *  @deprecated 
+ */
+#define PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)
+
+/** @ingroup Python
+ *  @deprecated 
+ */
+#define PY_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
+	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
+
+/** @ingroup Python
+ *  @deprecated 
+ */
+#define PY_WEAK_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
+	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
+
+/** @ingroup Python
+ *  @deprecated 
+ */
+#define PY_WEAK_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
+	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
+
+/** @ingroup Python
+ *  @deprecated 
+ */
+#define PY_SHADOW_CLASS_ENABLE_AUTOMATIC_INVALIDATION(i_PyObjectShadowClass)
+
+/** @ingroup Python
+ *  @deprecated 
+ */
 #define PY_SHADOW_CLASS_DERIVED_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
-	PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(\
-		dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
+	PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)
 
 
 /** a macro that enables shadow classes to have conversion (coercion) operations defined on construction 
@@ -401,7 +412,7 @@ template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByB
 *	this will not work unless you use the PY_CLASS_CONVERTOR macro to let the conversion routines know which possibilities 
 *	may be tried before giving up and throwing a not-casteable exception.
 */
-
+/*
 #define PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject )\
 inline int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>& oV)\
 {\
@@ -431,505 +442,36 @@ inline int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObj
 	}\
 	return 0;\
 }
+*/
 
-
+/** @ingroup Python
+ */
 #define PY_SHADOW_CASTERS(t_ShadowObject)\
-namespace lass\
-{\
-namespace python\
-{\
-namespace impl\
-{\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass& arg(const TStorage& iArg)\
-	{\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* arg(const TStorage& iArg)\
-	{\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* arg(const TStorage& iArg)\
-	{\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* const arg(const TStorage& iArg)\
-	{\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* const arg(const TStorage& iArg)\
-	{\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( const t_ShadowObject::TCppClass& iByCopy )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByCopy ));\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass* iByBorrowedPointer )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByBorrowedPointer ));\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass& iByBorrowedPointer )\
-{\
-	return pyBuildSimpleObject_deprecated(&iByBorrowedPointer);\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
-}\
-inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
-{\
-	if (t_ShadowObject::TCppClass* cppObject = \
-		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
-	{\
-		oByCopy = *cppObject;\
-		return 0;\
-	}\
-	return 1;\
-}\
-inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
-{\
-	if (t_ShadowObject::TCppClass* cppObject = \
-		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
-	{\
-		oByBorrowedPointer = cppObject;\
-		return 0;\
-	}\
-	return 1;\
-}\
-template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
-{\
-	static PyObject* build(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject_deprecated(iBySinkedPointer); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-}\
-}
+namespace lass \
+{ \
+namespace python \
+{ \
+	template <> struct ShadoweeTraits< t_ShadowObject::TShadowee >: meta::True \
+	{ \
+		typedef t_ShadowObject TShadow; \
+	}; \
+} \
+} \
+/**/
 
 
+
+/** @ingroup Python
+ *  @deprecated 
+ */
 #define PY_SHADOW_DOWN_CASTERS(t_ShadowObject)\
-namespace lass\
-{\
-namespace python\
-{\
-namespace impl\
-{\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* const arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* const arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( const t_ShadowObject::TCppClass& iByCopy )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iByCopy ));\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass* iByBorrowedPointer )\
-{\
-	return t_ShadowObject::pyBuildSimpleObject_fromPtr( iByBorrowedPointer );\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass& iByBorrowedPointer )\
-{\
-	return pyBuildSimpleObject_deprecated(&iByBorrowedPointer);\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
-}\
-inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass& oByCopy )\
-{\
-	if (t_ShadowObject::TCppClass* cppObject = \
-		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
-	{\
-		oByCopy = *cppObject;\
-		return 0;\
-	}\
-	for (size_t i=0;i<impl::ShadowTraits< t_ShadowObject >::byCopyGetters.size();++i)\
-	{\
-		if (!impl::ShadowTraits< t_ShadowObject >::byCopyGetters[i](iObject, oByCopy))\
-			return 0;\
-	}\
-	return 1;\
-}\
-inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
-{\
-	if (t_ShadowObject::TCppClass* cppObject = \
-		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
-	{\
-		oByBorrowedPointer = cppObject;\
-		return 0;\
-	}\
-	for (size_t i=0;i<impl::ShadowTraits< t_ShadowObject >::byBorrowGetters.size();++i)\
-	{\
-		if (!impl::ShadowTraits< t_ShadowObject >::byBorrowGetters[i](iObject, oByBorrowedPointer))\
-			return 0;\
-	}\
-	return 1;\
-}\
-template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< const t_ShadowObject::TCppClass > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass & > \
-{\
-	static PyObject* build(t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< const t_ShadowObject::TCppClass& > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass& iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
-{\
-	static PyObject* build(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject_deprecated(iBySinkedPointer); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass* > \
-{\
-	static PyObject* build(t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< const t_ShadowObject::TCppClass* > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(*iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject) \
-inline PyObject* LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent) ( \
-	lass::meta::Select< \
-		lass::meta::IsSame<t_ShadowObject::TPyParentClass, lass::python::PyObjectPlus>, \
-			t_ShadowObject::TCppClass , \
-			t_ShadowObject::TPyParentClass::TCppClass>::Type \
-	* iByBorrowedPointer)\
-{\
-	if (dynamic_cast<t_ShadowObject::TCppClass*>(iByBorrowedPointer))\
-	{\
-		t_ShadowObject::TCppClass* downCastedObject = dynamic_cast<t_ShadowObject::TCppClass*>(iByBorrowedPointer);\
-		return lass::python::pyBuildSimpleObject_deprecated(downCastedObject);\
-	}\
-	return 0;\
-}\
-template <typename THasRealPyParent,typename TDummy>\
-struct ParentClassInjectorSelector_##t_ShadowObject\
-{\
-	static void doStuff() {}\
-};\
-template <typename TDummy> \
-struct ParentClassInjectorSelector_##t_ShadowObject <lass::meta::False::Type, TDummy>\
-{\
-	static void doStuff()\
-	{\
-		TDummy::constructors().push_back(& LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent));	\
-	}\
-};\
-typedef ParentClassInjectorSelector_##t_ShadowObject < lass::meta::IsSame<t_ShadowObject::TPyParentClass, lass::python::PyObjectPlus>::Type, t_ShadowObject::TPyParentClass > SelectorFor_##t_ShadowObject;\
-LASS_EXECUTE_BEFORE_MAIN_EX( t_ShadowObject, SelectorFor_##t_ShadowObject::doStuff(); )\
-}\
-}
+	PY_SHADOW_CASTERS(t_ShadowObject)
 
+/** @ingroup Python
+ *  @deprecated 
+ */
 #define PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR(t_ShadowObject)\
-namespace lass\
-{\
-namespace python\
-{\
-namespace impl\
-{\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass& >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass& arg(const TStorage& iArg)\
-	{\
-		if (!iArg) LASS_THROW("Null pointer reference");\
-		return *static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static TCppClass* const arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-template <> struct ArgumentTraits< const t_ShadowObject::TCppClass* const >\
-{\
-	typedef t_ShadowObject::TCppClass TCppClass;\
-	typedef PyObjectPtr<t_ShadowObject>::Type TStorage;\
-	static const TCppClass* const arg(const TStorage& iArg)\
-	{\
-		if (!iArg) return 0;\
-		return static_cast<TCppClass*>(iArg->cppObject());\
-	}\
-};\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( const t_ShadowObject::TCppClass& iByBorrowedPointer )\
-{\
-	return t_ShadowObject::pyBuildSimpleObject_fromPtr( const_cast<t_ShadowObject::TCppClass*>(&iByBorrowedPointer) );\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass* iByBorrowedPointer )\
-{\
-	return t_ShadowObject::pyBuildSimpleObject_fromPtr( iByBorrowedPointer );\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( t_ShadowObject::TCppClass& iByBorrowedPointer )\
-{\
-	return pyBuildSimpleObject_deprecated(&iByBorrowedPointer);\
-}\
-inline PyObject* pyBuildSimpleObject_deprecated( std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer )\
-{\
-	return ::lass::python::impl::fixObjectType(new t_ShadowObject( iBySinkedPointer ));\
-}\
-inline int pyGetSimpleObject_deprecated( PyObject* iObject, t_ShadowObject::TCppClass*& oByBorrowedPointer )\
-{\
-	if (t_ShadowObject::TCppClass* cppObject = \
-		impl::ShadowTraits< t_ShadowObject >::cppObject(iObject))\
-	{\
-		oByBorrowedPointer = cppObject;\
-		return 0;\
-	}\
-	return 1;\
-}\
-template <> \
-struct PyExportTraits< t_ShadowObject::TCppClass* > \
-{\
-	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(*iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
-};\
-template <> \
-struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
-{\
-	static PyObject* build(std::auto_ptr< t_ShadowObject::TCppClass > iBySinkedPointer) { return pyBuildSimpleObject_deprecated(iBySinkedPointer); }\
-};\
-inline PyObject* LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent) ( \
-	lass::meta::Select< \
-		lass::meta::IsSame< t_ShadowObject::TPyParentClass, lass::python::PyObjectPlus>, \
-			t_ShadowObject::TCppClass , \
-			t_ShadowObject::TPyParentClass::TCppClass>::Type \
-	* iByBorrowedPointer)\
-{\
-	if (dynamic_cast< t_ShadowObject::TCppClass*>(iByBorrowedPointer))\
-	{\
-		t_ShadowObject::TCppClass* downCastedObject = dynamic_cast<t_ShadowObject::TCppClass*>(iByBorrowedPointer);\
-		return lass::python::pyBuildSimpleObject_deprecated(downCastedObject);\
-	}\
-	return 0;\
-}\
-template <typename THasRealPyParent>\
-struct ParentClassInjectorSelector_##t_ShadowObject\
-{\
-	static void doStuff()\
-	{\
-		THasRealPyParent::constructors().push_back(& LASS_CONCATENATE_3(pyBuildSimpleObject,t_ShadowObject,FromParent));	\
-	}\
-};\
-template <> \
-struct ParentClassInjectorSelector_##t_ShadowObject < lass::python::PyObjectPlus >\
-{\
-	static void doStuff() {}\
-};\
-typedef ParentClassInjectorSelector_##t_ShadowObject < t_ShadowObject::TPyParentClass > SelectorFor_##t_ShadowObject;\
-LASS_EXECUTE_BEFORE_MAIN_EX( t_ShadowObject, SelectorFor_##t_ShadowObject::doStuff(); )\
-}\
-}
+	PY_SHADOW_CASTERS(t_ShadowObject)
 
 /*
 

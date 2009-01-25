@@ -412,7 +412,7 @@ class TestShadowHierarchy(unittest.TestCase):
 	def testSpam(self):
 		spam = embedding.makeSpam("Bacon")
 		self.assertEqual(spam.virtualWho(), "Bacon")
-		#self.assertEqual(spam.overridenWho(), "Bacon")
+		self.assertEqual(spam.overridenWho(), "Bacon")
 		self.assert_(not embedding.spamToCppByCopy(spam, spam))
 		self.assert_(embedding.spamToCppByConstReference(spam, spam))
 		self.assert_(embedding.spamToCppByReference(spam, spam))

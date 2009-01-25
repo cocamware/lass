@@ -50,19 +50,19 @@ namespace python
 namespace impl
 {
 
-PyShadowBaseCommon::PyShadowBaseCommon()
+ShadowBaseCommon::ShadowBaseCommon()
 {
 }
 
-PyShadowBaseCommon::PyShadowBaseCommon(const PyShadowBaseCommon& iOther)
+ShadowBaseCommon::ShadowBaseCommon(const ShadowBaseCommon& iOther)
 {
 }
 
-PyShadowBaseCommon::~PyShadowBaseCommon()
+ShadowBaseCommon::~ShadowBaseCommon()
 {
 }
 
-PyShadowBaseCommon& PyShadowBaseCommon::operator=(const PyShadowBaseCommon&)
+ShadowBaseCommon& ShadowBaseCommon::operator=(const ShadowBaseCommon&)
 {
 	PyObjectPlus::operator=(*this);
 	return *this;

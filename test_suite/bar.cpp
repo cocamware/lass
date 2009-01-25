@@ -93,7 +93,7 @@ namespace lass
 		PY_DECLARE_CLASS( DerivedBar )
 		PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
 
-		void listInfo( PyObject* iObject )
+		void listInfo( const python::TPyObjPtr& iObject )
 		{
 			LASS_COUT << "Name : " << iObject->ob_type->tp_name << "\n";
 			LASS_COUT << "Methods : \n";

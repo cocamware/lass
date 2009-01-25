@@ -57,6 +57,7 @@
 #include "../lass/util/callback_r_1.h"
 #include "../lass/util/callback_r_2.h"
 #include "../lass/util/non_copyable.h"
+#include "../lass/meta/meta_assert.h"
 
 namespace lass
 {

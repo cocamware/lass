@@ -130,7 +130,7 @@ namespace impl
 		virtual int PySequence_Contains(PyObject *el) = 0;
 		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
 		virtual int PySequence_InplaceRepeat(Py_ssize_t n) = 0;
-		virtual void append(PyObject* i) = 0;
+		virtual void append(const TPyObjPtr& i) = 0;
 		virtual TPyObjPtr pop(int i) = 0;
 		virtual bool pointsToSameContainer(void* iO) = 0;
 		virtual std::string pyStr(void) = 0;
@@ -169,7 +169,7 @@ namespace impl
 		virtual int PySequence_Contains(PyObject *el);
 		virtual int PySequence_InplaceConcat(PyObject *other);
 		virtual int PySequence_InplaceRepeat(Py_ssize_t n);
-		virtual void append(PyObject* i);
+		virtual void append(const TPyObjPtr& i);
 		virtual TPyObjPtr pop(int i);
 		virtual bool pointsToSameContainer(void* iO) 
 		{ 
@@ -207,7 +207,7 @@ namespace impl
 		~PySequence();
 		std::string doPyStr(void)		{ return pimpl_->pyStr(); }
 		std::string doPyRepr(void)	{ return pimpl_->pyRepr(); }
-		void append(PyObject* i)	{ pimpl_->append(i); }
+		void append(const TPyObjPtr& i)	{ pimpl_->append(i); }
 		void clear()				{ pimpl_->clear(); }
 		void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
 		TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
@@ -449,7 +449,7 @@ namespace impl
 		return 0;
 	}
 	template<typename Container, typename ContainerOwnerShipPolicy>
-	void PySequenceContainer<Container,ContainerOwnerShipPolicy>::append(PyObject* i)
+	void PySequenceContainer<Container,ContainerOwnerShipPolicy>::append(const TPyObjPtr& i)
 	{
 		if (readOnly_)
 		{
@@ -457,11 +457,9 @@ namespace impl
 			return;
 		}
 		typename Container::value_type temp;
-		int r = PyExportTraits<typename Container::value_type>::get(i,temp);
-		if (r)
+		if (pyGetSimpleObject(i.get(), temp) != 0)
 		{
-			PyErr_SetString(PyExc_TypeError, "Cannot convert to append type");
-			return;
+			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 		cont_->push_back( temp );
 	}
