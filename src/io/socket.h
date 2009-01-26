@@ -73,20 +73,23 @@ class LASS_DLL Socket: public util::NonCopyable
 {
 public:
 
+	typedef unsigned short TPort;
+
 	Socket();
 	~Socket();
 
-	void bind(unsigned short iPort);
+	void bind(TPort port);
+	const TPort bindInRange(TPort begin, TPort end);
 	void listen();
 	void accept(Socket& oConnection);
-	void connect(const std::string& iIpAddress, unsigned short iPort);
+	void connect(const std::string& ipAddress, TPort port);
 
-	const int send(const void* iBegin, int iLength);
-	const void* const send(const void* iBegin, const void* iEnd);
-	const int receive(void* iBegin, int iLength);
-	void* const receive(void* iBegin, void* iEnd);
+	const int send(const void* begin, int length);
+	const void* const send(const void* begin, const void* end);
+	const int receive(void* begin, int length);
+	void* const receive(void* begin, void* end);
 
-	void swap(Socket& ioOther);
+	void swap(Socket& other);
 
 private:
 	void* pimpl_;

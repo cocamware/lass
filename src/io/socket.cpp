@@ -83,11 +83,35 @@ Socket::~Socket()
 
 
 
-void Socket::bind(unsigned short iPortNumber)
+void Socket::bind(TPort port)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        pimpl->bind(iPortNumber);
+        pimpl->bind(port);
+}
+
+
+
+/** Bind to the first available port in range [@a begin, @a end).
+ *  complexity: O(n)
+ */
+const Socket::TPort Socket::bindInRange(TPort begin, TPort end)
+{
+        LASS_ASSERT(pimpl_);
+        impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
+        for (TPort port = begin; port < end; ++port)
+        {
+                try
+                {
+                        pimpl->bind(port);
+                        return port;
+                }
+                catch (SocketError&)
+                {
+                }
+        }
+        LASS_THROW_EX(SocketError, "Failed to bind socket to any port in range [" 
+                << begin << ", " << end << ").");
 }
 
 
@@ -101,74 +125,74 @@ void Socket::listen()
 
 
 
-void Socket::accept(Socket& oConnection)
+void Socket::accept(Socket& connection)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        LASS_ASSERT(oConnection.pimpl_);
-        impl::SocketImpl* connection = static_cast<impl::SocketImpl*>(oConnection.pimpl_);
-        pimpl->accept(connection);
+        LASS_ASSERT(connection.pimpl_);
+        impl::SocketImpl* conn = static_cast<impl::SocketImpl*>(connection.pimpl_);
+        pimpl->accept(conn);
 }
 
 
 
-void Socket::connect(const std::string& iIpAddress, unsigned short iPort)
+void Socket::connect(const std::string& ipAddress, TPort port)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        pimpl->connect(iIpAddress, iPort);
+        pimpl->connect(ipAddress, port);
 }
 
 
-const int Socket::send(const void* iBegin, int iLength)
+const int Socket::send(const void* begin, int length)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        return pimpl->send(iBegin, iLength);
+        return pimpl->send(begin, length);
 }
 
 
 
-const void* const Socket::send(const void* iBegin, const void* iEnd)
+const void* const Socket::send(const void* begin, const void* end)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        const char* begin = static_cast<const char*>(iBegin);
-        const char* end = static_cast<const char*>(iEnd);
-        const int length = end - begin;
-        const int sent = pimpl->send(begin, length);
+        const char* first = static_cast<const char*>(begin);
+        const char* last = static_cast<const char*>(end);
+        const int length = last - first;
+        const int sent = pimpl->send(first, length);
         LASS_ASSERT(sent >= 0);
-        return begin + sent;
+        return first + sent;
 }
 
 
 
-const int Socket::receive(void* iBegin, int iLength)
+const int Socket::receive(void* begin, int length)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        return pimpl->receive(iBegin, iLength);
+        return pimpl->receive(begin, length);
 }
 
 
 
-void* const Socket::receive(void* iBegin, void* iEnd)
+void* const Socket::receive(void* begin, void* end)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
-        char* begin = static_cast<char*>(iBegin);
-        char* end = static_cast<char*>(iEnd);
-        const int length = end - begin;
-        const int sent = pimpl->receive(begin, length);
+        char* first = static_cast<char*>(begin);
+        char* last = static_cast<char*>(end);
+        const int length = last - first;
+        const int sent = pimpl->receive(first, length);
         LASS_ASSERT(sent >= 0);
-        return begin + sent;
+        return first + sent;
 }
 
 
 
-void Socket::swap(Socket& ioOther)
+void Socket::swap(Socket& other)
 {
-        std::swap(pimpl_, ioOther.pimpl_);
+        std::swap(pimpl_, other.pimpl_);
 }
 
 
