@@ -153,7 +153,6 @@ struct PyExportTraitsCallback
 			Py_RETURN_NONE;
 		}
 #pragma LASS_TODO("Return a real callback object ... [Bramz]")
-		return 
 		Py_RETURN_TRUE;
 	}
 };

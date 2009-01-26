@@ -401,6 +401,7 @@ template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByB
 *	this will not work unless you use the PY_CLASS_CONVERTOR macro to let the conversion routines know which possibilities 
 *	may be tried before giving up and throwing a not-casteable exception.
 */
+#pragma LASS_TODO("Check if the convertor macro's don't leak any memory")
 
 #define PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject )\
 inline int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>& oV)\
@@ -892,7 +893,7 @@ template <> \
 struct PyExportTraits< t_ShadowObject::TCppClass* > \
 {\
 	static PyObject* build(const t_ShadowObject::TCppClass* iByCopy) { return pyBuildSimpleObject_deprecated(*iByCopy); }\
-	static int get(PyObject* iV, t_ShadowObject::TCppClass& oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
+	static int get(PyObject* iV, t_ShadowObject::TCppClass* oV) { return pyGetSimpleObject_deprecated(iV,oV); }\
 };\
 template <> \
 struct PyExportTraits< std::auto_ptr< t_ShadowObject::TCppClass > > \
