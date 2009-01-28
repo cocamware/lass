@@ -322,32 +322,6 @@ namespace lass
 			lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
 		};
 
-		template<typename V>
-		class IteratorAdapter
-		{
-		public:
-			typedef lass::util::Callback1<size_t> TSizeCallback;
-			typedef typename lass::util::CallbackR1<V, size_t> TGetItemCallback;
-
-			enum SpecialValues { Begin, End, None } ;
-
-			IteratorAdapter(SpecialValues iValue, 
-							const TSizeCallback& iSizeCb, 
-							const TGetItemCallback& iItemCb) : specialValue_(iValue), cont_(iCont), currIndex_(0) 
-			{
-				if (iValue==End)
-					currIndex = TSizeCallback();
-			}
-			virtual ~IteratorAdapter() {}				/**< no ownership */
-			
-			const V& operator*() { return TGetItemCallback(currIndex_); }
-			V operator++(int) { V temp(TGetItemCallback(currIndex_)); ++currIndex; return temp; }
-		private:
-			size_t currIndex_;
-			SpecialValues specialValue_;
-		};
-
-
 		class ClassMap : public std::map<std::string,float>
 		{
 		public:
