@@ -1,6 +1,6 @@
 /** @file
- *  @author Bram de Greve (bramz@users.sourceforge.net)
- *  @author Tom De Muer (tomdemuer@users.sourceforge.net)
+ *  @author Bram de Greve (bram@cocamware.com)
+ *  @author Tom De Muer (tom@cocamware.com)
  *
  *  Distributed under the terms of the GPL (GNU Public License)
  *
