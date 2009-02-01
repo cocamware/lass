@@ -44,10 +44,10 @@
 #include "thread.h"
 #include "atomic.h"
 
-#if defined(LASS_UTIL_THREAD_HAVE_POSIX)
-#	include "impl/thread_posix.inl"
-#elif defined(LASS_UTIL_THREAD_HAVE_WIN32)
+#if defined(LASS_UTIL_THREAD_HAVE_WIN32)
 #	include "impl/thread_win32.inl"
+#elif defined(LASS_HAVE_PTHREAD_H)
+#	include "impl/thread_posix.inl"
 #else
 #	error "[LASS BUILD MSG] Threading not supported for this platform"
 #endif
@@ -57,7 +57,29 @@ namespace lass
 namespace util
 {
 
-unsigned numberOfProcessors = impl::numberOfProcessors();
+const unsigned numberOfProcessors()
+{
+	return impl::numberOfProcessors();
+}
+
+const unsigned numberOfAvailableProcessors()
+{
+	unsigned count = 0;
+	const unsigned n = impl::numberOfProcessors();
+	for (unsigned i = 0; i < n; ++i)
+	{
+		if (impl::isAvailableProcessor(i))
+		{
+			++count;
+		}
+	}
+	return count;
+}
+
+const bool isAvailableProcessor(unsigned processor)
+{
+	return impl::isAvailableProcessor(processor);
+}
 
 // --- Mutex ---------------------------------------------------------------------------------------
 

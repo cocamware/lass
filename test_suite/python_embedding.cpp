@@ -189,32 +189,6 @@ public:
 	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
 };
 
-template<typename V>
-class IteratorAdapter
-{
-public:
-	typedef lass::util::Callback1<size_t> TSizeCallback;
-	typedef typename lass::util::CallbackR1<V, size_t> TGetItemCallback;
-
-	enum SpecialValues { Begin, End, None } ;
-
-	IteratorAdapter(SpecialValues iValue, 
-					const TSizeCallback& iSizeCb, 
-					const TGetItemCallback& iItemCb) : specialValue_(iValue), cont_(iCont), currIndex_(0) 
-	{
-		if (iValue==End)
-			currIndex = TSizeCallback();
-	}
-	virtual ~IteratorAdapter() {}				/**< no ownership */
-	
-	const V& operator*() { return TGetItemCallback(currIndex_); }
-	V operator++(int) { V temp(TGetItemCallback(currIndex_)); ++currIndex; return temp; }
-private:
-	size_t currIndex_;
-	SpecialValues specialValue_;
-};
-
-
 class ClassMap : public std::map<std::string,float>
 {
 public:
@@ -309,7 +283,6 @@ PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "
 PY_CLASS_METHOD_NAME( PyClassB, getitem, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
 PY_CLASS_METHOD_NAME( PyClassB, setitem, lass::python::methods::_setitem_);
-PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
 
 // full sequence protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassSeq, lass::test::ClassSeq)

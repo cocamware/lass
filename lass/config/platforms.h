@@ -49,6 +49,7 @@
 #define LASS_PLATFORM_TYPE_LINUX 2
 #define LASS_PLATFORM_TYPE_CYGWIN 3
 #define LASS_PLATFORM_TYPE_BSD 4
+#define LASS_PLATFORM_TYPE_SOLARIS 5 
 
 #if defined(linux) || defined(__linux) || defined(__linux__)
 #	include "platform_linux.h"
@@ -58,13 +59,15 @@
 #	include "platform_win32.h"
 #elif defined(__FreeBSD__)
 #	include "platform_bsd.h"
+#elif defined(__sun) && defined(__SVR4)
+#	include "platform_solaris.h"
 #else
 #	error "Unknown platform - please configure and report the results to the LASS team"
 #endif
 
 
 
-#if defined(_M_IA64) || defined(_M_X64) || defined(_LP64) || defined(__LP64__)
+#if defined(_M_IA64) || defined(_M_X64) || defined(_LP64) || defined(__LP64__) || defined(__x86_64)
 #	define LASS_ADDRESS_SIZE 64
 	// HACK: Currently, we assume that all 64 bit platforms actually only use 48 bits
 #	define LASS_ACTUAL_ADDRESS_SIZE 48

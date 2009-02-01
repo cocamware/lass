@@ -54,9 +54,6 @@
 #               include <fcntl.h>
 #               include <sys/stat.h>
 #               include <sys/mman.h>
-#               if !defined(_STAT_VER_KERNEL)
-#                       error "blah"
-#               endif
 #       endif
 #endif
 

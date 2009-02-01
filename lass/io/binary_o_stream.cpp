@@ -99,10 +99,10 @@ void BinaryOStream::flush()
 
 
 
-BinaryOStream& BinaryOStream::operator<<( char x )
+/*BinaryOStream& BinaryOStream::operator<<( char x )
 {
 	return writeValue(x);
-}
+}*/
 
 
 

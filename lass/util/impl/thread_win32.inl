@@ -71,24 +71,28 @@ namespace impl
 
 const unsigned numberOfProcessors()
 {
+	static unsigned n = 0;
+	if (n == 0)
+	{
+		// we're interested in the position of the highest set bit of systemAffinityMask
+		DWORD_PTR processAffinityMask, systemAffinityMask;
+		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
+		unsigned n;
+		while (systemAffinityMask)
+		{
+			++n;
+			systemAffinityMask >>= 1;
+		}
+	}
+	return n;
+}
+
+const bool isAvailableProcessor(unsigned processor)
+{
 	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
+	return processAffinityMask & (1 << processor);
 
-	// we're doing an assumption here ... We think, we hope, that the mask
-	// is a continuous series of bits starting from the LSB.  We'll test for this
-	// until we are sure that our assumption is correct. [Bramz]
-	//
-	DWORD_PTR test = systemAffinityMask;
-	while (test)
-	{
-		if (!(test & 0x1))
-		{
-			LASS_THROW("our assumption is wrong!");
-		}
-		test >>= 1;
-	}
-
-	return util::countBits(systemAffinityMask);
 }
 
 /** @internal
@@ -467,11 +471,6 @@ void bindThread(HANDLE thread, unsigned processor)
 	}
 	else
 	{
-		if (processor >= util::numberOfProcessors)
-		{
-			LASS_THROW("'" << processor << "' is an invalid processor index. "
-				<< "Valid range is [0, " << util::numberOfProcessors << ").");
-		}
 		affinityMask = DWORD_PTR(1) << processor;
 	}
 	LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask))

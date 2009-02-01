@@ -111,9 +111,20 @@ enum ThreadKind
 	threadJoinable		/**< joinable thread, can be waited for */
 };
 
-/** @ingroup Threading
+/** Return highest id of processor + 1, in this machine
+ *  @ingroup Threading  
  */
-LASS_DLL extern unsigned numberOfProcessors;
+LASS_DLL const unsigned numberOfProcessors();
+
+/** Return total number of processors in machine that are online
+ *  @ingroup Threading  
+ */
+LASS_DLL const unsigned numberOfAvailableProcessors();
+
+/** Check whether a processor is avaialable.
+ *  @ingroup Threading  
+ */
+LASS_DLL const bool isAvailableProcessor(unsigned processor);
 
 /** Mutex.
 *   @ingroup Threading

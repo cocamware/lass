@@ -74,7 +74,7 @@ void testSpatObjectTreesSpeed(
 	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
 	const size_t numberOfRangeSearchSpeedTestRuns = 2;
 
-	LASS_COUT << "object tree speed tests: " << typeid(TValue).name() << " " << dimension << "D\n";
+	LASS_COUT << "object tree speed tests: " << typeid(TValue).name() << " " << int(dimension) << "D\n";
 	util::Clock clock;
 	util::StopWatch stopWatch(clock);
 

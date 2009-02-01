@@ -66,7 +66,7 @@ ThreadPool<T, C, IP, PP>::ThreadPool(
 		const char* name):
 	TParticipationPolicy(consumerPrototype),
 	threads_(0),
-	numThreads_(numberOfThreads == autoNumberOfThreads ? numberOfProcessors : numberOfThreads),
+	numThreads_(numberOfThreads == autoNumberOfThreads ? numberOfProcessors() : numberOfThreads),
 	maxWaitingTasks_(maximumNumberOfTasksInQueue),
 	numWaitingTasks_(0),
 	numRunningTasks_(0),
@@ -180,7 +180,6 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 {
 	LASS_ASSERT(numThreads_ > 0);
 	const size_t dynThreads = this->numDynamicThreads(numThreads_);
-	const size_t bindOffset = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
 	if (dynThreads == 0)
 	{
 		threads_ = 0;
@@ -205,6 +204,7 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 	}
 
 	size_t i;
+	unsigned nextProcessor = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
 	try
 	{
 		for (i = 0; i < dynThreads; ++i)
@@ -222,7 +222,7 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 			try
 			{
 				threads_[i].run();
-				threads_[i].bind((bindOffset + i) % numberOfProcessors);
+				nextProcessor = threads_[i].bindToNextAvailable(nextProcessor);
 			}
 			catch (...)
 			{
@@ -278,6 +278,30 @@ ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(
 	consumer_(consumer),
 	pool_(pool) 
 {
+}
+
+
+
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+unsigned ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(unsigned nextProcessor)
+{
+	const unsigned n = numberOfProcessors();
+	const unsigned lastBeforeError = nextProcessor + n;
+	while (true)
+	{
+		try
+		{
+			this->bind(nextProcessor++ % n);
+			return nextProcessor; 
+		}
+		catch (...)
+		{
+			if (nextProcessor >= lastBeforeError)
+			{
+				throw;
+			}
+		}
+	}
 }
 
 

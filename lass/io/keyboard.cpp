@@ -56,6 +56,9 @@
 #       if LASS_HAVE_SYS_SOCKET_H
 #               include <sys/socket.h>
 #       endif
+#	if LASS_HAVE_SYS_FILIO_H
+#               include <sys/filio.h>
+#	endif
 #       include "../util/impl/lass_errno.h"
 #else
 #       error lass/io/keyboard.cpp not supported

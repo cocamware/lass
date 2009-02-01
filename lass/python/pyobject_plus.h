@@ -117,6 +117,7 @@
 		static PyTypeObject   _lassPyType; \
 		static ::std::vector<PyMethodDef>    _lassPyMethods; \
 		static ::std::vector<PyGetSetDef>    _lassPyGetSetters; \
+		static PyTypeObject* _lassPyGetStaticType() { return &_lassPyType; }; \
 		virtual PyTypeObject *_lassPyGetType(void) const {return &_lassPyType;};\
 	private:
 
@@ -396,6 +397,11 @@ namespace lass
 			python::TPyObjPtr value_;
 			python::TPyObjPtr traceback_;
 		};
+
+		namespace impl
+		{
+			LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc);
+		}
 
 		/** fromNakedToSharedPtrCast.
 		*   @ingroup Python

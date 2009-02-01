@@ -93,10 +93,10 @@ BinaryIStream& BinaryIStream::seekg(long offset, std::ios_base::seekdir directio
 
 
 
-BinaryIStream& BinaryIStream::operator>>( char& x )
+/*BinaryIStream& BinaryIStream::operator>>( char& x )
 {
 	return readValue(x);
-}
+}*/
 
 
 

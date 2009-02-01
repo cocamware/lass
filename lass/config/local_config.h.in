@@ -74,17 +74,22 @@
 #define LASS_MINOR_VERSION ${LASS_MINOR_VERSION}
 #define LASS_PATCHLEVEL ${LASS_PATCHLEVEL}
 
-
-
 #cmakedefine LASS_HAVE_FCNTL_H 1
 #cmakedefine LASS_HAVE_LIMITS_H 1
 #cmakedefine LASS_HAVE_TERMIOS_H 1
 #cmakedefine LASS_HAVE_UNISTD_H 1
+#cmakedefine LASS_HAVE_UNISTD_H_SC_CPUID_MAX 1
+#cmakedefine LASS_HAVE_STDINT_H 1
+#cmakedefine LASS_HAVE_PTHREAD_H 1
+#cmakedefine LASS_HAVE_SCHED_H 1
+#cmakedefine LASS_HAVE_SCHED_H_CPU_SET_T 1
 #cmakedefine LASS_HAVE_SYS_IOCTL_H 1
 #cmakedefine LASS_HAVE_SYS_MMAN_H 1
 #cmakedefine LASS_HAVE_SYS_RESOURCE_H 1
 #cmakedefine LASS_HAVE_SYS_SOCKET_H 1
 #cmakedefine LASS_HAVE_SYS_STAT_H 1
+#cmakedefine LASS_HAVE_SYS_FILIO_H 1
+#cmakedefine LASS_HAVE_SYS_PROCESSOR_H 1
 
 #cmakedefine LASS_HAVE_LIBRT 1
 #cmakedefine LASS_HAVE_LIBDL 1
@@ -92,6 +97,13 @@
 
 #cmakedefine LASS_HAVE_FUNC_STRERROR_R 1
 #cmakedefine LASS_HAVE_STRERROR_R_CHAR_P 1
+
+#cmakedefine LASS_HAVE_SPROC 1
+#cmakedefine LASS_HAVE_WIN32_THREADS 1
+#cmakedefine LASS_HAVE_PTHREADS 1
+#cmakedefine LASS_HAVE_HP_PTHREADS 1
+
+#cmakedefine LASS_HAVE_BIG_ENDIAN 1
 
 #endif
 

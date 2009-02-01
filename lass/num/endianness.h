@@ -56,7 +56,11 @@ enum Endianness
 {
 	littleEndian,
 	bigEndian,
-	systemEndian = LASS_LITTLE_ENDIAN ? littleEndian : bigEndian
+#if LASS_HAVE_BIG_ENDIAN
+	systemEndian = bigEndian
+#else
+	systemEndian = littleEndian
+#endif
 };
 
 template <Endianness outEndian, Endianness inEndian, typename T>  T endianCast(T iIn);

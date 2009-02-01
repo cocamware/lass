@@ -50,7 +50,26 @@ namespace impl
 class ConstError: public util::experimental::ExceptionMixin<ConstError>
 {
 public:
-	ConstError(const std::string& msg, const std::string& loc): ExceptionMixin(msg, loc) {}
+	ConstError(const std::string& msg, const std::string& loc): 
+		util::experimental::ExceptionMixin<ConstError>(msg, loc) {}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+enum ShadowOwnership
+{
+	soBorrowed,
+	soOwner
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+enum ShadowConstness
+{
+	scConst,
+	scNonConst
 };
 
 /** @ingroup Python
@@ -77,7 +96,7 @@ public:
 
 	virtual ~ShadowBase()
 	{
-		if (ownership_ == oOwner)
+		if (ownership_ == soOwner)
 		{
 			delete shadowee_;
 		}
@@ -85,7 +104,7 @@ public:
 
 	TShadowee* cppObject() const
 	{
-		if (constness_ == cConst)
+		if (constness_ == scConst)
 		{
 			LASS_THROW_EX(ConstError, "Can't get write access through a const object pointer");
 		}
@@ -97,22 +116,10 @@ public:
 	}
 
 protected:
-	enum Ownership
-	{
-		oBorrowed,
-		oOwner
-	};
-	enum Constness
-	{
-		cConst,
-		cNonConst
-	};
-	typedef Ownership TOwnership;
-	typedef Constness TConstness;
-	typedef PyObjectPlus* (*TDerivedMaker)(TShadowee*, Ownership, Constness);
+	typedef PyObjectPlus* (*TDerivedMaker)(TShadowee*, ShadowOwnership, ShadowConstness);
 
-	ShadowBase(TShadowee* shadowee, Ownership ownership, Constness constness): 
-		shadowee_(shadowee), ownership_(ownership),	constness_(constness)
+	ShadowBase(TShadowee* shadowee, ShadowOwnership ownership, ShadowConstness constness): 
+		shadowee_(shadowee), ownership_(ownership), constness_(constness)
 	{
 	}
 
@@ -122,8 +129,8 @@ protected:
 
 private:
 	TShadowee* shadowee_;
-	Ownership ownership_;
-	Constness constness_;
+	ShadowOwnership ownership_;
+	ShadowConstness constness_;
 };
 
 /** @ingroup Python
@@ -266,15 +273,15 @@ public:
 
 	static TShadow* make(TShadowee* shadowee)
 	{
-		return ShadowClass::make(shadowee, oBorrowed, cNonConst);
+		return ShadowClass::make(shadowee, impl::soBorrowed, impl::scNonConst);
 	}
 	static TShadow* make(const TShadowee* shadowee)
 	{
-		return ShadowClass::make(const_cast<TShadowee*>(shadowee), oBorrowed, cConst);
+		return ShadowClass::make(const_cast<TShadowee*>(shadowee), impl::soBorrowed, impl::scConst);
 	}
 	static TShadow* make(std::auto_ptr<TShadowee>& shadowee)
 	{
-		TShadow* p = ShadowClass::make(shadowee.get(), oOwner, cNonConst);
+		TShadow* p = ShadowClass::make(shadowee.get(), impl::soOwner, impl::scNonConst);
 		shadowee.release();
 		return p;
 	}
@@ -284,33 +291,30 @@ public:
 	}
 
 protected:
-	typedef typename TBase::TOwnership TOwnership;
-	typedef typename TBase::TConstness TConstness;
-	typedef TShadow* (*TDerivedMaker)(TShadowee*, TOwnership, TConstness);
+	typedef TShadow* (*TDerivedMaker)(TShadowee*, impl::ShadowOwnership, impl::ShadowConstness);
 
-	ShadowClass(TShadowee* shadowee, TOwnership ownership, TConstness constness):
+	ShadowClass(TShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness):
 		TBase(shadowee, ownership, constness)
 	{
 	}
 
 	static void registerDerivedMaker(TDerivedMaker derivedMaker)
 	{
-		if (!ShadowClass::derivedMakers_)
+		if (!derivedMakers_)
 		{
-			ShadowClass::derivedMakers_ = new ShadowClass::TDerivedMakers;
+			derivedMakers_ = new TDerivedMakers;
 		}
-		ShadowClass::derivedMakers_->push_back(derivedMaker);
+		derivedMakers_->push_back(derivedMaker);
 	}
 
 private:
-
 	typedef std::vector<TDerivedMaker> TDerivedMakers;
 
-	static TShadow* make(TShadowee* shadowee, TOwnership ownership, TConstness constness)
+	static TShadow* make(TShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness)
 	{
-		if (ShadowClass::derivedMakers_)
+		if (derivedMakers_)
 		{
-			for (TDerivedMakers::const_iterator i = ShadowClass::derivedMakers_->begin(); i != ShadowClass::derivedMakers_->end(); ++i)
+			for (typename TDerivedMakers::const_iterator i = derivedMakers_->begin(); i != derivedMakers_->end(); ++i)
 			{
 				if(TShadow* p = (*i)(shadowee, ownership, constness))
 				{
@@ -320,7 +324,7 @@ private:
 		}
 		return impl::fixObjectType(new TShadow(shadowee, ownership, constness));
 	}
-	static TParentShadow* makeParent(TParentShadowee* shadowee, TOwnership ownership, TConstness constness)
+	static TParentShadow* makeParent(TParentShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness)
 	{
 		if (TShadowee* p = dynamic_cast<TShadowee*>(shadowee))
 		{
@@ -345,8 +349,8 @@ template <typename S, typename T, typename P> typename ShadowClass<S, T, P>::TDe
 	{ \
 		PY_HEADER(t_PyObjectParent) \
 	public: \
-		i_PyObjectShadowClass(TShadowee* shadowee, TOwnership ownership, TConstness constness): \
-			ShadowClass(shadowee, ownership, constness) \
+		i_PyObjectShadowClass(TShadowee* shadowee, ::lass::python::impl::ShadowOwnership ownership, ::lass::python::impl::ShadowConstness constness): \
+			::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent>(shadowee, ownership, constness) \
 		{ \
 		} \
 	}; \

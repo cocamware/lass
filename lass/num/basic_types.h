@@ -48,8 +48,10 @@
 
 //#include "num_common.h"
 #include "../meta/meta_assert.h"
+#include "../meta/is_same.h"
+#include "../meta/select.h"
 
-#if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)
+#if defined(LASS_HAVE_STDINT_H)
 #	include <stdint.h>
 #endif
 
@@ -58,7 +60,7 @@ namespace lass
 namespace num
 {
 
-#if defined(LASS_NUM_BASIC_TYPES_HAVE_STDINT_H)
+#if defined(LASS_HAVE_STDINT_H)
 
 	typedef int8_t Tint8;	/**< @ingroup BasicTypes */
 	typedef uint8_t Tuint8;	/**< @ingroup BasicTypes */

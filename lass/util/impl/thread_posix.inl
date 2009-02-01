@@ -49,7 +49,15 @@
 #include "lass_errno.h"
 #include <errno.h>
 #include <pthread.h>
-#include <sched.h>
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+#	include <sched.h>
+#endif
+#if LASS_HAVE_UNISTD_H_SC_CPUID_MAX
+#	include <unistd.h>
+#endif
+#if LASS_HAVE_SYS_PROCESSOR_H
+#	include <sys/processor.h>
+#endif
 
 namespace lass
 {
@@ -58,35 +66,51 @@ namespace util
 namespace impl
 {
 
-unsigned numberOfProcessors()
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+cpu_set_t availableProcessorsMask()
 {
-	// we'll need to cache this if we want this to ever work ...
-	
-	cpu_set_t mask;
-	CPU_ZERO(&mask);	
-	LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &mask));
-	
-	unsigned count = 0;
-	int i = 0;
-	while (CPU_ISSET(i++, &mask))
+	static cpu_set_t mask; // static it here, for SIOF
+	static bool isInitialized = false;
+	if (!isInitialized)
 	{
-		++count;
+		CPU_ZERO(&mask);	
+		LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &mask));
 	}
-	
-	// we're doing an assumption here ... We think, we hope, that the mask
-	// is a continuous series of bits starting from the LSB.  We'll test for this
-	// until we are sure that our assumption is correct. [Bramz]
-	//
-	while (i < CPU_SETSIZE)
-	{
-		if (CPU_ISSET(i++, &mask))
+	return mask;
+}
+static cpu_set_t forceCalculationAtStartup = availableProcessorsMask();
+#endif
+
+const unsigned numberOfProcessors()
+{
+	static unsigned n = 0;
+	if (n == 0)
+#if LASS_HAVE_UNISTD_H_SC_CPUID_MAX
+		n = static_cast<unsigned>(sysconf(_SC_CPUID_MAX));
+#elif LASS_HAVE_SCHED_H_CPU_SET_T
+		for (int i = 0; i < CPU_SETSIZE; ++i)
 		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: "
-				"numberOfProcessors' assumption is wrong!\n" << std::endl;
+			if (CPU_ISSET(i, &mask))
+			{
+				n = i + 1;
+			}
 		}
 	}
-	
-	return count;
+	return n;
+#endif
+}
+
+const bool isAvailableProcessor(unsigned processor)
+{
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+	cpu_set_t mask = availableProcessorsMask();
+	return CPU_ISSET(static_cast<int>(processor), &mask);
+#elif LASS_HAVE_SYS_PROCESSOR_H
+	const int r = LASS_ENFORCE_CLIB(p_online(P_STATUS, static_cast<processorid_t>(processor)));
+	return r == P_ONLINE || r == P_NOINTR;
+#else
+#	error no implementation of isAvailableProcessor()
+#endif
 }
 
 
@@ -277,30 +301,25 @@ private:
  */
 void bindThread(pid_t pid, unsigned processor)
 {
+#if LASS_HAVE_SCHED_H_CPU_SET_T
 	cpu_set_t mask;
-	CPU_ZERO(&mask);
-	
 	if (processor == Thread::anyProcessor)
 	{
-		const int n = static_cast<int>(util::numberOfProcessors);
-		LASS_ASSERT(n > 0);
-		for (int i = 0; i < n; ++i)
-		{
-			CPU_SET(i, &mask);
-		}
+		mask = availableProcessorsMask();
 	}
 	else
 	{
-		if (processor >= util::numberOfProcessors)
-		{
-			LASS_THROW("'" << processor << "' is an invalid processor index. "
-				<< "Valid range is [0, " << util::numberOfProcessors << ").");
-		}
 		LASS_ASSERT(static_cast<int>(processor) >= 0);
+		CPU_ZERO(&mask);	
 		CPU_SET(static_cast<int>(processor), &mask);
-	}
-	
-	LASS_ENFORCE_CLIB(sched_setaffinity(pid, sizeof(cpu_set_t), &mask));	
+	}	
+	LASS_ENFORCE_CLIB(sched_setaffinity(pid, sizeof(cpu_set_t), &mask));
+#elif LASS_HAVE_SYS_PROCESSOR_H
+	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
+	LASS_ENFORCE_CLIB(processor_bind(P_PID, pid, cpu_id, 0));
+#else
+#	error no implementation for bindThread
+#endif
 }
 
 

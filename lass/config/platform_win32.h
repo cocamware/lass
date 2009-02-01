@@ -56,9 +56,6 @@
 #	define LASS_LIB_PLATFORM "win32"
 #endif
 
-#define LASS_LITTLE_ENDIAN  1
-#define LASS_BIG_ENDIAN 0
-
 #define LASS_IO_SOCKET_HAVE_WINSOCK
 #define LASS_UTIL_THREAD_HAVE_WIN32
 
@@ -76,14 +73,5 @@
 #ifndef NOMINMAX
 #  define NOMINMAX
 #endif
-
-
-
-namespace lass
-{
-
-const int bitsPerByte = 8;
-
-}
 
 #endif

@@ -50,6 +50,22 @@ namespace python
 namespace impl
 {
 
+
+/** @internal 
+ *  Returns a  pair<short name, pyobject pointing at the class object>
+ *  We have to work around the static initializer fiasco by demanding the iModuleName instead of pealing 
+ *	it from the module object (which may not be initialized yet... and then we have *kaboom*)
+ */
+template <typename CppClass>
+inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const char* iModuleName, const char* iClassDocumentation)
+{
+	char* shortName = const_cast<char*>(CppClass::_lassPyType.tp_name); // finalizePyType will expand tp_name with module name.
+	finalizePyType(CppClass::_lassPyType, *CppClass::_lassPyGetParentType(), CppClass::_lassPyMethods, CppClass::_lassPyGetSetters,
+		CppClass::_lassPyStatics, iModuleName, iClassDocumentation);
+	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
+}
+
+
 // --- ModuleDefinition ----------------------------------------------------------------------------
 
 /** @internal
@@ -209,20 +225,6 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 /////////////////////////////////////////////
 
 
-
-/** @internal 
- *  Returns a  pair<short name, pyobject pointing at the class object>
- *  We have to work around the static initializer fiasco by demanding the iModuleName instead of pealing 
- *	it from the module object (which may not be initialized yet... and then we have *kaboom*)
- */
-template <typename CppClass>
-inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const char* iModuleName, const char* iClassDocumentation)
-{
-	char* shortName = const_cast<char*>(CppClass::_lassPyType.tp_name); // finalizePyType will expand tp_name with module name.
-	finalizePyType(CppClass::_lassPyType, *CppClass::_lassPyGetParentType(), CppClass::_lassPyMethods, CppClass::_lassPyGetSetters,
-		CppClass::_lassPyStatics, iModuleName, iClassDocumentation);
-	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
-}
 
 /** @intenal
  */

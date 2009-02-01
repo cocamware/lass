@@ -245,7 +245,7 @@ namespace impl
 			return 1;
 		}
 		// check if we have our own PySequence object, then take a shortcut
-		if (isOfType(iValue, &PySequence::_lassPyType) && ((PySequence*)iValue)->pointsToSameContainer(oV))
+		if (isOfType(iValue, PySequence::_lassPyGetStaticType()) && ((PySequence*)iValue)->pointsToSameContainer(oV))
 		{
 			return 0;
 		}

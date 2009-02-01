@@ -48,6 +48,13 @@
 #include "compilers.h"
 #include "platforms.h"
 
+namespace lass
+{
+
+const int bitsPerByte = 8;
+
+}
+
 #endif
 
 // EOF

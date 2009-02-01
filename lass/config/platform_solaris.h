@@ -42,70 +42,11 @@
 
 
 
-/** @class lass::io::BinaryIStream
- *  @brief base class of binary input streams.
- */
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_SOLARIS_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_SOLARIS_H
 
-
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_STREAM_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_STREAM_H
-
-#include "io_common.h"
-#include "binary_stream_base.h"
-
-namespace lass
-{
-
-namespace io
-{
-
-class LASS_DLL BinaryIStream: public BinaryStreamBase
-{
-public:
-
-	BinaryIStream();
-	~BinaryIStream();
-
-	long tellg() const;
-	BinaryIStream& seekg(long iPosition);
-	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
-
-	//BinaryIStream& operator>>( char& x );
-	BinaryIStream& operator>>( num::Tint8& x );
-	BinaryIStream& operator>>( num::Tuint8& x );
-	BinaryIStream& operator>>( num::Tint16& x );
-	BinaryIStream& operator>>( num::Tuint16& x );
-	BinaryIStream& operator>>( num::Tint32& x );
-	BinaryIStream& operator>>( num::Tuint32& x );
-	BinaryIStream& operator>>( num::Tint64& x );
-	BinaryIStream& operator>>( num::Tuint64& x );
-	BinaryIStream& operator>>( num::Tfloat32& x );
-	BinaryIStream& operator>>( num::Tfloat64& x );
-	BinaryIStream& operator>>( bool& x );
-	BinaryIStream& operator>>( void*& x );
-
-	BinaryIStream& operator>>( std::string& oOut );
-	template <typename T> BinaryIStream& operator>>( std::vector<T>& oOut );
-	template <typename T> BinaryIStream& operator>>( std::complex<T>& oOut );
-
-	void read(void* oOutput, size_t iNumberOfBytes);
-
-private:
-
-	template <typename T> BinaryIStream& readValue(T& x);
-
-	virtual long doTellg() const = 0;
-	virtual void doSeekg(long iOffset, std::ios_base::seekdir iDirection) = 0;
-	virtual void doRead(void* oOutput, size_t iNumberOfBytes) = 0;
-};
-
-
-
-}
-
-}
-
-#include "binary_i_stream.inl"
+#define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_SOLARIS
+#define LASS_PLATFORM "solaris"
+#define LASS_LIB_PLATFORM "solaris"
 
 #endif

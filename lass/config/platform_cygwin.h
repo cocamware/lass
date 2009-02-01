@@ -50,17 +50,6 @@
 #define LASS_PLATFORM "Cygwin"
 #define LASS_LIB_PLATFORM "Cygwin"
 
-#define LASS_LITTLE_ENDIAN  1
-#define LASS_BIG_ENDIAN 0
-
-#define LASS_UTIL_THREAD_HAVE_POSIX
 #define LASS_NUM_BASIC_OPS_USE_BUILTIN_LONG_DOUBLE
-
-namespace lass
-{
-
-const int bitsPerByte = 8;
-
-}
 
 #endif

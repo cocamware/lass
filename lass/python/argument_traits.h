@@ -316,3 +316,4 @@ struct ArgumentTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 }
 
 #endif
+
