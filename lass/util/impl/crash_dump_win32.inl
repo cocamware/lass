@@ -382,7 +382,7 @@ public:
 };
 
 CrashDumpImpl* CrashDumpImpl::instance_ = 0;
-char CrashDumpImpl::patchBytes_[numPatchBytes_] = { 0x33, 0xc0, 0xc2, 0x04, 0x00 };
+char CrashDumpImpl::patchBytes_[numPatchBytes_] = { 0x33, (char)0xc0, (char)0xc2, 0x04, 0x00 };
 
 }
 }

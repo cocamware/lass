@@ -74,7 +74,7 @@ class RWLock : NonCopyable
 {
 
 public:
-	RWLock(util::CallTraits<size_t>::TParam iMaxReaders);
+	RWLock(int iMaxReaders);
 	~RWLock();
 
 	void lockr();
@@ -86,13 +86,13 @@ public:
 	const LockResult tryLockw();
 
 private:
-	size_t maxReaders_;		/**< the maximum of simultaneous readers allowed */
+	int maxReaders_;		/**< the maximum of simultaneous readers allowed */
 	volatile int spinLock_;
 	volatile int writersTrying_;		/**< the number of writers trying to enter */
 };
 
 
-RWLock::RWLock(util::CallTraits<size_t>::TParam iMaxReaders)
+RWLock::RWLock(int iMaxReaders)
 {
 	maxReaders_ = iMaxReaders;
 	spinLock_ = maxReaders_;
@@ -101,7 +101,7 @@ RWLock::RWLock(util::CallTraits<size_t>::TParam iMaxReaders)
 
 RWLock::~RWLock()
 {
-	LASS_ENFORCE(spinLock_==maxReaders_);
+	LASS_ASSERT(spinLock_==maxReaders_);
 }
 
 void RWLock::lockr()
