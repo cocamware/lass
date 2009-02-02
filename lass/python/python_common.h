@@ -87,4 +87,50 @@
 
 #include "../lass_common.h"
 
+// Python.h is a bit blunt in (re)defining _POSIX_C_SOURCE causing a nice warning.
+// Undefing it before including Python.h will suppress that warning.
+// Remove this once Python plays nice again. 
+// [Bramz]
+#if defined(_POSIX_C_SOURCE)
+#	undef _POSIX_C_SOURCE
+#endif
+
+#if defined(_DEBUG) && LASS_PYTHON_HAS_DEBUG_BUILD == 0
+#	undef _DEBUG
+#	include "Python.h"
+#	define _DEBUG
+#else
+#	include "Python.h"
+#endif
+
+#ifndef PySequence_ITEM
+#	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
+#endif
+
+#ifndef PySequence_Fast_ITEMS
+#	define PySequence_Fast_ITEMS(o) \
+	(PyTuple_Check(o) ? ((PyTupleObject *)(o))->ob_item : ((PyListObject *)(o))->ob_item)
+#endif
+
+#ifndef Py_RETURN_FALSE
+#	define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
+#endif
+
+#ifndef Py_RETURN_TRUE
+#	define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
+#endif
+
+#ifndef Py_RETURN_NONE
+#	define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#endif
+
+#if (PY_VERSION_HEX < 0x02050000)
+#	define Py_ssize_t int
+#	define lenfunc inquiry
+#	define ssizeargfunc intargfunc
+#	define ssizessizeargfunc intintargfunc
+#	define ssizeobjargproc intobjargproc
+#	define ssizessizeobjargproc intintobjargproc
+#endif
+
 #endif
