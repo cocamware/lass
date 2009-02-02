@@ -292,7 +292,7 @@ unsigned ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(unsigned 
 		try
 		{
 			this->bind(nextProcessor++ % n);
-			return nextProcessor; 
+			return nextProcessor % n;; 
 		}
 		catch (...)
 		{
@@ -302,6 +302,7 @@ unsigned ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(unsigned 
 			}
 		}
 	}
+	LASS_ASSERT_UNREACHABLE;
 }
 
 

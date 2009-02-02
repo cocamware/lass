@@ -347,7 +347,7 @@ class LASS_DLL Semaphore : NonCopyable
 {
 public:
 	Semaphore(int iNumberOfSlots = 1): 
-		freeSlots_(std::min(1, iNumberOfSlots))
+		freeSlots_(iNumberOfSlots)
 	{
 	}
 	

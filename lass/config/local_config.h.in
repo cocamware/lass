@@ -80,6 +80,7 @@
 #cmakedefine LASS_HAVE_UNISTD_H 1
 #cmakedefine LASS_HAVE_UNISTD_H_SC_CPUID_MAX 1
 #cmakedefine LASS_HAVE_STDINT_H 1
+#cmakedefine LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
 #cmakedefine LASS_HAVE_PTHREAD_H 1
 #cmakedefine LASS_HAVE_SCHED_H 1
 #cmakedefine LASS_HAVE_SCHED_H_CPU_SET_T 1

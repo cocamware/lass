@@ -74,7 +74,9 @@ public:
 	BinaryOStream& seekp(long offset, std::ios_base::seekdir direction); 
 	void flush();
 
-	//BinaryOStream& operator<<( char x );
+#if !LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
+	BinaryOStream& operator<<( char x );
+#endif
 	BinaryOStream& operator<<( num::Tint8 x );
 	BinaryOStream& operator<<( num::Tuint8 x );
 	BinaryOStream& operator<<( num::Tint16 x );

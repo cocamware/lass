@@ -98,12 +98,14 @@ void BinaryOStream::flush()
 }
 
 
+#if !LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
 
-/*BinaryOStream& BinaryOStream::operator<<( char x )
+BinaryOStream& BinaryOStream::operator<<( char x )
 {
 	return writeValue(x);
-}*/
+}
 
+#endif
 
 
 BinaryOStream& BinaryOStream::operator<<( num::Tint8 x )

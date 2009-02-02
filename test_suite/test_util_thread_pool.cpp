@@ -95,6 +95,12 @@ namespace thread_pool
 	}
 }
 
+void testUtilNumberOfProcessors()
+{
+	LASS_TEST_CHECK(util::numberOfProcessors() > 0);
+	LASS_TEST_CHECK(util::numberOfAvailableProcessors() > 0);
+	LASS_TEST_CHECK(util::numberOfAvailableProcessors() <= util::numberOfProcessors());
+}
 
 void testUtilThreadPool()
 {
@@ -107,7 +113,10 @@ void testUtilThreadPool()
 
 TUnitTest test_util_thread_pool()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testUtilThreadPool));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testUtilNumberOfProcessors));
+	result.push_back(LASS_TEST_CASE(testUtilThreadPool));
+	return result;
 }
 
 }

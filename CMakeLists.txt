@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 set(LASS_MAJOR_VERSION 1)
 set(LASS_MINOR_VERSION 3)
 set(LASS_PATCHLEVEL 0)
-set(LASS_SOVERSION 5)
+set(LASS_SOVERSION 6)
 
 set(CMAKE_DEBUG_POSTFIX _d)
 set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
@@ -57,6 +57,13 @@ if(LASS_HAVE_UNISTD_H)
 	CHECK_SYMBOL_EXISTS("_SC_CPUID_MAX" "unistd.h" LASS_HAVE_UNISTD_H_SC_CPUID_MAX)
 endif()
 CHECK_INCLUDE_FILE("stdint.h" LASS_HAVE_STDINT_H)
+if(LASS_HAVE_STDINT_H)
+	try_compile(
+		LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
+		"${lass_BINARY_DIR}/local"
+		"${lass_SOURCE_DIR}/lass/config/check_int8_t_is_char.cpp"
+		)
+endif()
 CHECK_INCLUDE_FILE("pthread.h" LASS_HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE("sched.h" LASS_HAVE_SCHED_H)
 if(LASS_HAVE_SCHED_H)
@@ -87,7 +94,6 @@ endif()
 include(CheckFunctionExists)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
-	set(testdir "${lass_BINARY_DIR}/local")
 	try_compile(
 		LASS_HAVE_STRERROR_R_CHAR_P
 		"${lass_BINARY_DIR}/local"
@@ -289,7 +295,9 @@ set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS
 	COMPILE_FLAGS ${lass_C_FLAGS}
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
-	SOVERSION ${LASS_SOVERSION})
+	SOVERSION ${LASS_SOVERSION}
+	OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}"
+	)
 add_precompiled_header(
 	lass 
 	lass_common.h 

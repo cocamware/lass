@@ -92,12 +92,14 @@ BinaryIStream& BinaryIStream::seekg(long offset, std::ios_base::seekdir directio
 }
 
 
+#if !LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
 
-/*BinaryIStream& BinaryIStream::operator>>( char& x )
+BinaryIStream& BinaryIStream::operator>>( char& x )
 {
 	return readValue(x);
-}*/
+}
 
+#endif
 
 
 BinaryIStream& BinaryIStream::operator>>( num::Tint8& x )

@@ -71,7 +71,9 @@ public:
 	BinaryIStream& seekg(long iPosition);
 	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
 
-	//BinaryIStream& operator>>( char& x );
+#if !LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
+	BinaryIStream& operator>>( char& x );
+#endif
 	BinaryIStream& operator>>( num::Tint8& x );
 	BinaryIStream& operator>>( num::Tuint8& x );
 	BinaryIStream& operator>>( num::Tint16& x );

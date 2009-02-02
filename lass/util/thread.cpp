@@ -44,9 +44,9 @@
 #include "thread.h"
 #include "atomic.h"
 
-#if defined(LASS_UTIL_THREAD_HAVE_WIN32)
+#if LASS_HAVE_WIN32_THREADS
 #	include "impl/thread_win32.inl"
-#elif defined(LASS_HAVE_PTHREAD_H)
+#elif LASS_HAVE_PTHREAD_H
 #	include "impl/thread_posix.inl"
 #else
 #	error "[LASS BUILD MSG] Threading not supported for this platform"

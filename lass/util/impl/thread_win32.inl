@@ -77,7 +77,6 @@ const unsigned numberOfProcessors()
 		// we're interested in the position of the highest set bit of systemAffinityMask
 		DWORD_PTR processAffinityMask, systemAffinityMask;
 		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
-		unsigned n;
 		while (systemAffinityMask)
 		{
 			++n;
@@ -91,8 +90,7 @@ const bool isAvailableProcessor(unsigned processor)
 {
 	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
-	return processAffinityMask & (1 << processor);
-
+	return (processAffinityMask & (1 << processor)) != 0;
 }
 
 /** @internal
