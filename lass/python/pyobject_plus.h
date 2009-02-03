@@ -427,38 +427,6 @@ namespace lass
 			LASS_DLL PyObject* LASS_CALL repr(PyObject* obj);
 			LASS_DLL PyObject* LASS_CALL str(PyObject* obj);
 
-			class LASS_DLL ModuleDefinition: util::NonCopyable
-			{
-			public:
-				ModuleDefinition(const char* name, const char* doc = 0);
-				const char* name() const { return name_.get(); }
-				void setName(const char* name);
-				const char* doc() const { return doc_.get(); }
-				void setDoc(const char* doc);
-				PyObject* module() const { return module_; }
-				void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
-				template <typename CppClass> void injectClass(const char* doc);
-				PyObject* inject();
-			private:
-				typedef std::vector<PyMethodDef> TMethods;
-				struct NamedObject
-				{
-					char* name;
-					PyObject* object;
-				};
-				typedef std::vector<NamedObject> TObjects;
-				typedef util::ScopedPtr< char, util::ArrayStorage > TScopedCString;
-				TMethods methods_;
-				TObjects objects_;
-				TScopedCString name_;
-				TScopedCString doc_;
-				PyObject* module_;
-#if PY_MAJOR_VERSION >= 3
-				PyModuleDef def_;
-#endif
-				bool isInjected_;
-			};
-
 			/**	@ingroup Python
 			 *	@internal
 			 */

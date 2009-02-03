@@ -52,6 +52,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_MACROS_H
 
 #include "pyobject_call.inl"
+#include "module_definition.h"
 #include "../meta/is_member.h"
 #include "../meta/is_charptr.h"
 
