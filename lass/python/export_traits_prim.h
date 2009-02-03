@@ -48,17 +48,12 @@
 #include "pyobject_plus.h"
 #include "py_tuple.h"
 
-#endif
-
 namespace lass
 {
 namespace python
 {
-
-// --- vectors -------------------------------------------------------------------------------------
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_POINT
-#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_POINT
+namespace impl
+{
 
 /** @ingroup Python
  *  @internal
@@ -67,19 +62,19 @@ template <typename ObjectType, typename ExportTraits>
 struct PyExportTraitsVectorPoint
 {
 	enum { dimension = ObjectType::dimension };
-	static PyObject* build(const ObjectType& iV)
+	static PyObject* build(const ObjectType& v)
 	{
 		PyObject* const tuple = PyTuple_New(dimension);
 		for (int i = 0; i < dimension; ++i)
 		{
-			PyTuple_SetItem(tuple, i, pyBuildSimpleObject(iV[i]));
+			PyTuple_SetItem(tuple, i, pyBuildSimpleObject(v[i]));
 		}
 		return tuple;
 	}
 
-	static int get(PyObject* iValue, ObjectType& oV)
+	static int get(PyObject* obj, ObjectType& v)
 	{
-		const TPyObjPtr tuple = impl::checkedFastSequence(iValue, dimension);
+		const TPyObjPtr tuple = impl::checkedFastSequence(obj, dimension);
 		if (!tuple)
 		{
 			impl::addMessageHeader(ExportTraits::className());
@@ -95,114 +90,10 @@ struct PyExportTraitsVectorPoint
 				return 1;
 			}
 		}
-		oV = result;
+		v = result;
 		return 0;
 	}
 };
-
-#endif
-
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_2D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
-struct PyExportTraits< prim::Vector2D<T> >:
-	public PyExportTraitsVectorPoint< prim::Vector2D<T>, PyExportTraits< prim::Vector2D<T> > >
-{
-	static const char* className() { return "Vector2D"; }
-};
-
-#	endif
-#endif
-
-
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_3D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
-struct PyExportTraits< prim::Vector3D<T> >:
-	public PyExportTraitsVectorPoint< prim::Vector3D<T>, PyExportTraits< prim::Vector3D<T> > >
-{
-	static const char* className() { return "Vector3D"; }
-};
-
-#	endif
-#endif
-
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_4D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
-struct PyExportTraits< prim::Vector4D<T> >:
-	public PyExportTraitsVectorPoint< prim::Vector4D<T>, PyExportTraits< prim::Vector4D<T> > >
-{
-	static const char* className() { return "Vector4D"; }
-};
-
-#	endif
-#endif
-
-
-
-// --- points --------------------------------------------------------------------------------------
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_2D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
-struct PyExportTraits< prim::Point2D<T> >:
-	public PyExportTraitsVectorPoint< prim::Point2D<T>, PyExportTraits< prim::Point2D<T> > >
-{
-	static const char* className() { return "Point2D"; }
-};
-
-#	endif
-#endif
-
-
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_3D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
-struct PyExportTraits< prim::Point3D<T> >:
-	public PyExportTraitsVectorPoint< prim::Point3D<T>, PyExportTraits< prim::Point3D<T> > >
-{
-	static const char* className() { return "Point3D"; }
-};
-
-#	endif
-#endif
-
-
-
-// --- boxes ---------------------------------------------------------------------------------------
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB
-#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB
 
 /** @ingroup Python
  *  @internal
@@ -211,21 +102,21 @@ template < typename AabbType, typename ExportTraits >
 struct PyExportTraitsPrimAabb
 {
 	typedef AabbType TAabb;
-	static PyObject* build(const TAabb& iV)
+	static PyObject* build(const TAabb& aabb)
 	{
-		return fromSharedPtrToNakedCast(makeTuple(iV.min(), iV.max()));
+		return fromSharedPtrToNakedCast(makeTuple(aabb.min(), aabb.max()));
 	}
-	static int get(PyObject* iValue, TAabb& oV)
+	static int get(PyObject* obj, TAabb& aabb)
 	{
 		typename TAabb::TPoint min, max;
-		if (decodeTuple(iValue, min, max) != 0)
+		if (decodeTuple(obj, min, max) != 0)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
 		}
 		try
 		{
-			oV = TAabb(min, max);
+			aabb = TAabb(min, max);
 		}
 		catch (util::Exception& error)
 		{
@@ -238,49 +129,6 @@ struct PyExportTraitsPrimAabb
 	}
 };
 
-#endif
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_AABB_2D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T, typename MMP>
-struct PyExportTraits< prim::Aabb2D<T, MMP> >:
-	public PyExportTraitsPrimAabb< prim::Aabb2D<T, MMP>, PyExportTraits< prim::Aabb2D<T, MMP> > >
-{
-	static const char* className() { return "Aabb2D"; }
-};
-
-#	endif
-#endif
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_AABB_3D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T, typename MMP>
-struct PyExportTraits< prim::Aabb3D<T, MMP> >:
-	public PyExportTraitsPrimAabb< prim::Aabb3D<T, MMP>, PyExportTraits< prim::Aabb3D<T, MMP> > >
-{
-	static const char* className() { return "Aabb3D"; }
-};
-
-#	endif
-#endif
-
-
-
-// --- line segments -------------------------------------------------------------------------------
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT
-#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT
-
 /** @ingroup Python
  *  @internal
  */
@@ -288,63 +136,22 @@ template < typename LineSegmentType, typename ExportTraits >
 struct PyExportTraitsPrimLineSegment
 {
 	typedef LineSegmentType TLineSegment;
-	static PyObject* build(const TLineSegment& iV)
+	static PyObject* build(const TLineSegment& seg)
 	{
-		return fromSharedPtrToNakedCast(makeTuple(iV.tail(), iV.head()));
+		return fromSharedPtrToNakedCast(makeTuple(seg.tail(), seg.head()));
 	}
-	static int get(PyObject* iValue, TLineSegment& oV)
+	static int get(PyObject* obj, TLineSegment& seg)
 	{
 		typename TLineSegment::TPoint tail, head;
-		if (decodeTuple(iValue, tail, head) != 0)
+		if (decodeTuple(obj, tail, head) != 0)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
 		}
-		oV = TLineSegment(tail, head);
+		seg = TLineSegment(tail, head);
 		return 0;
 	}
 };
-
-#endif
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_2D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T, typename PP>
-struct PyExportTraits< prim::LineSegment2D<T, PP> >:
-	public PyExportTraitsPrimLineSegment< prim::LineSegment2D<T, PP>, PyExportTraits< prim::LineSegment2D<T, PP> > >
-{
-	static const char* className() { return "LineSegment2D"; }
-};
-
-#	endif
-#endif
-
-#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_3D)
-#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
-#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T, typename PP>
-struct PyExportTraits< prim::LineSegment3D<T, PP> >:
-	public PyExportTraitsPrimLineSegment< prim::LineSegment3D<T, PP>, PyExportTraits< prim::LineSegment3D<T, PP> > >
-{
-	static const char* className() { return "LineSegment3D"; }
-};
-
-#	endif
-#endif
-
-// --- transformations -----------------------------------------------------------------------------
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION
-#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION
 
 /** @ingroup Python
  *  @internal
@@ -356,25 +163,25 @@ struct PyExportTraitsPrimTransformation
 	typedef typename TransformationType::TValue TValue;
 	enum { size = TransformationType::dimension + 1 };
 
-	static PyObject* build(const TTransformation& iV)
+	static PyObject* build(const TTransformation& transfo)
 	{
-		const TValue* const v = iV.matrix();
+		const TValue* const values = transfo.matrix();
 		PyObject* const matrix = PyTuple_New(size);
 		for (int i = 0; i < size; ++i)
 		{
 			PyObject* const row = PyTuple_New(size);
 			for (int j = 0; j < size; ++j)
 			{
-				PyTuple_SetItem(row, j, pyBuildSimpleObject(v[i * size + j]));
+				PyTuple_SetItem(row, j, pyBuildSimpleObject(values[i * size + j]));
 			}
 			PyTuple_SetItem(matrix, i, row);
 		}
 		return matrix;
 	}
 
-	static int get(PyObject* iValue, TTransformation& oV)
+	static int get(PyObject* obj, TTransformation& transfo)
 	{
-		TPyObjPtr tuple = impl::checkedFastSequence(iValue, size);
+		TPyObjPtr tuple = impl::checkedFastSequence(obj, size);
 		if (!tuple)
 		{
 			impl::addMessageHeader(ExporTraits::className());
@@ -404,12 +211,262 @@ struct PyExportTraitsPrimTransformation
 				}
 			}
 		}
-		oV = TTransformation(values, values + size * size);
+		transfo = TTransformation(values, values + size * size);
 		return 0;
 	}
 };
 
+/** @ingroup Python
+ *  @internal
+ */
+template <typename PolygonType, typename ExportTraits>
+struct PyExportTraitsPrimSimplePolygon
+{
+	typedef PolygonType TPolygon;
+	typedef typename PolygonType::TPoint TPoint;
+	static PyObject* build(const TPolygon& poly)
+	{
+		std::vector<TPoint> points;
+		for (unsigned i = 0; i < poly.size(); ++i)
+			points.push_back(poly[i]);
+		return pyBuildSimpleObject( points );
+	}
+	static int get(PyObject* obj, TPolygon& poly)
+	{
+		std::vector<TPoint> points;
+		if (pyGetSimpleObject(obj, points) != 0)
+		{
+			impl::addMessageHeader(ExportTraits::className());
+			return 1;
+		}
+		poly = TPolygon(points.begin(), points.end());
+		return 0;
+	}
+};
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename AxisType, typename ExportTraits>
+struct PyExportTraitsPrimAxis
+{
+	typedef AxisType TAxis;
+	static PyObject* build(const TAxis& axis)
+	{
+		return pyBuildSimpleObject(std::string(1, axis.axis()));
+	}
+	static int get(PyObject* obj, TAxis& axis)
+	{
+		std::string s;
+		if (pyGetSimpleObject(obj, s) != 0)
+		{
+			impl::addMessageHeader(ExportTraits::className());
+			return 1;
+		}
+		try
+		{
+			axis = TAxis(s);
+		}
+		catch (util::Exception& error)
+		{
+			std::ostringstream buffer;
+			buffer << ExportTraits::className() << ": " << error.message();
+			PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
+			return 1;
+		}
+		return 0;
+	}
+};
+
+LASS_DLL PyObject* LASS_CALL buildIndexVertex(size_t vertex, size_t normal, size_t uv);
+LASS_DLL int LASS_CALL getIndexVertex(PyObject* iIndices, size_t& vertex, size_t& normal, size_t& uv);
+
+}
+}
+}
+
 #endif
+
+namespace lass
+{
+namespace python
+{
+
+// --- vectors -------------------------------------------------------------------------------------
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_2D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< prim::Vector2D<T> >:
+	public impl::PyExportTraitsVectorPoint< prim::Vector2D<T>, PyExportTraits< prim::Vector2D<T> > >
+{
+	static const char* className() { return "Vector2D"; }
+};
+
+#	endif
+#endif
+
+
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_3D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< prim::Vector3D<T> >:
+	public impl::PyExportTraitsVectorPoint< prim::Vector3D<T>, PyExportTraits< prim::Vector3D<T> > >
+{
+	static const char* className() { return "Vector3D"; }
+};
+
+#	endif
+#endif
+
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_VECTOR_4D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< prim::Vector4D<T> >:
+	public impl::PyExportTraitsVectorPoint< prim::Vector4D<T>, PyExportTraits< prim::Vector4D<T> > >
+{
+	static const char* className() { return "Vector4D"; }
+};
+
+#	endif
+#endif
+
+
+
+// --- points --------------------------------------------------------------------------------------
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_2D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< prim::Point2D<T> >:
+	public impl::PyExportTraitsVectorPoint< prim::Point2D<T>, PyExportTraits< prim::Point2D<T> > >
+{
+	static const char* className() { return "Point2D"; }
+};
+
+#	endif
+#endif
+
+
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_POINT_3D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T>
+struct PyExportTraits< prim::Point3D<T> >:
+	public impl::PyExportTraitsVectorPoint< prim::Point3D<T>, PyExportTraits< prim::Point3D<T> > >
+{
+	static const char* className() { return "Point3D"; }
+};
+
+#	endif
+#endif
+
+
+
+// --- boxes ---------------------------------------------------------------------------------------
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_AABB_2D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T, typename MMP>
+struct PyExportTraits< prim::Aabb2D<T, MMP> >:
+	public impl::PyExportTraitsPrimAabb< prim::Aabb2D<T, MMP>, PyExportTraits< prim::Aabb2D<T, MMP> > >
+{
+	static const char* className() { return "Aabb2D"; }
+};
+
+#	endif
+#endif
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_AABB_3D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T, typename MMP>
+struct PyExportTraits< prim::Aabb3D<T, MMP> >:
+	public impl::PyExportTraitsPrimAabb< prim::Aabb3D<T, MMP>, PyExportTraits< prim::Aabb3D<T, MMP> > >
+{
+	static const char* className() { return "Aabb3D"; }
+};
+
+#	endif
+#endif
+
+
+
+// --- line segments -------------------------------------------------------------------------------
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_2D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T, typename PP>
+struct PyExportTraits< prim::LineSegment2D<T, PP> >:
+	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment2D<T, PP>, PyExportTraits< prim::LineSegment2D<T, PP> > >
+{
+	static const char* className() { return "LineSegment2D"; }
+};
+
+#	endif
+#endif
+
+#if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_LINE_SEGMENT_3D)
+#	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
+#	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
+
+/** @ingroup Python
+ *  @internal
+ */
+template <typename T, typename PP>
+struct PyExportTraits< prim::LineSegment3D<T, PP> >:
+	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment3D<T, PP>, PyExportTraits< prim::LineSegment3D<T, PP> > >
+{
+	static const char* className() { return "LineSegment3D"; }
+};
+
+#	endif
+#endif
+
+
+
+// --- transformations -----------------------------------------------------------------------------
 
 #if defined(LASS_PRIM_HAVE_PY_EXPORT_TRAITS_TRANSFORMATION_2D)
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION_2D
@@ -420,7 +477,7 @@ struct PyExportTraitsPrimTransformation
  */
 template <typename T>
 struct PyExportTraits< prim::Transformation2D<T> >: 
-	public PyExportTraitsPrimTransformation< prim::Transformation2D<T>, PyExportTraits< prim::Transformation2D<T> > >
+	public impl::PyExportTraitsPrimTransformation< prim::Transformation2D<T>, PyExportTraits< prim::Transformation2D<T> > >
 {
 	static const char* className() { return "Transformation2D"; }
 };
@@ -437,7 +494,7 @@ struct PyExportTraits< prim::Transformation2D<T> >:
  */
 template <typename T>
 struct PyExportTraits< prim::Transformation3D<T> >: 
-	public PyExportTraitsPrimTransformation< prim::Transformation3D<T>, PyExportTraits< prim::Transformation3D<T> > >
+	public impl::PyExportTraitsPrimTransformation< prim::Transformation3D<T>, PyExportTraits< prim::Transformation3D<T> > >
 {
 	static const char* className() { return "Transformation3D"; }
 };
@@ -446,39 +503,12 @@ struct PyExportTraits< prim::Transformation3D<T> >:
 #endif
 
 
+
 // --- simplepolygons -----------------------------------------------------------------------------
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON
 #define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON
 
-/** @ingroup Python
- *  @internal
- */
-template <typename PolygonType, typename ExportTraits>
-struct PyExportTraitsPrimSimplePolygon
-{
-	typedef PolygonType TPolygon;
-	typedef typename PolygonType::TPoint TPoint;
-	static PyObject* build(const TPolygon& iV)
-	{
-		std::vector<TPoint> points;
-		for (unsigned i = 0; i < iV.size(); ++i)
-			points.push_back(iV[i]);
-		return pyBuildSimpleObject( points );
-	}
-	static int get(PyObject* iValue, TPolygon& oV)
-	{
-		std::vector<TPoint> points;
-		int rv = pyGetSimpleObject(iValue, points);
-		if (rv)
-		{
-			impl::addMessageHeader(ExportTraits::className());
-			return 1;
-		}
-		oV = TPolygon(points.begin(), points.end());
-		return 0;
-	}
-};
 
 #endif
 
@@ -491,7 +521,7 @@ struct PyExportTraitsPrimSimplePolygon
  */
 template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
-	public PyExportTraitsPrimSimplePolygon< prim::SimplePolygon2D<T, DP>, PyExportTraits< prim::SimplePolygon2D<T, DP> > >
+	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon2D<T, DP>, PyExportTraits< prim::SimplePolygon2D<T, DP> > >
 {
 	static const char* className() { return "SimplePolygon2D"; }
 };
@@ -509,7 +539,7 @@ struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
  */
 template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
-	public PyExportTraitsPrimSimplePolygon< prim::SimplePolygon3D<T, DP>, PyExportTraits< prim::SimplePolygon3D<T, DP> > >
+	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon3D<T, DP>, PyExportTraits< prim::SimplePolygon3D<T, DP> > >
 {
 	static const char* className() { return "SimplePolygon3D"; }
 };
@@ -522,39 +552,6 @@ struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
 #ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AXIS
 #define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AXIS
 
-/** @ingroup Python
- *  @internal
- */
-template <typename AxisType, typename ExportTraits>
-struct PyExportTraitsPrimAxis
-{
-	typedef AxisType TAxis;
-	static PyObject* build(const TAxis& iV)
-	{
-		return pyBuildSimpleObject(std::string(1, iV.axis()));
-	}
-	static int get(PyObject* iValue, TAxis& oV)
-	{
-		std::string axis;
-		if (pyGetSimpleObject(iValue, axis) != 0)
-		{
-			impl::addMessageHeader(ExportTraits::className());
-		}
-
-		try
-		{
-			oV = TAxis(axis);
-		}
-		catch (util::Exception& error)
-		{
-			std::ostringstream buffer;
-			buffer << ExportTraits::className() << ": " << error.message();
-			PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
-			return 1;
-		}
-		return 0;
-	}
-};
 
 #endif
 
@@ -567,7 +564,7 @@ struct PyExportTraitsPrimAxis
  */
 template <>
 struct PyExportTraits<prim::XY>:
-	public PyExportTraitsPrimAxis<prim::XY, PyExportTraits<prim::XY> >
+	public impl::PyExportTraitsPrimAxis<prim::XY, PyExportTraits<prim::XY> >
 {
 	static const char* className() { return "XY"; }
 };
@@ -584,7 +581,7 @@ struct PyExportTraits<prim::XY>:
  */
 template <>
 struct PyExportTraits<prim::XYZ>:
-	public PyExportTraitsPrimAxis<prim::XYZ, PyExportTraits<prim::XYZ> >
+	public impl::PyExportTraitsPrimAxis<prim::XYZ, PyExportTraits<prim::XYZ> >
 {
 	static const char* className() { return "XYZ"; }
 };
@@ -601,7 +598,7 @@ struct PyExportTraits<prim::XYZ>:
  */
 template <>
 struct PyExportTraits<prim::XYZW>:
-	public PyExportTraitsPrimAxis<prim::XYZW, PyExportTraits<prim::XYZW> >
+	public impl::PyExportTraitsPrimAxis<prim::XYZW, PyExportTraits<prim::XYZW> >
 {
 	static const char* className() { return "XYWZ"; }
 };
@@ -621,13 +618,13 @@ struct PyExportTraits<prim::XYZW>:
 template <>
 struct PyExportTraits<prim::ColorRGBA>
 {
-	static PyObject* build(const prim::ColorRGBA& iV)
+	static PyObject* build(const prim::ColorRGBA& v)
 	{
-		return pyBuildSimpleObject(iV.vector());
+		return pyBuildSimpleObject(v.vector());
 	}
-	static int get(PyObject* iValue, prim::ColorRGBA& oV)
+	static int get(PyObject* obj, prim::ColorRGBA& v)
 	{
-		TPyObjPtr tuple(PySequence_Fast(iValue, "ColorRGBA: expected a sequence (tuple, list, ...)"));
+		TPyObjPtr tuple(PySequence_Fast(obj, "ColorRGBA: expected a sequence (tuple, list, ...)"));
 		if (!tuple)
 		{
 			return 1;
@@ -650,7 +647,7 @@ struct PyExportTraits<prim::ColorRGBA>
 				return 1;
 			}
 		}
-		oV = result;
+		v = result;
 		return 0;
 	}
 };
@@ -666,8 +663,6 @@ struct PyExportTraits<prim::ColorRGBA>
 
 namespace impl
 {
-	LASS_DLL PyObject* LASS_CALL buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv);
-	LASS_DLL int LASS_CALL getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv);
 }
 
 /** @ingroup Python
@@ -689,9 +684,9 @@ struct PyExportTraits<prim::IndexTriangle>
 		}
 		return fromSharedPtrToNakedCast(triangle);
 	}
-	static int get(PyObject* iValue, prim::IndexTriangle& oTriangle)
+	static int get(PyObject* obj, prim::IndexTriangle& oTriangle)
 	{
-		const TPyObjPtr tuple(impl::checkedFastSequence(iValue, 3));
+		const TPyObjPtr tuple(impl::checkedFastSequence(obj, 3));
 		if (!tuple)
 		{
 			impl::addMessageHeader("IndexTriangle");
@@ -718,7 +713,6 @@ struct PyExportTraits<prim::IndexTriangle>
 #endif
 
 }
-
 }
 
 // EOF
