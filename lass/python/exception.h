@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2009 the Initial Developer.
+ *	Copyright (C) 2004-2008 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,9 +40,11 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "lass_common.h"
-#include "pyobject_plus.h"
-#include "callback_python.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXCEPTION_H
+#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXCEPTION_H
+
+#include "python_common.h"
+#include "pyobject_ptr.h"
 
 namespace lass
 {
@@ -50,24 +52,34 @@ namespace python
 {
 namespace impl
 {
+	LASS_DLL const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
+	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc);
+}
 
-void fetchAndThrowPythonException(const std::string& loc)
+class PythonException: public util::Exception
 {
-	if (!PyErr_Occurred())
+public:
+	PythonException(
+			const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, 
+			const std::string& loc):
+		util::Exception(impl::exceptionExtractMessage(type, value), loc),
+		type_(type),
+		value_(value),
+		traceback_(traceback)
 	{
-		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
 	}
+	~PythonException() throw() {}
+	const python::TPyObjPtr& type() const { return type_; } 
+	const python::TPyObjPtr& value() const { return value_; } 
+	const python::TPyObjPtr& traceback() const { return traceback_; } 
+private:
+	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(PythonException)
+	python::TPyObjPtr type_;
+	python::TPyObjPtr value_;
+	python::TPyObjPtr traceback_;
+};
 
-	PyObject *tempType, *tempValue, *tempTraceback;
-	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
-
-	const TPyObjPtr type(tempType);
-	const TPyObjPtr value(tempValue);
-	const TPyObjPtr traceback(tempTraceback);
-
-	throw lass::python::PythonException(type, value, traceback, loc);
+}
 }
 
-}
-}
-}
+#endif

@@ -184,28 +184,6 @@ PyObject* str(PyObject* obj)
 }
 
 
-/** @internal
- */
-const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value)
-{
-	std::ostringstream buffer;
-	const TPyObjPtr typeStr(PyObject_Str(type.get()));
-	std::string temp;
-	if (typeStr && pyGetSimpleObject(typeStr.get(), temp) == 0)
-	{
-		buffer << temp;
-	}
-	else
-	{
-		buffer << "unknown python exception";
-	}
-	const TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
-	if (valueStr && pyGetSimpleObject(valueStr.get(), temp) == 0)
-	{
-		buffer << ": '" << temp << "'";
-	}
-	return buffer.str();
-}
 
 // --- OverloadLink --------------------------------------------------------------------------------
 

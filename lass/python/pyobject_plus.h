@@ -201,41 +201,6 @@ namespace lass
 		private:
 		};
 
-		namespace impl
-		{
-			LASS_DLL const std::string exceptionExtractMessage(
-					const TPyObjPtr& type, const TPyObjPtr& value);
-		}
-
-		class PythonException: public util::Exception
-		{
-		public:
-			PythonException(
-					const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, 
-					const std::string& loc):
-				util::Exception(impl::exceptionExtractMessage(type, value), loc),
-				type_(type),
-				value_(value),
-				traceback_(traceback)
-			{
-			}
-			~PythonException() throw() {}
-			const python::TPyObjPtr& type() const { return type_; } 
-			const python::TPyObjPtr& value() const { return value_; } 
-			const python::TPyObjPtr& traceback() const { return traceback_; } 
-		private:
-			LASS_UTIL_EXCEPTION_PRIVATE_IMPL(PythonException)
-			python::TPyObjPtr type_;
-			python::TPyObjPtr value_;
-			python::TPyObjPtr traceback_;
-		};
-
-		namespace impl
-		{
-			LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc);
-		}
-
-
 		/** meta function to detect if a type is a PyObject-derived type
 		*   @ingroup Python
 		*/

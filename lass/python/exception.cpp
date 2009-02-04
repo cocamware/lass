@@ -40,26 +40,55 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-
-#include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "py_stl.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
+#include "lass_common.h"
 #include "exception.h"
-#include "../meta/is_member.h"
+#include "py_stl.h"
 
-#endif
- 
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+
+const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value)
+{
+	std::ostringstream buffer;
+	const TPyObjPtr typeStr(PyObject_Str(type.get()));
+	std::string temp;
+	if (typeStr && pyGetSimpleObject(typeStr.get(), temp) == 0)
+	{
+		buffer << temp;
+	}
+	else
+	{
+		buffer << "unknown python exception";
+	}
+	const TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
+	if (valueStr && pyGetSimpleObject(valueStr.get(), temp) == 0)
+	{
+		buffer << ": '" << temp << "'";
+	}
+	return buffer.str();
+}
+
+void fetchAndThrowPythonException(const std::string& loc)
+{
+	if (!PyErr_Occurred())
+	{
+		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
+	}
+
+	PyObject *tempType, *tempValue, *tempTraceback;
+	PyErr_Fetch(&tempType, &tempValue, &tempTraceback);
+
+	const TPyObjPtr type(tempType);
+	const TPyObjPtr value(tempValue);
+	const TPyObjPtr traceback(tempTraceback);
+
+	throw lass::python::PythonException(type, value, traceback, loc);
+}
+
+}
+}
+}
