@@ -48,12 +48,10 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYOBJECT_PLUS_H
 
 #include "python_common.h"
-#include "../util/singleton.h"
+#include "pyobject_ptr.h"
 #include "../meta/is_derived.h"
 #include "../meta/select.h"
-#include "../util/shared_ptr.h"
 #include "../util/string_cast.h"
-#include "../util/thread.h"
 #include <cstdlib>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
@@ -205,125 +203,6 @@ namespace lass
 
 		namespace impl
 		{
-			/** @internal
-			 *  Fast reentrant lock for reference count operations
-			 */
-			inline util::CriticalSection& referenceMutex()
-			{
-				using namespace util;
-				return *Singleton<CriticalSection, destructionPriorityInternalPythonMutex>::instance();
-			}
-
-			/** @internal
-			 *  On creation, PyObjectPlus are typeless (ob_type == 0), 
-			 *  call this function to fix that for you.  
-			 *  Objects created in C++ should call this at least once before
-			 *  being used in Python.
-			 */
-			template <typename T> T* fixObjectType(T* iObject)
-			{
-				if (meta::IsDerived<T, PyObjectPlus>::value && 
-					iObject && !iObject->ob_type)
-				{
-					iObject->ob_type = static_cast<PyObjectPlus*>(iObject)->_lassPyGetType();
-				}
-				return iObject;
-			}
-
-		}
-
-		/** @class PyObjectStorage
-		*  @ingroup Python
-		*  @brief Recommended storage policy for single PyObject objects, implementation of StoragePolicy concept
-		*  @author Tom De Muer [TDM]
-		*  @see ObjectStorage
-		*/
-		template <typename T, typename Cascade = meta::EmptyType>
-		class PyObjectStorage: public Cascade
-		{
-		public:
-
-			typedef PyObjectStorage<T, Cascade> TSelf;
-			typedef T* TStorage;
-			typedef T* TPointer;
-			typedef T& TReference;
-
-			TStorage& storage() { return storage_; }
-			const TStorage& storage() const { return storage_; }
-
-		protected:
-
-			PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
-			explicit PyObjectStorage(T* pointee): Cascade(), storage_(impl::fixObjectType(pointee)) {}
-			PyObjectStorage(const PyObjectStorage& other): Cascade(other), storage_(other.storage_) {}
-			template <typename U> PyObjectStorage(const PyObjectStorage<U, Cascade>& other): 
-				Cascade(other), storage_(other.storage()) {}
-			TPointer pointer() const { return storage_; }
-			void dispose() { storage_ = 0; }
-			bool isNull() const { return !storage_; }
-			void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_);   }
-			static TStorage defaultStorage() { return 0; }
-		private:
-			TStorage storage_;
-		};
-
-
-		/** @class PyObjectCounter
-		*  @ingroup Python
-		*  @brief The recommended counter for the pyobject pointers, implementation of CounterPolicy concept.
-		*  @author Tom De Muer [TDM]
-		*  @see DefaultCounter
-		*/
-		class LASS_DLL PyObjectCounter
-		{
-		public:
-			typedef int TCount;
-		protected:
-			PyObjectCounter() {}
-			template <typename TStorage> void init(TStorage& /*pointee*/) {}
-			template <typename TStorage> void dispose(TStorage& /*pointee*/) {}
-			template <typename TStorage> void increment(TStorage& pointee)
-			{
-				LASS_LOCK(impl::referenceMutex())
-				{
-					Py_INCREF(pointee);
-				}
-			}
-			template <typename TStorage> bool decrement(TStorage& pointee)
-			{
-				bool r = false;
-				LASS_LOCK(impl::referenceMutex())
-				{
-					LASS_ASSERT(pointee);
-					r = pointee->ob_refcnt <=1;
-					Py_DECREF(pointee);
-				}
-				return r;
-			}
-			template <typename TStorage> TCount count(TStorage& pointee) const
-			{
-				LASS_ASSERT(pointee);
-				return pointee->ob_refcnt;
-			}
-			void swap(PyObjectCounter& /*other*/) {}
-		};
-
-		/** templated "typedef" to a python shared pointer
-		 *  @ingroup Python
-		 */
-		template<class T>
-		struct PyObjectPtr
-		{
-			typedef util::SharedPtr<T, PyObjectStorage, PyObjectCounter> Type;
-		};
-
-		/** PyObjectPtr to a PyObject
-		 *  @ingroup Python
-		 */
-		typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
-
-		namespace impl
-		{
 			LASS_DLL const std::string exceptionExtractMessage(
 					const TPyObjPtr& type, const TPyObjPtr& value);
 		}
@@ -356,63 +235,6 @@ namespace lass
 			LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc);
 		}
 
-		/** fromNakedToSharedPtrCast.
-		*   @ingroup Python
-		*   Helper function casting a PyObject coming from the Python interface to a SharedPtr
-		*   object for use in C++.  Reference counts are taken care of.
-		*/
-		template<class T>
-		lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
-		fromNakedToSharedPtrCast(PyObject* object)
-		{
-			LASS_LOCK(impl::referenceMutex()) 
-			{
-				Py_XINCREF(object);
-			}
-			return util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(static_cast<T*>(object));
-		}
-
-		/** fromSharedPtrToNakedCast.
-		*   @ingroup Python
-		*   Helper function casting an object used in C++ for use in Python.  The key operation
-		*   done here is to take care of the reference counting. Failing to use this function may
-		*   yield unexpected reference count.
-		*/
-		template<class T>
-		PyObject*
-		fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& object)
-		{
-			PyObject* const obj = object.get();
-			LASS_LOCK(impl::referenceMutex()) 
-			{
-				Py_XINCREF(obj);
-			}
-			return obj;
-		}
-
-		/** static_cast for python pointers
-		 *  @ingroup Python
-		 */  
-		template <typename Out, typename In> inline
-		Out	staticPyCast(const In& in)
-		{
-			typedef typename Out::TPointer TPtr;
-			TPtr ptr = static_cast<TPtr>(in.get());
-			Py_XINCREF(ptr);
-			return Out(ptr);
-		}
-
-		/** dynamic_cast for python pointers
-		 *  @ingroup Python
-		 */  
-		template <typename Out, typename In> inline
-		Out	dynamicPyCast(const In& in)
-		{
-			typedef typename Out::TPointer TPtr;
-			TPtr ptr = dynamic_cast<TPtr>(in.get());
-			Py_XINCREF(ptr);
-			return Out(ptr);
-		}
 
 		/** meta function to detect if a type is a PyObject-derived type
 		*   @ingroup Python
