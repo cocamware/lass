@@ -44,6 +44,7 @@
 
 #include "test_common.h"
 #include "unit_test.h"
+#include "default_arguments.h"
 
 #include "../lass/stde/range_algorithm.h"
 #include "../lass/io/logger.h"
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
 
 	io::ArgParser parser(io::fileWithoutPath(argv[0]));
 	io::ArgValue<std::string> log(parser, "l", "log", "", io::amRequired, "test_" LASS_TEST_VERSION ".log");
-	io::ArgValue<std::string> inputDir(parser, "i", "input-dir", "", io::amRequired, ".");
+	io::ArgValue<std::string> inputDir(parser, "i", "input-dir", "", io::amRequired, test::defaultInputDir);
 	io::ArgValue<std::string> outputDir(parser, "o", "output-dir", "", io::amRequired);
 	io::ArgValue<std::string> savePatterns(parser, "", "save-pattern", "", io::amRequired | io::amMultiple);
 	io::ArgParser::TArguments selectedTests;

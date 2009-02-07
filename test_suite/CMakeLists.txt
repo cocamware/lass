@@ -1,38 +1,46 @@
-set(sourcedir ${lass_SOURCE_DIR}/test_suite)
+set(sourcedir "${lass_SOURCE_DIR}/test_suite")
 
-file(GLOB test_suite_HDRS ${sourcedir}/*.h)
-file(GLOB test_suite_SRCS ${sourcedir}/*.cpp)
+file(GLOB test_suite_HDRS "${sourcedir}/*.h")
+file(GLOB test_suite_SRCS "${sourcedir}/*.cpp")
 
-set(generator ${lass_SOURCE_DIR}/tools/param_expander.py)
-set(infile ${sourcedir}/test_util_callback.cpp.in)
-set(outfile ${sourcedir}/test_util_callback.cpp)
+set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
+set(infile "${sourcedir}/test_util_callback.cpp.in")
+set(outfile "${sourcedir}/test_util_callback.cpp")
 add_custom_command(
-	OUTPUT ${outfile}
-	DEPENDS ${infile} ${generator}
-	COMMAND ${PYTHON_EXECUTABLE}
-	ARGS ${generator} ${infile} ${outfile} 3
+	OUTPUT "${outfile}"
+	DEPENDS "${infile}" "${generator}"
+	COMMAND "${PYTHON_EXECUTABLE}"
+	ARGS "${generator}" "${infile}" "${outfile}" 3
 	)
 
 foreach(fname ${test_suite_SRCS})
 	if(${fname} MATCHES "/test_[a-zA-Z0-9_]+\\.cpp")
-		get_filename_component(test_name ${fname} NAME_WE)
-		list(APPEND unit_tests ${test_name})
+		get_filename_component(test_name "${fname}" NAME_WE)
+		list(APPEND unit_tests "${test_name}")
 	endif()
 endforeach()
 list(REMOVE_DUPLICATES unit_tests)
 list(REMOVE_ITEM unit_tests "test_common")
 
-set(infile ${sourcedir}/auto_test_suite.cpp.in)
-set(outfile ${lass_BINARY_DIR}/local/auto_test_suite.cpp)
+set(infile "${sourcedir}/auto_test_suite.cpp.in")
+set(outfile "${lass_BINARY_DIR}/local/auto_test_suite.cpp")
 add_custom_command(
-	OUTPUT ${outfile}
-	DEPENDS ${infile} ${generator}
-	COMMAND ${PYTHON_EXECUTABLE}
-	ARGS ${generator} ${infile} ${outfile} ${unit_tests}
+	OUTPUT "${outfile}"
+	DEPENDS "${infile}" "${generator}"
+	COMMAND "${PYTHON_EXECUTABLE}"
+	ARGS "${generator}" "${infile}" "${outfile}" ${unit_tests}
 	)
-list(APPEND test_suite_SRCS ${outfile})
+list(APPEND test_suite_SRCS "${outfile}")
 
-include_directories(${sourcedir})
+set(infile "${sourcedir}/default_arguments.h.in")
+set(outfile "${lass_BINARY_DIR}/local/default_arguments.h")
+configure_file("${infile}" "${outfile}")
+list(APPEND test_suite_HDRS "${outfile}")
+
+include_directories(
+	"${sourcedir}"
+	"${lass_BINARY_DIR}/local"
+	)
 
 list(REMOVE_DUPLICATES test_suite_SRCS)
 add_executable(
@@ -53,11 +61,11 @@ set_target_properties(
 	)
 add_precompiled_header(
 	test_suite 
-	test_common.h 
-	${sourcedir}/test_common.cpp
+	test_common.h
+	"${sourcedir}/test_common.cpp"
 	${test_suite_SRCS}
 	)
 
 foreach(test_name ${unit_tests})
-	add_test(${test_name} test_suite --log=${test_name}.log --input-dir=${sourcedir} ${test_name})
+	add_test(${test_name} test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
 endforeach()
