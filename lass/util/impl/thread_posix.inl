@@ -48,11 +48,16 @@
 #include "../../stde/extended_string.h"
 #include "lass_errno.h"
 #include <errno.h>
-#include <pthread.h>
-#if LASS_HAVE_SCHED_H_CPU_SET_T
+#ifdef LASS_HAVE_PTHREAD_H
+#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP && !defined(_GNU_SOURCE)
+#		define _GNU_SOURCE
+#	endif
+#	include <pthread.h>
+#endif
+#if LASS_HAVE_SCHED_H
 #	include <sched.h>
 #endif
-#if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
+#if LASS_HAVE_UNISTD_H
 #	include <unistd.h>
 #endif
 #if LASS_HAVE_SYS_PROCESSOR_H
@@ -303,9 +308,9 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pthread_t tid, unsigned processor)
+void bindThread(pthread_t handle, unsigned processor)
 {
-#if LASS_HAVE_SCHED_H_CPU_SET_T
+#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
 	cpu_set_t mask;
 	if (processor == Thread::anyProcessor)
 	{
@@ -316,11 +321,11 @@ void bindThread(pthread_t tid, unsigned processor)
 		LASS_ASSERT(static_cast<int>(processor) >= 0);
 		CPU_ZERO(&mask);	
 		CPU_SET(static_cast<int>(processor), &mask);
-	}	
-	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask));
+	}
+	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask));
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
-	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, tid, cpu_id, 0));
+	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle, cpu_id, 0));
 #else
 #	error no implementation for bindThread
 #endif
