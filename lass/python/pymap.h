@@ -334,7 +334,7 @@ struct PyExportTraitsMap
 			return 1;
 		}
 		// check if we have our own PyMap object, then take a shortcut
-		if (impl::isOfType(iV, impl::PyMap::_lassPyGetStaticType()) && ((impl::PyMap*)iV)->pointsToSameContainer(oV))
+		if (impl::isOfType(iV, impl::PyMap::_lassPyClassDef.type()) && ((impl::PyMap*)iV)->pointsToSameContainer(oV))
 		{
 			return 0;
 		}

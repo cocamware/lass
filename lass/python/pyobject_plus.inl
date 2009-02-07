@@ -204,10 +204,10 @@ void addClassStaticMethod(
 {
 #if PY_VERSION_HEX >= 0x02030000 // >= 2.3
 	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
-		CppClass::_lassPyMethods.begin(), CppClass::_lassPyMethods.end(), PyMethodEqual(iMethodName));
-	if (i == CppClass::_lassPyMethods.end())
+		CppClass::_lassPyClassDef.methods_.begin(), CppClass::_lassPyClassDef.methods_.end(), PyMethodEqual(iMethodName));
+	if (i == CppClass::_lassPyClassDef.methods_.end())
 	{
-		CppClass::_lassPyMethods.insert(CppClass::_lassPyMethods.begin(), createPyMethodDef(
+		CppClass::_lassPyClassDef.methods_.insert(CppClass::_lassPyClassDef.methods_.begin(), createPyMethodDef(
 			iMethodName, iMethodDispatcher, METH_VARARGS | METH_STATIC, iDocumentation));
 		oOverloadChain = 0;
 	}
@@ -223,14 +223,14 @@ void addClassStaticMethod(
 	}
 #else
 	TStaticMembers::iterator i = ::std::find_if(
-		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iMethodName));
-	if (i == CppClass::_lassPyStatics.end())
+		CppClass::_lassPyClassDef.statics_.begin(), CppClass::_lassPyClassDef.statics_.end(), StaticMemberEqual(iMethodName));
+	if (i == CppClass::_lassPyClassDef.statics_.end())
 	{
 		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(
 			iMethodName, iMethodDispatcher, METH_VARARGS, iDocumentation)));
 		PyObject* cFunction = PyCFunction_New(methodDef, 0);
 		PyObject* descr = PyStaticMethod_New(cFunction);
-		CppClass::_lassPyStatics.push_back(createStaticMember(
+		CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(
 			iMethodName, iDocumentation, staticMemberHelperObject(descr)));
 		oOverloadChain = 0;
 	}
@@ -262,8 +262,8 @@ template <typename CppClass, typename T>
 void addClassStaticConst(const char* iName, const T& iValue)
 {
 	LASS_ASSERT(std::count_if(
-		CppClass::_lassPyStatics.begin(), CppClass::_lassPyStatics.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyStatics.push_back(createStaticMember(iName, 0, staticMemberHelperObject(iValue)));
+		CppClass::_lassPyClassDef.statics_.begin(), CppClass::_lassPyClassDef.statics_.end(), StaticMemberEqual(iName)) == 0);
+	CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(iName, 0, staticMemberHelperObject(iValue)));
 }
 
 
@@ -272,14 +272,12 @@ void addClassStaticConst(const char* iName, const T& iValue)
  */
 template <typename InnerCppClass>
 inline void addClassInnerClass(
-		TStaticMembers& oOuterStatics, const char* iInnerClassName, const char* iDocumentation)
+		ClassDefinition& outerClass, const char* iInnerClassName, const char* iDocumentation)
 {
-	LASS_ASSERT(std::count_if(InnerCppClass::_lassPyStatics.begin(), InnerCppClass::_lassPyStatics.end(), 
-		StaticMemberEqual(iInnerClassName)) == 0);
-	oOuterStatics.push_back(createStaticMember(
-		iInnerClassName, iDocumentation, staticMemberHelperType(&InnerCppClass::_lassPyType),
-		InnerCppClass::_lassPyGetParentType(), &InnerCppClass::_lassPyMethods, &InnerCppClass::_lassPyGetSetters, 
-		&InnerCppClass::_lassPyStatics));
+	LASS_ASSERT(std::count_if(outerClass.statics_.begin(), outerClass.statics_.end(), StaticMemberEqual(iInnerClassName)) == 0);
+	outerClass.statics_.push_back(createStaticMember(
+		iInnerClassName, iDocumentation, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()),
+		InnerCppClass::_lassPyGetParentType(), &InnerCppClass::_lassPyClassDef));
 }
 
 
@@ -764,9 +762,9 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 		}
 		else
 		{
-			if (!PyType_IsSubtype(iValue->ob_type , &T::_lassPyType ))
+			if (!PyType_IsSubtype(iValue->ob_type , T::_lassPyClassDef.type() ))
 			{
-				PyErr_Format(PyExc_TypeError,"not castable to %s",T::_lassPyType.tp_name);
+				PyErr_Format(PyExc_TypeError,"not castable to %s",T::_lassPyClassDef.name() );
 				return 1;
 			}
 			oV = fromNakedToSharedPtrCast<T>(iValue);

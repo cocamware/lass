@@ -57,12 +57,9 @@ namespace python
 	{
 		if (!isInitialized)
 		{
-			PyIteratorRange::_lassPyType.tp_iternext = 
+			_lassPyClassDef.type_.tp_iternext = 
 				(iternextfunc) &PyIteratorRange::PyIteratorRange_IterNext;
-			finalizePyType( PyIteratorRange::_lassPyType, *PyIteratorRange::_lassPyGetParentType(), 
-				PyIteratorRange::_lassPyMethods, PyIteratorRange::_lassPyGetSetters, 
-				PyIteratorRange::_lassPyStatics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
+			finalizePyType(_lassPyClassDef, _lassPyGetParentType());
 			isInitialized = true;
 		}
 	}

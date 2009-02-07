@@ -73,17 +73,73 @@ namespace lass
 {
 namespace python
 {
-
-PyTypeObject PyObjectPlus::_lassPyType = { PY_STATIC_FUNCTION_FORWARD( PyObjectPlus, "PyObjectPlus" ) };
-
-std::vector<PyMethodDef> initAbstractMethods()
+namespace impl
 {
-	std::vector<PyMethodDef> temp;
-	temp.push_back( impl::createPyMethodDef( 0, 0, 0, 0 ) );
-	return temp;
+
+#if PY_MAJOR_VERSION < 3
+#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+#else
+#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
+#endif
+
+ClassDefinition::ClassDefinition(const char* name, Py_ssize_t typeSize)
+{
+	PyTypeObject type = { 
+		PyVarObject_HEAD_INIT(&PyType_Type, 0)
+		(char*)name,	/*tp_name*/
+		typeSize,	/*tp_basicsize*/
+		0,	/*tp_itemsize*/
+		dealloc,	/*tp_dealloc*/
+		0,	/*tp_print*/
+		0,	/*tp_getattr*/
+		0,	/*tp_setattr*/
+		0,	/*tp_compare*/
+		repr,	/*tp_repr*/
+		0,	/*tp_as_number*/
+		0,	/*tp_as_sequence*/
+		0,	/*tp_as_mapping*/
+		0,	/*tp_hash*/
+		0,	/*tp_call */
+		str,	/*tp_str */
+		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
+		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
+		0,	/*tp_as_buffer*/
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/
+		0,	/*tp_doc*/
+		0,	/*tp_traverse*/
+		0,	/*tp_clear*/
+		0,	/*tp_richcompare*/
+		0,	/*tp_weaklistoffset*/
+		0,	/*tp_iter*/
+		0,	/*tp_iternext*/
+		0,	/*tp_methods*/
+		0,	/*tp_members*/
+		0,	/*tp_getset*/
+		0,	/*tp_base*/
+		0,	/*tp_dict*/
+		0,	/*tp_descr_get*/
+		0,	/*tp_descr_set*/
+		0,	/*tp_dictoffset*/
+		0,	/*tp_init*/
+		0,	/*tp_alloc*/
+		0,	/*tp_new*/
+		0,	/*tp_free*/
+		0,	/*tp_is_gc*/
+		0,	/*tp_bases*/
+		0,	/*tp_mro*/
+		0,	/*tp_cache*/
+		0,	/*tp_subclasses*/
+		0,	/*tp_weaklist*/
+		0,	/*tp_del*/
+	};
+	type_ = type;
+	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
+	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
+}
 
 }
-std::vector<PyMethodDef> PyObjectPlus::_lassPyMethods = initAbstractMethods();
+
+impl::ClassDefinition PyObjectPlus::_lassPyClassDef("PyObjectPlus", sizeof(PyObjectPlus));
 
 PyObjectPlus::PyObjectPlus()
 {
@@ -372,17 +428,14 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
  */
 StaticMember createStaticMember(
 		const char* iName, const char* iDocumentation, const TStaticMemberHelperPtr& iMember, 
-		PyTypeObject* iParentType, std::vector<PyMethodDef>* iMethods, 
-		std::vector<PyGetSetDef>* iGetSetters, const TStaticMembers* iStatics)
+		PyTypeObject* iParentType, ClassDefinition* iClassDef)
 {
 	StaticMember temp;
 	temp.name = iName;
 	temp.doc = iDocumentation;
 	temp.member = iMember;
 	temp.parentType = iParentType;
-	temp.methods = iMethods;
-	temp.getSetters = iGetSetters;
-	temp.statics = iStatics;
+	temp.classDef = iClassDef;
 	return temp;
 }
 		
@@ -413,68 +466,60 @@ PyGetSetDef createPyGetSetDef( const char* name, getter get, setter set, const c
 
 /** @internal
 */
-void injectStaticMembers(PyTypeObject& iPyType, const TStaticMembers& iStatics)
+void injectStaticMembers(ClassDefinition& classDef)
 {
-	for (TStaticMembers::const_iterator i = iStatics.begin(); i != iStatics.end(); ++i)
+	for (TStaticMembers::const_iterator i = classDef.statics_.begin(); i != classDef.statics_.end(); ++i)
 	{
 		PyObject* member = i->member->build();
 		if (PyType_Check(member))
 		{
 			// we have an innerclass
-			finalizePyType(*reinterpret_cast<PyTypeObject*>(member), *i->parentType, 
-				*i->methods, *i->getSetters, *i->statics, iPyType.tp_name, i->doc);
+			finalizePyType(*i->classDef, i->parentType, classDef.type_.tp_name, i->doc);
 		}
-		PyDict_SetItemString(iPyType.tp_dict, const_cast<char*>(i->name), member);
+		PyDict_SetItemString(classDef.type_.tp_dict, const_cast<char*>(i->name), member);
 	}
 }
 
 /** @internal
 *	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
-void finalizePyType(PyTypeObject& iPyType, PyTypeObject& iPyParentType, 
-	std::vector<PyMethodDef>& iMethods, std::vector<PyGetSetDef>& iGetSetters, 
-	const TStaticMembers& iStatics, const char* iModuleName, const char* iDocumentation)
+void finalizePyType(ClassDefinition& classDef, PyTypeObject* parentType, const char* iModuleName, const char* iDocumentation)
 {
+	PyTypeObject& type = classDef.type_;
 	std::string fullName;
 	if (iModuleName)
-		fullName = std::string(iModuleName) + std::string(".") + std::string(iPyType.tp_name);
+		fullName = std::string(iModuleName) + std::string(".") + std::string(type.tp_name);
 	else	// without module, aimed at utility objects, such as PySequence, PyMap
-		fullName = std::string(iPyType.tp_name);
+		fullName = std::string(type.tp_name);
 	char* fullNameCharPtr = new char[fullName.size()+1];
 	strcpy(fullNameCharPtr,fullName.c_str());
 
-	iPyType.tp_name = fullNameCharPtr;
-	iPyType.tp_methods = &iMethods[0];
-	iPyType.tp_getset = &iGetSetters[0];
-	iPyType.tp_doc = const_cast<char*>(iDocumentation);
-	iPyType.tp_base = &iPyParentType;
+	type.tp_name = fullNameCharPtr;
+	type.tp_methods = &classDef.methods_[0];
+	type.tp_getset = &classDef.getSetters_[0];
+	type.tp_doc = const_cast<char*>(iDocumentation);
+	type.tp_base = parentType;
 	// we take care of collecting garbage ourselves
-	iPyType.tp_flags &= (~Py_TPFLAGS_HAVE_GC);
-	Py_XINCREF( iPyType.tp_base );
-	LASS_ENFORCE( PyType_Ready( &iPyType ) >= 0 );
-	Py_INCREF( &iPyType ); 
-	injectStaticMembers(iPyType, iStatics);
+	type.tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+	Py_XINCREF( type.tp_base );
+	LASS_ENFORCE( PyType_Ready( &type ) >= 0 );
+	Py_INCREF( &type ); 
+	injectStaticMembers(classDef);
 }
 
-/** @internal
-*/
-void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iMethodName, 
-	const char* iDocumentation, PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
-{
-}
 
 
 
 #define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
 	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
-		if (pyType.i_protocol == 0)\
+		if (classDef.type_.i_protocol == 0)\
 		{\
-			pyType.i_protocol = new t_protocol;\
-			::memset(pyType.i_protocol, 0, sizeof(t_protocol));\
+			classDef.type_.i_protocol = new t_protocol;\
+			::memset(classDef.type_.i_protocol, 0, sizeof(t_protocol));\
 		}\
-		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(pyType.i_protocol->i_hook);\
-		pyType.i_protocol->i_hook = dispatcher;\
+		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(classDef.type_.i_protocol->i_hook);\
+		classDef.type_.i_protocol->i_hook = dispatcher;\
 		return;\
 	}\
 	/**/
@@ -484,12 +529,12 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iM
 #define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
 	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
-		if (pyType.i_protocol == 0)\
+		if (classDef.type_.i_protocol == 0)\
 		{\
-			pyType.i_protocol = new t_protocol;\
-			::memset(pyType.i_protocol, 0, sizeof(t_protocol));\
+			classDef.type_.i_protocol = new t_protocol;\
+			::memset(classDef.type_.i_protocol, 0, sizeof(t_protocol));\
 		}\
-		pyType.i_protocol->i_hook = dispatcher;\
+		classDef.type_.i_protocol->i_hook = dispatcher;\
 		return;\
 	}\
 	/**/
@@ -499,7 +544,7 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iM
 #define LASS_PY_COMPARATOR_(s_name, v_op)\
 	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
-		compareFuncs.push_back(CompareFunc(dispatcher, v_op));\
+		classDef.compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
 	}\
 		
 
@@ -507,8 +552,7 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iM
 /** @internal
  */
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const char* methodName, const char* documentation, 
 		PyCFunction dispatcher, 
 		OverloadLink& overloadChain) 
@@ -524,10 +568,10 @@ void addClassMethod(
 	// normal method mechanism
 
 	std::vector<PyMethodDef>::iterator i = std::find_if(
-		classMethods.begin(), classMethods.end(), PyMethodEqual(methodName));
-	if (i == classMethods.end())
+		classDef.methods_.begin(), classDef.methods_.end(), PyMethodEqual(methodName));
+	if (i == classDef.methods_.end())
 	{
-		classMethods.insert(classMethods.begin(), createPyMethodDef(
+		classDef.methods_.insert(classDef.methods_.begin(), createPyMethodDef(
 			methodName, dispatcher, METH_VARARGS , documentation));
 		overloadChain.setNull();
 	}
@@ -544,8 +588,7 @@ void addClassMethod(
 }
 	/**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::ComparatorSlot& methodName, const char* documentation, 
 		PyCFunction dispatcher, 
 		OverloadLink& overloadChain) 
@@ -561,8 +604,7 @@ void addClassMethod(
 
 	/**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::LenSlot& methodName, const char* documentation, 
 		lenfunc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -575,20 +617,19 @@ void addClassMethod(
 	/**/
 
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::UnarySlot& methodName, const char* documentation, 
 		unaryfunc dispatcher, 
 		OverloadLink& overloadChain) 
 {
 	if (methodName.name=="__str__")
 	{
-		pyType.tp_str = dispatcher;
+		classDef.type_.tp_str = dispatcher;
 		return;
 	}
 	if (methodName.name=="__repr__")
 	{
-		pyType.tp_repr = dispatcher;
+		classDef.type_.tp_repr = dispatcher;
 		return;
 	}
 	LASS_PY_OPERATOR_NO_OVERLOAD("__neg__", tp_as_number, PyNumberMethods, nb_negative)
@@ -607,8 +648,7 @@ void addClassMethod(
 	/**/
 
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::BinarySlot& methodName, const char* documentation, 
 		binaryfunc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -649,16 +689,15 @@ void addClassMethod(
 	/**/
 
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::TernarySlot& methodName, const char* documentation, 
 		ternaryfunc dispatcher, 
 		OverloadLink& overloadChain) 
 {
 	if (methodName.name=="__call__")
 	{
-		overloadChain.setTernaryfunc(pyType.tp_call);
-		pyType.tp_call = dispatcher;
+		overloadChain.setTernaryfunc(classDef.type_.tp_call);
+		classDef.type_.tp_call = dispatcher;
 		return;
 	}
 	LASS_ASSERT_UNREACHABLE;
@@ -666,8 +705,7 @@ void addClassMethod(
 
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::SsizeArgSlot& methodName, const char* documentation, 
 		ssizeargfunc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -679,8 +717,7 @@ void addClassMethod(
 }
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::SsizeSsizeArgSlot& methodName, const char* documentation, 
 		ssizessizeargfunc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -692,8 +729,7 @@ void addClassMethod(
 }
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::SsizeObjArgSlot& methodName, const char* documentation, 
 		ssizeobjargproc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -703,8 +739,7 @@ void addClassMethod(
 }
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::SsizeSsizeObjArgSlot& methodName, const char* documentation, 
 		ssizessizeobjargproc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -717,8 +752,7 @@ void addClassMethod(
 
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::ObjObjSlot& methodName, const char* documentation, 
 		objobjproc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -728,8 +762,7 @@ void addClassMethod(
 }
 /**/
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::ObjObjArgSlot& methodName, const char* documentation, 
 		objobjargproc dispatcher, 
 		OverloadLink& overloadChain) 
@@ -739,29 +772,27 @@ void addClassMethod(
 }
 
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::IterSlot& methodName, const char* documentation, 
 		getiterfunc dispatcher, 
 		OverloadLink& overloadChain) 
 {
 	if (methodName.name=="__iter__")
 	{
-		pyType.tp_iter = dispatcher;
+		classDef.type_.tp_iter = dispatcher;
 		return;
 	}
 	LASS_ASSERT_UNREACHABLE;
 }
 void addClassMethod(
-		PyTypeObject& pyType, 
-		std::vector<PyMethodDef>& classMethods, TCompareFuncs& compareFuncs,
+		ClassDefinition& classDef,
 		const lass::python::impl::IterNextSlot& methodName, const char* documentation, 
 		iternextfunc dispatcher, 
 		OverloadLink& overloadChain) 
 {
 	if (methodName.name=="next")
 	{
-		pyType.tp_iternext = dispatcher;
+		classDef.type_.tp_iternext = dispatcher;
 		return;
 	}
 	LASS_ASSERT_UNREACHABLE;

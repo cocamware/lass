@@ -61,10 +61,9 @@ namespace impl
 template <typename CppClass>
 inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const char* iModuleName, const char* iClassDocumentation)
 {
-	char* shortName = const_cast<char*>(CppClass::_lassPyType.tp_name); // finalizePyType will expand tp_name with module name.
-	finalizePyType(CppClass::_lassPyType, *CppClass::_lassPyGetParentType(), CppClass::_lassPyMethods, CppClass::_lassPyGetSetters,
-		CppClass::_lassPyStatics, iModuleName, iClassDocumentation);
-	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(&CppClass::_lassPyType));
+	char* shortName = const_cast<char*>(CppClass::_lassPyClassDef.name()); // finalizePyType will expand tp_name with module name.
+	finalizePyType(CppClass::_lassPyClassDef, CppClass::_lassPyGetParentType(), iModuleName, iClassDocumentation);
+	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(CppClass::_lassPyClassDef.type()));
 }
 
 class LASS_DLL ModuleDefinition: util::NonCopyable

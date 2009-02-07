@@ -218,9 +218,9 @@ public:
 
 	static TCppClass* cppObject(PyObject* iPyObject)
 	{
-		if (!PyType_IsSubtype(iPyObject->ob_type , &T::_lassPyType ))
+		if (!PyType_IsSubtype(iPyObject->ob_type , T::_lassPyClassDef.type() ))
 		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyType.tp_name);
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
 			return 0;
 		}
 		try
@@ -235,9 +235,9 @@ public:
 	};
 	static const TCppClass* constCppObject(PyObject* iPyObject)
 	{
-		if (!PyType_IsSubtype(iPyObject->ob_type , &T::_lassPyType ))
+		if (!PyType_IsSubtype(iPyObject->ob_type , T::_lassPyClassDef.type() ))
 		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyType.tp_name);
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
 			return 0;
 		}
 		return Impl<T, isShadow>::constCppObject(static_cast<T*>(iPyObject));

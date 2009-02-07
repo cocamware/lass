@@ -68,8 +68,8 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			PyMap::_lassPyType.tp_as_mapping = &pyMappingMethods;
-			PyMap::_lassPyType.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
+			_lassPyClassDef.type_.tp_as_mapping = &pyMappingMethods;
+			_lassPyClassDef.type_.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on PyMap?!
 			// switch off inheritance
@@ -77,9 +77,7 @@ namespace impl
 			PyMap::_lassPyType.tp_dictoffset = 0;
 			PyMap::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
-			finalizePyType( PyMap::_lassPyType, *PyMap::_lassPyGetParentType(), PyMap::_lassPyMethods, 
-				PyMap::_lassPyGetSetters, PyMap::_lassPyStatics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
+			finalizePyType(_lassPyClassDef, _lassPyGetParentType());
 			isInitialized = true;
 		}
 	}

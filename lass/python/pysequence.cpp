@@ -98,17 +98,14 @@ namespace impl
 		if (!isInitialized)
 		{
 			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
-			PySequence::_lassPyType.tp_as_sequence= &pySequenceMethods;
+			_lassPyClassDef.type_.tp_as_sequence= &pySequenceMethods;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on PySequence?!
 			// switch off inheritance
 			PySequence::_lassPyType.tp_dictoffset = 0;
 			PySequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
-			finalizePyType( PySequence::_lassPyType, *PySequence::_lassPyGetParentType(), 
-				PySequence::_lassPyMethods, PySequence::_lassPyGetSetters, 
-				PySequence::_lassPyStatics, NULL, NULL);
-			LASS_ENFORCE( PyType_Ready( &_lassPyType ) >= 0 );
+			finalizePyType( _lassPyClassDef, _lassPyGetParentType());
 			isInitialized = true;
 		}
 	}

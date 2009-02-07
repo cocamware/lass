@@ -56,21 +56,6 @@
 #include "../meta/is_member.h"
 #include "../meta/is_charptr.h"
 
-/** @ingroup Python
-*
-*   @deprecated Objects derived from PyObjectPlus should set this on in a clever way:
-*	impl::fixObjectType is called on an appropriate time and gets the object type through
-*	a virtual call to GetType().  If you get in a situation where ob_type seems to be NULL,
-*	try to solve the situation with a manual call to impl::fixObjectType first.
-*
-* Call this macro inside some class method, and it will set ob_type to the static type of that class.
-* Normally, you should never use this.  And if you must, then you better know what you're doing!
-*/
-/*
-#define PY_PYTHONIZE \
-	{this->ob_type = &this->_lassPyType;}
-*/
-
 // --- modules -------------------------------------------------------------------------------------
 
 /** @ingroup Python
@@ -544,16 +529,11 @@ $[
  *  @remark put each PY_DECLARE_CLASS_EX in only one translation unit.  So not in headers!
  */
 #define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier ) \
-	PyTypeObject t_cppClass::_lassPyType = {\
-		PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className ) };\
-	::std::vector<PyMethodDef> t_cppClass::_lassPyMethods;\
-	::std::vector<PyGetSetDef> t_cppClass::_lassPyGetSetters;\
-	::lass::python::impl::TStaticMembers t_cppClass::_lassPyStatics;\
-	::lass::python::impl::TCompareFuncs t_cppClass::_lassPyCompareFuncs;\
-	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPythonImplExecutePyDeclareClass_, i_uniqueClassIdentifier ),\
-		t_cppClass::_lassPyMethods.push_back( ::lass::python::impl::createPyMethodDef( 0, 0, 0, 0 ) ) ; \
-		t_cppClass::_lassPyGetSetters.push_back( ::lass::python::impl::createPyGetSetDef( 0, 0, 0, 0, 0 ) ) ; \
-)
+	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef(s_className, sizeof(t_cppClass));\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyDeclareClass, i_uniqueClassIdentifier ),\
+		t_cppClass::_lassPyClassDef.type_.tp_richcompare = ::lass::python::impl::RichCompare<t_cppClass>::call;\
+	)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_CLASS_EX for with
@@ -692,7 +672,7 @@ $[
  */
 #define PY_CLASS_INNER_CLASS_EX( t_outerCppClass, t_innerCppClass, s_name, s_doc, i_uniqueClassId )\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_uniqueClassId),\
-		::lass::python::impl::addClassInnerClass<t_innerCppClass>(t_outerCppClass::_lassPyStatics, s_name, s_doc);\
+		::lass::python::impl::addClassInnerClass<t_innerCppClass>(t_outerCppClass::_lassPyClassDef, s_name, s_doc);\
 	)
 
 /** @ingroup Python
@@ -732,9 +712,9 @@ $[
 #define PY_CLASS_PY_METHOD_EX( i_cppClass, i_cppMethod, s_methodName, s_doc  )\
 	inline PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
 	{\
-		if (!PyType_IsSubtype(iObject->ob_type , &i_cppClass::_lassPyType ))\
+		if (!PyType_IsSubtype(iObject->ob_type , i_cppClass::_lassPyClassDef.type() ))\
 		{\
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", i_cppClass::_lassPyType.tp_name);\
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", i_cppClass::_lassPyClassDef.name());\
 			return 0;\
 		}\
 		i_cppClass* object = static_cast<i_cppClass*>(iObject);\
@@ -742,8 +722,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyClassPyMethod_, i_cppClass, i_cppMethod ),\
-		i_cppClass::_lassPyMethods.insert(\
-			i_cppClass::_lassPyMethods.begin(),\
+		i_cppClass::_lassPyClassDef.methods_.insert(\
+			i_cppClass::_lassPyClassDef.methods_.begin(),\
 			::lass::python::impl::createPyMethodDef(\
 				s_methodName, (PyCFunction) LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod),\
 				METH_VARARGS, s_doc));\
@@ -911,9 +891,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, \
-			t_cppClass::_lassPyCompareFuncs,\
+			t_cppClass::_lassPyClassDef,\
 			s_methodName, \
 			s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
@@ -1212,9 +1190,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, \
-			t_cppClass::_lassPyCompareFuncs,\
+			t_cppClass::_lassPyClassDef,\
 			s_methodName, \
 			s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
@@ -1713,8 +1689,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName,\
 				LASS_CONCATENATE(i_dispatcher, _getter),\
@@ -1797,8 +1773,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE(i_dispatcher, _getter), 0, \
 				s_doc, 0));\
@@ -1921,8 +1897,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName,\
 				LASS_CONCATENATE(i_dispatcher, _freeGetter),\
@@ -2008,8 +1984,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE(i_dispatcher, _freeGetter), 0, \
 				s_doc, 0));\
@@ -2117,8 +2093,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName,\
 				LASS_CONCATENATE(i_dispatcher, _freeGetter),\
@@ -2204,8 +2180,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyGetSetters.insert(\
-			t_cppClass::_lassPyGetSetters.begin(),\
+		t_cppClass::_lassPyClassDef.getSetters_.insert(\
+			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName, LASS_CONCATENATE(i_dispatcher, _freeGetter), 0, \
 				s_doc, 0));\
@@ -2295,8 +2271,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		i_cppClass::_lassPyGetSetters.insert(\
-			i_cppClass::_lassPyGetSetters.begin(),\
+		i_cppClass::_lassPyClassDef.getSetters_.insert(\
+			i_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName,\
 				LASS_CONCATENATE(i_dispatcher, _getter),\
@@ -2385,8 +2361,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		i_cppClass::_lassPyGetSetters.insert(\
-			i_cppClass::_lassPyGetSetters.begin(),\
+		i_cppClass::_lassPyClassDef.getSetters_.insert(\
+			i_cppClass::_lassPyClassDef.getSetters_.begin(),\
 			::lass::python::impl::createPyGetSetDef(\
 				s_memberName,\
 				LASS_CONCATENATE(i_dispatcher, _getter),\
@@ -2488,8 +2464,8 @@ template < typename TClass, typename IArg > IArg secondArgGet( void (*)(TClass*,
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyType.tp_new;\
-		t_cppClass::_lassPyType.tp_new = i_dispatcher; \
+		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type_.tp_new;\
+		t_cppClass::_lassPyClassDef.type_.tp_new = i_dispatcher; \
 	)
 
 /** @ingroup Python
@@ -2570,8 +2546,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyType.tp_new;\
-		t_cppClass::_lassPyType.tp_new = i_dispatcher; \
+		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type_.tp_new;\
+		t_cppClass::_lassPyClassDef.type_.tp_new = i_dispatcher; \
 	)
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with
@@ -2601,163 +2577,6 @@ $[
 
 // --- internals -----------------------------------------------------------------------------------
 
-#if PY_MAJOR_VERSION < 3
-#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
-#else
-#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
-#endif
-
-/** @internal
- */
-#define PY_STATIC_FUNCTION_FORWARD( t_cppClass, s_className )   \
-	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
-	(char*)( s_className ),	/*tp_name*/\
-	sizeof( t_cppClass ),	/*tp_basicsize*/\
-	0,	/*tp_itemsize*/\
-	::lass::python::impl::dealloc,	/*tp_dealloc*/\
-	0,	/*tp_print*/\
-	0,	/*tp_getattr*/\
-	0,	/*tp_setattr*/\
-	0,	/*tp_compare*/\
-	::lass::python::impl::repr,	/*tp_repr*/\
-	0,	/*tp_as_number*/\
-	0,	/*tp_as_sequence*/\
-	0,	/*tp_as_mapping*/\
-	0,	/*tp_hash*/\
-	0,	/*tp_call */\
-	::lass::python::impl::str,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
-	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/\
-	0,	/*tp_doc*/\
-	0,	/*tp_traverse*/\
-	0,	/*tp_clear*/\
-	0,	/*tp_richcompare*/\
-	0,	/*tp_weaklistoffset*/\
-	0,	/*tp_iter*/\
-	0,	/*tp_iternext*/\
-	0,	/*tp_methods*/\
-	0,	/*tp_members*/\
-	0,	/*tp_getset*/\
-	0,	/*tp_base*/\
-	0,	/*tp_dict*/\
-	0,	/*tp_descr_get*/\
-	0,	/*tp_descr_set*/\
-	0,	/*tp_dictoffset*/\
-	0,	/*tp_init*/\
-	0,	/*tp_alloc*/\
-	0,	/*tp_new*/\
-	0,	/*tp_free*/\
-	0,	/*tp_is_gc*/\
-	0,	/*tp_bases*/\
-	0,	/*tp_mro*/\
-	0,	/*tp_cache*/\
-	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/\
-	0,	/*tp_del*/
-
- #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-/** @internal
- */
-#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
-	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
-	(char*)( s_className ), /*tp_name*/\
-	sizeof( t_cppClass ),	/*tp_basicsize*/\
-	0,	/*tp_itemsize*/\
-	::lass::python::impl::dealloc,	/*tp_dealloc*/\
-	0,	/*tp_print*/\
-	0,	/*tp_getattr*/\
-	0,	/*tp_setattr*/\
-	0,	/*tp_compare*/\
-	::lass::python::impl::repr,	/*tp_repr*/\
-	0,	/*tp_as_number*/\
-	0,	/*tp_as_sequence*/\
-	0,	/*tp_as_mapping*/\
-	0,	/*tp_hash*/\
-	0,	/*tp_call */\
-	::lass::python::impl::str,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
-	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/*tp_flags*/\
-	0,	/*tp_doc*/\
-	0,	/*tp_traverse*/\
-	0,	/*tp_clear*/\
-	::lass::python::impl::RichCompare<t_cppClass>::call, /*tp_richcompare*/\
-	0,	/*tp_weaklistoffset*/\
-	0,	/*tp_iter*/\
-	0,	/*tp_iternext*/\
-	0,	/*tp_methods*/\
-	0,	/*tp_members*/\
-	0,	/*tp_getset*/\
-	0,	/*tp_base*/\
-	0,	/*tp_dict*/\
-	0,	/*tp_descr_get*/\
-	0,	/*tp_descr_set*/\
-	offsetof(PyObjectPlus,dict_),	/*tp_dictoffset*/\
-	0,	/*tp_init*/\
-	0,	/*tp_alloc*/\
-	0,	/*tp_new*/\
-	0,	/*tp_free*/\
-	0,	/*tp_is_gc*/\
-	0,	/*tp_bases*/\
-	0,	/*tp_mro*/\
-	0,	/*tp_cache*/\
-	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/\
-	0,	/*tp_del*/
-#else
-/** @internal
- */
-#define PY_STATIC_FUNCTION_FORWARD_PLUS( t_cppClass, s_className )    \
-	PyVarObject_HEAD_INIT(&PyType_Type, 0) \
-	(char*)( s_className ), /*tp_name*/\
-	sizeof( t_cppClass ),	/*tp_basicsize*/\
-	0,	/*tp_itemsize*/\
-	::lass::python::impl::dealloc,	/*tp_dealloc*/\
-	0,	/*tp_print*/\
-	0,	/*tp_getattr*/\
-	0,	/*tp_setattr*/\
-	0,	/*tp_compare*/\
-	::lass::python::impl::repr,	/*tp_repr*/\
-	0,	/*tp_as_number*/\
-	0,	/*tp_as_sequence*/\
-	0,	/*tp_as_mapping*/\
-	0,	/*tp_hash*/\
-	0,	/*tp_call */\
-	::lass::python::impl::str,	/*tp_str */\
-	0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */\
-	0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */\
-	0,	/*tp_as_buffer*/\
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES,	/*tp_flags*/\
-	0,	/*tp_doc*/\
-	0,	/*tp_traverse*/\
-	0,	/*tp_clear*/\
-	::lass::python::impl::RichCompare<t_cppClass>::call, /*tp_richcompare*/\
-	0,	/*tp_weaklistoffset*/\
-	0,	/*tp_iter*/\
-	0,	/*tp_iternext*/\
-	0,	/*tp_methods*/\
-	0,	/*tp_members*/\
-	0,	/*tp_getset*/\
-	0,	/*tp_base*/\
-	0,	/*tp_dict*/\
-	0,	/*tp_descr_get*/\
-	0,	/*tp_descr_set*/\
-	0,	/*tp_dictoffset*/\
-	0,	/*tp_init*/\
-	0,	/*tp_alloc*/\
-	0,	/*tp_new*/\
-	0,	/*tp_free*/\
-	0,	/*tp_is_gc*/\
-	0,	/*tp_bases*/\
-	0,	/*tp_mro*/\
-	0,	/*tp_cache*/\
-	0,	/*tp_subclasses*/\
-	0,	/*tp_weaklist*/\
-	0,	/*tp_del*/
-#endif
 /** @internal
  */
 #define PY_CLASS_METHOD_IMPL(t_cppClass, i_cppMethod, s_methodName, s_doc, i_dispatcher, i_caller)\
@@ -2788,9 +2607,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyType,\
-			t_cppClass::_lassPyMethods, \
-			t_cppClass::_lassPyCompareFuncs,\
+			t_cppClass::_lassPyClassDef,\
 			s_methodName, \
 			s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
