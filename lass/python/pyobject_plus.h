@@ -220,42 +220,53 @@ namespace lass
 			class LASS_DLL OverloadLink
 			{
 			public:
+				enum Signature
+				{
+					sNull,
+					sPyCFunction,
+					sBinary,
+					sTernary,
+					sSsizeArg,
+					sSsizeSsizeArg,
+					sSsizeObjArg,
+					sSsizeSsizeObjArg,
+					sObjObj,
+					sObjObjArg,
+				};
 				OverloadLink();
 				void setNull();
 				void setPyCFunction(PyCFunction iOverload);
-				void setUnaryfunc(unaryfunc iOverload);
 				void setBinaryfunc(binaryfunc iOverload);
 				void setTernaryfunc(ternaryfunc iOverload);
 				
 				void setSsizeArgfunc(ssizeargfunc iOverload);
 				void setSsizeSsizeArgfunc(ssizessizeargfunc iOverload);
-				void setLenfunc(lenfunc iOverload);
 				void setSsizeObjArgProcfunc(ssizeobjargproc iOverload);
 				void setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload);
 				void setObjObjProcfunc(objobjproc iOverload);
 				void setObjObjArgProcfunc(objobjargproc iOverload);
 
-				void setIterfunc(getiterfunc iOverload);
-				void setIterNextfunc(iternextfunc iOverload);
-
 				bool operator()(PyObject* iSelf, PyObject* iArgs, 
 					PyObject*& result) const;
 			private:
-				PyCFunction pyCFunction_;
-				unaryfunc unaryfunc_;
-				binaryfunc binaryfunc_;
-				ternaryfunc ternaryfunc_;
+				PyObject* call(PyObject* iSelf, PyObject* iArgs) const;
+				union
+				{
+					PyCFunction pyCFunction_;
+					binaryfunc binaryfunc_;
+					ternaryfunc ternaryfunc_;
 
-				ssizeargfunc ssizeargfunc_;
-				ssizessizeargfunc ssizessizeargfunc_;
-				lenfunc lenfunc_;
-				ssizeobjargproc ssizeobjargproc_;
-				ssizessizeobjargproc ssizessizeobjargproc_;
-				objobjproc objobjproc_;
-				objobjargproc objobjargproc_;
+					ssizeargfunc ssizeargfunc_;
+					ssizessizeargfunc ssizessizeargfunc_;
+					ssizeobjargproc ssizeobjargproc_;
+					ssizessizeobjargproc ssizessizeobjargproc_;
+					objobjproc objobjproc_;
+					objobjargproc objobjargproc_;
 
-				getiterfunc getiterfunc_;
-				iternextfunc iternextfunc_;
+					getiterfunc getiterfunc_;
+					iternextfunc iternextfunc_;
+				};
+				Signature signature_;
 			};
 
 			template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;

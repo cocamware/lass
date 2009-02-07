@@ -194,160 +194,65 @@ OverloadLink::OverloadLink()
 
 void OverloadLink::setNull()
 {
-	pyCFunction_ = 0;
-	unaryfunc_ = 0;
-	binaryfunc_ = 0;
-	ternaryfunc_ = 0;
+	signature_ = sNull;
 }
 
 void OverloadLink::setPyCFunction(PyCFunction iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sPyCFunction : sNull;
 	pyCFunction_ = iOverload;
-}
-
-void OverloadLink::setUnaryfunc(unaryfunc iOverload)
-{
-	setNull();
-	unaryfunc_ = iOverload;
 }
 
 void OverloadLink::setBinaryfunc(binaryfunc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sBinary : sNull;
 	binaryfunc_ = iOverload;
 }
 
 void OverloadLink::setTernaryfunc(ternaryfunc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sTernary : sNull;
 	ternaryfunc_ = iOverload;
 }
 void OverloadLink::setSsizeArgfunc(ssizeargfunc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sSsizeArg : sNull;
 	ssizeargfunc_ = iOverload;
 }
 void OverloadLink::setSsizeSsizeArgfunc(ssizessizeargfunc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sSsizeSsizeArg : sNull;
 	ssizessizeargfunc_ = iOverload;
 }
-void OverloadLink::setLenfunc(lenfunc iOverload)
-{
-	setNull();
-	lenfunc_ = iOverload;
-}
+
 void OverloadLink::setSsizeObjArgProcfunc(ssizeobjargproc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sSsizeObjArg : sNull;
 	ssizeobjargproc_ = iOverload;
 }
 void OverloadLink::setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sSsizeSsizeObjArg : sNull;
 	ssizessizeobjargproc_ = iOverload;
 }
 void OverloadLink::setObjObjProcfunc(objobjproc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sObjObjArg : sNull;
 	objobjproc_ = iOverload;
 }
 void OverloadLink::setObjObjArgProcfunc(objobjargproc iOverload)
 {
-	setNull();
+	signature_ = iOverload ? sObjObjArg : sNull;
 	objobjargproc_ = iOverload;
 }
-void OverloadLink::setIterfunc(getiterfunc iOverload)
-{
-	setNull();
-	getiterfunc_ = iOverload;
-}
-void OverloadLink::setIterNextfunc(iternextfunc iOverload)
-{
-	setNull();
-	iternextfunc_ = iOverload;
-}
-
 
 bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
 {
-	PyObject* temp = 0;
-	if (pyCFunction_)
-	{
-		LASS_ASSERT(unaryfunc_ == 0 && binaryfunc_ == 0 && ternaryfunc_ == 0);
-		temp = pyCFunction_(iSelf, iArgs);
-	}
-	else if (unaryfunc_)
-	{
-		LASS_ASSERT(binaryfunc_ == 0 && ternaryfunc_ == 0);
-		if (decodeTuple(iArgs)  != 0)
-		{
-			return false;
-		}
-		temp = unaryfunc_(iSelf);
-	}
-	else if (binaryfunc_)
-	{
-		LASS_ASSERT(ternaryfunc_ == 0);
-		TPyObjPtr arg;
-		if (decodeTuple(iArgs, arg) != 0)
-		{
-			return false;
-		}
-		temp = binaryfunc_(iSelf, arg.get());
-	}
-	else if (ternaryfunc_)
-	{
-		temp = ternaryfunc_(iSelf, iArgs, 0);
-	}
-	else if (ssizeargfunc_)
-	{
-		Py_ssize_t size1;
-		if (decodeTuple(iArgs, size1) != 0)
-			return false;
-		temp = ssizeargfunc_(iSelf, size1 );
-	}
-	else if (ssizessizeargfunc_)
-	{
-		Py_ssize_t size1;
-		Py_ssize_t size2;
-		if (decodeTuple(iArgs, size1, size2) != 0)
-			return false;
-		temp = ssizessizeargfunc_(iSelf, size1, size2 );
-	}
-	else if (lenfunc_)
-	{
-		temp = pyBuildSimpleObject(lenfunc_(iSelf));
-	}
-	else if (ssizeobjargproc_)
-	{
-		Py_ssize_t size1;
-		TPyObjPtr obj1;
-		if (decodeTuple(iArgs, size1, obj1) != 0)
-			return false;
-		temp = pyBuildSimpleObject(ssizeobjargproc_(iSelf,size1,obj1.get()));
-	}
-	else if (ssizessizeobjargproc_)
-	{
-		Py_ssize_t size1;
-		Py_ssize_t size2;
-		TPyObjPtr obj1;
-		if (decodeTuple(iArgs, size1, size2, obj1) != 0)
-			return false;
-		temp = pyBuildSimpleObject(ssizessizeobjargproc_(iSelf,size1,size2,obj1.get()));
-	}
-	else if (objobjproc_)
-	{
-		TPyObjPtr obj1;
-		if (decodeTuple(iArgs, obj1) != 0)
-			return false;
-		temp = pyBuildSimpleObject(objobjproc_(iSelf,obj1.get()));		
-	}
-	else
+	if (signature_ == sNull)
 	{
 		return false;
 	}
+	PyObject* temp = call(iSelf, iArgs);
 	if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
 	{
 		PyErr_Clear();
@@ -356,6 +261,89 @@ bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oRes
 	}
 	oResult = temp;
 	return true;
+}
+
+PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
+{
+	switch (signature_)
+	{
+	case sNull:
+		return 0;
+
+	case sPyCFunction:
+		return pyCFunction_(iSelf, iArgs);
+
+	case sBinary:
+		{
+			TPyObjPtr arg;
+			if (decodeTuple(iArgs, arg) != 0)
+			{
+				return 0;
+			}
+			return binaryfunc_(iSelf, arg.get());
+		}
+
+	case sTernary:
+		return ternaryfunc_(iSelf, iArgs, 0);
+
+	case sSsizeArg:
+		{
+			Py_ssize_t size1;
+			if (decodeTuple(iArgs, size1) != 0)
+			{
+				return false;
+			}
+			return ssizeargfunc_(iSelf, size1 );
+		}
+
+	case sSsizeSsizeArg:
+		{
+			Py_ssize_t size1;
+			Py_ssize_t size2;
+			if (decodeTuple(iArgs, size1, size2) != 0)
+			{
+				return 0;
+			}
+			return ssizessizeargfunc_(iSelf, size1, size2 );
+		}
+	
+	case sSsizeObjArg:
+		{
+			Py_ssize_t size1;
+			TPyObjPtr obj1;
+			if (decodeTuple(iArgs, size1, obj1) != 0)
+			{
+				return 0;
+			}
+			return pyBuildSimpleObject(ssizeobjargproc_(iSelf,size1,obj1.get()));
+		}
+
+	case sSsizeSsizeObjArg:
+		{
+			Py_ssize_t size1;
+			Py_ssize_t size2;
+			TPyObjPtr obj1;
+			if (decodeTuple(iArgs, size1, size2, obj1) != 0)
+			{
+				return 0;
+			}
+			return pyBuildSimpleObject(ssizessizeobjargproc_(iSelf,size1,size2,obj1.get()));
+		}
+
+	case sObjObj:
+		{
+			TPyObjPtr obj1;
+			if (decodeTuple(iArgs, obj1) != 0)
+			{
+				return 0;
+			}
+			return pyBuildSimpleObject(objobjproc_(iSelf,obj1.get()));		
+		}
+
+	default:
+		PyErr_SetString(PyExc_AssertionError, "OverloadChain: invalid signature type");
+		return 0;
+	};
 }
 
 
@@ -477,20 +465,6 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iM
 
 
 
-#define LASS_PY_OPERATOR(s_name, i_protocol, t_protocol, i_hook, i_nary)\
-	if (strcmp(methodName, s_name) == 0)\
-	{\
-		if (pyType.i_protocol == 0)\
-		{\
-			pyType.i_protocol = new t_protocol;\
-			::memset(pyType.i_protocol, 0, sizeof(t_protocol));\
-		}\
-		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(pyType.i_protocol->i_hook);\
-		pyType.i_protocol->i_hook = LASS_CONCATENATE(dispatcher, i_nary);\
-		return;\
-	}\
-	/**/
-
 #define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
 	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
@@ -506,12 +480,20 @@ void addModuleFunction(std::vector<PyMethodDef>& ioModuleMethods, const char* iM
 	/**/
 
 
-#define LASS_PY_COMPARATOR(s_name, v_op)\
-	if (strcmp(methodName, s_name) == 0)\
+
+#define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
+	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
-		compareFuncs.push_back(CompareFunc(dispatcher, v_op));\
+		if (pyType.i_protocol == 0)\
+		{\
+			pyType.i_protocol = new t_protocol;\
+			::memset(pyType.i_protocol, 0, sizeof(t_protocol));\
+		}\
+		pyType.i_protocol->i_hook = dispatcher;\
+		return;\
 	}\
 	/**/
+
 
 
 #define LASS_PY_COMPARATOR_(s_name, v_op)\
@@ -585,9 +567,9 @@ void addClassMethod(
 		lenfunc dispatcher, 
 		OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__len__", tp_as_sequence, PySequenceMethods, sq_length, Len) 
-	LASS_PY_OPERATOR_("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length, Len) 
-	LASS_PY_OPERATOR_("__map_len__", tp_as_mapping, PyMappingMethods, mp_length, Len) 
+	LASS_PY_OPERATOR_NO_OVERLOAD("__len__", tp_as_sequence, PySequenceMethods, sq_length) 
+	LASS_PY_OPERATOR_NO_OVERLOAD("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length) 
+	LASS_PY_OPERATOR_NO_OVERLOAD("__map_len__", tp_as_mapping, PyMappingMethods, mp_length) 
 	LASS_ASSERT_UNREACHABLE;
 }
 	/**/
@@ -609,16 +591,16 @@ void addClassMethod(
 		pyType.tp_repr = dispatcher;
 		return;
 	}
-	LASS_PY_OPERATOR_("__neg__", tp_as_number, PyNumberMethods, nb_negative, Unary)
-	LASS_PY_OPERATOR_("__pos__", tp_as_number, PyNumberMethods, nb_positive, Unary)
-	LASS_PY_OPERATOR_("__abs__", tp_as_number, PyNumberMethods, nb_absolute, Unary)
-	LASS_PY_OPERATOR_("__invert__", tp_as_number, PyNumberMethods, nb_invert, Unary)
-	LASS_PY_OPERATOR_("__int__", tp_as_number, PyNumberMethods, nb_int, Unary)
-	LASS_PY_OPERATOR_("__long__", tp_as_number, PyNumberMethods, nb_long, Unary)
-	LASS_PY_OPERATOR_("__float__", tp_as_number, PyNumberMethods, nb_float, Unary)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__neg__", tp_as_number, PyNumberMethods, nb_negative)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__pos__", tp_as_number, PyNumberMethods, nb_positive)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__abs__", tp_as_number, PyNumberMethods, nb_absolute)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
 #if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__oct__", tp_as_number, PyNumberMethods, nb_oct, Unary)
-	LASS_PY_OPERATOR_("__hex__", tp_as_number, PyNumberMethods, nb_hex, Unary)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__oct__", tp_as_number, PyNumberMethods, nb_oct)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__hex__", tp_as_number, PyNumberMethods, nb_hex)
 #endif
 	LASS_ASSERT_UNREACHABLE;
 }
@@ -765,7 +747,6 @@ void addClassMethod(
 {
 	if (methodName.name=="__iter__")
 	{
-		overloadChain.setIterfunc(pyType.tp_iter);
 		pyType.tp_iter = dispatcher;
 		return;
 	}
@@ -780,7 +761,6 @@ void addClassMethod(
 {
 	if (methodName.name=="next")
 	{
-		overloadChain.setIterNextfunc(pyType.tp_iternext);
 		pyType.tp_iternext = dispatcher;
 		return;
 	}
