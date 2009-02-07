@@ -270,8 +270,7 @@ struct ZeroRaiser
 		//LASS_ASSERT(iRc == -1);
 		const int errnum = lass_errno();
 		std::ostringstream buffer;
-		buffer << "Function call " << locus << " failed with errno: ("
-			<< errnum << ") " << lass_strerror(errnum);			
+		buffer << "Function call " << locus << " failed with: " << lass_strerror(errnum);			
 		raiserAddMessage(buffer, message);
 		LASS_THROW_EX(EnforceFailure, buffer.str());
 	}

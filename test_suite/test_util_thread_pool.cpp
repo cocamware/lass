@@ -97,6 +97,9 @@ namespace thread_pool
 
 void testUtilNumberOfProcessors()
 {
+	LASS_COUT << "numberOfProcessors: " << util::numberOfProcessors() << "\n";
+	LASS_COUT << "numberOfAvailableProcessors: " << util::numberOfAvailableProcessors() << "\n";
+
 	LASS_TEST_CHECK(util::numberOfProcessors() > 0);
 	LASS_TEST_CHECK(util::numberOfAvailableProcessors() > 0);
 	LASS_TEST_CHECK(util::numberOfAvailableProcessors() <= util::numberOfProcessors());

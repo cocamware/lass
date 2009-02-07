@@ -52,7 +52,7 @@
 #if LASS_HAVE_SCHED_H_CPU_SET_T
 #	include <sched.h>
 #endif
-#if LASS_HAVE_UNISTD_H_SC_CPUID_MAX
+#if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
 #	include <unistd.h>
 #endif
 #if LASS_HAVE_SYS_PROCESSOR_H
@@ -86,8 +86,8 @@ const unsigned numberOfProcessors()
 	static unsigned n = 0;
 	if (n == 0)
 	{
-#if LASS_HAVE_UNISTD_H_SC_CPUID_MAX
-		n = static_cast<unsigned>(sysconf(_SC_CPUID_MAX));
+#if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
+		n = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_CONF));
 #elif LASS_HAVE_SCHED_H_CPU_SET_T
 		const cpu_set_t mask = availableProcessorsMask();
 		for (int i = 0; i < CPU_SETSIZE; ++i)
@@ -110,7 +110,7 @@ const bool isAvailableProcessor(unsigned processor)
 	cpu_set_t mask = availableProcessorsMask();
 	return CPU_ISSET(static_cast<int>(processor), &mask);
 #elif LASS_HAVE_SYS_PROCESSOR_H
-	const int r = LASS_ENFORCE_CLIB(p_online(P_STATUS, static_cast<processorid_t>(processor)));
+	const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(processor), P_STATUS))("processor=")(processor);
 	return r == P_ONLINE || r == P_NOINTR;
 #else
 #	error no implementation for isAvailableProcessor()
@@ -303,7 +303,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pid_t pid, unsigned processor)
+void bindThread(pthread_t tid, unsigned processor)
 {
 #if LASS_HAVE_SCHED_H_CPU_SET_T
 	cpu_set_t mask;
@@ -317,10 +317,10 @@ void bindThread(pid_t pid, unsigned processor)
 		CPU_ZERO(&mask);	
 		CPU_SET(static_cast<int>(processor), &mask);
 	}	
-	LASS_ENFORCE_CLIB(sched_setaffinity(pid, sizeof(cpu_set_t), &mask));
+	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask));
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
-	LASS_ENFORCE_CLIB(processor_bind(P_PID, pid, cpu_id, 0));
+	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, tid, cpu_id, 0));
 #else
 #	error no implementation for bindThread
 #endif
@@ -388,7 +388,7 @@ public:
 
 	void bind(size_t processor)
 	{
-		bindThread(tid_, processor);
+		bindThread(handle_, processor);
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)
@@ -440,7 +440,7 @@ public:
 
 	static void bindCurrent(size_t processor)
 	{
-		bindThread(0, processor);
+		bindThread(pthread_self(), processor);
 	}
 
 	// thread function
@@ -448,7 +448,7 @@ public:
 	{
 		LASS_ASSERT(iPimpl);
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
-		pimpl->tid_ = getpid();
+		pimpl->pid_ = getpid();
 		pimpl->isCreated_ = true;
 		if (pimpl->isJoinable_)
 		{
@@ -487,7 +487,7 @@ private:
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
 	std::auto_ptr<experimental::RemoteExceptionBase> error_;
-	pid_t tid_;
+	pid_t pid_;
 	volatile bool isJoinable_;
 	volatile bool isCreated_;
 };

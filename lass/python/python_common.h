@@ -91,8 +91,11 @@
 // Undefing it before including Python.h will suppress that warning.
 // Remove this once Python plays nice again. 
 // [Bramz]
-#if defined(_POSIX_C_SOURCE)
+#if defined(LASS_HAVE_PYTHON_POSIX_C_SOURCE)
 #	undef _POSIX_C_SOURCE
+#endif
+#if defined(LASS_HAVE_PYTHON_FILE_OFFSET_BITS)
+#	undef _FILE_OFFSET_BITS
 #endif
 
 #if defined(_DEBUG) && LASS_PYTHON_HAS_DEBUG_BUILD == 0

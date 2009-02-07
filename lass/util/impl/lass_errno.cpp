@@ -82,47 +82,50 @@ void lass_reset_errno()
  *  @ingroup LassErrno
  *  @internal
  */
-const std::string lass_strerror(int iErrnum)
+const std::string lass_strerror(int errnum)
 {
+	const char* msg = 0;
+
 #if LASS_HAVE_FUNC_STRERROR_R
 
         const size_t bufferLength = 256;
         char buffer[bufferLength + 1];
         errno = 0;
 #       if LASS_HAVE_STRERROR_R_CHAR_P
-        const char* result = ::strerror_r(iErrnum, buffer, bufferLength);
+        msg = ::strerror_r(errnum, buffer, bufferLength);
         if (errno != 0)
         {
-                result = 0;
+		msg = "[no error message due to strerror_r failure]";
         }
 #       else
-        const int rc = ::strerror_r(iErrnum, buffer, bufferLength);
-        const char* result = (rc != 0 && errno == EINVAL) ? buffer : 0;
+        const int rc = ::strerror_r(errnum, buffer, bufferLength);
+        msg = (rc == 0) ? buffer : "[no error message due to strerror_r failure]";
 #       endif
-        return result ? std::string(buffer) : std::string("[no error message due to strerror_r failure]");
+	if (!msg)
+	{
+                msg = "[no error message due to strerror_r failure]";
+	}
         
 #elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
 #       if LASS_COMPILER_VERSION >= 1400
         const size_t bufferLength = 256;
         char buffer[bufferLength + 1];
-        const errno_t rc = strerror_s(buffer, bufferLength, iErrnum);
-        if (rc != 0)
-        {
-                return "[no error message due to strerror_s failure]";
-        }
-        return std::string(buffer);
+        const errno_t rc = strerror_s(buffer, bufferLength, errnum);
+	msg = (rc == 0) ? buffer : "[no error message due to strerror_s failure]";
 #       else
-        return strerror(iErrnum);
+        msg = strerror(errnum);
 #       endif
 
-#else
-
-        std::ostringstream buffer;
-        buffer << "errnum " << iErrnum;
-        return buffer.str();
-        
 #endif
+
+        std::ostringstream stream;
+        stream << "errno " << errnum;
+	if (msg)
+	{
+		stream << ": " << msg;
+	}
+        return stream.str();
 }
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32

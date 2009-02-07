@@ -78,7 +78,7 @@
 #cmakedefine LASS_HAVE_LIMITS_H 1
 #cmakedefine LASS_HAVE_TERMIOS_H 1
 #cmakedefine LASS_HAVE_UNISTD_H 1
-#cmakedefine LASS_HAVE_UNISTD_H_SC_CPUID_MAX 1
+#cmakedefine LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF 1
 #cmakedefine LASS_HAVE_STDINT_H 1
 #cmakedefine LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
 #cmakedefine LASS_HAVE_PTHREAD_H 1
@@ -105,6 +105,9 @@
 #cmakedefine LASS_HAVE_HP_PTHREADS 1
 
 #cmakedefine LASS_HAVE_BIG_ENDIAN 1
+
+#cmakedefine LASS_HAVE_PYTHON_POSIX_C_SOURCE 1
+#cmakedefine LASS_HAVE_PYTHON_FILE_OFFSET_BITS 1
 
 #endif
 
