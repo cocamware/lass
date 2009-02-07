@@ -48,6 +48,7 @@
 #include "py_tuple.h"
 #include "pyshadow_object.h"
 #include "argument_traits.h"
+#include "exception.h"
 #include "../util/call_traits.h"
 #include "../meta/if.h"
 #include "../meta/select.h"
