@@ -98,7 +98,7 @@ void BinaryOStream::flush()
 }
 
 
-#if !LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
+#if !defined(LASS_HAVE_STDINT_H_INT8_T_IS_CHAR)
 
 BinaryOStream& BinaryOStream::operator<<( char x )
 {

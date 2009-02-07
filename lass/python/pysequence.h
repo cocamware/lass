@@ -50,6 +50,7 @@
 #include "python_common.h"
 #include "pyobject_plus.h"
 #include "pyobject_util.h"
+#include "exception.h"
 #include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
 
