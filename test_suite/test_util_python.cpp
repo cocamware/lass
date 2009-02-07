@@ -74,7 +74,7 @@ void testUtilPython()
 	::fclose(fp);
 
 #if PY_MAJOR_VERSION < 3
-	PyImport_AppendInittab("embedding", initembedding);
+	PyImport_AppendInittab((char*)"embedding", initembedding);
 #else
 	PyImport_AppendInittab("embedding", PyInit_embedding);
 #endif

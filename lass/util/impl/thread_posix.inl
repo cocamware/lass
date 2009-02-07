@@ -85,9 +85,11 @@ const unsigned numberOfProcessors()
 {
 	static unsigned n = 0;
 	if (n == 0)
+	{
 #if LASS_HAVE_UNISTD_H_SC_CPUID_MAX
 		n = static_cast<unsigned>(sysconf(_SC_CPUID_MAX));
 #elif LASS_HAVE_SCHED_H_CPU_SET_T
+		const cpu_set_t mask = availableProcessorsMask();
 		for (int i = 0; i < CPU_SETSIZE; ++i)
 		{
 			if (CPU_ISSET(i, &mask))
@@ -95,9 +97,11 @@ const unsigned numberOfProcessors()
 				n = i + 1;
 			}
 		}
+#else
+#	error no implementation for numberOfProcessors()
+#endif
 	}
 	return n;
-#endif
 }
 
 const bool isAvailableProcessor(unsigned processor)
@@ -109,7 +113,7 @@ const bool isAvailableProcessor(unsigned processor)
 	const int r = LASS_ENFORCE_CLIB(p_online(P_STATUS, static_cast<processorid_t>(processor)));
 	return r == P_ONLINE || r == P_NOINTR;
 #else
-#	error no implementation of isAvailableProcessor()
+#	error no implementation for isAvailableProcessor()
 #endif
 }
 

@@ -41,6 +41,7 @@
  */
 
 #include <cctype>
+#include <limits>
 #include "extended_string.h"
 
 // --- implemenation details -----------------------------------------------------------------------

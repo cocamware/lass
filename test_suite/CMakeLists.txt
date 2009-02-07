@@ -66,6 +66,7 @@ add_precompiled_header(
 	${test_suite_SRCS}
 	)
 
+list(SORT unit_tests)
 foreach(test_name ${unit_tests})
 	add_test(${test_name} test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
 endforeach()

@@ -46,8 +46,20 @@ if(LASS_HAVE_STDINT_H)
 endif()
 
 CHECK_INCLUDE_FILE("sched.h" LASS_HAVE_SCHED_H)
-if(LASS_HAVE_SCHED_H)
-	CHECK_SYMBOL_EXISTS("cpu_set_t" "sched.h" LASS_HAVE_SCHED_H_CPU_SET_T)
+if(LASS_HAVE_STDINT_H)
+	if ("LASS_HAVE_SCHED_H_CPU_SET_T" MATCHES "^LASS_HAVE_SCHED_H_CPU_SET_T$")
+		message(STATUS "Looking for cpu_set_t")
+		try_compile(
+			LASS_HAVE_SCHED_H_CPU_SET_T
+			"${lass_BINARY_DIR}/local"
+			"${lass_SOURCE_DIR}/lass/config/check_sched_h_cpu_set_t.cpp"
+			)
+		if(LASS_HAVE_SCHED_H_CPU_SET_T)
+			message(STATUS "Looking for cpu_set_t - found")
+		else()
+			message(STATUS "Looking for cpu_set_t - not found")
+		endif()
+	endif()
 endif()
 
 CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)

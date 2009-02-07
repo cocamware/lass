@@ -46,6 +46,8 @@
 #	pragma warning(disable: 4996) // this function or variable may be unsafe
 #endif
 
+#include <cstring>
+
 namespace lass
 {
 namespace util
