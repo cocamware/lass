@@ -382,8 +382,8 @@ namespace spat
 		/* remove a vertex from the mesh 
 		*  no guarantees on any mesh properties afterwards, so be careful!
 		*  the most imminent property that is removed is convexness, this shall be corrected later on!
+		*  [TODO] keep convexness constraint
 		*/
-#pragma LASS_TODO("Keep convexness constraint")
 		bool removeVertex(TEdge* iEdge);
 
 		static  bool inPrimaryMesh( const TEdge* iEdge );
@@ -1452,7 +1452,7 @@ continueSearch:
 					continue;
 				}
 				TEdge* ce = e;
-#pragma LASS_TODO("Optimize")
+				// [TODO] Optimize
 				// this for loop is introduced for point location in non-triangular, general
 				// convex cells
 				size_t loopOrder = chainOrder(e)-2;

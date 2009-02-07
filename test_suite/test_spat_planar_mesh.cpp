@@ -588,7 +588,7 @@ void testSpatPlanarMesh()
 					testPoly.add( TPoint2D(85+d*i,75-d*i) );
 					testPoly.add( TPoint2D(85-d*i,85+d*i) );
 					testPoly.add( TPoint2D(75+d*i,85-d*i) );
-					testMesh4.insertPolygon( testPoly, intHandles[0],intHandles[0],intHandles[1] );
+					testMesh4.insertPolygon( testPoly, intHandles[0],intHandles[1] );
 					//testMesh4.insertPolygon( testPoly, intHandles[0],intHandles[0],intHandles[1] );
 					//std::cout << "Marking " << i << " polygons, edgecount = " << testMesh4.edgeCount() << "\n";
 					//testMesh4.markPolygon( testMesh4.locate(testPoly1[0]), testPoly1, intHandles[3] );
@@ -625,7 +625,7 @@ void testSpatPlanarMesh()
 		//TPlanarMesh::TLineSegment2D lineSegment(TPlanarMesh::TPoint2D(10,10), TPlanarMesh::TPoint2D(88,70) );
 		TPlanarMesh::TLineSegment2D lineSegment(TPlanarMesh::TPoint2D(30,40), TPlanarMesh::TPoint2D(88,40) );
 		testMesh4.walk( lineSegment, std::back_inserter(crossedEdges) );
-		for (int i=0;i<crossedEdges.size();++i)
+		for (size_t i=0;i<crossedEdges.size();++i)
 		{
 			colorEdges.toMatlabOStream( crossedEdges[i] );
 		}

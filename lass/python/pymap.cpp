@@ -93,9 +93,6 @@ namespace impl
 		delete pimpl_;
 	}
 	
-
-#pragma LASS_TODO("check the IPO for a PyMap type")
-
 	Py_ssize_t PyMap::PyMap_Length( PyObject* iPO)
 	{
 		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Length();
@@ -111,12 +108,10 @@ namespace impl
 		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_AssSubscript(iKey, iValue);
 	}
 
-
 	PyObject* PyMap::PyMap_Iter( PyObject* iPO)
 	{
 		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Iter();
 	}
-
 
 }
 
