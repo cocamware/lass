@@ -231,13 +231,13 @@ endif()
 	
 install(
 	TARGETS lass
-	EXPORT LassTargets
+	EXPORT LassExports
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib)
 	
 install(
-	EXPORT LassTargets
+	EXPORT LassExports
 	DESTINATION lib
 	)
 
@@ -264,13 +264,16 @@ install(
 	
 configure_file(
 	${lass_SOURCE_DIR}/LassConfig.cmake.in
-	${lass_BINARY_DIR}/local/LassConfig.cmake
+	${lass_BINARY_DIR}/LassConfig.cmake
 	@ONLY
 	)
 install(
-	FILES ${lass_BINARY_DIR}/local/LassConfig.cmake
+	FILES ${lass_BINARY_DIR}/LassConfig.cmake
 	DESTINATION lib
 	)
+	
+# Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
+export(TARGETS lass FILE ${lass_BINARY_DIR}/LassBuildExports.cmake)
 
 
 	

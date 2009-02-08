@@ -1,4 +1,10 @@
 get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include(${SELF_DIR}/LassTargets.cmake)
-get_filename_component(lass_INCLUDE_DIRS "${SELF_DIR}/../include" ABSOLUTE)
-list(APPEND lass_INCLUDE_DIRS @PYTHON_INCLUDE_PATH@)
+if(EXISTS "${SELF_DIR}/LassBuildExports.cmake")
+	# we're in the build tree, use the build tree exports
+	include("${SELF_DIR}/LassBuildExports.cmake")
+	set(lass_INCLUDE_DIRS "@lass_SOURCE_DIR@")
+else()
+	include("${SELF_DIR}/LassExports.cmake")
+	get_filename_component(lass_INCLUDE_DIRS "${SELF_DIR}/../include" ABSOLUTE)
+endif()
+list(APPEND lass_INCLUDE_DIRS "@PYTHON_INCLUDE_PATH@")
