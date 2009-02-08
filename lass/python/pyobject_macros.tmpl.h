@@ -523,62 +523,50 @@ $[
  *		the type of the class to be brought alive
  *	@param s_className
  *		the name of class as shown in Python (zero terminated C string)
- *	@param i_uniqueClassIdentifier
- *		a unique identifier for household stuff
+ *  @param s_doc
+ *		doc string of class (zero terminated C string)
  *
- *  @remark put each PY_DECLARE_CLASS_EX in only one translation unit.  So not in headers!
+ *  @remark put each PY_DECLARE_CLASS_NAME_DOC in only one translation unit.  So not in headers!
  */
-#define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier ) \
-	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef(s_className, sizeof(t_cppClass));\
-	LASS_EXECUTE_BEFORE_MAIN_EX\
-	( LASS_CONCATENATE( lassExecutePyDeclareClass, i_uniqueClassIdentifier ),\
-		t_cppClass::_lassPyClassDef.type_.tp_richcompare = ::lass::python::impl::RichCompare<t_cppClass>::call;\
-	)
+#define PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, s_doc ) \
+	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef( \
+		s_className, s_doc, sizeof(t_cppClass), \
+		::lass::python::impl::RichCompare<t_cppClass>::call);
 
 /** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_CLASS_EX for with
- *  @a i_uniqueClassIdentifier = @a i_cppClass
+ *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
+ *  @a s_doc = 0
  */
-#define PY_DECLARE_CLASS_NAME( i_cppClass, s_className )\
-	PY_DECLARE_CLASS_EX( i_cppClass, s_className, i_cppClass )
+#define PY_DECLARE_CLASS_NAME( t_cppClass, s_className )\
+	PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, 0 )
 
 /** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_CLASS_EX for with
- *  @a i_uniqueClassIdentifier = @a i_cppClass and @a s_className = # @a i_cppClass
+ *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
+ *  @a s_className = # @a i_cppClass
+ */
+#define PY_DECLARE_CLASS_DOC( i_cppClass, s_doc ) \
+	PY_DECLARE_CLASS_NAME_DOC( i_cppClass, LASS_STRINGIFY(i_cppClass), s_doc )
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
+ *  @a s_className = # @a i_cppClass, @a s_doc = 0
  */
 #define PY_DECLARE_CLASS( i_cppClass ) \
-	PY_DECLARE_CLASS_EX( i_cppClass, LASS_STRINGIFY(i_cppClass), i_cppClass );
+	PY_DECLARE_CLASS_NAME_DOC( i_cppClass, LASS_STRINGIFY(i_cppClass), 0 )
+
+/** @ingroup Python
+ *  @deprecated use PY_DECLARE_CLASS_NAME_DOC instead
+ */
+#define PY_DECLARE_CLASS_EX( t_cppClass, s_className, i_uniqueClassIdentifier )\
+	PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, 0 )
 
 
+//#define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
+//	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_cppClass )
 
-#define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
-	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_cppClass )
+//#define PY_DECLARE_CLASS_PLUS( i_cppClass ) \
+//	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
 
-#define PY_DECLARE_CLASS_PLUS( i_cppClass ) \
-	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
-
-
-///** @ingroup Python
-// *  Inject a class in a module
-// *
-// *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
-// *	function called by main.
-// *
-// *  @param t_cppClass
-// *		the type of the class to be injected
-// *	@param i_module
-// *		the identifier of the module object to inject the class in.
-// *	@param s_doc
-// *		documentation of class as shown in Python (zero terminated C string)
-// */
-//    // executing this before the main has unwanted consequences: the module or python interpreter may not yet have been
-//	// initialized
-//namespace impl { typedef std::pair< std::string, PyObject* > TPairStringPyObject; }
-//#define PY_MODULE_CLASS( i_module, t_cppClass, s_doc ) \
-//	LASS_EXECUTE_BEFORE_MAIN( {\
-//		impl::TPairStringPyObject classForModule = ::lass::python::impl::prepareClassForModuleInjection< t_cppClass >(LASS_STRINGIFY(i_module), s_doc);\
-//		LASS_CONCATENATE( lassPythonModuleObjects_, i_module ).push_back( classForModule );\
-//	} )
 
 
 /** @ingroup Python
@@ -596,7 +584,8 @@ $[
  *		documentation of class as shown in Python (zero terminated C string)
  */
 #define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
-	i_module.injectClass< t_cppClass >( s_doc ); 
+	if (s_doc) t_cppClass::_lassPyClassDef.setDoc(s_doc);\
+	i_module.injectClass(t_cppClass::_lassPyClassDef, t_cppClass::_lassPyGetParentType()); 
 
 ///** @ingroup Python
 // *  @deprecated

@@ -231,7 +231,7 @@ void addClassStaticMethod(
 		PyObject* cFunction = PyCFunction_New(methodDef, 0);
 		PyObject* descr = PyStaticMethod_New(cFunction);
 		CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(
-			iMethodName, iDocumentation, staticMemberHelperObject(descr)));
+			iMethodName, staticMemberHelperObject(descr)));
 		oOverloadChain = 0;
 	}
 	else
@@ -263,7 +263,7 @@ void addClassStaticConst(const char* iName, const T& iValue)
 {
 	LASS_ASSERT(std::count_if(
 		CppClass::_lassPyClassDef.statics_.begin(), CppClass::_lassPyClassDef.statics_.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(iName, 0, staticMemberHelperObject(iValue)));
+	CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(iName, staticMemberHelperObject(iValue)));
 }
 
 
@@ -272,11 +272,15 @@ void addClassStaticConst(const char* iName, const T& iValue)
  */
 template <typename InnerCppClass>
 inline void addClassInnerClass(
-		ClassDefinition& outerClass, const char* iInnerClassName, const char* iDocumentation)
+		ClassDefinition& outerDef, const char* name, const char* doc)
 {
-	LASS_ASSERT(std::count_if(outerClass.statics_.begin(), outerClass.statics_.end(), StaticMemberEqual(iInnerClassName)) == 0);
-	outerClass.statics_.push_back(createStaticMember(
-		iInnerClassName, iDocumentation, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()),
+	if (doc)
+	{
+		InnerCppClass::_lassPyClassDef.setDoc(doc);
+	}
+	LASS_ASSERT(std::count_if(outerDef.statics_.begin(), outerDef.statics_.end(), StaticMemberEqual(name)) == 0);
+	outerDef.statics_.push_back(createStaticMember(
+		name, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()),
 		InnerCppClass::_lassPyGetParentType(), &InnerCppClass::_lassPyClassDef));
 }
 

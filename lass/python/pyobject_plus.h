@@ -154,7 +154,6 @@ namespace lass
 				PyTypeObject* parentType;
 				ClassDefinition* classDef;
 				const char* name;
-				const char* doc;
 			};
 			typedef std::vector<StaticMember> TStaticMembers;
 
@@ -189,10 +188,12 @@ namespace lass
 			class LASS_DLL ClassDefinition
 			{
 			public:
-				ClassDefinition(const char* name, Py_ssize_t typeSize);
+				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp);
 				PyTypeObject* const type() { return &type_; }
 				const PyTypeObject* const type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }
+				const char* doc() const { return type_.tp_doc; }
+				void setDoc(const char* doc) { type_.tp_doc = doc; } ///< @a doc must be valid until another one is set
 				typedef std::vector<PyMethodDef> TMethods;
 				typedef std::vector<PyGetSetDef> TGetSetters;
 				// currently, these are public to easy the transformation, but they will become private one day ...
@@ -376,6 +377,7 @@ namespace lass
 			/**	@ingroup
 			 *	@internal
 			 */
+			/*
 			template <PyCFunction DispatcherAddress>
 			struct DispatcherConvertor
 			{
@@ -391,7 +393,7 @@ namespace lass
 					return DispatcherAddress(iSelf, iArgs);
 				}
 			};
-
+			*/
 
 			/**	@ingroup
 			 *	@internal
@@ -476,7 +478,7 @@ namespace lass
 			};
 
 			LASS_DLL StaticMember LASS_CALL createStaticMember(
-				const char* iName, const char * iDocumentation, const TStaticMemberHelperPtr& iObject, 
+				const char* iName, const TStaticMemberHelperPtr& iObject, 
 				PyTypeObject* iParentType = 0, ClassDefinition* iClassDef = 0);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
@@ -486,8 +488,7 @@ namespace lass
 
 			LASS_DLL void LASS_CALL injectStaticMembers(ClassDefinition& classDef);
 			LASS_DLL void LASS_CALL finalizePyType(
-				ClassDefinition& classDef, PyTypeObject* iPyParentType, 
-				const char* iModuleName = 0, const char* iDocumentation = 0);
+				ClassDefinition& classDef, PyTypeObject* iPyParentType, const char* iModuleName = 0);
 
 			LASS_DLL void LASS_CALL addClassMethod(
 				ClassDefinition& classDef,

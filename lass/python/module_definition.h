@@ -53,18 +53,7 @@ namespace python
 namespace impl
 {
 
-/** @internal 
- *  Returns a  pair<short name, pyobject pointing at the class object>
- *  We have to work around the static initializer fiasco by demanding the iModuleName instead of pealing 
- *	it from the module object (which may not be initialized yet... and then we have *kaboom*)
- */
-template <typename CppClass>
-inline std::pair<std::string,PyObject*> prepareClassForModuleInjection(const char* iModuleName, const char* iClassDocumentation)
-{
-	char* shortName = const_cast<char*>(CppClass::_lassPyClassDef.name()); // finalizePyType will expand tp_name with module name.
-	finalizePyType(CppClass::_lassPyClassDef, CppClass::_lassPyGetParentType(), iModuleName, iClassDocumentation);
-	return std::pair<std::string,PyObject*>(std::string(shortName), reinterpret_cast<PyObject*>(CppClass::_lassPyClassDef.type()));
-}
+class ClassDefinition;
 
 class LASS_DLL ModuleDefinition: util::NonCopyable
 {
@@ -76,11 +65,7 @@ public:
 	void setDoc(const char* doc);
 	PyObject* module() const { return module_; }
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
-	template <typename CppClass> void injectClass(const char* doc)
-	{
-		std::pair<std::string, PyObject*> c = prepareClassForModuleInjection<CppClass>(name_.get(), doc);
-		PyModule_AddObject(module_, const_cast<char*>(c.first.c_str()), c.second);
-	}
+	void injectClass(ClassDefinition& classDef, PyTypeObject* parentType);
 	PyObject* inject();
 private:
 	typedef std::vector<PyMethodDef> TMethods;

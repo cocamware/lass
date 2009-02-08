@@ -82,7 +82,7 @@ namespace impl
 #	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
 #endif
 
-ClassDefinition::ClassDefinition(const char* name, Py_ssize_t typeSize)
+ClassDefinition::ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp)
 {
 	PyTypeObject type = { 
 		PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -105,10 +105,10 @@ ClassDefinition::ClassDefinition(const char* name, Py_ssize_t typeSize)
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
 		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/
-		0,	/*tp_doc*/
+		doc,	/*tp_doc*/
 		0,	/*tp_traverse*/
 		0,	/*tp_clear*/
-		0,	/*tp_richcompare*/
+		richcmp,	/*tp_richcompare*/
 		0,	/*tp_weaklistoffset*/
 		0,	/*tp_iter*/
 		0,	/*tp_iternext*/
@@ -139,7 +139,7 @@ ClassDefinition::ClassDefinition(const char* name, Py_ssize_t typeSize)
 
 }
 
-impl::ClassDefinition PyObjectPlus::_lassPyClassDef("PyObjectPlus", sizeof(PyObjectPlus));
+impl::ClassDefinition PyObjectPlus::_lassPyClassDef("PyObjectPlus", 0, sizeof(PyObjectPlus), 0);
 
 PyObjectPlus::PyObjectPlus()
 {
@@ -427,12 +427,11 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 /** @internal
  */
 StaticMember createStaticMember(
-		const char* iName, const char* iDocumentation, const TStaticMemberHelperPtr& iMember, 
+		const char* iName, const TStaticMemberHelperPtr& iMember, 
 		PyTypeObject* iParentType, ClassDefinition* iClassDef)
 {
 	StaticMember temp;
 	temp.name = iName;
-	temp.doc = iDocumentation;
 	temp.member = iMember;
 	temp.parentType = iParentType;
 	temp.classDef = iClassDef;
@@ -474,7 +473,7 @@ void injectStaticMembers(ClassDefinition& classDef)
 		if (PyType_Check(member))
 		{
 			// we have an innerclass
-			finalizePyType(*i->classDef, i->parentType, classDef.type_.tp_name, i->doc);
+			finalizePyType(*i->classDef, i->parentType, classDef.type_.tp_name);
 		}
 		PyDict_SetItemString(classDef.type_.tp_dict, const_cast<char*>(i->name), member);
 	}
@@ -483,7 +482,7 @@ void injectStaticMembers(ClassDefinition& classDef)
 /** @internal
 *	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
-void finalizePyType(ClassDefinition& classDef, PyTypeObject* parentType, const char* iModuleName, const char* iDocumentation)
+void finalizePyType(ClassDefinition& classDef, PyTypeObject* parentType, const char* iModuleName)
 {
 	PyTypeObject& type = classDef.type_;
 	std::string fullName;
@@ -497,7 +496,6 @@ void finalizePyType(ClassDefinition& classDef, PyTypeObject* parentType, const c
 	type.tp_name = fullNameCharPtr;
 	type.tp_methods = &classDef.methods_[0];
 	type.tp_getset = &classDef.getSetters_[0];
-	type.tp_doc = const_cast<char*>(iDocumentation);
 	type.tp_base = parentType;
 	// we take care of collecting garbage ourselves
 	type.tp_flags &= (~Py_TPFLAGS_HAVE_GC);

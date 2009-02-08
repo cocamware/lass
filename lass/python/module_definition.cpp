@@ -117,6 +117,13 @@ void ModuleDefinition::addFunctionDispatcher(
 	};
 }
 
+void ModuleDefinition::injectClass(ClassDefinition& classDef, PyTypeObject* parentType)
+{
+	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
+	finalizePyType(classDef, parentType, name_.get());
+	PyModule_AddObject(module_, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(classDef.type()));
+}
+
 PyObject* ModuleDefinition::inject()
 {
 	LASS_ASSERT(!isInjected_);
