@@ -82,6 +82,12 @@ namespace lass
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
 		PY_CLASS_STATIC_CONST( Bar, "CONST", 5 ); // a const value as class member
+		PY_CLASS_METHOD_NAME( Bar, operator==, python::methods::_eq_ );
+		PY_CLASS_METHOD_NAME( Bar, operator<, python::methods::_lt_ );
+		PY_CLASS_FREE_METHOD_NAME( Bar, operator!=, python::methods::_ne_ );
+		PY_CLASS_FREE_METHOD_NAME( Bar, operator>, python::methods::_gt_ );
+		PY_CLASS_FREE_METHOD_NAME( Bar, operator<=, python::methods::_le_ );
+		PY_CLASS_FREE_METHOD_NAME( Bar, operator>=, python::methods::_ge_ );
 
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;
@@ -251,6 +257,36 @@ namespace lass
 		std::string Bar::InnerClass::talkTo(const std::string& iName)
 		{
 			return iName + ", " + sayWhat_ + ".\n";
+		}
+
+		bool Bar::operator==(const Bar& other) const
+		{
+			return privateInt_ == other.privateInt_;
+		}
+
+		bool Bar::operator<(const Bar& other) const
+		{
+			return privateInt_ < other.privateInt_;
+		}
+
+		bool operator!=(const Bar& a, const Bar& b)
+		{
+			return !(a == b);
+		}
+
+		bool operator>(const Bar& a, const Bar& b)
+		{
+			return b < a;
+		}
+
+		bool operator<=(const Bar& a, const Bar& b)
+		{
+			return !(b < a);
+		}
+
+		bool operator>=(const Bar& a, const Bar& b)
+		{
+			return !(a < b);
 		}
 
 		void freeMethodA(const Bar& bar, const std::string& a)

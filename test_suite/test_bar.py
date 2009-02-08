@@ -441,6 +441,47 @@ class TestCallbacks(unittest.TestCase):
 		self.assertRaises(KeyError, embedding.call0, callback)
 		self.assert_(self.isCalled)
 		
+class TestRichCompare(unittest.TestCase):
+	def setUp(self):
+		self.a = embedding.Bar(5, "A")
+		self.b = embedding.Bar(5, "B")
+		self.c = embedding.Bar(6, "C")
+	def testEqual(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertTrue(a == b)
+		self.assertFalse(a == c)
+		self.assertFalse(a == None)
+	def testLess(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertTrue(a < c)
+		self.assertFalse(a < b)
+		self.assertFalse(c < a)
+		self.assertFalse(a < None)
+	def testNotEqual(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertFalse(a != b)
+		self.assertTrue(a != c)
+		self.assertTrue(a != None)
+	def testGreater(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertTrue(c > a)
+		self.assertFalse(b > a)
+		self.assertFalse(a > c)
+		self.assertFalse(a > None)
+	def testLessEqual(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertTrue(a <= b)
+		self.assertTrue(a <= c)
+		self.assertFalse(c <= a)
+		self.assertFalse(a <= None)
+	def testGreaterEqual(self):
+		a, b, c = self.a, self.b, self.c
+		self.assertTrue(c >= a)
+		self.assertTrue(a >= b)
+		self.assertFalse(a >= c)
+		self.assertFalse(a >= None)
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)

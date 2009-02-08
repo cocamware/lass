@@ -545,7 +545,9 @@ void finalizePyType(ClassDefinition& classDef, PyTypeObject* parentType, const c
 	if (strcmp(methodName.name.c_str(), s_name) == 0)\
 	{\
 		classDef.compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
+		return; \
 	}\
+	/**/
 		
 
 

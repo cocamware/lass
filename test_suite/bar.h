@@ -74,9 +74,6 @@ namespace test
 		virtual std::string doPyRepr(void);
 		virtual std::string doPyStr(void);
 
-		bool operator==(const Bar& iOther) { return publicInt==iOther.publicInt;}
-		//bool operator==(const Bar const* iOther) { return iOther && (publicInt==iOther->publicInt);}
-
 		virtual float aMoreComplexFunction( float iA, float iB );
 		void  testAutomaticFunctionExport( int iA, float iB );
 		void complexArguments( const std::string& iA );
@@ -123,7 +120,15 @@ namespace test
 		private:
 			std::string sayWhat_;
 		};
+
+		bool operator==(const Bar& other) const;
+		bool operator<(const Bar& other) const;
 	};
+
+	bool operator!=(const Bar& a, const Bar& b);
+	bool operator>(const Bar& a, const Bar& b);
+	bool operator<=(const Bar& a, const Bar& b);
+	bool operator>=(const Bar& a, const Bar& b);
 
 	class DerivedBar : public Bar
 	{
