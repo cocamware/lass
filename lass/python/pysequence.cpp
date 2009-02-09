@@ -105,7 +105,7 @@ namespace impl
 			PySequence::_lassPyType.tp_dictoffset = 0;
 			PySequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
-			finalizePyType( _lassPyClassDef, _lassPyGetParentType());
+			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
 	}

@@ -71,12 +71,7 @@
 	public: \
 		typedef t_parentClass _lassPyParentType; \
 		static ::lass::python::impl::ClassDefinition _lassPyClassDef; \
-		virtual PyTypeObject* const _lassPyGetType() const { return _lassPyClassDef.type(); } \
-		static PyTypeObject* const _lassPyGetParentType()\
-		{ \
-			return _lassPyParentType::_lassPyClassDef.type() != ::lass::python::PyObjectPlus::_lassPyClassDef.type() ? \
-				_lassPyParentType::_lassPyClassDef.type() : &PyBaseObject_Type; \
-		} \
+		virtual ::lass::python::impl::ClassDefinition* const _lassPyGetClassDef() const { return &_lassPyClassDef; } \
 	private:
 
 #include "pyobject_casters.h"
@@ -151,7 +146,6 @@ namespace lass
 			struct StaticMember
 			{
 				TStaticMemberHelperPtr member;
-				PyTypeObject* parentType;
 				ClassDefinition* classDef;
 				const char* name;
 			};
@@ -188,20 +182,25 @@ namespace lass
 			class LASS_DLL ClassDefinition
 			{
 			public:
-				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp);
+				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp, ClassDefinition* parent);
 				PyTypeObject* const type() { return &type_; }
 				const PyTypeObject* const type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }
 				const char* doc() const { return type_.tp_doc; }
 				void setDoc(const char* doc) { type_.tp_doc = doc; } ///< @a doc must be valid until another one is set
+
+				void freezeDefinition(const char* scopeName = 0);
+
+				// currently, these are public to easy the transformation, but they will become private one day ...
 				typedef std::vector<PyMethodDef> TMethods;
 				typedef std::vector<PyGetSetDef> TGetSetters;
-				// currently, these are public to easy the transformation, but they will become private one day ...
 				PyTypeObject type_;
 				TMethods methods_;
 				TGetSetters getSetters_;
 				TStaticMembers statics_;
 				TCompareFuncs compareFuncs_;
+				ClassDefinition* parent_;
+				bool isFrozen_;
 			};
 		}
 
@@ -285,8 +284,8 @@ namespace lass
 			public PyObject
 		{
 		public:
-			static ::lass::python::impl::ClassDefinition _lassPyClassDef;
-			virtual PyTypeObject* const _lassPyGetType() const { return _lassPyClassDef.type(); }
+			static impl::ClassDefinition _lassPyClassDef;
+			virtual impl::ClassDefinition* const _lassPyGetClassDef() const { return &_lassPyClassDef; }
 			typedef void TCppClass;
 
 			PyObjectPlus(); 
@@ -478,8 +477,7 @@ namespace lass
 			};
 
 			LASS_DLL StaticMember LASS_CALL createStaticMember(
-				const char* iName, const TStaticMemberHelperPtr& iObject, 
-				PyTypeObject* iParentType = 0, ClassDefinition* iClassDef = 0);
+				const char* iName, const TStaticMemberHelperPtr& iObject, ClassDefinition* iClassDef = 0);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
 				const char *ml_doc);
@@ -487,8 +485,6 @@ namespace lass
 				const char* name, getter get, setter set, const char* doc, void* closure);
 
 			LASS_DLL void LASS_CALL injectStaticMembers(ClassDefinition& classDef);
-			LASS_DLL void LASS_CALL finalizePyType(
-				ClassDefinition& classDef, PyTypeObject* iPyParentType, const char* iModuleName = 0);
 
 			LASS_DLL void LASS_CALL addClassMethod(
 				ClassDefinition& classDef,

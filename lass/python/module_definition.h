@@ -65,7 +65,7 @@ public:
 	void setDoc(const char* doc);
 	PyObject* module() const { return module_; }
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
-	void injectClass(ClassDefinition& classDef, PyTypeObject* parentType);
+	void injectClass(ClassDefinition& classDef);
 	PyObject* inject();
 private:
 	typedef std::vector<PyMethodDef> TMethods;

@@ -77,7 +77,7 @@ namespace impl
 			PyMap::_lassPyType.tp_dictoffset = 0;
 			PyMap::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
-			finalizePyType(_lassPyClassDef, _lassPyGetParentType());
+			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
 	}

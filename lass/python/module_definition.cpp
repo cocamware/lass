@@ -117,10 +117,10 @@ void ModuleDefinition::addFunctionDispatcher(
 	};
 }
 
-void ModuleDefinition::injectClass(ClassDefinition& classDef, PyTypeObject* parentType)
+void ModuleDefinition::injectClass(ClassDefinition& classDef)
 {
 	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
-	finalizePyType(classDef, parentType, name_.get());
+	classDef.freezeDefinition(name_.get());
 	PyModule_AddObject(module_, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(classDef.type()));
 }
 

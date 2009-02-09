@@ -280,8 +280,7 @@ inline void addClassInnerClass(
 	}
 	LASS_ASSERT(std::count_if(outerDef.statics_.begin(), outerDef.statics_.end(), StaticMemberEqual(name)) == 0);
 	outerDef.statics_.push_back(createStaticMember(
-		name, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()),
-		InnerCppClass::_lassPyGetParentType(), &InnerCppClass::_lassPyClassDef));
+		name, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()), &InnerCppClass::_lassPyClassDef));
 }
 
 

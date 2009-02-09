@@ -530,8 +530,8 @@ $[
  */
 #define PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, s_doc ) \
 	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef( \
-		s_className, s_doc, sizeof(t_cppClass), \
-		::lass::python::impl::RichCompare<t_cppClass>::call);
+		s_className, s_doc, sizeof(t_cppClass), ::lass::python::impl::RichCompare<t_cppClass>::call,\
+		&t_cppClass::_lassPyParentType::_lassPyClassDef);
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
@@ -585,7 +585,7 @@ $[
  */
 #define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
 	if (s_doc) t_cppClass::_lassPyClassDef.setDoc(s_doc);\
-	i_module.injectClass(t_cppClass::_lassPyClassDef, t_cppClass::_lassPyGetParentType()); 
+	i_module.injectClass(t_cppClass::_lassPyClassDef); 
 
 ///** @ingroup Python
 // *  @deprecated

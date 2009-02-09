@@ -59,7 +59,7 @@ namespace python
 		{
 			_lassPyClassDef.type_.tp_iternext = 
 				(iternextfunc) &PyIteratorRange::PyIteratorRange_IterNext;
-			finalizePyType(_lassPyClassDef, _lassPyGetParentType());
+			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
 	}
