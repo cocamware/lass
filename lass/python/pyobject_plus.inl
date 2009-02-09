@@ -267,23 +267,6 @@ void addClassStaticConst(const char* iName, const T& iValue)
 }
 
 
-
-/** @internal
- */
-template <typename InnerCppClass>
-inline void addClassInnerClass(
-		ClassDefinition& outerDef, const char* name, const char* doc)
-{
-	if (doc)
-	{
-		InnerCppClass::_lassPyClassDef.setDoc(doc);
-	}
-	LASS_ASSERT(std::count_if(outerDef.statics_.begin(), outerDef.statics_.end(), StaticMemberEqual(name)) == 0);
-	outerDef.statics_.push_back(createStaticMember(
-		name, staticMemberHelperType(InnerCppClass::_lassPyClassDef.type()), &InnerCppClass::_lassPyClassDef));
-}
-
-
 /** @internal
  *  helper for pyNumericCast
  */

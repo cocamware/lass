@@ -378,6 +378,7 @@ PyObject* PyInit_embedding(void)
 	PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
 	PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");
 
+	PY_INJECT_CLASS_IN_MODULE(PyBase, embedding, "Documentation for class A." );
 	PY_INJECT_CLASS_IN_MODULE(PyClassA, embedding, "Documentation for class A." );
 	PY_INJECT_CLASS_IN_MODULE(PyClassB, embedding, "Documentation for class B." );
 	PY_INJECT_CLASS_IN_MODULE(PyClassSeq, embedding, "Documentation for class Seq." );

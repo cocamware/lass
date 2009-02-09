@@ -94,7 +94,7 @@ namespace lass
 		PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )
 		PY_CLASS_CONSTRUCTOR_1( TBarInnerClass, const std::string& );
 		PY_CLASS_METHOD( TBarInnerClass, talkTo );
-		PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" )
+		PY_CLASS_INNER_CLASS_NAME( Bar, TBarInnerClass, "InnerClass" );
 
 		PY_DECLARE_CLASS( DerivedBar )
 		PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );

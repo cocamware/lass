@@ -661,11 +661,13 @@ $[
  */
 #define PY_CLASS_INNER_CLASS_EX( t_outerCppClass, t_innerCppClass, s_name, s_doc, i_uniqueClassId )\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_uniqueClassId),\
-		::lass::python::impl::addClassInnerClass<t_innerCppClass>(t_outerCppClass::_lassPyClassDef, s_name, s_doc);\
+		if (s_doc) { t_innerCppClass::_lassPyClassDef.setDoc(s_doc); } \
+		t_outerCppClass::_lassPyClassDef.addInnerClass(t_innerCppClass::_lassPyClassDef);\
 	)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_INNER_CLASS_EX with @a i_uniqueId = @a i_outerCppClass ## @a i_innerCppClass.
+ *  @deprecated You should be setting the doc when declaring the innerclass ...
  */
 #define PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, s_name, s_doc )\
 	PY_CLASS_INNER_CLASS_EX( i_outerCppClass, i_innerCppClass, s_name, s_doc,\
@@ -679,6 +681,7 @@ $[
 
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_INNER_CLASS_NAME_DOC with @a s_name = "@a i_innerCppClass".
+ *  @deprecated You should be setting the doc when declaring the innerclass ...
  */
 #define PY_CLASS_INNER_CLASS_DOC( i_outerCppClass, i_innerCppClass, s_doc )\
 	PY_CLASS_INNER_CLASS_NAME_DOC( i_outerCppClass, i_innerCppClass, LASS_STRINGIFY(i_innerCppClass), s_doc)

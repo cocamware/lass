@@ -125,28 +125,12 @@ namespace lass
 				return TStaticMemberHelperPtr(new StaticMemberHelperObject<T>(obj));
 			}
 
-			class StaticMemberHelperType: public StaticMemberHelper
-			{
-			public:
-				StaticMemberHelperType(PyTypeObject* type): type_(type) {}
-				PyObject* build() const { return reinterpret_cast<PyObject*>(type_); }
-			private:
-				PyTypeObject* type_;
-			};
-			inline TStaticMemberHelperPtr staticMemberHelperType(PyTypeObject* type)
-			{
-				return TStaticMemberHelperPtr(new StaticMemberHelperType(type));
-			}
-
-			class ClassDefinition;
-
 			/**	@ingroup
 			 *	@internal
 			 */
 			struct StaticMember
 			{
 				TStaticMemberHelperPtr member;
-				ClassDefinition* classDef;
 				const char* name;
 			};
 			typedef std::vector<StaticMember> TStaticMembers;
@@ -189,6 +173,7 @@ namespace lass
 				const char* doc() const { return type_.tp_doc; }
 				void setDoc(const char* doc) { type_.tp_doc = doc; } ///< @a doc must be valid until another one is set
 
+				void addInnerClass(ClassDefinition& innerClass);
 				void freezeDefinition(const char* scopeName = 0);
 
 				// currently, these are public to easy the transformation, but they will become private one day ...
@@ -199,6 +184,11 @@ namespace lass
 				TGetSetters getSetters_;
 				TStaticMembers statics_;
 				TCompareFuncs compareFuncs_;
+
+			private:
+				typedef std::vector<ClassDefinition*> TInnerClasses;
+
+				TInnerClasses innerClasses_;
 				ClassDefinition* parent_;
 				bool isFrozen_;
 			};
@@ -477,14 +467,12 @@ namespace lass
 			};
 
 			LASS_DLL StaticMember LASS_CALL createStaticMember(
-				const char* iName, const TStaticMemberHelperPtr& iObject, ClassDefinition* iClassDef = 0);
+				const char* iName, const TStaticMemberHelperPtr& iObject);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
 				const char *ml_doc);
 			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
 				const char* name, getter get, setter set, const char* doc, void* closure);
-
-			LASS_DLL void LASS_CALL injectStaticMembers(ClassDefinition& classDef);
 
 			LASS_DLL void LASS_CALL addClassMethod(
 				ClassDefinition& classDef,
@@ -556,9 +544,6 @@ namespace lass
 				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
 			template <typename CppClass, typename T> void addClassStaticConst(
 				const char* iName, const T& iValue);
-			template <typename InnerCppClass> void addClassInnerClass(
-				TStaticMembers& oOuterStatics,
-				const char* iInnerClassName, const char* iDocumentation);
 
 			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);
 			template <typename Integer> int pyGetSignedObject(

@@ -296,19 +296,17 @@ except:
 	reportError("Bar seems to have troubles with __call__")
 echo("\n")
 
-
-class TestClassConstants(unittest.TestCase):
+class TestStaticMembers(unittest.TestCase):
 	def setBarCONST(self, x):
 		embedding.Bar.CONST = x
 	def testClassConstants(self):
 		self.assertEqual(embedding.Bar.CONST, 5)
 		self.assertRaises(TypeError, self.setBarCONST, 6)
-
-class TestInnerClasses(unittest.TestCase):
 	def testInnerClasses(self):
 		innerClass = embedding.Bar.InnerClass("the answer is 42")
 		self.assertEqual(innerClass.talkTo("Arthur"), "Arthur, the answer is 42.\n")
-
+	def testStaticMethods(self):
+		self.assertEqual(embedding.Bar.aStaticMethod(3.14), 3)
 
 echo("\n* Testing qualified and overloaded functions")
 embedding.overloaded(5)

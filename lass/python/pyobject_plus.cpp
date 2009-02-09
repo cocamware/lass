@@ -82,6 +82,16 @@ namespace impl
 #	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
 #endif
 
+class NamePredicate
+{
+public:
+	NamePredicate(const std::string& name): name_(name) {}
+	template <typename T> bool operator()(T& x) { return name_ != x.name(); }
+	template <typename T> bool operator()(T* x) { return name_ != x->name(); }
+private:
+	std::string name_;
+};
+
 ClassDefinition::ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp, ClassDefinition* parent):
 	parent_(parent),
 	isFrozen_(false)
@@ -139,6 +149,12 @@ ClassDefinition::ClassDefinition(const char* name, const char* doc, Py_ssize_t t
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
 
+void ClassDefinition::addInnerClass(ClassDefinition& innerClass)
+{
+	LASS_ASSERT(std::count_if(innerClasses_.begin(), innerClasses_.end(), NamePredicate(innerClass.name())) == 0);
+	innerClasses_.push_back(&innerClass);
+}
+
 /** @internal
 *	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
@@ -149,7 +165,13 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 
 	if (parent_)
 	{
-		LASS_ASSERT(parent_->isFrozen_); // we can't freeze it, as we're not sure what moduleName has to be.
+		// In the general case, we can't freeze the parent's definition, as we can't be sure of its scopeName.
+		// However, in case of PyObjectPlus, nobody else will do it.  Luckily, we know its scopeName's empty.
+		if (parent_ == &PyObjectPlus::_lassPyClassDef && !PyObjectPlus::_lassPyClassDef.isFrozen_)
+		{
+			PyObjectPlus::_lassPyClassDef.freezeDefinition();
+		}
+		LASS_ASSERT(parent_->isFrozen_);
 		type_.tp_base = parent_->type();
 	}
 	else
@@ -170,11 +192,21 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	type_.tp_methods = &methods_[0];
 	type_.tp_getset = &getSetters_[0];
 	type_.tp_flags &= (~Py_TPFLAGS_HAVE_GC); // we take care of collecting garbage ourselves
-	
+
 	LASS_ENFORCE( PyType_Ready( &type_ ) >= 0 );
 	Py_INCREF( &type_ ); 
-
-	injectStaticMembers(*this);
+	
+	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
+	{
+		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name), i->member->build());
+	}
+	for (TInnerClasses::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
+	{
+		ClassDefinition* innerClass = *i;
+		const char* shortName = innerClass->name();
+		innerClass->freezeDefinition(type_.tp_name);
+		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(innerClass->type()));
+	}
 }
 
 }
@@ -467,12 +499,11 @@ bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
 /** @internal
  */
 StaticMember createStaticMember(
-		const char* iName, const TStaticMemberHelperPtr& iMember, ClassDefinition* iClassDef)
+		const char* iName, const TStaticMemberHelperPtr& iMember)
 {
 	StaticMember temp;
 	temp.name = iName;
 	temp.member = iMember;
-	temp.classDef = iClassDef;
 	return temp;
 }
 		
@@ -501,21 +532,6 @@ PyGetSetDef createPyGetSetDef( const char* name, getter get, setter set, const c
 	return temp;
 }
 
-/** @internal
-*/
-void injectStaticMembers(ClassDefinition& classDef)
-{
-	for (TStaticMembers::const_iterator i = classDef.statics_.begin(); i != classDef.statics_.end(); ++i)
-	{
-		PyObject* member = i->member->build();
-		if (PyType_Check(member))
-		{
-			// we have an innerclass
-			i->classDef->freezeDefinition(classDef.type_.tp_name);
-		}
-		PyDict_SetItemString(classDef.type_.tp_dict, const_cast<char*>(i->name), member);
-	}
-}
 
 
 
