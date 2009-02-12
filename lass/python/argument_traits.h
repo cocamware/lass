@@ -312,6 +312,13 @@ struct ArgumentTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 	static const TStorage& arg(const TStorage& storage) { return storage; }
 };
 
+template <>
+struct ArgumentTraits<const char*>
+{
+	typedef std::string TStorage;
+	static const char* arg(const TStorage& storage) { return storage.c_str(); }
+};
+
 }
 }
 

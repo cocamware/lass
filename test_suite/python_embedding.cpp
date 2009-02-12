@@ -121,6 +121,11 @@ void overloadedB(const std::complex<float>& iA)
 	LASS_COUT << "overloadedA " << iA << std::endl;
 }
 
+const char* testCStringSupport(const char* a)
+{
+	return a;
+}
+
 PY_DECLARE_MODULE( embedding )
 PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
 PY_MODULE_FUNCTION( embedding, listInfo )
@@ -138,6 +143,7 @@ PY_MODULE_FUNCTION( embedding, testPolymorphism )
 PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
+PY_MODULE_FUNCTION( embedding, testCStringSupport )
 
 class Base
 {

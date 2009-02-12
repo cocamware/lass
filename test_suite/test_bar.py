@@ -260,7 +260,9 @@ echo(test.tester('a string'))
 #print test.primArguments(box, "y", matrix)
 echo(test.tester(box, "y", matrix))
 
-
+class TestSignatures(unittest.TestCase):
+	def testCString(self):
+		self.assertEqual_(embedding.testCString("Hello World!"), "Hello World!")
 
 echo("\n* Testing free methods")
 try:
