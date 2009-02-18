@@ -90,7 +90,7 @@ const bool isAvailableProcessor(unsigned processor)
 {
 	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
-	return (processAffinityMask & (1 << processor)) != 0;
+	return (processAffinityMask & (DWORD_PTR(1) << processor)) != 0;
 }
 
 /** @internal
