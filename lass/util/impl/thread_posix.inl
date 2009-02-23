@@ -49,9 +49,6 @@
 #include "lass_errno.h"
 #include <errno.h>
 #ifdef LASS_HAVE_PTHREAD_H
-#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP && !defined(_GNU_SOURCE)
-#		define _GNU_SOURCE
-#	endif
 #	include <pthread.h>
 #endif
 #if LASS_HAVE_SCHED_H
@@ -62,6 +59,9 @@
 #endif
 #if LASS_HAVE_SYS_PROCESSOR_H
 #	include <sys/processor.h>
+#endif
+#if LASS_HAVE_SYS_TYPES_H
+#	include <sys/types.h>
 #endif
 
 namespace lass
@@ -85,6 +85,15 @@ cpu_set_t availableProcessorsMask()
 }
 static cpu_set_t forceCalculationAtStartup = availableProcessorsMask();
 #endif
+
+inline pid_t lass_gettid()
+{
+#if LASS_HAVE_GETTID
+	return gettid();
+#else
+	return syscall(224);
+#endif
+}
 
 const unsigned numberOfProcessors()
 {
@@ -308,9 +317,9 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pthread_t handle, unsigned processor)
+void bindThread(pthread_t handle, pid_t tid, unsigned processor)
 {
-#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
+#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
 	cpu_set_t mask;
 	if (processor == Thread::anyProcessor)
 	{
@@ -322,7 +331,11 @@ void bindThread(pthread_t handle, unsigned processor)
 		CPU_ZERO(&mask);	
 		CPU_SET(static_cast<int>(processor), &mask);
 	}
+#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
 	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask));
+#	else
+	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask));
+#	endif
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
 	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle, cpu_id, 0));
@@ -393,7 +406,7 @@ public:
 
 	void bind(size_t processor)
 	{
-		bindThread(handle_, processor);
+		bindThread(handle_, tid_, processor);
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)
@@ -445,7 +458,7 @@ public:
 
 	static void bindCurrent(size_t processor)
 	{
-		bindThread(pthread_self(), processor);
+		bindThread(pthread_self(), lass_gettid(), processor);
 	}
 
 	// thread function
@@ -453,7 +466,7 @@ public:
 	{
 		LASS_ASSERT(iPimpl);
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
-		pimpl->pid_ = getpid();
+		pimpl->tid_ = lass_gettid();
 		pimpl->isCreated_ = true;
 		if (pimpl->isJoinable_)
 		{
@@ -492,7 +505,7 @@ private:
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
 	std::auto_ptr<experimental::RemoteExceptionBase> error_;
-	pid_t pid_;
+	pid_t tid_;
 	volatile bool isJoinable_;
 	volatile bool isCreated_;
 };

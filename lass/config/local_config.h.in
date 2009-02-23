@@ -86,6 +86,7 @@
 #cmakedefine LASS_HAVE_SYS_STAT_H 1
 #cmakedefine LASS_HAVE_SYS_FILIO_H 1
 #cmakedefine LASS_HAVE_SYS_PROCESSOR_H 1
+#cmakedefine LASS_HAVE_SYS_TYPES_H 1
 
 #cmakedefine LASS_HAVE_SPROC 1
 #cmakedefine LASS_HAVE_WIN32_THREADS 1
@@ -93,6 +94,7 @@
 #cmakedefine LASS_HAVE_HP_PTHREADS 1
 #cmakedefine LASS_HAVE_PTHREAD_H 1
 #cmakedefine LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP 1
+#cmakedefine LASS_HAVE_NPTL_PTHREAD_H 1
 #cmakedefine LASS_HAVE_SCHED_H 1
 #cmakedefine LASS_HAVE_SCHED_H_CPU_SET_T 1
 #cmakedefine LASS_HAVE_UNISTD_H 1
