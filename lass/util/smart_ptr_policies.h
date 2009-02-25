@@ -224,10 +224,33 @@ protected:
 	bool isNull() const { return !storage_; }
 	void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_); }
 
+	template <typename U> const ObjectStorage<U, Cascade> staticCast() const
+	{
+		return ObjectStorage<U, Cascade>(static_cast<U*>(storage_), *this);
+	}
+
+	template <typename U> const ObjectStorage<U, Cascade> dynamicCast() const
+	{
+		if (U* p = dynamic_cast<U*>(storage_))
+		{		
+			return ObjectStorage<U, Cascade>(p, *this);
+		}
+		return ObjectStorage<U, Cascade>();
+	}
+
+	template <typename U> const ObjectStorage<U, Cascade> constCast() const
+	{
+		return ObjectStorage<U, Cascade>(const_cast<U*>(storage_), *this);
+	}
+
 	static TStorage defaultStorage() { return 0; }
 
 private:
 
+	template <typename U, typename C> friend class ObjectStorage;
+
+	ObjectStorage(T* pointee, const Cascade& cascade): Cascade(cascade), storage_(pointee) {}
+	
 	TStorage storage_;
 };
 

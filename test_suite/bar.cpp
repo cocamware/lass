@@ -71,12 +71,12 @@ namespace lass
 		PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, lass::python::methods::_str_);
 		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
-		PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
+		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
-		PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
-		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
-		PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
-		PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
+		//PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
+		//PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
+		//PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
+		//PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
@@ -293,20 +293,20 @@ namespace lass
 		{
 			LASS_COUT << "void (const Bar&, const std::string&): " << &bar << " " << a << std::endl;
 		}
-		void freeMethodB(Bar* bar, const std::string& a)
+		void freeMethodB(Bar& bar, const std::string& a)
 		{
-			LASS_COUT << "void (Bar*, const std::string&): " << bar << " " << a << std::endl;
+			LASS_COUT << "void (Bar*, const std::string&): " << &bar << " " << a << std::endl;
 		}
-		float freeCall(const Bar* bar, float a)
+		float freeCall(const Bar& bar, float a)
 		{
-			LASS_COUT << "float freeCall(const Bar*, float a): " << bar << " " << a << std::endl;
+			LASS_COUT << "float freeCall(const Bar*, float a): " << &bar << " " << a << std::endl;
 			return a / 2;
 		}
-		std::string freeStr(const Bar* bar)
+		std::string freeStr(const Bar& bar)
 		{
 			return std::string("A free __str__ representation of Bar");
 		}
-		std::string freeRepr(const Bar* bar)
+		std::string freeRepr(const Bar& bar)
 		{
 			return std::string("A free __repr__ representation of Bar");
 		}

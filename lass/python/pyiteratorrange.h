@@ -202,8 +202,8 @@ struct PyExportTraits<PyIteratorRange*>
  *  };
  *
  *  std::vector<int> temp;
- *  std::vector<int>::const_iterator freeBegin(Foo* iObj) { return temp.begin(); }
- *  std::vector<int>::const_iterator freeEnd(Foo* iObj) { return temp.end(); }
+ *  std::vector<int>::const_iterator freeBegin(Foo& iObj) { return temp.begin(); }
+ *  std::vector<int>::const_iterator freeEnd(Foo& iObj) { return temp.end(); }
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
@@ -212,8 +212,8 @@ struct PyExportTraits<PyIteratorRange*>
  *  @endcode
  */
 #define PY_CLASS_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
-	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iObj) { \
-	return new lass::python::PyIteratorRange(iObj-> i_cppBegin (), iObj-> i_cppEnd ()); } \
+	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass& iObj) { \
+	return new lass::python::PyIteratorRange(iObj.i_cppBegin (), iObj.i_cppEnd ()); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ), lass::python::methods::_iter_, s_doc)
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
@@ -230,7 +230,7 @@ struct PyExportTraits<PyIteratorRange*>
 		PY_CLASS_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, 0 )
 
 #define PY_CLASS_FREE_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
-lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass * iObj) { \
+lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass& iObj) { \
 return new lass::python::PyIteratorRange(i_cppBegin(iObj), i_cppEnd(iObj)); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ), lass::python::methods::_iter_, s_doc)
 /** @ingroup Python

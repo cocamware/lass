@@ -140,7 +140,17 @@ template <typename T>
 struct ArgumentTraitsPyObject<T&>
 {
 	typedef typename PyObjectPtr<T>::Type TStorage;
-	static T& arg(const TStorage& storage) { return storage.get(); }
+	static T& arg(const TStorage& storage) { return *storage; }
+};
+
+/** by PyObjectPtr.
+ *  @ingroup Python
+ */
+template <typename T>
+struct ArgumentTraitsPyObject< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
+{
+	typedef typename PyObjectPtr<T>::Type TStorage;
+	static const TStorage& arg(const TStorage& storage) { return storage; }
 };
 
 
@@ -153,30 +163,9 @@ struct ArgumentTraitsPyObject<T&>
 template <typename T>
 struct ArgumentTraitsShadowee
 {
-	typedef typename PyObjectPtr<typename ShadoweeTraits<T>::TShadow>::Type TStorage;
-	static const T& arg(const TStorage& storage) { return *static_cast<const T*>(storage->constCppObject()); }
-};
-
-/** @ingroup Python
- *  @internal
- *  For types that have a shadow pyobject.  These are fully supported.
- */
-template <typename T>
-struct ArgumentTraitsShadowee<T*>
-{
-	typedef typename PyObjectPtr<typename ShadoweeTraits<T>::TShadow>::Type TStorage;
-	static T* arg(const TStorage& storage) { return static_cast<T*>(storage->cppObject()); }
-};
-
-/** @ingroup Python
- *  @internal
- *  For types that have a shadow pyobject.  These are fully supported.
- */
-template <typename T>
-struct ArgumentTraitsShadowee<const T*>
-{
-	typedef typename PyObjectPtr<typename ShadoweeTraits<T>::TShadow>::Type TStorage;
-	static const T* arg(const TStorage& storage) { return static_cast<const T*>(storage->constCppObject()); }
+	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
+	typedef typename TPointerTraits::TPtr TStorage;
+	static const T& arg(const TStorage& storage) { return *storage; }
 };
 
 /** @ingroup Python
@@ -186,8 +175,32 @@ struct ArgumentTraitsShadowee<const T*>
 template <typename T>
 struct ArgumentTraitsShadowee<T&>
 {
-	typedef typename PyObjectPtr<typename ShadoweeTraits<T>::TShadow>::Type TStorage;
-	static T& arg(const TStorage& storage) { return *static_cast<T*>(storage->cppObject()); }
+	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
+	typedef typename TPointerTraits::TPtr TStorage;
+	static T& arg(const TStorage& storage) { return *storage; }
+};
+
+/** @ingroup Python
+ *  @internal
+ *  For types that have a shadow pyobject (T may be const).
+ */
+template <typename T>
+struct ArgumentTraitsShadowee<T*>
+{
+	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
+	typedef typename TPointerTraits::TPtr TStorage;
+	static T* arg(const TStorage& storage) { return storage; }
+};
+
+/** by SharedPtr (T may be const).
+ *  @ingroup Python
+ */
+template <typename T, template <typename, typename> class S, typename C>
+struct ArgumentTraitsShadowee< util::SharedPtr<T, S, C> >
+{
+	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
+	typedef typename TPointerTraits::TPtr TStorage;
+	static const util::SharedPtr<T, S, C>& arg(const TStorage& storage)  { return storage; }
 };
 
 
@@ -253,31 +266,11 @@ struct ArgumentTraits<T*>: impl::ArgumentTraitsSelector<T*, IsPyObject<T>::value
 {
 };
 
-/** by const pointer to non-const object.
- *  @ingroup Python
- *  
- *  Is same as by non-const pointer to non-const object.
- */
-template <typename T> 
-struct ArgumentTraits<T* const>: ArgumentTraits<T*>
-{
-};
-
 /** by non-const pointer to const object.
  *  @ingroup Python
  */
 template <typename T> 
 struct ArgumentTraits<const T*>: impl::ArgumentTraitsSelector<const T*, IsPyObject<T>::value, ShadoweeTraits<T>::value>
-{
-};
-
-/** by const pointer to const object.
- *  @ingroup Python
- *  
- *  Is same as by non-const pointer to const object.
- */
-template <typename T> 
-struct ArgumentTraits<const T* const>: ArgumentTraits<const T*>
 {
 };
 
@@ -302,15 +295,25 @@ struct ArgumentTraits<const T&>: ArgumentTraits<T>
 {
 };
 
-/** by PyObjectPtr.
+/** by SharedPtr
  *  @ingroup Python
  */
-template <typename T>
-struct ArgumentTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
+template <typename T, template <typename, typename> class S, typename C>
+struct ArgumentTraits< util::SharedPtr<T, S, C> >: 
+	impl::ArgumentTraitsSelector< util::SharedPtr<T, S, C> , IsPyObject<T>::value, ShadoweeTraits<T>::value>
 {
-	typedef util::SharedPtr<T, PyObjectStorage, PyObjectCounter> TStorage;
-	static const TStorage& arg(const TStorage& storage) { return storage; }
 };
+
+/** by SharedPtr
+ *  @ingroup Python
+ */
+template <typename T, template <typename, typename> class S, typename C>
+struct ArgumentTraits< util::SharedPtr<const T, S, C> >: 
+	impl::ArgumentTraitsSelector< util::SharedPtr<const T, S, C> , IsPyObject<T>::value, ShadoweeTraits<T>::value>
+{
+};
+
+// --- odds and ends ---
 
 template <>
 struct ArgumentTraits<const char*>

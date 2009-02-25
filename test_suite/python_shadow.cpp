@@ -159,9 +159,9 @@ void Eggs::setNumber(int iNumber)
 
 // --- Free ----------------------------------------------------------------------------------------
 
-std::auto_ptr<Spam> makeSpam(const std::string& iWhat)
+TSpamPtr makeSpam(const std::string& iWhat)
 {
-	std::auto_ptr<Spam> result;
+	TSpamPtr result;
 	if (iWhat == "Spam")
 	{
 		result.reset(new Spam);
@@ -185,24 +185,24 @@ std::auto_ptr<Spam> makeSpam(const std::string& iWhat)
 	return result;
 }
 
-Spam* spamToCppByPointer(Spam* a)
+TSpamPtr spamToCppByPointer(const TSpamPtr& a)
 {
 	return a;
 }
 
-bool spamToCppByCopy(Spam a, Spam* b)
+bool spamToCppByCopy(Spam a, const TSpamPtr b)
 {
-	return &a == b;
+	return &a == b.get();
 }
 
-bool spamToCppByConstReference(const Spam& a, Spam* b)
+bool spamToCppByConstReference(const Spam& a, TSpamPtr b)
 {
-	return &a == b;
+	return &a == b.get();
 }
 
-bool spamToCppByReference(Spam& a, Spam* b)
+bool spamToCppByReference(Spam& a, const util::SharedPtr<const Spam>& b)
 {
-	return &a == b;
+	return &a == b.get();
 }
 
 }

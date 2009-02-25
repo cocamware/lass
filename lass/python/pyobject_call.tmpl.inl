@@ -121,21 +121,21 @@ struct Caller
 	// free function
 
 	template <typename Function>
-	static PyObject* function( Function iFunction )
+	static PyObject* callFunction( Function function )
 	{
 		try
 		{
-			return pyBuildSimpleObject( iFunction() );
+			return pyBuildSimpleObject( function() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
 	template <typename Function, $(typename P$x)$>
-	static PyObject* function( Function iFunction, $(P$x p$x)$ )
+	static PyObject* callFunction( Function function, $(P$x p$x)$ )
 	{
 		try
 		{
-			return pyBuildSimpleObject( iFunction($(p$x)$) );
+			return pyBuildSimpleObject( function($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -143,22 +143,22 @@ struct Caller
 
 	// method
 
-	template <typename CppClassPtr, typename Method>
-	static PyObject* method( CppClassPtr iObject, Method iMethod )
+	template <typename CppClassRef, typename Method>
+	static PyObject* callMethod( CppClassRef object, Method method )
 	{
 		try
 		{
-			return pyBuildSimpleObject( (iObject->*iMethod)() );
+			return pyBuildSimpleObject( (object.*method)() );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	};
 	$[
-	template <typename CppClassPtr, typename Method, $(typename P$x)$>
-	static PyObject* method( CppClassPtr iObject, Method iMethod, $(P$x p$x)$ )
+	template <typename CppClassRef, typename Method, $(typename P$x)$>
+	static PyObject* callMethod( CppClassRef object, Method method, $(P$x p$x)$ )
 	{
 		try
 		{
-			return pyBuildSimpleObject( (iObject->*iMethod)($(p$x)$) );
+			return pyBuildSimpleObject( (object.*method)($(p$x)$) );
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
@@ -173,54 +173,50 @@ struct Caller<void>
 	// free functions
 
 	template <typename Function>
-	static PyObject* function( Function iFunction )
+	static PyObject* callFunction( Function function )
 	{
 		try
 		{
-			iFunction();
+			function();
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
+		Py_RETURN_NONE;
 	};
 	$[
 	template <typename Function, $(typename P$x)$>
-	static PyObject* function( Function iFunction, $(P$x p$x)$ )
+	static PyObject* callFunction( Function function, $(P$x p$x)$ )
 	{
 		try
 		{
-			iFunction($(p$x)$);
+			function($(p$x)$);
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 	]$
 
 	// methods
 
-	template <typename CppClassPtr, typename Method>
-	static PyObject* method( CppClassPtr iObject, Method iMethod )
+	template <typename CppClassRef, typename Method>
+	static PyObject* callMethod( CppClassRef object, Method method )
 	{
 		try
 		{
-			(iObject->*iMethod)();
+			(object.*method)();
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
+		Py_RETURN_NONE;
 	};
 	$[
-	template <typename CppClassPtr, typename Method, $(typename P$x)$>
-	static PyObject* method( CppClassPtr iObject, Method iMethod, $(P$x p$x)$ )
+	template <typename CppClassRef, typename Method, $(typename P$x)$>
+	static PyObject* callMethod( CppClassRef object, Method method, $(P$x p$x)$ )
 	{
 		try
 		{
-			(iObject->*iMethod)($(p$x)$);
+			(object.*method)($(p$x)$);
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-		Py_INCREF( Py_None );
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 	]$
 };
@@ -232,20 +228,20 @@ struct Caller<void>
 /** calls C++ function without arguments
  */
 template <typename R>
-PyObject* callFunction( PyObject* args, R (*iFunction)() )
+PyObject* callFunction( PyObject* args, R (*function)() )
 {
 	typedef R(*TFunction)();
 	if( decodeTuple(args) != 0 )
 	{
 		return 0;
 	}
-	return Caller<R>::template function<TFunction>( iFunction );
+	return Caller<R>::template callFunction<TFunction>( function );
 }
 $[
 /** calls C++ function with $x arguments, translated from python arguments
  */
 template <typename R, $(typename P$x)$>
-PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
+PyObject* callFunction( PyObject* args, R (*function)($(P$x)$) )
 {
 	typedef R (*TFunction)($(P$x)$);
 	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
@@ -254,8 +250,8 @@ PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
 	{
 		return 0;
 	}
-	return Caller<R>::template function<TFunction, $(P$x)$>( 
-		iFunction, $(TArg$x::arg(p$x))$ );
+	return Caller<R>::template callFunction<TFunction, $(P$x)$>( 
+		function, $(TArg$x::arg(p$x))$ );
 }
 ]$
 
@@ -263,7 +259,7 @@ PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
 
 // --- methods -------------------------------------------------------------------------------------
 
-template <class CppClass>
+template <typename ShadowTraits>
 struct CallMethod
 {
 	// non const methods
@@ -271,31 +267,37 @@ struct CallMethod
 	/** call non const method without arguments
 	 */
 	template <typename C, typename R>
-	static PyObject* call( PyObject* args, CppClass* iObject, R (C::*iMethod)() )
+	static PyObject* call( PyObject* args, PyObject* object, R (C::*method)() )
 	{
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
 		typedef R (C::*TMethod)();
-		if( decodeTuple(args) != 0 )
+		TCppClassPtr self;
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template method<CppClass*, TMethod>(
-			iObject, iMethod );
+		return Caller<R>::template callMethod<TCppClass&, TMethod>(
+			*self, method);
 	}
 $[
 	/** call non const method with $x arguments, translated from python arguments
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* call( PyObject* args, CppClass* iObject, R (C::*iMethod)($(P$x)$) )
+	static PyObject* call( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) )
 	{
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
 		typedef R (C::*TMethod)($(P$x)$);
+		TCppClassPtr self;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template method<CppClass*, TMethod, $(P$x)$>( 
-			iObject, iMethod, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::template callMethod<TCppClass&, TMethod, $(P$x)$>( 
+			*self, method, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -304,170 +306,112 @@ $[
 	/** call const method without arguments
 	 */
 	template <typename C, typename R>
-	static PyObject* call( PyObject* args, const CppClass* iObject, R (C::*iMethod)() const )
+	static PyObject* call( PyObject* args, PyObject* object, R (C::*method)() const )
 	{
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
 		typedef R (C::*TMethod)() const;
-		if( decodeTuple(args) != 0 )
+		TConstCppClassPtr self;
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template method<const CppClass*, TMethod>( 
-			iObject, iMethod );
+		return Caller<R>::template callMethod<const TCppClass&, TMethod>( 
+			*self, method);
 	}
 $[
 	/** call const method with $x argument, translated from python arguments
 	 */
 	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* call( PyObject* args, const CppClass* iObject, R (C::*iMethod)($(P$x)$) const )
+	static PyObject* call( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) const )
 	{
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
 		typedef R (C::*TMethod)($(P$x)$) const;
+		TConstCppClassPtr self;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template method<const CppClass*, TMethod, $(P$x)$>(
-			iObject, iMethod, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::template callMethod<const TCppClass&, TMethod, $(P$x)$>(
+			*self, method, $(TArg$x::arg(p$x))$ );
 	}
 ]$
-	// "free" non-const methods passing iObject as pointer
+	// "free" methods passing object as first argument
 
-	/** call non const "free method" without arguments, passing iObject as pointer
+	/** call "free method" without arguments, passing object as first argument
 	 */
-	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*) )
+	template <typename R>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(typename ShadowTraits::TCppClass&) )
 	{
-		typedef R (*TFunction)(C*);
-		if( decodeTuple(args) != 0 )
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
+		typedef R (*TFunction)(TCppClass&);
+		TCppClassPtr self;
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template function<TFunction, C* >(
-			iFreeMethod, iObject );
+		return Caller<R>::template callFunction<TFunction, TCppClass&>(
+			freeMethod, *self );
 	}
 $[
-	/** call non-const "free method" with $x arguments translated from python arguments, 
-	 *  passing iObject as pointer
+	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
 	 */
-	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C*, $(P$x)$) )
+	template <typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(typename ShadowTraits::TCppClass&, $(P$x)$) )
 	{
-		typedef R (*TFunction)(C*, $(P$x)$);
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
+		typedef R (*TFunction)(TCppClass&, $(P$x)$);
+		TCppClassPtr self;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template function<TFunction, C*, $(P$x)$>(
-			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
-	}
-]$
-
-	// "free" non-const methods passing iObject as reference
-
-	/** call non const "free method" without arguments, passing iObject as reference
-	 */
-	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&) )
-	{
-		typedef R (*TFunction)(C&);
-		if( decodeTuple(args) != 0 )
-		{
-			return 0;
-		}
-		LASS_ASSERT(iObject);
-		return Caller<R>::template function<TFunction, C& >(
-			iFreeMethod, *iObject );
-	}
-$[
-	/** call non-const "free method" with $x arguments translated from python arguments, 
-	 *  passing iObject as reference
-	 */
-	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, CppClass* iObject, R (*iFreeMethod)(C&, $(P$x)$) )
-	{
-		typedef R (*TFunction)(C&, $(P$x)$);
-		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
-		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
-		{
-			return 0;
-		}
-		LASS_ASSERT(iObject);
-		return Caller<R>::template function<TFunction, C&, $(P$x)$>(
-			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::template callFunction<TFunction, TCppClass&, $(P$x)$>(
+			freeMethod, *self, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
-	// "free" const methods passing iObject as pointer
-
-	/** call const "free method" without arguments, passing iObject as pointer
+	/** call "free method" without arguments, passing object as first argument
 	 */
-	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*) )
+	template <typename R>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(const typename ShadowTraits::TCppClass&) )
 	{
-		typedef R (*TFunction)(const C*);
-		if( decodeTuple(args) != 0 )
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
+		typedef R (*TFunction)(const TCppClass&);
+		TConstCppClassPtr self;
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template function<TFunction, const C* >(
-			iFreeMethod, iObject );
+		return Caller<R>::template callFunction<TFunction, const TCppClass&>(
+			freeMethod, *self );
 	}
 $[
-	/** call const "free method" with $x arguments translated from python arguments, 
-	 *  passing iObject as pointer
+	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
 	 */
-	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C*, $(P$x)$) )
+	template <typename R, $(typename P$x)$>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(const typename ShadowTraits::TCppClass&, $(P$x)$) )
 	{
-		typedef R (*TFunction)(const C*, $(P$x)$);
+		typedef typename ShadowTraits::TCppClass TCppClass;
+		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
+		typedef R (*TFunction)(const TCppClass&, $(P$x)$);
+		TConstCppClassPtr self;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
+		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template function<TFunction, const C*, $(P$x)$>(
-			iFreeMethod, iObject, $(TArg$x::arg(p$x))$ );
-	}
-]$
-
-	// "free" const methods passing iObject as reference
-
-	/** call non const "free method" without arguments, passing iObject as pointer
-	 */
-	template <typename C, typename R>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&) )
-	{
-		typedef R (*TFunction)(const C&);
-		if( decodeTuple(args) != 0 )
-		{
-			return 0;
-		}
-		LASS_ASSERT(iObject);
-		return Caller<R>::template function<TFunction, const C& >(
-			iFreeMethod, *iObject );
-	}
-$[
-	/** call const "free method" with $x arguments translated from python arguments, 
-	 *  passing iObject as pointer
-	 */
-	template <typename C, typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, const CppClass* iObject, R (*iFreeMethod)(const C&, $(P$x)$) )
-	{
-		typedef R (*TFunction)(const C&, $(P$x)$);
-		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
-		)$
-		if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
-		{
-			return 0;
-		}
-		LASS_ASSERT(iObject);
-		return Caller<R>::template function<TFunction, const C&, $(P$x)$>(
-			iFreeMethod, *iObject, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::template callFunction<TFunction, const TCppClass&, $(P$x)$>(
+			freeMethod, *self, $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -476,44 +420,34 @@ $[
 	/** call const getter function
 	 */
 	template <typename C, typename R>
-	static PyObject* get( const CppClass* iObject, R (C::*iMethod)() const)
+	static PyObject* get(PyObject* object, R (C::*method)() const)
 	{
+		typename ShadowTraits::TConstCppClassPtr self;
+		if (ShadowTraits::getObject(object, self) != 0)
+		{
+			return 0;
+		}
 		try
 		{
-			return pyBuildSimpleObject((iObject->*iMethod)());
+			return pyBuildSimpleObject(((*self).*method)());
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 	}
-
-	/** call getter function, for non-assignable, although not read-only members
-	 */
-	template <typename C, typename R>
-	static PyObject* get( CppClass* iObject, R (C::*iMethod)() )
-	{
-		try
-		{
-			return pyBuildSimpleObject((iObject->*iMethod)());
-		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
-	}
-
 
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* args, CppClass* iObject, void (CppClass::*iMethod)(P) )
+	template <typename C, typename P>
+	static int set( PyObject* args, PyObject* object, void (C::*method)(P) )
 	{
-		typedef ArgumentTraits<P> TArg;
-		typename TArg::TStorage p;
-
-		if( pyGetSimpleObject( args, p ) != 0 )
+		typename ShadowTraits::TCppClassPtr self;
+		typedef ArgumentTraits<P> TArg; typename TArg::TStorage p;
+		if (ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
 		{
 			return -1;
 		}
-
 		try
 		{
-			(iObject->*iMethod)(TArg::arg(p));
+			((*self).*method)(TArg::arg(p));
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
 		return 0;
@@ -521,20 +455,50 @@ $[
 
 	/** call implicit setter function like <tt>Bar& Foo::bar()</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* args, CppClass* iObject, P& (CppClass::*iMethod)() )
+	template <typename C, typename P>
+	static int set( PyObject* args, PyObject* object, P& (C::*method)() )
 	{
-		typedef ArgumentTraits<P> TArg;
-		typename TArg::TStorage p;
-
-		if( pyGetSimpleObject( args, p ) != 0 )
+		typename ShadowTraits::TCppClassPtr self;
+		typedef ArgumentTraits<P> TArg;	typename TArg::TStorage p;
+		if(ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
 		{
 			return -1;
 		}
-
 		try
 		{
-			(iObject->*iMethod)() = TArg::arg(p);
+			((*self).*method)() = TArg::arg(p);
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
+		return 0;
+	}
+
+	template <typename C, typename R>
+	static PyObject* freeGet(PyObject* object, R (*function)(const C&) )
+	{
+		typename ShadowTraits::TConstCppClassPtr self;
+		if (ShadowTraits::getObject(object, self) != 0)
+		{
+			return 0;
+		}
+		try
+		{
+			return pyBuildSimpleObject(function(*self));
+		}
+		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+	}
+
+	template <typename C, typename P>
+	static int freeSet( PyObject* args, PyObject* object, void (*function)(C&, P) )
+	{
+		typename ShadowTraits::TCppClassPtr self;
+		typedef ArgumentTraits<P> TArg;	typename TArg::TStorage p;
+		if(ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
+		{
+			return -1;
+		}
+		try
+		{
+			function(*self, p);
 		}
 		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
 		return 0;
@@ -547,11 +511,12 @@ $[
 
 /** allocate a new object with default constructor.
  */
-template <class PyObjectClass>
-PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
+template <typename ShadowTraits>
+PyObject* construct( PyTypeObject* subType, PyObject* args )
 {
-	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
-	typedef typename TPyShadowTraits::TCppClass TCppClass;
+	typedef typename ShadowTraits::TCppClass TCppClass;
+	typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
+	typedef typename ShadowTraits::TPyClassPtr TPyClassPtr;
 	
 	if( decodeTuple(args) != 0 )
 	{
@@ -560,11 +525,11 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
 	
 	try
 	{
-		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass );
+		const TCppClassPtr cppObject(new TCppClass);
+		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);
 		// actually the iSubType should be used but appearently the tp_dict does not get properly initialized
 		// so for now, old-style, consequence: no inheritance from extension classes
-		impl::fixObjectType(result);
-		result->ob_type = iSubtype;
+		result->ob_type = subType;
 		// do not track the object using GC
 //#pragma LASS_TODO("Check if we have created memory leak... yes we have :-/, read the comments here.")
 		/* The reason why we can't use the GC mechanism of Python is that objects needs extra members for this and we don't 
@@ -576,18 +541,19 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
 		*/
 		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
 		Py_INCREF(result->ob_type);
-		return result;
+		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 }
 $[
 /** allocate a new object with $x arguments.
  */
-template <class PyObjectClass, $(typename P$x)$>
-PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
+template <typename ShadowTraits, $(typename P$x)$>
+PyObject* construct( PyTypeObject* subType, PyObject* args )
 {
-	typedef ShadowTraits< PyObjectClass > TPyShadowTraits;
-	typedef typename TPyShadowTraits::TCppClass TCppClass;
+	typedef typename ShadowTraits::TCppClass TCppClass;
+	typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
+	typedef typename ShadowTraits::TPyClassPtr TPyClassPtr;
 	$(typedef ArgumentTraits< P$x > TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 	)$
 
@@ -598,12 +564,12 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
 
 	try
 	{
-		PyObjectClass* result = TPyShadowTraits::pyObject( new TCppClass( $(TArg$x::arg(p$x))$ ) );
-		impl::fixObjectType(result);
-		result->ob_type = iSubtype;
+		const TCppClassPtr cppObject(new TCppClass( $(TArg$x::arg(p$x))$ ));
+		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);
+		result->ob_type = subType;
 		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
 		Py_INCREF(result->ob_type);
-		return result;
+		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
 }
@@ -616,14 +582,14 @@ PyObject* construct( PyTypeObject* iSubtype, PyObject* args )
 // This explicit resolver construct is a wicked meta function that will call the write
 // template function based on template parameters in TypeListType.
 
-template <class CppClass, typename R, typename TypeListType> struct ExplicitResolver;
-$[template <class CppClass, typename R, $(typename P$x)$, typename TypeListType> struct ExplicitResolver$x;
+template <typename ShadowTraits, typename R, typename TypeListType> struct ExplicitResolver;
+$[template <typename ShadowTraits, typename R, $(typename P$x)$, typename TypeListType> struct ExplicitResolver$x;
 ]$
-template <class CppClass, typename R, $(typename P$x)$, typename P$y, typename TypeListType> struct ExplicitResolver$y;
+template <typename ShadowTraits, typename R, $(typename P$x)$, typename P$y, typename TypeListType> struct ExplicitResolver$y;
 
 
-template <class CppClass, typename R>
-struct ExplicitResolver<CppClass, R, lass::meta::NullType>
+template <typename ShadowTraits, typename R>
+struct ExplicitResolver<ShadowTraits, R, lass::meta::NullType>
 {
 	struct Impl
 	{
@@ -631,26 +597,24 @@ struct ExplicitResolver<CppClass, R, lass::meta::NullType>
 		{
 			return ::lass::python::impl::callFunction<R>( args, iFunction );
 		}
-		static PyObject* callMethod( PyObject* args, CppClass* iObject, R (CppClass::*iMethod)() )
+		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)() )
 		{
-			return CallMethod<CppClass>::call( args, iObject, iMethod );
+			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		static PyObject* callMethod( PyObject* args, const CppClass* iObject, R (CppClass::*iMethod)() const )
+		template <typename C> static PyObject* callMethod( PyObject* args, const PyObject* object, R (C::*method)() const )
 		{
-			return CallMethod<CppClass>::call( args, iObject, iMethod );
+			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		static PyObject* callConstructor( PyTypeObject* iSubtype, PyObject* args )
+		static PyObject* callConstructor( PyTypeObject* subType, PyObject* args )
 		{
-			return construct<CppClass>( iSubtype, args );
+			return construct<ShadowTraits>( subType, args );
 		}
-		static bool isConstMember( R (CppClass::*)() ) { return false; }
-		static bool isConstMember( R (CppClass::*)() const ) { return true; }
 	};
 	typedef Impl TImpl;
 };
 $[
-template <class CppClass, typename R, $(typename P$x)$>
-struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
+template <typename ShadowTraits, typename R, $(typename P$x)$>
+struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, lass::meta::NullType>
 {
 	struct Impl
 	{
@@ -658,39 +622,41 @@ struct ExplicitResolver$x<CppClass, R, $(P$x)$, lass::meta::NullType>
 		{
 			return ::lass::python::impl::callFunction<R, $(P$x)$>( args, iFunction );
 		}
-		static PyObject* callMethod( PyObject* args, CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) )
+		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) )
 		{
-			return CallMethod<CppClass>::call( args, iObject, iMethod );
+			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		static PyObject* callMethod( PyObject* args, const CppClass* iObject, R (CppClass::*iMethod)($(P$x)$) const )
+		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) const )
 		{
-			return CallMethod<CppClass>::call( args, iObject, iMethod );
+			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		static bool isConstMember( R (CppClass::*)($(P$x)$) ) { return false; }
-		static bool isConstMember( R (CppClass::*)($(P$x)$) const ) { return true; }
-		static PyObject* callFreeMethod( PyObject* args, CppClass* iObject, R (*iFreeMethod)($(P$x)$) )
+		template <typename C> static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)(C&, $(P$x)$) )
 		{
-			return CallMethod<CppClass>::callFree( args, iObject, iFreeMethod );
+			return CallMethod<ShadowTraits>::callFree( args, object, freeMethod );
 		}
-		static PyObject* callConstructor( PyTypeObject* iSubtype, PyObject* args )
+		template <typename C> static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)(const C&, $(P$x)$) )
 		{
-			return construct<CppClass, $(P$x)$>( iSubtype, args );
+			return CallMethod<ShadowTraits>::callFree( args, object, freeMethod );
+		}
+		static PyObject* callConstructor( PyTypeObject* subType, PyObject* args )
+		{
+			return construct<ShadowTraits, $(P$x)$>( subType, args );
 		}
 	};
 	typedef Impl TImpl;
 };
 ]$
 
-template <class CppClass, typename R, typename Head, typename Tail>
-struct ExplicitResolver<CppClass, R, meta::TypeList<Head, Tail> >
+template <typename ShadowTraits, typename R, typename Head, typename Tail>
+struct ExplicitResolver<typename ShadowTraits, R, meta::TypeList<Head, Tail> >
 {
-	typedef typename ExplicitResolver1<CppClass, R, Head, Tail>::TImpl TImpl;
+	typedef typename ExplicitResolver1<ShadowTraits, R, Head, Tail>::TImpl TImpl;
 };
 $[
-template <class CppClass, typename R, $(typename P$x)$, typename Head, typename Tail>
-struct ExplicitResolver$x<CppClass, R, $(P$x)$, meta::TypeList<Head, Tail> >
+template <typename ShadowTraits, typename R, $(typename P$x)$, typename Head, typename Tail>
+struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, meta::TypeList<Head, Tail> >
 {
-	typedef typename ExplicitResolver$y<CppClass, R, $(P$x)$, Head, Tail>::TImpl TImpl;
+	typedef typename ExplicitResolver$y<ShadowTraits, R, $(P$x)$, Head, Tail>::TImpl TImpl;
 };
 ]$
 

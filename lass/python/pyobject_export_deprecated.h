@@ -45,6 +45,7 @@
 
 #include "python_common.h"
 #include "shadowee_traits.h"
+#include "../util/shared_ptr.h"
 
 namespace lass
 {
@@ -57,41 +58,62 @@ namespace python
 	template <typename T> 
 	struct PyExportTraits
 	{
-		typedef typename ShadoweeTraits<T>::TShadow TShadow;
-		static PyObject* build(const T& iv)
+		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+		static PyObject* build(const T& v)
 		{
-			std::auto_ptr<T> v(new T(iv));
-			return TShadow::make(v);
+			const typename TShadowTraits::TCppClassPtr p(new T(v));
+			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(p));
+		}
+		static int get(PyObject* obj, T& v)
+		{
+			if (obj == Py_None || obj->ob_type != T::_lassPyClassDef.type())
+			{
+				PyErr_Format(PyExc_TypeError, "PyObject not a %s", T::_lassPyClassDef.name());
+				return 1;
+			}
+			typename TShadowTraits::TConstCppClassPtr p;
+			if (TShadowTraits::getObject(obj, p) != 0)
+			{
+				return 1;
+			}
+			// try
+			v = *p;
+			// catch
+			return 0;
+		}
+	};
+
+	/** T may be const
+	 */
+	template <typename T, template <typename, typename> class S, typename C>
+	struct PyExportTraits< util::SharedPtr<T, S, C> >
+	{
+		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+		typedef typename ShadoweeTraits<T>::TPointerTraits::TPtr TPtr;
+		static PyObject* build(const TPtr& value)
+		{
+			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(value));
+		}
+		static int get(PyObject* obj, TPtr& value)
+		{
+			if (obj == Py_None)
+			{
+				value = TPtr();
+				return 0;
+			}
+			return TShadowTraits::getObject(obj, value);
 		}
 	};
 
 	template <typename T>
 	struct PyExportTraits< std::auto_ptr<T> >
 	{
-		typedef typename ShadoweeTraits<T>::TShadow TShadow;
+		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+		typedef typename ShadoweeTraits<T>::TPointerTraits::TPtr TPtr;
 		static PyObject* build(std::auto_ptr<T>& iv)
 		{
-			return TShadow::make(iv);
-		}
-	};
-
-	template <typename T>
-	struct PyExportTraits< T* >
-	{
-		typedef typename ShadoweeTraits<T>::TShadow TShadow;
-		static PyObject* build(T* iv)
-		{
-			return TShadow::make(iv);
-		}
-	};
-
-	template <typename T>
-	struct PyExportTraits< const T* >
-	{
-		typedef typename ShadoweeTraits<T>::TShadow TShadow;
-		static PyObject* build(const T* iv)
-		{
-			return TShadow::make(iv);
+			TPtr p(iv);
+			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(p));
 		}
 	};
 

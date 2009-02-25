@@ -60,6 +60,8 @@ public:
 	std::string address() const;
 };
 
+typedef util::SharedPtr<Spam> TSpamPtr;
+
 class Ham: public Spam
 {
 public:
@@ -92,12 +94,12 @@ private:
 	int number_;
 };
 
-std::auto_ptr<Spam> makeSpam(const std::string& iWhat);
+TSpamPtr makeSpam(const std::string& iWhat);
 
-Spam* spamToCppByPointer(Spam* a);
-bool spamToCppByCopy(Spam a, Spam* b);
-bool spamToCppByConstReference(const Spam& a, Spam* b);
-bool spamToCppByReference(Spam& a, Spam* b);
+TSpamPtr spamToCppByPointer(const TSpamPtr& a);
+bool spamToCppByCopy(Spam a, const TSpamPtr b);
+bool spamToCppByConstReference(const Spam& a, TSpamPtr b);
+bool spamToCppByReference(Spam& a, const util::SharedPtr<const Spam>& b);
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam);
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyHam, Ham, PySpam)

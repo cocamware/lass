@@ -203,31 +203,20 @@ public:
 	void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
 };
 
-std::map<std::string,float>::const_iterator freeBegin(ClassMap* iThis)
+std::map<std::string,float>::const_iterator freeBegin(ClassMap& iThis)
 {
-	return iThis->begin();
+	return iThis.begin();
 }
-std::map<std::string,float>::const_iterator freeEnd(ClassMap* iThis)
+std::map<std::string,float>::const_iterator freeEnd(ClassMap& iThis)
 {
-	return iThis->end();
+	return iThis.end();
 }
 
-
-PyObject* getMemberImagine(const ClassB * iThis )
-{
-	Py_XINCREF(Py_None);
-	return Py_None;
-}
-int setMemberImagine(const ClassB * iThis, PyObject* iObject )
-{
-	// success
-	return 0;
-}
-int properGetMemberImagine(const ClassB * iThis )
+int properGetMemberImagine(const ClassB& iThis )
 {
 	return 1;
 }
-void properSetMemberImagine(ClassB * iThis, int iWhat)
+void properSetMemberImagine(ClassB& iThis, int iWhat)
 {
 
 }
@@ -278,8 +267,6 @@ PY_SHADOW_DOWN_CASTERS( PyClassB )
 PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
 PY_CLASS_CONSTRUCTOR_0( PyClassB)
 PY_CLASS_FREE_CONSTRUCTOR_1(PyClassB, lass::test::freeConstructor, int)
-PY_CLASS_DEPRECATED_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::getMemberImagine, lass::test::setMemberImagine, "imagine", "blabla")
-PY_CLASS_DEPRECATED_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::getMemberImagine, "imagine", "blabla")
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
 PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
 
@@ -305,7 +292,7 @@ PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
 PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
 PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
 
-PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], std::vector<float>::const_reference, std::vector<float>::size_type, lass::python::methods::_getitem_);
+PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], std::vector<float>::reference, std::vector<float>::size_type, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
 #if PY_MAJOR_VERSION < 3
 	PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
@@ -325,7 +312,7 @@ PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
 //This won't be accepted due to A being an abstract class
 //PY_CLASS_METHOD_QUALIFIED_1( PyClassB, testConst, void, const lass::test::ClassA& )
 
-PY_CLASS_METHOD_CAST_1( PyClassB, testConst, void, lass::python::PointerCast<const lass::test::ClassA&>  )
+//PY_CLASS_METHOD_CAST_1( PyClassB, testConst, void, lass::python::PointerCast<const lass::test::ClassA&>  )
 //PY_CLASS_METHOD_CAST_1( PyClassB, testNonConst, void, lass::python::PointerCast<lass::test::ClassA&>  )
 
 namespace lass { namespace python {
@@ -363,7 +350,7 @@ struct IsACaster<CustomCast<T> >
 
 }
 }
-PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
+//PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
 
 #if PY_MAJOR_VERSION < 3
 void initembedding(void)

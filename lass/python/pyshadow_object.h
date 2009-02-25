@@ -44,32 +44,10 @@ namespace python
 namespace impl
 {
 
-/** @ingroup Python
- *  @internal
- */
-class ConstError: public util::experimental::ExceptionMixin<ConstError>
-{
-public:
-	ConstError(const std::string& msg, const std::string& loc): 
-		util::experimental::ExceptionMixin<ConstError>(msg, loc) {}
-};
-
-/** @ingroup Python
- *  @internal
- */
-enum ShadowOwnership
-{
-	soBorrowed,
-	soOwner
-};
-
-/** @ingroup Python
- *  @internal
- */
-enum ShadowConstness
+enum ShadoweeConstness
 {
 	scConst,
-	scNonConst
+	scNonConst,
 };
 
 /** @ingroup Python
@@ -88,72 +66,6 @@ private:
 /** @ingroup Python
  *  @internal
  */
-template <class ShadoweeType>
-class ShadowBase: public ShadowBaseCommon
-{
-public:
-	typedef ShadoweeType TShadowee;
-
-	virtual ~ShadowBase()
-	{
-		if (ownership_ == soOwner)
-		{
-			delete shadowee_;
-		}
-	}
-
-	TShadowee* cppObject() const
-	{
-		if (constness_ == scConst)
-		{
-			LASS_THROW_EX(ConstError, "Can't get write access through a const object pointer");
-		}
-		return shadowee_;
-	}
-	const TShadowee* constCppObject() const
-	{
-		return shadowee_;
-	}
-
-protected:
-	typedef PyObjectPlus* (*TDerivedMaker)(TShadowee*, ShadowOwnership, ShadowConstness);
-
-	ShadowBase(TShadowee* shadowee, ShadowOwnership ownership, ShadowConstness constness): 
-		shadowee_(shadowee), ownership_(ownership), constness_(constness)
-	{
-	}
-
-	static void registerDerivedMaker(TDerivedMaker derivedMaker)
-	{
-	}
-
-private:
-	TShadowee* shadowee_;
-	ShadowOwnership ownership_;
-	ShadowConstness constness_;
-};
-
-/** @ingroup Python
- *  @internal
- */
-template <typename ShadoweeType, typename ParentShadowType> 
-struct ShadowBaseSelector 
-{ 
-	typedef ParentShadowType Type;
-};
-
-/** @ingroup Python
- *  @internal
- */
-template <typename ShadoweeType> 
-struct ShadowBaseSelector<ShadoweeType, PyObjectPlus> 
-{ 
-	typedef ShadowBase<ShadoweeType> Type;
-};
-
-/** @ingroup Python
- *  @internal
- */
 template <typename T>
 struct IsShadowClass: public meta::IsDerived<T, ShadowBaseCommon> 
 {
@@ -165,178 +77,289 @@ struct IsShadowClass: public meta::IsDerived<T, ShadowBaseCommon>
 template <typename T>
 struct ShadowTraits
 {
+	enum { isShadow = IsShadowClass<T>::value };
+
 private:
 
 	template <typename U, bool shadow>
 	struct Impl
 	{
+		typedef typename U::TShadoweePtr TCppClassPtr;
+		typedef typename U::TConstShadoweePtr TConstCppClassPtr;
+		typedef typename U::TShadowPtr TPyClassPtr;
 		typedef typename U::TShadowee TCppClass;
-		static TCppClass* cppObject(U* pyObject)
+		static int getObject(U* obj, TCppClassPtr& value)
 		{
-			return static_cast<TCppClass*>(pyObject->cppObject());
+			typedef typename U::TPointerTraits TPointerTraits;
+			const TCppClassPtr p = TPointerTraits::staticCast(obj->cppObject());
+			if (TPointerTraits::isEmpty(p))
+			{
+				PyErr_Format(PyExc_TypeError, "PyObject is a const %s", T::_lassPyClassDef.name());
+				return 1;
+			}
+			value = p;
+			return 0;
 		};
-		// this does nothing special in the general case, for specific use we
-		// can override this function to only allow const calls on const shadowed objects
-		static const TCppClass* constCppObject(U* pyObject)
+		static int getObject(U* obj, TConstCppClassPtr& value)
 		{
-			return static_cast<const TCppClass*>(pyObject->constCppObject());
+			typedef typename U::TConstPointerTraits TConstPointerTraits;
+			value = TConstPointerTraits::staticCast(obj->constCppObject());
+			LASS_ASSERT(!TConstPointerTraits::isEmpty(value));
+			return 0;
 		};
-		static U* pyObject(TCppClass* cppObject)
+		template <typename Ptr> static TPyClassPtr buildObject(const Ptr& value)
 		{
-			return U::make(cppObject);
+			return U::make(value);
 		}
 	};
 
 	template <typename U>
 	struct Impl<U, false>
 	{
+		typedef typename PyObjectPtr<U>::Type TPyClassPtr;
+		typedef TPyClassPtr TCppClassPtr;
+		typedef typename PyObjectPtr<const U>::Type TConstCppClassPtr;
 		typedef U TCppClass;
-		static U* cppObject(U* pyObject)
+		static int getObject(U* obj, TPyClassPtr& value)
 		{
-			return pyObject;
+			value = fromNakedToSharedPtrCast<U>(obj);
+			return 0;
 		};
-		static const U* constCppObject(U* pyObject)
+		static int getObject(U* obj, TConstCppClassPtr& value)
 		{
-			return pyObject;
+			value = fromNakedToSharedPtrCast<const U>(obj);
+			return 0;
 		};
-		static U* pyObject(U* cppObject)
+		static const TPyClassPtr& buildObject(const TPyClassPtr& value)
 		{
-			return cppObject;
+			return value;
 		}
+		// we can't create them from const cppObjects, as we can't track it as such ...
 	};
+
+	typedef Impl<T, isShadow> TImpl;
+
+	static bool checkSubType(PyObject* obj)
+	{
+		LASS_ASSERT(obj);
+		if (!PyType_IsSubtype(obj->ob_type , T::_lassPyClassDef.type() ))
+		{
+			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
+			return false;
+		}
+		return true;
+	}
 
 public:
 
-	enum { isShadow = IsShadowClass<T>::value };
-	typedef typename Impl<T, isShadow>::TCppClass TCppClass;
+	typedef typename TImpl::TCppClass TCppClass;
+	typedef typename TImpl::TCppClassPtr TCppClassPtr;
+	typedef typename TImpl::TConstCppClassPtr TConstCppClassPtr;
+	typedef typename TImpl::TPyClassPtr TPyClassPtr;
 
-	typedef int (*TPyGetSimpleObjectByCopy)( PyObject* iObject, TCppClass& oByCopy );
-	typedef int (*TPyGetSimpleObjectByBorrow)( PyObject* iObject, TCppClass*& oByBorrow );
-
-	static std::vector<TPyGetSimpleObjectByCopy> byCopyGetters;
-	static std::vector<TPyGetSimpleObjectByBorrow> byBorrowGetters;
-
-	static TCppClass* cppObject(PyObject* iPyObject)
+	template <typename Ptr> static int getObject(PyObject* obj, Ptr& value)
 	{
-		if (!PyType_IsSubtype(iPyObject->ob_type , T::_lassPyClassDef.type() ))
-		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
-			return 0;
-		}
-		try
-		{
-			return Impl<T, isShadow>::cppObject(static_cast<T*>(iPyObject));
-		}
-		catch (ConstError&)
-		{
-			PyErr_SetString(PyExc_TypeError, "PyObject not writable");
-			return 0;
-		}
-	};
-	static const TCppClass* constCppObject(PyObject* iPyObject)
+		return checkSubType(obj) ? TImpl::getObject(static_cast<T*>(obj), value) : 1;
+	}
+	template <typename Ptr> static TPyClassPtr buildObject(const Ptr& value)
 	{
-		if (!PyType_IsSubtype(iPyObject->ob_type , T::_lassPyClassDef.type() ))
-		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
-			return 0;
-		}
-		return Impl<T, isShadow>::constCppObject(static_cast<T*>(iPyObject));
-	};
-	static T* pyObject(TCppClass* iCppObject)
-	{
-		return Impl<T, isShadow>::pyObject(iCppObject);
+		return TImpl::buildObject(value);
 	}
 };
 
-template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByCopy> ShadowTraits<T>::byCopyGetters;
-template<typename T> std::vector<typename ShadowTraits<T>::TPyGetSimpleObjectByBorrow> ShadowTraits<T>::byBorrowGetters;
+template <typename ShadowType, typename DerivedMakers> 
+typename ShadowType::TShadowPtr makeShadow(
+		const typename ShadowType::TConstShadoweePtr& shadowee, const DerivedMakers* derivedMakers,
+		impl::ShadoweeConstness constness)
+{
+	typedef typename ShadowType::TShadowPtr TShadowPtr;
+	typedef typename ShadowType::TConstPointerTraits TConstPointerTraits;
+
+	LASS_ASSERT(!TConstPointerTraits::isEmpty(shadowee));
+	if (derivedMakers)
+	{
+		for (typename DerivedMakers::const_iterator i = derivedMakers->begin(); i != derivedMakers->end(); ++i)
+		{
+			if (const TShadowPtr p = (*i)(shadowee, constness))
+			{
+				return p;
+			}
+		}
+	}
+	return TShadowPtr(impl::fixObjectType(new ShadowType(shadowee, constness)));
+}
+
+template <typename Makers, typename Maker> void registerMaker(Makers*& makers, Maker maker)
+{
+	if (!makers)
+	{
+		makers = new Makers;
+	}
+	makers->push_back(maker);
+}
 
 }
 
+
+template <typename T>
+struct DefaultShadoweePointerTraits
+{
+	typedef util::SharedPtr<T> TPtr;
+	static bool isEmpty(const TPtr& p) 
+	{ 
+		return p.isEmpty(); 
+	}
+	template <typename U> struct Rebind
+	{
+		typedef DefaultShadoweePointerTraits<U> Type;
+	};
+	template <typename U> static TPtr staticCast(const util::SharedPtr<U>& p)
+	{
+		return p.staticCast<T>();
+	}
+	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U>& p)
+	{
+		return p.dynamicCast<T>();
+	}
+	template <typename U> static TPtr constCast(const util::SharedPtr<U>& p)
+	{
+		return p.constCast<T>();
+	}
+};
+
+
+
 /** @ingroup Python
- *	@internal
  */
 template 
 <
 	typename ShadowType,
 	typename ShadoweeType, 
-	typename ParentShadowType = PyObjectPlus
+	typename ParentShadowType,
+	typename PointerTraits = DefaultShadoweePointerTraits<ShadoweeType>
 >
-class ShadowClass: public impl::ShadowBaseSelector<ShadoweeType, ParentShadowType>::Type
+class ShadowClass: public ParentShadowType
 {
-	typedef typename impl::ShadowBaseSelector<ShadoweeType, ParentShadowType>::Type TBase;
 public:
-	typedef ShadowType TShadow;
 	typedef ShadoweeType TShadowee;
+	typedef ShadowType TShadow;
 	typedef ParentShadowType TParentShadow;
-	typedef typename TBase::TShadowee TParentShadowee;
+	typedef typename PointerTraits::Rebind<ShadoweeType>::Type TPointerTraits;
+	typedef typename PointerTraits::Rebind<const ShadoweeType>::Type TConstPointerTraits;
+	typedef typename TPointerTraits::TPtr TShadoweePtr;
+	typedef typename TConstPointerTraits::TPtr TConstShadoweePtr;
+	typedef typename PyObjectPtr<ShadowType>::Type TShadowPtr;
 
-	static TShadow* make(TShadowee* shadowee)
+	static TShadowPtr make(const TShadoweePtr& shadowee)
 	{
-		return ShadowClass::make(shadowee, impl::soBorrowed, impl::scNonConst);
+		return impl::makeShadow<ShadowType>(shadowee, derivedMakers_, impl::scNonConst);
 	}
-	static TShadow* make(const TShadowee* shadowee)
+	static TShadowPtr make(const TConstShadoweePtr& shadowee)
 	{
-		return ShadowClass::make(const_cast<TShadowee*>(shadowee), impl::soBorrowed, impl::scConst);
-	}
-	static TShadow* make(std::auto_ptr<TShadowee>& shadowee)
-	{
-		TShadow* p = ShadowClass::make(shadowee.get(), impl::soOwner, impl::scNonConst);
-		shadowee.release();
-		return p;
+		return impl::makeShadow<ShadowType>(shadowee, derivedMakers_, impl::scConst);
 	}
 	static void registerWithParent()
 	{
-		TBase::registerDerivedMaker(ShadowClass::makeParent);
+		ParentShadowType::registerDerivedMaker(ShadowClass::makeParent);
 	}
 
 protected:
-	typedef TShadow* (*TDerivedMaker)(TShadowee*, impl::ShadowOwnership, impl::ShadowConstness);
+	typedef TShadowPtr (*TDerivedMaker)(const TConstShadoweePtr&, impl::ShadoweeConstness);
 
-	ShadowClass(TShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness):
-		TBase(shadowee, ownership, constness)
+	ShadowClass(const TConstShadoweePtr& shadowee, impl::ShadoweeConstness constness): 
+		ParentShadowType(shadowee, constness)
 	{
 	}
-
 	static void registerDerivedMaker(TDerivedMaker derivedMaker)
 	{
-		if (!derivedMakers_)
-		{
-			derivedMakers_ = new TDerivedMakers;
-		}
-		derivedMakers_->push_back(derivedMaker);
+		impl::registerMaker(derivedMakers_, derivedMaker);
 	}
 
 private:
 	typedef std::vector<TDerivedMaker> TDerivedMakers;
 
-	static TShadow* make(TShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness)
+	typedef typename TParentShadow::TConstShadoweePtr TParentConstShadoweePtr;
+	typedef typename TParentShadow::TShadowPtr TParentShadowPtr;
+
+	static TParentShadowPtr makeParent(const TParentConstShadoweePtr& shadowee, impl::ShadoweeConstness constness)
 	{
-		if (derivedMakers_)
+		const TConstShadoweePtr p = TConstPointerTraits::dynamicCast(shadowee);
+		if (TConstPointerTraits::isEmpty(p))
 		{
-			for (typename TDerivedMakers::const_iterator i = derivedMakers_->begin(); i != derivedMakers_->end(); ++i)
-			{
-				if(TShadow* p = (*i)(shadowee, ownership, constness))
-				{
-					return p;
-				}
-			}
+			return TParentShadowPtr();
 		}
-		return impl::fixObjectType(new TShadow(shadowee, ownership, constness));
-	}
-	static TParentShadow* makeParent(TParentShadowee* shadowee, impl::ShadowOwnership ownership, impl::ShadowConstness constness)
-	{
-		if (TShadowee* p = dynamic_cast<TShadowee*>(shadowee))
-		{
-			return ShadowClass::make(p, ownership, constness);
-		}
-		return 0;
+		return impl::makeShadow<ShadowType>(p, derivedMakers_, constness);
 	}
 
 	static TDerivedMakers* derivedMakers_;
 };
 
-template <typename S, typename T, typename P> typename ShadowClass<S, T, P>::TDerivedMakers* ShadowClass<S, T, P>::derivedMakers_ = 0;
+template <typename S, typename T, typename P, typename PT> 
+typename ShadowClass<S, T, P, PT>::TDerivedMakers* ShadowClass<S, T, P, PT>::derivedMakers_ = 0;
+
+
+
+template 
+<
+	typename ShadowType,
+	typename ShadoweeType, 
+	typename PointerTraits
+>
+class ShadowClass<ShadowType, ShadoweeType, PyObjectPlus, PointerTraits>: public impl::ShadowBaseCommon
+{
+public:
+	typedef ShadoweeType TShadowee;
+	typedef ShadowType TShadow;
+	typedef typename PointerTraits::Rebind<ShadoweeType>::Type TPointerTraits;
+	typedef typename PointerTraits::Rebind<const ShadoweeType>::Type TConstPointerTraits;
+	typedef typename TPointerTraits::TPtr TShadoweePtr;
+	typedef typename TConstPointerTraits::TPtr TConstShadoweePtr;
+	typedef typename PyObjectPtr<ShadowType>::Type TShadowPtr;
+
+	const TShadoweePtr cppObject() const
+	{
+		if (constness_ == impl::scConst)
+		{
+			return TShadoweePtr();
+		}
+		return TPointerTraits::constCast(shadowee_);
+	}
+	const TConstShadoweePtr& constCppObject() const
+	{
+		return shadowee_;
+	}
+
+	static TShadowPtr make(const TShadoweePtr& shadowee)
+	{
+		return impl::makeShadow<ShadowType>(shadowee, derivedMakers_, impl::scNonConst);
+	}
+	static TShadowPtr make(const TConstShadoweePtr& shadowee)
+	{
+		return impl::makeShadow<ShadowType>(shadowee, derivedMakers_, impl::scConst);
+	}
+	static void registerWithParent()
+	{
+	}
+protected:
+	typedef TShadowPtr (*TDerivedMaker)(const TConstShadoweePtr&, impl::ShadoweeConstness);
+	ShadowClass(const TConstShadoweePtr& shadowee, impl::ShadoweeConstness constness): 
+		shadowee_(shadowee),
+		constness_(constness)
+	{
+	}
+	static void registerDerivedMaker(TDerivedMaker derivedMaker)
+	{
+		impl::registerMaker(derivedMakers_, derivedMaker);
+	}
+private:
+	typedef std::vector<TDerivedMaker> TDerivedMakers;
+	static TDerivedMakers* derivedMakers_;
+	TConstShadoweePtr shadowee_;
+	impl::ShadoweeConstness constness_;
+};
+
+template <typename S, typename T, typename PT> 
+typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, PyObjectPlus, PT>::derivedMakers_ = 0;
 
 }
 
@@ -344,16 +367,18 @@ template <typename S, typename T, typename P> typename ShadowClass<S, T, P>::TDe
 
 /** @ingroup Python
  */
-#define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent) \
-	class dllInterface i_PyObjectShadowClass: public ::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent> \
+#define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits) \
+	class dllInterface i_PyObjectShadowClass: \
+		public ::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits> \
 	{ \
 		PY_HEADER(t_PyObjectParent) \
 	public: \
-		i_PyObjectShadowClass(TShadowee* shadowee, ::lass::python::impl::ShadowOwnership ownership, ::lass::python::impl::ShadowConstness constness): \
-			::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent>(shadowee, ownership, constness) \
+		i_PyObjectShadowClass(const TConstShadoweePtr& shadowee, ::lass::python::impl::ShadoweeConstness constness): \
+			::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits>(shadowee, constness) \
 		{ \
 		} \
 	}; \
+	/* this should be removed from here as it will be in headers! */ \
 	LASS_EXECUTE_BEFORE_MAIN_EX( \
 		LASS_CONCATENATE(lassPythonImplRegisterShadowWithParent_, i_PyObjectShadowClass), \
 		i_PyObjectShadowClass::registerWithParent(); \
@@ -361,11 +386,16 @@ template <typename S, typename T, typename P> typename ShadowClass<S, T, P>::TDe
 
 /** @ingroup Python
  */
+#define PY_SHADOW_CLASS_PTRTRAITS(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PointerTraits)\
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, t_PointerTraits)
+
+/** @ingroup Python
+ */
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::PyObjectPlus)
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::DefaultShadoweePointerTraits< t_CppClass >)
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
-	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent)
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent::TPointerTraits::Rebind<t_CppClass>::Type )
 
 /** @ingroup Python
  *  @deprecated 
@@ -459,6 +489,8 @@ namespace python \
 	template <> struct ShadoweeTraits< t_ShadowObject::TShadowee >: meta::True \
 	{ \
 		typedef t_ShadowObject TShadow; \
+		typedef impl::ShadowTraits< t_ShadowObject > TShadowTraits; \
+		typedef t_ShadowObject::TPointerTraits TPointerTraits; \
 	}; \
 } \
 } \

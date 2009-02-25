@@ -60,6 +60,20 @@ template <typename T>
 struct ShadoweeTraits: meta::False 
 {
 	// typedef ... TShadow;
+	// typedef ... TShadowTraits;
+	// typedef ... TPointerTraits;
+};
+
+/** @ingroup Python
+ *  @internal
+ *  const types have the same shadowee traits as non const types ...
+ */
+template <typename T> 
+struct ShadoweeTraits<const T>: ShadoweeTraits<T>
+{
+	typedef typename ShadoweeTraits<T>::TShadow TShadow;
+	typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+	typedef typename TShadow::TConstPointerTraits TPointerTraits;
 };
 
 }

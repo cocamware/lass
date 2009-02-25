@@ -192,6 +192,37 @@ public:
 	{
 		return TStoragePolicy::storage();
 	}
+
+	template <typename U>
+	const SharedPtr<U, StoragePolicy, CounterPolicy> staticCast() const
+	{
+		return SharedPtr<U, StoragePolicy, CounterPolicy>(TStoragePolicy::staticCast<U>());
+	}
+
+	template <typename U>
+	const SharedPtr<U, StoragePolicy, CounterPolicy> dynamicCast() const
+	{
+		return SharedPtr<U, StoragePolicy, CounterPolicy>(TStoragePolicy::dynamicCast<U>());
+	}
+
+	template <typename U>
+	const SharedPtr<U, StoragePolicy, CounterPolicy> constCast() const
+	{
+		return SharedPtr<U, StoragePolicy, CounterPolicy>(TStoragePolicy::constCast<U>());
+	}
+
+private:
+
+	template <typename U, template <typename, typename> class S, typename C> friend class SharedPtr;
+
+	SharedPtr(const TStoragePolicy& storage): 
+		TStoragePolicy(storage)
+	{
+		if (!isEmpty())
+		{
+			CounterPolicy::increment(TStoragePolicy::storage());
+		}
+	}	
 };
 
 }

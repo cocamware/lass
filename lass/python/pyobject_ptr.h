@@ -67,7 +67,8 @@ namespace impl
 	}
 
 	LASS_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
-	inline void doFixObjectType(PyObject* object) {}
+	inline void doFixObjectType(const PyObjectPlus* object) { doFixObjectType(const_cast<PyObjectPlus*>(object)); }
+	inline void doFixObjectType(const PyObject* object) {}
 
 	/** @internal
 	 *  On creation, PyObjectPlus are typeless (ob_type == 0), 
@@ -114,7 +115,25 @@ protected:
 	bool isNull() const { return !storage_; }
 	void swap(TSelf& other) { Cascade::swap(other); std::swap(storage_, other.storage_);   }
 	static TStorage defaultStorage() { return 0; }
+	template <typename U> const PyObjectStorage<U, Cascade> staticCast() const 
+	{ 
+		return PyObjectStorage<U, Cascade>(static_cast<U*>(storage_), *this);
+	}
+	template <typename U> const PyObjectStorage<U, Cascade> dynamicCast() const
+	{
+		if (U* p = dynamic_cast<U*>(storage_))
+		{		
+			return PyObjectStorage<U, Cascade>(p, *this);
+		}
+		return PyObjectStorage<U, Cascade>();
+	}
+	template <typename U> const PyObjectStorage<U, Cascade> constCast() const 
+	{ 
+		return PyObjectStorage<U, Cascade>(const_cast<U*>(storage_), *this);
+	}
 private:
+	template <typename U, typename C> friend class PyObjectStorage;
+	PyObjectStorage(T* pointee, const Cascade& cascade): Cascade(cascade), storage_(pointee) {}
 	TStorage storage_;
 };
 

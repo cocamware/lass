@@ -25,8 +25,8 @@ if 0:
 
 import embedding
 barC = embedding.Bar()
-echo("values=",barC.writeableMap)
-echo("values=",barC.writeableMap.values())
+#echo("values=",barC.writeableMap)
+#echo("values=",barC.writeableMap.values())
 
 echo("Testing print functionality", barC)
 
@@ -79,32 +79,32 @@ assert(e.aMoreComplexFunction(1,2)==2)
 echo("\n***\n")
 
 barC = embedding.Bar()
-barC.writeableMap['test'] = 'ok'
-echo("barC['test']=",barC.writeableMap['test'])
-if barC.writeableMap['test'] != 'ok':
-    reportError("Map is not writeable")
-else:
-    echo("Succesfully wrote to map")
-echo(barC.writeableMap)		# test the repr and str
-del barC.writeableMap['test']
-exceptionCaught = 1
-try:
-	echo(barC.writeableMap['test'])	# this should fail, because of the previous del
-	exceptionCaught = 0
-except:
-	pass
-if not exceptionCaught:
-	reportError("Could not remove item from map")
-echo(barC.writeableMap)
-for i in range(3):
-	barC.writeableMap[str(i)] = str(i+1)
-echo("values=",barC.writeableMap.values())
-echo("keys=",barC.writeableMap.keys())
-
+#barC.writeableMap['test'] = 'ok'
+#echo("barC['test']=",barC.writeableMap['test'])
+#if barC.writeableMap['test'] != 'ok':
+#    reportError("Map is not writeable")
+#else:
+#    echo("Succesfully wrote to map")
+#echo(barC.writeableMap)		# test the repr and str
+#del barC.writeableMap['test']
+#exceptionCaught = 1
+#try:
+#	echo(barC.writeableMap['test'])	# this should fail, because of the previous del
+#	exceptionCaught = 0
+#except:
+#	pass
+#if not exceptionCaught:
+#	reportError("Could not remove item from map")
+#echo(barC.writeableMap)
+#for i in range(3):
+#	barC.writeableMap[str(i)] = str(i+1)
+#echo("values=",barC.writeableMap.values())
+#echo("keys=",barC.writeableMap.keys())
+#
 # subsequent test fails, probably need a partial sequence-protocol in the mapping
 # protocol embedded
-for x in barC.writeableMap:
-	echo("map iterator",x)
+# for x in barC.writeableMap:
+	# echo("map iterator",x)
 
 try:
     barC.constMap['test'] = 'notok'
@@ -135,23 +135,23 @@ def testSequence(seq):
 	assert(5 in seq)
 	assert(-32132654 not in seq)
 
-barC.writeableVector = range(3)
-# we don't provide special iterator support
-# Python just goes through the sequence until a IndexError is encountered
-# this suffices for std::vector but is a bit slow for std::list/std::deque
-for x in barC.writeableVector:
-	echo("iterator", x)
-echo("------------------")
-try:
-	barC.constVector = range(10)
-	barC.constVector[3] = 5
-except:
-	echo("read-onlyness detected")
-echo("------------------")
-testSequence(barC.writeableVector)
-testSequence(barC.writeableList)
-testSequence(barC.writeableDeque)
-echo(barC.writeableVector)
+# barC.writeableVector = range(3)
+# # we don't provide special iterator support
+# # Python just goes through the sequence until a IndexError is encountered
+# # this suffices for std::vector but is a bit slow for std::list/std::deque
+# for x in barC.writeableVector:
+	# echo("iterator", x)
+# echo("------------------")
+# try:
+	# barC.constVector = range(10)
+	# barC.constVector[3] = 5
+# except:
+	# echo("read-onlyness detected")
+# echo("------------------")
+# testSequence(barC.writeableVector)
+# testSequence(barC.writeableList)
+# testSequence(barC.writeableDeque)
+#echo(barC.writeableVector)
 	
 # testing documentation
 echo("Module documentation :\n ",embedding.__doc__)
@@ -207,14 +207,14 @@ echo("\n***\n")
 exceptionCaught = 0
 test.int = 5
 
-echo("\n* Test automatic and cool setter/getter accessors")
-try:
-    echo("cool member", test.cool)
-    test.cool = 6
-    echo("cool member", test.cool)
-except:
-    reportError("cool setter/getter accessors not supported")
-echo("\n")
+#echo("\n* Test automatic and cool setter/getter accessors")
+#try:
+#    echo("cool member", test.cool)
+#    test.cool = 6
+#    echo("cool member", test.cool)
+#except:
+#    reportError("cool setter/getter accessors not supported")
+#echo("\n")
 
 class TestTypeSafety(unittest.TestCase):
 	def testTypeSafety(self):
@@ -226,11 +226,7 @@ class TestTypeSafety(unittest.TestCase):
 
 import gc
 
-# testing reference counting
-echo("Testing reference counting")
-for i in range(100):
-    test = embedding.Bar()
-    gc.collect()
+
 
 echo("\n***\n")
 
@@ -262,7 +258,7 @@ echo(test.tester(box, "y", matrix))
 
 class TestSignatures(unittest.TestCase):
 	def testCString(self):
-		self.assertEqual_(embedding.testCString("Hello World!"), "Hello World!")
+		self.assertEqual(embedding.testCStringSupport("Hello World!"), "Hello World!")
 
 echo("\n* Testing free methods")
 try:

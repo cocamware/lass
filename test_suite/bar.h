@@ -101,10 +101,10 @@ namespace test
 		float& coolMember();
 
 		int publicInt;
-		std::map<std::string, std::string> writeableMap;
-		std::vector< double > writeableVector;
-		std::list< double > writeableList;
-		std::deque< double > writeableDeque;
+		util::SharedPtr< std::map<std::string, std::string> > writeableMap;
+		util::SharedPtr< std::vector< double > > writeableVector;
+		util::SharedPtr< std::list< double > > writeableList;
+		util::SharedPtr< std::deque< double > > writeableDeque;
 
 		const std::map<std::string, std::string> constMap;
 		const std::vector< double > constVector;
@@ -149,10 +149,10 @@ namespace test
 
 	void listInfo( const python::TPyObjPtr& iObject );
 	void freeMethodA(const Bar& bar, const std::string& a);
-	void freeMethodB(Bar* bar, const std::string& a);
-	float freeCall(const Bar* bar, float a);
-	std::string freeStr(const Bar* bar);
-	std::string freeRepr(const Bar* bar);
+	void freeMethodB(Bar& bar, const std::string& a);
+	float freeCall(const Bar& bar, float a);
+	std::string freeStr(const Bar& bar);
+	std::string freeRepr(const Bar& bar);
 }
 
 }

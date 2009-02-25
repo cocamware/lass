@@ -85,10 +85,12 @@ void testUtilPython()
 	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
 	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
 	
+	/*
 	typedef std::vector<double> TV;
 	TV vec;
 	python::impl::PySequence pyseqtest(vec);
 	LASS_TEST_CHECK_EQUAL( PySequence_Check(&pyseqtest) , 1);
+	*/
 
 }
 
