@@ -235,7 +235,6 @@ namespace impl
 			{
 				return false;
 			}
-			i = normalizeIndex(i);
 			if (!checkIndex(i))
 			{
 				return false;
@@ -256,7 +255,6 @@ namespace impl
 		}
 		PyObject* const item(Py_ssize_t i) const
 		{
-			i = normalizeIndex(i);
 			if (!checkIndex(i))
 			{
 				return 0;
@@ -266,13 +264,12 @@ namespace impl
 		PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const
 		{
 			const Py_ssize_t size = length();
-			low = num::clamp(normalizeIndex(low), 0, size);
-			high = num::clamp(normalizeIndex(high), low, size);
+			low = num::clamp(low, 0, size);
+			high = num::clamp(high, low, size);
 			return fromSharedPtrToNakedCast(pyBuildList(next(begin(), low), next(begin(), high)));
 		}
 		const int assItem(Py_ssize_t i, PyObject* obj)
 		{
-			i = normalizeIndex(i);
 			if (!checkWritable() || !checkIndex(i))
 			{
 				return -1;
@@ -294,8 +291,8 @@ namespace impl
 				return -1;
 			}
 			const Py_ssize_t size = length();
-			low = num::clamp(normalizeIndex(low), 0, size);
-			high = num::clamp(normalizeIndex(high), low, size);
+			low = num::clamp(low, 0, size);
+			high = num::clamp(high, low, size);
 			TConstContainerPtr b;
 			if (other)
 			{
@@ -395,15 +392,6 @@ namespace impl
 				return false;
 			}
 			return true;
-		}
-		const Py_ssize_t normalizeIndex(Py_ssize_t i) const
-		{
-			return i;
-			if (i < 0)
-			{
-				return i + length();
-			}		
-			return i;
 		}
 		const typename TContainerTraits::const_iterator begin() const
 		{
