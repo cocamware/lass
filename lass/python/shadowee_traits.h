@@ -73,7 +73,7 @@ struct ShadoweeTraits<const T>: ShadoweeTraits<T>
 {
 	typedef typename ShadoweeTraits<T>::TShadow TShadow;
 	typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
-	typedef typename TShadow::TConstPointerTraits TPointerTraits;
+	typedef typename ShadoweeTraits<T>::TPointerTraits::template Rebind<const T>::Type TPointerTraits;
 };
 
 }

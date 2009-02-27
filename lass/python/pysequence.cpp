@@ -52,111 +52,163 @@ namespace python
 {
 namespace impl
 {
-	PY_DECLARE_CLASS( PySequence )
+	PY_DECLARE_CLASS( Sequence )
 	//typedef meta::type_list::Make<PyObject*>::Type TArguments;
-	//PY_CLASS_CONSTRUCTOR(PySequence, TArguments) // constructor with some arguments. *
+	//PY_CLASS_CONSTRUCTOR(Sequence, TArguments) // constructor with some arguments. *
 
-	PY_CLASS_METHOD( PySequence, append )
-	PY_CLASS_METHOD( PySequence, pop )
-	PY_CLASS_METHOD_NAME( PySequence, popwo, "pop" )
-	PY_CLASS_METHOD( PySequence, clear )
-	PY_CLASS_METHOD( PySequence, reserve )
+	PY_CLASS_METHOD( Sequence, append )
+	PY_CLASS_METHOD( Sequence, pop )
+	PY_CLASS_METHOD_NAME( Sequence, pop_back, "pop" )
+	PY_CLASS_METHOD( Sequence, clear )
+	PY_CLASS_METHOD( Sequence, reserve )
+	PY_CLASS_METHOD( Sequence, copy )
 
-	PySequenceMethods PySequence::pySequenceMethods = {
-	(lenfunc)PySequence_Length,			/* sq_length */
-	(binaryfunc)PySequence_Concat,		/* sq_concat */
-	(ssizeargfunc)PySequence_Repeat,		/* sq_repeat */
-	(ssizeargfunc)PySequence_Item,			/* sq_item */
-	(ssizessizeargfunc)PySequence_Slice,		/* sq_slice */
-	(ssizeobjargproc)PySequence_AssItem,		/* sq_ass_item */
-	(ssizessizeobjargproc)PySequence_AssSlice,	/* sq_ass_slice */
-	(objobjproc)PySequence_Contains,		/* sq_contains */
-	(binaryfunc)PySequence_InplaceConcat,	/* sq_inplace_concat */
-	(ssizeargfunc)PySequence_InplaceRepeat,	/* sq_inplace_repeat */
+	PySequenceMethods Sequence::pySequenceMethods = {
+		&Sequence::length,
+		&Sequence::concat,
+		&Sequence::repeat,
+		&Sequence::item,
+		&Sequence::slice,
+		&Sequence::assItem,
+		&Sequence::assSlice,
+		&Sequence::contains,
+		&Sequence::inplaceConcat,
+		&Sequence::inplaceRepeat,
 	};
 
-	bool PySequence::isInitialized = false;
+	bool Sequence::isInitialized = false;
 
-	/* POSTPONED: parsing of the arguments needs some work
-	PySequence::PySequence( PyObject* iP ) : PyObjectPlus(&Type)
+	Sequence::Sequence(std::auto_ptr<PySequenceImplBase> pimpl)
 	{
-		// we will default to the vector implementation
-		typedef std::vector<PyObject*>	TVPyObj;
-		TVPyObj*	newContainer  = new TVPyObj;
-		pyGetSimpleObject(iP, newContainer );
-		pimpl_ = new PySequenceContainer<TVPyObj,ContainerOwned<TVPyObj> >(*newContainer,false);
 		initialize();
+		impl::fixObjectType(this);
+		pimpl_.reset(pimpl);
 	}
-	*/
 
-	PySequence::~PySequence()
-	{
-		delete pimpl_;
-	}
-	void PySequence::initialize()
+	void Sequence::initialize()
 	{
 		if (!isInitialized)
 		{
-			//PySequence::Type.tp_iter = &PySequence::PySequence_ListIter;
+			//Sequence::Type.tp_iter = &Sequence::PySequence_ListIter;
 			_lassPyClassDef.type_.tp_as_sequence= &pySequenceMethods;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-			// [TDM] for some reason the dict member is not getting properly initialized on PySequence?!
+			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance
-			PySequence::_lassPyType.tp_dictoffset = 0;
-			PySequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
+			Sequence::_lassPyType.tp_dictoffset = 0;
+			Sequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
 	}
+	const TSequencePtr Sequence::copy() const
+	{
+		return TSequencePtr(new Sequence(pimpl_->copy()));
+	}
+	void Sequence::clear()
+	{
+		if (!pimpl_->clear())
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+	}
+	void Sequence::reserve(size_t n)
+	{
+		if (!pimpl_->reserve(n))
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+	}
+	void Sequence::append(const TPyObjPtr& obj)
+	{
+		if (!pimpl_->append(obj))
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+	}
+	const TPyObjPtr Sequence::pop(Py_ssize_t i)
+	{
+		TPyObjPtr popped(pimpl_->item(i));
+		if (!pimpl_->pop(i))
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+		return popped;
+	}
+	const TPyObjPtr Sequence::pop_back()
+	{
+		return pop(pimpl_->length() - 1);
+	}
 
-	Py_ssize_t PySequence::PySequence_Length( PyObject* iPO)
+	const type_info& Sequence::type() const
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Length();
+		return pimpl_->type();
 	}
-	PyObject* PySequence::PySequence_Concat(PyObject *iPO, PyObject *bb)
+	void* const Sequence::raw(bool writable) const
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Concat(bb);
+		return pimpl_->raw(writable);
 	}
-	PyObject* PySequence::PySequence_Repeat(PyObject *iPO, Py_ssize_t n)
+
+	std::string Sequence::doPyRepr()
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Repeat(n);
+		return pimpl_->repr();
 	}
-	PyObject* PySequence::PySequence_Item(PyObject*iPO, Py_ssize_t i)
+	std::string Sequence::doPyStr()
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Item(i);
+		return doPyRepr();
 	}
-	PyObject* PySequence::PySequence_Slice(PyObject *iPO, Py_ssize_t ilow, Py_ssize_t ihigh)
+
+	Py_ssize_t Sequence::length(PyObject* self)
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Slice(ilow,ihigh);
+		return static_cast<Sequence*>(self)->pimpl_->length();
 	}
-	int PySequence::PySequence_AssItem(PyObject *iPO, Py_ssize_t i, PyObject *v)
+	PyObject* Sequence::concat(PyObject* self, PyObject* other)
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_AssItem(i,v);
+		TSequencePtr result = static_cast<Sequence*>(self)->copy();
+		return inplaceConcat(result.get(), other);
 	}
-	int PySequence::PySequence_AssSlice(PyObject *iPO, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
+	PyObject* Sequence::repeat(PyObject* self, Py_ssize_t n)
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_AssSlice(ilow,ihigh,v);
+		TSequencePtr result = static_cast<Sequence*>(self)->copy();
+		return inplaceRepeat(result.get(), n);
 	}
-	int PySequence::PySequence_Contains(PyObject *iPO, PyObject *el)
+	PyObject* Sequence::item(PyObject* self, Py_ssize_t i)
 	{
-		return static_cast<PySequence*>(iPO)->pimpl_->PySequence_Contains(el);
+		return static_cast<Sequence*>(self)->pimpl_->item(i);
 	}
-	PyObject * PySequence::PySequence_InplaceConcat(PyObject *iPO, PyObject *other)
+	PyObject* Sequence::slice(PyObject* self, Py_ssize_t low, Py_ssize_t high)
 	{
-		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceConcat(other);
-		if (r)
-			return NULL;
-		Py_INCREF(iPO);
-		return iPO;
+		return static_cast<Sequence*>(self)->pimpl_->slice(low, high);
 	}
-	PyObject * PySequence::PySequence_InplaceRepeat(PyObject *iPO, Py_ssize_t n)
+	int Sequence::assItem(PyObject* self, Py_ssize_t i, PyObject* obj)
 	{
-		int r = static_cast<PySequence*>(iPO)->pimpl_->PySequence_InplaceRepeat(n);
-		if (r)
-			return NULL;
-		Py_INCREF(iPO);
-		return iPO;
+		return static_cast<Sequence*>(self)->pimpl_->assItem(i, obj);
+	}
+	int Sequence::assSlice(PyObject* self, Py_ssize_t low, Py_ssize_t high, PyObject* slice)
+	{
+		return static_cast<Sequence*>(self)->pimpl_->assSlice(low, high, slice);
+	}
+	int Sequence::contains(PyObject* self, PyObject* obj)
+	{
+		return static_cast<Sequence*>(self)->pimpl_->contains(obj);
+	}
+	PyObject* Sequence::inplaceConcat(PyObject* self, PyObject* other)
+	{
+		if (!static_cast<Sequence*>(self)->pimpl_->inplaceConcat(other))
+		{
+			return 0;
+		}
+		Py_INCREF(self);
+		return self;
+	}
+	PyObject* Sequence::inplaceRepeat(PyObject* self, Py_ssize_t n)
+	{
+		if (!static_cast<Sequence*>(self)->pimpl_->inplaceRepeat(n))
+		{
+			return 0;
+		}
+		Py_INCREF(self);
+		return self;
 	}
 }
 

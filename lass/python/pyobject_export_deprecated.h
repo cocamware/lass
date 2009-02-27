@@ -61,14 +61,14 @@ namespace python
 		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
 		static PyObject* build(const T& v)
 		{
-			const typename TShadowTraits::TCppClassPtr p(new T(v));
-			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(p));
+			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(v));
 		}
 		static int get(PyObject* obj, T& v)
 		{
-			if (obj == Py_None || obj->ob_type != T::_lassPyClassDef.type())
+			typedef typename TShadowTraits::TPyClass TPyClass;
+			if (obj == Py_None || obj->ob_type != TPyClass::_lassPyClassDef.type())
 			{
-				PyErr_Format(PyExc_TypeError, "PyObject not a %s", T::_lassPyClassDef.name());
+				PyErr_Format(PyExc_TypeError, "PyObject not a %s", TPyClass::_lassPyClassDef.name());
 				return 1;
 			}
 			typename TShadowTraits::TConstCppClassPtr p;
@@ -89,7 +89,7 @@ namespace python
 	struct PyExportTraits< util::SharedPtr<T, S, C> >
 	{
 		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
-		typedef typename ShadoweeTraits<T>::TPointerTraits::TPtr TPtr;
+		typedef util::SharedPtr<T, S, C> TPtr;
 		static PyObject* build(const TPtr& value)
 		{
 			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(value));

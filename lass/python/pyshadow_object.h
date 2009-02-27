@@ -165,6 +165,11 @@ public:
 	{
 		return TImpl::buildObject(value);
 	}
+	static TPyClassPtr buildObject(const TCppClass& value)
+	{
+		TCppClassPtr p(new TCppClass(value));
+		return TImpl::buildObject(p);
+	}
 };
 
 template <typename ShadowType, typename DerivedMakers> 

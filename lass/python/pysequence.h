@@ -48,8 +48,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
 
 #include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_util.h"
+#include "pyshadow_object.h"
+#include "shadowee_traits.h"
 #include "exception.h"
 #include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
@@ -58,6 +58,7 @@
 #include <list>
 #include <deque>
 #include "../stde/static_vector.h"
+#include <typeinfo>
 
 namespace lass
 {
@@ -67,474 +68,519 @@ namespace python
 namespace impl
 {
 
-	template<typename C>
-	struct ContainerTraits
+	template <typename Container>
+	struct ContainerTraitsBase
 	{
-		static const typename C::value_type&		element_at(const C& iC, Py_ssize_t i) { return iC[i]; };
-		static typename C::value_type&				element_at(C& iC, Py_ssize_t i) { return iC[i]; };
-		static typename C::const_iterator			const_iterator_at(const C& iC, Py_ssize_t i) { return iC.begin()+i; };
-		static typename C::iterator					iterator_at(C& iC, Py_ssize_t i) { return iC.begin()+i; };
-		static void reserve(C& /*iC*/, int /*iAmount*/)		{};
-	};
-
-	template<typename C, typename A>
-	struct ContainerTraits<std::vector<C, A> > 
-	{
-		static const typename std::vector<C, A>::value_type&		element_at(const std::vector<C, A>& iC, Py_ssize_t i) { return iC[i]; };
-		static typename std::vector<C, A>::value_type&				element_at(std::vector<C, A>& iC, Py_ssize_t i) { return iC[i]; };
-		static typename std::vector<C, A>::const_iterator			const_iterator_at(const std::vector<C, A>& iC, Py_ssize_t i) { return iC.begin()+i; };
-		static typename std::vector<C, A>::iterator					iterator_at(std::vector<C, A>& iC, Py_ssize_t i) { return iC.begin()+i; };
-		static void reserve(std::vector<C, A>& iC, int iAmount)		{iC.reserve(iAmount);};
-	};
-
-
-	template<typename C, typename A>
-	struct ContainerTraits<std::list<C, A> >
-	{
-		static const C& element_at(const std::list<C,A>& iC, Py_ssize_t i) { return *const_iterator_at(iC,i); };
-		static C& element_at(std::list<C,A>& iC, Py_ssize_t i) { return *iterator_at(iC,i); };
-		static typename std::list<C, A>::const_iterator	const_iterator_at(const std::list<C,A>& iC, Py_ssize_t i) 
+		typedef Container container_type;
+		typedef typename Container::value_type value_type;
+		typedef typename Container::const_iterator const_iterator;
+		typedef typename Container::iterator iterator;
+		static size_t size(const container_type& c)
+		{
+			return c.size();
+		}
+		static const const_iterator begin(const container_type& c) 
 		{ 
-			typename std::list<C,A>::const_iterator it = iC.begin();
-			for (Py_ssize_t j=0;j<i;++j)
-				++it;
-			return it;
-		};
-		static typename std::list<C, A>::iterator	iterator_at(std::list<C,A>& iC, Py_ssize_t i) 
+			return c.begin();
+		}
+		static const iterator begin(container_type& c) 
 		{ 
-			typename std::list<C,A>::iterator it = iC.begin();
-			for (Py_ssize_t j=0;j<i;++j)
-				++it;
-			return it;
-		};
-		static void reserve(std::list<C, A>& /*iC*/, int /*iAmount*/)		{};
+			return c.begin();
+		}
+		template <typename It> 
+		static const It next(It it, Py_ssize_t i = 1) 
+		{ 
+			return it + i; 
+		}
+		template <typename InputIt> 
+		static void insert(container_type& c, iterator i, InputIt first, InputIt last)
+		{
+			c.insert(i, first, last);
+		}
+		static void erase(container_type& c, iterator first, iterator last)
+		{
+			c.erase(first, last);
+		}
+		static void clear(container_type& c)
+		{
+			c.clear();
+		}
+		static void reserve(container_type& /*c*/, size_t /*n*/) 
+		{
+		}
+		static const util::SharedPtr<container_type> copy(const container_type& c) 
+		{ 
+			return util::SharedPtr<container_type>(new container_type(c)); 
+		}
+		static void inplace_repeat(container_type& c, Py_ssize_t n)
+		{
+			stde::inplace_repeat_c(c, n);
+		}
+		static std::string repr(const container_type& c)
+		{
+			return util::stringCast<std::string>(c);
+		}
 	};
 
+	template <typename Container>
+	struct ContainerTraits: ContainerTraitsBase<Container>
+	{
+	};
 
+	template <typename T, typename A>
+	struct ContainerTraits< std::vector<T, A> >: ContainerTraitsBase< std::vector<T, A> >
+	{
+		typedef typename ContainerTraitsBase< std::vector<T, A> >::container_type container_type;
+		static void reserve( container_type& c, size_t n ) 
+		{ 
+			c.reserve(n); 
+		}	
+	};
+
+	template <typename T, typename A>
+	struct ContainerTraits< std::list<T, A> >: ContainerTraitsBase< std::list<T, A> >
+	{
+		template <typename It>
+		static const It next( It it, Py_ssize_t i ) 
+		{ 
+			std::advance(it, i); 
+			return it; 
+		}
+	};
 
 	class LASS_DLL PySequenceImplBase
 	{
 	public:
-		PySequenceImplBase() {};
 		virtual ~PySequenceImplBase() {};
-		virtual void clear() = 0;
-		virtual void reserve(int iAmount) = 0;
 
+		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0; 
+		virtual const bool clear() = 0;
+		virtual const bool reserve(size_t n) = 0;
+		virtual const bool append(const TPyObjPtr& i) = 0;
+		virtual const bool pop(Py_ssize_t i) = 0;
+		virtual const std::string repr() const = 0;
 
-		virtual Py_ssize_t PySequence_Length() = 0;
-		virtual PyObject* PySequence_Concat(PyObject *bb) = 0;
-		virtual PyObject* PySequence_Repeat(Py_ssize_t n) = 0;
-		virtual PyObject* PySequence_Item(Py_ssize_t i) = 0;
-		virtual PyObject* PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh) = 0;
-		virtual int PySequence_AssItem(Py_ssize_t i, PyObject *v) = 0;
-		virtual int PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v) = 0;
-		virtual int PySequence_Contains(PyObject *el) = 0;
-		virtual int PySequence_InplaceConcat(PyObject *other) = 0;
-		virtual int PySequence_InplaceRepeat(Py_ssize_t n) = 0;
-		virtual void append(const TPyObjPtr& i) = 0;
-		virtual TPyObjPtr pop(int i) = 0;
-		virtual bool pointsToSameContainer(void* iO) = 0;
-		virtual std::string pyStr(void) = 0;
-		virtual std::string pyRepr(void) = 0;
+		virtual const Py_ssize_t length() const = 0;
+		virtual PyObject* const item(Py_ssize_t i) const = 0;
+		virtual PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const = 0;
+		virtual const int assItem(Py_ssize_t i, PyObject* obj) = 0;
+		virtual const int assSlice(Py_ssize_t low, Py_ssize_t high, PyObject* obj) = 0;
+		virtual const int contains(PyObject* obj) const = 0;
+		virtual const bool inplaceConcat(PyObject* obj) = 0;
+		virtual const bool inplaceRepeat(Py_ssize_t n) = 0;
+
+		virtual const type_info& type() const = 0;
+		virtual void* const raw(bool writable) = 0;
 	};
 
-	template<typename Container>
-	struct ContainerNotOwned
-	{
-		typedef Container* ContainerPtr;
-		static	void dispose(ContainerPtr /*ioC*/) {};
-	};
-	template<typename Container>
-	struct ContainerOwned
-	{
-		typedef Container* ContainerPtr;
-		static	void dispose(ContainerPtr ioC) {delete ioC;};
-	};
-
-	template<typename Container, typename ContainerOwnerShipPolicy = ContainerNotOwned<Container> > 
+	template<typename Container> 
 	class PySequenceContainer : public PySequenceImplBase
 	{
 	public:
-		PySequenceContainer(typename ContainerOwnerShipPolicy::ContainerPtr iC, bool iReadOnly = false) : cont_(iC), readOnly_(iReadOnly) {}
-		virtual ~PySequenceContainer() { ContainerOwnerShipPolicy::dispose(cont_); }
-		virtual void clear();
-		virtual void reserve(int iAmount);
+		typedef util::SharedPtr<Container> TContainerPtr;
+		typedef util::SharedPtr<const Container> TConstContainerPtr;
+		typedef ContainerTraits<Container> TContainerTraits;
 
-		virtual Py_ssize_t PySequence_Length();
-		virtual PyObject* PySequence_Concat(PyObject *bb);
-		virtual PyObject* PySequence_Repeat(Py_ssize_t n);
-		virtual PyObject* PySequence_Item(Py_ssize_t i);
-		virtual PyObject* PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh);
-		virtual int PySequence_AssItem(Py_ssize_t i, PyObject *v);
-		virtual int PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
-		virtual int PySequence_Contains(PyObject *el);
-		virtual int PySequence_InplaceConcat(PyObject *other);
-		virtual int PySequence_InplaceRepeat(Py_ssize_t n);
-		virtual void append(const TPyObjPtr& i);
-		virtual TPyObjPtr pop(int i);
-		virtual bool pointsToSameContainer(void* iO) 
-		{ 
-			return (iO == (void*)cont_);
+		PySequenceContainer(const TContainerPtr& c, bool readOnly = false): 
+			cont_(c), 
+			readOnly_(readOnly)
+		{
+			LASS_ASSERT(cont_);
 		}
-		virtual std::string pyStr(void);
-		virtual std::string pyRepr(void);
+		~PySequenceContainer() 
+		{
+		}
+
+		std::auto_ptr<PySequenceImplBase> copy() const
+		{
+			TContainerPtr cont = TContainerTraits::copy(*cont_);
+			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(cont));
+		}
+		const bool clear()
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			TContainerTraits::clear(*cont_);
+			return true;
+		}
+		const bool reserve(size_t n)
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			TContainerTraits::reserve(*cont_, n);
+			return true;
+		}
+		const bool append(const TPyObjPtr& obj)
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			typename TContainerTraits::value_type value;
+			if (pyGetSimpleObject(obj.get(), value) != 0)
+			{
+				return false;
+			}
+			TContainerTraits::iterator end = next(begin(), length());
+			TContainerTraits::insert(*cont_, end, &value, &value + 1);
+			return true;
+		}
+		const bool pop(Py_ssize_t i)
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			i = normalizeIndex(i);
+			if (!checkIndex(i))
+			{
+				return false;
+			}
+			TContainerTraits::erase(*cont_, next(begin(), i), next(begin(), i + 1));
+			return true;
+		}
+		const std::string repr() const
+		{
+			return TContainerTraits::repr(*cont_);
+		}
+
+		const Py_ssize_t length() const
+		{
+			const Py_ssize_t size = static_cast<Py_ssize_t>(TContainerTraits::size(*cont_));
+			LASS_ASSERT(size >= 0);
+			return size;
+		}
+		PyObject* const item(Py_ssize_t i) const
+		{
+			i = normalizeIndex(i);
+			if (!checkIndex(i))
+			{
+				return 0;
+			}
+			return pyBuildSimpleObject(*next(begin(), i));
+		}
+		PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const
+		{
+			const Py_ssize_t size = length();
+			low = num::clamp(normalizeIndex(low), 0, size);
+			high = num::clamp(normalizeIndex(high), low, size);
+			return fromSharedPtrToNakedCast(pyBuildList(next(begin(), low), next(begin(), high)));
+		}
+		const int assItem(Py_ssize_t i, PyObject* obj)
+		{
+			i = normalizeIndex(i);
+			if (!checkWritable() || !checkIndex(i))
+			{
+				return -1;
+			}
+			if (obj == 0)
+			{
+				return assSlice(i, i + 1, 0);
+			}
+			if (pyGetSimpleObject(obj, *next(begin(), i)) != 0)
+			{
+				return -1;
+			}
+			return 0;
+		}
+		const int assSlice(Py_ssize_t low, Py_ssize_t high, PyObject* other)
+		{
+			if (!checkWritable())
+			{
+				return -1;
+			}
+			const Py_ssize_t size = length();
+			low = num::clamp(normalizeIndex(low), 0, size);
+			high = num::clamp(normalizeIndex(high), low, size);
+			TConstContainerPtr b;
+			if (other)
+			{
+				if (pyGetSimpleObject(other, b) != 0)
+				{
+					return -1;
+				}
+				if (cont_ == b)
+				{
+					b = TContainerTraits::copy(*b);
+				}
+			}
+			TContainerTraits::erase(*cont_, next(begin(), low), next(begin(), high));
+			if (b)
+			{
+				TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
+				TContainerTraits::const_iterator last = next(first, TContainerTraits::size(*b));
+				TContainerTraits::insert(*cont_, next(begin(), low), first, last);
+			}
+			return 0;
+		}
+		const int contains(PyObject* obj) const
+		{
+			typename Container::value_type value;
+			if (pyGetSimpleObject(obj, value) != 0)
+			{
+				// type is not convertible and hence is not found
+				// this corresponds to the Python behavior
+				return 0;
+			}
+			TContainerTraits::const_iterator end = next(begin(), length());
+			if (std::find(begin(), end, value) != end)
+			{
+				return 1;
+			}
+			return 0;
+		}
+		const bool inplaceConcat(PyObject* other)
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			TConstContainerPtr b;
+			if (pyGetSimpleObject(other, b) != 0)
+			{
+				return false;
+			}
+			if (cont_ == b)
+			{
+				b = TContainerTraits::copy(*b);
+			}
+			const TContainerTraits::iterator end = next(begin(), length());
+			const TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
+			const TContainerTraits::const_iterator last = TContainerTraits::next(first, TContainerTraits::size(*b));
+			TContainerTraits::insert(*cont_, end, first, last);
+			return true;
+		}
+		const bool inplaceRepeat(Py_ssize_t n)
+		{
+			if (!checkWritable())
+			{
+				return false;
+			}
+			TContainerTraits::inplace_repeat(*cont_,n);
+			return true;
+		}
+
+		const type_info& type() const 
+		{ 
+			return typeid(TContainerPtr); 
+		}
+		void* const raw(bool writable)
+		{ 
+			if (writable && readOnly_)
+			{
+				return 0;
+			}
+			return &cont_; 
+		}
 	private:
-		typename ContainerOwnerShipPolicy::ContainerPtr cont_;
+		const bool checkWritable() const
+		{
+			if (readOnly_)
+			{
+				PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
+				return false;
+			}
+			return true;
+		}
+		const bool checkIndex(Py_ssize_t& i) const
+		{
+			const Py_ssize_t size = length();
+			if (i < 0 || i >= size) 
+			{
+				PyErr_SetString(PyExc_IndexError,"list assignment index out of range");
+				return false;
+			}
+			return true;
+		}
+		const Py_ssize_t normalizeIndex(Py_ssize_t i) const
+		{
+			return i;
+			if (i < 0)
+			{
+				return i + length();
+			}		
+			return i;
+		}
+		const typename TContainerTraits::const_iterator begin() const
+		{
+			return TContainerTraits::begin(*cont_);
+		}
+		const typename TContainerTraits::iterator begin()
+		{
+			return TContainerTraits::begin(*cont_);
+		}
+		template <typename It> static const It next(It it, Py_ssize_t i)
+		{
+			return TContainerTraits::next(it, i);
+		}
+		TContainerPtr cont_;
 		bool readOnly_;
 	};
 
-	/** PySequence.  Object for interfacing sequence-like objects with Python 
+	class Sequence;
+	typedef PyObjectPtr<Sequence>::Type TSequencePtr;
+
+	/** Object for interfacing sequence-like objects with Python 
 	*/
-	class LASS_DLL PySequence : public PyObjectPlus
+	class LASS_DLL Sequence : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus);
 		static PySequenceMethods pySequenceMethods;
 		static bool isInitialized;
 
 	public:
-		template<typename Container> PySequence( Container& iCont )
+		template<typename Container> Sequence( const util::SharedPtr<Container>& container )
 		{
 			initialize();
 			impl::fixObjectType(this);
-			pimpl_ = new PySequenceContainer<Container>(&iCont);
+			pimpl_.reset(new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container)));
 		}
-		template<typename Container> PySequence( const Container& iCont ) 
+		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
 			initialize();
 			impl::fixObjectType(this);
-			pimpl_ = new PySequenceContainer<Container>(const_cast<Container*>(&iCont),true);
+			pimpl_.reset(new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
 		}
-		//PySequence( PyObject* iP );
-		~PySequence();
-		std::string doPyStr(void)		{ return pimpl_->pyStr(); }
-		std::string doPyRepr(void)	{ return pimpl_->pyRepr(); }
-		void append(const TPyObjPtr& i)	{ pimpl_->append(i); }
-		void clear()				{ pimpl_->clear(); }
-		void reserve(int iAmount)	{ pimpl_->reserve(iAmount); }
-		TPyObjPtr pop(int i)		{ return pimpl_->pop(i); }
-		TPyObjPtr popwo()		{ return pimpl_->pop(-1); }
-
-		//static PyObject* PySequence_ListIter(PyObject* iPO);
-
-		static Py_ssize_t PySequence_Length( PyObject* iPO);
-		static PyObject* PySequence_Concat(PyObject *a, PyObject *bb);
-		static PyObject* PySequence_Repeat(PyObject *a, Py_ssize_t n);
-		static PyObject* PySequence_Item(PyObject*a, Py_ssize_t i);
-		static PyObject* PySequence_Slice(PyObject *a, Py_ssize_t ilow, Py_ssize_t ihigh);
-		static int PySequence_AssItem(PyObject *a, Py_ssize_t i, PyObject *v);
-		static int PySequence_AssSlice(PyObject *a, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
-		static int PySequence_Contains(PyObject *a, PyObject *el);
-		static PyObject * PySequence_InplaceConcat(PyObject *self, PyObject *other);
-		static PyObject * PySequence_InplaceRepeat(PyObject *self, Py_ssize_t n);
-
-		template<typename Container> bool pointsToSameContainer(Container& iO) 
-		{ 
-			return pimpl_->pointsToSameContainer(&iO);
+		template<typename Container> Sequence( const Container& container )
+		{
+			initialize();
+			impl::fixObjectType(this);
+			util::SharedPtr<Container> p(ContainerTraits<Container>::copy(container));
+			pimpl_.reset(new PySequenceContainer<Container>(p, true));
 		}
+
+		const TSequencePtr copy() const;
+		void clear();
+		void reserve(size_t n);
+		void append(const TPyObjPtr& obj);
+		const TPyObjPtr pop(Py_ssize_t i);
+		const TPyObjPtr pop_back();
+
+		std::string doPyStr();
+		std::string doPyRepr();
+
+		static Py_ssize_t length( PyObject* self);
+		static PyObject* concat(PyObject* self, PyObject* other);
+		static PyObject* repeat(PyObject* self, Py_ssize_t n);
+		static PyObject* item(PyObject* self, Py_ssize_t i);
+		static PyObject* slice(PyObject* self, Py_ssize_t low, Py_ssize_t high);
+		static int assItem(PyObject* self, Py_ssize_t i, PyObject* obj);
+		static int assSlice(PyObject* self, Py_ssize_t low, Py_ssize_t high, PyObject* slice);
+		static int contains(PyObject* a, PyObject* obj);
+		static PyObject* inplaceConcat(PyObject* self, PyObject* other);
+		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
+
+		const type_info& type() const;
+		void* const raw(bool writable) const;
+
 	private:
-		PySequence();
-		PySequenceImplBase*	pimpl_;
+		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
+		util::ScopedPtr<PySequenceImplBase> pimpl_;
 		static void initialize();
 	};
 
-	template <typename Sequence>
-	int pyGetSequenceObject( PyObject* iValue, Sequence& oV )
+	template <>
+	struct ShadowTraits<Sequence>
 	{
-		if (!PySequence_Check(iValue))
+		enum { 	isShadow = true };
+		typedef PyObjectPtr<Sequence>::Type TPyClassPtr;
+		typedef Sequence TCppClass;
+		typedef TPyClassPtr TCppClassPtr;
+		typedef PyObjectPtr<const Sequence>::Type TConstCppClassPtr;
+
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value)
 		{
-			PyErr_SetString(PyExc_TypeError, "not a python sequence");
-			return 1;
+			return getObject(obj, value, true);
 		}
-		// check if we have our own PySequence object, then take a shortcut
-		if (isOfType(iValue, PySequence::_lassPyClassDef.type()) && ((PySequence*)iValue)->pointsToSameContainer(oV))
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<const Container>& value)
 		{
+			util::SharedPtr<Container> temp;
+			if (getObject(obj, temp, false) != 0)
+			{
+				return 1;
+			}
+			value = temp.constCast<const Container>();
 			return 0;
 		}
-		else
+		static int getObject(PyObject* obj, TCppClassPtr& sequence)
 		{
-			Sequence result;
-			const Py_ssize_t size = PySequence_Length(iValue);
+			sequence = fromNakedToSharedPtrCast<Sequence>(obj);
+			return 0;
+		}
+		static int getObject(PyObject* obj, TConstCppClassPtr& sequence)
+		{
+			sequence = fromNakedToSharedPtrCast<const Sequence>(obj);
+			return 0;
+		}
+		template <typename T> static TPyClassPtr buildObject(const T& value)
+		{
+			return TPyClassPtr(new Sequence(value));
+		}
+		static TPyClassPtr buildObject(const TPyClassPtr& sequence)
+		{
+			return sequence;
+		}
+
+	private:
+
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
+		{
+			if (!PySequence_Check(obj))
+			{
+				PyErr_SetString(PyExc_TypeError, "not a sequence");
+				return 1;
+			}
+
+			// check if we have our own Sequence object, then take a shortcut
+			if (isOfType(obj, Sequence::_lassPyClassDef.type()))
+			{
+				const Sequence* const sequence = static_cast<Sequence*>(obj);
+				void* const raw = sequence->raw(writable);
+				if (raw && typeid(value) == sequence->type())
+				{
+					value = *static_cast< util::SharedPtr<Container>* >(raw);
+					return 0;
+				}
+			}
+
+			const util::SharedPtr<Container> result(new Container);
+			const Py_ssize_t size = PySequence_Length(obj);
+			ContainerTraits<Container>::reserve(*result, size);
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
-				typename Sequence::value_type temp;
-				if (PyExportTraits<typename Sequence::value_type>::get( PySequence_ITEM(iValue, i) , temp ) != 0)
+				typename Container::value_type temp;
+				if (PyExportTraits<typename Container::value_type>::get( PySequence_ITEM(obj, i) , temp ) != 0)
 				{
 					impl::addMessageHeader(
 						std::string("sequence element ") + util::stringCast<std::string>(i));
 					return 1;
 				}
-				result.push_back( temp );
+				result->push_back( temp );
 			}
-			oV.swap(result);
-		}
-		return 0;
-	}
-
-
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::clear()
-	{
-		cont_->clear();
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	void PySequenceContainer<Container, ContainerOwnerShipPolicy>::reserve(int iAmount)
-	{
-		ContainerTraits<Container>::reserve(*cont_,iAmount);
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	Py_ssize_t PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Length()
-	{
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		LASS_ASSERT(size >= 0);
-		return size;
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Concat(PyObject *bb)
-	{
-		Container toConcat;
-		int r = pyGetSequenceObject(bb,toConcat);
-		if (r)
-		{
-			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
-			return NULL;
-		}
-		Container result(*cont_);
-		result.insert(result.end(), toConcat.begin(), toConcat.end());
-		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Repeat(Py_ssize_t n)
-	{
-		Container result = stde::repeat_c(*cont_,n);
-		return fromSharedPtrToNakedCast(pyBuildList(result.begin(),result.end()));
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Item(Py_ssize_t i)
-	{
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		LASS_ASSERT(size >= 0);
-
-		if (i>=size)
-		{
-			PyErr_SetString(PyExc_IndexError, "Index out of bounds");
-			return NULL;
-		}
-		if (i<0)
-			i = (size-(-i % size)) % size;
-		return lass::python::PyExportTraits< typename Container::value_type >::build( ContainerTraits<Container>::element_at(*cont_,i));
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	PyObject* PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Slice(Py_ssize_t ilow, Py_ssize_t ihigh)
-	{
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		LASS_ASSERT(size >= 0);
-
-		if (ilow<0)
-			ilow = (size-(-ilow % size)) % size;
-		if (ihigh<0)
-			ihigh = (size-(-ihigh % size)) % size;
-
-		Py_ssize_t len;
-		if (ilow < 0)
-			ilow = 0;
-		else if (ilow > size)
-			ilow = size;
-		if (ihigh < ilow)
-			ihigh = ilow;
-		else if (ihigh > size)
-			ihigh = size;
-		len = ihigh - ilow;
-		return fromSharedPtrToNakedCast(pyBuildList(
-			ContainerTraits<Container>::const_iterator_at(*cont_,ilow),
-			ContainerTraits<Container>::const_iterator_at(*cont_,ilow+len) ));
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssItem(Py_ssize_t i, PyObject *v)
-	{
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return -1;
-		}
-		if (i >= PySequence_Length()) 
-		{
-			PyErr_SetString(PyExc_IndexError,"list assignment index out of range");
-			return -1;
-		}
-		if (i<0)
-			i = (size-(-i % size)) % size;
-		if (v == NULL)
-			return PySequence_AssSlice(i, i+1, v);
-		return PyExportTraits<typename Container::value_type>::get(v,ContainerTraits<Container>::element_at(*cont_,i));
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_AssSlice(Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
-	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return -1;
-		}
-		Container temp;
-		int r = pyGetSequenceObject(v,temp);
-		if (r)
-		{
-			PyErr_SetString(PyExc_TypeError, "Cannot convert to type for slice assignment");
-			return -1;
-		}
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		if (ilow<0)
-			ilow = (size-(-ilow % size)) % size;
-		if (ihigh<0)
-			ihigh = (size-(-ihigh % size)) % size;
-
-		if (ilow < 0)
-			ilow = 0;
-		else if (ilow > size)
-			ilow = size;
-		if (ihigh < ilow)
-			ihigh = ilow;
-		else if (ihigh > size)
-			ihigh = size;
-
-		cont_->erase(	ContainerTraits<Container>::iterator_at(*cont_,ilow),
-						ContainerTraits<Container>::iterator_at(*cont_,ihigh) );
-		cont_->insert(	ContainerTraits<Container>::iterator_at(*cont_,ilow+1),
-						temp.begin(),temp.end());
-		return 0;
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_Contains(PyObject *el)
-	{
-		typename Container::value_type temp;
-		int r = PyExportTraits<typename Container::value_type>::get(el,temp);
-		if (r)
-		{
-			// type is not convertible and hence is not found
-			// this corresponds to the Python behavior
+			value = result;
 			return 0;
 		}
-		if (std::find(cont_->begin(),cont_->end(),temp)!=cont_->end())
-			return 1;
-		return 0;
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceConcat(PyObject *other)
-	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return -1;
-		}
-		Container toConcat;
-		//int r = pyGetSimpleObject(other,toConcat);
-		int r = pyGetSequenceObject(other,toConcat);
-		if (r)
-		{
-			PyErr_SetString(PyExc_TypeError, "Cannot convert to concatenation type");
-			return 1;
-		}
-		cont_->insert(cont_->end(), toConcat.begin(), toConcat.end());
-		return 0;
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	int PySequenceContainer<Container,ContainerOwnerShipPolicy>::PySequence_InplaceRepeat(Py_ssize_t n)
-	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return -1;
-		}
-		stde::inplace_repeat_c(*cont_,n);
-		return 0;
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	void PySequenceContainer<Container,ContainerOwnerShipPolicy>::append(const TPyObjPtr& i)
-	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return;
-		}
-		typename Container::value_type temp;
-		if (pyGetSimpleObject(i.get(), temp) != 0)
-		{
-			fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
-		}
-		cont_->push_back( temp );
-	}
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	TPyObjPtr PySequenceContainer<Container,ContainerOwnerShipPolicy>::pop(int i)
-	{
-		if (readOnly_)
-		{
-			PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-			return TPyObjPtr();
-		}
-		const Py_ssize_t size = static_cast<Py_ssize_t>(cont_->size());
-		if (i<0)
-			i = (size-(-i % size)) % size;
-		typename Container::value_type temp = ContainerTraits<Container>::element_at(*cont_,i);
-		cont_->erase(ContainerTraits<Container>::iterator_at(*cont_,i));
-		return fromNakedToSharedPtrCast<PyObject>(lass::python::PyExportTraits<typename Container::value_type>::build(temp));
-	}
-
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	std::string PySequenceContainer<Container,ContainerOwnerShipPolicy>::pyStr( void)
-	{
-		return pyRepr();
-	}
-
-	template<typename Container, typename ContainerOwnerShipPolicy>
-	std::string PySequenceContainer<Container,ContainerOwnerShipPolicy>::pyRepr( void)
-	{
-		return util::stringCast<std::string>(*cont_);
-	}
+	};
 }
 
-
-
-/**	@ingroup Python
- *	@internal
- */
 template <typename ContainerType>
-struct PyExportTraitsSequence
+struct ShadoweeTraitsSequence: meta::True
 {
-	typedef ContainerType TContainer;
-
-	/*	build a copy of a container as a Python tuple
-	 *	@note you get a read-only COPY of the container
-	 */
-	static PyObject* build( const TContainer& iV) 
-	{ 
-		return fromSharedPtrToNakedCast(impl::pyBuildTuple(iV.begin(),iV.end()));
-	}
-
-	/**	expose a container to python as a reference.
-	 *	@note you build a reference to the container, any changes done in Python
-	 *	will be reflected in the original object, as far as the typesystem allows it of course
-	 */
-	static PyObject* build(TContainer& iV) 
-	{ 
-		return new impl::PySequence(iV);
-	}
-
-	/**	get a copy of a Python sequence as a container.
-	 *	@note you get a COPY of the sequence, not the original sequence itself!
-	 */
-	static int get( PyObject* iV, TContainer& oV) 
-	{ 
-		return impl::pyGetSequenceObject(iV, oV);
-	}
+	typedef impl::Sequence TShadow;
+	typedef impl::ShadowTraits<impl::Sequence> TShadowTraits;
+	typedef DefaultShadoweePointerTraits<ContainerType> TPointerTraits;
 };
 
 /**	@ingroup Python
  *	@internal
  */
 template< typename C, typename A>
-struct PyExportTraits< std::vector< C, A > >:
-	public PyExportTraitsSequence< std::vector< C, A > >
+struct ShadoweeTraits< std::vector< C, A > >:
+	public ShadoweeTraitsSequence< std::vector< C, A > >
 {
 };
 
@@ -542,8 +588,8 @@ struct PyExportTraits< std::vector< C, A > >:
  *	@internal
  */
 template< typename C, typename A>
-struct PyExportTraits< std::list< C, A > >:
-	public PyExportTraitsSequence< std::list< C, A > >
+struct ShadoweeTraits< std::list< C, A > >:
+	public ShadoweeTraitsSequence< std::list< C, A > >
 {
 };
 
@@ -551,8 +597,8 @@ struct PyExportTraits< std::list< C, A > >:
  *	@internal
  */
 template< typename C, typename A>
-struct PyExportTraits< std::deque< C, A > >:
-	public PyExportTraitsSequence< std::deque< C, A > >
+struct ShadoweeTraits< std::deque< C, A > >:
+	public ShadoweeTraitsSequence< std::deque< C, A > >
 {
 };
 
@@ -560,8 +606,8 @@ struct PyExportTraits< std::deque< C, A > >:
  *	@internal
  */
 template< typename C, size_t maxsize>
-struct PyExportTraits< stde::static_vector< C, maxsize > >:
-	public PyExportTraitsSequence< stde::static_vector< C, maxsize > >
+struct ShadoweeTraits< stde::static_vector< C, maxsize > >:
+	public ShadoweeTraitsSequence< stde::static_vector< C, maxsize > >
 {
 };
 

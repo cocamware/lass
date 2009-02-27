@@ -111,47 +111,118 @@ try:
     reportError("Could write to const map")
 except:
     pass
+	
+class TestConstSequence(unittest.TestCase):
+	def _testConstSequence(self, seq):
+		def assign(a, b):
+			a[:] = b
+		def set_item(a, i, b):
+			a[i] = b
+		self.assertRaises(TypeError, assign, seq, range(10))
+		self.assertRaises(TypeError, set_item, seq, 3, 5)
+		self.assertRaises(TypeError, lambda a: a.clear(), seq)
+		self.assertRaises(TypeError, lambda a, n: a.reserve(n), seq, 5)
+	def testConstVector(self):
+		self._testConstSequence(embedding.Bar().constVector)
+	def testConstList(self):
+		self._testConstSequence(embedding.Bar().constList)
+	def testConstDeque(self):
+		self._testConstSequence(embedding.Bar().constDeque)
 
+class TestWriteableSequence(unittest.TestCase):
+	def _testClear(self, seq, refseq):
+		seq.clear()
+		self.assertEqual(len(refseq), 0)
+	def _testAppend(self, seq, refseq):
+		for i in range(10):
+			seq.append(i)
+		self.assertEqual(len(refseq), 10)
+		for i in range(10):
+			self.assertEqual(refseq[i], i)
+	def _testPop(self, seq, refseq):
+		self.assertEqual(seq.pop(), 9)
+		self.assertEqual(len(refseq), 9)
+		for i in range(5):
+			self.assertEqual(seq.pop(3), 3 + i)
+		self.assertEqual(len(refseq), 4)
+		for a, b in zip(refseq, [0, 1, 2, 8]):
+			self.assertEqual(a, b)
+	def _testContains(self, seq, refseq):
+		self.assert_(8 in seq)
+		self.failIf(-123456 in seq)
+	def _testGetItem(self, seq, refseq):
+		n = len(seq)
+		self.assertRaises(IndexError, lambda a, i: a[i], seq, n)
+		self.assertRaises(IndexError, lambda a, i: a[i], seq, -n-1)
+		self.assertEqual(seq[n - 1], refseq[-1])
+		self.assertEqual(seq[-n], refseq[0])
+	def _testSetItem(self, seq, refseq):
+		seq[3] = 5
+		self.assertEqual(refseq[3], 5)
+	def _testGetSlice(self, seq, refseq):
+		self.assertEqual(seq[:], [0, 1, 2, 5])
+		self.assertEqual(seq[:2], [0, 1])
+		self.assertEqual(seq[2:], [2, 5])
+		self.assertEqual(seq[50:], [])
+		self.assertEqual(seq[-2:], [2, 5])
+		self.assertEqual(seq[-100:42], [0, 1, 2, 5])
+		self.assertEqual(seq[2:1], [])
+	def _testSetSlice(self, seq, refseq):
+		seq[1:3] = [10, 11, 12]
+		self.assertEqual(seq[:], [0, 10, 11, 12, 5])
+		seq[:] = []
+		self.assertEqual(seq[:], [])
+	def _testRepeat(self, seq, refseq):
+		n = len(seq)
+		seq *= 2
+		self.assertEqual(len(refseq), 2 * n)
+		b = seq * 2
+		self.assertEqual(len(refseq), 2 * n)
+		for i in range(n):
+			self.assertEqual(seq[i], seq[n + i])
+		self.assertEqual(len(b), 4 * n)
+	def _testConcat(self, seq, refseq):
+		n = len(seq)
+		seq += refseq
+		self.assertEqual(len(refseq), 2 * n)
+		b = seq + refseq
+		self.assertEqual(len(refseq), 2 * n)
+		for i in range(n):
+			self.assertEqual(seq[i], seq[n + i])
+		self.assertEqual(len(b), 4 * n)
+	def _testSequence(self, seq, refseq):
+		self._testClear(seq, refseq)
+		self._testAppend(seq, refseq)
+		self._testPop(seq, refseq)
+		self._testContains(seq, refseq)
+		self._testGetItem(seq, refseq)
+		self._testSetItem(seq, refseq)
+		self._testGetSlice(seq, refseq)
+		self._testSetSlice(seq, refseq)
+		self._testRepeat(seq, refseq)
+		self._testConcat(seq, refseq)
+	def testWriteableVector(self):
+		bar = embedding.Bar()
+		self._testSequence(bar.writeableVector, bar.writeableVector)
+	def testWriteableList(self):
+		bar = embedding.Bar()
+		self._testSequence(bar.writeableList, bar.writeableList)
+	def testWriteableDeque(self):
+		bar = embedding.Bar()
+		self._testSequence(bar.writeableDeque, bar.writeableDeque)
+		
 def testSequence(seq):
-	seq.clear()
-	for i in range(10):
-		seq.append(i)
-	seq.pop()
-	for i in range(5):
-		seq.pop(3)
-	seq[3] = 5
-	assert(seq[3]==5)
-	l = len(seq)
-	seq *= 2
-	echo("l*=2", l, len(seq))
-	assert(len(seq)==2*l)
-	seq += seq
-	assert(len(seq)==4*l)
+
+
 	if not IS_PYTHON_3:
 		seq[0:4] = range(10)
 		assert(len(seq)==4*l+6)
 		for i,v in enumerate(seq):
 			echo (i,v)
-	assert(5 in seq)
-	assert(-32132654 not in seq)
 
-# barC.writeableVector = range(3)
-# # we don't provide special iterator support
-# # Python just goes through the sequence until a IndexError is encountered
-# # this suffices for std::vector but is a bit slow for std::list/std::deque
-# for x in barC.writeableVector:
-	# echo("iterator", x)
-# echo("------------------")
-# try:
-	# barC.constVector = range(10)
-	# barC.constVector[3] = 5
-# except:
-	# echo("read-onlyness detected")
-# echo("------------------")
-# testSequence(barC.writeableVector)
-# testSequence(barC.writeableList)
-# testSequence(barC.writeableDeque)
-#echo(barC.writeableVector)
+
+barC.writeableVector = range(3)
+
 	
 # testing documentation
 echo("Module documentation :\n ",embedding.__doc__)

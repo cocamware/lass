@@ -104,8 +104,9 @@ Container repeat_c(const Container& iC, Size n)
 template <class Container, class Size> inline
 Container& inplace_repeat_c(Container& iC, Size n)
 {
-	Container temp(iC);
-	repeat(temp.begin(), temp.end(), std::back_inserter(iC), n - 1);
+	Container temp;
+	repeat(iC.begin(), iC.end(), std::back_inserter(temp), n);
+	iC.swap(temp);
 	return iC;
 }
 

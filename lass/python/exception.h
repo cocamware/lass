@@ -53,7 +53,7 @@ namespace python
 namespace impl
 {
 	LASS_DLL const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
-	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc);
+	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
 }
 
 class PythonException: public util::Exception
