@@ -567,8 +567,8 @@ $[
 
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* args, CppClass* iObject, void (CppClass::*iMethod)(P) )
+	template <typename C, typename P>
+	static int set( PyObject* args, CppClass* iObject, void (C::*iMethod)(P) )
 	{
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;
@@ -588,8 +588,8 @@ $[
 
 	/** call implicit setter function like <tt>Bar& Foo::bar()</tt>
 	 */
-	template <typename P>
-	static int set( PyObject* args, CppClass* iObject, P& (CppClass::*iMethod)() )
+	template <typename C, typename P>
+	static int set( PyObject* args, CppClass* iObject, P& (C::*iMethod)() )
 	{
 		typedef ArgumentTraits<P> TArg;
 		typename TArg::TStorage p;

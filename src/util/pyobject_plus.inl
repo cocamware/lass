@@ -575,7 +575,7 @@ struct PyExportTraits<signed short>
 template <>
 struct PyExportTraits<unsigned short>
 {
-	inline PyObject* build( unsigned short iV )
+	static inline PyObject* build( unsigned short iV )
 	{
 		return PyInt_FromLong(static_cast<long>(iV));
 	}
