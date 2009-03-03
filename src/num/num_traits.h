@@ -58,40 +58,40 @@ namespace num
 template<class C>
 struct LASS_DLL NumTraits
 {
-	typedef C   selfType;               /**< our own type */
-	typedef C   baseType;               /**< is the base type where selfType is based on */
-	typedef C   intervalType;           /**< type of the support, useful for distributions */
+	//typedef C   selfType;               /**< our own type */
+	//typedef C   baseType;               /**< is the base type where selfType is based on */
+	//typedef C   intervalType;           /**< type of the support, useful for distributions */
 
-	enum
-	{
-		isDistribution = 0,	/**< true for distribution like types */
-		isIntegral = 0,		/**< true for integral types, ie supporting ++ and -- fi */
-		isNative = 0,       /**< true for the native types, ie char, int , ... */
-		isSigned = 0,		/**< true for signed types */
-		hasInfinity = 0,    /**< true for types having infinity */
-		hasNaN = 0,			/**< true for types have the concept of Not a Number */
-		isFloatingPoint = 0 /**< true for floating point types */
-	};
+	//enum
+	//{
+	//	isDistribution = 0,	/**< true for distribution like types */
+	//	isIntegral = 0,		/**< true for integral types, ie supporting ++ and -- fi */
+	//	isNative = 0,       /**< true for the native types, ie char, int , ... */
+	//	isSigned = 0,		/**< true for signed types */
+	//	hasInfinity = 0,    /**< true for types having infinity */
+	//	hasNaN = 0,			/**< true for types have the concept of Not a Number */
+	//	isFloatingPoint = 0 /**< true for floating point types */
+	//};
 
-	static const size_t   memorySize;      /**< memory footprint */
-	static const size_t   mantisseSize;	/**< number of bits used for mantisse, useful for error analysis */
-	static const std::string name() { return "unknown"; }   /**< name of the selfType */
+	//static const size_t   memorySize;      /**< memory footprint */
+	//static const size_t   mantisseSize;	/**< number of bits used for mantisse, useful for error analysis */
+	//static const std::string name() { return "unknown"; }   /**< name of the selfType */
 
-	static const C  one;                /**< definition of one */
-	static const C  zero;               /**< definition of zero */
+	//static const C  one;                /**< definition of one */
+	//static const C  zero;               /**< definition of zero */
 
 	/* some constants */
-	static const C  sNaN;               /**< signaling Nan, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
-	static const C  qNaN;               /**< quiet NaN, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
-	static const C  epsilon;            /**< the smallest positive value such that one + epsilon != one*/
-	static const C infinity;            /**< infinity */
-	static const C min;                 /**< the smallest value representable */
-	static const C  max;                /**< the largest positive value */
-	static const C minStrictPositive;   /**< the smallest strictly positive value */
-	static const C pi;
-	static const C e;
-	static const C sqrt2;
-	static const C sqrtPi;
+	//static const C  sNaN;               /**< signaling Nan, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
+	//static const C  qNaN;               /**< quiet NaN, see http://research.microsoft.com/~hollasch/cgindex/coding/ieeefloat.html */
+	//static const C  epsilon;            /**< the smallest positive value such that one + epsilon != one*/
+	//static const C infinity;            /**< infinity */
+	//static const C min;                 /**< the smallest value representable */
+	//static const C  max;                /**< the largest positive value */
+	//static const C minStrictPositive;   /**< the smallest strictly positive value */
+	//static const C pi;
+	//static const C e;
+	//static const C sqrt2;
+	//static const C sqrtPi;
 };
 
 template<class C> inline
@@ -259,6 +259,10 @@ LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, long, 0 )
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, __int64, 1 )
 	LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, __int64, 0 )
+#endif
+#if LASS_HAVE_LONG_LONG
+	LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, long long, 1 )
+	LASS_NUM_DECLARE_INTEGRAL_TRAITS( unsigned, long long, 0 )
 #endif
 
 }

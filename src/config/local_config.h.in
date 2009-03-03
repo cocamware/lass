@@ -93,6 +93,8 @@
 #cmakedefine LASS_HAVE_FUNC_STRERROR_R 1
 #cmakedefine LASS_HAVE_STRERROR_R_CHAR_P 1
 
+#cmakedefine LASS_HAVE_LONG_LONG 1
+
 #endif
 
 // EOF

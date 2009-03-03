@@ -83,6 +83,10 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 		)
 endif()
 
+include(CheckTypeSize)
+CHECK_TYPE_SIZE("long long" LONG_LONG)
+set(LASS_HAVE_LONG_LONG ${HAVE_LONG_LONG})
+
 # --- SOURCE FILE GATHERING ---
 set(lass_subdirectories config io num prim spat stde util meta)
 
