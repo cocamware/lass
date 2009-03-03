@@ -71,7 +71,7 @@ namespace impl
 		virtual int PyIteratorRange_Length() const = 0;
 		virtual std::string pyStr(void) const = 0;
 		virtual std::string pyRepr(void) const = 0;
-		virtual PyObject* PyIteratorRange_IterNext() = 0;
+		virtual PyObject* iterNext() = 0;
 	};
 
 	template<typename M> 
@@ -83,7 +83,7 @@ namespace impl
 		virtual int PyIteratorRange_Length() const;
 		virtual std::string pyStr(void) const;
 		virtual std::string pyRepr(void) const;
-		virtual PyObject* PyIteratorRange_IterNext();
+		virtual PyObject* iterNext();
 	private:
 		M beginIt_;
 		M endIt_;
@@ -106,7 +106,7 @@ namespace impl
 		return "PyIteratorRangeImpl<M>::repr";
 	}
 	template<typename M>
-	PyObject* PyIteratorRangeImpl<M>::PyIteratorRange_IterNext()
+	PyObject* PyIteratorRangeImpl<M>::iterNext()
 	{
 		if (curIt_!=endIt_)
 			return PyExportTraits< typename M::value_type >::build(*curIt_++);
@@ -131,7 +131,8 @@ public:
 	virtual std::string doPyStr(void) { return pimpl_->pyStr(); }
 	virtual std::string doPyRepr(void) { return pimpl_->pyRepr(); }
 
-	static PyObject* PyIteratorRange_IterNext( PyObject* iPO) { return static_cast<PyIteratorRange*>(iPO)->pimpl_->PyIteratorRange_IterNext(); }
+	static PyObject* iter( PyObject* iPo) { Py_XINCREF(iPo); return iPo; }
+	static PyObject* iterNext( PyObject* iPO) { return static_cast<PyIteratorRange*>(iPO)->pimpl_->iterNext(); }
 	
 private:
 	static void initialize();

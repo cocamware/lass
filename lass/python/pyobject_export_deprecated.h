@@ -51,6 +51,11 @@ namespace lass
 {
 namespace python
 {
+	namespace impl
+	{
+		template <typename T> struct ShadowTraits;
+	}
+
 	/** @ingroup Python
 	*   A traits class that replaces the now deprecated pyBuildSimpleObject functionality.
 	*   Reason is to support the two-phase name lookup during template instantiation. (gcc >=3.4 )
@@ -58,7 +63,7 @@ namespace python
 	template <typename T> 
 	struct PyExportTraits
 	{
-		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+		typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
 		static PyObject* build(const T& v)
 		{
 			return fromSharedPtrToNakedCast(TShadowTraits::buildObject(v));
@@ -83,12 +88,21 @@ namespace python
 		}
 	};
 
+	template <typename T>
+	struct PyExportTraits<const T>
+	{
+		static PyObject* build(const T& v)
+		{
+			return PyExportTraits<T>::build(v);
+		}
+	};
+
 	/** T may be const
 	 */
 	template <typename T, template <typename, typename> class S, typename C>
 	struct PyExportTraits< util::SharedPtr<T, S, C> >
 	{
-		typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+		typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
 		typedef util::SharedPtr<T, S, C> TPtr;
 		static PyObject* build(const TPtr& value)
 		{

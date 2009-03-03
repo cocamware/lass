@@ -123,7 +123,7 @@ public:
 
 	mapped_type& operator[](const key_type& x);
 
-	std::pair<iterator, pool> insert(const value_type& x);
+	std::pair<iterator, bool> insert(const value_type& x);
 	iterator insert(iterator position, const value_type& x);
 	template <typename InputIterator> void insert(InputIterator first, InputIterator last);
 
@@ -193,8 +193,8 @@ operator>>(std::basic_istream<Char, Traits>& i_stream,
 namespace std
 {
 
-template <typename Key, typename T, typename Compare, typename Allocator>
-void swap(vector_map<Key, T, Compare, Allocator>& a, vector_map<Key, T, Compare, Allocator>& b);
+template <typename K, typename T, typename C, typename A>
+void swap(lass::stde::vector_map<K, T, C, A>& a, lass::stde::vector_map<K, T, C, A>& b);
 
 }
 

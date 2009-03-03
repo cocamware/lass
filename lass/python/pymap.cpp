@@ -52,65 +52,143 @@ namespace python
 {
 namespace impl
 {
-	PY_DECLARE_CLASS( PyMap )
-	PY_CLASS_METHOD( PyMap, keys )
-	PY_CLASS_METHOD( PyMap, values )
+	PY_DECLARE_CLASS( Map )
+	PY_CLASS_METHOD( Map, keys )
+	PY_CLASS_METHOD( Map, values )
+	PY_CLASS_METHOD( Map, items )
+#if PY_MAJOR_VERSION < 3
+	PY_CLASS_METHOD_NAME( Map, keys, "iterkeys" )
+	PY_CLASS_METHOD_NAME( Map, values, "itervalues" )
+	PY_CLASS_METHOD_NAME( Map, items, "iteritems" )
+#endif
+	PY_CLASS_METHOD( Map, get )
+	PY_CLASS_METHOD_NAME( Map, getOrNone, "get" )
+	PY_CLASS_METHOD( Map, clear )
+	PY_CLASS_METHOD( Map, copy )
 
-	bool PyMap::isInitialized = false;
+	bool Map::isInitialized = false;
 
-	PyMappingMethods PyMap::pyMappingMethods = {
-		(lenfunc)PyMap::PyMap_Length, /*mp_length*/
-		(binaryfunc)PyMap::PyMap_Subscript, /*mp_subscript*/
-		(objobjargproc)PyMap::PyMap_AssSubscript, /*mp_ass_subscript*/
+	PyMappingMethods Map::pyMappingMethods = {
+		&Map::length,
+		&Map::subscript,
+		&Map::assSubscript,
 	};
 
-	void PyMap::initialize()
+	Map::~Map()
+	{
+	}
+
+	Map::Map(std::auto_ptr<PyMapImplBase> pimpl)
+	{
+		init(pimpl);
+	}
+
+	void Map::initializeType()
 	{
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type_.tp_as_mapping = &pyMappingMethods;
-			_lassPyClassDef.type_.tp_iter = (getiterfunc) &PyMap::PyMap_Iter;
+			_lassPyClassDef.type_.tp_iter = (getiterfunc) &Map::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-			// [TDM] for some reason the dict member is not getting properly initialized on PyMap?!
+			// [TDM] for some reason the dict member is not getting properly initialized on Map?!
 			// switch off inheritance
 			//&reinterpret_cast<const volatile char&>((((s *)0)->m))
-			PyMap::_lassPyType.tp_dictoffset = 0;
-			PyMap::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
+			Map::_lassPyType.tp_dictoffset = 0;
+			Map::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
 #endif
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
 	}
 
-
-	PyMap::PyMap() 
+	void Map::init(std::auto_ptr<PyMapImplBase> pimpl)
 	{
-		LASS_THROW( "PyMap needs a std::map to initialize" );
+		initializeType();
+		impl::fixObjectType(this);
+		pimpl_.reset(pimpl);
 	}
 
-	PyMap::~PyMap()
-	{
-		delete pimpl_;
+	std::string Map::doPyStr(void) 
+	{ 
+		return doPyRepr(); 
 	}
 	
-	Py_ssize_t PyMap::PyMap_Length( PyObject* iPO)
-	{
-		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Length();
+	std::string Map::doPyRepr(void) 
+	{ 
+		return pimpl_->repr(); 
+	}
+	
+	const TPyObjPtr Map::keys() const 
+	{ 
+		return fromNakedToSharedPtrCast<PyObject>(pimpl_->keys()); 
+	}
+		
+	const TPyObjPtr Map::values() const 
+	{ 
+		return fromNakedToSharedPtrCast<PyObject>(pimpl_->values()); 
+	}
+	
+	const TPyObjPtr Map::items() const 
+	{ 
+		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
 	}
 
-	PyObject* PyMap::PyMap_Subscript( PyObject* iPO, PyObject* iKey)
+	const TPyObjPtr Map::get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const
 	{
-		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Subscript(iKey);
+		TPyObjPtr result = fromNakedToSharedPtrCast<PyObject>(pimpl_->subscript(key.get()));
+		if (!result && PyErr_ExceptionMatches(PyExc_KeyError))
+		{
+			PyErr_Clear();
+			result = defaultValue;
+		}
+		return result;
 	}
 
-	int PyMap::PyMap_AssSubscript( PyObject* iPO, PyObject* iKey, PyObject* iValue)
+	const TPyObjPtr Map::getOrNone(const TPyObjPtr& key) const
 	{
-		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_AssSubscript(iKey, iValue);
+		return get(key, fromNakedToSharedPtrCast<PyObject>(Py_None));
 	}
 
-	PyObject* PyMap::PyMap_Iter( PyObject* iPO)
+	const TMapPtr Map::copy() const
 	{
-		return static_cast<PyMap*>(iPO)->pimpl_->PyMap_Iter();
+		return TMapPtr(new Map(pimpl_->copy()));
+	}
+
+	void Map::clear()
+	{
+		if (!pimpl_->clear())
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+	}
+
+	const type_info& Map::type() const
+	{
+		return pimpl_->type();
+	}
+	void* const Map::raw(bool writable) const
+	{
+		return pimpl_->raw(writable);
+	}
+
+	Py_ssize_t Map::length( PyObject* self)
+	{
+		return static_cast<Map*>(self)->pimpl_->length();
+	}
+
+	PyObject* Map::subscript( PyObject* self, PyObject* key)
+	{
+		return static_cast<Map*>(self)->pimpl_->subscript(key);
+	}
+
+	int Map::assSubscript( PyObject* self, PyObject* key, PyObject* value)
+	{
+		return static_cast<Map*>(self)->pimpl_->assSubscript(key, value);
+	}
+
+	PyObject* Map::iter( PyObject* self)
+	{
+		return static_cast<Map*>(self)->pimpl_->keys();
 	}
 
 }

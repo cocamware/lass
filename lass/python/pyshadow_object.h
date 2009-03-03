@@ -494,7 +494,7 @@ namespace python \
 	template <> struct ShadoweeTraits< t_ShadowObject::TShadowee >: meta::True \
 	{ \
 		typedef t_ShadowObject TShadow; \
-		typedef impl::ShadowTraits< t_ShadowObject > TShadowTraits; \
+		/*typedef impl::ShadowTraits< t_ShadowObject > TShadowTraits;*/ \
 		typedef t_ShadowObject::TPointerTraits TPointerTraits; \
 	}; \
 } \

@@ -48,9 +48,9 @@ namespace stde
 {
 
 template <typename K, typename T, typename C, typename A>
-vector_map::vector_map(const key_compare& key_comp, const allocator_type& allocator):
+vector_map<K, T, C, A>::vector_map(const key_compare& key_comp, const allocator_type& allocator):
 	data_(allocator),
-	key_comp_(key_comp);
+	key_comp_(key_comp)
 {
 }
 
@@ -61,7 +61,7 @@ template <typename InputIterator>
 vector_map<K, T, C, A>::vector_map(InputIterator first, InputIterator last, 
 		const key_compare& key_comp, const allocator_type& allocator):
 	data_(first, last),
-	key_comp_(key_comp);
+	key_comp_(key_comp)
 {
 	std::sort(data_.begin(), data_.end(), value_compare(key_comp_));
 	iterator last = std::unique(data_.begin(), data_.end(), value_compare(key_comp_));
@@ -73,7 +73,7 @@ vector_map<K, T, C, A>::vector_map(InputIterator first, InputIterator last,
 template <typename K, typename T, typename C, typename A>
 vector_map<K, T, C, A>::vector_map(const vector_map<K, T, C, A>& other):
 	data_(other.data_),
-	key_comp_(other.key_comp_);
+	key_comp_(other.key_comp_)
 {
 }
 
@@ -227,7 +227,7 @@ vector_map<K, T, C, A>::insert(iterator i, const value_type& x)
 
 
 
-template <typename K, typename T, typename C, typename A> inline
+template <typename K, typename T, typename C, typename A>
 template <typename InputIterator>
 void vector_map<K, T, C, A>::insert(InputIterator first, InputIterator last)
 {
@@ -290,7 +290,7 @@ void vector_map<K, T, C, A>::clear()
 
 template <typename K, typename T, typename C, typename A> inline
 typename vector_map<K, T, C, A>::key_compare
-vector_map<K, T, C, A>::key_comp()
+vector_map<K, T, C, A>::key_comp() const
 {
 	return key_comp_;
 }
@@ -412,7 +412,7 @@ bool operator==(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b
 /** @relates vector_map
  */
 template <typename K, typename T, typename C, typename A> inline
-bool operator==(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b)
+bool operator!=(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b)
 {
 	return !(a == b);
 }
@@ -434,7 +434,7 @@ bool operator<(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b)
 template <typename K, typename T, typename C, typename A> inline
 bool operator>(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b)
 {
-	return b < a
+	return b < a;
 }
 	
 
@@ -489,8 +489,8 @@ namespace std
 
 /** @relates vector_map
  */
-template <typename Key, typename T, typename Compare, typename Allocator>
-void swap(vector_map<Key, T, Compare, Allocator>& a, vector_map<Key, T, Compare, Allocator>& b)
+template <typename K, typename T, typename C, typename A>
+void swap(lass::stde::vector_map<K, T, C, A>& a, lass::stde::vector_map<K, T, C, A>& b)
 {
 	a.swap(b);
 }

@@ -106,12 +106,49 @@ barC = embedding.Bar()
 # for x in barC.writeableMap:
 	# echo("map iterator",x)
 
-try:
-    barC.constMap['test'] = 'notok'
-    reportError("Could write to const map")
-except:
-    pass
-	
+
+class TestConstMap(unittest.TestCase):
+	def _testConstMap(self, mapping):
+		self.assertEqual(len(mapping), 1)
+		self.assert_("spam" in mapping)
+		self.assertEqual(mapping["spam"], "spam spam spam")
+		self.assertEqual(list(mapping.keys()), ["spam"])
+		self.assertEqual(list(mapping.values()), ["spam spam spam"])
+		self.assertEqual(list(mapping.items()), [("spam", "spam spam spam")])
+		def set_item(m, k, v): m[k] = v
+		self.assertRaises(TypeError, set_item, mapping, "foo", "bar")
+		self.assert_("foo" not in mapping)
+		self.assertRaises(KeyError, lambda m, k: m[k], mapping, "foo")
+		self.assertEqual(mapping.get("foo"), None)
+		self.assertEqual(mapping.get("foo", "bar"), "bar")
+		def clear(m): m.clear()
+		self.assertRaises(TypeError, clear, mapping)
+		copy = mapping.copy()
+		copy['foo'] = 'bar'
+	def testConstMap(self):
+		self._testConstMap(embedding.Bar().constMap)
+		
+class TestMap(unittest.TestCase):
+	def _testMap(self, mapping, refmap):
+		mapping['test'] = 'ok'
+		self.assertEqual(refmap['test'], 'ok')
+		self.assert_('test' in refmap)
+		del mapping['test']
+		self.assert_('test' not in refmap)
+		mapping.clear()
+		mapping['A'] = 'a'
+		mapping['B'] = 'b'
+		mapping['C'] = 'c'
+		self.assertEqual(len(refmap), 3)
+		for a, b in zip(mapping, refmap.keys()):
+			self.assertEqual(a, b)
+		for a, b, (c, d) in zip(mapping.keys(), mapping.values(), mapping.items()):
+			self.assertEqual(a, c)
+			self.assertEqual(b, d)
+	def testMap(self):
+		bar = embedding.Bar()
+		self._testMap(bar.writeableMap, bar.writeableMap)
+		
 class TestConstSequence(unittest.TestCase):
 	def _testConstSequence(self, seq):
 		def assign(a, b):
@@ -159,6 +196,9 @@ class TestWriteableSequence(unittest.TestCase):
 	def _testSetItem(self, seq, refseq):
 		seq[3] = 5
 		self.assertEqual(refseq[3], 5)
+		def set_item(s, i, v):
+			s[i] = v
+		self.assertRaises(TypeError, set_item, seq, 3, "foo")
 	def _testGetSlice(self, seq, refseq):
 		self.assertEqual(seq[:], [0, 1, 2, 5])
 		self.assertEqual(seq[:2], [0, 1])

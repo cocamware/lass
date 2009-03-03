@@ -80,17 +80,22 @@ namespace impl
 
 	Sequence::Sequence(std::auto_ptr<PySequenceImplBase> pimpl)
 	{
-		initialize();
+		init(pimpl);
+	}
+
+	void Sequence::init(std::auto_ptr<PySequenceImplBase> pimpl)
+	{
+		initializeType();
 		impl::fixObjectType(this);
 		pimpl_.reset(pimpl);
 	}
 
-	void Sequence::initialize()
+	void Sequence::initializeType()
 	{
 		if (!isInitialized)
 		{
-			//Sequence::Type.tp_iter = &Sequence::PySequence_ListIter;
 			_lassPyClassDef.type_.tp_as_sequence= &pySequenceMethods;
+			_lassPyClassDef.type_.tp_iter = &Sequence::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance
@@ -209,6 +214,11 @@ namespace impl
 		}
 		Py_INCREF(self);
 		return self;
+	}
+
+	PyObject* Sequence::iter( PyObject* self)
+	{
+		return static_cast<Sequence*>(self)->pimpl_->items();
 	}
 }
 

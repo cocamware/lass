@@ -51,6 +51,7 @@
 #include "pyshadow_object.h"
 #include "shadowee_traits.h"
 #include "exception.h"
+#include "container.h"
 #include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
 
@@ -64,103 +65,15 @@ namespace lass
 {
 namespace python
 {
-
 namespace impl
 {
-
-	template <typename Container>
-	struct ContainerTraitsBase
-	{
-		typedef Container container_type;
-		typedef typename Container::value_type value_type;
-		typedef typename Container::const_iterator const_iterator;
-		typedef typename Container::iterator iterator;
-		static size_t size(const container_type& c)
-		{
-			return c.size();
-		}
-		static const const_iterator begin(const container_type& c) 
-		{ 
-			return c.begin();
-		}
-		static const iterator begin(container_type& c) 
-		{ 
-			return c.begin();
-		}
-		template <typename It> 
-		static const It next(It it, Py_ssize_t i = 1) 
-		{ 
-			return it + i; 
-		}
-		template <typename InputIt> 
-		static void insert(container_type& c, iterator i, InputIt first, InputIt last)
-		{
-			c.insert(i, first, last);
-		}
-		static void erase(container_type& c, iterator first, iterator last)
-		{
-			c.erase(first, last);
-		}
-		static void clear(container_type& c)
-		{
-			c.clear();
-		}
-		static void reserve(container_type& /*c*/, size_t /*n*/) 
-		{
-		}
-		static const util::SharedPtr<container_type> copy(const container_type& c) 
-		{ 
-			return util::SharedPtr<container_type>(new container_type(c)); 
-		}
-		static void inplace_repeat(container_type& c, Py_ssize_t n)
-		{
-			stde::inplace_repeat_c(c, n);
-		}
-		static std::string repr(const container_type& c)
-		{
-			return util::stringCast<std::string>(c);
-		}
-	};
-
-	template <typename Container>
-	struct ContainerTraits: ContainerTraitsBase<Container>
-	{
-	};
-
-	template <typename T, typename A>
-	struct ContainerTraits< std::vector<T, A> >: ContainerTraitsBase< std::vector<T, A> >
-	{
-		typedef typename ContainerTraitsBase< std::vector<T, A> >::container_type container_type;
-		static void reserve( container_type& c, size_t n ) 
-		{ 
-			c.reserve(n); 
-		}	
-	};
-
-	template <typename T, typename A>
-	struct ContainerTraits< std::list<T, A> >: ContainerTraitsBase< std::list<T, A> >
-	{
-		template <typename It>
-		static const It next( It it, Py_ssize_t i ) 
-		{ 
-			std::advance(it, i); 
-			return it; 
-		}
-	};
-
-	class LASS_DLL PySequenceImplBase
+	class LASS_DLL PySequenceImplBase: public ContainerImplBase
 	{
 	public:
-		virtual ~PySequenceImplBase() {};
-
-		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0; 
-		virtual const bool clear() = 0;
+		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0;
 		virtual const bool reserve(size_t n) = 0;
 		virtual const bool append(const TPyObjPtr& i) = 0;
 		virtual const bool pop(Py_ssize_t i) = 0;
-		virtual const std::string repr() const = 0;
-
-		virtual const Py_ssize_t length() const = 0;
 		virtual PyObject* const item(Py_ssize_t i) const = 0;
 		virtual PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const = 0;
 		virtual const int assItem(Py_ssize_t i, PyObject* obj) = 0;
@@ -168,55 +81,41 @@ namespace impl
 		virtual const int contains(PyObject* obj) const = 0;
 		virtual const bool inplaceConcat(PyObject* obj) = 0;
 		virtual const bool inplaceRepeat(Py_ssize_t n) = 0;
-
-		virtual const type_info& type() const = 0;
-		virtual void* const raw(bool writable) = 0;
 	};
 
 	template<typename Container> 
-	class PySequenceContainer : public PySequenceImplBase
+	class PySequenceContainer: public ContainerImpl<Container, PySequenceImplBase>
 	{
 	public:
-		typedef util::SharedPtr<Container> TContainerPtr;
-		typedef util::SharedPtr<const Container> TConstContainerPtr;
-		typedef ContainerTraits<Container> TContainerTraits;
+		typedef ContainerImpl<Container, PySequenceImplBase> TBase;
+		typedef typename TBase::TContainerPtr TContainerPtr;
+		typedef typename TBase::TConstContainerPtr TConstContainerPtr;
+		typedef typename TBase::TContainerTraits TContainerTraits;
 
-		PySequenceContainer(const TContainerPtr& c, bool readOnly = false): 
-			cont_(c), 
-			readOnly_(readOnly)
+		PySequenceContainer(const TContainerPtr& container, bool readOnly = false): 
+			ContainerImpl(container, readOnly)
 		{
-			LASS_ASSERT(cont_);
 		}
 		~PySequenceContainer() 
 		{
 		}
-
 		std::auto_ptr<PySequenceImplBase> copy() const
 		{
-			TContainerPtr cont = TContainerTraits::copy(*cont_);
-			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(cont));
-		}
-		const bool clear()
-		{
-			if (!checkWritable())
-			{
-				return false;
-			}
-			TContainerTraits::clear(*cont_);
-			return true;
+			TContainerPtr copy = TContainerTraits::copy(this->container());
+			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(copy));
 		}
 		const bool reserve(size_t n)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return false;
 			}
-			TContainerTraits::reserve(*cont_, n);
+			TContainerTraits::reserve(this->container(), n);
 			return true;
 		}
 		const bool append(const TPyObjPtr& obj)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return false;
 			}
@@ -225,52 +124,41 @@ namespace impl
 			{
 				return false;
 			}
-			TContainerTraits::iterator end = next(begin(), length());
-			TContainerTraits::insert(*cont_, end, &value, &value + 1);
+			TContainerTraits::iterator end = this->next(this->begin(), this->length());
+			TContainerTraits::insert(this->container(), end, &value, &value + 1);
 			return true;
 		}
 		const bool pop(Py_ssize_t i)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return false;
 			}
-			if (!checkIndex(i))
+			if (!this->checkIndex(i))
 			{
 				return false;
 			}
-			TContainerTraits::erase(*cont_, next(begin(), i), next(begin(), i + 1));
+			TContainerTraits::erase(this->container(), this->next(this->begin(), i), this->next(this->begin(), i + 1));
 			return true;
-		}
-		const std::string repr() const
-		{
-			return TContainerTraits::repr(*cont_);
-		}
-
-		const Py_ssize_t length() const
-		{
-			const Py_ssize_t size = static_cast<Py_ssize_t>(TContainerTraits::size(*cont_));
-			LASS_ASSERT(size >= 0);
-			return size;
 		}
 		PyObject* const item(Py_ssize_t i) const
 		{
-			if (!checkIndex(i))
+			if (!this->checkIndex(i))
 			{
 				return 0;
 			}
-			return pyBuildSimpleObject(*next(begin(), i));
+			return pyBuildSimpleObject(*this->next(this->begin(), i));
 		}
 		PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const
 		{
-			const Py_ssize_t size = length();
+			const Py_ssize_t size = this->length();
 			low = num::clamp(low, 0, size);
 			high = num::clamp(high, low, size);
-			return fromSharedPtrToNakedCast(pyBuildList(next(begin(), low), next(begin(), high)));
+			return fromSharedPtrToNakedCast(pyBuildList(this->next(this->begin(), low), this->next(this->begin(), high)));
 		}
 		const int assItem(Py_ssize_t i, PyObject* obj)
 		{
-			if (!checkWritable() || !checkIndex(i))
+			if (!this->checkWritable() || !this->checkIndex(i))
 			{
 				return -1;
 			}
@@ -278,7 +166,7 @@ namespace impl
 			{
 				return assSlice(i, i + 1, 0);
 			}
-			if (pyGetSimpleObject(obj, *next(begin(), i)) != 0)
+			if (pyGetSimpleObject(obj, *this->next(this->begin(), i)) != 0)
 			{
 				return -1;
 			}
@@ -286,11 +174,11 @@ namespace impl
 		}
 		const int assSlice(Py_ssize_t low, Py_ssize_t high, PyObject* other)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return -1;
 			}
-			const Py_ssize_t size = length();
+			const Py_ssize_t size = this->length();
 			low = num::clamp(low, 0, size);
 			high = num::clamp(high, low, size);
 			TConstContainerPtr b;
@@ -300,17 +188,17 @@ namespace impl
 				{
 					return -1;
 				}
-				if (cont_ == b)
+				if (&this->container() == b.get())
 				{
 					b = TContainerTraits::copy(*b);
 				}
 			}
-			TContainerTraits::erase(*cont_, next(begin(), low), next(begin(), high));
+			TContainerTraits::erase(this->container(), this->next(this->begin(), low), this->next(this->begin(), high));
 			if (b)
 			{
 				TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
-				TContainerTraits::const_iterator last = next(first, TContainerTraits::size(*b));
-				TContainerTraits::insert(*cont_, next(begin(), low), first, last);
+				TContainerTraits::const_iterator last = this->next(first, TContainerTraits::size(*b));
+				TContainerTraits::insert(this->container(), this->next(this->begin(), low), first, last);
 			}
 			return 0;
 		}
@@ -319,12 +207,17 @@ namespace impl
 			typename Container::value_type value;
 			if (pyGetSimpleObject(obj, value) != 0)
 			{
-				// type is not convertible and hence is not found
-				// this corresponds to the Python behavior
-				return 0;
+				if (PyErr_ExceptionMatches(PyExc_TypeError))
+				{
+					// type is not convertible and hence is not found
+					// this corresponds to the Python behavior
+					PyErr_Clear();
+					return 0;
+				}
+				return -1;
 			}
-			TContainerTraits::const_iterator end = next(begin(), length());
-			if (std::find(begin(), end, value) != end)
+			TContainerTraits::const_iterator end = this->next(this->begin(), this->length());
+			if (std::find(this->begin(), end, value) != end)
 			{
 				return 1;
 			}
@@ -341,51 +234,29 @@ namespace impl
 			{
 				return false;
 			}
-			if (cont_ == b)
+			if (&this->container() == b.get())
 			{
 				b = TContainerTraits::copy(*b);
 			}
-			const TContainerTraits::iterator end = next(begin(), length());
+			const TContainerTraits::iterator end = this->next(this->begin(), this->length());
 			const TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
-			const TContainerTraits::const_iterator last = TContainerTraits::next(first, TContainerTraits::size(*b));
-			TContainerTraits::insert(*cont_, end, first, last);
+			const TContainerTraits::const_iterator last = this->next(first, TContainerTraits::size(*b));
+			TContainerTraits::insert(this->container(), end, first, last);
 			return true;
 		}
 		const bool inplaceRepeat(Py_ssize_t n)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return false;
 			}
-			TContainerTraits::inplace_repeat(*cont_,n);
+			TContainerTraits::inplace_repeat(this->container(),n);
 			return true;
-		}
-
-		const type_info& type() const 
-		{ 
-			return typeid(TContainerPtr); 
-		}
-		void* const raw(bool writable)
-		{ 
-			if (writable && readOnly_)
-			{
-				return 0;
-			}
-			return &cont_; 
 		}
 	private:
-		const bool checkWritable() const
-		{
-			if (readOnly_)
-			{
-				PyErr_SetString(PyExc_TypeError, "Sequence is read-only");
-				return false;
-			}
-			return true;
-		}
 		const bool checkIndex(Py_ssize_t& i) const
 		{
-			const Py_ssize_t size = length();
+			const Py_ssize_t size = this->length();
 			if (i < 0 || i >= size) 
 			{
 				PyErr_SetString(PyExc_IndexError,"list assignment index out of range");
@@ -393,20 +264,6 @@ namespace impl
 			}
 			return true;
 		}
-		const typename TContainerTraits::const_iterator begin() const
-		{
-			return TContainerTraits::begin(*cont_);
-		}
-		const typename TContainerTraits::iterator begin()
-		{
-			return TContainerTraits::begin(*cont_);
-		}
-		template <typename It> static const It next(It it, Py_ssize_t i)
-		{
-			return TContainerTraits::next(it, i);
-		}
-		TContainerPtr cont_;
-		bool readOnly_;
 	};
 
 	class Sequence;
@@ -423,22 +280,21 @@ namespace impl
 	public:
 		template<typename Container> Sequence( const util::SharedPtr<Container>& container )
 		{
-			initialize();
-			impl::fixObjectType(this);
-			pimpl_.reset(new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container)));
+			std::auto_ptr<PySequenceImplBase> pimpl(
+				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container)));
+			init(pimpl);
 		}
 		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
-			initialize();
-			impl::fixObjectType(this);
-			pimpl_.reset(new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
+			std::auto_ptr<PySequenceImplBase> pimpl(
+				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
+			init(pimpl);
 		}
 		template<typename Container> Sequence( const Container& container )
 		{
-			initialize();
-			impl::fixObjectType(this);
 			util::SharedPtr<Container> p(ContainerTraits<Container>::copy(container));
-			pimpl_.reset(new PySequenceContainer<Container>(p, true));
+			std::auto_ptr<PySequenceImplBase> pimpl(new PySequenceContainer<Container>(p, true));
+			init(pimpl);
 		}
 
 		const TSequencePtr copy() const;
@@ -461,20 +317,22 @@ namespace impl
 		static int contains(PyObject* a, PyObject* obj);
 		static PyObject* inplaceConcat(PyObject* self, PyObject* other);
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
+		static PyObject* iter(PyObject* self);
 
 		const type_info& type() const;
 		void* const raw(bool writable) const;
 
 	private:
 		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
+		void init(std::auto_ptr<PySequenceImplBase> pimpl);
+		static void initializeType();
+
 		util::ScopedPtr<PySequenceImplBase> pimpl_;
-		static void initialize();
 	};
 
 	template <>
 	struct ShadowTraits<Sequence>
 	{
-		enum { 	isShadow = true };
 		typedef PyObjectPtr<Sequence>::Type TPyClassPtr;
 		typedef Sequence TCppClass;
 		typedef TPyClassPtr TCppClassPtr;

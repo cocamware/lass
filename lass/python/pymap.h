@@ -48,12 +48,13 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYMAP_H
 
 #include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_util.h"
+#include "pyshadow_object.h"
 #include "pyiteratorrange.h"
 #include "../meta/type_traits.h"
-
+#include "container.h"
 #include <map>
+#include "../stde/vector_map.h"
+#include "../stde/access_iterator.h"
 
 namespace lass
 {
@@ -61,288 +62,217 @@ namespace python
 {
 namespace impl
 {
-	class LASS_DLL PyMapImplBase
+	class LASS_DLL PyMapImplBase: public ContainerImplBase
 	{
 	public:
-		PyMapImplBase() {};
-		virtual ~PyMapImplBase() {};
-		virtual Py_ssize_t PyMap_Length() = 0;
-		virtual PyObject* PyMap_Subscript( PyObject* iKey) = 0;
-		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue) = 0;
-		virtual std::string pyStr(void) = 0;
-		virtual std::string pyRepr(void) = 0;
-		virtual TPyObjPtr keys() const = 0;
-		virtual TPyObjPtr values() const = 0;
-		virtual PyObject* PyMap_Iter() = 0;
-		virtual bool pointsToSameContainer(void* iO) = 0;
+		virtual std::auto_ptr<PyMapImplBase> copy() const = 0; 
+		virtual PyObject* const subscript(PyObject* key) const = 0;
+		virtual const int assSubscript(PyObject* key, PyObject* value) = 0;
+		virtual PyObject* const keys() const = 0;
+		virtual PyObject* const values() const = 0;
 	};
 
-	template<typename M> 
-	class PyMapImpl : public PyMapImplBase
+	template<typename Container> 
+	class PyMapImpl: public ContainerImpl<Container, PyMapImplBase>
 	{
 	public:
-		enum Ownership
+		typedef ContainerImpl<Container, PyMapImplBase> TBase;
+		typedef typename TBase::TContainerPtr TContainerPtr;
+		typedef typename TBase::TConstContainerPtr TConstContainerPtr;
+		typedef typename TBase::TContainerTraits TContainerTraits;
+
+		PyMapImpl(const TContainerPtr& container, bool readOnly = false): 
+			ContainerImpl(container, readOnly)
 		{
-			oOwner,
-			oBorrowed
-		};
-		PyMapImpl(M* iMap, Ownership iOwnership = oBorrowed) : map_(iMap), ownership_(iOwnership) {}
-		virtual ~PyMapImpl();
-		virtual Py_ssize_t PyMap_Length();
-		virtual PyObject* PyMap_Subscript( PyObject* iKey);
-		virtual int PyMap_AssSubscript( PyObject* iKey, PyObject* iValue);
-		virtual std::string pyStr(void);
-		virtual std::string pyRepr(void);
-		virtual TPyObjPtr keys() const;
-		virtual TPyObjPtr values() const;
-		virtual PyObject* PyMap_Iter();
-		virtual bool pointsToSameContainer(void* iO) 
-		{ 
-			return iO == (void*)map_;
 		}
-	private:
-
-		int doPyMap_AssSubscript( PyObject* iKey, PyObject* iValue, meta::True);
-		int doPyMap_AssSubscript( PyObject* iKey, PyObject* iValue, meta::False);
-
-		M* map_;
-		Ownership ownership_;
-		enum { readOnly_ = meta::TypeTraits<M>::isConst };
+		std::auto_ptr<PyMapImplBase> copy() const
+		{
+			TContainerPtr copy = TContainerTraits::copy(this->container());
+			return std::auto_ptr<PyMapImplBase>(new PyMapImpl(copy));
+		}
+		PyObject* const subscript(PyObject* key) const
+		{
+			typename Container::key_type k;
+			if (pyGetSimpleObject(key, k) != 0)
+			{
+				PyErr_SetObject(PyExc_KeyError, key);
+				return 0;
+			}
+			typename Container::const_iterator it = this->container().find(k);
+			if (it == this->container().end())
+			{
+				PyErr_SetObject(PyExc_KeyError, key);
+				return 0;
+			}
+			return pyBuildSimpleObject(it->second);
+		}
+		const int assSubscript(PyObject* key, PyObject* value)
+		{
+			if (!this->checkWritable())
+			{
+				return -1;
+			}
+			typename Container::key_type k;
+			if (pyGetSimpleObject(key, k) != 0)
+			{
+				impl::addMessageHeader("key");
+				return -1;
+			}
+			if (value)
+			{
+				typename Container::mapped_type v;
+				if (pyGetSimpleObject(value, v) != 0)
+				{
+					impl::addMessageHeader("value");
+					return -1;
+				}
+				this->container()[k] = v;
+			}
+			else
+			{
+				typename Container::const_iterator it = this->container().find(k);
+				if (it == this->container().end())
+				{
+					PyErr_SetObject(PyExc_KeyError, key);
+					return -1;
+				}
+				this->container().erase(it);
+			}
+			return 0;
+		}
+		PyObject* const keys() const
+		{
+			return new PyIteratorRange(stde::first_iterator(this->container().begin()), stde::first_iterator(this->container().end()));
+		}
+		PyObject* const values() const
+		{
+			return new PyIteratorRange(stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
+		}
 	};
 
-	/** PyMap.  Object for interfacing maps with Python 
+	class Map;
+	typedef PyObjectPtr<Map>::Type TMapPtr;
+
+	/** Map.  Object for interfacing maps with Python 
 	*/
-	class LASS_DLL PyMap : public PyObjectPlus
+	class LASS_DLL Map : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus);
 		static PyMappingMethods pyMappingMethods;
-
 	public:
-		template<typename M> PyMap( M& iStdMap ) 
+		template <typename Container> Map( const util::SharedPtr<Container>& container )
 		{
-			initialize();
-			impl::fixObjectType(this);
-			pimpl_ = new PyMapImpl<M>(&iStdMap);
+			std::auto_ptr<PyMapImplBase> pimpl(
+				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container)));
+			init(pimpl);
 		}
-		template<typename M> PyMap( const M& iStdMap ) 
+		template<typename Container> Map( const util::SharedPtr<const Container>& container ) 
 		{
-			initialize();
-			impl::fixObjectType(this);
-			std::auto_ptr<M> copy(new M(iStdMap));
-			pimpl_ = new PyMapImpl<const M>(copy.get(), PyMapImpl<const M>::oOwner);
-			copy.release();
+			std::auto_ptr<PyMapImplBase> pimpl(
+				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
+			init(pimpl);
 		}
-		~PyMap();
-		std::string doPyStr(void) { return pimpl_->pyStr(); }
-		std::string doPyRepr(void) { return pimpl_->pyRepr(); }
-		TPyObjPtr keys() const { return pimpl_->keys(); }
-		TPyObjPtr values() const { return pimpl_->values(); }
+		template<typename Container> Map( const Container& container )
+		{
+			util::SharedPtr<Container> p(new Container(container));
+			std::auto_ptr<PyMapImplBase> pimpl(new PyMapImpl<Container>(p, true));
+			init(pimpl);
+		}
+		~Map();
 
-		static Py_ssize_t PyMap_Length( PyObject* iPO);
-		static PyObject* PyMap_Subscript( PyObject* iPO, PyObject* iKey);
-		static int PyMap_AssSubscript( PyObject* iPO, PyObject* iKey, PyObject* iValue);
+		std::string doPyStr(void);
+		std::string doPyRepr(void);
+		const TPyObjPtr keys() const;
+		const TPyObjPtr values() const;
+		const TPyObjPtr items() const;
+		const TPyObjPtr get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const;
+		const TPyObjPtr getOrNone(const TPyObjPtr& key) const;
+		void clear();
+		const TMapPtr copy() const;
 
-		static PyObject* PyMap_Iter( PyObject* iPO);
+		static Py_ssize_t length(PyObject* self);
+		static PyObject* subscript(PyObject* self, PyObject* key);
+		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
+		static PyObject* iter(PyObject* self);
 
-		template<typename Container> bool pointsToSameContainer(Container& iO) 
-		{ 
-			return pimpl_->pointsToSameContainer(&iO);
+		const type_info& type() const;
+		void* const raw(bool writable) const;
+
+	private:
+		Map(std::auto_ptr<PyMapImplBase> pimpl);
+		void init(std::auto_ptr<PyMapImplBase> pimpl);
+		static void initializeType();
+
+		util::ScopedPtr<PyMapImplBase> pimpl_;
+		static bool isInitialized;
+	};
+
+	template <>
+	struct ShadowTraits<Map>
+	{
+		typedef PyObjectPtr<Map>::Type TPyClassPtr;
+		typedef Map TCppClass;
+		typedef TPyClassPtr TCppClassPtr;
+		typedef PyObjectPtr<const Map>::Type TConstCppClassPtr;
+
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value)
+		{
+			return getObject(obj, value, true);
+		}
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<const Container>& value)
+		{
+			util::SharedPtr<Container> temp;
+			if (getObject(obj, temp, false) != 0)
+			{
+				return 1;
+			}
+			value = temp.constCast<const Container>();
+			return 0;
+		}
+		static int getObject(PyObject* obj, TCppClassPtr& map)
+		{
+			map = fromNakedToSharedPtrCast<Map>(obj);
+			return 0;
+		}
+		static int getObject(PyObject* obj, TConstCppClassPtr& map)
+		{
+			map = fromNakedToSharedPtrCast<const Map>(obj);
+			return 0;
+		}
+		template <typename T> static TPyClassPtr buildObject(const T& value)
+		{
+			return TPyClassPtr(new Map(value));
+		}
+		static TPyClassPtr buildObject(const TPyClassPtr& map)
+		{
+			return map;
 		}
 
 	private:
 
-		PyMap();
-		PyMapImplBase*	pimpl_;
-		static void initialize();
-		static bool isInitialized;
-	};
-
-
-	template<typename M>
-	PyMapImpl<M>::~PyMapImpl()
-	{
-		LASS_ASSERT(map_);
-		if (ownership_ == oOwner)
+		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
 		{
-			delete map_;
-		}
-	}
-
-	template<typename M>
-	Py_ssize_t PyMapImpl<M>::PyMap_Length()
-	{
-		LASS_ASSERT(map_);
-		const Py_ssize_t size = static_cast<Py_ssize_t>(map_->size());
-		LASS_ASSERT(size >= 0);
-		return size;
-	}
-
-	template<typename M>
-	PyObject* PyMapImpl<M>::PyMap_Iter()
-	{
-		return new PyIteratorRange(map_->begin(), map_->end());
-	}
-
-
-	template<typename M>
-	TPyObjPtr PyMapImpl<M>::keys() const
-	{
-		LASS_ASSERT(map_);
-		std::vector<typename M::key_type> temp;
-		for (typename M::const_iterator it=map_->begin();it!=map_->end();++it)
-			temp.push_back(it->first);
-		return pyBuildList(temp.begin(),temp.end());
-	}
-
-	template<typename M>
-	TPyObjPtr PyMapImpl<M>::values() const
-	{
-		LASS_ASSERT(map_);
-		std::vector<typename M::mapped_type> temp;
-		for (typename M::const_iterator it=map_->begin();it!=map_->end();++it)
-			temp.push_back(it->second);
-		return pyBuildList(temp.begin(),temp.end());
-	}
-
-
-	template<typename M>
-	PyObject* PyMapImpl<M>::PyMap_Subscript( PyObject* iKey)
-	{
-		LASS_ASSERT(map_);
-		typename M::key_type cppKey;
-		int r = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
-		if (r)
-		{
-			PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
-			return NULL;
-		}
-		typename M::const_iterator it = map_->find(cppKey);
-		if (it==map_->end())
-		{
-			PyErr_SetObject(PyExc_KeyError, iKey);
-			return NULL;
-		}
-		PyObject* rv = PyExportTraits<typename M::mapped_type>::build( it->second );
-		Py_INCREF(rv);
-		return rv;
-	}
-	
-	template<typename M>
-	int PyMapImpl<M>::PyMap_AssSubscript( PyObject* iKey, PyObject* iData)
-	{
-		return PyMapImpl<M>::doPyMap_AssSubscript( iKey, iData, meta::Bool<readOnly_>());
-	}
-
-	template<typename M>
-	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject*, PyObject*, meta::True)
-	{
-		PyErr_SetString(PyExc_TypeError, "Map is not writeable");
-		return 1;
-	}
-
-	template<typename M>
-	int PyMapImpl<M>::doPyMap_AssSubscript( PyObject* iKey, PyObject* iData, meta::False)
-	{
-		LASS_ASSERT(map_);
-		if (iData == NULL)		
-		{
-			typename M::key_type cppKey;
-			int r = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
-			if (!r)
-				map_->erase(cppKey);
-			else
+			if (!PyMapping_Check(obj))
 			{
-				PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
+				PyErr_SetString(PyExc_TypeError, "not a map");
 				return 1;
 			}
-			return 0;
-		}
-		else
-		{
-			typename M::key_type cppKey;
-			typename M::mapped_type cppData;
-			int rk = PyExportTraits<typename M::key_type>::get( iKey, cppKey );
-			if (rk)
+
+			// check if we have our own Sequence object, then take a shortcut
+			if (isOfType(obj, Map::_lassPyClassDef.type()))
 			{
-				PyErr_SetString(PyExc_TypeError, "Cannot convert key to appropriate type");
-				return 1;
+				const Map* const map = static_cast<Map*>(obj);
+				void* const raw = map->raw(writable);
+				if (raw && typeid(value) == map->type())
+				{
+					value = *static_cast< util::SharedPtr<Container>* >(raw);
+					return 0;
+				}
 			}
-			int rv = PyExportTraits<typename M::mapped_type>::get( iData, cppData );
-			if (rv)
-			{
-				PyErr_SetString(PyExc_TypeError, "Cannot convert data to appropriate type");
-				return 1;
-			}
-			map_->insert(typename M::value_type(cppKey,cppData));
-			return 0;
-		}
-	}
 
-	template<typename M>
-	std::string PyMapImpl<M>::pyStr( void)
-	{
-		LASS_ASSERT(map_);
-		return  pyRepr();
-	}
-
-	template<typename M>
-	std::string PyMapImpl<M>::pyRepr( void)
-	{
-		LASS_ASSERT(map_);
-		return util::stringCast<std::string>(*map_);
-	}
-
-}
-
-
-
-
-/** @ingroup Python
- *  @internal
- */
-template <typename ContainerType>
-struct PyExportTraitsMap
-{
-	typedef ContainerType TContainer;
-
-	/*	build a copy of a container as a Python dictionary	
-	 *	@note the constructed dictionary is made read only.
-	 *	@note a completely fresh copy of the container is made, so it's perfectly safe to use this
-	 *	to cast temporary function return values to Python.
-	 */
-	static PyObject* build( const TContainer& iV )
-	{
-		return new impl::PyMap(iV);
-	}
-
-	/** wrap a "borrowed" container as Python dictionary
-	 *	@note you build a reference to the container, any changes done in Python
-	 *	will be reflected in the original object, as far as the typesystem allows it of course
-	 *	@warning holding a reference to the dictionary, while the original container is destroyed is a 
-	 *	not-so-good-idea.
-	 */
-	static PyObject* build( TContainer& iV )
-	{
-		return new impl::PyMap(iV);
-	}
-
-	static int get( PyObject* iV, TContainer& oV )
-	{
-		if (!PyMapping_Check(iV))
-		{
-			PyErr_SetString(PyExc_TypeError, "python object doens't provide mapping protocol");
-			return 1;
-		}
-		// check if we have our own PyMap object, then take a shortcut
-		if (impl::isOfType(iV, impl::PyMap::_lassPyClassDef.type()) && ((impl::PyMap*)iV)->pointsToSameContainer(oV))
-		{
-			return 0;
-		}
-		else
-		{
-			TContainer result;
-			const Py_ssize_t size = PyMapping_Length(iV);
-			TPyObjPtr items(PyMapping_Items(iV));
+			const util::SharedPtr<Container> result(new Container);
+			const Py_ssize_t size = PyMapping_Length(obj);
+			TPyObjPtr items(PyMapping_Items(obj));
 			if (!items)
 			{
 				return 1;
@@ -351,27 +281,44 @@ struct PyExportTraitsMap
 			PyObject** pairs = PySequence_Fast_ITEMS(items.get());
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
-				typename TContainer::key_type key;
-				typename TContainer::mapped_type mapped;
+				typename Container::key_type key;
+				typename Container::mapped_type mapped;
 				if (decodeTuple(pairs[i], key, mapped) != 0)
 				{
 					impl::addMessageHeader("map");
 					return 1;
 				}
-				result[key] = mapped;
+				(*result)[key] = mapped;
 			}
-			oV.swap(result);
+			value = result;
+			return 0;
 		}
-		return 0;
-	}
+	};
+}
+
+template <typename ContainerType>
+struct ShadoweeTraitsMap: meta::True
+{
+	typedef impl::Map TShadow;
+	typedef impl::ShadowTraits<impl::Map> TShadowTraits;
+	typedef DefaultShadoweePointerTraits<ContainerType> TPointerTraits;
 };
 
-/** @ingroup Python
- *  @internal
+/**	@ingroup Python
+ *	@internal
  */
-template< typename K, typename V, typename P, typename A>
-struct PyExportTraits< std::map<K, V, P, A> >:
-	public PyExportTraitsMap< std::map<K, V, P, A> >
+template< typename K, typename T, typename C, typename A>
+struct ShadoweeTraits< std::map<K, T, C, A> >:
+	public ShadoweeTraitsMap< std::map<K, T, C, A> >
+{
+};
+
+/**	@ingroup Python
+ *	@internal
+ */
+template< typename K, typename T, typename C, typename A>
+struct ShadoweeTraits< stde::vector_map<K, T, C, A> >:
+	public ShadoweeTraitsMap< stde::vector_map<K, T, C, A> >
 {
 };
 

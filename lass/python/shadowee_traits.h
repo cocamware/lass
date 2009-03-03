@@ -55,25 +55,47 @@ namespace python
  *  @internal
  *  Tells whether a type has a shadow class, and its type TShadow
  *  By default, this is false.  Must be specialized by shadow classes ...
+ *
+ *  ShadoweeTraits shall be (partially) specialized for all shadwowee types.
+ *	It shall derive from meta::True and define the following types:
+ *	@arg TShadow: the shadow type (obvious)
+ *	@arg TPointerTraits: ...
+ *
+ *  ShadoweeTraits for non-shadowee types shall derive from meta::False and
+ *	won't define these types.
  */
 template <typename T> 
-struct ShadoweeTraits: meta::False 
+struct ShadoweeTraits: public meta::False 
 {
 	// typedef ... TShadow;
 	// typedef ... TShadowTraits;
 	// typedef ... TPointerTraits;
 };
 
+namespace impl
+{
+
+template <typename T, bool isShadowee>
+struct ConstShadoweeTraits: ShadoweeTraits<T>
+{
+	typedef typename ShadoweeTraits<T>::TShadow TShadow;
+	//typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+	typedef typename ShadoweeTraits<T>::TPointerTraits::template Rebind<const T>::Type TPointerTraits;
+};
+template <typename T>
+struct ConstShadoweeTraits<T, false>: public meta::False
+{
+};
+
+}
+
 /** @ingroup Python
  *  @internal
  *  const types have the same shadowee traits as non const types ...
  */
 template <typename T> 
-struct ShadoweeTraits<const T>: ShadoweeTraits<T>
+struct ShadoweeTraits<const T>: public impl::ConstShadoweeTraits<T, ShadoweeTraits<T>::value>
 {
-	typedef typename ShadoweeTraits<T>::TShadow TShadow;
-	typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
-	typedef typename ShadoweeTraits<T>::TPointerTraits::template Rebind<const T>::Type TPointerTraits;
 };
 
 }

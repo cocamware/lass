@@ -73,7 +73,7 @@ namespace lass
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
-		//PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
@@ -141,11 +141,23 @@ namespace lass
 			return static_cast<int>(ia);
 		}
 
-		Bar::Bar() 
+		namespace impl
+		{
+			std::map<std::string, std::string> makeMap()
+			{
+				std::map<std::string, std::string> map;
+				map["spam"] = "spam spam spam";
+				return map;
+			}
+		}
+
+		Bar::Bar():
+			constMap(impl::makeMap())
 		{
 			privateInt_ = 0;
 			privateString_ = "uninitialized string";
 			coolMember_ = 1.f;
+			writeableMap.reset(new std::map<std::string, std::string>);
 			writeableVector.reset(new std::vector<double>);
 			writeableList.reset(new std::list<double>);
 			writeableDeque.reset(new std::deque<double>);

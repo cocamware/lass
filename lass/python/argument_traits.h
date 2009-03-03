@@ -198,8 +198,7 @@ struct ArgumentTraitsShadowee<T*>
 template <typename T, template <typename, typename> class S, typename C>
 struct ArgumentTraitsShadowee< util::SharedPtr<T, S, C> >
 {
-	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
-	typedef typename TPointerTraits::TPtr TStorage;
+	typedef util::SharedPtr<T, S, C> TStorage;
 	static const util::SharedPtr<T, S, C>& arg(const TStorage& storage)  { return storage; }
 };
 
