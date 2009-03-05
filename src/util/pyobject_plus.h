@@ -608,7 +608,7 @@ namespace lass
 			{
 				static PyObject* call(PyObject* /*self*/, PyObject* /*other*/, int op)
 				{
-					static char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
+					static const char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
 					LASS_ASSERT(op >= 0 && op <= Py_GE);
 					std::ostringstream buffer;
 					buffer << "Comparison operator " << symbols[op] << " not implemented for this type";

@@ -220,7 +220,7 @@ void testNumVector()
 	//LASS_TEST_CHECK_EQUAL(a.min(), *std::min_element(aRef.begin(), aRef.end()));
 	//LASS_TEST_CHECK_EQUAL(a.max(), *std::max_element(aRef.begin(), aRef.end()));
 	LASS_TEST_CHECK_CLOSE(a.squaredNorm(), (a * a).sum(), tolerance);
-	LASS_TEST_CHECK_EQUAL(a.norm(), num::sqrt(a.squaredNorm()));
+	LASS_TEST_CHECK_CLOSE(a.norm(), num::sqrt(a.squaredNorm()), tolerance);
 }
 
 
