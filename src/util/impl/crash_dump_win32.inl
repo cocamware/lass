@@ -194,7 +194,11 @@ public:
 	enum 
 	{ 
 		bufferSize_ = _MAX_PATH,
+#if LASS_ADDRESS_SIZE == 64
+		numPatchBytes_ = 3,
+#else
 		numPatchBytes_ = 5,
+#endif
 	};
 
 	typedef BOOL (WINAPI *TMiniDumpWriteDump)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType,
@@ -374,7 +378,7 @@ public:
 	util::Condition resultCondition_;
 	TMutex* mutex_;
 	LPTOP_LEVEL_EXCEPTION_FILTER oldFilter_;
-	char oldBytes_[numPatchBytes_];
+	unsigned char oldBytes_[numPatchBytes_];
 
 	_EXCEPTION_POINTERS* exceptionInfo_;
 	DWORD threadId_;
@@ -384,11 +388,15 @@ public:
 	volatile bool isHandlingException_;
 
 	static CrashDumpImpl* instance_;
-	static char patchBytes_[numPatchBytes_];
+	static unsigned char patchBytes_[numPatchBytes_];
 };
 
 CrashDumpImpl* CrashDumpImpl::instance_ = 0;
-char CrashDumpImpl::patchBytes_[numPatchBytes_] = { 0x33, 0xc0, 0xc2, 0x04, 0x00 };
+#if LASS_ADDRESS_SIZE == 64
+unsigned char CrashDumpImpl::patchBytes_[numPatchBytes_] = { 0x33, 0xc0, 0xc3 };
+#else
+unsigned char CrashDumpImpl::patchBytes_[numPatchBytes_] = { 0x33, 0xc0, 0xc2, 0x04, 0x00 };
+#endif
 
 }
 }
