@@ -118,7 +118,7 @@ public:
 	access_iterator_t& operator-=(difference_type n) { current_ -= n; return *this; }
 	access_iterator_t operator-(difference_type n) { return access_iterator_t(current_ - n, accessor_); }
 
-	reference operator[](difference_type n) { return accessor_(iterator_[n]) };
+	reference operator[](difference_type n) { return accessor_(current_[n]) };
 
 public:
 	iterator_type current_;

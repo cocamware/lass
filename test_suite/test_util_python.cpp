@@ -65,14 +65,6 @@ namespace test
 
 void testUtilPython()
 {
-	std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
-	FILE* fp = ::fopen(testFile.c_str(), "r");
-	if (!fp)
-	{
-		LASS_THROW("Could not open " << testFile);
-	}
-	::fclose(fp);
-
 #if PY_MAJOR_VERSION < 3
 	PyImport_AppendInittab((char*)"embedding", initembedding);
 #else
@@ -81,7 +73,8 @@ void testUtilPython()
 	Py_Initialize();
 
 	// execfile is no longer part of python 3.0
-	std::string commandStr = "exec(file('" + testFile + "').read())";
+	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
+	std::string commandStr = "exec(open('" + testFile + "').read())";
 	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
 	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
 	

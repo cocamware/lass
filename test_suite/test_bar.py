@@ -201,17 +201,28 @@ class TestWriteableSequence(unittest.TestCase):
 		self.assertRaises(TypeError, set_item, seq, 3, "foo")
 	def _testGetSlice(self, seq, refseq):
 		self.assertEqual(seq[:], [0, 1, 2, 5])
+		self.assertEqual(seq[:], [0, 1, 2, 5])
 		self.assertEqual(seq[:2], [0, 1])
 		self.assertEqual(seq[2:], [2, 5])
 		self.assertEqual(seq[50:], [])
 		self.assertEqual(seq[-2:], [2, 5])
 		self.assertEqual(seq[-100:42], [0, 1, 2, 5])
 		self.assertEqual(seq[2:1], [])
+		self.assertEqual(seq[1::2], [1, 5])
 	def _testSetSlice(self, seq, refseq):
 		seq[1:3] = [10, 11, 12]
-		self.assertEqual(seq[:], [0, 10, 11, 12, 5])
+		self.assertEqual(refseq[:], [0, 10, 11, 12, 5])
 		seq[:] = []
-		self.assertEqual(seq[:], [])
+		self.assertEqual(refseq[:], [])
+		seq[:] = range(10)
+		self.assertEqual(refseq[:], list(range(10)))
+		def set_bad_slice(seq):
+			seq[2:9:2] = [1, 2]
+		self.assertRaises(ValueError, set_bad_slice, seq)
+		seq[2:8:2] = [20, 40, 60]
+		self.assertEqual(refseq[:], [0, 1, 20, 3, 40, 5, 60, 7, 8, 9])
+		del seq[3:9:2]
+		self.assertEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
 	def _testRepeat(self, seq, refseq):
 		n = len(seq)
 		seq *= 2

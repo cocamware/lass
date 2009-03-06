@@ -76,6 +76,12 @@ namespace impl
 		&Sequence::inplaceRepeat,
 	};
 
+	PyMappingMethods Sequence::pyMappingMethods = {
+		&Sequence::length,
+		&Sequence::subscript,
+		&Sequence::assSubscript,
+	};
+
 	bool Sequence::isInitialized = false;
 
 	Sequence::Sequence(std::auto_ptr<PySequenceImplBase> pimpl)
@@ -94,7 +100,8 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			_lassPyClassDef.type_.tp_as_sequence= &pySequenceMethods;
+			_lassPyClassDef.type_.tp_as_sequence= &Sequence::pySequenceMethods;
+			_lassPyClassDef.type_.tp_as_mapping= &Sequence::pyMappingMethods;
 			_lassPyClassDef.type_.tp_iter = &Sequence::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
@@ -183,7 +190,7 @@ namespace impl
 	}
 	PyObject* Sequence::slice(PyObject* self, Py_ssize_t low, Py_ssize_t high)
 	{
-		return static_cast<Sequence*>(self)->pimpl_->slice(low, high);
+		return static_cast<Sequence*>(self)->pimpl_->slice(low, high, 1);
 	}
 	int Sequence::assItem(PyObject* self, Py_ssize_t i, PyObject* obj)
 	{
@@ -191,7 +198,7 @@ namespace impl
 	}
 	int Sequence::assSlice(PyObject* self, Py_ssize_t low, Py_ssize_t high, PyObject* slice)
 	{
-		return static_cast<Sequence*>(self)->pimpl_->assSlice(low, high, slice);
+		return static_cast<Sequence*>(self)->pimpl_->assSlice(low, high, 1, slice);
 	}
 	int Sequence::contains(PyObject* self, PyObject* obj)
 	{
@@ -215,7 +222,52 @@ namespace impl
 		Py_INCREF(self);
 		return self;
 	}
-
+	PyObject* Sequence::subscript(PyObject* self, PyObject* key)
+	{
+		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
+		if (PySlice_Check(key))
+		{
+			Py_ssize_t start, stop, step, slicelength;
+			if (PySlice_GetIndicesEx(reinterpret_cast<PySliceObject*>(key), pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			{
+				return 0;
+			}
+			return pimpl.slice(start, stop, step);
+		}
+		Py_ssize_t i;
+		if (pyGetSimpleObject(key, i) != 0) 
+		{
+			return 0;
+		}
+		if (i < 0)
+		{
+			i += pimpl.length();
+		}
+		return pimpl.item(i);		
+	}
+	int Sequence::assSubscript( PyObject* self, PyObject* key, PyObject* value)
+	{
+		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
+		if (PySlice_Check(key))
+		{
+			Py_ssize_t start, stop, step, slicelength;
+			if (PySlice_GetIndicesEx(reinterpret_cast<PySliceObject*>(key), pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			{
+				return -1;
+			}
+			return pimpl.assSlice(start, stop, step, value);
+		}
+		Py_ssize_t i;
+		if (pyGetSimpleObject(key, i) != 0) 
+		{
+			return -1;
+		}
+		if (i < 0)
+		{
+			i += pimpl.length();
+		}
+		return pimpl.assItem(i, value);
+	}
 	PyObject* Sequence::iter( PyObject* self)
 	{
 		return static_cast<Sequence*>(self)->pimpl_->items();

@@ -87,12 +87,17 @@ struct ContainerTraitsBase
 	template <typename It> 
 	static const It next(It it, Py_ssize_t i = 1) 
 	{ 
-		return it + i; 
+		std::advance(it, i); 
+		return it;
 	}
 	template <typename InputIt> 
 	static void insert(container_type& c, iterator i, InputIt first, InputIt last)
 	{
 		c.insert(i, first, last);
+	}
+	static void erase(container_type& c, iterator i)
+	{
+		c.erase(i);
 	}
 	static void erase(container_type& c, iterator first, iterator last)
 	{
@@ -133,18 +138,6 @@ struct ContainerTraits< std::vector<T, A> >: ContainerTraitsBase< std::vector<T,
 		c.reserve(n); 
 	}	
 };
-
-template <typename T, typename A>
-struct ContainerTraits< std::list<T, A> >: ContainerTraitsBase< std::list<T, A> >
-{
-	template <typename It>
-	static const It next( It it, Py_ssize_t i ) 
-	{ 
-		std::advance(it, i); 
-		return it; 
-	}
-};
-
 
 
 class LASS_DLL ContainerImplBase

@@ -75,9 +75,9 @@ namespace impl
 		virtual const bool append(const TPyObjPtr& i) = 0;
 		virtual const bool pop(Py_ssize_t i) = 0;
 		virtual PyObject* const item(Py_ssize_t i) const = 0;
-		virtual PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const = 0;
+		virtual PyObject* const slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const = 0;
 		virtual const int assItem(Py_ssize_t i, PyObject* obj) = 0;
-		virtual const int assSlice(Py_ssize_t low, Py_ssize_t high, PyObject* obj) = 0;
+		virtual const int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* obj) = 0;
 		virtual const int contains(PyObject* obj) const = 0;
 		virtual const bool inplaceConcat(PyObject* obj) = 0;
 		virtual const bool inplaceRepeat(Py_ssize_t n) = 0;
@@ -149,12 +149,20 @@ namespace impl
 			}
 			return pyBuildSimpleObject(*this->next(this->begin(), i));
 		}
-		PyObject* const slice(Py_ssize_t low, Py_ssize_t high) const
+		PyObject* const slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const
 		{
 			const Py_ssize_t size = this->length();
 			low = num::clamp(low, 0, size);
 			high = num::clamp(high, low, size);
-			return fromSharedPtrToNakedCast(pyBuildList(this->next(this->begin(), low), this->next(this->begin(), high)));
+			const Py_ssize_t n = (high - low + step - 1) / step;
+			TPyObjPtr s(PyList_New(n));
+			TContainerTraits::const_iterator first = this->next(this->begin(), low);
+			for (Py_ssize_t i = 0; i < n; ++i)
+			{
+				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
+				std::advance(first, step);
+			}
+			return fromSharedPtrToNakedCast(s);
 		}
 		const int assItem(Py_ssize_t i, PyObject* obj)
 		{
@@ -164,7 +172,7 @@ namespace impl
 			}
 			if (obj == 0)
 			{
-				return assSlice(i, i + 1, 0);
+				return assSlice(i, i + 1, 1, 0);
 			}
 			if (pyGetSimpleObject(obj, *this->next(this->begin(), i)) != 0)
 			{
@@ -172,7 +180,7 @@ namespace impl
 			}
 			return 0;
 		}
-		const int assSlice(Py_ssize_t low, Py_ssize_t high, PyObject* other)
+		const int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other)
 		{
 			if (!this->checkWritable())
 			{
@@ -193,12 +201,53 @@ namespace impl
 					b = TContainerTraits::copy(*b);
 				}
 			}
-			TContainerTraits::erase(this->container(), this->next(this->begin(), low), this->next(this->begin(), high));
-			if (b)
+			if (step == 1)
 			{
-				TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
-				TContainerTraits::const_iterator last = this->next(first, TContainerTraits::size(*b));
-				TContainerTraits::insert(this->container(), this->next(this->begin(), low), first, last);
+				const TContainerTraits::iterator first = this->next(this->begin(), low);
+				const TContainerTraits::iterator last = this->next(first, high - low);
+				TContainerTraits::erase(this->container(), first, last);
+				if (b)
+				{
+					const TContainerTraits::const_iterator bFirst = TContainerTraits::begin(*b);
+					const TContainerTraits::const_iterator bLast = this->next(bFirst, TContainerTraits::size(*b));
+					TContainerTraits::insert(this->container(), this->next(this->begin(), low), bFirst, bLast);
+				}
+			}
+			else
+			{
+				if (b)
+				{
+					const Py_ssize_t sliceLength = (high - low + step - 1) / step;
+					const Py_ssize_t bLength = TContainerTraits::size(*b);
+					if (sliceLength != bLength)
+					{
+						std::ostringstream buffer;
+						buffer << "cannot assign sequence of length " << bLength << " to an extended slice of length " << sliceLength;
+						PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
+						return -1;
+					}
+					TContainerTraits::iterator left = this->next(this->begin(), low);
+					TContainerTraits::const_iterator right = TContainerTraits::begin(*b);
+					while (low < high)
+					{
+						*left = *right++;
+						low += step;
+						if (low < high) // make sure you don't step beyond end
+						{
+							left = this->next(left, step);
+						}
+					}
+				}
+				else
+				{
+					TContainerTraits::iterator first = this->next(this->begin(), low);
+					while (low < high)
+					{
+						TContainerTraits::erase(this->container(), this->next(this->begin(), low));
+						low += step - 1;
+						--high;
+					}
+				}
 			}
 			return 0;
 		}
@@ -275,6 +324,7 @@ namespace impl
 	{
 		PY_HEADER(PyObjectPlus);
 		static PySequenceMethods pySequenceMethods;
+		static PyMappingMethods pyMappingMethods;
 		static bool isInitialized;
 
 	public:
@@ -318,6 +368,8 @@ namespace impl
 		static PyObject* inplaceConcat(PyObject* self, PyObject* other);
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
 		static PyObject* iter(PyObject* self);
+		static PyObject* subscript(PyObject* self, PyObject* key);
+		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
 		const type_info& type() const;
 		void* const raw(bool writable) const;
