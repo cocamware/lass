@@ -238,7 +238,7 @@ public:
 		}
 		else
 		{
-			LASS_TEST_CHECK_CLOSE(treeNearest.squaredDistance(), bruteSqrDist_, TValue(1e-5f));
+			LASS_TEST_CHECK_CLOSE(treeNearest.squaredDistance(), bruteSqrDist_, TValue(1e-4f));
 		}
 	}
 private:

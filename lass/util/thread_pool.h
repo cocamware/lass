@@ -130,6 +130,7 @@
 #include "callback_0.h"
 #include "../stde/lock_free_queue.h"
 #include "future.h"
+#include <cstring>
 
 namespace lass
 {

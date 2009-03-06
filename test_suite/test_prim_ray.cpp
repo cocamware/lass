@@ -78,12 +78,12 @@ void testPrimRay2D()
 	ray = TRay(support, direction);
 	LASS_TEST_CHECK(ray.isValid());
 	LASS_TEST_CHECK_EQUAL(ray.support(), support);
-	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(ray.direction(), isNormalized ? direction.normal() : direction, epsilon, 2);
 
 	support = TPoint(68, 46);
 	ray.support() = support;
 	LASS_TEST_CHECK_EQUAL(ray.support(), support);
-	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(ray.direction(), isNormalized ? direction.normal() : direction, epsilon, 2);
 
 	direction = TVector(38, 73);
 	ray.setDirection(direction);
@@ -150,12 +150,12 @@ void testPrimRay3D()
 	ray = TRay(support, direction);
 	LASS_TEST_CHECK(ray.isValid());
 	LASS_TEST_CHECK_EQUAL(ray.support(), support);
-	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(ray.direction(), isNormalized ? direction.normal() : direction, epsilon, 3);
 
 	support = TPoint(68, 46, 30);
 	ray.support() = support;
 	LASS_TEST_CHECK_EQUAL(ray.support(), support);
-	LASS_TEST_CHECK_EQUAL(ray.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(ray.direction(), isNormalized ? direction.normal() : direction, epsilon, 3);
 
 	direction = TVector(38, 73, 68);
 	ray.setDirection(direction);

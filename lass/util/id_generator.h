@@ -96,7 +96,7 @@ public:
 
 private:
 
-	typename CallTraits<T>::TValue nextId_;
+	volatile typename CallTraits<T>::TValue nextId_;
 };
 
 

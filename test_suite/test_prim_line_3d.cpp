@@ -71,12 +71,12 @@ void testPrimLine3D()
 	line = TLine(support, direction);
 	LASS_TEST_CHECK(line.isValid());
 	LASS_TEST_CHECK_EQUAL(line.support(), support);
-	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.direction(), isNormalized ? direction.normal() : direction, epsilon, 3);
 
 	support = TPoint(68, 46, 30);
 	line.support() = support;
 	LASS_TEST_CHECK_EQUAL(line.support(), support);
-	LASS_TEST_CHECK_EQUAL(line.direction(), isNormalized ? direction.normal() : direction);
+	LASS_TEST_CHECK_CLOSE_ARRAY(line.direction(), isNormalized ? direction.normal() : direction, epsilon, 3);
 
 	direction = TVector(38, 73, 68);
 	line.setDirection(direction);
