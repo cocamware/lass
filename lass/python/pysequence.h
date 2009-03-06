@@ -152,7 +152,7 @@ namespace impl
 		PyObject* const slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const
 		{
 			const Py_ssize_t size = this->length();
-			low = num::clamp(low, 0, size);
+			low = num::clamp(low, Py_ssize_t(0), size);
 			high = num::clamp(high, low, size);
 			const Py_ssize_t n = (high - low + step - 1) / step;
 			TPyObjPtr s(PyList_New(n));
@@ -187,7 +187,7 @@ namespace impl
 				return -1;
 			}
 			const Py_ssize_t size = this->length();
-			low = num::clamp(low, 0, size);
+			low = num::clamp(low, Py_ssize_t(0), size);
 			high = num::clamp(high, low, size);
 			TConstContainerPtr b;
 			if (other)
