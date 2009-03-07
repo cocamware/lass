@@ -249,8 +249,8 @@ public:
 	typedef ShadoweeType TShadowee;
 	typedef ShadowType TShadow;
 	typedef ParentShadowType TParentShadow;
-	typedef typename PointerTraits::Rebind<ShadoweeType>::Type TPointerTraits;
-	typedef typename PointerTraits::Rebind<const ShadoweeType>::Type TConstPointerTraits;
+	typedef typename PointerTraits::template Rebind<ShadoweeType>::Type TPointerTraits;
+	typedef typename PointerTraits::template Rebind<const ShadoweeType>::Type TConstPointerTraits;
 	typedef typename TPointerTraits::TPtr TShadoweePtr;
 	typedef typename TConstPointerTraits::TPtr TConstShadoweePtr;
 	typedef typename PyObjectPtr<ShadowType>::Type TShadowPtr;
@@ -315,8 +315,8 @@ class ShadowClass<ShadowType, ShadoweeType, PyObjectPlus, PointerTraits>: public
 public:
 	typedef ShadoweeType TShadowee;
 	typedef ShadowType TShadow;
-	typedef typename PointerTraits::Rebind<ShadoweeType>::Type TPointerTraits;
-	typedef typename PointerTraits::Rebind<const ShadoweeType>::Type TConstPointerTraits;
+	typedef typename PointerTraits::template Rebind<ShadoweeType>::Type TPointerTraits;
+	typedef typename PointerTraits::template Rebind<const ShadoweeType>::Type TConstPointerTraits;
 	typedef typename TPointerTraits::TPtr TShadoweePtr;
 	typedef typename TConstPointerTraits::TPtr TConstShadoweePtr;
 	typedef typename PyObjectPtr<ShadowType>::Type TShadowPtr;

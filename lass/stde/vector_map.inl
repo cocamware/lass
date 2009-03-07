@@ -64,8 +64,8 @@ vector_map<K, T, C, A>::vector_map(InputIterator first, InputIterator last,
 	key_comp_(key_comp)
 {
 	std::sort(data_.begin(), data_.end(), value_compare(key_comp_));
-	iterator last = std::unique(data_.begin(), data_.end(), value_compare(key_comp_));
-	data_.erase(last, data_.end());
+	iterator end = std::unique(data_.begin(), data_.end(), value_compare(key_comp_));
+	data_.erase(end, data_.end());
 }
 
 
@@ -80,7 +80,7 @@ vector_map<K, T, C, A>::vector_map(const vector_map<K, T, C, A>& other):
 
 
 template <typename K, typename T, typename C, typename A>
-vector_map<K, T, C, A>::~vector_map():
+vector_map<K, T, C, A>::~vector_map()
 {
 }
 
@@ -283,7 +283,6 @@ template <typename K, typename T, typename C, typename A> inline
 void vector_map<K, T, C, A>::clear()
 {
 	data_.clear();
-	std::swap(key_comp_, other.key_comp_);
 }
 
 
@@ -476,7 +475,7 @@ template <typename Char, typename Traits, typename K, typename T, typename C, ty
 std::basic_istream<Char, Traits>&
 operator>>(std::basic_istream<Char, Traits>& istream, vector_map<K, T, C, A>& container)
 {
-	return impl::read_container<impl::set_traits, impl::pair_traits, std::pair<K, Data>, Char>(
+	return impl::read_container<impl::set_traits, impl::pair_traits, std::pair<K, T>, Char>(
 		istream, container, '{', ',', ':', '}');
 }
 

@@ -91,9 +91,11 @@ namespace impl
 		typedef typename TBase::TContainerPtr TContainerPtr;
 		typedef typename TBase::TConstContainerPtr TConstContainerPtr;
 		typedef typename TBase::TContainerTraits TContainerTraits;
+		typedef typename TContainerTraits::iterator TIterator;
+		typedef typename TContainerTraits::const_iterator TConstIterator;
 
 		PySequenceContainer(const TContainerPtr& container, bool readOnly = false): 
-			ContainerImpl(container, readOnly)
+			TBase(container, readOnly)
 		{
 		}
 		~PySequenceContainer() 
@@ -124,7 +126,7 @@ namespace impl
 			{
 				return false;
 			}
-			TContainerTraits::iterator end = this->next(this->begin(), this->length());
+			TIterator end = this->next(this->begin(), this->length());
 			TContainerTraits::insert(this->container(), end, &value, &value + 1);
 			return true;
 		}
@@ -156,7 +158,7 @@ namespace impl
 			high = num::clamp(high, low, size);
 			const Py_ssize_t n = (high - low + step - 1) / step;
 			TPyObjPtr s(PyList_New(n));
-			TContainerTraits::const_iterator first = this->next(this->begin(), low);
+			TConstIterator first = this->next(this->begin(), low);
 			for (Py_ssize_t i = 0; i < n; ++i)
 			{
 				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
@@ -203,13 +205,13 @@ namespace impl
 			}
 			if (step == 1)
 			{
-				const TContainerTraits::iterator first = this->next(this->begin(), low);
-				const TContainerTraits::iterator last = this->next(first, high - low);
+				const TIterator first = this->next(this->begin(), low);
+				const TIterator last = this->next(first, high - low);
 				TContainerTraits::erase(this->container(), first, last);
 				if (b)
 				{
-					const TContainerTraits::const_iterator bFirst = TContainerTraits::begin(*b);
-					const TContainerTraits::const_iterator bLast = this->next(bFirst, TContainerTraits::size(*b));
+					const TConstIterator bFirst = TContainerTraits::begin(*b);
+					const TConstIterator bLast = this->next(bFirst, TContainerTraits::size(*b));
 					TContainerTraits::insert(this->container(), this->next(this->begin(), low), bFirst, bLast);
 				}
 			}
@@ -226,8 +228,8 @@ namespace impl
 						PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
 						return -1;
 					}
-					TContainerTraits::iterator left = this->next(this->begin(), low);
-					TContainerTraits::const_iterator right = TContainerTraits::begin(*b);
+					TIterator left = this->next(this->begin(), low);
+					TConstIterator right = TContainerTraits::begin(*b);
 					while (low < high)
 					{
 						*left = *right++;
@@ -240,7 +242,7 @@ namespace impl
 				}
 				else
 				{
-					TContainerTraits::iterator first = this->next(this->begin(), low);
+					TIterator first = this->next(this->begin(), low);
 					while (low < high)
 					{
 						TContainerTraits::erase(this->container(), this->next(this->begin(), low));
@@ -265,7 +267,7 @@ namespace impl
 				}
 				return -1;
 			}
-			TContainerTraits::const_iterator end = this->next(this->begin(), this->length());
+			TConstIterator end = this->next(this->begin(), this->length());
 			if (std::find(this->begin(), end, value) != end)
 			{
 				return 1;
@@ -274,7 +276,7 @@ namespace impl
 		}
 		const bool inplaceConcat(PyObject* other)
 		{
-			if (!checkWritable())
+			if (!this->checkWritable())
 			{
 				return false;
 			}
@@ -287,9 +289,9 @@ namespace impl
 			{
 				b = TContainerTraits::copy(*b);
 			}
-			const TContainerTraits::iterator end = this->next(this->begin(), this->length());
-			const TContainerTraits::const_iterator first = TContainerTraits::begin(*b);
-			const TContainerTraits::const_iterator last = this->next(first, TContainerTraits::size(*b));
+			const TIterator end = this->next(this->begin(), this->length());
+			const TConstIterator first = TContainerTraits::begin(*b);
+			const TConstIterator last = this->next(first, TContainerTraits::size(*b));
 			TContainerTraits::insert(this->container(), end, first, last);
 			return true;
 		}
@@ -337,7 +339,7 @@ namespace impl
 		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
 			std::auto_ptr<PySequenceImplBase> pimpl(
-				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
+				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
 			init(pimpl);
 		}
 		template<typename Container> Sequence( const Container& container )
@@ -371,7 +373,7 @@ namespace impl
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
-		const type_info& type() const;
+		const std::type_info& type() const;
 		void* const raw(bool writable) const;
 
 	private:
@@ -401,7 +403,7 @@ namespace impl
 			{
 				return 1;
 			}
-			value = temp.constCast<const Container>();
+			value = temp.template constCast<const Container>();
 			return 0;
 		}
 		static int getObject(PyObject* obj, TCppClassPtr& sequence)
@@ -434,7 +436,7 @@ namespace impl
 			}
 
 			// check if we have our own Sequence object, then take a shortcut
-			if (isOfType(obj, Sequence::_lassPyClassDef.type()))
+			if (obj->ob_type == Sequence::_lassPyClassDef.type())
 			{
 				const Sequence* const sequence = static_cast<Sequence*>(obj);
 				void* const raw = sequence->raw(writable);

@@ -152,7 +152,7 @@ namespace impl
 		return pop(pimpl_->length() - 1);
 	}
 
-	const type_info& Sequence::type() const
+	const std::type_info& Sequence::type() const
 	{
 		return pimpl_->type();
 	}

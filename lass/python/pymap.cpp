@@ -162,7 +162,7 @@ namespace impl
 		}
 	}
 
-	const type_info& Map::type() const
+	const std::type_info& Map::type() const
 	{
 		return pimpl_->type();
 	}

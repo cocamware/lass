@@ -82,7 +82,7 @@ namespace impl
 		typedef typename TBase::TContainerTraits TContainerTraits;
 
 		PyMapImpl(const TContainerPtr& container, bool readOnly = false): 
-			ContainerImpl(container, readOnly)
+			TBase(container, readOnly)
 		{
 		}
 		std::auto_ptr<PyMapImplBase> copy() const
@@ -130,7 +130,7 @@ namespace impl
 			}
 			else
 			{
-				typename Container::const_iterator it = this->container().find(k);
+				typename Container::iterator it = this->container().find(k);
 				if (it == this->container().end())
 				{
 					PyErr_SetObject(PyExc_KeyError, key);
@@ -169,7 +169,7 @@ namespace impl
 		template<typename Container> Map( const util::SharedPtr<const Container>& container ) 
 		{
 			std::auto_ptr<PyMapImplBase> pimpl(
-				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container).constCast<Container>(), true));
+				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
 			init(pimpl);
 		}
 		template<typename Container> Map( const Container& container )
@@ -195,7 +195,7 @@ namespace impl
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 		static PyObject* iter(PyObject* self);
 
-		const type_info& type() const;
+		const std::type_info& type() const;
 		void* const raw(bool writable) const;
 
 	private:
@@ -226,7 +226,7 @@ namespace impl
 			{
 				return 1;
 			}
-			value = temp.constCast<const Container>();
+			value = temp.template constCast<const Container>();
 			return 0;
 		}
 		static int getObject(PyObject* obj, TCppClassPtr& map)
@@ -259,7 +259,7 @@ namespace impl
 			}
 
 			// check if we have our own Sequence object, then take a shortcut
-			if (isOfType(obj, Map::_lassPyClassDef.type()))
+			if (obj->ob_type == Map::_lassPyClassDef.type())
 			{
 				const Map* const map = static_cast<Map*>(obj);
 				void* const raw = map->raw(writable);
@@ -272,7 +272,8 @@ namespace impl
 
 			const util::SharedPtr<Container> result(new Container);
 			const Py_ssize_t size = PyMapping_Length(obj);
-			TPyObjPtr items(PyMapping_Items(obj));
+			//TPyObjPtr items(PyMapping_Items(obj));
+			TPyObjPtr items(PyObject_CallMethod(obj, (char*)"items", 0)); // own "implementation" of PyMapping_Items to avoid cast warning
 			if (!items)
 			{
 				return 1;

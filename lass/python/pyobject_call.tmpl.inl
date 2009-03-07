@@ -648,7 +648,7 @@ struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, lass::meta::NullType>
 ]$
 
 template <typename ShadowTraits, typename R, typename Head, typename Tail>
-struct ExplicitResolver<typename ShadowTraits, R, meta::TypeList<Head, Tail> >
+struct ExplicitResolver<ShadowTraits, R, meta::TypeList<Head, Tail> >
 {
 	typedef typename ExplicitResolver1<ShadowTraits, R, Head, Tail>::TImpl TImpl;
 };

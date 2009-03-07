@@ -150,16 +150,20 @@ public:
 	typedef int TCount;
 protected:
 	PyObjectCounter() {}
-	template <typename TStorage> void init(TStorage& /*pointee*/) {}
-	template <typename TStorage> void dispose(TStorage& /*pointee*/) {}
-	template <typename TStorage> void increment(TStorage& pointee)
+	template <typename T> void init(T* /*pointee*/) {}
+	template <typename T> void dispose(T* /*pointee*/) {}
+	template <typename T> void increment(T* pointee)
 	{
 		LASS_LOCK(impl::referenceMutex())
 		{
 			Py_INCREF(pointee);
 		}
 	}
-	template <typename TStorage> bool decrement(TStorage& pointee)
+	template <typename T> void increment(const T* pointee)
+	{
+		increment(const_cast<T*>(pointee));
+	}
+	template <typename T> bool decrement(T* pointee)
 	{
 		bool r = false;
 		LASS_LOCK(impl::referenceMutex())
@@ -170,7 +174,11 @@ protected:
 		}
 		return r;
 	}
-	template <typename TStorage> TCount count(TStorage& pointee) const
+	template <typename T> bool decrement(const T* pointee)
+	{
+		return decrement(const_cast<T*>(pointee));
+	}
+	template <typename T> TCount count(T* pointee) const
 	{
 		LASS_ASSERT(pointee);
 		return pointee->ob_refcnt;

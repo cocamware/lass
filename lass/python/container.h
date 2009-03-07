@@ -48,6 +48,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CONTAINER_H
 
 #include "python_common.h"
+#include "pyiteratorrange.h"
 #include "../util/string_cast.h"
 #include "../util/shared_ptr.h"
 #include "../stde/extended_algorithm.h"
@@ -148,7 +149,7 @@ public:
 	virtual const Py_ssize_t length() const = 0;
 	virtual const std::string repr() const = 0;
 	virtual PyObject* const items() const = 0;
-	virtual const type_info& type() const = 0;
+	virtual const std::type_info& type() const = 0;
 	virtual void* const raw(bool writable) = 0;
 };
 
@@ -185,7 +186,7 @@ public:
 	{
 		return new PyIteratorRange(container_->begin(), container_->end());
 	}
-	const type_info& type() const 
+	const std::type_info& type() const 
 	{ 
 		return typeid(TContainerPtr); 
 	}
