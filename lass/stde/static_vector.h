@@ -167,6 +167,10 @@ std::basic_istream<Char, Traits>& operator>>(std::basic_istream<Char, Traits>& i
 
 #include "static_vector.inl"
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYSEQUENCE_H
+#	include "../python/pysequence.h"
+#endif
+
 #endif
 
 // EOF

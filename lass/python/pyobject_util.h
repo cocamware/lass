@@ -62,14 +62,19 @@ namespace lass
 			template<typename ForwardIterator>
 			TPyObjPtr pyBuildTuple(ForwardIterator iB, ForwardIterator iE )
 			{
-				const int size = static_cast<int>(std::distance(iB,iE));
+				const Py_ssize_t size = static_cast<Py_ssize_t>(std::distance(iB, iE));
 				LASS_ASSERT(size >= 0);
 				TPyObjPtr r(PyTuple_New(size));
 				if (r)
 				{
-					for (int i=0;iB!=iE;++iB,++i)
+					for (Py_ssize_t i = 0; iB != iE; ++iB, ++i)
 					{
-						PyTuple_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
+						PyObject* item = pyBuildSimpleObject(*iB);
+						if (!item)
+						{
+							return TPyObjPtr();
+						}
+						PyTuple_SET_ITEM(r.get(), i, item);
 					}
 				}
 				return r;
@@ -78,14 +83,19 @@ namespace lass
 			template<typename ForwardIterator>
 			TPyObjPtr pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
-				const int size = static_cast<int>(std::distance(iB,iE));
+				const Py_ssize_t size = static_cast<Py_ssize_t>(std::distance(iB, iE));
 				LASS_ASSERT(size >= 0);
 				TPyObjPtr r(PyList_New(size));
 				if (r)
 				{
-					for (int i=0;iB!=iE;++iB,++i)
+					for (Py_ssize_t i = 0; iB != iE; ++iB, ++i)
 					{
-						PyList_SET_ITEM(r.get(),i,pyBuildSimpleObject(*iB));
+						PyObject* item = pyBuildSimpleObject(*iB);
+						if (!item)
+						{
+							return TPyObjPtr();
+						}
+						PyList_SET_ITEM(r.get(), i, item);
 					}
 				}
 				return r;
@@ -94,17 +104,24 @@ namespace lass
 			template<typename InputIterator>
 			TPyObjPtr pyBuildMap(InputIterator iB, InputIterator iE )
 			{
-				TPyObjPtr r = PyDict_New();
+				TPyObjPtr r(PyDict_New());
 				if (r)
 				{
-					for (int i=0;iB!=iE;++iB,++i)
+					for (;iB!=iE;++iB)
 					{
-						if (PyDict_SetItem( r.get(), pyBuildSimpleObject(iB->first), 
-													 pyBuildSimpleObject(iB->second)))
+						TPyObjPtr key(pyBuildSimpleObject(iB->first));
+						if (!key)
 						{
-							// failed
-							PyDict_Clear(r.get());	// should we clean up more than this?!
-							return 0;
+							return TPyObjPtr();
+						}
+						TPyObjPtr value(pyBuildSimpleObject(iB->second));
+						if (!value)
+						{
+							return TPyObjPtr();
+						}
+						if (PyDict_SetItem(r.get(), key.get(), value.get()) != 0)
+						{
+							return TPyObjPtr();
 						}
 					}
 				}

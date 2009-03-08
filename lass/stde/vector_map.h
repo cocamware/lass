@@ -45,8 +45,8 @@
  *  @author Bram de Greve [Bramz]
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_LINEAR_MAP_H
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_LINEAR_MAP_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_VECTOR_MAP_H
+#define LASS_GUARDIAN_OF_INCLUSION_STDE_VECTOR_MAP_H
 
 #include "stde_common.h"
 
@@ -68,8 +68,28 @@ public:
 
 	typedef Key key_type;
 	typedef T mapped_type;
-	typedef std::pair<const Key, T> value_type;
+
+	/** @warning this actually _should_ be a std::pair<const Key, T> as required by associative containers.
+	 *		But if we do, the underlying std::vector that stores the elements will bork on it as it also
+	 *		requires value_type to be copy assignable.  Until we have a solution that works for both,
+	 *		we'll open the security hole by have a mutable key.  It of course goes without saying that you
+	 *		should never ever mutate the key of an element stored in a vector_map!
+	 */
+	typedef std::pair<Key, T> value_type;
+
 	typedef Compare key_compare;
+	class value_compare: public std::binary_function<value_type, value_type, bool>
+	{
+	public:
+		bool operator()(const value_type& a, const value_type& b) const
+		{
+			return key_comp_(a.first, b.first);
+		}
+	private:
+		friend class vector_map;
+		value_compare(const key_compare& key_comp): key_comp_(key_comp) {}
+		key_compare key_comp_;
+	};
 
 	typedef typename Allocator::template rebind<value_type>::other allocator_type;
 	typedef typename Allocator::reference reference;
@@ -85,20 +105,7 @@ public:
 	typedef typename vector_type::reverse_iterator reverse_iterator;
 	typedef typename vector_type::const_reverse_iterator const_reverse_iterator;
 
-	class value_compare: public std::binary_function<value_type, value_type, bool>
-	{
-	public:
-		bool operator()(const value_type& a, const value_type& b) const
-		{
-			return key_comp_(a.first, b.first);
-		}
-	private:
-		friend class vector_map;
-		value_compare(const key_compare& key_comp): key_comp_(key_comp) {}
-		key_compare key_comp_;
-	};
-
-	explicit vector_map(const key_compare& key_comp, const allocator_type& allocator = Allocator());
+	explicit vector_map(const key_compare& key_comp = key_compare(), const allocator_type& allocator = Allocator());
 	template <typename InputIterator>
 	vector_map(InputIterator first, InputIterator last, 
 			const key_compare& key_comp, const allocator_type& allocator = Allocator());
@@ -199,6 +206,10 @@ void swap(lass::stde::vector_map<K, T, C, A>& a, lass::stde::vector_map<K, T, C,
 }
 
 #include "vector_map.inl"
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYMAP_H
+#	include "../python/pymap.h"
+#endif
 
 #endif
 

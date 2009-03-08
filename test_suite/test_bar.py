@@ -127,7 +127,7 @@ class TestConstMap(unittest.TestCase):
 		copy['foo'] = 'bar'
 	def testConstMap(self):
 		self._testConstMap(embedding.Bar().constMap)
-		
+
 class TestMap(unittest.TestCase):
 	def _testMap(self, mapping, refmap):
 		mapping['test'] = 'ok'
@@ -137,6 +137,7 @@ class TestMap(unittest.TestCase):
 		self.assert_('test' not in refmap)
 		mapping.clear()
 		mapping['A'] = 'a'
+		self.assertEqual(repr(mapping), "{'A': 'a'}")
 		mapping['B'] = 'b'
 		mapping['C'] = 'c'
 		self.assertEqual(len(refmap), 3)
@@ -148,6 +149,9 @@ class TestMap(unittest.TestCase):
 	def testMap(self):
 		bar = embedding.Bar()
 		self._testMap(bar.writeableMap, bar.writeableMap)
+	def testVectorMap(self):
+		bar = embedding.Bar()
+		self._testMap(bar.writeableVectorMap, bar.writeableVectorMap)
 		
 class TestConstSequence(unittest.TestCase):
 	def _testConstSequence(self, seq):
@@ -176,6 +180,8 @@ class TestWriteableSequence(unittest.TestCase):
 		self.assertEqual(len(refseq), 10)
 		for i in range(10):
 			self.assertEqual(refseq[i], i)
+	def _testRepr(self, seq, refseq):
+		self.assertEqual(repr(seq), "[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]")
 	def _testPop(self, seq, refseq):
 		self.assertEqual(seq.pop(), 9)
 		self.assertEqual(len(refseq), 9)
@@ -244,6 +250,7 @@ class TestWriteableSequence(unittest.TestCase):
 	def _testSequence(self, seq, refseq):
 		self._testClear(seq, refseq)
 		self._testAppend(seq, refseq)
+		self._testRepr(seq, refseq)
 		self._testPop(seq, refseq)
 		self._testContains(seq, refseq)
 		self._testGetItem(seq, refseq)
@@ -261,6 +268,9 @@ class TestWriteableSequence(unittest.TestCase):
 	def testWriteableDeque(self):
 		bar = embedding.Bar()
 		self._testSequence(bar.writeableDeque, bar.writeableDeque)
+	def testWriteableStaticVector(self):
+		bar = embedding.Bar()
+		self._testSequence(bar.writeableStaticVector, bar.writeableStaticVector)
 		
 def testSequence(seq):
 

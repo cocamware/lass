@@ -53,6 +53,9 @@
 #include "../lass/prim/xyz.h"
 #include "../lass/prim/transformation_3d.h"
 
+#include "../lass/stde/vector_map.h"
+#include "../lass/stde/static_vector.h"
+
 namespace lass
 {
 namespace test
@@ -102,9 +105,11 @@ namespace test
 
 		int publicInt;
 		util::SharedPtr< std::map<std::string, std::string> > writeableMap;
+		util::SharedPtr< stde::vector_map<std::string, std::string> > writeableVectorMap;
 		util::SharedPtr< std::vector< double > > writeableVector;
 		util::SharedPtr< std::list< double > > writeableList;
 		util::SharedPtr< std::deque< double > > writeableDeque;
+		util::SharedPtr< stde::static_vector< double, 128 > > writeableStaticVector;
 
 		const std::map<std::string, std::string> constMap;
 		const std::vector< double > constVector;

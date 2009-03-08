@@ -58,8 +58,6 @@
 #include <vector>
 #include <list>
 #include <deque>
-#include "../stde/static_vector.h"
-#include <typeinfo>
 
 namespace lass
 {
@@ -380,6 +378,7 @@ namespace impl
 		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
 		void init(std::auto_ptr<PySequenceImplBase> pimpl);
 		static void initializeType();
+		const TPyObjPtr asList() const;
 
 		util::ScopedPtr<PySequenceImplBase> pimpl_;
 	};
@@ -502,6 +501,17 @@ struct ShadoweeTraits< std::deque< C, A > >:
 {
 };
 
+}
+}
+
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_STDE_STATIC_VECTOR_H
+
+namespace lass
+{
+namespace python
+{
 /**	@ingroup Python
  *	@internal
  */
@@ -510,10 +520,9 @@ struct ShadoweeTraits< stde::static_vector< C, maxsize > >:
 	public ShadoweeTraitsSequence< stde::static_vector< C, maxsize > >
 {
 };
-
-
 }
-
 }
 
 #endif
+
+// EOF

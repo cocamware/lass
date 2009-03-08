@@ -74,9 +74,11 @@ namespace lass
 		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVectorMap );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVector );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
+		PY_CLASS_PUBLIC_MEMBER( Bar, writeableStaticVector );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
@@ -158,9 +160,11 @@ namespace lass
 			privateString_ = "uninitialized string";
 			coolMember_ = 1.f;
 			writeableMap.reset(new std::map<std::string, std::string>);
+			writeableVectorMap.reset(new stde::vector_map<std::string, std::string>);
 			writeableVector.reset(new std::vector<double>);
 			writeableList.reset(new std::list<double>);
 			writeableDeque.reset(new std::deque<double>);
+			writeableStaticVector.reset(new stde::static_vector<double, 128>);
 		}
 
 		Bar::Bar(int iA, const std::string& iB) 

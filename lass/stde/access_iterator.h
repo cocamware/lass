@@ -127,6 +127,9 @@ public:
 
 /** @relates access_iterator_t */
 template <typename I, typename V> 
+typename std::iterator_traits<I>::difference_type operator-(const access_iterator_t<I, V>& a, const access_iterator_t<I, V>& b) { return a.base() - b.base(); }
+/** @relates access_iterator_t */
+template <typename I, typename V> 
 bool operator==(const access_iterator_t<I, V>& a, const access_iterator_t<I, V>& b) { return a.base() == b.base(); }
 /** @relates access_iterator_t */
 template <typename I, typename V> 

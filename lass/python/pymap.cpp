@@ -45,6 +45,7 @@
 #include "lass_common.h"
 #include "pymap.h"
 #include "pyobject_macros.h"
+#include "py_stl.h"
 
 namespace lass
 {
@@ -108,14 +109,26 @@ namespace impl
 		pimpl_.reset(pimpl);
 	}
 
+	const TPyObjPtr Map::asDict() const
+	{
+		return pimpl_->asDict();
+	}
+
 	std::string Map::doPyStr(void) 
 	{ 
 		return doPyRepr(); 
 	}
 	
-	std::string Map::doPyRepr(void) 
-	{ 
-		return pimpl_->repr(); 
+	std::string Map::doPyRepr()
+	{
+		const TPyObjPtr dict = asDict();
+		const TPyObjPtr repr(PyObject_Repr(dict.get()));
+		std::string result;
+		if (pyGetSimpleObject(repr.get(), result) != 0)
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+		return result;
 	}
 	
 	const TPyObjPtr Map::keys() const 

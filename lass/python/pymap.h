@@ -50,11 +50,11 @@
 #include "python_common.h"
 #include "pyshadow_object.h"
 #include "pyiteratorrange.h"
-#include "../meta/type_traits.h"
 #include "container.h"
+#include "pyobject_util.h"
 #include <map>
-#include "../stde/vector_map.h"
 #include "../stde/access_iterator.h"
+#include "../meta/type_traits.h"
 
 namespace lass
 {
@@ -70,6 +70,7 @@ namespace impl
 		virtual const int assSubscript(PyObject* key, PyObject* value) = 0;
 		virtual PyObject* const keys() const = 0;
 		virtual PyObject* const values() const = 0;
+		virtual const TPyObjPtr asDict() const = 0;
 	};
 
 	template<typename Container> 
@@ -148,6 +149,10 @@ namespace impl
 		{
 			return new PyIteratorRange(stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
 		}
+		const TPyObjPtr asDict() const
+		{
+			return pyBuildMap(this->container().begin(), this->container().end());
+		}
 	};
 
 	class Map;
@@ -202,6 +207,7 @@ namespace impl
 		Map(std::auto_ptr<PyMapImplBase> pimpl);
 		void init(std::auto_ptr<PyMapImplBase> pimpl);
 		static void initializeType();
+		const TPyObjPtr asDict() const;
 
 		util::ScopedPtr<PyMapImplBase> pimpl_;
 		static bool isInitialized;
@@ -314,6 +320,18 @@ struct ShadoweeTraits< std::map<K, T, C, A> >:
 {
 };
 
+}
+
+}
+
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_STDE_VECTOR_MAP_H
+
+namespace lass
+{
+namespace python
+{
 /**	@ingroup Python
  *	@internal
  */
@@ -322,9 +340,9 @@ struct ShadoweeTraits< stde::vector_map<K, T, C, A> >:
 	public ShadoweeTraitsMap< stde::vector_map<K, T, C, A> >
 {
 };
-
 }
-
 }
 
 #endif
+
+// EOF

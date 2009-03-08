@@ -45,6 +45,7 @@
 #include "lass_common.h"
 #include "pysequence.h"
 #include "pyobject_macros.h"
+#include "py_stl.h"
 
 namespace lass
 {
@@ -113,6 +114,12 @@ namespace impl
 			isInitialized = true;
 		}
 	}
+
+	const TPyObjPtr Sequence::asList() const
+	{
+		return fromNakedToSharedPtrCast<PyObject>(pimpl_->slice(0, pimpl_->length(), 1));
+	}
+
 	const TSequencePtr Sequence::copy() const
 	{
 		return TSequencePtr(new Sequence(pimpl_->copy()));
@@ -163,7 +170,14 @@ namespace impl
 
 	std::string Sequence::doPyRepr()
 	{
-		return pimpl_->repr();
+		const TPyObjPtr list = asList();
+		const TPyObjPtr repr(PyObject_Repr(list.get()));
+		std::string result;
+		if (pyGetSimpleObject(repr.get(), result) != 0)
+		{
+			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+		}
+		return result;
 	}
 	std::string Sequence::doPyStr()
 	{

@@ -119,10 +119,6 @@ struct ContainerTraitsBase
 	{
 		stde::inplace_repeat_c(c, n);
 	}
-	static std::string repr(const container_type& c)
-	{
-		return util::stringCast<std::string>(c);
-	}
 };
 
 template <typename Container>
@@ -147,7 +143,6 @@ public:
 	virtual ~ContainerImplBase() {};
 	virtual const bool clear() = 0;
 	virtual const Py_ssize_t length() const = 0;
-	virtual const std::string repr() const = 0;
 	virtual PyObject* const items() const = 0;
 	virtual const std::type_info& type() const = 0;
 	virtual void* const raw(bool writable) = 0;
@@ -171,10 +166,6 @@ public:
 		}
 		TContainerTraits::clear(*container_);
 		return true;
-	}
-	const std::string repr() const
-	{
-		return TContainerTraits::repr(*container_);
 	}
 	const Py_ssize_t length() const
 	{
