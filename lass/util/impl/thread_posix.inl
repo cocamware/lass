@@ -71,14 +71,28 @@ namespace util
 namespace impl
 {
 
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+cpu_set_t originalCpuSet()
+{
+	static cpu_set_t cpu_set;
+	static bool isInitialized = false;
+	if (!isInitialized)
+	{
+		CPU_ZERO(&cpu_set);	
+		LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &cpu_set));		
+		isInitialized = true;
+	}
+	return cpu_set;
+}
+cpu_set_t forceCalculationBeforeMain = originalCpuSet();
+#endif
+
 TCpuSet availableProcessors()
 {
 #if LASS_HAVE_SCHED_H_CPU_SET_T
-	cpu_set_t schedCpuSet;
-	CPU_ZERO(&schedCpuSet);	
-	LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &schedCpuSet));
+	cpu_set_t cpu_set = originalCpuSet();
 #endif
-		
+	
 	// determine number of processors (highest set bit of systemAffinityMask)
 #if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
 	const size_t n = static_cast<size_t>(sysconf(_SC_NPROCESSORS_CONF));
@@ -86,7 +100,7 @@ TCpuSet availableProcessors()
 	size_t n = 0;
 	for (int i = 0; i < CPU_SETSIZE; ++i)
 	{
-		if (CPU_ISSET(i, &schedCpuSet))
+		if (CPU_ISSET(i, &cpu_set))
 		{
 			n = i + 1;
 		}
@@ -100,7 +114,7 @@ TCpuSet availableProcessors()
 	for (size_t i = 0; i < n; ++i)
 	{
 #if LASS_HAVE_SCHED_H_CPU_SET_T
-		cpuSet[i] = CPU_ISSET(static_cast<int>(i, &schedCpuSet);
+		cpuSet[i] = CPU_ISSET(static_cast<int>(i), &cpu_set);
 #elif LASS_HAVE_SYS_PROCESSOR_H
 		const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(i), P_STATUS))("i=")(i);
 		cpuSet[i] = r == P_ONLINE || r == P_NOINTR;
@@ -308,13 +322,13 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pthread_t handle, pid_t tid, unsigned processor)
+void bindThread(pthread_t handle, pid_t tid, size_t processor)
 {
 #if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
 	cpu_set_t mask;
 	if (processor == Thread::anyProcessor)
 	{
-		mask = availableProcessorsMask();
+		mask = originalCpuSet();
 	}
 	else
 	{
@@ -405,7 +419,23 @@ public:
 
 	const TCpuSet affinity() const
 	{
-		return TCpuSet();
+		const size_t n = numberOfProcessors();
+		TCpuSet result(n, false);
+#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
+		cpu_set_t mask;
+#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
+		LASS_ENFORCE_CLIB(pthread_getaffinity_np(handle_, sizeof(cpu_set_t), &mask));
+#	else
+		LASS_ENFORCE_CLIB(sched_getaffinity(tid_, sizeof(cpu_set_t), &mask));
+#	endif
+		for (size_t i = 0; i < n; ++i)
+		{
+			result[i] = CPU_ISSET(static_cast<int>(i), &mask);
+		}
+#else
+#	error no implementation
+#endif		
+		return result;
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)
