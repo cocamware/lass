@@ -71,20 +71,47 @@ namespace util
 namespace impl
 {
 
-#if LASS_HAVE_SCHED_H_CPU_SET_T
-cpu_set_t availableProcessorsMask()
+TCpuSet availableProcessors()
 {
-	static cpu_set_t mask; // static it here, for SIOF
-	static bool isInitialized = false;
-	if (!isInitialized)
-	{
-		CPU_ZERO(&mask);	
-		LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &mask));
-	}
-	return mask;
-}
-static cpu_set_t forceCalculationAtStartup = availableProcessorsMask();
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+	cpu_set_t schedCpuSet;
+	CPU_ZERO(&schedCpuSet);	
+	LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &schedCpuSet));
 #endif
+		
+	// determine number of processors (highest set bit of systemAffinityMask)
+#if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
+	const size_t n = static_cast<size_t>(sysconf(_SC_NPROCESSORS_CONF));
+#elif LASS_HAVE_SCHED_H_CPU_SET_T
+	size_t n = 0;
+	for (int i = 0; i < CPU_SETSIZE; ++i)
+	{
+		if (CPU_ISSET(i, &schedCpuSet))
+		{
+			n = i + 1;
+		}
+	}
+#else
+#	error missing implementation
+#endif
+
+	// determine what processors are available to this process
+	TCpuSet cpuSet(n, false);
+	for (size_t i = 0; i < n; ++i)
+	{
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+		cpuSet[i] = CPU_ISSET(static_cast<int>(i, &schedCpuSet);
+#elif LASS_HAVE_SYS_PROCESSOR_H
+		const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(i), P_STATUS))("i=")(i);
+		cpuSet[i] = r == P_ONLINE || r == P_NOINTR;
+#else
+#		error missing implementation
+#endif
+	}
+
+	return cpuSet;
+}
+
 
 inline pid_t lass_gettid()
 {
@@ -92,42 +119,6 @@ inline pid_t lass_gettid()
 	return gettid();
 #else
 	return syscall(224);
-#endif
-}
-
-const unsigned numberOfProcessors()
-{
-	static unsigned n = 0;
-	if (n == 0)
-	{
-#if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
-		n = static_cast<unsigned>(sysconf(_SC_NPROCESSORS_CONF));
-#elif LASS_HAVE_SCHED_H_CPU_SET_T
-		const cpu_set_t mask = availableProcessorsMask();
-		for (int i = 0; i < CPU_SETSIZE; ++i)
-		{
-			if (CPU_ISSET(i, &mask))
-			{
-				n = i + 1;
-			}
-		}
-#else
-#	error no implementation for numberOfProcessors()
-#endif
-	}
-	return n;
-}
-
-const bool isAvailableProcessor(unsigned processor)
-{
-#if LASS_HAVE_SCHED_H_CPU_SET_T
-	cpu_set_t mask = availableProcessorsMask();
-	return CPU_ISSET(static_cast<int>(processor), &mask);
-#elif LASS_HAVE_SYS_PROCESSOR_H
-	const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(processor), P_STATUS))("processor=")(processor);
-	return r == P_ONLINE || r == P_NOINTR;
-#else
-#	error no implementation for isAvailableProcessor()
 #endif
 }
 
@@ -386,27 +377,35 @@ public:
 			runCondition_.wait(100);
 		}
 	}
+
+	const bool isJoinable() const
+	{
+		return isJoinable_ && isCreated_;
+	}
 	
 	void join()
 	{			
-		if (!(isJoinable_ && isCreated_))
+		if (!isJoinable())
 		{
 			LASS_THROW("Can not wait for uncreated or detached threads");
 		}
-		else
+
+		pthread_join(handle_, 0);
+		isJoinable_ = false;
+		if (error_.get())
 		{
-			pthread_join(handle_, 0);
-			isJoinable_ = false;
-			if (error_.get())
-			{
-				error_->throwSelf();
-			}
+			error_->throwSelf();
 		}
 	}
 
 	void bind(size_t processor)
 	{
 		bindThread(handle_, tid_, processor);
+	}
+
+	const TCpuSet affinity() const
+	{
+		return TCpuSet();
 	}
 	
 	static void sleep(unsigned long iMilliSeconds)

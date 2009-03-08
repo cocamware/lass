@@ -63,7 +63,7 @@ namespace util
  *  @param a_bit the index of the bit to be set high (0 => 0x1, 1 => 0x2, ...)
  */
 template<typename T>
-void setBit(T& a_bits, unsigned a_bit)
+void setBit(T& a_bits, size_t a_bit)
 {
 	a_bits |= (1 << a_bit);
 }
@@ -77,7 +77,7 @@ void setBit(T& a_bits, unsigned a_bit)
  *  @param a_bit the index of the bit to be set low (0 => 0x1, 1 => 0x2, ...)
  */
 template<typename T>
-void clearBit(T& a_bits, unsigned a_bit)
+void clearBit(T& a_bits, size_t a_bit)
 {
 	a_bits &= ~(1 << a_bit);
 }
@@ -91,7 +91,7 @@ void clearBit(T& a_bits, unsigned a_bit)
  *  @param a_bit the index of the bit to be flipped (0 => 0x1, 1 => 0x2, ...)
  */
 template<typename T>
-void flipBit(T& a_bits, unsigned a_bit)
+void flipBit(T& a_bits, size_t a_bit)
 {
 	a_bits ^= (1 << a_bit);
 }
@@ -106,7 +106,7 @@ void flipBit(T& a_bits, unsigned a_bit)
  *  @param a_condition true if the bit must be set high, false if not.
  */
 template<typename T>
-void setBitIf(T& a_bits, unsigned a_bit, bool a_condition)
+void setBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
 	setMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
@@ -121,7 +121,7 @@ void setBitIf(T& a_bits, unsigned a_bit, bool a_condition)
  *  @param a_condition true if the bit must be set low, false if not.
  */
 template<typename T>
-void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition)
+void clearBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
 	clearMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
@@ -136,7 +136,7 @@ void clearBitIf(T& a_bits, unsigned a_bit, bool a_condition)
  *  @param a_condition true if the bit must be flipped, false if not.
  */
 template<typename T>
-void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition)
+void flipBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
 	flipMasked(a_bits, a_condition ? (1 << a_bit) : 0);
 }
@@ -151,7 +151,7 @@ void flipBitIf(T& a_bits, unsigned a_bit, bool a_condition)
  *  @param a_state the state to which the bit must be set: true for high, false for low.
  */
 template<typename T>
-void setBitTo(T& a_bits, unsigned a_bit, bool a_state)
+void setBitTo(T& a_bits, size_t a_bit, bool a_state)
 {
 	clearBit(a_bits, a_bit);
 	setBitIf(a_bits, a_bit, a_state);
@@ -166,9 +166,9 @@ void setBitTo(T& a_bits, unsigned a_bit, bool a_state)
  *  @param a_bit the index of the bit to be checked (0 => 0x1, 1 => 0x2, ...)
  */
 template<typename T>
-bool checkBit(T a_bits, unsigned a_bit)
+bool checkBit(T a_bits, size_t a_bit)
 {
-	return a_bits & (1 << a_bit);
+	return (a_bits & (1 << a_bit)) != 0;
 }
 
 

@@ -69,28 +69,27 @@ namespace util
 namespace impl
 {
 
-const unsigned numberOfProcessors()
-{
-	static unsigned n = 0;
-	if (n == 0)
-	{
-		// we're interested in the position of the highest set bit of systemAffinityMask
-		DWORD_PTR processAffinityMask, systemAffinityMask;
-		LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
-		while (systemAffinityMask)
-		{
-			++n;
-			systemAffinityMask >>= 1;
-		}
-	}
-	return n;
-}
-
-const bool isAvailableProcessor(unsigned processor)
+TCpuSet availableProcessors()
 {
 	DWORD_PTR processAffinityMask, systemAffinityMask;
 	LASS_ENFORCE_WINAPI(GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask));
-	return (processAffinityMask & (DWORD_PTR(1) << processor)) != 0;
+
+	// determine number of processors (highest set bit of systemAffinityMask)
+	size_t n = 0;
+	while (systemAffinityMask)
+	{
+		++n;
+		systemAffinityMask >>= 1;
+	}
+
+	// determine what processors are available to this process
+	TCpuSet cpuSet(n, false);
+	for (size_t i = 0; i < n; ++i)
+	{
+		cpuSet[i] = util::checkBit(processAffinityMask, i);
+	}
+
+	return cpuSet;
 }
 
 /** @internal
@@ -458,7 +457,7 @@ MainLocalStorageDestroyer* MainLocalStorageDestroyer::forceIntoExistance =
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(HANDLE thread, unsigned processor)
+DWORD_PTR bindThread(HANDLE thread, size_t processor)
 {
 	DWORD_PTR affinityMask = 0;
 	if (processor == Thread::anyProcessor)
@@ -469,10 +468,14 @@ void bindThread(HANDLE thread, unsigned processor)
 	}
 	else
 	{
-		affinityMask = DWORD_PTR(1) << processor;
+		util::setBit(affinityMask, processor);
 	}
 	LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask))
 		("Failed to bind thread to processor ")(processor);
+	// do it again, to confirm the set affinity
+	const DWORD_PTR threadAffinity = LASS_ENFORCE_WINAPI(SetThreadAffinityMask(thread, affinityMask));
+	LASS_ENFORCE(threadAffinity == affinityMask);
+	return threadAffinity;
 }
 
 void setThreadName(DWORD threadId, const char* threadName)
@@ -551,42 +554,55 @@ public:
 		}
 		runCondition_.wait();
 	}
+
+	const bool isJoinable() const
+	{
+		return isJoinable_ && isCreated_;
+	}
 	
 	void join()
 	{			
-		if (!(isJoinable_ && isCreated_))
+		if (!isJoinable())
 		{
 			LASS_THROW("Can not wait for uncreated or detached threads");
 		}
-		else
+		const DWORD ret = WaitForSingleObject(handle_, INFINITE);
+		switch ( ret )
 		{
-			const DWORD ret = WaitForSingleObject(handle_, INFINITE);
-			switch ( ret )
-			{
-				case WAIT_OBJECT_0:
-					// ok
-					break;
-				case WAIT_FAILED:
-					{
-						const unsigned lastError = impl::lass_GetLastError();
-						LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
-							<< impl::lass_FormatMessage(lastError));
-					}
-				default:
-					LASS_THROW("impossible return value of WaitForSingleObject: " << ret);
-			}
-			isJoinable_ = false;
-			if (error_.get())
-			{
-				error_->throwSelf();
-			}
+			case WAIT_OBJECT_0:
+				// ok
+				break;
+			case WAIT_FAILED:
+				{
+					const unsigned lastError = impl::lass_GetLastError();
+					LASS_THROW("WaitForSingleObject failed: (" << lastError << ") "
+						<< impl::lass_FormatMessage(lastError));
+				}
+			default:
+				LASS_THROW("impossible return value of WaitForSingleObject: " << ret);
+		}
+		isJoinable_ = false;
+		if (error_.get())
+		{
+			error_->throwSelf();
 		}
 	}
 
 	void bind(unsigned processor)
 	{
-		bindThread(handle_, processor);
+		affinity_ = bindThread(handle_, processor);
 	}
+
+	const TCpuSet affinity() const
+	{
+		const size_t n = numberOfProcessors();
+		TCpuSet result(numberOfProcessors(), false);
+		for (size_t i = 0; i < n; ++i)
+		{
+			result[i] = util::checkBit(affinity_, i);
+		}
+		return result;
+	};
 	
 	static void sleep(unsigned long iMilliSeconds)
 	{
@@ -608,6 +624,8 @@ public:
 	{
 		LASS_ASSERT(iPimpl);
 		ThreadInternal* pimpl = static_cast<ThreadInternal*>(iPimpl);
+		DWORD_PTR dummy;
+		GetProcessAffinityMask(GetCurrentProcess(), &pimpl->affinity_, &dummy);
 		pimpl->isCreated_ = true;
 		if (pimpl->isJoinable_)
 		{
@@ -649,6 +667,7 @@ private:
 
 	Thread& thread_;
 	HANDLE handle_;	 // handle of the thread
+	DWORD_PTR affinity_;
 	std::auto_ptr<experimental::RemoteExceptionBase> error_;
 	Condition runCondition_;
 	const char* name_;

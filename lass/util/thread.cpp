@@ -57,28 +57,35 @@ namespace lass
 namespace util
 {
 
-const unsigned numberOfProcessors()
+const TCpuSet availableProcessors()
 {
-	return impl::numberOfProcessors();
-}
-
-const unsigned numberOfAvailableProcessors()
-{
-	unsigned count = 0;
-	const unsigned n = impl::numberOfProcessors();
-	for (unsigned i = 0; i < n; ++i)
+	static TCpuSet set; // static it here, for SIOF
+	static bool isInitialized = false;
+	if (!isInitialized)
 	{
-		if (impl::isAvailableProcessor(i))
-		{
-			++count;
-		}
+		set = impl::availableProcessors();
+		isInitialized = true;
 	}
-	return count;
+	return set;
 }
 
-const bool isAvailableProcessor(unsigned processor)
+static TCpuSet forceCalculationAtStartup = availableProcessors();
+
+const size_t numberOfProcessors()
 {
-	return impl::isAvailableProcessor(processor);
+	return availableProcessors().size();
+}
+
+const size_t numberOfAvailableProcessors()
+{
+	const TCpuSet& set = availableProcessors();
+	return std::count(set.begin(), set.end(), true);	
+}
+
+const bool isAvailableProcessor(size_t processor)
+{
+	const TCpuSet& set = availableProcessors();
+	return processor < set.size() && set[processor];
 }
 
 // --- Mutex ---------------------------------------------------------------------------------------
@@ -229,6 +236,10 @@ Thread::Thread(ThreadKind iKind, const char* name)
 
 Thread::~Thread()
 {
+	if (pimpl_->isJoinable())
+	{
+		pimpl_->join();
+	}
 	delete pimpl_;
 	pimpl_ = 0;
 }
@@ -247,10 +258,16 @@ void Thread::join()
 
 /** bind this thread to a processor (this as in this-pointer)
  */
-void Thread::bind(unsigned processor)
+void Thread::bind(size_t processor)
 {
 	LASS_ASSERT(pimpl_);
 	pimpl_->bind(processor);
+}
+
+const TCpuSet Thread::affinity() const
+{
+	LASS_ASSERT(pimpl_);
+	return pimpl_->affinity();
 }
 
 void Thread::sleep(unsigned long iMilliSeconds)
@@ -265,7 +282,7 @@ void Thread::yield()
 
 /** bind current thread to a processor (current as in callee's context)
  */
-void Thread::bindCurrent(unsigned processor)
+void Thread::bindCurrent(size_t processor)
 {
 	impl::ThreadInternal::bindCurrent(processor);
 }

@@ -111,20 +111,24 @@ enum ThreadKind
 	threadJoinable		/**< joinable thread, can be waited for */
 };
 
+typedef std::vector<bool> TCpuSet;
+
+LASS_DLL const TCpuSet availableProcessors();
+
 /** Return highest id of processor + 1, in this machine
  *  @ingroup Threading  
  */
-LASS_DLL const unsigned numberOfProcessors();
+LASS_DLL const size_t numberOfProcessors();
 
 /** Return total number of processors in machine that are online
  *  @ingroup Threading  
  */
-LASS_DLL const unsigned numberOfAvailableProcessors();
+LASS_DLL const size_t numberOfAvailableProcessors();
 
 /** Check whether a processor is avaialable.
  *  @ingroup Threading  
  */
-LASS_DLL const bool isAvailableProcessor(unsigned processor);
+LASS_DLL const bool isAvailableProcessor(size_t processor);
 
 /** Mutex.
 *   @ingroup Threading
@@ -205,18 +209,20 @@ public:
 
 	enum 
 	{ 
-		anyProcessor = unsigned(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
+		anyProcessor = size_t(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
 	};
 
 	virtual ~Thread();
 	
 	void run();
 	void join();
-	void bind(unsigned processor);
+	void bind(size_t processor);
+	const TCpuSet affinity() const;
+
 	
 	static void sleep(unsigned long milliseconds);
 	static void yield();
-	static void bindCurrent(unsigned processor);
+	static void bindCurrent(size_t processor);
 
 protected:
 
