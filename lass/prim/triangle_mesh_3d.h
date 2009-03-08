@@ -74,6 +74,8 @@ struct IndexTriangle
 	static const std::size_t null() { return static_cast<std::size_t>(-1); }
 };
 
+LASS_DLL bool LASS_CALL operator==(const IndexTriangle& a, const IndexTriangle& b);
+
 template 
 <
 	typename T,
