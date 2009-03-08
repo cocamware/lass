@@ -70,7 +70,6 @@ namespace impl
 		virtual const int assSubscript(PyObject* key, PyObject* value) = 0;
 		virtual PyObject* const keys() const = 0;
 		virtual PyObject* const values() const = 0;
-		virtual const TPyObjPtr asDict() const = 0;
 	};
 
 	template<typename Container> 
@@ -149,7 +148,7 @@ namespace impl
 		{
 			return new PyIteratorRange(stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
 		}
-		const TPyObjPtr asDict() const
+		const TPyObjPtr asNative() const
 		{
 			return pyBuildMap(this->container().begin(), this->container().end());
 		}
@@ -194,6 +193,7 @@ namespace impl
 		const TPyObjPtr getOrNone(const TPyObjPtr& key) const;
 		void clear();
 		const TMapPtr copy() const;
+		const TPyObjPtr asDict() const;
 
 		static Py_ssize_t length(PyObject* self);
 		static PyObject* subscript(PyObject* self, PyObject* key);
@@ -206,57 +206,16 @@ namespace impl
 	private:
 		Map(std::auto_ptr<PyMapImplBase> pimpl);
 		void init(std::auto_ptr<PyMapImplBase> pimpl);
-		static void initializeType();
-		const TPyObjPtr asDict() const;
+		static void initializeType();		
 
 		util::ScopedPtr<PyMapImplBase> pimpl_;
 		static bool isInitialized;
 	};
 
 	template <>
-	struct ShadowTraits<Map>
+	struct ShadowTraits<Map>: public ShadowTraitsContainer< Map, ShadowTraits<Map> >
 	{
-		typedef PyObjectPtr<Map>::Type TPyClassPtr;
-		typedef Map TCppClass;
-		typedef TPyClassPtr TCppClassPtr;
-		typedef PyObjectPtr<const Map>::Type TConstCppClassPtr;
-
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value)
-		{
-			return getObject(obj, value, true);
-		}
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<const Container>& value)
-		{
-			util::SharedPtr<Container> temp;
-			if (getObject(obj, temp, false) != 0)
-			{
-				return 1;
-			}
-			value = temp.template constCast<const Container>();
-			return 0;
-		}
-		static int getObject(PyObject* obj, TCppClassPtr& map)
-		{
-			map = fromNakedToSharedPtrCast<Map>(obj);
-			return 0;
-		}
-		static int getObject(PyObject* obj, TConstCppClassPtr& map)
-		{
-			map = fromNakedToSharedPtrCast<const Map>(obj);
-			return 0;
-		}
-		template <typename T> static TPyClassPtr buildObject(const T& value)
-		{
-			return TPyClassPtr(new Map(value));
-		}
-		static TPyClassPtr buildObject(const TPyClassPtr& map)
-		{
-			return map;
-		}
-
-	private:
-
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
+		template <typename Container> static int getObjectImpl(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
 		{
 			if (!PyMapping_Check(obj))
 			{

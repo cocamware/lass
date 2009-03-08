@@ -55,25 +55,7 @@
 #include "../meta/wrap.h"
 #include "../meta/type_list.h"
 
-#define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(v_errorReturnValue)\
-	catch (const ::lass::python::PythonException& error)\
-	{\
-		handlePythonException(error);\
-		return v_errorReturnValue;\
-	}\
-	catch (const ::lass::util::Exception& error)\
-	{\
-		handleLassException(error);\
-		return v_errorReturnValue;\
-	}\
-	catch (::std::exception& error)\
-	{\
-		handleStdException(error);\
-		return v_errorReturnValue;\
-	}
 
-#define LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN\
-	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(0)
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -89,25 +71,7 @@ namespace impl
 
 // --- exception handlers -------------------------------------------------------------------------
 
-inline void handlePythonException(const PythonException& error)
-{
-	PyErr_Restore(
-		::lass::python::fromSharedPtrToNakedCast(error.type()),
-		::lass::python::fromSharedPtrToNakedCast(error.value()),
-		::lass::python::fromSharedPtrToNakedCast(error.traceback()));
-}
 
-inline void handleLassException(const util::Exception& error)
-{
-	::std::ostringstream buffer;
-	buffer << error.message() << "\n\n(" << error.location() << ")";
-	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
-}
-
-inline void handleStdException(const std::exception& error)
-{
-	PyErr_SetString(PyExc_Exception, error.what());
-}
 
 
 
@@ -127,7 +91,7 @@ struct Caller
 		{
 			return pyBuildSimpleObject( function() );
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	};
 	$[
 	template <typename Function, $(typename P$x)$>
@@ -137,7 +101,7 @@ struct Caller
 		{
 			return pyBuildSimpleObject( function($(p$x)$) );
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	}
 	]$
 
@@ -150,7 +114,7 @@ struct Caller
 		{
 			return pyBuildSimpleObject( (object.*method)() );
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	};
 	$[
 	template <typename CppClassRef, typename Method, $(typename P$x)$>
@@ -160,7 +124,7 @@ struct Caller
 		{
 			return pyBuildSimpleObject( (object.*method)($(p$x)$) );
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	}
 	]$
 };
@@ -179,7 +143,7 @@ struct Caller<void>
 		{
 			function();
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	};
 	$[
@@ -190,7 +154,7 @@ struct Caller<void>
 		{
 			function($(p$x)$);
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	}
 	]$
@@ -204,7 +168,7 @@ struct Caller<void>
 		{
 			(object.*method)();
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	};
 	$[
@@ -215,7 +179,7 @@ struct Caller<void>
 		{
 			(object.*method)($(p$x)$);
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	}
 	]$
@@ -431,7 +395,7 @@ $[
 		{
 			return pyBuildSimpleObject(((*self).*method)());
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	}
 
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
@@ -449,7 +413,7 @@ $[
 		{
 			((*self).*method)(TArg::arg(p));
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
+		LASS_PYTHON_CATCH_AND_RETURN_EX(-1)
 		return 0;
 	}
 
@@ -468,7 +432,7 @@ $[
 		{
 			((*self).*method)() = TArg::arg(p);
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
+		LASS_PYTHON_CATCH_AND_RETURN_EX(-1)
 		return 0;
 	}
 
@@ -484,7 +448,7 @@ $[
 		{
 			return pyBuildSimpleObject(function(*self));
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+		LASS_PYTHON_CATCH_AND_RETURN
 	}
 
 	template <typename C, typename P>
@@ -500,7 +464,7 @@ $[
 		{
 			function(*self, p);
 		}
-		LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN_EX(-1)
+		LASS_PYTHON_CATCH_AND_RETURN_EX(-1)
 		return 0;
 	}
 };
@@ -543,7 +507,7 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		Py_INCREF(result->ob_type);
 		return fromSharedPtrToNakedCast(result);
 	}
-	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+	LASS_PYTHON_CATCH_AND_RETURN
 }
 $[
 /** allocate a new object with $x arguments.
@@ -571,7 +535,7 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		Py_INCREF(result->ob_type);
 		return fromSharedPtrToNakedCast(result);
 	}
-	LASS_UTIL_PYOBJECT_CALL_CATCH_AND_RETURN
+	LASS_PYTHON_CATCH_AND_RETURN
 }
 ]$
 

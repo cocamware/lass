@@ -86,7 +86,27 @@ void fetchAndThrowPythonException(const std::string& loc)
 	const TPyObjPtr value(tempValue);
 	const TPyObjPtr traceback(tempTraceback);
 
-	throw lass::python::PythonException(type, value, traceback, loc);
+	throw PythonException(type, value, traceback, loc);
+}
+
+void catchPythonException(const PythonException& error)
+{
+	PyErr_Restore(
+		fromSharedPtrToNakedCast(error.type()),
+		fromSharedPtrToNakedCast(error.value()),
+		fromSharedPtrToNakedCast(error.traceback()));
+}
+
+void catchLassException(const util::Exception& error)
+{
+	::std::ostringstream buffer;
+	buffer << error.message() << "\n\n(" << error.location() << ")";
+	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
+}
+
+void catchStdException(const std::exception& error)
+{
+	PyErr_SetString(PyExc_Exception, error.what());
 }
 
 }

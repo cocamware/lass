@@ -148,7 +148,5 @@ namespace lass
 
 }
 }
-#include "pymap.h"
-#include "pysequence.h"
 
 #endif

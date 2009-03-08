@@ -50,10 +50,16 @@ namespace lass
 {
 namespace python
 {
+
+class PythonException;
+
 namespace impl
 {
-	LASS_DLL const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
+	LASS_DLL const std::string LASS_CALL exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
 	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
+	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
+	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);
+	LASS_DLL void LASS_CALL catchStdException(const std::exception& error);
 }
 
 class PythonException: public util::Exception
@@ -81,5 +87,25 @@ private:
 
 }
 }
+
+#define LASS_PYTHON_CATCH_AND_RETURN_EX(v_errorReturnValue)\
+	catch (const ::lass::python::PythonException& error)\
+	{\
+		::lass::python::impl::catchPythonException(error);\
+		return v_errorReturnValue;\
+	}\
+	catch (const ::lass::util::Exception& error)\
+	{\
+		::lass::python::impl::catchLassException(error);\
+		return v_errorReturnValue;\
+	}\
+	catch (::std::exception& error)\
+	{\
+		::lass::python::impl::catchStdException(error);\
+		return v_errorReturnValue;\
+	}
+
+#define LASS_PYTHON_CATCH_AND_RETURN\
+	LASS_PYTHON_CATCH_AND_RETURN_EX(0)
 
 #endif

@@ -161,6 +161,25 @@ public:
 	{
 		return checkSubType(obj) ? TImpl::getObject(static_cast<T*>(obj), value) : 1;
 	}
+	static int getObject(PyObject* obj, TCppClass& value)
+	{
+		if (obj == Py_None || obj->ob_type != T::_lassPyClassDef.type())
+		{
+			PyErr_Format(PyExc_TypeError, "PyObject not a %s", T::_lassPyClassDef.name());
+			return 1;
+		}
+		TConstCppClassPtr p;
+		if (TImpl::getObject(static_cast<T*>(obj), p) != 0)
+		{
+			return 1;
+		}
+		try
+		{
+			value = *p;
+		}
+		LASS_PYTHON_CATCH_AND_RETURN_EX(1)
+		return 0;
+	}
 	template <typename Ptr> static TPyClassPtr buildObject(const Ptr& value)
 	{
 		return TImpl::buildObject(value);

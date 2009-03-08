@@ -66,6 +66,7 @@ namespace impl
 	PY_CLASS_METHOD_NAME( Map, getOrNone, "get" )
 	PY_CLASS_METHOD( Map, clear )
 	PY_CLASS_METHOD( Map, copy )
+	PY_CLASS_METHOD( Map, asDict )
 
 	bool Map::isInitialized = false;
 
@@ -109,11 +110,6 @@ namespace impl
 		pimpl_.reset(pimpl);
 	}
 
-	const TPyObjPtr Map::asDict() const
-	{
-		return pimpl_->asDict();
-	}
-
 	std::string Map::doPyStr(void) 
 	{ 
 		return doPyRepr(); 
@@ -121,14 +117,7 @@ namespace impl
 	
 	std::string Map::doPyRepr()
 	{
-		const TPyObjPtr dict = asDict();
-		const TPyObjPtr repr(PyObject_Repr(dict.get()));
-		std::string result;
-		if (pyGetSimpleObject(repr.get(), result) != 0)
-		{
-			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
-		}
-		return result;
+		return pimpl_->repr();
 	}
 	
 	const TPyObjPtr Map::keys() const 
@@ -165,6 +154,11 @@ namespace impl
 	const TMapPtr Map::copy() const
 	{
 		return TMapPtr(new Map(pimpl_->copy()));
+	}
+
+	const TPyObjPtr Map::asDict() const
+	{
+		return pimpl_->asNative();
 	}
 
 	void Map::clear()

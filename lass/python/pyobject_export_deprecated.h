@@ -45,6 +45,7 @@
 
 #include "python_common.h"
 #include "shadowee_traits.h"
+#include "exception.h"
 #include "../util/shared_ptr.h"
 
 namespace lass
@@ -70,21 +71,7 @@ namespace python
 		}
 		static int get(PyObject* obj, T& v)
 		{
-			typedef typename TShadowTraits::TPyClass TPyClass;
-			if (obj == Py_None || obj->ob_type != TPyClass::_lassPyClassDef.type())
-			{
-				PyErr_Format(PyExc_TypeError, "PyObject not a %s", TPyClass::_lassPyClassDef.name());
-				return 1;
-			}
-			typename TShadowTraits::TConstCppClassPtr p;
-			if (TShadowTraits::getObject(obj, p) != 0)
-			{
-				return 1;
-			}
-			// try
-			v = *p;
-			// catch
-			return 0;
+			return TShadowTraits::getObject(obj, v);
 		}
 	};
 

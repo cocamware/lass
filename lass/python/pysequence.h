@@ -99,6 +99,10 @@ namespace impl
 		~PySequenceContainer() 
 		{
 		}
+		const TPyObjPtr asNative() const
+		{
+			return pyBuildList(this->begin(), this->next(this->begin(), this->length()));
+		}
 		std::auto_ptr<PySequenceImplBase> copy() const
 		{
 			TContainerPtr copy = TContainerTraits::copy(this->container());
@@ -353,6 +357,7 @@ namespace impl
 		void append(const TPyObjPtr& obj);
 		const TPyObjPtr pop(Py_ssize_t i);
 		const TPyObjPtr pop_back();
+		const TPyObjPtr asList() const;
 
 		std::string doPyStr();
 		std::string doPyRepr();
@@ -378,55 +383,14 @@ namespace impl
 		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
 		void init(std::auto_ptr<PySequenceImplBase> pimpl);
 		static void initializeType();
-		const TPyObjPtr asList() const;
 
 		util::ScopedPtr<PySequenceImplBase> pimpl_;
 	};
 
 	template <>
-	struct ShadowTraits<Sequence>
+	struct ShadowTraits<Sequence>: public ShadowTraitsContainer< Sequence, ShadowTraits<Sequence> >
 	{
-		typedef PyObjectPtr<Sequence>::Type TPyClassPtr;
-		typedef Sequence TCppClass;
-		typedef TPyClassPtr TCppClassPtr;
-		typedef PyObjectPtr<const Sequence>::Type TConstCppClassPtr;
-
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value)
-		{
-			return getObject(obj, value, true);
-		}
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<const Container>& value)
-		{
-			util::SharedPtr<Container> temp;
-			if (getObject(obj, temp, false) != 0)
-			{
-				return 1;
-			}
-			value = temp.template constCast<const Container>();
-			return 0;
-		}
-		static int getObject(PyObject* obj, TCppClassPtr& sequence)
-		{
-			sequence = fromNakedToSharedPtrCast<Sequence>(obj);
-			return 0;
-		}
-		static int getObject(PyObject* obj, TConstCppClassPtr& sequence)
-		{
-			sequence = fromNakedToSharedPtrCast<const Sequence>(obj);
-			return 0;
-		}
-		template <typename T> static TPyClassPtr buildObject(const T& value)
-		{
-			return TPyClassPtr(new Sequence(value));
-		}
-		static TPyClassPtr buildObject(const TPyClassPtr& sequence)
-		{
-			return sequence;
-		}
-
-	private:
-
-		template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
+		template <typename Container> static int getObjectImpl(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
 		{
 			if (!PySequence_Check(obj))
 			{

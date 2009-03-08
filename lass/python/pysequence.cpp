@@ -63,6 +63,7 @@ namespace impl
 	PY_CLASS_METHOD( Sequence, clear )
 	PY_CLASS_METHOD( Sequence, reserve )
 	PY_CLASS_METHOD( Sequence, copy )
+	PY_CLASS_METHOD( Sequence, asList )
 
 	PySequenceMethods Sequence::pySequenceMethods = {
 		&Sequence::length,
@@ -115,11 +116,6 @@ namespace impl
 		}
 	}
 
-	const TPyObjPtr Sequence::asList() const
-	{
-		return fromNakedToSharedPtrCast<PyObject>(pimpl_->slice(0, pimpl_->length(), 1));
-	}
-
 	const TSequencePtr Sequence::copy() const
 	{
 		return TSequencePtr(new Sequence(pimpl_->copy()));
@@ -170,18 +166,16 @@ namespace impl
 
 	std::string Sequence::doPyRepr()
 	{
-		const TPyObjPtr list = asList();
-		const TPyObjPtr repr(PyObject_Repr(list.get()));
-		std::string result;
-		if (pyGetSimpleObject(repr.get(), result) != 0)
-		{
-			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
-		}
-		return result;
+		return pimpl_->repr();
 	}
 	std::string Sequence::doPyStr()
 	{
 		return doPyRepr();
+	}
+
+	const TPyObjPtr Sequence::asList() const
+	{
+		return pimpl_->asNative();
 	}
 
 	Py_ssize_t Sequence::length(PyObject* self)
