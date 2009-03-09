@@ -65,7 +65,7 @@ namespace util
 template<typename T>
 void setBit(T& a_bits, size_t a_bit)
 {
-	a_bits |= (1 << a_bit);
+	a_bits |= (T(1) << a_bit);
 }
 
 
@@ -79,7 +79,7 @@ void setBit(T& a_bits, size_t a_bit)
 template<typename T>
 void clearBit(T& a_bits, size_t a_bit)
 {
-	a_bits &= ~(1 << a_bit);
+	a_bits &= ~(T(1) << a_bit);
 }
 
 
@@ -93,7 +93,7 @@ void clearBit(T& a_bits, size_t a_bit)
 template<typename T>
 void flipBit(T& a_bits, size_t a_bit)
 {
-	a_bits ^= (1 << a_bit);
+	a_bits ^= (T(1) << a_bit);
 }
 
 
@@ -108,7 +108,7 @@ void flipBit(T& a_bits, size_t a_bit)
 template<typename T>
 void setBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
-	setMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	setMasked(a_bits, a_condition ? (T(1) << a_bit) : T(0));
 }
 
 
@@ -123,7 +123,7 @@ void setBitIf(T& a_bits, size_t a_bit, bool a_condition)
 template<typename T>
 void clearBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
-	clearMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	clearMasked(a_bits, a_condition ? (T(1) << a_bit) : T(0));
 }
 
 
@@ -138,7 +138,7 @@ void clearBitIf(T& a_bits, size_t a_bit, bool a_condition)
 template<typename T>
 void flipBitIf(T& a_bits, size_t a_bit, bool a_condition)
 {
-	flipMasked(a_bits, a_condition ? (1 << a_bit) : 0);
+	flipMasked(a_bits, a_condition ? (T(1) << a_bit) : T(0));
 }
 
 
@@ -168,7 +168,7 @@ void setBitTo(T& a_bits, size_t a_bit, bool a_state)
 template<typename T>
 bool checkBit(T a_bits, size_t a_bit)
 {
-	return (a_bits & (1 << a_bit)) != 0;
+	return (a_bits & (T(1) << a_bit)) != 0;
 }
 
 

@@ -588,7 +588,7 @@ public:
 		}
 	}
 
-	void bind(unsigned processor)
+	void bind(size_t processor)
 	{
 		affinity_ = bindThread(handle_, processor);
 	}
@@ -614,7 +614,7 @@ public:
 		Sleep(0);
 	}
 
-	static void bindCurrent(unsigned processor)
+	static void bindCurrent(size_t processor)
 	{
 		bindThread(GetCurrentThread(), processor);
 	}
