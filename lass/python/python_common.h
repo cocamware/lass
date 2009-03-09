@@ -128,12 +128,15 @@
 #endif
 
 #if (PY_VERSION_HEX < 0x02050000)
+#	define LASS_PY_SSIZE_FORMAT "i"
 #	define Py_ssize_t int
 #	define lenfunc inquiry
 #	define ssizeargfunc intargfunc
 #	define ssizessizeargfunc intintargfunc
 #	define ssizeobjargproc intobjargproc
 #	define ssizessizeobjargproc intintobjargproc
+#else
+#	define LASS_PY_SSIZE_FORMAT "n"
 #endif
 
 #endif

@@ -60,7 +60,7 @@ template
 	typename Key,
 	typename T,
 	typename Compare = std::less<Key>,
-	typename Allocator = std::allocator< std::pair<const Key, T> >
+	typename Allocator = std::allocator< std::pair<Key, T> >
 >
 class vector_map
 {

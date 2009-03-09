@@ -248,6 +248,7 @@ protected:
 private:
 
 	template <typename U, typename C> friend class ObjectStorage;
+	template <typename U, template <typename, typename> class S, typename C> friend class SharedPtr;
 
 	ObjectStorage(T* pointee, const Cascade& cascade): Cascade(cascade), storage_(pointee) {}
 	

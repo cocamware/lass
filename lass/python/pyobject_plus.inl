@@ -97,7 +97,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize) 
 	{
-		TPyObjPtr args(Py_BuildValue("(n)", iSize));
+		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT ")", iSize));
 		return DispatcherAddress(iSelf,args.get());
 	}
 };
@@ -107,7 +107,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize, Py_ssize_t iSize2)
 	{
-		TPyObjPtr args(Py_BuildValue("(n,n)", iSize, iSize2));
+		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT "," LASS_PY_SSIZE_FORMAT ")", iSize, iSize2));
 		return DispatcherAddress(iSelf,args.get());
 	}
 };
@@ -133,7 +133,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, PyObject * iOther)
 	{
-		TPyObjPtr args(Py_BuildValue("(n,O)",iSize,iOther));
+		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT ",O)",iSize,iOther));
 		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
 		return temp ? 0 : -1;
 	}
@@ -144,7 +144,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2, PyObject * iOther)
 	{
-		TPyObjPtr args(Py_BuildValue("(n,n,O)",iSize,iSize2,iOther));
+		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT "," LASS_PY_SSIZE_FORMAT ",O)",iSize,iSize2,iOther));
 		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
 		return temp ? 0 : -1;
 	}
@@ -376,7 +376,7 @@ int pyGetSignedObject( PyObject* iValue, Integer& oV )
 		}
 		return pyNumericCast( temp, oV );
 	}
-	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
+	PyErr_SetString(PyExc_TypeError, "not an integer");
 	return 1;
 }
 
@@ -417,7 +417,7 @@ int pyGetUnsignedObject( PyObject* iValue, Integer& oV )
 		}
 		return pyNumericCast( temp, oV );
 	}
-	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Integer>::name().c_str());
+	PyErr_SetString(PyExc_TypeError, "not an integer");
 	return 1;
 }
 
@@ -452,7 +452,7 @@ int pyGetFloatObject( PyObject* iValue, Float& oV )
 		}
 		return pyNumericCast( temp, oV );
 	}
-	PyErr_Format(PyExc_TypeError, "not a %s", num::NumTraits<Float>::name().c_str());
+	PyErr_SetString(PyExc_TypeError, "not a float or integer");
 	return 1;
 }
 
@@ -627,7 +627,19 @@ struct PyExportTraits<signed PY_LONG_LONG>
 	}
 	static int get( PyObject* iValue, signed PY_LONG_LONG& oV )
 	{
-		return impl::pyGetSignedObject( iValue, oV );
+#if PY_MAJOR_VERSION < 3
+		if (PyInt_Check(iValue))
+		{
+			oV = PyInt_AS_LONG(iValue);
+		}
+#endif
+		if (PyLong_Check(iValue))
+		{
+			oV = PyLong_AsLongLong( iValue );
+			return 0;
+		}
+		PyErr_SetString(PyExc_TypeError, "not an integer");
+		return 1;		
 	}
 };
 
@@ -643,7 +655,28 @@ struct PyExportTraits<unsigned PY_LONG_LONG>
 	}
 	static int get( PyObject* iValue, unsigned PY_LONG_LONG& oV )
 	{
-		return impl::pyGetUnsignedObject( iValue, oV );
+#if PY_MAJOR_VERSION < 3
+		if (PyInt_Check(iValue))
+		{
+			const long temp = PyInt_AS_LONG(iValue);
+			if (temp < 0)
+			{
+				std::ostringstream buffer;
+				buffer << "not a unsigned long long: negative: " << temp << " < 0";
+				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+				return 1;
+			}
+			oV = temp;
+			return 0;
+		}
+#endif
+		if (PyLong_Check(iValue))
+		{
+			oV = PyLong_AsUnsignedLongLong( iValue );
+			return 0;
+		}
+		PyErr_SetString(PyExc_TypeError, "not an integer");
+		return 1;	
 	}
 };
 

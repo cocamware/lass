@@ -171,7 +171,7 @@ namespace lass
 				const PyTypeObject* const type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }
 				const char* doc() const { return type_.tp_doc; }
-				void setDoc(const char* doc) { type_.tp_doc = doc; } ///< @a doc must be valid until another one is set
+				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
 
 				void addInnerClass(ClassDefinition& innerClass);
 				void freezeDefinition(const char* scopeName = 0);

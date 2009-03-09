@@ -129,10 +129,14 @@ TCpuSet availableProcessors()
 
 inline pid_t lass_gettid()
 {
-#if LASS_HAVE_GETTID
+#if LASS_HAVE_SCHED_H_CPU_SET_T
+#	if LASS_HAVE_GETTID
 	return gettid();
-#else
+#	else
 	return syscall(224);
+#	endif
+#else
+	return 0;
 #endif
 }
 
@@ -432,6 +436,14 @@ public:
 		{
 			result[i] = CPU_ISSET(static_cast<int>(i), &mask);
 		}
+#elif LASS_HAVE_SYS_PROCESSOR_H
+		processorid_t cpu_id;
+		LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle_, PBIND_QUERY, &cpu_id));
+		if (cpu_id == PBIND_NONE)
+		{
+			return availableProcessors();
+		}
+		result[static_cast<size_t>(cpu_id)] = true;
 #else
 #	error no implementation
 #endif		

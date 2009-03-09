@@ -117,7 +117,7 @@ ClassDefinition::ClassDefinition(const char* name, const char* doc, Py_ssize_t t
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
 		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/
-		doc,	/*tp_doc*/
+		(char*)doc,	/*tp_doc*/
 		0,	/*tp_traverse*/
 		0,	/*tp_clear*/
 		richcmp,	/*tp_richcompare*/
@@ -419,7 +419,7 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 			Py_ssize_t size1;
 			if (decodeTuple(iArgs, size1) != 0)
 			{
-				return false;
+				return 0;
 			}
 			return ssizeargfunc_(iSelf, size1 );
 		}
@@ -895,6 +895,10 @@ bool checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize)
 TPyObjPtr checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize)
 {
 	TPyObjPtr result(PySequence_Fast(iValue, "expected a sequence (tuple, list, ...)"));
+	if (!result)
+	{
+		return TPyObjPtr();
+	}
 	const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
 	if (size != iExpectedSize)
 	{
