@@ -234,12 +234,14 @@ Thread::Thread(ThreadKind iKind, const char* name)
 	pimpl_ = new impl::ThreadInternal(*this, iKind, name);
 }
 
+/** @warning The destructor will not join joinable threads first.  You have to do it yourself.
+ *	Why?  Well, as long as the worker thread is executing doRun(), it needs the complete thread
+ *	object.  By the time we get in ~Thread(), the derived class is already destructed and the
+ *	thread would now be acting on a half destructed object.  That can't be good, can it?
+ *	So make sure you call join() before the destructor is invoked.
+ */
 Thread::~Thread()
 {
-	if (pimpl_->isJoinable())
-	{
-		pimpl_->join();
-	}
 	delete pimpl_;
 	pimpl_ = 0;
 }

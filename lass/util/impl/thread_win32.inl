@@ -672,8 +672,8 @@ private:
 	Condition runCondition_;
 	const char* name_;
 	unsigned id_;
-	bool isJoinable_;
-	bool isCreated_;
+	volatile bool isJoinable_;
+	volatile bool isCreated_;
 };
 
 

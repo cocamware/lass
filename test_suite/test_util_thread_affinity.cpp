@@ -118,6 +118,14 @@ void testUtilThreadAffinity()
 	}
 
 	thread_affinity::stop = true;
+	
+	for (size_t i = 0; i < n; ++i)
+	{
+		if (threads[i])
+		{
+			threads[i]->join();
+		}
+	}
 }
 
 TUnitTest test_util_thread_affinity()
