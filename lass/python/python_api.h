@@ -54,7 +54,6 @@
 #include "pyshadow_object.h"
 #include "callback_python.h"
 #include "py_tuple.h"
-#include "py_stl.h"
 #include "pysequence.h"
 #include "pymap.h"
 #include "export_traits_prim.h"

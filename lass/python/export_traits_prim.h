@@ -58,10 +58,9 @@ namespace impl
 /** @ingroup Python
  *  @internal
  */
-template <typename ObjectType, typename ExportTraits>
+template <typename ObjectType, typename ExportTraits, size_t dimension = ObjectType::dimension>
 struct PyExportTraitsVectorPoint
 {
-	enum { dimension = ObjectType::dimension };
 	static PyObject* build(const ObjectType& v)
 	{
 		PyObject* const tuple = PyTuple_New(dimension);

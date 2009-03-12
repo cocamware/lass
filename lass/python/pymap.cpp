@@ -45,7 +45,6 @@
 #include "lass_common.h"
 #include "pymap.h"
 #include "pyobject_macros.h"
-#include "py_stl.h"
 
 namespace lass
 {

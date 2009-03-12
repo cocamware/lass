@@ -42,7 +42,7 @@
 
 #include "lass_common.h"
 #include "exception.h"
-#include "py_stl.h"
+#include "pyobject_plus.h"
 
 namespace lass
 {

@@ -257,22 +257,24 @@ template<class C> const interval<C> NumTraits<interval<C> >::sqrtPi = interval<C
 
 namespace python
 {
-	template<class C> int pyGetSimpleObject_deprecated( PyObject* iValue, lass::num::interval<C>& oV )
+	template <typename T>
+	struct PyExportTraits< num::interval<T> >
 	{
-		std::pair<C,C> temp;
-		int r=PyExportTraits<std::pair<C,C> >::get(iValue, temp);
-		if (r==0)
+		static PyObject* build(const num::interval<T>& v)
 		{
-			oV.set(temp.first , temp.second);
+			return fromSharedPtrToNakedCast(makeTuple(v.inf(), v.sup()));
 		}
-		return r;
-	}
-	template<class C> PyObject* pyBuildSimpleObject_deprecated( const lass::num::interval<C>& iV )
-	{
-		return PyExportTraits<std::pair<C,C> >::build( std::pair<C,C>(iV.inf(),iV.sup()) );
-	}
-	PYEXPORTTRAITS_USINGDEPRECATED_TEMPL( lass::num::interval )
-
+		static int get(PyObject* obj, num::interval<T>& v)
+		{
+			T inf, sup;
+			if (decodeTuple(obj, inf, sup) != 0)
+			{
+				return 1;
+			}
+			v.set(inf, sup);
+			return 0;
+		}
+	};
 }
 
 }

@@ -45,7 +45,6 @@
 #include "lass_common.h"
 #include "pyobject_plus.h"
 #include "pyobject_macros.h"
-#include "py_stl.h"
 #include "py_tuple.h"
 #include <iostream>
 

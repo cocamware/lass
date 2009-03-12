@@ -76,7 +76,7 @@
 
 #include "pyobject_casters.h"
 #include "pyobject_special_methods.h"
-#include "pyobject_export_deprecated.h"
+#include "export_traits.h"
 
 namespace lass
 {
@@ -546,12 +546,6 @@ namespace lass
 				const char* iName, const T& iValue);
 
 			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);
-			template <typename Integer> int pyGetSignedObject(
-				PyObject* iValue, Integer& oV);
-			template <typename Integer> int pyGetUnsignedObject(
-				PyObject* iValue, Integer& oV);
-			template <typename Float> int pyGetFloatObject(
-				PyObject* iValue, Float& oV);
 
 			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);

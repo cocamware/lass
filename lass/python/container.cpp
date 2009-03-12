@@ -42,7 +42,6 @@
 
 #include "lass_common.h"
 #include "container.h"
-#include "py_stl.h"
 #include "exception.h"
 
 namespace lass

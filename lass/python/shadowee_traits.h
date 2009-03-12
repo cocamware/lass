@@ -67,7 +67,7 @@ namespace python
 template <typename T> 
 struct ShadoweeTraits: public meta::False 
 {
-	// typedef ... TShadow;
+	typedef T TShadow;
 	// typedef ... TShadowTraits;
 	// typedef ... TPointerTraits;
 };
