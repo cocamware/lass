@@ -60,8 +60,8 @@
 #if LASS_HAVE_SYS_PROCESSOR_H
 #	include <sys/processor.h>
 #endif
-#if LASS_HAVE_SYS_TYPES_H
-#	include <sys/types.h>
+#if LASS_HAVE_SYS_SYSCALL_H
+#	include <sys/syscall.h>
 #endif
 
 namespace lass
@@ -129,14 +129,10 @@ TCpuSet availableProcessors()
 
 inline pid_t lass_gettid()
 {
-#if LASS_HAVE_SCHED_H_CPU_SET_T
-#	if LASS_HAVE_GETTID
-	return gettid();
-#	else
-	return syscall(224);
-#	endif
+#if LASS_HAVE_SYS_SYSCALL_H_GETTID
+	return syscall(__NR_gettid);
 #else
-	return 0;
+	return -1;
 #endif
 }
 
@@ -341,13 +337,13 @@ void bindThread(pthread_t handle, pid_t tid, size_t processor)
 		CPU_SET(static_cast<int>(processor), &mask);
 	}
 #	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
-	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask));
+	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask))("handle=")(handle);
 #	else
-	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask));
+	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask))("tid=")(tid);
 #	endif
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
-	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle, cpu_id, 0));
+	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle, cpu_id, 0))("handle=")(handle);
 #else
 #	error no implementation for bindThread
 #endif
@@ -428,9 +424,9 @@ public:
 #if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
 		cpu_set_t mask;
 #	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
-		LASS_ENFORCE_CLIB(pthread_getaffinity_np(handle_, sizeof(cpu_set_t), &mask));
+		LASS_ENFORCE_CLIB(pthread_getaffinity_np(handle_, sizeof(cpu_set_t), &mask))("handle=")(handle_);
 #	else
-		LASS_ENFORCE_CLIB(sched_getaffinity(tid_, sizeof(cpu_set_t), &mask));
+		LASS_ENFORCE_CLIB(sched_getaffinity(tid_, sizeof(cpu_set_t), &mask))("tid=")(tid_);
 #	endif
 		for (size_t i = 0; i < n; ++i)
 		{
@@ -438,7 +434,7 @@ public:
 		}
 #elif LASS_HAVE_SYS_PROCESSOR_H
 		processorid_t cpu_id;
-		LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle_, PBIND_QUERY, &cpu_id));
+		LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle_, PBIND_QUERY, &cpu_id))("handle=")(handle_);
 		if (cpu_id == PBIND_NONE)
 		{
 			return availableProcessors();

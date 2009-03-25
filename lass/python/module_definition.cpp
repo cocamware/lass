@@ -47,8 +47,6 @@ namespace lass
 {
 namespace python
 {
-namespace impl
-{
 
 ModuleDefinition::ModuleDefinition(const char* name, const char* doc):
 	module_(0),
@@ -104,10 +102,10 @@ void ModuleDefinition::setDoc(const char* doc)
 void ModuleDefinition::addFunctionDispatcher(
 		PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain)
 {
-	TMethods::iterator i = ::std::find_if(methods_.begin(), methods_.end(), PyMethodEqual(name));
+	TMethods::iterator i = ::std::find_if(methods_.begin(), methods_.end(), impl::PyMethodEqual(name));
 	if (i == methods_.end())
 	{
-		methods_.push_back(createPyMethodDef(name, dispatcher, METH_VARARGS , doc));
+		methods_.push_back(impl::createPyMethodDef(name, dispatcher, METH_VARARGS , doc));
 		overloadChain = 0;
 	}
 	else
@@ -117,7 +115,7 @@ void ModuleDefinition::addFunctionDispatcher(
 	};
 }
 
-void ModuleDefinition::injectClass(ClassDefinition& classDef)
+void ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
 {
 	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
 	classDef.freezeDefinition(name_.get());
@@ -146,7 +144,6 @@ PyObject* ModuleDefinition::inject()
 	return module_;
 }
 
-}
 }
 }
 

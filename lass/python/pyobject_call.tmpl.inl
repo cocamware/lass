@@ -397,6 +397,23 @@ $[
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
+    
+	/** call getter function
+	 */
+	template <typename C, typename R>
+	static PyObject* get(PyObject* object, R (C::*method)())
+	{
+		typename ShadowTraits::TCppClassPtr self;
+		if (ShadowTraits::getObject(object, self) != 0)
+		{
+			return 0;
+		}
+		try
+		{
+			return pyBuildSimpleObject(((*self).*method)());
+		}
+		LASS_PYTHON_CATCH_AND_RETURN
+	}
 
 	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
 	 */
@@ -451,6 +468,21 @@ $[
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
 
+	template <typename C, typename R>
+	static PyObject* freeGet(PyObject* object, R (*function)(C&) )
+	{
+		typename ShadowTraits::TCppClassPtr self;
+		if (ShadowTraits::getObject(object, self) != 0)
+		{
+			return 0;
+		}
+		try
+		{
+			return pyBuildSimpleObject(function(*self));
+		}
+		LASS_PYTHON_CATCH_AND_RETURN
+	}
+
 	template <typename C, typename P>
 	static int freeSet( PyObject* args, PyObject* object, void (*function)(C&, P) )
 	{
@@ -462,7 +494,7 @@ $[
 		}
 		try
 		{
-			function(*self, p);
+			function(*self, TArg::arg(p));
 		}
 		LASS_PYTHON_CATCH_AND_RETURN_EX(-1)
 		return 0;
@@ -565,7 +597,7 @@ struct ExplicitResolver<ShadowTraits, R, lass::meta::NullType>
 		{
 			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		template <typename C> static PyObject* callMethod( PyObject* args, const PyObject* object, R (C::*method)() const )
+		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)() const )
 		{
 			return CallMethod<ShadowTraits>::call( args, object, method );
 		}

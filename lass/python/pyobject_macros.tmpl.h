@@ -65,7 +65,7 @@
  *		the identifier of the module to be used in C++
  */
 #define PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, s_doc ) \
-	::lass::python::impl::ModuleDefinition i_module( s_name, s_doc );
+	::lass::python::ModuleDefinition i_module( s_name, s_doc );
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = ""
@@ -530,8 +530,10 @@ $[
  */
 #define PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, s_doc ) \
 	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef( \
-		s_className, s_doc, sizeof(t_cppClass), ::lass::python::impl::RichCompare<t_cppClass>::call,\
-		&t_cppClass::_lassPyParentType::_lassPyClassDef);
+		s_className, s_doc, sizeof(t_cppClass), \
+		::lass::python::impl::RichCompare<t_cppClass>::call,\
+		&t_cppClass::_lassPyParentType::_lassPyClassDef, \
+		&t_cppClass::_lassPyClassRegisterHook);
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
@@ -1633,12 +1635,22 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_RW_EX( t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
-	{\
-		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
-		return ::lass::python::impl::CallMethod<TShadowTraits>::get( iObject, &TCppClass::i_cppGetter );\
-	}\
+        PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+        {\
+                typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+                TShadowTraits::TCppClassPtr self; \
+                if (TShadowTraits::getObject(iObject, self) == 0)\
+                { \
+                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                } \
+                PyErr_Clear(); \
+                TShadowTraits::TConstCppClassPtr constSelf; \
+                if (TShadowTraits::getObject(iObject, constSelf) != 0)\
+                { \
+                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                } \
+                return 0; \
+        }\
 	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
@@ -1717,12 +1729,22 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_R_EX( t_cppClass, i_cppGetter, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter) ( PyObject* iObject, void* )\
-	{\
-		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
-		return ::lass::python::impl::CallMethod<TShadowTraits>::get( iObject, &TCppClass::i_cppGetter );\
-	}\
+        PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+        {\
+                typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+                TShadowTraits::TCppClassPtr self; \
+                if (TShadowTraits::getObject(iObject, self) == 0)\
+                { \
+                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                } \
+                PyErr_Clear(); \
+                TShadowTraits::TConstCppClassPtr constSelf; \
+                if (TShadowTraits::getObject(iObject, constSelf) != 0)\
+                { \
+                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                } \
+                return 0; \
+        }\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		t_cppClass::_lassPyClassDef.getSetters_.insert(\

@@ -166,7 +166,10 @@ namespace lass
 			class LASS_DLL ClassDefinition
 			{
 			public:
-				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp, ClassDefinition* parent);
+				typedef void(*TClassRegisterHook)();
+
+				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
+					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
 				PyTypeObject* const type() { return &type_; }
 				const PyTypeObject* const type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }
@@ -186,10 +189,12 @@ namespace lass
 				TCompareFuncs compareFuncs_;
 
 			private:
-				typedef std::vector<ClassDefinition*> TInnerClasses;
+				typedef std::vector<ClassDefinition*> TClassDefList;
 
-				TInnerClasses innerClasses_;
+				TClassDefList innerClasses_;
+				TClassDefList subClasses_;
 				ClassDefinition* parent_;
+				TClassRegisterHook classRegisterHook_;
 				bool isFrozen_;
 			};
 		}
@@ -275,6 +280,7 @@ namespace lass
 		{
 		public:
 			static impl::ClassDefinition _lassPyClassDef;
+			static void _lassPyClassRegisterHook();
 			virtual impl::ClassDefinition* const _lassPyGetClassDef() const { return &_lassPyClassDef; }
 			typedef void TCppClass;
 
@@ -526,6 +532,11 @@ namespace lass
 
 			LASS_DLL void LASS_CALL addClassMethod(
 				ClassDefinition& classDef,
+				const lass::python::impl::ObjObjSlot&, const char* documentation, 
+				objobjproc dispatcher, OverloadLink& overloadChain);
+
+			LASS_DLL void LASS_CALL addClassMethod(
+				ClassDefinition& classDef,
 				const lass::python::impl::ObjObjArgSlot&, const char* documentation, 
 				objobjargproc dispatcher, OverloadLink& overloadChain);
 
@@ -547,7 +558,6 @@ namespace lass
 
 			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);
 
-			LASS_DLL void LASS_CALL addMessageHeader(const std::string& iHeader);
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
 			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize);
 		}

@@ -156,22 +156,50 @@ public:
 	typedef typename TImpl::TCppClassPtr TCppClassPtr;
 	typedef typename TImpl::TConstCppClassPtr TConstCppClassPtr;
 	typedef typename TImpl::TPyClassPtr TPyClassPtr;
+	typedef int (*TImplicitConverter)(PyObject* obj, TCppClassPtr&);
 
 	template <typename Ptr> static int getObject(PyObject* obj, Ptr& value)
 	{
-		return checkSubType(obj) ? TImpl::getObject(static_cast<T*>(obj), value) : 1;
+		if (obj == Py_None)
+		{
+			value = Ptr();
+			return 0;
+		}
+		if (PyType_IsSubtype(obj->ob_type , T::_lassPyClassDef.type()))
+		{
+			return TImpl::getObject(static_cast<T*>(obj), value);
+		}
+		TCppClassPtr p;
+		if (tryImplicitConverters(obj, p) != 0)
+		{
+			return 1;
+		}
+		value = p;
+		return 0;
 	}
 	static int getObject(PyObject* obj, TCppClass& value)
 	{
-		if (obj == Py_None || obj->ob_type != T::_lassPyClassDef.type())
+		if (obj == Py_None)
 		{
-			PyErr_Format(PyExc_TypeError, "PyObject not a %s", T::_lassPyClassDef.name());
+			PyErr_Format(PyExc_TypeError, "Can't cast None to %s", T::_lassPyClassDef.name());
 			return 1;
 		}
 		TConstCppClassPtr p;
-		if (TImpl::getObject(static_cast<T*>(obj), p) != 0)
+		if (obj->ob_type == T::_lassPyClassDef.type())
 		{
-			return 1;
+			if (TImpl::getObject(static_cast<T*>(obj), p) != 0)
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			TCppClassPtr p2;
+			if (tryImplicitConverters(obj, p2) != 0)
+			{
+				return 1;
+			}
+			p = p2;
 		}
 		try
 		{
@@ -187,9 +215,47 @@ public:
 	static TPyClassPtr buildObject(const TCppClass& value)
 	{
 		TCppClassPtr p(new TCppClass(value));
-		return TImpl::buildObject(p);
+		return buildObject(p);
+	}
+	static TPyClassPtr buildObject(std::auto_ptr<TCppClass>& value)
+	{
+		TCppClassPtr p(value.get());
+		value.release();
+		return buildObject(p);
+	}
+
+	static void addConverter(TImplicitConverter converter)
+	{
+		if (!implicitConverters_)
+		{
+			implicitConverters_ = new TImplicitConverterList;
+		}
+		implicitConverters_->push_back(converter);
+	}
+
+private:	
+	typedef std::vector<TImplicitConverter> TImplicitConverterList;
+	static TImplicitConverterList* implicitConverters_;
+
+	static int tryImplicitConverters(PyObject* obj, TCppClassPtr& p)
+	{
+		if (implicitConverters_)
+		{
+			for (typename TImplicitConverterList::const_iterator i = implicitConverters_->begin(); i != implicitConverters_->end(); ++i)
+			{
+				if ((*i)(obj, p) == 0)
+				{
+					return 0;
+				}
+				PyErr_Clear();
+			}
+		}
+		PyErr_Format(PyExc_TypeError, "PyObject not convertable to %s", T::_lassPyClassDef.name());
+		return 1;
 	}
 };
+
+template <typename T> typename ShadowTraits<T>::TImplicitConverterList* ShadowTraits<T>::implicitConverters_ = 0;
 
 template <typename ShadowType, typename DerivedMakers> 
 typename ShadowType::TShadowPtr makeShadow(
@@ -222,21 +288,39 @@ template <typename Makers, typename Maker> void registerMaker(Makers*& makers, M
 	makers->push_back(maker);
 }
 
+template <typename DestPyType, typename SourceCppType>
+int defaultConvertor(PyObject* object, typename lass::python::impl::ShadowTraits<DestPyType>::TCppClassPtr& p)
+{
+	typedef typename lass::python::impl::ShadowTraits<DestPyType>::TCppClass TCppClass;
+	typedef typename lass::python::impl::ShadowTraits<DestPyType>::TCppClassPtr TPtr;
+	SourceCppType source;
+	if (pyGetSimpleObject(object, source) != 0)
+	{
+		return 1;
+	}
+	p = TPtr(new TCppClass(source));
+	return 0;
+}
+
 }
 
 
 template <typename T>
-struct DefaultShadoweePointerTraits
+struct SharedPointerTraits
 {
 	typedef util::SharedPtr<T> TPtr;
+	template <typename U> struct Rebind
+	{
+		typedef SharedPointerTraits<U> Type;
+	};
 	static bool isEmpty(const TPtr& p) 
 	{ 
 		return p.isEmpty(); 
 	}
-	template <typename U> struct Rebind
-	{
-		typedef DefaultShadoweePointerTraits<U> Type;
-	};
+	static T* get(const TPtr& p) 
+	{ 
+		return p.get(); 
+	}
 	template <typename U> static TPtr staticCast(const util::SharedPtr<U>& p)
 	{
 		return p.staticCast<T>();
@@ -252,6 +336,37 @@ struct DefaultShadoweePointerTraits
 };
 
 
+template <typename T>
+struct NakedPointerTraits
+{
+	typedef T* TPtr;
+	template <typename U> struct Rebind
+	{
+		typedef NakedPointerTraits<U> Type;
+	};
+	static bool isEmpty(const TPtr& p) 
+	{ 
+		return p == 0; 
+	}
+	static T* get(const TPtr& p) 
+	{ 
+		return p; 
+	}
+	template <typename U> static TPtr staticCast(U* p)
+	{
+		return static_cast<TPtr>(p);
+	}
+	template <typename U> static TPtr dynamicCast(U* p)
+	{
+		return dynamic_cast<TPtr>(p);
+	}
+	template <typename U> static TPtr constCast(U* p)
+	{
+		return const_cast<TPtr>(p);
+	}
+};
+
+
 
 /** @ingroup Python
  */
@@ -260,7 +375,7 @@ template
 	typename ShadowType,
 	typename ShadoweeType, 
 	typename ParentShadowType,
-	typename PointerTraits = DefaultShadoweePointerTraits<ShadoweeType>
+	typename PointerTraits = SharedPointerTraits<ShadoweeType>
 >
 class ShadowClass: public ParentShadowType
 {
@@ -396,27 +511,24 @@ typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, 
 		public ::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits> \
 	{ \
 		PY_HEADER(t_PyObjectParent) \
+		static void _lassPyClassRegisterHook() { registerWithParent(); } \
 	public: \
 		i_PyObjectShadowClass(const TConstShadoweePtr& shadowee, ::lass::python::impl::ShadoweeConstness constness): \
 			::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits>(shadowee, constness) \
 		{ \
 		} \
 	}; \
-	/* this should be removed from here as it will be in headers! */ \
-	LASS_EXECUTE_BEFORE_MAIN_EX( \
-		LASS_CONCATENATE(lassPythonImplRegisterShadowWithParent_, i_PyObjectShadowClass), \
-		i_PyObjectShadowClass::registerWithParent(); \
-		)
+	/**/
 
 /** @ingroup Python
  */
-#define PY_SHADOW_CLASS_PTRTRAITS(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PointerTraits)\
-	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, t_PointerTraits)
+#define PY_SHADOW_CLASS_PTRTRAITS(dllInterface, i_PyObjectShadowClass, t_CppClass, pointerTraits)\
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, pointerTraits < t_CppClass > )
 
 /** @ingroup Python
  */
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
-	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::DefaultShadoweePointerTraits< t_CppClass >)
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::SharedPointerTraits< t_CppClass >)
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent::TPointerTraits::Rebind<t_CppClass>::Type )
@@ -457,51 +569,7 @@ typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, 
 	PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)
 
 
-/** a macro that enables shadow classes to have conversion (coercion) operations defined on construction 
-*	Say you have following situation:
-*		class A 
-*		{ 
-*			A(int a) {} 
-*		};
-*		class B
-*		{
-*			B(const A& iA) {}
-*		};
-*	You may whish to create an object B with int as constructor argument, without having proper custom pyGetSimpleObject
-*	this will not work unless you use the PY_CLASS_CONVERTOR macro to let the conversion routines know which possibilities 
-*	may be tried before giving up and throwing a not-casteable exception.
-*/
-/*
-#define PY_CLASS_CONSTRUCTOR_BYCOPY_IMPL( t_ShadowObject )\
-inline int pyGetSimpleObject(PyObject* iValue, lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>& oV)\
-{\
-	const bool isNone = (iValue == Py_None );\
-	if (isNone)\
-		oV = lass::util::SharedPtr< t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter>();\
-	else\
-	{\
-		if (!PyType_IsSubtype(iValue->ob_type , & t_ShadowObject::_lassPyType ))\
-		{\
-			for (size_t i=0;i<lass::python::impl::ShadowTraits< t_ShadowObject >::byCopyGetters.size();++i)\
-			{\
-				lass::python::impl::ShadowTraits< t_ShadowObject >::TCppClass* newCopy = new lass::python::impl::ShadowTraits< t_ShadowObject >::TCppClass();\
-				if (!lass::python::impl::ShadowTraits< t_ShadowObject >::byCopyGetters[i](iValue, *newCopy))\
-				{\
-					typedef lass::util::SharedPtr<t_ShadowObject, lass::python::PyObjectStorage, lass::python::PyObjectCounter> TSharedPtr;\
-					TSharedPtr newOv(new t_ShadowObject (newCopy));\
-					oV.swap(newOv);\
-					PyErr_Clear();\
-					return 0;\
-				}\
-			}\
-			PyErr_Format(PyExc_TypeError,"not castable to %s", t_ShadowObject::_lassPyType.tp_name);\
-			return 1;\
-		}\
-		oV = lass::python::fromNakedToSharedPtrCast< t_ShadowObject >(iValue);\
-	}\
-	return 0;\
-}
-*/
+
 
 /** @ingroup Python
  */
@@ -534,28 +602,16 @@ namespace python \
 #define PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR(t_ShadowObject)\
 	PY_SHADOW_CASTERS(t_ShadowObject)
 
-/*
 
-The insert before main does not seem to work, probably initialization order problem, so we inject at runtime!
 
-#define PY_CLASS_CONVERTOR_IMPL( t_ShadowObject, i_conversionFunction, i_dispatcher, i_typeOfConvertor )\
-	namespace lass { namespace python { namespace impl {\
-	void i_dispatcher()\
-	{\
-	impl::ShadowTraits< t_ShadowObject >::##i_typeOfConvertor##.push_back( i_conversionFunction);\
-	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX( t_ShadowObjectConversionInjector, i_dispatcher(); )\
-	} } }
 
-#define PY_CLASS_CONVERTOR_BYCOPY( t_ShadowObject, i_conversionFunction )\
-	PY_CLASS_CONVERTOR_IMPL( t_ShadowObject, i_conversionFunction , LASS_UNIQUENAME(insertConversion), byCopyGetters )
+#define PY_CLASS_CONVERTOR_EX( t_ShadowObject, v_conversionFunction, i_uniqueName )\
+	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPyClassConverter_, i_uniqueName ),\
+		lass::python::impl::ShadowTraits< t_ShadowObject >::addConverter( v_conversionFunction );\
+	)
 
-#define PY_CLASS_CONVERTOR_BYBORROW( t_ShadowObject, i_conversionFunction )\
-	PY_CLASS_CONVERTOR_IMPL( t_ShadowObject, i_conversionFunction , LASS_UNIQUENAME(insertConversion), byBorrowGetters )
-*/
-
-#define PY_CLASS_CONVERTOR( t_ShadowObject,  i_conversionFunction ) \
-	lass::python::impl::ShadowTraits< t_ShadowObject >::byCopyGetters.push_back( & i_conversionFunction );
+#define PY_CLASS_CONVERTOR( i_ShadowObject, t_sourceType )\
+	PY_CLASS_CONVERTOR_EX( i_ShadowObject, (::lass::python::impl::defaultConvertor< i_ShadowObject, t_sourceType >) , i_ShadowObject );
 
 
 

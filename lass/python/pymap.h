@@ -267,7 +267,7 @@ struct ShadoweeTraitsMap: meta::True
 {
 	typedef impl::Map TShadow;
 	typedef impl::ShadowTraits<impl::Map> TShadowTraits;
-	typedef DefaultShadoweePointerTraits<ContainerType> TPointerTraits;
+	typedef SharedPointerTraits<ContainerType> TPointerTraits;
 };
 
 /**	@ingroup Python

@@ -51,6 +51,43 @@ namespace python
 namespace impl
 {
 
+void addMessageHeader(const std::string& header)
+{
+        if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
+        {
+                return;
+        }
+        PyObject *type, *value, *traceback;
+        PyErr_Fetch(&type, &value, &traceback);
+        try
+        {
+                if (PyUnicode_Check(value))
+                {
+                        std::string left = header + ": ";
+                        TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
+                        PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
+                        std::swap(value, newValue);
+                        Py_DECREF(newValue);
+                }
+#if PY_MAJOR_VERSION < 3
+                else if (PyString_Check(value))
+                {
+                        std::ostringstream buffer;
+                        buffer << header << ": " << PyString_AsString(value);
+                        PyObject* temp = pyBuildSimpleObject(buffer.str());
+                        std::swap(value, temp);
+                        Py_DECREF(temp);
+                }
+#endif
+        }
+        catch (const std::exception&)
+        {
+        }
+        PyErr_Restore(type, value, traceback);
+}
+
+
+
 const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value)
 {
 	std::ostringstream buffer;

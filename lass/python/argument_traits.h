@@ -189,7 +189,7 @@ struct ArgumentTraitsShadowee<T*>
 {
 	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
 	typedef typename TPointerTraits::TPtr TStorage;
-	static T* arg(const TStorage& storage) { return storage; }
+	static T* arg(const TStorage& storage) { return TPointerTraits::get(storage); }
 };
 
 /** by SharedPtr (T may be const).

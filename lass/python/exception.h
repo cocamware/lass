@@ -55,6 +55,7 @@ class PythonException;
 
 namespace impl
 {
+	LASS_DLL void LASS_CALL addMessageHeader(const std::string& header);
 	LASS_DLL const std::string LASS_CALL exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
 	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
 	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);

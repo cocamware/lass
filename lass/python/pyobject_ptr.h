@@ -68,7 +68,7 @@ namespace impl
 
 	LASS_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
 	inline void doFixObjectType(const PyObjectPlus* object) { doFixObjectType(const_cast<PyObjectPlus*>(object)); }
-	inline void doFixObjectType(const PyObject* object) {}
+	inline void doFixObjectType(const PyObject*) {}
 
 	/** @internal
 	 *  On creation, PyObjectPlus are typeless (ob_type == 0), 

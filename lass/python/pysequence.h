@@ -158,13 +158,18 @@ namespace impl
 			const Py_ssize_t size = this->length();
 			low = num::clamp(low, Py_ssize_t(0), size);
 			high = num::clamp(high, low, size);
+			step = std::max(step, Py_ssize_t(1));
 			const Py_ssize_t n = (high - low + step - 1) / step;
 			TPyObjPtr s(PyList_New(n));
 			TConstIterator first = this->next(this->begin(), low);
 			for (Py_ssize_t i = 0; i < n; ++i)
 			{
+				if (i > 0)
+				{
+					// this odd place of advancing is to avoid stepping beyond end
+					std::advance(first, step);
+				}
 				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
-				std::advance(first, step);
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
@@ -193,6 +198,7 @@ namespace impl
 			const Py_ssize_t size = this->length();
 			low = num::clamp(low, Py_ssize_t(0), size);
 			high = num::clamp(high, low, size);
+			step = std::max(step, Py_ssize_t(1));
 			TConstContainerPtr b;
 			if (other)
 			{
@@ -435,7 +441,7 @@ struct ShadoweeTraitsSequence: meta::True
 {
 	typedef impl::Sequence TShadow;
 	typedef impl::ShadowTraits<impl::Sequence> TShadowTraits;
-	typedef DefaultShadoweePointerTraits<ContainerType> TPointerTraits;
+	typedef SharedPointerTraits<ContainerType> TPointerTraits;
 };
 
 /**	@ingroup Python

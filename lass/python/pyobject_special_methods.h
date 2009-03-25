@@ -171,12 +171,13 @@ namespace methods
 	const lass::python::impl::BinarySlot _iand_("__iand__");
 	const lass::python::impl::BinarySlot _ixor_("__ixor__");
 	const lass::python::impl::BinarySlot _ior_("__ior__");
-#if PY_VERSION_HEX >= 0x02060000
-	const lass::python::impl::BinarySlot _div_("__truediv__");
-#endif
-#if PY_MAJOR_VERSION < 3
 	const lass::python::impl::BinarySlot _truediv_("__truediv__");
 	const lass::python::impl::BinarySlot _itruediv_("__itruediv__");
+	const lass::python::impl::BinarySlot _floordiv_("__floordiv__");
+	const lass::python::impl::BinarySlot _ifloordiv_("__ifloordiv__");
+#if PY_MAJOR_VERSION < 3
+	const lass::python::impl::BinarySlot _div_("__div__");
+	const lass::python::impl::BinarySlot _idiv_("__idiv__");
 #endif
 
 	// Comparators
@@ -203,7 +204,7 @@ namespace methods
 	const lass::python::impl::SsizeSsizeArgSlot _getslice_("__getslice__");
 	const lass::python::impl::SsizeObjArgSlot seq_setitem_("__seq_setitem__");
 	const lass::python::impl::SsizeSsizeObjArgSlot _setslice_("__setslice__");
-	const lass::python::impl::ObjObjArgSlot _contains_("__contains__");
+	const lass::python::impl::ObjObjSlot _contains_("__contains__");
 	const lass::python::impl::BinarySlot _iconcat_("__iconcat__");
 	const lass::python::impl::SsizeArgSlot _irepeat_("__irepeat__");
 

@@ -58,7 +58,9 @@
 
 #define LASS_IO_SOCKET_HAVE_WINSOCK
 
-#define WINVER 0x500
+#ifndef WINVER
+#   define WINVER 0x500
+#endif
 #define _WIN32_WINNT 0x500 // Build on MS Windows requires Windows 2000 or higher!
 
 //

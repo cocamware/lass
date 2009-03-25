@@ -4,12 +4,13 @@ cmake_minimum_required(VERSION 2.6)
 
 set(LASS_MAJOR_VERSION 1)
 set(LASS_MINOR_VERSION 3)
-set(LASS_PATCHLEVEL 5)
-set(LASS_SOVERSION 11)
+set(LASS_PATCHLEVEL 6)
+set(LASS_SOVERSION 12)
+set(LASS_OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
 
 set(CMAKE_DEBUG_POSTFIX _d)
-set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
-set(CMAKE_RELWITHDEBINFO_POSTFIX _relwithdebinfo)
+#set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
+#set(CMAKE_RELWITHDEBINFO_POSTFIX _relwithdebinfo)
 
 # --- SETTING A PREFIX IF NOT WAS FORCED BY USER ---
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -180,7 +181,7 @@ if(CMAKE_CL_64)
     if(MSVC_IDE)
         set(objpath ${CMAKE_BINARY_DIR}/lass.dir/${CMAKE_CFG_INTDIR}/${fname}.obj)
     else()
-        set(objpath ${CMAKE_BINARY_DIR}/local/${fname}.obj)
+        set(objpath ${CMAKE_BINARY_DIR}/CMakeFiles/lass.dir/${fname}.obj)
     endif()
     add_custom_command(
         OUTPUT ${objpath}
@@ -209,7 +210,7 @@ set_target_properties(lass PROPERTIES
 	COMPILE_FLAGS ${lass_C_FLAGS}
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION}
-	OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}"
+	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
 add_precompiled_header(
 	lass 
@@ -261,16 +262,18 @@ install(
 	FILES ${config_file}
 	DESTINATION include/lass/config
 	)
-	
-configure_file(
-	${lass_SOURCE_DIR}/LassConfig.cmake.in
-	${lass_BINARY_DIR}/LassConfig.cmake
-	@ONLY
-	)
-install(
-	FILES ${lass_BINARY_DIR}/LassConfig.cmake
-	DESTINATION lib
-	)
+
+foreach(_config_file LassConfig.cmake LassConfig.py)    
+    configure_file(
+        "${lass_SOURCE_DIR}/${_config_file}.in"
+        "${lass_BINARY_DIR}/${_config_file}"
+        @ONLY
+        )
+    install(
+        FILES "${lass_BINARY_DIR}/${_config_file}"
+        DESTINATION lib
+        )
+endforeach()
 	
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
 export(TARGETS lass FILE ${lass_BINARY_DIR}/LassBuildExports.cmake)

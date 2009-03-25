@@ -576,38 +576,38 @@ class TestRichCompare(unittest.TestCase):
 		self.c = embedding.Bar(6, "C")
 	def testEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertTrue(a == b)
-		self.assertFalse(a == c)
-		self.assertFalse(a == None)
+		self.assert_(a == b)
+		self.failIf(a == c)
+		self.failIf(a == None)
 	def testLess(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertTrue(a < c)
-		self.assertFalse(a < b)
-		self.assertFalse(c < a)
-		self.assertFalse(a < None)
+		self.assert_(a < c)
+		self.failIf(a < b)
+		self.failIf(c < a)
+		self.failIf(a < None)
 	def testNotEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertFalse(a != b)
-		self.assertTrue(a != c)
-		self.assertTrue(a != None)
+		self.failIf(a != b)
+		self.assert_(a != c)
+		self.assert_(a != None)
 	def testGreater(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertTrue(c > a)
-		self.assertFalse(b > a)
-		self.assertFalse(a > c)
-		self.assertFalse(a > None)
+		self.assert_(c > a)
+		self.failIf(b > a)
+		self.failIf(a > c)
+		self.failIf(a > None)
 	def testLessEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertTrue(a <= b)
-		self.assertTrue(a <= c)
-		self.assertFalse(c <= a)
-		self.assertFalse(a <= None)
+		self.assert_(a <= b)
+		self.assert_(a <= c)
+		self.failIf(c <= a)
+		self.failIf(a <= None)
 	def testGreaterEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assertTrue(c >= a)
-		self.assertTrue(a >= b)
-		self.assertFalse(a >= c)
-		self.assertFalse(a >= None)
+		self.assert_(c >= a)
+		self.assert_(a >= b)
+		self.failIf(a >= c)
+		self.failIf(a >= None)
 
 
 import sys

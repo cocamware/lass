@@ -103,7 +103,30 @@ struct PyExportTraits<const T>
 };
 
 
-// --- smart pointers ------------------------------------------------------------------------------
+// --- pointers ------------------------------------------------------------------------------------
+
+template <typename T>
+struct PyExportTraits< T* >
+{
+	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
+	static PyObject* build(T* value)
+	{
+		if (!value)
+		{
+			Py_RETURN_NONE;
+		}
+		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(value));
+	}
+	static int get(PyObject* obj, T*& value)
+	{
+		if (obj == Py_None)
+		{
+			value = 0;
+			return 0;
+		}
+		return TShadowTraits::getObject(obj, value);
+	}
+};
 
 /** SharedPtr assumes shadow types or PyObjectPlus types.
  *  @ingroup Python
@@ -198,16 +221,15 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 template <typename T>
 struct PyExportTraits< std::auto_ptr<T> >
 {
-	typedef typename ShadoweeTraits<T>::TShadowTraits TShadowTraits;
+	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
 	typedef typename ShadoweeTraits<T>::TPointerTraits::TPtr TPtr;
 	static PyObject* build(std::auto_ptr<T>& v)
 	{
-		if (!v)
+		if (!v.get())
 		{
 			Py_RETURN_NONE;
 		}
-		TPtr p(v);
-		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(p));
+		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(v));
 	}
 };
 

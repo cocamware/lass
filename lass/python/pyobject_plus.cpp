@@ -91,8 +91,11 @@ private:
 	std::string name_;
 };
 
-ClassDefinition::ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, richcmpfunc richcmp, ClassDefinition* parent):
+ClassDefinition::ClassDefinition(
+		const char* name, const char* doc, Py_ssize_t typeSize, 
+		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
 	parent_(parent),
+	classRegisterHook_(registerHook),
 	isFrozen_(false)
 {
 	PyTypeObject type = { 
@@ -172,6 +175,8 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 		}
 		LASS_ASSERT(parent_->isFrozen_);
 		type_.tp_base = parent_->type();
+
+		parent_->subClasses_.push_back(this);
 	}
 	else
 	{
@@ -199,18 +204,34 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	{
 		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name), i->member->build());
 	}
-	for (TInnerClasses::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
+	for (TClassDefList::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
 	{
 		ClassDefinition* innerClass = *i;
 		const char* shortName = innerClass->name();
 		innerClass->freezeDefinition(type_.tp_name);
 		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(innerClass->type()));
 	}
+
+	if (classRegisterHook_)
+	{
+		classRegisterHook_();
+	}
 }
 
 }
 
-impl::ClassDefinition PyObjectPlus::_lassPyClassDef("PyObjectPlus", 0, sizeof(PyObjectPlus), 0, 0);
+impl::ClassDefinition PyObjectPlus::_lassPyClassDef(
+	"PyObjectPlus", 0, sizeof(PyObjectPlus), 0, 0, &PyObjectPlus::_lassPyClassRegisterHook);
+
+/** This function can be used to execute some code at injection time.
+ *  By default it doens't do anything, but you can override it for
+ *  any type.  Be aware that the top level implementation is the
+ *  only one that counts.  Consider it as a 'virtual' function at
+ *  static level
+ */
+void PyObjectPlus::_lassPyClassRegisterHook()
+{
+}
 
 PyObjectPlus::PyObjectPlus()
 {
@@ -700,10 +721,10 @@ void addClassMethod(
 	LASS_PY_OPERATOR_("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
 	LASS_PY_OPERATOR_("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
 	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
-#if PY_VERSION_HEX >= 0x02060000
 	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)
 	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
-#endif
+	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)
+	LASS_PY_OPERATOR_("__i__floordiv____", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
 #if PY_MAJOR_VERSION < 3
 	LASS_PY_OPERATOR_("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
 	LASS_PY_OPERATOR_("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
@@ -825,45 +846,6 @@ void addClassMethod(
 		return;
 	}
 	LASS_ASSERT_UNREACHABLE;
-}
-
-
-
-/** @internal
-*/
-void addMessageHeader(const std::string& header)
-{
-	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
-	{
-		return;
-	}
-	PyObject *type, *value, *traceback;
-	PyErr_Fetch(&type, &value, &traceback);
-	try
-	{
-		if (PyUnicode_Check(value))
-		{
-			std::string left = header + ": ";
-			TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
-			PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
-			std::swap(value, newValue);
-			Py_DECREF(newValue);
-		}
-#if PY_MAJOR_VERSION < 3
-		else if (PyString_Check(value))
-		{			
-			std::ostringstream buffer;
-			buffer << header << ": " << PyString_AsString(value);
-			PyObject* temp = pyBuildSimpleObject(buffer.str());
-			std::swap(value, temp);
-			Py_DECREF(temp);
-		}
-#endif
-	}
-	catch (const std::exception&)
-	{
-	}
-	PyErr_Restore(type, value, traceback);
 }
 
 /** @internal

@@ -23,23 +23,51 @@ include(CheckFunctionExists)
 
 CHECK_INCLUDE_FILE("fcntl.h" LASS_HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE("limits.h" LASS_HAVE_LIMITS_H)
-CHECK_INCLUDE_FILE("termios.h" LASS_HAVE_TERMIOS_H)
-CHECK_INCLUDE_FILE("stdint.h" LASS_HAVE_STDINT_H)
+CHECK_INCLUDE_FILE("sched.h" LASS_HAVE_SCHED_H)
+if(LASS_HAVE_SCHED_H)
+	if ("LASS_HAVE_SCHED_H_CPU_SET_T" MATCHES "^LASS_HAVE_SCHED_H_CPU_SET_T$")
+		message(STATUS "Looking for cpu_set_t")
+		try_compile(
+			LASS_HAVE_SCHED_H_CPU_SET_T
+			"${lass_BINARY_DIR}/temp"
+			"${lass_SOURCE_DIR}/lass/config/check_sched_h_cpu_set_t.cpp"
+			)
+		if(LASS_HAVE_SCHED_H_CPU_SET_T)
+			message(STATUS "Looking for cpu_set_t - found")
+		else()
+			message(STATUS "Looking for cpu_set_t - not found")
+		endif()
+	endif()
+endif()
+CHECK_INCLUDE_FILE("stddef.h" HAVE_STDDEF_H)
+set(LASS_HAVE_STDDEF_H ${HAVE_STDDEF_H})
+CHECK_INCLUDE_FILE("stdint.h" HAVE_STDINT_H)
+set(LASS_HAVE_STDINT_H ${HAVE_STDINT_H})
 if(LASS_HAVE_STDINT_H)
 	try_compile(
 		LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
-		"${lass_BINARY_DIR}/local"
+		"${lass_BINARY_DIR}/temp"
 		"${lass_SOURCE_DIR}/lass/config/check_int8_t_is_char.cpp"
 		)
 endif()
+CHECK_INCLUDE_FILE("termios.h" LASS_HAVE_TERMIOS_H)
+CHECK_INCLUDE_FILE("unistd.h" LASS_HAVE_UNISTD_H)
+if(LASS_HAVE_UNISTD_H)
+	CHECK_SYMBOL_EXISTS("_SC_NPROCESSORS_CONF" "unistd.h" LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF)
+endif()
+CHECK_INCLUDE_FILE("sys/filio.h" LASS_HAVE_SYS_FILIO_H)
 CHECK_INCLUDE_FILE("sys/ioctl.h" LASS_HAVE_SYS_IOCTL_H)
 CHECK_INCLUDE_FILE("sys/mman.h" LASS_HAVE_SYS_MMAN_H)
+CHECK_INCLUDE_FILE("sys/processor.h" LASS_HAVE_SYS_PROCESSOR_H)
 CHECK_INCLUDE_FILE("sys/resource.h" LASS_HAVE_SYS_RESOURCE_H)
 CHECK_INCLUDE_FILE("sys/socket.h" LASS_HAVE_SYS_SOCKET_H)
+CHECK_INCLUDE_FILE("sys/syscall.h" LASS_HAVE_SYS_SYSCALL_H)
+if(LASS_HAVE_SYS_SYSCALL_H)
+	CHECK_SYMBOL_EXISTS("__NR_gettid" "sys/syscall.h" LASS_HAVE_SYS_SYSCALL_H_GETTID)
+endif()
 CHECK_INCLUDE_FILE("sys/stat.h" LASS_HAVE_SYS_STAT_H)
-CHECK_INCLUDE_FILE("sys/filio.h" LASS_HAVE_SYS_FILIO_H)
-CHECK_INCLUDE_FILE("sys/processor.h" LASS_HAVE_SYS_PROCESSOR_H)
-CHECK_INCLUDE_FILE("sys/types.h" LASS_HAVE_SYS_TYPES_H)
+CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
+set(LASS_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
 
 # --- Threading ----
 
@@ -63,27 +91,7 @@ if(LASS_HAVE_PTHREAD_H)
 endif()
 #CHECK_INCLUDE_FILE("nptl/pthread.h" LASS_HAVE_NPTL_PTHREAD_H)
 
-CHECK_INCLUDE_FILE("sched.h" LASS_HAVE_SCHED_H)
-if(LASS_HAVE_STDINT_H)
-	if ("LASS_HAVE_SCHED_H_CPU_SET_T" MATCHES "^LASS_HAVE_SCHED_H_CPU_SET_T$")
-		message(STATUS "Looking for cpu_set_t")
-		try_compile(
-			LASS_HAVE_SCHED_H_CPU_SET_T
-			"${lass_BINARY_DIR}/local"
-			"${lass_SOURCE_DIR}/lass/config/check_sched_h_cpu_set_t.cpp"
-			)
-		if(LASS_HAVE_SCHED_H_CPU_SET_T)
-			message(STATUS "Looking for cpu_set_t - found")
-		else()
-			message(STATUS "Looking for cpu_set_t - not found")
-		endif()
-	endif()
-endif()
 
-CHECK_INCLUDE_FILE("unistd.h" LASS_HAVE_UNISTD_H)
-if(LASS_HAVE_UNISTD_H)
-	CHECK_SYMBOL_EXISTS("_SC_NPROCESSORS_CONF" "unistd.h" LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF)
-endif()
 
 
 CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
@@ -107,7 +115,7 @@ CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	try_compile(
 		LASS_HAVE_STRERROR_R_CHAR_P
-		"${lass_BINARY_DIR}/local"
+		"${lass_BINARY_DIR}/temp"
 		"${lass_SOURCE_DIR}/lass/config/check_strerror_r_char_p.cpp"
 		)
 endif()
