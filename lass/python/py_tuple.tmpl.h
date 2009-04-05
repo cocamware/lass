@@ -86,10 +86,10 @@ $[
 /** @ingroup Python
  */
 template <$(typename P$x)$>
-const TPyObjPtr makeTuple($(const P$x& iP$x)$)
+const TPyObjPtr makeTuple($(const P$x& p$x)$)
 {
 	TPyObjPtr tuple(PyTuple_New($x));
- 	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(iP$x)) != 0) return TPyObjPtr();
+ 	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(p$x)) != 0) return TPyObjPtr();
  	)$
 	return tuple;
 }
@@ -97,33 +97,33 @@ const TPyObjPtr makeTuple($(const P$x& iP$x)$)
 
 /** @ingroup Python
  */
-inline int decodeTuple(PyObject* iTuple)
+inline int decodeTuple(PyObject* obj)
 {
-	LASS_ASSERT(iTuple);
-	return impl::checkSequenceSize(iTuple, 0) ? 0 : 1;
+	LASS_ASSERT(obj);
+	return impl::checkSequenceSize(obj, 0) ? 0 : 1;
 }
 
 /** @ingroup Python
  */
-inline int decodeTuple(const TPyObjPtr& iTuple)
+inline int decodeTuple(const TPyObjPtr& obj)
 {
-	return decodeTuple(iTuple.get());
+	return decodeTuple(obj.get());
 }
 
 $[
 /** @ingroup Python
  */
 template <$(typename P$x)$>
-int decodeTuple(PyObject* iTuple, $(P$x& oP$x)$)
+int decodeTuple(PyObject* obj, $(P$x& p$x)$)
 {
-	const TPyObjPtr tuple = impl::checkedFastSequence(iTuple, $x);
+	const TPyObjPtr tuple = impl::checkedFastSequence(obj, $x);
 	if (!tuple)
 	{
 		return 1;
 	}
 	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 	return true
-$(		&& impl::decodeObject(objects[$w], oP$x, $x) 
+$(		&& impl::decodeObject(objects[$w], p$x, $x) 
 )$		? 0 : 1;
 
 }
@@ -131,9 +131,37 @@ $(		&& impl::decodeObject(objects[$w], oP$x, $x)
 /** @ingroup Python
  */
 template <$(typename P$x)$> inline
-int decodeTuple(const TPyObjPtr& iTuple, $(P$x& oP$x)$)
+int decodeTuple(const TPyObjPtr& obj, $(P$x& p$x)$)
 {
-	return decodeTuple(iTuple.get(), $(oP$x)$);
+	return decodeTuple(obj.get(), $(p$x)$);
+}
+]$
+
+$[
+/** @ingroup Python
+ */
+template <$(typename P$x)$>
+int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
+{
+	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, $x);
+	if (!tuple)
+	{
+		return 1;
+	}
+	const Py_ssize_t n = PySequence_Fast_GET_SIZE(tuple.get());
+	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	return true
+$(		&& ($x > n || impl::decodeObject(objects[$w], p$x, $x))
+)$		? 0 : 1;
+
+}
+
+/** @ingroup Python
+ */
+template <$(typename P$x)$> inline
+int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
+{
+	return decodeTupleMinimum(obj.get(), minumumLength, $(p$x)$);
 }
 ]$
 

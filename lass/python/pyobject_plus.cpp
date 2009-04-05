@@ -52,21 +52,11 @@
 #	pragma warning(disable: 4996) // This function or variable may be unsafe ...
 #endif
 
-
-namespace lass
-{
-namespace python
-{
-namespace methods
-{
-	//const lass::python::impl::UnaryDispatcher _int_(std::string("__int__"));
-	//const lass::python::impl::BinaryDispatcher _add_("__add__");
-
-	//const lass::python::impl::LenDispatcher _len_("__len__");
-}
-}
-}
-
+#if PY_MAJOR_VERSION < 3
+#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+#else
+#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
+#endif
 
 namespace lass
 {
@@ -74,22 +64,6 @@ namespace python
 {
 namespace impl
 {
-
-#if PY_MAJOR_VERSION < 3
-#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
-#else
-#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
-#endif
-
-class NamePredicate
-{
-public:
-	NamePredicate(const std::string& name): name_(name) {}
-	template <typename T> bool operator()(T& x) { return name_ != x.name(); }
-	template <typename T> bool operator()(T* x) { return name_ != x->name(); }
-private:
-	std::string name_;
-};
 
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
@@ -151,6 +125,277 @@ ClassDefinition::ClassDefinition(
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
 
+#define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
+	if (slot.name == s_name)\
+	{\
+		if (type_.i_protocol == 0)\
+		{\
+			type_.i_protocol = new t_protocol;\
+			::memset(type_.i_protocol, 0, sizeof(t_protocol));\
+		}\
+		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(type_.i_protocol->i_hook);\
+		type_.i_protocol->i_hook = dispatcher;\
+		return;\
+	}\
+	/**/
+
+#define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
+	if (slot.name == s_name)\
+	{\
+		if (type_.i_protocol == 0)\
+		{\
+			type_.i_protocol = new t_protocol;\
+			::memset(type_.i_protocol, 0, sizeof(t_protocol));\
+		}\
+		type_.i_protocol->i_hook = dispatcher;\
+		return;\
+	}\
+	/**/
+
+#define LASS_PY_COMPARATOR_(s_name, v_op)\
+	if (slot.name == s_name)\
+	{\
+		compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
+		return; \
+	}\
+	/**/	
+
+void ClassDefinition::addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain) 
+{
+	const int n = static_cast<int>(strlen(name));
+	if (n > 2 && name[0] == '_' && name[1] == '_')
+	{
+		// throw a warning, or halt execution, but we are before the main, so not
+		// everything is initialized yet
+		//LASS_THROW("Special methods should use newer export mechanism!");
+		printf("Special method shoud use newer export mechanism: %s\n", name);
+	}
+	// normal method mechanism
+
+	TMethods::iterator i = std::find_if(methods_.begin(), methods_.end(), NamePredicate(name));
+	if (i == methods_.end())
+	{
+		methods_.insert(methods_.begin(), createPyMethodDef(name, dispatcher, METH_VARARGS , doc));
+		overloadChain.setNull();
+	}
+	else
+	{
+		LASS_ASSERT(i->ml_flags == METH_VARARGS);
+		overloadChain.setPyCFunction(i->ml_meth);
+		i->ml_meth = dispatcher;
+		if (i->ml_doc == 0)
+		{
+			i->ml_doc = const_cast<char*>(doc);
+		}
+	};
+}
+
+void ClassDefinition::addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_COMPARATOR_("__lt__", Py_LT)
+	LASS_PY_COMPARATOR_("__le__", Py_LE)
+	LASS_PY_COMPARATOR_("__eq__", Py_EQ)
+	LASS_PY_COMPARATOR_("__ne__", Py_NE)
+	LASS_PY_COMPARATOR_("__gt__", Py_GT)
+	LASS_PY_COMPARATOR_("__ge__", Py_GE)
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const LenSlot& slot, const char* doc, lenfunc dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_NO_OVERLOAD("__len__", tp_as_sequence, PySequenceMethods, sq_length) 
+	LASS_PY_OPERATOR_NO_OVERLOAD("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length) 
+	LASS_PY_OPERATOR_NO_OVERLOAD("__map_len__", tp_as_mapping, PyMappingMethods, mp_length) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const UnarySlot& slot, const char* doc, unaryfunc dispatcher, OverloadLink& overloadChain) 
+{
+	if (slot.name == "__str__")
+	{
+		type_.tp_str = dispatcher;
+		return;
+	}
+	if (slot.name == "__repr__")
+	{
+		type_.tp_repr = dispatcher;
+		return;
+	}
+	LASS_PY_OPERATOR_NO_OVERLOAD("__neg__", tp_as_number, PyNumberMethods, nb_negative)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__pos__", tp_as_number, PyNumberMethods, nb_positive)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__abs__", tp_as_number, PyNumberMethods, nb_absolute)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
+#if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_NO_OVERLOAD("__oct__", tp_as_number, PyNumberMethods, nb_oct)
+	LASS_PY_OPERATOR_NO_OVERLOAD("__hex__", tp_as_number, PyNumberMethods, nb_hex)
+#endif
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const BinarySlot& slot, const char* doc, binaryfunc dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
+	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
+	LASS_PY_OPERATOR_("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
+	LASS_PY_OPERATOR_("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
+	LASS_PY_OPERATOR_("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
+	LASS_PY_OPERATOR_("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
+	LASS_PY_OPERATOR_("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
+	LASS_PY_OPERATOR_("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
+	LASS_PY_OPERATOR_("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
+	LASS_PY_OPERATOR_("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
+	LASS_PY_OPERATOR_("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
+	LASS_PY_OPERATOR_("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
+	LASS_PY_OPERATOR_("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
+	LASS_PY_OPERATOR_("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
+	LASS_PY_OPERATOR_("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
+	LASS_PY_OPERATOR_("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
+	LASS_PY_OPERATOR_("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
+	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
+	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)
+	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
+	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)
+	LASS_PY_OPERATOR_("__i__floordiv____", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
+#if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
+	LASS_PY_OPERATOR_("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
+#endif
+
+	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary) 
+	LASS_PY_OPERATOR_("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
+	LASS_PY_OPERATOR_("__map_getitem__", tp_as_mapping, PyMappingMethods, mp_subscript, Binary) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const TernarySlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain) 
+{
+	if (slot.name == "__call__")
+	{
+		overloadChain.setTernaryfunc(type_.tp_call);
+		type_.tp_call = dispatcher;
+		return;
+	}
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char* doc, ssizeargfunc dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_("__seq_getitem__", tp_as_sequence, PySequenceMethods, sq_item, SsizeArg) 
+	LASS_PY_OPERATOR_("__repeat__", tp_as_sequence, PySequenceMethods, sq_repeat, SsizeArg) 
+	LASS_PY_OPERATOR_("__irepeat__", tp_as_sequence, PySequenceMethods, sq_inplace_repeat, SsizeArg) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char* doc, ssizessizeargfunc dispatcher, OverloadLink& overloadChain) 
+{
+#if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg) 
+#endif
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char* doc, ssizeobjargproc dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char* doc, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain) 
+{
+#if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc) 
+#endif
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const ObjObjSlot& slot, const char* doc, objobjproc dispatcher,	OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_("__contains__", tp_as_sequence, PySequenceMethods, sq_contains, ObjObjProc) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char* doc,	objobjargproc dispatcher, OverloadLink& overloadChain) 
+{
+	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const IterSlot& slot, const char* doc, getiterfunc dispatcher, OverloadLink& overloadChain) 
+{
+	if (slot.name == "__iter__")
+	{
+		type_.tp_iter = dispatcher;
+		return;
+	}
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addMethod(const IterNextSlot& slot, const char* doc, iternextfunc dispatcher, OverloadLink& overloadChain) 
+{
+	if (slot.name == "next")
+	{
+		type_.tp_iternext = dispatcher;
+		return;
+	}
+	LASS_ASSERT_UNREACHABLE;
+}
+
+void ClassDefinition::addGetSetter(const char* name, const char* doc, getter get, setter set)
+{
+	getSetters_.insert(getSetters_.begin(), impl::createPyGetSetDef(name, get, set, doc, 0));
+}
+
+void ClassDefinition::addStaticMethod(const char* name, const char* doc, PyCFunction dispatcher, PyCFunction& overloadChain)
+{
+#if PY_VERSION_HEX >= 0x02030000 // >= 2.3
+	std::vector<PyMethodDef>::iterator i = ::std::find_if(methods_.begin(), methods_.end(), NamePredicate(name));
+	if (i == methods_.end())
+	{
+		methods_.insert(methods_.begin(), createPyMethodDef(name, dispatcher, METH_VARARGS | METH_STATIC, doc));
+		overloadChain = 0;
+	}
+	else
+	{
+		LASS_ASSERT(i->ml_flags == (METH_VARARGS | METH_CLASS));
+		overloadChain = i->ml_meth;
+		i->ml_meth = dispatcher;
+		if (i->ml_doc == 0)
+		{
+			i->ml_doc = const_cast<char*>(doc);
+		}
+	}
+#else
+	TStaticMembers::iterator i = ::std::find_if(statics_.begin(), statics_.end(), StaticMemberEqual(name));
+	if (i == statics_.end())
+	{
+		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(name, dispatcher, METH_VARARGS, doc)));
+		PyObject* cFunction = PyCFunction_New(methodDef, 0);
+		PyObject* descr = PyStaticMethod_New(cFunction);
+		statics_.push_back(createStaticMember(name, staticMemberHelperObject(descr)));
+		overloadChain = 0;
+	}
+	else
+	{
+		PyObject* descr = i->object;
+		LASS_ASSERT(descr && PyObject_IsInstance(descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
+		PyObject* cFunction = PyStaticMethod_Type.tp_descr_get(descr, 0, 0);
+		LASS_ASSERT(cFunction && PyObject_IsInstance(cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
+		PyMethodDef* methodDef = reinterpret_cast<PyCFunctionObject*>(cFunction)->m_ml;
+		LASS_ASSERT(methodDef && methodDef->ml_flags == METH_VARARGS);
+		overloadChain = methodDef->ml_meth;
+		methodDef->ml_meth = dispatcher;
+		if (methodDef->ml_doc == 0)
+		{
+			methodDef->ml_doc = const_cast<char*>(doc);
+		}
+		i->doc = methodDef->ml_doc;
+	}	
+#endif
+}	
+
 void ClassDefinition::addInnerClass(ClassDefinition& innerClass)
 {
 	LASS_ASSERT(std::count_if(innerClasses_.begin(), innerClasses_.end(), NamePredicate(innerClass.name())) == 0);
@@ -202,9 +447,9 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
 	{
-		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name), i->member->build());
+		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name()), i->member()->build());
 	}
-	for (TClassDefList::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
+	for (TClassDefs::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
 	{
 		ClassDefinition* innerClass = *i;
 		const char* shortName = innerClass->name();
@@ -216,6 +461,61 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	{
 		classRegisterHook_();
 	}
+}
+
+PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int op)
+{
+	if (other == Py_None)
+	{
+		// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast
+		// from None but if you give that thing to a reference, then you are in big trouble
+		switch (op)
+		{
+		case Py_EQ:
+			{
+				if (self == other)
+					Py_RETURN_TRUE;
+				else
+					Py_RETURN_FALSE;
+			}
+		case Py_NE:
+			{
+				if (self != other)
+					Py_RETURN_TRUE;
+				else
+					Py_RETURN_FALSE;
+			}
+		// don't define any order relation on None
+		default:
+			Py_RETURN_FALSE;
+		};
+	}
+
+	TPyObjPtr args(Py_BuildValue("(O)", other));
+	const TCompareFuncs::const_iterator end = compareFuncs_.end();
+	for (TCompareFuncs::const_iterator i = compareFuncs_.begin(); i != end; ++i)
+	{
+		if (i->op == op)
+		{
+			PyObject* result = (i->dispatcher)(self, args.get());\
+			if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
+			{
+				return result;
+			}
+		}
+	}
+
+	if (!parent_)
+	{
+		static const char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
+		LASS_ASSERT(op >= 0 && op <= Py_GE);
+		std::ostringstream buffer;
+		buffer << "Comparison operator " << symbols[op] << " not implemented for this type";
+		PyErr_SetString(PyExc_NotImplementedError, buffer.str().c_str());
+		return 0;	
+	}
+
+	return parent_->callRichCompare(self, other, op);
 }
 
 }
@@ -401,7 +701,7 @@ bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oRes
 		return false;
 	}
 	PyObject* temp = call(iSelf, iArgs);
-	if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_TypeError))
+	if (PyErr_Occurred() && (PyErr_ExceptionMatches(PyExc_TypeError) || PyErr_ExceptionMatches(PyExc_NotImplementedError)))
 	{
 		PyErr_Clear();
 		Py_XDECREF(temp);
@@ -496,37 +796,6 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 
 
 
-StaticMemberEqual::StaticMemberEqual(const char* iName):
-	name_(iName)
-{
-}
-
-bool StaticMemberEqual::operator()(const StaticMember& iMember) const
-{
-	return iMember.name && strcmp(iMember.name, name_) == 0;
-}
-
-PyMethodEqual::PyMethodEqual( const char* iName ):
-	name_(iName)
-{
-}
-
-bool PyMethodEqual::operator()(const PyMethodDef& iMethod) const
-{
-	return iMethod.ml_name && strcmp(iMethod.ml_name, name_) == 0;
-}
-
-/** @internal
- */
-StaticMember createStaticMember(
-		const char* iName, const TStaticMemberHelperPtr& iMember)
-{
-	StaticMember temp;
-	temp.name = iName;
-	temp.member = iMember;
-	return temp;
-}
-		
 /** @internal
 */
 PyMethodDef createPyMethodDef(const char *ml_name, PyCFunction ml_meth, int ml_flags, const char *ml_doc)
@@ -552,317 +821,20 @@ PyGetSetDef createPyGetSetDef( const char* name, getter get, setter set, const c
 	return temp;
 }
 
-
-
-
-
-
-
-#define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
-	if (strcmp(methodName.name.c_str(), s_name) == 0)\
-	{\
-		if (classDef.type_.i_protocol == 0)\
-		{\
-			classDef.type_.i_protocol = new t_protocol;\
-			::memset(classDef.type_.i_protocol, 0, sizeof(t_protocol));\
-		}\
-		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(classDef.type_.i_protocol->i_hook);\
-		classDef.type_.i_protocol->i_hook = dispatcher;\
-		return;\
-	}\
-	/**/
-
-
-
-#define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
-	if (strcmp(methodName.name.c_str(), s_name) == 0)\
-	{\
-		if (classDef.type_.i_protocol == 0)\
-		{\
-			classDef.type_.i_protocol = new t_protocol;\
-			::memset(classDef.type_.i_protocol, 0, sizeof(t_protocol));\
-		}\
-		classDef.type_.i_protocol->i_hook = dispatcher;\
-		return;\
-	}\
-	/**/
-
-
-
-#define LASS_PY_COMPARATOR_(s_name, v_op)\
-	if (strcmp(methodName.name.c_str(), s_name) == 0)\
-	{\
-		classDef.compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
-		return; \
-	}\
-	/**/
-		
-
-
-/** @internal
- */
-void addClassMethod(
-		ClassDefinition& classDef,
-		const char* methodName, const char* documentation, 
-		PyCFunction dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	const int n = static_cast<int>(strlen(methodName));
-	if (n > 2 && methodName[0] == '_' && methodName[1] == '_')
-	{
-		// throw a warning, or halt execution, but we are before the main, so not
-		// everything is initialized yet
-		//LASS_THROW("Special methods should use newer export mechanism!");
-		printf("Special method shoud use newer export mechanism: %s\n", methodName);
-	}
-	// normal method mechanism
-
-	std::vector<PyMethodDef>::iterator i = std::find_if(
-		classDef.methods_.begin(), classDef.methods_.end(), PyMethodEqual(methodName));
-	if (i == classDef.methods_.end())
-	{
-		classDef.methods_.insert(classDef.methods_.begin(), createPyMethodDef(
-			methodName, dispatcher, METH_VARARGS , documentation));
-		overloadChain.setNull();
-	}
-	else
-	{
-		LASS_ASSERT(i->ml_flags == METH_VARARGS);
-		overloadChain.setPyCFunction(i->ml_meth);
-		i->ml_meth = dispatcher;
-		if (i->ml_doc == 0)
-		{
-			i->ml_doc = const_cast<char*>(documentation);
-		}
-	};
-}
-	/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::ComparatorSlot& methodName, const char* documentation, 
-		PyCFunction dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_COMPARATOR_("__lt__", Py_LT)
-	LASS_PY_COMPARATOR_("__le__", Py_LE)
-	LASS_PY_COMPARATOR_("__eq__", Py_EQ)
-	LASS_PY_COMPARATOR_("__ne__", Py_NE)
-	LASS_PY_COMPARATOR_("__gt__", Py_GT)
-	LASS_PY_COMPARATOR_("__ge__", Py_GE)
-	LASS_ASSERT_UNREACHABLE;
-}
-
-	/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::LenSlot& methodName, const char* documentation, 
-		lenfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_NO_OVERLOAD("__len__", tp_as_sequence, PySequenceMethods, sq_length) 
-	LASS_PY_OPERATOR_NO_OVERLOAD("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length) 
-	LASS_PY_OPERATOR_NO_OVERLOAD("__map_len__", tp_as_mapping, PyMappingMethods, mp_length) 
-	LASS_ASSERT_UNREACHABLE;
-}
-	/**/
-
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::UnarySlot& methodName, const char* documentation, 
-		unaryfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	if (methodName.name=="__str__")
-	{
-		classDef.type_.tp_str = dispatcher;
-		return;
-	}
-	if (methodName.name=="__repr__")
-	{
-		classDef.type_.tp_repr = dispatcher;
-		return;
-	}
-	LASS_PY_OPERATOR_NO_OVERLOAD("__neg__", tp_as_number, PyNumberMethods, nb_negative)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__pos__", tp_as_number, PyNumberMethods, nb_positive)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__abs__", tp_as_number, PyNumberMethods, nb_absolute)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_NO_OVERLOAD("__oct__", tp_as_number, PyNumberMethods, nb_oct)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__hex__", tp_as_number, PyNumberMethods, nb_hex)
-#endif
-	LASS_ASSERT_UNREACHABLE;
-}
-	/**/
-
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::BinarySlot& methodName, const char* documentation, 
-		binaryfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
-	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
-	LASS_PY_OPERATOR_("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
-	LASS_PY_OPERATOR_("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
-	LASS_PY_OPERATOR_("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
-	LASS_PY_OPERATOR_("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
-	LASS_PY_OPERATOR_("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
-	LASS_PY_OPERATOR_("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
-	LASS_PY_OPERATOR_("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
-	LASS_PY_OPERATOR_("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
-	LASS_PY_OPERATOR_("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
-	LASS_PY_OPERATOR_("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
-	LASS_PY_OPERATOR_("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
-	LASS_PY_OPERATOR_("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
-	LASS_PY_OPERATOR_("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
-	LASS_PY_OPERATOR_("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
-	LASS_PY_OPERATOR_("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
-	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
-	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)
-	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
-	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)
-	LASS_PY_OPERATOR_("__i__floordiv____", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
-	LASS_PY_OPERATOR_("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
-#endif
-
-	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary) 
-	LASS_PY_OPERATOR_("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
-	LASS_PY_OPERATOR_("__map_getitem__", tp_as_mapping, PyMappingMethods, mp_subscript, Binary) 
-	LASS_ASSERT_UNREACHABLE;
-}
-
-	/**/
-
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::TernarySlot& methodName, const char* documentation, 
-		ternaryfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	if (methodName.name=="__call__")
-	{
-		overloadChain.setTernaryfunc(classDef.type_.tp_call);
-		classDef.type_.tp_call = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
-}
-
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::SsizeArgSlot& methodName, const char* documentation, 
-		ssizeargfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_("__seq_getitem__", tp_as_sequence, PySequenceMethods, sq_item, SsizeArg) 
-	LASS_PY_OPERATOR_("__repeat__", tp_as_sequence, PySequenceMethods, sq_repeat, SsizeArg) 
-	LASS_PY_OPERATOR_("__irepeat__", tp_as_sequence, PySequenceMethods, sq_inplace_repeat, SsizeArg) 
-	LASS_ASSERT_UNREACHABLE;
-}
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::SsizeSsizeArgSlot& methodName, const char* documentation, 
-		ssizessizeargfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg) 
-#endif
-	LASS_ASSERT_UNREACHABLE;
-}
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::SsizeObjArgSlot& methodName, const char* documentation, 
-		ssizeobjargproc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
-	LASS_ASSERT_UNREACHABLE;
-}
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::SsizeSsizeObjArgSlot& methodName, const char* documentation, 
-		ssizessizeobjargproc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc) 
-#endif
-	LASS_ASSERT_UNREACHABLE;
-}
-
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::ObjObjSlot& methodName, const char* documentation, 
-		objobjproc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_("__contains__", tp_as_sequence, PySequenceMethods, sq_contains, ObjObjProc) 
-	LASS_ASSERT_UNREACHABLE;
-}
-/**/
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::ObjObjArgSlot& methodName, const char* documentation, 
-		objobjargproc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
-	LASS_ASSERT_UNREACHABLE;
-}
-
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::IterSlot& methodName, const char* documentation, 
-		getiterfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	if (methodName.name=="__iter__")
-	{
-		classDef.type_.tp_iter = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
-}
-void addClassMethod(
-		ClassDefinition& classDef,
-		const lass::python::impl::IterNextSlot& methodName, const char* documentation, 
-		iternextfunc dispatcher, 
-		OverloadLink& overloadChain) 
-{
-	if (methodName.name=="next")
-	{
-		classDef.type_.tp_iternext = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
-}
-
 /** @internal
 */
-bool checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize)
+bool checkSequenceSize(PyObject* obj, Py_ssize_t expectedSize)
 {
-	if (!PySequence_Check(iValue))
+	if (!PySequence_Check(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a python sequence (tuple, list, ...)");
 		return false;
 	}
-	const Py_ssize_t size = PySequence_Size(iValue);
-	if (size != iExpectedSize)
+	const Py_ssize_t size = PySequence_Size(obj);
+	if (size != expectedSize)
 	{
 		std::ostringstream buffer;
-		buffer << "tuple/list is not of expected size " << iExpectedSize
-			<< " (size is " << size << ")";
+		buffer << "tuple/list is not of expected size " << expectedSize << " (size is " << size << ")";
 		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 		return false;
 	}
@@ -870,24 +842,53 @@ bool checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize)
 }
 
 /** @internal
- *  Check that @a iValue is a sequence and of expected size, and return it as a "FAST sequence"
+ *  Check that @a obj is a sequence, and return it as a "FAST sequence"
  *  so that you can use PySequence_Fast_GET_ITEM to get its items with borrowed references.
  */
-TPyObjPtr checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize)
+TPyObjPtr checkedFastSequence(PyObject* obj)
 {
-	TPyObjPtr result(PySequence_Fast(iValue, "expected a sequence (tuple, list, ...)"));
-	if (!result)
+	return TPyObjPtr(PySequence_Fast(obj, "expected a sequence (tuple, list, ...)"));
+}
+
+/** @internal
+ *  Check that @a obj is a sequence and of expected size, and return it as a "FAST sequence"
+ *  so that you can use PySequence_Fast_GET_ITEM to get its items with borrowed references.
+ */
+TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize)
+{
+	TPyObjPtr result = checkedFastSequence(obj);
+	if (result)
 	{
-		return TPyObjPtr();
+		const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
+		if (size != expectedSize)
+		{
+			std::ostringstream buffer;
+			buffer << "expected a sequence of size " << expectedSize << " (your size is " << size << ")";
+			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+			result.reset();
+		}
 	}
-	const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
-	if (size != iExpectedSize)
+	return result;
+}
+
+/** @internal
+ *  Check that @a obj is a sequence and of expected size, and return it as a "FAST sequence"
+ *  so that you can use PySequence_Fast_GET_ITEM to get its items with borrowed references.
+ */
+TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize)
+{
+	TPyObjPtr result = checkedFastSequence(obj);
+	if (result)
 	{
-		std::ostringstream buffer;
-		buffer << "expected a sequence of size " << iExpectedSize
-			<< " (your size is " << size << ")";
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-		return TPyObjPtr();
+		const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
+		if (size < minimumSize || size > maximumSize)
+		{
+			std::ostringstream buffer;
+			buffer << "expected a sequence of size between " << minimumSize << " and " << maximumSize
+				<< " inclusive (your size is " << size << ")";
+			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
+			result.reset();
+		}
 	}
 	return result;
 }

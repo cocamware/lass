@@ -53,9 +53,9 @@
 #endif
 
 #if PY_MAJOR_VERSION < 3
-void initembedding(void);
+PyMODINIT_FUNC initembedding();
 #else
-PyObject* PyInit_embedding(void);
+PyMODINIT_FUNC PyInit_embedding();
 #endif
 
 namespace lass

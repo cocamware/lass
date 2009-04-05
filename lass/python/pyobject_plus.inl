@@ -74,7 +74,14 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static PyObject* fun(PyObject* iSelf, PyObject* iOther)
 	{
 		TPyObjPtr args(Py_BuildValue("(O)", iOther));
-		return DispatcherAddress(iSelf, args.get());
+		PyObject* result = DispatcherAddress(iSelf, args.get());
+		/*if (result == 0 && PyErr_ExceptionMatches(PyExc_TypeError))
+		{
+			PyErr_Clear();
+			Py_XDECREF(temp);
+			return false;
+		}*/
+		return result;
 	}
 };
 /** @internal
@@ -195,76 +202,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 
 
 
-/** @intenal
- */
-template <typename CppClass>
-void addClassStaticMethod(
-		const char* iMethodName, const char* iDocumentation,
-		PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain)
-{
-#if PY_VERSION_HEX >= 0x02030000 // >= 2.3
-	::std::vector<PyMethodDef>::iterator i = ::std::find_if(
-		CppClass::_lassPyClassDef.methods_.begin(), CppClass::_lassPyClassDef.methods_.end(), PyMethodEqual(iMethodName));
-	if (i == CppClass::_lassPyClassDef.methods_.end())
-	{
-		CppClass::_lassPyClassDef.methods_.insert(CppClass::_lassPyClassDef.methods_.begin(), createPyMethodDef(
-			iMethodName, iMethodDispatcher, METH_VARARGS | METH_STATIC, iDocumentation));
-		oOverloadChain = 0;
-	}
-	else
-	{
-		LASS_ASSERT(i->ml_flags == (METH_VARARGS | METH_CLASS));
-		oOverloadChain = i->ml_meth;
-		i->ml_meth = iMethodDispatcher;
-		if (i->ml_doc == 0)
-		{
-			i->ml_doc = const_cast<char*>(iDocumentation);
-		}
-	}
-#else
-	TStaticMembers::iterator i = ::std::find_if(
-		CppClass::_lassPyClassDef.statics_.begin(), CppClass::_lassPyClassDef.statics_.end(), StaticMemberEqual(iMethodName));
-	if (i == CppClass::_lassPyClassDef.statics_.end())
-	{
-		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(
-			iMethodName, iMethodDispatcher, METH_VARARGS, iDocumentation)));
-		PyObject* cFunction = PyCFunction_New(methodDef, 0);
-		PyObject* descr = PyStaticMethod_New(cFunction);
-		CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(
-			iMethodName, staticMemberHelperObject(descr)));
-		oOverloadChain = 0;
-	}
-	else
-	{
-		PyObject* descr = i->object;
-		LASS_ASSERT(descr && PyObject_IsInstance(
-			descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
-		PyObject* cFunction = PyStaticMethod_Type.tp_descr_get(descr, 0, 0);
-		LASS_ASSERT(cFunction && PyObject_IsInstance(
-			cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
-		PyMethodDef* methodDef = reinterpret_cast<PyCFunctionObject*>(cFunction)->m_ml;
-		LASS_ASSERT(methodDef && methodDef->ml_flags == METH_VARARGS);
-		oOverloadChain = methodDef->ml_meth;
-		methodDef->ml_meth = iMethodDispatcher;
-		if (methodDef->ml_doc == 0)
-		{
-			methodDef->ml_doc = const_cast<char*>(iDocumentation);
-		}
-		i->doc = methodDef->ml_doc;
-	}	
-#endif
-}	
 
-
-/** @internal
- */
-template <typename CppClass, typename T>
-void addClassStaticConst(const char* iName, const T& iValue)
-{
-	LASS_ASSERT(std::count_if(
-		CppClass::_lassPyClassDef.statics_.begin(), CppClass::_lassPyClassDef.statics_.end(), StaticMemberEqual(iName)) == 0);
-	CppClass::_lassPyClassDef.statics_.push_back(createStaticMember(iName, staticMemberHelperObject(iValue)));
-}
 
 }
 }

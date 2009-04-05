@@ -101,9 +101,9 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			_lassPyClassDef.type_.tp_as_sequence= &Sequence::pySequenceMethods;
-			_lassPyClassDef.type_.tp_as_mapping= &Sequence::pyMappingMethods;
-			_lassPyClassDef.type_.tp_iter = &Sequence::iter;
+			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
+			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
+			_lassPyClassDef.type()->tp_iter = &Sequence::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance

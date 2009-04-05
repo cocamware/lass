@@ -50,10 +50,6 @@ namespace lass
 {
 namespace python
 {
-namespace impl
-{
-	class ClassDefinition;
-}
 
 class LASS_DLL ModuleDefinition: util::NonCopyable
 {
@@ -64,10 +60,14 @@ public:
 	const char* doc() const { return doc_.get(); }
 	void setDoc(const char* doc);
 	PyObject* module() const { return module_; }
+
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
+	void addClass(impl::ClassDefinition& classDef);
+
 	void injectClass(impl::ClassDefinition& classDef);
 	PyObject* inject();
 private:
+	typedef std::vector<impl::ClassDefinition*> TClassDefs;
 	typedef std::vector<PyMethodDef> TMethods;
 	struct NamedObject
 	{
@@ -76,6 +76,7 @@ private:
 	};
 	typedef std::vector<NamedObject> TObjects;
 	typedef util::ScopedPtr<char, util::ArrayStorage> TScopedCString;
+	TClassDefs classes_;
 	TMethods methods_;
 	TObjects objects_;
 	TScopedCString name_;

@@ -307,75 +307,34 @@ $[
 
 	/** call "free method" without arguments, passing object as first argument
 	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(typename ShadowTraits::TCppClass&) )
+	template <typename R, typename P0>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(P0) )
 	{
-		typedef typename ShadowTraits::TCppClass TCppClass;
-		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
-		typedef R (*TFunction)(TCppClass&);
-		TCppClassPtr self;
-		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
+		typedef R (*TFunction)(P0);
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0;
+		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template callFunction<TFunction, TCppClass&>(
-			freeMethod, *self );
+		return Caller<R>::template callFunction<TFunction, P0>(
+			freeMethod, TArg0::arg(p0) );
 	}
 $[
 	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
 	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(typename ShadowTraits::TCppClass&, $(P$x)$) )
+	template <typename R, typename P0, $(typename P$x)$>
+	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(P0, $(P$x)$) )
 	{
-		typedef typename ShadowTraits::TCppClass TCppClass;
-		typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
-		typedef R (*TFunction)(TCppClass&, $(P$x)$);
-		TCppClassPtr self;
+		typedef R (*TFunction)(P0, $(P$x)$);
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0;
 		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
 		)$
-		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
+		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
 			return 0;
 		}
-		return Caller<R>::template callFunction<TFunction, TCppClass&, $(P$x)$>(
-			freeMethod, *self, $(TArg$x::arg(p$x))$ );
-	}
-]$
-
-	/** call "free method" without arguments, passing object as first argument
-	 */
-	template <typename R>
-	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(const typename ShadowTraits::TCppClass&) )
-	{
-		typedef typename ShadowTraits::TCppClass TCppClass;
-		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
-		typedef R (*TFunction)(const TCppClass&);
-		TConstCppClassPtr self;
-		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple(args) != 0 )
-		{
-			return 0;
-		}
-		return Caller<R>::template callFunction<TFunction, const TCppClass&>(
-			freeMethod, *self );
-	}
-$[
-	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
-	 */
-	template <typename R, $(typename P$x)$>
-	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(const typename ShadowTraits::TCppClass&, $(P$x)$) )
-	{
-		typedef typename ShadowTraits::TCppClass TCppClass;
-		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
-		typedef R (*TFunction)(const TCppClass&, $(P$x)$);
-		TConstCppClassPtr self;
-		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
-		)$
-		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
-		{
-			return 0;
-		}
-		return Caller<R>::template callFunction<TFunction, const TCppClass&, $(P$x)$>(
-			freeMethod, *self, $(TArg$x::arg(p$x))$ );
+		return Caller<R>::template callFunction<TFunction, P0, $(P$x)$>(
+			freeMethod, TArg0::arg(p0), $(TArg$x::arg(p$x))$ );
 	}
 ]$
 
@@ -626,11 +585,7 @@ struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, lass::meta::NullType>
 		{
 			return CallMethod<ShadowTraits>::call( args, object, method );
 		}
-		template <typename C> static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)(C&, $(P$x)$) )
-		{
-			return CallMethod<ShadowTraits>::callFree( args, object, freeMethod );
-		}
-		template <typename C> static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)(const C&, $(P$x)$) )
+		static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)($(P$x)$) )
 		{
 			return CallMethod<ShadowTraits>::callFree( args, object, freeMethod );
 		}

@@ -623,30 +623,13 @@ struct PyExportTraits<prim::ColorRGBA>
 	}
 	static int get(PyObject* obj, prim::ColorRGBA& v)
 	{
-		TPyObjPtr tuple(PySequence_Fast(obj, "ColorRGBA: expected a sequence (tuple, list, ...)"));
-		if (!tuple)
+		prim::ColorRGBA x(0, 0, 0, 1);
+		if (decodeTupleMinimum(obj, 3, x.r, x.g, x.b, x.a))
 		{
+			impl::addMessageHeader("ColorRGBA");
 			return 1;
 		}
-		const Py_ssize_t size = PySequence_Fast_GET_SIZE(tuple.get());
-		if (size != 3 && size != 4)
-		{
-			std::ostringstream buffer;
-			buffer << "ColorRGBA: expected a sequence of size 3 or 4 (size is " << size << ")";
-			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-			return 1;
-		}
-		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
-		prim::ColorRGBA result;
-		for (int k = 0; k < static_cast<int>(size); ++k)
-		{
-			if (!impl::decodeObject(objects[k], result[k], k + 1))
-			{
-				impl::addMessageHeader("ColorRGBA");
-				return 1;
-			}
-		}
-		v = result;
+		v = x;
 		return 0;
 	}
 };

@@ -144,7 +144,7 @@ private:
 		LASS_ASSERT(obj);
 		if (!PyType_IsSubtype(obj->ob_type , T::_lassPyClassDef.type() ))
 		{
-			PyErr_Format(PyExc_TypeError,"PyObject not castable to %s", T::_lassPyClassDef.name());
+			PyErr_Format(PyExc_TypeError, "%s not castable to %s", obj->ob_type->tp_name, T::_lassPyClassDef.name());
 			return false;
 		}
 		return true;
@@ -181,7 +181,7 @@ public:
 	{
 		if (obj == Py_None)
 		{
-			PyErr_Format(PyExc_TypeError, "Can't cast None to %s", T::_lassPyClassDef.name());
+			PyErr_Format(PyExc_TypeError, "None not castable to %s", T::_lassPyClassDef.name());
 			return 1;
 		}
 		TConstCppClassPtr p;
@@ -250,7 +250,7 @@ private:
 				PyErr_Clear();
 			}
 		}
-		PyErr_Format(PyExc_TypeError, "PyObject not convertable to %s", T::_lassPyClassDef.name());
+		PyErr_Format(PyExc_TypeError, "%s not convertable to %s", obj->ob_type->tp_name, T::_lassPyClassDef.name());
 		return 1;
 	}
 };

@@ -58,6 +58,7 @@ namespace lass
 		PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
 		PY_CLASS_METHOD( Bar, complexArguments );
 		PY_CLASS_METHOD( Bar, primArguments );
+		PY_CLASS_METHOD( Bar, rgba );
 		PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 		PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 		PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
@@ -200,6 +201,11 @@ namespace lass
 			LASS_COUT << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
 			LASS_COUT << "transformation: " << iTransformation << std::endl;
 			return iAabb.center().affine();
+		}
+
+		prim::ColorRGBA Bar::rgba(const prim::ColorRGBA& c)
+		{
+			return c;
 		}
 
 		void Bar::overloaded( int iA )

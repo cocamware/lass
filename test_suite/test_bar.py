@@ -273,8 +273,6 @@ class TestWriteableSequence(unittest.TestCase):
 		self._testSequence(bar.writeableStaticVector, bar.writeableStaticVector)
 		
 def testSequence(seq):
-
-
 	if not IS_PYTHON_3:
 		seq[0:4] = range(10)
 		assert(len(seq)==4*l+6)
@@ -404,27 +402,25 @@ except:
 echo("\n")
 
 
-
-echo("\n* Testing __call__ operator")
-try:
-	result = test(4)
-	echo(result)
-	assert(result == 8)
-except:
-	reportError("Bar seems to have troubles with __call__")
-try:
-	result = test("hallo")
-	echo(result)
-	assert(result == "HALLO")
-except:
-	reportError("Bar seems to have troubles with __call__")
-try:
-	result = test(3.5)
-	echo(result)
-	assert(result == 1.75)
-except:
-	reportError("Bar seems to have troubles with __call__")
-echo("\n")
+class TestOperators(unittest.TestCase):
+	def testCallOperator(self):
+		test = embedding.Bar()
+		self.assertEqual(test(4), 8)
+		self.assertEqual(test("hallo"), "HALLO")
+		self.assertEqual(test(3.5), 1.75)
+	def testNumericOperators(self):
+		a = embedding.Cyclic(0, 3)
+		self.assertEqual(a.value, 0)
+		self.assertEqual(a.period, 3)
+		b = a + 1
+		self.assertEqual(b.value, 1)
+		self.assertEqual(b.period, 3)
+		c = a + 5
+		self.assertEqual(c.value, 2)
+		self.assertEqual(c.period, 3)
+		d = 2 + a
+		self.assertEqual(d.value, 2)
+		self.assertEqual(d.period, 3)
 
 class TestStaticMembers(unittest.TestCase):
 	def setBarCONST(self, x):
@@ -493,6 +489,20 @@ echo("\n* Testing qualified and overloaded methods")
 test.overloaded(5)
 test.overloaded('hello!')
 echo("\n")
+
+class TestTuples(unittest.TestCase):
+	def assertTupleAlmostEqual(self, first, second, places=7, msg=None):
+		msg = msg or '%r != %r within %r places' % (first, second, places)
+		self.assertEqual(len(first), len(second), msg)
+		for a, b in zip(first, second):
+			self.assertAlmostEqual(a, b, places, msg)		
+	def testVariableLength(self):
+		bar = embedding.Bar()
+		self.assertTupleAlmostEqual(bar.rgba((0.1, 0.2, 0.3)), (0.1, 0.2, 0.3, 1.0))
+		self.assertTupleAlmostEqual(bar.rgba([0.1, 0.2, 0.3, 0.4]), (0.1, 0.2, 0.3, 0.4))
+		self.assertRaises(TypeError, bar.rgba, [])
+		self.assertRaises(TypeError, bar.rgba, (0.1, 0.2))
+		self.assertRaises(TypeError, bar.rgba, (0.1, 0.2, 0.3, 0.4, 0.5))
 
 class TestConstructors(unittest.TestCase):
 	def testOverloadedConstructors(self):

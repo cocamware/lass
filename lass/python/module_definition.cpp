@@ -99,10 +99,20 @@ void ModuleDefinition::setDoc(const char* doc)
 	experimental::assignScopedCString(doc_, doc);
 }
 
+/** new-style class addition.
+ *
+ *  This function adds a class definition to a table that will be injected when the module is.
+ */
+void ModuleDefinition::addClass(impl::ClassDefinition& classDef)
+{
+	LASS_ASSERT(!isInjected_);
+	classes_.push_back(&classDef);
+}
+
 void ModuleDefinition::addFunctionDispatcher(
 		PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain)
 {
-	TMethods::iterator i = ::std::find_if(methods_.begin(), methods_.end(), impl::PyMethodEqual(name));
+	TMethods::iterator i = ::std::find_if(methods_.begin(), methods_.end(), impl::NamePredicate(name));
 	if (i == methods_.end())
 	{
 		methods_.push_back(impl::createPyMethodDef(name, dispatcher, METH_VARARGS , doc));
@@ -115,8 +125,14 @@ void ModuleDefinition::addFunctionDispatcher(
 	};
 }
 
+/** old-style class injection.
+ *
+ *  This function can injects a class in an already-injected module
+ *  @deprecated
+ */
 void ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
 {
+	LASS_ASSERT(isInjected_);
 	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
 	classDef.freezeDefinition(name_.get());
 	PyModule_AddObject(module_, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(classDef.type()));
@@ -136,11 +152,15 @@ PyObject* ModuleDefinition::inject()
 	def_.m_methods = &methods_[0];
 	module_ = PyModule_Create(&def_);
 #endif
+	isInjected_ = true;
+	for (TClassDefs::const_iterator def = classes_.begin(); def != classes_.end(); ++def)
+	{
+		injectClass(**def);
+	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)
 	{
 		PyModule_AddObject(module_, obj->name, obj->object);
 	}
-	isInjected_ = true;
 	return module_;
 }
 

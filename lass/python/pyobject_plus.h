@@ -84,6 +84,18 @@ namespace lass
 	{
 		namespace impl
 		{
+			class NamePredicate
+			{
+			public:
+				NamePredicate(const char* name): name_(name) {}
+				template <typename T> bool operator()(const T& x) const { return cmp(x.name()); }
+				bool operator()(const PyMethodDef& x) const { return cmp(x.ml_name); }
+				template <typename T> bool operator()(T* x) const { return (*this)(*x); }
+			private:
+				bool cmp(const char* name) const { return name && strcmp(name, name_) == 0; }
+				const char* name_;
+			};
+
 			class StaticMemberHelper
 			{
 			public:
@@ -125,32 +137,17 @@ namespace lass
 				return TStaticMemberHelperPtr(new StaticMemberHelperObject<T>(obj));
 			}
 
-			/**	@ingroup
-			 *	@internal
-			 */
-			struct StaticMember
-			{
-				TStaticMemberHelperPtr member;
-				const char* name;
-			};
-			typedef std::vector<StaticMember> TStaticMembers;
-
-			/**	@ingroup
-			 *	@internal
-			 *  predicate to find a StaticMember by name.
-			 */
-			class LASS_DLL StaticMemberEqual
+			class StaticMember
 			{
 			public:
-				StaticMemberEqual(const char* iName);
-				bool operator()(const StaticMember& iMethod) const;
+				StaticMember(const char* name, const TStaticMemberHelperPtr member): member_(member), name_(name) {}
+				const TStaticMemberHelperPtr& member() const { return member_; }
+				const char* name() const { return name_; }
 			private:
+				TStaticMemberHelperPtr member_;
 				const char* name_;
 			};
 
-			/**	@ingroup
-			 *	@internal
-			 */
 			struct LASS_DLL CompareFunc
 			{
 				PyCFunction dispatcher;
@@ -158,10 +155,12 @@ namespace lass
 				CompareFunc(PyCFunction dispatcher, int op): dispatcher(dispatcher), op(op) {}
 			};
 
-			/**	@ingroup
-			 *	@internal
-			 */
-			typedef std::vector<CompareFunc> TCompareFuncs;
+			template <typename CppClass> PyObject* richCompareDispatcher(PyObject* self, PyObject* other, int op)
+			{
+				return CppClass::_lassPyClassDef.callRichCompare(self, other, op);
+			}
+
+			class OverloadLink;
 
 			class LASS_DLL ClassDefinition
 			{
@@ -176,23 +175,47 @@ namespace lass
 				const char* doc() const { return type_.tp_doc; }
 				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
 
+				void addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
+				void addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
+				void addMethod(const UnarySlot& slot, const char* doc, unaryfunc dispatcher, OverloadLink& overloadChain); 
+				void addMethod(const BinarySlot& slot, const char* doc, binaryfunc dispatcher, OverloadLink& overloadChain); 
+				void addMethod(const TernarySlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const LenSlot& slot, const char* doc, lenfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const SsizeArgSlot& slot, const char* doc, ssizeargfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const SsizeSsizeArgSlot& slot, const char* doc, ssizessizeargfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const SsizeObjArgSlot& slot, const char* doc, ssizeobjargproc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const SsizeSsizeObjArgSlot& slot, const char* doc, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const ObjObjSlot& slot, const char* doc, objobjproc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const ObjObjArgSlot& slot, const char* doc, objobjargproc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const IterSlot& slot, const char* doc, getiterfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const IterNextSlot& slot, const char* doc, iternextfunc dispatcher, OverloadLink& overloadChain);
+				void addGetSetter(const char* name, const char* doc, getter get, setter set);
+				void addStaticMethod(const char* name, const char* doc, PyCFunction dispatcher, PyCFunction& overloadChain);
+				template <typename T> void addStaticConst(const char* name, const T& value)
+				{
+					LASS_ASSERT(std::count_if(statics_.begin(), statics_.end(), NamePredicate(name)) == 0);
+					statics_.push_back(StaticMember(name, staticMemberHelperObject(value)));
+				}
 				void addInnerClass(ClassDefinition& innerClass);
+				
 				void freezeDefinition(const char* scopeName = 0);
 
-				// currently, these are public to easy the transformation, but they will become private one day ...
+				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
+
+			private:
 				typedef std::vector<PyMethodDef> TMethods;
 				typedef std::vector<PyGetSetDef> TGetSetters;
+				typedef std::vector<CompareFunc> TCompareFuncs;
+				typedef std::vector<StaticMember> TStaticMembers;
+				typedef std::vector<ClassDefinition*> TClassDefs;
+
 				PyTypeObject type_;
 				TMethods methods_;
 				TGetSetters getSetters_;
-				TStaticMembers statics_;
 				TCompareFuncs compareFuncs_;
-
-			private:
-				typedef std::vector<ClassDefinition*> TClassDefList;
-
-				TClassDefList innerClasses_;
-				TClassDefList subClasses_;
+				TStaticMembers statics_;
+				TClassDefs innerClasses_;
+				TClassDefs subClasses_;
 				ClassDefinition* parent_;
 				TClassRegisterHook classRegisterHook_;
 				bool isFrozen_;
@@ -367,199 +390,25 @@ namespace lass
 				Signature signature_;
 			};
 
-			template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;
+			//template <typename T, PyCFunction dispatcher> struct FunctionTypeDispatcher;
+
 
 			/**	@ingroup
 			 *	@internal
 			 */
-			/*
-			template <PyCFunction DispatcherAddress>
-			struct DispatcherConvertor
-			{
-				static PyObject* asTernary(
-						PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
-				{
-					if (iKw)
-					{
-						PyErr_SetString(PyExc_TypeError, 
-							"keyword arguments are not supported");
-						return 0;
-					}
-					return DispatcherAddress(iSelf, iArgs);
-				}
-			};
-			*/
 
-			/**	@ingroup
-			 *	@internal
-			 */
-			template <typename CppClass>
-			struct RichCompare
-			{
-				static PyObject* call(PyObject* self, PyObject* other, int op)
-				{
-					if (other==Py_None)
-					{
-						// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast
-						// from None but if you give that thing to a reference, then you are in big trouble
-						switch (op)
-						{
-						case Py_EQ:
-							{
-								if (self==other)
-									Py_RETURN_TRUE;
-								else
-									Py_RETURN_FALSE;
-							}
-						case Py_NE:
-							{
-								if (self!=other)
-									Py_RETURN_TRUE;
-								else
-									Py_RETURN_FALSE;
-							}
-						// don't define any order relation on None
-						default:
-							Py_RETURN_FALSE;
-						};
-					}
 
-					TPyObjPtr args(Py_BuildValue("(O)", other));
-					const TCompareFuncs::const_iterator end = CppClass::_lassPyClassDef.compareFuncs_.end();
-					for (TCompareFuncs::const_iterator i = CppClass::_lassPyClassDef.compareFuncs_.begin(); i != end; ++i)
-					{
-						if (i->op == op)
-						{
-							PyObject* result = (i->dispatcher)(self, args.get());\
-							if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
-							{
-								return result;
-							}
-						}
-					}
-
-					return RichCompare<typename CppClass::_lassPyParentType>::call(self, other, op);
-				}
-			};
-
-			/**	@ingroup
-			 *	@internal
-			 */
-			template <>
-			struct RichCompare<PyObjectPlus>
-			{
-				static PyObject* call(PyObject* /*self*/, PyObject* /*other*/, int op)
-				{
-					static const char* symbols[] = { "<", "<=", "==", "!=", ">", ">=" };
-					LASS_ASSERT(op >= 0 && op <= Py_GE);
-					std::ostringstream buffer;
-					buffer << "Comparison operator " << symbols[op] << " not implemented for this type";
-					PyErr_SetString(PyExc_NotImplementedError, buffer.str().c_str());
-					return 0;				
-				}
-			};
-
-			/**	@ingroup
-			 *	@internal
-			 *	predicate to check of a python method has the correct name.
-			 */
-			class LASS_DLL PyMethodEqual
-			{
-			public:
-				PyMethodEqual( const char* iName );
-				bool operator()(const PyMethodDef& iMethod) const;
-			private:
-				const char* name_;
-			};
-
-			LASS_DLL StaticMember LASS_CALL createStaticMember(
-				const char* iName, const TStaticMemberHelperPtr& iObject);
 			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
 				const char *ml_doc);
 			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
 				const char* name, getter get, setter set, const char* doc, void* closure);
 
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const char* methodName, const char* documentation, 
-				PyCFunction i_dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::ComparatorSlot& methodName, const char* documentation, 
-				PyCFunction dispatcher, OverloadLink& overloadChain); 
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::UnarySlot& methodName, const char* documentation, 
-				unaryfunc dispatcher, OverloadLink& overloadChain); 
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::BinarySlot& methodName, const char* documentation, 
-				binaryfunc dispatcher, OverloadLink& overloadChain); 
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::TernarySlot& methodName, const char* documentation, 
-				ternaryfunc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::LenSlot&, const char* documentation, 
-				lenfunc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::SsizeArgSlot&, const char* documentation, 
-				ssizeargfunc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::SsizeSsizeArgSlot&, const char* documentation, 
-				ssizessizeargfunc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::SsizeObjArgSlot&, const char* documentation, 
-				ssizeobjargproc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::SsizeSsizeObjArgSlot&, const char* documentation, 
-				ssizessizeobjargproc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::ObjObjSlot&, const char* documentation, 
-				objobjproc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::ObjObjArgSlot&, const char* documentation, 
-				objobjargproc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::IterSlot&, const char* documentation, 
-				getiterfunc dispatcher, OverloadLink& overloadChain);
-
-			LASS_DLL void LASS_CALL addClassMethod(
-				ClassDefinition& classDef,
-				const lass::python::impl::IterNextSlot&, const char* documentation, 
-				iternextfunc dispatcher, OverloadLink& overloadChain);
-
-			template <typename CppClass> void addClassStaticMethod(
-				const char* iMethodName, const char* iDocumentation,
-				PyCFunction iMethodDispatcher, PyCFunction& oOverloadChain);
-			template <typename CppClass, typename T> void addClassStaticConst(
-				const char* iName, const T& iValue);
-
-			template <typename In, typename Out> int pyNumericCast(In iIn, Out& oV);
 
 			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
-			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* iValue, Py_ssize_t iExpectedSize);
+			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
+			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
+			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
 		}
 	}
 }

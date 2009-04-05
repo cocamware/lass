@@ -68,22 +68,32 @@
 	::lass::python::ModuleDefinition i_module( s_name, s_doc );
 
 /** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = ""
+ *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = 0
  */
-#define PY_DECLARE_MODULE_NAME( i_module ) \
-	PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, "")
+#define PY_DECLARE_MODULE_NAME( i_module, s_name ) \
+	PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, 0)
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module
  */
-#define PY_DECLARE_MODULE_DOC( i_module ) \
+#define PY_DECLARE_MODULE_DOC( i_module, s_doc ) \
 	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), s_doc)
 
 /** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module and @a s_doc = ""
+ *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module and @a s_doc = 0
  */
 #define PY_DECLARE_MODULE( i_module ) \
-	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), "")
+	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), 0)
+
+/** @def PY_INIT_MODULE
+ */
+#if PY_MAJOR_VERSION < 3
+#	define PY_INIT_MODULE( i_module ) \
+		PyMODINIT_FUNC LASS_CONCATENATE(init, i_module)() { i_module.inject(); }
+#else
+#	define PY_INIT_MODULE( i_module ) \
+		PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_module)() { return i_module.inject(); }
+#endif
 
 /** @ingroup Python
  *	Inject a python module so Python is aware of it.
@@ -529,11 +539,11 @@ $[
  *  @remark put each PY_DECLARE_CLASS_NAME_DOC in only one translation unit.  So not in headers!
  */
 #define PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, s_doc ) \
-	::lass::python::impl::ClassDefinition t_cppClass::_lassPyClassDef( \
+	::lass::python::impl::ClassDefinition t_cppClass ::_lassPyClassDef( \
 		s_className, s_doc, sizeof(t_cppClass), \
-		::lass::python::impl::RichCompare<t_cppClass>::call,\
-		&t_cppClass::_lassPyParentType::_lassPyClassDef, \
-		&t_cppClass::_lassPyClassRegisterHook);
+		::lass::python::impl::richCompareDispatcher< t_cppClass >,\
+		& t_cppClass ::_lassPyParentType::_lassPyClassDef, \
+		& t_cppClass ::_lassPyClassRegisterHook);
 
 /** @ingroup Python
  *  convenience macro, wraps PY_DECLARE_CLASS_NAME_DOC for with
@@ -563,20 +573,15 @@ $[
 	PY_DECLARE_CLASS_NAME_DOC( t_cppClass, s_className, 0 )
 
 
-//#define PY_DECLARE_CLASS_PLUS_NAME( i_cppClass, s_className ) \
-//	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, s_className, i_cppClass )
-
-//#define PY_DECLARE_CLASS_PLUS( i_cppClass ) \
-//	PY_DECLARE_CLASS_PLUS_EX( i_cppClass, LASS_STRINGIFY( i_cppClass ) i_cppClass )
-
 
 
 /** @ingroup Python
- *  Inject a class in a module
+ *  Inject a class in a module, old style
+ *
+ *  @deprecated Use PY_MODULE_CLASS instead, and set class doc with PY_DECLARE_CLASS_DOC
  *
  *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
  *	function called by main.
- *  @deprecated use PY_MODULE_CLASS instead
  *
  *  @param t_cppClass
  *		the type of the class to be injected
@@ -589,15 +594,20 @@ $[
 	if (s_doc) t_cppClass::_lassPyClassDef.setDoc(s_doc);\
 	i_module.injectClass(t_cppClass::_lassPyClassDef); 
 
-///** @ingroup Python
-// *  @deprecated
-// */
-//#define PY_INJECT_CLASS_IN_MODULE_BEFORE_MAIN( i_cppClass, i_module, s_doc ) \
-//	extern PyObject* LASS_CONCATENATE( lassPythonModule_, i_module );\
-//	LASS_EXECUTE_BEFORE_MAIN_EX\
-//	( LASS_CONCATENATE_3( lassExecutePyInjectClassInModule_, i_cppClass, i_module ),\
-//		PY_INJECT_CLASS_IN_MODULE_AT_RUNTIME( i_cppClass, i_module, s_doc );\
-//	)
+/** @ingroup Python
+ *  add a class to a module, new style
+ *
+ *  @param t_cppClass
+ *		the type of the class to be injected
+ *	@param i_module
+ *		the identifier of the module object to inject the class in.
+ */
+#define PY_MODULE_CLASS( i_module, t_cppClass ) \
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyModuleClass_, i_module ),\
+		i_module.addClass( t_cppClass ::_lassPyClassDef); \
+	)
+
 
 
 
@@ -615,7 +625,7 @@ $[
 #define PY_CLASS_STATIC_CONST( i_cppClass, s_name, v_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE( lassExecutePyClassStaticConst, i_cppClass ),\
-		::lass::python::impl::addClassStaticConst<i_cppClass>(s_name, v_value);\
+		i_cppClass ::_lassPyClassDef.addStaticConst(s_name, v_value);\
 	)
 
 
@@ -871,10 +881,8 @@ $[
 			iArgs, iObject, &TCppClass::i_cppMethod); \
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyClassDef,\
-			s_methodName, \
-			s_doc, \
+		t_cppClass ::_lassPyClassDef.addMethod(\
+			s_methodName, s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
@@ -1164,10 +1172,8 @@ $[
 			iArgs, iObject, i_cppFreeMethod); \
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyClassDef,\
-			s_methodName, \
-			s_doc, \
+		t_cppClass ::_lassPyClassDef.addMethod(\
+			s_methodName, s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
@@ -1542,7 +1548,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
-		::lass::python::impl::addClassStaticMethod< t_cppClass >(\
+		t_cppClass ::_lassPyClassDef.addStaticMethod(\
 			s_methodName, s_doc, i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)
 
@@ -1659,13 +1665,9 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyClassDef.getSetters_.insert(\
-			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName,\
-				LASS_CONCATENATE(i_dispatcher, _getter),\
-				LASS_CONCATENATE(i_dispatcher, _setter),\
-				s_doc, 0));\
+		t_cppClass::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), LASS_CONCATENATE(i_dispatcher, _setter));\
 	)
 
 /** @ingroup Python
@@ -1747,12 +1749,11 @@ $[
         }\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyClassDef.getSetters_.insert(\
-			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName, LASS_CONCATENATE(i_dispatcher, _getter), 0, \
-				s_doc, 0));\
+		t_cppClass::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), 0);\
 	)
+
 
 /** @ingroup Python
  *  @sa PY_CLASS_MEMBER_R_EX
@@ -1839,13 +1840,9 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyClassDef.getSetters_.insert(\
-			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName,\
-				LASS_CONCATENATE(i_dispatcher, _getter),\
-				LASS_CONCATENATE(i_dispatcher, _setter),\
-				s_doc, 0));\
+		t_cppClass ::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), LASS_CONCATENATE(i_dispatcher, _setter));\
 	)
 
 /** @ingroup Python
@@ -1921,11 +1918,9 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		t_cppClass::_lassPyClassDef.getSetters_.insert(\
-			t_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName, LASS_CONCATENATE(i_dispatcher, _getter), 0, \
-				s_doc, 0));\
+		t_cppClass ::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), 0);\
 	)
 
 /** @ingroup Python
@@ -1984,10 +1979,10 @@ $[
  *  PY_CLASS_PUBLIC_MEMBER_EX(Foo, bar, "bar", "blablabla")
  *  @endcode
  */
-#define PY_CLASS_PUBLIC_MEMBER_EX(i_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher)\
+#define PY_CLASS_PUBLIC_MEMBER_EX(t_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher)\
 	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
 	{\
-		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TConstCppClassPtr self;\
 		if (TShadowTraits::getObject(obj, self) != 0)\
 		{\
@@ -1997,7 +1992,7 @@ $[
 	}\
 	int LASS_CONCATENATE(i_dispatcher, _setter)(PyObject* obj,PyObject* args, void* )\
 	{\
-		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TCppClassPtr self;\
 		if (TShadowTraits::getObject(obj, self) != 0)\
 		{\
@@ -2007,13 +2002,9 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		i_cppClass::_lassPyClassDef.getSetters_.insert(\
-			i_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName,\
-				LASS_CONCATENATE(i_dispatcher, _getter),\
-				LASS_CONCATENATE(i_dispatcher, _setter),\
-				s_doc, 0));\
+		t_cppClass ::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), LASS_CONCATENATE(i_dispatcher, _setter));\
 	)
 
 /** @ingroup Python
@@ -2076,10 +2067,10 @@ $[
  *  PY_CLASS_PUBLIC_MEMBER_R_EX(Foo, bar, "bar", "read-only member")
  *  @endcode
  */
-#define PY_CLASS_PUBLIC_MEMBER_R_EX( i_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher )\
+#define PY_CLASS_PUBLIC_MEMBER_R_EX( t_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher )\
 	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
 	{\
-		typedef ::lass::python::impl::ShadowTraits<i_cppClass> TShadowTraits;\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TConstCppClassPtr self;\
 		if (TShadowTraits::getObject(obj, self) != 0)\
 		{\
@@ -2096,13 +2087,9 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		i_cppClass::_lassPyClassDef.getSetters_.insert(\
-			i_cppClass::_lassPyClassDef.getSetters_.begin(),\
-			::lass::python::impl::createPyGetSetDef(\
-				s_memberName,\
-				LASS_CONCATENATE(i_dispatcher, _getter),\
-				LASS_CONCATENATE(i_dispatcher, _setter),\
-				s_doc, 0));\
+		t_cppClass ::_lassPyClassDef.addGetSetter(\
+				s_memberName, s_doc,\
+				LASS_CONCATENATE(i_dispatcher, _getter), LASS_CONCATENATE(i_dispatcher, _setter));\
 	)
 
 /** @ingroup Python
@@ -2199,8 +2186,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type_.tp_new;\
-		t_cppClass::_lassPyClassDef.type_.tp_new = i_dispatcher; \
+		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type()->tp_new;\
+		t_cppClass::_lassPyClassDef.type()->tp_new = i_dispatcher; \
 	)
 
 /** @ingroup Python
@@ -2281,8 +2268,8 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type_.tp_new;\
-		t_cppClass::_lassPyClassDef.type_.tp_new = i_dispatcher; \
+		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type()->tp_new;\
+		t_cppClass::_lassPyClassDef.type()->tp_new = i_dispatcher; \
 	)
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with
@@ -2329,10 +2316,8 @@ $[
 		return i_caller(iArgs, iSelf, i_cppMethod);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		::lass::python::impl::addClassMethod(\
-			t_cppClass::_lassPyClassDef,\
-			s_methodName, \
-			s_doc, \
+		t_cppClass ::_lassPyClassDef.addMethod(\
+			s_methodName, s_doc, \
 			::lass::python::impl::FunctionTypeDispatcher< SPECIAL_SLOT_TYPE(s_methodName) , i_dispatcher>::fun,\
 			LASS_CONCATENATE(i_dispatcher, _overloadChain));\
 	)

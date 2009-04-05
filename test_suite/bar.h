@@ -52,6 +52,7 @@
 #include "../lass/prim/aabb_3d.h"
 #include "../lass/prim/xyz.h"
 #include "../lass/prim/transformation_3d.h"
+#include "../lass/prim/color_rgba.h"
 
 #include "../lass/stde/vector_map.h"
 #include "../lass/stde/static_vector.h"
@@ -82,6 +83,7 @@ namespace test
 		void complexArguments( const std::string& iA );
 		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation);
+		prim::ColorRGBA rgba(const prim::ColorRGBA& c);
 
 		void overloaded( int iA );
 		void overloaded( const std::string& iB );

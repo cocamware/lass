@@ -88,8 +88,8 @@ namespace impl
 	{
 		if (!isInitialized)
 		{
-			_lassPyClassDef.type_.tp_as_mapping = &pyMappingMethods;
-			_lassPyClassDef.type_.tp_iter = (getiterfunc) &Map::iter;
+			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
+			_lassPyClassDef.type()->tp_iter = (getiterfunc) &Map::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Map?!
 			// switch off inheritance

@@ -50,7 +50,7 @@ namespace lass
 
 namespace test
 {
-		PY_DECLARE_CLASS_NAME( PythonFoo, "PythonFoo" )
+		PY_DECLARE_CLASS_NAME_DOC( PythonFoo, "PythonFoo", "Documentation for class Foo." )
 		PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
 		PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
 		PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );

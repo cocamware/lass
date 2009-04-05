@@ -126,25 +126,6 @@ const char* testCStringSupport(const char* a)
 	return a;
 }
 
-PY_DECLARE_MODULE( embedding )
-PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
-PY_MODULE_FUNCTION( embedding, listInfo )
-PY_MODULE_FUNCTION( embedding, getAFoo )
-PY_MODULE_FUNCTION( embedding, makeSpam )
-PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
-PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
-PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
-PY_MODULE_FUNCTION( embedding, spamToCppByReference )
-PY_MODULE_FUNCTION( embedding, call0 )
-PY_MODULE_FUNCTION( embedding, call1 )
-PY_MODULE_FUNCTION( embedding, callR0 )
-PY_MODULE_FUNCTION( embedding, callR2 )
-PY_MODULE_FUNCTION( embedding, testPolymorphism )
-PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
-PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
-PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
-PY_MODULE_FUNCTION( embedding, testCStringSupport )
-
 class Base
 {
 public:
@@ -249,21 +230,41 @@ int testConvertor(PyObject* iObject, ClassB& oOut)
 	return 0;
 }
 
+class Cyclic: public python::PyObjectPlus
+{
+	PY_HEADER(python::PyObjectPlus)
+public:
+	Cyclic(int i, int n): i_(num::mod(i, n)), n_(n) {}
+	int value() const { return i_; }
+	int period() const { return n_; }
+private:
+	int i_, n_;
+};
+
+Cyclic operator+(const Cyclic& a, int b) { return Cyclic(a.value() + b, a.period()); }
+Cyclic operator+(int a, const Cyclic& b) { return b + a; }
+
+PY_DECLARE_CLASS(Cyclic)
+PY_CLASS_CONSTRUCTOR_2(Cyclic, int, int)
+PY_CLASS_MEMBER_R(Cyclic, value)
+PY_CLASS_MEMBER_R(Cyclic, period)
+PY_CLASS_FREE_METHOD_QUALIFIED_NAME_2(Cyclic, operator+, Cyclic, const Cyclic&, int, python::methods::_add_)
+PY_CLASS_FREE_METHOD_QUALIFIED_NAME_2(Cyclic, operator+, Cyclic, int, const Cyclic&, python::methods::_add_)
+
 }
 }
 
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
-//PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyBase )
-PY_SHADOW_DOWN_CASTERS( PyBase )
+PY_SHADOW_CASTERS( PyBase )
 PY_DECLARE_CLASS_NAME( PyBase, "Base")
 
-PY_SHADOW_CLASS_DERIVED_NOCONSTRUCTOR(LASS_DLL_EXPORT, PyClassA, lass::test::ClassA, PyBase)
-PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR( PyClassA )
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassA, lass::test::ClassA, PyBase)
+PY_SHADOW_CASTERS( PyClassA )
 PY_DECLARE_CLASS_NAME( PyClassA, "ClassA")
 
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassB, lass::test::ClassB, PyClassA)
-PY_SHADOW_DOWN_CASTERS( PyClassB )
+PY_SHADOW_CASTERS( PyClassB )
 PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
 PY_CLASS_CONSTRUCTOR_0( PyClassB)
 PY_CLASS_FREE_CONSTRUCTOR_1(PyClassB, lass::test::freeConstructor, int)
@@ -279,7 +280,7 @@ PY_CLASS_METHOD_NAME( PyClassB, setitem, lass::python::methods::_setitem_);
 
 // full sequence protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassSeq, lass::test::ClassSeq)
-PY_SHADOW_DOWN_CASTERS( PyClassSeq )
+PY_SHADOW_CASTERS( PyClassSeq )
 PY_DECLARE_CLASS_NAME( PyClassSeq, "ClassSeq")
 PY_CLASS_CONSTRUCTOR_0( PyClassSeq)
 PY_CLASS_METHOD_NAME( PyClassSeq, push_back, "append");
@@ -300,7 +301,7 @@ PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
 
 // full map protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)
-PY_SHADOW_DOWN_CASTERS( PyClassMap )
+PY_SHADOW_CASTERS( PyClassMap )
 PY_DECLARE_CLASS_NAME( PyClassMap, "ClassMap")
 PY_CLASS_CONSTRUCTOR_0( PyClassMap)
 PY_CLASS_METHOD_NAME( PyClassMap, setItem, lass::python::methods::map_setitem_);
@@ -314,6 +315,9 @@ PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
 
 //PY_CLASS_METHOD_CAST_1( PyClassB, testConst, void, lass::python::PointerCast<const lass::test::ClassA&>  )
 //PY_CLASS_METHOD_CAST_1( PyClassB, testNonConst, void, lass::python::PointerCast<lass::test::ClassA&>  )
+
+
+
 
 namespace lass { namespace python {
 template<typename T>
@@ -352,32 +356,41 @@ struct IsACaster<CustomCast<T> >
 }
 //PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
 
-#if PY_MAJOR_VERSION < 3
-void initembedding(void)
-#else
-PyObject* PyInit_embedding(void)
-#endif
-{
-	using namespace lass::test;
-	PY_INJECT_MODULE_DOC(embedding, "Documentation for module embedding" )	
+using namespace lass::test;
 
-	PY_INJECT_CLASS_IN_MODULE(PythonFoo, embedding, "Documentation for class Foo." );
+PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
 
-	PY_INJECT_CLASS_IN_MODULE(Bar, embedding, "Documentation for class Bar." );
-	PY_INJECT_CLASS_IN_MODULE(DerivedBar, embedding, "Documentation for class DerivedBar." );
+PY_MODULE_CLASS( embedding, PythonFoo );
+PY_MODULE_CLASS( embedding, Bar );
+PY_MODULE_CLASS( embedding, DerivedBar );
+PY_MODULE_CLASS( embedding, PySpam );
+PY_MODULE_CLASS( embedding, PyHam );
+PY_MODULE_CLASS( embedding, PyBacon );
+PY_MODULE_CLASS( embedding, PyEggs );
+PY_MODULE_CLASS( embedding, Cyclic );
+PY_MODULE_CLASS( embedding, PyBase );
+PY_MODULE_CLASS( embedding, PyClassA );
+PY_MODULE_CLASS( embedding, PyClassB );
+PY_MODULE_CLASS( embedding, PyClassSeq );
+PY_MODULE_CLASS( embedding, PyClassMap );
 
-	PY_INJECT_CLASS_IN_MODULE(PySpam, embedding, "shadow spam");
-	PY_INJECT_CLASS_IN_MODULE(PyHam, embedding, "shadow ham");
-	PY_INJECT_CLASS_IN_MODULE(PyBacon, embedding, "shadow bacon");
-	PY_INJECT_CLASS_IN_MODULE(PyEggs, embedding, "shadow eggs");
+PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
+PY_MODULE_FUNCTION( embedding, listInfo )
+PY_MODULE_FUNCTION( embedding, getAFoo )
+PY_MODULE_FUNCTION( embedding, makeSpam )
+PY_MODULE_FUNCTION( embedding, spamToCppByPointer )
+PY_MODULE_FUNCTION( embedding, spamToCppByCopy )
+PY_MODULE_FUNCTION( embedding, spamToCppByConstReference )
+PY_MODULE_FUNCTION( embedding, spamToCppByReference )
+PY_MODULE_FUNCTION( embedding, call0 )
+PY_MODULE_FUNCTION( embedding, call1 )
+PY_MODULE_FUNCTION( embedding, callR0 )
+PY_MODULE_FUNCTION( embedding, callR2 )
+PY_MODULE_FUNCTION( embedding, testPolymorphism )
+PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
+PY_MODULE_FUNCTION( embedding, testCStringSupport )
 
-	PY_INJECT_CLASS_IN_MODULE(PyBase, embedding, "Documentation for class A." );
-	PY_INJECT_CLASS_IN_MODULE(PyClassA, embedding, "Documentation for class A." );
-	PY_INJECT_CLASS_IN_MODULE(PyClassB, embedding, "Documentation for class B." );
-	PY_INJECT_CLASS_IN_MODULE(PyClassSeq, embedding, "Documentation for class Seq." );
-	PY_INJECT_CLASS_IN_MODULE(PyClassMap, embedding, "Documentation for class Map." );
+PY_INIT_MODULE( embedding )
 
-#if PY_MAJOR_VERSION >= 3
-	return embedding.module();
-#endif
-}

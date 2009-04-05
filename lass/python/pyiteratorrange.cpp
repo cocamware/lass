@@ -57,8 +57,8 @@ namespace python
 	{
 		if (!isInitialized)
 		{
-			_lassPyClassDef.type_.tp_iter = &PyIteratorRange::iter;
-			_lassPyClassDef.type_.tp_iternext = &PyIteratorRange::iterNext;
+			_lassPyClassDef.type()->tp_iter = &PyIteratorRange::iter;
+			_lassPyClassDef.type()->tp_iternext = &PyIteratorRange::iterNext;
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
