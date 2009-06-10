@@ -714,6 +714,7 @@ $[
 *   is no PyExportTraits::build defined for.
 */
 #define PY_CLASS_PY_METHOD_EX( i_cppClass, i_cppMethod, s_methodName, s_doc  )\
+	static ::lass::python::impl::OverloadLink LASS_CONCATENATE_3( staticDispatchOverloadChain, i_cppClass, i_cppMethod);\
 	inline PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
 	{\
 		if (!PyType_IsSubtype(iObject->ob_type , i_cppClass::_lassPyClassDef.type() ))\
@@ -726,11 +727,10 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyClassPyMethod_, i_cppClass, i_cppMethod ),\
-		i_cppClass::_lassPyClassDef.methods_.insert(\
-			i_cppClass::_lassPyClassDef.methods_.begin(),\
-			::lass::python::impl::createPyMethodDef(\
-				s_methodName, (PyCFunction) LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod),\
-				METH_VARARGS, s_doc));\
+		i_cppClass::_lassPyClassDef.addMethod(\
+			s_methodName, s_doc, \
+			LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod),\
+			LASS_CONCATENATE_3( staticDispatchOverloadChain, i_cppClass, i_cppMethod));\
 	)
 
 

@@ -59,6 +59,9 @@
 #include "../lass/util/non_copyable.h"
 #include "../lass/meta/meta_assert.h"
 
+#include "../lass/util/multi_callback.h"
+#include "../lass/python/pycallback.h"
+
 namespace lass
 {
 namespace test
@@ -356,10 +359,58 @@ struct IsACaster<CustomCast<T> >
 }
 //PY_CLASS_METHOD_CAST_NAME_1( PyClassB, testNonConst, void, lass::python::CustomCast<lass::test::ClassA&>, "name"  )
 
+/*
+*	call back object
+*/
+
+namespace lass 
+{
+namespace test
+{
+	void dummyFunc()
+	{
+		std::cout << "dummy func for multi callback" << std::endl;
+	}
+	class TestCallback
+	{
+	public:
+		TestCallback() 
+		{ 
+			multiCallback2ptr.reset(new lass::util::MultiCallback2<int,double>());
+			multiCallback.add(lass::util::makeCallback(dummyFunc)); 
+		}
+		~TestCallback() {}
+
+		void acceptAsArgument( const lass::util::MultiCallback0& cb ) { cb(); }
+		void acceptAsArgument1( const lass::util::MultiCallback1<int>& cb ) { cb(5); }
+		void acceptAsArgument2( const lass::util::MultiCallback2<int, double>& cb ) { cb(5,3.0); }
+
+		lass::util::MultiCallback0 multiCallback;
+		lass::util::MultiCallback1<int> multiCallback1;
+		lass::util::MultiCallback2<int,double> multiCallback2;
+		lass::util::SharedPtr<lass::util::MultiCallback2<int,double> > multiCallback2ptr;
+	};
+}
+}
+
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyTestCallback, lass::test::TestCallback)
+PY_SHADOW_CASTERS( PyTestCallback )
+PY_DECLARE_CLASS_NAME( PyTestCallback, "TestCallback")
+	PY_CLASS_CONSTRUCTOR_0( PyTestCallback )
+	PY_CLASS_PUBLIC_MEMBER_NAME( PyTestCallback, multiCallback, "callback");
+	PY_CLASS_PUBLIC_MEMBER_NAME( PyTestCallback, multiCallback1, "callback1");
+	PY_CLASS_PUBLIC_MEMBER_NAME( PyTestCallback, multiCallback2, "callback2");
+	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument);
+	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument1);
+	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument2);
+
+
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
 
+PY_MODULE_CLASS( embedding, PyTestCallback );
 PY_MODULE_CLASS( embedding, PythonFoo );
 PY_MODULE_CLASS( embedding, Bar );
 PY_MODULE_CLASS( embedding, DerivedBar );

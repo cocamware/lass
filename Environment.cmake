@@ -91,7 +91,10 @@ if(LASS_HAVE_PTHREAD_H)
 endif()
 #CHECK_INCLUDE_FILE("nptl/pthread.h" LASS_HAVE_NPTL_PTHREAD_H)
 
-
+# --- OLE (for Crashdump) ---
+if (WIN32)
+	list(APPEND lass_LIBS "ole32")
+endif()
 
 
 CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)

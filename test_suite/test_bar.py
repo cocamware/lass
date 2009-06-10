@@ -619,6 +619,52 @@ class TestRichCompare(unittest.TestCase):
 		self.failIf(a >= c)
 		self.failIf(a >= None)
 
+dummyCounter = 0
+def dummyCallback0():
+	global dummyCounter
+	dummyCounter += 1
+	return
+
+def dummyCallback1(adder):
+	global dummyCounter
+	dummyCounter += adder
+	return
+
+class TestMultiCallback(unittest.TestCase):
+	def testConstruction(self):
+		global dummyCounter
+		a = embedding.TestCallback()
+		# can we grab the object
+		cb = a.callback
+		# can we add a function to the multi-dispatching callback
+		cb.add(dummyCallback0)
+		# calling a wrapped callback
+		cb.call()
+		self.assert_(dummyCounter==1)
+		cb.add(dummyCallback0)
+		cb.call()
+		self.assert_(dummyCounter==3)
+		cb.reset()
+		cb()
+		self.assert_(dummyCounter==3)
+		for i in range(10):
+			cb.add(dummyCallback0)
+		cb()
+		self.assert_(dummyCounter==13)
+		# checking ref counting
+		cb()
+		self.assert_(dummyCounter==23)
+		# can we pass it as argument and call it in c++
+		a.acceptAsArgument(cb)
+		self.assert_(dummyCounter==33)
+		# can we plainly assign a function without using add, mimicking
+		# the behavior of a plain callback
+		print "Simple assignment"
+		a.callback = dummyCallback0
+		# dropping the call() function a directly calling the () operator
+		a.callback()
+		print "dummyCounter = ", dummyCounter
+		self.assert_(dummyCounter==34)
 
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
