@@ -72,6 +72,8 @@ class LASS_DLL Image
 {
 public:
 
+	typedef num::BasicType<8 * sizeof(size_t)>::Tint TSignedSize;
+
 	typedef prim::ColorRGBA TPixel;
 	typedef std::vector<TPixel> TRaster;
 
@@ -111,7 +113,7 @@ public:
 	// STRUCTORS
 
 	Image();
-	Image(unsigned rows, unsigned cols);
+	Image(size_t rows, size_t cols);
 	Image(const std::string& filename);
 	Image(const Image& other);
 	~Image();
@@ -120,7 +122,7 @@ public:
 	// METHODS
 
 	void reset();
-	void reset(unsigned rows, unsigned cols);
+	void reset(size_t rows, size_t cols);
 	void reset(const std::string& filename);
 	void reset(const Image& other);
 
@@ -132,14 +134,14 @@ public:
 	Image& operator=(const Image& other);
 	void swap(Image& other);
 
-	const TPixel& operator[](unsigned flatIndex) const { return raster_[flatIndex]; }
-	TPixel& operator[](unsigned flatIndex) { return raster_[flatIndex]; }
+	const TPixel& operator[](size_t flatIndex) const { return raster_[flatIndex]; }
+	TPixel& operator[](size_t flatIndex) { return raster_[flatIndex]; }
 
-	const TPixel& operator()(unsigned row, unsigned col) const;
-	TPixel& operator()(unsigned row, unsigned col);
+	const TPixel& operator()(size_t row, size_t col) const;
+	TPixel& operator()(size_t row, size_t col);
 
-	const TPixel& at(signed row, signed col) const;
-	TPixel& at(signed row, signed col);
+	const TPixel& at(TSignedSize row, TSignedSize col) const;
+	TPixel& at(TSignedSize row, TSignedSize col);
 
 	const TPixel* const data() const;
 	TPixel* const data();
@@ -148,8 +150,8 @@ public:
 	ColorSpace& colorSpace();
 	void transformColors(const ColorSpace& newColorSpace);
 
-	const unsigned rows() const;
-	const unsigned cols() const;
+	const size_t rows() const;
+	const size_t cols() const;
 	const bool isEmpty() const;
 
 	// OPERATIONS
@@ -170,7 +172,7 @@ public:
 
 	// FILTERS
 
-	void filterMedian(unsigned boxSize);
+	void filterMedian(size_t boxSize);
 	void filterGamma(TParam gammaExponent);
 	void filterExposure(TParam exposureTime);
 	void filterInverseExposure(TParam exposureTime);
@@ -238,8 +240,8 @@ private:
 
 	struct HeaderPfm
 	{
-		unsigned width;
-		unsigned height;
+		size_t width;
+		size_t height;
 		float aspect;
 		num::Endianness endianness;
 		bool isGrey;
@@ -280,8 +282,8 @@ private:
 
 	typedef std::map<std::string, FileFormat> TFileFormats;
 
-	unsigned resize(unsigned rows, unsigned cols);
-	unsigned flatIndex(unsigned rows, unsigned cols) const 
+	size_t resize(size_t rows, size_t cols);
+	size_t flatIndex(size_t rows, size_t cols) const 
 	{ 
 		return rows * cols_ + cols;
 	}
@@ -311,8 +313,8 @@ private:
 	static const ColorSpace xyzColorSpace();
 
 	ColorSpace colorSpace_;
-	unsigned rows_;
-	unsigned cols_;
+	size_t rows_;
+	size_t cols_;
 	TRaster raster_;
 
 	static TFileFormats fileFormats_;

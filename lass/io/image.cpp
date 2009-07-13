@@ -68,8 +68,8 @@ namespace impl
 	class Bytes4
 	{
 	public:
-		const num::Tuint8 operator[](std::size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
-		num::Tuint8& operator[](std::size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
+		const num::Tuint8 operator[](size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
+		num::Tuint8& operator[](size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
 		const num::Tuint8* get() const { return values_; }
 		num::Tuint8* get() { return values_; }
 		bool operator==(const Bytes4& other) const { return std::equal(values_, values_ + 4, other.values_); }
@@ -99,7 +99,7 @@ Image::Image():
 
 /** Construct image of given width and height.
  */
-Image::Image(unsigned rows, unsigned cols):
+Image::Image(size_t rows, size_t cols):
 	colorSpace_(defaultColorSpace()),
 	rows_(0),
 	cols_(0),
@@ -159,7 +159,7 @@ void Image::reset()
 
 /** Reset image to (black) image of given width.
  */
-void Image::reset(unsigned rows, unsigned cols)
+void Image::reset(size_t rows, size_t cols)
 {
 	Image temp(rows, cols);
 	swap(temp);
@@ -319,7 +319,7 @@ void Image::swap(Image& other)
  *  @param row row of pixel, y coordinate.
  *  @param col column of pixel, x coordinate.
  */
-const Image::TPixel& Image::operator()(unsigned row, unsigned col) const
+const Image::TPixel& Image::operator()(size_t row, size_t col) const
 {
 	LASS_ASSERT(row < rows_ && col < cols_);
 	return raster_[flatIndex(row, col)];
@@ -331,7 +331,7 @@ const Image::TPixel& Image::operator()(unsigned row, unsigned col) const
  *  @param row row of pixel, y coordinate.
  *  @param col column of pixel, x coordinate.
  */
-Image::TPixel& Image::operator()(unsigned row, unsigned col)
+Image::TPixel& Image::operator()(size_t row, size_t col)
 {
 	LASS_ASSERT(row < rows_ && col < cols_);
 	return raster_[flatIndex(row, col)];
@@ -343,10 +343,10 @@ Image::TPixel& Image::operator()(unsigned row, unsigned col)
  *  @param row row of pixel, y coordinate.
  *  @param col column of pixel, x coordinate.
  */
-const Image::TPixel& Image::at(signed row, signed col) const
+const Image::TPixel& Image::at(TSignedSize row, TSignedSize col) const
 {
-	const unsigned i = num::mod(row, rows_);
-	const unsigned j = num::mod(col, cols_);
+	const size_t i = num::mod(row, rows_);
+	const size_t j = num::mod(col, cols_);
 	return raster_[flatIndex(i, j)];
 }
 
@@ -356,10 +356,10 @@ const Image::TPixel& Image::at(signed row, signed col) const
  *  @param row row of pixel, y coordinate.
  *  @param col column of pixel, x coordinate.
  */
-Image::TPixel& Image::at(signed row, signed col)
+Image::TPixel& Image::at(TSignedSize row, TSignedSize col)
 {
-	const unsigned i = num::mod(row, rows_);
-	const unsigned j = num::mod(col, cols_);
+	const size_t i = num::mod(row, rows_);
+	const size_t j = num::mod(col, cols_);
 	return raster_[flatIndex(i, j)];
 }
 
@@ -481,7 +481,7 @@ void Image::transformColors(const ColorSpace& newColorSpace)
 
 /** Return height of image.
  */
-const unsigned Image::rows() const
+const size_t Image::rows() const
 {
 	return rows_;
 }
@@ -490,7 +490,7 @@ const unsigned Image::rows() const
 
 /** Return width of image.
  */
-const unsigned Image::cols() const
+const size_t Image::cols() const
 {
 	return cols_;
 }
@@ -641,75 +641,75 @@ void Image::clampNegatives()
  *    Sangwine S. J. & Horne R. E. N. (Eds.) The Colour Image Processing
  *    Handbook. London, Chapman & Hall, 149-162.
  */
-void Image::filterMedian(unsigned boxSize)
+void Image::filterMedian(size_t boxSize)
 {
+	if (boxSize <= 1)
+	{
+		return;
+	}
 	if ((boxSize & 0x1) == 0)
 	{
 		LASS_THROW("boxSize '" << boxSize << "' isn't odd as requested.");
-		return;
 	}
 
-	const unsigned boxArea = boxSize * boxSize;
-	const int boxRadius = (boxSize - 1) / 2;
+	const size_t boxArea = boxSize * boxSize;
+	const size_t boxRadius = (boxSize - 1) / 2;
+	const size_t invalidCandidate = boxArea;
 
 	TRaster box(boxArea);
 	std::vector<float> distances(boxArea);
 
-	for (unsigned y0 = 0; y0 < rows_; ++y0)
+	for (size_t y0 = 0; y0 < rows_; ++y0)
 	{
-		for (unsigned x0 = 0; x0 < cols_; ++x0)
+		const size_t yFirst = std::max(y0, boxRadius) - boxRadius;
+		const size_t yLast = std::min(y0 + boxRadius + 1, rows_);
+		LASS_ASSERT(yLast - yFirst <= boxSize);
+		for (size_t x0 = 0; x0 < cols_; ++x0)
 		{
-			TPixel& center = raster_[y0 * cols_ + x0];
+			TPixel& center = (*this)(y0, x0);
 			if (center.a == TNumTraits::zero)
 			{
 				continue; // no filtering on pixels with alphachannel == 0
 			}
 
-			// fill filterbox
+			const size_t xFirst = std::max(x0, boxRadius) - boxRadius;
+			const size_t xLast = std::min(x0 + boxRadius + 1, cols_);
+			LASS_ASSERT(xLast - xFirst <= boxSize);
 
-			unsigned pixelsInBox = 0;
-			int candidate = -1;
-			for (int dy = -boxRadius; dy <= boxRadius; ++dy)
+			// fill filterbox
+			//
+			size_t pixelsInBox = 0;
+			size_t candidate = invalidCandidate;
+			for (size_t y = yFirst; y < yLast; ++y)
 			{
-				const int y = y0 + dy;
-				const int offset = y * cols_;
-				if (y >= 0 && y < signed(rows_))
+				for (size_t x = xFirst; x < xLast; ++x)
 				{
-					for (int dx = -boxRadius; dx <= boxRadius; ++dx)
+					const TPixel& pixel = (*this)(y0, x0);
+					if (pixel.a != TNumTraits::zero)
 					{
-						const int x = x0 + dx;
-						if (x >= 0 && x < signed(cols_))
+						box[pixelsInBox] = pixel;
+						if (x == x0 && y == y0)
 						{
-							const TPixel& pixel = raster_[offset + x];
-							if (pixel.a != TNumTraits::zero)
-							{
-								box[pixelsInBox] = pixel;
-								if (dx == 0 && dy == 0)
-								{
-									candidate = pixelsInBox;
-								}
-								++pixelsInBox;
-							}
+							candidate = pixelsInBox;
 						}
+						++pixelsInBox;
 					}
 				}
 			}
 
 			// get median in filterbox
 			//
-			LASS_ASSERT(pixelsInBox > 0);
-			LASS_ASSERT(candidate >= 0 && candidate < signed(pixelsInBox));
-			unsigned i;
-			for (i = 0; i < pixelsInBox; ++i)
+			LASS_ASSERT(pixelsInBox > 0 && pixelsInBox <= boxArea);
+			LASS_ASSERT(candidate != invalidCandidate && candidate < pixelsInBox);
+			for (size_t i = 0; i < pixelsInBox; ++i)
 			{
 				distances[i] = 0.0;
-				for (unsigned j = 0; j < pixelsInBox; ++j)
+				for (size_t j = 0; j < pixelsInBox; ++j)
 				{
 					distances[i] += prim::distance(box[i], box[j]);
 				}
 			}
-
-			for (i = 0; i < pixelsInBox; ++i)
+			for (size_t i = 0; i < pixelsInBox; ++i)
 			{
 				if (distances[i] < distances[candidate])
 				{
@@ -717,7 +717,7 @@ void Image::filterMedian(unsigned boxSize)
 				}
 			}
 
-			LASS_ASSERT(candidate >= 0 && candidate < signed(pixelsInBox));
+			LASS_ASSERT(candidate < pixelsInBox);
 			center = box[candidate];
 		}
 	}
@@ -729,8 +729,8 @@ void Image::filterMedian(unsigned boxSize)
  */
 void Image::filterGamma(TParam gammaExponent)
 {
-	const TRaster::size_type size = raster_.size();
-	for (TRaster::size_type i = 0; i < size; ++i)
+	const size_t size = raster_.size();
+	for (size_t i = 0; i < size; ++i)
 	{
 		raster_[i] = raster_[i].gammaCorrected(gammaExponent);
 	}
@@ -743,8 +743,8 @@ void Image::filterGamma(TParam gammaExponent)
  */
 void Image::filterExposure(TParam exposureTime)
 {
-	const TRaster::size_type size = raster_.size();
-	for (TRaster::size_type i = 0; i < size; ++i)
+	const size_t size = raster_.size();
+	for (size_t i = 0; i < size; ++i)
 	{
 		raster_[i] = raster_[i].exposed(exposureTime);
 	}
@@ -756,8 +756,8 @@ void Image::filterExposure(TParam exposureTime)
  */
 void Image::filterInverseExposure(TParam exposureTime)
 {
-	const TRaster::size_type size = raster_.size();
-	for (TRaster::size_type i = 0; i < size; ++i)
+	const size_t size = raster_.size();
+	for (size_t i = 0; i < size; ++i)
 	{
 		raster_[i] = raster_[i].invExposed(exposureTime);
 	}
@@ -774,9 +774,9 @@ void Image::filterInverseExposure(TParam exposureTime)
 
 /** (re)allocate data chunck
  */
-unsigned Image::resize(unsigned rows, unsigned cols)
+size_t Image::resize(size_t rows, size_t cols)
 {
-	const unsigned size = rows * cols;
+	const size_t size = rows * cols;
 	raster_.resize(size);
 	rows_ = rows;
 	cols_ = cols;
@@ -988,7 +988,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 		exponents[i] = ::ldexpf(1.f, i - 128 - 8);
 	}
 	float inverseCorrections[3];
-	for (int i = 0; i < 3; ++i)
+	for (size_t i = 0; i < 3; ++i)
 	{
 		inverseCorrections[i] = num::inv(header.exposure * header.colorCorr[i]);
 	}
@@ -1003,8 +1003,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 	const std::ptrdiff_t deltaX = header.xIncreasing ? 1 : -1;
 
 	std::vector<impl::Bytes4> buffer(header.width);
-	unsigned rleCount = 0;
-	unsigned rleCountByte = 0;
+	size_t rleCount = 0;
+	size_t rleCountByte = 0;
 
 	for (std::ptrdiff_t y = firstY; y != lastY; y += deltaY)
 	{
@@ -1018,9 +1018,9 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 			{
 				// new rle
 				//
-				const unsigned lineLength = rgbe[2] * 256 + rgbe[3];
+				const size_t lineLength = rgbe[2] * 256 + rgbe[3];
 				const ptrdiff_t lastX2 = x + lineLength * deltaX;
-				for (unsigned k = 0; k < 4; ++k)
+				for (size_t k = 0; k < 4; ++k)
 				{
 					ptrdiff_t x2 = x;
 					while (x2 != lastX2)
@@ -1060,7 +1060,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 				{
 					if (rleCount > 0)
 					{
-						for (unsigned k = rleCount - 1; k > 0; --k)
+						for (size_t k = rleCount - 1; k > 0; --k)
 						{
 							buffer[x] = rgbe;
 							x += deltaX;
@@ -1082,7 +1082,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 			const impl::Bytes4 rgbe = buffer[x];
 			TPixel& pixel = scanline[x];
 			const float exponent = exponents[rgbe[3]];
-			for (unsigned k = 0; k < 3; ++k)
+			for (size_t k = 0; k < 3; ++k)
 			{
 				pixel[k] = rgbe[k] * inverseCorrections[k] * exponent;
 			}
@@ -1108,7 +1108,7 @@ BinaryIStream& Image::openPfm(BinaryIStream& stream)
 	resize(header.height, header.width);
 	EndiannessSetter(stream, header.endianness);
 
-	for (unsigned k = rows_; k > 0; --k)
+	for (size_t k = rows_; k > 0; --k)
 	{
 		const TRaster::iterator first = raster_.begin() + (k - 1) * cols_;
 		const TRaster::iterator last = first + cols_;
@@ -1245,9 +1245,9 @@ BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 
 	std::vector<impl::Bytes4> buffer(header.imageWidth);
 	std::vector<impl::Bytes4> rleBuffer(128);
-	for (unsigned y = rows_; y > 0; --y)
+	for (size_t y = rows_; y > 0; --y)
 	{
-		unsigned x;
+		size_t x;
 
 		// encode in scanline buffer
 		//
@@ -1264,13 +1264,13 @@ BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 
 		// run-length encode buffer
 		//
-		unsigned totalLength = 0;
+		size_t totalLength = 0;
 		num::Tuint8 numDiff = 0;
 		x = 0;
 		while (x < cols_)
 		{
 			const impl::Bytes4& bytes = buffer[x];
-			unsigned x2 = x;
+			size_t x2 = x;
 			num::Tuint8 numSame = 0;
 			while (x2 < cols_ && numSame < 128 && buffer[x2] == bytes)
 			{
@@ -1335,12 +1335,12 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 	std::vector<impl::Bytes4> buffer(cols_);
 	std::vector<num::Tuint8> rleBuffer(128);
 
-	for (unsigned y = 0; y < rows_; ++y)
+	for (size_t y = 0; y < rows_; ++y)
 	{
 		// first, transform a line of rgb pixels to rgbe reprentation
 		//
 		const TPixel* line = &raster_[y * cols_];
-		for (unsigned x = 0; x < cols_; ++x)
+		for (size_t x = 0; x < cols_; ++x)
 		{
 			const TPixel& pixel = line[x];
 			impl::Bytes4& rgbe = buffer[x];
@@ -1353,7 +1353,7 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 			{
 				int exponent;
 				const float mantissa = ::frexpf(maximum, &exponent);
-				for (unsigned k = 0; k < 3; ++k)
+				for (size_t k = 0; k < 3; ++k)
 				{
 					const float normalized = pixel[k] * (256.f * mantissa / maximum);
 					rgbe[k] = static_cast<num::Tuint8>(num::clamp(normalized, 0.f, 255.f));
@@ -1371,14 +1371,14 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 		bytes[3] = cols_ & 0xff;
 		stream.write(bytes, 4);
 
-		for (unsigned k = 0; k < 4; ++k)
+		for (size_t k = 0; k < 4; ++k)
 		{
 			num::Tuint8 numDiff = 0;
-			unsigned x = 0;
+			size_t x = 0;
 			while (x < cols_)
 			{
 				num::Tuint8 value = buffer[x][k];
-				unsigned x2 = x;
+				size_t x2 = x;
 				num::Tuint8 numSame = 0;
 				while (x2 < cols_ && numSame < 127 && buffer[x2][k] == value)
 				{
@@ -1431,7 +1431,7 @@ BinaryOStream& Image::savePfm(BinaryOStream& stream) const
 
 	EndiannessSetter(stream, header.endianness);
 
-	for (unsigned k = rows_; k > 0; --k)
+	for (size_t k = rows_; k > 0; --k)
 	{
 		const TRaster::const_iterator first = raster_.begin() + (k - 1) * cols_;
 		const TRaster::const_iterator last = first + cols_;
@@ -1722,8 +1722,8 @@ void Image::HeaderRadianceHdr::readFrom(BinaryIStream& stream)
 	}
 	yIncreasing = y == "+Y";
 	xIncreasing = x == "+X";
-	height = util::stringCast<unsigned>(splitted[1]);
-	width = util::stringCast<unsigned>(splitted[3]);
+	height = util::stringCast<size_t>(splitted[1]);
+	width = util::stringCast<size_t>(splitted[3]);
 }
 
 
@@ -1803,8 +1803,8 @@ void Image::HeaderPfm::readFrom(BinaryIStream& stream)
 
 	try
 	{
-		width = util::stringCast<unsigned>(attributes[0]);
-		height = util::stringCast<unsigned>(attributes[1]);
+		width = util::stringCast<size_t>(attributes[0]);
+		height = util::stringCast<size_t>(attributes[1]);
 		aspect = util::stringCast<float>(attributes[2]);
 	}
 	catch (const util::BadStringCast&)
