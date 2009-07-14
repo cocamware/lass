@@ -164,7 +164,7 @@ struct MultiCallback$x
 			callbacks_[i]($(iP$x)$);
 	}
 	/** retrieve a callback */
-	const TCallback& operator[](int index) const
+	const TCallback& operator[](size_t index) const
 	{
 		if (index>=0 && index<=size())
 			return callbacks_[index];
