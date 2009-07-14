@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+
+<div class="fixed">
+	<h2>Exposing containers</h2>
+	This tutorial shows how you can expose an STL-container class to Python.  The lass::python infrastructure provides default place-holders for the most common STL-containers so that you don't need to manually create shadow classes for concrete template container classes.  std::complex, std::vector, std::list, std::map and their iterators are by default supported.  The template argument does not matter, as long as it is known to lass::python you can use in a container.  This means that you can also expose arbitrarily nested containers without effort.  To make this all work seaminglessly the lass::python equivalents of the std::vector and others have to be introduced in Python.  In concreto this means that any std::vector that you expose to Python will be seen in Python as a custom lass::python type and not the native Python list.  This comes with the advantage that some functionality can be added to those special types (like read-onlyness) but has the disadvantage that Python routines expecting native Python lists can possibly use (yet) unsupported functionality.   There is however a simple conversion possible between the lass::python container classes and the native Python containers like lists, tuples and dictionaries.
+	<p>
+	This tutorial contains following paragraphs:
+	<ul>
+	<li>exporting
+	<li>tips and tricks
+	</ul>
+	We propose again the same simple class hierarchy to demonstrate the concepts: Foo, Bar and FooBar.  The C++ code is in no means intended to demonstrate proper class hierarchy but is intended to 
+	show in as short as possible example the power of rapidly exporting containers to Python.  The new code is highlighted in blue.  So in general, when you have the choice of course, you don't want to juggle around with naked pointers.
+	
+	<div class="code">
+class Foo<br>
+{<br>
+public:<br>
+	<div class="indent">
+	Foo() {}<br>
+	virtual ~Foo() {}<br>
+	virtual int overloaded(int iA) { return iA+1;}<br>
+	int fooSpecific() { return -1; }<br>
+	</div>
+};<br>
+<br>
+class Bar : public Foo<br>
+{<br>
+public:<br>
+	<div class="indent">
+	Bar() {}<br>
+	virtual ~Bar() {}<br>
+	virtual int overloaded(int iA) { return iA+2;}<br>
+	int barSpecific() { return -2; }<br>
+	</div>
+};<br>
+<br>
+class FooBarred : public Bar<br>
+{<br>
+public:<br>
+	<div class="indent">
+	FooBarred() {}<br>
+	virtual ~FooBarred() {}<br>
+	virtual int overloaded(int iA) { return iA+3;}<br>
+	int fooBarSpecific() { return -3; }<br>
+	</div>
+};<br>
+<br>
+Foo* factoryObject(int iWhich)<br>
+{<br>
+	<div class="indent">
+	if (iWhich==3)<br>
+		return new FooBarred();<br>
+	if (iWhich==2)<br>
+		return new Bar();<br>
+	return new Foo();<br>
+	</div>
+}<br>
+<br>
+<div class="newcode">
+struct Containers<br>
+{<br>
+<div class="indent">
+	static std::vector<Foo*> aListOfFoos()<br>
+	{	<br>
+		<div class="indent">
+		std::vector<Foo*> temp;<br>
+		temp.push_back(factoryObject(1));<br>
+		temp.push_back(factoryObject(2));<br>
+		temp.push_back(factoryObject(3));<br>
+		return temp;<br>
+		</div>
+	}<br>
+	static const std::vector<Foo*>& aConstListOfFoos()<br>
+	{	<br>
+		<div class="indent">
+		static std::vector<Foo*> temp;<br>
+		if (temp.size()==0)<br>
+		{<br>
+			temp.push_back(factoryObject(1));<br>
+			temp.push_back(factoryObject(2));<br>
+			temp.push_back(factoryObject(3));<br>
+		}<br>
+		return temp;<br>
+		</div>
+	}<br>
+	static std::map<int,Foo*> aMapOfFoos()<br>
+	{	<br>
+		<div class="indent">
+		std::map<int,Foo*> temp;<br>
+		temp.insert(std::pair<int,Foo*>(1,factoryObject(1)));<br>
+		temp.insert(std::pair<int,Foo*>(2,factoryObject(2)));<br>
+		temp.insert(std::pair<int,Foo*>(3,factoryObject(3)));<br>
+		return temp;<br>
+		</div>
+	}<br>
+	static int doSum(const std::vector<int>& iVector)<br>
+	{<br>
+		<div class="indent">
+		return std::accumulate(iVector.begin(),iVector.end(),0);<br>
+		</div>
+	}<br>
+
+</div>
+};<br>
+</div>
+<br>
+<br>
+PY_SHADOW_CLASS( LASS_DLL_EXPORT, PyFoo, Foo )<br>
+PY_DECLARE_CLASS_NAME( PyFoo, "Foo" )<br>
+PY_SHADOW_DOWN_CASTERS( PyFoo )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyFoo, overloaded )<br>
+	PY_CLASS_METHOD( PyFoo, fooSpecific )<br>
+	</div>
+<br>
+PY_SHADOW_CLASS_DERIVED( LASS_DLL_EXPORT, PyBar, Bar, PyFoo)<br>
+PY_DECLARE_CLASS_NAME( PyBar, "Bar" )<br>
+PY_SHADOW_DOWN_CASTERS( PyBar )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyBar, barSpecific )<br>
+	</div>
+<br>
+PY_SHADOW_CLASS_DERIVED( LASS_DLL_EXPORT, PyFooBarred, FooBarred, PyBar)<br>
+PY_DECLARE_CLASS_NAME( PyFooBarred, "FooBarred" )<br>
+PY_SHADOW_DOWN_CASTERS( PyFooBarred )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyBar, fooBarSpecific )<br>
+	</div>
+<br>
+PY_DECLARE_MODULE( embedding )<br>
+	<div class="indent">
+	PY_MODULE_CLASS( embedding, PyFoo,  "")<br>
+	PY_MODULE_CLASS( embedding, PyBar,  "")<br>
+	PY_MODULE_CLASS( embedding, PyFooBarred,  "")<br>
+	PY_MODULE_FUNCTION( embedding, factoryObject )<br>
+	<br>
+	<div class="newcode">
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aListOfFoos, "aListOfFoos" )<br>
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aConstListOfFoos, "aConstListOfFoos" )<br>
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aMapOfFoos, "aMapOfFoos" )<br>
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::doSum, "doSum" )<br>
+	</div>
+	</div>
+<br>
+PY_EXTENSION_MODULE( embedding )<br>
+
+
+	</div>
+	<h3>Exporting</h3>
+	<div class="codeinset">
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aListOfFoos, "aListOfFoos" )<br>
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aConstListOfFoos, "aConstListOfFoos" )<br>
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::aMapOfFoos, "aMapOfFoos" )<br>
+	</div>
+
+	Nothing special is happening here, the container return values are treated just like any other return value of a function that will be exported.  
+
+	<div class="codeinset">
+	PY_MODULE_FUNCTION_NAME( embedding, Containers::doSum, "doSum" )<br>
+	</div>
+	
+	Again nothing that you need to worry about when writing down the macros.  What has not been discussed in the introduction is on how native Python objects will brought into C++ again.  In lass::python we have taken a pragmatic approach and try to mimic the Python behavior as much as possible.  When an object is presented to the <em>doSum</em> routine it will be checked whether it is some Python type that can be translated into a std::vector like structure.  For std::vector this typically means that lists and tuples will be converted.  The actual precondition is that the Python object presented supports the <em>sequence interface</em>.  
+	
+	So writing in Python <em>embedding.doSum([1,3,7])</em> will work just fine.  Writing <em>embedding.doSum([1,complex(3,5)])</em> won't work because the elements in the list are not of the same type.  Something which is not supported by a std::vector.  Ok, before you start metioning boost::variant or whatever::variant, lass::python can support such things but just demands that your argument has a conversion operator from Python to C++.  How to handle such a situation will be covered in the NSFAQ.
+
+</div>
+
+</div>
+</body>
+</html>

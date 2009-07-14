@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+
+<div class="fixed">
+	<h2>Hello world!</h2>
+	This tutorial lets you export exactly 1 function from C++ to Python!
+	<div class="code">
+	std::string hello()<br>
+	{<br>
+    <div class="indent">return std::string("Hello world!");<br></div>
+	}<br>
+	<br>
+	PY_DECLARE_MODULE( embedding )<br>
+	PY_MODULE_FUNCTION( embedding, hello ) <br>
+	PY_EXTENSION_MODULE( embedding )
+	</div>
+	The code hopefully speaks for itself but here we go nonetheless:<br>
+	<ul>
+	<li><em>PY_DECLARE_MODULE( embedding )</em> declares a Python extension module and gives it the name <em>embedding</em>.
+	<li><em>PY_MODULE_FUNCTION( embedding, hello )</em> adds the function <em>hello</em> to the module <em>embedding</em>.  By default the name of the C++ is taken as name for the corresponding Python function name.  
+	<li><em>PY_EXTENSION_MODULE( embedding )</em> generates the necessary function for Python to recognize the generated dll as an extension module.
+	</ul>
+</div>
+
+
+</div>
+</body>
+</html>

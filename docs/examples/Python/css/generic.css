@@ -1,0 +1,154 @@
+html
+{
+	width:					100%;
+	height:					100%;
+	margin:					0px 0px 0px 0px;
+}
+
+body
+{
+	width: 100%;
+	height: 100%;
+	margin:	0px 0px 0px 0px;
+
+	font-family: Arial, Helvetica, Sans-Serif;
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: normal;
+	color: #000000;
+
+	background-color : #ffffff;
+	background-attachment: fixed;
+}
+
+
+.fixed 
+{
+	background-color : #d0d0d0;
+	background-attachment: fixed;
+	margin: 3em;
+	padding: 3em;
+	border: solid 3px green
+	
+}
+
+.indent
+{
+	margin : 0em 0em 0em 2em
+}
+
+.code
+{
+	font-family: Courier New;
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: normal;
+	color: #000000;
+	background-color : #ffffff;
+	background-attachment: fixed;
+	margin: 3em;
+	padding: 3em;
+	border: solid 3px green
+	
+}
+
+.newcode
+{
+	color: #0000a0;
+}
+
+
+.codeinset
+{
+	font-family: Courier New;
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: normal;
+	color: #000000;
+	background-color : #ffffff;
+	background-attachment: fixed;
+	margin: 3em;
+	padding: 1em;
+	border: solid 1px darkgreen
+	
+}
+
+.remark
+{
+	background-color : #f0c0c0;
+	background-attachment: fixed;
+	margin: 3em;
+	padding: 3em;
+	border: solid 3px darkred
+	
+}
+
+
+.top
+{
+	position : fixed;
+	display: block;
+	width: 100%;
+	font-size : 12 pt;
+	margin : 1em;
+}
+
+.content
+{
+	display: block;
+	width: 100%;
+	height: 0%;
+	margin-left : 1em;
+	margin-top : -1em;
+}
+
+
+/* SITE LINKS */
+
+.left-links
+{
+	position : fixed;	
+
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+
+	color: #fffff;
+	background-color : darkblue
+}
+
+.left-link
+{
+	display: block;
+	width: 100%;
+
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 0px;
+	padding-right: 0px;
+
+	font-size: 12px;
+	color: white;
+	text-decoration: none;
+	text-indent: 0px;
+
+}
+
+.left-link:hover
+{
+	display: block;
+	width:	100%;
+
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 0px;
+	padding-right: 0px;
+
+	font-size: 12px;
+	color:	#ffffff;
+	text-decoration: none;
+	text-indent: 0px;
+
+	background-color: blue;
+}

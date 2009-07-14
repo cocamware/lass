@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+<div class="fixed">
+	<h2>Lass::python</h2>
+	<em>Expose your C++ code to Python because strong typing is for those with a weak memory.</em>
+</div>
+<div class="fixed">
+	<p>This series of tutorials will guide you through your first steps in combining C++ and Python.  lass::python is a tool that can be used for extending Python and for using your extended class inside an embedded Python interpreter.
+	The first tutorial will be about setting up your first extension module using lass::python.  Note that each of the tutorials comes with an example with Visual Studio 2005 project files.  See the next paragraph on how to build the examples and use the test code that comes along with it.
+	<p>In this series:
+	<ul>
+	<li><strong><a href="lass_python_hello_world.html">Hello world!</a></strong><p>Your first lass::python example!
+	<li><strong><a href="lass_python_exposing_classes.html">Exposing a class</a></strong><p>A more elaborate example of exporting a C++ class to Python, including constructors,
+											public members, accessor functions, overloaded functions, virtual functions and how to handle default values.
+	<li><strong><a href="lass_python_exposing_class_hiearchies.html">Class hierarchies and dynamic typing support</a></strong><p>An example to show how a class hierarchy can be mirrored in Python.  
+	The automatic dynamic down casting is illustrated in this example as well.
+	<li><strong><a href="lass_python_exposing_containers.html">Exporting STL-containers/iterators</a></strong><p>A simple example to show the built-in export of STL-containers of arbitrary
+	objects within lass::python.
+	<li><strong>Exposing operators and cross-language operator overloading</strong><p>An example on exposing a C++ class to Python along with its operators so you can use those operators in Python
+	as well.
+	<li><strong>Exposing container-like and number-like objects</strong><p>An example on exposing a C++ class that in Python manifests itself as a list or dictionary or native number type.
+	<li><strong>Adding Python documentation with lass::python</strong><p>A short tutorial on adding Python documentation through the lass::python interface.
+	<li><strong>lass::python cheat card</strong><p>An overview of the most important/used macro's of lass::python.
+	<li><strong>Using other parts of Lass with lass::python</strong><p>A few examples on what other functionality of Lass is available through
+	the lass::python interface.  Examples include spatial primitives and spatial division data structures.
+	<li><strong>Exporting without shadow objects (advanced)</strong><p>Some background on the inner mechanisms of lass::python is given together with
+	a tutorial on how to export class hierarchies to Python without using shadow objects.  Using the <em>native</em> method the speed overhead is 
+	traded with a storage overhead.  Another difference with shadow classes is that the native technique is intrusive and requires, albeit minimal, 
+	code changes in the classes that need to be visible in Python.
+	<li><strong>NSFAQ</strong><p>The not so frequently asked questions: some tips on <em>getting some things done (TM)</em>, like building sub modules, creating custom constructors, 
+	special casting from Python objects into your own C++ objects and even more exotic stuff (yay!).  
+	</ul>
+</div>
+
+<div class="fixed">
+	<p><strong>Building the examples:</strong><br><br>
+	At this point the examples have been tested to compile and to function properly but during the writing of this series sometimes the code is tweaked a bit and something breaks.  Nothing should be difficult to fix.  If you have suggestions/remarks/improvements just let them know to tom@cocamware.com or bram@cocamware.com.
+	<p>
+	After you have setup a Python distro the next step is to unpack the accompagning lass distribution.  Use the given installer for this.  After you have setup the lass distribution it is time to set up some environment variables so the example files know where to look for header and libraries.  You will need to set up LASS_PATH and PYTHON_PATH.  An examples is LASS_PATH=c:\program files\Cocamware\Lass-1.2.0\ and PYTHON_PATH=c:\Python25\  Note that they both end with a backslash!
+	
+	After setting these up the example should compile and work in release mode.  If you want debug mode to work you will need the debug version of Lass and Python.  Contact one of the authors if you are stuck in this process.
+</div>
+Copyright 2007-2008, Tom De Muer and Bram de Greve.
+</div>
+</body>
+</html>

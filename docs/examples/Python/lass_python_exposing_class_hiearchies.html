@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+
+<div class="fixed">
+	<h2>Exposing class hierarchies</h2>
+	This tutorial shows how you can expose a complete C++ class hierarchy as an equivalent Python class hierarchy.  If desireable the Python class hierarchy can skip intermediate classes in the C++ inheritance hierarchy.  In the spirit of Python any objects that are exposed using lass::python are dynamically typed.  If your C++ interface returns references or (shared) pointers to parent classes, during the exposure to Python, lass:python will automagically retype the object to its most specific type.  In a sense this can be described as <em>automatic down-casting</em>.
+	<p>
+	This tutorial contains following paragraphs:
+	<ul>
+	<li>declaring a derived class
+	<li>supporting automatic down-casting
+	</ul>
+	We propose a simple class hierarchy to demonstrate the concepts: Foo, Bar and FooBar.  The C++ code is in no means intended to demonstrate proper class hierarchy but is intended to 
+	show in as short as possible example the power of automatic down-casting.  So in general, when you have the choice of course, you don't want to juggle around with naked pointers.
+	
+	<div class="code">
+class Foo<br>
+{<br>
+public:<br>
+	<div class="indent">
+	Foo() {}<br>
+	virtual ~Foo() {}<br>
+	virtual int overloaded(int iA) { return iA+1;}<br>
+	int fooSpecific() { return -1; }<br>
+	</div>
+};<br>
+<br>
+class Bar : public Foo<br>
+{<br>
+public:<br>
+	<div class="indent">
+	Bar() {}<br>
+	virtual ~Bar() {}<br>
+	virtual int overloaded(int iA) { return iA+2;}<br>
+	int barSpecific() { return -2; }<br>
+	</div>
+};<br>
+<br>
+class FooBarred : public Bar<br>
+{<br>
+public:<br>
+	<div class="indent">
+	FooBarred() {}<br>
+	virtual ~FooBarred() {}<br>
+	virtual int overloaded(int iA) { return iA+3;}<br>
+	int fooBarSpecific() { return -3; }<br>
+	</div>
+};<br>
+<br>
+Foo* factoryObject(int iWhich)<br>
+{<br>
+	<div class="indent">
+	if (iWhich==3)<br>
+		return new FooBarred();<br>
+	if (iWhich==2)<br>
+		return new Bar();<br>
+	return new Foo();<br>
+	</div>
+}<br>
+<br>
+PY_SHADOW_CLASS( LASS_DLL_EXPORT, PyFoo, Foo )<br>
+PY_DECLARE_CLASS_NAME( PyFoo, "Foo" )<br>
+PY_SHADOW_DOWN_CASTERS( PyFoo )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyFoo, overloaded )<br>
+	PY_CLASS_METHOD( PyFoo, fooSpecific )<br>
+	</div>
+<br>
+PY_SHADOW_CLASS_DERIVED( LASS_DLL_EXPORT, PyBar, Bar, PyFoo)<br>
+PY_DECLARE_CLASS_NAME( PyBar, "Bar" )<br>
+PY_SHADOW_DOWN_CASTERS( PyBar )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyBar, barSpecific )<br>
+	</div>
+<br>
+PY_SHADOW_CLASS_DERIVED( LASS_DLL_EXPORT, PyFooBarred, FooBarred, PyBar)<br>
+PY_DECLARE_CLASS_NAME( PyFooBarred, "FooBarred" )<br>
+PY_SHADOW_DOWN_CASTERS( PyFooBarred )<br>
+	<div class="indent">
+	PY_CLASS_METHOD( PyBar, fooBarSpecific )<br>
+	</div>
+<br>
+PY_DECLARE_MODULE( embedding )<br>
+	<div class="indent">
+	PY_MODULE_CLASS( embedding, PyFoo,  "")<br>
+	PY_MODULE_CLASS( embedding, PyBar,  "")<br>
+	PY_MODULE_CLASS( embedding, PyFooBarred,  "")<br>
+	PY_MODULE_FUNCTION( embedding, factoryObject )<br>
+	</div>
+<br>
+PY_EXTENSION_MODULE( embedding )<br>
+	</div>
+	<h3>Declaring a derived class</h3>
+	<div class="codeinset">
+	PY_SHADOW_CLASS_DERIVED( LASS_DLL_EXPORT, PyBar, Bar, PyFoo)<br>
+	PY_DECLARE_CLASS_NAME( PyBar, "Bar" )<br>
+	</div>
+	
+	The <em>PY_SHADOW_CLASS_DERIVED</em> macro tells lass::python that the C++ class <em>Bar</em> will be shadow using identifier <em>PyBar</em> and will inherit 
+	any properties from the Python shadow <em>PyFoo</em>.  
+
+	<h3>Supporting automatic down-casting</h3>
+	<div class="codeinset">
+	PY_SHADOW_DOWN_CASTERS( PyBar )<br>
+	</div>
+	
+	The <em>PY_SHADOW_DOWN_CASTERS</em> macro creates all necessary template code so instances of <em>Bar</em> can be used as 
+	argument or return value in any interface that needs to be exposed to Python objects.  The <em>_DOWN</em> part of the macro refers to the fact that when an instance of the actual
+	C++ class behind <em>PyFoo</em> (in this case, this is <em>Foo</em>) then lass::python is allowed to down-cast to <em>PyBar</em> objects whenever this makes sense.  The automatic down-casting 
+	renders the Python class hierarchy the exact behavior you would expect from a Python declared class hierarchy.  The type of the object will be <em>Bar</em> (in Python that is) and all methods will be 
+	available from <em>Bar</em>.  In comparison, in C++ you would only have access to the functions declared in <em>Foo</em> but of course the behaviour filled in by the concrete objects when those
+	functions were declared virtual.
+	
+
+	
+</div>
+
+</div>
+</body>
+</html>

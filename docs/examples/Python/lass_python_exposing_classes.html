@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+
+<div class="fixed">
+	<h2>Exposing a class</h2>
+	This tutorial guides you through the process of exposing your C++ class to Python.   Lass::python basically supports two different methods of exposing C++ classes to Python:
+	<ul>
+	<li>Shadow objects : C++ objects and Python objects live in a separate world.
+	<li>Native objects : C++ objects and Python objects share the same mixed world.
+	</ul>
+	In <em>shadow</em> mode the translation between both worlds is done using shadow objects which handle all conversions behind the scenes.  In <em>native</em> mode the C++ class must 
+	be instrumented to handle the Python interface.  A user of your Python class available through embedding will not be able
+	to tell the difference between both techniques.  The pro's en con's are rather technical and we will keep them
+	for the <em>Advanced Lass::python techniques</em> (like every self-respecting library writer we also have an <em>advanced</em> section, yay).
+	<p>
+	This tutorial contains following paragraphs:
+	<ul>
+	<li>declaring a class
+	<li>constructors
+	<li>public members
+	<li>member functions
+	<li>translating accessor functions
+	<li>overloaded functions
+	<li>virtual functions
+	<li>default values
+	</ul>
+	Let us start we define an interesting C++ class called Foo.
+	
+	<div class="code">
+	class Foo<br>
+	{<br>
+	public:<br>
+	<div class="indent">
+		Foo() {}<br>
+		virtual ~Foo() {}<br>
+		int publicMember;<br>
+		int getMember() { return publicMember; }<br>
+		void setMember(int iMember) { publicMember=iMember; }<br>
+		int member() const { return publicMember; } <br>
+		int& member() { return publicMember; } <br>
+		<br>
+		int overloaded(int iA) { return iA;} <br>
+		int overloaded(int iA, int iB) { return iA+iB;} <br>
+		int overloaded(int iA, int iB, int iC) { return iA+iB+iC;} <br>
+		<br>
+		virtual void virtualFunction() {}<br>
+		<br>
+		Foo(int, int=5) {} <br>
+	</div>
+	};<br>
+	<br>
+PY_DECLARE_MODULE( embedding )<br>
+<br>
+PY_SHADOW_CLASS( LASS_DLL_EXPORT, PyFoo, Foo )<br>
+PY_SHADOW_DOWN_CASTERS( PyFoo )<br>
+PY_DECLARE_CLASS_NAME( PyFoo, "Foo" )<br>
+<br>
+PY_CLASS_CONSTRUCTOR_0( PyFoo )<br>
+<br>
+PY_CLASS_PUBLIC_MEMBER( PyFoo, publicMember )<br>
+PY_CLASS_PUBLIC_MEMBER_R_NAME( PyFoo, publicMember, "readOnlyPublicMember" )<br>
+<br>
+PY_CLASS_METHOD( PyFoo, getMember )<br>
+PY_CLASS_METHOD( PyFoo, setMember )<br>
+
+PY_CLASS_MEMBER_RW_NAME( PyFoo, getMember, setMember, "accessorMember" )<br>
+<br>
+PY_CLASS_MEMBER_RW_NAME( PyFoo, coolMember, coolMember, "cool" )<br>
+<br>
+PY_CLASS_METHOD_QUALIFIED_1( PyFoo, overloaded, int, int )<br>
+PY_CLASS_METHOD_QUALIFIED_2( PyFoo, overloaded, int, int, int )<br>
+PY_CLASS_METHOD_QUALIFIED_3( PyFoo, overloaded, int, int, int, int )<br>
+<br>
+PY_CLASS_METHOD( PyFoo, virtualFunction )
+<br>
+PY_CLASS_CONSTRUCTOR_1( PyFoo, int )<br>
+PY_CLASS_CONSTRUCTOR_2( PyFoo, int, int  )<br>
+<br>
+PY_EXTENSION_MODULE( embedding )<br>
+	</div>
+	<h3>Declaring a shadow class</h3>
+	<div class="codeinset">
+PY_SHADOW_CLASS( LASS_DLL_EXPORT, PyFoo, Foo )<br>
+PY_SHADOW_DOWN_CASTERS( PyFoo )<br>
+PY_DECLARE_CLASS_NAME( PyFoo, "Foo" )
+	</div>
+	
+	The <em>PY_SHADOW_CLASS</em> macro tells lass::python that a C++ shadow class will be created for use in Python.  
+	In this case the shadow class <em>PyFoo</em> is created for the regular C++ class <em>Foo</em>.   Shadow casters are routines/objects 
+	that are responsible for creating shadow objects wherever that should be necessary.  An example is when objects of your regular C++ Foo 
+	are being used as argument or return value in another shadow class.  In general it is a good idea to provide shadow casters, they present
+	no overhead when they are not actively used. <em>PY_DECLARE_CLASS_NAME</em> associates a name for use in Python for the shadow class.
+
+	<h3>Constructors</h3>
+	<div class="codeinset">
+	PY_CLASS_CONSTRUCTOR_0( PyFoo )<br>
+	</div>
+	The macro above makes sure that you can create Foo objects in Python.  In this case the default constructor is made available.  
+	If you have multiple constructors you can just put the other macros exporting those below <em>PY_DECLARE_CLASS_NAME</em>.  lass::python
+	will try to match any Python calls for your C++ constructors in a best effort way.  This mechanism is similar to overloading so we refer 
+	to that paragraph for more information.
+	
+	<h3>Public members</h3>
+	<div class="codeinset">
+	PY_CLASS_PUBLIC_MEMBER( PyFoo, publicMember )<br>
+	PY_CLASS_PUBLIC_MEMBER_R_NAME( PyFoo, publicMember, "readOnlyPublicMember" )<br>
+	</div>
+	The <em>PY_CLASS_PUBLIC_MEMBER_XXX</em> macros are used to make public members to your shadow Python class.  The first macro 
+	adds the public member <em>publicMember</em> from the C++ class Foo to the shadow class and leaves the name intact.  The next
+	macro defines a read-only member (in Python) <em>readOnlyPublicMember</em> and use the C++ <em>publicMember</em> public member as 
+	data source.
+
+	<h3>Member functions</h3>
+	<div class="codeinset">
+	PY_CLASS_METHOD( PyFoo, getMember )<br>
+	PY_CLASS_METHOD( PyFoo, setMember )<br>
+	</div>
+	The <em>PY_CLASS_METHOD</em> macros expose a member function to Python.  Without the <em>_NAME</em> suffix the name of the 
+	member function in python is equal to that of the C++ method.  
+	
+	<h3>Translating accessor functions</h3>
+	<div class="codeinset">
+	PY_CLASS_MEMBER_RW_NAME( PyFoo, getMember, setMember, "accessorMember" )<br>
+	PY_CLASS_MEMBER_RW_NAME( PyFoo, coolMember, coolMember, "cool" )<br>
+	</div>
+	Typically when exposing your C++ class to Python the interface visible in Python needs to be as much Pythonic as possible.  
+	lass::python has support for exposing getters and setters as a public member variable in Python.  In the example given above any
+	assignments to the <em>accessorMember</em> will be rerouted to the <em>setMember</em> member function of the C++ class.  Any requested
+	r-values will go through the <em>getMember</em> function.</br>
+	Often in C++ you will also have overloaded getter/setters.  lass::python allows to specify those as well and will try to match the correct
+	function for getting a value (ie, the const function) and the other one for l-value use.
+	
+	<h3>Overloaded functions</h3>
+	<div class="codeinset">
+	PY_CLASS_METHOD_QUALIFIED_1( PyFoo, overloaded, int, int )<br>
+	PY_CLASS_METHOD_QUALIFIED_2( PyFoo, overloaded, int, int, int )<br>
+	PY_CLASS_METHOD_QUALIFIED_3( PyFoo, overloaded, int, int, int, int )<br>
+	</div>
+	When overloaded functions need to be exported to Python the ambiguity needs to be resolved.  Therefor the <em>_QUALIFIED_X</em> suffix has 
+	to be used after the macro name.  In the macro the arguments of the function have to be given so lass::python knows which function 
+	to choose.  The <em>_X</em> suffix is filled in with the number of arguments for the function given.
+	
+	<h3>Virtual functions</h3>
+	<div class="codeinset">
+	PY_CLASS_METHOD( PyFoo, virtualFunction )
+	</div>
+	For lass::python there is nothing special about virtual functions, so you can treat them as regular member functions.  Even abstract methods 
+	can be treated like any other member method.  More info on what behaviour this induces in child-classes is given in another tutorial.
+	
+	
+	<h3>Default arguments</h3>
+	<div class="codeinset">
+	PY_CLASS_CONSTRUCTOR_1( PyFoo, int )<br>
+	PY_CLASS_CONSTRUCTOR_2( PyFoo, int, int  )<br>
+	</div>
+	The example for default arguments picked out the constructor for default arguments but in fact any other function with default arguments
+	can be exposed to Python in a similar way.
+
+	
+</div>
+
+</div>
+</body>
+</html>
