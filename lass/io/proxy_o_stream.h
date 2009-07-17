@@ -114,7 +114,7 @@ public:
 		 *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
 		 *           doing.  But be warned: it might not do what you expect.
 		 */
-		Lock( const ProxyOStream::Lock& iOther ): proxy_(iOther.proxy_), messageMask_(iOther.messageMask_)
+		Lock( ProxyOStream::Lock& iOther ): proxy_(iOther.proxy_), messageMask_(iOther.messageMask_)
 		{
 			iOther.proxy_ = 0;
 			iOther.messageMask_ = 0;
@@ -170,9 +170,9 @@ public:
 		}
 
 	private:
-		Lock& operator=( const Lock& /*iOther*/ ) { LASS_ASSERT(false); return *this; }
-		mutable ProxyOStream* proxy_;
-		mutable TMask messageMask_;
+		Lock& operator=( const Lock& /*iOther*/ );
+		ProxyOStream* proxy_;
+		TMask messageMask_;
 	};
 
 

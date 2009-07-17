@@ -59,12 +59,10 @@ namespace io
 
 /** @relates lass::io::Socket
  */
-class SocketError: public util::Exception
+class SocketError: public util::ExceptionMixin<SocketError>
 {
 public:
-	SocketError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(SocketError)
+	SocketError(const std::string& msg, const std::string& loc): util::ExceptionMixin<SocketError>(msg, loc) {}
 };
 
 

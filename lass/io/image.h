@@ -102,12 +102,10 @@ public:
 		const bool operator!=(const ColorSpace& other) const { return !(*this == other); }
 	};
 
-	class BadFormat: public util::Exception
+	class BadFormat: public util::ExceptionMixin<BadFormat>
 	{
 	public:
-		BadFormat(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-	private:
-		LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadFormat)
+		BadFormat(const std::string& msg, const std::string& loc): util::ExceptionMixin<BadFormat>(msg, loc) {}
 	};
 
 	// STRUCTORS

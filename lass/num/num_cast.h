@@ -50,13 +50,10 @@ namespace lass
 namespace num
 {
 
-class BadNumCast: public util::experimental::ExceptionMixin<BadNumCast>
+class BadNumCast: public util::ExceptionMixin<BadNumCast>
 {
 public:
-	BadNumCast(const std::string& msg, const std::string& loc): 
-		util::experimental::ExceptionMixin<BadNumCast>(msg, loc) 
-	{
-	}
+	BadNumCast(const std::string& msg, const std::string& loc): util::ExceptionMixin<BadNumCast>(msg, loc) {}
 };
 
 namespace impl

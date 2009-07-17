@@ -73,12 +73,10 @@ namespace prim
 
 /** @ingroup ParameterPolicy
  */
-class ParameterError: public util::Exception
+class ParameterError: public util::ExceptionMixin<ParameterError>
 {
 public:
-	ParameterError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ParameterError)
+	ParameterError(const std::string& msg, const std::string& loc): util::ExceptionMixin<ParameterError>(msg, loc) {}
 };
 
 

@@ -312,7 +312,7 @@ unsigned ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(unsigned 
 #define LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(exception_type)\
 catch (const exception_type& error)\
 {\
-	pool_.error_.reset(new experimental::RemoteExceptionWrapper<exception_type>(error));\
+	pool_.error_.reset(new RemoteExceptionWrapper<exception_type>(error));\
 	return;\
 }
 
@@ -331,10 +331,10 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 			{
 				consumer_(task);
 			}
-			catch (const experimental::RemoteExceptionBase& error)
+			catch (const RemoteExceptionBase& error)
 			{
 				// two phase copy assignment to avoid warning on VC7.1 [Bramz]
-				std::auto_ptr<experimental::RemoteExceptionBase> temp = error.clone();
+				std::auto_ptr<RemoteExceptionBase> temp = error.clone();
 				pool_.error_ = temp;
 				return;
 			}

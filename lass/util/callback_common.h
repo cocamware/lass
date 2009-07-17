@@ -52,12 +52,10 @@ namespace util
 
 /** @ingroup Callback
  */
-class EmptyCallback: public Exception
+class EmptyCallback: public ExceptionMixin<EmptyCallback>
 {
 public:
-	EmptyCallback(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(EmptyCallback)
+	EmptyCallback(const std::string& msg, const std::string& loc): ExceptionMixin<EmptyCallback>(msg, loc) {}
 };
 
 }

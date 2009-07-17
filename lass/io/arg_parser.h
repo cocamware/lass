@@ -249,12 +249,10 @@ private:
 /** @ingroup ArgParser
  *  Exception thrown in case of bad arguments.
  */
-class ArgBadArgument: public util::Exception
+class ArgBadArgument: public util::ExceptionMixin<ArgBadArgument>
 {
 public:
-	ArgBadArgument(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(ArgBadArgument)
+	ArgBadArgument(const std::string& msg, const std::string& loc): util::ExceptionMixin<ArgBadArgument>(msg, loc) {}
 };
 
 

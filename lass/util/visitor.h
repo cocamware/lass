@@ -50,12 +50,10 @@ namespace lass
 namespace util
 {
 
-class BadVisit: public Exception
+class BadVisit: public ExceptionMixin<BadVisit>
 {
 public:
-	BadVisit(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadVisit)
+	BadVisit(const std::string& msg, const std::string& loc): ExceptionMixin<BadVisit>(msg, loc) {}
 };
 
 

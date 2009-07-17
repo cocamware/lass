@@ -45,6 +45,8 @@
 
 #include "python_common.h"
 #include "pyobject_plus.h"
+#include "../util/callback_0.h"
+#include "../util/callback_1.h"
 
 namespace lass
 {
@@ -54,12 +56,18 @@ namespace python
 class LASS_DLL ModuleDefinition: util::NonCopyable
 {
 public:
+	typedef util::Callback0 TPreInject;
+	typedef util::Callback1<PyObject*> TPostInject;
+
 	ModuleDefinition(const char* name, const char* doc = 0);
 	const char* name() const { return name_.get(); }
 	void setName(const char* name);
 	const char* doc() const { return doc_.get(); }
 	void setDoc(const char* doc);
 	PyObject* module() const { return module_; }
+
+	void setPreInject(const TPreInject& callback);
+	void setPostInject(const TPostInject& callback);
 
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
 	void addClass(impl::ClassDefinition& classDef);
@@ -81,6 +89,8 @@ private:
 	TObjects objects_;
 	TScopedCString name_;
 	TScopedCString doc_;
+	TPreInject preInject_;
+	TPostInject postInject_;
 	PyObject* module_;
 #if PY_MAJOR_VERSION >= 3
 	PyModuleDef def_;

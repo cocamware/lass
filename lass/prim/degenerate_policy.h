@@ -66,12 +66,10 @@ namespace prim
 
 /** @ingroup DegeneratePolicy
  */
-class DegenerationError: public util::Exception
+class DegenerationError: public util::ExceptionMixin<DegenerationError>
 {
 public:
-	DegenerationError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(DegenerationError)
+	DegenerationError(const std::string& msg, const std::string& loc): util::ExceptionMixin<DegenerationError>(msg, loc) {}
 };
 
 

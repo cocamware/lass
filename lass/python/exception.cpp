@@ -53,61 +53,40 @@ namespace impl
 
 void addMessageHeader(const std::string& header)
 {
-        if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
-        {
-                return;
-        }
-        PyObject *type, *value, *traceback;
-        PyErr_Fetch(&type, &value, &traceback);
-        try
-        {
-                if (PyUnicode_Check(value))
-                {
-                        std::string left = header + ": ";
-                        TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
-                        PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
-                        std::swap(value, newValue);
-                        Py_DECREF(newValue);
-                }
+	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
+	{
+		return;
+	}
+	PyObject *type, *value, *traceback;
+	PyErr_Fetch(&type, &value, &traceback);
+	try
+	{
+		if (PyUnicode_Check(value))
+		{
+			std::string left = header + ": ";
+			TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
+			PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
+			std::swap(value, newValue);
+			Py_DECREF(newValue);
+		}
 #if PY_MAJOR_VERSION < 3
-                else if (PyString_Check(value))
-                {
-                        std::ostringstream buffer;
-                        buffer << header << ": " << PyString_AsString(value);
-                        PyObject* temp = pyBuildSimpleObject(buffer.str());
-                        std::swap(value, temp);
-                        Py_DECREF(temp);
-                }
+		else if (PyString_Check(value))
+		{
+			std::ostringstream buffer;
+			buffer << header << ": " << PyString_AsString(value);
+			PyObject* temp = pyBuildSimpleObject(buffer.str());
+			std::swap(value, temp);
+			Py_DECREF(temp);
+		}
 #endif
-        }
-        catch (const std::exception&)
-        {
-        }
-        PyErr_Restore(type, value, traceback);
+	}
+	catch (const std::exception&)
+	{
+	}
+	PyErr_Restore(type, value, traceback);
 }
 
 
-
-const std::string exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value)
-{
-	std::ostringstream buffer;
-	const TPyObjPtr typeStr(PyObject_Str(type.get()));
-	std::string temp;
-	if (typeStr && pyGetSimpleObject(typeStr.get(), temp) == 0)
-	{
-		buffer << temp;
-	}
-	else
-	{
-		buffer << "unknown python exception";
-	}
-	const TPyObjPtr valueStr(value.get() == Py_None ? 0 : PyObject_Str(value.get()));
-	if (valueStr && pyGetSimpleObject(valueStr.get(), temp) == 0)
-	{
-		buffer << ": '" << temp << "'";
-	}
-	return buffer.str();
-}
 
 void fetchAndThrowPythonException(const std::string& loc)
 {
@@ -147,5 +126,65 @@ void catchStdException(const std::exception& error)
 }
 
 }
+
+PythonException::PythonException(
+		const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc):
+	util::ExceptionMixin<PythonException>(extractMessage(type.get(), value.get()), loc),
+	type_(type),
+	value_(value),
+	traceback_(traceback)
+{
+}
+
+PythonException::PythonException(PyObject* type, const std::string& msg, const std::string& loc):
+	util::ExceptionMixin<PythonException>(extractMessage(type) + ": " + msg, loc),
+	type_(fromNakedToSharedPtrCast<PyObject>(type)),
+	value_(pyBuildSimpleObject(msg)),
+	traceback_(0)
+{
+}
+
+PythonException::~PythonException() throw() 
+{
+}
+
+const python::TPyObjPtr& PythonException::type() const 
+{ 
+	return type_; 
+}
+
+const python::TPyObjPtr& PythonException::value() const 
+{ 
+	return value_; 
+} 
+
+const python::TPyObjPtr& PythonException::traceback() const 
+{ 
+	return traceback_; 
+}
+
+const std::string PythonException::extractMessage(PyObject* type, PyObject* value)
+{
+	std::string message;
+	const TPyObjPtr typeStr(PyObject_Str(type));
+	if (!typeStr || pyGetSimpleObject(typeStr.get(), message) != 0)
+	{
+		message = "unknown python exception";
+		PyErr_Clear();
+	}
+	if (value && value != Py_None)
+	{
+		std::string valmsg;
+		const TPyObjPtr valueStr(PyObject_Str(value));
+		if (!valueStr || pyGetSimpleObject(valueStr.get(), valmsg) != 0)
+		{
+			PyErr_Clear();
+			return message;
+		}
+		message += ": " + valmsg;
+	}
+	return message;
+}
+
 }
 }

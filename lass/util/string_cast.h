@@ -52,12 +52,10 @@ namespace lass
 namespace util
 {
 
-class BadStringCast: public Exception
+class BadStringCast: public ExceptionMixin<BadStringCast>
 {
 public:
-	BadStringCast(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(BadStringCast)
+	BadStringCast(const std::string& msg, const std::string& loc): ExceptionMixin<BadStringCast>(msg, loc) {}
 };
 
 namespace impl

@@ -56,34 +56,26 @@ class PythonException;
 namespace impl
 {
 	LASS_DLL void LASS_CALL addMessageHeader(const std::string& header);
-	LASS_DLL const std::string LASS_CALL exceptionExtractMessage(const TPyObjPtr& type, const TPyObjPtr& value);
 	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
 	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
 	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);
 	LASS_DLL void LASS_CALL catchStdException(const std::exception& error);
 }
 
-class PythonException: public util::Exception
+class LASS_DLL PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
-	PythonException(
-			const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, 
-			const std::string& loc):
-		util::Exception(impl::exceptionExtractMessage(type, value), loc),
-		type_(type),
-		value_(value),
-		traceback_(traceback)
-	{
-	}
-	~PythonException() throw() {}
-	const python::TPyObjPtr& type() const { return type_; } 
-	const python::TPyObjPtr& value() const { return value_; } 
-	const python::TPyObjPtr& traceback() const { return traceback_; } 
+	PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
+	PythonException(PyObject* type, const std::string& value, const std::string& loc = "no location");
+	~PythonException() throw();
+	const python::TPyObjPtr& type() const;
+	const python::TPyObjPtr& value() const;
+	const python::TPyObjPtr& traceback() const;
 private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(PythonException)
 	python::TPyObjPtr type_;
 	python::TPyObjPtr value_;
 	python::TPyObjPtr traceback_;
+	static const std::string extractMessage(PyObject* type, PyObject* value = 0);
 };
 
 }

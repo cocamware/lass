@@ -57,163 +57,97 @@
 #include <string>
 #include <sstream>
 
-#define LASS_UTIL_EXCEPTION_PRIVATE_IMPL(t_exception)\
-		virtual void doThrowSelf() const { throw *this; }\
-		virtual ::std::auto_ptr< ::lass::util::experimental::RemoteExceptionBase > doClone() const \
-		{ \
-			return ::std::auto_ptr< ::lass::util::experimental::RemoteExceptionBase >(new t_exception(*this)); \
-		}\
-	/**/
-
 namespace lass
 {
 namespace util
 {
-namespace experimental
-{
-	class RemoteExceptionBase
-	{
-	public:
-		virtual ~RemoteExceptionBase() {}
-		void throwSelf() const { doThrowSelf(); }
-		std::auto_ptr<RemoteExceptionBase> clone() const
-		{
-			std::auto_ptr<RemoteExceptionBase> copy = doClone();
-			if (typeid(*copy) != typeid(*this))
-			{
-				std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: Cloned exception has been sliced from '"
-					<< typeid(*this).name() << "' to '" << typeid(*copy).name() << "'." << std::endl;
-			}
-			return copy;
-		}
-	private:
-		virtual void doThrowSelf() const = 0;
-		virtual std::auto_ptr<RemoteExceptionBase> doClone() const = 0;
-	};
 
-	template <typename LocalException>
-	class RemoteExceptionWrapper:
-		public LocalException,
-		public RemoteExceptionBase
-	{
-	public:
-		RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
-		~RemoteExceptionWrapper() throw() {}
-	private:
-		void doThrowSelf() const { throw *this; }
-		std::auto_ptr<RemoteExceptionBase> doClone() const 
-		{ 
-			return std::auto_ptr<RemoteExceptionBase>(new RemoteExceptionWrapper<LocalException>(*this)); 
-		}
-	};
-}
-
-
-
-class Exception: 
-	public std::exception,
-	public experimental::RemoteExceptionBase
+class LASS_DLL RemoteExceptionBase
 {
 public:
-
-	Exception(const std::string& message, const std::string& location):
-		std::exception(),
-		message_(message),
-		location_(location)
-	{
-	}
-
-	explicit Exception(const std::string& message):
-		std::exception(),
-		message_(message),
-		location_("no location")
-	{
-	}
-
-	Exception():
-		std::exception(),
-		message_("no message"),
-		location_("no location")
-	{
-	}
-
-	~Exception() throw() {}
-
-	/** return message in STL style
-	 */
-	virtual const char* what() const throw()
-	{
-		return message_.c_str();
-	}
-
-	/** return string with error message
-	 */
-	const std::string& message() const
-	{
-		return message_;
-	}
-
-	/** return string with location info where exception is thrown
-	 */
-	const std::string& location() const
-	{
-		return location_;
-	}
-
-
+	virtual ~RemoteExceptionBase();
+	void throwSelf() const;
+	std::auto_ptr<RemoteExceptionBase> clone() const;
 private:
-
-	std::string message_;
-	std::string location_;
-
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(Exception)
+	virtual void doThrowSelf() const = 0;
+	virtual std::auto_ptr<RemoteExceptionBase> doClone() const = 0;
 };
 
-namespace experimental
+
+
+class LASS_DLL Exception: public virtual std::exception, public virtual RemoteExceptionBase
 {
+public:
+	explicit Exception(const std::string& message = "no message", const std::string& location = "no location");
+	~Exception() throw();
+	const char* what() const throw();
+	const std::string& message() const;
+	const std::string& location() const;
+private:
+	std::string message_;
+	std::string location_;
+	void doThrowSelf() const;
+	::std::auto_ptr<RemoteExceptionBase> doClone() const;
+};
+
+
 
 template <typename ExceptionType, typename ParentType = Exception>
-class ExceptionMixin: public ParentType
+class ExceptionMixin: public virtual ParentType
 {
 public:
 	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
 private:
 	virtual void doThrowSelf() const 
 	{
-		//LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
 		throw *static_cast<const ExceptionType*>(this); 
 	}
 	virtual ::std::auto_ptr<RemoteExceptionBase> doClone() const
 	{ 
-		//LASS_ASSERT(typeid(*this) == typeid(ExceptionType));
 		return ::std::auto_ptr<RemoteExceptionBase>(new ExceptionType(*static_cast<const ExceptionType*>(this)));
 	}
 };
 
-}
 
 
-
-class KeyError: public experimental::ExceptionMixin<KeyError>
+template <typename LocalException>
+class RemoteExceptionWrapper:
+	public virtual LocalException,
+	public virtual RemoteExceptionBase
 {
 public:
-	KeyError(const std::string& msg, const std::string& loc): 
-		experimental::ExceptionMixin<KeyError>(msg, loc) {}
+	RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
+	~RemoteExceptionWrapper() throw() {}
+private:
+	void doThrowSelf() const 
+	{ 
+		throw *this; 
+	}
+	std::auto_ptr<RemoteExceptionBase> doClone() const 
+	{ 
+		return std::auto_ptr<RemoteExceptionBase>(new RemoteExceptionWrapper<LocalException>(*this)); 
+	}
 };
 
 
-class ValueError: public experimental::ExceptionMixin<ValueError>
+
+class KeyError: public ExceptionMixin<KeyError>
 {
 public:
-	ValueError(const std::string& msg, const std::string& loc): 
-		experimental::ExceptionMixin<ValueError>(msg, loc) {}
+	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin<KeyError>(msg, loc) {}
 };
 
-class SingularityError: public experimental::ExceptionMixin<SingularityError>
+
+class ValueError: public ExceptionMixin<ValueError>
 {
 public:
-	SingularityError(const std::string& msg, const std::string& loc):
-		experimental::ExceptionMixin<SingularityError>(msg, loc) {}
+	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin<ValueError>(msg, loc) {}
+};
+
+class SingularityError: public ExceptionMixin<SingularityError>
+{
+public:
+	SingularityError(const std::string& msg, const std::string& loc): ExceptionMixin<SingularityError>(msg, loc) {}
 };
 
 }

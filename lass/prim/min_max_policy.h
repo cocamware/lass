@@ -76,12 +76,10 @@ namespace prim
 /** Exception thrown by StrictMinMax
  *  @ingroup MinMaxPolicy
  */
-class MinMaxError: public util::Exception
+class MinMaxError: public util::ExceptionMixin<MinMaxError>
 {
 public:
-	MinMaxError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(MinMaxError)
+	MinMaxError(const std::string& msg, const std::string& loc): ExceptionMixin<MinMaxError>(msg, loc) {}
 };
 
 

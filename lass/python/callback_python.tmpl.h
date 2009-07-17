@@ -48,6 +48,7 @@
 #include "pyobject_plus.h"
 #include "py_tuple.h"
 #include "pyobject_call.inl"
+#include "exception.h"
 
 namespace lass
 {
@@ -55,8 +56,6 @@ namespace python
 {
 namespace impl
 {
-	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc); // see impl/dispatcher_python.cpp
-
 	/** Common implementation of a dispatcher to an python callback with void return type
 	 *  @internal
 	 *  @author Bramz
@@ -64,23 +63,23 @@ namespace impl
 	class FunctorPythonBase
 	{
 	public:
-		FunctorPythonBase(const python::TPyObjPtr& callable): callable_(callable) {}
+		FunctorPythonBase(const TPyObjPtr& callable): callable_(callable) {}
 		bool operator==(const FunctorPythonBase& other) const
 		{
 			return callable_.get() == other.callable_.get();
 		}
 	protected:
-		void call(const python::TPyObjPtr& args) const
+		void call(const TPyObjPtr& args) const
 		{
 			LASS_ASSERT(callable_);
-			const python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
+			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 			if (!result)
 			{
 				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 			}
 		}
 	private:
-		python::TPyObjPtr callable_;
+		TPyObjPtr callable_;
 	};
 
 	/** Common implementation of a dispatcher to an python callback with non-void return type.
@@ -91,16 +90,16 @@ namespace impl
 	class FunctorPythonRBase
 	{
 	public:
-		FunctorPythonRBase(const python::TPyObjPtr& callable): callable_(callable) {}
+		FunctorPythonRBase(const TPyObjPtr& callable): callable_(callable) {}
 		bool operator==(const FunctorPythonRBase<R>& other) const
 		{
 			return callable_.get() == other.callable_.get();
 		}
 	protected:
-		R call(const python::TPyObjPtr& args) const
+		R call(const TPyObjPtr& args) const
 		{
 			LASS_ASSERT(callable_);
-			const python::TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
+			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 			if (!result)
 			{
 				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
@@ -109,12 +108,12 @@ namespace impl
 			typename TraitsR::TStorage temp;
 			if (pyGetSimpleObject(result.get(), temp) != 0)
 			{
-				LASS_THROW("bad result");
+				fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 			}
 			return TraitsR::arg(temp);
 		}
 	private:
-		python::TPyObjPtr callable_;
+		TPyObjPtr callable_;
 	};
 }
 
@@ -221,10 +220,10 @@ namespace impl
 	class Functor$xPython: public FunctorPythonBase
 	{
 	public:
-		Functor$xPython(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
+		Functor$xPython(const TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			this->call(python::makeTuple($(p$x)$));
+			this->call(makeTuple($(p$x)$));
 		}
 	};
 }
@@ -268,10 +267,10 @@ namespace impl
 	class FunctorPythonR0: public FunctorPythonRBase<R>
 	{
 	public:
-		FunctorPythonR0(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
+		FunctorPythonR0(const TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()() const
 		{
-			return this->call(python::TPyObjPtr());
+			return this->call(TPyObjPtr());
 		}
 	};
 }
@@ -311,10 +310,10 @@ namespace impl
 	class FunctorPythonR$x: public FunctorPythonRBase<R>
 	{
 	public:
-		FunctorPythonR$x(const python::TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
+		FunctorPythonR$x(const TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			return this->call(python::makeTuple($(p$x)$));
+			return this->call(makeTuple($(p$x)$));
 		}
 	};
 }

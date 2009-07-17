@@ -146,7 +146,8 @@ void ProxyOStream::setFilter( std::ostream* iDestination, TMask iFilterMask)
 
 ProxyOStream::Lock ProxyOStream::operator()( TMask iMessageMask )
 {
-	return Lock(this, iMessageMask);
+	Lock lock(this, iMessageMask);
+	return lock;
 }
 
 

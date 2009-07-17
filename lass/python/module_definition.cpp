@@ -99,6 +99,20 @@ void ModuleDefinition::setDoc(const char* doc)
 	experimental::assignScopedCString(doc_, doc);
 }
 
+/** callback called at start of module injection
+ */
+void ModuleDefinition::setPreInject(const TPreInject& callback)
+{
+	preInject_ = callback;
+}
+
+/** callback called at end of module injection, with module as parameter
+ */
+void ModuleDefinition::setPostInject(const TPostInject& callback)
+{
+	postInject_ = callback;
+}
+
 /** new-style class addition.
  *
  *  This function adds a class definition to a table that will be injected when the module is.
@@ -142,6 +156,7 @@ PyObject* ModuleDefinition::inject()
 {
 	LASS_ASSERT(!isInjected_);
 	LASS_ASSERT(name_.get());
+	preInject_();
 	methods_.push_back(impl::createPyMethodDef(0, 0, 0, 0));
 	Py_Initialize();
 #if PY_MAJOR_VERSION < 3
@@ -161,6 +176,7 @@ PyObject* ModuleDefinition::inject()
 	{
 		PyModule_AddObject(module_, obj->name, obj->object);
 	}
+	postInject_(module_);
 	return module_;
 }
 

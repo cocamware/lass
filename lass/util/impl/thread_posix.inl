@@ -354,7 +354,7 @@ void bindThread(pthread_t handle, pid_t tid, size_t processor)
 #define LASS_UTIL_THREAD_POSIX_CATCH_AND_WRAP(exception_type)\
 	catch (const exception_type& error)\
 	{\
-		pimpl->error_.reset(new experimental::RemoteExceptionWrapper<exception_type>(error));\
+		pimpl->error_.reset(new RemoteExceptionWrapper<exception_type>(error));\
 	}
 
 /** @internal
@@ -512,7 +512,7 @@ public:
 				pimpl->runCondition_.signal();
 				pimpl->thread_.doRun();
 			}
-			catch (const experimental::RemoteExceptionBase& error)
+			catch (const RemoteExceptionBase& error)
 			{
 				pimpl->error_ = error.clone();
 			}
@@ -541,7 +541,7 @@ private:
 	Thread& thread_;
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
-	std::auto_ptr<experimental::RemoteExceptionBase> error_;
+	std::auto_ptr<RemoteExceptionBase> error_;
 	pid_t tid_;
 	volatile bool isJoinable_;
 	volatile bool isCreated_;

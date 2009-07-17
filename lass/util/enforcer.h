@@ -63,12 +63,10 @@ namespace util
 /** Exception thrown by enforcers
  *  @ingroup Enforcers
  */
-class EnforceFailure: public Exception
+class EnforceFailure: public ExceptionMixin<EnforceFailure>
 {
 public:
-	EnforceFailure(const std::string& msg, const std::string& loc): Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(EnforceFailure)
+	EnforceFailure(const std::string& msg, const std::string& loc): ExceptionMixin<EnforceFailure>(msg, loc) {}
 };
 
 }

@@ -72,12 +72,10 @@ namespace experimental
 /** @ingroup Thread
  *  @relates Future
  */
-class FutureBindError: public util::Exception
+class FutureBindError: public ExceptionMixin<FutureBindError>
 {
 public:
-	FutureBindError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(FutureBindError)
+	FutureBindError(const std::string& msg, const std::string& loc): ExceptionMixin<FutureBindError>(msg, loc) {}
 };
 
 

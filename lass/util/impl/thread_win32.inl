@@ -512,7 +512,7 @@ void setThreadName(DWORD threadId, const char* threadName)
 #define LASS_UTIL_THREAD_WIN32_CATCH_AND_WRAP(exception_type)\
 	catch (const exception_type& error)\
 	{\
-		pimpl->error_.reset(new experimental::RemoteExceptionWrapper<exception_type>(error));\
+		pimpl->error_.reset(new RemoteExceptionWrapper<exception_type>(error));\
 	}
 
 /** @internal
@@ -634,7 +634,7 @@ public:
 				pimpl->runCondition_.signal();
 				pimpl->thread_.doRun();
 			}
-			catch (const experimental::RemoteExceptionBase& error)
+			catch (const RemoteExceptionBase& error)
 			{
 				pimpl->error_ = error.clone();
 			}
@@ -668,7 +668,7 @@ private:
 	Thread& thread_;
 	HANDLE handle_;	 // handle of the thread
 	DWORD_PTR affinity_;
-	std::auto_ptr<experimental::RemoteExceptionBase> error_;
+	std::auto_ptr<RemoteExceptionBase> error_;
 	Condition runCondition_;
 	const char* name_;
 	unsigned id_;
