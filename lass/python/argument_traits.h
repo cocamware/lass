@@ -100,6 +100,15 @@ struct ArgumentTraitsBuiltin<T&>
 {
 };
 
+/** @ingroup Python
+ *  @internal
+ *  For built-in types, by const references is equivalent to by copy
+ */
+template <typename T>
+struct ArgumentTraitsBuiltin<const T&>: ArgumentTraitsBuiltin<T>
+{
+};
+
 // --- ArgumentTraitsPyObject ----------------------------------------------------------------------
 
 /** @ingroup Python
@@ -127,16 +136,6 @@ struct ArgumentTraitsPyObject<T*>
  *  @internal
  */
 template <typename T>
-struct ArgumentTraitsPyObject<const T*>
-{
-	typedef typename PyObjectPtr<T>::Type TStorage;
-	static const T* arg(const TStorage& storage) { return storage.get(); }
-};
-
-/** @ingroup Python
- *  @internal
- */
-template <typename T>
 struct ArgumentTraitsPyObject<T&>
 {
 	typedef typename PyObjectPtr<T>::Type TStorage;
@@ -158,7 +157,7 @@ struct ArgumentTraitsPyObject< util::SharedPtr<T, PyObjectStorage, PyObjectCount
 
 /** @ingroup Python
  *  @internal
- *  For types that have a shadow pyobject.  These are fully supported.
+ *  For types that have a shadow pyobject.  These are fully supported (T may be const)
  */
 template <typename T>
 struct ArgumentTraitsShadowee
@@ -170,7 +169,7 @@ struct ArgumentTraitsShadowee
 
 /** @ingroup Python
  *  @internal
- *  For types that have a shadow pyobject.  These are fully supported.
+ *  For types that have a shadow pyobject.  These are fully supported (T may be const)
  */
 template <typename T>
 struct ArgumentTraitsShadowee<T&>
@@ -283,14 +282,9 @@ struct ArgumentTraits<T&>: impl::ArgumentTraitsSelector<T&, IsPyObject<T>::value
 
 /** by reference to const object.
  *  @ingroup Python
- *  
- *  Is same as by copy:
- *	@arg For built-in types, we must make a copy anyway to make the conversion, and we get a const ref to that copy.
- *  @arg For pyobjects and shadowees, by copy uses a pointer to the pyobject or shadow object as TStorage, 
- *		and you get a const ref to the pyobject or its shadowee.
  */
 template <typename T> 
-struct ArgumentTraits<const T&>: ArgumentTraits<T>
+struct ArgumentTraits<const T&>: impl::ArgumentTraitsSelector<const T&, IsPyObject<T>::value, ShadoweeTraits<T>::value>
 {
 };
 

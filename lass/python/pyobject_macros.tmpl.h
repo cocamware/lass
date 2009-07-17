@@ -1651,9 +1651,9 @@ $[
                 } \
                 PyErr_Clear(); \
                 TShadowTraits::TConstCppClassPtr constSelf; \
-                if (TShadowTraits::getObject(iObject, constSelf) != 0)\
+                if (TShadowTraits::getObject(iObject, constSelf) == 0)\
                 { \
-                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                        return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
                 } \
                 return 0; \
         }\
@@ -1741,9 +1741,9 @@ $[
                 } \
                 PyErr_Clear(); \
                 TShadowTraits::TConstCppClassPtr constSelf; \
-                if (TShadowTraits::getObject(iObject, constSelf) != 0)\
+                if (TShadowTraits::getObject(iObject, constSelf) == 0)\
                 { \
-                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+                        return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
                 } \
                 return 0; \
         }\

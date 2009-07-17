@@ -104,7 +104,11 @@ private:
 		{
 			typedef typename U::TConstPointerTraits TConstPointerTraits;
 			value = TConstPointerTraits::staticCast(obj->constCppObject());
-			LASS_ASSERT(!TConstPointerTraits::isEmpty(value));
+			if (TConstPointerTraits::isEmpty(value))
+			{
+				PyErr_Format(PyExc_TypeError, "Trying to dereference null-PyObject of type %s", T::_lassPyClassDef.name());
+				return 1;
+			}
 			return 0;
 		};
 		template <typename Ptr> static TPyClassPtr buildObject(const Ptr& value)

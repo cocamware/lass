@@ -85,6 +85,7 @@ struct ConstShadoweeTraits: ShadoweeTraits<T>
 template <typename T>
 struct ConstShadoweeTraits<T, false>: public meta::False
 {
+	typedef T TShadow;
 };
 
 }
