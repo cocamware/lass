@@ -69,7 +69,7 @@ endforeach()
 # This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
 
 macro(param_expander inpath outpath n)
-	set(generator ${CMAKE_SOURCE_DIR}/tools/param_expander.py)
+	set(generator ${lass_SOURCE_DIR}/tools/param_expander.py)
 	add_custom_command(
 		OUTPUT ${outpath}
 		DEPENDS ${inpath} ${generator}
@@ -78,8 +78,8 @@ macro(param_expander inpath outpath n)
 endmacro()
 
 macro(prebuild dirname infile outfile n)
-	set(inpath ${CMAKE_SOURCE_DIR}/${dirname}/${infile})
-	set(outpath ${CMAKE_SOURCE_DIR}/${dirname}/${outfile})
+	set(inpath ${lass_SOURCE_DIR}/${dirname}/${infile})
+	set(outpath ${lass_SOURCE_DIR}/${dirname}/${outfile})
 	if(${outpath} MATCHES "\\$x")
 		foreach(i RANGE 1 ${n})
 			string(REPLACE "$x" ${i} temp ${outpath})
@@ -176,15 +176,15 @@ endif()
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
     # Work around it by adding the obj file as 'source file' and have it generated
-    set(sourcedir ${CMAKE_SOURCE_DIR}/lass/util/impl)
+    set(sourcedir ${CMAKE_CURRENT_SOURCE_DIR}/lass/util/impl)
     set(fname atomic_msvc_x64)
     set(sourcepath ${sourcedir}/${fname}.asm)
     set(defpath ${sourcedir}/${fname}.def)
     set(masm ml64.exe)
     if(MSVC_IDE)
-        set(objpath ${CMAKE_BINARY_DIR}/lass.dir/${CMAKE_CFG_INTDIR}/${fname}.obj)
+        set(objpath ${CMAKE_CURRENT_BINARY_DIR}/lass.dir/${CMAKE_CFG_INTDIR}/${fname}.obj)
     else()
-        set(objpath ${CMAKE_BINARY_DIR}/CMakeFiles/lass.dir/${fname}.obj)
+        set(objpath ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/lass.dir/${fname}.obj)
     endif()
     add_custom_command(
         OUTPUT ${objpath}
