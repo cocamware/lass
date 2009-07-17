@@ -96,7 +96,7 @@ void testPrimTransformation3D()
 				}
 			}
 		}
-		catch (const prim::SingularityError&)
+		catch (const util::SingularityError&)
 		{
 		}
 	}

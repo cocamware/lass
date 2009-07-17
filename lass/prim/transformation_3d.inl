@@ -218,7 +218,7 @@ Transformation3D<T>::inverse() const
 		const TValue det = mat[0] * inv[0] + mat[4] * inv[1] + mat[8] * inv[2] + mat[12] * inv[3];
 		if (det == TNumTraits::zero)
 		{
-			LASS_THROW_EX(SingularityError, "transformation not invertible");
+			LASS_THROW_EX(util::SingularityError, "transformation not invertible");
 		}
 		const TValue invDet = num::inv(det);
 		for (unsigned i = 0; i < 16; ++i)

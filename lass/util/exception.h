@@ -209,6 +209,13 @@ public:
 		experimental::ExceptionMixin<ValueError>(msg, loc) {}
 };
 
+class SingularityError: public experimental::ExceptionMixin<SingularityError>
+{
+public:
+	SingularityError(const std::string& msg, const std::string& loc):
+		experimental::ExceptionMixin<SingularityError>(msg, loc) {}
+};
+
 }
 
 }

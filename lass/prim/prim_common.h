@@ -195,14 +195,6 @@ namespace lass
 namespace prim
 {
 
-class SingularityError: public util::Exception
-{
-public:
-	SingularityError(const std::string& msg, const std::string& loc): util::Exception(msg, loc) {}
-private:
-	LASS_UTIL_EXCEPTION_PRIVATE_IMPL(SingularityError)
-};
-
 }
 }
 

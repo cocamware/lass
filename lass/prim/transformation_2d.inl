@@ -122,7 +122,7 @@ Transformation2D<T>::inverse() const
 		if (det == TNumTraits::zero)
 		{
 			inverseMatrix.reset();
-			LASS_THROW_EX(SingularityError, "transformation not invertible");
+			LASS_THROW_EX(util::SingularityError, "transformation not invertible");
 		}
 		const TValue invDet = num::inv(det);
 		for (int i = 0; i < 9; ++i)

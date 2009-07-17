@@ -100,11 +100,11 @@ Matrix<T, impl::MVDiag<T, S> > diagonal(const Vector<T, S>& iB)
  *  @sa lass::num::Matrix::solve
  */
 template <typename T, typename S>
-bool solve(const Matrix<T, S>& iA, Vector<T>& iB)
+void solve(const Matrix<T, S>& iA, Vector<T>& iB)
 {
 	typedef impl::MVColumn<T, typename Vector<T>::TStorage > TAdaptor;
 	Matrix<T, TAdaptor> adaptedB(TAdaptor(iB.storage()));
-	return solve(iA, adaptedB);
+	solve(iA, adaptedB);
 }
 
 

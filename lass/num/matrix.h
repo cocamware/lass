@@ -181,9 +181,8 @@ public:
 	bool isDiagonal() const;
 	bool isSquare() const;
 
-	const Matrix<T, impl::MTrans<T, S> > transpose() const;
-
-	bool invert();
+	const Matrix<T, impl::MTrans<T, S> > transposed() const;
+	void invert();
 
 	const TStorage& storage() const;
 	TStorage& storage();
@@ -223,7 +222,7 @@ template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
 
 template <typename T, typename S, typename S2>
-bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB);
+void solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB);
 
 
 template <typename T, typename S, typename Char, typename Traits>

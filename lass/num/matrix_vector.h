@@ -62,7 +62,7 @@ template <typename T, typename S>
 Matrix<T, impl::MVDiag<T, S> > diagonal(const Vector<T, S>& iB);
 
 template <typename T, typename S>
-bool solve(const Matrix<T, S>& iA, Vector<T>& iB);
+void solve(const Matrix<T, S>& iA, Vector<T>& iB);
 
 }
 

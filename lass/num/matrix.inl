@@ -446,7 +446,6 @@ template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator*=(TParam iB)
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
-	const TSize size = storage_.rows() * storage_.columns();
 	const TSize m = rows();
 	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
@@ -673,7 +672,7 @@ bool Matrix<T, S>::isSquare() const
  */
 template <typename T, typename S>
 const Matrix<T, impl::MTrans<T, S> >
-Matrix<T, S>::transpose() const
+Matrix<T, S>::transposed() const
 {
 	typedef impl::MTrans<T, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(storage_));
@@ -692,7 +691,7 @@ Matrix<T, S>::transpose() const
  *  @throw an exception is thrown if this is not a square matrix
  */
 template <typename T, typename S>
-bool Matrix<T, S>::invert()
+void Matrix<T, S>::invert()
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_ENFORCE(isSquare());
@@ -702,19 +701,16 @@ bool Matrix<T, S>::invert()
 	std::vector<size_t> index(n);
 	int d;
 
-	if (!impl::ludecomp(lu.storage().rowMajor(), index.begin(), n, d))
+	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
 	{
-		setZero(0, 0);
-		return false; // empty solution
+		LASS_THROW_EX(util::SingularityError, "failed to invert matrix");
 	}
 
 	setIdentity(n);
 	for (TSize i = 0; i < n; ++i)
 	{
-		impl::lusolve(lu.storage().rowMajor(), index.begin(), column(i), n);
+		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), column(i), n);
 	}
-
-	return true;
 }
 
 
@@ -917,7 +913,7 @@ operator*(const T& iA, const Matrix<T, S>& iB)
 {
 	typedef impl::MMul<T, impl::MScalar<T>, S> TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		impl::MScalar<T>(iA, iB.rows(), iB.cols()), iB.storage()));
+		impl::MScalar<T>(iA, iB.rows(), iB.columns()), iB.storage()));
 }
 
 
@@ -968,7 +964,7 @@ operator*(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar<T>(iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(iB, iA.rows(), iA.columns())));
 }
 
 
@@ -985,7 +981,7 @@ operator/(const Matrix<T, S>& iA, const T& iB)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
-		iA.storage(), impl::MScalar<T>(Matrix<T, S>::TNumTraits::one / iB, iA.rows(), iA.cols())));
+		iA.storage(), impl::MScalar<T>(num::inv(iB), iA.rows(), iA.columns())));
 }
 
 
@@ -995,12 +991,11 @@ operator/(const Matrix<T, S>& iA, const T& iB)
  *  @pre @a ioB must be an l-value (storage matrix).
  *
  *  @relates lass::num::Matrix
- *  @return true if solution is found, false if set has no solution.
  *  @throw an exception is thrown if dimensions don't match
  *         (this->isSquare() && this->columns() == ioB.rows())
  */
 template <typename T, typename S, typename S2>
-bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
+void solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 {
 	LASS_META_ASSERT(S2::lvalue, ioB_isnt_an_lvalue);
 	LASS_ENFORCE(iA.isSquare());
@@ -1013,8 +1008,7 @@ bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 
 	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
 	{
-		ioB.setZero(0, 0);
-		return false; // empty solution
+		LASS_THROW_EX(util::SingularityError, "failed to solve matrix equation");
 	}
 
 	for (size_t i = 0; i < ioB.columns(); ++i)
@@ -1022,7 +1016,6 @@ bool solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB)
 		LASS_ASSERT(static_cast<int>(i) >= 0);
 		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), ioB.column(static_cast<int>(i)), n);
 	}
-	return true;
 }
 
 
