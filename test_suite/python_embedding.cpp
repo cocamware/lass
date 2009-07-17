@@ -187,13 +187,13 @@ public:
 	void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
 };
 
-std::map<std::string,float>::const_iterator freeBegin(ClassMap& iThis)
+std::map<std::string,float>::const_iterator freeBegin(const util::SharedPtr<ClassMap>& iThis)
 {
-	return iThis.begin();
+	return iThis->begin();
 }
-std::map<std::string,float>::const_iterator freeEnd(ClassMap& iThis)
+std::map<std::string,float>::const_iterator freeEnd(const util::SharedPtr<ClassMap>& iThis)
 {
-	return iThis.end();
+	return iThis->end();
 }
 
 int properGetMemberImagine(const ClassB& iThis )
@@ -443,5 +443,5 @@ PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::st
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
 PY_MODULE_FUNCTION( embedding, testCStringSupport )
 
-PY_INIT_MODULE( embedding )
+PY_MODULE_ENTRYPOINT( embedding )
 

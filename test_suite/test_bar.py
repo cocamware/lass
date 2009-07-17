@@ -495,7 +495,7 @@ class TestTuples(unittest.TestCase):
 		msg = msg or '%r != %r within %r places' % (first, second, places)
 		self.assertEqual(len(first), len(second), msg)
 		for a, b in zip(first, second):
-			self.assertAlmostEqual(a, b, places, msg)		
+			self.assertAlmostEqual(a, b, places=places, msg=msg)
 	def testVariableLength(self):
 		bar = embedding.Bar()
 		self.assertTupleAlmostEqual(bar.rgba((0.1, 0.2, 0.3)), (0.1, 0.2, 0.3, 1.0))
