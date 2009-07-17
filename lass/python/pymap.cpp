@@ -56,6 +56,7 @@ namespace impl
 	PY_CLASS_METHOD( Map, keys )
 	PY_CLASS_METHOD( Map, values )
 	PY_CLASS_METHOD( Map, items )
+	PY_CLASS_METHOD_NAME( Map, keys, methods::_iter_ )
 #if PY_MAJOR_VERSION < 3
 	PY_CLASS_METHOD_NAME( Map, keys, "iterkeys" )
 	PY_CLASS_METHOD_NAME( Map, values, "itervalues" )
@@ -89,7 +90,6 @@ namespace impl
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
-			_lassPyClassDef.type()->tp_iter = (getiterfunc) &Map::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Map?!
 			// switch off inheritance
@@ -119,17 +119,17 @@ namespace impl
 		return pimpl_->repr();
 	}
 	
-	const TPyObjPtr Map::keys() const 
+	const TPyObjPtr Map::keys() const
 	{ 
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->keys()); 
 	}
 		
-	const TPyObjPtr Map::values() const 
+	const TPyObjPtr Map::values() const
 	{ 
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->values()); 
 	}
 	
-	const TPyObjPtr Map::items() const 
+	const TPyObjPtr Map::items() const
 	{ 
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
 	}
@@ -191,12 +191,6 @@ namespace impl
 	{
 		return static_cast<Map*>(self)->pimpl_->assSubscript(key, value);
 	}
-
-	PyObject* Map::iter( PyObject* self)
-	{
-		return static_cast<Map*>(self)->pimpl_->keys();
-	}
-
 }
 
 }

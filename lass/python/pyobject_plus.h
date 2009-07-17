@@ -409,6 +409,7 @@ namespace lass
 			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
 			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
 			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
+			LASS_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
 		}
 	}
 }

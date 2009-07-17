@@ -63,6 +63,45 @@ namespace python
 			isInitialized = true;
 		}
 	}
+
+	std::string PyIteratorRange::doPyStr() 
+	{ 
+		return pimpl_->pyStr(); 
+	}
+	std::string PyIteratorRange::doPyRepr() 
+	{ 
+		return pimpl_->pyRepr(); 
+	}
+
+	PyObject* PyIteratorRange::iter( PyObject* iPo) 
+	{ 
+		Py_XINCREF(iPo); 
+		return iPo; 
+	}
+
+	PyObject* PyIteratorRange::iterNext( PyObject* iPO) 
+	{
+		PyIteratorRange* self = static_cast<PyIteratorRange*>(iPO);
+		if (!self->owner_)
+		{
+			PyErr_SetString(PyExc_AssertionError, "PyIteratorRange has no owner");
+			return 0;
+		}
+		return self->pimpl_->iterNext(); 
+	}
+
+	const TPyObjPtr& PyIteratorRange::owner() const
+	{
+		return owner_;
+	}
+
+	/** Set an object that needs to stay alive while the iterator range exists.
+	 *  This typically is the object containing the actual data.
+	 */
+	void PyIteratorRange::setOwner(const TPyObjPtr& owner) 
+	{ 
+		owner_ = owner; 
+	}
 }
 
 }

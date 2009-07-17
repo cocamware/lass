@@ -364,6 +364,7 @@ namespace impl
 		const TPyObjPtr pop(Py_ssize_t i);
 		const TPyObjPtr pop_back();
 		const TPyObjPtr asList() const;
+		const TPyObjPtr iter() const;
 
 		std::string doPyStr();
 		std::string doPyRepr();
@@ -378,7 +379,6 @@ namespace impl
 		static int contains(PyObject* a, PyObject* obj);
 		static PyObject* inplaceConcat(PyObject* self, PyObject* other);
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
-		static PyObject* iter(PyObject* self);
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 

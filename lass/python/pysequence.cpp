@@ -63,6 +63,7 @@ namespace impl
 	PY_CLASS_METHOD( Sequence, reserve )
 	PY_CLASS_METHOD( Sequence, copy )
 	PY_CLASS_METHOD( Sequence, asList )
+	PY_CLASS_METHOD_NAME( Sequence, iter, methods::_iter_ );
 
 	PySequenceMethods Sequence::pySequenceMethods = {
 		&Sequence::length,
@@ -103,7 +104,6 @@ namespace impl
 		{
 			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
 			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
-			_lassPyClassDef.type()->tp_iter = &Sequence::iter;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance
@@ -175,6 +175,10 @@ namespace impl
 	const TPyObjPtr Sequence::asList() const
 	{
 		return pimpl_->asNative();
+	}
+	const TPyObjPtr Sequence::iter() const
+	{ 
+		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
 	}
 
 	Py_ssize_t Sequence::length(PyObject* self)
@@ -274,10 +278,6 @@ namespace impl
 			i += pimpl.length();
 		}
 		return pimpl.assItem(i, value);
-	}
-	PyObject* Sequence::iter( PyObject* self)
-	{
-		return static_cast<Sequence*>(self)->pimpl_->items();
 	}
 }
 

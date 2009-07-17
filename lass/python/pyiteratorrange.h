@@ -74,42 +74,44 @@ namespace impl
 		virtual PyObject* iterNext() = 0;
 	};
 
-	template<typename M> 
+	template<typename Iterator> 
 	class PyIteratorRangeImpl : public PyIteratorRangeImplBase
 	{
 	public:
-		PyIteratorRangeImpl(M iBegin, M iEnd) : beginIt_(iBegin), endIt_(iEnd), curIt_(iBegin)  {}
+		PyIteratorRangeImpl(Iterator first, Iterator last): first_(first), last_(last), current_(first) {}
 		virtual ~PyIteratorRangeImpl() {}
 		virtual int PyIteratorRange_Length() const;
 		virtual std::string pyStr(void) const;
 		virtual std::string pyRepr(void) const;
 		virtual PyObject* iterNext();
 	private:
-		M beginIt_;
-		M endIt_;
-		M curIt_;
+		Iterator first_;
+		Iterator last_;
+		Iterator current_;
 	};
 
-	template<typename M>
-	int PyIteratorRangeImpl<M>::PyIteratorRange_Length() const
+	template<typename I>
+	int PyIteratorRangeImpl<I>::PyIteratorRange_Length() const
 	{
-		return std::distance(beginIt_,endIt_);
+		return std::distance(first_,last_);
 	}
-	template<typename M>
-	std::string PyIteratorRangeImpl<M>::pyStr() const
+	template<typename I>
+	std::string PyIteratorRangeImpl<I>::pyStr() const
 	{
-		return "PyIteratorRangeImpl<M>::str";
+		return "PyIteratorRangeImpl<I>::str";
 	}
-	template<typename M>
-	std::string PyIteratorRangeImpl<M>::pyRepr() const
+	template<typename I>
+	std::string PyIteratorRangeImpl<I>::pyRepr() const
 	{
-		return "PyIteratorRangeImpl<M>::repr";
+		return "PyIteratorRangeImpl<I>::repr";
 	}
-	template<typename M>
-	PyObject* PyIteratorRangeImpl<M>::iterNext()
+	template<typename I>
+	PyObject* PyIteratorRangeImpl<I>::iterNext()
 	{
-		if (curIt_!=endIt_)
-			return pyBuildSimpleObject(*curIt_++);
+		if (current_ != last_)
+		{
+			return pyBuildSimpleObject(*current_++);
+		}
 		// according to python specs this is allowed and is equivalent of setting the 
 		// stopiteration exception
 		return NULL;	
@@ -120,24 +122,27 @@ class LASS_DLL PyIteratorRange : public lass::python::PyObjectPlus
 {
 	PY_HEADER(PyObjectPlus);
 public:
-	template<typename CI> PyIteratorRange( CI iBegin, CI iEnd ) 
+	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last) 
 	{
 		initialize();
 		impl::fixObjectType(this);
-		pimpl_ = new impl::PyIteratorRangeImpl<CI>(iBegin,iEnd);
+		pimpl_ = new impl::PyIteratorRangeImpl<Iterator>(first, last);
 	}
 
-	virtual ~PyIteratorRange() {}
-	virtual std::string doPyStr(void) { return pimpl_->pyStr(); }
-	virtual std::string doPyRepr(void) { return pimpl_->pyRepr(); }
+	std::string doPyStr();
+	std::string doPyRepr();
 
-	static PyObject* iter( PyObject* iPo) { Py_XINCREF(iPo); return iPo; }
-	static PyObject* iterNext( PyObject* iPO) { return static_cast<PyIteratorRange*>(iPO)->pimpl_->iterNext(); }
+	static PyObject* iter( PyObject* iPo);
+	static PyObject* iterNext( PyObject* iPO);
+
+	const TPyObjPtr& owner() const;
+	void setOwner(const TPyObjPtr& owner);
 	
 private:
 	static void initialize();
 
 	impl::PyIteratorRangeImplBase* pimpl_;
+	TPyObjPtr owner_;
 	static bool isInitialized;
 };
 
@@ -213,8 +218,8 @@ struct PyExportTraits<PyIteratorRange*>
  *  @endcode
  */
 #define PY_CLASS_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
-	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass& iObj) { \
-	return new lass::python::PyIteratorRange(iObj.i_cppBegin (), iObj.i_cppEnd ()); } \
+	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (const ::lass::python::impl::ShadowTraits< t_cppClass >::TCppClassPtr& iObj) { \
+	return new lass::python::PyIteratorRange(iObj->i_cppBegin (), iObj->i_cppEnd ()); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ), lass::python::methods::_iter_, s_doc)
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
@@ -231,7 +236,7 @@ struct PyExportTraits<PyIteratorRange*>
 		PY_CLASS_ITERFUNC_DOC( i_cppClass, i_cppBegin, icppEnd, 0 )
 
 #define PY_CLASS_FREE_ITERFUNC_EX( t_cppClass, i_cppBegin, i_cppEnd, s_doc, i_dispatcher )\
-lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass& iObj) { \
+lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (const ::lass::python::impl::ShadowTraits< t_cppClass >::TCppClassPtr& iObj) { \
 return new lass::python::PyIteratorRange(i_cppBegin(iObj), i_cppEnd(iObj)); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ), lass::python::methods::_iter_, s_doc)
 /** @ingroup Python

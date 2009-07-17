@@ -241,8 +241,9 @@ struct CallMethod
 		{
 			return 0;
 		}
-		return Caller<R>::template callMethod<TCppClass&, TMethod>(
+		PyObject* result = Caller<R>::template callMethod<TCppClass&, TMethod>(
 			*self, method);
+		return establishMagicalBackLinks(result, object);
 	}
 $[
 	/** call non const method with $x arguments, translated from python arguments
@@ -260,8 +261,9 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::template callMethod<TCppClass&, TMethod, $(P$x)$>( 
+		PyObject* result = Caller<R>::template callMethod<TCppClass&, TMethod, $(P$x)$>( 
 			*self, method, $(TArg$x::arg(p$x))$ );
+		return establishMagicalBackLinks(result, object);
 	}
 ]$
 
@@ -280,8 +282,9 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::template callMethod<const TCppClass&, TMethod>( 
+		PyObject* result = Caller<R>::template callMethod<const TCppClass&, TMethod>( 
 			*self, method);
+		return establishMagicalBackLinks(result, object);
 	}
 $[
 	/** call const method with $x argument, translated from python arguments
@@ -299,8 +302,9 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::template callMethod<const TCppClass&, TMethod, $(P$x)$>(
+		PyObject* result = Caller<R>::template callMethod<const TCppClass&, TMethod, $(P$x)$>(
 			*self, method, $(TArg$x::arg(p$x))$ );
+		return establishMagicalBackLinks(result, object);
 	}
 ]$
 	// "free" methods passing object as first argument
@@ -316,8 +320,9 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::template callFunction<TFunction, P0>(
+		PyObject* result = Caller<R>::template callFunction<TFunction, P0>(
 			freeMethod, TArg0::arg(p0) );
+		return establishMagicalBackLinks(result, object);
 	}
 $[
 	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
@@ -333,8 +338,9 @@ $[
 		{
 			return 0;
 		}
-		return Caller<R>::template callFunction<TFunction, P0, $(P$x)$>(
+		PyObject* result = Caller<R>::template callFunction<TFunction, P0, $(P$x)$>(
 			freeMethod, TArg0::arg(p0), $(TArg$x::arg(p$x))$ );
+		return establishMagicalBackLinks(result, object);
 	}
 ]$
 
@@ -352,7 +358,8 @@ $[
 		}
 		try
 		{
-			return pyBuildSimpleObject(((*self).*method)());
+			PyObject* result = pyBuildSimpleObject(((*self).*method)());
+			return establishMagicalBackLinks(result, object);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
@@ -369,7 +376,8 @@ $[
 		}
 		try
 		{
-			return pyBuildSimpleObject(((*self).*method)());
+			PyObject* result = pyBuildSimpleObject(((*self).*method)());
+			return establishMagicalBackLinks(result, object);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
@@ -422,7 +430,8 @@ $[
 		}
 		try
 		{
-			return pyBuildSimpleObject(function(*self));
+			PyObject* result = pyBuildSimpleObject(function(*self));
+			return establishMagicalBackLinks(result, object);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
@@ -437,7 +446,8 @@ $[
 		}
 		try
 		{
-			return pyBuildSimpleObject(function(*self));
+			PyObject* result = pyBuildSimpleObject(function(*self));
+			return establishMagicalBackLinks(result, object);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}

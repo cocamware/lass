@@ -46,6 +46,7 @@
 #include "pyobject_plus.h"
 #include "pyobject_macros.h"
 #include "py_tuple.h"
+#include "pyiteratorrange.h"
 #include <iostream>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
@@ -888,6 +889,25 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t 
 				<< " inclusive (your size is " << size << ")";
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			result.reset();
+		}
+	}
+	return result;
+}
+
+/** Here, we try to fix some lifetime issues to guarantee some lifetime requirements on self.
+ */
+PyObject* establishMagicalBackLinks(PyObject* result, PyObject* self)
+{
+	if (!result)
+	{
+		return 0;
+	}
+	if (result->ob_type == PyIteratorRange::_lassPyClassDef.type())
+	{
+		PyIteratorRange* iter = static_cast<PyIteratorRange*>(result);
+		if (!iter->owner())
+		{
+			iter->setOwner(fromNakedToSharedPtrCast<PyObject>(self));
 		}
 	}
 	return result;

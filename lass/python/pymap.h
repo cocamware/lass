@@ -142,11 +142,13 @@ namespace impl
 		}
 		PyObject* const keys() const
 		{
-			return new PyIteratorRange(stde::first_iterator(this->container().begin()), stde::first_iterator(this->container().end()));
+			return new PyIteratorRange(
+				stde::first_iterator(this->container().begin()), stde::first_iterator(this->container().end()));
 		}
 		PyObject* const values() const
 		{
-			return new PyIteratorRange(stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
+			return new PyIteratorRange(
+				stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
 		}
 		const TPyObjPtr asNative() const
 		{
@@ -189,6 +191,7 @@ namespace impl
 		const TPyObjPtr keys() const;
 		const TPyObjPtr values() const;
 		const TPyObjPtr items() const;
+		const TPyObjPtr iter() const;
 		const TPyObjPtr get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const;
 		const TPyObjPtr getOrNone(const TPyObjPtr& key) const;
 		void clear();
@@ -198,7 +201,6 @@ namespace impl
 		static Py_ssize_t length(PyObject* self);
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
-		static PyObject* iter(PyObject* self);
 
 		const std::type_info& type() const;
 		void* const raw(bool writable) const;

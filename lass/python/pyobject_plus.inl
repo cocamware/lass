@@ -200,10 +200,6 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 };
 /////////////////////////////////////////////
 
-
-
-
-
 }
 }
 }
