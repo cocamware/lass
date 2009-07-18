@@ -79,7 +79,7 @@ namespace prim
 class MinMaxError: public util::ExceptionMixin<MinMaxError>
 {
 public:
-	MinMaxError(const std::string& msg, const std::string& loc): ExceptionMixin<MinMaxError>(msg, loc) {}
+	MinMaxError(const std::string& msg, const std::string& loc): util::ExceptionMixin<MinMaxError>(msg, loc) {}
 };
 
 

@@ -139,14 +139,14 @@ public:
 		pimpl_->unbind();
 	}
 
-	void error(const experimental::RemoteExceptionBase& error)
+	void error(const RemoteExceptionBase& error)
 	{
 		TLocker lock(pimpl_->mutex_);
 		try
 		{
 			pimpl_->error_ = error.clone();
 		}
-		catch (std::bad_alloc)
+		catch (const std::bad_alloc&)
 		{
 			pimpl_->isBadAlloc_ = true;
 		}
@@ -158,9 +158,9 @@ public:
 		TLocker lock(pimpl_->mutex_);
 		try
 		{
-			pimpl_->error_ = new experimental::RemoteExceptionWrapper<ExceptionType>(error);
+			pimpl_->error_ = new RemoteExceptionWrapper<ExceptionType>(error);
 		}
-		catch (std::bad_alloc)
+		catch (const std::bad_alloc&)
 		{
 			pimpl_->isBadAlloc_ = true;
 		}
@@ -175,7 +175,7 @@ private:
 	struct Impl
 	{
 		char value_[sizeof(T)];
-		std::auto_ptr<experimental::RemoteExceptionBase> error_;
+		std::auto_ptr<RemoteExceptionBase> error_;
 		Condition condition_;
 		TMutex mutex_;
 		size_t referenceCount_;

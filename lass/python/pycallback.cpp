@@ -142,7 +142,7 @@ const std::string MultiCallbackImplBase::repr() const
 	}
 	void MultiCallback::add(const python::TPyObjPtr& args)
 	{
-		pimpl_->add(args,this);
+		pimpl_->add(args);
 	}
 	PyObject* MultiCallback::addVar(PyObject* args)
 	{

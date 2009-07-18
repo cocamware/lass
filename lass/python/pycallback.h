@@ -78,7 +78,7 @@ namespace impl
 		virtual const std::type_info& type() const = 0;
 		virtual void* const raw(bool writable) = 0;
 		virtual void call(const python::TPyObjPtr& args, PyObject* self) = 0;
-		virtual void add(const python::TPyObjPtr& args, PyObject* self) = 0;
+		virtual void add(const python::TPyObjPtr& args) = 0;
 
 		const std::string repr() const;
 	};
@@ -91,23 +91,7 @@ namespace impl
 		typedef Callback TCallback;
 		typedef util::SharedPtr<Callback> TCallbackPtr;
 		typedef util::SharedPtr<const Callback> TConstCallbackPtr;
-
-		struct CallIntermediateShadowTraits
-		{
-			typedef Callback TCallback;
-			typedef const Callback* TConstCallbackPtr;
-
-			typedef TCallback TCppClass;
-			typedef TConstCallbackPtr TConstCppClassPtr;
-
-			static int getObject(PyObject* self, TConstCppClassPtr& forCalling)
-			{
-				lass::util::SharedPtr<TCallback>* almost = static_cast<lass::util::SharedPtr<TCallback>*>(static_cast<MultiCallback*>(self)->raw(false));
-				forCalling = almost->get();
-				return 0;
-			}
-		};
-		
+	
 		MultiCallbackImpl( const TCallbackPtr & callback, bool readonly) : callback_(callback), readOnly_(readonly)
 		{
 		}
@@ -127,11 +111,8 @@ namespace impl
 			}
 			return &callback_; 
 		}
-		virtual void call(const python::TPyObjPtr& args, PyObject* self)
-		{
-			impl::CallMethod<CallIntermediateShadowTraits >::call(args.get(), self, &Callback::call ); 
-		}
-		virtual void add(const python::TPyObjPtr& args, PyObject* self)
+		virtual void call(const python::TPyObjPtr& args, PyObject* self);
+		virtual void add(const python::TPyObjPtr& args)
 		{
 			// the "thing" we add must be convertible to a callback
 			// [TODO] use a decodeTuple
@@ -143,19 +124,10 @@ namespace impl
 				int rv = pyGetSimpleObject(PyTuple_GetItem(args.get(),0),tempCallback);
 				if (rv)
 				{
-					// error condition
-					LASS_THROW("Argument not convertible to a callback");
+					impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 				}
-				lass::util::SharedPtr<TCallback>* almost = static_cast<lass::util::SharedPtr<TCallback>*>(static_cast<MultiCallback*>(self)->raw(true));
-				if (almost)
-				{
-					for (size_t i=0;i<tempCallback.size();++i)
-						(*almost)->add(tempCallback[i]);
-				}
-				else
-				{
-					LASS_THROW("Can not add to read-only multi callback");
-				}
+				for (size_t i=0;i<tempCallback.size();++i)
+					callback_->add(tempCallback[i]);
 			}
 		}
 	protected:
@@ -178,7 +150,7 @@ public:
 	template <typename CallbackType> MultiCallback( const util::SharedPtr<CallbackType>& callback)
 	{
 		// [TODO] untested
-		LASS_THROW("unsupported")
+		LASS_THROW("unsupported");
 		std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
 			new impl::MultiCallbackImpl<CallbackType>(callback,false));
 		init(pimpl);
@@ -186,10 +158,10 @@ public:
 	template <typename CallbackType> MultiCallback( const util::SharedPtr<const CallbackType>& callback)
 	{
 		// [TODO] untested
-		LASS_THROW("unsupported")
-		std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
+		LASS_THROW("unsupported");
+		/*std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
 			new impl::MultiCallbackImpl<CallbackType>(p,true));
-		init(pimpl);
+		init(pimpl);*/
 	}
 	template<typename CallbackType> MultiCallback( const CallbackType& callback )
 	{
@@ -224,6 +196,32 @@ private:
 	util::ScopedPtr<impl::MultiCallbackImplBase> pimpl_;
 	static bool isInitialized;
 };
+
+namespace impl
+{
+	template <typename Callback>
+	struct CallIntermediateShadowTraits
+	{
+		typedef Callback TCallback;
+		typedef const Callback* TConstCallbackPtr;
+
+		typedef TCallback TCppClass;
+		typedef TConstCallbackPtr TConstCppClassPtr;
+
+		static int getObject(PyObject* self, TConstCppClassPtr& forCalling)
+		{
+			lass::util::SharedPtr<TCallback>* almost = static_cast<lass::util::SharedPtr<TCallback>*>(static_cast<MultiCallback*>(self)->raw(false));
+			forCalling = almost->get();
+			return 0;
+		}
+	};
+
+	template <typename C>
+	void MultiCallbackImpl<C>::call(const python::TPyObjPtr& args, PyObject* self)
+	{
+		impl::CallMethod< CallIntermediateShadowTraits<C> >::call(args.get(), self, &C::call ); 
+	}
+}
 
 }
 }

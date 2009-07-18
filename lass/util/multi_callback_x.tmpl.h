@@ -67,7 +67,7 @@ template
 struct MultiCallback$x
 {
 	typedef MultiCallback$x TSelf;
-	typedef Callback$x<$(typename P$x)$> TCallback;
+	typedef Callback$x<$(P$x)$> TCallback;
 	
 	/** Default constructor, construct empty callback list.
 	 */

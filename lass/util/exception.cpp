@@ -76,7 +76,7 @@ Exception::Exception(const std::string& message, const std::string& location):
 {
 }
 
-Exception::~Exception() 
+Exception::~Exception() throw()
 {
 }
 
