@@ -73,7 +73,7 @@ void testUtilNumberOfProcessors()
 	LASS_TEST_CHECK(util::numberOfAvailableProcessors() > 0);
 	LASS_TEST_CHECK(util::numberOfAvailableProcessors() <= util::numberOfProcessors());
 	LASS_TEST_CHECK_EQUAL(util::numberOfProcessors(), cpuSet.size());
-	LASS_TEST_CHECK_EQUAL(util::numberOfAvailableProcessors(), std::count(cpuSet.begin(), cpuSet.end(), true));
+	LASS_TEST_CHECK_EQUAL(util::numberOfAvailableProcessors(), static_cast<size_t>(std::count(cpuSet.begin(), cpuSet.end(), true)));
 }
 
 void testUtilThreadAffinity()

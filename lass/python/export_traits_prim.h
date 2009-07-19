@@ -64,7 +64,7 @@ struct PyExportTraitsVectorPoint
 	static PyObject* build(const ObjectType& v)
 	{
 		PyObject* const tuple = PyTuple_New(dimension);
-		for (int i = 0; i < dimension; ++i)
+		for (size_t i = 0; i < dimension; ++i)
 		{
 			PyTuple_SetItem(tuple, i, pyBuildSimpleObject(v[i]));
 		}
@@ -81,7 +81,7 @@ struct PyExportTraitsVectorPoint
 		}
 		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 		ObjectType result;
-		for (int k = 0; k < dimension; ++k)
+		for (size_t k = 0; k < dimension; ++k)
 		{
 			if (!impl::decodeObject(objects[k], result[k], k + 1))
 			{

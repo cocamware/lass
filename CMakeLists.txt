@@ -163,7 +163,7 @@ endmacro()
 if(MSVC)
 	set(lass_C_FLAGS "/EHsc")
 else()
-	set(lass_C_FLAGS "-fno-strict-aliasing")
+	set(lass_C_FLAGS "-fno-strict-aliasing -Wall")
 endif()
 	
 # --- THE LIBRARY ----

@@ -93,7 +93,7 @@ ClassDefinition::ClassDefinition(
 		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
-		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,	/*tp_flags*/
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,*/	/*tp_flags*/
 		(char*)doc,	/*tp_doc*/
 		0,	/*tp_traverse*/
 		0,	/*tp_clear*/
@@ -499,7 +499,7 @@ PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int 
 		if (i->op == op)
 		{
 			PyObject* result = (i->dispatcher)(self, args.get());\
-			if (result || PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError))
+			if (result || (PyErr_Occurred() && !PyErr_ExceptionMatches(PyExc_TypeError)))
 			{
 				return result;
 			}

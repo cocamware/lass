@@ -140,8 +140,6 @@ void testSpatObjectTrees()
 	const T extent = T(1000);
 	const T maxSize = T(10);
 	const size_t numberOfObjects = 10000;
-	const size_t numberOfPointTestTargets = 1000;
-	const size_t numberOfRayTestTargets = 1000;
 	const T maxRangeRadius = 50;
 	const size_t maxRangeCount = 10;
 	// validation

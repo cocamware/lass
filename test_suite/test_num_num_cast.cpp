@@ -66,8 +66,8 @@ void testNumNumCast()
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedLong>(TSignedChar(0)), 0);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedChar>(TSignedChar(0)), 0);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedShort>(TSignedChar(0)), 0);
-	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedInt>(TSignedChar(0)), 0);
-	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedLong>(TSignedChar(0)), 0);
+	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedInt>(TSignedChar(0)), TUnsignedInt(0));
+	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedLong>(TSignedChar(0)), TUnsignedLong(0));
 
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedChar>(TUnsignedLong(0)), 0);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedShort>(TUnsignedLong(0)), 0);
@@ -75,8 +75,8 @@ void testNumNumCast()
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedLong>(TUnsignedLong(0)), 0);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedChar>(TUnsignedLong(0)), 0);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedShort>(TUnsignedLong(0)), 0);
-	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedInt>(TUnsignedLong(0)), 0);
-	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedLong>(TUnsignedLong(0)), 0);
+	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedInt>(TUnsignedLong(0)), TUnsignedInt(0));
+	LASS_TEST_CHECK_EQUAL(num::numCast<TUnsignedLong>(TUnsignedLong(0)),  TUnsignedLong(0));
 
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedChar>(TUnsignedLong(127)), 127);
 	LASS_TEST_CHECK_EQUAL(num::numCast<TSignedChar>(long(127)), 127);

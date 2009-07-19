@@ -124,8 +124,7 @@ const std::string MultiCallbackImplBase::repr() const
 	PyObject* MultiCallback::callVar(PyObject* args) 
 	{ 
 		call(python::TPyObjPtr(args)); 
-		Py_XINCREF(Py_None); 
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 	const std::type_info& MultiCallback::type() const
 	{
@@ -147,8 +146,7 @@ const std::string MultiCallbackImplBase::repr() const
 	PyObject* MultiCallback::addVar(PyObject* args)
 	{
 		add(python::TPyObjPtr(args)); 
-		Py_XINCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 
 }

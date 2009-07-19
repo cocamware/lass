@@ -423,7 +423,7 @@ bool operator!=(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b
 template <typename K, typename T, typename C, typename A> inline
 bool operator<(const vector_map<K, T, C, A>& a, const vector_map<K, T, C, A>& b)
 {
-	std::lexicographical_compare(a.begin(), a.end(), b.begin, b.end(), a.value_comp());
+	return std::lexicographical_compare(a.begin(), a.end(), b.begin, b.end(), a.value_comp());
 }
 	
 

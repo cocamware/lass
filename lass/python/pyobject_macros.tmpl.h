@@ -234,19 +234,20 @@
 
 // --- free module functions -----------------------------------------------------------------------
 
-///* @ingroup Python
-// * @deprecated
-// * Use this macro for backward compatibility when wrapper functions don't 
-// * need to be automatically generated or you want specific Python behaviour.
-// */
-//#define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
-//	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
-//	LASS_EXECUTE_BEFORE_MAIN_EX\
-//	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, f_cppFunction ),\
-//		LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).insert(\
-//			LASS_CONCATENATE( lassPythonModuleMethods_, i_module ).begin(),\
-//				::lass::python::impl::createPyMethodDef( s_functionName, f_cppFunction , METH_VARARGS  , s_doc ));\
-//	)
+/* @ingroup Python
+ * @deprecated
+ * Use this macro for backward compatibility when wrapper functions don't 
+ * need to be automatically generated or you want specific Python behaviour.
+ */
+#define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
+	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE_3( lassExecutePyModulePyFunction_, i_module, f_cppFunction ),\
+		i_module.addFunctionDispatcher( \
+			f_cppFunction, s_functionName, s_doc, \
+			LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) \
+			);\
+	)
 
 
 
@@ -302,7 +303,6 @@
 		}\
 		return ::lass::python::impl::callFunction( iArgs, &f_cppFunction );\
 	}\
-	extern std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ), \
 		i_module.addFunctionDispatcher( \

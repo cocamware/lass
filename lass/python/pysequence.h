@@ -250,7 +250,6 @@ namespace impl
 				}
 				else
 				{
-					TIterator first = this->next(this->begin(), low);
 					while (low < high)
 					{
 						TContainerTraits::erase(this->container(), this->next(this->begin(), low));

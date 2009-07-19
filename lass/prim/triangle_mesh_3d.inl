@@ -889,20 +889,21 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 	const TVector* const firstNormal = &normals_[0];
 	const TUv* const firstUv = &uvs_[0];
 
-	//            2             - original vertex numbers are on outside
-	//            *             - new vertex numbers are on inside
-	//           /2\            - triangle numbers are between braces: (#)
-	//          /   \           - as always everything is counter clockwise
-	//         / (2) \          - number of edges (for 'others'): same number as it tail.
-	//        /0     1\         - triangle (3) is called the oddTriangle
-	//       *---------*
-	//      /2\2     1/2\
-	//     /   \ (3) /   \
-	//    / (0) \   / (1) \
-	//   /0     1\0/0     1\
-	//  *---------*---------*
-	// 0                     1
-	//
+	/*
+	            2             - original vertex numbers are on outside
+	            *             - new vertex numbers are on inside
+	           /2\            - triangle numbers are between braces: (#)
+	          /   \           - as always everything is counter clockwise
+	         / (2) \          - number of edges (for 'others'): same number as it tail.
+	        /0     1\         - triangle (3) is called the oddTriangle
+	       *---------* 
+	      /2\2     1/2\ 
+	     /   \ (3) /   \ 
+	    / (0) \   / (1) \ 
+	   /0     1\0/0     1\ 
+	  *---------*---------* 
+	 0                     1
+	*/
 	for (size_t i = 0; i < numTriangles; ++i)
 	{
 		const Triangle& triangle = triangles_[i];
