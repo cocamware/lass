@@ -148,8 +148,10 @@ endif()
 
 
 
-set(config_dir ${lass_SOURCE_DIR}/lass/config)
-set(config_file ${config_dir}/local_config.h)
-configure_file(${config_dir}/local_config.h.in ${config_dir}/local_config.h)
+set(config_dir "${CMAKE_CURRENT_BINARY_DIR}/local")
+set(config_file "${config_dir}/local_config.h")
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/lass/config/local_config.h.in" 
+	"${config_file}")
 
 

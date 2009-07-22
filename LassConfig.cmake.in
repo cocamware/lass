@@ -2,7 +2,7 @@ get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 if(EXISTS "${SELF_DIR}/LassBuildExports.cmake")
 	# we're in the build tree, use the build tree exports
 	include("${SELF_DIR}/LassBuildExports.cmake")
-	set(lass_INCLUDE_DIRS "@lass_SOURCE_DIR@")
+	set(lass_INCLUDE_DIRS "@CMAKE_CURRENT_SOURCE_DIR@" "@config_dir@")
 else()
 	include("${SELF_DIR}/LassExports.cmake")
 	get_filename_component(lass_INCLUDE_DIRS "${SELF_DIR}/../include" ABSOLUTE)

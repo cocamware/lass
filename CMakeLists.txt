@@ -15,9 +15,9 @@ set(CMAKE_DEBUG_POSTFIX _d)
 # --- SETTING A PREFIX IF NOT WAS FORCED BY USER ---
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	if(WIN32)
-		set(CMAKE_INSTALL_PREFIX "$ENV{ProgramFiles}/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}" CACHE PATH "Install path prefix" FORCE)
+		set(CMAKE_INSTALL_PREFIX "$ENV{ProgramFiles}/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}" CACHE PATH "Install path prefix" FORCE)
 	else()
-		set(CMAKE_INSTALL_PREFIX "/opt/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}" CACHE PATH "Install path prefix" FORCE)
+		set(CMAKE_INSTALL_PREFIX "/opt/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}" CACHE PATH "Install path prefix" FORCE)
 	endif(WIN32)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
@@ -74,7 +74,7 @@ endforeach()
 # This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
 
 macro(param_expander inpath outpath n)
-	set(generator ${lass_SOURCE_DIR}/tools/param_expander.py)
+	set(generator "${CMAKE_CURRENT_SOURCE_DIR}/tools/param_expander.py")
 	add_custom_command(
 		OUTPUT ${outpath}
 		DEPENDS ${inpath} ${generator}
@@ -83,8 +83,8 @@ macro(param_expander inpath outpath n)
 endmacro()
 
 macro(prebuild dirname infile outfile n)
-	set(inpath ${lass_SOURCE_DIR}/${dirname}/${infile})
-	set(outpath ${lass_SOURCE_DIR}/${dirname}/${outfile})
+	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${infile}")
+	set(outpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${outfile}")
 	if(${outpath} MATCHES "\\$x")
 		foreach(i RANGE 1 ${n})
 			string(REPLACE "$x" ${i} temp ${outpath})
@@ -125,9 +125,9 @@ list(REMOVE_DUPLICATES lass_HDRS)
 macro(add_precompiled_header target hdrfile srcpath target_SRCS)
 	if(BUILD_USING_PRECOMPILED_HEADERS)
 		if(MSVC_IDE)
-			set(pchpath ${lass_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch)
+			set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch")
 		else()
-			set(pchpath ${lass_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch)
+			set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch")
 		endif()
 		if(MSVC)
 			get_target_property(cflags ${target} COMPILE_FLAGS)
@@ -173,9 +173,12 @@ endif()
 	
 # --- THE LIBRARY ----
 
-include_directories(${lass_INCLUDES})
+include_directories(
+	${lass_INCLUDES}
+	${config_dir}
+	)
 if(NOT BUILD_USING_PRECOMPILED_HEADERS)
-	include_directories(${lass_SOURCE_DIR}/lass) # for lass_common.h
+	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lass") # for lass_common.h
 endif()
 
 if(CMAKE_CL_64)
