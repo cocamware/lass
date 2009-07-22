@@ -55,7 +55,7 @@ void testNumBasicOpsInteger()
 	const T zero = 0;
 	const T one = 1;
 	T big = 0;
-	for (T i = 0; i < sizeof(T); ++i)
+	for (T i = 0; i < T(sizeof(T)); ++i)
 	{
 		big |= (i + 1) << (8 * i);
 	}
