@@ -78,83 +78,83 @@ public:
 	TValue a;
 
 	ColorRGBA();
-	ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue,
-			  TParam iAlpha = ColorRGBA::TNumTraits::one);
-	explicit ColorRGBA(TParam iWhite, TParam iAlpha = ColorRGBA::TNumTraits::one);
-	explicit ColorRGBA(const TVector& iVector);
+	ColorRGBA(TParam red, TParam green, TParam blue,
+			  TParam alpha = ColorRGBA::TNumTraits::one);
+	explicit ColorRGBA(TParam white, TParam alpha = ColorRGBA::TNumTraits::one);
+	explicit ColorRGBA(const TVector& vector);
 	// HACK Yes, you have to use ColorRGBA::TNumTraits::one instead of TNumTraits::one because the
 	// MSVC7.0 doesn't understand the latter [BdG].
 
 	const TVector vector() const { return TVector(r, g, b, a); }
-	TConstReference operator[](unsigned iIndex) const { return *(&r + iIndex); }
-	TReference operator[](unsigned iIndex) { return *(&r + iIndex); }
-	TConstReference at(signed iIndex) const { return *(&r + num::mod(iIndex, static_cast<unsigned>(dimension))); }
-	TReference at(signed iIndex) { return *(&r + num::mod(iIndex, static_cast<unsigned>(dimension))); }
+	TConstReference operator[](size_t index) const { return *(&r + index); }
+	TReference operator[](size_t index) { return *(&r + index); }
+	TConstReference at(signed index) const { return *(&r + num::mod(index, static_cast<unsigned>(dimension))); }
+	TReference at(signed index) { return *(&r + num::mod(index, static_cast<unsigned>(dimension))); }
 
 	const ColorRGBA& operator+() const;
 	const ColorRGBA operator-() const;
-	ColorRGBA& operator+=( const ColorRGBA& iOther );
-	ColorRGBA& operator-=( const ColorRGBA& iOther );
-	ColorRGBA& operator*=( const ColorRGBA& iOther );
-	ColorRGBA& operator/=( const ColorRGBA& iOther );
-	ColorRGBA& operator+=( TParam iWhite );
-	ColorRGBA& operator-=( TParam iWhite );
-	ColorRGBA& operator*=( TParam iWhite );
-	ColorRGBA& operator/=( TParam iWhite );
+	ColorRGBA& operator+=( const ColorRGBA& other );
+	ColorRGBA& operator-=( const ColorRGBA& other );
+	ColorRGBA& operator*=( const ColorRGBA& other );
+	ColorRGBA& operator/=( const ColorRGBA& other );
+	ColorRGBA& operator+=( TParam white );
+	ColorRGBA& operator-=( TParam white );
+	ColorRGBA& operator*=( TParam white );
+	ColorRGBA& operator/=( TParam white );
 
 	const TValue brightness() const;
 	const bool isBlack() const;
 	const bool isZero() const;
 	const bool isNaN() const;
 
-	const ColorRGBA darkened( TParam iFactor ) const;
-	const ColorRGBA dissolved( TParam iFactor) const;
-	const ColorRGBA gammaCorrected(TParam iGamma) const;
-	const ColorRGBA exposed(TParam iTime) const;
-	const ColorRGBA invExposed(TParam iTime) const;
+	const ColorRGBA darkened( TParam factor ) const;
+	const ColorRGBA dissolved( TParam factor) const;
+	const ColorRGBA gammaCorrected(TParam gamma) const;
+	const ColorRGBA exposed(TParam time) const;
+	const ColorRGBA invExposed(TParam time) const;
 	const ColorRGBA clamped() const;
 
 	// matlab colormaps
 	//
-	static const ColorRGBA mapAutumn(TParam iValue);
-	static const ColorRGBA mapBone(TParam iValue);
-	static const ColorRGBA mapCool(TParam iValue);
-	static const ColorRGBA mapCopper(TParam iValue);
-	static const ColorRGBA mapGray(TParam iValue);
-	static const ColorRGBA mapHot(TParam iValue);
-	static const ColorRGBA mapHsv(TParam iValue);
-	static const ColorRGBA mapJet(TParam iValue);
-	static const ColorRGBA mapPink(TParam iValue);
-	static const ColorRGBA mapSpring(TParam iValue);
-	static const ColorRGBA mapSummer(TParam iValue);
-	static const ColorRGBA mapWinter(TParam iValue);
-	static const ColorRGBA mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap);
+	static const ColorRGBA mapAutumn(TParam value);
+	static const ColorRGBA mapBone(TParam value);
+	static const ColorRGBA mapCool(TParam value);
+	static const ColorRGBA mapCopper(TParam value);
+	static const ColorRGBA mapGray(TParam value);
+	static const ColorRGBA mapHot(TParam value);
+	static const ColorRGBA mapHsv(TParam value);
+	static const ColorRGBA mapJet(TParam value);
+	static const ColorRGBA mapPink(TParam value);
+	static const ColorRGBA mapSpring(TParam value);
+	static const ColorRGBA mapSummer(TParam value);
+	static const ColorRGBA mapWinter(TParam value);
+	static const ColorRGBA mapCustom(TParam value, const std::vector<ColorRGBA>& colorMap);
 private:
 
-	static const ColorRGBA doMap(TParam iValue, const ColorRGBA* iMap, int iMapSize);
+	static const ColorRGBA doMap(TParam value, const ColorRGBA* iMap, int iMapSize);
 };
 
-LASS_DLL ColorRGBA LASS_CALL operator+( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator-( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator*( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator/( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator+( ColorRGBA::TParam iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator-( ColorRGBA::TParam iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator*( ColorRGBA::TParam iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator/( ColorRGBA::TParam iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL operator+( const ColorRGBA& iA, ColorRGBA::TParam iB );
-LASS_DLL ColorRGBA LASS_CALL operator-( const ColorRGBA& iA, ColorRGBA::TParam iB );
-LASS_DLL ColorRGBA LASS_CALL operator*( const ColorRGBA& iA, ColorRGBA::TParam iB );
-LASS_DLL ColorRGBA LASS_CALL operator/( const ColorRGBA& iA, ColorRGBA::TParam iB );
+LASS_DLL ColorRGBA LASS_CALL operator+( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator-( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator*( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator/( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator+( ColorRGBA::TParam a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator-( ColorRGBA::TParam a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator*( ColorRGBA::TParam a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator/( ColorRGBA::TParam a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL operator+( const ColorRGBA& a, ColorRGBA::TParam b );
+LASS_DLL ColorRGBA LASS_CALL operator-( const ColorRGBA& a, ColorRGBA::TParam b );
+LASS_DLL ColorRGBA LASS_CALL operator*( const ColorRGBA& a, ColorRGBA::TParam b );
+LASS_DLL ColorRGBA LASS_CALL operator/( const ColorRGBA& a, ColorRGBA::TParam b );
 
-LASS_DLL ColorRGBA LASS_CALL over( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL in( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL out( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL atop( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL plus( const ColorRGBA& iA, const ColorRGBA& iB );
-LASS_DLL ColorRGBA LASS_CALL through( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA LASS_CALL over( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL in( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL out( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL atop( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL plus( const ColorRGBA& a, const ColorRGBA& b );
+LASS_DLL ColorRGBA LASS_CALL through( const ColorRGBA& a, const ColorRGBA& b );
 
-LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& iA, const ColorRGBA& iB );
+LASS_DLL ColorRGBA::TValue LASS_CALL distance( const ColorRGBA& a, const ColorRGBA& b );
 
 }
 

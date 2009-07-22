@@ -74,11 +74,11 @@ ColorRGBA::ColorRGBA():
 
 /** construct a color with values for all channels
  */
-ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha):
-	r(iRed),
-	g(iGreen),
-	b(iBlue),
-	a(iAlpha)
+ColorRGBA::ColorRGBA(TParam red, TParam green, TParam blue, TParam alpha):
+	r(red),
+	g(green),
+	b(blue),
+	a(alpha)
 {
 }
 
@@ -86,11 +86,11 @@ ColorRGBA::ColorRGBA(TParam iRed, TParam iGreen, TParam iBlue, TParam iAlpha):
 
 /** construct a color in white range (r == g == b),  with an alpha value
  */
-ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha):
-	r(iWhite),
-	g(iWhite),
-	b(iWhite),
-	a(iAlpha)
+ColorRGBA::ColorRGBA(TParam white, TParam alpha):
+	r(white),
+	g(white),
+	b(white),
+	a(alpha)
 {
 }
 
@@ -98,112 +98,112 @@ ColorRGBA::ColorRGBA(TParam iWhite, TParam iAlpha):
 
 /** construct a color from a raw vector
  */
-ColorRGBA::ColorRGBA(const TVector& iVector):
-	r(iVector.x),
-	g(iVector.y),
-	b(iVector.z),
-	a(iVector.w)
+ColorRGBA::ColorRGBA(const TVector& vector):
+	r(vector.x),
+	g(vector.y),
+	b(vector.z),
+	a(vector.w)
 {
 }
 
 
 
-/** @e raw addition of @a iOther to this color, including alpha channel
+/** @e raw addition of @a other to this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& iOther)
+ColorRGBA& ColorRGBA::operator+=(const ColorRGBA& other)
 {
-	r += iOther.r;
-	g += iOther.g;
-	b += iOther.b;
-	a += iOther.a;
+	r += other.r;
+	g += other.g;
+	b += other.b;
+	a += other.a;
 	return *this;
 }
 
 
 
-/** @e raw subtraction @a iOther from this color, including alpha channel
+/** @e raw subtraction @a other from this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator-=(const ColorRGBA& iOther)
+ColorRGBA& ColorRGBA::operator-=(const ColorRGBA& other)
 {
-	r -= iOther.r;
-	g -= iOther.g;
-	b -= iOther.b;
-	a -= iOther.a;
+	r -= other.r;
+	g -= other.g;
+	b -= other.b;
+	a -= other.a;
 	return *this;
 }
 
 
 
-/** @e raw multiplication of @a iOther with this color, including alpha channel
+/** @e raw multiplication of @a other with this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& iOther)
+ColorRGBA& ColorRGBA::operator*=(const ColorRGBA& other)
 {
-	r *= iOther.r;
-	g *= iOther.g;
-	b *= iOther.b;
-	a *= iOther.a;
+	r *= other.r;
+	g *= other.g;
+	b *= other.b;
+	a *= other.a;
 	return *this;
 }
 
 
 
-/** @e raw division of this color by @a iOther, including alpha channel
+/** @e raw division of this color by @a other, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator/=(const ColorRGBA& iOther)
+ColorRGBA& ColorRGBA::operator/=(const ColorRGBA& other)
 {
-	r /= iOther.r;
-	g /= iOther.g;
-	b /= iOther.b;
-	a /= iOther.a;
+	r /= other.r;
+	g /= other.g;
+	b /= other.b;
+	a /= other.a;
 	return *this;
 }
 
 
 
-/** @e raw addition of @a iWhite to this color, including alpha channel
+/** @e raw addition of @a white to this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator+=(TParam iWhite)
+ColorRGBA& ColorRGBA::operator+=(TParam white)
 {
-	r += iWhite;
-	g += iWhite;
-	b += iWhite;
-	a += iWhite;
+	r += white;
+	g += white;
+	b += white;
+	a += white;
 	return *this;
 }
 
 
 
-/** @e raw subtraction @a iWhite from this color, including alpha channel
+/** @e raw subtraction @a white from this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator-=(TParam iWhite)
+ColorRGBA& ColorRGBA::operator-=(TParam white)
 {
-	r -= iWhite;
-	g -= iWhite;
-	b -= iWhite;
-	a -= iWhite;
+	r -= white;
+	g -= white;
+	b -= white;
+	a -= white;
 	return *this;
 }
 
 
 
-/** @e raw multiplication of @a iWhite with this color, including alpha channel
+/** @e raw multiplication of @a white with this color, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator*=(TParam iWhite)
+ColorRGBA& ColorRGBA::operator*=(TParam white)
 {
-	r *= iWhite;
-	g *= iWhite;
-	b *= iWhite;
-	a *= iWhite;
+	r *= white;
+	g *= white;
+	b *= white;
+	a *= white;
 	return *this;
 }
 
 
 
-/** @e raw division of this color by @a iWhite, including alpha channel
+/** @e raw division of this color by @a white, including alpha channel
  */
-ColorRGBA& ColorRGBA::operator/=(TParam iWhite)
+ColorRGBA& ColorRGBA::operator/=(TParam white)
 {
-	const TValue invWhite = TNumTraits::one / iWhite;
+	const TValue invWhite = TNumTraits::one / white;
 	r *= invWhite;
 	g *= invWhite;
 	b *= invWhite;
@@ -259,10 +259,10 @@ const bool ColorRGBA::isNaN() const
  *
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  */
-const ColorRGBA ColorRGBA::darkened(ColorRGBA::TParam iFactor) const
+const ColorRGBA ColorRGBA::darkened(ColorRGBA::TParam factor) const
 {
 	ColorRGBA result(*this);
-	result *= iFactor;
+	result *= factor;
 	result.a = a;
 	return result;
 }
@@ -271,7 +271,7 @@ const ColorRGBA ColorRGBA::darkened(ColorRGBA::TParam iFactor) const
 
 /** return color with dissolved opaqueness
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA * dissolveFactor.
@@ -280,10 +280,10 @@ const ColorRGBA ColorRGBA::darkened(ColorRGBA::TParam iFactor) const
  *
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  */
-const ColorRGBA ColorRGBA::dissolved(TParam iFactor) const
+const ColorRGBA ColorRGBA::dissolved(TParam factor) const
 {
 	ColorRGBA result(*this);
-	result.a *= iFactor;
+	result.a *= factor;
 	return result;
 }
 
@@ -293,16 +293,16 @@ const ColorRGBA ColorRGBA::dissolved(TParam iFactor) const
  *
  *  corrects gamma of all channels, except alpha.
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA.
  *  ColorR = ColorA ** (1 / gamma).
  *  @endcode
  */
-const ColorRGBA ColorRGBA::gammaCorrected(TParam iGammaExponent) const
+const ColorRGBA ColorRGBA::gammaCorrected(TParam gammaExponent) const
 {
-	const TValue invGamma = num::inv(iGammaExponent);
+	const TValue invGamma = num::inv(gammaExponent);
 	return ColorRGBA(num::pow(r, invGamma), num::pow(g, invGamma), num::pow(b, invGamma), a);
 }
 
@@ -312,7 +312,7 @@ const ColorRGBA ColorRGBA::gammaCorrected(TParam iGammaExponent) const
  *
  *  apply exposure function to color and clamp alpha channel
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *  @post: all channel values ar in the range [0, 1].
  *
  *  @code
@@ -320,9 +320,9 @@ const ColorRGBA ColorRGBA::gammaCorrected(TParam iGammaExponent) const
  *  ColorR = 1 - exp(-time * ColorA).
  *  @endcode
  */
-const ColorRGBA ColorRGBA::exposed(TParam iExposureTime) const
+const ColorRGBA ColorRGBA::exposed(TParam exposureTime) const
 {
-	const TValue f = -iExposureTime;
+	const TValue f = -exposureTime;
 	return ColorRGBA(
 		num::clamp(TNumTraits::one - num::exp(f * r), TNumTraits::zero, TNumTraits::one),
 		num::clamp(TNumTraits::one - num::exp(f * g), TNumTraits::zero, TNumTraits::one),
@@ -336,7 +336,7 @@ const ColorRGBA ColorRGBA::exposed(TParam iExposureTime) const
  *
  *  apply inverse of exposure function to color and clamp alpha channel
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *  @post: all channel values ar in the range [0, 1].
  *
  *  @code
@@ -344,9 +344,9 @@ const ColorRGBA ColorRGBA::exposed(TParam iExposureTime) const
  *  ColorR = log(1 - colorA) / -time
  *  @endcode
  */
-const ColorRGBA ColorRGBA::invExposed(TParam iExposureTime) const
+const ColorRGBA ColorRGBA::invExposed(TParam exposureTime) const
 {
-	const TValue f =  num::inv(-iExposureTime);
+	const TValue f =  num::inv(-exposureTime);
 	return ColorRGBA(
 		f * num::log(num::clamp(TNumTraits::one - r, TNumTraits::minStrictPositive, TNumTraits::one)),
 		f * num::log(num::clamp(TNumTraits::one - g, TNumTraits::minStrictPositive, TNumTraits::one)),
@@ -372,17 +372,17 @@ const ColorRGBA ColorRGBA::clamped() const
 
 /** convert a value in range [0, 1] to a color like in colormap 'autumn' of matlab.
  */
-const ColorRGBA ColorRGBA::mapAutumn(TParam iValue)
+const ColorRGBA ColorRGBA::mapAutumn(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(TNumTraits::one, iValue, TNumTraits::zero);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(TNumTraits::one, value, TNumTraits::zero);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'bone' of matlab.
  */
-const ColorRGBA ColorRGBA::mapBone(TParam iValue)
+const ColorRGBA ColorRGBA::mapBone(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
@@ -391,44 +391,44 @@ const ColorRGBA ColorRGBA::mapBone(TParam iValue)
 		ColorRGBA(0.6528, 0.7778, 0.7778),
 		ColorRGBA(1.    , 1.    , 1.    )
 	};
-	return doMap(iValue, keys, 4);
+	return doMap(value, keys, 4);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'cool' of matlab.
  */
-const ColorRGBA ColorRGBA::mapCool(TParam iValue)
+const ColorRGBA ColorRGBA::mapCool(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(iValue, TNumTraits::one - iValue, TNumTraits::one);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(value, TNumTraits::one - value, TNumTraits::one);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'copper' of matlab.
  */
-const ColorRGBA ColorRGBA::mapCopper(TParam iValue)
+const ColorRGBA ColorRGBA::mapCopper(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(iValue < .8 ? iValue / .8 : 1., .8 * iValue, .5 * iValue);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(value < .8 ? value / .8 : 1., .8 * value, .5 * value);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'gray' of matlab.
  */
-const ColorRGBA ColorRGBA::mapGray(TParam iValue)
+const ColorRGBA ColorRGBA::mapGray(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(iValue);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(value);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'hot' of matlab.
  */
-const ColorRGBA ColorRGBA::mapHot(TParam iValue)
+const ColorRGBA ColorRGBA::mapHot(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
@@ -442,14 +442,14 @@ const ColorRGBA ColorRGBA::mapHot(TParam iValue)
 		ColorRGBA(1.     , 1.     , .5),
 		ColorRGBA(1.     , 1.     , 1.)
 	};
-	return doMap(iValue, keys, 9);
+	return doMap(value, keys, 9);
 }
 
 
 
 /** convert a value to a color like in colormap 'hsv' of matlab.
  */
-const ColorRGBA ColorRGBA::mapHsv(TParam iValue)
+const ColorRGBA ColorRGBA::mapHsv(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
@@ -461,14 +461,14 @@ const ColorRGBA ColorRGBA::mapHsv(TParam iValue)
 		ColorRGBA(1., 0., 1.),
 		ColorRGBA(1., 0., 0.)
 	};
-	return doMap(iValue - num::floor(iValue), keys, 7);
+	return doMap(value - num::floor(value), keys, 7);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'jet' of matlab.
  */
-const ColorRGBA ColorRGBA::mapJet(TParam iValue)
+const ColorRGBA ColorRGBA::mapJet(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
@@ -483,14 +483,14 @@ const ColorRGBA ColorRGBA::mapJet(TParam iValue)
 		ColorRGBA(.5, .0, 0.)  // 0
 	};
 
-	return doMap(iValue, keys, 9);
+	return doMap(value, keys, 9);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'pink' of matlab.
  */
-const ColorRGBA ColorRGBA::mapPink(TParam iValue)
+const ColorRGBA ColorRGBA::mapPink(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
@@ -512,47 +512,47 @@ const ColorRGBA ColorRGBA::mapPink(TParam iValue)
 		ColorRGBA(0.9786, 0.9786, 0.9351),
 		ColorRGBA(1.    , 1.    , 1.    ),
 	};
-	return doMap(iValue, keys, 17);
+	return doMap(value, keys, 17);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'spring' of matlab.
  */
-const ColorRGBA ColorRGBA::mapSpring(TParam iValue)
+const ColorRGBA ColorRGBA::mapSpring(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(TNumTraits::one, iValue, TNumTraits::one - iValue);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(TNumTraits::one, value, TNumTraits::one - value);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'summer' of matlab.
  */
-const ColorRGBA ColorRGBA::mapSummer(TParam iValue)
+const ColorRGBA ColorRGBA::mapSummer(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(iValue, (TNumTraits::one + iValue) / 2, 0.4 * TNumTraits::one);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(value, (TNumTraits::one + value) / 2, 0.4 * TNumTraits::one);
 }
 
 
 
 /** convert a value in range [0, 1] to a color like in colormap 'winter' of matlab.
  */
-const ColorRGBA ColorRGBA::mapWinter(TParam iValue)
+const ColorRGBA ColorRGBA::mapWinter(TParam value)
 {
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(0, TNumTraits::one - iValue, TNumTraits::one / 2);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	return ColorRGBA(0, TNumTraits::one - value, TNumTraits::one / 2);
 }
 
 
 
 /** convert a value in range [0, 1] to a color from a custom color map.
  */
-const ColorRGBA ColorRGBA::mapCustom(TParam iValue, const std::vector<ColorRGBA>& iColorMap)
+const ColorRGBA ColorRGBA::mapCustom(TParam value, const std::vector<ColorRGBA>& iColorMap)
 {
 	LASS_ASSERT(static_cast<int>(iColorMap.size()) >= 0);
-	return doMap(iValue, &iColorMap[0], static_cast<int>(iColorMap.size()));
+	return doMap(value, &iColorMap[0], static_cast<int>(iColorMap.size()));
 }
 
 
@@ -563,178 +563,178 @@ const ColorRGBA ColorRGBA::mapCustom(TParam iValue, const std::vector<ColorRGBA>
 
 // --- private -------------------------------------------------------------------------------------
 
-const ColorRGBA ColorRGBA::doMap(TParam iValue, const ColorRGBA* iMap, int iMapSize)
+const ColorRGBA ColorRGBA::doMap(TParam value, const ColorRGBA* map, int mapSize)
 {
-	LASS_ASSERT(iMapSize > 1);
+	LASS_ASSERT(mapSize > 1);
 
-	num::inpclamp(iValue, TNumTraits::zero, TNumTraits::one);
-	const TValue x = iValue * (iMapSize - 1);
+	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
+	const TValue x = value * (mapSize - 1);
 	const TValue x0 = num::floor(x);
 
 	const int i = static_cast<int>(x0);
-	LASS_ASSERT(i >= 0 && i < iMapSize);
+	LASS_ASSERT(i >= 0 && i < mapSize);
 
-	if (i == iMapSize - 1)
+	if (i == mapSize - 1)
 	{
-		return iMap[i];
+		return map[i];
 	}
 
 	const TValue dx = x - x0;
-	return iMap[i] * (TNumTraits::one - dx) + iMap[i + 1] * dx;
+	return map[i] * (TNumTraits::one - dx) + map[i + 1] * dx;
 }
 
 // --- free ----------------------------------------------------------------------------------------
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator+(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA operator+(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result += iB;
+	ColorRGBA result(a);
+	result += b;
 	return result;
 }
 
 
 
-/** raw subtraction of @a iA and @a iB, including alpha channels
+/** raw subtraction of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator-(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA operator-(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result -= iB;
+	ColorRGBA result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator*(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA operator*(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result *= iB;
+	ColorRGBA result(a);
+	result *= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator/(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA operator/(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result /= iB;
+	ColorRGBA result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator+(ColorRGBA::TParam iA, const ColorRGBA& iB)
+ColorRGBA operator+(ColorRGBA::TParam a, const ColorRGBA& b)
 {
-	ColorRGBA result(iB);
-	result += iA;
+	ColorRGBA result(b);
+	result += a;
 	return result;
 }
 
 
 
-/** raw subtraction of @a iA and @a iB, including alpha channels
+/** raw subtraction of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator-(ColorRGBA::TParam iA, const ColorRGBA& iB)
+ColorRGBA operator-(ColorRGBA::TParam a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result -= iB;
+	ColorRGBA result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator*(ColorRGBA::TParam iA, const ColorRGBA& iB)
+ColorRGBA operator*(ColorRGBA::TParam a, const ColorRGBA& b)
 {
-	ColorRGBA result(iB);
-	result *= iA;
+	ColorRGBA result(b);
+	result *= a;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator/(ColorRGBA::TParam iA, const ColorRGBA& iB)
+ColorRGBA operator/(ColorRGBA::TParam a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result /= iB;
+	ColorRGBA result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator+(const ColorRGBA& iA, ColorRGBA::TParam iB)
+ColorRGBA operator+(const ColorRGBA& a, ColorRGBA::TParam b)
 {
-	ColorRGBA result(iA);
-	result += iB;
+	ColorRGBA result(a);
+	result += b;
 	return result;
 }
 
 
 
-/** raw subtraction of @a iA and @a iB, including alpha channels
+/** raw subtraction of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator-(const ColorRGBA& iA, ColorRGBA::TParam iB)
+ColorRGBA operator-(const ColorRGBA& a, ColorRGBA::TParam b)
 {
-	ColorRGBA result(iA);
-	result -= iB;
+	ColorRGBA result(a);
+	result -= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator*(const ColorRGBA& iA, ColorRGBA::TParam iB)
+ColorRGBA operator*(const ColorRGBA& a, ColorRGBA::TParam b)
 {
-	ColorRGBA result(iA);
-	result *= iB;
+	ColorRGBA result(a);
+	result *= b;
 	return result;
 }
 
 
 
-/** raw addition of @a iA and @a iB, including alpha channels
+/** raw addition of @a a and @a b, including alpha channels
  *  @relates lass::prim::ColorRGBA
  */
-ColorRGBA operator/(const ColorRGBA& iA, ColorRGBA::TParam iB)
+ColorRGBA operator/(const ColorRGBA& a, ColorRGBA::TParam b)
 {
-	ColorRGBA result(iA);
-	result /= iB;
+	ColorRGBA result(a);
+	result /= b;
 	return result;
 }
 
 
 
-/** placement of foreground @a iA in front of background @a iB.
+/** placement of foreground @a a in front of background @a b.
  *
- *  @a iA is painted over @a iB and leaves only a that part of @a iB visible that isn't painted 
+ *  @a a is painted over @a b and leaves only a that part of @a b visible that isn't painted 
  *  over: 1 - alphaA.
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA + (1 - alphaA) * alphaB.
@@ -744,13 +744,13 @@ ColorRGBA operator/(const ColorRGBA& iA, ColorRGBA::TParam iB)
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA over(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA over(const ColorRGBA& a, const ColorRGBA& b)
 {
-	const ColorRGBA::TValue unfilteredB = (ColorRGBA::TNumTraits::one - iA.a) * iB.a;
-	const ColorRGBA::TValue alphaR = iA.a + unfilteredB;
-	ColorRGBA result(iB);
+	const ColorRGBA::TValue unfilteredB = (ColorRGBA::TNumTraits::one - a.a) * b.a;
+	const ColorRGBA::TValue alphaR = a.a + unfilteredB;
+	ColorRGBA result(b);
 	result *= unfilteredB;
-	result *= iA * iA.a;
+	result *= a * a.a;
 	result /= alphaR;
 	result.a = alphaR;
 	return result;
@@ -758,12 +758,12 @@ ColorRGBA over(const ColorRGBA& iA, const ColorRGBA& iB)
 
 
 
-/** part of @a iA inside @a iB.
+/** part of @a a inside @a b.
  *
- *  @a iA is only painted where @a iB is present, and @a iB is not painted at all.
- *  This is the equivalent of only drawing @iA clipped by the alpha channel of @a iB
+ *  @a a is only painted where @a b is present, and @a b is not painted at all.
+ *  This is the equivalent of only drawing @a clipped by the alpha channel of @a b
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA * alphaB.
@@ -773,21 +773,21 @@ ColorRGBA over(const ColorRGBA& iA, const ColorRGBA& iB)
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA in(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA in(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result.a *= iB.a;
+	ColorRGBA result(a);
+	result.a *= b.a;
 	return result;
 }
 
 
 
-/** @a iA held out by @a iB, part of @a iA outside @a iB.
+/** @a a held out by @a b, part of @a a outside @a b.
  *
- *  @a iA is only painted where @a iB is not present, and @a iB is not painted at all.
- *  This is the equivalent of only drawing @iA clipped by the inverse alpha channel of @a iB.
+ *  @a a is only painted where @a b is not present, and @a b is not painted at all.
+ *  This is the equivalent of only drawing @a clipped by the inverse alpha channel of @a b.
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA * (1 - alphaB).
@@ -797,21 +797,21 @@ ColorRGBA in(const ColorRGBA& iA, const ColorRGBA& iB)
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA out(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA out(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result.a *= (ColorRGBA::TNumTraits::one - iB.a);
+	ColorRGBA result(a);
+	result.a *= (ColorRGBA::TNumTraits::one - b.a);
 	return result;
 }
 
 
 
-/** union of @a iA in @a iB and @a iB out @a iA.
+/** union of @a a in @a b and @a b out @a a.
  *
- *  @a iA atop @a iB includes @a iA where it's on top of @a iB, otherwise it's @a iB.  But nothing 
- *  outside @a iB is included.
+ *  @a a atop @a b includes @a a where it's on top of @a b, otherwise it's @a b.  But nothing 
+ *  outside @a b is included.
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaB.
@@ -821,18 +821,18 @@ ColorRGBA out(const ColorRGBA& iA, const ColorRGBA& iB)
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA atop(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA atop(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result *= iA.a;
-	result += iB * (ColorRGBA::TNumTraits::one - iA.a);
-	result.a = iB.a;
+	ColorRGBA result(a);
+	result *= a.a;
+	result += b * (ColorRGBA::TNumTraits::one - a.a);
+	result.a = b.a;
 	return result;
 }
 
 
 
-/** @pre @a iA and @a iB are considered non-premultiplied
+/** @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA + alphaB
@@ -842,34 +842,34 @@ ColorRGBA atop(const ColorRGBA& iA, const ColorRGBA& iB)
  *  @arg T. Porter, T. Duff. Compositing Digital Images, Comp. Graphics, 18(3):253-259, July 1984.
  *  @arg http://en.wikipedia.org/wiki/Alpha_channel
  */
-ColorRGBA plus(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA plus(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result *= iA;
-	result += iB * iB.a;
-	result /= iA.a + iB.a;
-	result.a = iA.a + iB.a;
+	ColorRGBA result(a);
+	result *= a;
+	result += b * b.a;
+	result /= a.a + b.a;
+	result.a = a.a + b.a;
 	return result;
 }
 
 
 
-/** @a iA seen through color filter @a iB.
+/** @a a seen through color filter @a b.
  *
- *  @pre @a iA and @a iB are considered non-premultiplied
+ *  @pre @a a and @a b are considered non-premultiplied
  *
  *  @code
  *  alphaR = alphaA.
  *  colorR = colorA * (1 - alphaB) + colorA * colorB * alphaB.
  *  @endcode
  */
-ColorRGBA through(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA through(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA result(iA);
-	result *= iB;
-	result *= iB.a;
-	result += iA * (ColorRGBA::TNumTraits::one - iA.b);
-	result.a = iA.a;
+	ColorRGBA result(a);
+	result *= b;
+	result *= b.a;
+	result += a * (ColorRGBA::TNumTraits::one - a.b);
+	result.a = a.a;
 	return result;
 }
 
@@ -878,10 +878,10 @@ ColorRGBA through(const ColorRGBA& iA, const ColorRGBA& iB)
 /** distance between non-non-premultiplied colours as 3D points (alpha channel is disregarded).
  *  @return num::sqrt(dR ** 2 + dG ** 2 + dB ** 2)
  */
-ColorRGBA::TValue distance(const ColorRGBA& iA, const ColorRGBA& iB)
+ColorRGBA::TValue distance(const ColorRGBA& a, const ColorRGBA& b)
 {
-	ColorRGBA delta(iA);
-	delta -= iB;
+	ColorRGBA delta(a);
+	delta -= b;
 	return num::sqrt(num::sqr(delta.r) + num::sqr(delta.g) + num::sqr(delta.a));
 }
 

@@ -50,6 +50,7 @@
 #include "../stde/range_algorithm.h"
 #include "../stde/static_vector.h"
 #include "../prim/transformation_3d.h"
+#include "../num/num_cast.h"
 
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
 	LASS_UTIL_IMPL_MAKE_ENFORCER(\
@@ -278,7 +279,14 @@ void Image::save(BinaryOStream& stream, const std::string& formatTag)
 		LASS_THROW_EX(BadFormat, "cannot save images in file format '" << formatTag << "'.");
 	}
 
-	(this->*saver)(stream);
+	try
+	{
+		(this->*saver)(stream);
+	}
+	catch (const num::BadNumCast&)
+	{
+		LASS_THROW_EX(BadFormat, "image size is too large for this format");
+	}
 
 	if (stream.eof())
 	{
@@ -1188,8 +1196,8 @@ BinaryOStream& Image::saveLass(BinaryOStream& stream) const
 	HeaderLass header;
 	header.lass = magicLass_;
 	header.version = 2;
-	header.rows = rows_;
-	header.cols = cols_;
+	header.rows = num::numCast<num::Tuint32>(rows_);
+	header.cols = num::numCast<num::Tuint32>(cols_);
 	header.writeTo(stream);
 
 	EndiannessSetter(stream, num::littleEndian);
@@ -1236,8 +1244,8 @@ BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 	header.colorMapEntrySize = 0;
 	header.imageXorigin = 0;
 	header.imageYorigin = 0;
-	header.imageWidth = cols_;
-	header.imageHeight = rows_;
+	header.imageWidth = num::numCast<num::Tuint16>(cols_);;
+	header.imageHeight = num::numCast<num::Tuint16>(rows_);
 	header.imagePixelSize = 32;
 	header.imageDescriptor = 0x08; // 8 attribute bits
 
@@ -1454,12 +1462,12 @@ BinaryOStream& Image::saveIgi(BinaryOStream& stream) const
 	HeaderIgi header;
 	header.magic = magicIgi_;
 	header.version = 1;
-	header.numSamples = rows_ * cols_;
-	header.width = cols_;
-	header.height = rows_;
+	header.numSamples = static_cast<num::Tfloat64>(rows_ * cols_);
+	header.width = num::numCast<num::Tuint32>(cols_);
+	header.height = num::numCast<num::Tuint32>(rows_);
 	header.superSampling = 1;
 	header.zipped = 0;
-	header.dataSize = 12 * rows_ * cols_;
+	header.dataSize = num::numCast<num::Tuint32>(12 * rows_ * cols_);
 	header.rgb = colorSpace_ == xyzColorSpace() ? 0 : 1;
 	header.writeTo(stream);
 

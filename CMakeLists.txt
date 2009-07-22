@@ -31,6 +31,11 @@ else()
 endif()
 
 option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" OFF)
+option(BUILD_USING_STLPORT "Build lass with STLport" OFF)
+if (BUILD_USING_STLPORT)
+	find_package(STLPort 5.3)
+	mark_as_advanced(CLEAR STLPORT_INSTALL_DIR STLPORT_INCLUDE_DIR STLPORT_LIBRARIES)
+endif()
 
 
 # --- CHECK THE ENVIRONMENT ----

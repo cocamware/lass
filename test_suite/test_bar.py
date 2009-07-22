@@ -640,31 +640,29 @@ class TestMultiCallback(unittest.TestCase):
 		cb.add(dummyCallback0)
 		# calling a wrapped callback
 		cb.call()
-		self.assert_(dummyCounter==1)
+		self.assertEqual(dummyCounter, 1)
 		cb.add(dummyCallback0)
 		cb.call()
-		self.assert_(dummyCounter==3)
+		self.assertEqual(dummyCounter, 3)
 		cb.reset()
 		cb()
-		self.assert_(dummyCounter==3)
+		self.assertEqual(dummyCounter, 3)
 		for i in range(10):
 			cb.add(dummyCallback0)
 		cb()
-		self.assert_(dummyCounter==13)
+		self.assertEqual(dummyCounter, 13)
 		# checking ref counting
 		cb()
-		self.assert_(dummyCounter==23)
+		self.assertEqual(dummyCounter, 23)
 		# can we pass it as argument and call it in c++
 		a.acceptAsArgument(cb)
-		self.assert_(dummyCounter==33)
+		self.assertEqual(dummyCounter, 33)
 		# can we plainly assign a function without using add, mimicking
 		# the behavior of a plain callback
-		print "Simple assignment"
 		a.callback = dummyCallback0
 		# dropping the call() function a directly calling the () operator
 		a.callback()
-		print "dummyCounter = ", dummyCounter
-		self.assert_(dummyCounter==34)
+		self.assertEqual(dummyCounter, 34)
 
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])

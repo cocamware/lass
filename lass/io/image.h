@@ -224,8 +224,8 @@ private:
 		float exposure;
 		float colorCorr[sizeColorCorr];
 		float primaries[sizePrimaries];
-		unsigned height;
-		unsigned width;
+		size_t height;
+		size_t width;
 		bool yIncreasing;
 		bool xIncreasing;
 		bool isRgb;

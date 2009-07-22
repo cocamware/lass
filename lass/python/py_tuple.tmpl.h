@@ -61,7 +61,7 @@ namespace impl
 	 *  @internal
 	 */
 	template <typename P>
-	inline bool decodeObject(PyObject* in, P& out, int index)
+	inline bool decodeObject(PyObject* in, P& out, size_t index)
 	{
 		if (lass::python::pyGetSimpleObject(in, out) != 0)
 		{

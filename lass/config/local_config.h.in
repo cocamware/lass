@@ -111,6 +111,8 @@
 #cmakedefine LASS_HAVE_STRERROR_R_CHAR_P 1
 
 #cmakedefine LASS_HAVE_LONG_LONG 1
+#cmakedefine LASS_HAVE_LLABS 1
+#cmakedefine LASS_HAVE_ABS64 1
 #cmakedefine LASS_HAVE_BIG_ENDIAN 1
 
 #cmakedefine LASS_HAVE_PYTHON_POSIX_C_SOURCE 1

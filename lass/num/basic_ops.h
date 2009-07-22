@@ -390,6 +390,50 @@ inline void inpfractional(unsigned long& x);
 
 
 
+#if LASS_HAVE_LONG_LONG
+
+// signed long long
+
+inline signed long long abs(signed long long x);
+inline signed long long pow(signed long long x, signed long long y);
+inline signed long long pow(signed long long x, unsigned long long y);
+inline signed long long floor(signed long long x);
+inline signed long long ceil(signed long long x);
+inline signed long long round(signed long long x);
+inline signed long long fractional(signed long long x);
+inline signed long long div(signed long long x, signed long long d);
+inline signed long long div(signed long long x, unsigned long long d);
+inline signed long long mod(signed long long x, signed long long d);
+inline signed long long mod(signed long long x, unsigned long long d);
+
+inline void inpfloor(signed long long& x);
+inline void inpceil(signed long long& x);
+inline void inpround(signed long long& x);
+inline void inpfractional(signed long long& x);
+
+
+// unsigned long long
+
+inline unsigned long long abs(unsigned long long x);
+inline unsigned long long sign(unsigned long long x);
+inline unsigned long long pow(unsigned long long x, unsigned long long p);
+inline unsigned long long floor(unsigned long long x);
+inline unsigned long long ceil(unsigned long long x);
+inline unsigned long long round(unsigned long long x);
+inline unsigned long long fractional(unsigned long long x);
+inline unsigned long long div(unsigned long long x, unsigned long long d);
+inline unsigned long long mod(unsigned long long x, unsigned long long d);
+
+inline void inpabs(unsigned long long& x);
+inline void inpfloor(unsigned long long& x);
+inline void inpceil(unsigned long long& x);
+inline void inpround(unsigned long long& x);
+inline void inpfractional(unsigned long long& x);
+
+#endif
+
+
+
 // complex numbers
 
 template <typename T> inline std::complex<T> abs(const std::complex<T>& x);

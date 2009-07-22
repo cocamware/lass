@@ -50,6 +50,24 @@ namespace test
 {
 
 template <typename T>
+void testNumBasicOpsInteger()
+{
+	const T zero = 0;
+	const T one = 1;
+	T big = 0;
+	for (T i = 0; i < sizeof(T); ++i)
+	{
+		big |= (i + 1) << (8 * i);
+	}
+	
+	LASS_TEST_CHECK_EQUAL(num::abs(zero), zero);
+	LASS_TEST_CHECK_EQUAL(num::abs(one), one);
+	LASS_TEST_CHECK_EQUAL(num::abs(-one), one);
+	LASS_TEST_CHECK_EQUAL(num::abs(big), big);
+	LASS_TEST_CHECK_EQUAL(num::abs(-big), big);
+}
+
+template <typename T>
 void testNumBasicOps()
 {
 	typedef num::NumTraits<T> TNumTraits;
@@ -85,6 +103,13 @@ TUnitTest test_num_basic_ops()
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<float>));
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<double>));
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<long double>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<signed char>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<short>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<int>));
+	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<long>));
+#if LASS_HAVE_LONG_LONG
+	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<long long>));
+#endif
 	return result;
 }
 

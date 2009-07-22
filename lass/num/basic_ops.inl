@@ -624,6 +624,61 @@ void inpfractional(unsigned long& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 
 
+#if LASS_HAVE_LONG_LONG
+
+// --- signed long long ----------------------------------------------------------------------------------
+
+/** @ingroup BasicOps */
+signed long long abs(signed long long x)						
+{
+#if LASS_HAVE_LLABS
+	return ::llabs(x);
+#elif LASS_HAVE_ABS64
+	return ::_abs64(x);
+#else
+	return abs<long long>(x); 
+#endif
+}						
+signed long long pow(signed long long x, signed long long p)		{ return impl::IntPow<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long long pow(signed long long x, unsigned long long p)		{ return impl::IntPow<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long long floor(signed long long x)					{ return x; }								/**< @ingroup BasicOps */
+signed long long ceil(signed long long x)						{ return x; }								/**< @ingroup BasicOps */
+signed long long round(signed long long x)					{ return x; }								/**< @ingroup BasicOps */
+signed long long fractional(signed long long /*x*/)			{ return 0; }								/**< @ingroup BasicOps */
+signed long long div(signed long long x, signed long long p)		{ return impl::IntDiv<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long long div(signed long long x, unsigned long long p)		{ return impl::IntDiv<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long long mod(signed long long x, signed long long p)		{ return impl::IntMod<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+signed long long mod(signed long long x, unsigned long long p)		{ return impl::IntMod<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+
+void inpfloor(signed long long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpceil(signed long long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpround(signed long long& /*x*/)	{}			/**< @ingroup BasicOps */
+void inpfractional(signed long long& x)	{ x = 0; }	/**< @ingroup BasicOps */
+
+
+
+// --- unsigned long long ----------------------------------------------------------------------------------
+
+unsigned long long abs(unsigned long long x)					{ return x; }	/**< @ingroup BasicOps */
+unsigned long long sign(unsigned long long x)					{ return x > 0 ? 1 : 0; }	/**< @ingroup BasicOps */
+unsigned long long pow(unsigned long long x, unsigned long long p)	{ return impl::IntPow<unsigned long long>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned long long floor(unsigned long long x)				{ return x; }										/**< @ingroup BasicOps */
+unsigned long long ceil(unsigned long long x)					{ return x; }										/**< @ingroup BasicOps */
+unsigned long long round(unsigned long long x)				{ return x; }										/**< @ingroup BasicOps */
+unsigned long long fractional(unsigned long long /*x*/)		{ return 0; }										/**< @ingroup BasicOps */
+unsigned long long div(unsigned long long x, unsigned long long p)	{ return x / p; }									/**< @ingroup BasicOps */
+unsigned long long mod(unsigned long long x, unsigned long long p)	{ return x % p; }									/**< @ingroup BasicOps */
+
+void inpabs(unsigned long long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfloor(unsigned long long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpceil(unsigned long long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpround(unsigned long long& /*x*/)		{}			/**< @ingroup BasicOps */
+void inpfractional(unsigned long long& x)	{ x = 0; }	/**< @ingroup BasicOps */
+
+#endif
+
+
+
 
 // --- complex numbers -----------------------------------------------------------------------------
 
