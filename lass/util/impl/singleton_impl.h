@@ -68,7 +68,7 @@ public:
 
 protected:
 
-	void subscribeInstance(int iDestructionPriority);
+	void subscribeInstance(int iDzestructionPriority);
 
 private:
 

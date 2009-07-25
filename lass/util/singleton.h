@@ -153,7 +153,7 @@ public:
 
 private:
 
-	static bool deadReference(bool iSetReferenceToDead = false);
+	static bool deadReference(bool setReferenceToDead = false);
 
 	ScopedPtr<TInstance> instance_;
 };

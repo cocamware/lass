@@ -349,54 +349,18 @@ private:
 *   
 *	This semaphore is built upon atomic operations that are programmed in assembly.
 */
-class LASS_DLL Semaphore : NonCopyable
+class Semaphore: NonCopyable
 {
 public:
-	Semaphore(int iNumberOfSlots = 1): 
-		freeSlots_(iNumberOfSlots)
-	{
-	}
-	
-	void lock()
-	{
-		int oldSlots, newSlots;
-		do
-		{
-			oldSlots = freeSlots_;
-			LASS_ASSERT(oldSlots >= 0);
-			newSlots = oldSlots - 1;
-		}
-		while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
-	}
-	LockResult tryLock()
-	{
-		int oldSlots, newSlots;
-		do
-		{
-			oldSlots = freeSlots_;
-			LASS_ASSERT(oldSlots >= 0);
-			if (oldSlots == 0)
-			{
-				return lockBusy;
-			}
-			newSlots = oldSlots - 1;
-		}
-		while (!atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
-		return lockSuccess;
-	}
-	void unlock() 
-	{ 
-		atomicIncrement(freeSlots_); 
-	}
-	bool isLocked() const 
-	{ 
-		return freeSlots_ == 0; 
-	}
+	Semaphore(int numberOfSlots = 1): freeSlots_(numberOfSlots) {}	
+	void lock() { atomicLock(freeSlots_); }
+	LockResult tryLock() { return atomicTryLock(freeSlots_) ? lockSuccess : lockBusy; }
+	void unlock() { atomicUnlock(freeSlots_); }
+	bool isLocked() const { return freeSlots_ == 0; }
 
 private:
 	volatile int freeSlots_;
 };
-
 
 
 
@@ -452,6 +416,33 @@ private:
 	TLock* lock_;
 };
 
+
+
+/** @ingroup Threading
+ */
+template <typename IntegralType>
+class IntegralLocker: public LockerBase
+{
+public:
+	IntegralLocker(volatile IntegralType& slots): 
+		slots_(&slots) 
+	{ 
+		atomicLock(*slots_);
+	}
+	~IntegralLocker() 
+	{
+		atomicUnlock(*slots_);
+	}
+	void swap(IntegralLocker& other)
+	{
+		std::swap(slots_, other.slots_);
+	}
+private:
+	volatile IntegralType* slots_;
+};
+
+
+
 /** @ingroup Threading
  *  @relates Locker
  */
@@ -460,6 +451,19 @@ inline Locker<T> makeLocker(T& iLock)
 {
 	return Locker<T>(iLock);
 }
+
+
+
+/** @ingroup Threading
+ *  @relates Locker
+ */
+template <typename T>
+inline IntegralLocker<T> makeIntegralLocker(T& slots)
+{
+	return IntegralLocker<T>(slots);
+}
+
+
 
 /** typedef of Locker for Mutex
  *	@ingroup Threading
@@ -529,6 +533,14 @@ typedef Locker<Semaphore> SemaphoreLocker;
 #define LASS_LOCK(iLock)\
 	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) =\
 		::lass::util::makeLocker(iLock))\
+	{\
+		LASS_ASSERT_UNREACHABLE;\
+	}\
+	else
+
+#define LASS_LOCK_INTEGRAL(iSlots)\
+	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) =\
+		::lass::util::makeIntegralLocker(iSlots))\
 	{\
 		LASS_ASSERT_UNREACHABLE;\
 	}\

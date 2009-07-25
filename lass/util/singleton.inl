@@ -80,31 +80,26 @@ template <class T, int DP>
 typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 {
 	static TSelf* neo = 0;
-	static util::Semaphore lock;
+	static int lock = 1;
 
-	if (deadReference(false))
+	LASS_LOCK_INTEGRAL(lock)
 	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Dead reference detected at '" << neo 
-			<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '" 
-			<< destructionPriority << "'" << std::endl;
-		return 0;
-	}
-
-	// if instance hasn't been created yet, you might want to do it now :)
-	if (neo == 0)
-	{
-		LASS_LOCK(lock)
+		if (deadReference(false))
 		{
-			if (neo == 0)
-			{
-				neo = new TSelf;
-				neo->subscribeInstance(destructionPriority);
-			}
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Dead reference detected at '" << neo 
+				<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '" 
+				<< destructionPriority << "'" << std::endl;
+			return 0;
+		}
+		if (neo == 0)
+		{
+			neo = new TSelf;
+			neo->subscribeInstance(destructionPriority);
 		}
 	}
-
 	return neo->instance_.get();
 }
+
 
 
 /** return true if singleton is destructed.
@@ -112,22 +107,16 @@ typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
  *                              - call this method with false to check it.
  */
 template <class T, int DP>
-bool Singleton<T, DP>::deadReference(bool iSetReferenceToDead)
+bool Singleton<T, DP>::deadReference(bool setReferenceToDead)
 {
 	static bool dead = false;
-
-	if (iSetReferenceToDead)
-	{
-		dead = true;
-	}
-
+	dead |= setReferenceToDead;
 	return dead;
 }
 
 
 
 }
-
 }
 
 #endif

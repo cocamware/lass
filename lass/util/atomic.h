@@ -126,6 +126,51 @@ void atomicDecrement(volatile T& value)
 
 
 
+/** @ingroup atomic
+ */
+template <typename T>
+void atomicLock(volatile T& semaphore)
+{
+	T current;
+	do
+	{
+		current = semaphore;
+	}
+	while (current <= 0 || !atomicCompareAndSwap(semaphore, current, current - 1));
+}
+
+
+
+/** @ingroup atomic
+ */
+template <typename T>
+bool atomicTryLock(volatile T& semaphore)
+{
+	T current;
+	do
+	{
+		current = semaphore;
+		if (current <= 0)
+		{
+			return false;
+		}
+	}
+	while (!atomicCompareAndSwap(semaphore, current, current - 1));
+	return true;
+}
+
+
+
+/** @ingroup atomic
+ */
+template <typename T>
+void atomicUnlock(volatile T& semaphore)
+{
+	atomicIncrement(semaphore);
+}
+
+
+
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
 #	pragma warning(disable: 4521) // multiple copy constructors specified

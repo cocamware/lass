@@ -44,7 +44,7 @@
 
 #include "lass_common.h"
 #include "singleton_impl.h"
-#include "../atomic.h"
+#include "../thread.h"
 #include <cstdlib>
 #include <queue>
 
@@ -62,9 +62,15 @@ namespace impl
 class CompareDestructionPriority
 {
 public:
-
-	bool operator()(SingletonBase* iA, SingletonBase* iB);
+	bool operator()(SingletonBase* a, SingletonBase* b) const
+	{
+		LASS_ASSERT(a != 0 && b != 0);
+		return a->destructionPriority() < b->destructionPriority();
+	}
 };
+
+
+
 
 /** The singleton guard will take care of the destruction of all singletons.
  *  @internal
@@ -87,62 +93,66 @@ public:
 class SingletonGuard
 {
 public:
-
-	~SingletonGuard();
-
-	void subscribe(SingletonBase* iSingleton);
-
-	static SingletonGuard* instance();
+	void subscribe(SingletonBase* singleton)
+	{
+		LASS_LOCK_INTEGRAL(lock_)
+		{
+			deathRow_.push(singleton);
+		}
+	}
+	static SingletonGuard* instance()
+	{
+		LASS_LOCK_INTEGRAL(lock_)
+		{
+			if (isDeadReference_)
+			{
+				std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Usage of dead reference to SingletonGuard!" << std::endl;
+				return 0;
+			}
+			if (!instance_)
+			{
+				instance_ = new SingletonGuard;
+				::atexit(&SingletonGuard::killEmAll);
+			}
+		}
+		return instance_;
+	}
 
 private:
+	typedef std::priority_queue<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
 
-	SingletonGuard() {}
-
-	/** Special semaphore for the guard.
-	 *  @internal
-	 *  The reason we need a custom semaphore implemented around a static int is because
-	 *	the util::Semaphore is susceptible to the static initialization order fiasco.
-	 *  To solve that, we need something that can be initialized statically (baked in
-	 *	executable), and that would be - in this case - an int.  It will appear to have
-	 *	been one since the beginning of the ages.  Case solved.
-	 */
-#pragma LASS_TODO("Examine if util::Semaphore is indeed susceptilbe to SIOF [Bramz]")
-	class CustomSemaphore
+	SingletonGuard() 
 	{
-	public:
-		CustomSemaphore()
+	}
+	~SingletonGuard()
+	{
+		while (!deathRow_.empty())
 		{
-			int oldSlots, newSlots;
-			do
-			{
-				oldSlots = freeSlots_;
-				LASS_ASSERT(oldSlots >= 0);
-				newSlots = oldSlots - 1;
-			}
-			while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
+			SingletonBase* deadManWalking = deathRow_.top();
+			deathRow_.pop();
+			delete deadManWalking;
 		}
-		~CustomSemaphore()
-		{
-			atomicIncrement(freeSlots_); 
-		}
-	private:
-		static int freeSlots_;
-	};
-
-	typedef std::priority_queue
-		<SingletonBase*, std::vector<SingletonBase*>, CompareDestructionPriority> TDeathRow;
+	}
+	static void killEmAll()
+	{
+		// this should be called only once from ::atexit.
+		LASS_ASSERT(!isDeadReference_);
+		isDeadReference_ = true;
+		delete instance_;
+		instance_ = 0;
+	}
 
 	TDeathRow deathRow_;
-
-	static void killEmAll();
-	static bool deadReference(bool iSetReferenceToDead = false);
-
 	static SingletonGuard* instance_;
-	
+	static bool isDeadReference_;
+	static int lock_;	
 };
 
 SingletonGuard* SingletonGuard::instance_ = 0;
-int SingletonGuard::CustomSemaphore::freeSlots_ = 1;
+bool SingletonGuard::isDeadReference_ = false;
+int SingletonGuard::lock_ = 1;
+
+
 
 
 
@@ -176,11 +186,11 @@ int SingletonBase::destructionPriority() const
  *  since Singleton<> already does it :)
  *
  *  @warning this isn't thread safe as it is, but that's ok because its only caller 
- *		Singleton::instance() is already locking on SingletonGuard level.
+ *		Singleton::instance() is already locking.
  */
-void SingletonBase::subscribeInstance(int iDestructionPriority)
+void SingletonBase::subscribeInstance(int destructionPriority)
 {
-	destructionPriority_ = iDestructionPriority;
+	destructionPriority_ = destructionPriority;
 	if (SingletonGuard* guard = SingletonGuard::instance())
 	{
 		guard->subscribe(this);
@@ -189,110 +199,9 @@ void SingletonBase::subscribeInstance(int iDestructionPriority)
 
 
 
-/** Return true if iA has to be killed before iB.
- */
-bool CompareDestructionPriority::operator()(SingletonBase* iA, SingletonBase* iB)
-{
-	LASS_ASSERT(iA != 0 && iB != 0);
-	return iA->destructionPriority() < iB->destructionPriority();
+}
+}
 }
 
+// EOF
 
-
-/** on destruction, you have to kill all singletons.
- *  
- *	This isn't thread safe as it is, but that's ok because it's only "caller" singletonCleanUp()
- *	is already locking on SingletonGuard level for us.
- */
-SingletonGuard::~SingletonGuard()
-{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL && !defined(_DEBUG)
-#	pragma LASS_FIXME("~SingletonGuard causes access violation => hacked: leak resources")
-#else
-	while (!deathRow_.empty())
-	{
-		SingletonBase* deadManWalking = deathRow_.top();
-		deathRow_.pop();
-		delete deadManWalking;
-	}
-#endif
-	deadReference(true);
-}
-
-
-
-/** subscribe singleton to the destruction list
- *  
- *	This isn't thread safe as it is, but that's ok because it's only indirect caller 
- *	Singleton::instance() is already locking on SingletonGuard level for us.
- */
-void SingletonGuard::subscribe(SingletonBase* iSingleton)
-{
-	deathRow_.push(iSingleton);
-}
-
-
-
-/** return the SingletonGuard singleton instance =)
- */
-SingletonGuard* SingletonGuard::instance()
-{
-	if (deadReference(false))
-	{
-		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Usage of dead reference to SingletonGuard!"
-			<< std::endl;
-		return 0;
-	}
-
-	if (!instance_)
-	{
-		CustomSemaphore lock;
-		if (!instance_) // double check
-		{
-			instance_ = new SingletonGuard;
-			::atexit(&SingletonGuard::killEmAll);
-		}
-	}
-
-	return instance_;
-}
-
-
-
-/** kills singleton guard and all its guarded singleton.
- *  @relates SingletonGuard
- *
- *  This function is subscribed to ::atexit to kill all singletons at exit of the application<
- */
-void SingletonGuard::killEmAll()
-{
-	CustomSemaphore lock;
-	delete instance_;
-	instance_ = 0;
-}
-
-
-
-/** return true if singleton guard is destructed.
- *  @param iSetReferenceToDead - call this method with true on destruction of singleton
- *                              - call this method with false to check it.
- */
-bool SingletonGuard::deadReference(bool iSetReferenceToDead)
-{
-	static bool dead = false;
-
-	if (iSetReferenceToDead)
-	{
-		dead = true;
-	}
-
-	return dead;
-}
-
-
-
-}
-
-}
-
-}
