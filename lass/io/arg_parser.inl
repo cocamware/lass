@@ -211,7 +211,7 @@ const std::string ArgValue<T>::doFormat() const
 
 
 template <typename T>
-const bool ArgValue<T>::doSetValue(const std::string& iValue)
+bool ArgValue<T>::doSetValue(const std::string& iValue)
 {
 	LASS_ASSERT(!(mode() & amNoValue));
 

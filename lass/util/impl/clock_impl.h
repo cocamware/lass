@@ -69,8 +69,8 @@ namespace impl
 struct LASS_DLL ClockImpl
 {
 	typedef LASS_UTIL_CLOCK_TICK TTick;
-	static const TTick frequency();
-	static const TTick tick();
+	static TTick frequency();
+	static TTick tick();
 };
 
 }

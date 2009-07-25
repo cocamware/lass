@@ -507,7 +507,7 @@ public:
 private:
 	AllocatorBinned& operator=(const AllocatorBinned&);
 	
-	const size_t numBins() const
+	size_t numBins() const
 	{
 		return Binner::bin(maxBinSize) + 1;
 	}
@@ -979,7 +979,7 @@ private:
 		Node* next;
 	};
 
-	const bool grow()
+	bool grow()
 	{
 		char* mem = static_cast<char*>(FixedAllocator::allocate());
 		if (!mem)
@@ -997,7 +997,7 @@ private:
 		}
 		return true;
 	}
-	static const size_t blockSize(size_t size, size_t* pSize, size_t* pAllocationsPerBlock)
+	static size_t blockSize(size_t size, size_t* pSize, size_t* pAllocationsPerBlock)
 	{
 		size = std::max(sizeof(Node), size);
 		const size_t maxBlockSize = std::max(sizeof(Node), requestedBlockSize);

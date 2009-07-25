@@ -209,7 +209,7 @@ Point2DH<T>& Point2DH<T>::operator/=(TParam iB)
  *  z may be 0 but doesn't has to be.
  */
 template<typename T>
-const bool Point2DH<T>::isZero() const
+bool Point2DH<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero;
 }
@@ -219,7 +219,7 @@ const bool Point2DH<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Point2DH<T>::isNaN() const
+bool Point2DH<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z);
 }
@@ -229,7 +229,7 @@ const bool Point2DH<T>::isNaN() const
 /** Return true if point is at infinite distance of origin.  test if z == 0.
  */
 template<typename T>
-const bool Point2DH<T>::isInfinite() const
+bool Point2DH<T>::isInfinite() const
 {
 	return z == TNumTraits::zero;
 }
@@ -239,7 +239,7 @@ const bool Point2DH<T>::isInfinite() const
 /** Return true if point is valid.  test if point != (0, 0, 0)
  */
 template<typename T>
-const bool Point2DH<T>::isValid() const
+bool Point2DH<T>::isValid() const
 {
 	return x != TNumTraits::zero || y != TNumTraits::zero || z != TNumTraits::zero;
 }

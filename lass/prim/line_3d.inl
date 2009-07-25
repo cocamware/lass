@@ -236,7 +236,7 @@ Line3D<T, NP>::t(const TPoint& iPoint) const
 /** Return true if line is valid (direction isn't a zero vector).
  */
 template <typename T, class NP>
-const bool Line3D<T, NP>::isValid() const
+bool Line3D<T, NP>::isValid() const
 {
 	return !direction_.isZero();
 }

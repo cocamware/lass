@@ -83,7 +83,7 @@ Sphere3D<T> boundingSphere(const Aabb3D<T, MMP>& box)
  *	@sa lass::prim::Sphere3D
  */
 template <typename T, typename MMP>
-const bool intersects(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
+bool intersects(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
 {
 	typedef typename Sphere3D<T>::TPoint TPoint;
 	typedef typename Sphere3D<T>::TVector TVector;
@@ -97,7 +97,7 @@ const bool intersects(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
  *	@sa lass::prim::Aabb3D
  */
 template <typename T, typename MMP>
-const bool intersects(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
+bool intersects(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
 {
 	return intersects(aabb, sphere);
 }
@@ -108,7 +108,7 @@ const bool intersects(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
  *	@sa lass::prim::Sphere3D
  */
 template <typename T, typename MMP>
-const bool collides(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
+bool collides(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
 {
 	typedef typename Sphere3D<T>::TPoint TPoint;
 	typedef typename Sphere3D<T>::TVector TVector;
@@ -122,7 +122,7 @@ const bool collides(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
  *	@sa lass::prim::Aabb3D
  */
 template <typename T, typename MMP>
-const bool collides(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
+bool collides(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
 {
 	return collides(aabb, sphere);
 }

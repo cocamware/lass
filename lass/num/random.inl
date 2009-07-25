@@ -57,7 +57,7 @@ namespace num
 
 /** draw a random number
  */
-inline const RandomStandard::TValue RandomStandard::operator ()() const
+inline RandomStandard::TValue RandomStandard::operator ()() const
 {
 	return rand();
 }
@@ -67,7 +67,7 @@ inline const RandomStandard::TValue RandomStandard::operator ()() const
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomStandard::TValue RandomStandard::operator ()(const TValue supremum) const
+inline RandomStandard::TValue RandomStandard::operator ()(const TValue supremum) const
 {
 	return rand() % supremum;
 }
@@ -95,7 +95,7 @@ void RandomStandard::setState(InputIterator first, InputIterator last)
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue supremum)
+inline RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue supremum)
 {
 	return (*this)() % supremum;
 }
@@ -155,7 +155,7 @@ void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 	int i = 1;
 	int j = 0;
 	ForwardIterator key = first;
-	for (size_t k = (stateSize_ > keySize ? stateSize_ : keySize); k > 0; --k)
+	for (size_t k = std::max<size_t>(stateSize_, keySize); k > 0; --k)
 	{
 		state_[i] = (state_[i] ^ ((state_[i - 1] ^ (state_[i - 1] >> 30)) * 1664525UL)) + *key + j;
 		//state_[i] &= wordMask_;
@@ -197,7 +197,7 @@ void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline const RandomMT19937::TValue RandomMT19937::operator ()(const TValue supremum)
+inline RandomMT19937::TValue RandomMT19937::operator ()(const TValue supremum)
 {
 	return (*this)() % supremum;
 }

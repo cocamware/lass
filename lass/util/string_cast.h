@@ -78,7 +78,7 @@ public:
 		}
 		buffer_ << in;
 	}
-	const bool read(std::string& out)
+	bool read(std::string& out)
 	{
 		if (!buffer_.good())
 		{
@@ -87,7 +87,7 @@ public:
 		out = buffer_.str();
 		return true;
 	}
-	template <typename Out>	const bool read(Out& out)
+	template <typename Out>	bool read(Out& out)
 	{
 		if (!buffer_.good())
 		{

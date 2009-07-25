@@ -88,7 +88,7 @@ template <typename T>
 struct ArgumentTraitsBuiltin<const T*>
 {
 	typedef T TStorage;
-	static const T* const arg(const TStorage& storage) { return &storage; }
+	static const T* arg(const TStorage& storage) { return &storage; }
 };
 
 /** @ingroup Python

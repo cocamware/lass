@@ -130,7 +130,7 @@ const std::string MultiCallbackImplBase::repr() const
 	{
 		return pimpl_->type();
 	}
-	void* const MultiCallback::raw(bool writable) const
+	void* MultiCallback::raw(bool writable) const
 	{
 		return pimpl_->raw(writable);
 	}

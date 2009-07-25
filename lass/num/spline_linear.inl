@@ -280,7 +280,7 @@ SplineLinear<S, D, T>::integral(TScalar iBegin, TScalar iEnd) const
  *		O(1)
  */
 template <typename S, typename D, typename T>
-const bool SplineLinear<S, D, T>::isEmpty() const
+bool SplineLinear<S, D, T>::isEmpty() const
 {
 	return nodes_.empty();
 }

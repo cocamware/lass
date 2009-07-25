@@ -99,7 +99,7 @@ template <typename T, class EP, class NP>
 const typename SimplePolygon3D<T, EP, NP>::TPoint& 
 SimplePolygon3D<T, EP, NP>::at(int iIndexOfVertex) const
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -113,7 +113,7 @@ template <typename T, class EP, class NP>
 typename SimplePolygon3D<T, EP, NP>::TPoint& 
 SimplePolygon3D<T, EP, NP>::at(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -204,7 +204,7 @@ void SimplePolygon3D<T, EP, NP>::add(const TPoint& iVertex)
 template <typename T, class EP, class NP>
 void SimplePolygon3D<T, EP, NP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.insert(i, iVertex);
 }
@@ -216,7 +216,7 @@ void SimplePolygon3D<T, EP, NP>::insert(int iIndexOfVertex, const TPoint& iVerte
 template <typename T, class EP, class NP>
 void SimplePolygon3D<T, EP, NP>::remove(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.remove(i);
 }
@@ -226,7 +226,7 @@ void SimplePolygon3D<T, EP, NP>::remove(int iIndexOfVertex)
 /** return true if polygon has no vertices
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::isEmpty() const
+bool SimplePolygon3D<T, EP, NP>::isEmpty() const
 {
 	return vertices_.empty();
 }
@@ -236,7 +236,7 @@ const bool SimplePolygon3D<T, EP, NP>::isEmpty() const
 /** return number of vertices
  */
 template <typename T, class EP, class NP>
-const size_t SimplePolygon3D<T, EP, NP>::size() const
+size_t SimplePolygon3D<T, EP, NP>::size() const
 {
 	return vertices_.size();
 }
@@ -379,7 +379,7 @@ SimplePolygon3D<T, EP, NP>::surfaceCentroid() const
  *           Hence, this is O(n^2).
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::isSimple() const
+bool SimplePolygon3D<T, EP, NP>::isSimple() const
 {
 	return mapping(majorAxis()).isSimple();
 }
@@ -403,7 +403,7 @@ const bool SimplePolygon3D<T, EP, NP>::isSimple() const
  *  vertices is considered convex (not very usefull maybe, but convex).
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::isConvex() const
+bool SimplePolygon3D<T, EP, NP>::isConvex() const
 {
 	if (size() < 3)
 	{
@@ -436,7 +436,7 @@ const bool SimplePolygon3D<T, EP, NP>::isConvex() const
  *  @warning assumes polygon is simple
  */
 template <typename T, class EP, class NP>
-const Orientation SimplePolygon3D<T, EP, NP>::orientation() const
+Orientation SimplePolygon3D<T, EP, NP>::orientation() const
 {
 	const TValue area = signedArea();
 	if (area > TNumTraits::zero)
@@ -459,7 +459,7 @@ const Orientation SimplePolygon3D<T, EP, NP>::orientation() const
  *  @warning assumes polygon is simple
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::isReflex(int iIndexOfVertex) const
+bool SimplePolygon3D<T, EP, NP>::isReflex(int iIndexOfVertex) const
 {
 	return dot(cross(vector(iIndexOfVertex - 1), vector(iIndexOfVertex)), normal()) < 0;
 }
@@ -502,7 +502,7 @@ const SimplePolygon2D<T> SimplePolygon3D<T, EP, NP>::mapping(XYZ iAxis) const
 
 
 template <typename T, class EP, class NP>
-const Side SimplePolygon3D<T, EP, NP>::classify(const TPoint& iP) const
+Side SimplePolygon3D<T, EP, NP>::classify(const TPoint& iP) const
 {
 	return contains(iP) ? sInside : sOutside;
 }
@@ -517,7 +517,7 @@ const Side SimplePolygon3D<T, EP, NP>::classify(const TPoint& iP) const
  *  http://www.faqs.org/faqs/graphics/algorithms-faq/
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::contains(const TPoint& iP) const
+bool SimplePolygon3D<T, EP, NP>::contains(const TPoint& iP) const
 {
 	const XYZ major = majorAxis();
 	const XYZ x = major + 1;
@@ -556,9 +556,9 @@ void SimplePolygon3D<T, EP, NP>::flip()
 /** return if index of vertex is in range of the std::vector
  */
 template <typename T, class EP, class NP>
-const bool SimplePolygon3D<T, EP, NP>::isInRange(int iIndexOfVertex) const
+bool SimplePolygon3D<T, EP, NP>::isInRange(size_t iIndexOfVertex) const
 {
-	return iIndexOfVertex >= 0 && iIndexOfVertex < static_cast<int>(vertices_.size());
+	return iIndexOfVertex < vertices_.size();
 }
 
 

@@ -83,7 +83,7 @@ public:
 		start();
 	}
 
-	const TTime stop()
+	TTime stop()
 	{
 		const TTime stopTime = clock_->time();
 		if (isRunning_)
@@ -94,7 +94,7 @@ public:
 		return timeBuffer_;
 	}
 
-	const TTime time() const
+	TTime time() const
 	{
 		const TTime t = clock_->time();
 		return isRunning_ ? (timeBuffer_ + t - startTime_) : timeBuffer_;

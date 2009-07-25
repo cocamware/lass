@@ -70,7 +70,7 @@ public:
 	explicit XYZ(int iValue);
 	explicit XYZ(const std::string& iAxis);
 
-	const char axis() const;
+	char axis() const;
 	operator int() const { return value_; } /**< convert axis to integer.
 														0 == @a x, 1 == @a y, 2 == @a z */
 

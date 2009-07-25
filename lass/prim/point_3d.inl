@@ -187,7 +187,7 @@ Point3D<T>& Point3D<T>::operator-=(const TVector& offset)
 
 
 template<typename T>
-const bool Point3D<T>::isZero() const
+bool Point3D<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
@@ -197,7 +197,7 @@ const bool Point3D<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Point3D<T>::isNaN() const
+bool Point3D<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z);
 }

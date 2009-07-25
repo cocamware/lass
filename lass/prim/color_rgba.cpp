@@ -213,7 +213,7 @@ ColorRGBA& ColorRGBA::operator/=(TParam white)
 
 
 
-const ColorRGBA::TValue ColorRGBA::brightness() const
+ColorRGBA::TValue ColorRGBA::brightness() const
 {
 	return (r + g + b) / 3;
 }
@@ -222,7 +222,7 @@ const ColorRGBA::TValue ColorRGBA::brightness() const
 
 /** return true if all color components are zero
  */
-const bool ColorRGBA::isBlack() const
+bool ColorRGBA::isBlack() const
 {
 	return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero;
 }
@@ -231,7 +231,7 @@ const bool ColorRGBA::isBlack() const
 
 /** return true if all components are zero
  */
-const bool ColorRGBA::isZero() const
+bool ColorRGBA::isZero() const
 {
 	return r == TNumTraits::zero && g == TNumTraits::zero && b == TNumTraits::zero &&
 		a == TNumTraits::zero;
@@ -241,7 +241,7 @@ const bool ColorRGBA::isZero() const
 
 /** Return true if at least one of the components is NaN
  */
-const bool ColorRGBA::isNaN() const
+bool ColorRGBA::isNaN() const
 {
 	return num::isNaN(r) || num::isNaN(g) || num::isNaN(b) || num::isNaN(a);
 }

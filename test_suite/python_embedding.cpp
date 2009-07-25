@@ -148,15 +148,15 @@ public:
 	ClassB() {}
 	virtual ~ClassB() {}
 
-	void testConst(const ClassA& iArg) {}
-	void testNonConst(ClassA& iArg) {}
-	void testConstPtr(ClassA const * iArg) {}
-	void testNonConstPtr(ClassA* iArg) {}
+	void testConst(const ClassA&) {}
+	void testNonConst(ClassA&) {}
+	void testConstPtr(ClassA const *) {}
+	void testNonConstPtr(ClassA*) {}
 	virtual void abstractMethod() {}
 
 	int getitem(int i) { return i; }
 	int len() const { return 5; }
-	void setitem(int i, std::pair<float,int> iarg) { }
+	void setitem(int, std::pair<float,int>) { }
 };
 
 class ClassSeq : public std::vector<float>
@@ -196,11 +196,11 @@ std::map<std::string,float>::const_iterator freeEnd(const util::SharedPtr<ClassM
 	return iThis->end();
 }
 
-int properGetMemberImagine(const ClassB& iThis )
+int properGetMemberImagine(const ClassB& )
 {
 	return 1;
 }
-void properSetMemberImagine(ClassB& iThis, int iWhat)
+void properSetMemberImagine(ClassB&, int)
 {
 
 }
@@ -218,17 +218,17 @@ void testCopyConstructor()
 	testFreeConst(b);
 }
 
-void testFree(ClassB* iThis, const ClassA& iArg )
+void testFree(ClassB*, const ClassA& )
 {
 	return;
 }
 
-ClassB freeConstructor(int iTest)
+ClassB freeConstructor(int)
 {
 	return ClassB();
 }
 
-int testConvertor(PyObject* iObject, ClassB& oOut)
+int testConvertor(PyObject*, ClassB&)
 {
 	return 0;
 }

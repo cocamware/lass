@@ -81,9 +81,9 @@ public:
 	iterator_range operator++(int);
 
 	const difference_type size() const;
-	const bool empty() const;
-	const bool operator!() const;
-	operator const num::SafeBool() const;
+	bool empty() const;
+	bool operator!() const;
+	operator num::SafeBool() const;
 
 	void swap(iterator_range& other);
 
@@ -95,8 +95,8 @@ private:
 
 template <typename I> iterator_range<I> range(const I& a, const I& b);
 
-template <typename I> const bool operator==(const iterator_range<I>& a, const iterator_range<I>& b);
-template <typename I> const bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b);
+template <typename I> bool operator==(const iterator_range<I>& a, const iterator_range<I>& b);
+template <typename I> bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b);
 
 }
 

@@ -128,13 +128,13 @@ namespace impl
                 }
                 
                 
-                const long fileSize() const
+                long fileSize() const
                 {
                         return fileSize_;
                 }
                 
                 
-                char* const remap(long newBegin, long& begin, long& end)
+                char* remap(long newBegin, long& begin, long& end)
                 {                       
                         newBegin = pageSize_ * (newBegin / pageSize_); // down to nearest boundary
                         long newEnd = newBegin + pageSize_;

@@ -132,17 +132,17 @@ public:
 	const TValue area() const;
 	const TValue volume() const;
 
-	const Side classify(const TPoint& point) const;
-	const bool contains(const TPoint& point) const;
-	template <class MMP2> const bool contains(const Aabb3D<T, MMP2>& other) const;
-	template <class MMP2> const bool intersects(const Aabb3D<T, MMP2>& other) const;
-	template <class MMP2> const bool collides(const Aabb3D<T, MMP2>& other) const;
+	Side classify(const TPoint& point) const;
+	bool contains(const TPoint& point) const;
+	template <class MMP2> bool contains(const Aabb3D<T, MMP2>& other) const;
+	template <class MMP2> bool intersects(const Aabb3D<T, MMP2>& other) const;
+	template <class MMP2> bool collides(const Aabb3D<T, MMP2>& other) const;
 
 	template <class RandomGenerator> const TPoint random(RandomGenerator& random) const;
 
 	void clear();
-	const bool isEmpty() const;
-	const bool isValid() const;
+	bool isEmpty() const;
+	bool isValid() const;
 
 	template <typename MMP2> void swap(Aabb3D<T, MMP2>& other);
 
@@ -174,22 +174,22 @@ template <typename T, class MMPa, class MMPb, class MMPr>
 Result intersect(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b, Aabb3D<T, MMPr>& result);
 
 template <typename T, class MMPa, class MMPb>
-const bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
+bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
 
 template <typename T, class MMP>
-const bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
+bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
 
 template <typename T, class MMP>
-const bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
+bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
 
 template <typename T, class MMPa, class MMPb>
-const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
+bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b);
 
 template <typename T, class MMP>
-const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
+bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b);
 
 template <typename T, class MMP>
-const bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
+bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b);
 
 template <typename T, class MMP>
 std::ostream& operator<<(std::ostream& stream, const Aabb3D<T, MMP>& aabb);

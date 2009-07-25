@@ -106,7 +106,7 @@ public:
 	const TValue t(const TPoint& iPoint) const;
 
 	void flip();
-	const bool isValid() const;
+	bool isValid() const;
 
 private:
 

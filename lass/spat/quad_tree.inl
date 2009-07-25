@@ -182,7 +182,7 @@ void QuadTree<O, OT>::add(TObjectIterator object)
 
 
 template <typename O, typename OT>
-const bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info) const
+bool QuadTree<O, OT>::contains(const TPoint& point, const TInfo* info) const
 {
 	if (!root_ || !TObjectTraits::aabbContains(aabb_, point))
 	{
@@ -275,7 +275,7 @@ QuadTree<O, OT>::intersect(
 
 
 template <typename O, typename OT>
-const bool QuadTree<O, OT>::intersects(
+bool QuadTree<O, OT>::intersects(
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
 	if (!root_)
@@ -355,7 +355,7 @@ QuadTree<O, OT>::aabb() const
 
 
 template <typename O, typename OT>
-const size_t QuadTree<O, OT>::depth() const
+size_t QuadTree<O, OT>::depth() const
 {
 	return root_ ? root_->depth() : 0;
 }
@@ -488,7 +488,7 @@ QuadTree<O, OT>::doIntersect(
 
 
 template <typename O, typename OT>
-const bool QuadTree<O, OT>::doIntersects(
+bool QuadTree<O, OT>::doIntersects(
 		const QuadNode* node,
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
 		const TVector& tNear, const TVector& tFar, size_t flipMask) const

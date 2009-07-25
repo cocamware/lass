@@ -187,7 +187,7 @@ Vector<T, S>& Vector<T, S>::operator=(const Vector<T2, S2>& iOther)
  *		nofail.
  */
 template <typename T, typename S> inline
-const typename Vector<T, S>::TSize
+typename Vector<T, S>::TSize
 Vector<T, S>::size() const
 {
 	return storage_.size();
@@ -500,7 +500,7 @@ Vector<T, S>& Vector<T, S>::operator/=(const T2& iB)
  *		nofail.
  */
 template <typename T, typename S> inline
-const bool Vector<T, S>::isEmpty() const
+bool Vector<T, S>::isEmpty() const
 {
 	return storage_.size() == 0;
 }
@@ -513,7 +513,7 @@ const bool Vector<T, S>::isEmpty() const
  *		O(this->size())
  */
 template <typename T, typename S>
-const bool Vector<T, S>::isZero() const
+bool Vector<T, S>::isZero() const
 {
 	const TSize n = storage_.size();
 	for (TSize i = 0; i < n; ++i)

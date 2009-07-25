@@ -119,12 +119,12 @@ public:
 
 	const TAabb& aabb() const;
 
-	const bool contains(const TPoint& point, const TInfo* info = 0) const;
+	bool contains(const TPoint& point, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
 	const TObjectIterator intersect(const TRay& ray, TReference t, TParam minT = 0, 
 		const TInfo* info = 0) const;
-	const bool intersects(const TRay& ray, TParam minT = 0, 
+	bool intersects(const TRay& ray, TParam minT = 0, 
 		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
 	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;
 	template <typename RandomIterator>
@@ -132,7 +132,7 @@ public:
 			RandomIterator first, const TInfo* info = 0) const;	
 
 	void swap(TSelf& other);
-	const bool isEmpty() const;
+	bool isEmpty() const;
 	const TObjectIterator end() const;
 
 private:
@@ -162,18 +162,18 @@ private:
 			LASS_ASSERT(last_ < 0);
 		}
 
-		const bool isInternal() const { return axis_ >= 0; }
+		bool isInternal() const { return axis_ >= 0; }
 		TParam leftBound() const { LASS_ASSERT(isInternal()); return leftBound_; }
 		TReference leftBound() { LASS_ASSERT(isInternal()); return leftBound_; }
 		TParam rightBound() const { LASS_ASSERT(isInternal()); return rightBound_; }
 		TReference rightBound() { LASS_ASSERT(isInternal()); return rightBound_; }
-		const int axis() const { LASS_ASSERT(isInternal()); return axis_; }
-		const int right() const { LASS_ASSERT(isInternal()); return right_; }
+		int axis() const { LASS_ASSERT(isInternal()); return axis_; }
+		int right() const { LASS_ASSERT(isInternal()); return right_; }
 		int& right() { LASS_ASSERT(isInternal()); return right_; }
 
-		const bool isLeaf() const { return last_ < 0; }
-		const int first() const { LASS_ASSERT(isLeaf()); return first_; }
-		const int last() const { LASS_ASSERT(isLeaf()); return -last_ - 1; }
+		bool isLeaf() const { return last_ < 0; }
+		int first() const { LASS_ASSERT(isLeaf()); return first_; }
+		int last() const { LASS_ASSERT(isLeaf()); return -last_ - 1; }
 
 	private:
 		TValue leftBound_;	// internal
@@ -199,16 +199,16 @@ private:
 	};
 
 	const BalanceResult balance(TInputIterator iFirst, TInputIterator iLast);
-	const int addLeafNode(TInputIterator iFirst, TInputIterator iLast);
-	const int addInternalNode(int iAxis);
+	int addLeafNode(TInputIterator iFirst, TInputIterator iLast);
+	int addInternalNode(int iAxis);
 
-	const bool doContains(int index, const TPoint& point, const TInfo* info) const;
+	bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(int index, const TPoint& point, 
 		OutputIterator iResult, const TInfo* info) const;
 	const TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin,
 		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
-	const bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax,
+	bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax,
 		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
 	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>

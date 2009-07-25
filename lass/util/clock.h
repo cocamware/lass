@@ -64,11 +64,11 @@ public:
 	explicit Clock(TTime iStartTime = 0);
 	void reset(TTime iStartTime = 0);
 
-	const TTime time() const { return startTime_ + resolution_ * this->tick(); }
-	const TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
+	TTime time() const { return startTime_ + resolution_ * this->tick(); }
+	TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
 
-	const TTick frequency() const { return frequency_; }
-	const TTime resolution() const { return resolution_; }
+	TTick frequency() const { return frequency_; }
+	TTime resolution() const { return resolution_; }
 
 	static const std::string humanize(const TTime& iTime);
 

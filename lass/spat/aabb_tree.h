@@ -130,7 +130,7 @@ public:
 	RandomIterator rangeSearch(const TPoint& center, TParam maxRadius, size_t maxCount,
 			RandomIterator first, const TInfo* info = 0) const;	
 
-	const bool isEmpty() const;
+	bool isEmpty() const;
 	const TObjectIterator end() const;
 	void swap(TSelf& other);
 
@@ -161,14 +161,14 @@ private:
 			last_ = last; // do union stuff here
 		}
 
-		const bool isInternal() const { return first_ < 0; }
+		bool isInternal() const { return first_ < 0; }
 		const TAabb& aabb() const { return aabb_; }
-		const int right() const { LASS_ASSERT(isInternal()); return right_; }
+		int right() const { LASS_ASSERT(isInternal()); return right_; }
 		int& right() { LASS_ASSERT(isInternal()); return right_; }
 
-		const bool isLeaf() const { return first_ >= 0; }
-		const int first() const { LASS_ASSERT(isLeaf()); return first_; }
-		const int last() const { LASS_ASSERT(isLeaf()); return last_; }
+		bool isLeaf() const { return first_ >= 0; }
+		int first() const { LASS_ASSERT(isLeaf()); return first_; }
+		int last() const { LASS_ASSERT(isLeaf()); return last_; }
 	private:
 		TAabb aabb_; // both
 		int first_; // ==-1:internal, >=0:leaf
@@ -180,9 +180,9 @@ private:
 	};
 	typedef std::deque<Node> TNodes;
 
-	const int balance(TInputIterator first, TInputIterator last);
-	const int addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
-	const int addInternalNode(const TAabb& aabb);
+	int balance(TInputIterator first, TInputIterator last);
+	int addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
+	int addInternalNode(const TAabb& aabb);
 
 	bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 

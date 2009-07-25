@@ -59,8 +59,8 @@ protected:
 	ShadowBaseCommon();
 	~ShadowBaseCommon();
 private:
-	ShadowBaseCommon(const ShadowBaseCommon& other);
-	ShadowBaseCommon& operator=(const ShadowBaseCommon& other);	
+	ShadowBaseCommon(const ShadowBaseCommon&);
+	ShadowBaseCommon& operator=(const ShadowBaseCommon&);	
 };
 
 /** @ingroup Python

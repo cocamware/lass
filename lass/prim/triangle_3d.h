@@ -88,16 +88,16 @@ public:
 	Triangle3D();
 	Triangle3D(const TPoint& iA, const TPoint& iB, const TPoint& iC);
 
-	const TPoint& operator[](int iIndexOfVertex) const;
-	TPoint& operator[](int iIndexOfVertex);
+	const TPoint& operator[](size_t iIndexOfVertex) const;
+	TPoint& operator[](size_t iIndexOfVertex);
 	const TPoint& at(int iIndexOfVertex) const;
 	TPoint& at(int iIndexOfVertex);
 	const TLineSegment edge(int iIndexOfTailVertex) const;
 	const TVector vector(int iIndexOfTailVertex) const;
 	const TPlane plane() const;
 
-	const bool isEmpty() const;
-	const int size() const;
+	bool isEmpty() const;
+	size_t size() const;
 
 	const TValue squaredArea() const;
 	const TValue area() const;
@@ -105,14 +105,14 @@ public:
 	const TPointH vertexCentroid() const;
 	const TPointH surfaceCentroid() const;
 
-	const bool isSimple() const;
-	const bool isConvex() const;
+	bool isSimple() const;
+	bool isConvex() const;
 
-	const bool isReflex(int iIndexOfVertex) const;
+	bool isReflex(int iIndexOfVertex) const;
 
 private:
 
-	const bool isInRange(int iIndexOfVertex) const;
+	bool isInRange(size_t iIndexOfVertex) const;
 
 	enum { size_ = 3 };
 

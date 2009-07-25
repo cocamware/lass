@@ -525,7 +525,7 @@ void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level)
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& ray, TTriangleIterator& triangle,
+Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& ray, TTriangleIterator& triangle,
 		TReference t, TParam tMin, IntersectionContext* context) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
@@ -549,7 +549,7 @@ const Result TriangleMesh3D<T, BHV, SH>::intersect(const TRay& ray, TTriangleIte
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax) const
+bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
 	return tree_.intersects(ray, tMin, tMax);
@@ -572,7 +572,7 @@ void TriangleMesh3D<T, BHV, SH>::swap(TSelf& other)
 // --- Triangle ------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray, 
+Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray, 
 		TReference t, TParam tMin, IntersectionContext* context) const
 {
 	LASS_ASSERT(vertices[0] && vertices[1] && vertices[2]);
@@ -639,7 +639,7 @@ const Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH> inline
-const size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* vertex) const 
+size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* vertex) const 
 { 
 	return vertices[0] == vertex ? 0 : (vertices[1] == vertex ? 1 : (vertices[2] == vertex ? 2 : size_t(-1))); 
 }

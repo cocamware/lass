@@ -126,7 +126,7 @@ public:
 	const TVector reject(const TPoint& iPoint) const;
 	const TPoint reflect(const TPoint& iPoint) const;
 
-	const bool isValid() const;
+	bool isValid() const;
 
 private:
 

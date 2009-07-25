@@ -399,7 +399,7 @@ void Plane3DParametric<T, NP>::flip()
  *  colinear.
  */
 template<typename T, class NP>
-const bool Plane3DParametric<T, NP>::isValid() const
+bool Plane3DParametric<T, NP>::isValid() const
 {
 	return !cross(directionU_, directionV_).isZero(); // zero vectors will give zero cross product too.
 }

@@ -119,8 +119,9 @@ struct MultiCallback0
 
 	/** pop a callback from the list of callbacks 
 	 */
-	void pop( const TCallback& iCallback )
+	void pop( TCallback& iCallback )
 	{
+		iCallback = callbacks_.back();
 		callbacks_.pop_back();
 	}
 
@@ -163,9 +164,7 @@ struct MultiCallback0
 	/** retrieve a callback */
 	const TCallback& operator[](size_t index) const
 	{
-		if (index>=0 && index<=size())
-			return callbacks_[index];
-		LASS_THROW("Index out of range in MultiCallback");
+		return callbacks_.at(index);
 	}
 	
 

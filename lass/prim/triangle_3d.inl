@@ -79,7 +79,7 @@ Triangle3D<T>::Triangle3D(const TPoint& iA, const TPoint& iB, const TPoint& iC)
  */
 template <typename T>
 const typename Triangle3D<T>::TPoint&
-Triangle3D<T>::operator[](int iIndexOfVertex) const
+Triangle3D<T>::operator[](size_t iIndexOfVertex) const
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
 	return vertices_[iIndexOfVertex];
@@ -91,7 +91,7 @@ Triangle3D<T>::operator[](int iIndexOfVertex) const
  */
 template <typename T>
 typename Triangle3D<T>::TPoint&
-Triangle3D<T>::operator[](int iIndexOfVertex)
+Triangle3D<T>::operator[](size_t iIndexOfVertex)
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
 	return vertices_[iIndexOfVertex];
@@ -163,7 +163,7 @@ Triangle3D<T>::plane() const
  *      if all vertices are equal, we assume the triangle is empty
  */
 template <typename T>
-const bool Triangle3D<T>::isEmpty() const
+bool Triangle3D<T>::isEmpty() const
 {
 	return vertices_[0] == vertices_[1] && vertices_[0] == vertices_[2];
 }
@@ -173,7 +173,7 @@ const bool Triangle3D<T>::isEmpty() const
 /** @copydoc SimplePolygon3D::size
  */
 template <typename T>
-const int Triangle3D<T>::size() const
+size_t Triangle3D<T>::size() const
 {
 	return size_;
 }
@@ -245,7 +245,7 @@ Triangle3D<T>::surfaceCentroid() const
  *      A triangle is always simple
  */
 template <typename T>
-const bool Triangle3D<T>::isSimple() const
+bool Triangle3D<T>::isSimple() const
 {
 	return true;
 }
@@ -257,7 +257,7 @@ const bool Triangle3D<T>::isSimple() const
  *      A triangle is always convex
  */
 template <typename T>
-const bool Triangle3D<T>::isConvex() const
+bool Triangle3D<T>::isConvex() const
 {
 	return true;
 }
@@ -269,7 +269,7 @@ const bool Triangle3D<T>::isConvex() const
  *	A triangle never has reflex vertices
  */
 template <typename T>
-const bool Triangle3D<T>::isReflex(int iIndexOfVertex) const
+bool Triangle3D<T>::isReflex(int iIndexOfVertex) const
 {
 	return false;
 }
@@ -281,9 +281,9 @@ const bool Triangle3D<T>::isReflex(int iIndexOfVertex) const
 /** return if index of vertex is in range of the std::vector
  */
 template <typename T>
-const bool Triangle3D<T>::isInRange(int iIndexOfVertex) const
+bool Triangle3D<T>::isInRange(size_t iIndexOfVertex) const
 {
-	return iIndexOfVertex >= 0 && iIndexOfVertex < size_;
+	return iIndexOfVertex < size_;
 }
 
 

@@ -79,7 +79,7 @@ Triangle2D<T>::Triangle2D(const TPoint& iA, const TPoint& iB, const TPoint& iC)
 /** @copydoc SimplePolygon2D::operator[]
  */
 template <typename T>
-const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](int iIndexOfVertex) const
+const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfVertex) const
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
 	return vertices_[iIndexOfVertex];
@@ -90,7 +90,7 @@ const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](int iIndexOfVert
 /** @copydoc SimplePolygon2D::operator[]
  */
 template <typename T>
-typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](int iIndexOfVertex)
+typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfVertex)
 {
 	LASS_ASSERT(isInRange(iIndexOfVertex));
 	return vertices_[iIndexOfVertex];
@@ -103,7 +103,7 @@ typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](int iIndexOfVertex)
 template <typename T>
 const typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex) const
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -115,7 +115,7 @@ const typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex) cons
 template <typename T>
 typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex)
 {
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -147,7 +147,7 @@ const typename Triangle2D<T>::TVector Triangle2D<T>::vector(int iIndexOfTailVert
  *      if all vertices are equal, we assume the triangle is empty
  */
 template <typename T>
-const bool Triangle2D<T>::isEmpty() const
+bool Triangle2D<T>::isEmpty() const
 {
 	return vertices_[0] == vertices_[1] && vertices_[0] == vertices_[2];
 }
@@ -157,7 +157,7 @@ const bool Triangle2D<T>::isEmpty() const
 /** @copydoc SimplePolygon2D::size
  */
 template <typename T>
-const int Triangle2D<T>::size() const
+int Triangle2D<T>::size() const
 {
 	return size_;
 }
@@ -225,7 +225,7 @@ Triangle2D<T>::surfaceCentroid() const
  *      A triangle always is simple
  */
 template <typename T>
-const bool Triangle2D<T>::isSimple() const
+bool Triangle2D<T>::isSimple() const
 {
 	return true;
 }
@@ -237,7 +237,7 @@ const bool Triangle2D<T>::isSimple() const
  *      A triangle always is convex
  */
 template <typename T>
-const bool Triangle2D<T>::isConvex() const
+bool Triangle2D<T>::isConvex() const
 {
 	return true;
 }
@@ -247,7 +247,7 @@ const bool Triangle2D<T>::isConvex() const
 /** @copydoc SimplePolygon2D::orientation
  */
 template <typename T>
-const Orientation Triangle2D<T>::orientation() const
+Orientation Triangle2D<T>::orientation() const
 {
 	const TValue area = signedArea();
 	if (area > TNumTraits::zero)
@@ -271,7 +271,7 @@ const Orientation Triangle2D<T>::orientation() const
  *      triangles never have reflex vertices, so always returns false.
  */
 template <typename T>
-const bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
+bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
 {
 	return false;
 }
@@ -281,7 +281,7 @@ const bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
 /** return true when a point is inside or on the edge of a triangle.
  */
 template <typename T>
-const bool Triangle2D<T>::contains(const TPoint& iP) const
+bool Triangle2D<T>::contains(const TPoint& iP) const
 {
 	return
 		perpDot(vertices_[1] - vertices_[0], iP - vertices_[0]) >= TNumTraits::zero &&
@@ -292,7 +292,7 @@ const bool Triangle2D<T>::contains(const TPoint& iP) const
 
 
 template <typename T>
-const Side Triangle2D<T>::classify(const TPoint& iP) const
+Side Triangle2D<T>::classify(const TPoint& iP) const
 {
 	return contains(iP) ? sInside : sOutside;
 }
@@ -314,9 +314,9 @@ void Triangle2D<T>::flip()
 /** return if index of vertex is in range of the std::vector
  */
 template <typename T>
-const bool Triangle2D<T>::isInRange(int iIndexOfVertex) const
+bool Triangle2D<T>::isInRange(size_t iIndexOfVertex) const
 {
-	return iIndexOfVertex >= 0 && iIndexOfVertex < size_;
+	return iIndexOfVertex < size_;
 }
 
 

@@ -74,9 +74,9 @@ namespace impl
 	public:
 		virtual ~MultiCallbackImplBase() {};
 		virtual void reset() = 0;
-		virtual const Py_ssize_t length() const = 0;
+		virtual Py_ssize_t length() const = 0;
 		virtual const std::type_info& type() const = 0;
-		virtual void* const raw(bool writable) = 0;
+		virtual void* raw(bool writable) = 0;
 		virtual void call(const python::TPyObjPtr& args, PyObject* self) = 0;
 		virtual void add(const python::TPyObjPtr& args) = 0;
 
@@ -97,13 +97,13 @@ namespace impl
 		}
 
 		virtual void reset() { return callback_->reset(); }									// move to traits class, to discern multi and non-multi
-		virtual const Py_ssize_t length() const { return callback_->size(); };				// move to traits class, to discern multi and non-multi
+		virtual Py_ssize_t length() const { return callback_->size(); };				// move to traits class, to discern multi and non-multi
 
 		const std::type_info& type() const 
 		{ 
 			return typeid(TCallbackPtr); 
 		}
-		void* const raw(bool writable)
+		void* raw(bool writable)
 		{ 
 			if (writable && readOnly_)
 			{
@@ -185,7 +185,7 @@ public:
 	static Py_ssize_t length(PyObject* self);
 
 	const std::type_info& type() const;
-	void* const raw(bool writable) const;
+	void* raw(bool writable) const;
 
 private:
 	MultiCallback(std::auto_ptr<impl::MultiCallbackImplBase> pimpl);

@@ -60,7 +60,7 @@ namespace util
 namespace impl
 {
 
-const ClockImpl::TTick ClockImpl::frequency()
+ClockImpl::TTick ClockImpl::frequency()
 {
 	TTick result;
 	LASS_ENFORCE_WINAPI(QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&result)))
@@ -70,7 +70,7 @@ const ClockImpl::TTick ClockImpl::frequency()
 
 
 
-const ClockImpl::TTick ClockImpl::tick()
+ClockImpl::TTick ClockImpl::tick()
 {
 	TTick result;
 	LASS_ENFORCE_WINAPI(QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&result)));
@@ -100,14 +100,14 @@ namespace util
 namespace impl
 {
 
-const ClockImpl::TTick ClockImpl::frequency()
+ClockImpl::TTick ClockImpl::frequency()
 {
 	return CLOCKS_PER_SEC;
 }
 
 
 
-const ClockImpl::TTick ClockImpl::tick()
+ClockImpl::TTick ClockImpl::tick()
 {
 	return ::clock();
 }

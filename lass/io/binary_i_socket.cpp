@@ -95,7 +95,7 @@ long BinaryISocket::doTellg() const
 
 
 
-void BinaryISocket::doSeekg(long iOffset, std::ios_base::seekdir iDirection)
+void BinaryISocket::doSeekg(long, std::ios_base::seekdir)
 {
 	LASS_THROW("no seeking in network streams!");
 }

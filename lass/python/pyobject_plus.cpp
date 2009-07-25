@@ -191,7 +191,7 @@ void ClassDefinition::addMethod(const char* name, const char* doc, PyCFunction d
 	};
 }
 
-void ClassDefinition::addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const ComparatorSlot& slot, const char*, PyCFunction dispatcher, OverloadLink&) 
 {
 	LASS_PY_COMPARATOR_("__lt__", Py_LT)
 	LASS_PY_COMPARATOR_("__le__", Py_LE)
@@ -202,7 +202,7 @@ void ClassDefinition::addMethod(const ComparatorSlot& slot, const char* doc, PyC
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const LenSlot& slot, const char* doc, lenfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const LenSlot& slot, const char*, lenfunc dispatcher, OverloadLink&) 
 {
 	LASS_PY_OPERATOR_NO_OVERLOAD("__len__", tp_as_sequence, PySequenceMethods, sq_length) 
 	LASS_PY_OPERATOR_NO_OVERLOAD("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length) 
@@ -210,7 +210,7 @@ void ClassDefinition::addMethod(const LenSlot& slot, const char* doc, lenfunc di
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const UnarySlot& slot, const char* doc, unaryfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc dispatcher, OverloadLink&) 
 {
 	if (slot.name == "__str__")
 	{
@@ -236,7 +236,7 @@ void ClassDefinition::addMethod(const UnarySlot& slot, const char* doc, unaryfun
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const BinarySlot& slot, const char* doc, binaryfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
 	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
@@ -271,7 +271,7 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char* doc, binaryf
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const TernarySlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const TernarySlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
 	if (slot.name == "__call__")
 	{
@@ -282,7 +282,7 @@ void ClassDefinition::addMethod(const TernarySlot& slot, const char* doc, ternar
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char* doc, ssizeargfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char*, ssizeargfunc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__seq_getitem__", tp_as_sequence, PySequenceMethods, sq_item, SsizeArg) 
 	LASS_PY_OPERATOR_("__repeat__", tp_as_sequence, PySequenceMethods, sq_repeat, SsizeArg) 
@@ -290,7 +290,7 @@ void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char* doc, ssize
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char* doc, ssizessizeargfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char*, ssizessizeargfunc dispatcher, OverloadLink& overloadChain) 
 {
 #if PY_MAJOR_VERSION < 3
 	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg) 
@@ -298,13 +298,13 @@ void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char* doc, 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char* doc, ssizeobjargproc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char*, ssizeobjargproc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char* doc, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char*, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain) 
 {
 #if PY_MAJOR_VERSION < 3
 	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc) 
@@ -312,19 +312,19 @@ void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char* do
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const ObjObjSlot& slot, const char* doc, objobjproc dispatcher,	OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__contains__", tp_as_sequence, PySequenceMethods, sq_contains, ObjObjProc) 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char* doc,	objobjargproc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*,	objobjargproc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const IterSlot& slot, const char* doc, getiterfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc dispatcher, OverloadLink&) 
 {
 	if (slot.name == "__iter__")
 	{
@@ -334,7 +334,7 @@ void ClassDefinition::addMethod(const IterSlot& slot, const char* doc, getiterfu
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const IterNextSlot& slot, const char* doc, iternextfunc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextfunc dispatcher, OverloadLink&) 
 {
 	if (slot.name == "next")
 	{

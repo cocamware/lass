@@ -70,7 +70,7 @@ int numberReceivedClientToServer = 0;
 std::string messageReceivedClientToServer;
 std::string messageReceivedServerToClient;
 
-const TPort bindRange(io::Socket& socket, TPort begin, TPort end)
+TPort bindRange(io::Socket& socket, TPort begin, TPort end)
 {
 	while (true)
 	{

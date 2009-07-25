@@ -88,19 +88,19 @@ struct DefaultAabbRayTraits
 
 	/** return true if AABB contains a point, return false otherwise
 	 */
-	static const bool aabbContains(const TAabb& aabb, const TPoint& point) 
+	static bool aabbContains(const TAabb& aabb, const TPoint& point) 
 	{ 
 		return aabb.contains(point); 
 	}
 
-	static const bool aabbContains(const TAabb& aabb, const TAabb& other)
+	static bool aabbContains(const TAabb& aabb, const TAabb& other)
 	{
 		return aabb.contains(other);
 	}
 
 	/** return true if AABB is intersected by ray
 	 */
-	static const bool aabbIntersect(const TAabb& aabb, const TRay& ray, TReference t, const TParam tMin)
+	static bool aabbIntersect(const TAabb& aabb, const TRay& ray, TReference t, const TParam tMin)
 	{
 		return intersect(aabb, ray, t, tMin) != prim::rNone;
 	}
@@ -224,21 +224,21 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 	
 	/** return true if object contains a point, return false otherwise
 	 */
-	static const bool objectContains(TObjectIterator it, const TPoint& point, const TInfo* /*iInfo*/) 
+	static bool objectContains(TObjectIterator it, const TPoint& point, const TInfo* /*iInfo*/) 
 	{ 
 		return object(it).contains(point); 
 	}
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool objectIntersect(TObjectIterator it, const TRay& ray, TReference t, TParam tMin, const TInfo* /*iInfo*/)
+	static bool objectIntersect(TObjectIterator it, const TRay& ray, TReference t, TParam tMin, const TInfo* /*iInfo*/)
 	{
 		return intersect(object(it), ray, t, tMin) != prim::rNone;
 	}
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool objectIntersects(TObjectIterator it, const TRay& ray, TParam tMin, TParam tMax, const TInfo* /*iInfo*/)
+	static bool objectIntersects(TObjectIterator it, const TRay& ray, TParam tMin, TParam tMax, const TInfo* /*iInfo*/)
 	{
 		TValue t;
 		return intersect(object(it), ray, t, tMin) != prim::rNone && t < tMax;
@@ -246,7 +246,7 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 
 	/** return true if part of the object is inside the bounding box
 	 */
-	static const bool objectOverlaps(TObjectIterator it, const TAabb& aabb)
+	static bool objectOverlaps(TObjectIterator it, const TAabb& aabb)
 	{
 		return intersects(object(it), aabb);
 	}

@@ -384,11 +384,11 @@ public:
 	Plane3D(const TVector& iNormal, const TPoint& iSupport);
 	Plane3D(const TVector& iNormal, TParam iD);
 
-	const Side classify(const TPoint& iPoint) const;
+	Side classify(const TPoint& iPoint) const;
 	const TValue signedDistance(const TPoint& iPoint) const;
 	const TValue squaredDistance(const TPoint& iPoint) const;
 
-	const Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
 	const TValue signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
 	const TValue squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
 

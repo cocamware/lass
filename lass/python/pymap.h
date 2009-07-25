@@ -66,10 +66,10 @@ namespace impl
 	{
 	public:
 		virtual std::auto_ptr<PyMapImplBase> copy() const = 0; 
-		virtual PyObject* const subscript(PyObject* key) const = 0;
-		virtual const int assSubscript(PyObject* key, PyObject* value) = 0;
-		virtual PyObject* const keys() const = 0;
-		virtual PyObject* const values() const = 0;
+		virtual PyObject* subscript(PyObject* key) const = 0;
+		virtual int assSubscript(PyObject* key, PyObject* value) = 0;
+		virtual PyObject* keys() const = 0;
+		virtual PyObject* values() const = 0;
 	};
 
 	template<typename Container> 
@@ -90,7 +90,7 @@ namespace impl
 			TContainerPtr copy = TContainerTraits::copy(this->container());
 			return std::auto_ptr<PyMapImplBase>(new PyMapImpl(copy));
 		}
-		PyObject* const subscript(PyObject* key) const
+		PyObject* subscript(PyObject* key) const
 		{
 			typename Container::key_type k;
 			if (pyGetSimpleObject(key, k) != 0)
@@ -106,7 +106,7 @@ namespace impl
 			}
 			return pyBuildSimpleObject(it->second);
 		}
-		const int assSubscript(PyObject* key, PyObject* value)
+		int assSubscript(PyObject* key, PyObject* value)
 		{
 			if (!this->checkWritable())
 			{
@@ -140,12 +140,12 @@ namespace impl
 			}
 			return 0;
 		}
-		PyObject* const keys() const
+		PyObject* keys() const
 		{
 			return new PyIteratorRange(
 				stde::first_iterator(this->container().begin()), stde::first_iterator(this->container().end()));
 		}
-		PyObject* const values() const
+		PyObject* values() const
 		{
 			return new PyIteratorRange(
 				stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
@@ -203,7 +203,7 @@ namespace impl
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
 		const std::type_info& type() const;
-		void* const raw(bool writable) const;
+		void* raw(bool writable) const;
 
 	private:
 		Map(std::auto_ptr<PyMapImplBase> pimpl);

@@ -115,11 +115,11 @@ template <> struct BindCallback<void> { typedef Callback0 Type; };
  */
 template <typename R> class BindDispatcher: public DispatcherR0<R> 
 {
-	bool doIsEquivalent(const DispatcherR0<R>* other) const { return false; }
+	bool doIsEquivalent(const DispatcherR0<R>*) const { return false; }
 };
 template <> class BindDispatcher<void>: public impl::Dispatcher0 
 {
-	bool doIsEquivalent(const Dispatcher0* other) const { return false; }
+	bool doIsEquivalent(const Dispatcher0*) const { return false; }
 };
 
 }

@@ -104,10 +104,10 @@ public:
 	Point2DH<T>& operator*=(TParam iB);
 	Point2DH<T>& operator/=(TParam iB);
 
-	const bool isZero() const;
-	const bool isInfinite() const;
-	const bool isNaN() const;
-	const bool isValid() const;
+	bool isZero() const;
+	bool isInfinite() const;
+	bool isNaN() const;
+	bool isValid() const;
 	const TValue weight() const;
 	const Point2D<T> affine() const;
 

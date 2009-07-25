@@ -309,7 +309,7 @@ void Line2DParametric<T, NP>::flip()
 /** return true if line is a valid line (no normal or direction vectors that are zero).
  */
 template<typename T, class NP>
-const bool Line2DParametric<T, NP>::isValid() const
+bool Line2DParametric<T, NP>::isValid() const
 {
 	return !direction_.isZero();
 }

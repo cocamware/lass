@@ -172,7 +172,7 @@ namespace impl
 	{
 		return pimpl_->type();
 	}
-	void* const Map::raw(bool writable) const
+	void* Map::raw(bool writable) const
 	{
 		return pimpl_->raw(writable);
 	}

@@ -163,7 +163,7 @@ public:
 		LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
 		++lockCount_;
 	}
-	const LockResult tryLock()
+	LockResult tryLock()
 	{
 		const int ret = pthread_mutex_trylock(&mutex_);
 		if (ret == 0)
@@ -188,7 +188,7 @@ public:
 		--lockCount_;
 		LASS_ENFORCE_CLIB_RC(pthread_mutex_unlock(&mutex_));
 	}
-	const unsigned lockCount() const 
+	unsigned lockCount() const 
 	{
 		return lockCount_;
 	}
@@ -251,7 +251,7 @@ public:
 				<< retUnlock << ") " << impl::lass_strerror(retUnlock));
 		}
 	}	
-	const WaitResult wait(unsigned long iMilliSeconds)
+	WaitResult wait(unsigned long iMilliSeconds)
 	{
 		const long million =  1000000;
 		const long trillion = 1000000000;
@@ -338,6 +338,7 @@ void bindThread(pthread_t handle, pid_t tid, size_t processor)
 	}
 #	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
 	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask))("handle=")(handle);
+	(void) tid; // avoid 'unused' warning
 #	else
 	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask))("tid=")(tid);
 #	endif
@@ -392,7 +393,7 @@ public:
 		}
 	}
 
-	const bool isJoinable() const
+	bool isJoinable() const
 	{
 		return isJoinable_ && isCreated_;
 	}
@@ -563,7 +564,7 @@ public:
 	{
 		LASS_WARN_CLIB_RC(pthread_key_delete(key_));
 	}
-	void* const get() const
+	void* get() const
 	{
 		return pthread_getspecific(key_);
 	}

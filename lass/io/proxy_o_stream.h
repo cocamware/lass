@@ -184,7 +184,7 @@ public:
 	void add( std::ostream* iDestination, TMask iFilterMask = acceptAll );
 	void remove( std::ostream* iDestination );
 
-	const TMask filter( std::ostream* iDestination ) const;
+	TMask filter( std::ostream* iDestination ) const;
 	void setFilter( std::ostream* iDestination, TMask iFilterMask  );
 
 	Lock operator()( TMask iFilterMask = acceptAll );

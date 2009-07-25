@@ -95,7 +95,7 @@ void Socket::bind(TPort port)
 /** Bind to the first available port in range [@a begin, @a end).
  *  complexity: O(n)
  */
-const Socket::TPort Socket::bindInRange(TPort begin, TPort end)
+Socket::TPort Socket::bindInRange(TPort begin, TPort end)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
@@ -144,7 +144,7 @@ void Socket::connect(const std::string& ipAddress, TPort port)
 }
 
 
-const int Socket::send(const void* begin, int length)
+int Socket::send(const void* begin, int length)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
@@ -153,7 +153,7 @@ const int Socket::send(const void* begin, int length)
 
 
 
-const void* const Socket::send(const void* begin, const void* end)
+const void* Socket::send(const void* begin, const void* end)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
@@ -167,7 +167,7 @@ const void* const Socket::send(const void* begin, const void* end)
 
 
 
-const int Socket::receive(void* begin, int length)
+int Socket::receive(void* begin, int length)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);
@@ -176,7 +176,7 @@ const int Socket::receive(void* begin, int length)
 
 
 
-void* const Socket::receive(void* begin, void* end)
+void* Socket::receive(void* begin, void* end)
 {
         LASS_ASSERT(pimpl_);
         impl::SocketImpl* pimpl = static_cast<impl::SocketImpl*>(pimpl_);

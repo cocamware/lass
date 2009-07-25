@@ -84,7 +84,7 @@ public:
 	const TData derivative2(TScalar iX) const;
 	const TData integral(TScalar iA, TScalar iB) const;
 
-	const bool isEmpty() const;
+	bool isEmpty() const;
 	const TControlRange controlRange() const;
 
 private:

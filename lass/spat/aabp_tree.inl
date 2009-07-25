@@ -116,7 +116,7 @@ AabpTree<O, OT, SH>::aabb() const
 
 
 template <typename O, typename OT, typename SH>
-const bool AabpTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
+bool AabpTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 {
 	if (isEmpty() || !TObjectTraits::aabbContains(aabb_, point))
 	{
@@ -165,7 +165,7 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 
 
 template <typename O, typename OT, typename SH>
-const bool AabpTree<O, OT, SH>::intersects(
+bool AabpTree<O, OT, SH>::intersects(
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
 	TValue tNear;
@@ -232,7 +232,7 @@ void AabpTree<O, OT, SH>::swap(TSelf& other)
 
 
 template <typename O, typename OT, typename SH>
-const bool AabpTree<O, OT, SH>::isEmpty() const
+bool AabpTree<O, OT, SH>::isEmpty() const
 {
 	return objects_.empty();
 }
@@ -290,7 +290,7 @@ AabpTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 
 
 template <typename O, typename OT, typename SH>
-const int AabpTree<O, OT, SH>::addLeafNode(TInputIterator first, TInputIterator last)
+int AabpTree<O, OT, SH>::addLeafNode(TInputIterator first, TInputIterator last)
 {
 	const int begin = static_cast<int>(objects_.size());
 	while (first != last)
@@ -309,7 +309,7 @@ const int AabpTree<O, OT, SH>::addLeafNode(TInputIterator first, TInputIterator 
 
 
 template <typename O, typename OT, typename SH>
-const int AabpTree<O, OT, SH>::addInternalNode(int axis)
+int AabpTree<O, OT, SH>::addInternalNode(int axis)
 {
 	nodes_.push_back(Node(axis));
 	LASS_ASSERT(static_cast<int>(nodes_.size()) > 0);
@@ -319,7 +319,7 @@ const int AabpTree<O, OT, SH>::addInternalNode(int axis)
 
 
 template <typename O, typename OT, typename SH>
-const bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo* info) const
+bool AabpTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
@@ -498,7 +498,7 @@ AabpTree<O, OT, SH>::doIntersect(
 
 
 template <typename O, typename OT, typename SH>
-const bool AabpTree<O, OT, SH>::doIntersects(
+bool AabpTree<O, OT, SH>::doIntersects(
 		int index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {

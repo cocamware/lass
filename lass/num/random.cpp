@@ -92,7 +92,7 @@ void RandomParkMiller::seed(TValue seed)
 
 /** draw a random number
  */
-const RandomParkMiller::TValue RandomParkMiller::operator ()()
+RandomParkMiller::TValue RandomParkMiller::operator ()()
 {
 	TValue k = buffer_ / schrageQuotient_;
 	buffer_ = multiplier_ * (buffer_ - k * schrageQuotient_) - k * schrageRest_;
@@ -141,7 +141,7 @@ void RandomMT19937::seed(TValue seed)
 
 /** draw a random number 
  */
-const RandomMT19937::TValue RandomMT19937::operator()()
+RandomMT19937::TValue RandomMT19937::operator()()
 {
 	if (index_ >= stateSize_)
 	{
@@ -189,7 +189,7 @@ void RandomMT19937::reload()
 }
 
 
-inline const RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) const
+inline RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) const
 {
 	static const TValue magic01[2] = { 0x0, 0x9908b0df }; // magic01[x] = x * magic_ for x = 0, 1
 

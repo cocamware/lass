@@ -60,7 +60,7 @@ namespace test
 			return std::string( "This string is the representation of Foo object at " + util::stringCast<std::string>(this));
 		}
 
-		PyObject* PythonFoo ::pyMake(PyObject *ignored, PyObject *args)
+		PyObject* PythonFoo ::pyMake(PyObject *, PyObject *)
 		{
 			return (PyObject*)(new PythonFoo ());// Make new Python-able object
 		}

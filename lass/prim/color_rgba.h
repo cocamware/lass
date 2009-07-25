@@ -102,10 +102,10 @@ public:
 	ColorRGBA& operator*=( TParam white );
 	ColorRGBA& operator/=( TParam white );
 
-	const TValue brightness() const;
-	const bool isBlack() const;
-	const bool isZero() const;
-	const bool isNaN() const;
+	TValue brightness() const;
+	bool isBlack() const;
+	bool isZero() const;
+	bool isNaN() const;
 
 	const ColorRGBA darkened( TParam factor ) const;
 	const ColorRGBA dissolved( TParam factor) const;

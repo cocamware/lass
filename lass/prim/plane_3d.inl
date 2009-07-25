@@ -103,7 +103,7 @@ Plane3D<T, EP, NP>::Plane3D(const TVector& iNormal, TParam iD):
 /** Return on what side a point is located.
  */
 template<typename T, typename EP, typename NP>
-const Side Plane3D<T, EP, NP>::classify(const TPoint& iPoint) const
+Side Plane3D<T, EP, NP>::classify(const TPoint& iPoint) const
 {
 	const TValue eq = this->equation(iPoint);
 	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);
@@ -137,7 +137,7 @@ Plane3D<T, EP, NP>::squaredDistance(const TPoint& iPoint) const
 /** Return on what side a point is located.
  */
 template<typename T, typename EP, typename NP>
-const Side Plane3D<T, EP, NP>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
+Side Plane3D<T, EP, NP>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
 	const TValue eq = this->equation(iPoint, iRelativeTolerance);
 	return eq > TNumTraits::zero ? sFront : (eq < TNumTraits::zero ? sBack : sSurface);

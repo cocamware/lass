@@ -163,7 +163,7 @@ iterator_range<I>::size() const
 
 
 template <typename I> inline
-const bool iterator_range<I>::empty() const 
+bool iterator_range<I>::empty() const 
 { 
 	return first_ == last_; 
 }
@@ -171,7 +171,7 @@ const bool iterator_range<I>::empty() const
 
 
 template <typename I> inline
-const bool iterator_range<I>::operator!() const 
+bool iterator_range<I>::operator!() const 
 { 
 	return this->empty(); 
 }
@@ -179,7 +179,7 @@ const bool iterator_range<I>::operator!() const
 
 
 template <typename I> inline
-iterator_range<I>::operator const num::SafeBool() const
+iterator_range<I>::operator num::SafeBool() const
 { 
 	return this->empty() ? num::safeFalse : num::safeTrue; 
 }
@@ -214,7 +214,7 @@ iterator_range<I> range(const I& a, const I& b)
 
 
 template <typename I> inline
-const bool operator==(const iterator_range<I>& a, const iterator_range<I>& b)
+bool operator==(const iterator_range<I>& a, const iterator_range<I>& b)
 {
 	return a.begin() == b.begin() && a.end() == b.end();
 }
@@ -222,7 +222,7 @@ const bool operator==(const iterator_range<I>& a, const iterator_range<I>& b)
 
 
 template <typename I> inline
-const bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b)
+bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b)
 {
 	return !(a == b);
 }

@@ -71,7 +71,7 @@
 	public: \
 		typedef t_parentClass _lassPyParentType; \
 		static ::lass::python::impl::ClassDefinition _lassPyClassDef; \
-		virtual ::lass::python::impl::ClassDefinition* const _lassPyGetClassDef() const { return &_lassPyClassDef; } \
+		virtual ::lass::python::impl::ClassDefinition* _lassPyGetClassDef() const { return &_lassPyClassDef; } \
 	private:
 
 #include "pyobject_casters.h"
@@ -169,8 +169,8 @@ namespace lass
 
 				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
-				PyTypeObject* const type() { return &type_; }
-				const PyTypeObject* const type() const { return &type_; }
+				PyTypeObject* type() { return &type_; }
+				const PyTypeObject* type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }
 				const char* doc() const { return type_.tp_doc; }
 				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
@@ -304,7 +304,7 @@ namespace lass
 		public:
 			static impl::ClassDefinition _lassPyClassDef;
 			static void _lassPyClassRegisterHook();
-			virtual impl::ClassDefinition* const _lassPyGetClassDef() const { return &_lassPyClassDef; }
+			virtual impl::ClassDefinition* _lassPyGetClassDef() const { return &_lassPyClassDef; }
 			typedef void TCppClass;
 
 			PyObjectPlus(); 

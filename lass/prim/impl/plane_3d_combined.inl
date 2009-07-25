@@ -401,7 +401,7 @@ void Plane3DCombined<T, NP>::flip()
 /** return true if plane is a valid plane (no normal or direction vectors that are zero).
  */
 template<typename T, class NP>
-const bool Plane3DCombined<T, NP>::isValid() const
+bool Plane3DCombined<T, NP>::isValid() const
 {
 	return !normal_.isZero() && !cross(directionU_, directionV_).isZero();
 }

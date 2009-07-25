@@ -271,7 +271,7 @@ SplineBezierPath<S, D, T>::integral(TScalar begin, TScalar end) const
  *		O(1)
  */
 template <typename S, typename D, typename T>
-const bool SplineBezierPath<S, D, T>::isEmpty() const
+bool SplineBezierPath<S, D, T>::isEmpty() const
 {
 	return nodes_.empty();
 }

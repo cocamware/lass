@@ -91,9 +91,9 @@ private:
 	lock_free_queue(const lock_free_queue&);
 	lock_free_queue& operator=(const lock_free_queue&);
 
-	value_type* const make_value(const value_type& x);
+	value_type* make_value(const value_type& x);
 	void free_value(value_type* value);
-	node_t* const make_node(value_type* x);
+	node_t* make_node(value_type* x);
 	void free_node(node_t* node);
 
 	volatile pointer_t head_;

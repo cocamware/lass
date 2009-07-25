@@ -206,7 +206,7 @@ class SelfParticipating: public IdlePolicy
 protected:
 	SelfParticipating(const ConsumerType& prototype): IdlePolicy(), consumer_(prototype) { Thread::bindCurrent(0); }
 	~SelfParticipating() { Thread::bindCurrent(Thread::anyProcessor); }
-	const size_t numDynamicThreads(size_t numThreads) const { return numThreads - 1; }
+	size_t numDynamicThreads(size_t numThreads) const { return numThreads - 1; }
 	template <typename Queue> bool participate(Queue& queue)
 	{
 		TaskType task;
@@ -233,9 +233,9 @@ template <typename TaskType, typename ConsumerType, typename IdlePolicy>
 class NotParticipating: public IdlePolicy
 {
 protected:
-	NotParticipating(const ConsumerType& prototype): IdlePolicy() {}
+	NotParticipating(const ConsumerType&): IdlePolicy() {}
 	~NotParticipating() {}
-	const size_t numDynamicThreads(size_t numThreads) const { return numThreads; }
+	size_t numDynamicThreads(size_t numThreads) const { return numThreads; }
 	template <typename Queue> bool participate(Queue&) { return false; }
 };
 
@@ -274,7 +274,7 @@ public:
 	void addTask(typename util::CallTraits<TTask>::TParam task);
 	void completeAllTasks();
 	void clearQueue();
-	const size_t numberOfThreads() const;
+	size_t numberOfThreads() const;
 
 private:
 

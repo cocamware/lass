@@ -279,7 +279,7 @@ void KdTree<O, OT>::swap(TSelf& other)
 /** returns true if there are no objects in the k-d tree
  */
 template <class O, class OT>
-const bool KdTree<O, OT>::isEmpty() const
+bool KdTree<O, OT>::isEmpty() const
 {
 	return heap_.empty();
 }

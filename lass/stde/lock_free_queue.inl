@@ -182,7 +182,7 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, typename A>
-typename lock_free_queue<T, A>::value_type* const
+typename lock_free_queue<T, A>::value_type*
 lock_free_queue<T, A>::make_value(const value_type& x)
 {
 	value_type* value = static_cast<value_type*>(value_allocator_.allocate());
@@ -210,7 +210,7 @@ void lock_free_queue<T, A>::free_value(value_type* value)
 
 
 template <typename T, typename A>
-typename lock_free_queue<T, A>::node_t* const
+typename lock_free_queue<T, A>::node_t*
 lock_free_queue<T, A>::make_node(value_type* value)
 {
 	node_t* node = static_cast<node_t*>(node_allocator_.allocate());

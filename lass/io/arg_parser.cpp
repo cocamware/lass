@@ -581,7 +581,7 @@ const std::string& ArgParameter::longName() const
 
 
 
-const int ArgParameter::mode() const
+int ArgParameter::mode() const
 {
 	return mode_;
 }
@@ -639,7 +639,7 @@ const std::string ArgParameter::names() const
 
 
 
-const bool ArgParameter::parserIsQuiet() const
+bool ArgParameter::parserIsQuiet() const
 {
 	return parser_.isQuiet_;
 }
@@ -660,7 +660,7 @@ const std::string ArgParameter::format() const
 
 
 
-const bool ArgParameter::setValue(const std::string& iValue)
+bool ArgParameter::setValue(const std::string& iValue)
 {
 	return doSetValue(iValue);
 }
@@ -676,7 +676,7 @@ const std::string ArgParameter::doFormat() const
 
 
 
-const bool ArgParameter::doSetValue(const std::string& /* iValue */)
+bool ArgParameter::doSetValue(const std::string& /* iValue */)
 {
 	//LASS_LOG("parameter '" << names() << "' is set.");
 	set();

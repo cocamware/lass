@@ -103,7 +103,7 @@ const typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex) const
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -119,7 +119,7 @@ typename SimplePolygon2D<T, DP>::TPoint&
 SimplePolygon2D<T, DP>::at(int iIndexOfVertex)
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 
 	return vertices_[i];
@@ -170,7 +170,7 @@ void SimplePolygon2D<T, DP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 {
 	LASS_ENFORCE(!isEmpty());
 
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.insert(vertices_.begin() + i, iVertex);
 }
@@ -183,7 +183,7 @@ template <typename T, class DP>
 void SimplePolygon2D<T, DP>::erase(int iIndexOfVertex)
 {
 	LASS_ENFORCE(!isEmpty());
-	const int i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
+	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
 	vertices_.erase(vertices_.begin() + i);
 }
@@ -193,7 +193,7 @@ void SimplePolygon2D<T, DP>::erase(int iIndexOfVertex)
 /** return true if polygon has no vertices
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isEmpty() const
+bool SimplePolygon2D<T, DP>::isEmpty() const
 {
 	return vertices_.empty();
 }
@@ -203,7 +203,7 @@ const bool SimplePolygon2D<T, DP>::isEmpty() const
 /** return number of vertices
  */
 template <typename T, class DP>
-const size_t SimplePolygon2D<T, DP>::size() const
+size_t SimplePolygon2D<T, DP>::size() const
 {
 	return vertices_.size();
 }
@@ -268,7 +268,7 @@ SimplePolygon2D<T, DP>::area() const
  *  @warning polygon must be simple accoring @a DegeneratePolicy.
  */
 template <typename T, class DP>
-const Orientation SimplePolygon2D<T, DP>::orientation() const
+Orientation SimplePolygon2D<T, DP>::orientation() const
 {
 	const TValue signArea = TDegeneratePolicy::enforceNonZeroSignedArea(*this); // DP::enforceSimple(*this);
 	return signArea == TNumTraits::zero ? oInvalid :
@@ -362,7 +362,7 @@ SimplePolygon2D<T, DP>::surfaceCentroid() const
  *           Hence, this is O(n^2).
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isSimple() const
+bool SimplePolygon2D<T, DP>::isSimple() const
 {
 	const int n = static_cast<int>(size());
 	LASS_ASSERT(n >= 0);
@@ -417,7 +417,7 @@ const bool SimplePolygon2D<T, DP>::isSimple() const
  *           @a DegeneratePolicy.
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isConvex() const
+bool SimplePolygon2D<T, DP>::isConvex() const
 {
 	DP::enforceSimple(*this);
 
@@ -462,7 +462,7 @@ const bool SimplePolygon2D<T, DP>::isConvex() const
  *  @warning polygon must be simple accoring @a DegeneratePolicy.
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
+bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
 {
 	DP::enforceSimple(*this);
 
@@ -487,7 +487,7 @@ const bool SimplePolygon2D<T, DP>::isReflex(int iIndexOfVertex) const
  *  http://www.faqs.org/faqs/graphics/algorithms-faq/
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
+bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 {
 	size_t i, j;
 	const TVector& p = iP.position();
@@ -509,7 +509,7 @@ const bool SimplePolygon2D<T, DP>::contains(const TPoint& iP) const
 
 
 template <typename T, class DP>
-const Side SimplePolygon2D<T, DP>::classify(const TPoint& iP) const
+Side SimplePolygon2D<T, DP>::classify(const TPoint& iP) const
 {
 	return contains(iP) ? sInside : sOutside;
 }
@@ -590,7 +590,7 @@ void SimplePolygon2D<T, DP>::fixDegenerate()
 /** a simple polygon is valid if it is not degenerate.
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isValid() const
+bool SimplePolygon2D<T, DP>::isValid() const
 {
 	return size() >= 3 && isSimple() && signedArea() != TNumTraits::zero;
 }
@@ -606,10 +606,9 @@ const bool SimplePolygon2D<T, DP>::isValid() const
 /** return if index of vertex is in range of the std::vector
  */
 template <typename T, class DP>
-const bool SimplePolygon2D<T, DP>::isInRange(int iIndexOfVertex) const
+bool SimplePolygon2D<T, DP>::isInRange(size_t iIndexOfVertex) const
 {
-	LASS_ASSERT(static_cast<int>(size()) >= 0);
-	return iIndexOfVertex >= 0 && iIndexOfVertex < static_cast<int>(size());
+	return iIndexOfVertex < size();
 }
 
 

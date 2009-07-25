@@ -134,7 +134,7 @@ public:
 		}
 	}
 
-	const int send(const void* iBegin, int iLength)
+	int send(const void* iBegin, int iLength)
 	{
 		LASS_ASSERT(socket_ != INVALID_SOCKET);
 		const int ret = ::send(socket_, static_cast<const char*>(iBegin), iLength, 0);
@@ -146,7 +146,7 @@ public:
 		return ret;
 	}
 
-	const int receive(void* iBegin, int iLength)
+	int receive(void* iBegin, int iLength)
 	{
 		const int ret = ::recv(socket_, static_cast<char*>(iBegin), iLength, 0);
 		if (ret == SOCKET_ERROR)

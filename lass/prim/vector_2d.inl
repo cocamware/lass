@@ -251,7 +251,7 @@ Vector2D<T>& Vector2D<T>::operator/=(TParam other)
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector2D<T>::isZero() const
+bool Vector2D<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero;
 }
@@ -261,7 +261,7 @@ const bool Vector2D<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Vector2D<T>::isNaN() const
+bool Vector2D<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y);
 }

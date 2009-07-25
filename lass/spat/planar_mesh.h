@@ -98,7 +98,7 @@ namespace spat
 				>
 			>		
 		{
-			template <typename T> T* const make(const T& x)
+			template <typename T> T* make(const T& x)
 			{
 				T* const p = static_cast<T*>(allocate(sizeof(T)));
 				try
@@ -128,7 +128,7 @@ namespace spat
 		public:
 			enum { size = 8 * sizeof(T) };
 			BitField(T bits = 0x0): bits_(bits) {}
-			const bool operator[](size_t i) const
+			bool operator[](size_t i) const
 			{ 
 				return bits_ & mask(i) ? true : false; 
 			}

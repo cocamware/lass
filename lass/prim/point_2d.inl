@@ -175,7 +175,7 @@ Point2D<T>::operator-=(const Vector2D<T>& offset)
 
 
 template<typename T>
-const bool Point2D<T>::isZero() const
+bool Point2D<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero;
 }
@@ -185,7 +185,7 @@ const bool Point2D<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Point2D<T>::isNaN() const
+bool Point2D<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y);
 }

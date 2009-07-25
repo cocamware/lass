@@ -53,7 +53,7 @@ namespace thread_test
 {
 	volatile bool functionIsCalled = false;
 
-	void foo(int a, int b) 
+	void foo(int, int) 
 	{ 
 		util::Thread::sleep(500); 
 		functionIsCalled = true; 
@@ -67,7 +67,7 @@ namespace thread_test
 			util::Thread::sleep(500); 
 			functionIsCalled = true; 
 		}
-		void ham(int a) const 
+		void ham(int) const 
 		{ 
 			util::Thread::sleep(500); 
 			functionIsCalled = true; 

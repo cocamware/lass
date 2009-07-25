@@ -265,7 +265,7 @@ Ray3D<T, NP, PP>::reflect(const TPoint& iPoint) const
 /** Return true if ray is valid (direction isn't a zero vector).
  */
 template <typename T, class NP, class PP>
-const bool Ray3D<T, NP, PP>::isValid() const
+bool Ray3D<T, NP, PP>::isValid() const
 {
 	return !direction_.isZero();
 }

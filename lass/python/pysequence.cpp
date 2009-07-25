@@ -158,7 +158,7 @@ namespace impl
 	{
 		return pimpl_->type();
 	}
-	void* const Sequence::raw(bool writable) const
+	void* Sequence::raw(bool writable) const
 	{
 		return pimpl_->raw(writable);
 	}

@@ -69,16 +69,16 @@ namespace impl
 	{
 	public:
 		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0;
-		virtual const bool reserve(size_t n) = 0;
-		virtual const bool append(const TPyObjPtr& i) = 0;
-		virtual const bool pop(Py_ssize_t i) = 0;
-		virtual PyObject* const item(Py_ssize_t i) const = 0;
-		virtual PyObject* const slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const = 0;
-		virtual const int assItem(Py_ssize_t i, PyObject* obj) = 0;
-		virtual const int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* obj) = 0;
-		virtual const int contains(PyObject* obj) const = 0;
-		virtual const bool inplaceConcat(PyObject* obj) = 0;
-		virtual const bool inplaceRepeat(Py_ssize_t n) = 0;
+		virtual bool reserve(size_t n) = 0;
+		virtual bool append(const TPyObjPtr& i) = 0;
+		virtual bool pop(Py_ssize_t i) = 0;
+		virtual PyObject* item(Py_ssize_t i) const = 0;
+		virtual PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const = 0;
+		virtual int assItem(Py_ssize_t i, PyObject* obj) = 0;
+		virtual int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* obj) = 0;
+		virtual int contains(PyObject* obj) const = 0;
+		virtual bool inplaceConcat(PyObject* obj) = 0;
+		virtual bool inplaceRepeat(Py_ssize_t n) = 0;
 	};
 
 	template<typename Container> 
@@ -108,7 +108,7 @@ namespace impl
 			TContainerPtr copy = TContainerTraits::copy(this->container());
 			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(copy));
 		}
-		const bool reserve(size_t n)
+		bool reserve(size_t n)
 		{
 			if (!this->checkWritable())
 			{
@@ -117,7 +117,7 @@ namespace impl
 			TContainerTraits::reserve(this->container(), n);
 			return true;
 		}
-		const bool append(const TPyObjPtr& obj)
+		bool append(const TPyObjPtr& obj)
 		{
 			if (!this->checkWritable())
 			{
@@ -132,7 +132,7 @@ namespace impl
 			TContainerTraits::insert(this->container(), end, &value, &value + 1);
 			return true;
 		}
-		const bool pop(Py_ssize_t i)
+		bool pop(Py_ssize_t i)
 		{
 			if (!this->checkWritable())
 			{
@@ -145,7 +145,7 @@ namespace impl
 			TContainerTraits::erase(this->container(), this->next(this->begin(), i), this->next(this->begin(), i + 1));
 			return true;
 		}
-		PyObject* const item(Py_ssize_t i) const
+		PyObject* item(Py_ssize_t i) const
 		{
 			if (!this->checkIndex(i))
 			{
@@ -153,7 +153,7 @@ namespace impl
 			}
 			return pyBuildSimpleObject(*this->next(this->begin(), i));
 		}
-		PyObject* const slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const
+		PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const
 		{
 			const Py_ssize_t size = this->length();
 			low = num::clamp(low, Py_ssize_t(0), size);
@@ -173,7 +173,7 @@ namespace impl
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
-		const int assItem(Py_ssize_t i, PyObject* obj)
+		int assItem(Py_ssize_t i, PyObject* obj)
 		{
 			if (!this->checkWritable() || !this->checkIndex(i))
 			{
@@ -189,7 +189,7 @@ namespace impl
 			}
 			return 0;
 		}
-		const int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other)
+		int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other)
 		{
 			if (!this->checkWritable())
 			{
@@ -260,7 +260,7 @@ namespace impl
 			}
 			return 0;
 		}
-		const int contains(PyObject* obj) const
+		int contains(PyObject* obj) const
 		{
 			typename Container::value_type value;
 			if (pyGetSimpleObject(obj, value) != 0)
@@ -281,7 +281,7 @@ namespace impl
 			}
 			return 0;
 		}
-		const bool inplaceConcat(PyObject* other)
+		bool inplaceConcat(PyObject* other)
 		{
 			if (!this->checkWritable())
 			{
@@ -302,7 +302,7 @@ namespace impl
 			TContainerTraits::insert(this->container(), end, first, last);
 			return true;
 		}
-		const bool inplaceRepeat(Py_ssize_t n)
+		bool inplaceRepeat(Py_ssize_t n)
 		{
 			if (!this->checkWritable())
 			{
@@ -312,7 +312,7 @@ namespace impl
 			return true;
 		}
 	private:
-		const bool checkIndex(Py_ssize_t& i) const
+		bool checkIndex(Py_ssize_t& i) const
 		{
 			const Py_ssize_t size = this->length();
 			if (i < 0 || i >= size) 
@@ -382,7 +382,7 @@ namespace impl
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
 		const std::type_info& type() const;
-		void* const raw(bool writable) const;
+		void* raw(bool writable) const;
 
 	private:
 		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);

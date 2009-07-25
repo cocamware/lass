@@ -57,7 +57,7 @@ namespace impl
 	{
 	public:
 		typedef CrashDump::TCallback TCallback;
-		CrashDumpImpl(const std::string& name, TCallback callback, void* callbackClosure) {}
+		CrashDumpImpl(const std::string&, TCallback, void*) {}
 		void init() {}
 		~CrashDumpImpl() {}
 	};

@@ -128,7 +128,7 @@ public:
 		T ar = t_-av;
 		t_ = x; 
 		e_ = ar+br;
-		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
+		LASS_ENFORCE(isValid());
 		return *this; 
 	}
 	TSelf& operator-=(const TSelf& other) 
@@ -140,7 +140,7 @@ public:
 		T ar = t_-av;
 		t_ = x; 
 		e_ = ar+br;
-		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
+		LASS_ENFORCE(isValid());
 		return *this; 
 	}
 	TSelf& operator*=(const TSelf& other) 
@@ -154,7 +154,7 @@ public:
 		T y = (a.e_*b.e_)-err3;
 		t_ = x; 
 		e_ = y;
-		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
+		LASS_ENFORCE(isValid());
 		return *this; 
 	}
 	TSelf& operator/=(const TSelf& other)
@@ -163,7 +163,7 @@ public:
 // https://sourceforge.net/tracker2/?func=detail&aid=2517783&group_id=118315&atid=680768
 		TSelf newOther(T(1)/other.value(),0.0);
 		this->operator *=(newOther);
-		LASS_ENFORCE(lass::num::abs(t_)>=lass::num::abs(e_));
+		LASS_ENFORCE(isValid());
 		return *this; 
 	}
 	
@@ -176,6 +176,11 @@ public:
 private:
 	volatile TValue t_,		/**< the value */
 					e_;		/**< the expected precision, based on forward error analysis */
+
+	bool isValid() const
+	{
+		return num::abs(static_cast<T>(t_)) >= num::abs(static_cast<T>(e_));
+	}
 
 	TSelf split(TParam a, int s)
 	{

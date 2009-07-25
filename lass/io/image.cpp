@@ -69,7 +69,7 @@ namespace impl
 	class Bytes4
 	{
 	public:
-		const num::Tuint8 operator[](size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
+		num::Tuint8 operator[](size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
 		num::Tuint8& operator[](size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
 		const num::Tuint8* get() const { return values_; }
 		num::Tuint8* get() { return values_; }
@@ -375,7 +375,7 @@ Image::TPixel& Image::at(TSignedSize row, TSignedSize col)
 
 /** Return const data block.
  */
-const Image::TPixel* const Image::data() const
+const Image::TPixel* Image::data() const
 {
 	return &raster_[0];
 }
@@ -384,7 +384,7 @@ const Image::TPixel* const Image::data() const
 
 /** Return data block.
  */
-Image::TPixel* const Image::data()
+Image::TPixel* Image::data()
 {
 	return &raster_[0];
 }
@@ -489,7 +489,7 @@ void Image::transformColors(const ColorSpace& newColorSpace)
 
 /** Return height of image.
  */
-const size_t Image::rows() const
+size_t Image::rows() const
 {
 	return rows_;
 }
@@ -498,7 +498,7 @@ const size_t Image::rows() const
 
 /** Return width of image.
  */
-const size_t Image::cols() const
+size_t Image::cols() const
 {
 	return cols_;
 }
@@ -507,7 +507,7 @@ const size_t Image::cols() const
 
 /** Return true if image is empty (no data)
  */
-const bool Image::isEmpty() const
+bool Image::isEmpty() const
 {
 	return raster_.empty();
 }

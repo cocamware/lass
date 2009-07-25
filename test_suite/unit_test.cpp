@@ -76,8 +76,7 @@ void TestCase::operator()() const
 
 
 
-const bool runTests(const TTestCases& iTests, int argc, char* argv[], 
-		unsigned* oNumErrors, unsigned* oNumFatalErrors)
+bool runTests(const TTestCases& iTests, int /*argc*/, char* /*argv*/[], unsigned* oNumErrors, unsigned* oNumFatalErrors)
 {
 	impl::errors() = 0;
 	impl::fatalErrors() = 0;
@@ -276,7 +275,7 @@ std::set<std::string>& savePatterns()
 	return util::Singleton<TestStatus>::instance()->savePatterns;
 }
 
-const bool isSavingPattern(const std::string& iFilename)
+bool isSavingPattern(const std::string& iFilename)
 {
 	if (iFilename.empty())
 	{

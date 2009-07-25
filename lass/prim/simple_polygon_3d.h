@@ -119,8 +119,8 @@ public:
 	void insert(int iIndexOfVertex, const TPoint& iVertex);
 	void remove(int iIndexOfVertex);
 
-	const bool isEmpty() const;
-	const size_t size() const;
+	bool isEmpty() const;
+	size_t size() const;
 
 	const TValue signedArea() const;
 	const TValue area() const;
@@ -128,23 +128,23 @@ public:
 	const TPointH vertexCentroid() const;
 	const TPointH surfaceCentroid() const;
 
-	const bool isSimple() const;
-	const bool isConvex() const;
-	const bool isConcave() const;
-	const Orientation orientation() const;
+	bool isSimple() const;
+	bool isConvex() const;
+	bool isConcave() const;
+	Orientation orientation() const;
 
-	const bool isReflex(int iIndexOfVertex) const;
+	bool isReflex(int iIndexOfVertex) const;
 
 	const SimplePolygon2D<T> mapping(XYZ iAxis) const;
 
-	const Side classify(const TPoint& iP) const;
-	const bool contains(const TPoint& iP) const;
+	Side classify(const TPoint& iP) const;
+	bool contains(const TPoint& iP) const;
 
 	void flip();
 
 private:
 
-	const bool isInRange(int iIndexOfVertex) const;
+	bool isInRange(size_t iIndexOfVertex) const;
 
 	typedef std::vector<TPoint> TVertices;
 

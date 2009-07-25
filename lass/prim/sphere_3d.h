@@ -106,19 +106,19 @@ public:
 	const TValue area() const;
 	const TValue volume() const;
 
-	const Side classify(const TPoint& iPoint) const;
+	Side classify(const TPoint& iPoint) const;
 	const TValue equation(const TPoint& iPoint) const;
 	const TValue signedDistance(const TPoint& iPoint) const;
 	const TValue squaredDistance(const TPoint& iPoint) const;
-	const bool contains(const TPoint& iPoint) const;
+	bool contains(const TPoint& iPoint) const;
 
-	const Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	Side classify(const TPoint& iPoint, TParam iRelativeTolerance) const;
 	const TValue equation(const TPoint& iPoint, TParam iRelativeTolerance) const;
 	const TValue signedDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
 	const TValue squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) const;
-	const bool contains(const TPoint& iPoint, TParam iRelativeTolerance) const;
+	bool contains(const TPoint& iPoint, TParam iRelativeTolerance) const;
 
-	const bool isValid() const;
+	bool isValid() const;
 
 private:
 

@@ -131,17 +131,17 @@ public:
 	const TValue perimeter() const;
 	const TValue area() const;
 
-	const Side classify(const TPoint& point) const;
-	const bool contains(const TPoint& point) const;
-	template <class MMP2> const bool contains(const Aabb2D<T, MMP2>& other) const;
-	template <class MMP2> const bool intersects(const Aabb2D<T, MMP2>& other) const;
-	template <class MMP2> const bool collides(const Aabb2D<T, MMP2>& other) const;
+	Side classify(const TPoint& point) const;
+	bool contains(const TPoint& point) const;
+	template <class MMP2> bool contains(const Aabb2D<T, MMP2>& other) const;
+	template <class MMP2> bool intersects(const Aabb2D<T, MMP2>& other) const;
+	template <class MMP2> bool collides(const Aabb2D<T, MMP2>& other) const;
 
 	template <class RandomGenerator> const TPoint random(RandomGenerator& random) const;
 
 	void clear();
-	const bool isEmpty() const;
-	const bool isValid() const;
+	bool isEmpty() const;
+	bool isValid() const;
 
 	template <typename MMP2> void swap(Aabb2D<T, MMP2>& other);
 
@@ -173,22 +173,22 @@ template <typename T, class MMPa, class MMPb, class MMPr>
 Result intersect(const Aabb2D<T, MMPa>& a, const Aabb2D<T, MMPb>& b, Aabb2D<T, MMPr>& result);
 
 template <typename T, class MMPa, class MMPb>
-const bool intersects(const Aabb2D<T, MMPa>& a, const Aabb2D<T, MMPb>& b);
+bool intersects(const Aabb2D<T, MMPa>& a, const Aabb2D<T, MMPb>& b);
 
 template <typename T, class MMP>
-const bool intersects(const Aabb2D<T, MMP>& a, const Point2D<T>& b);
+bool intersects(const Aabb2D<T, MMP>& a, const Point2D<T>& b);
 
 template <typename T, class MMP>
-const bool intersects(const Point2D<T>& a, const Aabb2D<T, MMP>& b);
+bool intersects(const Point2D<T>& a, const Aabb2D<T, MMP>& b);
 
 template <typename T, class MMPa, class MMPb>
-const bool collides(const Aabb2D<T, MMPa>& a, const Aabb2D<T, MMPb>& b);
+bool collides(const Aabb2D<T, MMPa>& a, const Aabb2D<T, MMPb>& b);
 
 template <typename T, class MMP>
-const bool collides(const Aabb2D<T, MMP>& a, const Point2D<T>& b);
+bool collides(const Aabb2D<T, MMP>& a, const Point2D<T>& b);
 
 template <typename T, class MMP>
-const bool collides(const Point2D<T>& a, const Aabb2D<T, MMP>& b);
+bool collides(const Point2D<T>& a, const Aabb2D<T, MMP>& b);
 
 template <typename T, class MMP>
 std::ostream& operator<<(std::ostream& ioOStream, const Aabb2D<T, MMP>& aabb);

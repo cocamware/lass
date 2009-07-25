@@ -73,7 +73,7 @@ TriBool::TriBool(bool iBool):
 
 /** return state
  */
-const TriBool::State TriBool::state() const
+TriBool::State TriBool::state() const
 {
 	return state_;
 }

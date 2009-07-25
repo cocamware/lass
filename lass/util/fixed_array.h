@@ -196,25 +196,25 @@ public:
 
 	// direct element access
 
-	reference operator[](size_type iIndex)
+	reference operator[](size_type)
 	{
 		LASS_ASSERT(false);
 		return *begin();
 	}
 
-	const_reference operator[](size_type iIndex) const
+	const_reference operator[](size_type) const
 	{
 		LASS_ASSERT(false);
 		return *begin();
 	}
 
-	reference at(size_type iIndex) 
+	reference at(size_type) 
 	{
 		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
 		return *begin();
 	}
 
-	const_reference at(size_type iIndex) const
+	const_reference at(size_type) const
 	{
 		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
 		return *begin();

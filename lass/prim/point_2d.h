@@ -105,8 +105,8 @@ public:
 	Point2D<T>& operator+=(const Vector2D<T>& offset);
 	Point2D<T>& operator-=(const Vector2D<T>& offset);
 
-	const bool isZero() const;
-	const bool isNaN() const;
+	bool isZero() const;
+	bool isNaN() const;
 };
 
 template<typename T> bool operator==(const Point2D<T>& a, const Point2D<T>& b);

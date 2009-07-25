@@ -70,7 +70,7 @@ Aabb2D<T> aabb(const Triangle2D<T>& triangle)
  *	@sa lass::prim::Aabb2D
  */
 template <typename T, typename MMP>
-const bool intersects(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
+bool intersects(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
 {
 	if (!box.intersects(aabb(triangle)))
 	{
@@ -120,7 +120,7 @@ const bool intersects(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
  *	@sa lass::prim::Triangle2D
  */
 template <typename T, typename MMP>
-const bool intersects(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
+bool intersects(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
 {
 	return intersects(triangle, box);
 }
@@ -131,7 +131,7 @@ const bool intersects(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
  *	@sa lass::prim::Aabb2D
  */
 template <typename T, typename MMP>
-const bool collides(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
+bool collides(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
 {
 	if (!box.collides(aabb(triangle)))
 	{
@@ -181,7 +181,7 @@ const bool collides(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
  *	@sa lass::prim::Triangle2D
  */
 template <typename T, typename MMP>
-const bool collides(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
+bool collides(const Aabb2D<T, MMP>& box, const Triangle2D<T>& triangle)
 {
 	return collides(triangle, box);
 }

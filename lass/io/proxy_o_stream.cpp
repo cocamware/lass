@@ -113,7 +113,7 @@ void ProxyOStream::remove( std::ostream* iDestination )
 /** Return accept mask on destination stream.
  *  If destination stream does not exists in proxy, it throws an exception.
  */
-const ProxyOStream::TMask ProxyOStream::filter( std::ostream* iDestination ) const
+ProxyOStream::TMask ProxyOStream::filter( std::ostream* iDestination ) const
 {
 	TDestinations::const_iterator dit = destinations_.find(iDestination);
 	if (dit == destinations_.end())

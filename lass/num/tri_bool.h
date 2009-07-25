@@ -218,7 +218,7 @@ public:
 	TriBool(State iState = sUnknown);
 	TriBool(bool iBool);
 
-	const State state() const;
+	State state() const;
 	State& state();
 
 	TriBool operator!() const;

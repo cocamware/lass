@@ -73,15 +73,15 @@ class LASS_DLL StreamBase: public util::NonCopyable
 {
 public:
 
-	const bool good() const { return state_ == std::ios_base::goodbit; }
-	const bool eof() const { return (state_ & std::ios_base::eofbit) != 0; }
-	const bool fail() const { return (state_ & (std::ios_base::failbit | std::ios_base::badbit)) != 0; }
-	const bool bad() const { return (state_ & std::ios_base::badbit) != 0; }
+	bool good() const { return state_ == std::ios_base::goodbit; }
+	bool eof() const { return (state_ & std::ios_base::eofbit) != 0; }
+	bool fail() const { return (state_ & (std::ios_base::failbit | std::ios_base::badbit)) != 0; }
+	bool bad() const { return (state_ & std::ios_base::badbit) != 0; }
 	std::ios_base::iostate rdstate() const { return state_; }
 	void clear(std::ios_base::iostate iState = std::ios_base::goodbit) { state_ = iState; }
 	void setstate(std::ios_base::iostate iState) { state_ |= iState; }
 	operator num::SafeBool() const { return fail() ? num::safeFalse : num::safeTrue; }
-	const bool operator!() const { return fail(); }
+	bool operator!() const { return fail(); }
 
 protected:
 

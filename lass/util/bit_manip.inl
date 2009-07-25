@@ -370,7 +370,7 @@ namespace impl
 	template <>
 	struct BitCounter<1>
 	{
-		template <typename T> static const size_t count(T bits)
+		template <typename T> static size_t count(T bits)
 		{
 			return bitsInByte[(num::Tuint8) bits];
 		}
@@ -379,7 +379,7 @@ namespace impl
 	template <>
 	struct BitCounter<2>
 	{
-		template <typename T> static const size_t count(T bits)
+		template <typename T> static size_t count(T bits)
 		{
 			const num::Tuint16 x = (num::Tuint16) bits;
 			return impl::bitsInByte[x >> 8] + impl::bitsInByte[x & 0xff];
@@ -389,7 +389,7 @@ namespace impl
 	template <>
 	struct BitCounter<4>
 	{
-		template <typename T> static const size_t count(T bits)
+		template <typename T> static size_t count(T bits)
 		{
 			const num::Tuint32 x = (num::Tuint32) bits;
 			return impl::bitsInByte[x >> 24] + impl::bitsInByte[(x >> 16) & 0xff] + 
@@ -400,7 +400,7 @@ namespace impl
 	template <>
 	struct BitCounter<8>
 	{
-		template <typename T> static const size_t count(T bits)
+		template <typename T> static size_t count(T bits)
 		{
 			const num::Tuint64 x = (num::Tuint64) bits;
 			return impl::bitsInByte[x >> 56] + impl::bitsInByte[(x >> 48) & 0xff] +
@@ -414,7 +414,7 @@ namespace impl
 /** returns number of set bits in @a bits
  *  @ingroup BitManip
  */
-template <typename T> inline const size_t countBits(T bits)
+template <typename T> inline size_t countBits(T bits)
 {
 	return impl::BitCounter<sizeof(T)>::count(bits);
 }

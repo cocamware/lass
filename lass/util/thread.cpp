@@ -71,18 +71,18 @@ const TCpuSet availableProcessors()
 
 static TCpuSet forceCalculationAtStartup = availableProcessors();
 
-const size_t numberOfProcessors()
+size_t numberOfProcessors()
 {
 	return availableProcessors().size();
 }
 
-const size_t numberOfAvailableProcessors()
+size_t numberOfAvailableProcessors()
 {
 	const TCpuSet& set = availableProcessors();
 	return std::count(set.begin(), set.end(), true);	
 }
 
-const bool isAvailableProcessor(size_t processor)
+bool isAvailableProcessor(size_t processor)
 {
 	const TCpuSet& set = availableProcessors();
 	return processor < set.size() && set[processor];
@@ -115,7 +115,7 @@ void Mutex::lock()
 	pimpl_->lock();
 }
 
-const LockResult Mutex::tryLock()
+LockResult Mutex::tryLock()
 {
 	LASS_ASSERT(pimpl_);
 	return pimpl_->tryLock();
@@ -127,7 +127,7 @@ void Mutex::unlock()
 	pimpl_->unlock();
 }
 
-const bool Mutex::isLocked() const
+bool Mutex::isLocked() const
 {
 	LASS_ASSERT(pimpl_);
 	return pimpl_->lockCount() > 0;
@@ -165,7 +165,7 @@ void CriticalSection::lock()
 	pimpl->lock();
 }
 
-const LockResult CriticalSection::tryLock()
+LockResult CriticalSection::tryLock()
 {
 	LASS_ASSERT(pimpl_);
 	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
@@ -179,7 +179,7 @@ void CriticalSection::unlock()
 	pimpl->unlock();
 }
 
-const bool CriticalSection::isLocked() const
+bool CriticalSection::isLocked() const
 {
 	LASS_ASSERT(pimpl_);
 	impl::CriticalSectionInternal* pimpl = static_cast<impl::CriticalSectionInternal*>(pimpl_);
@@ -207,7 +207,7 @@ void Condition::wait()
 	pimpl_->wait();
 }
 
-const WaitResult Condition::wait(unsigned long iMilliSeconds)
+WaitResult Condition::wait(unsigned long iMilliSeconds)
 {
 	LASS_ASSERT(pimpl_);
 	return pimpl_->wait(iMilliSeconds);
@@ -304,7 +304,7 @@ ThreadLocalStorage::~ThreadLocalStorage()
 	pimpl_ = 0;
 }
 
-void* const ThreadLocalStorage::get() const
+void* ThreadLocalStorage::get() const
 {
 	LASS_ASSERT(pimpl_);
 	return pimpl_->get();

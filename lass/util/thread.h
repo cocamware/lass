@@ -118,17 +118,17 @@ LASS_DLL const TCpuSet availableProcessors();
 /** Return highest id of processor + 1, in this machine
  *  @ingroup Threading  
  */
-LASS_DLL const size_t numberOfProcessors();
+LASS_DLL size_t numberOfProcessors();
 
 /** Return total number of processors in machine that are online
  *  @ingroup Threading  
  */
-LASS_DLL const size_t numberOfAvailableProcessors();
+LASS_DLL size_t numberOfAvailableProcessors();
 
 /** Check whether a processor is avaialable.
  *  @ingroup Threading  
  */
-LASS_DLL const bool isAvailableProcessor(size_t processor);
+LASS_DLL bool isAvailableProcessor(size_t processor);
 
 /** Mutex.
 *   @ingroup Threading
@@ -142,9 +142,9 @@ public:
 	Mutex();
 	~Mutex();
 	void lock();
-	const LockResult tryLock();
+	LockResult tryLock();
 	void unlock();
-	const bool isLocked() const;
+	bool isLocked() const;
 
 private:
 	impl::MutexInternal* pimpl_;
@@ -165,10 +165,10 @@ public:
 	~CriticalSection();
 	
 	void lock();
-	const LockResult tryLock();
+	LockResult tryLock();
 	void unlock();
 	
-	const bool isLocked() const;
+	bool isLocked() const;
 
 private:
 	void* pimpl_;
@@ -188,7 +188,7 @@ public:
 	Condition();
 	~Condition();
 	void wait();
-	const WaitResult wait(unsigned long iMilliSeconds);
+	WaitResult wait(unsigned long iMilliSeconds);
 	void signal();
 	void broadcast();
 private:
@@ -247,7 +247,7 @@ class LASS_DLL ThreadLocalStorage: NonCopyable
 public:
 	ThreadLocalStorage(void (*destructor)(void*) = 0);
 	~ThreadLocalStorage();
-	void* const get() const;
+	void* get() const;
 	void set(void* value);
 private:
 	impl::ThreadLocalStorageInternal* pimpl_;
@@ -284,7 +284,7 @@ public:
 	{
 	}
 
-	TValue* const get()
+	TValue* get()
 	{
 		TValue* ptr = static_cast<TValue*>(storage_.get());
 		if (!ptr)
@@ -296,7 +296,7 @@ public:
 		return ptr;
 	}
 
-	const TValue* const get() const
+	const TValue* get() const
 	{
 		const TValue* ptr = static_cast<const TValue*>(storage_.get());
 		if (!ptr)
@@ -308,12 +308,12 @@ public:
 		return ptr;
 	}
 
-	TValue* const operator->()
+	TValue* operator->()
 	{
 		return get();
 	}
 
-	const TValue* const operator->() const
+	const TValue* operator->() const
 	{
 		return get();
 	}
@@ -368,7 +368,7 @@ public:
 		}
 		while (oldSlots == 0 || !atomicCompareAndSwap(freeSlots_, oldSlots, newSlots));
 	}
-	const LockResult tryLock()
+	LockResult tryLock()
 	{
 		int oldSlots, newSlots;
 		do
@@ -388,7 +388,7 @@ public:
 	{ 
 		atomicIncrement(freeSlots_); 
 	}
-	const bool isLocked() const 
+	bool isLocked() const 
 	{ 
 		return freeSlots_ == 0; 
 	}

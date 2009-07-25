@@ -93,7 +93,7 @@ XYZW::XYZW(const std::string& iAxis)
 
 /** return axis by character: 'x', 'y', 'z' or 'w'.
  */
-const char XYZW::axis() const
+char XYZW::axis() const
 {
 	LASS_ASSERT(value_ >= 0 && value_ < 4);
 	const char axes[] = { 'x', 'y', 'z', 'w' };

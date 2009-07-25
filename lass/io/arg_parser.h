@@ -147,7 +147,7 @@ public:
 
 	const std::string& shortName() const;
 	const std::string& longName() const;
-	const int mode() const;
+	int mode() const;
 	const std::string format() const;
 
 	bool operator!() const;
@@ -161,8 +161,8 @@ protected:
 				 int iArgMode = amDefault);
 
 	const std::string names() const;
-	const bool parserIsQuiet() const;
-	const bool setValue(const std::string& iValue);
+	bool parserIsQuiet() const;
+	bool setValue(const std::string& iValue);
 	void set();
 
 private:
@@ -170,7 +170,7 @@ private:
 	friend class ArgParser;
 
 	virtual const std::string doFormat() const;
-	virtual const bool doSetValue(const std::string& iValue);
+	virtual bool doSetValue(const std::string& iValue);
 
 	ArgParser& parser_;
 	std::string shortName_;
@@ -234,7 +234,7 @@ private:
 
 
 	virtual const std::string doFormat() const;
-	virtual const bool doSetValue(const std::string& iValue);
+	virtual bool doSetValue(const std::string& iValue);
 
 	void checkMode(int iArgMode) const;
 

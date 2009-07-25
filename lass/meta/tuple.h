@@ -174,10 +174,10 @@ namespace impl
 	template <>
 	struct ForEach< Tuple< meta::NullType> >
 	{
-		template <typename Functor> static void call(Tuple<meta::NullType>& tuple, Functor& fun)
+		template <typename Functor> static void call(Tuple<meta::NullType>&, Functor&)
 		{
 		}
-		template <typename Functor> static void call(const Tuple<meta::NullType>& tuple, Functor& fun)
+		template <typename Functor> static void call(const Tuple<meta::NullType>&, Functor&)
 		{
 		}
 	};

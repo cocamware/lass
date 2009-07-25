@@ -129,7 +129,7 @@ typedef std::vector<TestCase> TTestCases;
 typedef TTestCases TUnitTest;
 typedef std::map<std::string, TUnitTest> TTestSuite;
 
-const bool runTests(const TTestCases& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
+bool runTests(const TTestCases& iTests, int argc, char* argv[], unsigned* oNumErrors, unsigned* oNumFatalErrors);
 
 const std::string workPath();
 std::string& inputDir();
@@ -245,7 +245,7 @@ ErrorStream& errorLog();
 unsigned& errors();
 unsigned& fatalErrors();
 std::set<std::string>& savePatterns();
-const bool isSavingPattern(const std::string& iFilename);
+bool isSavingPattern(const std::string& iFilename);
 
 // checkers ...
 

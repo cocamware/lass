@@ -88,7 +88,7 @@ long BinaryOSocket::doTellp() const
 
 
 
-void BinaryOSocket::doSeekp(long iOffset, std::ios_base::seekdir iDirection)
+void BinaryOSocket::doSeekp(long, std::ios_base::seekdir)
 {
 	LASS_THROW("no seeking in network streams");
 }

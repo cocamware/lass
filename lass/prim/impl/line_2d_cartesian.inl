@@ -306,7 +306,7 @@ void Line2DCartesian<T, NP>::flip()
 /** return true if line is a valid line (no normal or direction vectors that are zero).
  */
 template<typename T, class NP>
-const bool Line2DCartesian<T, NP>::isValid() const
+bool Line2DCartesian<T, NP>::isValid() const
 {
 	return !normal_.isZero();
 }

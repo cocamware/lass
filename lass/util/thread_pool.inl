@@ -163,7 +163,7 @@ void ThreadPool<T, C, IP, PP>::clearQueue()
 
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-const size_t ThreadPool<T, C, IP, PP>::numberOfThreads() const
+size_t ThreadPool<T, C, IP, PP>::numberOfThreads() const
 {
 	return numThreads_;
 }

@@ -107,8 +107,8 @@ public:
 	Point3D<T>& operator+=(const Vector3D<T>& offset);
 	Point3D<T>& operator-=(const Vector3D<T>& offset);
 
-	const bool isZero() const;
-	const bool isNaN() const;
+	bool isZero() const;
+	bool isNaN() const;
 };
 
 template<typename T> bool operator==(const Point3D<T>& a, const Point3D<T>& b);

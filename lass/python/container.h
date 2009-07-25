@@ -141,12 +141,12 @@ class LASS_DLL ContainerImplBase
 {
 public:
 	virtual ~ContainerImplBase() {};
-	virtual const bool clear() = 0;
-	virtual const Py_ssize_t length() const = 0;
-	virtual PyObject* const items() const = 0;
+	virtual bool clear() = 0;
+	virtual Py_ssize_t length() const = 0;
+	virtual PyObject* items() const = 0;
 	virtual const TPyObjPtr asNative() const = 0;
 	virtual const std::type_info& type() const = 0;
-	virtual void* const raw(bool writable) = 0;
+	virtual void* raw(bool writable) = 0;
 
 	const std::string repr() const;
 };
@@ -161,7 +161,7 @@ public:
 	typedef util::SharedPtr<const Container> TConstContainerPtr;
 	typedef ContainerTraits<Container> TContainerTraits;
 
-	const bool clear()
+	bool clear()
 	{
 		if (!checkWritable())
 		{
@@ -170,13 +170,13 @@ public:
 		TContainerTraits::clear(*container_);
 		return true;
 	}
-	const Py_ssize_t length() const
+	Py_ssize_t length() const
 	{
 		const Py_ssize_t size = static_cast<Py_ssize_t>(TContainerTraits::size(*container_));
 		LASS_ASSERT(size >= 0);
 		return size;
 	}
-	PyObject* const items() const
+	PyObject* items() const
 	{
 		return new PyIteratorRange(container_->begin(), container_->end());
 	}
@@ -184,7 +184,7 @@ public:
 	{ 
 		return typeid(TContainerPtr); 
 	}
-	void* const raw(bool writable)
+	void* raw(bool writable)
 	{ 
 		if (writable && readOnly_)
 		{
@@ -199,7 +199,7 @@ protected:
 	{
 		LASS_ASSERT(container_);
 	}
-	const bool checkWritable() const
+	bool checkWritable() const
 	{
 		if (readOnly_)
 		{

@@ -124,7 +124,7 @@ protected:
 		return result;
 	}
 
-	const size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
 	{
 		const TValue tEntry = maxComponent(tNear);
 		size_t iEntry = 0;
@@ -135,7 +135,7 @@ protected:
 		return iEntry;
 	}
 
-	const size_t nextNode(size_t i, const TVector& tFar) const
+	size_t nextNode(size_t i, const TVector& tFar) const
 	{
 		size_t nextMask = 1;
 		TValue min = TObjectTraits::coord(tFar, 0);
@@ -155,7 +155,7 @@ protected:
 		return i | nextMask;
 	}
 
-	const size_t findSubNode(const TPoint& center, const TPoint& point) const
+	size_t findSubNode(const TPoint& center, const TPoint& point) const
 	{
 		size_t i = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
@@ -165,7 +165,7 @@ protected:
 		return i;
 	}
 
-	const size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
 	{
 		size_t flipMask = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
@@ -269,7 +269,7 @@ protected:
 			TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1));
 	}
 
-	const size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
 	{
 		if (TObjectTraits::coord(tNear, 0) > TObjectTraits::coord(tNear, 1))
 		{
@@ -288,7 +288,7 @@ protected:
 		return 0x0;
 	}
 
-	const size_t nextNode(size_t i, const TVector& tFar) const
+	size_t nextNode(size_t i, const TVector& tFar) const
 	{
 		if (TObjectTraits::coord(tFar, 0) <  TObjectTraits::coord(tFar, 1))
 		{
@@ -300,13 +300,13 @@ protected:
 		}
 	}
 
-	const size_t findSubNode(const TPoint& center, const TPoint& point) const
+	size_t findSubNode(const TPoint& center, const TPoint& point) const
 	{
 		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
 			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0);
 	}
 
-	const size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
 	{
 		size_t flipMask = 0;
 		const TValue dx = TObjectTraits::coord(direction, 0);
@@ -399,7 +399,7 @@ protected:
 			TObjectTraits::coord(a, 2) - TObjectTraits::coord(b, 2));
 	}
 
-	const size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
 	{
 		const TValue tEntry = maxComponent(tNear);
 		size_t iEntry = 0;
@@ -410,7 +410,7 @@ protected:
 		return iEntry;
 	}
 
-	const size_t nextNode(size_t i, const TVector& tFar) const
+	size_t nextNode(size_t i, const TVector& tFar) const
 	{
 		const TValue x = TObjectTraits::coord(tFar, 0);
 		const TValue y = TObjectTraits::coord(tFar, 1);
@@ -429,14 +429,14 @@ protected:
 		}
 	}
 
-	const size_t findSubNode(const TPoint& center, const TPoint& point) const
+	size_t findSubNode(const TPoint& center, const TPoint& point) const
 	{
 		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
 			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0)
 			| (TObjectTraits::coord(point, 2) >= TObjectTraits::coord(center, 2) ? 0x4 : 0x0);
 	}
 
-	const size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
 	{
 		size_t flipMask = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)

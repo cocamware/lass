@@ -143,7 +143,7 @@ public:
 		}
 		++lockCount_;
 	}
-	const LockResult tryLock()
+	LockResult tryLock()
 	{
 		const DWORD ret = WaitForSingleObject(mutex_, 0);
 		switch ( ret )
@@ -182,7 +182,7 @@ public:
 		--lockCount_;
 		LASS_ENFORCE_WINAPI(ReleaseMutex(mutex_));
 	}
-	const unsigned lockCount() const 
+	unsigned lockCount() const 
 	{
 		return lockCount_;
 	}
@@ -212,7 +212,7 @@ public:
 	{
 		EnterCriticalSection(&criticalSection_);
 	}
-	const LockResult tryLock()
+	LockResult tryLock()
 	{
 		return TryEnterCriticalSection(&criticalSection_) ? lockSuccess : lockBusy;
 	}
@@ -221,7 +221,7 @@ public:
 		LASS_ASSERT(criticalSection_.RecursionCount > 0);
 		LeaveCriticalSection(&criticalSection_);
 	}
-	const unsigned lockCount() const 
+	unsigned lockCount() const 
 	{ 
 		return criticalSection_.RecursionCount; 
 	}	
@@ -263,7 +263,7 @@ public:
 	{
 		wait(INFINITE);
 	}	
-	const WaitResult wait(unsigned long iMilliSeconds)
+	WaitResult wait(unsigned long iMilliSeconds)
 	{
 		// as m_nWaiters variable is accessed from multiple waiting threads
 		// (and possibly from the broadcasting thread), we need to change its
@@ -362,7 +362,7 @@ public:
 		}
 		freeSlot(index_);
 	}
-	void* const get() const
+	void* get() const
 	{
 		void* result = TlsGetValue(index_); // intel700 doesn't like void* const here [Bramz]
 		if (result == 0)
@@ -555,7 +555,7 @@ public:
 		runCondition_.wait();
 	}
 
-	const bool isJoinable() const
+	bool isJoinable() const
 	{
 		return isJoinable_ && isCreated_;
 	}

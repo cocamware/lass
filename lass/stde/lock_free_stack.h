@@ -84,10 +84,10 @@ private:
 	lock_free_stack(const lock_free_stack&);
 	lock_free_stack& operator=(const lock_free_stack&);
 
-	node_t* const make_node(const value_type& x);
+	node_t* make_node(const value_type& x);
 	void free_node(node_t* node);
 	void push_node(node_t* node);
-	node_t* const pop_node();
+	node_t* pop_node();
 
 	volatile pointer_t top_;
 };

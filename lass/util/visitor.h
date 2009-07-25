@@ -82,18 +82,18 @@ public:
 	}
 private:
 	virtual void doPreVisit(T& visitable) = 0;
-	virtual void doPostVisit(T& visitable) {}
+	virtual void doPostVisit(T& /*visitable*/) {}
 };
 
 
 
 struct ThrowOnUnknownVisit
 {
-	template <typename T> static void onUnknownPreVisit(VisitorBase& visitor, T& visitable)
+	template <typename T> static void onUnknownPreVisit(VisitorBase& /*visitor*/, T& /*visitable*/)
 	{
 		LASS_THROW_EX(BadVisit, "unkown previsit on type '" << typeid(T).name() << "'.");
 	}
-	template <typename T> static void onUnknownPostVisit(VisitorBase& visitor, T& visitable)
+	template <typename T> static void onUnknownPostVisit(VisitorBase& /*visitor*/, T& /*visitable*/)
 	{
 		LASS_THROW_EX(BadVisit, "unkown postvisit on type '" << typeid(T).name() << "'.");
 	}
@@ -102,8 +102,8 @@ struct ThrowOnUnknownVisit
 
 struct IgnoreUnknownVisit
 {
-	template <typename T> static void onUnknownPreVisit(VisitorBase& visitor, T& visitable) {}
-	template <typename T> static void onUnknownPostVisit(VisitorBase& visitor, T& visitable) {}
+	template <typename T> static void onUnknownPreVisit(VisitorBase& /*visitor*/, T& /*visitable*/) {}
+	template <typename T> static void onUnknownPostVisit(VisitorBase& /*visitor*/, T& /*visitable*/) {}
 };
 
 

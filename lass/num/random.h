@@ -74,8 +74,8 @@ public:
 	typedef int TValue;             /**< type of return value. */
 	static const TValue max;        /**< maximum return value. */
 
-	const TValue operator()() const;
-	const TValue operator()(TValue supremum) const;
+	TValue operator()() const;
+	TValue operator()(TValue supremum) const;
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
@@ -105,8 +105,8 @@ public:
 
 	void seed(TValue seed);
 
-	const TValue operator()();
-	const TValue operator()(TValue supremum);
+	TValue operator()();
+	TValue operator()(TValue supremum);
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
@@ -161,8 +161,8 @@ public:
 	void seed(TValue seed);
 	template <typename ForwardIterator> void seed(ForwardIterator first, ForwardIterator last);
 
-	const TValue operator()();
-	const TValue operator()(TValue supremum);
+	TValue operator()();
+	TValue operator()(TValue supremum);
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
@@ -179,7 +179,7 @@ private:
 	};
 
 	void reload();
-	const TValue twist(TValue a, TValue b, TValue c) const;
+	TValue twist(TValue a, TValue b, TValue c) const;
 
 	TValue state_[stateSize_];      /**< the array for the state vector. */
 	TValue index_;                     /**< index in state vector. */

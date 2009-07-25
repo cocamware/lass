@@ -131,8 +131,8 @@ public:
 	Neighbour(ObjectIterator object, T squaredDistance): object_(object), squaredDistance_(squaredDistance) {}
 	const ObjectIterator& object() const { return object_; }
 	const T& squaredDistance() const { return squaredDistance_; }
-	const bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
-	template <typename Other> const bool operator==(const Other& other) const
+	bool operator<(const Neighbour& other) const { return squaredDistance_ < other.squaredDistance_; }
+	template <typename Other> bool operator==(const Other& other) const
 	{
 		return object_ == other.object() && squaredDistance_ == other.squaredDistance();
 	}
@@ -275,7 +275,7 @@ private:
 	 *		same way so that first1[k] can be matched with first2[k].
 	 */
 	template <typename RandomIt1, typename RandomIt2>
-	static const bool closeNeighbourhood(
+	static bool closeNeighbourhood(
 			RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2, TValue tolerance)
 	{
 		if ((last1 - first1) != (last2 - first2))

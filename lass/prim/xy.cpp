@@ -94,7 +94,7 @@ XY::XY(const std::string& iAxis)
 
 /** return axis by character: "x" or "y".
  */
-const char XY::axis() const
+char XY::axis() const
 {
 	LASS_ASSERT(value_ >= 0 && value_ < dimension);
 	const char axes[] = { 'x', 'y' };

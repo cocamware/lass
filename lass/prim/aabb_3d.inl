@@ -303,7 +303,7 @@ Aabb3D<T, MMP>::volume() const
  *  @return sInside, sSurface, sOutside
  */
 template <typename T, class MMP>
-const Side Aabb3D<T, MMP>::classify(const TPoint& point) const
+Side Aabb3D<T, MMP>::classify(const TPoint& point) const
 {
 	LASS_ASSERT(isValid());
 
@@ -330,7 +330,7 @@ const Side Aabb3D<T, MMP>::classify(const TPoint& point) const
  *  Is equivalent to this->classify(point) != sOutside, but might be faster.
  */
 template <typename T, class MMP>
-const bool Aabb3D<T, MMP>::contains(const TPoint& point) const
+bool Aabb3D<T, MMP>::contains(const TPoint& point) const
 {
 	LASS_ASSERT(isValid());
 	return  point.x >= min_.x && point.x <= max_.x &&
@@ -347,7 +347,7 @@ const bool Aabb3D<T, MMP>::contains(const TPoint& point) const
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& other) const
+bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& other) const
 {
 	LASS_ASSERT(isValid() && other.isValid());
 	return other.min().x >= min_.x && other.max().x <= max_.x
@@ -378,7 +378,7 @@ const bool Aabb3D<T, MMP>::contains(const Aabb3D<T, MMP2>& other) const
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& other) const
+bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& other) const
 {
 	LASS_ASSERT(isValid() && other.isValid());
 
@@ -422,7 +422,7 @@ const bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& other) const
  */
 template <typename T, class MMP>
 template <class MMP2>
-const bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& other) const
+bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& other) const
 {
 	LASS_ASSERT(isValid() && other.isValid());
 
@@ -482,7 +482,7 @@ void Aabb3D<T, MMP>::clear()
  *  x, y and z.
  */
 template <typename T, class MMP>
-const bool Aabb3D<T, MMP>::isEmpty() const
+bool Aabb3D<T, MMP>::isEmpty() const
 {
 	LASS_ASSERT(isValid());
 	return min_.x > max_.x;
@@ -505,7 +505,7 @@ const bool Aabb3D<T, MMP>::isEmpty() const
  *  UncheckedMinMax policy, you're on your own.
  */
 template <typename T, class MMP>
-const bool Aabb3D<T, MMP>::isValid() const
+bool Aabb3D<T, MMP>::isValid() const
 {
 	return (min_.x <= max_.x && min_.y <= max_.y && min_.z <= max_.z) || (min_.x > max_.x);
 }
@@ -647,7 +647,7 @@ Result intersect(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b, Aabb3D<T, M
 
 
 template <typename T, class MMPa, class MMPb> inline
-const bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
+bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 {
 	return a.intersects(b);
 }
@@ -657,7 +657,7 @@ const bool intersects(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 /** @relates lass::prim::Aabb2D
  */
 template <typename T, typename MMP> inline
-const bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
+bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 {
 	return a.contains(b);
 }
@@ -667,7 +667,7 @@ const bool intersects(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 /** @relates lass::prim::Aabb2D
  */
 template <typename T, typename MMP> inline
-const bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
+bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
 {
 	return b.contains(a);
 }
@@ -675,7 +675,7 @@ const bool intersects(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
 
 
 template <typename T, class MMPa, class MMPb> inline
-const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
+bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 {
 	return a.collides(b);
 }
@@ -685,7 +685,7 @@ const bool collides(const Aabb3D<T, MMPa>& a, const Aabb3D<T, MMPb>& b)
 /** @relates lass::prim::Aabb2D
  */
 template <typename T, typename MMP> inline
-const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
+bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 {
 	typedef typename Aabb3D<T, MMP>::TPoint TPoint;
 	const TPoint& min = a.min();
@@ -700,7 +700,7 @@ const bool collides(const Aabb3D<T, MMP>& a, const Point3D<T>& b)
 /** @relates lass::prim::Aabb2D
  */
 template <typename T, typename MMP> inline
-const bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
+bool collides(const Point3D<T>& a, const Aabb3D<T, MMP>& b)
 {
 	return collides(b, a);
 }

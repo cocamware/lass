@@ -87,12 +87,12 @@ public:
 
 	Future(): pimpl_(new Impl) {}
 
-	const bool isBound() const 
+	bool isBound() const 
 	{
 		TLocker lock(pimpl_->mutex_);
 		return pimpl_->isBound_ || pimpl_->isBadAlloc_ || pimpl_->error_.get(); 
 	}
-	const bool operator!() const { return !isBound(); }
+	bool operator!() const { return !isBound(); }
 	operator num::SafeBool() const { return isBound() ? num::safeFalse : num::safeTrue; }
 
 	void wait() 
@@ -102,7 +102,7 @@ public:
 			pimpl_->condition_.wait();
 		}
 	}
-	const WaitResult wait(unsigned long milliSeconds)
+	WaitResult wait(unsigned long milliSeconds)
 	{
 		return pimpl_->condition_.wait() == waitSuccess && isBound() ? waitSuccess : waitTimeout;
 	}

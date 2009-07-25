@@ -114,10 +114,10 @@ public:
 	Point3DH<T>& operator*=(TParam iB);
 	Point3DH<T>& operator/=(TParam iB);
 
-	const bool isZero() const;
-	const bool isNaN() const;
-	const bool isInfinite() const;
-	const bool isValid() const;
+	bool isZero() const;
+	bool isNaN() const;
+	bool isInfinite() const;
+	bool isValid() const;
 	const TParam weight() const;
 	const TPoint affine() const;
 

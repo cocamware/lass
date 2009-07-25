@@ -66,12 +66,12 @@ namespace prim
 
 struct IndexTriangle
 {
-	std::size_t vertices[3];
-	std::size_t normals[3];
-	std::size_t uvs[3];
+	size_t vertices[3];
+	size_t normals[3];
+	size_t uvs[3];
 
-	const size_t size() const { return 3; }
-	static const std::size_t null() { return static_cast<std::size_t>(-1); }
+	size_t size() const { return 3; }
+	static size_t null() { return static_cast<size_t>(-1); }
 };
 
 LASS_DLL bool LASS_CALL operator==(const IndexTriangle& a, const IndexTriangle& b);
@@ -126,9 +126,9 @@ public:
 		Triangle* others[3]; /**< triangle on other side of vertices k,k+1 */
 		unsigned creaseLevel[3];   /**< crease level of side k,k+1 */
 
-		const Result intersect(const TRay& ray, TReference t, TParam tMin = 0,
+		Result intersect(const TRay& ray, TReference t, TParam tMin = 0,
 			IntersectionContext* context = 0) const;
-		const size_t side(const TPoint* v) const;
+		size_t side(const TPoint* v) const;
 	};
 
 	typedef IntersectionContext TIntersectionContext;
@@ -170,9 +170,9 @@ public:
 	void autoSew();
 	void autoCrease(unsigned level);
 
-	const Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, 
+	Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, 
 		TParam tMin = 0, IntersectionContext* context = 0) const;
-	const bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
+	bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
 
 	void swap(TSelf& other);
 	
@@ -204,12 +204,12 @@ private:
 			result += *(triangle->vertices[2]);
 			return result;
 		}
-		static const bool objectIntersect(TObjectIterator triangle, const TRay& ray, 
+		static bool objectIntersect(TObjectIterator triangle, const TRay& ray, 
 			TReference t, TParam tMin, const TInfo* info)
 		{
 			return triangle->intersect(ray, t, tMin) == rOne;
 		}
-		static const bool objectIntersects(TObjectIterator triangle, const TRay& ray, 
+		static bool objectIntersects(TObjectIterator triangle, const TRay& ray, 
 			TParam tMin, TParam tMax, const TInfo* info)
 		{
 			TValue t;
@@ -250,7 +250,7 @@ private:
 			x_[ 4] = v2.y;
 			x_[ 5] = v2.z;
 		}
-		const bool operator<(const PositionalEdge& other) const
+		bool operator<(const PositionalEdge& other) const
 		{
 			for (size_t i = 0; i < size_; ++i)
 			{

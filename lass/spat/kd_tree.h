@@ -140,7 +140,7 @@ public:
 			RandomIterator first) const;	
 
 	void swap(TSelf& other);
-	const bool isEmpty() const;
+	bool isEmpty() const;
 	void clear();
 
 	const TObjectIterator end() const;
@@ -176,7 +176,7 @@ private:
 	public:
 		Node(TObjectIterator object, TAxis axis = dummyAxis_): object_(object), axis_(axis) {}
 		const TObjectIterator& object() const { return object_; }
-		const TAxis axis() const { return axis_; }
+		TAxis axis() const { return axis_; }
 		const TPoint position() const { return TObjectTraits::position(object_); }
 	private:
 		TObjectIterator object_;

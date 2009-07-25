@@ -115,8 +115,8 @@ struct Vector2D
 	Vector2D<T>& operator*=(TParam other);
 	Vector2D<T>& operator/=(TParam other);
 
-	const bool isZero() const;
-	const bool isNaN() const;
+	bool isZero() const;
+	bool isNaN() const;
 	const TValue squaredNorm() const;
 	const TValue norm() const;
 	const Vector2D<T> normal() const;

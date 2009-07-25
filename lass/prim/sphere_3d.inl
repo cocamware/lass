@@ -137,7 +137,7 @@ Sphere3D<T>::volume() const
  *  @return sInside, sSurface, sOutside
  */
 template<typename T>
-const Side Sphere3D<T>::classify(const TPoint& iPoint) const
+Side Sphere3D<T>::classify(const TPoint& iPoint) const
 {
 	const TValue eq = equation(iPoint);
 	return eq > TNumTraits::zero ? sOutside : (eq < TNumTraits::zero ? sInside : sSurface);
@@ -186,7 +186,7 @@ Sphere3D<T>::squaredDistance(const TPoint& iPoint) const
  *  @return <tt>classify(iPoint) != sOutside</tt> but may be faster
  */
 template<typename T>
-const bool Sphere3D<T>::contains(const TPoint& iPoint) const
+bool Sphere3D<T>::contains(const TPoint& iPoint) const
 {
 	const TValue eq = equation(iPoint);
 	return eq <= TNumTraits::zero;
@@ -198,7 +198,7 @@ const bool Sphere3D<T>::contains(const TPoint& iPoint) const
  *  @return sInside, sSurface, sOutside
  */
 template<typename T>
-const Side Sphere3D<T>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
+Side Sphere3D<T>::classify(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
 	const TValue eq = equation(iPoint, iRelativeTolerance);
 	return eq > TNumTraits::zero ? sOutside : (eq < TNumTraits::zero ? sInside : sSurface);
@@ -249,7 +249,7 @@ Sphere3D<T>::squaredDistance(const TPoint& iPoint, TParam iRelativeTolerance) co
  *  @return <tt>classify(iPoint, iRelativeTolerance) != sOutside</tt> but may be faster
  */
 template<typename T>
-const bool Sphere3D<T>::contains(const TPoint& iPoint, TParam iRelativeTolerance) const
+bool Sphere3D<T>::contains(const TPoint& iPoint, TParam iRelativeTolerance) const
 {
 	const TValue eq = equation(iPoint, iRelativeTolerance);
 	return eq <= TNumTraits::zero;
@@ -260,7 +260,7 @@ const bool Sphere3D<T>::contains(const TPoint& iPoint, TParam iRelativeTolerance
 /** return true if sphere has a non-negative radius
  */
 template <typename T>
-const bool Sphere3D<T>::isValid() const
+bool Sphere3D<T>::isValid() const
 {
 	return radius_ >= TNumTraits::zero;
 }

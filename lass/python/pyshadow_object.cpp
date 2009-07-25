@@ -54,18 +54,8 @@ ShadowBaseCommon::ShadowBaseCommon()
 {
 }
 
-ShadowBaseCommon::ShadowBaseCommon(const ShadowBaseCommon& iOther)
-{
-}
-
 ShadowBaseCommon::~ShadowBaseCommon()
 {
-}
-
-ShadowBaseCommon& ShadowBaseCommon::operator=(const ShadowBaseCommon&)
-{
-	PyObjectPlus::operator=(*this);
-	return *this;
 }
 
 }

@@ -88,7 +88,7 @@ public:
 	virtual const TData derivative2(TScalar iX) const = 0;
 	virtual const TData integral(TScalar iA, TScalar iB) const = 0;
 
-	virtual const bool isEmpty() const = 0;
+	virtual bool isEmpty() const = 0;
 	virtual const ControlRange controlRange() const = 0;
 };
 

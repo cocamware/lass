@@ -82,8 +82,8 @@ public:
 	void unlockr();
 	void unlockw();
 
-	const LockResult tryLockr();
-	const LockResult tryLockw();
+	LockResult tryLockr();
+	LockResult tryLockw();
 
 private:
 	int maxReaders_;		/**< the maximum of simultaneous readers allowed */
@@ -140,7 +140,7 @@ void RWLock::unlockr()
 }
 
 
-const LockResult RWLock::tryLockr()
+LockResult RWLock::tryLockr()
 {
 	int oldSpinLock;
 	int newSpinLock;
@@ -159,7 +159,7 @@ const LockResult RWLock::tryLockr()
 }
 
 
-const LockResult RWLock::tryLockw()
+LockResult RWLock::tryLockw()
 {
 	lass::util::atomicIncrement(writersTrying_);
 	do

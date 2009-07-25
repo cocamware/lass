@@ -226,7 +226,7 @@ Point3DH<T>& Point3DH<T>::operator/=(TParam iB)
  *  w may be 0 but doesn't has to be.
  */
 template<typename T>
-const bool Point3DH<T>::isZero() const
+bool Point3DH<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
 }
@@ -236,7 +236,7 @@ const bool Point3DH<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Point3DH<T>::isNaN() const
+bool Point3DH<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z) || num::isNaN(w);
 }
@@ -246,7 +246,7 @@ const bool Point3DH<T>::isNaN() const
 /** Return true if point is at infinite distance of origin.  test if w == 0.
  */
 template<typename T> inline
-const bool Point3DH<T>::isInfinite() const
+bool Point3DH<T>::isInfinite() const
 {
 	return w == TNumTraits::zero;
 }
@@ -256,7 +256,7 @@ const bool Point3DH<T>::isInfinite() const
 /** Return true if point is valid.  test if point != (0, 0, 0, 0)
  */
 template<typename T>
-const bool Point3DH<T>::isValid() const
+bool Point3DH<T>::isValid() const
 {
 	return x != TNumTraits::zero || y != TNumTraits::zero || z != TNumTraits::zero ||
 		w != TNumTraits::zero;

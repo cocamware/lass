@@ -135,7 +135,7 @@ bool lock_free_stack<T, A>::pop_swap(value_type& x)
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, typename A>
-typename lock_free_stack<T, A>::node_t* const 
+typename lock_free_stack<T, A>::node_t* 
 lock_free_stack<T, A>::make_node(const value_type& x)
 {
 	node_t* node = static_cast<node_t*>(this->allocate());
@@ -178,7 +178,7 @@ void lock_free_stack<T, A>::push_node(node_t* node)
 
 
 template <typename T, typename A>
-typename lock_free_stack<T, A>::node_t* const 
+typename lock_free_stack<T, A>::node_t* 
 lock_free_stack<T, A>::pop_node()
 {
 	pointer_t top;

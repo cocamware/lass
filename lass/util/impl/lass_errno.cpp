@@ -64,7 +64,7 @@ namespace impl
  *  @ingroup LassErrno
  *  @internal
  */
-const int lass_errno()
+int lass_errno()
 {
         return errno;
 }
@@ -137,7 +137,7 @@ LASS_META_ASSERT(sizeof(DWORD) <= sizeof(unsigned), unsigned_should_be_big_enoug
  *  @internal
  *  @arg only available on Windows platforms
  */
-const unsigned lass_GetLastError()
+unsigned lass_GetLastError()
 {
         return GetLastError();
 }

@@ -149,7 +149,7 @@ public:
 	* Required :
 	* <tt>static bool ObjectTypeTraits::contains( const Object& object, const TPoint& point, const TInfo* info );</tt>
 	*/
-	const bool contains(const TPoint& p, const TInfo* info = 0) const;
+	bool contains(const TPoint& p, const TInfo* info = 0) const;
 
 	/** find objects containing point and write them to the output iterator.
 	*
@@ -162,7 +162,7 @@ public:
 	const TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, 
 		const TInfo* info = 0) const;
 	
-	const bool intersects(const TRay& ray, TParam tMin = 0, 
+	bool intersects(const TRay& ray, TParam tMin = 0, 
 		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
 
 	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;	
@@ -186,7 +186,7 @@ public:
 	const TAabb& aabb() const;
 
 	/** depth. Returns the depth of the tree */
-	const size_t depth() const;
+	size_t depth() const;
 	const TValue averageDepth() const;
 
 	void swap(QuadTree& other);
@@ -219,7 +219,7 @@ private:
 	
 	const TObjectIterator doIntersect(const QuadNode* node, const TRay& ray, TReference t, TParam tMin, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
-	const bool doIntersects(const QuadNode* node, const TRay& ray, TParam tMin, TParam tMax, 
+	bool doIntersects(const QuadNode* node, const TRay& ray, TParam tMin, TParam tMax, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
 	void doNearestNeighbour(const QuadNode* node, const TPoint& point, const TInfo* info,
 		Neighbour& best) const;

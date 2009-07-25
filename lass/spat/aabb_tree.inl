@@ -199,7 +199,7 @@ void AabbTree<O, OT, SH>::swap(TSelf& other)
 
 
 template <typename O, typename OT, typename SH>
-const bool AabbTree<O, OT, SH>::isEmpty() const
+bool AabbTree<O, OT, SH>::isEmpty() const
 {
 	return objects_.empty();
 }
@@ -231,7 +231,7 @@ void AabbTree<O, OT, SH>::reset()
 // --- private -------------------------------------------------------------------------------------
 
 template <typename O, typename OT, typename SH>
-const int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
+int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 {
 	const SplitInfo<OT> split = TSplitHeuristics::template split<OT>(first, last);	
 	if (split.axis < 0)
@@ -260,7 +260,7 @@ const int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last
 
 
 template <typename O, typename OT, typename SH>
-const int AabbTree<O, OT, SH>::addLeafNode(
+int AabbTree<O, OT, SH>::addLeafNode(
 		const TAabb& aabb, TInputIterator first, TInputIterator last)
 {
 	const int begin = static_cast<int>(objects_.size());
@@ -280,7 +280,7 @@ const int AabbTree<O, OT, SH>::addLeafNode(
 
 
 template <typename O, typename OT, typename SH>
-const int AabbTree<O, OT, SH>::addInternalNode(const TAabb& aabb)
+int AabbTree<O, OT, SH>::addInternalNode(const TAabb& aabb)
 {
 	nodes_.push_back(Node(aabb));
 

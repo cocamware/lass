@@ -127,11 +127,11 @@ public:
 		return TStoragePolicy::at(i);
 	}
 
-	const bool isEmpty() const
+	bool isEmpty() const
 	{
 		return TStoragePolicy::isNull();
 	}
-	const bool operator!() const
+	bool operator!() const
 	{
 		return isEmpty();
 	}

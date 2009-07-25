@@ -275,7 +275,7 @@ Vector4D<T>& Vector4D<T>::operator/=(TParam other)
 /** Return true if all the components are (exactly!) zero
  */
 template<typename T> inline
-const bool Vector4D<T>::isZero() const
+bool Vector4D<T>::isZero() const
 {
 	return  x == TNumTraits::zero && y == TNumTraits::zero &&
 			z == TNumTraits::zero && w == TNumTraits::zero;
@@ -286,7 +286,7 @@ const bool Vector4D<T>::isZero() const
 /** Return true if at least one of the components is NaN
  */
 template<typename T> inline
-const bool Vector4D<T>::isNaN() const
+bool Vector4D<T>::isNaN() const
 {
 	return num::isNaN(x) || num::isNaN(y) || num::isNaN(z) || num::isNaN(w);
 }

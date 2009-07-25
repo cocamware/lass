@@ -160,7 +160,7 @@ public:
 	TaggedPtr(const volatile TaggedPtr& other): bits_(other.bits_) {}
 	TaggedPtr& operator=(const TaggedPtr& other) { bits_ = other.bits_; return *this; }
 	TaggedPtr& operator=(const volatile TaggedPtr& other) { bits_ = other.bits_; return *this; }
-	T* const get() const
+	T* get() const
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		T* ptr;
@@ -174,9 +174,9 @@ public:
 			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
 #	endif
 	}
-	const TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
-	const bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
-	const bool operator==(const volatile TaggedPtr& other) const { return bits_ == other.bits_; }
+	TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
+	bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+	bool operator==(const volatile TaggedPtr& other) const { return bits_ == other.bits_; }
 	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
 	{
 		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
@@ -193,8 +193,8 @@ private:
 	TaggedPtr(const volatile TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
 	TaggedPtr& operator=(const TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
 	TaggedPtr& operator=(const volatile TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
-	T* const get() const { return ptr_; }
-	const TTag tag() const { return tag_; }
+	T* get() const { return ptr_; }
+	TTag tag() const { return tag_; }
 	bool operator==(const TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
 	bool operator==(const volatile TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
 	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
@@ -209,8 +209,8 @@ private:
 #	error "not implemented yet [Bramz]"
 #endif
 public:
-	T* const operator->() const { LASS_ASSERT(get()); return get(); }
-	const bool operator!() const { return get() == 0; }
+	T* operator->() const { LASS_ASSERT(get()); return get(); }
+	bool operator!() const { return get() == 0; }
 	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
 };
 

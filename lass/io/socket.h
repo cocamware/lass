@@ -77,15 +77,15 @@ public:
 	~Socket();
 
 	void bind(TPort port);
-	const TPort bindInRange(TPort begin, TPort end);
+	TPort bindInRange(TPort begin, TPort end);
 	void listen();
 	void accept(Socket& oConnection);
 	void connect(const std::string& ipAddress, TPort port);
 
-	const int send(const void* begin, int length);
-	const void* const send(const void* begin, const void* end);
-	const int receive(void* begin, int length);
-	void* const receive(void* begin, void* end);
+	int send(const void* begin, int length);
+	const void* send(const void* begin, const void* end);
+	int receive(void* begin, int length);
+	void* receive(void* begin, void* end);
 
 	void swap(Socket& other);
 

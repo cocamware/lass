@@ -94,7 +94,7 @@ public:
 
 	template <typename T2, typename S2> Vector<T, S>& operator=(const Vector<T2, S2>& iOther);
 
-	const TSize size() const;
+	TSize size() const;
 
 	const TValue operator[](TSize iIndex) const;
 	TReference operator[](TSize iIndex);
@@ -112,8 +112,8 @@ public:
 	template <typename T2> Vector<T, S>& operator*=(const T2& iB);
 	template <typename T2> Vector<T, S>& operator/=(const T2& iB);
 
-	const bool isEmpty() const;
-	const bool isZero() const;
+	bool isEmpty() const;
+	bool isZero() const;
 	const TValue sum() const;
 	const TValue min() const;
 	const TValue max() const;

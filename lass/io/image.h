@@ -95,11 +95,11 @@ public:
 		bool isFromFile;
 		const TChromaticity& operator[](size_t index) const { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
 		TChromaticity& operator[](size_t index) { LASS_ASSERT(index < numChromaticities); return (&red)[index]; }
-		const bool operator==(const ColorSpace& other) const 
+		bool operator==(const ColorSpace& other) const 
 		{
 			return red == other.red && green == other.green && blue == other.blue && white == other.white && gamma == other.gamma;
 		}
-		const bool operator!=(const ColorSpace& other) const { return !(*this == other); }
+		bool operator!=(const ColorSpace& other) const { return !(*this == other); }
 	};
 
 	class BadFormat: public util::ExceptionMixin<BadFormat>
@@ -141,16 +141,16 @@ public:
 	const TPixel& at(TSignedSize row, TSignedSize col) const;
 	TPixel& at(TSignedSize row, TSignedSize col);
 
-	const TPixel* const data() const;
-	TPixel* const data();
+	const TPixel* data() const;
+	TPixel* data();
 
 	const ColorSpace& colorSpace() const;
 	ColorSpace& colorSpace();
 	void transformColors(const ColorSpace& newColorSpace);
 
-	const size_t rows() const;
-	const size_t cols() const;
-	const bool isEmpty() const;
+	size_t rows() const;
+	size_t cols() const;
+	bool isEmpty() const;
 
 	// OPERATIONS
 
@@ -204,10 +204,10 @@ private:
 		num::Tuint8 imagePixelSize;
 		num::Tuint8 imageDescriptor;
 
-		const unsigned numAttributeBits() const { return imageDescriptor & 0x0F; }
-		const bool flipHorizontalFlag() const { return ((imageDescriptor >> 4) & 0x01) == 0x01; }
-		const bool flipVerticalFlag() const { return ((imageDescriptor >> 5) & 0x01) == 0x01; }
-		const bool interleavingFlag() const { return ((imageDescriptor >> 6) & 0x01) == 0x01; }
+		unsigned numAttributeBits() const { return imageDescriptor & 0x0F; }
+		bool flipHorizontalFlag() const { return ((imageDescriptor >> 4) & 0x01) == 0x01; }
+		bool flipVerticalFlag() const { return ((imageDescriptor >> 5) & 0x01) == 0x01; }
+		bool interleavingFlag() const { return ((imageDescriptor >> 6) & 0x01) == 0x01; }
 
 		void readFrom(BinaryIStream& stream);
 		void writeTo(BinaryOStream& stream);

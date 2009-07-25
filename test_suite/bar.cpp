@@ -253,7 +253,7 @@ namespace lass
 		{
 			return *ptr2Foo_.get();
 		}
-		void Bar::setFooRef( const PythonFoo& iFoo)
+		void Bar::setFooRef( const PythonFoo&)
 		{
 			// just function signature test
 		}
@@ -327,11 +327,11 @@ namespace lass
 			LASS_COUT << "float freeCall(const Bar*, float a): " << &bar << " " << a << std::endl;
 			return a / 2;
 		}
-		std::string freeStr(const Bar& bar)
+		std::string freeStr(const Bar&)
 		{
 			return std::string("A free __str__ representation of Bar");
 		}
-		std::string freeRepr(const Bar& bar)
+		std::string freeRepr(const Bar&)
 		{
 			return std::string("A free __repr__ representation of Bar");
 		}

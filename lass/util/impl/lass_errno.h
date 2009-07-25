@@ -57,14 +57,14 @@ namespace util
 namespace impl
 {
 
-const int lass_errno();
+int lass_errno();
 void lass_reset_errno();
 const std::string lass_strerror(int iErrorNumber);
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
 #define LASS_HAS_GETLASTERROR
-const unsigned lass_GetLastError();
+unsigned lass_GetLastError();
 const std::string lass_FormatMessage(unsigned error);
 
 #endif
