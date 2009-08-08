@@ -44,6 +44,7 @@
 
 #include "lass_common.h"
 #include "singleton_impl.h"
+#include "../singleton.h"
 #include "../thread.h"
 #include <cstdlib>
 #include <queue>
@@ -191,6 +192,10 @@ int SingletonBase::destructionPriority() const
 void SingletonBase::subscribeInstance(int destructionPriority)
 {
 	destructionPriority_ = destructionPriority;
+	if (destructionPriority_ == destructionPriorityNever)
+	{
+		return;
+	}
 	if (SingletonGuard* guard = SingletonGuard::instance())
 	{
 		guard->subscribe(this);

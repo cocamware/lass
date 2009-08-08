@@ -126,6 +126,7 @@ enum DestructionPriorities
 {
 	destructionPriorityDefault = 1000, /**< default priority level =) */
 	destructionPriorityBeginUser = 500, /**< lowest legal level for user code */
+	destructionPriorityNever = -1, /**< never destruct the singleton, let it live forever. */
 
 	// the following levels are internal and should not be used by user code
 	//

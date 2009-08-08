@@ -57,55 +57,29 @@ namespace impl
 // but never deallocated ...
 // [Bramz]
 
+
+
 typedef AllocatorThrow<
 		AllocatorStaticFixed<
-			AllocatorConcurrentFreeList<>, sizeof(int)
+			AllocatorConcurrentFreeList<>, sizeof(size_t)
 		>
 	>
 	THeapCounterAllocator;
 
-THeapCounterAllocator* heapCounterAllocatorSingleton = 0;
-int heapCounterAllocatorSemaphore = 1;
-
 THeapCounterAllocator& heapCounterAllocator()
 {
-	if (!heapCounterAllocatorSingleton)
-	{
-		// enter semaphore
-		//
-		int oldSlots, newSlots;
-		do
-		{
-			oldSlots = heapCounterAllocatorSemaphore;
-			LASS_ASSERT(oldSlots >= 0);
-			newSlots = oldSlots - 1;
-		}
-		while (oldSlots == 0 || !atomicCompareAndSwap(heapCounterAllocatorSemaphore, oldSlots, newSlots));
-
-		// double check on create
-		//
-		if (heapCounterAllocatorSingleton == 0)
-		{
-			heapCounterAllocatorSingleton = new THeapCounterAllocator;
-		}
-
-		// leave semaphore
-		//
-		atomicIncrement(heapCounterAllocatorSemaphore);
-	}
-
-	return *heapCounterAllocatorSingleton;
+	return *util::Singleton<THeapCounterAllocator, destructionPriorityNever>::instance();
 }
 
-void initHeapCounter(int*& ioCounter, int iInitialValue)
+void initHeapCounter(volatile size_t*& ioCounter, size_t iInitialValue)
 {
-	ioCounter = static_cast<int*>(heapCounterAllocator().allocate());
+	ioCounter = static_cast<volatile size_t*>(heapCounterAllocator().allocate());
 	*ioCounter = iInitialValue;
 }
 
-void disposeHeapCounter(int*& ioCounter)
+void disposeHeapCounter(volatile size_t*& ioCounter)
 {
-	heapCounterAllocator().deallocate(ioCounter);
+	heapCounterAllocator().deallocate(const_cast<size_t*>(ioCounter));
 	ioCounter = 0;
 }
 

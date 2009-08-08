@@ -318,8 +318,8 @@ private:
 
 namespace impl
 {
-	LASS_DLL void initHeapCounter(int*& ioCounter, int iInitialValue);
-	LASS_DLL void disposeHeapCounter(int*& ioCounter);
+	LASS_DLL void initHeapCounter(volatile size_t*& ioCounter, size_t iInitialValue);
+	LASS_DLL void disposeHeapCounter(volatile size_t*& ioCounter);
 }
 
 /** @class DefaultCounter
@@ -335,7 +335,7 @@ class DefaultCounter
 {
 public:
 
-	typedef int TCount;
+	typedef size_t TCount;
 
 protected:
 
@@ -355,23 +355,16 @@ protected:
 
 	template <typename TStorage> void increment(TStorage& /*pointee*/)
 	{
-		TCount oldCount = 0, newCount = 0;
-		do
-		{
-			LASS_ASSERT(count_);
-			oldCount = *count_;
-			LASS_ASSERT(oldCount > 0);
-			newCount = oldCount + 1;
-		}
-		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
+		LASS_ASSERT(count_ && *count_ > 0);
+		atomicIncrement(*count_);
 	}
 
 	template <typename TStorage> bool decrement(TStorage& /*pointee*/)
 	{
+		LASS_ASSERT(count_);
 		TCount oldCount = 0, newCount = 0;
 		do
 		{
-			LASS_ASSERT(count_);
 			oldCount = *count_;
 			LASS_ASSERT(oldCount > 0);
 			newCount = oldCount - 1;
@@ -390,7 +383,7 @@ protected:
 
 private:
 
-	TCount* count_;
+	volatile TCount* count_;
 };
 
 
