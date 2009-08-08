@@ -72,6 +72,21 @@ void testUtilPython()
 #endif
 	Py_Initialize();
 
+	LASS_TEST_CHECK(python::globals());
+	
+	python::TPyObjPtr a;
+	int b = 0;
+	LASS_TEST_CHECK_NO_THROW(a = python::evaluate("4 + 4"));
+	LASS_TEST_CHECK_EQUAL(python::pyGetSimpleObject(a.get(), b), 0);
+	LASS_TEST_CHECK_EQUAL(b, 8);
+
+	LASS_TEST_CHECK_NO_THROW(python::execute("foo = 9"));
+	LASS_TEST_CHECK_NO_THROW(a = python::evaluate("foo"));
+	LASS_TEST_CHECK_EQUAL(python::pyGetSimpleObject(a.get(), b), 0);
+	LASS_TEST_CHECK_EQUAL(b, 9);
+	
+	LASS_TEST_CHECK_THROW(python::execute("foo = bar"), python::PythonException);
+
 	// execfile is no longer part of python 3.0
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
 	std::string commandStr = "exec(open('" + testFile + "').read())";

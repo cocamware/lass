@@ -584,28 +584,6 @@ PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
 	return *this;
 }
 
-/** @ingroup Python
- *  @brief retrieve pointer to PyObject by its name in the script.
- *  @return 
- *	new reference to PyObject @a iName or NULL if 
- *	@a iName does not exist (_without_ setting an exception!)
- *  @throw Never
- */
-TPyObjPtr getPyObjectByName(const std::string& iName)
-{
-	PyObject* module = PyImport_AddModule("__main__");
-	if (!module)
-	{
-		PyErr_Clear();
-		return TPyObjPtr();
-	}
-	PyObject* dict = PyModule_GetDict(module);
-	LASS_ASSERT(dict != 0);
-	PyObject* object = PyDict_GetItemString(dict, const_cast<char*>(iName.c_str()));
-	Py_XINCREF(object);
-	return TPyObjPtr(object);
-}
-
 // --- impl ----------------------------------------------------------------------------------------
 
 namespace impl

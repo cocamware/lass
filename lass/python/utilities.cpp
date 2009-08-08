@@ -40,26 +40,89 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-
-#include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
-#include "exception.h"
+#include "lass_common.h"
 #include "utilities.h"
-#include "../meta/is_member.h"
+#include "exception.h"
+#include "pyobject_plus.h"
 
-#endif
- 
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+
+TPyObjPtr runString(const char *code, int start)
+{
+	const TPyObjPtr dict = globals();
+	const TPyObjPtr result(PY_ENFORCE_POINTER(PyRun_String(code, start, dict.get(), dict.get())));
+	return result;
+}
+
+}
+
+/** @ingroup Python
+ *  @brief retrieve pointer to PyObject by its name in the script.
+ *  @return 
+ *	new reference to PyObject @a iName or NULL if 
+ *	@a iName does not exist (_without_ setting an exception!)
+ */
+TPyObjPtr getPyObjectByName(const std::string& iName)
+{
+	const TPyObjPtr dict = globals();
+	const TPyObjPtr key(PY_ENFORCE_POINTER(pyBuildSimpleObject(iName)));
+	PyObject* const object = PyDict_GetItem(dict.get(), key.get());
+	return fromNakedToSharedPtrCast<PyObject>(object);
+}
+
+
+
+/** @ingroup Python
+ */
+TPyObjPtr globals()
+{
+	PyObject* const module = PY_ENFORCE_POINTER(PyImport_AddModule("__main__"));
+	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(module));
+	return fromNakedToSharedPtrCast<PyObject>(dict);
+}
+
+
+
+/** @ingroup Python
+ */
+void execute(const std::string& code)
+{
+	execute(code.c_str());
+}
+
+
+
+/** @ingroup Python
+ */
+void execute(const char* code)
+{
+	impl::runString(code, Py_file_input);
+}
+
+
+
+/** @ingroup Python
+ */
+TPyObjPtr evaluate(const std::string& code)
+{
+	return evaluate(code.c_str());
+}
+
+
+
+/** @ingroup Python
+ */
+TPyObjPtr evaluate(const char* code)
+{
+	return impl::runString(code, Py_eval_input);
+}
+
+}
+}
+
+// EOF

@@ -327,8 +327,6 @@ namespace lass
 		*/
 		template <typename T> struct IsPyObject: meta::IsDerived<T, PyObject> {};
 
-		LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
-
 		namespace impl
 		{
 			LASS_DLL void LASS_CALL dealloc(PyObject* obj);

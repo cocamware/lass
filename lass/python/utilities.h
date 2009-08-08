@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2009 the Initial Developer.
+ *	Copyright (C) 2004-2008 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,26 +40,29 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_UTILITIES_H
+#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_UTILITIES_H
 
 #include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
-#include "exception.h"
-#include "utilities.h"
-#include "../meta/is_member.h"
+#include "pyobject_ptr.h"
+
+namespace lass
+{
+namespace python
+{
+
+LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
+LASS_DLL TPyObjPtr LASS_CALL globals();
+
+LASS_DLL void LASS_CALL execute(const std::string& code);
+LASS_DLL void LASS_CALL execute(const char* code);
+
+LASS_DLL TPyObjPtr LASS_CALL evaluate(const std::string& code);
+LASS_DLL TPyObjPtr LASS_CALL evaluate(const char* code);
+
+}
+}
 
 #endif
- 
+
+// EOF
