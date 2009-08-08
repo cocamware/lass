@@ -51,17 +51,6 @@ namespace lass
 namespace python
 {
 
-class PythonException;
-
-namespace impl
-{
-	LASS_DLL void LASS_CALL addMessageHeader(const std::string& header);
-	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
-	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
-	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);
-	LASS_DLL void LASS_CALL catchStdException(const std::exception& error);
-}
-
 class LASS_DLL PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
@@ -78,6 +67,31 @@ private:
 	static const std::string extractMessage(PyObject* type, PyObject* value = 0);
 };
 
+namespace impl
+{
+	LASS_DLL void LASS_CALL addMessageHeader(const std::string& header);
+	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
+	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
+	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);
+	LASS_DLL void LASS_CALL catchStdException(const std::exception& error);
+
+	struct PythonFetchRaiser
+	{
+ 		template <typename T, typename C>
+		static void raise(const T&, const C&, const std::string& message, const char* locus)
+		{
+			if (PyErr_Occurred())
+			{
+				fetchAndThrowPythonException(locus);
+			}
+			if (!message.empty())
+			{
+				throw PythonException(PyExc_AssertionError, message, locus);
+			}
+			throw PythonException(PyExc_AssertionError, locus, locus);
+		}
+	};
+}
 }
 }
 
@@ -101,4 +115,27 @@ private:
 #define LASS_PYTHON_CATCH_AND_RETURN\
 	LASS_PYTHON_CATCH_AND_RETURN_EX(0)
 
+#define PY_ENFORCE_POINTER(pointer)\
+		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::TruePredicate,\
+		::lass::python::impl::PythonFetchRaiser,\
+		(pointer), \
+		int(0), \
+		"'" LASS_STRINGIFY(pointer) "' in " LASS_HERE)
+
+#define PY_ENFORCE_ZERO(expression)\
+		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::EqualPredicate,\
+		::lass::python::impl::PythonFetchRaiser,\
+		(expression), \
+		int(0), \
+		"'" LASS_STRINGIFY(expression) "' in " LASS_HERE)
+
+#define PY_ENFORCE_NOTZERO(expression)\
+		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
+		::lass::util::impl::UnequalPredicate,\
+		::lass::python::impl::PythonFetchRaiser,\
+		(expression), \
+		int(0), \
+		"'" LASS_STRINGIFY(expression) "' in " LASS_HERE)
 #endif
