@@ -424,8 +424,8 @@ template <typename IntegralType>
 class IntegralLocker: public LockerBase
 {
 public:
-	IntegralLocker(volatile IntegralType& slots): 
-		slots_(&slots) 
+	IntegralLocker(volatile IntegralType& islots): 
+		slots_(&islots) 
 	{ 
 		atomicLock(*slots_);
 	}
@@ -458,9 +458,9 @@ inline Locker<T> makeLocker(T& iLock)
  *  @relates Locker
  */
 template <typename T>
-inline IntegralLocker<T> makeIntegralLocker(T& slots)
+inline IntegralLocker<T> makeIntegralLocker(T& islots)
 {
-	return IntegralLocker<T>(slots);
+	return IntegralLocker<T>(islots);
 }
 
 
