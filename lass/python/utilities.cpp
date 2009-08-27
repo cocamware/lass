@@ -122,6 +122,31 @@ TPyObjPtr evaluate(const char* code)
 	return impl::runString(code, Py_eval_input);
 }
 
+
+
+/** os.environ[key] = value
+ *  @ingroup Python
+ */
+void putenv(const std::string& key, const std::string& value)
+{
+	putenv(key.c_str(), value.c_str());
+}
+
+
+
+/** os.environ[key] = value
+ *  @ingroup Python
+ */
+void putenv(const char* key, const char* value)
+{
+	const TPyObjPtr item(PY_ENFORCE_POINTER(pyBuildSimpleObject(value)));
+	const TPyObjPtr os(PY_ENFORCE_POINTER(PyImport_ImportModule("os")));
+	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(os.get()));
+	PyObject* const environ = PY_ENFORCE_POINTER(PyDict_GetItemString(dict, "environ"));
+	PY_ENFORCE_ZERO(PyMapping_SetItemString(environ, const_cast<char*>(key), item.get()));
+}
+
+
 }
 }
 

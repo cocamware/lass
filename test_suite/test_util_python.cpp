@@ -45,6 +45,7 @@
 
 #include "../lass/util/scoped_ptr.h"
 #include "../lass/util/shared_ptr.h"
+#include "../lass/util/environment.h"
 #include "../lass/io/file_attribute.h"
 #include "../lass/stde/extended_string.h"
 
@@ -86,6 +87,9 @@ void testUtilPython()
 	LASS_TEST_CHECK_EQUAL(b, 9);
 	
 	LASS_TEST_CHECK_THROW(python::execute("foo = bar"), python::PythonException);
+
+	python::putenv("FOO", "BAR");
+	LASS_TEST_CHECK_EQUAL(util::getEnvironment<std::string>("FOO"), "BAR");
 
 	// execfile is no longer part of python 3.0
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");

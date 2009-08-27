@@ -60,6 +60,9 @@ LASS_DLL void LASS_CALL execute(const char* code);
 LASS_DLL TPyObjPtr LASS_CALL evaluate(const std::string& code);
 LASS_DLL TPyObjPtr LASS_CALL evaluate(const char* code);
 
+LASS_DLL void LASS_CALL putenv(const std::string& key, const std::string& value);
+LASS_DLL void LASS_CALL putenv(const char* key, const char* value);
+
 }
 }
 
