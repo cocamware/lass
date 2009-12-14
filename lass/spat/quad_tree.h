@@ -98,7 +98,12 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum { dimension = TObjectTraits::dimension };
+	enum 
+	{ 
+		dimension = TObjectTraits::dimension,
+		defaultMaxSize = 10,
+		defaultMaxLevel = 10,
+	};
 
 	class Neighbour
 	{
@@ -117,28 +122,9 @@ public:
 		TValue squaredDistance_;
 	};
 
-	//typedef typename TObjectTraits::TSeparator TSeparator; // ???
-
-	/** constructor that computes bounding box automatically from objects
-	 */
-	QuadTree(size_t maxSize = 100, size_t maxLevel = 10);
-
-	/** constructor that computes bounding box automatically from objects
-	 */
-	QuadTree(TObjectIterator first, TObjectIterator last, size_t maxSize = 10, size_t maxLevel = 10);
-
-	/** constructor.
-	*  @param center       the center of the spatial tree
-	*  @param extents      the extents of the spatial tree in each direction,
-	*                       thus the total width of the tree is twice the extents
-	*/
-	//QuadTree(TObjectIterator first, TObjectIterator last, const TPoint& center, const TVector& extents, size_t maxSize = 100, size_t maxLevel = 10);
-
-	/** constructor.
-	*  @param box          the bounding box of the spatial tree
-	*/
-	//QuadTree(TObjectIterator first, TObjectIterator last, const TAabb& box, size_t maxSize = 100, size_t maxLevel = 10);
-
+	QuadTree(const TAabb& aabb = TAabb(), size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
+	QuadTree(const TAabb& aabb, TObjectIterator end, size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
+	QuadTree(TObjectIterator first, TObjectIterator last, size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
 	~QuadTree();
 
 	void reset();
@@ -158,6 +144,9 @@ public:
 	*/
 	template <typename OutputIterator>
 	OutputIterator find(const TPoint& p, OutputIterator result, const TInfo* info = 0) const;
+
+	template <typename OutputIterator>
+	OutputIterator find(const TAabb& box, OutputIterator result, const TInfo* info = 0) const;
 
 	const TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, 
 		const TInfo* info = 0) const;
@@ -181,6 +170,7 @@ public:
 	//size_t visible( const std::vector<TSeparator>& iFrustum, std::vector<ObjectType*>& oObjects ) const;
 
 	void add(TObjectIterator object);
+	void remove(TObjectIterator object);
 	size_t objectCount() const;
 
 	const TAabb& aabb() const;
@@ -193,20 +183,35 @@ public:
 	const TObjectIterator end() const;
 
 private:
+
 	enum { subNodeCount = 1 << dimension };
+
 	typedef std::vector<TObjectIterator> TObjectIterators;
+
+	struct CenteredBox
+	{
+		TPoint center; // center of box
+		TVector extents; // half of the box size
+		CenteredBox(const TPoint& center, const TVector& extents);
+		CenteredBox(const TAabb& box);
+		bool intersects(const CenteredBox& other) const;
+		const TValue sqrDistance(const TPoint& point) const;
+	};
+
 	struct QuadNode
 	{
+		typedef CenteredBox TCenteredBox;
+
 		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
-		TPoint center;                  /**< center of quadnode */
-		TVector extents;                /**< x = half of widht, y = half of height */
+		CenteredBox bounds;                  /**< center of quadnode */
 		TObjectIterators data;          /**< the list containing the data */
 		bool leaf;                      /**< true for leaf nodes */
 
-		QuadNode(const TPoint& aCenter, const TVector& aExtents);
+		QuadNode(const CenteredBox& bounds);
 		~QuadNode();
 
 		void add(TObjectIterator object, size_t maxSize, size_t maxLevel, size_t level = 0, bool mayDecompose = true);
+		void remove(TObjectIterator object);
 
 		size_t objectCount() const;            /**< number of objects in this node and all its children */
 		size_t depth() const;					/**< depth of the child tree */
@@ -221,6 +226,9 @@ private:
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
 	bool doIntersects(const QuadNode* node, const TRay& ray, TParam tMin, TParam tMax, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+	template <typename OutputIterator>
+	OutputIterator doFind(const QuadNode* node, const TAabb& box, const CenteredBox& centeredBox,
+		OutputIterator result, const TInfo* info) const;
 	void doNearestNeighbour(const QuadNode* node, const TPoint& point, const TInfo* info,
 		Neighbour& best) const;
 	template <typename RandomIterator>

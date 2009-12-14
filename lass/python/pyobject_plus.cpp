@@ -273,12 +273,8 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc 
 
 void ClassDefinition::addMethod(const TernarySlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	if (slot.name == "__call__")
-	{
-		overloadChain.setTernaryfunc(type_.tp_call);
-		type_.tp_call = dispatcher;
-		return;
-	}
+	LASS_PY_OPERATOR_("__pow__", tp_as_number, PyNumberMethods, nb_power, Ternary)
+	LASS_PY_OPERATOR_("__ipow__", tp_as_number, PyNumberMethods, nb_inplace_power, Ternary)
 	LASS_ASSERT_UNREACHABLE;
 }
 
@@ -344,6 +340,17 @@ void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextf
 	LASS_ASSERT_UNREACHABLE;
 }
 
+void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
+{
+	if (slot.name == "__call__")
+	{
+		overloadChain.setArgKwfunc(type_.tp_call);
+		type_.tp_call = dispatcher;
+		return;
+	}
+	LASS_ASSERT_UNREACHABLE;
+}
+
 void ClassDefinition::addGetSetter(const char* name, const char* doc, getter get, setter set)
 {
 	getSetters_.insert(getSetters_.begin(), impl::createPyGetSetDef(name, get, set, doc, 0));
@@ -360,7 +367,7 @@ void ClassDefinition::addStaticMethod(const char* name, const char* doc, PyCFunc
 	}
 	else
 	{
-		LASS_ASSERT(i->ml_flags == (METH_VARARGS | METH_CLASS));
+		LASS_ASSERT(i->ml_flags == (METH_VARARGS | METH_STATIC));
 		overloadChain = i->ml_meth;
 		i->ml_meth = dispatcher;
 		if (i->ml_doc == 0)
@@ -672,6 +679,11 @@ void OverloadLink::setObjObjArgProcfunc(objobjargproc iOverload)
 	signature_ = iOverload ? sObjObjArg : sNull;
 	objobjargproc_ = iOverload;
 }
+void OverloadLink::setArgKwfunc(ternaryfunc iOverload)
+{
+	signature_ = iOverload ? sArgKw : sNull;
+	ternaryfunc_ = iOverload;
+}
 
 bool OverloadLink::operator ()(PyObject* iSelf, PyObject* iArgs, PyObject*& oResult) const
 {
@@ -711,7 +723,14 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 		}
 
 	case sTernary:
-		return ternaryfunc_(iSelf, iArgs, 0);
+		{
+			TPyObjPtr arg1, arg2;
+			if (decodeTuple(iArgs, arg1, arg2) != 0)
+			{
+				return 0;
+			}
+			return ternaryfunc_(iSelf, arg1.get(), arg2.get());
+		}
 
 	case sSsizeArg:
 		{
@@ -766,6 +785,9 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 			}
 			return pyBuildSimpleObject(objobjproc_(iSelf,obj1.get()));		
 		}
+
+	case sArgKw:
+		return ternaryfunc_(iSelf, iArgs, 0);
 
 	default:
 		PyErr_SetString(PyExc_AssertionError, "OverloadChain: invalid signature type");

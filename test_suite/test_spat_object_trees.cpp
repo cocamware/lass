@@ -66,10 +66,12 @@ void testSpatObjectTreesSpeed(
 	enum { dimension = AabbType::dimension };
 
 	const size_t numberOfPointTestTargets = 1000;
-	const size_t numberOfRayTestTargets = 1000;
+	const size_t numberOfBoxTestTargets = 1000;
+	const size_t numberOfRayTestTargets = 200;
 	const TValue maxRangeRadius = 50;
 	const size_t maxRangeCount = 10;
 	const size_t numberOfContainSpeedTestRuns = 2;
+	const size_t numberOfBoxFindSpeedTestRuns = 2;
 	const size_t numberOfIntersectionSpeedTestRuns = 2;
 	const size_t numberOfNearestNeighbourSpeedTestRuns = 2;
 	const size_t numberOfRangeSearchSpeedTestRuns = 2;
@@ -85,12 +87,21 @@ void testSpatObjectTreesSpeed(
 		pointTargets.push_back(bounds.random(generator));
 	}
 
+	typedef std::vector<AabbType> TBoxTargets;
+	TBoxTargets boxTargets;
+	for (size_t i = 0; i < numberOfBoxTestTargets; ++i)
+	{
+		const TPoint center = bounds.random(generator);
+		const TVector extents = tree_test_helpers::randomExtents<TVector>(maxRangeRadius, generator);
+		boxTargets.push_back(AabbType(center - extents, center + extents));
+	}
+
 	typedef std::vector<TRay> TRayTargets;
 	TRayTargets rayTargets;
 	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
 	{
-		TPoint support = bounds.random(generator);
-		TVector direction = TVector::random(generator);
+		const TPoint support = bounds.random(generator);
+		const TVector direction = TVector::random(generator);
 		rayTargets.push_back(TRay(support, direction));
 	}
 
@@ -98,6 +109,11 @@ void testSpatObjectTreesSpeed(
 	tree_test_helpers::ContainSpeedTest<TPointTargets> containSpeedTest(
 		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
 	meta::tuple::forEach(trees, containSpeedTest);
+
+	LASS_COUT << "aabb find tests:\n";
+	tree_test_helpers::AabbFindSpeedTest<TBoxTargets> aabbFindSpeedTest(
+		boxTargets, stopWatch, numberOfBoxFindSpeedTestRuns);
+	meta::tuple::forEach(trees, aabbFindSpeedTest);
 
 	LASS_COUT << "intersection tests:\n";
 	tree_test_helpers::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
@@ -144,6 +160,7 @@ void testSpatObjectTrees()
 	const size_t maxRangeCount = 10;
 	// validation
 	const size_t numberOfContainValidations = 1000;
+	const size_t numberOfAabbFindValidations = 1000;
 	const size_t numberOfIntersectionValidations = 1000;
 	const size_t numberOfNearestNeighbourValidations = 1000;
 	const size_t numberOfRangeSearchValidations = 1000;
@@ -162,12 +179,11 @@ void testSpatObjectTrees()
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 
-	typedef typename meta::type_list::Make<
-		spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> >,
-		spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> >,
-		spat::QuadTree<TObject, TObjectTraits>
-	>::Type TObjectTreeTypes;
+	typedef spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> > TAabbTree;
+	typedef spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> > TAabpTree;
+	typedef spat::QuadTree<TObject, TObjectTraits> TQuadTree;
 
+	typedef typename meta::type_list::Make<TAabbTree, TAabpTree, TQuadTree>::Type TObjectTreeTypes;
 	typedef meta::Tuple<TObjectTreeTypes> TObjectTrees;
 
 	// set bounds
@@ -199,13 +215,13 @@ void testSpatObjectTrees()
 	tree_test_helpers::TreeConstructor<TObjectIterator> construct(objectBegin, objectEnd);
 	meta::tuple::forEach(trees, construct);
 
-	typedef std::vector<TObjectIterator> TObjectHits;
+	typedef std::set<TObjectIterator> TObjectHits;
 
 	// contain test
 	//
 	for (unsigned i = 0; i < numberOfContainValidations; ++i)
 	{
-		TPoint target = bounds.random(generator);
+		const TPoint target = bounds.random(generator);
 		TObjectHits bruteHits;
 		bool bruteContains = false;
 		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
@@ -213,12 +229,30 @@ void testSpatObjectTrees()
 			if (obj->contains(target))
 			{
 				bruteContains = true;
-				bruteHits.push_back(obj);
+				bruteHits.insert(obj);
 			}
 		}
-		std::sort(bruteHits.begin(), bruteHits.end());
-
 		tree_test_helpers::ContainValidityTest<TPoint, TObjectHits> test(target, bruteHits, bruteContains);
+		meta::tuple::forEach(trees, test);
+	}
+
+	// aabb find test
+	//
+	for (unsigned i = 0; i < numberOfAabbFindValidations; ++i)
+	{
+		const TPoint center(bounds.random(generator));
+		const TVector extents = tree_test_helpers::randomExtents<TVector>(maxRangeRadius, generator);
+		const TAabb box(center - extents, center + extents);
+		TObjectHits bruteHits;
+		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		{
+			if (intersects(*obj, box))
+			{
+				bruteHits.insert(obj);
+			}
+		}
+
+		tree_test_helpers::AabbFindValidityTest<TAabb, TObjectHits> test(box, bruteHits);
 		meta::tuple::forEach(trees, test);
 	}
 
@@ -301,10 +335,18 @@ void testSpatObjectTrees()
 		meta::tuple::forEach(trees, test);
 	}
 
-	if (false)
+	if (true)
 	{
 		testSpatObjectTreesSpeed(trees, bounds, generator);
 	}
+
+	// test deletion from quadtree.
+	TQuadTree& tree = meta::tuple::field<2>(trees);
+	for (TObjectIterator i = objectBegin; i != objectEnd; ++i)
+	{
+		tree.remove(i);
+	}
+	LASS_TEST_CHECK_EQUAL(tree.objectCount(), 0);
 }
 
 

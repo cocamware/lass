@@ -83,7 +83,7 @@ protected:
 	typedef typename ObjectTraits::TVector TVector;
 	typedef typename ObjectTraits::TValue TValue;
 
-	const TValue minComponent(const TVector& v) const
+	static TValue minComponent(const TVector& v)
 	{
 		TValue best = TObjectTraits::coord(v, 0);
 		for (size_t k = 1; k < dimension; ++k)
@@ -93,7 +93,7 @@ protected:
 		return best;
 	}
 
-	const TValue maxComponent(const TVector& v) const
+	static TValue maxComponent(const TVector& v)
 	{
 		TValue best = TObjectTraits::coord(v, 0);
 		for (size_t k = 1; k < dimension; ++k)
@@ -104,7 +104,7 @@ protected:
 	}
 
 	template <typename V>
-	const V middle(const V& a, const V& b) const
+	static const V middle(const V& a, const V& b)
 	{
 		V result;
 		for (size_t k = 0; k < dimension; ++k)
@@ -114,17 +114,17 @@ protected:
 		return result;
 	}
 
-	const TVector subtract(const TPoint& a, const TPoint& b) const
+	static const TVector halfExtents(const TPoint& a, const TPoint& b)
 	{
 		TVector result;
 		for (size_t k = 0; k < dimension; ++k)
 		{
-			TObjectTraits::coord(result, k, TObjectTraits::coord(a, k) - TObjectTraits::coord(b, k));
+			TObjectTraits::coord(result, k, (TObjectTraits::coord(a, k) - TObjectTraits::coord(b, k)) / 2);
 		}
 		return result;
 	}
 
-	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		const TValue tEntry = maxComponent(tNear);
 		size_t iEntry = 0;
@@ -135,7 +135,7 @@ protected:
 		return iEntry;
 	}
 
-	size_t nextNode(size_t i, const TVector& tFar) const
+	static size_t nextNode(size_t i, const TVector& tFar)
 	{
 		size_t nextMask = 1;
 		TValue min = TObjectTraits::coord(tFar, 0);
@@ -155,7 +155,7 @@ protected:
 		return i | nextMask;
 	}
 
-	size_t findSubNode(const TPoint& center, const TPoint& point) const
+	static size_t findSubNode(const TPoint& center, const TPoint& point)
 	{
 		size_t i = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
@@ -165,7 +165,7 @@ protected:
 		return i;
 	}
 
-	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	static size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction)
 	{
 		size_t flipMask = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
@@ -182,8 +182,8 @@ protected:
 		return flipMask;
 	}
 
-	void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
-		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar) const
+	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
+		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
 		for (size_t k = 0; k < dimension; ++k)
 		{
@@ -194,7 +194,7 @@ protected:
 		}
 	}
 
-	void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild) const
+	static void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild)
 	{
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 		{
@@ -212,7 +212,7 @@ protected:
 	template <typename QuadNodeType> 
 	static void buildSubNodes(QuadNodeType* parentNode)
 	{
-		TVector newExtents(parentNode->extents);
+		TVector newExtents(parentNode->bounds.extents);
 		for (size_t k = 0; k < dimension; ++k)
 		{
 			TObjectTraits::coord(newExtents, k, TObjectTraits::coord(newExtents, k) / 2);
@@ -221,13 +221,14 @@ protected:
 		const size_t nodeCount = 1 << dimension;
 		for (size_t i = 0; i < nodeCount; ++i)
 		{
-			TPoint newCenter = parentNode->center;
+			TPoint newCenter = parentNode->bounds.center;
 			for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 			{
 				TObjectTraits::coord(newCenter, k, 
 					TObjectTraits::coord(newCenter, k) + (i & mask ? 1 : -1) * TObjectTraits::coord(newExtents, k));
 			}
-			parentNode->node[i] = new QuadNodeType(newCenter, newExtents);
+			parentNode->node[i] = new QuadNodeType(
+				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
 		}
 	}
 };
@@ -244,32 +245,32 @@ protected:
 	typedef typename ObjectTraits::TValue TValue;
 	enum { dimension = 2 };
 
-	const TValue minComponent(const TVector& v) const
+	static TValue minComponent(const TVector& v)
 	{
 		return std::min(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1));
 	}
 
-	const TValue maxComponent(const TVector& v) const
+	static TValue maxComponent(const TVector& v)
 	{
 		return std::max(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1));
 	}
 
 	template <typename V>
-	const V middle(const V& a, const V& b) const
+	static const V middle(const V& a, const V& b)
 	{
 		return V(
 			(TObjectTraits::coord(a, 0) + TObjectTraits::coord(b, 0)) / 2,
 			(TObjectTraits::coord(a, 1) + TObjectTraits::coord(b, 1)) / 2);
 	}
 
-	const TVector subtract(const TPoint& a, const TPoint& b) const
+	static const TVector halfExtents(const TPoint& a, const TPoint& b)
 	{
 		return TVector(
-			TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0),
-			TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1));
+			(TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0)) / 2,
+			(TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1)) / 2);
 	}
 
-	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		if (TObjectTraits::coord(tNear, 0) > TObjectTraits::coord(tNear, 1))
 		{
@@ -288,7 +289,7 @@ protected:
 		return 0x0;
 	}
 
-	size_t nextNode(size_t i, const TVector& tFar) const
+	static size_t nextNode(size_t i, const TVector& tFar)
 	{
 		if (TObjectTraits::coord(tFar, 0) <  TObjectTraits::coord(tFar, 1))
 		{
@@ -300,13 +301,13 @@ protected:
 		}
 	}
 
-	size_t findSubNode(const TPoint& center, const TPoint& point) const
+	static size_t findSubNode(const TPoint& center, const TPoint& point)
 	{
 		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
 			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0);
 	}
 
-	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	static size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction)
 	{
 		size_t flipMask = 0;
 		const TValue dx = TObjectTraits::coord(direction, 0);
@@ -326,8 +327,8 @@ protected:
 		return flipMask;
 	}
 
-	void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
-		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar) const
+	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
+		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
 		TObjectTraits::coord(tNear, 0, TObjectTraits::coord(reciprocalDirection, 0) * (TObjectTraits::coord(min, 0) - TObjectTraits::coord(support, 0)));
 		TObjectTraits::coord(tNear, 1, TObjectTraits::coord(reciprocalDirection, 1) * (TObjectTraits::coord(min, 1) - TObjectTraits::coord(support, 1)));
@@ -335,7 +336,7 @@ protected:
 		TObjectTraits::coord(tFar, 1, TObjectTraits::coord(reciprocalDirection, 1) * (TObjectTraits::coord(max, 1) - TObjectTraits::coord(support, 1)));
 	}
 
-	void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild) const
+	static void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild)
 	{
 		TObjectTraits::coord(iChild & 0x1 ? tNear : tFar, 0, TObjectTraits::coord(tMiddle, 0));
 		TObjectTraits::coord(iChild & 0x2 ? tNear : tFar, 1, TObjectTraits::coord(tMiddle, 1));
@@ -344,18 +345,19 @@ protected:
 	template <typename QuadNodeType> 
 	static void buildSubNodes(QuadNodeType* parentNode)
 	{
-		TVector newExtents(parentNode->extents);
+		TVector newExtents(parentNode->bounds.extents);
 		TObjectTraits::coord(newExtents, 0, TObjectTraits::coord(newExtents, 0) / 2);
 		TObjectTraits::coord(newExtents, 1, TObjectTraits::coord(newExtents, 1) / 2);
 		
 		for (size_t i = 0; i < 4; ++i)
 		{
-			TPoint newCenter = parentNode->center;
+			TPoint newCenter = parentNode->bounds.center;
 			TObjectTraits::coord(newCenter, 0, 
 				TObjectTraits::coord(newCenter, 0) + (i & 0x1 ? 1 : -1) * TObjectTraits::coord(newExtents, 0));
 			TObjectTraits::coord(newCenter, 1, 
 				TObjectTraits::coord(newCenter, 1) + (i & 0x2 ? 1 : -1) * TObjectTraits::coord(newExtents, 1));
-			parentNode->node[i] = new QuadNodeType(newCenter, newExtents);
+			parentNode->node[i] = new QuadNodeType(
+				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
 		}
 	}
 };
@@ -372,18 +374,18 @@ protected:
 	typedef typename ObjectTraits::TVector TVector;
 	typedef typename ObjectTraits::TValue TValue;
 
-	const TValue minComponent(const TVector& v) const
+	static TValue minComponent(const TVector& v)
 	{
 		return std::min(std::min(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1)), TObjectTraits::coord(v, 2));
 	}
 
-	const TValue maxComponent(const TVector& v) const
+	static TValue maxComponent(const TVector& v)
 	{
 		return std::max(std::max(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1)), TObjectTraits::coord(v, 2));
 	}
 
 	template <typename V>
-	const V middle(const V& a, const V& b) const
+	static const V middle(const V& a, const V& b)
 	{
 		return V(
 			(TObjectTraits::coord(a, 0) + TObjectTraits::coord(b, 0)) / 2,
@@ -391,15 +393,15 @@ protected:
 			(TObjectTraits::coord(a, 2) + TObjectTraits::coord(b, 2)) / 2);
 	}
 
-	const TVector subtract(const TPoint& a, const TPoint& b) const
+	static const TVector halfExtents(const TPoint& a, const TPoint& b)
 	{
 		return TVector(
-			TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0),
-			TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1),
-			TObjectTraits::coord(a, 2) - TObjectTraits::coord(b, 2));
+			(TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0)) / 2,
+			(TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1)) / 2,
+			(TObjectTraits::coord(a, 2) - TObjectTraits::coord(b, 2)) / 2);
 	}
 
-	size_t entryNode(const TVector& tNear, const TVector& tMiddle) const
+	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		const TValue tEntry = maxComponent(tNear);
 		size_t iEntry = 0;
@@ -410,7 +412,7 @@ protected:
 		return iEntry;
 	}
 
-	size_t nextNode(size_t i, const TVector& tFar) const
+	static size_t nextNode(size_t i, const TVector& tFar)
 	{
 		const TValue x = TObjectTraits::coord(tFar, 0);
 		const TValue y = TObjectTraits::coord(tFar, 1);
@@ -429,14 +431,14 @@ protected:
 		}
 	}
 
-	size_t findSubNode(const TPoint& center, const TPoint& point) const
+	static size_t findSubNode(const TPoint& center, const TPoint& point)
 	{
 		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
 			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0)
 			| (TObjectTraits::coord(point, 2) >= TObjectTraits::coord(center, 2) ? 0x4 : 0x0);
 	}
 
-	size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction) const
+	static size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction)
 	{
 		size_t flipMask = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
@@ -453,8 +455,8 @@ protected:
 		return flipMask;
 	}
 
-	void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
-		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar) const
+	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
+		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
 		for (size_t k = 0; k < dimension; ++k)
 		{
@@ -465,7 +467,7 @@ protected:
 		}
 	}
 
-	void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild) const
+	static void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild)
 	{
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 		{
@@ -483,21 +485,22 @@ protected:
 	template <typename QuadNodeType> 
 	static void buildSubNodes(QuadNodeType* parentNode)
 	{
-		TVector newExtents(parentNode->extents);
+		TVector newExtents(parentNode->bounds.extents);
 		TObjectTraits::coord(newExtents, 0, TObjectTraits::coord(newExtents, 0) / 2);
 		TObjectTraits::coord(newExtents, 1, TObjectTraits::coord(newExtents, 1) / 2);
 		TObjectTraits::coord(newExtents, 2, TObjectTraits::coord(newExtents, 2) / 2);
 		
 		for (size_t i = 0; i < 8; ++i)
 		{
-			TPoint newCenter = parentNode->center;
+			TPoint newCenter = parentNode->bounds.center;
 			TObjectTraits::coord(newCenter, 0, 
 				TObjectTraits::coord(newCenter, 0) + (i & 0x1 ? 1 : -1) * TObjectTraits::coord(newExtents, 0));
 			TObjectTraits::coord(newCenter, 1, 
 				TObjectTraits::coord(newCenter, 1) + (i & 0x2 ? 1 : -1) * TObjectTraits::coord(newExtents, 1));
 			TObjectTraits::coord(newCenter, 2, 
 				TObjectTraits::coord(newCenter, 2) + (i & 0x4 ? 1 : -1) * TObjectTraits::coord(newExtents, 2));
-			parentNode->node[i] = new QuadNodeType(newCenter, newExtents);
+			parentNode->node[i] = new QuadNodeType(
+				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
 		}
 	}
 };

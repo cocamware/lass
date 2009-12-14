@@ -421,6 +421,15 @@ class TestOperators(unittest.TestCase):
 		d = 2 + a
 		self.assertEqual(d.value, 2)
 		self.assertEqual(d.period, 3)
+		e = c ** 2
+		self.assertEqual(e.value, 1)
+		self.assertEqual(e.period, 3)
+		f = c ** 3
+		self.assertEqual(f.value, 2)
+		self.assertEqual(f.period, 3)
+		g = pow(c, 3, 10)
+		self.assertEqual(g.value, 8)
+		self.assertEqual(g.period, 10)
 
 class TestStaticMembers(unittest.TestCase):
 	def setBarCONST(self, x):

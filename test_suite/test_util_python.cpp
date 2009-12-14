@@ -89,6 +89,7 @@ void testUtilPython()
 	LASS_TEST_CHECK_THROW(python::execute("foo = bar"), python::PythonException);
 
 	python::putenv("FOO", "BAR");
+	//python::execute("import os; print 'FOO' in os.environ; import pdb; pdb.set_trace();");
 	LASS_TEST_CHECK_EQUAL(util::getEnvironment<std::string>("FOO"), "BAR");
 
 	// execfile is no longer part of python 3.0

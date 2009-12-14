@@ -133,6 +133,20 @@ OutputIterator AabbTree<O, OT, SH>::find(
 
 
 template <typename O, typename OT, typename SH>
+template <typename OutputIterator> inline
+OutputIterator AabbTree<O, OT, SH>::find(
+		const TAabb& box, OutputIterator result, const TInfo* info) const
+{
+	if (isEmpty())
+	{
+		return result;
+	}
+	return doFind(0, box, result, info);
+}
+
+
+
+template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator inline
 AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
@@ -340,6 +354,37 @@ OutputIterator AabbTree<O, OT, SH>::doFind(
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 		if (TObjectTraits::objectContains(objects_[i], point, info))
+		{
+			*result++ = objects_[i];
+		}
+	}
+	return result;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator AabbTree<O, OT, SH>::doFind(
+		int index, const TAabb& box, OutputIterator result, const TInfo* info) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
+
+	if (!TObjectTraits::aabbIntersects(node.aabb(), box))
+	{
+		return result;
+	}
+	if (node.isInternal())
+	{
+		result = doFind(index + 1, box, result, info);
+		return doFind(node.right(), box, result, info);
+	}
+	for (int i = node.first(); i != node.last(); ++i)
+	{
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+		if (TObjectTraits::objectIntersects(objects_[i], box, info))
 		{
 			*result++ = objects_[i];
 		}

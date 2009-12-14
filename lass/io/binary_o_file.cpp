@@ -148,11 +148,7 @@ long BinaryOFile::doTellp() const
 
 void BinaryOFile::doSeekp(long iOffset, std::ios_base::seekdir iDirection)
 {
-	LASS_META_ASSERT(std::ios_base::beg == SEEK_SET, ios_base_beg_is_not_equal_to_SEEK_SET);
-	LASS_META_ASSERT(std::ios_base::cur == SEEK_CUR, ios_base_cur_is_not_equal_to_SEEK_CUR);
-	LASS_META_ASSERT(std::ios_base::end == SEEK_END, ios_base_end_is_not_equal_to_SEEK_END);
-
-	const int result = ::fseek(file_, iOffset, iDirection);
+	const int result = ::fseek(file_, iOffset, impl::seekdir2stdio(iDirection));
 	if (result != 0)
 	{
 		setstate(std::ios_base::badbit);

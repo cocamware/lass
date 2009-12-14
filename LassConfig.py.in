@@ -11,6 +11,6 @@ LASS_OUTPUT_NAME_DEBUG = "@LASS_OUTPUT_NAME@@CMAKE_DEBUG_POSTFIX@"
 
 if os.path.exists(os.path.join(_self_dir, "LassBuildExports.cmake")):
     # we're in build tree
-    LASS_INCLUDE_DIRS = ["@CMAKE_CURRENT_SOURCE_DIR@", "@config_dir@"]
+    LASS_INCLUDE_DIRS = ["@CMAKE_CURRENT_SOURCE_DIR@", "@config_dir@", "@PYTHON_INCLUDE_PATH@"]
 else:
     LASS_INCLUDE_DIRS = [os.path.join(_self_dir, os.pardir, "include")]

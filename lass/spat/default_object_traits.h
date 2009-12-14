@@ -98,6 +98,11 @@ struct DefaultAabbRayTraits
 		return aabb.contains(other);
 	}
 
+	static bool aabbIntersects(const TAabb& aabb, const TAabb& other)
+	{
+		return aabb.intersects(other);
+	}
+
 	/** return true if AABB is intersected by ray
 	 */
 	static bool aabbIntersect(const TAabb& aabb, const TRay& ray, TReference t, const TParam tMin)
@@ -246,7 +251,7 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 
 	/** return true if part of the object is inside the bounding box
 	 */
-	static bool objectOverlaps(TObjectIterator it, const TAabb& aabb)
+	static bool objectIntersects(TObjectIterator it, const TAabb& aabb, const TInfo* /*iInfo*/)
 	{
 		return intersects(object(it), aabb);
 	}

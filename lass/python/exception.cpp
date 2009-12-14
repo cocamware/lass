@@ -51,7 +51,7 @@ namespace python
 namespace impl
 {
 
-void addMessageHeader(const std::string& header)
+void addMessageHeader(const char* header)
 {
 	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
 	{
@@ -63,7 +63,7 @@ void addMessageHeader(const std::string& header)
 	{
 		if (PyUnicode_Check(value))
 		{
-			std::string left = header + ": ";
+			std::string left = std::string(header) + ": ";
 			TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
 			PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
 			std::swap(value, newValue);

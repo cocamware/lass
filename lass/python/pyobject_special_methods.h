@@ -71,6 +71,7 @@ namespace impl
 	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
 	struct IterSlot : public SpecialSlot { IterSlot(const std::string& iName) : SpecialSlot(iName) {} };
 	struct IterNextSlot : public SpecialSlot { IterNextSlot(const std::string& iName) : SpecialSlot(iName) {} };
+	struct ArgKwSlot : public SpecialSlot { ArgKwSlot(const std::string& iName) : SpecialSlot(iName) {} };
 
 	const int charPtrSlot = 1;
 	const int unarySlot = 2;
@@ -86,6 +87,7 @@ namespace impl
 	const int objObjArgSlot = 12;
 	const int iterSlot = 13;
 	const int iterNextSlot = 14;
+	const int argKwSlot = 15;
 
 
 	template<int value> struct MetaInt { volatile const char dummy[value]; };
@@ -107,6 +109,7 @@ namespace impl
 		static MetaInt<objObjArgSlot> test(const ObjObjArgSlot&);
 		static MetaInt<iterSlot> test(const IterSlot&);
 		static MetaInt<iterNextSlot> test(const IterNextSlot&);
+		static MetaInt<argKwSlot> test(const ArgKwSlot&);
 	};
 
 	template<int value>
@@ -127,6 +130,7 @@ namespace impl
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<objObjArgSlot>)> { typedef ObjObjArgSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterSlot>)> { typedef IterSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterNextSlot>)> { typedef IterNextSlot Type; };
+	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<argKwSlot>)> { typedef ArgKwSlot Type; };
 
 	#define SPECIAL_SLOT_TYPE( x ) lass::python::impl::IsSpecialSlotTesterValue<sizeof(lass::python::impl::IsSpecialSlotTester::test(x))>::Type
 
@@ -135,7 +139,7 @@ namespace impl
 namespace methods
 {
 	// special methods
-	const lass::python::impl::TernarySlot _call_(std::string("__call__"));
+	const lass::python::impl::ArgKwSlot _call_(std::string("__call__"));
 	const lass::python::impl::UnarySlot _repr_(std::string("__repr__"));
 	const lass::python::impl::UnarySlot _str_(std::string("__str__"));
 
@@ -179,6 +183,8 @@ namespace methods
 	const lass::python::impl::BinarySlot _div_("__div__");
 	const lass::python::impl::BinarySlot _idiv_("__idiv__");
 #endif
+
+	const lass::python::impl::TernarySlot _pow_("__pow__");
 
 	// Comparators
 	const lass::python::impl::ComparatorSlot _lt_("__lt__");

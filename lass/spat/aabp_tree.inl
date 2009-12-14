@@ -142,6 +142,20 @@ OutputIterator AabpTree<O, OT, SH>::find(
 
 
 template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator AabpTree<O, OT, SH>::find(
+		const TAabb& box, OutputIterator result, const TInfo* info) const
+{
+	if (isEmpty() || !TObjectTraits::aabbIntersects(aabb_, box))
+	{
+		return result;
+	}
+	return doFind(0, box, result, info);
+}
+
+
+
+template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::TObjectIterator
 AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
@@ -382,6 +396,41 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	if (x >= node.rightBound())
 	{
 		result = doFind(node.right(), point, result, info);
+	}
+	return result;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator AabpTree<O, OT, SH>::doFind(
+		int index, const TAabb& box, OutputIterator result, const TInfo* info) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
+	{
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectIntersects(objects_[i], box, info))
+			{
+				*result++ = objects_[i];
+			}
+		}
+		return result;
+	}
+
+	if (TObjectTraits::coord(TObjectTraits::aabbMin(box), node.axis()) <= node.leftBound())
+	{
+		result = doFind(index + 1, box, result, info);
+	}
+	if (TObjectTraits::coord(TObjectTraits::aabbMax(box), node.axis()) >= node.rightBound())
+	{
+		result = doFind(node.right(), box, result, info);
 	}
 	return result;
 }

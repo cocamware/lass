@@ -74,28 +74,25 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	static PyObject* fun(PyObject* iSelf, PyObject* iOther)
 	{
 		TPyObjPtr args(Py_BuildValue("(O)", iOther));
-		PyObject* result = DispatcherAddress(iSelf, args.get());
-		/*if (result == 0 && PyErr_ExceptionMatches(PyExc_TypeError))
-		{
-			PyErr_Clear();
-			Py_XDECREF(temp);
-			return false;
-		}*/
-		return result;
+		return DispatcherAddress(iSelf, args.get());
 	}
 };
 /** @internal
  */
 template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::TernarySlot ,DispatcherAddress>
 {
-	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+	static PyObject* fun(PyObject* iSelf, PyObject* iOther, PyObject* iThird)
 	{
-		if (iKw)
+		TPyObjPtr args(Py_BuildValue("(O,O)", iOther, iThird));
+		PyObject* result = DispatcherAddress(iSelf, args.get());
+		if (!result && PyErr_ExceptionMatches(PyExc_TypeError) && iThird == Py_None)
 		{
-			PyErr_SetString(PyExc_TypeError, "keyword arguments are not supported");
-			return 0;
+			// try as a binary function
+			PyErr_Clear();
+			TPyObjPtr args(Py_BuildValue("(O)", iOther));
+			return DispatcherAddress(iSelf, args.get());
 		}
-		return DispatcherAddress(iSelf, iArgs);
+		return result;	
 	}
 };
 /** @internal
@@ -198,6 +195,20 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		return DispatcherAddress(iSelf, args.get());
 	}
 };
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ArgKwSlot ,DispatcherAddress>
+{
+	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+	{
+		if (!_PyArg_NoKeywords("function", iKw))
+		{
+			return 0;
+		}
+		return DispatcherAddress(iSelf, iArgs);
+	}
+};
+
 /////////////////////////////////////////////
 
 }

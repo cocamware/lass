@@ -195,7 +195,7 @@ struct PyExportTraitsPrimTransformation
 			{
 				std::ostringstream buffer;
 				buffer << ExporTraits::className() << ": row " << i;
-				impl::addMessageHeader(buffer.str());
+				impl::addMessageHeader(buffer.str().c_str());
 				return 1;
 			}
 			PyObject** objects = PySequence_Fast_ITEMS(row.get());
@@ -205,7 +205,7 @@ struct PyExportTraitsPrimTransformation
 				{
 					std::ostringstream buffer;
 					buffer << ExporTraits::className() << ": row " << i << ", column " << j;
-					impl::addMessageHeader(buffer.str());
+					impl::addMessageHeader(buffer.str().c_str());
 					return 1;
 				}
 			}
@@ -682,7 +682,7 @@ struct PyExportTraits<prim::IndexTriangle>
 			{
 				std::ostringstream buffer;
 				buffer << "IndexTriangle: " << (k + 1) << "th vertex";
-				impl::addMessageHeader(buffer.str());
+				impl::addMessageHeader(buffer.str().c_str());
 				return 1;
 			}
 		}

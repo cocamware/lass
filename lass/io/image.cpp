@@ -1375,8 +1375,8 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 		num::Tuint8 bytes[4];
 		bytes[0] = 2;
 		bytes[1] = 2;
-		bytes[2] = (cols_ & 0x7f00) >> 8;
-		bytes[3] = cols_ & 0xff;
+		bytes[2] = static_cast<num::Tuint8>((cols_ & 0x7f00) >> 8);
+		bytes[3] = static_cast<num::Tuint8>(cols_ & 0xff);
 		stream.write(bytes, 4);
 
 		for (size_t k = 0; k < 4; ++k)

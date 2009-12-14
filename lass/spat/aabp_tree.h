@@ -122,6 +122,8 @@ public:
 	bool contains(const TPoint& point, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
+	template <typename OutputIterator> 
+	OutputIterator find(const TAabb& box, OutputIterator result, const TInfo* info = 0) const;
 	const TObjectIterator intersect(const TRay& ray, TReference t, TParam minT = 0, 
 		const TInfo* info = 0) const;
 	bool intersects(const TRay& ray, TParam minT = 0, 
@@ -205,6 +207,9 @@ private:
 	bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(int index, const TPoint& point, 
+		OutputIterator iResult, const TInfo* info) const;
+	template <typename OutputIterator> 
+	OutputIterator doFind(int index, const TAabb& box, 
 		OutputIterator iResult, const TInfo* info) const;
 	const TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin,
 		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;

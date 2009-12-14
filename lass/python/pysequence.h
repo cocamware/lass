@@ -423,8 +423,9 @@ namespace impl
 				typename Container::value_type temp;
 				if (PyExportTraits<typename Container::value_type>::get( PySequence_ITEM(obj, i) , temp ) != 0)
 				{
-					impl::addMessageHeader(
-						std::string("sequence element ") + util::stringCast<std::string>(i));
+					std::ostringstream buffer;
+					buffer << "sequence element " << i;
+					impl::addMessageHeader(buffer.str().c_str());
 					return 1;
 				}
 				result->push_back( temp );

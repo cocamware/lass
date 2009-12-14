@@ -69,7 +69,7 @@ private:
 
 namespace impl
 {
-	LASS_DLL void LASS_CALL addMessageHeader(const std::string& header);
+	LASS_DLL void LASS_CALL addMessageHeader(const char* header);
 	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
 	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
 	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);

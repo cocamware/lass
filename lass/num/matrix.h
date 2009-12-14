@@ -73,6 +73,7 @@ public:
 	typedef Matrix<T, S> TSelf;
 	typedef S TStorage;
 	typedef typename TStorage::TSize TSize;
+	typedef typename num::NumTraits<TSize>::signedType TSigned;
 
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
@@ -89,10 +90,10 @@ public:
 	class Row
 	{
 	public:
-		T& operator[](size_t iJ) { return matrix_(row_, iJ); }
-		const T& operator[](size_t iJ) const { return matrix_(row_, iJ); }
-		T& at(size_t iJ) { return matrix_.at(row_, iJ); }
-		const T& at(size_t iJ) const { return matrix_.at(row_, iJ); }
+		T& operator[](TSize iJ) { return matrix_(row_, iJ); }
+		const T& operator[](TSize iJ) const { return matrix_(row_, iJ); }
+		T& at(TSigned iJ) { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
+		const T& at(TSigned iJ) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
 		const TSize size() const { return matrix_.columns(); }
 	private:
 		friend class Matrix<T, S>;
@@ -105,8 +106,8 @@ public:
 	{
 	public:
 		ConstRow(const Row& iOther): matrix_(iOther.matrix_), row_(iOther.row_) {}
-		const T& operator[](size_t iJ) const { return matrix_(row_, iJ); }
-		const T& at(size_t iJ) const { return matrix_.at(row_, iJ); }
+		const T& operator[](TSize iJ) const { return matrix_(row_, iJ); }
+		const T& at(TSigned iJ) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
 		const TSize size() const { return matrix_.columns(); }
 	private:
 		friend class Matrix<T, S>;
@@ -118,10 +119,10 @@ public:
 	class Column
 	{
 	public:
-		T& operator[](size_t iI) { return matrix_(iI, column_); }
-		const T& operator[](size_t iI) const { return matrix_(iI, column_); }
-		T& at(size_t iI) { return matrix_.at(iI, column_); }
-		const T& at(size_t iI) const { return matrix_.at(iI, column_); }
+		T& operator[](TSize iI) { return matrix_(iI, column_); }
+		const T& operator[](TSize iI) const { return matrix_(iI, column_); }
+		T& at(TSigned iI) { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
+		const T& at(TSigned iI) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
 		const TSize size() const { return matrix_.rows(); }
 	private:
 		friend class Matrix<T, S>;
@@ -134,8 +135,8 @@ public:
 	{
 	public:
 		ConstColumn(const Column& iOther): matrix_(iOther.matrix_), column_(iOther.column_) {}
-		const T& operator[](size_t iI) const { return matrix_(iI, column_); }
-		const T& at(size_t iI) const { return matrix_.at(iI, column_); }
+		const T& operator[](TSize iI) const { return matrix_(iI, column_); }
+		const T& at(TSigned iI) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
 		const TSize size() const { return matrix_.rows(); }
 	private:
 		friend class Matrix<T, S>;
@@ -156,13 +157,13 @@ public:
 
 	const TValue operator()(TSize iRow, TSize iCol) const;
 	TReference operator()(TSize iRow, TSize iCol);
-	const TValue at(signed iRow, signed iCol) const;
-	TReference at(signed iRow, signed iCol);
+	const TValue at(TSigned iRow, TSigned iCol) const;
+	TReference at(TSigned iRow, TSigned iCol);
 
-	ConstRow row(signed iRow) const;
-	Row row(signed iRow);
-	ConstColumn column(signed iColumn) const;
-	Column column(signed iColumn);
+	ConstRow row(TSigned iRow) const;
+	Row row(TSigned iRow);
+	ConstColumn column(TSigned iColumn) const;
+	Column column(TSigned iColumn);
 
 	const Matrix<T, S>& operator+() const;
 	const Matrix<T, impl::MNeg<T, S> > operator-() const;

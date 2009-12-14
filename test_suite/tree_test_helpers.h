@@ -70,12 +70,23 @@ namespace test
 namespace tree_test_helpers
 {
 
+template <typename Vector, typename T, typename RandomGenerator> 
+Vector randomExtents(T maxExtents, RandomGenerator& random)
+{
+	Vector v;
+	num::DistributionUniform<T, RandomGenerator, num::rtLeftOpen> distribution(random, 0, maxExtents);
+	for (size_t k = 0; k < Vector::dimension; ++k)
+	{
+		v[k] = distribution();
+	}
+	return v;
+}
+
+
+
 template <typename T, typename RandomGenerator, typename OuputIterator>
-OuputIterator generateObjects(const prim::Aabb2D<T>& iBound,
-							  T iMaxSize,
-							  RandomGenerator& iRandom,
-							  size_t iNumber,
-							  OuputIterator iObjects)
+OuputIterator generateObjects(
+		const prim::Aabb2D<T>& iBound, T iMaxSize, RandomGenerator& iRandom,size_t iNumber, OuputIterator iObjects)
 {
 	typedef prim::Aabb2D<T> TAabb;
 	typedef prim::Vector2D<T> TVector;
@@ -171,8 +182,7 @@ public:
 	{
 		const bool treeContains = tree.contains(target_);
 		ObjectHits treeHits;
-		tree.find(target_, std::back_inserter(treeHits));
-		std::sort(treeHits.begin(), treeHits.end());
+		tree.find(target_, std::inserter(treeHits, treeHits.begin()));
 		LASS_TEST_CHECK_EQUAL(treeContains, bruteContains_);
 		LASS_TEST_CHECK(treeHits.size() == bruteHits_.size() && std::equal(treeHits.begin(), treeHits.end(), bruteHits_.begin()));
 	}
@@ -182,6 +192,26 @@ private:
 	bool bruteContains_;
 };
 
+
+
+template <typename Aabb, typename ObjectHits>
+class AabbFindValidityTest
+{
+public:
+	AabbFindValidityTest(const Aabb& box, const ObjectHits& bruteHits): 
+		box_(box), bruteHits_(bruteHits)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		ObjectHits treeHits;
+		tree.find(box_, std::inserter(treeHits, treeHits.begin()));
+		LASS_TEST_CHECK(treeHits.size() == bruteHits_.size() && std::equal(treeHits.begin(), treeHits.end(), bruteHits_.begin()));
+	}
+private:
+	Aabb box_;
+	const ObjectHits& bruteHits_;
+};
 
 template <typename Ray, typename ObjectIterator>
 class IntersectionValidityTest
@@ -265,7 +295,6 @@ public:
 		typedef std::vector<typename Tree::Neighbour> TTreeNeighbours;
 		TTreeNeighbours treeHits(maxCount_ + 1);
 		typename TTreeNeighbours::iterator last = tree.rangeSearch(target_, maxRadius_, maxCount_, treeHits.begin());
-		//size_t treeN = static_cast<size_t>(last - treeHits.begin());
 		std::sort_heap(treeHits.begin(), last);
 		LASS_TEST_CHECK(closeNeighbourhood(bruteHits_.begin(), bruteHits_.end(), treeHits.begin(), last, 1e-5f));
 	}
@@ -326,7 +355,7 @@ public:
 				hits += tree.contains(*i) ? 1 : 0;
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop();
+		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:
@@ -334,6 +363,42 @@ private:
 	util::StopWatch& stopWatch_;
 	size_t numberOfRuns_;
 };
+
+
+
+template <typename Targets>
+class AabbFindSpeedTest
+{
+public:
+	AabbFindSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		size_t hits = 0;
+		stopWatch_.restart();
+		std::set<typename Tree::TObjectIterator> loot;
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator end = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != end; ++i)
+			{
+				loot.clear();
+				tree.find(*i, std::inserter(loot, loot.begin()));
+				hits += loot.size();
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+
 
 template <typename Targets>
 class IntersectionSpeedTest
@@ -361,7 +426,7 @@ public:
 				}
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop();
+		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:
@@ -398,7 +463,7 @@ public:
 				}
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop();
+		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:

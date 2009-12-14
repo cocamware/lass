@@ -50,5 +50,29 @@
 #define LASS_GUARDIAN_OF_INCLUSION_IO_IO_COMMON_H
 
 #include "../lass_common.h"
+#include <ios>
+
+namespace lass
+{
+namespace io
+{
+
+namespace impl
+{
+	inline int seekdir2stdio(std::ios_base::seekdir dir)
+	{	
+		if (dir == std::ios_base::beg)
+		{
+			return SEEK_SET;
+		}
+		if (dir == std::ios_base::cur)
+		{
+			return SEEK_CUR;
+		}
+		return SEEK_END;
+	}
+}
+}
+}
 
 #endif

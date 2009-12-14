@@ -55,27 +55,27 @@ struct IntPow
 	typedef typename NumTraits<T>::signedType TSigned;
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
 
-	static T eval(TSigned x, TSigned p)
+	static T eval(T x, TSigned p)
 	{		
 		LASS_ASSERT(p >= 0);
 		return eval(x, static_cast<TUnsigned>(p));
 	}
 
-	static T eval(TSigned x, TUnsigned p)
+	static T eval(T x, TUnsigned p)
 	{
 		if (p == 0)
 		{
 			return 1;
 		}
 
-		TSigned result = 0;
-		TSigned partialPower = 1;
+		T result = 1;
+		T partialPower = 1;
 		do
 		{
 			partialPower *= x;
 			if (p & 0x1)
 			{
-				result += partialPower;
+				result *= partialPower;
 			}
 			p >>= 1;
 		}

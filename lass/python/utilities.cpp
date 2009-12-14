@@ -142,8 +142,8 @@ void putenv(const char* key, const char* value)
 	const TPyObjPtr item(PY_ENFORCE_POINTER(pyBuildSimpleObject(value)));
 	const TPyObjPtr os(PY_ENFORCE_POINTER(PyImport_ImportModule("os")));
 	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(os.get()));
-	PyObject* const environ = PY_ENFORCE_POINTER(PyDict_GetItemString(dict, "environ"));
-	PY_ENFORCE_ZERO(PyMapping_SetItemString(environ, const_cast<char*>(key), item.get()));
+	PyObject* const os_environ = PY_ENFORCE_POINTER(PyDict_GetItemString(dict, "environ"));
+	PY_ENFORCE_ZERO(PyMapping_SetItemString(os_environ, const_cast<char*>(key), item.get()));
 }
 
 

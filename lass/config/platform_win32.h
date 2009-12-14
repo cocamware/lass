@@ -61,7 +61,9 @@
 #ifndef WINVER
 #   define WINVER 0x500
 #endif
-#define _WIN32_WINNT 0x500 // Build on MS Windows requires Windows 2000 or higher!
+#ifndef _WIN32_WINNT
+#   define _WIN32_WINNT 0x500 // Build on MS Windows requires Windows 2000 or higher!
+#endif
 
 //
 // disable min/max macros:

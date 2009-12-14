@@ -122,6 +122,8 @@ public:
 	bool contains(const TPoint& point, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
+	template <typename OutputIterator>
+	OutputIterator find(const TAabb& box, OutputIterator result, const TInfo* info = 0) const;
 	TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, const TInfo* info = 0) const;
 	bool intersects(const TRay& ray, TParam tMin = 0, 
 		TParam tMax = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
@@ -187,6 +189,8 @@ private:
 	bool doContains(int index, const TPoint& point, const TInfo* info) const;
 	template <typename OutputIterator> 
 	OutputIterator doFind(int index, const TPoint& point, OutputIterator first, const TInfo* info) const;
+	template <typename OutputIterator> 
+	OutputIterator doFind(int index, const TAabb& aabb, OutputIterator first, const TInfo* info) const;
 	TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const;
 	bool doIntersects(int iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
 	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;

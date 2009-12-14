@@ -110,9 +110,8 @@ public:
 	typedef size_t TSize;
 
 	MScalar(TParam iValue, TSize iRows, TSize iCols): value_(iValue), rows_(iRows), cols_(iCols) {}
-	TParam operator()(TSize iI, TSize iJ) const
+	TParam operator()(TSize /*iI*/, TSize /*iJ*/) const
 	{
-		LASS_ASSERT(iI < rows_ && iJ < cols_);
 		return value_;
 	}
 	TSize rows() const { return rows_; }

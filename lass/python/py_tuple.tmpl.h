@@ -67,7 +67,7 @@ namespace impl
 		{
 			std::ostringstream buffer;
 			buffer << "Bad Argument on " << index << "th position";
-			impl::addMessageHeader(buffer.str());
+			impl::addMessageHeader(buffer.str().c_str());
 			return false;
 		}
 		return true;
