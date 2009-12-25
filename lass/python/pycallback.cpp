@@ -78,10 +78,17 @@ const std::string MultiCallbackImplBase::repr() const
 
 	// wrapping the call ourselves as the macro's and templates have difficulties
 	// automatically wrapping everything up
-	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject *kwargs)
+	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* kwargs)
 	{
-		// check if self convertible to MultiCallback and dispatch to the callVar method
-		// [TODO] flag kwargs as error
+		if (!PyType_IsSubtype(self->ob_type , MultiCallback::_lassPyClassDef.type() ))
+		{
+			PyErr_SetString(PyExc_TypeError,"not castable to MultiCallback");
+			return 0;
+		}
+		if (!_PyArg_NoKeywords("function", kwargs))
+		{
+			return 0;
+		}
 		return static_cast<MultiCallback*>(self)->callVar(args);
 	}
 

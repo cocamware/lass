@@ -346,7 +346,7 @@ void testSpatObjectTrees()
 	{
 		tree.remove(i);
 	}
-	LASS_TEST_CHECK_EQUAL(tree.objectCount(), 0);
+	LASS_TEST_CHECK_EQUAL(tree.objectCount(), size_t(0));
 }
 
 

@@ -120,6 +120,9 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_subclasses*/
 		0,	/*tp_weaklist*/
 		0,	/*tp_del*/
+#if PY_VERSION_HEX >= 0x02060000 // >= 2.6
+		0,	/*tp_version_tag*/
+#endif
 	};
 	type_ = type;
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));

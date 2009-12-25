@@ -2398,7 +2398,7 @@ continueSearch:
 
 
 	TEMPLATE_DEF
-	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool makeDelaunay)
+	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge*  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::insertPolygon( const TSimplePolygon2D& iPolygon, EdgeHandle iLeftHandle, EdgeHandle iRightHandle, bool /*makeDelaunay*/)
 	{
 		TEdge* e = NULL;
 		for (size_t i=1;i<iPolygon.size();++i)
