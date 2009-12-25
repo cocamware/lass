@@ -8,3 +8,7 @@ else()
 	get_filename_component(Lass_INCLUDE_DIRS "${SELF_DIR}/../include" ABSOLUTE)
 endif()
 set(Lass_LIBRARIES lass)
+
+set(Lass_PYTHON_LIBRARY "@PYTHON_LIBRARY@")
+set(Lass_PYTHON_DEBUG_LIBRARY "@PYTHON_DEBUG_LIBRARY@")
+set(Lass_PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")

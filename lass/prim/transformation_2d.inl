@@ -45,6 +45,11 @@
 
 #include "transformation_2d.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable:4996) // std::copy may be unsafe
+#endif
+
 namespace lass
 {
 
@@ -390,5 +395,9 @@ io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation2D<T>& tr
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 #endif

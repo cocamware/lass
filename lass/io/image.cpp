@@ -1502,23 +1502,21 @@ Image::FileFormat Image::findFormat(const std::string& formatTag)
 BinaryIStream& Image::readLine(BinaryIStream& stream, std::string& line)
 {
 	std::string result;
-	while (stream.good())
+	while (true)
 	{
 		char character;
 		stream >> character;
-		if (stream.good())
+		if (!stream.good())
 		{
-			if (character == '\n')
-			{
-				line.swap(result);
-			}
-			else
-			{
-				result += character;
-			}
+			return stream;
 		}
+		if (character == '\n')
+		{
+			line.swap(result);
+			return stream;
+		}
+		result += character;
 	}
-	return stream;
 }
 
 

@@ -152,7 +152,7 @@ bool operator>=(const access_iterator_t<I, V>& a, const access_iterator_t<I, V>&
 template <typename BaseReference, typename Value> struct accessor_helper_t;
 
 template <typename Base, typename Value>
-struct accessor_helper_t<Base&, Value>: public std::unary_function<Base&, Value&>
+struct accessor_helper_t<Base&, Value>: std::unary_function<Base&, Value&>
 {
 	typedef Value value_type;
 	typedef Value& reference;
@@ -162,7 +162,7 @@ protected:
 };
 
 template <typename Base, typename Value>
-struct accessor_helper_t<const Base&, Value>: public std::unary_function<const Base&, const Value&>
+struct accessor_helper_t<const Base&, Value>: std::unary_function<const Base&, const Value&>
 {
 	typedef Value value_type;
 	typedef const Value& reference;
@@ -205,6 +205,32 @@ access_iterator_t< It, second_accessor_t<It, typename std::iterator_traits<It>::
 second_iterator(It i)
 {
 	return access_iterator_t< It, second_accessor_t<It, typename std::iterator_traits<It>::value_type::second_type > >(i);
+}
+
+
+template <typename It, typename Value, typename Base>
+struct member_accessor_t: accessor_helper_t<Base&, Value>
+{
+	typedef Value Base::*mem_ptr_type;
+	typedef typename accessor_helper_t<Base&, Value>::reference reference;
+	member_accessor_t(mem_ptr_type mem_ptr): mem_ptr_(mem_ptr) {}
+	reference operator()(It i) const { return (*i).*mem_ptr_; }
+private:
+	mem_ptr_type mem_ptr_;
+};
+
+template <typename It, typename Value, typename Base>
+access_iterator_t< It, member_accessor_t<It, Value, Base> >
+member_iterator(It i, Value Base::*mem_ptr)
+{
+	return access_iterator_t< It, member_accessor_t<It, Value, Base> >(i, mem_ptr);
+}
+
+template <typename It, typename Value, typename Base>
+access_iterator_t< It, member_accessor_t<It, const Value, const Base> >
+const_member_iterator(It i, Value Base::*mem_ptr)
+{
+	return access_iterator_t< It, member_accessor_t<It, const Value, const Base> >(i, mem_ptr);
 }
 
 }

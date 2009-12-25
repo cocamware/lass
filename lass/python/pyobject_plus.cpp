@@ -166,16 +166,6 @@ ClassDefinition::ClassDefinition(
 
 void ClassDefinition::addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain) 
 {
-	const int n = static_cast<int>(strlen(name));
-	if (n > 2 && name[0] == '_' && name[1] == '_')
-	{
-		// throw a warning, or halt execution, but we are before the main, so not
-		// everything is initialized yet
-		//LASS_THROW("Special methods should use newer export mechanism!");
-		printf("Special method shoud use newer export mechanism: %s\n", name);
-	}
-	// normal method mechanism
-
 	TMethods::iterator i = std::find_if(methods_.begin(), methods_.end(), NamePredicate(name));
 	if (i == methods_.end())
 	{

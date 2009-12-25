@@ -93,7 +93,7 @@ public:
 	typedef num::NumTraits<T> TNumTraits;
 	typedef size_t TSize;
 
-	enum { dimension = 3 }; /**< number of dimensions of vector */
+	enum { dimension = 2 }; /**< number of dimensions of vector */
 
 	template <typename U> struct Rebind
 	{
