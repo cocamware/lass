@@ -83,7 +83,7 @@ private:
 
 	long doTellg() const;
 	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
-	void doRead(void* oOutput, size_t iNumberOfBytes);
+	size_t doRead(void* oOutput, size_t iNumberOfBytes);
 
 	FILE* file_;
 };

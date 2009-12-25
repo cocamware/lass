@@ -70,16 +70,16 @@ class LASS_DLL BinaryIMemoryBlock: public BinaryIStream
 public:
 
 	BinaryIMemoryBlock();
-	BinaryIMemoryBlock( const void* iBegin, long iSize );
-	BinaryIMemoryBlock( const void* iBegin, const void* iEnd );
+	BinaryIMemoryBlock( const void* begin, long size );
+	BinaryIMemoryBlock( const void* begin, const void* end );
 
 private:
 
 	typedef char TByte;
 
 	long doTellg() const;
-	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
-	void doRead(void* oOutput, size_t iNumberOfBytes);
+	void doSeekg(long offset, std::ios_base::seekdir direction);
+	size_t doRead(void* out, size_t numberOfBytes);
 
 	const TByte* begin_;
 	long size_;

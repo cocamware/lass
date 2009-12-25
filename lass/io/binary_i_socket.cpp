@@ -59,15 +59,16 @@ BinaryISocket::BinaryISocket(Socket& iSocket):
 
 // --- private -------------------------------------------------------------------------------------
 
-void BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
+size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 {
 	if (!good())
 	{
-		return;
+		return 0;
 	}
 	char* begin = static_cast<char*>(oBegin);
 	int numberOfBytes = static_cast<int>(iNumberOfBytes);
 	LASS_ASSERT(numberOfBytes >= 0 && static_cast<size_t>(numberOfBytes) == iNumberOfBytes);
+	size_t bytesRead = 0;
 	while (numberOfBytes > 0)
 	{
 		try
@@ -75,14 +76,16 @@ void BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 			const int read = socket_.receive(begin, numberOfBytes);
 			LASS_ASSERT(read >= 0 && read <= numberOfBytes);
 			begin += read;
+			bytesRead += read;
 			numberOfBytes -= read;
 		}
 		catch (util::Exception&)
 		{
 			setstate(std::ios_base::badbit);
-			return;
+			return bytesRead;
 		}
 	}
+	return bytesRead;
 }
 
 

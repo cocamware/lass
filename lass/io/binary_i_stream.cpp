@@ -234,9 +234,9 @@ BinaryIStream& BinaryIStream::operator>>( std::string& x )
  *  @param numBytes 
  *		number of bytes to be read
  */
-void BinaryIStream::read(void* output, size_t numBytes)
+size_t BinaryIStream::read(void* output, size_t numBytes)
 {
-	doRead(output, numBytes);
+	return doRead(output, numBytes);
 }
 
 

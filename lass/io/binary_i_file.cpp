@@ -156,22 +156,23 @@ void BinaryIFile::doSeekg(long offset, std::ios_base::seekdir iDirection)
 
 
 
-void BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
+size_t BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
 {
 	if (!file_)
 	{
 		setstate(std::ios_base::failbit);
-		return;
+		return 0;
 	}
 	if (!good())
 	{
-		return;
+		return 0;
 	}
 	const size_t bytesRead = ::fread(oOutput, 1, iNumberOfBytes, file_);
 	if (bytesRead != iNumberOfBytes)
 	{
 		setstate(std::ios_base::eofbit);
 	}
+	return bytesRead;
 }
 
 

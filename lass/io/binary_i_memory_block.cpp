@@ -90,29 +90,32 @@ BinaryIMemoryBlock::BinaryIMemoryBlock( const void* iBegin, const void* iEnd ):
 
 // --- private -------------------------------------------------------------------------------------
 
-void BinaryIMemoryBlock::doRead(void* oOutput, size_t iNumberOfBytes)
+size_t BinaryIMemoryBlock::doRead(void* out, size_t numberOfBytes)
 {
 	if (!begin_)
 	{
 		setstate(std::ios_base::failbit);
-		return;
+		return 0;
 	}
 	if (!good())
 	{
-		return;
+		return 0;
 	}
-
-	LASS_ASSERT(static_cast<long>(iNumberOfBytes) >= 0);
-	const long next = position_ + static_cast<long>(iNumberOfBytes);
+	if (position_ >= size_)
+	{
+		setstate(std::ios_base::eofbit);
+		return 0;
+	}
+	LASS_ASSERT(static_cast<long>(numberOfBytes) >= 0);
+	long next = position_ + static_cast<long>(numberOfBytes);
 	if (next > size_ || next < position_)
 	{
-		setstate(std::ios_base::eofbit | std::ios_base::failbit);
+		next = size_;
+		numberOfBytes = static_cast<size_t>(size_ - position_);
 	}
-	else
-	{
-		memcpy(oOutput, &begin_[position_], iNumberOfBytes);
-		position_ = next;
-	}
+	memcpy(out, &begin_[position_], numberOfBytes);
+	position_ = next;
+	return numberOfBytes;
 }
 
 

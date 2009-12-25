@@ -69,7 +69,7 @@ public:
 
 	long tellg() const;
 	BinaryIStream& seekg(long iPosition);
-	BinaryIStream& seekg(long iOffset, std::ios_base::seekdir iDirection); 
+	BinaryIStream& seekg(long offset, std::ios_base::seekdir direction); 
 
 #if !defined(LASS_HAVE_STDINT_H_INT8_T_IS_CHAR)
 	BinaryIStream& operator>>( char& x );
@@ -87,19 +87,19 @@ public:
 	BinaryIStream& operator>>( bool& x );
 	BinaryIStream& operator>>( void*& x );
 
-	BinaryIStream& operator>>( std::string& oOut );
-	template <typename T> BinaryIStream& operator>>( std::vector<T>& oOut );
-	template <typename T> BinaryIStream& operator>>( std::complex<T>& oOut );
+	BinaryIStream& operator>>( std::string& out );
+	template <typename T> BinaryIStream& operator>>( std::vector<T>& out );
+	template <typename T> BinaryIStream& operator>>( std::complex<T>& out );
 
-	void read(void* oOutput, size_t iNumberOfBytes);
+	size_t read(void* out, size_t numberOfBytes);
 
 private:
 
 	template <typename T> BinaryIStream& readValue(T& x);
 
 	virtual long doTellg() const = 0;
-	virtual void doSeekg(long iOffset, std::ios_base::seekdir iDirection) = 0;
-	virtual void doRead(void* oOutput, size_t iNumberOfBytes) = 0;
+	virtual void doSeekg(long offset, std::ios_base::seekdir direction) = 0;
+	virtual size_t doRead(void* out, size_t numberOfBytes) = 0;
 };
 
 

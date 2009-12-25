@@ -328,29 +328,36 @@ void BinaryIMemoryMap::doSeekg(long offset, std::ios_base::seekdir direction)
 
 
 
-void BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
+size_t BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
 {
         if (!pimpl_ || !data_)
         {
                 setstate(std::ios_base::failbit);
-                return;
+                return 0;
         }
         if (!good())
         {
-                return;
+                return 0;
         }
-
-        const long last = position_ + static_cast<long>(numberOfBytes);
+		if (position_ >= size_)
+		{
+			setstate(std::ios_base::eofbit);
+			return 0;
+		}
+        long last = position_ + static_cast<long>(numberOfBytes);
         if (last > size_ || last < position_)
         {
-                setstate(std::ios_base::eofbit | std::ios_base::failbit);
-        }       
-
+                last = size_;
+				numberOfBytes = static_cast<size_t>(size_ - position_);
+        }
         char* dest = static_cast<char*>(output);
+		size_t bytesRead = 0;
         while (last >= end_)
         {
-                ::memcpy(dest, &data_[position_ - begin_], end_ - position_);
-                dest += end_ - position_;
+				const long n = end_ - position_;
+                ::memcpy(dest, &data_[position_ - begin_], n);
+                dest += n;
+				bytesRead += n;
                 try
                 {
                         data_ = pimpl_->remap(end_, begin_, end_);
@@ -359,12 +366,13 @@ void BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
                 {
                         LASS_LOG("Error: " << error.what());
                         setstate(std::ios_base::badbit);
-                        return;
+                        return bytesRead;
                 }
                 position_ = begin_;
         }
         ::memcpy(dest, &data_[position_ - begin_], last - position_);
         position_ = last;
+		return numberOfBytes;
 }
 
 }

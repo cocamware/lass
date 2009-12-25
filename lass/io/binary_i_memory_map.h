@@ -77,7 +77,7 @@ private:
 
 	long doTellg() const;
 	void doSeekg(long offset, std::ios_base::seekdir direction);
-	void doRead(void* output, size_t numberOfBytes);
+	size_t doRead(void* output, size_t numberOfBytes);
 
 	impl::BinaryIMemoryMapImpl* pimpl_;
 	char* data_;
