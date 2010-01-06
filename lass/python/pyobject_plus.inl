@@ -201,10 +201,12 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 	{
+#if PY_VERSION_HEX >= 0X02050000
 		if (!_PyArg_NoKeywords("function", iKw))
 		{
 			return 0;
 		}
+#endif
 		return DispatcherAddress(iSelf, iArgs);
 	}
 };

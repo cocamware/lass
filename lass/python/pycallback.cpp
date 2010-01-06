@@ -85,10 +85,12 @@ const std::string MultiCallbackImplBase::repr() const
 			PyErr_SetString(PyExc_TypeError,"not castable to MultiCallback");
 			return 0;
 		}
+#if PY_VERSION_HEX >= 0x02050000 
 		if (!_PyArg_NoKeywords("function", kwargs))
 		{
 			return 0;
 		}
+#endif
 		return static_cast<MultiCallback*>(self)->callVar(args);
 	}
 

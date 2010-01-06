@@ -341,6 +341,7 @@ void bindThread(pthread_t handle, pid_t tid, size_t processor)
 	(void) tid; // avoid 'unused' warning
 #	else
 	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask))("tid=")(tid);
+    (void) handle; // avoid 'unused' warning
 #	endif
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
