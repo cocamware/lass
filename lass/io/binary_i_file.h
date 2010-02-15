@@ -70,20 +70,20 @@ class LASS_DLL BinaryIFile: public BinaryIStream
 public:
 
 	BinaryIFile();
-	BinaryIFile( const char* iFileName );
-	BinaryIFile( const std::string& iFileName );
+	BinaryIFile(const char* path);
+	BinaryIFile(const std::string& path);
 	~BinaryIFile();
 
-	void open(const char* iFileName);
-	void open(const std::string& iFileName);
+	void open(const char* path);
+	void open(const std::string& path);
 	void close();
 	bool is_open() const;
 
 private:
 
 	long doTellg() const;
-	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
-	size_t doRead(void* oOutput, size_t iNumberOfBytes);
+	void doSeekg(long offset, std::ios_base::seekdir direction);
+	size_t doRead(void* output, size_t numberOfBytes);
 
 	FILE* file_;
 };

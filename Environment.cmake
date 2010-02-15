@@ -123,6 +123,8 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 		)
 endif()
 
+CHECK_SYMBOL_EXISTS("_wfopen" "stdio.h" LASS_HAVE_WFOPEN)
+CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
 
 include(CheckTypeSize)
 CHECK_TYPE_SIZE("long long" LONG_LONG)

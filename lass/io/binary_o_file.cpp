@@ -43,6 +43,10 @@
 #include "lass_common.h"
 #include "binary_o_file.h"
 
+#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+#	include "../util/wchar_support.h"
+#endif
+
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
 #endif
@@ -95,12 +99,17 @@ BinaryOFile::~BinaryOFile()
 
 
 
-void BinaryOFile::open(const char* iFileName)
+void BinaryOFile::open(const char* path)
 {
 	close();
 	if (good())
 	{
-		file_ = ::fopen(iFileName, "wb");
+#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+		std::wstring wpath = util::utf8ToWchar(path);
+		file_ = ::_wfopen(wpath.c_str(), L"wb");
+#else
+		file_ = ::fopen(path, "wb");
+#endif
 		if (!file_)
 		{
 			setstate(std::ios_base::failbit);

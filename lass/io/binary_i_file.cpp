@@ -44,6 +44,10 @@
 #include "binary_i_file.h"
 #include "../meta/meta_assert.h"
 
+#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+#	include "../util/wchar_support.h"
+#endif
+
 #include <cstdio>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
@@ -68,22 +72,22 @@ BinaryIFile::BinaryIFile():
 
 /** Construct stream by filename and open it.
  */
-BinaryIFile::BinaryIFile( const char* iFileName ):
+BinaryIFile::BinaryIFile(const char* path):
 	BinaryIStream(),
 	file_(0)
 {
-	open(iFileName);
+	open(path);
 }
 
 
 
 /** Construct stream by filename and open it.
  */
-BinaryIFile::BinaryIFile( const std::string& iFileName ):
+BinaryIFile::BinaryIFile(const std::string& path):
 	BinaryIStream(),
 	file_(0)
 {
-	open(iFileName);
+	open(path);
 }
 
 
@@ -97,10 +101,15 @@ BinaryIFile::~BinaryIFile()
 
 
 
-void BinaryIFile::open(const char* iFileName)
+void BinaryIFile::open(const char* path)
 {
 	close();
-	file_ = fopen(iFileName, "rb");
+#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+	std::wstring wpath = util::utf8ToWchar(path);
+	file_ = ::_wfopen(wpath.c_str(), L"rb");
+#else
+	file_ = ::fopen(path, "rb");
+#endif
 	if (!file_)
 	{
 		setstate(std::ios_base::failbit);
@@ -109,9 +118,9 @@ void BinaryIFile::open(const char* iFileName)
 
 
 
-void BinaryIFile::open(const std::string& iFileName)
+void BinaryIFile::open(const std::string& path)
 {
-	open(iFileName.c_str());
+	open(path.c_str());
 }
 
 
@@ -145,9 +154,9 @@ long BinaryIFile::doTellg() const
 
 
 
-void BinaryIFile::doSeekg(long offset, std::ios_base::seekdir iDirection)
+void BinaryIFile::doSeekg(long offset, std::ios_base::seekdir direction)
 {
-	const int result = ::fseek(file_, offset, impl::seekdir2stdio(iDirection));
+	const int result = ::fseek(file_, offset, impl::seekdir2stdio(direction));
 	if (result != 0)
 	{
 		setstate(std::ios_base::badbit);
@@ -156,7 +165,7 @@ void BinaryIFile::doSeekg(long offset, std::ios_base::seekdir iDirection)
 
 
 
-size_t BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
+size_t BinaryIFile::doRead(void* output, size_t numberOfBytes)
 {
 	if (!file_)
 	{
@@ -167,8 +176,8 @@ size_t BinaryIFile::doRead(void* oOutput, size_t iNumberOfBytes)
 	{
 		return 0;
 	}
-	const size_t bytesRead = ::fread(oOutput, 1, iNumberOfBytes, file_);
-	if (bytesRead != iNumberOfBytes)
+	const size_t bytesRead = ::fread(output, 1, numberOfBytes, file_);
+	if (bytesRead != numberOfBytes)
 	{
 		setstate(std::ios_base::eofbit);
 	}
