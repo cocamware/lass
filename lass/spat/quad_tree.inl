@@ -550,8 +550,6 @@ bool QuadTree<O, OT>::doIntersects(
 		LASS_ASSERT(std::count(node->node, node->node + subNodeCount, static_cast<QuadNode*>(0)) == subNodeCount);
 
 		const size_t n = node->data.size();
-		TValue tBest = 0;
-		TObjectIterator best = end_;
 		for (size_t i = 0; i < n; ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;

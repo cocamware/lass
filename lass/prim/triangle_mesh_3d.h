@@ -126,8 +126,7 @@ public:
 		Triangle* others[3]; /**< triangle on other side of vertices k,k+1 */
 		unsigned creaseLevel[3];   /**< crease level of side k,k+1 */
 
-		Result intersect(const TRay& ray, TReference t, TParam tMin = 0,
-			IntersectionContext* context = 0) const;
+		Result intersect(const TRay& ray, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 		size_t side(const TPoint* v) const;
 	};
 
@@ -146,20 +145,16 @@ public:
 
 	TriangleMesh3D();
 	template <typename VertexInputRange, typename IndexTriangleInputRange>
-	TriangleMesh3D(
-		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles);
-	template <typename VertexInputRange, typename NormalInputRange,
-		typename UvInputRange, typename IndexTriangleInputRange>
-	TriangleMesh3D(
-		const VertexInputRange& vertices, const NormalInputRange& normals,
-		const UvInputRange& uvs, const IndexTriangleInputRange& triangles);
+	TriangleMesh3D(const VertexInputRange& vertices, const IndexTriangleInputRange& triangles);
+	template <typename VertexInputRange, typename NormalInputRange, typename UvInputRange, typename IndexTriangleInputRange>
+	TriangleMesh3D(const VertexInputRange& vertices, const NormalInputRange& normals, const UvInputRange& uvs, const IndexTriangleInputRange& triangles);
 
 	const TTriangles& triangles() const;
 	const TVertices& vertices() const;
 	const TNormals& normals() const;
 	const TUvs& uvs() const;
 	template <typename OutputIterator> 
-		OutputIterator indexTriangles(OutputIterator triangles) const;
+	OutputIterator indexTriangles(OutputIterator triangles) const;
 
 	const TAabb aabb() const;
 	const TValue area() const;
@@ -170,8 +165,7 @@ public:
 	void autoSew();
 	void autoCrease(unsigned level);
 
-	Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, 
-		TParam tMin = 0, IntersectionContext* context = 0) const;
+	Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 	bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
 
 	void swap(TSelf& other);
@@ -204,16 +198,14 @@ private:
 			result += *(triangle->vertices[2]);
 			return result;
 		}
-		static bool objectIntersect(TObjectIterator triangle, const TRay& ray, 
-			TReference t, TParam tMin, const TInfo* info)
+		static bool objectIntersect(TObjectIterator triangle, const TRay& ray, TReference t, TParam tMin, const TInfo*)
 		{
 			return triangle->intersect(ray, t, tMin) == rOne;
 		}
-		static bool objectIntersects(TObjectIterator triangle, const TRay& ray, 
-			TParam tMin, TParam tMax, const TInfo* info)
+		static bool objectIntersects(TObjectIterator triangle, const TRay& ray, TParam tMin, TParam tMax, const TInfo*)
 		{
 			TValue t;
-			Result hit = triangle->intersect(ray, t, tMin);
+			const Result hit = triangle->intersect(ray, t, tMin);
 			return hit == rOne && t < tMax;
 		}
 	};
@@ -273,8 +265,7 @@ private:
 	void buildMesh(const IndexTriangleInputRange& triangles);
 	void connectTriangles();
 	void findVertexTriangles(TVertexTriangles& vertexTriangles) const;
-	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, 
-			TVertexRing& ring, TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const;
+	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, TVertexRing& ring, TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const;
 	void subdivide();
 
 	TTriangleTree tree_;

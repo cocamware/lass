@@ -86,7 +86,7 @@ public:
 	};
 
 	Parallelogram3D();
-	Parallelogram3D(const TPoint& iSupport, const TVector& iSizeX, const TVector& iSizeY);
+	Parallelogram3D(const TPoint& support, const TVector& sizeX, const TVector& sizeY);
 
 	const TPoint& support() const;
 	TPoint& support();
@@ -103,13 +103,13 @@ public:
 	const TValue area() const;
 	const TValue perimeter() const;
 
-	const TPoint point(TParam iU, TParam iV) const;
-	const TPoint point(const TUV& iUV) const;
-	const TUV uv(const TPoint& iPoint) const;
+	const TPoint point(TParam u, TParam v) const;
+	const TPoint point(const TUV& uv) const;
+	const TUV uv(const TPoint& point) const;
 
-	const bool isSimple() const;
-	const bool isConvex() const;
-	const bool isReflex(int iIndexOfVertex) const;
+	bool isSimple() const;
+	bool isConvex() const;
+	bool isReflex(int indexOfVertex) const;
 
 private:
 
@@ -119,9 +119,9 @@ private:
 };
 
 template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Parallelogram3D<T>& iParallelogram);
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Parallelogram3D<T>& parallelogram);
 template <typename T>
-std::ostream& operator<<(std::ostream& ioOStream, const Parallelogram3D<T>& iParallelogram);
+std::ostream& operator<<(std::ostream& stream, const Parallelogram3D<T>& parallelogram);
 
 
 

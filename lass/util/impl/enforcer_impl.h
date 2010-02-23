@@ -156,6 +156,11 @@ struct IndexPredicate
 	{
 		return t < C(0) || !(t < closure);
 	}
+	template <typename C>
+	static bool LASS_CALL wrong(size_t t, const C& closure)
+	{
+		return !(t < closure);
+	}
 };
 
 

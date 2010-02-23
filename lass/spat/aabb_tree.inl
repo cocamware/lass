@@ -264,7 +264,7 @@ int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	LASS_ASSERT(middle != first && middle != last);
 
 	const int node = addInternalNode(split.aabb);
-	const int left = balance(first, middle);
+	const int LASS_UNUSED(left) = balance(first, middle);
 	LASS_ASSERT(left == node + 1);
 	const int right = balance(middle, last);
 	nodes_[node].right() = right;

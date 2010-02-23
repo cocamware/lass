@@ -219,7 +219,7 @@ void RandomMT19937::setState(InputIterator first, InputIterator last)
 	LASS_ASSERT(first != last);
 	index_ = *first++;
 	LASS_ASSERT(first != last);
-	TValue* end = std::copy(first, last, state_);
+	TValue* LASS_UNUSED(end) = std::copy(first, last, state_);
 	LASS_ASSERT(end == state_ + stateSize_);
 }
 

@@ -102,7 +102,7 @@ public:
 	typedef typename Accessor::pointer pointer;
 	typedef typename Accessor::reference reference;
 
-	access_iterator_t(iterator_type i, accessor_type a = accessor_type()): current_(i), accessor_(a) {}
+	access_iterator_t(iterator_type i = iterator_type(), accessor_type a = accessor_type()): current_(i), accessor_(a) {}
 
 	iterator_type base() const { return current_; }
 	pointer operator->() const { return &accessor_(current_); }
@@ -213,7 +213,7 @@ struct member_accessor_t: accessor_helper_t<Base&, Value>
 {
 	typedef Value Base::*mem_ptr_type;
 	typedef typename accessor_helper_t<Base&, Value>::reference reference;
-	member_accessor_t(mem_ptr_type mem_ptr): mem_ptr_(mem_ptr) {}
+	member_accessor_t(mem_ptr_type mem_ptr = mem_ptr_type()): mem_ptr_(mem_ptr) {}
 	reference operator()(It i) const { return (*i).*mem_ptr_; }
 private:
 	mem_ptr_type mem_ptr_;

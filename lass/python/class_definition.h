@@ -91,16 +91,16 @@ namespace lass
 				StaticMemberHelperObject(const T& obj): obj_(obj) {}
 				PyObject* build() const { return pyBuildSimpleObject(obj_); }
 			private:
-				T obj_;
+				const T obj_;
 			};
 			template <typename T, size_t N>
 			class StaticMemberHelperObject<T[N]>: public StaticMemberHelper
 			{
 			public:
-				StaticMemberHelperObject(T obj[N]): obj_(obj) {}
+				StaticMemberHelperObject(const T obj[N]): obj_(obj) {}
 				PyObject* build() const { return pyBuildSimpleObject(obj_); }
 			private:
-				T* obj_;
+				const T* obj_;
 			};
 			template <>
 			class StaticMemberHelperObject<PyObject*>: public StaticMemberHelper

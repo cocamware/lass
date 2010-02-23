@@ -67,11 +67,10 @@ Parallelogram3D<T>::Parallelogram3D()
 /** Constructs a parallelogram with a support and two sizes
  */
 template <typename T>
-Parallelogram3D<T>::Parallelogram3D(const TPoint& iSupport, const TVector& iSizeU, 
-									const TVector& iSizeV):
-	support_(iSupport),
-	sizeU_(iSizeU),
-	sizeV_(iSizeV)
+Parallelogram3D<T>::Parallelogram3D(const TPoint& support, const TVector& sizeU, const TVector& sizeV):
+	support_(support),
+	sizeU_(sizeU),
+	sizeV_(sizeV)
 {
 }
 
@@ -176,30 +175,30 @@ Parallelogram3D<T>::perimeter() const
 
 template <typename T>
 const typename Parallelogram3D<T>::TPoint 
-Parallelogram3D<T>::point(TParam iU, TParam iV) const
+Parallelogram3D<T>::point(TParam u, TParam v) const
 {
-	return support_ + iU * sizeU_ + iV * sizeV_;
+	return support_ + u * sizeU_ + v * sizeV_;
 }
 
 
 
 template <typename T> inline
 const typename Parallelogram3D<T>::TPoint
-Parallelogram3D<T>::point(const TUV& iUv) const
+Parallelogram3D<T>::point(const TUV& uv) const
 {
-	return point(iUv.x, iUv.y);
+	return point(uv.x, uv.y);
 }
 
 
 
 template <typename T>
 const typename Parallelogram3D<T>::TUV
-Parallelogram3D<T>::uv(const TPoint& iPoint) const
+Parallelogram3D<T>::uv(const TPoint& point) const
 {
 	TVector reciprocalU;
 	TVector reciprocalV;
 	impl::Plane3DImplDetail::generateReciprocal(sizeU_, sizeV_, reciprocalU, reciprocalV);
-	const TVector relative = iPoint - support_;
+	const TVector relative = point - support_;
 	return TUV(dot(relative, reciprocalU), dot(relative, reciprocalV));
 }
 
@@ -210,7 +209,7 @@ Parallelogram3D<T>::uv(const TPoint& iPoint) const
  *      A parallelogram is always simple
  */
 template <typename T>
-const bool Parallelogram3D<T>::isSimple() const
+bool Parallelogram3D<T>::isSimple() const
 {
 	return true;
 }
@@ -222,7 +221,7 @@ const bool Parallelogram3D<T>::isSimple() const
  *      A parallelogram is always convex
  */
 template <typename T>
-const bool Parallelogram3D<T>::isConvex() const
+bool Parallelogram3D<T>::isConvex() const
 {
 	return true;
 }
@@ -234,7 +233,7 @@ const bool Parallelogram3D<T>::isConvex() const
  *		A parallelogram never has reflex vertices
  */
 template <typename T>
-const bool Parallelogram3D<T>::isReflex(int iIndexOfVertex) const
+bool Parallelogram3D<T>::isReflex(int) const
 {
 	return false;
 }
@@ -250,14 +249,14 @@ const bool Parallelogram3D<T>::isReflex(int iIndexOfVertex) const
 /** @relates lass::prim::Parallelogram3D
  */
 template <typename T>
-io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Parallelogram3D<T>& iParallelogram)
+io::XmlOStream& operator<<(io::XmlOStream& stream, const Parallelogram3D<T>& parallelogram)
 {
-	LASS_ENFORCE_STREAM(ioOStream) << "<Parallelogram3D>\n";
-	ioOStream << "<support>" << iParallelogram.support() << "</support>\n";
-	ioOStream << "<sizeU>" << iParallelogram.sizeU() << "</sizeU>\n";
-	ioOStream << "<sizeV>" << iParallelogram.sizeV() << "</sizeV>\n";
-	ioOStream << "</Parallelogram3D>\n";
-	return ioOStream;
+	LASS_ENFORCE_STREAM(stream) << "<Parallelogram3D>\n";
+	stream << "<support>" << parallelogram.support() << "</support>\n";
+	stream << "<sizeU>" << parallelogram.sizeU() << "</sizeU>\n";
+	stream << "<sizeV>" << parallelogram.sizeV() << "</sizeV>\n";
+	stream << "</Parallelogram3D>\n";
+	return stream;
 }
 
 
@@ -265,12 +264,12 @@ io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Parallelogram3D<T>& 
 /** @relates lass::prim::Parallelogram3D
  */
 template <typename T>
-std::ostream& operator<<(std::ostream& ioOStream, const Parallelogram3D<T>& iParallelogram)
+std::ostream& operator<<(std::ostream& stream, const Parallelogram3D<T>& parallelogram)
 {
-	LASS_ENFORCE_STREAM(ioOStream) 
-		<< "{S=" << iParallelogram.support() << ", U=" << iParallelogram.sizeU() 
-		<< ", V=" << iParallelogram.sizeV() << "}";
-	return ioOStream;
+	LASS_ENFORCE_STREAM(stream) 
+		<< "{S=" << parallelogram.support() << ", U=" << parallelogram.sizeU() 
+		<< ", V=" << parallelogram.sizeV() << "}";
+	return stream;
 }
 
 
