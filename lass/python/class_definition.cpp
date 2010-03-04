@@ -513,6 +513,8 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 
 PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int op)
 {
+	// don't worry about GIL, as we should still have it when we get here ...
+
 	if (other == Py_None)
 	{
 		// we need to treat the None type differently because the pyGet/BuildSimpleObject are able to cast

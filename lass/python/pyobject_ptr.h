@@ -44,6 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_PYTHON_PYOBJECT_PTR_H
 
 #include "python_common.h"
+#include "gil.h"
 #include "../util/shared_ptr.h"
 #include "../util/singleton.h"
 #include "../util/thread.h"
@@ -154,7 +155,12 @@ protected:
 	template <typename T> void dispose(T* /*pointee*/) {}
 	template <typename T> void increment(T* pointee)
 	{
-		LASS_LOCK(impl::referenceMutex())
+		if (Py_IsInitialized())
+		{
+			LockGIL LASS_UNUSED(lock);
+			Py_INCREF(pointee);
+		}
+		else
 		{
 			Py_INCREF(pointee);
 		}
@@ -165,10 +171,16 @@ protected:
 	}
 	template <typename T> bool decrement(T* pointee)
 	{
-		bool r = false;
-		LASS_LOCK(impl::referenceMutex())
+		LASS_ASSERT(pointee);
+		bool r;
+		if (Py_IsInitialized())
 		{
-			LASS_ASSERT(pointee);
+			LockGIL LASS_UNUSED(lock);
+			r = pointee->ob_refcnt <=1;
+			Py_DECREF(pointee);
+		}
+		else
+		{
 			r = pointee->ob_refcnt <=1;
 			Py_DECREF(pointee);
 		}
@@ -219,10 +231,8 @@ template<class T>
 lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 fromNakedToSharedPtrCast(PyObject* object)
 {
-	LASS_LOCK(impl::referenceMutex()) 
-	{
-		Py_XINCREF(object);
-	}
+	LockGIL LASS_UNUSED(lock);
+	Py_XINCREF(object);
 	return util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(static_cast<T*>(object));
 }
 
@@ -238,11 +248,9 @@ template<class T>
 PyObject*
 fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& object)
 {
+	LockGIL LASS_UNUSED(lock);
 	PyObject* const obj = object.get();
-	LASS_LOCK(impl::referenceMutex()) 
-	{
-		Py_XINCREF(obj);
-	}
+	Py_XINCREF(obj);
 	return obj;
 }
 
@@ -255,6 +263,7 @@ template <typename Out, typename In> inline
 Out	staticPyCast(const In& in)
 {
 	typedef typename Out::TPointer TPtr;
+	LockGIL LASS_UNUSED(lock);
 	TPtr ptr = static_cast<TPtr>(in.get());
 	Py_XINCREF(ptr);
 	return Out(ptr);
@@ -269,6 +278,7 @@ template <typename Out, typename In> inline
 Out	dynamicPyCast(const In& in)
 {
 	typedef typename Out::TPointer TPtr;
+	LockGIL LASS_UNUSED(lock);
 	TPtr ptr = dynamic_cast<TPtr>(in.get());
 	Py_XINCREF(ptr);
 	return Out(ptr);

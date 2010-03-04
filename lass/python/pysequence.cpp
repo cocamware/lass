@@ -100,6 +100,7 @@ namespace impl
 
 	void Sequence::initializeType()
 	{
+		LockGIL LASS_UNUSED(lock);
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;

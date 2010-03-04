@@ -125,6 +125,7 @@ namespace impl
 */
 bool checkSequenceSize(PyObject* obj, Py_ssize_t expectedSize)
 {
+	LockGIL LASS_UNUSED(lock);
 	if (!PySequence_Check(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a python sequence (tuple, list, ...)");
@@ -147,6 +148,7 @@ bool checkSequenceSize(PyObject* obj, Py_ssize_t expectedSize)
  */
 TPyObjPtr checkedFastSequence(PyObject* obj)
 {
+	LockGIL LASS_UNUSED(lock);
 	return TPyObjPtr(PySequence_Fast(obj, "expected a sequence (tuple, list, ...)"));
 }
 
@@ -156,6 +158,7 @@ TPyObjPtr checkedFastSequence(PyObject* obj)
  */
 TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize)
 {
+	LockGIL LASS_UNUSED(lock);
 	TPyObjPtr result = checkedFastSequence(obj);
 	if (result)
 	{
@@ -177,6 +180,7 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize)
  */
 TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize)
 {
+	LockGIL LASS_UNUSED(lock);
 	TPyObjPtr result = checkedFastSequence(obj);
 	if (result)
 	{
@@ -197,12 +201,14 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t 
  */
 PyObject* establishMagicalBackLinks(PyObject* result, PyObject* self)
 {
+
 	if (!result)
 	{
 		return 0;
 	}
 	if (result->ob_type == PyIteratorRange::_lassPyClassDef.type())
 	{
+		LockGIL LASS_UNUSED(lock);
 		PyIteratorRange* iter = static_cast<PyIteratorRange*>(result);
 		if (!iter->owner())
 		{

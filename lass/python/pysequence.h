@@ -368,6 +368,14 @@ namespace impl
 		std::string doPyStr();
 		std::string doPyRepr();
 
+		const std::type_info& type() const;
+		void* raw(bool writable) const;
+
+	private:
+		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
+		void init(std::auto_ptr<PySequenceImplBase> pimpl);
+		static void initializeType();
+
 		static Py_ssize_t length( PyObject* self);
 		static PyObject* concat(PyObject* self, PyObject* other);
 		static PyObject* repeat(PyObject* self, Py_ssize_t n);
@@ -380,14 +388,6 @@ namespace impl
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
-
-		const std::type_info& type() const;
-		void* raw(bool writable) const;
-
-	private:
-		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
-		void init(std::auto_ptr<PySequenceImplBase> pimpl);
-		static void initializeType();
 
 		util::ScopedPtr<PySequenceImplBase> pimpl_;
 	};

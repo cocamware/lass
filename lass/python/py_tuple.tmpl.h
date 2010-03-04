@@ -88,6 +88,7 @@ $[
 template <$(typename P$x)$>
 const TPyObjPtr makeTuple($(const P$x& p$x)$)
 {
+	LockGIL LASS_UNUSED(lock);
 	TPyObjPtr tuple(PyTuple_New($x));
  	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(p$x)) != 0) return TPyObjPtr();
  	)$
@@ -116,6 +117,7 @@ $[
 template <$(typename P$x)$>
 int decodeTuple(PyObject* obj, $(P$x& p$x)$)
 {
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr tuple = impl::checkedFastSequence(obj, $x);
 	if (!tuple)
 	{
@@ -143,6 +145,7 @@ $[
 template <$(typename P$x)$>
 int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
 {
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, $x);
 	if (!tuple)
 	{

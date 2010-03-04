@@ -49,6 +49,7 @@
 #include "pyshadow_object.h"
 #include "argument_traits.h"
 #include "exception.h"
+#include "gil.h"
 #include "../util/call_traits.h"
 #include "../meta/if.h"
 #include "../meta/select.h"
@@ -89,6 +90,7 @@ struct Caller
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			return pyBuildSimpleObject( function() );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -99,6 +101,7 @@ struct Caller
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			return pyBuildSimpleObject( function($(p$x)$) );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -112,6 +115,7 @@ struct Caller
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			return pyBuildSimpleObject( (object.*method)() );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -122,6 +126,7 @@ struct Caller
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			return pyBuildSimpleObject( (object.*method)($(p$x)$) );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -141,6 +146,7 @@ struct Caller<void>
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			function();
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -152,6 +158,7 @@ struct Caller<void>
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			function($(p$x)$);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -166,6 +173,7 @@ struct Caller<void>
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			(object.*method)();
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -177,6 +185,7 @@ struct Caller<void>
 	{
 		try
 		{
+			UnblockThreads LASS_UNUSED(unlock);
 			(object.*method)($(p$x)$);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -346,7 +355,9 @@ $[
 
 	// member getters and setters
 
-	/** call const getter function
+	/** call const getter function.
+	 *
+	 *  Getters and Setters never release the GIL, as it is assumed they're cheap.
 	 */
 	template <typename C, typename R>
 	static PyObject* get(PyObject* object, R (C::*method)() const)
@@ -364,7 +375,9 @@ $[
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
     
-	/** call getter function
+	/** call getter function.
+	 *
+	 *  Getters and Setters never release the GIL, as it is assumed they're cheap.
 	 */
 	template <typename C, typename R>
 	static PyObject* get(PyObject* object, R (C::*method)())
@@ -382,7 +395,9 @@ $[
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
 
-	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>
+	/** call explicit setter function like <tt>void Foo::setBar(const Bar& iBar)</tt>.
+	 *
+	 *  Getters and Setters never release the GIL, as it is assumed they're cheap.
 	 */
 	template <typename C, typename P>
 	static int set( PyObject* args, PyObject* object, void (C::*method)(P) )
@@ -401,7 +416,9 @@ $[
 		return 0;
 	}
 
-	/** call implicit setter function like <tt>Bar& Foo::bar()</tt>
+	/** call implicit setter function like <tt>Bar& Foo::bar()</tt>.
+	 *
+	 *  Getters and Setters never release the GIL, as it is assumed they're cheap.
 	 */
 	template <typename C, typename P>
 	static int set( PyObject* args, PyObject* object, P& (C::*method)() )

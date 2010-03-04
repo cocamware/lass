@@ -53,6 +53,7 @@ namespace impl
 
 void addMessageHeader(const char* header)
 {
+	LockGIL LASS_UNUSED(lock);
 	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
 	{
 		return;
@@ -90,6 +91,7 @@ void addMessageHeader(const char* header)
 
 void fetchAndThrowPythonException(const std::string& loc)
 {
+	LockGIL LASS_UNUSED(lock);
 	if (!PyErr_Occurred())
 	{
 		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
@@ -107,6 +109,7 @@ void fetchAndThrowPythonException(const std::string& loc)
 
 void catchPythonException(const PythonException& error)
 {
+	LockGIL LASS_UNUSED(lock);
 	PyErr_Restore(
 		fromSharedPtrToNakedCast(error.type()),
 		fromSharedPtrToNakedCast(error.value()),
@@ -115,6 +118,7 @@ void catchPythonException(const PythonException& error)
 
 void catchLassException(const util::Exception& error)
 {
+	LockGIL LASS_UNUSED(lock);
 	::std::ostringstream buffer;
 	buffer << error.message() << "\n\n(" << error.location() << ")";
 	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
@@ -122,6 +126,7 @@ void catchLassException(const util::Exception& error)
 
 void catchStdException(const std::exception& error)
 {
+	LockGIL LASS_UNUSED(lock);
 	PyErr_SetString(PyExc_Exception, error.what());
 }
 
@@ -165,6 +170,7 @@ const python::TPyObjPtr& PythonException::traceback() const
 
 const std::string PythonException::extractMessage(PyObject* type, PyObject* value)
 {
+	LockGIL LASS_UNUSED(lock);
 	std::string message;
 	const TPyObjPtr typeStr(PyObject_Str(type));
 	if (!typeStr || pyGetSimpleObject(typeStr.get(), message) != 0)

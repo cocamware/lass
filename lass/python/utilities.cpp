@@ -54,6 +54,7 @@ namespace impl
 
 TPyObjPtr runString(const char *code, int start)
 {
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr dict = globals();
 	const TPyObjPtr result(PY_ENFORCE_POINTER(PyRun_String(code, start, dict.get(), dict.get())));
 	return result;
@@ -69,6 +70,7 @@ TPyObjPtr runString(const char *code, int start)
  */
 TPyObjPtr getPyObjectByName(const std::string& iName)
 {
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr dict = globals();
 	const TPyObjPtr key(PY_ENFORCE_POINTER(pyBuildSimpleObject(iName)));
 	PyObject* const object = PyDict_GetItem(dict.get(), key.get());
@@ -81,6 +83,7 @@ TPyObjPtr getPyObjectByName(const std::string& iName)
  */
 TPyObjPtr globals()
 {
+	LockGIL LASS_UNUSED(lock);
 	PyObject* const module = PY_ENFORCE_POINTER(PyImport_AddModule("__main__"));
 	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(module));
 	return fromNakedToSharedPtrCast<PyObject>(dict);
@@ -139,6 +142,7 @@ void putenv(const std::string& key, const std::string& value)
  */
 void putenv(const char* key, const char* value)
 {
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr item(PY_ENFORCE_POINTER(pyBuildSimpleObject(value)));
 	const TPyObjPtr os(PY_ENFORCE_POINTER(PyImport_ImportModule("os")));
 	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(os.get()));

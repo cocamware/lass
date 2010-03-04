@@ -198,17 +198,17 @@ namespace impl
 		const TMapPtr copy() const;
 		const TPyObjPtr asDict() const;
 
-		static Py_ssize_t length(PyObject* self);
-		static PyObject* subscript(PyObject* self, PyObject* key);
-		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
-
 		const std::type_info& type() const;
 		void* raw(bool writable) const;
 
 	private:
 		Map(std::auto_ptr<PyMapImplBase> pimpl);
 		void init(std::auto_ptr<PyMapImplBase> pimpl);
-		static void initializeType();		
+		static void initializeType();
+
+		static Py_ssize_t length(PyObject* self);
+		static PyObject* subscript(PyObject* self, PyObject* key);
+		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
 		util::ScopedPtr<PyMapImplBase> pimpl_;
 		static bool isInitialized;
