@@ -57,7 +57,7 @@ target_link_libraries(
 	)
 set_target_properties(
 	test_suite PROPERTIES
-        COMPILE_FLAGS ${lass_C_FLAGS}
+        COMPILE_FLAGS ${_cflags}
 	)
 add_precompiled_header(
 	test_suite 

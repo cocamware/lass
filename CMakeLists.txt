@@ -36,7 +36,11 @@ if (BUILD_USING_STLPORT)
 	find_package(STLPort 5.3)
 	mark_as_advanced(CLEAR STLPORT_INSTALL_DIR STLPORT_INCLUDE_DIR STLPORT_LIBRARIES)
 endif()
-
+if (MSVC_IDE)
+	option(BUILD_USING_MULTIPLE_PROCESSES OFF)
+else()
+	set(BUILD_USING_MULTIPLE_PROCESSES OFF)
+endif ()
 
 # --- CHECK THE ENVIRONMENT ----
 
@@ -209,6 +213,10 @@ if(CMAKE_CL_64)
     #list(APPEND lass_SRCS ${sourcepath} ${defpath})
 endif()
 
+set(_cflags "${lass_C_FLAGS}") 
+if (BUILD_USING_MULTIPLE_PROCESSES)
+	set(_cflags "${_cflags} /MP")
+endif()
 add_library(lass 
 	${lass_SRCS} 
 	${lass_HDRS})
@@ -218,7 +226,7 @@ target_link_libraries(lass
 	debug ${PYTHON_DEBUG_LIBRARIES})
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS
-	COMPILE_FLAGS ${lass_C_FLAGS}
+	COMPILE_FLAGS ${_cflags}
 	VERSION ${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}
 	SOVERSION ${LASS_SOVERSION}
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
