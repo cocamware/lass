@@ -69,8 +69,8 @@ void testStdeSafeFormat()
 	LASS_TEST_CHECK_EQUAL(safe_format("%s %s!", "hello", "world"), "hello world!");
 
 	const char* a = "12345678901234567890123456789012345678901234567890";
-	LASS_TEST_CHECK_EQUAL(strlen(a), 50);
-	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s%s%s%s%s%s", a, a, a, a, a, a, a, a, a, a).length(), 500);
+	LASS_TEST_CHECK_EQUAL(strlen(a), size_t(50));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s%s%s%s%s%s", a, a, a, a, a, a, a, a, a, a).length(), size_t(500));
 }
 
 TUnitTest test_stde_extended_cstring()

@@ -80,6 +80,8 @@ public:
 	{
 		doPostVisit(visitable);
 	}
+protected:
+	virtual ~Visitor() {}
 private:
 	virtual void doPreVisit(T& visitable) = 0;
 	virtual void doPostVisit(T& /*visitable*/) {}

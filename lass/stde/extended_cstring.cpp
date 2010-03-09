@@ -61,33 +61,33 @@ namespace stde
 
 std::string safe_vformat(const char* format, va_list args)
 {
-	const size_t startSize = 256;
-	const float growFactor = 1.5f;
-
-	char staticBuffer[startSize];
-	try
-	{
-		safe_vsprintf(staticBuffer, format, args);
-		return std::string(staticBuffer);
-	}
-	catch (const std::length_error&)
-	{
-	}
-
-	std::vector<char> dynamicBuffer(static_cast<size_t>(startSize * growFactor));
+	size_t size = 256;
+	std::vector<char> dynamicBuffer(size);
 	while (true)
 	{
-		const int numWritten = vsnprintf(&dynamicBuffer[0], dynamicBuffer.size(), format, args);
-		if (numWritten >= 0 && numWritten < static_cast<int>(dynamicBuffer.size()))
+		const size_t count = size - 1; // be on the safe side and follow the MSDN docs that say that count should be strictly less than the buffer length.
+		
+		va_list ap;
+		va_copy(ap, args);
+		const int numWritten = vsnprintf(&dynamicBuffer[0], count, format, ap);
+		va_end(ap);
+		if (numWritten > 0 && numWritten < static_cast<int>(count))
 		{
 			return std::string(&dynamicBuffer[0]);
 		}
-		const size_t newSize = static_cast<size_t>(dynamicBuffer.size() * growFactor);
-		if (newSize < dynamicBuffer.size() || static_cast<int>(newSize) < 0)
+		if (numWritten < 0)
+		{
+			size *= 2;
+		}
+		else
+		{
+			size = numWritten + 2; // an extra +1  because of the MSDN count interpretation
+		}
+		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
 		{
 			throw std::length_error("safe_vformat: buffer is growing to large");
 		}
-		dynamicBuffer.resize(newSize);
+		dynamicBuffer.resize(size);
 	}
 }
 

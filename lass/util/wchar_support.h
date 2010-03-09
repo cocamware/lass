@@ -64,3 +64,5 @@ std::wstring utf8ToWchar(const char* utf8);
 }
 
 #endif
+
+// EOF
