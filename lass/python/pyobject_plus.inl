@@ -199,7 +199,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
  */
 template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ArgKwSlot ,DispatcherAddress>
 {
-	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
+	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* LASS_UNUSED(iKw))
 	{
 #if PY_VERSION_HEX >= 0X02050000
 		if (!_PyArg_NoKeywords("function", iKw))

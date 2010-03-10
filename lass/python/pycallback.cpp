@@ -78,7 +78,7 @@ const std::string MultiCallbackImplBase::repr() const
 
 	// wrapping the call ourselves as the macro's and templates have difficulties
 	// automatically wrapping everything up
-	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* kwargs)
+	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* LASS_UNUSED(kwargs))
 	{
 		LockGIL LASS_UNUSED(lock);
 		if (!PyType_IsSubtype(self->ob_type , MultiCallback::_lassPyClassDef.type() ))
