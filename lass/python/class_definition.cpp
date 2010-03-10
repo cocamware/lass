@@ -398,7 +398,6 @@ void ClassDefinition::addGetSetter(const char* name, const char* doc, getter get
 
 void ClassDefinition::addStaticMethod(const char* name, const char* doc, PyCFunction dispatcher, PyCFunction& overloadChain)
 {
-#if PY_VERSION_HEX >= 0x02030000 // >= 2.3
 	std::vector<PyMethodDef>::iterator i = ::std::find_if(methods_.begin(), methods_.end(), NamePredicate(name));
 	if (i == methods_.end())
 	{
@@ -415,33 +414,6 @@ void ClassDefinition::addStaticMethod(const char* name, const char* doc, PyCFunc
 			i->ml_doc = const_cast<char*>(doc);
 		}
 	}
-#else
-	TStaticMembers::iterator i = ::std::find_if(statics_.begin(), statics_.end(), StaticMemberEqual(name));
-	if (i == statics_.end())
-	{
-		PyMethodDef* methodDef(new PyMethodDef(createPyMethodDef(name, dispatcher, METH_VARARGS, doc)));
-		PyObject* cFunction = PyCFunction_New(methodDef, 0);
-		PyObject* descr = PyStaticMethod_New(cFunction);
-		statics_.push_back(createStaticMember(name, staticMemberHelperObject(descr)));
-		overloadChain = 0;
-	}
-	else
-	{
-		PyObject* descr = i->object;
-		LASS_ASSERT(descr && PyObject_IsInstance(descr, reinterpret_cast<PyObject*>(&PyStaticMethod_Type)));		
-		PyObject* cFunction = PyStaticMethod_Type.tp_descr_get(descr, 0, 0);
-		LASS_ASSERT(cFunction && PyObject_IsInstance(cFunction, reinterpret_cast<PyObject*>(&PyCFunction_Type)));
-		PyMethodDef* methodDef = reinterpret_cast<PyCFunctionObject*>(cFunction)->m_ml;
-		LASS_ASSERT(methodDef && methodDef->ml_flags == METH_VARARGS);
-		overloadChain = methodDef->ml_meth;
-		methodDef->ml_meth = dispatcher;
-		if (methodDef->ml_doc == 0)
-		{
-			methodDef->ml_doc = const_cast<char*>(doc);
-		}
-		i->doc = methodDef->ml_doc;
-	}	
-#endif
 }	
 
 void ClassDefinition::addInnerClass(ClassDefinition& innerClass)

@@ -71,6 +71,7 @@ namespace impl
 	protected:
 		void call(const TPyObjPtr& args) const
 		{
+			LockGIL LASS_UNUSED(lock);
 			LASS_ASSERT(callable_);
 			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 			if (!result)

@@ -42,6 +42,7 @@
 
 #include "lass_common.h"
 #include "wchar_support.h"
+#include "../num/num_cast.h"
 
 #if LASS_HAVE_MULTIBYTETOWIDECHAR
 #	define WIN32_LEAN_AND_MEAN
@@ -58,8 +59,8 @@ namespace util
 
 std::wstring utf8ToWchar(const char* utf8)
 {
-	const size_t utf8Bytes = ::strlen(utf8) + 1;
-	const size_t wcharBytes = LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, 0, 0));
+	const int utf8Bytes = num::numCast<int>(::strlen(utf8) + 1);
+	const int wcharBytes = LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, 0, 0));
 	std::vector<wchar_t> wideString(wcharBytes);
 	LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, &wideString[0], wcharBytes));
 	return std::wstring(&wideString[0]);

@@ -80,6 +80,7 @@ namespace impl
  		template <typename T, typename C>
 		static void raise(const T&, const C&, const std::string& message, const char* locus)
 		{
+			LockGIL LASS_UNUSED(lock);
 			if (PyErr_Occurred())
 			{
 				fetchAndThrowPythonException(locus);
