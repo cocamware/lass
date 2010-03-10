@@ -54,6 +54,7 @@ namespace impl
 const std::string ContainerImplBase::repr() const
 {
 	// convert container to python equivalent and ask repr of that.
+	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr obj = this->asNative();
 	const TPyObjPtr rep(PyObject_Repr(obj.get()));
 	std::string result;

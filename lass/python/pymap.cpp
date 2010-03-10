@@ -87,6 +87,7 @@ namespace impl
 
 	void Map::initializeType()
 	{
+		LockGIL LASS_UNUSED(lock);
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
@@ -104,6 +105,7 @@ namespace impl
 
 	void Map::init(std::auto_ptr<PyMapImplBase> pimpl)
 	{
+		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
 		pimpl_.reset(pimpl);
@@ -116,26 +118,31 @@ namespace impl
 	
 	std::string Map::doPyRepr()
 	{
+		LockGIL LASS_UNUSED(lock);
 		return pimpl_->repr();
 	}
 	
 	const TPyObjPtr Map::keys() const
 	{ 
+		LockGIL LASS_UNUSED(lock);
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->keys()); 
 	}
 		
 	const TPyObjPtr Map::values() const
 	{ 
+		LockGIL LASS_UNUSED(lock);
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->values()); 
 	}
 	
 	const TPyObjPtr Map::items() const
 	{ 
+		LockGIL LASS_UNUSED(lock);
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
 	}
 
 	const TPyObjPtr Map::get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const
 	{
+		LockGIL LASS_UNUSED(lock);
 		TPyObjPtr result = fromNakedToSharedPtrCast<PyObject>(pimpl_->subscript(key.get()));
 		if (!result && PyErr_ExceptionMatches(PyExc_KeyError))
 		{
@@ -147,21 +154,25 @@ namespace impl
 
 	const TPyObjPtr Map::getOrNone(const TPyObjPtr& key) const
 	{
+		LockGIL LASS_UNUSED(lock);
 		return get(key, fromNakedToSharedPtrCast<PyObject>(Py_None));
 	}
 
 	const TMapPtr Map::copy() const
 	{
+		LockGIL LASS_UNUSED(lock);
 		return TMapPtr(new Map(pimpl_->copy()));
 	}
 
 	const TPyObjPtr Map::asDict() const
 	{
+		LockGIL LASS_UNUSED(lock);
 		return pimpl_->asNative();
 	}
 
 	void Map::clear()
 	{
+		LockGIL LASS_UNUSED(lock);
 		if (!pimpl_->clear())
 		{
 			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);

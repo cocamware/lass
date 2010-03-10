@@ -92,6 +92,7 @@ namespace impl
 		}
 		PyObject* subscript(PyObject* key) const
 		{
+			LockGIL LASS_UNUSED(lock);
 			typename Container::key_type k;
 			if (pyGetSimpleObject(key, k) != 0)
 			{
@@ -108,6 +109,7 @@ namespace impl
 		}
 		int assSubscript(PyObject* key, PyObject* value)
 		{
+			LockGIL LASS_UNUSED(lock);
 			if (!this->checkWritable())
 			{
 				return -1;
