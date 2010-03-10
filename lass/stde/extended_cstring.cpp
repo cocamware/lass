@@ -65,13 +65,15 @@ std::string safe_vformat(const char* format, va_list args)
 	std::vector<char> dynamicBuffer(size);
 	while (true)
 	{
-		const size_t count = size - 1; // be on the safe side and follow the MSDN docs that say that count should be strictly less than the buffer length.
-		
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+		const int numWritten = vsnprintf(&dynamicBuffer[0], size - 1, format, args);
+#else		
 		va_list ap;
 		va_copy(ap, args);
-		const int numWritten = vsnprintf(&dynamicBuffer[0], count, format, ap);
+		const int numWritten = vsnprintf(&dynamicBuffer[0], size, format, ap);
 		va_end(ap);
-		if (numWritten > 0 && numWritten < static_cast<int>(count))
+#endif
+		if (numWritten > 0 && numWritten < static_cast<int>(size))
 		{
 			return std::string(&dynamicBuffer[0]);
 		}
@@ -81,7 +83,7 @@ std::string safe_vformat(const char* format, va_list args)
 		}
 		else
 		{
-			size = numWritten + 2; // an extra +1  because of the MSDN count interpretation
+			size = numWritten + 1;
 		}
 		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
 		{
