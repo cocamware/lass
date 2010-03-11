@@ -54,11 +54,10 @@ namespace impl
 {
 
 typedef util::AllocatorClassAdaptor<
-		util::AllocatorPerThread<
-			util::AllocatorBinned<
-				util::AllocatorFreeList<>
-			>
-		>
+		util::AllocatorBinned< 
+			util::AllocatorConcurrentFreeList<> 
+		>,
+		destructionPriorityNever
 	>
 	TDispatcherAllocatorBase;
 
