@@ -67,9 +67,9 @@ template
 <
 	typename ObjectType,
 	typename ObjectTraits = DefaultObjectTraits<ObjectType>,
-	typename SplitHeuristics = DefaultSplitHeuristics<>
+	typename SplitHeuristics = DefaultSplitHeuristics
 >
-class AabbTree
+class AabbTree: public SplitHeuristics
 {
 public:
 
@@ -111,8 +111,8 @@ public:
 		TValue squaredDistance_;
 	};
 
-	AabbTree();
-	AabbTree(TObjectIterator first, TObjectIterator last);
+	AabbTree(const TSplitHeuristics& heuristics = TSplitHeuristics());
+	AabbTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics());
 
 	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);

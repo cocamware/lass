@@ -129,6 +129,7 @@ public:
 	void reset(TObjectIterator first, TObjectIterator last);
 
 	Neighbour nearestNeighbour(const TPoint& target) const;	
+	Neighbour nearestNeighbour(const TPoint& target, TParam maxRadius) const;	
 	TValue rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCount,
 			TNeighbourhood& neighbourhood) const;
 

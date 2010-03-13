@@ -76,7 +76,7 @@ public:
 
 private:
 	Clock clock_;
-	Clock::TTime timeLeftBuffer_;
+	Clock::TTime avgStepDuration_;
 	Clock::TTime previousTimeElapsed_;
 	std::string description_;
 	std::string backslash_;

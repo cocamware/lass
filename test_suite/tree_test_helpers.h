@@ -70,6 +70,13 @@ namespace test
 namespace tree_test_helpers
 {
 
+template <size_t maxSize> struct StaticSplitHeuristics: spat::DefaultSplitHeuristics
+{
+	StaticSplitHeuristics(): spat::DefaultSplitHeuristics(maxSize) {}
+};
+
+
+
 template <typename Vector, typename T, typename RandomGenerator> 
 Vector randomExtents(T maxExtents, RandomGenerator& random)
 {

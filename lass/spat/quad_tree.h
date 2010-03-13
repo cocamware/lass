@@ -75,16 +75,19 @@ namespace spat
 
 template
 <
-	class ObjectType,
-	class ObjectTraits = DefaultObjectTraits<ObjectType>
+	typename ObjectType,
+	typename ObjectTraits = DefaultObjectTraits<ObjectType>,
+	typename SplitHeuristics = DefaultSplitHeuristics
 >
-class QuadTree: private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
+class QuadTree: 
+	public SplitHeuristics, private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
 {
 public:
 
 	typedef QuadTree<ObjectType, ObjectTraits> TSelf;
 	typedef ObjectType TObjectType;
 	typedef ObjectTraits TObjectTraits;
+	typedef SplitHeuristics TSplitHeuristics;
 
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 	typedef typename TObjectTraits::TObjectReference TObjectReference;
@@ -98,12 +101,7 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum 
-	{ 
-		dimension = TObjectTraits::dimension,
-		defaultMaxSize = 10,
-		defaultMaxLevel = 10,
-	};
+	enum { dimension = TObjectTraits::dimension, };
 
 	class Neighbour
 	{
@@ -122,9 +120,9 @@ public:
 		TValue squaredDistance_;
 	};
 
-	QuadTree(const TAabb& aabb = TAabb(), size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
-	QuadTree(const TAabb& aabb, TObjectIterator end, size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
-	QuadTree(TObjectIterator first, TObjectIterator last, size_t maxSize = defaultMaxSize, size_t maxLevel = defaultMaxLevel);
+	QuadTree(const TAabb& aabb = TAabb(), const TSplitHeuristics& heuristics = TSplitHeuristics());
+	QuadTree(const TAabb& aabb, TObjectIterator end, const TSplitHeuristics& heuristics = TSplitHeuristics());
+	QuadTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics());
 	~QuadTree();
 
 	void reset();
@@ -210,13 +208,13 @@ private:
 		QuadNode(const CenteredBox& bounds);
 		~QuadNode();
 
-		void add(TObjectIterator object, size_t maxSize, size_t maxLevel, size_t level = 0, bool mayDecompose = true);
+		void add(TObjectIterator object, const TSplitHeuristics& heuristics, size_t level = 0, bool mayDecompose = true);
 		void remove(TObjectIterator object);
 
 		size_t objectCount() const;            /**< number of objects in this node and all its children */
 		size_t depth() const;					/**< depth of the child tree */
 		const TValue averageDepth() const;
-		void decompose(size_t maxSize, size_t maxLevel, size_t level = 0);	/**< split the current node into 4 children */
+		void decompose(const TSplitHeuristics& heuristics, size_t level = 0);	/**< split the current node into 4 children */
 		void absorb();                      /**< absorb all children into the current node */
 
 		TAabb aabb() const;
@@ -238,8 +236,6 @@ private:
 	TAabb aabb_;
 	QuadNode*   root_;
 	TObjectIterator end_;
-	size_t maxSize_;
-	size_t maxLevel_;
 };
 
 

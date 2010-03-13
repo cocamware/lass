@@ -56,7 +56,8 @@ namespace spat
 // --- public --------------------------------------------------------------------------------------
 
 template <typename O, typename OT, typename SH>
-AabpTree<O, OT, SH>::AabpTree():
+AabpTree<O, OT, SH>::AabpTree(const TSplitHeuristics& heuristics):
+	SH(heuristics),
 	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
@@ -67,7 +68,8 @@ AabpTree<O, OT, SH>::AabpTree():
 
 
 template <typename O, typename OT, typename SH>
-AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last):
+AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics):
+	SH(heuristics),
 	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
@@ -237,6 +239,7 @@ AabpTree<O, OT, SH>::rangeSearch(
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::swap(TSelf& other)
 {
+	SH::swap(other);
 	std::swap(aabb_, other.aabb_);
 	nodes_.swap(other.nodes_);
 	objects_.swap(other.objects_);
@@ -445,7 +448,7 @@ AabpTree<O, OT, SH>::doIntersect(
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
-	LASS_ASSERT(tFar > tNear);
+	LASS_ASSERT(tFar >= tNear);
 	const Node& node = nodes_[index];
 
 	if (node.isLeaf())
@@ -489,12 +492,12 @@ AabpTree<O, OT, SH>::doIntersect(
 	TObjectIterator objectRight = end_;
 	if (d > 0)
 	{
-		if (tLeftBound > tNear)
+		if (tLeftBound >= tNear * (1 - 1e-6f))
 		{
 			objectLeft = doIntersect(leftIndex, ray, tLeft, tMin, info, reciprocalDirection, 
 				tNear, std::min(tLeftBound, tFar));
 		}
-		if (tRightBound < tFar)
+		if (tRightBound <= tFar * (1 + 1e-6f))
 		{
 			objectRight = doIntersect(rightIndex, ray, tRight, tMin, info, reciprocalDirection, 
 				std::max(tRightBound, tNear), tFar);
@@ -502,12 +505,12 @@ AabpTree<O, OT, SH>::doIntersect(
 	}
 	else if (d < 0)
 	{
-		if (tLeftBound < tFar)
+		if (tLeftBound <= tFar * (1 + 1e-6f))
 		{
 			objectLeft = doIntersect(leftIndex, ray, tLeft, tMin, info, reciprocalDirection, 
 				std::max(tLeftBound, tNear), tFar);
 		}
-		if (tRightBound > tNear)
+		if (tRightBound >= tNear * (1 - 1e-6f))
 		{
 			objectRight = doIntersect(rightIndex, ray, tRight, tMin, info, reciprocalDirection, 
 				tNear, std::min(tRightBound, tFar)); 

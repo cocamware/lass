@@ -53,7 +53,7 @@ namespace util
  *  @param iConsoleWidth maximum number of characters on one console text line (default=80)
  */
 ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConsoleWidth):
-	timeLeftBuffer_(0.f),
+	avgStepDuration_(0.f),
 	previousTimeElapsed_(0.f),
 	description_(iDescription),
 	whitespace_(iConsoleWidth, ' '),
@@ -82,44 +82,45 @@ void ProgressIndicator::operator()(double iProgress)
 	if (iProgress >= num::NumTraits<double>::one)
 	{
 		// final message
-		if (current_ != 666)
+		if (current_ != 6666)
 		{
 			std::ostringstream stepInfo;
 			stepInfo.copyfmt(std::cout);
 			stepInfo << description_ << ": 100%; CPU " << Clock::humanize(clock_.time()) 
 				<< whitespace_;
 			std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::endl;
-			current_ = 666;
+			current_ = 6666;
 		}
 		return;
 	}
 		
 	iProgress = num::clamp(iProgress, num::NumTraits<double>::zero, num::NumTraits<double>::one);
-	const int procent = static_cast<int>(100 * iProgress);
+	const int promille = static_cast<int>(1000 * iProgress);
 
-	const Clock::TTime updateRate = 0.25f;
+	const Clock::TTime updateRate = 0.025f;
 
-	if (procent > current_)
+	if (promille > current_)
 	{
 		const Clock::TTime timeElapsed = clock_.time();
-		const Clock::TTime stepDuration = timeElapsed - previousTimeElapsed_;
-		const Clock::TTime timeLeft = (100 - procent) * stepDuration;
-		if (procent == 1)
+		const Clock::TTime stepDuration = (timeElapsed - previousTimeElapsed_) / (promille - current_);
+		if (avgStepDuration_ == 0)
 		{
-			timeLeftBuffer_ = timeLeft;
+			avgStepDuration_ = stepDuration;
 		}
 		else
 		{
-			timeLeftBuffer_ += updateRate * (timeLeft - timeLeftBuffer_);
+			avgStepDuration_ = num::lerp(avgStepDuration_, stepDuration, updateRate);
 		}
+		const Clock::TTime timeLeft = (1000 - promille) * avgStepDuration_;
 
 		std::ostringstream stepInfo;
 		stepInfo.copyfmt(std::cout);
-		stepInfo << description_ << ": " << procent << "%; CPU " << Clock::humanize(timeElapsed)
-			<< " [" << Clock::humanize(timeLeftBuffer_) << "]" << whitespace_;
+		stepInfo << description_ << ": " << std::fixed << std::setprecision(1) << (.1 * promille) 
+			<< "%; CPU " << Clock::humanize(timeElapsed)
+			<< " [" << Clock::humanize(timeLeft) << "]" << whitespace_;
 		std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::flush;
-		current_ = procent;
 
+		current_ = promille;
 		previousTimeElapsed_ = timeElapsed;
 	}
 }

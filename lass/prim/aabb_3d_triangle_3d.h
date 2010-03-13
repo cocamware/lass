@@ -63,6 +63,32 @@ Aabb3D<T> aabb(const Triangle3D<T>& triangle)
 	return result;
 }
 
+/*  @relates lass::prim::Triangle3D
+ *	@sa lass::prim::Aabb3D
+ *
+ *  Using the Tomas Akenine-Moller algorithm from "Fast 3D Triangle-Box Overlap Testing"
+ */
+template <typename T, typename MMP>
+bool intersects(const Triangle3D<T>& triangle, const Aabb3D<T, MMP>& box)
+{
+	typedef typename Triangle3D<T>::TPoint TPoint;
+	typedef typename Triangle3D<T>::TVector TVector;
+	typedef typename Triangle3D<T>::TValue TValue;
+
+	const TPoint center = box.center().affine();
+	const TPoint extent = box.size() / 2;
+
+	const TVector edges[] = 
+	{
+		triangle[1] - triangle[0],
+		triangle[2] - triangle[1],
+		triangle[0] - triangle[2]
+	};
+
+	LASS_ENFORCE(false);
+}
+
+
 }
 }
 

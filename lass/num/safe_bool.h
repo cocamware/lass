@@ -70,6 +70,8 @@ typedef void (impl::Dummy::*SafeBool)();
 const SafeBool safeTrue = &impl::Dummy::method;
 const SafeBool safeFalse = 0;
 
+inline SafeBool safeBool(bool x) { return x ? safeTrue : safeFalse; }
+
 
 }
 

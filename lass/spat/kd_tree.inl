@@ -124,17 +124,25 @@ template <class O, class OT>
 typename KdTree<O, OT>::Neighbour
 KdTree<O, OT>::nearestNeighbour(const TPoint& target) const
 {
+	return nearestNeighbour(target, std::numeric_limits<TValue>::infinity());
+}
+
+
+
+/** Locates the object that's nearest to a target position, within a maximum range
+ */
+template <class O, class OT>
+typename KdTree<O, OT>::Neighbour
+KdTree<O, OT>::nearestNeighbour(const TPoint& target, TParam maxRadius) const
+{
 	if (isEmpty())
 	{
 		LASS_THROW("can't locate nearest neighbour in empty KdTree");
 	}
 
-	//const size_t deepNode = findNode(0, target);
-	//const TPoint deepPivot = heap_[deepNode].position();
-	//const TValue maxSqrRadius = this->squaredDistance(target, deepPivot);
-	Neighbour result(end_, std::numeric_limits<TValue>::infinity());
-	doNearestNeighbour(0, target, result);
-	return result;
+	Neighbour best(end_, maxRadius);
+	doNearestNeighbour(0, target, best);
+	return best;
 }
 
 
@@ -496,6 +504,12 @@ void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neigh
 	const Node& node = heap_[index];
 	const TPoint pivot = node.position();
 
+	const TValue sqrDistance = squaredDistance(pivot, target);
+	if (sqrDistance < best.squaredDistance())
+	{
+		best = Neighbour(node.object(), sqrDistance);
+	}
+
 	const TAxis split = node.axis();
 	if (split != dummyAxis_)
 	{
@@ -518,12 +532,6 @@ void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neigh
 				doNearestNeighbour(2 * index + 1, target, best);
 			}
 		}
-	}
-
-	const TValue sqrDistance = this->squaredDistance(pivot, target);
-	if (sqrDistance < best.squaredDistance())
-	{
-		best = Neighbour(node.object(), sqrDistance);
 	}
 }
 

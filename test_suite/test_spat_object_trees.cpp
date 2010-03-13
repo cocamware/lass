@@ -179,8 +179,8 @@ void testSpatObjectTrees()
 	typedef spat::DefaultObjectTraits<TObject, TAabb, TRay> TObjectTraits;
 	typedef typename TObjectTraits::TObjectIterator TObjectIterator;
 
-	typedef spat::AabbTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<8> > TAabbTree;
-	typedef spat::AabpTree<TObject, TObjectTraits, spat::DefaultSplitHeuristics<2> > TAabpTree;
+	typedef spat::AabbTree<TObject, TObjectTraits, tree_test_helpers::StaticSplitHeuristics<8> > TAabbTree;
+	typedef spat::AabpTree<TObject, TObjectTraits, tree_test_helpers::StaticSplitHeuristics<2> > TAabpTree;
 	typedef spat::QuadTree<TObject, TObjectTraits> TQuadTree;
 
 	typedef typename meta::type_list::Make<TAabbTree, TAabpTree, TQuadTree>::Type TObjectTreeTypes;

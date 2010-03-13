@@ -74,7 +74,7 @@ void testSpatPointTrees()
 
 	// generate points
 	//
-	const unsigned n = 10000;
+	const unsigned n = 100000;
 	num::RandomMT19937 generator;
 	TPoint points[n];
 	for (unsigned i = 0; i < n; ++i)
@@ -88,13 +88,19 @@ void testSpatPointTrees()
 	TKdTree tree(points, points + n);
 	//tree.diagnostics();
 
+
+
 	// make tree set
 	//
 	typedef spat::DefaultObjectTraits<TPoint, TAabb, meta::NullType, TPointIterator> TPointTraits;
 	typedef typename meta::type_list::Make<
 		TKdTree,
-		spat::AabbTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<32> >,
-		spat::AabpTree<TPoint, TPointTraits, spat::DefaultSplitHeuristics<8> >
+		spat::AabbTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<32> >,
+		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<2> >,
+		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<4> >,
+		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<8> >,
+		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<16> >,
+		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<32> >
 		//spat::QuadTree<TPoint, TPointTraits> // apparently, QuadTrees are no good idea for points
 	>::Type TTreeTypes;
 	typedef meta::Tuple<TTreeTypes> TTrees;

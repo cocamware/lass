@@ -120,11 +120,14 @@ public:
 
 	struct Triangle
 	{
+		typedef typename TPoint::TVector TVector;
+
 		const TPoint* vertices[3];
 		const TVector* normals[3];
 		const TUv* uvs[3];
 		Triangle* others[3]; /**< triangle on other side of vertices k,k+1 */
 		unsigned creaseLevel[3];   /**< crease level of side k,k+1 */
+		size_t attribute;
 
 		Result intersect(const TRay& ray, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 		size_t side(const TPoint* v) const;
@@ -133,6 +136,8 @@ public:
 	typedef IntersectionContext TIntersectionContext;
 	typedef Triangle TTriangle;
 	typedef IndexTriangle TIndexTriangle;
+
+	// we need to use std::vector as we're going to rely on some pointer arithmetic ...
 	typedef std::vector<Triangle> TTriangles;
 	typedef std::vector<TPoint> TVertices;
 	typedef std::vector<TVector> TNormals;
@@ -159,11 +164,12 @@ public:
 	const TAabb aabb() const;
 	const TValue area() const;
 
-	void smoothNormals(TParam maxAngleInRadians);
+	void smoothNormals();
 	void flatFaces();
 	void loopSubdivision(unsigned level);
 	void autoSew();
 	void autoCrease(unsigned level);
+	void autoCrease(unsigned level, TParam maxAngleInRadians);
 
 	Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 	bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
@@ -208,6 +214,10 @@ private:
 			const Result hit = triangle->intersect(ray, t, tMin);
 			return hit == rOne && t < tMax;
 		}
+		static bool objectIntersects(TObjectIterator triangle, const TAabb& aabb, const TInfo*)
+		{
+			return aabb.intersects(objectAabb(triangle)); // TODO: use a triangle/AABB test!
+		}
 	};
 
 	typedef BoundingVolumeHierarchy<TTriangle, TriangleTraits, SplitHeuristics> TTriangleTree;
@@ -219,6 +229,10 @@ private:
 		const TPoint* head;
 		LogicalEdge(Triangle* triangle, const TPoint* tail, const TPoint* head): 
 			triangle(triangle), tail(tail), head(head) {}
+		bool operator==(const LogicalEdge& other) const
+		{
+			return tail == other.tail && head == other.head;
+		}
 		bool operator<(const LogicalEdge& other) const
 		{
 			return tail < other.tail || (tail == other.tail && head < other.head);
@@ -254,6 +268,47 @@ private:
 	private:
 		enum { size_ = 6 };
 		TValue x_[size_];
+	};
+
+	class HalfEdge
+	{
+	public:
+		typedef typename TPoint::TVector TVector;
+
+		HalfEdge(Triangle* triangle, size_t edge): triangle_(triangle), edge_(edge) { LASS_ASSERT(edge < 3); }
+		Triangle* triangle() const { return triangle_; }
+		size_t edge() const { return edge_; }
+
+		const TPoint* vertex() const { return triangle_->vertices[edge_]; }
+		const TVector* normal() const { return triangle_->normals[edge_]; }
+		unsigned creaseLevel() const { return triangle_->creaseLevel[edge_]; }
+		void setNormal(const TVector* normal) { triangle_->normals[edge_] = normal; }
+		const TVector vector() const { return *oNext().vertex() - *vertex(); }
+
+		HalfEdge oPrev() const { return HalfEdge(triangle_, (edge_ + 2) % 3); }
+		HalfEdge oNext() const { return HalfEdge(triangle_, (edge_ + 1) % 3); }
+		HalfEdge rPrev() const { return sym().oNext(); }
+		HalfEdge rNext() const { return oPrev().sym(); }
+		HalfEdge sym() const 
+		{
+			Triangle* other = triangle_->others[edge_];
+			if (!other || other->others[0] == triangle_)
+			{
+				return HalfEdge(other, 0);
+			}
+			if (other->others[1] == triangle_)
+			{
+				return HalfEdge(other, 1);
+			}
+			LASS_ASSERT(other->others[2] == triangle_);
+			return HalfEdge(other, 2);
+		}
+
+		bool operator!() const { return !triangle_; }
+		operator num::SafeBool() const { return num::safeBool(triangle_ != 0); }
+	private:
+		Triangle* triangle_;
+		size_t edge_;
 	};
 
 	typedef std::vector<const Triangle*> TVertexTriangles;

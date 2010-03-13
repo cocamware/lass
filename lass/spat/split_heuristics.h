@@ -67,13 +67,30 @@ struct SplitInfo
 	TAxis axis;
 };
 
-template <int numObjectsPerLeaf = 1>
-struct DefaultSplitHeuristics
+
+
+class DefaultSplitHeuristics
 {
-	LASS_META_ASSERT(numObjectsPerLeaf > 0, numObjectsPerLeaf_must_be_strict_positive);
-	
+public:
+	DefaultSplitHeuristics(size_t maxObjectsPerLeaf = 10, size_t maxDepth = 16): 
+		maxObjectsPerLeaf_(maxObjectsPerLeaf),
+		maxDepth_(maxDepth)
+	{
+	}
+
+	size_t maxObjectsPerLeaf() const { return maxObjectsPerLeaf_; }
+	size_t maxDepth() const { return maxDepth_; }
+
+protected:
+
+	void swap(DefaultSplitHeuristics& other)
+	{
+		std::swap(maxObjectsPerLeaf_, other.maxObjectsPerLeaf_);
+		std::swap(maxDepth_, other.maxDepth_);
+	}
+
 	template <typename ObjectTraits, typename RandomIterator>
-	static SplitInfo<ObjectTraits> split(RandomIterator first, RandomIterator last)
+	SplitInfo<ObjectTraits> split(RandomIterator first, RandomIterator last)
 	{
 		typedef typename ObjectTraits::TAabb TAabb;
 		typedef typename ObjectTraits::TPoint TPoint;
@@ -87,17 +104,17 @@ struct DefaultSplitHeuristics
 			aabb = ObjectTraits::aabbJoin(aabb, i->aabb);
 		}
 
-		const int n = static_cast<int>(last - first);
-		if (n <= numObjectsPerLeaf)
+		const size_t n = static_cast<size_t>(last - first);
+		if (n <= maxObjectsPerLeaf_)
 		{
 			return SplitInfo<ObjectTraits>(aabb, 0, -1);
 		}
 		
 		const TPoint min = ObjectTraits::aabbMin(aabb);
 		const TPoint max = ObjectTraits::aabbMax(aabb);
-		int axis = 0;
+		size_t axis = 0;
 		TValue maxDistance = ObjectTraits::coord(max, 0) - ObjectTraits::coord(min, 0);
-		for (int k = 1; k < ObjectTraits::dimension; ++k)
+		for (size_t k = 1; k < ObjectTraits::dimension; ++k)
 		{
 			const TValue distance = ObjectTraits::coord(max, k) - ObjectTraits::coord(min, k);
 			if (distance > maxDistance)
@@ -110,6 +127,10 @@ struct DefaultSplitHeuristics
 		const TValue x = (ObjectTraits::coord(min, axis) + ObjectTraits::coord(max, axis)) / 2;
 		return SplitInfo<ObjectTraits>(aabb, x, axis);
 	}
+
+private:
+	size_t maxObjectsPerLeaf_;
+	size_t maxDepth_;
 };
 
 namespace impl

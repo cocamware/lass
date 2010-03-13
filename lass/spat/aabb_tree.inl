@@ -56,7 +56,8 @@ namespace spat
 // --- public --------------------------------------------------------------------------------------
 
 template <typename O, typename OT, typename SH>
-AabbTree<O, OT, SH>::AabbTree():
+AabbTree<O, OT, SH>::AabbTree(const TSplitHeuristics& heuristics):
+	SH(heuristics),
 	objects_(),
 	nodes_(),
 	end_()
@@ -66,7 +67,8 @@ AabbTree<O, OT, SH>::AabbTree():
 
 
 template <typename O, typename OT, typename SH>
-AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last):
+AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics):
+	SH(heuristics),
 	objects_(),
 	nodes_(),
 	end_(last)
@@ -205,6 +207,7 @@ AabbTree<O, OT, SH>::rangeSearch(
 template <typename O, typename OT, typename SH>
 void AabbTree<O, OT, SH>::swap(TSelf& other)
 {
+	SH::swap(other);
 	nodes_.swap(other.nodes_);
 	objects_.swap(other.objects_);
 	std::swap(end_, other.end_);

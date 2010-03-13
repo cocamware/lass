@@ -189,118 +189,69 @@ TriangleMesh3D<T, BHV, SH>::area() const
 	return result;
 }
 
+namespace impl
+{
+	template <typename HalfEdgeType>
+	typename HalfEdgeType::TVector computeWeightedNormal(const HalfEdgeType& edge)
+	{
+		typedef HalfEdgeType::TVector TVector;
+		const TVector a = edge.vector();
+		const TVector b = -edge.oPrev().vector();
+		const TVector n = cross(a, b);
+		if (n.isZero() || n.isNaN())
+		{
+			return TVector();
+		}
+		return n.normal() * num::acos(dot(a.normal(), b.normal()));
+	}
+}
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-void TriangleMesh3D<T, BHV, SH>::smoothNormals(TParam maxAngleInRadians)
+void TriangleMesh3D<T, BHV, SH>::smoothNormals()
 {
-	const std::size_t numTriangles = triangles_.size();
-	const std::size_t numVertices = vertices_.size();
-	const TValue minDot = num::cos(maxAngleInRadians);
+	const size_t numTriangles = triangles_.size();
 
-	// first pass: determine possible vertex normals
-	//
-	TNormals faceNormals(numTriangles);
-	TNormals vertexNormals(numVertices);
-	for (std::size_t i = 0; i < numTriangles; ++i)
+	for (size_t i = 0; i < numTriangles; ++i)
 	{
-		const Triangle& triangle = triangles_[i];
-
-		bool isDegenerated = false;
-		for (std::size_t prevK = 2, k = 0; k < 3; prevK = k++)
-		{
-			isDegenerated |= (*triangle.vertices[k] == *triangle.vertices[prevK]);
-		}
-		if (isDegenerated)
-		{
-			faceNormals[i] = TVector();
-			continue;
-		}
-
-		const TVector edges[3] =
-		{
-			(*triangle.vertices[1] - *triangle.vertices[0]).normal(),
-			(*triangle.vertices[2] - *triangle.vertices[1]).normal(),
-			(*triangle.vertices[0] - *triangle.vertices[2]).normal()
-		};
-		
-		const TVector n = cross(edges[0], edges[1]).normal();
-		faceNormals[i] = n;
-
-		if (!n.isZero() && !n.isNaN())
-		{
-			for (std::size_t prevK = 2, k = 0; k < 3; prevK = k++)
-			{
-				const std::size_t j = triangle.vertices[k] - &vertices_.front();
-				vertexNormals[j] += n * num::acos(-dot(edges[prevK], edges[k]));
-			}
-		}
+		std::fill_n(triangles_[i].normals, 3, static_cast<TVector*>(0));
 	}
-	stde::for_each_r(vertexNormals, std::mem_fun_ref(&TVector::normalize));
+	normals_.clear();
+	normals_.reserve(3 * triangles_.size()); // let's waste some memory, we must make sure it's never going to reallocate!
 
-	// 2nd pass: determine wether to use vertex or face normal
-	//
-	std::vector<std::size_t> usedVertexNormals(vertices_.size(), IndexTriangle::null());
-	std::vector<std::size_t> usedFaceNormals(triangles_.size(), IndexTriangle::null());
-	std::size_t normalCount = 0;
-	for (std::size_t i = 0; i < numTriangles; ++i)
-	{
-		const Triangle& triangle = triangles_[i];
-		for (std::size_t k = 0; k < 3; ++k)
-		{
-			const std::size_t j = triangle.vertices[k] - &vertices_.front();
-			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
-			{
-				if (usedVertexNormals[j] == IndexTriangle::null())
-				{
-					usedVertexNormals[j] = normalCount++;
-				}
-			}
-			else
-			{
-				if (usedFaceNormals[i] == IndexTriangle::null())
-				{
-					usedFaceNormals[i] = normalCount++;
-				}
-			}
-		}
-	}
-
-	// 2nd pass and a half: collect selected normals in normals_
-	normals_.resize(normalCount);
-	for (std::size_t i = 0; i < numTriangles; ++i)
-	{
-		if (usedFaceNormals[i] != IndexTriangle::null())
-		{
-			normals_[usedFaceNormals[i]] = faceNormals[i];
-		}
-	}
-	for (std::size_t i = 0; i < numVertices; ++i)
-	{
-		if (usedVertexNormals[i] != IndexTriangle::null())
-		{
-			normals_[usedVertexNormals[i]] = vertexNormals[i];
-		}
-	}
-
-	// 3rd pass: assign pointers to normals!
-	//
-	for (std::size_t i = 0; i < numTriangles; ++i)
+	for (size_t i = 0; i < numTriangles; ++i)
 	{
 		Triangle& triangle = triangles_[i];
-		for (std::size_t k = 0; k < 3; ++k)
+		for (size_t k = 0; k < 3; ++k)
 		{
-			const std::size_t j = triangle.vertices[k] - &vertices_.front();
-			if (dot(faceNormals[i], vertexNormals[j]) >= minDot)
+			HalfEdge edge(&triangle, k);
+			if (edge.normal())
 			{
-				LASS_ASSERT(usedVertexNormals[j] != IndexTriangle::null());
-				triangle.normals[k] = &normals_[usedVertexNormals[j]];
+				continue;
 			}
-			else
+
+			// start a fresh normal.
+			LASS_ENFORCE(normals_.size() < normals_.capacity());
+			normals_.push_back(impl::computeWeightedNormal(edge));
+			TVector& normal = normals_.back();
+			edge.setNormal(&normal);
+
+			// rotate left, until you hit a crease, an edge with a normal already. 
+			// No need to check if you hit yourself, as you have a normal already.
+			for (HalfEdge left = edge.rNext(); left && !left.normal() && !left.creaseLevel(); left = left.rNext())
 			{
-				LASS_ASSERT(usedFaceNormals[i] != IndexTriangle::null());
-				triangle.normals[k] = &normals_[usedFaceNormals[i]];
+				normal += impl::computeWeightedNormal(left);
+				left.setNormal(&normal);
 			}
+
+			// rotate right, until ...
+			for (HalfEdge right = edge.rPrev(); right && !right.normal() && !right.oPrev().creaseLevel(); right = right.rPrev())
+			{
+				normal += impl::computeWeightedNormal(right);
+				right.setNormal(&normal);
+			}
+
+			normal.normalize();
 		}
 	}
 }
@@ -492,31 +443,66 @@ void TriangleMesh3D<T, BHV, SH>::autoSew()
 }
 
 
+namespace impl
+{
+	template <typename TriangleType>
+	typename TriangleType::TVector computeFaceNormal(const TriangleType& triangle)
+	{
+		typedef TriangleType::TVector TVector;
+		const TVector a = *triangle.vertices[1] - *triangle.vertices[0];
+		const TVector b = *triangle.vertices[2] - *triangle.vertices[0];
+		const TVector n = cross(a, b);
+		if (n.isZero() || n.isNaN())
+		{
+			return TVector();
+		}
+		return n.normal();
+	}
+}
 
 /** automatically assign crease levels to edges with discontinued normals
  */
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level)
+void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level, TParam maxAngleInRadians)
 {
+	const TValue minDot = num::cos(maxAngleInRadians);
 	const size_t numTriangles = triangles_.size();
 	for (size_t i = 0; i < numTriangles; ++i)
 	{
 		Triangle& triangle = triangles_[i];
+		const TVector faceNormal = impl::computeFaceNormal(triangle);
 		for (size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
 		{
-			triangle.creaseLevel[k1] = 0;
-			if (Triangle* other = triangle.others[k1])
+			triangle.creaseLevel[k1] = level; // it's a crease by default, smooth it under conditions.
+
+			Triangle* other = triangle.others[k1];
+			if (!other)
 			{
-				const size_t otherK1 = other->side(triangle.vertices[k1]);
-				const size_t otherK2 = (otherK1 + 2) % 3;
-				LASS_ASSERT(otherK1 < 3 && otherK2 == other->side(triangle.vertices[k2]));
-				const bool hasNormals =
-					triangle.normals[k1] && triangle.normals[k2] && 
-					other->normals[otherK1] && other->normals[otherK2];
-				const bool isCrease = !hasNormals ||
-					*triangle.normals[k1] != *other->normals[otherK1] ||
-					*triangle.normals[k2] != *other->normals[otherK2];
-				triangle.creaseLevel[k1] = isCrease ? level : 0;
+				continue;
+			}
+			const size_t otherK1 = other->side(triangle.vertices[k1]);
+			const size_t otherK2 = (otherK1 + 2) % 3;
+			LASS_ASSERT(otherK1 < 3 && otherK2 == other->side(triangle.vertices[k2]));
+			const TVector otherNormal = impl::computeFaceNormal(*other);
+
+			const TVector a1 = (triangle.normals[k1] ? *triangle.normals[k1] : faceNormal).normal();
+			const TVector a2 = (triangle.normals[k2] ? *triangle.normals[k2] : faceNormal).normal();
+			const TVector b1 = (other->normals[otherK1] ? *other->normals[otherK1] : otherNormal).normal();
+			const TVector b2 = (other->normals[otherK2] ? *other->normals[otherK2] : otherNormal).normal();
+
+			if (maxAngleInRadians == 0)
+			{
+				if (a1 == b1 && a2 == b2)
+				{
+					triangle.creaseLevel[k1] = 0;
+				}
+			}
+			else
+			{
+				if (dot(a1, b1) >= minDot && dot(a2, b2) >= minDot)
+				{
+					triangle.creaseLevel[k1] = 0;
+				}
 			}
 		}
 	}
@@ -561,10 +547,11 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 void TriangleMesh3D<T, BHV, SH>::swap(TSelf& other)
 {
 	tree_.swap(other.tree_);
-	triangles_.swap(other.trtriangles_ee_);
+	triangles_.swap(other.triangles_);
 	vertices_.swap(other.vertices_);
 	normals_.swap(other.normals_);
 	uvs_.swap(other.uvs_);
+	std::swap(numBoundaryEdges_, other.numBoundaryEdges_);
 }
 
 
@@ -764,12 +751,22 @@ void TriangleMesh3D<T, BHV, SH>::connectTriangles()
 		Triangle& triangle = triangles_[i];
 		for (std::size_t k1 = 2, k2 = 0; k2 < 3; k1 = k2++)
 		{
-			const LogicalEdge bait(
-				0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
-			const typename TEdges::const_iterator haul = std::lower_bound(
-				edges.begin(), edges.end(), bait);
-			if (haul != edges.end() && !(bait < *haul))
+			const LogicalEdge bait(0, triangle.vertices[k2], triangle.vertices[k1]); // reversed edge
+			const typename TEdges::const_iterator haul = std::lower_bound(edges.begin(), edges.end(), bait);
+			if (haul != edges.end() && *haul == bait)
 			{
+				if (stde::next(haul) != edges.end() && *stde::next(haul) == bait)
+				{
+					std::ostringstream buffer;
+					buffer << "multiple half edges detected from " << *bait.tail << " to " << *bait.head << ". Triangles:\n";
+					const typename TEdges::const_iterator last = std::upper_bound(edges.begin(), edges.end(), bait);
+					for (typename TEdges::const_iterator e = haul; e != last; ++e)
+					{
+						const Triangle& t = *e->triangle;
+						buffer << *t.vertices[0] << ", " << *t.vertices[1] << ", " << *t.vertices[2] << "\n";
+					}
+					LASS_THROW(buffer.str());
+				}
 				triangle.others[k1] = haul->triangle;
 			}
 			else
@@ -881,7 +878,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 	TNormals newNormals = normals_;
 	TUvs newUvs = uvs_;
 	newVertices.reserve(numVertices + numOddVertices);
-	newNormals.reserve(numNormals + 3 * numTriangles);
+	//newNormals.reserve(numNormals + 3 * numTriangles);
 	newUvs.reserve(numUvs + 3 * numTriangles);
 
 	const Triangle* const firstTriangle = &triangles_[0];
@@ -933,7 +930,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 			if (triangle.normals[k0] && !oddTriangle.normals[k0])
 			{
 				LASS_ASSERT(triangle.normals[k1]);
-				LASS_ASSERT(newNormals.size() < newNormals.capacity());
+				//LASS_ASSERT(newNormals.size() < newNormals.capacity());
 				newNormals.push_back(.5 * (*triangle.normals[k0] + *triangle.normals[k1]));
 				oddTriangle.normals[k0] = &newNormals.back();
 				if (other && triangle.normals[k0] == other->normals[h1] && triangle.normals[k1] == other->normals[h0])
