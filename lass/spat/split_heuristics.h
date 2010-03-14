@@ -96,7 +96,7 @@ protected:
 		typedef typename ObjectTraits::TPoint TPoint;
 		typedef typename ObjectTraits::TValue TValue;
 
-		LASS_ASSERT(numObjectsPerLeaf > 0);
+		LASS_ASSERT(maxObjectsPerLeaf_ > 0);
 
 		TAabb aabb = ObjectTraits::aabbEmpty();
 		for (RandomIterator i = first; i != last; ++i)
