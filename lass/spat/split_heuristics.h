@@ -112,9 +112,9 @@ protected:
 		
 		const TPoint min = ObjectTraits::aabbMin(aabb);
 		const TPoint max = ObjectTraits::aabbMax(aabb);
-		size_t axis = 0;
+		int axis = 0;
 		TValue maxDistance = ObjectTraits::coord(max, 0) - ObjectTraits::coord(min, 0);
-		for (size_t k = 1; k < ObjectTraits::dimension; ++k)
+		for (int k = 1; k < ObjectTraits::dimension; ++k)
 		{
 			const TValue distance = ObjectTraits::coord(max, k) - ObjectTraits::coord(min, k);
 			if (distance > maxDistance)
