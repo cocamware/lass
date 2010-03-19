@@ -212,6 +212,10 @@ io::XmlOStream& operator<<(io::XmlOStream& stream, const Aabb3D<T, MMP>& aabb);
 #	include "aabb_3d_parallelogram_3d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PLANE_3D_H
+#	include "aabb_3d_plane_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
 #	include "aabb_3d_ray_3d.h"
 #endif

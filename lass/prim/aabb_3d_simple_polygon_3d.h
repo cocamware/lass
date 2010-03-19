@@ -69,42 +69,41 @@ Aabb3D<T> aabb(const SimplePolygon3D<T, EP, NP>& polygon)
 
 /** Clip a plane to an AABB and get a polygon.
  *  @relates lass::prim::Aabb3D
- *  @relates lass::prim::Plane3D
- *  @relates lass::prim::SimplePolygon3D
+ *  @sa lass::prim::Plane3D
+ *  @sa lass::prim::SimplePolygon3D
  *
- *  @param iAabb [in] the Aabb to clip to
- *  @param iPlane [in] the plane to be clipped
+ *  @param box [in] the Aabb to clip to
+ *  @param plane [in] the plane to be clipped
  *  @return the clipped polygon.
  */
 template <typename T, class EP, class NP, class MMP>
-SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb, 
-		const Plane3D<T, EP, NP>& iPlane)
+SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& box, const Plane3D<T, EP, NP>& plane)
 {
 	typedef Plane3D<T, EP, NP> TPlane;
 	typedef SimplePolygon3D<T, EP, NP> TPolygon;
 	typedef Point3D<T> TPoint;
 	typedef typename TPoint::TVector TVector;
 	typedef typename TPoint::TValue TValue;
-	TPolygon poly(iPlane);
+	TPolygon poly(plane);
 
-	const TPoint& min = iAabb.min();
-	const TPoint& max = iAabb.max();
+	const TPoint& min = box.min();
+	const TPoint& max = box.max();
 	
 	TVector normal;
 	TValue d;
-	iPlane.getCartesian(normal, d);
+	plane.getCartesian(normal, d);
 
 	TVector m;
-	switch (iPlane.majorAxis())
+	switch (plane.majorAxis())
 	{
 		case 0: // x
 		{
-        		TPoint p[4] = 
+			TPoint p[4] = 
 			{
 				TPoint(0.0, min.y, min.z), TPoint(0.0, max.y, min.z),
 				TPoint(0.0, max.y, max.z), TPoint(0.0, min.y, max.z)
 			};
-			if (iPlane.normal().x < 0)
+			if (plane.normal().x < 0)
 			{
 				std::reverse(p, p + 4);
 			}
@@ -123,7 +122,7 @@ SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb,
 				TPoint(min.x, 0.0, min.z), TPoint(min.x, 0.0, max.z),
 				TPoint(max.x, 0.0, max.z), TPoint(max.x, 0.0, min.z)
 			};
-			if (iPlane.normal().y < 0)
+			if (plane.normal().y < 0)
 			{
 				std::reverse(p, p + 4);
 			}
@@ -142,7 +141,7 @@ SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb,
 				TPoint(min.x, min.y, 0.0), TPoint(max.x, min.y, 0.0),
 				TPoint(max.x, max.y, 0.0), TPoint(min.x, max.y, 0.0)
 			};
-			if (iPlane.normal().z < 0)
+			if (plane.normal().z < 0)
 			{
 				std::reverse(p, p + 4);
 			}
@@ -159,7 +158,38 @@ SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& iAabb,
 
 	// clip against those 'm' borders
 	return clip(TPlane(m, min), clip(TPlane(-m, max), poly));
-}       
+}
+
+
+
+/** Clip a polygon to an AABB .
+ *  @relates lass::prim::Aabb3D
+ *  @sa lass::prim::SimplePolygon3D
+ *
+ *  @param box [in] the Aabb to clip to
+ *  @param polygon [in] the polygon to be clipped
+ *  @return the clipped polygon.
+ */
+template <typename T, class EP, class NP, class MMP>
+SimplePolygon3D<T, EP, NP> clip(const Aabb3D<T, MMP>& box, const SimplePolygon3D<T, EP, NP>& polygon)
+{
+	typedef SimplePolygon3D<T, EP, NP> TPoly;
+	typedef typename TPoly::TPlane TPlane;
+	typedef typename TPoly::TPoint TPoint;
+	typedef typename TPoly::TVector TVector;
+
+	const TPoint& min = box.min();
+	const TPoint& max = box.max();
+
+	const TVector i(1, 0, 0);
+	TPoly poly = clip(TPlane(i, -min.x), clip(TPlane(-i, max.x), polygon));
+	const TVector j(0, 1, 0);
+	poly = clip(TPlane(j, -min.y), clip(TPlane(-j, max.y), poly));
+	const TVector k(0, 0, 1);
+	return clip(TPlane(k, -min.z), clip(TPlane(-k, max.z), poly));
+}
+
+
 
 }
 }

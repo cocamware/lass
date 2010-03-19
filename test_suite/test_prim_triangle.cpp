@@ -43,8 +43,11 @@
 #include "test_common.h"
 
 #include "../lass/prim/aabb_2d.h"
+#include "../lass/prim/aabb_3d.h"
 #include "../lass/prim/simple_polygon_2d.h"
+#include "../lass/prim/simple_polygon_3d.h"
 #include "../lass/prim/triangle_2d.h"
+#include "../lass/prim/triangle_3d.h"
 #include "../lass/prim/line_segment_2d.h"
 #include "../lass/num/random.h"
 
@@ -98,13 +101,42 @@ void testPrimTriangle2D()
 	}
 }
 
+template
+<
+	typename T
+>
+void testPrimAabbTriangle3D()
+{
+	typedef prim::Triangle3D<T> TTriangle;
+	typedef prim::SimplePolygon3D<T> TPolygon;
+	typedef prim::Aabb3D<T> TAabb;
+	typedef prim::Point3D<T> TPoint;
+
+	const T u = 4;
+	const T b = .5f;
+	const TAabb universe(TPoint(-u, -u, -u), TPoint(u, u, u));
+	const TAabb box(TPoint(-b, -b, -b), TPoint(b, b, b));
+
+	const size_t numValidityTest = 10000;
+
+	num::RandomMT19937 rng;
+	for (size_t k = 0; k < numValidityTest; ++k)
+	{
+		const TTriangle triangle(universe.random(rng), universe.random(rng), universe.random(rng));
+		const TPolygon clipped = prim::clip(box, TPolygon(triangle[0], triangle[1], triangle[2]));
+		
+		LASS_TEST_CHECK_EQUAL(prim::intersects(triangle, box), !clipped.isEmpty());
+	}
+}
 
 
 TUnitTest test_prim_triangle()
 {
 	TUnitTest result;
-	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<float>));\
-	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<double>));\
+	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimTriangle2D<double>));
+	result.push_back(LASS_TEST_CASE(testPrimAabbTriangle3D<float>));
+	result.push_back(LASS_TEST_CASE(testPrimAabbTriangle3D<double>));
 	return result;
 }
 

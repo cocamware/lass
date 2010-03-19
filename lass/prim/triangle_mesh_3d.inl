@@ -74,6 +74,7 @@ template
 >
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles):
+	tree_(spat::DefaultSplitHeuristics()),
 	vertices_(vertices.begin(), vertices.end()),
 	normals_(),
 	uvs_()
@@ -92,6 +93,7 @@ template
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 		const VertexInputRange& vertices, const NormalInputRange& normals, 
 		const UvInputRange& uvs, const IndexTriangleInputRange& triangles):
+	tree_(spat::DefaultSplitHeuristics()),
 	vertices_(vertices.begin(), vertices.end()),
 	normals_(normals.begin(), normals.end()),
 	uvs_(uvs.begin(), uvs.end())

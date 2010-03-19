@@ -120,7 +120,8 @@ public:
 		TValue squaredDistance_;
 	};
 
-	QuadTree(const TAabb& aabb = TAabb(), const TSplitHeuristics& heuristics = TSplitHeuristics());
+	QuadTree(const TSplitHeuristics& heuristics = TSplitHeuristics());
+	QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics = TSplitHeuristics());
 	QuadTree(const TAabb& aabb, TObjectIterator end, const TSplitHeuristics& heuristics = TSplitHeuristics());
 	QuadTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics());
 	~QuadTree();

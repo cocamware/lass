@@ -54,6 +54,7 @@
 #include "aabb_3d.h"
 #include "point_2d.h"
 #include "ray_3d.h"
+#include "triangle_3d.h"
 #include "impl/intersect_triangle_3d.h"
 #include "../stde/iterator_range.h"
 #include "../num/impl/matrix_solve.h"
@@ -216,7 +217,11 @@ private:
 		}
 		static bool objectIntersects(TObjectIterator triangle, const TAabb& aabb, const TInfo*)
 		{
-			return aabb.intersects(objectAabb(triangle)); // TODO: use a triangle/AABB test!
+			const prim::Triangle3D<T> temp(
+				*(triangle->vertices[0]), 
+				*(triangle->vertices[1]),
+				*(triangle->vertices[2]));
+			return prim::intersects(temp, aabb);
 		}
 	};
 

@@ -75,7 +75,18 @@ namespace spat
 
 // --- public --------------------------------------------------------------------------------------
 
-/** empty quadtree with fixed bounding box
+template <typename O, typename OT, typename SH>
+QuadTree<O, OT, SH>::QuadTree(const TSplitHeuristics& heuristics):
+	SH(heuristics),
+	aabb_(),
+	root_(0),
+	end_()
+{
+}
+
+	
+
+	/** empty quadtree with fixed bounding box
  */
 template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>::QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics):

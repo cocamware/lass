@@ -63,6 +63,58 @@ Aabb3D<T> aabb(const Triangle3D<T>& triangle)
 	return result;
 }
 
+namespace impl
+{
+
+template <typename V>
+bool intersectsHelperTriangleAabb3D(const V& v0, const V& v1, const V& v2, const V& h)
+{
+	typedef typename V::TValue TValue;
+
+	const V f0 = v1 - v0;
+	const V af0(num::abs(f0.x), num::abs(f0.y), num::abs(f0.z));
+
+	TValue min = v0.z * v1.y - v0.y * v1.z;
+	TValue max = f0.y * v2.z - f0.z * v2.y;
+	const TValue rx = h.y * af0.z + h.z * af0.y;
+	if (max < min)
+	{
+		std::swap(min, max);
+	}
+	if (min > rx || max < -rx)
+	{
+		return false;
+	}
+
+	min = v0.x * v1.z - v0.z * v1.x;
+	max = f0.z * v2.x - f0.x * v2.z;
+	const TValue ry = h.z * af0.x + h.x * af0.z;
+	if (max < min)
+	{
+		std::swap(min, max);
+	}
+	if (min > ry || max < -ry)
+	{
+		return false;
+	}
+
+	min = v0.y * v1.x - v0.x * v1.y;
+	max = f0.x * v2.y - f0.y * v2.x;
+	const TValue rz = h.x * af0.y + h.y * af0.x;
+	if (max < min)
+	{
+		std::swap(min, max);
+	}
+	if (min > rz || max < -rz)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+}
+
 /*  @relates lass::prim::Triangle3D
  *	@sa lass::prim::Aabb3D
  *
@@ -76,16 +128,28 @@ bool intersects(const Triangle3D<T>& triangle, const Aabb3D<T, MMP>& box)
 	typedef typename Triangle3D<T>::TValue TValue;
 
 	const TPoint center = box.center().affine();
-	const TPoint extent = box.size() / 2;
+	const TVector extent = box.size() / 2;
 
-	const TVector edges[] = 
+	const TVector verts[] = 
 	{
-		triangle[1] - triangle[0],
-		triangle[2] - triangle[1],
-		triangle[0] - triangle[2]
+		triangle[0] - center,
+		triangle[1] - center,
+		triangle[2] - center
 	};
 
-	LASS_ENFORCE(false);
+	// bullet 3
+	if (!impl::intersectsHelperTriangleAabb3D(verts[0], verts[1], verts[2], extent)) return false;
+	if (!impl::intersectsHelperTriangleAabb3D(verts[1], verts[2], verts[0], extent)) return false;
+	if (!impl::intersectsHelperTriangleAabb3D(verts[2], verts[0], verts[1], extent)) return false;
+
+	// bullet 1
+	if (!box.intersects(aabb(triangle)))
+	{
+		return false;
+	}
+
+	// bullet 2
+	return intersects(triangle.plane(), box);
 }
 
 
