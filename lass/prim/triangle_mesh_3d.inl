@@ -196,7 +196,7 @@ namespace impl
 	template <typename HalfEdgeType>
 	typename HalfEdgeType::TVector computeWeightedNormal(const HalfEdgeType& edge)
 	{
-		typedef HalfEdgeType::TVector TVector;
+		typedef typename HalfEdgeType::TVector TVector;
 		const TVector a = edge.vector();
 		const TVector b = -edge.oPrev().vector();
 		const TVector n = cross(a, b);
@@ -450,7 +450,7 @@ namespace impl
 	template <typename TriangleType>
 	typename TriangleType::TVector computeFaceNormal(const TriangleType& triangle)
 	{
-		typedef TriangleType::TVector TVector;
+		typedef typename TriangleType::TVector TVector;
 		const TVector a = *triangle.vertices[1] - *triangle.vertices[0];
 		const TVector b = *triangle.vertices[2] - *triangle.vertices[0];
 		const TVector n = cross(a, b);

@@ -59,6 +59,7 @@
 #include "../stde/iterator_range.h"
 #include "../num/impl/matrix_solve.h"
 #include "../spat/default_object_traits.h"
+#include "../spat/split_heuristics.h"
 
 namespace lass
 {

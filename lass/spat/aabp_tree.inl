@@ -448,7 +448,7 @@ AabpTree<O, OT, SH>::doIntersect(
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
-	LASS_ASSERT(tFar >= tNear);
+	LASS_ASSERT(tFar >= tNear * (1 - 1e-6f));
 	const Node& node = nodes_[index];
 
 	if (node.isLeaf())
