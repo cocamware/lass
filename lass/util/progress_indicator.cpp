@@ -103,7 +103,7 @@ void ProgressIndicator::operator()(double iProgress)
 	{
 		const Clock::TTime timeElapsed = clock_.time();
 		const Clock::TTime stepDuration = (timeElapsed - previousTimeElapsed_) / (promille - current_);
-		if (avgStepDuration_ == 0)
+		if (promille < 5)
 		{
 			avgStepDuration_ = stepDuration;
 		}
