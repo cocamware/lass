@@ -67,6 +67,7 @@
 
 #include "spat_common.h"
 #include "impl/quad_tree_helper.h"
+#include "../util/allocator.h"
 
 namespace lass
 {
@@ -84,7 +85,7 @@ class QuadTree:
 {
 public:
 
-	typedef QuadTree<ObjectType, ObjectTraits> TSelf;
+	typedef QuadTree<ObjectType, ObjectTraits, SplitHeuristics> TSelf;
 	typedef ObjectType TObjectType;
 	typedef ObjectTraits TObjectTraits;
 	typedef SplitHeuristics TSplitHeuristics;
@@ -183,9 +184,10 @@ public:
 
 private:
 
-	enum { subNodeCount = 1 << dimension };
+	enum { numChildren = 1 << dimension };
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
+	typedef util::AllocatorSimpleBlock<> TNodesAllocator;
 
 	struct CenteredBox
 	{
@@ -201,17 +203,17 @@ private:
 	{
 		typedef CenteredBox TCenteredBox;
 
-		QuadNode *node[subNodeCount];   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
+		QuadNode *children;   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
 		CenteredBox bounds;                  /**< center of quadnode */
 		TObjectIterators data;          /**< the list containing the data */
-		bool leaf;                      /**< true for leaf nodes */
 
-		QuadNode(const CenteredBox& bounds);
+		QuadNode(const CenteredBox& bounds, TNodesAllocator& allocator);
 		~QuadNode();
 
 		void add(TObjectIterator object, const TSplitHeuristics& heuristics, size_t level = 0, bool mayDecompose = true);
 		void remove(TObjectIterator object);
 
+		bool isLeaf() const { return !children; }
 		size_t objectCount() const;            /**< number of objects in this node and all its children */
 		size_t depth() const;					/**< depth of the child tree */
 		const TValue averageDepth() const;
@@ -219,24 +221,31 @@ private:
 		void absorb();                      /**< absorb all children into the current node */
 
 		TAabb aabb() const;
+
+	private:
+
+		TNodesAllocator& allocator_;
+		void makeChildren();
+		void deleteChildren(size_t count);
 	};
 	
-	const TObjectIterator doIntersect(const QuadNode* node, const TRay& ray, TReference t, TParam tMin, 
+	const TObjectIterator doIntersect(const QuadNode& node, const TRay& ray, TReference t, TParam tMin, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
-	bool doIntersects(const QuadNode* node, const TRay& ray, TParam tMin, TParam tMax, 
+	bool doIntersects(const QuadNode& node, const TRay& ray, TParam tMin, TParam tMax, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
 	template <typename OutputIterator>
-	OutputIterator doFind(const QuadNode* node, const TAabb& box, const CenteredBox& centeredBox,
+	OutputIterator doFind(const QuadNode& node, const TAabb& box, const CenteredBox& centeredBox,
 		OutputIterator result, const TInfo* info) const;
-	void doNearestNeighbour(const QuadNode* node, const TPoint& point, const TInfo* info,
+	void doNearestNeighbour(const QuadNode& node, const TPoint& point, const TInfo* info,
 		Neighbour& best) const;
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(const QuadNode* node, const TPoint& target, TReference squaredRadius, 
+	RandomIterator doRangeSearch(const QuadNode& node, const TPoint& target, TReference squaredRadius, 
 		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
 	TAabb aabb_;
 	QuadNode*   root_;
 	TObjectIterator end_;
+	util::ScopedPtr<TNodesAllocator> nodesAllocator_;
 };
 
 

@@ -971,6 +971,13 @@ public:
 		p->next = pool_;
 		pool_ = p;
 	}
+	void swap(AllocatorSimpleBlock& other)
+	{
+		std::swap(blocks_, other.blocks_);
+		std::swap(pool_, other.pool_);
+		std::swap(size_, other.size_);
+		std::swap(allocationsPerBlock_, other.allocationsPerBlock_);
+	}
 
 private:
 	

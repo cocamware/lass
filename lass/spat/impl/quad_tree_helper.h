@@ -208,29 +208,6 @@ protected:
 			}
 		}
 	}
-
-	template <typename QuadNodeType> 
-	static void buildSubNodes(QuadNodeType* parentNode)
-	{
-		TVector newExtents(parentNode->bounds.extents);
-		for (size_t k = 0; k < dimension; ++k)
-		{
-			TObjectTraits::coord(newExtents, k, TObjectTraits::coord(newExtents, k) / 2);
-		}
-
-		const size_t nodeCount = 1 << dimension;
-		for (size_t i = 0; i < nodeCount; ++i)
-		{
-			TPoint newCenter = parentNode->bounds.center;
-			for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
-			{
-				TObjectTraits::coord(newCenter, k, 
-					TObjectTraits::coord(newCenter, k) + (i & mask ? 1 : -1) * TObjectTraits::coord(newExtents, k));
-			}
-			parentNode->node[i] = new QuadNodeType(
-				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
-		}
-	}
 };
 
 
@@ -272,21 +249,9 @@ protected:
 
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
-		if (TObjectTraits::coord(tNear, 0) > TObjectTraits::coord(tNear, 1))
-		{
-			if (TObjectTraits::coord(tMiddle, 1) < TObjectTraits::coord(tNear, 0))
-			{
-				return 0x2;
-			}
-		}
-		else
-		{
-			if (TObjectTraits::coord(tMiddle, 0) < TObjectTraits::coord(tNear, 1))
-			{
-				return 0x1;
-			}
-		}
-		return 0x0;
+		const TValue tEntry = maxComponent(tNear);
+		return (TObjectTraits::coord(tMiddle, 0) < tEntry ? 0x1 : 0)
+			| (TObjectTraits::coord(tMiddle, 1) < tEntry ? 0x2 : 0);
 	}
 
 	static size_t nextNode(size_t i, const TVector& tFar)
@@ -341,25 +306,6 @@ protected:
 		TObjectTraits::coord(iChild & 0x1 ? tNear : tFar, 0, TObjectTraits::coord(tMiddle, 0));
 		TObjectTraits::coord(iChild & 0x2 ? tNear : tFar, 1, TObjectTraits::coord(tMiddle, 1));
 	}
-
-	template <typename QuadNodeType> 
-	static void buildSubNodes(QuadNodeType* parentNode)
-	{
-		TVector newExtents(parentNode->bounds.extents);
-		TObjectTraits::coord(newExtents, 0, TObjectTraits::coord(newExtents, 0) / 2);
-		TObjectTraits::coord(newExtents, 1, TObjectTraits::coord(newExtents, 1) / 2);
-		
-		for (size_t i = 0; i < 4; ++i)
-		{
-			TPoint newCenter = parentNode->bounds.center;
-			TObjectTraits::coord(newCenter, 0, 
-				TObjectTraits::coord(newCenter, 0) + (i & 0x1 ? 1 : -1) * TObjectTraits::coord(newExtents, 0));
-			TObjectTraits::coord(newCenter, 1, 
-				TObjectTraits::coord(newCenter, 1) + (i & 0x2 ? 1 : -1) * TObjectTraits::coord(newExtents, 1));
-			parentNode->node[i] = new QuadNodeType(
-				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
-		}
-	}
 };
 
 
@@ -404,12 +350,9 @@ protected:
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		const TValue tEntry = maxComponent(tNear);
-		size_t iEntry = 0;
-		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
-		{
-			iEntry |= (TObjectTraits::coord(tMiddle, k) < tEntry) ? mask : 0;
-		}
-		return iEntry;
+		return (TObjectTraits::coord(tMiddle, 0) < tEntry ? 0x1 : 0)
+			| (TObjectTraits::coord(tMiddle, 1) < tEntry ? 0x2 : 0)
+			| (TObjectTraits::coord(tMiddle, 2) < tEntry ? 0x4 : 0);
 	}
 
 	static size_t nextNode(size_t i, const TVector& tFar)
@@ -479,28 +422,6 @@ protected:
 			{
 				TObjectTraits::coord(tFar, k, TObjectTraits::coord(tMiddle, k));
 			}
-		}
-	}
-
-	template <typename QuadNodeType> 
-	static void buildSubNodes(QuadNodeType* parentNode)
-	{
-		TVector newExtents(parentNode->bounds.extents);
-		TObjectTraits::coord(newExtents, 0, TObjectTraits::coord(newExtents, 0) / 2);
-		TObjectTraits::coord(newExtents, 1, TObjectTraits::coord(newExtents, 1) / 2);
-		TObjectTraits::coord(newExtents, 2, TObjectTraits::coord(newExtents, 2) / 2);
-		
-		for (size_t i = 0; i < 8; ++i)
-		{
-			TPoint newCenter = parentNode->bounds.center;
-			TObjectTraits::coord(newCenter, 0, 
-				TObjectTraits::coord(newCenter, 0) + (i & 0x1 ? 1 : -1) * TObjectTraits::coord(newExtents, 0));
-			TObjectTraits::coord(newCenter, 1, 
-				TObjectTraits::coord(newCenter, 1) + (i & 0x2 ? 1 : -1) * TObjectTraits::coord(newExtents, 1));
-			TObjectTraits::coord(newCenter, 2, 
-				TObjectTraits::coord(newCenter, 2) + (i & 0x4 ? 1 : -1) * TObjectTraits::coord(newExtents, 2));
-			parentNode->node[i] = new QuadNodeType(
-				typename QuadNodeType::TCenteredBox(newCenter, newExtents));
 		}
 	}
 };
