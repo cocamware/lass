@@ -677,12 +677,12 @@ class TestStream(unittest.TestCase):
 	def testSysStdout(self):
 		import sys
 		try:
-			import io
+			from StringIO import StringIO
 		except ImportError:
-			import StringIO as io
+			from io import StringIO
 		old = sys.stdout
 		try:
-			sys.stdout = io.StringIO()
+			sys.stdout = StringIO()
 			embedding.writeStdout("Hello\n")
 			embedding.writeStdout("World\n")
 			self.assertEqual(sys.stdout.getvalue(), "Hello\nWorld\n")
