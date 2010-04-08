@@ -672,6 +672,19 @@ class TestMultiCallback(unittest.TestCase):
 		# dropping the call() function a directly calling the () operator
 		a.callback()
 		self.assertEqual(dummyCounter, 34)
+		
+class TestStream(unittest.TestCase):
+	def testSysStdout(self):
+		import sys
+		import StringIO
+		old = sys.stdout
+		try:
+			sys.stdout = StringIO.StringIO()
+			embedding.writeStdout("Hello\n")
+			embedding.writeStdout("World\n")
+			self.assertEqual(sys.stdout.getvalue(), "Hello\nWorld\n")
+		finally:
+			sys.stdout = old
 
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])

@@ -61,6 +61,7 @@
 
 #include "../lass/util/multi_callback.h"
 #include "../lass/python/pycallback.h"
+#include "../lass/python/streams.h"
 
 namespace lass
 {
@@ -127,6 +128,11 @@ void overloadedB(const std::complex<float>& iA)
 const char* testCStringSupport(const char* a)
 {
 	return a;
+}
+
+void writeStdout(const std::string& s)
+{
+	python::sysStdout << s;
 }
 
 class Base
@@ -447,6 +453,7 @@ PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
 PY_MODULE_FUNCTION( embedding, testCStringSupport )
+PY_MODULE_FUNCTION( embedding, writeStdout )
 
 PY_MODULE_ENTRYPOINT( embedding )
 
