@@ -93,7 +93,7 @@ void testUtilAtomicAdjacentCas()
 	const T new1 = 3 * multiplier, new2 = 4 * multiplier;
 	const T wrong1 = 10 * multiplier, wrong2 = 11 * multiplier;
 
-	volatile T a[2] = { old1, old2 };
+	volatile T LASS_ALIGNED(a[2], 16) = { old1, old2 };
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
 	LASS_TEST_CHECK_EQUAL(a[0], old1);
 	LASS_TEST_CHECK_EQUAL(a[1], old2);
@@ -123,10 +123,16 @@ TUnitTest test_util_atomic()
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint8>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint16>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint32>));
+#if (LASS_ADDRESS_SIZE == 64)
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint64>));
+#endif
 
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint8>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint16>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint32>));
+#if (LASS_ADDRESS_SIZE == 64)
+	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint64>));
+#endif
 
 	return result;
 }

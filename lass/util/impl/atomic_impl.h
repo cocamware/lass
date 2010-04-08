@@ -53,6 +53,7 @@
 #	pragma intrinsic(_InterlockedCompareExchange)
 #	pragma intrinsic(_InterlockedCompareExchange16)
 #	pragma intrinsic(_InterlockedCompareExchange64)
+#	pragma intrinsic(_InterlockedCompareExchange128)
 #	pragma intrinsic(_InterlockedIncrement)
 #	pragma intrinsic(_InterlockedIncrement16)
 #	pragma intrinsic(_InterlockedIncrement64)
@@ -534,11 +535,23 @@ struct AtomicOperations<8>
 #endif
 	}
 
-	// we assume we don't have a cmpxchg16b
-	//
-	//template <typename T1, typename T2> inline 
-	//static bool LASS_CALL compareAndSwap(
-	//		T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2);
+#if (LASS_ADDRESS_SIZE == 64)
+	template <typename T1, typename T2> inline 
+	static bool LASS_CALL compareAndSwap(
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+	{
+		LASS_ASSERT((reinterpret_cast<num::Tuint64>(&dest1) & 0xf) == 0); // dest needs to be 16-byte aligned.
+#if defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
+		__int64 expected[2] = { *reinterpret_cast<__int64*>(&expected1), *reinterpret_cast<__int64*>(&expected2) };
+		return _InterlockedCompareExchange128(
+			reinterpret_cast<volatile __int64*>(&dest1), 
+			*reinterpret_cast<__int64*>(&new2), *reinterpret_cast<__int64*>(&new1), 
+			expected) != 0;
+#else
+#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
+#endif
+	}
+#endif
 	
 	template <typename T> inline
 	static void LASS_CALL increment(volatile T& value)
