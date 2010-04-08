@@ -676,10 +676,13 @@ class TestMultiCallback(unittest.TestCase):
 class TestStream(unittest.TestCase):
 	def testSysStdout(self):
 		import sys
-		import StringIO
+		try:
+			import io
+		except ImportError:
+			import StringIO as io
 		old = sys.stdout
 		try:
-			sys.stdout = StringIO.StringIO()
+			sys.stdout = io.StringIO()
 			embedding.writeStdout("Hello\n")
 			embedding.writeStdout("World\n")
 			self.assertEqual(sys.stdout.getvalue(), "Hello\nWorld\n")

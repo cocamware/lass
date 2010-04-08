@@ -85,7 +85,8 @@ SysStreamBuf::int_type SysStreamBuf::overflow(int_type c)
 
 int SysStreamBuf::sync()
 {
-	const int n = pptr() - pbase();
+	const int n = static_cast<int>(pptr() - pbase());
+	LASS_ASSERT(n >= 0 && (pbase() + n == pptr()));
 	if (n == 0)
 	{
 		return 0;
@@ -97,12 +98,7 @@ int SysStreamBuf::sync()
 	{
 		LockGIL LASS_UNUSED(lock);
 		PyObject* obj = PySys_GetObject(name_);
-		FILE* f = obj ? PyFile_AsFile(obj) : file_;
-		if (f)
-		{
-			ok = fputs(buffer_, f) != EOF;
-		}
-		else
+		if (obj)
 		{
 			ok = PyFile_WriteString(buffer_, obj) == 0;
 			if (!ok)
@@ -111,8 +107,10 @@ int SysStreamBuf::sync()
 			}
 		}
 	}
-	else
+
+	if (!ok)
 	{
+		// fall back on the C stream
 		ok = fputs(buffer_, file_) != EOF;
 	}
 
