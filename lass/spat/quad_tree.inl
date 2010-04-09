@@ -936,7 +936,7 @@ size_t QuadTree<O, OT, SH>::QuadNode::depth() const
 	if (isLeaf())
 		return 1;
 
-	size_t depth=node[0].depth();
+	size_t depth=children[0].depth();
 	for (size_t i=1;i<numChildren;++i)
 		depth = std::max(depth,children[i].depth());
 	return depth + 1;

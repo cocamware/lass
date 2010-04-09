@@ -57,7 +57,7 @@ namespace impl
 class LASS_DLL SysStreamBuf: public std::streambuf
 {
 public:
-	SysStreamBuf(FILE* file, char* name);
+	SysStreamBuf(FILE* file, const char* name);
 	~SysStreamBuf();
 protected:
 	int_type overflow(int_type c);
@@ -65,7 +65,7 @@ protected:
 private:
 	enum { bufferSize_ = 800 };
 	FILE* file_;
-	char* name_;
+	const char* name_;
 	char buffer_[bufferSize_];
 
 };
@@ -74,7 +74,7 @@ private:
 class LASS_DLL SysOStream: public std::ostream
 {
 public:
-	SysOStream(FILE* file, char* name);
+	SysOStream(FILE* file, const char* name);
 private:
 	SysStreamBuf buffer_;
 };

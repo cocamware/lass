@@ -64,5 +64,6 @@
 #define LASS_CALL
 #define LASS_NO_INLINE
 #define LASS_PER_THREAD __thread
+#define LASS_ALIGNED(x, n) x __attribute__((aligned(n))) 
 
 #endif

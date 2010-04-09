@@ -51,7 +51,7 @@ namespace python
 namespace impl
 {
 
-SysStreamBuf::SysStreamBuf(FILE* file, char* name): 
+SysStreamBuf::SysStreamBuf(FILE* file, const char* name): 
 	file_(file),
 	name_(name)
 {
@@ -97,7 +97,7 @@ int SysStreamBuf::sync()
 	if (Py_IsInitialized())
 	{
 		LockGIL LASS_UNUSED(lock);
-		PyObject* obj = PySys_GetObject(name_);
+		PyObject* obj = PySys_GetObject(const_cast<char*>(name_));
 		if (obj)
 		{
 			ok = PyFile_WriteString(buffer_, obj) == 0;
@@ -119,9 +119,9 @@ int SysStreamBuf::sync()
 }
 
 
-SysOStream::SysOStream(FILE* file, char* name):
-	buffer_(file, name),
-	std::ostream(&buffer_)
+SysOStream::SysOStream(FILE* file, const char* name):
+	std::ostream(&buffer_),
+	buffer_(file, name)
 {
 	setf(std::ios_base::unitbuf); // disable buffering so that it gets flushed after each insertion.
 }

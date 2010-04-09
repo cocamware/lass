@@ -548,8 +548,15 @@ struct AtomicOperations<8>
 			*reinterpret_cast<__int64*>(&new2), *reinterpret_cast<__int64*>(&new1), 
 			expected) != 0;
 #else
-#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
+		bool result;
+		__asm__ __volatile__(
+			"lock; cmpxchg16b %0;"
+			"sete %1;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2), "m"(dest1)
+			: "cc", "memory");
 #endif
+		return result;
 	}
 #endif
 	
