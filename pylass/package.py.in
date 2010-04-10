@@ -2,33 +2,18 @@ from distutils.core import setup,Extension
 from distutils import sysconfig
 import sys, os
 
-build_type, bin_dir = sys.argv[1:3]
-sys.argv[1:3] = []
+build_type = sys.argv[1]
+sys.argv[1:2] = []
 sys.argv.append("--target-version=%s" % sysconfig.get_python_version())
 
-print build_type, bin_dir
+name = "pylass"
+if build_type.lower() == "debug":
+	name += "_d"
 
-install_files = []
-
-path = os.path.join(bin_dir, "lass")
-if build_type.lower() == 'debug':
-	path += "_d"
-if "win" in sys.platform:
-	path += ".pyd"
-else:
-	path += ".so"
-install_files.append(path)
-manifest = path + ".manifest"
-if os.path.exists(manifest):
-	install_files.append(manifest)
-
-lass_libs = {
-	"debug": "${lass_location_DEBUG}",
-	"release": "${lass_location_RELEASE}",
-	"relwithdebinfo": "${lass_location_RELWITHDEBINFO}",
-	"minsizerel": "${lass_location_MINSIZEREL}",
+pylass_dist_files = {
+	${pylass_dist_files}
 	}
-install_files += lass_libs[build_type.lower()].split(';')
+install_files = pylass_dist_files[build_type]
 
 #runtime_libs = "${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}".split(';')
 #runtime_libs_debug = [x for x in runtime_libs if 'debug' in x.lower()]
@@ -36,12 +21,11 @@ install_files += lass_libs[build_type.lower()].split(';')
 #install_files += (runtime_libs_release, runtime_libs_debug)[build_type.lower() == 'debug']
 
 install_files = [x.replace('/', '\\') for x in install_files if x]
-
-print install_files
+install_files += filter(os.path.exists, [path + ".manifest" for path in install_files])
 
 setup(
-	name = "pylass",
-	version = "${Lass_MAJOR_VERSION}.${Lass_MINOR_VERSION}.${Lass_PATCHLEVEL}",
+	name = name,
+	version = "${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}",
 	author = "Bram de Greve; Tom De Muer",
 	author_email = "bramz@users.sourceforge.net; tom.demuer@users.sourceforge.net",
 	maintainer = "Bram de Greve",

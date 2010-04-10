@@ -1,50 +1,10 @@
-project(pylass)
-cmake_minimum_required(VERSION 2.6)
-
-set(CMAKE_DEBUG_POSTFIX _d)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${pylass_BINARY_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${pylass_BINARY_DIR}/bin")
-
-find_package(Lass REQUIRED)
-include_directories(${Lass_INCLUDE_DIRS})
-foreach(_config RELEASE DEBUG MINSIZEREL RELWITHDEBINFO)
-	get_target_property(lass_location_${_config} lass IMPORTED_LOCATION_${_config})
-	install(
-		FILES "${lass_location_${_config}}"
-		DESTINATION .
-		CONFIGURATIONS ${_config}
-		)
-endforeach()
-
-set (CMAKE_INSTALL_DEBUG_LIBRARIES 1)
-set (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP 1)
-include(InstallRequiredSystemLibraries)
-if (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
-	install(
-		PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
-		DESTINATION .
-		)
-endif()
-if (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_DEBUG)
-	install(
-		PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_DEBUG}
-		DESTINATION .
-		)
-endif()
-
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-	if (Lass_PYTHON_EXECUTABLE)
-		execute_process(
-			COMMAND "${Lass_PYTHON_EXECUTABLE}" -c "from distutils import sysconfig; print sysconfig.get_python_lib(True)" 
-			OUTPUT_VARIABLE _python_site_packages
-			OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
-		set (CMAKE_INSTALL_PREFIX "${_python_site_packages}" CACHE PATH "liar install prefix" FORCE)
-	endif()
-endif ()
-
 file(GLOB pylass_HDRS *.h *.inl)
 file(GLOB pylass_SRCS *.cpp)
+
+include_directories(
+	${lass_SOURCE_DIR}
+	${lass_INCLUDES}
+	)
 
 add_library(pylass MODULE 
 	${pylass_HDRS} 
@@ -53,39 +13,62 @@ add_library(pylass MODULE
 target_link_libraries(pylass 
 	lass
 	)
+set_target_properties(
+	pylass
+	PROPERTIES 
+	OUTPUT_NAME "lass"
+	)
 if (WIN32)
 	set_target_properties(
 		pylass
 		PROPERTIES 
-		OUTPUT_NAME "lass"
 		SUFFIX ".pyd"
 		)
 endif()
+
 install(
 	TARGETS pylass
-	DESTINATION .
+	EXPORT LassExports
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
 	)
-	
-configure_file(
-	"package.py.in"
-	"${pylass_BINARY_DIR}/package.py"
-	)
+
 
 if (MSVC_IDE)
 	set(_configuration "$(ConfigurationName)")
-	set(_bindir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$(OutDir)")
 else()
 	if (CMAKE_BUILD_TYPE)
 		set(_configuration "${CMAKE_BUILD_TYPE}")
 	else()
 		set(_configuration "Release")
 	endif()
-	set(_bindir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
 
+
+if (MSVC_IDE)
+	set(pylass_dist_files)
+	foreach(_config ${CMAKE_CONFIGURATION_TYPES})
+		get_target_property(_lass_loc lass LOCATION_${_config})
+		get_target_property(_pylass_loc pylass LOCATION_${_config})
+		set(pylass_dist_files "r'${_config}': [r'${_lass_loc}', r'${_pylass_loc}'],\n ${pylass_dist_files}")
+	endforeach()
+else()
+	get_target_property(_lass_loc lass LOCATION)
+	get_target_property(_pylass_loc pylass LOCATION)
+	set(pylass_dist_files "r'${_configuration}': [r'${_lass_loc}', r'${_pylass_loc}']")
+endif()
+
+
+configure_file(
+	"package.py.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/package.py"
+	)
+
+
 add_custom_target(
-	BDIST
-	COMMAND ${Lass_PYTHON_EXECUTABLE} "${pylass_BINARY_DIR}/package.py" "${_configuration}" "${_bindir}"  "bdist_wininst" "--target-version=2.6"
+	BDIST_WININST
+	COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/package.py" "${_configuration}" "bdist_wininst"
 	DEPENDS pylass
 	SOURCES "package.py.in"
 	)

@@ -555,8 +555,8 @@ struct AtomicOperations<8>
 			: "=m"(dest1), "=q"(result)
 			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2), "m"(dest1)
 			: "cc", "memory");
-#endif
 		return result;
+#endif
 	}
 #endif
 	

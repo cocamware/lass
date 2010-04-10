@@ -8,8 +8,7 @@ set(LASS_PATCHLEVEL 1)
 set(LASS_OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
 
 set(CMAKE_DEBUG_POSTFIX _d)
-#set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
-#set(CMAKE_RELWITHDEBINFO_POSTFIX _relwithdebinfo)
+
 
 # --- SETTING A PREFIX IF NOT WAS FORCED BY USER ---
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -59,7 +58,7 @@ foreach(subdir ${lass_subdirectories})
 	if(NOT subdir STREQUAL "config")
 		file(GLOB temp_SRCS lass/${subdir}/*.cpp)
 		file(GLOB temp_impl_SRCS lass/${subdir}/impl/*.cpp)
-	endif()	       
+	endif()
 	file(GLOB temp_HDRS lass/${subdir}/*.h lass/${subdir}/*.inl)
 	file(GLOB temp_impl_HDRS lass/${subdir}/impl/*.h lass/${subdir}/impl/*.inl)
 	list(APPEND lass_SRCS ${temp_SRCS} ${temp_impl_SRCS})
@@ -234,8 +233,9 @@ add_precompiled_header(
 	lass_common.h 
 	${lass_SOURCE_DIR}/lass/lass_common.cpp
 	${lass_SRCS})
-
 	
+add_subdirectory(pylass)
+
 # --- TESTING ---
 
 set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest will kill the test.")
@@ -291,9 +291,12 @@ foreach(_config_file LassConfig.cmake LassConfig.py)
         DESTINATION lib
         )
 endforeach()
-	
+
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
-export(TARGETS lass FILE ${lass_BINARY_DIR}/LassBuildExports.cmake)
+export(
+	TARGETS lass pylass 
+	FILE ${lass_BINARY_DIR}/LassBuildExports.cmake
+	)
 
 
 	
