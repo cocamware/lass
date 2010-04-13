@@ -628,6 +628,13 @@ struct PyExportTraits<const char [N]>: PyExportTraits<const char*>
 
 /** @ingroup Python
  */
+template <size_t N>
+struct PyExportTraits<char [N]>: PyExportTraits<const char*>
+{
+};
+
+/** @ingroup Python
+ */
 template <>
 struct PyExportTraits<std::string>
 {

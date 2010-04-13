@@ -17,6 +17,7 @@ set_target_properties(
 	pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
+	PREFIX ""
 	)
 if (WIN32)
 	set_target_properties(
