@@ -400,6 +400,7 @@ struct AtomicOperations<4>
 #elif defined(LASS_HAVE_INLINE_ASSEMBLY_MSVC) && (LASS_ADDRESS_SIZE == 32)
 		__asm 
 		{
+			push ebx
 			mov eax, expected1
 			mov edx, expected2
 			mov ebx, new1
@@ -408,6 +409,7 @@ struct AtomicOperations<4>
 			lock cmpxchg8b [edi]
 			mov eax, 0
 			sete al
+			pop ebx
 		}
 		/* return eax */
 #elif defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
