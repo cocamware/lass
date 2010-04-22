@@ -64,46 +64,64 @@ void Clock::reset(TTime iStartTime)
 }
 
 
-const std::string Clock::humanize(const TTime& iTime)
+
+const std::string Clock::humanize(const TTime& time)
 {
 	std::ostringstream buffer;
 	buffer.copyfmt(std::cout);
-	buffer.setf(std::ios_base::showpoint);
-	buffer.setf(static_cast<std::ios_base::fmtflags>(0), std::ios_base::floatfield);
-	buffer.precision(3);
-	//buffer << std::fixed << std::setprecision(3) << std::showpoint;
 
-	if (iTime < 1e-9)
+	if (time < 60)
 	{
-		buffer << (1e12 * iTime) << "ps";
-	}
-	else if (iTime < 1e-6)
-	{
-		buffer << (1e9 * iTime) << "ns";
-	}
-	else if (iTime < 1e-3)
-	{
-		buffer << (1e6 * iTime) << "us";
-	}
-	else if (iTime < 1.0)
-	{
-		buffer << (1e3 * iTime) << "ms";
-	}
-	else if (iTime < 60)
-	{
-		buffer << iTime << "s";
-	}
-	else if (iTime < 3600)
-	{
-		buffer << (iTime / 60) << "m";
-	}
-	else if (iTime < 86400)
-	{
-		buffer << (iTime / 3600) << "h";
+		buffer.setf(std::ios_base::showpoint);
+		buffer.setf(static_cast<std::ios_base::fmtflags>(0), std::ios_base::floatfield);
+		buffer.precision(3);
+		if (time < 1e-9)
+		{
+			buffer << (1e12 * time) << "ps";
+		}
+		else if (time < 1e-6)
+		{
+			buffer << (1e9 * time) << "ns";
+		}
+		else if (time < 1e-3)
+		{
+			buffer << (1e6 * time) << "us";
+		}
+		else if (time < 1.0)
+		{
+			buffer << (1e3 * time) << "ms";
+		}
+		else
+		{
+			buffer << time << "s";
+		}
 	}
 	else
 	{
-		buffer << (iTime / 86400) << "d";
+		struct Helper
+		{
+			static void write(std::ostringstream& stream, TTime time, const std::string& bigUnit, TTime SmallInBig, const std::string& smallUnit)
+			{
+				const TTime sign = num::sign(time);
+				const TTime absTime = num::abs(time);
+				const TTime bigHand = num::floor(absTime);
+				const TTime smallHand = num::floor(SmallInBig * (absTime - bigHand));
+				stream << static_cast<int>(sign * bigHand) << bigUnit << std::setw(2) << std::setfill('0') << static_cast<int>(smallHand) << smallUnit;
+			}
+		};
+
+		if (time < 3600)
+		{
+			Helper::write(buffer, time / 60, "m", 60, "s");
+		}
+		else if (time < 86400)
+		{
+			Helper::write(buffer, time / 3600, "h", 60, "m");
+		}
+		else
+		{
+			Helper::write(buffer, time / 86400, "d", 24, "h");
+		}
 	}
 
 	return buffer.str();

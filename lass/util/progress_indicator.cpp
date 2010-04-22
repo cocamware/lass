@@ -117,7 +117,7 @@ void ProgressIndicator::operator()(double iProgress)
 		stepInfo.copyfmt(std::cout);
 		stepInfo << description_ << ": " << std::fixed << std::setprecision(1) << (.1 * promille) 
 			<< "%; CPU " << Clock::humanize(timeElapsed)
-			<< " [" << Clock::humanize(timeLeft) << "]" << whitespace_;
+			<< " [-" << Clock::humanize(timeLeft) << "]" << whitespace_;
 		std::cout << "\r" << stepInfo.str().substr(0, consoleWidth_ - 1) << std::flush;
 
 		current_ = promille;
