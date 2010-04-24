@@ -74,6 +74,18 @@ const prim::Point3D<T> uniformSphere(const prim::Point2D<T>& sample, T& pdf)
 /** @ingroup DistributionTransformations
  */
 template <typename T>
+const prim::Point3D<T> uniformHemisphere(const prim::Point2D<T>& sample, T& pdf)
+{
+	const T z = sample.x;
+	const T rho = sqrt(std::max<T>(0, 1 - z * z));
+	const T theta = 2 * num::NumTraits<T>::pi * sample.y;
+	pdf = inv(2 * num::NumTraits<T>::pi);
+	return prim::Point3D<T>(rho * cos(theta), rho * sin(theta), z);
+}
+
+/** @ingroup DistributionTransformations
+ */
+template <typename T>
 const prim::Point3D<T> uniformCone(const prim::Point2D<T>& sample, T minCosTheta, T& pdf)
 {
 	const T z = minCosTheta + sample.x * (1 - minCosTheta);
