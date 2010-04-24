@@ -177,60 +177,21 @@ void atomicUnlock(volatile T& semaphore)
 #	pragma warning(disable: 4522) // multiple assignment operators specified
 #endif
 
+#if LASS_ADDRESS_SIZE == 64 && LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	define LASS_TAGGED_PTR_ALIGN __declspec(align(16))
+#else
+#	define LASS_TAGGED_PTR_ALIGN
+#endif
+
 /** Pointer with a tag for ABA salvation
  *  @ingroup atomic
  *  Some lock-free algorithms suffer from the ABA problem when acting on pointers.
  *  This can be solved (read: be make very unlikely) by adding a tag to the pointer.
  */
 template <typename T>
-class TaggedPtr
+class LASS_TAGGED_PTR_ALIGN TaggedPtr
 {
 public:
-#if LASS_ACTUAL_ADDRESS_SIZE == 48
-	// We're in 64 bit space, but we don't have 128 bit CAS to do tagging ... Help!
-	// Luckely, only the least significant 48 bits of a pointer are really used.
-	// So, we have 16 bits we can fiddle with.  Should be enough for a counting tag.
-	// Well, theoretically it isn't enough (no number of bits is ever enough to 
-	// completely remove the possibility of a wrap-over, but at least it decreases
-	// the odds somewhat ;)
-	//
-	// We store the the pointer in the most significant part for two reasons:
-	//	- order of the pointers is somewhat preserved
-	//	- we can use SAR to restore the sign bit.
-	//
-	typedef num::Tuint16 TTag;
-	TaggedPtr(): bits_(0) {}
-	TaggedPtr(T* ptr, TTag tag): bits_((reinterpret_cast<num::Tuint64>(ptr) << 16) | tag) {}
-	TaggedPtr(const TaggedPtr& other): bits_(other.bits_) {}
-	TaggedPtr(const volatile TaggedPtr& other): bits_(other.bits_) {}
-	TaggedPtr& operator=(const TaggedPtr& other) { bits_ = other.bits_; return *this; }
-	TaggedPtr& operator=(const volatile TaggedPtr& other) { bits_ = other.bits_; return *this; }
-	T* get() const
-	{
-#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
-		T* ptr;
-		__asm__ __volatile__("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
-		return ptr;
-#	elif defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
-		return reinterpret_cast<T*>(__ll_rshift(*reinterpret_cast<const volatile __int64*>(&bits_), 16));
-#	else
-		return (bits_ & 0xa000000000000000 == 0) ?
-			reinterpret_cast<T*>(bits_ >> 16) :
-			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
-#	endif
-	}
-	TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
-	bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
-	bool operator==(const volatile TaggedPtr& other) const { return bits_ == other.bits_; }
-	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
-	{
-		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
-	}
-private:
-	num::Tuint64 bits_;
-#elif LASS_ACTUAL_ADDRESS_SIZE == 32
-	// We're in 32 bit space, so we use a 64 bit CAS to do tagging
-	//
 	typedef num::TuintPtr TTag;
 	TaggedPtr(): ptr_(0), tag_(0) {}
 	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
@@ -250,9 +211,6 @@ private:
 private:
 	T* ptr_;
 	TTag tag_;
-#else
-#	error "not implemented yet [Bramz]"
-#endif
 public:
 	T* operator->() const { LASS_ASSERT(get()); return get(); }
 	bool operator!() const { return get() == 0; }
