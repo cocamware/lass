@@ -49,6 +49,14 @@ namespace lass
 {
 namespace spat
 {
+namespace impl
+{
+	template <typename ObjectTraits> 
+	typename ObjectTraits::TValue aabbCenterForAxis(const typename ObjectTraits::TAabb& box, size_t axis)
+	{
+		return (ObjectTraits::coord(ObjectTraits::aabbMin(box), axis) + ObjectTraits::coord(ObjectTraits::aabbMax(box), axis)) / 2;
+	}
+}
 
 template <typename ObjectTraits>
 struct SplitInfo
@@ -143,10 +151,7 @@ public:
 	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
 	template <typename Input> bool operator()(const Input& input) const
 	{
-		typedef ObjectTraits OT;
-		const typename OT::TValue x = 
-			(OT::coord(OT::aabbMin(input.aabb), split_.axis) + OT::coord(OT::aabbMax(input.aabb), split_.axis)) / 2;
-		return x < split_.x;
+		return aabbCenterForAxis<ObjectTraits>(input.aabb, split_.axis) < split_.x;
 	}			
 private:
 	SplitInfo<ObjectTraits> split_;
@@ -159,12 +164,7 @@ public:
 	LessAxis(int iAxis): axis_(iAxis) {}
 	template <typename Input> bool operator()(const Input& a, const Input& b) const
 	{
-		typedef ObjectTraits OT;
-		const typename OT::TValue xa = 
-			(OT::coord(OT::aabbMin(a.aabb), axis_) + OT::coord(OT::aabbMax(a.aabb), axis_)) / 2;
-		const typename OT::TValue xb = 
-			(OT::coord(OT::aabbMin(b.aabb), axis_) + OT::coord(OT::aabbMax(b.aabb), axis_)) / 2;
-		return xa < xb;
+		return aabbCenterForAxis<ObjectTraits>(a.aabb, axis_) < aabbCenterForAxis<ObjectTraits>(b.aabb, axis_);
 	}			
 private:
 	int axis_;

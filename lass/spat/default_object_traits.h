@@ -148,6 +148,12 @@ struct DefaultAabbRayTraits
 		return ray.direction();
 	}
 
+	/** return a point along the ray
+	 */
+	static const TPoint rayPoint(const TRay& ray, TParam t)
+	{
+		return ray.point(t);
+	}
 
 
 	// POINTS AND VECTORS
@@ -261,6 +267,13 @@ struct DefaultObjectTraits: public DefaultAabbRayTraits<AabbType, RayType>
 	static const TValue objectSquaredDistance(TObjectIterator it, const TPoint& point, const TInfo* /* info */)
 	{
 		return squaredDistance(object(it), point);
+	}
+
+	/** return surface area of object
+	 */
+	static TValue objectSurfaceArea(TObjectIterator it)
+	{
+		return object(it).area();
 	}
 };
 

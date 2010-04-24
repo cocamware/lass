@@ -81,7 +81,7 @@ template
 	typename SplitHeuristics = DefaultSplitHeuristics
 >
 class QuadTree: 
-	public SplitHeuristics, private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
+	public SplitHeuristics, util::NonCopyable, private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
 {
 public:
 
@@ -178,6 +178,7 @@ public:
 	/** depth. Returns the depth of the tree */
 	size_t depth() const;
 	const TValue averageDepth() const;
+	bool isEmpty() const;
 
 	void swap(QuadTree& other);
 	const TObjectIterator end() const;
@@ -189,38 +190,26 @@ private:
 	typedef std::vector<TObjectIterator> TObjectIterators;
 	typedef util::AllocatorSimpleBlock<> TNodesAllocator;
 
-	struct CenteredBox
-	{
-		TPoint center; // center of box
-		TVector extents; // half of the box size
-		CenteredBox(const TPoint& center, const TVector& extents);
-		CenteredBox(const TAabb& box);
-		bool intersects(const CenteredBox& other) const;
-		const TValue sqrDistance(const TPoint& point) const;
-	};
-
 	struct QuadNode
 	{
-		typedef CenteredBox TCenteredBox;
-
 		QuadNode *children;   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
-		CenteredBox bounds;                  /**< center of quadnode */
+		TAabb bounds;
 		TObjectIterators data;          /**< the list containing the data */
 
-		QuadNode(const CenteredBox& bounds, TNodesAllocator& allocator);
+		QuadNode(const TAabb& bounds, TNodesAllocator& allocator);
 		~QuadNode();
 
 		void add(TObjectIterator object, const TSplitHeuristics& heuristics, size_t level = 0, bool mayDecompose = true);
-		void remove(TObjectIterator object);
+		bool remove(TObjectIterator object);
 
 		bool isLeaf() const { return !children; }
+		const TPoint center() const { return bounds.center().affine(); }
+		const TValue sqrDistance(const TPoint& point) const;
 		size_t objectCount() const;            /**< number of objects in this node and all its children */
 		size_t depth() const;					/**< depth of the child tree */
 		const TValue averageDepth() const;
 		void decompose(const TSplitHeuristics& heuristics, size_t level = 0);	/**< split the current node into 4 children */
 		void absorb();                      /**< absorb all children into the current node */
-
-		TAabb aabb() const;
 
 	private:
 
@@ -234,8 +223,7 @@ private:
 	bool doIntersects(const QuadNode& node, const TRay& ray, TParam tMin, TParam tMax, 
 		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
 	template <typename OutputIterator>
-	OutputIterator doFind(const QuadNode& node, const TAabb& box, const CenteredBox& centeredBox,
-		OutputIterator result, const TInfo* info) const;
+	OutputIterator doFind(const QuadNode& node, const TAabb& box, OutputIterator result, const TInfo* info) const;
 	void doNearestNeighbour(const QuadNode& node, const TPoint& point, const TInfo* info,
 		Neighbour& best) const;
 	template <typename RandomIterator>
@@ -246,6 +234,7 @@ private:
 	QuadNode*   root_;
 	TObjectIterator end_;
 	util::ScopedPtr<TNodesAllocator> nodesAllocator_;
+	size_t numObjects_;
 };
 
 

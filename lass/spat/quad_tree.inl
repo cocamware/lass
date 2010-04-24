@@ -81,7 +81,8 @@ QuadTree<O, OT, SH>::QuadTree(const TSplitHeuristics& heuristics):
 	aabb_(),
 	root_(0),
 	end_(),
-	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren))
+	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren)),
+	numObjects_(0)
 {
 }
 
@@ -96,9 +97,10 @@ QuadTree<O, OT, SH>::QuadTree(const TAabb& aabb, const TSplitHeuristics& heurist
 	aabb_(aabb),
 	root_(0),
 	end_(),
-	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren))
+	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren)),
+	numObjects_(0)
 {
-	root_ = new QuadNode(CenteredBox(aabb), *nodesAllocator_);
+	root_ = new QuadNode(aabb, *nodesAllocator_);
 }
 
 	
@@ -111,9 +113,10 @@ QuadTree<O, OT, SH>::QuadTree(const TAabb& aabb, const TObjectIterator end, cons
 	aabb_(aabb),
 	root_(0),
 	end_(end),
-	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren))
+	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren)),
+	numObjects_(0)
 {
-	root_ = new QuadNode(CenteredBox(aabb), *nodesAllocator_);
+	root_ = new QuadNode(aabb, *nodesAllocator_);
 }
 
 
@@ -125,7 +128,8 @@ QuadTree<O, OT, SH>::QuadTree(TObjectIterator first, TObjectIterator last, const
 	SH(heuristics),
 	root_(0),
 	end_(last),
-	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren))
+	nodesAllocator_(new TNodesAllocator(sizeof(QuadNode) * numChildren)),
+	numObjects_(0)
 {
 	aabb_ = TObjectTraits::aabbEmpty();
 	for (TObjectIterator i = first; i != last; ++i)
@@ -133,7 +137,7 @@ QuadTree<O, OT, SH>::QuadTree(TObjectIterator first, TObjectIterator last, const
 		aabb_ = TObjectTraits::aabbJoin(aabb_, TObjectTraits::objectAabb(i));
 	}
 
-	root_ = new QuadNode(CenteredBox(aabb_), *nodesAllocator_);
+	root_ = new QuadNode(aabb_, *nodesAllocator_);
 	while (first != last)
 	{
 		add(first++);
@@ -177,6 +181,7 @@ void QuadTree<O, OT, SH>::add(TObjectIterator object)
 		LASS_THROW("object not within bounding box of tree");
 	}
 	root_->add(object, *this);
+	++numObjects_;
 }
 
 
@@ -185,7 +190,10 @@ template <typename O, typename OT, typename SH>
 void QuadTree<O, OT, SH>::remove(TObjectIterator object)
 {
 	LASS_ASSERT(root_);
-	root_->remove(object);
+	if (root_->remove(object))
+	{
+		--numObjects_;
+	}
 }
 
 
@@ -205,7 +213,7 @@ bool QuadTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 	while (!node->isLeaf())
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
-		node = &node->children[findSubNode(node->bounds.center, point)];
+		node = &node->children[findSubNode(node->center(), point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
@@ -238,7 +246,7 @@ OutputIterator QuadTree<O, OT, SH>::find(const TPoint& point, OutputIterator res
 	while (!node->isLeaf())
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
-		node = &node->children[findSubNode(node->bounds.center, point)];
+		node = &node->children[findSubNode(node->center(), point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
@@ -267,8 +275,7 @@ OutputIterator QuadTree<O, OT, SH>::find(const TAabb& box, OutputIterator result
 	{
 		return result;
 	}
-	const CenteredBox centeredBox(box);
-	return doFind(*root_, box, centeredBox, result, info);
+	return doFind(*root_, box, result, info);
 }
 
 
@@ -400,6 +407,14 @@ QuadTree<O, OT, SH>::averageDepth() const
 
 
 template <typename O, typename OT, typename SH>
+bool QuadTree<O, OT, SH>::isEmpty() const
+{
+	return numObjects_ == 0;
+}
+
+
+
+template <typename O, typename OT, typename SH>
 void QuadTree<O, OT, SH>::swap(QuadTree& other)
 {
 	SH::swap(other);
@@ -407,6 +422,7 @@ void QuadTree<O, OT, SH>::swap(QuadTree& other)
 	std::swap(aabb_, other.aabb_);
 	std::swap(root_, other.root_);
 	std::swap(end_, other.end_);
+	std::swap(numObjects_, other.numObjects_);
 }
 
 
@@ -426,7 +442,7 @@ QuadTree<O, OT, SH>::end() const
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
 OutputIterator QuadTree<O, OT, SH>::doFind(
-	const QuadNode& node, const TAabb& box, const CenteredBox& centeredBox, OutputIterator output, 
+	const QuadNode& node, const TAabb& box, OutputIterator output, 
 	const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
@@ -446,9 +462,9 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 	}
 	for (size_t i = 0; i < numChildren; ++i)
 	{
-		if (node.children[i].bounds.intersects(centeredBox))
+		if (node.children[i].bounds.intersects(box))
 		{
-			output = doFind(node.children[i], box, centeredBox, output, info);
+			output = doFind(node.children[i], box, output, info);
 		}
 	}
 	return output;
@@ -560,13 +576,11 @@ bool QuadTree<O, OT, SH>::doIntersects(
 
 	if (node.isLeaf())
 	{
-		LASS_ASSERT(std::count(node->node, node->node + numChildren, static_cast<QuadNode*>(0)) == numChildren);
-
-		const size_t n = node->data.size();
+		const size_t n = node.data.size();
 		for (size_t i = 0; i < n; ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-			if (TObjectTraits::objectIntersects(node->data[i], ray, tMin, tMax, info))
+			if (TObjectTraits::objectIntersects(node.data[i], ray, tMin, tMax, info))
 			{
 				return true;
 			}
@@ -622,7 +636,7 @@ void QuadTree<O, OT, SH>::doNearestNeighbour(
 		size_t nearestNode = 0;
 		for (size_t i = 0; i < numChildren; ++i)
 		{
-			sqrNodeDists[i] = node.children[i].bounds.sqrDistance(point);
+			sqrNodeDists[i] = node.children[i].sqrDistance(point);
 			if (sqrNodeDists[i] < sqrNodeDists[nearestNode])
 			{
 				nearestNode = i;
@@ -689,7 +703,7 @@ RandomIterator QuadTree<O, OT, SH>::doRangeSearch(
 	size_t nearestNode = 0;
 	for (size_t i = 0; i < numChildren; ++i)
 	{
-		sqrNodeDists[i] = node.children[i].bounds.sqrDistance(target);
+		sqrNodeDists[i] = node.children[i].sqrDistance(target);
 		if (sqrNodeDists[i] < sqrNodeDists[nearestNode])
 		{
 			nearestNode = i;
@@ -712,68 +726,10 @@ RandomIterator QuadTree<O, OT, SH>::doRangeSearch(
 
 
 
-// --- CenteredBox ---------------------------------------------------------------------------------
-
-template <typename O, typename OT, typename SH>
-QuadTree<O, OT, SH>::CenteredBox::CenteredBox(const TPoint& center, const TVector& extents):
-	center(center),
-	extents(extents)
-{
-}
-
-
-
-template <typename O, typename OT, typename SH>
-QuadTree<O, OT, SH>::CenteredBox::CenteredBox(const TAabb& box)
-{
-	const TPoint min = TObjectTraits::aabbMin(box);
-	const TPoint max = TObjectTraits::aabbMax(box);
-	center = middle(min, max);
-	extents = halfExtents(max, min);
-}
-
-
-
-template <typename O, typename OT, typename SH>
-bool QuadTree<O, OT, SH>::CenteredBox::intersects(const CenteredBox& other) const
-{
-	for (size_t k = 0; k < dimension; ++k)
-	{
-		const TValue centerToCenter = num::abs(TObjectTraits::coord(center, k) - TObjectTraits::coord(other.center, k));
-		const TValue totalExtents = TObjectTraits::coord(extents, k) + TObjectTraits::coord(other.extents, k);
-		if (centerToCenter >= totalExtents)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-
-
-template <typename O, typename OT, typename SH>
-const typename QuadTree<O, OT, SH>::TValue
-QuadTree<O, OT, SH>::CenteredBox::sqrDistance(const TPoint& point) const
-{
-	TValue sqrDist = 0;
-	for (size_t k = 0; k < dimension; ++k)
-	{
-		const TValue d = num::abs(TObjectTraits::coord(center, k) - TObjectTraits::coord(point, k)) -
-			TObjectTraits::coord(extents, k);
-		if (d > 0)
-		{
-			sqrDist += d * d;
-		}
-	}
-	return sqrDist;
-}
-
-
-
 // --- QuadNode ------------------------------------------------------------------------------------
 
 template <typename O, typename OT, typename SH>
-QuadTree<O, OT, SH>::QuadNode::QuadNode(const CenteredBox& bounds, TNodesAllocator& allocator):
+QuadTree<O, OT, SH>::QuadNode::QuadNode(const TAabb& bounds, TNodesAllocator& allocator):
 	children(0),
 	bounds(bounds), 
 	allocator_(allocator)
@@ -786,6 +742,27 @@ template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>::QuadNode::~QuadNode()
 {
 	deleteChildren(numChildren);
+}
+
+
+
+template <typename O, typename OT, typename SH>
+const typename QuadTree<O, OT, SH>::TValue
+QuadTree<O, OT, SH>::QuadNode::sqrDistance(const TPoint& point) const
+{
+	TValue sqrDist = 0;
+	const TPoint& min = TObjectTraits::aabbMin(bounds);
+	const TPoint& max = TObjectTraits::aabbMin(bounds);
+	for (size_t k = 0; k < dimension; ++k)
+	{
+		const TValue x = TObjectTraits::coord(point, k);
+		const TValue d = std::max(x - TObjectTraits::coord(max, k), TObjectTraits::coord(min, k) - x);
+		if (d > 0)
+		{
+			sqrDist += d * d;
+		}
+	}
+	return sqrDist;
 }
 
 
@@ -820,51 +797,45 @@ void QuadTree<O, OT, SH>::QuadNode::add(
 	}
 	else
 	{
+		bool isAdded = false;
 		for (size_t i=0;i<numChildren;++i)
 		{
-			if (TObjectTraits::objectIntersects(object, children[i].aabb(), 0))
+			if (TObjectTraits::objectIntersects(object, children[i].bounds, 0))
 			{
 				children[i].add(object, heuristics, level + 1);
+				isAdded = true;
 			}
 		}
+		LASS_ENFORCE(isAdded)("didn't overlap with any of the child nodes");
 	}
 }
 
 
 
+/** @return true if object was indeed removed, false if it was never found i guess.
+ */
 template <typename O, typename OT, typename SH>
-void QuadTree<O, OT, SH>::QuadNode::remove(
+bool QuadTree<O, OT, SH>::QuadNode::remove(
 		TObjectIterator object)
 {
+	bool isRemoved = false;
 	if (isLeaf())
 	{
 		typename TObjectIterators::iterator last = std::remove(data.begin(), data.end(), object);
+		isRemoved = last != data.end();
 		data.erase(last, data.end());
 	}
 	else
 	{
 		for (size_t i=0;i<numChildren;++i)
 		{
-			if (TObjectTraits::objectIntersects(object, children[i].aabb(), 0))
+			if (TObjectTraits::objectIntersects(object, children[i].bounds, 0))
 			{
-				children[i].remove(object);
+				isRemoved |= children[i].remove(object);
 			}
 		}
 	}
-}
-
-
-
-template <typename O, typename OT, typename SH>
-typename QuadTree<O, OT, SH>::TAabb QuadTree<O, OT, SH>::QuadNode::aabb() const
-{
-	/* Reconstruction of the aabb everytime an object gets inserted to the quadnode
-	*  Altough this is not very efficient, it is only needed during construction.  Better
-	*  storage via center and dx,dy can give more efficient lookup code which is the main
-	*  interest.  Storing the aabb would give too much overhead in comparison with the gain
-	*  in speed.
-	*/
-	return TAabb(bounds.center - bounds.extents, bounds.center + bounds.extents);
+	return isRemoved;
 }
 
 
@@ -879,28 +850,25 @@ void QuadTree<O, OT, SH>::QuadNode::decompose(const TSplitHeuristics& heuristics
 
 	makeChildren();
 
-	TAabb nodeAabb[numChildren];       // cache node aabb
-	for (size_t i=0;i<numChildren;++i)
-		nodeAabb[i] = children[i].aabb();
-
 	//const size_t maxCopies = numChildren * data.size() * 2 / 3;
 	size_t copies = 0;
 	for (typename TObjectIterators::iterator vit = data.begin(); vit != data.end(); ++vit)
 	{
-		const TAabb tempAabb = TObjectTraits::objectAabb( *vit );
-		
 		/* for each object we test wether it is contained in one of the
 		*  subnodes of the quadnode.  If it is even partially in one then move
 		*  the object down the tree, but only one level
 		*/
+		bool isAdded = false;
 		for (size_t i = 0; i < numChildren; ++i)
 		{
-			if (TObjectTraits::objectIntersects(*vit, nodeAabb[i], 0))
+			if (TObjectTraits::objectIntersects(*vit, children[i].bounds, 0))
 			{
 				children[i].add(*vit, heuristics, level + 1, false);
 				++copies;
+				isAdded = true;
 			}
 		}
+		LASS_ENFORCE(isAdded)("object is not added to any of the sub nodes");
 	}
 
 	data.clear();
@@ -967,24 +935,20 @@ void QuadTree<O, OT, SH>::QuadNode::makeChildren()
 		return;
 	}
 
-	TVector newExtents(bounds.extents);
-	for (size_t k = 0; k < dimension; ++k)
-	{
-		TObjectTraits::coord(newExtents, k, TObjectTraits::coord(newExtents, k) / 2);
-	}
-
+	const TPoint center = this->center();
 	children = static_cast<QuadNode*>(allocator_.allocate());
 	size_t i = 0;
 	try
 	{
 		for (i = 0; i < numChildren; ++i)
 		{
-			TPoint newCenter = bounds.center;
+			TPoint min = TObjectTraits::aabbMin(bounds);
+			TPoint max = TObjectTraits::aabbMax(bounds);
 			for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 			{
-				TObjectTraits::coord(newCenter, k, TObjectTraits::coord(newCenter, k) + (i & mask ? 1 : -1) * TObjectTraits::coord(newExtents, k));
+				TObjectTraits::coord(i & mask ? min : max, k, TObjectTraits::coord(center, k));
 			}
-			new (&children[i]) QuadNode(TCenteredBox(newCenter, newExtents), allocator_);
+			new (&children[i]) QuadNode(TAabb(min, max), allocator_);
 		}
 	}
 	catch (...)

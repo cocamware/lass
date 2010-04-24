@@ -211,7 +211,7 @@ protected:
 };
 
 
-
+//*
 template <typename ObjectTraits>
 class QuadTreeHelper<ObjectTraits, 2>
 {
@@ -322,49 +322,43 @@ protected:
 
 	static TValue minComponent(const TVector& v)
 	{
-		return std::min(std::min(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1)), TObjectTraits::coord(v, 2));
+		return std::min(std::min(v.x, v.y), v.z);
 	}
 
 	static TValue maxComponent(const TVector& v)
 	{
-		return std::max(std::max(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1)), TObjectTraits::coord(v, 2));
+		return std::max(std::max(v.x, v.y), v.z);
 	}
 
 	template <typename V>
 	static const V middle(const V& a, const V& b)
 	{
 		return V(
-			(TObjectTraits::coord(a, 0) + TObjectTraits::coord(b, 0)) / 2,
-			(TObjectTraits::coord(a, 1) + TObjectTraits::coord(b, 1)) / 2,
-			(TObjectTraits::coord(a, 2) + TObjectTraits::coord(b, 2)) / 2);
+			(a.x + b.x) / 2,
+			(a.y + b.y) / 2,
+			(a.z + b.z) / 2);
 	}
 
 	static const TVector halfExtents(const TPoint& a, const TPoint& b)
 	{
-		return TVector(
-			(TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0)) / 2,
-			(TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1)) / 2,
-			(TObjectTraits::coord(a, 2) - TObjectTraits::coord(b, 2)) / 2);
+		return (a - b) / 2;
 	}
 
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		const TValue tEntry = maxComponent(tNear);
-		return (TObjectTraits::coord(tMiddle, 0) < tEntry ? 0x1 : 0)
-			| (TObjectTraits::coord(tMiddle, 1) < tEntry ? 0x2 : 0)
-			| (TObjectTraits::coord(tMiddle, 2) < tEntry ? 0x4 : 0);
+		return (tMiddle.x < tEntry ? 0x1 : 0)
+			| (tMiddle.y < tEntry ? 0x2 : 0)
+			| (tMiddle.z < tEntry ? 0x4 : 0);
 	}
 
 	static size_t nextNode(size_t i, const TVector& tFar)
 	{
-		const TValue x = TObjectTraits::coord(tFar, 0);
-		const TValue y = TObjectTraits::coord(tFar, 1);
-		const TValue z = TObjectTraits::coord(tFar, 2);
-		if (x < y && x < z)
+		if (tFar.x < tFar.y && tFar.x < tFar.z)
 		{
 			return i & 0x1 ? size_t(-1) : i | 0x1;
 		}
-		else if (y < z)
+		else if (tFar.y < tFar.z)
 		{
 			return i & 0x2 ? size_t(-1) : i | 0x2;
 		}
@@ -376,9 +370,9 @@ protected:
 
 	static size_t findSubNode(const TPoint& center, const TPoint& point)
 	{
-		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
-			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0)
-			| (TObjectTraits::coord(point, 2) >= TObjectTraits::coord(center, 2) ? 0x4 : 0x0);
+		return (point.x >= center.x ? 0x1 : 0x0) 
+			| (point.y >= center.y ? 0x2 : 0x0)
+			| (point.z >= center.z ? 0x4 : 0x0);
 	}
 
 	static size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction)
@@ -386,12 +380,10 @@ protected:
 		size_t flipMask = 0;
 		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 		{
-			const TValue d = TObjectTraits::coord(direction, k);
-			if (d < 0)
+			if (direction[k] < 0)
 			{
-				TObjectTraits::coord(support, k, 
-					2 * TObjectTraits::coord(center, k) - TObjectTraits::coord(support, k));
-				TObjectTraits::coord(direction, k, -d);
+				support[k] = 2 * center[k] - support[k];
+				direction[k] = -direction[k];
 				flipMask |= mask;
 			}
 		}
@@ -401,31 +393,18 @@ protected:
 	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
 		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
-		for (size_t k = 0; k < dimension; ++k)
-		{
-			TObjectTraits::coord(tNear, k, TObjectTraits::coord(reciprocalDirection, k) *
-				(TObjectTraits::coord(min, k) - TObjectTraits::coord(support, k)));
-			TObjectTraits::coord(tFar, k, TObjectTraits::coord(reciprocalDirection, k) *
-				(TObjectTraits::coord(max, k) - TObjectTraits::coord(support, k)));
-		}
+		tNear = reciprocalDirection * (min - support);
+		tFar = reciprocalDirection * (max - support);
 	}
 
 	static void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild)
 	{
-		for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
-		{
-			if (iChild & mask)
-			{
-				TObjectTraits::coord(tNear, k, TObjectTraits::coord(tMiddle, k));
-			}
-			else
-			{
-				TObjectTraits::coord(tFar, k, TObjectTraits::coord(tMiddle, k));
-			}
-		}
+		(iChild & 0x1 ? tNear : tFar).x = tMiddle.x;
+		(iChild & 0x2 ? tNear : tFar).y = tMiddle.y;
+		(iChild & 0x4 ? tNear : tFar).z = tMiddle.z;
 	}
 };
-
+/**/
 }
 }
 }

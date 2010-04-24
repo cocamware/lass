@@ -381,22 +381,10 @@ template <class MMP2>
 bool Aabb3D<T, MMP>::intersects(const Aabb3D<T, MMP2>& other) const
 {
 	LASS_ASSERT(isValid() && other.isValid());
-
-	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
-	// notice that the weight of the homogenous points a.center() and b.center() is two,
-	// so we can avond the division by two of doubleExtend.
-	// that's why we also have to just take the sum of the sizes and not the half sum.
-
-	LASS_ASSERT(center().weight() == 2 && other.center().weight() == 2);
-	const TPointH doubleCenterToCenter = center() - other.center();
-
-	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
-	const typename TPointH::TVector doubleCenterDistance =
-		doubleCenterToCenter.position().transform(num::abs);
-
-	const TVector doubleExtend = size() + other.size();
-	return doubleCenterDistance.x <= doubleExtend.x && doubleCenterDistance.y <= doubleExtend.y 
-		&& doubleCenterDistance.z <= doubleExtend.z;
+	if (other.max().x < min_.x || other.min().x > max_.x) return false;
+	if (other.max().y < min_.y || other.min().y > max_.y) return false;
+	if (other.max().z < min_.z || other.min().z > max_.z) return false;
+	return true;
 }
 
 
@@ -425,22 +413,10 @@ template <class MMP2>
 bool Aabb3D<T, MMP>::collides(const Aabb3D<T, MMP2>& other) const
 {
 	LASS_ASSERT(isValid() && other.isValid());
-
-	// test if both AABB's do intersect by using the SEPERATING AXIS TEST.
-	// notice that the weight of the homogenous points a.center() and b.center() is two,
-	// so we can avond the division by two of doubleExtend.
-	// that's why we also have to just take the sum of the sizes and not the half sum.
-
-	LASS_ASSERT(center().weight() == 2 && other.center().weight() == 2);
-	const TPointH doubleCenterToCenter = center() - other.center();
-
-	LASS_ASSERT(doubleCenterToCenter.weight() == 0);
-	const typename TPointH::TVector doubleCenterDistance =
-		doubleCenterToCenter.position().transform(num::abs);
-
-	const TVector doubleExtend = size() + other.size();
-	return doubleCenterDistance.x < doubleExtend.x && doubleCenterDistance.y < doubleExtend.y
-		&& doubleCenterDistance.z < doubleExtend.z;
+	if (other.max().x <= min_.x || other.min().x >= max_.x) return false;
+	if (other.max().y <= min_.y || other.min().y >= max_.y) return false;
+	if (other.max().z <= min_.z || other.min().z >= max_.z) return false;
+	return true;
 }
 
 

@@ -66,48 +66,78 @@ Aabb3D<T> aabb(const Triangle3D<T>& triangle)
 namespace impl
 {
 
-template <typename V>
-bool intersectsHelperTriangleAabb3D(const V& v0, const V& v1, const V& v2, const V& h)
+template <typename T>
+void inpminmax(T& a, T& b)
 {
-	typedef typename V::TValue TValue;
+	if (a > b)
+	{
+		std::swap(a, b);
+	}
+}
 
-	const V f0 = v1 - v0;
-	const V af0(num::abs(f0.x), num::abs(f0.y), num::abs(f0.z));
+template <typename P>
+bool intersectsHelperTriangleAabb3D(const P& v0, const P& v1, const P& v2, const P& a, const P& b)
+{
+	typedef typename P::TVector TVector;
+	typedef typename P::TValue TValue;
 
-	TValue min = v0.z * v1.y - v0.y * v1.z;
-	TValue max = f0.y * v2.z - f0.z * v2.y;
-	const TValue rx = h.y * af0.z + h.z * af0.y;
-	if (max < min)
+	// this should move somedday to some place more appropriate.
+	class Range
 	{
-		std::swap(min, max);
-	}
-	if (min > rx || max < -rx)
+	public:
+		Range(TValue min, TValue max): min_(min), max_(max)
+		{
+			inpminmax(min_, max_);
+		}
+		Range& operator+=(const Range& other)
+		{
+			min_ += other.min_;
+			max_ += other.max_;
+			return *this;
+		}
+		bool seperated(const Range& other) const
+		{
+			return other.max_ < min_ || other.min_ > max_;
+		}
+	private:
+		TValue min_;
+		TValue max_;
+	};
+
+	const TVector f = v1 - v0; // triangleEdge
+
 	{
-		return false;
+		// const V aabbEdge(1, 0, 0);
+		// const V axis = cross(aabbEdge, triangleEdge);
+		const Range triangleRange(
+			v0.z * v1.y - v0.y * v1.z, // == dot(v0, axis) == dot(v1, axis)
+			f.y * v2.z - f.z * v2.y  // == dot(v2, axis)
+			);
+		Range boxRange(a.y * -f.z, b.y * -f.z);
+		boxRange += Range(a.z * f.y, b.z * f.y);
+		if (triangleRange.seperated(boxRange)) return false;
 	}
 
-	min = v0.x * v1.z - v0.z * v1.x;
-	max = f0.z * v2.x - f0.x * v2.z;
-	const TValue ry = h.z * af0.x + h.x * af0.z;
-	if (max < min)
 	{
-		std::swap(min, max);
-	}
-	if (min > ry || max < -ry)
-	{
-		return false;
+		// const V aabbEdge(0, 1, 0);
+		const Range triangleRange(
+			v0.x * v1.z - v0.z * v1.x,
+			f.z * v2.x - f.x * v2.z
+			);
+		Range boxRange(a.z * -f.x, b.z * -f.x);
+		boxRange += Range(a.x * f.z, b.x * f.z);
+		if (triangleRange.seperated(boxRange)) return false;
 	}
 
-	min = v0.y * v1.x - v0.x * v1.y;
-	max = f0.x * v2.y - f0.y * v2.x;
-	const TValue rz = h.x * af0.y + h.y * af0.x;
-	if (max < min)
 	{
-		std::swap(min, max);
-	}
-	if (min > rz || max < -rz)
-	{
-		return false;
+		// const V aabbEdge(0, 0, 1);
+		const Range triangleRange(
+			v0.y * v1.x - v0.x * v1.y,
+			f.x * v2.y - f.y * v2.x
+			);
+		Range boxRange(a.x * -f.y, b.x * -f.y);
+		boxRange += Range(a.y * f.x, b.y * f.x);
+		if (triangleRange.seperated(boxRange)) return false;
 	}
 
 	return true;
@@ -127,20 +157,10 @@ bool intersects(const Triangle3D<T>& triangle, const Aabb3D<T, MMP>& box)
 	typedef typename Triangle3D<T>::TVector TVector;
 	typedef typename Triangle3D<T>::TValue TValue;
 
-	const TPoint center = box.center().affine();
-	const TVector extent = box.size() / 2;
-
-	const TVector verts[] = 
-	{
-		triangle[0] - center,
-		triangle[1] - center,
-		triangle[2] - center
-	};
-
 	// bullet 3
-	if (!impl::intersectsHelperTriangleAabb3D(verts[0], verts[1], verts[2], extent)) return false;
-	if (!impl::intersectsHelperTriangleAabb3D(verts[1], verts[2], verts[0], extent)) return false;
-	if (!impl::intersectsHelperTriangleAabb3D(verts[2], verts[0], verts[1], extent)) return false;
+	if (!impl::intersectsHelperTriangleAabb3D(triangle[0], triangle[1], triangle[2], box.min(), box.max())) return false;
+	if (!impl::intersectsHelperTriangleAabb3D(triangle[1], triangle[2], triangle[0], box.min(), box.max())) return false;
+	if (!impl::intersectsHelperTriangleAabb3D(triangle[2], triangle[0], triangle[1], box.min(), box.max())) return false;
 
 	// bullet 1
 	if (!box.intersects(aabb(triangle)))
