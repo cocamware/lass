@@ -84,7 +84,7 @@ template
 	template <typename T, typename OT, typename SH> class BoundingVolumeHierarchy,
 	typename SplitHeuristics
 >
-class TriangleMesh3D
+class TriangleMesh3D: public util::NonCopyable
 {
 public:
 
@@ -155,6 +155,9 @@ public:
 	TriangleMesh3D(const VertexInputRange& vertices, const IndexTriangleInputRange& triangles);
 	template <typename VertexInputRange, typename NormalInputRange, typename UvInputRange, typename IndexTriangleInputRange>
 	TriangleMesh3D(const VertexInputRange& vertices, const NormalInputRange& normals, const UvInputRange& uvs, const IndexTriangleInputRange& triangles);
+	TriangleMesh3D(const TriangleMesh3D& other);
+
+	TriangleMesh3D& operator=(const TriangleMesh3D& other);
 
 	const TTriangles& triangles() const;
 	const TVertices& vertices() const;

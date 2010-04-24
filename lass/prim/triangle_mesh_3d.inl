@@ -104,6 +104,29 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(const TriangleMesh3D& other):
+	tree_(spat::DefaultSplitHeuristics(10)),
+	vertices_(other.vertices_),
+	normals_(other.normals_),
+	uvs_(other.uvs_)
+{
+	std::vector<IndexTriangle> triangles;
+	other.indexTriangles(std::back_inserter(triangles));
+	buildMesh(triangles);
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+TriangleMesh3D<T, BHV, SH>& TriangleMesh3D<T, BHV, SH>::operator=(const TriangleMesh3D& other)
+{
+	TriangleMesh3D temp(other);
+	swap(temp);
+	return *this;
+}
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 const typename TriangleMesh3D<T, BHV, SH>::TTriangles&
 TriangleMesh3D<T, BHV, SH>::triangles() const
 {
