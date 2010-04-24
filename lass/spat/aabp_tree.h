@@ -120,18 +120,20 @@ public:
 	const TAabb& aabb() const;
 
 	bool contains(const TPoint& point, const TInfo* info = 0) const;
+
 	template <typename OutputIterator> 
 	OutputIterator find(const TPoint& point, OutputIterator result, const TInfo* info = 0) const;
 	template <typename OutputIterator> 
 	OutputIterator find(const TAabb& box, OutputIterator result, const TInfo* info = 0) const;
-	const TObjectIterator intersect(const TRay& ray, TReference t, TParam minT = 0, 
-		const TInfo* info = 0) const;
-	bool intersects(const TRay& ray, TParam minT = 0, 
-		TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
+	template <typename OutputIterator>
+	OutputIterator find(const TRay& ray, TParam minT, TParam maxT, OutputIterator result, const TInfo* info = 0) const;
+
+	const TObjectIterator intersect(const TRay& ray, TReference t, TParam minT = 0, const TInfo* info = 0) const;
+	bool intersects(const TRay& ray, TParam minT = 0, TParam maxT = std::numeric_limits<TValue>::infinity(), const TInfo* info = 0) const;
+
 	const Neighbour nearestNeighbour(const TPoint& point, const TInfo* info = 0) const;
-	template <typename RandomIterator>
-	RandomIterator rangeSearch(const TPoint& center, TParam maxRadius, size_t maxCount,
-			RandomIterator first, const TInfo* info = 0) const;	
+	template <typename RandomIterator> 
+	RandomIterator rangeSearch(const TPoint& center, TParam maxRadius, size_t maxCount, RandomIterator first, const TInfo* info = 0) const;
 
 	void swap(TSelf& other);
 	bool isEmpty() const;
@@ -205,16 +207,21 @@ private:
 	int addInternalNode(int iAxis);
 
 	bool doContains(int index, const TPoint& point, const TInfo* info) const;
+
 	template <typename OutputIterator> 
-	OutputIterator doFind(int index, const TPoint& point, 
-		OutputIterator iResult, const TInfo* info) const;
+	OutputIterator doFind(int index, const TPoint& point, OutputIterator iResult, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(int index, const TAabb& box, 
-		OutputIterator iResult, const TInfo* info) const;
-	const TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin,
-		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
-	bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax,
-		const TInfo* info, const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+	OutputIterator doFind(int index, const TAabb& box, OutputIterator iResult, const TInfo* info) const;
+	template <typename OutputIterator> 
+	OutputIterator doFind(int index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator iResult, const TInfo* info,
+		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+
+	const TObjectIterator doIntersect(
+		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info, 
+		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+	bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info, 
+		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
+
 	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>
 	RandomIterator doRangeSearch(int index, const TPoint& point, TReference squaredRadius, 

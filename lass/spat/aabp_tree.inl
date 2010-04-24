@@ -131,8 +131,7 @@ bool AabpTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabpTree<O, OT, SH>::find(
-		const TPoint& point, OutputIterator result, const TInfo* info) const
+OutputIterator AabpTree<O, OT, SH>::find(const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	if (isEmpty() || !TObjectTraits::aabbContains(aabb_, point))
 	{
@@ -145,14 +144,38 @@ OutputIterator AabpTree<O, OT, SH>::find(
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabpTree<O, OT, SH>::find(
-		const TAabb& box, OutputIterator result, const TInfo* info) const
+OutputIterator AabpTree<O, OT, SH>::find(const TAabb& box, OutputIterator result, const TInfo* info) const
 {
 	if (isEmpty() || !TObjectTraits::aabbIntersects(aabb_, box))
 	{
 		return result;
 	}
 	return doFind(0, box, result, info);
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator AabpTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
+{
+	TValue tNear;
+	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
+	{
+		return result;
+	}
+	TValue tFar;
+	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
+	{
+		tFar = tNear;
+		tNear = tMin;
+	}
+	if (tNear > tMax || tFar < tMin)
+	{
+		return result;
+	}
+	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
+	return doFind(0, ray, tMin, tMax, result, info, reciprocalDirection, tNear, tFar);
 }
 
 
@@ -434,6 +457,77 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	if (TObjectTraits::coord(TObjectTraits::aabbMax(box), node.axis()) >= node.rightBound())
 	{
 		result = doFind(node.right(), box, result, info);
+	}
+	return result;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator AabpTree<O, OT, SH>::doFind(
+		int index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info,
+		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	LASS_ASSERT(tFar >= tNear * (1 - 1e-6f));
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
+	{
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
+			{
+				*result++ = objects_[i];
+			}
+		}
+		return result;		
+	}
+
+	// check children
+	const int leftIndex = index + 1;
+	const int rightIndex = node.right();
+	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
+	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
+	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
+	const TValue tLeftBound = (node.leftBound() - s) * invD;
+	const TValue tRightBound = (node.rightBound() - s) * invD;
+	
+	if (d > 0)
+	{
+		if (tLeftBound > tNear)
+		{
+			result = doFind(leftIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, std::min(tLeftBound, tFar));
+		}
+		if (tRightBound < tFar)
+		{
+			result = doFind(rightIndex, ray, tMin, tMax, result, info, reciprocalDirection, std::max(tRightBound, tNear), tFar);
+		}
+	}
+	else if (d < 0)
+	{
+		if (tLeftBound < tFar)
+		{
+			result = doFind(leftIndex, ray, tMin, tMax, result, info, reciprocalDirection, std::max(tLeftBound, tNear), tFar);
+		}
+		if (tRightBound > tNear)
+		{
+			result = doFind(rightIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, std::min(tRightBound, tFar));
+		}
+	}
+	else // if (d == TNumTraits::zero)
+	{
+		if (s <= node.leftBound())
+		{
+			result = doFind(rightIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, tFar);
+		}
+		if (s >= node.rightBound())
+		{
+			result = doFind(rightIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, tFar);
+		}
 	}
 	return result;
 }

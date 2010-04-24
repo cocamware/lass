@@ -108,6 +108,8 @@ AabbTree<O, OT, SH>::aabb() const
 
 
 
+/** Check whether there's any object in the tree that contains @a point.
+ */
 template <typename O, typename OT, typename SH> inline
 bool AabbTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 {
@@ -120,10 +122,11 @@ bool AabbTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 
 
 
+/** Find all objects that contain @a point.
+ */
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator> inline
-OutputIterator AabbTree<O, OT, SH>::find(
-		const TPoint& point, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::find(const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	if (isEmpty())
 	{
@@ -134,10 +137,11 @@ OutputIterator AabbTree<O, OT, SH>::find(
 
 
 
+/** Find all objects that intersect (overlap) with @a box.
+ */
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator> inline
-OutputIterator AabbTree<O, OT, SH>::find(
-		const TAabb& box, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::find(const TAabb& box, OutputIterator result, const TInfo* info) const
 {
 	if (isEmpty())
 	{
@@ -148,11 +152,27 @@ OutputIterator AabbTree<O, OT, SH>::find(
 
 
 
+/** Find all objects that have an intersection with @a ray between @a tMin and @a tMax.
+ */
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator> inline
+OutputIterator AabbTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
+{
+	if (isEmpty())
+	{
+		return result;
+	}
+	return doFind(0, ray, tMin, tMax, result, info);
+}
+
+
+
 template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator inline
 AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
-	if (isEmpty())
+	TValue tDummy;
+	if (isEmpty() || !TObjectTraits::aabbIntersect(nodes_.front().aabb(), ray, tDummy, tMin))
 	{
 		return end_;
 	}
@@ -337,8 +357,7 @@ bool AabbTree<O, OT, SH>::doContains(int index, const TPoint& point, const TInfo
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(
-		int index, const TPoint& point, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::doFind(int index, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
@@ -368,8 +387,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(
-		int index, const TAabb& box, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::doFind(int index, const TAabb& box, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
@@ -398,61 +416,110 @@ OutputIterator AabbTree<O, OT, SH>::doFind(
 
 
 template <typename O, typename OT, typename SH>
-typename AabbTree<O, OT, SH>::TObjectIterator 
-AabbTree<O, OT, SH>::doIntersect(
-		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
+template <typename OutputIterator>
+OutputIterator AabbTree<O, OT, SH>::doFind(int index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
-	TValue tDummy;
-	if (!TObjectTraits::aabbIntersect(node.aabb(), ray, tDummy, tMin))
+	if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
 	{
-		return end_;
+		return result;
 	}
-
 	if (node.isInternal())
 	{
-		TValue tLeft;
-		TObjectIterator left = doIntersect(index + 1, ray, tLeft, tMin, info);
-		TValue tRight;
-		TObjectIterator right = doIntersect(node.right(), ray, tRight, tMin, info);
-
-		if (left != end_ && (right == end_ || tLeft < tRight))
-		{
-			t = tLeft;
-			return left;
-		}
-		if (right != end_)
-		{
-			LASS_ASSERT(left == end_ || !(tLeft < tRight));
-			t = tRight;
-			return right;
-		}
-		return end_;
+		result = doFind(index + 1, ray, tMin, tMax, result, info);
+		return doFind(node.right(), ray, tMin, tMax, result, info);
 	}
-
-	TValue tBest = 0;
-	TObjectIterator best = end_;
 	for (int i = node.first(); i != node.last(); ++i)
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
-		TValue tCandidate = 0;
-		if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
+		if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
 		{
-			if (best == end_ || tCandidate < tBest)
-			{
-				tBest = tCandidate;
-				best = objects_[i];
-			}
+			*result++ = objects_[i];
 		}
 	}
-	if (best != end_)
+	return result;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+typename AabbTree<O, OT, SH>::TObjectIterator 
+AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+	const Node& node = nodes_[index];
+
+	if (node.isLeaf())
 	{
-		t = tBest;
+		TValue tBest = 0;
+		TObjectIterator best = end_;
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			TValue tCandidate = 0;
+			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
+			{
+				if (best == end_ || tCandidate < tBest)
+				{
+					tBest = tCandidate;
+					best = objects_[i];
+				}
+			}
+		}
+		if (best != end_)
+		{
+			t = tBest;
+		}
+		return best;
 	}
-	return best;
+
+	int left = index + 1;
+	int right = node.right();
+	TValue tLeftBox, tRightBox;
+	const bool hitsLeft = volumeIntersect(nodes_[left].aabb(), ray, tLeftBox, tMin);
+	const bool hitsRight = volumeIntersect(nodes_[right].aabb(), ray, tRightBox, tMin);
+	
+	if (!hitsLeft)
+	{
+		return hitsRight ? doIntersect(right, ray, t, tMin, info) : end_;
+	}
+	if (!hitsRight)
+	{
+		return doIntersect(left, ray, t, tMin, info);
+	}
+
+	// ok, we intersect both childs. Visit the box that is nearest first.
+	if (tRightBox < tLeftBox)
+	{
+		std::swap(tLeftBox, tRightBox);
+		std::swap(left, right);
+	}
+
+	TValue tLeft;
+	const TObjectIterator leftBest = doIntersect(left, ray, tLeft, tMin, info);
+	if (leftBest == end_)
+	{
+		return doIntersect(right, ray, t, tMin, info);
+	}
+
+	if (tRightBox <= tLeft)
+	{
+		// right node might still have a closer hit.
+		TValue tRight;
+		const TObjectIterator rightBest = doIntersect(right, ray, tRight, tMin, info);
+		if (tRight < tLeft)
+		{
+			t = tRight;
+			return rightBest;
+		}
+	}
+
+	t = tLeft;
+	return leftBest;
 }
 
 
@@ -465,8 +532,7 @@ bool AabbTree<O, OT, SH>::doIntersects(
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 	const Node& node = nodes_[index];
 
-	TValue tDummy = 0;
-	if (!TObjectTraits::aabbIntersect(node.aabb(), ray, tDummy, tMin))
+	if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
 	{
 		return false;
 	}
@@ -609,6 +675,27 @@ void AabbTree<O, OT, SH>::getChildren(
 	}
 }
 
+
+
+template <typename O, typename OT, typename SH>
+bool AabbTree<O, OT, SH>::volumeIntersect(const TAabb& box, const TRay& ray, TReference t, TParam tMin) const
+{
+	if (TObjectTraits::aabbContains(box, TObjectTraits::rayPoint(ray, tMin)))
+	{
+		t = tMin;
+		return true;
+	}
+	return TObjectTraits::aabbIntersect(box, ray, t, tMin);
+}
+
+
+
+template <typename O, typename OT, typename SH>
+bool AabbTree<O, OT, SH>::volumeIntersects(const TAabb& box, const TRay& ray, TParam tMin, TParam tMax) const
+{
+	TValue t = 0;
+	return volumeIntersect(box, ray, t, tMin) && t <= tMax;
+}
 
 
 // --- free ----------------------------------------------------------------------------------------
