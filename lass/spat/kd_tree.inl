@@ -82,9 +82,10 @@ KdTree<O, OT>::KdTree(TObjectIterator first, TObjectIterator last):
 	end_(last)
 {
 	size_ = std::distance(begin_, end_);
-	heap_.resize(size_, Node(end_));
+	heap_.resize((size_ * 3) / 2, Node(end_));
 
 	TObjectIterators input;
+	input.reserve(size_);
 	for (TObjectIterator i = begin_; i != end_; ++i)
 	{
 		input.push_back(i);

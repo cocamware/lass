@@ -93,7 +93,7 @@ private:
 
 
 template <typename ExceptionType, typename ParentType = Exception>
-class ExceptionMixin: public virtual ParentType
+class ExceptionMixin: public ParentType
 {
 public:
 	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}

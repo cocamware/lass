@@ -511,7 +511,7 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TPara
 		// right node might still have a closer hit.
 		TValue tRight;
 		const TObjectIterator rightBest = doIntersect(right, ray, tRight, tMin, info);
-		if (tRight < tLeft)
+		if (rightBest != end_ && tRight < tLeft)
 		{
 			t = tRight;
 			return rightBest;
