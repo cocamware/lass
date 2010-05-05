@@ -894,7 +894,6 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 	const size_t numTriangles = triangles_.size();
 	const size_t numVertices = vertices_.size();
 	const size_t numUvs = uvs_.size();
-	const size_t numNormals = normals_.size();
 	LASS_ASSERT((3 * numTriangles + numBoundaryEdges_) % 2 == 0);
 	const size_t numOddVertices = (3 * numTriangles + numBoundaryEdges_) / 2;
 

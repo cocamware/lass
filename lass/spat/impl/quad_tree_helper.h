@@ -66,8 +66,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_IMPL_QUAD_TREE_HELPER_H
 
 #include "../spat_common.h"
-#include "../prim/point_2d.h"
-#include "../prim/point_3d.h"
+#include "../../prim/point_2d.h"
+#include "../../prim/point_3d.h"
 
 namespace lass
 {

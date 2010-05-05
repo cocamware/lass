@@ -84,7 +84,7 @@ template
 	template <typename T, typename OT, typename SH> class BoundingVolumeHierarchy,
 	typename SplitHeuristics
 >
-class TriangleMesh3D: public util::NonCopyable
+class TriangleMesh3D
 {
 public:
 

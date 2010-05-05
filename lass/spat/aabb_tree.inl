@@ -479,7 +479,7 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TPara
 
 	int left = index + 1;
 	int right = node.right();
-	TValue tLeftBox, tRightBox;
+	TValue tLeftBox = 0, tRightBox = 0;
 	const bool hitsLeft = volumeIntersect(nodes_[left].aabb(), ray, tLeftBox, tMin);
 	const bool hitsRight = volumeIntersect(nodes_[right].aabb(), ray, tRightBox, tMin);
 	
