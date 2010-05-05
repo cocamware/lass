@@ -86,6 +86,11 @@ struct DefaultAabbRayTraits
 		return TAabb();
 	}
 
+	static const TAabb aabbMake(const TPoint& min, const TPoint& max)
+	{
+		return TAabb(min, max);
+	}
+
 	/** return true if AABB contains a point, return false otherwise
 	 */
 	static bool aabbContains(const TAabb& aabb, const TPoint& point) 

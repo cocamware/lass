@@ -81,7 +81,7 @@ template
 	typename SplitHeuristics = DefaultSplitHeuristics
 >
 class QuadTree: 
-	public SplitHeuristics, util::NonCopyable, private impl::QuadTreeHelper<ObjectTraits, ObjectTraits::dimension>
+	public SplitHeuristics, util::NonCopyable, private impl::QuadTreeHelper<ObjectTraits, typename ObjectTraits::TPoint>
 {
 public:
 
@@ -203,7 +203,7 @@ private:
 		bool remove(TObjectIterator object);
 
 		bool isLeaf() const { return !children; }
-		const TPoint center() const { return bounds.center().affine(); }
+		const TPoint center() const;
 		const TValue sqrDistance(const TPoint& point) const;
 		size_t objectCount() const;            /**< number of objects in this node and all its children */
 		size_t depth() const;					/**< depth of the child tree */

@@ -66,6 +66,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_IMPL_QUAD_TREE_HELPER_H
 
 #include "../spat_common.h"
+#include "../prim/point_2d.h"
+#include "../prim/point_3d.h"
 
 namespace lass
 {
@@ -74,9 +76,10 @@ namespace spat
 namespace impl
 {
 		
-template <typename ObjectTraits, size_t dimension>
+template <typename ObjectTraits, typename PointType>
 class QuadTreeHelper
 {
+	enum { dimension = ObjectTraits::dimension };
 protected:
 	typedef ObjectTraits TObjectTraits;
 	typedef typename ObjectTraits::TPoint TPoint;
@@ -114,14 +117,14 @@ protected:
 		return result;
 	}
 
-	static const TVector halfExtents(const TPoint& a, const TPoint& b)
+	static const TValue squaredDistance(const TPoint& a, const TPoint& b)
 	{
-		TVector result;
+		TValue d = 0;
 		for (size_t k = 0; k < dimension; ++k)
 		{
-			TObjectTraits::coord(result, k, (TObjectTraits::coord(a, k) - TObjectTraits::coord(b, k)) / 2);
+			d += num::sqr(TObjectTraits::coord(a, k) - TObjectTraits::coord(b, k));
 		}
-		return result;
+		return d;
 	}
 
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
@@ -212,8 +215,8 @@ protected:
 
 
 //*
-template <typename ObjectTraits>
-class QuadTreeHelper<ObjectTraits, 2>
+template <typename ObjectTraits, typename T>
+class QuadTreeHelper<ObjectTraits, prim::Point2D<T> >
 {
 protected:
 	typedef ObjectTraits TObjectTraits;
@@ -224,39 +227,34 @@ protected:
 
 	static TValue minComponent(const TVector& v)
 	{
-		return std::min(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1));
+		return std::min(v.x, v.y);
 	}
 
 	static TValue maxComponent(const TVector& v)
 	{
-		return std::max(TObjectTraits::coord(v, 0), TObjectTraits::coord(v, 1));
+		return std::max(v.x, v.y);
 	}
 
 	template <typename V>
 	static const V middle(const V& a, const V& b)
 	{
-		return V(
-			(TObjectTraits::coord(a, 0) + TObjectTraits::coord(b, 0)) / 2,
-			(TObjectTraits::coord(a, 1) + TObjectTraits::coord(b, 1)) / 2);
+		return V((a.x + b.x) / 2, (a.y + b.y) / 2);
 	}
 
-	static const TVector halfExtents(const TPoint& a, const TPoint& b)
+	static const TValue squaredDistance(const TPoint& a, const TPoint& b)
 	{
-		return TVector(
-			(TObjectTraits::coord(a, 0) - TObjectTraits::coord(b, 0)) / 2,
-			(TObjectTraits::coord(a, 1) - TObjectTraits::coord(b, 1)) / 2);
+		return prim::squaredDistance(a, b);
 	}
 
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)
 	{
 		const TValue tEntry = maxComponent(tNear);
-		return (TObjectTraits::coord(tMiddle, 0) < tEntry ? 0x1 : 0)
-			| (TObjectTraits::coord(tMiddle, 1) < tEntry ? 0x2 : 0);
+		return (tMiddle.x < tEntry ? 0x1 : 0) | (tMiddle.y < tEntry ? 0x2 : 0);
 	}
 
 	static size_t nextNode(size_t i, const TVector& tFar)
 	{
-		if (TObjectTraits::coord(tFar, 0) <  TObjectTraits::coord(tFar, 1))
+		if (tFar.x <  tFar.y)
 		{
 			return i & 0x1 ? size_t(-1) : i | 0x1;
 		}
@@ -268,25 +266,22 @@ protected:
 
 	static size_t findSubNode(const TPoint& center, const TPoint& point)
 	{
-		return (TObjectTraits::coord(point, 0) >= TObjectTraits::coord(center, 0) ? 0x1 : 0x0) 
-			| (TObjectTraits::coord(point, 1) >= TObjectTraits::coord(center, 1) ? 0x2 : 0x0);
+		return (point.x >= center.x ? 0x1 : 0x0) | (point.y >= center.y ? 0x2 : 0x0);
 	}
 
 	static size_t forcePositiveDirection(const TPoint& center, TPoint& support, TVector& direction)
 	{
 		size_t flipMask = 0;
-		const TValue dx = TObjectTraits::coord(direction, 0);
-		if (dx < 0)
+		if (direction.x < 0)
 		{
-			TObjectTraits::coord(support, 0, 2 * TObjectTraits::coord(center, 0) - TObjectTraits::coord(support, 0));
-			TObjectTraits::coord(direction, 0, -dx);
+			support.x = 2 * center.x - support.x;
+			direction.x = -direction.x;
 			flipMask |= 0x1;
 		}
-		const TValue dy = TObjectTraits::coord(direction, 1);
-		if (dy < 0)
+		if (direction.y < 0)
 		{
-			TObjectTraits::coord(support, 1, 2 * TObjectTraits::coord(center, 1) - TObjectTraits::coord(support, 1));
-			TObjectTraits::coord(direction, 1, -dy);
+			support.y = 2 * center.y - support.y;
+			direction.y = -direction.y;
 			flipMask |= 0x2;
 		}
 		return flipMask;
@@ -295,23 +290,21 @@ protected:
 	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
 		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
-		TObjectTraits::coord(tNear, 0, TObjectTraits::coord(reciprocalDirection, 0) * (TObjectTraits::coord(min, 0) - TObjectTraits::coord(support, 0)));
-		TObjectTraits::coord(tNear, 1, TObjectTraits::coord(reciprocalDirection, 1) * (TObjectTraits::coord(min, 1) - TObjectTraits::coord(support, 1)));
-		TObjectTraits::coord(tFar, 0, TObjectTraits::coord(reciprocalDirection, 0) * (TObjectTraits::coord(max, 0) - TObjectTraits::coord(support, 0)));
-		TObjectTraits::coord(tFar, 1, TObjectTraits::coord(reciprocalDirection, 1) * (TObjectTraits::coord(max, 1) - TObjectTraits::coord(support, 1)));
+		tNear = reciprocalDirection * (min - support);
+		tFar = reciprocalDirection * (max - support);
 	}
 
 	static void childNearAndFar(TVector& tNear, TVector& tFar, const TVector& tMiddle, size_t iChild)
 	{
-		TObjectTraits::coord(iChild & 0x1 ? tNear : tFar, 0, TObjectTraits::coord(tMiddle, 0));
-		TObjectTraits::coord(iChild & 0x2 ? tNear : tFar, 1, TObjectTraits::coord(tMiddle, 1));
+		(iChild & 0x1 ? tNear : tFar).x = tMiddle.x;
+		(iChild & 0x2 ? tNear : tFar).y = tMiddle.y;
 	}
 };
 
 
 
-template <typename ObjectTraits>
-class QuadTreeHelper<ObjectTraits, 3>
+template <typename ObjectTraits, typename T>
+class QuadTreeHelper<ObjectTraits, prim::Point3D<T> >
 {
 	enum { dimension = 3 };
 protected:
@@ -339,9 +332,9 @@ protected:
 			(a.z + b.z) / 2);
 	}
 
-	static const TVector halfExtents(const TPoint& a, const TPoint& b)
+	static const TValue squaredDistance(const TPoint& a, const TPoint& b)
 	{
-		return (a - b) / 2;
+		return prim::squaredDistance(a, b);
 	}
 
 	static size_t entryNode(const TVector& tNear, const TVector& tMiddle)

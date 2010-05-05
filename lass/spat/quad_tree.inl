@@ -137,6 +137,19 @@ QuadTree<O, OT, SH>::QuadTree(TObjectIterator first, TObjectIterator last, const
 		aabb_ = TObjectTraits::aabbJoin(aabb_, TObjectTraits::objectAabb(i));
 	}
 
+	// growth hack! Slightly grow the box with a fraction of the diagonal, so that we don't have any sides of zero length.
+	//*
+	TPoint min = TObjectTraits::aabbMin(aabb_);
+	TPoint max = TObjectTraits::aabbMax(aabb_);
+	const TValue growth = num::sqrt(squaredDistance(min, max)) / 1000;
+	for (size_t k = 0; k < dimension; ++k)
+	{
+		TObjectTraits::coord(min, k, TObjectTraits::coord(min, k) - growth);
+		TObjectTraits::coord(max, k, TObjectTraits::coord(max, k) + growth);
+	}
+	aabb_ = TObjectTraits::aabbMake(min, max);
+	/**/
+
 	root_ = new QuadNode(aabb_, *nodesAllocator_);
 	while (first != last)
 	{
@@ -747,12 +760,21 @@ QuadTree<O, OT, SH>::QuadNode::~QuadNode()
 
 
 template <typename O, typename OT, typename SH>
+const typename QuadTree<O, OT, SH>::TPoint
+QuadTree<O, OT, SH>::QuadNode::center() const
+{
+	return QuadTree::middle(TObjectTraits::aabbMin(bounds), TObjectTraits::aabbMax(bounds));
+}
+
+
+
+template <typename O, typename OT, typename SH>
 const typename QuadTree<O, OT, SH>::TValue
 QuadTree<O, OT, SH>::QuadNode::sqrDistance(const TPoint& point) const
 {
 	TValue sqrDist = 0;
 	const TPoint& min = TObjectTraits::aabbMin(bounds);
-	const TPoint& max = TObjectTraits::aabbMin(bounds);
+	const TPoint& max = TObjectTraits::aabbMax(bounds);
 	for (size_t k = 0; k < dimension; ++k)
 	{
 		const TValue x = TObjectTraits::coord(point, k);
@@ -947,8 +969,15 @@ void QuadTree<O, OT, SH>::QuadNode::makeChildren()
 			for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 			{
 				TObjectTraits::coord(i & mask ? min : max, k, TObjectTraits::coord(center, k));
+
+				// slightly grow the box ...
+				//* 
+				const TValue dx = (TObjectTraits::coord(max, k) - TObjectTraits::coord(min, k)) / 1000;
+				TObjectTraits::coord(min, k, TObjectTraits::coord(min, k) - dx);
+				TObjectTraits::coord(max, k, TObjectTraits::coord(max, k) + dx);
+				/**/
 			}
-			new (&children[i]) QuadNode(TAabb(min, max), allocator_);
+			new (&children[i]) QuadNode(TObjectTraits::aabbMake(min, max), allocator_);
 		}
 	}
 	catch (...)
