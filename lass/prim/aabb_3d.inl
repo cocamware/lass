@@ -269,7 +269,10 @@ template <typename T, class MMP>
 const typename Aabb3D<T, MMP>::TVector
 Aabb3D<T, MMP>::size() const
 {
-	LASS_ASSERT(isValid());
+	if (isEmpty())
+	{
+		return TVector();
+	}
 	return max_ - min_;
 }
 
@@ -282,6 +285,10 @@ template <typename T, class MMP>
 const typename Aabb3D<T, MMP>::TValue
 Aabb3D<T, MMP>::area() const
 {
+	if (isEmpty())
+	{
+		return 0;
+	}
 	const TVector result = size();
 	return 2 * (result.x * result.y + result.y * result.z + result.z * result.x);
 }
@@ -294,6 +301,10 @@ template <typename T, class MMP>
 const typename Aabb3D<T, MMP>::TValue
 Aabb3D<T, MMP>::volume() const
 {
+	if (isEmpty())
+	{
+		return 0;
+	}
 	const TVector result = size();
 	return result.x * result.y * result.z;
 }

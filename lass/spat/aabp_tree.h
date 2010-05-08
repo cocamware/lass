@@ -91,7 +91,12 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum { dimension = TObjectTraits::dimension };
+	enum 
+	{ 
+		dimension = TObjectTraits::dimension,
+		defaultMaxObjectsPerLeaf = 1,
+		defaultMaxDepth = 20
+	};
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
@@ -111,8 +116,8 @@ public:
 		TValue squaredDistance_;
 	};
 
-	AabpTree(const TSplitHeuristics& heuristics = TSplitHeuristics());
-	AabpTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics());
+	AabpTree(const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	AabpTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 
 	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);

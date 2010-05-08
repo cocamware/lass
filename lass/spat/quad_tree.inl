@@ -170,7 +170,7 @@ QuadTree<O, OT, SH>::~QuadTree()
 template <typename O, typename OT, typename SH>
 void QuadTree<O, OT, SH>::reset()
 {
-	QuadTree temp(aabb_, end_, *this);
+	QuadTree temp(aabb_, end_, static_cast<const SH&>(*this));
 	swap(temp);
 }
 
@@ -179,7 +179,7 @@ void QuadTree<O, OT, SH>::reset()
 template <typename O, typename OT, typename SH>
 void QuadTree<O, OT, SH>::reset(TObjectIterator first, TObjectIterator last)
 {
-	QuadTree temp(first, last, *this);
+	QuadTree temp(first, last, static_cast<const SH&>(*this));
 	swap(temp);
 }
 

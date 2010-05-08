@@ -80,7 +80,7 @@ struct SplitInfo
 class DefaultSplitHeuristics
 {
 public:
-	DefaultSplitHeuristics(size_t maxObjectsPerLeaf = 10, size_t maxDepth = 16): 
+	DefaultSplitHeuristics(size_t maxObjectsPerLeaf, size_t maxDepth): 
 		maxObjectsPerLeaf_(maxObjectsPerLeaf),
 		maxDepth_(maxDepth)
 	{
@@ -132,7 +132,7 @@ protected:
 			}
 		}
 
-		const TValue x = (ObjectTraits::coord(min, axis) + ObjectTraits::coord(max, axis)) / 2;
+		const TValue x = impl::aabbCenterForAxis<ObjectTraits>(aabb, axis);
 		return SplitInfo<ObjectTraits>(aabb, x, axis);
 	}
 
@@ -140,6 +140,105 @@ private:
 	size_t maxObjectsPerLeaf_;
 	size_t maxDepth_;
 };
+
+
+
+class SAHSplitHeuristics
+{
+public:
+	SAHSplitHeuristics(size_t maxObjectsPerLeaf, size_t maxDepth): 
+		maxObjectsPerLeaf_(maxObjectsPerLeaf),
+		maxDepth_(maxDepth)
+	{
+	}
+
+	size_t maxObjectsPerLeaf() const { return maxObjectsPerLeaf_; }
+	size_t maxDepth() const { return maxDepth_; }
+
+protected:
+
+	void swap(SAHSplitHeuristics& other)
+	{
+		std::swap(maxObjectsPerLeaf_, other.maxObjectsPerLeaf_);
+		std::swap(maxDepth_, other.maxDepth_);
+	}
+
+	template <typename ObjectTraits, typename RandomIterator>
+	SplitInfo<ObjectTraits> split(RandomIterator first, RandomIterator last)
+	{
+		typedef typename ObjectTraits::TAabb TAabb;
+		typedef typename ObjectTraits::TPoint TPoint;
+		typedef typename ObjectTraits::TValue TValue;
+
+		const TValue costNode = 1; // must be non zero!
+		const TValue costObject = 1000;
+
+		LASS_ASSERT(maxObjectsPerLeaf_ > 0);
+
+		const size_t n = static_cast<size_t>(last - first);
+		if (n <= maxObjectsPerLeaf_)
+		{
+			TAabb aabb = ObjectTraits::aabbEmpty();
+			for (RandomIterator i = first; i != last; ++i)
+			{
+				aabb = ObjectTraits::aabbJoin(aabb, i->aabb);
+			}			
+			return SplitInfo<ObjectTraits>(aabb, 0, -1);
+		}
+
+		TValue bestCost = n * costObject;
+		int bestAxis = -1;
+		TValue bestX = 0;
+		std::vector<TValue> leftArea(n);
+		TAabb totalBox = ObjectTraits::aabbEmpty();
+		TValue totalArea = 0;
+
+		for (int axis = 0; axis < ObjectTraits::dimension; ++axis)
+		{
+			std::sort(first, last, impl::LessAxis<ObjectTraits>(axis));
+
+			TAabb box = ObjectTraits::aabbEmpty();
+			for (size_t i = 0; i < n; ++i)
+			{
+				box = ObjectTraits::aabbJoin(box, first[i].aabb);
+				leftArea[i] = ObjectTraits::aabbSurfaceArea(box);
+			}
+
+			if (axis == 0)
+			{
+				totalBox = box;
+				totalArea = ObjectTraits::aabbSurfaceArea(totalBox);
+				if (totalArea == 0)
+				{
+					SplitInfo<ObjectTraits>(totalBox, 0, -1);
+				}
+			}
+
+			box = ObjectTraits::aabbEmpty();
+			for (size_t i = n; i > 0; --i)
+			{
+				const TValue rightArea = ObjectTraits::aabbSurfaceArea(box);
+				const TValue cost = 2 * costNode + (leftArea[i - 1] * i + rightArea * (n - i)) * costObject / totalArea;
+				if (cost < bestCost)
+				{
+					bestCost = cost;
+					bestAxis = axis;
+					bestX = impl::aabbCenterForAxis<ObjectTraits>(first[i - 1].aabb, axis);
+				}
+				box = ObjectTraits::aabbJoin(box, first[i - 1].aabb);
+			}
+		}
+		
+		return SplitInfo<ObjectTraits>(totalBox, bestX, bestAxis);
+	}
+
+private:
+
+	size_t maxObjectsPerLeaf_;
+	size_t maxDepth_;
+};
+
+
 
 namespace impl
 {
@@ -151,7 +250,7 @@ public:
 	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
 	template <typename Input> bool operator()(const Input& input) const
 	{
-		return aabbCenterForAxis<ObjectTraits>(input.aabb, split_.axis) < split_.x;
+		return aabbCenterForAxis<ObjectTraits>(input.aabb, split_.axis) <= split_.x;
 	}			
 private:
 	SplitInfo<ObjectTraits> split_;

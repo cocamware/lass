@@ -102,7 +102,12 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum { dimension = TObjectTraits::dimension, };
+	enum 
+	{ 
+		dimension = TObjectTraits::dimension,
+		defaultMaxObjectsPerLeaf = 10,
+		defaultMaxDepth = 10
+	};
 
 	class Neighbour
 	{
@@ -121,10 +126,10 @@ public:
 		TValue squaredDistance_;
 	};
 
-	QuadTree(const TSplitHeuristics& heuristics = TSplitHeuristics());
-	QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics = TSplitHeuristics());
-	QuadTree(const TAabb& aabb, TObjectIterator end, const TSplitHeuristics& heuristics = TSplitHeuristics());
-	QuadTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics());
+	QuadTree(const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	QuadTree(const TAabb& aabb, TObjectIterator end, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	QuadTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 	~QuadTree();
 
 	void reset();

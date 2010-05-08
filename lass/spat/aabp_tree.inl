@@ -93,7 +93,7 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::reset()
 {
-	TSelf temp;
+	TSelf temp(static_cast<const SH&>(*this));
 	swap(temp);
 }
 
@@ -102,7 +102,7 @@ void AabpTree<O, OT, SH>::reset()
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::reset(TObjectIterator first, TObjectIterator last)
 {
-	TSelf temp(first, last);
+	TSelf temp(first, last, static_cast<const SH&>(*this));
 	swap(temp);
 }
 
@@ -207,6 +207,7 @@ template <typename O, typename OT, typename SH>
 bool AabpTree<O, OT, SH>::intersects(
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
+	LASS_ASSERT(tMax > tMin);
 	TValue tNear;
 	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
 	{
@@ -222,8 +223,85 @@ bool AabpTree<O, OT, SH>::intersects(
 	{
 		return false;
 	}
-	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
+	const TPoint support = TObjectTraits::raySupport(ray);
+	const TVector direction = TObjectTraits::rayDirection(ray);
+	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
+#if 1
+	struct Visit
+	{
+		int index;
+		TValue tNear;
+		TValue tFar;
+		Visit(int index = 0, TValue tNear = 0, TValue tFar = 0): index(index), tNear(tNear), tFar(tFar) {}
+	};
+	Visit stack[32];
+	size_t stackSize = 0;
+	stack[stackSize++] = Visit(0, tNear, tFar);
+	while (stackSize > 0)
+	{
+		const Visit visit = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(visit.index >= 0 && static_cast<size_t>(visit.index) < nodes_.size());
+		const Node& node = nodes_[visit.index];
+
+		if (node.isLeaf())
+		{
+			for (int i = node.first(); i != node.last(); ++i)
+			{
+				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+				if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
+				{
+					return true;
+				}
+			}
+			continue;
+		}
+
+		const int leftIndex = visit.index + 1;
+		const int rightIndex = node.right();
+		const TValue s = TObjectTraits::coord(support, node.axis());
+		const TValue d = TObjectTraits::coord(direction, node.axis());
+		const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
+		const TValue tLeftBound = (node.leftBound() - s) * invD;
+		const TValue tRightBound = (node.rightBound() - s) * invD;
+		if (d > 0)
+		{
+			if (tRightBound < tFar)
+			{
+				stack[stackSize++] = Visit(rightIndex, std::max(tRightBound, visit.tNear), visit.tFar);
+			}
+			if (tLeftBound > tNear)
+			{
+				stack[stackSize++] = Visit(leftIndex, visit.tNear, std::min(tLeftBound, visit.tFar));
+			}
+		}
+		else if (d < 0)
+		{
+			if (tRightBound > tNear)
+			{
+				stack[stackSize++] = Visit(rightIndex, visit.tNear, std::min(tRightBound, visit.tFar));
+			}
+			if (tLeftBound < tFar)
+			{
+				stack[stackSize++] = Visit(leftIndex, std::max(tLeftBound, visit.tNear), visit.tFar);
+			}
+		}
+		else // if (d == TNumTraits::zero)
+		{
+			if (s >= node.rightBound())
+			{
+				stack[stackSize++] = Visit(rightIndex, visit.tNear, visit.tFar);
+			}
+			if (s <= node.leftBound())
+			{
+				stack[stackSize++] = Visit(leftIndex, visit.tNear, visit.tFar);
+			}
+		}
+	}
+	return false;
+#else
 	return doIntersects(0, ray, tMin, tMax, info, reciprocalDirection, tNear, tFar);
+#endif
 }
 
 

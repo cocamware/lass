@@ -89,7 +89,7 @@ AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last, const
 template <typename O, typename OT, typename SH>
 void AabbTree<O, OT, SH>::reset(TObjectIterator first, TObjectIterator last)
 {
-	TSelf temp(first, last);
+	TSelf temp(first, last, static_cast<const SH&>(*this));
 	swap(temp);
 }
 
@@ -188,7 +188,40 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 	{
 		return false;
 	}
+#if 1
+	int stack[32];
+	size_t stackSize = 0;
+	stack[stackSize++] = 0;
+	while (stackSize > 0)
+	{
+		const int index = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
+		const Node& node = nodes_[index];
+
+		if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
+		{
+			continue;
+		}
+		if (node.isInternal())
+		{
+			stack[stackSize++] = node.right();
+			stack[stackSize++] = index + 1;
+			continue;
+		}
+		for (int i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+#else
 	return doIntersects(0, ray, tMin, tMax, info);
+#endif
 }
 
 
@@ -255,7 +288,7 @@ AabbTree<O, OT, SH>::end() const
 template <typename O, typename OT, typename SH>
 void AabbTree<O, OT, SH>::reset()
 {
-	TSelf temp;
+	TSelf temp(static_cast<const SH&>(*this));
 	swap(temp);
 }
 
@@ -277,7 +310,7 @@ int AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	}
 
 	TInputIterator middle = std::partition(first, last, impl::Splitter<TObjectTraits>(split));
-		if (middle == first || middle == last)
+	if (middle == first || middle == last)
 	{
 		const ptrdiff_t halfSize = (last - first) / 2;
 		LASS_ASSERT(halfSize > 0);

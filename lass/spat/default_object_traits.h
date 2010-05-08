@@ -52,6 +52,7 @@
 
 #include "spat_common.h"
 #include "../prim/result.h"
+#include "../meta/int.h"
 
 namespace lass
 {
@@ -136,6 +137,13 @@ struct DefaultAabbRayTraits
 		return aabb.max(); 
 	}
 
+	/** return surface area of the AABB
+	 */
+	static TValue aabbSurfaceArea(const TAabb& aabb)
+	{
+		return aabbSurfaceArea(aabb, meta::Int<dimension>());
+	}
+
 
 	// RAY
 
@@ -196,6 +204,17 @@ struct DefaultAabbRayTraits
 	static const TVector vectorReciprocal(const TVector& vector)
 	{
 		return vector.reciprocal();
+	}
+
+private:
+
+	static TValue aabbSurfaceArea(const TAabb& aabb, meta::Int<2>)
+	{
+		return aabb.perimeter();
+	}
+	static TValue aabbSurfaceArea(const TAabb& aabb, meta::Int<3>)
+	{
+		return aabb.area();
 	}
 };
 

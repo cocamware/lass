@@ -266,7 +266,10 @@ template <typename T, class MMP>
 const typename Aabb2D<T, MMP>::TVector
 Aabb2D<T, MMP>::size() const
 {
-	LASS_ASSERT(isValid());
+	if (isEmpty())
+	{
+		return TVector();
+	}
 	return max_ - min_;
 }
 
@@ -278,7 +281,10 @@ template <typename T, class MMP>
 const typename Aabb2D<T, MMP>::TValue
 Aabb2D<T, MMP>::perimeter() const
 {
-	LASS_ASSERT(isValid());
+	if (isEmpty())
+	{
+		return 0;
+	}
 	const TVector result = size();
 	return 2 * (result.x + result.y);
 }
@@ -291,7 +297,10 @@ template <typename T, class MMP>
 const typename Aabb2D<T, MMP>::TValue
 Aabb2D<T, MMP>::area() const
 {
-	LASS_ASSERT(isValid());
+	if (isEmpty())
+	{
+		return 0;
+	}
 	const TVector result = size();
 	return result.x * result.y;
 }

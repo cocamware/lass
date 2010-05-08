@@ -61,7 +61,8 @@ namespace prim
 // --- public --------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
-TriangleMesh3D<T, BHV, SH>::TriangleMesh3D()
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(const SH& heuristics):
+	tree_(heuristics)
 {
 }
 
@@ -73,8 +74,8 @@ template
 	typename VertexInputRange, typename IndexTriangleInputRange
 >
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
-		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles):
-	tree_(spat::DefaultSplitHeuristics()),
+		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles, const SH& heuristics):
+	tree_(heuristics),
 	vertices_(vertices.begin(), vertices.end()),
 	normals_(),
 	uvs_()
@@ -92,8 +93,9 @@ template
 >
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 		const VertexInputRange& vertices, const NormalInputRange& normals, 
-		const UvInputRange& uvs, const IndexTriangleInputRange& triangles):
-	tree_(spat::DefaultSplitHeuristics()),
+		const UvInputRange& uvs, const IndexTriangleInputRange& triangles,
+		const SH& heuristics):
+	tree_(heuristics),
 	vertices_(vertices.begin(), vertices.end()),
 	normals_(normals.begin(), normals.end()),
 	uvs_(uvs.begin(), uvs.end())
@@ -105,7 +107,7 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(const TriangleMesh3D& other):
-	tree_(spat::DefaultSplitHeuristics(10)),
+	tree_(static_cast<const SH&>(other.tree_)),
 	vertices_(other.vertices_),
 	normals_(other.normals_),
 	uvs_(other.uvs_)

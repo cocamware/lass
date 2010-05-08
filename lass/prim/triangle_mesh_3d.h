@@ -102,7 +102,10 @@ public:
 	typedef typename TPoint::TConstReference TConstReference;
 	typedef typename TPoint::TNumTraits TNumTraits;
 
-	enum { dimension = TPoint::dimension };
+	enum 
+	{ 
+		dimension = TPoint::dimension,
+	};
 
 	template <typename U> struct Rebind
 	{
@@ -150,11 +153,18 @@ public:
 	typedef typename TNormals::const_iterator TNormalIterator;
 	typedef typename TUvs::const_iterator TUvIterator;
 
-	TriangleMesh3D();
+	TriangleMesh3D(const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+
 	template <typename VertexInputRange, typename IndexTriangleInputRange>
-	TriangleMesh3D(const VertexInputRange& vertices, const IndexTriangleInputRange& triangles);
+	TriangleMesh3D(
+		const VertexInputRange& vertices, const IndexTriangleInputRange& triangles, 
+		const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+
 	template <typename VertexInputRange, typename NormalInputRange, typename UvInputRange, typename IndexTriangleInputRange>
-	TriangleMesh3D(const VertexInputRange& vertices, const NormalInputRange& normals, const UvInputRange& uvs, const IndexTriangleInputRange& triangles);
+	TriangleMesh3D(
+		const VertexInputRange& vertices, const NormalInputRange& normals, const UvInputRange& uvs, const IndexTriangleInputRange& triangles, 
+		const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+
 	TriangleMesh3D(const TriangleMesh3D& other);
 
 	TriangleMesh3D& operator=(const TriangleMesh3D& other);
@@ -230,7 +240,12 @@ private:
 	};
 
 	typedef BoundingVolumeHierarchy<TTriangle, TriangleTraits, SplitHeuristics> TTriangleTree;
-	
+
+	enum {
+		defaultMaxObjectsPerLeaf = TTriangleTree::defaultMaxObjectsPerLeaf,
+		defaultMaxDepth = TTriangleTree::defaultMaxDepth,
+	};
+
 	struct LogicalEdge
 	{
 		Triangle* triangle;
