@@ -63,25 +63,29 @@ namespace prim
  */
 template <typename T>
 Transformation3D<T>::Transformation3D():
-	matrix_(impl::allocateArray<T>(matrixSize_)),
-	inverseMatrix_(0)
+	pimpl_(allocator_.allocate()),
+	isInversed_(false)
 {
-	matrix_[ 0] = TNumTraits::one;
-	matrix_[ 1] = TNumTraits::zero;
-	matrix_[ 2] = TNumTraits::zero;
-	matrix_[ 3] = TNumTraits::zero;
-	matrix_[ 4] = TNumTraits::zero;
-	matrix_[ 5] = TNumTraits::one;
-	matrix_[ 6] = TNumTraits::zero;
-	matrix_[ 7] = TNumTraits::zero;
-	matrix_[ 8] = TNumTraits::zero;
-	matrix_[ 9] = TNumTraits::zero;
-	matrix_[10] = TNumTraits::one;
-	matrix_[11] = TNumTraits::zero;
-	matrix_[12] = TNumTraits::zero;
-	matrix_[13] = TNumTraits::zero;
-	matrix_[14] = TNumTraits::zero;
-	matrix_[15] = TNumTraits::one;
+	TValue* forward = pimpl_->forward;
+	forward[ 0] = TNumTraits::one;
+	forward[ 1] = TNumTraits::zero;
+	forward[ 2] = TNumTraits::zero;
+	forward[ 3] = TNumTraits::zero;
+	forward[ 4] = TNumTraits::zero;
+	forward[ 5] = TNumTraits::one;
+	forward[ 6] = TNumTraits::zero;
+	forward[ 7] = TNumTraits::zero;
+	forward[ 8] = TNumTraits::zero;
+	forward[ 9] = TNumTraits::zero;
+	forward[10] = TNumTraits::one;
+	forward[11] = TNumTraits::zero;
+	forward[12] = TNumTraits::zero;
+	forward[13] = TNumTraits::zero;
+	forward[14] = TNumTraits::zero;
+	forward[15] = TNumTraits::one;
+
+	std::copy(forward, forward + matrixSize_, pimpl_->inverse);
+	pimpl_->hasInverse = true;
 }
 
 
@@ -100,25 +104,28 @@ Transformation3D<T>::Transformation3D():
 template <typename T>
 Transformation3D<T>::Transformation3D(
 		const TPoint& origin, const TVector& baseX, const TVector& baseY, const TVector& baseZ):
-	matrix_(impl::allocateArray<T>(matrixSize_)),
-	inverseMatrix_(0)
+	pimpl_(allocator_.allocate()),
+	isInversed_(false)
 {
-	matrix_[ 0] = baseX.x;
-	matrix_[ 1] = baseY.x;
-	matrix_[ 2] = baseZ.x;
-	matrix_[ 3] = origin.x;
-	matrix_[ 4] = baseX.y;
-	matrix_[ 5] = baseY.y;
-	matrix_[ 6] = baseZ.y;
-	matrix_[ 7] = origin.y;
-	matrix_[ 8] = baseX.z;
-	matrix_[ 9] = baseY.z;
-	matrix_[10] = baseZ.z;
-	matrix_[11] = origin.z;
-	matrix_[12] = TNumTraits::zero;
-	matrix_[13] = TNumTraits::zero;
-	matrix_[14] = TNumTraits::zero;
-	matrix_[15] = TNumTraits::one;
+	TValue* mat = pimpl_->forward;
+	mat[ 0] = baseX.x;
+	mat[ 1] = baseY.x;
+	mat[ 2] = baseZ.x;
+	mat[ 3] = origin.x;
+	mat[ 4] = baseX.y;
+	mat[ 5] = baseY.y;
+	mat[ 6] = baseZ.y;
+	mat[ 7] = origin.y;
+	mat[ 8] = baseX.z;
+	mat[ 9] = baseY.z;
+	mat[10] = baseZ.z;
+	mat[11] = origin.z;
+	mat[12] = TNumTraits::zero;
+	mat[13] = TNumTraits::zero;
+	mat[14] = TNumTraits::zero;
+	mat[15] = TNumTraits::one;
+
+	pimpl_->hasInverse = false;
 }
 
 
@@ -130,11 +137,13 @@ Transformation3D<T>::Transformation3D(
 template <typename T>
 template <typename InputIterator>
 Transformation3D<T>::Transformation3D(InputIterator first, InputIterator last):
-	matrix_(impl::allocateArray<T>(matrixSize_)),
-	inverseMatrix_(0)
+	pimpl_(allocator_.allocate()),
+	isInversed_(false)
 {
-	LASS_ENFORCE(std::distance(first, last) == 16);
-	std::copy(first, last, matrix_.get());
+	LASS_ENFORCE(std::distance(first, last) == matrixSize_);
+	std::copy(first, last, pimpl_->forward);
+
+	pimpl_->hasInverse = false;
 }
 
 
@@ -149,89 +158,9 @@ template <typename T>
 const Transformation3D<T>
 Transformation3D<T>::inverse() const
 {
-	if (inverseMatrix_.isEmpty())
-	{
-		TMatrix inverseMatrix(impl::allocateArray<T>(matrixSize_));
-		const TValue* const mat = matrix_.get();
-		TValue* const inv = inverseMatrix.get();
-
-		const TValue v1015 = mat[10] * mat[15];
-		const TValue v1411 = mat[14] * mat[11];
-		const TValue v0615 = mat[ 6] * mat[15];
-		const TValue v1407 = mat[14] * mat[ 7];
-		const TValue v0611 = mat[ 6] * mat[11];
-		const TValue v1007 = mat[10] * mat[ 7];
-		const TValue v0215 = mat[ 2] * mat[15];
-		const TValue v1403 = mat[14] * mat[ 3];
-		const TValue v0211 = mat[ 2] * mat[11];
-		const TValue v1003 = mat[10] * mat[ 3];
-		const TValue v0207 = mat[ 2] * mat[ 7];
-		const TValue v0603 = mat[ 6] * mat[ 3];
-
-		inv[0] = v1015 * mat[ 5] + v1407 * mat[ 9] + v0611 * mat[13]
-		       - v1411 * mat[ 5] - v0615 * mat[ 9] - v1007 * mat[13];
-		inv[1] = v1411 * mat[ 1] + v0215 * mat[ 9] + v1003 * mat[13]
-		       - v1015 * mat[ 1] - v1403 * mat[ 9] - v0211 * mat[13];
-		inv[2] = v0615 * mat[ 1] + v1403 * mat[ 5] + v0207 * mat[13]
-		       - v1407 * mat[ 1] - v0215 * mat[ 5] - v0603 * mat[13];
-		inv[3] = v1007 * mat[ 1] + v0211 * mat[ 5] + v0603 * mat[ 9]
-		       - v0611 * mat[ 1] - v1003 * mat[ 5] - v0207 * mat[ 9];
-		inv[4] = v1411 * mat[ 4] + v0615 * mat[ 8] + v1007 * mat[12]
-		       - v1015 * mat[ 4] - v1407 * mat[ 8] - v0611 * mat[12];
-		inv[5] = v1015 * mat[ 0] + v1403 * mat[ 8] + v0211 * mat[12]
-		       - v1411 * mat[ 0] - v0215 * mat[ 8] - v1003 * mat[12];
-		inv[6] = v1407 * mat[ 0] + v0215 * mat[ 4] + v0603 * mat[12]
-		       - v0615 * mat[ 0] - v1403 * mat[ 4] - v0207 * mat[12];
-		inv[7] = v0611 * mat[ 0] + v1003 * mat[ 4] + v0207 * mat[ 8]
-		       - v1007 * mat[ 0] - v0211 * mat[ 4] - v0603 * mat[ 8];
-
-		const TValue v0813 = mat[ 8] * mat[13];
-		const TValue v1209 = mat[12] * mat[ 9];
-		const TValue v0413 = mat[ 4] * mat[13];
-		const TValue v1205 = mat[12] * mat[ 5];
-		const TValue v0409 = mat[ 4] * mat[ 9];
-		const TValue v0805 = mat[ 8] * mat[ 5];
-		const TValue v0013 = mat[ 0] * mat[13];
-		const TValue v1201 = mat[12] * mat[ 1];
-		const TValue v0009 = mat[ 0] * mat[ 9];
-		const TValue v0801 = mat[ 8] * mat[ 1];
-		const TValue v0005 = mat[ 0] * mat[ 5];
-		const TValue v0401 = mat[ 4] * mat[ 1];
-
-		inv[ 8] = v0813 * mat[ 7] + v1205 * mat[11] + v0409 * mat[15]
-		        - v1209 * mat[ 7] - v0413 * mat[11] - v0805 * mat[15];
-		inv[ 9] = v1209 * mat[ 3] + v0013 * mat[11] + v0801 * mat[15]
-		        - v0813 * mat[ 3] - v1201 * mat[11] - v0009 * mat[15];
-		inv[10] = v0413 * mat[ 3] + v1201 * mat[ 7] + v0005 * mat[15]
-		        - v1205 * mat[ 3] - v0013 * mat[ 7] - v0401 * mat[15];
-		inv[11] = v0805 * mat[ 3] + v0009 * mat[ 7] + v0401 * mat[11]
-		        - v0409 * mat[ 3] - v0801 * mat[ 7] - v0005 * mat[11];
-		inv[12] = v0413 * mat[10] + v0805 * mat[14] + v1209 * mat[ 6]
-		        - v0409 * mat[14] - v0813 * mat[ 6] - v1205 * mat[10];
-		inv[13] = v0009 * mat[14] + v0813 * mat[ 2] + v1201 * mat[10]
-		        - v0013 * mat[10] - v0801 * mat[14] - v1209 * mat[ 2];
-		inv[14] = v0013 * mat[ 6] + v0401 * mat[14] + v1205 * mat[ 2]
-		        - v0005 * mat[14] - v0413 * mat[ 2] - v1201 * mat[ 6];
-		inv[15] = v0005 * mat[10] + v0409 * mat[ 2] + v0801 * mat[ 6]
-		        - v0009 * mat[ 6] - v0401 * mat[10] - v0805 * mat[ 2];
-
-		const TValue det = mat[0] * inv[0] + mat[4] * inv[1] + mat[8] * inv[2] + mat[12] * inv[3];
-		if (det == TNumTraits::zero)
-		{
-			LASS_THROW_EX(util::SingularityError, "transformation not invertible");
-		}
-		const TValue invDet = num::inv(det);
-		for (unsigned i = 0; i < 16; ++i)
-		{
-			inv[i] *= invDet;
-		}
-		sync_.lock();
-		inverseMatrix_.swap(inverseMatrix);
-		sync_.unlock();
-	}
-
-	LASS_ASSERT(inverseMatrix_ && matrix_);
-	return TSelf(inverseMatrix_, matrix_, false);
+	computeInverse();
+	LASS_ASSERT(pimpl_->hasInverse);
+	return TSelf(pimpl_, !isInversed_);
 }
 
 
@@ -243,16 +172,31 @@ template <typename T> inline
 const typename Transformation3D<T>::TValue*
 Transformation3D<T>::matrix() const
 {
-	return matrix_.get();
+	LASS_ASSERT(!(isInversed_ && !pimpl_->hasInverse));
+	return isInversed_ ? pimpl_->inverse : pimpl_->forward;
+}
+
+
+
+/** Return pointer to row major matrix representation of inverse transformation.
+ *  This is for immediate use only, like @c std::basic_string::data().
+ */
+template <typename T> inline
+const typename Transformation3D<T>::TValue*
+Transformation3D<T>::inverseMatrix() const
+{
+	computeInverse();
+	LASS_ASSERT(pimpl_->hasInverse);
+	return isInversed_ ? pimpl_->forward : pimpl_->inverse;
 }
 
 
 
 template <typename T>
-void Transformation3D<T>::swap(TSelf& ioOther)
+void Transformation3D<T>::swap(TSelf& other)
 {
-	matrix_.swap(ioOther.matrix_);
-	inverseMatrix_.swap(ioOther.inverseMatrix_);
+	pimpl_.swap(other.pimpl_);
+	std::swap(isInversed_, other.isInversed_);
 }
 
 
@@ -270,12 +214,20 @@ const Transformation3D<T> Transformation3D<T>::identity()
 /** make a 3D transformation representing a translation
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& offset)
+const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset)
 {
 	TSelf result;
-	result.matrix_[3] = offset.x;
-	result.matrix_[7] = offset.y;
-	result.matrix_[11] = offset.z;
+
+	TValue* const forward = result.pimpl_->forward;
+	forward[3] = offset.x;
+	forward[7] = offset.y;
+	forward[11] = offset.z;
+
+	TValue* const inverse = result.pimpl_->inverse;
+	inverse[3] = -offset.x;
+	inverse[7] = -offset.y;
+	inverse[11] = -offset.z;
+
 	return result;
 }
 
@@ -284,12 +236,16 @@ const Transformation3D<T> Transformation3D<T>::translation(const Vector3D<T>& of
 /** make a 3D transformation representing a uniform scaling
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::scaler(const T& scale)
+const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 {
 	TSelf result;
-	result.matrix_[0] = scale;
-	result.matrix_[5] = scale;
-	result.matrix_[10] = scale;
+
+	TValue* const forward = result.pimpl_->forward;
+	forward[0] = forward[5] = forward[10] = scale;
+
+	TValue* const inverse = result.pimpl_->inverse;
+	inverse[0] = inverse[5] = inverse[10] = num::inv(scale);
+
 	return result;
 }
 
@@ -298,12 +254,20 @@ const Transformation3D<T> Transformation3D<T>::scaler(const T& scale)
 /** make a 3D transformation representing a scaling with different factors per axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::scaler(const Vector3D<T>& scale)
+const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 {
 	TSelf result;
-	result.matrix_[0] = scale.x;
-	result.matrix_[5] = scale.y;
-	result.matrix_[10] = scale.z;
+
+	TValue* const forward = result.pimpl_->forward;
+	forward[0] = scale.x;
+	forward[5] = scale.y;
+	forward[10] = scale.z;
+
+	TValue* const inverse = result.pimpl_->inverse;
+	inverse[0] = num::inv(scale.x);
+	inverse[5] = num::inv(scale.y);
+	inverse[10] = num::inv(scale.z);
+
 	return result;
 }
 
@@ -320,11 +284,20 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 	const size_t b = (axis + 2);
 	LASS_ASSERT(a < 3 && b < 3);
 
-	Transformation3D<T> result;
-	result.matrix_[5 * a] = c;
-	result.matrix_[5 * b] = c;
-	result.matrix_[4 * a + b] = -s;
-	result.matrix_[4 * b + a] = s;
+	TSelf result;
+
+	TValue* const forward = result.pimpl_->forward;
+	forward[5 * a] = c;
+	forward[5 * b] = c;
+	forward[4 * a + b] = -s;
+	forward[4 * b + a] = s;
+
+	TValue* const inverse = result.pimpl_->inverse;
+	inverse[5 * a] = c;
+	inverse[5 * b] = c;
+	inverse[4 * a + b] = s;
+	inverse[4 * b + a] = -s;
+
 	return result;
 }
 
@@ -333,23 +306,28 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 /** make a 3D transformation representing a rotation around an arbitrary axis
  */
 template <typename T>
-const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& axis, TParam radians)
+const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TParam radians)
 {
-	Vector3D<T> a = axis.normal();
+	const TVector a = axis.normal();
 	const T c = num::cos(radians);
 	const T s = num::sin(radians);
 	const TValue oneMinusC = TNumTraits::one - c;
 
-	Transformation3D<T> result;
-	result.matrix_[ 0] = a.x * a.x * oneMinusC + c;
-	result.matrix_[ 1] = a.x * a.y * oneMinusC - a.z * s;
-	result.matrix_[ 2] = a.x * a.z * oneMinusC + a.y * s;
-	result.matrix_[ 4] = a.y * a.x * oneMinusC + a.z * s;
-	result.matrix_[ 5] = a.y * a.y + oneMinusC + c;
-	result.matrix_[ 6] = a.y * a.z * oneMinusC - a.x * s;
-	result.matrix_[ 8] = a.z * a.x * oneMinusC - a.y * s;
-	result.matrix_[ 9] = a.z * a.y * oneMinusC + a.x * s;
-	result.matrix_[10] = a.z * a.z + oneMinusC + c;
+	TSelf result;
+
+	TValue* const forward = result.pimpl_->forward;
+	forward[ 0] = a.x * a.x * oneMinusC + c;
+	forward[ 1] = a.x * a.y * oneMinusC - a.z * s;
+	forward[ 2] = a.x * a.z * oneMinusC + a.y * s;
+	forward[ 4] = a.y * a.x * oneMinusC + a.z * s;
+	forward[ 5] = a.y * a.y + oneMinusC + c;
+	forward[ 6] = a.y * a.z * oneMinusC - a.x * s;
+	forward[ 8] = a.z * a.x * oneMinusC - a.y * s;
+	forward[ 9] = a.z * a.y * oneMinusC + a.x * s;
+	forward[10] = a.z * a.z + oneMinusC + c;
+
+	result.pimpl_->hasInverse = false;
+
 	return result;
 }
 
@@ -362,12 +340,100 @@ const Transformation3D<T> Transformation3D<T>::rotation(const Vector3D<T>& axis,
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T> inline
-Transformation3D<T>::Transformation3D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool):
-	matrix_(matrix),
-	inverseMatrix_(inverseMatrix)
+Transformation3D<T>::Transformation3D(const TImplPtr& impl, bool isInversed):
+	pimpl_(impl),
+	isInversed_(isInversed)
 {
 }
 
+
+
+template <typename T>
+void Transformation3D<T>::computeInverse() const
+{	
+	LASS_LOCK(pimpl_->sync)
+	{
+		if (pimpl_->hasInverse)
+		{
+			return;
+		}
+
+		const TValue* const mat = pimpl_->forward;
+		TValue* const inv = pimpl_->inverse;
+
+		const TValue v1015 = mat[10] * mat[15];
+		const TValue v1411 = mat[14] * mat[11];
+		const TValue v0615 = mat[ 6] * mat[15];
+		const TValue v1407 = mat[14] * mat[ 7];
+		const TValue v0611 = mat[ 6] * mat[11];
+		const TValue v1007 = mat[10] * mat[ 7];
+		const TValue v0215 = mat[ 2] * mat[15];
+		const TValue v1403 = mat[14] * mat[ 3];
+		const TValue v0211 = mat[ 2] * mat[11];
+		const TValue v1003 = mat[10] * mat[ 3];
+		const TValue v0207 = mat[ 2] * mat[ 7];
+		const TValue v0603 = mat[ 6] * mat[ 3];
+
+		inv[0] = v1015 * mat[ 5] + v1407 * mat[ 9] + v0611 * mat[13]
+			   - v1411 * mat[ 5] - v0615 * mat[ 9] - v1007 * mat[13];
+		inv[1] = v1411 * mat[ 1] + v0215 * mat[ 9] + v1003 * mat[13]
+			   - v1015 * mat[ 1] - v1403 * mat[ 9] - v0211 * mat[13];
+		inv[2] = v0615 * mat[ 1] + v1403 * mat[ 5] + v0207 * mat[13]
+			   - v1407 * mat[ 1] - v0215 * mat[ 5] - v0603 * mat[13];
+		inv[3] = v1007 * mat[ 1] + v0211 * mat[ 5] + v0603 * mat[ 9]
+			   - v0611 * mat[ 1] - v1003 * mat[ 5] - v0207 * mat[ 9];
+		inv[4] = v1411 * mat[ 4] + v0615 * mat[ 8] + v1007 * mat[12]
+			   - v1015 * mat[ 4] - v1407 * mat[ 8] - v0611 * mat[12];
+		inv[5] = v1015 * mat[ 0] + v1403 * mat[ 8] + v0211 * mat[12]
+			   - v1411 * mat[ 0] - v0215 * mat[ 8] - v1003 * mat[12];
+		inv[6] = v1407 * mat[ 0] + v0215 * mat[ 4] + v0603 * mat[12]
+			   - v0615 * mat[ 0] - v1403 * mat[ 4] - v0207 * mat[12];
+		inv[7] = v0611 * mat[ 0] + v1003 * mat[ 4] + v0207 * mat[ 8]
+			   - v1007 * mat[ 0] - v0211 * mat[ 4] - v0603 * mat[ 8];
+
+		const TValue v0813 = mat[ 8] * mat[13];
+		const TValue v1209 = mat[12] * mat[ 9];
+		const TValue v0413 = mat[ 4] * mat[13];
+		const TValue v1205 = mat[12] * mat[ 5];
+		const TValue v0409 = mat[ 4] * mat[ 9];
+		const TValue v0805 = mat[ 8] * mat[ 5];
+		const TValue v0013 = mat[ 0] * mat[13];
+		const TValue v1201 = mat[12] * mat[ 1];
+		const TValue v0009 = mat[ 0] * mat[ 9];
+		const TValue v0801 = mat[ 8] * mat[ 1];
+		const TValue v0005 = mat[ 0] * mat[ 5];
+		const TValue v0401 = mat[ 4] * mat[ 1];
+
+		inv[ 8] = v0813 * mat[ 7] + v1205 * mat[11] + v0409 * mat[15]
+				- v1209 * mat[ 7] - v0413 * mat[11] - v0805 * mat[15];
+		inv[ 9] = v1209 * mat[ 3] + v0013 * mat[11] + v0801 * mat[15]
+				- v0813 * mat[ 3] - v1201 * mat[11] - v0009 * mat[15];
+		inv[10] = v0413 * mat[ 3] + v1201 * mat[ 7] + v0005 * mat[15]
+				- v1205 * mat[ 3] - v0013 * mat[ 7] - v0401 * mat[15];
+		inv[11] = v0805 * mat[ 3] + v0009 * mat[ 7] + v0401 * mat[11]
+				- v0409 * mat[ 3] - v0801 * mat[ 7] - v0005 * mat[11];
+		inv[12] = v0413 * mat[10] + v0805 * mat[14] + v1209 * mat[ 6]
+				- v0409 * mat[14] - v0813 * mat[ 6] - v1205 * mat[10];
+		inv[13] = v0009 * mat[14] + v0813 * mat[ 2] + v1201 * mat[10]
+				- v0013 * mat[10] - v0801 * mat[14] - v1209 * mat[ 2];
+		inv[14] = v0013 * mat[ 6] + v0401 * mat[14] + v1205 * mat[ 2]
+				- v0005 * mat[14] - v0413 * mat[ 2] - v1201 * mat[ 6];
+		inv[15] = v0005 * mat[10] + v0409 * mat[ 2] + v0801 * mat[ 6]
+				- v0009 * mat[ 6] - v0401 * mat[10] - v0805 * mat[ 2];
+
+		const TValue det = mat[0] * inv[0] + mat[4] * inv[1] + mat[8] * inv[2] + mat[12] * inv[3];
+		if (det == TNumTraits::zero)
+		{
+			LASS_THROW_EX(util::SingularityError, "transformation not invertible");
+		}
+		const TValue invDet = num::inv(det);
+		for (size_t i = 0; i < matrixSize_; ++i)
+		{
+			inv[i] *= invDet;
+		}
+		pimpl_->hasInverse = true;
+	}
+}
 
 
 // --- free ----------------------------------------------------------------------------------------
@@ -446,7 +512,7 @@ Point3D<T> transform(const Point3D<T>& subject, const Transformation3D<T>& trans
 template <typename T>
 Vector3D<T> normalTransform(const Vector3D<T>& subject, const Transformation3D<T>& transformation)
 {
-	const T* const invMat = transformation.inverse().matrix();
+	const T* const invMat = transformation.inverseMatrix();
 	return Vector3D<T>(
 		invMat[ 0] * subject.x + invMat[ 4] * subject.y + invMat[ 8] * subject.z,
 		invMat[ 1] * subject.x + invMat[ 5] * subject.y + invMat[ 9] * subject.z,
@@ -472,7 +538,7 @@ template <typename T>
 std::pair<Vector3D<T>, T> normalTransform(const std::pair<Vector3D<T>, T>& subject, 
 										  const Transformation3D<T>& transformation)
 {
-	const T* const invMat = transformation.inverse().matrix();
+	const T* const invMat = transformation.inverseMatrix();
 	const Vector3D<T>& n = subject.first;
 	const T d = subject.second;
 	const Vector3D<T> transformedN(

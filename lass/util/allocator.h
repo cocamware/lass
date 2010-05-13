@@ -1116,6 +1116,39 @@ public:
 	}
 };
 
+
+template
+<
+	typename T,
+	typename FixedAllocator = AllocatorThrow< AllocatorFixed<> >
+>
+class AllocatorObject: public FixedAllocator
+{
+public:
+	AllocatorObject(): 
+		FixedAllocator(sizeof(T)) 
+	{
+	}
+	T* allocate()
+	{
+		void* p = FixedAllocator::allocate();
+		if (!p)
+		{
+			return 0;
+		}
+		return new (p) T;
+	}
+	void deallocate(T* p)
+	{
+		if (!p)
+		{
+			return;
+		}
+		p->~T();
+		FixedAllocator::deallocate(p);
+	}
+};
+
 }
 }
 

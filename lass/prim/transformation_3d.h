@@ -53,9 +53,9 @@
 #include "prim_common.h"
 #include "point_3d.h"
 #include "xyz.h"
-#include "impl/prim_allocator.h"
 #include "../io/xml_o_stream.h"
 #include "../num/num_traits.h"
+#include "../util/allocator.h"
 #include "../util/shared_ptr.h"
 #include "../util/thread.h"
 
@@ -63,21 +63,6 @@ namespace lass
 {
 namespace prim
 {
-namespace impl
-{
-	template <typename T, typename Cascade>
-	class Transformation3DStorage: public util::ArrayStorage<T, Cascade>
-	{
-	public:
-		Transformation3DStorage(): util::ArrayStorage<T, Cascade>() {}
-		Transformation3DStorage(T* p): util::ArrayStorage<T, Cascade>(p) {}
-	protected:
-		void dispose()
-		{
-			deallocateArray(this->pointer(), 16);
-		}
-	};
-}
 
 template <typename T>
 class Transformation3D
@@ -110,29 +95,54 @@ public:
 	const TSelf inverse() const;
 
 	const TValue* matrix() const;
+	const TValue* inverseMatrix() const;
+
 	void swap(TSelf& other);
 
 	static const TSelf identity();
-	static const TSelf translation(const Vector3D<T>& offset);
-	static const TSelf scaler(const T& scale);
-	static const TSelf scaler(const Vector3D<T>& scale);
+	static const TSelf translation(const TVector& offset);
+	static const TSelf scaler(TParam scale);
+	static const TSelf scaler(const TVector& scale);
 	static const TSelf rotation(XYZ axis, TParam radians);
-	static const TSelf rotation(const Vector3D<T>& axis, TParam radians);
+	static const TSelf rotation(const TVector& axis, TParam radians);
 
 private:
 
 	enum { matrixSize_ = 16 };
 
-	typedef util::SharedPtr<TValue, impl::Transformation3DStorage> TMatrix;
+	struct Impl
+	{
+		TValue forward[matrixSize_];
+		TValue inverse[matrixSize_];
+		util::Semaphore sync;
+		size_t referenceCount;
+		bool hasInverse;
+		Impl(): hasInverse(false) {}
+	};
 
-	Transformation3D(const TMatrix& matrix, const TMatrix& inverseMatrix, bool dummy);
+	typedef util::AllocatorObject< Impl, util::AllocatorConcurrentFreeList<> > TAllocator;
+	static TAllocator allocator_;
 
-	TMatrix matrix_;
-	mutable TMatrix inverseMatrix_;
+	template <typename T, typename Cascade>
+	class ImplStorage: public util::ObjectStorage<T, Cascade>
+	{
+	public:
+		ImplStorage(): util::ObjectStorage<T, Cascade>() {}
+		ImplStorage(T* p): util::ObjectStorage<T, Cascade>(p) {}
+	protected:
+		void dispose()
+		{
+			allocator_.deallocate(this->pointer());
+		}
+	};
 
-	static T* allocate();
+	typedef util::SharedPtr<Impl, ImplStorage, util::IntrusiveCounter<Impl, size_t, &Impl::referenceCount> > TImplPtr;
 
-	static util::Semaphore sync_;
+	Transformation3D(const TImplPtr& pimpl, bool isInversed);
+	void computeInverse() const;
+
+	TImplPtr pimpl_;
+	bool isInversed_;
 };
 
 template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& first, const Transformation3D<T>& second);
@@ -149,7 +159,7 @@ template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Tr
 
 // static member initialisation
 
-template <typename T> util::Semaphore Transformation3D<T>::sync_;
+template <typename T> typename Transformation3D<T>::TAllocator Transformation3D<T>::allocator_;
 
 }
 
