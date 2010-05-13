@@ -95,12 +95,8 @@ void testSpatPointTrees()
 	typedef spat::DefaultObjectTraits<TPoint, TAabb, meta::NullType, TPointIterator> TPointTraits;
 	typedef typename meta::type_list::Make<
 		TKdTree,
-		spat::AabbTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<32> >,
-		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<2> >,
-		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<4> >,
-		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<8> >,
-		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<16> >,
-		spat::AabpTree<TPoint, TPointTraits, tree_test_helpers::StaticSplitHeuristics<32> >
+		spat::AabbTree<TPoint, TPointTraits>,
+		spat::AabpTree<TPoint, TPointTraits>
 		//spat::QuadTree<TPoint, TPointTraits> // apparently, QuadTrees are no good idea for points
 	>::Type TTreeTypes;
 	typedef meta::Tuple<TTreeTypes> TTrees;

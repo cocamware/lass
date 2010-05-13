@@ -142,7 +142,64 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& target, TParam maxRadius) const
 	}
 
 	Neighbour best(end_, maxRadius);
+#if 1
+	struct Visit
+	{
+		size_t index;
+		TValue sqrDelta;
+	};
+	Visit stack[32];
+	size_t stackSize = 0;
+	stack[stackSize].index = 0;
+	stack[stackSize++].sqrDelta = -1;
+
+	while (stackSize > 0)
+	{
+		const Visit visit = stack[--stackSize];
+		if (visit.sqrDelta > best.squaredDistance())
+		{
+			continue;
+		}
+		if (visit.index >= heap_.size() || heap_[visit.index].object() == end_)
+		{
+			continue;
+		}
+		const Node& node = heap_[visit.index];
+		const TPoint& pivot = node.position();
+
+		const TValue sqrDistance = squaredDistance(pivot, target);
+		if (sqrDistance < best.squaredDistance())
+		{
+			best = Neighbour(node.object(), sqrDistance);
+		}
+
+		const TAxis split = node.axis();
+		if (split == dummyAxis_)
+		{
+			continue;
+		}
+
+		const TValue delta = target[split] - pivot[split]; // distance to splitting plane
+		if (delta < 0)
+		{
+			// we are left of the plane - search left node first
+			stack[stackSize].index = 2 * visit.index + 2;
+			stack[stackSize++].sqrDelta = num::sqr(delta);
+			stack[stackSize].index = 2 * visit.index + 1;
+			stack[stackSize++].sqrDelta = 0;
+		}
+		else
+		{
+			// we are right of the plane - search right node first
+			stack[stackSize].index = 2 * visit.index + 1;
+			stack[stackSize++].sqrDelta = num::sqr(delta);
+			stack[stackSize].index = 2 * visit.index + 2;
+			stack[stackSize++].sqrDelta = 0;
+		}
+	}
+#else
 	doNearestNeighbour(0, target, best);
+#endif
 	return best;
 }
 
@@ -465,7 +522,7 @@ inline void KdTree<O, OT>::assignNode(size_t index, TObjectIterator object, TAxi
 	{
 		heap_.resize(index + 1, Node(end_));
 	}
-	heap_[index] = Node(object, splitAxis);
+	heap_[index] = Node(object, TObjectTraits::position(object), splitAxis);
 }
 
 
@@ -486,7 +543,7 @@ size_t KdTree<O, OT>::findNode(size_t index, const TPoint& target) const
 		return index;
 	}
 
-	const TPoint pivot = node.position();
+	const TPoint& pivot = node.position();
 	const TValue delta = target[split] - pivot[split]; // distance to splitting plane
 	const bool isLeftSide = delta < 0;
 	const size_t result = findNode(2 * index + (isLeftSide ? 1 : 2), target);
@@ -503,7 +560,7 @@ void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neigh
 		return;
 	}
 	const Node& node = heap_[index];
-	const TPoint pivot = node.position();
+	const TPoint& pivot = node.position();
 
 	const TValue sqrDistance = squaredDistance(pivot, target);
 	if (sqrDistance < best.squaredDistance())
@@ -550,7 +607,7 @@ OutputIterator KdTree<O, OT>::doRangeSearch(
 	}
 	const Node& node = heap_[index];
 
-	const TPoint pivot = node.position();
+	const TPoint& pivot = node.position();
 	const TAxis split = node.axis();
 	if (split != dummyAxis_)
 	{
@@ -597,7 +654,7 @@ RandomIterator KdTree<O, OT>::doRangeSearch(
 	}
 	const Node& node = heap_[index];
 
-	const TPoint pivot = node.position();
+	const TPoint& pivot = node.position();
 	const TAxis split = node.axis();
 	if (split != dummyAxis_)
 	{
@@ -686,7 +743,7 @@ void KdTree<O, OT>::diagnostics()
 			}
 			const Node& node = heap_[index];
 
-			const typename TObjectTraits::TPoint pivot = node.position();
+			const typename TObjectTraits::TPoint& pivot = node.position();
 			xml_ << pivot;
 
 			const TAxis split = node.axis();

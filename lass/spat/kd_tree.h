@@ -175,11 +175,13 @@ private:
 	class Node
 	{
 	public:
-		Node(TObjectIterator object, TAxis axis = dummyAxis_): object_(object), axis_(axis) {}
+		Node(TObjectIterator object, const TPoint& position = TPoint(), TAxis axis = dummyAxis_): 
+			object_(object), position_(position), axis_(axis) {}
 		const TObjectIterator& object() const { return object_; }
+		const TPoint& position() const { return position_; }
 		TAxis axis() const { return axis_; }
-		const TPoint position() const { return TObjectTraits::position(object_); }
 	private:
+		TPoint position_;
 		TObjectIterator object_;
 		TAxis axis_;
 	};
