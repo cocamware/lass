@@ -189,7 +189,7 @@ private:
 			int last_; // leaf
 		};
 	};
-	typedef std::deque<Node> TNodes;
+	typedef std::vector<Node> TNodes;
 
 	int balance(TInputIterator first, TInputIterator last);
 	int addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
