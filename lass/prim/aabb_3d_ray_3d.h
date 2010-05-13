@@ -73,10 +73,10 @@ Result intersect(
 		const Aabb3D<T, MMPAabb>& aabb, const Ray3D<T, NPRay, PPRay>& ray,
 		T& t, const T& tMin = T())
 {
-	if (aabb.isEmpty())
-	{
-		return rNone;
-	}
+	//if (aabb.isEmpty())
+	//{
+	//	return rNone;
+	//}
 
 	typedef num::NumTraits<T> TNumTraits;
 	typedef Point3D<T> TPoint;
@@ -89,23 +89,19 @@ Result intersect(
 
 	T tNear = tMin;
 	T tFar = TNumTraits::infinity;
-	bool good = true;
-	good &= impl::interectSlab(min[0], max[0], support[0], direction[0], tNear, tFar);
-	good &= impl::interectSlab(min[1], max[1], support[1], direction[1], tNear, tFar);
-	good &= impl::interectSlab(min[2], max[2], support[2], direction[2], tNear, tFar);
+	if (!impl::interectSlab(min[0], max[0], support[0], direction[0], tNear, tFar)) return rNone;
+	if (!impl::interectSlab(min[1], max[1], support[1], direction[1], tNear, tFar)) return rNone;
+	if (!impl::interectSlab(min[2], max[2], support[2], direction[2], tNear, tFar)) return rNone;
 
-	if (good)
+	if (tNear > tMin)
 	{
-		if (tNear > tMin)
-		{
-			t = tNear;
-			return rOne;
-		}
-		if (tFar > tMin)
-		{
-			t = tFar;
-			return rOne;
-		}
+		t = tNear;
+		return rOne;
+	}
+	if (tFar > tMin)
+	{
+		t = tFar;
+		return rOne;
 	}
 	return rNone;
 }

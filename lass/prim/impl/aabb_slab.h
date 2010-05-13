@@ -56,30 +56,39 @@ namespace impl
 /** @internal
  */
 template <typename T> inline
-bool interectSlab(const T& iMin, const T& iMax, const T& iSupport, const T& iDirection, T& ioTNear, T& ioTFar)
+bool interectSlab(const T min, const T max, const T support, const T direction, T& tNear, T& tFar)
 {
-	typedef num::Consistent<T> TConsistent;
-	
-	if (iDirection == num::NumTraits<T>::zero)
+	if (direction == 0)
 	{
-		return iSupport >= iMin && iSupport <= iMax;
+		return support >= min && support <= max;
 	}
 	
-	const T invDirection = num::inv(iDirection);
-	TConsistent tNear = (iMin - iSupport) * invDirection;
-	TConsistent tFar = (iMax - iSupport) * invDirection;
-	if (tFar < tNear)
+	const T invDirection = num::inv(direction);
+	const T tMin = (min - support) * invDirection;
+	const T tMax = (max - support) * invDirection;
+	if (direction > 0)
 	{
-		std::swap(tNear, tFar);
+		if (tMin > tNear)
+		{
+			tNear = tMin;
+		}
+		if (tMax < tFar)
+		{
+			tFar = tMax;
+		}
 	}
-
-	if (tNear > ioTFar || tFar < ioTNear)
+	else
 	{
-		return false;
+		if (tMax > tNear)
+		{
+			tNear = tMax;
+		}
+		if (tMin < tFar)
+		{
+			tFar = tMin;
+		}
 	}
-	ioTNear = std::max(ioTNear, tNear.value());
-	ioTFar = std::min(ioTFar, tFar.value());
-	return true;
+	return tNear <= tFar;
 }
 
 }

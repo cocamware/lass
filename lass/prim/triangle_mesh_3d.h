@@ -94,7 +94,7 @@ public:
 	typedef typename TPoint::TVector TVector;
 	typedef Point2D<T> TUv;
 	typedef Aabb3D<T> TAabb;
-	typedef Ray3D<T> TRay;
+	typedef Ray3D<T, prim::Normalized, prim::Unbounded> TRay;
 
 	typedef typename TPoint::TValue TValue;
 	typedef typename TPoint::TParam TParam;
