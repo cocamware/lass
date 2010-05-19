@@ -96,14 +96,15 @@ PyObjectPlus::~PyObjectPlus()
 	LASS_ASSERT(this->ob_refcnt==0);
 };
 
-PyObjectPlus::PyObjectPlus(const PyObjectPlus& iOther)
+PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 {
-	this->ob_type = iOther.ob_type;
+	this->ob_type = NULL;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 	// [TDM] or just copy the reference? 
 	dict_ = PyDict_Copy(iOther.dict_);
 #endif
 	_Py_NewReference( this );
+	impl::forceObjectType(this, other.ob_type);
 }
 
 PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)

@@ -67,6 +67,17 @@ namespace impl
 		return *Singleton<CriticalSection, destructionPriorityInternalPythonMutex>::instance();
 	}
 
+	template <typename PyObjectPtr>
+	void forceObjectType(PyObjectPtr object, PyTypeObject* type)
+	{
+		if (object && object->ob_type != type)
+		{
+			Py_XINCREF(type);
+			std::swap(object->ob_type, type);
+			Py_XDECREF(type);
+		}
+	}
+
 	LASS_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
 	inline void doFixObjectType(const PyObjectPlus* object) { doFixObjectType(const_cast<PyObjectPlus*>(object)); }
 	inline void doFixObjectType(const PyObject*) {}

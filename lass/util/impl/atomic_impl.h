@@ -53,7 +53,9 @@
 #	pragma intrinsic(_InterlockedCompareExchange)
 #	pragma intrinsic(_InterlockedCompareExchange16)
 #	pragma intrinsic(_InterlockedCompareExchange64)
-#	pragma intrinsic(_InterlockedCompareExchange128)
+#	if LASS_COMPILER_VERSION >= 1500
+#		pragma intrinsic(_InterlockedCompareExchange128)
+#	endif
 #	pragma intrinsic(_InterlockedIncrement)
 #	pragma intrinsic(_InterlockedIncrement16)
 #	pragma intrinsic(_InterlockedIncrement64)
@@ -70,6 +72,7 @@ extern "C"
 	bool lass_dcas8(volatile lass::num::Tuint8*, lass::num::Tuint8, lass::num::Tuint8, lass::num::Tuint8, lass::num::Tuint8);
 	bool lass_dcas16(volatile lass::num::Tuint16*, lass::num::Tuint16, lass::num::Tuint16, lass::num::Tuint16, lass::num::Tuint16);
 	bool lass_dcas32(volatile lass::num::Tuint32*, lass::num::Tuint32, lass::num::Tuint32, lass::num::Tuint32, lass::num::Tuint32);
+	bool lass_dcas64(volatile lass::num::Tuint64*, lass::num::Tuint64, lass::num::Tuint64, lass::num::Tuint64, lass::num::Tuint64);
 }
 
 #endif
@@ -541,13 +544,18 @@ struct AtomicOperations<8>
 			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 		LASS_ASSERT((reinterpret_cast<num::Tuint64>(&dest1) & 0xf) == 0); // dest needs to be 16-byte aligned.
-#if defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
+#if defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64) && LASS_COMPILER_VERSION >= 1500
 		__int64 expected[2] = { *reinterpret_cast<__int64*>(&expected1), *reinterpret_cast<__int64*>(&expected2) };
 		return _InterlockedCompareExchange128(
 			reinterpret_cast<volatile __int64*>(&dest1), 
 			*reinterpret_cast<__int64*>(&new2), *reinterpret_cast<__int64*>(&new1), 
 			expected) != 0;
-#else
+#elif defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64) && LASS_COMPILER_VERSION < 1500
+		return lass_dcas64(
+			reinterpret_cast<volatile num::Tuint64*>(&dest1), 
+			*reinterpret_cast<num::Tuint64*>(&new1), *reinterpret_cast<num::Tuint64*>(&new2), 
+			*reinterpret_cast<num::Tuint64*>(&expected1), *reinterpret_cast<num::Tuint64*>(&expected2));
+#elif defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
 		bool result;
 		__asm__ __volatile__(
 			"lock; cmpxchg16b %0;"
@@ -556,6 +564,8 @@ struct AtomicOperations<8>
 			: "a"(expected1), "d"(expected2), "b"(new1), "c"(new2), "m"(dest1)
 			: "cc", "memory");
 		return result;
+#else
+#	error [LASS BUILD MSG] lass/util/impl/atomic_impl.h: missing implementation
 #endif
 	}
 #endif

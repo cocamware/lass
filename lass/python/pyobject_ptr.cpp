@@ -55,7 +55,7 @@ void doFixObjectType(PyObjectPlus* object)
 {
 	if (object && !object->ob_type)
 	{
-		object->ob_type = object->_lassPyGetClassDef()->type();
+		forceObjectType(object, object->_lassPyGetClassDef()->type());
 	}
 }
 
