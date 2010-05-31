@@ -208,6 +208,10 @@ io::XmlOStream& operator<<(io::XmlOStream& stream, const Aabb3D<T, MMP>& aabb);
 #	include "../python/export_traits_prim.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_DISK_3D_H
+#	include "aabb_3d_disk_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_H
 #	include "aabb_3d_parallelogram_3d.h"
 #endif

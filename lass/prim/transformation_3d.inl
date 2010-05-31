@@ -56,6 +56,9 @@ namespace lass
 namespace prim
 {
 
+template <typename T> typename Transformation3D<T>::TAllocator Transformation3D<T>::allocator_;
+template <typename T> typename Transformation3D<T>::TImplPtr Transformation3D<T>::identity_ = Transformation3D<T>::makeIdentity();
+
 // --- public --------------------------------------------------------------------------------------
 
 /** construct an identity transformation.
@@ -63,29 +66,9 @@ namespace prim
  */
 template <typename T>
 Transformation3D<T>::Transformation3D():
-	pimpl_(allocator_.allocate()),
+	pimpl_(identity_),
 	isInversed_(false)
 {
-	TValue* forward = pimpl_->forward;
-	forward[ 0] = TNumTraits::one;
-	forward[ 1] = TNumTraits::zero;
-	forward[ 2] = TNumTraits::zero;
-	forward[ 3] = TNumTraits::zero;
-	forward[ 4] = TNumTraits::zero;
-	forward[ 5] = TNumTraits::one;
-	forward[ 6] = TNumTraits::zero;
-	forward[ 7] = TNumTraits::zero;
-	forward[ 8] = TNumTraits::zero;
-	forward[ 9] = TNumTraits::zero;
-	forward[10] = TNumTraits::one;
-	forward[11] = TNumTraits::zero;
-	forward[12] = TNumTraits::zero;
-	forward[13] = TNumTraits::zero;
-	forward[14] = TNumTraits::zero;
-	forward[15] = TNumTraits::one;
-
-	std::copy(forward, forward + matrixSize_, pimpl_->inverse);
-	pimpl_->hasInverse = true;
 }
 
 
@@ -108,24 +91,10 @@ Transformation3D<T>::Transformation3D(
 	isInversed_(false)
 {
 	TValue* mat = pimpl_->forward;
-	mat[ 0] = baseX.x;
-	mat[ 1] = baseY.x;
-	mat[ 2] = baseZ.x;
-	mat[ 3] = origin.x;
-	mat[ 4] = baseX.y;
-	mat[ 5] = baseY.y;
-	mat[ 6] = baseZ.y;
-	mat[ 7] = origin.y;
-	mat[ 8] = baseX.z;
-	mat[ 9] = baseY.z;
-	mat[10] = baseZ.z;
-	mat[11] = origin.z;
-	mat[12] = TNumTraits::zero;
-	mat[13] = TNumTraits::zero;
-	mat[14] = TNumTraits::zero;
-	mat[15] = TNumTraits::one;
-
-	pimpl_->hasInverse = false;
+	mat[ 0] = baseX.x;	mat[ 1] = baseY.x;	mat[ 2] = baseZ.x;	mat[ 3] = origin.x;
+	mat[ 4] = baseX.y;	mat[ 5] = baseY.y;	mat[ 6] = baseZ.y;	mat[ 7] = origin.y;
+	mat[ 8] = baseX.z;	mat[ 9] = baseY.z;	mat[10] = baseZ.z;	mat[11] = origin.z;
+	mat[12] = 0;	mat[13] = 0;	mat[14] = 0;	mat[15] = 1;
 }
 
 
@@ -142,8 +111,6 @@ Transformation3D<T>::Transformation3D(InputIterator first, InputIterator last):
 {
 	LASS_ENFORCE(std::distance(first, last) == matrixSize_);
 	std::copy(first, last, pimpl_->forward);
-
-	pimpl_->hasInverse = false;
 }
 
 
@@ -193,6 +160,52 @@ Transformation3D<T>::inverseMatrix() const
 
 
 template <typename T>
+bool Transformation3D<T>::isIdentity() const
+{
+	if (pimpl_ == identity_)
+	{
+		return true;
+	}
+	const TValue* const forward = pimpl_->forward;
+	for (size_t i = 0; i < 4; ++i)
+	{
+		for (size_t j = 0; j < 4; ++j)
+		{
+			if (pimpl_->forward[i * 4 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+
+template <typename T>
+bool Transformation3D<T>::isTranslation() const
+{
+	if (pimpl_->isTranslation)
+	{
+		return true;
+	}
+	const TValue* const forward = pimpl_->forward;
+	for (size_t i = 0; i < 4; ++i)
+	{
+		for (size_t j = 0; j < 4; ++j)
+		{
+			if (j < 3 && forward[i * 4 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+
+template <typename T>
 void Transformation3D<T>::swap(TSelf& other)
 {
 	pimpl_.swap(other.pimpl_);
@@ -216,19 +229,24 @@ const Transformation3D<T> Transformation3D<T>::identity()
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset)
 {
-	TSelf result;
+	TImplPtr pimpl(allocator_.allocate());
 
-	TValue* const forward = result.pimpl_->forward;
-	forward[3] = offset.x;
-	forward[7] = offset.y;
+	TValue* const forward = pimpl->forward;
+	identity(forward);
+	forward[ 3] = offset.x;
+	forward[ 7] = offset.y;
 	forward[11] = offset.z;
 
-	TValue* const inverse = result.pimpl_->inverse;
-	inverse[3] = -offset.x;
-	inverse[7] = -offset.y;
+	TValue* const inverse = pimpl->inverse;
+	identity(inverse);
+	inverse[ 3] = -offset.x;
+	inverse[ 7] = -offset.y;
 	inverse[11] = -offset.z;
 
-	return result;
+	pimpl->hasInverse = true;
+	pimpl->isTranslation = true;
+
+	return TSelf(pimpl);
 }
 
 
@@ -238,15 +256,19 @@ const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 {
-	TSelf result;
+	TImplPtr pimpl(allocator_.allocate());
 
-	TValue* const forward = result.pimpl_->forward;
-	forward[0] = forward[5] = forward[10] = scale;
+	TValue* const forward = pimpl->forward;
+	identity(forward);
+	forward[ 0] = forward[ 5] = forward[10] = scale;
 
-	TValue* const inverse = result.pimpl_->inverse;
-	inverse[0] = inverse[5] = inverse[10] = num::inv(scale);
+	TValue* const inverse = pimpl->inverse;
+	identity(inverse);
+	inverse[ 0] = inverse[ 5] = inverse[10] = num::inv(scale);
+	
+	pimpl->hasInverse = true;
 
-	return result;
+	return TSelf(pimpl);
 }
 
 
@@ -256,19 +278,23 @@ const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 {
-	TSelf result;
+	TImplPtr pimpl(allocator_.allocate());
 
-	TValue* const forward = result.pimpl_->forward;
-	forward[0] = scale.x;
-	forward[5] = scale.y;
+	TValue* const forward = pimpl->forward;
+	identity(forward);
+	forward[ 0] = scale.x;
+	forward[ 5] = scale.y;
 	forward[10] = scale.z;
 
-	TValue* const inverse = result.pimpl_->inverse;
-	inverse[0] = num::inv(scale.x);
-	inverse[5] = num::inv(scale.y);
+	TValue* const inverse = pimpl->inverse;
+	identity(inverse);
+	inverse[ 0] = num::inv(scale.x);
+	inverse[ 5] = num::inv(scale.y);
 	inverse[10] = num::inv(scale.z);
+	
+	pimpl->hasInverse = true;
 
-	return result;
+	return TSelf(pimpl);
 }
 
 
@@ -278,27 +304,31 @@ const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians)
 {
+	TImplPtr pimpl(allocator_.allocate());
+
 	const T c = num::cos(radians);
 	const T s = num::sin(radians);
 	const size_t a = (axis + 1);
 	const size_t b = (axis + 2);
 	LASS_ASSERT(a < 3 && b < 3);
 
-	TSelf result;
-
-	TValue* const forward = result.pimpl_->forward;
+	TValue* const forward = pimpl->forward;
+	identity(forward);
 	forward[5 * a] = c;
 	forward[5 * b] = c;
 	forward[4 * a + b] = -s;
 	forward[4 * b + a] = s;
 
-	TValue* const inverse = result.pimpl_->inverse;
+	TValue* const inverse = pimpl->inverse;
+	identity(forward);
 	inverse[5 * a] = c;
 	inverse[5 * b] = c;
 	inverse[4 * a + b] = s;
 	inverse[4 * b + a] = -s;
 
-	return result;
+	pimpl->hasInverse = true;
+
+	return TSelf(pimpl);
 }
 
 
@@ -308,14 +338,15 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TParam radians)
 {
+	TImplPtr pimpl(allocator_.allocate());
+
 	const TVector a = axis.normal();
 	const T c = num::cos(radians);
 	const T s = num::sin(radians);
 	const TValue oneMinusC = TNumTraits::one - c;
 
-	TSelf result;
-
-	TValue* const forward = result.pimpl_->forward;
+	TValue* const forward = pimpl->forward;
+	identity(forward);
 	forward[ 0] = a.x * a.x * oneMinusC + c;
 	forward[ 1] = a.x * a.y * oneMinusC - a.z * s;
 	forward[ 2] = a.x * a.z * oneMinusC + a.y * s;
@@ -326,9 +357,22 @@ const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TPa
 	forward[ 9] = a.z * a.y * oneMinusC + a.x * s;
 	forward[10] = a.z * a.z + oneMinusC + c;
 
-	result.pimpl_->hasInverse = false;
+	translate(pimpl->forward, pimpl->inverse);
 
-	return result;
+	pimpl->hasInverse = true;
+
+	return TSelf(pimpl);
+}
+
+
+
+template <typename T>
+const Transformation3D<T> Transformation3D<T>::lookAt(const TPoint& eye, const TPoint& target, const TVector& sky)
+{
+	const TVector dir = target - eye;
+	const TVector right = cross(dir, sky);
+	const TVector up = cross(right, dir);
+	return Transformation3D<T>(eye, right.normal(), dir.normal(), up.normal());
 }
 
 
@@ -434,6 +478,49 @@ void Transformation3D<T>::computeInverse() const
 		pimpl_->hasInverse = true;
 	}
 }
+
+
+
+template <typename T>
+void Transformation3D<T>::translate(const TValue* source, TValue* dest)
+{
+	for(size_t i = 0; i < 4; ++i)
+	{
+		for(size_t j = 0; j < 4; ++j)
+		{
+			dest[4 * i + j] = source[4 * j + i];
+		}
+	}
+}
+
+
+
+template <typename T>
+void Transformation3D<T>::identity(TValue* dest)
+{
+	static TValue mat[matrixSize_] = 
+	{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1,
+	};
+	std::copy(mat, mat + matrixSize_, dest);
+}
+
+
+
+template <typename T>
+typename Transformation3D<T>::TImplPtr Transformation3D<T>::makeIdentity()
+{
+	TImplPtr pimpl(allocator_.allocate());
+	identity(pimpl->forward);
+	identity(pimpl->inverse);
+	pimpl->hasInverse = true;
+	pimpl->isTranslation = true;
+	return pimpl;
+}
+
 
 
 // --- free ----------------------------------------------------------------------------------------

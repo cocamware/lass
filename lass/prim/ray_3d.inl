@@ -172,12 +172,12 @@ void Ray3D<T, NP, PP>::lookAt(const TPoint& iLookAt)
  *             used as @c ParameterPolicy.
  *  @return origin + t * direction
  */
-template <typename T, class NP, class PP>
+template <typename T, class NP, class PP> inline
 const typename Ray3D<T, NP, PP>::TPoint
-Ray3D<T, NP, PP>::point(TParam iT) const
+Ray3D<T, NP, PP>::point(TParam t) const
 {
-	TParameterPolicy::enforceRange(iT, TNumTraits::zero);
-	return support_ + iT * direction_;
+	TParameterPolicy::enforceRange(t, TNumTraits::zero);
+	return TPoint(support_.x + t * direction_.x, support_.y + t * direction_.y, support_.z + t * direction_.z);
 }
 
 
@@ -185,11 +185,14 @@ Ray3D<T, NP, PP>::point(TParam iT) const
 /** Return parameter of point on the ray that is the projection of the given point.
  *  @warning it can return a (invalid) negative number even if you've used a bounded parameter policy.
  */
-template <typename T, class NP, class PP>
+template <typename T, class NP, class PP> inline
 const typename Ray3D<T, NP, PP>::TValue
-Ray3D<T, NP, PP>::t(const TPoint& iPoint) const
+Ray3D<T, NP, PP>::t(const TPoint& point) const
 {
-	return NP::divideBySquaredNorm(dot(iPoint - support_, direction_), direction_);
+	//return NP::divideBySquaredNorm(dot(point - support_, direction_), direction_);
+	return NP::divideBySquaredNorm(
+		(point.x - support_.x) * direction_.x + (point.y - support_.y) * direction_.y + (point.z - support_.z) * direction_.z,
+		direction_);
 }
 
 

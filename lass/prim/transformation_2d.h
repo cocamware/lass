@@ -86,6 +86,8 @@ public:
 
 	typedef Transformation2D<T> TSelf;
 
+	typedef Point2D<T> TPoint;
+	typedef typename TPoint::TVector TVector;
 	typedef typename util::CallTraits<T>::TValue TValue;
 	typedef typename util::CallTraits<T>::TParam TParam;
 	typedef typename util::CallTraits<T>::TReference TReference;
@@ -101,11 +103,16 @@ public:
 	};
 
 	Transformation2D();
+	Transformation2D(const TPoint& origin, const TVector& baseX, const TVector& baseY);
 	template <typename InputIterator> Transformation2D(InputIterator first, InputIterator last);
 
 	const Transformation2D<T> inverse() const;
 
 	const TValue* matrix() const;
+
+	bool isIdentity() const;
+	bool isTranslation() const;
+
 	void swap(TSelf& other);
 
 	static const TSelf identity();

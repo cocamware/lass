@@ -69,9 +69,27 @@ Transformation2D<T>::Transformation2D():
 	matrix_[ 0] = TNumTraits::one;
 	matrix_[ 1] = TNumTraits::zero;
 	matrix_[ 2] = TNumTraits::zero;
-	matrix_[ 3] = TNumTraits::one;
-	matrix_[ 4] = TNumTraits::zero;
+	matrix_[ 3] = TNumTraits::zero;
+	matrix_[ 4] = TNumTraits::one;
 	matrix_[ 5] = TNumTraits::zero;
+	matrix_[ 6] = TNumTraits::zero;
+	matrix_[ 7] = TNumTraits::zero;
+	matrix_[ 8] = TNumTraits::one;
+}
+
+
+
+template <typename T>
+Transformation2D<T>::Transformation2D(const TPoint& origin, const TVector& baseX, const TVector& baseY):
+	matrix_(impl::allocateArray<T>(matrixSize_)),
+	inverseMatrix_(0)
+{
+	matrix_[ 0] = baseX.x;
+	matrix_[ 1] = baseY.x;
+	matrix_[ 2] = origin.x;
+	matrix_[ 3] = baseX.y;
+	matrix_[ 4] = baseY.y;
+	matrix_[ 5] = origin.y;
 	matrix_[ 6] = TNumTraits::one;
 	matrix_[ 7] = TNumTraits::zero;
 	matrix_[ 8] = TNumTraits::zero;
@@ -159,6 +177,44 @@ Transformation2D<T>::matrix() const
 
 
 template <typename T>
+bool Transformation2D<T>::isIdentity() const
+{
+	const TValue* const forward = matrix();
+	for (size_t i = 0; i < 3; ++i)
+	{
+		for (size_t j = 0; j < 3; ++j)
+		{
+			if (forward[i * 3 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+
+template <typename T>
+bool Transformation2D<T>::isTranslation() const
+{
+	const TValue* const forward = matrix();
+	for (size_t i = 0; i < 3; ++i)
+	{
+		for (size_t j = 0; j < 3; ++j)
+		{
+			if (j < 2 && forward[i * 3 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+
+template <typename T>
 void Transformation2D<T>::swap(TSelf& other)
 {
 	matrix_.swap(other.matrix_);
@@ -185,7 +241,6 @@ const Transformation2D<T> Transformation2D<T>::translation(const Vector2D<T>& of
 	Transformation2D<T> result;
 	result.matrix_[2] = offset.x;
 	result.matrix_[5] = offset.y;
-	result.matrix_[8] = offset.z;
 	return result;
 }
 

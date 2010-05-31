@@ -80,7 +80,7 @@ Point3D<T>::Point3D(TParam x, TParam y, TParam z) :
 
 
 template<typename T>
-template<typename U>
+template<typename U> inline
 Point3D<T>::Point3D(const Point3D<U>& other):
 	x(static_cast<TValue>(other.x)),
 	y(static_cast<TValue>(other.y)),
@@ -91,7 +91,7 @@ Point3D<T>::Point3D(const Point3D<U>& other):
 
 
 template<typename T>
-template<typename U>
+template<typename U> inline
 Point3D<T>::Point3D(const Vector3D<U>& position):
 	x(static_cast<TValue>(position.x)),
 	y(static_cast<TValue>(position.y)),
@@ -102,7 +102,7 @@ Point3D<T>::Point3D(const Vector3D<U>& position):
 
 
 template<typename T>
-template<typename U>
+template<typename U> inline
 Point3D<T>::Point3D(const U& x, const U& y, const U& z):
 	x(static_cast<TValue>(x)),
 	y(static_cast<TValue>(y)),
@@ -164,7 +164,7 @@ Point3D<T>::at(signed index)
 
 
 
-template<typename T>
+template<typename T> inline
 Point3D<T>& Point3D<T>::operator+=(const TVector& offset)
 {
 	x += offset.x;
@@ -175,7 +175,7 @@ Point3D<T>& Point3D<T>::operator+=(const TVector& offset)
 
 
 
-template<typename T>
+template<typename T> inline
 Point3D<T>& Point3D<T>::operator-=(const TVector& offset)
 {
 	x -= offset.x;
@@ -186,7 +186,7 @@ Point3D<T>& Point3D<T>::operator-=(const TVector& offset)
 
 
 
-template<typename T>
+template<typename T> inline
 bool Point3D<T>::isZero() const
 {
 	return x == TNumTraits::zero && y == TNumTraits::zero && z == TNumTraits::zero;
@@ -208,7 +208,7 @@ bool Point3D<T>::isNaN() const
 
 /** @relates lass::prim::Point3D
  */
-template<typename T>
+template<typename T> inline
 bool operator==(const Point3D<T>& a, const Point3D<T>& b)
 {
 	return a.x == b.x && a.y == b.y && a.z == b.z;
@@ -264,7 +264,7 @@ Point3D<T> operator+(const Vector3D<T>& a, const Point3D<T>& b)
 
 /** @relates lass::prim::Point3D
  */
-template<typename T>
+template<typename T> inline
 Vector3D<T> operator-(const Point3D<T>& a, const Point3D<T>& b)
 {
 	return Vector3D<T>(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -275,20 +275,18 @@ Vector3D<T> operator-(const Point3D<T>& a, const Point3D<T>& b)
 /** return the distance between two points
  *  @relates lass::prim::Point3D
  */
-template<typename T>
+template<typename T> inline
 typename Point3D<T>::TValue distance(const Point3D<T>& a, const Point3D<T>& b)
 {
-	const Vector3D<T> difference = a - b;
-	return difference.norm();
+	return (a - b).norm();
 }
 
 /** @relates lass::prim::Point2D
  */
-template<typename T>
+template<typename T> inline
 typename Point3D<T>::TValue squaredDistance(const Point3D<T>& a, const Point3D<T>& b)
 {
-	const Vector3D<T> difference = a - b;
-	return difference.squaredNorm();
+	return (a - b).squaredNorm();
 }
 
 
@@ -307,8 +305,8 @@ Point3D<T> pointwiseMin(const Point3D<T>& a, const Point3D<T>& b)
 /** interpolate linearly between two points: a + t * (b - a)
  *  @relates lass::prim::Point3D
  */
-template<typename T>
-inline Point3D<T> lerp(const Point3D<T>& a, const Point3D<T>& b, typename Point3D<T>::TParam t)
+template<typename T> inline
+Point3D<T> lerp(const Point3D<T>& a, const Point3D<T>& b, typename Point3D<T>::TParam t)
 {
 	return Point3D<T>(lerp(a.position(), b.position(), t));
 }

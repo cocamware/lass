@@ -225,6 +225,18 @@ private:
 	}	
 };
 
+template <typename T1, template <typename, typename> class S1, typename C1, typename T2, template <typename, typename> class S2, typename C2>
+bool operator==(const SharedPtr<T1, S1, C1>& a, const SharedPtr<T2, S2, C2>& b)
+{
+	return a.get() == b.get();
+}
+
+template <typename T1, template <typename, typename> class S1, typename C1, typename T2, template <typename, typename> class S2, typename C2>
+bool operator!=(const SharedPtr<T1, S1, C1>& a, const SharedPtr<T2, S2, C2>& b)
+{
+	return !(a == b);
+}
+
 }
 }
 

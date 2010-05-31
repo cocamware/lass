@@ -97,6 +97,9 @@ public:
 	const TValue* matrix() const;
 	const TValue* inverseMatrix() const;
 
+	bool isIdentity() const;
+	bool isTranslation() const;
+
 	void swap(TSelf& other);
 
 	static const TSelf identity();
@@ -105,6 +108,7 @@ public:
 	static const TSelf scaler(const TVector& scale);
 	static const TSelf rotation(XYZ axis, TParam radians);
 	static const TSelf rotation(const TVector& axis, TParam radians);
+	static const TSelf lookAt(const TPoint& eye, const TPoint& target, const TVector& sky);
 
 private:
 
@@ -117,7 +121,8 @@ private:
 		util::Semaphore sync;
 		size_t referenceCount;
 		bool hasInverse;
-		Impl(): hasInverse(false) {}
+		bool isTranslation;
+		Impl(): hasInverse(false), isTranslation(false) {}
 	};
 
 	typedef util::AllocatorObject< Impl, util::AllocatorConcurrentFreeList<> > TAllocator;
@@ -138,11 +143,16 @@ private:
 
 	typedef util::SharedPtr<Impl, ImplStorage, util::IntrusiveCounter<Impl, size_t, &Impl::referenceCount> > TImplPtr;
 
-	Transformation3D(const TImplPtr& pimpl, bool isInversed);
+	Transformation3D(const TImplPtr& pimpl, bool isInversed = false);
 	void computeInverse() const;
+
+	static void translate(const TValue* source, TValue* dest);
+	static void identity(TValue* dest);
+	static TImplPtr makeIdentity();
 
 	TImplPtr pimpl_;
 	bool isInversed_;
+	static TImplPtr identity_;
 };
 
 template <typename T> Transformation3D<T> concatenate(const Transformation3D<T>& first, const Transformation3D<T>& second);
@@ -156,10 +166,6 @@ template<typename T, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const Transformation3D<T>& transformation);
 
 template<typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation3D<T>& transformation);
-
-// static member initialisation
-
-template <typename T> typename Transformation3D<T>::TAllocator Transformation3D<T>::allocator_;
 
 }
 

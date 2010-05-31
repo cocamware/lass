@@ -154,6 +154,10 @@ io::XmlOStream& operator<<(io::XmlOStream& oOStream, const Ray3D<T, NP, PP>& iB)
 #	include "aabb_3d_ray_3d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_DISK_3D_H
+#	include "disk_3d_ray_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_PARALLELOGRAM_3D_H
 #	include "parallelogram_3d_ray_3d.h"
 #endif

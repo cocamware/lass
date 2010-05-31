@@ -61,7 +61,7 @@ namespace prim
 {
 
 
-template<typename T>
+template<typename T> inline
 Vector3D<T>::Vector3D():
 	x(TNumTraits::zero),
 	y(TNumTraits::zero),
@@ -71,7 +71,7 @@ Vector3D<T>::Vector3D():
 
 
 
-template<typename T>
+template<typename T> inline
 Vector3D<T>::Vector3D(TParam x, TParam y, TParam z):
 	x(x),
 	y(y),
@@ -82,7 +82,7 @@ Vector3D<T>::Vector3D(TParam x, TParam y, TParam z):
 
 
 template <typename T>
-template <typename U>
+template <typename U> inline
 Vector3D<T>::Vector3D(const Vector3D<U>& other):
 	x(static_cast<TValue>(other.x)),
 	y(static_cast<TValue>(other.y)),
@@ -93,7 +93,7 @@ Vector3D<T>::Vector3D(const Vector3D<U>& other):
 
 
 template <typename T>
-template <typename U>
+template <typename U> inline
 Vector3D<T>::Vector3D(const U& x, const U& y, const U& z):
 	x(static_cast<TValue>(x)),
 	y(static_cast<TValue>(y)),
