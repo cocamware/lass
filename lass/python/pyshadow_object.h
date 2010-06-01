@@ -309,14 +309,16 @@ int defaultConvertor(PyObject* object, typename lass::python::impl::ShadowTraits
 }
 
 
-template <typename T>
+template <typename T, template <typename, typename> class S = util::ObjectStorage, typename C = util::DefaultCounter>
 struct SharedPointerTraits
 {
-	typedef util::SharedPtr<T> TPtr;
+	typedef util::SharedPtr<T, S, C> TPtr;
 	template <typename U> struct Rebind
 	{
-		typedef SharedPointerTraits<U> Type;
+		typedef SharedPointerTraits<U, S, C> Type;
 	};
+	static void acquire(const TPtr&) {} // TPtr already handles ownership, so nothing to acquire.
+	static void release(const TPtr&) {}
 	static bool isEmpty(const TPtr& p) 
 	{ 
 		return p.isEmpty(); 
@@ -325,15 +327,15 @@ struct SharedPointerTraits
 	{ 
 		return p.get(); 
 	}
-	template <typename U> static TPtr staticCast(const util::SharedPtr<U>& p)
+	template <typename U> static TPtr staticCast(const util::SharedPtr<U, S, C>& p)
 	{
 		return p.staticCast<T>();
 	}
-	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U>& p)
+	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U, S, C>& p)
 	{
 		return p.dynamicCast<T>();
 	}
-	template <typename U> static TPtr constCast(const util::SharedPtr<U>& p)
+	template <typename U> static TPtr constCast(const util::SharedPtr<U, S, C>& p)
 	{
 		return p.constCast<T>();
 	}
@@ -348,11 +350,13 @@ struct NakedPointerTraits
 	{
 		typedef NakedPointerTraits<U> Type;
 	};
-	static bool isEmpty(const TPtr& p) 
+	static void acquire(TPtr) {} // no ownership rules, so nothing to acquire.
+	static void release(TPtr) {}
+	static bool isEmpty(TPtr p) 
 	{ 
 		return p == 0; 
 	}
-	static T* get(const TPtr& p) 
+	static T* get(TPtr p) 
 	{ 
 		return p; 
 	}
@@ -489,6 +493,11 @@ protected:
 		shadowee_(shadowee),
 		constness_(constness)
 	{
+		TConstPointerTraits::acquire(shadowee_);
+	}
+	~ShadowClass()
+	{
+		TConstPointerTraits::release(shadowee_);
 	}
 	static void registerDerivedMaker(TDerivedMaker derivedMaker)
 	{
