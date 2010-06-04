@@ -351,11 +351,11 @@ const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TPa
 	forward[ 1] = a.x * a.y * oneMinusC - a.z * s;
 	forward[ 2] = a.x * a.z * oneMinusC + a.y * s;
 	forward[ 4] = a.y * a.x * oneMinusC + a.z * s;
-	forward[ 5] = a.y * a.y + oneMinusC + c;
+	forward[ 5] = a.y * a.y * oneMinusC + c;
 	forward[ 6] = a.y * a.z * oneMinusC - a.x * s;
 	forward[ 8] = a.z * a.x * oneMinusC - a.y * s;
 	forward[ 9] = a.z * a.y * oneMinusC + a.x * s;
-	forward[10] = a.z * a.z + oneMinusC + c;
+	forward[10] = a.z * a.z * oneMinusC + c;
 
 	translate(pimpl->forward, pimpl->inverse);
 

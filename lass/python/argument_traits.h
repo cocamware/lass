@@ -164,7 +164,14 @@ struct ArgumentTraitsShadowee
 {
 	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
 	typedef typename TPointerTraits::TPtr TStorage;
-	static const T& arg(const TStorage& storage) { return *storage; }
+	static const T& arg(const TStorage& storage) 
+	{ 
+		if (TPointerTraits::isEmpty(storage))
+		{
+			throw PythonException(PyExc_TypeError, "Cannot dereference None", LASS_PRETTY_FUNCTION);
+		}
+		return *storage; 
+	}
 };
 
 /** @ingroup Python
@@ -176,7 +183,14 @@ struct ArgumentTraitsShadowee<T&>
 {
 	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
 	typedef typename TPointerTraits::TPtr TStorage;
-	static T& arg(const TStorage& storage) { return *storage; }
+	static T& arg(const TStorage& storage) 
+	{ 
+		if (TPointerTraits::isEmpty(storage))
+		{
+			throw PythonException(PyExc_TypeError, "Cannot dereference None", LASS_PRETTY_FUNCTION);
+		}
+		return *storage; 
+	}
 };
 
 /** @ingroup Python
