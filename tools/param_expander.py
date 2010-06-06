@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 	
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2004-2007 the Initial Developer.
+Copyright (C) 2004-2010 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
