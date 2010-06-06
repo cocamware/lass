@@ -176,7 +176,7 @@ private:
 	{
 	public:
 		Node(TObjectIterator object, const TPoint& position = TPoint(), TAxis axis = dummyAxis_): 
-			object_(object), position_(position), axis_(axis) {}
+			position_(position), object_(object), axis_(axis) {}
 		const TObjectIterator& object() const { return object_; }
 		const TPoint& position() const { return position_; }
 		TAxis axis() const { return axis_; }

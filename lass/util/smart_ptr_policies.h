@@ -447,7 +447,7 @@ protected:
 		(pointee->*referenceCounter) = 1;
 	}
 
-	template <typename TStorage> void dispose(TStorage& pointee)
+	template <typename TStorage> void dispose(TStorage& LASS_UNUSED(pointee))
 	{
 		LASS_ASSERT(pointee && (pointee->*referenceCounter) == 0);
 	}

@@ -80,7 +80,6 @@ Result intersect(const Disk3D<T>& disk, const Ray3D<T, NP, PP>& ray, T& u, T& v,
 
 	const T x = dot(delta, plane.directionU());
 	const T y = dot(delta, plane.directionV());
-	const T theta = num::atan2(y, x);
 	
 	t = tCandidate;
 	u = num::sqrt(sqrDist) / disk.radius();

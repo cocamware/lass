@@ -59,7 +59,7 @@ namespace prim
 template <typename T>
 Disk3D<T>::Disk3D():
 	plane_(),
-	radius_(TNumTraits::zero),
+	radius_(TNumTraits::zero)
 {
 }
 
@@ -190,7 +190,7 @@ Disk3D<T>::uv(const TPoint& point) const
 template <typename T>
 bool Disk3D<T>::isValid() const
 {
-	return !normal_.isZero() && radius_ >= TNumTraits::zero;
+	return plane.isValid() && radius_ >= TNumTraits::zero;
 }
 
 

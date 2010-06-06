@@ -171,7 +171,7 @@ bool Transformation3D<T>::isIdentity() const
 	{
 		for (size_t j = 0; j < 4; ++j)
 		{
-			if (pimpl_->forward[i * 4 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
+			if (forward[i * 4 + j] != (i == j ? TNumTraits::one : TNumTraits::zero))
 			{
 				return false;
 			}

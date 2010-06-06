@@ -217,7 +217,7 @@ template <typename R, $(typename P$x)$>
 PyObject* callFunction( PyObject* args, R (*function)($(P$x)$) )
 {
 	typedef R (*TFunction)($(P$x)$);
-	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
+	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
 	)$
 	if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
 	{
@@ -305,7 +305,7 @@ $[
 		typedef typename ShadowTraits::TConstCppClassPtr TConstCppClassPtr;
 		typedef R (C::*TMethod)($(P$x)$) const;
 		TConstCppClassPtr self;
-		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
+		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
 		)$
 		if ( ShadowTraits::getObject(object, self) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
@@ -324,7 +324,7 @@ $[
 	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(P0) )
 	{
 		typedef R (*TFunction)(P0);
-		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0;
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0 = S0();
 		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple(args) != 0 )
 		{
 			return 0;
@@ -340,8 +340,8 @@ $[
 	static PyObject* callFree( PyObject* args, PyObject* object, R (*freeMethod)(P0, $(P$x)$) )
 	{
 		typedef R (*TFunction)(P0, $(P$x)$);
-		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0;
-		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0 = S0();
+		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
 		)$
 		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
 		{
@@ -403,7 +403,7 @@ $[
 	static int set( PyObject* args, PyObject* object, void (C::*method)(P) )
 	{
 		typename ShadowTraits::TCppClassPtr self;
-		typedef ArgumentTraits<P> TArg; typename TArg::TStorage p;
+		typedef ArgumentTraits<P> TArg; typedef typename TArg::TStorage S; S p = S();
 		if (ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
 		{
 			return -1;
@@ -424,7 +424,7 @@ $[
 	static int set( PyObject* args, PyObject* object, P& (C::*method)() )
 	{
 		typename ShadowTraits::TCppClassPtr self;
-		typedef ArgumentTraits<P> TArg;	typename TArg::TStorage p;
+		typedef ArgumentTraits<P> TArg; typedef typename TArg::TStorage S; S p = S();
 		if(ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
 		{
 			return -1;
@@ -473,7 +473,7 @@ $[
 	static int freeSet( PyObject* args, PyObject* object, void (*function)(C&, P) )
 	{
 		typename ShadowTraits::TCppClassPtr self;
-		typedef ArgumentTraits<P> TArg;	typename TArg::TStorage p;
+		typedef ArgumentTraits<P> TArg; typedef typename TArg::TStorage S; S p = S();
 		if(ShadowTraits::getObject(object, self) != 0 || pyGetSimpleObject(args, p) != 0)
 		{
 			return -1;
@@ -535,7 +535,7 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 	typedef typename ShadowTraits::TCppClass TCppClass;
 	typedef typename ShadowTraits::TCppClassPtr TCppClassPtr;
 	typedef typename ShadowTraits::TPyClassPtr TPyClassPtr;
-	$(typedef ArgumentTraits< P$x > TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x;
+	$(typedef ArgumentTraits< P$x > TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
 	)$
 
 	if ( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
