@@ -128,12 +128,12 @@ private:
 	typedef util::AllocatorObject< Impl, util::AllocatorConcurrentFreeList<> > TAllocator;
 	static TAllocator allocator_;
 
-	template <typename T, typename Cascade>
-	class ImplStorage: public util::ObjectStorage<T, Cascade>
+	template <typename U, typename Cascade>
+	class ImplStorage: public util::ObjectStorage<U, Cascade>
 	{
 	public:
-		ImplStorage(): util::ObjectStorage<T, Cascade>() {}
-		ImplStorage(T* p): util::ObjectStorage<T, Cascade>(p) {}
+		ImplStorage(): util::ObjectStorage<U, Cascade>() {}
+		ImplStorage(U* p): util::ObjectStorage<U, Cascade>(p) {}
 	protected:
 		void dispose()
 		{

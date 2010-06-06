@@ -56,6 +56,19 @@ namespace impl
 	{
 		return (ObjectTraits::coord(ObjectTraits::aabbMin(box), axis) + ObjectTraits::coord(ObjectTraits::aabbMax(box), axis)) / 2;
 	}
+
+	template <typename ObjectTraits>
+	class LessAxis
+	{
+	public:
+		LessAxis(int iAxis): axis_(iAxis) {}
+		template <typename Input> bool operator()(const Input& a, const Input& b) const
+		{
+			return aabbCenterForAxis<ObjectTraits>(a.aabb, axis_) < aabbCenterForAxis<ObjectTraits>(b.aabb, axis_);
+		}			
+	private:
+		int axis_;
+	};
 }
 
 template <typename ObjectTraits>
@@ -256,18 +269,6 @@ private:
 	SplitInfo<ObjectTraits> split_;
 };
 
-template <typename ObjectTraits>
-class LessAxis
-{
-public:
-	LessAxis(int iAxis): axis_(iAxis) {}
-	template <typename Input> bool operator()(const Input& a, const Input& b) const
-	{
-		return aabbCenterForAxis<ObjectTraits>(a.aabb, axis_) < aabbCenterForAxis<ObjectTraits>(b.aabb, axis_);
-	}			
-private:
-	int axis_;
-};
 
 }
 
