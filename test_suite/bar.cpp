@@ -59,6 +59,7 @@ namespace lass
 		PY_CLASS_METHOD( Bar, complexArguments );
 		PY_CLASS_METHOD( Bar, primArguments );
 		PY_CLASS_METHOD( Bar, rgba );
+		PY_CLASS_METHOD( Bar, opaquePointer );
 		PY_CLASS_METHOD_NAME_DOC( Bar, complexArguments, "tester", "tester doc");
 		PY_CLASS_METHOD_NAME( Bar, primArguments, "tester");
 		PY_CLASS_METHOD_QUALIFIED_1( Bar, overloaded, void, int )
@@ -266,6 +267,11 @@ namespace lass
 		float& Bar::coolMember()
 		{
 			return coolMember_;
+		}
+
+		void* Bar::opaquePointer() const
+		{
+			return 0;
 		}
 
 		Bar::InnerClass::InnerClass(const std::string& iSayWhat):

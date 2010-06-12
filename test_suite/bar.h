@@ -128,6 +128,8 @@ namespace test
 			std::string sayWhat_;
 		};
 
+		virtual void* opaquePointer() const;
+
 		bool operator==(const Bar& other) const;
 		bool operator<(const Bar& other) const;
 	};

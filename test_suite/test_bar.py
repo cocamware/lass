@@ -74,6 +74,7 @@ assert str(e.__class__)=="<%s 'embedding.DerivedBar'>" % ('type', 'class')[IS_PY
 e = embedding.testPolymorphism()
 echo(e.aMoreComplexFunction(1,2))
 assert(e.aMoreComplexFunction(1,2)==2)
+assert(str(type(barC.opaquePointer()))=="<type 'PyCObject'>")
 
 
 echo("\n***\n")

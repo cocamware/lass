@@ -70,7 +70,7 @@ namespace impl
 *	trying to enter, only one subsequent reader will in worst case be able to enter.
 */
 
-class RWLock : NonCopyable
+class LASS_DLL RWLock : NonCopyable
 {
 
 public:
@@ -90,90 +90,6 @@ private:
 	volatile int spinLock_;
 	volatile int writersTrying_;		/**< the number of writers trying to enter */
 };
-
-
-RWLock::RWLock(int iMaxReaders)
-{
-	maxReaders_ = iMaxReaders;
-	spinLock_ = maxReaders_;
-	writersTrying_ = 0;
-}
-
-RWLock::~RWLock()
-{
-	LASS_ASSERT(spinLock_==maxReaders_);
-}
-
-void RWLock::lockr()
-{
-	int newSpinLock;
-	int oldSpinLock;
-	do
-	{
-		oldSpinLock = spinLock_;
-		LASS_ASSERT(oldSpinLock>=0);
-		newSpinLock = oldSpinLock-1;
-	} while (writersTrying_!=0 || oldSpinLock==0 || !lass::util::atomicCompareAndSwap(spinLock_,oldSpinLock,newSpinLock));
-}
-
-void RWLock::lockw()
-{
-	lass::util::atomicIncrement(writersTrying_);
-	do
-	{
-	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,maxReaders_,0));
-}
-
-void RWLock::unlockw()
-{
-	LASS_ENFORCE(spinLock_==0);
-	do
-	{
-	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,0,maxReaders_));
-	lass::util::atomicDecrement(writersTrying_);
-}
-
-void RWLock::unlockr()
-{
-	lass::util::atomicIncrement(spinLock_);
-	LASS_ASSERT(spinLock_<=maxReaders_);
-}
-
-
-LockResult RWLock::tryLockr()
-{
-	int oldSpinLock;
-	int newSpinLock;
-	do
-	{
-		oldSpinLock = spinLock_;
-		LASS_ASSERT(spinLock_ >= 0);
-		if (spinLock_ == 0)
-		{
-			return lockBusy;
-		}
-		newSpinLock = oldSpinLock - 1;
-	}
-	while (!atomicCompareAndSwap(spinLock_, oldSpinLock, newSpinLock));
-	return lockSuccess;
-}
-
-
-LockResult RWLock::tryLockw()
-{
-	lass::util::atomicIncrement(writersTrying_);
-	do
-	{
-		LASS_ASSERT(spinLock_ >= 0);
-		if (spinLock_ != maxReaders_)
-		{
-			lass::util::atomicDecrement(writersTrying_);
-			return lockBusy;
-		}
-	}
-	while (!atomicCompareAndSwap<int>(spinLock_, maxReaders_, 0));
-	return lockSuccess;
-}
 
 } //namespace util
 } //namespace lass

@@ -233,6 +233,30 @@ struct PyExportTraits< std::auto_ptr<T> >
 	}
 };
 
+// --- void ptrs ------------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<void *>
+{
+	static PyObject* build(void * v)
+	{
+		return PyCObject_FromVoidPtrAndDesc( v, "Lass wrapped C Pointer", 0);
+	}
+	static int get(PyObject* obj, void*& v)
+	{
+		int result = PyCObject_Check(obj);
+		if (result == 0)
+		{
+			PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
+			return 1;
+		}
+		v = PyCObject_AsVoidPtr(obj);
+		return 0;
+	}
+};
 
 
 // --- booleans ------------------------------------------------------------------------------------
