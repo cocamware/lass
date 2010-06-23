@@ -46,6 +46,49 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CODE_PATH_H
 
 #include "util_common.h"
+
+#ifdef WIN32		// this is windows only for now
+
+namespace lass
+{
+namespace util
+{
+	/* Rationale: use a meta-function that does profiling on two versions of the same
+	*  functionality and eventually picks one.  This could be labeled dynamic optimizing,
+	*  but the programmer has to develop the different incarnations of the algorithm.
+	*
+	*  A good use is for two different versions of already heavily optimized functions
+	*  that perform differently on different (cache) architectures.
+	*/
+
+
+namespace impl
+{
+	__int64 cycleCount()
+	{      
+		__int64 cycles;
+		_asm rdtsc; // won't work on 486 or below - only pentium or above
+		_asm lea ebx,cycles;
+		_asm mov [ebx],eax;
+		_asm mov [ebx+4],edx;
+		return cycles;
+	}
+}
+
+template struct CodePath<typename SelectionPolicy>
+{
+	template <typename Function> 
+	CodePath(Function iFunction1, Function iFunction2)
+	{
+		SelectionPolicy::initialize(iFunction1, iFunction2);
+	}
+};
+
+}
+}
+
+#endif
+
 #endif
 
 // EOF
