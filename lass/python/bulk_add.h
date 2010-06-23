@@ -40,27 +40,35 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_H
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_H
+
+#include "bulk_add_integer.inl"
+
+
+/** @ingroup Python
+ *	Injects a number of constants into a Python module.  The number of arguments to the macro
+ *  is variable but is limited to the number specified during the build of lass.
+ *  The name of the identifier in Python is the same as the one in C++.  This makes export of
+ *	enums more efficient.
+ *
+ *  An example is:
+ *		enum Foo 
+ *		{
+ *			the = 0x1,
+ *			fan = 0x2,
+ *			has = 0x5,
+ *			started = 0x7
+ *		};
+ *			
+ *		PY_MODULE_ADD_INTEGER_CONSTANTS( theFanModule, the, fan, has, started )
+ *
+ *
+ *  @param i_module
+ *		the identifier of a module declared by PY_DECLARE_MODULE
+ *  @param ...
+ *		the identifiers that will be injected
  */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-
-#include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
-#include "exception.h"
-#include "utilities.h"
-#include "bulk_add.h"
-#include "../meta/is_member.h"
+#define PY_MODULE_ADD_INTEGER_CONSTANTS( i_module , ... ) lass::python::impl::addIntegerConstantsToModule( i_module.module(), #__VA_ARGS__, __VA_ARGS__);
 
 #endif
- 

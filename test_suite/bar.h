@@ -61,6 +61,12 @@ namespace lass
 {
 namespace test
 {
+	enum EnumMadness
+	{
+		emIsThis = 0x3,
+		emAnEnum = 0x7
+	};
+
 	class Bar : public lass::python::PyObjectPlus
 	{
 		PY_HEADER( lass::python::PyObjectPlus )

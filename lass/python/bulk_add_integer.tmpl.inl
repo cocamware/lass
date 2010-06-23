@@ -40,27 +40,43 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
+#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_INTEGER_INL
+#define LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_INTEGER_INL
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
+#include "python_api.h"
+#include "../stde/extended_string.h"
 
-#include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
-#include "exception.h"
-#include "utilities.h"
-#include "bulk_add.h"
-#include "../meta/is_member.h"
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+	inline std::string argument(const std::string& iValue, int iArg)
+	{
+		std::vector<std::string> splits( lass::stde::split( iValue, "," ) );
+		return lass::stde::strip(splits[iArg],std::string(" "));
+	}
+	
+	inline void addIntegerConstantToModule( PyObject* iModule, long iValue, const std::string& iName )
+	{
+		LASS_ENFORCE( iModule );
+		PyModule_AddIntConstant( iModule, iName.c_str(), iValue);
+	}
 
+	$[
+	template<typename T>
+	void addIntegerConstantsToModule( PyObject* iModule, const std::string& iDesc, $(T arg$x)$)
+	{
+		LASS_ENFORCE( iModule );
+		$(addIntegerConstantToModule( iModule, static_cast<long>( arg$x ), argument(iDesc, $x -1) );
+		)$
+	}
+	]$
+
+}
+
+}
+
+}
 #endif
- 

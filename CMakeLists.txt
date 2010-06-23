@@ -118,6 +118,8 @@ prebuild(lass/util thread_fun.tmpl.inl thread_fun.inl ${N})
 prebuild(lass/util bind.tmpl.h bind.h ${N})
 prebuild(lass/util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
 prebuild(lass/util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
+prebuild(lass/python bulk_add_integer.tmpl.inl "bulk_add_integer.inl" ${N})
+
 
 list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
