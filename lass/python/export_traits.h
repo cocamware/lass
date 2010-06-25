@@ -243,7 +243,7 @@ struct PyExportTraits<void *>
 {
 	static PyObject* build(void * v)
 	{
-		return PyCObject_FromVoidPtrAndDesc( v, "Lass wrapped C Pointer", 0);
+		return PyCObject_FromVoidPtr( v, 0 );
 	}
 	static int get(PyObject* obj, void*& v)
 	{

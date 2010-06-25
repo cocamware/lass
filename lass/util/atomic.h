@@ -177,8 +177,12 @@ void atomicUnlock(volatile T& semaphore)
 #	pragma warning(disable: 4522) // multiple assignment operators specified
 #endif
 
-#if LASS_ADDRESS_SIZE == 64 && LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	define LASS_TAGGED_PTR_ALIGN __declspec(align(16))
+#if LASS_ADDRESS_SIZE == 64
+#	if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#		define LASS_TAGGED_PTR_ALIGN __declspec(align(16))
+#	else
+#		define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (16)))
+#	endif
 #else
 #	define LASS_TAGGED_PTR_ALIGN
 #endif

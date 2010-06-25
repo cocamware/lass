@@ -54,24 +54,24 @@ namespace impl
 {
 	struct SpecialSlot
 	{ 
-		SpecialSlot( const std::string& iName ) : name(iName) {}
-		std::string name;
+		SpecialSlot( const char* iName ) : name(iName) {}
+		const char* name;
 	};
 
-	struct UnarySlot : public SpecialSlot { UnarySlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct BinarySlot : public SpecialSlot { BinarySlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct TernarySlot : public SpecialSlot { TernarySlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct LenSlot : public SpecialSlot { LenSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct ComparatorSlot : public SpecialSlot { ComparatorSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct SsizeArgSlot : public SpecialSlot { SsizeArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct SsizeSsizeArgSlot : public SpecialSlot { SsizeSsizeArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct SsizeObjArgSlot : public SpecialSlot { SsizeObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct SsizeSsizeObjArgSlot : public SpecialSlot { SsizeSsizeObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct ObjObjSlot : public SpecialSlot { ObjObjSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct IterSlot : public SpecialSlot { IterSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct IterNextSlot : public SpecialSlot { IterNextSlot(const std::string& iName) : SpecialSlot(iName) {} };
-	struct ArgKwSlot : public SpecialSlot { ArgKwSlot(const std::string& iName) : SpecialSlot(iName) {} };
+	struct UnarySlot : public SpecialSlot { UnarySlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct BinarySlot : public SpecialSlot { BinarySlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct TernarySlot : public SpecialSlot { TernarySlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct LenSlot : public SpecialSlot { LenSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct ComparatorSlot : public SpecialSlot { ComparatorSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct SsizeArgSlot : public SpecialSlot { SsizeArgSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct SsizeSsizeArgSlot : public SpecialSlot { SsizeSsizeArgSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct SsizeObjArgSlot : public SpecialSlot { SsizeObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct SsizeSsizeObjArgSlot : public SpecialSlot { SsizeSsizeObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct ObjObjSlot : public SpecialSlot { ObjObjSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct IterSlot : public SpecialSlot { IterSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct IterNextSlot : public SpecialSlot { IterNextSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct ArgKwSlot : public SpecialSlot { ArgKwSlot( const char* iName ) : SpecialSlot(iName) {} };
 
 	const int charPtrSlot = 1;
 	const int unarySlot = 2;
@@ -139,22 +139,22 @@ namespace impl
 namespace methods
 {
 	// special methods
-	const lass::python::impl::ArgKwSlot _call_(std::string("__call__"));
-	const lass::python::impl::UnarySlot _repr_(std::string("__repr__"));
-	const lass::python::impl::UnarySlot _str_(std::string("__str__"));
+	const lass::python::impl::ArgKwSlot _call_("__call__");
+	const lass::python::impl::UnarySlot _repr_("__repr__");
+	const lass::python::impl::UnarySlot _str_("__str__");
 
 	// PyNumberMethods
 	// unary
-	const lass::python::impl::UnarySlot _neg_(std::string("__neg__"));
-	const lass::python::impl::UnarySlot _pos_(std::string("__pos__"));
-	const lass::python::impl::UnarySlot _abs_(std::string("__abs__"));
-	const lass::python::impl::UnarySlot _invert_(std::string("__invert__"));
-	const lass::python::impl::UnarySlot _int_(std::string("__int__"));
-	const lass::python::impl::UnarySlot _long_(std::string("__long__"));
-	const lass::python::impl::UnarySlot _float_(std::string("__float__"));
+	const lass::python::impl::UnarySlot _neg_("__neg__");
+	const lass::python::impl::UnarySlot _pos_("__pos__");
+	const lass::python::impl::UnarySlot _abs_("__abs__");
+	const lass::python::impl::UnarySlot _invert_("__invert__");
+	const lass::python::impl::UnarySlot _int_("__int__");
+	const lass::python::impl::UnarySlot _long_("__long__");
+	const lass::python::impl::UnarySlot _float_("__float__");
 #if PY_MAJOR_VERSION < 3
-	const lass::python::impl::UnarySlot _hex_(std::string("__hex__"));
-	const lass::python::impl::UnarySlot _oct_(std::string("__oct__"));
+	const lass::python::impl::UnarySlot _hex_("__hex__");
+	const lass::python::impl::UnarySlot _oct_("__oct__");
 #endif
 	// binary
 	const lass::python::impl::BinarySlot _add_("__add__");

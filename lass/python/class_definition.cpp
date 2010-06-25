@@ -47,6 +47,7 @@
 #include "overload_link.h"
 #include "pyobject_plus.h"
 #include <iostream>
+#include <cstring>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(disable: 4996) // This function or variable may be unsafe ...
@@ -177,7 +178,7 @@ ClassDefinition::ClassDefinition(
 }
 
 #define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
-	if (slot.name == s_name)\
+	if (strcmp(slot.name, s_name) == 0)\
 	{\
 		if (type_.i_protocol == 0)\
 		{\
@@ -191,7 +192,7 @@ ClassDefinition::ClassDefinition(
 	/**/
 
 #define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
-	if (slot.name == s_name)\
+	if (strcmp(slot.name, s_name) == 0)\
 	{\
 		if (type_.i_protocol == 0)\
 		{\
@@ -204,7 +205,7 @@ ClassDefinition::ClassDefinition(
 	/**/
 
 #define LASS_PY_COMPARATOR_(s_name, v_op)\
-	if (slot.name == s_name)\
+	if (strcmp(slot.name, s_name) == 0)\
 	{\
 		compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
 		return; \
@@ -252,12 +253,12 @@ void ClassDefinition::addMethod(const LenSlot& slot, const char*, lenfunc dispat
 
 void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc dispatcher, OverloadLink&) 
 {
-	if (slot.name == "__str__")
+	if (strcmp(slot.name, "__str__") == 0)
 	{
 		type_.tp_str = dispatcher;
 		return;
 	}
-	if (slot.name == "__repr__")
+	if (strcmp(slot.name, "__repr__") == 0)
 	{
 		type_.tp_repr = dispatcher;
 		return;
@@ -362,7 +363,7 @@ void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*,	objobjar
 
 void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc dispatcher, OverloadLink&) 
 {
-	if (slot.name == "__iter__")
+	if (strcmp(slot.name, "__iter__") == 0)
 	{
 		type_.tp_iter = dispatcher;
 		return;
@@ -372,7 +373,7 @@ void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc d
 
 void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextfunc dispatcher, OverloadLink&) 
 {
-	if (slot.name == "next")
+	if (strcmp(slot.name, "next") == 0)
 	{
 		type_.tp_iternext = dispatcher;
 		return;
@@ -382,7 +383,7 @@ void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextf
 
 void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	if (slot.name == "__call__")
+	if (strcmp(slot.name, "__call__") == 0)
 	{
 		overloadChain.setArgKwfunc(type_.tp_call);
 		type_.tp_call = dispatcher;
