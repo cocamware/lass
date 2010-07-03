@@ -338,12 +338,103 @@
 	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, LASS_STRINGIFY(f_cppFunction), 0)
 
 
+// --- casting free functions -----------------------------------------------------------
+
+/** @ingroup Python
+ *  Exports a C++ free functions to Python with on the fly casting on return type and parameters, including omission of default parameters
+ *
+ *  @param i_module
+ *		the module object
+ *  @param f_cppFunction
+ *      the name of the function in C++
+ *  @param t_return
+ *      the return type of @a f_cppFunction
+ *  @param t_params
+ *      a lass::meta::TypeList of the parameter types of @a f_cppFunction
+ *  @param s_functionName
+ *      the name the method will have in Python
+ *  @param s_doc
+ *      documentation of function as shown in Python (zero terminated C string)
+ *  @param i_dispatcher
+ *      A unique name of the static C++ dispatcher function to be generated.  This name will be
+ *      used for the names of automatic generated variables and functions and should be unique
+ *
+ *  You can use this macro instead of PY_MODULE_FUNCTION_EX if you want to use for instance the default parameters of the C++ definition of
+ *	@a f_cppFunction. This macro can also help you to resolve ambiguities althought the PY_MODULE_QUALIFIED_EX is the preferred macro for
+ *	doing that.
+ *
+ *  @code
+ *	void bar(int a, int b=555);
+ *
+ *  PY_MODULE_FUNCTION_CAST_NAME_1(foo_module, bar, void, int, "bar" )			// export the function with as default input for b=555
+ *  PY_MODULE_FUNCTION_CAST_NAME_2(foo_module, bar, void, int, int, "bar" )
+ *  @endcode
+ */
+
+
+#define PY_MODULE_FUNCTION_CAST_EX_0(i_module, f_cppFunction, t_return, s_functionName, s_doc, i_dispatcher) \
+	::lass::python::OwnerCaster<t_return>::TCaster::TTarget LASS_CONCATENATE(i_dispatcher, _caster) ()\
+	{\
+ 		return f_cppFunction() ; \
+	}\
+	PY_MODULE_FUNCTION_EX( i_module, LASS_CONCATENATE(i_dispatcher, _caster), s_functionName, s_doc, i_dispatcher );
+
+
+ $[
+/** @ingroup Python
+ *  @sa PY_CLASS_METHOD_CAST_EX
+ *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+ */
+ #define PY_MODULE_FUNCTION_CAST_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
+	::lass::python::OwnerCaster< t_return >::TCaster::TTarget LASS_CONCATENATE(i_dispatcher, _caster) ( \
+	$(::lass::python::OwnerCaster< t_P$x >::TCaster::TTarget iArg$x)$ \
+	)\
+	{\
+ 		return f_cppFunction ( $(::lass::python::OwnerCaster< t_P$x >::TCaster::cast(iArg$x))$ );\
+	}\
+	PY_MODULE_FUNCTION_EX( i_module, LASS_CONCATENATE(i_dispatcher, _caster), s_functionName, s_doc, i_dispatcher );
+ ]$
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_EX_0 with
+ *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+ */
+#define PY_MODULE_FUNCTION_CAST_NAME_DOC_0( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
+	PY_MODULE_FUNCTION_CAST_EX_0(\
+		i_module, f_cppFunction, t_return, s_functionName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_EX_$x with
+ *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+ */
+#define PY_MODULE_FUNCTION_CAST_NAME_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc )\
+	PY_MODULE_FUNCTION_CAST_EX_$x(\
+		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc,\
+		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
+]$
+
+
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_0 with @a s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION_CAST_NAME_0( i_module, f_cppFunction, t_return, s_functionName )\
+	PY_MODULE_FUNCTION_CAST_NAME_DOC_0(\
+		i_module, f_cppFunction, t_return, s_functionName, 0 )
+$[
+/** @ingroup Python
+ *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_$x with @a s_doc = 0.
+ */
+#define PY_MODULE_FUNCTION_CAST_NAME_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName )\
+	PY_MODULE_FUNCTION_CAST_NAME_DOC_$x(\
+		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, 0 )
+]$
 
 
 // --- explicit qualified free functions -----------------------------------------------------------
 
 /** @ingroup Python
- *  Exports a C++ free functions to Python will fully qualified return type and parameters
+ *  Exports a C++ free functions to Python with fully qualified return type and parameters
  *
  *  @param i_module
  *		the module object
@@ -373,6 +464,7 @@
  *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::type_list::Make<const std::string&>::Type, "bar", 0, foo_bar_b)
  *  @endcode
  */
+
 #define PY_MODULE_FUNCTION_QUALIFIED_EX(i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc, i_dispatcher)\
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
 	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
@@ -1313,7 +1405,7 @@ $[
 // --- "casting" methods ------------------------------------------------------------------------------
 
 /** @ingroup Python
- *  @sa PY_CLASS_CAST_EX
+ *  @sa PY_CLASS_METHOD_CAST_EX
  *  @brief Exports a C++ method to Python with fully qualified return type and parameters and with a casting policy
  *		   on how to pass arguments back and forth.
  *
@@ -1370,7 +1462,7 @@ $[
 	::lass::python::impl::ShadowTraits< t_cppClass >::TCppClass& iThis\
 	)\
 	{\
- 		return iThis.i_cppMethod ();\
+ 		return iThis.i_cppMethod () ; \
 	}\
 	PY_CLASS_FREE_METHOD_EX( t_cppClass, LASS_CONCATENATE(i_dispatcher, _caster), s_methodName, s_doc, i_dispatcher );
 
