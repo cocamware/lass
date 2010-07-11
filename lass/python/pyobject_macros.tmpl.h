@@ -167,6 +167,41 @@
 
 // --- module variables ----------------------------------------------------------------------------
 
+
+/** @ingroup
+ *	Inject a integer constant in a python module
+ *
+ *	@param i_module
+ *		the identifier of the module to inject the object in
+ *	@param s_name
+ *		name of constant as shown in the module (zero terminated C string)
+ *  @param s_value
+ *		value of the constant (zero terminated C string)
+ */
+#define PY_MODULE_INTEGER_CONSTANT( i_module, s_name, s_value )\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyModuleIntegerConstant_, i_module),\
+		i_module.addLong( s_value, s_name); ) 
+
+
+
+/** @ingroup 
+ *	Inject a string constant in a python module
+ *
+ *	@param i_module
+ *		the identifier of the module to inject the object in
+ *	@param s_name
+ *		name of constant as shown in the module (zero terminated C string)
+ *  @param v_value
+ *		value of the constant (long)
+ */
+#define PY_MODULE_STRING_CONSTANT( i_module, s_name, s_value )\
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyModuleIntegerConstant_, i_module),\
+		i_module.addString( s_value, s_name); ) 
+
+
+
 /** @ingroup Python
  *	Inject a variable in a python module
  *
@@ -194,7 +229,8 @@
 
 
 
-/** @ingroup 
+/** @ingroup
+ *  @deprecated
  *	Inject a integer constant in a python module
  *
  *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
@@ -215,6 +251,7 @@
 
 
 /** @ingroup 
+ *  @deprecated
  *	Inject a string constant in a python module
  *
  *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any

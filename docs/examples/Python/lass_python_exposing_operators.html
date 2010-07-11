@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Lass Python Tutorial</title>
+	<meta name="Author" content="Tom De Muer, Bram de Greve">
+	<meta name="Keywords" content="Lass python c++ cplusplus c extending embedding">
+	<meta name="Description" content="Tutorial Lass Python">
+	<meta http-equiv="content-type" content="text/html;charset=ISO-8859-1">
+	<meta http-equiv="content-style-type" content="text/css">
+	<!-- compliance patch for microsoft browsers -->
+	<link rel="stylesheet" href="./css/generic.css" type="text/css"/>
+	<!--[if lt IE 7]><link rel="stylesheet" href="./css/ie.css" type="text/css"/><![endif]-->
+</head>
+<body>
+<div class="content">
+
+<div class="fixed">
+	<h2>Exposing operators</h2>
+	This tutorial shows how you can make your exported class support operators and special functions like <em>len</em>.  The philosophy employed is that the special member functions like the operators should use a similar way of exporting as the regular functions.  The <em>name</em> of the function to be given in Python is used to do that.  Instead of using a C-string you can use one of the special identifiers available in lass::python to map your function onto these special functions and operators.  The list of available identifiers is available in the namespace <em>lass::python::methods</em>.  All of these identifiers are surrounded with underscores, not double underscores as that is typically reserved for internal use of the C/C++ compiler folks.  The list of identifiers is:
+	<h4>Special methods:</h4>
+	_call_, _repr_, _str_
+	<h4>Methods and operators supporting the number protocol:</h4>
+	<p>Unary operators: _neg_, _pos_, _abs_, _invert_, _int_, _long_, _float_<br>
+	Unary operators only supported in Python version 2.x: _hex_, _oct_
+	<p>Binary operators: _add_, _sub_, _mul_, _mod_, _lshift_, _rshift_, _and_, _or_, _xor_
+	<p>Binary in-place operators: _iadd_, _isub_, _imul_, _imod_, _ilshift_, _irshift_, _iand_, _ior_, _ixor_
+	<p>Binary division operators: _truediv_, _itruediv_, _floordiv_, _ifloordiv_
+	<p>Binary division operators only supported in Python version 2.x: _div_, _idiv_
+	<p>Ternary operators: _pow_
+	<h4>Comparators</h4>
+	_lt_, _le_, _eq_, _ne_, _gt_, _ge_
+	<h4>Methods and operators for mapping and sequence protocols:</h4>
+	<p>Methods shared between mapping and sequence protocols: _len_, _getitem_, _setitem_.  You can use these identifiers if you don't care on which protocol your function is mapped to.   The sequence protocol will get priority when you use any of these identifiers.
+	<p>Methods for the sequence protocol: seq_len_, _concat_, _repeat_, seq_getitem, _getslice_, seq_setitem_, _setslice_, _contains_, _iconcat_, irepeat_
+	<p>Methods for the mapping protocol: map_len, map_getitem_, map_setitem_
+	<h4>Methods and operator for supporting the iterator protocol</h4>
+	_iter_, next
+</div>
+
+</div>
+</body>
+</html>

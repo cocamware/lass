@@ -52,13 +52,11 @@ namespace python
 {
 namespace impl
 {
-
 	$[
 	template<typename T>
-	void addIntegerConstantsToModule( PyObject* iModule, const std::string& iDesc, $(T arg$x)$)
+	void addIntegerConstantsToModule( ModuleDefinition& iModule, const std::string& iDesc, $(T arg$x)$)
 	{
-		LASS_ENFORCE( iModule );
-		$(addIntegerConstantToModule( iModule, static_cast<long>( arg$x ), argument(iDesc, $x -1) );
+		$(iModule.addLong( static_cast<long>( arg$x ), argument(iDesc, $x -1).c_str()  );
 		)$
 	}
 	]$

@@ -466,5 +466,7 @@ PY_MODULE_FUNCTION_CAST_NAME_1( embedding, functionWithDefaultArgs, int, int, "f
 PY_MODULE_FUNCTION( embedding, testCStringSupport )
 PY_MODULE_FUNCTION( embedding, writeStdout )
 
+PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
+
 PY_MODULE_ENTRYPOINT( embedding )
 

@@ -13,12 +13,6 @@ std::string argument(const std::string& iValue, int iArg)
 	return lass::stde::strip(splits[iArg],std::string(" "));
 }
 
-void addIntegerConstantToModule( PyObject* iModule, long iValue, const std::string& iName )
-{
-	LASS_ENFORCE( iModule );
-	PyModule_AddIntConstant( iModule, iName.c_str(), iValue);
-}
-
 }
 
 }

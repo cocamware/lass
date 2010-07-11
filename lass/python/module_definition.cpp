@@ -123,6 +123,34 @@ void ModuleDefinition::addClass(impl::ClassDefinition& classDef)
 	classes_.push_back(&classDef);
 }
 
+void ModuleDefinition::addObject(PyObject* object, const char* name)
+{
+	LASS_ASSERT(!isInjected_);
+	NamedObject *tempObject = new NamedObject;
+	experimental::assignScopedCString(tempObject->name, name);
+	tempObject->object = object;
+	objects_.push_back(tempObject);
+}
+
+void ModuleDefinition::addLong(long object, const char* name)
+{
+	LASS_ASSERT(!isInjected_);
+	LongObject *tempObject = new LongObject;
+	experimental::assignScopedCString(tempObject->name, name);
+	tempObject->object = object;
+	longObjects_.push_back(tempObject);
+}
+
+void ModuleDefinition::addString(const char* object, const char* name)
+{
+	LASS_ASSERT(!isInjected_);
+	StringObject* tempObject = new StringObject;
+	experimental::assignScopedCString(tempObject->name, name);
+	experimental::assignScopedCString(tempObject->object, object);
+	stringObjects_.push_back(tempObject);
+}
+
+
 void ModuleDefinition::addFunctionDispatcher(
 		PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain)
 {
@@ -174,7 +202,15 @@ PyObject* ModuleDefinition::inject()
 	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)
 	{
-		PyModule_AddObject(module_, obj->name, obj->object);
+		PyModule_AddObject(module_, (*obj)->name.get(), (*obj)->object);
+	}
+	for (TLongObjects::const_iterator obj = longObjects_.begin(); obj != longObjects_.end(); ++obj)
+	{
+		PyModule_AddIntConstant(module_, (*obj)->name.get(), (*obj)->object);
+	}
+	for (TStringObjects::const_iterator obj = stringObjects_.begin(); obj != stringObjects_.end(); ++obj)
+	{
+		PyModule_AddStringConstant(module_, (*obj)->name.get(), (*obj)->object.get());
 	}
 	postInject_(module_);
 	return module_;

@@ -61,7 +61,7 @@
  *			started = 0x7
  *		};
  *			
- *		PY_MODULE_ADD_INTEGER_CONSTANTS( theFanModule, the, fan, has, started )
+ *		PY_MODULE_INTEGER_CONSTANTS( theFanModule, the, fan, has, started )
  *
  *
  *  @param i_module
@@ -69,7 +69,10 @@
  *  @param ...
  *		the identifiers that will be injected
  */
-#define PY_MODULE_ADD_INTEGER_CONSTANTS( i_module , ... ) lass::python::impl::addIntegerConstantsToModule( i_module.module(), #__VA_ARGS__, __VA_ARGS__);
+#define PY_MODULE_INTEGER_CONSTANTS( i_module , ... ) \
+	LASS_EXECUTE_BEFORE_MAIN_EX\
+	( LASS_CONCATENATE( lassExecutePyModuleIntegerConstants_, i_module),\
+		lass::python::impl::addIntegerConstantsToModule( i_module, #__VA_ARGS__, __VA_ARGS__); )
 
 namespace lass
 {
@@ -78,9 +81,9 @@ namespace python
 namespace impl
 {
 
-	std::string argument(const std::string& iValue, int iArg);
+	LASS_DLL std::string argument(const std::string& iValue, int iArg);
 	
-	void addIntegerConstantToModule( PyObject* iModule, long iValue, const std::string& iName );
+	void addIntegerConstantToModule( ModuleDefinition& iModule, long iValue, const std::string& iName );
 }
 
 }

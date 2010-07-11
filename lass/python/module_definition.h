@@ -71,22 +71,39 @@ public:
 
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
 	void addClass(impl::ClassDefinition& classDef);
+	void addObject(PyObject* object, const char* name);
+	void addLong(long object, const char* name);
+	void addString(const char* object, const char* name);
 
 	void injectClass(impl::ClassDefinition& classDef);
 	PyObject* inject();
 private:
+	typedef util::ScopedPtr<char, util::ArrayStorage> TScopedCString;
 	typedef std::vector<impl::ClassDefinition*> TClassDefs;
 	typedef std::vector<PyMethodDef> TMethods;
 	struct NamedObject
 	{
-		char* name;
+		TScopedCString name;
 		PyObject* object;
 	};
-	typedef std::vector<NamedObject> TObjects;
-	typedef util::ScopedPtr<char, util::ArrayStorage> TScopedCString;
+	struct LongObject
+	{
+		TScopedCString name;
+		long object;
+	};
+	struct StringObject
+	{
+		TScopedCString name;
+		TScopedCString object;
+	};
+	typedef std::vector<NamedObject*> TObjects;
+	typedef std::vector<LongObject*> TLongObjects;
+	typedef std::vector<StringObject*> TStringObjects;
 	TClassDefs classes_;
 	TMethods methods_;
 	TObjects objects_;
+	TLongObjects longObjects_;
+	TStringObjects stringObjects_;
 	TScopedCString name_;
 	TScopedCString doc_;
 	TPreInject preInject_;
