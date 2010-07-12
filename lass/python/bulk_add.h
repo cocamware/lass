@@ -43,8 +43,8 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_BULK_ADD_H
 
-#include "bulk_add_integer.inl"
-
+#include "python_common.h"
+#include "module_definition.h"
 
 /** @ingroup Python
  *	Injects a number of constants into a Python module.  The number of arguments to the macro
@@ -89,5 +89,7 @@ namespace impl
 }
 
 }	// namespace lass
+
+#include "bulk_add_integer.inl"
 
 #endif
