@@ -40,21 +40,28 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_CONFIG_H
-
-#include "local_config.h"
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_ARCHITECTURE_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_ARCHITECTURE_H
 
 #include "compilers.h"
-#include "platforms.h"
-#include "architecture.h"
 
-namespace lass
-{
+/*
+ *  Finds out for which processor architecture the code is generated
+ *  for.
+ *     Supported definitions:
+ *     i386, ARM
+ */
 
-const int bitsPerByte = 8;
-
-}
+#ifdef LASS_COMPILER_TYPE_GCC 
+    #ifdef i386
+        #define LASS_PROCESSOR_ARCHITECTURE_x86
+    #elif defined(__ARM_EABI__)
+        #define LASS_PROCESSOR_ARCHITECTURE_ARM
+    #endif
+#else
+    // for now assume that non-gcc compilers will be used to generate i386 compatible code
+    #define LASS_PROCESSOR_ARCHITECTURE_x86
+#endif
 
 #endif
 
