@@ -268,9 +268,9 @@ void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc di
 	LASS_PY_OPERATOR_NO_OVERLOAD("__abs__", tp_as_number, PyNumberMethods, nb_absolute)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
 #if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__oct__", tp_as_number, PyNumberMethods, nb_oct)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__hex__", tp_as_number, PyNumberMethods, nb_hex)
 #endif
