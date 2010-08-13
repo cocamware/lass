@@ -137,7 +137,7 @@ struct ContainerTraits< std::vector<T, A> >: ContainerTraitsBase< std::vector<T,
 };
 
 
-class LASS_DLL ContainerImplBase
+class LASS_PYTHON_DLL ContainerImplBase
 {
 public:
 	virtual ~ContainerImplBase() {};

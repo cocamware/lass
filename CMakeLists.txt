@@ -4,8 +4,9 @@ cmake_minimum_required(VERSION 2.6)
 
 set(LASS_MAJOR_VERSION 1)
 set(LASS_MINOR_VERSION 5)
-set(LASS_PATCHLEVEL 2)
+set(LASS_PATCHLEVEL 3)
 set(LASS_OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
+set(LASS_PYTHON_OUTPUT_NAME "lass-python-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
@@ -24,8 +25,10 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 option(BUILD_SHARED_LIBS "build shared lass library" on) # The exact name of this option is important!
 if(BUILD_SHARED_LIBS)
 	set(LASS_SHARED_LIBRARY 1)
+	set(LASS_PYTHON_SHARED_LIBRARY 1)
 else()
 	set(LASS_SHARED_LIBRARY 0)
+	set(LASS_PYTHON_SHARED_LIBRARY 0)
 endif()
 
 option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" OFF)
@@ -46,7 +49,8 @@ include(Environment.cmake)
 
 # --- SOURCE FILE GATHERING ---
 
-set(lass_subdirectories config io num prim python spat stde util meta)
+set(lass_subdirectories config io num prim spat stde util meta)
+set(lass_python_subdirectories python)
 
 if (WIN32 AND LASS_SHARED_LIBRARY)
 	set(lass_subdirectories ${lass_subdirectories} dll)
@@ -63,6 +67,23 @@ foreach(subdir ${lass_subdirectories})
 	file(GLOB temp_impl_HDRS lass/${subdir}/impl/*.h lass/${subdir}/impl/*.inl)
 	list(APPEND lass_SRCS ${temp_SRCS} ${temp_impl_SRCS})
 	list(APPEND lass_HDRS ${temp_HDRS} ${temp_impl_HDRS})
+	source_group("Source Files\\${subdir}" FILES ${temp_SRCS})
+	source_group("Source Files\\${subdir}_impl" FILES ${temp_impl_SRCS})
+	source_group("Header Files\\${subdir}" FILES ${temp_HDRS})
+	source_group("Header Files\\${subdir}_impl" FILES ${temp_impl_HDRS})
+endforeach()
+
+file(GLOB lass_python_SRCS lass/*.cpp)
+file(GLOB lass_python_HDRS lass/*.h lass/*.inl)
+foreach(subdir ${lass_python_subdirectories})
+	if(NOT subdir STREQUAL "config")
+		file(GLOB temp_SRCS lass/${subdir}/*.cpp)
+		file(GLOB temp_impl_SRCS lass/${subdir}/impl/*.cpp)
+	endif()
+	file(GLOB temp_HDRS lass/${subdir}/*.h lass/${subdir}/*.inl)
+	file(GLOB temp_impl_HDRS lass/${subdir}/impl/*.h lass/${subdir}/impl/*.inl)
+	list(APPEND lass_python_SRCS ${temp_SRCS} ${temp_impl_SRCS})
+	list(APPEND lass_python_HDRS ${temp_HDRS} ${temp_impl_HDRS})
 	source_group("Source Files\\${subdir}" FILES ${temp_SRCS})
 	source_group("Source Files\\${subdir}_impl" FILES ${temp_impl_SRCS})
 	source_group("Header Files\\${subdir}" FILES ${temp_HDRS})
@@ -217,15 +238,14 @@ set(_cflags "${lass_C_FLAGS}")
 if (BUILD_USING_MULTIPLE_PROCESSES)
 	set(_cflags "${_cflags} /MP")
 endif()
+
 add_library(lass 
 	${lass_SRCS} 
 	${lass_HDRS})
 target_link_libraries(lass
-	${lass_LIBS}
-	optimized ${PYTHON_LIBRARIES} 
-	debug ${PYTHON_DEBUG_LIBRARIES})
+	${lass_LIBS})
 set_target_properties(lass PROPERTIES
-	DEFINE_SYMBOL LASS_EXPORTS
+	DEFINE_SYMBOL LASS_EXPORTS 
 	COMPILE_FLAGS ${_cflags}
 	SOVERSION ${LASS_PATCHLEVEL}
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
@@ -235,7 +255,27 @@ add_precompiled_header(
 	lass_common.h 
 	${lass_SOURCE_DIR}/lass/lass_common.cpp
 	${lass_SRCS})
-	
+
+add_library(lass_python
+	${lass_python_SRCS} 
+	${lass_python_HDRS})
+target_link_libraries(lass_python
+	lass
+	optimized ${PYTHON_LIBRARIES} 
+	debug ${PYTHON_DEBUG_LIBRARIES})
+set_target_properties(lass_python PROPERTIES
+	DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
+	COMPILE_FLAGS ${_cflags}
+	SOVERSION ${LASS_PATCHLEVEL}
+	OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
+	)
+add_precompiled_header(
+	lass 
+	lass_common.h 
+	${lass_SOURCE_DIR}/lass/lass_common.cpp
+	${lass_python_SRCS})
+
+
 add_subdirectory(pylass)
 
 # --- TESTING ---
@@ -282,7 +322,7 @@ install(
 	DESTINATION include/lass/config
 	)
 
-foreach(_config_file LassConfig.cmake LassConfig.py)    
+foreach(_config_file LassConfig.cmake LassConfig.py LassPythonConfig.cmake LassPythonConfig.py)    
     configure_file(
         "${lass_SOURCE_DIR}/${_config_file}.in"
         "${lass_BINARY_DIR}/${_config_file}"
@@ -296,8 +336,13 @@ endforeach()
 
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
 export(
-	TARGETS lass pylass 
+	TARGETS lass lass_python pylass 
 	FILE ${lass_BINARY_DIR}/LassBuildExports.cmake
+	)
+
+export(
+	TARGETS lass lass_python pylass 
+	FILE ${lass_BINARY_DIR}/LassPythonBuildExports.cmake
 	)
 
 

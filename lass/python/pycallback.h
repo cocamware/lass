@@ -69,7 +69,7 @@ class MultiCallback;
 namespace impl
 {
 
-	class LASS_DLL MultiCallbackImplBase
+	class LASS_PYTHON_DLL MultiCallbackImplBase
 	{
 	public:
 		virtual ~MultiCallbackImplBase() {};
@@ -144,7 +144,7 @@ typedef PyObjectPtr<MultiCallback>::Type TMultiCallbackPtr;
 
 /** MultiCallback.  Object for interfacing MultiCallbacks with Python 
 */
-class LASS_DLL MultiCallback : public PyObjectPlus, util::NonCopyable
+class LASS_PYTHON_DLL MultiCallback : public PyObjectPlus, util::NonCopyable
 {
 	PY_HEADER(PyObjectPlus);
 public:

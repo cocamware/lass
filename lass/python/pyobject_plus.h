@@ -153,7 +153,7 @@ namespace lass
 		*   The usage will be given by providing an example.  See the test case and look
 		*   for the files bar.h and bar.cpp.
 		*/
-		class LASS_DLL PyObjectPlus :
+		class LASS_PYTHON_DLL PyObjectPlus :
 			public PyObject
 		{
 		public:
@@ -184,11 +184,11 @@ namespace lass
 
 		namespace impl
 		{
-			LASS_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
-			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
-			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
-			LASS_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
-			LASS_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
+			LASS_PYTHON_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
+			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
+			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
+			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
+			LASS_PYTHON_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
 		}
 	}
 }

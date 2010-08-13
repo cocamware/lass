@@ -58,7 +58,7 @@ namespace lass
 			/**	@ingroup Python
 			 *	@internal
 			 */
-			class LASS_DLL OverloadLink
+			class LASS_PYTHON_DLL OverloadLink
 			{
 			public:
 				enum Signature

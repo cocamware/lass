@@ -53,7 +53,7 @@ namespace lass
 namespace python
 {
 
-class LASS_DLL ModuleDefinition: util::NonCopyable
+class LASS_PYTHON_DLL ModuleDefinition: util::NonCopyable
 {
 public:
 	typedef util::Callback0 TPreInject;

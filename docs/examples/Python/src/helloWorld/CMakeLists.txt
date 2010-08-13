@@ -1,7 +1,7 @@
 project(ex_helloworld)
 cmake_minimum_required(VERSION 2.6)
 include(../../../FindLassForExamples.cmake)
-include_directories(${lass_INCLUDE_DIRS})
+include_directories(${LassPython_INCLUDE_DIRS})
 
 set(ex_helloworld_SRCS embedding/embedding.cpp)
 
@@ -18,4 +18,4 @@ else()
 		DEBUG_POSTFIX "_d"
 	)
 endif()
-target_link_libraries(embedding1 lass)
+target_link_libraries(embedding1 lass_python)

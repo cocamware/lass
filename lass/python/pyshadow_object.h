@@ -53,7 +53,7 @@ enum ShadoweeConstness
 /** @ingroup Python
  *  @internal
  */
-class LASS_DLL ShadowBaseCommon: public PyObjectPlus
+class LASS_PYTHON_DLL ShadowBaseCommon: public PyObjectPlus
 {
 protected:
 	ShadowBaseCommon();

@@ -12,6 +12,7 @@ add_library(pylass MODULE
 	)
 target_link_libraries(pylass 
 	lass
+	lass_python
 	)
 set_target_properties(
 	pylass

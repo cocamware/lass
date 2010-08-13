@@ -78,7 +78,7 @@ namespace impl
 		}
 	}
 
-	LASS_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
+	LASS_PYTHON_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
 	inline void doFixObjectType(const PyObjectPlus* object) { doFixObjectType(const_cast<PyObjectPlus*>(object)); }
 	inline void doFixObjectType(const PyObject*) {}
 
@@ -156,7 +156,7 @@ private:
 *  @author Tom De Muer [TDM]
 *  @see DefaultCounter
 */
-class LASS_DLL PyObjectCounter
+class LASS_PYTHON_DLL PyObjectCounter
 {
 public:
 	typedef int TCount;

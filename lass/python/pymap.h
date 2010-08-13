@@ -62,7 +62,7 @@ namespace python
 {
 namespace impl
 {
-	class LASS_DLL PyMapImplBase: public ContainerImplBase
+	class LASS_PYTHON_DLL PyMapImplBase: public ContainerImplBase
 	{
 	public:
 		virtual std::auto_ptr<PyMapImplBase> copy() const = 0; 
@@ -163,7 +163,7 @@ namespace impl
 
 	/** Map.  Object for interfacing maps with Python 
 	*/
-	class LASS_DLL Map : public PyObjectPlus, util::NonCopyable
+	class LASS_PYTHON_DLL Map : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus);
 		static PyMappingMethods pyMappingMethods;

@@ -51,17 +51,17 @@ namespace lass
 namespace python
 {
 
-LASS_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
-LASS_DLL TPyObjPtr LASS_CALL globals();
+LASS_PYTHON_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& iName);
+LASS_PYTHON_DLL TPyObjPtr LASS_CALL globals();
 
-LASS_DLL void LASS_CALL execute(const std::string& code);
-LASS_DLL void LASS_CALL execute(const char* code);
+LASS_PYTHON_DLL void LASS_CALL execute(const std::string& code);
+LASS_PYTHON_DLL void LASS_CALL execute(const char* code);
 
-LASS_DLL TPyObjPtr LASS_CALL evaluate(const std::string& code);
-LASS_DLL TPyObjPtr LASS_CALL evaluate(const char* code);
+LASS_PYTHON_DLL TPyObjPtr LASS_CALL evaluate(const std::string& code);
+LASS_PYTHON_DLL TPyObjPtr LASS_CALL evaluate(const char* code);
 
-LASS_DLL void LASS_CALL putenv(const std::string& key, const std::string& value);
-LASS_DLL void LASS_CALL putenv(const char* key, const char* value);
+LASS_PYTHON_DLL void LASS_CALL putenv(const std::string& key, const std::string& value);
+LASS_PYTHON_DLL void LASS_CALL putenv(const char* key, const char* value);
 
 }
 }

@@ -54,15 +54,15 @@ namespace lass
 	{
 		namespace impl
 		{
-			LASS_DLL PyMethodDef LASS_CALL createPyMethodDef(
+			LASS_PYTHON_DLL PyMethodDef LASS_CALL createPyMethodDef(
 				const char *ml_name, PyCFunction ml_meth, int ml_flags, 
 				const char *ml_doc);
-			LASS_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
+			LASS_PYTHON_DLL PyGetSetDef LASS_CALL createPyGetSetDef(
 				const char* name, getter get, setter set, const char* doc, void* closure);
 
-			LASS_DLL void LASS_CALL dealloc(PyObject* obj);
-			LASS_DLL PyObject* LASS_CALL repr(PyObject* obj);
-			LASS_DLL PyObject* LASS_CALL str(PyObject* obj);
+			LASS_PYTHON_DLL void LASS_CALL dealloc(PyObject* obj);
+			LASS_PYTHON_DLL PyObject* LASS_CALL repr(PyObject* obj);
+			LASS_PYTHON_DLL PyObject* LASS_CALL str(PyObject* obj);
 
 			class NamePredicate
 			{
@@ -128,7 +128,7 @@ namespace lass
 				const char* name_;
 			};
 
-			struct LASS_DLL CompareFunc
+			struct LASS_PYTHON_DLL CompareFunc
 			{
 				PyCFunction dispatcher;
 				int op;
@@ -140,7 +140,7 @@ namespace lass
 				return CppClass::_lassPyClassDef.callRichCompare(self, other, op);
 			}
 
-			class LASS_DLL ClassDefinition
+			class LASS_PYTHON_DLL ClassDefinition
 			{
 			public:
 				typedef void(*TClassRegisterHook)();

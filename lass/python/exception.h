@@ -51,7 +51,7 @@ namespace lass
 namespace python
 {
 
-class LASS_DLL PythonException: public util::ExceptionMixin<PythonException>
+class LASS_PYTHON_DLL PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
 	PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
@@ -69,11 +69,11 @@ private:
 
 namespace impl
 {
-	LASS_DLL void LASS_CALL addMessageHeader(const char* header);
-	LASS_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
-	LASS_DLL void LASS_CALL catchPythonException(const PythonException& error);
-	LASS_DLL void LASS_CALL catchLassException(const util::Exception& error);
-	LASS_DLL void LASS_CALL catchStdException(const std::exception& error);
+	LASS_PYTHON_DLL void LASS_CALL addMessageHeader(const char* header);
+	LASS_PYTHON_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
+	LASS_PYTHON_DLL void LASS_CALL catchPythonException(const PythonException& error);
+	LASS_PYTHON_DLL void LASS_CALL catchLassException(const util::Exception& error);
+	LASS_PYTHON_DLL void LASS_CALL catchStdException(const std::exception& error);
 
 	struct PythonFetchRaiser
 	{

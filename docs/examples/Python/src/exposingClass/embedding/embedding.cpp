@@ -37,7 +37,7 @@ PY_SHADOW_DOWN_CASTERS( PyFoo )
 
 	PY_CLASS_METHOD( PyFoo, getMember )
 	PY_CLASS_METHOD( PyFoo, setMember )
-	PY_CLASS_MEMBER_RW_NAME( PyFoo, getMember, setMember, "accessorMember" );
+	//PY_CLASS_MEMBER_RW_NAME( PyFoo, getMember, setMember, "accessorMember" );
 
 	PY_CLASS_MEMBER_RW_NAME( PyFoo, coolMember, coolMember, "cool" );
 

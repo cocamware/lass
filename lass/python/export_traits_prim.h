@@ -277,8 +277,8 @@ struct PyExportTraitsPrimAxis
 	}
 };
 
-LASS_DLL PyObject* LASS_CALL buildIndexVertex(size_t vertex, size_t normal, size_t uv);
-LASS_DLL int LASS_CALL getIndexVertex(PyObject* iIndices, size_t& vertex, size_t& normal, size_t& uv);
+LASS_PYTHON_DLL PyObject* LASS_CALL buildIndexVertex(size_t vertex, size_t normal, size_t uv);
+LASS_PYTHON_DLL int LASS_CALL getIndexVertex(PyObject* iIndices, size_t& vertex, size_t& normal, size_t& uv);
 
 }
 }

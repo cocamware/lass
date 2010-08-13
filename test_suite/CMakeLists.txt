@@ -51,6 +51,7 @@ add_executable(
 target_link_libraries(
 	test_suite 
 	lass 
+	lass_python
 	${lass_LIBS}
 	optimized ${PYTHON_LIBRARIES} 
 	debug ${PYTHON_DEBUG_LIBRARIES}

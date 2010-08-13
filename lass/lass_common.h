@@ -181,6 +181,18 @@
 #	define LASS_DLL LASS_DLL_EXPORT
 #endif
 
+#ifdef LASS_PYTHON_DLL
+#	undef LASS_PYTHON_DLL
+#endif
+#if LASS_PYTHON_SHARED_LIBRARY
+#	if defined(LASS_PYTHON_EXPORTS) || defined (lass_python_EXPORTS)
+#		define LASS_PYTHON_DLL LASS_DLL_EXPORT
+#	else
+#		define LASS_PYTHON_DLL LASS_DLL_IMPORT
+#	endif
+#else 
+#	define LASS_PYTHON_DLL LASS_DLL_EXPORT
+#endif
 
 
 // --- frequently used STL mumbo jumbo ---

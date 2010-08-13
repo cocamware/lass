@@ -65,7 +65,7 @@ namespace python
 {
 namespace impl
 {
-	class LASS_DLL PySequenceImplBase: public ContainerImplBase
+	class LASS_PYTHON_DLL PySequenceImplBase: public ContainerImplBase
 	{
 	public:
 		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0;
@@ -329,7 +329,7 @@ namespace impl
 
 	/** Object for interfacing sequence-like objects with Python 
 	*/
-	class LASS_DLL Sequence : public PyObjectPlus, util::NonCopyable
+	class LASS_PYTHON_DLL Sequence : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus);
 		static PySequenceMethods pySequenceMethods;

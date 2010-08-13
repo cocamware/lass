@@ -54,7 +54,7 @@ namespace python
 namespace impl
 {
 
-class LASS_DLL SysStreamBuf: public std::streambuf
+class LASS_PYTHON_DLL SysStreamBuf: public std::streambuf
 {
 public:
 	SysStreamBuf(FILE* file, const char* name);
@@ -71,7 +71,7 @@ private:
 };
 
 
-class LASS_DLL SysOStream: public std::ostream
+class LASS_PYTHON_DLL SysOStream: public std::ostream
 {
 public:
 	SysOStream(FILE* file, const char* name);
@@ -81,8 +81,8 @@ private:
 
 }
 
-extern LASS_DLL impl::SysOStream sysStdout;
-extern LASS_DLL impl::SysOStream sysStderr;
+extern LASS_PYTHON_DLL impl::SysOStream sysStdout;
+extern LASS_PYTHON_DLL impl::SysOStream sysStderr;
 
 }
 }

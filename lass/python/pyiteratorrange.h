@@ -63,7 +63,7 @@ namespace impl
 {
 	/// begin of iterators
 
-	class LASS_DLL PyIteratorRangeImplBase
+	class LASS_PYTHON_DLL PyIteratorRangeImplBase
 	{
 	public:
 		PyIteratorRangeImplBase() {};
@@ -118,7 +118,7 @@ namespace impl
 	}
 }
 
-class LASS_DLL PyIteratorRange : public lass::python::PyObjectPlus
+class LASS_PYTHON_DLL PyIteratorRange : public lass::python::PyObjectPlus
 {
 	PY_HEADER(PyObjectPlus);
 public:

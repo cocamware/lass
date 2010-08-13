@@ -48,7 +48,6 @@
 #include "num_common.h"
 #include "num_traits.h"
 #include "../util/call_traits.h"
-#include "../python/pyobject_plus.h"
 #include <iostream>
 
 namespace lass
@@ -254,29 +253,6 @@ template<class C> const interval<C> NumTraits<interval<C> >::sqrtPi = interval<C
 #include "interval.inl"
 
 }
-
-namespace python
-{
-	template <typename T>
-	struct PyExportTraits< num::interval<T> >
-	{
-		static PyObject* build(const num::interval<T>& v)
-		{
-			return fromSharedPtrToNakedCast(makeTuple(v.inf(), v.sup()));
-		}
-		static int get(PyObject* obj, num::interval<T>& v)
-		{
-			T inf, sup;
-			if (decodeTuple(obj, inf, sup) != 0)
-			{
-				return 1;
-			}
-			v.set(inf, sup);
-			return 0;
-		}
-	};
-}
-
 }
 
 
