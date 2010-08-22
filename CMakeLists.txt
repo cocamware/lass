@@ -269,11 +269,11 @@ set_target_properties(lass_python PROPERTIES
 	SOVERSION ${LASS_PATCHLEVEL}
 	OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 	)
-add_precompiled_header(
-	lass 
-	lass_common.h 
-	${lass_SOURCE_DIR}/lass/lass_common.cpp
-	${lass_python_SRCS})
+#add_precompiled_header(
+#	lass 
+#	lass_common.h 
+#	${lass_SOURCE_DIR}/lass/lass_common.cpp
+#	${lass_python_SRCS})
 
 
 add_subdirectory(pylass)
@@ -290,7 +290,7 @@ endif()
 # --- INSTALLING ---
 	
 install(
-	TARGETS lass
+	TARGETS lass lass_python
 	EXPORT LassExports
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
