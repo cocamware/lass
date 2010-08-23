@@ -55,7 +55,7 @@ namespace impl
 	typename ObjectTraits::TValue aabbCenterForAxis(const typename ObjectTraits::TAabb& box, size_t axis)
 	{
 		return (ObjectTraits::coord(ObjectTraits::aabbMin(box), axis) + ObjectTraits::coord(ObjectTraits::aabbMax(box), axis)) / 2;
-	}
+	};
 
 	template <typename ObjectTraits>
 	class LessAxis
@@ -70,6 +70,8 @@ namespace impl
 		int axis_;
 	};
 }
+
+
 
 template <typename ObjectTraits>
 struct SplitInfo
@@ -87,6 +89,24 @@ struct SplitInfo
 	TValue x;
 	TAxis axis;
 };
+
+
+
+namespace impl
+{
+	template <typename ObjectTraits>
+	class Splitter
+	{
+	public:
+		Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
+		template <typename Input> bool operator()(const Input& input) const
+		{
+			return aabbCenterForAxis<ObjectTraits>(input.aabb, split_.axis) <= split_.x;
+		}			
+	private:
+		SplitInfo<ObjectTraits> split_;
+	};
+}
 
 
 
@@ -252,25 +272,6 @@ private:
 };
 
 
-
-namespace impl
-{
-
-template <typename ObjectTraits>
-class Splitter
-{
-public:
-	Splitter(const SplitInfo<ObjectTraits>& split): split_(split) {}
-	template <typename Input> bool operator()(const Input& input) const
-	{
-		return aabbCenterForAxis<ObjectTraits>(input.aabb, split_.axis) <= split_.x;
-	}			
-private:
-	SplitInfo<ObjectTraits> split_;
-};
-
-
-}
 
 }
 

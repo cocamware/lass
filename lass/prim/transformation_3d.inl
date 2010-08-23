@@ -56,7 +56,6 @@ namespace lass
 namespace prim
 {
 
-template <typename T> typename Transformation3D<T>::TAllocator Transformation3D<T>::allocator_;
 template <typename T> typename Transformation3D<T>::TImplPtr Transformation3D<T>::identity_ = Transformation3D<T>::makeIdentity();
 
 // --- public --------------------------------------------------------------------------------------
@@ -87,7 +86,7 @@ Transformation3D<T>::Transformation3D():
 template <typename T>
 Transformation3D<T>::Transformation3D(
 		const TPoint& origin, const TVector& baseX, const TVector& baseY, const TVector& baseZ):
-	pimpl_(allocator_.allocate()),
+	pimpl_(TImplPtr::allocate()),
 	isInversed_(false)
 {
 	TValue* mat = pimpl_->forward;
@@ -106,7 +105,7 @@ Transformation3D<T>::Transformation3D(
 template <typename T>
 template <typename InputIterator>
 Transformation3D<T>::Transformation3D(InputIterator first, InputIterator last):
-	pimpl_(allocator_.allocate()),
+	pimpl_(TImplPtr::allocate()),
 	isInversed_(false)
 {
 	LASS_ENFORCE(std::distance(first, last) == matrixSize_);
@@ -229,7 +228,7 @@ const Transformation3D<T> Transformation3D<T>::identity()
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset)
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 
 	TValue* const forward = pimpl->forward;
 	identity(forward);
@@ -256,7 +255,7 @@ const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 
 	TValue* const forward = pimpl->forward;
 	identity(forward);
@@ -278,7 +277,7 @@ const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 
 	TValue* const forward = pimpl->forward;
 	identity(forward);
@@ -304,7 +303,7 @@ const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians)
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 
 	const T c = num::cos(radians);
 	const T s = num::sin(radians);
@@ -338,7 +337,7 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 template <typename T>
 const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TParam radians)
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 
 	const TVector a = axis.normal();
 	const T c = num::cos(radians);
@@ -513,11 +512,12 @@ void Transformation3D<T>::identity(TValue* dest)
 template <typename T>
 typename Transformation3D<T>::TImplPtr Transformation3D<T>::makeIdentity()
 {
-	TImplPtr pimpl(allocator_.allocate());
+	TImplPtr pimpl(TImplPtr::allocate());
 	identity(pimpl->forward);
 	identity(pimpl->inverse);
 	pimpl->hasInverse = true;
 	pimpl->isTranslation = true;
+	std::cout << "been here";
 	return pimpl;
 }
 

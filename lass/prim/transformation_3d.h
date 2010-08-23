@@ -63,6 +63,46 @@ namespace lass
 {
 namespace prim
 {
+namespace impl
+{
+
+template <typename T, size_t N>
+struct TransformationImpl
+{
+	enum { matrixSize = N };
+	T forward[matrixSize];
+	T inverse[matrixSize];
+	util::Semaphore sync;
+	size_t referenceCount;
+	bool hasInverse;
+	bool isTranslation;
+	TransformationImpl(): referenceCount(0), hasInverse(false), isTranslation(false) {}
+};
+
+template <typename U, typename Cascade>
+class TransformationImplStorage: public util::ObjectStorage<U, Cascade>
+{
+public:
+	TransformationImplStorage(): util::ObjectStorage<U, Cascade>() {}
+	TransformationImplStorage(U* p): util::ObjectStorage<U, Cascade>(p) {}
+	static U* allocate() { return allocator().allocate(); }
+protected:
+	void dispose()
+	{
+		allocator().deallocate(this->pointer());
+	}
+private:
+	typedef util::AllocatorObject< U , util::AllocatorConcurrentFreeList<> > TAllocator;
+	static TAllocator& allocator()
+	{
+		// this is _not_ thread safe, but it should be OK as it's called once
+		// before main, to init the identity matrix.
+		static TAllocator alloc;
+		return alloc;
+	}
+};
+
+}
 
 template <typename T>
 class Transformation3D
@@ -114,34 +154,8 @@ private:
 
 	enum { matrixSize_ = 16 };
 
-	struct Impl
-	{
-		TValue forward[matrixSize_];
-		TValue inverse[matrixSize_];
-		util::Semaphore sync;
-		size_t referenceCount;
-		bool hasInverse;
-		bool isTranslation;
-		Impl(): hasInverse(false), isTranslation(false) {}
-	};
-
-	typedef util::AllocatorObject< Impl, util::AllocatorConcurrentFreeList<> > TAllocator;
-	static TAllocator allocator_;
-
-	template <typename U, typename Cascade>
-	class ImplStorage: public util::ObjectStorage<U, Cascade>
-	{
-	public:
-		ImplStorage(): util::ObjectStorage<U, Cascade>() {}
-		ImplStorage(U* p): util::ObjectStorage<U, Cascade>(p) {}
-	protected:
-		void dispose()
-		{
-			allocator_.deallocate(this->pointer());
-		}
-	};
-
-	typedef util::SharedPtr<Impl, ImplStorage, util::IntrusiveCounter<Impl, size_t, &Impl::referenceCount> > TImplPtr;
+	typedef impl::TransformationImpl<T, matrixSize_> TImpl;
+	typedef util::SharedPtr<TImpl, impl::TransformationImplStorage, util::IntrusiveCounter<TImpl, size_t, &TImpl::referenceCount> > TImplPtr;
 
 	Transformation3D(const TImplPtr& pimpl, bool isInversed = false);
 	void computeInverse() const;
