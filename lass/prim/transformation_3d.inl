@@ -517,7 +517,6 @@ typename Transformation3D<T>::TImplPtr Transformation3D<T>::makeIdentity()
 	identity(pimpl->inverse);
 	pimpl->hasInverse = true;
 	pimpl->isTranslation = true;
-	std::cout << "been here";
 	return pimpl;
 }
 
