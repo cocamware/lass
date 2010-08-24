@@ -56,7 +56,7 @@ namespace num_traits
 		
 		volatile char zero = char(0);
 		volatile char one = char(1);
-		volatile char minusOne = zero - one;
+		volatile char minusOne = static_cast<char>(zero - one);
 
 		const bool isSigned = minusOne < one;
 #ifdef LASS_CHAR_IS_SIGNED
@@ -65,8 +65,8 @@ namespace num_traits
 		LASS_TEST_CHECK(!isSigned);
 #endif
 
-		const char min = isSigned ? -128 : 0;
-		const char max = isSigned ? 127 : 255;
+		const char min = static_cast<char>(isSigned ? -128 : 0);
+		const char max = static_cast<char>(isSigned ? 127 : 255);
 
 		LASS_TEST_CHECK(!TNumTraits::isDistribution);
 		LASS_TEST_CHECK(TNumTraits::isIntegral);

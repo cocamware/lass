@@ -386,10 +386,10 @@ const ColorRGBA ColorRGBA::mapBone(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(0.    , 0.    , 0.    ),
-		ColorRGBA(0.3194, 0.3194, 0.4444),
-		ColorRGBA(0.6528, 0.7778, 0.7778),
-		ColorRGBA(1.    , 1.    , 1.    )
+		ColorRGBA(0.f    , 0.f    , 0.f    ),
+		ColorRGBA(0.3194f, 0.3194f, 0.4444f),
+		ColorRGBA(0.6528f, 0.7778f, 0.7778f),
+		ColorRGBA(1.f    , 1.f    , 1.f    )
 	};
 	return doMap(value, keys, 4);
 }
@@ -411,7 +411,7 @@ const ColorRGBA ColorRGBA::mapCool(TParam value)
 const ColorRGBA ColorRGBA::mapCopper(TParam value)
 {
 	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(value < .8 ? value / .8 : 1., .8 * value, .5 * value);
+	return ColorRGBA(value < .8f ? value / .8f : 1.f, .8f * value, .5f * value);
 }
 
 
@@ -432,15 +432,15 @@ const ColorRGBA ColorRGBA::mapHot(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(0.     , 0.     , 0.),
-		ColorRGBA(1. / 3., 0.     , 0.),
-		ColorRGBA(2. / 3., 0.     , 0.),
-		ColorRGBA(1.     , 0.     , 0.),
-		ColorRGBA(1.     , 1. / 3., 0.),
-		ColorRGBA(1.     , 2. / 3., 0.),
-		ColorRGBA(1.     , 1.     , 0.),
-		ColorRGBA(1.     , 1.     , .5),
-		ColorRGBA(1.     , 1.     , 1.)
+		ColorRGBA(0.f      , 0.f      , 0.f),
+		ColorRGBA(1.f / 3.f, 0.f      , 0.f),
+		ColorRGBA(2.f / 3.f, 0.f      , 0.f),
+		ColorRGBA(1.f      , 0.f      , 0.f),
+		ColorRGBA(1.f      , 1.f / 3.f, 0.f),
+		ColorRGBA(1.f      , 2.f / 3.f, 0.f),
+		ColorRGBA(1.f      , 1.f      , 0.f),
+		ColorRGBA(1.f      , 1.f      , .5f),
+		ColorRGBA(1.f      , 1.f      , 1.f)
 	};
 	return doMap(value, keys, 9);
 }
@@ -453,13 +453,13 @@ const ColorRGBA ColorRGBA::mapHsv(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(1., 0., 0.),
-		ColorRGBA(1., 1., 0.),
-		ColorRGBA(0., 1., 0.),
-		ColorRGBA(0., 1., 1.),
-		ColorRGBA(0., 0., 1.),
-		ColorRGBA(1., 0., 1.),
-		ColorRGBA(1., 0., 0.)
+		ColorRGBA(1.f, 0.f, 0.f),
+		ColorRGBA(1.f, 1.f, 0.f),
+		ColorRGBA(0.f, 1.f, 0.f),
+		ColorRGBA(0.f, 1.f, 1.f),
+		ColorRGBA(0.f, 0.f, 1.f),
+		ColorRGBA(1.f, 0.f, 1.f),
+		ColorRGBA(1.f, 0.f, 0.f)
 	};
 	return doMap(value - num::floor(value), keys, 7);
 }
@@ -472,15 +472,15 @@ const ColorRGBA ColorRGBA::mapJet(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(0., 0., .5), // 240
-		ColorRGBA(0., 0., 1.), // 240
-		ColorRGBA(0., .5, 1.), // 210
-		ColorRGBA(0., 1., 1.), // 180
-		ColorRGBA(.5, 1., .5), // 90
-		ColorRGBA(1., 1., 0.), // 60
-		ColorRGBA(1., .5, 0.), // 30
-		ColorRGBA(1., .0, 0.), // 0
-		ColorRGBA(.5, .0, 0.)  // 0
+		ColorRGBA(0.f, 0.f, .5f), // 240
+		ColorRGBA(0.f, 0.f, 1.f), // 240
+		ColorRGBA(0.f, .5f, 1.f), // 210
+		ColorRGBA(0.f, 1.f, 1.f), // 180
+		ColorRGBA(.5f, 1.f, .5f), // 90
+		ColorRGBA(1.f, 1.f, 0.f), // 60
+		ColorRGBA(1.f, .5f, 0.f), // 30
+		ColorRGBA(1.f, .0f, 0.f), // 0
+		ColorRGBA(.5f, .0f, 0.f)  // 0
 	};
 
 	return doMap(value, keys, 9);
@@ -494,23 +494,23 @@ const ColorRGBA ColorRGBA::mapPink(TParam value)
 {
 	const static ColorRGBA keys[] =
 	{
-		ColorRGBA(0.    , 0.    , 0.    ),
-		ColorRGBA(0.2955, 0.1782, 0.1782),
-		ColorRGBA(0.4303, 0.2722, 0.2722),
-		ColorRGBA(0.5320, 0.3412, 0.3412),
-		ColorRGBA(0.6172, 0.3984, 0.3984),
-		ColorRGBA(0.6920, 0.4484, 0.4484),
-		ColorRGBA(0.7594, 0.4933, 0.4933),
-		ColorRGBA(0.7868, 0.5842, 0.5345),
-		ColorRGBA(0.8133, 0.6627, 0.5727),
-		ColorRGBA(0.8389, 0.7328, 0.6086),
-		ColorRGBA(0.8637, 0.7968, 0.6424),
-		ColorRGBA(0.8879, 0.8560, 0.6746),
-		ColorRGBA(0.9114, 0.9114, 0.7052),
-		ColorRGBA(0.9344, 0.9344, 0.7893),
-		ColorRGBA(0.9567, 0.9567, 0.8653),
-		ColorRGBA(0.9786, 0.9786, 0.9351),
-		ColorRGBA(1.    , 1.    , 1.    ),
+		ColorRGBA(0.f    , 0.f    , 0.f    ),
+		ColorRGBA(0.2955f, 0.1782f, 0.1782f),
+		ColorRGBA(0.4303f, 0.2722f, 0.2722f),
+		ColorRGBA(0.5320f, 0.3412f, 0.3412f),
+		ColorRGBA(0.6172f, 0.3984f, 0.3984f),
+		ColorRGBA(0.6920f, 0.4484f, 0.4484f),
+		ColorRGBA(0.7594f, 0.4933f, 0.4933f),
+		ColorRGBA(0.7868f, 0.5842f, 0.5345f),
+		ColorRGBA(0.8133f, 0.6627f, 0.5727f),
+		ColorRGBA(0.8389f, 0.7328f, 0.6086f),
+		ColorRGBA(0.8637f, 0.7968f, 0.6424f),
+		ColorRGBA(0.8879f, 0.8560f, 0.6746f),
+		ColorRGBA(0.9114f, 0.9114f, 0.7052f),
+		ColorRGBA(0.9344f, 0.9344f, 0.7893f),
+		ColorRGBA(0.9567f, 0.9567f, 0.8653f),
+		ColorRGBA(0.9786f, 0.9786f, 0.9351f),
+		ColorRGBA(1.f    , 1.f    , 1.f    ),
 	};
 	return doMap(value, keys, 17);
 }
@@ -532,7 +532,7 @@ const ColorRGBA ColorRGBA::mapSpring(TParam value)
 const ColorRGBA ColorRGBA::mapSummer(TParam value)
 {
 	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
-	return ColorRGBA(value, (TNumTraits::one + value) / 2, 0.4 * TNumTraits::one);
+	return ColorRGBA(value, (TNumTraits::one + value) / 2, 0.4f * TNumTraits::one);
 }
 
 
@@ -568,7 +568,7 @@ const ColorRGBA ColorRGBA::doMap(TParam value, const ColorRGBA* map, int mapSize
 	LASS_ASSERT(mapSize > 1);
 
 	num::inpclamp(value, TNumTraits::zero, TNumTraits::one);
-	const TValue x = value * (mapSize - 1);
+	const TValue x = value * static_cast<TValue>(mapSize - 1);
 	const TValue x0 = num::floor(x);
 
 	const int i = static_cast<int>(x0);

@@ -72,7 +72,7 @@ SysStreamBuf::int_type SysStreamBuf::overflow(int_type c)
 	if (c != EOF)
 	{
 		// we have room for one more!
-		*pptr() =c;
+		*pptr() = static_cast<char>(c);
 		pbump(1);
 	}
 	if (sync() != 0)

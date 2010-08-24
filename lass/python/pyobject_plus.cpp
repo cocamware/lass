@@ -107,7 +107,7 @@ PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 	impl::forceObjectType(this, other.ob_type);
 }
 
-PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& iOther)
+PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& LASS_UNUSED(iOther))
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING

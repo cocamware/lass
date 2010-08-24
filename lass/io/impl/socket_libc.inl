@@ -49,6 +49,8 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#pragma GCC diagnostic ignored "-Wconversion" // htons
+
 namespace lass
 {
 namespace io
@@ -59,6 +61,7 @@ namespace impl
 class SocketImpl: public util::NonCopyable
 {
 public:
+	typedef Socket::TPort TPort;
 
 	SocketImpl():
 		socket_(invalidSocket)
@@ -77,7 +80,7 @@ public:
 		}
 	}
 
-	void bind(unsigned short portNumber)
+	void bind(TPort portNumber)
 	{
 		openSocket();
 

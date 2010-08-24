@@ -52,7 +52,7 @@
  *     i386, ARM
  */
 
-#ifdef LASS_COMPILER_TYPE_GCC 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC 
     #ifdef i386
         #define LASS_PROCESSOR_ARCHITECTURE_x86
     #elif defined(__ARM_EABI__)

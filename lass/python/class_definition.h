@@ -147,6 +147,7 @@ namespace lass
 
 				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
+				~ClassDefinition();
 				PyTypeObject* type() { return &type_; }
 				const PyTypeObject* type() const { return &type_; }
 				const char* name() const { return type_.tp_name; }

@@ -872,12 +872,12 @@ BinaryIStream& Image::openTarga(BinaryIStream& stream)
 
 /** Open Type 2 and 11 TARGA file
  */
-BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarga& iHeader)
+BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarga& header)
 {
 	const TValue scale = num::inv(255.f);
 
 	std::size_t numBytes = 0;
-	switch (iHeader.imagePixelSize)
+	switch (header.imagePixelSize)
 	{
 	case 24: 
 		numBytes = 3; 
@@ -886,25 +886,25 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 		numBytes = 4;
 		break;
 	default:
-		LASS_THROW_EX(BadFormat, "image pixel size '" << iHeader.imagePixelSize << "' not supported.");
+		LASS_THROW_EX(BadFormat, "image pixel size '" << header.imagePixelSize << "' not supported.");
 	};
 
-	LASS_ASSERT(cols_ == iHeader.imageWidth);
-	const int xBegin = iHeader.flipHorizontalFlag() ? static_cast<int>(cols_) - 1 : 0;
-	const int xEnd   = iHeader.flipHorizontalFlag() ? -1 : static_cast<int>(cols_);
-	const int xDelta = iHeader.flipHorizontalFlag() ? -1 : 1;
+	LASS_ASSERT(cols_ == header.imageWidth);
+	const int xBegin = header.flipHorizontalFlag() ? static_cast<int>(cols_) - 1 : 0;
+	const int xEnd   = header.flipHorizontalFlag() ? -1 : static_cast<int>(cols_);
+	const int xDelta = header.flipHorizontalFlag() ? -1 : 1;
 
-	LASS_ASSERT(rows_ == iHeader.imageHeight);
-	const int yBegin = iHeader.flipVerticalFlag() ? 0 : static_cast<int>(rows_) - 1;
-	const int yEnd   = iHeader.flipVerticalFlag() ? static_cast<int>(rows_) : -1;
-	const int yDelta = iHeader.flipVerticalFlag() ? 1 : -1;
+	LASS_ASSERT(rows_ == header.imageHeight);
+	const int yBegin = header.flipVerticalFlag() ? 0 : static_cast<int>(rows_) - 1;
+	const int yEnd   = header.flipVerticalFlag() ? static_cast<int>(rows_) : -1;
+	const int yDelta = header.flipVerticalFlag() ? 1 : -1;
 
-	stream.seekg(iHeader.idLength + iHeader.colorMapLength * iHeader.colorMapEntrySize, 
+	stream.seekg(header.idLength + header.colorMapLength * header.colorMapEntrySize, 
 		std::ios_base::cur);
 	std::vector<impl::Bytes4> buffer(cols_);
 	for (int y = yBegin; y != yEnd; y += yDelta)
 	{	
-		if (iHeader.imageType == 10)
+		if (header.imageType == 10)
 		{
 			// decode rle
 			//
@@ -913,7 +913,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 			{
 				num::Tuint8 code;
 				stream >> code;
-				const num::Tuint8 packetSize = (code & 0x7f) + 1;
+				const num::Tuint8 packetSize = static_cast<num::Tuint8>((code & 0x7f) + 1);
 				impl::Bytes4 bytes;
 				if (code & 0x80)
 				{
@@ -937,7 +937,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 		}
 		else
 		{
-			LASS_ASSERT(iHeader.imageType == 2);
+			LASS_ASSERT(header.imageType == 2);
 			for (unsigned x = 0; x < cols_; ++x)
 			{
 				stream.read(buffer[x].get(), numBytes);
@@ -1020,7 +1020,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 		//
 		for (std::ptrdiff_t x = firstX; x != lastX; /* increment in loop */ )
 		{
-			impl::Bytes4 rgbe;
+			impl::Bytes4 rgbe, previous;
+			previous = rgbe;
 			stream.read(rgbe.get(), 4);
 			if (rgbe[0] == 2 && rgbe[1] == 2 && (rgbe[2] & 0x80) == 0)
 			{
@@ -1033,15 +1034,15 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 					ptrdiff_t x2 = x;
 					while (x2 != lastX2)
 					{
-						num::Tuint8 spanSize = 0, value = 0;
-						stream >> spanSize;
-						const bool isHomogenousSpan = spanSize > 128;
+						num::Tuint8 spanField = 0, value = 0;
+						stream >> spanField;
+						const bool isHomogenousSpan = (spanField & 0x80) != 0;
+						const size_t spanSize = spanField & 0x7f;
 						if (isHomogenousSpan) 
 						{
-							spanSize -= 128;
 							stream >> value;
 						}
-						for (num::Tuint8 i = spanSize; i > 0; --i)
+						for (size_t i = 0; i < spanSize; ++i)
 						{
 							if (!isHomogenousSpan)
 							{
@@ -1061,16 +1062,17 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 				//
 				if (rgbe[0] == 1 && rgbe[1] == 1 && rgbe[2] == 1)
 				{
-					rleCount |= rgbe[4] << rleCountByte;
+					LASS_ASSERT(rleCountByte < sizeof(rleCount));
+					rleCount |= rgbe[3] << (8 * rleCountByte);
 					++rleCountByte;
 				}
 				else
 				{
 					if (rleCount > 0)
 					{
-						for (size_t k = rleCount - 1; k > 0; --k)
+						for (size_t k = rleCount; k > 0; --k)
 						{
-							buffer[x] = rgbe;
+							buffer[x] = previous;
 							x += deltaX;
 						}
 						rleCount = 0;
@@ -1092,7 +1094,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 			const float exponent = exponents[rgbe[3]];
 			for (size_t k = 0; k < 3; ++k)
 			{
-				pixel[k] = rgbe[k] * inverseCorrections[k] * exponent;
+				pixel[k] = static_cast<float>(rgbe[k]) * inverseCorrections[k] * exponent;
 			}
 		}
 	}	
@@ -1401,8 +1403,9 @@ BinaryOStream& Image::saveRadianceHdr(BinaryOStream& stream) const
 						stream.write(&rleBuffer[0], numDiff);
 						numDiff = 0;
 					}
-					numSame += 128;
-					stream << numSame << value;
+					
+					const num::Tuint8 spanField = static_cast<num::Tuint8>(numSame | 0x80);
+					stream << spanField << value;
 					x = x2;
 				}
 				else

@@ -177,6 +177,14 @@ ClassDefinition::ClassDefinition(
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
 
+
+
+ClassDefinition::~ClassDefinition()
+{
+}
+
+
+
 #define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
 	if (strcmp(slot.name, s_name) == 0)\
 	{\

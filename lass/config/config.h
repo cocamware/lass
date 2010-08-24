@@ -52,7 +52,7 @@
 namespace lass
 {
 
-const int bitsPerByte = 8;
+const unsigned bitsPerByte = 8;
 
 }
 

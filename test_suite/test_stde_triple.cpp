@@ -57,10 +57,10 @@ namespace test
 
 void testStdeTriple()
 {
-	typedef stde::triple<char, float, std::string> triple1_type;
-	typedef stde::triple<int, double, std::string> triple2_type;
+	typedef stde::triple<char, double, std::string> triple1_type;
+	typedef stde::triple<int, long double, std::string> triple2_type;
 
-	triple1_type triple1 = stde::make_triple(true, 1, std::string("hello world!"));
+	triple1_type triple1 = stde::make_triple(true, 0.f, std::string("hello world!"));
 	triple2_type triple2(triple1);
 	LASS_TEST_CHECK_EQUAL(triple1, triple2);
 

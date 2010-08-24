@@ -66,7 +66,7 @@ void testUtilIdGenerator()
 	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(9));
 	LASS_TEST_CHECK_EQUAL(generator(), static_cast<T>(10));
 
-	generator.setNext(num::NumTraits<T>::max - 1);
+	generator.setNext(static_cast<T>(num::NumTraits<T>::max - 1));
 	LASS_TEST_CHECK_EQUAL(generator(), num::NumTraits<T>::max - 1);
 	LASS_TEST_CHECK_THROW(generator(), std::exception);
 

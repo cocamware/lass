@@ -54,12 +54,11 @@ namespace atomic
 template <typename T>
 void testUtilAtomicType()
 {
-	T multiplier = 0;
+	T pattern = 0;
 	for (size_t i = 0; i < sizeof(T); ++i)
 	{
-		multiplier = (multiplier << 8) + 1;
+		pattern = static_cast<T>((pattern << 8) + 1);
 	}
-
 
 	T old1 = 1;
 	T new1 = 2;
@@ -69,10 +68,10 @@ void testUtilAtomicType()
 	util::atomicDecrement(a);
 	LASS_TEST_CHECK_EQUAL(a, old1);
 
-	a *= multiplier;
-	old1 *= multiplier;
-	new1 *= multiplier;
-	T wrong1 = 10;
+	a = pattern;
+	old1 = pattern;
+	new1 = static_cast<T>(2 * pattern);
+	T wrong1 = static_cast<T>(10 * pattern);
 
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a, wrong1, new1));
 	LASS_TEST_CHECK_EQUAL(a, old1);
@@ -83,15 +82,15 @@ void testUtilAtomicType()
 template <typename T>
 void testUtilAtomicAdjacentCas()
 {
-	T multiplier = 0;
+	T pattern = 0;
 	for (size_t i = 0; i < sizeof(T); ++i)
 	{
-		multiplier = (multiplier << 8) + 1;
+		pattern = static_cast<T>((pattern << 8) + 1);
 	}
 
-	const T old1 = 1 * multiplier, old2 = 2 * multiplier;
-	const T new1 = 3 * multiplier, new2 = 4 * multiplier;
-	const T wrong1 = 10 * multiplier, wrong2 = 11 * multiplier;
+	const T old1 = pattern, old2 = static_cast<T>(2 * pattern);
+	const T new1 = static_cast<T>(2 * pattern), new2 = static_cast<T>(3 * pattern);
+	const T wrong1 = static_cast<T>(10 * pattern), wrong2 = static_cast<T>(11 * pattern);
 
 	volatile T LASS_ALIGNED(a[2], 16) = { old1, old2 };
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));

@@ -193,7 +193,7 @@ endmacro()
 if(MSVC)
 	set(lass_C_FLAGS "/EHsc")
 else()
-	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self")
+	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion")
 endif()
 	
 # --- THE LIBRARY ----

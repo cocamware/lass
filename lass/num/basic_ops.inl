@@ -40,6 +40,8 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+#include "../meta/select.h"
+
 // --- implementation details ----------------------------------------------------------------------
 
 // http://pi.lacim.uqam.ca/eng/table_en.html
@@ -54,33 +56,36 @@ struct IntPow
 {
 	typedef typename NumTraits<T>::signedType TSigned;
 	typedef typename NumTraits<T>::unsignedType TUnsigned;
+	typedef typename meta::Select< meta::Bool< sizeof(T) < sizeof(int) >, int, T >::Type TTemp;
+	typedef typename meta::Select< meta::Bool< sizeof(TUnsigned) < sizeof(unsigned) >, unsigned, TUnsigned >::Type TExponent;
 
-	static T eval(T x, TSigned p)
+	static T eval(T x, TSigned exponent)
 	{		
-		LASS_ASSERT(p >= 0);
-		return eval(x, static_cast<TUnsigned>(p));
+		LASS_ASSERT(exponent >= 0);
+		return eval(x, static_cast<TUnsigned>(exponent));
 	}
 
-	static T eval(T x, TUnsigned p)
+	static T eval(T x, TUnsigned exponent)
 	{
-		if (p == 0)
+		if (exponent == 0)
 		{
 			return 1;
 		}
 
-		T result = 1;
-		T partialPower = 1;
+		TTemp result = 1;
+		TTemp partialPower = 1;
+		TExponent e = exponent;
 		do
 		{
 			partialPower *= x;
-			if (p & 0x1)
+			if (e & 0x1)
 			{
 				result *= partialPower;
 			}
-			p >>= 1;
+			e >>= 1;
 		}
-		while (p);
-		return result;
+		while (e);
+		return static_cast<T>(result);
 	}
 };
 
@@ -93,8 +98,8 @@ struct IntDiv
 	static T eval(TSigned x, TSigned m)
 	{
 		LASS_ASSERT(m > 0);
-		const TSigned tempDiv = x / m;
-		return x % m >= 0 ? tempDiv : (tempDiv - 1);
+		const TSigned tempDiv = static_cast<TSigned>(x / m);
+		return x % m >= 0 ? tempDiv : static_cast<TSigned>(tempDiv - 1);
 	}
 
 	static T eval(TSigned x, TUnsigned m)
@@ -102,8 +107,8 @@ struct IntDiv
 		LASS_ASSERT(m > 0);
 		const TSigned signedMod = static_cast<TSigned>(m);
 		LASS_ASSERT(signedMod >= 0);
-		const TSigned tempDiv = x / signedMod;
-		return x % signedMod >= 0 ? tempDiv : (tempDiv - 1);
+		const TSigned tempDiv = static_cast<TSigned>(x / signedMod);
+		return x % signedMod >= 0 ? tempDiv : static_cast<TSigned>(tempDiv - 1);
 	}
 };
 
@@ -116,8 +121,8 @@ struct IntMod
 	static T eval(TSigned x, TSigned m)
 	{
 		LASS_ASSERT(m > 0);
-		const TSigned tempMod = x % m;
-		return tempMod >= 0 ? tempMod : (tempMod + m);
+		const TSigned tempMod = static_cast<TSigned>(x % m);
+		return tempMod >= 0 ? tempMod : static_cast<TSigned>(tempMod + m);
 	}
 
 	static T eval(TSigned x, TUnsigned m)
@@ -125,8 +130,8 @@ struct IntMod
 		LASS_ASSERT(m > 0);
 		const TSigned signedMod = static_cast<TSigned>(m);
 		LASS_ASSERT(signedMod >= 0);
-		const TSigned tempMod = x % signedMod;
-		return tempMod >= 0 ? tempMod : (tempMod + signedMod);
+		const TSigned tempMod = static_cast<TSigned>(x % signedMod);
+		return tempMod >= 0 ? tempMod : static_cast<TSigned>(tempMod + signedMod);
 	}
 };
 
@@ -422,8 +427,8 @@ long double fastSin(long double x)
 	const long double a = 1.2732395447351628;
 	const long double b = -0.4052847345693511;
 	const long double c = 0.2248391028;
-	const long double y = a * x + b * x * fabs(x);
-	return c * (y * fabs(y) - y) + y;
+	const long double y = a * x + b * x * ::fabsl(x);
+	return c * (y * ::fabsl(y) - y) + y;
 }
 
 #endif

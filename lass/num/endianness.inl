@@ -87,7 +87,7 @@ struct Revertor<2>
 	static void revert(void* ioIn)
 	{
 		Tuint16& temp = *static_cast<Tuint16*>(ioIn);
-		temp = ((temp & 0x00ff) << 8) | (temp >> 8);
+		temp = static_cast<Tuint16>(((temp & 0x00ff) << 8) | (temp >> 8));
 	}
 };
 

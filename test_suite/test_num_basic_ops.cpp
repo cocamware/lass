@@ -57,7 +57,7 @@ void testNumBasicOpsInteger()
 	T big = 0;
 	for (T i = 0; i < T(sizeof(T)); ++i)
 	{
-		big |= (i + 1) << (8 * i);
+		big |= static_cast<T>((i + 1) << (8 * i));
 	}
 	
 	LASS_TEST_CHECK_EQUAL(num::abs(zero), zero);
@@ -93,7 +93,7 @@ void testNumBasicOps()
 	while (x <= TNumTraits::pi)
 	{
 		LASS_TEST_CHECK(num::abs(num::sin(x) - num::fastSin(x)) < T(0.0012));
-		x = x0 + i++ * dx;
+		x = x0 + static_cast<T>(i++) * dx;
 	}
 }
 

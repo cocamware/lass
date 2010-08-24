@@ -188,7 +188,7 @@ namespace lass
 
 		void  Bar::testAutomaticFunctionExport( int iA, float iB )
 		{
-			LASS_COUT << "C++ testAutomaticFunctionExport : " << iA + iB << "\n";
+			LASS_COUT << "C++ testAutomaticFunctionExport : " << static_cast<float>(iA) + iB << "\n";
 		}
 
 		void Bar::complexArguments( const std::string& iA )

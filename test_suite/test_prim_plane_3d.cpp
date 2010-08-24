@@ -118,7 +118,7 @@ void testPrimPlane3D()
 	// to live with error.
 	//
 	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal(), parametric.normal(), epsilon, 3);
-	LASS_TEST_CHECK_EQUAL(combined.normal(), cartesian.normal());
+	LASS_TEST_CHECK_CLOSE_ARRAY(combined.normal(), cartesian.normal(), epsilon, 3);
 	LASS_TEST_CHECK_CLOSE(combined.d(), parametric.d(), epsilon);
 	LASS_TEST_CHECK_EQUAL(combined.d(), cartesian.d());
 

@@ -79,8 +79,7 @@ triple<T1, T2, T3>::triple(typename util::CallTraits<T1>::TParam a,
 
 /** copy constructor with implicit conversions
 	*  This template version of the copy constructor provided here is ussed when implicit
-	*  conversions are necessary.  If an object of type Triple gets copied, the normal implicitly
-	*  generated default copy constructor is called, which is nice.
+	*  conversions are necessary.
 	*/
 template <typename T1, typename T2, typename T3>
 template <typename U1, typename U2, typename U3>

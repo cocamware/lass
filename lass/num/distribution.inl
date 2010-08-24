@@ -230,6 +230,7 @@ DistributionNormal<T, RG>::DistributionNormal(
 	generator_(&generator),
 	mean_(mean),
 	standardDeviation_(standardDeviation),
+	gset_(0),
 	iset_(false)
 {
 }
