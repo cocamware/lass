@@ -69,6 +69,7 @@ namespace impl
 	class Bytes4
 	{
 	public:
+		Bytes4(): values_() {}
 		num::Tuint8 operator[](size_t k) const { LASS_ASSERT(k < 4); return values_[k]; }
 		num::Tuint8& operator[](size_t k) { LASS_ASSERT(k < 4); return values_[k]; }
 		const num::Tuint8* get() const { return values_; }
@@ -1021,7 +1022,6 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 		for (std::ptrdiff_t x = firstX; x != lastX; /* increment in loop */ )
 		{
 			impl::Bytes4 rgbe, previous;
-			previous = rgbe;
 			stream.read(rgbe.get(), 4);
 			if (rgbe[0] == 2 && rgbe[1] == 2 && (rgbe[2] & 0x80) == 0)
 			{
@@ -1082,6 +1082,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 					x += deltaX;
 				}
 			}
+			previous = rgbe;
 		}
 
 		// decode rgbe information

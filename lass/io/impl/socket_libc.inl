@@ -49,7 +49,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#pragma GCC diagnostic ignored "-Wconversion" // htons
+#pragma GCC diagnostic ignored "-Wconversion" // htons, can't avoid conversion within macro.
 
 namespace lass
 {
