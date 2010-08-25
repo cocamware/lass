@@ -136,7 +136,11 @@ CHECK_SYMBOL_EXISTS("_abs64" "stdlib.h" LASS_HAVE_ABS64)
 include(TestBigEndian)
 TEST_BIG_ENDIAN(LASS_HAVE_BIG_ENDIAN)
 
-
+try_compile(
+  LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS
+  "${lass_BINARY_DIR}/temp"
+  "${lass_SOURCE_DIR}/lass/config/check_long_double_std_functions.cpp"
+)
 
 if(NOT "${PYTHON_INCLUDE_PATH}" STREQUAL "${_TESTED_PYTHON_INCLUDE_PATH}")
 	message(STATUS "Looking in Python.h for redefinitions ...")

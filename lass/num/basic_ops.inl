@@ -391,7 +391,9 @@ long double mod(long double x, long double m)
 	return result < 0. ? result + m : result;
 }	
 
-#else
+#endif
+
+#ifdef LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS
 
 long double abs(long double x)					{ return ::fabsl(x); }			/**< @ingroup BasicOps */
 long double inv(long double x)					{ return 1. / x; }				/**< @ingroup BasicOps */
