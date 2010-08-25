@@ -78,7 +78,11 @@
  *  @ingroup CommonMacros
  */
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#ifdef LASS_PROCESSOR_ARCHITECTURE_x86
 #	define LASS_BREAK_HERE	__asm__("int3")
+#else
+#       define LASS_BREAK_HERE   { };
+#endif
 #else
 #	if defined(_WIN64)
 #		define LASS_BREAK_HERE __debugbreak();
