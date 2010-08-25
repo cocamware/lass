@@ -60,6 +60,10 @@
 		int(0),\
 		"Images '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different size in '" LASS_HERE "'.")
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4351) // new behavior: elements of array 'array' will be default initialized
+#endif
+
 namespace lass
 {
 namespace io

@@ -66,8 +66,6 @@ extern "C"
 	bool lass_dcas64(volatile lass::num::Tuint64*, lass::num::Tuint64, lass::num::Tuint64, lass::num::Tuint64, lass::num::Tuint64);
 }
 
-#endif
-
 namespace lass
 {
 namespace util
