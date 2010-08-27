@@ -53,9 +53,9 @@
  */
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC 
-    #ifdef i386
-        #define LASS_PROCESSOR_ARCHITECTURE_x86
-    #elif defined(__ARM_EABI__)
+    #define LASS_PROCESSOR_ARCHITECTURE_x86
+    #if defined(__ARM_EABI__)
+        #undef  LASS_PROCESSOR_ARCHITECTURE_x86
         #define LASS_PROCESSOR_ARCHITECTURE_ARM
     #endif
 #else
