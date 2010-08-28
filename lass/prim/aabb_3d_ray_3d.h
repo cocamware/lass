@@ -89,9 +89,69 @@ Result intersect(
 
 	T tNear = tMin;
 	T tFar = TNumTraits::infinity;
-	if (!impl::interectSlab(min[0], max[0], support[0], direction[0], tNear, tFar)) return rNone;
-	if (!impl::interectSlab(min[1], max[1], support[1], direction[1], tNear, tFar)) return rNone;
-	if (!impl::interectSlab(min[2], max[2], support[2], direction[2], tNear, tFar)) return rNone;
+	if (!impl::intersectSlab(min[0], max[0], support[0], direction[0], tNear, tFar)) return rNone;
+	if (!impl::intersectSlab(min[1], max[1], support[1], direction[1], tNear, tFar)) return rNone;
+	if (!impl::intersectSlab(min[2], max[2], support[2], direction[2], tNear, tFar)) return rNone;
+
+	if (tNear > tMin)
+	{
+		t = tNear;
+		return rOne;
+	}
+	if (tFar > tMin)
+	{
+		t = tFar;
+		return rOne;
+	}
+	return rNone;
+}
+
+
+
+/** Find the intersection of an AABB and ray by their parameter t on the ray.
+ *  @relates lass::prim::Aabb3D
+ *  @relates lass::prim::Ray3D
+ *
+ *  This version accepts a precomputed reciprocal of the ray direction
+ *  (1/x, 1/y, 1/z). This is useful when you do many intersections
+ *  with the same ray, so the reciprocal needs only to be computed
+ *  once.
+
+ *  @param aabb [in] the AABB
+ *  @param ray [in] the ray
+ *  @param invDirection [in] the reciprocal of the ray direction
+ *  @param tMin [in] the minimum t that may be returned as valid intersection.
+ *  @param t [out] the parameter of the intersection point > @a tMin.
+ *  @return @arg rNone      no intersections with @a t > @a tMin found
+ *                          @a t is not assigned.
+ *          @arg rOne       a intersection with @a t > @a tMin is found
+ *							@a t is assigned.
+ */
+template<typename T, typename MMPAabb, typename NPRay, typename PPRay>
+Result intersect(
+		const Aabb3D<T, MMPAabb>& aabb, const Ray3D<T, NPRay, PPRay>& ray,
+		const Vector3D<T>& invDirection,
+		T& t, const T& tMin = T())
+{
+	//if (aabb.isEmpty())
+	//{
+	//	return rNone;
+	//}
+
+	typedef num::NumTraits<T> TNumTraits;
+	typedef Point3D<T> TPoint;
+	typedef Vector3D<T> TVector;
+
+	const TPoint& min = aabb.min();
+	const TPoint& max = aabb.max();
+	const TPoint& support = ray.support();
+	const TVector& direction = ray.direction();
+
+	T tNear = tMin;
+	T tFar = TNumTraits::infinity;
+	if (!impl::intersectSlab(min[0], max[0], support[0], direction[0], invDirection[0], tNear, tFar)) return rNone;
+	if (!impl::intersectSlab(min[1], max[1], support[1], direction[1], invDirection[1], tNear, tFar)) return rNone;
+	if (!impl::intersectSlab(min[2], max[2], support[2], direction[2], invDirection[2], tNear, tFar)) return rNone;
 
 	if (tNear > tMin)
 	{

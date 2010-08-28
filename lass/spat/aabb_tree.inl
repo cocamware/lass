@@ -171,12 +171,14 @@ template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator inline
 AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
+	const TVector& dir = ray.direction();
+	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
 	TValue tDummy;
-	if (isEmpty() || !TObjectTraits::aabbIntersect(nodes_.front().aabb(), ray, tDummy, tMin))
+	if (isEmpty() || !volumeIntersect(nodes_.front().aabb(), ray, invDir, tDummy, tMin))
 	{
 		return end_;
 	}
-	return doIntersect(0, ray, t, tMin, info);
+	return doIntersect(0, ray, invDir, t, tMin, info);
 }
 
 
@@ -188,6 +190,8 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 	{
 		return false;
 	}
+	const TVector& dir = ray.direction();
+	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
 #if 1
 	int stack[32];
 	size_t stackSize = 0;
@@ -199,7 +203,7 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 		LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
 		const Node& node = nodes_[index];
 
-		if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
+		if (!volumeIntersects(node.aabb(), ray, invDir, tMin, tMax))
 		{
 			continue;
 		}
@@ -480,7 +484,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(int index, const TRay& ray, TParam tM
 
 template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator 
-AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
+AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index >= 0 && static_cast<size_t>(index) < nodes_.size());
@@ -513,16 +517,16 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TPara
 	int left = index + 1;
 	int right = node.right();
 	TValue tLeftBox = 0, tRightBox = 0;
-	const bool hitsLeft = volumeIntersect(nodes_[left].aabb(), ray, tLeftBox, tMin);
-	const bool hitsRight = volumeIntersect(nodes_[right].aabb(), ray, tRightBox, tMin);
+	const bool hitsLeft = volumeIntersect(nodes_[left].aabb(), ray, invDir, tLeftBox, tMin);
+	const bool hitsRight = volumeIntersect(nodes_[right].aabb(), ray, invDir, tRightBox, tMin);
 	
 	if (!hitsLeft)
 	{
-		return hitsRight ? doIntersect(right, ray, t, tMin, info) : end_;
+		return hitsRight ? doIntersect(right, ray, invDir, t, tMin, info) : end_;
 	}
 	if (!hitsRight)
 	{
-		return doIntersect(left, ray, t, tMin, info);
+		return doIntersect(left, ray, invDir, t, tMin, info);
 	}
 
 	// ok, we intersect both childs. Visit the box that is nearest first.
@@ -533,17 +537,17 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, TReference t, TPara
 	}
 
 	TValue tLeft;
-	const TObjectIterator leftBest = doIntersect(left, ray, tLeft, tMin, info);
+	const TObjectIterator leftBest = doIntersect(left, ray, invDir, tLeft, tMin, info);
 	if (leftBest == end_)
 	{
-		return doIntersect(right, ray, t, tMin, info);
+		return doIntersect(right, ray, invDir, t, tMin, info);
 	}
 
 	if (tRightBox <= tLeft)
 	{
 		// right node might still have a closer hit.
 		TValue tRight;
-		const TObjectIterator rightBest = doIntersect(right, ray, tRight, tMin, info);
+		const TObjectIterator rightBest = doIntersect(right, ray, invDir, tRight, tMin, info);
 		if (rightBest != end_ && tRight < tLeft)
 		{
 			t = tRight;
@@ -711,23 +715,23 @@ void AabbTree<O, OT, SH>::getChildren(
 
 
 template <typename O, typename OT, typename SH>
-bool AabbTree<O, OT, SH>::volumeIntersect(const TAabb& box, const TRay& ray, TReference t, TParam tMin) const
+bool AabbTree<O, OT, SH>::volumeIntersect(const TAabb& box, const TRay& ray, const TVector& invDir, TReference t, TParam tMin) const
 {
 	if (TObjectTraits::aabbContains(box, TObjectTraits::rayPoint(ray, tMin)))
 	{
 		t = tMin;
 		return true;
 	}
-	return TObjectTraits::aabbIntersect(box, ray, t, tMin);
+	return TObjectTraits::aabbIntersect(box, ray, invDir, t, tMin);
 }
 
 
 
 template <typename O, typename OT, typename SH>
-bool AabbTree<O, OT, SH>::volumeIntersects(const TAabb& box, const TRay& ray, TParam tMin, TParam tMax) const
+bool AabbTree<O, OT, SH>::volumeIntersects(const TAabb& box, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax) const
 {
 	TValue t = 0;
-	return volumeIntersect(box, ray, t, tMin) && t <= tMax;
+	return volumeIntersect(box, ray, invDir, t, tMin) && t <= tMax;
 }
 
 

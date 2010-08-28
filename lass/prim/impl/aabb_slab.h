@@ -53,17 +53,18 @@ namespace prim
 namespace impl
 {
 
+
+
 /** @internal
  */
 template <typename T> inline
-bool interectSlab(const T min, const T max, const T support, const T direction, T& tNear, T& tFar)
+bool intersectSlab(const T min, const T max, const T support, const T direction, const T invDirection, T& tNear, T& tFar)
 {
 	if (direction == 0)
 	{
 		return support >= min && support <= max;
 	}
 	
-	const T invDirection = num::inv(direction);
 	const T tMin = (min - support) * invDirection;
 	const T tMax = (max - support) * invDirection;
 	if (direction > 0)
@@ -89,6 +90,17 @@ bool interectSlab(const T min, const T max, const T support, const T direction, 
 		}
 	}
 	return tNear <= tFar;
+}
+
+
+
+/** @internal
+ */
+template <typename T> inline
+bool intersectSlab(const T min, const T max, const T support, const T direction, T& tNear, T& tFar)
+{
+	const T invDirection = num::inv(direction);
+	return intersectSlab(min, max, support, direction, invDirection, tNear, tFar);
 }
 
 }

@@ -115,6 +115,13 @@ struct DefaultAabbRayTraits
 	{
 		return intersect(aabb, ray, t, tMin) != prim::rNone;
 	}
+
+	/** return true if AABB is intersected by ray, with the reciprocal ray direction already supplied.
+	 */
+	static bool aabbIntersect(const TAabb& aabb, const TRay& ray, const TVector& invDirection, TReference t, const TParam tMin)
+	{
+		return intersect(aabb, ray, invDirection, t, tMin) != prim::rNone;
+	}
 	
 	/** join two AABBs and return the result
 	 */

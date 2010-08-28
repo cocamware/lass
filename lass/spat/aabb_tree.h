@@ -204,7 +204,7 @@ private:
 	template <typename OutputIterator> 
 	OutputIterator doFind(int index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
 
-	TObjectIterator doIntersect(int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info) const;
+	TObjectIterator doIntersect(int index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const;
 	bool doIntersects(int iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
 	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>
@@ -212,8 +212,8 @@ private:
 		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
 	void getChildren(int index, const TPoint& target, int indices[2], TValue squaredDistances[2]) const;
-	bool volumeIntersect(const TAabb& box, const TRay& ray, TReference t, TParam tMin) const;
-	bool volumeIntersects(const TAabb& box, const TRay& ray, TParam tMin, TParam tMax) const;
+	bool volumeIntersect(const TAabb& box, const TRay& ray, const TVector& invDir, TReference t, TParam tMin) const;
+	bool volumeIntersects(const TAabb& box, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax) const;
 
 	TObjectIterators objects_;
 	TNodes nodes_;

@@ -39,7 +39,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-//#define LASS_TEST_SPAT_tree_test_helpers_DIAGNOSTICS
+//#define LASS_SPAT_OBJECT_TREES_DIAGNOSTICS
 //#define LASS_SPAT_KD_TREE_DIAGNOSTICS
 
 #include "test_common.h"
