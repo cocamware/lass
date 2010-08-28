@@ -63,19 +63,19 @@ class TestClass:
         return self.member1
 
 
-echo("Testing derived classes behavior")
-e = embedding.Bar()
-echo(e.__class__)
-echo(e.aMoreComplexFunction(1,2))
-assert(e.aMoreComplexFunction(1,2)==3)
-e = embedding.DerivedBar()
-echo(e.__class__)
-assert str(e.__class__)=="<%s 'embedding.DerivedBar'>" % ('type', 'class')[IS_PYTHON_3], str(e.__class__)
-e = embedding.testPolymorphism()
-echo(e.aMoreComplexFunction(1,2))
-assert(e.aMoreComplexFunction(1,2)==2)
-assert(str(type(barC.opaquePointer()))=="<type 'PyCObject'>")
+class TestDerived(unittest.TestCase):
+	def testDerived(self):
+		e = embedding.Bar()
+		self.assert_(isinstance(e, embedding.Bar))
+		self.assertEqual(e.aMoreComplexFunction(1,2), 3)
+		d = embedding.DerivedBar()
+		self.assert_(isinstance(d, embedding.DerivedBar))
+		self.assertEqual(d.aMoreComplexFunction(1,2), 2)
 
+
+class TestPyCObject(unittest.TestCase):
+	def testPyCObject(self):
+		self.assertEqual(str(type(barC.opaquePointer())), "<%s 'PyCObject'>" % ('type', 'class')[IS_PYTHON_3])
 
 echo("\n***\n")
 
