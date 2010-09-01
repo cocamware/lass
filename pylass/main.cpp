@@ -49,14 +49,19 @@ PY_MODULE_CLASS(modlass, pylass::SplineLinear)
 PY_MODULE_CLASS(modlass, pylass::SplineCubic)
 PY_MODULE_CLASS(modlass, pylass::Image)
 
-PyMODINIT_FUNC initlass() 
-{ 
-	modlass.inject();
+void postInject(PyObject*)
+{
 #if !defined(NDEBUG) || defined(_DEBUG)
 	PY_MODULE_ADD_INTEGER_CONSTANT( modlass, "DEBUG", true )
 #else
 	PY_MODULE_ADD_INTEGER_CONSTANT( modlass, "DEBUG", false )
 #endif
 }
+
+LASS_EXECUTE_BEFORE_MAIN(
+	modlass.setPostInject(postInject);
+	)
+
+PY_MODULE_ENTRYPOINT_NAME(modlass, lass)
 
 // EOF

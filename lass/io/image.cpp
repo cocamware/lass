@@ -1032,7 +1032,9 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 				// new rle
 				//
 				const size_t lineLength = rgbe[2] * 256 + rgbe[3];
+				LASS_ASSERT(lineLength < 32768);
 				const ptrdiff_t lastX2 = x + lineLength * deltaX;
+				LASS_ASSERT((lastX - lastX2) * deltaX >= 0);
 				for (size_t k = 0; k < 4; ++k)
 				{
 					ptrdiff_t x2 = x;
@@ -1040,8 +1042,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 					{
 						num::Tuint8 spanField = 0, value = 0;
 						stream >> spanField;
-						const bool isHomogenousSpan = (spanField & 0x80) != 0;
-						const size_t spanSize = spanField & 0x7f;
+						const bool isHomogenousSpan = spanField > 128;
+						const size_t spanSize = isHomogenousSpan ? spanField & 0x7f : spanField;
 						if (isHomogenousSpan) 
 						{
 							stream >> value;

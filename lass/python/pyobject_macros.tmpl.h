@@ -88,12 +88,16 @@
 /** @def PY_INIT_MODULE
  */
 #if PY_MAJOR_VERSION < 3
-#	define PY_MODULE_ENTRYPOINT( i_module ) \
-		PyMODINIT_FUNC LASS_CONCATENATE(init, i_module)() { i_module.inject(); }
+#	define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
+		PyMODINIT_FUNC LASS_CONCATENATE(init, i_name)() { i_module.inject(); }
 #else
-#	define PY_MODULE_ENTRYPOINT( i_module ) \
-		PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_module)() { return i_module.inject(); }
+#	define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
+		PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_name)() { return i_module.inject(); }
 #endif
+
+/** @ingroup Python
+ */
+#define PY_MODULE_ENTRYPOINT( i_module ) PY_MODULE_ENTRYPOINT_NAME( i_module, i_module )
 
 /** @ingroup Python
  *	Inject a python module so Python is aware of it.
