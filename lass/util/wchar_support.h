@@ -43,7 +43,7 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_WCHAR_SUPPORT_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_WCHAR_SUPPORT_H
 
-#include "lass_common.h"
+#include "util_common.h"
 
 #if LASS_HAVE_MULTIBYTETOWIDECHAR
 #	define LASS_HAVE_WCHAR_SUPPORT 1
@@ -56,7 +56,13 @@ namespace util
 
 #if LASS_HAVE_WCHAR_SUPPORT
 
-std::wstring utf8ToWchar(const char* utf8);
+LASS_DLL std::wstring utf8ToWchar(const std::string& utf8);
+LASS_DLL std::wstring utf8ToWchar(const char* utf8);
+LASS_DLL std::wstring utf8ToWchar(const char* utf8, size_t length);
+
+LASS_DLL std::string wcharToUtf8(const std::wstring& wide);
+LASS_DLL std::string wcharToUtf8(const wchar_t* wide);
+LASS_DLL std::string wcharToUtf8(const wchar_t* wide, size_t length);
 
 #endif
 

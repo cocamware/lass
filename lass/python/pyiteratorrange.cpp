@@ -55,6 +55,7 @@ namespace python
 
 	void PyIteratorRange::initialize()
 	{
+		LockGIL LASS_UNUSED(lock);
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_iter = &PyIteratorRange::iter;

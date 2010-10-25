@@ -55,16 +55,55 @@ namespace lass
 namespace util
 {
 
-#if LASS_HAVE_MULTIBYTETOWIDECHAR
+#if LASS_HAVE_WCHAR_SUPPORT
 
-std::wstring utf8ToWchar(const char* utf8)
+std::wstring utf8ToWchar(const char* utf8) 
+{ 
+	return utf8ToWchar(utf8, ::strlen(utf8)); 
+}
+
+inline std::wstring utf8ToWchar(const std::string& utf8) 
+{ 
+	return utf8ToWchar(utf8.c_str(), utf8.length()); 
+}
+
+#	if LASS_HAVE_MULTIBYTETOWIDECHAR
+
+std::wstring utf8ToWchar(const char* utf8, size_t length)
 {
-	const int utf8Bytes = num::numCast<int>(::strlen(utf8) + 1);
+	const int utf8Bytes = num::numCast<int>(length + 1);
 	const int wcharBytes = LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, 0, 0));
 	std::vector<wchar_t> wideString(wcharBytes);
 	LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, &wideString[0], wcharBytes));
 	return std::wstring(&wideString[0]);
 }
+
+#	endif
+
+
+
+inline std::string wcharToUtf8(const wchar_t* wide)
+{
+	return wcharToUtf8(wide, ::wcslen(wide));
+}
+
+inline std::string wcharToUtf8(const std::wstring& wide)
+{
+	return wcharToUtf8(wide.c_str(), wide.length());
+}
+
+#	if LASS_HAVE_MULTIBYTETOWIDECHAR
+
+std::string wcharToUtf8(const wchar_t* wide, size_t length)
+{
+	const int wcharBytes = num::numCast<int>(length + 1);
+	const int utf8Bytes = LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wcharBytes, 0, 0, NULL, NULL));
+	std::vector<char> utf8String(utf8Bytes);
+	LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wcharBytes, &utf8String[0], utf8Bytes, NULL, NULL));
+	return std::string(&utf8String[0]);
+}
+
+#	endif
 
 #endif
 
