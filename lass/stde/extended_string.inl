@@ -123,7 +123,8 @@ replace_all(const std::basic_string<Char, Traits, Alloc>& input,
 	const Char* to_be_replaced,
 	const Char* replacement)
 {
-	return replace_all(input, std::string(to_be_replaced), std::string(replacement));
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	return replace_all(input, string_type(to_be_replaced), string_type(replacement));
 }
 
 
@@ -145,7 +146,8 @@ template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const Char* prefix)
 {
-	return begins_with(input, std::string(prefix));
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	return begins_with(input, string_type(prefix));
 }
 
 
@@ -168,7 +170,8 @@ template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const Char* suffix)
 {
-	return ends_with(input, std::string(suffix));
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	return ends_with(input, string_type(suffix));
 }
 
 
@@ -272,7 +275,8 @@ split(const std::basic_string<Char, Traits, Alloc>& to_be_split,
 	const Char* seperator,
 	size_t max_split)
 {
-	return split(to_be_split, std::string(seperator), max_split);
+	typedef std::basic_string<Char, Traits, Alloc> string_type;
+	return split(to_be_split, string_type(seperator), max_split);
 }
 
 

@@ -60,7 +60,7 @@
 #pragma warning(3:4213)     // cast on left side of = is non-standard
 #pragma warning(3:4222)     // member function at file scope shouldn't be static
 #pragma warning(3:4234 4235)// keyword not supported or reserved for future
-#pragma warning(3:4503)		// decorated name length exceeded, name was truncated
+#pragma warning(4:4503)		// decorated name length exceeded, name was truncated
 #pragma warning(3:4504)     // type ambiguous; simplify code
 #pragma warning(3:4507)     // explicit linkage specified after default linkage
 #pragma warning(3:4515)     // namespace uses itself

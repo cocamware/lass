@@ -512,7 +512,7 @@ struct EnforcerMaker
 };
 
 #define LASS_UTIL_IMPL_MAKE_ENFORCER(predicate, raiser, t, closure, locus)\
-	::lass::util::impl::EnforcerMaker<predicate, raiser>::make(t, closure, locus)
+	::lass::util::impl::EnforcerMaker< predicate, raiser >::make(t, closure, locus)
 
 #else
 

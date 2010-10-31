@@ -71,6 +71,17 @@ namespace impl
 		}
 		return 0;
 	}
+
+	template <typename T>
+	class NoNone
+	{
+	public:
+		NoNone(const T& x = T()): value_(x) {}
+		T& reference() { return value_; }
+		const T& reference() const { return value_; }
+	private:
+		T value_;
+	};
 }
 
 /** by copy, general case assumes shadow type or PyObjectPlus based type.
@@ -255,6 +266,23 @@ struct PyExportTraits<void *>
 		}
 		v = PyCObject_AsVoidPtr(obj);
 		return 0;
+	}
+};
+
+/** NoNone refuses None as value.
+ *  @ingroup Python
+ */
+template <typename T>
+struct PyExportTraits< impl::NoNone<T> >
+{
+	static int get(PyObject* obj, impl::NoNone<T>& value)
+	{
+		if (obj == Py_None)
+		{
+			PyErr_SetString(PyExc_TypeError, "argument must be not be None");
+			return 1;
+		}
+		return PyExportTraits<T>::get(obj, value.reference());
 	}
 };
 
