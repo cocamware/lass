@@ -72,7 +72,7 @@ public:
 
 	template <typename U> struct Rebind
 	{
-		typedef SharedPtr<T, StoragePolicy, CounterPolicy> Type;
+		typedef SharedPtr<U, StoragePolicy, CounterPolicy> Type;
 	};
 
 	SharedPtr():

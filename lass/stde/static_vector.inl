@@ -100,6 +100,36 @@ static_vector<T, maxsize>::static_vector(InputIterator first, InputIterator last
 
 
 template <typename T, size_t maxsize> inline
+static_vector<T, maxsize>::static_vector(const static_vector<T, maxsize>& other):
+	size_(0)
+{
+	// may optimize this for T with trivial copy constructors.
+	insert(end(), other.begin(), other.end(), meta::Wrap<meta::False>());
+}
+
+
+
+
+template <typename T, size_t maxsize> inline
+static_vector<T, maxsize>::~static_vector()
+{
+	clear();
+}
+
+
+
+template <typename T, size_t maxsize> inline
+static_vector<T, maxsize>& static_vector<T, maxsize>::operator=(const static_vector<T, maxsize>& other)
+{
+	// may optimize this for T with trivial copy constructors.
+	erase(begin(), end());
+	insert(end(), other.begin(), other.end(), meta::Wrap<meta::False>());
+	return *this;
+}
+
+
+
+template <typename T, size_t maxsize> inline
 void static_vector<T, maxsize>::assign(size_type n, const value_type& value)
 {
 	erase(begin(), end());
@@ -114,15 +144,6 @@ void static_vector<T, maxsize>::assign(InputIterator first, InputIterator last)
 {
 	erase(begin(), end());
 	insert(end(), first, last, meta::Wrap<typename meta::IsIntegral<InputIterator>::Type>());
-}
-
-
-
-
-template <typename T, size_t maxsize> inline
-static_vector<T, maxsize>::~static_vector()
-{
-	clear();
 }
 
 
@@ -424,13 +445,22 @@ void static_vector<T, maxsize>::clear()
 }
 
 template <typename T, size_t maxsize>
-void static_vector<T, maxsize>::swap(static_vector<T, maxsize>& iOther)
+void static_vector<T, maxsize>::swap(static_vector<T, maxsize>& other)
 {
-	for (size_type i = 0; i < std::max(size(),iOther.size()); ++i)
+	static_vector<T, maxsize>* a = this;
+	static_vector<T, maxsize>* b = &other;
+	if (a->size_ > b->size_)
 	{
-		std::swap(operator[](i), iOther[i]);
+		std::swap(a, b);
 	}
-	std::swap(size_,iOther.size_);
+	LASS_ASSERT(a->size_ <= b->size_);
+	const size_type n = a->size_;
+	for (size_type i = 0; i < n; ++i)
+	{
+		std::swap((*a)[i], (*b)[i]);
+	}
+	a->insert(a->end(), b->begin() + n, b->end());
+	b->erase(b->begin() + n, b->end());
 }
 
 	
@@ -463,8 +493,7 @@ void static_vector<T, maxsize>::move_to_front(iterator first, iterator last, siz
 
 
 template <typename T, size_t maxsize>
-void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type value,  
-									   meta::Wrap<meta::True>)
+void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type value, meta::Wrap<meta::True>)
 {
 	enforce_valid_size(size_ + n);
 	move_to_back(position, end(), n);
@@ -479,8 +508,7 @@ void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type v
 
 template <typename T, size_t maxsize>
 template <typename InputIterator> 
-void static_vector<T, maxsize>::insert(iterator position, InputIterator first, InputIterator last,
-										meta::Wrap<meta::False>)
+void static_vector<T, maxsize>::insert(iterator position, InputIterator first, InputIterator last, meta::Wrap<meta::False>)
 {
 	const size_type n = std::distance(first, last);
 	enforce_valid_size(size_ + n);
@@ -499,20 +527,19 @@ void static_vector<T, maxsize>::assign(size_t n, value_type value, meta::Wrap<me
 {
 	enforce_valid_size(n);
 	clear();
-	insert(begin(), n, value, meta::Wrap<meta::True>());     				
+	insert(begin(), n, value, meta::Wrap<meta::True>());
 }
 	
 
 
 template <typename T, size_t maxsize>
 template <typename InputIterator> 
-void static_vector<T, maxsize>::assign(InputIterator first, InputIterator last,
-									   meta::Wrap<meta::False>)
+void static_vector<T, maxsize>::assign(InputIterator first, InputIterator last, meta::Wrap<meta::False>)
 {
 	const size_type n = std::distance(first, last);
 	enforce_valid_size(n);
 	clear();
-	insert(begin(), first, last, meta::Wrap<meta::False>());     				
+	insert(begin(), first, last, meta::Wrap<meta::False>());
 }
 
 

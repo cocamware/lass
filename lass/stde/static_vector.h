@@ -78,8 +78,10 @@ public:
 	static_vector();
 	static_vector(size_type n, const value_type& value = value_type());
 	template <typename InputIterator> static_vector(InputIterator first, InputIterator last);
+	static_vector(const static_vector<T, maxsize>& other);
 	~static_vector();
 
+	static_vector<T, maxsize>& operator=(const static_vector<T, maxsize>& other);
 	void assign(size_type n = 0, const value_type& value = value_type());
 	template <typename InputIterator> void assign(InputIterator first, InputIterator last);
 
@@ -117,7 +119,7 @@ public:
 	iterator erase(iterator position);
 	iterator erase(iterator first, iterator last);
 	void clear();
-	void swap(static_vector<T, maxsize>& iOther);
+	void swap(static_vector<T, maxsize>& other);
 
 private:
 
