@@ -45,7 +45,7 @@
 #include "socket.h"
 #include "../util/callback_0.h"
 #include "../util/thread_fun.h"
-#include <cstring>
+#include <string.h>
 
 namespace lass
 {

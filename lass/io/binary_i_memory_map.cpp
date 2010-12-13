@@ -43,7 +43,7 @@
 #include "lass_common.h"
 #include "binary_i_memory_map.h"
 #include "../util/impl/lass_errno.h"
-#include <cstring>
+#include <string.h>
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #       define LASS_IO_MEMORY_MAP_WIN

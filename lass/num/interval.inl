@@ -270,7 +270,7 @@ template<typename C>    C  numMax4(const C& k1,const C& k2,const C& k3,const C& 
 	return tmpmax;
 }
 
-template<typename C> __inline   void  numMinMax(const C& k1,const C& k2,C& amin,C& amax)
+template<typename C> inline   void  numMinMax(const C& k1,const C& k2,C& amin,C& amax)
 {
 	if (k1<k2)
 	{
@@ -284,7 +284,7 @@ template<typename C> __inline   void  numMinMax(const C& k1,const C& k2,C& amin,
 	}
 }
 
-template<typename C>    __inline    void  numMin(const C& k1,const C& k2,C& amin)
+template<typename C>    inline    void  numMin(const C& k1,const C& k2,C& amin)
 {
 	if (k1<k2)
 		amin = k1;

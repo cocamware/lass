@@ -1,5 +1,5 @@
 project(lass)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6.3)
 #list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
 set(LASS_MAJOR_VERSION 1)
@@ -8,6 +8,11 @@ set(LASS_PATCHLEVEL 1)
 set(LASS_OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}")
 
 set(CMAKE_DEBUG_POSTFIX _d)
+
+unset(SUNPRO)
+if("${CMAKE_C_COMPILER_ID}" MATCHES "SunPro")
+	set(SUNPRO TRUE)
+endif()
 #set(CMAKE_MINSIZEREL_POSTFIX _minsizerel)
 #set(CMAKE_RELWITHDEBINFO_POSTFIX _relwithdebinfo)
 
@@ -170,6 +175,8 @@ endmacro()
 
 if(MSVC)
 	set(lass_C_FLAGS "/EHsc")
+elseif(SUNPRO)
+	set(lass_C_FLAGS "-errtags=yes -erroff=wbadinit,wbadasg,badargtype2w,")
 else()
 	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self")
 endif()

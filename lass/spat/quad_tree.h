@@ -101,7 +101,7 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum { dimension = TObjectTraits::dimension, };
+	enum { dimension = TObjectTraits::dimension };
 
 	class Neighbour
 	{

@@ -162,8 +162,6 @@ public:
 class ClassSeq : public std::vector<float>
 {
 public:
-	ClassSeq() {}
-	virtual ~ClassSeq() {}
 	void setItem(int i, float value) { at(i) = value; }
 	float pop(int i) { float temp = at(i); erase(begin()+i); return temp; }
 	float popwo() { float temp = back(); pop_back(); return temp; }
@@ -179,12 +177,29 @@ public:
 	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
 };
 
-class ClassMap : public std::map<std::string,float>
+class ClassMap
 {
+	typedef std::map<std::string,float> TMap;
 public:
-	ClassMap() {}
-	virtual ~ClassMap() {}
-	void setItem(const std::string& iKey, float value) { operator[](iKey) = value; }
+	typedef TMap::key_type key_type;
+	typedef TMap::mapped_type mapped_type;
+	typedef TMap::const_iterator const_iterator;
+	typedef TMap::size_type size_type;
+	void setItem(const key_type& iKey, const mapped_type& value) { map_[iKey] = value; }
+	mapped_type operator[](const key_type& key) const
+	{
+		const_iterator i = map_.find(key);
+		if (i == map_.end())
+		{
+			LASS_THROW_EX(util::KeyError, key);
+		}
+		return i->second;
+	}
+	const_iterator begin() const { return map_.begin(); }
+	const_iterator end() const { return map_.end(); }
+	size_type size() const { return map_.size(); }
+private:
+	TMap map_;
 };
 
 std::map<std::string,float>::const_iterator freeBegin(const util::SharedPtr<ClassMap>& iThis)

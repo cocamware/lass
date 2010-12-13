@@ -165,7 +165,7 @@ namespace impl
 	*/
 	class LASS_DLL Map : public PyObjectPlus, util::NonCopyable
 	{
-		PY_HEADER(PyObjectPlus);
+		PY_HEADER(PyObjectPlus)
 		static PyMappingMethods pyMappingMethods;
 	public:
 		template <typename Container> Map( const util::SharedPtr<Container>& container )

@@ -51,9 +51,9 @@
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_CSTRING_H
 
 #include "stde_common.h"
-#include <cstring>
-#include <cstdio>
-#include <cstdarg>
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -68,7 +68,7 @@ namespace stde
 template <int N>
 int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
 {
-	const int numWritten = vsnprintf(buffer, N, format, args);
+	const int numWritten = ::vsnprintf(buffer, N, format, args);
 	buffer[N - 1] = 0;
 	if (numWritten < 0 || numWritten >= N)
 	{

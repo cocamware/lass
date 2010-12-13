@@ -289,7 +289,7 @@
  */
 #define PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc, i_dispatcher )\
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
-	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
+	extern "C" PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
 		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
 		{\
@@ -375,7 +375,7 @@
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX(i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc, i_dispatcher)\
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
-	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
+	extern "C" PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
 		if (LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ))\
 		{\
@@ -395,7 +395,6 @@
 		>\
 		::TImpl::callFunction(iArgs, &f_cppFunction);\
 	}\
-	extern ::std::vector< PyMethodDef > LASS_CONCATENATE( lassPythonModuleMethods_, i_module );\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
 		i_module.addFunctionDispatcher( \
@@ -715,7 +714,7 @@ $[
 */
 #define PY_CLASS_PY_METHOD_EX( i_cppClass, i_cppMethod, s_methodName, s_doc  )\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE_3( staticDispatchOverloadChain, i_cppClass, i_cppMethod);\
-	inline PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
+	extern "C" PyObject* LASS_CONCATENATE_3( staticDispatch, i_cppClass, i_cppMethod) ( PyObject* iObject, PyObject* iArgs )\
 	{\
 		if (!PyType_IsSubtype(iObject->ob_type , i_cppClass::_lassPyClassDef.type() ))\
 		{\
@@ -867,7 +866,7 @@ $[
 /*/
 #define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
-	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
+	extern "C" PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
 	{\
 		PyObject* result = 0;\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs, result))\
@@ -1159,7 +1158,7 @@ $[
 /*/
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX(t_cppClass, i_cppFreeMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
-	PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
+	extern "C" PyObject* i_dispatcher(PyObject* iObject, PyObject* iArgs)\
 	{\
 		PyObject* result = 0;\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iObject, iArgs, result))\
@@ -1532,7 +1531,7 @@ $[
  */
 #define PY_CLASS_STATIC_METHOD_EX( t_cppClass, f_cppFunction, s_methodName, s_doc, i_dispatcher )\
 	PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
-	inline PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
+	extern "C" PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
 		{\
@@ -1641,7 +1640,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_RW_EX( t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc, i_dispatcher)\
-        PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+        extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
         {\
                 typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
                 TShadowTraits::TCppClassPtr self; \
@@ -1657,7 +1656,7 @@ $[
                 } \
                 return 0; \
         }\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
+	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1731,7 +1730,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_R_EX( t_cppClass, i_cppGetter, s_memberName, s_doc, i_dispatcher )\
-        PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+        extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
         {\
                 typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
                 TShadowTraits::TCppClassPtr self; \
@@ -1826,13 +1825,13 @@ $[
  *  @endcode
  */
 #define PY_CLASS_FREE_MEMBER_RW_EX( t_cppClass, i_cppFreeGetter, i_cppFreeSetter, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
 		return ::lass::python::impl::CallMethod<TShadowTraits>::freeGet( iObject, i_cppFreeGetter );\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
+	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1910,7 +1909,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_FREE_MEMBER_R_EX( t_cppClass, i_freeCppGetter, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
@@ -1980,7 +1979,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_PUBLIC_MEMBER_EX(t_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher)\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TConstCppClassPtr self;\
@@ -1990,7 +1989,7 @@ $[
 		}\
 		return lass::python::pyBuildSimpleObject(self->i_cppMember);\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)(PyObject* obj,PyObject* args, void* )\
+	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)(PyObject* obj,PyObject* args, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TCppClassPtr self;\
@@ -2068,7 +2067,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_PUBLIC_MEMBER_R_EX( t_cppClass, i_cppMember, s_memberName, s_doc, i_dispatcher )\
-	PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)(PyObject* obj, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		TShadowTraits::TConstCppClassPtr self;\
@@ -2078,7 +2077,7 @@ $[
 		}\
 		return lass::python::pyBuildSimpleObject(self->i_cppMember);\
 	}\
-	int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject*, PyObject*, void* )\
+	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject*, PyObject*, void* )\
 	{\
 		std::ostringstream buffer;\
 		buffer << "Object/reference " << s_memberName << " is read-only.";\
@@ -2163,7 +2162,7 @@ $[
  */
 #define PY_CLASS_CONSTRUCTOR_EX( t_cppClass, t_params, i_dispatcher )\
 	static newfunc LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
-	PyObject* i_dispatcher(PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds)\
+	extern "C" PyObject* i_dispatcher(PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds)\
 	{\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
 		{\
@@ -2252,7 +2251,7 @@ $[
  */
 #define PY_CLASS_FREE_CONSTRUCTOR_EX( t_cppClass, f_cppFunction, t_params, i_dispatcher )\
 	static newfunc LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
-	inline PyObject* i_dispatcher( PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds )\
+	extern "C" PyObject* i_dispatcher( PyTypeObject *iSubtype, PyObject *iArgs, PyObject *iKwds )\
 	{\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
 		{\
@@ -2303,7 +2302,7 @@ $[
  */
 #define PY_CLASS_METHOD_IMPL(t_cppClass, i_cppMethod, s_methodName, s_doc, i_dispatcher, i_caller)\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
-	PyObject* i_dispatcher(PyObject* iSelf, PyObject* iArgs)\
+	extern "C" PyObject* i_dispatcher(PyObject* iSelf, PyObject* iArgs)\
 	{\
 		PyObject* result = 0;\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain)(iSelf, iArgs, result))\

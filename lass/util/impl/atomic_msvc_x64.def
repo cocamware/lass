@@ -6,3 +6,4 @@ EXPORTS
     lass_dcas8
     lass_dcas16
     lass_dcas32
+    lass_dcas64

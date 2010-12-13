@@ -211,10 +211,10 @@ public:
 		T* ptr;
 		__asm__ __volatile__("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
 		return ptr;
-#	elif defined(LASS_UTIL_IMPL_ATOMIC_MSVC_X64)
+#	elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 		return reinterpret_cast<T*>(__ll_rshift(*reinterpret_cast<const volatile __int64*>(&bits_), 16));
 #	else
-		return (bits_ & 0xa000000000000000 == 0) ?
+		return ((bits_ & 0xa000000000000000) == 0) ?
 			reinterpret_cast<T*>(bits_ >> 16) :
 			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
 #	endif
@@ -228,6 +228,33 @@ public:
 	}
 private:
 	num::Tuint64 bits_;
+#elif LASS_ACTUAL_ADDRESS_SIZE == 32 && defined(__sparc)
+	// let's play a little to ensure 8 byte alignment.
+	typedef num::TuintPtr TTag;
+	TaggedPtr(): bits_(0) {}
+	TaggedPtr(T* ptr, TTag tag) { data_.ptr_ = ptr, data_.tag_ = tag; }
+	TaggedPtr(const TaggedPtr& other): data_(other.data_) {}
+	TaggedPtr(const volatile TaggedPtr& other): data_(other.data_) {}
+	TaggedPtr& operator=(const TaggedPtr& other) { data_ = other.data_; return *this; }
+	TaggedPtr& operator=(const volatile TaggedPtr& other) { data_ = other.data_; return *this; }
+	T* get() const { return data_.ptr_; }
+	TTag tag() const { return data_.tag_; }
+	bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+	bool operator==(const volatile TaggedPtr& other) const { return bits_ == other.bits_; }
+	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
+	{
+		return util::atomicCompareAndSwap(bits_, expected.bits_, fresh.bits_);
+	}
+	struct Data
+	{
+		T* ptr_;
+		TTag tag_;
+	};
+	union 
+	{
+		Data data_;
+		num::Tuint64 bits_;
+	};
 #elif LASS_ACTUAL_ADDRESS_SIZE == 32
 	// We're in 32 bit space, so we use a 64 bit CAS to do tagging
 	//

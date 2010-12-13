@@ -139,7 +139,7 @@ namespace test
 
 	class DerivedBar : public Bar
 	{
-		PY_HEADER( Bar );
+		PY_HEADER( Bar )
 
 	public:
 		DerivedBar() {}

@@ -78,7 +78,7 @@ enum RangeType
 	rtClosed    = 0x0,  ///< range is closed on both sides: [inf, sup]
 	rtRightOpen = 0x1,  ///< range is open to the right: [inf, sup)
 	rtLeftOpen  = 0x2,  ///< range is open to the left: (inf, sup]
-	rtOpen      = 0x3,  ///< range is open to both sides: (inf, sup)
+	rtOpen      = 0x3   ///< range is open to both sides: (inf, sup)
 };
 
 

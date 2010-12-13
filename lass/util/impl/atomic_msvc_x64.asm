@@ -73,5 +73,24 @@ lass_dcas32 PROC
 	ret
 lass_dcas32 ENDP
 
+lass_dcas64 PROC
+	; rcx = dest
+	; rdx = new1
+	; r8 = new2
+	; r9 = expected1
+	; [rsp+28h] = expected2
+	mov r10, rbx ; backup
+	mov r11, rcx
+	mov rbx, rdx
+	mov rcx, r8
+	mov rax, r9
+	mov rdx, QWORD PTR [rsp+28h]
+	lock cmpxchg16b [r11]
+	mov rax, 0
+	sete al
+	mov rbx, r10 ; restore
+	ret
+lass_dcas64 ENDP
+
 END
 

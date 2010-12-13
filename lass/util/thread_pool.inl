@@ -46,7 +46,8 @@
 #	pragma warning(disable: 4996) // this function or variable may be unsafe
 #endif
 
-#include <cstring>
+#include <string.h>
+#include <stdio.h>
 
 namespace lass
 {
@@ -213,9 +214,9 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 		{
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-			_snprintf(
+			::_snprintf(
 #else
-			snprintf(
+			::snprintf(
 #endif
 				indexBuffer, indexLength + 1, "%02X", int(i & 0xff));
 			indexBuffer[indexLength] = '\0';

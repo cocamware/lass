@@ -73,7 +73,7 @@ namespace lass
 					sSsizeSsizeObjArg,
 					sObjObj,
 					sObjObjArg,
-					sArgKw,
+					sArgKw
 				};
 				OverloadLink();
 				void setNull();

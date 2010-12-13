@@ -55,7 +55,7 @@
 #include "../meta/select.h"
 #include "../meta/wrap.h"
 #include "../meta/type_list.h"
-
+#include "../meta/is_const.h"
 
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
@@ -438,25 +438,14 @@ $[
 	}
 
 	template <typename C, typename R>
-	static PyObject* freeGet(PyObject* object, R (*function)(const C&) )
-	{
-		typename ShadowTraits::TConstCppClassPtr self;
-		if (ShadowTraits::getObject(object, self) != 0)
-		{
-			return 0;
-		}
-		try
-		{
-			PyObject* result = pyBuildSimpleObject(function(*self));
-			return establishMagicalBackLinks(result, object);
-		}
-		LASS_PYTHON_CATCH_AND_RETURN
-	}
-
-	template <typename C, typename R>
 	static PyObject* freeGet(PyObject* object, R (*function)(C&) )
 	{
-		typename ShadowTraits::TCppClassPtr self;
+		typedef typename meta::Select<
+			meta::IsConst<C>,
+			typename ShadowTraits::TConstCppClassPtr,
+			typename ShadowTraits::TCppClassPtr
+			>::Type TSelfPtr;
+		TSelfPtr self;
 		if (ShadowTraits::getObject(object, self) != 0)
 		{
 			return 0;

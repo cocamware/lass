@@ -79,6 +79,8 @@
  */
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
 #	define LASS_BREAK_HERE	__asm__("int3")
+#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_SUNPRO
+#	define LASS_BREAK_HERE
 #else
 #	if defined(_WIN64)
 #		define LASS_BREAK_HERE __debugbreak();

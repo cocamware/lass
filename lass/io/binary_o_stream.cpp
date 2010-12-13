@@ -42,7 +42,7 @@
 
 #include "lass_common.h"
 #include "binary_o_stream.h"
-#include <cstring>
+#include <string.h>
 
 // static_cast from pointer to TintPtr gives warning on MSVC, yet both are identical in size [Bramz]
 // 
@@ -196,7 +196,7 @@ BinaryOStream& BinaryOStream::operator<<(const void* x)
 
 BinaryOStream& BinaryOStream::operator<<(const char* x)
 {
-	return writeString(x, strlen(x));
+	return writeString(x, ::strlen(x));
 }
 
 

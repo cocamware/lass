@@ -93,7 +93,7 @@ namespace num_traits
 		LASS_TEST_CHECK(!TNumTraits::isDistribution);
 		LASS_TEST_CHECK(TNumTraits::isIntegral);
 		LASS_TEST_CHECK(TNumTraits::isNative);
-		LASS_TEST_CHECK_EQUAL(TNumTraits::isSigned == 1, std::numeric_limits<T>::is_signed);
+		LASS_TEST_CHECK_EQUAL(TNumTraits::isSigned == 1, bool(std::numeric_limits<T>::is_signed));
 		LASS_TEST_CHECK(!TNumTraits::hasInfinity);
 		LASS_TEST_CHECK(!TNumTraits::hasNaN);
 

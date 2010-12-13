@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2009 the Initial Developer.
+ *	Copyright (C) 2004-2010 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,70 +40,69 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-/** @defgroup extended_cstring
- *  @brief extra functions for plain old C strings
- *  @author Bram de Greve [BdG]
- */
-
-#include "lass_common.h"
-#include "extended_cstring.h"
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
-#endif
+#define LASS_UTIL_ATOMIC_HAVE_POOR_MANS_IMPL
 
 namespace lass
 {
-namespace stde
+namespace util
+{
+namespace impl
 {
 
-std::string safe_vformat(const char* format, va_list args)
+class LASS_DLL PoorMansGlobalAtomicLock
 {
-	size_t size = 256;
-	std::vector<char> dynamicBuffer(size);
-	while (true)
+public:
+	PoorMansGlobalAtomicLock();
+	~PoorMansGlobalAtomicLock();
+};
+
+template <int byteSize>
+struct AtomicOperations
+{
+	template <typename T>
+	static T compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size - 1, format, args);
-#else		
-		va_list ap;
-		va_copy(ap, args);
-		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size, format, ap);
-		va_end(ap);
-#endif
-		if (numWritten > 0 && numWritten < static_cast<int>(size))
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		const T old = dest;
+		if (old == expectedValue)
 		{
-			return std::string(&dynamicBuffer[0]);
+			dest = newValue;
 		}
-		if (numWritten < 0)
-		{
-			size *= 2;
-		}
-		else
-		{
-			size = numWritten + 1;
-		}
-		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
-		{
-			throw std::length_error("safe_vformat: buffer is growing to large");
-		}
-		dynamicBuffer.resize(size);
+		return old;
 	}
-}
 
-std::string safe_format(const char* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	std::string result = safe_vformat(format, args);
-	va_end(args);
-	return result;
-}
+	template <typename T1, typename T2> inline 
+	static bool LASS_CALL compareAndSwap(
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
+	{
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		volatile T2& dest2 = *reinterpret_cast<volatile T2*>((&dest1) + 1);
+		if (dest1 == expected1 && dest2 == expected2)
+		{
+			dest1 = new1;
+			dest2 = new2;
+			return true;
+		}
+		return false;
+	}
+
+	template <typename T> inline
+	static void LASS_CALL increment(volatile T& value)
+	{
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		++value;
+	}
+
+	template <typename T> inline
+	static void LASS_CALL decrement(volatile T& value)
+	{
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		--value;
+	}
+};
 
 }
 }
-
+}
 
 // EOF

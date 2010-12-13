@@ -58,7 +58,7 @@ enum Orientation
 {
 	oInvalid            = 0,    /**< invalid state */
 	oClockWise          = 1,    /**< clockwise orientation */
-	oCounterClockWise   = 2,    /**< counterclockwise orientation */
+	oCounterClockWise   = 2    /**< counterclockwise orientation */
 };
 
 }

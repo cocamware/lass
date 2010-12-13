@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2009 the Initial Developer.
+ *	Copyright (C) 2004-2010 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,70 +40,54 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-/** @defgroup extended_cstring
- *  @brief extra functions for plain old C strings
- *  @author Bram de Greve [BdG]
- */
-
 #include "lass_common.h"
-#include "extended_cstring.h"
+#include "../atomic.h"
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
-#endif
+#ifdef LASS_UTIL_ATOMIC_HAVE_POOR_MANS_IMPL
+
+#warning "[LASS BUILD MSG] Poor man's implementation of atomic.h, performance may suffer severely!"
+#include "../thread.h"
+
+namespace
+{
+
+using ::lass::util::Mutex;
+
+Mutex* const globalMutex()
+{
+	static Mutex* mutex = 0;
+	if (!mutex)
+	{
+		mutex = new Mutex;
+	}
+	return mutex;
+}
+
+Mutex* const initializeBeforeMain = globalMutex();
+
+}
 
 namespace lass
 {
-namespace stde
+namespace util
+{
+namespace impl
 {
 
-std::string safe_vformat(const char* format, va_list args)
+PoorMansGlobalAtomicLock::PoorMansGlobalAtomicLock()
 {
-	size_t size = 256;
-	std::vector<char> dynamicBuffer(size);
-	while (true)
-	{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size - 1, format, args);
-#else		
-		va_list ap;
-		va_copy(ap, args);
-		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size, format, ap);
-		va_end(ap);
+	globalMutex()->lock();
+}
+
+PoorMansGlobalAtomicLock::~PoorMansGlobalAtomicLock()
+{
+	globalMutex()->unlock();
+};
+
+}
+}
+}
+
 #endif
-		if (numWritten > 0 && numWritten < static_cast<int>(size))
-		{
-			return std::string(&dynamicBuffer[0]);
-		}
-		if (numWritten < 0)
-		{
-			size *= 2;
-		}
-		else
-		{
-			size = numWritten + 1;
-		}
-		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
-		{
-			throw std::length_error("safe_vformat: buffer is growing to large");
-		}
-		dynamicBuffer.resize(size);
-	}
-}
-
-std::string safe_format(const char* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	std::string result = safe_vformat(format, args);
-	va_end(args);
-	return result;
-}
-
-}
-}
-
 
 // EOF
