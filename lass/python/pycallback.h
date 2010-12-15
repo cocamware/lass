@@ -146,7 +146,7 @@ typedef PyObjectPtr<MultiCallback>::Type TMultiCallbackPtr;
 */
 class LASS_PYTHON_DLL MultiCallback : public PyObjectPlus, util::NonCopyable
 {
-	PY_HEADER(PyObjectPlus);
+	PY_HEADER(PyObjectPlus)
 public:
 	template <typename CallbackType> MultiCallback( const util::SharedPtr<CallbackType>& callback)
 	{

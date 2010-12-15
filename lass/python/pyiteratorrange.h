@@ -120,7 +120,7 @@ namespace impl
 
 class LASS_PYTHON_DLL PyIteratorRange : public lass::python::PyObjectPlus
 {
-	PY_HEADER(PyObjectPlus);
+	PY_HEADER(PyObjectPlus)
 public:
 	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last) 
 	{

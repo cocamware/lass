@@ -42,7 +42,7 @@
 
 #include "lass_common.h"
 #include "binary_i_memory_block.h"
-#include <cstring>
+#include <string.h>
 
 namespace lass
 {

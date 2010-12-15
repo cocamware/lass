@@ -71,6 +71,7 @@ template <typename T>
 void testNumBasicOps()
 {
 	typedef num::NumTraits<T> TNumTraits;
+	const T tolerance = 1e-6f;
 
 	// sinc
 	T x = TNumTraits::one;
@@ -80,9 +81,11 @@ void testNumBasicOps()
 		x /= 10;
 		y = num::sin(x) / x;
 		LASS_TEST_CHECK(y <= TNumTraits::one);
-		LASS_TEST_CHECK_EQUAL(num::sinc(x), y);
+		LASS_TEST_CHECK_CLOSE(num::sinc(x), y, tolerance);
 	}
 	while (y < TNumTraits::one);
+	LASS_TEST_CHECK_EQUAL(num::sinc(x), TNumTraits::one);
+	LASS_TEST_CHECK_EQUAL(num::sinc(TNumTraits::zero), TNumTraits::one);
 	LASS_COUT << "sinc(" << typeid(T).name() << ") == 1 for x <= " << x << std::endl;
 
 	// fastSin

@@ -66,11 +66,11 @@ std::string safe_vformat(const char* format, va_list args)
 	while (true)
 	{
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-		const int numWritten = vsnprintf(&dynamicBuffer[0], size - 1, format, args);
+		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size - 1, format, args);
 #else		
 		va_list ap;
 		va_copy(ap, args);
-		const int numWritten = vsnprintf(&dynamicBuffer[0], size, format, ap);
+		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size, format, ap);
 		va_end(ap);
 #endif
 		if (numWritten > 0 && numWritten < static_cast<int>(size))

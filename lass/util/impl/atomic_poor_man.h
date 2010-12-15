@@ -40,83 +40,69 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-
-
-/** @defgroup extended_cstring
- *  @brief extra functions for plain old C strings
- *  @author Bram de Greve [BdG]
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_CSTRING_H
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_CSTRING_H
-
-#include "stde_common.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
-#endif
+#define LASS_UTIL_ATOMIC_HAVE_POOR_MANS_IMPL
 
 namespace lass
 {
-namespace stde
+namespace util
+{
+namespace impl
 {
 
-template <int N>
-int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
+class LASS_DLL PoorMansGlobalAtomicLock
 {
-	const int numWritten = ::vsnprintf(buffer, N, format, args);
-	buffer[N - 1] = 0;
-	if (numWritten < 0 || numWritten >= N)
+public:
+	PoorMansGlobalAtomicLock();
+	~PoorMansGlobalAtomicLock();
+};
+
+template <int byteSize>
+struct AtomicOperations
+{
+	template <typename T>
+	static T compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
-		throw std::length_error("safe_vsprintf: buffer overflow.");
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		const T old = dest;
+		if (old == expectedValue)
+		{
+			dest = newValue;
+		}
+		return old;
 	}
-	return numWritten;
-}
 
-template <int N>
-int safe_sprintf(char (& buffer)[N], const char* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	const int numWritten = safe_vsprintf(buffer, format, args);
-	va_end(args);
-	return numWritten;
-}
-
-template <size_t N>
-char* safe_strcat(char (&buffer)[N], const char* source)
-{
-	if (strlen(buffer) + strlen(source) >= N)
+	template <typename T1, typename T2> inline 
+	static bool LASS_CALL compareAndSwap(
+			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
-		throw std::length_error("safe_strcat: buffer is too small");
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		volatile T2& dest2 = *reinterpret_cast<volatile T2*>((&dest1) + 1);
+		if (dest1 == expected1 && dest2 == expected2)
+		{
+			dest1 = new1;
+			dest2 = new2;
+			return true;
+		}
+		return false;
 	}
-	return strcat(buffer, source);
-}
 
-template <size_t N>
-char* safe_strcpy(char (&buffer)[N], const char* source)
-{
-	if (strlen(source) >= N)
+	template <typename T> inline
+	static void LASS_CALL increment(volatile T& value)
 	{
-		throw std::length_error("safe_strcpy: buffer is too small");
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		++value;
 	}
-	return strcpy(buffer, source);
+
+	template <typename T> inline
+	static void LASS_CALL decrement(volatile T& value)
+	{
+		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		--value;
+	}
+};
+
 }
-
-LASS_DLL std::string LASS_CALL safe_vformat(const char* format, va_list args);
-LASS_DLL std::string LASS_CALL safe_format(const char* format, ...);
-
 }
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
-
-#endif
 
 // EOF

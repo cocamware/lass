@@ -52,6 +52,7 @@
 #include "../util/string_cast.h"
 #include "../util/shared_ptr.h"
 #include "../stde/extended_algorithm.h"
+#include "../meta/type_traits.h"
 
 #include <vector>
 #include <list>
@@ -249,16 +250,13 @@ struct ShadowTraitsContainer
 
 	template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& container)
 	{
-		return ConcreteTraits::getObjectImpl(obj, container, true);
-	}
-	template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<const Container>& container)
-	{
-		util::SharedPtr<Container> temp;
+		typedef typename meta::TypeTraits<Container>::TNonConst TNonConstContainer;
+		util::SharedPtr<TNonConstContainer> temp;
 		if (ConcreteTraits::getObjectImpl(obj, temp, false) != 0)
 		{
 			return 1;
 		}
-		container = temp.template constCast<const Container>();
+		container = temp.template constCast<Container>();
 		return 0;
 	}
 	template <typename Container> static int getObject(PyObject* obj, Container& container)

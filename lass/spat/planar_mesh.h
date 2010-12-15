@@ -192,7 +192,7 @@ namespace spat
 			{
 				Impl(ResetableThreadLocalVariable* self): self(self)
 				{
-					self->registerImpl(this);
+					this->self->registerImpl(this);
 				}
 				Impl(const Impl& other): self(other.self)
 				{

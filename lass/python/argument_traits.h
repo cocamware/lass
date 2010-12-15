@@ -299,12 +299,12 @@ struct ArgumentTraits< util::SharedPtr<T, S, C> >:
 
 /** by SharedPtr
  *  @ingroup Python
- */
+ *//*
 template <typename T, template <typename, typename> class S, typename C>
 struct ArgumentTraits< util::SharedPtr<const T, S, C> >: 
 	impl::ArgumentTraitsSelector< util::SharedPtr<const T, S, C> , IsPyObject<T>::value, ShadoweeTraits<T>::value>
 {
-};
+};*/
 
 // --- odds and ends ---
 

@@ -55,7 +55,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_RANDOM_H
 
 #include "num_common.h"
-#include <cstdlib>
+#include <stdlib.h>
 #include "../util/call_traits.h"
 
 namespace lass
@@ -119,7 +119,7 @@ private:
 		modulus_ = 2147483647,
 		seedMask_ = 123456789,
 		schrageQuotient_ = modulus_ / multiplier_,
-		schrageRest_ = modulus_ % multiplier_,
+		schrageRest_ = modulus_ % multiplier_
 	};
 
 	TValue buffer_;
@@ -175,7 +175,7 @@ private:
 	enum
 	{
 		stateSize_  = 624,          /**< size of state vector */
-		shiftSize_  = 397,
+		shiftSize_  = 397
 	};
 
 	void reload();

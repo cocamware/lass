@@ -40,82 +40,53 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+#include "lass_common.h"
+#include "../atomic.h"
 
+#ifdef LASS_UTIL_ATOMIC_HAVE_POOR_MANS_IMPL
 
-/** @defgroup extended_cstring
- *  @brief extra functions for plain old C strings
- *  @author Bram de Greve [BdG]
- */
+#warning "[LASS BUILD MSG] Poor man's implementation of atomic.h, performance may suffer severely!"
+#include "../thread.h"
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_CSTRING_H
-#define LASS_GUARDIAN_OF_INCLUSION_STDE_EXTENDED_CSTRING_H
+namespace
+{
 
-#include "stde_common.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
+using ::lass::util::Mutex;
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
-#endif
+Mutex* const globalMutex()
+{
+	static Mutex* mutex = 0;
+	if (!mutex)
+	{
+		mutex = new Mutex;
+	}
+	return mutex;
+}
+
+Mutex* const initializeBeforeMain = globalMutex();
+
+}
 
 namespace lass
 {
-namespace stde
+namespace util
+{
+namespace impl
 {
 
-template <int N>
-int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
+PoorMansGlobalAtomicLock::PoorMansGlobalAtomicLock()
 {
-	const int numWritten = ::vsnprintf(buffer, N, format, args);
-	buffer[N - 1] = 0;
-	if (numWritten < 0 || numWritten >= N)
-	{
-		throw std::length_error("safe_vsprintf: buffer overflow.");
-	}
-	return numWritten;
+	globalMutex()->lock();
 }
 
-template <int N>
-int safe_sprintf(char (& buffer)[N], const char* format, ...)
+PoorMansGlobalAtomicLock::~PoorMansGlobalAtomicLock()
 {
-	va_list args;
-	va_start(args, format);
-	const int numWritten = safe_vsprintf(buffer, format, args);
-	va_end(args);
-	return numWritten;
-}
-
-template <size_t N>
-char* safe_strcat(char (&buffer)[N], const char* source)
-{
-	if (strlen(buffer) + strlen(source) >= N)
-	{
-		throw std::length_error("safe_strcat: buffer is too small");
-	}
-	return strcat(buffer, source);
-}
-
-template <size_t N>
-char* safe_strcpy(char (&buffer)[N], const char* source)
-{
-	if (strlen(source) >= N)
-	{
-		throw std::length_error("safe_strcpy: buffer is too small");
-	}
-	return strcpy(buffer, source);
-}
-
-LASS_DLL std::string LASS_CALL safe_vformat(const char* format, va_list args);
-LASS_DLL std::string LASS_CALL safe_format(const char* format, ...);
+	globalMutex()->unlock();
+};
 
 }
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
+}
 
 #endif
 

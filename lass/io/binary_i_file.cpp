@@ -48,7 +48,7 @@
 #	include "../util/wchar_support.h"
 #endif
 
-#include <cstdio>
+#include <stdio.h>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe

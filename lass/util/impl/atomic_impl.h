@@ -60,12 +60,14 @@ template <int byteSize> struct AtomicOperations;
 #	include "atomic_msvc_x86.h"
 #elif (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC) && (LASS_ADDRESS_SIZE == 64)
 #	include "atomic_msvc_x64.h"
+#elif (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_SOLARIS)
+#	include "atomic_solaris.h"
 #elif (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) && defined(LASS_PROCESSOR_ARCHITECTURE_x86)
 #	include "atomic_gcc_x86.h"
 #elif (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) && defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
-#       include "atomic_gcc_arm.h"
+#	include "atomic_gcc_arm.h"
 #else
-#	error [LASS BUILD MSG] missing implementation for atomic primitives.
+#	include "atomic_poor_man.h"
 #endif
 
 // EOF

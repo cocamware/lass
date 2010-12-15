@@ -1,5 +1,5 @@
 project(lass)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6.3)
 #list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
 set(LASS_MAJOR_VERSION 1)
@@ -10,7 +10,10 @@ set(LASS_PYTHON_OUTPUT_NAME "lass-python-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERS
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
-
+unset(SUNPRO)
+if("${CMAKE_C_COMPILER_ID}" MATCHES "SunPro")
+	set(SUNPRO TRUE)
+endif()
 # --- SETTING A PREFIX IF NOT WAS FORCED BY USER ---
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	if(WIN32)
@@ -192,6 +195,8 @@ endmacro()
 
 if(MSVC)
 	set(lass_C_FLAGS "/EHsc")
+elseif(SUNPRO)
+	set(lass_C_FLAGS "-errtags=yes -erroff=wbadinit,wbadasg,badargtype2w,")
 else()
 	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion")
 endif()

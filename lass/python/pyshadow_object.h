@@ -47,7 +47,7 @@ namespace impl
 enum ShadoweeConstness
 {
 	scConst,
-	scNonConst,
+	scNonConst
 };
 
 /** @ingroup Python
@@ -520,14 +520,14 @@ typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, 
 /** @ingroup Python
  */
 #define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits) \
-	class dllInterface i_PyObjectShadowClass: \
-		public ::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits> \
+	class dllInterface i_PyObjectShadowClass : \
+		public ::lass::python::ShadowClass< i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits > \
 	{ \
 		PY_HEADER(t_PyObjectParent) \
 		static void _lassPyClassRegisterHook() { registerWithParent(); } \
 	public: \
 		i_PyObjectShadowClass(const TConstShadoweePtr& shadowee, ::lass::python::impl::ShadoweeConstness constness): \
-			::lass::python::ShadowClass<i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits>(shadowee, constness) \
+			::lass::python::ShadowClass< i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits >(shadowee, constness) \
 		{ \
 		} \
 	}; \
@@ -544,7 +544,7 @@ typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, 
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::SharedPointerTraits< t_CppClass >)
 
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
-	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent::TPointerTraits::Rebind<t_CppClass>::Type )
+	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent::TPointerTraits::Rebind< t_CppClass >::Type )
 
 /** @ingroup Python
  *  @deprecated 

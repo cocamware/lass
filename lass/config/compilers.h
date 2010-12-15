@@ -48,6 +48,7 @@
 #define LASS_COMPILER_TYPE_INTEL 1
 #define LASS_COMPILER_TYPE_MSVC 2
 #define LASS_COMPILER_TYPE_GCC 3
+#define LASS_COMPILER_TYPE_SUNPRO 4
 
 #if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
 //  Intel
@@ -66,6 +67,10 @@
 //  example) also #define _MSC_VER
 #	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_MSVC
 #	include "compiler_msvc.h"
+
+#elif defined __SUNPRO_CC
+#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_SUNPRO
+#	include "compiler_sunpro.h"
 
 #else
 #	define LASS_COMPILER_TYPE 0

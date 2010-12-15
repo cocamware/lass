@@ -331,7 +331,7 @@ namespace impl
 	*/
 	class LASS_PYTHON_DLL Sequence : public PyObjectPlus, util::NonCopyable
 	{
-		PY_HEADER(PyObjectPlus);
+		PY_HEADER(PyObjectPlus)
 		static PySequenceMethods pySequenceMethods;
 		static PyMappingMethods pyMappingMethods;
 		static bool isInitialized;
