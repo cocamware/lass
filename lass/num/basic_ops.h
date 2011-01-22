@@ -123,9 +123,11 @@ inline float inv(float x);
 inline float sqrt(float x);
 inline float pow(float x, float p);
 inline float exp(float x);
+inline float expm1(float x);
 inline float log(float x);
 inline float log2(float x);
 inline float log10(float x);
+inline float log1p(float x);
 inline float cos(float x);
 inline float sin(float x);
 inline float tan(float x);
@@ -152,9 +154,11 @@ inline double inv(double x);
 inline double sqrt(double x);
 inline double pow(double x, double p);
 inline double exp(double x);
+inline double expm1(double x);
 inline double log(double x);
 inline double log2(double x);
 inline double log10(double x);
+inline double log1p(double x);
 inline double cos(double x);
 inline double sin(double x);
 inline double tan(double x);
@@ -176,14 +180,22 @@ inline double fastSin(double x);
 
 // long double
 
+#if defined(LASS_NUM_BASIC_OPS_USE_BUILTIN_LONG_DOUBLE) || defined(LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS)
+#	define LASS_HAVE_LONG_DOUBLE 1
+#endif
+
+#if LASS_HAVE_LONG_DOUBLE
+
 inline long double abs(long double x);
 inline long double inv(long double x);
 inline long double sqrt(long double x);
 inline long double pow(long double x, long double p);
 inline long double exp(long double x);
+inline long double expm1(long double x);
 inline long double log(long double x);
 inline long double log2(long double x);
 inline long double log10(long double x);
+inline long double log1p(long double x);
 inline long double cos(long double x);
 inline long double sin(long double x);
 inline long double tan(long double x);
@@ -201,6 +213,7 @@ inline long double mod(long double x, long double d);
 
 inline long double fastSin(long double x);
 
+#endif
 
 
 // --- char ----------------------------------------------------------------------------------------

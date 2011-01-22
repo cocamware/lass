@@ -98,6 +98,9 @@ void testNumBasicOps()
 		LASS_TEST_CHECK(num::abs(num::sin(x) - num::fastSin(x)) < T(0.0012));
 		x = x0 + static_cast<T>(i++) * dx;
 	}
+
+	LASS_TEST_CHECK_EQUAL(num::expm1(T(0)), T(0));
+	LASS_TEST_CHECK_EQUAL(num::log1p(T(0)), T(0));
 }
 
 TUnitTest test_num_basic_ops()

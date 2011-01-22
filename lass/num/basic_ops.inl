@@ -316,6 +316,25 @@ float fastSin(float x)
 	return c * (y * fabsf(y) - y) + y;
 }
 
+/** @ingroup BasicOps */
+float expm1(float x)
+{ 
+	if (num::abs(x) < 1e-4)
+	{
+		return x + .5f * x * x;
+	}
+	return num::exp(x) - 1;
+}
+
+/** @ingroup BasicOps */
+float log1p(float x)
+{ 
+	if (num::abs(x) < 1e-4)
+	{
+		return x - .5f * x * x;
+	}
+	return num::log(1 + x);
+}
 
 // --- double --------------------------------------------------------------------------------------
 
@@ -357,6 +376,25 @@ double fastSin(double x)
 	return c * (y * fabs(y) - y) + y;
 }
 
+/** @ingroup BasicOps */
+double expm1(double x)
+{ 
+	if (num::abs(x) < 1e-8)
+	{
+		return x + .5 * x * x;
+	}
+	return num::exp(x) - 1;
+}
+
+/** @ingroup BasicOps */
+double log1p(double x)
+{ 
+	if (num::abs(x) < 1e-8)
+	{
+		return x - .5f * x * x;
+	}
+	return num::log(1 + x);
+}
 
 
 // --- long double ---------------------------------------------------------------------------------
@@ -423,14 +461,38 @@ long double mod(long double x, long double m)
 	return result < 0. ? result + m : result;
 }	
 
+#endif
+
+#if LASS_HAVE_LONG_DOUBLE
+
 /** @ingroup BasicOps */
 long double fastSin(long double x)
 {
 	const long double a = 1.2732395447351628;
 	const long double b = -0.4052847345693511;
 	const long double c = 0.2248391028;
-	const long double y = a * x + b * x * ::fabsl(x);
-	return c * (y * ::fabsl(y) - y) + y;
+	const long double y = a * x + b * x * num::abs(x);
+	return c * (y * num::abs(y) - y) + y;
+}
+
+/** @ingroup BasicOps */
+long double expm1(long double x)
+{ 
+	if (num::abs(x) < 1e-10)
+	{
+		return x + .5 * x * x;
+	}
+	return num::exp(x) - 1;
+}
+
+/** @ingroup BasicOps */
+long double log1p(long double x)
+{ 
+	if (num::abs(x) < 1e-10)
+	{
+		return x - .5f * x * x;
+	}
+	return num::log(1 + x);
 }
 
 #endif

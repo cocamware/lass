@@ -154,6 +154,17 @@ const prim::Point3D<T> cosineHemisphere(const prim::Point2D<T>& sample, T& pdf)
 	return prim::Point3D<T>(xy.x, xy.y, z);
 }
 
+
+/** @ingroup DistributionTransformations
+ */
+template <typename T>
+T uniformToExponential(T uniform, T sigma, T& pdf)
+{
+	pdf = (1 - uniform) * sigma;
+	return sigma > 0 ? (-num::log1p(std::max<T>(-1, -uniform)) / sigma) : NumTraits<T>::infinity;
+}
+
+
 }
 
 }
