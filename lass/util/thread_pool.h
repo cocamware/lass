@@ -286,7 +286,7 @@ private:
 	{
 	public:
 		ConsumerThread(const TConsumer& consumer, TSelf& pool, const char* name);
-		unsigned bindToNextAvailable(unsigned processor);
+		size_t bindToNextAvailable(size_t processor);
 	private:
 		void doRun();
 		TConsumer consumer_;

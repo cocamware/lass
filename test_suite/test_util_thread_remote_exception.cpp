@@ -55,6 +55,7 @@ namespace thread_remote_exception
 	{
 	public:
 		Meltdown(const std::string& msg, const std::string& loc): util::ExceptionMixin<Meltdown>(msg, loc) {}
+		~Meltdown() throw() {}
 	};
 
 	void test_chamber()

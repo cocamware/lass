@@ -64,7 +64,7 @@ public:
 	explicit Clock(TTime iStartTime = 0);
 	void reset(TTime iStartTime = 0);
 
-	TTime time() const { return startTime_ + resolution_ * this->tick(); }
+	TTime time() const { return startTime_ + resolution_ * static_cast<double>(this->tick()); }
 	TTick tick() const { return impl::ClockImpl::tick() - startTick_; }
 
 	TTick frequency() const { return frequency_; }

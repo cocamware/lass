@@ -70,6 +70,7 @@ class DegenerationError: public util::ExceptionMixin<DegenerationError>
 {
 public:
 	DegenerationError(const std::string& msg, const std::string& loc): util::ExceptionMixin<DegenerationError>(msg, loc) {}
+	~DegenerationError() throw() {}
 };
 
 

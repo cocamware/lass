@@ -266,7 +266,7 @@ public:
 		const typename Tree::Neighbour treeNearest = tree.nearestNeighbour(point_);
 		if (treeNearest.object() != bruteNearest_)
 		{
-			typename Tree::Neighbour temp = tree.nearestNeighbour(point_);
+			typename Tree::Neighbour LASS_UNUSED(temp) = tree.nearestNeighbour(point_);
 		}
 		LASS_TEST_CHECK_EQUAL(treeNearest.object(), bruteNearest_);
 		if (bruteSqrDist_ == Point::TNumTraits::infinity)
@@ -362,7 +362,7 @@ public:
 				hits += tree.contains(*i) ? 1 : 0;
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:
@@ -396,7 +396,7 @@ public:
 				hits += loot.size();
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:
@@ -433,7 +433,7 @@ public:
 				}
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:
@@ -470,7 +470,7 @@ public:
 				}
 			}
 		}
-		const util::Clock::TTime time = stopWatch_.stop() / (numberOfRuns_ * targets_.size());
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
 		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
 	}
 private:

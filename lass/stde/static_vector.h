@@ -53,6 +53,10 @@
 #include "../meta/bool.h"
 #include "../meta/wrap.h"
 
+#if LASS_HAVE_STDDEF_H
+#	include <stddef.h>
+#endif
+
 namespace lass
 {
 namespace stde

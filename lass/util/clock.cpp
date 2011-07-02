@@ -51,7 +51,7 @@ namespace util
 Clock::Clock(TTime iStartTime):
 	frequency_(impl::ClockImpl::frequency())
 {
-	resolution_ = num::NumTraits<TTime>::one / frequency_;
+	resolution_ = num::NumTraits<TTime>::one / static_cast<TTime>(frequency_);
 	reset(iStartTime);
 }
 

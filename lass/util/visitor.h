@@ -54,6 +54,7 @@ class BadVisit: public ExceptionMixin<BadVisit>
 {
 public:
 	BadVisit(const std::string& msg, const std::string& loc): ExceptionMixin<BadVisit>(msg, loc) {}
+	~BadVisit() throw() {}
 };
 
 

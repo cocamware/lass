@@ -130,7 +130,7 @@ TCpuSet availableProcessors()
 inline pid_t lass_gettid()
 {
 #if LASS_HAVE_SYS_SYSCALL_H_GETTID
-	return syscall(__NR_gettid);
+	return static_cast<pid_t>(syscall(__NR_gettid));
 #else
 	return -1;
 #endif

@@ -48,6 +48,10 @@
 #include "spat_common.h"
 #include "aabb_tree.h"
 
+#if LASS_HAVE_STDDEF_H
+#	include <stddef.h>
+#endif
+
 namespace lass
 {
 namespace spat

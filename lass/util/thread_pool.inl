@@ -207,7 +207,7 @@ void ThreadPool<T, C, IP, PP>::startThreads(const TConsumer& consumerPrototype, 
 	}
 
 	size_t i;
-	unsigned nextProcessor = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
+	size_t nextProcessor = numThreads_ - dynThreads; // bind dynamic threads to "upper bits"
 	try
 	{
 		for (i = 0; i < dynThreads; ++i)
@@ -286,10 +286,10 @@ ThreadPool<T, C, IP, PP>::ConsumerThread::ConsumerThread(
 
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
-unsigned ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(unsigned nextProcessor)
+size_t ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(size_t nextProcessor)
 {
-	const unsigned n = numberOfProcessors();
-	const unsigned lastBeforeError = nextProcessor + n;
+	const size_t n = numberOfProcessors();
+	const size_t lastBeforeError = nextProcessor + n;
 	while (true)
 	{
 		try

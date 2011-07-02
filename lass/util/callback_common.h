@@ -56,6 +56,7 @@ class EmptyCallback: public ExceptionMixin<EmptyCallback>
 {
 public:
 	EmptyCallback(const std::string& msg, const std::string& loc): ExceptionMixin<EmptyCallback>(msg, loc) {}
+	~EmptyCallback() throw() {}
 };
 
 }

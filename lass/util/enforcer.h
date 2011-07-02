@@ -67,6 +67,7 @@ class EnforceFailure: public ExceptionMixin<EnforceFailure>
 {
 public:
 	EnforceFailure(const std::string& msg, const std::string& loc): ExceptionMixin<EnforceFailure>(msg, loc) {}
+	~EnforceFailure() throw() {}
 };
 
 }

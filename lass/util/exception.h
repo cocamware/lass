@@ -97,6 +97,7 @@ class ExceptionMixin: public ParentType
 {
 public:
 	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
+	~ExceptionMixin() throw() {}
 private:
 	virtual void doThrowSelf() const 
 	{
@@ -135,6 +136,7 @@ class KeyError: public ExceptionMixin<KeyError>
 {
 public:
 	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin<KeyError>(msg, loc) {}
+	~KeyError() throw() {}
 };
 
 
@@ -142,12 +144,14 @@ class ValueError: public ExceptionMixin<ValueError>
 {
 public:
 	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin<ValueError>(msg, loc) {}
+	~ValueError() throw() {}
 };
 
 class SingularityError: public ExceptionMixin<SingularityError>
 {
 public:
 	SingularityError(const std::string& msg, const std::string& loc): ExceptionMixin<SingularityError>(msg, loc) {}
+	~SingularityError() throw() {}
 };
 
 }

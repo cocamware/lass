@@ -57,11 +57,13 @@ namespace test
 
 void testUtilClock()
 {
+	typedef util::Clock::TTime TTime;
+	
 	util::Clock deviceUnderTest;
 	LASS_COUT << "frequency: " << deviceUnderTest.frequency() << std::endl;
-	LASS_TEST_CHECK_CLOSE(deviceUnderTest.frequency() * deviceUnderTest.resolution(), 1.0, 1e-6);
+	LASS_TEST_CHECK_CLOSE(static_cast<TTime>(deviceUnderTest.frequency()) * deviceUnderTest.resolution(), 1.0, 1e-6);
 
-	for (unsigned warmup = 0; warmup < 16; ++warmup)
+	for (size_t warmup = 0; warmup < 16; ++warmup)
 	{
 		deviceUnderTest.time();
 	}

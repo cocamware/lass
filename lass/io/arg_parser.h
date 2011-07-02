@@ -253,6 +253,7 @@ class ArgBadArgument: public util::ExceptionMixin<ArgBadArgument>
 {
 public:
 	ArgBadArgument(const std::string& msg, const std::string& loc): util::ExceptionMixin<ArgBadArgument>(msg, loc) {}
+	~ArgBadArgument() throw() {}
 };
 
 

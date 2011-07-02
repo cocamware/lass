@@ -128,11 +128,13 @@ RandomMT19937::RandomMT19937(TValue seed)
  */
 void RandomMT19937::seed(TValue seed)
 {
-	state_[0] = seed; // & 0xffffffff;
-	for (unsigned i = 1; i < stateSize_; ++i)
+	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32, if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
+
+	state_[0] = seed; // & wordMask_;
+	for (TValue i = 1; i < stateSize_; ++i)
 	{
 		state_[i] = (1812433253 * (state_[i - 1] ^ (state_[i - 1] >> 30)) + i);
-		//state_[i] &= 0xffffffff;
+		//state_[i] &= wordMask_;
 	}
 	index_ = stateSize_;
 }
@@ -175,8 +177,8 @@ void RandomMT19937::reload()
 		seed(5489);
 	}
 
-	int k;
-	for (k = 0; k < stateSize_ - shiftSize_; ++k)
+	size_t k = 0;
+	for (; k < stateSize_ - shiftSize_; ++k)
 	{
 		state_[k] = twist(state_[k], state_[k + 1], state_[k + shiftSize_]);
 	}
