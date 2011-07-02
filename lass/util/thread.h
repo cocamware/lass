@@ -368,7 +368,7 @@ private:
 /** Common base class for lockers
  *  @ingroup Threading
  */
-class LockerBase: NonCopyable
+class LockerBase
 {
 public:
 	bool hasLock() const { return hasLock_; }

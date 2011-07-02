@@ -50,7 +50,7 @@ namespace
 	using namespace lass;
 
 	util::Condition condition;
-	volatile bool wait;
+	volatile bool starting;
 	volatile bool done;
 
 	template <typename LockType>
@@ -58,7 +58,7 @@ namespace
 	{
 		LASS_LOCK(*lock)
 		{
-			wait = false;
+			starting = false;
 			condition.signal();
 			util::Thread::sleep(200);
 			done = true;
@@ -70,7 +70,7 @@ namespace
 	{
 		LASS_LOCK_INTEGRAL(*lock)
 		{
-			wait = false;
+			starting = false;
 			condition.signal();
 			util::Thread::sleep(200);
 			done = true;
@@ -104,11 +104,11 @@ void testUtilThreadLock()
 	LASS_TEST_CHECK(beenHere);
 
 	done = false;
-	wait = true;
+	starting = true;
 	beenHere = false;
 	std::auto_ptr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
 	other->run();
-	while (wait)
+	while (starting)
 	{
 		condition.wait(10);
 	}
@@ -150,11 +150,11 @@ void testUtilThreadTryLock()
 	LASS_TEST_CHECK(beenHere);
 
 	done = false;
-	wait = true;
+	starting = true;
 	beenHere = false;
 	std::auto_ptr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
 	other->run();
-	while (wait)
+	while (starting)
 	{
 		condition.wait(10);
 	}
@@ -182,29 +182,29 @@ void testUtilThreadIntegralLock()
 	bool beenHere = false;
 	LASS_LOCK_INTEGRAL(lock)
 	{
-		LASS_TEST_CHECK_EQUAL(lock, 0);
+		LASS_TEST_CHECK_EQUAL(lock, LockType(0));
 		beenHere = true;
 	}
 	else
 	{
 		LASS_TEST_ERROR("unreachable");
 	}
-	LASS_TEST_CHECK_EQUAL(lock, 1);
+	LASS_TEST_CHECK_EQUAL(lock, LockType(1));
 	LASS_TEST_CHECK(beenHere);
 
 	done = false;
-	wait = true;
+	starting = true;
 	beenHere = false;
 	std::auto_ptr<util::Thread> other(util::threadFun(blockerIntegral<volatile LockType>, &lock, util::threadJoinable));
 	other->run();
-	while (wait)
+	while (starting)
 	{
 		condition.wait(10);
 	}
 	LASS_LOCK_INTEGRAL(lock)
 	{
 		LASS_TEST_CHECK(done);
-		LASS_TEST_CHECK_EQUAL(lock, 0);
+		LASS_TEST_CHECK_EQUAL(lock, LockType(0));
 		beenHere = true;
 	}
 	else
@@ -212,7 +212,7 @@ void testUtilThreadIntegralLock()
 		LASS_TEST_ERROR("unreachable");
 	}
 	other->join();
-	LASS_TEST_CHECK_EQUAL(lock, 1);
+	LASS_TEST_CHECK_EQUAL(lock, LockType(1));
 	LASS_TEST_CHECK(done);
 	LASS_TEST_CHECK(beenHere);
 }

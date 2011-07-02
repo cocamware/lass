@@ -258,7 +258,7 @@ void BinaryOSocket::flushImpl()
 
 	while (current_ > 0)
 	{
-		const int n = current_ > nMax ? nMax : static_cast<int>(current_);
+		const int n = static_cast<int>(current_ > nMax ? nMax : current_);
 		LASS_ASSERT(n > 0 && static_cast<size_t>(n) <= current_);
 		try
 		{

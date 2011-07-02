@@ -85,7 +85,19 @@ public:
 		openSocket();
 
 		::sockaddr_in addr;
-		addr.sin_addr.s_addr = address.empty() ? htonl(INADDR_ANY) : inet_addr(address.c_str());
+		if (address.empty())
+		{
+			addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		}
+		else
+		{
+			::hostent* other = gethostbyname(address.c_str());
+			if (!other)
+			{
+				LASS_THROW_EX(SocketError, "could not bind " << address << ":" << portNumber << " : failed to lookup hostname.");
+			}
+			addr.sin_addr = *(in_addr*) other->h_addr;
+		}
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(portNumber);
 
@@ -138,7 +150,7 @@ public:
 		if (!other)
 		{
 			LASS_THROW_EX(SocketError, "could not connect " << ipAddress << ":" << portNumber << " : failed to lookup hostname.");
-		}		
+		}
 
 		sockaddr_in dest;
 		dest.sin_addr = *(in_addr*) other->h_addr;
