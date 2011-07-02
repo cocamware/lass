@@ -534,7 +534,11 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 
 	try
 	{
-		const TCppClassPtr cppObject(new TCppClass( $(TArg$x::arg(p$x))$ ));
+		TCppClassPtr cppObject;
+		{
+			UnblockThreads LASS_UNUSED(unlock);
+			cppObject = TCppClassPtr(new TCppClass( $(TArg$x::arg(p$x))$ ));
+		}
 		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);
 		forceObjectType(result, subType);
 		result->ob_type = subType;
