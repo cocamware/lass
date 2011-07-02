@@ -49,10 +49,41 @@ namespace lass
 namespace io
 {
 
-BinaryISocket::BinaryISocket(Socket& iSocket):
+BinaryISocket::BinaryISocket():
 	BinaryIStream(),
-	socket_(iSocket)
+	socket_(0)
 {
+}
+
+
+
+/**
+ *	@param socket [in] BinaryISocket does _not_ take ownership of socket, and it must be alive as long as BinaryISocket needs it 
+ *		(until BinaryISocket goes out of scope, or another socket is installed).
+ */
+BinaryISocket::BinaryISocket(Socket* socket):
+	BinaryIStream(),
+	socket_(socket)
+{
+}
+
+
+
+Socket* BinaryISocket::socket() const
+{
+	return socket_;
+}
+
+
+
+/**
+ *	@param socket [in] BinaryISocket does _not_ take ownership of socket, and it must be alive as long as BinaryISocket needs it 
+ *		(until BinaryISocket goes out of scope, or another socket is installed).
+ */
+void BinaryISocket::setSocket(Socket* socket)
+{
+	socket_ = socket;
+	setstate(std::ios_base::goodbit);
 }
 
 
@@ -65,6 +96,11 @@ size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 	{
 		return 0;
 	}
+	if (!socket_)
+	{
+		setstate(std::ios_base::failbit);
+		return 0;
+	}
 	char* begin = static_cast<char*>(oBegin);
 	int numberOfBytes = static_cast<int>(iNumberOfBytes);
 	LASS_ASSERT(numberOfBytes >= 0 && static_cast<size_t>(numberOfBytes) == iNumberOfBytes);
@@ -73,13 +109,18 @@ size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 	{
 		try
 		{
-			const int read = socket_.receive(begin, numberOfBytes);
+			const int read = socket_->receive(begin, numberOfBytes);
+			if (read == 0)
+			{
+				setstate(std::ios_base::eofbit);
+				return 0;
+			}
 			LASS_ASSERT(read >= 0 && read <= numberOfBytes);
 			begin += read;
 			bytesRead += read;
 			numberOfBytes -= read;
 		}
-		catch (util::Exception&)
+		catch (const util::Exception&)
 		{
 			setstate(std::ios_base::badbit);
 			return bytesRead;

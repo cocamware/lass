@@ -56,6 +56,10 @@ namespace lass
 {
 namespace io
 {
+namespace impl
+{
+	class SocketImpl;
+}
 
 /** @relates lass::io::Socket
  */
@@ -77,21 +81,31 @@ public:
 	Socket();
 	~Socket();
 
-	void bind(TPort port);
-	TPort bindInRange(TPort begin, TPort end);
-	void listen();
-	void accept(Socket& oConnection);
-	void connect(const std::string& ipAddress, TPort port);
+	void open();
+	void close();
 
-	int send(const void* begin, int length);
-	const void* send(const void* begin, const void* end);
-	int receive(void* begin, int length);
-	void* receive(void* begin, void* end);
+	void bind(TPort port = 0);
+	void bind(const std::string& address, TPort port = 0);
+	TPort bindInRange(TPort begin, TPort end);
+	TPort bindInRange(const std::string& address, TPort begin, TPort end);
+	void listen();
+	void accept(Socket& oConnection) const;
+	void connect(const std::string& address, TPort port);
+
+	std::string address() const;
+	TPort port() const;
+
+	int send(const void* begin, int length) const;
+	const void* send(const void* begin, const void* end) const;
+	int receive(void* begin, int length) const;
+	void* receive(void* begin, void* end) const;
+
+	int sizeSendBuffer() const;
 
 	void swap(Socket& other);
 
 private:
-	void* pimpl_;
+	impl::SocketImpl* pimpl_;
 };
 
 }

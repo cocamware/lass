@@ -42,6 +42,7 @@
 
 #include "../io_common.h"
 #include "../socket.h"
+#include "../../num/num_traits.h"
 #include <winsock.h>
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
@@ -59,85 +60,113 @@ class SocketImpl: public util::NonCopyable
 {
 public:
 
+	typedef Socket::TPort TPort;
+
 	SocketImpl():
 		socket_(INVALID_SOCKET)
 	{
 		WSADATA wsaData;
-		if (WSAStartup(0x0202, &wsaData) != 0)
+		if (::WSAStartup(0x0202, &wsaData) != 0)
 		{
 			LASS_THROW_EX(SocketError, "Failed to startup Windows Socket API.");
 		}
 		if (wsaData.wVersion != 0x0202)
 		{
-			WSACleanup();
+			::WSACleanup();
 			LASS_THROW_EX(SocketError, "Windows Socket API is not version 2.2.");
 		}
 	}
 
 	~SocketImpl()
 	{
-		if (socket_ != INVALID_SOCKET)
+		try
 		{
-			const int err = closesocket(socket_);
-			LASS_ASSERT(err == 0);
+			closeSocket();
 		}
-
-		const int err = WSACleanup();
+		catch (const std::exception& error)
+		{
+			std::cerr << "[LASS RUN MSG] WARNING: closeSocket() failed: " << error.what();
+		}
+		const int err = ::WSACleanup();
 		LASS_ASSERT(err == 0);
 	}
 
-	void bind(unsigned short iPortNumber)
+	void bind(const std::string& address, TPort port)
 	{
 		openSocket();
 
 		SOCKADDR_IN addr;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		addr.sin_family = AF_INET;
-		addr.sin_port = htons(iPortNumber);
+		addr.sin_addr.s_addr = address.empty() ? ::htonl(INADDR_ANY) : ::inet_addr(address.c_str());
+		addr.sin_port = ::htons(port);
 
 		if (::bind(socket_, (LPSOCKADDR)&addr, sizeof(addr)) != 0)
 		{
-			LASS_THROW_EX(SocketError, "Failed to bind socket to port " << iPortNumber);
+			LASS_THROW_EX(SocketError, "Failed to bind socket to port " << port);
 		}
 	}
 
-	void listen()
+	void listen() const
 	{
 		LASS_ASSERT(socket_ != INVALID_SOCKET);
 		::listen(socket_, SOMAXCONN);
 	}
 
-	void accept(SocketImpl* oConnection)
+	void accept(SocketImpl* connection) const
 	{
 		LASS_ASSERT(socket_ != INVALID_SOCKET);
-		SOCKET connnection = ::accept(socket_, 0, 0);
-		if (connnection == INVALID_SOCKET)
+		SOCKET conn = ::accept(socket_, 0, 0);
+		if (conn == INVALID_SOCKET)
 		{
 			LASS_THROW_EX(SocketError, "Failed to accept connection");
 		}
-		LASS_ASSERT(oConnection);
-		oConnection->socket_ = connnection;
+		LASS_ASSERT(connection);
+		connection->socket_ = conn;
 	}
 
-	void connect(const std::string& iIpAddress, unsigned short iPortNumber)
+	void connect(const std::string& address, TPort port)
 	{
 		openSocket();
 
 		SOCKADDR_IN dest;
-		dest.sin_addr.s_addr = inet_addr(iIpAddress.c_str());
-		dest.sin_family = PF_INET;
-		dest.sin_port = htons(iPortNumber);
+		dest.sin_family = AF_INET;
+		dest.sin_addr.s_addr = ::inet_addr(address.c_str());
+		dest.sin_port = ::htons(port);
 		const int ret = ::connect(socket_, reinterpret_cast<SOCKADDR*>(&dest), sizeof(dest));
 		if (ret == SOCKET_ERROR)
 		{
-			LASS_THROW_EX(SocketError, "could not connect " << iIpAddress << ":" << iPortNumber);
+			LASS_THROW_EX(SocketError, "could not connect " << address << ":" << port);
 		}
 	}
 
-	int send(const void* iBegin, int iLength)
+	std::string address() const
+	{
+		SOCKADDR_IN addr;
+		addr.sin_family = AF_INET;
+		int size = sizeof(addr);
+		if (::getsockname(socket_, (LPSOCKADDR)&addr, &size) != 0)
+		{
+			LASS_THROW_EX(SocketError, "Failed to retrieve address");
+		}
+		return ::inet_ntoa(addr.sin_addr);
+	}
+
+	TPort port() const
+	{
+		SOCKADDR_IN addr;
+		addr.sin_family = AF_INET;
+		int size = sizeof(addr);
+		if (::getsockname(socket_, (LPSOCKADDR)&addr, &size) != 0)
+		{
+			LASS_THROW_EX(SocketError, "Failed to retrieve port number");
+		}
+		return ::ntohs(addr.sin_port);
+	}
+
+	int send(const void* begin, int length) const
 	{
 		LASS_ASSERT(socket_ != INVALID_SOCKET);
-		const int ret = ::send(socket_, static_cast<const char*>(iBegin), iLength, 0);
+		const int ret = ::send(socket_, static_cast<const char*>(begin), length, 0);
 		if (ret == SOCKET_ERROR)
 		{
 			LASS_THROW_EX(SocketError, "Failure to send data: " << WSAGetLastError());
@@ -146,9 +175,9 @@ public:
 		return ret;
 	}
 
-	int receive(void* iBegin, int iLength)
+	int receive(void* begin, int length) const
 	{
-		const int ret = ::recv(socket_, static_cast<char*>(iBegin), iLength, 0);
+		const int ret = ::recv(socket_, static_cast<char*>(begin), length, 0);
 		if (ret == SOCKET_ERROR)
 		{
 			LASS_THROW_EX(SocketError, "Failure to receive data: " << WSAGetLastError());
@@ -157,19 +186,46 @@ public:
 		return ret;
 	}
 
-private:
+	int sizeSendBuffer() const
+	{
+		LASS_ASSERT(socket_ != INVALID_SOCKET);
+		int size;
+		int optlen = sizeof(size);
+		const int ret = ::getsockopt(socket_, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&size), &optlen);
+		if (ret == SOCKET_ERROR || optlen != sizeof(size))
+		{
+			LASS_THROW_EX(SocketError, "failed to query send buffer size");
+		}
+		return size;
+	}
 
 	void openSocket()
 	{
+		if (socket_ != INVALID_SOCKET)
+		{
+			return;
+		}
+		socket_ = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (socket_ == INVALID_SOCKET)
 		{
-			socket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			if (socket_ == INVALID_SOCKET)
-			{
-				LASS_THROW_EX(SocketError, "Failed to create socket.");
-			}
+			LASS_THROW_EX(SocketError, "Failed to create socket.");
 		}
 	}
+	void closeSocket()
+	{
+		if (socket_ == INVALID_SOCKET)
+		{
+			return;
+		}
+		const int err = ::closesocket(socket_);
+		if (err != 0)
+		{
+			LASS_THROW_EX(SocketError, "Failed to close socket");
+		} 
+		socket_ = INVALID_SOCKET;
+	}
+
+private:
 
 	SOCKET socket_;
 };

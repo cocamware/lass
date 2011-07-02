@@ -74,18 +74,18 @@ public:
 		{
 			closeSocket();
 		}
-		catch (std::exception& error)
+		catch (const std::exception& error)
 		{
 			std::cerr << "[LASS RUN MSG] WARNING: closeSocket() failed: " << error.what();
 		}
 	}
 
-	void bind(TPort portNumber)
+	void bind(const std::string& address, TPort portNumber)
 	{
 		openSocket();
 
 		::sockaddr_in addr;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		addr.sin_addr.s_addr = address.empty() ? htonl(INADDR_ANY) : inet_addr(address.c_str());
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(portNumber);
 
@@ -95,6 +95,16 @@ public:
 			LASS_THROW_EX(SocketError, "Failed to bind socket to port " << portNumber 
 				<< ": " << util::impl::lass_strerror(err));
 		}
+	}
+
+	std::string address() const
+	{
+		LASS_THROW("not implemented yet");
+	}
+
+	TPort port() const
+	{
+		LASS_THROW("not implemented yet");
 	}
 
 	void listen()
@@ -107,7 +117,7 @@ public:
 		}
 	}
 
-	void accept(SocketImpl* connection)
+	void accept(SocketImpl* connection) const
 	{
 		LASS_ASSERT(socket_ != invalidSocket);
 		int socket = ::accept(socket_, 0, 0);
@@ -127,8 +137,7 @@ public:
 		::hostent* other = gethostbyname(ipAddress.c_str());
 		if (!other)
 		{
-			LASS_THROW_EX(SocketError, "could not connect " << ipAddress << ":" << portNumber
-				<< " : failed to lookup hostname.");
+			LASS_THROW_EX(SocketError, "could not connect " << ipAddress << ":" << portNumber << " : failed to lookup hostname.");
 		}		
 
 		sockaddr_in dest;
@@ -144,7 +153,7 @@ public:
 		}
 	}
 
-	int send(const void* begin, int length)
+	int send(const void* begin, int length) const
 	{
 		LASS_ASSERT(socket_ != invalidSocket);
 		const int ret = ::send(socket_, static_cast<const char*>(begin), length, 0);
@@ -157,7 +166,7 @@ public:
 		return ret;
 	}
 
-	int receive(void* begin, int length)
+	int receive(void* begin, int length) const
 	{
 		const int ret = ::recv(socket_, static_cast<char*>(begin), length, 0);
 		if (ret == -1)
@@ -169,36 +178,43 @@ public:
 		return ret;
 	}
 
-private:
-
-	enum { invalidSocket = -1 };
+	int sizeSendBuffer() const
+	{
+		return 4096; // stub impl
+	}
 
 	void openSocket()
 	{
+		if (socket_ != invalidSocket)
+		{
+			return;
+		}
+		socket_ = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_ == invalidSocket)
 		{
-			socket_ = socket(AF_INET, SOCK_STREAM, 0);
-			if (socket_ == invalidSocket)
-			{
-				const int err = util::impl::lass_errno();
-				LASS_THROW_EX(SocketError, "Failed to create socket: " << util::impl::lass_strerror(err));
-			}
+			const int err = util::impl::lass_errno();
+			LASS_THROW_EX(SocketError, "Failed to create socket: " << util::impl::lass_strerror(err));
 		}
 	}
 	
 	void closeSocket()
 	{
-		if (socket_ != invalidSocket)
+		if (socket_ == invalidSocket)
 		{
-			const int ret = close(socket_);
-			socket_ = invalidSocket;
-			if (ret != 0)
-			{
-				const int err = util::impl::lass_errno();
-				LASS_THROW_EX(SocketError, "Failed to close socket: " << util::impl::lass_strerror(err));
-			} 
+			return;
 		}
+		const int ret = close(socket_);
+		if (ret != 0)
+		{
+			const int err = util::impl::lass_errno();
+			LASS_THROW_EX(SocketError, "Failed to close socket: " << util::impl::lass_strerror(err));
+		} 
+		socket_ = invalidSocket;
 	}
+
+private:
+
+	enum { invalidSocket = -1 };
 
 	int socket_;
 };

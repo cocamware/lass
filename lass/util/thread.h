@@ -368,31 +368,70 @@ private:
 /** Common base class for lockers
  *  @ingroup Threading
  */
-class LockerBase
+class LockerBase: NonCopyable
 {
 public:
-	operator bool() const { return false; }
+	bool hasLock() const { return hasLock_; }
+	operator bool() const { return hasLock_; }
+protected:
+	LockerBase(bool hasLock = true): hasLock_(hasLock) {}
+private:
+	bool hasLock_;
 };
+
+
+
+template <typename LockType>
+struct DefaultLockTraits
+{
+	static bool lock(LockType& x) { x.lock(); return true; }
+	static void unlock(LockType& x) { x.unlock(); }
+};
+
+template <typename LockType>
+struct TryLockTraits
+{
+	static bool lock(LockType& x) { return x.tryLock() == lockSuccess; }
+	static void unlock(LockType& x) { x.unlock(); }
+};
+
+template <typename LockType>
+struct IntegralLockTraits
+{
+	static bool lock(LockType& x) { atomicLock(x); return true; }
+	static void unlock(LockType& x) { atomicUnlock(x); }
+};
+
 
 /** @ingroup Threading
  */
-template <typename LockType>
+template 
+<	
+	typename LockType, 
+	typename LockTraits = DefaultLockTraits<LockType>
+>
 class Locker: public LockerBase
 {
 public:
 	typedef LockType TLock;
-	Locker(TLock& iLock): 
-		lock_(&iLock) 
+	typedef LockTraits TLockTraits;
+	Locker(TLock& iLock):
+		LockerBase(TLockTraits::lock(iLock)),
+		lock_(&iLock)
 	{ 
-		lock_->lock(); 
 	}
 	~Locker() 
 	{
+		if (!hasLock())
+		{
+			return;
+		}
+		LASS_ASSERT(lock_);
 		try
 		{
-			lock_->unlock();
+			TLockTraits::unlock(*lock_);
 		}
-		catch (std::exception& error)
+		catch (const std::exception& error)
 		{
 			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: "
 				<< "exception thrown in ~Locker(): " << error.what() << std::endl;
@@ -403,7 +442,7 @@ public:
 				<< "unknown exception thrown in ~Locker()" << std::endl;
 		}
 	}
-	TLock& mutex()
+	const TLock& mutex() const
 	{ 
 		LASS_ASSERT(lock_);
 		return *lock_;
@@ -419,37 +458,12 @@ private:
 
 
 /** @ingroup Threading
- */
-template <typename IntegralType>
-class IntegralLocker: public LockerBase
-{
-public:
-	IntegralLocker(volatile IntegralType& islots): 
-		slots_(&islots) 
-	{ 
-		atomicLock(*slots_);
-	}
-	~IntegralLocker() 
-	{
-		atomicUnlock(*slots_);
-	}
-	void swap(IntegralLocker& other)
-	{
-		std::swap(slots_, other.slots_);
-	}
-private:
-	volatile IntegralType* slots_;
-};
-
-
-
-/** @ingroup Threading
  *  @relates Locker
  */
 template <typename T>
-inline Locker<T> makeLocker(T& iLock)
+inline Locker<T, DefaultLockTraits<T> > makeLocker(T& iLock)
 {
-	return Locker<T>(iLock);
+	return Locker<T, DefaultLockTraits<T> >(iLock);
 }
 
 
@@ -458,9 +472,20 @@ inline Locker<T> makeLocker(T& iLock)
  *  @relates Locker
  */
 template <typename T>
-inline IntegralLocker<T> makeIntegralLocker(T& islots)
+inline Locker<T, TryLockTraits<T> > makeTryLocker(T& iLock)
 {
-	return IntegralLocker<T>(islots);
+	return Locker<T, TryLockTraits<T> >(iLock);
+}
+
+
+
+/** @ingroup Threading
+ *  @relates Locker
+ */
+template <typename T>
+inline Locker<T, IntegralLockTraits<T> > makeIntegralLocker(T& islots)
+{
+	return Locker<T, IntegralLockTraits<T> >(islots);
 }
 
 
@@ -531,19 +556,12 @@ typedef Locker<Semaphore> SemaphoreLocker;
  *      be the reason ...
  */
 #define LASS_LOCK(iLock)\
-	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) =\
-		::lass::util::makeLocker(iLock))\
-	{\
-		LASS_ASSERT_UNREACHABLE;\
-	}\
-	else
+	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeLocker(iLock))
+
+#define LASS_TRY_LOCK(iLock)\
+	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeTryLocker(iLock))
 
 #define LASS_LOCK_INTEGRAL(iSlots)\
-	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) =\
-		::lass::util::makeIntegralLocker(iSlots))\
-	{\
-		LASS_ASSERT_UNREACHABLE;\
-	}\
-	else
+	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeIntegralLocker(iSlots))
 
 #endif

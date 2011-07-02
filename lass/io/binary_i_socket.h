@@ -61,7 +61,11 @@ class LASS_DLL BinaryISocket: public BinaryIStream
 {
 public:
 
-	BinaryISocket(Socket& iSocket);
+	BinaryISocket();
+	BinaryISocket(Socket* iSocket);
+
+	Socket* socket() const;
+	void setSocket(Socket* socket);
 
 private:
 
@@ -69,7 +73,7 @@ private:
 	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
 	size_t doRead(void* oOutput, size_t iNumberOfBytes);
 
-	Socket& socket_;
+	Socket* socket_;
 };
 
 

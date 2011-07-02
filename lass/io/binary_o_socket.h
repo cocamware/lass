@@ -63,9 +63,12 @@ class LASS_DLL BinaryOSocket: public BinaryOStream
 {
 public:
 
-	BinaryOSocket(Socket& iSocket, std::size_t iBufferSize = 1024, 
-		unsigned long iFlushPeriod = 100);
+	BinaryOSocket(size_t bufferSize = 0, unsigned long flushPeriod = 100);
+	BinaryOSocket(Socket* socket, size_t bufferSize = 0, unsigned long flushPeriod = 100);
 	~BinaryOSocket();
+
+	Socket* socket() const;
+	void setSocket(Socket* socket);
 
 private:
 
@@ -76,17 +79,20 @@ private:
 	void doWrite(const void* iBytes, size_t iNumberOfBytes);
 	void doFlush();
 
+	void init();
+	void flushImpl();
 	void flusher();
 
-	Socket& socket_;
+	Socket* socket_;
 	TBuffer buffer_;
-	std::size_t bufferSize_;
-	std::size_t current_;
+	size_t requestedBufferSize_;
+	size_t current_;
 	util::Semaphore bufferLock_;
 	util::Condition flushCondition_;
 	util::ScopedPtr<util::Thread> flushThread_;
 	unsigned long flushPeriod_;
 	volatile bool stopFlushThread_;
+	volatile bool skipABeat_;
 };
 
 }

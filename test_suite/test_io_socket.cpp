@@ -109,8 +109,8 @@ void serverThread()
 	io::Socket connection;
 	server.accept(connection);
 
-	io::BinaryISocket incoming(connection);
-	io::BinaryOSocket outgoing(connection);
+	io::BinaryISocket incoming(&connection);
+	io::BinaryOSocket outgoing(&connection);
 
 	outgoing << numberSentServerToClient;
 	incoming >> numberReceivedClientToServer;
@@ -134,8 +134,8 @@ void clientThread()
 	}
 	client.connect("127.0.0.1", port);
 
-	io::BinaryOSocket outgoing(client);
-	io::BinaryISocket incoming(client);
+	io::BinaryOSocket outgoing(&client);
+	io::BinaryISocket incoming(&client);
 
 	incoming >> numberReceivedServerToClient;
 	outgoing << numberSentClientToServer;

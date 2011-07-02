@@ -45,6 +45,7 @@
 #include "socket.h"
 #include "../util/callback_0.h"
 #include "../util/thread_fun.h"
+#include "../num/num_cast.h"
 #include <string.h>
 
 namespace lass
@@ -54,18 +55,34 @@ namespace io
 
 // --- public --------------------------------------------------------------------------------------
 
-BinaryOSocket::BinaryOSocket(Socket& iSocket, size_t iBufferSize, unsigned long iFlushPeriod):
+BinaryOSocket::BinaryOSocket(size_t bufferSize, unsigned long flushPeriod):
 	BinaryOStream(),
-	socket_(iSocket),
-	buffer_(iBufferSize),
-	bufferSize_(iBufferSize),
+	socket_(0),
+	requestedBufferSize_(bufferSize),
 	current_(0),
-	flushPeriod_(iFlushPeriod),
-	stopFlushThread_(false)
+	flushPeriod_(flushPeriod),
+	stopFlushThread_(false),
+	skipABeat_(false)
 {
-	flushThread_.reset(util::threadFun(
-		util::makeCallback(this, &BinaryOSocket::flusher), util::threadJoinable));
-	flushThread_->run();
+	init();
+}
+
+
+
+/**
+ *	@param socket [in] BinaryISocket does _not_ take ownership of socket, and it must be alive as long as BinaryISocket needs it 
+ *		(until BinaryISocket goes out of scope, or another socket is installed).
+ */
+BinaryOSocket::BinaryOSocket(Socket* socket, size_t bufferSize, unsigned long flushPeriod):
+	BinaryOStream(),
+	socket_(socket),
+	requestedBufferSize_(bufferSize),
+	current_(0),
+	flushPeriod_(flushPeriod),
+	stopFlushThread_(false),
+	skipABeat_(false)
+{
+	init();
 }
 
 
@@ -73,8 +90,47 @@ BinaryOSocket::BinaryOSocket(Socket& iSocket, size_t iBufferSize, unsigned long 
 BinaryOSocket::~BinaryOSocket()
 {
 	stopFlushThread_ = true;
-	flushCondition_.signal();
-	flushThread_->join();
+	skipABeat_ = false;
+	try
+	{
+		LASS_LOCK(bufferLock_)
+		{
+			flushImpl();
+		}
+		flushCondition_.signal();
+		flushThread_->join();
+	}
+	catch (std::exception& error)
+	{
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: exception thrown in ~BinaryOSocket(): " << error.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: unknown exception thrown in ~BinaryOSocket()" << std::endl;
+	}
+}
+
+
+
+Socket* BinaryOSocket::socket() const
+{
+	return socket_;
+}
+
+
+
+/**
+ *	@param socket [in] BinaryISocket does _not_ take ownership of socket, and it must be alive as long as BinaryISocket needs it 
+ *		(until BinaryISocket goes out of scope, or another socket is installed).
+ */
+void BinaryOSocket::setSocket(Socket* socket)
+{
+	LASS_LOCK(bufferLock_)
+	{
+		flushImpl();
+		socket_ = socket;
+		init();
+	}
 }
 
 
@@ -97,47 +153,77 @@ void BinaryOSocket::doSeekp(long, std::ios_base::seekdir)
 
 void BinaryOSocket::doFlush()
 {
-	flushCondition_.signal();
+	LASS_LOCK(bufferLock_)
+	{
+		flushImpl();
+	}
 }
 
 
 
 /** write a buffer of bytes to the stream
- *  @par iIn pointer to buffer.
- *  @par iBufferLength length of buffer in bytes.
+ *  @par begin pointer to buffer.
+ *  @par numberOfBytes length of buffer in bytes.
  */
-void BinaryOSocket::doWrite(const void* iBegin, size_t iNumberOfBytes)
+void BinaryOSocket::doWrite(const void* begin, size_t numberOfBytes)
 {
-	const char* begin = static_cast<const char*>(iBegin);
-	while (iNumberOfBytes > 0)
+	LASS_LOCK(bufferLock_)
 	{
-		LASS_LOCK(bufferLock_)
+		if (!socket_)
 		{
+			setstate(std::ios_base::badbit); // we won't be able to flush this data as there's nothing to flush it to ...
+			return;
+		}
+		const char* first = static_cast<const char*>(begin);
+		while (numberOfBytes > 0)
+		{
+			if (current_ == buffer_.size())
+			{
+				flushImpl();
+			}
+
 			if (!good())
 			{
 				return;
 			}
 
-			if (current_ < bufferSize_)
-			{
-				const size_t freeSize = bufferSize_ - current_;
-				const size_t writeSize = std::min(iNumberOfBytes, freeSize);
+			LASS_ASSERT(current_ < buffer_.size());
+			const size_t freeSize = buffer_.size() - current_;
+			const size_t writeSize = std::min(numberOfBytes, freeSize);
 
-				::memcpy(&buffer_[current_], begin, writeSize);
-				
-				current_ += writeSize;
-				if (current_ < bufferSize_)
-				{
-					LASS_ASSERT(writeSize == iNumberOfBytes);
-					return;
-				}
-
-				LASS_ASSERT(writeSize < iNumberOfBytes);
-				begin += writeSize;
-				iNumberOfBytes -= writeSize;
-			}
+			::memcpy(&buffer_[current_], first, writeSize);
+			current_ += writeSize;
+			first += writeSize;
+			numberOfBytes -= writeSize;
 		}
-		flushCondition_.signal();		
+		skipABeat_ = true;
+	}
+}
+
+
+
+void BinaryOSocket::init()
+{
+	size_t size = requestedBufferSize_;
+	if (socket_)
+	{
+		const size_t maxSize = num::numCast<size_t>(socket_->sizeSendBuffer());
+		if (size)
+		{
+			size = std::min(size, maxSize);
+		}
+		else
+		{
+			size = maxSize;
+		}
+	}
+	buffer_.resize(size);
+	current_ = 0;
+
+	if (!flushThread_)
+	{
+		flushThread_.reset(util::threadMemFun(this, &BinaryOSocket::flusher, util::threadJoinable));
+		flushThread_->run();
 	}
 }
 
@@ -145,39 +231,50 @@ void BinaryOSocket::doWrite(const void* iBegin, size_t iNumberOfBytes)
 
 void BinaryOSocket::flusher()
 {
-	while (true)
+	while (!stopFlushThread_)
 	{
-		LASS_LOCK(bufferLock_)
+		LASS_TRY_LOCK( bufferLock_ )
 		{
-			if (current_ > 0)
+			if (!skipABeat_)
 			{
-				const char* begin = &buffer_[0];
-				int n = static_cast<int>(current_);
-				LASS_ASSERT(n >= 0);
-				while (n > 0)
-				{
-					try
-					{
-						const int sent = socket_.send(begin, static_cast<int>(current_));
-						LASS_ASSERT(sent >= 0 && sent <= n);
-						begin += sent;
-						n -= sent;
-					}
-					catch (util::Exception&)
-					{
-						setstate(std::ios_base::badbit);
-					}
-				}
-				current_ = 0;
+				flushImpl();
 			}
-			if (stopFlushThread_)
-			{
-				return;
-			}
+			skipABeat_ = false;
 		}
 		flushCondition_.wait(flushPeriod_);
 	}
 }
+
+
+void BinaryOSocket::flushImpl()
+{
+	if (!good() || !socket_ || buffer_.empty())
+	{
+		return;
+	}
+
+	const char* begin = &buffer_[0];
+	const size_t nMax = num::NumTraits<int>::max;
+
+	while (current_ > 0)
+	{
+		const int n = current_ > nMax ? nMax : static_cast<int>(current_);
+		LASS_ASSERT(n > 0 && static_cast<size_t>(n) <= current_);
+		try
+		{
+			const int sent = socket_->send(begin, n);
+			LASS_ASSERT(sent >= 0 && sent <= n);
+			begin += sent;
+			current_ -= sent;
+		}
+		catch (util::Exception&)
+		{
+			setstate(std::ios_base::badbit);
+			return;
+		}
+	}
+}
+
 
 }
 
