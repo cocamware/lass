@@ -190,6 +190,18 @@ private:
 };
 
 
+/** implemenents xkcd's fair dice roll random number generator
+ *  @ingroup Random
+ *
+ *  http://xkcd.com/221/
+ */
+class RandomXKCD
+{
+public:
+	typedef int TValue;   /**< type of return value. */
+	TValue operator()() { return 4; }
+};
+
 
 }
 

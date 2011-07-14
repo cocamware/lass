@@ -51,7 +51,7 @@
 #include "../meta/meta_assert.h"
 
 #define LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(a, b)\
-	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(a).rows() == (b).rows() && (a).columns() == (b).columns(),\
@@ -59,7 +59,7 @@
 		"Matrices '" LASS_STRINGIFY(a) "' and '" LASS_STRINGIFY(b) "' have different dimensions in '" LASS_HERE "'.")
 
 #define LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(a, b)\
-	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(a).columns(),\

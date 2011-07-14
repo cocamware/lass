@@ -54,7 +54,7 @@ namespace num
 {
 
 #define LASS_NUM_MATRIX_VECTOR_ENFORCE_ADJACENT_DIMENSION(a, b)\
-	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(a).columns(), \

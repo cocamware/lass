@@ -50,7 +50,7 @@
 #include "../meta/is_integral.h"
 
 #define LASS_NUM_VECTOR_ENFORCE_EQUAL_DIMENSION(a, b)\
-	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::EqualPredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		(a).size(), \

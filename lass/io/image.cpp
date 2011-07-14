@@ -53,7 +53,7 @@
 #include "../num/num_cast.h"
 
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
-	LASS_UTIL_IMPL_MAKE_ENFORCER(\
+	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
 		::lass::util::impl::DefaultRaiser,\
 		((a).rows() == (b).rows() && (a).cols() == (b).cols()),\
