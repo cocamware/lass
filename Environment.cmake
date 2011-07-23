@@ -1,8 +1,44 @@
 # included by CMakeLists.txt to check the environment and build config headers
 
+include(CheckIncludeFile)
+include(CheckSymbolExists)
+include(CheckLibraryExists)
+include(CheckFunctionExists)
+
+macro(_try_compile VARIABLE fname msg ok fail)
+	if (NOT DEFINED ${VARIABLE})
+		message(STATUS "${msg}")
+		try_compile(
+			${VARIABLE}
+			"${lass_BINARY_DIR}/temp"
+			"${lass_SOURCE_DIR}/lass/config/${fname}"
+		)
+		if(${VARIABLE})
+			message(STATUS "${msg} - ${ok}")
+			set(${VARIABLE} 1 CACHE INTERNAL "${msg}")
+		else()
+			message(STATUS "${msg} - ${fail}")
+			set(${VARIABLE} "" CACHE INTERNAL "${msg}")
+		endif()
+	endif()
+endmacro()
+
+macro(_try_compile_looking RESULT_VAR fname what)
+	_try_compile(${RESULT_VAR} "${fname}" "Looking for ${what}" "found" "not found")
+endmacro()
+
+macro(_try_compile_checking RESULT_VAR fname what)
+	_try_compile(${RESULT_VAR} "${fname}" "Checking whether ${what}" "yes" "no")
+endmacro() 
+
+# --- about Python ---
+
+include(FindPythonInterp)
+mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
+
 include(FindPythonLibs)
-mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_PATH PYTHON_DEBUG_LIBRARY)
-list(APPEND lass_INCLUDES ${PYTHON_INCLUDE_PATH})
+mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_DIRS PYTHON_DEBUG_LIBRARY)
+list(APPEND lass_INCLUDES ${PYTHON_INCLUDE_DIRS})
 
 if(PYTHON_DEBUG_LIBRARY)
 	set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
@@ -11,44 +47,34 @@ else()
 	set(PYTHON_DEBUG_LIBRARIES ${PYTHON_LIBRARIES})
 endif()
 
-include(FindPythonInterp)
-mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
+if(NOT "${PYTHON_INCLUDE_DIR}" STREQUAL "${_TESTED_PYTHON_INCLUDE_PATH}")
+	set(_python_header "${PYTHON_INCLUDE_DIR}/Python.h")
+	message(STATUS "Looking in ${_python_header} for redefinitions")
+	set(_TESTED_PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL "" FORCE)
+	unset(LASS_HAVE_PYTHON_POSIX_C_SOURCE CACHE)
+	unset(LASS_HAVE_PYTHON_FILE_OFFSET_BITS CACHE)
+	unset(LASS_HAVE_PYTHON_XOPEN_SOURCE CACHE)
+	CHECK_SYMBOL_EXISTS("_POSIX_C_SOURCE" "${_python_header}" LASS_HAVE_PYTHON_POSIX_C_SOURCE)
+	CHECK_SYMBOL_EXISTS("_FILE_OFFSET_BITS" "${_python_header}" LASS_HAVE_PYTHON_FILE_OFFSET_BITS)
+	CHECK_SYMBOL_EXISTS("_XOPEN_SOURCE" "${_python_header}" LASS_HAVE_PYTHON_XOPEN_SOURCE)
+	message(STATUS "Looking in ${_python_header} for redefinitions - done")
+endif()
 
-include(CheckIncludeFile)
-include(CheckSymbolExists)
-include(CheckLibraryExists)
-include(CheckFunctionExists)
 
-
+# --- check available headers ---
 
 CHECK_INCLUDE_FILE("fcntl.h" LASS_HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE("limits.h" LASS_HAVE_LIMITS_H)
 CHECK_INCLUDE_FILE("sched.h" LASS_HAVE_SCHED_H)
 if(LASS_HAVE_SCHED_H)
-	if ("LASS_HAVE_SCHED_H_CPU_SET_T" MATCHES "^LASS_HAVE_SCHED_H_CPU_SET_T$")
-		message(STATUS "Looking for cpu_set_t")
-		try_compile(
-			LASS_HAVE_SCHED_H_CPU_SET_T
-			"${lass_BINARY_DIR}/temp"
-			"${lass_SOURCE_DIR}/lass/config/check_sched_h_cpu_set_t.cpp"
-			)
-		if(LASS_HAVE_SCHED_H_CPU_SET_T)
-			message(STATUS "Looking for cpu_set_t - found")
-		else()
-			message(STATUS "Looking for cpu_set_t - not found")
-		endif()
-	endif()
+	_try_compile_looking(LASS_HAVE_SCHED_H_CPU_SET_T "check_sched_h_cpu_set_t.cpp" "cpu_set_t")
 endif()
 CHECK_INCLUDE_FILE("stddef.h" HAVE_STDDEF_H)
 set(LASS_HAVE_STDDEF_H ${HAVE_STDDEF_H})
 CHECK_INCLUDE_FILE("stdint.h" HAVE_STDINT_H)
 set(LASS_HAVE_STDINT_H ${HAVE_STDINT_H})
 if(LASS_HAVE_STDINT_H)
-	try_compile(
-		LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
-		"${lass_BINARY_DIR}/temp"
-		"${lass_SOURCE_DIR}/lass/config/check_int8_t_is_char.cpp"
-		)
+	_try_compile_checking(LASS_HAVE_STDINT_H_INT8_T_IS_CHAR "check_int8_t_is_char.cpp" "int8_t is char")
 endif()
 CHECK_INCLUDE_FILE("termios.h" LASS_HAVE_TERMIOS_H)
 CHECK_INCLUDE_FILE("unistd.h" LASS_HAVE_UNISTD_H)
@@ -65,9 +91,11 @@ CHECK_INCLUDE_FILE("sys/syscall.h" LASS_HAVE_SYS_SYSCALL_H)
 if(LASS_HAVE_SYS_SYSCALL_H)
 	CHECK_SYMBOL_EXISTS("__NR_gettid" "sys/syscall.h" LASS_HAVE_SYS_SYSCALL_H_GETTID)
 endif()
+CHECK_INCLUDE_FILE("sys/sysctl.h" LASS_HAVE_SYS_SYSCTL_H)
 CHECK_INCLUDE_FILE("sys/stat.h" LASS_HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
 set(LASS_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
+CHECK_INCLUDE_FILE("mach/thread_policy.h" HAVE_MACH_THREAD_POLICY_H)
 
 # --- Threading ----
 
@@ -91,11 +119,12 @@ if(LASS_HAVE_PTHREAD_H)
 endif()
 #CHECK_INCLUDE_FILE("nptl/pthread.h" LASS_HAVE_NPTL_PTHREAD_H)
 
-# --- OLE (for Crashdump) ---
-if (WIN32)
-	list(APPEND lass_LIBS "ole32")
-endif()
 
+# --- extra libraries ---
+
+if (WIN32)
+	list(APPEND lass_LIBS "ole32") # for Crashdump
+endif()
 
 CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
 if (LASS_HAVE_LIBRT)
@@ -113,18 +142,21 @@ if (LASS_HAVE_LIBUTIL)
 endif()
 
 
+# --- check availability of some general functions ---
 
+CHECK_SYMBOL_EXISTS("clock_gettime" "time.h" LASS_HAVE_CLOCK_GETTIME)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
-	try_compile(
-		LASS_HAVE_STRERROR_R_CHAR_P
-		"${lass_BINARY_DIR}/temp"
-		"${lass_SOURCE_DIR}/lass/config/check_strerror_r_char_p.cpp"
-		)
+	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")
 endif()
-
 CHECK_SYMBOL_EXISTS("_wfopen" "stdio.h" LASS_HAVE_WFOPEN)
 CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
+
+
+# --- checking some properties of numbers and available functions ---
+
+include(TestBigEndian)
+TEST_BIG_ENDIAN(LASS_HAVE_BIG_ENDIAN)
 
 include(CheckTypeSize)
 CHECK_TYPE_SIZE("long long" LONG_LONG)
@@ -132,27 +164,8 @@ set(LASS_HAVE_LONG_LONG ${HAVE_LONG_LONG})
 
 CHECK_SYMBOL_EXISTS("llabs" "stdlib.h" LASS_HAVE_LLABS)
 CHECK_SYMBOL_EXISTS("_abs64" "stdlib.h" LASS_HAVE_ABS64)
+_try_compile_looking(LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS "check_long_double_std_functions.cpp" "fabsl")
 
-include(TestBigEndian)
-TEST_BIG_ENDIAN(LASS_HAVE_BIG_ENDIAN)
-
-try_compile(
-  LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS
-  "${lass_BINARY_DIR}/temp"
-  "${lass_SOURCE_DIR}/lass/config/check_long_double_std_functions.cpp"
-)
-
-if(NOT "${PYTHON_INCLUDE_PATH}" STREQUAL "${_TESTED_PYTHON_INCLUDE_PATH}")
-	set(_python_header "${PYTHON_INCLUDE_PATH}/Python.h")
-	message(STATUS "Looking in ${_python_header} for redefinitions ...")
-	set(_TESTED_PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_PATH}" CACHE INTERNAL "" FORCE)
-	unset(LASS_HAVE_PYTHON_POSIX_C_SOURCE CACHE)
-	unset(LASS_HAVE_PYTHON_FILE_OFFSET_BITS CACHE)
-	unset(LASS_HAVE_PYTHON_XOPEN_SOURCE CACHE)
-	CHECK_SYMBOL_EXISTS("_POSIX_C_SOURCE" "${_python_header}" LASS_HAVE_PYTHON_POSIX_C_SOURCE)
-	CHECK_SYMBOL_EXISTS("_FILE_OFFSET_BITS" "${_python_header}" LASS_HAVE_PYTHON_FILE_OFFSET_BITS)
-	CHECK_SYMBOL_EXISTS("_XOPEN_SOURCE" "${_python_header}" LASS_HAVE_PYTHON_XOPEN_SOURCE)
-endif()
 
 
 

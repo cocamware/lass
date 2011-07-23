@@ -66,8 +66,20 @@ struct AtomicOperations<1>
 			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
 		bool result;
+#if defined(__PIC__) && LASS_ADDRESS_SIZE == 32
 		__asm__ __volatile__(
-			"movb %%bl, %%ah;"
+			"pushl %%ebx;"
+			"movb %4, %%ah;"
+			"movb %%cl, %%dh;"
+			"lock; cmpxchgw %%dx, %0;"
+			"sete %1;"
+			"popl %%ebx;"
+			: "=m"(dest1), "=q"(result)
+			: "a"(expected1), "d"(expected2), "m"(new1), "c"(new2), "m"(dest1)
+			: "cc", "memory");
+#else
+		__asm__ __volatile__(
+			"movb %bl, %%ah;"
 			"movb %%cl, %%dh;"
 			"lock; cmpxchgw %%dx, %0;"
 			"sete %1;"
@@ -75,7 +87,8 @@ struct AtomicOperations<1>
 			: "a"(expected1), "d"(new1), "b"(expected2), "c"(new2), 
 			  "m"(reinterpret_cast<volatile num::Tuint16&>(dest1))
 			: "cc", "memory");
-		return result;		
+#endif
+		return result;
 	}
 
 	template <typename T> inline
@@ -180,13 +193,13 @@ struct AtomicOperations<4>
 		// cmpxchg8b and PIC mode don't play nice.  Push ebx before use!
 		// see http://www.technovelty.org/code/arch/pic-cas.html
 		//
-#ifdef __PIC__
+#if defined(__PIC__) && LASS_ADDRESS_SIZE == 32
 		__asm__ __volatile__(
 			"pushl %%ebx;"
 			"movl %4,%%ebx;"
 			"lock; cmpxchg8b %0;"
 			"sete %1;"
-			"pop %%ebx;"
+			"popl %%ebx;"
 			: "=m"(dest1), "=q"(result)
 			: "a"(expected1), "d"(expected2), "m"(new1), "c"(new2), "m"(dest1)
 			: "cc", "memory");
@@ -237,15 +250,15 @@ struct AtomicOperations<8>
 #	ifdef __PIC__
 		__asm__ __volatile__(
 			"pushl %%ebx;"
-			"movl %5,%%ebx;"
+			"movl (%%ecx),%%ebx;"
+			"movl 4(%%ecx),%%ecx;"
 			"lock; cmpxchg8b %0;"
 			"pop %%ebx;"
 			: "=m"(dest), "=A"(expectedValue)
 			: "m"(dest),
 			  "a"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[0]), 
 			  "d"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[1]),	
-			  "m"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[0]), 
-			  "c"(reinterpret_cast<volatile num::Tuint32*>((void*)&newValue)[1])	
+			  "c"(&newValue)
 			: "cc", "memory");
 #	else
 		__asm__ __volatile__(

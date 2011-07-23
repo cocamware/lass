@@ -42,50 +42,11 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORMS_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORMS_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_OSX_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_PLATFORM_OSX_H
 
-#define LASS_PLATFORM_TYPE_WIN32 1
-#define LASS_PLATFORM_TYPE_LINUX 2
-#define LASS_PLATFORM_TYPE_CYGWIN 3
-#define LASS_PLATFORM_TYPE_BSD 4
-#define LASS_PLATFORM_TYPE_SOLARIS 5 
-#define LASS_PLATFORM_TYPE_OSX 6
-
-#if defined(linux) || defined(__linux) || defined(__linux__)
-#	include "platform_linux.h"
-#elif defined(__CYGWIN__)
-#	include "platform_cygwin.h"
-#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-#	include "platform_win32.h"
-#elif defined(__FreeBSD__)
-#	include "platform_bsd.h"
-#elif defined(__sun) && defined(__SVR4)
-#	include "platform_solaris.h"
-#elif defined(__APPLE__) && defined(__MACH__)
-#	include "platform_osx.h"
-#else
-#	error "Unknown platform - please configure and report the results to the LASS team"
-#endif
-
-
-
-#if defined(_M_IA64) || defined(_M_X64) || defined(_LP64) || defined(__LP64__) || defined(__x86_64)
-#	define LASS_ADDRESS_SIZE 64
-	// HACK: Currently, we assume that all 64 bit platforms actually only use 48 bits
-#	define LASS_ACTUAL_ADDRESS_SIZE 48
-#else
-#	define LASS_ADDRESS_SIZE 32
-#endif
-
-#if !defined(LASS_ACTUAL_ADDRESS_SIZE)
-#	define LASS_ACTUAL_ADDRESS_SIZE LASS_ADDRESS_SIZE
-#endif
-
-
-
-#ifndef LASS_LIB_PLATFORM
-#	define LASS_LIB_PLATFORM "default"
-#endif
+#define LASS_PLATFORM_TYPE LASS_PLATFORM_TYPE_OSX
+#define LASS_LIB_PLATFORM "osx"
+#define LASS_PLATFORM "OSX"
 
 #endif

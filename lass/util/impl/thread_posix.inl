@@ -63,6 +63,12 @@
 #if LASS_HAVE_SYS_SYSCALL_H
 #	include <sys/syscall.h>
 #endif
+#if LASS_HAVE_SYS_SYSCTL_H
+#	include <sys/sysctl.h>
+#endif
+#if LASS_HAVE_MACH_THREAD_POLICY_H
+#	include <mach/thread_policy.h>
+#endif
 
 namespace lass
 {
@@ -96,6 +102,12 @@ TCpuSet availableProcessors()
 	// determine number of processors (highest set bit of systemAffinityMask)
 #if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
 	const size_t n = static_cast<size_t>(sysconf(_SC_NPROCESSORS_CONF));
+#elif LASS_HAVE_SYSCTL_H
+	int mid[2] = { CTL_HW, HW_NCPU };
+	int ncpus = 1;
+	size_t len = sizeof(ncpus);
+	sysctl(mib, 2, &ncpus, &len, 0, 0);
+	const size_t n = static_cast<size_t>(ncpus);
 #elif LASS_HAVE_SCHED_H_CPU_SET_T
 	size_t n = 0;
 	for (int i = 0; i < CPU_SETSIZE; ++i)
@@ -119,7 +131,8 @@ TCpuSet availableProcessors()
 		const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(i), P_STATUS))("i=")(i);
 		cpuSet[i] = r == P_ONLINE || r == P_NOINTR;
 #else
-#		error missing implementation
+#		// no way to figure out it out, let's assume it's always available
+		cpuSet[i] = true;
 #endif
 	}
 
@@ -251,20 +264,36 @@ public:
 				<< retUnlock << ") " << impl::lass_strerror(retUnlock));
 		}
 	}	
-	WaitResult wait(unsigned long iMilliSeconds)
+	WaitResult wait(unsigned long milliSeconds)
 	{
-		const long million =  1000000;
-		const long trillion = 1000000000;
+		enum 
+		{
+			msec_per_sec = 1000,
+			nsec_per_usec = 1000,
+			nsec_per_msec = 1000 * 1000,
+			nsec_per_sec = nsec_per_msec * msec_per_sec
+		};
+		
+		const unsigned long seconds = milliSeconds / msec_per_sec;
+		milliSeconds %= msec_per_sec;
 		
 		LASS_ENFORCE_CLIB_RC(pthread_mutex_lock(&mutex_));
 		
 		struct timespec timeToWaitTo;
-		clock_gettime(CLOCK_REALTIME,&timeToWaitTo);
-		timeToWaitTo.tv_nsec += iMilliSeconds * million;
-		if (timeToWaitTo.tv_nsec >= trillion)
+#if LASS_HAVE_CLOCK_GETTIME
+		clock_gettime(CLOCK_REALTIME, &timeToWaitTo);
+#else
+		timeval now; 
+		gettimeofday(&now, 0);
+		timeToWaitTo.tv_sec = now.tv_sec;
+		timeToWaitTo.tv_nsec = now.tv_usec * nsec_per_usec;
+#endif
+		timeToWaitTo.tv_nsec += milliSeconds * nsec_per_msec;
+		timeToWaitTo.tv_sec += seconds;
+		if (timeToWaitTo.tv_nsec >= nsec_per_sec)
 		{
-			timeToWaitTo.tv_sec += timeToWaitTo.tv_nsec / trillion;
-			timeToWaitTo.tv_nsec %= trillion;
+			timeToWaitTo.tv_sec += timeToWaitTo.tv_nsec / nsec_per_sec;
+			timeToWaitTo.tv_nsec %= nsec_per_sec;
 		}
 		
 		++threadsWaiting_;
@@ -322,7 +351,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pthread_t handle, pid_t tid, size_t processor)
+void bindThread(pthread_t LASS_UNUSED(handle), pid_t LASS_UNUSED(tid), size_t LASS_UNUSED(processor))
 {
 #if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
 	cpu_set_t mask;
@@ -338,16 +367,14 @@ void bindThread(pthread_t handle, pid_t tid, size_t processor)
 	}
 #	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
 	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask))("handle=")(handle);
-	(void) tid; // avoid 'unused' warning
 #	else
 	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask))("tid=")(tid);
-    (void) handle; // avoid 'unused' warning
 #	endif
 #elif LASS_HAVE_SYS_PROCESSOR_H
 	const processorid_t cpu_id = processor == Thread::anyProcessor ? PBIND_NONE : static_cast<processorid_t>(processor);
 	LASS_ENFORCE_CLIB(processor_bind(P_LWPID, handle, cpu_id, 0))("handle=")(handle);
 #else
-#	error no implementation for bindThread
+#	warning [LASS BUILD MSG] no implementation for util::Thread::bind: setting thread affinity will be a no-op.
 #endif
 }
 
@@ -443,23 +470,31 @@ public:
 		}
 		result[static_cast<size_t>(cpu_id)] = true;
 #else
-#	error no implementation
+#	warning [LASS BUILD MSG] no implementation for util::Thread::affinity: will return set with all available processors 
+		return availableProcessors();
 #endif		
 		return result;
 	}
 	
-	static void sleep(unsigned long iMilliSeconds)
+	static void sleep(unsigned long milliSeconds)
 	{
+		enum 
+		{
+			msec_per_sec = 1000,
+			nsec_per_msec = 1000 * 1000,
+			nsec_per_sec = nsec_per_msec * msec_per_sec
+		};
+		
 		timespec timeOut;
-		if (iMilliSeconds < 1000)
+		if (milliSeconds < msec_per_sec)
 		{
 			timeOut.tv_sec = 0;
-			timeOut.tv_nsec = iMilliSeconds * 1000000;
+			timeOut.tv_nsec = milliSeconds * nsec_per_msec;
 		}
 		else
 		{
-			timeOut.tv_sec = iMilliSeconds / 1000;
-			timeOut.tv_nsec = (iMilliSeconds % 1000) * 1000000;
+			timeOut.tv_sec = milliSeconds / msec_per_sec;
+			timeOut.tv_nsec = (milliSeconds % msec_per_sec) * nsec_per_msec;
 		}
 		
 		// nanosleep may return earlier than expected if there's a signal

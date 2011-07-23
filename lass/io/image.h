@@ -72,7 +72,7 @@ class LASS_DLL Image
 {
 public:
 
-	typedef num::BasicType<8 * sizeof(size_t)>::Tint TSignedSize;
+	typedef num::NumTraits<size_t>::signedType TSignedSize;
 
 	typedef prim::ColorRGBA TPixel;
 	typedef std::vector<TPixel> TRaster;
