@@ -66,6 +66,9 @@
 #if LASS_HAVE_SYSCTL_H_CTL_HW && LASS_HAVE_SYSCTL_H_HW_NCPU
 #	include <sys/sysctl.h>
 #endif
+#if LASS_HAVE_SYS_TIME_H
+#	include <sys/time.h>
+#endif
 #if LASS_HAVE_MACH_THREAD_POLICY_H
 #	include <mach/thread_policy.h>
 #endif
@@ -283,8 +286,8 @@ public:
 #if LASS_HAVE_CLOCK_GETTIME
 		clock_gettime(CLOCK_REALTIME, &timeToWaitTo);
 #else
-		timeval now; 
-		gettimeofday(&now, 0);
+		::timeval now; 
+		::gettimeofday(&now, 0);
 		timeToWaitTo.tv_sec = now.tv_sec;
 		timeToWaitTo.tv_nsec = now.tv_usec * nsec_per_usec;
 #endif

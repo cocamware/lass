@@ -92,14 +92,11 @@ if(LASS_HAVE_SYS_SYSCALL_H)
 	CHECK_SYMBOL_EXISTS("__NR_gettid" "sys/syscall.h" LASS_HAVE_SYS_SYSCALL_H_GETTID)
 endif()
 CHECK_INCLUDE_FILE("sys/sysctl.h" LASS_HAVE_SYS_SYSCTL_H)
-if(LASS_HAVE_SYS_SYSCTL_H)
-	CHECK_SYMBOL_EXISTS("CTL_HW" "sys/sysctl.h" LASS_HAVE_SYS_SYSTL_H_CTL_HW)
-	CHECK_SYMBOL_EXISTS("HW_NCPU" "sys/sysctl.h" LASS_HAVE_SYS_SYSTL_H_HW_NCPU)
-endif()
 CHECK_INCLUDE_FILE("sys/stat.h" LASS_HAVE_SYS_STAT_H)
+CHECK_INCLUDE_FILE("sys/time.h" LASS_HAVE_SYS_TIME_H)
 CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
 set(LASS_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
-CHECK_INCLUDE_FILE("mach/thread_policy.h" HAVE_MACH_THREAD_POLICY_H)
+CHECK_INCLUDE_FILE("mach/thread_policy.h" LASS_HAVE_MACH_THREAD_POLICY_H)
 
 # --- Threading ----
 
@@ -130,8 +127,8 @@ if (WIN32)
 	list(APPEND lass_LIBS "ole32") # for Crashdump
 endif()
 
-CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_CLOCK_GETTIME)
-if (LASS_HAVE_CLOCK_GETTIME)
+CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
+if (LASS_HAVE_LIBRT)
    list(APPEND lass_LIBS "rt")
 endif()
 
@@ -148,6 +145,7 @@ endif()
 
 # --- check availability of some general functions ---
 
+CHECK_SYMBOL_EXISTS("clock_gettime" "time.h" LASS_HAVE_CLOCK_GETTIME)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")
