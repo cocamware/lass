@@ -79,7 +79,7 @@ struct AtomicOperations<1>
 			: "cc", "memory");
 #else
 		__asm__ __volatile__(
-			"movb %bl, %%ah;"
+			"movb %%bl, %%ah;"
 			"movb %%cl, %%dh;"
 			"lock; cmpxchgw %%dx, %0;"
 			"sete %1;"

@@ -63,7 +63,7 @@
 #if LASS_HAVE_SYS_SYSCALL_H
 #	include <sys/syscall.h>
 #endif
-#if LASS_HAVE_SYS_SYSCTL_H
+#if LASS_HAVE_SYSCTL_H_CTL_HW && LASS_HAVE_SYSCTL_H_HW_NCPU
 #	include <sys/sysctl.h>
 #endif
 #if LASS_HAVE_MACH_THREAD_POLICY_H
@@ -102,7 +102,7 @@ TCpuSet availableProcessors()
 	// determine number of processors (highest set bit of systemAffinityMask)
 #if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
 	const size_t n = static_cast<size_t>(sysconf(_SC_NPROCESSORS_CONF));
-#elif LASS_HAVE_SYSCTL_H
+#elif LASS_HAVE_SYSCTL_H_CTL_HW && LASS_HAVE_SYSCTL_H_HW_NCPU
 	int mid[2] = { CTL_HW, HW_NCPU };
 	int ncpus = 1;
 	size_t len = sizeof(ncpus);
