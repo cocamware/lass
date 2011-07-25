@@ -240,7 +240,7 @@ Matrix<T, S>::operator()(TSize iRow, TSize iColumn) const
  *  @pre @c this must be an l-value (storage matrix).
  */
 template <typename T, typename S> inline
-typename util::CallTraits<T>::TReference
+typename Matrix<T, S>::TReference
 Matrix<T, S>::operator()(TSize iRow, TSize iColumn)
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
@@ -270,7 +270,7 @@ Matrix<T, S>::at(TSigned iRow, TSigned iColumn) const
  *  @pre @c this must be an l-value (storage matrix).
  */
 template <typename T, typename S> inline
-typename util::CallTraits<T>::TReference
+typename Matrix<T, S>::TReference
 Matrix<T, S>::at(TSigned iRow, TSigned iColumn)
 {
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);

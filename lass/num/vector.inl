@@ -222,7 +222,7 @@ Vector<T, S>::operator[](TSize iIndex) const
  *		strong guarentee.
  */
 template <typename T, typename S> inline
-typename util::CallTraits<T>::TReference
+typename Vector<T, S>::TReference
 Vector<T, S>::operator[](TSize iIndex)
 {
 	LASS_ASSERT(iIndex < size());
@@ -256,7 +256,7 @@ Vector<T, S>::at(TSize iIndex) const
  *		strong guarentee.
  */
 template <typename T, typename S> inline
-typename util::CallTraits<T>::TReference
+typename Vector<T, S>::TReference
 Vector<T, S>::at(TSize iIndex)
 {
 	return storage_[num::mod(iIndex, storage_.size())];
