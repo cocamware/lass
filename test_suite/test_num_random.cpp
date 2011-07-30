@@ -80,6 +80,15 @@ void testNumRandomMersenne()
 }
 
 
+void testNumRandomXKCD()
+{
+	num::RandomXKCD random;
+	for (size_t i = 0; i < 1000; ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(random(), 4);
+	}
+}
+
 
 void testNumDistributions()
 {
@@ -195,6 +204,7 @@ TUnitTest test_num_random()
 {
 	TUnitTest result;
 	result.push_back(LASS_TEST_CASE(testNumRandomMersenne));
+	result.push_back(LASS_TEST_CASE(testNumRandomXKCD));
 	result.push_back(LASS_TEST_CASE(testNumDistributions));
 	return result;
 }

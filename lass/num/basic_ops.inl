@@ -767,7 +767,7 @@ void inpfractional(unsigned long long& x)	{ x = 0; }	/**< @ingroup BasicOps */
 
 // --- complex numbers -----------------------------------------------------------------------------
 
-template <typename T> std::complex<T> abs( const std::complex<T>& x) { return std::abs( x ); }	/**< @ingroup BasicOps */
+template <typename T> T abs( const std::complex<T>& x) { return std::abs( x ); }	/**< @ingroup BasicOps */
 template <typename T> std::complex<T> inv( const std::complex<T>& x) { return T(1)/x; }	/**< @ingroup BasicOps */
 template <typename T> std::complex<T> sqrt( const std::complex<T>& x){ return std::sqrt( x ); }	/**< @ingroup BasicOps */
 template <typename T> std::complex<T> pow(const std::complex<T>& x, double p) { return std::pow(x, p); }	/**< @ingroup BasicOps */

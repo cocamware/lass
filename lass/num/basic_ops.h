@@ -449,7 +449,7 @@ inline void inpfractional(unsigned long long& x);
 
 // complex numbers
 
-template <typename T> inline std::complex<T> abs(const std::complex<T>& x);
+template <typename T> inline T abs(const std::complex<T>& x);
 template <typename T> inline std::complex<T> inv(const std::complex<T>& x);
 template <typename T> inline std::complex<T> sqrt(const std::complex<T>& x);
 template <typename T> inline std::complex<T> pow(const std::complex<T>& x, const std::complex<T>& p);

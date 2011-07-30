@@ -97,7 +97,7 @@ public:
 		const TSize size() const { return matrix_.columns(); }
 	private:
 		friend class Matrix<T, S>;
-		Row(Matrix<T, S>& iMatrix, TSize iRow): matrix_(iMatrix), row_(iRow) {}
+		Row(Matrix<T, S>& iMatrix, TSize row): matrix_(iMatrix), row_(row) {}
 		Matrix<T, S>& matrix_;
 		TSize row_;
 	};
@@ -105,13 +105,13 @@ public:
 	class ConstRow
 	{
 	public:
-		ConstRow(const Row& iOther): matrix_(iOther.matrix_), row_(iOther.row_) {}
+		ConstRow(const Row& other): matrix_(other.matrix_), row_(other.row_) {}
 		const T& operator[](TSize iJ) const { return matrix_(row_, iJ); }
 		const T& at(TSigned iJ) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
 		const TSize size() const { return matrix_.columns(); }
 	private:
 		friend class Matrix<T, S>;
-		ConstRow(const Matrix<T, S>& iMatrix, TSize iRow): matrix_(iMatrix), row_(iRow) {}
+		ConstRow(const Matrix<T, S>& iMatrix, TSize row): matrix_(iMatrix), row_(row) {}
 		const Matrix<T, S>& matrix_;
 		TSize row_;
 	};
@@ -134,7 +134,7 @@ public:
 	class ConstColumn
 	{
 	public:
-		ConstColumn(const Column& iOther): matrix_(iOther.matrix_), column_(iOther.column_) {}
+		ConstColumn(const Column& other): matrix_(other.matrix_), column_(other.column_) {}
 		const T& operator[](TSize iI) const { return matrix_(iI, column_); }
 		const T& at(TSigned iI) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
 		const TSize size() const { return matrix_.rows(); }
@@ -146,35 +146,35 @@ public:
 	};
 
 	Matrix();
-	explicit Matrix(TSize iRows, TSize iCols);
-	explicit Matrix(const TStorage& iStorage);
-	template <typename T2, typename S2> Matrix(const Matrix<T2, S2>& iOther);
+	explicit Matrix(TSize rows, TSize columns);
+	explicit Matrix(const TStorage& storage);
+	template <typename T2, typename S2> Matrix(const Matrix<T2, S2>& other);
 
-	template <typename T2, typename S2> Matrix<T, S>& operator=(const Matrix<T2, S2>& iOther);
+	template <typename T2, typename S2> Matrix<T, S>& operator=(const Matrix<T2, S2>& other);
 
 	const TSize rows() const;
 	const TSize columns() const;
 
-	const TValue operator()(TSize iRow, TSize iCol) const;
-	TReference operator()(TSize iRow, TSize iCol);
-	const TValue at(TSigned iRow, TSigned iCol) const;
-	TReference at(TSigned iRow, TSigned iCol);
+	const TValue operator()(TSize row, TSize column) const;
+	TReference operator()(TSize row, TSize column);
+	const TValue at(TSigned row, TSigned column) const;
+	TReference at(TSigned row, TSigned column);
 
-	ConstRow row(TSigned iRow) const;
-	Row row(TSigned iRow);
-	ConstColumn column(TSigned iColumn) const;
-	Column column(TSigned iColumn);
+	ConstRow row(TSigned index) const;
+	Row row(TSigned index);
+	ConstColumn column(TSigned index) const;
+	Column column(TSigned index);
 
 	const Matrix<T, S>& operator+() const;
 	const Matrix<T, impl::MNeg<T, S> > operator-() const;
 
-	template <typename S2> Matrix<T, S>& operator+=(const Matrix<T, S2>& iB);
-	template <typename S2> Matrix<T, S>& operator-=(const Matrix<T, S2>& iB);
-	Matrix<T, S>& operator*=(TParam iB);
-	Matrix<T, S>& operator/=(TParam iB);
+	template <typename S2> Matrix<T, S>& operator+=(const Matrix<T, S2>& other);
+	template <typename S2> Matrix<T, S>& operator-=(const Matrix<T, S2>& other);
+	Matrix<T, S>& operator*=(TParam scalar);
+	Matrix<T, S>& operator/=(TParam scalar);
 
-	void setZero(TSize iRows, TSize iCols);
-	void setIdentity(TSize iSize);
+	void setZero(TSize rows, TSize columns);
+	void setIdentity(TSize size);
 
 	bool isEmpty() const;
 	bool isZero() const;
@@ -187,7 +187,7 @@ public:
 
 	const TStorage& storage() const;
 	TStorage& storage();
-	void swap(Matrix<T, S>& iOther);
+	void swap(Matrix<T, S>& other);
 
 private:
 
@@ -195,40 +195,40 @@ private:
 };
 
 template <typename T, typename S1, typename S2>
-bool operator==(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+bool operator==(const Matrix<T, S1>& a, const Matrix<T, S2>& b);
 template <typename T, typename S1, typename S2>
-inline bool operator!=(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+inline bool operator!=(const Matrix<T, S1>& a, const Matrix<T, S2>& b);
 
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MAdd<T, S1, S2> > operator+(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+const Matrix<T, impl::MAdd<T, S1, S2> > operator+(const Matrix<T, S1>& a, const Matrix<T, S2>& b);
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MSub<T, S1, S2> > operator-(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+const Matrix<T, impl::MSub<T, S1, S2> > operator-(const Matrix<T, S1>& a, const Matrix<T, S2>& b);
 template <typename T, typename S1, typename S2>
-const Matrix<T, impl::MProd<T, S1, S2> > operator*(const Matrix<T, S1>& iA, const Matrix<T, S2>& iB);
+const Matrix<T, impl::MProd<T, S1, S2> > operator*(const Matrix<T, S1>& a, const Matrix<T, S2>& b);
 
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> > operator+(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MAdd<T, impl::MScalar<T>, S> > operator+(const T& a, const Matrix<T, S>& b);
 template <typename T, typename S>
-const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> > operator-(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MSub<T, impl::MScalar<T>, S> > operator-(const T& a, const Matrix<T, S>& b);
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> > operator*(const T& iA, const Matrix<T, S>& iB);
+const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> > operator*(const T& a, const Matrix<T, S>& b);
 
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator+(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator+(const Matrix<T, S>& a, const T& b);
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator-(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator-(const Matrix<T, S>& a, const T& b);
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, S>& a, const T& b);
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& iA, const T& iB);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& a, const T& b);
 
 template <typename T, typename S, typename S2>
-void solve(const Matrix<T, S>& iA, Matrix<T, S2>& ioB);
+void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve = true);
 
 
 template <typename T, typename S, typename Char, typename Traits>
 std::basic_ostream<Char, Traits>&
-operator<<(std::basic_ostream<Char, Traits>& iS, const Matrix<T, S>& iA);
+operator<<(std::basic_ostream<Char, Traits>& stream, const Matrix<T, S>& matrix);
 
 }
 

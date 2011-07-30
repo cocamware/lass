@@ -174,6 +174,33 @@ void testUtilThreadTryLock()
 	LASS_TEST_CHECK(beenHere);
 }
 
+
+template <typename LockType, bool isReentrant>
+void testUtilThreadReentrantLock()
+{
+	LockType lock;
+
+	LASS_TEST_CHECK(!lock.isLocked());
+
+	LASS_LOCK(lock)
+	{
+		LASS_TEST_CHECK(lock.isLocked());
+		LASS_TRY_LOCK(lock)
+		{
+			LASS_TEST_CHECK(lock.isLocked());
+			LASS_TEST_CHECK(isReentrant);
+		}
+		else
+		{
+			LASS_TEST_CHECK(lock.isLocked());
+			LASS_TEST_CHECK(!isReentrant);
+		}
+	}
+
+	LASS_TEST_CHECK(!lock.isLocked());
+}
+
+
 template <typename LockType>
 void testUtilThreadIntegralLock()
 {
@@ -228,6 +255,9 @@ TUnitTest test_util_thread_locks()
 	result.push_back(LASS_TEST_CASE(testUtilThreadTryLock<util::Mutex>));
 	result.push_back(LASS_TEST_CASE(testUtilThreadTryLock<util::CriticalSection>));
 	result.push_back(LASS_TEST_CASE(testUtilThreadTryLock<util::Semaphore>));
+	result.push_back(LASS_TEST_CASE((testUtilThreadReentrantLock<util::Mutex, true>)));
+	result.push_back(LASS_TEST_CASE((testUtilThreadReentrantLock<util::CriticalSection, true>)));
+	result.push_back(LASS_TEST_CASE((testUtilThreadReentrantLock<util::Semaphore, false>)));
 	result.push_back(LASS_TEST_CASE(testUtilThreadIntegralLock<int>));
 	result.push_back(LASS_TEST_CASE(testUtilThreadIntegralLock<unsigned>));
 	result.push_back(LASS_TEST_CASE(testUtilThreadIntegralLock<size_t>));

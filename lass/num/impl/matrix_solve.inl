@@ -315,7 +315,7 @@ void lumprove(RandomIterator1 iMatrix,
 		}
 	}
 
-	lusolve(iMatrixLU, iIndex, r.begin(), iSize);
+	lusolve<T>(iMatrixLU, iIndex, r.begin(), iSize);
 
 	for (i = 0; i < iSize; ++i)
 	{

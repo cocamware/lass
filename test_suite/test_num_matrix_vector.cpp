@@ -59,7 +59,7 @@ struct Generator
 {
 	num::RandomMT19937 random_;
 	num::DistributionUniform<T, num::RandomMT19937> distribution_;
-	Generator(): random_(), distribution_(random_) {}
+	Generator(): random_(), distribution_(random_, -1, 1) {}
 	T operator()() { return distribution_(); }
 };
 
@@ -68,9 +68,22 @@ struct Generator<std::complex<T> >
 {
 	num::RandomMT19937 random_;
 	num::DistributionUniform<T, num::RandomMT19937> distribution_;
-	Generator(): random_(), distribution_(random_) {}
+	Generator(): random_(), distribution_(random_, -1, 1) {}
 	std::complex<T> operator()() { return std::complex<T>(distribution_(), distribution_()); }
 };
+
+template <typename T>
+void fill(num::Matrix<T>& matrix, Generator<T>& rng)
+{
+	typedef typename num::Matrix<T>::TSize TSize;
+	for(TSize i = 0, rows = matrix.rows(); i < rows; ++i)
+	{
+		for(TSize j = 0, cols = matrix.columns(); j < cols; ++j)
+		{
+			matrix(i, j) = rng();
+		}
+	}
+}
 
 }
 
@@ -241,6 +254,14 @@ void testNumMatrix()
 	LASS_TEST_CHECK(a.isDiagonal());
 	LASS_TEST_CHECK_EQUAL(a, a);
 
+	a.setIdentity(3);
+	LASS_TEST_CHECK(!a.isEmpty());
+	LASS_TEST_CHECK(!a.isZero());
+	LASS_TEST_CHECK(a.isIdentity());
+	LASS_TEST_CHECK(a.isSquare());
+	LASS_TEST_CHECK(a.isDiagonal());
+	LASS_TEST_CHECK_EQUAL(a, a);
+
 	TMatrix b(3, 4);
 	LASS_TEST_CHECK(!b.isEmpty());
 	LASS_TEST_CHECK(b.isZero());
@@ -251,6 +272,39 @@ void testNumMatrix()
 
 	LASS_TEST_CHECK_EQUAL(b.columns(), size_t(4));
 	LASS_TEST_CHECK_EQUAL(b, b);
+
+	LASS_TEST_CHECK_THROW(a + b, util::EnforceFailure);
+
+	num_vector::Generator<T> rng;
+	num_vector::fill(b, rng);
+	LASS_TEST_CHECK(!b.isZero());
+	LASS_TEST_CHECK_EQUAL(b, b);
+
+	a.setZero(3, 4);
+	LASS_TEST_CHECK(!a.isEmpty());
+	LASS_TEST_CHECK(a.isZero());
+	LASS_TEST_CHECK_EQUAL(a + b, b);
+
+	num_vector::fill(a, rng);
+	TMatrix c = a + b;
+	LASS_TEST_CHECK(c != b);
+	b += a;
+	LASS_TEST_CHECK_EQUAL(b, c);
+
+	b = c - a;
+	LASS_TEST_CHECK(c != b);
+	c -= a;
+	LASS_TEST_CHECK_EQUAL(b, c);
+
+	c = b * 2;
+	LASS_TEST_CHECK(c != b);
+	LASS_TEST_CHECK_EQUAL(b + b, c);
+	b *= 2;
+	LASS_TEST_CHECK_EQUAL(b, c);
+
+	b /= 2;
+	LASS_TEST_CHECK(c != b);
+	LASS_TEST_CHECK_EQUAL(b, c / 2);
 }
 
 
@@ -281,15 +335,74 @@ void testNumSolve()
 	LASS_TEST_CHECK(num::norm((a * x - b).norm()) < 1e-12f);
 }
 
+
+template <typename T>
+void testNumMatrixSolve()
+{
+	using namespace num;
+	
+	const int n = 200;
+	Matrix<T> a(n, n);
+	Matrix<T> b(n, n);
+
+	num_vector::Generator<T> rng;
+	num_vector::fill(a, rng);
+	num_vector::fill(b, rng);
+
+	Matrix<T> x = b;
+	solve(a, x);
+
+	typedef typename NumTraits<T>::baseType TBase;
+	typedef std::vector<TBase> TErrors;
+	TErrors errors;
+	Matrix<T> e = a * x - b;
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			errors.push_back( num::abs( e(i, j) ) );
+		}
+	}
+
+	typename TErrors::iterator min = errors.begin();
+	typename TErrors::iterator max = errors.end() - 1;
+	typename TErrors::iterator median = errors.begin() + (errors.size() / 2);
+	std::nth_element(errors.begin(), median, errors.end());
+	std::nth_element(errors.begin(), min, median);
+	std::nth_element(median, max, errors.end());
+
+	typename NumTraits<T>::baseType avg = 0, rms = 0;
+	for (typename TErrors::iterator i = errors.begin(), last = errors.end(); i != last; ++i)
+	{
+		avg += *i;
+		rms += num::sqr(*i);
+	}
+	avg /= errors.size();
+	rms = num::sqrt(rms / errors.size());
+	
+	std::cout << "min=" << *min << ", median=" << *median << ", avg=" << avg << ", rms=" << rms << ", max=" << *max << std::endl;
+
+	LASS_TEST_CHECK(*max < 1000 * NumTraits<TBase>::epsilon );
+}
+
 TUnitTest test_num_matrix_vector()
 {
 	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumMatrix<float>));
+	result.push_back(LASS_TEST_CASE(testNumMatrix< std::complex<float> >));
 	result.push_back(LASS_TEST_CASE(testNumMatrix<double>));
 	result.push_back(LASS_TEST_CASE(testNumMatrix< std::complex<double> >));
+	result.push_back(LASS_TEST_CASE(testNumVector<float>));
+	result.push_back(LASS_TEST_CASE(testNumVector< std::complex<float> >));
 	result.push_back(LASS_TEST_CASE(testNumVector<double>));
 	result.push_back(LASS_TEST_CASE(testNumVector< std::complex<double> >));
 	result.push_back(LASS_TEST_CASE(testNumSolve<double>));
 	result.push_back(LASS_TEST_CASE(testNumSolve< std::complex<double> >));
+
+	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<float>));
+	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<double>));
+	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<float> >));
+	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<double> >));
 	return result;
 }
 

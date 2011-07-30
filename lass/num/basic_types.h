@@ -120,6 +120,7 @@ template <typename T> struct DoublePrecision { };
 template <> struct DoublePrecision<float> { typedef double Type; };
 template <> struct DoublePrecision<double> { typedef long double Type; };
 template <> struct DoublePrecision<long double> { typedef long double Type; };
+template <typename T> struct DoublePrecision< std::complex<T> > { typedef std::complex< typename DoublePrecision<T>::Type > Type; };
 
 
 
