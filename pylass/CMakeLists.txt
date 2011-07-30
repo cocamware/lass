@@ -1,11 +1,6 @@
 file(GLOB pylass_HDRS *.h *.inl)
 file(GLOB pylass_SRCS *.cpp)
 
-include_directories(
-	${lass_SOURCE_DIR}
-	${lass_INCLUDES}
-	)
-
 add_library(pylass MODULE 
 	${pylass_HDRS} 
 	${pylass_SRCS}
@@ -35,7 +30,6 @@ install(
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	)
-
 
 if (MSVC_IDE)
 	set(_configuration "$(ConfigurationName)")

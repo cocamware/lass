@@ -7,7 +7,7 @@ else()
 	include("${SELF_DIR}/LassExports.cmake")
 	get_filename_component(Lass_INCLUDE_DIRS "${SELF_DIR}/../include" ABSOLUTE)
 endif()
-set(Lass_LIBRARIES lass)
+set(Lass_LIBRARIES lass lass_python)
 
 set(Lass_MAJOR_VERSION @LASS_MAJOR_VERSION@)
 set(Lass_MINOR_VERSION @LASS_MINOR_VERSION@)

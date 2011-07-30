@@ -154,17 +154,6 @@
 #endif
 
 
-
-/** @def LASS_LIB_PREFIX
- *  @brief prefix of all library names that will be made
- */
-//#define LASS_LIB_PREFIX "lass_"
-
-/** @def LASS_LIB_SUFFIX
- *  @brief suffix of all library names that will be made, indicates platform, compiler and build.
- */
-//#define LASS_LIB_SUFFIX "_" LASS_LIB_PLATFORM "_" LASS_LIB_COMPILER LASS_LIB_ARCH LASS_LIB_DEBUG ".lib"
-
 /** @def LASS_DLL
  *  @brief DLL interface: import or export symbols?  or neither?
  */
@@ -181,18 +170,6 @@
 #	define LASS_DLL LASS_DLL_EXPORT
 #endif
 
-#ifdef LASS_PYTHON_DLL
-#	undef LASS_PYTHON_DLL
-#endif
-#if LASS_PYTHON_SHARED_LIBRARY
-#	if defined(LASS_PYTHON_EXPORTS) || defined (lass_python_EXPORTS)
-#		define LASS_PYTHON_DLL LASS_DLL_EXPORT
-#	else
-#		define LASS_PYTHON_DLL LASS_DLL_IMPORT
-#	endif
-#else 
-#	define LASS_PYTHON_DLL LASS_DLL_EXPORT
-#endif
 
 
 // --- frequently used STL mumbo jumbo ---

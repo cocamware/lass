@@ -1,4 +1,4 @@
-set(sourcedir "${lass_SOURCE_DIR}/test_suite")
+set(sourcedir "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB test_suite_HDRS "${sourcedir}/*.h")
 file(GLOB test_suite_SRCS "${sourcedir}/*.cpp")
@@ -56,9 +56,10 @@ target_link_libraries(
 	optimized ${PYTHON_LIBRARIES} 
 	debug ${PYTHON_DEBUG_LIBRARIES}
 	)
+eval(lass_C_FLAGS)
 set_target_properties(
 	test_suite PROPERTIES
-        COMPILE_FLAGS ${_cflags}
+        COMPILE_FLAGS "${lass_C_FLAGS}"
 	)
 add_precompiled_header(
 	test_suite 
@@ -69,5 +70,5 @@ add_precompiled_header(
 
 list(SORT unit_tests)
 foreach(test_name ${unit_tests})
-	add_test(${test_name} test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
+	add_test(NAME ${test_name} COMMAND test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
 endforeach()

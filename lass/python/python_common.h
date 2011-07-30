@@ -87,6 +87,19 @@
 
 #include "../lass_common.h"
 
+#ifdef LASS_PYTHON_DLL
+#	undef LASS_PYTHON_DLL
+#endif
+#if LASS_SHARED_LIBRARY // yes, it's the same flag.
+#	if defined(LASS_PYTHON_EXPORTS) || defined (lass_python_EXPORTS)
+#		define LASS_PYTHON_DLL LASS_DLL_EXPORT
+#	else
+#		define LASS_PYTHON_DLL LASS_DLL_IMPORT
+#	endif
+#else 
+#	define LASS_PYTHON_DLL LASS_DLL_EXPORT
+#endif
+
 // Python.h is a bit blunt in (re)defining _POSIX_C_SOURCE causing a nice warning.
 // Undefing it before including Python.h will suppress that warning.
 // Remove this once Python plays nice again. 

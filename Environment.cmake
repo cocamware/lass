@@ -98,6 +98,7 @@ CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
 set(LASS_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
 CHECK_INCLUDE_FILE("mach/thread_policy.h" LASS_HAVE_MACH_THREAD_POLICY_H)
 
+
 # --- Threading ----
 
 # this one is rather complicated =)

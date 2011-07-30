@@ -58,13 +58,6 @@
 #	define LASS_SHARED_LIBRARY ${LASS_SHARED_LIBRARY}
 #endif
 
-/**	@def LASS_PYTHON_SHARED_LIBRARY
- *	Define to true if you link to the shared library, false for the static one.
- */
-#ifndef LASS_PYTHON_SHARED_LIBRARY
-#	define LASS_PYTHON_SHARED_LIBRARY ${LASS_PYTHON_SHARED_LIBRARY}
-#endif
-
 
 /**	@def LASS_PYTHON_HAS_DEBUG_BUILD
  *	Define to true if your Python distribution has a debug build that can be used for the
