@@ -45,17 +45,9 @@
 #include "impl/lass_errno.h"
 #include "../stde/extended_string.h"
 
-#if LASS_HAVE_WINDOWS_H
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
 #include <windows.h>
-
-namespace
-{
-	struct DynamicLibraryHandle
-	{
-		HMODULE module;
-	};
-}
 
 namespace lass
 {
@@ -76,7 +68,7 @@ DynamicLibrary::DynamicLibrary(const std::string& path):
 	}
 	if (pimpl_ == NULL)
 	{
-		LASS_THROW_EX(DynamicLibraryError, "Unable to load dynamic library '" << path << "': " << impl::lass_FormatMessage(impl::lass_GetLastError()));
+		LASS_THROW_EX(DynamicLibraryError, "Unable to load '" << path << "': " << impl::lass_FormatMessage(impl::lass_GetLastError()));
 	}
 }
 
@@ -86,13 +78,73 @@ DynamicLibrary::~DynamicLibrary()
 	::FreeLibrary(static_cast<HMODULE>(pimpl_));
 }
 
-DynamicLibrary::TFunctionPtr DynamicLibrary::getFunctionImpl(const std::string& functionName) const
+DynamicLibrary::TFunctionPtr DynamicLibrary::resolveFunctionImpl(const std::string& functionName) const
 {
 	LASS_ASSERT(pimpl_);
 	TFunctionPtr fun = TFunctionPtr(::GetProcAddress(static_cast<HMODULE>(pimpl_), functionName.c_str()));
 	if (!fun)
 	{
-		LASS_THROW_EX(DynamicLibraryError, "Unable to find " << functionName);
+		LASS_THROW_EX(DynamicLibraryError, "Unable to resolve '" << functionName << "': " << impl::lass_FormatMessage(impl::lass_GetLastError()));
+	}
+	return fun;
+}
+
+}
+}
+
+#elif LASS_HAVE_DLOPEN
+
+#include <dlfcn.h>
+
+namespace lass
+{
+namespace util
+{
+
+DynamicLibrary::DynamicLibrary(const std::string& path):
+	pimpl_(0)
+{
+	const int flags = RTLD_NOW | RTLD_GLOBAL;
+	pimpl_ = ::dlopen(path.c_str(), flags);
+	if (pimpl_ == NULL && !stde::ends_with(path, ".so"))
+	{
+		pimpl_ = ::dlopen( (path + ".so").c_str(), flags );
+	}
+	if (pimpl_ == NULL)
+	{
+		const char* msg = ::dlerror();
+		if (msg)
+		{
+			LASS_THROW_EX(DynamicLibraryError, msg);
+		}
+		else
+		{
+			LASS_THROW_EX(DynamicLibraryError, "Unable to load " << path);
+		}
+	}
+}
+
+DynamicLibrary::~DynamicLibrary()
+{
+	LASS_ASSERT(pimpl_);
+	::dlclose(pimpl_);
+}
+
+DynamicLibrary::TFunctionPtr DynamicLibrary::resolveFunctionImpl(const std::string& functionName) const
+{
+	LASS_ASSERT(pimpl_);
+	TFunctionPtr fun = TFunctionPtr(::dlsym(pimpl_, functionName.c_str()));
+	if (!fun)
+	{
+		const char* msg = ::dlerror();
+		if (msg)
+		{
+			LASS_THROW_EX(DynamicLibraryError, msg);
+		}
+		else
+		{
+			LASS_THROW_EX(DynamicLibraryError, "Unable to resolve " << functionName);
+		}
 	}
 	return fun;
 }
@@ -101,6 +153,8 @@ DynamicLibrary::TFunctionPtr DynamicLibrary::getFunctionImpl(const std::string& 
 }
 
 #else
+
+#	error missing implementation
 
 #endif
 

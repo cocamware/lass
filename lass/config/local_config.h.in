@@ -107,11 +107,10 @@
 #cmakedefine LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP 1
 #cmakedefine LASS_HAVE_NPTL_PTHREAD_H 1
 
-#cmakedefine LASS_HAVE_LIBRT 1
-#cmakedefine LASS_HAVE_LIBDL 1
-#cmakedefine LASS_HAVE_LIBUTIL 1
-
 #cmakedefine LASS_HAVE_CLOCK_GETTIME 1
+#cmakedefine LASS_HAVE_DLOPEN 1
+#cmakedefine LASS_HAVE_EXPM1 1
+
 #cmakedefine LASS_HAVE_FUNC_STRERROR_R 1
 #cmakedefine LASS_HAVE_STRERROR_R_CHAR_P 1
 #cmakedefine LASS_HAVE_WFOPEN 1

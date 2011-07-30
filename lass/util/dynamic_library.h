@@ -58,14 +58,14 @@ public:
 	~DynamicLibrary();
 
 	template <typename FunPtr>
-	FunPtr getFunction(const std::string& symbol) const
+	FunPtr resolveFunction(const std::string& functionName) const
 	{
-		return static_cast<FunPtr>(getFunctionImpl(symbol));
+		return static_cast<FunPtr>(resolveFunctionImpl(functionName));
 	}
 
 private:
 	typedef int (*TFunctionPtr)(void);
-	TFunctionPtr getFunctionImpl (const std::string& symbol) const;
+	TFunctionPtr resolveFunctionImpl (const std::string& functionName) const;
 	void* pimpl_;
 };
 

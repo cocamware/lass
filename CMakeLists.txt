@@ -54,7 +54,7 @@ macro(eval)
 endmacro()
 
 macro(param_expander inpath outpath n)
-	set(generator "${CMAKE_CURRENT_SOURCE_DIR}/tools/param_expander.py")
+	set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
 	add_custom_command(
 		OUTPUT ${outpath}
 		DEPENDS ${inpath} ${generator}
@@ -131,7 +131,6 @@ else()
 	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion")
 endif()
 
-eval(lass_INCLUDES)
 include_directories(
 	${lass_INCLUDES}
 	"${config_dir}"

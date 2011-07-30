@@ -318,22 +318,30 @@ float fastSin(float x)
 
 /** @ingroup BasicOps */
 float expm1(float x)
-{ 
+{
+#if LASS_HAVE_EXPM1
+	return ::expm1f(x);
+#else
 	if (num::abs(x) < 1e-4)
 	{
 		return x + .5f * x * x;
 	}
 	return num::exp(x) - 1;
+#endif
 }
 
 /** @ingroup BasicOps */
 float log1p(float x)
-{ 
+{
+#if LASS_HAVE_EXPM1
+	return ::log1pf(x);
+#else
 	if (num::abs(x) < 1e-4)
 	{
 		return x - .5f * x * x;
 	}
 	return num::log(1 + x);
+#endif
 }
 
 // --- double --------------------------------------------------------------------------------------
@@ -378,22 +386,30 @@ double fastSin(double x)
 
 /** @ingroup BasicOps */
 double expm1(double x)
-{ 
+{
+#if LASS_HAVE_EXPM1
+	return ::expm1(x);
+#else
 	if (num::abs(x) < 1e-8)
 	{
 		return x + .5 * x * x;
 	}
 	return num::exp(x) - 1;
+#endif
 }
 
 /** @ingroup BasicOps */
 double log1p(double x)
 { 
+#if LASS_HAVE_EXPM1
+	return ::log1p(x);
+#else
 	if (num::abs(x) < 1e-8)
 	{
 		return x - .5f * x * x;
 	}
 	return num::log(1 + x);
+#endif
 }
 
 

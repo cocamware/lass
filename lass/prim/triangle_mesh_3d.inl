@@ -941,7 +941,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 			Triangle* const oddOther = other ? &newTriangles[4 * (other - firstTriangle) + 3] : 0;
 			const size_t h0 = other ? other->side(triangle.vertices[k1]) : size_t(-1);
 			const size_t h1 = other ? other->side(triangle.vertices[k0]) : size_t(-1);
-			LASS_ASSERT(h0 < 3 && h1 == (h0 + 1) % 3 || other == 0);
+			LASS_ASSERT((h0 < 3 && h1 == (h0 + 1) % 3) || other == 0);
 
 			if (!oddTriangle.vertices[k0])
 			{	

@@ -128,25 +128,30 @@ if (WIN32)
 	list(APPEND lass_LIBS "ole32") # for Crashdump
 endif()
 
-CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_LIBRT)
-if (LASS_HAVE_LIBRT)
+CHECK_LIBRARY_EXISTS("rt" "clock_gettime" "" LASS_HAVE_CLOCK_GETTIME)
+if (LASS_HAVE_CLOCK_GETTIME)
    list(APPEND lass_LIBS "rt")
 endif()
 
-CHECK_LIBRARY_EXISTS("dl" "dlopen" "" LASS_HAVE_LIBDL)
-if (LASS_HAVE_LIBDL)
+CHECK_LIBRARY_EXISTS("dl" "dlopen" "" LASS_HAVE_DLOPEN)
+if (LASS_HAVE_DLOPEN)
    list(APPEND lass_LIBS "dl")
 endif()
 
-CHECK_LIBRARY_EXISTS("util" "openpty" "" LASS_HAVE_LIBUTIL)
-if (LASS_HAVE_LIBUTIL)
-   list(APPEND lass_LIBS "util")
+set(LASS_HAVE_EXPM1)
+CHECK_SYMBOL_EXISTS("expm1" "math.h" LASS_HAVE_MATH_H_EXPM1)
+if (NOT LASS_HAVE_MATH_H_EXPM1)
+	CHECK_LIBRARY_EXISTS("m" "expm1" "" LASS_HAVE_LIBM_EXPM1)
+	if (LASS_HAVE_LIBM_EXPM1)
+		list(APPEND lass_LIBS "m")
+	endif()
 endif()
-
+if (LASS_HAVE_MATH_H_EXPM1 OR LASS_HAVE_LIBM_EXPM1)
+	set(LASS_HAVE_EXPM1 1)
+endif()
 
 # --- check availability of some general functions ---
 
-CHECK_SYMBOL_EXISTS("clock_gettime" "time.h" LASS_HAVE_CLOCK_GETTIME)
 CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")

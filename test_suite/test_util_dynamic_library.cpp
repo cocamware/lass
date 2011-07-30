@@ -55,8 +55,8 @@ void testUtilDynamicLibrary()
 	LASS_TEST_CHECK_THROW( util::DynamicLibrary("thislibrarydoesnotexist"), util::DynamicLibraryError );
 	
 	util::DynamicLibrary pylass("lass" LASS_LIB_DEBUG);
-	LASS_TEST_CHECK_THROW( pylass.getFunction<fun>("thisfunctiondoesnotexist"), util::DynamicLibraryError );
-	LASS_TEST_CHECK(pylass.getFunction<fun>("initlass") != 0);
+	LASS_TEST_CHECK_THROW( pylass.resolveFunction<fun>("thisfunctiondoesnotexist"), util::DynamicLibraryError );
+	LASS_TEST_CHECK(pylass.resolveFunction<fun>("initlass") != 0);
 }
 
 

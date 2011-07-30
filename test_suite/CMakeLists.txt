@@ -56,7 +56,6 @@ target_link_libraries(
 	optimized ${PYTHON_LIBRARIES} 
 	debug ${PYTHON_DEBUG_LIBRARIES}
 	)
-eval(lass_C_FLAGS)
 set_target_properties(
 	test_suite PROPERTIES
         COMPILE_FLAGS "${lass_C_FLAGS}"

@@ -236,7 +236,7 @@ typedef PyObjectPtr<PyObject>::Type TPyObjPtr;
 /** fromNakedToSharedPtrCast.
 *   @ingroup Python
 *   Helper function casting a PyObject coming from the Python interface to a SharedPtr
-*   object for use in C++.  Reference counts are taken care of.
+*   object for use in C++.  Reference counts are taken care of (it's icremented by one).
 */
 template<class T>
 lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
