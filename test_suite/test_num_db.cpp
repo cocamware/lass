@@ -139,7 +139,9 @@ TUnitTest test_num_db()
 	TUnitTest result;
 	result.push_back(LASS_TEST_CASE(testNumDb<float>));
 	result.push_back(LASS_TEST_CASE(testNumDb<double>));
+#if LASS_HAVE_LONG_DOUBLE
 	result.push_back(LASS_TEST_CASE(testNumDb<long double>));
+#endif
 	return result;
 }
 

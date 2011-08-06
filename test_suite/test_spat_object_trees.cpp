@@ -354,9 +354,15 @@ TUnitTest test_spat_object_trees()
 {
 	TUnitTest result;
 	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,2>)));
-	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,2>)));
 	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<float,3>)));
+#if LASS_HAVE_LONG_DOUBLE
+	/* testSpatObjectTrees uses the intersect routine which requires double the precision of the input
+	*  type.  So this "double" test will eventually want "long double" in the code, so we need to be sure
+	*  the type is supported.  
+	*/
+	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,2>)));
 	result.push_back(LASS_TEST_CASE((testSpatObjectTrees<double,3>)));
+#endif
 	return result;
 }
 

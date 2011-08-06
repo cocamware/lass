@@ -79,7 +79,7 @@ void testNumBasicOps()
 	do
 	{
 		x /= 10;
-		y = num::sin(x) / x;
+		y = lass::num::sin(x) / x;
 		LASS_TEST_CHECK(y <= TNumTraits::one);
 		LASS_TEST_CHECK_CLOSE(num::sinc(x), y, tolerance);
 	}
@@ -108,7 +108,9 @@ TUnitTest test_num_basic_ops()
 	TUnitTest result;
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<float>));
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<double>));
+#if LASS_HAVE_LONG_DOUBLE
 	result.push_back(LASS_TEST_CASE(testNumBasicOps<long double>));
+#endif
 	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<signed char>));
 	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<short>));
 	result.push_back(LASS_TEST_CASE(testNumBasicOpsInteger<int>));
