@@ -60,7 +60,9 @@ public:
 	template <typename FunPtr>
 	FunPtr resolveFunction(const std::string& functionName) const
 	{
-		return static_cast<FunPtr>(resolveFunctionImpl(functionName));
+		// reinterpet_cast as some function signatures are not converted
+		// example: typedef BOOL (* WINAPI TQueryThreadCycleTimeFunPtr) (::HANDLE, PULONG64);
+		return reinterpret_cast<FunPtr>(resolveFunctionImpl(functionName));
 	}
 
 private:
