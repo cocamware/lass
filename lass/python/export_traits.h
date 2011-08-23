@@ -699,7 +699,10 @@ struct PyExportTraits<std::string>
 #if PY_MAJOR_VERSION < 3
 		if (PyString_Check(obj))
 		{
-			v = std::string(PyString_AS_STRING(obj));
+			// explicitly copying into data as some the std::string(char*) assumes a zero terminated C-str
+			// which is too limiting
+			v.resize( PyString_GET_SIZE(obj), '\0' );
+			memcpy(const_cast<char*>(v.data()), PyString_AS_STRING(obj), v.size());
 			return 0;
 		}
 #endif
@@ -714,9 +717,11 @@ struct PyExportTraits<std::string>
 			return 1;
 		}
 #if PY_MAJOR_VERSION < 3
-		v = std::string(PyString_AS_STRING(s.get()));
+		v.resize( PyString_GET_SIZE(s.get()), '\0' );
+		memcpy(const_cast<char*>(v.data()), PyString_AS_STRING(s.get()), v.size());
 #else
-		v = std::string(PyBytes_AS_STRING(s.get()));
+		v.resize( PyBytes_GET_SIZE(s.get()), '\0' );
+		memcpy(const_cast<char*>(v.data()), PyBytes_AS_STRING(s.get()), v.size());
 #endif
 		return 0;
 	}
