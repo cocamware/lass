@@ -22,6 +22,12 @@ if (WIN32)
 		SUFFIX ".pyd"
 		)
 endif()
+add_precompiled_header(
+	pylass 
+	pylass_common.h
+	pylass_common.cpp
+	${pylass_SRCS}
+	)
 
 install(
 	TARGETS pylass

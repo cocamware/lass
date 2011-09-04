@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "lass_common.h"
+#include "python_common.h"
 #include "exception.h"
 #include "pyobject_plus.h"
 

@@ -40,6 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
+#include "lass_common.h"
 #include "rw_lock.h"	
 
 namespace lass

@@ -80,42 +80,47 @@ endmacro()
 macro(add_precompiled_header target hdrfile srcpath target_SRCS)
 	if(BUILD_USING_PRECOMPILED_HEADERS)
 		if(MSVC_IDE)
-			set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch")
+			set(_pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch")
 		else()
-			set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch")
+			set(_pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch")
 		endif()
 		if(MSVC)
-			get_target_property(cflags ${target} COMPILE_FLAGS)
-			message("${clags}")
+			get_target_property(_cflags ${target} COMPILE_FLAGS)
+			if(NOT _cflags)
+				set(_cflags "") # enforce to empty string
+			endif()
 			set_target_properties(
 				${target}
 				PROPERTIES
-				COMPILE_FLAGS /Fp"${pchpath}"
-				COMPILE_FLAGS /Yu"${hdrfile}"
+				COMPILE_FLAGS "${_cflags} /Fp\"${_pchpath}\" /Yu\"${hdrfile}\""
 				COMPILE_DEFINITIONS BUILD_USING_PRECOMPILED_HEADERS
 				)
+			get_source_file_property(_cflags ${srcpath} COMPILE_FLAGS)
+			if(NOT _cflags)
+				set(_cflags "") # enforce to empty string
+			endif()
 			set_source_files_properties(
 				${srcpath} 
 				PROPERTIES
-				COMPILE_FLAGS /Yc"${hdrfile}"
-				OBJECT_OUTPUTS ${pchpath})
+				COMPILE_FLAGS "${_cflags} /Yc\"${hdrfile}\""
+				OBJECT_OUTPUTS ${_pchpath})
 			if (NOT MSVC_IDE)
 				set(other_srcs ${target_SRCS})
 				list(REMOVE_ITEM other_srcs ${srcpath})
 				set_source_files_properties(
 					${other_srcs}
 					PROPERTIES
-					OBJECT_DEPENDS "${pchpath}")
+					OBJECT_DEPENDS "${_pchpath}")
 			endif()
 		else()
-			add_custom_command(
-				OUTPUT ${pchpath}
-				DEPENDS ${hdrfile}
-				COMMAND ...)
-			set_source_files_properties(
-				${test_SRCS}
-				PROPERTIES
-				OBJECT_DEPENDS ${pchpath})
+			#add_custom_command(
+			#	OUTPUT ${_pchpath}
+			#	DEPENDS ${hdrfile}
+			#	COMMAND ...)
+			#set_source_files_properties(
+			#	${test_SRCS}
+			#	PROPERTIES
+			#	OBJECT_DEPENDS ${_pchpath})
 		endif()
 	endif()
 endmacro()

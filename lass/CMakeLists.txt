@@ -78,7 +78,7 @@ list(REMOVE_DUPLICATES lass_HDRS)
 if(CMAKE_CL_64)
     # CMake doesn't really support adding assembly files to visual studio projects (yet)
     # Work around it by adding the obj file as 'source file' and have it generated
-    set(sourcedir ${CMAKE_CURRENT_SOURCE_DIR}/lass/util/impl)
+    set(sourcedir ${CMAKE_CURRENT_SOURCE_DIR}/util/impl)
     set(fname atomic_msvc_x64)
     set(sourcepath ${sourcedir}/${fname}.asm)
     set(defpath ${sourcedir}/${fname}.def)
@@ -119,7 +119,8 @@ add_precompiled_header(
 	lass 
 	lass_common.h 
 	"${lass_SOURCE_DIR}/lass/lass_common.cpp"
-	${lass_SRCS})
+	${lass_SRCS}
+	)
 
 add_library(lass_python
 	${lass_python_SRCS} 
@@ -134,11 +135,11 @@ set_target_properties(lass_python PROPERTIES
 	SOVERSION "${LASS_PATCHLEVEL}"
 	OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 	)
-#add_precompiled_header(
-#	lass 
-#	lass_common.h 
-#	${lass_SOURCE_DIR}/lass/lass_common.cpp
-#	${lass_python_SRCS})
+add_precompiled_header(
+	lass_python 
+	python_common.h 
+	${lass_SOURCE_DIR}/lass/python/python_common.cpp
+	${lass_python_SRCS})
 
 install(
 	TARGETS lass lass_python

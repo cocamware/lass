@@ -1,3 +1,4 @@
+#include "python_common.h"
 #include "bulk_add.h"
 
 namespace lass

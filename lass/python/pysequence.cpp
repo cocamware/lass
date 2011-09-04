@@ -42,7 +42,7 @@
 
 
 
-#include "lass_common.h"
+#include "python_common.h"
 #include "pysequence.h"
 #include "pyobject_macros.h"
 
@@ -78,11 +78,11 @@ namespace impl
 		&Sequence::inplaceRepeat,
 	};
 
-	PyMappingMethods Sequence::pyMappingMethods = {
+	/*PyMappingMethods Sequence::pyMappingMethods = {
 		&Sequence::length,
 		&Sequence::subscript,
 		&Sequence::assSubscript,
-	};
+	};*/
 
 	bool Sequence::isInitialized = false;
 
@@ -105,7 +105,7 @@ namespace impl
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
-			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
+			//_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance
