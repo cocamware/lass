@@ -78,11 +78,11 @@ namespace impl
 		&Sequence::inplaceRepeat,
 	};
 
-	/*PyMappingMethods Sequence::pyMappingMethods = {
+	PyMappingMethods Sequence::pyMappingMethods = {
 		&Sequence::length,
 		&Sequence::subscript,
 		&Sequence::assSubscript,
-	};*/
+	};
 
 	bool Sequence::isInitialized = false;
 
@@ -105,7 +105,7 @@ namespace impl
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
-			//_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
+			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
 			// switch off inheritance
@@ -250,7 +250,13 @@ namespace impl
 		if (PySlice_Check(key))
 		{
 			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(reinterpret_cast<PySliceObject*>(key), pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			if (PySlice_GetIndicesEx(
+#if PY_VERSION_HEX < 0x03020000 // < 3.2
+					reinterpret_cast<PySliceObject*>(key), 
+#else
+					key,
+#endif
+					pimpl.length(), &start, &stop, &step, &slicelength) != 0)
 			{
 				return 0;
 			}
@@ -273,7 +279,13 @@ namespace impl
 		if (PySlice_Check(key))
 		{
 			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(reinterpret_cast<PySliceObject*>(key), pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			if (PySlice_GetIndicesEx(
+#if PY_VERSION_HEX < 0x03020000 // < 3.2
+					reinterpret_cast<PySliceObject*>(key), 
+#else
+					key,
+#endif
+					pimpl.length(), &start, &stop, &step, &slicelength) != 0)
 			{
 				return -1;
 			}

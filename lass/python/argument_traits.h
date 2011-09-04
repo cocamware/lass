@@ -315,6 +315,13 @@ struct ArgumentTraits<const char*>
 	static const char* arg(const TStorage& storage) { return storage.c_str(); }
 };
 
+template <>
+struct ArgumentTraits<void*>
+{
+	typedef void* TStorage;
+	static void* arg(const TStorage& storage) { return storage; }
+};
+
 }
 }
 

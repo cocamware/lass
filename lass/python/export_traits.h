@@ -250,22 +250,49 @@ struct PyExportTraits< std::auto_ptr<T> >
  *  @internal
  */
 template <>
-struct PyExportTraits<void *>
+struct PyExportTraits<void*>
 {
-	static PyObject* build(void * v)
+	static PyObject* build(void* value)
 	{
-		return PyCObject_FromVoidPtr( v, 0 );
+		if (!value)
+		{
+			Py_RETURN_NONE;
+		}
+#if PY_VERSION_HEX < 0x03010000 // < 3.1
+		return PyCObject_FromVoidPtr(value, 0);
+#else
+		return PyCapsule_New(value, 0, 0);
+#endif
 	}
-	static int get(PyObject* obj, void*& v)
+	static int get(PyObject* obj, void*& value)
 	{
-		int result = PyCObject_Check(obj);
-		if (result == 0)
+		if (obj == Py_None)
+		{
+			value = 0;
+			return 0;
+		}
+#if PY_VERSION_HEX < 0x03010000 // < 3.1
+		if (!PyCObject_Check(obj))
 		{
 			PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
 			return 1;
 		}
-		v = PyCObject_AsVoidPtr(obj);
+		value = PyCObject_AsVoidPtr(obj);
 		return 0;
+#else
+		if (!PyCapsule_CheckExact(obj))
+		{
+			PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
+			return 1;
+		}
+		void* v = PyCapsule_GetPointer(obj, 0);
+		if (!v)
+		{
+			return 1;
+		}
+		value = v;
+		return 0;
+#endif
 	}
 };
 

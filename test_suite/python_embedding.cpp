@@ -142,6 +142,28 @@ void writeStdout(const std::string& s)
 	python::sysStdout << s;
 }
 
+namespace 
+{
+	void* someObject = "someObject";
+}
+
+void* makeNullPointer()
+{
+	return 0;
+}
+void* makeSomePointer()
+{
+	return someObject;
+}
+bool testNullPointer(void* p)
+{
+	return p == 0;
+}
+bool testSomePointer(void* p)
+{
+	return p == someObject;
+}
+
 class Base
 {
 public:
@@ -480,6 +502,11 @@ PY_MODULE_FUNCTION_CAST_NAME_1( embedding, functionWithDefaultArgs, int, int, "f
 
 PY_MODULE_FUNCTION( embedding, testCStringSupport )
 PY_MODULE_FUNCTION( embedding, writeStdout )
+
+PY_MODULE_FUNCTION( embedding, makeNullPointer )
+PY_MODULE_FUNCTION( embedding, makeSomePointer )
+PY_MODULE_FUNCTION( embedding, testNullPointer )
+PY_MODULE_FUNCTION( embedding, testSomePointer )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 

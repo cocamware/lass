@@ -42,6 +42,7 @@
 
 #include "test_common.h"
 #include "../lass/util/dynamic_library.h"
+#include "../lass/python/python_common.h" // for version macro.
 
 namespace lass
 {
@@ -56,7 +57,11 @@ void testUtilDynamicLibrary()
 	
 	util::DynamicLibrary pylass("lass" LASS_LIB_DEBUG);
 	LASS_TEST_CHECK_THROW( pylass.resolveFunction<fun>("thisfunctiondoesnotexist"), util::DynamicLibraryError );
+#if PY_MAJOR_VERSION < 3
 	LASS_TEST_CHECK(pylass.resolveFunction<fun>("initlass") != 0);
+#else
+	LASS_TEST_CHECK(pylass.resolveFunction<fun>("PyInit_lass") != 0);
+#endif
 }
 
 

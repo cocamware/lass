@@ -25,29 +25,9 @@ if 0:
 
 import embedding
 barC = embedding.Bar()
-#echo("values=",barC.writeableMap)
-#echo("values=",barC.writeableMap.values())
+
 
 echo("Testing print functionality", barC)
-
-#class SubType(embedding.Bar):
-#    def __init__(self):
-#        pass
-#
-#class DerivedBar(SubType):
-#    def __init__(self):
-#        self.test = 5
-#        print "test ",self.test
-#    def doSomething(self):
-#        print "did something"
-#print dir(embedding.Bar)
-#b = DerivedBar()
-#print type(b)
-#print dir(b)
-#b.doSomething()
-#print b.test
-
-
 
 
 class TestClass:
@@ -74,38 +54,17 @@ class TestDerived(unittest.TestCase):
 
 
 class TestPyCObject(unittest.TestCase):
+	def testNone(self):
+		self.assertEqual(embedding.makeNullPointer(), None)
+		self.assert_(embedding.testNullPointer(embedding.makeNullPointer()))
 	def testPyCObject(self):
-		self.assertEqual(str(type(barC.opaquePointer())), "<%s 'PyCObject'>" % ('type', 'class')[IS_PYTHON_3])
+		self.assert_(str(type(embedding.makeSomePointer())) in ("<type 'PyCObject'>", "<class 'PyCObject'>", "<class 'PyCapsule'>"))
+		self.assert_(embedding.testSomePointer(embedding.makeSomePointer()))
 
 echo("\n***\n")
 
 barC = embedding.Bar()
-#barC.writeableMap['test'] = 'ok'
-#echo("barC['test']=",barC.writeableMap['test'])
-#if barC.writeableMap['test'] != 'ok':
-#    reportError("Map is not writeable")
-#else:
-#    echo("Succesfully wrote to map")
-#echo(barC.writeableMap)		# test the repr and str
-#del barC.writeableMap['test']
-#exceptionCaught = 1
-#try:
-#	echo(barC.writeableMap['test'])	# this should fail, because of the previous del
-#	exceptionCaught = 0
-#except:
-#	pass
-#if not exceptionCaught:
-#	reportError("Could not remove item from map")
-#echo(barC.writeableMap)
-#for i in range(3):
-#	barC.writeableMap[str(i)] = str(i+1)
-#echo("values=",barC.writeableMap.values())
-#echo("keys=",barC.writeableMap.keys())
-#
-# subsequent test fails, probably need a partial sequence-protocol in the mapping
-# protocol embedded
-# for x in barC.writeableMap:
-	# echo("map iterator",x)
+
 
 
 class TestConstMap(unittest.TestCase):
@@ -273,13 +232,6 @@ class TestWriteableSequence(unittest.TestCase):
 		bar = embedding.Bar()
 		self._testSequence(bar.writeableStaticVector, bar.writeableStaticVector)
 		
-def testSequence(seq):
-	if not IS_PYTHON_3:
-		seq[0:4] = range(10)
-		assert(len(seq)==4*l+6)
-		for i,v in enumerate(seq):
-			echo (i,v)
-
 
 barC.writeableVector = range(3)
 
@@ -456,45 +408,7 @@ class TestSpecialFunctionsAndOperators(unittest.TestCase):
 		self.assertEqual(len(c), 5)
 		self.assertEqual(c[1], 1)
 
-if 0:
-	echo("\n* Testing special functions and operator overloads")
-	echo("Sequence protocol testing")
-	echo("Testing len function")
-	echo(len(c))
-	echo("been here")
-	assert(c[1]==1)
-	echo("been here")
-	assert(len(c)==5)
-	echo("been here")
-	c[2]=(3.0,5)
-	echo("been here")
-	c[2]=(70,5)
-	echo("been here")
-	try:
-		# this overload should not be accepted
-		c[2]=(70,5,2)
-		assert(False)
-	except:
-		pass
-	echo("been here")
 
-	echo("\n* Full Sequence and Iterator protocol testing")
-	c = embedding.ClassSeq()
-	testSequence(c)
-	c.clear()
-	[c.append(i) for i in range(10)]
-	assert(len(c)==10)
-	for v in c:
-		echo(v)
-
-	echo("\n* Full Map and Iterator protocol testing")
-	c = embedding.ClassMap()
-	c["test"] = 1
-	c["test2"] = 2
-	for v in c:
-		echo(v)
-
-	
 echo("\n* Testing qualified and overloaded methods")
 test.overloaded(5)
 test.overloaded('hello!')
