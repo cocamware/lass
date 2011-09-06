@@ -316,7 +316,7 @@ const Vector2D<T> Vector2D<T>::reciprocal() const
 
 
 
-/** return the vector perpendicular to this one, 90° to the left.
+/** return the vector perpendicular to this one, 90° CCW (to the left).
  */
 template<typename T> inline
 const Vector2D<T> Vector2D<T>::perp() const

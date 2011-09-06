@@ -130,6 +130,9 @@ Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b,
 template <typename T, class PPa, class PPb>
 Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b, Point2D<T>& point);
 
+template <typename T, class PPa, class PPb>
+bool intersects(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b);
+
 template<typename T, class PP>
 std::ostream& operator<<(std::ostream& stream, const LineSegment2D<T, PP>& segment);
 

@@ -126,6 +126,7 @@ private:
 };
 
 template <typename T> const T distance(const Triangle2D<T>& triangle, const Point2D<T>& point);
+template <typename T> bool intersects(const Triangle2D<T>& a, const Triangle2D<T>& b);
 
 template <typename T>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Triangle2D<T>& iTriangle);

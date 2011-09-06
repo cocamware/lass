@@ -616,6 +616,69 @@ bool SimplePolygon2D<T, DP>::isInRange(size_t iIndexOfVertex) const
 // --- free ----------------------------------------------------------------------------------------
 
 /** @relates lass::prim::SimplePolygon2D
+ *  O(N) with N is size of poly
+ */
+template <typename T, typename DP, typename PP>
+bool intersects(const SimplePolygon2D<T, DP>& poly, const LineSegment2D<T, PP>& segment)
+{
+	// silly algorithms go first ...
+	for (int k = 0, n = static_cast<int>(poly.size()); k < n; ++k)
+	{
+		if (intersects(segment, poly.edge(k)))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+/** @relates lass::prim::SimplePolygon2D
+ *  O(N) with N is size of poly
+ */
+template <typename T, typename DP, typename PP>
+bool intersects(const LineSegment2D<T, PP>& segment, const SimplePolygon2D<T, DP>& poly)
+{
+	return intersects(poly, segment);
+}
+
+
+/** @relates lass::prim::SimplePolygon2D
+ *  O(M+N) with M and N the sizes of the polygons
+ */
+template <typename T, typename DP1, typename DP2>
+bool intersects(const SimplePolygon2D<T, DP1>& a, const SimplePolygon2D<T, DP2>& b)
+{
+	for (int k = 0, n = static_cast<int>(a.size()); k < n; ++k)
+	{
+		if (intersects(b, a.edge(k)))
+		{
+			return true;
+		}
+	}
+
+	// special cases ... a could be completely inside b, or the other way around.
+	for (size_t k = 0, n = a.size(); k < n; ++k)
+	{
+		if (b.contains(a[k]))
+		{
+			return true;
+		}
+	}
+	for (size_t k = 0, n = b.size(); k < n; ++k)
+	{
+		if (a.contains(b[k]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+
+/** @relates lass::prim::SimplePolygon2D
  */
 template <typename T, class DP>
 io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const SimplePolygon2D<T, DP>& iPolygon)
@@ -668,7 +731,6 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 	oOStream << "'Color'," << oOStream.color() << ");\n";
 	return oOStream;
 }
-
 
 }
 

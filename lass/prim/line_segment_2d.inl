@@ -287,6 +287,13 @@ Result intersect(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b,
 	return result;
 }
 
+template <typename T, class PPa, class PPb>
+bool intersects(const LineSegment2D<T, PPa>& a, const LineSegment2D<T, PPb>& b)
+{
+	T tA;
+	T tB;
+	return intersect(a, b, tA, tB) != rNone;
+}
 
 /** @relates lass::prim::LineSegment2D
  */

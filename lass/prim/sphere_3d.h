@@ -128,6 +128,7 @@ private:
 
 template <typename T> const T squaredDistance(const Sphere3D<T>& sphere, const Point3D<T>& point);
 template <typename T> const T distance(const Sphere3D<T>& sphere, const Point3D<T>& point);
+template <typename T> bool intersects(const Sphere3D<T>& a, const Sphere3D<T>& b);
 
 template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Sphere3D<T>& iB);
 template <typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iB);

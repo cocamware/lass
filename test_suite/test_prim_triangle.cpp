@@ -75,7 +75,7 @@ void testPrimTriangle2D()
 	TAabb bounds(TPoint(-100, -100), TPoint(100, 100));
 	num::RandomMT19937 random;
 
-	for (size_t i = 0; i < 1000; ++i)
+	for (size_t i = 0; i < 10000; ++i)
 	{
 		const TPoint points[3] = 
 		{
@@ -98,6 +98,18 @@ void testPrimTriangle2D()
 			bruteSquareDistance = std::min(bruteSquareDistance, squaredDistance(seg, target));
 		}
 		LASS_TEST_CHECK_CLOSE(squaredDistance(triangle, target), bruteSquareDistance, tolerance);
+
+		const TPoint otherPoints[3] =
+		{
+			bounds.random(random),
+			bounds.random(random),
+			bounds.random(random)
+		};
+
+		TTriangle other(otherPoints[0], otherPoints[1], otherPoints[2]);
+		TPolygon otherPoly(otherPoints, otherPoints + 3);
+
+		LASS_TEST_CHECK_EQUAL(prim::intersects(triangle, other), prim::intersects(polygon, otherPoly));
 	}
 }
 

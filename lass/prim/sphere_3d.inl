@@ -299,6 +299,16 @@ const T distance(const Sphere3D<T>& sphere, const Point3D<T>& point)
 
 /** @relates lass::prim::Sphere3D
  */
+template <typename T>
+bool intersects(const Sphere3D<T>& a, const Sphere3D<T>& b)
+{
+	return (a.center() - b.center()).squaredNorm() <= num::sqr(a.radius() + b.radius());
+}
+
+
+
+/** @relates lass::prim::Sphere3D
+ */
 template<typename T>
 std::ostream& operator<<(std::ostream& ioOStream, const Sphere3D<T>& iSphere)
 {

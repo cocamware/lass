@@ -141,6 +141,14 @@ private:
 	TVertices vertices_;
 };
 
+template <typename T, typename DP, typename PP>
+bool intersects(const SimplePolygon2D<T, DP>& poly, const LineSegment2D<T, PP>& segment);
+
+template <typename T, typename DP, typename PP>
+bool intersects(const LineSegment2D<T, PP>& segment, const SimplePolygon2D<T, DP>& poly);
+
+template <typename T, typename DP1, typename DP2>
+bool intersects(const SimplePolygon2D<T, DP1>& a, const SimplePolygon2D<T, DP2>& b);
 
 
 template <typename T, class DP>
@@ -152,6 +160,7 @@ std::ostream& operator<<(std::ostream& ioOStream, const SimplePolygon2D<T, DP>& 
 template <typename T, class DP>
 lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 									const SimplePolygon2D<T, DP>& iPolygon);
+
 
 
 /** C = A \ B */

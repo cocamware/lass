@@ -67,11 +67,11 @@ Triangle2D<T>::Triangle2D()
 /** Constructs a triangle through three points in positive sequence.
  */
 template <typename T>
-Triangle2D<T>::Triangle2D(const TPoint& iA, const TPoint& iB, const TPoint& iC)
+Triangle2D<T>::Triangle2D(const TPoint& a, const TPoint& b, const TPoint& c)
 {
-	vertices_[0] = iA;
-	vertices_[1] = iB;
-	vertices_[2] = iC;
+	vertices_[0] = a;
+	vertices_[1] = b;
+	vertices_[2] = c;
 }
 
 
@@ -79,10 +79,10 @@ Triangle2D<T>::Triangle2D(const TPoint& iA, const TPoint& iB, const TPoint& iC)
 /** @copydoc SimplePolygon2D::operator[]
  */
 template <typename T>
-const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfVertex) const
+const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t vertexIndex) const
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
-	return vertices_[iIndexOfVertex];
+	LASS_ASSERT(isInRange(vertexIndex));
+	return vertices_[vertexIndex];
 }
 
 
@@ -90,10 +90,10 @@ const typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfV
 /** @copydoc SimplePolygon2D::operator[]
  */
 template <typename T>
-typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfVertex)
+typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t vertexIndex)
 {
-	LASS_ASSERT(isInRange(iIndexOfVertex));
-	return vertices_[iIndexOfVertex];
+	LASS_ASSERT(isInRange(vertexIndex));
+	return vertices_[vertexIndex];
 }
 
 
@@ -101,9 +101,9 @@ typename Triangle2D<T>::TPoint& Triangle2D<T>::operator[](size_t iIndexOfVertex)
 /** @copydoc SimplePolygon2D::at
  */
 template <typename T>
-const typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex) const
+const typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int vertexIndex) const
 {
-	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
+	const size_t i = num::mod(vertexIndex, static_cast<unsigned>(size_));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -113,9 +113,9 @@ const typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex) cons
 /** @copydoc SimplePolygon2D::at
  */
 template <typename T>
-typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex)
+typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int vertexIndex)
 {
-	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(size_));
+	const size_t i = num::mod(vertexIndex, static_cast<unsigned>(size_));
 	LASS_ASSERT(isInRange(i));
 	return vertices_[i];
 }
@@ -125,9 +125,9 @@ typename Triangle2D<T>::TPoint& Triangle2D<T>::at(int iIndexOfVertex)
 /** @copydoc SimplePolygon2D::edge
  */
 template <typename T>
-const typename Triangle2D<T>::TLineSegment Triangle2D<T>::edge(int iIndexOfTailVertex) const
+const typename Triangle2D<T>::TLineSegment Triangle2D<T>::edge(int tailVertexIndex) const
 {
-	return TLineSegment(at(iIndexOfTailVertex), at(iIndexOfTailVertex + 1));
+	return TLineSegment(at(tailVertexIndex), at(tailVertexIndex + 1));
 }
 
 
@@ -135,9 +135,9 @@ const typename Triangle2D<T>::TLineSegment Triangle2D<T>::edge(int iIndexOfTailV
 /** @copydoc SimplePolygon2D::vector
  */
 template <typename T>
-const typename Triangle2D<T>::TVector Triangle2D<T>::vector(int iIndexOfTailVertex) const
+const typename Triangle2D<T>::TVector Triangle2D<T>::vector(int tailVertexIndex) const
 {
-	return at(iIndexOfTailVertex + 1) - at(iIndexOfTailVertex);
+	return at(tailVertexIndex + 1) - at(tailVertexIndex);
 }
 
 
@@ -271,7 +271,7 @@ Orientation Triangle2D<T>::orientation() const
  *      triangles never have reflex vertices, so always returns false.
  */
 template <typename T>
-bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
+bool Triangle2D<T>::isReflex(int vertexIndex) const
 {
 	return false;
 }
@@ -281,20 +281,20 @@ bool Triangle2D<T>::isReflex(int iIndexOfVertex) const
 /** return true when a point is inside or on the edge of a triangle.
  */
 template <typename T>
-bool Triangle2D<T>::contains(const TPoint& iP) const
+bool Triangle2D<T>::contains(const TPoint& point) const
 {
 	return
-		perpDot(vertices_[1] - vertices_[0], iP - vertices_[0]) >= TNumTraits::zero &&
-		perpDot(vertices_[2] - vertices_[1], iP - vertices_[1]) >= TNumTraits::zero &&
-		perpDot(vertices_[0] - vertices_[2], iP - vertices_[2]) >= TNumTraits::zero;
+		perpDot(vertices_[1] - vertices_[0], point - vertices_[0]) >= TNumTraits::zero &&
+		perpDot(vertices_[2] - vertices_[1], point - vertices_[1]) >= TNumTraits::zero &&
+		perpDot(vertices_[0] - vertices_[2], point - vertices_[2]) >= TNumTraits::zero;
 }
 
 
 
 template <typename T>
-Side Triangle2D<T>::classify(const TPoint& iP) const
+Side Triangle2D<T>::classify(const TPoint& point) const
 {
-	return contains(iP) ? sInside : sOutside;
+	return contains(point) ? sInside : sOutside;
 }
 
 
@@ -314,9 +314,9 @@ void Triangle2D<T>::flip()
 /** return if index of vertex is in range of the std::vector
  */
 template <typename T>
-bool Triangle2D<T>::isInRange(size_t iIndexOfVertex) const
+bool Triangle2D<T>::isInRange(size_t vertexIndex) const
 {
-	return iIndexOfVertex < size_;
+	return vertexIndex < size_;
 }
 
 
@@ -364,6 +364,59 @@ const T distance(const Triangle2D<T>& triangle, const Point2D<T>& point)
 }
 
 
+namespace impl
+{
+	template <typename T>
+	bool hasSeperatingAxis(const Triangle2D<T>& a, const Triangle2D<T>& b)
+	{
+		// applying seperating axis theorem, normal to each edge.
+		typedef typename Triangle2D<T>::TVector TVector;
+		typedef typename Triangle2D<T>::TPoint TPoint;
+
+		size_t j = 1, k = 2;
+		for (size_t i = 0; i < 3; ++i)
+		{
+			const TPoint& aTail = a[i];
+			const TPoint& aHead = a[j];
+			const TVector aEdge = aHead - aTail;
+
+			const T b0 = perpDot(aEdge, b[0] - aTail);
+			const T b1 = perpDot(aEdge, b[1] - aTail);
+			const T b2 = perpDot(aEdge, b[2] - aTail);
+			const T aRef = perpDot(aEdge, a[k] - aTail);
+
+			if (aRef > 0)
+			{
+				if (b0 < 0 && b1 < 0 && b2 < 0 || b0 > aRef && b1 > aRef && b2 > aRef)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if (b0 > 0 && b1 > 0 && b2 > 0 || b0 < aRef && b1 < aRef && b2 < aRef)
+				{
+					return true;
+				}
+			}
+
+			j = k;
+			k = i;
+		}
+		
+		return false;
+	}
+}
+
+/** @relates lass::prim::Triangle2D
+ */
+template <typename T>
+bool intersects(const Triangle2D<T>& a, const Triangle2D<T>& b)
+{
+	return !(impl::hasSeperatingAxis(a, b) || impl::hasSeperatingAxis(b, a));
+}
+
+
 
 /** @relates lass::prim::Triangle2D
  */
@@ -407,21 +460,21 @@ lass::io::MatlabOStream& operator<<(lass::io::MatlabOStream& oOStream,
 
 /** @relates lass::prim::Triangle2D
 *   Returns the surface of the partial Voronoi cell constructed around vertex 
-*   iIndexOfVertex (say vertex a in triangle abc).  Then the surface is determined by
+*   vertexIndex (say vertex a in triangle abc).  Then the surface is determined by
 *   the quad built by a, the two midpoints on ab and ac and the intersection of the two
 *	perpendicular bisectors.
 */
 template <typename T>
-T partialVoronoiArea(const Triangle2D<T> iT, int iIndexOfVertex)
+T partialVoronoiArea(const Triangle2D<T> iT, int vertexIndex)
 {
 	// compute the two midpoints
 	typedef typename Triangle2D<T>::TPoint	TPoint;
 	typedef typename Triangle2D<T>::TPointH	TPointH;
 	typedef typename Triangle2D<T>::TVector	TVector;
 	typedef Line2D<T> TLine;
-	TPoint a = iT.at(iIndexOfVertex);
-	TPoint b = iT.at(iIndexOfVertex+1);
-	TPoint c = iT.at(iIndexOfVertex-1);
+	TPoint a = iT.at(vertexIndex);
+	TPoint b = iT.at(vertexIndex+1);
+	TPoint c = iT.at(vertexIndex-1);
 
 	TPointH abh = a+b;
 	TPointH ach = a+c;
