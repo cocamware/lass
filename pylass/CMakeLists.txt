@@ -39,27 +39,24 @@ install(
 
 if (MSVC_IDE)
 	set(_configuration "$(ConfigurationName)")
+	set(_configurations ${CMAKE_CONFIGURATION_TYPES})
 else()
 	if (CMAKE_BUILD_TYPE)
 		set(_configuration "${CMAKE_BUILD_TYPE}")
 	else()
 		set(_configuration "Release")
 	endif()
+	set(_configurations ${_configuration})
 endif()
 
 
-if (MSVC_IDE)
-	set(pylass_dist_files)
-	foreach(_config ${CMAKE_CONFIGURATION_TYPES})
-		get_target_property(_lass_loc lass LOCATION_${_config})
-		get_target_property(_pylass_loc pylass LOCATION_${_config})
-		set(pylass_dist_files "r'${_config}': [r'${_lass_loc}', r'${_pylass_loc}'],\n ${pylass_dist_files}")
-	endforeach()
-else()
-	get_target_property(_lass_loc lass LOCATION)
-	get_target_property(_pylass_loc pylass LOCATION)
-	set(pylass_dist_files "r'${_configuration}': [r'${_lass_loc}', r'${_pylass_loc}']")
-endif()
+set(pylass_dist_files)
+foreach(_config ${_configurations})
+	get_target_property(_pylass_loc pylass LOCATION_${_config})
+	get_target_property(_lass_loc lass LOCATION_${_config})
+	get_target_property(_lass_python_loc lass_python LOCATION_${_config})
+	set(pylass_dist_files "r'${_config}': [r'${_pylass_loc}', r'${_lass_loc}', r'${_lass_python_loc}'],\n ${pylass_dist_files}")
+endforeach()
 
 
 configure_file(
@@ -68,8 +65,13 @@ configure_file(
 	)
 
 
+if (MSVC_IDE)
+	set(_target_name BDIST_WININST)
+else()
+	set(_target_name bdist_wininst)
+endif()
 add_custom_target(
-	BDIST_WININST
+	${_target_name}
 	COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/package.py" "${_configuration}" "bdist_wininst"
 	DEPENDS pylass
 	SOURCES "package.py.in"
