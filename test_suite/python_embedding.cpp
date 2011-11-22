@@ -144,7 +144,7 @@ void writeStdout(const std::string& s)
 
 namespace 
 {
-	void* someObject = "someObject";
+	const void* someObject = "someObject";
 }
 
 void* makeNullPointer()
@@ -153,7 +153,7 @@ void* makeNullPointer()
 }
 void* makeSomePointer()
 {
-	return someObject;
+	return const_cast<void*>(someObject);
 }
 bool testNullPointer(void* p)
 {
