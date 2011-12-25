@@ -926,7 +926,7 @@ operator*(const T& a, const Matrix<T, S>& b)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
-operator+(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
+operator+(const Matrix<T, S>& a, const T& b)
 {
 	typedef impl::MAdd<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
@@ -943,7 +943,7 @@ operator+(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > >
-operator-(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
+operator-(const Matrix<T, S>& a, const T& b)
 {
 	typedef impl::MSub<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
@@ -960,7 +960,7 @@ operator-(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
-operator*(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
+operator*(const Matrix<T, S>& a, const T& b)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
@@ -977,7 +977,7 @@ operator*(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
  */
 template <typename T, typename S>
 const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > >
-operator/(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
+operator/(const Matrix<T, S>& a, const T& b)
 {
 	typedef impl::MMul<T, S, impl::MScalar<T> > TExpression;
 	return Matrix<T, TExpression>(TExpression(
