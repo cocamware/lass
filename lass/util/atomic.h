@@ -178,12 +178,21 @@ void atomicUnlock(volatile T& semaphore)
 #endif
 
 #if LASS_ADDRESS_SIZE == 64
+	// lock cmpxchg16b (or _InterlockedCompareExchange128) require the address to be 16-byte aligned
+	// as this one is going to be used to atomicly compare-and-swap two TaggedPtrs, we need to use a bit of dynamic stack-alignment.
 #	if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #		define LASS_TAGGED_PTR_ALIGN __declspec(align(16))
 #	else
 #		define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (16)))
 #	endif
 #else
+	// Not for 32-bit. 
+	// Technically, we don't need it. lock cmpxchg8b should be ok without. Though you may get a performance hit.
+	// If we would use it though, msvc starts complaining about ebx being used in assembly blocks 
+	// (it needs that to do the dynamic stack-alignment)
+	// That's still okay, as we push and pop ebx, but msvc doesn't realize, so it keeps complaining.
+	// And there's no easy way to silence it either. It's not enough to pragma warning disable it around the assembly code.
+	// Let's avoid tons of warnings by simply not doing dynamic stack-alignment.
 #	define LASS_TAGGED_PTR_ALIGN
 #endif
 

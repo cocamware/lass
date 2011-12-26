@@ -86,7 +86,7 @@ void testUtilBind()
 {
 	using namespace util;
 
-	Callback0 fun = bind(bind_test::fun, "hello world!");
+	Callback0 fun = util::bind(bind_test::fun, "hello world!");
 	bind_test::functionIsCalled = false;
 	fun();
 	LASS_TEST_CHECK(bind_test::functionIsCalled);
@@ -99,13 +99,13 @@ void testUtilBind()
 	using bind_test::Spam;
 	
 	Spam spam1;	
-	Callback0 spamAndHam = bind(&Spam::ham, &spam1, "spam");
+	Callback0 spamAndHam = util::bind(&Spam::ham, &spam1, "spam");
 	bind_test::functionIsCalled = false;
 	spamAndHam();
 	LASS_TEST_CHECK(bind_test::functionIsCalled);
 
 	SharedPtr<Spam> spam2(new Spam);
-	Callback0 spamAndEggs = bind(&Spam::eggs, spam2, 3); // ignore return value
+	Callback0 spamAndEggs = util::bind(&Spam::eggs, spam2, 3); // ignore return value
 	bind_test::functionIsCalled = false;
 	spamAndEggs();	
 	LASS_TEST_CHECK(bind_test::functionIsCalled);

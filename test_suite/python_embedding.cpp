@@ -194,22 +194,49 @@ public:
 	void setitem(int, std::pair<float,int>) { }
 };
 
-class ClassSeq : public std::vector<float>
+class ClassSeq
 {
+	typedef public std::vector<float> TSeq;
 public:
-	void setItem(int i, float value) { at(i) = value; }
-	float pop(int i) { float temp = at(i); erase(begin()+i); return temp; }
-	float popwo() { float temp = back(); pop_back(); return temp; }
-	ClassSeq& irepeat(int n) { lass::stde::inplace_repeat_c(*this,n);  return *this;}
-	ClassSeq& iconcat(const std::vector<float>& iV) { insert(end(),iV.begin(), iV.end());  return *this;}
-	ClassSeq& setSlice(int ilow, int ihigh, const std::vector<float>& iV) 
+	typedef TSeq::value_type value_type;
+	typedef TSeq::const_reference const_reference;
+	typedef TSeq::size_type size_type;
+	const_reference operator[](size_type index) const { return seq_.at(index); }
+	void setItem(size_type i, value_type value) { seq_.at(i) = value; }
+	ClassSeq& setSlice(size_type ilow, size_type ihigh, const TSeq& other) 
 	{
-		erase(	begin()+ilow,begin()+ihigh );
-		insert(	begin()+ilow+1,iV.begin(),iV.end());			
+		seq_.erase(	seq_.begin() + ilow, seq_.begin() + ihigh );
+		seq_.insert( seq_.begin() + ilow + 1, other.begin(), other.end());			
 		return *this;
 	}
-
-	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(begin(), end()); }
+	void append(value_type value) { seq_.push_back(value); }
+	void clear() { seq_.clear(); }
+	value_type pop(size_type i) 
+	{ 
+		value_type temp = seq_.at(i); 
+		seq_.erase(seq_.begin() + i); 
+		return temp; 
+	}
+	value_type popwo() 
+	{ 
+		value_type temp = seq_.back(); 
+		seq_.pop_back(); 
+		return temp; 
+	}
+	ClassSeq& irepeat(size_type n) 
+	{ 
+		stde::inplace_repeat_c(seq_, n);  
+		return *this;
+	}
+	ClassSeq& iconcat(const TSeq& other) 
+	{ 
+		seq_.insert(seq_.end(), other.begin(), other.end());  
+		return *this;
+	}
+	size_type size() const { return seq_.size(); }
+	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(seq_.begin(), seq_.end()); }
+private:
+	TSeq seq_;
 };
 
 class ClassMap
@@ -341,21 +368,19 @@ PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassSeq, lass::test::ClassSeq)
 PY_SHADOW_CASTERS( PyClassSeq )
 PY_DECLARE_CLASS_NAME( PyClassSeq, "ClassSeq")
 PY_CLASS_CONSTRUCTOR_0( PyClassSeq)
-PY_CLASS_METHOD_NAME( PyClassSeq, push_back, "append");
-PY_CLASS_METHOD_NAME( PyClassSeq, clear, "clear");
-PY_CLASS_METHOD_NAME( PyClassSeq, pop, "pop");
-PY_CLASS_METHOD_NAME( PyClassSeq, popwo, "pop");
-PY_CLASS_METHOD_NAME( PyClassSeq, irepeat, lass::python::methods::_irepeat_);
-PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
-
-PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
-PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
-
-PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], std::vector<float>::reference, std::vector<float>::size_type, lass::python::methods::_getitem_);
+PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], lass::test::ClassSeq::const_reference, lass::test::ClassSeq::size_type, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
 #if PY_MAJOR_VERSION < 3
 	PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
 #endif
+PY_CLASS_METHOD( PyClassSeq, append);
+PY_CLASS_METHOD( PyClassSeq, clear);
+PY_CLASS_METHOD( PyClassSeq, pop);
+PY_CLASS_METHOD_NAME( PyClassSeq, popwo, "pop");
+PY_CLASS_METHOD_NAME( PyClassSeq, irepeat, lass::python::methods::_irepeat_);
+PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
+PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
+PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
 
 // full map protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)

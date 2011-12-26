@@ -40,11 +40,11 @@ else()
 	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
 endif()
 
-if (MSVC_IDE AND MSVC_VERSION GREATER "1399")
-	if (MSVC_VERSION GREATER "1499")
-		set(_default_mp ON)
-	else()
+if (MSVC_IDE AND NOT MSVC_VERSION LESS 1400)
+	if (MSVC_VERSION LESS 1500)
 		set(_default_mp OFF)
+	else()
+		set(_default_mp ON)
 	endif()
 	option(BUILD_USING_MULTIPLE_PROCESSES "Enable parallel compilation within one project (/MP)" ${_default_mp})
 else()
@@ -149,11 +149,9 @@ endif()
 include_directories(
 	${lass_INCLUDES}
 	"${config_dir}"
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+	"${CMAKE_CURRENT_SOURCE_DIR}"
+	"CMAKE_CURRENT_SOURCE_DIR}/lass" # for lass_common.h
 	)
-if(NOT BUILD_USING_PRECOMPILED_HEADERS)
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lass") # for lass_common.h
-endif()
 
 add_subdirectory(lass)
 add_subdirectory(pylass)
