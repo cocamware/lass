@@ -70,7 +70,7 @@ hex_type<T> hex(T x)
 template <typename T>
 std::ostream& operator<<(std::ostream& stream, hex_type<T> x)
 {
-	typedef num::BasicType<8 * (sizeof(T) < 4 ? 4 : sizeof(T)) >::Tuint type;
+	typedef typename num::BasicType<8 * (sizeof(T) < 4 ? 4 : sizeof(T)) >::Tuint type;
 	stream << std::hex << "0x" << static_cast<type>(x);
 	return stream;
 }

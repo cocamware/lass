@@ -196,7 +196,7 @@ public:
 
 class ClassSeq
 {
-	typedef public std::vector<float> TSeq;
+	typedef std::vector<float> TSeq;
 public:
 	typedef TSeq::value_type value_type;
 	typedef TSeq::const_reference const_reference;

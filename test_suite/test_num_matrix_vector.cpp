@@ -377,8 +377,8 @@ void testNumMatrixSolve()
 		avg += *i;
 		rms += num::sqr(*i);
 	}
-	avg /= errors.size();
-	rms = num::sqrt(rms / errors.size());
+	avg /= static_cast<TBase>(errors.size());
+	rms = num::sqrt(rms / static_cast<TBase>(errors.size()));
 	
 	std::cout << "min=" << *min << ", median=" << *median << ", avg=" << avg << ", rms=" << rms << ", max=" << *max << std::endl;
 

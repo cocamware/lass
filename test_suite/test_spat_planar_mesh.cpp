@@ -302,8 +302,8 @@ struct SplitConnectTest
 			LASS_TEST_CHECK(TPlanarMesh::org(iEdge->sym())==TPlanarMesh::dest(e->sym()));
 			LASS_TEST_CHECK(iEdge->lNext()==e);
 			LASS_TEST_CHECK(e->lPrev()==iEdge);
-			TPlanarMesh::TPoint2D conPoint = TPlanarMesh::org(oppEdge);
-			TPlanarMesh::TPoint2D splPoint = TPlanarMesh::dest(iEdge);
+			TPlanarMesh::TPoint2D LASS_UNUSED(conPoint) = TPlanarMesh::org(oppEdge);
+			TPlanarMesh::TPoint2D LASS_UNUSED(splPoint) = TPlanarMesh::dest(iEdge);
 			mesh->connect(iEdge,oppEdge);
 			return false;
 		}

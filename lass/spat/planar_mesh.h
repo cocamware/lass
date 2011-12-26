@@ -1138,7 +1138,7 @@ namespace spat
 	{
 		const TVector2D dir = direction(e);
 		PointHandle    iE = pointHandle(e);
-		PointHandle    iES= pointHandle(e->sym());
+		PointHandle    LASS_UNUSED(iES)= pointHandle(e->sym());
 		EdgeHandle		iLE = edgeHandle(e);
 		EdgeHandle		iRE = edgeHandle(e->sym());
 
@@ -1217,8 +1217,8 @@ namespace spat
 
 		*/
 		PointHandle hA = pointHandle(e->oNext()->sym());
-		PointHandle hB = pointHandle(e);
-		PointHandle hC = pointHandle(e->sym());
+		PointHandle LASS_UNUSED(hB) = pointHandle(e);
+		PointHandle LASS_UNUSED(hC) = pointHandle(e->sym());
 		PointHandle hD = pointHandle(e->oPrev()->sym());
 
 		TQuadEdge::splice( e, a );
@@ -2099,8 +2099,7 @@ continueSearch:
 				fixEdge(c);
 				fixEdge(d);
 			}
-			int vOrder = vertexOrder(e->sym());
-			LASS_ASSERT(vOrder>2);
+			LASS_ASSERT(vertexOrder(e->sym())>2);
 			LASS_ASSERT(x==dest(e));
 			LASS_ASSERT(allEqualChainOrder(e->sym()));
 			return e->sym();
@@ -2141,8 +2140,7 @@ continueSearch:
 				}
 			}
 		}
-		int vOrder = vertexOrder(base->sym());
-		LASS_ASSERT(vOrder>2);
+		LASS_ASSERT(vertexOrder(base->sym())>2);
 		LASS_ASSERT(iPoint==dest(base));
 		LASS_ASSERT(allEqualChainOrder(base->sym()));
 		return base->sym();

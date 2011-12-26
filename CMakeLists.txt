@@ -150,7 +150,7 @@ include_directories(
 	${lass_INCLUDES}
 	"${config_dir}"
 	"${CMAKE_CURRENT_SOURCE_DIR}"
-	"CMAKE_CURRENT_SOURCE_DIR}/lass" # for lass_common.h
+	"${CMAKE_CURRENT_SOURCE_DIR}/lass" # for lass_common.h
 	)
 
 add_subdirectory(lass)
