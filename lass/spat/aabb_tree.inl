@@ -64,7 +64,7 @@ AabbTree<O, OT, SH>::AabbTree(const TSplitHeuristics& heuristics):
 	SH(heuristics),
 	objects_(),
 	nodes_(),
-	end_()
+	end_(new TObjectIterator)
 {
 }
 
@@ -75,7 +75,7 @@ AabbTree<O, OT, SH>::AabbTree(TObjectIterator first, TObjectIterator last, const
 	SH(heuristics),
 	objects_(),
 	nodes_(),
-	end_(last)
+	end_(new TObjectIterator(last))
 {
 	if (first != last)
 	{
@@ -180,7 +180,7 @@ AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 	TValue tDummy;
 	if (isEmpty() || !volumeIntersect(nodes_.front().aabb(), ray, invDir, tDummy, tMin))
 	{
-		return end_;
+		return *end_;
 	}
 	return doIntersect(0, ray, invDir, t, tMin, info);
 }
@@ -238,7 +238,7 @@ template <typename O, typename OT, typename SH>
 const typename AabbTree<O, OT, SH>::Neighbour
 AabbTree<O, OT, SH>::nearestNeighbour(const TPoint& point, const TInfo* info) const
 {
-	Neighbour nearest(end_, std::numeric_limits<TValue>::infinity());
+	Neighbour nearest(*end_, std::numeric_limits<TValue>::infinity());
 	if (!isEmpty())
 	{
 		doNearestNeighbour(0, point, info, nearest);
@@ -288,7 +288,7 @@ template <typename O, typename OT, typename SH>
 const typename AabbTree<O, OT, SH>::TObjectIterator
 AabbTree<O, OT, SH>::end() const
 {
-	return end_;
+	return *end_;
 }
 
 
@@ -497,21 +497,21 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, const TVector& invD
 	if (node.isLeaf())
 	{
 		TValue tBest = 0;
-		TObjectIterator best = end_;
+		TObjectIterator best = *end_;
 		for (int i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			TValue tCandidate = 0;
 			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 			{
-				if (best == end_ || tCandidate < tBest)
+				if (best == *end_ || tCandidate < tBest)
 				{
 					tBest = tCandidate;
 					best = objects_[i];
 				}
 			}
 		}
-		if (best != end_)
+		if (best != *end_)
 		{
 			t = tBest;
 		}
@@ -526,7 +526,7 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, const TVector& invD
 	
 	if (!hitsLeft)
 	{
-		return hitsRight ? doIntersect(right, ray, invDir, t, tMin, info) : end_;
+		return hitsRight ? doIntersect(right, ray, invDir, t, tMin, info) : *end_;
 	}
 	if (!hitsRight)
 	{
@@ -542,7 +542,7 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, const TVector& invD
 
 	TValue tLeft;
 	const TObjectIterator leftBest = doIntersect(left, ray, invDir, tLeft, tMin, info);
-	if (leftBest == end_)
+	if (leftBest == *end_)
 	{
 		return doIntersect(right, ray, invDir, t, tMin, info);
 	}
@@ -552,7 +552,7 @@ AabbTree<O, OT, SH>::doIntersect(int index, const TRay& ray, const TVector& invD
 		// right node might still have a closer hit.
 		TValue tRight;
 		const TObjectIterator rightBest = doIntersect(right, ray, invDir, tRight, tMin, info);
-		if (rightBest != end_ && tRight < tLeft)
+		if (rightBest != *end_ && tRight < tLeft)
 		{
 			t = tRight;
 			return rightBest;

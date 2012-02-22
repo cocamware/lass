@@ -217,7 +217,7 @@ private:
 
 	TObjectIterators objects_;
 	TNodes nodes_;
-	TObjectIterator end_;
+	std::auto_ptr<TObjectIterator> end_;
 };
 
 

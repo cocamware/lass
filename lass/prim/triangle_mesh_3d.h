@@ -153,6 +153,9 @@ public:
 	typedef typename TNormals::const_iterator TNormalIterator;
 	typedef typename TUvs::const_iterator TUvIterator;
 
+	typedef std::vector<TTriangleIterator> TTriangleIterators;
+	typedef 
+
 	TriangleMesh3D(const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 
 	template <typename VertexInputRange, typename IndexTriangleInputRange>
@@ -181,7 +184,11 @@ public:
 
 	void smoothNormals();
 	void flatFaces();
+	
 	void loopSubdivision(unsigned level);
+	template <typename Func> void subdivisionWithLimitSurface(unsigned level, Func snapToLimitSurface);
+	template <typename Func> void subdivisionWithLimitSurface(unsigned level, Func snapToLimitSurface, TTriangleIterators& selected);
+
 	void autoSew();
 	void autoCrease(unsigned level);
 	void autoCrease(unsigned level, TParam maxAngleInRadians);
@@ -299,26 +306,28 @@ private:
 	public:
 		typedef typename TPoint::TVector TVector;
 
-		HalfEdge(Triangle* triangle, size_t edge): triangle_(triangle), edge_(edge) { LASS_ASSERT(edge < 3); }
-		Triangle* triangle() const { return triangle_; }
+		HalfEdge(const Triangle* triangle, size_t edge): triangle_(triangle), edge_(edge) { LASS_ASSERT(edge < 3); }
+		HalfEdge(const Triangle* triangle, const TPoint* vertex): triangle_(triangle), edge_(triangle->side(tail)) { LASS_ASSERT(edge < 3); }
+		const Triangle* triangle() const { return triangle_; }
 		size_t edge() const { return edge_; }
 
 		const TPoint* vertex() const { return triangle_->vertices[edge_]; }
 		const TVector* normal() const { return triangle_->normals[edge_]; }
+		const TUv* uv() const { return triangle_->uvs[edge_]; }
 		unsigned creaseLevel() const { return triangle_->creaseLevel[edge_]; }
 		void setNormal(const TVector* normal) { triangle_->normals[edge_] = normal; }
 		const TVector vector() const { return *oNext().vertex() - *vertex(); }
 
-		HalfEdge oPrev() const { return HalfEdge(triangle_, (edge_ + 2) % 3); }
-		HalfEdge oNext() const { return HalfEdge(triangle_, (edge_ + 1) % 3); }
-		HalfEdge rPrev() const { return sym().oNext(); }
-		HalfEdge rNext() const { return oPrev().sym(); }
-		HalfEdge sym() const 
+		HalfEdge oPrev() const { return HalfEdge(triangle_, (edge_ + 2) % 3); } // previous edge within triangle, clock wise
+		HalfEdge oNext() const { return HalfEdge(triangle_, (edge_ + 1) % 3); } // next edge within triangle, counter clock wise
+		HalfEdge rPrev() const { return sym().oNext(); } // previous edge around vertex, clock wise
+		HalfEdge rNext() const { return oPrev().sym(); } // next edge around vertex, counter clock wise
+		HalfEdge sym() const // same edge, but on other side.
 		{
-			Triangle* other = triangle_->others[edge_];
+			const Triangle* other = triangle_->others[edge_];
 			if (!other || other->others[0] == triangle_)
 			{
-				return HalfEdge(other, 0);
+				return HalfEdge(other, size_t(0));
 			}
 			if (other->others[1] == triangle_)
 			{
@@ -328,24 +337,31 @@ private:
 			return HalfEdge(other, 2);
 		}
 
+		bool isCrease() const 
+		{
+			return creaseLevel() > 0 || sym().sym() != *this; // it's safe to do a sym of a "null" edge.
+		}
+
 		bool operator!() const { return !triangle_; }
 		operator num::SafeBool() const { return num::safeBool(triangle_ != 0); }
 	private:
-		Triangle* triangle_;
+		const Triangle* triangle_;
 		size_t edge_;
 	};
 
 	typedef std::vector<const Triangle*> TVertexTriangles;
-	typedef std::vector<TPoint> TVertexRing;
-	typedef std::vector<TVector> TNormalRing;
-	typedef std::vector<TUv> TUvRing;
+	typedef std::vector<const TPoint*> TVertexRing;
+	typedef std::vector<const TUv*> TUvRing;
 
-	template <typename IndexTriangleInputRange> 
-	void buildMesh(const IndexTriangleInputRange& triangles);
+	typedef std::pair<Triangle*, Triangle*> TWing; 
+	typedef std::map<const TPoint*, TWing> TOddVertexWings;
+
+	template <typename IndexTriangleInputIterator> void buildMesh(IndexTriangleInputIterator first, IndexTriangleInputIterator last);
 	void connectTriangles();
 	void findVertexTriangles(TVertexTriangles& vertexTriangles) const;
-	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, TVertexRing& ring, TVertexRing& creases, TNormalRing& normals, TUvRing& uvs) const;
+	void findVertexRing(const TPoint& vertex, const Triangle* vertexTriangle, TVertexRing& ring, TVertexRing& creases, TUvRing& uvs) const;
 	void subdivide();
+	void subdivide(TTriangleIterators& selected, TOddVertexWings& oddVertexWings);
 
 	TTriangleTree tree_;
 	TTriangles triangles_;
