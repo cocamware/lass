@@ -213,6 +213,14 @@ iterator_range<I> range(const I& a, const I& b)
 
 
 
+template <typename T, size_t n> inline
+iterator_range<T*> range(T (&a)[n])
+{
+	return iterator_range<T*>(a, a + n);
+}
+
+
+
 template <typename I> inline
 bool operator==(const iterator_range<I>& a, const iterator_range<I>& b)
 {

@@ -45,7 +45,6 @@
 #include "../lass/prim/triangle_mesh_3d.h"
 #include "../lass/spat/aabb_tree.h"
 #include "../lass/stde/iterator_range.h"
-#include "../lass/stde/empty_range.h"
 #include "../lass/stde/extended_cstring.h"
 #include "../lass/io/file_attribute.h"
 
@@ -182,9 +181,8 @@ void testPrimTriangleMesh3D()
 		{ { 3, 5, 0 }, { null, null, null }, { 7, 12, 8 } },  
 		};
 
-	TMesh mesh( stde::range(verts), stde::empty_range<TVector>(), stde::range(uvs), stde::range(triangles) );
+	TMesh mesh( stde::range(verts), std::vector<TVector>(), stde::range(uvs), stde::range(triangles) );
 	writeObj(mesh, io::fileJoinPath(test::outputDir(), "triangle_mesh_base.obj"));
-
 
 
 	TMesh loopMesh = mesh;
@@ -204,7 +202,7 @@ void testPrimTriangleMesh3D()
 	TMesh adaptiveMesh = mesh;
 	TMesh::TTriangleIterators selected;
 	selected.push_back(adaptiveMesh.triangles().begin());
-	for (unsigned level = 0; level < 5; ++level)
+	for (unsigned level = 0; level < 6; ++level)
 	{
 		adaptiveMesh.subdivisionWithLimitSurface(1, perfectSphere, selected);
 		writeObj(adaptiveMesh, io::fileJoinPath(test::outputDir(), stde::safe_format("triangle_mesh_snap_adaptive_%d.obj", level)));

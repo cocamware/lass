@@ -94,6 +94,7 @@ private:
 };
 
 template <typename I> iterator_range<I> range(const I& a, const I& b);
+template <typename T, size_t n> iterator_range<T*> range(T (&a)[n]);
 
 template <typename I> bool operator==(const iterator_range<I>& a, const iterator_range<I>& b);
 template <typename I> bool operator!=(const iterator_range<I>& a, const iterator_range<I>& b);
