@@ -63,7 +63,7 @@ typedef TMesh::TUv TUv;
 typedef TMesh::TValue TValue;
 typedef TMesh::TNumTraits TNumTraits;
 
-void perfectSphere(TPoint& vertex, TVector* normal1, TVector* normal2, TUv* uv1, TUv* uv2, const size_t* attr1, const size_t* attr2)
+void perfectSphere(TPoint& vertex, TVector* normal1, TVector* normal2, TUv* uv1, TUv* uv2, const size_t* /*attr1*/, const size_t* /*attr2*/)
 {
 	// don't trust the uv coordinates. they get twisted around the poles.
 	// renormalize vertex, and recalculate uv, but take care of the 2pi-0 seem

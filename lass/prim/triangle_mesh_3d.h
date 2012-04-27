@@ -154,7 +154,6 @@ public:
 	typedef typename TUvs::const_iterator TUvIterator;
 
 	typedef std::vector<TTriangleIterator> TTriangleIterators;
-	typedef 
 
 	TriangleMesh3D(const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 
@@ -306,8 +305,8 @@ private:
 	public:
 		typedef typename TPoint::TVector TVector;
 
-		HalfEdge(const Triangle* triangle, size_t edge): triangle_(triangle), edge_(edge) { LASS_ASSERT(edge < 3); }
-		HalfEdge(const Triangle* triangle, const TPoint* vertex): triangle_(triangle), edge_(triangle->side(tail)) { LASS_ASSERT(edge < 3); }
+		HalfEdge(const Triangle* triangle, size_t edge): triangle_(triangle), edge_(edge) { LASS_ASSERT(edge_ < 3); }
+		HalfEdge(const Triangle* triangle, const TPoint* tail): triangle_(triangle), edge_(triangle->side(tail)) { LASS_ASSERT(edge_ < 3); }
 		const Triangle* triangle() const { return triangle_; }
 		size_t edge() const { return edge_; }
 
@@ -315,7 +314,7 @@ private:
 		const TVector* normal() const { return triangle_->normals[edge_]; }
 		const TUv* uv() const { return triangle_->uvs[edge_]; }
 		unsigned creaseLevel() const { return triangle_->creaseLevel[edge_]; }
-		void setNormal(const TVector* normal) { triangle_->normals[edge_] = normal; }
+		void setNormal(const TVector* normal) { const_cast<Triangle*>(triangle_)->normals[edge_] = normal; } // oops ...
 		const TVector vector() const { return *oNext().vertex() - *vertex(); }
 
 		HalfEdge oPrev() const { return HalfEdge(triangle_, (edge_ + 2) % 3); } // previous edge within triangle, clock wise
@@ -368,7 +367,7 @@ private:
 	TVertices vertices_;
 	TNormals normals_;
 	TUvs uvs_;
-	unsigned numBoundaryEdges_;
+	size_t numBoundaryEdges_;
 };
 
 }

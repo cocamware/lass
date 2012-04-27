@@ -348,9 +348,10 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 			else if (nRing > 2 && nCreases == 0)
 			{
 				// interior vertex
-				const TValue beta = nRing == 6 ? 
-					.125f : 2 * (.625f - num::sqr(.375f + .25f * num::cos(2 * TNumTraits::pi / nRing))) / nRing;
-				TVector newVertex = (1 - nRing * beta) * vertex.position();
+				const TValue alpha = num::inv(static_cast<TValue>(nRing));
+				const TValue beta = nRing == 6.f ? 
+					.125f : 2.f * (.625f - num::sqr(.375f + .25f * num::cos(2.f * TNumTraits::pi * alpha))) * alpha;
+				TVector newVertex = (1.f - static_cast<TValue>(nRing) * beta) * vertex.position();
 				for (size_t j = 0; j < nRing; ++j)
 				{
 					newVertex += beta * ring[j]->position();
@@ -362,7 +363,7 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 					const size_t k = vertexTriangle->side(&vertex);
 					LASS_ASSERT(k < 3 && vertexTriangle->uvs[k]);
 					const TUv& uv = *vertexTriangle->uvs[k];
-					typename TUv::TVector newUv = (1 - nRing * beta) * uv.position();
+					typename TUv::TVector newUv = (1.f - static_cast<TValue>(nRing) * beta) * uv.position();
 					for (size_t j = 0; j < nRing; ++j)
 					{
 						newUv += beta * uvRing[j]->position();
@@ -423,7 +424,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivisionWithLimitSurface(unsigned level, Fun
 			for (size_t k = 0; k < 3; ++k)
 			{
 				const TPoint* oddVertex = oddTriangle.vertices[k];
-				TOddVertexWings::iterator w = oddVertexWings.find(oddVertex);
+				typename TOddVertexWings::iterator w = oddVertexWings.find(oddVertex);
 				if (w == oddVertexWings.end())
 				{
 					oddVertexWings[oddVertex] = std::make_pair(&oddTriangle, (Triangle*) 0);
@@ -441,7 +442,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivisionWithLimitSurface(unsigned level, Fun
 		// also, allow normals and uvs to be adjusted.  
 		// attributes cannot be adjusted, as they are triangles properties. They are not interpolated either, just inherited from the original triangle.
 		//
-		for (TOddVertexWings::const_iterator i = oddVertexWings.begin(), end = oddVertexWings.end(); i != end; ++i)
+		for (typename TOddVertexWings::const_iterator i = oddVertexWings.begin(), end = oddVertexWings.end(); i != end; ++i)
 		{
 			const TPoint* vertex = i->first;
 			const Triangle* wing1 = i->second.first;
@@ -487,7 +488,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivisionWithLimitSurface(unsigned level, Fun
 		// also, allow normals and uvs to be adjusted.  
 		// attributes cannot be adjusted, as they are triangles properties. They are not interpolated either, just inherited from the original triangle.
 		//
-		for (TOddVertexWings::const_iterator i = oddVertexWings.begin(), end = oddVertexWings.end(); i != end; ++i)
+		for (typename TOddVertexWings::const_iterator i = oddVertexWings.begin(), end = oddVertexWings.end(); i != end; ++i)
 		{
 			const TPoint* vertex = i->first;
 			const Triangle* wing1 = i->second.first;
@@ -1203,7 +1204,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		Progressive = 1,
 		Selected = 3, // also contains Progressive mask so that a (Selected | Progressive) is still Selected
 	};
-	typedef std::vector<VertexTag> TVertexTags;
+	typedef std::vector<unsigned> TVertexTags;
 
 	const Triangle* const firstTriangle = &triangles_[0];
 	const TPoint* const firstVertex = &vertices_[0];
@@ -1232,9 +1233,9 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 	for (size_t i = 0; i < numTriangles; ++i)
 	{
 		const Triangle& triangle = triangles_[i];
-		VertexTag& tag0 = vertexTags[triangle.vertices[0] - firstVertex];
-		VertexTag& tag1 = vertexTags[triangle.vertices[1] - firstVertex];
-		VertexTag& tag2 = vertexTags[triangle.vertices[2] - firstVertex];
+		unsigned& tag0 = vertexTags[triangle.vertices[0] - firstVertex];
+		unsigned& tag1 = vertexTags[triangle.vertices[1] - firstVertex];
+		unsigned& tag2 = vertexTags[triangle.vertices[2] - firstVertex];
 		if (tag0 == Selected || tag1 == Selected || tag2 == Selected)
 		{
 			tag0 = static_cast<VertexTag>(tag0 | Progressive);
