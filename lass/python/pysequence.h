@@ -421,7 +421,8 @@ namespace impl
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Container::value_type temp;
-				if (PyExportTraits<typename Container::value_type>::get( PySequence_ITEM(obj, i) , temp ) != 0)
+				TPyObjPtr item( PySequence_ITEM(obj, i) );
+				if (PyExportTraits<typename Container::value_type>::get( item.get() , temp ) != 0)
 				{
 					std::ostringstream buffer;
 					buffer << "sequence element " << i;
