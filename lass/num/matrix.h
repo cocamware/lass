@@ -214,13 +214,13 @@ template <typename T, typename S>
 const Matrix<T, impl::MMul<T, impl::MScalar<T>, S> > operator*(const T& a, const Matrix<T, S>& b);
 
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator+(const Matrix<T, S>& a, const T& b);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator+(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b);
 template <typename T, typename S>
-const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator-(const Matrix<T, S>& a, const T& b);
+const Matrix<T, impl::MAdd<T, S, impl::MScalar<T> > > operator-(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b);
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, S>& a, const T& b);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator*(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b);
 template <typename T, typename S>
-const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& a, const T& b);
+const Matrix<T, impl::MMul<T, S, impl::MScalar<T> > > operator/(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b);
 
 template <typename T, typename S, typename S2>
 void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve = true);

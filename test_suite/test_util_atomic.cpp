@@ -52,6 +52,30 @@ namespace atomic
 {
 
 template <typename T>
+class hex_type
+{
+public:
+	hex_type(T x): x_(x) {}
+	operator T() const { return x_; }
+private:
+	T x_;
+};
+
+template <typename T>
+hex_type<T> hex(T x)
+{
+	return hex_type<T>(x);
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& stream, hex_type<T> x)
+{
+	typedef typename num::BasicType<8 * (sizeof(T) < 4 ? 4 : sizeof(T)) >::Tuint type;
+	stream << std::hex << "0x" << static_cast<type>(x);
+	return stream;
+}
+
+template <typename T>
 void testUtilAtomicType()
 {
 	T pattern = 0;
@@ -74,9 +98,9 @@ void testUtilAtomicType()
 	T wrong1 = static_cast<T>(10 * pattern);
 
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a, wrong1, new1));
-	LASS_TEST_CHECK_EQUAL(a, old1);
+	LASS_TEST_CHECK_EQUAL(hex(a), hex(old1));
 	LASS_TEST_CHECK(util::atomicCompareAndSwap(a, old1, new1));
-	LASS_TEST_CHECK_EQUAL(a, new1);
+	LASS_TEST_CHECK_EQUAL(hex(a), hex(new1));
 }
 
 template <typename T>
@@ -89,16 +113,20 @@ void testUtilAtomicAdjacentCas()
 	}
 
 	const T old1 = pattern, old2 = static_cast<T>(2 * pattern);
-	const T new1 = static_cast<T>(2 * pattern), new2 = static_cast<T>(3 * pattern);
+	const T new1 = static_cast<T>(3 * pattern), new2 = static_cast<T>(4 * pattern);
 	const T wrong1 = static_cast<T>(10 * pattern), wrong2 = static_cast<T>(11 * pattern);
 
+#if LASS_ADDRESS_SIZE == 64
 	volatile T LASS_ALIGNED(a[2], 16) = { old1, old2 };
+#else
+	volatile T a[2] = { old1, old2 };
+#endif
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
-	LASS_TEST_CHECK_EQUAL(a[0], old1);
-	LASS_TEST_CHECK_EQUAL(a[1], old2);
+	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(old1));
+	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(old2));
 	LASS_TEST_CHECK(util::atomicCompareAndSwap(a[0], old1, old2, new1, new2));
-	LASS_TEST_CHECK_EQUAL(a[0], new1);
-	LASS_TEST_CHECK_EQUAL(a[1], new2);
+	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(new1));
+	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(new2));
 }
 
 }

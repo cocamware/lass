@@ -285,8 +285,8 @@ template <typename T, class EPa, class NPa, class EPb, class NPb>
 Result intersect(const Line2D<T, EPa, NPa>& iA, const Line2D<T, EPb, NPb>& iB,
 				 Point2D<T>& oPoint)
 {
-	T tA;
-	T tB;
+	T tA = 0;
+	T tB = 0;
 	Result result = intersect(iA, iB, tA, tB);
 	if (result == rOne)
 	{

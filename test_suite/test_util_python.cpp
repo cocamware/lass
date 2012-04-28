@@ -89,7 +89,12 @@ void testUtilPython()
 	LASS_TEST_CHECK_THROW(python::execute("foo = bar"), python::PythonException);
 
 	python::putenv("FOO", "BAR");
-	LASS_TEST_CHECK_EQUAL(util::getEnvironment<std::string>("FOO"), "BAR");
+	//LASS_TEST_CHECK_EQUAL(util::getEnvironment<std::string>("FOO"), "BAR"); this does not work reliable, can live in different runtimes.
+	LASS_TEST_CHECK_NO_THROW(python::execute("import os"));
+	LASS_TEST_CHECK_NO_THROW(a = python::evaluate("os.environ.get('FOO')"));
+	std::string s;
+	LASS_TEST_CHECK_EQUAL(python::pyGetSimpleObject(a.get(), s), 0);
+	LASS_TEST_CHECK_EQUAL(s, "BAR");
 
 	// execfile is no longer part of python 3.0
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");

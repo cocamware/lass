@@ -387,14 +387,14 @@ namespace impl
 
 			if (aRef > 0)
 			{
-				if (b0 < 0 && b1 < 0 && b2 < 0 || b0 > aRef && b1 > aRef && b2 > aRef)
+				if ((b0 < 0 && b1 < 0 && b2 < 0) || (b0 > aRef && b1 > aRef && b2 > aRef))
 				{
 					return true;
 				}
 			}
 			else
 			{
-				if (b0 > 0 && b1 > 0 && b2 > 0 || b0 < aRef && b1 < aRef && b2 < aRef)
+				if ((b0 > 0 && b1 > 0 && b2 > 0) || (b0 < aRef && b1 < aRef && b2 < aRef))
 				{
 					return true;
 				}

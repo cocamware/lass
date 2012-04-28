@@ -60,9 +60,9 @@ namespace impl
 	template <typename Src, typename Dest> struct ConvTest
 	{
 		static Src dut(); // device under test =)
-		static meta::True test(Dest);
-		static meta::False test(...);
-		enum { value = sizeof(test(dut())) == sizeof(True) };
+		static meta::True lassMetaImplConvTestFunc(Dest); // big ugly name to avoid weird name clash with Visual Studio 2010. Creepy!
+		static meta::False lassMetaImplConvTestFunc(...);
+		enum { value = sizeof(lassMetaImplConvTestFunc(dut())) == sizeof(True) };
 		typedef typename meta::Bool<value>::Type Type;
 	};
 }

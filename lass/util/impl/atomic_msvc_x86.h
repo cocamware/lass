@@ -186,8 +186,21 @@ struct AtomicOperations<4>
 	static bool LASS_CALL compareAndSwap(
 			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
+		// If you ever read this, because MSVC starts complaining with warnings like:
+		//
+		// frame pointer register 'ebx' modified by inline assembly code,
+		//
+		// then know we're doing okay. 
+		// We're pushing and popping ebx but msvc doesn't realize it. Poor thing.
+		// Normally, you don't need to preserve ebx, except if you need dynamic stack-alignment
+		// code, and you're not doing frame pointer optimzation. 
+		//
+		// Anyway, rest asure we heeded the warning, but we could not silence it. 
+		// Not here anyway.
+		//
 		__asm 
 		{
+			push ebx
 			mov eax, expected1
 			mov edx, expected2
 			mov ebx, new1
@@ -196,6 +209,7 @@ struct AtomicOperations<4>
 			lock cmpxchg8b [edi]
 			mov eax, 0
 			sete al
+			pop ebx
 		}
 		/* return eax */
 	}
@@ -229,8 +243,21 @@ struct AtomicOperations<8>
 	template <typename T> inline 
 	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		// If you ever read this, because MSVC starts complaining with warnings like:
+		//
+		// frame pointer register 'ebx' modified by inline assembly code,
+		//
+		// then know we're doing okay. 
+		// We're pushing and popping ebx but msvc doesn't realize it. Poor thing.
+		// Normally, you don't need to preserve ebx, except if you need dynamic stack-alignment
+		// code, and you're not doing frame pointer optimzation. 
+		//
+		// Anyway, rest asure we heeded the warning, but we could not silence it. 
+		// Not here anyway.
+		//
 		__asm 
 		{
+			push ebx
 			lea esi, expectedValue
 			lea edi, newValue
 			mov eax, [esi]
@@ -239,6 +266,7 @@ struct AtomicOperations<8>
 			mov ecx, 4[edi]
 			mov edi, dest
 			lock cmpxchg8b [edi]
+			pop ebx
 		}
 		/* return edx:eax */
 	}
