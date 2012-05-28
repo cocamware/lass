@@ -210,6 +210,22 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		return DispatcherAddress(iSelf, iArgs);
 	}
 };
+/** @internal
+ */
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::InquirySlot ,DispatcherAddress>
+{
+	static int fun(PyObject* iSelf)
+	{
+		TPyObjPtr args(Py_BuildValue("()"));
+		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		if (!temp)
+			return -1;
+		int result;
+		if (pyGetSimpleObject(temp.get(), result) != 0)
+			return -1;
+		return result;
+	}
+};
 
 /////////////////////////////////////////////
 

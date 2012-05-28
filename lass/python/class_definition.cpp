@@ -400,6 +400,12 @@ void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc 
 	LASS_ASSERT_UNREACHABLE;
 }
 
+void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink& overloadChain) 
+{
+    LASS_PY_OPERATOR_NO_OVERLOAD("__nonzero__", tp_as_number, PyNumberMethods, nb_nonzero);
+	LASS_ASSERT_UNREACHABLE;
+}
+
 void ClassDefinition::addGetSetter(const char* name, const char* doc, getter get, setter set)
 {
 	getSetters_.insert(getSetters_.begin(), impl::createPyGetSetDef(name, get, set, doc, 0));

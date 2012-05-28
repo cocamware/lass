@@ -169,6 +169,7 @@ namespace lass
 				void addMethod(const IterSlot& slot, const char* doc, getiterfunc dispatcher, OverloadLink& overloadChain);
 				void addMethod(const IterNextSlot& slot, const char* doc, iternextfunc dispatcher, OverloadLink& overloadChain);
 				void addMethod(const ArgKwSlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain);
+				void addMethod(const InquirySlot& slot, const char* doc, inquiry dispatcher, OverloadLink& overloadChain);
 				void addGetSetter(const char* name, const char* doc, getter get, setter set);
 				void addStaticMethod(const char* name, const char* doc, PyCFunction dispatcher, PyCFunction& overloadChain);
 				template <typename T> void addStaticConst(const char* name, const T& value)
