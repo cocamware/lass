@@ -72,6 +72,7 @@ namespace impl
 	struct IterSlot : public SpecialSlot { IterSlot( const char* iName ) : SpecialSlot(iName) {} };
 	struct IterNextSlot : public SpecialSlot { IterNextSlot( const char* iName ) : SpecialSlot(iName) {} };
 	struct ArgKwSlot : public SpecialSlot { ArgKwSlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct InquirySlot: public SpecialSlot { InquirySlot( const char* iName ) : SpecialSlot(iName) {} };
 
 	const int charPtrSlot = 1;
 	const int unarySlot = 2;
@@ -88,6 +89,7 @@ namespace impl
 	const int iterSlot = 13;
 	const int iterNextSlot = 14;
 	const int argKwSlot = 15;
+	const int inquirySlot = 16;
 
 
 	template<int value> struct MetaInt { volatile const char dummy[value]; };
@@ -110,6 +112,7 @@ namespace impl
 		static MetaInt<iterSlot> test(const IterSlot&);
 		static MetaInt<iterNextSlot> test(const IterNextSlot&);
 		static MetaInt<argKwSlot> test(const ArgKwSlot&);
+		static MetaInt<inquirySlot> test(const InquirySlot&);
 	};
 
 	template<int value>
@@ -131,6 +134,7 @@ namespace impl
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterSlot>)> { typedef IterSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<iterNextSlot>)> { typedef IterNextSlot Type; };
 	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<argKwSlot>)> { typedef ArgKwSlot Type; };
+	template<> struct IsSpecialSlotTesterValue<sizeof(MetaInt<inquirySlot>)> { typedef InquirySlot Type; };
 
 	#define SPECIAL_SLOT_TYPE( x ) lass::python::impl::IsSpecialSlotTesterValue<sizeof(lass::python::impl::IsSpecialSlotTester::test(x))>::Type
 
@@ -183,6 +187,7 @@ namespace methods
 	const lass::python::impl::BinarySlot _div_("__div__");
 	const lass::python::impl::BinarySlot _idiv_("__idiv__");
 #endif
+	const lass::python::impl::InquirySlot _nonzero_("__nonzero__");
 
 	const lass::python::impl::TernarySlot _pow_("__pow__");
 
