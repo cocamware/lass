@@ -156,8 +156,6 @@ CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")
 endif()
-CHECK_SYMBOL_EXISTS("_wfopen" "stdio.h" LASS_HAVE_WFOPEN)
-CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
 
 
 # --- checking some properties of numbers and available functions ---
@@ -173,6 +171,14 @@ CHECK_SYMBOL_EXISTS("llabs" "stdlib.h" LASS_HAVE_LLABS)
 CHECK_SYMBOL_EXISTS("_abs64" "stdlib.h" LASS_HAVE_ABS64)
 _try_compile_looking(LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS "check_long_double_std_functions.cpp" "fabsl")
 
+
+# --- wide character support ---
+
+CHECK_TYPE_SIZE(wchar_t WCHAR_T)
+set(LASS_HAVE_WCHAR_T ${HAVE_WCHAR_T})
+CHECK_SYMBOL_EXISTS("_wfopen" "stdio.h" LASS_HAVE_WFOPEN)
+CHECK_FUNCTION_EXISTS("iconv" LASS_HAVE_ICONV)
+CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
 
 
 

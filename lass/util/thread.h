@@ -341,6 +341,68 @@ private:
 
 
 
+template <typename T>
+class ThreadLocalPtr: NonCopyable
+{
+public:
+	typedef T TPointee;
+	typedef T* TPointer;
+	typedef T& TReference;
+
+	explicit ThreadLocalPtr():
+		storage_(&ThreadLocalPtr<T>::destructor)
+	{
+	}
+
+	void reset(TPointer p)
+	{
+		std::auto_ptr<TPointee> tmp(p);
+		reset(tmp);
+	}
+
+	template <typename U>
+	void reset(std::auto_ptr<U>& p)
+	{
+		TPointer old = get();
+		storage_.set(p.get());
+		p.release();
+		delete old;
+	}
+
+	TPointer get() const
+	{
+		return static_cast<TPointer>(storage_.get());
+	}
+
+	TPointer operator->() const
+	{
+		LASS_ASSERT(get());
+		return get();
+	}
+
+	TReference operator*() const
+	{
+		LASS_ASSERT(get());
+		return *get();
+	}
+
+	bool operator!() const
+	{
+		return !get();
+	}
+
+private:
+
+	static void destructor(void* p)
+	{
+		delete static_cast<T*>(p);
+	}
+
+	mutable ThreadLocalStorage storage_;
+};
+
+
+
 /** Lean and mean synchronisation object, without OS support.
 *   @ingroup Threading
 *   @see SemaphoreLocker
