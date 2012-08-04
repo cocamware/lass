@@ -65,13 +65,18 @@ void testUtilWCharSupport()
 	LASS_TEST_CHECK(util::utf8ToWchar(utf8HelloWorld) == wideHelloWorld);
 
 #if LASS_HAVE_WCHAR_T == 4
+	// UTF-32
 	const std::wstring wideNonBmp = L"\x10337\x10334\x1033b\x1033b\x10349 \x10345\x10349\x10342\x1033b\x10333!";
-	const std::string utf8NonBmp = "\xf0\x90\x8c\xb7\xf0\x90\x8c\xb4\xf0\x90\x8c\xbb\xf0\x90\x8c\xbb\xf0\x90\x8d\x89 \xf0\x90\x8d\x85\xf0\x90\x8d\x89\xf0\x90\x8d\x82\xf0\x90\x8c\xbb\xf0\x90\x8c\xb3!";
 	LASS_TEST_CHECK_EQUAL(wideNonBmp.length(), size_t(12));
+#else
+	// UTF-16
+	const std::wstring wideNonBmp = L"\xd800\xdf37\xd800\xdf34\xd800\xdf3b\xd800\xdf3b\xd800\xdf49 \xd800\xdf45\xd800\xdf49\xd800\xdf42\xd800\xdf3b\xd800\xdf33!";
+	LASS_TEST_CHECK_EQUAL(wideNonBmp.length(), size_t(22));
+#endif
+	const std::string utf8NonBmp = "\xf0\x90\x8c\xb7\xf0\x90\x8c\xb4\xf0\x90\x8c\xbb\xf0\x90\x8c\xbb\xf0\x90\x8d\x89 \xf0\x90\x8d\x85\xf0\x90\x8d\x89\xf0\x90\x8d\x82\xf0\x90\x8c\xbb\xf0\x90\x8c\xb3!";
 	LASS_TEST_CHECK_EQUAL(utf8NonBmp.length(), size_t(42));
 	LASS_TEST_CHECK_EQUAL(util::wcharToUtf8(wideNonBmp), utf8NonBmp);
 	LASS_TEST_CHECK(util::utf8ToWchar(utf8NonBmp) == wideNonBmp);
-#endif
 
 }
 
