@@ -64,44 +64,76 @@ namespace util
 
 #if LASS_HAVE_WCHAR_SUPPORT
 
-std::wstring utf8ToWchar(const char* utf8) 
-{ 
-	return utf8ToWchar(utf8, ::strlen(utf8)); 
-}
-
 std::wstring utf8ToWchar(const std::string& utf8) 
 { 
-	return utf8ToWchar(utf8.c_str(), utf8.length()); 
+	std::wstring wide;
+	utf8ToWchar(utf8.data(), utf8.length(), wide); 
+	return wide;
 }
 
-std::string wcharToUtf8(const wchar_t* wide)
+std::wstring utf8ToWchar(const char* utf8) 
+{ 
+	std::wstring wide;
+	utf8ToWchar(utf8, ::strlen(utf8), wide); 
+	return wide;
+}
+
+std::wstring utf8ToWchar(const char* utf8, size_t length)
 {
-	return wcharToUtf8(wide, ::wcslen(wide));
+	std::wstring wide;
+	utf8ToWchar(utf8, length, wide); 
+	return wide;
 }
 
 std::string wcharToUtf8(const std::wstring& wide)
 {
-	return wcharToUtf8(wide.c_str(), wide.length());
+	std::string utf8;
+	wcharToUtf8(wide.data(), wide.length(), utf8);
+	return utf8;
 }
 
-#	if LASS_HAVE_MULTIBYTETOWIDECHAR
-
-std::wstring utf8ToWchar(const char* utf8, size_t length)
+std::string wcharToUtf8(const wchar_t* wide)
 {
-	const int utf8Bytes = num::numCast<int>(length + 1);
-	const int wcharBytes = LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, 0, 0));
-	std::vector<wchar_t> wideString(wcharBytes);
-	LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Bytes, &wideString[0], wcharBytes));
-	return std::wstring(&wideString[0]);
+	std::string utf8;
+	wcharToUtf8(wide, ::wcslen(wide), utf8);
+	return utf8;
 }
 
 std::string wcharToUtf8(const wchar_t* wide, size_t length)
 {
-	const int wcharBytes = num::numCast<int>(length + 1);
-	const int utf8Bytes = LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wcharBytes, 0, 0, NULL, NULL));
-	std::vector<char> utf8String(utf8Bytes);
-	LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wcharBytes, &utf8String[0], utf8Bytes, NULL, NULL));
-	return std::string(&utf8String[0]);
+	std::string utf8;
+	wcharToUtf8(wide, length, utf8);
+	return utf8;
+}
+
+
+
+#	if LASS_HAVE_MULTIBYTETOWIDECHAR
+
+void utf8ToWchar(const char* utf8, size_t length, std::wstring &wide)
+{
+	if (!length)
+	{
+		wide.clear();
+		return;
+	}
+	const int utf8Length = num::numCast<int>(length);
+	const int wideLength = LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Length, 0, 0));
+	wide.resize(num::numCast<size_t>(wideLength));
+	LASS_ENFORCE_WINAPI(MultiByteToWideChar(CP_UTF8, 0, utf8, utf8Length, &wide[0], wideLength));
+}
+
+void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
+{
+	if (!length)
+	{
+		utf8.clear();
+		return;
+	}
+	const int wideLength = num::numCast<int>(length);
+	const int utf8Length = LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wideLength, 0, 0, NULL, NULL));
+	utf8.resize(num::numCast<size_t>(utf8Length));
+	LASS_ENFORCE_WINAPI(WideCharToMultiByte(CP_UTF8, 0, wide, wideLength, &utf8[0], utf8Length, NULL, NULL));
 }
 
 #	elif LASS_HAVE_ICONV
@@ -121,11 +153,12 @@ namespace
 		{
 			iconv_close(handle_);
 		}
-		template <typename char_type>
-		std::basic_string<char_type> convert(char* in, size_t inBytes)
+		template <typename string_type>
+		void convert(char* in, size_t inBytes, string_type &result)
 		{
-			std::basic_string<char_type> result;
+			typedef typename string_type::value_type char_type
 			iconv(handle_, 0, 0, 0, 0); // reset
+			result.clear();
 			while (inBytes)
 			{
 				char* out = buffer_;
@@ -150,7 +183,6 @@ namespace
 					result.append( reinterpret_cast<char_type*>( buffer_ ), bytes / sizeof(char_type) - 1 );
 				}
 			}
-			return result;
 		}
 	private:
 		enum { bufsize_ = 1024 };
@@ -178,7 +210,7 @@ namespace
 #		endif
 }
 
-std::wstring utf8ToWchar(const char* utf8, size_t length)
+void utf8ToWchar(const char* utf8, size_t length, std::wstring &wide)
 {
 	static TConverterPtr converter;
 	if ( !converter )
@@ -186,10 +218,10 @@ std::wstring utf8ToWchar(const char* utf8, size_t length)
 		std::auto_ptr<Converter> p(new Converter(wchar_encoding, "UTF-8"));
 		converter.reset(p);
 	}
-	return converter->convert< wchar_t >( const_cast<char*>(utf8), length + 1 );
+	converter->convert( const_cast<char*>(utf8), length + 1, wide );
 }
 
-std::string wcharToUtf8(const wchar_t* wide, size_t length)
+void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
 {
 	static TConverterPtr converter;
 	if ( !converter )
@@ -197,7 +229,7 @@ std::string wcharToUtf8(const wchar_t* wide, size_t length)
 		std::auto_ptr<Converter> p(new Converter("UTF-8", wchar_encoding));
 		converter.reset(p);
 	}
-	return converter->convert< char >( (char*) wide, sizeof(wchar_t) * (length + 1) );
+	converter->convert( (char*) wide, sizeof(wchar_t) * (length + 1), utf8 );
 }
 
 #	else

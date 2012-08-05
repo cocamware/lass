@@ -227,6 +227,23 @@ BinaryIStream& BinaryIStream::operator>>( std::string& x )
 
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
+
+BinaryIStream& BinaryIStream::operator>>( std::wstring& x )
+{
+	std::string utf8;
+	*this >> utf8;
+	if (good())
+	{
+		util::utf8ToWchar( utf8.data(), utf8.length(), x );
+	}
+	return *this;
+}
+
+#endif
+
+
+
 /** read a number of bytes from stream to buffer
  *
  *  @param iBytes 

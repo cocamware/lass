@@ -59,10 +59,12 @@ namespace util
 LASS_DLL std::wstring utf8ToWchar(const std::string& utf8);
 LASS_DLL std::wstring utf8ToWchar(const char* utf8);
 LASS_DLL std::wstring utf8ToWchar(const char* utf8, size_t length);
+LASS_DLL void utf8ToWchar(const char* utf8, size_t length, std::wstring& wide);
 
 LASS_DLL std::string wcharToUtf8(const std::wstring& wide);
 LASS_DLL std::string wcharToUtf8(const wchar_t* wide);
 LASS_DLL std::string wcharToUtf8(const wchar_t* wide, size_t length);
+LASS_DLL void wcharToUtf8(const wchar_t* wide, size_t length, std::string& utf8);
 
 #endif
 

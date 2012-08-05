@@ -43,11 +43,6 @@
 #include "lass_common.h"
 #include "binary_i_file.h"
 #include "../meta/meta_assert.h"
-
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
-#	include "../util/wchar_support.h"
-#endif
-
 #include <stdio.h>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
@@ -92,6 +87,32 @@ BinaryIFile::BinaryIFile(const std::string& path):
 
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** Construct stream by filename and open it.
+ */
+BinaryIFile::BinaryIFile(const wchar_t* path):
+	BinaryIStream(),
+	file_(0)
+{
+	open(path);
+}
+
+
+
+/** Construct stream by filename and open it.
+ */
+BinaryIFile::BinaryIFile(const std::wstring& path):
+	BinaryIStream(),
+	file_(0)
+{
+	open(path);
+}
+
+#endif
+
+
+
 /** Close stream on destruction.
  */
 BinaryIFile::~BinaryIFile()
@@ -103,17 +124,16 @@ BinaryIFile::~BinaryIFile()
 
 void BinaryIFile::open(const char* path)
 {
-	close();
 #if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
-	std::wstring wpath = util::utf8ToWchar(path);
-	file_ = ::_wfopen(wpath.c_str(), L"rb");
+	open(util::utf8ToWchar(path));
 #else
+	close();
 	file_ = ::fopen(path, "rb");
-#endif
 	if (!file_)
 	{
 		setstate(std::ios_base::failbit);
 	}
+#endif
 }
 
 
@@ -122,6 +142,33 @@ void BinaryIFile::open(const std::string& path)
 {
 	open(path.c_str());
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+void BinaryIFile::open(const wchar_t* path)
+{
+#   if LASS_HAVE_WFOPEN
+	close();
+	file_ = ::_wfopen(path, L"rb");
+	if (!file_)
+	{
+		setstate(std::ios_base::failbit);
+	}
+#   else
+	open(wcharToUtf8(path));
+#   endif
+}
+
+
+
+void BinaryIFile::open(const std::wstring& path)
+{
+	open(path.c_str());
+}
+
+#endif
 
 
 

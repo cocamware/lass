@@ -53,6 +53,7 @@
 
 #include "io_common.h"
 #include "binary_stream_base.h"
+#include "../util/wchar_support.h"
 
 namespace lass
 {
@@ -88,6 +89,9 @@ public:
 	BinaryIStream& operator>>( void*& x );
 
 	BinaryIStream& operator>>( std::string& out );
+#if LASS_HAVE_WCHAR_SUPPORT
+	BinaryIStream& operator>>( std::wstring& out );
+#endif
 	template <typename T> BinaryIStream& operator>>( std::vector<T>& out );
 	template <typename T> BinaryIStream& operator>>( std::complex<T>& out );
 

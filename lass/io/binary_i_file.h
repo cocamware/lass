@@ -72,10 +72,18 @@ public:
 	BinaryIFile();
 	BinaryIFile(const char* path);
 	BinaryIFile(const std::string& path);
+#if LASS_HAVE_WCHAR_SUPPORT
+	BinaryIFile(const wchar_t* path);
+	BinaryIFile(const std::wstring& path);
+#endif
 	~BinaryIFile();
 
 	void open(const char* path);
 	void open(const std::string& path);
+#if LASS_HAVE_WCHAR_SUPPORT
+	void open(const wchar_t* path);
+	void open(const std::wstring& path);
+#endif
 	void close();
 	bool is_open() const;
 

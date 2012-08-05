@@ -72,23 +72,49 @@ BinaryOFile::BinaryOFile():
 
 /** Construct stream by filename and open it.
  */
-BinaryOFile::BinaryOFile( const char* iFileName ):
+BinaryOFile::BinaryOFile( const char* path ):
 	BinaryOStream(),
 	file_(0)
 {
-	open(iFileName);
+	open(path);
 }
 
 
 
 /** Construct stream by filename and open it.
  */
-BinaryOFile::BinaryOFile( const std::string& iFileName ):
+BinaryOFile::BinaryOFile( const std::string& path ):
 	BinaryOStream(),
 	file_(0)
 {
-	open(iFileName);
+	open(path);
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** Construct stream by filename and open it.
+ */
+BinaryOFile::BinaryOFile( const wchar_t* path ):
+	BinaryOStream(),
+	file_(0)
+{
+	open(path);
+}
+
+
+
+/** Construct stream by filename and open it.
+ */
+BinaryOFile::BinaryOFile( const std::wstring& path ):
+	BinaryOStream(),
+	file_(0)
+{
+	open(path);
+}
+
+#endif
 
 
 
@@ -103,28 +129,57 @@ BinaryOFile::~BinaryOFile()
 
 void BinaryOFile::open(const char* path)
 {
+#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+	open(util::utf8ToWchar(path));
+#else
 	close();
 	if (good())
 	{
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
-		std::wstring wpath = util::utf8ToWchar(path);
-		file_ = ::_wfopen(wpath.c_str(), L"wb");
-#else
 		file_ = ::fopen(path, "wb");
-#endif
 		if (!file_)
 		{
 			setstate(std::ios_base::failbit);
 		}
 	}
+#endif
 }
 
 
 
-void BinaryOFile::open(const std::string& iFileName)
+void BinaryOFile::open(const std::string& path)
 {
-	open(iFileName.c_str());
+	open(path.c_str());
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+void BinaryOFile::open(const wchar_t* path)
+{
+#if LASS_HAVE_WFOPEN
+	close();
+	if (good())
+	{
+		file_ = ::_wfopen(path, L"wb");
+		if (!file_)
+		{
+			setstate(std::ios_base::failbit);
+		}
+	}
+#else
+	open(util::wcharToUtf8(path));
+#endif
+}
+
+
+
+void BinaryOFile::open(const std::wstring& path)
+{
+	open(path.c_str());
+}
+
+#endif
 
 
 

@@ -42,6 +42,7 @@
 
 #include "lass_common.h"
 #include "binary_o_stream.h"
+#include "../num/num_cast.h"
 #include <string.h>
 
 // static_cast from pointer to TintPtr gives warning on MSVC, yet both are identical in size [Bramz]
@@ -208,6 +209,28 @@ BinaryOStream& BinaryOStream::operator<<(const std::string& x)
 
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
+
+BinaryOStream& BinaryOStream::operator<<(const wchar_t* x)
+{
+	std::string utf8;
+	util::wcharToUtf8(x, ::wcslen(x), utf8);
+	return writeString(utf8.data(), utf8.length());
+}
+
+
+
+BinaryOStream& BinaryOStream::operator<<(const std::wstring& x)
+{
+	std::string utf8;
+	util::wcharToUtf8(x.data(), x.length(), utf8);
+	return writeString(utf8.data(), utf8.length());
+}
+
+#endif
+
+
+
 /** write a buffer of bytes to the stream
  *  @param bytes pointer to buffer.
  *  @param numBytes length of buffer in bytes.
@@ -231,9 +254,7 @@ BinaryOStream& BinaryOStream::writeValue(T x)
 
 BinaryOStream& BinaryOStream::writeString(const char* string, size_t length)
 {
-	const num::Tuint64 n = static_cast<num::Tuint64>(length);
-	LASS_ASSERT(length == static_cast<size_t>(n));
-	*this << n;
+	*this << num::numCast<num::Tuint64>(length);
 	doWrite(string, length);
 	return *this;
 }

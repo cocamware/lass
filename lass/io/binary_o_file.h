@@ -70,20 +70,28 @@ class LASS_DLL BinaryOFile: public BinaryOStream
 public:
 
 	BinaryOFile();
-	BinaryOFile( const char* iFileName );
-	BinaryOFile( const std::string& iFileName );
+	BinaryOFile( const char* path );
+	BinaryOFile( const std::string& path );
+#if LASS_HAVE_WCHAR_SUPPORT
+	BinaryOFile( const wchar_t* path );
+	BinaryOFile( const std::wstring& path );
+#endif
 	~BinaryOFile();
 
-	void open(const char* iFileName);
-	void open(const std::string& iFileName);
+	void open(const char* path);
+	void open(const std::string& path);
+#if LASS_HAVE_WCHAR_SUPPORT
+	void open(const wchar_t* path);
+	void open(const std::wstring& path);
+#endif
 	void close();
 	bool is_open() const;
 
 private:
 
 	long doTellp() const;
-	void doSeekp(long iOffset, std::ios_base::seekdir iDirection);
-	void doWrite(const void* iBytes, size_t iNumberOfBytes);
+	void doSeekp(long offset, std::ios_base::seekdir direction);
+	void doWrite(const void* bytes, size_t numberOfBytes);
 	void doFlush();
 
 	FILE* file_;
