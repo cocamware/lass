@@ -149,16 +149,16 @@ void BinaryIFile::open(const std::string& path)
 
 void BinaryIFile::open(const wchar_t* path)
 {
-#   if LASS_HAVE_WFOPEN
+#	if LASS_HAVE_WFOPEN
 	close();
 	file_ = ::_wfopen(path, L"rb");
 	if (!file_)
 	{
 		setstate(std::ios_base::failbit);
 	}
-#   else
-	open(wcharToUtf8(path));
-#   endif
+#	else
+	open(util::wcharToUtf8(path));
+#	endif
 }
 
 

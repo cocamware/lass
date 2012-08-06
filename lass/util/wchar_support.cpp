@@ -156,7 +156,7 @@ namespace
 		template <typename string_type>
 		void convert(char* in, size_t inBytes, string_type &result)
 		{
-			typedef typename string_type::value_type char_type
+			typedef typename string_type::value_type char_type;
 			iconv(handle_, 0, 0, 0, 0); // reset
 			result.clear();
 			while (inBytes)
