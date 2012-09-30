@@ -36,8 +36,11 @@ endif()
 
 if (MSVC)
 	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
+	option(BUILD_WITHOUT_ITERATOR_DEBUGGING "Build with _HAS_ITERATOR_DEBUGGING=0, otherwise as MSVC's default" OFF)
+	mark_as_advanced(BUILD_WITHOUT_ITERATOR_DEBUGGING)
 else()
 	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
+	set(BUILD_WITHOUT_ITERATOR_DEBUGGING OFF)
 endif()
 
 if (MSVC_IDE AND NOT MSVC_VERSION LESS 1400)
@@ -146,6 +149,10 @@ else()
 	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion")
 endif()
 
+if (BUILD_WITHOUT_ITERATOR_DEBUGGING)
+	add_definitions(/D_HAS_ITERATOR_DEBUGGING=0)
+endif()
+
 include_directories(
 	${lass_INCLUDES}
 	"${config_dir}"
@@ -214,9 +221,6 @@ export(
 
 
 
-	
-
-	
 # --- PACKAGING ---
 if (WIN32)
 	set (CPACK_PACKAGE_INSTALL_DIRECTORY "Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}")
