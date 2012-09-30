@@ -150,6 +150,16 @@ bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 	return begins_with(input, string_type(prefix));
 }
 
+/** @ingroup extended_string
+ *  returns true if @a input begins with the input @a prefix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+	Char prefix)
+{
+	return !input.empty() && input.front() == prefix;
+}
+
 
 
 /** @ingroup extended_string
@@ -172,6 +182,16 @@ bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 {
 	typedef std::basic_string<Char, Traits, Alloc> string_type;
 	return ends_with(input, string_type(suffix));
+}
+
+/** @ingroup extended_string
+ *  returns true if @a input ends with the input @a suffix
+ */
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+	Char suffix)
+{
+	return !input.empty() && input.back() == suffix;
 }
 
 

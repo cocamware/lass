@@ -98,6 +98,9 @@ bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const Char* prefix);
+template <typename Char, typename Traits, typename Alloc>
+bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
+	Char prefix);
 
 template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
@@ -105,6 +108,9 @@ bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const Char* suffix);
+template <typename Char, typename Traits, typename Alloc>
+bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
+	Char suffix);
 
 template <typename Char, typename Traits, typename Alloc>
 std::vector< std::basic_string<Char, Traits, Alloc> >
