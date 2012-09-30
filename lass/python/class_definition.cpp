@@ -402,7 +402,11 @@ void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc 
 
 void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink& overloadChain) 
 {
-    LASS_PY_OPERATOR_NO_OVERLOAD("__nonzero__", tp_as_number, PyNumberMethods, nb_nonzero);
+#if PY_MAJOR_VERSION < 3
+	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_nonzero);
+#else
+	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_bool);
+#endif
 	LASS_ASSERT_UNREACHABLE;
 }
 

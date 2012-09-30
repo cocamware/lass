@@ -187,7 +187,8 @@ namespace methods
 	const lass::python::impl::BinarySlot _div_("__div__");
 	const lass::python::impl::BinarySlot _idiv_("__idiv__");
 #endif
-	const lass::python::impl::InquirySlot _nonzero_("__nonzero__");
+	const lass::python::impl::InquirySlot _bool_("__bool__");
+	const lass::python::impl::InquirySlot _nonzero_ = _bool_; // the 2.x version of __bool__
 
 	const lass::python::impl::TernarySlot _pow_("__pow__");
 
