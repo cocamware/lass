@@ -205,9 +205,7 @@ private:
 	static TValue squaredDistance(const TPoint& a, const TPoint& b);
 
 	TNodes heap_;
-	TObjectIterator begin_;
-	TObjectIterator end_;
-	size_t size_;
+	std::auto_ptr<TObjectIterator> end_;
 };
 
 

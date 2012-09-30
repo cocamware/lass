@@ -66,8 +66,7 @@ namespace spat
  */
 template <class O, class OT>
 KdTree<O, OT>::KdTree():
-	begin_(),
-	end_()
+	end_(new TObjectIterator)
 {
 }
 
@@ -78,15 +77,14 @@ KdTree<O, OT>::KdTree():
  */
 template <class O, class OT>
 KdTree<O, OT>::KdTree(TObjectIterator first, TObjectIterator last):
-	begin_(first),
-	end_(last)
+	end_(new TObjectIterator(last))
 {
-	size_ = std::distance(begin_, end_);
-	heap_.resize((size_ * 3) / 2, Node(end_));
+	size_t n = std::distance(first, last);
+	heap_.resize((n * 3) / 2, Node(last));
 
 	TObjectIterators input;
-	input.reserve(size_);
-	for (TObjectIterator i = begin_; i != end_; ++i)
+	input.reserve(n);
+	for (TObjectIterator i = first; i != last; ++i)
 	{
 		input.push_back(i);
 	}
@@ -141,7 +139,7 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& target, TParam maxRadius) const
 		LASS_THROW("can't locate nearest neighbour in empty KdTree");
 	}
 
-	Neighbour best(end_, maxRadius);
+	Neighbour best(*end_, maxRadius);
 #if 1
 	struct Visit
 	{
@@ -160,7 +158,7 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& target, TParam maxRadius) const
 		{
 			continue;
 		}
-		if (visit.index >= heap_.size() || heap_[visit.index].object() == end_)
+		if (visit.index >= heap_.size() || heap_[visit.index].object() == *end_)
 		{
 			continue;
 		}
@@ -245,7 +243,7 @@ KdTree<O, OT>::rangeSearch(
 		return maxSquaredDistance;
 	}
 
-	maxCount = std::min(maxCount, size_);
+	maxCount = std::min(maxCount, heap_.size());
 	neighbourhood.resize(maxCount + 1);
 
 	typename TNeighbourhood::iterator last = rangeSearch(
@@ -334,10 +332,8 @@ KdTree<O, OT>::rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCou
 template <class O, class OT>
 void KdTree<O, OT>::swap(TSelf& other)
 {
-	std::swap(begin_, other.begin_);
 	std::swap(end_, other.end_);
 	heap_.swap(other.heap_);
-	std::swap(size_, other.size_);
 }
 
 
@@ -367,7 +363,7 @@ template <class O, class OT> inline
 const typename KdTree<O, OT>::TObjectIterator
 KdTree<O, OT>::end() const
 {
-	return end_;
+	return *end_;
 }
 
 
@@ -520,7 +516,7 @@ inline void KdTree<O, OT>::assignNode(size_t index, TObjectIterator object, TAxi
 {
 	if (heap_.size() <= index)
 	{
-		heap_.resize(index + 1, Node(end_));
+		heap_.resize(index + 1, Node(*end_));
 	}
 	heap_[index] = Node(object, TObjectTraits::position(object), splitAxis);
 }
@@ -531,7 +527,7 @@ template <class O, class OT>
 size_t KdTree<O, OT>::findNode(size_t index, const TPoint& target) const
 {
 	const size_t size = heap_.size();
-	if (index >= size || heap_[index].object() == end_)
+	if (index >= size || heap_[index].object() == *end_)
 	{
 		return size;
 	}
@@ -555,7 +551,7 @@ size_t KdTree<O, OT>::findNode(size_t index, const TPoint& target) const
 template <class O, class OT>
 void KdTree<O, OT>::doNearestNeighbour(size_t index, const TPoint& target, Neighbour& best) const
 {
-	if (index >= heap_.size() || heap_[index].object() == end_)
+	if (index >= heap_.size() || heap_[index].object() == *end_)
 	{
 		return;
 	}
@@ -601,7 +597,7 @@ OutputIterator KdTree<O, OT>::doRangeSearch(
 		size_t index, const TPoint& target, TParam squaredDistance,
 		OutputIterator output) const
 {
-	if (index >= heap_.size() || heap_[index].object() == end_)
+	if (index >= heap_.size() || heap_[index].object() == *end_)
 	{
 		return output;
 	}
@@ -648,7 +644,7 @@ RandomIterator KdTree<O, OT>::doRangeSearch(
 		size_t index, const TPoint& target, TReference squaredRadius, size_t maxCount,
 		RandomIterator first, RandomIterator last) const
 {
-	if (index >= heap_.size() || heap_[index].object() == end_)
+	if (index >= heap_.size() || heap_[index].object() == *end_)
 	{
 		return last;
 	}
@@ -772,12 +768,16 @@ void KdTree<O, OT>::diagnostics()
 	};
 
 	TAabb aabb;
-	for (TObjectIterator i = begin_; i != end_; ++i)
+	for (size_t i = 0, n = heap_.size(); i < n; ++i)
 	{
-		aabb += TObjectTraits::position(i);
+		if (heap_[index].object() == *end_)
+		{
+			continue;
+		}
+		aabb += TObjectTraits::position(heap_[i].object());
 	}
 
-	Visitor visitor(heap_, end_);
+	Visitor visitor(heap_, *end_);
 	visitor.visit(0, aabb);
 }
 #endif
