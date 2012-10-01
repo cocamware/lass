@@ -120,14 +120,31 @@ Image::Image(size_t rows, size_t cols):
 
 /** Construct image from given file.
  */
-Image::Image(const std::string& filename):
+Image::Image(const std::string& path):
 	colorSpace_(defaultColorSpace()),
 	rows_(0),
 	cols_(0),
 	raster_()
 {
-	open(filename);
+	open(path);
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** Construct image from given file.
+ */
+Image::Image(const std::wstring& path):
+	colorSpace_(defaultColorSpace()),
+	rows_(0),
+	cols_(0),
+	raster_()
+{
+	open(path);
+}
+
+#endif
 
 
 
@@ -175,11 +192,25 @@ void Image::reset(size_t rows, size_t cols)
 
 /** Reset image to the one in the given file.
  */
-void Image::reset(const std::string& filename)
+void Image::reset(const std::string& path)
 {
-	Image temp(filename);
+	Image temp(path);
 	swap(temp);
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** Reset image to the one in the given file.
+ */
+void Image::reset(const std::wstring& path)
+{
+	Image temp(path);
+	swap(temp);
+}
+
+#endif
 
 
 
@@ -195,26 +226,14 @@ void Image::reset(const Image& other)
 
 /** Open image from file
  */
-void Image::open(const std::string& filename)
+void Image::open(const std::string& path)
 {
-	try
+	BinaryIFile file(path);
+	if (!file)
 	{
-		BinaryIFile file(filename);
-		if (!file)
-		{
-			LASS_THROW("could not open file to read.");
-		}
-
-		open(file, fileExtension(filename));
+		LASS_THROW("could not open file to read.");
 	}
-	catch (const BadFormat& error)
-	{
-		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
-	}
-	catch (const util::Exception& error)
-	{
-		LASS_THROW("'" << filename << "': " << error.message());
-	}
+	open(file, fileExtension(path));
 }
 
 
@@ -250,26 +269,14 @@ void Image::open(BinaryIStream& stream, const std::string& formatTag)
 
 /** Save image to file
  */
-void Image::save(const std::string& filename)
+void Image::save(const std::string& path)
 {
-	try
+	BinaryOFile file(path);
+	if (!file)
 	{
-		BinaryOFile file(filename);
-		if (!file)
-		{
-			LASS_THROW("could not open file to write.");
-		}
-
-		save(file, fileExtension(filename));
+		LASS_THROW("could not open file to write.");
 	}
-	catch (const BadFormat& error)
-	{
-		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
-	}
-	catch (const util::Exception& error)
-	{
-		LASS_THROW_EX(BadFormat, "'" << filename << "': " << error.message());
-	}
+	save(file, fileExtension(path));
 }
 
 
@@ -302,6 +309,38 @@ void Image::save(BinaryOStream& stream, const std::string& formatTag)
 		LASS_THROW_EX(BadFormat, "unknown failure in file.");
 	}
 }
+
+
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** Open image from binary stream
+ */
+void Image::open(const std::wstring& path)
+{
+	BinaryIFile file(path);
+	if (!file)
+	{
+		LASS_THROW("could not open file to read.");
+	}
+	open(file, util::wcharToUtf8(fileExtension(path)));
+}
+
+
+
+/** Save image to file
+ */
+void Image::save(const std::wstring& path)
+{
+	BinaryOFile file(path);
+	if (!file)
+	{
+		LASS_THROW("could not open file to write.");
+	}
+	save(file, util::wcharToUtf8(fileExtension(path)));
+}
+
+#endif
 
 
 

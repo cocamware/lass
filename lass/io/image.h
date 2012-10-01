@@ -56,6 +56,7 @@
 #include "../num/endianness.h"
 #include "../prim/color_rgba.h"
 #include "../prim/point_2d.h"
+#include "../util/wchar_support.h"
 
 namespace lass
 {
@@ -113,7 +114,10 @@ public:
 
 	Image();
 	Image(size_t rows, size_t cols);
-	Image(const std::string& filename);
+	Image(const std::string& path);
+#if LASS_HAVE_WCHAR_SUPPORT
+	Image(const std::wstring& path);
+#endif
 	Image(const Image& other);
 	~Image();
 
@@ -122,13 +126,20 @@ public:
 
 	void reset();
 	void reset(size_t rows, size_t cols);
-	void reset(const std::string& filename);
+	void reset(const std::string& path);
+#if LASS_HAVE_WCHAR_SUPPORT
+	void reset(const std::wstring& path);
+#endif
 	void reset(const Image& other);
 
-	void open(const std::string& filename);
+	void open(const std::string& path);
 	void open(BinaryIStream& stream, const std::string& formatTag);
-	void save(const std::string& filename);
+	void save(const std::string& path);
 	void save(BinaryOStream& stream, const std::string& formatTag);
+#if LASS_HAVE_WCHAR_SUPPORT
+	void open(const std::wstring& path);
+	void save(const std::wstring& path);
+#endif
 
 	Image& operator=(const Image& other);
 	void swap(Image& other);
