@@ -48,6 +48,7 @@
 #include "exception.h"
 #include "pyobject_ptr.h"
 #include "../num/num_cast.h"
+#include "../util/wchar_support.h"
 
 namespace lass
 {
@@ -698,6 +699,7 @@ struct PyExportTraits<const char*>
 	}
 };
 
+
 /** @ingroup Python
  */
 template <size_t N>
@@ -729,7 +731,7 @@ struct PyExportTraits<std::string>
 			// explicitly copying into data as some the std::string(char*) assumes a zero terminated C-str
 			// which is too limiting
 			v.resize( PyString_GET_SIZE(obj), '\0' );
-			memcpy(const_cast<char*>(v.data()), PyString_AS_STRING(obj), v.size());
+			memcpy(&v[0], PyString_AS_STRING(obj), v.size());
 			return 0;
 		}
 #endif
@@ -745,15 +747,92 @@ struct PyExportTraits<std::string>
 		}
 #if PY_MAJOR_VERSION < 3
 		v.resize( PyString_GET_SIZE(s.get()), '\0' );
-		memcpy(const_cast<char*>(v.data()), PyString_AS_STRING(s.get()), v.size());
+		memcpy(&v[0], PyString_AS_STRING(s.get()), v.size());
 #else
 		v.resize( PyBytes_GET_SIZE(s.get()), '\0' );
-		memcpy(const_cast<char*>(v.data()), PyBytes_AS_STRING(s.get()), v.size());
+		memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
 #endif
 		return 0;
 	}
 };
 
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<const wchar_t*>
+{
+	static PyObject* build(const wchar_t* v)
+	{
+		return PyUnicode_FromWideChar(v, wcslen(v) );
+	}
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<const wchar_t [N]>: PyExportTraits<const wchar_t*>
+{
+};
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t*>
+{
+};
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<std::wstring>
+{
+	static PyObject* build(const std::wstring& v)
+	{
+		return PyUnicode_FromWideChar( v.data(), v.length() );
+	}
+	static int get(PyObject* obj, std::wstring& v)
+	{
+#if PY_MAJOR_VERSION < 3
+#	if LASS_HAVE_WCHAR_SUPPORT
+		if (PyString_Check(obj))
+		{
+			std::string utf8;
+			if ( PyExportTraits<std::string>::get( obj, utf8 ) != 0 )
+			{
+				return 1;
+			}
+			v = util::utf8ToWchar( utf8 );
+			return 0;
+		}
+#	endif
+#endif
+		if (!PyUnicode_Check(obj))
+		{
+			PyErr_SetString(PyExc_TypeError, "not a string");
+			return 1;
+		}
+#if PY_VERSION_HEX < 0x03020000 // < 3.2
+		Py_ssize_t n = PyUnicode_GET_SIZE(obj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
+#else
+		Py_ssize_t n = PyUnicode_AsWideChar(obj, 0, 0) - 1; // takes care of UTF-16 and UTF-32 conversions
+#endif
+		LASS_ASSERT(n >= 0);
+		if (n == 0)
+		{
+			v = std::wstring();
+			return 0;
+		}
+		std::wstring tmp(static_cast<size_t>(n), '\0');
+		if (PyUnicode_AsWideChar(obj, &tmp[0], n) == -1)
+		{
+			return 1;
+		}
+		v.swap(tmp);
+		return 0;
+	}
+};
 
 
 // --- pairs ---------------------------------------------------------------------------------------
