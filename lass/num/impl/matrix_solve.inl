@@ -84,7 +84,7 @@ template
 >
 bool ludecomp(RandomIterator1 ioMatrix,
 			  RandomIterator2 oIndex,
-			  size_t iSize,
+			  ptrdiff_t iSize,
 			  int& iD)
 {
 	typedef NumTraits<T> TNumTraits;
@@ -93,15 +93,16 @@ bool ludecomp(RandomIterator1 ioMatrix,
 
 	const TBase epsilon = static_cast<TBase>(1e-20);
 
-	std::vector<T> vv(iSize);
+	std::vector<T> scaling(static_cast<size_t>(iSize));
+	typename std::vector<T>::iterator vv = scaling.begin();
 	iD = 1;
 
-	for (size_t i = 0; i < iSize; ++i)
+	for (ptrdiff_t i = 0; i < iSize; ++i)
 	{
 		RandomIterator1 rowI = ioMatrix + (i * iSize);
 		TBase normMax = TBaseTraits::zero;
-		size_t jMax = iSize;
-		for (size_t j = 0; j < iSize; ++j)
+		ptrdiff_t jMax = iSize;
+		for (ptrdiff_t j = 0; j < iSize; ++j)
 		{
 			const TBase temp = num::norm(rowI[j]);
 			if (temp > normMax)
@@ -119,14 +120,14 @@ bool ludecomp(RandomIterator1 ioMatrix,
 		vv[i] = num::conj(rowI[jMax]) / normMax;
 	}
 
-	for (size_t j = 0; j < iSize; ++j)
+	for (ptrdiff_t j = 0; j < iSize; ++j)
 	{
-		size_t i;
+		ptrdiff_t i;
 		for (i = 0; i < j; ++i)
 		{
 			RandomIterator1 rowI = ioMatrix + (i * iSize);
 			T sum = rowI[j];
-			for (size_t k = 0; k < i; ++k)
+			for (ptrdiff_t k = 0; k < i; ++k)
 			{
 				sum -= rowI[k] * ioMatrix[k * iSize + j];
 			}
@@ -134,12 +135,12 @@ bool ludecomp(RandomIterator1 ioMatrix,
 		}
 
 		TBase normMax = TBaseTraits::zero;
-		size_t iMax = iSize;
+		ptrdiff_t iMax = iSize;
 		for (i = j; i < iSize; ++i)
 		{
 			RandomIterator1 rowI = ioMatrix + (i * iSize);
 			T sum = rowI[j];
-			for (size_t k = 0; k < j; ++k)
+			for (ptrdiff_t k = 0; k < j; ++k)
 			{
 				sum -= rowI[k] * ioMatrix[k * iSize + j];
 			}
@@ -157,7 +158,7 @@ bool ludecomp(RandomIterator1 ioMatrix,
 
 		if (j != iMax)
 		{
-		   for (size_t k = 0; k < iSize; ++k)
+		   for (ptrdiff_t k = 0; k < iSize; ++k)
 		   {
 			   std::swap(ioMatrix[iMax * iSize + k], ioMatrix[j * iSize + k]);
 		   }
@@ -222,21 +223,21 @@ template
 void lusolve(RandomIterator1 iMatrix,
 			 RandomIterator2 iIndex,
 			 RandomIterator3 ioColumn,
-			 size_t iSize)
+			 ptrdiff_t iSize)
 {
 	typedef NumTraits<T> TNumTraits;
 
-	size_t ii = iSize;
-	for (size_t i = 0; i < iSize; ++i)
+	ptrdiff_t ii = iSize;
+	for (ptrdiff_t i = 0; i < iSize; ++i)
 	{
 		RandomIterator1 rowI = iMatrix + (i * iSize);
-		const size_t ip = iIndex[i];
+		const ptrdiff_t ip = iIndex[i];
 		T sum = ioColumn[ip];
 		ioColumn[ip] = ioColumn[i];
 
 		if (ii != iSize)
 		{
-			for (size_t j = ii; j < i; ++j)
+			for (ptrdiff_t j = ii; j < i; ++j)
 			{
 				sum -= rowI[j] * ioColumn[j];
 			}
@@ -251,12 +252,12 @@ void lusolve(RandomIterator1 iMatrix,
 		ioColumn[i] = sum;
 	}
 
-	for (size_t ic = iSize; ic > 0; --ic)
+	for (ptrdiff_t ic = iSize; ic > 0; --ic)
 	{
-		const size_t i = ic - 1;
+		const ptrdiff_t i = ic - 1;
 		RandomIterator1 rowI = iMatrix + (i * iSize);
 		T sum = ioColumn[i];
-		for (size_t j = ic; j < iSize; ++j)
+		for (ptrdiff_t j = ic; j < iSize; ++j)
 		{
 			sum -= rowI[j] * ioColumn[j];
 		}
@@ -299,23 +300,24 @@ void lumprove(RandomIterator1 iMatrix,
 			  RandomIterator3 iIndex,
 			  RandomIterator4 iColumn,
 			  RandomIterator5 ioX,
-			  size_t iSize)
+			  ptrdiff_t iSize)
 {
 	typedef NumTraits<T> TNumTraits;
 
-	std::vector<T> r(iSize);
-	size_t i;
+	std::vector<T> right(static_cast<size_t>(iSize));
+	typename std::vector<T>::iterator r = right.begin();
+	ptrdiff_t i;
 	for (i = 0; i < iSize; ++i)
 	{
 		RandomIterator1 rowI = iMatrix + (i * iSize);
 		r[i] = -iColumn[i];
-		for (size_t j = 0; j < iSize; ++j)
+		for (ptrdiff_t j = 0; j < iSize; ++j)
 		{
 			r[i] += rowI[j] * ioX[j];
 		}
 	}
 
-	lusolve<T>(iMatrixLU, iIndex, r.begin(), iSize);
+	lusolve<T>(iMatrixLU, iIndex, r, iSize);
 
 	for (i = 0; i < iSize; ++i)
 	{
@@ -459,7 +461,7 @@ template
 >
 bool solveTridiagonal(RandomIterator1 iA, RandomIterator1 iB, RandomIterator1 iC,
 					  RandomIterator2 ioSolution, RandomIterator3 ioTemp,
-					  std::size_t iSize)
+					  ptrdiff_t iSize)
 {
 	typedef NumTraits<T> TNumTraits;
 
@@ -469,7 +471,7 @@ bool solveTridiagonal(RandomIterator1 iA, RandomIterator1 iB, RandomIterator1 iC
 		return false;
 	}
 	ioSolution[0] /= beta;
-	for (std::size_t i = 1; i <iSize; ++i)
+	for (ptrdiff_t i = 1; i < iSize; ++i)
 	{
 		ioTemp[i] = iC[i - 1] / beta;
 		beta = iB[i] - iA[i] * ioTemp[i];
@@ -479,7 +481,7 @@ bool solveTridiagonal(RandomIterator1 iA, RandomIterator1 iB, RandomIterator1 iC
 		}
 		ioSolution[i] = (ioSolution[i] - iA[i] * ioSolution[i - 1]) / beta;
 	}
-	for (std::size_t i = iSize - 1; i > 0; --i)
+	for (ptrdiff_t i = iSize - 1; i > 0; --i)
 	{
 		ioSolution[i - 1] -= ioTemp[i] * ioSolution[i];
 	}

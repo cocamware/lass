@@ -158,39 +158,39 @@ private:
 	class Node
 	{
 	public:
-		Node(int axis)
+		Node(size_t axis)
 		{
-			LASS_ASSERT(axis >= 0 && axis < dimension);
-			axis_ = axis;
+			LASS_ASSERT(axis < dimension);
+			axis_ = static_cast<int>(axis);
 		}
-		Node(int first, int last)
+		Node(size_t first, size_t last)
 		{
-			LASS_ASSERT(first >= 0 && last > first);
-			first_ = first;
-			last_ = -last - 1;
+			LASS_ASSERT(last > first);
+			first_ = static_cast<unsigned>(first);
+			last_ = -static_cast<int>(last) - 1;
 			LASS_ASSERT(last_ < 0);
 		}
 
 		bool isInternal() const { return axis_ >= 0; }
 		TParam leftBound() const { LASS_ASSERT(isInternal()); return leftBound_; }
-		TReference leftBound() { LASS_ASSERT(isInternal()); return leftBound_; }
+		void setLeftBound(TParam x) { LASS_ASSERT(isInternal()); leftBound_ = x; }
 		TParam rightBound() const { LASS_ASSERT(isInternal()); return rightBound_; }
-		TReference rightBound() { LASS_ASSERT(isInternal()); return rightBound_; }
-		int axis() const { LASS_ASSERT(isInternal()); return axis_; }
-		int right() const { LASS_ASSERT(isInternal()); return right_; }
-		int& right() { LASS_ASSERT(isInternal()); return right_; }
+		void setRightBound(TParam x) { LASS_ASSERT(isInternal()); rightBound_ = x; }
+		size_t axis() const { LASS_ASSERT(isInternal()); return static_cast<size_t>(axis_); }
+		size_t right() const { LASS_ASSERT(isInternal()); return right_; }
+		void setRight(size_t right) { LASS_ASSERT(isInternal()); right_ = static_cast<unsigned>(right); }
 
 		bool isLeaf() const { return last_ < 0; }
-		int first() const { LASS_ASSERT(isLeaf()); return first_; }
-		int last() const { LASS_ASSERT(isLeaf()); return -last_ - 1; }
+		size_t first() const { LASS_ASSERT(isLeaf()); return first_; }
+		size_t last() const { LASS_ASSERT(isLeaf()); return static_cast<size_t>(-last_ - 1); }
 
 	private:
 		TValue leftBound_;	// internal
 		TValue rightBound_;	// internal
 		union
 		{
-			int right_; // internal
-			int first_; // leaf
+			unsigned right_; // internal
+			unsigned first_; // leaf
 		};
 		union
 		{
@@ -203,36 +203,36 @@ private:
 	struct BalanceResult
 	{
 		TAabb aabb;
-		int index;
-		BalanceResult(const TAabb& aabb, int index): aabb(aabb), index(index) {}
+		size_t index;
+		BalanceResult(const TAabb& aabb, size_t index): aabb(aabb), index(index) {}
 	};
 
 	const BalanceResult balance(TInputIterator iFirst, TInputIterator iLast);
-	int addLeafNode(TInputIterator iFirst, TInputIterator iLast);
-	int addInternalNode(int iAxis);
+	size_t addLeafNode(TInputIterator iFirst, TInputIterator iLast);
+	size_t addInternalNode(size_t iAxis);
 
-	bool doContains(int index, const TPoint& point, const TInfo* info) const;
+	bool doContains(size_t index, const TPoint& point, const TInfo* info) const;
 
 	template <typename OutputIterator> 
-	OutputIterator doFind(int index, const TPoint& point, OutputIterator iResult, const TInfo* info) const;
+	OutputIterator doFind(size_t index, const TPoint& point, OutputIterator iResult, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(int index, const TAabb& box, OutputIterator iResult, const TInfo* info) const;
+	OutputIterator doFind(size_t index, const TAabb& box, OutputIterator iResult, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(int index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator iResult, const TInfo* info,
+	OutputIterator doFind(size_t index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator iResult, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
 
 	const TObjectIterator doIntersect(
-		int index, const TRay& ray, TReference t, TParam tMin, const TInfo* info, 
+		size_t index, const TRay& ray, TReference t, TParam tMin, const TInfo* info, 
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
-	bool doIntersects(int index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info, 
+	bool doIntersects(size_t index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info, 
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const;
 
-	void doNearestNeighbour(int index, const TPoint& point, const TInfo* info, Neighbour& best) const;
+	void doNearestNeighbour(size_t index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(int index, const TPoint& point, TReference squaredRadius, 
+	RandomIterator doRangeSearch(size_t index, const TPoint& point, TReference squaredRadius, 
 		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
-	void getChildren(int index, const TPoint& target, int indices[2], TValue signedDistances[2]) const;
+	void getChildren(size_t index, const TPoint& target, size_t indices[2], TValue signedDistances[2]) const;
 
 	TAabb aabb_;
 	TObjectIterators objects_;

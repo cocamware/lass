@@ -66,7 +66,7 @@ struct PyExportTraitsVectorPoint
 		PyObject* const tuple = PyTuple_New(dimension);
 		for (size_t i = 0; i < dimension; ++i)
 		{
-			PyTuple_SetItem(tuple, i, pyBuildSimpleObject(v[i]));
+			PyTuple_SetItem(tuple, static_cast<Py_ssize_t>(i), pyBuildSimpleObject(v[i]));
 		}
 		return tuple;
 	}

@@ -55,6 +55,7 @@
 #include "impl/matrix_expressions.h"
 #include "../util/call_traits.h"
 #include "../util/scoped_ptr.h"
+#include "../stde/index_iterator.h"
 
 namespace lass
 {
@@ -90,14 +91,17 @@ public:
 	class Row
 	{
 	public:
-		T& operator[](TSize iJ) { return matrix_(row_, iJ); }
-		const T& operator[](TSize iJ) const { return matrix_(row_, iJ); }
-		T& at(TSigned iJ) { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
-		const T& at(TSigned iJ) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
+		typedef stde::index_iterator_t<Row, T, T*, T&, TSize, TSigned> iterator;
+		T& operator[](TSize column) { return matrix_(row_, column); }
+		const T& operator[](TSize column) const { return matrix_(row_, column); }
+		T& at(TSigned column) { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), column); }
+		const T& at(TSigned column) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), column); }
 		const TSize size() const { return matrix_.columns(); }
+		iterator begin() { return iterator(*this, 0); }
+		iterator end() { return iterator(*this, size()); }
 	private:
 		friend class Matrix<T, S>;
-		Row(Matrix<T, S>& iMatrix, TSize row): matrix_(iMatrix), row_(row) {}
+		Row(Matrix<T, S>& matrix, TSize row): matrix_(matrix), row_(row) {}
 		Matrix<T, S>& matrix_;
 		TSize row_;
 	};
@@ -106,12 +110,12 @@ public:
 	{
 	public:
 		ConstRow(const Row& other): matrix_(other.matrix_), row_(other.row_) {}
-		const T& operator[](TSize iJ) const { return matrix_(row_, iJ); }
-		const T& at(TSigned iJ) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), iJ); }
+		const T& operator[](TSize column) const { return matrix_(row_, column); }
+		const T& at(TSigned column) const { LASS_ASSERT(static_cast<TSigned>(row_) >= 0); return matrix_.at(static_cast<TSigned>(row_), column); }
 		const TSize size() const { return matrix_.columns(); }
 	private:
 		friend class Matrix<T, S>;
-		ConstRow(const Matrix<T, S>& iMatrix, TSize row): matrix_(iMatrix), row_(row) {}
+		ConstRow(const Matrix<T, S>& matrix, TSize row): matrix_(matrix), row_(row) {}
 		const Matrix<T, S>& matrix_;
 		TSize row_;
 	};
@@ -119,14 +123,17 @@ public:
 	class Column
 	{
 	public:
-		T& operator[](TSize iI) { return matrix_(iI, column_); }
-		const T& operator[](TSize iI) const { return matrix_(iI, column_); }
-		T& at(TSigned iI) { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
-		const T& at(TSigned iI) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
+		typedef stde::index_iterator_t<Column, T, T*, T&, TSize, TSigned> iterator;
+		T& operator[](TSize row) { return matrix_(row, column_); }
+		const T& operator[](TSize row) const { return matrix_(row, column_); }
+		T& at(TSigned row) { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(row, static_cast<TSigned>(column_)); }
+		const T& at(TSigned row) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(row, static_cast<TSigned>(column_)); }
 		const TSize size() const { return matrix_.rows(); }
+		iterator begin() { return iterator(*this, 0); }
+		iterator end() { return iterator(*this, matrix_.columns()); }
 	private:
 		friend class Matrix<T, S>;
-		Column(Matrix<T, S>& iMatrix, TSize iColumn): matrix_(iMatrix), column_(iColumn) {}
+		Column(Matrix<T, S>& matrix, TSize column): matrix_(matrix), column_(column) {}
 		Matrix<T, S>& matrix_;
 		TSize column_;
 	};
@@ -135,12 +142,12 @@ public:
 	{
 	public:
 		ConstColumn(const Column& other): matrix_(other.matrix_), column_(other.column_) {}
-		const T& operator[](TSize iI) const { return matrix_(iI, column_); }
-		const T& at(TSigned iI) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(iI, static_cast<TSigned>(column_)); }
+		const T& operator[](TSize row) const { return matrix_(row, column_); }
+		const T& at(TSigned row) const { LASS_ASSERT(static_cast<TSigned>(column_) >= 0); return matrix_.at(row, static_cast<TSigned>(column_)); }
 		const TSize size() const { return matrix_.rows(); }
 	private:
 		friend class Matrix<T, S>;
-		ConstColumn(const Matrix<T, S>& iMatrix, TSize iColumn): matrix_(iMatrix), column_(iColumn) {}
+		ConstColumn(const Matrix<T, S>& matrix, TSize column): matrix_(matrix), column_(column) {}
 		const Matrix<T, S>& matrix_;
 		TSize column_;
 	};

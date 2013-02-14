@@ -93,7 +93,6 @@ QuadTree<O, OT, SH>::QuadTree(const TSplitHeuristics& heuristics):
 template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>::QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics):
 	SH(heuristics),
-	nodesAllocator_(sizeof(QuadNode) * numChildren),
 	aabb_(aabb),
 	root_(0),
 	end_(),
@@ -226,7 +225,7 @@ bool QuadTree<O, OT, SH>::contains(const TPoint& point, const TInfo* info) const
 	while (!node->isLeaf())
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
-		node = &node->children[findSubNode(node->center(), point)];
+		node = &node->children[this->findSubNode(node->center(), point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
@@ -259,7 +258,7 @@ OutputIterator QuadTree<O, OT, SH>::find(const TPoint& point, OutputIterator res
 	while (!node->isLeaf())
 	{
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_NODE;
-		node = &node->children[findSubNode(node->center(), point)];
+		node = &node->children[this->findSubNode(node->center(), point)];
 		LASS_ASSERT(node); // if it's not a leaf, there should be a child node
 	}
 
@@ -302,16 +301,16 @@ QuadTree<O, OT, SH>::intersect(
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TPoint center = middle(min, max);
+	const TPoint center = this->middle(min, max);
 	TPoint support = TObjectTraits::raySupport(ray);
 	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = forcePositiveDirection(center, support, direction);
+	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
 	TVector tNear;
 	TVector tFar;
-	nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
-	const TValue tNearMax = maxComponent(tNear);
-	const TValue tFarMin = minComponent(tFar);
+	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
+	const TValue tNearMax = this->maxComponent(tNear);
+	const TValue tFarMin = this->minComponent(tFar);
 	if (tFarMin < tNearMax || tFarMin <= tMin)
 	{
 		return end_;
@@ -499,7 +498,7 @@ QuadTree<O, OT, SH>::doIntersect(
 		const TVector& tNear, const TVector& tFar, size_t flipMask) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	if (minComponent(tFar) < tMin)
+	if (this->minComponent(tFar) < tMin)
 	{
 		return end_;
 	}
@@ -533,16 +532,16 @@ QuadTree<O, OT, SH>::doIntersect(
 		return best;
 	}
 
-	const TVector tMiddle = middle(tNear, tFar);
+	const TVector tMiddle = this->middle(tNear, tFar);
 	TObjectIterator best = end_;
 	TValue tBest = 0;
-	size_t i = entryNode(tNear, tMiddle);
+	size_t i = this->entryNode(tNear, tMiddle);
 	do
 	{
 		const QuadNode& child = node.children[i ^ flipMask];
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
-		childNearAndFar(tChildNear, tChildFar, tMiddle, i);
+		this->childNearAndFar(tChildNear, tChildFar, tMiddle, i);
 		
 		TValue tCandidate;
 		TObjectIterator candidate = doIntersect(
@@ -556,13 +555,13 @@ QuadTree<O, OT, SH>::doIntersect(
 			}
 		}
 
-		if (best != end_ && tBest < minComponent(tChildFar))
+		if (best != end_ && tBest < this->minComponent(tChildFar))
 		{
 			t = tBest;
 			return best;
 		}
 
-		i = nextNode(i, tChildFar);
+		i = this->nextNode(i, tChildFar);
 	}
 	while (i != size_t(-1));
 

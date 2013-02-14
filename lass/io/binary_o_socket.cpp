@@ -254,7 +254,7 @@ void BinaryOSocket::flushImpl()
 	}
 
 	const char* begin = &buffer_[0];
-	const size_t nMax = num::NumTraits<int>::max;
+	const size_t nMax = static_cast<size_t>(num::NumTraits<int>::max);
 
 	while (current_ > 0)
 	{
@@ -265,7 +265,7 @@ void BinaryOSocket::flushImpl()
 			const int sent = socket_->send(begin, n);
 			LASS_ASSERT(sent >= 0 && sent <= n);
 			begin += sent;
-			current_ -= sent;
+			current_ -= static_cast<size_t>(sent);
 		}
 		catch (util::Exception&)
 		{

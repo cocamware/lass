@@ -117,7 +117,7 @@ size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 			}
 			LASS_ASSERT(read >= 0 && read <= numberOfBytes);
 			begin += read;
-			bytesRead += read;
+			bytesRead += static_cast<size_t>(read);
 			numberOfBytes -= read;
 		}
 		catch (const util::Exception&)

@@ -79,7 +79,7 @@ template <class O, class OT>
 KdTree<O, OT>::KdTree(TObjectIterator first, TObjectIterator last):
 	end_(new TObjectIterator(last))
 {
-	size_t n = std::distance(first, last);
+	const size_t n = static_cast<size_t>(std::distance(first, last));
 	heap_.resize((n * 3) / 2, Node(last));
 
 	TObjectIterators input;
@@ -466,7 +466,7 @@ void KdTree<O, OT>::balance(size_t index, TIteratorIterator first, TIteratorIter
 	// more than one, do the balance
 	//
 	const TAxis split = findSplitAxis(first, last);
-	const size_t size = last - first;;
+	const size_t size = static_cast<size_t>(last - first);
 	const TIteratorIterator median = first + size / 2;
 	std::nth_element(first, median, last, LessDim(split));
 	assignNode(index, *median, split);

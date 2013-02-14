@@ -149,7 +149,7 @@ namespace impl
                                 ::MapViewOfFile(map_, FILE_MAP_READ, 0, newBegin, mapSize)));
 #elif defined(LASS_IO_MEMORY_MAP_MMAP)
                         char* view = static_cast<char*>(LASS_ENFORCE_CLIB_EX(
-                                ::mmap(0, mapSize, PROT_READ, MAP_SHARED, file_, newBegin),
+                                ::mmap(0, static_cast<size_t>(mapSize), PROT_READ, MAP_SHARED, file_, newBegin),
                                 (char*)MAP_FAILED));
 #else
                         char* view = 0;
@@ -174,7 +174,7 @@ namespace impl
 #if defined(LASS_IO_MEMORY_MAP_WIN)
                         LASS_WARN_WINAPI(::UnmapViewOfFile(view_));
 #elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                        LASS_WARN_CLIB(::munmap(view_, mapSize_));
+                        LASS_WARN_CLIB(::munmap(view_, static_cast<size_t>(mapSize_)));
 #endif
                         view_ = 0;
                 }
@@ -354,7 +354,7 @@ size_t BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
 		size_t bytesRead = 0;
         while (last >= end_)
         {
-				const long n = end_ - position_;
+				const size_t n = static_cast<size_t>(end_ - position_);
                 ::memcpy(dest, &data_[position_ - begin_], n);
                 dest += n;
 				bytesRead += n;
@@ -370,7 +370,7 @@ size_t BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
                 }
                 position_ = begin_;
         }
-        ::memcpy(dest, &data_[position_ - begin_], last - position_);
+        ::memcpy(dest, &data_[position_ - begin_], static_cast<size_t>(last - position_));
         position_ = last;
 		return numberOfBytes;
 }

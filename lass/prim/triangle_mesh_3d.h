@@ -81,7 +81,7 @@ LASS_DLL bool LASS_CALL operator==(const IndexTriangle& a, const IndexTriangle& 
 template 
 <
 	typename T,
-	template <typename T, typename OT, typename SH> class BoundingVolumeHierarchy,
+	template <typename TT, typename OT, typename SH> class BoundingVolumeHierarchy,
 	typename SplitHeuristics
 >
 class TriangleMesh3D

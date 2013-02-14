@@ -492,7 +492,7 @@ public:
 		if (milliSeconds < msec_per_sec)
 		{
 			timeOut.tv_sec = 0;
-			timeOut.tv_nsec = milliSeconds * nsec_per_msec;
+			timeOut.tv_nsec = static_cast<long>(milliSeconds * nsec_per_msec);
 		}
 		else
 		{

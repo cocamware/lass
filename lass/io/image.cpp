@@ -943,8 +943,7 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 	const int yEnd   = header.flipVerticalFlag() ? static_cast<int>(rows_) : -1;
 	const int yDelta = header.flipVerticalFlag() ? 1 : -1;
 
-	stream.seekg(header.idLength + header.colorMapLength * header.colorMapEntrySize, 
-		std::ios_base::cur);
+	stream.seekg(header.idLength + header.colorMapLength * header.colorMapEntrySize, std::ios_base::cur);
 	std::vector<impl::Bytes4> buffer(cols_);
 	for (int y = yBegin; y != yEnd; y += yDelta)
 	{	
@@ -990,10 +989,12 @@ BinaryIStream& Image::openTargaTrueColor(BinaryIStream& stream, const HeaderTarg
 
 		// decode scanline
 		//
-		TPixel* pixel = &raster_[y * cols_];
+		LASS_ASSERT(y >= 0 && static_cast<size_t>(y) < rows_);
+		TPixel* pixel = &raster_[static_cast<size_t>(y) * cols_];
 		for (int x = xBegin; x != xEnd; x += xDelta)
 		{
-			const impl::Bytes4& bytes = buffer[x];
+			LASS_ASSERT(x >= 0 && static_cast<size_t>(x) < cols_);
+			const impl::Bytes4& bytes = buffer[static_cast<size_t>(x)];
 			pixel->r = static_cast<TValue>(bytes[2]) * scale;
 			pixel->g = static_cast<TValue>(bytes[1]) * scale;
 			pixel->b = static_cast<TValue>(bytes[0]) * scale;
@@ -1047,10 +1048,10 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 	
 	resize(header.height, header.width);
 
-	const std::ptrdiff_t firstY = !header.yIncreasing ? 0 : (header.height - 1);	
+	const std::ptrdiff_t firstY = !header.yIncreasing ? 0 : (static_cast<std::ptrdiff_t>(header.height) - 1);
 	const std::ptrdiff_t lastY = !header.yIncreasing ? static_cast<std::ptrdiff_t>(header.height) : -1;	
 	const std::ptrdiff_t deltaY = !header.yIncreasing ? 1 : -1;
-	const std::ptrdiff_t firstX = header.xIncreasing ? 0 : (header.width - 1);
+	const std::ptrdiff_t firstX = header.xIncreasing ? 0 : (static_cast<std::ptrdiff_t>(header.width) - 1);
 	const std::ptrdiff_t lastX = header.xIncreasing ? static_cast<std::ptrdiff_t>(header.width) : -1;
 	const std::ptrdiff_t deltaX = header.xIncreasing ? 1 : -1;
 
@@ -1070,9 +1071,9 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 			{
 				// new rle
 				//
-				const size_t lineLength = rgbe[2] * 256 + rgbe[3];
-				LASS_ASSERT(lineLength < 32768);
-				const ptrdiff_t lastX2 = x + lineLength * deltaX;
+				const std::ptrdiff_t lineLength = rgbe[2] * 256 + rgbe[3];
+				LASS_ASSERT(lineLength >= 0 && lineLength < 32768);
+				const std::ptrdiff_t lastX2 = x + lineLength * deltaX;
 				LASS_ASSERT((lastX - lastX2) * deltaX >= 0);
 				for (size_t k = 0; k < 4; ++k)
 				{
@@ -1093,8 +1094,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 							{
 								stream >> value;
 							}
-							LASS_ASSERT(x2 != lastX2);
-							buffer[x2][k] = value;
+							LASS_ASSERT(x2 >= 0 && x2 != lastX2);
+							buffer[static_cast<size_t>(x2)][k] = value;
 							x2 += deltaX;
 						}
 					}
@@ -1108,7 +1109,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 				if (rgbe[0] == 1 && rgbe[1] == 1 && rgbe[2] == 1)
 				{
 					LASS_ASSERT(rleCountByte < sizeof(rleCount));
-					rleCount |= rgbe[3] << (8 * rleCountByte);
+					rleCount |= static_cast<size_t>(rgbe[3]) << (8 * rleCountByte);
 					++rleCountByte;
 				}
 				else
@@ -1117,13 +1118,13 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 					{
 						for (size_t k = rleCount; k > 0; --k)
 						{
-							buffer[x] = previous;
+							buffer[static_cast<size_t>(x)] = previous;
 							x += deltaX;
 						}
 						rleCount = 0;
 						rleCountByte = 0;
 					}
-					buffer[x] = rgbe;
+					buffer[static_cast<size_t>(x)] = rgbe;
 					x += deltaX;
 				}
 			}
@@ -1132,8 +1133,8 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 
 		// decode rgbe information
 		//
-		TPixel* scanline = &raster_[y * header.width];	
-		for (std::ptrdiff_t x = firstX; x != lastX; x += deltaX)
+		TPixel* scanline = &raster_[static_cast<size_t>(y) * header.width];	
+		for (size_t x = 0; x != header.width; ++x)
 		{
 			const impl::Bytes4 rgbe = buffer[x];
 			TPixel& pixel = scanline[x];
@@ -1164,32 +1165,25 @@ BinaryIStream& Image::openPfm(BinaryIStream& stream)
 	resize(header.height, header.width);
 	EndiannessSetter(stream, header.endianness);
 
-	for (size_t k = rows_; k > 0; --k)
+	for (size_t y = rows_; y > 0; --y)
 	{
-		const TRaster::iterator first = raster_.begin() + (k - 1) * cols_;
-		const TRaster::iterator last = first + cols_;
+		TPixel* scanline = &raster_[(y - 1) * cols_];
 		if (header.isGrey)
 		{
-			num::Tfloat32 y;
-			for (TRaster::iterator i = first; i != last; ++i)
+			for (size_t x = 0; x < cols_; ++x)
 			{
-				stream >> y;
-				i->r = y;
-				i->g = y;
-				i->b = y;
-				i->a = 1;
+				num::Tfloat32 g;
+				stream >> g;
+				scanline[x] = TPixel(g, g, g, 1);
 			}
 		}
 		else
 		{
-			num::Tfloat32 r, g, b;
-			for (TRaster::iterator i = first; i != last; ++i)
+			for (size_t x = 0; x < cols_; ++x)
 			{
+				num::Tfloat32 r, g, b;
 				stream >> r >> g >> b;
-				i->r = r;
-				i->g = g;
-				i->b = b;
-				i->a = 1;
+				scanline[x] = TPixel(r, g, b, 1);
 			}
 		}
 	}
@@ -1260,13 +1254,12 @@ BinaryOStream& Image::saveLass(BinaryOStream& stream) const
 	const num::Tfloat32 c = colorSpace_.gamma;
 	stream << c;
 
-	num::Tfloat32 r, g, b, a;
 	for (TRaster::const_iterator i = raster_.begin(); i != raster_.end(); ++i)
 	{
-		r = i->r;
-		g = i->g;
-		b = i->b;
-		a = i->a;
+		const num::Tfloat32 r = i->r;
+		const num::Tfloat32 g = i->g;
+		const num::Tfloat32 b = i->b;
+		const num::Tfloat32 a = i->a;
 		stream << r << g << b << a;
 	}
 
@@ -1488,15 +1481,15 @@ BinaryOStream& Image::savePfm(BinaryOStream& stream) const
 
 	EndiannessSetter(stream, header.endianness);
 
-	for (size_t k = rows_; k > 0; --k)
+	for (size_t y = rows_; y > 0; --y)
 	{
-		const TRaster::const_iterator first = raster_.begin() + (k - 1) * cols_;
-		const TRaster::const_iterator last = first + cols_;
-		for (TRaster::const_iterator i = first; i != last; ++i)
+		const TPixel* scanline = &raster_[(y - 1) * cols_];
+		for (size_t x = 0; x < cols_; ++x)
 		{
-			const num::Tfloat32 r = i->r;
-			const num::Tfloat32 g = i->g;
-			const num::Tfloat32 b = i->b;
+			const TPixel& p = scanline[x];
+			const num::Tfloat32 r = p.r;
+			const num::Tfloat32 g = p.g;
+			const num::Tfloat32 b = p.b;
 			stream << r << g << b;
 		}
 	}
@@ -1516,7 +1509,7 @@ BinaryOStream& Image::saveIgi(BinaryOStream& stream) const
 	header.height = num::numCast<num::Tuint32>(rows_);
 	header.superSampling = 1;
 	header.zipped = 0;
-	header.dataSize = num::numCast<num::Tuint32>(12 * rows_ * cols_);
+	header.dataSize = num::numCast<num::Tint32>(12 * rows_ * cols_);
 	header.rgb = colorSpace_ == xyzColorSpace() ? 0 : 1;
 	header.writeTo(stream);
 

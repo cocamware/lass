@@ -70,9 +70,9 @@ namespace test
 namespace tree_test_helpers
 {
 
-template <size_t maxSize> struct StaticSplitHeuristics: spat::DefaultSplitHeuristics
+template <size_t maxSize, size_t maxDepth> struct StaticSplitHeuristics: spat::DefaultSplitHeuristics
 {
-	StaticSplitHeuristics(): spat::DefaultSplitHeuristics(maxSize) {}
+	StaticSplitHeuristics(): spat::DefaultSplitHeuristics(maxSize, maxDepth) {}
 };
 
 
@@ -502,7 +502,7 @@ public:
 			for (typename Targets::const_iterator i = targets_.begin(); i != end; ++i)
 			{
 				typename TNeighbours::iterator last = tree.rangeSearch(*i, maxRadius_, maxCount_, hits.begin());
-				count += (last - hits.begin());
+				count += static_cast<size_t>(last - hits.begin());
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop();

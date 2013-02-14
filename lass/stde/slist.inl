@@ -637,7 +637,7 @@ slist<T, Alloc>::insert_after(iterator position, const T& value)
  *  @b complexity: O(N) with N = @a n.
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::insert_after(iterator position, size_type n, const T& value)
+void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_type& value)
 {
 	node_base_t* node = position.node_;
 	for (size_type i = 0; i < n; ++i)
@@ -1263,16 +1263,10 @@ void slist<T, Alloc>::splice_after(node_base_t* position, node_base_t* before_fi
 /** @internal
  */
 template <typename T, class Alloc>
-void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_type& value,
-								   meta::Wrap<meta::True>)
+template <typename IntegerType>
+void slist<T, Alloc>::insert_after(iterator position, IntegerType n, IntegerType value, meta::Wrap<meta::True>)
 {
-	node_base_t* node = position.node_;
-	for (size_type i = 0; i < n; ++i)
-	{
-		node_t* new_node = make_node(value);
-		link_after(node, new_node);
-		node = new_node;
-	}
+	insert_after(position, static_cast<size_t>(n), static_cast<value_type>(value));
 }
 
 
@@ -1281,8 +1275,7 @@ void slist<T, Alloc>::insert_after(iterator position, size_type n, const value_t
  */
 template <typename T, class Alloc>
 template <typename InputIterator>
-void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last,
-								   meta::Wrap<meta::False>)
+void slist<T, Alloc>::insert_after(iterator position, InputIterator first, InputIterator last, meta::Wrap<meta::False>)
 {
 	while (first != last)
 	{

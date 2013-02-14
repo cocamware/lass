@@ -146,7 +146,7 @@ if(MSVC)
 elseif(SUNPRO)
 	set(lass_C_FLAGS "-errtags=yes -erroff=wbadinit,wbadasg,badargtype2w,")
 else()
-	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion")
+	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion -Wno-unknown-pragmas")
 endif()
 
 if (BUILD_WITHOUT_ITERATOR_DEBUGGING)

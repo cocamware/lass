@@ -131,7 +131,7 @@ void testSpatObjectTreesSpeed(
 	meta::tuple::forEach(trees, rangeSearchSpeedTest);
 }
 
-
+/*
 template 
 <
 	typename ObjectTreesType, 
@@ -147,6 +147,7 @@ void testSpatObjectTreesContain(
 	typedef typename AabbType::TVector TVector;
 	enum { dimension = AabbType::dimension };
 }
+*/
 
 template <typename T, size_t dim>
 void testSpatObjectTrees()
@@ -219,7 +220,7 @@ void testSpatObjectTrees()
 
 	// contain test
 	//
-	for (unsigned i = 0; i < numberOfContainValidations; ++i)
+	for (size_t i = 0; i < numberOfContainValidations; ++i)
 	{
 		const TPoint target = bounds.random(generator);
 		TObjectHits bruteHits;
@@ -238,7 +239,7 @@ void testSpatObjectTrees()
 
 	// aabb find test
 	//
-	for (unsigned i = 0; i < numberOfAabbFindValidations; ++i)
+	for (size_t i = 0; i < numberOfAabbFindValidations; ++i)
 	{
 		const TPoint center(bounds.random(generator));
 		const TVector extents = tree_test_helpers::randomExtents<TVector>(maxRangeRadius, generator);
@@ -258,7 +259,7 @@ void testSpatObjectTrees()
 
 	// intersection test
 	//
-	for (unsigned i = 0; i < numberOfIntersectionValidations; ++i)
+	for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 	{
 		TPoint support = bounds.random(generator);
 		TVector direction = TVector::random(generator);
@@ -283,7 +284,7 @@ void testSpatObjectTrees()
 
 	// nearest neighbour test
 	//
-	for (unsigned i = 0; i < numberOfNearestNeighbourValidations; ++i)
+	for (size_t i = 0; i < numberOfNearestNeighbourValidations; ++i)
 	{
 		TPoint point = bounds.random(generator);
 
@@ -308,7 +309,7 @@ void testSpatObjectTrees()
 	typedef tree_test_helpers::Neighbour<TObjectIterator, T> TNeighbour;
 	typedef std::vector<TNeighbour> TNeighbours;
 	TNeighbours bruteHits;
-	for (unsigned i = 0; i < numberOfRangeSearchValidations; ++i)
+	for (size_t i = 0; i < numberOfRangeSearchValidations; ++i)
 	{
 		const TPoint target = bounds.random(generator);
 		bruteHits.clear();

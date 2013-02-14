@@ -165,7 +165,7 @@ void testPrimSimplePolygon2D()
 	points.push_back(TPoint(0, 0));
 	polygon = TPolygon(points.begin(), points.end());
 	LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(5));
-	for (int i = 0; i < 5; ++i)
+	for (size_t i = 0; i < 5; ++i)
 	{
 		LASS_TEST_CHECK_EQUAL(polygon[i], points[i]);
 	}

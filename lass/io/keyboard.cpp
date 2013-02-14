@@ -113,7 +113,7 @@ bool keyboardIsHit()
 #elif defined(LASS_IO_KEYBOARD_HAVE_TERMIOS_H_AND_IOCTL_H)
         impl::TerminalAttributeSaver attributeSaver;
         termios rawMode = attributeSaver.savedAttributes();
-        rawMode.c_lflag &= ~ICANON;
+        rawMode.c_lflag &= ~static_cast<tcflag_t>(ICANON);
         LASS_ENFORCE_CLIB(tcsetattr(STDIN_FILENO, TCSANOW, &rawMode));
 
         int count = 0;
@@ -134,8 +134,8 @@ int keyboardGetKey()
 #elif defined(LASS_IO_KEYBOARD_HAVE_TERMIOS_H_AND_IOCTL_H)
         impl::TerminalAttributeSaver attributeSaver;
         termios rawMode = attributeSaver.savedAttributes();
-        rawMode.c_lflag &= ~ICANON;
-        rawMode.c_lflag &= ~ECHO;
+        rawMode.c_lflag &= ~static_cast<tcflag_t>(ICANON);
+        rawMode.c_lflag &= ~static_cast<tcflag_t>(ECHO);
         rawMode.c_cc[VMIN]  = 1; // block for input
         rawMode.c_cc[VTIME] = 0; // timer is ignored
         LASS_ENFORCE_CLIB(tcsetattr(STDIN_FILENO, TCSANOW, &rawMode));

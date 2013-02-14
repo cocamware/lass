@@ -52,7 +52,7 @@ namespace util
 /** @param iDescriptor description printed at begin of the line
  *  @param iConsoleWidth maximum number of characters on one console text line (default=80)
  */
-ProgressIndicator::ProgressIndicator(const std::string& iDescription, int iConsoleWidth):
+ProgressIndicator::ProgressIndicator(const std::string& iDescription, size_t iConsoleWidth):
 	avgStepDuration_(0.f),
 	previousTimeElapsed_(0.f),
 	description_(iDescription),

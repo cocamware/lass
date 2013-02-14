@@ -437,7 +437,7 @@ struct PyExportTraitsUnsigned
 		const long x = static_cast<long>(v);
 		if (x >= 0)
 		{
-			return PyInt_FromLong(v);
+			return PyInt_FromLong(x);
 		}
 #endif
 		return PyLong_FromUnsignedLong(v);
@@ -559,7 +559,7 @@ struct PyExportTraits<unsigned PY_LONG_LONG>
 				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 				return 1;
 			}
-			v = x;
+			v = static_cast<unsigned PY_LONG_LONG>(x);
 			return 0;
 		}
 #endif
@@ -656,7 +656,7 @@ struct PyExportTraits< std::complex<T> >
 	static int get(PyObject* obj, std::complex<T>& v)
 	{
 		T re, im;
-		if (pyGetSimpleObject(obj, re) == 0)
+		if (PyExportTraits<T>::get(obj, re) == 0)
 		{
 			v = std::complex<T>(re, 0);
 			return 0;
@@ -721,7 +721,11 @@ struct PyExportTraits<std::string>
 {
 	static PyObject* build(const std::string& v)
 	{
-		return PyExportTraits<std::string::const_pointer>::build(v.c_str());
+#if PY_MAJOR_VERSION < 3
+		return PyString_FromStringAndSize( v.data(), static_cast<Py_ssize_t>( v.size() ) );
+#else
+		return PyBytes_FromStringAndSize( v.data(), static_cast<Py_ssize_t>( v.size() ) );
+#endif
 	}
 	static int get(PyObject* obj, std::string& v)
 	{
@@ -730,8 +734,8 @@ struct PyExportTraits<std::string>
 		{
 			// explicitly copying into data as some the std::string(char*) assumes a zero terminated C-str
 			// which is too limiting
-			v.resize( PyString_GET_SIZE(obj), '\0' );
-			memcpy(&v[0], PyString_AS_STRING(obj), v.size());
+			v.resize(static_cast<size_t>(PyString_GET_SIZE(obj)), '\0' );
+			memcpy( &v[0], PyString_AS_STRING(obj), v.size());
 			return 0;
 		}
 #endif
@@ -746,10 +750,10 @@ struct PyExportTraits<std::string>
 			return 1;
 		}
 #if PY_MAJOR_VERSION < 3
-		v.resize( PyString_GET_SIZE(s.get()), '\0' );
+		v.resize( static_cast<size_t>(PyString_GET_SIZE(s.get())), '\0' );
 		memcpy(&v[0], PyString_AS_STRING(s.get()), v.size());
 #else
-		v.resize( PyBytes_GET_SIZE(s.get()), '\0' );
+		v.resize( static_cast<size_t>(PyBytes_GET_SIZE(s.get())), '\0' );
 		memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
 #endif
 		return 0;
@@ -764,7 +768,13 @@ struct PyExportTraits<const wchar_t*>
 {
 	static PyObject* build(const wchar_t* v)
 	{
-		return PyUnicode_FromWideChar(v, wcslen(v) );
+		const Py_ssize_t n = static_cast<Py_ssize_t>(wcslen(v));
+		if (n < 0)
+		{
+			PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
+			return 0;
+		}
+		return PyUnicode_FromWideChar(v, n );
 	}
 };
 
@@ -790,7 +800,13 @@ struct PyExportTraits<std::wstring>
 {
 	static PyObject* build(const std::wstring& v)
 	{
-		return PyUnicode_FromWideChar( v.data(), v.length() );
+		const Py_ssize_t n = static_cast<Py_ssize_t>( v.length() );
+		if (n < 0)
+		{
+			PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
+			return 0;
+		}
+		return PyUnicode_FromWideChar( v.data(), n );
 	}
 	static int get(PyObject* obj, std::wstring& v)
 	{
@@ -814,46 +830,23 @@ struct PyExportTraits<std::wstring>
 			return 1;
 		}
 #if PY_VERSION_HEX < 0x03020000 // < 3.2
-		Py_ssize_t n = PyUnicode_GET_SIZE(obj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
+		PyUnicodeObject* uobj = (PyUnicodeObject*) obj;
+		Py_ssize_t n = PyUnicode_GET_SIZE(uobj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
 #else
-		Py_ssize_t n = PyUnicode_AsWideChar(obj, 0, 0) - 1; // takes care of UTF-16 and UTF-32 conversions
+		PyObject* uobj = obj; // cast no longer necessary, and maybe not even safe.
+		Py_ssize_t n = PyUnicode_AsWideChar(uobj, 0, 0) - 1; // takes care of UTF-16 and UTF-32 conversions
 #endif
-		LASS_ASSERT(n >= 0);
 		if (n == 0)
 		{
 			v = std::wstring();
 			return 0;
 		}
 		std::wstring tmp(static_cast<size_t>(n), '\0');
-		if (PyUnicode_AsWideChar(obj, &tmp[0], n) == -1)
+		if (PyUnicode_AsWideChar(uobj, &tmp[0], n) == -1)
 		{
 			return 1;
 		}
 		v.swap(tmp);
-		return 0;
-	}
-};
-
-
-// --- pairs ---------------------------------------------------------------------------------------
-
-/** @ingroup Python
- *  std::pair translates to a tuple by copy.
- */
-template <typename T1, typename T2>
-struct PyExportTraits< std::pair<T1, T2> >
-{
-	static PyObject* build(const std::pair<T1, T2>& v)
-	{
-		return fromSharedPtrToNakedCast(makeTuple(v.first, v.second));
-	}
-	static int get(PyObject* obj, std::pair<T1, T2>& v)
-	{
-		if (decodeTuple(obj, v.first, v.second) != 0)
-		{
-			impl::addMessageHeader("pair");
-			return 1;
-		}
 		return 0;
 	}
 };

@@ -400,7 +400,7 @@ void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink&) 
 {
 #if PY_MAJOR_VERSION < 3
 	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_nonzero);

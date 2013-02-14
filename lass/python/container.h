@@ -74,9 +74,11 @@ struct ContainerTraitsBase
 	typedef typename Container::value_type value_type;
 	typedef typename Container::const_iterator const_iterator;
 	typedef typename Container::iterator iterator;
-	static size_t size(const container_type& c)
+	static Py_ssize_t size(const container_type& c)
 	{
-		return c.size();
+		const Py_ssize_t size = static_cast<Py_ssize_t>(c.size());
+		LASS_ASSERT(size >= 0);
+		return size;
 	}
 	static const const_iterator begin(const container_type& c) 
 	{ 
@@ -109,7 +111,7 @@ struct ContainerTraitsBase
 	{
 		c.clear();
 	}
-	static void reserve(container_type& /*c*/, size_t /*n*/) 
+	static void reserve(container_type& /*c*/, Py_ssize_t /*n*/) 
 	{
 	}
 	static const util::SharedPtr<container_type> copy(const container_type& c) 
@@ -131,9 +133,10 @@ template <typename T, typename A>
 struct ContainerTraits< std::vector<T, A> >: ContainerTraitsBase< std::vector<T, A> >
 {
 	typedef typename ContainerTraitsBase< std::vector<T, A> >::container_type container_type;
-	static void reserve( container_type& c, size_t n ) 
+	static void reserve( container_type& c, Py_ssize_t n ) 
 	{ 
-		c.reserve(n); 
+		LASS_ASSERT(n >= 0);
+		c.reserve(static_cast<size_t>(n)); 
 	}	
 };
 
@@ -173,9 +176,7 @@ public:
 	}
 	Py_ssize_t length() const
 	{
-		const Py_ssize_t size = static_cast<Py_ssize_t>(TContainerTraits::size(*container_));
-		LASS_ASSERT(size >= 0);
-		return size;
+		return TContainerTraits::size(*container_);
 	}
 	PyObject* items() const
 	{

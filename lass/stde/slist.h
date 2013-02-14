@@ -235,7 +235,8 @@ private:
 	void splice_after(node_base_t* position, node_base_t* before_first,
 		node_base_t* before_last) const;
 
-	void insert_after(iterator position, size_type n, const value_type& value,
+	template <typename IntegerType>
+	void insert_after(iterator position, IntegerType n, IntegerType value,
 		meta::Wrap<meta::True> parameter_is_integral);
 	template <typename InputIterator> void insert_after(iterator position, InputIterator first,
 		InputIterator last, meta::Wrap<meta::False> parameter_is_iterator);

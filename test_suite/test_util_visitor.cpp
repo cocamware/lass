@@ -103,10 +103,12 @@ namespace util_visitor
 		int lists_;
 
 	private:
-		void doPreVisit(DocElement&) { ++docElements_; }
-		void doPreVisit(Paragraph&) { ++paragraphs_; }
-		void doPreVisit(List&) { ++lists_; }
-		void doPostVisit(List&) { LASS_COUT << "visit on exit\n"; }
+		void doPreVisit(DocElement&) { LASS_COUT << "enter docelement\n"; ++docElements_; }
+		void doPreVisit(Paragraph&) { LASS_COUT << "enter paragraph\n"; ++paragraphs_; }
+		void doPreVisit(List&) { LASS_COUT << "enter list\n"; ++lists_; }
+		void doPostVisit(DocElement&) { LASS_COUT << "exit docelement\n"; }
+		void doPostVisit(Paragraph&) { LASS_COUT << "exit paragraph\n"; }
+		void doPostVisit(List&) { LASS_COUT << "exit list\n"; }
 	};
 }
 

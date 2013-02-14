@@ -269,11 +269,11 @@ namespace spat
 		};
 		class StackIncrementer
 		{
-			int*    stackDepth_;    /**< pointer to int containing real stack depth */
-			int     maxStackDepth_; /**< maximum allowed stack depth */
+			size_t*    stackDepth_;    /**< pointer to int containing real stack depth */
+			size_t     maxStackDepth_; /**< maximum allowed stack depth */
 			StackIncrementer() {}
 		public:
-			StackIncrementer( int* iStackVar, int iMaxStackDepth ) : stackDepth_(iStackVar), maxStackDepth_( iMaxStackDepth )
+			StackIncrementer( size_t* iStackVar, size_t iMaxStackDepth ) : stackDepth_(iStackVar), maxStackDepth_( iMaxStackDepth )
 			{
 				++(*stackDepth_);
 				if (*stackDepth_>maxStackDepth_)
@@ -409,7 +409,7 @@ namespace spat
 		T		tolerance_;
 		T		pointDistanceTolerance_;
 		long    edgeCount_;
-		int     stackDepth_;
+		size_t     stackDepth_;
 
 
 		mutable experimental::ResetableThreadLocalVariable<TEdge*> lastLocateEdge_;
@@ -1455,8 +1455,8 @@ continueSearch:
 				// [TODO] Optimize
 				// this for loop is introduced for point location in non-triangular, general
 				// convex cells
-				size_t loopOrder = chainOrder(e)-2;
-				for (size_t i=0;i<loopOrder;++i)
+				int loopOrder = chainOrder(e)-2;
+				for (int i=0;i<loopOrder;++i)
 				{
 					if ( fastLeftOf( iPoint, ce->dPrev()) )
 					{
@@ -2409,7 +2409,7 @@ continueSearch:
 
 	/** marks all faces which have their barycentrum inside the given polygon with the provided handle */
 	TEMPLATE_DEF
-	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle())
+	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle)
 	{	
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
@@ -2499,7 +2499,7 @@ continueSearch:
 
 
 	TEMPLATE_DEF
-	bool  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle = FaceHandle())
+	bool  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle)
 	{	
 		TPoint2D bary = polygon(iStartEdge).surfaceCentroid().affine();
 		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
@@ -2521,7 +2521,6 @@ continueSearch:
 	bool  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::floodPolygonCallback( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle, const TEdgePolyFaceHandleCallback& iCallback )
 	{	
 		*lastFloodEdge_ = iStartEdge;
-		bool r = true;
 		TPoint2D bary = polygon(iStartEdge).surfaceCentroid().affine();
 		if (iPolygon.contains(bary) && !internalMarking(iStartEdge))
 		{

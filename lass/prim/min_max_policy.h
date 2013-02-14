@@ -273,7 +273,7 @@ struct UncheckedMinMax
 	/** set value @a oMin to @a iMin and move @a ioMax (if necessary) so it stays correct.
 	 */
 	template <typename PointType>
-	static void setMin(PointType& oMin, PointType& ioMax, const PointType& iMin)
+	static void setMin(PointType& oMin, PointType& /*ioMax*/, const PointType& iMin)
 	{
 		oMin = iMin;
 	}
@@ -281,7 +281,7 @@ struct UncheckedMinMax
 	/** set value @a oMax to @a iMax and move @a ioMin (if necessary) so it stays correct.
 	 */
 	template <typename PointType>
-	static void setMax(PointType& ioMin, PointType& oMax, const PointType& iMax)
+	static void setMax(PointType& /*ioMin*/, PointType& oMax, const PointType& iMax)
 	{
 		oMax = iMax;
 	}

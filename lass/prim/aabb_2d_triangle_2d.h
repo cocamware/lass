@@ -80,8 +80,8 @@ bool intersects(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
 	typedef typename Triangle2D<T>::TPoint TPoint;
 	typedef typename Triangle2D<T>::TVector TVector;
 	typedef typename Triangle2D<T>::TValue TValue;
-	int k1 = 1, k2 = 2;
-	for (int k0 = 0; k0 < 3; ++k0)
+	size_t k1 = 1, k2 = 2;
+	for (size_t k0 = 0; k0 < 3; ++k0)
 	{
 		const TPoint& tail = triangle[k0];
 		const TVector edge = triangle[k1] - tail;
@@ -141,8 +141,8 @@ bool collides(const Triangle2D<T>& triangle, const Aabb2D<T, MMP>& box)
 	typedef typename Triangle2D<T>::TPoint TPoint;
 	typedef typename Triangle2D<T>::TVector TVector;
 	typedef typename Triangle2D<T>::TValue TValue;
-	int k1 = 1, k2 = 2;
-	for (int k0 = 0; k0 < 3; ++k0)
+	size_t k1 = 1, k2 = 2;
+	for (size_t k0 = 0; k0 < 3; ++k0)
 	{
 		const TPoint& tail = triangle[k0];
 		const TVector edge = triangle[k1] - tail;

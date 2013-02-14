@@ -65,7 +65,7 @@ void addMessageHeader(const char* header)
 		if (PyUnicode_Check(value))
 		{
 			std::string left = std::string(header) + ": ";
-			TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), left.length(), 0));
+			TPyObjPtr pyLeft(PyUnicode_DecodeUTF8(left.data(), static_cast<Py_ssize_t>(left.length()), 0));
 			PyObject* newValue = PyUnicode_Concat(pyLeft.get(), value);
 			std::swap(value, newValue);
 			Py_DECREF(newValue);

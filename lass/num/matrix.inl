@@ -696,9 +696,9 @@ void Matrix<T, S>::invert()
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_ENFORCE(isSquare());
 
-	const TSize n = rows();
+	const ptrdiff_t n = static_cast<ptrdiff_t>(rows());
 	Matrix<T> lu(*this);
-	std::vector<size_t> index(n);
+	std::vector<ptrdiff_t> index(n);
 	int d;
 
 	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
@@ -709,7 +709,7 @@ void Matrix<T, S>::invert()
 	setIdentity(n);
 	for (TSize i = 0; i < n; ++i)
 	{
-		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), column(i), n);
+		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), column(i).begin(), n);
 	}
 }
 
@@ -1006,9 +1006,9 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 	LASS_ENFORCE(a.isSquare());
 	LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(a, bx);
 
-	size_t n = a.rows();
+	const size_t n = a.rows();
 	Matrix<T> lu(a);
-	std::vector<size_t> pivot(n);
+	std::vector<ptrdiff_t> pivot(n);
 	int d;
 
 	Matrix<T> aa;
@@ -1019,7 +1019,7 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 		bcol.resize(n);
 	}
 
-	if (!impl::ludecomp<T>(lu.storage().rowMajor(), pivot.begin(), n, d))
+	if (!impl::ludecomp<T>(lu.storage().rowMajor(), pivot.begin(), static_cast<ptrdiff_t>(n), d))
 	{
 		LASS_THROW_EX(util::SingularityError, "failed to solve matrix equation");
 	}
@@ -1035,10 +1035,10 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 				bcol[j] = xcol[j];
 			}
 		}
-		impl::lusolve<T>(lu.storage().rowMajor(), pivot.begin(), xcol, n);
+		impl::lusolve<T>(lu.storage().rowMajor(), pivot.begin(), xcol.begin(), static_cast<ptrdiff_t>(n));
 		if (improve)
 		{
-			impl::lumprove<T>(aa.storage().rowMajor(), lu.storage().rowMajor(), pivot.begin(), bcol.begin(), xcol, n);
+			impl::lumprove<T>(aa.storage().rowMajor(), lu.storage().rowMajor(), pivot.begin(), bcol.begin(), xcol.begin(), static_cast<ptrdiff_t>(n));
 		}
 	}
 }

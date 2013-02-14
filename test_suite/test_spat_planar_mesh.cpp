@@ -385,7 +385,7 @@ void testSpatPlanarMesh()
 	lass::io::MatlabOStream testIo;
 	lass::io::MatlabOStream testIo2;
 
-	for (int i=0;i<int(randomPoints.size());++i)
+	for (size_t i=0;i<randomPoints.size();++i)
 		testMesh.insertSite( randomPoints[i], false );
 
 	testIo.open( "testPlanarMeshIO_nonDelaunay.m" );
@@ -394,7 +394,7 @@ void testSpatPlanarMesh()
 
 	testMesh.forAllEdges( TPlanarMesh::TEdgeCallback( TestPropertiesDouble )  );
 
-	for (int i=0;i<int(randomPoints.size());++i)
+	for (size_t i=0;i<randomPoints.size();++i)
 		testMesh2.insertSite( randomPoints[i], true );
 
 	testIo2.open( "testPlanarMeshIO_Delaunay.m" );

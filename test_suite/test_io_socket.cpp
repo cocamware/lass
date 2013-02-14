@@ -54,13 +54,13 @@ namespace test
 namespace socket
 {
 
-typedef short int TPort;
+typedef io::Socket::TPort TPort;
 
 const TPort portBegin = 7331;
 const TPort portEnd = 7431;
 volatile TPort port = 0;
 
-const int numberSentServerToClient = 01234;	
+const int numberSentServerToClient = 01234;
 const int numberSentClientToServer = 56789;
 const std::string messageSentClientToServer = "Hi there, how are you?";
 const std::string messageSentServerToClient = "I'm fine.";
@@ -100,7 +100,7 @@ void serverThread()
 	}
 	catch (io::SocketError&)
 	{
-		port = -1;
+		port = 0;
 		throw;
 	}
 	LASS_COUT << "binded to port " << port << std::endl;

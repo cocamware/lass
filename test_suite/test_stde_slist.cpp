@@ -71,7 +71,7 @@ void testStdeSlist()
 	slist_type::const_iterator i = n_list.begin();
 	for (slist_type::size_type k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_list.end());
+		LASS_TEST_CHECK(i != n_list.end());
 		if (i != n_list.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);
@@ -86,7 +86,7 @@ void testStdeSlist()
 	i = array_list.begin();
 	for (slist_type::size_type k = 0; k < array_size; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != array_list.end());
+		LASS_TEST_CHECK(i != array_list.end());
 		if (i != array_list.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, array[k]);
@@ -130,7 +130,7 @@ void testStdeSlist()
 	i = n_list.begin();
 	for (slist_type::size_type k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_list.end());
+		LASS_TEST_CHECK(i != n_list.end());
 		if (i != n_list.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);
@@ -139,7 +139,7 @@ void testStdeSlist()
 	}
 	for (slist_type::size_type k = 0; k < m; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_list.end());
+		LASS_TEST_CHECK(i != n_list.end());
 		if (i != n_list.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 69);
@@ -152,7 +152,7 @@ void testStdeSlist()
 	i = n_list.begin();
 	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(i != n_list.end());
+		LASS_TEST_CHECK(i != n_list.end());
 		if (i != n_list.end()) // just a safety
 		{
 			LASS_TEST_CHECK_EQUAL(*i, 37);

@@ -104,7 +104,7 @@ bool fileDoesExist(const std::wstring& iFileName)
 	fclose(file);
 	return true;
 #else
-	fileDoesExist(util::wcharToUtf8(iFileName));
+	return fileDoesExist(util::wcharToUtf8(iFileName));
 #endif
 }
 

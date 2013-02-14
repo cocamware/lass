@@ -125,13 +125,13 @@ struct IntMod
 		return tempMod >= 0 ? tempMod : static_cast<TSigned>(tempMod + m);
 	}
 
-	static T eval(TSigned x, TUnsigned m)
+	static TUnsigned eval(TSigned x, TUnsigned m)
 	{
 		LASS_ASSERT(m > 0);
 		const TSigned signedMod = static_cast<TSigned>(m);
 		LASS_ASSERT(signedMod >= 0);
 		const TSigned tempMod = static_cast<TSigned>(x % signedMod);
-		return tempMod >= 0 ? tempMod : static_cast<TSigned>(tempMod + signedMod);
+		return static_cast<TUnsigned>(tempMod >= 0 ? tempMod : tempMod + signedMod);
 	}
 };
 
@@ -192,7 +192,7 @@ template <typename T> inline T pow(const T& x, const T& p)
 /** return log(x) / log(2)
  *  @ingroup BasicOps
  */
-template <typename T> inline T log2(const T& x, const T& p) 
+template <typename T> inline T log2(const T& x) 
 { 
 	return T(LASS_NUM_INVLOG2) * log(x);
 }
@@ -200,7 +200,7 @@ template <typename T> inline T log2(const T& x, const T& p)
 /** return log(x) / log(10)
  *  @ingroup BasicOps
  */
-template <typename T> inline T log10(const T& x, const T& p) 
+template <typename T> inline T log10(const T& x) 
 { 
 	return T(LASS_NUM_INVLOG10) * log(x);
 }
@@ -523,7 +523,7 @@ char pow(char x, unsigned char p)	{ return impl::IntPow<char>::eval(x, p); }	/**
 char div(char x, char m)			{ return impl::IntDiv<char>::eval(x, static_cast<signed char>(m)); }	/**< @ingroup BasicOps */
 char div(char x, unsigned char m)	{ return impl::IntDiv<char>::eval(x, m); }	/**< @ingroup BasicOps */
 char mod(char x, char m)			{ return impl::IntMod<char>::eval(x, static_cast<signed char>(m)); }	/**< @ingroup BasicOps */
-char mod(char x, unsigned char m)	{ return impl::IntMod<char>::eval(x, m); }	/**< @ingroup BasicOps */
+unsigned char mod(char x, unsigned char m)	{ return impl::IntMod<char>::eval(x, m); }	/**< @ingroup BasicOps */
 
 #else
 
@@ -557,7 +557,7 @@ signed char fractional(signed char /*x*/)			{ return 0; }									/**< @ingroup 
 signed char div(signed char x, signed char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
 signed char div(signed char x, unsigned char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
 signed char mod(signed char x, signed char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
-signed char mod(signed char x, unsigned char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
+unsigned char mod(signed char x, unsigned char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
 
 void inpfloor(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
 void inpceil(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
@@ -598,7 +598,7 @@ signed short fractional(signed short /*x*/)			{ return 0; }									/**< @ingrou
 signed short div(signed short x, signed short p)	{ return impl::IntDiv<short>::eval(x, p); }		/**< @ingroup BasicOps */
 signed short div(signed short x, unsigned short p)	{ return impl::IntDiv<short>::eval(x, p); }		/**< @ingroup BasicOps */
 signed short mod(signed short x, signed short p)	{ return impl::IntMod<short>::eval(x, p); }		/**< @ingroup BasicOps */
-signed short mod(signed short x, unsigned short p)	{ return impl::IntMod<short>::eval(x, p); }		/**< @ingroup BasicOps */
+unsigned short mod(signed short x, unsigned short p)	{ return impl::IntMod<short>::eval(x, p); }		/**< @ingroup BasicOps */
 
 void inpfloor(signed short& /*x*/)	{}			/**< @ingroup BasicOps */
 void inpceil(signed short& /*x*/)	{}			/**< @ingroup BasicOps */
@@ -639,7 +639,7 @@ signed int fractional(signed int /*x*/)			{ return 0; }								/**< @ingroup Bas
 signed int div(signed int x, signed int p)		{ return impl::IntDiv<int>::eval(x, p); }	/**< @ingroup BasicOps */
 signed int div(signed int x, unsigned int p)	{ return impl::IntDiv<int>::eval(x, p); }	/**< @ingroup BasicOps */
 signed int mod(signed int x, signed int p)		{ return impl::IntMod<int>::eval(x, p); }	/**< @ingroup BasicOps */
-signed int mod(signed int x, unsigned int p)	{ return impl::IntMod<int>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned int mod(signed int x, unsigned int p)	{ return impl::IntMod<int>::eval(x, p); }	/**< @ingroup BasicOps */
 
 void inpfloor(signed int& /*x*/)	{}			/**< @ingroup BasicOps */
 void inpceil(signed int& /*x*/)		{}			/**< @ingroup BasicOps */
@@ -680,7 +680,7 @@ signed long fractional(signed long /*x*/)			{ return 0; }								/**< @ingroup B
 signed long div(signed long x, signed long p)		{ return impl::IntDiv<long>::eval(x, p); }	/**< @ingroup BasicOps */
 signed long div(signed long x, unsigned long p)		{ return impl::IntDiv<long>::eval(x, p); }	/**< @ingroup BasicOps */
 signed long mod(signed long x, signed long p)		{ return impl::IntMod<long>::eval(x, p); }	/**< @ingroup BasicOps */
-signed long mod(signed long x, unsigned long p)		{ return impl::IntMod<long>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned long mod(signed long x, unsigned long p)		{ return impl::IntMod<long>::eval(x, p); }	/**< @ingroup BasicOps */
 
 void inpfloor(signed long& /*x*/)	{}			/**< @ingroup BasicOps */
 void inpceil(signed long& /*x*/)	{}			/**< @ingroup BasicOps */
@@ -733,7 +733,7 @@ signed long long fractional(signed long long /*x*/)			{ return 0; }								/**< 
 signed long long div(signed long long x, signed long long p)		{ return impl::IntDiv<long long>::eval(x, p); }	/**< @ingroup BasicOps */
 signed long long div(signed long long x, unsigned long long p)		{ return impl::IntDiv<long long>::eval(x, p); }	/**< @ingroup BasicOps */
 signed long long mod(signed long long x, signed long long p)		{ return impl::IntMod<long long>::eval(x, p); }	/**< @ingroup BasicOps */
-signed long long mod(signed long long x, unsigned long long p)		{ return impl::IntMod<long long>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned long long mod(signed long long x, unsigned long long p)		{ return impl::IntMod<long long>::eval(x, p); }	/**< @ingroup BasicOps */
 
 void inpfloor(signed long long& /*x*/)	{}			/**< @ingroup BasicOps */
 void inpceil(signed long long& /*x*/)	{}			/**< @ingroup BasicOps */

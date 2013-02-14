@@ -105,7 +105,7 @@ public:
 	}
 	WaitResult wait(unsigned long milliSeconds)
 	{
-		return pimpl_->condition_.wait() == waitSuccess && isBound() ? waitSuccess : waitTimeout;
+		return pimpl_->condition_.wait(milliSeconds) == waitSuccess && isBound() ? waitSuccess : waitTimeout;
 	}
 	
 	const T& operator()() const
@@ -114,7 +114,7 @@ public:
 		TLocker lock(pimpl_->mutex_);
 		if (pimpl_->isBadAlloc_)
 		{
-			throw std::bad_alloc("::lass::Future::bindError: failed to clone exception");
+			throw std::bad_alloc();
 		}
 		if (pimpl_->error_.get())
 		{

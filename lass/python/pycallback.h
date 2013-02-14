@@ -97,7 +97,7 @@ namespace impl
 		}
 
 		virtual void reset() { return callback_->reset(); }									// move to traits class, to discern multi and non-multi
-		virtual Py_ssize_t length() const { return callback_->size(); };				// move to traits class, to discern multi and non-multi
+		virtual Py_ssize_t length() const { return static_cast<Py_ssize_t>(callback_->size()); };				// move to traits class, to discern multi and non-multi
 
 		const std::type_info& type() const 
 		{ 
@@ -156,7 +156,7 @@ public:
 			new impl::MultiCallbackImpl<CallbackType>(callback,false));
 		init(pimpl);
 	}
-	template <typename CallbackType> MultiCallback( const util::SharedPtr<const CallbackType>& callback)
+	template <typename CallbackType> MultiCallback( const util::SharedPtr<const CallbackType>& /*callback*/)
 	{
 		// [TODO] untested
 		LASS_THROW("unsupported");

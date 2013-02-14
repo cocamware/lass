@@ -271,7 +271,7 @@ Orientation Triangle2D<T>::orientation() const
  *      triangles never have reflex vertices, so always returns false.
  */
 template <typename T>
-bool Triangle2D<T>::isReflex(int vertexIndex) const
+bool Triangle2D<T>::isReflex(int) const
 {
 	return false;
 }
@@ -334,7 +334,7 @@ const T squaredDistance(const Triangle2D<T>& triangle, const Point2D<T>& point)
 	typedef typename Triangle2D<T>::TNumTraits TNumTraits;
 
 	TValue sqrBest = TNumTraits::infinity;
-	for (int k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
+	for (size_t k1 = 0, k0 = 2; k1 < 3; k0 = k1++)
 	{
 		const TPoint& tail = triangle[k0];
 		const TPoint& head = triangle[k1];
