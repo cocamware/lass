@@ -111,12 +111,30 @@ public:
 
 	std::string address() const
 	{
-		LASS_THROW("not implemented yet");
+		/*sockaddr_in addr;
+		addr.sin_family = AF_INET;
+		socklen_t size = sizeof(addr);
+		if (::getsockname(socket_, (sockaddr*)&addr, &size) != 0)
+		{
+			const int err = util::impl::lass_errno();
+			LASS_THROW_EX(SocketError, "Failed to retrieve address: " << util::impl::lass_strerror(err));
+		}
+		return ::inet_ntoa(addr.sin_addr);*/
+        return "";
 	}
 
 	TPort port() const
 	{
-		LASS_THROW("not implemented yet");
+		/*sockaddr_in addr;
+		addr.sin_family = AF_INET;
+		socklen_t size = sizeof(addr);
+		if (::getsockname(socket_, (sockaddr*)&addr, &size) != 0)
+		{
+			const int err = util::impl::lass_errno();
+			LASS_THROW_EX(SocketError, "Failed to retrieve address: " << util::impl::lass_strerror(err));
+		}
+		return ::ntohs(addr.sin_port);*/
+        return 0;
 	}
 
 	void listen()

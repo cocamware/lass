@@ -236,7 +236,7 @@ inline void inpfractional(char& x);
 
 inline char pow(char x, unsigned char p);
 inline char div(char x, unsigned char d);
-inline char mod(char x, unsigned char d);
+inline unsigned char mod(char x, unsigned char d);
 
 #else
 
@@ -259,7 +259,7 @@ inline signed char fractional(signed char x);
 inline signed char div(signed char x, signed char d);
 inline signed char div(signed char x, unsigned char d);
 inline signed char mod(signed char x, signed char d);
-inline signed char mod(signed char x, unsigned char d);
+inline unsigned char mod(signed char x, unsigned char d);
 
 inline void inpfloor(signed char& x);
 inline void inpceil(signed char& x);
@@ -298,7 +298,7 @@ inline signed short fractional(signed short x);
 inline signed short div(signed short x, signed short d);
 inline signed short div(signed short x, unsigned short d);
 inline signed short mod(signed short x, signed short d);
-inline signed short mod(signed short x, unsigned short d);
+inline unsigned short mod(signed short x, unsigned short d);
 
 inline void inpfloor(signed short& x);
 inline void inpceil(signed short& x);
@@ -337,7 +337,7 @@ inline signed int fractional(signed int x);
 inline signed int div(signed int x, signed int d);
 inline signed int div(signed int x, unsigned int d);
 inline signed int mod(signed int x, signed int d);
-inline signed int mod(signed int x, unsigned int d);
+inline unsigned int mod(signed int x, unsigned int d);
 
 inline void inpfloor(signed int& x);
 inline void inpceil(signed int& x);
@@ -376,7 +376,7 @@ inline signed long fractional(signed long x);
 inline signed long div(signed long x, signed long d);
 inline signed long div(signed long x, unsigned long d);
 inline signed long mod(signed long x, signed long d);
-inline signed long mod(signed long x, unsigned long d);
+inline unsigned long mod(signed long x, unsigned long d);
 
 inline void inpfloor(signed long& x);
 inline void inpceil(signed long& x);
@@ -417,7 +417,7 @@ inline signed long long fractional(signed long long x);
 inline signed long long div(signed long long x, signed long long d);
 inline signed long long div(signed long long x, unsigned long long d);
 inline signed long long mod(signed long long x, signed long long d);
-inline signed long long mod(signed long long x, unsigned long long d);
+inline unsigned long long mod(signed long long x, unsigned long long d);
 
 inline void inpfloor(signed long long& x);
 inline void inpceil(signed long long& x);

@@ -168,6 +168,32 @@ int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, $(P$x& p$
 }
 ]$
 
+
+
+// --- pairs ---------------------------------------------------------------------------------------
+
+/** @ingroup Python
+ *  std::pair translates to a tuple by copy.
+ */
+template <typename T1, typename T2>
+struct PyExportTraits< std::pair<T1, T2> >
+{
+	static PyObject* build(const std::pair<T1, T2>& v)
+	{
+		return fromSharedPtrToNakedCast(makeTuple(v.first, v.second));
+
+	}
+	static int get(PyObject* obj, std::pair<T1, T2>& v)
+	{
+		if (decodeTuple(obj, v.first, v.second) != 0)
+		{
+			impl::addMessageHeader("pair");
+			return 1;
+		}
+		return 0;
+	}
+};
+
 }
 
 }

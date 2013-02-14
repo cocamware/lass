@@ -47,6 +47,7 @@
 
 #include "num_common.h"
 #include "spline_cubic.h"
+#include "num_cast.h"
 #include "impl/matrix_solve.h"
 #include "../stde/extended_iterator.h"
 
@@ -392,7 +393,7 @@ void SplineCubic<S, D, T>::init()
 			unknowns[i] = 3 * (d0 / h[i] - d1 * (h[i] + h[i + 1]) / (h[i] * h[i + 1]) + d2 / h[i + 1]);
 		}
 		if (!num::impl::solveTridiagonal<TScalar>(\
-				ma.begin(), mb.begin(), mc.begin(), unknowns.begin(), temp.begin(), numUnknowns))
+				ma.begin(), mb.begin(), mc.begin(), unknowns.begin(), temp.begin(), numCast<ptrdiff_t>(numUnknowns)))
 		{
 			LASS_THROW("serious logic error, could not solve equation, contact [Bramz]");
 		}

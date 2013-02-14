@@ -175,9 +175,9 @@ OutputIterator TriangleMesh3D<T, BHV, SH>::indexTriangles(OutputIterator triangl
 		for (std::size_t k = 0; k < 3; ++k)
 		{
 			LASS_ASSERT(triangle->vertices[k]);
-			indexTriangle.vertices[k] = triangle->vertices[k] - &vertices_.front();
-			indexTriangle.normals[k] = triangle->normals[k] ? triangle->normals[k] - &normals_.front() : IndexTriangle::null();
-			indexTriangle.uvs[k] = triangle->uvs[k] ? triangle->uvs[k] - &uvs_.front() : IndexTriangle::null();
+			indexTriangle.vertices[k] = static_cast<size_t>(triangle->vertices[k] - &vertices_.front());
+			indexTriangle.normals[k] = triangle->normals[k] ? static_cast<size_t>(triangle->normals[k] - &normals_.front()) : IndexTriangle::null();
+			indexTriangle.uvs[k] = triangle->uvs[k] ? static_cast<size_t>(triangle->uvs[k] - &uvs_.front()) : IndexTriangle::null();
 		}
 		*triangles++ = indexTriangle;
 	}
@@ -368,7 +368,7 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 					{
 						newUv += beta * uvRing[j]->position();
 					}
-					newUvs[&uv - firstUv] = TUv(newUv);
+					newUvs[static_cast<size_t>(&uv - firstUv)] = TUv(newUv);
 				}
 			}
 		}
@@ -381,9 +381,9 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 		{
 			for (size_t k = 0; k < 3; ++k)
 			{
-				triangle->vertices[k] = &newVertices[triangle->vertices[k] - firstVertex];
-				triangle->normals[k] = triangle->normals[k] ? &newNormals[triangle->normals[k] - firstNormal] : 0;
-				triangle->uvs[k] = triangle->uvs[k] ? &newUvs[triangle->uvs[k] - firstUv] : 0;
+				triangle->vertices[k] = &newVertices[static_cast<size_t>(triangle->vertices[k] - firstVertex)];
+				triangle->normals[k] = triangle->normals[k] ? &newNormals[static_cast<size_t>(triangle->normals[k] - firstNormal)] : 0;
+				triangle->uvs[k] = triangle->uvs[k] ? &newUvs[static_cast<size_t>(triangle->uvs[k] - firstUv)] : 0;
 				triangle->creaseLevel[k] = triangle->creaseLevel[k] > 0 ? triangle->creaseLevel[k] - 1 : 0;
 			}
 		}
@@ -783,9 +783,9 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 template <typename IndexTriangleInputIterator>
 void TriangleMesh3D<T, BHV, SH>::buildMesh(IndexTriangleInputIterator first, IndexTriangleInputIterator last)
 {
-	const std::size_t sizeVertices = vertices_.size();
-	const std::size_t sizeNormals = normals_.size();
-	const std::size_t sizeUvs = uvs_.size();
+	const size_t sizeVertices = vertices_.size();
+	const size_t sizeNormals = normals_.size();
+	const size_t sizeUvs = uvs_.size();
 
 	for (; first != last; ++first)
 	{
@@ -797,10 +797,10 @@ void TriangleMesh3D<T, BHV, SH>::buildMesh(IndexTriangleInputIterator first, Ind
 			triangle.others[k] = 0;
 			triangle.creaseLevel[k] = 0;
 
-			const std::size_t vertex = first->vertices[k];
+			const size_t vertex = first->vertices[k];
 			triangle.vertices[k] = &vertices_[LASS_ENFORCE_INDEX(vertex, sizeVertices)];
 
-			const std::size_t normal = first->normals[k];
+			const size_t normal = first->normals[k];
 			if (normal != IndexTriangle::null())
 			{				
 				triangle.normals[k] = &normals_[LASS_ENFORCE_INDEX(normal, sizeNormals)];
@@ -811,10 +811,10 @@ void TriangleMesh3D<T, BHV, SH>::buildMesh(IndexTriangleInputIterator first, Ind
 				triangle.normals[k] = 0;
 			}
 
-			const std::size_t uv = first->uvs[k];
+			const size_t uv = first->uvs[k];
 			if (uv != IndexTriangle::null())
 			{
-				triangle.uvs[k] = &uvs_.begin()[LASS_ENFORCE_INDEX(uv, sizeUvs)];
+				triangle.uvs[k] = &uvs_[LASS_ENFORCE_INDEX(uv, sizeUvs)];
 				++numUvs;
 			}
 			else
@@ -851,7 +851,7 @@ void TriangleMesh3D<T, BHV, SH>::findVertexTriangles(TVertexTriangles& vertexTri
 		const Triangle& triangle = *i;
 		for (size_t k = 0; k < 3; ++k)
 		{
-			const size_t j = triangle.vertices[k] - firstVertex;
+			const size_t j = static_cast<size_t>(triangle.vertices[k] - firstVertex);
 			LASS_ASSERT(j < result.size());
 			result[j] = &triangle;
 		}
@@ -1095,9 +1095,9 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 		for (size_t k0 = 2, k1 = 0; k1 < 3; k0 = k1++)
 		{
 			const Triangle* const other = triangle.others[k0];
-			Triangle* const oddOther = other ? &newTriangles[4 * (other - firstTriangle) + 3] : 0;
-			const size_t h0 = other ? other->side(triangle.vertices[k1]) : size_t(-1);
-			const size_t h1 = other ? other->side(triangle.vertices[k0]) : size_t(-1);
+			Triangle* const oddOther = other ? &newTriangles[4 * static_cast<size_t>(other - firstTriangle) + 3] : 0;
+			const size_t h0 = other ? other->side(triangle.vertices[k1]) : IndexTriangle::null();
+			const size_t h1 = other ? other->side(triangle.vertices[k0]) : IndexTriangle::null();
 			LASS_ASSERT((h0 < 3 && h1 == (h0 + 1) % 3) || other == 0);
 
 			if (!oddTriangle.vertices[k0])
@@ -1142,18 +1142,18 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 		for (size_t k0 = 0, k1 = 1, k2 = 2; k0 < 3; k1 = k2, k2 = k0, ++k0)
 		{
 			Triangle& newTriangle = newTris[k0];
-			newTriangle.vertices[k0] = &newVertices[triangle.vertices[k0] - firstVertex];
+			newTriangle.vertices[k0] = &newVertices.begin()[triangle.vertices[k0] - firstVertex];
 			newTriangle.vertices[k1] = oddTriangle.vertices[k0];
 			newTriangle.vertices[k2] = oddTriangle.vertices[k2];
-			newTriangle.normals[k0] = triangle.normals[k0] ? &newNormals[triangle.normals[k0] - firstNormal] : 0;
+			newTriangle.normals[k0] = triangle.normals[k0] ? &newNormals.begin()[triangle.normals[k0] - firstNormal] : 0;
 			newTriangle.normals[k1] = oddTriangle.normals[k0];
 			newTriangle.normals[k2] = oddTriangle.normals[k2];
-			newTriangle.uvs[k0] = triangle.uvs[k0] ? &newUvs[triangle.uvs[k0] - firstUv] : 0;
+			newTriangle.uvs[k0] = triangle.uvs[k0] ? &newUvs.begin()[triangle.uvs[k0] - firstUv] : 0;
 			newTriangle.uvs[k1] = oddTriangle.uvs[k0];
 			newTriangle.uvs[k2] = oddTriangle.uvs[k2];
 			if (const Triangle* other0 = triangle.others[k0])
 			{
-				const size_t j = other0 - firstTriangle;
+				const size_t j = static_cast<size_t>(other0 - firstTriangle);
 				const size_t h = other0->side(triangle.vertices[k0]);
 				LASS_ASSERT(h < 3);
 				Triangle& newOther = newTriangles[4 * j + h];
@@ -1163,7 +1163,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide()
 			newTriangle.others[k1] = &oddTriangle;
 			if (const Triangle* other2 = triangle.others[k2])
 			{
-				const size_t j = other2 - firstTriangle;
+				const size_t j = static_cast<size_t>(other2 - firstTriangle);
 				const size_t h = other2->side(triangle.vertices[k0]);
 				LASS_ASSERT(h < 3);
 				Triangle& newOther = newTriangles[4 * j + h];
@@ -1221,7 +1221,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		for (size_t k = 0; k < 3; ++k)
 		{
 			const TPoint* vertex = triangle->vertices[k];
-			vertexTags[vertex - firstVertex] = Selected;
+			vertexTags.begin()[vertex - firstVertex] = Selected;
 		}
 	}
 
@@ -1233,9 +1233,9 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 	for (size_t i = 0; i < numTriangles; ++i)
 	{
 		const Triangle& triangle = triangles_[i];
-		unsigned& tag0 = vertexTags[triangle.vertices[0] - firstVertex];
-		unsigned& tag1 = vertexTags[triangle.vertices[1] - firstVertex];
-		unsigned& tag2 = vertexTags[triangle.vertices[2] - firstVertex];
+		unsigned& tag0 = vertexTags.begin()[triangle.vertices[0] - firstVertex];
+		unsigned& tag1 = vertexTags.begin()[triangle.vertices[1] - firstVertex];
+		unsigned& tag2 = vertexTags.begin()[triangle.vertices[2] - firstVertex];
 		if (tag0 == Selected || tag1 == Selected || tag2 == Selected)
 		{
 			tag0 = static_cast<VertexTag>(tag0 | Progressive);
@@ -1253,7 +1253,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		const Triangle& triangle = triangles_[i];
 		for (size_t k = 0; k < 3; ++k)
 		{
-			if (vertexTags[triangle.vertices[k] - firstVertex] == Unselected)
+			if (vertexTags.begin()[triangle.vertices[k] - firstVertex] == Unselected)
 			{
 				offspringCount[i] = 1;
 				break;
@@ -1274,15 +1274,15 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		for (size_t k = 0; k < 3; ++k)
 		{
 			const Triangle* other = triangle.others[k];
-			if (other && offspringCount[other - firstTriangle] == 4)
+			if (other && offspringCount.begin()[other - firstTriangle] == 4)
 			{
 #ifndef NDEBUG
 				const TPoint* v0 = triangle.vertices[k];
 				const TPoint* v1 = triangle.vertices[(k + 1) % 3];
 				const TPoint* v2 = triangle.vertices[(k + 2) % 3];
 				LASS_ASSERT(other->side(v0) < 3 && other->side(v1) < 3);
-				LASS_ASSERT(vertexTags[v0 - firstVertex] != Unselected && vertexTags[v1 - firstVertex] != Unselected);
-				LASS_ASSERT(vertexTags[v2 - firstVertex] == Unselected);
+				LASS_ASSERT(vertexTags.begin()[v0 - firstVertex] != Unselected && vertexTags.begin()[v1 - firstVertex] != Unselected);
+				LASS_ASSERT(vertexTags.begin()[v2 - firstVertex] == Unselected);
 #endif
 				offspringCount[i] = 2;
 				break;
@@ -1313,7 +1313,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 			const HalfEdge edge1(&triangle, k);
 			if (const HalfEdge other1 = edge1.sym())
 			{
-				const bool otherIsFourSplit = offspringCount[other1.triangle() - firstTriangle] == 4;
+				const bool otherIsFourSplit = offspringCount.begin()[other1.triangle() - firstTriangle] == 4;
 				numOddVertices += otherIsFourSplit ? 1 : 2; // if shared, count as "half double"
 
 				const HalfEdge edge2 = edge1.oNext();
@@ -1371,7 +1371,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		for (size_t k0 = 2, k1 = 0; k1 < 3; k0 = k1++)
 		{
 			const Triangle* const other = triangle.others[k0];
-			const size_t j = other ? other - firstTriangle : IndexTriangle::null();
+			const size_t j = other ? static_cast<size_t>(other - firstTriangle) : IndexTriangle::null();
 			const size_t h0 = other ? other->side(triangle.vertices[k1]) : IndexTriangle::null();
 			const size_t h1 = other ? other->side(triangle.vertices[k0]) : IndexTriangle::null();
 			LASS_ASSERT((h0 < 3 && h1 == (h0 + 1) % 3) || other == 0);
@@ -1420,18 +1420,18 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		for (size_t k0 = 0, k1 = 1, k2 = 2; k0 < 3; k1 = k2, k2 = k0, ++k0)
 		{
 			Triangle& newTriangle = newTris[k0];
-			newTriangle.vertices[k0] = &newVertices[triangle.vertices[k0] - firstVertex];
+			newTriangle.vertices[k0] = &newVertices.begin()[triangle.vertices[k0] - firstVertex];
 			newTriangle.vertices[k1] = oddTriangle.vertices[k0];
 			newTriangle.vertices[k2] = oddTriangle.vertices[k2];
-			newTriangle.normals[k0] = triangle.normals[k0] ? &newNormals[triangle.normals[k0] - firstNormal] : 0;
+			newTriangle.normals[k0] = triangle.normals[k0] ? &newNormals.begin()[triangle.normals[k0] - firstNormal] : 0;
 			newTriangle.normals[k1] = oddTriangle.normals[k0];
 			newTriangle.normals[k2] = oddTriangle.normals[k2];
-			newTriangle.uvs[k0] = triangle.uvs[k0] ? &newUvs[triangle.uvs[k0] - firstUv] : 0;
+			newTriangle.uvs[k0] = triangle.uvs[k0] ? &newUvs.begin()[triangle.uvs[k0] - firstUv] : 0;
 			newTriangle.uvs[k1] = oddTriangle.uvs[k0];
 			newTriangle.uvs[k2] = oddTriangle.uvs[k2];
 			if (const Triangle* other0 = triangle.others[k0])
 			{
-				const size_t j = other0 - firstTriangle;
+				const size_t j = static_cast<size_t>(other0 - firstTriangle);
 				LASS_ASSERT(offspringCount[j] == 4 || offspringCount[j] == 2);
 				if (offspringCount[j] == 4)
 				{
@@ -1445,7 +1445,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 			newTriangle.others[k1] = &oddTriangle;
 			if (const Triangle* other2 = triangle.others[k2])
 			{
-				const size_t j = other2 - firstTriangle;
+				const size_t j = static_cast<size_t>(other2 - firstTriangle);
 				LASS_ASSERT(offspringCount[j] == 4 || offspringCount[j] == 2);
 				if (offspringCount[j] == 4)
 				{
@@ -1480,14 +1480,14 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 		case 1:
 			for (size_t k = 0; k < 3; ++k)
 			{
-				newTris[0].vertices[k] = &newVertices[triangle.vertices[k] - firstVertex];
-				newTris[0].normals[k] = triangle.normals[k] ? &newNormals[triangle.normals[k] - firstNormal] : 0;
-				newTris[0].uvs[k] = triangle.uvs[k] ? &newUvs[triangle.uvs[k] - firstUv] : 0;
+				newTris[0].vertices[k] = &newVertices.begin()[triangle.vertices[k] - firstVertex];
+				newTris[0].normals[k] = triangle.normals[k] ? &newNormals.begin()[triangle.normals[k] - firstNormal] : 0;
+				newTris[0].uvs[k] = triangle.uvs[k] ? &newUvs.begin()[triangle.uvs[k] - firstUv] : 0;
 				if (const Triangle* const other = triangle.others[k])
 				{
-					const size_t j = other - firstTriangle;
+					const size_t j = static_cast<size_t>(other - firstTriangle);
 					LASS_ASSERT(offspringCount[j] == 1 || offspringCount[j] == 2);
-					const size_t dj = (offspringCount[j] == 2 && vertexTags[triangle.vertices[k] - firstVertex] == Unselected) ? 1 : 0;
+					const size_t dj = (offspringCount[j] == 2 && vertexTags.begin()[triangle.vertices[k] - firstVertex] == Unselected) ? 1 : 0;
 					newTris[0].others[k] = &newTriangles[newTriangleOffsets[j] + dj];
 				}
 				else
@@ -1503,26 +1503,27 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 				size_t k1 = IndexTriangle::null(), k2 = IndexTriangle::null();
 				for (size_t k = 0; k < 3; ++k)
 				{
-					newTris[0].vertices[k] = newTris[1].vertices[k] = &newVertices[triangle.vertices[k] - firstVertex];
-					newTris[0].normals[k] = newTris[1].normals[k] = triangle.normals[k] ? &newNormals[triangle.normals[k] - firstNormal] : 0;
-					newTris[0].uvs[k] = newTris[1].uvs[k] = triangle.uvs[k] ? &newUvs[triangle.uvs[k] - firstUv] : 0;
+					newTris[0].vertices[k] = newTris[1].vertices[k] = &newVertices.begin()[triangle.vertices[k] - firstVertex];
+					newTris[0].normals[k] = newTris[1].normals[k] = triangle.normals[k] ? &newNormals.begin()[triangle.normals[k] - firstNormal] : 0;
+					newTris[0].uvs[k] = newTris[1].uvs[k] = triangle.uvs[k] ? &newUvs.begin()[triangle.uvs[k] - firstUv] : 0;
 					if (const Triangle* const other = triangle.others[k])
 					{
-						// this may be wrong for the splitted side, but it'll be corrected in a splic second.  got it?  split second ...
-						const size_t j = other - firstTriangle;
-						const size_t dj = (offspringCount[j] == 2 && vertexTags[triangle.vertices[k] - firstVertex] == Unselected) ? 1 : 0;
+						// this may be wrong for the splitted side, but it'll be corrected in a split second.  got it?  split second ... nevermind.
+						const size_t j = static_cast<size_t>(other - firstTriangle);
+						const size_t dj = (offspringCount[j] == 2 && vertexTags.begin()[triangle.vertices[k] - firstVertex] == Unselected) ? 1 : 0;
 						newTris[0].others[k] = newTris[1].others[k] = &newTriangles[newTriangleOffsets[j] + dj];
 					}
 					else
 					{
 						newTris[0].others[k] = newTris[1].others[k] = 0;
 					}
-					if (vertexTags[triangle.vertices[k] - firstVertex] == Unselected)
+					if (vertexTags[static_cast<size_t>(triangle.vertices[k] - firstVertex)] == Unselected)
 					{
 						LASS_ASSERT(k1 == IndexTriangle::null() && k2 == IndexTriangle::null());
 						k1 = (k + 1) % 3;
 						k2 = (k + 2) % 3;
-						LASS_ASSERT(vertexTags[triangle.vertices[k1] - firstVertex] != Unselected && vertexTags[triangle.vertices[k2] - firstVertex] != Unselected);
+						LASS_ASSERT(vertexTags[static_cast<size_t>(triangle.vertices[k1] - firstVertex)] != Unselected);
+						LASS_ASSERT(vertexTags[static_cast<size_t>(triangle.vertices[k2] - firstVertex)] != Unselected);
 						newTris[1].others[k] = &newTris[0];
 					}
 				}
@@ -1531,7 +1532,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 
 				const Triangle* other = triangle.others[k1];
 				LASS_ASSERT(other);
-				const size_t j = other - firstTriangle;
+				const size_t j = static_cast<size_t>(other - firstTriangle);
 				LASS_ASSERT(offspringCount[j] == 4);
 				const size_t offJ = newTriangleOffsets[j];
 				Triangle& oddOther = newTriangles[offJ + 3];
@@ -1571,7 +1572,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 	selectedIndices.reserve(numSelected);
 	for (size_t i = 0; i < numSelected; ++i)
 	{
-		selectedIndices.push_back(selected[i] - triangles_.begin());
+		selectedIndices.push_back(static_cast<size_t>(selected[i] - triangles_.begin()));
 	}
 
 	triangles_.swap(newTriangles);
@@ -1585,8 +1586,8 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 	newSelected.reserve(4 * numSelected);
 	for (size_t i = 0; i < numSelected; ++i)
 	{
-		const TTriangleIterator t = triangles_.begin() + newTriangleOffsets[selectedIndices[i]];
-		for (size_t dt = 0; dt < 4; ++dt)
+		const TTriangleIterator t = triangles_.begin() + static_cast<ptrdiff_t>(newTriangleOffsets[selectedIndices[i]]);
+		for (int dt = 0; dt < 4; ++dt)
 		{
 			newSelected.push_back(t + dt);
 		}

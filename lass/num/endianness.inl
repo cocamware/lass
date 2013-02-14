@@ -116,7 +116,7 @@ struct EndianCaster
 template <size_t numOfBytes, Endianness endian>
 struct EndianCaster<numOfBytes, endian, endian>
 {
-	inline static void cast(void* ioIn)
+	inline static void cast(void* /*ioIn*/)
 	{
 	}
 };

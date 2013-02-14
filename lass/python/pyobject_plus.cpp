@@ -202,7 +202,6 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t 
  */
 PyObject* establishMagicalBackLinks(PyObject* result, PyObject* self)
 {
-
 	if (!result)
 	{
 		return 0;

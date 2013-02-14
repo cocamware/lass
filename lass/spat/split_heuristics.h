@@ -54,6 +54,7 @@ namespace impl
 	template <typename ObjectTraits> 
 	typename ObjectTraits::TValue aabbCenterForAxis(const typename ObjectTraits::TAabb& box, size_t axis)
 	{
+		LASS_ASSERT(axis >= 0);
 		return (ObjectTraits::coord(ObjectTraits::aabbMin(box), axis) + ObjectTraits::coord(ObjectTraits::aabbMax(box), axis)) / 2;
 	};
 
@@ -61,13 +62,13 @@ namespace impl
 	class LessAxis
 	{
 	public:
-		LessAxis(int iAxis): axis_(iAxis) {}
+		LessAxis(size_t iAxis): axis_(iAxis) {}
 		template <typename Input> bool operator()(const Input& a, const Input& b) const
 		{
 			return aabbCenterForAxis<ObjectTraits>(a.aabb, axis_) < aabbCenterForAxis<ObjectTraits>(b.aabb, axis_);
 		}			
 	private:
-		int axis_;
+		size_t axis_;
 	};
 }
 
@@ -78,16 +79,27 @@ struct SplitInfo
 {
 	typedef typename ObjectTraits::TAabb TAabb;
 	typedef typename ObjectTraits::TValue TValue;
-	typedef int TAxis;
+	typedef size_t TAxis;
+
+	enum { dontSplit = size_t(-1) };
 
 	SplitInfo(const TAabb& aabb, TValue x, TAxis axis):
 		aabb(aabb), x(x), axis(axis)
 	{
 	}
 
+	static SplitInfo makeLeaf(const TAabb& aabb)
+	{
+		return SplitInfo(aabb, 0, dontSplit);
+	}
+
+	bool isLeaf() const { return axis == dontSplit; }
+
 	TAabb aabb;
 	TValue x;
 	TAxis axis;
+
+private:
 };
 
 
@@ -148,14 +160,14 @@ protected:
 		const size_t n = static_cast<size_t>(last - first);
 		if (n <= maxObjectsPerLeaf_)
 		{
-			return SplitInfo<ObjectTraits>(aabb, 0, -1);
+			return SplitInfo<ObjectTraits>::makeLeaf(aabb);
 		}
 		
 		const TPoint min = ObjectTraits::aabbMin(aabb);
 		const TPoint max = ObjectTraits::aabbMax(aabb);
-		int axis = 0;
+		size_t axis = 0;
 		TValue maxDistance = ObjectTraits::coord(max, 0) - ObjectTraits::coord(min, 0);
-		for (int k = 1; k < ObjectTraits::dimension; ++k)
+		for (size_t k = 1; k < ObjectTraits::dimension; ++k)
 		{
 			const TValue distance = ObjectTraits::coord(max, k) - ObjectTraits::coord(min, k);
 			if (distance > maxDistance)
@@ -216,17 +228,17 @@ protected:
 			{
 				aabb = ObjectTraits::aabbJoin(aabb, i->aabb);
 			}			
-			return SplitInfo<ObjectTraits>(aabb, 0, -1);
+			return SplitInfo<ObjectTraits>::makeLeaf(aabb);
 		}
 
 		TValue bestCost = n * costObject;
-		int bestAxis = -1;
+		size_t bestAxis = SplitInfo<ObjectTraits>::dontSplit;
 		TValue bestX = 0;
 		std::vector<TValue> leftArea(n);
 		TAabb totalBox = ObjectTraits::aabbEmpty();
 		TValue totalArea = 0;
 
-		for (int axis = 0; axis < ObjectTraits::dimension; ++axis)
+		for (size_t axis = 0; axis < ObjectTraits::dimension; ++axis)
 		{
 			std::sort(first, last, impl::LessAxis<ObjectTraits>(axis));
 
@@ -243,7 +255,7 @@ protected:
 				totalArea = ObjectTraits::aabbSurfaceArea(totalBox);
 				if (totalArea == 0)
 				{
-					SplitInfo<ObjectTraits>(totalBox, 0, -1);
+					return SplitInfo<ObjectTraits>::makeLeaf(totalBox);
 				}
 			}
 

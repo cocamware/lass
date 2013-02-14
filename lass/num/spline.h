@@ -160,10 +160,10 @@ struct DataTraitsScalar
 {
 	typedef ScalarType TData;
 	typedef ScalarType TScalar;
-	static size_t dimension(TScalar iY) { return 1; }
-	static void zero(TScalar& ioY, size_t iDim) { ioY = TScalar(); }
-	static TScalar get(TScalar iY, size_t iIndex) { return iY; }
-	static void set(TScalar& ioY, size_t iIndex, TScalar iV) { ioY = iV; }
+	static size_t dimension(TScalar /*iY*/) { return 1; }
+	static void zero(TScalar& ioY, size_t /*iDim*/) { ioY = TScalar(); }
+	static TScalar get(TScalar iY, size_t /*iIndex*/) { return iY; }
+	static void set(TScalar& ioY, size_t /*iIndex*/, TScalar iV) { ioY = iV; }
 	static void scale(TScalar& ioAcc, TScalar iS) { ioAcc *= iS; }
 	static void multiplyAccumulate(TScalar& ioAcc, TScalar iY, TScalar iS) { ioAcc += iY * iS; }
 };

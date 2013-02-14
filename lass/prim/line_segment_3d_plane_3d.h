@@ -60,19 +60,19 @@ namespace prim
  *  @param lineSegment [in] the line segment
  *  @param t [out] the parameter of the intersection point > @a tMin.
  *  @param tMin [in] the minimum t that may be returned as valid intersection.
- *  @return @arg rNone      no intersections > @a tMin found
+ *  @return @arg rNone      no intersections found
  *                          @a t is not assigned.
- *          @arg rOne       exactly one intersection > @a tMin found
+ *          @arg rOne       exactly one intersection found
  *                          @a t represents it.
  *          @arg rInfinite  infinite many intersections found (segment is coincident with plane),
  *                          @a t is not assigned.
- *          @arg rInvalid   @a plane or @a iRay is invalid, no intersection.
+ *          @arg rInvalid   @a plane or @a lineSegment is invalid, no intersection.
  *                          @a t is not assigned.
  */
 template<typename T, class EPPlane, class NPPlane, class PPRay>
 Result intersect(
 		const Plane3D<T, EPPlane, NPPlane>& plane, const LineSegment3D<T, PPRay>& lineSegment,
-		T& t, const T& tMin = T())
+		T& t)
 {
 	typedef typename Vector3D<T>::TValue TValue;
 	typedef typename Vector3D<T>::TNumTraits TNumTraits;
@@ -82,16 +82,16 @@ Result intersect(
 		return rInvalid;
 	}
 
-    const TValue eTail = plane.equation(lineSegment.tail());
-    const TValue eHead = plane.equation(lineSegment.head());
+	const TValue eTail = plane.equation(lineSegment.tail());
+	const TValue eHead = plane.equation(lineSegment.head());
 
 	if (eTail == eHead)
-    {
+	{
 		return eTail == TNumTraits::zero ? rInfinite : rNone;
-    }
-    else
-    {
-        // find candidate of intersection.
+	}
+	else
+	{
+		// find candidate of intersection.
 		const TValue tCandidate = eTail / (eTail - eHead);
 		if (tCandidate >= TNumTraits::zero && tCandidate <= TNumTraits::one)
 		{
@@ -99,7 +99,7 @@ Result intersect(
 			return rOne;
 		}
 		return rNone;
-    }
+	}
 }
 
 /** reflect a linesegment in a plane.

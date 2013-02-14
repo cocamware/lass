@@ -372,7 +372,7 @@ bool operator==(const Polynomial<T>& iA, const Polynomial<T>& iB)
 {
 	typedef typename Polynomial<T>::TCoefficients TCoefficients;
 	const TCoefficients& a = iA.coefficients();
-	const TCoefficients& b = iA.coefficients();
+	const TCoefficients& b = iB.coefficients();
 	const size_t m = a.size();
 	const size_t n = b.size();
 	if (m != n)

@@ -71,8 +71,8 @@ public:
 	explicit XYZ(const std::string& iAxis);
 
 	char axis() const;
-	operator int() const { return value_; } /**< convert axis to integer.
-														0 == @a x, 1 == @a y, 2 == @a z */
+	operator int() const { return value_; } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
+	operator size_t() const { return static_cast<size_t>(value_); } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
 
 	XYZ& operator++();
 	XYZ& operator--();

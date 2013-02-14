@@ -307,8 +307,8 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 
 	const T c = num::cos(radians);
 	const T s = num::sin(radians);
-	const size_t a = (axis + 1);
-	const size_t b = (axis + 2);
+	const int a = (axis + 1);
+	const int b = (axis + 2);
 	LASS_ASSERT(a < 3 && b < 3);
 
 	TValue* const forward = pimpl->forward;

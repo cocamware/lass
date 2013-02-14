@@ -79,7 +79,7 @@ size_t numberOfProcessors()
 size_t numberOfAvailableProcessors()
 {
 	const TCpuSet& set = availableProcessors();
-	return std::count(set.begin(), set.end(), true);	
+	return static_cast<size_t>(std::count(set.begin(), set.end(), true));
 }
 
 bool isAvailableProcessor(size_t processor)

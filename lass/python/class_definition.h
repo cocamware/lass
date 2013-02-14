@@ -46,6 +46,7 @@
 #include "python_common.h"
 #include "pyobject_special_methods.h"
 #include "overload_link.h"
+#include "export_traits.h"
 #include "../util/shared_ptr.h"
 
 namespace lass
@@ -89,7 +90,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T& obj): obj_(obj) {}
-				PyObject* build() const { return pyBuildSimpleObject(obj_); }
+				PyObject* build() const { return PyExportTraits<const T>::build(obj_); }
 			private:
 				const T obj_;
 			};
@@ -98,7 +99,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T obj[N]): obj_(obj) {}
-				PyObject* build() const { return pyBuildSimpleObject(obj_); }
+				PyObject* build() const { return PyExportTraits<const T*>::build(obj_); }
 			private:
 				const T* obj_;
 			};

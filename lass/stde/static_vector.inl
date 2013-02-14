@@ -84,7 +84,7 @@ template <typename T, size_t maxsize> inline
 static_vector<T, maxsize>::static_vector(size_type n, const value_type& value):
 	size_(0)
 {
-	insert(end(), n, value, meta::Wrap<meta::True>());
+	insert(end(), n, value);
 }
 
 
@@ -133,7 +133,7 @@ template <typename T, size_t maxsize> inline
 void static_vector<T, maxsize>::assign(size_type n, const value_type& value)
 {
 	erase(begin(), end());
-	insert(end(), n, value, meta::Wrap<meta::True>());
+	insert(end(), n, value);
 }
 
 
@@ -392,7 +392,13 @@ void static_vector<T, maxsize>::insert(iterator position, const value_type& valu
 template <typename T, size_t maxsize> inline
 void static_vector<T, maxsize>::insert(iterator position, size_type n, const value_type& value)
 {
-	insert(position, n, value, meta::Wrap<meta::True>());
+	enforce_valid_size(size_ + n);
+	move_to_back(position, end(), n);
+	for (const iterator last = position + n; position != last; ++position)
+	{
+		new (position) value_type(value);
+	}
+	size_ += n;
 }
 
 
@@ -426,7 +432,7 @@ static_vector<T, maxsize>::erase(iterator first, iterator last)
 	{
 		i->~value_type();
 	}
-	const size_type n = last - first;;
+	const size_type n = static_cast<size_type>(last - first);
 	move_to_front(last, end(), n);
 	size_ -= n;
 	return first;
@@ -493,24 +499,18 @@ void static_vector<T, maxsize>::move_to_front(iterator first, iterator last, siz
 
 
 template <typename T, size_t maxsize>
-void static_vector<T, maxsize>::insert(iterator position, size_t n, value_type value, meta::Wrap<meta::True>)
+template <typename IntegerType> inline
+void static_vector<T, maxsize>::insert(iterator position, IntegerType n, IntegerType value, meta::Wrap<meta::True>)
 {
-	enforce_valid_size(size_ + n);
-	move_to_back(position, end(), n);
-	for (const iterator last = position + n; position != last; ++position)
-	{
-		new (position) value_type(value);
-	}
-	size_ += n;
+	insert(position, static_cast<size_t>(n), static_cast<value_type>(value));
 }
-	
 
 
 template <typename T, size_t maxsize>
 template <typename InputIterator> 
 void static_vector<T, maxsize>::insert(iterator position, InputIterator first, InputIterator last, meta::Wrap<meta::False>)
 {
-	const size_type n = std::distance(first, last);
+	const size_type n = static_cast<size_type>(std::distance(first, last));
 	enforce_valid_size(size_ + n);
 	move_to_back(position, end(), n);
 	while (first != last)

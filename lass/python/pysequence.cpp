@@ -130,7 +130,7 @@ namespace impl
 			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 	}
-	void Sequence::reserve(size_t n)
+	void Sequence::reserve(Py_ssize_t n)
 	{
 		LockGIL LASS_UNUSED(lock);
 		if (!pimpl_->reserve(n))

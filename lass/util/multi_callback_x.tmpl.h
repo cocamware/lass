@@ -92,7 +92,7 @@ struct MultiCallback$x
 
 	/** copy constructor
 	 */
-	MultiCallback$x(const MultiCallback0& iOther):
+	MultiCallback$x(const TSelf& iOther):
 		callbacks_(iOther.callbacks_)
 	{
 	}

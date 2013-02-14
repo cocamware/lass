@@ -150,7 +150,7 @@ void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 
 	seed(19650218);
 
-	const size_t keySize = std::distance(first, last);
+	const size_t keySize = static_cast<size_t>(std::distance(first, last));
 	LASS_ASSERT(keySize < num::NumTraits<TValue>::max);
 
 	TValue i = 1;

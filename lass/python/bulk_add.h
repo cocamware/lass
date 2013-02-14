@@ -81,7 +81,7 @@ namespace python
 namespace impl
 {
 
-	LASS_PYTHON_DLL std::string argument(const std::string& iValue, int iArg);
+	LASS_PYTHON_DLL std::string argument(const std::string& iValue, size_t iArg);
 	
 	void addIntegerConstantToModule( ModuleDefinition& iModule, long iValue, const std::string& iName );
 }

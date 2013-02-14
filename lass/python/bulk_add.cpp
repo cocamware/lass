@@ -8,7 +8,7 @@ namespace python
 namespace impl
 {
 
-std::string argument(const std::string& iValue, int iArg)
+std::string argument(const std::string& iValue, size_t iArg)
 {
 	std::vector<std::string> splits( lass::stde::split( iValue, "," ) );
 	return lass::stde::strip(splits[iArg],std::string(" "));

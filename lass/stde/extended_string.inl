@@ -157,7 +157,7 @@ template <typename Char, typename Traits, typename Alloc>
 bool begins_with(const std::basic_string<Char, Traits, Alloc>& input,
 	Char prefix)
 {
-	return !input.empty() && input.front() == prefix;
+	return !input.empty() && input[0] == prefix;
 }
 
 
@@ -169,8 +169,9 @@ template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 	const std::basic_string<Char, Traits, Alloc>& suffix)
 {
+	typedef typename std::basic_string<Char, Traits, Alloc>::difference_type difference_type;
 	return suffix.length() <= input.length() && 
-		std::equal(suffix.begin(), suffix.end(), input.begin() + input.length() - suffix.length());
+		std::equal(suffix.begin(), suffix.end(), input.end() - static_cast<difference_type>(suffix.length()));
 }
 
 /** @ingroup extended_string
@@ -191,7 +192,7 @@ template <typename Char, typename Traits, typename Alloc>
 bool ends_with(const std::basic_string<Char, Traits, Alloc>& input,
 	Char suffix)
 {
-	return !input.empty() && input.back() == suffix;
+	return !input.empty() && input[input.size()-1] == suffix;
 }
 
 

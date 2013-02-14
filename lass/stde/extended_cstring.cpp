@@ -83,7 +83,7 @@ std::string safe_vformat(const char* format, va_list args)
 		}
 		else
 		{
-			size = numWritten + 1;
+			size = static_cast<size_t>(numWritten) + 1;
 		}
 		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
 		{

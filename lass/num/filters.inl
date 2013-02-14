@@ -94,6 +94,7 @@ namespace impl
 		const TPolynomial s = TPolynomial::x() / cutoff;
 		const TPolynomial s2 = s * s;
 
+		TPolynomial nom(gain);
 		TPolynomial den(TNumTraits::one);
 		if (n % 2 == 1)
 			den += s;
@@ -103,7 +104,7 @@ namespace impl
 			den *= s2 - 2 * num::cos(theta) * s + TNumTraits::one;
 		}
 
-		return std::make_pair(TPolynomial::one().coefficients(), den.coefficients());
+		return std::make_pair(nom.coefficients(), den.coefficients());
 	}
 
 	template <typename T>

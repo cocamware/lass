@@ -131,7 +131,7 @@ private:
 
 	pointer get_element(size_type i) { return reinterpret_cast<pointer>(data_) + i; }
 	const_pointer get_element(size_type i) const { return reinterpret_cast<const_pointer>(data_) + i; }
-	void insert(iterator position, size_type n, value_type value, 
+	template <typename IntegerType> void insert(iterator position, IntegerType n, IntegerType value, 
 		meta::Wrap<meta::True> parameter_is_integral);
 	template <typename InputIterator> void insert(iterator position, InputIterator first, 
 		InputIterator last, meta::Wrap<meta::False> parameter_is_iterator);

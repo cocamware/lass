@@ -70,7 +70,7 @@ namespace util
 class LASS_DLL ProgressIndicator
 {
 public:
-	ProgressIndicator(const std::string& iDescription, int iConsoleWidth = 80);
+	ProgressIndicator(const std::string& iDescription, size_t iConsoleWidth = 80);
 	~ProgressIndicator();
 	void operator()(double iProgress);
 
@@ -81,7 +81,7 @@ private:
 	std::string description_;
 	std::string backslash_;
 	std::string whitespace_;
-	int consoleWidth_;
+	size_t consoleWidth_;
 	int current_;
 	int timeLeftIndex_;
 };

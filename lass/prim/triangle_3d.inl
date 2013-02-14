@@ -269,7 +269,7 @@ bool Triangle3D<T>::isConvex() const
  *	A triangle never has reflex vertices
  */
 template <typename T>
-bool Triangle3D<T>::isReflex(int iIndexOfVertex) const
+bool Triangle3D<T>::isReflex(int /*iIndexOfVertex*/) const
 {
 	return false;
 }

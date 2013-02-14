@@ -69,7 +69,7 @@ namespace impl
 	{
 	public:
 		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0;
-		virtual bool reserve(size_t n) = 0;
+		virtual bool reserve(Py_ssize_t n) = 0;
 		virtual bool append(const TPyObjPtr& i) = 0;
 		virtual bool pop(Py_ssize_t i) = 0;
 		virtual PyObject* item(Py_ssize_t i) const = 0;
@@ -108,7 +108,7 @@ namespace impl
 			TContainerPtr copy = TContainerTraits::copy(this->container());
 			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(copy));
 		}
-		bool reserve(size_t n)
+		bool reserve(Py_ssize_t n)
 		{
 			if (!this->checkWritable())
 			{
@@ -358,7 +358,7 @@ namespace impl
 
 		const TSequencePtr copy() const;
 		void clear();
-		void reserve(size_t n);
+		void reserve(Py_ssize_t n);
 		void append(const TPyObjPtr& obj);
 		const TPyObjPtr pop(Py_ssize_t i);
 		const TPyObjPtr pop_back();

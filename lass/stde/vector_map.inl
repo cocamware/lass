@@ -59,7 +59,7 @@ vector_map<K, T, C, A>::vector_map(const key_compare& key_comp, const allocator_
 template <typename K, typename T, typename C, typename A>
 template <typename InputIterator>
 vector_map<K, T, C, A>::vector_map(InputIterator first, InputIterator last, 
-		const key_compare& key_comp, const allocator_type& allocator):
+		const key_compare& key_comp, const allocator_type&):
 	data_(first, last),
 	key_comp_(key_comp)
 {
@@ -220,7 +220,7 @@ vector_map<K, T, C, A>::insert(const value_type& x)
 
 template <typename K, typename T, typename C, typename A> inline
 typename vector_map<K, T, C, A>::iterator
-vector_map<K, T, C, A>::insert(iterator i, const value_type& x)
+vector_map<K, T, C, A>::insert(iterator, const value_type& x)
 {
 	return insert(x).first;
 }

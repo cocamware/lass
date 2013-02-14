@@ -60,7 +60,7 @@ namespace num
 
 template <unsigned N, typename T>
 Modulo<N, T>::Modulo(TParam iValue):
-	value_(mod(iValue, N))
+	value_(static_cast<TValue>(mod(iValue, N)))
 {
 	LASS_ASSERT(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
 }

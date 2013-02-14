@@ -172,7 +172,7 @@ void SimplePolygon2D<T, DP>::insert(int iIndexOfVertex, const TPoint& iVertex)
 
 	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
-	vertices_.insert(vertices_.begin() + i, iVertex);
+	vertices_.insert(vertices_.begin() + static_cast<std::ptrdiff_t>(i), iVertex);
 }
 
 
@@ -185,7 +185,7 @@ void SimplePolygon2D<T, DP>::erase(int iIndexOfVertex)
 	LASS_ENFORCE(!isEmpty());
 	const size_t i = num::mod(iIndexOfVertex, static_cast<unsigned>(vertices_.size()));
 	LASS_ASSERT(isInRange(i));
-	vertices_.erase(vertices_.begin() + i);
+	vertices_.erase(vertices_.begin() + static_cast<std::ptrdiff_t>(i));
 }
 
 
