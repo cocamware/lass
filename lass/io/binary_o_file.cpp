@@ -42,10 +42,7 @@
 
 #include "lass_common.h"
 #include "binary_o_file.h"
-
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
-#	include "../util/wchar_support.h"
-#endif
+#include "../util/wchar_support.h"
 
 #include <stdio.h>
 
@@ -129,7 +126,7 @@ BinaryOFile::~BinaryOFile()
 
 void BinaryOFile::open(const char* path)
 {
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+#if LASS_HAVE_WCHAR_SUPPORT && LASS_HAVE_WFOPEN
 	open(util::utf8ToWchar(path));
 #else
 	close();

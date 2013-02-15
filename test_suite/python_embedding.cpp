@@ -201,12 +201,13 @@ public:
 	typedef TSeq::value_type value_type;
 	typedef TSeq::const_reference const_reference;
 	typedef TSeq::size_type size_type;
+	typedef TSeq::difference_type difference_type;
 	const_reference operator[](size_type index) const { return seq_.at(index); }
 	void setItem(size_type i, value_type value) { seq_.at(i) = value; }
 	ClassSeq& setSlice(size_type ilow, size_type ihigh, const TSeq& other) 
 	{
-		seq_.erase(	seq_.begin() + ilow, seq_.begin() + ihigh );
-		seq_.insert( seq_.begin() + ilow + 1, other.begin(), other.end());			
+		seq_.erase( stde::next(seq_.begin(), ilow), stde::next(seq_.begin(), ihigh) );
+		seq_.insert( stde::next(seq_.begin(), ilow), other.begin(), other.end() );
 		return *this;
 	}
 	void append(value_type value) { seq_.push_back(value); }
@@ -214,7 +215,7 @@ public:
 	value_type pop(size_type i) 
 	{ 
 		value_type temp = seq_.at(i); 
-		seq_.erase(seq_.begin() + i); 
+		seq_.erase( stde::next(seq_.begin(), i) ); 
 		return temp; 
 	}
 	value_type popwo() 

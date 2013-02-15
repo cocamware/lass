@@ -314,14 +314,14 @@ void testNumSolve()
 {
 	using namespace num;
 
-	const int n = 3;
+	const size_t n = 3;
 	Matrix<T> a(n, n);
 	Vector<T> b(n);
 
-	int v = 0;
-	for (int i = 0; i < n; ++i)
+	size_t v = 0;
+	for (size_t i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (size_t j = 0; j < n; ++j)
 		{
 			a(i, j) = static_cast<T>(++v);
 		}
@@ -341,7 +341,7 @@ void testNumMatrixSolve()
 {
 	using namespace num;
 	
-	const int n = 200;
+	const size_t n = 200;
 	Matrix<T> a(n, n);
 	Matrix<T> b(n, n);
 
@@ -356,9 +356,9 @@ void testNumMatrixSolve()
 	typedef std::vector<TBase> TErrors;
 	TErrors errors;
 	Matrix<T> e = a * x - b;
-	for (int i = 0; i < n; ++i)
+	for (size_t i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (size_t j = 0; j < n; ++j)
 		{
 			errors.push_back( num::abs( e(i, j) ) );
 		}

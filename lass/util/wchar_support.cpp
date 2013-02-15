@@ -234,7 +234,7 @@ void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
 
 #	else
 
-#		error "[LASS BUILD MSG] no implementation for this platform"
+#		pragma LASS_NOTE("no wchar_t support implemented, it will be unavailable.")
 
 #	endif
 

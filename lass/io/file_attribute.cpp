@@ -73,12 +73,12 @@ namespace io
 /** @ingroup FileAttribute
  *  return true if file exists
  */
-bool fileDoesExist(const std::string& iFileName)
+bool fileDoesExist(const std::string& fileName)
 {
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
-	return fileDoesExist(util::utf8ToWchar(iFileName));
+#if LASS_HAVE_WCHAR_SUPPORT && LASS_HAVE_WFOPEN
+	return fileDoesExist(util::utf8ToWchar(fileName));
 #else
-	FILE* file = fopen(iFileName.c_str(), "r");
+	FILE* file = fopen(fileName.c_str(), "r");
 	if (file == 0)
 	{
 		return false;
@@ -89,14 +89,15 @@ bool fileDoesExist(const std::string& iFileName)
 }
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
 /** @ingroup FileAttribute
  *  return true if file exists
  */
-bool fileDoesExist(const std::wstring& iFileName)
+bool fileDoesExist(const std::wstring& fileName)
 {
 #if LASS_HAVE_WFOPEN
-	FILE* file = _wfopen(iFileName.c_str(), L"r");
+	FILE* file = _wfopen(fileName.c_str(), L"r");
 	if (file == 0)
 	{
 		return false;
@@ -104,23 +105,11 @@ bool fileDoesExist(const std::wstring& iFileName)
 	fclose(file);
 	return true;
 #else
-	return fileDoesExist(util::wcharToUtf8(iFileName));
+	return fileDoesExist(util::wcharToUtf8(fileName));
 #endif
 }
 
-
-/** @ingroup FileAttribute
- *  return the part of the file name behind the last dot.
- *  return an empty string if there's no dot.
- *  e.g. @e foo returns an empty string, @e foo.bar returns @e bar,
- *  @e foo.bar.fun returns @e fun.
- */
-std::string fileExtension(const std::string& iFileName)
-{
-	std::string::size_type lastDot = iFileName.rfind(extensionSeperator);
-	return lastDot!= std::string::npos ? iFileName.substr(lastDot + 1) : "";
-}
-
+#endif
 
 
 /** @ingroup FileAttribute
@@ -129,12 +118,28 @@ std::string fileExtension(const std::string& iFileName)
  *  e.g. @e foo returns an empty string, @e foo.bar returns @e bar,
  *  @e foo.bar.fun returns @e fun.
  */
-std::wstring fileExtension(const std::wstring& iFileName)
+std::string fileExtension(const std::string& fileName)
 {
-	std::wstring::size_type lastDot = iFileName.rfind(wextensionSeperator);
-	return lastDot!= std::wstring::npos ? iFileName.substr(lastDot + 1) : L"";
+	std::string::size_type lastDot = fileName.rfind(extensionSeperator);
+	return lastDot!= std::string::npos ? fileName.substr(lastDot + 1) : "";
 }
 
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** @ingroup FileAttribute
+ *  return the part of the file name behind the last dot.
+ *  return an empty string if there's no dot.
+ *  e.g. @e foo returns an empty string, @e foo.bar returns @e bar,
+ *  @e foo.bar.fun returns @e fun.
+ */
+std::wstring fileExtension(const std::wstring& fileName)
+{
+	std::wstring::size_type lastDot = fileName.rfind(wextensionSeperator);
+	return lastDot!= std::wstring::npos ? fileName.substr(lastDot + 1) : L"";
+}
+
+#endif
 
 
 /** @ingroup FileAttribute
@@ -143,12 +148,13 @@ std::wstring fileExtension(const std::wstring& iFileName)
  *  e.g. @e foo returns @e foo, @e foo.bar returns @e foo,
  *  @e foo.bar.fun returns @e foo.bar .
  */
-std::string fileWithoutExtension(const std::string& iFileName)
+std::string fileWithoutExtension(const std::string& fileName)
 {
-	return iFileName.substr(0, iFileName.rfind(extensionSeperator));
+	return fileName.substr(0, fileName.rfind(extensionSeperator));
 }
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
 /** @ingroup FileAttribute
  *  return the part of the file name before the last dot.
@@ -156,11 +162,12 @@ std::string fileWithoutExtension(const std::string& iFileName)
  *  e.g. @e foo returns @e foo, @e foo.bar returns @e foo,
  *  @e foo.bar.fun returns @e foo.bar .
  */
-std::wstring fileWithoutExtension(const std::wstring& iFileName)
+std::wstring fileWithoutExtension(const std::wstring& fileName)
 {
-	return iFileName.substr(0, iFileName.rfind(wextensionSeperator));
+	return fileName.substr(0, fileName.rfind(wextensionSeperator));
 }
 
+#endif
 
 
 /** @ingroup FileAttribute
@@ -169,14 +176,15 @@ std::wstring fileWithoutExtension(const std::wstring& iFileName)
  *  e.g. @e foo returns an empty string, @e foo/bar returns @e foo,
  *  @e foo/bar/fun returns @e foo/bar.
  */
-std::string filePath(const std::string& iFileName)
+std::string filePath(const std::string& fileName)
 {
 	const char seperators[] = { pathSeperator, pathAlternativeSeperator, '\0' }; 
-	std::string::size_type lastSlash = iFileName.find_last_of(seperators);
-	return lastSlash != std::string::npos ? iFileName.substr(0, lastSlash) : "";
+	std::string::size_type lastSlash = fileName.find_last_of(seperators);
+	return lastSlash != std::string::npos ? fileName.substr(0, lastSlash) : "";
 }
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
 /** @ingroup FileAttribute
  *  return the part of the file name before the last (back)slash.
@@ -184,13 +192,14 @@ std::string filePath(const std::string& iFileName)
  *  e.g. @e foo returns an empty string, @e foo/bar returns @e foo,
  *  @e foo/bar/fun returns @e foo/bar.
  */
-std::wstring filePath(const std::wstring& iFileName)
+std::wstring filePath(const std::wstring& fileName)
 {
 	const wchar_t seperators[] = { wpathSeperator, wpathAlternativeSeperator, L'\0' }; 
-	std::wstring::size_type lastSlash = iFileName.find_last_of(seperators);
-	return lastSlash != std::wstring::npos ? iFileName.substr(0, lastSlash) : L"";
+	std::wstring::size_type lastSlash = fileName.find_last_of(seperators);
+	return lastSlash != std::wstring::npos ? fileName.substr(0, lastSlash) : L"";
 }
 
+#endif
 
 
 /** @ingroup FileAttribute
@@ -199,14 +208,15 @@ std::wstring filePath(const std::wstring& iFileName)
  *  e.g. @e foo returns @e foo, @e foo/bar returns @e bar,
  *  @e foo/bar/fun returns @e fun .
  */
-std::string fileWithoutPath(const std::string& iFileName)
+std::string fileWithoutPath(const std::string& fileName)
 {
 	const char seperators[] = { pathSeperator, pathAlternativeSeperator, '\0' }; 
-	std::string::size_type lastSlash = iFileName.find_last_of(seperators);
-	return lastSlash != std::string::npos ? iFileName.substr(lastSlash + 1) : iFileName;
+	std::string::size_type lastSlash = fileName.find_last_of(seperators);
+	return lastSlash != std::string::npos ? fileName.substr(lastSlash + 1) : fileName;
 }
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
 /** @ingroup FileAttribute
  *  return the part of the file name behind the last (back)slash.
@@ -214,74 +224,78 @@ std::string fileWithoutPath(const std::string& iFileName)
  *  e.g. @e foo returns @e foo, @e foo/bar returns @e bar,
  *  @e foo/bar/fun returns @e fun .
  */
-std::wstring fileWithoutPath(const std::wstring& iFileName)
+std::wstring fileWithoutPath(const std::wstring& fileName)
 {
 	const wchar_t seperators[] = { wpathSeperator, wpathAlternativeSeperator, L'\0' }; 
-	std::wstring::size_type lastSlash = iFileName.find_last_of(seperators);
-	return lastSlash != std::wstring::npos ? iFileName.substr(lastSlash + 1) : iFileName;
+	std::wstring::size_type lastSlash = fileName.find_last_of(seperators);
+	return lastSlash != std::wstring::npos ? fileName.substr(lastSlash + 1) : fileName;
 }
 
+#endif
 
 
 /** @ingroup FileAttribute
  */
-std::string fileJoinExtension(const std::string& iFilename, const std::string& iExtension)
+std::string fileJoinExtension(const std::string& fileName, const std::string& extension)
 {
-	if (stde::begins_with(iExtension, extensionSeperator))
+	if (stde::begins_with(extension, extensionSeperator))
 	{
-		return iFilename + iExtension;
+		return fileName + extension;
 	}
-	return iFilename + extensionSeperator + iExtension;
+	return fileName + extensionSeperator + extension;
 }
 
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+/** @ingroup FileAttribute
+ */
+std::wstring fileJoinExtension(const std::wstring& fileName, const std::wstring& extension)
+{
+	if (stde::begins_with(extension, wextensionSeperator))
+	{
+		return fileName + extension;
+	}
+	return fileName + wextensionSeperator + extension;
+}
+
+#endif
 
 
 /** @ingroup FileAttribute
  */
-std::wstring fileJoinExtension(const std::wstring& iFilename, const std::wstring& iExtension)
+std::string fileJoinPath(const std::string& path, const std::string& fileName)
 {
-	if (stde::begins_with(iExtension, wextensionSeperator))
+	if (stde::ends_with(path, pathSeperator))
 	{
-		return iFilename + iExtension;
+		return path + fileName;
 	}
-	return iFilename + wextensionSeperator + iExtension;
+	if (pathAlternativeSeperator && stde::ends_with(path, pathAlternativeSeperator))
+	{
+		return path + fileName;
+	}
+	return path + pathSeperator + fileName;
 }
 
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
 /** @ingroup FileAttribute
  */
-std::string fileJoinPath(const std::string& iPath, const std::string& iFilename)
+std::wstring fileJoinPath(const std::wstring& path, const std::wstring& fileName)
 {
-	if (stde::ends_with(iPath, pathSeperator))
+	if (stde::ends_with(path, wpathSeperator))
 	{
-		return iPath + iFilename;
+		return path + fileName;
 	}
-	if (pathAlternativeSeperator && stde::ends_with(iPath, pathAlternativeSeperator))
+	if (wpathAlternativeSeperator && stde::ends_with(path, wpathAlternativeSeperator))
 	{
-		return iPath + iFilename;
+		return path + fileName;
 	}
-	return iPath + pathSeperator + iFilename;
+	return path + wpathSeperator + fileName;
 }
 
-
-
-/** @ingroup FileAttribute
- */
-std::wstring fileJoinPath(const std::wstring& iPath, const std::wstring& iFilename)
-{
-	if (stde::ends_with(iPath, wpathSeperator))
-	{
-		return iPath + iFilename;
-	}
-	if (wpathAlternativeSeperator && stde::ends_with(iPath, wpathAlternativeSeperator))
-	{
-		return iPath + iFilename;
-	}
-	return iPath + wpathSeperator + iFilename;
-}
-
-
+#endif
 
 
 }

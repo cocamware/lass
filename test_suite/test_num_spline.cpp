@@ -57,18 +57,18 @@ namespace test
 namespace num_spline
 {
 
-std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
+std::string doubleToString(double iX, size_t iDigitsMantissa, size_t iDigitsExponent)
 {
 	std::ostringstream buffer;
-	buffer << std::scientific << std::showpos << std::setprecision(iDigitsMantissa - 1) << iX;
+	buffer << std::scientific << std::showpos << std::setprecision(static_cast<int>(iDigitsMantissa) - 1) << iX;
 
 	const std::vector<std::string> splitted = stde::split(buffer.str(), std::string("e"));
 	LASS_ASSERT(splitted.size() == 2);
 
 	std::string mantissa = splitted[0];
-	LASS_ASSERT(mantissa.length() == static_cast<size_t>(iDigitsMantissa + 2));
+	LASS_ASSERT(mantissa.length() == iDigitsMantissa + 2);
 	const std::string negativeZero = "-0." + std::string(iDigitsMantissa - 1, '0');
-	LASS_ASSERT(negativeZero.length() == static_cast<size_t>(iDigitsMantissa + 2));
+	LASS_ASSERT(negativeZero.length() == iDigitsMantissa + 2);
 	if (mantissa == negativeZero)
 	{
 		mantissa[0] = '+';
@@ -76,10 +76,10 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 	
 	const int e = util::stringCast<int>(splitted[1]);
 	buffer.str("");
-	buffer << std::setw(iDigitsExponent + 1) << std::showpos << std::internal 
+	buffer << std::setw(static_cast<int>(iDigitsExponent + 1)) << std::showpos << std::internal 
 		<< std::setfill('0') << e;
 	std::string exponent = buffer.str();
-	LASS_ASSERT(exponent.length() == static_cast<size_t>(iDigitsExponent + 1));
+	LASS_ASSERT(exponent.length() == iDigitsExponent + 1);
 	if (exponent[0] == '0')
 	{
 		LASS_ASSERT(e == 0);
@@ -87,7 +87,7 @@ std::string doubleToString(double iX, int iDigitsMantissa, int iDigitsExponent)
 	}
 
 	const std::string result = mantissa + "e" + exponent;
-	LASS_ASSERT(result.length() == static_cast<size_t>(iDigitsMantissa + iDigitsExponent + 4));
+	LASS_ASSERT(result.length() == iDigitsMantissa + iDigitsExponent + 4);
 
 	return result;
 }

@@ -49,6 +49,8 @@ namespace test
 {
 void testUtilWCharSupport()
 {
+#if LASS_HAVE_WCHAR_SUPPORT
+
 	LASS_TEST_CHECK_EQUAL(util::utf8ToWchar("").length(), size_t(0));
 	LASS_TEST_CHECK_EQUAL(util::wcharToUtf8(L"").length(), size_t(0));
 
@@ -78,6 +80,11 @@ void testUtilWCharSupport()
 	LASS_TEST_CHECK_EQUAL(util::wcharToUtf8(wideNonBmp), utf8NonBmp);
 	LASS_TEST_CHECK(util::utf8ToWchar(utf8NonBmp) == wideNonBmp);
 
+#else
+
+	LASS_TEST_ERROR( "no wchar_t support" );
+
+#endif
 }
 
 TUnitTest test_util_wchar_support()

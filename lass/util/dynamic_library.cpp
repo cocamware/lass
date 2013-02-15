@@ -45,7 +45,7 @@
 #include "impl/lass_errno.h"
 #include "../stde/extended_string.h"
 
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#if 0 && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
 #include <windows.h>
 
@@ -154,7 +154,7 @@ DynamicLibrary::TFunctionPtr DynamicLibrary::resolveFunctionImpl(const std::stri
 
 #else
 
-#	error missing implementation
+#	pragma LASS_NOTE("no implementation for DynamicLibraryError, it will be unavailable.")
 
 #endif
 

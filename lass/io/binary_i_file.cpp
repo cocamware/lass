@@ -124,7 +124,7 @@ BinaryIFile::~BinaryIFile()
 
 void BinaryIFile::open(const char* path)
 {
-#if LASS_HAVE_WFOPEN && LASS_HAVE_MULTIBYTETOWIDECHAR
+#if LASS_HAVE_WCHAR_SUPPORT && LASS_HAVE_WFOPEN
 	open(util::utf8ToWchar(path));
 #else
 	close();

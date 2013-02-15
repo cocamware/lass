@@ -45,10 +45,16 @@
 
 #include "util_common.h"
 
+#if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32) || LASS_HAVE_DLOPEN
+//#	define LASS_HAVE_DYNAMIC_LIBRARY 1
+#endif
+
 namespace lass
 {
 namespace util
 {
+
+#ifdef LASS_HAVE_DYNAMIC_LIBRARY
 
 class LASS_DLL DynamicLibrary: NonCopyable
 {
@@ -71,6 +77,7 @@ private:
 	void* pimpl_;
 };
 
+#endif
 
 
 class DynamicLibraryError: public ExceptionMixin<DynamicLibraryError>

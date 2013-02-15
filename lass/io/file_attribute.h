@@ -60,16 +60,10 @@ namespace io
 const char pathSeperator = '\\';
 const char pathAlternativeSeperator = '/';
 const char extensionSeperator = '.';
-const wchar_t wpathSeperator = L'\\';
-const wchar_t wpathAlternativeSeperator = L'/';
-const wchar_t wextensionSeperator = L'.';
 #else
 const char pathSeperator = '/';
 const char pathAlternativeSeperator = '\0';
 const char extensionSeperator = '.';
-const wchar_t wpathSeperator = L'/';
-const wchar_t wpathAlternativeSeperator = L'\0';
-const wchar_t wextensionSeperator = L'.';
 #endif
 
 LASS_DLL bool LASS_CALL fileDoesExist(const std::string& iFileName);
@@ -80,6 +74,18 @@ LASS_DLL std::string LASS_CALL fileWithoutPath(const std::string& iFileName);
 LASS_DLL std::string LASS_CALL fileJoinExtension(const std::string& iFilename, const std::string& iExtension);
 LASS_DLL std::string LASS_CALL fileJoinPath(const std::string& iPath, const std::string& iFilename);
 
+#if LASS_HAVE_WCHAR_SUPPORT
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+const wchar_t wpathSeperator = L'\\';
+const wchar_t wpathAlternativeSeperator = L'/';
+const wchar_t wextensionSeperator = L'.';
+#else
+const wchar_t wpathSeperator = L'/';
+const wchar_t wpathAlternativeSeperator = L'\0';
+const wchar_t wextensionSeperator = L'.';
+#endif
+
 LASS_DLL bool LASS_CALL fileDoesExist(const std::wstring& iFileName);
 LASS_DLL std::wstring LASS_CALL fileExtension(const std::wstring& iFileName);
 LASS_DLL std::wstring LASS_CALL fileWithoutExtension(const std::wstring& iFileName);
@@ -88,6 +94,7 @@ LASS_DLL std::wstring LASS_CALL fileWithoutPath(const std::wstring& iFileName);
 LASS_DLL std::wstring LASS_CALL fileJoinExtension(const std::wstring& iFilename, const std::wstring& iExtension);
 LASS_DLL std::wstring LASS_CALL fileJoinPath(const std::wstring& iPath, const std::wstring& iFilename);
 
+#endif
 
 }
 

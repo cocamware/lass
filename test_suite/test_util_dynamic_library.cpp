@@ -51,6 +51,8 @@ namespace test
 
 void testUtilDynamicLibrary()
 {
+#if LASS_HAVE_DYNAMIC_LIBRARY
+
 	typedef int(*fun)(void);
 
 	LASS_TEST_CHECK_THROW( util::DynamicLibrary("thislibrarydoesnotexist"), util::DynamicLibraryError );
@@ -61,6 +63,12 @@ void testUtilDynamicLibrary()
 	LASS_TEST_CHECK(pylass.resolveFunction<fun>("initlass") != 0);
 #else
 	LASS_TEST_CHECK(pylass.resolveFunction<fun>("PyInit_lass") != 0);
+#endif
+
+#else
+
+	LASS_TEST_ERROR( "DynamicLibrary not supported" );
+
 #endif
 }
 
