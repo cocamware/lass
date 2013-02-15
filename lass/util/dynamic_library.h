@@ -46,7 +46,7 @@
 #include "util_common.h"
 
 #if (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32) || LASS_HAVE_DLOPEN
-//#	define LASS_HAVE_DYNAMIC_LIBRARY 1
+#	define LASS_HAVE_DYNAMIC_LIBRARY 1
 #endif
 
 namespace lass

@@ -45,7 +45,7 @@
 #include "impl/lass_errno.h"
 #include "../stde/extended_string.h"
 
-#if 0 && LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
 #include <windows.h>
 

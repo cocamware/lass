@@ -46,7 +46,7 @@
 #include "util_common.h"
 
 #if LASS_HAVE_ICONV || LASS_HAVE_MULTIBYTETOWIDECHAR
-//#	define LASS_HAVE_WCHAR_SUPPORT 1
+#	define LASS_HAVE_WCHAR_SUPPORT 1
 #endif
 
 namespace lass
