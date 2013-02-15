@@ -50,6 +50,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_IO_FILE_ATTRIBUTE_H
 
 #include "io_common.h"
+#include "../util/wchar_support.h"
 
 namespace lass
 {
