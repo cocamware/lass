@@ -128,33 +128,25 @@ private:
 template <typename T> inline
 Consistent<T> operator+(const Consistent<T>& a, const Consistent<T>& b)  
 { 
-	Consistent<T> result(a); 
-	result += b; 
-	return result; 
+	return Consistent<T>(a.value() + b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator-(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result -= b;
-	return result;
+	return Consistent<T>(a.value() - b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator*(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result *= b;
-	return result;
+	return Consistent<T>(a.value() * b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator/(const Consistent<T>& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result /= b;
-	return result;
+	return Consistent<T>(a.value() / b.value()); 
 }
 
 template <typename T> inline
@@ -199,33 +191,25 @@ bool operator>=(const Consistent<T>& a, const Consistent<T>& b)
 template <typename T> inline
 Consistent<T> operator+(const Consistent<T>& a, const T& b)  
 { 
-	Consistent<T> result(a); 
-	result += b; 
-	return result; 
+	return Consistent<T>(a.value() + b); 
 }
 
 template <typename T> inline
 Consistent<T> operator-(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(a);
-	result -= b;
-	return result;
+	return Consistent<T>(a.value() - b); 
 }
 
 template <typename T> inline
 Consistent<T> operator*(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(a);
-	result *= b;
-	return result;
+	return Consistent<T>(a.value() * b); 
 }
 
 template <typename T> inline
 Consistent<T> operator/(const Consistent<T>& a, const T& b) 
 {
-	Consistent<T> result(a);
-	result /= b;
-	return result;
+	return Consistent<T>(a.value() / b); 
 }
 
 template <typename T> inline
@@ -270,33 +254,25 @@ bool operator>=(const Consistent<T>& a, const T& b)
 template <typename T> inline
 Consistent<T> operator+(const T& a, const Consistent<T>& b)  
 { 
-	Consistent<T> result(a); 
-	result += b; 
-	return result; 
+	return Consistent<T>(a + b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator-(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result -= b;
-	return result;
+	return Consistent<T>(a - b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator*(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result *= b;
-	return result;
+	return Consistent<T>(a * b.value()); 
 }
 
 template <typename T> inline
 Consistent<T> operator/(const T& a, const Consistent<T>& b) 
 {
-	Consistent<T> result(a);
-	result /= b;
-	return result;
+	return Consistent<T>(a / b.value()); 
 }
 
 template <typename T> inline
