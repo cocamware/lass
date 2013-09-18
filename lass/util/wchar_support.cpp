@@ -69,6 +69,8 @@ inline std::wstring utf8ToWchar(const std::string& utf8)
 
 #	if LASS_HAVE_MULTIBYTETOWIDECHAR
 
+LASS_META_ASSERT( sizeof(wchar_t) == sizeof(WCHAR), wchar_t_should_be_of_same_size_as_WCHAR ); 
+
 std::wstring utf8ToWchar(const char* utf8, size_t length)
 {
 	const int utf8Bytes = num::numCast<int>(length + 1);
