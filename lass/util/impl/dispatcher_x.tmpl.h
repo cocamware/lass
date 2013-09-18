@@ -112,6 +112,10 @@ private:
 
 	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
+		if (!function_)
+		{
+			return;
+		}
 		function_($(iP$x)$);
 	}
 
@@ -145,6 +149,10 @@ private:
 
 	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
+		if (!object_ || !method_)
+		{
+			return;
+		}
 		((*object_).*method_)($(iP$x)$);
 	}
 

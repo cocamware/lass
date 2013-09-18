@@ -68,6 +68,10 @@ namespace impl
 		{
 			return callable_.get() == other.callable_.get();
 		}
+		bool operator!() const
+		{
+			return !callable_;
+		}
 	protected:
 		void call(const TPyObjPtr& args) const
 		{
@@ -95,6 +99,10 @@ namespace impl
 		bool operator==(const FunctorPythonRBase<R>& other) const
 		{
 			return callable_.get() == other.callable_.get();
+		}
+		bool operator!() const
+		{
+			return !callable_;
 		}
 	protected:
 		R call(const TPyObjPtr& args) const

@@ -44,6 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_R_0_H
 
 #include "dispatcher_allocator.h"
+#include "../callback_common.h"
 
 // --- NEW INTERFACES ----------------------------------------------------------
 
@@ -69,7 +70,10 @@ public:
 
 	DispatcherR0() {}
 	virtual ~DispatcherR0() {}
-	R call() const { return doCall(); }
+	R call() const 
+	{ 
+		return doCall(); 
+	}
 
 protected:
 
@@ -109,6 +113,10 @@ private:
 
 	R doCall() const
 	{
+		if (!function_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
+		}
 		return function_();
 	}
 
@@ -143,6 +151,10 @@ private:
 
 	R doCall() const
 	{
+		if (!object_ || !method_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
+		}
 		return ((*object_).*method_)();
 	}
 
