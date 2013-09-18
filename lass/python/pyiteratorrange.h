@@ -68,9 +68,6 @@ namespace impl
 	public:
 		PyIteratorRangeImplBase() {};
 		virtual ~PyIteratorRangeImplBase() {};
-		//virtual int PyIteratorRange_Length() const = 0;
-		virtual std::string pyStr(void) const = 0;
-		virtual std::string pyRepr(void) const = 0;
 		virtual PyObject* iterNext() = 0;
 	};
 
@@ -80,9 +77,6 @@ namespace impl
 	public:
 		PyIteratorRangeImpl(Iterator first, Iterator last): first_(first), last_(last), current_(first) {}
 		virtual ~PyIteratorRangeImpl() {}
-		//virtual int PyIteratorRange_Length() const;
-		virtual std::string pyStr(void) const;
-		virtual std::string pyRepr(void) const;
 		virtual PyObject* iterNext();
 	private:
 		Iterator first_;
@@ -95,16 +89,7 @@ namespace impl
 	{
 		return std::distance(first_,last_);
 	}*/
-	template<typename I>
-	std::string PyIteratorRangeImpl<I>::pyStr() const
-	{
-		return "PyIteratorRangeImpl<I>::str";
-	}
-	template<typename I>
-	std::string PyIteratorRangeImpl<I>::pyRepr() const
-	{
-		return "PyIteratorRangeImpl<I>::repr";
-	}
+
 	template<typename I>
 	PyObject* PyIteratorRangeImpl<I>::iterNext()
 	{
@@ -128,9 +113,6 @@ public:
 		impl::fixObjectType(this);
 		pimpl_ = new impl::PyIteratorRangeImpl<Iterator>(first, last);
 	}
-
-	std::string doPyStr();
-	std::string doPyRepr();
 
 	static PyObject* iter( PyObject* iPo);
 	static PyObject* iterNext( PyObject* iPO);

@@ -174,8 +174,7 @@ public:
 	}
 	~MultiCallback();
 
-	std::string doPyStr(void);
-	std::string doPyRepr(void);
+	std::string repr(void) const;
 	void reset();
 
 	void call(const python::TPyObjPtr& args);

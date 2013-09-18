@@ -100,20 +100,6 @@ void dealloc(PyObject* obj)
 
 
 
-PyObject* repr(PyObject* obj)
-{
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyRepr());
-}
-
-
-
-PyObject* str(PyObject* obj)
-{
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
-}
-
-
-
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
@@ -131,13 +117,13 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_getattr*/
 		0,	/*tp_setattr*/
 		0,	/*tp_compare*/
-		repr,	/*tp_repr*/
+		0,	/*tp_repr*/
 		0,	/*tp_as_number*/
 		0,	/*tp_as_sequence*/
 		0,	/*tp_as_mapping*/
 		0,	/*tp_hash*/
 		0,	/*tp_call */
-		str,	/*tp_str */
+		0,	/*tp_str */
 		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
