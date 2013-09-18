@@ -600,7 +600,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	{
 		if (s <= node.leftBound())
 		{
-			result = doFind(rightIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, tFar);
+			result = doFind(leftIndex, ray, tMin, tMax, result, info, reciprocalDirection, tNear, tFar);
 		}
 		if (s >= node.rightBound())
 		{
