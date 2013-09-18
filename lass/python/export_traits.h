@@ -690,6 +690,10 @@ struct PyExportTraits<const char*>
 {
 	static PyObject* build(const char* v)
 	{
+		if (!v)
+		{
+			Py_RETURN_NONE;
+		}
 #if PY_MAJOR_VERSION < 3
 		return PyString_FromString(v);
 #else
