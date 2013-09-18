@@ -184,7 +184,14 @@ class DispatcherBindFun$x: public BindDispatcher<R>
 public:
 	DispatcherBindFun$x(Fun fun, $(X$x x$x)$): fun_(fun), $(x$x_(x$x))$ {}
 private:
-	R doCall() const { return fun_($(x$x_)$); }
+	R doCall() const 
+	{ 
+		if (!fun_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");        
+		}
+		return fun_($(x$x_)$); 
+	}
 	Fun fun_;
 $(	typename CallTraits<X$x>::TValue x$x_;
 )$};
@@ -198,7 +205,14 @@ class DispatcherBindMemFun$x: public BindDispatcher<R>
 public:
 	DispatcherBindMemFun$x(ObjPtr obj, Fun fun, $(X$x x$x)$): obj_(obj), fun_(fun), $(x$x_(x$x))$ {}
 private:
-	R doCall() const { return ((*obj_).*fun_)($(x$x_)$); }
+	R doCall() const 
+	{ 
+		if (!obj_ || !fun_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");        
+		}
+		return ((*obj_).*fun_)($(x$x_)$); 
+	}
 	ObjPtr obj_;
 	Fun fun_;
 $(	typename CallTraits<X$x>::TValue x$x_;

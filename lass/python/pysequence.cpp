@@ -64,6 +64,7 @@ namespace impl
 	PY_CLASS_METHOD( Sequence, copy )
 	PY_CLASS_METHOD( Sequence, asList )
 	PY_CLASS_METHOD_NAME( Sequence, iter, methods::_iter_ );
+	PY_CLASS_METHOD_NAME( Sequence, repr, methods::_repr_ );
 
 	PySequenceMethods Sequence::pySequenceMethods = {
 		&Sequence::length,
@@ -171,14 +172,10 @@ namespace impl
 		return pimpl_->raw(writable);
 	}
 
-	std::string Sequence::doPyRepr()
+	std::string Sequence::repr() const
 	{
 		LockGIL LASS_UNUSED(lock);
 		return pimpl_->repr();
-	}
-	std::string Sequence::doPyStr()
-	{
-		return doPyRepr();
 	}
 
 	const TPyObjPtr Sequence::asList() const

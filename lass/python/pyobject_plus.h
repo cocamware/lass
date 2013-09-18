@@ -164,8 +164,6 @@ namespace lass
 
 			PyObjectPlus(); 
 			virtual ~PyObjectPlus();
-			virtual std::string doPyRepr(void) { return std::string(ob_type->tp_name) + " object at " + util::stringCast<std::string>(this); }
-			virtual std::string doPyStr(void) { return std::string(ob_type->tp_name) + " object string at " + util::stringCast<std::string>(this); }
 
 		protected:
 			PyObjectPlus(const PyObjectPlus& other);

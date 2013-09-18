@@ -64,6 +64,7 @@ const std::string MultiCallbackImplBase::repr() const
 	PY_CLASS_METHOD( MultiCallback, reset )
 	PY_CLASS_PY_METHOD_EX( MultiCallback, callVar, "call", "" )
 	PY_CLASS_PY_METHOD_EX( MultiCallback, addVar, "add", "" )
+	PY_CLASS_METHOD_NAME( MultiCallback, repr, methods::_repr_ )
 
 	bool MultiCallback::isInitialized = false;
 
@@ -111,13 +112,8 @@ const std::string MultiCallbackImplBase::repr() const
 		impl::fixObjectType(this);
 		pimpl_.reset(pimpl);
 	}
-
-	std::string MultiCallback::doPyStr(void) 
-	{ 
-		return doPyRepr(); 
-	}
 	
-	std::string MultiCallback::doPyRepr()
+	std::string MultiCallback::repr() const
 	{
 		return pimpl_->repr();
 	}

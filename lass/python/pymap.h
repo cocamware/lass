@@ -188,8 +188,7 @@ namespace impl
 		}
 		~Map();
 
-		std::string doPyStr(void);
-		std::string doPyRepr(void);
+		std::string repr() const;
 		const TPyObjPtr keys() const;
 		const TPyObjPtr values() const;
 		const TPyObjPtr items() const;

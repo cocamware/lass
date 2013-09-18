@@ -100,20 +100,6 @@ void dealloc(PyObject* obj)
 
 
 
-PyObject* repr(PyObject* obj)
-{
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyRepr());
-}
-
-
-
-PyObject* str(PyObject* obj)
-{
-	return pyBuildSimpleObject(static_cast<PyObjectPlus*>(obj)->doPyStr());
-}
-
-
-
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
@@ -131,13 +117,13 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_getattr*/
 		0,	/*tp_setattr*/
 		0,	/*tp_compare*/
-		repr,	/*tp_repr*/
+		0,	/*tp_repr*/
 		0,	/*tp_as_number*/
 		0,	/*tp_as_sequence*/
 		0,	/*tp_as_mapping*/
 		0,	/*tp_hash*/
 		0,	/*tp_call */
-		str,	/*tp_str */
+		0,	/*tp_str */
 		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
@@ -287,15 +273,17 @@ void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc di
 
 void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)
-	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)
-	LASS_PY_OPERATOR_("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)
-	LASS_PY_OPERATOR_("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)
-	LASS_PY_OPERATOR_("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)
-	LASS_PY_OPERATOR_("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)
-	LASS_PY_OPERATOR_("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)
-	LASS_PY_OPERATOR_("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)
-	LASS_PY_OPERATOR_("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)
+	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)// r?
+	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)// r?
+	LASS_PY_OPERATOR_("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)// r?
+	LASS_PY_OPERATOR_("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)// r?
+	LASS_PY_OPERATOR_("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)// r?
+	LASS_PY_OPERATOR_("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)// r?
+	LASS_PY_OPERATOR_("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)// r?
+	LASS_PY_OPERATOR_("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)// r?
+	LASS_PY_OPERATOR_("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)// r?
+	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)// r?
+	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)// r?
 	LASS_PY_OPERATOR_("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
 	LASS_PY_OPERATOR_("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
 	LASS_PY_OPERATOR_("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
@@ -305,10 +293,8 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc 
 	LASS_PY_OPERATOR_("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
 	LASS_PY_OPERATOR_("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
 	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
-	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)
 	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
-	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)
-	LASS_PY_OPERATOR_("__i__floordiv____", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
+	LASS_PY_OPERATOR_("__ifloordiv__", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
 #if PY_MAJOR_VERSION < 3
 	LASS_PY_OPERATOR_("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
 	LASS_PY_OPERATOR_("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
@@ -322,7 +308,7 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc 
 
 void ClassDefinition::addMethod(const TernarySlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__pow__", tp_as_number, PyNumberMethods, nb_power, Ternary)
+	LASS_PY_OPERATOR_("__pow__", tp_as_number, PyNumberMethods, nb_power, Ternary)// r?
 	LASS_PY_OPERATOR_("__ipow__", tp_as_number, PyNumberMethods, nb_inplace_power, Ternary)
 	LASS_ASSERT_UNREACHABLE;
 }

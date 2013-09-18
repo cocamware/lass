@@ -364,9 +364,7 @@ namespace impl
 		const TPyObjPtr pop_back();
 		const TPyObjPtr asList() const;
 		const TPyObjPtr iter() const;
-
-		std::string doPyStr();
-		std::string doPyRepr();
+		std::string repr() const;
 
 		const std::type_info& type() const;
 		void* raw(bool writable) const;

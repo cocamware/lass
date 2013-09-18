@@ -44,6 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_R_$x_H
 
 #include "dispatcher_allocator.h"
+#include "../callback_common.h"
 
 // --- NEW INTERFACES ----------------------------------------------------------
 
@@ -110,6 +111,10 @@ private:
 
 	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
+		if (!function_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
+		}
 		return function_($(iP$x)$);
 	}
 
@@ -143,6 +148,10 @@ private:
 
 	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
 	{
+		if (!object_ || !method_)
+		{
+			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
+		}
 		return ((*object_).*method_)($(iP$x)$);
 	}
 

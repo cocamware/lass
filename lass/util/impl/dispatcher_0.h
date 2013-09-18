@@ -65,8 +65,14 @@ public:
 
 	Dispatcher0() {}
 	virtual ~Dispatcher0() {}
-	void call() const { doCall(); }
-	bool isEquivalent(const Dispatcher0* iOther) const { return doIsEquivalent(iOther); }
+	void call() const 
+	{ 
+		doCall(); 
+	}
+	bool isEquivalent(const Dispatcher0* iOther) const 
+	{ 
+		return doIsEquivalent(iOther); 
+	}
 
 protected:
 
@@ -107,9 +113,12 @@ private:
 
 	void doCall() const
 	{
+		if (!function_)
+		{
+			return;
+		}
 		function_();
 	}
-
 	bool doIsEquivalent(const Dispatcher0* iOther) const
 	{
 		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
@@ -150,6 +159,10 @@ private:
 
 	void doCall() const
 	{
+		if (!object_ || !method_)
+		{
+			return;
+		}
 		((*object_).*method_)();
 	}
 

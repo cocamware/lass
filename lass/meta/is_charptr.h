@@ -67,11 +67,16 @@ template<int value>
 struct IsCharPtrValue : public lass::meta::False
 {
 };
+
+/// @cond NODOXYGEN
+
 template<>
 struct IsCharPtrValue< sizeof(IsCharPtrTester::test("Ed's Super Fixit")) > : public lass::meta::True
 {
 };
 }
+
+/// @endcond
 
 #define IsCharPtr( x ) (lass::meta::impl::IsCharPtrValue<sizeof(lass::meta::impl::IsCharPtrTester::test(x))>::value)
 #define IsCharPtrType( x ) lass::meta::impl::IsCharPtrValue<sizeof(lass::meta::impl::IsCharPtrTester::test(x))>::Type

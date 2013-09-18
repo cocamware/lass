@@ -78,6 +78,8 @@ std::wstring utf8ToWchar(const char* utf8)
 	return wide;
 }
 
+LASS_META_ASSERT( sizeof(wchar_t) == sizeof(WCHAR), wchar_t_should_be_of_same_size_as_WCHAR ); 
+
 std::wstring utf8ToWchar(const char* utf8, size_t length)
 {
 	std::wstring wide;

@@ -65,15 +65,6 @@ namespace python
 		}
 	}
 
-	std::string PyIteratorRange::doPyStr() 
-	{ 
-		return pimpl_->pyStr(); 
-	}
-	std::string PyIteratorRange::doPyRepr() 
-	{ 
-		return pimpl_->pyRepr(); 
-	}
-
 	PyObject* PyIteratorRange::iter( PyObject* iPo) 
 	{ 
 		Py_XINCREF(iPo); 
