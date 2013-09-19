@@ -1,6 +1,7 @@
 # included by CMakeLists.txt to check the environment and build config headers
 
 include(CheckIncludeFile)
+include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckFunctionExists)
@@ -10,8 +11,8 @@ macro(_try_compile VARIABLE fname msg ok fail)
 		message(STATUS "${msg}")
 		try_compile(
 			${VARIABLE}
-			"${lass_BINARY_DIR}/temp"
-			"${lass_SOURCE_DIR}/lass/config/${fname}"
+			"${lass_BINARY_DIR}/cmake"
+			"${lass_SOURCE_DIR}/cmake/${fname}"
 		)
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")

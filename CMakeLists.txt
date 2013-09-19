@@ -57,7 +57,7 @@ endif ()
 
 # --- CHECK THE ENVIRONMENT ----
 
-include(Environment.cmake)
+include(cmake/Environment.cmake)
 
 # --- MACROS ---
 
