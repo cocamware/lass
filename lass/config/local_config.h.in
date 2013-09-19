@@ -77,6 +77,7 @@
 
 #cmakedefine LASS_HAVE_FCNTL_H 1
 #cmakedefine LASS_HAVE_LIMITS_H 1
+#cmakedefine LASS_HAVE_POLL_H 1
 #cmakedefine LASS_HAVE_SCHED_H 1
 #cmakedefine LASS_HAVE_SCHED_H_CPU_SET_T 1
 #cmakedefine LASS_HAVE_STDDEF_H 1
@@ -98,6 +99,7 @@
 #cmakedefine LASS_HAVE_SYS_TIME_H 1
 #cmakedefine LASS_HAVE_SYS_TYPES_H 1
 #cmakedefine LASS_HAVE_MACH_THREAD_POLICY_H 1
+#cmakedefine LASS_HAVE_LINUX_UN_H 1
 
 #cmakedefine LASS_HAVE_SPROC 1
 #cmakedefine LASS_HAVE_WIN32_THREADS 1
