@@ -70,7 +70,7 @@ public:
 	std::auto_ptr<RemoteExceptionBase> clone() const;
 private:
 	virtual void doThrowSelf() const = 0;
-	virtual std::auto_ptr<RemoteExceptionBase> doClone() const = 0;
+	virtual RemoteExceptionBase* doClone() const = 0;
 };
 
 
@@ -87,7 +87,7 @@ private:
 	std::string message_;
 	std::string location_;
 	void doThrowSelf() const;
-	::std::auto_ptr<RemoteExceptionBase> doClone() const;
+	RemoteExceptionBase* doClone() const;
 };
 
 
@@ -103,9 +103,9 @@ private:
 	{
 		throw *static_cast<const ExceptionType*>(this); 
 	}
-	virtual ::std::auto_ptr<RemoteExceptionBase> doClone() const
+	virtual RemoteExceptionBase* doClone() const
 	{ 
-		return ::std::auto_ptr<RemoteExceptionBase>(new ExceptionType(*static_cast<const ExceptionType*>(this)));
+		return new ExceptionType(*static_cast<const ExceptionType*>(this));
 	}
 };
 
@@ -124,9 +124,10 @@ private:
 	{ 
 		throw *this; 
 	}
-	std::auto_ptr<RemoteExceptionBase> doClone() const 
-	{ 
-		return std::auto_ptr<RemoteExceptionBase>(new RemoteExceptionWrapper<LocalException>(*this)); 
+	RemoteExceptionBase* doClone() const 
+	{
+		typedef RemoteExceptionWrapper<LocalException> TSelf;
+		return new TSelf(*static_cast<const LocalException*>(this)); 
 	}
 };
 

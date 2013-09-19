@@ -45,6 +45,10 @@
 
 #include "stde_common.h"
 
+#if LASS_HAVE_STDDEF_H 
+#   include <stddef.h>
+#endif
+
 namespace lass
 {
 namespace stde
