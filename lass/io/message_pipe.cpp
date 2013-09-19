@@ -43,18 +43,29 @@
 #include "lass_common.h"
 #include "message_pipe.h"
 
-#ifdef _WIN32
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #   include "../stde/extended_cstring.h"
 #   define NOMINMAX
 #   define WIN32_LEAN_AND_MEAN
 #   include <Windows.h>
 #else
-#   include <sys/socket.h>
-#   include <linux/un.h>
-#   include <fcntl.h>
-#   include <poll.h>
+#   if LASS_HAVE_SYS_SOCKET_H
+#       include <sys/socket.h>
+#   endif
+#   if LASS_HAVE_LINUX_UN_H
+#       include <linux/un.h>
+#   endif
+#   if LASS_HAVE_FCNTL_H
+#       include <fcntl.h>
+#   endif
+#   if LASS_HAVE_POLL_H
+#       include <poll.h>
+#   endif
+#   if LASS_HAVE_UNISTD_H
+#       include <unistd.h>
+#   endif
 #   include <errno.h>
-#   include "../util/impl/lass_errno.h"
+//#   include "../util/impl/lass_errno.h"
 #endif
 
 #include <assert.h>
