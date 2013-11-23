@@ -54,7 +54,6 @@ namespace impl
 	template <typename ObjectTraits> 
 	typename ObjectTraits::TValue aabbCenterForAxis(const typename ObjectTraits::TAabb& box, size_t axis)
 	{
-		LASS_ASSERT(axis >= 0);
 		return (ObjectTraits::coord(ObjectTraits::aabbMin(box), axis) + ObjectTraits::coord(ObjectTraits::aabbMax(box), axis)) / 2;
 	};
 
