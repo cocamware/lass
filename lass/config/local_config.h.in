@@ -128,6 +128,7 @@
 #cmakedefine LASS_HAVE_LLABS 1
 #cmakedefine LASS_HAVE_ABS64 1
 #cmakedefine LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS 1
+#cmakedefine LASS_HAVE_ISNAN 1
 
 #cmakedefine LASS_HAVE_WCHAR_T @WCHAR_T@
 #cmakedefine LASS_HAVE_WFOPEN 1

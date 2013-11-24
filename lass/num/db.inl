@@ -55,41 +55,41 @@ namespace lass
 
 		template< typename T >  T   p2dB( const T& pressure )
 		{
-			if (pressure>=T(0))
-			{
-				return T(LASS_NUM_DB_20_OVER_LN10) * num::log(pressure / T(LASS_NUM_REFERENCE_PRESSURE_P0));
-			}
-			if (!isNaN(pressure))
+			if (pressure < T(0))
 			{
 				LASS_THROW( "Negative argument '" << pressure << "'" );
 			}
-			return pressure; // nan
+			if (isNaN(pressure))
+			{
+				return pressure; // nan
+			}
+			return T(LASS_NUM_DB_20_OVER_LN10) * num::log(pressure / T(LASS_NUM_REFERENCE_PRESSURE_P0));
 		}
 
 		template< typename T >  T   W2dB( const T& power )
 		{
-			if (power>=T(0))
-			{
-				return T(LASS_NUM_DB_10_OVER_LN10) * num::log(power / T(LASS_NUM_REFERENCE_POWER_W0));
-			}
-			if (!isNaN(power))
+			if (power < T(0))
 			{
 				LASS_THROW( "Negative argument '" << power << "'" );
 			}
-			return power; // nan
+			if (isNaN(power))
+			{
+				return power; // nan
+			}
+			return T(LASS_NUM_DB_10_OVER_LN10) * num::log(power / T(LASS_NUM_REFERENCE_POWER_W0));
 		}
 
 		template< typename T >  T   I2dB( const T& intensity )
 		{
-			if (intensity>=T(0))
-			{
-				return T(LASS_NUM_DB_10_OVER_LN10) * num::log(intensity / T(LASS_NUM_REFERENCE_INTENSITY_I0));
-			}
-			if (!isNaN(intensity))
+			if (intensity < T(0))
 			{
 				LASS_THROW( "Negative argument '" << intensity << "'" );
 			}
-			return intensity; // nan
+			if (isNaN(intensity))
+			{
+				return intensity; // nan
+			}
+			return T(LASS_NUM_DB_10_OVER_LN10) * num::log(intensity / T(LASS_NUM_REFERENCE_INTENSITY_I0));
 		}
 
 		template< typename T >  T   dB2p( const T& decibels )

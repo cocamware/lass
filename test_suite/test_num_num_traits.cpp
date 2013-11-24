@@ -128,6 +128,8 @@ namespace num_traits
 		LASS_TEST_CHECK_EQUAL(TNumTraits::zero, T(0));
 		LASS_TEST_CHECK_EQUAL(TNumTraits::one, T(1));
 		LASS_TEST_CHECK_EQUAL(TNumTraits::infinity, std::numeric_limits<T>::infinity());
+		LASS_TEST_CHECK(num::isInf(TNumTraits::infinity));
+		LASS_TEST_CHECK(num::isInf(-TNumTraits::infinity));
 		LASS_TEST_CHECK_EQUAL(TNumTraits::epsilon, std::numeric_limits<T>::epsilon());
 		LASS_TEST_CHECK_EQUAL(TNumTraits::min, -std::numeric_limits<T>::max());
 		LASS_TEST_CHECK_EQUAL(TNumTraits::max, std::numeric_limits<T>::max());
@@ -188,9 +190,11 @@ TUnitTest test_num_num_traits()
 	
 	result.push_back(LASS_TEST_CASE(testFloat<float>));
 	result.push_back(LASS_TEST_CASE(testFloat<double>));
+	result.push_back(LASS_TEST_CASE(testFloat<long double>));
 
 	result.push_back(LASS_TEST_CASE(testComplex< std::complex<float> >));
 	result.push_back(LASS_TEST_CASE(testComplex< std::complex<double> >));
+	result.push_back(LASS_TEST_CASE(testComplex< std::complex<long double> >));
 
 	return result;
 }

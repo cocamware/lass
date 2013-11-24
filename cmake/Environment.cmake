@@ -222,6 +222,7 @@ set(LASS_HAVE_LONG_LONG ${HAVE_LONG_LONG})
 CHECK_SYMBOL_EXISTS("llabs" "stdlib.h" LASS_HAVE_LLABS)
 CHECK_SYMBOL_EXISTS("_abs64" "stdlib.h" LASS_HAVE_ABS64)
 _try_compile_looking(LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS "check_long_double_std_functions.cpp" "fabsl")
+CHECK_SYMBOL_EXISTS("isnan" "math.h" LASS_HAVE_ISNAN)
 
 
 # --- wide character support ---

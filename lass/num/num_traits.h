@@ -94,15 +94,29 @@ struct LASS_DLL NumTraits
 	//static const C sqrtPi;
 };
 
+
 template<class C> inline
-bool isNaN( const C& iV )
+bool isNaN( C iV )
 {
-#ifdef LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
-	return NumTraits<C>::hasNaN && _isnan(static_cast<double>(iV)) != 0;
-#else
-	return iV != iV;
-#endif
+    return iV != iV;
 }
+
+#if LASS_HAVE_ISNAN
+inline bool isNaN( float iV ) { return isnan(iV) != 0; }
+inline bool isNaN( double iV ) { return isnan(iV) != 0; }
+inline bool isNaN( long double iV ) { return isnan(static_cast<double>(iV)) != 0; }
+#elif defined(LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H)
+inline bool isNaN( float iV ) { return _isnan(static_cast<double>(iV)) != 0; }
+inline bool isNaN( double iV ) { return _isnan(iV) != 0; }
+inline bool isNaN( long double iV ) { return _isnan(static_cast<double>(iV)) != 0; }
+#endif
+
+template<class C> inline
+bool isNaN( std::complex<C> iV )
+{
+    return isNaN(iV.real()) || isNaN(iV.imag());
+}
+
 
 /** return true if iV equals minus or plus Infinity
  */

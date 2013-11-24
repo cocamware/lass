@@ -90,6 +90,7 @@ void testNumDb()
 	LASS_TEST_CHECK_EQUAL(num::p2dB(T(0)), -num::NumTraits<T>::infinity);
 	LASS_TEST_CHECK_THROW(num::p2dB(T(-1)), util::Exception);
 	LASS_TEST_CHECK_NO_THROW(num::p2dB(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::p2dB(num::NumTraits<T>::qNaN)));
 
 	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-14)), T(-20), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::I2dB(T(1.e-13)), T(-10), epsilon);
@@ -99,6 +100,7 @@ void testNumDb()
 	LASS_TEST_CHECK_EQUAL(num::I2dB(T(0)), -num::NumTraits<T>::infinity);
 	LASS_TEST_CHECK_THROW(num::I2dB(T(-1)), util::Exception);
 	LASS_TEST_CHECK_NO_THROW(num::I2dB(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::I2dB(num::NumTraits<T>::qNaN)));
 
 	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-14)), T(-20), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::W2dB(T(1.e-13)), T(-10), epsilon);
@@ -108,6 +110,7 @@ void testNumDb()
 	LASS_TEST_CHECK_EQUAL(num::W2dB(T(0)), -num::NumTraits<T>::infinity);
 	LASS_TEST_CHECK_THROW(num::W2dB(T(-1)), util::Exception);
 	LASS_TEST_CHECK_NO_THROW(num::W2dB(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::W2dB(num::NumTraits<T>::qNaN)));
 
 	LASS_TEST_CHECK_CLOSE(num::dB2p(T(-40)), T(20.e-8), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2p(T(-20)), T(20.e-7), epsilon);
@@ -116,6 +119,7 @@ void testNumDb()
 	LASS_TEST_CHECK_CLOSE(num::dB2p(T(40)), T(20.e-4), epsilon);
 	LASS_TEST_CHECK_EQUAL(num::dB2p(-num::NumTraits<T>::infinity), T(0));
 	LASS_TEST_CHECK_NO_THROW(num::dB2p(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::dB2p(num::NumTraits<T>::qNaN)));
 
 	LASS_TEST_CHECK_CLOSE(num::dB2I(T(-20)), T(1.e-14), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2I(T(-10)), T(1.e-13), epsilon);
@@ -124,6 +128,7 @@ void testNumDb()
 	LASS_TEST_CHECK_CLOSE(num::dB2I(T(20)), T(1.e-10), epsilon);
 	LASS_TEST_CHECK_EQUAL(num::dB2I(-num::NumTraits<T>::infinity), T(0));
 	LASS_TEST_CHECK_NO_THROW(num::dB2I(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::dB2I(num::NumTraits<T>::qNaN)));
 
 	LASS_TEST_CHECK_CLOSE(num::dB2W(T(-20)), T(1.e-14), epsilon);
 	LASS_TEST_CHECK_CLOSE(num::dB2W(T(-10)), T(1.e-13), epsilon);
@@ -132,6 +137,7 @@ void testNumDb()
 	LASS_TEST_CHECK_CLOSE(num::dB2W(T(20)), T(1.e-10), epsilon);
 	LASS_TEST_CHECK_EQUAL(num::dB2W(-num::NumTraits<T>::infinity), T(0));
 	LASS_TEST_CHECK_NO_THROW(num::dB2W(num::NumTraits<T>::qNaN));
+	LASS_TEST_CHECK(num::isNaN(num::dB2W(num::NumTraits<T>::qNaN)));
 }
 
 TUnitTest test_num_db()
