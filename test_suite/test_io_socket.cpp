@@ -58,6 +58,7 @@ typedef io::Socket::TPort TPort;
 
 const TPort portBegin = 7331;
 const TPort portEnd = 7431;
+const TPort portError = 666;
 volatile TPort port = 0;
 
 const int numberSentServerToClient = 01234;
@@ -100,7 +101,7 @@ void serverThread()
 	}
 	catch (io::SocketError&)
 	{
-		port = 0;
+		port = portError;
 		throw;
 	}
 	LASS_COUT << "binded to port " << port << std::endl;
@@ -124,11 +125,11 @@ void clientThread()
 {
 	LASS_COUT << "starting client\n";
 	io::Socket client;
-	while (port == 0)
+	while (!port)
 	{
 		util::Thread::sleep(10);
 	}
-	if (port == -1)
+	if (port == portError)
 	{
 		return;
 	}
