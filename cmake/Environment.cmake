@@ -128,6 +128,51 @@ endif()
 #CHECK_INCLUDE_FILE("nptl/pthread.h" LASS_HAVE_NPTL_PTHREAD_H)
 
 
+
+# --- ARM ---
+
+_try_compile_checking(LASS_HAVE_ARM "check_arm.cpp" "targeting ARM")
+if (LASS_HAVE_ARM)
+
+    # Checking whether targeting BCM2708 (Raspberry Pi)
+    if (NOT DEFINED LASS_HAVE_BCM2708)
+        set(msg "Checking whether targeting BCM2708 (Raspberry Pi)")
+        message(STATUS "${msg}")
+        file(READ "/proc/cpuinfo" _cpuinfo)
+        if (_cpuinfo MATCHES "BCM2708")
+            message(STATUS "${msg} - yes")
+            set(LASS_HAVE_BCM2708 ON CACHE INTERNAL "${msg}")
+        else()
+            message(STATUS "${msg} - no")
+            set(LASS_HAVE_BCM2708 OFF CACHE INTERNAL "${msg}")
+        endif()
+    endif()
+
+    # Checking support of some assembly instructions
+    _try_compile_checking(LASS_HAVE_LDREXB_STREXB "check_ldrexb_strexb.cpp" "ldrexb and strexb are supported")
+    _try_compile_checking(LASS_HAVE_LDREXH_STREXH "check_ldrexh_strexh.cpp" "ldrexh and strexh are supported")
+    _try_compile_checking(LASS_HAVE_LDREX_STREX "check_ldrex_strex.cpp" "ldrex and strex are supported")
+    _try_compile_checking(LASS_HAVE_LDREXD_STREXD "check_ldrexd_strexd.cpp" "ldrexd and strexd are supported")
+    
+    set(VARIABLE LASS_KUSER_HELPER_VERSION)
+    set(msg "Looking for __kuser_helper_version")
+    if (NOT DEFINED ${VARIABLE})
+        message(STATUS "${msg}")
+        try_run(
+            ${VARIABLE}_run ${VARIABLE}_compile
+            "${lass_BINARY_DIR}/cmake"
+            "${lass_SOURCE_DIR}/cmake/check_kuser_helper_version.cpp"
+        )
+        if (${VARIABLE}_compile AND NOT ${VARIABLE}_run STREQUAL "FAILED_TO_RUN")
+            message(STATUS "${msg} - ${${VARIABLE}_run}")
+            set(${VARIABLE} ${${VARIABLE}_run} CACHE INTERNAL "${msg}")
+        else()
+            message(STATUS "${msg} - not found")
+            set(${VARIABLE} "" CACHE INTERNAL "${msg}")
+        endif()
+    endif()
+endif()
+    
 # --- extra libraries ---
 
 if (WIN32)

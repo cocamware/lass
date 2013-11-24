@@ -51,14 +51,16 @@ template <>
 struct AtomicOperations<1>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		bool result;
 		__asm__ __volatile__(
 			"lock; cmpxchgb %2, %0;"
-			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			"sete %1;"
+			: "=m"(dest), "=q"(result)
+			: "q"(newValue), "a"(expectedValue), "m"(dest)
 			: "cc", "memory");
-		return expectedValue;
+		return result;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -118,14 +120,16 @@ template <>
 struct AtomicOperations<2>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		bool result;
 		__asm__ __volatile__(
 			"lock; cmpxchgw %2, %0;"
-			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			"sete %1;"
+			: "=m"(dest), "=q"(result)
+			: "q"(newValue), "a"(expectedValue), "m"(dest)
 			: "cc", "memory");
-		return expectedValue;
+		return result;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -174,14 +178,16 @@ template <>
 struct AtomicOperations<4>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		bool result;
 		__asm__ __volatile__(
 			"lock; cmpxchgl %2, %0;"
-			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			"sete %1;"
+			: "=m"(dest), "=q"(result)
+			: "q"(newValue), "a"(expectedValue), "m"(dest)
 			: "cc", "memory");
-		return expectedValue;
+		return result;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -241,8 +247,9 @@ template <>
 struct AtomicOperations<8>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		bool result;
 #if LASS_ADDRESS_SIZE == 32
 		// cmpxchg8b and PIC mode don't play nice.  Push ebx before use!
 		// see http://www.technovelty.org/code/arch/pic-cas.html
@@ -253,8 +260,9 @@ struct AtomicOperations<8>
 			"movl (%%ecx),%%ebx;"
 			"movl 4(%%ecx),%%ecx;"
 			"lock; cmpxchg8b %0;"
+			"sete %1;"
 			"pop %%ebx;"
-			: "=m"(dest), "=A"(expectedValue)
+			: "=m"(dest), "=q"(result)
 			: "m"(dest),
 			  "a"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[0]), 
 			  "d"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[1]),	
@@ -263,7 +271,8 @@ struct AtomicOperations<8>
 #	else
 		__asm__ __volatile__(
 			"lock; cmpxchg8b %0;"
-			: "=m"(dest), "=A"(expectedValue)
+			"sete %1;"
+			: "=m"(dest), "=q"(result)
 			: "m"(dest),
 			  "a"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[0]), 
 			  "d"(reinterpret_cast<volatile num::Tuint32*>((void*)&expectedValue)[1]),	
@@ -274,11 +283,12 @@ struct AtomicOperations<8>
 #else
 		__asm__ __volatile__(
 			"lock; cmpxchgq %2, %0;"
-			: "=m"(dest), "=a"(expectedValue)
-			: "q"(newValue), "1"(expectedValue), "m"(dest)
+			"sete %1;"
+			: "=m"(dest), "=q"(result)
+			: "q"(newValue), "a"(expectedValue), "m"(dest)
 			: "cc", "memory");
 #endif
-		return expectedValue;
+		return result;
 	}
 
 #if LASS_ADDRESS_SIZE != 32
@@ -330,7 +340,7 @@ struct AtomicOperations<8>
 			old = value;
 			fresh = old - 1;
 		}
-		while (!atomicCompareAndSwap(value, old, fresh));		
+		while (!atomicCompareAndSwap(value, old, fresh));
 #else
 		__asm__ __volatile__(
 			"lock; decq %0;"

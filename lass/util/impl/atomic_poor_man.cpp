@@ -45,7 +45,70 @@
 
 #ifdef LASS_UTIL_ATOMIC_HAVE_POOR_MANS_IMPL
 
-#warning "[LASS BUILD MSG] Poor man's implementation of atomic.h, performance may suffer severely!"
+#if LASS_HAVE_LDREX_STREX || LASS_KUSER_HELPER_VERSION >= 2
+#   if LASS_HAVE_LDREXB_STREXB && LASS_HAVE_LDREXH_STREXH
+#       if LASS_HAVE_LDREXD_STREXD || LASS_KUSER_HELPER_VERSION >= 5
+            // all should be ok (except for 8-byte adjacent CAS, which shouldn't be used anyway, can we protect against that?)
+#       else
+#           warning "[LASS BUILD MSG] Poor man's implementation of 4-byte adjacent CAS (used in TaggedPtr), and all 8-byte atomics. Performance will suffer!"
+#       endif
+#   elif LASS_HAVE_LDREXD_STREXD || LASS_KUSER_HELPER_VERSION >= 5
+#       warning "[LASS BUILD MSG] Poor man's implementation of 1- and 2-byte atomics (except 2-byte adjacent CAS). All 4- and 8-byte atomics are good."
+#   else
+#       warning "[LASS BUILD MSG] Poor man's implementation of 1-, 2- and 8-byte atomics, and 4-byte adjacent CAS (used in TaggedPtr). Performance will suffer!"
+#   endif
+#else
+#   warning "[LASS BUILD MSG] Poor man's implementation of ALL atomics using a mutex! performance will SEVERELY suffer!"
+#endif
+
+#if LASS_KUSER_HELPER_VERSION >= 2
+
+namespace
+{
+	typedef int (kuser_cmpxchg_t)(int oldval, int newval, volatile int *ptr);
+	#define kuser_cmpxchg (*(kuser_cmpxchg_t *)0xffff0fc0)
+
+	enum
+	{
+		unlocked = 0,
+		locked = 1,
+	};
+	volatile int globalLock = unlocked;
+}
+
+namespace lass
+{
+namespace util
+{
+namespace impl
+{
+
+PoorMansGlobalAtomicLock::PoorMansGlobalAtomicLock()
+{
+	int old;
+	do
+	{
+		old = globalLock;
+		if ( old == locked )
+		{
+			continue;
+		}
+	}
+	while (kuser_cmpxchg(old, locked, &globalLock));
+}
+
+PoorMansGlobalAtomicLock::~PoorMansGlobalAtomicLock()
+{
+	LASS_ASSERT(globalLock == locked);
+	kuser_cmpxchg(locked, unlocked, &globalLock);
+};
+
+}
+}
+}
+
+#else
+
 #include "../thread.h"
 
 namespace
@@ -87,6 +150,8 @@ PoorMansGlobalAtomicLock::~PoorMansGlobalAtomicLock()
 }
 }
 }
+
+#endif
 
 #endif
 

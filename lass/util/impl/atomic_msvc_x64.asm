@@ -8,6 +8,8 @@ lass_cas8 PROC
 	; r8b = expected
 	mov rax, r8
 	lock cmpxchg BYTE PTR [rcx], dl
+	mov rax, 0
+	sete al
 	ret
 lass_cas8 ENDP
 

@@ -42,6 +42,7 @@
 
 #include "test_common.h"
 #include "../lass/util/atomic.h"
+#include "../lass/util/thread_fun.h"
 #include "../lass/num/basic_types.h"
 
 namespace lass
@@ -121,12 +122,69 @@ void testUtilAtomicAdjacentCas()
 #else
 	volatile T a[2] = { old1, old2 };
 #endif
+	LASS_META_ASSERT(sizeof(a) == 2 * sizeof(T), expect_close_packing);
+
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
+	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(old1));
+	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(old2));
+	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, old2, new1, new2));
+	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(old1));
+	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(old2));
+	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], old1, wrong2, new1, new2));
 	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(old1));
 	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(old2));
 	LASS_TEST_CHECK(util::atomicCompareAndSwap(a[0], old1, old2, new1, new2));
 	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(new1));
 	LASS_TEST_CHECK_EQUAL(hex(a[1]), hex(new2));
+}
+
+template <typename T>
+void countingThread(volatile T* counter, T times, volatile bool* startFlag, util::Condition* startCondition)
+{
+	while (!*startFlag)
+	{
+		startCondition->wait(500);
+	}
+	for (T k = 0; k < times; ++k)
+	{
+		T expected, desired;
+		do
+		{
+			expected = *counter;
+			desired = static_cast<T>(expected + 1);
+		}
+		while (!util::atomicCompareAndSwap(*counter, expected, desired));
+	}
+}
+
+template <typename T>
+void testUtilAtomicMultithreadedCounter()
+{
+	typedef util::SharedPtr<util::ThreadFun> ThreadPtr;
+	const size_t numThreads = std::max<size_t>(util::numberOfAvailableProcessors(), 2);
+
+	volatile T counter = 0;
+	T times = static_cast<T>(std::min<num::Tuint64>(num::NumTraits<T>::max, 10000));
+	const T timesPerThread = static_cast<T>(times / numThreads);
+	times = static_cast<T>(timesPerThread * numThreads);
+	
+	volatile bool startFlag = false;
+	util::Condition startCondition;
+	std::vector<ThreadPtr> threads;
+	for (size_t k = 0; k < numThreads; ++k)
+	{
+		threads.push_back(ThreadPtr(util::threadFun( util::bind( &countingThread<T>, &counter, timesPerThread, &startFlag, &startCondition ), util::threadJoinable ) ));
+		threads[k]->run();
+	}
+	startFlag = true;
+	startCondition.broadcast();
+	
+	for (size_t k = 0; k < numThreads; ++k)
+	{
+		threads[k]->join();
+	}
+	
+	LASS_TEST_CHECK_EQUAL(counter, times);
 }
 
 }
@@ -137,14 +195,14 @@ TUnitTest test_util_atomic()
 
 	TUnitTest result;
 	
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint8>));	
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint16>));	
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint32>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint8>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint16>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint32>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tuint64>));
 
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint8>));	
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint16>));	
-	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint32>));	
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint8>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint16>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint32>));
 	result.push_back(LASS_TEST_CASE(testUtilAtomicType<num::Tint64>));
 
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tuint8>));
@@ -160,6 +218,11 @@ TUnitTest test_util_atomic()
 #if (LASS_ADDRESS_SIZE == 64)
 	result.push_back(LASS_TEST_CASE(testUtilAtomicAdjacentCas<num::Tint64>));
 #endif
+
+	result.push_back(LASS_TEST_CASE(testUtilAtomicMultithreadedCounter<num::Tuint8>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicMultithreadedCounter<num::Tuint16>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicMultithreadedCounter<num::Tuint32>));
+	result.push_back(LASS_TEST_CASE(testUtilAtomicMultithreadedCounter<num::Tuint64>));
 
 	return result;
 }

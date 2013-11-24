@@ -68,8 +68,7 @@ namespace util
 template <typename T> inline 
 bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
 {
-	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue) 
-		== expectedValue;
+	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue);
 }
 
 
@@ -185,6 +184,8 @@ void atomicUnlock(volatile T& semaphore)
 #	else
 #		define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (16)))
 #	endif
+#elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
+#	define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (8)))
 #else
 	// Not for 32-bit. 
 	// Technically, we don't need it. lock cmpxchg8b should be ok without. Though you may get a performance hit.

@@ -13,6 +13,7 @@ set_target_properties(
 	pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
+	COMPILE_FLAGS "${lass_C_FLAGS}"
 	PREFIX ""
 	)
 if (WIN32)

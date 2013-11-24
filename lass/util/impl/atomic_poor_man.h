@@ -59,16 +59,19 @@ public:
 template <int byteSize>
 struct AtomicOperations
 {
+	LASS_META_ASSERT(byteSize == 1 || byteSize == 2 || byteSize == 4 || byteSize == 8, bytesize_should_be_1_2_4_or_8);
+	
 	template <typename T>
 	static T compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
 		const T old = dest;
-		if (old == expectedValue)
+		if (old != expectedValue)
 		{
-			dest = newValue;
+			return false;
 		}
-		return old;
+		dest = newValue;
+		return true;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -77,13 +80,13 @@ struct AtomicOperations
 	{
 		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
 		volatile T2& dest2 = *reinterpret_cast<volatile T2*>((&dest1) + 1);
-		if (dest1 == expected1 && dest2 == expected2)
+		if (dest1 != expected1 || dest2 != expected2)
 		{
-			dest1 = new1;
-			dest2 = new2;
-			return true;
+			return false;
 		}
-		return false;
+		dest1 = new1;
+		dest2 = new2;
+		return true;
 	}
 
 	template <typename T> inline

@@ -54,7 +54,7 @@ template <>
 struct AtomicOperations<1>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		__asm 
 		{
@@ -62,6 +62,8 @@ struct AtomicOperations<1>
 			mov dl, newValue
 			mov edi, dest
 			lock cmpxchg [edi], dl
+			mov eax, 0
+			sete al
 		}
 		/* return eax */
 	}
@@ -111,7 +113,7 @@ template <>
 struct AtomicOperations<2>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		__asm 
 		{
@@ -119,6 +121,8 @@ struct AtomicOperations<2>
 			mov dx, newValue
 			mov edi, dest
 			lock cmpxchg [edi], dx
+			mov eax, 0
+			sete al
 		}
 		/* return eax */
 	}
@@ -170,7 +174,7 @@ template <>
 struct AtomicOperations<4>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		__asm 
 		{
@@ -178,6 +182,8 @@ struct AtomicOperations<4>
 			mov edx, newValue
 			mov edi, dest
 			lock cmpxchg [edi], edx
+			mov eax, 0
+			sete al
 		}
 		/* return eax */
 	}
@@ -241,7 +247,7 @@ template <>
 struct AtomicOperations<8>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		// If you ever read this, because MSVC starts complaining with warnings like:
 		//
@@ -266,6 +272,8 @@ struct AtomicOperations<8>
 			mov ecx, 4[edi]
 			mov edi, dest
 			lock cmpxchg8b [edi]
+			mov eax, 0
+			sete al
 			pop ebx
 		}
 		/* return edx:eax */

@@ -57,7 +57,7 @@
 
 extern "C"
 {
-	lass::num::Tuint8 lass_cas8(volatile lass::num::Tuint8*, lass::num::Tuint8, lass::num::Tuint8);
+	bool lass_cas8(volatile lass::num::Tuint8*, lass::num::Tuint8, lass::num::Tuint8);
 	void lass_inc8(volatile lass::num::Tuint8*);
 	void lass_dec8(volatile lass::num::Tuint8*);
 	bool lass_dcas8(volatile lass::num::Tuint8*, lass::num::Tuint8, lass::num::Tuint8, lass::num::Tuint8, lass::num::Tuint8);
@@ -77,7 +77,7 @@ template <>
 struct AtomicOperations<1>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		return lass_cas8(reinterpret_cast<volatile num::Tuint8*>(&dest), 
 			*reinterpret_cast<num::Tuint8*>(&newValue), *reinterpret_cast<num::Tuint8*>(&expectedValue));
@@ -112,10 +112,11 @@ template <>
 struct AtomicOperations<2>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
+		const short expected = *reinterpret_cast<short*>(&expectedValue);
 		return _InterlockedCompareExchange16(reinterpret_cast<volatile short*>(&dest), 
-			*reinterpret_cast<short*>(&newValue), *reinterpret_cast<short*>(&expectedValue));
+			*reinterpret_cast<short*>(&newValue), expected) == expected;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -147,10 +148,11 @@ template <>
 struct AtomicOperations<4>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
-		return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&dest), 
-			*reinterpret_cast<long*>(&newValue), *reinterpret_cast<long*>(&expectedValue));
+		const long expected = *reinterpret_cast<long*>(&expectedValue);
+		return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&dest),
+			*reinterpret_cast<long*>(&newValue), expected) == expected;
 	}
 
 	template <typename T1, typename T2> inline 
@@ -182,10 +184,11 @@ template <>
 struct AtomicOperations<8>
 {
 	template <typename T> inline 
-	static T LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool LASS_CALL compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
-	return _InterlockedCompareExchange64(reinterpret_cast<volatile __int64*>(&dest), 
-		*reinterpret_cast<__int64*>(&newValue), *reinterpret_cast<__int64*>(&expectedValue));
+		const __int64 expected = *reinterpret_cast<__int64*>(&expectedValue);
+		return _InterlockedCompareExchange64(reinterpret_cast<volatile __int64*>(&dest), 
+			*reinterpret_cast<__int64*>(&newValue), expected) == expected;
 	}
 
 	template <typename T1, typename T2> inline 
