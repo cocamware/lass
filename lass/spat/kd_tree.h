@@ -61,12 +61,12 @@ namespace lass
 namespace spat
 {
 
-template <typename ObjectType>
+template <typename ObjectType, typename IteratorType=const ObjectType*>
 struct KdTreeObjectTraits
 {
-	typedef const ObjectType* TObjectIterator;
-	typedef const ObjectType& TObjectReference;
 	typedef ObjectType TPoint;
+	typedef IteratorType TObjectIterator;
+	typedef const ObjectType& TObjectReference;
 	typedef typename TPoint::TValue TValue;
 	typedef typename TPoint::TParam TParam;
 	typedef typename TPoint::TReference TReference;

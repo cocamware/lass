@@ -76,7 +76,7 @@ void testSpatPointTrees()
 	//
 	const unsigned n = 100000;
 	num::RandomMT19937 generator;
-	TPoint points[n];
+	std::vector<TPoint> points(n);
 	for (unsigned i = 0; i < n; ++i)
 	{
 		points[i] = bounds.random(generator);
@@ -85,7 +85,7 @@ void testSpatPointTrees()
 	// make single tree, and do diagnostics on itµ
 	//
 	typedef spat::KdTree<TPoint> TKdTree;
-	TKdTree tree(points, points + n);
+	TKdTree tree(&points[0], &points[0] + n);
 	//tree.diagnostics();
 
 
@@ -101,7 +101,7 @@ void testSpatPointTrees()
 	>::Type TTreeTypes;
 	typedef meta::Tuple<TTreeTypes> TTrees;
 	TTrees trees;
-	tree_test_helpers::TreeConstructor<TPointIterator> construct(points, points + n);
+	tree_test_helpers::TreeConstructor<TPointIterator> construct(&points[0], &points[0] + n);
 	meta::tuple::forEach(trees, construct);
 
 	// VALIDATION TESTS
