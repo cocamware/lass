@@ -356,6 +356,8 @@ public:
 
         // autobind
         sockaddr_un addr;
+        memset(&addr, 0, sizeof(sockaddr_un));
+        addr.sun_family = AF_UNIX;
         socklen_t addr_len = sizeof(sa_family_t);
         if (bind(socket_, reinterpret_cast<sockaddr*>(&addr), addr_len) != 0)
         {
