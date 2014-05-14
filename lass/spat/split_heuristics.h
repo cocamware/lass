@@ -211,7 +211,6 @@ protected:
 	SplitInfo<ObjectTraits> split(RandomIterator first, RandomIterator last)
 	{
 		typedef typename ObjectTraits::TAabb TAabb;
-		typedef typename ObjectTraits::TPoint TPoint;
 		typedef typename ObjectTraits::TValue TValue;
 
 		const TValue costNode = 1; // must be non zero!

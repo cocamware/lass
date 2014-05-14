@@ -60,45 +60,43 @@ void testMetaTypeList()
 	using namespace meta;
 
 	typedef type_list::Make<float, double, long double>::Type TFloats;
-	typedef type_list::Make<signed char, short, int, long>::Type TSignedIntegers;
+	//typedef type_list::Make<signed char, short, int, long>::Type TSignedIntegers;
 
-	/*
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TFloats>::value), 3);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TSignedIntegers>::value), 4);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<NullType>::value), 0);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TFloats>::value), 3);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TSignedIntegers>::value), 4);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<NullType>::value), 0);
 
 	typedef type_list::At<TFloats, 1>::Type TFloat1; // double
 	LASS_TEST_CHECK((IsSame<TFloat1, double>::value));
 
-	typedef type_list::AtNonStrict<TFloats, 4>::Type TFloat4; // NullType
-	LASS_TEST_CHECK((IsSame<TFloat4, NullType>::value));
-	typedef type_list::AtNonStrict<TFloats, 5, float>::Type TFloat5; // float
-	LASS_TEST_CHECK((IsSame<TFloat5, float>::value));
+	//typedef type_list::AtNonStrict<TFloats, 4>::Type TFloat4; // NullType
+	//LASS_TEST_CHECK((IsSame<TFloat4, NullType>::value));
+	//typedef type_list::AtNonStrict<TFloats, 5, float>::Type TFloat5; // float
+	//LASS_TEST_CHECK((IsSame<TFloat5, float>::value));
 
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, float>::value), 0);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, double>::value), 1);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, long double>::value), 2);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, NullType>::value), -1);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, float>::value), 0);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, double>::value), 1);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, long double>::value), 2);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TFloats, NullType>::value), -1);
 
-	typedef type_list::Merge<TSignedIntegers, AVeryLongInt>::Type TAllSignedIntegers;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);
-	typedef type_list::Merge<TFloats, TAllSignedIntegers>::Type TAllSignedTypes;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedTypes>::value), 8);
+	//typedef type_list::Merge<TSignedIntegers, AVeryLongInt>::Type TAllSignedIntegers;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedIntegers>::value), 5);
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TAllSignedIntegers, AVeryLongInt>::value), 4);
+	//typedef type_list::Merge<TFloats, TAllSignedIntegers>::Type TAllSignedTypes;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TAllSignedTypes>::value), 8);
 
-	typedef type_list::Remove<TFloats, long double>::Type TCommonFloats;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TCommonFloats>::value), 2);
+	//typedef type_list::Remove<TFloats, long double>::Type TCommonFloats;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TCommonFloats>::value), 2);
 
-	typedef type_list::Replace<TAllSignedIntegers, AVeryLongInt, long>::Type TLongIs64;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Find<TLongIs64, AVeryLongInt>::value), -1);
+	//typedef type_list::Replace<TAllSignedIntegers, AVeryLongInt, long>::Type TLongIs64;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Find<TLongIs64, AVeryLongInt>::value), -1);
 
-	typedef type_list::Unique<TLongIs64>::Type TUniqueSignedIntegers;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TUniqueSignedIntegers>::value), 4);
+	//typedef type_list::Unique<TLongIs64>::Type TUniqueSignedIntegers;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TUniqueSignedIntegers>::value), 4);
 
-	typedef type_list::Reverse<TFloats>::Type TReverseFloats;
-	LASS_TEST_CHECK_EQUAL(int(type_list::Size<TReverseFloats>::value),
-					  int(type_list::Size<TFloats>::value));
-  */
+	//typedef type_list::Reverse<TFloats>::Type TReverseFloats;
+	//LASS_TEST_CHECK_EQUAL(int(type_list::Size<TReverseFloats>::value),
+	//				  int(type_list::Size<TFloats>::value));
 }
 
 TUnitTest test_meta_type_list()

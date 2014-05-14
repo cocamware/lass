@@ -150,28 +150,6 @@
 #	define LASS_LOG( iMessage )                 LASS_LOG_IMPL( iMessage )
 #endif
 
-/** Executes code before the main has actually begun.  The macro relies on line numbers, so
- *  only one LASS_EXECUTE_BEFORE_MAIN per line!
- *  @ingroup CommonMacros
- */
-#define LASS_EXECUTE_BEFORE_MAIN( x ) LASS_EXECUTE_BEFORE_MAIN_EX(lassDummyName, x)
-
-/** Same as LASS_EXECUTE_BEFORE_MAIN but with an additional parameter that let's you specify the
- *  used prefix.   Mmmh, let's use this as implementation of LASS_EXECUTE_BEFORE_MAIN :)
- *  @ingroup CommonMacros
- */
-#define LASS_EXECUTE_BEFORE_MAIN_EX( iPrefix, x ) \
-	namespace \
-	{ \
-		inline bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) () \
-		{ \
-			x \
-			return true; \
-		} \
-		const bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var ) = \
-			LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) (); \
-	}
-
 
 // now some pragma's you can use to leave messages behind
 
@@ -214,5 +192,30 @@
 #else
 #	define LASS_UNUSED(x) x
 #endif
+
+
+
+/** Executes code before the main has actually begun.  The macro relies on line numbers, so
+ *  only one LASS_EXECUTE_BEFORE_MAIN per line!
+ *  @ingroup CommonMacros
+ */
+#define LASS_EXECUTE_BEFORE_MAIN( x ) LASS_EXECUTE_BEFORE_MAIN_EX(lassDummyName, x)
+
+/** Same as LASS_EXECUTE_BEFORE_MAIN but with an additional parameter that let's you specify the
+ *  used prefix.   Mmmh, let's use this as implementation of LASS_EXECUTE_BEFORE_MAIN :)
+ *  @ingroup CommonMacros
+ */
+#define LASS_EXECUTE_BEFORE_MAIN_EX( iPrefix, x ) \
+	namespace \
+	{ \
+		inline bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) () \
+		{ \
+			x \
+			return true; \
+		} \
+		const bool LASS_UNUSED(LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var )) = \
+			LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) (); \
+	}
+
 
 #endif

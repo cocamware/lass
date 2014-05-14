@@ -64,7 +64,6 @@ void testPrimTransformation3D()
 	const T epsilon = static_cast<T>(1e-2);
 
 	typedef prim::Transformation3D<T> TTransformation;
-	typedef prim::Point3D<T> TPoint;
 	typedef prim::Vector3D<T> TVector;
 	typedef num::NumTraits<T> TNumTraits;
 

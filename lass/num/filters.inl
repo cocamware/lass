@@ -43,8 +43,6 @@ namespace impl
 		typedef num::NumTraits<T> TNumTraits;
 		typedef num::Polynomial<T> TPolynomial;
 
-		const T twoFs = 2 * samplingFrequency;
-
 		TPolynomial oneMinZ = 2 * samplingFrequency * (TNumTraits::one - TPolynomial::x());
 		TPolynomial onePlusZ = TNumTraits::one + TPolynomial::x();
 		TPolynomial result;

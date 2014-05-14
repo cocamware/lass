@@ -85,7 +85,6 @@ Sphere3D<T> boundingSphere(const Aabb3D<T, MMP>& box)
 template <typename T, typename MMP>
 bool intersects(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
 {
-	typedef typename Sphere3D<T>::TPoint TPoint;
 	typedef typename Sphere3D<T>::TVector TVector;
 	const TVector dist = pointwiseMax(aabb.min() - sphere.center(), sphere.center() - aabb.max());
 	return pointwiseMax(dist, TVector()).squaredNorm() <= num::sqr(sphere.radius());
@@ -110,7 +109,6 @@ bool intersects(const Sphere3D<T>& sphere, const Aabb3D<T, MMP>& aabb)
 template <typename T, typename MMP>
 bool collides(const Aabb3D<T, MMP>& aabb, const Sphere3D<T>& sphere)
 {
-	typedef typename Sphere3D<T>::TPoint TPoint;
 	typedef typename Sphere3D<T>::TVector TVector;
 	const TVector dist = pointwiseMax(aabb.min() - sphere.center(), sphere.center() - aabb.max());
 	return pointwiseMax(dist, TVector()).squaredNorm() < num::sqr(sphere.radius());

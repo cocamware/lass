@@ -455,7 +455,6 @@ public:
 	template <typename Tree> void operator()(const Tree& tree) const
 	{
 		typedef typename Tree::TValue TValue;
-		typedef num::NumTraits<TValue> TNumTraits;
 		TValue total = 0;
 		stopWatch_.restart();
 		for (size_t k = 0; k < numberOfRuns_; ++k)

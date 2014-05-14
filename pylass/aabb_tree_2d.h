@@ -63,7 +63,7 @@ struct ObjectTraits:
 		return temp;
 	}
 	
-	static const bool objectContains(TObjectIterator object, const TPoint& point, const TInfo*) 
+	static bool objectContains(TObjectIterator object, const TPoint& point, const TInfo*) 
 	{ 
 		python::LockGIL LASS_UNUSED(lock);
 		TObject method(python::pyBuildSimpleObject("contains"));
@@ -82,7 +82,7 @@ struct ObjectTraits:
 		return temp;
 	}
 
-	static const bool objectIntersect(TObjectIterator object, const TRay& ray, TReference t, TParam tMin, const TInfo*)
+	static bool objectIntersect(TObjectIterator object, const TRay& ray, TReference t, TParam tMin, const TInfo*)
 	{
 		python::LockGIL LASS_UNUSED(lock);
 		TObject method(python::pyBuildSimpleObject("intersect"));
@@ -110,7 +110,7 @@ struct ObjectTraits:
 
 	/** return true if object is intersected by ray
 	 */
-	static const bool objectIntersects(TObjectIterator object, const TRay& ray, TParam tMin, TParam tMax, const TInfo*)
+	static bool objectIntersects(TObjectIterator object, const TRay& ray, TParam tMin, TParam tMax, const TInfo*)
 	{
 		python::LockGIL LASS_UNUSED(lock);
 		TObject method(python::pyBuildSimpleObject("intersects"));
@@ -168,7 +168,7 @@ public:
 	bool intersects(const TPoint& support, const TVector& direction, TParam tMin, TParam tMax) const;
 
 	void swap(AabbTree2D& other);
-	const bool isEmpty() const;
+	bool isEmpty() const;
 	void clear();
 
 private:

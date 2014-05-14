@@ -470,7 +470,6 @@ T partialVoronoiArea(const Triangle2D<T> iT, int vertexIndex)
 	// compute the two midpoints
 	typedef typename Triangle2D<T>::TPoint	TPoint;
 	typedef typename Triangle2D<T>::TPointH	TPointH;
-	typedef typename Triangle2D<T>::TVector	TVector;
 	typedef Line2D<T> TLine;
 	TPoint a = iT.at(vertexIndex);
 	TPoint b = iT.at(vertexIndex+1);

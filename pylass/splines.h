@@ -42,11 +42,11 @@ public:
 	SplineLinear() {}
 	SplineLinear(const TSequence& controls, const TSequence& datas): spline_(controls.begin(), controls.end(), datas.begin()) {}
 	SplineLinear(const TPairSequence& pairs): spline_(pairs.begin(), pairs.end()) {}
-	const double operator()(double iX) const { return spline_(iX); }
-	const double derivative(double iX) const { return spline_.derivative(iX); }
-	const double derivative2(double iX) const { return spline_.derivative2(iX); }
-	const double integral(double iA, double iB) const { return spline_.integral(iA, iB); }
-	const bool isEmpty() const { return spline_.isEmpty(); }
+	double operator()(double iX) const { return spline_(iX); }
+	double derivative(double iX) const { return spline_.derivative(iX); }
+	double derivative2(double iX) const { return spline_.derivative2(iX); }
+	double integral(double iA, double iB) const { return spline_.integral(iA, iB); }
+	bool isEmpty() const { return spline_.isEmpty(); }
 private:
 	num::SplineLinear<double, double, num::DataTraitsScalar<double> > spline_;	
 };
@@ -60,11 +60,11 @@ public:
 	SplineCubic() {}
 	SplineCubic(const TSequence& controls, const TSequence& datas): spline_(controls.begin(), controls.end(), datas.begin()) {}
 	SplineCubic(const TPairSequence& pairs): spline_(pairs.begin(), pairs.end()) {}
-	const double operator()(double iX) const { return spline_(iX); }
-	const double derivative(double iX) const { return spline_.derivative(iX); }
-	const double derivative2(double iX) const { return spline_.derivative2(iX); }
-	const double integral(double iA, double iB) const { return spline_.integral(iA, iB); }
-	const bool isEmpty() const { return spline_.isEmpty(); }
+	double operator()(double iX) const { return spline_(iX); }
+	double derivative(double iX) const { return spline_.derivative(iX); }
+	double derivative2(double iX) const { return spline_.derivative2(iX); }
+	double integral(double iA, double iB) const { return spline_.integral(iA, iB); }
+	bool isEmpty() const { return spline_.isEmpty(); }
 private:
 	num::SplineCubic<double, double, num::DataTraitsScalar<double> > spline_;	
 };

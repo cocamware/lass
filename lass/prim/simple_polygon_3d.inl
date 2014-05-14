@@ -613,7 +613,6 @@ template <typename T, class EP1, class NP1, class EP2, class NP2>
 SimplePolygon3D<T, EP2, NP2> clip(const Plane3D<T, EP1, NP1>& iPlane, 
 								  const SimplePolygon3D<T, EP2, NP2>& iPolygon)
 {
-	typedef Plane3D<T, EP1, NP1> TPlane;
 	typedef SimplePolygon3D<T, EP2, NP2> TPolygon;
 	typedef Point3D<T> TPoint;
 	typedef typename TPoint::TValue TValue;

@@ -267,9 +267,8 @@ typename ShadowType::TShadowPtr makeShadow(
 		impl::ShadoweeConstness constness)
 {
 	typedef typename ShadowType::TShadowPtr TShadowPtr;
-	typedef typename ShadowType::TConstPointerTraits TConstPointerTraits;
 
-	LASS_ASSERT(!TConstPointerTraits::isEmpty(shadowee));
+	LASS_ASSERT(! typename ShadowType::TConstPointerTraits::isEmpty(shadowee));
 	if (derivedMakers)
 	{
 		for (typename DerivedMakers::const_iterator i = derivedMakers->begin(); i != derivedMakers->end(); ++i)

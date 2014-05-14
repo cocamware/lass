@@ -153,10 +153,6 @@ bool intersectsHelperTriangleAabb3D(const P& v0, const P& v1, const P& v2, const
 template <typename T, typename MMP>
 bool intersects(const Triangle3D<T>& triangle, const Aabb3D<T, MMP>& box)
 {
-	typedef typename Triangle3D<T>::TPoint TPoint;
-	typedef typename Triangle3D<T>::TVector TVector;
-	typedef typename Triangle3D<T>::TValue TValue;
-
 	// bullet 3
 	if (!impl::intersectsHelperTriangleAabb3D(triangle[0], triangle[1], triangle[2], box.min(), box.max())) return false;
 	if (!impl::intersectsHelperTriangleAabb3D(triangle[1], triangle[2], triangle[0], box.min(), box.max())) return false;

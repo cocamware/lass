@@ -173,7 +173,6 @@ void testSpatObjectTrees()
 
 	typedef typename TObject::TPoint TPoint;
 	typedef typename TObject::TVector TVector;
-	typedef typename TObject::TValue TValue;
 	typedef typename TObject::TNumTraits TNumTraits;
 
 	typedef std::vector<TObject> TObjects;

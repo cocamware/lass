@@ -1961,13 +1961,11 @@ $[
 	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
 		return ::lass::python::impl::CallMethod<TShadowTraits>::freeGet( iObject, i_cppFreeGetter );\
 	}\
 	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
 		return ::lass::python::impl::CallMethod<TShadowTraits>::freeSet( iArgs, iObject, i_cppFreeSetter );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -2045,7 +2043,6 @@ $[
 	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
 		return ::lass::python::impl::CallMethod<TShadowTraits>::freeGet( iObject, i_freeCppGetter );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -2442,8 +2439,8 @@ $[
 		{\
 			return result;\
 		}\
-		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		typedef TShadowTraits::TCppClass TCppClass;\
+		typedef ::lass::python::impl::ShadowTraits< t_cppClass > LASS_UNUSED(TShadowTraits);\
+		typedef TShadowTraits::TCppClass LASS_UNUSED(TCppClass);\
 		LASS_ASSERT(result == 0);\
 		return i_caller(iArgs, iSelf, i_cppMethod);\
 	}\

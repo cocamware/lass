@@ -459,7 +459,6 @@ namespace spat
 		lass::prim::Result fastIntersect(	const lass::prim::Point2D<T>& iA, const lass::prim::Point2D<T>& iB,
 								const lass::prim::Point2D<T>& iC, const lass::prim::Point2D<T>& iD, lass::prim::Point2D<T>& oP)
 		{
-			typedef lass::num::NumTraits<T> TNumTraits;
 			const lass::prim::Vector2D<T> dirA=iB-iA;
 			const lass::prim::Vector2D<T> difference=iC-iA;
 			const lass::prim::Vector2D<T> dirB=iD-iC;
@@ -828,7 +827,6 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeMaximalConvexPolygon(T iMaxSurface)
 	{
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 
@@ -853,7 +851,6 @@ namespace spat
 	TEMPLATE_DEF
 	void PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::makeRectangular(T minAngle, T maxAngle)
 	{
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeGatherer<T, PointHandle, EdgeHandle, FaceHandle> TEdgeGatherer;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 
@@ -2411,7 +2408,6 @@ continueSearch:
 	TEMPLATE_DEF
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygon( TEdge* iStartEdge, const TSimplePolygon2D& iPolygon, FaceHandle iFaceHandle)
 	{	
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		TEdgeMarker edgeMarker( this, false );
@@ -2431,7 +2427,6 @@ continueSearch:
 	template <typename InputPolygonIterator, typename InputFaceHandleIterator>
 	void  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::markPolygons( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle )
 	{
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		TEdgeMarker edgeMarker( this, false );
@@ -2456,7 +2451,6 @@ continueSearch:
 	template <typename InputPolygonIterator, typename InputFaceHandleIterator>
 	bool  PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPolygonFaces( InputPolygonIterator iFirstPolygon, InputPolygonIterator iLastPolygon, InputFaceHandleIterator iFirstFaceHandle, const TEdgePolyFaceHandleCallback& iCallback )
 	{
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		TEdgeMarker edgeMarker( this, false );
@@ -3099,7 +3093,6 @@ continueSearch:
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllVertices( const TEdgeCallback& iCallback )
 	{
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		TEdgeMarker edgeMarker( this, false );
@@ -3134,7 +3127,6 @@ continueSearch:
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllFacesCached( const TEdgeCallback& iCallback  )
 	{
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		TEdgeMarker edgeMarker( this, false );
 		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );
@@ -3201,7 +3193,6 @@ continueSearch:
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllFaces( const TEdgeCallback& iCallback  )
 	{
 		StackIncrementer( &stackDepth_, PLANAR_MESH_STACK_DEPTH );
-		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
 		typedef impl::EdgeMarker<T, PointHandle, EdgeHandle, FaceHandle> TEdgeMarker;
 		TEdgeMarker edgeMarker( this, false );
 		forAllPrimaryEdges( TEdgeCallback( &edgeMarker, &TEdgeMarker::internalMark ) );

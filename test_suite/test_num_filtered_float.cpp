@@ -53,7 +53,6 @@ namespace test
 void testNumFilteredFloat()
 {
 	typedef lass::num::FilteredFloat<float> FloatFiltered;
-	typedef lass::num::FilteredFloat<double> DoubleFiltered;
 
 	for (int i=0;i<100;++i)
 	{

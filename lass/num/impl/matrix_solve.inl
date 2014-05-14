@@ -302,8 +302,6 @@ void lumprove(RandomIterator1 iMatrix,
 			  RandomIterator5 ioX,
 			  ptrdiff_t iSize)
 {
-	typedef NumTraits<T> TNumTraits;
-
 	std::vector<T> right(static_cast<size_t>(iSize));
 	typename std::vector<T>::iterator r = right.begin();
 	ptrdiff_t i;

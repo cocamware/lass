@@ -94,7 +94,6 @@ void testNumVector()
 
 	typedef Vector<T> TVector;
 	typedef typename TVector::TNumTraits TNumTraits;
-	typedef typename TVector::TValue TValue;
 	typedef typename TVector::TSize TSize;
 	typedef typename TNumTraits::baseType TBase;
 
@@ -244,7 +243,6 @@ void testNumMatrix()
 	using namespace num;
 
 	typedef Matrix<T> TMatrix;
-	typedef typename TMatrix::TSize TSize;
 
 	TMatrix a;
 	LASS_TEST_CHECK(a.isEmpty());

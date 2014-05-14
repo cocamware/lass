@@ -130,7 +130,7 @@ void AabbTree2D::swap(AabbTree2D& iOther)
 	tree_.swap(iOther.tree_);
 }
 
-const bool AabbTree2D::isEmpty() const
+bool AabbTree2D::isEmpty() const
 {
 	LASS_ASSERT(objects_.empty() == tree_.isEmpty());
 	return objects_.empty();

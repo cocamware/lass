@@ -102,10 +102,10 @@ template<int x> struct MetaAssertTest {};
 }
 
 
-#define LASS_META_ASSERT(expression__, message__)\
+#define LASS_META_ASSERT(expression, message)\
 	typedef lass::meta::impl::MetaAssertTest<\
-		sizeof(lass::meta::impl::MetaAssertor<((expression__) == 0)>)>\
-	LASS_META_ASSERT_##message__
+		sizeof(lass::meta::impl::MetaAssertor<((expression) == 0)>)>\
+	LASS_UNUSED( LASS_META_ASSERT_##message )
 
 #endif
 
