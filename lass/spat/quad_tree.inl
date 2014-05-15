@@ -329,17 +329,17 @@ bool QuadTree<O, OT, SH>::intersects(
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TPoint center = middle(min, max);
+	const TPoint center = this->middle(min, max);
 	//const TVector size = halfDifference(max, min);
 	TPoint support = TObjectTraits::raySupport(ray);
 	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = forcePositiveDirection(center, support, direction);
+	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
 	TVector tNear;
 	TVector tFar;
-	nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
-	const TValue tNearMax = maxComponent(tNear);
-	const TValue tFarMin = minComponent(tFar);
+	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
+	const TValue tNearMax = this->maxComponent(tNear);
+	const TValue tFarMin = this->minComponent(tFar);
 	if (tFarMin < tNearMax || tFarMin <= tMin)
 	{
 		return false;
@@ -581,7 +581,7 @@ bool QuadTree<O, OT, SH>::doIntersects(
 		const TVector& tNear, const TVector& tFar, size_t flipMask) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	if (minComponent(tFar) < tMin || maxComponent(tNear) > tMax)
+	if (this->minComponent(tFar) < tMin || this->maxComponent(tNear) > tMax)
 	{
 		return false;
 	}
@@ -601,19 +601,19 @@ bool QuadTree<O, OT, SH>::doIntersects(
 		return false;
 	}
 
-	const TVector tMiddle = middle(tNear, tFar);
-	size_t i = entryNode(tNear, tMiddle);
+	const TVector tMiddle = this->middle(tNear, tFar);
+	size_t i = this->entryNode(tNear, tMiddle);
 	do
 	{
 		const QuadNode& child = node.children[i ^ flipMask];
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
-		childNearAndFar(tChildNear, tChildFar, tMiddle, i);
+		this->childNearAndFar(tChildNear, tChildFar, tMiddle, i);
 		if (doIntersects(child, ray, tMin, tMax, info, tChildNear, tChildFar, flipMask))
 		{
 			return true;
 		}
-		i = nextNode(i, tChildFar);
+		i = this->nextNode(i, tChildFar);
 	}
 	while (i != size_t(-1));
 
