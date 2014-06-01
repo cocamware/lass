@@ -67,26 +67,30 @@ macro(eval)
 	endforeach()
 endmacro()
 
-macro(param_expander inpath outpath n)
+macro(param_expander inpath outpath)
+	# param_expander(<inpath> <outpath> <N>)
+	# param_expander(<inpath> <outpath> <value1> [<value2> ...])
 	set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
 	add_custom_command(
 		OUTPUT ${outpath}
 		DEPENDS ${inpath} ${generator}
 		COMMAND ${PYTHON_EXECUTABLE}
-		ARGS ${generator} ${inpath} ${outpath} ${n})
+		ARGS ${generator} ${inpath} ${outpath} ${ARGN})
 endmacro()
 
-macro(prebuild dirname infile outfile n)
+macro(prebuild dirname infile outfile)
+	# prebuild(<dirname> <infile> <outfile> <N>)
+	# prebuild(<dirname> <infile> <outfile> <value1> [<value2> ...])
 	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${infile}")
 	set(outpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${outfile}")
 	if(${outpath} MATCHES "\\$x")
-		foreach(i RANGE 1 ${n})
+		foreach(i RANGE 1 ${ARGN})
 			string(REPLACE "$x" ${i} temp ${outpath})
 			param_expander(${inpath} ${temp} ${i})
 			list(APPEND lass_PRE_BUILT_HDRS ${temp})
 		endforeach()
 	else()
-		param_expander(${inpath} ${outpath} ${n})
+		param_expander(${inpath} ${outpath} ${ARGN})
 		list(APPEND lass_PRE_BUILT_HDRS ${outpath})
 	endif()
 endmacro()
@@ -165,7 +169,9 @@ include_directories(
 	)
 
 add_subdirectory(lass)
-add_subdirectory(pylass)
+if(PYTHONLIBS_FOUND)
+	add_subdirectory(pylass)
+endif()
 
 # --- TESTING ---
 
@@ -219,9 +225,15 @@ endforeach()
 
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
 export(
-	TARGETS lass lass_python pylass 
+	TARGETS lass
 	FILE ${lass_BINARY_DIR}/LassBuildExports.cmake
 	)
+if(PYTHONLIBS_FOUND)
+	export(
+		TARGETS lass_python pylass
+		APPEND FILE ${lass_BINARY_DIR}/LassBuildExports.cmake
+		)
+endif()
 
 
 

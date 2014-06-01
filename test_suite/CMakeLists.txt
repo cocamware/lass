@@ -1,17 +1,37 @@
 set(sourcedir "${CMAKE_CURRENT_SOURCE_DIR}")
 
+
 file(GLOB test_suite_HDRS "${sourcedir}/*.h")
 file(GLOB test_suite_SRCS "${sourcedir}/*.cpp")
 
-set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
+
+macro(list_remove_regex listvar)
+	set(_to_be_removed)
+	foreach(_path ${${listvar}})
+		foreach(_regex ${ARGN})
+			if("${_path}" MATCHES "${_regex}")
+				list(APPEND _to_be_removed "${_path}")
+			endif()
+		endforeach()
+	endforeach()
+	if (_to_be_removed)
+		list(REMOVE_ITEM ${listvar} ${_to_be_removed})
+	endif()
+endmacro()
+
+if(NOT PYTHONLIBS_FOUND)
+	list_remove_regex(test_suite_SRCS
+		"foo\\\\.cpp$"
+		"bar\\\\.cpp$"
+		"python[^/\\\\\\\\]*\\\\.cpp$"
+		"dynamic[^/\\\\\\\\]*\\\\.cpp$" # because it tries to load pylass
+		)
+endif()
+
 set(infile "${sourcedir}/test_util_callback.cpp.in")
 set(outfile "${sourcedir}/test_util_callback.cpp")
-add_custom_command(
-	OUTPUT "${outfile}"
-	DEPENDS "${infile}" "${generator}"
-	COMMAND "${PYTHON_EXECUTABLE}"
-	ARGS "${generator}" "${infile}" "${outfile}" 3
-	)
+param_expander("${infile}" "${outfile}" 3)
+list(APPEND test_suite_SRCS "${outfile}")
 
 foreach(fname ${test_suite_SRCS})
 	if(${fname} MATCHES "/test_[a-zA-Z0-9_]+\\.cpp")
@@ -21,15 +41,11 @@ foreach(fname ${test_suite_SRCS})
 endforeach()
 list(REMOVE_DUPLICATES unit_tests)
 list(REMOVE_ITEM unit_tests "test_common")
+list(SORT unit_tests)
 
 set(infile "${sourcedir}/auto_test_suite.cpp.in")
 set(outfile "${lass_BINARY_DIR}/local/auto_test_suite.cpp")
-add_custom_command(
-	OUTPUT "${outfile}"
-	DEPENDS "${infile}" "${generator}"
-	COMMAND "${PYTHON_EXECUTABLE}"
-	ARGS "${generator}" "${infile}" "${outfile}" ${unit_tests}
-	)
+param_expander("${infile}" "${outfile}" ${unit_tests})
 list(APPEND test_suite_SRCS "${outfile}")
 
 set(infile "${sourcedir}/default_arguments.h.in")
@@ -42,24 +58,34 @@ include_directories(
 	"${lass_BINARY_DIR}/local"
 	)
 
+list(REMOVE_DUPLICATES test_suite_HDRS)
+list(SORT test_suite_HDRS)
 list(REMOVE_DUPLICATES test_suite_SRCS)
+list(SORT test_suite_SRCS)
+
 add_executable(
 	test_suite 
 	${test_suite_HDRS} 
 	${test_suite_SRCS}
 	)
+
 target_link_libraries(
 	test_suite 
 	lass 
-	lass_python
 	${lass_LIBS}
-	optimized ${PYTHON_LIBRARIES} 
-	debug ${PYTHON_DEBUG_LIBRARIES}
 	)
+
+if(PYTHONLIBS_FOUND)
+	target_link_libraries(test_suite 
+		lass_python
+	)
+endif()
+
 set_target_properties(
 	test_suite PROPERTIES
-        COMPILE_FLAGS "${lass_C_FLAGS}"
+	COMPILE_FLAGS "${lass_C_FLAGS}"
 	)
+
 add_precompiled_header(
 	test_suite 
 	test_common.h
@@ -67,7 +93,7 @@ add_precompiled_header(
 	${test_suite_SRCS}
 	)
 
-list(SORT unit_tests)
+
 foreach(test_name ${unit_tests})
 	add_test(NAME ${test_name} COMMAND test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
 endforeach()

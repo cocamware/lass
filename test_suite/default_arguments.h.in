@@ -10,7 +10,7 @@ namespace lass
 namespace test
 {
 
-const std::string defaultInputDir = "${sourcedir}";
+const std::string defaultInputDir = "${CMAKE_CURRENT_SOURCE_DIR}";
 
 }
 }
