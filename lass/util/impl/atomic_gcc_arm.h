@@ -234,7 +234,7 @@ inline bool AtomicOperations<2>::compareAndSwap(volatile T1& dest1, T1 expected1
 {
     const int32_t expected = static_cast<int32_t>(*reinterpret_cast<int16_t*>(&expected1)) | (static_cast<int32_t>(*reinterpret_cast<int16_t*>(&expected2)) << 16);
     const int32_t desired = static_cast<int32_t>(*reinterpret_cast<int16_t*>(&desired1)) | (static_cast<int32_t>(*reinterpret_cast<int16_t*>(&desired2)) << 16);
-    return lass_util_impl_kuser_cmpxchg(&expected, &desired, reinterpret_cast<volatile int32_t*>(&dest1)) == 0;
+    return lass_util_impl_kuser_cmpxchg(expected, desired, reinterpret_cast<volatile int32_t*>(&dest1)) == 0;
 }
 #endif
 
