@@ -46,11 +46,11 @@
 #	pragma warning(disable: 4244) // float to int
 #endif
 
-#include "../util/callback_0.h"
-$(#include "../util/callback_$x.h"
+#include "../lass/util/callback_0.h"
+$(#include "../lass/util/callback_$x.h"
 )$
-#include "../util/callback_r_0.h"
-$(#include "../util/callback_r_$x.h"
+#include "../lass/util/callback_r_0.h"
+$(#include "../lass/util/callback_r_$x.h"
 )$
 
 #define LASS_TEST_CALLBACK_EMPTY(callback)\
@@ -100,21 +100,21 @@ namespace test
 {
 
 void free0() { dispatcherIsCalled = true; }
-$[void free$x($(int i_p$x)$) { dispatcherIsCalled = true; }
+$[void free$x($(int /*i_p$x*/)$) { dispatcherIsCalled = true; }
 ]$int freeR0() { dispatcherIsCalled = true; return 1; }
-$[int freeR$x($(int i_p$x)$) { dispatcherIsCalled = true; return 1;}
+$[int freeR$x($(int /*i_p$x*/)$) { dispatcherIsCalled = true; return 1;}
 ]$
 struct Foo
 {
 	void mem0() { dispatcherIsCalled = true; }
-$[    void mem$x($(int i_p$x)$) { dispatcherIsCalled = true; }
+$[    void mem$x($(int /*i_p$x*/)$) { dispatcherIsCalled = true; }
 ]$    int memR0() { dispatcherIsCalled = true; return 1; }
-$[    int memR$x($(int i_p$x)$) { dispatcherIsCalled = true; return 1;}
+$[    int memR$x($(int /*i_p$x*/)$) { dispatcherIsCalled = true; return 1;}
 ]$
 	void const_mem0() const { dispatcherIsCalled = true; }
-$[    void const_mem$x($(int i_p$x)$) const { dispatcherIsCalled = true; }
+$[    void const_mem$x($(int /*i_p$x*/)$) const { dispatcherIsCalled = true; }
 ]$    int const_memR0() const { dispatcherIsCalled = true; return 1; }
-$[    int const_memR$x($(int i_p$x)$) const { dispatcherIsCalled = true; return 1;}
+$[    int const_memR$x($(int /*i_p$x*/)$) const { dispatcherIsCalled = true; return 1;}
 ]$};
 
 void testUtilCallback0()
