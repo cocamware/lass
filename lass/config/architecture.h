@@ -52,15 +52,36 @@
  *     i386, ARM
  */
 
+#if defined(_M_IA64) || defined(_M_X64) || defined(_LP64) || defined(__LP64__) || defined(__x86_64)
+#	define LASS_ADDRESS_SIZE 64
+	// HACK: Currently, we assume that all 64 bit platforms actually only use 48 bits
+#	define LASS_ACTUAL_ADDRESS_SIZE 48
+#else
+#	define LASS_ADDRESS_SIZE 32
+#endif
+
+#if !defined(LASS_ACTUAL_ADDRESS_SIZE)
+#	define LASS_ACTUAL_ADDRESS_SIZE LASS_ADDRESS_SIZE
+#endif
+
+
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC 
-    #define LASS_PROCESSOR_ARCHITECTURE_x86
-    #if defined(__ARM_EABI__)
-        #undef  LASS_PROCESSOR_ARCHITECTURE_x86
-        #define LASS_PROCESSOR_ARCHITECTURE_ARM
-    #endif
+#	if defined(__ARM_EABI__)
+#		define LASS_PROCESSOR_ARCHITECTURE_ARM
+#	else
+#		define LASS_PROCESSOR_ARCHITECTURE_x86
+#	endif
 #else
     // for now assume that non-gcc compilers will be used to generate i386 compatible code
-    #define LASS_PROCESSOR_ARCHITECTURE_x86
+#	define LASS_PROCESSOR_ARCHITECTURE_x86
+#endif
+
+#if defined(LASS_PROCESSOR_ARCHITECTURE_x86)
+#	define LASS_PROCESSOR_ARCHITECTURE "x86"
+#elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
+#	define LASS_PROCESSOR_ARCHITECTURE "arm"
+#else
+#	define LASS_PROCESSOR_ARCHITECTURE "unknown"
 #endif
 
 #endif
