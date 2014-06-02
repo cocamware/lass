@@ -190,11 +190,15 @@ TUnitTest test_num_num_traits()
 	
 	result.push_back(LASS_TEST_CASE(testFloat<float>));
 	result.push_back(LASS_TEST_CASE(testFloat<double>));
+#if LASS_HAVE_LONG_DOUBLE
 	result.push_back(LASS_TEST_CASE(testFloat<long double>));
+#endif
 
 	result.push_back(LASS_TEST_CASE(testComplex< std::complex<float> >));
 	result.push_back(LASS_TEST_CASE(testComplex< std::complex<double> >));
+#if LASS_HAVE_LONG_DOUBLE
 	result.push_back(LASS_TEST_CASE(testComplex< std::complex<long double> >));
+#endif
 
 	return result;
 }
