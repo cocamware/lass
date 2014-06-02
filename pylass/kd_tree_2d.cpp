@@ -61,7 +61,7 @@ KdTree2D::TVertices KdTree2D::rangeSearch(const Vertex2D::TPoint& iCenter, TTree
 {
 	TTree::TNeighbourhood tempNeighbourhood;
 	TVertices tempVertices;
-	TTree::TValue ret = tree_.rangeSearch(iCenter, iMaxRadius, iMaxCount, tempNeighbourhood);
+	tree_.rangeSearch(iCenter, iMaxRadius, iMaxCount, tempNeighbourhood);
 
 	for (TTree::TNeighbourhood::const_iterator it=tempNeighbourhood.begin();
 		it!=tempNeighbourhood.end();++it)

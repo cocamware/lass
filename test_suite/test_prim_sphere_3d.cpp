@@ -57,7 +57,6 @@ void testPrimSphere3D()
 {
 	typedef prim::Sphere3D<T> TSphere;
 	typedef prim::Point3D<T> TPoint;
-	typedef prim::Vector3D<T> TVector;
 	typedef num::NumTraits<T> TNumTraits;
 
 	const TPoint origin;
