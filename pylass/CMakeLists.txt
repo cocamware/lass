@@ -13,7 +13,6 @@ set_target_properties(
 	pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
-	COMPILE_FLAGS "${lass_C_FLAGS}"
 	PREFIX ""
 	)
 if (WIN32)
@@ -23,11 +22,10 @@ if (WIN32)
 		SUFFIX ".pyd"
 		)
 endif()
-add_precompiled_header(
+LASS_ADD_PRECOMPILED_HEADER(
 	pylass 
 	pylass_common.h
 	pylass_common.cpp
-	${pylass_SRCS}
 	)
 
 install(

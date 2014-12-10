@@ -8,38 +8,35 @@ endif()
 file(GLOB lass_SRCS *.cpp)
 file(GLOB lass_HDRS *.h *.inl)
 foreach(subdir ${lass_subdirectories})
-	if(NOT subdir STREQUAL "config")
-		file(GLOB temp_SRCS ${subdir}/*.cpp)
-		file(GLOB temp_impl_SRCS ${subdir}/impl/*.cpp)
-	endif()
-	file(GLOB temp_HDRS ${subdir}/*.h ${subdir}/*.inl)
-	file(GLOB temp_impl_HDRS ${subdir}/impl/*.h ${subdir}/impl/*.inl)
-	list(APPEND lass_SRCS ${temp_SRCS} ${temp_impl_SRCS})
-	list(APPEND lass_HDRS ${temp_HDRS} ${temp_impl_HDRS})
-	source_group("Source Files\\${subdir}" FILES ${temp_SRCS})
-	source_group("Source Files\\${subdir}_impl" FILES ${temp_impl_SRCS})
-	source_group("Header Files\\${subdir}" FILES ${temp_HDRS})
-	source_group("Header Files\\${subdir}_impl" FILES ${temp_impl_HDRS})
+	file(GLOB subdir_SRCS "${subdir}/*.cpp")
+	file(GLOB subdir_impl_SRCS "${subdir}/impl/*.cpp")
+	file(GLOB subdir_HDRS "${subdir}/*.h" "${subdir}/*.inl")
+	file(GLOB subdir_impl_HDRS "${subdir}/impl/*.h" "${subdir}/impl/*.inl")
+	list(APPEND lass_SRCS ${subdir_SRCS} ${subdir_impl_SRCS})
+	list(APPEND lass_HDRS ${subdir_HDRS} ${subdir_impl_HDRS})
+	source_group("Source Files\\${subdir}" FILES ${subdir_SRCS})
+	source_group("Source Files\\${subdir}_impl" FILES ${subdir_impl_SRCS})
+	source_group("Header Files\\${subdir}" FILES ${subdir_HDRS})
+	source_group("Header Files\\${subdir}_impl" FILES ${subdir_impl_HDRS})
 endforeach()
 
 # These go in the source tree, as they are environment agnostic
 # This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
 set(N 15)
-prebuild(meta is_member.tmpl.h is_member.h ${N})
-prebuild(util object_factory.tmpl.h object_factory.h ${N})
-prebuild(util clone_factory.tmpl.h clone_factory.h ${N})
-prebuild(util callback.tmpl.h callback.h ${N})
-prebuild(util multi_callback.tmpl.h multi_callback.h ${N})
-prebuild(util callback_x.tmpl.h "callback_$x.h" ${N})
-prebuild(util multi_callback_x.tmpl.h "multi_callback_$x.h" ${N})
-prebuild(util callback_r_x.tmpl.h "callback_r_$x.h" ${N})
-prebuild(util thread_fun.tmpl.h thread_fun.h ${N})
-prebuild(util thread_fun.tmpl.inl thread_fun.inl ${N})
-prebuild(util bind.tmpl.h bind.h ${N})
-prebuild(util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" ${N})
-prebuild(util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" ${N})
+LASS_PREBUILD(lass_HDRS meta is_member.tmpl.h is_member.h "${N}")
+LASS_PREBUILD(lass_HDRS util object_factory.tmpl.h object_factory.h "${N}")
+LASS_PREBUILD(lass_HDRS util clone_factory.tmpl.h clone_factory.h "${N}")
+LASS_PREBUILD(lass_HDRS util callback.tmpl.h callback.h "${N}")
+LASS_PREBUILD(lass_HDRS util multi_callback.tmpl.h multi_callback.h "${N}")
+LASS_PREBUILD(lass_HDRS util callback_x.tmpl.h "callback_$x.h" "${N}")
+LASS_PREBUILD(lass_HDRS util multi_callback_x.tmpl.h "multi_callback_$x.h" "${N}")
+LASS_PREBUILD(lass_HDRS util callback_r_x.tmpl.h "callback_r_$x.h" "${N}")
+LASS_PREBUILD(lass_HDRS util thread_fun.tmpl.h thread_fun.h "${N}")
+LASS_PREBUILD(lass_HDRS util thread_fun.tmpl.inl thread_fun.inl "${N}")
+LASS_PREBUILD(lass_HDRS util bind.tmpl.h bind.h "${N}")
+LASS_PREBUILD(lass_HDRS util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" "${N}")
+LASS_PREBUILD(lass_HDRS util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" "${N}")
 
-list(APPEND lass_HDRS ${lass_PRE_BUILT_HDRS})
 list(REMOVE_DUPLICATES lass_HDRS)
 
 if(CMAKE_CL_64)
@@ -79,14 +76,12 @@ target_link_libraries(lass
 	)
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS 
-	COMPILE_FLAGS "${lass_C_FLAGS}"
 	SOVERSION "${LASS_PATCHLEVEL}"
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
-add_precompiled_header(lass 
+LASS_ADD_PRECOMPILED_HEADER(lass 
 	lass_common.h 
 	"${lass_SOURCE_DIR}/lass/lass_common.cpp"
-	${lass_SRCS}
 	)
 	
 install(
@@ -100,31 +95,16 @@ install(
 # --- LASS_PYTHON ---
 
 if(PYTHONLIBS_FOUND)
-	set(lass_python_subdirectories python)
+	file(GLOB lass_python_SRCS python/*.cpp)
+	file(GLOB lass_python_HDRS python/*.h python/*.inl)
 
-	file(GLOB lass_python_SRCS)
-	file(GLOB lass_python_HDRS)
-	foreach(subdir ${lass_python_subdirectories})
-		if(NOT subdir STREQUAL "config")
-			file(GLOB temp_SRCS ${subdir}/*.cpp)
-			file(GLOB temp_impl_SRCS ${subdir}/impl/*.cpp)
-		endif()
-		file(GLOB temp_HDRS ${subdir}/*.h ${subdir}/*.inl)
-		file(GLOB temp_impl_HDRS ${subdir}/impl/*.h ${subdir}/impl/*.inl)
-		list(APPEND lass_python_SRCS ${temp_SRCS} ${temp_impl_SRCS})
-		list(APPEND lass_python_HDRS ${temp_HDRS} ${temp_impl_HDRS})
-		source_group("Source Files\\${subdir}" FILES ${temp_SRCS})
-		source_group("Source Files\\${subdir}_impl" FILES ${temp_impl_SRCS})
-		source_group("Header Files\\${subdir}" FILES ${temp_HDRS})
-		source_group("Header Files\\${subdir}_impl" FILES ${temp_impl_HDRS})
-	endforeach()
-
-	prebuild(python callback_python.tmpl.h callback_python.h ${N})
-	prebuild(python pyobject_macros.tmpl.h pyobject_macros.h ${N})
-	prebuild(python pyobject_call.tmpl.inl pyobject_call.inl ${N})
-	prebuild(python pycallback_export_traits.tmpl.inl pycallback_export_traits.inl ${N})
-	prebuild(python py_tuple.tmpl.h py_tuple.h 20)
-	prebuild(python bulk_add_integer.tmpl.inl "bulk_add_integer.inl" ${N})
+	set(N 15)
+	LASS_PREBUILD(lass_python_HDRS python callback_python.tmpl.h callback_python.h "${N}")
+	LASS_PREBUILD(lass_python_HDRS python pyobject_macros.tmpl.h pyobject_macros.h "${N}")
+	LASS_PREBUILD(lass_python_HDRS python pyobject_call.tmpl.inl pyobject_call.inl "${N}")
+	LASS_PREBUILD(lass_python_HDRS python pycallback_export_traits.tmpl.inl pycallback_export_traits.inl "${N}")
+	LASS_PREBUILD(lass_python_HDRS python py_tuple.tmpl.h py_tuple.h 20)
+	LASS_PREBUILD(lass_python_HDRS python bulk_add_integer.tmpl.inl bulk_add_integer.inl "${N}")
 
 	add_library(lass_python
 		${lass_python_SRCS} 
@@ -137,14 +117,12 @@ if(PYTHONLIBS_FOUND)
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
-		COMPILE_FLAGS "${lass_C_FLAGS}"
 		SOVERSION "${LASS_PATCHLEVEL}"
 		OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 		)
-	add_precompiled_header(lass_python 
+	LASS_ADD_PRECOMPILED_HEADER(lass_python 
 		python_common.h 
-		${lass_SOURCE_DIR}/lass/python/python_common.cpp
-		${lass_python_SRCS}
+		"${lass_SOURCE_DIR}/lass/python/python_common.cpp"
 		)
 	install(
 		TARGETS lass_python

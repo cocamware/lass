@@ -2,6 +2,8 @@ project(lass)
 cmake_minimum_required(VERSION 2.8)
 #list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
+include(cmake/Helpers.cmake)
+
 set(LASS_MAJOR_VERSION 1)
 set(LASS_MINOR_VERSION 7)
 set(LASS_PATCHLEVEL 0)
@@ -38,7 +40,7 @@ endif()
 if (MSVC)
 	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
 	option(BUILD_WITHOUT_ITERATOR_DEBUGGING "Build with _HAS_ITERATOR_DEBUGGING=0, otherwise as MSVC's default" OFF)
-	mark_as_advanced(BUILD_WITHOUT_ITERATOR_DEBUGGING)
+	LASS_LINK_OPTION_TO_FLAG(BUILD_WITHOUT_ITERATOR_DEBUGGING CMAKE_CXX_FLAGS "/D_HAS_ITERATOR_DEBUGGING=0" EXPORT)
 else()
 	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
 	set(BUILD_WITHOUT_ITERATOR_DEBUGGING OFF)
@@ -51,6 +53,7 @@ if (MSVC_IDE AND NOT MSVC_VERSION LESS 1400)
 		set(_default_mp ON)
 	endif()
 	option(BUILD_USING_MULTIPLE_PROCESSES "Enable parallel compilation within one project (/MP)" ${_default_mp})
+	LASS_LINK_OPTION_TO_FLAG(BUILD_USING_MULTIPLE_PROCESSES CMAKE_CXX_FLAGS "/MP")
 else()
 	set(BUILD_USING_MULTIPLE_PROCESSES OFF)
 endif ()
@@ -59,107 +62,17 @@ endif ()
 
 include(cmake/Environment.cmake)
 
-# --- MACROS ---
 
-macro(eval)
-	foreach(arg ${ARGN})
-		message(STATUS "${arg}: ${${arg}}")
-	endforeach()
-endmacro()
-
-macro(param_expander inpath outpath)
-	# param_expander(<inpath> <outpath> <N>)
-	# param_expander(<inpath> <outpath> <value1> [<value2> ...])
-	set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
-	add_custom_command(
-		OUTPUT ${outpath}
-		DEPENDS ${inpath} ${generator}
-		COMMAND ${PYTHON_EXECUTABLE}
-		ARGS ${generator} ${inpath} ${outpath} ${ARGN})
-endmacro()
-
-macro(prebuild dirname infile outfile)
-	# prebuild(<dirname> <infile> <outfile> <N>)
-	# prebuild(<dirname> <infile> <outfile> <value1> [<value2> ...])
-	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${infile}")
-	set(outpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${outfile}")
-	if(${outpath} MATCHES "\\$x")
-		foreach(i RANGE 1 ${ARGN})
-			string(REPLACE "$x" ${i} temp ${outpath})
-			param_expander(${inpath} ${temp} ${i})
-			list(APPEND lass_PRE_BUILT_HDRS ${temp})
-		endforeach()
-	else()
-		param_expander(${inpath} ${outpath} ${ARGN})
-		list(APPEND lass_PRE_BUILT_HDRS ${outpath})
-	endif()
-endmacro()
-
-macro(add_precompiled_header target hdrfile srcpath target_SRCS)
-	if(BUILD_USING_PRECOMPILED_HEADERS)
-		if(MSVC_IDE)
-			set(_pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch")
-		else()
-			set(_pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch")
-		endif()
-		if(MSVC)
-			get_target_property(_cflags ${target} COMPILE_FLAGS)
-			if(NOT _cflags)
-				set(_cflags "") # enforce to empty string
-			endif()
-			set_target_properties(
-				${target}
-				PROPERTIES
-				COMPILE_FLAGS "${_cflags} /Fp\"${_pchpath}\" /Yu\"${hdrfile}\""
-				COMPILE_DEFINITIONS BUILD_USING_PRECOMPILED_HEADERS
-				)
-			get_source_file_property(_cflags ${srcpath} COMPILE_FLAGS)
-			if(NOT _cflags)
-				set(_cflags "") # enforce to empty string
-			endif()
-			set_source_files_properties(
-				${srcpath} 
-				PROPERTIES
-				COMPILE_FLAGS "${_cflags} /Yc\"${hdrfile}\""
-				OBJECT_OUTPUTS ${_pchpath})
-			if (NOT MSVC_IDE)
-				set(other_srcs ${target_SRCS})
-				list(REMOVE_ITEM other_srcs ${srcpath})
-				set_source_files_properties(
-					${other_srcs}
-					PROPERTIES
-					OBJECT_DEPENDS "${_pchpath}")
-			endif()
-		else()
-			#add_custom_command(
-			#	OUTPUT ${_pchpath}
-			#	DEPENDS ${hdrfile}
-			#	COMMAND ...)
-			#set_source_files_properties(
-			#	${test_SRCS}
-			#	PROPERTIES
-			#	OBJECT_DEPENDS ${_pchpath})
-		endif()
-	endif()
-endmacro()
 
 if(MSVC)
-	set(lass_C_FLAGS "/EHsc")
-	if (BUILD_USING_MULTIPLE_PROCESSES)
-		set(lass_C_FLAGS "${lass_C_FLAGS} /MP")
-	endif()
+	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS EXPORT "/EHsc") 
 elseif(SUNPRO)
-	set(lass_C_FLAGS "-errtags=yes -erroff=wbadinit,wbadasg,badargtype2w,")
+	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS NOEXPORT "-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
 else()
-	set(lass_C_FLAGS "-fno-strict-aliasing -Wall -Wextra -Wformat=2 -Winit-self -Wconversion -Wno-unknown-pragmas")
-	if(LASS_HAVE_BCM2708)
-		set(lass_C_FLAGS "${lass_C_FLAGS} -mcpu=arm1176jzf-s")
-	endif()
+	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS EXPORT "-fno-strict-aliasing")
+	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS NOEXPORT "-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
 endif()
 
-if (BUILD_WITHOUT_ITERATOR_DEBUGGING)
-	add_definitions(/D_HAS_ITERATOR_DEBUGGING=0)
-endif()
 
 include_directories(
 	${lass_INCLUDES}
@@ -210,6 +123,12 @@ install(
 	FILES ${config_file}
 	DESTINATION include/lass/config
 	)
+
+# we export the flags from CMAKE_CXX_FLAGS that we know cause binary compatibility issues
+# and that projects linking to LASS will also need to have.
+# It's put in the config files as Lass_CXX_FLAGS
+LASS_GATHER_EXPORTED_FLAGS(CMAKE_CXX_FLAGS Lass_CXX_FLAGS)
+LASS_EVAL(Lass_CXX_FLAGS)
 
 foreach(_config_file LassConfig.cmake LassConfig.py)    
     configure_file(

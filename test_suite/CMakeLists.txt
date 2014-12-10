@@ -30,7 +30,7 @@ endif()
 
 set(infile "${sourcedir}/test_util_callback.cpp.in")
 set(outfile "${sourcedir}/test_util_callback.cpp")
-param_expander("${infile}" "${outfile}" 3)
+LASS_PARAM_EXPANDER("${infile}" "${outfile}" 3)
 list(APPEND test_suite_SRCS "${outfile}")
 
 foreach(fname ${test_suite_SRCS})
@@ -45,7 +45,7 @@ list(SORT unit_tests)
 
 set(infile "${sourcedir}/auto_test_suite.cpp.in")
 set(outfile "${lass_BINARY_DIR}/local/auto_test_suite.cpp")
-param_expander("${infile}" "${outfile}" ${unit_tests})
+LASS_PARAM_EXPANDER("${infile}" "${outfile}" ${unit_tests})
 list(APPEND test_suite_SRCS "${outfile}")
 
 set(infile "${sourcedir}/default_arguments.h.in")
@@ -81,19 +81,13 @@ if(PYTHONLIBS_FOUND)
 	)
 endif()
 
-set_target_properties(
-	test_suite PROPERTIES
-	COMPILE_FLAGS "${lass_C_FLAGS}"
-	)
-
-add_precompiled_header(
+LASS_ADD_PRECOMPILED_HEADER(
 	test_suite 
 	test_common.h
 	"${sourcedir}/test_common.cpp"
-	${test_suite_SRCS}
 	)
 
 
 foreach(test_name ${unit_tests})
-	add_test(NAME ${test_name} COMMAND test_suite --log=${test_name}.log "--input-dir=${sourcedir}" ${test_name})
+	add_test(NAME "${test_name}" COMMAND test_suite "--log=${test_name}.log" "--input-dir=${sourcedir}" "${test_name}")
 endforeach()
