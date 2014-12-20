@@ -311,6 +311,9 @@ template <typename T>
 void testNumSolve()
 {
 	using namespace num;
+	
+	// use baseType to get float when T=complex<float>
+	typedef typename NumTraits<T>::baseType TBaseType;
 
 	const size_t n = 3;
 	Matrix<T> a(n, n);
@@ -321,12 +324,12 @@ void testNumSolve()
 	{
 		for (size_t j = 0; j < n; ++j)
 		{
-			a(i, j) = static_cast<T>(++v);
+			a(i, j) = static_cast<TBaseType>(++v);
 		}
-		b[i] = static_cast<T>(i);
+		b[i] = static_cast<TBaseType>(i);
 	}
-	a(0, 0) = static_cast<T>(-1);
-	b[0] = static_cast<T>(0);
+	a(0, 0) = static_cast<TBaseType>(-1);
+	b[0] = static_cast<TBaseType>(0);
 
 	Vector<T> x = b;
 	solve(a, x);

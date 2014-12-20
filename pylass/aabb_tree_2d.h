@@ -124,7 +124,7 @@ struct ObjectTraits:
 			python::impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 		}
 
-		bool temp;
+		bool temp = false;
 		if (python::pyGetSimpleObject(result.get(), temp) != 0)
 		{
 			LASS_THROW("bad result");

@@ -246,7 +246,7 @@ bool AabpTree<O, OT, SH>::intersects(
 
 		if (node.isLeaf())
 		{
-			for (int i = node.first(); i != node.last(); ++i)
+			for (size_t i = node.first(); i != node.last(); ++i)
 			{
 				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 				if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
