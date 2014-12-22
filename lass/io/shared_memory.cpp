@@ -223,7 +223,7 @@ public:
         }
         
         struct stat st;
-        if (!fstat(fd_, &st) == -1)
+        if (fstat(fd_, &st) == -1)
         {
             close();
             return false;
