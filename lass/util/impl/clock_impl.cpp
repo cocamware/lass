@@ -45,9 +45,10 @@
 #include "lass_common.h"
 #include "clock_impl.h"
 
-// --- win32 ---------------------------------------------------------------------------------------
 
-#if defined(LASS_UTIL_CLOCK_WIN32)
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+
+// --- win32 ---------------------------------------------------------------------------------------
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
@@ -83,15 +84,18 @@ ClockImpl::TTick ClockImpl::tick()
 
 }
 
-#endif
+#else
 
-// --- standard c ----------------------------------------------------------------------------------
+// --- POSIX ---------------------------------------------------------------------------------------
 
-#if defined(LASS_UTIL_CLOCK_STANDARD_C)
-//#	if !defined(CLK_TCK)
-//#		include <unistd.h>
-//#		define CLK_TCK sysconf(_SC_CLK_TCK)
-//#	endif
+#include <sys/time.h>
+
+namespace 
+{
+
+const lass::util::impl::ClockImpl::TTick nanoSecondsPerSecond = 1000000000;
+
+}
 
 namespace lass
 {
@@ -102,14 +106,16 @@ namespace impl
 
 ClockImpl::TTick ClockImpl::frequency()
 {
-	return CLOCKS_PER_SEC;
+	return nanoSecondsPerSecond;
 }
 
 
 
 ClockImpl::TTick ClockImpl::tick()
 {
-	return ::clock();
+    timespec tp;
+    LASS_ENFORCE_CLIB(clock_gettime(CLOCK_MONOTONIC_RAW, &tp));
+    return tp.tv_sec * nanoSecondsPerSecond + tp.tv_nsec;
 }
 
 }

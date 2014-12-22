@@ -55,8 +55,8 @@
 #	include "../../num/num_common.h"
 #else
 #	define LASS_UTIL_CLOCK_STANDARD_C
-#	define LASS_UTIL_CLOCK_TICK ::clock_t
-#	include <time.h>
+#	define LASS_UTIL_CLOCK_TICK num::Tint64
+#	include "../../num/num_common.h"
 #endif
 
 namespace lass
