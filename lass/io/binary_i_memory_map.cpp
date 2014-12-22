@@ -246,8 +246,8 @@ void BinaryIMemoryMap::open(const char* filename)
         pimpl_ = pimpl.release();
         data_ = data;
         size_ = size;
-        begin_ = begin_;
-        end_ = end_;
+        begin_ = begin;
+        end_ = end;
         position_ = 0;
 }
 
