@@ -127,8 +127,7 @@ install(
 # we export the flags from CMAKE_CXX_FLAGS that we know cause binary compatibility issues
 # and that projects linking to LASS will also need to have.
 # It's put in the config files as Lass_CXX_FLAGS
-LASS_GATHER_EXPORTED_FLAGS(CMAKE_CXX_FLAGS Lass_CXX_FLAGS)
-LASS_EVAL(Lass_CXX_FLAGS)
+LASS_GATHER_EXPORTED_FLAGS(CMAKE_CXX_FLAGS Lass_EXTRA_CXX_FLAGS)
 
 foreach(_config_file LassConfig.cmake LassConfig.py)    
     configure_file(

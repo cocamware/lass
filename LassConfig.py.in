@@ -16,4 +16,4 @@ if os.path.exists(os.path.join(_self_dir, "LassBuildExports.cmake")):
 else:
     LASS_INCLUDE_DIRS = [os.path.join(_self_dir, os.pardir, "include")]
     
-LASS_CXX_FLAGS = "@Lass_CXX_FLAGS@"
+Lass_EXTRA_CXX_FLAGS = "@Lass_EXTRA_CXX_FLAGS@"
