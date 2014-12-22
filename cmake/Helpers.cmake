@@ -10,10 +10,10 @@ function(LASS_PARAM_EXPANDER inpath outpath)
     # LASS_PARAM_EXPANDER(<inpath> <outpath> <value1> [<value2> ...])
     set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
     add_custom_command(
-        OUTPUT ${outpath}
-        DEPENDS ${inpath} ${generator}
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS ${generator} ${inpath} ${outpath} ${ARGN})
+        OUTPUT "${outpath}"
+        DEPENDS "${inpath}" "${generator}"
+        COMMAND "${PYTHON_EXECUTABLE}"
+        ARGS "${generator}" "${inpath}" "${outpath}" ${ARGN})
 endfunction()
 
 
@@ -22,16 +22,18 @@ function(LASS_PREBUILD hdrs dirname infile outfile)
     # LASS_PREBUILD(<hdrs> <dirname> <infile> <outfile> <value1> [<value2> ...])
     set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${infile}")
     set(outpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${outfile}")
+    set(tmphdrs ${${hdrs}})
     if(${outpath} MATCHES "\\$x")
         foreach(i RANGE 1 ${ARGN})
-            string(REPLACE "$x" ${i} outpath_i ${outpath})
-            LASS_PARAM_EXPANDER(${inpath} ${outpath_i} ${i})
-            set(hdrs ${hdrs} ${outpath_i} PARENT_SCOPE)
+            string(REPLACE "$x" "${i}" outpath_i "${outpath}")
+            LASS_PARAM_EXPANDER("${inpath}" "${outpath_i}" "${i}")
+            list(APPEND tmphdrs "${outpath_i}")
         endforeach()
     else()
-        LASS_PARAM_EXPANDER(${inpath} ${outpath} ${ARGN})
-        set(hdrs ${hdrs} ${outpath} PARENT_SCOPE)
+        LASS_PARAM_EXPANDER("${inpath}" "${outpath}" ${ARGN})
+        list(APPEND tmphdrs "${outpath}")
     endif()
+    set(${hdrs} ${tmphdrs} PARENT_SCOPE)
 endfunction()
 
 
