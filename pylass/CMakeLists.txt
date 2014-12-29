@@ -36,42 +36,30 @@ install(
 	ARCHIVE DESTINATION lib
 	)
 
-if (MSVC_IDE)
-	set(_configuration "$(ConfigurationName)")
-	set(_configurations ${CMAKE_CONFIGURATION_TYPES})
-else()
-	if (CMAKE_BUILD_TYPE)
-		set(_configuration "${CMAKE_BUILD_TYPE}")
-	else()
-		set(_configuration "Release")
-	endif()
-	set(_configurations ${_configuration})
+
+if (WIN32)
+    # bdist_wininst only works on windows
+    # do we need binary distributions on other platforms?  I don't think so.
+    if (MSVC_IDE)
+        set(_target_name BDIST_WININST)
+    else()
+        set(_target_name bdist_wininst)
+    endif()
+   
+    # configuring needed to bake in version.
+    configure_file(
+        "package.py.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/package.py"
+        )
+        
+    # Using generator expressions $<TARGET_FILE:pylass> instead of getting the LOCATION property of the target.
+    # The latter is deprecated in CMake 3.x (and gives a warning) because it's apparently not conclusive,
+    # since it can only be known for sure at generation time.
+    # This should also work with CMake 2.8, at least with 2.8.12. I haven't tested earlier versions.
+    add_custom_target(
+        ${_target_name}
+        COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/package.py" "$<CONFIGURATION>" "$<TARGET_FILE:pylass>" "$<TARGET_FILE:lass>" "$<TARGET_FILE:lass_python>"
+        DEPENDS pylass
+        SOURCES "package.py.in"
+        )
 endif()
-
-
-set(pylass_dist_files)
-foreach(_config ${_configurations})
-	get_target_property(_pylass_loc pylass LOCATION_${_config})
-	get_target_property(_lass_loc lass LOCATION_${_config})
-	get_target_property(_lass_python_loc lass_python LOCATION_${_config})
-	set(pylass_dist_files "r'${_config}': [r'${_pylass_loc}', r'${_lass_loc}', r'${_lass_python_loc}'],\n ${pylass_dist_files}")
-endforeach()
-
-
-configure_file(
-	"package.py.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/package.py"
-	)
-
-
-if (MSVC_IDE)
-	set(_target_name BDIST_WININST)
-else()
-	set(_target_name bdist_wininst)
-endif()
-add_custom_target(
-	${_target_name}
-	COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/package.py" "${_configuration}" "bdist_wininst"
-	DEPENDS pylass
-	SOURCES "package.py.in"
-	)

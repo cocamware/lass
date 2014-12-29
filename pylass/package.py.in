@@ -2,18 +2,12 @@ from distutils.core import setup,Extension
 from distutils import sysconfig
 import sys, os
 
-build_type = sys.argv[1]
-sys.argv[1:2] = []
-sys.argv.append("--target-version=%s" % sysconfig.get_python_version())
+build_type, install_files = sys.argv[1], sys.argv[2:]
+sys.argv[1:] = ["bdist_wininst", "--target-version=%s" % sysconfig.get_python_version()]
 
 name = "pylass"
 if build_type.lower() == "debug":
 	name += "_d"
-
-pylass_dist_files = {
-	${pylass_dist_files}
-	}
-install_files = pylass_dist_files[build_type]
 
 #runtime_libs = "${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}".split(';')
 #runtime_libs_debug = [x for x in runtime_libs if 'debug' in x.lower()]
