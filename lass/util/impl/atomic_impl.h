@@ -62,7 +62,7 @@ template <int byteSize> struct AtomicOperations;
 #	include "atomic_msvc_x64.h"
 #elif (LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_SOLARIS)
 #	include "atomic_solaris.h"
-#elif (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC)
+#elif (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) || (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG)
 #	if defined(LASS_PROCESSOR_ARCHITECTURE_x86)
 #		include "atomic_gcc_x86.h"
 #	elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)

@@ -43,6 +43,7 @@
 #include "lass_common.h"
 #include "shared_memory.h"
 #include "../stde/extended_cstring.h"
+#include "../num/num_cast.h"
 
 #ifdef _WIN32
 #   define NOMINMAX
@@ -199,17 +200,19 @@ public:
     {
         close();
         
+        off_t ssize = num::numCast<off_t>(size);
+        
         char shmname[] = "/dev/shm/lass-shm.XXXXXX";
-        if (!tryCreate(shmname, size))
+        if (!tryCreate(shmname, ssize))
         {
             char tmpname[] = "/tmp/lass-shm.XXXXXX";
-            if (!tryCreate(tmpname, size))
+            if (!tryCreate(tmpname, ssize))
             {
                 return false; // give up
             }
         }
         
-        return mapView(size);
+        return mapView(ssize);
     }
 
     bool open(const char* name)
@@ -228,7 +231,7 @@ public:
             close();
             return false;
         }
-        
+
         return mapView(st.st_size);
     }
 
@@ -236,7 +239,7 @@ public:
     {
         if (view_ && view_ != MAP_FAILED)
         {
-            munmap(view_, size_);
+            munmap(view_, this->size());
         }
         view_ = 0;
         
@@ -262,12 +265,13 @@ public:
 
     size_t size() const
     {
-        return size_;
+        LASS_ASSERT(size_ >= 0);
+        return static_cast<size_t>(size_);
     }
 
 private:
 
-    bool tryCreate(char* namebuf, size_t size)
+    bool tryCreate(char* namebuf, off_t size)
     {
         fd_ = mkstemp(namebuf);
         if (fd_ == -1)
@@ -278,12 +282,13 @@ private:
         return ftruncate(fd_, size) == 0;
     }
 
-    bool mapView(size_t size)
-    {
+    bool mapView(off_t size)
+    {       
         const int pid = getpid();
         name_ = lass::stde::safe_format("/proc/%i/fd/%i", pid, fd_);
         
-        view_ = mmap(0, size, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd_, 0);
+        LASS_ASSERT(size_ >= 0);
+        view_ = mmap(0, static_cast<size_t>(size), PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd_, 0);
         if (view_ == MAP_FAILED)
         {
             close();
@@ -294,7 +299,7 @@ private:
     }
     
     void* view_;
-    size_t size_;
+    off_t size_;
     std::string name_;
     int fd_;
 };

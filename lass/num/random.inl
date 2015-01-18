@@ -83,7 +83,7 @@ OutputIterator RandomStandard::getState(OutputIterator first) const
 
 
 template <typename InputIterator>
-void RandomStandard::setState(InputIterator first, InputIterator last)
+void RandomStandard::setState(InputIterator LASS_UNUSED(first), InputIterator LASS_UNUSED(last))
 {
 	LASS_ASSERT(first == last);
 }
@@ -112,7 +112,7 @@ OutputIterator RandomParkMiller::getState(OutputIterator first) const
 
 
 template <typename InputIterator>
-void RandomParkMiller::setState(InputIterator first, InputIterator last)
+void RandomParkMiller::setState(InputIterator first, InputIterator LASS_UNUSED(last))
 {
 	LASS_ASSERT(first != last);
 	buffer_ = *first++;

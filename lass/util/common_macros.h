@@ -187,8 +187,8 @@
  *  int LASS_UNUSED(foobar) = 0;
  *  @endcode
  */
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
-#	define LASS_UNUSED(x) x __attribute__((unused))
+#if (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) || (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG)
+#	define LASS_UNUSED(x) x __attribute__((__unused__))
 #else
 #	define LASS_UNUSED(x) x
 #endif

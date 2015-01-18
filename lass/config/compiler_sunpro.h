@@ -50,8 +50,6 @@
 #define LASS_COMPILER "Sun Studio C++ version " LASS_STRINGIFY(__SUNPRO_CC)
 #define LASS_LIB_COMPILER "sunpro" LASS_STRINGIFY(__SUNPRO_CC)
 
-#define LASS_NUM_BASIC_TYPES_HAVE_STDINT_H
-
 #if !defined(__CHAR_UNSIGNED__)
 #	define LASS_CHAR_IS_SIGNED
 #endif

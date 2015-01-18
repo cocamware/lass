@@ -83,7 +83,6 @@ private:
 	std::string whitespace_;
 	size_t consoleWidth_;
 	int current_;
-	int timeLeftIndex_;
 };
 
 }

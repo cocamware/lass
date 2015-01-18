@@ -116,7 +116,7 @@ namespace
 
 using ::lass::util::Mutex;
 
-Mutex* const globalMutex()
+Mutex* globalMutex()
 {
 	static Mutex* mutex = 0;
 	if (!mutex)

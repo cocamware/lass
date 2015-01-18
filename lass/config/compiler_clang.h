@@ -42,53 +42,26 @@
 
 
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
-#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILERS_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_CLANG_H
+#define LASS_GUARDIAN_OF_INCLUSION_CONFIG_COMPILER_CLANG_H
 
-#define LASS_COMPILER_TYPE_INTEL 1
-#define LASS_COMPILER_TYPE_MSVC 2
-#define LASS_COMPILER_TYPE_GCC 3
-#define LASS_COMPILER_TYPE_SUNPRO 4
-#define LASS_COMPILER_TYPE_CLANG 5
+#define LASS_COMPILER_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 
-#if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
-//  Intel
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_INTEL
-#	include "compiler_intel.h"
+#define LASS_COMPILER "Clang C++ version " __clang_version__
+#define LASS_LIB_COMPILER "clang" LASS_STRINGIFY(__clang_major__) LASS_STRINGIFY(__clang_minor__) LASS_STRINGIFY(__clang_patchlevel__)
 
-#elif defined __clang__
-//  clang
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_CLANG
-#	include "compiler_clang.h"
+// use GCC style inline assembly
+#define LASS_HAVE_INLINE_ASSEMBLY_GCC
 
-# elif defined __GNUC__
-//  GNU C++:
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_GCC
-#	include "compiler_gcc.h"
-
-#elif defined _MSC_VER
-//  Microsoft Visual C++
-//
-//  Must remain the last #elif since some other vendors (Metrowerks, for
-//  example) also #define _MSC_VER
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_MSVC
-#	include "compiler_msvc.h"
-
-#elif defined __SUNPRO_CC
-#	define LASS_COMPILER_TYPE LASS_COMPILER_TYPE_SUNPRO
-#	include "compiler_sunpro.h"
-
-#else
-#	define LASS_COMPILER_TYPE 0
-#	error "Unknown compiler - please configure and report the results to the LASS team"
+#if !defined(__CHAR_UNSIGNED__)
+#	define LASS_CHAR_IS_SIGNED
 #endif
 
-
-
-#ifndef LASS_LIB_COMPILER
-#	define LASS_LIB_COMPILER "default"
-#endif
-
-
+#define LASS_DLL_IMPORT
+#define LASS_DLL_EXPORT
+#define LASS_CALL
+#define LASS_NO_INLINE
+#define LASS_PER_THREAD __thread
+#define LASS_ALIGNED(x, n) x __attribute__((aligned(n))) 
 
 #endif

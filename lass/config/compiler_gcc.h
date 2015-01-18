@@ -53,8 +53,6 @@
 // use GCC style inline assembly
 #define LASS_HAVE_INLINE_ASSEMBLY_GCC
 
-#define LASS_NUM_BASIC_TYPES_HAVE_STDINT_H
-
 #if !defined(__CHAR_UNSIGNED__)
 #	define LASS_CHAR_IS_SIGNED
 #endif

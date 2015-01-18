@@ -58,8 +58,7 @@ ProgressIndicator::ProgressIndicator(const std::string& iDescription, size_t iCo
 	description_(iDescription),
 	whitespace_(iConsoleWidth, ' '),
 	consoleWidth_(iConsoleWidth),
-	current_(0),
-	timeLeftIndex_(0)
+	current_(0)
 {
 	std::ostringstream stepInfo;
 	stepInfo.copyfmt(std::cout);

@@ -59,6 +59,17 @@
 
 #include "meta_common.h"
 
+// experimental,
+// Clang's -Wunused-private-field will warn that dummy_ and biggerThanTrue_ are not used.
+// Simply using LASS_UNUSED won't work since GCC will then again warn that __attribute__((unused)) is ignored.
+// Sigh, so, only do LASS_UNUSED if we're Clang.
+// If this properly works, and we have more insight in this situation, we might move this to some more permanent location ...
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
+#   define LASS_EXPERIMENTAL_UNUSED_PRIVATE(x) LASS_UNUSED(x)
+#else
+#   define LASS_EXPERIMENTAL_UNUSED_PRIVATE(x) x
+#endif
+
 namespace lass
 {
 namespace meta
@@ -73,7 +84,7 @@ public:
 	typedef True Type;
 	enum { value = true };
 private:
-	char dummy_;
+	char LASS_EXPERIMENTAL_UNUSED_PRIVATE(dummy_);
 };
 
 /** meta false
@@ -85,7 +96,7 @@ public:
 	typedef False Type;
 	enum { value = false };
 private:
-	True biggerThanTrue_[2];
+	True LASS_EXPERIMENTAL_UNUSED_PRIVATE(biggerThanTrue_[2]);
 };
 
 

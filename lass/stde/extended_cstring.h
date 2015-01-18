@@ -60,10 +60,23 @@
 #	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
 #endif
 
+// Forwarding va_list arguments to vsnprintf will cause Clang to complain about not being able 
+// to check the arguments passed to vsnprintf.  To remedy, we need to tell the compiler that 
+// the wrapper function's arguments also need to be checked to be compliant with the sprintf formats.
+// If this works, we might move this to a more permanent location.
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
+#	define LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(archetype, string_index, first_to_check) __attribute__ ((format (archetype, string_index, first_to_check)))
+#else
+#	define LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(archetype, string_index, first_to_check)
+#endif
+
 namespace lass
 {
 namespace stde
 {
+
+template <int N> int safe_vsprintf(char(&buffer)[N], const char* format, va_list args) LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(printf, 2, 0);
+template <int N> int safe_sprintf(char(&buffer)[N], const char* format, ...) LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(printf, 2, 3);
 
 template <int N>
 int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
@@ -107,8 +120,8 @@ char* safe_strcpy(char (&buffer)[N], const char* source)
 	return strcpy(buffer, source);
 }
 
-LASS_DLL std::string LASS_CALL safe_vformat(const char* format, va_list args);
-LASS_DLL std::string LASS_CALL safe_format(const char* format, ...);
+LASS_DLL std::string LASS_CALL safe_vformat(const char* format, va_list args) LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(printf, 1, 0);
+LASS_DLL std::string LASS_CALL safe_format(const char* format, ...) LASS_EXPERIMENTAL_ATTRIBUTE_FORMAT(printf, 1, 2);
 
 }
 }
