@@ -51,6 +51,9 @@ namespace python
 namespace impl
 {
 
+// STL streams are all very thread unsafe, and we can't really fix that.
+
+
 SysStreamBuf::SysStreamBuf(FILE* file, const char* name): 
 	file_(file),
 	name_(name)
@@ -86,7 +89,7 @@ SysStreamBuf::int_type SysStreamBuf::overflow(int_type c)
 int SysStreamBuf::sync()
 {
 	const int n = static_cast<int>(pptr() - pbase());
-	LASS_ASSERT(n >= 0 && (pbase() + n == pptr()));
+	assert(n >= 0 && (pbase() + n == pptr())); // no LASS_ASSERT, as that writes to ProxyOStream, which may attempt to write to this buffer again.
 	if (n == 0)
 	{
 		return 0;

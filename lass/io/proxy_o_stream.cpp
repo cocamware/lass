@@ -42,7 +42,7 @@
 
 #include "lass_common.h"
 #include "proxy_o_stream.h"
-
+#include "../util/atomic.h"
 
 
 namespace lass
@@ -60,9 +60,9 @@ ProxyOStream::ProxyOStream()
 */
 /** Construct a proxy with a destination, and set a filter for it
  */
-ProxyOStream::ProxyOStream( std::ostream* iDestination, TMask iMessageMask )
+ProxyOStream::ProxyOStream( std::ostream* destination, TMask destinationMask )
 {
-	add(iDestination, iMessageMask);
+	add(destination, destinationMask);
 }
 
 
@@ -70,20 +70,19 @@ ProxyOStream::ProxyOStream( std::ostream* iDestination, TMask iMessageMask )
 /** Add a std::ostream to the list of destination streams.
  *  - Proxy stream does NOT take ownership of destination stream, it stays your own.
  *  - If destination stream is already added to proxy, then it's not added again. i.e.
- *    You can safely add the same destination twice, but nothing will happen, it will appear
- *    only once in the proxy (and some word to the log will be written).
+ *    You can safely add the same destination twice, but it will only set the mask.
  */
-void ProxyOStream::add( std::ostream* iDestination, TMask iMessageMask )
+void ProxyOStream::add( std::ostream* destination, TMask destinationMask )
 {
-	TDestinations::iterator dit = destinations_.find(iDestination);
-	if (dit == destinations_.end())
+	TDestinations::iterator i = findStream(destination);
+	if (i != destinations_.end())
 	{
-		destinations_.insert(TDestinations::value_type(iDestination, iMessageMask));
+		i->mask = destinationMask;
 	}
 	else
 	{
-		LASS_WARNING("Trying to add std::ostream '" << iDestination << "' to ProxyOStream '" << this
-			<< "' while it's already connected to the proxy.  Nothing happens.");
+		Destination dest = { destination, destinationMask };
+		destinations_.push_back(dest);
 	}
 }
 
@@ -94,18 +93,14 @@ void ProxyOStream::add( std::ostream* iDestination, TMask iMessageMask )
  *  - If you try to remove a destination that's not there, nothing happens. i.e. it's safe
  *    to remove a stream that the proxy doesn't has.
  */
-void ProxyOStream::remove( std::ostream* iDestination )
+void ProxyOStream::remove( std::ostream* destination )
 {
-	TDestinations::iterator dit = destinations_.find(iDestination);
-	if (dit != destinations_.end())
+	TDestinations::iterator i = findStream(destination);
+	if (i == destinations_.end())
 	{
-		destinations_.erase(dit);
+		return;
 	}
-	else
-	{
-		LASS_WARNING("Trying to remove std::ostream '" << iDestination << "' from ProxyOStream '"
-			<< this << "' while it's not connected to the proxy.  Nothing happens.");
-	}
+	destinations_.erase(i);
 }
 
 
@@ -113,16 +108,17 @@ void ProxyOStream::remove( std::ostream* iDestination )
 /** Return accept mask on destination stream.
  *  If destination stream does not exists in proxy, it throws an exception.
  */
-ProxyOStream::TMask ProxyOStream::filter( std::ostream* iDestination ) const
+ProxyOStream::TMask ProxyOStream::filter( std::ostream* destination ) const
 {
-	TDestinations::const_iterator dit = destinations_.find(iDestination);
-	if (dit == destinations_.end())
+	for (TDestinations::const_iterator i = destinations_.begin(), end = destinations_.end(); i != end; ++i)
 	{
-		LASS_THROW("Cannot return filter because std::ostream '" << iDestination << "' is not "
-			<< "connected to the ProxyOStream '" << this << "' as destination.");
+		if (i->stream == destination)
+		{
+			return i->mask;
+		}
 	}
-
-	return dit->second;
+	LASS_THROW("Cannot return filter because std::ostream '" << destination << "' is not "
+		<< "connected to the ProxyOStream '" << this << "' as destination.");
 }
 
 
@@ -130,23 +126,22 @@ ProxyOStream::TMask ProxyOStream::filter( std::ostream* iDestination ) const
 /** Set filter on destination stream.
  *  If destination stream does not exists, it throws an exception.
  */
-void ProxyOStream::setFilter( std::ostream* iDestination, TMask iFilterMask)
+void ProxyOStream::setFilter( std::ostream* destination, TMask destinationMask)
 {
-	TDestinations::iterator dit = destinations_.find(iDestination);
-	if (dit == destinations_.end())
+	TDestinations::iterator i = findStream(destination);
+	if (i == destinations_.end())
 	{
-		LASS_THROW("Cannot set filter because std::ostream '" << iDestination << "' is not "
+		LASS_THROW("Cannot set filter because std::ostream '" << destination << "' is not "
 			<< "connected to the ProxyOStream '" << this << "' as destination.");
 	}
-
-	dit->second = iFilterMask;
+	i->mask = destinationMask;
 }
 
 
 
-ProxyOStream::Lock ProxyOStream::operator()( TMask iMessageMask )
+ProxyOStream::Lock ProxyOStream::operator()( TMask messageMask )
 {
-	Lock lock(this, iMessageMask);
+	Lock lock(this, messageMask);
 	return lock;
 }
 
@@ -156,13 +151,73 @@ ProxyOStream::Lock ProxyOStream::operator()( TMask iMessageMask )
  */
 void ProxyOStream::flush()
 {
-	TDestinations::iterator dit;
-	for (dit = destinations_.begin(); dit != destinations_.end(); ++dit)
+	for (TDestinations::iterator i = destinations_.begin(), end = destinations_.end(); i != end; ++i)
 	{
-		(*dit).first->flush();
+		i->stream->flush();
 	}
 }
 
+
+ProxyOStream::TDestinations::iterator ProxyOStream::findStream(std::ostream* stream)
+{
+	// We put things in a map with a O(n) search because:
+	// - adding/removing/looking up a destination stream happens rarely
+	// - n is small (often 1)
+	// - iterating over all streams happens frequently, and vectors are bleeding fast for that ...
+	for (TDestinations::iterator i = destinations_.begin(), end = destinations_.end(); i != end; ++i)
+	{
+		if (i->stream == stream)
+		{
+			return i;
+		}
+	}
+	return destinations_.end();
+}
+
+
+// --- Lock ----------------------------------------------------------------------------------------
+
+volatile int ProxyOStream::Lock::semaphore_ = 1;
+
+/** Lock (or don't lock if proxy == 0) a proxy.
+ */
+ProxyOStream::Lock::Lock(ProxyOStream* proxy, TMask messageMask): 
+	proxy_(proxy), 
+	messageMask_(messageMask) 
+{
+	util::atomicLock(semaphore_);
+}
+
+
+/** The copy constructor passes the lock on the proxy to the copy.
+ *  The pointer is passed to the copy, so that this copy can continue the job of the
+ *  original.  Since the original looses it's proxy pointer, it won't flush it on
+ *  destruction.
+ *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
+ *           doing.  But be warned: it might not do what you expect.
+ */
+ProxyOStream::Lock::Lock(Lock& other): 
+	proxy_(other.proxy_), 
+	messageMask_(other.messageMask_)
+{
+	other.proxy_ = 0;
+	other.messageMask_ = 0;
+
+	// this also implicitly transfers the ownership of the semaphore lock.
+	// the other won't unlock it anymore because it not longer has a proxy_.
+}
+
+
+/** On the end of the lock, flush the proxy.
+ */
+ProxyOStream::Lock::~Lock()
+{
+	if (proxy_)
+	{
+		proxy_->flush();
+		util::atomicUnlock(semaphore_);
+	}
+}
 
 
 }

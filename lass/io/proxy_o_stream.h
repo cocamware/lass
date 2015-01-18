@@ -103,47 +103,23 @@ public:
 	class Lock
 	{
 	public:
-		/** Lock (or don't lock if iProxy == 0) a proxy.
-		 */
-		Lock( ProxyOStream* iProxy, TMask iMessage ): proxy_(iProxy), messageMask_(iMessage) {}
-
-		/** The copy constructor passes the lock on the proxy to the copy.
-		 *  The pointer is passed to the copy, so that this copy can continue the job of the
-		 *  original.  Since the original looses it's proxy pointer, it won't flush it on
-		 *  destruction.
-		 *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
-		 *           doing.  But be warned: it might not do what you expect.
-		 */
-		Lock( ProxyOStream::Lock& iOther ): proxy_(iOther.proxy_), messageMask_(iOther.messageMask_)
-		{
-			iOther.proxy_ = 0;
-			iOther.messageMask_ = 0;
-		}
-
-		/** On the end of the lock, flush the proxy.
-		 */
-		~Lock()
-		{
-			if (proxy_)
-			{
-				proxy_->flush();
-			}
-		}
+		Lock(ProxyOStream* proxy, TMask messageMask);
+		Lock(ProxyOStream::Lock& other);
+		~Lock();
 
 		/** distribute input over all destination streams.
 		*  Only distribute input if it's still locking a proxy (i.e. if proxy_ != Null).
 		*/
 		template <typename T> 
-		Lock& operator<< ( const T& iIn )
+		Lock& operator<< ( const T& x )
 		{
 			if (proxy_)
 			{
-				ProxyOStream::TDestinations::iterator dit;
-				for (dit = proxy_->destinations_.begin(); dit != proxy_->destinations_.end(); ++dit)
+				for (ProxyOStream::TDestinations::iterator i = proxy_->destinations_.begin(), end = proxy_->destinations_.end(); i != end; ++i)
 				{
-					if (util::checkMaskedSome(dit->second, messageMask_))
+					if (util::checkMaskedSome(i->mask, messageMask_))
 					{
-						LASS_ENFORCE_STREAM(*(dit->first)) << iIn;
+						LASS_ENFORCE_STREAM(*(i->stream)) << x;
 					}
 				}
 			}
@@ -153,16 +129,15 @@ public:
 		/** distribute std manipulators over all destination streams.
 		*  Only distribute input if it's still locking a proxy (i.e. if proxy_ != Null).
 		*/
-		Lock& operator<<(std::ostream& (*iIn) (std::ostream&))
+		Lock& operator<<(std::ostream& (*x) (std::ostream&))
 		{
 			if (proxy_)
 			{
-				ProxyOStream::TDestinations::iterator dit;
-				for (dit = proxy_->destinations_.begin(); dit != proxy_->destinations_.end(); ++dit)
+				for (ProxyOStream::TDestinations::iterator i = proxy_->destinations_.begin(), end = proxy_->destinations_.end(); i != end; ++i)
 				{
-					if (util::checkMaskedSome(dit->second, messageMask_))
+					if (util::checkMaskedSome(i->mask, messageMask_))
 					{
-						LASS_ENFORCE_STREAM(*(dit->first)) << iIn;
+						LASS_ENFORCE_STREAM(*(i->stream)) << x;
 					}
 				}
 			}
@@ -170,44 +145,46 @@ public:
 		}
 
 	private:
-		Lock& operator=( const Lock& /*iOther*/ );
+		Lock& operator=( const Lock& /*other*/ );
+
 		ProxyOStream* proxy_;
 		TMask messageMask_;
+		static volatile int semaphore_;
 	};
 
 
 	// structors & methods
 
 	//ProxyOStream();
-	ProxyOStream( std::ostream* iDestination = &std::cout, TMask iFilterMask = acceptAll);
+	ProxyOStream( std::ostream* destination = &std::cout, TMask filterMask = acceptAll);
 
-	void add( std::ostream* iDestination, TMask iFilterMask = acceptAll );
-	void remove( std::ostream* iDestination );
+	void add( std::ostream* destination, TMask filterMask = acceptAll );
+	void remove( std::ostream* destination );
 
-	TMask filter( std::ostream* iDestination ) const;
-	void setFilter( std::ostream* iDestination, TMask iFilterMask  );
+	TMask filter( std::ostream* destination ) const;
+	void setFilter( std::ostream* destination, TMask filterMask  );
 
-	Lock operator()( TMask iFilterMask = acceptAll );
+	Lock operator()( TMask filterMask = acceptAll );
 
 	/** Lock proxy stream for output on 'acceptAll' and distribute input.
 	 *  This command will give command to a lock, as if the message mask is acceptAll.
-	 *  This has the same effect as (*this)(acceptAll) << iIn;
+	 *  This has the same effect as (*this)(acceptAll) << x;
 	 */
-	template <typename T> Lock operator<< ( const T& iIn )
+	template <typename T> Lock operator<< ( const T& x )
 	{
 		Lock result(this, acceptAll);
-		result << iIn;
+		result << x;
 		return result;
 	}
 
 	/** Lock proxy stream for output on 'acceptAll' and distribute the std manipulator.
 	 *  This command will give command to a lock, as if the message mask is acceptAll.
-	 *  This has the same effect as (*this)(acceptAll) << iIn;
+	 *  This has the same effect as (*this)(acceptAll) << x;
 	 */
-	Lock operator<< ( std::ostream& (*iIn) (std::ostream&) )
+	Lock operator<< ( std::ostream& (*x) (std::ostream&) )
 	{
 		Lock result(this, acceptAll);
-		result << iIn;
+		result << x;
 		return result;
 	}
 
@@ -217,7 +194,15 @@ private:
 
 	friend class Lock;
 
-	typedef std::map<std::ostream*, TMask> TDestinations;
+	struct Destination
+	{
+		std::ostream* stream;
+		TMask mask;
+	};
+
+	typedef std::vector<Destination> TDestinations;
+
+	TDestinations::iterator findStream(std::ostream* stream);
 
 	TDestinations destinations_;
 };
