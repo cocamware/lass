@@ -104,7 +104,7 @@ public:
 
 	Polynomial<T> derivative() const;
 	Polynomial<T> integral() const;
-	Polynomial<T> pow(unsigned iPower) const;
+	Polynomial<T> pow(size_t iPower) const;
 
 	const size_type size() const;
 	const const_iterator begin() const;

@@ -260,12 +260,12 @@ const typename SimplePolygon3D<T, EP, NP>::TValue
 SimplePolygon3D<T, EP, NP>::signedArea() const
 {
 	const size_t n = size();
-	if (size < 3)
+	if (n < 3)
 	{
 		return TNumTraits::zero;
 	}
 
-	const TVector& normal = normal().normal();
+	const TVector normal = this->normal().normal();
 	const TPoint& reference = vertices_[0];
 	TValue result = TNumTraits::zero;
 	for (size_t prevI = 1, i = 2; i < n; prevI = i++)
@@ -350,7 +350,7 @@ SimplePolygon3D<T, EP, NP>::surfaceCentroid() const
 		return vertexCentroid();
 	}
 
-	const TVector& normal = normal().normal();
+	const TVector normal = this->normal().normal();
 	const TPoint& reference = vertices_[0];
 	TPointH result;
 	for (size_t prevI = 1, i = 2; i < n; prevI = i++)

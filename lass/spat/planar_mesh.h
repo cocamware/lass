@@ -2239,7 +2239,6 @@ continueSearch:
 			ce = ce->oNext();
 		}
 		
-		TVector2D segmentDirection(fbb-faa);
 		std::vector< TEdge* >	insertedEdges;		// edges having as origin newly inserted points
 		std::vector< TPoint2D > insertedPoints;		// newly inserted points
 		std::vector< TPoint2D > finalInsertedPoints;		// newly inserted points

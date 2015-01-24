@@ -329,15 +329,15 @@ struct SharedPointerTraits
 	}
 	template <typename U> static TPtr staticCast(const util::SharedPtr<U, S, C>& p)
 	{
-		return p.staticCast<T>();
+		return p.template staticCast<T>();
 	}
 	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U, S, C>& p)
 	{
-		return p.dynamicCast<T>();
+		return p.template dynamicCast<T>();
 	}
 	template <typename U> static TPtr constCast(const util::SharedPtr<U, S, C>& p)
 	{
-		return p.constCast<T>();
+		return p.template constCast<T>();
 	}
 };
 

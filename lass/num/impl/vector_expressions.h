@@ -91,7 +91,7 @@ public:
 	typedef size_t TSize;
 
 	VScalar(TSize iSize, TParam iValue): value_(iValue), size_(iSize) {}
-	TParam operator[](TSize iIndex) const { LASS_ASSERT(iIndex < size_); return value_; }
+	TParam operator[](TSize LASS_UNUSED(iIndex)) const { LASS_ASSERT(iIndex < size_); return value_; }
 	TSize size() const { return size_; }
 private:
 	TValue value_;

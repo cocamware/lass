@@ -300,10 +300,10 @@ Polynomial<T> Polynomial<T>::integral() const
 
 
 template <typename T>
-Polynomial<T> Polynomial<T>::pow(unsigned iPower) const
+Polynomial<T> Polynomial<T>::pow(size_t iPower) const
 {
 	Polynomial<T> result(1);
-	for (unsigned i = 0; i < iPower; ++i)
+	for (size_t i = 0; i < iPower; ++i)
 	{
 		result *= *this;
 	}
