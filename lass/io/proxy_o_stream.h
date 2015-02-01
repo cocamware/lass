@@ -100,7 +100,7 @@ public:
 
 	// innerclasses
 
-	class Lock
+	class LASS_DLL Lock
 	{
 	public:
 		Lock(ProxyOStream* proxy, TMask messageMask);
