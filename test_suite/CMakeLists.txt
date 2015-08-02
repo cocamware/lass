@@ -19,6 +19,10 @@ macro(list_remove_regex listvar)
 	endif()
 endmacro()
 
+list_remove_regex(test_suite_SRCS
+	"ipc_child\\\\.cpp$" # that's the source code for the child process.
+	)
+
 if(NOT PYTHONLIBS_FOUND)
 	list_remove_regex(test_suite_SRCS
 		"foo\\\\.cpp$"
@@ -62,6 +66,22 @@ list(REMOVE_DUPLICATES test_suite_HDRS)
 list(SORT test_suite_HDRS)
 list(REMOVE_DUPLICATES test_suite_SRCS)
 list(SORT test_suite_SRCS)
+
+
+add_executable(
+	test_ipc_child
+	WIN32 # /SUBSYSTEM:WINDOWS
+	"${sourcedir}/ipc_child.cpp"
+	"${sourcedir}/ipc_protocol.h"
+)
+target_link_libraries(
+	test_ipc_child 
+	lass 
+	${lass_LIBS}
+	)
+add_definitions(
+	"-DTEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\""
+	)
 
 add_executable(
 	test_suite 
