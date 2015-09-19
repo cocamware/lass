@@ -57,7 +57,7 @@
 namespace
 {
 #ifdef NDEBUG
-    const size_t msecTimeout = 1000;
+    const size_t msecTimeout = 5000;
 #else
     const size_t msecTimeout = 60000;
 #endif

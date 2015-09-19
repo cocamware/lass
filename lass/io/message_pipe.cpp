@@ -3,40 +3,40 @@
  *	@author Tom De Muer (tom@cocamware.com)
  *
  *	*** BEGIN LICENSE INFORMATION ***
- *	
- *	The contents of this file are subject to the Common Public Attribution License 
- *	Version 1.0 (the "License"); you may not use this file except in compliance with 
- *	the License. You may obtain a copy of the License at 
- *	http://lass.sourceforge.net/cpal-license. The License is based on the 
- *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover 
- *	use of software over a computer network and provide for limited attribution for 
- *	the Original Developer. In addition, Exhibit A has been modified to be consistent 
+ *
+ *	The contents of this file are subject to the Common Public Attribution License
+ *	Version 1.0 (the "License"); you may not use this file except in compliance with
+ *	the License. You may obtain a copy of the License at
+ *	http://lass.sourceforge.net/cpal-license. The License is based on the
+ *	Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover
+ *	use of software over a computer network and provide for limited attribution for
+ *	the Original Developer. In addition, Exhibit A has been modified to be consistent
  *	with Exhibit B.
- *	
- *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT 
- *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific 
+ *
+ *	Software distributed under the License is distributed on an "AS IS" basis, WITHOUT
+ *	WARRANTY OF ANY KIND, either express or implied. See the License for the specific
  *	language governing rights and limitations under the License.
- *	
+ *
  *	The Original Code is LASS - Library of Assembled Shared Sources.
- *	
+ *
  *	The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
  *	The Original Developer is the Initial Developer.
- *	
+ *
  *	All portions of the code written by the Initial Developer are:
  *	Copyright (C) 2004-2011 the Initial Developer.
  *	All Rights Reserved.
- *	
+ *
  *	Contributor(s):
  *
- *	Alternatively, the contents of this file may be used under the terms of the 
- *	GNU General Public License Version 2 or later (the GPL), in which case the 
+ *	Alternatively, the contents of this file may be used under the terms of the
+ *	GNU General Public License Version 2 or later (the GPL), in which case the
  *	provisions of GPL are applicable instead of those above.  If you wish to allow use
- *	of your version of this file only under the terms of the GPL and not to allow 
- *	others to use your version of this file under the CPAL, indicate your decision by 
- *	deleting the provisions above and replace them with the notice and other 
+ *	of your version of this file only under the terms of the GPL and not to allow
+ *	others to use your version of this file under the CPAL, indicate your decision by
+ *	deleting the provisions above and replace them with the notice and other
  *	provisions required by the GPL License. If you do not delete the provisions above,
  *	a recipient may use your version of this file under either the CPAL or the GPL.
- *	
+ *
  *	*** END LICENSE INFORMATION ***
  */
 
@@ -101,7 +101,7 @@ public:
     bool create()
     {
         close();
-        
+
         const unsigned long pid = GetCurrentProcessId();
         stde::safe_sprintf(name_, "\\\\.\\pipe\\LassIOMessagePipe_%lx_%i", pid, pipeId_++);
         name_[maxNameLength] = 0;
@@ -111,7 +111,7 @@ public:
             return false;
         }
 
-        pipe_ = CreateNamedPipe( 
+        pipe_ = CreateNamedPipe(
             name_,
             PIPE_ACCESS_DUPLEX | FILE_FLAG_FIRST_PIPE_INSTANCE | FILE_FLAG_OVERLAPPED,
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
@@ -120,14 +120,14 @@ public:
             bufferSize_,
             0,
             0);
-            
+
         return pipe_ != INVALID_HANDLE_VALUE;
     }
 
     bool connect(const char* pipeName, size_t msecTimeout=INFINITE)
     {
         close();
-        
+
         stde::safe_strcpy(name_, pipeName);
         name_[maxNameLength] = 0;
 
@@ -142,7 +142,7 @@ public:
         for (size_t k = 0; k <= attempts; ++k) // always try once more
         {
             pipe_ = CreateFile(
-                pipeName, 
+                pipeName,
                 FILE_READ_DATA | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES,
                 0,
                 0,
@@ -195,7 +195,7 @@ public:
             return false;
         }
     }
-    
+
     void close()
     {
         if (pipe_ != INVALID_HANDLE_VALUE)
@@ -205,14 +205,14 @@ public:
         }
     }
 
-    const char* name() const 
-    { 
-        return name_; 
+    const char* name() const
+    {
+        return name_;
     }
 
     bool operator!() const
-    { 
-        return pipe_ == INVALID_HANDLE_VALUE; 
+    {
+        return pipe_ == INVALID_HANDLE_VALUE;
     }
 
     bool send(const void* out, size_t size, size_t msecTimeout) const
@@ -283,12 +283,12 @@ public:
         }
         return bytesRead == sizeIn;
     }
-    
+
 private:
     static DWORD dwordTimeout(size_t msecTimeout)
     {
         return msecTimeout == MessagePipe::infinite ? INFINITE : static_cast<DWORD>(msecTimeout);
-    }    
+    }
 
     bool initOverlapped()
     {
@@ -327,18 +327,18 @@ public:
     {
         name_[0] = 0;
     }
-    
-    bool create() 
+
+    bool create()
     {
         close();
-        
+
         // open a socket
         socket_ = socket(AF_UNIX, SOCK_SEQPACKET, 0);
         if (socket_ < 0)
         {
             return false;
         }
-        
+
         // ?
         const int passcred = 1;
         if (setsockopt(socket_, SOL_SOCKET, SO_PASSCRED, &passcred, sizeof(passcred)) != 0)
@@ -346,7 +346,7 @@ public:
             close();
             return false;
         }
-        
+
         // make it non-blocking
         if (fcntl(socket_, F_SETFL, O_NONBLOCK) != 0)
         {
@@ -364,7 +364,7 @@ public:
             close();
             return false;
         }
-        
+
         // let's retrieve the actual socket name.
         addr_len = sizeof(sockaddr_un);
         if(getsockname(socket_, reinterpret_cast<sockaddr*>(&addr), &addr_len) != 0)
@@ -381,22 +381,22 @@ public:
         assert(name_len < sizeof(name_));
         memcpy(name_, &addr.sun_path[1], name_len); // don't copy leading null
         name_[name_len] = 0; // set a terminating null
-        
+
         isServer_ = true;
         return true;
     }
-    
-    bool connect(const char* pipeName, size_t msecTimeout) 
+
+    bool connect(const char* pipeName, size_t msecTimeout)
     {
         close();
-        
+
         // open a socket
         socket_ = socket(AF_UNIX, SOCK_SEQPACKET, 0);
         if (socket_ < 0)
         {
             return false;
         }
-        
+
         // make it non-blocking
         if (fcntl(socket_, F_SETFL, O_NONBLOCK) != 0)
         {
@@ -448,8 +448,8 @@ public:
         }
         return false;
     }
-    
-    bool accept(size_t msecTimeout) 
+
+    bool accept(size_t msecTimeout)
     {
         assert(isServer_);
         if (socket_ < 0)
@@ -464,14 +464,14 @@ public:
         {
             ::close(pipe_);
         }
-        
+
         if (!poll(socket_, POLLIN, msecTimeout))
         {
             return false;
         }
-        
+
         pipe_ = ::accept(socket_, 0, 0);
-        
+
         if (fcntl(pipe_, F_SETFL, O_NONBLOCK) != 0)
         {
             close();
@@ -480,7 +480,7 @@ public:
 
         return pipe_ >= 0;
     }
-    
+
     void close()
     {
         if (isServer_ && pipe_ >= 0)
@@ -495,33 +495,33 @@ public:
         }
     }
 
-    const char* name() const 
-    { 
-        return name_; 
+    const char* name() const
+    {
+        return name_;
     }
-    
-    bool operator!() const 
-    { 
-        return socket_ < 0; 
+
+    bool operator!() const
+    {
+        return socket_ < 0;
     }
-    
+
     bool send(const void* out, size_t size, size_t msecTimeout) const
     {
         if (!poll(pipe_, POLLOUT, msecTimeout))
         {
             return false;
         }
-        
+
         msghdr hdr;
         memset(&hdr, 0, sizeof(msghdr));
-        
+
         iovec msg;
         msg.iov_base = const_cast<void*>(out);
         msg.iov_len = size;
         hdr.msg_iov = &msg;
         hdr.msg_iovlen = 1;
         hdr.msg_flags = MSG_EOR;
-        
+
         return sendmsg(pipe_, &hdr, 0) >= 0;
     }
     bool receive(void* in, size_t size, size_t msecTimeout) const
@@ -530,21 +530,21 @@ public:
         {
             return false;
         }
-        
-        msghdr hdr;        
+
+        msghdr hdr;
         memset(&hdr, 0, sizeof(msghdr));
-        
+
         iovec msg;
         msg.iov_base = in;
         msg.iov_len = size;
         hdr.msg_iov = &msg;
         hdr.msg_iovlen = 1;
-        
+
         if (recvmsg(pipe_, &hdr, 0) <= 0) // -1 is error, 0 is orderly shutdown
         {
             return false;
         }
-        
+
         // normally, msg_flags should have MSG_EOR set, but linux doesn't care.
         return !(hdr.msg_flags & MSG_TRUNC);
     }
@@ -552,7 +552,7 @@ public:
     {
         return send(out, sizeOut, msecTimeout) && receive(in, sizeIn, msecTimeout);
     }
-    
+
 private:
 
     bool poll(int fd, short event, size_t msecTimeout) const
@@ -565,13 +565,25 @@ private:
         {
             return false; // -1 is error, 0 is timeout
         }
+
+        // if peer sends message and immediately closes before this side has the
+        // chance to read the message, it'll already have POLLHUP.
+        // so if we check this here, we won't be able to read the last message.
+        //
+        // But we probably don't need to bother, since I guess we wouldn't
+        // find even in rdevent either, and we're checking that too.
+        //
+        // So, we'll skip this for now.
+        /*
         if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL))
         {
             return false;
         }
+        */
+
         return pfd.revents & event;
     }
-    
+
     size_t bufferSize_;
     int socket_;
     int pipe_;
