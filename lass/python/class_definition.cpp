@@ -103,6 +103,7 @@ void dealloc(PyObject* obj)
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
+	implicitConvertersSlot(0),
 	parent_(parent),
 	classRegisterHook_(registerHook),
 	isFrozen_(false)

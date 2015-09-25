@@ -230,11 +230,8 @@ public:
 
 	static void addConverter(TImplicitConverter converter)
 	{
-		if (!implicitConverters_)
-		{
-			implicitConverters_ = new TImplicitConverterList;
-		}
-		implicitConverters_->push_back(converter);
+		TImplicitConverterList* converters = implicitConverters();
+		converters->push_back(converter);
 	}
 
 private:	
@@ -243,9 +240,10 @@ private:
 
 	static int tryImplicitConverters(PyObject* obj, TCppClassPtr& p)
 	{
-		if (implicitConverters_)
+		const TImplicitConverterList* converters = implicitConverters();
+		if (converters)
 		{
-			for (typename TImplicitConverterList::const_iterator i = implicitConverters_->begin(); i != implicitConverters_->end(); ++i)
+			for (typename TImplicitConverterList::const_iterator i = converters->begin(); i != converters->end(); ++i)
 			{
 				if ((*i)(obj, p) == 0)
 				{
@@ -257,9 +255,19 @@ private:
 		PyErr_Format(PyExc_TypeError, "%s not convertable to %s", obj->ob_type->tp_name, T::_lassPyClassDef.name());
 		return 1;
 	}
+
+	static TImplicitConverterList* implicitConverters()
+	{
+		void*& slot = T::_lassPyClassDef.implicitConvertersSlot;
+		if (!slot)
+		{
+			slot = new TImplicitConverterList;
+		}
+		return static_cast<TImplicitConverterList*>(slot);
+	}
 };
 
-template <typename T> typename ShadowTraits<T>::TImplicitConverterList* ShadowTraits<T>::implicitConverters_ = 0;
+//template <typename T> typename ShadowTraits<T>::TImplicitConverterList* ShadowTraits<T>::implicitConverters_ = 0;
 
 template <typename ShadowType, typename DerivedMakers> 
 typename ShadowType::TShadowPtr makeShadow(

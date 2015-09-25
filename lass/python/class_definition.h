@@ -184,6 +184,8 @@ namespace lass
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
+				void* implicitConvertersSlot;
+
 			private:
 				typedef std::vector<PyMethodDef> TMethods;
 				typedef std::vector<PyGetSetDef> TGetSetters;
