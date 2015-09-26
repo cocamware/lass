@@ -42,9 +42,9 @@
 
 #include "lass_common.h"
 #include "message_pipe.h"
+#include "../stde/extended_cstring.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#   include "../stde/extended_cstring.h"
 #   define NOMINMAX
 #   define WIN32_LEAN_AND_MEAN
 #   include <Windows.h>
@@ -54,6 +54,8 @@
 #   endif
 #   if LASS_HAVE_LINUX_UN_H
 #       include <linux/un.h>
+#   elif LASS_HAVE_SYS_UN_H
+#       include <sys/un.h>
 #   endif
 #   if LASS_HAVE_FCNTL_H
 #       include <fcntl.h>
@@ -313,16 +315,26 @@ unsigned MessagePipeImpl::pipeId_ = 0;
 
 #else
 
+#ifndef UNIX_PATH_MAX
+    // FreeBSD's sys/un.h doesn't have UNIX_PATH_MAX
+    // Actually, Linux's has neither, but we use linux/un.h instead.
+#   define UNIX_PATH_MAX sizeof(((sockaddr_un*)0)->sun_path)
+#endif
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_LINUX
+#   define LASS_HAVE_ABSTRACT_NAMES 1
+#endif
+
 class MessagePipeImpl
 {
 public:
 
     enum { infinite = MessagePipe::infinite };
 
-    MessagePipeImpl(size_t bufferSize):
-        bufferSize_(bufferSize),
+    MessagePipeImpl(size_t /*bufferSize*/):
         socket_(-1),
         pipe_(-1),
+        fd_(-1),
         isServer_(false)
     {
         name_[0] = 0;
@@ -339,13 +351,16 @@ public:
             return false;
         }
 
-        // ?
+        // Not sure if this is actually necessary? Autobind should work without.
+        // In any case, it's only available on Linux
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_LINUX
         const int passcred = 1;
         if (setsockopt(socket_, SOL_SOCKET, SO_PASSCRED, &passcred, sizeof(passcred)) != 0)
         {
             close();
             return false;
         }
+#endif
 
         // make it non-blocking
         if (fcntl(socket_, F_SETFL, O_NONBLOCK) != 0)
@@ -354,17 +369,32 @@ public:
             return false;
         }
 
-        // autobind
         sockaddr_un addr;
         memset(&addr, 0, sizeof(sockaddr_un));
         addr.sun_family = AF_UNIX;
+#if LASS_HAVE_ABSTRACT_NAMES
+        // autobind: don't set the name, the length just includes the family
         socklen_t addr_len = sizeof(sa_family_t);
+#else
+        // BSD doesn't have the concept of abstract names,
+        // so create a temporary file in /tmp.
+        stde::safe_strcpy(name_, "/tmp/lass-sock-XXXXXX");
+        fd_ = mkstemp(name_);
+        if (fd_ == -1)
+        {
+            close();
+            return false;
+        }
+        stde::safe_strcpy(addr.sun_path, name_);
+        socklen_t addr_len = sizeof(sa_family_t) + static_cast<socklen_t>(::strlen(addr.sun_path));
+#endif
         if (bind(socket_, reinterpret_cast<sockaddr*>(&addr), addr_len) != 0)
         {
             close();
             return false;
         }
 
+#if LASS_HAVE_ABSTRACT_NAMES
         // let's retrieve the actual socket name.
         addr_len = sizeof(sockaddr_un);
         if(getsockname(socket_, reinterpret_cast<sockaddr*>(&addr), &addr_len) != 0)
@@ -381,6 +411,7 @@ public:
         assert(name_len < sizeof(name_));
         memcpy(name_, &addr.sun_path[1], name_len); // don't copy leading null
         name_[name_len] = 0; // set a terminating null
+#endif
 
         isServer_ = true;
         return true;
@@ -411,9 +442,14 @@ public:
         name_[name_len] = 0;
         sockaddr_un addr;
         addr.sun_family = AF_UNIX;
-        memset(addr.sun_path, 0, UNIX_PATH_MAX);
+#if LASS_HAVE_ABSTRACT_NAMES
+        memset(addr.sun_path, 0, UNIX_PATH_MAX); // fill with zeroes.
         memcpy(&addr.sun_path[1], pipeName, name_len);
         socklen_t addr_len = static_cast<socklen_t>(sizeof(sa_family_t) + name_len + 1);
+#else
+        memcpy(&addr.sun_path[0], pipeName, name_len);
+        socklen_t addr_len = static_cast<socklen_t>(sizeof(sa_family_t) + name_len);
+#endif
 
         // attempt to connect
         const size_t attempts = msecTimeout == infinite ? 1 : std::max<size_t>(msecTimeout / 1000, 1);
@@ -492,6 +528,12 @@ public:
         {
             ::close(socket_);
             socket_ = -1;
+        }
+        if (fd_ >= 0)
+        {
+            ::close(fd_);
+            fd_ = -1;
+            ::unlink(name_);
         }
     }
 
@@ -584,9 +626,9 @@ private:
         return pfd.revents & event;
     }
 
-    size_t bufferSize_;
     int socket_;
     int pipe_;
+    int fd_;
     bool isServer_;
     char name_[UNIX_PATH_MAX];
 };

@@ -95,6 +95,14 @@ namespace
 
 const lass::util::impl::ClockImpl::TTick nanoSecondsPerSecond = 1000000000;
 
+#if defined(CLOCK_MONOTONIC_RAW)
+const clockid_t clkId = CLOCK_MONOTONIC_RAW;
+#elif defined(CLOCK_MONOTONIC_PRECISE)
+const clockid_t clkId = CLOCK_MONOTONIC_PRECISE;
+#else
+const clockid_t clkId = CLOCK_MONOTONIC;
+#endif
+
 }
 
 namespace lass
@@ -114,7 +122,7 @@ ClockImpl::TTick ClockImpl::frequency()
 ClockImpl::TTick ClockImpl::tick()
 {
     timespec tp;
-    LASS_ENFORCE_CLIB(clock_gettime(CLOCK_MONOTONIC_RAW, &tp));
+    LASS_ENFORCE_CLIB(clock_gettime(clkId, &tp));
     return tp.tv_sec * nanoSecondsPerSecond + tp.tv_nsec;
 }
 

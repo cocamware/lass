@@ -51,6 +51,9 @@
 #ifdef LASS_HAVE_PTHREAD_H
 #	include <pthread.h>
 #endif
+#ifdef LASS_HAVE_PTHREAD_NP_H
+#	include <pthread_np.h>
+#endif
 #if LASS_HAVE_SCHED_H
 #	include <sched.h>
 #endif
@@ -69,8 +72,16 @@
 #if LASS_HAVE_SYS_TIME_H
 #	include <sys/time.h>
 #endif
+#if LASS_HAVE_SYS_CPUSET_H
+#	include <sys/param.h> // also required
+#	include <sys/cpuset.h>
+#endif
 #if LASS_HAVE_MACH_THREAD_POLICY_H
 #	include <mach/thread_policy.h>
+#endif
+
+#if LASS_HAVE_SCHED_H_CPU_SET_T || LASS_HAVE_SYS_CPUSET_H
+#	define LASS_HAVE_CPU_SET_T 1
 #endif
 
 namespace lass
@@ -80,15 +91,25 @@ namespace util
 namespace impl
 {
 
-#if LASS_HAVE_SCHED_H_CPU_SET_T
+#if LASS_HAVE_SYS_CPUSET_H
+typedef cpuset_t cpu_set_t;
+#endif
+
+#if LASS_HAVE_CPU_SET_T
 cpu_set_t originalCpuSet()
 {
 	static cpu_set_t cpu_set;
 	static bool isInitialized = false;
 	if (!isInitialized)
 	{
-		CPU_ZERO(&cpu_set);	
+		CPU_ZERO(&cpu_set);
+#if LASS_HAVE_SCHED_H_CPU_SET_T
 		LASS_ENFORCE_CLIB(sched_getaffinity(0, sizeof(cpu_set_t), &cpu_set));		
+#elif LASS_HAVE_SYS_CPUSET_H
+		LASS_ENFORCE_CLIB(cpuset_getaffinity(CPU_LEVEL_WHICH, CPU_WHICH_PID, -1, sizeof(cpu_set_t), &cpu_set));	
+#else
+#	error missing implementation
+#endif
 		isInitialized = true;
 	}
 	return cpu_set;
@@ -98,28 +119,28 @@ cpu_set_t forceCalculationBeforeMain = originalCpuSet();
 
 TCpuSet availableProcessors()
 {
-#if LASS_HAVE_SCHED_H_CPU_SET_T
+#if LASS_HAVE_CPU_SET_T
 	cpu_set_t cpu_set = originalCpuSet();
 #endif
-	
+
 	// determine number of processors (highest set bit of systemAffinityMask)
 #if LASS_HAVE_UNISTD_H_SC_NPROCESSORS_CONF
 	const size_t n = static_cast<size_t>(sysconf(_SC_NPROCESSORS_CONF));
+#elif LASS_HAVE_CPU_SET_T
+	size_t n = 0;
+	for (int i = 0; i < CPU_SETSIZE; ++i)
+	{
+		if (CPU_ISSET(i, &cpu_set))
+		{
+			n = static_cast<size_t>(i) + 1;
+		}
+	}
 #elif LASS_HAVE_SYSCTL_H_CTL_HW && LASS_HAVE_SYSCTL_H_HW_NCPU
 	int mid[2] = { CTL_HW, HW_NCPU };
 	int ncpus = 1;
 	size_t len = sizeof(ncpus);
 	sysctl(mib, 2, &ncpus, &len, 0, 0);
 	const size_t n = static_cast<size_t>(ncpus);
-#elif LASS_HAVE_SCHED_H_CPU_SET_T
-	size_t n = 0;
-	for (int i = 0; i < CPU_SETSIZE; ++i)
-	{
-		if (CPU_ISSET(i, &cpu_set))
-		{
-			n = i + 1;
-		}
-	}
 #else
 #	error missing implementation
 #endif
@@ -128,13 +149,13 @@ TCpuSet availableProcessors()
 	TCpuSet cpuSet(n, false);
 	for (size_t i = 0; i < n; ++i)
 	{
-#if LASS_HAVE_SCHED_H_CPU_SET_T
+#if LASS_HAVE_CPU_SET_T
 		cpuSet[i] = CPU_ISSET(static_cast<int>(i), &cpu_set);
 #elif LASS_HAVE_SYS_PROCESSOR_H
 		const int r = LASS_ENFORCE_CLIB(p_online(static_cast<processorid_t>(i), P_STATUS))("i=")(i);
 		cpuSet[i] = r == P_ONLINE || r == P_NOINTR;
 #else
-#		// no way to figure out it out, let's assume it's always available
+#		warning [LASS BUILD MSG] do not know how to figure out what processors in the CPU set are available. Will assuming they all are. 
 		cpuSet[i] = true;
 #endif
 	}
@@ -356,7 +377,7 @@ private:
  */
 void bindThread(pthread_t LASS_UNUSED(handle), pid_t LASS_UNUSED(tid), size_t LASS_UNUSED(processor))
 {
-#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
+#if LASS_HAVE_CPU_SET_T
 	cpu_set_t mask;
 	if (processor == Thread::anyProcessor)
 	{
@@ -368,7 +389,7 @@ void bindThread(pthread_t LASS_UNUSED(handle), pid_t LASS_UNUSED(tid), size_t LA
 		CPU_ZERO(&mask);	
 		CPU_SET(static_cast<int>(processor), &mask);
 	}
-#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
+#	if LASS_HAVE_PTHREAD_SETAFFINITY_NP
 	LASS_ENFORCE_CLIB(pthread_setaffinity_np(handle, sizeof(cpu_set_t), &mask))("handle=")(handle);
 #	else
 	LASS_ENFORCE_CLIB(sched_setaffinity(tid, sizeof(cpu_set_t), &mask))("tid=")(tid);
@@ -453,9 +474,9 @@ public:
 	{
 		const size_t n = numberOfProcessors();
 		TCpuSet result(n, false);
-#if LASS_HAVE_SCHED_H_CPU_SET_T && LASS_HAVE_PTHREAD_H
+#if LASS_HAVE_CPU_SET_T
 		cpu_set_t mask;
-#	if LASS_HAVE_PTHREAD_H_PTHREAD_SETAFFINITY_NP
+#	if LASS_HAVE_PTHREAD_SETAFFINITY_NP
 		LASS_ENFORCE_CLIB(pthread_getaffinity_np(handle_, sizeof(cpu_set_t), &mask))("handle=")(handle_);
 #	else
 		LASS_ENFORCE_CLIB(sched_getaffinity(tid_, sizeof(cpu_set_t), &mask))("tid=")(tid_);

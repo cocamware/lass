@@ -156,16 +156,24 @@ namespace
 			iconv_close(handle_);
 		}
 		template <typename string_type>
-		void convert(char* in, size_t inBytes, string_type &result)
+		void convert(const char* in, size_t inBytes, string_type &result)
 		{
 			typedef typename string_type::value_type char_type;
 			iconv(handle_, 0, 0, 0, 0); // reset
 			result.clear();
+			
+#		if LASS_HAVE_ICONV_CONST_CHAR
+			const char* pIn = in;
+#		else
+			char* pIn = const_cast<char*>(in);
+#		endif
+
 			while (inBytes)
 			{
-				char* out = buffer_;
+				char* pOut = buffer_;
 				size_t outLeft = bufsize_;
-				if (iconv(handle_, &in, &inBytes, &out, &outLeft) == (size_t)-1)
+
+				if (iconv(handle_, &pIn, &inBytes, &pOut, &outLeft) == (size_t)-1)
 				{
 					if (errno == E2BIG)
 					{
@@ -220,7 +228,7 @@ void utf8ToWchar(const char* utf8, size_t length, std::wstring &wide)
 		std::auto_ptr<Converter> p(new Converter(wchar_encoding, "UTF-8"));
 		converter.reset(p);
 	}
-	converter->convert( const_cast<char*>(utf8), length + 1, wide );
+	converter->convert( utf8, length + 1, wide );
 }
 
 void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
@@ -231,7 +239,7 @@ void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
 		std::auto_ptr<Converter> p(new Converter("UTF-8", wchar_encoding));
 		converter.reset(p);
 	}
-	converter->convert( (char*) wide, sizeof(wchar_t) * (length + 1), utf8 );
+	converter->convert( reinterpret_cast<const char*>(wide), sizeof(wchar_t) * (length + 1), utf8 );
 }
 
 #	else

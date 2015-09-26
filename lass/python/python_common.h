@@ -122,6 +122,20 @@
 #	include "Python.h"
 #endif
 
+// oh r'ly? Because of some issue lost to ancient history, pyport.h will
+// redefine following functions on FreeBSD > 500039 (and Apple?),
+// causing really havoc with the C++ code. 
+// Undefine! Hopefully it's not to late yet.
+#ifdef _PY_PORT_CTYPE_UTF8_ISSUE
+#	undef isalnum
+#	undef isalpha
+#	undef islower
+#	undef isspace
+#	undef isupper
+#	undef tolower
+#	undef toupper
+#endif
+
 #ifndef PySequence_ITEM
 #	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
 #endif
