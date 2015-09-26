@@ -77,20 +77,16 @@
 /** user breakpoint
  *  @ingroup CommonMacros
  */
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
-#ifdef LASS_PROCESSOR_ARCHITECTURE_x86
-#	define LASS_BREAK_HERE	__asm__("int3")
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   define LASS_BREAK_HERE __debugbreak();
 #elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_SUNPRO
-#	define LASS_BREAK_HERE
+#   define LASS_BREAK_HERE
 #else
+#   ifdef LASS_PROCESSOR_ARCHITECTURE_x86
+#       define LASS_BREAK_HERE	__asm__("int $3");
+#   else
 #       define LASS_BREAK_HERE   { };
-#endif
-#else
-#	if defined(_WIN64)
-#		define LASS_BREAK_HERE __debugbreak();
-#	else
-#		define LASS_BREAK_HERE	__asm { int 3 }
-#	endif
+#   endif
 #endif
 
 /** create a unique name based on a prefix and line number

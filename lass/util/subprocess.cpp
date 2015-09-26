@@ -305,6 +305,10 @@ private:
                 ::free(*i);
             }
         }
+        char*& operator[](size_t index)
+        {
+            return argv_[index];
+        }
         operator char**()
         {
             return &argv_[0];

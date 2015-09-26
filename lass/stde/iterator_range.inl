@@ -47,31 +47,6 @@ namespace stde
 
 // --- public --------------------------------------------------------------------------------------
 
-/** @brief empty range (sort of, read warning).
- *
- *	@warning Problemski: MSVC has something like _HAS_ITERATOR_DEBUGGING, which means it has the 
- *		annoying habit of whenever two iterators come together (e.g. on comparison), to check
- *		whether they belong to the same container.  While this makes sense in most situations,
- *		(ignoring any possible performance hit), we don't have any container when we create
- *		empty ranges.  Oh, did I tell you it also checks if the iterator belongs to ANY container
- *		AT ALL?.  So, even while we almost physically force first_ and last_ to be equal (think 
- *		Fat Ed's super fix-it way), MSVC will bork on almost any occasion.  
- *		Moral of the story: while you can _create_ default constructed ranges, DO NOT USE THEM, 
- *		like EVER!
- */
-// TODO: Find a workaround for this containerless _HAS_ITERATOR_DEBUGGING madness [Bramz]
-// https://sourceforge.net/tracker2/?func=detail&aid=2517798&group_id=118315&atid=680765
-template <typename I> inline
-iterator_range<I>::iterator_range(): 
-	first_()
-{
-	// a default range is empty, so make sure both iterators are really the same!
-	//
-	last_ = first_;
-}
-
-
-
 template <typename I> inline
 iterator_range<I>::iterator_range(iterator first, iterator last): 
 	first_(first), 

@@ -67,7 +67,6 @@ public:
 	typedef typename std::iterator_traits<iterator_type>::difference_type difference_type;
 	typedef typename std::iterator_traits<iterator_type>::iterator_category iterator_category;
 
-	iterator_range();
 	iterator_range(iterator first, iterator last);
 
 	iterator begin() const;
