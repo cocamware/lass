@@ -190,21 +190,84 @@ private:
 };
 
 
-/** implemenents xkcd's fair dice roll random number generator
+/** xorshift128+ pseudorandom number generator
+*  @ingroup Random
+*
+*  Variation on xorshift generator that avoids the linear artifacts the
+*  xorshift generators are prone to. In contrast to the XSadd variants,
+*  it also passes the BigCrush tests even when bit reversed!
+*  As a disadvantage, xorshift128+ is only 1-dimensionally equidistributed
+*  while the underlying xorshift128 is 2-dimensionally equidistributed.
+*
+*  This implementation uses 128 bits of state with following shifts: a=23, b=17, c=26.
+*  It has a maximal period of 2^128-1
+*
+*  <i>S. Vigna, "Further scramblings of Marsaglia's xorshift generators",
+*  Dec 2015, arXiv:1404.0390v2 [cs.DS]</i>, http://arxiv.org/abs/1404.0390v2
+*/
+class LASS_DLL RandomXorShift128Plus
+{
+public:
+	typedef num::Tuint64 TValue;
+	static const TValue min; /**< minimum return value. */
+	static const TValue max; /**< maximum return value. */
+
+	RandomXorShift128Plus();
+	explicit RandomXorShift128Plus(TValue seed);
+	TValue operator()();
+
+	void seed(TValue index);
+
+private:
+	TValue state_[2];
+};
+
+
+/** Halton sequence
  *  @ingroup Random
  *
- *  http://xkcd.com/221/
+ *  Determinstic quasi-random number sequence of low-discrepancy, 
+ *  using the radical inverse of an increasing index in a given base.
+ *
+ *  @warning this gives a very predictable and unrandom sequence!
+ *  But, it's very good for usage with Monte Carlo integration.
+ *  Very usefull to build multi-dimensional Halton sequences.
  */
-class RandomXKCD
+class LASS_DLL RandomRadicalInverse
+{
+public:
+	typedef double TValue;
+	static const TValue min; /**< minimum return value. */
+	static const TValue max; /**< maximum return value. */
+
+	explicit RandomRadicalInverse(size_t base);
+	TValue operator()();
+
+	void seed(size_t index);
+
+private:
+	size_t index_;
+	size_t base_;
+	TValue invBase_;
+};
+
+
+/** implemenents xkcd's fair dice roll random number generator
+*  @ingroup Random
+*
+*  http://xkcd.com/221/
+*/
+class LASS_DLL RandomXKCD
 {
 public:
 	typedef int TValue;   /**< type of return value. */
-	TValue operator()() { return 4; }
+	static const TValue min;
+	static const TValue max;
+	TValue operator()();
 };
 
 
 }
-
 }
 
 #include "random.inl"

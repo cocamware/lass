@@ -201,6 +201,82 @@ inline RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) 
 
 
 
+// --- RandomXorShift128Plus -----------------------------------------------------------------------
+
+const RandomXorShift128Plus::TValue RandomXorShift128Plus::min = 0;
+const RandomXorShift128Plus::TValue RandomXorShift128Plus::max = 0xffffffffffffffff;
+
+RandomXorShift128Plus::RandomXorShift128Plus()
+{
+}
+
+RandomXorShift128Plus::RandomXorShift128Plus(TValue seed)
+{
+	this->seed(seed);
+}
+
+RandomXorShift128Plus::TValue RandomXorShift128Plus::operator()()
+{
+	TValue x = state_[0];
+	const TValue y = state_[1];
+	state_[0] = y;
+	x ^= x << 23; // a
+	state_[1] = x ^ y ^ (x >> 17) ^ (y >> 26); // b, c
+	return state_[1] + y;
+}
+
+void RandomXorShift128Plus::seed(TValue seed)
+{
+	state_[0] = seed;
+	state_[1] = 0xffff;
+}
+
+
+
+// --- RandomHalton --------------------------------------------------------------------------------
+
+const RandomRadicalInverse::TValue RandomRadicalInverse::min = 0.0;
+const RandomRadicalInverse::TValue RandomRadicalInverse::max = 1.0;
+
+RandomRadicalInverse::RandomRadicalInverse(size_t base) :
+	index_(0),
+	base_(base),
+	invBase_(1. / base)
+{
+}
+
+RandomRadicalInverse::TValue RandomRadicalInverse::operator()()
+{
+	TValue result = 0;
+	TValue f = 1;
+	size_t n = ++index_;
+	while (n)
+	{
+		const size_t r = n % base_;
+		n /= base_;
+		f *= invBase_;
+		result += r * f;
+	}
+	return result;
+}
+
+void RandomRadicalInverse::seed(size_t index)
+{
+	index_ = index;
+}
+
+
+
+// --- RandomXKCD ---------------------------------------------------------------------------------
+
+const RandomXKCD::TValue RandomXKCD::min = 0; // zero-based
+const RandomXKCD::TValue RandomXKCD::max = 5; // zero-based
+
+RandomXKCD::TValue RandomXKCD::operator()()
+{
+	return 4;
+}
+
 }
 
 }
