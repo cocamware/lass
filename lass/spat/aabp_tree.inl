@@ -229,10 +229,10 @@ bool AabpTree<O, OT, SH>::intersects(
 #if 1
 	struct Visit
 	{
-		int index;
+		size_t index;
 		TValue tNear;
 		TValue tFar;
-		Visit(int index = 0, TValue tNear = 0, TValue tFar = 0): index(index), tNear(tNear), tFar(tFar) {}
+		Visit(size_t index = 0, TValue tNear = 0, TValue tFar = 0) : index(index), tNear(tNear), tFar(tFar) {}
 	};
 	Visit stack[32];
 	size_t stackSize = 0;
@@ -241,7 +241,7 @@ bool AabpTree<O, OT, SH>::intersects(
 	{
 		const Visit visit = stack[--stackSize];
 		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-		LASS_ASSERT(visit.index >= 0 && static_cast<size_t>(visit.index) < nodes_.size());
+		LASS_ASSERT(visit.index < nodes_.size());
 		const Node& node = nodes_[visit.index];
 
 		if (node.isLeaf())
@@ -257,8 +257,8 @@ bool AabpTree<O, OT, SH>::intersects(
 			continue;
 		}
 
-		const int leftIndex = visit.index + 1;
-		const int rightIndex = node.right();
+		const size_t leftIndex = visit.index + 1;
+		const size_t rightIndex = node.right();
 		const TValue s = TObjectTraits::coord(support, node.axis());
 		const TValue d = TObjectTraits::coord(direction, node.axis());
 		const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
