@@ -184,9 +184,10 @@ namespace lass
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
-				void* implicitConvertersSlot;
-
 			private:
+
+				template <typename T> friend struct ShadowTraits; // to have acces to implicitConvertersSlot_, see below.
+
 				typedef std::vector<PyMethodDef> TMethods;
 				typedef std::vector<PyGetSetDef> TGetSetters;
 				typedef std::vector<CompareFunc> TCompareFuncs;
@@ -202,6 +203,17 @@ namespace lass
 				TClassDefs subClasses_;
 				ClassDefinition* parent_;
 				TClassRegisterHook classRegisterHook_;
+
+				/** Typeless slot for ExportTraits to store implicit converters.
+				*  This used to be a static in the templated ExportTraits, but since
+				*  the initial value is then defined in a header (PY_SHADOW_CASTERS
+				*  is usually invoked in a header), this causes a static variable
+				*  to be defined _per_ DLL, if that type is used in multiple DLLs.
+				*  To avoid that, we moved it to header, which we know will be
+				*  defined in a source file, and will thus exist only once.
+				*/
+				void* implicitConvertersSlot_;
+
 				bool isFrozen_;
 			};
 		}

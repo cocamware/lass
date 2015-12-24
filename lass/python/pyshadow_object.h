@@ -258,7 +258,7 @@ private:
 
 	static TImplicitConverterList* implicitConverters()
 	{
-		void*& slot = T::_lassPyClassDef.implicitConvertersSlot;
+		void*& slot = T::_lassPyClassDef.implicitConvertersSlot_;
 		if (!slot)
 		{
 			slot = new TImplicitConverterList;
