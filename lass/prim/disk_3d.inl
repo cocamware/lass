@@ -190,7 +190,7 @@ Disk3D<T>::uv(const TPoint& point) const
 template <typename T>
 bool Disk3D<T>::isValid() const
 {
-	return plane.isValid() && radius_ >= TNumTraits::zero;
+	return plane_.isValid() && radius_ >= TNumTraits::zero;
 }
 
 

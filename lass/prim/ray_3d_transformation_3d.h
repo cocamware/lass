@@ -61,7 +61,7 @@ namespace impl
 	{
 		// unnormalized directions don't alter parameter: same t is same point
 		template <typename T, typename VectorType> 
-		static void rescale(T& tRay, const VectorType& unnormalizedNewDirection) 
+		static void rescale(T& /*tRay*/, const VectorType& /*unnormalizedNewDirection*/) 
 		{ 
 		}
 	};
