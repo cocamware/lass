@@ -31,7 +31,7 @@ namespace mesh_interpolator
 
 PY_DECLARE_CLASS(LinearMeshInterpolator)
 PY_CLASS_CONSTRUCTOR_2(LinearMeshInterpolator, const LinearMeshInterpolator::TAabb2D&, LinearMeshInterpolator::TPointInfo)
-PY_CLASS_METHOD_DOC(LinearMeshInterpolator, insertSite, 
+PY_CLASS_METHOD_DOC(LinearMeshInterpolator, insertSite,
 	"insertSite((x, y), point_info)\n"
 	"Insert a site (x, y) with a known value point_info\n")
 PY_CLASS_METHOD_DOC(LinearMeshInterpolator, interpolate,
@@ -58,7 +58,7 @@ void LinearMeshInterpolator::insertSite(const TPoint2D& iPoint, TPointInfo iPoin
 
 
 
-LinearMeshInterpolator::TPointInfo 
+LinearMeshInterpolator::TPointInfo
 LinearMeshInterpolator::interpolate(const TPoint2D& iQuery) const
 {
 	return interpolator_.interpolate(iQuery);
@@ -85,7 +85,7 @@ LinearMeshInterpolator::interpolateLine(const TPoint2D& iPointS, const TPoint2D&
 	const TValue dy = tY/(tD/iDx);
 
 	std::vector<TPointInfo> result;
-	result.reserve(int(tD/iDx)+1);
+	result.reserve(static_cast<size_t>(std::max<TValue>(tD/iDx, 0)) + 1);
 	TValue x = iPointS.x;
 	TValue y = iPointS.y;
 	while (x<=iPointE.x)
