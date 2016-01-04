@@ -158,6 +158,7 @@ void ThreadPool<T, C, IP, PP>::clearQueue()
 	TTask dummy;
 	while (waitingTasks_.pop(dummy))
 	{
+		util::atomicDecrement(numWaitingTasks_);
 	}
 }
 
