@@ -1078,20 +1078,28 @@ template
 <
 	size_t alignment
 >
-class AllocatorAlignedMalloc
+class AllocatorAlignedAlloc
 {
 public:
 	void* allocate(size_t size)
 	{
+#if LASS_HAVE_ALIGNED_ALLOC
+		return ::aligned_alloc(alignment, size);
+#else
 		return _aligned_malloc(size, alignment);
+#endif
 	}
 	void deallocate(void *mem)
 	{
+#if LASS_HAVE_ALIGNED_ALLOC
+		::free(mem);
+#else
 		_aligned_free(mem);
+#endif
 	}
 	void deallocate(void* mem, size_t)
 	{
-		_aligned_free(mem);
+		deallocate(mem);
 	}
 };
 

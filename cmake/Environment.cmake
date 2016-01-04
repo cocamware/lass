@@ -286,6 +286,7 @@ CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")
 endif()
+CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
 
 # --- checking some properties of numbers and available functions ---

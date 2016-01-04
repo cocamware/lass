@@ -95,7 +95,7 @@ namespace spat
 		struct ObjectAllocator: 
 			private util::AllocatorThrow<
 #ifdef LASS_SIMD_ALIGNMENT				
-				util::AllocatorAlignedMalloc<LASS_SIMD_ALIGNMENT> // can we also do something with binning and simple blocks?
+				util::AllocatorAlignedAlloc<LASS_SIMD_ALIGNMENT> // can we also do something with binning and simple blocks?
 #else
 				util::AllocatorBinned<util::AllocatorSimpleBlock<>, 512>
 #endif
