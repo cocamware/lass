@@ -1,13 +1,13 @@
-function(LASS_EVAL)
+function(lass_eval)
     foreach(arg ${ARGN})
         message(STATUS "${arg}: ${${arg}}")
     endforeach()
 endfunction()
 
 
-function(LASS_PARAM_EXPANDER inpath outpath)
-    # LASS_PARAM_EXPANDER(<inpath> <outpath> <N>)
-    # LASS_PARAM_EXPANDER(<inpath> <outpath> <value1> [<value2> ...])
+function(lass_param_expander inpath outpath)
+    # lass_param_expander(<inpath> <outpath> <N>)
+    # lass_param_expander(<inpath> <outpath> <value1> [<value2> ...])
     set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
     add_custom_command(
         OUTPUT "${outpath}"
@@ -17,27 +17,27 @@ function(LASS_PARAM_EXPANDER inpath outpath)
 endfunction()
 
 
-function(LASS_PREBUILD hdrs dirname infile outfile)
-    # LASS_PREBUILD(<hdrs> <dirname> <infile> <outfile> <N>)
-    # LASS_PREBUILD(<hdrs> <dirname> <infile> <outfile> <value1> [<value2> ...])
+function(lass_prebuild hdrs dirname infile outfile)
+    # lass_prebuild(<hdrs> <dirname> <infile> <outfile> <N>)
+    # lass_prebuild(<hdrs> <dirname> <infile> <outfile> <value1> [<value2> ...])
     set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${infile}")
     set(outpath "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}/${outfile}")
     set(tmphdrs ${${hdrs}})
     if(${outpath} MATCHES "\\$x")
         foreach(i RANGE 1 ${ARGN})
             string(REPLACE "$x" "${i}" outpath_i "${outpath}")
-            LASS_PARAM_EXPANDER("${inpath}" "${outpath_i}" "${i}")
+            lass_param_expander("${inpath}" "${outpath_i}" "${i}")
             list(APPEND tmphdrs "${outpath_i}")
         endforeach()
     else()
-        LASS_PARAM_EXPANDER("${inpath}" "${outpath}" ${ARGN})
+        lass_param_expander("${inpath}" "${outpath}" ${ARGN})
         list(APPEND tmphdrs "${outpath}")
     endif()
     set(${hdrs} ${tmphdrs} PARENT_SCOPE)
 endfunction()
 
 
-function(LASS_ADD_PRECOMPILED_HEADER target hdrfile srcpath)
+function(lass_add_precompiled_header target hdrfile srcpath)
     if(NOT BUILD_USING_PRECOMPILED_HEADERS)
         return()
     endif()
@@ -66,7 +66,7 @@ function(LASS_ADD_PRECOMPILED_HEADER target hdrfile srcpath)
                 APPEND
                 PROPERTY OBJECT_DEPENDS "${pchpath}"
             )
-        endif()            
+        endif()
     else()
         #add_custom_command(
         #    OUTPUT ${pchpath}
@@ -80,21 +80,21 @@ function(LASS_ADD_PRECOMPILED_HEADER target hdrfile srcpath)
 endfunction()
 
 
-function(LASS_ADD_FLAGS_ONCE var export)
+function(lass_add_flags_once var export)
     # LASS_SET_FLAGS_ONCE(<var> [EXPORT|NOEXPORT] <flag> [<flag> ...])
     # var must be a cached var
     
     _lass_enforce_cached_var("${var}")
     set(flags_already_set "lass_${var}_set_flags")
-            
+    
     # argument processing
     set(flags ${ARGN})
     if(export STREQUAL "EXPORT")
         set(is_export TRUE)
     elseif(export STREQUAL "NOEXPORT")
         set(is_export FALSE)
-    else() 
-        # neither EXPORT or NOEXPORT, so it's a real flag. default to NOEXPORT and add it to flags list        
+    else()
+        # neither EXPORT or NOEXPORT, so it's a real flag. default to NOEXPORT and add it to flags list
         set(is_export FALSE)
         list(INSERT flags 0 "${export}")
     endif()
@@ -108,7 +108,7 @@ function(LASS_ADD_FLAGS_ONCE var export)
             
             _lass_find_flag_by_key("${var}" "${key}" is_set)
             if(NOT is_set)
-                LASS_SET_CACHE_VALUE("${var}" " ${flag}" APPEND_STRING)
+                lass_set_cache_value("${var}" " ${flag}" APPEND_STRING)
             endif()
         endif()
         
@@ -119,8 +119,8 @@ function(LASS_ADD_FLAGS_ONCE var export)
 endfunction()
 
 
-function (LASS_LINK_OPTION_TO_FLAG optionvar flagsvar flag)
-    # LASS_LINK_OPTION_TO_FLAG(<optionvar> <flagsvar> <flag> [EXPORT])
+function (lass_link_option_to_flag optionvar flagsvar flag)
+    # lass_link_option_to_flag(<optionvar> <flagsvar> <flag> [EXPORT])
     
     if (NOT DEFINED "${flagsvar}")
         message(FATAL_ERROR "Cannot use _link_flag_to_option to set a flag in non-existing variable ${flagsvar}")
@@ -136,13 +136,13 @@ function (LASS_LINK_OPTION_TO_FLAG optionvar flagsvar flag)
     endif()
     
     get_property(previous CACHE "${optionvar}_previous" PROPERTY VALUE)
-    string(COMPARE NOTEQUAL "${${optionvar}}" "${previous}" option_has_changed)      
+    string(COMPARE NOTEQUAL "${${optionvar}}" "${previous}" option_has_changed)
     if (option_has_changed)
-    
-        # update flagsvar to match optionvar    
-        set(value "${${flagsvar}}")    
+
+        # update flagsvar to match optionvar
+        set(value "${${flagsvar}}")
         string(FIND "${value}" "${flag}" index)
-    
+        
         if (${optionvar} AND index EQUAL -1)
             message(STATUS "setting ${flag} in ${flagsvar}")
             set(value "${value} ${flag}")
@@ -155,14 +155,14 @@ function (LASS_LINK_OPTION_TO_FLAG optionvar flagsvar flag)
             return()
         endif()
         
-        LASS_SET_CACHE_VALUE("${flagsvar}" "${value}")
+        lass_set_cache_value("${flagsvar}" "${value}")
     else()
         # update optionvar to match flagsvar
         string(FIND "${${flagsvar}}" "${flag}" index)
         if(index GREATER -1)
-            LASS_SET_CACHE_VALUE("${optionvar}" ON)
+            lass_set_cache_value("${optionvar}" ON)
         else()
-            LASS_SET_CACHE_VALUE("${optionvar}" OFF)
+            lass_set_cache_value("${optionvar}" OFF)
         endif()
     endif()
     
@@ -171,7 +171,7 @@ function (LASS_LINK_OPTION_TO_FLAG optionvar flagsvar flag)
 endfunction()
 
 
-function(LASS_GATHER_EXPORTED_FLAGS var out)
+function(lass_gather_exported_flags var out)
     # gathers the flags in ${var} that have been set by one of the functions
     # above, and which have been marked for export
     set(tmp "")
@@ -186,23 +186,23 @@ function(LASS_GATHER_EXPORTED_FLAGS var out)
 endfunction()
 
 
-function(LASS_SET_CACHE_VALUE var value)
-    # LASS_SET_CACHE_VALUE(<var> <value> [APPEND|APPEND_STRING])
+function(lass_set_cache_value var value)
+    # lass_set_cache_value(<var> <value> [APPEND|APPEND_STRING])
     # sets the value of an _existing_ variable <var> to <value>
     #
-    # Rationale: 
+    # Rationale:
     #   when using the set command to set existing cached variable, this does not succeed without the FORCE option
     #   using the FORCE option also requires you to give all to other options like <type> and <docstring>.
     #   And that is inconvenient.
     #
-    #   This function will set the variable for you without needing to give all the extra option,     
+    #   This function will set the variable for you without needing to give all the extra option,
     _lass_enforce_cached_var("${var}")
     
     if(ARGV2 STREQUAL "APPEND" OR ARGV2 STREQUAL "APPEND_STRING")
         set_property(CACHE "${var}" "${ARGV2}" PROPERTY VALUE "${value}")
     else()
         set_property(CACHE "${var}" PROPERTY VALUE "${value}")
-    endif()    
+    endif()
 endfunction()
 
 
@@ -259,7 +259,7 @@ function(_lass_mark_key_as_processed var key was_processed_before)
         set("${_processed_flags}" ${${_processed_flags}} "${key}" CACHE INTERNAL "") # it is now ...
     else()
         set(was_processed_before TRUE PARENT_SCOPE)
-    endif()      
+    endif()
 endfunction()
 
 

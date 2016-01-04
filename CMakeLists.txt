@@ -40,7 +40,7 @@ endif()
 if (MSVC)
 	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
 	option(BUILD_WITHOUT_ITERATOR_DEBUGGING "Build with _HAS_ITERATOR_DEBUGGING=0, otherwise as MSVC's default" OFF)
-	LASS_LINK_OPTION_TO_FLAG(BUILD_WITHOUT_ITERATOR_DEBUGGING CMAKE_CXX_FLAGS "/D_HAS_ITERATOR_DEBUGGING=0" EXPORT)
+	lass_link_option_to_flag(BUILD_WITHOUT_ITERATOR_DEBUGGING CMAKE_CXX_FLAGS "/D_HAS_ITERATOR_DEBUGGING=0" EXPORT)
 else()
 	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
 	set(BUILD_WITHOUT_ITERATOR_DEBUGGING OFF)
@@ -53,7 +53,7 @@ if (MSVC_IDE AND NOT MSVC_VERSION LESS 1400)
 		set(_default_mp ON)
 	endif()
 	option(BUILD_USING_MULTIPLE_PROCESSES "Enable parallel compilation within one project (/MP)" ${_default_mp})
-	LASS_LINK_OPTION_TO_FLAG(BUILD_USING_MULTIPLE_PROCESSES CMAKE_CXX_FLAGS "/MP")
+	lass_link_option_to_flag(BUILD_USING_MULTIPLE_PROCESSES CMAKE_CXX_FLAGS "/MP")
 else()
 	set(BUILD_USING_MULTIPLE_PROCESSES OFF)
 endif ()
@@ -65,12 +65,12 @@ include(cmake/Environment.cmake)
 
 
 if(MSVC)
-	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS EXPORT "/EHsc") 
+	lass_add_flags_once(CMAKE_CXX_FLAGS EXPORT "/EHsc") 
 elseif(SUNPRO)
-	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS NOEXPORT "-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
+	lass_add_flags_once(CMAKE_CXX_FLAGS NOEXPORT "-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
 else()
-	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS EXPORT "-fno-strict-aliasing")
-	LASS_ADD_FLAGS_ONCE(CMAKE_CXX_FLAGS NOEXPORT "-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
+	lass_add_flags_once(CMAKE_CXX_FLAGS EXPORT "-fno-strict-aliasing")
+	lass_add_flags_once(CMAKE_CXX_FLAGS NOEXPORT "-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
 endif()
 
 
@@ -127,7 +127,7 @@ install(
 # we export the flags from CMAKE_CXX_FLAGS that we know cause binary compatibility issues
 # and that projects linking to LASS will also need to have.
 # It's put in the config files as Lass_CXX_FLAGS
-LASS_GATHER_EXPORTED_FLAGS(CMAKE_CXX_FLAGS Lass_EXTRA_CXX_FLAGS)
+lass_gather_exported_flags(CMAKE_CXX_FLAGS Lass_EXTRA_CXX_FLAGS)
 
 foreach(_config_file LassConfig.cmake LassConfig.py)    
     configure_file(

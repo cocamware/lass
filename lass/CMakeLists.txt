@@ -23,19 +23,19 @@ endforeach()
 # These go in the source tree, as they are environment agnostic
 # This is perhaps not the best way of doing it, but otherwise the include paths will become a huge mess ...
 set(N 15)
-LASS_PREBUILD(lass_HDRS meta is_member.tmpl.h is_member.h "${N}")
-LASS_PREBUILD(lass_HDRS util object_factory.tmpl.h object_factory.h "${N}")
-LASS_PREBUILD(lass_HDRS util clone_factory.tmpl.h clone_factory.h "${N}")
-LASS_PREBUILD(lass_HDRS util callback.tmpl.h callback.h "${N}")
-LASS_PREBUILD(lass_HDRS util multi_callback.tmpl.h multi_callback.h "${N}")
-LASS_PREBUILD(lass_HDRS util callback_x.tmpl.h "callback_$x.h" "${N}")
-LASS_PREBUILD(lass_HDRS util multi_callback_x.tmpl.h "multi_callback_$x.h" "${N}")
-LASS_PREBUILD(lass_HDRS util callback_r_x.tmpl.h "callback_r_$x.h" "${N}")
-LASS_PREBUILD(lass_HDRS util thread_fun.tmpl.h thread_fun.h "${N}")
-LASS_PREBUILD(lass_HDRS util thread_fun.tmpl.inl thread_fun.inl "${N}")
-LASS_PREBUILD(lass_HDRS util bind.tmpl.h bind.h "${N}")
-LASS_PREBUILD(lass_HDRS util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" "${N}")
-LASS_PREBUILD(lass_HDRS util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" "${N}")
+lass_prebuild(lass_HDRS meta is_member.tmpl.h is_member.h "${N}")
+lass_prebuild(lass_HDRS util object_factory.tmpl.h object_factory.h "${N}")
+lass_prebuild(lass_HDRS util clone_factory.tmpl.h clone_factory.h "${N}")
+lass_prebuild(lass_HDRS util callback.tmpl.h callback.h "${N}")
+lass_prebuild(lass_HDRS util multi_callback.tmpl.h multi_callback.h "${N}")
+lass_prebuild(lass_HDRS util callback_x.tmpl.h "callback_$x.h" "${N}")
+lass_prebuild(lass_HDRS util multi_callback_x.tmpl.h "multi_callback_$x.h" "${N}")
+lass_prebuild(lass_HDRS util callback_r_x.tmpl.h "callback_r_$x.h" "${N}")
+lass_prebuild(lass_HDRS util thread_fun.tmpl.h thread_fun.h "${N}")
+lass_prebuild(lass_HDRS util thread_fun.tmpl.inl thread_fun.inl "${N}")
+lass_prebuild(lass_HDRS util bind.tmpl.h bind.h "${N}")
+lass_prebuild(lass_HDRS util/impl dispatcher_x.tmpl.h "dispatcher_$x.h" "${N}")
+lass_prebuild(lass_HDRS util/impl dispatcher_r_x.tmpl.h "dispatcher_r_$x.h" "${N}")
 
 list(REMOVE_DUPLICATES lass_HDRS)
 
@@ -79,7 +79,7 @@ set_target_properties(lass PROPERTIES
 	SOVERSION "${LASS_PATCHLEVEL}"
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
-LASS_ADD_PRECOMPILED_HEADER(lass 
+lass_add_precompiled_header(lass 
 	lass_common.h 
 	"${lass_SOURCE_DIR}/lass/lass_common.cpp"
 	)
@@ -99,12 +99,12 @@ if(PYTHONLIBS_FOUND)
 	file(GLOB lass_python_HDRS python/*.h python/*.inl)
 
 	set(N 15)
-	LASS_PREBUILD(lass_python_HDRS python callback_python.tmpl.h callback_python.h "${N}")
-	LASS_PREBUILD(lass_python_HDRS python pyobject_macros.tmpl.h pyobject_macros.h "${N}")
-	LASS_PREBUILD(lass_python_HDRS python pyobject_call.tmpl.inl pyobject_call.inl "${N}")
-	LASS_PREBUILD(lass_python_HDRS python pycallback_export_traits.tmpl.inl pycallback_export_traits.inl "${N}")
-	LASS_PREBUILD(lass_python_HDRS python py_tuple.tmpl.h py_tuple.h 20)
-	LASS_PREBUILD(lass_python_HDRS python bulk_add_integer.tmpl.inl bulk_add_integer.inl "${N}")
+	lass_prebuild(lass_python_HDRS python callback_python.tmpl.h callback_python.h "${N}")
+	lass_prebuild(lass_python_HDRS python pyobject_macros.tmpl.h pyobject_macros.h "${N}")
+	lass_prebuild(lass_python_HDRS python pyobject_call.tmpl.inl pyobject_call.inl "${N}")
+	lass_prebuild(lass_python_HDRS python pycallback_export_traits.tmpl.inl pycallback_export_traits.inl "${N}")
+	lass_prebuild(lass_python_HDRS python py_tuple.tmpl.h py_tuple.h 20)
+	lass_prebuild(lass_python_HDRS python bulk_add_integer.tmpl.inl bulk_add_integer.inl "${N}")
 
 	add_library(lass_python
 		${lass_python_SRCS} 
@@ -120,7 +120,7 @@ if(PYTHONLIBS_FOUND)
 		SOVERSION "${LASS_PATCHLEVEL}"
 		OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 		)
-	LASS_ADD_PRECOMPILED_HEADER(lass_python 
+	lass_add_precompiled_header(lass_python 
 		python_common.h 
 		"${lass_SOURCE_DIR}/lass/python/python_common.cpp"
 		)

@@ -34,7 +34,7 @@ endif()
 
 set(infile "${sourcedir}/test_util_callback.cpp.in")
 set(outfile "${sourcedir}/test_util_callback.cpp")
-LASS_PARAM_EXPANDER("${infile}" "${outfile}" 3)
+lass_param_expander("${infile}" "${outfile}" 3)
 list(APPEND test_suite_SRCS "${outfile}")
 
 foreach(fname ${test_suite_SRCS})
@@ -49,7 +49,7 @@ list(SORT unit_tests)
 
 set(infile "${sourcedir}/auto_test_suite.cpp.in")
 set(outfile "${lass_BINARY_DIR}/local/auto_test_suite.cpp")
-LASS_PARAM_EXPANDER("${infile}" "${outfile}" ${unit_tests})
+lass_param_expander("${infile}" "${outfile}" ${unit_tests})
 list(APPEND test_suite_SRCS "${outfile}")
 
 set(infile "${sourcedir}/default_arguments.h.in")
@@ -101,7 +101,7 @@ if(PYTHONLIBS_FOUND)
 	)
 endif()
 
-LASS_ADD_PRECOMPILED_HEADER(
+lass_add_precompiled_header(
 	test_suite 
 	test_common.h
 	"${sourcedir}/test_common.cpp"

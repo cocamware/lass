@@ -22,7 +22,7 @@ if (WIN32)
 		SUFFIX ".pyd"
 		)
 endif()
-LASS_ADD_PRECOMPILED_HEADER(
+lass_add_precompiled_header(
 	pylass 
 	pylass_common.h
 	pylass_common.cpp
