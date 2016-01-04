@@ -67,7 +67,7 @@ namespace prim
 {
 
 template<typename T>
-struct Vector4D
+struct LASS_SIMD_ALIGN Vector4D
 {
 	typedef Vector4D<T> TSelf;
 

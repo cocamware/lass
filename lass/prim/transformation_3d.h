@@ -67,11 +67,11 @@ namespace impl
 {
 
 template <typename T, size_t N>
-struct TransformationImpl
+struct LASS_SIMD_ALIGN TransformationImpl
 {
 	enum { matrixSize = N };
-	T forward[matrixSize];
-	T inverse[matrixSize];
+	LASS_SIMD_ALIGN T forward[matrixSize];
+	LASS_SIMD_ALIGN T inverse[matrixSize];
 	util::Semaphore sync;
 	size_t referenceCount;
 	bool hasInverse;

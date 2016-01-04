@@ -91,12 +91,15 @@ namespace spat
 
 	namespace experimental
 	{
+
 		struct ObjectAllocator: 
 			private util::AllocatorThrow<
-				util::AllocatorBinned<
-					util::AllocatorSimpleBlock<>, 512
-				>
-			>		
+#ifdef LASS_SIMD_ALIGNMENT				
+				util::AllocatorAlignedMalloc<LASS_SIMD_ALIGNMENT> // can we also do something with binning and simple blocks?
+#else
+				util::AllocatorBinned<util::AllocatorSimpleBlock<>, 512>
+#endif
+			>
 		{
 			template <typename T> T* make(const T& x)
 			{

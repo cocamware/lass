@@ -126,7 +126,8 @@
 #define LASS_CALL __cdecl
 #define LASS_NO_INLINE __declspec( noinline )
 #define LASS_PER_THREAD __declspec( thread )
-#define LASS_ALIGNED(x, n) __declspec( align(n) ) x
+#define LASS_ALIGN(n) __declspec( align(n) )
+#define LASS_ALIGNED(x, n) LASS_ALIGN(n) x
 
 
 #endif

@@ -58,7 +58,7 @@ namespace lass
 namespace prim
 {
 
-class LASS_DLL ColorRGBA
+class LASS_DLL LASS_SIMD_ALIGN ColorRGBA
 {
 public:
 

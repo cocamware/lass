@@ -67,7 +67,7 @@ namespace prim
 {
 
 template<typename T>
-struct Point3D
+struct LASS_SIMD_ALIGN Point3D
 {
 public:
 

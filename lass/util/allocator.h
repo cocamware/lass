@@ -1069,6 +1069,35 @@ private:
 
 
 /** @ingroup Allocator
+*	@arg concept: VariableAllocator
+*
+*	AllocatorAligned adds @a alignment bytes to the requested block size to be able to shift
+*	the pointer to a alignment boundary.
+*/
+template
+<
+	size_t alignment
+>
+class AllocatorAlignedMalloc
+{
+public:
+	void* allocate(size_t size)
+	{
+		return _aligned_malloc(size, alignment);
+	}
+	void deallocate(void *mem)
+	{
+		_aligned_free(mem);
+	}
+	void deallocate(void* mem, size_t)
+	{
+		_aligned_free(mem);
+	}
+};
+
+
+
+/** @ingroup Allocator
  *	@arg concept: VariableAllocator
  *
  *	AllocatorSized adds sizeof(size_t) bytes in front of the returned pointer to store the

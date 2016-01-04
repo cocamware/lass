@@ -59,7 +59,7 @@ namespace prim
 {
 
 template<typename T>
-struct Point2DH
+struct LASS_SIMD_ALIGN Point2DH
 {
 public:
 

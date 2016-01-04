@@ -58,6 +58,20 @@ else()
 	set(BUILD_USING_MULTIPLE_PROCESSES OFF)
 endif ()
 
+# If BUILD_SIMD_ALIGNED is enabled, it sets LASS_SIMD_ALIGNMENT to 16 (16 bytes is the common SIMD alignment I know of so far).
+# Eventually LASS_SIMD_ALIGN is conditionally defined to LASS_ALIGN(LASS_SIMD_ALIGNMENT).
+# And this is finally used to conditionally align types like Vector2D, Vector3D, ... ColorRGBA, Transformation3D.
+# 
+# Enabling this can allow the compiler to generate more optimized SSE code, but obviously comes at the cost of extra storage.
+# So, it's not beneficial for all applications, which is why I leave it disabled as default.
+# 
+option(BUILD_SIMD_ALIGNED "Align some vector-like structures on 16-byte boundaries for better SSE2 code generation" OFF)
+if (BUILD_SIMD_ALIGNED)
+	set(LASS_SIMD_ALIGNMENT 16)
+else()
+	unset(LASS_SIMD_ALIGNMENT)
+endif()
+
 # --- CHECK THE ENVIRONMENT ----
 
 include(cmake/Environment.cmake)

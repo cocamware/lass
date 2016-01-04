@@ -171,6 +171,15 @@
 #endif
 
 
+/** @def LASS_SIMD_ALIGN
+ *  @brief if LASS_SIMD_ALIGNMENT is set, use LASS_SIMD_ALIGN to align some structures on SIMD alignment boundaries
+ */
+#if LASS_SIMD_ALIGNMENT
+#	define LASS_SIMD_ALIGN LASS_ALIGN(LASS_SIMD_ALIGNMENT)
+#else
+#	define LASS_SIMD_ALIGN
+#endif
+
 
 // --- frequently used STL mumbo jumbo ---
 
