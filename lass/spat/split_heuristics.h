@@ -241,10 +241,11 @@ protected:
 			std::sort(first, last, impl::LessAxis<ObjectTraits>(axis));
 
 			TAabb box = ObjectTraits::aabbEmpty();
-			for (size_t i = 0; i < n; ++i)
+			for (size_t k = 0; k < n; ++k)
 			{
-				box = ObjectTraits::aabbJoin(box, first[i].aabb);
-				leftArea[i] = ObjectTraits::aabbSurfaceArea(box);
+				RandomIterator i = first + static_cast<std::ptrdiff_t>(k);
+				box = ObjectTraits::aabbJoin(box, i->aabb);
+				leftArea[k] = ObjectTraits::aabbSurfaceArea(box);
 			}
 
 			if (axis == 0)
@@ -258,17 +259,18 @@ protected:
 			}
 
 			box = ObjectTraits::aabbEmpty();
-			for (size_t i = n; i > 0; --i)
+			for (size_t k = n; k > 0; --k)
 			{
+				RandomIterator i = first + static_cast<std::ptrdiff_t>(k) - 1;
 				const TValue rightArea = ObjectTraits::aabbSurfaceArea(box);
-				const TValue cost = 2 * costNode + (leftArea[i - 1] * i + rightArea * (n - i)) * costObject / totalArea;
+				const TValue cost = 2 * costNode + (leftArea[k - 1] * k + rightArea * (n - k)) * costObject / totalArea;
 				if (cost < bestCost)
 				{
 					bestCost = cost;
 					bestAxis = axis;
-					bestX = impl::aabbCenterForAxis<ObjectTraits>(first[i - 1].aabb, axis);
+					bestX = impl::aabbCenterForAxis<ObjectTraits>(i->aabb, axis);
 				}
-				box = ObjectTraits::aabbJoin(box, first[i - 1].aabb);
+				box = ObjectTraits::aabbJoin(box, i->aabb);
 			}
 		}
 		

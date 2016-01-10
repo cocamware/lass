@@ -75,7 +75,9 @@ Plane3D<T, Parametric, NP> transform(
 		const Plane3D<T, Parametric, NP>& plane, const Transformation3D<T>& transformation)
 {
 	return Plane3D<T, Parametric, NP>(
-		transform(plane.support()), transform(plane.directionU()), transform(plane.directionV()));
+		transform(plane.support(), transformation), 
+		transform(plane.directionU(), transformation), 
+		transform(plane.directionV()), transformation);
 }
 
 
@@ -88,7 +90,9 @@ Plane3D<T, Combined, NP> transform(
 		const Plane3D<T, Combined, NP>& plane, const Transformation3D<T>& transformation)
 {
 	return Plane3D<T, Combined, NP>(
-		transform(plane.support()),	transform(plane.directionU()), transform(plane.directionV()));
+		transform(plane.support(), transformation),	
+		transform(plane.directionU(), transformation), 
+		transform(plane.directionV(), transformation));
 }
 
 }
