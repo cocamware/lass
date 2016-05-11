@@ -241,7 +241,7 @@ const RandomRadicalInverse::TValue RandomRadicalInverse::max = 1.0;
 RandomRadicalInverse::RandomRadicalInverse(size_t base) :
 	index_(0),
 	base_(base),
-	invBase_(1. / base)
+	invBase_(1. / static_cast<TValue>(base))
 {
 }
 
@@ -255,7 +255,7 @@ RandomRadicalInverse::TValue RandomRadicalInverse::operator()()
 		const size_t r = n % base_;
 		n /= base_;
 		f *= invBase_;
-		result += r * f;
+		result += static_cast<TValue>(r) * f;
 	}
 	return result;
 }
