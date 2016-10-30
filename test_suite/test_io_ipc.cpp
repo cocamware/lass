@@ -129,6 +129,10 @@ void testIoIPC()
         LASS_COUT << "Parent: double of " << number << " is " << doubled << std::endl;
     }
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(disable: 4996) // 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead.
+#endif
+
     {
         LASS_COUT << "Parent: Asking to uppercase a string via shared memory...\n";
         const char* lowercase = "this is a string";
