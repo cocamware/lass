@@ -42,6 +42,12 @@ if(PYTHONLIBS_FOUND)
 	mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_DIR PYTHON_DEBUG_LIBRARY)
 	list(APPEND lass_INCLUDES ${PYTHON_INCLUDE_DIRS})
 
+	if(PYTHON_DEBUG_LIBRARY)
+		set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
+	else()
+		set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
+	endif()
+
 	if(NOT "${PYTHON_INCLUDE_DIR}" STREQUAL "${_TESTED_PYTHON_INCLUDE_PATH}")
 		set(_python_header "${PYTHON_INCLUDE_DIR}/Python.h")
 		message(STATUS "Looking in ${_python_header} for redefinitions")
