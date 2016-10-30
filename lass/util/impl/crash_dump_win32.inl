@@ -54,13 +54,15 @@
 #include "../scoped_ptr.h"
 
 #include <windows.h>
-#include <dbghelp.h>
 #include <objbase.h>
 #include <tchar.h>
 #include <stdlib.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4996) // This function or variable may be unsafe.
+#pragma warning(disable: 4091) // 'typedef ': ignored on left of '' when no variable is declared (in C:\Program Files (x86)\Windows Kits\8.1\Include\um\dbghelp.h)
+
+#include <dbghelp.h>
 
 #define LASS_EXPERIMENTAL_CATCH_AND_REPORT(expression)\
 	try\
