@@ -243,7 +243,7 @@ public:
             argv[k] = ::strdup(args_[k].c_str());
         }
 
-        LASS_ENFORCE_CLIB_RC(posix_spawnp(&pid_, argv[0], 0, 0, argv, environ));
+        LASS_ENFORCE_CLIB_RC(posix_spawnp(&pid_, argv[0], 0, 0, argv.ptr(), environ));
     }
 
     void kill()
@@ -309,7 +309,7 @@ private:
         {
             return argv_[index];
         }
-        operator char**()
+        char** ptr()
         {
             return &argv_[0];
         }
