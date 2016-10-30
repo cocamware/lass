@@ -112,8 +112,7 @@ if(PYTHONLIBS_FOUND)
 		)
 	target_link_libraries(lass_python
 		lass
-		optimized ${PYTHON_LIBRARIES} 
-		debug ${PYTHON_DEBUG_LIBRARIES}
+		${PYTHON_LIBRARIES} 
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
