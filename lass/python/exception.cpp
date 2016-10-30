@@ -149,25 +149,6 @@ PythonException::PythonException(PyObject* type, const std::string& msg, const s
 {
 }
 
-PythonException::~PythonException() throw() 
-{
-}
-
-const python::TPyObjPtr& PythonException::type() const 
-{ 
-	return type_; 
-}
-
-const python::TPyObjPtr& PythonException::value() const 
-{ 
-	return value_; 
-} 
-
-const python::TPyObjPtr& PythonException::traceback() const 
-{ 
-	return traceback_; 
-}
-
 const std::string PythonException::extractMessage(PyObject* type, PyObject* value)
 {
 	LockGIL LASS_UNUSED(lock);

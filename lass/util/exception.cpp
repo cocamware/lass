@@ -68,46 +68,6 @@ std::auto_ptr<RemoteExceptionBase> RemoteExceptionBase::clone() const
 	return copy;
 }
 
-
-
-Exception::Exception(const std::string& message, const std::string& location):
-	message_(message),
-	location_(location)
-{
-}
-
-Exception::~Exception() throw()
-{
-}
-
-/** return message in STL style
- */
-const char* Exception::what() const throw()
-{
-	return message_.c_str();
-}
-
-const std::string& Exception::message() const
-{
-	return message_;
-}
-
-const std::string& Exception::location() const
-{
-	return location_;
-}
-
-void Exception::doThrowSelf() const 
-{ 
-	throw *this; 
-}
-
-RemoteExceptionBase* Exception::doClone() const
-{
-	return new Exception(*this);
-}
-
-
 }
 
 }

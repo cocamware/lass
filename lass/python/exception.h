@@ -51,21 +51,24 @@ namespace lass
 namespace python
 {
 
-class LASS_PYTHON_DLL PythonException: public util::ExceptionMixin<PythonException>
+class PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
-	PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
-	PythonException(PyObject* type, const std::string& value, const std::string& loc = "no location");
-	~PythonException() throw();
-	const python::TPyObjPtr& type() const;
-	const python::TPyObjPtr& value() const;
-	const python::TPyObjPtr& traceback() const;
+	LASS_PYTHON_DLL PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
+	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg, const std::string& loc);
+
+	~PythonException() throw() {}
+	const python::TPyObjPtr& type() const { return type_; }
+	const python::TPyObjPtr& value() const { return value_; }
+	const python::TPyObjPtr& traceback() const { return traceback_; }
 private:
+	static LASS_PYTHON_DLL const std::string LASS_CALL extractMessage(PyObject* type, PyObject* value = 0);
+
 	python::TPyObjPtr type_;
 	python::TPyObjPtr value_;
 	python::TPyObjPtr traceback_;
-	static const std::string extractMessage(PyObject* type, PyObject* value = 0);
 };
+
 
 namespace impl
 {

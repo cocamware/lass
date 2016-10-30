@@ -75,19 +75,23 @@ private:
 
 
 
-class LASS_DLL Exception: public virtual std::exception, public virtual RemoteExceptionBase
+class Exception: public std::exception, public RemoteExceptionBase
 {
 public:
-	explicit Exception(const std::string& message = "no message", const std::string& location = "no location");
-	~Exception() throw();
-	const char* what() const throw();
-	const std::string& message() const;
-	const std::string& location() const;
+	explicit Exception(const std::string& message = "no message", const std::string& location = "no location"):
+		message_(message),
+		location_(location)
+	{
+	}
+	~Exception() throw() {}
+	const char* what() const throw() { return message_.c_str(); }
+	const std::string& message() const { return message_; }
+	const std::string& location() const { return location_; }
 private:
 	std::string message_;
 	std::string location_;
-	void doThrowSelf() const;
-	RemoteExceptionBase* doClone() const;
+	void doThrowSelf() const { throw *this; }
+	RemoteExceptionBase* doClone() const { return new Exception(*this); }
 };
 
 
