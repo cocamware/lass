@@ -60,17 +60,30 @@ void testStdeSafeSprintf()
 	LASS_TEST_CHECK_NO_THROW(safe_sprintf(buffer, "%s", "1234567890123456789"));
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "12345678901234567890"), std::length_error);
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "123456789012345678901"), std::length_error);
+
+	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
+	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%ls", wide), std::runtime_error);
 }
 
 void testStdeSafeFormat()
 {
 	using stde::safe_format;
 
+	LASS_TEST_CHECK_EQUAL(safe_format("%s", "").length(), size_t(0));
+
 	LASS_TEST_CHECK_EQUAL(safe_format("%s %s!", "hello", "world"), "hello world!");
 
 	const char* a = "12345678901234567890123456789012345678901234567890";
 	LASS_TEST_CHECK_EQUAL(strlen(a), size_t(50));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s", a, a, a, a, a).length(), size_t(250));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s1234", a, a, a, a, a).length(), size_t(254));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s12345", a, a, a, a, a).length(), size_t(255));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s123456", a, a, a, a, a).length(), size_t(256));
+	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s1234567", a, a, a, a, a).length(), size_t(257));
 	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s%s%s%s%s%s", a, a, a, a, a, a, a, a, a, a).length(), size_t(500));
+
+	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
+	LASS_TEST_CHECK_THROW(safe_format("%ls", wide), std::runtime_error);
 }
 
 TUnitTest test_stde_extended_cstring()

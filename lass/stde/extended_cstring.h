@@ -83,7 +83,11 @@ int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
 {
 	const int numWritten = ::vsnprintf(buffer, N, format, args);
 	buffer[N - 1] = 0;
-	if (numWritten < 0 || numWritten >= N)
+	if (numWritten < 0)
+	{
+		throw std::runtime_error("safe_vformat: encoding error");
+	}
+	if (numWritten >= N)
 	{
 		throw std::length_error("safe_vsprintf: buffer overflow.");
 	}
@@ -105,7 +109,7 @@ char* safe_strcat(char (&buffer)[N], const char* source)
 {
 	if (strlen(buffer) + strlen(source) >= N)
 	{
-		throw std::length_error("safe_strcat: buffer is too small");
+		throw std::length_error("safe_strcat: buffer overflow");
 	}
 	return strcat(buffer, source);
 }
@@ -115,7 +119,7 @@ char* safe_strcpy(char (&buffer)[N], const char* source)
 {
 	if (strlen(source) >= N)
 	{
-		throw std::length_error("safe_strcpy: buffer is too small");
+		throw std::length_error("safe_strcpy: buffer overflow");
 	}
 	return strcpy(buffer, source);
 }

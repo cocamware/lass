@@ -65,29 +65,23 @@ std::string safe_vformat(const char* format, va_list args)
 	std::vector<char> dynamicBuffer(size);
 	while (true)
 	{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size - 1, format, args);
-#else		
 		va_list ap;
 		va_copy(ap, args);
 		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size, format, ap);
 		va_end(ap);
-#endif
-		if (numWritten > 0 && numWritten < static_cast<int>(size))
-		{
-			return std::string(&dynamicBuffer[0]);
-		}
 		if (numWritten < 0)
 		{
-			size *= 2;
+			throw std::runtime_error("safe_vformat: encoding error");
 		}
-		else
+		if (numWritten < static_cast<int>(size))
 		{
-			size = static_cast<size_t>(numWritten) + 1;
+			dynamicBuffer[numWritten] = 0;
+			return std::string(&dynamicBuffer[0]);
 		}
-		if (size < dynamicBuffer.size() || static_cast<int>(size) < 0)
+		size = static_cast<size_t>(numWritten) + 1;
+		if (static_cast<int>(size) < 0)
 		{
-			throw std::length_error("safe_vformat: buffer is growing to large");
+			throw std::length_error("safe_vformat: buffer is growing too large");
 		}
 		dynamicBuffer.resize(size);
 	}
