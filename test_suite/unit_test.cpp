@@ -139,13 +139,20 @@ TestStream::TestStream(const std::string& iPatternFile, AllowSaving iAllowSaving
 		}
 		try
 		{
+			std::ostringstream buffer;
 			std::string line;
-			while (std::getline(LASS_ENFORCE_STREAM(file), line, '\n'))
+			while (std::getline(LASS_ENFORCE_STREAM(file), line))
 			{
-				pattern_ += line + '\n';
+				const size_t n = line.length();
+				if (n && line[n - 1] == '\r')
+				{
+					line = line.substr(0, n - 1);
+				}
+				buffer << line << std::endl;
 			}
+			pattern_ = buffer.str();
 		}
-		catch (std::exception& error)
+		catch (const std::exception& error)
 		{
 			LASS_THROW("Reading pattern file '" << patternFile_ << "' failed: " << error.what());
 		}
