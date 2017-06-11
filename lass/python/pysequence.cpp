@@ -246,14 +246,13 @@ namespace impl
 		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
 		if (PySlice_Check(key))
 		{
-			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(
 #if PY_VERSION_HEX < 0x03020000 // < 3.2
-					reinterpret_cast<PySliceObject*>(key), 
+			PySliceObject* k = reinterpret_cast<PySliceObject*>(key);
 #else
-					key,
+			PyObject* k = key;
 #endif
-					pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			Py_ssize_t start, stop, step, slicelength;
+			if (PySlice_GetIndicesEx(k, pimpl.length(), &start, &stop, &step, &slicelength) != 0)
 			{
 				return 0;
 			}
@@ -275,14 +274,13 @@ namespace impl
 		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
 		if (PySlice_Check(key))
 		{
-			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(
 #if PY_VERSION_HEX < 0x03020000 // < 3.2
-					reinterpret_cast<PySliceObject*>(key), 
+			PySliceObject* k = reinterpret_cast<PySliceObject*>(key);
 #else
-					key,
+			PyObject* k = key;
 #endif
-					pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			Py_ssize_t start, stop, step, slicelength;
+			if (PySlice_GetIndicesEx(k, pimpl.length(), &start, &stop, &step, &slicelength) != 0)
 			{
 				return -1;
 			}
