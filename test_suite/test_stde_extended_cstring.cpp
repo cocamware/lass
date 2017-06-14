@@ -53,16 +53,21 @@ void testStdeSafeSprintf()
 	using stde::safe_sprintf;
 
 	char buffer[20];
+
+	LASS_TEST_CHECK_EQUAL(safe_sprintf(buffer, "%s", ""), 0);
+	LASS_TEST_CHECK_EQUAL(safe_sprintf(buffer, "%s", "hallo!"), 6);
+
 	const char* veryLongString = "this is a very long string that should cause a lot of troubles!";
-	LASS_TEST_CHECK_NO_THROW(safe_sprintf(buffer, "%s", "hallo!"));
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", veryLongString), std::length_error);
 	
-	LASS_TEST_CHECK_NO_THROW(safe_sprintf(buffer, "%s", "1234567890123456789"));
+	LASS_TEST_CHECK_EQUAL(safe_sprintf(buffer, "%s", "1234567890123456789"), 19);
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "12345678901234567890"), std::length_error);
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "123456789012345678901"), std::length_error);
 
+#if !LASS_STDE_VSNPRINTF_MSVC_OLD
 	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%ls", wide), std::runtime_error);
+#endif
 }
 
 void testStdeSafeFormat()
@@ -82,8 +87,10 @@ void testStdeSafeFormat()
 	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s1234567", a, a, a, a, a).length(), size_t(257));
 	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s%s%s%s%s%s", a, a, a, a, a, a, a, a, a, a).length(), size_t(500));
 
+#if !LASS_STDE_VSNPRINTF_MSVC_OLD
 	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
 	LASS_TEST_CHECK_THROW(safe_format("%ls", wide), std::runtime_error);
+#endif
 }
 
 TUnitTest test_stde_extended_cstring()

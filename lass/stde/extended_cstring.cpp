@@ -65,6 +65,21 @@ std::string safe_vformat(const char* format, va_list args)
 	std::vector<char> dynamicBuffer(size);
 	while (true)
 	{
+#if LASS_STDE_VSNPRINTF_MSVC_OLD
+		// returns -1 on buffer overrun.
+		//
+		// count = size - 1 because writing 'count' characters without null is
+		// considered successful, and returns numWritten = count >= 0
+		//
+		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size - 1, format, args);
+		if (numWritten >= 0)
+		{
+			LASS_ASSERT(numWritten < static_cast<int>(size));
+			dynamicBuffer[numWritten] = 0;
+			return std::string(&dynamicBuffer[0]);
+		}
+		size *= 2;
+#else
 		va_list ap;
 		va_copy(ap, args);
 		const int numWritten = ::vsnprintf(&dynamicBuffer[0], size, format, ap);
@@ -79,6 +94,7 @@ std::string safe_vformat(const char* format, va_list args)
 			return std::string(&dynamicBuffer[0]);
 		}
 		size = static_cast<size_t>(numWritten) + 1;
+#endif
 		if (static_cast<int>(size) < 0)
 		{
 			throw std::length_error("safe_vformat: buffer is growing too large");
