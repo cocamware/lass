@@ -72,18 +72,16 @@ void testUtilClock()
 
 	double testSeconds = 1;
 
-	const std::clock_t stdBegin = std::clock();
-	const std::clock_t stdEnd = stdBegin + static_cast< std::clock_t >(testSeconds * CLOCKS_PER_SEC);
 
-	LASS_EVAL(std::clock());
+	const std::clock_t stdBegin = std::clock();
 	while (std::clock() <= stdBegin)
 	{
 		++i;
 	}
 	const util::Clock::TTime dutBegin = deviceUnderTest.time();
 	LASS_EVAL(i);
-
 	LASS_EVAL(std::clock());
+	const std::clock_t stdEnd = stdBegin + static_cast< std::clock_t >(testSeconds * CLOCKS_PER_SEC);
 	while (std::clock() <= stdEnd)
 	{
 		++i;

@@ -95,9 +95,19 @@ namespace
 
 const lass::util::impl::ClockImpl::TTick nanoSecondsPerSecond = 1000000000;
 
-#if defined(CLOCK_MONOTONIC_RAW)
-const clockid_t clkId = CLOCK_MONOTONIC_RAW;
-#elif defined(CLOCK_MONOTONIC_PRECISE)
+// No longer using CLOCK_MONOTONIC_RAW for following reasons:
+// - Not all kernels support it, even if it's defined, resulting in a runtime error.
+//   We discovered this behavior on the Windows Subsystem for Linux (WSL)
+// - It turns out to be more expensive, see section "Overhead of Clock Queries"
+//   of http://btorpey.github.io/blog/2014/02/18/clock-sources-in-linux/
+// - It's actually not what you want, because this clock isn't slewed by
+//   time adjusting code. So it probably has a systematic error of running
+//   either too fast or too slow.
+
+// There's also question on FreeBSD whether you actually want CLOCK_MONOTONIC_PRECISE.
+// It is more precise for sure, but it has a greater overhead ...
+
+#if defined(CLOCK_MONOTONIC_PRECISE)
 const clockid_t clkId = CLOCK_MONOTONIC_PRECISE;
 #else
 const clockid_t clkId = CLOCK_MONOTONIC;
