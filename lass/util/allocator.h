@@ -462,6 +462,20 @@ struct BinnerPadded
 };
 
 /** @ingroup Allocator
+*/
+template <>
+struct BinnerPadded<0> : public BinnerOne
+{
+};
+
+/** @ingroup Allocator
+*/
+template <>
+struct BinnerPadded<1> : public BinnerOne
+{
+};
+
+/** @ingroup Allocator
  */
 template
 <
@@ -981,7 +995,15 @@ public:
 
 private:
 	
-	struct Node
+	// If LASS_SIMD_ALIGNMENT, make sure Node has the right size so that that
+	// at least the first allocation in the block is SIMD aligned (and all the
+	// others too iff they have the right size).
+	// 
+	// So, SIMD align Node to make it so.
+	//
+	// This does assume FixedAllocator returns SIMD aligned allocations!
+	//
+	struct LASS_SIMD_ALIGN Node
 	{
 		Node* next;
 	};
@@ -1101,6 +1123,20 @@ public:
 	{
 		deallocate(mem);
 	}
+};
+
+/** @ingroup Allocator
+*/
+template<>
+class AllocatorAlignedAlloc<0> : public AllocatorMalloc
+{
+};
+
+/** @ingroup Allocator
+*/
+template<>
+class AllocatorAlignedAlloc<1> : public AllocatorMalloc
+{
 };
 
 

@@ -70,7 +70,7 @@ option(BUILD_SIMD_ALIGNED "Align some vector-like structures on 16-byte boundari
 if (BUILD_SIMD_ALIGNED)
 	set(LASS_SIMD_ALIGNMENT 16)
 else()
-	unset(LASS_SIMD_ALIGNMENT)
+	set(LASS_SIMD_ALIGNMENT 0)
 endif()
 
 # --- CHECK THE ENVIRONMENT ----

@@ -193,13 +193,19 @@ private:
 	enum { numChildren = 1 << dimension };
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
-	typedef util::AllocatorSimpleBlock<> TNodesAllocator;
+
+	typedef util::AllocatorSimpleBlock<
+		8192, 
+		util::AllocatorFixed<
+			util::AllocatorAlignedAlloc<LASS_SIMD_ALIGNMENT>
+		>
+	> TNodesAllocator;
 
 	struct QuadNode
 	{
-		QuadNode *children;   /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees*/
 		TAabb bounds;
-		TObjectIterators data;          /**< the list containing the data */
+		TObjectIterators data; /**< the list containing the data */
+		QuadNode *children; /**< 0 = NW, 1 = NE, 2 = SE, 3 = SW for quadtrees */
 
 		QuadNode(const TAabb& bounds, TNodesAllocator& allocator);
 		~QuadNode();

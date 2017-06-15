@@ -92,13 +92,19 @@ namespace spat
 	namespace experimental
 	{
 
-		struct ObjectAllocator: 
+		struct ObjectAllocator:
 			private util::AllocatorThrow<
-#ifdef LASS_SIMD_ALIGNMENT				
-				util::AllocatorAlignedAlloc<LASS_SIMD_ALIGNMENT> // can we also do something with binning and simple blocks?
-#else
-				util::AllocatorBinned<util::AllocatorSimpleBlock<>, 512>
-#endif
+				util::AllocatorBinned<
+					util::AllocatorSimpleBlock<
+						8192, 
+						util::AllocatorFixed<
+							util::AllocatorAlignedAlloc<LASS_SIMD_ALIGNMENT>
+						>
+					>, 
+					512,
+					util::BinnerPadded<LASS_SIMD_ALIGNMENT>,
+					util::AllocatorAlignedAlloc<LASS_SIMD_ALIGNMENT>
+				>
 			>
 		{
 			template <typename T> T* make(const T& x)
@@ -1028,7 +1034,7 @@ namespace spat
 		FaceHandle fb = faceHandle(b);
 		if ( fa != fb )
 		{
-           	LASS_THROW("connect of edges would violate face constraint");
+			LASS_THROW("connect of edges would violate face constraint");
 		}
 		PointHandle hADest = pointHandle( a->sym() );
 		PointHandle hB = pointHandle( b );

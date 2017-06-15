@@ -742,8 +742,8 @@ RandomIterator QuadTree<O, OT, SH>::doRangeSearch(
 
 template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>::QuadNode::QuadNode(const TAabb& bounds, TNodesAllocator& allocator):
+	bounds(bounds),
 	children(0),
-	bounds(bounds), 
 	allocator_(allocator)
 {
 }
