@@ -70,7 +70,7 @@ template
 	typename T,
 	class NormalizingPolicy = Normalized
 >
-class Line3D
+class LASS_SIMD_ALIGN Line3D
 {
 public:
 

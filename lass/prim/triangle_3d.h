@@ -60,7 +60,7 @@ namespace prim
 {
 
 template <typename T>
-class Triangle3D
+class LASS_SIMD_ALIGN Triangle3D
 {
 public:
 

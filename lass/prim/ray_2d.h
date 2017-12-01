@@ -74,7 +74,7 @@ template
 	class NormalizingPolicy = Normalized,
 	class ParameterPolicy = Bounded
 >
-class Ray2D
+class LASS_SIMD_ALIGN Ray2D
 {
 public:
 

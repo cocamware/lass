@@ -61,7 +61,7 @@ namespace prim
 {
 
 template <typename T>
-class Triangle2D
+class LASS_SIMD_ALIGN Triangle2D
 {
 public:
 

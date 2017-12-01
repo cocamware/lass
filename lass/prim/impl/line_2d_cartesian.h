@@ -62,7 +62,7 @@ namespace impl
 {
 
 template <typename T, class NormalizingPolicy = Normalized>
-class Line2DCartesian
+class LASS_SIMD_ALIGN Line2DCartesian
 {
 public:
 

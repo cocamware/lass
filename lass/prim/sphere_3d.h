@@ -72,7 +72,7 @@ namespace prim
 {
 
 template<typename T>
-class Sphere3D
+class LASS_SIMD_ALIGN Sphere3D
 {
 public:
 

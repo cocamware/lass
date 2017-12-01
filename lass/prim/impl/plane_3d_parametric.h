@@ -69,7 +69,7 @@ namespace impl
 {
 
 template <typename T, class NormalizingPolicy = Normalized>
-class Plane3DParametric
+class LASS_SIMD_ALIGN Plane3DParametric
 {
 public:
 

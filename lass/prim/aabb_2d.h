@@ -85,7 +85,7 @@ template
 	typename T,
 	class MinMaxPolicy = StrictMinMax
 >
-class Aabb2D
+class LASS_SIMD_ALIGN Aabb2D
 {
 public:
 

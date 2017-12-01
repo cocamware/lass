@@ -60,7 +60,7 @@ namespace prim
 {
 
 template <typename T>
-class Parallelogram3D
+class LASS_SIMD_ALIGN Parallelogram3D
 {
 public:
 
