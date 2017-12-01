@@ -77,6 +77,18 @@
 #	define LASS_COMPILER "Microsoft Visual C++ 2012"
 #	define LASS_LIB_COMPILER "vc11"
 
+#elif LASS_COMPILER_VERSION == 1800
+#	define LASS_COMPILER "Microsoft Visual C++ 2013"
+#	define LASS_LIB_COMPILER "vc12"
+
+#elif LASS_COMPILER_VERSION == 1900
+#	define LASS_COMPILER "Microsoft Visual C++ 2015"
+#	define LASS_LIB_COMPILER "vc14"
+
+#elif LASS_COMPILER_VERSION == 1910
+#	define LASS_COMPILER "Microsoft Visual C++ 2017"
+#	define LASS_LIB_COMPILER "vc141"
+
 #else
 #	define LASS_COMPILER "Microsoft Visual C++"
 #	define LASS_LIB_COMPILER "vc"
