@@ -378,9 +378,7 @@ namespace impl
 		static PyObject* concat(PyObject* self, PyObject* other);
 		static PyObject* repeat(PyObject* self, Py_ssize_t n);
 		static PyObject* item(PyObject* self, Py_ssize_t i);
-		static PyObject* slice(PyObject* self, Py_ssize_t low, Py_ssize_t high);
 		static int assItem(PyObject* self, Py_ssize_t i, PyObject* obj);
-		static int assSlice(PyObject* self, Py_ssize_t low, Py_ssize_t high, PyObject* slice);
 		static int contains(PyObject* a, PyObject* obj);
 		static PyObject* inplaceConcat(PyObject* self, PyObject* other);
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);

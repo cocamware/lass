@@ -158,6 +158,9 @@ ClassDefinition::ClassDefinition(
 #if PY_VERSION_HEX >= 0x02060000 // >= 2.6
 		0,	/*tp_version_tag*/
 #endif
+#if PY_VERSION_HEX >= 0x03040000 // >= 3.4
+		0,	/*tp_finalize*/
+#endif
 	};
 	type_ = type;
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
@@ -322,27 +325,26 @@ void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char*, ssizeargf
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char*, ssizessizeargfunc dispatcher, OverloadLink& overloadChain) 
-{
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg) 
-#endif
-	LASS_ASSERT_UNREACHABLE;
-}
-
 void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char*, ssizeobjargproc dispatcher, OverloadLink& overloadChain) 
 {
 	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
 	LASS_ASSERT_UNREACHABLE;
 }
 
-void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char*, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain) 
-{
 #if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc) 
-#endif
+void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char*, ssizessizeargfunc dispatcher, OverloadLink& overloadChain)
+{
+
+	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg)
 	LASS_ASSERT_UNREACHABLE;
 }
+
+void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char*, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain)
+{
+	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc)
+	LASS_ASSERT_UNREACHABLE;
+}
+#endif
 
 void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc dispatcher, OverloadLink& overloadChain) 
 {

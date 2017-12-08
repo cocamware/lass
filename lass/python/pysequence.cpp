@@ -71,9 +71,9 @@ namespace impl
 		&Sequence::concat,
 		&Sequence::repeat,
 		&Sequence::item,
-		&Sequence::slice,
+		0, // was slice
 		&Sequence::assItem,
-		&Sequence::assSlice,
+		0, // was assSlice
 		&Sequence::contains,
 		&Sequence::inplaceConcat,
 		&Sequence::inplaceRepeat,
@@ -207,17 +207,9 @@ namespace impl
 	{
 		return static_cast<Sequence*>(self)->pimpl_->item(i);
 	}
-	PyObject* Sequence::slice(PyObject* self, Py_ssize_t low, Py_ssize_t high)
-	{
-		return static_cast<Sequence*>(self)->pimpl_->slice(low, high, 1);
-	}
 	int Sequence::assItem(PyObject* self, Py_ssize_t i, PyObject* obj)
 	{
 		return static_cast<Sequence*>(self)->pimpl_->assItem(i, obj);
-	}
-	int Sequence::assSlice(PyObject* self, Py_ssize_t low, Py_ssize_t high, PyObject* slice)
-	{
-		return static_cast<Sequence*>(self)->pimpl_->assSlice(low, high, 1, slice);
 	}
 	int Sequence::contains(PyObject* self, PyObject* obj)
 	{
