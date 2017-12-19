@@ -67,8 +67,8 @@ if(CMAKE_CL_64)
     #list(APPEND lass_SRCS ${sourcepath} ${defpath})
 endif()
 
-add_library(lass 
-	${lass_SRCS} 
+add_library(lass
+	${lass_SRCS}
 	${lass_HDRS}
 	)
 
@@ -90,6 +90,25 @@ set_target_properties(lass PROPERTIES
 	SOVERSION "${Lass_VERSION_PATCH}"
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
+
+# public compiler options that client should use too
+if(MSVC)
+	target_compile_options(lass
+		PUBLIC "/EHsc" "/GR"
+	)
+	if(BUILD_WITHOUT_ITERATOR_DEBUGGING)
+		target_compile_options(lass
+			PUBLIC "/D_HAS_ITERATOR_DEBUGGING=0"
+		)
+	endif()
+elseif(SUNPRO)
+	# pass
+else()
+	target_compile_options(lass
+		PUBLIC "-fno-strict-aliasing"
+	)
+endif()
+
 lass_add_precompiled_header(lass 
 	lass_common.h 
 	"${Lass_SOURCE_DIR}/lass/lass_common.cpp"
@@ -118,9 +137,9 @@ if(PYTHONLIBS_FOUND)
 	lass_prebuild(lass_python_HDRS python bulk_add_integer.tmpl.inl bulk_add_integer.inl "${N}")
 
 	add_library(lass_python
-		${lass_python_SRCS} 
+		${lass_python_SRCS}
 		${lass_python_HDRS}
-		)
+	)
 	add_library(Lass::python ALIAS lass_python)
 	target_include_directories(lass_python
 		PUBLIC ${PYTHON_INCLUDE_DIRS}
@@ -128,7 +147,7 @@ if(PYTHONLIBS_FOUND)
  		)
 	target_link_libraries(lass_python
 		PUBLIC Lass::lass # also adds the include dirs
-		${PYTHON_LIBRARIES} 
+		${PYTHON_LIBRARIES}
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 

@@ -39,7 +39,6 @@ endif()
 if (MSVC)
 	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
 	option(BUILD_WITHOUT_ITERATOR_DEBUGGING "Build with _HAS_ITERATOR_DEBUGGING=0, otherwise as MSVC's default" OFF)
-	lass_link_option_to_flag(BUILD_WITHOUT_ITERATOR_DEBUGGING CMAKE_CXX_FLAGS "/D_HAS_ITERATOR_DEBUGGING=0" EXPORT)
 else()
 	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
 	set(BUILD_WITHOUT_ITERATOR_DEBUGGING OFF)
@@ -52,7 +51,6 @@ if (MSVC_IDE AND NOT MSVC_VERSION LESS 1400)
 		set(_default_mp ON)
 	endif()
 	option(BUILD_USING_MULTIPLE_PROCESSES "Enable parallel compilation within one project (/MP)" ${_default_mp})
-	lass_link_option_to_flag(BUILD_USING_MULTIPLE_PROCESSES CMAKE_CXX_FLAGS "/MP")
 else()
 	set(BUILD_USING_MULTIPLE_PROCESSES OFF)
 endif ()
@@ -76,14 +74,16 @@ endif()
 include(cmake/Environment.cmake)
 
 
-
+# Private compiler options for all targets
+# These typically deal with warnings
 if(MSVC)
-	lass_add_flags_once(CMAKE_CXX_FLAGS EXPORT "/EHsc") 
+	if(BUILD_USING_MULTIPLE_PROCESSES)
+		add_compile_options("/MP")
+	endif()
 elseif(SUNPRO)
-	lass_add_flags_once(CMAKE_CXX_FLAGS NOEXPORT "-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
+	add_compile_options("-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
 else()
-	lass_add_flags_once(CMAKE_CXX_FLAGS EXPORT "-fno-strict-aliasing")
-	lass_add_flags_once(CMAKE_CXX_FLAGS NOEXPORT "-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
+	add_compile_options("-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
 endif()
 
 
@@ -130,10 +130,12 @@ install(
 	DESTINATION include/lass/config
 	)
 
-# we export the flags from CMAKE_CXX_FLAGS that we know cause binary compatibility issues
-# and that projects linking to LASS will also need to have.
-# It's put in the config files as Lass_CXX_FLAGS
-lass_gather_exported_flags(CMAKE_CXX_FLAGS Lass_EXTRA_CXX_FLAGS)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"LassVersionConfig.cmake"
+	VERSION "${Lass_VERSION}"
+	COMPATIBILITY SameMajorVersion
+)
 
 foreach(_config_file LassConfig.cmake LassConfig.py)    
     configure_file(
