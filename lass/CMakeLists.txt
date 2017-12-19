@@ -71,12 +71,23 @@ add_library(lass
 	${lass_SRCS} 
 	${lass_HDRS}
 	)
-target_link_libraries(lass
-	${lass_LIBS}
+
+add_library(lass::lass ALIAS lass)
+
+target_include_directories(lass
+	PUBLIC $<BUILD_INTERFACE:${lass_SOURCE_DIR}>
+	PUBLIC $<BUILD_INTERFACE:${config_dir}>
+	PUBLIC $<INSTALL_INTERFACE:include>
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
 	)
+
+target_link_libraries(lass
+	PRIVATE ${lass_LIBS} # private, because we don't need the include dirs
+	)
+
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS 
-	SOVERSION "${LASS_PATCHLEVEL}"
+	SOVERSION "${lass_VERSION_PATCH}"
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
 lass_add_precompiled_header(lass 
@@ -110,13 +121,18 @@ if(PYTHONLIBS_FOUND)
 		${lass_python_SRCS} 
 		${lass_python_HDRS}
 		)
+	add_library(lass::python ALIAS lass_python)
+	target_include_directories(lass_python
+		PUBLIC ${PYTHON_INCLUDE_DIRS}
+		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
+ 		)
 	target_link_libraries(lass_python
-		lass
+		PUBLIC lass::lass # also adds the include dirs
 		${PYTHON_LIBRARIES} 
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
-		SOVERSION "${LASS_PATCHLEVEL}"
+		SOVERSION "${lass_VERSION_PATCH}"
 		OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 		)
 	lass_add_precompiled_header(lass_python 

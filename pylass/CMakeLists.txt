@@ -1,29 +1,26 @@
 file(GLOB pylass_HDRS *.h *.inl)
 file(GLOB pylass_SRCS *.cpp)
 
-add_library(pylass MODULE 
-	${pylass_HDRS} 
+add_library(pylass MODULE
+	${pylass_HDRS}
 	${pylass_SRCS}
 	)
-target_link_libraries(pylass 
-	lass
-	lass_python
+add_library(lass::pylass ALIAS pylass)
+target_link_libraries(pylass
+	PUBLIC lass::python
 	)
-set_target_properties(
-	pylass
+set_target_properties(pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
 	PREFIX ""
 	)
 if (WIN32)
-	set_target_properties(
-		pylass
+	set_target_properties(pylass
 		PROPERTIES 
 		SUFFIX ".pyd"
 		)
 endif()
-lass_add_precompiled_header(
-	pylass 
+lass_add_precompiled_header(pylass
 	pylass_common.h
 	pylass_common.cpp
 	)

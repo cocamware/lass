@@ -1,14 +1,10 @@
-project(lass)
-cmake_minimum_required(VERSION 2.8)
-#list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
+cmake_minimum_required(VERSION 3.0)
+project(lass VERSION 1.7.0)
 
 include(cmake/Helpers.cmake)
 
-set(LASS_MAJOR_VERSION 1)
-set(LASS_MINOR_VERSION 7)
-set(LASS_PATCHLEVEL 0)
-set(LASS_OUTPUT_NAME "lass-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
-set(LASS_PYTHON_OUTPUT_NAME "lass-python-${LASS_MAJOR_VERSION}-${LASS_MINOR_VERSION}-${LASS_PATCHLEVEL}")
+set(LASS_OUTPUT_NAME "lass-${lass_VERSION_MAJOR}-${lass_VERSION_MINOR}")
+set(LASS_PYTHON_OUTPUT_NAME "lass-python-${lass_VERSION_MAJOR}-${lass_VERSION_MINOR}")
 
 set(CMAKE_DEBUG_POSTFIX _d)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${lass_BINARY_DIR}/bin")
@@ -20,14 +16,16 @@ if(CMAKE_C_COMPILER_ID MATCHES "SunPro")
 	set(SUNPRO TRUE)
 endif()
 
+
 # --- SETTING A PREFIX IF NOT WAS FORCED BY USER ---
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	if(WIN32)
-		set(CMAKE_INSTALL_PREFIX "$ENV{ProgramFiles}/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}" CACHE PATH "Install path prefix" FORCE)
+		set(CMAKE_INSTALL_PREFIX "$ENV{ProgramFiles}/Cocamware/Lass-${lass_VERSION_MAJOR}.${lass_VERSION_MINOR}" CACHE PATH "Install path prefix" FORCE)
 	else()
-		set(CMAKE_INSTALL_PREFIX "/opt/Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}" CACHE PATH "Install path prefix" FORCE)
-	endif(WIN32)
-ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+		set(CMAKE_INSTALL_PREFIX "/opt/Cocamware/Lass-${lass_VERSION_MAJOR}.${lass_VERSION_MINOR}" CACHE PATH "Install path prefix" FORCE)
+	endif()
+endif()
+
 
 # --- USER CONFIGURABLE STUFF ---
 
@@ -88,13 +86,6 @@ else()
 	lass_add_flags_once(CMAKE_CXX_FLAGS NOEXPORT "-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
 endif()
 
-
-include_directories(
-	${lass_INCLUDES}
-	"${config_dir}"
-	"${CMAKE_CURRENT_SOURCE_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}/lass" # for lass_common.h
-	)
 
 add_subdirectory(lass)
 if(PYTHONLIBS_FOUND)
@@ -169,21 +160,20 @@ if(PYTHONLIBS_FOUND)
 endif()
 
 
-
 # --- PACKAGING ---
 if (WIN32)
-	set (CPACK_PACKAGE_INSTALL_DIRECTORY "Cocamware/Lass-${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}")
+	set (CPACK_PACKAGE_INSTALL_DIRECTORY "Cocamware/Lass-${lass_VERSION_MAJOR}.${lass_VERSION_MINOR}")
 endif(WIN32)
 set(CPACK_PACKAGE_NAME "Lass")
 set(CPACK_PACKAGE_VENDOR "Cocamware")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Lass - Library of Assembled Sources")
-set(CPACK_PACKAGE_VERSION "${LASS_MAJOR_VERSION}.${LASS_MINOR_VERSION}.${LASS_PATCHLEVEL}")
-set(CPACK_PACKAGE_VERSION_MAJOR "${LASS_MAJOR_VERSION}")
-set(CPACK_PACKAGE_VERSION_MINOR "${LASS_MINOR_VERSION}")
-set(CPACK_PACKAGE_VERSION_PATCH "${LASS_PATCHLEVEL}")
+set(CPACK_PACKAGE_VERSION "${lass_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${lass_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${lass_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${lass_VERSION_PATCH}")
 set(CPACK_RESOURCE_FILE_LICENSE "${lass_SOURCE_DIR}/docs/license.txt")
 set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Lass")
-set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\lass.cocamware.com")
-set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\lass.cocamware.com")
-set(CPACK_NSIS_CONTACT "liblass@cocamware.com")
+set(CPACK_NSIS_HELP_LINK "https:\\\\\\\\lass.cocamware.com")
+set(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\lass.cocamware.com")
+set(CPACK_NSIS_CONTACT "info@cocamware.com")
 include(CPack)

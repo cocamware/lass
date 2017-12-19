@@ -57,11 +57,6 @@ set(outfile "${lass_BINARY_DIR}/local/default_arguments.h")
 configure_file("${infile}" "${outfile}")
 list(APPEND test_suite_HDRS "${outfile}")
 
-include_directories(
-	"${sourcedir}"
-	"${lass_BINARY_DIR}/local"
-	)
-
 list(REMOVE_DUPLICATES test_suite_HDRS)
 list(SORT test_suite_HDRS)
 list(REMOVE_DUPLICATES test_suite_SRCS)
@@ -74,39 +69,37 @@ add_executable(
 	"${sourcedir}/ipc_child.cpp"
 	"${sourcedir}/ipc_protocol.h"
 )
-target_link_libraries(
-	test_ipc_child 
-	lass 
-	${lass_LIBS}
+target_include_directories(test_ipc_child
+	PRIVATE "${sourcedir}"
+	PRIVATE "${lass_BINARY_DIR}/local"
 	)
-add_definitions(
-	"-DTEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\""
+target_link_libraries(test_ipc_child
+	lass::lass
 	)
 
-add_executable(
-	test_suite 
+add_executable(test_suite
 	${test_suite_HDRS} 
 	${test_suite_SRCS}
 	)
-
-target_link_libraries(
-	test_suite 
-	lass 
-	${lass_LIBS}
+target_include_directories(test_suite
+	PRIVATE "${sourcedir}"
+	PRIVATE "${lass_BINARY_DIR}/local"
 	)
-
+target_link_libraries(test_suite
+	PRIVATE lass::lass
+	)
 if(PYTHONLIBS_FOUND)
-	target_link_libraries(test_suite 
-		lass_python
+	target_link_libraries(test_suite
+		PRIVATE lass::python
 	)
 endif()
-
-lass_add_precompiled_header(
-	test_suite 
+lass_add_precompiled_header(test_suite 
 	test_common.h
 	"${sourcedir}/test_common.cpp"
 	)
-
+target_compile_definitions(test_suite
+	PRIVATE "TEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\""
+	)
 
 foreach(test_name ${unit_tests})
 	add_test(NAME "${test_name}" COMMAND test_suite "--log=${test_name}.log" "--input-dir=${sourcedir}" "${test_name}")
