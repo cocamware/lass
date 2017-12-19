@@ -7,7 +7,7 @@ add_library(pylass MODULE
 	)
 add_library(Lass::pylass ALIAS pylass)
 target_link_libraries(pylass
-	PUBLIC Lass::python
+	PUBLIC Lass::lass_python
 	)
 set_target_properties(pylass
 	PROPERTIES 

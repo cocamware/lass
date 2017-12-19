@@ -140,7 +140,7 @@ if(PYTHONLIBS_FOUND)
 		${lass_python_SRCS}
 		${lass_python_HDRS}
 	)
-	add_library(Lass::python ALIAS lass_python)
+	add_library(Lass::lass_python ALIAS lass_python)
 	target_include_directories(lass_python
 		PUBLIC ${PYTHON_INCLUDE_DIRS}
 		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header

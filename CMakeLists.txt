@@ -106,6 +106,7 @@ endif()
 	
 install(
 	EXPORT LassExports
+	NAMESPACE Lass::
 	DESTINATION lib
 	)
 
@@ -140,8 +141,13 @@ write_basic_package_version_file(
 foreach(_config_file LassConfig.cmake LassConfig.py)    
     configure_file(
         "${Lass_SOURCE_DIR}/${_config_file}.in"
-        "${Lass_BINARY_DIR}/${_config_file}"
+        "${Lass_BINARY_DIR}/tmp/${_config_file}.tmp"
         @ONLY
+        )
+    file(
+        GENERATE
+        OUTPUT "${Lass_BINARY_DIR}/${_config_file}"
+        INPUT "${Lass_BINARY_DIR}/tmp/${_config_file}.tmp"
         )
     install(
         FILES "${Lass_BINARY_DIR}/${_config_file}"
@@ -152,11 +158,13 @@ endforeach()
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
 export(
 	TARGETS lass
+	NAMESPACE Lass::
 	FILE ${Lass_BINARY_DIR}/LassBuildExports.cmake
 	)
 if(PYTHONLIBS_FOUND)
 	export(
 		TARGETS lass_python pylass
+		NAMESPACE Lass::
 		APPEND FILE ${Lass_BINARY_DIR}/LassBuildExports.cmake
 		)
 endif()
