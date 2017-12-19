@@ -11,8 +11,8 @@ function(_try_compile VARIABLE fname msg ok fail)
 		message(STATUS "${msg}")
 		try_compile(
 			${VARIABLE}
-			"${lass_BINARY_DIR}/cmake"
-			"${lass_SOURCE_DIR}/cmake/${fname}"
+			"${Lass_BINARY_DIR}/cmake"
+			"${Lass_SOURCE_DIR}/cmake/${fname}"
 		)
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")
@@ -237,8 +237,8 @@ if (LASS_HAVE_ARM)
         message(STATUS "${msg}")
         try_run(
             ${VARIABLE}_run ${VARIABLE}_compile
-            "${lass_BINARY_DIR}/cmake"
-            "${lass_SOURCE_DIR}/cmake/check_kuser_helper_version.cpp"
+            "${Lass_BINARY_DIR}/cmake"
+            "${Lass_SOURCE_DIR}/cmake/check_kuser_helper_version.cpp"
         )
         if (${VARIABLE}_compile AND NOT ${VARIABLE}_run STREQUAL "FAILED_TO_RUN")
             message(STATUS "${msg} - ${${VARIABLE}_run}")

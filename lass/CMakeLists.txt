@@ -72,10 +72,10 @@ add_library(lass
 	${lass_HDRS}
 	)
 
-add_library(lass::lass ALIAS lass)
+add_library(Lass::lass ALIAS lass)
 
 target_include_directories(lass
-	PUBLIC $<BUILD_INTERFACE:${lass_SOURCE_DIR}>
+	PUBLIC $<BUILD_INTERFACE:${Lass_SOURCE_DIR}>
 	PUBLIC $<BUILD_INTERFACE:${config_dir}>
 	PUBLIC $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
@@ -87,12 +87,12 @@ target_link_libraries(lass
 
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS 
-	SOVERSION "${lass_VERSION_PATCH}"
+	SOVERSION "${Lass_VERSION_PATCH}"
 	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
 	)
 lass_add_precompiled_header(lass 
 	lass_common.h 
-	"${lass_SOURCE_DIR}/lass/lass_common.cpp"
+	"${Lass_SOURCE_DIR}/lass/lass_common.cpp"
 	)
 	
 install(
@@ -121,23 +121,23 @@ if(PYTHONLIBS_FOUND)
 		${lass_python_SRCS} 
 		${lass_python_HDRS}
 		)
-	add_library(lass::python ALIAS lass_python)
+	add_library(Lass::python ALIAS lass_python)
 	target_include_directories(lass_python
 		PUBLIC ${PYTHON_INCLUDE_DIRS}
 		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
  		)
 	target_link_libraries(lass_python
-		PUBLIC lass::lass # also adds the include dirs
+		PUBLIC Lass::lass # also adds the include dirs
 		${PYTHON_LIBRARIES} 
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
-		SOVERSION "${lass_VERSION_PATCH}"
+		SOVERSION "${Lass_VERSION_PATCH}"
 		OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
 		)
 	lass_add_precompiled_header(lass_python 
 		python_common.h 
-		"${lass_SOURCE_DIR}/lass/python/python_common.cpp"
+		"${Lass_SOURCE_DIR}/lass/python/python_common.cpp"
 		)
 	install(
 		TARGETS lass_python

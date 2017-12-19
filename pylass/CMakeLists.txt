@@ -5,9 +5,9 @@ add_library(pylass MODULE
 	${pylass_HDRS}
 	${pylass_SRCS}
 	)
-add_library(lass::pylass ALIAS pylass)
+add_library(Lass::pylass ALIAS pylass)
 target_link_libraries(pylass
-	PUBLIC lass::python
+	PUBLIC Lass::python
 	)
 set_target_properties(pylass
 	PROPERTIES 

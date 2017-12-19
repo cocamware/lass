@@ -48,12 +48,12 @@ list(REMOVE_ITEM unit_tests "test_common")
 list(SORT unit_tests)
 
 set(infile "${sourcedir}/auto_test_suite.cpp.in")
-set(outfile "${lass_BINARY_DIR}/local/auto_test_suite.cpp")
+set(outfile "${Lass_BINARY_DIR}/local/auto_test_suite.cpp")
 lass_param_expander("${infile}" "${outfile}" ${unit_tests})
 list(APPEND test_suite_SRCS "${outfile}")
 
 set(infile "${sourcedir}/default_arguments.h.in")
-set(outfile "${lass_BINARY_DIR}/local/default_arguments.h")
+set(outfile "${Lass_BINARY_DIR}/local/default_arguments.h")
 configure_file("${infile}" "${outfile}")
 list(APPEND test_suite_HDRS "${outfile}")
 
@@ -71,10 +71,10 @@ add_executable(
 )
 target_include_directories(test_ipc_child
 	PRIVATE "${sourcedir}"
-	PRIVATE "${lass_BINARY_DIR}/local"
+	PRIVATE "${Lass_BINARY_DIR}/local"
 	)
 target_link_libraries(test_ipc_child
-	lass::lass
+	Lass::lass
 	)
 
 add_executable(test_suite
@@ -83,14 +83,14 @@ add_executable(test_suite
 	)
 target_include_directories(test_suite
 	PRIVATE "${sourcedir}"
-	PRIVATE "${lass_BINARY_DIR}/local"
+	PRIVATE "${Lass_BINARY_DIR}/local"
 	)
 target_link_libraries(test_suite
-	PRIVATE lass::lass
+	PRIVATE Lass::lass
 	)
 if(PYTHONLIBS_FOUND)
 	target_link_libraries(test_suite
-		PRIVATE lass::python
+		PRIVATE Lass::python
 	)
 endif()
 lass_add_precompiled_header(test_suite 

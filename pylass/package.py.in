@@ -19,7 +19,7 @@ install_files += filter(os.path.exists, [path + ".manifest" for path in install_
 
 setup(
 	name = name,
-	version = "${lass_VERSION}",
+	version = "${Lass_VERSION}",
 	author = "Bram de Greve; Tom De Muer",
 	author_email = "bramz@users.sourceforge.net; tom.demuer@users.sourceforge.net",
 	maintainer = "Bram de Greve",

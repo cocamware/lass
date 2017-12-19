@@ -8,7 +8,7 @@ endfunction()
 function(lass_param_expander inpath outpath)
     # lass_param_expander(<inpath> <outpath> <N>)
     # lass_param_expander(<inpath> <outpath> <value1> [<value2> ...])
-    set(generator "${lass_SOURCE_DIR}/tools/param_expander.py")
+    set(generator "${Lass_SOURCE_DIR}/tools/param_expander.py")
     add_custom_command(
         OUTPUT "${outpath}"
         DEPENDS "${inpath}" "${generator}"
