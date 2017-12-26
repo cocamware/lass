@@ -5,6 +5,15 @@
 /venv*/
 /env*/
 
+# ignore pyc artifacts
+__pycache__/
+*.pyc
+
+# ignore pylass setup.py artifacts
+/dist/
+/pylass.egg-info/
+/.eggs/
+
 # ignore generated files
 /lass/meta/is_member.h
 /lass/python/bulk_add_integer.inl
