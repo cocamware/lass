@@ -76,7 +76,7 @@ add_library(Lass::lass ALIAS lass)
 
 target_include_directories(lass
 	PUBLIC $<BUILD_INTERFACE:${Lass_SOURCE_DIR}>
-	PUBLIC $<BUILD_INTERFACE:${config_dir}>
+	PUBLIC $<BUILD_INTERFACE:${Lass_BINARY_DIR}/local>
 	PUBLIC $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
 	)
