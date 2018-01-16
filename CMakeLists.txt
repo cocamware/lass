@@ -138,22 +138,31 @@ write_basic_package_version_file(
 	COMPATIBILITY SameMajorVersion
 )
 
-foreach(_config_file LassConfig.cmake LassConfig.py)    
-    configure_file(
-        "${Lass_SOURCE_DIR}/${_config_file}.in"
-        "${Lass_BINARY_DIR}/tmp/${_config_file}.tmp"
-        @ONLY
-        )
-    file(
-        GENERATE
-        OUTPUT "${Lass_BINARY_DIR}/${_config_file}"
-        INPUT "${Lass_BINARY_DIR}/tmp/${_config_file}.tmp"
-        )
-    install(
-        FILES "${Lass_BINARY_DIR}/${_config_file}"
-        DESTINATION lib
-        )
-endforeach()
+configure_file(
+	"${Lass_SOURCE_DIR}/LassConfig.cmake.in"
+	"${Lass_BINARY_DIR}/LassConfig.cmake"
+	@ONLY
+	)
+install(
+	FILES "${Lass_BINARY_DIR}/LassConfig.cmake"
+	DESTINATION lib
+	)
+
+configure_file(
+	"${Lass_SOURCE_DIR}/LassConfig.py.in"
+	"${Lass_BINARY_DIR}/tmp/LassConfig.py.tmp"
+	@ONLY
+	)
+file(
+	GENERATE
+	OUTPUT "${Lass_BINARY_DIR}/LassConfig.py"
+	INPUT "${Lass_BINARY_DIR}/tmp/LassConfig.py.tmp"
+	)
+install(
+	FILES "${Lass_BINARY_DIR}/LassConfig.py"
+	DESTINATION lib
+	)
+
 
 # Export build tree targets, so that you can build against the build-tree through LassConfig.cmake
 export(
