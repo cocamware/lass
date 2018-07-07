@@ -23,7 +23,7 @@
 //#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-INT WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
+INT CALLBACK WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
 {
     LPWSTR cmdLine = ::GetCommandLineW();
     int argc;
