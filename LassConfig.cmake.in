@@ -10,14 +10,33 @@ set(Lass_MAJOR_VERSION @Lass_VERSION_MAJOR@)
 set(Lass_MINOR_VERSION @Lass_VERSION_MINOR@)
 set(Lass_PATCHLEVEL @Lass_VERSION_PATCH@)
 
-# deprecated
+# -- deprecated variables ---
+
+function(__lass_deprecated_vars var access)
+    message(DEPRECATION "The variable '${var}' is deprecated. "
+        "It's sufficient to link to Lass::lass or Lass::lass_python.")
+endfunction()
+
 set(Lass_LIBRARIES Lass::lass)
-if(TARGET Lass::lass_python)
+if(TARGET lass_python)
 	list(APPEND Lass_LIBRARIES Lass::lass_python)
 endif()
+variable_watch(Lass_LIBRARIES __lass_deprecated_vars)
+
 set(Lass_INCLUDE_DIRS "$<TARGET_PROPERTY:Lass::lass,INTERFACE_INCLUDE_DIRECTORIES>;@PYTHON_INCLUDE_DIRS@")
+variable_watch(Lass_INCLUDE_DIRS __lass_deprecated_vars)
+
 set(Lass_PYTHON_LIBRARY "@PYTHON_LIBRARY@")
+variable_watch(Lass_PYTHON_LIBRARY __lass_deprecated_vars)
+
 set(Lass_PYTHON_DEBUG_LIBRARY "@PYTHON_DEBUG_LIBRARY@")
+variable_watch(Lass_PYTHON_DEBUG_LIBRARY __lass_deprecated_vars)
+
 set(Lass_PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")
+variable_watch(Lass_PYTHON_EXECUTABLE __lass_deprecated_vars)
+
 set(Lass_BUILD_WITHOUT_ITERATOR_DEBUGGING @BUILD_WITHOUT_ITERATOR_DEBUGGING@)
-set(Lass_EXTRA_CXX_FLAGS "$<$<BOOL:$<TARGET_PROPERTY:lass,INTERFACE_COMPILE_OPTIONS>>:$<JOIN:$<TARGET_PROPERTY:lass,INTERFACE_COMPILE_OPTIONS>, >>")
+variable_watch(Lass_BUILD_WITHOUT_ITERATOR_DEBUGGING __lass_deprecated_vars)
+
+set(Lass_EXTRA_CXX_FLAGS "$<$<BOOL:$<TARGET_PROPERTY:Lass::lass,INTERFACE_COMPILE_OPTIONS>>:$<JOIN:$<TARGET_PROPERTY:Lass::lass,INTERFACE_COMPILE_OPTIONS>, >>")
+variable_watch(Lass_EXTRA_CXX_FLAGS __lass_deprecated_vars)
