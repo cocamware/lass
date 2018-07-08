@@ -138,21 +138,6 @@
 #	define LASS_LIB_DEBUG ""
 #endif
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION >= 1400
-	// currently we only do this for vc8, probably this will stay so ...
-#	if defined(LASS_BUILD_DLL) || defined(LASS_USE_DLL)
-		// currently we only do this for the DLL edition, probably this will stay so ...
-#		ifdef _M_IX86_FP
-#			if _M_IX86_FP == 2
-#				define LASS_LIB_ARCH "_sse2"
-#			endif
-#		endif
-#	endif
-#endif
-#ifndef LASS_LIB_ARCH
-#	define LASS_LIB_ARCH ""
-#endif
-
 
 /** @def LASS_DLL
  *  @brief DLL interface: import or export symbols?  or neither?
