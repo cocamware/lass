@@ -45,11 +45,6 @@
 
 #include "transformation_3d.h"
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4996) // std::copy: function call with parameters that may be unsafe
-#endif
-
 namespace lass
 {
 
@@ -230,13 +225,13 @@ const Transformation3D<T> Transformation3D<T>::translation(const TVector& offset
 {
 	TImplPtr pimpl(TImplPtr::allocate());
 
-	TValue* const forward = pimpl->forward;
+	TMatrix& forward = pimpl->forward;
 	identity(forward);
 	forward[ 3] = offset.x;
 	forward[ 7] = offset.y;
 	forward[11] = offset.z;
 
-	TValue* const inverse = pimpl->inverse;
+	TMatrix& inverse = pimpl->inverse;
 	identity(inverse);
 	inverse[ 3] = -offset.x;
 	inverse[ 7] = -offset.y;
@@ -257,11 +252,11 @@ const Transformation3D<T> Transformation3D<T>::scaler(TParam scale)
 {
 	TImplPtr pimpl(TImplPtr::allocate());
 
-	TValue* const forward = pimpl->forward;
+	TMatrix& forward = pimpl->forward;
 	identity(forward);
 	forward[ 0] = forward[ 5] = forward[10] = scale;
 
-	TValue* const inverse = pimpl->inverse;
+	TMatrix& inverse = pimpl->inverse;
 	identity(inverse);
 	inverse[ 0] = inverse[ 5] = inverse[10] = num::inv(scale);
 	
@@ -279,13 +274,13 @@ const Transformation3D<T> Transformation3D<T>::scaler(const TVector& scale)
 {
 	TImplPtr pimpl(TImplPtr::allocate());
 
-	TValue* const forward = pimpl->forward;
+	TMatrix& forward = pimpl->forward;
 	identity(forward);
 	forward[ 0] = scale.x;
 	forward[ 5] = scale.y;
 	forward[10] = scale.z;
 
-	TValue* const inverse = pimpl->inverse;
+	TMatrix& inverse = pimpl->inverse;
 	identity(inverse);
 	inverse[ 0] = num::inv(scale.x);
 	inverse[ 5] = num::inv(scale.y);
@@ -311,14 +306,14 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 	const int b = (axis + 2);
 	LASS_ASSERT(a < 3 && b < 3);
 
-	TValue* const forward = pimpl->forward;
+	TMatrix& forward = pimpl->forward;
 	identity(forward);
 	forward[5 * a] = c;
 	forward[5 * b] = c;
 	forward[4 * a + b] = -s;
 	forward[4 * b + a] = s;
 
-	TValue* const inverse = pimpl->inverse;
+	TMatrix& inverse = pimpl->inverse;
 	identity(forward);
 	inverse[5 * a] = c;
 	inverse[5 * b] = c;
@@ -344,7 +339,7 @@ const Transformation3D<T> Transformation3D<T>::rotation(const TVector& axis, TPa
 	const T s = num::sin(radians);
 	const TValue oneMinusC = TNumTraits::one - c;
 
-	TValue* const forward = pimpl->forward;
+	TMatrix& forward = pimpl->forward;
 	identity(forward);
 	forward[ 0] = a.x * a.x * oneMinusC + c;
 	forward[ 1] = a.x * a.y * oneMinusC - a.z * s;
@@ -401,8 +396,8 @@ void Transformation3D<T>::computeInverse() const
 			return;
 		}
 
-		const TValue* const mat = pimpl_->forward;
-		TValue* const inv = pimpl_->inverse;
+		const TConstMatrix& mat = pimpl_->forward;
+		TMatrix& inv = pimpl_->inverse;
 
 		const TValue v1015 = mat[10] * mat[15];
 		const TValue v1411 = mat[14] * mat[11];
@@ -481,7 +476,7 @@ void Transformation3D<T>::computeInverse() const
 
 
 template <typename T>
-void Transformation3D<T>::translate(const TValue* source, TValue* dest)
+void Transformation3D<T>::translate(const TConstMatrix& source, TMatrix& dest)
 {
 	for(size_t i = 0; i < 4; ++i)
 	{
@@ -495,9 +490,9 @@ void Transformation3D<T>::translate(const TValue* source, TValue* dest)
 
 
 template <typename T>
-void Transformation3D<T>::identity(TValue* dest)
+void Transformation3D<T>::identity(TMatrix& dest)
 {
-	static TValue mat[matrixSize_] = 
+	static TConstMatrix mat =
 	{
 		1, 0, 0, 0,
 		0, 1, 0, 0,
@@ -675,9 +670,5 @@ io::XmlOStream& operator<<(io::XmlOStream& stream, const Transformation3D<T>& tr
 }
 
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
 
 #endif

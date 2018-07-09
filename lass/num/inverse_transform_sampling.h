@@ -46,11 +46,6 @@
 #include "num_common.h"
 #include "../prim/point_2d.h"
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4996) // std::partial_sum, std::transform, ...: Function call with parameters that may be unsafe
-#endif
-
 namespace lass
 {
 namespace num
@@ -124,20 +119,22 @@ public:
 		LASS_ASSERT(!margCdfU_.empty());
 		TValue pdfU, pdfV;
 		const TValue u = impl::sampleCdf1D(margCdfU_.begin(), margCdfU_.end(), in.x, pdfU, index.x);
-		const TValue* cdfV = &condCdfV_[index.x * vSize_];
+		typename TValues::const_iterator cdfV = condCdfV_.begin() + index.x * vSize_;
 		const TValue v = impl::sampleCdf1D(cdfV, cdfV + vSize_, in.y, pdfV, index.y);
 		pdf = pdfU * pdfV;
 		return TSample(u, v);
 	}
 
 private:
+	typedef std::vector<TValue> TValues;
+
 	void buildCdf()
 	{
 		LASS_ENFORCE(condCdfV_.size() == uSize_ * vSize_);
 		margCdfU_.resize(uSize_);
 		for (size_t i = 0; i < uSize_; ++i)
 		{
-			TValue* cdfV = &condCdfV_[i * vSize_];
+			typename TValues::iterator cdfV = condCdfV_.begin() + i * vSize_;
 			std::partial_sum(cdfV, cdfV + vSize_, cdfV);
 			margCdfU_[i] = cdfV[vSize_ - 1];
 			std::transform(cdfV, cdfV + vSize_, cdfV, std::bind2nd(std::divides<TValue>(), cdfV[vSize_ - 1]));
@@ -146,8 +143,8 @@ private:
 		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), std::bind2nd(std::divides<TValue>(), margCdfU_.back()));
 	}
 
-	std::vector<TValue> condCdfV_;
-	std::vector<TValue> margCdfU_;
+	TValues condCdfV_;
+	TValues margCdfU_;
 	size_t uSize_;
 	size_t vSize_;
 };
@@ -155,9 +152,5 @@ private:
 
 }
 }
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
 
 #endif

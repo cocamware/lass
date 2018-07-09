@@ -287,6 +287,17 @@ OutputIterator transform_r(const InputRange& range, OutputIterator result, Unary
 }
 
 /** std::transform wrapper for ranges
+*	@ingroup range_algorithm
+*
+*	Overload for MSVC compiler to preserve output array as checked iterator.
+*/
+template <typename InputRange, typename OutputType, size_t N, typename UnaryOperation> inline
+OutputType* transform_r(const InputRange& range, OutputType (&result)[N], UnaryOperation op)
+{
+	return std::transform(range.begin(), range.end(), result, op);
+}
+
+/** std::transform wrapper for ranges
  *	@ingroup range_algorithm 
  */ 
 template <typename InputRange1, typename InputRange2, typename OutputIterator, typename BinaryOperation> inline

@@ -154,14 +154,16 @@ private:
 
 	enum { matrixSize_ = 16 };
 
+	typedef T TMatrix[matrixSize_];
+	typedef const T TConstMatrix[matrixSize_];
 	typedef impl::TransformationImpl<T, matrixSize_> TImpl;
 	typedef util::SharedPtr<TImpl, impl::TransformationImplStorage, util::IntrusiveCounter<TImpl, size_t, &TImpl::referenceCount> > TImplPtr;
 
 	Transformation3D(const TImplPtr& pimpl, bool isInversed = false);
 	void computeInverse() const;
 
-	static void translate(const TValue* source, TValue* dest);
-	static void identity(TValue* dest);
+	static void translate(const TConstMatrix &source, TMatrix& dest);
+	static void identity(TMatrix& dest);
 	static TImplPtr makeIdentity();
 
 	TImplPtr pimpl_;
