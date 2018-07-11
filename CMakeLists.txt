@@ -133,12 +133,12 @@ install(
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-	"${Lass_BINARY_DIR}/LassVersionConfig.cmake"
+	"${Lass_BINARY_DIR}/LassConfigVersion.cmake"
 	VERSION "${Lass_VERSION}"
-	COMPATIBILITY SameMajorVersion
+	COMPATIBILITY AnyNewerVersion
 	)
 install(
-	FILES "${Lass_BINARY_DIR}/LassVersionConfig.cmake"
+	FILES "${Lass_BINARY_DIR}/LassConfigVersion.cmake"
 	DESTINATION lib
 	)
 
