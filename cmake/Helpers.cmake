@@ -12,7 +12,7 @@ function(lass_param_expander inpath outpath)
     add_custom_command(
         OUTPUT "${outpath}"
         DEPENDS "${inpath}" "${generator}"
-        COMMAND "${PYTHON_EXECUTABLE}"
+        COMMAND Python::Interpreter
         ARGS "${generator}" "${inpath}" "${outpath}" ${ARGN})
 endfunction()
 

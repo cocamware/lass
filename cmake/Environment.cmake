@@ -34,23 +34,23 @@ endfunction()
 
 # --- about Python ---
 
-include(FindPythonInterp)
-mark_as_advanced(CLEAR PYTHON_EXECUTABLE)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+find_package(PythonCompat REQUIRED COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
+mark_as_advanced(CLEAR Python_EXECUTABLE)
 
-include(FindPythonLibs)
-if(PYTHONLIBS_FOUND)
-	mark_as_advanced(CLEAR PYTHON_LIBRARY PYTHON_INCLUDE_DIR PYTHON_DEBUG_LIBRARY)
+if(Python_Development_FOUND)
+	mark_as_advanced(CLEAR Python_LIBRARY_RELEASE Python_INCLUDE_DIR Python_LIBRARY_DEBUG)
 
-	if(PYTHON_DEBUG_LIBRARY)
+	if(Python_LIBRARY_DEBUG)
 		set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
 	else()
 		set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
 	endif()
 
-	if(NOT "${PYTHON_INCLUDE_DIR}" STREQUAL "${_TESTED_PYTHON_INCLUDE_PATH}")
-		set(_python_header "${PYTHON_INCLUDE_DIR}/Python.h")
+	if(NOT "${Python_INCLUDE_DIR}" STREQUAL "${_Lass_Python_INCLUDE_DIR}")
+		set(_python_header "${Python_INCLUDE_DIR}/Python.h")
 		message(STATUS "Looking in ${_python_header} for redefinitions")
-		set(_TESTED_PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL "" FORCE)
+		set(_Lass_Python_INCLUDE_DIR "${Python_INCLUDE_DIR}" CACHE INTERNAL "" FORCE)
 		unset(LASS_HAVE_PYTHON_POSIX_C_SOURCE CACHE)
 		unset(LASS_HAVE_PYTHON_FILE_OFFSET_BITS CACHE)
 		unset(LASS_HAVE_PYTHON_XOPEN_SOURCE CACHE)

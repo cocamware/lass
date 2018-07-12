@@ -3,9 +3,6 @@ project(Lass VERSION 1.9.0)
 
 include(cmake/Helpers.cmake)
 
-set(LASS_OUTPUT_NAME "lass-${Lass_VERSION_MAJOR}-${Lass_VERSION_MINOR}")
-set(LASS_PYTHON_OUTPUT_NAME "lass-python-${Lass_VERSION_MAJOR}-${Lass_VERSION_MINOR}")
-
 set(CMAKE_DEBUG_POSTFIX _d)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${Lass_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${Lass_BINARY_DIR}/bin")
@@ -88,7 +85,7 @@ endif()
 
 
 add_subdirectory(lass)
-if(PYTHONLIBS_FOUND)
+if(TARGET Lass::lass_python)
 	add_subdirectory(pylass)
 endif()
 
@@ -103,12 +100,13 @@ endif()
 	
 # --- INSTALLING ---
 	
-	
+
 install(
 	EXPORT LassExports
 	NAMESPACE Lass::
 	DESTINATION lib
 	)
+
 
 install(
 	DIRECTORY lass/
@@ -131,37 +129,48 @@ install(
 	DESTINATION include/lass/config
 	)
 
+
+# LassConfig.cmake and friends
+configure_file(
+	"${Lass_SOURCE_DIR}/LassConfig.cmake.in"
+	"${Lass_BINARY_DIR}/LassConfig.cmake"
+	@ONLY
+	)
+
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
 	"${Lass_BINARY_DIR}/LassConfigVersion.cmake"
 	VERSION "${Lass_VERSION}"
 	COMPATIBILITY AnyNewerVersion
 	)
-install(
-	FILES "${Lass_BINARY_DIR}/LassConfigVersion.cmake"
-	DESTINATION lib
-	)
 
 configure_file(
-	"${Lass_SOURCE_DIR}/LassConfig.cmake.in"
-	"${Lass_BINARY_DIR}/LassConfig.cmake"
-	@ONLY
+	"${Lass_SOURCE_DIR}/cmake/FindPythonCompat.cmake"
+	"${Lass_BINARY_DIR}/FindPythonCompat.cmake"
+	COPYONLY
 	)
+
 install(
 	FILES "${Lass_BINARY_DIR}/LassConfig.cmake"
+		"${Lass_BINARY_DIR}/LassConfigVersion.cmake"
+		"${Lass_BINARY_DIR}/FindPythonCompat.cmake"
 	DESTINATION lib
 	)
 
+
+# Config file for Python-based build systems
 configure_file(
 	"${Lass_SOURCE_DIR}/LassConfig.py.in"
 	"${Lass_BINARY_DIR}/tmp/LassConfig.py.tmp"
 	@ONLY
 	)
+
 file(
 	GENERATE
 	OUTPUT "${Lass_BINARY_DIR}/LassConfig.py"
 	INPUT "${Lass_BINARY_DIR}/tmp/LassConfig.py.tmp"
 	)
+
 install(
 	FILES "${Lass_BINARY_DIR}/LassConfig.py"
 	DESTINATION lib
@@ -174,7 +183,7 @@ export(
 	NAMESPACE Lass::
 	FILE ${Lass_BINARY_DIR}/LassBuildExports.cmake
 	)
-if(PYTHONLIBS_FOUND)
+if(Python_Development_FOUND)
 	export(
 		TARGETS lass_python pylass
 		NAMESPACE Lass::

@@ -88,7 +88,7 @@ target_link_libraries(lass
 set_target_properties(lass PROPERTIES
 	DEFINE_SYMBOL LASS_EXPORTS 
 	SOVERSION "${Lass_VERSION_PATCH}"
-	OUTPUT_NAME "${LASS_OUTPUT_NAME}"
+	OUTPUT_NAME "lass-${Lass_VERSION_MAJOR}-${Lass_VERSION_MINOR}"
 	)
 
 # public compiler options that client should use too
@@ -124,7 +124,7 @@ install(
 
 # --- LASS_PYTHON ---
 
-if(PYTHONLIBS_FOUND)
+if(Python_Development_FOUND)
 	file(GLOB lass_python_SRCS python/*.cpp)
 	file(GLOB lass_python_HDRS python/*.h python/*.inl)
 
@@ -142,17 +142,15 @@ if(PYTHONLIBS_FOUND)
 	)
 	add_library(Lass::lass_python ALIAS lass_python)
 	target_include_directories(lass_python
-		PUBLIC ${PYTHON_INCLUDE_DIRS}
 		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
  		)
 	target_link_libraries(lass_python
-		PUBLIC Lass::lass # also adds the include dirs
-		${PYTHON_LIBRARIES}
+		PUBLIC Lass::lass Python::Python # also adds the include dirs
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
 		SOVERSION "${Lass_VERSION_PATCH}"
-		OUTPUT_NAME "${LASS_PYTHON_OUTPUT_NAME}"
+		OUTPUT_NAME "lass-python-${Lass_VERSION_MAJOR}-${Lass_VERSION_MINOR}"
 		)
 	lass_add_precompiled_header(lass_python 
 		python_common.h 

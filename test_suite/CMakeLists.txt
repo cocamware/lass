@@ -23,7 +23,7 @@ list_remove_regex(test_suite_SRCS
 	"ipc_child\\\\.cpp$" # that's the source code for the child process.
 	)
 
-if(NOT PYTHONLIBS_FOUND)
+if(NOT TARGET Lass::lass_python)
 	list_remove_regex(test_suite_SRCS
 		"foo\\\\.cpp$"
 		"bar\\\\.cpp$"
@@ -88,7 +88,7 @@ target_include_directories(test_suite
 target_link_libraries(test_suite
 	PRIVATE Lass::lass
 	)
-if(PYTHONLIBS_FOUND)
+if(TARGET Lass::lass_python)
 	target_link_libraries(test_suite
 		PRIVATE Lass::lass_python
 	)

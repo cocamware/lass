@@ -1,38 +1,79 @@
-get_filename_component(_lass_self_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
-if(EXISTS "${_lass_self_dir}/LassBuildExports.cmake")
-	# we're in the build tree, use the build tree exports
-	include("${_lass_self_dir}/LassBuildExports.cmake")
-else()
-	include("${_lass_self_dir}/LassExports.cmake")
-endif()
-
+set(Lass_VERSION @Lass_VERSION@)
 set(Lass_MAJOR_VERSION @Lass_VERSION_MAJOR@)
 set(Lass_MINOR_VERSION @Lass_VERSION_MINOR@)
 set(Lass_PATCHLEVEL @Lass_VERSION_PATCH@)
 
+
+if(@Python_Development_FOUND@)
+
+    if(CMAKE_VERSION VERSION_LESS 3.1)
+        # CMake 3.0 doesn't accept 1.2.3 as EXACT match for 1.2.
+        # So look for full version instead.
+        set(Lass_PYTHON_VERSION "@Python_VERSION@")
+    else()
+        set(Lass_PYTHON_VERSION "@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@")
+    endif()
+
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+    set(_Lass_FIND_PYTHON_ARGS PythonCompat "${Lass_PYTHON_VERSION}" EXACT
+                               COMPONENTS Interpreter Development)
+
+    if(CMAKE_VERSION VERSION_LESS 3.9)
+
+        # Cannot use CMakeFindDependencyMacro because COMPONENTS argument
+        # is not supported in CMake < 3.9
+        if(Lass_FIND_QUIETLY)
+            list(APPEND _Lass_FIND_PYTHON_ARGS QUIET)
+        endif()
+        find_package(${_Lass_FIND_PYTHON_ARGS})
+        if (NOT Python_FOUND)
+            set(Lass_NOT_FOUND_MESSAGE "Lass could not be found because dependency Python could not be found.")
+            set(Lass_FOUND False)
+            return()
+        endif()
+
+    else()
+
+        include(CMakeFindDependencyMacro)
+        find_dependency(${_Lass_FIND_PYTHON_ARGS})
+
+    endif()
+
+endif()
+
+
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/LassBuildExports.cmake")
+    # we're in the build tree, use the build tree exports
+    include("${CMAKE_CURRENT_LIST_DIR}/LassBuildExports.cmake")
+else()
+    include("${CMAKE_CURRENT_LIST_DIR}/LassExports.cmake")
+endif()
+
+
+set(Lass_LIBRARIES Lass::lass)
+get_target_property(Lass_INCLUDE_DIRS Lass::lass INTERFACE_INCLUDE_DIRECTORIES)
+
+if(TARGET Lass::lass_python)
+    list(APPEND Lass_LIBRARIES Lass::lass_python)
+    list(APPEND Lass_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
+endif()
+
+
 # -- deprecated variables ---
 
 function(__lass_deprecated_vars var access)
-    message(DEPRECATION "The variable '${var}' is deprecated. "
-        "It's sufficient to link to Lass::lass or Lass::lass_python.")
+    message(DEPRECATION "The variable '${var}' is deprecated.")
 endfunction()
 
-set(Lass_LIBRARIES Lass::lass)
-if(TARGET lass_python)
-	list(APPEND Lass_LIBRARIES Lass::lass_python)
-endif()
-variable_watch(Lass_LIBRARIES __lass_deprecated_vars)
 
-set(Lass_INCLUDE_DIRS "$<TARGET_PROPERTY:Lass::lass,INTERFACE_INCLUDE_DIRECTORIES>;@PYTHON_INCLUDE_DIRS@")
-variable_watch(Lass_INCLUDE_DIRS __lass_deprecated_vars)
-
-set(Lass_PYTHON_LIBRARY "@PYTHON_LIBRARY@")
+set(Lass_PYTHON_LIBRARY "${Python_LIBRARY_RELEASE}")
 variable_watch(Lass_PYTHON_LIBRARY __lass_deprecated_vars)
 
-set(Lass_PYTHON_DEBUG_LIBRARY "@PYTHON_DEBUG_LIBRARY@")
+set(Lass_PYTHON_DEBUG_LIBRARY "${Python_LIBRARY_DEBUG}")
 variable_watch(Lass_PYTHON_DEBUG_LIBRARY __lass_deprecated_vars)
 
-set(Lass_PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")
+set(Lass_PYTHON_EXECUTABLE "${Python_EXECUTABLE}")
 variable_watch(Lass_PYTHON_EXECUTABLE __lass_deprecated_vars)
 
 set(Lass_BUILD_WITHOUT_ITERATOR_DEBUGGING @BUILD_WITHOUT_ITERATOR_DEBUGGING@)
