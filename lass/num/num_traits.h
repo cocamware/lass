@@ -46,7 +46,9 @@
 
 #include "num_common.h"
 
-#ifdef LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
+#if LASS_HAVE_ISNAN
+#	include <math.h>
+#elif LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 #	include <float.h>
 #endif
 
@@ -105,7 +107,7 @@ bool isNaN( C iV )
 inline bool isNaN( float iV ) { return isnan(iV) != 0; }
 inline bool isNaN( double iV ) { return isnan(iV) != 0; }
 inline bool isNaN( long double iV ) { return isnan(static_cast<double>(iV)) != 0; }
-#elif defined(LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H)
+#elif LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
 inline bool isNaN( float iV ) { return _isnan(static_cast<double>(iV)) != 0; }
 inline bool isNaN( double iV ) { return _isnan(iV) != 0; }
 inline bool isNaN( long double iV ) { return _isnan(static_cast<double>(iV)) != 0; }
