@@ -1,6 +1,12 @@
 file(GLOB pylass_HDRS *.h *.inl)
 file(GLOB pylass_SRCS *.cpp)
 
+if (LASS_PYTHON_HAS_DEBUG_BUILD)
+    set(_pylass_debug_postfix "_d")
+else()
+    set(_pylass_debug_postfix`)
+endif()
+
 add_library(pylass MODULE
 	${pylass_HDRS}
 	${pylass_SRCS}
@@ -13,6 +19,7 @@ set_target_properties(pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
 	PREFIX ""
+	DEBUG_POSTFIX "${_pylass_debug_postfix}"
 	)
 if (WIN32)
 	set_target_properties(pylass
