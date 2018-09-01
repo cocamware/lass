@@ -98,7 +98,8 @@ lass_add_precompiled_header(test_suite
 	"${sourcedir}/test_common.cpp"
 	)
 target_compile_definitions(test_suite
-	PRIVATE "TEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\""
+	PRIVATE "TEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\"" # for test_io_ipc
+	PRIVATE "PYLASS_PATH=\"$<TARGET_FILE:pylass>\""            # for test_util_dynamic_library
 	)
 
 foreach(test_name ${unit_tests})
