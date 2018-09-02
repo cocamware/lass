@@ -148,11 +148,11 @@ void testPrimAabb2D()
 	// distance and intersection
 
 	TAabbStrict a(TPoint(0, 0), TPoint(10, 10));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), 10);
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), 10);
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(T(200)));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(T(200)));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5)), static_cast<T>(10));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5)), static_cast<T>(10));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, -10)), num::sqrt(static_cast<T>(200)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 20)), num::sqrt(static_cast<T>(200)));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5)), static_cast<T>(0));
 
 	TAabbStrict b(TPoint(100, 100), TPoint(1000, 1000));
 	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10), TPoint(100, 100)));
@@ -163,14 +163,14 @@ void testPrimAabb2D()
 	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(100, 5), TPoint(1000, 1000));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 90);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), static_cast<T>(90));
 	c = TAabbStrict(TPoint(6, 66), TPoint(666, 6666));
 	LASS_TEST_CHECK(!c.isEmpty());
 	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
 	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(5, 5), TPoint(1000, 1000));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), static_cast<T>(0));
 	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rOne);
 	LASS_TEST_CHECK(!c.isEmpty());
 	LASS_TEST_CHECK_EQUAL(c.min(), TPoint(5, 5));
@@ -281,11 +281,11 @@ void testPrimAabb3D()
 	// distance and intersection
 
 	TAabbStrict a(TPoint(0, 0, 0), TPoint(10, 10, 10));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), 10);
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), 10);
-	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(T(300)), epsilon);
-	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(T(300)), epsilon);
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(-10, 5, 5)), static_cast<T>(10));
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(20, 5, 5)), static_cast<T>(10));
+	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(-10, -10, -10)), num::sqrt(static_cast<T>(300)), epsilon);
+	LASS_TEST_CHECK_CLOSE(prim::distance(a, TPoint(20, 20, 20)), num::sqrt(static_cast<T>(300)), epsilon);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, TPoint(5, 5, 5)), static_cast<T>(0));
 
 	TAabbStrict b(TPoint(100, 100, 100), TPoint(1000, 1000, 1000));
 	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), prim::distance(TPoint(10, 10, 10), TPoint(100, 100, 100)));
@@ -296,14 +296,14 @@ void testPrimAabb3D()
 	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(100, 5, 5), TPoint(1000, 1000, 1000));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 90);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), static_cast<T>(90));
 	c = TAabbStrict(TPoint(6, 66, 666), TPoint(6666, 66666, 666666));
 	LASS_TEST_CHECK(!c.isEmpty());
 	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rNone);
 	LASS_TEST_CHECK(c.isEmpty());
 
 	b = TAabbStrict(TPoint(5, 5, 5), TPoint(1000, 1000, 1000));
-	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), 0);
+	LASS_TEST_CHECK_EQUAL(prim::distance(a, b), static_cast<T>(0));
 	LASS_TEST_CHECK(prim::intersect(a, b, c) == prim::rOne);
 	LASS_TEST_CHECK(!c.isEmpty());
 	LASS_TEST_CHECK_EQUAL(c.min(), TPoint(5, 5, 5));

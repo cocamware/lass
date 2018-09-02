@@ -64,15 +64,15 @@ void testPrimSphere3D()
 	TSphere sphere;
 	LASS_TEST_CHECK(sphere.isValid());
 	LASS_TEST_CHECK_EQUAL(sphere.center(), origin);
-	LASS_TEST_CHECK_EQUAL(sphere.radius(), 0);
-	LASS_TEST_CHECK_EQUAL(sphere.area(), 0);
-	LASS_TEST_CHECK_EQUAL(sphere.volume(), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.radius(), static_cast<T>(0));
+	LASS_TEST_CHECK_EQUAL(sphere.area(), static_cast<T>(0));
+	LASS_TEST_CHECK_EQUAL(sphere.volume(), static_cast<T>(0));
 	LASS_TEST_CHECK_EQUAL(sphere.classify(origin), prim::sSurface);
-	LASS_TEST_CHECK_EQUAL(sphere.equation(origin), 0);
-	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(origin), 0);
+	LASS_TEST_CHECK_EQUAL(sphere.equation(origin), static_cast<T>(0));
+	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(origin), static_cast<T>(0));
 
 	const TPoint center(1, 2, 3);
-	const T radius = 4;
+	const T radius = static_cast<T>(4);
 
 	sphere = TSphere(center, radius);
 	LASS_TEST_CHECK(sphere.isValid());

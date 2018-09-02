@@ -170,10 +170,10 @@ void testPrimSimplePolygon2D()
 		LASS_TEST_CHECK_EQUAL(polygon[i], points[i]);
 	}
 	prim::Aabb2D<T> box = prim::aabb(polygon);
-    LASS_TEST_CHECK_EQUAL(box.min().x, 0); 
-    LASS_TEST_CHECK_EQUAL(box.min().y, 0); 
-    LASS_TEST_CHECK_EQUAL(box.max().x, 10); 
-    LASS_TEST_CHECK_EQUAL(box.max().y, 10); 
+    LASS_TEST_CHECK_EQUAL(box.min().x, static_cast<T>(0)); 
+    LASS_TEST_CHECK_EQUAL(box.min().y, static_cast<T>(0)); 
+    LASS_TEST_CHECK_EQUAL(box.max().x, static_cast<T>(10)); 
+    LASS_TEST_CHECK_EQUAL(box.max().y, static_cast<T>(10)); 
 }
 
 

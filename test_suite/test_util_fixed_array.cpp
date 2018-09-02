@@ -73,11 +73,11 @@ void testUtilFixedArray()
 		value += value;
 	}
 
-	LASS_TEST_CHECK_EQUAL(array[0], 1);
-	LASS_TEST_CHECK_EQUAL(array[1], 2);
-	LASS_TEST_CHECK_EQUAL(array[2], 4);
-	LASS_TEST_CHECK_EQUAL(array[3], 8);
-	LASS_TEST_CHECK_EQUAL(array[4], 16);
+	LASS_TEST_CHECK_EQUAL(array[0], static_cast<T>(1));
+	LASS_TEST_CHECK_EQUAL(array[1], static_cast<T>(2));
+	LASS_TEST_CHECK_EQUAL(array[2], static_cast<T>(4));
+	LASS_TEST_CHECK_EQUAL(array[3], static_cast<T>(8));
+	LASS_TEST_CHECK_EQUAL(array[4], static_cast<T>(16));
 
 	for (unsigned i = 0; i < array.size(); ++i)
 	{
