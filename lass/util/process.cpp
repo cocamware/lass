@@ -124,7 +124,7 @@ void setProcessPriority(const std::string& iPriority)
         {
                 priority = processPriorityDictionary()[iPriority];
         }
-        catch(util::Exception)
+        catch(const util::Exception&)
         {
                 LASS_THROW("'" << iPriority << "' is an invalid priority setting.  "
                         "It should be one of these: " << processPriorityDictionary().keys() << ".");
