@@ -50,7 +50,7 @@ namespace util
 namespace impl
 {
 
-template <int byteSize> struct AtomicOperations;
+template <size_t byteSize> struct AtomicOperations;
 
 }
 }

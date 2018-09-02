@@ -95,7 +95,7 @@ namespace impl
 template<bool x> struct MetaAssertor;
 template<> struct MetaAssertor<false> {};
 
-template<int x> struct MetaAssertTest {};
+template<size_t x> struct MetaAssertTest {};
 
 }
 }
