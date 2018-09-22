@@ -107,9 +107,10 @@ public:
 	void reset(InputIterator first, InputIterator last, size_t uSize, size_t vSize)
 	{
 		LASS_ENFORCE(uSize > 0 && vSize > 0);
-		uSize_ = uSize; 
-		vSize_ = vSize;
+		uSize_ = static_cast<ptrdiff_t>(uSize);
+		vSize_ = static_cast<ptrdiff_t>(vSize);
 		condCdfV_.resize(uSize * vSize);
+		margCdfU_.resize(uSize);
 		std::copy(first, last, condCdfV_.begin());
 		buildCdf();
 	}
@@ -119,7 +120,7 @@ public:
 		LASS_ASSERT(!margCdfU_.empty());
 		TValue pdfU, pdfV;
 		const TValue u = impl::sampleCdf1D(margCdfU_.begin(), margCdfU_.end(), in.x, pdfU, index.x);
-		typename TValues::const_iterator cdfV = condCdfV_.begin() + index.x * vSize_;
+		const typename TValues::const_iterator cdfV = condCdfV_.begin() + static_cast<ptrdiff_t>(index.x) * vSize_;
 		const TValue v = impl::sampleCdf1D(cdfV, cdfV + vSize_, in.y, pdfV, index.y);
 		pdf = pdfU * pdfV;
 		return TSample(u, v);
@@ -130,14 +131,15 @@ private:
 
 	void buildCdf()
 	{
-		LASS_ENFORCE(condCdfV_.size() == uSize_ * vSize_);
-		margCdfU_.resize(uSize_);
-		for (size_t i = 0; i < uSize_; ++i)
+		LASS_ASSERT(condCdfV_.size() == static_cast<size_t>(uSize_ * vSize_));
+		const typename TValues::iterator margCdfU = margCdfU_.begin();
+		for (ptrdiff_t i = 0; i < uSize_; ++i)
 		{
-			typename TValues::iterator cdfV = condCdfV_.begin() + i * vSize_;
-			std::partial_sum(cdfV, cdfV + vSize_, cdfV);
-			margCdfU_[i] = cdfV[vSize_ - 1];
-			std::transform(cdfV, cdfV + vSize_, cdfV, std::bind2nd(std::divides<TValue>(), cdfV[vSize_ - 1]));
+			const typename TValues::iterator firstCdfV = condCdfV_.begin() + i * vSize_;
+			const typename TValues::iterator lastCdfV = firstCdfV + vSize_;
+			std::partial_sum(firstCdfV, lastCdfV, firstCdfV);
+			*(margCdfU + i) = *(lastCdfV - 1);
+			std::transform(firstCdfV, lastCdfV, firstCdfV, std::bind2nd(std::divides<TValue>(), *(lastCdfV - 1)));
 		}
 		std::partial_sum(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin());
 		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), std::bind2nd(std::divides<TValue>(), margCdfU_.back()));
@@ -145,8 +147,8 @@ private:
 
 	TValues condCdfV_;
 	TValues margCdfU_;
-	size_t uSize_;
-	size_t vSize_;
+	ptrdiff_t uSize_;
+	ptrdiff_t vSize_;
 };
 
 
