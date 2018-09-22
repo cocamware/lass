@@ -3012,7 +3012,6 @@ continueSearch:
 	TEMPLATE_DEF
 	bool PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::forAllPrimaryUndirectedEdgesCached( const TEdgeCallback& iCallback )
 	{
-		typename TQuadEdgeList::iterator qIt;
 		static size_t start = 0;
 		size_t savedStart = start;
 
