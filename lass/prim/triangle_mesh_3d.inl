@@ -349,8 +349,9 @@ void TriangleMesh3D<T, BHV, SH>::loopSubdivision(unsigned level)
 			{
 				// interior vertex
 				const TValue alpha = num::inv(static_cast<TValue>(nRing));
-				const TValue beta = nRing == 6.f ? 
-					.125f : 2.f * (.625f - num::sqr(.375f + .25f * num::cos(2.f * TNumTraits::pi * alpha))) * alpha;
+				const TValue beta = nRing == 6
+					? .125f
+					: 2.f * (.625f - num::sqr(.375f + .25f * num::cos(2.f * TNumTraits::pi * alpha))) * alpha;
 				TVector newVertex = (1.f - static_cast<TValue>(nRing) * beta) * vertex.position();
 				for (size_t j = 0; j < nRing; ++j)
 				{
