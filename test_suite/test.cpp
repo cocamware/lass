@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 	io::ArgParser::TArguments selectedTests;
 	if (!parser.parse(argc, argv, &selectedTests))
 	{
-		return false;
+		return 1;
 	}
 	::lass::test::inputDir() = inputDir.at(0);
 	::lass::test::outputDir() = outputDir ? outputDir.at(0) : test::workPath();
