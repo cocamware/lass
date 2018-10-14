@@ -46,6 +46,10 @@
 #include "num_common.h"
 #include "../prim/point_2d.h"
 
+#if LASS_HAVE_STDDEF_H
+#	include <stddef.h>
+#endif
+
 namespace lass
 {
 namespace num
