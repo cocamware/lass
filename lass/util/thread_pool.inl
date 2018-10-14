@@ -335,9 +335,7 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 			}
 			catch (const RemoteExceptionBase& error)
 			{
-				// two phase copy assignment to avoid warning on VC7.1 [Bramz]
-				std::auto_ptr<RemoteExceptionBase> temp = error.clone();
-				pool_.error_ = temp;
+				pool_.error_ = error.clone();
 				return;
 			}
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::domain_error)

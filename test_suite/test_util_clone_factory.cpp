@@ -83,7 +83,14 @@ namespace clone_factory
 void testUtilCloneFactory()
 {
 	typedef util::CloneFactory<clone_factory::Base, std::string> TFactory;
+
+#if LASS_HAVE_STD_UNIQUE_PTR
+	typedef std::unique_ptr<clone_factory::Base> TBasePtr;
+#elif LASS_HAVE_STD_AUTO_PTR
 	typedef std::auto_ptr<clone_factory::Base> TBasePtr;
+#else
+#	error "Must have either std::auto_ptr or std::unique_ptr"
+#endif
 
 	TFactory factory(clone_factory::clone);
 	factory.subscribe("Joe", TBasePtr(new clone_factory::Base("Joe")));

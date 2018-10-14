@@ -52,7 +52,7 @@
  *		LNCS 4419, 301 s, ISBN 3-540-37443-4, DOI 10.1007/11818502_4, Springer-Verlag 2006
  *		http://www.cs.tut.fi/cgi-bin/run/bitti/download/lncs-eh-draft.pdf
  *	@arg Matti Rintala: "Exceptions in remote procedure calls using C++ template metaprogramming", 
- *		Software—Practice and Experience, 2007, 37:231-246, 16 s, DOI: 10.1002/spe.754
+ *		Softwareï¿½Practice and Experience, 2007, 37:231-246, 16 s, DOI: 10.1002/spe.754
  *		http://www.cs.tut.fi/cgi-bin/run/bitti/download/spe-mmr-preprint.pdf
  */  
  
@@ -176,7 +176,7 @@ private:
 	struct Impl
 	{
 		char value_[sizeof(T)];
-		std::auto_ptr<RemoteExceptionBase> error_;
+		TRemoteExceptionBasePtr error_;
 		Condition condition_;
 		TMutex mutex_;
 		size_t referenceCount_;

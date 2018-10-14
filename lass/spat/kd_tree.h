@@ -55,6 +55,7 @@
 //#define LASS_SPAT_KD_TREE_DIAGNOSTICS
 
 #include "spat_common.h"
+#include "../util/shared_ptr.h"
 
 namespace lass
 {
@@ -205,7 +206,7 @@ private:
 	static TValue squaredDistance(const TPoint& a, const TPoint& b);
 
 	TNodes heap_;
-	std::auto_ptr<TObjectIterator> end_;
+	util::SharedPtr<TObjectIterator> end_;
 };
 
 

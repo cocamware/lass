@@ -57,6 +57,7 @@
 #include "spat_common.h"
 #include "default_object_traits.h"
 #include "split_heuristics.h"
+#include "../util/shared_ptr.h"
 
 namespace lass
 {
@@ -221,7 +222,7 @@ private:
 
 	TObjectIterators objects_;
 	TNodes nodes_;
-	std::auto_ptr<TObjectIterator> end_;
+	util::SharedPtr<TObjectIterator> end_;
 };
 
 

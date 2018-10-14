@@ -70,7 +70,7 @@ namespace util_visitor
 		typedef util::SharedPtr<DocElement> TDocElementPtr;
 		typedef std::list<TDocElementPtr> TDocElements;
 
-		void add(std::auto_ptr<DocElement> iChild) { children_.push_back(iChild); }
+		void add(const TDocElementPtr& iChild) { children_.push_back(iChild); }
 
 	private:
 
@@ -116,18 +116,18 @@ void testUtilVisitor()
 {
 	using namespace util_visitor;
 
-	typedef std::auto_ptr<DocElement> TElement;
+	typedef List::TDocElementPtr TDocElementPtr;
 
 	List root;
-	root.add(TElement(new DocElement));
-	root.add(TElement(new Paragraph));
-	root.add(TElement(new Invisible));
-	root.add(TElement(new Paragraph));
+	root.add(TDocElementPtr(new DocElement));
+	root.add(TDocElementPtr(new Paragraph));
+	root.add(TDocElementPtr(new Invisible));
+	root.add(TDocElementPtr(new Paragraph));
 
-	std::auto_ptr<List> sub(new List);
-	sub->add(TElement(new Paragraph));
-	sub->add(TElement(new Invisible));
-	root.add(TElement(sub.release()));
+	util::SharedPtr<List> sub(new List);
+	sub->add(TDocElementPtr(new Paragraph));
+	sub->add(TDocElementPtr(new Invisible));
+	root.add(sub);
 
 	TestVisitor visitor;
 	root.accept(visitor);

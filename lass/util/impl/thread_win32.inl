@@ -668,7 +668,7 @@ private:
 	Thread& thread_;
 	HANDLE handle_;	 // handle of the thread
 	DWORD_PTR affinity_;
-	std::auto_ptr<RemoteExceptionBase> error_;
+	TRemoteExceptionBasePtr error_;
 	Condition runCondition_;
 	const char* name_;
 	unsigned id_;

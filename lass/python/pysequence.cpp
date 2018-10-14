@@ -87,17 +87,21 @@ namespace impl
 
 	bool Sequence::isInitialized = false;
 
-	Sequence::Sequence(std::auto_ptr<PySequenceImplBase> pimpl)
+	Sequence::Sequence(TPimpl& pimpl)
 	{
 		init(pimpl);
 	}
 
-	void Sequence::init(std::auto_ptr<PySequenceImplBase> pimpl)
+	void Sequence::init(TPimpl& pimpl)
 	{
 		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
+#if LASS_HAVE_STD_AUTO_PTR
 		pimpl_.reset(pimpl);
+#else
+		pimpl_.reset(std::move(pimpl));
+#endif
 	}
 
 	void Sequence::initializeType()
@@ -121,7 +125,8 @@ namespace impl
 	const TSequencePtr Sequence::copy() const
 	{
 		LockGIL LASS_UNUSED(lock);
-		return TSequencePtr(new Sequence(pimpl_->copy()));
+		Sequence::TPimpl pimpl = pimpl_->copy();
+		return TSequencePtr(new Sequence(pimpl));
 	}
 	void Sequence::clear()
 	{

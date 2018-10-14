@@ -72,7 +72,7 @@ const std::string MultiCallbackImplBase::repr() const
 	{
 	}
 
-	MultiCallback::MultiCallback(std::auto_ptr<impl::MultiCallbackImplBase> pimpl)
+	MultiCallback::MultiCallback(TPimpl& pimpl)
 	{
 		init(pimpl);
 	}
@@ -106,11 +106,16 @@ const std::string MultiCallbackImplBase::repr() const
 		}
 	}
 
-	void MultiCallback::init(std::auto_ptr<impl::MultiCallbackImplBase> pimpl)
+	void MultiCallback::init(TPimpl& pimpl)
 	{
 		initializeType();
 		impl::fixObjectType(this);
+#if LASS_HAVE_STD_AUTO_PTR
 		pimpl_.reset(pimpl);
+#else
+		pimpl_.reset(std::move(pimpl));
+#endif
+
 	}
 	
 	std::string MultiCallback::repr() const

@@ -289,7 +289,7 @@ public:
 		TValue* ptr = static_cast<TValue*>(storage_.get());
 		if (!ptr)
 		{
-			std::auto_ptr<T> newCopy(new TValue(prototype_));
+			TUniquePtr newCopy(new TValue(prototype_));
 			storage_.set(newCopy.get());
 			ptr = newCopy.release();
 		}
@@ -301,7 +301,7 @@ public:
 		const TValue* ptr = static_cast<const TValue*>(storage_.get());
 		if (!ptr)
 		{
-			std::auto_ptr<T> newCopy(new TValue(prototype_));
+			TUniquePtr newCopy(new TValue(prototype_));
 			storage_.set(newCopy.get());
 			ptr = newCopy.release();
 		}
@@ -330,6 +330,12 @@ public:
 
 private:
 
+#if LASS_HAVE_STD_UNIQUE_PTR
+	typedef std::unique_ptr<T> TUniquePtr;
+#else
+	typedef std::auto_ptr<T> TUniquePtr;
+#endif
+
 	static void destructor(void* p)
 	{
 		delete static_cast<T*>(p);
@@ -356,18 +362,31 @@ public:
 
 	void reset(TPointer p)
 	{
-		std::auto_ptr<TPointee> tmp(p);
-		reset(tmp);
+		TPointer old = get();
+		storage_.set(p);
+		delete old;
 	}
 
-	template <typename U>
-	void reset(std::auto_ptr<U>& p)
+	
+#if LASS_HAVE_STD_UNIQUE_PTR
+	template <typename U> void reset(std::unique_ptr<U> p)
 	{
 		TPointer old = get();
 		storage_.set(p.get());
 		p.release();
 		delete old;
 	}
+#endif
+
+#if LASS_HAVE_STD_AUTO_PTR
+	template <typename U> void reset(std::auto_ptr<U> p)
+	{
+		TPointer old = get();
+		storage_.set(p.get());
+		p.release();
+		delete old;
+	}
+#endif
 
 	TPointer get() const
 	{

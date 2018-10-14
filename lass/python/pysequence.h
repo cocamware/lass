@@ -68,7 +68,14 @@ namespace impl
 	class LASS_PYTHON_DLL PySequenceImplBase: public ContainerImplBase
 	{
 	public:
-		virtual std::auto_ptr<PySequenceImplBase> copy() const = 0;
+#if LASS_HAVE_STD_AUTO_PTR
+		typedef std::auto_ptr<PySequenceImplBase> TPimpl;
+#elif LASS_HAVE_STD_UNIQUE_PTR
+		typedef std::unique_ptr<PySequenceImplBase> TPimpl; 
+#else
+#		error "Must have either std::auto_ptr or std::unique_ptr"
+#endif
+		virtual TPimpl copy() const = 0;
 		virtual bool reserve(Py_ssize_t n) = 0;
 		virtual bool append(const TPyObjPtr& i) = 0;
 		virtual bool pop(Py_ssize_t i) = 0;
@@ -91,6 +98,7 @@ namespace impl
 		typedef typename TBase::TContainerTraits TContainerTraits;
 		typedef typename TContainerTraits::iterator TIterator;
 		typedef typename TContainerTraits::const_iterator TConstIterator;
+		typedef PySequenceImplBase::TPimpl TPimpl;
 
 		PySequenceContainer(const TContainerPtr& container, bool readOnly = false): 
 			TBase(container, readOnly)
@@ -103,10 +111,10 @@ namespace impl
 		{
 			return pyBuildList(this->begin(), this->next(this->begin(), this->length()));
 		}
-		std::auto_ptr<PySequenceImplBase> copy() const
+		TPimpl copy() const
 		{
 			TContainerPtr copy = TContainerTraits::copy(this->container());
-			return std::auto_ptr<PySequenceImplBase>(new PySequenceContainer(copy));
+			return TPimpl(new PySequenceContainer(copy));
 		}
 		bool reserve(Py_ssize_t n)
 		{
@@ -339,20 +347,20 @@ namespace impl
 	public:
 		template<typename Container> Sequence( const util::SharedPtr<Container>& container )
 		{
-			std::auto_ptr<PySequenceImplBase> pimpl(
-				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container)));
+			TPimpl pimpl(new PySequenceContainer<Container>(
+				LASS_ENFORCE_POINTER(container)));
 			init(pimpl);
 		}
 		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
-			std::auto_ptr<PySequenceImplBase> pimpl(
-				new PySequenceContainer<Container>(LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
+			TPimpl pimpl(new PySequenceContainer<Container>(
+				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
 			init(pimpl);
 		}
 		template<typename Container> Sequence( const Container& container )
 		{
 			util::SharedPtr<Container> p(ContainerTraits<Container>::copy(container));
-			std::auto_ptr<PySequenceImplBase> pimpl(new PySequenceContainer<Container>(p, true));
+			TPimpl pimpl(new PySequenceContainer<Container>(p, true));
 			init(pimpl);
 		}
 
@@ -370,8 +378,11 @@ namespace impl
 		void* raw(bool writable) const;
 
 	private:
-		Sequence(std::auto_ptr<PySequenceImplBase> pimpl);
-		void init(std::auto_ptr<PySequenceImplBase> pimpl);
+		typedef PySequenceImplBase::TPimpl TPimpl;
+
+		Sequence(TPimpl& pimpl);
+		void init(TPimpl& pimpl);
+
 		static void initializeType();
 
 		static Py_ssize_t length( PyObject* self);

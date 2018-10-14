@@ -61,7 +61,7 @@ AabpTree<O, OT, SH>::AabpTree(const TSplitHeuristics& heuristics):
 	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
-	end_()
+	end_(new TObjectIterator)
 {
 }
 
@@ -73,7 +73,7 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const
 	aabb_(TObjectTraits::aabbEmpty()),
 	objects_(),
 	nodes_(),
-	end_(last)
+	end_(new TObjectIterator(last))
 {
 	if (first != last)
 	{
@@ -187,7 +187,7 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 	TValue tNear;
 	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
 	{
-		return end_;
+		return *end_;
 	}
 	TValue tFar;
 	if (!TObjectTraits::aabbIntersect(aabb_, ray, tFar, tNear))
@@ -197,7 +197,7 @@ AabpTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 	}
 	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(TObjectTraits::rayDirection(ray));
 	TObjectIterator hit = doIntersect(0, ray, t, tMin, info, reciprocalDirection, tNear, tFar);
-	LASS_ASSERT((t > tMin && t >= tNear * (1 - 1e-7f) && t <= tFar * (1 + 1e-7f)) || hit == end_);
+	LASS_ASSERT((t > tMin && t >= tNear * (1 - 1e-7f) && t <= tFar * (1 + 1e-7f)) || hit == *end_);
 	return hit;
 }
 
@@ -310,7 +310,7 @@ template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::Neighbour
 AabpTree<O, OT, SH>::nearestNeighbour(const TPoint& target, const TInfo* info) const
 {
-	Neighbour nearest(end_, std::numeric_limits<TValue>::infinity());
+	Neighbour nearest(*end_, std::numeric_limits<TValue>::infinity());
 	if (!isEmpty())
 	{
 		doNearestNeighbour(0, target, info, nearest);
@@ -344,7 +344,7 @@ void AabpTree<O, OT, SH>::swap(TSelf& other)
 	std::swap(aabb_, other.aabb_);
 	nodes_.swap(other.nodes_);
 	objects_.swap(other.objects_);
-	std::swap(end_, other.end_);
+	end_.swap(other.end_);
 }
 
 
@@ -361,7 +361,7 @@ template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::TObjectIterator
 AabpTree<O, OT, SH>::end() const
 {
-	return end_;
+	return *end_;
 }
 
 
@@ -622,7 +622,7 @@ AabpTree<O, OT, SH>::doIntersect(
 	if (node.isLeaf())
 	{
 		TValue tBest = 0;
-		TObjectIterator best = end_;
+		TObjectIterator best = *end_;
 		for (size_t i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
@@ -630,7 +630,7 @@ AabpTree<O, OT, SH>::doIntersect(
 			if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
 			{
 				LASS_ASSERT(tCandidate > tMin);
-				if (best == end_ || tCandidate < tBest)
+				if (best == *end_ || tCandidate < tBest)
 				{
 					LASS_ASSERT(tCandidate > tMin && tCandidate >= tNear * (1 - 1e-6f) && tCandidate <= tFar * (1 + 1e-6f));
 					best = objects_[i];
@@ -638,7 +638,7 @@ AabpTree<O, OT, SH>::doIntersect(
 				}
 			}
 		}
-		if (best != end_)
+		if (best != *end_)
 		{
 			t = tBest;
 		}
@@ -656,8 +656,8 @@ AabpTree<O, OT, SH>::doIntersect(
 	
 	TValue tLeft = 0;
 	TValue tRight = 0;
-	TObjectIterator objectLeft = end_;
-	TObjectIterator objectRight = end_;
+	TObjectIterator objectLeft = *end_;
+	TObjectIterator objectRight = *end_;
 	if (d > 0)
 	{
 		if (tLeftBound >= tNear * (1 - 1e-6f))
@@ -699,20 +699,20 @@ AabpTree<O, OT, SH>::doIntersect(
 	}
 	
 	// determine result
-	if (objectLeft != end_ && (objectRight == end_ || tLeft < tRight))
+	if (objectLeft != *end_ && (objectRight == *end_ || tLeft < tRight))
 	{
 		LASS_ASSERT(tLeft > tMin);
 		t = tLeft;
 		return objectLeft;
 	}
-	if (objectRight != end_)
+	if (objectRight != *end_)
 	{
-		LASS_ASSERT(objectLeft == end_ || !(tLeft < tRight));
+		LASS_ASSERT(objectLeft == *end_ || !(tLeft < tRight));
 		LASS_ASSERT(tRight > tMin);
 		t = tRight;
 		return objectRight;
 	}
-	return end_;
+	return *end_;
 }
 
 

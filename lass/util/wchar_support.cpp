@@ -225,8 +225,13 @@ void utf8ToWchar(const char* utf8, size_t length, std::wstring &wide)
 	static TConverterPtr converter;
 	if ( !converter )
 	{
+#if LASS_HAVE_STD_UNIQUE_PTR
+		std::unique_ptr<Converter> p(new Converter(wchar_encoding, "UTF-8"));
+		converter.reset(std::move(p));
+#else
 		std::auto_ptr<Converter> p(new Converter(wchar_encoding, "UTF-8"));
 		converter.reset(p);
+#endif
 	}
 	converter->convert( utf8, length + 1, wide );
 }
@@ -236,8 +241,13 @@ void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
 	static TConverterPtr converter;
 	if ( !converter )
 	{
+#if LASS_HAVE_STD_UNIQUE_PTR
+		std::unique_ptr<Converter> p(new Converter("UTF-8", wchar_encoding));
+		converter.reset(std::move(p));
+#else
 		std::auto_ptr<Converter> p(new Converter("UTF-8", wchar_encoding));
 		converter.reset(p);
+#endif
 	}
 	converter->convert( reinterpret_cast<const char*>(wide), sizeof(wchar_t) * (length + 1), utf8 );
 }

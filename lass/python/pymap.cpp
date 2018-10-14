@@ -81,7 +81,7 @@ namespace impl
 	{
 	}
 
-	Map::Map(std::auto_ptr<PyMapImplBase> pimpl)
+	Map::Map(TPimpl& pimpl)
 	{
 		init(pimpl);
 	}
@@ -104,14 +104,18 @@ namespace impl
 		}
 	}
 
-	void Map::init(std::auto_ptr<PyMapImplBase> pimpl)
+	void Map::init(TPimpl& pimpl)
 	{
 		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
+#if LASS_HAVE_STD_AUTO_PTR
 		pimpl_.reset(pimpl);
+#else
+		pimpl_.reset(std::move(pimpl));
+#endif
 	}
-	
+
 	std::string Map::repr() const
 	{
 		LockGIL LASS_UNUSED(lock);
@@ -157,7 +161,8 @@ namespace impl
 	const TMapPtr Map::copy() const
 	{
 		LockGIL LASS_UNUSED(lock);
-		return TMapPtr(new Map(pimpl_->copy()));
+		TPimpl pimpl = pimpl_->copy();
+		return TMapPtr(new Map(pimpl));
 	}
 
 	const TPyObjPtr Map::asDict() const

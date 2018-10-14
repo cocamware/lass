@@ -62,17 +62,28 @@ namespace lass
 namespace util
 {
 
+class RemoteExceptionBase;
+
+#if LASS_HAVE_STD_AUTO_PTR
+	typedef std::auto_ptr<RemoteExceptionBase> TRemoteExceptionBasePtr;
+#elif LASS_HAVE_STD_UNIQUE_PTR
+	typedef std::unique_ptr<RemoteExceptionBase> TRemoteExceptionBasePtr;
+#else
+#	error "Must have either std::auto_ptr or std::unique_ptr"
+#endif
+
+
 class LASS_DLL RemoteExceptionBase
 {
 public:
 	virtual ~RemoteExceptionBase();
 	void throwSelf() const;
-	std::auto_ptr<RemoteExceptionBase> clone() const;
+	TRemoteExceptionBasePtr clone() const;
+
 private:
 	virtual void doThrowSelf() const = 0;
 	virtual RemoteExceptionBase* doClone() const = 0;
 };
-
 
 
 class Exception: public std::exception, public RemoteExceptionBase

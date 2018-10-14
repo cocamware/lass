@@ -135,6 +135,9 @@
 #cmakedefine LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS 1
 #cmakedefine LASS_HAVE_ISNAN 1
 
+#cmakedefine LASS_HAVE_STD_UNIQUE_PTR 1
+#cmakedefine LASS_HAVE_STD_AUTO_PTR 1
+
 #cmakedefine LASS_HAVE_WCHAR_T @WCHAR_T@
 #cmakedefine LASS_HAVE_WFOPEN 1
 #cmakedefine LASS_HAVE_ICONV 1

@@ -65,7 +65,14 @@ namespace impl
 	class LASS_PYTHON_DLL PyMapImplBase: public ContainerImplBase
 	{
 	public:
-		virtual std::auto_ptr<PyMapImplBase> copy() const = 0; 
+#if LASS_HAVE_STD_AUTO_PTR
+		typedef std::auto_ptr<PyMapImplBase> TPimpl;
+#elif LASS_HAVE_STD_UNIQUE_PTR
+		typedef std::unique_ptr<PyMapImplBase> TPimpl; 
+#else
+#		error "Must have either std::auto_ptr or std::unique_ptr"
+#endif
+		virtual TPimpl copy() const = 0; 
 		virtual PyObject* subscript(PyObject* key) const = 0;
 		virtual int assSubscript(PyObject* key, PyObject* value) = 0;
 		virtual PyObject* keys() const = 0;
@@ -80,15 +87,16 @@ namespace impl
 		typedef typename TBase::TContainerPtr TContainerPtr;
 		typedef typename TBase::TConstContainerPtr TConstContainerPtr;
 		typedef typename TBase::TContainerTraits TContainerTraits;
+		typedef PyMapImplBase::TPimpl TPimpl;
 
 		PyMapImpl(const TContainerPtr& container, bool readOnly = false): 
 			TBase(container, readOnly)
 		{
 		}
-		std::auto_ptr<PyMapImplBase> copy() const
+		TPimpl copy() const
 		{
 			TContainerPtr copy = TContainerTraits::copy(this->container());
-			return std::auto_ptr<PyMapImplBase>(new PyMapImpl(copy));
+			return TPimpl(new PyMapImpl(copy));
 		}
 		PyObject* subscript(PyObject* key) const
 		{
@@ -170,20 +178,20 @@ namespace impl
 	public:
 		template <typename Container> Map( const util::SharedPtr<Container>& container )
 		{
-			std::auto_ptr<PyMapImplBase> pimpl(
-				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container)));
+			TPimpl pimpl(new PyMapImpl<Container>(
+				LASS_ENFORCE_POINTER(container)));
 			init(pimpl);
 		}
 		template<typename Container> Map( const util::SharedPtr<const Container>& container ) 
 		{
-			std::auto_ptr<PyMapImplBase> pimpl(
-				new PyMapImpl<Container>(LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
+			TPimpl pimpl(new PyMapImpl<Container>(
+				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
 			init(pimpl);
 		}
 		template<typename Container> Map( const Container& container )
 		{
 			util::SharedPtr<Container> p(new Container(container));
-			std::auto_ptr<PyMapImplBase> pimpl(new PyMapImpl<Container>(p, true));
+			TPimpl pimpl(new PyMapImpl<Container>(p, true));
 			init(pimpl);
 		}
 		~Map();
@@ -203,8 +211,11 @@ namespace impl
 		void* raw(bool writable) const;
 
 	private:
-		Map(std::auto_ptr<PyMapImplBase> pimpl);
-		void init(std::auto_ptr<PyMapImplBase> pimpl);
+		typedef PyMapImplBase::TPimpl TPimpl;
+
+		Map(TPimpl& pimpl);
+		void init(TPimpl& pimpl);
+
 		static void initializeType();
 
 		static Py_ssize_t length(PyObject* self);

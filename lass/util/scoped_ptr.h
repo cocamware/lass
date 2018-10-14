@@ -81,12 +81,6 @@ public:
 		TStoragePolicy(p) 
 	{
 	}
-	template <typename U> ScopedPtr(std::auto_ptr<U>& p): 
-		TStoragePolicy(p.get()) 
-	{ 
-		p.release(); 
-	}
-
 	~ScopedPtr() 
 	{ 
 		TStoragePolicy::dispose(); 
@@ -97,11 +91,33 @@ public:
 		ScopedPtr temp(p);
 		swap(temp);
 	}
-	template <typename U> void reset(std::auto_ptr<U>& p)
+
+#if LASS_HAVE_STD_UNIQUE_PTR
+	template <typename U> ScopedPtr(std::unique_ptr<U> p):
+		TStoragePolicy(p.get()) 
+	{ 
+		p.release(); 
+	}
+	template <typename U> void reset(std::unique_ptr<U> p)
+	{
+		ScopedPtr temp(std::move(p));
+		swap(temp);
+	}
+#endif
+
+#if LASS_HAVE_STD_AUTO_PTR
+	template <typename U> ScopedPtr(std::auto_ptr<U> p):
+		TStoragePolicy(p.get()) 
+	{
+		p.release(); 
+	}
+	template <typename U> void reset(std::auto_ptr<U> p)
 	{
 		ScopedPtr temp(p);
 		swap(temp);
 	}
+#endif
+
 	void swap(ScopedPtr& other)
 	{
 		TStoragePolicy::swap(other);

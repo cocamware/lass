@@ -271,7 +271,7 @@ void AabbTree<O, OT, SH>::swap(TSelf& other)
 	SH::swap(other);
 	nodes_.swap(other.nodes_);
 	objects_.swap(other.objects_);
-	std::swap(end_, other.end_);
+	end_.swap(other.end_);
 }
 
 

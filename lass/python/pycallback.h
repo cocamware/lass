@@ -152,7 +152,7 @@ public:
 	{
 		// [TODO] untested
 		LASS_THROW("unsupported");
-		std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
+		TPimpl pimpl(
 			new impl::MultiCallbackImpl<CallbackType>(callback,false));
 		init(pimpl);
 	}
@@ -160,7 +160,7 @@ public:
 	{
 		// [TODO] untested
 		LASS_THROW("unsupported");
-		/*std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
+		/*TPimpl pimpl(
 			new impl::MultiCallbackImpl<CallbackType>(p,true));
 		init(pimpl);*/
 	}
@@ -168,8 +168,7 @@ public:
 	{
 		util::SharedPtr<CallbackType> p(new CallbackType(callback));
 #pragma LASS_FIXME("This should be the read-only version")
-		std::auto_ptr<impl::MultiCallbackImplBase> pimpl(
-			new impl::MultiCallbackImpl<CallbackType>(p,false));
+		TPimpl pimpl(new impl::MultiCallbackImpl<CallbackType>(p,false));
 		init(pimpl);
 	}
 	~MultiCallback();
@@ -188,8 +187,17 @@ public:
 	void* raw(bool writable) const;
 
 private:
-	MultiCallback(std::auto_ptr<impl::MultiCallbackImplBase> pimpl);
-	void init(std::auto_ptr<impl::MultiCallbackImplBase> pimpl);
+
+#if LASS_HAVE_STD_AUTO_PTR
+	typedef std::auto_ptr<impl::MultiCallbackImplBase> TPimpl;
+#elif LASS_HAVE_STD_UNIQUE_PTR
+	typedef std::unique_ptr<impl::MultiCallbackImplBase> TPimpl; 
+#else
+#	error "Must have either std::auto_ptr or std::unique_ptr"
+#endif
+
+	MultiCallback(TPimpl& pimpl);
+	void init(TPimpl& pimpl);
 	static void initializeType();
 	static PyObject * _tp_call(PyObject *, PyObject *, PyObject *); 
 

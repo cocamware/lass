@@ -297,7 +297,7 @@ private:
 	void stopThreads(size_t numAllocatedThreads);
 
 	TTaskQueue waitingTasks_;
-	std::auto_ptr<RemoteExceptionBase> error_;
+	TRemoteExceptionBasePtr error_;
 	ConsumerThread* threads_;
 	unsigned long mSecsToSleep_;
 	size_t numThreads_;

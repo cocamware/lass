@@ -57,6 +57,7 @@
 #include "spat_common.h"
 #include "default_object_traits.h"
 #include "split_heuristics.h"
+#include "../util/shared_ptr.h"
 
 namespace lass
 {
@@ -237,7 +238,7 @@ private:
 	TAabb aabb_;
 	TObjectIterators objects_;
 	TNodes nodes_;
-	TObjectIterator end_;
+	util::SharedPtr<TObjectIterator> end_;
 };
 
 }

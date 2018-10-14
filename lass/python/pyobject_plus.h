@@ -91,6 +91,9 @@ namespace lass
 			return PyExportTraits<T>::build(iV);
 		}
 
+#if LASS_HAVE_STD_UNIQUE_PTR
+		// this is not really supported as it would require moving the argument ...
+#else
 		/** @ingroup Python
 		 */
 		template<typename T>
@@ -99,6 +102,7 @@ namespace lass
 			LockGIL LASS_UNUSED(lock);
 			return PyExportTraits< std::auto_ptr<T> >::build(iV);
 		}
+#endif
 
 		/** @ingroup Python
 		 */

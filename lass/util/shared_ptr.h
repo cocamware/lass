@@ -87,15 +87,6 @@ public:
 			CounterPolicy::init(TStoragePolicy::storage());
 		}
 	}
-	template <typename U> SharedPtr(std::auto_ptr<U>& p):
-		TStoragePolicy(p.get())
-	{
-		if (!isEmpty())
-		{
-			CounterPolicy::init(TStoragePolicy::storage());
-		}
-		p.release();
-	}
 	SharedPtr(const SharedPtr& other):
 		TStoragePolicy(other)
 	{
@@ -134,12 +125,41 @@ public:
 		SharedPtr temp(p);
 		swap(temp);
 	}
-	template <typename U> void reset(std::auto_ptr<U>& p)
+
+#if LASS_HAVE_STD_UNIQUE_PTR
+	template <typename U> SharedPtr(std::unique_ptr<U> p) :
+		TStoragePolicy(p.get())
+	{
+		if (!isEmpty())
+		{
+			CounterPolicy::init(TStoragePolicy::storage());
+		}
+		p.release();
+	}
+	template <typename U> void reset(std::unique_ptr<U> p)
+	{
+		SharedPtr temp(std::move(p));
+		swap(temp);
+	}
+#endif
+
+#if LASS_HAVE_STD_AUTO_PTR
+	template <typename U> SharedPtr(std::auto_ptr<U> p) :
+		TStoragePolicy(p.get())
+	{
+		if (!isEmpty())
+		{
+			CounterPolicy::init(TStoragePolicy::storage());
+		}
+		p.release();
+	}
+	template <typename U> void reset(std::auto_ptr<U> p)
 	{
 		SharedPtr temp(p);
 		swap(temp);
 	}
-	
+#endif
+
 	void swap(SharedPtr& other)
 	{
 		TStoragePolicy::swap(other);

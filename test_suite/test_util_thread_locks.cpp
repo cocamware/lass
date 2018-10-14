@@ -44,6 +44,7 @@
 
 #include "../lass/util/thread.h"
 #include "../lass/util/thread_fun.h"
+#include "../lass/util/scoped_ptr.h"
 
 namespace
 {
@@ -106,7 +107,7 @@ void testUtilThreadLock()
 	done = false;
 	starting = true;
 	beenHere = false;
-	std::auto_ptr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
+	util::ScopedPtr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
 	other->run();
 	while (starting)
 	{
@@ -152,7 +153,7 @@ void testUtilThreadTryLock()
 	done = false;
 	starting = true;
 	beenHere = false;
-	std::auto_ptr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
+	util::ScopedPtr<util::Thread> other(util::threadFun(blocker<LockType>, &lock, util::threadJoinable));
 	other->run();
 	while (starting)
 	{
@@ -222,7 +223,7 @@ void testUtilThreadIntegralLock()
 	done = false;
 	starting = true;
 	beenHere = false;
-	std::auto_ptr<util::Thread> other(util::threadFun(blockerIntegral<volatile LockType>, &lock, util::threadJoinable));
+	util::ScopedPtr<util::Thread> other(util::threadFun(blockerIntegral<volatile LockType>, &lock, util::threadJoinable));
 	other->run();
 	while (starting)
 	{

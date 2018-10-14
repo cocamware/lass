@@ -602,7 +602,8 @@ private:
 	Thread& thread_;
 	pthread_t handle_;	 // handle of the thread
 	Condition runCondition_;
-	std::auto_ptr<RemoteExceptionBase> error_;
+	TRemoteExceptionBasePtr error_;
+
 	pid_t tid_;
 	volatile bool isJoinable_;
 	volatile bool isCreated_;

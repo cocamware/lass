@@ -227,6 +227,9 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 };
 */
 
+#if LASS_HAVE_STD_UNIQUE_PTR
+// this is not really supported as it would require moving the argument ...
+#else
 /** auto_ptr assumes shadow types
  *  @ingroup Python
  */
@@ -244,6 +247,7 @@ struct PyExportTraits< std::auto_ptr<T> >
 		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(v));
 	}
 };
+#endif
 
 // --- void ptrs ------------------------------------------------------------------------------------
 

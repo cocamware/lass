@@ -332,8 +332,8 @@ KdTree<O, OT>::rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCou
 template <class O, class OT>
 void KdTree<O, OT>::swap(TSelf& other)
 {
-	std::swap(end_, other.end_);
 	heap_.swap(other.heap_);
+	end_.swap(other.end_);
 }
 
 

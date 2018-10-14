@@ -225,7 +225,11 @@ BinaryIMemoryMap::~BinaryIMemoryMap()
 
 void BinaryIMemoryMap::open(const char* filename)
 {
+#if LASS_HAVE_STD_UNIQUE_PTR
+        std::unique_ptr<impl::BinaryIMemoryMapImpl> pimpl;
+#else
         std::auto_ptr<impl::BinaryIMemoryMapImpl> pimpl;
+#endif
         long begin, end, size;
         char* data;
 
