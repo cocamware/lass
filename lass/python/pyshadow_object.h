@@ -229,6 +229,14 @@ public:
 		return buildObject(p);
 	}
 #endif
+#if LASS_HAVE_STD_UNIQUE_PTR
+	static TPyClassPtr buildObject(std::unique_ptr<TCppClass>&& value)
+	{
+		TCppClassPtr p(value.get());
+		value.release();
+		return buildObject(p);
+	}
+#endif
 	static void addConverter(TImplicitConverter converter)
 	{
 		TImplicitConverterList* converters = implicitConverters();

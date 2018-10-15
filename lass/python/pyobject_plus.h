@@ -102,6 +102,17 @@ namespace lass
 		}
 #endif
 
+#if LASS_HAVE_STD_UNIQUE_PTR
+		/** @ingroup Python
+		*/
+		template<typename T>
+		PyObject* pyBuildSimpleObject(std::unique_ptr<T> iV)
+		{
+			LockGIL LASS_UNUSED(lock);
+			return PyExportTraits< std::unique_ptr<T> >::build(std::move(iV));
+		}
+#endif
+
 		/** @ingroup Python
 		 */
 		template<typename T>

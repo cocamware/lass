@@ -142,6 +142,9 @@ namespace test
 #if LASS_HAVE_STD_AUTO_PTR
 		static std::auto_ptr<Bar> makeAutoPtr();
 #endif
+#if LASS_HAVE_STD_UNIQUE_PTR
+		static std::unique_ptr<Bar> makeUniquePtr();
+#endif
 	};
 
 	bool operator!=(const Bar& a, const Bar& b);

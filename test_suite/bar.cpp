@@ -95,6 +95,9 @@ namespace lass
 #if LASS_HAVE_STD_AUTO_PTR
 		PY_CLASS_STATIC_METHOD( Bar, makeAutoPtr )
 #endif
+#if LASS_HAVE_STD_UNIQUE_PTR
+		PY_CLASS_STATIC_METHOD( Bar, makeUniquePtr )
+#endif
 
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;
@@ -349,6 +352,13 @@ namespace lass
 		std::auto_ptr<Bar> Bar::makeAutoPtr()
 		{
 			std::auto_ptr<Bar> ptr(new Bar);
+			return ptr;
+		}
+#endif
+#if LASS_HAVE_STD_UNIQUE_PTR
+		std::unique_ptr<Bar> Bar::makeUniquePtr()
+		{
+			std::unique_ptr<Bar> ptr(new Bar);
 			return ptr;
 		}
 #endif
