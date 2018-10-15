@@ -91,9 +91,7 @@ namespace lass
 			return PyExportTraits<T>::build(iV);
 		}
 
-#if LASS_HAVE_STD_UNIQUE_PTR
-		// this is not really supported as it would require moving the argument ...
-#else
+#if LASS_HAVE_STD_AUTO_PTR
 		/** @ingroup Python
 		 */
 		template<typename T>

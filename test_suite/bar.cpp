@@ -92,6 +92,9 @@ namespace lass
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator>, python::methods::_gt_ );
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator<=, python::methods::_le_ );
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator>=, python::methods::_ge_ );
+#if LASS_HAVE_STD_AUTO_PTR
+		PY_CLASS_STATIC_METHOD( Bar, makeAutoPtr )
+#endif
 
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;
@@ -341,6 +344,14 @@ namespace lass
 		{
 			return std::string("A free __repr__ representation of Bar");
 		}
+
+#if LASS_HAVE_STD_AUTO_PTR
+		std::auto_ptr<Bar> Bar::makeAutoPtr()
+		{
+			std::auto_ptr<Bar> ptr(new Bar);
+			return ptr;
+		}
+#endif
 
 		// --- shadow classes ---
 

@@ -221,9 +221,7 @@ public:
 		TCppClassPtr p(new TCppClass(value));
 		return buildObject(p);
 	}
-#if LASS_HAVE_STD_UNIQUE_PTR
-	// this is not really supported as it would require moving the argument ...
-#else
+#if LASS_HAVE_STD_AUTO_PTR
 	static TPyClassPtr buildObject(std::auto_ptr<TCppClass>& value)
 	{
 		TCppClassPtr p(value.get());

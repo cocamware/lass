@@ -138,6 +138,10 @@ namespace test
 
 		bool operator==(const Bar& other) const;
 		bool operator<(const Bar& other) const;
+
+#if LASS_HAVE_STD_AUTO_PTR
+		static std::auto_ptr<Bar> makeAutoPtr();
+#endif
 	};
 
 	bool operator!=(const Bar& a, const Bar& b);

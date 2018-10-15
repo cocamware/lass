@@ -227,9 +227,7 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 };
 */
 
-#if LASS_HAVE_STD_UNIQUE_PTR
-// this is not really supported as it would require moving the argument ...
-#else
+#if LASS_HAVE_STD_AUTO_PTR
 /** auto_ptr assumes shadow types
  *  @ingroup Python
  */
@@ -237,7 +235,6 @@ template <typename T>
 struct PyExportTraits< std::auto_ptr<T> >
 {
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
-	typedef typename ShadoweeTraits<T>::TPointerTraits::TPtr TPtr;
 	static PyObject* build(std::auto_ptr<T>& v)
 	{
 		if (!v.get())
