@@ -3,8 +3,8 @@ set(Lass_MAJOR_VERSION @Lass_VERSION_MAJOR@)
 set(Lass_MINOR_VERSION @Lass_VERSION_MINOR@)
 set(Lass_PATCHLEVEL @Lass_VERSION_PATCH@)
 
-
-if(@Python_Development_FOUND@)
+set(Lass_HAVE_PYTHON "@Python_Development_FOUND@")
+if(Lass_HAVE_PYTHON)
 
     if(CMAKE_VERSION VERSION_LESS 3.1)
         # CMake 3.0 doesn't accept 1.2.3 as EXACT match for 1.2.
@@ -54,7 +54,7 @@ endif()
 set(Lass_LIBRARIES Lass::lass)
 get_target_property(Lass_INCLUDE_DIRS Lass::lass INTERFACE_INCLUDE_DIRECTORIES)
 
-if(TARGET Lass::lass_python)
+if(Lass_HAVE_PYTHON)
     list(APPEND Lass_LIBRARIES Lass::lass_python)
     list(APPEND Lass_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
 endif()
