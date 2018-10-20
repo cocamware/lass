@@ -136,12 +136,12 @@ void testIoIPC()
     {
         LASS_COUT << "Parent: Asking to uppercase a string via shared memory...\n";
         const char* lowercase = "this is a string";
-        size_t len = ::strlen(lowercase);
+        const size_t size = ::strlen(lowercase) + 1;
         io::SharedMemory mem;
-        mem.create(len + 1);
+        mem.create(size);
         char* buf = static_cast<char*>(mem.get());
-        ::strncpy(buf, lowercase, len);
-        buf[len] = 0;
+        ::strncpy(buf, lowercase, size);
+        buf[size - 1] = 0; // for good measure
 
         ipc::Message res = transact(pipe, ipc::Message(ipc::mcUpper, mem.name()));
         LASS_TEST_CHECK_EQUAL(res.code(), ipc::mcUppered);
