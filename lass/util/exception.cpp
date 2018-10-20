@@ -60,10 +60,11 @@ void RemoteExceptionBase::throwSelf() const
 TRemoteExceptionBasePtr RemoteExceptionBase::clone() const
 {
 	TRemoteExceptionBasePtr copy(doClone());
-	if (typeid(*copy) != typeid(*this))
+	const RemoteExceptionBase* other = copy.get();
+	if (typeid(*other) != typeid(*this))
 	{
 		std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR WARNING: Cloned exception has been sliced from '"
-			<< typeid(*this).name() << "' to '" << typeid(*copy).name() << "'." << std::endl;
+			<< typeid(*this).name() << "' to '" << typeid(*other).name() << "'." << std::endl;
 	}
 	return copy;
 }
