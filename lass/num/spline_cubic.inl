@@ -351,6 +351,20 @@ void SplineCubic<S, D, T>::init()
 		}
 	}
 
+	if (n == 2)
+	{
+		// linear interpolation between node 0 and 1.
+		TDataTraits::zero(nodes_[0].a, dataDimension_);
+		TDataTraits::zero(nodes_[0].b, dataDimension_);
+		nodes_[0].c = nodes_[1].d;
+		TDataTraits::multiplyAccumulate(nodes_[0].c, nodes_[0].d, -1);
+		TDataTraits::scale(nodes_[0].c, num::inv(h[0]));
+		nodes_[1].a = nodes_[0].a;
+		nodes_[1].b = nodes_[0].b;
+		nodes_[1].c = nodes_[0].c;
+		return;
+	}
+
 	// --- init some elements ---
 
 	for (size_t i = 0; i < n; ++i)

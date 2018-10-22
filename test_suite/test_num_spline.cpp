@@ -197,9 +197,56 @@ void testNumSpline()
 	num_spline::testSpline(bezierPath, patternBezierPath, begin, end, delta, integral0);
 }
 
+void testNumSpline2Points()
+{
+	typedef double TScalar;
+	TScalar xs[2] = { 1.0, 4.0 };
+	TScalar ys[2] = { 3.0, 9.0 };
+
+	num::SplineLinear<TScalar, TScalar, num::DataTraitsScalar<TScalar> > linear(xs, xs + 2, ys);
+	num::SplineCubic<TScalar, TScalar, num::DataTraitsScalar<TScalar> > cubic(xs, xs + 2, ys);
+	num::SplineBezierPath<TScalar, TScalar, num::DataTraitsScalar<TScalar> > bezierPath(xs, xs + 2, ys);
+
+	LASS_TEST_CHECK_EQUAL(linear(-1.0), -1.0);
+	LASS_TEST_CHECK_EQUAL(cubic(-1.0), -1.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(-1.0), -1.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(0.0), 1.0);
+	LASS_TEST_CHECK_EQUAL(cubic(0.0), 1.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(0.0), 1.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(1.0), 3.0);
+	LASS_TEST_CHECK_EQUAL(cubic(1.0), 3.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(1.0), 3.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(2.0), 5.0);
+	LASS_TEST_CHECK_EQUAL(cubic(2.0), 5.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(2.0), 5.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(3.0), 7.0);
+	LASS_TEST_CHECK_EQUAL(cubic(3.0), 7.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(3.0), 7.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(4.0), 9.0);
+	LASS_TEST_CHECK_EQUAL(cubic(4.0), 9.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(4.0), 9.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(5.0), 11.0);
+	LASS_TEST_CHECK_EQUAL(cubic(5.0), 11.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(5.0), 11.0, 1e-14);
+
+	LASS_TEST_CHECK_EQUAL(linear(6.0), 13.0);
+	LASS_TEST_CHECK_EQUAL(cubic(6.0), 13.0);
+	LASS_TEST_CHECK_CLOSE(bezierPath(6.0), 13.0, 1e-14);
+}
+
+
 TUnitTest test_num_spline()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testNumSpline));
+	TUnitTest result;
+	result.push_back(LASS_TEST_CASE(testNumSpline2Points));
+	result.push_back(LASS_TEST_CASE(testNumSpline));
+	return result;
 }
 
 
