@@ -112,6 +112,7 @@ class ExceptionMixin: public ParentType
 {
 public:
 	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
+	explicit ExceptionMixin(const std::string& msg): ParentType(msg) {}
 	~ExceptionMixin() throw() {}
 private:
 	virtual void doThrowSelf() const 

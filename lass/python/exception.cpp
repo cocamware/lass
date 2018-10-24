@@ -149,6 +149,14 @@ PythonException::PythonException(PyObject* type, const std::string& msg, const s
 {
 }
 
+PythonException::PythonException(PyObject* type, const std::string& msg):
+	util::ExceptionMixin<PythonException>(extractMessage(type) + ": " + msg),
+	type_(fromNakedToSharedPtrCast<PyObject>(type)),
+	value_(pyBuildSimpleObject(msg)),
+	traceback_(0)
+{
+}
+
 const std::string PythonException::extractMessage(PyObject* type, PyObject* value)
 {
 	LockGIL LASS_UNUSED(lock);

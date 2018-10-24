@@ -56,6 +56,7 @@ class PythonException: public util::ExceptionMixin<PythonException>
 public:
 	LASS_PYTHON_DLL PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
 	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg, const std::string& loc);
+	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg);
 
 	~PythonException() throw() {}
 	const python::TPyObjPtr& type() const { return type_; }
