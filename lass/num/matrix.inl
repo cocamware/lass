@@ -530,7 +530,7 @@ void Matrix<T, S>::setIdentity(TSize iSize)
 
 
 
-/** return true if this is a (0×0) matrix
+/** return true if this is a (0ï¿½0) matrix
  *
  *  @par Complexity:
  *		O(1)
@@ -548,7 +548,7 @@ bool Matrix<T, S>::isEmpty() const
 
 /** test if this matrix equals a zero matrix.
  *
- *  <i>A zero matrix is an @n m×n matrix consisting of all 0s (MacDuffee 1943, p. 27), denoted @n 0.
+ *  <i>A zero matrix is an @n mï¿½n matrix consisting of all 0s (MacDuffee 1943, p. 27), denoted @n 0.
  *  Zero matrices are sometimes also known as null matrices (Akivis and Goldberg 1972, p. 71).</i>
  *  http://mathworld.wolfram.com/ZeroMatrix.html
  *
@@ -583,7 +583,7 @@ bool Matrix<T, S>::isZero() const
  *  for all vectors @n X. An identity matrix may be denoted @n 1, @n I, or @n E (the latter being an
  *  abbreviation for the German term "Einheitsmatrix"; Courant and Hilbert 1989, p. 7). Identity
  *  matrices are sometimes also known as unit matrices (Akivis and Goldberg 1972, p. 71). The
- *  @n n×n identity matrix is given explicitly by @n Iij=dij for @n i, @n j = 1, 2, ..., n, where
+ *  @n nï¿½n identity matrix is given explicitly by @n Iij=dij for @n i, @n j = 1, 2, ..., n, where
  *  @n dij is the Kronecker delta.</i>
  *  http://mathworld.wolfram.com/IdentityMatrix.html
  *
@@ -696,9 +696,10 @@ void Matrix<T, S>::invert()
 	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
 	LASS_ENFORCE(isSquare());
 
-	const ptrdiff_t n = static_cast<ptrdiff_t>(rows());
+	const TSize size = rows();
 	Matrix<T> lu(*this);
-	std::vector<ptrdiff_t> index(n);
+	std::vector<ptrdiff_t> index(size);
+	const ptrdiff_t n = static_cast<ptrdiff_t>(size);
 	int d;
 
 	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
@@ -706,8 +707,8 @@ void Matrix<T, S>::invert()
 		LASS_THROW_EX(util::SingularityError, "failed to invert matrix");
 	}
 
-	setIdentity(n);
-	for (TSize i = 0; i < n; ++i)
+	setIdentity(size);
+	for (ptrdiff_t i = 0; i < n; ++i)
 	{
 		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), column(i).begin(), n);
 	}
@@ -846,7 +847,7 @@ operator-(const Matrix<T, S1>& a, const Matrix<T, S2>& b)
  *  summed over for all possible values of @n i and @n k. The implied summation over repeated
  *  indices without the presence of an explicit sum sign is called Einstein summation, and is
  *  commonly used in both matrix and tensor analysis. Therefore, in order for matrix multiplication
- *  to be defined, the dimensions of the matrices must satisfy @n (n×m)*(m×p)=(n×p) where @n (a×b)
+ *  to be defined, the dimensions of the matrices must satisfy @n (nï¿½m)*(mï¿½p)=(nï¿½p) where @n (aï¿½b)
  *  denotes a matrix with @n a rows and @n b columns.</i>
  *  http://mathworld.wolfram.com/MatrixMultiplication.html
  *

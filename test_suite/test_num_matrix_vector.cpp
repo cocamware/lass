@@ -386,6 +386,45 @@ void testNumMatrixSolve()
 	LASS_TEST_CHECK(*max < 1000 * NumTraits<TBase>::epsilon );
 }
 
+
+template <typename T>
+void testNumMatrixInverse()
+{
+	typedef num::Matrix<T> TMatrix;
+
+	TMatrix a(4, 4);
+	a(0, 0) =  1; a(0, 1) =  2; a(0, 2) =  5; a(0, 3) =  8;
+	a(1, 0) = -3; a(1, 1) =  2; a(1, 2) =  5; a(1, 3) = -4;
+	a(2, 0) = -8; a(2, 1) = -8; a(2, 2) =  4; a(2, 3) =  0;
+	a(3, 0) = -6; a(3, 1) = -4; a(3, 2) =  0; a(3, 3) =  7;
+
+	TMatrix b = a;
+	b.invert();
+
+	const T tol = T(1e-5);
+
+	LASS_TEST_CHECK_CLOSE(b(0, 0), T( 0.08500), tol);
+	LASS_TEST_CHECK_CLOSE(b(0, 1), T(-0.14500), tol);
+	LASS_TEST_CHECK_CLOSE(b(0, 2), T( 0.07500), tol);
+	LASS_TEST_CHECK_CLOSE(b(0, 3), T(-0.18000), tol);
+
+	LASS_TEST_CHECK_CLOSE(b(1, 0), T(-0.03125), tol);
+	LASS_TEST_CHECK_CLOSE(b(1, 1), T( 0.15625), tol);
+	LASS_TEST_CHECK_CLOSE(b(1, 2), T(-0.15625), tol);
+	LASS_TEST_CHECK_CLOSE(b(1, 3), T( 0.12500), tol);
+
+	LASS_TEST_CHECK_CLOSE(b(2, 0), T( 0.10750), tol);
+	LASS_TEST_CHECK_CLOSE(b(2, 1), T( 0.02250), tol);
+	LASS_TEST_CHECK_CLOSE(b(2, 2), T( 0.08750), tol);
+	LASS_TEST_CHECK_CLOSE(b(2, 3), T(-0.11000), tol);
+
+	LASS_TEST_CHECK_CLOSE(b(3, 0), T( 0.05500), tol);
+	LASS_TEST_CHECK_CLOSE(b(3, 1), T(-0.03500), tol);
+	LASS_TEST_CHECK_CLOSE(b(3, 2), T(-0.02500), tol);
+	LASS_TEST_CHECK_CLOSE(b(3, 3), T( 0.06000), tol);
+}
+
+
 TUnitTest test_num_matrix_vector()
 {
 	TUnitTest result;
@@ -400,10 +439,14 @@ TUnitTest test_num_matrix_vector()
 	result.push_back(LASS_TEST_CASE(testNumSolve<double>));
 	result.push_back(LASS_TEST_CASE(testNumSolve< std::complex<double> >));
 
+	result.push_back(LASS_TEST_CASE(testNumMatrixInverse<float>));
+	result.push_back(LASS_TEST_CASE(testNumMatrixInverse<double>));
+
 	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<float>));
 	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<double>));
 	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<float> >));
 	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<double> >));
+
 	return result;
 }
 
