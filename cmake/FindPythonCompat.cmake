@@ -164,6 +164,7 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
 
     include(FindPackageHandleStandardArgs)
     set(Python_FIND_VERSION ${PythonCompat_FIND_VERSION})
+    set(Python_FIND_VERSION_COUNT ${PythonCompat_FIND_VERSION_COUNT})
     set(Python_FIND_VERSION_EXACT ${PythonCompat_FIND_VERSION_EXACT})
     set(Python_FIND_QUIETLY ${PythonCompat_FIND_QUIETLY})
     set(Python_FIND_COMPONENTS ${PythonCompat_FIND_COMPONENTS})
