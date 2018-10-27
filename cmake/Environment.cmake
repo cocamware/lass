@@ -34,8 +34,14 @@ endfunction()
 
 # --- about Python ---
 
+unset(_Lass_FIND_PYTHON_ARGS)
+if(Lass_PYTHON_VERSION)
+    set(_Lass_FIND_PYTHON_ARGS "${Lass_PYTHON_VERSION}" EXACT)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-find_package(PythonCompat REQUIRED COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
+find_package(PythonCompat ${_Lass_FIND_PYTHON_ARGS} REQUIRED
+             COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
 mark_as_advanced(CLEAR Python_EXECUTABLE)
 
 if(Python_Development_FOUND)
