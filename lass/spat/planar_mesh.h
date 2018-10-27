@@ -1621,7 +1621,6 @@ continueSearch:
 					return e;
 				e = e->oNext();
 			}
-			e = e;
 		}
 
 		do	
@@ -1705,7 +1704,6 @@ continueSearch:
 				return e;
 			e = e->oNext();
 		}
-		e = e;
 
 		do	
 		{
