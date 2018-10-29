@@ -47,7 +47,10 @@
 #include <lass/io/message_pipe.h>
 #include <lass/io/shared_memory.h>
 #include <lass/util/subprocess.h>
+#include <lass/util/thread_fun.h>
 #include "ipc_protocol.h"
+
+#include <signal.h>
 
 // path to executable
 #ifndef TEST_IPC_CHILD
@@ -56,31 +59,37 @@
 
 namespace
 {
-#ifdef NDEBUG
-    const size_t msecTimeout = 5000;
-#else
-    const size_t msecTimeout = 60000;
-#endif
 
-    typedef lass::io::TypedMessagePipe<ipc::Message> TMessagePipe;
+using namespace lass;
 
-    ipc::Message transact(TMessagePipe& pipe, const ipc::Message& req)
+const size_t msecTimeout = 60000;
+
+typedef io::TypedMessagePipe<ipc::Message> TMessagePipe;
+
+ipc::Message transact(TMessagePipe& pipe, const ipc::Message& req)
+{
+    ipc::Message res;
+    if (!pipe.transact(req, res))
     {
-        ipc::Message res;
-        if (!pipe.transact(req, res, msecTimeout))
-        {
-            LASS_THROW("Transact timeout or error.");
-        }
-        return res;
+        LASS_THROW("Transact timeout or error.");
+    }
+    return res;
+}
+
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
+
+void sendInterrupts(util::experimental::Subprocess* child)
+{
+    while (child->isRunning())
+    {
+        util::Thread::sleep(200);
+        child->sendSignal(SIGUSR1);
     }
 }
 
-namespace lass
-{
-namespace test
-{
+#endif
 
-void testIoIPC()
+void runScenario(unsigned long msecSleepParent, unsigned long msecSleepChild)
 {
     TMessagePipe pipe;
 
@@ -94,12 +103,21 @@ void testIoIPC()
     util::experimental::Subprocess::TArgs args;
     args.push_back(TEST_IPC_CHILD);
     args.push_back(pipe.name());
+    args.push_back(util::stringCast<std::string>(msecSleepChild));
 
     LASS_CERR << "Parent: Creating subprocess: " << args << std::endl;
     util::experimental::Subprocess child(args);
 
     LASS_COUT << "Parent: Starting subprocess...\n";
     child.run();
+
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
+    util::ScopedPtr<util::Thread> interrupter(util::threadFun(
+        sendInterrupts, &child, util::threadJoinable));
+    interrupter->run();
+#endif
+
+    util::Thread::sleep(msecSleepParent);
 
     LASS_COUT << "Parent: Accepting subprocess on pipe...\n";
     if (!pipe.accept(msecTimeout))
@@ -108,16 +126,20 @@ void testIoIPC()
         return;
     }
 
+    util::Thread::sleep(msecSleepParent);
+
     {
         LASS_COUT << "Parent: Waiting for Hello message...\n";
         ipc::Message msgIn;
-        if (!pipe.receive(msgIn, msecTimeout))
+        if (!pipe.receive(msgIn))
         {
             LASS_TEST_ERROR("Receive timeout or error.");
             return;
         }
         LASS_TEST_CHECK_EQUAL(msgIn.code(), ipc::mcHello);
     }
+
+    util::Thread::sleep(msecSleepParent);
 
     {
         LASS_COUT << "Parent: Asking to double a number...\n";
@@ -128,6 +150,8 @@ void testIoIPC()
         LASS_TEST_CHECK_EQUAL(doubled, 6.28f);
         LASS_COUT << "Parent: double of " << number << " is " << doubled << std::endl;
     }
+
+    util::Thread::sleep(msecSleepParent);
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #   pragma warning(disable: 4996) // 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead.
@@ -148,40 +172,73 @@ void testIoIPC()
         LASS_TEST_CHECK(strcmp(buf, "THIS IS A STRING") == 0);
     }
 
+    util::Thread::sleep(msecSleepParent);
+
     {
         LASS_COUT << "Parent: Transacting Exit message...\n";
         ipc::Message res = transact(pipe, ipc::Message(ipc::mcExit));
         LASS_TEST_CHECK_EQUAL(res.code(), ipc::mcGoodbye);
     }
-ipc::Message msgIn;
-    if (!pipe.receive(msgIn))
-    {
-        LASS_CERR << "well, really can't receive anymore\n";
-    }
-    else
-    {
-      LASS_TEST_ERROR("OOPS.");
 
-    }
-    if (!pipe.receive(msgIn))
+    for (size_t k = 0; k < 2; ++k)
     {
-        LASS_CERR << "well, really can't receive anymore\n";
-    }
-    else
-    {
-      LASS_TEST_ERROR("OOPS.");
+        util::Thread::sleep(msecSleepParent);
 
+        ipc::Message msgIn;
+        if (!pipe.receive(msgIn))
+        {
+            LASS_CERR << "well, really can't receive anymore\n";
+        }
+        else
+        {
+            LASS_TEST_ERROR("OOPS.");
+        }
     }
 
+    util::Thread::sleep(msecSleepParent);
+
+    LASS_COUT << "Parent: Closing pipe...\n";
     pipe.close();
+
+    util::Thread::sleep(msecSleepParent);
 
     LASS_COUT << "Parent: Joining child...\n";
     LASS_TEST_CHECK_EQUAL(child.join(), 0);
+
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
+    interrupter->join();
+#endif
+}
+
+}
+
+namespace lass
+{
+namespace test
+{
+
+void testIoIPCNoSleep()
+{
+    runScenario(0, 0);
+}
+
+void testIoIPCParentSleep()
+{
+    runScenario(500, 0);
+}
+
+void testIoIPCChildSleep()
+{
+    runScenario(0, 500);
 }
 
 TUnitTest test_io_ipc()
 {
-    return TUnitTest(1, LASS_TEST_CASE(testIoIPC));
+    TUnitTest result;
+    result.push_back(LASS_TEST_CASE(testIoIPCNoSleep));
+    result.push_back(LASS_TEST_CASE(testIoIPCParentSleep));
+    result.push_back(LASS_TEST_CASE(testIoIPCChildSleep));
+    return result;
 }
 
 }

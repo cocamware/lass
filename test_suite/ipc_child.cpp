@@ -55,8 +55,22 @@ INT CALLBACK WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
 
 #else
 
+#include <signal.h>
+
+void ignore_handler(int)
+{
+    LASS_CERR << "Child: SIGUSR1\n";
+}
+
 int main(int argc, char* argv[])
 {
+    struct sigaction catchsig;
+    memset (&catchsig, 0, sizeof(catchsig));
+    catchsig.sa_handler = ignore_handler;
+    if ( sigaction (SIGUSR1, &catchsig, NULL) == -1 )
+    {
+        return 3;
+    }
 
 #endif
 
@@ -64,20 +78,20 @@ int main(int argc, char* argv[])
 
     try
     {
-#ifdef NDEBUG
-        const size_t msecTimeout = 1000;
-#else
         const size_t msecTimeout = 60000;
-#endif
 
-        if (argc != 2)
+        if (argc != 3)
         {
-            LASS_CERR << "Expected extactly one argument: the message pipe name.\n";
-            LASS_CERR << "Usage: " << argv[0] << " <message-pipe-name>\n";
+            LASS_CERR << "Expected extactly two arguments: the message pipe name and the sleeping time.\n";
+            LASS_CERR << "Usage: " << argv[0] << " <message-pipe-name> <sleep-msec>\n";
             return 2;
         }
 
         const char* pipeName = argv[1];
+        const unsigned long msecSleep = static_cast<unsigned long>(
+            std::max<long>(0, strtol(argv[2], 0, 10)));
+
+        util::Thread::sleep(msecSleep);
 
         LASS_CERR << "Child: Connecting to pipe '" << pipeName << "'...\n";
         io::TypedMessagePipe<ipc::Message> pipe;
@@ -87,11 +101,15 @@ int main(int argc, char* argv[])
             return 1;
         }
 
+        util::Thread::sleep(msecSleep);
+
         LASS_CERR << "Child: Sending Hello, and waiting for first message...\n";
         ipc::Message res(ipc::mcHello);
         ipc::Message req;
         while (pipe.transact(res, req))
         {
+            util::Thread::sleep(msecSleep);
+
             switch (req.code())
             {
             case ipc::mcDouble:
@@ -120,12 +138,12 @@ int main(int argc, char* argv[])
                 }
 
             case ipc::mcExit:
-                //LASS_CERR << "Child: Sending Goodbye...\n";
                 pipe.send(ipc::Message(ipc::mcGoodbye));
                 //LASS_CERR << "Child: Closing pipe...\n";
                 // timing problem: if we close this fast after last message, it is never received.
                 // a slight delay aready fixes the problem, but can we fix it without?
                 pipe.close();
+                LASS_CERR << "Child: Exiting...\n";
                 return 0;
 
             default:

@@ -102,6 +102,12 @@ public:
         LASS_ENFORCE_WINAPI(::CreateProcessW(wargs_[0].c_str(), &cmd[0], 0, 0, FALSE, 0, 0, 0, &si_, &pi_))(&cmd[0]);
     }
 
+    void sendSignal(int /*signal*/)
+    {
+        // not implemented;
+        LASS_ASSERT(false);
+    }
+
     void kill()
     {
         ::TerminateProcess(pi_.hProcess, 0xffffffff);
@@ -246,12 +252,17 @@ public:
         LASS_ENFORCE_CLIB_RC(posix_spawnp(&pid_, argv[0], 0, 0, argv.ptr(), environ));
     }
 
-    void kill()
+    void sendSignal(int signal)
     {
         if (pid_)
         {
-            ::kill(pid_, SIGKILL);
+            ::kill(pid_, signal);
         }
+    }
+
+    void kill()
+    {
+        sendSignal(SIGKILL);
     }
 
     bool checkExitCode(int& exitCode, bool join)
@@ -400,6 +411,12 @@ int Subprocess::join()
 void Subprocess::detach()
 {
     isDetached_ = true;
+}
+
+
+void Subprocess::sendSignal(int signal)
+{
+    pimpl_->sendSignal(signal);
 }
 
 

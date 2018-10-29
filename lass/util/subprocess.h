@@ -76,6 +76,7 @@ public:
     int join();
     void detach();
     void kill();
+    void sendSignal(int signal); // only meaningfull on linux.
 
     bool isRunning() const;
     bool isDetached() const;

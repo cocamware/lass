@@ -67,7 +67,7 @@
 #       include <unistd.h>
 #   endif
 #   include <errno.h>
-//#   include "../util/impl/lass_errno.h"
+#   include "../num/num_cast.h"
 #endif
 
 #include <assert.h>
@@ -413,6 +413,14 @@ public:
         name_[name_len] = 0; // set a terminating null
 #endif
 
+        // already start listening, so that child can already connect,
+        // even if we didnt' connect yet.
+        if (listen(socket_, 1) != 0)
+        {
+            close();
+            return false;
+        }
+
         isServer_ = true;
         return true;
     }
@@ -451,48 +459,49 @@ public:
         socklen_t addr_len = static_cast<socklen_t>(sizeof(sa_family_t) + name_len);
 #endif
 
-        // attempt to connect
-        const size_t attempts = msecTimeout == infinite ? 1 : std::max<size_t>(msecTimeout / 1000, 1);
-        const size_t msecTimeoutPerAttempt = msecTimeout / attempts;
-        for (size_t k = 0; k <= attempts; ++k)
+        if ( ::connect(socket_, reinterpret_cast<sockaddr*>(&addr), addr_len) == -1 )
         {
-            if ( ::connect(socket_, reinterpret_cast<sockaddr*>(&addr), addr_len) == 0 )
-            {
-                // we're good!
-                pipe_ = socket_; // is same thing
-                isServer_ = false;
-                return true;
-            }
-            if (k == attempts)
-            {
-                close();
-                return false; // give up
-            }
-            switch(errno)
+            switch (errno)
             {
             case EINPROGRESS:
             case EALREADY:
-                if (!poll(socket_, POLLOUT, msecTimeoutPerAttempt))
-                {
-                    close();
-                    return false;
-                }
+            case EINTR:
+                break;
             default:
                 close();
                 return false;
-            };
+            }
+
+            if ( !poll(socket_, POLLOUT, msecTimeout) )
+            {
+                close();
+                return false;
+            }
+
+            int so_error;
+            socklen_t length = sizeof(so_error);
+            if ( ::getsockopt(socket_, SOL_SOCKET, SO_ERROR, &so_error, &length) == -1 )
+            {
+                close();
+                return false;
+            }
+            if ( so_error != 0 )
+            {
+                close();
+                return false;
+            }
         }
-        return false;
+
+        // we're good!
+        pipe_ = socket_; // is same thing
+        isServer_ = false;
+        return true;
     }
 
     bool accept(size_t msecTimeout)
     {
         assert(isServer_);
         if (socket_ < 0)
-        {
-            return false;
-        }
-        if (listen(socket_, 1) != 0)
         {
             return false;
         }
@@ -597,33 +606,56 @@ public:
 
 private:
 
-    bool poll(int fd, short event, size_t msecTimeout) const
+    bool poll(int fd, short events, size_t msecTimeout) const
     {
         pollfd pfd;
         pfd.fd = fd;
-        pfd.events = event;
+        pfd.events = events;
         pfd.revents = 0;
-        if (::poll(&pfd, 1, msecTimeout == infinite ? -1 : static_cast<int>(msecTimeout)) <= 0)
+
+        int timeout = -1;
+        num::Tint64 msecDeadline = 0;
+        if (msecTimeout != infinite)
         {
-            return false; // -1 is error, 0 is timeout
+            timeout = num::numCast<int>(msecTimeout);
+            msecDeadline = msecTime() + timeout;
         }
 
-        // if peer sends message and immediately closes before this side has the
-        // chance to read the message, it'll already have POLLHUP.
-        // so if we check this here, we won't be able to read the last message.
-        //
-        // But we probably don't need to bother, since I guess we wouldn't
-        // find even in rdevent either, and we're checking that too.
-        //
-        // So, we'll skip this for now.
-        /*
-        if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL))
+        int rc = ::poll(&pfd, 1, timeout);
+        while (true)
         {
-            return false;
-        }
-        */
+            switch(rc)
+            {
+            case -1:
+                if (errno != EINTR)
+                {
+                    return false;
+                }
+                break;
+            case 0:
+                return false;
+            default:
+                LASS_ASSERT( rc == 1 );
+                return pfd.revents & events;
+            }
 
-        return pfd.revents & event;
+            if (msecTimeout != infinite)
+            {
+                const num::Tint64 timeleft = msecDeadline - msecTime();
+                if (timeleft < 0)
+                    return false;
+                timeout = static_cast<int>(timeleft);
+            }
+
+            rc = ::poll(&pfd, 1, timeout);
+        }
+    }
+
+    num::Tint64 msecTime() const
+    {
+        struct timespec tp;
+        LASS_ENFORCE_CLIB(clock_gettime(CLOCK_MONOTONIC, &tp));
+        return static_cast<num::Tint64>(tp.tv_sec) * 1000 + static_cast<num::Tint64>(tp.tv_nsec) / 1000000;
     }
 
     int socket_;
