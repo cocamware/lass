@@ -86,8 +86,21 @@ public:
     }
 
 private:
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
     typedef int (*TFunctionPtr)(void);
+#elif LASS_HAVE_DLOPEN
+    // Not using a function pointer, because GCC 8 warns about cast between
+    // incompatible function types. In general, we shouldn't be using void*
+    // to cast function pointers, because they're not guaranteed to be the same
+    // size. However, dlsym already returns void*, so we're fine.
+    typedef void* TFunctionPtr;
+#else
+#   error missing implementation
+#endif
+
     TFunctionPtr resolveFunctionImpl (const std::string& functionName) const;
+
     void* pimpl_;
 };
 

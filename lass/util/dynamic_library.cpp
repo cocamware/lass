@@ -133,7 +133,7 @@ DynamicLibrary::~DynamicLibrary()
 DynamicLibrary::TFunctionPtr DynamicLibrary::resolveFunctionImpl(const std::string& functionName) const
 {
 	LASS_ASSERT(pimpl_);
-	TFunctionPtr fun = TFunctionPtr(::dlsym(pimpl_, functionName.c_str()));
+	TFunctionPtr fun = ::dlsym(pimpl_, functionName.c_str());
 	if (!fun)
 	{
 		const char* msg = ::dlerror();

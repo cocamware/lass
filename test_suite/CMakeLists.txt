@@ -21,6 +21,7 @@ endmacro()
 
 list_remove_regex(test_suite_SRCS
 	"ipc_child\\\\.cpp$" # that's the source code for the child process.
+	"dynamic_child\\\\.cpp$" # for test_util_dynamic_library
 	)
 
 if(NOT TARGET Lass::lass_python)
@@ -28,7 +29,6 @@ if(NOT TARGET Lass::lass_python)
 		"foo\\\\.cpp$"
 		"bar\\\\.cpp$"
 		"python[^/\\\\\\\\]*\\\\.cpp$"
-		"dynamic[^/\\\\\\\\]*\\\\.cpp$" # because it tries to load pylass
 		)
 endif()
 
@@ -77,6 +77,13 @@ target_link_libraries(test_ipc_child
 	Lass::lass
 	)
 
+
+add_library(
+	test_dynamic_child MODULE
+	"${sourcedir}/dynamic_child.cpp"
+)
+
+
 add_executable(test_suite
 	${test_suite_HDRS} 
 	${test_suite_SRCS}
@@ -99,7 +106,7 @@ lass_add_precompiled_header(test_suite
 	)
 target_compile_definitions(test_suite
 	PRIVATE "TEST_IPC_CHILD=\"$<TARGET_FILE:test_ipc_child>\"" # for test_io_ipc
-	PRIVATE "PYLASS_PATH=\"$<TARGET_FILE:pylass>\""            # for test_util_dynamic_library
+	PRIVATE "TEST_DYNAMIC_CHILD=\"$<TARGET_FILE:test_dynamic_child>\"" # for test_util_dynamic_library
 	)
 
 foreach(test_name ${unit_tests})

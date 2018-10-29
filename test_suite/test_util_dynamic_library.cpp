@@ -42,7 +42,12 @@
 
 #include "test_common.h"
 #include "../lass/util/dynamic_library.h"
-#include "../lass/python/python_common.h" // for version macro.
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+#   define NOMINMAX
+#   define WIN32_LEAN_AND_MEAN
+#   include <Windows.h>
+#endif
 
 /*
  *  Since -Wl,--enable-new-dtags has become the new default setting (gcc6?),
@@ -60,16 +65,16 @@
  *  2. Use absolute paths to the dynamic library to be loaded
  *
  *  Both solutions are within reach of the calling code, and in this case
- *  we'll use the absolute path which CMake will provide use in the PYLASS_PATH
- *  definition.
+ *  we'll use the absolute path which CMake will provide use in the 
+ *  TEST_DYNAMIC_CHILD definition.
  * 
  *  https://linux.die.net/man/3/dlopen
  *  https://gist.github.com/psychon/c7625ea030e3d78f09b1a709fd2d0bc7
  *  https://www.slideshare.net/linaroorg/sfo15307-advanced-toolchain-usage-part-5
  */
 
-#ifndef PYLASS_PATH
-#	define PYLASS_PATH "lass" LASS_LIB_DEBUG
+#if !defined(TEST_DYNAMIC_CHILD)
+#   error "TEST_DYNAMIC_CHILD must be defined as path to dynamic module"
 #endif
 
 namespace lass
@@ -79,18 +84,52 @@ namespace test
 
 void testUtilDynamicLibrary()
 {
+
 #if LASS_HAVE_DYNAMIC_LIBRARY
 
-    typedef int(*fun)(void);
+	LASS_TEST_CHECK_THROW(util::DynamicLibrary("thislibrarydoesnotexist"), util::DynamicLibraryError);
 
-    LASS_TEST_CHECK_THROW( util::DynamicLibrary("thislibrarydoesnotexist"), util::DynamicLibraryError );
-    
-    util::DynamicLibrary pylass(PYLASS_PATH);
-    LASS_TEST_CHECK_THROW( pylass.resolveFunction<fun>("thisfunctiondoesnotexist"), util::DynamicLibraryError );
-#if PY_MAJOR_VERSION < 3
-    LASS_TEST_CHECK(pylass.resolveFunction<fun>("initlass") != 0);
-#else
-    LASS_TEST_CHECK(pylass.resolveFunction<fun>("PyInit_lass") != 0);
+	try
+	{
+		util::DynamicLibrary module(TEST_DYNAMIC_CHILD);
+
+		typedef float(*TMultiplyPtr)(float, float);
+		LASS_TEST_CHECK_THROW(module.resolveFunction<TMultiplyPtr>("thisfunctiondoesnotexist"), util::DynamicLibraryError);
+
+		TMultiplyPtr multiply = 0;
+		LASS_TEST_CHECK_NO_THROW(multiply = module.resolveFunction<TMultiplyPtr>("multiply"));
+		LASS_TEST_CHECK(multiply != 0);
+
+		float result = 0.f;
+		LASS_TEST_CHECK_NO_THROW(result = multiply(2.f, 3.f));
+		LASS_TEST_CHECK_EQUAL(result, 6.f);
+	}
+	catch (const util::DynamicLibraryError&)
+	{
+		LASS_TEST_ERROR("Failed to load " TEST_DYNAMIC_CHILD);
+	}
+
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+	try
+	{
+		util::DynamicLibrary kernel32("kernel32");
+
+		typedef BOOL(*TQueryThreadCycleTimePtr) (HANDLE, PULONG64);
+		TQueryThreadCycleTimePtr func = 0;
+		LASS_TEST_CHECK_NO_THROW(func = kernel32.resolveFunction<TQueryThreadCycleTimePtr>("QueryThreadCycleTime"));
+		LASS_TEST_CHECK(func != 0);
+
+		HANDLE thread = GetCurrentThread();
+		ULONG64 cycles = 0;
+		BOOL ok = 0;
+		LASS_TEST_CHECK_NO_THROW(ok = func(thread, &cycles));
+		LASS_TEST_CHECK(ok != 0);
+		LASS_TEST_CHECK(cycles > 0);
+	}
+	catch (const util::DynamicLibraryError&)
+	{
+		LASS_TEST_ERROR("Failed to load kernel32");
+	}
 #endif
 
 #else
