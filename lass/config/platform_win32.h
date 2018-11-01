@@ -56,7 +56,7 @@
 #	define LASS_LIB_PLATFORM "win32"
 #endif
 
-#define LASS_IO_SOCKET_HAVE_WINSOCK
+#define LASS_IO_SOCKET_HAVE_WINSOCK 1
 
 #ifndef WINVER
 #   define WINVER 0x500

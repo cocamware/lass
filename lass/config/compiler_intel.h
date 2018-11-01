@@ -76,17 +76,17 @@
 #endif
 
 #if !defined(_CHAR_UNSIGNED)
-#	define LASS_CHAR_IS_SIGNED
+#	define LASS_CHAR_IS_SIGNED 1
 #endif
 
 // use MSVC style inline assembly
-#define LASS_HAVE_INLINE_ASSEMBLY_MSVC
+#define LASS_HAVE_INLINE_ASSEMBLY_MSVC 1
 
 // use __int8 and friends
-#define LASS_NUM_BASIC_TYPES_HAVE_MSVC
+#define LASS_NUM_BASIC_TYPES_HAVE_MSVC 1
 
 // use _isnan from MSVC <float.h>
-#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
+#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H 1
 
 #define LASS_DLL_IMPORT __declspec( dllimport )
 #define LASS_DLL_EXPORT __declspec( dllexport )

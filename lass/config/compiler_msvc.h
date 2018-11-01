@@ -109,27 +109,27 @@
 // broken compilers ...
 //
 #if LASS_COMPILER_VERSION <= 1300 // 1300 == 7.0
-#	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+#	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION 1
 #endif
 
 #if !defined(_CHAR_UNSIGNED)
-#	define LASS_CHAR_IS_SIGNED
+#	define LASS_CHAR_IS_SIGNED 1
 #endif
 
 // use MSVC style inline assembly
 #if !defined(_WIN64)
-#	define LASS_HAVE_INLINE_ASSEMBLY_MSVC
+#	define LASS_HAVE_INLINE_ASSEMBLY_MSVC 1
 #endif
 
 // use __int8, __int16, ...
-#define LASS_NUM_BASIC_TYPES_HAVE_MSVC
+#define LASS_NUM_BASIC_TYPES_HAVE_MSVC 1
 
 #if defined(_WIN64)
-#	define LASS_SIZE_T_IS_NOT_ULONG
+#	define LASS_SIZE_T_IS_NOT_ULONG 1
 #endif
 
 // use _isnan from <float.h>
-#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
+#define LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H 1
 
 
 

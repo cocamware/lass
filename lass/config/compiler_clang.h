@@ -51,10 +51,10 @@
 #define LASS_LIB_COMPILER "clang" LASS_STRINGIFY(__clang_major__) LASS_STRINGIFY(__clang_minor__) LASS_STRINGIFY(__clang_patchlevel__)
 
 // use GCC style inline assembly
-#define LASS_HAVE_INLINE_ASSEMBLY_GCC
+#define LASS_HAVE_INLINE_ASSEMBLY_GCC 1
 
 #if !defined(__CHAR_UNSIGNED__)
-#	define LASS_CHAR_IS_SIGNED
+#	define LASS_CHAR_IS_SIGNED 1
 #endif
 
 #define LASS_DLL_IMPORT

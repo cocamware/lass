@@ -51,7 +51,7 @@
 #define LASS_LIB_COMPILER "sunpro" LASS_STRINGIFY(__SUNPRO_CC)
 
 #if !defined(__CHAR_UNSIGNED__)
-#	define LASS_CHAR_IS_SIGNED
+#	define LASS_CHAR_IS_SIGNED 1
 #endif
 
 #define LASS_DLL_IMPORT
