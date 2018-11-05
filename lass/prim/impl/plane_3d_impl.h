@@ -63,9 +63,6 @@ namespace prim
 namespace impl
 {
 
-// --- partial specialization ----------------------------------------------------------------------
-
-#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 /** @internal
  *  Selects the cartesian equation as the default implemantation of a Plane3D class.
@@ -93,62 +90,6 @@ struct Plane3DImpl<T, Combined, NormalizingPolicy>
 {
 	typedef Plane3DCombined<T, NormalizingPolicy> Type;
 };
-
-
-
-// --- no partial specialization -------------------------------------------------------------------
-
-#else
-
-/** @internal
- *  default is cartesian equation ...
- */
-template <class EquationPolicy>
-struct Plane3DImplBinder
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Plane3DCartesian<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  ...  Furthermore we have the parametric implementation ...
- */
-template <>
-struct Plane3DImplBinder<Parametric>
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Plane3DParametric<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  ... and the combined implementation.
- */
-template <>
-struct Plane3DImplBinder<Combined>
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Plane3DCombined<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  Selects the implemantation of a Plane3D class.
- */
-template <typename T, class EquationPolicy, class NormalizingPolicy>
-struct Plane3DImpl
-{
-	typedef typename Plane3DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
-};
-
-#endif
 
 
 }

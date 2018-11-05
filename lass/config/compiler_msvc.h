@@ -106,11 +106,6 @@
 #pragma warning(4: 4710)    // inline function was not inlined
 #pragma warning(error: 4035)	// no return value
 
-// broken compilers ...
-//
-#if LASS_COMPILER_VERSION <= 1300 // 1300 == 7.0
-#	define LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION 1
-#endif
 
 #if !defined(_CHAR_UNSIGNED)
 #	define LASS_CHAR_IS_SIGNED 1

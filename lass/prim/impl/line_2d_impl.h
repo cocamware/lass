@@ -63,9 +63,6 @@ namespace prim
 namespace impl
 {
 
-// --- partial specialization ----------------------------------------------------------------------
-
-#if !defined(LASS_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
 /** @internal
  *  Selects the cartesian equation as the default implemantation of a Line2D class.
@@ -94,61 +91,6 @@ struct Line2DImpl<T, Combined, NormalizingPolicy>
 	typedef Line2DCombined<T, NormalizingPolicy> Type;
 };
 
-
-
-// --- no partial specialization -------------------------------------------------------------------
-
-#else
-
-/** @internal
- *  default is cartesian equation ...
- */
-template <class EquationPolicy>
-struct Line2DImplBinder
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Line2DCartesian<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  ...  Furthermore we have the parametric implementation ...
- */
-template <>
-struct Line2DImplBinder<Parametric>
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Line2DParametric<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  ... and the combined implementation.
- */
-template <>
-struct Line2DImplBinder<Combined>
-{
-	template <typename T, class NormalizingPolicy>
-	struct Bind
-	{
-		typedef Line2DCombined<T, NormalizingPolicy> Type;
-	};
-};
-
-/** @internal
- *  Selects the implemantation of a Line2D class.
- */
-template <typename T, class EquationPolicy, class NormalizingPolicy>
-struct Line2DImpl
-{
-	typedef typename Line2DImplBinder<EquationPolicy>::Bind<T, NormalizingPolicy>::Type Type;
-};
-
-#endif
 
 }
 
