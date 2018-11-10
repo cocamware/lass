@@ -56,7 +56,7 @@ public:
 	~PoorMansGlobalAtomicLock();
 };
 
-template <int byteSize>
+template <size_t byteSize>
 struct AtomicOperations
 {
 	LASS_META_ASSERT(byteSize == 1 || byteSize == 2 || byteSize == 4 || byteSize == 8, bytesize_should_be_1_2_4_or_8);
