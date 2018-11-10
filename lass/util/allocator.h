@@ -1107,16 +1107,23 @@ public:
 	{
 #if LASS_HAVE_ALIGNED_ALLOC
 		return ::aligned_alloc(alignment, size);
-#else
+#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 		return _aligned_malloc(size, alignment);
+#else
+		void* ptr = 0;
+		if (posix_memalign(&ptr, alignment, size) != 0)
+			return 0;
+		return ptr;
 #endif
 	}
 	void deallocate(void *mem)
 	{
 #if LASS_HAVE_ALIGNED_ALLOC
 		::free(mem);
-#else
+#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 		_aligned_free(mem);
+#else
+		::free(mem);
 #endif
 	}
 	void deallocate(void* mem, size_t)
