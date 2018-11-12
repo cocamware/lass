@@ -1,3 +1,0 @@
-NUM
-
-- lass::num still doesn't build under intel700 [BdG]
