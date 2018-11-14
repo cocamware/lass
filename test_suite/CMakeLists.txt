@@ -112,3 +112,20 @@ target_compile_definitions(test_suite
 foreach(test_name ${unit_tests})
 	add_test(NAME "${test_name}" COMMAND test_suite "--log=${test_name}.log" "--input-dir=${sourcedir}" "${test_name}")
 endforeach()
+
+if (WIN32 AND TARGET Lass::lass_python)
+	# Add directory of Python DLL to PATH environment variable so the tests
+	# can actually run. Works best with CMake 3.12 and newer, since it also
+	# searches the runtime libraries.
+	#
+	# the string replacements are required to avoid ; and \ being interpreted
+	# differently than part of the PATH variable.
+	#
+	set(_path "$<TARGET_FILE_DIR:Python::Python>;$ENV{PATH}")
+	string(REPLACE "\\" "/" _path "${_path}")
+	string(REPLACE ";" "\\;" _path "${_path}")
+	set_tests_properties(${unit_tests}
+		PROPERTIES
+		ENVIRONMENT "PATH=${_path}"
+		)
+endif()
