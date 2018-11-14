@@ -112,7 +112,6 @@ install(
 	DIRECTORY lass/
 	DESTINATION include/lass
 	USE_SOURCE_PERMISSIONS
-	REGEX "\\.svn" EXCLUDE
 	PATTERN "*.tmpl.h" EXCLUDE
 	PATTERN "*.tmpl.inl" EXCLUDE
 	PATTERN "*.cmake" EXCLUDE
@@ -122,10 +121,11 @@ install(
 	PATTERN "*.py" EXCLUDE
 	PATTERN "*.suo" EXCLUDE
 	PATTERN "*.ncb" EXCLUDE
+	PATTERN "*.h.in" EXCLUDE
 	)
 
 install(
-	FILES ${config_file}
+	FILES "${Lass_BINARY_DIR}/local/local_config.h"
 	DESTINATION include/lass/config
 	)
 
