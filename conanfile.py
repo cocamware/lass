@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools, errors
 import errno
 import re
+import os
 
 
 def _get_version():
@@ -39,7 +40,7 @@ class LassConan(ConanFile):
     options = {
         "shared": [True, False],
         "simd_aligned": [True, False],
-        "no_iterator_debugging": [True, False]
+        "no_iterator_debugging": [True, False],
     }
     default_options = {
         "shared": True,
@@ -56,7 +57,7 @@ class LassConan(ConanFile):
             defs={
                 "BUILD_TESTING": False,
                 "BUILD_SIMD_ALIGNED": self.options.simd_aligned,
-                "BUILD_WITHOUT_ITERATOR_DEBUGGING":
+                "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
                     self.options.no_iterator_debugging,
             })
         return cmake
@@ -71,4 +72,17 @@ class LassConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["lass"]
+        lass_config = self._lass_config()
+        self.cpp_info.libs = [lass_config.LASS_OUTPUT_NAME]
+        if lass_config.LASS_PYTHON_OUTPUT_NAME:
+            self.cpp_info.libs += [lass_config.LASS_PYTHON_OUTPUT_NAME]
+        self.cpp_info.cppflags = [lass_config.Lass_EXTRA_CXX_FLAGS]
+
+    def _lass_config(self):
+        path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
+        import imp
+        imp.acquire_lock()
+        try:
+            return imp.load_source("LassConfig", path)
+        finally:
+            imp.release_lock()
