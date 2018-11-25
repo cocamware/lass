@@ -2,6 +2,7 @@ from conans import ConanFile, CMake, tools, errors
 import errno
 import re
 import os
+import subprocess
 
 
 def _get_version():
@@ -41,11 +42,13 @@ class LassConan(ConanFile):
         "shared": [True, False],
         "simd_aligned": [True, False],
         "no_iterator_debugging": [True, False],
+        "python": "ANY",
     }
     default_options = {
         "shared": True,
         "simd_aligned": False,
         "no_iterator_debugging": False,
+        "python": "python",
     }
     generators = "cmake"
     exports_sources = ("*", "!build*", "!env*", "!venv*")
@@ -59,6 +62,8 @@ class LassConan(ConanFile):
                 "BUILD_SIMD_ALIGNED": self.options.simd_aligned,
                 "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
                     self.options.no_iterator_debugging,
+                "Lass_PYTHON_VERSION": self._python_version(),
+                "Python_EXECUTABLE": self._python_executable(),
             })
         return cmake
 
@@ -76,7 +81,11 @@ class LassConan(ConanFile):
         self.cpp_info.libs = [lass_config.LASS_OUTPUT_NAME]
         if lass_config.LASS_PYTHON_OUTPUT_NAME:
             self.cpp_info.libs += [lass_config.LASS_PYTHON_OUTPUT_NAME]
-        self.cpp_info.cppflags = [lass_config.Lass_EXTRA_CXX_FLAGS]
+        self.cpp_info.cppflags = [lass_config.LASS_EXTRA_CXX_FLAGS]
+
+    def package_id(self):
+        # pylint: disable=no-member
+        self.info.options.python_version = self._python_version()
 
     def _lass_config(self):
         path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
@@ -86,3 +95,34 @@ class LassConan(ConanFile):
             return imp.load_source("LassConfig", path)
         finally:
             imp.release_lock()
+        path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
+        import imp
+        imp.acquire_lock()
+        try:
+            return imp.load_source("LassConfig", path)
+        finally:
+            imp.release_lock()
+
+    def _python_version(self):
+        try:
+            return self.__python_version
+        except AttributeError:
+            cmd = [
+                self._python_executable(), "-c", "import sys;"
+                "sys.stdout.write('.'.join(map(str, sys.version_info[:2])))"
+            ]
+            self.__python_version = subprocess.check_output(
+                cmd, universal_newlines=True).strip()
+            return self.__python_version
+
+    def _python_executable(self):
+        try:
+            return self.__python_executable
+        except AttributeError:
+            cmd = [
+                str(self.options.python), "-c",
+                "import sys; sys.stdout.write(sys.executable)"
+            ]
+            self.__python_executable = subprocess.check_output(
+                cmd, universal_newlines=True).strip()
+            return self.__python_executable
