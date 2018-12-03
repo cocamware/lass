@@ -48,7 +48,6 @@
 #include "exception.h"
 #include "pyobject_ptr.h"
 #include "../num/num_cast.h"
-#include "../util/wchar_support.h"
 
 namespace lass
 {
@@ -273,49 +272,10 @@ struct PyExportTraits< std::unique_ptr<T> >
 template <>
 struct PyExportTraits<void*>
 {
-	static PyObject* build(void* value)
-	{
-		if (!value)
-		{
-			Py_RETURN_NONE;
-		}
-#if PY_VERSION_HEX < 0x03010000 // < 3.1
-		return PyCObject_FromVoidPtr(value, 0);
-#else
-		return PyCapsule_New(value, 0, 0);
-#endif
-	}
-	static int get(PyObject* obj, void*& value)
-	{
-		if (obj == Py_None)
-		{
-			value = 0;
-			return 0;
-		}
-#if PY_VERSION_HEX < 0x03010000 // < 3.1
-		if (!PyCObject_Check(obj))
-		{
-			PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
-			return 1;
-		}
-		value = PyCObject_AsVoidPtr(obj);
-		return 0;
-#else
-		if (!PyCapsule_CheckExact(obj))
-		{
-			PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
-			return 1;
-		}
-		void* v = PyCapsule_GetPointer(obj, 0);
-		if (!v)
-		{
-			return 1;
-		}
-		value = v;
-		return 0;
-#endif
-	}
+	LASS_PYTHON_DLL static PyObject* build(void* value);
+	LASS_PYTHON_DLL static int get(PyObject* obj, void*& value);
 };
+
 
 /** NoNone refuses None as value.
  *  @ingroup Python
@@ -343,28 +303,8 @@ struct PyExportTraits< impl::NoNone<T> >
 template <>
 struct PyExportTraits<bool>
 {
-	static PyObject* build(bool v)
-	{
-		if (v)
-		{
-			Py_RETURN_TRUE;
-		}
-		else
-		{
-			Py_RETURN_FALSE;
-		}
-	}
-	static int get(PyObject* obj, bool& v)
-	{
-		int result = PyObject_IsTrue(obj);
-		if (result == -1)
-		{
-			PyErr_SetString(PyExc_TypeError, "does not evaluate to a boolean");
-			return 1;
-		}
-		v = (result != 0);
-		return 0;
-	}
+	LASS_PYTHON_DLL static PyObject* build(bool v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, bool& v);
 };
 
 
@@ -534,27 +474,8 @@ struct PyExportTraits<unsigned long>: PyExportTraitsUnsigned<unsigned long>
 template <>
 struct PyExportTraits<signed PY_LONG_LONG>
 {
-	static PyObject* build(signed PY_LONG_LONG v)
-	{
-		return PyLong_FromLongLong(v);
-	}
-	static int get(PyObject* obj, signed PY_LONG_LONG& v)
-	{
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(obj))
-		{
-			v = PyInt_AS_LONG(obj);
-			return 0;
-		}
-#endif
-		if (PyLong_Check(obj))
-		{
-			v = PyLong_AsLongLong(obj);
-			return 0;
-		}
-		PyErr_SetString(PyExc_TypeError, "not an integer");
-		return 1;		
-	}
+	LASS_PYTHON_DLL static PyObject* build(signed PY_LONG_LONG v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, signed PY_LONG_LONG& v);
 };
 
 /** @ingroup Python
@@ -562,35 +483,8 @@ struct PyExportTraits<signed PY_LONG_LONG>
 template <>
 struct PyExportTraits<unsigned PY_LONG_LONG>
 {
-	static PyObject* build(unsigned PY_LONG_LONG v)
-	{
-		return PyLong_FromUnsignedLongLong(v);
-	}
-	static int get(PyObject* obj, unsigned PY_LONG_LONG& v)
-	{
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(obj))
-		{
-			const long x = PyInt_AS_LONG(obj);
-			if (x < 0)
-			{
-				std::ostringstream buffer;
-				buffer << "not a unsigned long long: negative: " << x << " < 0";
-				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-				return 1;
-			}
-			v = static_cast<unsigned PY_LONG_LONG>(x);
-			return 0;
-		}
-#endif
-		if (PyLong_Check(obj))
-		{
-			v = PyLong_AsUnsignedLongLong(obj);
-			return 0;
-		}
-		PyErr_SetString(PyExc_TypeError, "not an integer");
-		return 1;	
-	}
+	LASS_PYTHON_DLL static PyObject* build(unsigned PY_LONG_LONG v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, unsigned PY_LONG_LONG& v);
 };
 
 #endif
@@ -709,18 +603,7 @@ struct PyExportTraits< std::complex<T> >
 template <>
 struct PyExportTraits<const char*>
 {
-	static PyObject* build(const char* v)
-	{
-		if (!v)
-		{
-			Py_RETURN_NONE;
-		}
-#if PY_MAJOR_VERSION < 3
-		return PyString_FromString(v);
-#else
-		return PyUnicode_FromString(v);
-#endif
-	}
+	LASS_PYTHON_DLL static PyObject* build(const char* v);
 };
 
 
@@ -743,45 +626,8 @@ struct PyExportTraits<char [N]>: PyExportTraits<const char*>
 template <>
 struct PyExportTraits<std::string>
 {
-	static PyObject* build(const std::string& v)
-	{
-#if PY_MAJOR_VERSION < 3
-		return PyString_FromStringAndSize( v.data(), static_cast<Py_ssize_t>( v.size() ) );
-#else
-		return PyUnicode_DecodeUTF8( v.data(), static_cast<Py_ssize_t>( v.size() ), 0 );
-#endif
-	}
-	static int get(PyObject* obj, std::string& v)
-	{
-#if PY_MAJOR_VERSION < 3
-		if (PyString_Check(obj))
-		{
-			// explicitly copying into data as some the std::string(char*) assumes a zero terminated C-str
-			// which is too limiting
-			v.resize(static_cast<size_t>(PyString_GET_SIZE(obj)), '\0' );
-			memcpy( &v[0], PyString_AS_STRING(obj), v.size());
-			return 0;
-		}
-#endif
-		if (!PyUnicode_Check(obj))
-		{
-			PyErr_SetString(PyExc_TypeError, "not a string");
-			return 1;
-		}
-		TPyObjPtr s(PyUnicode_AsUTF8String(obj));
-		if (!s)
-		{
-			return 1;
-		}
-#if PY_MAJOR_VERSION < 3
-		v.resize( static_cast<size_t>(PyString_GET_SIZE(s.get())), '\0' );
-		memcpy(&v[0], PyString_AS_STRING(s.get()), v.size());
-#else
-		v.resize( static_cast<size_t>(PyBytes_GET_SIZE(s.get())), '\0' );
-		memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
-#endif
-		return 0;
-	}
+	LASS_PYTHON_DLL static PyObject* build(const std::string& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::string& v);
 };
 
 
@@ -790,16 +636,7 @@ struct PyExportTraits<std::string>
 template <>
 struct PyExportTraits<const wchar_t*>
 {
-	static PyObject* build(const wchar_t* v)
-	{
-		const Py_ssize_t n = static_cast<Py_ssize_t>(wcslen(v));
-		if (n < 0)
-		{
-			PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
-			return 0;
-		}
-		return PyUnicode_FromWideChar(v, n );
-	}
+	LASS_PYTHON_DLL static PyObject* build(const wchar_t* v);
 };
 
 
@@ -822,57 +659,8 @@ struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t*>
 template <>
 struct PyExportTraits<std::wstring>
 {
-	static PyObject* build(const std::wstring& v)
-	{
-		const Py_ssize_t n = static_cast<Py_ssize_t>( v.length() );
-		if (n < 0)
-		{
-			PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
-			return 0;
-		}
-		return PyUnicode_FromWideChar( v.data(), n );
-	}
-	static int get(PyObject* obj, std::wstring& v)
-	{
-#if PY_MAJOR_VERSION < 3
-#	if LASS_HAVE_WCHAR_SUPPORT
-		if (PyString_Check(obj))
-		{
-			std::string utf8;
-			if ( PyExportTraits<std::string>::get( obj, utf8 ) != 0 )
-			{
-				return 1;
-			}
-			v = util::utf8ToWchar( utf8 );
-			return 0;
-		}
-#	endif
-#endif
-		if (!PyUnicode_Check(obj))
-		{
-			PyErr_SetString(PyExc_TypeError, "not a string");
-			return 1;
-		}
-#if PY_VERSION_HEX < 0x03020000 // < 3.2
-		PyUnicodeObject* uobj = (PyUnicodeObject*) obj;
-		Py_ssize_t n = PyUnicode_GET_SIZE(uobj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
-#else
-		PyObject* uobj = obj; // cast no longer necessary, and maybe not even safe.
-		Py_ssize_t n = PyUnicode_AsWideChar(uobj, 0, 0) - 1; // takes care of UTF-16 and UTF-32 conversions
-#endif
-		if (n == 0)
-		{
-			v = std::wstring();
-			return 0;
-		}
-		std::wstring tmp(static_cast<size_t>(n), '\0');
-		if (PyUnicode_AsWideChar(uobj, &tmp[0], n) == -1)
-		{
-			return 1;
-		}
-		v.swap(tmp);
-		return 0;
-	}
+	LASS_PYTHON_DLL static PyObject* build(const std::wstring& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::wstring& v);
 };
 
 }
