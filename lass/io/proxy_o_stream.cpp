@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2018 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -138,13 +138,23 @@ void ProxyOStream::setFilter( std::ostream* destination, TMask destinationMask)
 }
 
 
-
-ProxyOStream::Lock ProxyOStream::operator()( TMask messageMask )
+impl::ProxyOStreamLock ProxyOStream::operator()( TMask messageMask )
 {
-	Lock lock(this, messageMask);
+	impl::ProxyOStreamLock lock(this, messageMask);
 	return lock;
 }
 
+
+/** ProxyOStreamLock proxy stream for output on 'acceptAll' and distribute the std manipulator.
+*  This command will give command to a lock, as if the message mask is acceptAll.
+*  This has the same effect as (*this)(acceptAll) << x;
+*/
+impl::ProxyOStreamLock ProxyOStream::operator<< (std::ostream& (*x) (std::ostream&))
+{
+	impl::ProxyOStreamLock result(this, acceptAll);
+	result << x;
+	return result;
+}
 
 
 /** flush all destination streams.
@@ -177,11 +187,14 @@ ProxyOStream::TDestinations::iterator ProxyOStream::findStream(std::ostream* str
 
 // --- Lock ----------------------------------------------------------------------------------------
 
-volatile int ProxyOStream::Lock::semaphore_ = 1;
+namespace impl
+{
+
+volatile int ProxyOStreamLock::semaphore_ = 1;
 
 /** Lock (or don't lock if proxy == 0) a proxy.
  */
-ProxyOStream::Lock::Lock(ProxyOStream* proxy, TMask messageMask): 
+ProxyOStreamLock::ProxyOStreamLock(ProxyOStream* proxy, ProxyOStream::TMask messageMask):
 	proxy_(proxy), 
 	messageMask_(messageMask) 
 {
@@ -196,7 +209,7 @@ ProxyOStream::Lock::Lock(ProxyOStream* proxy, TMask messageMask):
  *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
  *           doing.  But be warned: it might not do what you expect.
  */
-ProxyOStream::Lock::Lock(Lock& other): 
+ProxyOStreamLock::ProxyOStreamLock(ProxyOStreamLock& other):
 	proxy_(other.proxy_), 
 	messageMask_(other.messageMask_)
 {
@@ -210,7 +223,7 @@ ProxyOStream::Lock::Lock(Lock& other):
 
 /** On the end of the lock, flush the proxy.
  */
-ProxyOStream::Lock::~Lock()
+ProxyOStreamLock::~ProxyOStreamLock()
 {
 	if (proxy_)
 	{
@@ -219,6 +232,27 @@ ProxyOStream::Lock::~Lock()
 	}
 }
 
+
+/** distribute std manipulators over all destination streams.
+ *  Only distribute input if it's still locking a proxy (i.e. if proxy_ != Null).
+ */
+ProxyOStreamLock& ProxyOStreamLock::operator<<(std::ostream& (*x) (std::ostream&))
+{
+	if (proxy_)
+	{
+		for (ProxyOStream::TDestinations::iterator i = proxy_->destinations_.begin(), end = proxy_->destinations_.end(); i != end; ++i)
+		{
+			if (util::checkMaskedSome(i->mask, messageMask_))
+			{
+				LASS_ENFORCE_STREAM(*(i->stream)) << x;
+			}
+		}
+	}
+	return *this;
+}
+
+
+}
 
 }
 
