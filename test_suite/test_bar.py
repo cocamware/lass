@@ -604,6 +604,21 @@ class TestStream(unittest.TestCase):
 		finally:
 			sys.stdout = old
 
+
+class TestTypes(unittest.TestCase):
+	def testStdString(self):
+		self.assertEqual(embedding.testStdString(""), "")
+		self.assertEqual(embedding.testStdString("abc"), "abc")
+		self.assertEqual(embedding.testStdString("\0"), "\0")
+		self.assertEqual(embedding.testStdString("a\0b"), "a\0b")
+
+	def testStdWstring(self):
+		self.assertEqual(embedding.testStdWstring(u""), u"")
+		self.assertEqual(embedding.testStdWstring(u"abc"), u"abc")
+		self.assertEqual(embedding.testStdWstring(u"\0"), u"\0")
+		self.assertEqual(embedding.testStdWstring(u"a\0b"), u"a\0b")
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)

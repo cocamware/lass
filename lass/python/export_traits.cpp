@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2004-2011 the Initial Developer.
+*	Copyright (C) 2004-2018 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -43,6 +43,36 @@
 #include "python_common.h"
 #include "export_traits.h"
 #include "../util/wchar_support.h"
+
+namespace
+{
+
+PyObject* buildStringImpl(const char* v, size_t size)
+{
+	if (size > PY_SSIZE_T_MAX) 
+	{
+		PyErr_SetString(PyExc_OverflowError, "input too long");
+		return 0;
+	}
+#if PY_MAJOR_VERSION < 3
+	return PyString_FromStringAndSize(v, static_cast<Py_ssize_t>(size));
+#else
+	return PyUnicode_DecodeUTF8(v, static_cast<Py_ssize_t>(size), 0);
+#endif
+}
+
+
+PyObject* buildWideStringImpl(const wchar_t* v, size_t size)
+{
+	if (size > PY_SSIZE_T_MAX) 
+	{
+		PyErr_SetString(PyExc_OverflowError, "input too long");
+		return 0;
+	}
+	return PyUnicode_FromWideChar(v, static_cast<Py_ssize_t>(size));
+}
+
+}
 
 namespace lass
 {
@@ -190,21 +220,13 @@ PyObject* PyExportTraits<const char*>::build(const char* v)
 	{
 		Py_RETURN_NONE;
 	}
-#if PY_MAJOR_VERSION < 3
-	return PyString_FromString(v);
-#else
-	return PyUnicode_FromString(v);
-#endif
+	return buildStringImpl(v, strlen(v));
 }
 
 
 PyObject* PyExportTraits<std::string>::build(const std::string& v)
 {
-#if PY_MAJOR_VERSION < 3
-	return PyString_FromStringAndSize(v.data(), static_cast<Py_ssize_t>(v.size()));
-#else
-	return PyUnicode_DecodeUTF8(v.data(), static_cast<Py_ssize_t>(v.size()), 0);
-#endif
+	return buildStringImpl(v.data(), v.length());
 }
 
 
@@ -243,25 +265,13 @@ int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 
 PyObject* PyExportTraits<const wchar_t*>::build(const wchar_t* v)
 {
-	const Py_ssize_t n = static_cast<Py_ssize_t>(wcslen(v));
-	if (n < 0)
-	{
-		PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
-		return 0;
-	}
-	return PyUnicode_FromWideChar(v, n);
+	return buildWideStringImpl(v, wcslen(v));
 }
 
 
 PyObject* PyExportTraits<std::wstring>::build(const std::wstring& v)
 {
-	const Py_ssize_t n = static_cast<Py_ssize_t>(v.length());
-	if (n < 0)
-	{
-		PyErr_SetString(PyExc_ValueError, "string exceeds length limit");
-		return 0;
-	}
-	return PyUnicode_FromWideChar(v.data(), n);
+	return buildWideStringImpl(v.data(), v.length());
 }
 
 
@@ -288,18 +298,23 @@ int PyExportTraits<std::wstring>::get(PyObject* obj, std::wstring& v)
 	}
 #if PY_VERSION_HEX < 0x03020000 // < 3.2
 	PyUnicodeObject* uobj = (PyUnicodeObject*)obj;
-	Py_ssize_t n = PyUnicode_GET_SIZE(uobj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
+	const Py_ssize_t size = PyUnicode_GET_SIZE(uobj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
 #else
 	PyObject* uobj = obj; // cast no longer necessary, and maybe not even safe.
-	Py_ssize_t n = PyUnicode_AsWideChar(uobj, 0, 0) - 1; // takes care of UTF-16 and UTF-32 conversions
+	Py_ssize_t n = PyUnicode_AsWideChar(uobj, 0, 0); // takes care of UTF-16 and UTF-32 conversions
+	if (n == -1)
+	{
+		return 1;
+	}
+	const Py_ssize_t size = n - 1; // n includes terminating null character.
 #endif
-	if (n == 0)
+	if (size <= 0)
 	{
 		v = std::wstring();
 		return 0;
 	}
-	std::wstring tmp(static_cast<size_t>(n), '\0');
-	if (PyUnicode_AsWideChar(uobj, &tmp[0], n) == -1)
+	std::wstring tmp(static_cast<size_t>(size), '\0');
+	if (PyUnicode_AsWideChar(uobj, &tmp[0], size) == -1)
 	{
 		return 1;
 	}

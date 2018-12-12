@@ -486,6 +486,17 @@ PY_DECLARE_CLASS_NAME( PyTestCallback, "TestCallback")
 	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument2);
 
 
+std::string testStdString(const std::string& v)
+{
+	return v;
+}
+
+std::wstring testStdWstring(const std::wstring& v)
+{
+	return v;
+}
+
+
 
 using namespace lass::test;
 
@@ -534,7 +545,11 @@ PY_MODULE_FUNCTION( embedding, makeSomePointer )
 PY_MODULE_FUNCTION( embedding, testNullPointer )
 PY_MODULE_FUNCTION( embedding, testSomePointer )
 
+PY_MODULE_FUNCTION( embedding, testStdString )
+PY_MODULE_FUNCTION( embedding, testStdWstring )
+
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
+
 
 PY_MODULE_ENTRYPOINT( embedding )
 
