@@ -46,6 +46,7 @@
 #include "python_embedding.h"
 #include "../lass/python/python_api.h"
 #include "../lass/python/pyshadow_object.h"
+#include "../lass/python/pydict_ptr.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -497,6 +498,39 @@ std::wstring testStdWstring(const std::wstring& v)
 }
 
 
+bool testPyDictPtr(lass::python::experimental::PyDictPtr dict)
+{
+	bool ok = true;
+
+	ok &= (dict.size() == 2);
+
+	ok &= dict.contains("a");
+	lass::python::TPyObjPtr aObj = dict.getItem("a");
+	ok &= !aObj.isEmpty();
+	int a = 0;
+	ok &= (lass::python::pyGetSimpleObject(aObj.get(), a) == 0);
+	ok &= (a == 10);
+	
+	ok &= dict.contains(lass::python::makeTuple(1, 2));
+
+	dict.delItem("a");
+	dict.delItem(lass::python::makeTuple(1, 2));
+
+	dict.setItem("b", 30);
+	dict.setItem(lass::python::makeTuple(3, 4), lass::python::makeTuple("c", "d"));
+
+	return ok;
+}
+
+
+lass::python::experimental::PyDictPtr makePyDictPtr()
+{
+	lass::python::LockGIL LASS_UNUSED(lock);
+	lass::python::experimental::PyDictPtr dict(PyDict_New());
+	dict.setItem("a", "b");
+	return dict;
+}
+
 
 using namespace lass::test;
 
@@ -547,6 +581,9 @@ PY_MODULE_FUNCTION( embedding, testSomePointer )
 
 PY_MODULE_FUNCTION( embedding, testStdString )
 PY_MODULE_FUNCTION( embedding, testStdWstring )
+
+PY_MODULE_FUNCTION( embedding, testPyDictPtr )
+PY_MODULE_FUNCTION( embedding, makePyDictPtr )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 

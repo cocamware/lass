@@ -619,6 +619,19 @@ class TestTypes(unittest.TestCase):
 		self.assertEqual(embedding.testStdWstring(u"a\0b"), u"a\0b")
 
 
+class TestPyDictPtr(unittest.TestCase):
+	def testPyDictPtr(self):
+		dct = { "a": 10, (1, 2): 20, }
+		self.assertTrue(embedding.testPyDictPtr(dct))
+		self.assertEqual(len(dct), 2)
+		self.assertEqual(dct.get("b"), 30)
+		self.assertEqual(dct.get((3, 4)), ("c", "d"))
+	def testMakePyDictPtr(self):
+		dct = embedding.makePyDictPtr()
+		self.assertEqual(len(dct), 1)
+		self.assertEqual(dct.get("a"), "b")
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)
