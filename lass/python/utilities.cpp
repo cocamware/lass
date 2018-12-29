@@ -65,18 +65,35 @@ TPyObjPtr runString(const char *code, int start)
 /** @ingroup Python
  *  @brief retrieve pointer to PyObject by its name in the script.
  *  @return 
- *	new reference to PyObject @a iName or NULL if 
- *	@a iName does not exist (_without_ setting an exception!)
+ *	new reference to PyObject @a name or NULL if 
+ *	@a name does not exist (_without_ setting an exception!)
  */
-TPyObjPtr getPyObjectByName(const std::string& iName)
+TPyObjPtr getPyObjectByName(const std::string& name)
 {
 	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr dict = globals();
-	const TPyObjPtr key(PY_ENFORCE_POINTER(pyBuildSimpleObject(iName)));
+	const TPyObjPtr key(PY_ENFORCE_POINTER(pyBuildSimpleObject(name)));
 	PyObject* const object = PyDict_GetItem(dict.get(), key.get());
 	return fromNakedToSharedPtrCast<PyObject>(object);
 }
 
+
+/** @ingroup Python
+ *  @brief retrieve pointer to PyObject by its name in a module
+ *  The module is imported by absolute import.
+ *  @return
+ *	new reference to PyObject @a name or NULL if
+ *	@a name does not exist (_without_ setting an exception!)
+ */
+TPyObjPtr getPyObjectByName(const std::string& module, const std::string& name)
+{
+	LockGIL LASS_UNUSED(lock);
+	const TPyObjPtr mod(PyImport_ImportModule(module.c_str()));
+	PyObject* const dict = PY_ENFORCE_POINTER(PyModule_GetDict(mod.get())); // borrowed
+	const TPyObjPtr key(PY_ENFORCE_POINTER(pyBuildSimpleObject(name)));
+	PyObject* const object = PyDict_GetItem(dict, key.get());
+	return fromNakedToSharedPtrCast<PyObject>(object);
+}
 
 
 /** @ingroup Python
