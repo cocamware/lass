@@ -16,17 +16,27 @@ def _get_version():
     assert match
     version = match.group(1)
 
+    # we want to add a prerelease number to the semver. We can use describe
+    # to get an increasing number from a previous tag. To get a stable number
+    # we need to fixe that base tag, which is obviously not the current version
+    # since that tag doesn't exist yet.
+    # NOTE: you can only update this base tag _at_the_same_time_ you update
+    # project(Lass VERSION ...) in CMakeLists. Otherwise, the prerelease
+    # numbers will not properly increase.
+    basetag = "lass-1.6.0"
+
     git = tools.Git()
     try:
-        describe = git.run("describe --tags")
+        describe = git.run("describe --dirty --match {}".format(basetag))
     except errors.ConanException:
         return None  # Assume conan metadata already knows
-    match = re.search(r"{}-(\d+)-(g\w+)$".format(re.escape(version)), describe)
-    if not match:
-        rev = git.get_revision()  # should work since describe did.
-        return "{}+g{}".format(version, rev[:7])
-    num_commits, rev = match.group(1), match.group(2)
-    return "{}-{}+{}".format(version, num_commits, rev)
+    assert describe.startswith(basetag), \
+        "{!r} does not start with {!r}".format(describe, basetag)
+    match = re.search(r"{}-(\d+)-(g\w+(-dirty)?)$".format(re.escape(basetag)),
+                      describe)
+    assert match, "unexpected describe format: {!r}".format(describe)
+    pre_release, rev = match.group(1), match.group(2)
+    return "{}-{}+{}".format(version, pre_release, rev)
 
 
 class LassConan(ConanFile):
