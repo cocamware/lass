@@ -51,13 +51,15 @@ class LassConan(ConanFile):
     options = {
         "shared": [True, False],
         "simd_aligned": [True, False],
-        "no_iterator_debugging": [True, False],
+        "without_iterator_debugging": [True, False],
+        "with_std_auto_ptr": [True, False, None],
         "python": "ANY",
     }
     default_options = {
         "shared": True,
         "simd_aligned": False,
-        "no_iterator_debugging": False,
+        "without_iterator_debugging": False,
+        "with_std_auto_ptr": None,
         "python": "python",
     }
     generators = "cmake"
@@ -65,16 +67,18 @@ class LassConan(ConanFile):
 
     def _configure(self):
         cmake = CMake(self)
-        cmake.configure(
-            source_folder=".",
-            defs={
-                "BUILD_TESTING": False,
-                "BUILD_SIMD_ALIGNED": self.options.simd_aligned,
-                "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
-                    self.options.no_iterator_debugging,
-                "Lass_PYTHON_VERSION": self._python_version(),
-                "Python_EXECUTABLE": self._python_executable(),
-            })
+        defs = {
+            "BUILD_TESTING": False,
+            "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
+            "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
+                bool(self.options.without_iterator_debugging),
+            "Lass_PYTHON_VERSION": self._python_version(),
+            "Python_EXECUTABLE": self._python_executable(),
+        }
+        if self.options.with_std_auto_ptr is not None:
+            defs["LASS_HAVE_STD_AUTO_PTR"] = \
+                bool(self.options.with_std_auto_ptr)
+        cmake.configure(source_folder=".", defs=defs)
         return cmake
 
     def build(self):
