@@ -66,6 +66,7 @@ class LassConan(ConanFile):
     }
     generators = "cmake"
     exports_sources = ("*", "!build*", "!env*", "!venv*")
+    build_requires = ("cmake_installer/[>=3.0]@conan/stable")
 
     def configure(self):
         # pylint: disable=no-member
