@@ -15,7 +15,7 @@ if os.path.exists(os.path.join(_self_dir, "LassBuildExports.cmake")):
     # we're in build tree
     LASS_INCLUDE_DIRS = ["$<JOIN:$<TARGET_PROPERTY:lass,INCLUDE_DIRECTORIES>,", ">"]
 else:
-    LASS_INCLUDE_DIRS = [os.path.join(_self_dir, os.pardir, "include")]
+    LASS_INCLUDE_DIRS = [os.path.join(_self_dir, os.pardir, os.pardir, "include")]
 
 LASS_EXTRA_CXX_FLAGS = "$<$<BOOL:$<TARGET_PROPERTY:lass,INTERFACE_COMPILE_OPTIONS>>:$<JOIN:$<TARGET_PROPERTY:lass,INTERFACE_COMPILE_OPTIONS>, >>"
 Lass_EXTRA_CXX_FLAGS = LASS_EXTRA_CXX_FLAGS  # for backwards compatibility

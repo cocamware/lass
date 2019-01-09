@@ -114,11 +114,11 @@ class LassConan(ConanFile):
         self.cpp_info.cppflags = [lass_config.LASS_EXTRA_CXX_FLAGS]
 
     def _lass_config(self):
-        path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
+        path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
+                            "LassConfig.py")
         import imp
         imp.acquire_lock()
         try:
             return imp.load_source("LassConfig", path)
         finally:
             imp.release_lock()
-
