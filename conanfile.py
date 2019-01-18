@@ -89,7 +89,7 @@ class LassConan(ConanFile):
                 bool(self.options.without_iterator_debugging),
             "Lass_PYTHON_VERSION": str(self.options.python_version),
         }
-        if self.options.with_std_auto_ptr is not None:
+        if self.options.with_std_auto_ptr.value not in (None, "None"):
             defs["LASS_HAVE_STD_AUTO_PTR"] = \
                 bool(self.options.with_std_auto_ptr)
         if self.options.python_executable:
