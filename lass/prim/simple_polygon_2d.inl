@@ -46,6 +46,8 @@
 #include "prim_common.h"
 #include "simple_polygon_2d.h"
 
+#include <cstddef>
+
 namespace lass
 {
 namespace prim
@@ -452,7 +454,7 @@ bool SimplePolygon2D<T, DP>::isConvex() const
 
 /** return true if inner angle of vertex is reflex (is > 180 degrees).
  *
- *  <i>Reflect Angle: An angle more than 180°</i>,
+ *  <i>Reflect Angle: An angle more than 180ï¿½</i>,
  *  Eric W. Weisstein. "Reflex Angle." From MathWorld--A Wolfram Web Resource. 
  *  http://mathworld.wolfram.com/ReflexAngle.html 
  *

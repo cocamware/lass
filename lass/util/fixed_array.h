@@ -85,7 +85,7 @@ public:
 	typedef value_type* pointer;
 	typedef const value_type* const_pointer;
 	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
+	typedef std::ptrdiff_t difference_type;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -172,7 +172,7 @@ public:
 	typedef value_type* pointer;
 	typedef const value_type* const_pointer;
 	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
+	typedef std::ptrdiff_t difference_type;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;

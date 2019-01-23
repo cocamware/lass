@@ -52,6 +52,7 @@
 #include "point_3dh.h"
 #include "point_2dh.h"
 #include <algorithm>
+#include <cstddef>
 
 namespace lass
 {
@@ -1587,7 +1588,7 @@ void TriangleMesh3D<T, BHV, SH>::subdivide(TTriangleIterators& selected, TOddVer
 	newSelected.reserve(4 * numSelected);
 	for (size_t i = 0; i < numSelected; ++i)
 	{
-		const TTriangleIterator t = triangles_.begin() + static_cast<ptrdiff_t>(newTriangleOffsets[selectedIndices[i]]);
+		const TTriangleIterator t = triangles_.begin() + static_cast<std::ptrdiff_t>(newTriangleOffsets[selectedIndices[i]]);
 		for (int dt = 0; dt < 4; ++dt)
 		{
 			newSelected.push_back(t + dt);

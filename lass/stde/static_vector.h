@@ -53,9 +53,7 @@
 #include "../meta/bool.h"
 #include "../meta/wrap.h"
 
-#if LASS_HAVE_STDDEF_H
-#	include <stddef.h>
-#endif
+#include <cstddef>
 
 namespace lass
 {
@@ -72,7 +70,7 @@ public:
 	typedef T* iterator;
 	typedef const T* const_iterator;
 	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
+	typedef std::ptrdiff_t difference_type;
 	typedef T value_type;
 	typedef T* pointer;
 	typedef const T* const_pointer;

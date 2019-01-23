@@ -45,9 +45,8 @@
 
 #include "stde_common.h"
 
-#if LASS_HAVE_STDDEF_H 
-#   include <stddef.h>
-#endif
+#include <cstddef>
+
 
 namespace lass
 {
@@ -90,7 +89,7 @@ template
 	typename PointerType = typename ContainerType::pointer,
 	typename ReferenceType = typename ContainerType::reference,
 	typename SizeType = size_t,
-	typename DifferenceType = ptrdiff_t
+	typename DifferenceType = std::ptrdiff_t
 >
 class index_iterator_t: 
 	public std::iterator
