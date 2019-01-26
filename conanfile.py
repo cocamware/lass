@@ -83,7 +83,7 @@ class LassConan(ConanFile):
         # pylint: disable=no-member
         cmake = CMake(self)
         defs = {
-            "BUILD_TESTING": False,
+            "BUILD_TESTING": self.develop and not self.in_local_cache,
             "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
             "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
                 bool(self.options.without_iterator_debugging),
