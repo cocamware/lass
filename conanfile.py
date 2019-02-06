@@ -108,9 +108,17 @@ class LassConan(ConanFile):
 
     def package_info(self):
         lass_config = self._lass_config()
-        self.cpp_info.libs = [lass_config.LASS_OUTPUT_NAME]
-        if lass_config.LASS_PYTHON_OUTPUT_NAME:
-            self.cpp_info.libs += [lass_config.LASS_PYTHON_OUTPUT_NAME]
+        if self.settings.build_type == "Debug":
+            libs = [
+                lass_config.LASS_OUTPUT_NAME_DEBUG,
+                lass_config.LASS_PYTHON_OUTPUT_NAME_DEBUG
+            ]
+        else:
+            libs = [
+                lass_config.LASS_OUTPUT_NAME,
+                lass_config.LASS_PYTHON_OUTPUT_NAME
+            ]
+        self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cppflags = [lass_config.LASS_EXTRA_CXX_FLAGS]
 
     def _lass_config(self):
