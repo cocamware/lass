@@ -50,6 +50,8 @@
 
 #include "stde_common.h"
 
+#include <cstddef>
+
 namespace lass
 {
 namespace stde

@@ -46,9 +46,7 @@
 #include "num_common.h"
 #include "../prim/point_2d.h"
 
-#if LASS_HAVE_STDDEF_H
-#	include <stddef.h>
-#endif
+#include <cstddef>
 
 namespace lass
 {
@@ -111,8 +109,8 @@ public:
 	void reset(InputIterator first, InputIterator last, size_t uSize, size_t vSize)
 	{
 		LASS_ENFORCE(uSize > 0 && vSize > 0);
-		uSize_ = static_cast<ptrdiff_t>(uSize);
-		vSize_ = static_cast<ptrdiff_t>(vSize);
+		uSize_ = static_cast<std::ptrdiff_t>(uSize);
+		vSize_ = static_cast<std::ptrdiff_t>(vSize);
 		condCdfV_.resize(uSize * vSize);
 		margCdfU_.resize(uSize);
 		std::copy(first, last, condCdfV_.begin());
@@ -124,7 +122,7 @@ public:
 		LASS_ASSERT(!margCdfU_.empty());
 		TValue pdfU, pdfV;
 		const TValue u = impl::sampleCdf1D(margCdfU_.begin(), margCdfU_.end(), in.x, pdfU, index.x);
-		const typename TValues::const_iterator cdfV = condCdfV_.begin() + static_cast<ptrdiff_t>(index.x) * vSize_;
+		const typename TValues::const_iterator cdfV = condCdfV_.begin() + static_cast<std::ptrdiff_t>(index.x) * vSize_;
 		const TValue v = impl::sampleCdf1D(cdfV, cdfV + vSize_, in.y, pdfV, index.y);
 		pdf = pdfU * pdfV;
 		return TSample(u, v);
@@ -137,7 +135,7 @@ private:
 	{
 		LASS_ASSERT(condCdfV_.size() == static_cast<size_t>(uSize_ * vSize_));
 		const typename TValues::iterator margCdfU = margCdfU_.begin();
-		for (ptrdiff_t i = 0; i < uSize_; ++i)
+		for (std::ptrdiff_t i = 0; i < uSize_; ++i)
 		{
 			const typename TValues::iterator firstCdfV = condCdfV_.begin() + i * vSize_;
 			const typename TValues::iterator lastCdfV = firstCdfV + vSize_;
@@ -151,8 +149,8 @@ private:
 
 	TValues condCdfV_;
 	TValues margCdfU_;
-	ptrdiff_t uSize_;
-	ptrdiff_t vSize_;
+	std::ptrdiff_t uSize_;
+	std::ptrdiff_t vSize_;
 };
 
 

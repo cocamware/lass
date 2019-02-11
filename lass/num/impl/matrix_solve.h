@@ -47,9 +47,7 @@
 
 #include "../num_common.h"
 
-#if LASS_HAVE_STDDEF_H 
-#   include <stddef.h>
-#endif
+#include <cstddef>
 
 namespace lass
 {
@@ -66,7 +64,7 @@ template
 >
 bool ludecomp(RandomIterator1 ioMatrix,
 			  RandomIterator2 oIndex,
-			  ptrdiff_t iSize,
+			  std::ptrdiff_t iSize,
 			  int& iD);
 
 
@@ -81,7 +79,7 @@ template
 void lusolve(RandomIterator1 iMatrix,
 			 RandomIterator2 iIndex,
 			 RandomIterator3 ioColumn,
-			 ptrdiff_t iSize);
+			 std::ptrdiff_t iSize);
 
 
 
@@ -99,7 +97,7 @@ void lumprove(RandomIterator1 iMatrix,
 			  RandomIterator3 iIndex,
 			  RandomIterator4 iColumn,
 			  RandomIterator5 ioX,
-			  ptrdiff_t iSize);
+			  std::ptrdiff_t iSize);
 
 
 
@@ -116,7 +114,7 @@ bool cramer3(RandomIterator1 iMatrixRowMajor,
 
 template <typename T, typename RandomIterator1, typename RandomIterator2, typename RandomIterator3>
 bool solveTridiagonal(RandomIterator1 iA_1, RandomIterator1 iB_0, RandomIterator1 iC_0,
-					  RandomIterator2 ioSolution, RandomIterator3 ioTemp, ptrdiff_t iSize);
+					  RandomIterator2 ioSolution, RandomIterator3 ioTemp, std::ptrdiff_t iSize);
 
 }
 

@@ -53,41 +53,57 @@ class LassConan(ConanFile):
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
         "with_std_auto_ptr": [True, False, None],
-        "python": "ANY",
+        "python_version": "ANY",
+        "python_executable": "ANY",
     }
     default_options = {
         "shared": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
         "with_std_auto_ptr": None,
-        "python": "python",
+        "python_version": None,
+        "python_executable": "python",
     }
     generators = "cmake"
     exports_sources = ("*", "!build*", "!env*", "!venv*")
+    build_requires = ("cmake_installer/[>=3.0]@conan/stable")
 
-    def _configure(self):
+    def configure(self):
+        # pylint: disable=no-member
+        if not self.options.python_version:
+            python = str(self.options.python_executable or "python")
+            cmd = [
+                python, "-c", "import sys;"
+                "sys.stdout.write('.'.join(map(str, sys.version_info[:2])))"
+            ]
+            self.options.python_version = subprocess.check_output(
+                cmd, universal_newlines=True).strip()
+
+    def _cmake(self):
+        # pylint: disable=no-member
         cmake = CMake(self)
         defs = {
             "BUILD_TESTING": False,
             "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
             "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
                 bool(self.options.without_iterator_debugging),
-            "Lass_PYTHON_VERSION": self._python_version(),
-            "Python_EXECUTABLE": self._python_executable(),
+            "Lass_PYTHON_VERSION": str(self.options.python_version),
         }
-        if self.options.with_std_auto_ptr is not None:
+        if self.options.with_std_auto_ptr.value not in (None, "None"):
             defs["LASS_HAVE_STD_AUTO_PTR"] = \
                 bool(self.options.with_std_auto_ptr)
+        if self.options.python_executable:
+            defs["Python_EXECUTABLE"] = str(self.options.python_executable)
         cmake.configure(source_folder=".", defs=defs)
         return cmake
 
     def build(self):
-        cmake = self._configure()
+        cmake = self._cmake()
         cmake.configure(source_folder=".")
         cmake.build()
 
     def package(self):
-        cmake = self._configure()
+        cmake = self._cmake()
         cmake.install()
 
     def package_info(self):
@@ -97,46 +113,12 @@ class LassConan(ConanFile):
             self.cpp_info.libs += [lass_config.LASS_PYTHON_OUTPUT_NAME]
         self.cpp_info.cppflags = [lass_config.LASS_EXTRA_CXX_FLAGS]
 
-    def package_id(self):
-        # pylint: disable=no-member
-        self.info.options.python_version = self._python_version()
-
     def _lass_config(self):
-        path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
+        path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
+                            "LassConfig.py")
         import imp
         imp.acquire_lock()
         try:
             return imp.load_source("LassConfig", path)
         finally:
             imp.release_lock()
-        path = os.path.join(self.cpp_info.rootpath, "lib", "LassConfig.py")
-        import imp
-        imp.acquire_lock()
-        try:
-            return imp.load_source("LassConfig", path)
-        finally:
-            imp.release_lock()
-
-    def _python_version(self):
-        try:
-            return self.__python_version
-        except AttributeError:
-            cmd = [
-                self._python_executable(), "-c", "import sys;"
-                "sys.stdout.write('.'.join(map(str, sys.version_info[:2])))"
-            ]
-            self.__python_version = subprocess.check_output(
-                cmd, universal_newlines=True).strip()
-            return self.__python_version
-
-    def _python_executable(self):
-        try:
-            return self.__python_executable
-        except AttributeError:
-            cmd = [
-                str(self.options.python), "-c",
-                "import sys; sys.stdout.write(sys.executable)"
-            ]
-            self.__python_executable = subprocess.check_output(
-                cmd, universal_newlines=True).strip()
-            return self.__python_executable

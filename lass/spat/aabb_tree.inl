@@ -48,9 +48,7 @@
 #include "spat_common.h"
 #include "aabb_tree.h"
 
-#if LASS_HAVE_STDDEF_H
-#	include <stddef.h>
-#endif
+#include <cstddef>
 
 namespace lass
 {
@@ -320,7 +318,7 @@ size_t AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	TInputIterator middle = std::partition(first, last, impl::Splitter<TObjectTraits>(split));
 	if (middle == first || middle == last)
 	{
-		const ptrdiff_t halfSize = (last - first) / 2;
+		const std::ptrdiff_t halfSize = (last - first) / 2;
 		LASS_ASSERT(halfSize > 0);
 		middle = first + halfSize;
 		std::nth_element(first, middle, last, impl::LessAxis<TObjectTraits>(split.axis));

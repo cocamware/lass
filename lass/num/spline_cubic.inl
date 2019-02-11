@@ -51,6 +51,8 @@
 #include "impl/matrix_solve.h"
 #include "../stde/extended_iterator.h"
 
+#include <cstddef>
+
 namespace lass
 {
 namespace num
@@ -407,7 +409,7 @@ void SplineCubic<S, D, T>::init()
 			unknowns[i] = 3 * (d0 / h[i] - d1 * (h[i] + h[i + 1]) / (h[i] * h[i + 1]) + d2 / h[i + 1]);
 		}
 		if (!num::impl::solveTridiagonal<TScalar>(\
-				ma.begin(), mb.begin(), mc.begin(), unknowns.begin(), temp.begin(), numCast<ptrdiff_t>(numUnknowns)))
+				ma.begin(), mb.begin(), mc.begin(), unknowns.begin(), temp.begin(), numCast<std::ptrdiff_t>(numUnknowns)))
 		{
 			LASS_THROW("serious logic error, could not solve equation, contact [Bramz]");
 		}

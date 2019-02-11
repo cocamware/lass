@@ -80,7 +80,6 @@
 #cmakedefine LASS_HAVE_POLL_H 1
 #cmakedefine LASS_HAVE_SCHED_H 1
 #cmakedefine LASS_HAVE_SCHED_H_CPU_SET_T 1
-#cmakedefine LASS_HAVE_STDDEF_H 1
 #cmakedefine LASS_HAVE_STDINT_H 1
 #cmakedefine LASS_HAVE_STDINT_H_INT8_T_IS_CHAR
 #cmakedefine LASS_HAVE_TERMIOS_H 1

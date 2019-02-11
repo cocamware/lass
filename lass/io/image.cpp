@@ -52,6 +52,8 @@
 #include "../prim/transformation_3d.h"
 #include "../num/num_cast.h"
 
+#include <cstddef>
+
 #define LASS_IO_IMAGE_ENFORCE_SAME_SIZE(a, b)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
@@ -1077,7 +1079,7 @@ BinaryIStream& Image::openRadianceHdr(BinaryIStream& stream)
 				LASS_ASSERT((lastX - lastX2) * deltaX >= 0);
 				for (size_t k = 0; k < 4; ++k)
 				{
-					ptrdiff_t x2 = x;
+					std::ptrdiff_t x2 = x;
 					while (x2 != lastX2)
 					{
 						num::Tuint8 spanField = 0, value = 0;

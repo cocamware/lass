@@ -109,7 +109,7 @@ endif()
 install(
 	EXPORT LassExports
 	NAMESPACE Lass::
-	DESTINATION lib
+	DESTINATION share/Lass
 	)
 
 
@@ -153,10 +153,11 @@ configure_file(
 	)
 
 install(
-	FILES "${Lass_BINARY_DIR}/LassConfig.cmake"
+	FILES
+		"${Lass_BINARY_DIR}/LassConfig.cmake"
 		"${Lass_BINARY_DIR}/LassConfigVersion.cmake"
 		"${Lass_BINARY_DIR}/FindPythonCompat.cmake"
-	DESTINATION lib
+	DESTINATION share/Lass
 	)
 
 
@@ -175,7 +176,7 @@ file(
 
 install(
 	FILES "${Lass_BINARY_DIR}/LassConfig.py"
-	DESTINATION lib
+	DESTINATION share/Lass
 	)
 
 

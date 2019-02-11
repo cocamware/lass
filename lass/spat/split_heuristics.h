@@ -45,6 +45,8 @@
 
 #include "spat_common.h"
 
+#include <cstddef>
+
 namespace lass
 {
 namespace spat

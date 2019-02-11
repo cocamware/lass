@@ -50,6 +50,8 @@
 #include "impl/matrix_solve.h"
 #include "../meta/meta_assert.h"
 
+#include <cstddef>
+
 #define LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(a, b)\
 	*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
@@ -698,8 +700,8 @@ void Matrix<T, S>::invert()
 
 	const TSize size = rows();
 	Matrix<T> lu(*this);
-	std::vector<ptrdiff_t> index(size);
-	const ptrdiff_t n = static_cast<ptrdiff_t>(size);
+	std::vector<std::ptrdiff_t> index(size);
+	const std::ptrdiff_t n = static_cast<std::ptrdiff_t>(size);
 	int d;
 
 	if (!impl::ludecomp<T>(lu.storage().rowMajor(), index.begin(), n, d))
@@ -708,7 +710,7 @@ void Matrix<T, S>::invert()
 	}
 
 	setIdentity(size);
-	for (ptrdiff_t i = 0; i < n; ++i)
+	for (std::ptrdiff_t i = 0; i < n; ++i)
 	{
 		impl::lusolve<T>(lu.storage().rowMajor(), index.begin(), column(i).begin(), n);
 	}
@@ -1009,7 +1011,7 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 
 	const size_t n = a.rows();
 	Matrix<T> lu(a);
-	std::vector<ptrdiff_t> pivot(n);
+	std::vector<std::ptrdiff_t> pivot(n);
 	int d;
 
 	Matrix<T> aa;
@@ -1020,7 +1022,7 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 		bcol.resize(n);
 	}
 
-	if (!impl::ludecomp<T>(lu.storage().rowMajor(), pivot.begin(), static_cast<ptrdiff_t>(n), d))
+	if (!impl::ludecomp<T>(lu.storage().rowMajor(), pivot.begin(), static_cast<std::ptrdiff_t>(n), d))
 	{
 		LASS_THROW_EX(util::SingularityError, "failed to solve matrix equation");
 	}
@@ -1036,10 +1038,10 @@ void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 				bcol[j] = xcol[j];
 			}
 		}
-		impl::lusolve<T>(lu.storage().rowMajor(), pivot.begin(), xcol.begin(), static_cast<ptrdiff_t>(n));
+		impl::lusolve<T>(lu.storage().rowMajor(), pivot.begin(), xcol.begin(), static_cast<std::ptrdiff_t>(n));
 		if (improve)
 		{
-			impl::lumprove<T>(aa.storage().rowMajor(), lu.storage().rowMajor(), pivot.begin(), bcol.begin(), xcol.begin(), static_cast<ptrdiff_t>(n));
+			impl::lumprove<T>(aa.storage().rowMajor(), lu.storage().rowMajor(), pivot.begin(), bcol.begin(), xcol.begin(), static_cast<std::ptrdiff_t>(n));
 		}
 	}
 }
