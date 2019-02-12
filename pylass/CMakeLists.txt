@@ -32,12 +32,16 @@ lass_add_precompiled_header(pylass
 	pylass_common.cpp
 	)
 
+if (WIN32)
+	set(_destination "bin")
+else()
+	set(_destination "lib")
+endif()
+
 install(
 	TARGETS pylass
 	EXPORT LassExports
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION "${_destination}"
 	)
 
 
