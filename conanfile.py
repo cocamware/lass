@@ -45,7 +45,7 @@ class LassConan(ConanFile):
     version = _get_version()
     license = "CPAL-1.0", "GPL-2.0-or-later"
     author = "Cocamware <info@cocamware.com>"
-    url = "https://git.code.sf.net/p/lass/lass.git"
+    url = "https://github.com/cocamware/lass.git"
     description = "Library of Assembled Shared Source."
     topics = "C++", "Python"
     settings = "os", "compiler", "build_type", "arch"
