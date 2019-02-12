@@ -28,7 +28,8 @@ def _get_version():
 
     git = tools.Git()
     try:
-        describe = git.run("describe --dirty --match {}".format(basetag))
+        describe = git.run(
+            "describe --abbrev=8 --dirty --match {}".format(basetag))
     except errors.ConanException:
         return None  # Assume conan metadata already knows
     assert describe.startswith(basetag), \
