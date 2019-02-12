@@ -44,6 +44,13 @@ install(
 	LIBRARY DESTINATION "${_destination}"
 	)
 
+if(MSVC)
+	install(
+		FILES $<TARGET_PDB_FILE:pylass>
+		DESTINATION "${_destination}"
+		OPTIONAL
+		)
+endif()
 
 if (WIN32)
     # bdist_wininst only works on windows

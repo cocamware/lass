@@ -122,6 +122,14 @@ install(
 	ARCHIVE DESTINATION lib
 	)
 
+if(MSVC)
+	install(
+		FILES $<TARGET_PDB_FILE:lass>
+		DESTINATION bin
+		OPTIONAL
+		)
+endif()
+
 # --- LASS_PYTHON ---
 
 if(Python_Development_FOUND)
@@ -163,4 +171,11 @@ if(Python_Development_FOUND)
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib
 		)
+	if(MSVC)
+		install(
+			FILES $<TARGET_PDB_FILE:lass_python>
+			DESTINATION bin
+			OPTIONAL
+			)
+	endif()
 endif()
