@@ -122,14 +122,14 @@ namespace impl
 			{
 				return -1;
 			}
-			typename Container::key_type k;
-			if (pyGetSimpleObject(key, k) != 0)
-			{
-				impl::addMessageHeader("key");
-				return -1;
-			}
 			if (value)
 			{
+				typename Container::key_type k;
+				if (pyGetSimpleObject(key, k) != 0)
+				{
+					impl::addMessageHeader("key");
+					return -1;
+				}
 				typename Container::mapped_type v;
 				if (pyGetSimpleObject(value, v) != 0)
 				{
@@ -140,6 +140,12 @@ namespace impl
 			}
 			else
 			{
+				typename Container::key_type k;
+				if (pyGetSimpleObject(key, k) != 0)
+				{
+					PyErr_SetObject(PyExc_KeyError, key);
+					return -1;
+				}
 				typename Container::iterator it = this->container().find(k);
 				if (it == this->container().end())
 				{

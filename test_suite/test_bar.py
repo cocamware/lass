@@ -101,7 +101,7 @@ class TestMap(unittest.TestCase):
 		self.assertTrue('test' in refmap)
 		del mapping['test']
 		self.assertRaises(KeyError, mapping.__delitem__, "notakey")
-		self.assertRaises(TypeError, mapping.__delitem__, 123)
+		self.assertRaises(KeyError, mapping.__delitem__, 123)
 		self.assertTrue('test' not in refmap)
 		mapping.clear()
 		mapping['A'] = 'a'
