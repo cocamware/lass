@@ -251,14 +251,22 @@ namespace impl
 
 			const util::SharedPtr<Container> result(new Container);
 			const Py_ssize_t size = PyMapping_Length(obj);
-			//TPyObjPtr items(PyMapping_Items(obj));
+#if PY_MAJOR_VERSION < 3
 			TPyObjPtr items(PyObject_CallMethod(obj, (char*)"items", 0)); // own "implementation" of PyMapping_Items to avoid cast warning
+#else
+			TPyObjPtr items(PyMapping_Items(obj));
+#endif
 			if (!items)
+			{
+				PyErr_SetString(PyExc_TypeError, "Not a mapping");
+				return 1;
+			}
+			TPyObjPtr fast = impl::checkedFastSequence(items.get(), size);
+			if (!fast)
 			{
 				return 1;
 			}
-			LASS_ASSERT(PySequence_Size(items.get()) == size);
-			PyObject** pairs = PySequence_Fast_ITEMS(items.get());
+			PyObject** pairs = PySequence_Fast_ITEMS(fast.get());
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Container::key_type key;
