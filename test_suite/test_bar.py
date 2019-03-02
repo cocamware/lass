@@ -46,20 +46,20 @@ class TestClass:
 class TestDerived(unittest.TestCase):
 	def testDerived(self):
 		e = embedding.Bar()
-		self.assert_(isinstance(e, embedding.Bar))
+		self.assertTrue(isinstance(e, embedding.Bar))
 		self.assertEqual(e.aMoreComplexFunction(1,2), 3)
 		d = embedding.DerivedBar()
-		self.assert_(isinstance(d, embedding.DerivedBar))
+		self.assertTrue(isinstance(d, embedding.DerivedBar))
 		self.assertEqual(d.aMoreComplexFunction(1,2), 2)
 
 
 class TestPyCObject(unittest.TestCase):
 	def testNone(self):
 		self.assertEqual(embedding.makeNullPointer(), None)
-		self.assert_(embedding.testNullPointer(embedding.makeNullPointer()))
+		self.assertTrue(embedding.testNullPointer(embedding.makeNullPointer()))
 	def testPyCObject(self):
-		self.assert_(str(type(embedding.makeSomePointer())) in ("<type 'PyCObject'>", "<class 'PyCObject'>", "<class 'PyCapsule'>"))
-		self.assert_(embedding.testSomePointer(embedding.makeSomePointer()))
+		self.assertTrue(str(type(embedding.makeSomePointer())) in ("<type 'PyCObject'>", "<class 'PyCObject'>", "<class 'PyCapsule'>"))
+		self.assertTrue(embedding.testSomePointer(embedding.makeSomePointer()))
 
 echo("\n***\n")
 
@@ -70,14 +70,14 @@ barC = embedding.Bar()
 class TestConstMap(unittest.TestCase):
 	def _testConstMap(self, mapping):
 		self.assertEqual(len(mapping), 1)
-		self.assert_("spam" in mapping)
+		self.assertTrue("spam" in mapping)
 		self.assertEqual(mapping["spam"], "spam spam spam")
 		self.assertEqual(list(mapping.keys()), ["spam"])
 		self.assertEqual(list(mapping.values()), ["spam spam spam"])
 		self.assertEqual(list(mapping.items()), [("spam", "spam spam spam")])
 		def set_item(m, k, v): m[k] = v
 		self.assertRaises(TypeError, set_item, mapping, "foo", "bar")
-		self.assert_("foo" not in mapping)
+		self.assertTrue("foo" not in mapping)
 		self.assertRaises(KeyError, lambda m, k: m[k], mapping, "foo")
 		self.assertEqual(mapping.get("foo"), None)
 		self.assertEqual(mapping.get("foo", "bar"), "bar")
@@ -92,9 +92,9 @@ class TestMap(unittest.TestCase):
 	def _testMap(self, mapping, refmap):
 		mapping['test'] = 'ok'
 		self.assertEqual(refmap['test'], 'ok')
-		self.assert_('test' in refmap)
+		self.assertTrue('test' in refmap)
 		del mapping['test']
-		self.assert_('test' not in refmap)
+		self.assertTrue('test' not in refmap)
 		mapping.clear()
 		mapping['A'] = 'a'
 		self.assertEqual(repr(mapping), "{'A': 'a'}")
@@ -151,8 +151,8 @@ class TestWriteableSequence(unittest.TestCase):
 		for a, b in zip(refseq, [0, 1, 2, 8]):
 			self.assertEqual(a, b)
 	def _testContains(self, seq, refseq):
-		self.assert_(8 in seq)
-		self.failIf(-123456 in seq)
+		self.assertTrue(8 in seq)
+		self.assertFalse(-123456 in seq)
 	def _testGetItem(self, seq, refseq):
 		n = len(seq)
 		self.assertRaises(IndexError, lambda a, i: a[i], seq, n)
@@ -462,9 +462,9 @@ class TestShadowHierarchy(unittest.TestCase):
 		spam = embedding.makeSpam("Bacon")
 		self.assertEqual(spam.virtualWho(), "Bacon")
 		self.assertEqual(spam.overridenWho(), "Bacon")
-		self.assert_(not embedding.spamToCppByCopy(spam, spam))
-		self.assert_(embedding.spamToCppByConstReference(spam, spam))
-		self.assert_(embedding.spamToCppByReference(spam, spam))
+		self.assertTrue(not embedding.spamToCppByCopy(spam, spam))
+		self.assertTrue(embedding.spamToCppByConstReference(spam, spam))
+		self.assertTrue(embedding.spamToCppByReference(spam, spam))
 
 class TestCallbacks(unittest.TestCase):
 	def setUp(self):
@@ -474,14 +474,14 @@ class TestCallbacks(unittest.TestCase):
 		def callback():
 			self.isCalled = True
 		embedding.call0(callback)
-		self.assert_(self.isCalled)
+		self.assertTrue(self.isCalled)
 	def testCallback1(self):
 		hi = "hi!"
 		def callback(x):
 			self.isCalled = True
 			self.arg = x
 		embedding.call1(callback, hi)
-		self.assert_(self.isCalled)
+		self.assertTrue(self.isCalled)
 		self.assertEqual(self.arg, hi)
 	def testCallbackR0(self):
 		hi = "hi!"
@@ -489,7 +489,7 @@ class TestCallbacks(unittest.TestCase):
 			self.isCalled = True
 			return hi
 		result = embedding.callR0(callback)
-		self.assert_(self.isCalled)
+		self.assertTrue(self.isCalled)
 		self.assertEqual(result, hi)
 	def testCallbackR2(self):
 		a, b = 5, 6
@@ -501,7 +501,7 @@ class TestCallbacks(unittest.TestCase):
 			d = {'a':1}
 			return d['b'] # raises a KeyError
 		self.assertRaises(KeyError, embedding.call0, callback)
-		self.assert_(self.isCalled)
+		self.assertTrue(self.isCalled)
 		
 class TestRichCompare(unittest.TestCase):
 	def setUp(self):
@@ -510,38 +510,38 @@ class TestRichCompare(unittest.TestCase):
 		self.c = embedding.Bar(6, "C")
 	def testEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assert_(a == b)
-		self.failIf(a == c)
-		self.failIf(a == None)
+		self.assertTrue(a == b)
+		self.assertFalse(a == c)
+		self.assertFalse(a == None)
 	def testLess(self):
 		a, b, c = self.a, self.b, self.c
-		self.assert_(a < c)
-		self.failIf(a < b)
-		self.failIf(c < a)
-		self.failIf(a < None)
+		self.assertTrue(a < c)
+		self.assertFalse(a < b)
+		self.assertFalse(c < a)
+		self.assertFalse(a < None)
 	def testNotEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.failIf(a != b)
-		self.assert_(a != c)
-		self.assert_(a != None)
+		self.assertFalse(a != b)
+		self.assertTrue(a != c)
+		self.assertTrue(a != None)
 	def testGreater(self):
 		a, b, c = self.a, self.b, self.c
-		self.assert_(c > a)
-		self.failIf(b > a)
-		self.failIf(a > c)
-		self.failIf(a > None)
+		self.assertTrue(c > a)
+		self.assertFalse(b > a)
+		self.assertFalse(a > c)
+		self.assertFalse(a > None)
 	def testLessEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assert_(a <= b)
-		self.assert_(a <= c)
-		self.failIf(c <= a)
-		self.failIf(a <= None)
+		self.assertTrue(a <= b)
+		self.assertTrue(a <= c)
+		self.assertFalse(c <= a)
+		self.assertFalse(a <= None)
 	def testGreaterEqual(self):
 		a, b, c = self.a, self.b, self.c
-		self.assert_(c >= a)
-		self.assert_(a >= b)
-		self.failIf(a >= c)
-		self.failIf(a >= None)
+		self.assertTrue(c >= a)
+		self.assertTrue(a >= b)
+		self.assertFalse(a >= c)
+		self.assertFalse(a >= None)
 
 dummyCounter = 0
 def dummyCallback0():
