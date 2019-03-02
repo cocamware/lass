@@ -71,14 +71,15 @@ class TestConstMap(unittest.TestCase):
 	def _testConstMap(self, mapping):
 		self.assertEqual(len(mapping), 1)
 		self.assertTrue("spam" in mapping)
+		self.assertFalse("foo" in mapping)
+		self.assertFalse(123 in mapping)
 		self.assertEqual(mapping["spam"], "spam spam spam")
 		self.assertEqual(list(mapping.keys()), ["spam"])
 		self.assertEqual(list(mapping.values()), ["spam spam spam"])
 		self.assertEqual(list(mapping.items()), [("spam", "spam spam spam")])
-		def set_item(m, k, v): m[k] = v
-		self.assertRaises(TypeError, set_item, mapping, "foo", "bar")
-		self.assertTrue("foo" not in mapping)
-		self.assertRaises(KeyError, lambda m, k: m[k], mapping, "foo")
+		self.assertRaises(TypeError, mapping.__setitem__, mapping, "foo", "bar")
+		self.assertRaises(KeyError, mapping.__getitem__, "foo")
+		self.assertRaises(KeyError, mapping.__getitem__, 123)
 		self.assertEqual(mapping.get("foo"), None)
 		self.assertEqual(mapping.get("foo", "bar"), "bar")
 		def clear(m): m.clear()
@@ -86,14 +87,21 @@ class TestConstMap(unittest.TestCase):
 		copy = mapping.copy()
 		copy['foo'] = 'bar'
 	def testConstMap(self):
-		self._testConstMap(embedding.Bar().constMap)
+		bar = embedding.Bar()
+		self._testConstMap(bar.constMap)
+		bar.testConstMap(bar.constMap)
+		
 
 class TestMap(unittest.TestCase):
 	def _testMap(self, mapping, refmap):
 		mapping['test'] = 'ok'
+		self.assertRaises(TypeError, mapping.__setitem__, "test", 123)
+		self.assertRaises(TypeError, mapping.__setitem__, 123, "ok")
 		self.assertEqual(refmap['test'], 'ok')
 		self.assertTrue('test' in refmap)
 		del mapping['test']
+		self.assertRaises(KeyError, mapping.__delitem__, "notakey")
+		self.assertRaises(TypeError, mapping.__delitem__, 123)
 		self.assertTrue('test' not in refmap)
 		mapping.clear()
 		mapping['A'] = 'a'
@@ -109,20 +117,24 @@ class TestMap(unittest.TestCase):
 	def testMap(self):
 		bar = embedding.Bar()
 		self._testMap(bar.writeableMap, bar.writeableMap)
+		self.assertRaises(TypeError, setattr, bar, "writeableMap", 123)
+		self.assertRaises(TypeError, setattr, bar, "writeableMap", {1:2, 3:4})
+		self.assertRaises(TypeError, setattr, bar, "writeableMap", ["123"])
+		bar.testConstMap(bar.writeableMap)
 	def testVectorMap(self):
 		bar = embedding.Bar()
 		self._testMap(bar.writeableVectorMap, bar.writeableVectorMap)
 		
 class TestConstSequence(unittest.TestCase):
 	def _testConstSequence(self, seq):
-		def assign(a, b):
-			a[:] = b
-		def set_item(a, i, b):
-			a[i] = b
-		self.assertRaises(TypeError, assign, seq, range(10))
-		self.assertRaises(TypeError, set_item, seq, 3, 5)
-		self.assertRaises(TypeError, lambda a: a.clear(), seq)
-		self.assertRaises(TypeError, lambda a, n: a.reserve(n), seq, 5)
+		self.assertRaises(TypeError, seq.__setitem__, slice(0, -1), range(10))
+		self.assertRaises(TypeError, seq.__setitem__, 3, 5)
+		self.assertRaises(TypeError, seq.clear)
+		self.assertRaises(TypeError, seq.reserve, 5)
+		self.assertRaises(TypeError, seq.append, 5)
+		self.assertRaises(TypeError, seq.pop)
+		self.assertRaises(TypeError, seq.__iadd__, [123])
+		self.assertRaises(TypeError, seq.__imul__, 2)
 	def testConstVector(self):
 		self._testConstSequence(embedding.Bar().constVector)
 	def testConstList(self):
@@ -134,12 +146,19 @@ class TestWriteableSequence(unittest.TestCase):
 	def _testClear(self, seq, refseq):
 		seq.clear()
 		self.assertEqual(len(refseq), 0)
+	def _testReserve(self, seq):
+		self.assertRaises(TypeError, seq.reserve, "123")
+		try:
+			seq.reserve(5)
+		except Exception as err:
+			self.fail("seq.reserve raised exception: {!s}".format(err))
 	def _testAppend(self, seq, refseq):
 		for i in range(10):
 			seq.append(i)
 		self.assertEqual(len(refseq), 10)
 		for i in range(10):
 			self.assertEqual(refseq[i], i)
+		self.assertRaises(TypeError, seq.append, "123")
 	def _testRepr(self, seq, refseq):
 		self.assertEqual(repr(seq), "[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]")
 	def _testPop(self, seq, refseq):
@@ -147,12 +166,14 @@ class TestWriteableSequence(unittest.TestCase):
 		self.assertEqual(len(refseq), 9)
 		for i in range(5):
 			self.assertEqual(seq.pop(3), 3 + i)
+		self.assertRaises(IndexError, seq.pop, 10)
 		self.assertEqual(len(refseq), 4)
 		for a, b in zip(refseq, [0, 1, 2, 8]):
 			self.assertEqual(a, b)
 	def _testContains(self, seq, refseq):
-		self.assertTrue(8 in seq)
-		self.assertFalse(-123456 in seq)
+		self.assertIn(8, seq)
+		self.assertNotIn(-123456, seq)
+		self.assertNotIn("123", seq)
 	def _testGetItem(self, seq, refseq):
 		n = len(seq)
 		self.assertRaises(IndexError, lambda a, i: a[i], seq, n)
@@ -162,9 +183,11 @@ class TestWriteableSequence(unittest.TestCase):
 	def _testSetItem(self, seq, refseq):
 		seq[3] = 5
 		self.assertEqual(refseq[3], 5)
-		def set_item(s, i, v):
-			s[i] = v
-		self.assertRaises(TypeError, set_item, seq, 3, "foo")
+		self.assertRaises(TypeError, seq.__setitem__, 3, "foo")
+		seq.append(2)
+		del seq[len(seq) - 1]
+		seq.append(2)
+		del seq[-1]
 	def _testGetSlice(self, seq, refseq):
 		self.assertEqual(seq[:], [0, 1, 2, 5])
 		self.assertEqual(seq[:], [0, 1, 2, 5])
@@ -189,6 +212,12 @@ class TestWriteableSequence(unittest.TestCase):
 		self.assertEqual(refseq[:], [0, 1, 20, 3, 40, 5, 60, 7, 8, 9])
 		del seq[3:9:2]
 		self.assertEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
+		self.assertRaises(TypeError, seq.__setitem__, slice(2, 8, 2), ["20", "40", "60"])
+		seq[2:5] = seq
+		self.assertEqual(refseq[:], [0, 1, 0, 1, 20, 40, 60, 8, 9, 8, 9])
+		del seq[:2]
+		del seq[-2:]
+		self.assertEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
 	def _testRepeat(self, seq, refseq):
 		n = len(seq)
 		seq *= 2
@@ -209,6 +238,7 @@ class TestWriteableSequence(unittest.TestCase):
 		self.assertEqual(len(b), 4 * n)
 	def _testSequence(self, seq, refseq):
 		self._testClear(seq, refseq)
+		self._testReserve(seq)
 		self._testAppend(seq, refseq)
 		self._testRepr(seq, refseq)
 		self._testPop(seq, refseq)
@@ -222,6 +252,9 @@ class TestWriteableSequence(unittest.TestCase):
 	def testWriteableVector(self):
 		bar = embedding.Bar()
 		self._testSequence(bar.writeableVector, bar.writeableVector)
+		self.assertRaises(TypeError, setattr, bar, "writeableVector", 123)
+		self.assertRaises(TypeError, setattr, bar, "writeableVector", {1:2, 3:4})
+		self.assertRaises(TypeError, setattr, bar, "writeableVector", ["123"])
 	def testWriteableList(self):
 		bar = embedding.Bar()
 		self._testSequence(bar.writeableList, bar.writeableList)

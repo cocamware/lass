@@ -124,6 +124,8 @@ namespace test
 		const std::list< double > constList;
 		const std::deque< double > constDeque;
 
+		std::map<std::string, std::string> testConstMap(const std::map<std::string, std::string>&);
+
 		class InnerClass : public lass::python::PyObjectPlus
 		{
 			PY_HEADER( lass::python::PyObjectPlus )

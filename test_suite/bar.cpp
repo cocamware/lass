@@ -85,6 +85,7 @@ namespace lass
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
 		PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
+		PY_CLASS_METHOD( Bar, testConstMap );
 		PY_CLASS_STATIC_CONST( Bar, "CONST", 5 ); // a const value as class member
 		PY_CLASS_METHOD_NAME( Bar, operator==, python::methods::_eq_ );
 		PY_CLASS_METHOD_NAME( Bar, operator<, python::methods::_lt_ );
@@ -273,6 +274,11 @@ namespace lass
 		float& Bar::coolMember()
 		{
 			return coolMember_;
+		}
+
+		std::map<std::string, std::string> Bar::testConstMap(const std::map<std::string, std::string>& map)
+		{
+			return std::map<std::string, std::string>(map);
 		}
 
 		void* Bar::opaquePointer() const
