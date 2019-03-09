@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2018 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,29 +40,84 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_UTILITIES_H
-#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_UTILITIES_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_PYDICT_PTR_H
+#define LASS_GUARDIAN_OF_INCLUSION_PYTHON_PYDICT_PTR_H
 
 #include "python_common.h"
 #include "pyobject_ptr.h"
+#include "pyobject_plus.h"
 
 namespace lass
 {
 namespace python
 {
+namespace experimental
+{
 
-LASS_PYTHON_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& name);
-LASS_PYTHON_DLL TPyObjPtr LASS_CALL getPyObjectByName(const std::string& module, const std::string& name);
-LASS_PYTHON_DLL TPyObjPtr LASS_CALL globals();
+class LASS_PYTHON_DLL PyDictPtr
+{
+public:
+	PyDictPtr();
+	explicit PyDictPtr(PyObject* obj);
 
-LASS_PYTHON_DLL void LASS_CALL execute(const std::string& code);
-LASS_PYTHON_DLL void LASS_CALL execute(const char* code);
+	PyObject* get() const;
+	bool operator!() const;
+	operator num::SafeBool() const;
 
-LASS_PYTHON_DLL TPyObjPtr LASS_CALL evaluate(const std::string& code);
-LASS_PYTHON_DLL TPyObjPtr LASS_CALL evaluate(const char* code);
+	TPyObjPtr getItem(PyObject* key) const;
+	TPyObjPtr getItem(const TPyObjPtr& key) const;
+	template <typename K>
+	TPyObjPtr getItem(const K& key) const
+	{
+		TPyObjPtr k(pyBuildSimpleObject(key));
+		return getItem(k.get());
+	}
 
-LASS_PYTHON_DLL void LASS_CALL putenv(const std::string& key, const std::string& value);
-LASS_PYTHON_DLL void LASS_CALL putenv(const char* key, const char* value);
+	void setItem(PyObject* key, PyObject* val);
+	void setItem(const TPyObjPtr& key, const TPyObjPtr& val);
+	template <typename K, typename V>
+	void setItem(const K& key, const V& val)
+	{
+		TPyObjPtr k(pyBuildSimpleObject(key));
+		TPyObjPtr v(pyBuildSimpleObject(val));
+		setItem(k.get(), v.get());
+	}
+
+	void delItem(PyObject* key);
+	void delItem(const TPyObjPtr& key);
+	template <typename K>
+	void delItem(const K& key)
+	{
+		TPyObjPtr k(pyBuildSimpleObject(key));
+		return delItem(k.get());
+	}
+
+	bool contains(PyObject* key) const;
+	bool contains(const TPyObjPtr& key) const;
+	template <typename K>
+	bool contains(const K& key) const
+	{
+		TPyObjPtr k(pyBuildSimpleObject(key));
+		return getItem(k.get());
+	}
+
+	Py_ssize_t size() const;
+
+private:
+	TPyObjPtr obj_;
+};
+
+
+}
+
+
+template <>
+struct PyExportTraits<experimental::PyDictPtr>
+{
+	LASS_PYTHON_DLL static PyObject* build(const experimental::PyDictPtr& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, experimental::PyDictPtr& v);
+};
+
 
 }
 }
