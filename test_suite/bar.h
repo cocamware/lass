@@ -77,6 +77,9 @@ namespace test
 		PythonFooPtr    ptr2Foo_;
 		float coolMember_;
 
+		typedef std::map<std::string, std::string> TMap;
+		TMap map_;
+
 	public:
 		Bar();
 		Bar( int iA, const std::string& iB );
@@ -140,6 +143,12 @@ namespace test
 
 		bool operator==(const Bar& other) const;
 		bool operator<(const Bar& other) const;
+	
+		// map protocol
+		std::string getItem(const std::string& key) const;
+		void setItem(const std::string& key, const std::string& value);
+		bool contains(const std::string& key);
+		size_t size() const;
 
 #if LASS_HAVE_STD_AUTO_PTR
 		static std::auto_ptr<Bar> makeAutoPtr();

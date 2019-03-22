@@ -161,7 +161,12 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 	{
 		TPyObjPtr args(Py_BuildValue("(O)",iOther));
 		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
-		return temp ? 0 : -1;
+		if (!temp)
+			return -1;
+		int result;
+		if (pyGetSimpleObject(temp.get(), result) != 0)
+			return -1;
+		return result;
 	}
 };
 /** @internal

@@ -93,6 +93,10 @@ namespace lass
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator>, python::methods::_gt_ );
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator<=, python::methods::_le_ );
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator>=, python::methods::_ge_ );
+		PY_CLASS_METHOD_NAME(Bar, getItem, python::methods::map_getitem_);
+		PY_CLASS_METHOD_NAME(Bar, setItem, python::methods::map_setitem_);
+		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
+		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
 #if LASS_HAVE_STD_AUTO_PTR
 		PY_CLASS_STATIC_METHOD( Bar, makeAutoPtr )
 #endif
@@ -330,6 +334,29 @@ namespace lass
 		bool operator>=(const Bar& a, const Bar& b)
 		{
 			return !(a < b);
+		}
+
+		std::string Bar::getItem(const std::string& key) const
+		{
+			const TMap::const_iterator i = map_.find(key);
+			if (i == map_.end())
+			{
+				python::LockGIL LASS_UNUSED(lock);
+				throw python::PythonException(PyExc_KeyError, key);
+			}
+			return i->second;
+		}
+		void Bar::setItem(const std::string& key, const std::string& value)
+		{
+			map_[key] = value;
+		}
+		bool Bar::contains(const std::string& key)
+		{
+			return map_.find(key) != map_.end();
+		}
+		size_t Bar::size() const
+		{
+			return map_.size();
 		}
 
 		void freeMethodA(const Bar& bar, const std::string& a)

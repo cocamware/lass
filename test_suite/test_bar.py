@@ -652,6 +652,22 @@ class TestTypes(unittest.TestCase):
 		self.assertEqual(embedding.testStdWstring(u"a\0b"), u"a\0b")
 
 
+class TestBar(unittest.TestCase):
+	def testMapProtocol(self):
+		bar = embedding.Bar()
+		self.assertEqual(len(bar), 0)
+		self.assertRaises(KeyError, bar.__getitem__, "foo")
+		self.assertRaises(TypeError, bar.__getitem__, 1) # should become keyerror?
+		bar["foo"] = "spam"
+		bar["baz"] = "ham"
+		self.assertEqual(len(bar), 2)
+		self.assertEqual(bar["foo"], "spam")
+		self.assertEqual(bar["baz"], "ham")
+		self.assertTrue("foo" in bar)
+		self.assertTrue("baz" in bar)
+		self.assertFalse("buzz" in bar)
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)
