@@ -122,7 +122,7 @@ install(
 	ARCHIVE DESTINATION lib
 	)
 
-if(MSVC)
+if(MSVC AND BUILD_SHARED_LIBS)
 	install(
 		FILES $<TARGET_PDB_FILE:lass>
 		DESTINATION bin
@@ -171,7 +171,7 @@ if(Python_Development_FOUND)
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib
 		)
-	if(MSVC)
+	if(MSVC AND BUILD_SHARED_LIBS)
 		install(
 			FILES $<TARGET_PDB_FILE:lass_python>
 			DESTINATION bin
