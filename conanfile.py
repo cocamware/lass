@@ -221,12 +221,14 @@ class Python(object):
             else:
                 fname = self._get_config_var('LDLIBRARY')
                 hints = []
-                ld_library_path = os.getenv(self, "LD_LIBRARY_PATH")
+                ld_library_path = os.getenv("LD_LIBRARY_PATH")
                 if ld_library_path:
                     hints += ld_library_path.split(os.pathsep)
                 hints += map(self._get_config_var, ["LIBDIR", "LIBPL"])
+                print(hints)
                 for dirname in hints:
                     candidate = os.path.join(dirname, fname)
+                    print(candidate)
                     if os.path.isfile(candidate):
                         self._library = candidate
                         break
@@ -245,8 +247,3 @@ class Python(object):
     def _query(self, script):
         return subprocess.check_output([self.executable, "-c", script],
                                        universal_newlines=True).strip()
-
-    @property
-    def _ld_library_path(self):
-        ld_library_path = os.getenv(self, "LD_LIBRARY_PATH")
-        return ld_library_path.split(os.pathsep) if ld_library_path else []
