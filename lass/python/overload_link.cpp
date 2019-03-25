@@ -218,6 +218,16 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 			return pyBuildSimpleObject(objobjproc_(iSelf,obj1.get()));		
 		}
 
+	case sObjObjArg:
+		{
+			TPyObjPtr key, value;
+			if (decodeTuple(iArgs, key, value) != 0)
+			{
+				return 0;
+			}
+			return pyBuildSimpleObject(objobjargproc_(iSelf, key.get(), value.get()));
+		}
+
 	case sArgKw:
 		return ternaryfunc_(iSelf, iArgs, 0);
 

@@ -659,10 +659,10 @@ class TestBar(unittest.TestCase):
 		self.assertRaises(KeyError, bar.__getitem__, "foo")
 		self.assertRaises(TypeError, bar.__getitem__, 1) # should become keyerror?
 		bar["foo"] = "spam"
-		bar["baz"] = "ham"
+		bar["baz"] = 42
 		self.assertEqual(len(bar), 2)
 		self.assertEqual(bar["foo"], "spam")
-		self.assertEqual(bar["baz"], "ham")
+		self.assertEqual(bar["baz"], "42")
 		self.assertTrue("foo" in bar)
 		self.assertTrue("baz" in bar)
 		self.assertFalse("buzz" in bar)

@@ -95,6 +95,7 @@ namespace lass
 		PY_CLASS_FREE_METHOD_NAME( Bar, operator>=, python::methods::_ge_ );
 		PY_CLASS_METHOD_NAME(Bar, getItem, python::methods::map_getitem_);
 		PY_CLASS_METHOD_NAME(Bar, setItem, python::methods::map_setitem_);
+		PY_CLASS_METHOD_NAME(Bar, setItem2, python::methods::map_setitem_);
 		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
 #if LASS_HAVE_STD_AUTO_PTR
@@ -349,6 +350,10 @@ namespace lass
 		void Bar::setItem(const std::string& key, const std::string& value)
 		{
 			map_[key] = value;
+		}
+		void Bar::setItem2(const std::string& key, int value)
+		{
+			map_[key] = util::stringCast<std::string>(value);
 		}
 		bool Bar::contains(const std::string& key)
 		{
