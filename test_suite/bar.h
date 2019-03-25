@@ -148,6 +148,7 @@ namespace test
 		std::string getItem(const std::string& key) const;
 		void setItem(const std::string& key, const std::string& value);
 		void setItem2(const std::string& key, int value);
+		void delItem(const std::string& key);
 		bool contains(const std::string& key);
 		size_t size() const;
 

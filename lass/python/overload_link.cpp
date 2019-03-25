@@ -220,7 +220,17 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 
 	case sObjObjArg:
 		{
-			TPyObjPtr key, value;
+			TPyObjPtr key;
+
+			// if iArgs is a tuple of one element, then we're actually calling
+			// __delitem_ and value should be a NULL pointer
+			if (decodeTuple(iArgs, key) == 0)
+			{
+				return pyBuildSimpleObject(objobjargproc_(iSelf, key.get(), 0));
+			}
+			PyErr_Clear();
+
+			TPyObjPtr value;
 			if (decodeTuple(iArgs, key, value) != 0)
 			{
 				return 0;

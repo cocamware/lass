@@ -169,14 +169,21 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		return result;
 	}
 };
+
 /** @internal
  */
-template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ObjObjArgSlot ,DispatcherAddress>
+template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ObjObjArgSlot, DispatcherAddress>
 {
-	static int fun(PyObject * iSelf, PyObject * iOther, PyObject* iOther2)
+	static int fun(PyObject* self, PyObject* key, PyObject* value)
 	{
-		TPyObjPtr args(Py_BuildValue("(O,O)",iOther,iOther2));
-		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
+		// value can be NULL in case of __delitem__: del dct[x] is in fact
+		// implemented by calling mp_ass_subscript with NULL as value.
+		// However, we can't translate NULL back into a valid PyObject*, so
+		// we'll just omit the second argument.
+		TPyObjPtr args(value
+			? Py_BuildValue("(O,O)", key, value)
+			: Py_BuildValue("(O)", key));
+		TPyObjPtr temp(DispatcherAddress(self, args.get()));
 		return temp ? 0 : -1;
 	}
 };

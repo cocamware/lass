@@ -226,6 +226,7 @@ namespace methods
 	const lass::python::impl::LenSlot map_len_("__map_len__");
 	const lass::python::impl::BinarySlot map_getitem_("__map_getitem__");
 	const lass::python::impl::ObjObjArgSlot map_setitem_("__map_setitem__");
+	const lass::python::impl::ObjObjArgSlot map_delitem_ = map_setitem_; // they share the same slot
 
 	// Iterator Protocol
 	const lass::python::impl::IterSlot _iter_("__iter__");

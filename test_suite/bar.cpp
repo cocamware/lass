@@ -96,6 +96,7 @@ namespace lass
 		PY_CLASS_METHOD_NAME(Bar, getItem, python::methods::map_getitem_);
 		PY_CLASS_METHOD_NAME(Bar, setItem, python::methods::map_setitem_);
 		PY_CLASS_METHOD_NAME(Bar, setItem2, python::methods::map_setitem_);
+		PY_CLASS_METHOD_NAME(Bar, delItem, python::methods::map_delitem_);
 		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
 #if LASS_HAVE_STD_AUTO_PTR
@@ -354,6 +355,14 @@ namespace lass
 		void Bar::setItem2(const std::string& key, int value)
 		{
 			map_[key] = util::stringCast<std::string>(value);
+		}
+		void Bar::delItem(const std::string& key)
+		{
+			if (!map_.erase(key))
+			{
+				python::LockGIL LASS_UNUSED(lock);
+				throw python::PythonException(PyExc_KeyError, key);
+			}
 		}
 		bool Bar::contains(const std::string& key)
 		{
