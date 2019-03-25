@@ -32,3 +32,5 @@
 /lass/util/impl/dispatcher_r_??.h
 /test_suite/test_util_callback.cpp
 
+# ignore intellisense in vscode
+/.vscode/ipch
