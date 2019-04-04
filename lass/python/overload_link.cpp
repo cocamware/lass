@@ -220,22 +220,31 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 
 	case sObjObjArg:
 		{
-			TPyObjPtr key;
-
-			// if iArgs is a tuple of one element, then we're actually calling
-			// __delitem_ and value should be a NULL pointer
-			if (decodeTuple(iArgs, key) == 0)
-			{
-				return pyBuildSimpleObject(objobjargproc_(iSelf, key.get(), 0));
-			}
-			PyErr_Clear();
-
-			TPyObjPtr value;
-			if (decodeTuple(iArgs, key, value) != 0)
+			// iArgs can be a tuple of one or two elements.
+			// If it's two elements, it's key and value for __setitem__.
+			// If it's one element, we are infact the slot as __delitem__,
+			// and value is implicitly NULL.
+			//
+			const TPyObjPtr args = impl::checkedFastSequence(iArgs, 1, 2);
+			if (!args)
 			{
 				return 0;
 			}
-			return pyBuildSimpleObject(objobjargproc_(iSelf, key.get(), value.get()));
+			const Py_ssize_t argc = PySequence_Fast_GET_SIZE(args.get());
+			PyObject** const argv = PySequence_Fast_ITEMS(args.get());
+			PyObject* const key = argv[0];
+			PyObject* const value = argc == 2 ? argv[1] : 0;
+			const int ret = objobjargproc_(iSelf, key, value);
+			switch (ret)
+			{
+			case -1:
+				return 0;
+			case 0:
+				Py_RETURN_NONE; // success
+			default:
+				PyErr_SetString(PyExc_AssertionError, "OverloadChain: invalid return code.");
+				return 0;
+			}
 		}
 
 	case sArgKw:

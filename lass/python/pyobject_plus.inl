@@ -180,11 +180,21 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		// implemented by calling mp_ass_subscript with NULL as value.
 		// However, we can't translate NULL back into a valid PyObject*, so
 		// we'll just omit the second argument.
+
 		TPyObjPtr args(value
 			? Py_BuildValue("(O,O)", key, value)
 			: Py_BuildValue("(O)", key));
 		TPyObjPtr temp(DispatcherAddress(self, args.get()));
-		return temp ? 0 : -1;
+		if (temp)
+		{
+			LASS_ASSERT(!PyErr_Occurred());
+			return 0;
+		}
+		if (!PyErr_Occurred())
+		{
+			PyErr_SetString(PyExc_AssertionError, "ObjObjArgSlot: expected return value or exception.");
+		}
+		return -1;
 	}
 };
 /** @internal

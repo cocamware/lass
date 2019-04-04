@@ -96,6 +96,7 @@ namespace lass
 		PY_CLASS_METHOD_NAME(Bar, getItem, python::methods::map_getitem_);
 		PY_CLASS_METHOD_NAME(Bar, setItem, python::methods::map_setitem_);
 		PY_CLASS_METHOD_NAME(Bar, setItem2, python::methods::map_setitem_);
+		PY_CLASS_METHOD_NAME(Bar, delItem2, python::methods::map_delitem_);
 		PY_CLASS_METHOD_NAME(Bar, delItem, python::methods::map_delitem_);
 		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
@@ -363,6 +364,10 @@ namespace lass
 				python::LockGIL LASS_UNUSED(lock);
 				throw python::PythonException(PyExc_KeyError, key);
 			}
+		}
+		void Bar::delItem2(int index)
+		{
+			throw python::PythonException(PyExc_IndexError, util::stringCast<std::string>(index));
 		}
 		bool Bar::contains(const std::string& key)
 		{

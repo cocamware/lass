@@ -354,6 +354,7 @@ void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc 
 
 void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*,	objobjargproc dispatcher, OverloadLink& overloadChain) 
 {
+	// objobjargproc slots return 0 on success and -1 on failure
 	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
 	LASS_ASSERT_UNREACHABLE;
 }

@@ -667,7 +667,8 @@ class TestBar(unittest.TestCase):
 		self.assertTrue("baz" in bar)
 		self.assertFalse("buzz" in bar)
 		self.assertRaises(KeyError, bar.__delitem__, "buzz")
-		self.assertRaises(TypeError, bar.__delitem__, 42) # should become KeyError?
+		self.assertRaises(IndexError, bar.__delitem__, 42)
+		self.assertRaises(TypeError, bar.__delitem__, (1,2)) # should become KeyError?
 		del bar["foo"]
 		self.assertEqual(len(bar), 1)
 		self.assertFalse("foo" in bar)
