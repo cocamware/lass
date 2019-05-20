@@ -49,8 +49,10 @@ if(Python_Development_FOUND)
 
 	if(Python_LIBRARY_DEBUG AND "${Python_LIBRARY_DEBUG}" MATCHES ".+_d\\.lib$")
 		set(LASS_PYTHON_HAS_DEBUG_BUILD 1)
+		set(LASS_PYTHON_DEBUG_POSTFIX "_d")
 	else()
 		set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
+		set(LASS_PYTHON_DEBUG_POSTFIX)
 	endif()
 
 	if(NOT "${Python_INCLUDE_DIR}" STREQUAL "${_Lass_Python_INCLUDE_DIR}")
