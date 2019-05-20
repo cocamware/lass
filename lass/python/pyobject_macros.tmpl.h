@@ -1773,22 +1773,26 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_RW_EX( t_cppClass, i_cppGetter, i_cppSetter, s_memberName, s_doc, i_dispatcher)\
-        extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
-        {\
-                typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-                TShadowTraits::TCppClassPtr self; \
-                if (TShadowTraits::getObject(iObject, self) == 0)\
-                { \
-                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
-                } \
-                PyErr_Clear(); \
-                TShadowTraits::TConstCppClassPtr constSelf; \
-                if (TShadowTraits::getObject(iObject, constSelf) == 0)\
-                { \
-                        return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
-                } \
-                return 0; \
-        }\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+	{\
+		try \
+		{ \
+			typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+			TShadowTraits::TCppClassPtr self; \
+			if (TShadowTraits::getObject(iObject, self) == 0)\
+			{ \
+					return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+			} \
+			PyErr_Clear(); \
+			TShadowTraits::TConstCppClassPtr constSelf; \
+			if (TShadowTraits::getObject(iObject, constSelf) == 0)\
+			{ \
+					return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
+			} \
+			return 0; \
+		} \
+		LASS_PYTHON_CATCH_AND_RETURN \
+	}\
 	extern "C" int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject* iObject, PyObject* iArgs, void* )\
 	{\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
@@ -1863,22 +1867,26 @@ $[
  *  @endcode
  */
 #define PY_CLASS_MEMBER_R_EX( t_cppClass, i_cppGetter, s_memberName, s_doc, i_dispatcher )\
-        extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
-        {\
-                typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-                TShadowTraits::TCppClassPtr self; \
-                if (TShadowTraits::getObject(iObject, self) == 0)\
-                { \
-                        return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
-                } \
-                PyErr_Clear(); \
-                TShadowTraits::TConstCppClassPtr constSelf; \
-                if (TShadowTraits::getObject(iObject, constSelf) == 0)\
-                { \
-                        return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
-                } \
-                return 0; \
-        }\
+	extern "C" PyObject* LASS_CONCATENATE(i_dispatcher, _getter)( PyObject* iObject, void* )\
+	{\
+		try \
+		{ \
+			typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+			TShadowTraits::TCppClassPtr self; \
+			if (TShadowTraits::getObject(iObject, self) == 0)\
+			{ \
+					return ::lass::python::pyBuildSimpleObject(self->i_cppGetter()); \
+			} \
+			PyErr_Clear(); \
+			TShadowTraits::TConstCppClassPtr constSelf; \
+			if (TShadowTraits::getObject(iObject, constSelf) == 0)\
+			{ \
+					return ::lass::python::pyBuildSimpleObject(constSelf->i_cppGetter()); \
+			} \
+			return 0; \
+		} \
+		LASS_PYTHON_CATCH_AND_RETURN \
+	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		t_cppClass::_lassPyClassDef.addGetSetter(\
