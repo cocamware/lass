@@ -248,6 +248,11 @@ namespace lass
 		{
 			return privateInt_;
 		}
+		
+		int Bar::getInt()
+		{
+			return privateInt_;
+		}
 
 		void Bar::setInt( int iArg )
 		{

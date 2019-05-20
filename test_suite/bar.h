@@ -103,6 +103,7 @@ namespace test
 		static int aStaticMethod( float ia );
 
 		int getInt() const;
+		int getInt();
 		void setInt( int iArg );
 
 		const PythonFooPtr& getFoo() const;
