@@ -135,11 +135,6 @@ class LassConan(ConanFile):
         cmake.configure(source_folder=".")
         cmake.build()
 
-    def build_id(self):
-        cmake = CMake(self)
-        if cmake.is_multi_configuration:
-            self.info_build.settings.build_type = "Any"
-
     def package(self):
         cmake = self._cmake()
         cmake.install()
