@@ -223,7 +223,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* LASS_UNUSED(iKw))
 	{
-#if PY_VERSION_HEX >= 0X02050000
+#if PY_VERSION_HEX >= 0X02050000 && !defined(Py_LIMITED_API)
 		if (!_PyArg_NoKeywords("function", iKw))
 		{
 			return 0;

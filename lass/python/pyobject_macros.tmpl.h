@@ -2323,8 +2323,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type()->tp_new;\
-		t_cppClass::_lassPyClassDef.type()->tp_new = i_dispatcher; \
+		t_cppClass::_lassPyClassDef.addConstructor(i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain)); \
 	)
 
 /** @ingroup Python
@@ -2405,8 +2404,7 @@ $[
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _excecuteBeforeMain ),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type()->tp_new;\
-		t_cppClass::_lassPyClassDef.type()->tp_new = i_dispatcher; \
+		t_cppClass::_lassPyClassDef.addConstructor(i_dispatcher, LASS_CONCATENATE(i_dispatcher, _overloadChain)); \
 	)
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR_EX with

@@ -87,7 +87,7 @@ const std::string MultiCallbackImplBase::repr() const
 			PyErr_SetString(PyExc_TypeError,"not castable to MultiCallback");
 			return 0;
 		}
-#if PY_VERSION_HEX >= 0x02050000 
+#if PY_VERSION_HEX >= 0x02050000 && !defined(Py_LIMITED_API)
 		if (!_PyArg_NoKeywords("function", kwargs))
 		{
 			return 0;
@@ -98,12 +98,18 @@ const std::string MultiCallbackImplBase::repr() const
 
 	void MultiCallback::initializeType()
 	{
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_call = &MultiCallback::_tp_call;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+#if LASS_USE_PYTYPE_SPEC
+		_lassPyClassDef.setSlot(Py_tp_call, &MultiCallback::_tp_call);
+#else
+		_lassPyClassDef.type()->tp_call = &MultiCallback::_tp_call;
+#endif
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	void MultiCallback::init(TPimpl& pimpl)
@@ -133,6 +139,7 @@ const std::string MultiCallbackImplBase::repr() const
 		LockGIL LASS_UNUSED(lock);
 		pimpl_->call(args,this);
 	}
+
 	PyObject* MultiCallback::callVar(PyObject* args) 
 	{ 
 		LockGIL LASS_UNUSED(lock);

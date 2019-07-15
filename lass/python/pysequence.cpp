@@ -66,6 +66,7 @@ namespace impl
 	PY_CLASS_METHOD_NAME( Sequence, iter, methods::_iter_ );
 	PY_CLASS_METHOD_NAME( Sequence, repr, methods::_repr_ );
 
+#if !LASS_USE_PYTYPE_SPEC
 	PySequenceMethods Sequence::pySequenceMethods = {
 		&Sequence::length,
 		&Sequence::concat,
@@ -78,12 +79,12 @@ namespace impl
 		&Sequence::inplaceConcat,
 		&Sequence::inplaceRepeat,
 	};
-
 	PyMappingMethods Sequence::pyMappingMethods = {
 		&Sequence::length,
 		&Sequence::subscript,
 		&Sequence::assSubscript,
 	};
+#endif
 
 	bool Sequence::isInitialized = false;
 
@@ -106,20 +107,35 @@ namespace impl
 
 	void Sequence::initializeType()
 	{
-		LockGIL LASS_UNUSED(lock);
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
-			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
-			// switch off inheritance
-			Sequence::_lassPyType.tp_dictoffset = 0;
-			Sequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
-#endif
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+#if LASS_USE_PYTYPE_SPEC
+		_lassPyClassDef.setSlot(Py_sq_length, &Sequence::length);
+		_lassPyClassDef.setSlot(Py_sq_concat, &Sequence::concat);
+		_lassPyClassDef.setSlot(Py_sq_repeat, &Sequence::repeat);
+		_lassPyClassDef.setSlot(Py_sq_item, &Sequence::item);
+		_lassPyClassDef.setSlot(Py_sq_ass_item, &Sequence::assItem);
+		_lassPyClassDef.setSlot(Py_sq_contains, &Sequence::contains);
+		_lassPyClassDef.setSlot(Py_sq_inplace_concat, &Sequence::inplaceConcat);
+		_lassPyClassDef.setSlot(Py_sq_inplace_repeat, &Sequence::inplaceRepeat);
+		_lassPyClassDef.setSlot(Py_mp_length, &Sequence::length);
+		_lassPyClassDef.setSlot(Py_mp_subscript, &Sequence::subscript);
+		_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Sequence::assSubscript);
+#else
+		_lassPyClassDef.type()->tp_as_sequence = &Sequence::pySequenceMethods;
+		_lassPyClassDef.type()->tp_as_mapping = &Sequence::pyMappingMethods;
+#	ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+		// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
+		// switch off inheritance
+		Sequence::_lassPyType.tp_dictoffset = 0;
+		Sequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
+#	endif
+#endif
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	const TSequencePtr Sequence::copy() const

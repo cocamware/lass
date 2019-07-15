@@ -149,11 +149,12 @@ namespace lass
 				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
 				~ClassDefinition();
-				PyTypeObject* type() { return &type_; }
-				const PyTypeObject* type() const { return &type_; }
-				const char* name() const { return type_.tp_name; }
-				const char* doc() const { return type_.tp_doc; }
-				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
+
+				PyTypeObject* type();
+				const PyTypeObject* type() const;
+				const char* name() const;
+				const char* doc() const;
+				void setDoc(const char* doc); ///< @a doc must be valid until another one is set
 
 				void addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
 				void addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
@@ -181,7 +182,16 @@ namespace lass
 					statics_.push_back(StaticMember(name, staticMemberHelperObject(value)));
 				}
 				void addInnerClass(ClassDefinition& innerClass);
-				
+				void addConstructor(newfunc dispatcher, newfunc& overloadChain);
+
+#if LASS_USE_PYTYPE_SPEC
+				void* setSlot(int slotId, void* value);
+				template <typename Ptr> Ptr setSlot(int slotId, Ptr value)
+				{
+					return static_cast<Ptr>(setSlot(slotId, static_cast<void*>(value)));
+				}
+#endif
+
 				void freezeDefinition(const char* scopeName = 0);
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
@@ -196,7 +206,16 @@ namespace lass
 				typedef std::vector<StaticMember> TStaticMembers;
 				typedef std::vector<ClassDefinition*> TClassDefs;
 
+#if LASS_USE_PYTYPE_SPEC
+				typedef std::vector<PyType_Slot> TSlots;
+				TSlots slots_;
+				PyType_Spec spec_;
+				TPyObjPtr type_;
+				const char* doc_;
+#else
 				PyTypeObject type_;
+#endif
+
 				TMethods methods_;
 				TGetSetters getSetters_;
 				TCompareFuncs compareFuncs_;

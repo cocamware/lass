@@ -177,7 +177,7 @@ namespace impl
 					// this odd place of advancing is to avoid stepping beyond end
 					std::advance(first, step);
 				}
-				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
+				PyList_SetItem(s.get(), i, pyBuildSimpleObject(*first));
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
@@ -340,8 +340,10 @@ namespace impl
 	class LASS_PYTHON_DLL Sequence : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus)
+#if !LASS_USE_PYTYPE_SPEC
 		static PySequenceMethods pySequenceMethods;
 		static PyMappingMethods pyMappingMethods;
+#endif
 		static bool isInitialized;
 
 	public:
@@ -428,7 +430,11 @@ namespace impl
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Container::value_type temp;
-				TPyObjPtr item( PySequence_ITEM(obj, i) );
+#ifdef Py_LIMITED_API
+				TPyObjPtr item(PySequence_GetItem(obj, i));
+#else
+				TPyObjPtr item(PySequence_ITEM(obj, i));
+#endif
 				if (PyExportTraits<typename Container::value_type>::get( item.get() , temp ) != 0)
 				{
 					std::ostringstream buffer;

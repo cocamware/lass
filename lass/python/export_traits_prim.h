@@ -73,17 +73,16 @@ struct PyExportTraitsVectorPoint
 
 	static int get(PyObject* obj, ObjectType& v)
 	{
-		const TPyObjPtr tuple = impl::checkedFastSequence(obj, dimension);
+		FastSequence tuple(obj, dimension);
 		if (!tuple)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
 		}
-		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 		ObjectType result;
 		for (size_t k = 0; k < dimension; ++k)
 		{
-			if (!impl::decodeObject(objects[k], result[k], k + 1))
+			if (!impl::decodeObject(tuple[k], result[k], k + 1))
 			{
 				impl::addMessageHeader(ExportTraits::className());
 				return 1;
@@ -180,17 +179,16 @@ struct PyExportTraitsPrimTransformation
 
 	static int get(PyObject* obj, TTransformation& transfo)
 	{
-		TPyObjPtr tuple = impl::checkedFastSequence(obj, size);
-		if (!tuple)
+		FastSequence rows(obj, size);
+		if (!rows)
 		{
 			impl::addMessageHeader(ExporTraits::className());
 			return 1;
 		}
-		PyObject** rows = PySequence_Fast_ITEMS(tuple.get());
 		TValue values[size * size];
 		for (int i = 0; i < size; ++i)
 		{
-			TPyObjPtr row = impl::checkedFastSequence(rows[i], size);
+			FastSequence row(rows[i], size);
 			if (!row)
 			{
 				std::ostringstream buffer;
@@ -198,10 +196,9 @@ struct PyExportTraitsPrimTransformation
 				impl::addMessageHeader(buffer.str().c_str());
 				return 1;
 			}
-			PyObject** objects = PySequence_Fast_ITEMS(row.get());
 			for (int j = 0; j < size; ++j)
 			{
-				if (pyGetSimpleObject(objects[j], values[size * i + j]) != 0)
+				if (pyGetSimpleObject(row[j], values[size * i + j]) != 0)
 				{
 					std::ostringstream buffer;
 					buffer << ExporTraits::className() << ": row " << i << ", column " << j;
@@ -668,17 +665,16 @@ struct PyExportTraits<prim::IndexTriangle>
 	}
 	static int get(PyObject* obj, prim::IndexTriangle& oTriangle)
 	{
-		const TPyObjPtr tuple(impl::checkedFastSequence(obj, 3));
-		if (!tuple)
+		impl::FastSequence seq(obj, 3);
+		if (!seq)
 		{
 			impl::addMessageHeader("IndexTriangle");
 			return 1;
 		}
-		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 		prim::IndexTriangle result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 		for (int k = 0; k < 3; ++k)
 		{
-			if (impl::getIndexVertex(objects[k], result.vertices[k], result.normals[k], result.uvs[k]) != 0)
+			if (impl::getIndexVertex(seq[k], result.vertices[k], result.normals[k], result.uvs[k]) != 0)
 			{
 				std::ostringstream buffer;
 				buffer << "IndexTriangle: " << (k + 1) << "th vertex";

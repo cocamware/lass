@@ -114,6 +114,9 @@
 #	undef _XOPEN_SOURCE
 #endif
 
+// #define Py_LIMITED_API 0x03040000
+// #define LASS_USE_PYTYPE_SPEC 1
+
 // Python >= 3.2 defines `PyType_Spec` in `object.h` which has a member called
 // `slots`. When combining this with Qt, `slots` may already be defined as a
 // macro. It is sufficient to temporarily undefine `slots` since this member

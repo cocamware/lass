@@ -71,11 +71,13 @@ namespace impl
 
 	bool Map::isInitialized = false;
 
+#if !LASS_USE_PYTYPE_SPEC
 	PyMappingMethods Map::pyMappingMethods = {
 		&Map::length,
 		&Map::subscript,
 		&Map::assSubscript,
 	};
+#endif
 
 	Map::~Map()
 	{
@@ -88,16 +90,26 @@ namespace impl
 
 	void Map::initializeType()
 	{
+		if (isInitialized)
+		{
+			return;
+		}
 		LockGIL LASS_UNUSED(lock);
 		if (!isInitialized)
 		{
+#if LASS_USE_PYTYPE_SPEC
+			_lassPyClassDef.setSlot(Py_mp_length, &Map::length);
+			_lassPyClassDef.setSlot(Py_mp_subscript, &Map::subscript);
+			_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Map::assSubscript);
+#else
 			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
+#	ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
 			// [TDM] for some reason the dict member is not getting properly initialized on Map?!
 			// switch off inheritance
 			//&reinterpret_cast<const volatile char&>((((s *)0)->m))
 			Map::_lassPyType.tp_dictoffset = 0;
 			Map::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
+#	endif
 #endif
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;

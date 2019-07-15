@@ -118,14 +118,13 @@ template <$(typename P$x)$>
 int decodeTuple(PyObject* obj, $(P$x& p$x)$)
 {
 	LockGIL LASS_UNUSED(lock);
-	const TPyObjPtr tuple = impl::checkedFastSequence(obj, $x);
+	impl::FastSequence tuple(obj, $x);
 	if (!tuple)
 	{
 		return 1;
 	}
-	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 	return true
-$(		&& impl::decodeObject(objects[$w], p$x, $x) 
+$(		&& impl::decodeObject(tuple[$w], p$x, $x)
 )$		? 0 : 1;
 
 }
@@ -146,15 +145,14 @@ template <$(typename P$x)$>
 int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
 {
 	LockGIL LASS_UNUSED(lock);
-	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, $x);
+	impl::FastSequence tuple(obj, minumumLength, $x);
 	if (!tuple)
 	{
 		return 1;
 	}
-	const Py_ssize_t n = PySequence_Fast_GET_SIZE(tuple.get());
-	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	const Py_ssize_t n = tuple.size();
 	return true
-$(		&& ($x > n || impl::decodeObject(objects[$w], p$x, $x))
+$(		&& ($x > n || impl::decodeObject(tuple[$w], p$x, $x))
 )$		? 0 : 1;
 
 }

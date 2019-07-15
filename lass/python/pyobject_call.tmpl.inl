@@ -374,7 +374,7 @@ $[
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
-    
+	
 	/** call getter function.
 	 *
 	 *  Getters and Setters never release the GIL, as it is assumed they're cheap.
@@ -510,7 +510,9 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		   - PyObjectPlusSuperDeluxe will support everything.
 		   The shadowclasses can then be the 'deluxe' version 
 		*/
-		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		//result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		LASS_ASSERT(result->ob_type == subType);
+		LASS_ASSERT(!PyType_IS_GC(subType));
 		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_PYTHON_CATCH_AND_RETURN
@@ -541,8 +543,9 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		}
 		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);
 		forceObjectType(result, subType);
-		result->ob_type = subType;
-		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		LASS_ASSERT(result->ob_type == subType);
+		//result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
+		LASS_ASSERT(!PyType_IS_GC(subType));
 		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_PYTHON_CATCH_AND_RETURN

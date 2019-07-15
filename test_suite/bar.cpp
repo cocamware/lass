@@ -117,27 +117,6 @@ namespace lass
 		PY_DECLARE_CLASS( DerivedBar )
 		PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
 
-		void listInfo( const python::TPyObjPtr& iObject )
-		{
-			LASS_COUT << "Name : " << iObject->ob_type->tp_name << "\n";
-			LASS_COUT << "Methods : \n";
-			int i=0;
-			if (iObject->ob_type->tp_methods)
-			{
-				while (true)
-				{
-
-					if (iObject->ob_type->tp_methods[i].ml_name !=NULL)
-					{
-						LASS_COUT << iObject->ob_type->tp_methods[i].ml_name << "\n";
-						++i;
-					}
-					else
-						break;
-				}
-			}
-		}
-
 		int freeFunction( int i )
 		{
 			LASS_COUT << "Freefunction " << i << "\n";

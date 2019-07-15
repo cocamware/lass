@@ -93,38 +93,31 @@ int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t&
 	size_t normal = prim::IndexTriangle::null();
 	size_t uv = prim::IndexTriangle::null();
 
-	TPyObjPtr tuple(PySequence_Fast(iIndices, "expected a sequence (tuple, list, ...)"));
-	if (!tuple)
+	FastSequence seq(iIndices, 1, 3);
+	if (!seq)
 	{
+		impl::addMessageHeader("(v [, vn [, vt]])");
 		return 1;
 	}
-	const Py_ssize_t size = PySequence_Fast_GET_SIZE(tuple.get());
-	if (size == -1)
-	{
-		return 1;
-	}
-	if (size == 0 || size > 3)
-	{
-		PyErr_SetString(PyExc_TypeError, "is not (v [, vn [, vt]])");
-		return 1;
-	}
-	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
-	if (pyGetSimpleObject(objects[0], vertex) != 0)
+	const Py_ssize_t size = seq.size();
+	if (pyGetSimpleObject(seq[0], vertex) != 0)
 	{
 		impl::addMessageHeader("v");
 		return 1;
 	}
-	if (size > 1 && objects[1] != Py_None)
+	if (size > 1)
 	{
-		if (pyGetSimpleObject(objects[1], normal) != 0)
+		PyObject* const vn = seq[1];
+		if (vn != Py_None && pyGetSimpleObject(vn, normal) != 0)
 		{
 			impl::addMessageHeader("vn");
 			return 1;
 		}
 	}
-	if (size > 2 && objects[2] != Py_None)
+	if (size > 2)
 	{
-		if (pyGetSimpleObject(objects[2], uv) != 0)
+		PyObject* const vt = seq[2];
+		if (vt != Py_None && pyGetSimpleObject(vt, uv) != 0)
 		{
 			impl::addMessageHeader("vt");
 			return 1;

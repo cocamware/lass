@@ -179,8 +179,10 @@ namespace impl
 	*/
 	class LASS_PYTHON_DLL Map : public PyObjectPlus, util::NonCopyable
 	{
-		PY_HEADER(PyObjectPlus)
-		static PyMappingMethods pyMappingMethods;
+		 PY_HEADER(PyObjectPlus)
+#if !LASS_USE_PYTYPE_SPEC
+		 static PyMappingMethods pyMappingMethods;
+#endif
 	public:
 		template <typename Container> Map( const util::SharedPtr<Container>& container )
 		{
@@ -267,12 +269,11 @@ namespace impl
 				PyErr_SetString(PyExc_TypeError, "Not a mapping");
 				return 1;
 			}
-			TPyObjPtr fast = impl::checkedFastSequence(items.get(), size);
-			if (!fast)
+			FastSequence pairs(items.get(), size);
+			if (!pairs)
 			{
 				return 1;
 			}
-			PyObject** pairs = PySequence_Fast_ITEMS(fast.get());
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename Container::key_type key;

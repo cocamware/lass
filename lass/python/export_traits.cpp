@@ -256,8 +256,8 @@ int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 	v.resize(static_cast<size_t>(PyString_GET_SIZE(s.get())), '\0');
 	memcpy(&v[0], PyString_AS_STRING(s.get()), v.size());
 #else
-	v.resize(static_cast<size_t>(PyBytes_GET_SIZE(s.get())), '\0');
-	memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
+	v.resize(static_cast<size_t>(PyBytes_Size(s.get())), '\0');
+	memcpy(&v[0], PyBytes_AsString(s.get()), v.size());
 #endif
 	return 0;
 }

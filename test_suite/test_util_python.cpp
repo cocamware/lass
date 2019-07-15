@@ -98,9 +98,10 @@ void testUtilPython()
 
 	// execfile is no longer part of python 3.0
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
-	std::string commandStr = "exec(open('" + testFile + "').read())";
-	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
-	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
+	const std::string commandStr =
+		"with open(r'" + testFile + "') as fp:\n"
+		"    exec(fp.read())";
+	LASS_TEST_CHECK_NO_THROW(python::execute(commandStr.c_str()));
 	
 	/*
 	typedef std::vector<double> TV;

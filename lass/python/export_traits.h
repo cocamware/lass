@@ -505,17 +505,25 @@ struct PyExportTraitsFloat
 	}
 	static int get(PyObject* obj, Float& v)
 	{
+#ifdef Py_LIMITED_API
+		const double x = PyFloat_AsDouble(obj);
+		if (PyErr_Occurred())
+		{
+			return 1;
+		}
+		return impl::pyNumCast(x, v);
+#else
 		if (PyFloat_Check(obj))
 		{
 			return impl::pyNumCast(PyFloat_AS_DOUBLE(obj), v);
 		}
-#if PY_MAJOR_VERSION < 3
+#	if PY_MAJOR_VERSION < 3
 		if (PyInt_Check(obj))
 		{
 			v = static_cast<Float>(PyInt_AS_LONG(obj));
 			return 0;
 		}
-#endif
+#	endif
 		if (PyLong_Check(obj))
 		{
 			const double x = PyLong_AsDouble(obj);
@@ -528,6 +536,7 @@ struct PyExportTraitsFloat
 		}
 		PyErr_SetString(PyExc_TypeError, "not a float or integer");
 		return 1;
+#endif
 	}
 };
 

@@ -55,14 +55,20 @@ namespace python
 
 	void PyIteratorRange::initialize()
 	{
-		LockGIL LASS_UNUSED(lock);
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_iter = &PyIteratorRange::iter;
-			_lassPyClassDef.type()->tp_iternext = &PyIteratorRange::iterNext;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+#if LASS_USE_PYTYPE_SPEC
+		_lassPyClassDef.setSlot(Py_tp_iter, &PyIteratorRange::iter);
+		_lassPyClassDef.setSlot(Py_tp_iternext, &PyIteratorRange::iterNext);
+#else
+		_lassPyClassDef.type()->tp_iter = &PyIteratorRange::iter;
+		_lassPyClassDef.type()->tp_iternext = &PyIteratorRange::iterNext;
+#endif
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	PyObject* PyIteratorRange::iter( PyObject* iPo) 

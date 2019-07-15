@@ -195,10 +195,42 @@ namespace lass
 
 		namespace impl
 		{
-			LASS_PYTHON_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
+			LASS_PYTHON_DLL bool LASS_CALL checkSequenceSize(PyObject* obj, Py_ssize_t expectedSize);
+
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
+
+			class LASS_PYTHON_DLL FastSequence
+			{
+			public:
+				FastSequence(PyObject* obj, Py_ssize_t size);
+				FastSequence(PyObject* obj, Py_ssize_t minSize, Py_ssize_t maxSize);
+				bool operator!() const
+				{
+					return !fast_;
+				}
+				PyObject* operator[](Py_ssize_t index) const
+				{
+#ifdef Py_LIMITED_API
+					PyObject* const f = fast_.get();
+					return PyList_Check(f) ? PyList_GetItem(f, index) : PyTuple_GetItem(f, index);
+#else
+					return objects_[index];
+#endif
+				}
+				Py_ssize_t size() const
+				{
+					return size_;
+				}
+			private:
+				TPyObjPtr fast_;
+#ifndef Py_LIMITED_API
+				PyObject** objects_;
+#endif
+				Py_ssize_t size_;
+			};
+			
 			LASS_PYTHON_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
 		}
 	}

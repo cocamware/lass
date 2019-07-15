@@ -518,7 +518,6 @@ PY_MODULE_CLASS( embedding, PyClassSeq );
 PY_MODULE_CLASS( embedding, PyClassMap );
 
 PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
-PY_MODULE_FUNCTION( embedding, listInfo )
 PY_MODULE_FUNCTION( embedding, getAFoo )
 PY_MODULE_FUNCTION( embedding, makeSpam )
 PY_MODULE_FUNCTION( embedding, spamToCppByPointer )

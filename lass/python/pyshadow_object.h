@@ -261,7 +261,11 @@ private:
 				PyErr_Clear();
 			}
 		}
+#if Py_LIMITED_API
+		PyErr_Format(PyExc_TypeError, "not convertable to %s", T::_lassPyClassDef.name());
+#else
 		PyErr_Format(PyExc_TypeError, "%s not convertable to %s", obj->ob_type->tp_name, T::_lassPyClassDef.name());
+#endif
 		return 1;
 	}
 
