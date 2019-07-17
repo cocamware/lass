@@ -114,6 +114,14 @@
 #	undef _XOPEN_SOURCE
 #endif
 
+// Python >= 3.2 defines `PyType_Spec` in `object.h` which has a member called
+// `slots`. When combining this with Qt, `slots` may already be defined as a
+// macro. It is sufficient to temporarily undefine `slots` since this member
+// is not being used on the client side.
+// `push_macro` is supported by MSVC, GCC and clang.
+#pragma push_macro("slots")
+#undef slots
+
 #if defined(_DEBUG) && LASS_PYTHON_HAS_DEBUG_BUILD == 0
 #	undef _DEBUG
 #	include "Python.h"
@@ -121,6 +129,8 @@
 #else
 #	include "Python.h"
 #endif
+
+#pragma pop_macro("slots")
 
 // oh r'ly? Because of some issue lost to ancient history, pyport.h will
 // redefine following functions on FreeBSD > 500039 (and Apple?),
