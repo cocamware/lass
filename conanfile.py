@@ -224,11 +224,12 @@ class Python(object):
                 ld_library_path = os.getenv("LD_LIBRARY_PATH")
                 if ld_library_path:
                     hints += ld_library_path.split(os.pathsep)
-                hints += map(self._get_config_var, ["LIBDIR", "LIBPL"])
-                print(hints)
+                hints += [
+                    self._get_config_var("LIBDIR"),
+                    self._get_config_var("LIBPL"),
+                ]
                 for dirname in hints:
                     candidate = os.path.join(dirname, fname)
-                    print(candidate)
                     if os.path.isfile(candidate):
                         self._library = candidate
                         break
