@@ -74,6 +74,10 @@ class LassConan(ConanFile):
 
     def configure(self):
         python = Python(self.options.python_executable, self.settings)
+        if not python.executable:
+            raise errors.ConanInvalidConfiguration(
+                "python_executable cannot be found: {!s}".format(
+                    self.options.python_executable))
         if not self.options.python_version:
             self.options.python_version = python.version
         if self.options.python_debug.value in (None, 'None'):
