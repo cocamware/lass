@@ -50,6 +50,7 @@
 
 #include "stde_common.h"
 #include "../num/safe_bool.h"
+#include "../util/type_traits.h"
 
 namespace lass
 {
@@ -66,16 +67,15 @@ template <typename I> bool operator<=(const const_integral_iterator<I>& a, const
 template <typename I> bool operator>=(const const_integral_iterator<I>& a, const const_integral_iterator<I>& b);
 
 template <typename integral_type>
-class const_integral_iterator: 
-	public std::iterator<std::random_access_iterator_tag, const integral_type>
+class const_integral_iterator:
 {
 public:
 	typedef const_integral_iterator<integral_type> self_type;
-	typedef std::iterator<std::random_access_iterator_tag, const integral_type> iterator_type;
-	typedef typename iterator_type::value_type value_type;
-	typedef typename iterator_type::pointer pointer;
-	typedef typename iterator_type::reference reference;
-	typedef typename iterator_type::difference_type difference_type;
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef integral_type value_type;
+	typedef std::ptrdiff_t difference_type;
+	typedef const integral_type* pointer;
+	typedef const integral_type& reference;
 
 	const_integral_iterator(value_type value, value_type step);
 

@@ -91,19 +91,12 @@ template
 	typename SizeType = size_t,
 	typename DifferenceType = std::ptrdiff_t
 >
-class index_iterator_t: 
-	public std::iterator
-	<
-		std::random_access_iterator_tag,
-		ValueType,
-		DifferenceType,
-		PointerType,
-		ReferenceType
-	>
+class index_iterator_t
 {
 public:
 	typedef ContainerType container_type;
 	typedef SizeType size_type;
+	typedef std::random_access_iterator_tag iterator_category;
 	typedef ValueType value_type;
 	typedef DifferenceType difference_type;
 	typedef PointerType pointer;

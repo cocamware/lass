@@ -51,11 +51,17 @@ namespace stde
 {
 
 template <typename Container>
-class overwrite_insert_iterator: public std::iterator<std::output_iterator_tag, void, void, void, void>
+class overwrite_insert_iterator
 {
 public:
 
 	typedef Container container_type;
+
+	typedef std::output_iterator_tag iterator_category;
+	typedef void value_type;
+	typedef void difference_type;
+	typedef void pointer;
+	typedef void reference;
 
 	explicit overwrite_insert_iterator(container_type& container): 
 		container_(&container),

@@ -84,19 +84,12 @@ template
 	typename Iterator,
 	typename Accessor
 >
-class access_iterator_t: 
-	public std::iterator
-	<
-		typename std::iterator_traits<Iterator>::iterator_category,
-		typename Accessor::value_type,
-		typename std::iterator_traits<Iterator>::difference_type,
-		typename Accessor::pointer,
-		typename Accessor::reference
-	>
+class access_iterator_t
 {
 public:
 	typedef Iterator iterator_type;
 	typedef Accessor accessor_type;
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
 	typedef typename Accessor::value_type value_type;
 	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 	typedef typename Accessor::pointer pointer;
