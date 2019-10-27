@@ -114,7 +114,7 @@ struct MultiCallback0
 	 */
 	void remove( const TCallback& iCallback )
 	{
-		std::remove( callbacks_.begin(), callbacks_.end(), iCallback );
+		static_cast<void>(std::remove( callbacks_.begin(), callbacks_.end(), iCallback ));
 	}
 
 	/** pop a callback from the list of callbacks 
