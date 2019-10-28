@@ -137,6 +137,8 @@
 #cmakedefine LASS_HAVE_STD_AUTO_PTR 1
 #cmakedefine LASS_HAVE_STD_ALLOCATOR_TRAITS 1
 
+#cmakedefine LASS_HAVE_CPP_LAMBDAS 1
+
 #cmakedefine LASS_HAVE_WCHAR_T @WCHAR_T@
 #cmakedefine LASS_HAVE_WFOPEN 1
 #cmakedefine LASS_HAVE_ICONV 1

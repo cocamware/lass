@@ -140,11 +140,21 @@ private:
 			const typename TValues::iterator firstCdfV = condCdfV_.begin() + i * vSize_;
 			const typename TValues::iterator lastCdfV = firstCdfV + vSize_;
 			std::partial_sum(firstCdfV, lastCdfV, firstCdfV);
-			*(margCdfU + i) = *(lastCdfV - 1);
-			std::transform(firstCdfV, lastCdfV, firstCdfV, std::bind2nd(std::divides<TValue>(), *(lastCdfV - 1)));
+			const TValue maxCdfV = *(lastCdfV - 1);
+			*(margCdfU + i) = maxCdfV; 
+#if LASS_HAVE_CPP_LAMBDAS
+			std::transform(firstCdfV, lastCdfV, firstCdfV, [maxCdfV](TValue cdf) { return cdf / maxCdfV; });
+#else
+			std::transform(firstCdfV, lastCdfV, firstCdfV, std::bind2nd(std::divides<TValue>(), maxCdfV));
+#endif
 		}
 		std::partial_sum(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin());
-		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), std::bind2nd(std::divides<TValue>(), margCdfU_.back()));
+		const TValue maxCdfU = margCdfU_.back();
+#if LASS_HAVE_CPP_LAMBDAS
+		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), [maxCdfU](TValue cdf) { return cdf / maxCdfU; });
+#else
+		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), std::bind2nd(std::divides<TValue>(), maxCdfU));
+#endif
 	}
 
 	TValues condCdfV_;

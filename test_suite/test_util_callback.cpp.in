@@ -125,6 +125,12 @@ void testUtilCallback0()
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_free);
 	LASS_TEST_CALLBACK_CALL(cb0_void_free());
 
+#if LASS_HAVE_CPP_LAMBDAS
+	util::Callback0 cb0_void_lambda([]() { free0(); });
+	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_lambda);
+	LASS_TEST_CALLBACK_CALL(cb0_void_lambda());
+#endif
+
 	util::Callback0 cb0_void_mem(&foo, &Foo::mem0);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_mem);
 	LASS_TEST_CALLBACK_CALL(cb0_void_mem());
@@ -169,6 +175,12 @@ void testUtilCallback$x()
 	util::Callback$x<$(int)$> cb$x_int_free(free$x);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_free);
 	LASS_TEST_CALLBACK_CALL(cb$x_int_free($($x)$));
+
+#if LASS_HAVE_CPP_LAMBDAS
+	util::Callback$x<$(int)$> cb$x_int_lambda([]($(int p$x)$) { free$x($(p$x)$); });
+	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_lambda);
+	LASS_TEST_CALLBACK_CALL(cb$x_int_lambda($($x)$));
+#endif
 
 	//util::Callback$x<$(float)$> cb$x_float_free(free$x);
 	//LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_float_free);
