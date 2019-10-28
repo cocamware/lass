@@ -94,6 +94,15 @@ public:
 		key_compare key_comp_;
 	};
 
+#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef typename std::allocator_traits<Allocator>::template rebind_alloc<value_type> allocator_type;
+	typedef typename std::allocator_traits<Allocator>::pointer pointer;
+	typedef typename std::allocator_traits<Allocator>::const_pointer const_pointer;
+	typedef typename std::allocator_traits<Allocator>::size_type size_type;
+	typedef typename std::allocator_traits<Allocator>::difference_type difference_type;
+#else
 	typedef typename Allocator::template rebind<value_type>::other allocator_type;
 	typedef typename Allocator::reference reference;
 	typedef typename Allocator::const_reference const_reference;
@@ -101,6 +110,7 @@ public:
 	typedef typename Allocator::const_pointer const_pointer;
 	typedef typename Allocator::size_type size_type;
 	typedef typename Allocator::difference_type difference_type;
+#endif
 
 	typedef std::vector<value_type, Allocator> vector_type;
 	typedef typename vector_type::iterator iterator;

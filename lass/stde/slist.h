@@ -75,6 +75,16 @@ private:
 
 public:
 
+#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+	typedef T value_type;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef typename std::allocator_traits<Alloc>::template rebind_alloc<value_type> allocator_type;
+	typedef typename std::allocator_traits<allocator_type>::pointer pointer;
+	typedef typename std::allocator_traits<allocator_type>::const_pointer const_pointer;
+	typedef typename std::allocator_traits<allocator_type>::size_type size_type;
+	typedef typename std::allocator_traits<allocator_type>::difference_type difference_type;
+#else
 	typedef typename Alloc::template rebind<T>::other allocator_type;
 	typedef T value_type;
 	typedef typename allocator_type::pointer pointer;
@@ -83,7 +93,7 @@ public:
 	typedef typename allocator_type::const_reference const_reference;
 	typedef typename allocator_type::size_type size_type;
 	typedef typename allocator_type::difference_type difference_type;
-
+#endif
 	class const_iterator;
 	friend class const_iterator;
 	class iterator;
@@ -92,11 +102,11 @@ public:
 	class iterator
 	{
 	public:
-		typedef T value_type;
-		typedef typename allocator_type::pointer pointer;
-		typedef typename allocator_type::reference reference;
-		typedef typename allocator_type::size_type size_type;
-		typedef typename allocator_type::difference_type difference_type;
+		typedef typename slist<T, Alloc>::value_type value_type;
+		typedef typename slist<T, Alloc>::pointer pointer;
+		typedef typename slist<T, Alloc>::reference reference;
+		typedef typename slist<T, Alloc>::size_type size_type;
+		typedef typename slist<T, Alloc>::difference_type difference_type;
 		typedef std::forward_iterator_tag iterator_category;
 		iterator(): node_(0) {}
 		reference operator*() const
@@ -123,11 +133,11 @@ public:
 	class const_iterator
 	{
 	public:
-		typedef const T value_type;
-		typedef typename allocator_type::const_pointer pointer;
-		typedef typename allocator_type::const_reference reference;
-		typedef typename allocator_type::size_type size_type;
-		typedef typename allocator_type::difference_type difference_type;
+		typedef typename slist<T, Alloc>::value_type value_type;
+		typedef typename slist<T, Alloc>::pointer pointer;
+		typedef typename slist<T, Alloc>::reference reference;
+		typedef typename slist<T, Alloc>::size_type size_type;
+		typedef typename slist<T, Alloc>::difference_type difference_type;
 		typedef std::forward_iterator_tag iterator_category;
 		const_iterator(): node_(0) {}
 		const_iterator(iterator i): node_(i.node_) {}
@@ -227,7 +237,11 @@ public:
 
 private:
 
+#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+	typedef typename std::allocator_traits<allocator_type>::template rebind_alloc<node_t> node_allocator_type;
+#else
 	typedef typename allocator_type::template rebind<node_t>::other node_allocator_type;
+#endif
 
 	node_t* make_node(const T& value) const;
 	void unlink_and_destroy_after(node_base_t* position) const;

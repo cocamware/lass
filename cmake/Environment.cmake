@@ -303,6 +303,7 @@ else()
 endif()
 option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by default if std::unique_ptr is found." "${_lass_have_std_auto_ptr_default}")
 
+_try_compile_looking(LASS_HAVE_STD_ALLOCATOR_TRAITS "check_std_allocator_traits.cpp" "std::allocator_traits")
 
 # --- checking some properties of numbers and available functions ---
 
