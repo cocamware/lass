@@ -152,8 +152,10 @@ bool operator>=(const access_iterator_t<I, V>& a, const access_iterator_t<I, V>&
 template <typename BaseReference, typename Value> struct accessor_helper_t;
 
 template <typename Base, typename Value>
-struct accessor_helper_t<Base&, Value>: std::unary_function<Base&, Value&>
+struct accessor_helper_t<Base&, Value>
 {
+	typedef Base& argument_type;
+	typedef Value& result_type;
 	typedef Value value_type;
 	typedef Value& reference;
 	typedef Value* pointer;
@@ -162,8 +164,10 @@ protected:
 };
 
 template <typename Base, typename Value>
-struct accessor_helper_t<const Base&, Value>: std::unary_function<const Base&, const Value&>
+struct accessor_helper_t<const Base&, Value>
 {
+	typedef const Base& argument_type;
+	typedef const Value& result_type;
 	typedef Value value_type;
 	typedef const Value& reference;
 	typedef const Value* pointer;

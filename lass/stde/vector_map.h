@@ -78,9 +78,12 @@ public:
 	typedef std::pair<Key, T> value_type;
 
 	typedef Compare key_compare;
-	class value_compare: public std::binary_function<value_type, value_type, bool>
+	class value_compare
 	{
 	public:
+		typedef value_type first_argument_type;
+		typedef value_type second_argument_type;
+		typedef bool result_type;
 		bool operator()(const value_type& a, const value_type& b) const
 		{
 			return key_comp_(a.first, b.first);
