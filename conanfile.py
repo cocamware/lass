@@ -1,9 +1,9 @@
-import os
 import errno
-import subprocess
+import os
 import re
+import subprocess
 
-from conans import ConanFile, CMake, tools, errors
+from conans import CMake, ConanFile, errors, tools
 
 
 def _get_version():
@@ -160,14 +160,23 @@ class LassConan(ConanFile):
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
     def _lass_config(self):
-        path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
-                            "LassConfig.py")
-        import imp
-        imp.acquire_lock()
+        module_name = "LassConfig"
+        file_path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
+                                 "LassConfig.py")
         try:
-            return imp.load_source("LassConfig", path)
-        finally:
-            imp.release_lock()
+            from importlib.util import spec_from_file_location, module_from_spec
+        except ImportError:
+            import imp
+            imp.acquire_lock()
+            try:
+                return imp.load_source(module_name, file_path)
+            finally:
+                imp.release_lock()
+        else:
+            spec = spec_from_file_location(module_name, file_path)
+            module = module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
 
 
 class Python(object):
