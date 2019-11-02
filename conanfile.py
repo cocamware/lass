@@ -73,24 +73,25 @@ class LassConan(ConanFile):
     build_requires = ("cmake_installer/[>=3.1]@conan/stable")
 
     def configure(self):
-        python = Python(self.options.python_executable, self.settings)
-        if not python.executable:
-            raise errors.ConanInvalidConfiguration(
-                "python_executable cannot be found: {!s}".format(
-                    self.options.python_executable))
+        # Do *not* rely on any checks or queries involving
+        # options.python_executable in configure. Potential build requirements
+        # can influence PATH, and that's no in effect in configure nor in
+        # package_id.
+        #
+        # Exception is when python_version and python_debug are not explicitly
+        # configured, because this is your last change to do so.
+        #
+        # This means, if you rely on python to be found on a build requirement's
+        # PATH, you must be explicit about python_version and python_debug.
+        #
         if not self.options.python_version:
-            self.options.python_version = python.version
+            self.options.python_version = Python(
+                self.options.python_executable, self.settings).version
         if self.options.python_debug.value in (None, 'None'):
-            self.options.python_debug = python.debug
+            self.options.python_debug = Python(self.options.python_executable,
+                                               self.settings).debug
 
     def _cmake(self):
-        # Delay final checks and queries involving options.python_executable
-        # until here, since potential build_requires can influence PATH,
-        # and that PATH is yet not in effect in configure nor in package_id.
-        # Exception in configure is when python_version and python_debug are
-        # not configured.
-
-        # double check python_version and python_debug
         python = Python(self.options.python_executable, self.settings)
         if str(self.options.python_version) != python.version:
             raise errors.ConanInvalidConfiguration(
@@ -180,6 +181,10 @@ class Python(object):
     def __init__(self, executable, settings):
         self._executable = tools.which(str(executable))
         self._os = settings.os
+
+        if not self._executable:
+            raise errors.ConanInvalidConfiguration(
+                "Python executable cannot be found: {!s}".format(self._executable))
 
     @property
     def executable(self):
