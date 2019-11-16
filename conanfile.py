@@ -159,11 +159,6 @@ class LassConan(ConanFile):
         self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
-        python = Python(self.options.python_executable, self.settings)
-        self.user_info.python_version = python.version
-        self.user_info.python_executable = python.executable
-        self.user_info.python_library = python.library
-
     def _lass_config(self):
         path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
                             "LassConfig.py")
