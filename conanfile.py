@@ -28,14 +28,13 @@ def _get_version():
 
     git = tools.Git()
     try:
-        describe = git.run(
-            "describe --abbrev=8 --dirty --match {}".format(basetag))
+        describe = git.run("describe --abbrev=8 --dirty --match {}".format(basetag))
     except errors.ConanException:
         return None  # Assume conan metadata already knows
-    assert describe.startswith(basetag), \
-        "{!r} does not start with {!r}".format(describe, basetag)
-    match = re.search(r"{}-(\d+)-(g\w+(-dirty)?)$".format(re.escape(basetag)),
-                      describe)
+    assert describe.startswith(basetag), "{!r} does not start with {!r}".format(
+        describe, basetag
+    )
+    match = re.search(r"{}-(\d+)-(g\w+(-dirty)?)$".format(re.escape(basetag)), describe)
     assert match, "unexpected describe format: {!r}".format(describe)
     pre_release, rev = match.group(1), match.group(2)
     return "{}-{}+{}".format(version, pre_release, rev)
@@ -70,7 +69,7 @@ class LassConan(ConanFile):
     }
     generators = "cmake"
     exports_sources = ("*", "!build*", "!env*", "!venv*")
-    build_requires = ("cmake_installer/[>=3.1]@conan/stable")
+    build_requires = ("cmake_installer/[>=3.1]@conan/stable",)
 
     def configure(self):
         # Do *not* rely on any checks or queries involving
@@ -86,25 +85,29 @@ class LassConan(ConanFile):
         #
         if not self.options.python_version:
             self.options.python_version = Python(
-                self.options.python_executable, self.settings).version
-        if self.options.python_debug.value in (None, 'None'):
-            self.options.python_debug = Python(self.options.python_executable,
-                                               self.settings).debug
+                self.options.python_executable, self.settings
+            ).version
+        if self.options.python_debug.value in (None, "None"):
+            self.options.python_debug = Python(
+                self.options.python_executable, self.settings
+            ).debug
 
     def _cmake(self):
         python = Python(self.options.python_executable, self.settings)
         if str(self.options.python_version) != python.version:
             raise errors.ConanInvalidConfiguration(
                 "python_version option not compatible with python_executable:"
-                "{} != {}".format(
-                    str(self.options.python_version), python.version))
+                "{} != {}".format(str(self.options.python_version), python.version)
+            )
         if self.options.python_debug != python.debug:
             raise errors.ConanInvalidConfiguration(
-                "python_debug option not compatible with python_executable.")
+                "python_debug option not compatible with python_executable."
+            )
         if self.settings.os == "Windows":
             if python.debug and self.settings.build_type != "Debug":
                 raise errors.ConanInvalidConfiguration(
-                    "Can't build non-debug Lass with debug Python on Windows.")
+                    "Can't build non-debug Lass with debug Python on Windows."
+                )
 
         cmake = CMake(self)
 
@@ -121,16 +124,16 @@ class LassConan(ConanFile):
         defs = {
             "BUILD_TESTING": self.develop and not self.in_local_cache,
             "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
-            "BUILD_WITHOUT_ITERATOR_DEBUGGING": \
-                bool(self.options.without_iterator_debugging),
+            "BUILD_WITHOUT_ITERATOR_DEBUGGING": bool(
+                self.options.without_iterator_debugging
+            ),
             "Lass_PYTHON_VERSION": python.version,
             Python_EXECUTABLE: python.executable,
             Python_LIBRARY_RELEASE: python.library,
             Python_LIBRARY_DEBUG: python.library,
         }
         if self.options.with_std_auto_ptr.value not in (None, "None"):
-            defs["LASS_HAVE_STD_AUTO_PTR"] = \
-                bool(self.options.with_std_auto_ptr)
+            defs["LASS_HAVE_STD_AUTO_PTR"] = bool(self.options.with_std_auto_ptr)
 
         cmake.configure(source_folder=".", defs=defs)
         return cmake
@@ -149,24 +152,26 @@ class LassConan(ConanFile):
         if self.settings.build_type == "Debug":
             libs = [
                 lass_config.LASS_OUTPUT_NAME_DEBUG,
-                lass_config.LASS_PYTHON_OUTPUT_NAME_DEBUG
+                lass_config.LASS_PYTHON_OUTPUT_NAME_DEBUG,
             ]
         else:
             libs = [
                 lass_config.LASS_OUTPUT_NAME,
-                lass_config.LASS_PYTHON_OUTPUT_NAME
+                lass_config.LASS_PYTHON_OUTPUT_NAME,
             ]
         self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
     def _lass_config(self):
         module_name = "LassConfig"
-        file_path = os.path.join(self.cpp_info.rootpath, "share", "Lass",
-                                 "LassConfig.py")
+        file_path = os.path.join(
+            self.cpp_info.rootpath, "share", "Lass", "LassConfig.py"
+        )
         try:
             from importlib.util import spec_from_file_location, module_from_spec
         except ImportError:
             import imp
+
             imp.acquire_lock()
             try:
                 return imp.load_source(module_name, file_path)
@@ -188,7 +193,8 @@ class Python(object):
 
         if not self._executable:
             raise errors.ConanInvalidConfiguration(
-                "Python executable cannot be found: {!s}".format(self._executable))
+                "Python executable cannot be found: {!s}".format(self._executable)
+            )
 
     @property
     def executable(self):
@@ -202,7 +208,7 @@ class Python(object):
         try:
             return self._version
         except AttributeError:
-            self._version = self._get_config_var('py_version_short')
+            self._version = self._get_config_var("py_version_short")
             return self._version
 
     @property
@@ -213,7 +219,8 @@ class Python(object):
             return self._debug
         except AttributeError:
             output = self._query(
-                "import sys; print(int(hasattr(sys, 'gettotalrefcount')))")
+                "import sys; print(int(hasattr(sys, 'gettotalrefcount')))"
+            )
             self._debug = bool(int(output))
             return self._debug
 
@@ -229,10 +236,12 @@ class Python(object):
                 version_nodot = self._get_config_var("py_version_nodot")
                 postfix = "_d" if self.debug else ""
                 self._library = os.path.join(
-                    os.path.dirname(stdlib), "libs", "python{}{}.lib".format(
-                        version_nodot, postfix))
+                    os.path.dirname(stdlib),
+                    "libs",
+                    "python{}{}.lib".format(version_nodot, postfix),
+                )
             else:
-                fname = self._get_config_var('LDLIBRARY')
+                fname = self._get_config_var("LDLIBRARY")
                 hints = []
                 ld_library_path = os.getenv("LD_LIBRARY_PATH")
                 if ld_library_path:
@@ -252,12 +261,15 @@ class Python(object):
 
     def _get_python_path(self, key):
         return self._query(
-            "import sysconfig; print(sysconfig.get_path({!r}))".format(key))
+            "import sysconfig; print(sysconfig.get_path({!r}))".format(key)
+        )
 
     def _get_config_var(self, key):
-        return self._query("import sysconfig; "
-                           "print(sysconfig.get_config_var({!r}))".format(key))
+        return self._query(
+            "import sysconfig; print(sysconfig.get_config_var({!r}))".format(key)
+        )
 
     def _query(self, script):
-        return subprocess.check_output([self.executable, "-c", script],
-                                       universal_newlines=True).strip()
+        return subprocess.check_output(
+            [self.executable, "-c", script], universal_newlines=True
+        ).strip()
