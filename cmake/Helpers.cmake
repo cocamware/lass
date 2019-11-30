@@ -37,26 +37,31 @@ function(lass_prebuild hdrs dirname infile outfile)
 endfunction()
 
 
-function(lass_add_precompiled_header target hdrfile srcpath)
+function(lass_add_precompiled_header target header srcpath)
     if(NOT BUILD_USING_PRECOMPILED_HEADERS)
         return()
     endif()
     
     if(MSVC_IDE)
-        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${hdrfile}.pch")
+        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${header}.pch")
     else()
-        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${hdrfile}.pch")
+        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${header}.pch")
     endif()
     if(MSVC)
         set_property(
             TARGET "${target}"
             APPEND_STRING
-            PROPERTY COMPILE_FLAGS " /Fp\"${pchpath}\" /Yu\"${hdrfile}\""
+            PROPERTY COMPILE_FLAGS " /Fp\"${pchpath}\" /Yu\"${header}\""
         )
         set_property(
             SOURCE "${srcpath}"
             APPEND_STRING
-            PROPERTY COMPILE_FLAGS " /Yc\"${hdrfile}\""
+            PROPERTY COMPILE_FLAGS " /Yc\"${header}\""
+        )
+        set_property(
+            SOURCE "${srcpath}"
+            APPEND
+            PROPERTY OBJECT_OUTPUTS "${pchpath}"
         )
         if (NOT MSVC_IDE)
             get_target_property(sources "${target}" SOURCES)
@@ -70,7 +75,7 @@ function(lass_add_precompiled_header target hdrfile srcpath)
     else()
         #add_custom_command(
         #    OUTPUT ${pchpath}
-        #    DEPENDS ${hdrfile}
+        #    DEPENDS ${header}
         #    COMMAND ...)
         #set_source_files_properties(
         #    ${test_SRCS}

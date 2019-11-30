@@ -23,7 +23,7 @@ if (WIN32)
 endif()
 lass_add_precompiled_header(pylass
 	pylass_common.h
-	pylass_common.cpp
+	"${Lass_SOURCE_DIR}/pylass/pylass_common.cpp"
 	)
 
 if (WIN32)
