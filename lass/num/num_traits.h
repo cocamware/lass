@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2018 the Initial Developer.
+ *	Copyright (C) 2004-2019 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -46,7 +46,13 @@
 
 #include "num_common.h"
 
-#include <cmath>
+#if LASS_HAVE_STD_ISNAN
+#	include <cmath>
+#elif LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
+#	include <float.h>
+#else
+#	include <math.h>
+#endif
 
 namespace lass
 {
@@ -99,9 +105,19 @@ bool isNaN( C iV )
     return iV != iV;
 }
 
+#if LASS_HAVE_STD_ISNAN
 inline bool isNaN( float iV ) { return std::isnan(iV); }
 inline bool isNaN( double iV ) { return std::isnan(iV); }
 inline bool isNaN( long double iV ) { return std::isnan(iV); }
+#elif LASS_NUM_NUM_TRAITS_HAVE_MSVC_FLOAT_H
+inline bool isNaN( float iV ) { return _isnan(static_cast<double>(iV)) != 0; }
+inline bool isNaN( double iV ) { return _isnan(iV) != 0; }
+inline bool isNaN( long double iV ) { return _isnan(static_cast<double>(iV)) != 0; }
+#else
+inline bool isNaN( float iV ) { return isnan(iV) != 0; }
+inline bool isNaN( double iV ) { return isnan(iV) != 0; }
+inline bool isNaN( long double iV ) { return isnan(static_cast<double>(iV)) != 0; }
+#endif
 
 template<class C> inline
 bool isNaN( std::complex<C> iV )

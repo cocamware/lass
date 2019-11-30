@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2010 the Initial Developer.
+ *	Copyright (C) 2004-2019 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -136,6 +136,7 @@
 #cmakedefine LASS_HAVE_STD_UNIQUE_PTR 1
 #cmakedefine LASS_HAVE_STD_AUTO_PTR 1
 #cmakedefine LASS_HAVE_STD_ALLOCATOR_TRAITS 1
+#cmakedefine LASS_HAVE_STD_ISNAN 1
 
 #cmakedefine LASS_HAVE_CPP_LAMBDAS 1
 
