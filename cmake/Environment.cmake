@@ -306,7 +306,7 @@ option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by defa
 _try_compile_looking(LASS_HAVE_STD_ALLOCATOR_TRAITS "check_std_allocator_traits.cpp" "std::allocator_traits")
 _try_compile_looking(LASS_HAVE_STD_ISNAN "check_std_isnan.cpp" "std::isnan")
 
-_try_compile_looking(LASS_HAVE_CPP_LAMBDAS "check_cpp_lambdas.cpp" "C++ lambdas")
+_try_compile_checking(LASS_HAVE_CPP_LAMBDAS "check_cpp_lambdas.cpp" "C++ lambdas are supported")
 
 # --- checking some properties of numbers and available functions ---
 
