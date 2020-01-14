@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -46,6 +46,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_IMPL_DISPATCHER_$x_H
 
 #include "dispatcher_allocator.h"
+#include "../../meta/enable_if.h"
 
 // --- NEW INTERFACES ----------------------------------------------------------
 
@@ -95,7 +96,8 @@ private:
 template
 <
 	$(typename P$x)$, 
-	typename FunctionType
+	typename FunctionType,
+	typename Enable = void
 >
 class Dispatcher$xFunction: public Dispatcher$x<$(P$x)$>
 {
@@ -121,6 +123,50 @@ private:
 
 	TFunction function_;
 };
+
+
+
+/** Dispatcher for lass::util::Callback$x to a callable that does not support operator!
+ *  @internal
+ *  @sa Callback0
+ *  @author Bram de Greve [Bramz]
+ * 
+ *  With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
+ *  the unary ! operator. This was fixed in VS 2019 version 16.2.
+ *  https://twitter.com/lunasorcery/status/1092870113374687232
+ */
+template
+<
+	$(typename P$x)$,
+	typename FunctionType
+>
+class Dispatcher$xFunction
+	<
+		$(P$x)$,
+		FunctionType,
+		typename meta::EnableIf<!HasOperatorNot<FunctionType>::value>::Type
+	>
+	: public Dispatcher$x<$(P$x)$>
+{
+public:
+
+	typedef FunctionType TFunction;
+
+	Dispatcher$xFunction(typename CallTraits<TFunction>::TParam iFunction):
+		function_(iFunction)
+	{
+	}
+
+private:
+
+	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	{
+		function_($(iP$x)$);
+	}
+
+	TFunction function_;
+};
+
 
 
 

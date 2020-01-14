@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2007 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -235,6 +235,12 @@ void testUtilCallbackR0()
 	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_free);
 	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_free());
 
+#if LASS_HAVE_CPP_LAMBDAS
+	util::CallbackR0<int> cbr0_int_void_lambda([]() { return freeR0(); });
+	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_lambda);
+	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_lambda());
+#endif
+
 	//util::CallbackR0<float> cbr0_float_void_free(freeR0);
 	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_float_void_free);
 	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_free());
@@ -287,6 +293,12 @@ void testUtilCallbackR$x()
 	util::CallbackR$x<int, $(int)$> cbr$x_int_int_free(freeR$x);
 	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_free);
 	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_free($($x)$));
+
+#if LASS_HAVE_CPP_LAMBDAS
+	util::CallbackR$x<int, $(int)$> cbr$x_int_int_lambda([]($(int p$x)$) { return freeR$x($(p$x)$); });
+	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_lambda);
+	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_lambda($($x)$));
+#endif
 
 	//util::CallbackR$x<float, $(float)$> cbr$x_float_float_free(freeR$x);
 	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_float_float_free);

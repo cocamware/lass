@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -96,7 +96,8 @@ private:
 template
 <
 	typename R,
-	typename FunctionType
+	typename FunctionType,
+	typename Enable = void
 >
 class DispatcherR0Function: public DispatcherR0<R>
 {
@@ -123,6 +124,48 @@ private:
 	TFunction function_;
 };
 
+
+
+/** Dispatcher for lass::util::CallbackR0 to a callable that does not support operator!
+ *  @internal
+ *  @sa CallbackR0
+ *  @author Bram de Greve [Bramz]
+ * 
+ *  With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
+ *  the unary ! operator. This was fixed in VS 2019 version 16.2.
+ *  https://twitter.com/lunasorcery/status/1092870113374687232
+ */
+template
+<
+	typename R,
+	typename FunctionType
+>
+class DispatcherR0Function
+	<
+		R,
+		FunctionType,
+		typename meta::EnableIf<!HasOperatorNot<FunctionType>::value>::Type
+	>
+	: public DispatcherR0<R>
+{
+public:
+
+	typedef FunctionType TFunction;
+
+	DispatcherR0Function(typename CallTraits<TFunction>::TParam iFunction):
+		function_(iFunction)
+	{
+	}
+
+private:
+
+	R doCall() const
+	{
+		return function_();
+	}
+
+	TFunction function_;
+};
 
 
 /** Dispatcher for lass::util::CallbackR0 to an object/method pair.

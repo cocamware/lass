@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,6 +58,20 @@ public:
 	EmptyCallback(const std::string& msg, const std::string& loc): ExceptionMixin<EmptyCallback>(msg, loc) {}
 	~EmptyCallback() throw() {}
 };
+
+
+namespace impl
+{
+
+template <typename T>
+class HasOperatorNot {
+	template <typename C> static meta::True test(char[!C()]);
+	template <typename C> static meta::False test(...);
+public:
+	enum { value = sizeof(test<T>(0)) == sizeof(meta::True) };
+};
+
+}
 
 }
 }
