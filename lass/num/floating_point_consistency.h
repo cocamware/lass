@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -76,6 +76,12 @@ public:
 	Consistent(const TSelf& other):
 		t_(other.t_)
 	{
+	}
+
+	TSelf& operator=(const TSelf& other)
+	{
+		t_ = other.t_;
+		return *this;
 	}
 
 	TParam value() const 

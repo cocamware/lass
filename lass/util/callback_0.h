@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2020 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -122,16 +122,14 @@ public:
 
 	// OPERATORS
 
-	/** assignment operator (also usable for conversion)
+	/** assignment operator
 	 */
-	template <typename Other>
-	TSelf& operator=(const Other& iOther)
+	TSelf& operator=(const TSelf& iOther)
 	{
 		TSelf temp(iOther);
 		swap(temp);
 		return *this;
 	}
-
 
 
 	/** THE operator.  Executes the callback.
