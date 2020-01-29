@@ -174,7 +174,7 @@ private:
 		function_($(iP$x)$);
 	}
 
-	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const
+	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* /*iOther*/) const
 	{
 		return false;
 	}

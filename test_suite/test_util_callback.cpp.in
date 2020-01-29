@@ -53,12 +53,6 @@ $(#include "../lass/util/callback_$x.h"
 $(#include "../lass/util/callback_r_$x.h"
 )$
 
-#define LASS_TEST_CALLBACK_EMPTY(callback)\
-	LASS_TEST_CHECK_MESSAGE(callback.isEmpty(), "isEmpty() returned false on empty callback.");
-
-#define LASS_TEST_CALLBACK_NOT_EMPTY(callback)\
-	LASS_TEST_CHECK_MESSAGE(!callback.isEmpty(), "isEmpty() returned true on non-empty callback.");
-
 #define LASS_TEST_CALLBACK_CALL(expression)\
 	dispatcherIsCalled = false;\
 	LASS_TEST_CHECK_NO_THROW(expression);\
@@ -121,49 +115,114 @@ void testUtilCallback0()
 {
 	Foo foo;
 
-	util::Callback0 cb0_void_free(free0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_free);
-	LASS_TEST_CALLBACK_CALL(cb0_void_free());
+	typedef util::Callback0 TCallback;
+
+	{
+		// empty callback
+		TCallback cb_empty_0;
+		LASS_TEST_CHECK(cb_empty_0.isEmpty());
+		LASS_TEST_CHECK(!cb_empty_0);
+		LASS_TEST_CALLBACK_EMPTY_CALL(cb_empty_0());
+	}
+
+	{
+		// callback to free function
+		TCallback cb_free_0(free0);
+		LASS_TEST_CHECK(!cb_free_0.isEmpty());
+		LASS_TEST_CHECK(cb_free_0);
+		LASS_TEST_CHECK(!(!cb_free_0));
+		LASS_TEST_CALLBACK_CALL(cb_free_0());
+	}
 
 #if LASS_HAVE_CPP_LAMBDAS
-	util::Callback0 cb0_void_lambda([]() { free0(); });
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_lambda);
-	LASS_TEST_CALLBACK_CALL(cb0_void_lambda());
+	{
+		// callback to lambda
+		TCallback cb_lambda_0([]() { free0(); });
+		LASS_TEST_CHECK(cb_lambda_0);
+		LASS_TEST_CALLBACK_CALL(cb_lambda_0());
+	}
 #endif
 
-	util::Callback0 cb0_void_mem(&foo, &Foo::mem0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_mem);
-	LASS_TEST_CALLBACK_CALL(cb0_void_mem());
+	{
+		// callback to non-const member
+		TCallback cb_mem_0(&foo, &Foo::mem0);
+		LASS_TEST_CHECK(cb_mem_0);
+		LASS_TEST_CALLBACK_CALL(cb_mem_0());
+	}
 
-	util::Callback0 cb0_void_const_mem(&foo, &Foo::const_mem0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void_const_mem);
-	LASS_TEST_CALLBACK_CALL(cb0_void_const_mem());
+	{
+		// callback to const member
+		TCallback cb_const_mem_0(&foo, &Foo::const_mem0);
+		LASS_TEST_CHECK(cb_const_mem_0);
+		LASS_TEST_CALLBACK_CALL(cb_const_mem_0());
+	}
 
-	util::Callback0 cb0_void;
-	LASS_TEST_CALLBACK_EMPTY(cb0_void);
-	LASS_TEST_CALLBACK_EMPTY_CALL(cb0_void());
+	{
+		// copy constructor
+		TCallback cb1_0(free0);
+		TCallback cb2_0(cb1_0);
+		LASS_TEST_CHECK_EQUAL(cb1_0, cb2_0);
+		LASS_TEST_CHECK(cb1_0);
+		LASS_TEST_CALLBACK_CALL(cb1_0());
+		LASS_TEST_CHECK(cb2_0);
+		LASS_TEST_CALLBACK_CALL(cb2_0());
+	}
 
-	cb0_void.swap(cb0_void_free);
-	//LASS_TEST_CHECK(cb0_void != cb0_void_free);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb0_void);
-	LASS_TEST_CALLBACK_EMPTY(cb0_void_free);
-	LASS_TEST_CALLBACK_CALL(cb0_void());
-	LASS_TEST_CALLBACK_EMPTY_CALL(cb0_void_free());
+	{
+		// copy assignment
+		TCallback cb1_0(free0);
+		TCallback cb2_0;
+		LASS_TEST_CHECK(!cb2_0);
+		cb2_0 = cb1_0;
+		LASS_TEST_CHECK_EQUAL(cb1_0, cb2_0);
+		LASS_TEST_CHECK(cb1_0);
+		LASS_TEST_CALLBACK_CALL(cb1_0());
+		LASS_TEST_CHECK(cb2_0);
+		LASS_TEST_CALLBACK_CALL(cb2_0());
+	}
 
-	cb0_void_free = cb0_void;
-	//LASS_TEST_CHECK(cb0_void == cb0_void_free);
-	LASS_TEST_CALLBACK_CALL(cb0_void());
-	LASS_TEST_CALLBACK_CALL(cb0_void_free());
+	{
+		// assign free function
+		TCallback cb_assign_free_0;
+		LASS_TEST_CHECK(!cb_assign_free_0);
+		cb_assign_free_0 = free0;
+		LASS_TEST_CHECK(cb_assign_free_0);
+		LASS_TEST_CALLBACK_CALL(cb_assign_free_0());
+	}
 
-	cb0_void = cb0_void_mem;
-	//LASS_TEST_CHECK(cb0_void == cb0_void_mem);
-	LASS_TEST_CALLBACK_CALL(cb0_void());
-	LASS_TEST_CALLBACK_CALL(cb0_void_mem());
+#if LASS_HAVE_CPP_LAMBDAS
+	{
+		// assign lambda function function
+		TCallback cb_assign_lambda_0;
+		LASS_TEST_CHECK(!cb_assign_lambda_0);
+		cb_assign_lambda_0 = []() { free0(); };
+		LASS_TEST_CHECK(cb_assign_lambda_0);
+		LASS_TEST_CALLBACK_CALL(cb_assign_lambda_0());
+	}
+#endif
 
-	cb0_void = cb0_void_const_mem;
-	//LASS_TEST_CHECK(cb0_void == cb0_void_const_mem);
-	LASS_TEST_CALLBACK_CALL(cb0_void());
-	LASS_TEST_CALLBACK_CALL(cb0_void_const_mem());
+	{
+		// swap
+		TCallback cb1_0(free0);
+		TCallback cb2_0;
+		cb2_0.swap(cb1_0);
+		LASS_TEST_CHECK(!cb1_0);
+		LASS_TEST_CHECK(cb2_0);
+		LASS_TEST_CHECK(cb1_0 != cb2_0);
+		LASS_TEST_CALLBACK_CALL(cb2_0());
+	}
+
+	{
+		// comparison
+		TCallback cb_empty_0;
+		TCallback cb_free1_0(free0);
+		TCallback cb_free2_0(free0);
+		TCallback cb_mem_0(&foo, &Foo::mem0);
+		LASS_TEST_CHECK_EQUAL(cb_free1_0, cb_free2_0);
+		LASS_TEST_CHECK(cb_empty_0 != cb_free1_0);
+		LASS_TEST_CHECK(cb_free1_0 != cb_empty_0);
+		LASS_TEST_CHECK(cb_free1_0 != cb_mem_0);
+	}
 }
 
 $[
@@ -172,57 +231,114 @@ void testUtilCallback$x()
 {
 	Foo foo;
 
-	util::Callback$x<$(int)$> cb$x_int_free(free$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_free);
-	LASS_TEST_CALLBACK_CALL(cb$x_int_free($($x)$));
+	typedef util::Callback$x<$(int)$> TCallback;
+
+	{
+		// empty callback
+		TCallback cb_empty_$x;
+		LASS_TEST_CHECK(cb_empty_$x.isEmpty());
+		LASS_TEST_CHECK(!cb_empty_$x);
+		LASS_TEST_CALLBACK_EMPTY_CALL(cb_empty_$x($($x)$));
+	}
+
+	{
+		// callback to free function
+		TCallback cb_free_$x(free$x);
+		LASS_TEST_CHECK(!cb_free_$x.isEmpty());
+		LASS_TEST_CHECK(cb_free_$x);
+		LASS_TEST_CHECK(!(!cb_free_$x));
+		LASS_TEST_CALLBACK_CALL(cb_free_$x($($x)$));
+	}
 
 #if LASS_HAVE_CPP_LAMBDAS
-	util::Callback$x<$(int)$> cb$x_int_lambda([]($(int p$x)$) { free$x($(p$x)$); });
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_lambda);
-	LASS_TEST_CALLBACK_CALL(cb$x_int_lambda($($x)$));
+	{
+		// callback to lambda function
+		TCallback cb_lambda_$x([]($(int p$x)$) { free$x($(p$x)$); });
+		LASS_TEST_CHECK(cb_lambda_$x);
+		LASS_TEST_CALLBACK_CALL(cb_lambda_$x($($x)$));
+	}
 #endif
 
-	//util::Callback$x<$(float)$> cb$x_float_free(free$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_float_free);
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_free($($x.f)$));
+	{
+		// callback to non-const member
+		TCallback cb_mem_$x(&foo, &Foo::mem$x);
+		LASS_TEST_CHECK(cb_mem_$x);
+		LASS_TEST_CALLBACK_CALL(cb_mem_$x($($x)$));
+	}
 
-	util::Callback$x<$(int)$> cb$x_int_mem(&foo, &Foo::mem$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_mem);
-	LASS_TEST_CALLBACK_CALL(cb$x_int_mem($($x)$));
+	{
+		// callback to const member
+		TCallback cb_const_mem_$x(&foo, &Foo::const_mem$x);
+		LASS_TEST_CHECK(cb_const_mem_$x);
+		LASS_TEST_CALLBACK_CALL(cb_const_mem_$x($($x)$));
+	}
 
-	//util::Callback$x<$(float)$> cb$x_float_mem(&foo, &Foo::mem$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_float_mem);
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_mem($($x.f)$));
+	{
+		// copy constructor
+		TCallback cb1_$x(free$x);
+		TCallback cb2_$x(cb1_$x);
+		LASS_TEST_CHECK_EQUAL(cb1_$x, cb2_$x);
+		LASS_TEST_CHECK(cb1_$x);
+		LASS_TEST_CALLBACK_CALL(cb1_$x($($x)$));
+		LASS_TEST_CHECK(cb2_$x);
+		LASS_TEST_CALLBACK_CALL(cb2_$x($($x)$));
+	}
 
-	util::Callback$x<$(int)$> cb$x_int_const_mem(&foo, &Foo::const_mem$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_int_const_mem);
-	LASS_TEST_CALLBACK_CALL(cb$x_int_const_mem($($x)$));
+	{
+		// copy assignment
+		TCallback cb1_$x(free$x);
+		TCallback cb2_$x;
+		LASS_TEST_CHECK(!cb2_$x);
+		cb2_$x = cb1_$x;
+		LASS_TEST_CHECK_EQUAL(cb1_$x, cb2_$x);
+		LASS_TEST_CHECK(cb1_$x);
+		LASS_TEST_CALLBACK_CALL(cb1_$x($($x)$));
+		LASS_TEST_CHECK(cb2_$x);
+		LASS_TEST_CALLBACK_CALL(cb2_$x($($x)$));
+	}
 
-	//util::Callback$x<$(float)$> cb$x_float_const_mem(&foo, &Foo::const_mem$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_float_const_mem);
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_const_mem($($x.f)$));
+	{
+		// assign free function
+		TCallback cb_assign_free_$x;
+		LASS_TEST_CHECK(!cb_assign_free_$x);
+		cb_assign_free_$x = free$x;
+		LASS_TEST_CHECK(cb_assign_free_$x);
+		LASS_TEST_CALLBACK_CALL(cb_assign_free_$x($($x)$));
+	}
 
-	//util::Callback$x<$(float)$> cb$x_float;
-	//LASS_TEST_CALLBACK_EMPTY(cb$x_float);
-	//LASS_TEST_CALLBACK_EMPTY_CALL(cb$x_float($($x.f)$));
+#if LASS_HAVE_CPP_LAMBDAS
+	{
+		// assign lambda function function
+		TCallback cb_assign_lambda_$x;
+		LASS_TEST_CHECK(!cb_assign_lambda_$x);
+		cb_assign_lambda_$x = []($(int p$x)$) { free$x($(p$x)$); };
+		LASS_TEST_CHECK(cb_assign_lambda_$x);
+		LASS_TEST_CALLBACK_CALL(cb_assign_lambda_$x($($x)$));
+	}
+#endif
 
-	//cb$x_float.swap(cb$x_float_free);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cb$x_float);
-	//LASS_TEST_CALLBACK_EMPTY(cb$x_float_free);
-	//LASS_TEST_CALLBACK_CALL(cb$x_float($($x.f)$));
-	//LASS_TEST_CALLBACK_EMPTY_CALL(cb$x_float_free($($x.f)$));
+	{
+		// swap
+		TCallback cb1_$x(free$x);
+		TCallback cb2_$x;
+		cb2_$x.swap(cb1_$x);
+		LASS_TEST_CHECK(!cb1_$x);
+		LASS_TEST_CHECK(cb2_$x);
+		LASS_TEST_CHECK(cb1_$x != cb2_$x);
+		LASS_TEST_CALLBACK_CALL(cb2_$x($($x)$));
+	}
 
-	//cb$x_float_free = cb$x_float;
-	//LASS_TEST_CALLBACK_CALL(cb$x_float($($x.f)$));
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_free($($x.f)$));
-
-	//cb$x_float = cb$x_float_mem;
-	//LASS_TEST_CALLBACK_CALL(cb$x_float($($x.f)$));
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_mem($($x.f)$));
-
-	//cb$x_float = cb$x_float_const_mem;
-	//LASS_TEST_CALLBACK_CALL(cb$x_float($($x.f)$));
-	//LASS_TEST_CALLBACK_CALL(cb$x_float_const_mem($($x.f)$));
+	{
+		// comparison
+		TCallback cb_empty_$x;
+		TCallback cb_free1_$x(free$x);
+		TCallback cb_free2_$x(free$x);
+		TCallback cb_mem_$x(&foo, &Foo::mem$x);
+		LASS_TEST_CHECK_EQUAL(cb_free1_$x, cb_free2_$x);
+		LASS_TEST_CHECK(cb_empty_$x != cb_free1_$x);
+		LASS_TEST_CHECK(cb_free1_$x != cb_empty_$x);
+		LASS_TEST_CHECK(cb_free1_$x != cb_mem_$x);
+	}
 }
 
 ]$
@@ -231,57 +347,114 @@ void testUtilCallbackR0()
 {
 	Foo foo;
 
-	util::CallbackR0<int> cbr0_int_void_free(freeR0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_free);
-	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_free());
+	typedef util::CallbackR0<int> TCallback;
+
+	{
+		// empty callback
+		TCallback cb_empty_r0;
+		LASS_TEST_CHECK(cb_empty_r0.isEmpty());
+		LASS_TEST_CHECK(!cb_empty_r0);
+		LASS_TEST_CALLBACK_EMPTY_CALL_R(cb_empty_r0());
+	}
+
+	{
+		// callback to free function
+		TCallback cb_free_r0(freeR0);
+		LASS_TEST_CHECK(!cb_free_r0.isEmpty());
+		LASS_TEST_CHECK(cb_free_r0);
+		LASS_TEST_CHECK(!(!cb_free_r0));
+		LASS_TEST_CALLBACK_CALL_R(cb_free_r0());
+	}
 
 #if LASS_HAVE_CPP_LAMBDAS
-	util::CallbackR0<int> cbr0_int_void_lambda([]() { return freeR0(); });
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_lambda);
-	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_lambda());
+	{
+		// callback to lambda function
+		TCallback cb_lambda_r0([]() { return freeR0(); });
+		LASS_TEST_CHECK(cb_lambda_r0);
+		LASS_TEST_CALLBACK_CALL_R(cb_lambda_r0());
+	}
 #endif
 
-	//util::CallbackR0<float> cbr0_float_void_free(freeR0);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_float_void_free);
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_free());
+	{
+		// callback to non-const member
+		TCallback cb_mem_r0(&foo, &Foo::memR0);
+		LASS_TEST_CHECK(cb_mem_r0);
+		LASS_TEST_CALLBACK_CALL_R(cb_mem_r0());
+	}
 
-	util::CallbackR0<int> cbr0_int_void_mem(&foo, &Foo::memR0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_mem);
-	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_mem());
+	{
+		// callback to const member
+		TCallback cb_const_mem_r0(&foo, &Foo::const_memR0);
+		LASS_TEST_CHECK(cb_const_mem_r0);
+		LASS_TEST_CALLBACK_CALL_R(cb_const_mem_r0());
+	}
 
-	//util::CallbackR0<float> cbr0_float_void_mem(&foo, &Foo::memR0);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_float_void_mem);
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_mem());
+	{
+		// copy constructor
+		TCallback cb1_r0(freeR0);
+		TCallback cb2_r0(cb1_r0);
+		LASS_TEST_CHECK_EQUAL(cb1_r0, cb2_r0);
+		LASS_TEST_CHECK(cb1_r0);
+		LASS_TEST_CALLBACK_CALL_R(cb1_r0());
+		LASS_TEST_CHECK(cb2_r0);
+		LASS_TEST_CALLBACK_CALL_R(cb2_r0());
+	}
 
-	util::CallbackR0<int> cbr0_int_void_const_mem(&foo, &Foo::const_memR0);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_int_void_const_mem);
-	LASS_TEST_CALLBACK_CALL_R(cbr0_int_void_const_mem());
+	{
+		// copy assignment
+		TCallback cb1_r0(freeR0);
+		TCallback cb2_r0;
+		LASS_TEST_CHECK(!cb2_r0);
+		cb2_r0 = cb1_r0;
+		LASS_TEST_CHECK_EQUAL(cb1_r0, cb2_r0);
+		LASS_TEST_CHECK(cb1_r0);
+		LASS_TEST_CALLBACK_CALL(cb1_r0());
+		LASS_TEST_CHECK(cb2_r0);
+		LASS_TEST_CALLBACK_CALL(cb2_r0());
+	}
 
-	//util::CallbackR0<float> cbr0_float_void_const_mem(&foo, &Foo::const_memR0);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_float_void_const_mem);
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_const_mem());
+	{
+		// assign free function
+		TCallback cb_assign_free_r0;
+		LASS_TEST_CHECK(!cb_assign_free_r0);
+		cb_assign_free_r0 = freeR0;
+		LASS_TEST_CHECK(cb_assign_free_r0);
+		LASS_TEST_CALLBACK_CALL(cb_assign_free_r0());
+	}
 
-	//util::CallbackR0<float> cbr0_float_void;
-	//LASS_TEST_CALLBACK_EMPTY(cbr0_float_void);
-	//LASS_TEST_CALLBACK_EMPTY_CALL_R(cbr0_float_void());
+#if LASS_HAVE_CPP_LAMBDAS
+	{
+		// assign lambda function function
+		TCallback cb_assign_lambda_r0;
+		LASS_TEST_CHECK(!cb_assign_lambda_r0);
+		cb_assign_lambda_r0 = []() { return freeR0(); };
+		LASS_TEST_CHECK(cb_assign_lambda_r0);
+		LASS_TEST_CALLBACK_CALL(cb_assign_lambda_r0());
+	}
+#endif
 
-	//cbr0_float_void.swap(cbr0_float_void_free);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr0_float_void);
-	//LASS_TEST_CALLBACK_EMPTY(cbr0_float_void_free);
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void());
-	//LASS_TEST_CALLBACK_EMPTY_CALL_R(cbr0_float_void_free());
+	{
+		// swap
+		TCallback cb1_r0(freeR0);
+		TCallback cb2_r0;
+		cb2_r0.swap(cb1_r0);
+		LASS_TEST_CHECK(!cb1_r0);
+		LASS_TEST_CHECK(cb2_r0);
+		LASS_TEST_CHECK(cb1_r0 != cb2_r0);
+		LASS_TEST_CALLBACK_CALL(cb2_r0());
+	}
 
-	//cbr0_float_void_free = cbr0_float_void;
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void());
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_free());
-
-	//cbr0_float_void = cbr0_float_void_mem;
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void());
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_mem());
-
-	//cbr0_float_void = cbr0_float_void_const_mem;
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void());
-	//LASS_TEST_CALLBACK_CALL_R(cbr0_float_void_const_mem();
+	{
+		// comparison
+		TCallback cb_empty_r0;
+		TCallback cb_free1_r0(freeR0);
+		TCallback cb_free2_r0(freeR0);
+		TCallback cb_mem_r0(&foo, &Foo::memR0);
+		LASS_TEST_CHECK_EQUAL(cb_free1_r0, cb_free2_r0);
+		LASS_TEST_CHECK(cb_empty_r0 != cb_free1_r0);
+		LASS_TEST_CHECK(cb_free1_r0 != cb_empty_r0);
+		LASS_TEST_CHECK(cb_free1_r0 != cb_mem_r0);
+	}
 }
 
 $[
@@ -290,58 +463,114 @@ void testUtilCallbackR$x()
 {
 	Foo foo;
 
-	util::CallbackR$x<int, $(int)$> cbr$x_int_int_free(freeR$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_free);
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_free($($x)$));
+	typedef util::CallbackR$x<int, $(int)$> TCallback;
+
+	{
+		// empty callback
+		TCallback cb_empty_r$x;
+		LASS_TEST_CHECK(cb_empty_r$x.isEmpty());
+		LASS_TEST_CHECK(!cb_empty_r$x);
+		LASS_TEST_CALLBACK_EMPTY_CALL_R(cb_empty_r$x($($x)$));
+	}
+
+	{
+		// callback to free function
+		TCallback cb_free_r$x(freeR$x);
+		LASS_TEST_CHECK(!cb_free_r$x.isEmpty());
+		LASS_TEST_CHECK(cb_free_r$x);
+		LASS_TEST_CHECK(!(!cb_free_r$x));
+		LASS_TEST_CALLBACK_CALL_R(cb_free_r$x($($x)$));
+	}
 
 #if LASS_HAVE_CPP_LAMBDAS
-	util::CallbackR$x<int, $(int)$> cbr$x_int_int_lambda([]($(int p$x)$) { return freeR$x($(p$x)$); });
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_lambda);
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_lambda($($x)$));
+	{
+		// callback to lambda function
+		TCallback cb_lambda_r$x([]($(int p$x)$) { return freeR$x($(p$x)$); });
+		LASS_TEST_CHECK(cb_lambda_r$x);
+		LASS_TEST_CALLBACK_CALL_R(cb_lambda_r$x($($x)$));
+	}
 #endif
 
-	//util::CallbackR$x<float, $(float)$> cbr$x_float_float_free(freeR$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_float_float_free);
-	//LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_free($($x.f)$));
+	{
+		// callback to non-const member
+		TCallback cb_mem_r$x(&foo, &Foo::memR$x);
+		LASS_TEST_CHECK(cb_mem_r$x);
+		LASS_TEST_CALLBACK_CALL_R(cb_mem_r$x($($x)$));
+	}
 
-	util::CallbackR$x<int, $(int)$> cbr$x_int_int_mem(&foo, &Foo::memR$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_mem);
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_mem($($x)$));
+	{
+		// callback to const member
+		TCallback cb_const_mem_r$x(&foo, &Foo::const_memR$x);
+		LASS_TEST_CHECK(cb_const_mem_r$x);
+		LASS_TEST_CALLBACK_CALL_R(cb_const_mem_r$x($($x)$));
+	}
 
-	//util::CallbackR$x<float, $(float)$> cbr$x_float_float_mem(&foo, &Foo::memR$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_float_float_mem);
-	//LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_mem($($x.f)$));
+	{
+		// copy constructor
+		TCallback cb1_r$x(freeR$x);
+		TCallback cb2_r$x(cb1_r$x);
+		LASS_TEST_CHECK_EQUAL(cb1_r$x, cb2_r$x);
+		LASS_TEST_CHECK(cb1_r$x);
+		LASS_TEST_CALLBACK_CALL(cb1_r$x($($x)$));
+		LASS_TEST_CHECK(cb2_r$x);
+		LASS_TEST_CALLBACK_CALL(cb2_r$x($($x)$));
+	}
 
-	util::CallbackR$x<int, $(int)$> cbr$x_int_int_const_mem(&foo, &Foo::const_memR$x);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_int_int_const_mem);
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_int_int_const_mem($($x)$));
+	{
+		// copy assignment
+		TCallback cb1_r$x(freeR$x);
+		TCallback cb2_r$x;
+		LASS_TEST_CHECK(!cb2_r$x);
+		cb2_r$x = cb1_r$x;
+		LASS_TEST_CHECK_EQUAL(cb1_r$x, cb2_r$x);
+		LASS_TEST_CHECK(cb1_r$x);
+		LASS_TEST_CALLBACK_CALL(cb1_r$x($($x)$));
+		LASS_TEST_CHECK(cb2_r$x);
+		LASS_TEST_CALLBACK_CALL(cb2_r$x($($x)$));
+	}
 
-	//util::CallbackR$x<float, $(float)$> cbr$x_float_float_const_mem(&foo, &Foo::const_memR$x);
-	//LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_float_float_const_mem);
-	//LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_const_mem($($x.f)$));
-	/*
-	util::CallbackR$x<float, $(float)$> cbr$x_float_float;
-	LASS_TEST_CALLBACK_EMPTY(cbr$x_float_float);
-	LASS_TEST_CALLBACK_EMPTY_CALL_R(cbr$x_float_float($($x.f)$));
+	{
+		// assign free function
+		TCallback cb_assign_free_r$x;
+		LASS_TEST_CHECK(!cb_assign_free_r$x);
+		cb_assign_free_r$x = freeR$x;
+		LASS_TEST_CHECK(cb_assign_free_r$x);
+		LASS_TEST_CALLBACK_CALL(cb_assign_free_r$x($($x)$));
+	}
 
-	cbr$x_float_float.swap(cbr$x_float_float_free);
-	LASS_TEST_CALLBACK_NOT_EMPTY(cbr$x_float_float);
-	LASS_TEST_CALLBACK_EMPTY(cbr$x_float_float_free);
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float($($x.f)$));
-	LASS_TEST_CALLBACK_EMPTY_CALL_R(cbr$x_float_float_free($($x.f)$));
+#if LASS_HAVE_CPP_LAMBDAS
+	{
+		// assign lambda function function
+		TCallback cb_assign_lambda_r$x;
+		LASS_TEST_CHECK(!cb_assign_lambda_r$x);
+		cb_assign_lambda_r$x = []($(int p$x)$) { return freeR$x($(p$x)$); };
+		LASS_TEST_CHECK(cb_assign_lambda_r$x);
+		LASS_TEST_CALLBACK_CALL(cb_assign_lambda_r$x($($x)$));
+	}
+#endif
 
-	cbr$x_float_float_free = cbr$x_float_float;
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float($($x.f)$));
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_free($($x.f)$));
+	{
+		// swap
+		TCallback cb1_r$x(freeR$x);
+		TCallback cb2_r$x;
+		cb2_r$x.swap(cb1_r$x);
+		LASS_TEST_CHECK(!cb1_r$x);
+		LASS_TEST_CHECK(cb2_r$x);
+		LASS_TEST_CHECK(cb1_r$x != cb2_r$x);
+		LASS_TEST_CALLBACK_CALL(cb2_r$x($($x)$));
+	}
 
-	cbr$x_float_float = cbr$x_float_float_mem;
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float($($x.f)$));
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_mem($($x.f)$));
-
-	cbr$x_float_float = cbr$x_float_float_const_mem;
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float($($x.f)$));
-	LASS_TEST_CALLBACK_CALL_R(cbr$x_float_float_const_mem($($x.f)$));
-	*/
+	{
+		// comparison
+		TCallback cb_empty_r$x;
+		TCallback cb_free1_r$x(freeR$x);
+		TCallback cb_free2_r$x(freeR$x);
+		TCallback cb_mem_r$x(&foo, &Foo::memR$x);
+		LASS_TEST_CHECK_EQUAL(cb_free1_r$x, cb_free2_r$x);
+		LASS_TEST_CHECK(cb_empty_r$x != cb_free1_r$x);
+		LASS_TEST_CHECK(cb_free1_r$x != cb_empty_r$x);
+		LASS_TEST_CHECK(cb_free1_r$x != cb_mem_r$x);
+	}
 }
 
 ]$
