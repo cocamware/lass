@@ -44,6 +44,7 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_CALLBACK_COMMON_H
 
 #include "util_common.h"
+#include "../meta/enable_if.h"
 
 namespace lass
 {
