@@ -74,6 +74,10 @@ public:
 	{ 
 		return doCall(); 
 	}
+	bool isEquivalent(const DispatcherR0<R>* iOther) const
+	{
+		return doIsEquivalent(iOther);
+	}
 
 protected:
 
@@ -82,6 +86,7 @@ protected:
 private:
 
 	virtual R doCall() const = 0;
+	virtual bool doIsEquivalent(const DispatcherR0<R>* iOther) const = 0;
 
 	DispatcherR0& operator=(const DispatcherR0<R>& iOther);
 };
@@ -103,6 +108,7 @@ class DispatcherR0Function: public DispatcherR0<R>
 {
 public:
 
+	typedef DispatcherR0Function<R, FunctionType, Enable> TSelf;
 	typedef FunctionType TFunction;
 
 	DispatcherR0Function(typename CallTraits<TFunction>::TParam iFunction):
@@ -119,6 +125,11 @@ private:
 			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
 		}
 		return function_();
+	}
+	bool doIsEquivalent(const DispatcherR0<R>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && function_ == other->function_;
 	}
 
 	TFunction function_;
@@ -163,6 +174,10 @@ private:
 	{
 		return function_();
 	}
+	bool doIsEquivalent(const DispatcherR0<R>* /*iOther*/) const
+	{
+		return false;
+	}
 
 	TFunction function_;
 };
@@ -183,6 +198,8 @@ class DispatcherR0Method: public DispatcherR0<R>
 {
 public:
 
+	typedef DispatcherR0Method<R, ObjectPtr, Method> TSelf;
+
 	DispatcherR0Method(typename CallTraits<ObjectPtr>::TParam iObject,
 					   typename CallTraits<Method>::TParam iMethod):
 		object_(iObject),
@@ -199,6 +216,11 @@ private:
 			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
 		}
 		return ((*object_).*method_)();
+	}
+	bool doIsEquivalent(const DispatcherR0<R>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && object_ == other->object_ && method_ == other->method_;
 	}
 
 	ObjectPtr object_;

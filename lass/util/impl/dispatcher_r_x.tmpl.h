@@ -75,10 +75,15 @@ public:
 	{ 
 		return doCall($(iP$x)$); 
 	}
+	bool isEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	{
+		return doIsEquivalent(iOther);
+	}
 
 private:
 
 	virtual R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const = 0;
+	virtual bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const = 0;
 
 	DispatcherR$x(const DispatcherR$x<R, $(P$x)$>& iOther);
 	DispatcherR$x& operator=(const DispatcherR$x<R, $(P$x)$>& iOther);
@@ -102,6 +107,7 @@ class DispatcherR$xFunction: public DispatcherR$x<R, $(P$x)$>
 public:
 
 	typedef FunctionType TFunction;
+	typedef DispatcherR$xFunction<R, $(P$x)$, FunctionType, Enable> TSelf;
 
 	DispatcherR$xFunction(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
@@ -117,6 +123,12 @@ private:
 			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
 		}
 		return function_($(iP$x)$);
+	}
+
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && function_ == other->function_;
 	}
 
 	TFunction function_;
@@ -162,6 +174,11 @@ private:
 		return function_($(iP$x)$);
 	}
 
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	{
+		return false;
+	}
+
 	TFunction function_;
 };
 
@@ -181,6 +198,8 @@ class DispatcherR$xMethod: public DispatcherR$x<R, $(P$x)$>
 {
 public:
 
+	typedef DispatcherR$xMethod<R, $(P$x)$, ObjectPtr, Method> TSelf;
+
 	DispatcherR$xMethod(typename CallTraits<ObjectPtr>::TParam iObject,
 						typename CallTraits<Method>::TParam iMethod):
 		object_(iObject),
@@ -197,6 +216,12 @@ private:
 			LASS_THROW_EX(EmptyCallback, "You've tried to call an empty CallbackR0.  Can't return a value.");
 		}
 		return ((*object_).*method_)($(iP$x)$);
+	}
+
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && object_ == other->object_ && method_ == other->method_;
 	}
 
 	ObjectPtr object_;

@@ -77,10 +77,15 @@ public:
 	{
 		doCall($(iP$x)$);
 	}
+	bool isEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const
+	{
+		return doIsEquivalent(iOther);
+	}
 
 private:
 
 	virtual void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const = 0;
+	virtual bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const = 0;
 
 	Dispatcher$x(const Dispatcher$x<$(P$x)$>& iOther);
 	Dispatcher$x& operator=(const Dispatcher$x<$(P$x)$>& iOther);
@@ -104,6 +109,7 @@ class Dispatcher$xFunction: public Dispatcher$x<$(P$x)$>
 public:
 
 	typedef FunctionType TFunction;
+	typedef Dispatcher$xFunction<$(P$x)$, FunctionType, Enable> TSelf;
 
 	Dispatcher$xFunction(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
@@ -119,6 +125,12 @@ private:
 			return;
 		}
 		function_($(iP$x)$);
+	}
+
+	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && function_ == other->function_;
 	}
 
 	TFunction function_;
@@ -150,9 +162,7 @@ class Dispatcher$xFunction
 {
 public:
 
-	typedef FunctionType TFunction;
-
-	Dispatcher$xFunction(typename CallTraits<TFunction>::TParam iFunction):
+	Dispatcher$xFunction(typename CallTraits<FunctionType>::TParam iFunction):
 		function_(iFunction)
 	{
 	}
@@ -164,7 +174,12 @@ private:
 		function_($(iP$x)$);
 	}
 
-	TFunction function_;
+	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const
+	{
+		return false;
+	}
+
+	FunctionType function_;
 };
 
 
@@ -177,12 +192,14 @@ private:
  */
 template 
 <
-	$(typename P$x)$, 
+	$(typename P$x)$,
 	typename ObjectPtr, typename Method
 >
 class Dispatcher$xMethod: public Dispatcher$x<$(P$x)$>
 {
 public:
+
+	typedef Dispatcher$xMethod<$(P$x)$, ObjectPtr, Method> TSelf;
 
 	Dispatcher$xMethod(typename CallTraits<ObjectPtr>::TParam iObject,
 					   typename CallTraits<Method>::TParam iMethod):
@@ -200,6 +217,12 @@ private:
 			return;
 		}
 		((*object_).*method_)($(iP$x)$);
+	}
+
+	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* iOther) const
+	{
+		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
+		return other && object_ == other->object_ && method_ == other->method_;
 	}
 
 	ObjectPtr object_;

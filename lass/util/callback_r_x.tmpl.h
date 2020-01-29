@@ -188,11 +188,33 @@ public:
 		dispatcher_.swap(iOther.dispatcher_);
 	}
 
+	/** return true if two callbacks call the same function/method,
+	 *  NEEDS RTTI!
+	 */
+	bool operator==(const TSelf& iOther) const
+	{
+		if (dispatcher_ == iOther.dispatcher_)
+		{
+			return true;
+		}
+		return dispatcher_ && dispatcher_->isEquivalent(iOther.dispatcher_.get());
+	}
+
 private:
 
 	TDispatcherPtr dispatcher_;
 };
 
+
+
+/** return true if two callbacks are different
+ *  @relates CallbackR$x
+ */
+template<typename R, $(typename P$x)$>
+inline bool operator!=(const CallbackR$x<R, $(P$x)$>& iA, const CallbackR$x<R, $(P$x)$>& iB)
+{
+	return !(iA == iB);
+}
 
 
 /** make a CallbackR$x from a function

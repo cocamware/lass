@@ -187,6 +187,18 @@ public:
 		dispatcher_.swap(iOther.dispatcher_);
 	}
 
+	/** return true if two callbacks call the same function/method,
+	 *  NEEDS RTTI!
+	 */
+	bool operator==(const TSelf& iOther) const
+	{
+		if (dispatcher_ == iOther.dispatcher_)
+		{
+			return true;
+		}
+		return dispatcher_ && dispatcher_->isEquivalent(iOther.dispatcher_.get());
+	}
+
 private:
 
 	template <typename Function>

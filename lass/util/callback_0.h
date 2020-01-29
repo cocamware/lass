@@ -187,7 +187,11 @@ public:
 	 */
 	bool operator==(const TSelf& iOther) const
 	{
-		return dispatcher_->isEquivalent(iOther.dispatcher_.get());
+		if (dispatcher_ == iOther.dispatcher_)
+		{
+			return true;
+		}
+		return dispatcher_ && dispatcher_->isEquivalent(iOther.dispatcher_.get());
 	}
 
 private:
