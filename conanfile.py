@@ -51,6 +51,7 @@ class LassConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
         "with_std_auto_ptr": [True, False, None],
@@ -60,6 +61,7 @@ class LassConan(ConanFile):
     }
     default_options = {
         "shared": True,
+        "fPIC": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
         "with_std_auto_ptr": None,
@@ -70,6 +72,10 @@ class LassConan(ConanFile):
     generators = "cmake"
     exports_sources = ("*", "!build*", "!env*", "!venv*")
     build_requires = ("cmake_installer/[>=3.1]@conan/stable",)
+
+    def config_options(self):
+        if self.settings.compiler == "Visual Studio":
+            del self.options.fPIC
 
     def configure(self):
         # Do *not* rely on any checks or queries involving
