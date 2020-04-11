@@ -116,17 +116,6 @@ class LassConan(ConanFile):
                 )
 
         cmake = CMake(self)
-
-        # pylint: disable=invalid-name
-        if cmake.get_version() < "3.12":
-            Python_EXECUTABLE = "PYTHON_EXECUTABLE"
-            Python_LIBRARY_RELEASE = "PYTHON_LIBRARY"
-            Python_LIBRARY_DEBUG = "PYTHON_DEBUG_LIBRARY"
-        else:
-            Python_EXECUTABLE = "Python_EXECUTABLE"
-            Python_LIBRARY_RELEASE = "Python_LIBRARY_RELEASE"
-            Python_LIBRARY_DEBUG = "Python_LIBRARY_DEBUG"
-
         defs = {
             "BUILD_TESTING": self.develop and not self.in_local_cache,
             "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
@@ -134,9 +123,9 @@ class LassConan(ConanFile):
                 self.options.without_iterator_debugging
             ),
             "Lass_PYTHON_VERSION": python.version,
-            Python_EXECUTABLE: python.executable,
-            Python_LIBRARY_RELEASE: python.library,
-            Python_LIBRARY_DEBUG: python.library,
+            "Python_EXECUTABLE": python.executable,
+            "Python_LIBRARY_RELEASE": python.library,
+            "Python_LIBRARY_DEBUG": python.library,
         }
         if self.options.with_std_auto_ptr.value not in (None, "None"):
             defs["LASS_HAVE_STD_AUTO_PTR"] = bool(self.options.with_std_auto_ptr)

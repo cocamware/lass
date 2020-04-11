@@ -116,6 +116,15 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
     endif()
 
     if(DEFINED PythonCompat_FIND_REQUIRED_Development)
+        if(Python_LIBRARY_RELEASE AND NOT PYTHON_LIBRARY)
+            set(PYTHON_LIBRARY "${Python_LIBRARY_RELEASE}" CACHE FILEPATH
+                "Path to a library." FORCE)
+        endif()
+        if(Python_LIBRARY_DEBUG AND NOT PYTHON_DEBUG_LIBRARY)
+            set(PYTHON_DEBUG_LIBRARY "${Python_LIBRARY_DEBUG}" CACHE FILEPATH
+                "Path to a library." FORCE)
+        endif()
+
         find_package(PythonLibs ${_PythonCompat_ARGS})
 
         set(Python_Development_FOUND ${PYTHONLIBS_FOUND})
