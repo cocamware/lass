@@ -153,7 +153,7 @@ if(Python_Development_FOUND)
 		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
  		)
 	target_link_libraries(lass_python
-		PUBLIC Lass::lass Python::Python # also adds the include dirs
+		PUBLIC Lass::lass Python::Module # also adds the include dirs
 		)
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 

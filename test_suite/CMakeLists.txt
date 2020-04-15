@@ -97,7 +97,7 @@ target_link_libraries(test_suite
 	)
 if(TARGET Lass::lass_python)
 	target_link_libraries(test_suite
-		PRIVATE Lass::lass_python
+		PRIVATE Lass::lass_python Python::Python
 	)
 endif()
 lass_add_precompiled_header(test_suite 

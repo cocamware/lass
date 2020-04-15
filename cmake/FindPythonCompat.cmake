@@ -26,7 +26,14 @@ Only the following targets are supported:
 ``Python::Interpreter``
   Python interpreter. Target defined if component ``Interpreter`` is found.
 ``Python::Python``
-  Python library. Target defined if component ``Development`` is found.
+  Python library for embedding. Target defined if component ``Development`` is
+  found.
+``Python::Module``
+  Python library for modules. Target defined if component ``Development`` is
+  found. On Windows, this is the same as ``Python::Python``. Otherwise, it only
+  defines the ``INTERFACE_INCLUDE_DIRECTORIES``, as modules don't need to 
+  link to the Python library because the interpreter already provides the
+  symbols.
 
 Result Variables
 ^^^^^^^^^^^^^^^^
@@ -214,6 +221,59 @@ else()
         COMPONENTS ${_PythonCompat_COMPONENTS}
         OPTIONAL_COMPONENTS ${_PythonCompat_OPTIONAL_COMPONENTS})
 
+endif()
+
+if(NOT TARGET Python::Module AND TARGET Python::Python)
+    # On Windows, Python::Module is the same as Python::Python but you can't
+    # use ALIAS because imported library is not GLOBAL
+    if(WIN32)
+        get_target_property(_PythonCompat_TYPE
+            Python::Python TYPE)
+        if(_PythonCompat_TYPE STREQUAL "SHARED_LIBRARY")
+            add_library(Python::Module SHARED IMPORTED)
+        elseif(_PythonCompat_TYPE STREQUAL "STATIC_LIBRARY")
+            add_library(Python::Module STATIC IMPORTED)
+        else()
+            add_library(Python::Module UNKNOWN IMPORTED)
+        endif()
+        unset(_PythonCompat_TYPE)
+
+        set(_PythonCompat_VARS
+            INTERFACE_INCLUDE_DIRECTORIES
+            IMPORTED_LINK_INTERFACE_LANGUAGES
+            IMPORTED_IMPLIB
+            IMPORTED_LOCATION)
+        get_target_property(_PythonCompat_CONFIGS
+            Python::Python IMPORTED_CONFIGURATIONS)
+        if(_PythonCompat_CONFIGS)
+            set_property(TARGET Python::Module PROPERTY
+                IMPORTED_CONFIGURATIONS ${_PythonCompat_CONFIGS})
+            foreach(_PythonCompat_CONFIG ${_PythonCompat_CONFIGS})
+                list(APPEND _PythonCompat_VARS
+                    "IMPORTED_LINK_INTERFACE_LANGUAGES_${_PythonCompat_CONFIG}"
+                    "IMPORTED_IMPLIB_${_PythonCompat_CONFIG}"
+                    "IMPORTED_LOCATION_${_PythonCompat_CONFIG}")
+            endforeach()
+        endif()
+        unset(_PythonCompat_CONFIG)
+        unset(_PythonCompat_CONFIGS)
+
+        foreach(_PythonCompat_VAR ${_PythonCompat_VARS})
+            get_target_property(_PythonCompat_VALUE
+                Python::Python "${_PythonCompat_VAR}")
+            if(_PythonCompat_VALUE)
+                set_property(TARGET Python::Module PROPERTY
+                    "${_PythonCompat_VAR}" ${_PythonCompat_VALUE})
+            endif()
+        endforeach()
+        unset(_PythonCompat_VALUE)
+        unset(_PythonCompat_VAR)
+        unset(_PythonCompat_VARS)
+    else()
+        add_library(Python::Module INTERFACE IMPORTED)
+        set_property(TARGET Python::Module PROPERTY
+            INTERFACE_INCLUDE_DIRECTORIES "${Python_INCLUDE_DIRS}")
+    endif()
 endif()
 
 set(PythonCompat_FOUND ${Python_FOUND})
