@@ -70,7 +70,7 @@ class LassConan(ConanFile):
         "python_debug": None,
     }
     generators = "cmake"
-    exports_sources = ("*", "!build*", "!env*", "!venv*")
+    exports_sources = ("*", "!build*", "!env*", "!venv*", "!dist*", "!pylass.egg-info")
 
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
