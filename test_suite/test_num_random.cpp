@@ -114,8 +114,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK_CLOSE(mean, 0.5, tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 1. / 12., tolerance);
 
@@ -130,8 +130,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK_CLOSE(mean, 50., tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 300. * 300. / 12., tolerance);
 
@@ -146,8 +146,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK_CLOSE(mean, 1., tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 1., tolerance);
 
@@ -162,8 +162,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK_CLOSE(mean, 1. / 100., tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 1. / (100. * 100.), tolerance);
 
@@ -178,8 +178,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK(mean < tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 1., tolerance);
 
@@ -194,8 +194,8 @@ void testNumDistributions()
 		mean += draw;
 		variance += draw * draw;
 	}
-	mean /= testSize;
-	variance = variance / testSize - mean * mean;
+	mean /= static_cast<TValue>(testSize);
+	variance = variance / static_cast<TValue>(testSize) - mean * mean;
 	LASS_TEST_CHECK_CLOSE(mean, 200., tolerance);
 	LASS_TEST_CHECK_CLOSE(variance, 100. * 100., tolerance);
 }
