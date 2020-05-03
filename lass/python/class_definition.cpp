@@ -99,6 +99,10 @@ void dealloc(PyObject* obj)
 };
 
 
+#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
@@ -114,7 +118,7 @@ ClassDefinition::ClassDefinition(
 		typeSize,	/*tp_basicsize*/
 		0,	/*tp_itemsize*/
 		dealloc,	/*tp_dealloc*/
-		0,	/*tp_print*/
+		0,	/*tp_vectorcall_offset (was tp_print in 3.7 and earlier, for Python 2.x print formatting) */
 		0,	/*tp_getattr*/
 		0,	/*tp_setattr*/
 		0,	/*tp_compare*/
@@ -161,12 +165,21 @@ ClassDefinition::ClassDefinition(
 #if PY_VERSION_HEX >= 0x03040000 // >= 3.4
 		0,	/*tp_finalize*/
 #endif
+#if PY_VERSION_HEX >= 0x03080000 // >= 3.8
+        0,	/*tp_vectorcall, exists in 3.8 but only used since 3.9 */
+#endif
+#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
+        0,	/*tp_print, only exists in 3.8 for backwards compatibility, bpo-37250 */
+#endif
 	};
 	type_ = type;
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
 
+#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
+#	pragma GCC diagnostic pop
+#endif
 
 
 ClassDefinition::~ClassDefinition()
