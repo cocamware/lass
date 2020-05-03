@@ -134,7 +134,7 @@ void testUtilCallback0()
 		LASS_TEST_CALLBACK_CALL(cb_free_0());
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// callback to lambda
 		TCallback cb_lambda_0([]() { free0(); });
@@ -190,7 +190,7 @@ void testUtilCallback0()
 		LASS_TEST_CALLBACK_CALL(cb_assign_free_0());
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// assign lambda function function
 		TCallback cb_assign_lambda_0;
@@ -250,7 +250,7 @@ void testUtilCallback$x()
 		LASS_TEST_CALLBACK_CALL(cb_free_$x($($x)$));
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// callback to lambda function
 		TCallback cb_lambda_$x([]($(int p$x)$) { free$x($(p$x)$); });
@@ -306,7 +306,7 @@ void testUtilCallback$x()
 		LASS_TEST_CALLBACK_CALL(cb_assign_free_$x($($x)$));
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// assign lambda function function
 		TCallback cb_assign_lambda_$x;
@@ -366,7 +366,7 @@ void testUtilCallbackR0()
 		LASS_TEST_CALLBACK_CALL_R(cb_free_r0());
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// callback to lambda function
 		TCallback cb_lambda_r0([]() { return freeR0(); });
@@ -422,7 +422,7 @@ void testUtilCallbackR0()
 		LASS_TEST_CALLBACK_CALL(cb_assign_free_r0());
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// assign lambda function function
 		TCallback cb_assign_lambda_r0;
@@ -482,7 +482,7 @@ void testUtilCallbackR$x()
 		LASS_TEST_CALLBACK_CALL_R(cb_free_r$x($($x)$));
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// callback to lambda function
 		TCallback cb_lambda_r$x([]($(int p$x)$) { return freeR$x($(p$x)$); });
@@ -538,7 +538,7 @@ void testUtilCallbackR$x()
 		LASS_TEST_CALLBACK_CALL(cb_assign_free_r$x($($x)$));
 	}
 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 	{
 		// assign lambda function function
 		TCallback cb_assign_lambda_r$x;

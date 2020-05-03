@@ -75,7 +75,7 @@ private:
 
 public:
 
-#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+#if LASS_HAVE_CPP_STD_11
 	typedef T value_type;
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
@@ -237,7 +237,7 @@ public:
 
 private:
 
-#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+#if LASS_HAVE_CPP_STD_11
 	typedef typename std::allocator_traits<allocator_type>::template rebind_alloc<node_t> node_allocator_type;
 #else
 	typedef typename allocator_type::template rebind<node_t>::other node_allocator_type;

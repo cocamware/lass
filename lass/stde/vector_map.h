@@ -94,7 +94,7 @@ public:
 		key_compare key_comp_;
 	};
 
-#if LASS_HAVE_STD_ALLOCATOR_TRAITS
+#if LASS_HAVE_CPP_STD_11
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
 	typedef typename std::allocator_traits<Allocator>::template rebind_alloc<value_type> allocator_type;

@@ -330,7 +330,7 @@ public:
 
 private:
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	typedef std::unique_ptr<T> TUniquePtr;
 #else
 	typedef std::auto_ptr<T> TUniquePtr;
@@ -368,7 +368,7 @@ public:
 	}
 
 	
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	template <typename U> void reset(std::unique_ptr<U> p)
 	{
 		TPointer old = get();

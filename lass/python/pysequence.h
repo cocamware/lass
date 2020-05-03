@@ -70,7 +70,7 @@ namespace impl
 	public:
 #if LASS_HAVE_STD_AUTO_PTR
 		typedef std::auto_ptr<PySequenceImplBase> TPimpl;
-#elif LASS_HAVE_STD_UNIQUE_PTR
+#elif LASS_HAVE_CPP_STD_11
 		typedef std::unique_ptr<PySequenceImplBase> TPimpl; 
 #else
 #		error "Must have either std::auto_ptr or std::unique_ptr"

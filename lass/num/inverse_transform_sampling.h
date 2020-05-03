@@ -142,7 +142,7 @@ private:
 			std::partial_sum(firstCdfV, lastCdfV, firstCdfV);
 			const TValue maxCdfV = *(lastCdfV - 1);
 			*(margCdfU + i) = maxCdfV; 
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 			std::transform(firstCdfV, lastCdfV, firstCdfV, [maxCdfV](TValue cdf) { return cdf / maxCdfV; });
 #else
 			std::transform(firstCdfV, lastCdfV, firstCdfV, std::bind2nd(std::divides<TValue>(), maxCdfV));
@@ -150,7 +150,7 @@ private:
 		}
 		std::partial_sum(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin());
 		const TValue maxCdfU = margCdfU_.back();
-#if LASS_HAVE_CPP_LAMBDAS
+#if LASS_HAVE_CPP_STD_11
 		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), [maxCdfU](TValue cdf) { return cdf / maxCdfU; });
 #else
 		std::transform(margCdfU_.begin(), margCdfU_.end(), margCdfU_.begin(), std::bind2nd(std::divides<TValue>(), maxCdfU));

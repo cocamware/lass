@@ -92,7 +92,7 @@ public:
 		swap(temp);
 	}
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	template <typename U> ScopedPtr(std::unique_ptr<U> p):
 		TStoragePolicy(p.get()) 
 	{ 

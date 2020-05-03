@@ -157,7 +157,7 @@ namespace test
 #if LASS_HAVE_STD_AUTO_PTR
 		static std::auto_ptr<Bar> makeAutoPtr();
 #endif
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 		static std::unique_ptr<Bar> makeUniquePtr();
 #endif
 	};

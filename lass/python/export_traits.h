@@ -245,7 +245,7 @@ struct PyExportTraits< std::auto_ptr<T> >
 };
 #endif
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 /** auto_ptr assumes shadow types
 *  @ingroup Python
 */

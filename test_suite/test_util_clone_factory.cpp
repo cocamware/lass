@@ -84,7 +84,7 @@ void testUtilCloneFactory()
 {
 	typedef util::CloneFactory<clone_factory::Base, std::string> TFactory;
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	typedef std::unique_ptr<clone_factory::Base> TBasePtr;
 #elif LASS_HAVE_STD_AUTO_PTR
 	typedef std::auto_ptr<clone_factory::Base> TBasePtr;

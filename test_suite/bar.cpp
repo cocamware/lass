@@ -103,7 +103,7 @@ namespace lass
 #if LASS_HAVE_STD_AUTO_PTR
 		PY_CLASS_STATIC_METHOD( Bar, makeAutoPtr )
 #endif
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 		PY_CLASS_STATIC_METHOD( Bar, makeUniquePtr )
 #endif
 
@@ -412,7 +412,7 @@ namespace lass
 			return ptr;
 		}
 #endif
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 		std::unique_ptr<Bar> Bar::makeUniquePtr()
 		{
 			std::unique_ptr<Bar> ptr(new Bar);

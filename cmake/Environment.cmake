@@ -294,21 +294,18 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 endif()
 CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
+_try_compile_checking(LASS_HAVE_CPP_STD_11 "check_cpp_std_11.cpp" "C++11 is supported")
+
 # If compiler supports newer std::unique_ptr, disable usage of std::auto_ptr, 
 # to avoid deprecation warnings. But provide option to user to override in 
 # any case.
-_try_compile_looking(LASS_HAVE_STD_UNIQUE_PTR "check_std_unique_ptr.cpp" "std::unique_ptr")
-if(LASS_HAVE_STD_UNIQUE_PTR)
+if(LASS_HAVE_CPP_STD_11)
     set(_lass_have_std_auto_ptr_default OFF)
 else()
     set(_lass_have_std_auto_ptr_default ON)
 endif()
 option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by default if std::unique_ptr is found." "${_lass_have_std_auto_ptr_default}")
 
-_try_compile_looking(LASS_HAVE_STD_ALLOCATOR_TRAITS "check_std_allocator_traits.cpp" "std::allocator_traits")
-_try_compile_looking(LASS_HAVE_STD_ISNAN "check_std_isnan.cpp" "std::isnan")
-
-_try_compile_checking(LASS_HAVE_CPP_LAMBDAS "check_cpp_lambdas.cpp" "C++ lambdas are supported")
 
 # --- checking some properties of numbers and available functions ---
 
@@ -322,6 +319,7 @@ set(LASS_HAVE_LONG_LONG ${HAVE_LONG_LONG})
 CHECK_SYMBOL_EXISTS("llabs" "stdlib.h" LASS_HAVE_LLABS)
 CHECK_SYMBOL_EXISTS("_abs64" "stdlib.h" LASS_HAVE_ABS64)
 _try_compile_looking(LASS_HAVE_LONG_DOUBLE_STD_FUNCTIONS "check_long_double_std_functions.cpp" "fabsl")
+_try_compile_looking(LASS_HAVE_STD_ISNAN "check_std_isnan.cpp" "std::isnan")
 
 
 # --- wide character support ---

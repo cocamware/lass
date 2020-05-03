@@ -229,7 +229,7 @@ public:
 		return buildObject(p);
 	}
 #endif
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	static TPyClassPtr buildObject(std::unique_ptr<TCppClass>&& value)
 	{
 		TCppClassPtr p(value.get());

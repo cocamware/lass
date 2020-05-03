@@ -143,7 +143,7 @@ public:
 	{
 	}
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 	/** register a concrete product to the CloneFactory by a @a iIdentifier that
 	 *  will identify the product, and an @a iPrototype that will be cloned.
 	*/

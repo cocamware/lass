@@ -102,7 +102,7 @@ namespace lass
 		}
 #endif
 
-#if LASS_HAVE_STD_UNIQUE_PTR
+#if LASS_HAVE_CPP_STD_11
 		/** @ingroup Python
 		*/
 		template<typename T>
