@@ -230,11 +230,10 @@ public:
 	}
 #endif
 #if LASS_HAVE_CPP_STD_11
-	static TPyClassPtr buildObject(std::unique_ptr<TCppClass>&& value)
+	template <typename Deleter>
+	static TPyClassPtr buildObject(std::unique_ptr<TCppClass, Deleter>&& value)
 	{
-		TCppClassPtr p(value.get());
-		value.release();
-		return buildObject(p);
+		return buildObject(TCppClassPtr(std::move(value)));
 	}
 #endif
 	static void addConverter(TImplicitConverter converter)

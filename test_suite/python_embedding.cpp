@@ -561,16 +561,36 @@ namespace lass
 namespace test
 {
 
+class StdSharedObject;
+
+struct StdSharedObjectDeleter
+{
+	void operator()(StdSharedObject* ptr);
+};
+
 class StdSharedObject
 {
 public:
-	StdSharedObject() { ++constructed_; }
-	~StdSharedObject() { ++destructed_; }
+	static std::shared_ptr<StdSharedObject> makeShared()
+	{
+		return std::shared_ptr<StdSharedObject>(new StdSharedObject, StdSharedObjectDeleter());
+	}
+	static std::unique_ptr<StdSharedObject, StdSharedObjectDeleter> makeUnique()
+	{
+		return std::unique_ptr<StdSharedObject, StdSharedObjectDeleter>(new StdSharedObject);
+	}
 	static size_t constructed() { return constructed_; }
 	static size_t destructed() { return destructed_; }
+	static size_t deleted() { return deleted_; }
 private:
+	StdSharedObject() { ++constructed_; }
+	~StdSharedObject() { ++destructed_; }
+
+	friend struct StdSharedObjectDeleter;
+
 	static size_t constructed_;
 	static size_t destructed_;
+	static size_t deleted_;
 };
 
 size_t stdSharedObjectFreeMethod(const StdSharedObject& obj)
@@ -580,6 +600,13 @@ size_t stdSharedObjectFreeMethod(const StdSharedObject& obj)
 
 size_t StdSharedObject::constructed_ = 0;
 size_t StdSharedObject::destructed_ = 0;
+size_t StdSharedObject::deleted_ = 0;
+
+void StdSharedObjectDeleter::operator()(StdSharedObject* ptr)
+{
+	++StdSharedObject::deleted_;
+	delete ptr;
+}
 
 }
 }
@@ -587,9 +614,11 @@ size_t StdSharedObject::destructed_ = 0;
 PY_SHADOW_CLASS_PTRTRAITS(LASS_DLL_EXPORT, PyStdSharedObject, lass::test::StdSharedObject, lass::python::StdSharedPointerTraits )
 PY_SHADOW_CASTERS(PyStdSharedObject)
 PY_DECLARE_CLASS_NAME(PyStdSharedObject, "StdSharedObject")
-PY_CLASS_CONSTRUCTOR_0(PyStdSharedObject)
+PY_CLASS_STATIC_METHOD(PyStdSharedObject, makeUnique)
+PY_CLASS_STATIC_METHOD(PyStdSharedObject, makeShared)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, constructed)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
+PY_CLASS_STATIC_METHOD(PyStdSharedObject, deleted)
 PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
 PY_MODULE_CLASS( embedding, PyStdSharedObject )
 

@@ -250,11 +250,11 @@ struct PyExportTraits< std::auto_ptr<T> >
 /** std::unique_ptr assumes shadow types
 *  @ingroup Python
 */
-template <typename T>
-struct PyExportTraits< std::unique_ptr<T> >
+template <typename T, typename Deleter>
+struct PyExportTraits< std::unique_ptr<T, Deleter> >
 {
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits;
-	static PyObject* build(std::unique_ptr<T>&& value)
+	static PyObject* build(std::unique_ptr<T, Deleter>&& value)
 	{
 		if (!value)
 		{

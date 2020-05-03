@@ -680,15 +680,29 @@ class TestStdSharedObject(unittest.TestCase):
 		StdSharedObject = embedding.StdSharedObject
 		self.assertEqual(StdSharedObject.constructed(), 0)
 		self.assertEqual(StdSharedObject.destructed(), 0)
+		self.assertEqual(StdSharedObject.deleted(), 0)
 
-		obj = StdSharedObject()
+		shared = StdSharedObject.makeShared()
 		self.assertEqual(StdSharedObject.constructed(), 1)
-		self.assertEqual(obj.method(), 1)
+		self.assertEqual(shared.method(), 1)
 		self.assertEqual(StdSharedObject.destructed(), 0)
+		self.assertEqual(StdSharedObject.deleted(), 0)
 
-		del obj
+		del shared
 		self.assertEqual(StdSharedObject.constructed(), 1)
 		self.assertEqual(StdSharedObject.destructed(), 1)
+		self.assertEqual(StdSharedObject.deleted(), 1)
+
+		unique = StdSharedObject.makeUnique()
+		self.assertEqual(StdSharedObject.constructed(), 2)
+		self.assertEqual(unique.method(), 2)
+		self.assertEqual(StdSharedObject.destructed(), 1)
+		self.assertEqual(StdSharedObject.deleted(), 1)
+
+		del unique
+		self.assertEqual(StdSharedObject.constructed(), 2)
+		self.assertEqual(StdSharedObject.destructed(), 2)
+		self.assertEqual(StdSharedObject.deleted(), 2)
 
 
 import sys
