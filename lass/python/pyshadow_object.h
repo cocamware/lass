@@ -392,6 +392,42 @@ struct NakedPointerTraits
 };
 
 
+#if LASS_HAVE_CPP_STD_11
+
+template <typename T>
+struct StdSharedPointerTraits
+{
+	typedef std::shared_ptr<T> TPtr;
+	template <typename U> struct Rebind
+	{
+		typedef StdSharedPointerTraits<U> Type;
+	};
+	static void acquire(const TPtr&) {} // TPtr already handles ownership, so nothing to acquire.
+	static void release(const TPtr&) {}
+	static bool isEmpty(const TPtr& p)
+	{
+		return !p;
+	}
+	static T* get(const TPtr& p)
+	{
+		return p.get();
+	}
+	template <typename U> static TPtr staticCast(const std::shared_ptr<U>& p)
+	{
+		return std::static_pointer_cast<T>(p);
+	}
+	template <typename U> static TPtr dynamicCast(const std::shared_ptr<U>& p)
+	{
+		return std::dynamic_pointer_cast<T>(p);
+	}
+	template <typename U> static TPtr constCast(const std::shared_ptr<U>& p)
+	{
+		return std::const_pointer_cast<T>(p);
+	}
+};
+
+#endif
+
 
 /** @ingroup Python
  */

@@ -246,22 +246,51 @@ struct PyExportTraits< std::auto_ptr<T> >
 #endif
 
 #if LASS_HAVE_CPP_STD_11
-/** auto_ptr assumes shadow types
+
+/** std::unique_ptr assumes shadow types
 *  @ingroup Python
 */
 template <typename T>
 struct PyExportTraits< std::unique_ptr<T> >
 {
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits;
-	static PyObject* build(std::unique_ptr<T>&& v)
+	static PyObject* build(std::unique_ptr<T>&& value)
 	{
-		if (!v.get())
+		if (!value)
 		{
 			Py_RETURN_NONE;
 		}
-		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(std::move(v)));
+		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(std::move(value)));
 	}
 };
+
+/** std::shared_ptr assumes shadow types.
+ *  @ingroup Python
+ */
+template <typename T>
+struct PyExportTraits< std::shared_ptr<T> >
+{
+	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits;
+	typedef std::shared_ptr<T> TPtr;
+	static PyObject* build(const TPtr& value)
+	{
+		if (!value)
+		{
+			Py_RETURN_NONE;
+		}
+		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(value));
+	}
+	static int get(PyObject* obj, TPtr& value)
+	{
+		if (obj == Py_None)
+		{
+			value.reset();
+			return 0;
+		}
+		return TShadowTraits::getObject(obj, value);
+	}
+};
+
 #endif
 
 // --- void ptrs ------------------------------------------------------------------------------------

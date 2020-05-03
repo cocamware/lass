@@ -674,6 +674,23 @@ class TestBar(unittest.TestCase):
 		self.assertFalse("foo" in bar)
 
 
+class TestStdSharedObject(unittest.TestCase):
+	@unittest.skipUnless(hasattr(embedding, "StdSharedObject"), "needs std::shared_ptr")
+	def testStdSharedObject(self):
+		StdSharedObject = embedding.StdSharedObject
+		self.assertEqual(StdSharedObject.constructed(), 0)
+		self.assertEqual(StdSharedObject.destructed(), 0)
+
+		obj = StdSharedObject()
+		self.assertEqual(StdSharedObject.constructed(), 1)
+		self.assertEqual(obj.method(), 1)
+		self.assertEqual(StdSharedObject.destructed(), 0)
+
+		del obj
+		self.assertEqual(StdSharedObject.constructed(), 1)
+		self.assertEqual(StdSharedObject.destructed(), 1)
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)

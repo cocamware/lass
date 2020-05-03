@@ -553,3 +553,44 @@ PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 
 PY_MODULE_ENTRYPOINT( embedding )
 
+
+#if LASS_HAVE_CPP_STD_11
+
+namespace lass
+{
+namespace test
+{
+
+class StdSharedObject
+{
+public:
+	StdSharedObject() { ++constructed_; }
+	~StdSharedObject() { ++destructed_; }
+	static size_t constructed() { return constructed_; }
+	static size_t destructed() { return destructed_; }
+private:
+	static size_t constructed_;
+	static size_t destructed_;
+};
+
+size_t stdSharedObjectFreeMethod(const StdSharedObject& obj)
+{
+    return obj.constructed();
+}
+
+size_t StdSharedObject::constructed_ = 0;
+size_t StdSharedObject::destructed_ = 0;
+
+}
+}
+
+PY_SHADOW_CLASS_PTRTRAITS(LASS_DLL_EXPORT, PyStdSharedObject, lass::test::StdSharedObject, lass::python::StdSharedPointerTraits )
+PY_SHADOW_CASTERS(PyStdSharedObject)
+PY_DECLARE_CLASS_NAME(PyStdSharedObject, "StdSharedObject")
+PY_CLASS_CONSTRUCTOR_0(PyStdSharedObject)
+PY_CLASS_STATIC_METHOD(PyStdSharedObject, constructed)
+PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
+PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
+PY_MODULE_CLASS( embedding, PyStdSharedObject )
+
+#endif
