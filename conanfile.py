@@ -17,24 +17,46 @@ def _get_version():
     assert match
     version = match.group(1)
 
-    # we want to add a prerelease number to the semver. We can use describe
-    # to get an increasing number from a previous tag. To get a stable number
-    # we need to fixe that base tag, which is obviously not the current version
-    # since that tag doesn't exist yet.
+    git = tools.Git()
+
+    # if this version has been tagged in Git, it's either this very commit (and a
+    # release version), or a post-release (which is not allowed).
+    version_tag = "lass-{}".format(version)
+    try:
+        describe = git.run(
+            "describe --abbrev=8 --dirty --tags --match {}".format(version_tag)
+        )
+    except (errors.ConanException, errors.CalledProcessErrorWithStderr):
+        pass  # release tag doesn't exist yet, it's a pre-release.
+    else:
+        assert describe == version_tag, (
+            "Post-release builds are not allowed. Set base_tag to {!r} and "
+            + "increment project(Lass VERSION X.Y.Z) in CMakeLists.txt."
+        ).format(version_tag)
+        return version
+
+    # It's not a release version, so we want to add a pre-release number to the semver.
+    # We can use describe to get an increasing number from a previous tag. To get a
+    # stable number we need to fix that base tag, which is obviously not the current
+    # version since that tag doesn't exist yet.
     # NOTE: you can only update this base tag _at_the_same_time_ you update
-    # project(Lass VERSION ...) in CMakeLists. Otherwise, the prerelease
-    # numbers will not properly increase.
-    basetag = "lass-1.6.0"
+    # project(Lass VERSION ...) in CMakeLists. Otherwise, the prerelease numbers will
+    # not properly increase.
+    base_tag = "lass-1.6.0"
 
     git = tools.Git()
     try:
-        describe = git.run("describe --abbrev=8 --dirty --match {}".format(basetag))
+        describe = git.run(
+            "describe --abbrev=8 --dirty --tags --match {}".format(base_tag)
+        )
     except errors.ConanException:
         return None  # Assume conan metadata already knows
-    assert describe.startswith(basetag), "{!r} does not start with {!r}".format(
-        describe, basetag
+    assert describe.startswith(base_tag), "{!r} does not start with {!r}".format(
+        describe, base_tag
     )
-    match = re.search(r"{}-(\d+)-(g\w+(-dirty)?)$".format(re.escape(basetag)), describe)
+    match = re.search(
+        r"{}-(\d+)-(g\w+(-dirty)?)$".format(re.escape(base_tag)), describe
+    )
     assert match, "unexpected describe format: {!r}".format(describe)
     pre_release, rev = match.group(1), match.group(2)
     return "{}-{}+{}".format(version, pre_release, rev)
