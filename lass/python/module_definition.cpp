@@ -187,7 +187,9 @@ PyObject* ModuleDefinition::inject()
 	preInject_();
 	methods_.push_back(impl::createPyMethodDef(0, 0, 0, 0));
 	Py_Initialize();
+#if PY_VERSION_HEX < 0x03090000 // < 3.9
 	PyEval_InitThreads(); // see http://stackoverflow.com/questions/8451334/why-is-pygilstate-release-throwing-fatal-python-errors
+#endif
 #if PY_MAJOR_VERSION < 3
 	module_ = Py_InitModule3(name_.get(), &methods_[0], doc_.get());
 #else
