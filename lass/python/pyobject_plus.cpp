@@ -86,7 +86,9 @@ PyObjectPlus::~PyObjectPlus()
 				<< std::endl;
 		}
 		--this->ob_refcnt;
+#if defined(Py_TRACE_REFS) || PY_VERSION_HEX < 0x03090000 // < 3.9
 		_Py_ForgetReference( this );
+#endif
 
 	}
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
