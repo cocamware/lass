@@ -42,7 +42,7 @@ def _get_version():
     # NOTE: you can only update this base tag _at_the_same_time_ you update
     # project(Lass VERSION ...) in CMakeLists. Otherwise, the prerelease numbers will
     # not properly increase.
-    base_tag = "lass-1.6.0"
+    base_tag = "lass-1.10.0"
 
     git = tools.Git()
     try:
