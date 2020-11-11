@@ -99,6 +99,11 @@ if(TARGET Lass::lass_python)
 	target_link_libraries(test_suite
 		PRIVATE Lass::lass_python Python::Python
 	)
+	if(MSVC_IDE)
+		set_property(TARGET test_suite PROPERTY
+			VS_DEBUGGER_ENVIRONMENT "PATH=$<TARGET_FILE_DIR:Python::Python>;%PATH%"
+		)
+	endif()
 endif()
 lass_add_precompiled_header(test_suite 
 	test_common.h
