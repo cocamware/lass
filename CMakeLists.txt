@@ -101,6 +101,9 @@ include(CTest)
 if(BUILD_TESTING)
 	enable_testing()
 	add_subdirectory(test_suite)
+	if(MSVC_IDE)
+		set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT test_suite)
+	endif()
 endif()
 	
 # --- INSTALLING ---
