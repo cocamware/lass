@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(Lass VERSION 1.10.1)
+project(Lass VERSION 1.10.2)
 
 if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
