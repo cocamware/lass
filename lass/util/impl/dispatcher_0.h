@@ -132,6 +132,8 @@ private:
 
 
 
+#if LASS_HAVE_CPP_STD_11 && !LASS_HAVE_LAMBDA_OPERATOR_NOT
+
 /** Dispatcher for lass::util::Callback0 to a callable that does not support operator!
  *  @internal
  *  @sa Callback0
@@ -170,6 +172,8 @@ private:
 
 	TFunction function_;
 };
+
+#endif
 
 
 

@@ -139,6 +139,10 @@ void testUtilCallback0()
 		// callback to lambda
 		TCallback cb_lambda_0([]() { free0(); });
 		LASS_TEST_CHECK(cb_lambda_0);
+#if LASS_HAVE_LAMBDA_OPERATOR_NOT
+		LASS_TEST_CHECK(!cb_lambda_0.isEmpty());
+		LASS_TEST_CHECK(!(!cb_lambda_0));
+#endif
 		LASS_TEST_CALLBACK_CALL(cb_lambda_0());
 	}
 #endif
@@ -255,6 +259,10 @@ void testUtilCallback$x()
 		// callback to lambda function
 		TCallback cb_lambda_$x([]($(int p$x)$) { free$x($(p$x)$); });
 		LASS_TEST_CHECK(cb_lambda_$x);
+#if LASS_HAVE_LAMBDA_OPERATOR_NOT
+		LASS_TEST_CHECK(!cb_lambda_$x.isEmpty());
+		LASS_TEST_CHECK(!(!cb_lambda_$x));
+#endif
 		LASS_TEST_CALLBACK_CALL(cb_lambda_$x($($x)$));
 	}
 #endif
@@ -371,6 +379,10 @@ void testUtilCallbackR0()
 		// callback to lambda function
 		TCallback cb_lambda_r0([]() { return freeR0(); });
 		LASS_TEST_CHECK(cb_lambda_r0);
+#if LASS_HAVE_LAMBDA_OPERATOR_NOT
+		LASS_TEST_CHECK(!cb_lambda_r0.isEmpty());
+		LASS_TEST_CHECK(!(!cb_lambda_r0));
+#endif
 		LASS_TEST_CALLBACK_CALL_R(cb_lambda_r0());
 	}
 #endif
@@ -487,6 +499,10 @@ void testUtilCallbackR$x()
 		// callback to lambda function
 		TCallback cb_lambda_r$x([]($(int p$x)$) { return freeR$x($(p$x)$); });
 		LASS_TEST_CHECK(cb_lambda_r$x);
+#if LASS_HAVE_LAMBDA_OPERATOR_NOT
+		LASS_TEST_CHECK(!cb_lambda_r$x.isEmpty());
+		LASS_TEST_CHECK(!(!cb_lambda_r$x));
+#endif
 		LASS_TEST_CALLBACK_CALL_R(cb_lambda_r$x($($x)$));
 	}
 #endif

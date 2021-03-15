@@ -295,6 +295,7 @@ endif()
 CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
 _try_compile_checking(LASS_HAVE_CPP_STD_11 "check_cpp_std_11.cpp" "C++11 is supported")
+_try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 
 # If compiler supports newer std::unique_ptr, disable usage of std::auto_ptr, 
 # to avoid deprecation warnings. But provide option to user to override in 
