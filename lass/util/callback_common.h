@@ -61,6 +61,13 @@ public:
 };
 
 
+#if LASS_HAVE_CPP_STD_11 && !LASS_HAVE_LAMBDA_OPERATOR_NOT
+
+// With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
+// the unary !operator. This was fixed in VS 2019 version 16.2.
+// https://twitter.com/lunasorcery/status/1092870113374687232
+// https ://developercommunity.visualstudio.com/t/msvc-rejects-valid-lambda-auto-assignment-which-gc/447025
+
 namespace impl
 {
 
@@ -73,6 +80,8 @@ public:
 };
 
 }
+
+#endif
 
 }
 }
