@@ -109,6 +109,11 @@ else()
 	)
 endif()
 
+target_compile_features(lass 
+	PUBLIC
+		cxx_override
+)
+
 lass_add_precompiled_header(lass 
 	lass_common.h 
 	"${Lass_SOURCE_DIR}/lass/lass_common.cpp"

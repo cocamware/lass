@@ -96,14 +96,14 @@ namespace impl
 		{
 		}
 
-		virtual void reset() { return callback_->reset(); }									// move to traits class, to discern multi and non-multi
-		virtual Py_ssize_t length() const { return static_cast<Py_ssize_t>(callback_->size()); };				// move to traits class, to discern multi and non-multi
+		void reset() override { return callback_->reset(); }									// move to traits class, to discern multi and non-multi
+		Py_ssize_t length() const override { return static_cast<Py_ssize_t>(callback_->size()); };				// move to traits class, to discern multi and non-multi
 
-		const std::type_info& type() const 
+		const std::type_info& type() const override
 		{ 
 			return typeid(TCallbackPtr); 
 		}
-		void* raw(bool writable)
+		void* raw(bool writable) override
 		{ 
 			if (writable && readOnly_)
 			{
@@ -111,8 +111,8 @@ namespace impl
 			}
 			return &callback_; 
 		}
-		virtual void call(const python::TPyObjPtr& args, PyObject* self);
-		virtual void add(const python::TPyObjPtr& args)
+		void call(const python::TPyObjPtr& args, PyObject* self) override;
+		void add(const python::TPyObjPtr& args) override
 		{
 			// the "thing" we add must be convertible to a callback
 			// [TODO] use a decodeTuple

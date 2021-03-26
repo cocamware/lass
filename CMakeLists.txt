@@ -86,6 +86,9 @@ elseif(SUNPRO)
 	add_compile_options("-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
 else()
 	add_compile_options("-Wall" "-Wextra" "-Wformat=2" "-Winit-self" "-Wconversion" "-Wno-unknown-pragmas")
+	if (CMAKE_C_COMPILER_ID STREQUAL GNU)
+		add_compile_options("-Wsuggest-override")
+	endif()
 endif()
 
 

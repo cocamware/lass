@@ -77,9 +77,9 @@ private:
 
 	typedef char TByte;
 
-	long doTellg() const;
-	void doSeekg(long offset, std::ios_base::seekdir direction);
-	size_t doRead(void* out, size_t numberOfBytes);
+	long doTellg() const override;
+	void doSeekg(long offset, std::ios_base::seekdir direction) override;
+	size_t doRead(void* out, size_t numberOfBytes) override;
 
 	const TByte* begin_;
 	long size_;

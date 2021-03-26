@@ -74,7 +74,7 @@ namespace util_visitor
 
 	private:
 
-		void doAccept(util::VisitorBase& ioVisitor)
+		void doAccept(util::VisitorBase& ioVisitor) override
 		{
 			preAccept(ioVisitor, *this);
 			for (TDocElements::iterator i = children_.begin(); i != children_.end(); ++i)
@@ -103,12 +103,12 @@ namespace util_visitor
 		int lists_;
 
 	private:
-		void doPreVisit(DocElement&) { LASS_COUT << "enter docelement\n"; ++docElements_; }
-		void doPreVisit(Paragraph&) { LASS_COUT << "enter paragraph\n"; ++paragraphs_; }
-		void doPreVisit(List&) { LASS_COUT << "enter list\n"; ++lists_; }
-		void doPostVisit(DocElement&) { LASS_COUT << "exit docelement\n"; }
-		void doPostVisit(Paragraph&) { LASS_COUT << "exit paragraph\n"; }
-		void doPostVisit(List&) { LASS_COUT << "exit list\n"; }
+		void doPreVisit(DocElement&) override { LASS_COUT << "enter docelement\n"; ++docElements_; }
+		void doPreVisit(Paragraph&) override { LASS_COUT << "enter paragraph\n"; ++paragraphs_; }
+		void doPreVisit(List&) override { LASS_COUT << "enter list\n"; ++lists_; }
+		void doPostVisit(DocElement&) override{ LASS_COUT << "exit docelement\n"; }
+		void doPostVisit(Paragraph&) override { LASS_COUT << "exit paragraph\n"; }
+		void doPostVisit(List&) override { LASS_COUT << "exit list\n"; }
 	};
 }
 

@@ -79,24 +79,24 @@ public:
 	XmlOElement(XmlOStream& iParent, const std::string& iName);
 	virtual ~XmlOElement();
 
-	virtual XmlOElement& operator<<( char iIn );
-	virtual XmlOElement& operator<<( signed char iIn );
-	virtual XmlOElement& operator<<( unsigned char iIn );
-	virtual XmlOElement& operator<<( signed short iIn );
-	virtual XmlOElement& operator<<( unsigned short iIn );
-	virtual XmlOElement& operator<<( signed int iIn ) ;
-	virtual XmlOElement& operator<<( unsigned int iIn );
-	virtual XmlOElement& operator<<( signed long iIn );
-	virtual XmlOElement& operator<<( unsigned long iIn );
-	virtual XmlOElement& operator<<( float iIn );
-	virtual XmlOElement& operator<<( double iIn );
-	virtual XmlOElement& operator<<( long double iIn );
-	virtual XmlOElement& operator<<( bool iIn );
-	virtual XmlOElement& operator<<( const void* iIn );
-	virtual XmlOElement& operator<<( const char* iIn );
-	virtual XmlOElement& operator<<( const std::string& iIn );
+	XmlOElement& operator<<( char iIn ) override;
+	XmlOElement& operator<<( signed char iIn ) override;
+	XmlOElement& operator<<( unsigned char iIn ) override;
+	XmlOElement& operator<<( signed short iIn ) override;
+	XmlOElement& operator<<( unsigned short iIn ) override;
+	XmlOElement& operator<<( signed int iIn ) override;
+	XmlOElement& operator<<( unsigned int iIn ) override;
+	XmlOElement& operator<<( signed long iIn ) override;
+	XmlOElement& operator<<( unsigned long iIn ) override;
+	XmlOElement& operator<<( float iIn ) override;
+	XmlOElement& operator<<( double iIn ) override;
+	XmlOElement& operator<<( long double iIn ) override;
+	XmlOElement& operator<<( bool iIn ) override;
+	XmlOElement& operator<<( const void* iIn ) override;
+	XmlOElement& operator<<( const char* iIn ) override;
+	XmlOElement& operator<<( const std::string& iIn ) override;
 
-	virtual XmlOElement& operator<<( std::ostream& (*iIn) (std::ostream&) );
+	XmlOElement& operator<<( std::ostream& (*iIn) (std::ostream&) ) override;
 
 private:
 

@@ -107,16 +107,16 @@ namespace impl
 		~PySequenceContainer() 
 		{
 		}
-		const TPyObjPtr asNative() const
+		const TPyObjPtr asNative() const override
 		{
 			return pyBuildList(this->begin(), this->next(this->begin(), this->length()));
 		}
-		TPimpl copy() const
+		TPimpl copy() const override
 		{
 			TContainerPtr copy = TContainerTraits::copy(this->container());
 			return TPimpl(new PySequenceContainer(copy));
 		}
-		bool reserve(Py_ssize_t n)
+		bool reserve(Py_ssize_t n) override
 		{
 			if (!this->checkWritable())
 			{
@@ -125,7 +125,7 @@ namespace impl
 			TContainerTraits::reserve(this->container(), n);
 			return true;
 		}
-		bool append(const TPyObjPtr& obj)
+		bool append(const TPyObjPtr& obj) override
 		{
 			if (!this->checkWritable())
 			{
@@ -140,7 +140,7 @@ namespace impl
 			TContainerTraits::insert(this->container(), end, &value, &value + 1);
 			return true;
 		}
-		bool pop(Py_ssize_t i)
+		bool pop(Py_ssize_t i) override
 		{
 			if (!this->checkWritable())
 			{
@@ -153,7 +153,7 @@ namespace impl
 			TContainerTraits::erase(this->container(), this->next(this->begin(), i), this->next(this->begin(), i + 1));
 			return true;
 		}
-		PyObject* item(Py_ssize_t i) const
+		PyObject* item(Py_ssize_t i) const override
 		{
 			if (!this->checkIndex(i))
 			{
@@ -161,7 +161,7 @@ namespace impl
 			}
 			return pyBuildSimpleObject(*this->next(this->begin(), i));
 		}
-		PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const
+		PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const override
 		{
 			const Py_ssize_t size = this->length();
 			low = num::clamp(low, Py_ssize_t(0), size);
@@ -181,7 +181,7 @@ namespace impl
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
-		int assItem(Py_ssize_t i, PyObject* obj)
+		int assItem(Py_ssize_t i, PyObject* obj) override
 		{
 			if (!this->checkWritable() || !this->checkIndex(i))
 			{
@@ -197,7 +197,7 @@ namespace impl
 			}
 			return 0;
 		}
-		int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other)
+		int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other) override
 		{
 			if (!this->checkWritable())
 			{
@@ -268,7 +268,7 @@ namespace impl
 			}
 			return 0;
 		}
-		int contains(PyObject* obj) const
+		int contains(PyObject* obj) const override
 		{
 			typename Container::value_type value;
 			if (pyGetSimpleObject(obj, value) != 0)
@@ -289,7 +289,7 @@ namespace impl
 			}
 			return 0;
 		}
-		bool inplaceConcat(PyObject* other)
+		bool inplaceConcat(PyObject* other) override
 		{
 			if (!this->checkWritable())
 			{
@@ -310,7 +310,7 @@ namespace impl
 			TContainerTraits::insert(this->container(), end, first, last);
 			return true;
 		}
-		bool inplaceRepeat(Py_ssize_t n)
+		bool inplaceRepeat(Py_ssize_t n) override
 		{
 			if (!this->checkWritable())
 			{

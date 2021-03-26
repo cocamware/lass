@@ -81,13 +81,13 @@ public:
 	SplineLinear(ScalarInputIterator iFirstControl, ScalarInputIterator iLastControl,
 		DataInputIterator iFirstData);
 
-	const TData operator()(TScalar iX) const;
-	const TData derivative(TScalar iX) const;
-	const TData derivative2(TScalar iX) const;
-	const TData integral(TScalar iA, TScalar iB) const;
+	const TData operator()(TScalar iX) const override;
+	const TData derivative(TScalar iX) const override;
+	const TData derivative2(TScalar iX) const override;
+	const TData integral(TScalar iA, TScalar iB) const override;
 
-	bool isEmpty() const;
-	const TControlRange controlRange() const;
+	bool isEmpty() const override;
+	const TControlRange controlRange() const override;
 
 private:
 

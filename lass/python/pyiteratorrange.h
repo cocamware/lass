@@ -76,8 +76,8 @@ namespace impl
 	{
 	public:
 		PyIteratorRangeImpl(Iterator first, Iterator last): first_(first), last_(last), current_(first) {}
-		virtual ~PyIteratorRangeImpl() {}
-		virtual PyObject* iterNext();
+		~PyIteratorRangeImpl() {}
+		PyObject* iterNext() override;
 	private:
 		Iterator first_;
 		Iterator last_;

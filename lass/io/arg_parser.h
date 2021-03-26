@@ -233,8 +233,8 @@ public:
 private:
 
 
-	virtual const std::string doFormat() const;
-	virtual bool doSetValue(const std::string& iValue);
+	const std::string doFormat() const override;
+	bool doSetValue(const std::string& iValue) override;
 
 	void checkMode(int iArgMode) const;
 

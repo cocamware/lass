@@ -118,24 +118,24 @@ public:
 	void close();
 	bool is_open();
 
-	virtual XmlOFile& operator<<( char iIn );
-	virtual XmlOFile& operator<<( signed char iIn );
-	virtual XmlOFile& operator<<( unsigned char iIn );
-	virtual XmlOFile& operator<<( signed short iIn );
-	virtual XmlOFile& operator<<( unsigned short iIn );
-	virtual XmlOFile& operator<<( signed int iIn ) ;
-	virtual XmlOFile& operator<<( unsigned int iIn );
-	virtual XmlOFile& operator<<( signed long iIn );
-	virtual XmlOFile& operator<<( unsigned long iIn );
-	virtual XmlOFile& operator<<( float iIn );
-	virtual XmlOFile& operator<<( double iIn );
-	virtual XmlOFile& operator<<( long double iIn );
-	virtual XmlOFile& operator<<( bool iIn );
-	virtual XmlOFile& operator<<( const void* iIn );
-	virtual XmlOFile& operator<<( const char* iIn );
-	virtual XmlOFile& operator<<( const std::string& iIn );
+	XmlOFile& operator<<( char iIn ) override;
+	XmlOFile& operator<<( signed char iIn ) override;
+	XmlOFile& operator<<( unsigned char iIn ) override;
+	XmlOFile& operator<<( signed short iIn ) override;
+	XmlOFile& operator<<( unsigned short iIn ) override;
+	XmlOFile& operator<<( signed int iIn ) override;
+	XmlOFile& operator<<( unsigned int iIn ) override;
+	XmlOFile& operator<<( signed long iIn ) override;
+	XmlOFile& operator<<( unsigned long iIn ) override;
+	XmlOFile& operator<<( float iIn ) override;
+	XmlOFile& operator<<( double iIn ) override;
+	XmlOFile& operator<<( long double iIn ) override;
+	XmlOFile& operator<<( bool iIn ) override;
+	XmlOFile& operator<<( const void* iIn ) override;
+	XmlOFile& operator<<( const char* iIn ) override;
+	XmlOFile& operator<<( const std::string& iIn ) override;
 
-	virtual XmlOFile& operator<<( std::ostream& (*iIn) (std::ostream&) );
+	XmlOFile& operator<<( std::ostream& (*iIn) (std::ostream&) ) override;
 
 private:
 

@@ -65,16 +65,16 @@ namespace clone_factory
 	{
 	public:
 		Foo(const std::string& iName): Base(iName) {}
-		virtual std::string who() const { return std::string("Foo ") + name_; }
-		virtual Base* clone() const { return new Foo(*this); }
+		std::string who() const override { return std::string("Foo ") + name_; }
+		Base* clone() const override { return new Foo(*this); }
 	};
 
 	class Bar: public Base
 	{
 	public:
 		Bar(const std::string& iName): Base(iName) {}
-		virtual std::string who() const { return std::string("Bar ") + name_; }
-		virtual Base* clone() const { return new Bar(*this); }
+		std::string who() const override { return std::string("Bar ") + name_; }
+		Base* clone() const override { return new Bar(*this); }
 	};
 
 	Base* clone(const Base& iPrototype) { return iPrototype.clone(); }

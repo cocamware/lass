@@ -151,7 +151,7 @@ private:
 };
 
 #define LASS_UTIL_VISITOR_DO_ACCEPT\
-	void doAccept(::lass::util::VisitorBase& visitor)\
+	void doAccept(::lass::util::VisitorBase& visitor) override\
 	{\
 		preAccept(visitor, *this);\
 		postAccept(visitor, *this);\

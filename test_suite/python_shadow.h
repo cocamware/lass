@@ -65,8 +65,8 @@ typedef util::SharedPtr<Spam> TSpamPtr;
 class Ham: public Spam
 {
 public:
-	virtual ~Ham();
-	virtual std::string virtualWho() const;
+	~Ham();
+	std::string virtualWho() const override;
 	std::string overridenWho() const;
 	static void say(const std::string& iWhat);
 };
@@ -74,8 +74,8 @@ public:
 class Bacon: public Ham
 {
 public:
-	virtual ~Bacon();
-	virtual std::string virtualWho() const;
+	~Bacon();
+	std::string virtualWho() const override;
 	std::string overridenWho() const;
 };
 
@@ -83,8 +83,8 @@ class Eggs: public Spam
 {
 public:
 	Eggs(int iNumber = 2);
-	virtual ~Eggs();
-	virtual std::string virtualWho() const;
+	~Eggs();
+	std::string virtualWho() const override;
 	std::string overridenWho() const;
 
 	int number() const;

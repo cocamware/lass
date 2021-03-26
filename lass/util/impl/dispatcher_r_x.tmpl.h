@@ -116,7 +116,7 @@ public:
 
 private:
 
-	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const override
 	{
 		if (!function_)
 		{
@@ -125,7 +125,7 @@ private:
 		return function_($(iP$x)$);
 	}
 
-	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const override
 	{
 		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
 		return other && function_ == other->function_;
@@ -171,12 +171,12 @@ public:
 
 private:
 
-	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const override
 	{
 		return function_($(iP$x)$);
 	}
 
-	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* /*iOther*/) const
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* /*iOther*/) const override
 	{
 		return false;
 	}
@@ -213,7 +213,7 @@ public:
 
 private:
 
-	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const
+	R doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const override
 	{
 		if (!object_ || !method_)
 		{
@@ -222,7 +222,7 @@ private:
 		return ((*object_).*method_)($(iP$x)$);
 	}
 
-	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const
+	bool doIsEquivalent(const DispatcherR$x<R, $(P$x)$>* iOther) const override
 	{
 		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
 		return other && object_ == other->object_ && method_ == other->method_;

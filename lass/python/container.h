@@ -165,7 +165,7 @@ public:
 	typedef util::SharedPtr<const Container> TConstContainerPtr;
 	typedef ContainerTraits<Container> TContainerTraits;
 
-	bool clear()
+	bool clear() override
 	{
 		if (!checkWritable())
 		{
@@ -174,19 +174,19 @@ public:
 		TContainerTraits::clear(*container_);
 		return true;
 	}
-	Py_ssize_t length() const
+	Py_ssize_t length() const override
 	{
 		return TContainerTraits::size(*container_);
 	}
-	PyObject* items() const
+	PyObject* items() const override
 	{
 		return new PyIteratorRange(container_->begin(), container_->end());
 	}
-	const std::type_info& type() const 
+	const std::type_info& type() const override
 	{ 
 		return typeid(TContainerPtr); 
 	}
-	void* raw(bool writable)
+	void* raw(bool writable) override
 	{ 
 		if (writable && readOnly_)
 		{

@@ -95,8 +95,8 @@ public:
 private:
 	typedef std::vector<size_t> TIndexTable;
 
-	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output);
-	void doReset();
+	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output) override;
+	void doReset() override;
 
 	TValues taps_;
 	TValues buffer_;
@@ -147,8 +147,8 @@ public:
 private:
 	typedef std::vector<size_t> TIndexTable;
 
-	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output);
-	void doReset();
+	TOutputIterator doFilter(TInputIterator first, TInputIterator last, TOutputIterator output) override;
+	void doReset() override;
 	void init(const TValues& numerator, const TValues& denominator);
 	
 	template <typename FwdIt1, typename FwdIt2>

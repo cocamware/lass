@@ -90,7 +90,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T& obj): obj_(obj) {}
-				PyObject* build() const { return PyExportTraits<const T>::build(obj_); }
+				PyObject* build() const override { return PyExportTraits<const T>::build(obj_); }
 			private:
 				const T obj_;
 			};
@@ -99,7 +99,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T obj[N]): obj_(obj) {}
-				PyObject* build() const { return PyExportTraits<const T*>::build(obj_); }
+				PyObject* build() const override { return PyExportTraits<const T*>::build(obj_); }
 			private:
 				const T* obj_;
 			};
@@ -108,7 +108,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(PyObject* obj): obj_(obj) {}
- 				PyObject* build() const { return obj_; }
+ 				PyObject* build() const override { return obj_; }
 			private:
 				PyObject* obj_;
 			};

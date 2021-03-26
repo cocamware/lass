@@ -69,9 +69,9 @@ public:
 
 private:
 
-	long doTellg() const;
-	void doSeekg(long iOffset, std::ios_base::seekdir iDirection);
-	size_t doRead(void* oOutput, size_t iNumberOfBytes);
+	long doTellg() const override;
+	void doSeekg(long iOffset, std::ios_base::seekdir iDirection) override;
+	size_t doRead(void* oOutput, size_t iNumberOfBytes) override;
 
 	Socket* socket_;
 };

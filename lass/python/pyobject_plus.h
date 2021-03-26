@@ -62,7 +62,7 @@
 	public: \
 		typedef t_parentClass _lassPyParentType; \
 		static ::lass::python::impl::ClassDefinition _lassPyClassDef; \
-		virtual ::lass::python::impl::ClassDefinition* _lassPyGetClassDef() const { return &_lassPyClassDef; } \
+		::lass::python::impl::ClassDefinition* _lassPyGetClassDef() const override { return &_lassPyClassDef; } \
 	private:
 
 #include "class_definition.h"

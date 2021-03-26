@@ -95,14 +95,14 @@ public:
 	{
 	}
 	~Exception() throw() {}
-	const char* what() const throw() { return message_.c_str(); }
+	const char* what() const throw() override { return message_.c_str(); }
 	const std::string& message() const { return message_; }
 	const std::string& location() const { return location_; }
 private:
 	std::string message_;
 	std::string location_;
-	void doThrowSelf() const { throw *this; }
-	RemoteExceptionBase* doClone() const { return new Exception(*this); }
+	void doThrowSelf() const override { throw *this; }
+	RemoteExceptionBase* doClone() const override { return new Exception(*this); }
 };
 
 
@@ -115,11 +115,11 @@ public:
 	explicit ExceptionMixin(const std::string& msg): ParentType(msg) {}
 	~ExceptionMixin() throw() {}
 private:
-	virtual void doThrowSelf() const 
+	virtual void doThrowSelf() const override
 	{
 		throw *static_cast<const ExceptionType*>(this); 
 	}
-	virtual RemoteExceptionBase* doClone() const
+	virtual RemoteExceptionBase* doClone() const override
 	{ 
 		return new ExceptionType(*static_cast<const ExceptionType*>(this));
 	}
@@ -136,11 +136,11 @@ public:
 	RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
 	~RemoteExceptionWrapper() throw() {}
 private:
-	void doThrowSelf() const 
+	void doThrowSelf() const override
 	{ 
 		throw *this; 
 	}
-	RemoteExceptionBase* doClone() const 
+	RemoteExceptionBase* doClone() const override
 	{
 		typedef RemoteExceptionWrapper<LocalException> TSelf;
 		return new TSelf(*static_cast<const LocalException*>(this)); 

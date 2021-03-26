@@ -121,7 +121,7 @@ class LASS_DLL ThreadFun: public Thread
 public:
 	ThreadFun(const Callback0& fun, ThreadKind kind = threadDetached);
 private:
-	void doRun();
+	void doRun() override;
 	Callback0 fun_;
 };
 

@@ -174,20 +174,20 @@ class ClassA :  public Base
 {
 public:
 	ClassA() {};
-	virtual ~ClassA() {};
+	~ClassA() {};
 	virtual void abstractMethod() = 0;
 };
 class ClassB : public ClassA
 {
 public:
 	ClassB() {}
-	virtual ~ClassB() {}
+	~ClassB() {}
 
 	void testConst(const ClassA&) {}
 	void testNonConst(ClassA&) {}
 	void testConstPtr(ClassA const *) {}
 	void testNonConstPtr(ClassA*) {}
-	virtual void abstractMethod() {}
+	void abstractMethod() override {}
 
 	int getitem(int i) { return i; }
 	int len() const { return 5; }

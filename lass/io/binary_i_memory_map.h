@@ -75,9 +75,9 @@ public:
 
 private:
 
-	long doTellg() const;
-	void doSeekg(long offset, std::ios_base::seekdir direction);
-	size_t doRead(void* output, size_t numberOfBytes);
+	long doTellg() const override;
+	void doSeekg(long offset, std::ios_base::seekdir direction) override;
+	size_t doRead(void* output, size_t numberOfBytes) override;
 
 	impl::BinaryIMemoryMapImpl* pimpl_;
 	char* data_;

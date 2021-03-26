@@ -115,11 +115,11 @@ template <> struct BindCallback<void> { typedef Callback0 Type; };
  */
 template <typename R> class BindDispatcher: public DispatcherR0<R> 
 {
-	bool doIsEquivalent(const DispatcherR0<R>*) const { return false; }
+	bool doIsEquivalent(const DispatcherR0<R>*) const override { return false; }
 };
 template <> class BindDispatcher<void>: public impl::Dispatcher0 
 {
-	bool doIsEquivalent(const Dispatcher0*) const { return false; }
+	bool doIsEquivalent(const Dispatcher0*) const override { return false; }
 };
 
 }
@@ -184,7 +184,7 @@ class DispatcherBindFun$x: public BindDispatcher<R>
 public:
 	DispatcherBindFun$x(Fun fun, $(X$x x$x)$): fun_(fun), $(x$x_(x$x))$ {}
 private:
-	R doCall() const 
+	R doCall() const override
 	{ 
 		if (!fun_)
 		{
@@ -205,7 +205,7 @@ class DispatcherBindMemFun$x: public BindDispatcher<R>
 public:
 	DispatcherBindMemFun$x(ObjPtr obj, Fun fun, $(X$x x$x)$): obj_(obj), fun_(fun), $(x$x_(x$x))$ {}
 private:
-	R doCall() const 
+	R doCall() const override
 	{ 
 		if (!obj_ || !fun_)
 		{

@@ -173,8 +173,8 @@ namespace test
 
 	public:
 		DerivedBar() {}
-		virtual ~DerivedBar() {}
-		virtual float aMoreComplexFunction( float iA, float iB );
+		~DerivedBar() {}
+		float aMoreComplexFunction( float iA, float iB ) override;
 	};
 
 	typedef lass::python::PyObjectPtr<Bar>::Type TBarPtr;

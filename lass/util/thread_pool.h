@@ -288,7 +288,7 @@ private:
 		ConsumerThread(const TConsumer& consumer, TSelf& pool, const char* name);
 		size_t bindToNextAvailable(size_t processor);
 	private:
-		void doRun();
+		void doRun() override;
 		TConsumer consumer_;
 		TSelf& pool_;
 	};

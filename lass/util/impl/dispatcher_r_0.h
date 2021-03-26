@@ -118,7 +118,7 @@ public:
 
 private:
 
-	R doCall() const
+	R doCall() const override
 	{
 		if (!function_)
 		{
@@ -126,7 +126,7 @@ private:
 		}
 		return function_();
 	}
-	bool doIsEquivalent(const DispatcherR0<R>* iOther) const
+	bool doIsEquivalent(const DispatcherR0<R>* iOther) const override
 	{
 		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
 		return other && function_ == other->function_;
@@ -172,11 +172,11 @@ public:
 
 private:
 
-	R doCall() const
+	R doCall() const override
 	{
 		return function_();
 	}
-	bool doIsEquivalent(const DispatcherR0<R>* /*iOther*/) const
+	bool doIsEquivalent(const DispatcherR0<R>* /*iOther*/) const override
 	{
 		return false;
 	}
@@ -214,7 +214,7 @@ public:
 
 private:
 
-	R doCall() const
+	R doCall() const override
 	{
 		if (!object_ || !method_)
 		{
@@ -222,7 +222,7 @@ private:
 		}
 		return ((*object_).*method_)();
 	}
-	bool doIsEquivalent(const DispatcherR0<R>* iOther) const
+	bool doIsEquivalent(const DispatcherR0<R>* iOther) const override
 	{
 		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
 		return other && object_ == other->object_ && method_ == other->method_;

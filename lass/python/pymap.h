@@ -93,12 +93,12 @@ namespace impl
 			TBase(container, readOnly)
 		{
 		}
-		TPimpl copy() const
+		TPimpl copy() const override
 		{
 			TContainerPtr copy = TContainerTraits::copy(this->container());
 			return TPimpl(new PyMapImpl(copy));
 		}
-		PyObject* subscript(PyObject* key) const
+		PyObject* subscript(PyObject* key) const override
 		{
 			LockGIL LASS_UNUSED(lock);
 			typename Container::key_type k;
@@ -115,7 +115,7 @@ namespace impl
 			}
 			return pyBuildSimpleObject(it->second);
 		}
-		int assSubscript(PyObject* key, PyObject* value)
+		int assSubscript(PyObject* key, PyObject* value) override
 		{
 			LockGIL LASS_UNUSED(lock);
 			if (!this->checkWritable())
@@ -156,17 +156,17 @@ namespace impl
 			}
 			return 0;
 		}
-		PyObject* keys() const
+		PyObject* keys() const override
 		{
 			return new PyIteratorRange(
 				stde::first_iterator(this->container().begin()), stde::first_iterator(this->container().end()));
 		}
-		PyObject* values() const
+		PyObject* values() const override
 		{
 			return new PyIteratorRange(
 				stde::second_iterator(this->container().begin()), stde::second_iterator(this->container().end()));
 		}
-		const TPyObjPtr asNative() const
+		const TPyObjPtr asNative() const override
 		{
 			return pyBuildMap(this->container().begin(), this->container().end());
 		}

@@ -60,8 +60,8 @@ public:
 	SysStreamBuf(FILE* file, const char* name);
 	~SysStreamBuf();
 protected:
-	int_type overflow(int_type c);
-	int sync();
+	int_type overflow(int_type c) override;
+	int sync() override;
 private:
 	enum { bufferSize_ = 800 };
 	FILE* file_;

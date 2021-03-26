@@ -200,7 +200,7 @@ public:
 
 	LinearMeshInterpolator( const TAabb2D& iAabb, const TPI& iValueOutside );
 	virtual ~LinearMeshInterpolator() {}
-	virtual TPI interpolate( const TPoint2D& iQuery ) const;
+	TPI interpolate( const TPoint2D& iQuery ) const override;
 	template <typename OutputIterator> OutputIterator interpolate(  const TPolyLine2D& iQuery, OutputIterator oOutput ) const;
 	
 private:
