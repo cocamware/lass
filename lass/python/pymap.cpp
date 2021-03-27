@@ -58,11 +58,6 @@ namespace impl
 	PY_CLASS_METHOD( Map, items )
 	PY_CLASS_METHOD_NAME( Map, keys, methods::_iter_ )
 	PY_CLASS_METHOD_NAME( Map, repr, methods::_repr_ )
-#if PY_MAJOR_VERSION < 3
-	PY_CLASS_METHOD_NAME( Map, keys, "iterkeys" )
-	PY_CLASS_METHOD_NAME( Map, values, "itervalues" )
-	PY_CLASS_METHOD_NAME( Map, items, "iteritems" )
-#endif
 	PY_CLASS_METHOD( Map, get )
 	PY_CLASS_METHOD_NAME( Map, getOrNone, "get" )
 	PY_CLASS_METHOD( Map, clear )

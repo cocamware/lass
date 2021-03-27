@@ -101,7 +101,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize) 
 	{
-		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT ")", iSize));
+		TPyObjPtr args(Py_BuildValue("(n)", iSize));
 		return DispatcherAddress(iSelf,args.get());
 	}
 };
@@ -111,7 +111,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, Py_ssize_t iSize, Py_ssize_t iSize2)
 	{
-		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT "," LASS_PY_SSIZE_FORMAT ")", iSize, iSize2));
+		TPyObjPtr args(Py_BuildValue("(n,n)", iSize, iSize2));
 		return DispatcherAddress(iSelf,args.get());
 	}
 };
@@ -137,7 +137,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, PyObject * iOther)
 	{
-		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT ",O)",iSize,iOther));
+		TPyObjPtr args(Py_BuildValue("(n,O)",iSize,iOther));
 		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
 		return temp ? 0 : -1;
 	}
@@ -148,7 +148,7 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static int fun(PyObject * iSelf, Py_ssize_t iSize, Py_ssize_t iSize2, PyObject * iOther)
 	{
-		TPyObjPtr args(Py_BuildValue("(" LASS_PY_SSIZE_FORMAT "," LASS_PY_SSIZE_FORMAT ",O)",iSize,iSize2,iOther));
+		TPyObjPtr args(Py_BuildValue("(n,n,O)",iSize,iSize2,iOther));
 		TPyObjPtr temp(DispatcherAddress(iSelf,args.get()));
 		return temp ? 0 : -1;
 	}
@@ -223,12 +223,10 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 {
 	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* LASS_UNUSED(iKw))
 	{
-#if PY_VERSION_HEX >= 0X02050000
 		if (!_PyArg_NoKeywords("function", iKw))
 		{
 			return 0;
 		}
-#endif
 		return DispatcherAddress(iSelf, iArgs);
 	}
 };

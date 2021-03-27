@@ -53,11 +53,7 @@
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
 #endif
 
-#if PY_MAJOR_VERSION < 3
-PyMODINIT_FUNC initembedding();
-#else
 PyMODINIT_FUNC PyInit_embedding();
-#endif
 
 namespace lass
 {
@@ -66,11 +62,7 @@ namespace test
 
 void testUtilPython()
 {
-#if PY_MAJOR_VERSION < 3
-	PyImport_AppendInittab((char*)"embedding", initembedding);
-#else
 	PyImport_AppendInittab("embedding", PyInit_embedding);
-#endif
 	Py_Initialize();
 
 	LASS_TEST_CHECK(python::globals());

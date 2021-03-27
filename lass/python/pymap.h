@@ -257,11 +257,7 @@ namespace impl
 
 			const util::SharedPtr<Container> result(new Container);
 			const Py_ssize_t size = PyMapping_Length(obj);
-#if PY_MAJOR_VERSION < 3
-			TPyObjPtr items(PyObject_CallMethod(obj, (char*)"items", 0)); // own "implementation" of PyMapping_Items to avoid cast warning
-#else
 			TPyObjPtr items(PyMapping_Items(obj));
-#endif
 			if (!items)
 			{
 				PyErr_SetString(PyExc_TypeError, "Not a mapping");

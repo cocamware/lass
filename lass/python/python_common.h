@@ -146,37 +146,4 @@
 #	undef toupper
 #endif
 
-#ifndef PySequence_ITEM
-#	define PySequence_ITEM(o, i) PySequence_GetItem(o, i)
-#endif
-
-#ifndef PySequence_Fast_ITEMS
-#	define PySequence_Fast_ITEMS(o) \
-	(PyTuple_Check(o) ? ((PyTupleObject *)(o))->ob_item : ((PyListObject *)(o))->ob_item)
-#endif
-
-#ifndef Py_RETURN_FALSE
-#	define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
-#endif
-
-#ifndef Py_RETURN_TRUE
-#	define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
-#endif
-
-#ifndef Py_RETURN_NONE
-#	define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
-#endif
-
-#if (PY_VERSION_HEX < 0x02050000)
-#	define LASS_PY_SSIZE_FORMAT "i"
-#	define Py_ssize_t int
-#	define lenfunc inquiry
-#	define ssizeargfunc intargfunc
-#	define ssizessizeargfunc intintargfunc
-#	define ssizeobjargproc intobjargproc
-#	define ssizessizeobjargproc intintobjargproc
-#else
-#	define LASS_PY_SSIZE_FORMAT "n"
-#endif
-
 #endif

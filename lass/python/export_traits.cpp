@@ -54,11 +54,7 @@ PyObject* buildStringImpl(const char* v, size_t size)
 		PyErr_SetString(PyExc_OverflowError, "input too long");
 		return 0;
 	}
-#if PY_MAJOR_VERSION < 3
-	return PyString_FromStringAndSize(v, static_cast<Py_ssize_t>(size));
-#else
 	return PyUnicode_DecodeUTF8(v, static_cast<Py_ssize_t>(size), 0);
-#endif
 }
 
 
@@ -86,11 +82,7 @@ PyObject* PyExportTraits<void*>::build(void* value)
 	{
 		Py_RETURN_NONE;
 	}
-#if PY_VERSION_HEX < 0x03010000 // < 3.1
-	return PyCObject_FromVoidPtr(value, 0);
-#else
 	return PyCapsule_New(value, 0, 0);
-#endif
 }
 
 
@@ -162,13 +154,6 @@ PyObject* PyExportTraits<signed PY_LONG_LONG>::build(signed PY_LONG_LONG v)
 
 int PyExportTraits<signed PY_LONG_LONG>::get(PyObject* obj, signed PY_LONG_LONG& v)
 {
-#if PY_MAJOR_VERSION < 3
-	if (PyInt_Check(obj))
-	{
-		v = PyInt_AS_LONG(obj);
-		return 0;
-	}
-#endif
 	if (PyLong_Check(obj))
 	{
 		v = PyLong_AsLongLong(obj);
@@ -187,21 +172,6 @@ PyObject* PyExportTraits<unsigned PY_LONG_LONG>::build(unsigned PY_LONG_LONG v)
 
 int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_LONG& v)
 {
-#if PY_MAJOR_VERSION < 3
-	if (PyInt_Check(obj))
-	{
-		const long x = PyInt_AS_LONG(obj);
-		if (x < 0)
-		{
-			std::ostringstream buffer;
-			buffer << "not a unsigned long long: negative: " << x << " < 0";
-			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-			return 1;
-		}
-		v = static_cast<unsigned PY_LONG_LONG>(x);
-		return 0;
-	}
-#endif
 	if (PyLong_Check(obj))
 	{
 		v = PyLong_AsUnsignedLongLong(obj);
@@ -232,16 +202,6 @@ PyObject* PyExportTraits<std::string>::build(const std::string& v)
 
 int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 {
-#if PY_MAJOR_VERSION < 3
-	if (PyString_Check(obj))
-	{
-		// explicitly copying into data as some the std::string(char*) assumes a zero terminated C-str
-		// which is too limiting
-		v.resize(static_cast<size_t>(PyString_GET_SIZE(obj)), '\0');
-		memcpy(&v[0], PyString_AS_STRING(obj), v.size());
-		return 0;
-	}
-#endif
 	if (!PyUnicode_Check(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a string");
@@ -252,13 +212,8 @@ int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 	{
 		return 1;
 	}
-#if PY_MAJOR_VERSION < 3
-	v.resize(static_cast<size_t>(PyString_GET_SIZE(s.get())), '\0');
-	memcpy(&v[0], PyString_AS_STRING(s.get()), v.size());
-#else
 	v.resize(static_cast<size_t>(PyBytes_GET_SIZE(s.get())), '\0');
 	memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
-#endif
 	return 0;
 }
 
@@ -277,20 +232,6 @@ PyObject* PyExportTraits<std::wstring>::build(const std::wstring& v)
 
 int PyExportTraits<std::wstring>::get(PyObject* obj, std::wstring& v)
 {
-#if PY_MAJOR_VERSION < 3
-#	if LASS_HAVE_WCHAR_SUPPORT
-	if (PyString_Check(obj))
-	{
-		std::string utf8;
-		if (PyExportTraits<std::string>::get(obj, utf8) != 0)
-		{
-			return 1;
-		}
-		v = util::utf8ToWchar(utf8);
-		return 0;
-	}
-#	endif
-#endif
 	if (!PyUnicode_Check(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a string");

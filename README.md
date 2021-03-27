@@ -74,12 +74,11 @@ platform's package manager. Windows being the exception.
 
 | OS               | Arch     | CMake  | Python                     | Compiler                  |
 |------------------|----------|--------|----------------------------|---------------------------|
-| Debian Jessie    | x64      | 3.0.2  | 2.7.9,  3.4.2              | gcc 4.9.2, clang 3.5.0    |
-| Debian Stretch   | x64      | 3.7.2  | 2.7.13, 3.5.3              | gcc 6.3.0, clang 3.8.1    |
-| Debian Buster    | x64      | 3.12.1 | 2.7.15, 3.6.6              | gcc 8.2.0, clang 6.0.1    |
-| Ubuntu Xenial    | x64      | 3.5.1  | 2.7.12, 3.5.2              | gcc 5.4.0, clang 3.8.0    |
-| Ubuntu Bionic    | x64      | 3.10.2 | 2.7.15, 3.6.5              | gcc 7.3.0, clang 6.0.0    |
-| Ubuntu Focal     | x64      | 3.16.3 | 2.7.18, 3.8.2              | gcc 9.3.0, clang 10.0.0   |
-| Ubuntu Hirsute   | x64      | 3.18.4 | 2.7.18, 3.9.5              | gcc 10.3.0, clang 12.0.0  |
-| Windows 10       | x86, x64 | 3.18.4 | 2.7.18                     | vs 2008                   |
+| Debian Jessie    | x64      | 3.0.2  | 3.4.2                      | gcc 4.9.2, clang 3.5.0    |
+| Debian Stretch   | x64      | 3.7.2  | 3.5.3                      | gcc 6.3.0, clang 3.8.1    |
+| Debian Buster    | x64      | 3.12.1 | 3.6.6                      | gcc 8.2.0, clang 6.0.1    |
+| Ubuntu Xenial    | x64      | 3.5.1  | 3.5.2                      | gcc 5.4.0, clang 3.8.0    |
+| Ubuntu Bionic    | x64      | 3.10.2 | 3.6.5                      | gcc 7.3.0, clang 6.0.0    |
+| Ubuntu Focal     | x64      | 3.16.3 | 3.8.2                      | gcc 9.3.0, clang 10.0.0   |
+| Ubuntu Hirsute   | x64      | 3.18.4 | 3.9.5                      | gcc 10.3.0, clang 12.0.0  |
 | Windows 10       | x86, x64 | 3.18.4 | 3.6.8, 3.7.9, 3.8.6, 3.9.0 | vs 2017, vs 2019          |

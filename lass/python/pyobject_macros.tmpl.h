@@ -87,13 +87,8 @@
 
 /** @def PY_INIT_MODULE
  */
-#if PY_MAJOR_VERSION < 3
-#	define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
-		PyMODINIT_FUNC LASS_CONCATENATE(init, i_name)() { i_module.inject(); }
-#else
-#	define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
-		PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_name)() { return i_module.inject(); }
-#endif
+#define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
+	PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_name)() { return i_module.inject(); }
 
 /** @ingroup Python
  */

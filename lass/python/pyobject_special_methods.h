@@ -156,10 +156,7 @@ namespace methods
 	const lass::python::impl::UnarySlot _int_("__int__");
 	const lass::python::impl::UnarySlot _long_("__long__");
 	const lass::python::impl::UnarySlot _float_("__float__");
-#if PY_MAJOR_VERSION < 3
-	const lass::python::impl::UnarySlot _hex_("__hex__");
-	const lass::python::impl::UnarySlot _oct_("__oct__");
-#endif
+
 	// binary
 	const lass::python::impl::BinarySlot _add_("__add__");
 	const lass::python::impl::BinarySlot _sub_("__sub__");
@@ -183,10 +180,6 @@ namespace methods
 	const lass::python::impl::BinarySlot _itruediv_("__itruediv__");
 	const lass::python::impl::BinarySlot _floordiv_("__floordiv__");
 	const lass::python::impl::BinarySlot _ifloordiv_("__ifloordiv__");
-#if PY_MAJOR_VERSION < 3
-	const lass::python::impl::BinarySlot _div_("__div__");
-	const lass::python::impl::BinarySlot _idiv_("__idiv__");
-#endif
 	const lass::python::impl::InquirySlot _bool_("__bool__");
 	const lass::python::impl::InquirySlot _nonzero_ = _bool_; // the 2.x version of __bool__
 
@@ -214,10 +207,6 @@ namespace methods
 	const lass::python::impl::SsizeArgSlot _repeat_("__repeat__");
 	const lass::python::impl::SsizeArgSlot seq_getitem_("__seq_getitem__");		/**< to disambiguate with the PyMapping protocol */
 	const lass::python::impl::SsizeObjArgSlot seq_setitem_("__seq_setitem__");
-#if PY_MAJOR_VERSION < 3
-	const lass::python::impl::SsizeSsizeArgSlot _getslice_("__getslice__");
-	const lass::python::impl::SsizeSsizeObjArgSlot _setslice_("__setslice__");
-#endif
 	const lass::python::impl::ObjObjSlot _contains_("__contains__");
 	const lass::python::impl::BinarySlot _iconcat_("__iconcat__");
 	const lass::python::impl::SsizeArgSlot _irepeat_("__irepeat__");

@@ -52,7 +52,6 @@ ModuleDefinition::ModuleDefinition(const char* name, const char* doc):
 	module_(0),
 	isInjected_(false)
 {
-#if PY_MAJOR_VERSION >= 3 
 	PyModuleDef def = {
 		PyModuleDef_HEAD_INIT,
 		0, /* m_name */
@@ -65,7 +64,7 @@ ModuleDefinition::ModuleDefinition(const char* name, const char* doc):
 		0, /* m_free */
 	};
 	def_ = def;
-#endif
+
 	setName(name);
 	setDoc(doc);
 }
@@ -190,14 +189,10 @@ PyObject* ModuleDefinition::inject()
 #if PY_VERSION_HEX < 0x03090000 // < 3.9
 	PyEval_InitThreads(); // see http://stackoverflow.com/questions/8451334/why-is-pygilstate-release-throwing-fatal-python-errors
 #endif
-#if PY_MAJOR_VERSION < 3
-	module_ = Py_InitModule3(name_.get(), &methods_[0], doc_.get());
-#else
 	def_.m_name = name_.get();
 	def_.m_doc = doc_.get();
 	def_.m_methods = &methods_[0];
 	module_ = PyModule_Create(&def_);
-#endif
 	isInjected_ = true;
 	for (TClassDefs::const_iterator def = classes_.begin(); def != classes_.end(); ++def)
 	{

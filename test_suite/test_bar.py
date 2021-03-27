@@ -4,7 +4,6 @@ def echo(*xs):
 	sys.stdout.write(' '.join(map(str, xs)) + '\n')
 
 echo(sys.version)
-IS_PYTHON_3 = sys.version_info[0] >= 3
 
 
 numberOfErrors = 0

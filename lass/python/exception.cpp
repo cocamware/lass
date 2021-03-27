@@ -70,16 +70,6 @@ void addMessageHeader(const char* header)
 			std::swap(value, newValue);
 			Py_DECREF(newValue);
 		}
-#if PY_MAJOR_VERSION < 3
-		else if (PyString_Check(value))
-		{
-			std::ostringstream buffer;
-			buffer << header << ": " << PyString_AsString(value);
-			PyObject* temp = pyBuildSimpleObject(buffer.str());
-			std::swap(value, temp);
-			Py_DECREF(temp);
-		}
-#endif
 	}
 	catch (const std::exception&)
 	{

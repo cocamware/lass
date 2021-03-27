@@ -109,9 +109,7 @@ private:
 	TPreInject preInject_;
 	TPostInject postInject_;
 	PyObject* module_;
-#if PY_MAJOR_VERSION >= 3
 	PyModuleDef def_;
-#endif
 	bool isInjected_;
 };
 

@@ -53,12 +53,6 @@
 #	pragma warning(disable: 4996) // This function or variable may be unsafe ...
 #endif
 
-#if PY_MAJOR_VERSION < 3
-#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
-#else
-#	define Py_TPFLAGS_CHECKTYPES 0 // flag no longer exists
-#endif
-
 namespace lass
 {
 namespace python
@@ -132,7 +126,7 @@ ClassDefinition::ClassDefinition(
 		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
 		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
 		0,	/*tp_as_buffer*/
-		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES  , /*| Py_TPFLAGS_HAVE_CLASS ,*/	/*tp_flags*/
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE  , /*| Py_TPFLAGS_HAVE_CLASS ,*/	/*tp_flags*/
 		(char*)doc,	/*tp_doc*/
 		0,	/*tp_traverse*/
 		0,	/*tp_clear*/
@@ -159,9 +153,7 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_subclasses*/
 		0,	/*tp_weaklist*/
 		0,	/*tp_del*/
-#if PY_VERSION_HEX >= 0x02060000 // >= 2.6
 		0,	/*tp_version_tag*/
-#endif
 #if PY_VERSION_HEX >= 0x03040000 // >= 3.4
 		0,	/*tp_finalize*/
 #endif
@@ -280,11 +272,6 @@ void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc di
 	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
 	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_NO_OVERLOAD("__long__", tp_as_number, PyNumberMethods, nb_long)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__oct__", tp_as_number, PyNumberMethods, nb_oct)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__hex__", tp_as_number, PyNumberMethods, nb_hex)
-#endif
 	LASS_ASSERT_UNREACHABLE;
 }
 
@@ -312,11 +299,6 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc 
 	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
 	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
 	LASS_PY_OPERATOR_("__ifloordiv__", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_("__div__", tp_as_number, PyNumberMethods, nb_divide, Binary)
-	LASS_PY_OPERATOR_("__idiv__", tp_as_number, PyNumberMethods, nb_inplace_divide, Binary)
-#endif
-
 	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary) 
 	LASS_PY_OPERATOR_("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
 	LASS_PY_OPERATOR_("__map_getitem__", tp_as_mapping, PyMappingMethods, mp_subscript, Binary) 
@@ -343,21 +325,6 @@ void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char*, ssizeo
 	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
 	LASS_ASSERT_UNREACHABLE;
 }
-
-#if PY_MAJOR_VERSION < 3
-void ClassDefinition::addMethod(const SsizeSsizeArgSlot& slot, const char*, ssizessizeargfunc dispatcher, OverloadLink& overloadChain)
-{
-
-	LASS_PY_OPERATOR_("__getslice__", tp_as_sequence, PySequenceMethods, sq_slice, SsizeSsizeArg)
-	LASS_ASSERT_UNREACHABLE;
-}
-
-void ClassDefinition::addMethod(const SsizeSsizeObjArgSlot& slot, const char*, ssizessizeobjargproc dispatcher, OverloadLink& overloadChain)
-{
-	LASS_PY_OPERATOR_("__setslice__", tp_as_sequence, PySequenceMethods, sq_ass_slice, SsizeSsizeObjArgProc)
-	LASS_ASSERT_UNREACHABLE;
-}
-#endif
 
 void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc dispatcher, OverloadLink& overloadChain) 
 {
@@ -405,11 +372,7 @@ void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc 
 
 void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink&) 
 {
-#if PY_MAJOR_VERSION < 3
-	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_nonzero);
-#else
 	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_bool);
-#endif
 	LASS_ASSERT_UNREACHABLE;
 }
 

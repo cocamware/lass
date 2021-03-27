@@ -348,20 +348,10 @@ struct PyExportTraitsSigned
 	LASS_META_ASSERT(sizeof(Integer) <= sizeof(long), integer_should_fit_in_long);
 	static PyObject* build(Integer v)
 	{
-#if PY_MAJOR_VERSION < 3
-		return PyInt_FromLong(v);
-#else
 		return PyLong_FromLong(v);
-#endif
 	}
 	static int get(PyObject* obj, Integer& v)
 	{
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(obj))
-		{
-			return impl::pyNumCast(PyInt_AS_LONG(obj), v);
-		}
-#endif
 		if (PyLong_Check(obj))
 		{
 #if HAVE_LONG_LONG
@@ -422,31 +412,10 @@ struct PyExportTraitsUnsigned
 	LASS_META_ASSERT(sizeof(Integer) <= sizeof(unsigned long), integer_should_fit_in_unsigned_long);
 	static PyObject* build(Integer v)
 	{
-#if PY_MAJOR_VERSION < 3
-		const long x = static_cast<long>(v);
-		if (x >= 0)
-		{
-			return PyInt_FromLong(x);
-		}
-#endif
 		return PyLong_FromUnsignedLong(v);
 	}
 	static int get(PyObject* obj, Integer& v)
 	{
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(obj))
-		{
-			const long x = PyInt_AS_LONG(obj);
-			if (x < 0)
-			{
-				std::ostringstream buffer;
-				buffer << "not a " << num::NumTraits<Integer>::name() << ": negative: " << x << " < 0";
-				PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
-				return 1;
-			}
-			return impl::pyNumCast(static_cast<unsigned long>(x), v);
-		}
-#endif
 		if (PyLong_Check(obj))
 		{
 #if HAVE_LONG_LONG
@@ -538,13 +507,6 @@ struct PyExportTraitsFloat
 		{
 			return impl::pyNumCast(PyFloat_AS_DOUBLE(obj), v);
 		}
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(obj))
-		{
-			v = static_cast<Float>(PyInt_AS_LONG(obj));
-			return 0;
-		}
-#endif
 		if (PyLong_Check(obj))
 		{
 			const double x = PyLong_AsDouble(obj);
