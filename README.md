@@ -74,7 +74,6 @@ platform's package manager. Windows being the exception.
 
 | OS               | Arch     | CMake  | Python                     | Compiler                  |
 |------------------|----------|--------|----------------------------|---------------------------|
-| Debian Jessie    | x64      | 3.0.2  | 3.4.2                      | gcc 4.9.2, clang 3.5.0    |
 | Debian Stretch   | x64      | 3.7.2  | 3.5.3                      | gcc 6.3.0, clang 3.8.1    |
 | Debian Buster    | x64      | 3.12.1 | 3.6.6                      | gcc 8.2.0, clang 6.0.1    |
 | Ubuntu Xenial    | x64      | 3.5.1  | 3.5.2                      | gcc 5.4.0, clang 3.8.0    |

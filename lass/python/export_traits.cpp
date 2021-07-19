@@ -93,15 +93,6 @@ int PyExportTraits<void*>::get(PyObject* obj, void*& value)
 		value = 0;
 		return 0;
 	}
-#if PY_VERSION_HEX < 0x03010000 // < 3.1
-	if (!PyCObject_Check(obj))
-	{
-		PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
-		return 1;
-	}
-	value = PyCObject_AsVoidPtr(obj);
-	return 0;
-#else
 	if (!PyCapsule_CheckExact(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "does not evaluate to a void*");
@@ -114,7 +105,6 @@ int PyExportTraits<void*>::get(PyObject* obj, void*& value)
 	}
 	value = v;
 	return 0;
-#endif
 }
 
 
@@ -237,25 +227,19 @@ int PyExportTraits<std::wstring>::get(PyObject* obj, std::wstring& v)
 		PyErr_SetString(PyExc_TypeError, "not a string");
 		return 1;
 	}
-#if PY_VERSION_HEX < 0x03020000 // < 3.2
-	PyUnicodeObject* uobj = (PyUnicodeObject*)obj;
-	const Py_ssize_t size = PyUnicode_GET_SIZE(uobj); // assumes sizeof(Py_UNICODE) == sizeof(wchar_t)
-#else
-	PyObject* uobj = obj; // cast no longer necessary, and maybe not even safe.
-	Py_ssize_t n = PyUnicode_AsWideChar(uobj, 0, 0); // takes care of UTF-16 and UTF-32 conversions
+	Py_ssize_t n = PyUnicode_AsWideChar(obj, 0, 0); // takes care of UTF-16 and UTF-32 conversions
 	if (n == -1)
 	{
 		return 1;
 	}
 	const Py_ssize_t size = n - 1; // n includes terminating null character.
-#endif
 	if (size <= 0)
 	{
 		v = std::wstring();
 		return 0;
 	}
 	std::wstring tmp(static_cast<size_t>(size), '\0');
-	if (PyUnicode_AsWideChar(uobj, &tmp[0], size) == -1)
+	if (PyUnicode_AsWideChar(obj, &tmp[0], size) == -1)
 	{
 		return 1;
 	}
