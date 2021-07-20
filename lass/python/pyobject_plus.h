@@ -102,7 +102,6 @@ namespace lass
 		}
 #endif
 
-#if LASS_HAVE_CPP_STD_11
 		/** @ingroup Python
 		*/
 		template<typename T, typename Deleter>
@@ -111,7 +110,6 @@ namespace lass
 			LockGIL LASS_UNUSED(lock);
 			return PyExportTraits< std::unique_ptr<T, Deleter> >::build(std::move(iV));
 		}
-#endif
 
 		/** @ingroup Python
 		 */

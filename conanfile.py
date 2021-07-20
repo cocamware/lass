@@ -118,6 +118,14 @@ class LassConan(ConanFile):
             self.options.python_debug = Python(
                 self.options.python_executable, self.settings
             ).debug
+        self.validate()
+
+    def validate(self):
+        if self.settings.compiler.value in {"gcc", "clang"}:
+            if self.settings.compiler.libcxx in {"libstdc++"}:
+                raise errors.ConanInvalidConfiguration(
+                    "gcc and clang require C++11 compatible libcxx"
+                )
 
     def _cmake(self):
         python = Python(self.options.python_executable, self.settings)

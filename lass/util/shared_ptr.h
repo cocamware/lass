@@ -126,7 +126,6 @@ public:
 		swap(temp);
 	}
 
-#if LASS_HAVE_CPP_STD_11
 	template <typename U> SharedPtr(std::unique_ptr<U> p) :
 		TStoragePolicy(p.get())
 	{
@@ -141,7 +140,6 @@ public:
 		SharedPtr temp(std::move(p));
 		swap(temp);
 	}
-#endif
 
 #if LASS_HAVE_STD_AUTO_PTR
 	template <typename U> SharedPtr(std::auto_ptr<U> p) :

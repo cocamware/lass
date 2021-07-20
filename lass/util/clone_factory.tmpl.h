@@ -143,7 +143,6 @@ public:
 	{
 	}
 
-#if LASS_HAVE_CPP_STD_11
 	/** register a concrete product to the CloneFactory by a @a iIdentifier that
 	 *  will identify the product, and an @a iPrototype that will be cloned.
 	*/
@@ -154,7 +153,6 @@ public:
 		return prototypes_.insert(typename TPrototypes::value_type(
 			iIdentifier, std::move(iPrototype))).second;
 	}
-#endif
 
 #if LASS_HAVE_STD_AUTO_PTR
 	/** register a concrete product to the CloneFactory by a @a iIdentifier that

@@ -1199,11 +1199,7 @@ slist<T, Alloc>::make_node(const T& value) const
 	node_t* node = node_allocator.allocate(1);
 	try
 	{
-#if LASS_HAVE_CPP_STD_11
 		std::allocator_traits<allocator_type>::construct(allocator, &node->value, value);
-#else
-		allocator.construct(&node->value, value);
-#endif
 	}
 	catch (...)
 	{
@@ -1228,11 +1224,7 @@ void slist<T, Alloc>::unlink_and_destroy_after(node_base_t* before) const
 
 	node_base_t* node = before->next;
 	before->next = node->next;
-#if LASS_HAVE_CPP_STD_11
 	std::allocator_traits<allocator_type>::destroy(allocator, &static_cast<node_t*>(node)->value);
-#else
-	allocator.destroy(&static_cast<node_t*>(node)->value);
-#endif
 	node_allocator.deallocate(static_cast<node_t*>(node), 1);
 }
 

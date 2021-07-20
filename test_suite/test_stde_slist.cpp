@@ -251,11 +251,7 @@ void testStdeSlist()
 	stream << yet_another_list;
 	LASS_TEST_CHECK(stream.isEqual("[8, 9, 10, 11, 6, 1, 0, 3, 4, 5, 7]"));
 
-#if LASS_HAVE_CPP_STD_11
 	yet_another_list.remove_if([](int x) { return x >= 10; });
-#else
-	yet_another_list.remove_if(std::bind2nd(std::greater_equal<int>(), 10));
-#endif
 	stream << yet_another_list;
 	LASS_TEST_CHECK(stream.isEqual("[8, 9, 6, 1, 0, 3, 4, 5, 7]"));
 

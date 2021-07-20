@@ -61,7 +61,7 @@ public:
 };
 
 
-#if LASS_HAVE_CPP_STD_11 && !LASS_HAVE_LAMBDA_OPERATOR_NOT
+#if !LASS_HAVE_LAMBDA_OPERATOR_NOT
 
 // With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
 // the unary !operator. This was fixed in VS 2019 version 16.2.

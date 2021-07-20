@@ -229,13 +229,11 @@ public:
 		return buildObject(p);
 	}
 #endif
-#if LASS_HAVE_CPP_STD_11
 	template <typename Deleter>
 	static TPyClassPtr buildObject(std::unique_ptr<TCppClass, Deleter>&& value)
 	{
 		return buildObject(TCppClassPtr(std::move(value)));
 	}
-#endif
 	static void addConverter(TImplicitConverter converter)
 	{
 		TImplicitConverterList* converters = implicitConverters();
@@ -391,8 +389,6 @@ struct NakedPointerTraits
 };
 
 
-#if LASS_HAVE_CPP_STD_11
-
 template <typename T>
 struct StdSharedPointerTraits
 {
@@ -424,8 +420,6 @@ struct StdSharedPointerTraits
 		return std::const_pointer_cast<T>(p);
 	}
 };
-
-#endif
 
 
 /** @ingroup Python

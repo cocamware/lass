@@ -554,8 +554,6 @@ PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_ENTRYPOINT( embedding )
 
 
-#if LASS_HAVE_CPP_STD_11
-
 namespace lass
 {
 namespace test
@@ -621,5 +619,3 @@ PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, deleted)
 PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
 PY_MODULE_CLASS( embedding, PyStdSharedObject )
-
-#endif

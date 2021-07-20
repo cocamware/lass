@@ -67,10 +67,8 @@ namespace impl
 	public:
 #if LASS_HAVE_STD_AUTO_PTR
 		typedef std::auto_ptr<PyMapImplBase> TPimpl;
-#elif LASS_HAVE_CPP_STD_11
-		typedef std::unique_ptr<PyMapImplBase> TPimpl; 
 #else
-#		error "Must have either std::auto_ptr or std::unique_ptr"
+		typedef std::unique_ptr<PyMapImplBase> TPimpl; 
 #endif
 		virtual TPimpl copy() const = 0; 
 		virtual PyObject* subscript(PyObject* key) const = 0;

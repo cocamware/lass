@@ -245,8 +245,6 @@ struct PyExportTraits< std::auto_ptr<T> >
 };
 #endif
 
-#if LASS_HAVE_CPP_STD_11
-
 /** std::unique_ptr assumes shadow types
 *  @ingroup Python
 */
@@ -290,8 +288,6 @@ struct PyExportTraits< std::shared_ptr<T> >
 		return TShadowTraits::getObject(obj, value);
 	}
 };
-
-#endif
 
 // --- void ptrs ------------------------------------------------------------------------------------
 

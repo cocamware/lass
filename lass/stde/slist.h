@@ -75,7 +75,6 @@ private:
 
 public:
 
-#if LASS_HAVE_CPP_STD_11
 	typedef T value_type;
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
@@ -84,16 +83,6 @@ public:
 	typedef typename std::allocator_traits<allocator_type>::const_pointer const_pointer;
 	typedef typename std::allocator_traits<allocator_type>::size_type size_type;
 	typedef typename std::allocator_traits<allocator_type>::difference_type difference_type;
-#else
-	typedef typename Alloc::template rebind<T>::other allocator_type;
-	typedef T value_type;
-	typedef typename allocator_type::pointer pointer;
-	typedef typename allocator_type::const_pointer const_pointer;
-	typedef typename allocator_type::reference reference;
-	typedef typename allocator_type::const_reference const_reference;
-	typedef typename allocator_type::size_type size_type;
-	typedef typename allocator_type::difference_type difference_type;
-#endif
 	class const_iterator;
 	friend class const_iterator;
 	class iterator;
@@ -237,11 +226,7 @@ public:
 
 private:
 
-#if LASS_HAVE_CPP_STD_11
 	typedef typename std::allocator_traits<allocator_type>::template rebind_alloc<node_t> node_allocator_type;
-#else
-	typedef typename allocator_type::template rebind<node_t>::other node_allocator_type;
-#endif
 
 	node_t* make_node(const T& value) const;
 	void unlink_and_destroy_after(node_base_t* position) const;

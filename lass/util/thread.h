@@ -330,11 +330,7 @@ public:
 
 private:
 
-#if LASS_HAVE_CPP_STD_11
 	typedef std::unique_ptr<T> TUniquePtr;
-#else
-	typedef std::auto_ptr<T> TUniquePtr;
-#endif
 
 	static void destructor(void* p)
 	{
@@ -367,8 +363,6 @@ public:
 		delete old;
 	}
 
-	
-#if LASS_HAVE_CPP_STD_11
 	template <typename U> void reset(std::unique_ptr<U> p)
 	{
 		TPointer old = get();
@@ -376,7 +370,6 @@ public:
 		p.release();
 		delete old;
 	}
-#endif
 
 #if LASS_HAVE_STD_AUTO_PTR
 	template <typename U> void reset(std::auto_ptr<U> p)

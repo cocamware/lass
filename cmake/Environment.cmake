@@ -294,18 +294,10 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 endif()
 CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
-_try_compile_checking(LASS_HAVE_CPP_STD_11 "check_cpp_std_11.cpp" "C++11 is supported")
 _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 
-# If compiler supports newer std::unique_ptr, disable usage of std::auto_ptr, 
-# to avoid deprecation warnings. But provide option to user to override in 
-# any case.
-if(LASS_HAVE_CPP_STD_11)
-    set(_lass_have_std_auto_ptr_default OFF)
-else()
-    set(_lass_have_std_auto_ptr_default ON)
-endif()
-option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by default if std::unique_ptr is found." "${_lass_have_std_auto_ptr_default}")
+# std::auto_ptr is disabled by default, in favour of std::unique_ptr
+option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by default." OFF)
 
 
 # --- checking some properties of numbers and available functions ---
