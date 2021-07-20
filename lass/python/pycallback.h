@@ -188,11 +188,7 @@ public:
 
 private:
 
-#if LASS_HAVE_STD_AUTO_PTR
-	typedef std::auto_ptr<impl::MultiCallbackImplBase> TPimpl;
-#else
 	typedef std::unique_ptr<impl::MultiCallbackImplBase> TPimpl; 
-#endif
 
 	MultiCallback(TPimpl& pimpl);
 	void init(TPimpl& pimpl);

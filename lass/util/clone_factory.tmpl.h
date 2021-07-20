@@ -154,19 +154,6 @@ public:
 			iIdentifier, std::move(iPrototype))).second;
 	}
 
-#if LASS_HAVE_STD_AUTO_PTR
-	/** register a concrete product to the CloneFactory by a @a iIdentifier that
-	 *  will identify the product, and an @a iPrototype that will be cloned.
-	 */
-	bool subscribe(
-		typename CallTraits<IdentifierType>::TParam iIdentifier,
-		std::auto_ptr<AbstractProduct> iPrototype)
-	{
-		return prototypes_.insert(typename TPrototypes::value_type(
-			iIdentifier, iPrototype)).second;
-	}
-#endif
-
 	/** unregister a concrete product by its @a iIdentifier
 	 */
 	bool unsubscribe(typename CallTraits<IdentifierType>::TParam iIdentifier)

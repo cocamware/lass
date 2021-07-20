@@ -51,11 +51,6 @@ Lass uses the CMake build system.
     option. It dramatically improves performance of a *Debug* build, but it
     is not ABI compatibily with binaries that don't use this setting. So, it is
     `OFF` by default.
--   **`LASS_HAVE_STD_AUTO_PTR`** (`BOOL`): In Lass 1.9, the usage of 
-    `std::auto_ptr` is replaced by `std::unique_ptr`. To force compatibility
-    with earlier versions, you can set this flag to keep using `std::auto_ptr`
-    in the public API. `OFF` by default, except if the compiler does not yet
-    support `std::unique_ptr`.
 
 ### Generic options
 

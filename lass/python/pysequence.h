@@ -68,11 +68,7 @@ namespace impl
 	class LASS_PYTHON_DLL PySequenceImplBase: public ContainerImplBase
 	{
 	public:
-#if LASS_HAVE_STD_AUTO_PTR
-		typedef std::auto_ptr<PySequenceImplBase> TPimpl;
-#else
 		typedef std::unique_ptr<PySequenceImplBase> TPimpl; 
-#endif
 		virtual TPimpl copy() const = 0;
 		virtual bool reserve(Py_ssize_t n) = 0;
 		virtual bool append(const TPyObjPtr& i) = 0;

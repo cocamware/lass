@@ -154,9 +154,6 @@ namespace test
 		bool contains(const std::string& key);
 		size_t size() const;
 
-#if LASS_HAVE_STD_AUTO_PTR
-		static std::auto_ptr<Bar> makeAutoPtr();
-#endif
 		static std::unique_ptr<Bar> makeUniquePtr();
 	};
 

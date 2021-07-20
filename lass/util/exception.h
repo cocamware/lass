@@ -64,12 +64,7 @@ namespace util
 
 class RemoteExceptionBase;
 
-#if LASS_HAVE_STD_AUTO_PTR
-	typedef std::auto_ptr<RemoteExceptionBase> TRemoteExceptionBasePtr;
-#else
-	typedef std::unique_ptr<RemoteExceptionBase> TRemoteExceptionBasePtr;
-#endif
-
+typedef std::unique_ptr<RemoteExceptionBase> TRemoteExceptionBasePtr;
 
 class LASS_DLL RemoteExceptionBase
 {

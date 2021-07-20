@@ -100,9 +100,6 @@ namespace lass
 		PY_CLASS_METHOD_NAME(Bar, delItem, python::methods::map_delitem_);
 		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
-#if LASS_HAVE_STD_AUTO_PTR
-		PY_CLASS_STATIC_METHOD( Bar, makeAutoPtr )
-#endif
 		PY_CLASS_STATIC_METHOD( Bar, makeUniquePtr )
 
 		// innerclass of Bar
@@ -402,14 +399,6 @@ namespace lass
 		{
 			return std::string("A free __repr__ representation of Bar");
 		}
-
-#if LASS_HAVE_STD_AUTO_PTR
-		std::auto_ptr<Bar> Bar::makeAutoPtr()
-		{
-			std::auto_ptr<Bar> ptr(new Bar);
-			return ptr;
-		}
-#endif
 		std::unique_ptr<Bar> Bar::makeUniquePtr()
 		{
 			std::unique_ptr<Bar> ptr(new Bar);

@@ -221,14 +221,6 @@ public:
 		TCppClassPtr p(new TCppClass(value));
 		return buildObject(p);
 	}
-#if LASS_HAVE_STD_AUTO_PTR
-	static TPyClassPtr buildObject(std::auto_ptr<TCppClass>& value)
-	{
-		TCppClassPtr p(value.get());
-		value.release();
-		return buildObject(p);
-	}
-#endif
 	template <typename Deleter>
 	static TPyClassPtr buildObject(std::unique_ptr<TCppClass, Deleter>&& value)
 	{

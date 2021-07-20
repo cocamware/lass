@@ -97,11 +97,7 @@ namespace impl
 		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
-#if LASS_HAVE_STD_AUTO_PTR
-		pimpl_.reset(pimpl);
-#else
 		pimpl_.reset(std::move(pimpl));
-#endif
 	}
 
 	void Sequence::initializeType()

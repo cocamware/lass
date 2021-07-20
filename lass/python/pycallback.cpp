@@ -108,12 +108,7 @@ const std::string MultiCallbackImplBase::repr() const
 	{
 		initializeType();
 		impl::fixObjectType(this);
-#if LASS_HAVE_STD_AUTO_PTR
-		pimpl_.reset(pimpl);
-#else
 		pimpl_.reset(std::move(pimpl));
-#endif
-
 	}
 	
 	std::string MultiCallback::repr() const

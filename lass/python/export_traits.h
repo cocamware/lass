@@ -226,25 +226,6 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 };
 */
 
-#if LASS_HAVE_STD_AUTO_PTR
-/** auto_ptr assumes shadow types
- *  @ingroup Python
- */
-template <typename T>
-struct PyExportTraits< std::auto_ptr<T> >
-{
-	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
-	static PyObject* build(std::auto_ptr<T>& v)
-	{
-		if (!v.get())
-		{
-			Py_RETURN_NONE;
-		}
-		return fromSharedPtrToNakedCast(TShadowTraits::buildObject(v));
-	}
-};
-#endif
-
 /** std::unique_ptr assumes shadow types
 *  @ingroup Python
 */

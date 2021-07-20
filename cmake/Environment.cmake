@@ -296,9 +296,6 @@ CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
 _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 
-# std::auto_ptr is disabled by default, in favour of std::unique_ptr
-option(LASS_HAVE_STD_AUTO_PTR "Using std::auto_ptr in Lass API. Disabled by default." OFF)
-
 
 # --- checking some properties of numbers and available functions ---
 

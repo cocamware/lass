@@ -91,17 +91,6 @@ namespace lass
 			return PyExportTraits<T>::build(iV);
 		}
 
-#if LASS_HAVE_STD_AUTO_PTR
-		/** @ingroup Python
-		 */
-		template<typename T>
-		PyObject* pyBuildSimpleObject(std::auto_ptr<T> iV)
-		{
-			LockGIL LASS_UNUSED(lock);
-			return PyExportTraits< std::auto_ptr<T> >::build(iV);
-		}
-#endif
-
 		/** @ingroup Python
 		*/
 		template<typename T, typename Deleter>

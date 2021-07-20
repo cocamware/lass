@@ -65,11 +65,7 @@ namespace impl
 	class LASS_PYTHON_DLL PyMapImplBase: public ContainerImplBase
 	{
 	public:
-#if LASS_HAVE_STD_AUTO_PTR
-		typedef std::auto_ptr<PyMapImplBase> TPimpl;
-#else
 		typedef std::unique_ptr<PyMapImplBase> TPimpl; 
-#endif
 		virtual TPimpl copy() const = 0; 
 		virtual PyObject* subscript(PyObject* key) const = 0;
 		virtual int assSubscript(PyObject* key, PyObject* value) = 0;

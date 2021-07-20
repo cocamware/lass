@@ -76,7 +76,6 @@ class LassConan(ConanFile):
         "fPIC": [True, False],
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
-        "with_std_auto_ptr": [True, False, None],
         "python_executable": "ANY",
         "python_version": "ANY",
         "python_debug": [True, False, None],
@@ -86,7 +85,6 @@ class LassConan(ConanFile):
         "fPIC": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
-        "with_std_auto_ptr": None,
         "python_executable": "python",
         "python_version": None,
         "python_debug": None,
@@ -156,8 +154,6 @@ class LassConan(ConanFile):
             "Python_LIBRARY_RELEASE": python.library,
             "Python_LIBRARY_DEBUG": python.library,
         }
-        if self.options.with_std_auto_ptr.value not in (None, "None"):
-            defs["LASS_HAVE_STD_AUTO_PTR"] = bool(self.options.with_std_auto_ptr)
 
         cmake.configure(source_folder=".", defs=defs)
         return cmake

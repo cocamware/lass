@@ -371,16 +371,6 @@ public:
 		delete old;
 	}
 
-#if LASS_HAVE_STD_AUTO_PTR
-	template <typename U> void reset(std::auto_ptr<U> p)
-	{
-		TPointer old = get();
-		storage_.set(p.get());
-		p.release();
-		delete old;
-	}
-#endif
-
 	TPointer get() const
 	{
 		return static_cast<TPointer>(storage_.get());
