@@ -166,7 +166,7 @@ if(Python_Development_FOUND)
 		OUTPUT_NAME "lass-python-${Lass_VERSION_MAJOR}-${Lass_VERSION_MINOR}"
 		)
 	lass_add_precompiled_header(lass_python 
-		python_common.h 
+		python/python_common.h
 		"${Lass_SOURCE_DIR}/lass/python/python_common.cpp"
 		)
 	install(

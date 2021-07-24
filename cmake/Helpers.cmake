@@ -41,22 +41,35 @@ function(lass_add_precompiled_header target header srcpath)
     if(NOT BUILD_USING_PRECOMPILED_HEADERS)
         return()
     endif()
+
+    if(NOT CMAKE_VERSION VERSION_LESS 3.16)
+        target_precompile_headers("${target}"
+            PRIVATE
+                "${header}"
+        )
+        # srcpath is not used in this flow, CMake generates its own cmake_pch.cxx
+        get_target_property(sources "${target}" SOURCES)
+        list(REMOVE_ITEM sources "${srcpath}")
+        set_property(TARGET "${target}" PROPERTY SOURCES "${sources}")
+        return()
+    endif()
     
+    get_filename_component(header_fname "${header}" NAME)
     if(MSVC_IDE)
-        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${header}.pch")
+        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/${CMAKE_CFG_INTDIR}/${header_fname}.pch")
     else()
-        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${header}.pch")
+        set(pchpath "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/${header_fname}.pch")
     endif()
     if(MSVC)
         set_property(
             TARGET "${target}"
             APPEND_STRING
-            PROPERTY COMPILE_FLAGS " /Fp\"${pchpath}\" /Yu\"${header}\""
+            PROPERTY COMPILE_FLAGS " /Fp\"${pchpath}\" /Yu\"${header_fname}\""
         )
         set_property(
             SOURCE "${srcpath}"
             APPEND_STRING
-            PROPERTY COMPILE_FLAGS " /Yc\"${header}\""
+            PROPERTY COMPILE_FLAGS " /Yc\"${header_fname}\""
         )
         set_property(
             SOURCE "${srcpath}"
