@@ -56,7 +56,7 @@ class BadStringCast: public ExceptionMixin<BadStringCast>
 {
 public:
 	BadStringCast(const std::string& msg, const std::string& loc): ExceptionMixin<BadStringCast>(msg, loc) {}
-	~BadStringCast() throw() {}
+	~BadStringCast() noexcept {}
 };
 
 namespace impl

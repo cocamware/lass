@@ -152,7 +152,7 @@ public:
 		return result;
 	}
 
-	static void* operator new(std::size_t size, std::nothrow_t) throw()
+	static void* operator new(std::size_t size, std::nothrow_t) noexcept
 	{
 		try
 		{
@@ -179,7 +179,7 @@ public:
 		return result;
 	}
 
-	static void* operator new[](std::size_t size, std::nothrow_t) throw()
+	static void* operator new[](std::size_t size, std::nothrow_t) noexcept
 	{
 		try
 		{

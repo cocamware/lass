@@ -114,7 +114,7 @@ public:
         ExceptionMixin<DynamicLibraryError>(msg, loc)
     {
     }
-    ~DynamicLibraryError() throw() {}
+    ~DynamicLibraryError() noexcept {}
 };
 
 }

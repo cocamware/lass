@@ -48,14 +48,14 @@ namespace stde
 // --- public --------------------------------------------------------------------------------------
 
 template <typename T, typename VA>
-lass_allocator<T, VA>::lass_allocator() throw()
+lass_allocator<T, VA>::lass_allocator() noexcept
 {
 }
 
 
 
 template <typename T, typename VA>
-lass_allocator<T, VA>::lass_allocator(const lass_allocator& other) throw():
+lass_allocator<T, VA>::lass_allocator(const lass_allocator& other) noexcept:
 	VA(static_cast<const VA&>(other))
 {
 }
@@ -64,7 +64,7 @@ lass_allocator<T, VA>::lass_allocator(const lass_allocator& other) throw():
 
 template <typename T, typename VA>
 template <typename U>
-lass_allocator<T, VA>::lass_allocator(const lass_allocator<U, VA>& other) throw():
+lass_allocator<T, VA>::lass_allocator(const lass_allocator<U, VA>& other) noexcept:
 	VA(static_cast<const VA&>(other))
 {
 }
@@ -72,7 +72,7 @@ lass_allocator<T, VA>::lass_allocator(const lass_allocator<U, VA>& other) throw(
 
 
 template <typename T, typename VA>
-lass_allocator<T, VA>::~lass_allocator() throw()
+lass_allocator<T, VA>::~lass_allocator() noexcept
 {
 }
 
@@ -117,7 +117,7 @@ void lass_allocator<T, VA>::deallocate(pointer p, size_type n)
 
 template <typename T, typename VA>
 typename lass_allocator<T, VA>::size_type
-lass_allocator<T, VA>::max_size() const throw()
+lass_allocator<T, VA>::max_size() const noexcept
 {
 	// this is only a rough estimation ...
 	const size_type n = size_type(-1) / sizeof(T);

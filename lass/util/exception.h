@@ -87,8 +87,8 @@ public:
 		location_(location)
 	{
 	}
-	~Exception() throw() {}
-	const char* what() const throw() override { return message_.c_str(); }
+	~Exception() noexcept {}
+	const char* what() const noexcept override { return message_.c_str(); }
 	const std::string& message() const { return message_; }
 	const std::string& location() const { return location_; }
 private:
@@ -106,7 +106,7 @@ class ExceptionMixin: public ParentType
 public:
 	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
 	explicit ExceptionMixin(const std::string& msg): ParentType(msg) {}
-	~ExceptionMixin() throw() {}
+	~ExceptionMixin() noexcept {}
 private:
 	virtual void doThrowSelf() const override
 	{
@@ -127,7 +127,7 @@ class RemoteExceptionWrapper:
 {
 public:
 	RemoteExceptionWrapper(const LocalException& e): LocalException(e) {}
-	~RemoteExceptionWrapper() throw() {}
+	~RemoteExceptionWrapper() noexcept {}
 private:
 	void doThrowSelf() const override
 	{ 
@@ -146,7 +146,7 @@ class KeyError: public ExceptionMixin<KeyError>
 {
 public:
 	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin<KeyError>(msg, loc) {}
-	~KeyError() throw() {}
+	~KeyError() noexcept {}
 };
 
 
@@ -154,14 +154,14 @@ class ValueError: public ExceptionMixin<ValueError>
 {
 public:
 	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin<ValueError>(msg, loc) {}
-	~ValueError() throw() {}
+	~ValueError() noexcept {}
 };
 
 class SingularityError: public ExceptionMixin<SingularityError>
 {
 public:
 	SingularityError(const std::string& msg, const std::string& loc): ExceptionMixin<SingularityError>(msg, loc) {}
-	~SingularityError() throw() {}
+	~SingularityError() noexcept {}
 };
 
 }

@@ -82,17 +82,17 @@ public:
 	typedef T value_type;
 	template <typename U> struct rebind { typedef lass_allocator<U, VariableAllocator> other; };
 
-	lass_allocator() throw();
-	lass_allocator(const lass_allocator&) throw();
-	template <typename U> lass_allocator(const lass_allocator<U, VariableAllocator>&) throw();
-	~lass_allocator() throw();
+	lass_allocator() noexcept;
+	lass_allocator(const lass_allocator&) noexcept;
+	template <typename U> lass_allocator(const lass_allocator<U, VariableAllocator>&) noexcept;
+	~lass_allocator() noexcept;
 
 	pointer address(reference x) const;
 	const_pointer address(const_reference x) const;
 
 	pointer allocate(size_type n, typename lass_allocator<void, VariableAllocator>::pointer hint = 0);
 	void deallocate(pointer p, size_type n);
-	size_type max_size() const throw();
+	size_type max_size() const noexcept;
 
 	void construct(pointer p, const T& val);
 	void destroy(pointer p);

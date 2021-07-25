@@ -82,7 +82,7 @@ class MinMaxError: public util::ExceptionMixin<MinMaxError>
 {
 public:
 	MinMaxError(const std::string& msg, const std::string& loc): util::ExceptionMixin<MinMaxError>(msg, loc) {}
-	~MinMaxError() throw() {}
+	~MinMaxError() noexcept {}
 };
 
 

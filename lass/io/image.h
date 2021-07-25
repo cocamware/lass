@@ -107,7 +107,7 @@ public:
 	{
 	public:
 		BadFormat(const std::string& msg, const std::string& loc): util::ExceptionMixin<BadFormat>(msg, loc) {}
-		~BadFormat() throw() {}
+		~BadFormat() noexcept {}
 	};
 
 	// STRUCTORS

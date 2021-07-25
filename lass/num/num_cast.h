@@ -54,7 +54,7 @@ class BadNumCast: public util::ExceptionMixin<BadNumCast>
 {
 public:
 	BadNumCast(const std::string& msg, const std::string& loc): util::ExceptionMixin<BadNumCast>(msg, loc) {}
-	~BadNumCast() throw() {}
+	~BadNumCast() noexcept {}
 };
 
 namespace impl

@@ -58,7 +58,7 @@ public:
 	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg, const std::string& loc);
 	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg);
 
-	~PythonException() throw() {}
+	~PythonException() noexcept {}
 	const python::TPyObjPtr& type() const { return type_; }
 	const python::TPyObjPtr& value() const { return value_; }
 	const python::TPyObjPtr& traceback() const { return traceback_; }

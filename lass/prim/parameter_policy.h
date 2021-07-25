@@ -77,7 +77,7 @@ class ParameterError: public util::ExceptionMixin<ParameterError>
 {
 public:
 	ParameterError(const std::string& msg, const std::string& loc): util::ExceptionMixin<ParameterError>(msg, loc) {}
-	~ParameterError() throw() {}
+	~ParameterError() noexcept {}
 };
 
 

@@ -76,7 +76,7 @@ class FutureBindError: public ExceptionMixin<FutureBindError>
 {
 public:
 	FutureBindError(const std::string& msg, const std::string& loc): ExceptionMixin<FutureBindError>(msg, loc) {}
-	~FutureBindError() throw() {}
+	~FutureBindError() noexcept {}
 };
 
 

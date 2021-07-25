@@ -67,7 +67,7 @@ class SocketError: public util::ExceptionMixin<SocketError>
 {
 public:
 	SocketError(const std::string& msg, const std::string& loc): util::ExceptionMixin<SocketError>(msg, loc) {}
-	~SocketError() throw() {}
+	~SocketError() noexcept {}
 };
 
 
