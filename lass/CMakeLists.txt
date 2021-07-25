@@ -111,6 +111,7 @@ endif()
 
 target_compile_features(lass 
 	PUBLIC
+		cxx_constexpr
 		cxx_override
 )
 

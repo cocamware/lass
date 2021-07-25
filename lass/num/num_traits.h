@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2019 the Initial Developer.
+ *	Copyright (C) 2004-2021 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -135,6 +135,11 @@ bool isInf( const C& iV )
 		(iV == NumTraits<C>::infinity || iV == -NumTraits<C>::infinity);
 }
 
+#define LASS_NUM_PI			3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067
+#define LASS_NUM_E			2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427
+#define LASS_NUM_SQRT_2		1.414213562373095048801688724209698078569671875376948073176679737990732478462107038850387534327641572
+#define LASS_NUM_SQRT_PI	1.772453850905516027298167483341145
+
 #define LASS_NUM_DECLARE_FLOATING_TRAITS( ttype, tname ) \
 template<> \
 struct LASS_DLL NumTraits<ttype>\
@@ -152,31 +157,31 @@ struct LASS_DLL NumTraits<ttype>\
 		hasNaN = true,\
 		isFloatingPoint = true\
 	};\
-	static const size_t   memorySize;\
-	static const size_t   mantisseSize;\
+	static constexpr size_t memorySize = sizeof(ttype);\
+	static constexpr size_t mantisseSize = std::numeric_limits<ttype>::digits;\
 	static const std::string name() { return tname ; }\
-	static const ttype one;\
-	static const ttype zero;\
-	static const ttype infinity;\
-	static const ttype qNaN;\
-	static const ttype sNaN;\
-	static const ttype epsilon;\
-	static const ttype min;\
-	static const ttype max;\
-	static const ttype minStrictPositive;\
-	static const ttype pi;\
-	static const ttype e;\
-	static const ttype sqrt2;\
-	static const ttype sqrtPi;\
+	static constexpr ttype one = static_cast<ttype>(1);\
+	static constexpr ttype zero = static_cast<ttype>(0);\
+	static constexpr ttype infinity = std::numeric_limits<ttype>::infinity();\
+	static constexpr ttype qNaN = std::numeric_limits<ttype>::quiet_NaN();\
+	static constexpr ttype sNaN = std::numeric_limits<ttype>::signaling_NaN();\
+	static constexpr ttype epsilon= std::numeric_limits<ttype>::epsilon();\
+	static constexpr ttype min = -std::numeric_limits<ttype>::max();\
+	static constexpr ttype max = std::numeric_limits<ttype>::max();\
+	static constexpr ttype minStrictPositive = std::numeric_limits<ttype>::min();\
+	static constexpr ttype pi = static_cast<ttype>(LASS_NUM_PI);\
+	static constexpr ttype e = static_cast<ttype>(LASS_NUM_E);\
+	static constexpr ttype sqrt2 = static_cast<ttype>(LASS_NUM_SQRT_2);\
+	static constexpr ttype sqrtPi = static_cast<ttype>(LASS_NUM_SQRT_PI);\
 };
 
 #define LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( ttype, tname ) \
 template<> \
 struct LASS_DLL NumTraits< ttype >\
 {\
-	typedef ttype   selfType;\
-	typedef ttype::value_type   baseType;\
-	typedef ttype   intervalType;\
+	typedef ttype selfType;\
+	typedef ttype::value_type baseType;\
+	typedef ttype intervalType;\
 	enum\
 	{\
 		isDistribution = false,\
@@ -187,15 +192,15 @@ struct LASS_DLL NumTraits< ttype >\
 		hasNaN = false,\
 		isFloatingPoint = NumTraits< baseType >::isFloatingPoint\
 	};\
-	static const size_t   memorySize;\
-	static const size_t   mantisseSize;\
+	static constexpr size_t memorySize = sizeof(ttype);\
+	static constexpr size_t mantisseSize = NumTraits< baseType >::mantisseSize;\
 	static const std::string name() { return tname ; }\
-	static const ttype one;\
-	static const ttype zero;\
-	static const ttype pi;\
-	static const ttype e;\
-	static const ttype sqrt2;\
-	static const ttype sqrtPi;\
+	static constexpr ttype one = ttype( NumTraits< baseType >::one );\
+	static constexpr ttype zero = ttype( NumTraits< baseType >::zero );\
+	static constexpr ttype pi = ttype( NumTraits< baseType >::pi );\
+	static constexpr ttype e = ttype( NumTraits< baseType >::e );\
+	static constexpr ttype sqrt2 = ttype( NumTraits< baseType >::sqrt2 );\
+	static constexpr ttype sqrtPi = ttype( NumTraits< baseType >::sqrtPi );\
 };
 
 LASS_NUM_DECLARE_FLOATING_TRAITS( float, "float" )
@@ -212,7 +217,7 @@ struct LASS_DLL NumTraits<char>
 {
 	typedef char selfType;
 	typedef char baseType;
-	typedef float   intervalType;
+	typedef float intervalType;
 	typedef signed char signedType;
 	typedef unsigned char unsignedType;
 	enum
@@ -229,15 +234,15 @@ struct LASS_DLL NumTraits<char>
 		hasNaN = 0,
 		isFloatingPoint = 0
 	};
-	static const size_t   memorySize;
-	static const size_t   mantisseSize;
+	static constexpr size_t memorySize = sizeof(char);
+	static constexpr size_t mantisseSize = 0;
 	static const std::string name() { return LASS_STRINGIFY(char); }
-	static const selfType one;
-	static const selfType zero;
-	static const selfType epsilon;
-	static const selfType min;
-	static const selfType max;
-	static const selfType minStrictPositive;
+	static constexpr selfType one = 1;
+	static constexpr selfType zero = 0;
+	static constexpr selfType epsilon = 1;
+	static constexpr selfType min = std::numeric_limits<char>::min();
+	static constexpr selfType max = std::numeric_limits<char>::max();
+	static constexpr selfType minStrictPositive = 1;
 };
 
 #define LASS_NUM_DECLARE_INTEGRAL_TRAITS( sign, type, is_signed ) \
@@ -259,15 +264,15 @@ struct LASS_DLL NumTraits<sign type> \
 		hasNaN = 0,\
 		isFloatingPoint = 0\
 	};\
-	static const size_t   memorySize;\
-	static const size_t   mantisseSize;\
+	static constexpr size_t memorySize = sizeof(sign type);\
+	static constexpr size_t mantisseSize = 0;\
 	static const std::string name() { return LASS_STRINGIFY(sign type); }\
-	static const selfType one;\
-	static const selfType zero;\
-	static const selfType epsilon;\
-	static const selfType min;\
-	static const selfType max;\
-	static const selfType minStrictPositive;\
+	static constexpr selfType one = 1;\
+	static constexpr selfType zero = 0;\
+	static constexpr selfType epsilon = 1;\
+	static constexpr selfType min = std::numeric_limits<sign type>::min();\
+	static constexpr selfType max = std::numeric_limits<sign type>::max();\
+	static constexpr selfType minStrictPositive = 1;\
 };
 
 LASS_NUM_DECLARE_INTEGRAL_TRAITS( signed, char, 1 )

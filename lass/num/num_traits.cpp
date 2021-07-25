@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2021 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -67,124 +67,127 @@ namespace num
 *   and at first and second glance the standard also likes it [TDM]
 */
 template <> struct LASS_DLL NumTraits<float>;
-const size_t   NumTraits<float>::memorySize = sizeof(float);
-const size_t   NumTraits<float>::mantisseSize = std::numeric_limits<float>::digits;			
-const float NumTraits<float>::one = 1.f;
-const float NumTraits<float>::zero = 0.f;
-const float NumTraits<float>::qNaN = std::numeric_limits<float>::quiet_NaN();
-const float NumTraits<float>::sNaN = std::numeric_limits<float>::signaling_NaN();
-const float NumTraits<float>::infinity = std::numeric_limits<float>::infinity();
-const float NumTraits<float>::epsilon = FLT_EPSILON;
-const float NumTraits<float>::min = -FLT_MAX;
-const float NumTraits<float>::max = FLT_MAX;
-const float NumTraits<float>::minStrictPositive = FLT_MIN;
-const float NumTraits<float>::pi = float(LASS_NUM_PI);
-const float NumTraits<float>::e = float(LASS_NUM_E);
-const float NumTraits<float>::sqrt2 = float(LASS_NUM_SQRT_2);
-const float NumTraits<float>::sqrtPi = float(LASS_NUM_SQRT_PI);
+constexpr size_t NumTraits<float>::memorySize;
+constexpr size_t NumTraits<float>::mantisseSize;
+constexpr float NumTraits<float>::one;
+constexpr float NumTraits<float>::zero;
+constexpr float NumTraits<float>::qNaN;
+constexpr float NumTraits<float>::sNaN;
+constexpr float NumTraits<float>::infinity;
+constexpr float NumTraits<float>::epsilon;
+constexpr float NumTraits<float>::min;
+constexpr float NumTraits<float>::max ;
+constexpr float NumTraits<float>::minStrictPositive;
+constexpr float NumTraits<float>::pi;
+constexpr float NumTraits<float>::e;
+constexpr float NumTraits<float>::sqrt2 ;
+constexpr float NumTraits<float>::sqrtPi;
 
 // complex specialisation
 template <> struct LASS_DLL NumTraits< std::complex<float> >;
-const size_t   NumTraits<std::complex<float> >::memorySize = sizeof(std::complex<float>);
-const std::complex<float>   NumTraits<std::complex<float> >::one = std::complex<float>(1.f, 0.f);
-const std::complex<float>   NumTraits<std::complex<float> >::zero = std::complex<float>(0.f, 0.f);
-const std::complex<float>   NumTraits<std::complex<float> >::pi = float(LASS_NUM_PI);
-const std::complex<float>   NumTraits<std::complex<float> >::e = float(LASS_NUM_E);
-const std::complex<float>   NumTraits<std::complex<float> >::sqrt2 = float(LASS_NUM_SQRT_2);
-const std::complex<float>   NumTraits<std::complex<float> >::sqrtPi = float(LASS_NUM_SQRT_PI);
+constexpr size_t NumTraits< std::complex<float> >::memorySize;
+constexpr size_t NumTraits< std::complex<float> >::mantisseSize;
+constexpr std::complex<float> NumTraits< std::complex<float> >::one;
+constexpr std::complex<float> NumTraits< std::complex<float> >::zero;
+constexpr std::complex<float> NumTraits< std::complex<float> >::pi;
+constexpr std::complex<float> NumTraits< std::complex<float> >::e;
+constexpr std::complex<float> NumTraits< std::complex<float> >::sqrt2;
+constexpr std::complex<float> NumTraits< std::complex<float> >::sqrtPi;
 
 /***********************************************************************
 * double num trait
 */
 template <> struct LASS_DLL NumTraits<double>;
-const size_t   NumTraits<double>::memorySize = sizeof(double);
-const size_t   NumTraits<double>::mantisseSize = std::numeric_limits<double>::digits;
-const double    NumTraits<double>::one = 1.0;
-const double NumTraits<double>::zero= 0.0;
-const double    NumTraits<double>::qNaN = std::numeric_limits<double>::quiet_NaN();
-const double    NumTraits<double>::sNaN = std::numeric_limits<double>::signaling_NaN();
-const double NumTraits<double>::infinity = std::numeric_limits<double>::infinity();
-const double NumTraits<double>::epsilon = DBL_EPSILON;
-const double    NumTraits<double>::min = -DBL_MAX;
-const double    NumTraits<double>::max = DBL_MAX;
-const double    NumTraits<double>::minStrictPositive = DBL_MIN;
-const double    NumTraits<double>::pi = LASS_NUM_PI;
-const double    NumTraits<double>::e = LASS_NUM_E;
-const double    NumTraits<double>::sqrt2 = LASS_NUM_SQRT_2;
-const double    NumTraits<double>::sqrtPi = LASS_NUM_SQRT_PI;
+constexpr size_t NumTraits<double>::memorySize;
+constexpr size_t NumTraits<double>::mantisseSize;
+constexpr double NumTraits<double>::one;
+constexpr double NumTraits<double>::zero;
+constexpr double NumTraits<double>::qNaN;
+constexpr double NumTraits<double>::sNaN;
+constexpr double NumTraits<double>::infinity;
+constexpr double NumTraits<double>::epsilon;
+constexpr double NumTraits<double>::min;
+constexpr double NumTraits<double>::max;
+constexpr double NumTraits<double>::minStrictPositive;
+constexpr double NumTraits<double>::pi;
+constexpr double NumTraits<double>::e;
+constexpr double NumTraits<double>::sqrt2;
+constexpr double NumTraits<double>::sqrtPi;
 
 // complex specialisation
 template <> struct LASS_DLL NumTraits< std::complex<double> >;
-const size_t   NumTraits<std::complex<double> >::memorySize = sizeof(std::complex<double>);
-const std::complex<double>  NumTraits<std::complex<double> >::one = std::complex<double>(1.0, 0.0);
-const std::complex<double>  NumTraits<std::complex<double> >::zero = std::complex<double>(0.0, 0.0);
-const std::complex<double>  NumTraits<std::complex<double> >::pi = LASS_NUM_PI;
-const std::complex<double>  NumTraits<std::complex<double> >::e = LASS_NUM_E;
-const std::complex<double>  NumTraits<std::complex<double> >::sqrt2 = LASS_NUM_SQRT_2;
-const std::complex<double>  NumTraits<std::complex<double> >::sqrtPi = LASS_NUM_SQRT_PI;
+constexpr size_t NumTraits< std::complex<double> >::memorySize;
+constexpr size_t NumTraits< std::complex<double> >::mantisseSize;
+constexpr std::complex<double> NumTraits< std::complex<double> >::one;
+constexpr std::complex<double> NumTraits< std::complex<double> >::zero;
+constexpr std::complex<double> NumTraits< std::complex<double> >::pi;
+constexpr std::complex<double> NumTraits< std::complex<double> >::e;
+constexpr std::complex<double> NumTraits< std::complex<double> >::sqrt2;
+constexpr std::complex<double> NumTraits< std::complex<double> >::sqrtPi;
 
 /***********************************************************************
 * long double num trait
 */
 template <> struct LASS_DLL NumTraits<long double>;
-const size_t   NumTraits<long double>::memorySize = sizeof(long double);
-const size_t   NumTraits<long double>::mantisseSize = std::numeric_limits<long double>::digits;
-const long double    NumTraits<long double>::one = 1.0;
-const long double NumTraits<long double>::zero= 0.0;
-const long double    NumTraits<long double>::qNaN = std::numeric_limits<long double>::quiet_NaN();
-const long double    NumTraits<long double>::sNaN = std::numeric_limits<long double>::signaling_NaN();
-const long double NumTraits<long double>::infinity = std::numeric_limits<long double>::infinity();
-const long double NumTraits<long double>::epsilon = LDBL_EPSILON;
-const long double    NumTraits<long double>::min = -LDBL_MAX;
-const long double    NumTraits<long double>::max = LDBL_MAX;
-const long double    NumTraits<long double>::minStrictPositive = LDBL_MIN;
-const long double    NumTraits<long double>::pi = LASS_NUM_PI;
-const long double    NumTraits<long double>::e = LASS_NUM_E;
-const long double    NumTraits<long double>::sqrt2 = LASS_NUM_SQRT_2;
-const long double    NumTraits<long double>::sqrtPi = LASS_NUM_SQRT_PI;
+constexpr size_t NumTraits<long double>::memorySize;
+constexpr size_t NumTraits<long double>::mantisseSize;
+constexpr long double NumTraits<long double>::one;
+constexpr long double NumTraits<long double>::zero;
+constexpr long double NumTraits<long double>::qNaN;
+constexpr long double NumTraits<long double>::sNaN;
+constexpr long double NumTraits<long double>::infinity;
+constexpr long double NumTraits<long double>::epsilon;
+constexpr long double NumTraits<long double>::min;
+constexpr long double NumTraits<long double>::max;
+constexpr long double NumTraits<long double>::minStrictPositive;
+constexpr long double NumTraits<long double>::pi;
+constexpr long double NumTraits<long double>::e;
+constexpr long double NumTraits<long double>::sqrt2;
+constexpr long double NumTraits<long double>::sqrtPi;
 
 // complex specialisation
 template <> struct LASS_DLL NumTraits< std::complex<long double> >;
-const size_t   NumTraits<std::complex<long double> >::memorySize = sizeof(std::complex<long double>);
-const std::complex<long double>  NumTraits<std::complex<long double> >::one = std::complex<long double>(1.0, 0.0);
-const std::complex<long double>  NumTraits<std::complex<long double> >::zero = std::complex<long double>(0.0, 0.0);
-const std::complex<long double>  NumTraits<std::complex<long double> >::pi = LASS_NUM_PI;
-const std::complex<long double>  NumTraits<std::complex<long double> >::e = LASS_NUM_E;
-const std::complex<long double>  NumTraits<std::complex<long double> >::sqrt2 = LASS_NUM_SQRT_2;
-const std::complex<long double>  NumTraits<std::complex<long double> >::sqrtPi = LASS_NUM_SQRT_PI;
+constexpr size_t NumTraits< std::complex<long double> >::memorySize;
+constexpr size_t NumTraits< std::complex<long double> >::mantisseSize;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::one;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::zero;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::pi;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::e;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::sqrt2;
+constexpr std::complex<long double> NumTraits< std::complex<long double> >::sqrtPi;
+
 
 /***********************************************************************
 * unsigned/signed char/short/int/long num trait
 */
 
 /** code generating macro for integral types */
-#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( t_type, v_min, v_max ) \
+#define LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( t_type ) \
 template <> struct LASS_DLL NumTraits<t_type>;\
-const size_t   NumTraits<t_type>::memorySize = sizeof(t_type);\
-const size_t   NumTraits<t_type>::mantisseSize = 0;\
-const t_type NumTraits<t_type>::one = 1;\
-const t_type NumTraits<t_type>::zero= 0;\
-const t_type NumTraits<t_type>::epsilon = 1;\
-const t_type NumTraits<t_type>::min = v_min;\
-const t_type NumTraits<t_type>::max = v_max;\
-const t_type NumTraits<t_type>::minStrictPositive = 1;\
+constexpr size_t NumTraits<t_type>::memorySize;\
+constexpr size_t NumTraits<t_type>::mantisseSize;\
+constexpr t_type NumTraits<t_type>::one ;\
+constexpr t_type NumTraits<t_type>::zero;\
+constexpr t_type NumTraits<t_type>::epsilon;\
+constexpr t_type NumTraits<t_type>::min;\
+constexpr t_type NumTraits<t_type>::max ;\
+constexpr t_type NumTraits<t_type>::minStrictPositive;
 
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( char, CHAR_MIN , CHAR_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned char, 0 , UCHAR_MAX)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed char, SCHAR_MIN , SCHAR_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned short, 0 , USHRT_MAX)
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed short, SHRT_MIN , SHRT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned int, 0 , UINT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed int, INT_MIN , INT_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long, 0 , ULONG_MAX )
-LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long, LONG_MIN , LONG_MAX )
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(char)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned char)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed char)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned short)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed short)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned int)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed int)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned long)
+LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed long)
 #if LASS_HAVE_LONG_LONG
-	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned long long, 0 , ULLONG_MAX )
-	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed long long, LLONG_MIN, LLONG_MAX )
+	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned long long)
+	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed long long)
 #elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( unsigned __int64, 0 , ULLONG_MAX )
-	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC( signed __int64, LLONG_MIN, LLONG_MAX )
+	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(unsigned __int64)
+	LASS_NUM_TRAITS_INTEGRAL_TEMPLATE_SPEC(signed __int64)
 #endif
-
-}
+	}
 }
