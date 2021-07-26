@@ -71,7 +71,7 @@ ModuleDefinition::ModuleDefinition(const char* name, const char* doc):
 
 namespace experimental
 {
-	typedef util::ScopedPtr< char, util::ArrayStorage > TScopedCString;
+	typedef std::unique_ptr<char[]> TScopedCString;
 	void assignScopedCString(TScopedCString& out, const char* in)
 	{
 		if (in)

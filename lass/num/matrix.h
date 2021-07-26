@@ -54,7 +54,6 @@
 #include "num_traits.h"
 #include "impl/matrix_expressions.h"
 #include "../util/call_traits.h"
-#include "../util/scoped_ptr.h"
 #include "../stde/index_iterator.h"
 
 namespace lass

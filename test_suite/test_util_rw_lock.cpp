@@ -43,7 +43,6 @@
 #include "test_common.h"
 
 #include "../lass/util/thread_fun.h"
-#include "../lass/util/scoped_ptr.h"
 #include "../lass/util/rw_lock.h"
 
 namespace lass
@@ -91,8 +90,8 @@ void testUtilRWLock()
 	rwlock_test::Bar bar;
 
 	LASS_COUT << "thread spam ...\n";
-	util::ScopedPtr<util::Thread> readThread(util::threadMemFun(&bar, &rwlock_test::Bar::doReads, util::threadJoinable));
-	util::ScopedPtr<util::Thread> writeThread(util::threadMemFun(&bar, &rwlock_test::Bar::doWrites, util::threadJoinable));
+	std::unique_ptr<util::Thread> readThread(util::threadMemFun(&bar, &rwlock_test::Bar::doReads, util::threadJoinable));
+	std::unique_ptr<util::Thread> writeThread(util::threadMemFun(&bar, &rwlock_test::Bar::doWrites, util::threadJoinable));
 	readThread->run();
 	writeThread->run();
 	LASS_COUT << "joining\n";

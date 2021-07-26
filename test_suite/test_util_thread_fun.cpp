@@ -43,7 +43,6 @@
 #include "test_common.h"
 
 #include "../lass/util/thread_fun.h"
-#include "../lass/util/scoped_ptr.h"
 
 namespace lass
 {
@@ -87,7 +86,7 @@ void testUtilThreadFun()
 {
 	LASS_COUT << "thread foo ...\n";
 	thread_test::functionIsCalled = false;
-	util::ScopedPtr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable));
+	std::unique_ptr<util::Thread> thread(util::threadFun(thread_test::foo, 1, 2, util::threadJoinable));
 	thread->run();
 	LASS_COUT << "joining\n";
 	thread->join();

@@ -43,7 +43,6 @@
 #include "test_common.h"
 
 #include "../lass/util/thread_fun.h"
-#include "../lass/util/scoped_ptr.h"
 
 namespace lass
 {
@@ -73,7 +72,7 @@ void testUtilThreadLocalStorage()
 {
 	using namespace thread_local_storage;
 
-	util::ScopedPtr<util::Thread> thread(util::threadFun(fun, util::threadJoinable));
+	std::unique_ptr<util::Thread> thread(util::threadFun(fun, util::threadJoinable));
 	thread->run();
 	thread->join();
 

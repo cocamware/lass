@@ -152,7 +152,7 @@ void testIoSocket()
 {
 	using namespace socket;
 
-	typedef util::ScopedPtr<util::Thread> TThreadPtr;
+	typedef std::unique_ptr<util::Thread> TThreadPtr;
 
 	TThreadPtr server(util::threadFun(serverThread, util::threadJoinable));
 	TThreadPtr client(util::threadFun(clientThread, util::threadJoinable));

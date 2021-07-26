@@ -180,19 +180,19 @@ namespace impl
 		{
 			TPimpl pimpl(new PyMapImpl<Container>(
 				LASS_ENFORCE_POINTER(container)));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 		template<typename Container> Map( const util::SharedPtr<const Container>& container ) 
 		{
 			TPimpl pimpl(new PyMapImpl<Container>(
 				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 		template<typename Container> Map( const Container& container )
 		{
 			util::SharedPtr<Container> p(new Container(container));
 			TPimpl pimpl(new PyMapImpl<Container>(p, true));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 		~Map();
 
@@ -213,8 +213,8 @@ namespace impl
 	private:
 		typedef PyMapImplBase::TPimpl TPimpl;
 
-		Map(TPimpl& pimpl);
-		void init(TPimpl& pimpl);
+		Map(TPimpl&& pimpl);
+		void init(TPimpl&& pimpl);
 
 		static void initializeType();
 
@@ -222,7 +222,7 @@ namespace impl
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
-		util::ScopedPtr<PyMapImplBase> pimpl_;
+		TPimpl pimpl_;
 		static bool isInitialized;
 	};
 

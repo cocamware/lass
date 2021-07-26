@@ -49,7 +49,6 @@
 
 #include "io_common.h"
 #include "binary_o_stream.h"
-#include "../util/scoped_ptr.h"
 #include "../util/thread.h"
 
 namespace lass
@@ -89,7 +88,7 @@ private:
 	size_t current_;
 	util::Semaphore bufferLock_;
 	util::Condition flushCondition_;
-	util::ScopedPtr<util::Thread> flushThread_;
+	std::unique_ptr<util::Thread> flushThread_;
 	unsigned long flushPeriod_;
 	volatile bool stopFlushThread_;
 	volatile bool skipABeat_;

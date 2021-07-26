@@ -243,7 +243,7 @@ private:
 	TAabb aabb_;
 	QuadNode*   root_;
 	TObjectIterator end_;
-	util::ScopedPtr<TNodesAllocator> nodesAllocator_;
+	std::unique_ptr<TNodesAllocator> nodesAllocator_;
 	size_t numObjects_;
 };
 

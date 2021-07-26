@@ -78,7 +78,7 @@ public:
 	void injectClass(impl::ClassDefinition& classDef);
 	PyObject* inject();
 private:
-	typedef util::ScopedPtr<char, util::ArrayStorage> TScopedCString;
+	typedef std::unique_ptr<char[]> TScopedCString;
 	typedef std::vector<impl::ClassDefinition*> TClassDefs;
 	typedef std::vector<PyMethodDef> TMethods;
 	struct NamedObject

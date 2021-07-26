@@ -76,9 +76,9 @@ namespace impl
 	{
 	}
 
-	Map::Map(TPimpl& pimpl)
+	Map::Map(TPimpl&& pimpl)
 	{
-		init(pimpl);
+		init(std::move(pimpl));
 	}
 
 	void Map::initializeType()
@@ -99,12 +99,12 @@ namespace impl
 		}
 	}
 
-	void Map::init(TPimpl& pimpl)
+	void Map::init(TPimpl&& pimpl)
 	{
 		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
-		pimpl_.reset(std::move(pimpl));
+		pimpl_ = std::move(pimpl);
 	}
 
 	std::string Map::repr() const
@@ -153,7 +153,7 @@ namespace impl
 	{
 		LockGIL LASS_UNUSED(lock);
 		TPimpl pimpl = pimpl_->copy();
-		return TMapPtr(new Map(pimpl));
+		return TMapPtr(new Map(std::move(pimpl)));
 	}
 
 	const TPyObjPtr Map::asDict() const

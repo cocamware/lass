@@ -112,7 +112,7 @@ void runScenario(unsigned long msecSleepParent, unsigned long msecSleepChild)
     child.run();
 
 #if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
-    util::ScopedPtr<util::Thread> interrupter(util::threadFun(
+    std::unique_ptr<util::Thread> interrupter(util::threadFun(
         sendInterrupts, &child, util::threadJoinable));
     interrupter->run();
 #endif

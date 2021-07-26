@@ -43,7 +43,6 @@
 #include "test_common.h"
 #include "bar.h"
 
-#include "../lass/util/scoped_ptr.h"
 #include "../lass/util/shared_ptr.h"
 #include "../lass/util/environment.h"
 #include "../lass/io/file_attribute.h"

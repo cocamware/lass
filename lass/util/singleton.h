@@ -108,7 +108,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SINGLETON_H
 
 #include "util_common.h"
-#include "scoped_ptr.h"
 #include "impl/singleton_impl.h"
 
 namespace lass
@@ -156,7 +155,7 @@ private:
 
 	static bool deadReference(bool setReferenceToDead = false);
 
-	ScopedPtr<TInstance> instance_;
+	std::unique_ptr<TInstance> instance_;
 };
 
 }

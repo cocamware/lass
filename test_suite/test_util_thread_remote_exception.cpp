@@ -43,7 +43,6 @@
 #include "test_common.h"
 
 #include "../lass/util/thread_fun.h"
-#include "../lass/util/scoped_ptr.h"
 
 namespace lass
 {
@@ -68,7 +67,7 @@ void testUtilThreadRemoteException()
 {
 	using namespace thread_remote_exception;
 
-	util::ScopedPtr<util::Thread> thread(util::threadFun(test_chamber, util::threadJoinable));
+	std::unique_ptr<util::Thread> thread(util::threadFun(test_chamber, util::threadJoinable));
 	thread->run();
 	LASS_TEST_CHECK_THROW(thread->join(), Meltdown);
 }

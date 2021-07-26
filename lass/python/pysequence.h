@@ -343,19 +343,19 @@ namespace impl
 		{
 			TPimpl pimpl(new PySequenceContainer<Container>(
 				LASS_ENFORCE_POINTER(container)));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
 			TPimpl pimpl(new PySequenceContainer<Container>(
 				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 		template<typename Container> Sequence( const Container& container )
 		{
 			util::SharedPtr<Container> p(ContainerTraits<Container>::copy(container));
 			TPimpl pimpl(new PySequenceContainer<Container>(p, true));
-			init(pimpl);
+			init(std::move(pimpl));
 		}
 
 		const TSequencePtr copy() const;
@@ -374,8 +374,8 @@ namespace impl
 	private:
 		typedef PySequenceImplBase::TPimpl TPimpl;
 
-		Sequence(TPimpl& pimpl);
-		void init(TPimpl& pimpl);
+		Sequence(TPimpl&& pimpl);
+		void init(TPimpl&& pimpl);
 
 		static void initializeType();
 
@@ -390,7 +390,7 @@ namespace impl
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
 
-		util::ScopedPtr<PySequenceImplBase> pimpl_;
+		TPimpl pimpl_;
 	};
 
 	template <>

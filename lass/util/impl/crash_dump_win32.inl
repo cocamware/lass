@@ -51,7 +51,6 @@
 #include "../util_common.h"
 #include "lass_errno.h"
 #include "../thread_fun.h"
-#include "../scoped_ptr.h"
 
 #include <windows.h>
 #include <objbase.h>
@@ -369,7 +368,7 @@ public:
 	void* callbackClosure_;
 	HMODULE dbghelp_;
 	TMiniDumpWriteDump miniDumpWriteDump_;
-	util::ScopedPtr<Thread> handlerThread_;
+	std::unique_ptr<Thread> handlerThread_;
 	util::Condition handleCondition_;
 	util::Condition resultCondition_;
 	TMutex* mutex_;

@@ -68,8 +68,8 @@
  *
  *  @code
  *  // run two threads at the same time.
- *  util::ScopedPtr<Thread> a = threadFun(foo, 5, "hello", threadJoinable);
- *  util::ScopedPtr<Thread> b = threadFun(foo, 6, "world!", threadJoinable);
+ *  std::unique_ptr<Thread> a(threadFun(foo, 5, "hello", threadJoinable));
+ *  std::unique_ptr<Thread> b(threadFun(foo, 6, "world!", threadJoinable));
  *  a->run();
  *  b->run();
  *  a->join();
@@ -87,8 +87,8 @@
  *  };
  *
  *  Bar bar;
- *  util::ScopedPtr<Thread> a = threadFun(bar, Bar::fun, 3.14, threadJoinable);
- *  util::ScopedPtr<Thread> b = threadFun(bar, Bar::beer, threadJoinable);
+ *  std::unique_ptr<Thread> a(threadFun(bar, Bar::fun, 3.14, threadJoinable));
+ *  std::unique_ptr<Thread> b(threadFun(bar, Bar::beer, threadJoinable));
  *  a->run();
  *  b->run();
  *  a->join();

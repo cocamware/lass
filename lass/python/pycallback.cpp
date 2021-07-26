@@ -72,9 +72,9 @@ const std::string MultiCallbackImplBase::repr() const
 	{
 	}
 
-	MultiCallback::MultiCallback(TPimpl& pimpl)
+	MultiCallback::MultiCallback(TPimpl&& pimpl)
 	{
-		init(pimpl);
+		init(std::move(pimpl));
 	}
 
 	// wrapping the call ourselves as the macro's and templates have difficulties
@@ -104,11 +104,11 @@ const std::string MultiCallbackImplBase::repr() const
 		}
 	}
 
-	void MultiCallback::init(TPimpl& pimpl)
+	void MultiCallback::init(TPimpl&& pimpl)
 	{
 		initializeType();
 		impl::fixObjectType(this);
-		pimpl_.reset(std::move(pimpl));
+		pimpl_ = std::move(pimpl);
 	}
 	
 	std::string MultiCallback::repr() const

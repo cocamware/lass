@@ -87,17 +87,17 @@ namespace impl
 
 	bool Sequence::isInitialized = false;
 
-	Sequence::Sequence(TPimpl& pimpl)
+	Sequence::Sequence(TPimpl&& pimpl)
 	{
-		init(pimpl);
+		init(std::move(pimpl));
 	}
 
-	void Sequence::init(TPimpl& pimpl)
+	void Sequence::init(TPimpl&& pimpl)
 	{
 		LockGIL LASS_UNUSED(lock);
 		initializeType();
 		impl::fixObjectType(this);
-		pimpl_.reset(std::move(pimpl));
+		pimpl_ = std::move(pimpl);
 	}
 
 	void Sequence::initializeType()
@@ -122,7 +122,7 @@ namespace impl
 	{
 		LockGIL LASS_UNUSED(lock);
 		Sequence::TPimpl pimpl = pimpl_->copy();
-		return TSequencePtr(new Sequence(pimpl));
+		return TSequencePtr(new Sequence(std::move(pimpl)));
 	}
 	void Sequence::clear()
 	{

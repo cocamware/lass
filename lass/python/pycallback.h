@@ -154,7 +154,7 @@ public:
 		LASS_THROW("unsupported");
 		TPimpl pimpl(
 			new impl::MultiCallbackImpl<CallbackType>(callback,false));
-		init(pimpl);
+		init(std::move(pimpl));
 	}
 	template <typename CallbackType> MultiCallback( const util::SharedPtr<const CallbackType>& /*callback*/)
 	{
@@ -169,7 +169,7 @@ public:
 		util::SharedPtr<CallbackType> p(new CallbackType(callback));
 #pragma LASS_FIXME("This should be the read-only version")
 		TPimpl pimpl(new impl::MultiCallbackImpl<CallbackType>(p,false));
-		init(pimpl);
+		init(std::move(pimpl));
 	}
 	~MultiCallback();
 
@@ -190,12 +190,12 @@ private:
 
 	typedef std::unique_ptr<impl::MultiCallbackImplBase> TPimpl; 
 
-	MultiCallback(TPimpl& pimpl);
-	void init(TPimpl& pimpl);
+	MultiCallback(TPimpl&& pimpl);
+	void init(TPimpl&& pimpl);
 	static void initializeType();
 	static PyObject * _tp_call(PyObject *, PyObject *, PyObject *); 
 
-	util::ScopedPtr<impl::MultiCallbackImplBase> pimpl_;
+	TPimpl pimpl_;
 	static bool isInitialized;
 };
 
