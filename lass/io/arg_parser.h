@@ -53,7 +53,6 @@
 
 #include "io_common.h"
 #include "../util/call_traits.h"
-#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -151,7 +150,7 @@ public:
 	const std::string format() const;
 
 	bool operator!() const;
-	operator num::SafeBool() const;
+	explicit operator bool() const;
 
 protected:
 

@@ -49,7 +49,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_ITERATOR_RANGE_H
 
 #include "stde_common.h"
-#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -82,7 +81,7 @@ public:
 	const difference_type size() const;
 	bool empty() const;
 	bool operator!() const;
-	operator num::SafeBool() const;
+	explicit operator bool() const;
 
 	void swap(iterator_range& other);
 

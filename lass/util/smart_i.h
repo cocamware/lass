@@ -56,7 +56,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_SMART_I_H
 
 #include "util_common.h"
-#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -182,11 +181,10 @@ public:
 
 	/** evaluates to true if pointer owns an interface (only in boolean context)
 	 *  @return this->get() != 0.
-	 *  @sa num::SafeBool
 	 */
-	operator num::SafeBool() const
+	explicit operator bool() const
 	{
-		return interface_ ? num::safeTrue : num::safeFalse;
+		return interface_ != 0;
 	}
 
 	/** exchange the pointees (and there reference counts) between two shared pointers

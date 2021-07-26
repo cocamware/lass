@@ -595,9 +595,9 @@ bool ArgParameter::operator!() const
 
 
 
-ArgParameter::operator num::SafeBool() const
+ArgParameter::operator bool() const
 {
-	return isSet_ ? num::safeTrue : num::safeFalse;
+	return isSet_;
 }
 
 

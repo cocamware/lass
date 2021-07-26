@@ -45,7 +45,6 @@
 
 #include "util_common.h"
 #include "smart_ptr_policies.h"
-#include "../num/safe_bool.h"
 
 namespace lass
 {
@@ -178,9 +177,9 @@ public:
 	{
 		return isEmpty();
 	}
-	operator num::SafeBool() const
+	explicit operator bool() const
 	{
-		return !isEmpty() ? num::safeTrue : num::safeFalse;
+		return !isEmpty();
 	}
 
 	/** returns reference to storage pointer */

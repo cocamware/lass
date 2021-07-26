@@ -173,9 +173,9 @@ public:
 
 	/** return !this->isEmpty())
 	 */
-	operator num::SafeBool() const
+	explicit operator bool() const
 	{
-		return dispatcher_.isEmpty() ? num::safeFalse : num::safeTrue;
+		return !dispatcher_.isEmpty() ;
 	}
 
 	/** Swaps the dispatcher of this callback with the dispatcher of another.

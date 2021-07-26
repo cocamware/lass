@@ -46,7 +46,6 @@
 #include "util_common.h"
 #include "non_copyable.h"
 #include "smart_ptr_policies.h"
-#include "../num/safe_bool.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -144,9 +143,9 @@ public:
 	{
 		return isEmpty();
 	}
-	operator num::SafeBool() const
+	explicit operator bool() const
 	{
-		return !isEmpty() ? num::safeTrue : num::safeFalse;
+		return !isEmpty();
 	}
 
 	/** returns reference to storage pointer */

@@ -90,7 +90,6 @@
 #include "singleton.h"
 #include "thread.h"
 #include "../meta/bool.h"
-#include "../num/safe_bool.h"
 
 namespace lass
 {

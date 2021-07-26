@@ -57,10 +57,10 @@
 	LASS_TEST_IMPL_CATCH_EXCEPTIONS(s_message, LASS_FILE, LASS_LINE)
 
 #define LASS_TEST_CHECK(e_predicate) \
-	::lass::test::impl::check((e_predicate), "test '" LASS_STRINGIFY(e_predicate) "' failed.", LASS_FILE, LASS_LINE)
+	::lass::test::impl::check(static_cast<bool>(e_predicate), "test '" LASS_STRINGIFY(e_predicate) "' failed.", LASS_FILE, LASS_LINE)
 
 #define LASS_TEST_CHECK_MESSAGE(e_predicate, s_message) \
-	::lass::test::impl::check((e_predicate), s_message, LASS_FILE, LASS_LINE)
+	::lass::test::impl::check(static_cast<bool>(e_predicate), s_message, LASS_FILE, LASS_LINE)
 
 #define LASS_TEST_CHECK_EQUAL(a, b) \
 	::lass::test::impl::checkEqual((a), (b), LASS_STRINGIFY(a), LASS_STRINGIFY(b), LASS_FILE, LASS_LINE)

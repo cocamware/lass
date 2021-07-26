@@ -129,9 +129,9 @@ TriBool TriBool::operator!() const
  *      LASS_ASSERT(a.isFalse());
  *  }
  */
-TriBool::operator SafeBool() const
+TriBool::operator bool() const
 {
-	return state_ == sTrue ? safeTrue : safeFalse;
+	return state_ == sTrue;
 }
 
 

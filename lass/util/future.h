@@ -94,7 +94,7 @@ public:
 		return pimpl_->isBound_ || pimpl_->isBadAlloc_ || pimpl_->error_.get(); 
 	}
 	bool operator!() const { return !isBound(); }
-	operator num::SafeBool() const { return isBound() ? num::safeFalse : num::safeTrue; }
+	explicit operator bool() const { return isBound(); }
 
 	void wait() 
 	{

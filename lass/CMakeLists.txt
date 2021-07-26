@@ -113,6 +113,7 @@ target_compile_features(lass
 	PUBLIC
 		cxx_constexpr
 		cxx_attribute_deprecated
+		cxx_explicit_conversions
 		cxx_noexcept
 		cxx_override
 )

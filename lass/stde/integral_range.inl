@@ -401,9 +401,9 @@ const bool integral_range_t<I>::operator!() const
 
 
 template <typename I> inline
-integral_range_t<I>::operator const num::SafeBool() const
+integral_range_t<I>::operator bool() const
 {
-	return empty() ? num::safeFalse : num::safeTrue;
+	return !empty();
 }
 
 

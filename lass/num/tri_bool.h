@@ -129,13 +129,6 @@
  *  block gets the other two states.  So, in any case, if @c a is unknown, you'll end up in the
  *  @c else block.
  *
- *  @note as you might notice, there's no conversion operator to @c bool.  That's because of the
- *        ambigious mapping from TriBool to @c bool as described above.  But then how does
- *        @c if @c (a) works?  If does need a boolean value, doesn't it?  The trick is in the
- *        @c operator @c SafeBool().  It will return a non-NULL pointer if and only if the TriBool
- *        is @c true, what invokes the @c if block.  If the TriBool is @c false or @c unknown, then
- *        a NULL pointer is returned instead and the @c else block is called.
- *
  *  If you want to test for the three different cases in an @c if/else construction, your code will
  *  typically look like the following:
  *
@@ -197,7 +190,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_NUM_TRI_BOOL_H
 
 #include "num_common.h"
-#include "safe_bool.h"
 
 namespace lass
 {
@@ -222,7 +214,7 @@ public:
 	State& state();
 
 	TriBool operator!() const;
-	operator SafeBool() const;
+	explicit operator bool() const;
 
 	bool isTrue() const;
 	bool isFalse() const;

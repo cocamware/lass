@@ -49,7 +49,6 @@
 #define LASS_GUARDIAN_OF_INCLUSION_STDE_INTEGRAL_RANGE_H
 
 #include "stde_common.h"
-#include "../num/safe_bool.h"
 #include "../util/type_traits.h"
 
 namespace lass
@@ -158,7 +157,7 @@ public:
 	const size_type size() const;
 	const bool empty() const;
 	const bool operator!() const;
-	operator const num::SafeBool() const;
+	explicit operator bool() const;
 
 	void swap(self_type& other);
 

@@ -59,7 +59,6 @@
 
 
 #include "io_common.h"
-#include "../num/safe_bool.h"
 #include "../util/non_copyable.h"
 #include <cstdio>
 
@@ -80,7 +79,7 @@ public:
 	std::ios_base::iostate rdstate() const { return state_; }
 	void clear(std::ios_base::iostate iState = std::ios_base::goodbit) { state_ = iState; }
 	void setstate(std::ios_base::iostate iState) { state_ |= iState; }
-	operator num::SafeBool() const { return fail() ? num::safeFalse : num::safeTrue; }
+	explicit operator bool() const { return !fail(); }
 	bool operator!() const { return fail(); }
 
 protected:

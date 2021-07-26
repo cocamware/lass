@@ -197,9 +197,9 @@ struct MultiCallback$x
 
 	/** return !this->isEmpty())
 	 */
-	operator num::SafeBool() const
+	explicit operator bool() const
 	{
-		return isEmpty() ? num::safeFalse : num::safeTrue;
+		return !isEmpty();
 	}
 
 	/** Swaps the dispatchers of this multi_callback with the dispatchers of another.

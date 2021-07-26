@@ -45,7 +45,6 @@
 
 #include "util_common.h"
 #include "impl/atomic_impl.h"
-#include "../num/safe_bool.h"
 
 /** @defgroup atomic
  *  @brief atomic operations and tools for lock-free algorithms
@@ -228,7 +227,7 @@ private:
 public:
 	T* operator->() const { LASS_ASSERT(get()); return get(); }
 	bool operator!() const { return get() == 0; }
-	operator num::SafeBool() const { return get() ? num::safeTrue : num::safeFalse; }
+	explicit operator bool() const { return get() != 0; }
 };
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC

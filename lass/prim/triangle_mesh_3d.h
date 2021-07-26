@@ -342,7 +342,7 @@ private:
 		}
 
 		bool operator!() const { return !triangle_; }
-		operator num::SafeBool() const { return num::safeBool(triangle_ != 0); }
+		explicit operator bool() const { return triangle_ != 0; }
 	private:
 		const Triangle* triangle_;
 		size_t edge_;

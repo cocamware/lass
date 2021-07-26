@@ -154,9 +154,9 @@ bool iterator_range<I>::operator!() const
 
 
 template <typename I> inline
-iterator_range<I>::operator num::SafeBool() const
+iterator_range<I>::operator bool() const
 { 
-	return this->empty() ? num::safeFalse : num::safeTrue; 
+	return !this->empty(); 
 }
 
 
