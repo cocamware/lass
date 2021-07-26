@@ -214,4 +214,7 @@
 	}
 
 
+#define LASS_DEPRECATED(reason) [[deprecated(reason)]]
+
+
 #endif

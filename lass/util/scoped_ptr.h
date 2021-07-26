@@ -48,6 +48,14 @@
 #include "smart_ptr_policies.h"
 #include "../num/safe_bool.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace lass
 {
 namespace util
@@ -58,7 +66,7 @@ template
 	typename T,
 	template <typename, typename> class StoragePolicy = ObjectStorage
 >
-class ScopedPtr: public StoragePolicy<T, NonCopyable>
+class LASS_DEPRECATED("use std::unique_ptr instead") ScopedPtr: public StoragePolicy<T, NonCopyable>
 {
 public:
 
@@ -152,6 +160,12 @@ public:
 		return TStoragePolicy::storage();
 	}
 };
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#else
+#	pragma GCC diagnostic pop
+#endif
 
 }
 }
