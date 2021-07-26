@@ -65,13 +65,26 @@ namespace impl
 	};
 }
 
-typedef void (impl::Dummy::*SafeBool)();
+LASS_DEPRECATED("use explicit operator bool() instead") typedef void (impl::Dummy::* SafeBool)();
 
-const SafeBool safeTrue = &impl::Dummy::method;
-const SafeBool safeFalse = 0;
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
-inline SafeBool safeBool(bool x) { return x ? safeTrue : safeFalse; }
+LASS_DEPRECATED("use explicit operator bool() instead") const SafeBool safeTrue = &impl::Dummy::method;
+LASS_DEPRECATED("use explicit operator bool() instead") const SafeBool safeFalse = 0;
 
+LASS_DEPRECATED("use explicit operator bool() instead") inline SafeBool safeBool(bool x) { return x ? safeTrue : safeFalse; }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#else
+#	pragma GCC diagnostic pop
+#endif
 
 }
 
