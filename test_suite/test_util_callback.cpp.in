@@ -163,7 +163,7 @@ void testUtilCallback0()
 		// copy constructor
 		TCallback cb1_0(free0);
 		TCallback cb2_0(cb1_0);
-		LASS_TEST_CHECK_EQUAL(cb1_0, cb2_0);
+		LASS_TEST_CHECK(cb1_0 == cb2_0);
 		LASS_TEST_CHECK(cb1_0);
 		LASS_TEST_CALLBACK_CALL(cb1_0());
 		LASS_TEST_CHECK(cb2_0);
@@ -176,7 +176,7 @@ void testUtilCallback0()
 		TCallback cb2_0;
 		LASS_TEST_CHECK(!cb2_0);
 		cb2_0 = cb1_0;
-		LASS_TEST_CHECK_EQUAL(cb1_0, cb2_0);
+		LASS_TEST_CHECK(cb1_0 == cb2_0);
 		LASS_TEST_CHECK(cb1_0);
 		LASS_TEST_CALLBACK_CALL(cb1_0());
 		LASS_TEST_CHECK(cb2_0);
@@ -218,7 +218,7 @@ void testUtilCallback0()
 		TCallback cb_free1_0(free0);
 		TCallback cb_free2_0(free0);
 		TCallback cb_mem_0(&foo, &Foo::mem0);
-		LASS_TEST_CHECK_EQUAL(cb_free1_0, cb_free2_0);
+		LASS_TEST_CHECK(cb_free1_0 == cb_free2_0);
 		LASS_TEST_CHECK(cb_empty_0 != cb_free1_0);
 		LASS_TEST_CHECK(cb_free1_0 != cb_empty_0);
 		LASS_TEST_CHECK(cb_free1_0 != cb_mem_0);
@@ -279,7 +279,7 @@ void testUtilCallback$x()
 		// copy constructor
 		TCallback cb1_$x(free$x);
 		TCallback cb2_$x(cb1_$x);
-		LASS_TEST_CHECK_EQUAL(cb1_$x, cb2_$x);
+		LASS_TEST_CHECK(cb1_$x == cb2_$x);
 		LASS_TEST_CHECK(cb1_$x);
 		LASS_TEST_CALLBACK_CALL(cb1_$x($($x)$));
 		LASS_TEST_CHECK(cb2_$x);
@@ -292,7 +292,7 @@ void testUtilCallback$x()
 		TCallback cb2_$x;
 		LASS_TEST_CHECK(!cb2_$x);
 		cb2_$x = cb1_$x;
-		LASS_TEST_CHECK_EQUAL(cb1_$x, cb2_$x);
+		LASS_TEST_CHECK(cb1_$x == cb2_$x);
 		LASS_TEST_CHECK(cb1_$x);
 		LASS_TEST_CALLBACK_CALL(cb1_$x($($x)$));
 		LASS_TEST_CHECK(cb2_$x);
@@ -334,7 +334,7 @@ void testUtilCallback$x()
 		TCallback cb_free1_$x(free$x);
 		TCallback cb_free2_$x(free$x);
 		TCallback cb_mem_$x(&foo, &Foo::mem$x);
-		LASS_TEST_CHECK_EQUAL(cb_free1_$x, cb_free2_$x);
+		LASS_TEST_CHECK(cb_free1_$x == cb_free2_$x);
 		LASS_TEST_CHECK(cb_empty_$x != cb_free1_$x);
 		LASS_TEST_CHECK(cb_free1_$x != cb_empty_$x);
 		LASS_TEST_CHECK(cb_free1_$x != cb_mem_$x);
@@ -395,7 +395,7 @@ void testUtilCallbackR0()
 		// copy constructor
 		TCallback cb1_r0(freeR0);
 		TCallback cb2_r0(cb1_r0);
-		LASS_TEST_CHECK_EQUAL(cb1_r0, cb2_r0);
+		LASS_TEST_CHECK(cb1_r0 == cb2_r0);
 		LASS_TEST_CHECK(cb1_r0);
 		LASS_TEST_CALLBACK_CALL_R(cb1_r0());
 		LASS_TEST_CHECK(cb2_r0);
@@ -408,7 +408,7 @@ void testUtilCallbackR0()
 		TCallback cb2_r0;
 		LASS_TEST_CHECK(!cb2_r0);
 		cb2_r0 = cb1_r0;
-		LASS_TEST_CHECK_EQUAL(cb1_r0, cb2_r0);
+		LASS_TEST_CHECK(cb1_r0 == cb2_r0);
 		LASS_TEST_CHECK(cb1_r0);
 		LASS_TEST_CALLBACK_CALL(cb1_r0());
 		LASS_TEST_CHECK(cb2_r0);
@@ -450,7 +450,7 @@ void testUtilCallbackR0()
 		TCallback cb_free1_r0(freeR0);
 		TCallback cb_free2_r0(freeR0);
 		TCallback cb_mem_r0(&foo, &Foo::memR0);
-		LASS_TEST_CHECK_EQUAL(cb_free1_r0, cb_free2_r0);
+		LASS_TEST_CHECK(cb_free1_r0 == cb_free2_r0);
 		LASS_TEST_CHECK(cb_empty_r0 != cb_free1_r0);
 		LASS_TEST_CHECK(cb_free1_r0 != cb_empty_r0);
 		LASS_TEST_CHECK(cb_free1_r0 != cb_mem_r0);
@@ -511,7 +511,7 @@ void testUtilCallbackR$x()
 		// copy constructor
 		TCallback cb1_r$x(freeR$x);
 		TCallback cb2_r$x(cb1_r$x);
-		LASS_TEST_CHECK_EQUAL(cb1_r$x, cb2_r$x);
+		LASS_TEST_CHECK(cb1_r$x == cb2_r$x);
 		LASS_TEST_CHECK(cb1_r$x);
 		LASS_TEST_CALLBACK_CALL(cb1_r$x($($x)$));
 		LASS_TEST_CHECK(cb2_r$x);
@@ -524,7 +524,7 @@ void testUtilCallbackR$x()
 		TCallback cb2_r$x;
 		LASS_TEST_CHECK(!cb2_r$x);
 		cb2_r$x = cb1_r$x;
-		LASS_TEST_CHECK_EQUAL(cb1_r$x, cb2_r$x);
+		LASS_TEST_CHECK(cb1_r$x == cb2_r$x);
 		LASS_TEST_CHECK(cb1_r$x);
 		LASS_TEST_CALLBACK_CALL(cb1_r$x($($x)$));
 		LASS_TEST_CHECK(cb2_r$x);
@@ -566,7 +566,7 @@ void testUtilCallbackR$x()
 		TCallback cb_free1_r$x(freeR$x);
 		TCallback cb_free2_r$x(freeR$x);
 		TCallback cb_mem_r$x(&foo, &Foo::memR$x);
-		LASS_TEST_CHECK_EQUAL(cb_free1_r$x, cb_free2_r$x);
+		LASS_TEST_CHECK(cb_free1_r$x == cb_free2_r$x);
 		LASS_TEST_CHECK(cb_empty_r$x != cb_free1_r$x);
 		LASS_TEST_CHECK(cb_free1_r$x != cb_empty_r$x);
 		LASS_TEST_CHECK(cb_free1_r$x != cb_mem_r$x);
