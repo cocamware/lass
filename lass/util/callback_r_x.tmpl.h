@@ -125,6 +125,12 @@ public:
 	{
 	}
 
+	/** move constructor
+	 */
+	CallbackR$x(TSelf&& iOther) noexcept:
+		dispatcher_(std::move(iOther.dispatcher_))
+	{
+	}
 
 
 	// OPERATORS
@@ -135,6 +141,14 @@ public:
 	{
 		TSelf temp(iOther);
 		swap(temp);
+		return *this;
+	}
+
+	/** assignment operator
+	 */
+	TSelf& operator=(TSelf&& iOther) noexcept
+	{
+		dispatcher_ = std::move(iOther.dispatcher_);
 		return *this;
 	}
 

@@ -97,9 +97,24 @@ struct MultiCallback$x
 	{
 	}
 
+	/** move constructor
+	 */
+	MultiCallback$x(TSelf&& iOther) noexcept:
+		callbacks_(std::move(iOther.callbacks_))
+	{
+	}
+
 	/** assignment operator (also usable for conversion)
 	 */
 	TSelf& operator=(const TSelf& iOther)
+	{
+		callbacks_ = std::move(iOther.callbacks_);
+		return *this;
+	}
+
+	/** move assignment operator
+	 */
+	TSelf& operator=(TSelf&& iOther) noexcept
 	{
 		TSelf temp(iOther);
 		swap(temp);

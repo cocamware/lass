@@ -88,8 +88,15 @@ struct MultiCallback0
 
 	/** copy constructor
 	 */
-	MultiCallback0(const MultiCallback0& iOther):
+	MultiCallback0(const TSelf& iOther):
 		callbacks_(iOther.callbacks_)
+	{
+	}
+
+	/** move constructor
+	 */
+	MultiCallback0(TSelf&& iOther) noexcept:
+		callbacks_(std::move(iOther.callbacks_))
 	{
 	}
 
@@ -99,6 +106,14 @@ struct MultiCallback0
 	{
 		TSelf temp(iOther);
 		swap(temp);
+		return *this;
+	}
+
+	/** move assignment operator
+	 */
+	TSelf& operator=(TSelf&& iOther) noexcept
+	{
+		callbacks_ = std::move(iOther.callbacks_);
 		return *this;
 	}
 

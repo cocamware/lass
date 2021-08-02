@@ -118,6 +118,12 @@ public:
 	{
 	}
 
+	/** move constructor
+	 */
+	Callback0(Callback0&& iOther) noexcept:
+		dispatcher_(std::move(iOther.dispatcher_))
+	{
+	}
 
 
 	// OPERATORS
@@ -131,6 +137,13 @@ public:
 		return *this;
 	}
 
+	/** move assignment operator
+	 */
+	TSelf& operator=(TSelf&& iOther) noexcept
+	{
+		dispatcher_ = std::move(iOther.dispatcher_);
+		return *this;
+	}
 
 	/** THE operator.  Executes the callback.
 	 */
