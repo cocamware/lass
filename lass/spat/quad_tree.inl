@@ -157,11 +157,41 @@ QuadTree<O, OT, SH>::QuadTree(TObjectIterator first, TObjectIterator last, const
 }
 
 
+/** move constructor
+ */
+template <typename O, typename OT, typename SH>
+QuadTree<O, OT, SH>::QuadTree(TSelf&& other) noexcept:
+	SH(std::forward<SH>(other)),
+	aabb_(other.aabb_),
+	root_(other.root_),
+	end_(other.end_),
+	nodesAllocator_(std::move(other.nodesAllocator_)),
+	numObjects_(other.numObjects_)
+{
+	other.root_ = nullptr;
+}
+
 
 template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>::~QuadTree()
 {
 	delete root_;
+}
+
+
+/** move constructor
+ */
+template <typename O, typename OT, typename SH>
+QuadTree<O, OT, SH>& QuadTree<O, OT, SH>::operator=(TSelf&& other) noexcept
+{
+	SH::operator=(std::forward<TSelf>(other));
+	aabb_ = other.aabb_;
+	root_ = other.root_;
+	other.root_ = nullptr;
+	end_ = other.end_;
+	nodesAllocator_ = std::move(other.nodesAllocator_);
+	numObjects_ = other.numObjects_;
+	return *this;
 }
 
 

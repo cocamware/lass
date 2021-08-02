@@ -125,6 +125,9 @@ public:
 
 	KdTree();
 	KdTree(TObjectIterator first, TObjectIterator last);
+	KdTree(TSelf&& other) noexcept;
+
+	TSelf& operator=(TSelf&& other) noexcept;
 
 	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);
@@ -206,7 +209,7 @@ private:
 	static TValue squaredDistance(const TPoint& a, const TPoint& b);
 
 	TNodes heap_;
-	util::SharedPtr<TObjectIterator> end_;
+	std::unique_ptr<TObjectIterator> end_;
 };
 
 

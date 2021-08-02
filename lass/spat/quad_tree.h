@@ -129,7 +129,10 @@ public:
 	QuadTree(const TAabb& aabb, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 	QuadTree(const TAabb& aabb, TObjectIterator end, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 	QuadTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	QuadTree(TSelf&& other) noexcept;
 	~QuadTree();
+
+	TSelf& operator=(TSelf&& other) noexcept;
 
 	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);

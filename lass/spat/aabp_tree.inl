@@ -91,6 +91,26 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const
 }
 
 
+template <typename O, typename OT, typename SH>
+AabpTree<O, OT, SH>::AabpTree(TSelf&& other) noexcept:
+	SH(std::forward< TSplitHeuristics>(other)),
+	objects_(std::move(other.objects_)),
+	nodes_(std::move(other.nodes_)),
+	end_(std::move(other.end_))
+{
+}
+
+
+template <typename O, typename OT, typename SH>
+AabpTree<O, OT, SH>& AabpTree<O, OT, SH>::operator=(TSelf&& other) noexcept
+{
+	TSplitHeuristics::operator=(std::forward<TSplitHeuristics>(other));
+	objects_ = std::move(other.objects_);
+	nodes_ = std::move(other.nodes_);
+	end_ = std::move(other.end_);
+	return *this;
+}
+
 
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::reset()

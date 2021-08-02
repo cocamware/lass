@@ -119,6 +119,9 @@ public:
 
 	AabpTree(const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 	AabpTree(TObjectIterator first, TObjectIterator last, const TSplitHeuristics& heuristics = TSplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
+	AabpTree(TSelf&& other) noexcept;
+
+	TSelf& operator=(TSelf&& other) noexcept;
 
 	void reset();
 	void reset(TObjectIterator first, TObjectIterator last);
@@ -238,7 +241,7 @@ private:
 	TAabb aabb_;
 	TObjectIterators objects_;
 	TNodes nodes_;
-	util::SharedPtr<TObjectIterator> end_;
+	std::unique_ptr<TObjectIterator> end_;
 };
 
 }

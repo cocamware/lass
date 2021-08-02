@@ -93,6 +93,22 @@ KdTree<O, OT>::KdTree(TObjectIterator first, TObjectIterator last):
 }
 
 
+template <class O, class OT>
+KdTree<O, OT>::KdTree(TSelf&& other) noexcept:
+	heap_(std::move(other.heap_)),
+	end_(std::move(other.end_))
+{
+}
+
+
+template <class O, class OT>
+KdTree<O, OT>& KdTree<O, OT>::operator=(TSelf&& other) noexcept
+{
+	heap_ = std::move(other.heap_);
+	end_ = std::move(other.end_);
+	return *this;
+}
+
 
 /** Resets to an empty tree.
  */
