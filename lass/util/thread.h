@@ -363,7 +363,7 @@ public:
 		delete old;
 	}
 
-	template <typename U> void reset(std::unique_ptr<U> p)
+	template <typename U> void reset(std::unique_ptr<U>&& p)
 	{
 		TPointer old = get();
 		storage_.set(p.get());

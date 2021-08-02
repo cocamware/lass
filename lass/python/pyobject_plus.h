@@ -94,7 +94,7 @@ namespace lass
 		/** @ingroup Python
 		*/
 		template<typename T, typename Deleter>
-		PyObject* pyBuildSimpleObject(std::unique_ptr<T, Deleter> iV)
+		PyObject* pyBuildSimpleObject(std::unique_ptr<T, Deleter>&& iV)
 		{
 			LockGIL LASS_UNUSED(lock);
 			return PyExportTraits< std::unique_ptr<T, Deleter> >::build(std::move(iV));

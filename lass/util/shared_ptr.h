@@ -140,7 +140,7 @@ public:
 		swap(temp);
 	}
 
-	template <typename U> SharedPtr(std::unique_ptr<U> p) :
+	template <typename U> SharedPtr(std::unique_ptr<U>&& p) :
 		TStoragePolicy(p.get())
 	{
 		if (!isEmpty())
@@ -149,9 +149,10 @@ public:
 		}
 		p.release();
 	}
-	template <typename U> void reset(std::unique_ptr<U> p)
+	template <typename U> void reset(std::unique_ptr<U>&& p)
 	{
-		SharedPtr temp(std::move(p));
+		SharedPtr temp(std::forward<std::unique_ptr<U>>(p));
+		LASS_ASSERT(!p);
 		swap(temp);
 	}
 
