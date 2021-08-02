@@ -106,6 +106,14 @@ public:
 		safeAddRef();
 	}
 
+	/** Move constructor.
+	 */
+	SmartI(TSelf&& iOther) noexcept:
+		interface_(iOther.interface_)
+	{
+		iOther.interface_ = nullptr;
+	}
+
 	/** Destructor performs Release() on interface.
 	 */
 	~SmartI()
@@ -138,6 +146,15 @@ public:
 	{
 		TSelf temp(iOther);
 		swap(temp);
+		return *this;
+	}
+
+	/** Move assignment
+	 */
+	TSelf& operator=(TSelf&& iOther) noexcept
+	{
+		interface_ = iOther.interface_;
+		iOther.interface_ = nullptr;
 		return *this;
 	}
 
