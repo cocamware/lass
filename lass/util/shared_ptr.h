@@ -94,6 +94,13 @@ public:
 			CounterPolicy::increment(TStoragePolicy::storage());
 		}
 	}
+
+	SharedPtr(SharedPtr&& other) noexcept:
+		TStoragePolicy(std::move(other))
+	{
+		LASS_ASSERT(other.isEmpty());
+	}
+
 	template <typename U> SharedPtr(const SharedPtr<U, StoragePolicy, CounterPolicy>& other):
 		TStoragePolicy(other)
 	{
@@ -115,6 +122,14 @@ public:
 	SharedPtr& operator=(const SharedPtr& other)
 	{
 		SharedPtr temp(other);
+		swap(temp);
+		return *this;
+	}
+
+	SharedPtr& operator=(SharedPtr&& other) noexcept
+	{
+		SharedPtr temp(std::forward<SharedPtr>(other));
+		LASS_ASSERT(other.isEmpty());
 		swap(temp);
 		return *this;
 	}

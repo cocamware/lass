@@ -120,7 +120,13 @@ protected:
 	PyObjectStorage(): Cascade(), storage_(defaultStorage()) {}
 	explicit PyObjectStorage(T* pointee): Cascade(), storage_(impl::fixObjectType(pointee)) {}
 	PyObjectStorage(const PyObjectStorage& other): Cascade(other), storage_(other.storage_) {}
-	template <typename U> PyObjectStorage(const PyObjectStorage<U, Cascade>& other): 
+	PyObjectStorage(PyObjectStorage&& other) noexcept:
+		Cascade(std::forward<Cascade>(other)),
+		storage_(other.storage_)
+	{
+		other.storage_ = nullptr;
+	}
+	template <typename U> PyObjectStorage(const PyObjectStorage<U, Cascade>& other):
 		Cascade(other), storage_(other.storage()) {}
 	TPointer pointer() const { return storage_; }
 	void dispose() { storage_ = 0; }

@@ -211,7 +211,13 @@ protected:
 	ObjectStorage(): Cascade(), storage_(defaultStorage()) {}
 	explicit ObjectStorage(T* pointee): Cascade(), storage_(pointee) {}
 	ObjectStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
-	template <typename U> ObjectStorage(const ObjectStorage<U, Cascade>& other): Cascade(other), storage_(other.storage()) {} 
+	template <typename U> ObjectStorage(const ObjectStorage<U, Cascade>& other): Cascade(other), storage_(other.storage()) {}
+	ObjectStorage(TSelf&& other) noexcept:
+		Cascade(std::forward<Cascade>(other)),
+		storage_(other.storage_) 
+	{
+		other.storage_ = nullptr;
+	}
 
 	TPointer pointer() const { return storage_; }
 
@@ -289,6 +295,12 @@ protected:
 	explicit ArrayStorage(T* pointee): Cascade(), storage_(pointee) { }
 	ArrayStorage(const TSelf& other): Cascade(other), storage_(other.storage_) {}
 	template <typename U> ArrayStorage(const ArrayStorage<U, Cascade>& other): Cascade(other), storage_(other.storage()) {} 
+	ArrayStorage(TSelf&& other) noexcept:
+		Cascade(std::forward<Cascade>(other)),
+			storage_(other.storage_)
+	{
+		other.storage_ = nullptr;
+	}
 
 	TPointer pointer() const { return storage_; }
 	TReference at(size_t index) const { return storage_[index]; }
@@ -339,7 +351,13 @@ public:
 
 protected:
 
-	DefaultCounter(): count_(0) {}
+	DefaultCounter(): count_(nullptr) {}
+	DefaultCounter(const DefaultCounter& other): count_(other.count_) {}
+	DefaultCounter(DefaultCounter&& other) noexcept:
+		count_(other.count_)
+	{
+		other.count_ = nullptr;
+	}
 
 	template <typename TStorage> void init(TStorage& /*pointee*/)
 	{
