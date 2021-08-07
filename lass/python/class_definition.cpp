@@ -94,8 +94,10 @@ void dealloc(PyObject* obj)
 
 
 #if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#	if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+#		pragma GCC diagnostic push
+#		pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#	endif
 #endif
 
 ClassDefinition::ClassDefinition(
@@ -170,7 +172,9 @@ ClassDefinition::ClassDefinition(
 }
 
 #if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
-#	pragma GCC diagnostic pop
+#	if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+#		pragma GCC diagnostic pop
+#	endif
 #endif
 
 
