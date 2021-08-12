@@ -1843,8 +1843,7 @@ void Image::HeaderPfm::readFrom(BinaryIStream& stream)
 		std::istringstream buffer(line.substr(0, startComments));
 		while (k < numAttributes && buffer.good())
 		{
-			buffer >> attr;
-			if (buffer.good())
+			if (buffer >> attr)
 			{
 				attributes[k++] = attr;
 			}
