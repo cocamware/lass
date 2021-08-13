@@ -202,16 +202,11 @@ const typename TriangleMesh3D<T, BHV, SH>::TValue
 TriangleMesh3D<T, BHV, SH>::area() const
 {
 	TValue result = 0;
-
 	typename TTriangles::const_iterator triangle;
 	for (triangle = triangles_.begin(); triangle != triangles_.end(); ++triangle)
 	{
-		const TVector a = *triangle->vertices[1] - *triangle->vertices[0];
-		const TVector b = *triangle->vertices[2] - *triangle->vertices[0];
-		const TVector n = cross(a, b);
-		result += n.norm() / 2;
+		result += triangle->area();
 	}
-
 	return result;
 }
 
@@ -775,6 +770,17 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 size_t TriangleMesh3D<T, BHV, SH>::Triangle::side(const TPoint* vertex) const 
 { 
 	return vertices[0] == vertex ? 0 : (vertices[1] == vertex ? 1 : (vertices[2] == vertex ? 2 : size_t(-1))); 
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH> inline
+typename TriangleMesh3D<T, BHV, SH>::TValue TriangleMesh3D<T, BHV, SH>::Triangle::area() const
+{
+	const TVector a = *vertices[1] - *vertices[0];
+	const TVector b = *vertices[2] - *vertices[0];
+	const TVector n = cross(a, b);
+	return n.norm() / 2;
 }
 
 

@@ -136,6 +136,7 @@ public:
 
 		Result intersect(const TRay& ray, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 		size_t side(const TPoint* v) const;
+		TValue area() const;
 	};
 
 	typedef IntersectionContext TIntersectionContext;
