@@ -785,6 +785,17 @@ typename TriangleMesh3D<T, BHV, SH>::TValue TriangleMesh3D<T, BHV, SH>::Triangle
 
 
 
+template <typename T, template <typename, typename, typename> class BHV, typename SH> inline
+typename TriangleMesh3D<T, BHV, SH>::TVector TriangleMesh3D<T, BHV, SH>::Triangle::geometricNormal() const
+{
+	const TVector a = *vertices[1] - *vertices[0];
+	const TVector b = *vertices[2] - *vertices[0];
+	const TVector n = cross(a, b);
+	return n.normal();
+}
+
+
+
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
