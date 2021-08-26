@@ -71,6 +71,7 @@ platform's package manager. Windows being the exception.
 |------------------|----------|--------|----------------------------|---------------------------|
 | Debian Stretch   | x64      | 3.7.2  | 3.5.3                      | gcc 6.3.0, clang 3.8.1    |
 | Debian Buster    | x64      | 3.12.1 | 3.6.6                      | gcc 8.2.0, clang 6.0.1    |
+| Debian Bullseye  | x64      | 3.18.4 | 3.9.2                      | gcc 10.2.1, clang 11.0.1  |
 | Ubuntu Xenial    | x64      | 3.5.1  | 3.5.2                      | gcc 5.4.0, clang 3.8.0    |
 | Ubuntu Bionic    | x64      | 3.10.2 | 3.6.5                      | gcc 7.3.0, clang 6.0.0    |
 | Ubuntu Focal     | x64      | 3.16.3 | 3.8.2                      | gcc 9.3.0, clang 10.0.0   |
