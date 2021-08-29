@@ -50,8 +50,8 @@ namespace
 	using namespace lass;
 
 	util::Condition condition;
-	volatile bool starting;
-	volatile bool done;
+	std::atomic<bool> starting;
+	std::atomic<bool> done;
 
 	template <typename LockType>
 	void blocker(LockType* lock)

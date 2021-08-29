@@ -46,6 +46,19 @@
 #include "util_common.h"
 #include "impl/atomic_impl.h"
 
+#include <atomic>
+
+#ifdef LASS_PROCESSOR_ARCHITECTURE_x86
+#	if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#		include <intrin.h>
+#		define LASS_SPIN_PAUSE _mm_pause()
+#	else
+#		define LASS_SPIN_PAUSE __builtin_ia32_pause()
+#	endif
+#else
+#	define LASS_SPIN_PAUSE
+#endif
+
 /** @defgroup atomic
  *  @brief atomic operations and tools for lock-free algorithms
  */
@@ -142,6 +155,31 @@ void atomicLock(volatile T& semaphore)
 /** @ingroup atomic
  */
 template <typename T>
+void atomicLock(std::atomic<T>& semaphore)
+{
+	// the load on failure (or when current==0) may be relaxed because
+	// memory order is not about the atomic variable itself. It's about
+	// loads and stores on _other_ locations, and there are none of these
+	// inside the loop. https://stackoverflow.com/q/58635264
+	T current = semaphore.load(std::memory_order_acquire);
+	do
+	{
+		while (!current)
+		{
+			LASS_SPIN_PAUSE;
+			current = semaphore.load(std::memory_order_relaxed);
+		}
+		LASS_ASSERT(current >= 0);
+	}
+	while (!semaphore.compare_exchange_weak(current, current - 1,
+		std::memory_order_release, std::memory_order_relaxed));
+}
+
+
+
+/** @ingroup atomic
+ */
+template <typename T>
 bool atomicTryLock(volatile T& semaphore)
 {
 	T current;
@@ -162,9 +200,44 @@ bool atomicTryLock(volatile T& semaphore)
 /** @ingroup atomic
  */
 template <typename T>
+bool atomicTryLock(std::atomic<T>& semaphore)
+{
+	// the load on failure (or when current==0) may be relaxed because
+	// memory order is not about the atomic variable itself. It's about
+	// loads and stores on _other_ locations, and there are none of these
+	// inside the loop. https://stackoverflow.com/q/58635264
+	T current = semaphore.load(std::memory_order_acquire);
+	do
+	{
+		LASS_ASSERT(current >= 0);
+		if (!current)
+		{
+			return false;
+		}
+	}
+	while (!semaphore.compare_exchange_weak(current, current - 1,
+		std::memory_order_release, std::memory_order_relaxed));
+	return true;
+}
+
+
+
+/** @ingroup atomic
+ */
+template <typename T>
 void atomicUnlock(volatile T& semaphore)
 {
 	atomicIncrement(semaphore);
+}
+
+
+
+/** @ingroup atomic
+ */
+template <typename T>
+void atomicUnlock(std::atomic<T>& semaphore)
+{
+	semaphore.fetch_add(1, std::memory_order_acq_rel);
 }
 
 

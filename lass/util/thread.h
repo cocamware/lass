@@ -423,7 +423,7 @@ public:
 	bool isLocked() const { return freeSlots_ == 0; }
 
 private:
-	volatile int freeSlots_;
+	std::atomic<int> freeSlots_;
 };
 
 
