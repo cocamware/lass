@@ -509,6 +509,58 @@ protected:
 };
 
 
+template
+<
+	typename T,
+	typename CounterType,
+	std::atomic<CounterType> T::* referenceCounter
+>
+class IntrusiveCounter<T, std::atomic<CounterType>, referenceCounter>
+{
+public:
+
+	typedef IntrusiveCounter<T, std::atomic<CounterType>, referenceCounter> TSelf;
+	typedef CounterType TCount;
+
+protected:
+
+	template <typename TStorage> void init(TStorage& pointee)
+	{
+		LASS_ASSERT(pointee);
+		(pointee->*referenceCounter) = 1;
+	}
+
+	template <typename TStorage> void dispose(TStorage& LASS_UNUSED(pointee))
+	{
+		LASS_ASSERT(pointee && (pointee->*referenceCounter) == 0);
+	}
+
+	template <typename TStorage> void increment(TStorage& pointee)
+	{
+		LASS_ASSERT(pointee);
+		++(pointee->*referenceCounter);
+	}
+
+	template <typename TStorage> bool decrement(TStorage& pointee)
+	{
+		LASS_ASSERT(pointee);
+		const TCount newCount = --(pointee->*referenceCounter);
+		return newCount == 0;
+	}
+
+	template <typename TStorage> TCount count(TStorage& pointee) const
+	{
+		LASS_ASSERT(pointee && (pointee->*referenceCounter) > 0);
+		return pointee->*referenceCounter;
+	}
+
+	void swap(TSelf& /*other*/)
+	{
+	}
+};
+
+
+
 
 }
 

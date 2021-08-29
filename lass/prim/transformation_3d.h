@@ -73,7 +73,7 @@ struct LASS_SIMD_ALIGN TransformationImpl
 	LASS_SIMD_ALIGN T forward[matrixSize];
 	LASS_SIMD_ALIGN T inverse[matrixSize];
 	util::Semaphore sync;
-	size_t referenceCount;
+	std::atomic<size_t> referenceCount;
 	bool hasInverse;
 	bool isTranslation;
 	TransformationImpl(): referenceCount(0), hasInverse(false), isTranslation(false) {}
@@ -157,7 +157,7 @@ private:
 	typedef T TMatrix[matrixSize_];
 	typedef const T TConstMatrix[matrixSize_];
 	typedef impl::TransformationImpl<T, matrixSize_> TImpl;
-	typedef util::SharedPtr<TImpl, impl::TransformationImplStorage, util::IntrusiveCounter<TImpl, size_t, &TImpl::referenceCount> > TImplPtr;
+	typedef util::SharedPtr<TImpl, impl::TransformationImplStorage, util::IntrusiveCounter<TImpl, std::atomic<size_t>, &TImpl::referenceCount> > TImplPtr;
 
 	Transformation3D(const TImplPtr& pimpl, bool isInversed = false);
 	void computeInverse() const;
