@@ -82,7 +82,7 @@ target_include_directories(lass
 	)
 
 target_link_libraries(lass
-	PRIVATE ${lass_LIBS} # private, because we don't need the include dirs
+	PUBLIC ${lass_LIBS}
 	)
 
 set_target_properties(lass PROPERTIES
