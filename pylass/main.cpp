@@ -28,6 +28,7 @@
 #include "filters.h"
 #include "image.h"
 #include "kd_tree_2d.h"
+#include "quad_tree_2d.h"
 #include "mesh_interpolator.h"
 #include "polynomial.h"
 #include "splines.h"
@@ -37,6 +38,7 @@ PY_DECLARE_MODULE_NAME(modlass, "lass")
 
 PY_MODULE_CLASS(modlass, pylass::AabbTree2D)
 PY_MODULE_CLASS(modlass, kd_tree::KdTree2D)
+PY_MODULE_CLASS(modlass, quad_tree::QuadTree2D)
 PY_MODULE_CLASS(modlass, mesh_interpolator::LinearMeshInterpolator)
 PY_MODULE_CLASS(modlass, Containers)
 PY_MODULE_CLASS(modlass, pylass::FirFilter)

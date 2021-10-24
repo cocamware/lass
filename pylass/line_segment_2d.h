@@ -23,32 +23,44 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef KD_TREE_GUARDIAN_OF_INCLUSION_LINE_SEGMENT_2D_H
+#define KD_TREE_GUARDIAN_OF_INCLUSION_LINE_SEGMENT_2D_H
+
 #include "pylass_common.h"
-#include "vertex_2d.h"
+#include <lass/prim/line_segment_2d.h>
 
-namespace kd_tree
+namespace quad_tree
 {
 
+using namespace lass;
+typedef python::PyObjectPtr<PyObject>::Type TPyObjectPtr;
 
-
-Vertex2D::Vertex2D(const TPoint& iPosition, const TPyObjectPtr& iValue):
-	position_(iPosition),
-	value_(iValue)
+class LineSegment2D: public python::PyObjectPlus
 {
+	PY_HEADER(python::PyObjectPlus)
+public:
+
+	typedef lass::prim::Point2D<double> TPoint;
+	typedef lass::prim::LineSegment2D<double> TLineSegment;
+
+	LineSegment2D(const TPoint& iPosition, const TPoint& iTo, const TPyObjectPtr& iValue);
+	~LineSegment2D();
+
+	const TPoint& head() const;
+	const TPoint& tail() const;
+	const TLineSegment& segment() const;
+	const TPyObjectPtr& value() const;
+
+private:
+
+	TLineSegment segment_;
+	TPyObjectPtr value_;
+};
+
+typedef util::SharedPtr<LineSegment2D, python::PyObjectStorage, python::PyObjectCounter> TLineSegment2DPtr;
+
 }
 
-Vertex2D::~Vertex2D()
-{
-}
+#endif
 
-const Vertex2D::TPoint& Vertex2D::position() const
-{
-	return position_;
-}
-
-const TPyObjectPtr& Vertex2D::value() const
-{
-	return value_;
-}
-
-}
+// EOF
