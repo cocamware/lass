@@ -91,7 +91,7 @@ QuadTree2D::depth() const
 	return tree_.depth();
 }
 
-const QuadTree2D::TQuadTree::TValue
+QuadTree2D::TQuadTree::TValue
 QuadTree2D::averageDepth() const
 {
 	return tree_.averageDepth();

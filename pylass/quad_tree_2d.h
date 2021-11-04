@@ -65,11 +65,11 @@ public:
 	static const TPoint& aabbMax( const TAabb& a ) { return a.max(); }
 	static TAabb aabbMake(const TPoint& a, const TPoint& b) { return TAabb(a,b); }
 	static bool aabbContains(const TAabb& a, const TAabb& b ) { return a.contains(b); }
-	static TValue objectSquaredDistance(TObjectIterator i, const TPoint& p, const TInfo* info)  {return lass::prim::distance( (*i)->segment(), p ); }
+	static TValue objectSquaredDistance(TObjectIterator i, const TPoint& p, const TInfo* /*info*/)  {return lass::prim::distance( (*i)->segment(), p ); }
 	static void coord( TPoint& p, int which, TValue newValue ) { p[which] = newValue; }
 	static TValue coord( const TPoint& p, int which )  { return p[which]; }
 
-	static bool objectIntersects(TObjectIterator i, const TAabb& a, const TInfo* info) 
+	static bool objectIntersects(TObjectIterator i, const TAabb& a, const TInfo* /*info*/) 
 	{ 
 		if (a.contains( (*i)->head() ) ) 
 			return true;
@@ -120,7 +120,7 @@ public:
 
 	/** depth. Returns the depth of the tree */
 	size_t depth() const;
-	const TQuadTree::TValue averageDepth() const;
+	TQuadTree::TValue averageDepth() const;
 
 private:
 

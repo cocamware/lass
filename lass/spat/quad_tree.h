@@ -66,6 +66,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_QUAD_TREE_H
 
 #include "spat_common.h"
+#include "default_object_traits.h"
+#include "split_heuristics.h"
 #include "impl/quad_tree_helper.h"
 #include "../util/allocator.h"
 
