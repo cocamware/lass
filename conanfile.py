@@ -144,6 +144,7 @@ class LassConan(ConanFile):
 
         cmake = CMake(self)
         defs = {
+            "CMAKE_CONFIGURATION_TYPES": self.settings.build_type,
             "BUILD_TESTING": self.develop and not self.in_local_cache,
             "BUILD_SIMD_ALIGNED": bool(self.options.simd_aligned),
             "BUILD_WITHOUT_ITERATOR_DEBUGGING": bool(
