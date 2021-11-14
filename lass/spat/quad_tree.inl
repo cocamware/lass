@@ -141,7 +141,7 @@ QuadTree<O, OT, SH>::QuadTree(TObjectIterator first, TObjectIterator last, const
 	TPoint min = TObjectTraits::aabbMin(aabb_);
 	TPoint max = TObjectTraits::aabbMax(aabb_);
 	const TValue growth = num::sqrt(squaredDistance(min, max)) / 1000;
-	for (int k = 0; k < dimension; ++k)
+	for (size_t k = 0; k < dimension; ++k)
 	{
 		TObjectTraits::coord(min, k, TObjectTraits::coord(min, k) - growth);
 		TObjectTraits::coord(max, k, TObjectTraits::coord(max, k) + growth);
@@ -487,7 +487,7 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 /**
  *	Reference: J. Revelles, C. Urena, and M. Lastra. An efficient parametric algorithm for octree 
  *	traversal. In Eighth International Conference in Central Europe on Computer Graphics, 
- *	Visualization and Interactive Digital Media (WSCG 2000), pages 212–-219, Plzen, Czech Republic, 
+ *	Visualization and Interactive Digital Media (WSCG 2000), pages 212ï¿½-219, Plzen, Czech Republic, 
  *	2000.
  */
 template <typename O, typename OT, typename SH>
@@ -774,7 +774,7 @@ QuadTree<O, OT, SH>::QuadNode::sqrDistance(const TPoint& point) const
 	TValue sqrDist = 0;
 	const TPoint& min = TObjectTraits::aabbMin(bounds);
 	const TPoint& max = TObjectTraits::aabbMax(bounds);
-	for (int k = 0; k < dimension; ++k)
+	for (size_t k = 0; k < dimension; ++k)
 	{
 		const TValue x = TObjectTraits::coord(point, k);
 		const TValue d = std::max(x - TObjectTraits::coord(max, k), TObjectTraits::coord(min, k) - x);
@@ -965,7 +965,7 @@ void QuadTree<O, OT, SH>::QuadNode::makeChildren()
 		{
 			TPoint min = TObjectTraits::aabbMin(bounds);
 			TPoint max = TObjectTraits::aabbMax(bounds);
-			for (int k = 0, mask = 1; k < dimension; ++k, mask *= 2)
+			for (size_t k = 0, mask = 1; k < dimension; ++k, mask *= 2)
 			{
 				TObjectTraits::coord(i & mask ? min : max, k, TObjectTraits::coord(center, k));
 

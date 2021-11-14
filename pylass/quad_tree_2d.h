@@ -66,8 +66,8 @@ public:
 	static TAabb aabbMake(const TPoint& a, const TPoint& b) { return TAabb(a,b); }
 	static bool aabbContains(const TAabb& a, const TAabb& b ) { return a.contains(b); }
 	static TValue objectSquaredDistance(TObjectIterator i, const TPoint& p, const TInfo* /*info*/)  {return lass::prim::distance( (*i)->segment(), p ); }
-	static void coord( TPoint& p, int which, TValue newValue ) { p[which] = newValue; }
-	static TValue coord( const TPoint& p, int which )  { return p[which]; }
+	static void coord( TPoint& p, size_t which, TValue newValue ) { p[which] = newValue; }
+	static TValue coord( const TPoint& p, size_t which )  { return p[which]; }
 
 	static bool objectIntersects(TObjectIterator i, const TAabb& a, const TInfo* /*info*/) 
 	{ 

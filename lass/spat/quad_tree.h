@@ -104,12 +104,9 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum 
-	{ 
-		dimension = TObjectTraits::dimension,
-		defaultMaxObjectsPerLeaf = 10,
-		defaultMaxDepth = 10
-	};
+	static constexpr size_t dimension = TObjectTraits::dimension;
+	static constexpr size_t defaultMaxObjectsPerLeaf = 10;
+	static constexpr size_t defaultMaxDepth = 10;
 
 	class Neighbour
 	{
@@ -192,7 +189,7 @@ public:
 
 private:
 
-	enum { numChildren = 1 << dimension };
+	static constexpr size_t numChildren = 1 << dimension;
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
