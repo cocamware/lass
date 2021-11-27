@@ -54,6 +54,11 @@ namespace lass
 namespace util
 {
 
+template <class T, int DP> std::atomic<typename Singleton<T, DP>::TSelf*> Singleton<T, DP>::neo_{nullptr};
+template <class T, int DP> std::atomic<int> Singleton<T, DP>::semaphore_{1};
+template <class T, int DP> std::atomic<bool> Singleton<T, DP>::deadReference_{false};
+
+
 template <class T, int DP>
 Singleton<T, DP>::Singleton():
 	impl::SingletonBase(),
@@ -66,7 +71,7 @@ Singleton<T, DP>::Singleton():
 template <class T, int DP>
 Singleton<T, DP>::~Singleton()
 {
-	deadReference(true);
+	deadReference_.store(true, std::memory_order_release);
 }
 
 
@@ -79,40 +84,32 @@ Singleton<T, DP>::~Singleton()
 template <class T, int DP>
 typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 {
-	static TSelf* neo = 0;
-	static int lock = 1;
-
-	LASS_LOCK_INTEGRAL(lock)
+	if (deadReference_.load(std::memory_order_acquire))
 	{
-		if (deadReference(false))
+		std::cerr << "[LASS RUN MSG] Dead reference detected at '" << neo_.load(std::memory_order_relaxed) 
+			<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '"
+			<< destructionPriority << "'" << std::endl;
+		return nullptr;
+	}
+
+	TSelf* neo = neo_.load(std::memory_order_acquire);
+	if (!neo)
+	{
+		LASS_LOCK_INTEGRAL(semaphore_)
 		{
-			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Dead reference detected at '" << neo 
-				<< "' of singleton '" << typeid(TInstance).name() << "' with destruction priority '" 
-				<< destructionPriority << "'" << std::endl;
-			return 0;
-		}
-		if (neo == 0)
-		{
-			neo = new TSelf;
-			neo->subscribeInstance(destructionPriority);
+			neo = neo_.load(std::memory_order_relaxed);
+			if (!neo)
+			{
+				neo = new TSelf;
+				neo->subscribeInstance(destructionPriority);
+				neo_.store(neo, std::memory_order_release);
+			}
 		}
 	}
+	LASS_ASSERT(neo);
 	return neo->instance_.get();
 }
 
-
-
-/** return true if singleton is destructed.
- *  @param iSetReferenceToDead - call this method with true on destruction of singleton
- *                              - call this method with false to check it.
- */
-template <class T, int DP>
-bool Singleton<T, DP>::deadReference(bool setReferenceToDead)
-{
-	static bool dead = false;
-	dead |= setReferenceToDead;
-	return dead;
-}
 
 
 
