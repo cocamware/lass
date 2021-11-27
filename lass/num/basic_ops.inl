@@ -293,11 +293,19 @@ float acos(float x)			{ return ::acosf(x); }			/**< @ingroup BasicOps */
 float asin(float x)			{ return ::asinf(x); }			/**< @ingroup BasicOps */
 float atan(float x)			{ return ::atanf(x); }			/**< @ingroup BasicOps */
 float atan2(float y, float x)	{ return ::atan2f(y, x); }	/**< @ingroup BasicOps */
-float sinc(float x)			{ return ::fabsf(x) < 1e-4f ? 1.f : (::sinf(x) / x); }	/**< @ingroup BasicOps */
 float floor(float x)		{ return ::floorf(x); }			/**< @ingroup BasicOps */
 float ceil(float x)			{ return ::ceilf(x); }			/**< @ingroup BasicOps */
 float round(float x)		{ return ::floorf(x + .5f); }	/**< @ingroup BasicOps */
 float fractional(float x)	{ return x - ::floorf(x); }		/**< @ingroup BasicOps */
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(push)
+#   pragma warning(disable: 4723) // potential divide by 0
+#endif
+float sinc(float x) { return ::fabsf(x) < 1e-4f ? 1.f : (::sinf(x) / x); }	/**< @ingroup BasicOps */
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(pop)
+#endif
 
 /** @ingroup BasicOps */
 float mod(float x, float m) 
@@ -361,11 +369,19 @@ double acos(double x)			{ return ::acos(x); }			/**< @ingroup BasicOps */
 double asin(double x)			{ return ::asin(x); }			/**< @ingroup BasicOps */
 double atan(double x)			{ return ::atan(x); }			/**< @ingroup BasicOps */
 double atan2(double y, double x)	{ return ::atan2(y, x); }	/**< @ingroup BasicOps */
-double sinc(double x)			{ return ::fabs(x) < 1e-8 ? 1. : (::sin(x) / x); }	/**< @ingroup BasicOps */
 double floor(double x)			{ return ::floor(x); }			/**< @ingroup BasicOps */
 double ceil(double x)			{ return ::ceil(x); }			/**< @ingroup BasicOps */
 double round(double x)			{ return ::floor(x + .5); }		/**< @ingroup BasicOps */
 double fractional(double x)		{ return x - ::floor(x); }		/**< @ingroup BasicOps */
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(push)
+#   pragma warning(disable: 4723) // potential divide by 0
+#endif
+double sinc(double x) { return ::fabs(x) < 1e-8 ? 1. : (::sin(x) / x); }	/**< @ingroup BasicOps */
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(pop)
+#endif
 
 /** @ingroup BasicOps */
 double mod(double x, double m) 
@@ -462,11 +478,19 @@ long double acos(long double x)					{ return ::acosl(x); }			/**< @ingroup Basic
 long double asin(long double x)					{ return ::asinl(x); }			/**< @ingroup BasicOps */
 long double atan(long double x)					{ return ::atanl(x); }			/**< @ingroup BasicOps */
 long double atan2(long double y, long double x)	{ return ::atan2l(y, x); }		/**< @ingroup BasicOps */
-long double sinc(long double x)					{ return ::fabsl(x) < 1e-10 ? 1. : (::sinl(x) / x); }	/**< @ingroup BasicOps */
 long double floor(long double x)				{ return ::floorl(x); }			/**< @ingroup BasicOps */
 long double ceil(long double x)					{ return ::ceill(x); }			/**< @ingroup BasicOps */
 long double round(long double x)				{ return ::floorl(x + .5); }	/**< @ingroup BasicOps */
 long double fractional(long double x)			{ return x - ::floorl(x); }		/**< @ingroup BasicOps */
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(push)
+#   pragma warning(disable: 4723) // potential divide by 0
+#endif
+long double sinc(long double x) { return ::fabsl(x) < 1e-10 ? 1. : (::sinl(x) / x); }	/**< @ingroup BasicOps */
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#   pragma warning(pop)
+#endif
 
 /** @ingroup BasicOps */
 long double mod(long double x, long double m) 
