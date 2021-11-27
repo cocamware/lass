@@ -74,7 +74,7 @@ struct LASS_SIMD_ALIGN TransformationImpl
 	LASS_SIMD_ALIGN T inverse[matrixSize];
 	util::Semaphore sync;
 	std::atomic<size_t> referenceCount;
-	bool hasInverse;
+	std::atomic<bool> hasInverse;
 	bool isTranslation;
 	TransformationImpl(): referenceCount(0), hasInverse(false), isTranslation(false) {}
 };

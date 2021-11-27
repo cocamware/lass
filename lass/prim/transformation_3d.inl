@@ -388,10 +388,15 @@ Transformation3D<T>::Transformation3D(const TImplPtr& impl, bool isInversed):
 
 template <typename T>
 void Transformation3D<T>::computeInverse() const
-{	
+{
+	if (pimpl_->hasInverse.load(std::memory_order_acquire))
+	{
+		return;
+	}
+
 	LASS_LOCK(pimpl_->sync)
 	{
-		if (pimpl_->hasInverse)
+		if (pimpl_->hasInverse.load(std::memory_order_relaxed))
 		{
 			return;
 		}
@@ -469,7 +474,8 @@ void Transformation3D<T>::computeInverse() const
 		{
 			inv[i] *= invDet;
 		}
-		pimpl_->hasInverse = true;
+
+		pimpl_->hasInverse.store(true, std::memory_order_release);
 	}
 }
 
