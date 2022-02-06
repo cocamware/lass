@@ -6,7 +6,7 @@
  *
  *  The LASS License:
  *
- *  Copyright 2004-2006 Bram de Greve and Tom De Muer
+ *  Copyright 2004-2021 Bram de Greve and Tom De Muer
  *
  *  LASS is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,29 +24,38 @@
  */
 
 #include "pylass_common.h"
-#include "vertex_2d.h"
+#include "line_segment_2d.h"
 
-namespace kd_tree
+namespace quad_tree
 {
 
 
-
-Vertex2D::Vertex2D(const TPoint& iPosition, const TPyObjectPtr& iValue):
-	position_(iPosition),
+LineSegment2D::LineSegment2D(const TPoint& iHead, const TPoint& iTail, const TPyObjectPtr& iValue):
+	segment_( TLineSegment(iHead, iTail) ),
 	value_(iValue)
 {
 }
 
-Vertex2D::~Vertex2D()
+LineSegment2D::~LineSegment2D()
 {
 }
 
-const Vertex2D::TPoint& Vertex2D::position() const
+const LineSegment2D::TPoint& LineSegment2D::head() const
 {
-	return position_;
+	return segment_.head();
 }
 
-const TPyObjectPtr& Vertex2D::value() const
+const LineSegment2D::TPoint& LineSegment2D::tail() const
+{
+	return segment_.tail();
+}
+
+const LineSegment2D::TLineSegment& LineSegment2D::segment() const
+{
+	return segment_;
+}
+
+const TPyObjectPtr& LineSegment2D::value() const
 {
 	return value_;
 }

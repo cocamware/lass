@@ -66,6 +66,8 @@
 #define LASS_GUARDIAN_OF_INCLUSION_SPAT_QUAD_TREE_H
 
 #include "spat_common.h"
+#include "default_object_traits.h"
+#include "split_heuristics.h"
 #include "impl/quad_tree_helper.h"
 #include "../util/allocator.h"
 
@@ -102,12 +104,9 @@ public:
 	typedef typename TObjectTraits::TConstReference TConstReference;
 	typedef typename TObjectTraits::TInfo TInfo;
 
-	enum 
-	{ 
-		dimension = TObjectTraits::dimension,
-		defaultMaxObjectsPerLeaf = 10,
-		defaultMaxDepth = 10
-	};
+	static constexpr size_t dimension = TObjectTraits::dimension;
+	static constexpr size_t defaultMaxObjectsPerLeaf = 10;
+	static constexpr size_t defaultMaxDepth = 10;
 
 	class Neighbour
 	{
@@ -190,7 +189,7 @@ public:
 
 private:
 
-	enum { numChildren = 1 << dimension };
+	static constexpr size_t numChildren = 1 << dimension;
 
 	typedef std::vector<TObjectIterator> TObjectIterators;
 
