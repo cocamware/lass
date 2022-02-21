@@ -99,7 +99,7 @@ public:
         std::vector<wchar_t> cmd;
         makeCommandline(cmd);
 
-        LASS_ENFORCE_WINAPI(::CreateProcessW(wargs_[0].c_str(), &cmd[0], 0, 0, FALSE, 0, 0, 0, &si_, &pi_))(&cmd[0]);
+        LASS_ENFORCE_WINAPI(::CreateProcessW(wargs_[0].c_str(), &cmd[0], 0, 0, FALSE, 0, 0, 0, &si_, &pi_));
     }
 
     void sendSignal(int /*signal*/)
