@@ -472,6 +472,8 @@ void rotate_copy_r(const ForwardRange& range, typename ForwardRange::iterator mi
 	return std::rotate_copy(range.begin(), middle, range.end(), result);
 }
 
+#if LASS_HAVE_RANDOM_SHUFFLE
+
 /** std::random_shuffle wrapper for ranges
  *	@ingroup range_algorithm 
  */ 
@@ -490,6 +492,8 @@ void random_shuffle_r(RandomAccessRange& range, RandomNumberGenerator& rand)
 {
 	return std::random_shuffle(range.begin(), range.end(), rand);
 }
+
+#endif
 
 /** std::partition wrapper for ranges
  *  @ingroup range_algorithm

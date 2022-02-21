@@ -9,11 +9,21 @@ include(CheckFunctionExists)
 function(_try_compile VARIABLE fname msg ok fail)
 	if (NOT DEFINED ${VARIABLE})
 		message(STATUS "${msg}")
-		try_compile(
-			${VARIABLE}
-			"${Lass_BINARY_DIR}/cmake"
-			"${Lass_SOURCE_DIR}/cmake/${fname}"
-		)
+		if (CMAKE_VERSION VERSION_LESS 3.8)
+			try_compile(
+				${VARIABLE}
+				"${Lass_BINARY_DIR}/cmake"
+				"${Lass_SOURCE_DIR}/cmake/${fname}"
+			)
+		else()
+			try_compile(
+				${VARIABLE}
+				"${Lass_BINARY_DIR}/cmake"
+				"${Lass_SOURCE_DIR}/cmake/${fname}"
+				CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+				CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
+			)
+		endif()
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")
 			set(${VARIABLE} 1 CACHE INTERNAL "${msg}")
@@ -296,6 +306,7 @@ CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 
 _try_compile_checking(LASS_HAVE_CPP_STD_11 "check_cpp_std_11.cpp" "C++11 is supported")
 _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
+_try_compile_checking(LASS_HAVE_RANDOM_SHUFFLE "check_random_shuffle.cpp" "std::random_shuffle is still supported")
 
 # If compiler supports newer std::unique_ptr, disable usage of std::auto_ptr, 
 # to avoid deprecation warnings. But provide option to user to override in 
