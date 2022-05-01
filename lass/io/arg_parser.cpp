@@ -134,7 +134,7 @@ bool ArgParser::parse(const TArguments& iArguments, TArguments* oPositionals)
 		}
 	}
 
-	return true;
+	return result;
 }
 
 
@@ -398,15 +398,13 @@ bool ArgParser::parseShort(const TArguments& iArguments, TSize& ioIndex)
 			}
 		}
 	}
-	return false;
+	return true;
 }
 
 
 
 bool ArgParser::parseLong(const TArguments& iArguments, TSize iIndex)
 {
-	bool result = true;
-
 	const std::string& arg = iArguments[iIndex];
 	LASS_ASSERT(arg.length() > 2); // arg is of form '--longName=value'
 
@@ -503,7 +501,7 @@ bool ArgParser::parseLong(const TArguments& iArguments, TSize iIndex)
 	// we have one, let's deal with it.
 	//
 	(*match)->setValue(value); // even works if no value is expected
-	return result;
+	return true;
 }
 
 

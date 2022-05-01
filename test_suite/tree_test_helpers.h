@@ -505,7 +505,8 @@ public:
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop();
-		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time
+			<< " (" << count << " hits)" << std::endl;
 	}
 private:
 	const Targets& targets_;

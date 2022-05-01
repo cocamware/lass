@@ -1315,7 +1315,7 @@ BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 
 		// run-length encode buffer
 		//
-		size_t totalLength = 0;
+		size_t LASS_UNUSED(totalLength) = 0;
 		num::Tuint8 numDiff = 0;
 		x = 0;
 		while (x < cols_)
