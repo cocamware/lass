@@ -472,23 +472,13 @@ void rotate_copy_r(const ForwardRange& range, typename ForwardRange::iterator mi
 	return std::rotate_copy(range.begin(), middle, range.end(), result);
 }
 
-/** std::random_shuffle wrapper for ranges
- *	@ingroup range_algorithm 
- */ 
-template <typename RandomAccessRange> inline
-void random_shuffle_r(RandomAccessRange& range)
-{
-	return std::random_shuffle(range.begin(), range.end());
-}
-
-/** std::random_shuffle wrapper for ranges
+/** std::shuffle wrapper for ranges
  *	@ingroup range_algorithm
- *  @pre @a rand must take a value n so that it returns a value in the range [0, n)
- */ 
-template <typename RandomAccessRange, typename RandomNumberGenerator> inline
-void random_shuffle_r(RandomAccessRange& range, RandomNumberGenerator& rand)
+ */
+template <typename RandomAccessRange, typename UniformRandomBitGenerator> inline
+void shuffle_r(RandomAccessRange& range, UniformRandomBitGenerator&& urbg)
 {
-	return std::random_shuffle(range.begin(), range.end(), rand);
+	return std::shuffle(range.begin(), range.end(), std::forward<UniformRandomBitGenerator>(urbg));
 }
 
 /** std::partition wrapper for ranges
