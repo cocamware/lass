@@ -45,4 +45,14 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_PYTHON_EMBEDDING_H
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_PYTHON_EMBEDDING_H
 
+namespace lass
+{
+namespace test
+{
+
+void initPythonEmbedding();
+
+}
+}
+
 #endif

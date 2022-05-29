@@ -619,3 +619,22 @@ PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, deleted)
 PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
 PY_MODULE_CLASS( embedding, PyStdSharedObject )
+
+
+namespace lass
+{
+namespace test
+{
+
+void initPythonEmbedding()
+{
+	if (Py_IsInitialized())
+	{
+		return;
+	}
+	PyImport_AppendInittab("embedding", PyInit_embedding);
+	Py_Initialize();
+}
+
+}
+}

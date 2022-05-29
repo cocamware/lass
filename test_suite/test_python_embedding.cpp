@@ -42,6 +42,7 @@
 
 #include "test_common.h"
 #include "bar.h"
+#include "python_embedding.h"
 
 #include "../lass/util/shared_ptr.h"
 #include "../lass/util/environment.h"
@@ -52,17 +53,14 @@
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
 #endif
 
-PyMODINIT_FUNC PyInit_embedding();
-
 namespace lass
 {
 namespace test
 {
 
-void testUtilPython()
+void testPythonEmbedding()
 {
-	PyImport_AppendInittab("embedding", PyInit_embedding);
-	Py_Initialize();
+	initPythonEmbedding();
 
 	LASS_TEST_CHECK(python::globals());
 	
@@ -88,7 +86,7 @@ void testUtilPython()
 	LASS_TEST_CHECK_EQUAL(s, "BAR");
 
 	// execfile is no longer part of python 3.0
-	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_bar.py");
+	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_python_embedding.py");
 	std::string commandStr = "exec(open('" + testFile + "').read())";
 	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
 	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
@@ -102,9 +100,9 @@ void testUtilPython()
 
 }
 
-TUnitTest test_util_python()
+TUnitTest test_python_embedding()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testUtilPython));
+	return TUnitTest(1, LASS_TEST_CASE(testPythonEmbedding));
 }
 
 }
