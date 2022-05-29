@@ -83,7 +83,7 @@ struct PyExportTraitsVectorPoint
 		ObjectType result;
 		for (size_t k = 0; k < dimension; ++k)
 		{
-			if (!impl::decodeObject(objects[k], result[k], k + 1))
+			if (!impl::decodeObject(objects[k], static_cast<Py_ssize_t>(k), result[k]))
 			{
 				impl::addMessageHeader(ExportTraits::className());
 				return 1;

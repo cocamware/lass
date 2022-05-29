@@ -18,7 +18,6 @@ __pycache__/
 /lass/meta/is_member.h
 /lass/python/bulk_add_integer.inl
 /lass/python/callback_python.h
-/lass/python/py_tuple.h
 /lass/python/pycallback_export_traits.inl
 /lass/python/pyobject_call.inl
 /lass/python/pyobject_macros.h

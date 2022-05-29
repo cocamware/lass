@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -61,18 +61,79 @@ namespace impl
 	 *  @internal
 	 */
 	template <typename P>
-	inline bool decodeObject(PyObject* in, P& out, size_t index)
+	inline bool tupleSetItems(PyObject* tuple, Py_ssize_t index, const P& p)
+	{
+		return PyTuple_SetItem(tuple, index, pyBuildSimpleObject(p)) == 0;
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P, typename... Ptail>
+	inline bool tupleSetItems(PyObject* tuple, Py_ssize_t index, const P& p, Ptail&... tail)
+	{
+		return PyTuple_SetItem(tuple, index, pyBuildSimpleObject(p)) == 0
+			&& tupleSetItems(tuple, index + 1, tail...);
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P>
+	inline bool decodeObject(PyObject* in, Py_ssize_t index, P& out)
 	{
 		if (lass::python::pyGetSimpleObject(in, out) != 0)
 		{
 			std::ostringstream buffer;
-			buffer << "Bad Argument on " << index << "th position";
+			buffer << "Bad Argument on " << (index + 1) << "th position";
 			impl::addMessageHeader(buffer.str().c_str());
 			return false;
 		}
 		return true;
 	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P>
+	inline bool decodeObjects(PyObject** objects, Py_ssize_t index, P& p)
+	{
+		return impl::decodeObject(objects[index], index, p);
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P, typename... Ptail>
+	inline bool decodeObjects(PyObject** objects, Py_ssize_t index, P& p, Ptail&... tail)
+	{
+		return impl::decodeObject(objects[index], index, p)
+			&& decodeObjects(objects, index + 1, tail...);
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P>
+	inline bool decodeObjectsMinimum(PyObject** objects, Py_ssize_t index, Py_ssize_t size, P& p)
+	{
+		return index >= size
+			|| impl::decodeObject(objects[index], index, p);
+	}
+
+	/** @ingroup Python
+	 *  @internal
+	 */
+	template <typename P, typename... Ptail>
+	inline bool decodeObjectsMinimum(PyObject** objects, Py_ssize_t index, Py_ssize_t size, P& p, Ptail&... tail)
+	{
+		return index >= size
+			|| (impl::decodeObject(objects[index], index, p)
+				&& decodeObjectsMinimum(objects, index + 1, size, tail...));
+	}
 }
+
+
 
 /** @ingroup Python
  */
@@ -81,20 +142,19 @@ inline const TPyObjPtr makeTuple()
 	return TPyObjPtr(PyTuple_New(0));
 }
 
-// we don't use PyTuple_Pack, because we want to steal references from pyBuildSimpleObject [Bramz]
-$[
 /** @ingroup Python
  */
-template <$(typename P$x)$>
-const TPyObjPtr makeTuple($(const P$x& p$x)$)
+template <typename... P>
+const TPyObjPtr makeTuple(const P&... p)
 {
 	LockGIL LASS_UNUSED(lock);
-	TPyObjPtr tuple(PyTuple_New($x));
- 	$(if (PyTuple_SetItem(tuple.get(), $w, pyBuildSimpleObject(p$x)) != 0) return TPyObjPtr();
- 	)$
-	return tuple;
+	TPyObjPtr tuple(PyTuple_New(sizeof...(P)));
+	return impl::tupleSetItems(tuple.get(), 0, p...)
+		? tuple
+		: TPyObjPtr();
 }
-]$
+
+
 
 /** @ingroup Python
  */
@@ -106,67 +166,67 @@ inline int decodeTuple(PyObject* obj)
 
 /** @ingroup Python
  */
+template <typename... P>
+int decodeTuple(PyObject* obj, P&... p)
+{
+	LockGIL LASS_UNUSED(lock);
+	const TPyObjPtr tuple = impl::checkedFastSequence(obj, sizeof...(P));
+	if (!tuple)
+	{
+		return 1;
+	}
+	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	return impl::decodeObjects(objects, 0, p...)
+		? 0 
+		: 1;
+}
+
+
+
+/** @ingroup Python
+ */
 inline int decodeTuple(const TPyObjPtr& obj)
 {
 	return decodeTuple(obj.get());
 }
 
-$[
 /** @ingroup Python
  */
-template <$(typename P$x)$>
-int decodeTuple(PyObject* obj, $(P$x& p$x)$)
+template <typename... P>
+inline int decodeTuple(const TPyObjPtr& obj, P&... p)
+{
+	return decodeTuple(obj.get(), p...);
+}
+
+
+
+/** @ingroup Python
+ */
+template <typename... P>
+int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, P&... p)
 {
 	LockGIL LASS_UNUSED(lock);
-	const TPyObjPtr tuple = impl::checkedFastSequence(obj, $x);
+	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, sizeof...(P));
 	if (!tuple)
 	{
 		return 1;
 	}
+	const Py_ssize_t size = PySequence_Fast_GET_SIZE(tuple.get());
 	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
-	return true
-$(		&& impl::decodeObject(objects[$w], p$x, $x) 
-)$		? 0 : 1;
-
+	return impl::decodeObjectsMinimum(objects, 0, size, p...)
+		? 0 
+		: 1;
 }
+
+
 
 /** @ingroup Python
  */
-template <$(typename P$x)$> inline
-int decodeTuple(const TPyObjPtr& obj, $(P$x& p$x)$)
+template <typename... P>
+int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, P&... p)
 {
-	return decodeTuple(obj.get(), $(p$x)$);
+	return decodeTupleMinimum(obj.get(), minumumLength, p...);
 }
-]$
-
-$[
-/** @ingroup Python
- */
-template <$(typename P$x)$>
-int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
-{
-	LockGIL LASS_UNUSED(lock);
-	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, $x);
-	if (!tuple)
-	{
-		return 1;
-	}
-	const Py_ssize_t n = PySequence_Fast_GET_SIZE(tuple.get());
-	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
-	return true
-$(		&& ($x > n || impl::decodeObject(objects[$w], p$x, $x))
-)$		? 0 : 1;
-
-}
-
-/** @ingroup Python
- */
-template <$(typename P$x)$> inline
-int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, $(P$x& p$x)$)
-{
-	return decodeTupleMinimum(obj.get(), minumumLength, $(p$x)$);
-}
-]$
 
 
 

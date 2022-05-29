@@ -150,7 +150,6 @@ if(Python_Development_FOUND)
 	lass_prebuild(lass_python_HDRS python pyobject_macros.tmpl.h pyobject_macros.h "${N}")
 	lass_prebuild(lass_python_HDRS python pyobject_call.tmpl.inl pyobject_call.inl "${N}")
 	lass_prebuild(lass_python_HDRS python pycallback_export_traits.tmpl.inl pycallback_export_traits.inl "${N}")
-	lass_prebuild(lass_python_HDRS python py_tuple.tmpl.h py_tuple.h 20)
 	lass_prebuild(lass_python_HDRS python bulk_add_integer.tmpl.inl bulk_add_integer.inl "${N}")
 
 	add_library(lass_python
