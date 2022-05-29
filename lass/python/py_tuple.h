@@ -45,6 +45,8 @@
 
 #include "python_common.h"
 #include "pyobject_plus.h"
+#include <utility>
+#include <tuple>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -248,6 +250,40 @@ struct PyExportTraits< std::pair<T1, T2> >
 		if (decodeTuple(obj, v.first, v.second) != 0)
 		{
 			impl::addMessageHeader("pair");
+			return 1;
+		}
+		return 0;
+	}
+};
+
+
+/** @ingroup Python
+ *  std::tuple translates to a tuple by copy.
+ */
+template <typename... T>
+struct PyExportTraits< std::tuple<T...> >
+{
+	static PyObject* build(const std::tuple<T...>& v)
+	{
+		return doBuild(v, std::index_sequence_for<T...>());
+	}
+	static int get(PyObject* obj, std::tuple<T...>& v)
+	{
+		return doGet(obj, v, std::index_sequence_for<T...>());
+	}
+
+private:
+	template <std::size_t... I>
+	static PyObject* doBuild(const std::tuple<T...>& v, std::index_sequence<I...>)
+	{
+		return fromSharedPtrToNakedCast(makeTuple(std::get<I>(v)...));
+	}
+	template <std::size_t... I>
+	static int doGet(PyObject* obj, std::tuple<T...>& v, std::index_sequence<I...>)
+	{
+		if (decodeTuple(obj, std::get<I>(v)...) != 0)
+		{
+			impl::addMessageHeader("tuple");
 			return 1;
 		}
 		return 0;

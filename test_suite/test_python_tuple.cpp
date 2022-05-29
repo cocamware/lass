@@ -123,6 +123,36 @@ void testPythonTuple()
         LASS_TEST_CHECK_EQUAL(p2, "2");
         LASS_TEST_CHECK_EQUAL(p3, 0.f);
     }
+
+    {
+        std::tuple<int, std::string, float> t1{ 1, "2", 3.14f };
+        TPyObjPtr obj(pyBuildSimpleObject(t1));
+        LASS_TEST_CHECK(obj.get());
+        LASS_TEST_CHECK(PyTuple_Check(obj.get()));
+        LASS_TEST_CHECK_EQUAL(PyTuple_Size(obj.get()), 3);
+        int p1 = 0;
+        char* p2 = nullptr;
+        float p3 = 0.f;
+        LASS_TEST_CHECK(PyArg_ParseTuple(obj.get(), "isf", &p1, &p2, &p3));
+        LASS_TEST_CHECK_EQUAL(p1, 1);
+        LASS_TEST_CHECK(p2 && strcmp(p2, "2") == 0);
+        LASS_TEST_CHECK_EQUAL(p3, 3.14f);
+    }
+
+    {
+        TPyObjPtr obj(Py_BuildValue("(isf)", 1, "2", 3.14f));
+
+        std::tuple<int, std::string, float> t1;
+        LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t1), 0);
+        LASS_TEST_CHECK_EQUAL(std::get<0>(t1), 1);
+        LASS_TEST_CHECK_EQUAL(std::get<1>(t1), "2");
+        LASS_TEST_CHECK_EQUAL(std::get<2>(t1), 3.14f);
+
+        // getting a tuple of the wrong size should fail
+        std::tuple<int, std::string> t2;
+        LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t2), 1);
+        PyErr_Clear();
+    }
 }
 
 TUnitTest test_python_tuple()
