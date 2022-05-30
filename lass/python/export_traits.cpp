@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2004-2018 the Initial Developer.
+*	Copyright (C) 2004-2022 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -47,8 +47,72 @@
 namespace
 {
 
+template <typename string_type>
+int getStringImpl(PyObject* obj, string_type& v)
+{
+	typedef typename string_type::value_type value_type;
+	static_assert(sizeof(value_type) == 1, "string_type should be narrow string");
+	if (!PyUnicode_Check(obj))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a string");
+		return 1;
+	}
+	Py_ssize_t size;
+	const char* data = PyUnicode_AsUTF8AndSize(obj, &size);
+	if (!data)
+	{
+		return 1;
+	}
+	v = string_type(reinterpret_cast<const value_type*>(data), static_cast<size_t>(size));
+	return 0;
+}
+
+template <typename string_type>
+int getWideStringImpl(PyObject * obj, string_type& v)
+{
+	typedef typename string_type::value_type value_type;
+	static_assert(sizeof(value_type) == sizeof(wchar_t), "string_type should be wide string");
+	if (!PyUnicode_Check(obj))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a string");
+		return 1;
+	}
+	Py_ssize_t n = PyUnicode_AsWideChar(obj, 0, 0); // takes care of UTF-16 and UTF-32 conversions
+	if (n == -1)
+	{
+		return 1;
+	}
+	const Py_ssize_t size = n - 1; // n includes terminating null character.
+	if (size <= 0)
+	{
+		v = string_type();
+		return 0;
+	}
+	string_type tmp(static_cast<size_t>(size), '\0');
+	if (PyUnicode_AsWideChar(obj, reinterpret_cast<wchar_t*>(&tmp[0]), size) == -1)
+	{
+		return 1;
+	}
+	v = std::move(tmp);
+	return 0;
+}
+
+}
+
+
+namespace lass
+{
+namespace python
+{
+namespace impl
+{
+
 PyObject* buildStringImpl(const char* v, size_t size)
 {
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
 	if (size > PY_SSIZE_T_MAX) 
 	{
 		PyErr_SetString(PyExc_OverflowError, "input too long");
@@ -60,6 +124,10 @@ PyObject* buildStringImpl(const char* v, size_t size)
 
 PyObject* buildWideStringImpl(const wchar_t* v, size_t size)
 {
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
 	if (size > PY_SSIZE_T_MAX) 
 	{
 		PyErr_SetString(PyExc_OverflowError, "input too long");
@@ -68,12 +136,38 @@ PyObject* buildWideStringImpl(const wchar_t* v, size_t size)
 	return PyUnicode_FromWideChar(v, static_cast<Py_ssize_t>(size));
 }
 
+
+PyObject* buildU16StringImpl(const char16_t* v, size_t size)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	if (size > (PY_SSIZE_T_MAX / 2))
+	{
+		PyErr_SetString(PyExc_OverflowError, "input too long");
+		return 0;
+	}
+	return PyUnicode_DecodeUTF16(reinterpret_cast<const char*>(v), static_cast<Py_ssize_t>(size * 2), nullptr, nullptr);
 }
 
-namespace lass
+
+PyObject* buildU32StringImpl(const char32_t* v, size_t size)
 {
-namespace python
-{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	if (size > (PY_SSIZE_T_MAX / 4))
+	{
+		PyErr_SetString(PyExc_OverflowError, "input too long");
+		return 0;
+	}
+	return PyUnicode_DecodeUTF32(reinterpret_cast<const char*>(v), static_cast<Py_ssize_t>(size * 4), nullptr, nullptr);
+}
+
+}
+
 
 
 PyObject* PyExportTraits<void*>::build(void* value)
@@ -176,75 +270,128 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 
 PyObject* PyExportTraits<const char*>::build(const char* v)
 {
-	if (!v)
-	{
-		Py_RETURN_NONE;
-	}
-	return buildStringImpl(v, strlen(v));
+	return impl::buildStringImpl(v, strlen(v));
 }
 
 
 PyObject* PyExportTraits<std::string>::build(const std::string& v)
 {
-	return buildStringImpl(v.data(), v.length());
+	return impl::buildStringImpl(v.data(), v.length());
 }
 
 
 int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 {
-	if (!PyUnicode_Check(obj))
-	{
-		PyErr_SetString(PyExc_TypeError, "not a string");
-		return 1;
-	}
-	TPyObjPtr s(PyUnicode_AsUTF8String(obj));
-	if (!s)
-	{
-		return 1;
-	}
-	v.resize(static_cast<size_t>(PyBytes_GET_SIZE(s.get())), '\0');
-	memcpy(&v[0], PyBytes_AS_STRING(s.get()), v.size());
-	return 0;
+	return getStringImpl(obj, v);
 }
 
 
 PyObject* PyExportTraits<const wchar_t*>::build(const wchar_t* v)
 {
-	return buildWideStringImpl(v, wcslen(v));
+	return impl::buildWideStringImpl(v, wcslen(v));
 }
 
 
 PyObject* PyExportTraits<std::wstring>::build(const std::wstring& v)
 {
-	return buildWideStringImpl(v.data(), v.length());
+	return impl::buildWideStringImpl(v.data(), v.length());
 }
 
 
 int PyExportTraits<std::wstring>::get(PyObject* obj, std::wstring& v)
 {
+	return getWideStringImpl(obj, v);
+}
+
+
+#if LASS_HAVE_STD_U8STRING
+
+PyObject* PyExportTraits<std::u8string>::build(const std::u8string& v)
+{
+	return impl::buildStringImpl(reinterpret_cast<const char*>(v.data()), v.length());
+}
+
+
+int PyExportTraits<std::u8string>::get(PyObject* obj, std::u8string& v)
+{
+	return getStringImpl(obj, v);
+}
+
+#endif
+
+
+PyObject* PyExportTraits<std::u16string>::build(const std::u16string& v)
+{
+	return impl::buildU16StringImpl(v.data(), v.length());
+}
+
+
+int PyExportTraits<std::u16string>::get(PyObject* obj, std::u16string& v)
+{
+#if LASS_HAVE_WCHAR_T == 2
+	return getWideStringImpl(obj, v);
+#else
 	if (!PyUnicode_Check(obj))
 	{
 		PyErr_SetString(PyExc_TypeError, "not a string");
 		return 1;
 	}
-	Py_ssize_t n = PyUnicode_AsWideChar(obj, 0, 0); // takes care of UTF-16 and UTF-32 conversions
-	if (n == -1)
+	if (PyUnicode_READY(obj) != 0)
 	{
 		return 1;
 	}
-	const Py_ssize_t size = n - 1; // n includes terminating null character.
-	if (size <= 0)
+	if (PyUnicode_KIND(obj) == PyUnicode_2BYTE_KIND)
 	{
-		v = std::wstring();
+		// all code points < 65536 are represented by a single 2-byte code unit in UTF-16.
+		v = std::u16string(reinterpret_cast<char16_t*>(PyUnicode_2BYTE_DATA(obj)), static_cast<size_t>(PyUnicode_GET_LENGTH(obj)));
 		return 0;
 	}
-	std::wstring tmp(static_cast<size_t>(size), '\0');
-	if (PyUnicode_AsWideChar(obj, &tmp[0], size) == -1)
+	TPyObjPtr bytes(PyUnicode_AsUTF16String(obj));
+	if (!bytes)
 	{
 		return 1;
 	}
-	v.swap(tmp);
+	LASS_ASSERT(PyBytes_Check(bytes.get()));
+	const Py_ssize_t n = PyBytes_Size(bytes.get());
+	const char16_t* data = reinterpret_cast<char16_t* >(PyBytes_AsString(bytes.get()));
+	// according to PyUnicode_AsUTF16String, data must always start with a BOM for native byteorder
+	LASS_ASSERT(data[0] == 0xfeff);
+	v = std::u16string(data + 1, static_cast<size_t>((n / 2) - 1));
 	return 0;
+#endif
+}
+
+
+PyObject* PyExportTraits<std::u32string>::build(const std::u32string& v)
+{
+	return impl::buildU32StringImpl(v.data(), v.length());
+}
+
+
+int PyExportTraits<std::u32string>::get(PyObject* obj, std::u32string& v)
+{
+#if LASS_HAVE_WCHAR_T == 4
+	return getWideStringImpl(obj, v);
+#else
+	if (!PyUnicode_Check(obj))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a string");
+		return 1;
+	}
+	Py_ssize_t size = PyUnicode_GetLength(obj);
+	if (size <= 0)
+	{
+		v = std::u32string();
+		return 0;
+	}
+	std::u32string tmp(static_cast<size_t>(size), '\0');
+	if (PyUnicode_AsUCS4(obj, reinterpret_cast<Py_UCS4*>(&tmp[0]), size, 0) == nullptr)
+	{
+		return 1;
+	}
+	v = std::move(tmp);
+	return 0;
+#endif
 }
 
 }

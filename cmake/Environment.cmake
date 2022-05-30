@@ -9,11 +9,21 @@ include(CheckFunctionExists)
 function(_try_compile VARIABLE fname msg ok fail)
 	if (NOT DEFINED ${VARIABLE})
 		message(STATUS "${msg}")
-		try_compile(
-			${VARIABLE}
-			"${Lass_BINARY_DIR}/cmake"
-			"${Lass_SOURCE_DIR}/cmake/${fname}"
-		)
+		if (CMAKE_VERSION VERSION_LESS 3.8)
+			try_compile(
+				${VARIABLE}
+				"${Lass_BINARY_DIR}/cmake"
+				"${Lass_SOURCE_DIR}/cmake/${fname}"
+			)
+		else()
+			try_compile(
+				${VARIABLE}
+				"${Lass_BINARY_DIR}/cmake"
+				"${Lass_SOURCE_DIR}/cmake/${fname}"
+				CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+				CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
+			)
+		endif()
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")
 			set(${VARIABLE} 1 CACHE INTERNAL "${msg}")
@@ -322,6 +332,7 @@ if(LASS_HAVE_ICONV)
 	_try_compile_checking(LASS_HAVE_ICONV_CONST_CHAR "check_iconv_const_char.cpp" "iconv inbuf parameter is const char**")
 endif()
 CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
+_try_compile_looking(LASS_HAVE_STD_U8STRING "check_std_u8string.cpp" "std::u8string")
 
 
 configure_file(

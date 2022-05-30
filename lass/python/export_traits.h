@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -82,6 +82,11 @@ namespace impl
 	private:
 		T value_;
 	};
+
+	LASS_PYTHON_DLL PyObject* buildStringImpl(const char* s, size_t n);
+	LASS_PYTHON_DLL PyObject* buildWideStringImpl(const wchar_t* s, size_t n);
+	LASS_PYTHON_DLL PyObject* buildU16StringImpl(const char16_t* s, size_t n);
+	LASS_PYTHON_DLL PyObject* buildU32StringImpl(const char32_t* s, size_t n);
 }
 
 /** by copy, general case assumes shadow type or PyObjectPlus based type.
@@ -578,16 +583,23 @@ struct PyExportTraits<const char*>
 /** @ingroup Python
  */
 template <size_t N>
-struct PyExportTraits<const char [N]>: PyExportTraits<const char*>
+struct PyExportTraits<const char [N]>
 {
+	static PyObject* build(const char* v)
+	{
+		static_assert(N > 1, "N should include the null-terminator");
+		return impl::buildStringImpl(v, N - 1);
+	}
 };
+
 
 /** @ingroup Python
  */
 template <size_t N>
-struct PyExportTraits<char [N]>: PyExportTraits<const char*>
+struct PyExportTraits<char [N]> : PyExportTraits<const char [N]>
 {
 };
+
 
 /** @ingroup Python
  */
@@ -611,16 +623,21 @@ struct PyExportTraits<const wchar_t*>
 /** @ingroup Python
  */
 template <size_t N>
-struct PyExportTraits<const wchar_t [N]>: PyExportTraits<const wchar_t*>
+struct PyExportTraits<const wchar_t [N]>
 {
+	static PyObject* build(const wchar_t* v)
+	{
+		return impl::buildWideStringImpl(v, N);
+	}
 };
 
 /** @ingroup Python
  */
 template <size_t N>
-struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t*>
+struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t [N]>
 {
 };
+
 
 /** @ingroup Python
  */
@@ -630,6 +647,41 @@ struct PyExportTraits<std::wstring>
 	LASS_PYTHON_DLL static PyObject* build(const std::wstring& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::wstring& v);
 };
+
+
+#if LASS_HAVE_STD_U8STRING
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<std::u8string>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::u8string& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::u8string& v);
+};
+
+#endif
+
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<std::u16string>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::u16string& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::u16string& v);
+};
+
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<std::u32string>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::u32string& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::u32string& v);
+};
+
 
 }
 }

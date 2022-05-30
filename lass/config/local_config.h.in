@@ -136,6 +136,7 @@
 
 #define LASS_HAVE_CPP_STD_11 1
 #cmakedefine LASS_HAVE_LAMBDA_OPERATOR_NOT 1
+#cmakedefine LASS_HAVE_STD_U8STRING 1
 
 #cmakedefine LASS_HAVE_WCHAR_T @WCHAR_T@
 #cmakedefine LASS_HAVE_WFOPEN 1
