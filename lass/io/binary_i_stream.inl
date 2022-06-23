@@ -47,6 +47,7 @@
 
 
 #include "binary_i_stream.h"
+#include "../num/num_cast.h"
 
 
 
@@ -60,17 +61,16 @@ template <typename T>
 BinaryIStream& BinaryIStream::operator>>(std::vector<T>& oOut)
 {
 	typedef typename std::vector<T>::size_type size_type;
-	num::Tuint32 n;
+	num::Tuint64 n;
 	*this >> n;
-	size_type size = static_cast<size_t>(n);
-	LASS_ASSERT(n == static_cast<num::Tuint32>(n));
 	if (!good())
 	{
 		return *this;
 	}
 
+	const size_type size = num::numCast<size_type>(n);
 	std::vector<T> result;
-	result.resize(size);
+	result.reserve(size);
 
 	for (size_type i = 0; i < size && good(); ++i)
 	{
@@ -78,13 +78,13 @@ BinaryIStream& BinaryIStream::operator>>(std::vector<T>& oOut)
 		*this >> t;
 		if (good())
 		{
-			result.push_back(t);
+			result.push_back(std::move(t));
 		}
 	}
 
 	if (good())
 	{
-		oOut.swap(result);  // "copy" result to output
+		oOut = std::move(result);
 	}
 	return *this;
 }

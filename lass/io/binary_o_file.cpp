@@ -202,19 +202,39 @@ bool BinaryOFile::is_open() const
 
 // --- private -------------------------------------------------------------------------------------
 
-long BinaryOFile::doTellp() const
+BinaryOFile::pos_type BinaryOFile::doTellp() const
 {
-	return ::ftell(file_);
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_ADDRESS_SIZE == 64
+	const off_type pos = ::_ftelli64(file_);
+#else
+	const off_type pos = ::ftell(file_);
+#endif
+	return static_cast<pos_type>(pos >= 0 ? pos : -1);
 }
 
 
 
-void BinaryOFile::doSeekp(long iOffset, std::ios_base::seekdir iDirection)
+void BinaryOFile::doSeekp(pos_type position)
 {
-	const int result = ::fseek(file_, iOffset, impl::seekdir2stdio(iDirection));
+	if (position > num::NumTraits<off_type>::max)
+	{
+		setstate(std::ios_base::failbit);
+		return;
+	}
+	doSeekp(static_cast<off_type>(position), std::ios_base::beg);
+}
+
+
+void BinaryOFile::doSeekp(off_type offset, std::ios_base::seekdir direction)
+{
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_ADDRESS_SIZE == 64
+	const int result = ::_fseeki64(file_, offset, impl::seekdir2stdio(direction));
+#else
+	const int result = ::fseek(file_, offset, impl::seekdir2stdio(direction));
+#endif
 	if (result != 0)
 	{
-		setstate(std::ios_base::badbit);
+		setstate(std::ios_base::failbit);
 	}
 }
 
@@ -244,22 +264,23 @@ void BinaryOFile::doFlush()
  *  @par iIn pointer to buffer.
  *  @par iBufferLength length of buffer in bytes.
  */
-void BinaryOFile::doWrite(const void* iBytes, size_t iNumberOfBytes)
+size_t BinaryOFile::doWrite(const void* iBytes, size_t iNumberOfBytes)
 {
 	if (!file_)
 	{
 		setstate(std::ios_base::failbit);
-		return;
+		return 0;
 	}
 	if (!good())
 	{
-		return;
+		return 0 ;
 	}
 	const size_t bytesWritten = ::fwrite( iBytes, 1, iNumberOfBytes, file_ );
 	if (bytesWritten != iNumberOfBytes)
 	{
 		setstate(std::ios_base::badbit);
 	}
+	return bytesWritten;
 }
 
 

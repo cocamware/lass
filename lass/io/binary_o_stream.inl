@@ -60,10 +60,10 @@ template <typename T>
 BinaryOStream& BinaryOStream::operator<<(const std::vector<T>& x)
 {
 	typedef typename std::vector<T>::size_type size_type;
+
 	const size_type size = x.size();
-	const num::Tuint64 n = static_cast<num::Tuint64>(size);
-	LASS_ASSERT(size == static_cast<size_type>(n));
-	*this << n;
+	static_assert(sizeof(size_type) <= sizeof(num::Tuint64), "size_type must not be wider than 64-bit");
+	*this << static_cast<num::Tuint64>(size);
 
 	for (size_type i = 0; i < size; ++i)
 	{

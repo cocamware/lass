@@ -89,8 +89,9 @@ public:
 
 private:
 
-	long doTellg() const override;
-	void doSeekg(long offset, std::ios_base::seekdir direction) override;
+	pos_type doTellg() const override;
+	void doSeekg(pos_type position) override;
+	void doSeekg(off_type offset, std::ios_base::seekdir direction) override;
 	size_t doRead(void* output, size_t numberOfBytes) override;
 
 	FILE* file_;

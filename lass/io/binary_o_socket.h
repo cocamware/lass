@@ -73,9 +73,10 @@ private:
 
 	typedef std::vector<char> TBuffer;
 
-	long doTellp() const override;
-	void doSeekp(long iOffset, std::ios_base::seekdir iDirection) override;
-	void doWrite(const void* iBytes, size_t iNumberOfBytes) override;
+	pos_type doTellp() const override;
+	void doSeekp(pos_type position) override;
+	void doSeekp(off_type iOffset, std::ios_base::seekdir iDirection) override;
+	size_t doWrite(const void* iBytes, size_t iNumberOfBytes) override;
 	void doFlush() override;
 
 	void init();

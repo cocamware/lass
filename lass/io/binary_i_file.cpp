@@ -194,19 +194,40 @@ bool BinaryIFile::is_open() const
 
 // --- private -------------------------------------------------------------------------------------
 
-long BinaryIFile::doTellg() const
+BinaryIFile::pos_type BinaryIFile::doTellg() const
 {
-	return ::ftell(file_);
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_ADDRESS_SIZE == 64
+	const off_type pos = ::_ftelli64(file_);
+#else
+	const off_type pos = ::ftell(file_);
+#endif
+	return static_cast<pos_type>(pos >= 0 ? pos : -1);
 }
 
 
 
-void BinaryIFile::doSeekg(long offset, std::ios_base::seekdir direction)
+void BinaryIFile::doSeekg(pos_type position)
 {
+	if (position > num::NumTraits<off_type>::max)
+	{
+		setstate(std::ios_base::failbit);
+		return;
+	}
+	doSeekg(static_cast<off_type>(position), std::ios_base::beg);
+}
+
+
+
+void BinaryIFile::doSeekg(off_type offset, std::ios_base::seekdir direction)
+{
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_ADDRESS_SIZE == 64
+	const int result = ::_fseeki64(file_, offset, impl::seekdir2stdio(direction));
+#else
 	const int result = ::fseek(file_, offset, impl::seekdir2stdio(direction));
+#endif
 	if (result != 0)
 	{
-		setstate(std::ios_base::badbit);
+		setstate(std::ios_base::failbit);
 	}
 }
 

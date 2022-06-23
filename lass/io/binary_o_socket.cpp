@@ -137,14 +137,21 @@ void BinaryOSocket::setSocket(Socket* socket)
 
 // --- private -------------------------------------------------------------------------------------
 
-long BinaryOSocket::doTellp() const
+BinaryOSocket::pos_type BinaryOSocket::doTellp() const
 {
 	LASS_THROW("no position in network streams");
 }
 
 
 
-void BinaryOSocket::doSeekp(long, std::ios_base::seekdir)
+void BinaryOSocket::doSeekp(pos_type)
+{
+	LASS_THROW("no seeking in network streams");
+}
+
+
+
+void BinaryOSocket::doSeekp(off_type, std::ios_base::seekdir)
 {
 	LASS_THROW("no seeking in network streams");
 }
@@ -165,17 +172,18 @@ void BinaryOSocket::doFlush()
  *  @par begin pointer to buffer.
  *  @par numberOfBytes length of buffer in bytes.
  */
-void BinaryOSocket::doWrite(const void* begin, size_t numberOfBytes)
+size_t BinaryOSocket::doWrite(const void* begin, size_t numberOfBytes)
 {
 	LASS_LOCK(bufferLock_)
 	{
 		if (!socket_)
 		{
 			setstate(std::ios_base::badbit); // we won't be able to flush this data as there's nothing to flush it to ...
-			return;
+			return 0;
 		}
 		const char* first = static_cast<const char*>(begin);
-		while (numberOfBytes > 0)
+		size_t bytesToWrite = numberOfBytes;
+		while (bytesToWrite > 0)
 		{
 			if (current_ == buffer_.size())
 			{
@@ -184,20 +192,22 @@ void BinaryOSocket::doWrite(const void* begin, size_t numberOfBytes)
 
 			if (!good())
 			{
-				return;
+				return 0;
 			}
 
 			LASS_ASSERT(current_ < buffer_.size());
 			const size_t freeSize = buffer_.size() - current_;
-			const size_t writeSize = std::min(numberOfBytes, freeSize);
+			const size_t writeSize = std::min(bytesToWrite, freeSize);
 
 			::memcpy(&buffer_[current_], first, writeSize);
 			current_ += writeSize;
 			first += writeSize;
-			numberOfBytes -= writeSize;
+			bytesToWrite -= writeSize;
 		}
 		skipABeat_ = true;
 	}
+
+	return numberOfBytes;
 }
 
 
@@ -267,7 +277,7 @@ void BinaryOSocket::flushImpl()
 			begin += sent;
 			current_ -= static_cast<size_t>(sent);
 		}
-		catch (util::Exception&)
+		catch (const util::Exception&)
 		{
 			setstate(std::ios_base::badbit);
 			return;

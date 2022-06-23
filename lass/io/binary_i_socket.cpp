@@ -131,7 +131,7 @@ size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 
 
 
-long BinaryISocket::doTellg() const
+BinaryISocket::pos_type BinaryISocket::doTellg() const
 {
 	LASS_THROW("no position in network streams!");
 	return 0;
@@ -139,7 +139,14 @@ long BinaryISocket::doTellg() const
 
 
 
-void BinaryISocket::doSeekg(long, std::ios_base::seekdir)
+void BinaryISocket::doSeekg(pos_type)
+{
+	LASS_THROW("no seeking in network streams!");
+}
+
+
+
+void BinaryISocket::doSeekg(off_type, std::ios_base::seekdir)
 {
 	LASS_THROW("no seeking in network streams!");
 }

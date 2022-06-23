@@ -66,25 +66,31 @@ public:
 	BinaryIMemoryMap();
 	BinaryIMemoryMap(const char* filename);
 	BinaryIMemoryMap(const std::string& filename);
+#if LASS_HAVE_WCHAR_SUPPORT
+	BinaryIMemoryMap(const wchar_t* filename);
+	BinaryIMemoryMap(const std::wstring& filename);
+#endif
+
 	~BinaryIMemoryMap();
 
 	void open(const char* filename);
 	void open(const std::string& filename);
+#if LASS_HAVE_WCHAR_SUPPORT
+	void open(const wchar_t* filename);
+	void open(const std::wstring& filename);
+#endif
 	void close();
 	bool is_open() const;
 
 private:
 
-	long doTellg() const override;
-	void doSeekg(long offset, std::ios_base::seekdir direction) override;
+	pos_type doTellg() const override;
+	void doSeekg(pos_type position) override;
+	void doSeekg(off_type offset, std::ios_base::seekdir direction) override;
 	size_t doRead(void* output, size_t numberOfBytes) override;
 
-	impl::BinaryIMemoryMapImpl* pimpl_;
-	char* data_;
-	long begin_;
-	long end_;
-	long size_;
-	long position_;
+	std::unique_ptr<impl::BinaryIMemoryMapImpl> pimpl_;
+	size_t position_ { 0 };
 };
 
 

@@ -71,22 +71,22 @@ BinaryOStream::~BinaryOStream()
 
 
 
-long BinaryOStream::tellp() const
+BinaryOStream::pos_type BinaryOStream::tellp() const
 {
 	return doTellp();
 }
 
 
 
-BinaryOStream& BinaryOStream::seekp(long position)
+BinaryOStream& BinaryOStream::seekp(pos_type position)
 {
-	doSeekp(position, std::ios_base::beg);
+	doSeekp(position);
 	return *this;
 }
 
 
 
-BinaryOStream& BinaryOStream::seekp(long offset, std::ios_base::seekdir direction)
+BinaryOStream& BinaryOStream::seekp(off_type offset, std::ios_base::seekdir direction)
 {
 	doSeekp(offset, direction);
 	return *this;
@@ -189,8 +189,9 @@ BinaryOStream& BinaryOStream::operator<<(bool x)
 
 BinaryOStream& BinaryOStream::operator<<(const void* x)
 {
-	LASS_META_ASSERT(sizeof(num::TuintPtr) == sizeof(const void*), TuintPtr_should_be_of_pointer_size);
-	return *this << static_cast<num::Tuint64>(reinterpret_cast<num::TuintPtr>(x));
+	static_assert(sizeof(num::TintPtr) == sizeof(const void*), "TintPtr must have same size as pointers");
+	static_assert(sizeof(num::TintPtr) <= sizeof(num::Tint64), "TintPtr must not be wider than 64-bits");
+	return *this << static_cast<num::Tint64>(reinterpret_cast<num::TintPtr>(x));
 }
 
 
@@ -235,9 +236,9 @@ BinaryOStream& BinaryOStream::operator<<(const std::wstring& x)
  *  @param bytes pointer to buffer.
  *  @param numBytes length of buffer in bytes.
  */
-void BinaryOStream::write(const void* bytes, size_t numBytes)
+size_t BinaryOStream::write(const void* bytes, size_t numBytes)
 {
-	doWrite(bytes, numBytes);
+	return doWrite(bytes, numBytes);
 }
 
 // --- private -------------------------------------------------------------------------------------
@@ -254,7 +255,8 @@ BinaryOStream& BinaryOStream::writeValue(T x)
 
 BinaryOStream& BinaryOStream::writeString(const char* string, size_t length)
 {
-	*this << num::numCast<num::Tuint64>(length);
+	static_assert(sizeof(size_t) <= sizeof(num::Tuint64), "size_t must not be wider than 64-bit");
+	*this << static_cast<num::Tuint64>(length);
 	doWrite(string, length);
 	return *this;
 }

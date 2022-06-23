@@ -64,26 +64,33 @@ BinaryIMemoryBlock::BinaryIMemoryBlock():
 
 /** Construct stream by pointer to memory block and length of block
  */
-BinaryIMemoryBlock::BinaryIMemoryBlock( const void* iBegin, long iSize ):
+BinaryIMemoryBlock::BinaryIMemoryBlock( const void* begin, pos_type size ):
 	BinaryIStream(),
-	begin_(static_cast<const TByte*>(iBegin)),
-	size_(iSize),
+	begin_(static_cast<const TByte*>(begin)),
+	size_(size),
 	position_(0)
 {
-	LASS_ASSERT(size_ >= 0);
 }
 
 
 
 /** Construct stream by pointer to memory block and to one byte past end of block.
  */
-BinaryIMemoryBlock::BinaryIMemoryBlock( const void* iBegin, const void* iEnd ):
+BinaryIMemoryBlock::BinaryIMemoryBlock( const void* begin, const void* end ):
 	BinaryIStream(),
-	begin_(static_cast<const TByte*>(iBegin)),
-	size_(static_cast<long>(static_cast<const TByte*>(iEnd) - static_cast<const TByte*>(iBegin))),
+	begin_(static_cast<const TByte*>(begin)),
+	size_(0),
 	position_(0)
 {
-	LASS_ASSERT(size_ >= 0);
+	off_type size = static_cast<const TByte*>(end) - static_cast<const TByte*>(begin);
+	if (size >= 0)
+	{
+		size_ = static_cast<pos_type>(size);
+	}
+	else
+	{
+		setstate(std::ios_base::badbit);
+	}
 }
 
 
@@ -94,7 +101,7 @@ size_t BinaryIMemoryBlock::doRead(void* out, size_t numberOfBytes)
 {
 	if (!begin_)
 	{
-		setstate(std::ios_base::failbit);
+		setstate(std::ios_base::badbit);
 		return 0;
 	}
 	if (!good())
@@ -106,12 +113,11 @@ size_t BinaryIMemoryBlock::doRead(void* out, size_t numberOfBytes)
 		setstate(std::ios_base::eofbit);
 		return 0;
 	}
-	LASS_ASSERT(static_cast<long>(numberOfBytes) >= 0);
-	long next = position_ + static_cast<long>(numberOfBytes);
+	pos_type next = position_ + numberOfBytes;
 	if (next > size_ || next < position_)
 	{
 		next = size_;
-		numberOfBytes = static_cast<size_t>(size_ - position_);
+		numberOfBytes = size_ - position_;
 	}
 	memcpy(out, &begin_[position_], numberOfBytes);
 	position_ = next;
@@ -120,25 +126,64 @@ size_t BinaryIMemoryBlock::doRead(void* out, size_t numberOfBytes)
 
 
 
-long BinaryIMemoryBlock::doTellg() const
+BinaryIMemoryBlock::pos_type BinaryIMemoryBlock::doTellg() const
 {
 	return position_;
 }
 
 
 
-void BinaryIMemoryBlock::doSeekg(long iOffset, std::ios_base::seekdir iDirection)
+void BinaryIMemoryBlock::doSeekg(pos_type position)
 {
-	switch (iDirection)
+	LASS_ASSERT(good());
+	position_ = position;
+}
+
+
+
+void BinaryIMemoryBlock::doSeekg(off_type offset, std::ios_base::seekdir direction)
+{
+	LASS_ASSERT(good());
+
+	auto seek = [this](pos_type current, off_type offset)
 	{
-	case std::ios_base::beg: 
-		position_ = iOffset;
+		if (offset < 0)
+		{
+			const pos_type negoffset = static_cast<pos_type>(-offset);
+			if (negoffset > current)
+			{
+				setstate(std::ios_base::failbit);
+				return;
+			}
+			this->position_ = current - negoffset;
+		}
+		else
+		{
+			const pos_type posoffset = static_cast<pos_type>(offset);
+			if (current > num::NumTraits<pos_type>::max - posoffset)
+			{
+				setstate(std::ios_base::failbit);
+				return;
+			}
+			this->position_ = current + posoffset;
+		}
+	};
+
+	switch (direction)
+	{
+	case std::ios_base::beg:
+		if (offset < 0)
+		{
+			setstate(std::ios_base::failbit);
+			return;
+		}
+		position_ = static_cast<pos_type>(offset);
 		break;
 	case std::ios_base::cur:
-		position_ += iOffset;
+		seek(position_, offset);
 		break;
 	case std::ios_base::end:
-		position_ = size_ + iOffset;
+		seek(size_, offset);
 		break;
 	default:
 		LASS_ASSERT(false);

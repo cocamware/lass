@@ -61,6 +61,7 @@
 #include "io_common.h"
 #include "stream_base.h"
 #include "../num/endianness.h"
+#include "../num/basic_types.h"
 
 namespace lass
 {
@@ -71,6 +72,14 @@ namespace io
 class LASS_DLL BinaryStreamBase: public StreamBase
 {
 public:
+	using pos_type = size_t;
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_ADDRESS_SIZE == 64
+	using off_type = __int64;
+#else
+	using off_type = long;
+#endif
+
+	static_assert(num::NumTraits<off_type>::max < num::NumTraits<pos_type>::max, "max off_type value must fit in pos_type");
 
 	num::Endianness endianness() const { return streamEndianness_; }
 	void setEndianness(num::Endianness iEndianness) { streamEndianness_ = iEndianness; }

@@ -43,6 +43,7 @@
 #include "lass_common.h"
 #include "binary_i_stream.h"
 #include "../num/basic_types.h"
+#include "../num/num_cast.h"
 
 // static_cast from TintPtr to pointer gives warning on MSVC, yet both are identical in size [Bramz]
 // 
@@ -70,24 +71,32 @@ BinaryIStream::~BinaryIStream()
 
 
 
-long BinaryIStream::tellg() const
+BinaryIStream::pos_type BinaryIStream::tellg() const
 {
 	return doTellg();
 }
 
 
 
-BinaryIStream& BinaryIStream::seekg(long position)
+BinaryIStream& BinaryIStream::seekg(pos_type position)
 {
-	doSeekg(position, std::ios_base::beg);
+	clear(rdstate() & ~std::ios_base::eofbit); // clear eofbit
+	if (good())
+	{
+		doSeekg(position);
+	}	
 	return *this;
 }
 
 
 
-BinaryIStream& BinaryIStream::seekg(long offset, std::ios_base::seekdir directioin)
+BinaryIStream& BinaryIStream::seekg(off_type offset, std::ios_base::seekdir direction)
 {
-	doSeekg(offset, directioin);
+	clear(rdstate() & ~std::ios_base::eofbit); // clear eofbit
+	if (good())
+	{
+		doSeekg(offset, direction);
+	}	
 	return *this;
 }
 
@@ -187,13 +196,14 @@ BinaryIStream& BinaryIStream::operator>>(bool& x)
 
 BinaryIStream& BinaryIStream::operator>>(void*& x)
 {
-	LASS_META_ASSERT(sizeof(num::TintPtr) == sizeof(const void*), TintPtr_should_be_of_pointer_size);
-	num::Tuint64 temp;
+	static_assert(sizeof(num::TintPtr) == sizeof(const void*), "TintPtr must have same size as pointers");
+	static_assert(sizeof(num::TintPtr) <= sizeof(num::Tint64), "TintPtr must be no wider than 64-bit");
+	num::Tint64 temp;
 	*this >> temp;
 	if (good())
 	{
-		num::TuintPtr address = static_cast<num::TuintPtr>(temp);
-		if (temp != static_cast<num::Tuint64>(address))
+		num::TintPtr address = static_cast<num::TintPtr>(temp);
+		if (temp != static_cast<num::Tint64>(address))
 		{
 			LASS_THROW("address overflow" << std::hex << temp);
 		}
@@ -206,20 +216,17 @@ BinaryIStream& BinaryIStream::operator>>(void*& x)
 
 BinaryIStream& BinaryIStream::operator>>( std::string& x )
 {
+	typedef std::string::size_type size_type;
 	num::Tuint64 n;
 	*this >> n;
 	if (good())
 	{
-		size_t length = static_cast<size_t>(n);
-		if (n != static_cast<num::Tuint64>(length) || (length + 1 < length))
-		{
-			LASS_THROW("length overflow" << n);
-		}
-		std::vector<char> buffer(length + 1, '\0'); // [TDM] null character storage :o)
+		const size_type length = num::numCast<size_type>(n);
+		std::string buffer(length, '\0');
 		doRead(&buffer[0], length);
 		if (good())
 		{
-			x = std::string(&buffer[0]);
+			x = std::move(buffer);
 		}
 	}
 	return *this;

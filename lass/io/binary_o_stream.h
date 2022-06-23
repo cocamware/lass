@@ -70,9 +70,9 @@ public:
 	BinaryOStream();
 	~BinaryOStream();
 
-	long tellp() const;
-	BinaryOStream& seekp(long position);
-	BinaryOStream& seekp(long offset, std::ios_base::seekdir direction); 
+	pos_type tellp() const;
+	BinaryOStream& seekp(pos_type position);
+	BinaryOStream& seekp(off_type offset, std::ios_base::seekdir direction); 
 	void flush();
 
 #if !defined(LASS_HAVE_STDINT_H_INT8_T_IS_CHAR)
@@ -99,17 +99,18 @@ public:
 	template<typename T> BinaryOStream& operator<<( const std::vector<T>& x );
 	template<typename T> BinaryOStream& operator<<( const std::complex<T>& x );
 
-	void write(const void* buffer, size_t byteLength);
+	size_t write(const void* buffer, size_t byteLength);
 
 private:
 
 	template <typename T> BinaryOStream& writeValue(T x);
 	BinaryOStream& writeString(const char* string, size_t length);
 
-	virtual long doTellp() const = 0;
-	virtual void doSeekp(long offset, std::ios_base::seekdir direction) = 0;
+	virtual pos_type doTellp() const = 0;
+	virtual void doSeekp(pos_type position) = 0;
+	virtual void doSeekp(off_type offset, std::ios_base::seekdir direction) = 0;
 	virtual void doFlush() = 0;
-	virtual void doWrite(const void* bytes, size_t numberOfBytes) = 0;
+	virtual size_t doWrite(const void* bytes, size_t numberOfBytes) = 0;
 };
 
 }

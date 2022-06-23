@@ -64,13 +64,12 @@ namespace io
 class LASS_DLL BinaryIStream: public BinaryStreamBase
 {
 public:
-
 	BinaryIStream();
 	~BinaryIStream();
 
-	long tellg() const;
-	BinaryIStream& seekg(long iPosition);
-	BinaryIStream& seekg(long offset, std::ios_base::seekdir direction); 
+	pos_type tellg() const;
+	BinaryIStream& seekg(pos_type position);
+	BinaryIStream& seekg(off_type offset, std::ios_base::seekdir direction);
 
 #if !defined(LASS_HAVE_STDINT_H_INT8_T_IS_CHAR)
 	BinaryIStream& operator>>( char& x );
@@ -101,8 +100,9 @@ private:
 
 	template <typename T> BinaryIStream& readValue(T& x);
 
-	virtual long doTellg() const = 0;
-	virtual void doSeekg(long offset, std::ios_base::seekdir direction) = 0;
+	virtual pos_type doTellg() const = 0;
+	virtual void doSeekg(pos_type position) = 0;
+	virtual void doSeekg(off_type offset, std::ios_base::seekdir direction) = 0;
 	virtual size_t doRead(void* out, size_t numberOfBytes) = 0;
 };
 

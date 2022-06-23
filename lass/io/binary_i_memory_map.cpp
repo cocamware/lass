@@ -23,7 +23,7 @@
  *      The Original Developer is the Initial Developer.
  *      
  *      All portions of the code written by the Initial Developer are:
- *      Copyright (C) 2004-2011 the Initial Developer.
+ *      Copyright (C) 2004-2022 the Initial Developer.
  *      All Rights Reserved.
  *      
  *      Contributor(s):
@@ -51,6 +51,7 @@
 #else
 #       if LASS_HAVE_SYS_MMAN_H && LASS_HAVE_SYS_STAT_H && LASS_HAVE_FCNTL_H && LASS_HAVE_UNISTD_H
 #               define LASS_IO_MEMORY_MAP_MMAP
+#				include "../util/wchar_support.h"
 #               include <unistd.h>
 #               include <fcntl.h>
 #               include <sys/stat.h>
@@ -65,315 +66,342 @@ namespace io
 
 namespace impl
 {
-        class BinaryIMemoryMapImpl
-        {
-        public:
-                BinaryIMemoryMapImpl(const char* filename):
-                        view_(0)
-                {
+
 #if defined(LASS_IO_MEMORY_MAP_WIN)
-                        pageSize_ = 4096;
-                        map_ = 0;
-#       ifdef UNICODE
-                        const int bufferLength = MultiByteToWideChar(CP_UTF8, 0, filename, -1, 0, 0);
-                        std::vector<WCHAR> buffer(bufferLength);
-                        MultiByteToWideChar(CP_UTF8, 0, filename, -1, &buffer[0], bufferLength);
-                        LPCWSTR szFile = &buffer[0];
-#       else
-                        LPCSTR szFile = filename;
-#       endif
-                        file_ = LASS_ENFORCE_WINAPI(::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ,
-                                0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
-                        const DWORD fsize = GetFileSize(file_, 0);
-                        if (fsize == INVALID_FILE_SIZE)
-                        {
-                                const unsigned lastError = util::impl::lass_GetLastError();
-                                LASS_THROW("Failed to get file size: (" << lastError << ") "
-                                        << util::impl::lass_FormatMessage(lastError));
-                        }
-                        fileSize_ = static_cast<long>(fsize);
-                        if (fileSize_ < 0 || static_cast<DWORD>(fileSize_) != fsize)
-                        {
-                                LASS_THROW("Filesize overflow");
-                        }
-                        map_ = LASS_ENFORCE_WINAPI(::CreateFileMapping(file_, 0, PAGE_READONLY, 0, 0, 0));
-#elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                        pageSize_ = LASS_ENFORCE_CLIB(::sysconf(_SC_PAGE_SIZE));
-                        file_ = LASS_ENFORCE_CLIB(::open(filename, O_RDONLY));
-                        struct stat buf;
-                        LASS_ENFORCE_CLIB(::fstat(file_, &buf));
-                        fileSize_ = static_cast<long>(buf.st_size);
-                        if (fileSize_ < 0 || static_cast<off_t>(fileSize_) != buf.st_size)
-                        {
-                                LASS_THROW("Filesize overflow");
-                        }                       
+
+class BinaryIMemoryMapImpl
+{
+public:
+	BinaryIMemoryMapImpl(const wchar_t* filename)
+	{
+		file_ = LASS_ENFORCE_WINAPI(::CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ,
+			0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
+		LARGE_INTEGER size;
+		if (!GetFileSizeEx(file_, &size))
+		{
+			const unsigned lastError = util::impl::lass_GetLastError();
+			LASS_THROW("Failed to get file size: (" << lastError << ") "
+				<< util::impl::lass_FormatMessage(lastError));
+		}
+#if LASS_ADDRESS_SIZE == 64
+		static_assert(sizeof(size.QuadPart) == sizeof(size_t), "LARGE_INTEGER::QuadPart must have same size as size_t");
+		fileSize_ = static_cast<size_t>(size.QuadPart);
 #else
-#       error "[LASS BUILD MSG] no implementation for BinaryIMemoryMap"
+		if (size.HighPart != 0)
+		{
+			LASS_THROW("File too large");
+		}
+		fileSize_ = size.LowPart;
 #endif
-                }
-                
-                
-                ~BinaryIMemoryMapImpl()
-                {
-                        unmap();
-#if defined(LASS_IO_MEMORY_MAP_WIN)
-                        LASS_WARN_WINAPI(::CloseHandle(map_));
-                        map_ = 0;
-                        LASS_WARN_WINAPI(::CloseHandle(file_));
-                        file_ = 0;
+		map_ = LASS_ENFORCE_WINAPI(::CreateFileMapping(file_, 0, PAGE_READONLY, 0, 0, 0));
+		data_ = static_cast<char*>(LASS_ENFORCE_WINAPI(
+			::MapViewOfFile(map_, FILE_MAP_READ, 0, 0, 0)));
+	}
+
+	BinaryIMemoryMapImpl(const char* filename) :
+		BinaryIMemoryMapImpl(util::utf8ToWchar(filename).c_str())
+	{
+	}
+
+	~BinaryIMemoryMapImpl()
+	{
+		LASS_WARN_WINAPI(::UnmapViewOfFile(data_));
+		data_ = nullptr;
+		LASS_WARN_WINAPI(::CloseHandle(map_));
+		map_ = 0;
+		LASS_WARN_WINAPI(::CloseHandle(file_));
+		file_ = 0;
+	}
+
+	size_t fileSize() const noexcept
+	{
+		return fileSize_;
+	}
+
+	const char* data() const
+	{
+		return data_;
+	}
+
+private:
+	const char* data_;
+	HANDLE file_{ 0 };
+	HANDLE map_{ 0 };
+	size_t fileSize_;
+};
+
 #elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                        LASS_WARN_CLIB(::close(file_));
-                        file_ = 0;
-#endif
-                }
-                
-                
-                long fileSize() const
-                {
-                        return fileSize_;
-                }
-                
-                
-                char* remap(long newBegin, long& begin, long& end)
-                {                       
-                        newBegin = pageSize_ * (newBegin / pageSize_); // down to nearest boundary
-                        long newEnd = newBegin + pageSize_;
-                        if (newEnd > fileSize_ || newEnd < 0)
-                        {
-                                newEnd = fileSize_;
-                        }
-                        LASS_ASSERT(newEnd >= newBegin);
-                        const long mapSize = newEnd - newBegin;
-#if defined(LASS_IO_MEMORY_MAP_WIN)
-                        char* view = static_cast<char*>(LASS_ENFORCE_WINAPI(
-                                ::MapViewOfFile(map_, FILE_MAP_READ, 0, newBegin, mapSize)));
-#elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                        char* view = static_cast<char*>(LASS_ENFORCE_CLIB_EX(
-                                ::mmap(0, static_cast<size_t>(mapSize), PROT_READ, MAP_SHARED, file_, newBegin),
-                                (char*)MAP_FAILED));
+
+class BinaryIMemoryMapImpl
+{
+public:
+	BinaryIMemoryMapImpl(const char* filename)
+	{
+		file_ = LASS_ENFORCE_CLIB(::open(filename, O_RDONLY));
+		struct stat buf;
+		LASS_ENFORCE_CLIB(::fstat(file_, &buf));
+		fileSize_ = static_cast<size_t>(buf.st_size);
+		view_ = static_cast<char*>(LASS_ENFORCE_CLIB_EX(
+			::mmap(0, static_cast<size_t>(fileSize_), PROT_READ, MAP_SHARED, file_, 0),
+			(char*)MAP_FAILED));
+	}
+
+	BinaryIMemoryMapImpl(const wchar_t* filename) :
+		BinaryIMemoryMapImpl(util::wcharToUtf8(filename).c_str())
+	{
+	}
+
+	~BinaryIMemoryMapImpl()
+	{
+		LASS_WARN_CLIB(::munmap(view_, static_cast<size_t>(fileSize_)));
+		view_ = nullptr;
+		LASS_WARN_CLIB(::close(file_));
+		file_ = 0;
+	}
+
+	const char* data() const
+	{
+		return view_;
+	}
+
+	size_t fileSize() const noexcept
+	{
+		return fileSize_;
+	}
+
+private:
+	char* view_;
+	size_t fileSize_;
+	int file_;
+};
+
 #else
-                        char* view = 0;
-                        return 0;
+
+#	error "[LASS BUILD MSG] no implementation for BinaryIMemoryMap"
+
 #endif
-                        unmap();
-                        mapSize_ = mapSize;
-                        view_ = view;
-                        begin = newBegin;
-                        end = newEnd;
-                        return view_;
-                }
-                
-        private:
-                
-                void unmap()
-                {
-                        if (!view_)
-                        {
-                                return;
-                        }
-#if defined(LASS_IO_MEMORY_MAP_WIN)
-                        LASS_WARN_WINAPI(::UnmapViewOfFile(view_));
-#elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                        LASS_WARN_CLIB(::munmap(view_, static_cast<size_t>(mapSize_)));
-#endif
-                        view_ = 0;
-                }
-                
-                long pageSize_;
-                long fileSize_;
-                long mapSize_;
-                char* view_;
-#if defined(LASS_IO_MEMORY_MAP_WIN)
-                HANDLE file_;
-                HANDLE map_;
-#elif defined(LASS_IO_MEMORY_MAP_MMAP)
-                int file_;
-#endif
-        };
+
 }
 
 // --- public --------------------------------------------------------------------------------------
 
 BinaryIMemoryMap::BinaryIMemoryMap():
-        BinaryIStream(),
-        pimpl_(0)
+	BinaryIStream()
 {
 }
 
 BinaryIMemoryMap::BinaryIMemoryMap(const char* filename):
-        BinaryIStream(),
-        pimpl_(0)
+	BinaryIStream()
 {
-        open(filename);
+	open(filename);
 }
 
 BinaryIMemoryMap::BinaryIMemoryMap(const std::string& filename):
-        BinaryIStream(),
-        pimpl_(0)
+	BinaryIStream()
 {
-        open(filename);
+	open(filename);
 }
 
+#if LASS_HAVE_WCHAR_SUPPORT
 
+BinaryIMemoryMap::BinaryIMemoryMap(const wchar_t* filename):
+	BinaryIStream()
+{
+	open(filename);
+}
+
+BinaryIMemoryMap::BinaryIMemoryMap(const std::wstring& filename):
+	BinaryIStream()
+{
+	open(filename);
+}
+
+#endif
 
 BinaryIMemoryMap::~BinaryIMemoryMap()
 {
-        close();
+	close();
 }
 
 
 
 void BinaryIMemoryMap::open(const char* filename)
 {
-        std::unique_ptr<impl::BinaryIMemoryMapImpl> pimpl;
-        long begin, end, size;
-        char* data;
-
-        try
-        {
-                pimpl.reset(new impl::BinaryIMemoryMapImpl(filename));
-                size = pimpl->fileSize();
-                data = pimpl->remap(0, begin, end);
-        }
-        catch (std::exception& error)
-        {
-                LASS_LOG("Error: " << error.what());
-                setstate(std::ios_base::failbit);
-                return;
-        }
-
-        close();
-        pimpl_ = pimpl.release();
-        data_ = data;
-        size_ = size;
-        begin_ = begin;
-        end_ = end;
-        position_ = 0;
+	close();
+	try
+	{
+		pimpl_.reset(new impl::BinaryIMemoryMapImpl(filename));
+	}
+	catch (const std::exception& error)
+	{
+		LASS_LOG("Error: " << error.what());
+		pimpl_.reset();
+		setstate(std::ios_base::badbit);
+	}
 }
 
 
 
 void BinaryIMemoryMap::open(const std::string& filename)
 {
-        open(filename.c_str());
+	open(filename.c_str());
+}
+
+#if LASS_HAVE_WCHAR_SUPPORT
+
+void BinaryIMemoryMap::open(const wchar_t* filename)
+{
+	close();
+	try
+	{
+		pimpl_.reset(new impl::BinaryIMemoryMapImpl(filename));
+	}
+	catch (const std::exception& error)
+	{
+		LASS_LOG("Error: " << error.what());
+		pimpl_.reset();
+		setstate(std::ios_base::badbit);
+	}
 }
 
 
 
+void BinaryIMemoryMap::open(const std::wstring& filename)
+{
+	open(filename.c_str());
+}
+
+
+#endif
+
+
 void BinaryIMemoryMap::close()
 {
-        delete pimpl_;
-        pimpl_ = 0;
+	pimpl_.reset();
 }
 
 
 
 bool BinaryIMemoryMap::is_open() const
 {
-        return pimpl_ != 0;
+	return pimpl_.get() != nullptr;
 }
 
 
 
 // --- private -------------------------------------------------------------------------------------
 
-long BinaryIMemoryMap::doTellg() const
+BinaryIMemoryMap::pos_type BinaryIMemoryMap::doTellg() const
 {
-        return position_;
+	return position_;
 }
 
 
 
-void BinaryIMemoryMap::doSeekg(long offset, std::ios_base::seekdir direction)
+void BinaryIMemoryMap::doSeekg(pos_type position)
 {
-        if (!good())
-        {
-                return;
-        }
-        if (!pimpl_)
-        {
-                setstate(std::ios_base::badbit);
-                return;
-        }
+	LASS_ASSERT(good());
+	if (!pimpl_)
+	{
+		setstate(std::ios_base::badbit);
+		return;
+	}
+	position_ = position;
+}
 
-        switch (direction)
-        {
-        case std::ios_base::beg: 
-                position_ = offset;
-                break;
-        case std::ios_base::cur:
-                position_ += offset;
-                break;
-        case std::ios_base::end:
-                position_ = size_ + offset;
-                break;
-        default:
-                LASS_ASSERT_UNREACHABLE;
-                setstate(std::ios_base::badbit);
-                return;
-        };
-        if (position_ < begin_ || position_ >= end_)
-        {
-                try
-                {
-                        data_ = pimpl_->remap(position_, begin_, end_);
-                }
-                catch (std::exception& error)
-                {
-                        LASS_LOG("Error: " << error.what());
-                        setstate(std::ios_base::badbit);
-                }
-        }
+
+
+void BinaryIMemoryMap::doSeekg(off_type offset, std::ios_base::seekdir direction)
+{
+	LASS_ASSERT(good());
+
+	if (!pimpl_)
+	{
+		setstate(std::ios_base::badbit);
+		return;
+	}
+
+	auto seek = [this](pos_type current, off_type offset)
+	{
+		if (offset < 0)
+		{
+			const pos_type negoffset = static_cast<pos_type>(-offset);
+			if (negoffset > current)
+			{
+				setstate(std::ios_base::failbit);
+				return;
+			}
+			this->position_ = current - negoffset;
+		}
+		else
+		{
+			const pos_type posoffset = static_cast<pos_type>(offset);
+			if (current > num::NumTraits<pos_type>::max - posoffset)
+			{
+				setstate(std::ios_base::failbit);
+				return;
+			}
+			this->position_ = current + posoffset;
+		}
+	};
+
+	switch (direction)
+	{
+	case std::ios_base::beg:
+		if (offset < 0)
+		{
+			setstate(std::ios_base::failbit);
+			return;
+		}
+		position_ = static_cast<pos_type>(offset);
+		break;
+	case std::ios_base::cur:
+		seek(position_, offset);
+		break;
+	case std::ios_base::end:
+		seek(pimpl_->fileSize(), offset);
+		break;
+	default:
+		LASS_ASSERT_UNREACHABLE;
+		setstate(std::ios_base::badbit);
+		return;
+	};
 }
 
 
 
 size_t BinaryIMemoryMap::doRead(void* output, size_t numberOfBytes)
 {
-        if (!pimpl_ || !data_)
-        {
-                setstate(std::ios_base::failbit);
-                return 0;
-        }
-        if (!good())
-        {
-                return 0;
-        }
-		if (position_ >= size_)
-		{
-			setstate(std::ios_base::eofbit);
-			return 0;
-		}
-        long last = position_ + static_cast<long>(numberOfBytes);
-        if (last > size_ || last < position_)
-        {
-                last = size_;
-				numberOfBytes = static_cast<size_t>(size_ - position_);
-        }
-        char* dest = static_cast<char*>(output);
-		size_t bytesRead = 0;
-        while (last >= end_)
-        {
-				const size_t n = static_cast<size_t>(end_ - position_);
-                ::memcpy(dest, &data_[position_ - begin_], n);
-                dest += n;
-				bytesRead += n;
-                try
-                {
-                        data_ = pimpl_->remap(end_, begin_, end_);
-                }
-                catch (std::exception& error)
-                {
-                        LASS_LOG("Error: " << error.what());
-                        setstate(std::ios_base::badbit);
-                        return bytesRead;
-                }
-                position_ = begin_;
-        }
-        ::memcpy(dest, &data_[position_ - begin_], static_cast<size_t>(last - position_));
-        position_ = last;
-		return numberOfBytes;
+	if (!good())
+	{
+		return 0;
+	}
+
+	if (!pimpl_ )
+	{
+		setstate(std::ios_base::badbit);
+		return 0;
+	}
+
+	const size_t size = pimpl_->fileSize();
+	const char* data = pimpl_->data();
+	if (position_ >= size)
+	{
+		setstate(std::ios_base::eofbit);
+		return 0;
+	}
+	pos_type next = position_ + numberOfBytes;
+	if (next > size || next < position_)
+	{
+		next = size;
+		numberOfBytes = size - position_;
+	}
+	memcpy(output, &data[position_], numberOfBytes);
+	position_ = next;
+	return numberOfBytes;
 }
+
+
 
 }
 

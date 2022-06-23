@@ -89,9 +89,10 @@ public:
 
 private:
 
-	long doTellp() const override;
-	void doSeekp(long offset, std::ios_base::seekdir direction) override;
-	void doWrite(const void* bytes, size_t numberOfBytes) override;
+	pos_type doTellp() const override;
+	void doSeekp(pos_type position) override;
+	void doSeekp(off_type offset, std::ios_base::seekdir direction) override;
+	size_t doWrite(const void* bytes, size_t numberOfBytes) override;
 	void doFlush() override;
 
 	FILE* file_;
