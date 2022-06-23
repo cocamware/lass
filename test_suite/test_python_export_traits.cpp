@@ -284,6 +284,55 @@ void testPythonExportTraitsPath()
 		LASS_TEST_CHECK(path.native() == native);
 	}
 }
+
+#endif
+
+#if __cpp_lib_optional
+
+void testPythonExportTraitsOptional()
+{
+	using namespace lass::python;
+
+	initPythonEmbedding();
+
+	LockGIL LASS_UNUSED(lock);
+
+	{
+		// build empty optional
+		std::optional<std::string> val;
+		TPyObjPtr obj{ pyBuildSimpleObject(val) };
+		LASS_TEST_CHECK(Py_IsNone(obj.get()));
+	}
+
+	{
+		// build optional with value
+		std::optional<std::string> val{ "a string" };
+		TPyObjPtr obj{ pyBuildSimpleObject(val) };
+		LASS_TEST_CHECK(!Py_IsNone(obj.get()));
+		LASS_TEST_CHECK(PyUnicode_Check(obj.get()));
+		std::string str;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), str), 0);
+		LASS_TEST_CHECK_EQUAL(str, val.value());
+	}
+
+	{
+		// get empty optional
+		std::optional<std::string> val;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(Py_None, val), 0);
+		LASS_TEST_CHECK(!val.has_value());
+	}
+
+	{
+		// get optional with value
+		const std::string str{ "a string" };
+		TPyObjPtr obj{ pyBuildSimpleObject(str) };
+		std::optional<std::string> val;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), val), 0);
+		LASS_TEST_CHECK(val.has_value());
+		LASS_TEST_CHECK_EQUAL(val.value(), str);
+	}
+}
+
 #endif
 
 TUnitTest test_python_export_traits()
@@ -292,6 +341,9 @@ TUnitTest test_python_export_traits()
 		LASS_TEST_CASE(testPythonExportTraitsString),
 #if __cpp_lib_filesystem
 		LASS_TEST_CASE(testPythonExportTraitsPath),
+#endif
+#if __cpp_lib_optional
+		LASS_TEST_CASE(testPythonExportTraitsOptional),
 #endif
 		});
 }

@@ -51,6 +51,9 @@
 #if __cpp_lib_filesystem
 #	include <filesystem>
 #endif
+#if __cpp_lib_optional
+#	include <optional>
+#endif
 
 namespace lass
 {
@@ -701,6 +704,46 @@ struct PyExportTraits<std::filesystem::path>
 {
 	LASS_PYTHON_DLL static PyObject* build(const std::filesystem::path& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::filesystem::path& v);
+};
+
+#endif
+
+#if __cpp_lib_optional
+
+/** @ingroup Python
+ *
+ *  Uses None to represent a std::optional without value.
+ * 
+ *  If None is also a valid value for the type T (such as pointers), then it
+ *  will be impossible to differentiate between an unset std::optional, and
+ *  a set std::optional with a value for None.
+ */
+template <typename T>
+struct PyExportTraits< std::optional<T> >
+{
+	static PyObject* build(const std::optional<T>& value)
+	{
+		if (!value)
+		{
+			Py_RETURN_NONE;
+		}
+		return PyExportTraits<T>::build(*value);
+	}
+	static int get(PyObject* obj, std::optional<T>& value)
+	{
+		if (obj == Py_None)
+		{
+			value.reset();
+			return 0;
+		}
+		T tmp;
+		if (PyExportTraits<T>::get(obj, tmp) != 0)
+		{
+			return 1;
+		}
+		value = std::move(tmp);
+		return 0;
+	}
 };
 
 #endif
