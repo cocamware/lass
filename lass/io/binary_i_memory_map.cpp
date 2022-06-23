@@ -218,6 +218,16 @@ BinaryIMemoryMap::BinaryIMemoryMap(const std::wstring& filename):
 
 #endif
 
+#if __cpp_lib_filesystem
+
+BinaryIMemoryMap::BinaryIMemoryMap(const std::filesystem::path& filename):
+	BinaryIStream()
+{
+	open(filename);
+}
+
+#endif
+
 BinaryIMemoryMap::~BinaryIMemoryMap()
 {
 	close();
@@ -271,6 +281,16 @@ void BinaryIMemoryMap::open(const std::wstring& filename)
 	open(filename.c_str());
 }
 
+
+#endif
+
+
+#if __cpp_lib_filesystem
+
+void BinaryIMemoryMap::open(const std::filesystem::path& filename)
+{
+	open(filename.native());
+}
 
 #endif
 

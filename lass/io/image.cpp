@@ -150,6 +150,23 @@ Image::Image(const std::wstring& path):
 
 
 
+#if __cpp_lib_filesystem
+
+/** Construct image from given file.
+ */
+Image::Image(const std::filesystem::path& path):
+	colorSpace_(defaultColorSpace()),
+	rows_(0),
+	cols_(0),
+	raster_()
+{
+	open(path);
+}
+
+#endif
+
+
+
 /** Copy constructor
  */
 Image::Image(const Image& other):
@@ -207,6 +224,20 @@ void Image::reset(const std::string& path)
 /** Reset image to the one in the given file.
  */
 void Image::reset(const std::wstring& path)
+{
+	Image temp(path);
+	swap(temp);
+}
+
+#endif
+
+
+
+#if __cpp_lib_filesystem
+
+/** Reset image to the one in the given file.
+ */
+void Image::reset(const std::filesystem::path& path)
 {
 	Image temp(path);
 	swap(temp);
@@ -344,6 +375,37 @@ void Image::save(const std::wstring& path)
 
 #endif
 
+
+
+#if __cpp_lib_filesystem
+
+/** Open image from binary stream
+ */
+void Image::open(const std::filesystem::path& path)
+{
+	BinaryIFile file(path);
+	if (!file)
+	{
+		LASS_THROW("could not open file to read.");
+	}
+	open(file, fileExtension(path.string()));
+}
+
+
+
+/** Save image to file
+ */
+void Image::save(const std::filesystem::path& path)
+{
+	BinaryOFile file(path);
+	if (!file)
+	{
+		LASS_THROW("could not open file to write.");
+	}
+	save(file, fileExtension(path.string()));
+}
+
+#endif
 
 
 /** Copy other into this image.

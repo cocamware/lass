@@ -118,6 +118,9 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	Image(const std::wstring& path);
 #endif
+#if __cpp_lib_filesystem
+	Image(const std::filesystem::path& path);
+#endif
 	Image(const Image& other);
 	~Image();
 
@@ -130,6 +133,9 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	void reset(const std::wstring& path);
 #endif
+#if __cpp_lib_filesystem
+	void reset(const std::filesystem::path& path);
+#endif
 	void reset(const Image& other);
 
 	void open(const std::string& path);
@@ -139,6 +145,10 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	void open(const std::wstring& path);
 	void save(const std::wstring& path);
+#endif
+#if __cpp_lib_filesystem
+	void open(const std::filesystem::path& path);
+	void save(const std::filesystem::path& path);
 #endif
 
 	Image& operator=(const Image& other);

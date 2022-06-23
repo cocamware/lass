@@ -49,6 +49,9 @@
 
 #include "io_common.h"
 #include "binary_i_stream.h"
+#if __cpp_lib_filesystem
+#	include <filesystem>
+#endif
 
 namespace lass
 {
@@ -70,6 +73,9 @@ public:
 	BinaryIMemoryMap(const wchar_t* filename);
 	BinaryIMemoryMap(const std::wstring& filename);
 #endif
+#if __cpp_lib_filesystem
+	BinaryIMemoryMap(const std::filesystem::path& filename);
+#endif
 
 	~BinaryIMemoryMap();
 
@@ -78,6 +84,9 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	void open(const wchar_t* filename);
 	void open(const std::wstring& filename);
+#endif
+#if __cpp_lib_filesystem
+	void open(const std::filesystem::path& filename);
 #endif
 	void close();
 	bool is_open() const;

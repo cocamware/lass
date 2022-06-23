@@ -56,7 +56,9 @@
 #include "io_common.h"
 #include "binary_i_stream.h"
 #include <cstdio>
-
+#if __cpp_lib_filesystem
+#	include <filesystem>
+#endif
 
 
 namespace lass
@@ -68,13 +70,15 @@ namespace io
 class LASS_DLL BinaryIFile: public BinaryIStream
 {
 public:
-
 	BinaryIFile();
 	BinaryIFile(const char* path);
 	BinaryIFile(const std::string& path);
 #if LASS_HAVE_WCHAR_SUPPORT
 	BinaryIFile(const wchar_t* path);
 	BinaryIFile(const std::wstring& path);
+#endif
+#if __cpp_lib_filesystem
+	BinaryIFile(const std::filesystem::path& path);
 #endif
 	~BinaryIFile();
 
@@ -83,6 +87,9 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	void open(const wchar_t* path);
 	void open(const std::wstring& path);
+#endif
+#if __cpp_lib_filesystem
+	void open(const std::filesystem::path& path);
 #endif
 	void close();
 	bool is_open() const;

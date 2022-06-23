@@ -113,6 +113,21 @@ BinaryIFile::BinaryIFile(const std::wstring& path):
 
 
 
+#if __cpp_lib_filesystem
+
+/** Construct stream by filename and open it.
+ */
+BinaryIFile::BinaryIFile(const std::filesystem::path& path):
+	BinaryIStream(),
+	file_(0)
+{
+	open(path);
+}
+
+#endif
+
+
+
 /** Close stream on destruction.
  */
 BinaryIFile::~BinaryIFile()
@@ -166,6 +181,29 @@ void BinaryIFile::open(const wchar_t* path)
 void BinaryIFile::open(const std::wstring& path)
 {
 	open(path.c_str());
+}
+
+#endif
+
+
+
+#if __cpp_lib_filesystem
+
+void BinaryIFile::open(const std::filesystem::path& path)
+{
+	close();
+	if (good())
+	{
+#if LASS_HAVE_WFOPEN
+		file_ = ::_wfopen(path.c_str(), L"rb");
+#else:
+		file_ = ::fopen(path.c_str(), "rb");
+#endif
+		if (!file_)
+		{
+			setstate(std::ios_base::failbit);
+		}
+	}
 }
 
 #endif
