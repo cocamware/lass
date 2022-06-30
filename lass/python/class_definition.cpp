@@ -44,6 +44,7 @@
 
 #include "python_common.h"
 #include "class_definition.h"
+#include "enum_definition.h"
 #include "overload_link.h"
 #include "pyobject_plus.h"
 #include <iostream>
@@ -411,6 +412,12 @@ void ClassDefinition::addInnerClass(ClassDefinition& innerClass)
 	innerClasses_.push_back(&innerClass);
 }
 
+void ClassDefinition::addInnerEnum(EnumDefinitionBase* enumDefinition)
+{
+	// LASS_ASSERT(std::count_if(innerClasses_.begin(), innerClasses_.end(), NamePredicate(innerClass.name())) == 0);
+	innerEnums_.push_back(enumDefinition);
+}
+
 /** @internal
 *	The iFinal sets the flags for final classes from which no new types can be derived.  
 */
@@ -464,6 +471,11 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 		const char* shortName = innerClass->name();
 		innerClass->freezeDefinition(type_.tp_name);
 		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(innerClass->type()));
+	}
+	for (auto def : innerEnums_)
+	{
+		def->freezeDefinition(nullptr, nullptr); // TODO: figure out modulename and qualname ...
+		PyDict_SetItemString(type_.tp_dict, def->name().c_str(), def->type());
 	}
 
 	if (classRegisterHook_)

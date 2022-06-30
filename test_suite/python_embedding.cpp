@@ -46,6 +46,7 @@
 #include "python_embedding.h"
 #include "../lass/python/python_api.h"
 #include "../lass/python/pyshadow_object.h"
+#include "../lass/python/enum_definition.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -67,6 +68,13 @@ namespace lass
 {
 namespace test
 {
+
+enum Color
+{
+	RED = 1,
+	GREEN = 2,
+	BLUE = 3,
+};
 
 int test()
 {
@@ -340,6 +348,26 @@ PY_CLASS_FREE_METHOD_QUALIFIED_NAME_3(Cyclic, pow, Cyclic, const Cyclic&, int, i
 }
 }
 
+#define PY_DEFINE_INT_ENUM_NAME_VALUES(t_enumClass, s_name, values) \
+	::lass::python::IntEnumDefinition<t_enumClass> lass::python::PyExportTraits<t_enumClass>::enumDefinition( s_name, values );
+
+PY_SHADOW_INT_ENUM(LASS_DLL_EXPORT, lass::test::Color)
+PY_DECLARE_INT_ENUM_EX(lass::test::Color)("Color", {
+	{ "RED", lass::test::Color::RED },
+	{ "GREEN", lass::test::Color::GREEN },
+	{ "BLUE", lass::test::Color::BLUE },
+	});
+
+lass::test::Color passColor(lass::test::Color color)
+{
+	return color;
+}
+
+lass::test::Color badColor()
+{
+	return static_cast<lass::test::Color>(0);
+}
+
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
 PY_SHADOW_CASTERS( PyBase )
@@ -496,8 +524,6 @@ std::wstring testStdWstring(const std::wstring& v)
 	return v;
 }
 
-
-
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -549,6 +575,10 @@ PY_MODULE_FUNCTION( embedding, testStdString )
 PY_MODULE_FUNCTION( embedding, testStdWstring )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
+
+PY_MODULE_ENUM( embedding, lass::test::Color )
+PY_MODULE_FUNCTION( embedding, passColor )
+PY_MODULE_FUNCTION( embedding, badColor )
 
 
 PY_MODULE_ENTRYPOINT( embedding )

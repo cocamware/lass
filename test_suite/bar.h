@@ -81,6 +81,13 @@ namespace test
 		TMap map_;
 
 	public:
+		enum class Shape: short
+		{
+			Circle,
+			Square,
+			Triangle
+		};
+
 		Bar();
 		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
@@ -101,6 +108,11 @@ namespace test
 		std::string call(const std::string& iA) const;
 
 		static int aStaticMethod( float ia );
+
+		static Shape passShape(Shape shape);
+		static Shape getShape();
+		static Shape badShape();
+		static bool isTriangle(Shape shape);
 
 		int getInt() const;
 		int getInt();
@@ -188,5 +200,7 @@ namespace test
 }
 
 }
+
+PY_SHADOW_STR_ENUM(LASS_DLL_EXPORT, lass::test::Bar::Shape);
 
 #endif

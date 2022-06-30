@@ -629,7 +629,7 @@ namespace lass \
 { \
 namespace python \
 { \
-	template <> struct ShadoweeTraits< t_ShadowObject::TShadowee >: meta::True \
+	template <> struct ShadoweeTraits< t_ShadowObject::TShadowee >: ::lass::meta::True \
 	{ \
 		typedef t_ShadowObject TShadow; \
 		/*typedef impl::ShadowTraits< t_ShadowObject > TShadowTraits;*/ \

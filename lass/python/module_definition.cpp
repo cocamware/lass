@@ -42,6 +42,7 @@
 
 #include "python_common.h"
 #include "module_definition.h"
+#include "enum_definition.h"
 
 namespace lass
 {
@@ -122,6 +123,12 @@ void ModuleDefinition::addClass(impl::ClassDefinition& classDef)
 	classes_.push_back(&classDef);
 }
 
+void ModuleDefinition::addEnum(EnumDefinitionBase* enumDef)
+{
+	LASS_ASSERT(!isInjected_);
+	enums_.push_back(enumDef);
+}
+
 void ModuleDefinition::addObject(PyObject* object, const char* name)
 {
 	LASS_ASSERT(!isInjected_);
@@ -197,6 +204,11 @@ PyObject* ModuleDefinition::inject()
 	for (TClassDefs::const_iterator def = classes_.begin(); def != classes_.end(); ++def)
 	{
 		injectClass(**def);
+	}
+	for (auto def: enums_)
+	{
+		def->freezeDefinition(name_.get(), nullptr);
+		PyModule_AddObject(module_, def->name().c_str(), reinterpret_cast<PyObject*>(def->type()));
 	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)
 	{

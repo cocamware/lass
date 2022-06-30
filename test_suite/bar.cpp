@@ -46,6 +46,12 @@
 #include "bar.h"
 #include "../lass/stde/extended_string.h"
 
+PY_DECLARE_STR_ENUM_EX(lass::test::Bar::Shape)("Shape", {
+	{ "CIRCLE", lass::test::Bar::Shape::Circle, "circle"},
+	{ "SQUARE", lass::test::Bar::Shape::Square, "square"},
+	{ "TRIANGLE", lass::test::Bar::Shape::Triangle, "triangle"},
+	});
+
 namespace lass
 {
 	namespace test
@@ -71,6 +77,11 @@ namespace lass
 		PY_CLASS_FREE_METHOD_NAME(Bar, freeCall, lass::python::methods::_call_);
 		PY_CLASS_FREE_METHOD_NAME(Bar, freeRepr, lass::python::methods::_repr_);
 		PY_CLASS_FREE_METHOD_NAME(Bar, freeStr, lass::python::methods::_str_);
+		PY_CLASS_ENUM(Bar, Bar::Shape);
+		PY_CLASS_STATIC_METHOD(Bar, passShape);
+		PY_CLASS_STATIC_METHOD(Bar, getShape);
+		PY_CLASS_STATIC_METHOD(Bar, badShape);
+		PY_CLASS_STATIC_METHOD(Bar, isTriangle);
 		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
@@ -237,6 +248,23 @@ namespace lass
 		{
 			LASS_COUT << "Bar::call(const std::string&): " << this << " " << iA << std::endl;
 			return stde::toupper(iA);
+		}
+
+		Bar::Shape Bar::passShape(Shape shape)
+		{
+			return shape;
+		}
+		Bar::Shape Bar::getShape()
+		{
+			return Shape::Square;
+		}
+		Bar::Shape Bar::badShape()
+		{
+			return static_cast<Shape>(123);
+		}
+		bool Bar::isTriangle(Shape shape)
+		{
+			return shape == Shape::Triangle;
 		}
 
 		int Bar::getInt() const

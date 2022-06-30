@@ -53,6 +53,8 @@ namespace lass
 {
 	namespace python
 	{
+		class EnumDefinitionBase;
+
 		namespace impl
 		{
 			LASS_PYTHON_DLL PyMethodDef LASS_CALL createPyMethodDef(
@@ -177,6 +179,7 @@ namespace lass
 					statics_.push_back(StaticMember(name, staticMemberHelperObject(value)));
 				}
 				void addInnerClass(ClassDefinition& innerClass);
+				void addInnerEnum(EnumDefinitionBase* enumDefinition);
 				
 				void freezeDefinition(const char* scopeName = 0);
 
@@ -191,6 +194,7 @@ namespace lass
 				typedef std::vector<CompareFunc> TCompareFuncs;
 				typedef std::vector<StaticMember> TStaticMembers;
 				typedef std::vector<ClassDefinition*> TClassDefs;
+				typedef std::vector<EnumDefinitionBase*> TEnumDefs;
 
 				PyTypeObject type_;
 				TMethods methods_;
@@ -199,6 +203,7 @@ namespace lass
 				TStaticMembers statics_;
 				TClassDefs innerClasses_;
 				TClassDefs subClasses_;
+				TEnumDefs innerEnums_;
 				ClassDefinition* parent_;
 				TClassRegisterHook classRegisterHook_;
 

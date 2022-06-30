@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,28 +40,61 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
-#ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-#define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYTHON_API_H
-
-#include "python_common.h"
-#include "pyobject_plus.h"
-#include "pyobject_macros.h"
-#include "pyobject_util.h"
-#include "pyshadow_object.h"
-#include "callback_python.h"
-#include "py_tuple.h"
-#include "pysequence.h"
-#include "pymap.h"
-#include "export_traits_prim.h"
-#include "exception.h"
-#include "utilities.h"
-#include "bulk_add.h"
 #include "enum_definition.h"
-#include "../meta/is_member.h"
+#include "pyobject_ptr.h"
+#include "py_tuple.h"
 
-#endif
- 
+namespace lass
+{
+	namespace python
+	{
+		EnumDefinitionBase::EnumDefinitionBase(std::string&& name) :
+			name_(std::move(name))
+		{
+		}
+
+		const std::string& EnumDefinitionBase::name() const
+		{
+			return name_;
+		}
+
+		PyObject* EnumDefinitionBase::type() const
+		{
+			return type_.get();
+		}
+
+		TPyObjPtr EnumDefinitionBase::valueObject(PyObject* obj) const
+		{
+			if (PyObject_IsInstance(obj, type()))
+			{
+				return TPyObjPtr(PyObject_GetAttrString(obj, "value"));
+			}
+
+			// try to convert it to an enum first ...
+			TPyObjPtr o(PyObject_CallFunctionObjArgs(type(), obj, nullptr));
+			if (!o)
+			{
+				return TPyObjPtr();
+			}
+			return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
+		}
+
+		void EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* qualName)
+		{
+			TPyObjPtr kwargs(PyDict_New());
+			if (moduleName)
+			{
+				TPyObjPtr moduleNameObj(pyBuildSimpleObject(moduleName));
+				PyDict_SetItemString(kwargs.get(), "module", moduleNameObj.get());
+			}
+			if (qualName)
+			{
+				TPyObjPtr qualNameObj(pyBuildSimpleObject(qualName));
+				PyDict_SetItemString(kwargs.get(), "qualname", qualNameObj.get());
+			}
+
+			type_.reset(doFreezeDefinition(kwargs.get()));
+			// PyObject_SetAttrString(type_.get(), "__str__", )
+		}
+	}
+}

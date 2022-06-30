@@ -704,6 +704,63 @@ class TestStdSharedObject(unittest.TestCase):
 		self.assertEqual(StdSharedObject.deleted(), 2)
 
 
+class TestEnum(unittest.TestCase):
+	def testIntEnum(self):
+		Color = embedding.Color
+		self.assertIsInstance(Color.RED, Color)
+		self.assertIsInstance(Color.RED, int)
+		self.assertEqual(Color.RED.value, 1)
+		self.assertEqual(Color.GREEN.value, 2)
+		self.assertEqual(Color.BLUE.value, 3)
+		self.assertEqual(Color.RED, 1)
+		self.assertEqual(Color.GREEN, 2)
+		self.assertEqual(Color.BLUE, 3)
+		self.assertEqual(str(Color.RED), "Color.RED")
+		self.assertIs(Color(2), Color.GREEN)
+		with self.assertRaises(ValueError):
+			_ = Color(123)
+		with self.assertRaises(ValueError):
+			_ = Color("RED")
+		self.assertIs(embedding.passColor(Color.GREEN), Color.GREEN)
+		self.assertIs(embedding.passColor(3), Color.BLUE)
+		with self.assertRaises(ValueError):
+			_ = embedding.passColor(123)
+		with self.assertRaises(ValueError):
+			_ = embedding.badColor()
+		self.assertEqual(list(Color), [Color.RED, Color.GREEN, Color.BLUE])
+
+	def testStrEnum(self):
+		Shape = embedding.Bar.Shape
+		self.assertIsInstance(Shape.CIRCLE, Shape)
+		self.assertIsInstance(Shape.CIRCLE, str)
+		self.assertEqual(Shape.CIRCLE.value, "circle")
+		self.assertEqual(Shape.SQUARE.value, "square")
+		self.assertEqual(Shape.TRIANGLE.value, "triangle")
+		self.assertEqual(Shape.CIRCLE, "circle")
+		self.assertEqual(Shape.SQUARE, "square")
+		self.assertEqual(Shape.TRIANGLE, "triangle")
+		self.assertEqual(str(Shape.SQUARE), "Shape.SQUARE")
+		self.assertIs(Shape("triangle"), Shape.TRIANGLE)
+		with self.assertRaises(ValueError):
+			_ = Shape(2)
+		with self.assertRaises(ValueError):
+			_ = Shape("notashape")
+		self.assertIs(embedding.Bar.passShape(Shape.SQUARE), Shape.SQUARE)
+		self.assertIs(embedding.Bar.passShape("triangle"), Shape.TRIANGLE)
+		with self.assertRaises(ValueError):
+			_ = embedding.Bar.passShape("notashape")
+		self.assertIs(embedding.Bar.getShape(), Shape.SQUARE)
+		self.assertTrue(embedding.Bar.isTriangle(Shape.TRIANGLE))
+		self.assertFalse(embedding.Bar.isTriangle("square"))
+		with self.assertRaises(ValueError):
+			_ = embedding.Bar.isTriangle("notashape")
+		with self.assertRaises(ValueError):
+			_ = embedding.Bar.isTriangle(2)
+		with self.assertRaises(ValueError):
+			_ = embedding.Bar.badShape()
+		self.assertEqual(list(Shape), [Shape.CIRCLE, Shape.SQUARE, Shape.TRIANGLE])
+
+
 import sys
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity = 2)

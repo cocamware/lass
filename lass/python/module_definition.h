@@ -53,6 +53,8 @@ namespace lass
 namespace python
 {
 
+class EnumDefinitionBase;
+
 class LASS_PYTHON_DLL ModuleDefinition: util::NonCopyable
 {
 public:
@@ -71,6 +73,7 @@ public:
 
 	void addFunctionDispatcher(PyCFunction dispatcher, const char* name, const char* doc, PyCFunction& overloadChain);
 	void addClass(impl::ClassDefinition& classDef);
+	void addEnum(EnumDefinitionBase* enumDef);
 	void addObject(PyObject* object, const char* name);
 	void addLong(long object, const char* name);
 	void addString(const char* object, const char* name);
@@ -80,6 +83,7 @@ public:
 private:
 	typedef std::unique_ptr<char[]> TScopedCString;
 	typedef std::vector<impl::ClassDefinition*> TClassDefs;
+	typedef std::vector<EnumDefinitionBase*> TEnumDefs;
 	typedef std::vector<PyMethodDef> TMethods;
 	struct NamedObject
 	{
@@ -100,6 +104,7 @@ private:
 	typedef std::vector<LongObject*> TLongObjects;
 	typedef std::vector<StringObject*> TStringObjects;
 	TClassDefs classes_;
+	TEnumDefs enums_;
 	TMethods methods_;
 	TObjects objects_;
 	TLongObjects longObjects_;
