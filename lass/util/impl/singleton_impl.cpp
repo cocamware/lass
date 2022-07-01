@@ -96,27 +96,39 @@ class SingletonGuard
 public:
 	void subscribe(SingletonBase* singleton)
 	{
-		LASS_LOCK_INTEGRAL(lock_)
+		static std::atomic<int> semaphore{ 1 };
+		LASS_LOCK_INTEGRAL(semaphore)
 		{
 			deathRow_.push(singleton);
 		}
 	}
 	static SingletonGuard* instance()
 	{
-		LASS_LOCK_INTEGRAL(lock_)
+		static std::atomic<SingletonGuard*> neo{ nullptr };
+		static std::atomic<int> semaphore{ 1 };
+
+		if (deadReference(false))
 		{
-			if (isDeadReference_)
+			std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Usage of dead reference to SingletonGuard!" << std::endl;
+			return 0;
+		}
+
+		SingletonGuard* one = neo.load(std::memory_order_acquire);
+		if (!one)
+		{
+			LASS_LOCK_INTEGRAL(semaphore)
 			{
-				std::cerr << "[LASS RUN MSG] UNDEFINED BEHAVIOUR: Usage of dead reference to SingletonGuard!" << std::endl;
-				return 0;
-			}
-			if (!instance_)
-			{
-				instance_ = new SingletonGuard;
-				::atexit(&SingletonGuard::killEmAll);
+				one = neo.load(std::memory_order_relaxed);
+				if (!one)
+				{
+					one = new SingletonGuard;
+					::atexit(&SingletonGuard::killEmAll);
+					neo.store(one, std::memory_order_release);
+				}
 			}
 		}
-		return instance_;
+		LASS_ASSERT(one);
+		return one;
 	}
 
 private:
@@ -127,6 +139,7 @@ private:
 	}
 	~SingletonGuard()
 	{
+		deadReference(true);
 		while (!deathRow_.empty())
 		{
 			SingletonBase* deadManWalking = deathRow_.top();
@@ -137,23 +150,25 @@ private:
 	static void killEmAll()
 	{
 		// this should be called only once from ::atexit.
-		LASS_ASSERT(!isDeadReference_);
-		isDeadReference_ = true;
-		delete instance_;
-		instance_ = 0;
+		LASS_ASSERT(!deadReference(false));
+		delete instance();
+	}
+	static bool deadReference(bool setReferenceToDead)
+	{
+		static std::atomic<int> dead{ false };
+		if (setReferenceToDead)
+		{
+			dead.store(true, std::memory_order_release);
+			return true;
+		}
+		else
+		{
+			return dead.load(std::memory_order_acquire);
+		}
 	}
 
 	TDeathRow deathRow_;
-	static SingletonGuard* instance_;
-	static bool isDeadReference_;
-	static int lock_;	
 };
-
-SingletonGuard* SingletonGuard::instance_ = 0;
-bool SingletonGuard::isDeadReference_ = false;
-int SingletonGuard::lock_ = 1;
-
-
 
 
 

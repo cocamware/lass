@@ -109,7 +109,6 @@
 
 #include "util_common.h"
 #include "impl/singleton_impl.h"
-#include <atomic>
 
 namespace lass
 {
@@ -154,9 +153,7 @@ public:
 
 private:
 
-	static std::atomic<TSelf*> neo_;
-	static std::atomic<int> semaphore_;
-	static std::atomic<bool> deadReference_;
+    static bool deadReference(bool setReferenceToDead = false);
 
 	std::unique_ptr<TInstance> instance_;
 };
