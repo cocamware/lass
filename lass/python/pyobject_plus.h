@@ -126,7 +126,7 @@ namespace lass
 		 *	}
 		 *	@endcode
 		 */
-		template <typename EnumType, typename IntegerType = long>
+		template <typename EnumType, typename IntegerType = std::underlying_type_t<EnumType>>
 		struct PyExportTraitsEnum
 		{
 			static PyObject* build(const EnumType iv) 
