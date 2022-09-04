@@ -48,6 +48,7 @@
 #include "exception.h"
 #include "pyobject_ptr.h"
 #include "../num/num_cast.h"
+#include <chrono>
 #if __cpp_lib_filesystem
 #	include <filesystem>
 #endif
@@ -686,6 +687,42 @@ struct PyExportTraits<std::u32string>
 {
 	LASS_PYTHON_DLL static PyObject* build(const std::u32string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u32string& v);
+};
+
+
+/** @ingroup Python
+ * 
+ *  std::chrono::system_clock::duration is mapped on a datetime.timedelta 
+ *  instance by copy.
+ */
+template <>
+struct PyExportTraits<std::chrono::system_clock::duration>
+{
+	using TClock = std::chrono::system_clock;
+	using TDuration = TClock::duration;
+	LASS_PYTHON_DLL static PyObject* build(TDuration v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, TDuration& v);
+};
+
+
+/** @ingroup Python
+ * 
+ *  std::chrono::time_point<std::chrono::system_clock> is mapped on a
+ *  timezone-unaware datetime.datetime instance by copy, in local time.
+ * 
+ *  datetime.date instances at midnight local time will also be interpreted as
+ *  time_point objects.
+ * 
+ *  datetime.datetime instances with a timezone will raise a ValueError.
+ */
+template <>
+struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
+{
+	using TClock = std::chrono::system_clock;
+	using TDuration = TClock::duration;
+	using TTimePoint = std::chrono::time_point<TClock>;
+	LASS_PYTHON_DLL static PyObject* build(const TTimePoint& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, TTimePoint& v);
 };
 
 

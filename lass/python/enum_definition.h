@@ -48,6 +48,8 @@
 #include "../num/num_traits.h"
 #include "../stde/vector_map.h"
 
+#include <unordered_map>
+
 namespace lass
 {
 	namespace python
