@@ -111,37 +111,55 @@ public:
 	explicit vector_map(const key_compare& key_comp = key_compare(), const allocator_type& allocator = Allocator());
 	template <typename InputIterator>
 	vector_map(InputIterator first, InputIterator last, 
-			const key_compare& key_comp, const allocator_type& allocator = Allocator());
+		const key_compare& key_comp = key_compare(), const allocator_type& allocator = Allocator());
 	vector_map(const vector_map<Key, T, Compare, Allocator>& other);
+	vector_map(vector_map<Key, T, Compare, Allocator>&& other) noexcept;
+	vector_map(std::initializer_list<value_type> init,
+		const key_compare& key_comp = key_compare(), const allocator_type& allocator = Allocator());
 	~vector_map();
 
-	vector_map<Key, T, Compare, Allocator>& operator=(
-			const vector_map<Key, T, Compare, Allocator>& other);
+	vector_map<Key, T, Compare, Allocator>& operator=(const vector_map<Key, T, Compare, Allocator>& other);
+	vector_map<Key, T, Compare, Allocator>& operator=(vector_map<Key, T, Compare, Allocator>&& other) noexcept;
 
-	iterator begin();
-	const_iterator begin() const;
-	iterator end();
-	const_iterator end() const;
-	reverse_iterator rbegin();
-	const_reverse_iterator rbegin() const;
-	reverse_iterator rend();
-	const_reverse_iterator rend() const;
+	iterator begin() noexcept;
+	const_iterator begin() const noexcept;
+	const_iterator cbegin() const noexcept;
+	iterator end() noexcept;
+	const_iterator end() const noexcept;
+	const_iterator cend() const noexcept;
+	reverse_iterator rbegin() noexcept;
+	const_reverse_iterator rbegin() const noexcept;
+	const_reverse_iterator crbegin() const noexcept;
+	reverse_iterator rend() noexcept;
+	const_reverse_iterator rend() const noexcept;
+	const_reverse_iterator crend() const noexcept;
 
-	bool empty() const;
-	size_type size() const;
-	size_type max_size() const;
+	bool empty() const noexcept;
+	size_type size() const noexcept;
+	size_type max_size() const noexcept;
 
+	mapped_type& at(const key_type& key);
+	const mapped_type& at(const key_type& key) const;
 	mapped_type& operator[](const key_type& x);
+	mapped_type& operator[](key_type&& x);
 
 	std::pair<iterator, bool> insert(const value_type& x);
-	iterator insert(iterator position, const value_type& x);
+	std::pair<iterator, bool> insert(value_type&& value);
+	iterator insert(const_iterator hint, const value_type& x);
 	template <typename InputIterator> void insert(InputIterator first, InputIterator last);
 
-	void erase(iterator position);
+	template<typename... Args> std::pair<iterator, bool> emplace(Args&&... args);
+	template<typename... Args> iterator emplace_hint(const_iterator hint, Args&&... args);
+	template<typename... Args> std::pair<iterator, bool> try_emplace(const key_type& key, Args&&... args);
+	template<typename... Args> std::pair<iterator, bool> try_emplace(key_type&& key, Args&&... args);
+	template<typename... Args> iterator try_emplace(const_iterator hint, const key_type& key, Args&&... args);
+	template<typename... Args> iterator try_emplace(const_iterator hint, key_type&& key, Args&&... args);
+
+	void erase(const_iterator position);
 	size_type erase(const key_type& x);
-	void erase(iterator first, iterator last);
-	void swap(vector_map<Key, T, Compare, Allocator>& other);
-	void clear();
+	void erase(const_iterator first, const_iterator last);
+	void swap(vector_map<Key, T, Compare, Allocator>& other) noexcept;
+	void clear() noexcept;
 
 	key_compare key_comp() const;
 	value_compare value_comp() const;
@@ -149,6 +167,7 @@ public:
 	iterator find(const key_type& x);
 	const_iterator find(const key_type& x) const;
 	size_type count(const key_type& x) const;
+	bool contains(const Key& key) const;
 
 	iterator lower_bound(const key_type& x);
 	const_iterator lower_bound(const key_type& x) const;
@@ -159,6 +178,8 @@ public:
 	std::pair<const_iterator, const_iterator> equal_range(const key_type& x) const;
 
 private:
+
+	bool is_insert_position(const_iterator hint, const key_type& x) const;
 
 	vector_type data_;
 	key_compare key_comp_;
@@ -204,7 +225,7 @@ namespace std
 {
 
 template <typename K, typename T, typename C, typename A>
-void swap(lass::stde::vector_map<K, T, C, A>& a, lass::stde::vector_map<K, T, C, A>& b);
+void swap(lass::stde::vector_map<K, T, C, A>& a, lass::stde::vector_map<K, T, C, A>& b) noexcept;
 
 }
 
