@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -386,7 +386,7 @@
  *  @param t_return
  *      the return type of @a f_cppFunction
  *  @param t_params
- *      a lass::meta::TypeList of the parameter types of @a f_cppFunction
+ *      a lass::meta::TypeTuple of the parameter types of @a f_cppFunction
  *  @param s_functionName
  *      the name the method will have in Python
  *  @param s_doc
@@ -479,7 +479,7 @@ $[
  *  @param t_return
  *      the return type of @a f_cppFunction
  *  @param t_params
- *      a lass::meta::TypeList of the parameter types of @a f_cppFunction
+ *      a lass::meta::TypeTuple of the parameter types of @a f_cppFunction
  *  @param s_functionName
  *      the name the method will have in Python
  *  @param s_doc
@@ -496,8 +496,8 @@ $[
  *	void bar(int a);
  *  void bar(const std::string& b);
  *
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::type_list::Make<const std::string&>::Type, "bar", 0, foo_bar_b)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<int>, "bar", 0, foo_bar_a)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<const std::string&>, "bar", 0, foo_bar_b)
  *  @endcode
  */
 
@@ -521,7 +521,7 @@ $[
 			t_return,\
 			t_params\
 		>\
-		::TImpl::callFunction(iArgs, &f_cppFunction);\
+		::callFunction(iArgs, &f_cppFunction);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
@@ -536,13 +536,13 @@ $[
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_0( i_module, f_cppFunction, t_return, s_functionName, s_doc, i_dispatcher )\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
-		i_module, f_cppFunction, t_return, ::lass::meta::NullType, s_functionName, s_doc, i_dispatcher )
+		i_module, f_cppFunction, t_return, ::lass::meta::TypeTuple<>, s_functionName, s_doc, i_dispatcher )
 $[
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
-	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
+	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
 		i_module, f_cppFunction, t_return,\
@@ -954,7 +954,7 @@ $[
  *  @param t_return
  *      the return type of @a i_cppMethod
  *  @param t_params
- *      a lass::meta::TypeList of the parameter types of @a i_cppMethod
+ *      a lass::meta::TypeTuple of the parameter types of @a i_cppMethod
  *  @param s_methodName
  *      the name the method will have in Python
  *  @param s_doc
@@ -983,14 +983,14 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
- *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<const std::string&>::Type, "bar", 0, foo_bar_b)
+ *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::TypeTuple<int>, "bar", 0, foo_bar_a)
+ *  PY_CLASS_METHOD_QUALIFIED_EX(Foo, bar, void, meta::TypeTuple<const std::string&>, "bar", 0, foo_bar_b)
  *  @endcode
  */
 /*
 #define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	PY_CLASS_METHOD_IMPL(t_cppClass, &TCppClass::i_cppMethod, s_methodName, s_doc, i_dispatcher,\
-		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
+		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::callMethod))
 /*/
 #define PY_CLASS_METHOD_QUALIFIED_EX(t_cppClass, i_cppMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
@@ -1004,7 +1004,7 @@ $[
 		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
 		typedef TShadowTraits::TCppClass TCppClass;\
-		return ::lass::python::impl::ExplicitResolver<TShadowTraits,t_return,t_params>::TImpl::callMethod(\
+		return ::lass::python::impl::ExplicitResolver<TShadowTraits,t_return,t_params>::callMethod(\
 			iArgs, iObject, &TCppClass::i_cppMethod); \
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -1021,14 +1021,14 @@ $[
  */
 #define PY_CLASS_METHOD_QUALIFIED_EX_0( t_cppClass, i_cppMethod, t_return, s_methodName, s_doc, i_dispatcher )\
 	PY_CLASS_METHOD_QUALIFIED_EX(\
-		t_cppClass, i_cppMethod, t_return, ::lass::meta::NullType, s_methodName, s_doc, i_dispatcher )
+		t_cppClass, i_cppMethod, t_return, ::lass::meta::TypeTuple<>, s_methodName, s_doc, i_dispatcher )
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_METHOD_QUALIFIED_EX
  *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_CLASS_METHOD_QUALIFIED_EX_$x( t_cppClass, i_cppMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher )\
-	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
+	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_CLASS_METHOD_QUALIFIED_EX(\
 		t_cppClass, i_cppMethod, t_return,\
@@ -1244,7 +1244,7 @@ $[
  *  @param t_return
  *      the return type of @a i_cppFreeMethod
  *  @param t_params
- *      a lass::meta::TypeList of the parameter types of @a i_cppFreeMethod
+ *      a lass::meta::TypeTuple of the parameter types of @a i_cppFreeMethod
  *  @param s_methodName
  *      the name the method will have in Python
  *  @param s_doc
@@ -1275,14 +1275,14 @@ $[
 
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<int>::Type, "bar", 0, foo_bar_a)
- *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::type_list::Make<const std::string&>::Type), "bar", 0, foo_bar_b)
+ *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::TypeTuple<int>, "bar", 0, foo_bar_a)
+ *  PY_CLASS_FREE_METHOD_QUALIFIED_EX(Foo, bar, void, meta::TypeTuple<const std::string&>), "bar", 0, foo_bar_b)
  *  @endcode
  */
 /*
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX(t_cppClass, i_cppFreeMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	PY_CLASS_FREE_METHOD_IMPL(t_cppClass, &TCppClass::i_cppFreeMethod, s_methodName, s_doc, i_dispatcher,\
-		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::TImpl::callMethod))
+		(&::lass::python::impl::ExplicitResolver<TCppClass,t_return,t_params>::callMethod))
 /*/
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX(t_cppClass, i_cppFreeMethod, t_return, t_params, s_methodName, s_doc, i_dispatcher)\
 	static ::lass::python::impl::OverloadLink LASS_CONCATENATE(i_dispatcher, _overloadChain);\
@@ -1295,7 +1295,7 @@ $[
 		}\
 		LASS_ASSERT(result == 0);\
 		typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
-		return ::lass::python::impl::ExplicitResolver<TShadowTraits,t_return,t_params>::TImpl::callFreeMethod(\
+		return ::lass::python::impl::ExplicitResolver<TShadowTraits,t_return,t_params>::callFreeMethod(\
 			iArgs, iObject, i_cppFreeMethod); \
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -1312,14 +1312,14 @@ $[
  */
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX_0( t_cppClass, i_cppFreeMethod, t_return, s_methodName, s_doc, i_dispatcher )\
 	PY_CLASS_FREE_METHOD_QUALIFIED_EX(\
-		t_cppClass, i_cppFreeMethod, t_return, ::lass::meta::NullType, s_methodName, s_doc, i_dispatcher )
+		t_cppClass, i_cppFreeMethod, t_return, ::lass::meta::TypeTuple<>, s_methodName, s_doc, i_dispatcher )
 $[
 /** @ingroup Python
  *  @sa PY_CLASS_FREE_METHOD_QUALIFIED_EX
  *  convenience macro, wraps PY_CLASS_FREE_METHOD_QUALIFIED_EX for $x arguments
  */
 #define PY_CLASS_FREE_METHOD_QUALIFIED_EX_$x( t_cppClass, i_cppFreeMethod, t_return, $(t_P$x)$, s_methodName, s_doc, i_dispatcher )\
-	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type\
+	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
 		LASS_UNIQUENAME(LASS_CONCATENATE(i_dispatcher, _TParams));\
 	PY_CLASS_FREE_METHOD_QUALIFIED_EX(\
 		t_cppClass, i_cppFreeMethod, t_return,\
@@ -1451,7 +1451,7 @@ $[
  *  @param t_return
  *      the return type of @a i_cppMethod
  *  @param t_params
- *      a lass::meta::TypeList of the parameter types of @a i_cppMethod
+ *      a lass::meta::TypeTuple of the parameter types of @a i_cppMethod
  *  @param s_methodName
  *      the name the method will have in Python
  *  @param s_doc
@@ -2269,8 +2269,8 @@ $[
  *  @param t_cppClass
  *      the C++ class to generate the constructor
  *  @param t_params
- *      a meta::TypeList of the parameters needed by the constructor.
- *      Use meta::NullType if the constructor doesn't take any parameters.
+ *      a meta::TypeTuple of the parameters needed by the constructor.
+ *      Use meta::TypeTuple<> if the constructor doesn't take any parameters.
  *  @param i_dispatcher
  *      A unique name of the static C++ dispatcher function to be generated.  This name will be
  *      used for the names of automatic generated variables and functions and should be unique
@@ -2288,8 +2288,8 @@ $[
  *
  *  // foo.cpp
  *  PY_DECLARE_CLASS(Foo)
- *   TRUCTOR(Foo, meta::NullType) // constructor without arguments.
- *  typedef meta::type_list::Make<int, std::string>::Type TArguments;
+ *  PY_CLASS_CONSTRUCTOR(Foo, meta::TypeTuple<>) // constructor without arguments.
+ *  typedef meta::TypeTuple<int, std::string> TArguments;
  *  PY_CLASS_CONSTRUCTOR(Foo, TArguments) // constructor with some arguments. *
  *  @endcode
  */
@@ -2314,7 +2314,7 @@ $[
 			::lass::meta::NullType,\
 			t_params\
 		>\
-		::TImpl::callConstructor(iSubtype, iArgs);\
+		::callConstructor(iSubtype, iArgs);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX(\
 		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
@@ -2334,13 +2334,13 @@ $[
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments
  */
 #define PY_CLASS_CONSTRUCTOR_0( t_cppClass )\
-	PY_CLASS_CONSTRUCTOR( t_cppClass, ::lass::meta::NullType )
+	PY_CLASS_CONSTRUCTOR( t_cppClass, ::lass::meta::TypeTuple<> )
 $[
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
  */
 #define PY_CLASS_CONSTRUCTOR_$x( t_cppClass, $(t_P$x)$ )\
-	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
+	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass));\
 	PY_CLASS_CONSTRUCTOR(\
 		t_cppClass, LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass)))
@@ -2415,13 +2415,13 @@ $[
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for 0 arguments
  */
 #define PY_CLASS_FREE_CONSTRUCTOR_0( t_cppClass, f_cppFunction)\
-	PY_CLASS_FREE_CONSTRUCTOR( t_cppClass, f_cppFunction, ::lass::meta::NullType )
+	PY_CLASS_FREE_CONSTRUCTOR( t_cppClass, f_cppFunction, ::lass::meta::TypeTuple<> )
 $[
 /** @ingroup Python
  *  convenience macro, wraps PY_CLASS_CONSTRUCTOR for $x arguments
  */
 #define PY_CLASS_FREE_CONSTRUCTOR_$x( t_cppClass, f_cppFunction, $(t_P$x)$ )\
-	typedef ::lass::meta::type_list::Make< $(t_P$x)$ >::Type \
+	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass));\
 	PY_CLASS_FREE_CONSTRUCTOR(\
 		t_cppClass, f_cppFunction, LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_TParams_, t_cppClass)))

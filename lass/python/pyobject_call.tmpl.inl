@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,6 +55,7 @@
 #include "../meta/select.h"
 #include "../meta/wrap.h"
 #include "../meta/type_list.h"
+#include "../meta/type_tuple.h"
 #include "../meta/is_const.h"
 
 
@@ -95,18 +96,17 @@ struct Caller
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	};
-	$[
-	template <typename Function, $(typename P$x)$>
-	static PyObject* callFunction( Function function, $(P$x p$x)$ )
+
+	template <typename Function, typename... P>
+	static PyObject* callFunction(Function function, P&&... p)
 	{
 		try
 		{
 			UnblockThreads LASS_UNUSED(unlock);
-			return pyBuildSimpleObject( function($(p$x)$) );
+			return pyBuildSimpleObject(function(std::forward<P>(p)...));
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
-	]$
 
 	// method
 
@@ -120,18 +120,17 @@ struct Caller
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	};
-	$[
-	template <typename CppClassRef, typename Method, $(typename P$x)$>
-	static PyObject* callMethod( CppClassRef object, Method method, $(P$x p$x)$ )
+
+	template <typename CppClassRef, typename Method, typename... P>
+	static PyObject* callMethod(CppClassRef object, Method method, P&&... p)
 	{
 		try
 		{
 			UnblockThreads LASS_UNUSED(unlock);
-			return pyBuildSimpleObject( (object.*method)($(p$x)$) );
+			return pyBuildSimpleObject((object.*method)(std::forward<P>(p)...));
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 	}
-	]$
 };
 
 /** specialisation for functions without return value, calls function and returns Py_None.
@@ -152,19 +151,18 @@ struct Caller<void>
 		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	};
-	$[
-	template <typename Function, $(typename P$x)$>
-	static PyObject* callFunction( Function function, $(P$x p$x)$ )
+
+	template <typename Function, typename... P>
+	static PyObject* callFunction(Function function, P&&... p)
 	{
 		try
 		{
 			UnblockThreads LASS_UNUSED(unlock);
-			function($(p$x)$);
+			function(std::forward<P>(p)...);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
-		Py_RETURN_NONE;
+			Py_RETURN_NONE;
 	}
-	]$
 
 	// methods
 
@@ -179,19 +177,18 @@ struct Caller<void>
 		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	};
-	$[
-	template <typename CppClassRef, typename Method, $(typename P$x)$>
-	static PyObject* callMethod( CppClassRef object, Method method, $(P$x p$x)$ )
+
+	template <typename CppClassRef, typename Method, typename... P>
+	static PyObject* callMethod( CppClassRef object, Method method, P&&... p)
 	{
 		try
 		{
 			UnblockThreads LASS_UNUSED(unlock);
-			(object.*method)($(p$x)$);
+			(object.*method)(std::forward<P>(p)...);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
 		Py_RETURN_NONE;
 	}
-	]$
 };
 
 
@@ -223,7 +220,7 @@ PyObject* callFunction( PyObject* args, R (*function)($(P$x)$) )
 	{
 		return 0;
 	}
-	return Caller<R>::template callFunction<TFunction, $(P$x)$>( 
+	return Caller<R>::template callFunction<TFunction>(
 		function, $(TArg$x::arg(p$x))$ );
 }
 ]$
@@ -270,7 +267,7 @@ $[
 		{
 			return 0;
 		}
-		PyObject* result = Caller<R>::template callMethod<TCppClass&, TMethod, $(P$x)$>( 
+		PyObject* result = Caller<R>::template callMethod<TCppClass&, TMethod>(
 			*self, method, $(TArg$x::arg(p$x))$ );
 		return establishMagicalBackLinks(result, object);
 	}
@@ -311,7 +308,7 @@ $[
 		{
 			return 0;
 		}
-		PyObject* result = Caller<R>::template callMethod<const TCppClass&, TMethod, $(P$x)$>(
+		PyObject* result = Caller<R>::template callMethod<const TCppClass&, TMethod>(
 			*self, method, $(TArg$x::arg(p$x))$ );
 		return establishMagicalBackLinks(result, object);
 	}
@@ -329,7 +326,7 @@ $[
 		{
 			return 0;
 		}
-		PyObject* result = Caller<R>::template callFunction<TFunction, P0>(
+		PyObject* result = Caller<R>::template callFunction<TFunction>(
 			freeMethod, TArg0::arg(p0) );
 		return establishMagicalBackLinks(result, object);
 	}
@@ -347,7 +344,7 @@ $[
 		{
 			return 0;
 		}
-		PyObject* result = Caller<R>::template callFunction<TFunction, P0, $(P$x)$>(
+		PyObject* result = Caller<R>::template callFunction<TFunction>(
 			freeMethod, TArg0::arg(p0), $(TArg$x::arg(p$x))$ );
 		return establishMagicalBackLinks(result, object);
 	}
@@ -553,83 +550,52 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 
 // --- explicit resolver ---------------------------------------------------------------------------
 
-// This explicit resolver construct is a wicked meta function that will call the write
-// template function based on template parameters in TypeListType.
-
-template <typename ShadowTraits, typename R, typename TypeListType> struct ExplicitResolver;
-$[template <typename ShadowTraits, typename R, $(typename P$x)$, typename TypeListType> struct ExplicitResolver$x;
-]$
-template <typename ShadowTraits, typename R, $(typename P$x)$, typename P$y, typename TypeListType> struct ExplicitResolver$y;
-
-
-template <typename ShadowTraits, typename R>
-struct ExplicitResolver<ShadowTraits, R, lass::meta::NullType>
+template <typename ShadowTraits, typename R, typename... P>
+struct ExplicitResolver
 {
-	struct Impl
+	static PyObject* callFunction(PyObject* args, R(*iFunction)(P...))
 	{
-		static PyObject* callFunction( PyObject* args, R (*iFunction)() )
-		{
-			return ::lass::python::impl::callFunction<R>( args, iFunction );
-		}
-		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)() )
-		{
-			return CallMethod<ShadowTraits>::call( args, object, method );
-		}
-		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)() const )
-		{
-			return CallMethod<ShadowTraits>::call( args, object, method );
-		}
-		static PyObject* callConstructor( PyTypeObject* subType, PyObject* args )
-		{
-			return construct<ShadowTraits>( subType, args );
-		}
-	};
-	typedef Impl TImpl;
-};
-$[
-template <typename ShadowTraits, typename R, $(typename P$x)$>
-struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, lass::meta::NullType>
-{
-	struct Impl
+		return ::lass::python::impl::callFunction<R, P...>(args, iFunction);
+	}
+	template <typename C> static PyObject* callMethod(PyObject* args, PyObject* object, R(C::* method)(P...))
 	{
-		static PyObject* callFunction( PyObject* args, R (*iFunction)($(P$x)$) )
-		{
-			return ::lass::python::impl::callFunction<R, $(P$x)$>( args, iFunction );
-		}
-		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) )
-		{
-			return CallMethod<ShadowTraits>::call( args, object, method );
-		}
-		template <typename C> static PyObject* callMethod( PyObject* args, PyObject* object, R (C::*method)($(P$x)$) const )
-		{
-			return CallMethod<ShadowTraits>::call( args, object, method );
-		}
-		static PyObject* callFreeMethod( PyObject* args, PyObject* object, R (*freeMethod)($(P$x)$) )
-		{
-			return CallMethod<ShadowTraits>::callFree( args, object, freeMethod );
-		}
-		static PyObject* callConstructor( PyTypeObject* subType, PyObject* args )
-		{
-			return construct<ShadowTraits, $(P$x)$>( subType, args );
-		}
-	};
-	typedef Impl TImpl;
+		return CallMethod<ShadowTraits>::call(args, object, method);
+	}
+	template <typename C> static PyObject* callMethod(PyObject* args, PyObject* object, R(C::* method)(P...) const)
+	{
+		return CallMethod<ShadowTraits>::call(args, object, method);
+	}
+	static PyObject* callFreeMethod(PyObject* args, PyObject* object, R(*freeMethod)(P...))
+	{
+		return CallMethod<ShadowTraits>::callFree(args, object, freeMethod);
+	}
+	static PyObject* callConstructor(PyTypeObject* subType, PyObject* args)
+	{
+		return construct<ShadowTraits, P...>(subType, args);
+	}
 };
-]$
 
-template <typename ShadowTraits, typename R, typename Head, typename Tail>
-struct ExplicitResolver<ShadowTraits, R, meta::TypeList<Head, Tail> >
+// unwrap TypeTuple
+template <typename ShadowTraits, typename R, typename... P>
+struct ExplicitResolver<ShadowTraits, R, lass::meta::TypeTuple<P...>>:
+	public ExplicitResolver<ShadowTraits, R, P...>
 {
-	typedef typename ExplicitResolver1<ShadowTraits, R, Head, Tail>::TImpl TImpl;
 };
-$[
-template <typename ShadowTraits, typename R, $(typename P$x)$, typename Head, typename Tail>
-struct ExplicitResolver$x<ShadowTraits, R, $(P$x)$, meta::TypeList<Head, Tail> >
-{
-	typedef typename ExplicitResolver$y<ShadowTraits, R, $(P$x)$, Head, Tail>::TImpl TImpl;
-};
-]$
 
+// unwrap TypeList element per element
+// current Head always comes behind already unwrapped elements
+template <typename ShadowTraits, typename R, typename Head, typename Tail, typename... P>
+struct ExplicitResolver<ShadowTraits, R, lass::meta::TypeList<Head, Tail>, P...> :
+	public ExplicitResolver<ShadowTraits, R, Tail, P..., Head>
+{
+};
+
+// unwrap NullType as an empty TypeList
+template <typename ShadowTraits, typename R, typename... P>
+struct ExplicitResolver<ShadowTraits, R, lass::meta::NullType, P...>:
+	public ExplicitResolver<ShadowTraits, R, P...>
+{
+};
 
 }
 
