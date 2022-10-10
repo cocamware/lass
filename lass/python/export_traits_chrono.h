@@ -51,18 +51,51 @@ namespace lass
 namespace python
 {
 
+namespace impl
+{
+	LASS_PYTHON_DLL PyObject* buildTimedelta(int days, int secs, int usecs);
+	LASS_PYTHON_DLL int getTimedelta(PyObject* obj, int &days, int &secs, int &usecs);
+}
+
 /** @ingroup Python
  *
- *  std::chrono::system_clock::duration is mapped on a datetime.timedelta
- *  instance by copy.
+ *  std::chrono::duration is mapped on datetime.timedelta by copy.
  */
-template <>
-struct PyExportTraits<std::chrono::system_clock::duration>
+template <typename Rep, typename Period>
+struct PyExportTraits<std::chrono::duration<Rep, Period>>
 {
-	using TClock = std::chrono::system_clock;
-	using TDuration = TClock::duration;
-	LASS_PYTHON_DLL static PyObject* build(TDuration v);
-	LASS_PYTHON_DLL static int get(PyObject* obj, TDuration& v);
+	using TDuration = std::chrono::duration<Rep, Period>;
+
+	static PyObject* build(TDuration v)
+	{
+		using namespace std::chrono;
+		using TDays = duration<int, std::ratio<86400>>;
+		using TSeconds = duration<int>;
+		using TMicroSeconds = duration<num::Tint64, std::micro>;
+
+		TMicroSeconds usecs = duration_cast<TMicroSeconds>(v);
+		const TDays days = duration_cast<TDays>(usecs);
+		usecs -= days;
+		const TSeconds secs = duration_cast<TSeconds>(usecs);
+		usecs -= secs;
+
+		return impl::buildTimedelta(days.count(), secs.count(), static_cast<int>(usecs.count()));
+	}
+	static int get(PyObject* obj, TDuration& v)
+	{
+		using namespace std::chrono;
+		using TDays = duration<int, std::ratio<86400>>;
+
+		int days, secs, usecs;
+		if (impl::getTimedelta(obj, days, secs, usecs) != 0)
+		{
+			return 1;
+		}
+		v = duration_cast<TDuration>(TDays(days)) +
+			duration_cast<TDuration>(seconds(secs)) +
+			duration_cast<TDuration>(microseconds(usecs));
+		return 0;
+	}
 };
 
 

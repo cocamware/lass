@@ -51,35 +51,19 @@ namespace lass
 namespace python
 {
 
-PyObject* PyExportTraits<std::chrono::system_clock::duration>::build(TDuration v)
+namespace impl
 {
-	using namespace std::chrono;
-	using namespace std::chrono_literals;
 
+PyObject* buildTimedelta(int days, int secs, int usecs)
+{
 	if (!PyDateTimeAPI)
 	{
 		PyDateTime_IMPORT;
 	}
-
-	// normally, we would just duraction_cast this to std::chrono::microseconds and be done with it
-	// but PyDelta_FromDSU accepts ints, not long longs...
-
-	using TDays = duration<int, std::ratio<86400>>;
-	using TSeconds = duration<int>;
-	using TMicroSeconds = duration<int, std::micro>;
-
-	const TDays days = duration_cast<TDays>(v);
-	v -= days;
-	const TSeconds secs = duration_cast<TSeconds>(v);
-	v -= secs;
-	const TMicroSeconds uSecs = duration_cast<TMicroSeconds>(v);
-
-	return PyDelta_FromDSU(days.count(), secs.count(), uSecs.count());
+	return PyDelta_FromDSU(days, secs, usecs);
 }
 
-
-
-int PyExportTraits<std::chrono::system_clock::duration>::get(PyObject* obj, TDuration& v)
+int getTimedelta(PyObject* obj, int &days, int &secs, int &usecs)
 {
 	if (!PyDateTimeAPI)
 	{
@@ -90,16 +74,12 @@ int PyExportTraits<std::chrono::system_clock::duration>::get(PyObject* obj, TDur
 		PyErr_SetString(PyExc_TypeError, "not a datetime.timedelta");
 		return 1;
 	}
-
-	using TDays = std::chrono::duration<int, std::ratio<86400>>;
-	using TSeconds = std::chrono::seconds;
-	using TMicroSeconds = std::chrono::microseconds;
-
-	const int days = PyDateTime_DELTA_GET_DAYS(obj);
-	const int secs = PyDateTime_DELTA_GET_SECONDS(obj);
-	const int uSecs = PyDateTime_DELTA_GET_MICROSECONDS(obj);
-	v = TDays(days) + TSeconds(secs) + TMicroSeconds(uSecs);
+	days = PyDateTime_DELTA_GET_DAYS(obj);
+	secs = PyDateTime_DELTA_GET_SECONDS(obj);
+	usecs = PyDateTime_DELTA_GET_MICROSECONDS(obj);
 	return 0;
+}
+
 }
 
 

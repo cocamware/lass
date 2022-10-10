@@ -90,6 +90,9 @@ void testPythonExportTraitsChronoDuration()
 	using namespace std::chrono_literals;
 	using namespace lass::python;
 
+	// one microfortnight is 14e-6 days.
+	using microfortnights = std::chrono::duration<double, std::ratio<14 * 86400, 1'000'000>>;
+
 	initPythonEmbedding();
 	LockGIL LASS_UNUSED(lock);
 
@@ -113,6 +116,19 @@ void testPythonExportTraitsChronoDuration()
 	}
 
 	{
+		microfortnights d{};
+		TPyObjPtr obj{ pyBuildSimpleObject(d) };
+		LASS_TEST_CHECK(PyDelta_Check(obj.get()));
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_DAYS(obj.get()), 0);
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 0);
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 0);
+
+		microfortnights d2;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
+		LASS_TEST_CHECK_EQUAL(d, d2);
+	}
+
+	{
 		using duration = std::chrono::system_clock::duration;
 		duration d = 100h + 20min + 30s + 4567ms + 89us;
 		TPyObjPtr obj{ pyBuildSimpleObject(d) };
@@ -122,6 +138,19 @@ void testPythonExportTraitsChronoDuration()
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 567089); // (4567%1000)*1000 + 89
 
 		duration d2;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
+		LASS_TEST_CHECK_EQUAL(d, d2);
+	}
+
+	{
+		microfortnights d{ 123456.78 }; // 1 microfortnights = 14e-6 days
+		TPyObjPtr obj{ pyBuildSimpleObject(d) };
+		LASS_TEST_CHECK(PyDelta_Check(obj.get()));
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_DAYS(obj.get()), 1);
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 62933);
+		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 321088);
+
+		microfortnights d2;
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
 		LASS_TEST_CHECK_EQUAL(d, d2);
 	}
