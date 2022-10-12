@@ -215,5 +215,143 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 	return 0;
 }
 
+
+
+#ifdef LASS_HAVE_STD_CHRONO_CPP20
+
+PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::chrono::utc_clock::time_point& v)
+{
+	using namespace std::chrono_literals;
+
+	if (!PyDateTimeAPI)
+	{
+		PyDateTime_IMPORT;
+	}
+
+	using TMicroSeconds = std::chrono::duration<int, std::micro>;
+
+	const auto sysTime = std::chrono::utc_clock::to_sys(v);
+	const TMicroSeconds uSec = std::chrono::duration_cast<TMicroSeconds>(sysTime.time_since_epoch() % 1s);
+	const std::time_t time = std::chrono::system_clock::to_time_t(sysTime - uSec);
+
+	std::tm local;
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+	const errno_t err = gmtime_s(&local, &time);
+#else
+	util::impl::lass_reset_errno();
+	gmtime_r(&time, &local);
+	const int err = util::impl::lass_errno();
+#endif
+	if (err)
+	{
+		PyErr_SetString(PyExc_ValueError, util::impl::lass_strerror(err).c_str());
+		return nullptr;
+	}
+
+#if PY_VERSION_HEX >= 0x03070000 // >= 3.7
+	PyObject* tz = PyDateTime_TimeZone_UTC;
+#else
+	static TPyObjPtr timezoneUTC;
+	if (!tz)
+	{
+		TPyObjPtr datetimeMod(PyImport_ImportModule("datetime"));
+		TPyObjPtr timezoneClass(PyObject_GetAttrString(datetimeMod.get(), "timezone"));
+		timezoneUTC.reset(PyObject_GetAttrString(timezoneClass.get(), "utc"));
+	}
+	PyObject* tz = timezoneUTC.get();
+#endif
+
+	return PyDateTimeAPI->DateTime_FromDateAndTime(
+		1900 + local.tm_year,
+		1 + local.tm_mon,
+		local.tm_mday,
+		local.tm_hour,
+		local.tm_min,
+		local.tm_sec,
+		uSec.count(),
+		tz,
+		PyDateTimeAPI->DateTimeType
+	);
+}
+
+
+
+int PyExportTraits<std::chrono::utc_clock::time_point>::get(PyObject* obj, std::chrono::utc_clock::time_point& v)
+{
+	std::chrono::system_clock::time_point sysTime;
+	if (PyExportTraits<std::chrono::system_clock::time_point>::get(obj, sysTime) != 0)
+	{
+		return 1;
+	}
+	v = std::chrono::utc_clock::from_sys(sysTime);
+	return 0;
+}
+
+
+
+PyObject* PyExportTraits<std::chrono::gps_clock::time_point>::build(const std::chrono::gps_clock::time_point& v)
+{
+	auto utcTime = std::chrono::gps_clock::to_utc(v);
+	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
+}
+
+
+
+int PyExportTraits<std::chrono::gps_clock::time_point>::get(PyObject* obj, std::chrono::gps_clock::time_point& v)
+{
+	std::chrono::utc_clock::time_point utcTime;
+	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	{
+		return 1;
+	}
+	v = std::chrono::gps_clock::from_utc(utcTime);
+	return 0;
+}
+
+
+
+PyObject* PyExportTraits<std::chrono::tai_clock::time_point>::build(const std::chrono::tai_clock::time_point& v)
+{
+	auto utcTime = std::chrono::tai_clock::to_utc(v);
+	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
+}
+
+
+
+int PyExportTraits<std::chrono::tai_clock::time_point>::get(PyObject* obj, std::chrono::tai_clock::time_point& v)
+{
+	std::chrono::utc_clock::time_point utcTime;
+	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	{
+		return 1;
+	}
+	v = std::chrono::tai_clock::from_utc(utcTime);
+	return 0;
+}
+
+
+
+PyObject* PyExportTraits<std::chrono::file_clock::time_point>::build(const std::chrono::file_clock::time_point& v)
+{
+	auto utcTime = std::chrono::file_clock::to_utc(v);
+	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
+}
+
+
+
+int PyExportTraits<std::chrono::file_clock::time_point>::get(PyObject* obj, std::chrono::file_clock::time_point& v)
+{
+	std::chrono::utc_clock::time_point utcTime;
+	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	{
+		return 1;
+	}
+	v = std::chrono::file_clock::from_utc(utcTime);
+	return 0;
+}
+
+
+#endif
+
 }
 }

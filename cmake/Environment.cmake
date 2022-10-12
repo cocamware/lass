@@ -308,6 +308,7 @@ _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.c
 _try_compile_checking(LASS_HAVE_DURATION_OPERATOR_OSTREAM "check_duration_operator_ostream.cpp" "std::chrono::duration has operator<<")
 _try_compile_checking(LASS_HAVE_STD_FILESYSTEM "check_std_filesystem.cpp" "std::filesystem is supported")
 _try_compile_checking(LASS_HAVE_STD_OPTIONAL "check_std_optional.cpp" "std::optional is supported")
+_try_compile_checking(LASS_HAVE_STD_CHRONO_CPP20 "check_std_chrono_cpp20.cpp" "std::chrono C++20 is supported")
 
 
 # --- checking some properties of numbers and available functions ---

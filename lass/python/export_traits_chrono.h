@@ -117,6 +117,95 @@ struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
 	LASS_PYTHON_DLL static int get(PyObject* obj, TTimePoint& v);
 };
 
+
+#ifdef LASS_HAVE_STD_CHRONO_CPP20
+#if __cpp_lib_chrono >= 201907L
+
+
+
+/** @ingroup Python
+ *
+ *  std::chrono::utc_clock::time_point is mapped on a timezone-aware
+ *  datetime.datetime instance by copy, in UTC.
+ *
+ *  datetime.datetime instances with other timezones will correctly be converted
+ *  when interpreted as a time_point.
+ *
+ *  Naive datetime.datetime instances without timezone will be interpreted as
+ *  local time.
+ */
+template <>
+struct PyExportTraits<std::chrono::utc_clock::time_point>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::chrono::utc_clock::time_point& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::utc_clock::time_point& v);
+};
+
+
+
+/** @ingroup Python
+ *
+ *  std::chrono::gps_clock::time_point is mapped on a timezone-aware
+ *  datetime.datetime instance by copy, in UTC.
+ *
+ *  datetime.datetime instances with other timezones will correctly be converted
+ *  when interpreted as a time_point.
+ *
+ *  Naive datetime.datetime instances without timezone will be interpreted as
+ *  local time.
+ */
+template <>
+struct PyExportTraits<std::chrono::gps_clock::time_point>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::chrono::gps_clock::time_point& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::gps_clock::time_point& v);
+};
+
+
+
+/** @ingroup Python
+ *
+ *  std::chrono::tai_clock::time_point is mapped on a timezone-aware
+ *  datetime.datetime instance by copy, in UTC.
+ *
+ *  datetime.datetime instances with other timezones will correctly be converted
+ *  when interpreted as a time_point.
+ *
+ *  Naive datetime.datetime instances without timezone will be interpreted as
+ *  local time.
+ */
+template <>
+struct PyExportTraits<std::chrono::tai_clock::time_point>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::chrono::tai_clock::time_point& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::tai_clock::time_point& v);
+};
+
+
+
+/** @ingroup Python
+ *
+ *  std::chrono::file_clock::time_point is mapped on a timezone-aware
+ *  datetime.datetime instance by copy, in UTC.
+ *
+ *  datetime.datetime instances with other timezones will correctly be converted
+ *  when interpreted as a time_point.
+ *
+ *  Naive datetime.datetime instances without timezone will be interpreted as
+ *  local time.
+ */
+template <>
+struct PyExportTraits<std::chrono::file_clock::time_point>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::chrono::file_clock::time_point& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::file_clock::time_point& v);
+};
+
+
+#endif
+#endif
+
+
 }
 }
 
