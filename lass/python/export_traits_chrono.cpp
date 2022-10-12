@@ -351,6 +351,43 @@ int PyExportTraits<std::chrono::file_clock::time_point>::get(PyObject* obj, std:
 }
 
 
+
+PyObject* PyExportTraits<std::chrono::year_month_day>::build(const std::chrono::year_month_day& v)
+{
+	if (!PyDateTimeAPI)
+	{
+		PyDateTime_IMPORT;
+	}
+	return PyDate_FromDate(
+		static_cast<int>(v.year()),
+		static_cast<unsigned>(v.month()),
+		static_cast<unsigned>(v.day())
+	);
+}
+
+
+
+int PyExportTraits<std::chrono::year_month_day>::get(PyObject* obj, std::chrono::year_month_day& v)
+{
+	if (!PyDateTimeAPI)
+	{
+		PyDateTime_IMPORT;
+	}
+	if (!PyDate_Check(obj))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a datetime.date");
+		return 1;
+	}
+	v = std::chrono::year_month_day
+	{
+		std::chrono::year{ PyDateTime_GET_YEAR(obj) },
+		std::chrono::month{ PyDateTime_GET_MONTH(obj) },
+		std::chrono::day{ PyDateTime_GET_DAY(obj) }
+	};
+	return 0;
+}
+
+
 #endif
 
 }

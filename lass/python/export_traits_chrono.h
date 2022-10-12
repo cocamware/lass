@@ -202,6 +202,20 @@ struct PyExportTraits<std::chrono::file_clock::time_point>
 };
 
 
+
+/** @ingroup Python
+ *
+ *  std::chrono::year_month_day is mapped on a datetime.date instance
+ *  by copy.
+ */
+template <>
+struct PyExportTraits<std::chrono::year_month_day>
+{
+	LASS_PYTHON_DLL static PyObject* build(const std::chrono::year_month_day& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::year_month_day& v);
+};
+
+
 #endif
 #endif
 
