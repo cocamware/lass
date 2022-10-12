@@ -85,12 +85,61 @@ namespace lass
 namespace test
 {
 
+using TPyObjPtr = python::TPyObjPtr;
+
+PyObject* timezoneUTC()
+{
+#if PY_VERSION_HEX >= 0x03070000 // >= 3.7
+	return PyDateTime_TimeZone_UTC;
+#else
+	static TPyObjPtr tz;
+	if (!tz)
+	{
+		TPyObjPtr datetimeMod(PyImport_ImportModule("datetime"));
+		TPyObjPtr timezoneClass(PyObject_GetAttrString(datetimeMod.get(), "timezone"));
+		tz.reset(PyObject_GetAttrString(timezoneClass.get(), "utc"));
+	}
+	return tz.get();
+#endif
+}
+
+TPyObjPtr astimezoneUTC(const TPyObjPtr& obj)
+{
+	python::LockGIL LASS_UNUSED(lock);
+
+	if (!PyDateTimeAPI)
+	{
+		PyDateTime_IMPORT;
+	}
+	if (!PyDateTime_Check(obj.get()))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a datetime.datetime");
+		return TPyObjPtr{};
+	}
+
+	return TPyObjPtr{ PyObject_CallMethod(obj.get(), "astimezone", "O", timezoneUTC()) };
+}
+
+
+
+// there's no abs until C++17
+template <typename Rep, typename Period>
+std::chrono::duration<Rep, Period> absDur(std::chrono::duration<Rep, Period> d)
+{
+	using namespace std::chrono_literals;
+	return d < 0s
+		? -d
+		: d;
+}
+
+
+
 void testPythonExportTraitsChronoDuration()
 {
 	using namespace std::chrono_literals;
 	using namespace lass::python;
 
-	// one microfortnight is 14e-6 days.
+	// one microfortnight is 14e-6 days = 1.2096 seconds.
 	using microfortnights = std::chrono::duration<double, std::ratio<14 * 86400, 1'000'000>>;
 
 	initPythonEmbedding();
@@ -143,16 +192,16 @@ void testPythonExportTraitsChronoDuration()
 	}
 
 	{
-		microfortnights d{ 123456.78 }; // 1 microfortnights = 14e-6 days
+		microfortnights d{ 123456.78 }; // 1 microfortnights = 14e-6 days = 1.2096 seconds
 		TPyObjPtr obj{ pyBuildSimpleObject(d) };
 		LASS_TEST_CHECK(PyDelta_Check(obj.get()));
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_DAYS(obj.get()), 1);
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 62933);
-		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 321088);
+		LASS_TEST_CHECK(num::abs(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()) - 321088) <= 1);
 
 		microfortnights d2;
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
-		LASS_TEST_CHECK_EQUAL(d, d2);
+		LASS_TEST_CHECK(absDur(d - d2) <= 1us);
 	}
 }
 
@@ -163,6 +212,10 @@ void testPythonExportTraitsChronoSystemClock()
 	using namespace std::chrono_literals;
 	using namespace lass::python;
 
+	using system_clock = std::chrono::system_clock;
+	using time_point = std::chrono::system_clock::time_point;
+	using microseconds = std::chrono::microseconds;
+
 	initPythonEmbedding();
 	LockGIL LASS_UNUSED(lock);
 
@@ -172,10 +225,9 @@ void testPythonExportTraitsChronoSystemClock()
 	}
 
 	{
-		using time_point = std::chrono::time_point<std::chrono::system_clock>;
 		time_point t{};
 		TPyObjPtr obj{ pyBuildSimpleObject(t) };
-		LASS_TEST_CHECK(PyDateTime_Check(obj.get()));
+		LASS_TEST_CHECK(PyDateTime_CheckExact(obj.get()));
 
 		// this one is tricky, as we can't simply compare it with 00:00 1 January 1970.
 		// it has been shifted to local time ...
@@ -206,16 +258,108 @@ void testPythonExportTraitsChronoSystemClock()
 	}
 
 	{
-		using time_point = std::chrono::time_point<std::chrono::system_clock>;
+		// getting time_point from naive datetime gives local time
+		TPyObjPtr obj{ PyDateTime_FromDateAndTime(
+			2012, // year
+			3, // month
+			16, // day
+			3, // hour
+			21, // min
+			51, // sec
+			789 // usec
+		) };
+		LASS_TEST_CHECK(PyDateTime_CheckExact(obj.get()));
+
+		time_point t;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t), 0);
+
+		std::tm local
+		{
+			51, // tm_sec
+			21, // tm_min
+			3, // tm_hour
+			16, // tm_mday
+			2, // tm_mon
+			112, // tm_year
+			0, // tm_wday
+			0, // tm_yday
+			-1, // tm_isdst
+#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+			0, // tm_gmtoff
+			nullptr, // tm_zone
+#endif
+		};
+		const time_point t2 = system_clock::from_time_t(mktime(&local)) + microseconds(789);
+		LASS_TEST_CHECK_EQUAL(t, t2);
+	}
+
+	{
+		// timepoint from datetime.date is always midnight local time (dates are always naive)
+		TPyObjPtr obj{ PyDate_FromDate(
+			2012, // year
+			3, // month
+			16 // day
+		) };
+		LASS_TEST_CHECK(PyDate_CheckExact(obj.get()));
+
+		time_point t;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t), 0);
+		std::tm local
+		{
+			0, // tm_sec
+			0, // tm_min
+			0, // tm_hour
+			16, // tm_mday
+			2, // tm_mon
+			112, // tm_year
+			0, // tm_wday
+			0, // tm_yday
+			-1, // tm_isdst
+#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+			0, // tm_gmtoff
+			nullptr, // tm_zone
+#endif
+		};
+		const time_point t2 = system_clock::from_time_t(mktime(&local));
+		LASS_TEST_CHECK_EQUAL(t, t2);
+	}
+
+	{
+		// timezone-aware datetime objects are easier to test ...
+		TPyObjPtr obj{ PyDateTimeAPI->DateTime_FromDateAndTime(
+			1970, // year
+			1, // month
+			1, // day
+			0, // hour
+			0, // min
+			0, // sec
+			0, // usec
+			timezoneUTC(),
+			PyDateTimeAPI->DateTimeType
+		) };
+
+		time_point t;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t), 0);
+		LASS_TEST_CHECK_EQUAL(t, time_point{});
+	}
+
+	{
 		time_point t = time_point::clock::now();
 		TPyObjPtr obj{ pyBuildSimpleObject(t) };
 		LASS_TEST_CHECK(PyDateTime_Check(obj.get()));
 		time_point t2;
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t2), 0);
-		time_point::duration d = t - t2;
-		if (d < 0s)
-			d = -d; // there's no abs until C++17
-		LASS_TEST_CHECK(d < 1us);
+		LASS_TEST_CHECK(absDur(t - t2) < 1us);
+	}
+
+	{
+		time_point t = time_point::clock::now();
+		TPyObjPtr obj{ pyBuildSimpleObject(t) };
+		TPyObjPtr utc = astimezoneUTC(obj);
+		LASS_TEST_CHECK(utc && PyDateTime_Check(utc.get()));
+		time_point t2;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(utc.get(), t2), 0);
+		LASS_TEST_CHECK(absDur(t - t2) < 1us);
 	}
 }
 

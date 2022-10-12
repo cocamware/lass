@@ -104,10 +104,8 @@ struct PyExportTraits<std::chrono::duration<Rep, Period>>
  *  std::chrono::time_point<std::chrono::system_clock> is mapped on a
  *  timezone-unaware datetime.datetime instance by copy, in local time.
  *
- *  datetime.date instances at midnight local time will also be interpreted as
- *  time_point objects.
- *
- *  datetime.datetime instances with a timezone will raise a ValueError.
+ *  datetime.datetime instances with a timezone will correctly be
+ *  converted when interpreted as a time_point.
  */
 template <>
 struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>

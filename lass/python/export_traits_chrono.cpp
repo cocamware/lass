@@ -139,7 +139,7 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		return 1;
 	}
 
-	std::tm local {
+	std::tm time {
 		0, // tm_sec
 		0, // tm_min
 		0, // tm_hour
@@ -155,35 +155,63 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 #endif
 	};
 	std::chrono::microseconds uSec{};
+	PyObject* tz = Py_None;
 
 	if (PyDateTime_Check(obj))
 	{
-		local.tm_hour = PyDateTime_DATE_GET_HOUR(obj);
-		local.tm_min = PyDateTime_DATE_GET_MINUTE(obj);
-		local.tm_sec = PyDateTime_DATE_GET_SECOND(obj);
+		time.tm_hour = PyDateTime_DATE_GET_HOUR(obj);
+		time.tm_min = PyDateTime_DATE_GET_MINUTE(obj);
+		time.tm_sec = PyDateTime_DATE_GET_SECOND(obj);
 		uSec = std::chrono::microseconds(PyDateTime_DATE_GET_MICROSECOND(obj));
 
 #if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
-		PyObject* tz = PyDateTime_DATE_GET_TZINFO(obj);
+		tz = PyDateTime_DATE_GET_TZINFO(obj);
 #else
 		TPyObjPtr tz_(PyObject_GetAttrString(obj, "tzinfo"));
 		if (!tz_)
 		{
 			return 1;
 		}
-		PyObject* tz = tz_.get();
+		tz = tz_.get();
 #endif
-		if (tz != Py_None)
-		{
-			PyErr_SetString(PyExc_ValueError,
-				"Timezone-aware datetime.datetime objects are not allowed, "
-				"all datetime objects are assumed to be in local time.");
-			return 1;
-		}
 	}
 
-	const std::time_t time = mktime(&local);
-	v = TClock::from_time_t(time) + uSec;
+	if (tz == Py_None)
+	{
+		// naive datetime is assumed to be local time. dates are always naive too.
+		const std::time_t t = mktime(&time);
+		if (t < 0)
+		{
+			PyErr_SetString(PyExc_ValueError, "out of range");
+			return 1;
+		}
+		v = TClock::from_time_t(t) + uSec;
+	}
+	else
+	{
+		TPyObjPtr timedelta{ PyObject_CallMethod(tz, "utcoffset", "O", obj) };
+		if (!timedelta)
+		{
+			return 1;
+		}
+		std::chrono::system_clock::duration utcoffset{};
+		if (PyExportTraits<std::chrono::system_clock::duration>::get(timedelta.get(), utcoffset) != 0)
+		{
+			return 1;
+		}
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+		const std::time_t t = _mkgmtime(&time);
+#else
+		const std::time_t t = timegm(&time);
+#endif
+		if (t < 0)
+		{
+			PyErr_SetString(PyExc_ValueError, "out of range");
+			return 1;
+		}
+		v = TClock::from_time_t(t) + uSec - utcoffset;
+	}
+
 	return 0;
 }
 

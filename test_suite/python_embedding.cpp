@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -47,6 +47,7 @@
 #include "../lass/python/python_api.h"
 #include "../lass/python/pyshadow_object.h"
 #include "../lass/python/enum_definition.h"
+#include "../lass/python/export_traits_chrono.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -524,6 +525,11 @@ std::wstring testStdWstring(const std::wstring& v)
 	return v;
 }
 
+std::chrono::system_clock::time_point testSystemClock(const std::chrono::system_clock::time_point& v)
+{
+	return v;
+}
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -573,6 +579,7 @@ PY_MODULE_FUNCTION( embedding, testSomePointer )
 
 PY_MODULE_FUNCTION( embedding, testStdString )
 PY_MODULE_FUNCTION( embedding, testStdWstring )
+PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 
