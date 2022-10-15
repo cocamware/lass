@@ -55,7 +55,7 @@ PyObject* PyExportTraits<std::filesystem::path>::build(const std::filesystem::pa
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	// On Windows, paths use wchar_t: we can directly return it as unicode
 	static_assert(std::is_same_v<std::filesystem::path::value_type, wchar_t>);
-	return PyExportTraits<std::wstring>::build(v.native());
+	TPyObjPtr path{ PyExportTraits<std::wstring>::build(v.native()) };
 #else
 	// On Linux, paths use char: we decode them to unicode
 	static_assert(std::is_same_v<std::filesystem::path::value_type, char>);
@@ -65,9 +65,17 @@ PyObject* PyExportTraits<std::filesystem::path>::build(const std::filesystem::pa
 		PyErr_SetString(PyExc_OverflowError, "input too long");
 		return 0;
 	}
-	return PyUnicode_DecodeFSDefaultAndSize(s.data(), static_cast<Py_ssize_t>(s.size()));
+	TPyObjPtr path{ PyUnicode_DecodeFSDefaultAndSize(s.data(), static_cast<Py_ssize_t>(s.size())) };
 #endif
 
+	static TPyObjPtr pathType;
+	if (!pathType)
+	{
+		TPyObjPtr pathlib(PyImport_ImportModule("pathlib"));
+		pathType.reset(PyObject_GetAttrString(pathlib.get(), "Path"));
+	}
+
+	return PyObject_CallFunctionObjArgs(pathType.get(), path.get(), nullptr);
 }
 
 
