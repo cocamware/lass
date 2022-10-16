@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -76,6 +76,8 @@
 #include "util_common.h"
 #include "call_traits.h"
 
+#include <atomic>
+
 
 namespace lass
 {
@@ -96,7 +98,7 @@ public:
 
 private:
 
-	volatile typename CallTraits<T>::TValue nextId_;
+	std::atomic<typename CallTraits<T>::TValue> nextId_;
 };
 
 

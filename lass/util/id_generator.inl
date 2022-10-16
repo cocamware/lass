@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -75,13 +75,20 @@ IdGenerator<T>::IdGenerator( typename CallTraits<T>::TParam iFirstId ):
 template <typename T>
 typename CallTraits<T>::TValue IdGenerator<T>::operator()()
 {
-	const typename CallTraits<T>::TValue result = nextId_;
-	++nextId_;
-	if (nextId_ < result)
+	using TValue = typename CallTraits<T>::TValue;
+	TValue currentId = nextId_.load(std::memory_order_acquire);
+	TValue nextId {};
+	do
 	{
-		LASS_THROW("ID overflow.  Can no longer increment ID field.");
+		if (currentId == num::NumTraits<TValue>::max)
+		{
+			LASS_THROW("ID overflow.  Can no longer increment ID field.");
+		}
+		nextId = static_cast<TValue>(currentId + 1);
 	}
-	return result;
+	while (!nextId_.compare_exchange_weak(currentId, nextId,
+		std::memory_order_release, std::memory_order_relaxed));
+	return currentId;
 }
 
 

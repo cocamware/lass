@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -44,6 +44,7 @@
 
 #include "../lass/util/id_generator.h"
 
+#include <thread>
 namespace lass
 {
 namespace test
@@ -77,13 +78,82 @@ void testUtilIdGenerator()
 	LASS_TEST_CHECK_EQUAL(generator2(), static_cast<T>(13));
 }
 
+void testUtilIdGeneratorConcurrent()
+{
+	using namespace util;
+	using TIdList = std::vector<size_t>;
+
+#if NDEBUG
+	constexpr size_t N = 1'000'000;
+#else
+	constexpr size_t N = 10'000;
+#endif
+	const size_t n = std::max<size_t>(std::thread::hardware_concurrency(), 2);
+	LASS_COUT << "#consumers = " << n << std::endl;
+
+	IdGenerator<size_t> generator;
+	std::atomic<bool> start(false);
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
+	// Because N is a constexpr, Clang complains with
+	// "lambda capture 'N' is not required to be captured for this use"
+	// But some other compilers won't compile without the capture.
+#	pragma GCC diagnostic ignored "-Wunused-lambda-capture"
+#endif
+	auto consumer = [&generator, &start, N](TIdList* idList)
+	{
+		while (!start.load(std::memory_order_acquire))
+		{
+			LASS_SPIN_PAUSE;
+		}
+		for (size_t i = 0; i < N; ++i)
+		{
+			size_t id = generator();
+			idList->push_back(id);
+			if (i % 4 == 0)
+			{
+				LASS_SPIN_PAUSE; // give other threads also a chance
+			}
+		}
+	};
+
+	std::list<std::thread> consumers;
+	std::list<TIdList> idLists;
+	for (size_t i = 0; i < n; ++i)
+	{
+		idLists.emplace_back();
+		TIdList& idList = idLists.back();
+		consumers.emplace_back(consumer, &idList);
+	}
+	start.store(true, std::memory_order_release);
+	for (auto &consumer: consumers)
+	{
+		consumer.join();
+	}
+
+	TIdList allIds;
+	for (auto &idList: idLists)
+	{
+		allIds.insert(allIds.end(), idList.begin(), idList.end());
+	}
+	std::sort(allIds.begin(), allIds.end());
+
+	LASS_TEST_CHECK_EQUAL(generator(), n * N);
+	LASS_TEST_CHECK_EQUAL(allIds.size(), n * N);
+	for (size_t i = 0; i < n * N; ++i)
+	{
+		LASS_TEST_CHECK_EQUAL(allIds[i], i);
+	}
+}
+
 TUnitTest test_util_id_generator()
 {
-	TUnitTest result;
-	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<int>));
-	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<char>));
-	result.push_back(LASS_TEST_CASE(testUtilIdGenerator<unsigned long>));
-	return result;
+	return TUnitTest {
+		LASS_TEST_CASE(testUtilIdGenerator<int>),
+		LASS_TEST_CASE(testUtilIdGenerator<char>),
+		LASS_TEST_CASE(testUtilIdGenerator<unsigned long>),
+		LASS_TEST_CASE(testUtilIdGeneratorConcurrent),
+	};
 }
 
 }
