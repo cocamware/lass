@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2020 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -101,22 +101,22 @@ public:
 
 	TSelf& operator+=(const TSelf& other) 
 	{ 
-		t_ += other.t_; 
+		t_ = t_ + other.t_;
 		return *this; 
 	}
 	TSelf& operator-=(const TSelf& other) 
 	{ 
-		t_ -= other.t_; 
+		t_ = t_ - other.t_;
 		return *this; 
 	}
 	TSelf& operator*=(const TSelf& other) 
 	{ 
-		t_ *= other.t_; 
+		t_ = t_ * other.t_;
 		return *this; 
 	}
 	TSelf& operator/=(const TSelf& other)
 	{ 
-		t_ /= other.t_; 
+		t_ = t_ / other.t_;
 		return *this; 
 	}
 	
