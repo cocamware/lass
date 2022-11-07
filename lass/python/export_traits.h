@@ -48,9 +48,7 @@
 #include "exception.h"
 #include "pyobject_ptr.h"
 #include "../num/num_cast.h"
-#if __cpp_lib_filesystem
-#	include <filesystem>
-#endif
+
 #if __cpp_lib_optional
 #	include <optional>
 #endif
@@ -688,25 +686,6 @@ struct PyExportTraits<std::u32string>
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u32string& v);
 };
 
-
-#if __cpp_lib_filesystem
-
-/** @ingroup Python
- *
- *  Accepts bytes, str or objects that implement the os.PathLike interface (having __fspath__())
- *  If conversion is needed from bytes to str (on Windows) or from str to bytes (on POSIX),
- *  then it is performed using Py_FileSystemDefaultEncoding (which is usually UTF-8, but not always).
- * 
- *  Always converts them to str instances.
- */
-template <>
-struct PyExportTraits<std::filesystem::path>
-{
-	LASS_PYTHON_DLL static PyObject* build(const std::filesystem::path& v);
-	LASS_PYTHON_DLL static int get(PyObject* obj, std::filesystem::path& v);
-};
-
-#endif
 
 #if __cpp_lib_optional
 

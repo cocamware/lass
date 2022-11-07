@@ -58,6 +58,10 @@
 #include "../prim/point_2d.h"
 #include "../util/wchar_support.h"
 
+#if LASS_HAVE_STD_FILESYSTEM
+#	include <filesystem>
+#endif
+
 namespace lass
 {
 
@@ -118,7 +122,7 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	Image(const std::wstring& path);
 #endif
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 	Image(const std::filesystem::path& path);
 #endif
 	Image(const Image& other);
@@ -133,7 +137,7 @@ public:
 #if LASS_HAVE_WCHAR_SUPPORT
 	void reset(const std::wstring& path);
 #endif
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 	void reset(const std::filesystem::path& path);
 #endif
 	void reset(const Image& other);
@@ -146,7 +150,7 @@ public:
 	void open(const std::wstring& path);
 	void save(const std::wstring& path);
 #endif
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 	void open(const std::filesystem::path& path);
 	void save(const std::filesystem::path& path);
 #endif

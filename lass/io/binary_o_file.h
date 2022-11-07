@@ -56,7 +56,7 @@
 #include "io_common.h"
 #include "binary_o_stream.h"
 #include <cstdio>
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 #	include <filesystem>
 #endif
 
@@ -77,7 +77,7 @@ public:
 	BinaryOFile( const wchar_t* path );
 	BinaryOFile( const std::wstring& path );
 #endif
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 	BinaryOFile(std::filesystem::path& path);
 #endif
 	~BinaryOFile();
@@ -88,7 +88,7 @@ public:
 	void open(const wchar_t* path);
 	void open(const std::wstring& path);
 #endif
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 	void open(const std::filesystem::path& path);
 #endif
 	void close();

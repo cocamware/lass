@@ -32,6 +32,10 @@ if(NOT TARGET Lass::lass_python)
 		)
 endif()
 
+if(NOT LASS_HAVE_STD_FILESYSTEM)
+	list(FILTER test_suite_SRCS EXCLUDE REGEX "test_python_export_traits_filesystem\\.cpp$")
+endif()
+
 set(infile "${sourcedir}/test_util_callback.cpp.in")
 set(outfile "${sourcedir}/test_util_callback.cpp")
 lass_param_expander("${infile}" "${outfile}" 3)

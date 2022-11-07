@@ -150,7 +150,7 @@ Image::Image(const std::wstring& path):
 
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 /** Construct image from given file.
  */
@@ -233,7 +233,7 @@ void Image::reset(const std::wstring& path)
 
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 /** Reset image to the one in the given file.
  */
@@ -377,7 +377,7 @@ void Image::save(const std::wstring& path)
 
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 /** Open image from binary stream
  */

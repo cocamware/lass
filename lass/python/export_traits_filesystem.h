@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,72 +40,38 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @class lass::io::BinaryIMemoryMap
- *  @brief Input Stream for files using memory mapping
- */
+#pragma once
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_MEMORY_MAP_H
-#define LASS_GUARDIAN_OF_INCLUSION_IO_BINARY_I_MEMORY_MAP_H
+#include "python_common.h"
+#include "export_traits.h"
 
-#include "io_common.h"
-#include "binary_i_stream.h"
 #if LASS_HAVE_STD_FILESYSTEM
-#	include <filesystem>
-#endif
+
+#include <filesystem>
 
 namespace lass
 {
-namespace io
+namespace python
 {
-namespace impl
+
+/** @ingroup Python
+ *
+ *  Accepts bytes, str or objects that implement the os.PathLike interface (having __fspath__())
+ *  If conversion is needed from bytes to str (on Windows) or from str to bytes (on POSIX),
+ *  then it is performed using Py_FileSystemDefaultEncoding (which is usually UTF-8, but not always).
+ * 
+ *  Always converts them to str instances.
+ */
+template <>
+struct PyExportTraits<std::filesystem::path>
 {
-	class BinaryIMemoryMapImpl;
-}
-
-class LASS_DLL BinaryIMemoryMap: public BinaryIStream
-{
-public:
-
-	BinaryIMemoryMap();
-	BinaryIMemoryMap(const char* filename);
-	BinaryIMemoryMap(const std::string& filename);
-#if LASS_HAVE_WCHAR_SUPPORT
-	BinaryIMemoryMap(const wchar_t* filename);
-	BinaryIMemoryMap(const std::wstring& filename);
-#endif
-#if LASS_HAVE_STD_FILESYSTEM
-	BinaryIMemoryMap(const std::filesystem::path& filename);
-#endif
-
-	~BinaryIMemoryMap();
-
-	void open(const char* filename);
-	void open(const std::string& filename);
-#if LASS_HAVE_WCHAR_SUPPORT
-	void open(const wchar_t* filename);
-	void open(const std::wstring& filename);
-#endif
-#if LASS_HAVE_STD_FILESYSTEM
-	void open(const std::filesystem::path& filename);
-#endif
-	void close();
-	bool is_open() const;
-
-private:
-
-	pos_type doTellg() const override;
-	void doSeekg(pos_type position) override;
-	void doSeekg(off_type offset, std::ios_base::seekdir direction) override;
-	size_t doRead(void* output, size_t numberOfBytes) override;
-
-	std::unique_ptr<impl::BinaryIMemoryMapImpl> pimpl_;
-	size_t position_ { 0 };
+	LASS_PYTHON_DLL static PyObject* build(const std::filesystem::path& v);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::filesystem::path& v);
 };
 
-
-
 }
-
 }
 
 #endif
+
+// EOF

@@ -115,7 +115,7 @@ BinaryOFile::BinaryOFile( const std::wstring& path ):
 
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 /** Construct stream by filename and open it.
  */
@@ -195,7 +195,7 @@ void BinaryOFile::open(const std::wstring& path)
 
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 void BinaryOFile::open(const std::filesystem::path& path)
 {
@@ -204,7 +204,7 @@ void BinaryOFile::open(const std::filesystem::path& path)
 	{
 #if LASS_HAVE_WFOPEN
 		file_ = ::_wfopen(path.c_str(), L"wb");
-#else:
+#else
 		file_ = ::fopen(path.c_str(), "wb");
 #endif
 		if (!file_)

@@ -221,74 +221,6 @@ void testPythonExportTraitsString()
 }
 
 
-#if __cpp_lib_filesystem
-
-void testPythonExportTraitsPath()
-{
-	using namespace lass::python;
-
-	initPythonEmbedding();
-
-	LockGIL LASS_UNUSED(lock);
-
-	// Win32 will use wide strings (std::wstring) which works well with Python's (unicode) str type
-	// Others (POSIX) will use narrow strings (std::string) wich works well with Python's bytes type
-	// PyExportTraits<std::filesystem::path> will use Py_FileSystemDefaultEncoding to convert between
-	// both if necessary, but this test will assume that's UTF-8 (which in practice it almost certainly is).
-	//
-	// The test string is a funny unicode version of "hello/world", both in UTF-16 and UTF-8
-	//
-	using string_type = std::filesystem::path::string_type;
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-	static_assert(std::is_same_v<string_type, std::wstring>);
-	const string_type native{ L"\x2653\x212e\x0142\x029f\x263a\\\x0428\x263a\x0491\x2113\x1e13" };
-#else
-	static_assert(std::is_same_v<string_type, std::string>);
-	const string_type native{ "\xe2\x99\x93\xe2\x84\xae\xc5\x82\xca\x9f\xe2\x98\xba/\xd0\xa8\xe2\x98\xba\xd2\x91\xe2\x84\x93\xe1\xb8\x93\xe2"; };
-#endif
-
-	{
-		// build path
-		std::filesystem::path path{ native };
-		TPyObjPtr obj{ pyBuildSimpleObject(path) };
-		LASS_TEST_CHECK(PyUnicode_Check(obj.get()));
-		string_type str;
-		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), str), 0);
-		LASS_TEST_CHECK(str == native);
-	}
-
-	{
-		// get path from str
-		TPyObjPtr obj{ pyBuildSimpleObject(native) };
-		LASS_TEST_CHECK(PyUnicode_Check(obj.get()));
-		std::filesystem::path path;
-		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), path), 0);
-		LASS_TEST_CHECK(path.native() == native);
-	}
-
-	{
-		// get path from bytes
-		TPyObjPtr obj{ pyBuildSimpleObject(native) };
-		TPyObjPtr bytes{ PyUnicode_EncodeFSDefault(obj.get()) };
-		LASS_TEST_CHECK(PyBytes_Check(bytes.get()));
-		std::filesystem::path path;
-		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(bytes.get(), path), 0);
-		LASS_TEST_CHECK(path.native() == native);
-	}
-
-	{
-		// get path from PathLike
-		TPyObjPtr pathlib{ PyImport_ImportModule("pathlib") };
-		TPyObjPtr purepath{ PyObject_GetAttrString(pathlib.get(), "PurePath") };
-		TPyObjPtr obj{ PyObject_Call(purepath.get(), makeTuple(native).get(), nullptr) };
-		std::filesystem::path path;
-		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), path), 0);
-		LASS_TEST_CHECK(path.native() == native);
-	}
-}
-
-#endif
-
 #if __cpp_lib_optional
 
 void testPythonExportTraitsOptional()
@@ -342,9 +274,6 @@ TUnitTest test_python_export_traits()
 	return TUnitTest
 	{
 		LASS_TEST_CASE(testPythonExportTraitsString),
-#if __cpp_lib_filesystem
-		LASS_TEST_CASE(testPythonExportTraitsPath),
-#endif
 #if __cpp_lib_optional
 		LASS_TEST_CASE(testPythonExportTraitsOptional),
 #endif

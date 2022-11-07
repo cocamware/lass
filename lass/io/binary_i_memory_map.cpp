@@ -218,7 +218,7 @@ BinaryIMemoryMap::BinaryIMemoryMap(const std::wstring& filename):
 
 #endif
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 BinaryIMemoryMap::BinaryIMemoryMap(const std::filesystem::path& filename):
 	BinaryIStream()
@@ -285,7 +285,7 @@ void BinaryIMemoryMap::open(const std::wstring& filename)
 #endif
 
 
-#if __cpp_lib_filesystem
+#if LASS_HAVE_STD_FILESYSTEM
 
 void BinaryIMemoryMap::open(const std::filesystem::path& filename)
 {
