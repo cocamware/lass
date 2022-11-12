@@ -49,10 +49,6 @@
 #include "pyobject_ptr.h"
 #include "../num/num_cast.h"
 
-#if __cpp_lib_optional
-#	include <optional>
-#endif
-
 namespace lass
 {
 namespace python
@@ -686,46 +682,6 @@ struct PyExportTraits<std::u32string>
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u32string& v);
 };
 
-
-#if __cpp_lib_optional
-
-/** @ingroup Python
- *
- *  Uses None to represent a std::optional without value.
- * 
- *  If None is also a valid value for the type T (such as pointers), then it
- *  will be impossible to differentiate between an unset std::optional, and
- *  a set std::optional with a value for None.
- */
-template <typename T>
-struct PyExportTraits< std::optional<T> >
-{
-	static PyObject* build(const std::optional<T>& value)
-	{
-		if (!value)
-		{
-			Py_RETURN_NONE;
-		}
-		return PyExportTraits<T>::build(*value);
-	}
-	static int get(PyObject* obj, std::optional<T>& value)
-	{
-		if (obj == Py_None)
-		{
-			value.reset();
-			return 0;
-		}
-		T tmp;
-		if (PyExportTraits<T>::get(obj, tmp) != 0)
-		{
-			return 1;
-		}
-		value = std::move(tmp);
-		return 0;
-	}
-};
-
-#endif
 
 }
 }
