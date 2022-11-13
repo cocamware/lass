@@ -157,9 +157,7 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_weaklist*/
 		0,	/*tp_del*/
 		0,	/*tp_version_tag*/
-#if PY_VERSION_HEX >= 0x03040000 // >= 3.4
 		0,	/*tp_finalize*/
-#endif
 #if PY_VERSION_HEX >= 0x03080000 // >= 3.8
         0,	/*tp_vectorcall, exists in 3.8 but only used since 3.9 */
 #endif

@@ -9,21 +9,13 @@ include(CheckFunctionExists)
 function(_try_compile VARIABLE fname msg ok fail)
 	if (NOT DEFINED ${VARIABLE})
 		message(STATUS "${msg}")
-		if (CMAKE_VERSION VERSION_LESS 3.8)
-			try_compile(
-				${VARIABLE}
-				"${Lass_BINARY_DIR}/cmake"
-				"${Lass_SOURCE_DIR}/cmake/${fname}"
-			)
-		else()
-			try_compile(
-				${VARIABLE}
-				"${Lass_BINARY_DIR}/cmake"
-				"${Lass_SOURCE_DIR}/cmake/${fname}"
-				CXX_STANDARD "${CMAKE_CXX_STANDARD}"
-				CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
-			)
-		endif()
+		try_compile(
+			${VARIABLE}
+			"${Lass_BINARY_DIR}/cmake"
+			"${Lass_SOURCE_DIR}/cmake/${fname}"
+			CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+			CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
+		)
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")
 			set(${VARIABLE} 1 CACHE INTERNAL "${msg}")
