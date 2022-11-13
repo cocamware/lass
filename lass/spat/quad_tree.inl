@@ -902,7 +902,6 @@ void QuadTree<O, OT, SH>::QuadNode::decompose(const TSplitHeuristics& heuristics
 	makeChildren();
 
 	//const size_t maxCopies = numChildren * data.size() * 2 / 3;
-	size_t copies = 0;
 	for (typename TObjectIterators::iterator vit = data.begin(); vit != data.end(); ++vit)
 	{
 		/* for each object we test wether it is contained in one of the
@@ -915,7 +914,6 @@ void QuadTree<O, OT, SH>::QuadNode::decompose(const TSplitHeuristics& heuristics
 			if (TObjectTraits::objectIntersects(*vit, children[i].bounds, 0))
 			{
 				children[i].add(*vit, heuristics, level + 1, false);
-				++copies;
 				isAdded = true;
 			}
 		}

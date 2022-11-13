@@ -2062,8 +2062,6 @@ continueSearch:
 
 		if ( isOnEdge )
 		{
-			static int passCount2 = 0;
-			++passCount2;
 			// snap x to e, and check for coincidence:
 			TPoint2D x = snap(iPoint, org(e), dest(e));
 			T sqDistOrg	= prim::squaredDistance(org(e),x);
@@ -2252,8 +2250,6 @@ continueSearch:
 		std::vector< TEdge* >	crossedEdges;			// crossed edges by new segment
 		std::vector< TEdge* >	filteredEdges;			// crossed edges by new segment
 		//bool tookAction = false;
-		static int passCount=0;
-		++passCount;
 
 		LASS_ASSERT(allEqualChainOrder(ea));
 		LASS_ASSERT(allEqualChainOrder(eb));
