@@ -48,6 +48,65 @@ namespace lass
 {
 	namespace python
 	{
+		namespace impl
+		{
+			TPyObjPtr makeEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			{
+				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
+				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "Enum"));
+
+				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				TPyObjPtr type{ PyObject_Call(intEnumType.get(), args.get(), kwargs.get()) };
+
+				return type;
+			}
+
+			TPyObjPtr makeIntEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			{
+				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
+				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "IntEnum"));
+
+				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				TPyObjPtr type{ PyObject_Call(intEnumType.get(), args.get(), kwargs.get()) };
+
+#if PY_VERSION_HEX < 0x030b0000 // < 3.11
+				// set it's __str__ method to int.__repr__, to mimic 3.11 IntEnum behavior.
+				// Not int.__str__ because that is object.__str__, which resolves back to enum.__repr__
+				PyObject* intType = reinterpret_cast<PyObject*>(&PyLong_Type);
+				TPyObjPtr intRepr{ PyObject_GetAttrString(intType, "__repr__") };
+				PyObject_SetAttrString(type.get(), "__str__", intRepr.get());
+#endif
+
+				return type;
+			}
+
+			TPyObjPtr makeStrEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			{
+#if PY_VERSION_HEX < 0x030b0000 // < 3.11
+				// mix in str type, so that they also behave like strings ...
+				PyObject* strType = reinterpret_cast<PyObject*>(&PyUnicode_Type);
+				PyDict_SetItemString(kwargs.get(), "type", strType);
+
+				// build it as a normal Enum
+				TPyObjPtr type = makeEnumType(name, std::move(enumerators), std::move(kwargs));
+
+				// set it's __str__ method to str.__str__, to mimic 3.11 StrEnum behavior.
+				TPyObjPtr strStr{ PyObject_GetAttrString(strType, "__str__") };
+				PyObject_SetAttrString(type.get(), "__str__", strStr.get());
+
+				return type;
+#else
+				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
+				TPyObjPtr strEnumType(PyObject_GetAttrString(enumMod.get(), "StrEnum"));
+
+				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				TPyObjPtr type{ PyObject_Call(strEnumType.get(), args.get(), kwargs.get()) };
+
+				return type;
+#endif
+			}
+		}
+
 		EnumDefinitionBase::EnumDefinitionBase(std::string&& name) :
 			name_(std::move(name))
 		{
@@ -93,8 +152,7 @@ namespace lass
 				PyDict_SetItemString(kwargs.get(), "qualname", qualNameObj.get());
 			}
 
-			type_.reset(doFreezeDefinition(kwargs.get()));
-			// PyObject_SetAttrString(type_.get(), "__str__", )
+			type_ = doFreezeDefinition(std::move(kwargs));
 		}
 	}
 }

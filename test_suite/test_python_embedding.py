@@ -753,7 +753,7 @@ class TestEnum(unittest.TestCase):
 		self.assertEqual(Color.RED, 1)
 		self.assertEqual(Color.GREEN, 2)
 		self.assertEqual(Color.BLUE, 3)
-		self.assertEqual(str(Color.RED), "Color.RED")
+		self.assertEqual(str(Color.RED), "1")
 		self.assertIs(Color(2), Color.GREEN)
 		with self.assertRaises(ValueError):
 			_ = Color(123)
@@ -777,7 +777,7 @@ class TestEnum(unittest.TestCase):
 		self.assertEqual(Shape.CIRCLE, "circle")
 		self.assertEqual(Shape.SQUARE, "square")
 		self.assertEqual(Shape.TRIANGLE, "triangle")
-		self.assertEqual(str(Shape.SQUARE), "Shape.SQUARE")
+		self.assertEqual(str(Shape.SQUARE), "square")
 		self.assertIs(Shape("triangle"), Shape.TRIANGLE)
 		with self.assertRaises(ValueError):
 			_ = Shape(2)
