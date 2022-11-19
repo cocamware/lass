@@ -45,6 +45,24 @@
 
 #if LASS_HAVE_STD_FILESYSTEM
 
+namespace
+{
+
+int getBytes(PyObject* obj, std::string& v)
+{
+	const char* data = PyBytes_AsString(obj);
+	if (!data)
+	{
+		return 1;
+	}
+	const Py_ssize_t size = PyBytes_GET_SIZE(obj);
+	v = std::string{ data, static_cast<size_t>(size) };
+	return 0;
+}
+
+}
+
+
 namespace lass
 {
 namespace python
@@ -111,7 +129,7 @@ int PyExportTraits<std::filesystem::path>::get(PyObject* obj, std::filesystem::p
 		return 1;
 	}
 	std::string bytes;
-	const int ret = PyExportTraits<std::string>::get(bytesObj, bytes);
+	const int ret = getBytes(bytesObj, bytes);
 	Py_DECREF(bytesObj);
 	if (ret == 0)
 	{
