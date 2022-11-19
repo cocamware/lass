@@ -670,6 +670,20 @@ void initPythonEmbedding()
 		return;
 	}
 	PyImport_AppendInittab("embedding", PyInit_embedding);
+
+#if PY_VERSION_HEX >= 0x03080000 // >= 3.8
+	PyStatus status;
+	PyPreConfig preconfig;
+	PyPreConfig_InitPythonConfig(&preconfig);
+
+	preconfig.utf8_mode = 1;
+
+	status = Py_PreInitialize(&preconfig);
+	if (PyStatus_Exception(status)) {
+		Py_ExitStatusException(status);
+	}
+#endif
+
 	Py_Initialize();
 }
 
