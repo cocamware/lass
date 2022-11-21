@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -59,7 +59,7 @@ const RandomStandard::TValue RandomStandard::max = RAND_MAX;
 
 // --- RandomParkMiller ----------------------------------------------------------------------------
 
-const RandomParkMiller::TValue RandomParkMiller::max = RandomParkMiller::modulus_;
+const RandomParkMiller::TValue RandomParkMiller::max = RandomParkMiller::modulus_ - 1;
 
 
 
