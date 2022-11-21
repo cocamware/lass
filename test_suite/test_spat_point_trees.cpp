@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -75,14 +75,14 @@ void testSpatPointTrees()
 	// generate points
 	//
 	const unsigned n = 100000;
-	num::RandomMT19937 generator;
+	std::mt19937_64 generator;
 	std::vector<TPoint> points(n);
 	for (unsigned i = 0; i < n; ++i)
 	{
 		points[i] = bounds.random(generator);
 	}
 
-	// make single tree, and do diagnostics on itµ
+	// make single tree, and do diagnostics on itï¿½
 	//
 	typedef spat::KdTree<TPoint> TKdTree;
 	TKdTree tree(&points[0], &points[0] + n);

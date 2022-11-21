@@ -48,6 +48,15 @@
 #include "num_common.h"
 #include "distribution.h"
 
+ // avoid deprecation warnings by the implementation of the deprecated things themselves
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace lass
 {
 namespace num
@@ -317,6 +326,12 @@ template<class T,class RG> T gauss(
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#else
+#	pragma GCC diagnostic pop
+#endif
 
 #endif
 

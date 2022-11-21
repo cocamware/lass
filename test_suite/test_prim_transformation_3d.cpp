@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -50,6 +50,8 @@
 #include "../lass/prim/aabb_3d.h"
 #include "../lass/util/stop_watch.h"
 */
+#include <random>
+
 namespace lass
 {
 namespace test
@@ -70,13 +72,13 @@ void testPrimTransformation3D()
 	TTransformation identity;
 	TTransformation transfo;
 
-	num::RandomMT19937 random;
-	num::DistributionUniform<T, num::RandomMT19937> distribution(random);
+	std::mt19937_64 random;
+	std::uniform_real_distribution<T> distribution;
 
 	for (unsigned k = 0; k < 100; ++k)
 	{
 		T mat[16];
-		std::generate(mat, mat + 16, distribution);
+		std::generate(mat, mat + 16, [&]() { return distribution(random); });
 		transfo = TTransformation(mat, mat + 16);
 
 		try

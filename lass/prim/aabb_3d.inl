@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -49,7 +49,7 @@
 
 #include "aabb_3d.h"
 #include <cstdlib>
-
+#include <random>
 
 namespace lass
 {
@@ -443,8 +443,8 @@ const typename Aabb3D<T, MMP>::TPoint
 Aabb3D<T, MMP>::random(RandomGenerator& generator) const
 {
 	LASS_ASSERT(isValid());
-	num::DistributionUniform<TValue, RandomGenerator> uniform(generator);
-	const TVector t(uniform(), uniform(), uniform());
+	std::uniform_real_distribution<TValue> uniform;
+	const TVector t(uniform(generator), uniform(generator), uniform(generator));
 	const TPoint result(min_ + t * (max_ - min_));
 	LASS_ASSERT(contains(result));
 	return result;

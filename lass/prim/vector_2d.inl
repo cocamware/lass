@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -51,6 +51,7 @@
 #include "vector_2d.h"
 #include "../num/basic_ops.h"
 #include "../num/distribution.h"
+#include <random>
 
 namespace lass
 {
@@ -383,9 +384,8 @@ template <typename T>
 template <class RandomGenerator>
 Vector2D<T> Vector2D<T>::random(RandomGenerator& generator)
 {
-	num::DistributionUniform<T, RandomGenerator, num::rtRightOpen> distribution(
-		generator, TNumTraits::zero, 2 * TNumTraits::pi);
-	const TValue theta = distribution();
+	std::uniform_real_distribution<T> distribution(0, 2 * TNumTraits::pi);
+	const TValue theta = distribution(generator);
 	return Vector2D<T>(num::cos(theta), num::sin(theta));
 }
 

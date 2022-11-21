@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -47,6 +47,8 @@
 #include "../lass/num/random.h"
 #include "../lass/num/distribution.h"
 
+#include <random>
+
 namespace lass
 {
 namespace test
@@ -57,19 +59,19 @@ namespace num_vector
 template <typename T>
 struct Generator
 {
-	num::RandomMT19937 random_;
-	num::DistributionUniform<T, num::RandomMT19937> distribution_;
-	Generator(): random_(), distribution_(random_, -1, 1) {}
-	T operator()() { return distribution_(); }
+	std::mt19937_64 random_;
+	std::uniform_real_distribution<T> distribution_;
+	Generator(): random_(), distribution_(-1, 1) {}
+	T operator()() { return distribution_(random_); }
 };
 
 template <typename T>
 struct Generator<std::complex<T> >
 {
-	num::RandomMT19937 random_;
-	num::DistributionUniform<T, num::RandomMT19937> distribution_;
-	Generator(): random_(), distribution_(random_, -1, 1) {}
-	std::complex<T> operator()() { return std::complex<T>(distribution_(), distribution_()); }
+	std::mt19937_64 random_;
+	std::uniform_real_distribution<T> distribution_;
+	Generator(): random_(), distribution_(-1, 1) {}
+	std::complex<T> operator()() { return std::complex<T>(distribution_(random_), distribution_(random_)); }
 };
 
 template <typename T>

@@ -48,6 +48,14 @@
 #include "num_common.h"
 #include "random.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace lass
 {
 namespace num
@@ -227,6 +235,12 @@ void RandomMT19937::setState(InputIterator first, InputIterator last)
 }
 
 }
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#else
+#	pragma GCC diagnostic pop
+#endif
 
 #endif
 

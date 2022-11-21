@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -73,7 +73,7 @@ void testPrimTriangle2D()
 	const T tolerance = 1e-3f;
 
 	TAabb bounds(TPoint(-100, -100), TPoint(100, 100));
-	num::RandomMT19937 random;
+	std::mt19937_64 random;
 
 	for (size_t i = 0; i < 10000; ++i)
 	{
@@ -131,7 +131,7 @@ void testPrimAabbTriangle3D()
 
 	const size_t numValidityTest = 10000;
 
-	num::RandomMT19937 rng;
+	std::mt19937_64 rng;
 	for (size_t k = 0; k < numValidityTest; ++k)
 	{
 		const TTriangle triangle(universe.random(rng), universe.random(rng), universe.random(rng));

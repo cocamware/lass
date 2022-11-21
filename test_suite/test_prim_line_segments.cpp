@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -46,6 +46,8 @@
 #include "../lass/prim/line_segment_3d.h"
 #include "../lass/num/random.h"
 #include "../lass/num/distribution.h"
+
+#include <random>
 
 namespace lass
 {
@@ -106,11 +108,11 @@ void testPrimLineSegment2D()
 	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), p, epsilon, 2);
 	LASS_TEST_CHECK_CLOSE_ARRAY(unbounded.point(u), p, epsilon, 2);
 
-	num::RandomMT19937 random;
-	num::DistributionUniform<T, num::RandomMT19937> uniform(random);
+	std::mt19937_64 random;
+	std::uniform_real_distribution<T> uniform;
 	for (size_t i = 0; i < 100; ++i)
 	{
-		const T t = uniform();
+		const T t = uniform(random);
 		LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
 		LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
 	}
@@ -161,11 +163,11 @@ void testPrimLineSegment3D()
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
 
-	num::RandomMT19937 random;
-	num::DistributionUniform<T, num::RandomMT19937> uniform(random);
+	std::mt19937_64 random;
+	std::uniform_real_distribution<T> uniform;
 	for (size_t i = 0; i < 100; ++i)
 	{
-		const T t = uniform();
+		const T t = uniform(random);
 		LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
 		LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
 	}

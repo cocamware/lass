@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2010 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -46,6 +46,8 @@
 #include "../lass/num/distribution.h"
 #include "../lass/num/inverse_transform_sampling.h"
 
+#include <random>
+
 namespace lass
 {
 namespace test
@@ -59,8 +61,8 @@ void testNumInverseTransformSampling2D()
 	typedef TInverseTransformSampling::TSample TSample;
 	typedef TInverseTransformSampling::TIndex TIndex;
 
-	num::RandomMT19937 random;
-	num::DistributionUniform<TValue, num::RandomMT19937> uniform(random);
+	std::mt19937_64 random;
+	std::uniform_real_distribution<TValue> uniform;
 
 	const size_t numSamples = 3000000;
 
@@ -69,7 +71,7 @@ void testNumInverseTransformSampling2D()
 	const size_t size = uSize * vSize;
 	
 	std::vector<TValue> f;
-	std::generate_n(std::back_inserter(f), size, uniform);
+	std::generate_n(std::back_inserter(f), size, [&]() { return uniform(random); });
 	const TValue fSum = std::accumulate(f.begin(), f.end(), TValue(0));
 	const TValue fIntegral = fSum / size;
 
@@ -86,7 +88,7 @@ void testNumInverseTransformSampling2D()
 	{
 		TIndex index;
 		double p;
-		TSample sample = inverse(TSample(uniform(), uniform()), p, index);
+		TSample sample = inverse(TSample(uniform(random), uniform(random)), p, index);
 		LASS_TEST_CHECK_EQUAL(static_cast<size_t>(num::floor(uSize * sample.x)), index.x);
 		LASS_TEST_CHECK_EQUAL(static_cast<size_t>(num::floor(vSize * sample.y)), index.y);
 		const size_t i = index.x * vSize + index.y;

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -45,6 +45,12 @@
 #include "../lass/num/random.h"
 #include "../lass/num/distribution.h"
 #include "../lass/io/file_attribute.h"
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 namespace lass
 {

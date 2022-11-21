@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -81,10 +81,11 @@ template <typename Vector, typename T, typename RandomGenerator>
 Vector randomExtents(T maxExtents, RandomGenerator& random)
 {
 	Vector v;
-	num::DistributionUniform<T, RandomGenerator, num::rtLeftOpen> distribution(random, 0, maxExtents);
+
+	std::uniform_real_distribution<T> distribution(0, maxExtents);
 	for (size_t k = 0; k < Vector::dimension; ++k)
 	{
-		v[k] = distribution();
+		v[k] = distribution(random);
 	}
 	return v;
 }
@@ -135,7 +136,8 @@ OutputIterator generateObjects(const prim::Aabb3D<T>& iBound,
 		const TVector centerToBound = prim::pointwiseMin(
 			center - iBound.min(), iBound.max() - center);
 		const T maxRadius = std::min(iMaxSize / 2, std::min(centerToBound.x, centerToBound.y));
-		const T radius = num::distributeUniform(iRandom, T(0), maxRadius);
+		std::uniform_real_distribution<T> radiusDistribution(0, maxRadius);
+		const T radius = radiusDistribution(iRandom);
 		*iObjects++ = prim::Sphere3D<T>(center, radius);
 	}
 	return iObjects;

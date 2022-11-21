@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -51,8 +51,7 @@
 #include "vector_3d.h"
 #include "../num/basic_ops.h"
 #include "../num/distribution.h"
-
-
+#include <random>
 
 namespace lass
 {
@@ -388,14 +387,12 @@ template <typename T>
 template <class RandomGenerator>
 Vector3D<T> Vector3D<T>::random(RandomGenerator& generator)
 {
-	num::DistributionUniform<TValue, RandomGenerator> zGenerator(
-		generator, -TNumTraits::one, TNumTraits::one);
-	const TValue z = zGenerator();
+	std::uniform_real_distribution<T> zDistribution(-TNumTraits::one, std::nextafter(TNumTraits::one, TNumTraits::max));
+	const TValue z = zDistribution(generator);
 	const TValue r = num::sqrt(1 - num::sqr(z));
 
-	num::DistributionUniform<TValue, RandomGenerator> thetaGenerator(
-		generator, TNumTraits::zero, 2 * TNumTraits::pi);
-	const TValue theta = thetaGenerator();
+	std::uniform_real_distribution<T> thetaDistribution(TNumTraits::zero, 2 * TNumTraits::pi);
+	const TValue theta = thetaDistribution(generator);
 
 	return Vector3D<T>(r * num::cos(theta), r * num::sin(theta), z);
 }

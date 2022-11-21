@@ -96,7 +96,9 @@ public:
  *  <i>Park and Miller, "Random Number Generators: Good ones are hard to find", Communications of the
  *  ACM, October 1988, Volume 31, No 10, pages 1192-1201.</i>
  */
-class LASS_DLL RandomParkMiller
+class LASS_DLL
+	[[deprecated("RandomParkMiller is deprecated, use std::minstd_rand0 instead, or upgrade to std::minstd_rand")]]
+	RandomParkMiller
 {
 public:
 	using result_type = num::Tuint32; /**< type of return value. */
@@ -152,7 +154,9 @@ private:
  *
  *  Our version is implemented after the MT19937 standard code of 2002/1/26 (mt19937ar.c)
  */
-class LASS_DLL RandomMT19937
+class LASS_DLL
+	[[deprecated("RandomMT19937 is deprecated, use std::mt19937 instead, or upgrade to std::mt19937_64")]]
+	RandomMT19937
 {
 public:
 	using result_type = num::Tuint32; /**< type of return value. */

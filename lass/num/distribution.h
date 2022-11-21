@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -92,7 +92,9 @@ enum RangeType
  *  @arg @a rangeType value of RangeType declaring if the range must be open or closed.
  */
 template <typename T, class RandomGenerator, RangeType rangeType = rtClosed>
-class DistributionUniform
+class
+	[[deprecated("DistributionUniform is deprecated, use std::uniform_real_distribution instead")]]
+	DistributionUniform
 {
 public:
 
@@ -116,7 +118,8 @@ private:
 	long double scale_;
 };
 
-template <typename T, typename RandomGenerator> 
+template <typename T, typename RandomGenerator>
+[[deprecated("distributeUniform is deprecated, use std::uniform_real_distribution instead")]]
 T distributeUniform(RandomGenerator& generator, T min = T(0), T max = T(1));
 
 
@@ -131,7 +134,9 @@ T distributeUniform(RandomGenerator& generator, T min = T(0), T max = T(1));
  *  reference: Numerical Recipes in C: The Art of Scientific Computing, section 7.2
  */
 template <typename T, class RandomGenerator>
-class DistributionExponential
+class 
+	[[deprecated("DistributionExponential is deprecated, use std::exponential_distribution instead")]]
+	DistributionExponential
 {
 public:
 
@@ -153,7 +158,8 @@ private:
 	TValue rateOfChange_;
 };
 
-template <typename T, typename RandomGenerator> 
+template <typename T, typename RandomGenerator>
+[[deprecated("distributeExponential is deprecated, use std::exponential_distribution instead")]]
 T distributeExponential(RandomGenerator& generator, T rateOfChange = T(1));
 
 
@@ -168,7 +174,9 @@ T distributeExponential(RandomGenerator& generator, T rateOfChange = T(1));
  *  reference: Numerical Recipes in C: The Art of Scientific Computing, section 7.2
  */
 template <typename T, class RandomGenerator>
-class DistributionNormal
+class
+	[[deprecated("DistributionNormal is deprecated, use std::normal_distribution instead")]]
+	DistributionNormal
 {
 public:
 
@@ -193,17 +201,25 @@ private:
 	mutable bool iset_;
 };
 
-template <typename T, typename RandomGenerator> 
+template <typename T, typename RandomGenerator>
+[[deprecated("distributeExponential is deprecated, use std::normal_distribution instead")]]
 T distributeExponential(RandomGenerator& generator, T mean = T(0), T standardDeviation = T(1));
 
 
 
 // backwards compatibility functions
 
-template<class T,class RG> T uniform(RG& generator);
-template<class T,class RG> T unitGauss(RG& generator);
-template<class T,class RG> T gauss(RG& generator, typename util::CallTraits<T>::TParam mean,
-								   typename util::CallTraits<T>::TParam stddev);
+template<class T,class RG>
+[[deprecated("uniform is deprecated, use std::uniform_real_distribution instead")]] 
+T uniform(RG& generator);
+
+template<class T,class RG>
+[[deprecated("gauss is deprecated, use std::normal_distribution instead")]] 
+T unitGauss(RG& generator);
+
+template<class T,class RG>
+[[deprecated("gauss is deprecated, use std::normal_distribution instead")]]
+T gauss(RG& generator, typename util::CallTraits<T>::TParam mean, typename util::CallTraits<T>::TParam stddev);
 
 }
 
