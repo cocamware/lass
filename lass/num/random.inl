@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -67,7 +67,7 @@ inline RandomStandard::TValue RandomStandard::operator ()() const
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline RandomStandard::TValue RandomStandard::operator ()(const TValue supremum) const
+inline RandomStandard::TValue RandomStandard::operator ()(const result_type supremum) const
 {
 	return rand() % supremum;
 }
@@ -95,7 +95,7 @@ void RandomStandard::setState(InputIterator LASS_UNUSED(first), InputIterator LA
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline RandomParkMiller::TValue RandomParkMiller::operator ()(const TValue supremum)
+inline RandomParkMiller::TValue RandomParkMiller::operator ()(const result_type supremum)
 {
 	return (*this)() % supremum;
 }
@@ -153,8 +153,8 @@ void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 	const size_t keySize = static_cast<size_t>(std::distance(first, last));
 	LASS_ASSERT(keySize < num::NumTraits<TValue>::max);
 
-	TValue i = 1;
-	TValue j = 0;
+	result_type i = 1;
+	result_type j = 0;
 	ForwardIterator key = first;
 	for (size_t k = std::max<size_t>(stateSize_, keySize); k > 0; --k)
 	{
@@ -196,7 +196,7 @@ void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 /** draw a random number remapped to range [0, supremum)
  *  @deprecated this is A VERY BAD WAY TO DO IT!
  */
-inline RandomMT19937::TValue RandomMT19937::operator ()(const TValue supremum)
+inline RandomMT19937::TValue RandomMT19937::operator ()(const result_type supremum)
 {
 	return (*this)() % supremum;
 }
@@ -218,7 +218,7 @@ void RandomMT19937::setState(InputIterator first, InputIterator last)
 	LASS_ASSERT(first != last);
 	index_ = *first++;
 	LASS_ASSERT(first != last);
-	TValue* LASS_UNUSED(end) = std::copy(first, last, state_);
+	result_type* LASS_UNUSED(end) = std::copy(first, last, state_);
 	LASS_ASSERT(end == state_ + stateSize_);
 }
 

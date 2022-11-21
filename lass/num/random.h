@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -71,11 +71,14 @@ namespace num
 class LASS_DLL RandomStandard
 {
 public:
-	typedef int TValue;             /**< type of return value. */
-	static const TValue max;        /**< maximum return value. */
+	using result_type = int; /**< type of return value. */
+	typedef int TValue; /**< type of return value. @deprecated */
 
-	TValue operator()() const;
-	TValue operator()(TValue supremum) const;
+	static constexpr result_type min() { return 0; } /**< minimum return value. */
+	static constexpr result_type max() { return RAND_MAX; } /**< maximum return value. */
+
+	result_type operator()() const;
+	result_type operator()(result_type supremum) const;
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
@@ -96,17 +99,19 @@ public:
 class LASS_DLL RandomParkMiller
 {
 public:
+	using result_type = num::Tuint32; /**< type of return value. */
+	typedef num::Tuint32 TValue; /**< type of return value. @deprecated */
 
-	typedef num::Tuint32 TValue;    /**< type of return value. */
-	static const TValue max;        /**< maximum return value. */
+	static constexpr result_type min() { return 0; } /**< minimum return value. */
+	static constexpr result_type max() { return modulus_ - 1; } /**< maximum return value. */
 
 	RandomParkMiller();
-	explicit RandomParkMiller(TValue seed);
+	explicit RandomParkMiller(result_type seed);
 
-	void seed(TValue seed);
+	void seed(result_type seed);
 
-	TValue operator()();
-	TValue operator()(TValue supremum);
+	result_type operator()();
+	result_type operator()(result_type supremum);
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
@@ -122,7 +127,7 @@ private:
 		schrageRest_ = modulus_ % multiplier_
 	};
 
-	TValue buffer_;
+	result_type buffer_;
 };
 
 
@@ -150,26 +155,28 @@ private:
 class LASS_DLL RandomMT19937
 {
 public:
+	using result_type = num::Tuint32; /**< type of return value. */
+	typedef num::Tuint32 TValue; /**< type of return value. @deprecated */
 
-	typedef num::Tuint32 TValue;   /**< type of return value. */
-	static const TValue max;        /**< maximum return value. */
+	static constexpr result_type min() { return 0; } /**< minimum return value. */
+	static constexpr result_type max() { return 0xffffffff; } /**< maximum return value. */
 
 	RandomMT19937();
-	explicit RandomMT19937(TValue seed);
+	explicit RandomMT19937(result_type seed);
 	template <typename ForwardIterator> RandomMT19937(ForwardIterator first, ForwardIterator last);
 
-	void seed(TValue seed);
+	void seed(result_type seed);
 	template <typename ForwardIterator> void seed(ForwardIterator first, ForwardIterator last);
 
-	TValue operator()();
-	TValue operator()(TValue supremum);
+	result_type operator()();
+	result_type operator()(result_type supremum);
 
 	template <typename OutputIterator> OutputIterator getState(OutputIterator first) const;
 	template <typename InputIterator> void setState(InputIterator first, InputIterator last);
 
 private:
 
-	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32,
+	LASS_META_ASSERT(sizeof(result_type) * lass::bitsPerByte == 32,
 		MersenneTwister_is_designed_to_be_a_32_bits_random_number_generator);
 
 	enum
@@ -179,14 +186,14 @@ private:
 	};
 
 	void reload();
-	TValue twist(TValue a, TValue b, TValue c) const;
+	result_type twist(result_type a, result_type b, result_type c) const;
 
-	TValue state_[stateSize_];      /**< the array for the state vector. */
-	TValue index_;                     /**< index in state vector. */
+	result_type state_[stateSize_];      /**< the array for the state vector. */
+	result_type index_;                     /**< index in state vector. */
 
-	static TValue wordMask_;
-	static TValue lowerMask_;
-	static TValue upperMask_;
+	static result_type wordMask_;
+	static result_type lowerMask_;
+	static result_type upperMask_;
 };
 
 
@@ -208,18 +215,21 @@ private:
 class LASS_DLL RandomXorShift128Plus
 {
 public:
-	typedef num::Tuint64 TValue;
-	static const TValue min; /**< minimum return value. */
-	static const TValue max; /**< maximum return value. */
+	using result_type = num::Tuint64; /**< type of return value. */
+	typedef num::Tuint64 TValue; /**< type of return value. @deprecated */
+
+	static constexpr result_type min() { return 0; }   /**< minimum return value. */
+	static constexpr result_type max() { return 0xffffffffffffffff; }    /**< maximum return value. */
 
 	RandomXorShift128Plus();
-	explicit RandomXorShift128Plus(TValue seed);
-	TValue operator()();
+	explicit RandomXorShift128Plus(result_type seed);
 
-	void seed(TValue index);
+	result_type operator()();
+
+	void seed(result_type index);
 
 private:
-	TValue state_[2];
+	result_type state_[2];
 };
 
 
@@ -236,19 +246,22 @@ private:
 class LASS_DLL RandomRadicalInverse
 {
 public:
-	typedef double TValue;
-	static const TValue min; /**< minimum return value. */
-	static const TValue max; /**< maximum return value. */
+	using result_type = double; /**< type of return value. */
+	typedef double TValue; /**< type of return value. @deprecated */
+
+	static constexpr result_type min() { return 0.0; } /**< minimum return value. */
+	static constexpr result_type max() { return 1.0; } /**< maximum return value. */
 
 	explicit RandomRadicalInverse(size_t base);
-	TValue operator()();
+
+	result_type operator()();
 
 	void seed(size_t index);
 
 private:
 	size_t index_;
 	size_t base_;
-	TValue invBase_;
+	result_type invBase_;
 };
 
 
@@ -260,10 +273,13 @@ private:
 class LASS_DLL RandomXKCD
 {
 public:
-	typedef int TValue;   /**< type of return value. */
-	static const TValue min;
-	static const TValue max;
-	TValue operator()();
+	using result_type = int; /**< type of return value. */
+	typedef int TValue; /**< type of return value. @deprecated */
+
+	static constexpr result_type min() { return 0; } /**< minimum return value. */
+	static constexpr result_type max() { return 5; } /**< maximum return value. */
+
+	result_type operator()();
 };
 
 

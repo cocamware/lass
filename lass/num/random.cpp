@@ -50,18 +50,7 @@ namespace lass
 namespace num
 {
 
-// --- RandomStandard ------------------------------------------------------------------------------
-
-const RandomStandard::TValue RandomStandard::max = RAND_MAX;
-
-
-
-
 // --- RandomParkMiller ----------------------------------------------------------------------------
-
-const RandomParkMiller::TValue RandomParkMiller::max = RandomParkMiller::modulus_ - 1;
-
-
 
 /** default constructor.
  *  will seed with default value
@@ -76,14 +65,14 @@ RandomParkMiller::RandomParkMiller()
 /** default constructor.
  *  will seed with default value
  */
-RandomParkMiller::RandomParkMiller(TValue seed)
+RandomParkMiller::RandomParkMiller(result_type seed)
 {
 	this->seed(seed);
 }
 
 
 
-void RandomParkMiller::seed(TValue seed)
+void RandomParkMiller::seed(result_type seed)
 {
 	buffer_ = seed ^ seedMask_;
 }
@@ -94,7 +83,7 @@ void RandomParkMiller::seed(TValue seed)
  */
 RandomParkMiller::TValue RandomParkMiller::operator ()()
 {
-	TValue k = buffer_ / schrageQuotient_;
+	result_type k = buffer_ / schrageQuotient_;
 	buffer_ = multiplier_ * (buffer_ - k * schrageQuotient_) - k * schrageRest_;
 	return buffer_;
 }
@@ -102,8 +91,6 @@ RandomParkMiller::TValue RandomParkMiller::operator ()()
 
 
 // --- RandomMT19937 -------------------------------------------------------------------------------
-
-const RandomMT19937::TValue RandomMT19937::max = 0xffffffff;
 
 /** default constructor.
  *  will seed with default value on first use.
@@ -117,7 +104,7 @@ RandomMT19937::RandomMT19937():
 
 /** construct with seed.
  */
-RandomMT19937::RandomMT19937(TValue seed)
+RandomMT19937::RandomMT19937(result_type seed)
 {
 	this->seed(seed);
 }
@@ -126,9 +113,9 @@ RandomMT19937::RandomMT19937(TValue seed)
 
 /** initializes with a seed.
  */
-void RandomMT19937::seed(TValue seed)
+void RandomMT19937::seed(result_type seed)
 {
-	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32, if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
+	LASS_META_ASSERT(sizeof(result_type) * lass::bitsPerByte == 32, if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
 
 	state_[0] = seed; // & wordMask_;
 	for (TValue i = 1; i < stateSize_; ++i)
@@ -150,7 +137,7 @@ RandomMT19937::TValue RandomMT19937::operator()()
 		reload();
 	}
 
-	TValue y = state_[index_++];
+	result_type y = state_[index_++];
 
 	// Tempering
 	//
@@ -191,11 +178,11 @@ void RandomMT19937::reload()
 }
 
 
-inline RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) const
+inline RandomMT19937::result_type RandomMT19937::twist(result_type a, result_type b, result_type c) const
 {
-	static const TValue magic01[2] = { 0x0, 0x9908b0df }; // magic01[x] = x * magic_ for x = 0, 1
+	static const result_type magic01[2] = { 0x0, 0x9908b0df }; // magic01[x] = x * magic_ for x = 0, 1
 
-	const TValue y = (a & 0x80000000) | (b & 0x7fffffff);
+	const result_type y = (a & 0x80000000) | (b & 0x7fffffff);
 	return c ^ (y >> 1) ^ magic01[y & 0x1];
 }
 
@@ -203,14 +190,11 @@ inline RandomMT19937::TValue RandomMT19937::twist(TValue a, TValue b, TValue c) 
 
 // --- RandomXorShift128Plus -----------------------------------------------------------------------
 
-const RandomXorShift128Plus::TValue RandomXorShift128Plus::min = 0;
-const RandomXorShift128Plus::TValue RandomXorShift128Plus::max = 0xffffffffffffffff;
-
 RandomXorShift128Plus::RandomXorShift128Plus()
 {
 }
 
-RandomXorShift128Plus::RandomXorShift128Plus(TValue seed)
+RandomXorShift128Plus::RandomXorShift128Plus(result_type seed)
 {
 	this->seed(seed);
 }
@@ -225,7 +209,7 @@ RandomXorShift128Plus::TValue RandomXorShift128Plus::operator()()
 	return state_[1] + y;
 }
 
-void RandomXorShift128Plus::seed(TValue seed)
+void RandomXorShift128Plus::seed(result_type seed)
 {
 	state_[0] = seed;
 	state_[1] = 0xffff;
@@ -234,9 +218,6 @@ void RandomXorShift128Plus::seed(TValue seed)
 
 
 // --- RandomHalton --------------------------------------------------------------------------------
-
-const RandomRadicalInverse::TValue RandomRadicalInverse::min = 0.0;
-const RandomRadicalInverse::TValue RandomRadicalInverse::max = 1.0;
 
 RandomRadicalInverse::RandomRadicalInverse(size_t base) :
 	index_(0),
@@ -269,10 +250,7 @@ void RandomRadicalInverse::seed(size_t index)
 
 // --- RandomXKCD ---------------------------------------------------------------------------------
 
-const RandomXKCD::TValue RandomXKCD::min = 0; // zero-based
-const RandomXKCD::TValue RandomXKCD::max = 5; // zero-based
-
-RandomXKCD::TValue RandomXKCD::operator()()
+RandomXKCD::result_type RandomXKCD::operator()()
 {
 	return 4;
 }

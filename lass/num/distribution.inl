@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -113,7 +113,7 @@ DistributionUniform<T, RG, RT>::DistributionUniform(
 	generator_(&generator),
 	infimum_(infimum),
 	supremum_(supremum),
-	scale_(static_cast<long double>(supremum - infimum) / TGenerator::max)
+	scale_(static_cast<long double>(supremum - infimum) / TGenerator::max())
 {
 }
 
@@ -184,7 +184,7 @@ DistributionExponential<T, RG>::operator()() const
 	TValue temp;
 	do
 	{
-		temp = static_cast<TValue>((*generator_)()) / TGenerator::max;
+		temp = static_cast<TValue>((*generator_)()) / TGenerator::max();
 	}
 	while (temp == TNumTraits::zero);
 	return -num::log(temp) / rateOfChange_;
@@ -249,7 +249,7 @@ DistributionNormal<T, RG>::operator()() const
 		return mean_ + standardDeviation_ * gset_;
 	}
 
-	const TValue scale = static_cast<TValue>(2) / TGenerator::max;
+	const TValue scale = static_cast<TValue>(2) / TGenerator::max();
 	TValue rsq,v1,v2;
 	do
 	{
