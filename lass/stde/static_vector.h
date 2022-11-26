@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -61,7 +61,7 @@ namespace stde
 {
 
 template <typename T, size_t maxsize>
-class static_vector
+class alignas(alignof(T) > 8 ? alignof(T) : 8) static_vector
 {
 public:
 
@@ -78,29 +78,39 @@ public:
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	static_vector();
-	static_vector(size_type n, const value_type& value = value_type());
+	explicit static_vector(size_type count);
+	static_vector(size_type count, const value_type& value);
 	template <typename InputIterator> static_vector(InputIterator first, InputIterator last);
 	static_vector(const static_vector<T, maxsize>& other);
+	static_vector(static_vector<T, maxsize>&& other);
+	static_vector(std::initializer_list<value_type> init);
 	~static_vector();
 
 	static_vector<T, maxsize>& operator=(const static_vector<T, maxsize>& other);
-	void assign(size_type n = 0, const value_type& value = value_type());
+	static_vector<T, maxsize>& operator=(static_vector<T, maxsize>&& other);
+
+	void assign(size_type count, const value_type& value);
 	template <typename InputIterator> void assign(InputIterator first, InputIterator last);
+	void assign(std::initializer_list<value_type> init);
 
-	iterator begin();
-	const_iterator begin() const;
-	iterator end();
-	const_iterator end() const;
-	reverse_iterator rbegin();
-	const_reverse_iterator rbegin() const;
-	reverse_iterator rend();
-	const_reverse_iterator rend() const;
+	iterator begin() noexcept;
+	const_iterator begin() const noexcept;
+	const_iterator cbegin() const noexcept;
+	iterator end() noexcept;
+	const_iterator end() const noexcept;
+	const_iterator cend() const noexcept;
+	reverse_iterator rbegin() noexcept;
+	const_reverse_iterator rbegin() const noexcept;
+	const_reverse_iterator crbegin() const noexcept;
+	reverse_iterator rend() noexcept;
+	const_reverse_iterator rend() const noexcept;
+	const_reverse_iterator crend() const noexcept;
 
-	size_type size() const;
-	size_type max_size() const;
+	size_type size() const noexcept;
+	constexpr size_type max_size() const noexcept;
 	void resize(size_type n, const value_type& value = value_type());
-	size_type capacity() const;
-	bool empty() const;
+	constexpr size_type capacity() const noexcept;
+	bool empty() const noexcept;
 	void reserve(size_type n);
 
 	reference operator[](size_type i);
@@ -113,11 +123,15 @@ public:
 	const_reference back() const;
 
 	void push_back(const value_type& value);
+	void push_back(value_type&& value);
+	template <typename... Args> reference emplace_back(Args&&... args);
 	void pop_back();
-	void insert(iterator position, const value_type& value);
-	void insert(iterator position, size_type n, const value_type& value);
-	template <typename InputIterator> void insert(iterator position, InputIterator first, 
-		InputIterator last);
+	iterator insert(const_iterator position, const value_type& value);
+	iterator insert(const_iterator position, value_type&& value);
+	iterator insert(const_iterator position, size_type n, const value_type& value);
+	template <typename InputIterator> iterator insert(const_iterator position, InputIterator first, InputIterator last);
+	iterator insert(const_iterator position, std::initializer_list<value_type> init);
+	template <typename... Args> iterator emplace(const_iterator pos, Args&&... args);
 	iterator erase(iterator position);
 	iterator erase(iterator first, iterator last);
 	void clear();
@@ -129,13 +143,13 @@ private:
 
 	pointer get_element(size_type i) { return reinterpret_cast<pointer>(data_) + i; }
 	const_pointer get_element(size_type i) const { return reinterpret_cast<const_pointer>(data_) + i; }
-	template <typename IntegerType> void insert(iterator position, IntegerType n, IntegerType value, 
+	template <typename IntegerType> iterator insert(const_iterator position, IntegerType n, IntegerType value,
 		meta::Wrap<meta::True> parameter_is_integral);
-	template <typename InputIterator> void insert(iterator position, InputIterator first, 
+	template <typename InputIterator> iterator insert(const_iterator position, InputIterator first,
 		InputIterator last, meta::Wrap<meta::False> parameter_is_iterator);
-	void assign(size_type n, value_type value, meta::Wrap<meta::True> parameter_is_integral);
+	void assign(size_type count, value_type value, meta::Wrap<meta::True> /*parameter_is_integral*/);
 	template <typename InputIterator> void assign(InputIterator first, InputIterator last, 
-		meta::Wrap<meta::False> parameter_is_iterator);
+		meta::Wrap<meta::False> /*parameter_is_iterator*/);
 	void move_to_back(iterator first, iterator last, size_type step);
 	void move_to_front(iterator first, iterator last, size_type step);
 	void enforce_valid_size(size_type new_size) const;

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -52,182 +52,922 @@ namespace lass
 namespace test
 {
 
+class object
+{
+public:
+	object(int value = 0): value_(value) { ++count_; }
+	object(const object& other): value_(other.value_) { ++count_; }
+	~object() { --count_; }
+	object& operator=(const object& other) = default;
+	int value() const { return value_; }
+	static int count() { return count_; }
+private:
+	static int count_;
+	int value_;
+};
+
+int object::count_ = 0;
+
 void testStdeStaticVector()
 {
-	TestStream stream;
+	constexpr size_t max_size = 10;
+	using vector_type = stde::static_vector<object, max_size>;
+	using string_vector_type = stde::static_vector<std::string, max_size>;
+	using object_ptr = std::unique_ptr<object>;
+	using ptr_vector_type = stde::static_vector<object_ptr, max_size>;
+	object* const null = nullptr;
 
-	typedef stde::static_vector<int, 10> static_vector_type;
-
-	// constructors
-
-	static_vector_type empty_vector;
-	LASS_TEST_CHECK(empty_vector.empty());
-	LASS_TEST_CHECK_EQUAL(empty_vector.size(), size_t(0));
-	LASS_TEST_CHECK(empty_vector.begin() == empty_vector.end());
-
-	const size_t n = 5;
-	static_vector_type n_vector(n, 37);
-	LASS_TEST_CHECK(!n_vector.empty());
-	LASS_TEST_CHECK_EQUAL(n_vector.size(), n);
-	LASS_TEST_CHECK(n_vector.begin() != n_vector.end());
-	static_vector_type::const_iterator i = n_vector.begin();
-	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
-		if (i != n_vector.end()) // just a safety
+		// default constructor
+		vector_type vector;
+		LASS_ASSERT(vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
+	}
+
+	{
+		// count constructor
+		vector_type vector(5);
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		for (size_t k = 0; k < 5; ++k)
 		{
-			LASS_TEST_CHECK_EQUAL(*i, 37);
-			LASS_TEST_CHECK_NO_THROW(++i);
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 0);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(5), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector_type(666), std::length_error);
+	}
+
+	{
+		// count&value constructor
+		vector_type vector(5, object{ 37 });
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		for (size_t k = 0; k < 5; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 37);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(5), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector_type(666, object{ 37 }), std::length_error);
+	}
+
+	{
+		// count&value constructor using input iterator overload
+		vector_type vector(static_cast<int>(5), static_cast<int>(37));
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		for (size_t k = 0; k < 5; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 37);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(5), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector_type(static_cast<int>(666), static_cast<int>(37)), std::length_error);
+	}
+
+	{
+		// input iterators constructor
+		std::list<int> list{ { 4, 3, 6, 1, 0, 2, 5 } };
+		vector_type vector(list.begin(), list.end());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		size_t k = 0;
+		for (auto x : list)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k++).value(), x);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(k), std::out_of_range);
+	}
+
+	{
+		// input iterators constructor exceeding max size
+		std::list<int> list{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 } };
+		LASS_TEST_CHECK_THROW(vector_type(list.begin(), list.end()), std::length_error);
+	}
+
+	{
+		// initializer list & copy constructor
+		int array[] = { 4, 3, 6, 1, 0, 2, 5 };
+		vector_type vector({ 4, 3, 6, 1, 0, 2, 5 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		vector_type copy(vector);
+		LASS_TEST_CHECK_EQUAL(copy.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 14);
+		for (size_t k = 0; k < 7; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), array[k]);
+			LASS_TEST_CHECK_EQUAL(copy.at(k).value(), array[k]);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(7), std::out_of_range);
+		LASS_TEST_CHECK_THROW(copy.at(7), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector_type({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }), std::length_error);
+	}
+
+	{
+		// move constructor, destructor, and move push_back
+		object_ptr a(new object{ 1 });
+		object_ptr b(new object{ 2 });
+		object* aa = a.get();
+		object* bb = b.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+
+		{
+			const size_t size = 2;
+			ptr_vector_type vector;
+			vector.push_back(std::move(a));
+			vector.push_back(std::move(b));
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			LASS_TEST_CHECK_EQUAL(vector.size(), size);
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), aa);
+			LASS_TEST_CHECK_EQUAL(vector.at(1).get(), bb);
+
+			ptr_vector_type moved(std::move(vector));
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			LASS_TEST_CHECK_EQUAL(moved.size(), size);
+			LASS_TEST_CHECK_EQUAL(moved.at(0).get(), aa);
+			LASS_TEST_CHECK_EQUAL(moved.at(1).get(), bb);
+
+			LASS_TEST_CHECK_EQUAL(vector.size(), size);
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), null);
+			LASS_TEST_CHECK_EQUAL(vector.at(1).get(), null);
+		}
+
+		LASS_TEST_CHECK_EQUAL(object::count(), 0);
+	}
+
+	{
+		// copy assignment
+		vector_type vector({ 4, 3, 6, 1, 0, 2, 5 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+
+		vector_type copy({ 8, 7, 9 });
+		LASS_TEST_CHECK_EQUAL(copy.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 10);
+
+		copy = vector;
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(copy.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 14);
+		for (size_t k = 0; k < 7; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(copy.at(k).value(), vector.at(k).value());
+		}
+		LASS_TEST_CHECK_THROW(vector.at(8), std::out_of_range);
+		LASS_TEST_CHECK_THROW(copy.at(8), std::out_of_range);
+
+		vector_type other({ 10, 11 });
+		LASS_TEST_CHECK_EQUAL(other.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 16);
+		copy = other;
+		LASS_TEST_CHECK_EQUAL(other.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(copy.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 11);
+		for (size_t k = 0; k < 2; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(copy.at(k).value(), other.at(k).value());
+		}
+		LASS_TEST_CHECK_THROW(other.at(3), std::out_of_range);
+		LASS_TEST_CHECK_THROW(copy.at(3), std::out_of_range);
+	}
+
+	{
+		// move assignment
+		object_ptr a(new object{ 1 });
+		object_ptr b(new object{ 2 });
+		object_ptr c(new object{ 3 });
+		object* aa = a.get();
+		object* bb = b.get();
+		object* cc = c.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+
+		ptr_vector_type moved;
+		moved.push_back(std::move(c));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(moved.at(0).get(), cc);
+
+		{
+			ptr_vector_type vector;
+			vector.push_back(std::move(a));
+			vector.push_back(std::move(b));
+			LASS_TEST_CHECK_EQUAL(object::count(), 3);
+			LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), aa);
+			LASS_TEST_CHECK_EQUAL(vector.at(1).get(), bb);
+
+			moved = std::move(vector);
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(2));
+			LASS_TEST_CHECK_EQUAL(moved.at(0).get(), aa);
+			LASS_TEST_CHECK_EQUAL(moved.at(1).get(), bb);
+
+			LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), null);
+			LASS_TEST_CHECK_EQUAL(vector.at(1).get(), null);
+		}
+
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(moved.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(moved.at(1).get(), bb);
+	}
+
+	{
+		// move assignment 2
+		object_ptr a(new object{ 1 });
+		object_ptr b(new object{ 2 });
+		object_ptr c(new object{ 3 });
+		object* aa = a.get();
+		object* bb = b.get();
+		object* cc = c.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+
+		ptr_vector_type moved;
+		moved.push_back(std::move(a));
+		moved.push_back(std::move(b));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(moved.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(moved.at(1).get(), bb);
+
+		{
+			ptr_vector_type vector;
+			vector.push_back(std::move(c));
+			LASS_TEST_CHECK_EQUAL(object::count(), 3);
+			LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), cc);
+
+			moved = std::move(vector);
+			LASS_TEST_CHECK_EQUAL(object::count(), 1);
+			LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(1));
+			LASS_TEST_CHECK_EQUAL(moved.at(0).get(), cc);
+
+			LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), null);
+		}
+
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		LASS_TEST_CHECK_EQUAL(moved.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(moved.at(0).get(), cc);
+	}
+
+	{
+		// assign count/value
+		vector_type vector(3, object{ 1 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), static_cast<int>(3));
+
+		// to larger size
+		vector.assign(5, object{ 2 });
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		for (size_t k = 0; k < 5; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 2);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(5), std::out_of_range);
+
+		// to smaller size
+		vector.assign(2, object{ 3 });
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		for (size_t k = 0; k < 2; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 3);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(2), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector.assign(666, object{ 4 }), std::length_error);
+	}
+
+	{
+		// assign count/value using input iterator overload
+		vector_type vector(3);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+
+		// to larger size
+		vector.assign(5, 37);
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		for (size_t k = 0; k < 5; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 37);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(5), std::out_of_range);
+
+		// to smaller size
+		vector.assign(2, 42);
+		LASS_TEST_CHECK(!vector.empty());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		for (size_t k = 0; k < 2; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 42);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(2), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector.assign(666, 37), std::length_error);
+	}
+
+	{
+		// assign initializer_list
+		vector_type vector(3);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+
+		// to larger size
+		int array[] = {4, 3, 6, 1, 0, 2, 5};
+		vector.assign({ 4, 3, 6, 1, 0, 2, 5 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		for (size_t k = 0; k < 7; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), array[k]);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(7), std::out_of_range);
+
+		// to smaller size
+		int array2[] = { 7, 8, 9 };
+		vector.assign({ 7, 8, 9 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		for (size_t k = 0; k < 3; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), array2[k]);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(3), std::out_of_range);
+
+		// exceeding max size
+		LASS_TEST_CHECK_THROW(vector.assign({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }), std::length_error);
+	}
+
+	{
+		// assign iterator
+		vector_type vector(3);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+
+		// to larger size
+		std::list<int> list{ { 4, 3, 6, 1, 0, 2, 5 } };
+		LASS_TEST_CHECK_EQUAL(list.size(), static_cast<size_t>(7));
+		vector.assign(list.begin(), list.end());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		size_t k = 0;
+		for (auto x : list)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k++).value(), x);
+		}
+		LASS_TEST_CHECK_EQUAL(k, static_cast<size_t>(7));
+		LASS_TEST_CHECK_THROW(vector.at(k), std::out_of_range);
+
+		// to smaller size
+		std::list<int> list2{ { 7, 8, 9 } };
+		LASS_TEST_CHECK_EQUAL(list2.size(), static_cast<size_t>(3));
+		vector.assign(list2.begin(), list2.end());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		k = 0;
+		for (auto x : list2)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k++).value(), x);
+		}
+		LASS_TEST_CHECK_EQUAL(k, static_cast<size_t>(3));
+		LASS_TEST_CHECK_THROW(vector.at(k), std::out_of_range);
+
+		// exceeding max size
+		std::list<int> list3{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } };
+		LASS_TEST_CHECK_THROW(vector.assign(list3.begin(), list3.end()), std::length_error);
+	}
+
+	{
+		// iterators empty vector
+		vector_type vector;
+		LASS_TEST_CHECK(vector.begin() == vector.end());
+		LASS_TEST_CHECK(static_cast<const vector_type&>(vector).begin() == static_cast<const vector_type&>(vector).end());
+		LASS_TEST_CHECK(vector.cbegin() == vector.cend());
+		LASS_TEST_CHECK(vector.rbegin() == vector.rend());
+		LASS_TEST_CHECK(static_cast<const vector_type&>(vector).rbegin() == static_cast<const vector_type&>(vector).rend());
+		LASS_TEST_CHECK(vector.crbegin() == vector.crend());
+	}
+
+	{
+		// iterators non-empty vector
+		vector_type vector{ { 1, 2 }};
+		LASS_TEST_CHECK(vector.begin() != vector.end());
+		LASS_TEST_CHECK(static_cast<const vector_type&>(vector).begin() != static_cast<const vector_type&>(vector).end());
+		LASS_TEST_CHECK(vector.cbegin() != vector.cend());
+		LASS_TEST_CHECK(vector.rbegin() != vector.rend());
+		LASS_TEST_CHECK(static_cast<const vector_type&>(vector).rbegin() != static_cast<const vector_type&>(vector).rend());
+		LASS_TEST_CHECK(vector.crbegin() != vector.crend());
+		{
+			auto it = vector.begin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK(it == vector.end());
+		}
+		{
+			auto it = static_cast<const vector_type&>(vector).begin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK(it == static_cast<const vector_type&>(vector).end());
+		}
+		{
+			auto it = vector.cbegin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK(it == vector.cend());
+		}
+		{
+			auto it = vector.rbegin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK(it == vector.rend());
+		}
+		{
+			auto it = static_cast<const vector_type&>(vector).rbegin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK(it == static_cast<const vector_type&>(vector).rend());
+		}
+		{
+			auto it = vector.crbegin();
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 2);
+			LASS_TEST_CHECK_EQUAL((it++)->value(), 1);
+			LASS_TEST_CHECK(it == vector.crend());
 		}
 	}
 
-	const size_t array_size = 7;
-	int array[array_size] = {4, 3, 6, 1, 0, 2, 5};
-	static_vector_type array_vector(array, array + array_size);
-	LASS_TEST_CHECK_EQUAL(array_vector.size(), array_size);
-	i = array_vector.begin();
-	for (size_t k = 0; k < array_size; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != array_vector.end());
-		if (i != array_vector.end()) // just a safety
+		// size etc ...
+		vector_type vector;
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
+		LASS_TEST_CHECK_EQUAL(vector.max_size(), static_cast<size_t>(10));
+		LASS_TEST_CHECK_EQUAL(vector.capacity(), static_cast<size_t>(10));
+		LASS_TEST_CHECK(vector.empty());
+
+		vector.resize(2, 37);
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		vector.reserve(5);
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(vector.max_size(), static_cast<size_t>(10));
+		LASS_TEST_CHECK_EQUAL(vector.capacity(), static_cast<size_t>(10));
+		LASS_TEST_CHECK(!vector.empty());
+		for (size_t k = 0; k < 2; ++k)
 		{
-			LASS_TEST_CHECK_EQUAL(*i, array[k]);
-			LASS_TEST_CHECK_NO_THROW(++i);
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), 37);
 		}
+		LASS_TEST_CHECK_THROW(vector.at(2), std::out_of_range);
+
+		vector.resize(4, 42);
+		LASS_TEST_CHECK_EQUAL(object::count(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK_EQUAL(vector.max_size(), static_cast<size_t>(10));
+		LASS_TEST_CHECK_EQUAL(vector.capacity(), static_cast<size_t>(10));
+		LASS_TEST_CHECK(!vector.empty());
+		for (size_t k = 0; k < 4; ++k)
+		{
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), k < 2 ? 37 : 42);
+		}
+		LASS_TEST_CHECK_THROW(vector.at(4), std::out_of_range);
+
+		LASS_TEST_CHECK_THROW(vector.reserve(666), std::length_error);
+		LASS_TEST_CHECK_THROW(vector.resize(666, 69), std::length_error);
 	}
 
-	static_vector_type copy_vector(array_vector);
-	LASS_TEST_CHECK_EQUAL(copy_vector.size(), array_size);
-	LASS_TEST_CHECK_EQUAL(array_vector, copy_vector);
-
-	// assignment
-
-	static_vector_type assigned_vector;
-	assigned_vector = array_vector;
-	LASS_TEST_CHECK_EQUAL(assigned_vector, array_vector);
-
-	assigned_vector.assign(n, 37);
-	LASS_TEST_CHECK_EQUAL(assigned_vector, n_vector);
-
-	assigned_vector.assign(array, array + array_size);
-	LASS_TEST_CHECK_EQUAL(assigned_vector, array_vector);
-
-	// iterators
-
-	const static_vector_type const_vector = array_vector;
-	LASS_TEST_CHECK_EQUAL(*array_vector.begin(), array[0]);
-	LASS_TEST_CHECK_EQUAL(*const_vector.begin(), array[0]);
-	LASS_TEST_CHECK_EQUAL(*(array_vector.end() - 1), array[array_size - 1]);
-	LASS_TEST_CHECK_EQUAL(*(const_vector.end() - 1), array[array_size - 1]);
-	LASS_TEST_CHECK_EQUAL(static_cast<size_t>(std::distance(array_vector.begin(), array_vector.end())), array_vector.size());
-	LASS_TEST_CHECK_EQUAL(static_cast<size_t>(std::distance(const_vector.begin(), const_vector.end())), const_vector.size());
-
-	// resize
-
-	const size_t m = 5;
-	LASS_TEST_CHECK_NO_THROW(n_vector.resize(n + m, 69));
-	LASS_TEST_CHECK_EQUAL(n_vector.size(), n + m);
-	i = n_vector.begin();
-	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
-		if (i != n_vector.end()) // just a safety
+		// operator[], at(), front() and back()
+		vector_type vector({ 1, 2, 3});
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		const vector_type& const_vector = vector;
+		for (size_t k = 0; k < 3; ++k)
 		{
-			LASS_TEST_CHECK_EQUAL(*i, 37);
-			LASS_TEST_CHECK_NO_THROW(++i);
+			const int value = static_cast<int>(k) + 1;
+			LASS_TEST_CHECK_EQUAL(vector.at(k).value(), value);
+			LASS_TEST_CHECK_EQUAL(const_vector.at(k).value(), value);
+			LASS_TEST_CHECK_EQUAL(vector[k].value(), value);
+			LASS_TEST_CHECK_EQUAL(const_vector[k].value(), value);
 		}
-	}
-	for (size_t k = 0; k < m; ++k)
-	{
-		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
-		if (i != n_vector.end()) // just a safety
-		{
-			LASS_TEST_CHECK_EQUAL(*i, 69);
-			LASS_TEST_CHECK_NO_THROW(++i);
-		}
+		LASS_TEST_CHECK_EQUAL(vector.front().value(), 1);
+		LASS_TEST_CHECK_EQUAL(const_vector.front().value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.back().value(), 3);
+		LASS_TEST_CHECK_EQUAL(const_vector.back().value(), 3);
+
+		vector[0] = 4;
+		vector.at(1) = 5;
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 5);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
 	}
 
-	LASS_TEST_CHECK_NO_THROW(n_vector.resize(n));
-	LASS_TEST_CHECK_EQUAL(n_vector.size(), n);
-	i = n_vector.begin();
-	for (size_t k = 0; k < n; ++k)
 	{
-		LASS_TEST_CHECK_NO_THROW(bool LASS_UNUSED(a) = i != n_vector.end());
-		if (i != n_vector.end()) // just a safety
+		// push_back
+		vector_type vector;
+		vector.push_back(1);
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
 		{
-			LASS_TEST_CHECK_EQUAL(*i, 37);
-			LASS_TEST_CHECK_NO_THROW(++i);
+			object b{ 2 };
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			vector.push_back(b);
+			LASS_TEST_CHECK_EQUAL(object::count(), 3);
 		}
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 2);
+
+		vector.resize(vector.max_size());
+		LASS_TEST_CHECK_THROW(vector.push_back(3), std::length_error);
 	}
 
-	LASS_TEST_CHECK_THROW(n_vector.resize(n_vector.max_size() + 1), std::length_error);
+	{
+		// push_back move
+		ptr_vector_type vector;
+		object_ptr a{ new object{ 1 } };
+		object* aa = a.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		vector.push_back(std::move(a));
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(vector.at(0).get(), aa);
 
-	// back operations
+		{
+			object_ptr b{ new object{ 2 } };
+			object* bb = b.get();
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			vector.push_back(std::move(b));
+			LASS_TEST_CHECK_EQUAL(object::count(), 2);
+			LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+			LASS_TEST_CHECK_EQUAL(vector.at(0).get(), aa);
+			LASS_TEST_CHECK_EQUAL(vector.at(1).get(), bb);
+		}
 
-	static_vector_type some_vector;
-	LASS_TEST_CHECK_NO_THROW(some_vector.push_back(0));
-	LASS_TEST_CHECK(!some_vector.empty());
-	LASS_TEST_CHECK_EQUAL(some_vector.size(), size_t(1));
-	LASS_TEST_CHECK_EQUAL(some_vector.back(), 0);
+		for (int k = 2; k < 10; ++k)
+		{
+			object_ptr c{ new object{ k + 1 } };
+			vector.push_back(std::move(c));
+		}
+		LASS_TEST_CHECK_EQUAL(object::count(), 10);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(10));
 
-	LASS_TEST_CHECK_NO_THROW(some_vector.push_back(1));
-	LASS_TEST_CHECK_EQUAL(some_vector.size(), size_t(2));
-	LASS_TEST_CHECK_EQUAL(some_vector.back(), 1);
+		object_ptr d{ new object{ 3 } };
+		LASS_TEST_CHECK_THROW(vector.push_back(std::move(d)), std::length_error);
+	}
 
-	some_vector.pop_back();
-	LASS_TEST_CHECK_EQUAL(some_vector.size(), size_t(1));
-	LASS_TEST_CHECK_EQUAL(some_vector.back(), 0);
+	{
+		// pop_back
+		vector_type vector({1,2,3});
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
 
+		vector.pop_back();
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 2);
 
-	// insert
+		vector.pop_back();
+		vector.pop_back();
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
+		LASS_TEST_CHECK_EQUAL(object::count(), 0);
 
-	some_vector.insert(some_vector.begin(), 1);
-	stream << some_vector;
-	LASS_TEST_CHECK(stream.isEqual("[1, 0]"));
+		// calling pop_back on empty container is considered UB
+	}
 
-	some_vector.insert(some_vector.begin(), 4, 2);
-	stream << some_vector;
-	LASS_TEST_CHECK(stream.isEqual("[2, 2, 2, 2, 1, 0]"));
+	{
+		// insert
+		vector_type vector;
 
-	int little_array[3] = { 3, 4, 5 };
-	some_vector.insert(some_vector.end(), little_array, little_array + 3);
-	stream << some_vector;
-	LASS_TEST_CHECK(stream.isEqual("[2, 2, 2, 2, 1, 0, 3, 4, 5]"));
+		const object a(1); // rvalue
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		vector_type::iterator i = vector.insert(vector.begin(), a);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin());
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 1);
 
-
-	int yet_another_array[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-	static_vector_type yet_another_vector(yet_another_array, yet_another_array + 10);
-	LASS_TEST_CHECK_EQUAL(yet_another_vector.size(), size_t(10));
-	stream << yet_another_vector;
-	LASS_TEST_CHECK(stream.isEqual("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]"));
-
-	// fixed size limits
-
-	LASS_TEST_CHECK_THROW(yet_another_vector.push_back(666), std::length_error);
-	LASS_TEST_CHECK_THROW(yet_another_vector.insert(yet_another_vector.begin(), 666), std::length_error);
-	LASS_TEST_CHECK_THROW(yet_another_vector.insert(yet_another_vector.begin(), 5, 666), std::length_error);
-	LASS_TEST_CHECK_THROW(yet_another_vector.insert(yet_another_vector.begin(), yet_another_array, yet_another_array + 10), std::length_error);
-
-	// erase
-
-	i = yet_another_vector.erase(yet_another_vector.begin());
-	stream << yet_another_vector;
-	LASS_TEST_CHECK(stream.isEqual("[1, 2, 3, 4, 5, 6, 7, 8, 9]"));
-	LASS_TEST_CHECK(i == yet_another_vector.begin());
-
-	i = yet_another_vector.erase(yet_another_vector.begin() + 5, yet_another_vector.begin() + 7);
-	stream << yet_another_vector;
-	LASS_TEST_CHECK(stream.isEqual("[1, 2, 3, 4, 5, 8, 9]"));
-	LASS_TEST_CHECK(i == yet_another_vector.begin() + 5);
+		const object b(2); // rvalue
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		i = vector.insert(vector.begin(), b);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 4);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin());
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 1);
 	
-	LASS_TEST_CHECK_EQUAL(n_vector.size(), n);
-	n_vector.clear();
-	LASS_TEST_CHECK_EQUAL(n_vector.size(), size_t(0));
+		const object c(3); // rvalue
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		i = vector.insert(vector.end(), c);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 6);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
+	
+		const object d(4); // rvalue
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		i = vector.insert(vector.begin() + 1, d);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK_EQUAL(object::count(), 8);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 3);
+	}
+
+	{
+		// insert move
+		ptr_vector_type vector;
+
+		object_ptr a{ new object(1) };
+		object* aa = a.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		ptr_vector_type::iterator i = vector.insert(vector.begin(), std::move(a));
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(object::count(), 1);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin());
+		LASS_TEST_CHECK_EQUAL(vector.at(0).get(), aa);
+
+		object_ptr b{ new object(2) };
+		object* bb = b.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		i = vector.insert(vector.begin(), std::move(b));
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin());
+		LASS_TEST_CHECK_EQUAL(vector.at(0).get(), bb);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).get(), aa);
+	
+		object_ptr c{ new object(3) };
+		object* cc = c.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		i = vector.insert(vector.end(), std::move(c));
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 2);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).get(), bb);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).get(), aa);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).get(), cc);
+	
+		object_ptr d{ new object(4) };
+		object* dd = d.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 4);
+		i = vector.insert(vector.begin() + 1, std::move(d));
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK_EQUAL(object::count(), 4);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).get(), bb);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).get(), dd);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).get(), aa);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).get(), cc);
+	}
+
+	{
+		// insert n
+		vector_type vector({1, 2});
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+
+		const object a(3); // rvalue
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		auto i = vector.insert(vector.begin() + 1, 3, a);
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 6);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(4).value(), 2);
+	}
+
+	{
+		// insert iterators
+		vector_type vector({ 1, 2 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+
+		std::list<int> list({ 3, 4, 5 });
+
+		auto i = vector.insert(vector.begin() + 1, list.begin(), list.end());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 5);
+		LASS_TEST_CHECK_EQUAL(vector.at(4).value(), 2);
+	}
+
+	{
+		// insert initializer_list
+		vector_type vector({ 1, 2 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+
+		auto i = vector.insert(vector.begin() + 1, { 3, 4, 5 });
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(object::count(), 5);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 5);
+		LASS_TEST_CHECK_EQUAL(vector.at(4).value(), 2);
+	}
+
+	{
+		// emplace and emplace_back
+
+		string_vector_type vector;
+		auto& a = vector.emplace_back(static_cast<size_t>(3), 'a');
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(vector.at(0), std::string{ "aaa" });
+		LASS_TEST_CHECK_EQUAL(&a, &vector.at(0));
+
+		auto& b = vector.emplace_back(static_cast<size_t>(2), 'b');
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(vector.at(0), std::string{ "aaa" });
+		LASS_TEST_CHECK_EQUAL(vector.at(1), std::string{ "bb" });
+		LASS_TEST_CHECK_EQUAL(&b, &vector.at(1));
+
+		auto c = vector.emplace(vector.begin(), static_cast<size_t>(4), 'c');
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(3));
+		LASS_TEST_CHECK_EQUAL(vector.at(0), std::string{ "cccc" });
+		LASS_TEST_CHECK_EQUAL(vector.at(1), std::string{ "aaa" });
+		LASS_TEST_CHECK_EQUAL(vector.at(2), std::string{ "bb" });
+		LASS_TEST_CHECK_EQUAL(c, vector.begin());
+
+		auto d = vector.emplace(vector.end(), static_cast<size_t>(3), 'd');
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK_EQUAL(vector.at(0), std::string{ "cccc" });
+		LASS_TEST_CHECK_EQUAL(vector.at(1), std::string{ "aaa" });
+		LASS_TEST_CHECK_EQUAL(vector.at(2), std::string{ "bb" });
+		LASS_TEST_CHECK_EQUAL(vector.at(3), std::string{ "ddd" });
+		LASS_TEST_CHECK_EQUAL(d, vector.end() - 1);
+
+		auto e = vector.emplace(vector.begin() + 2, static_cast<size_t>(4), 'e');
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK_EQUAL(vector.at(0), std::string{ "cccc" });
+		LASS_TEST_CHECK_EQUAL(vector.at(1), std::string{ "aaa" });
+		LASS_TEST_CHECK_EQUAL(vector.at(2), std::string{ "eeee" });
+		LASS_TEST_CHECK_EQUAL(vector.at(3), std::string{ "bb" });
+		LASS_TEST_CHECK_EQUAL(vector.at(4), std::string{ "ddd" });
+		LASS_TEST_CHECK_EQUAL(e, vector.begin() + 2);
+	}
+
+	{
+		// erase
+
+		vector_type vector{ { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(10));
+		LASS_TEST_CHECK_EQUAL(object::count(), 10);
+
+		auto i = vector.erase(vector.begin() + 2);
+		// 0, 1, 3, 4, 5, 6, 7, 8, 9
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(9));
+		LASS_TEST_CHECK_EQUAL(object::count(), 9);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 2);
+		LASS_TEST_CHECK_EQUAL(i->value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 0);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(8).value(), 9);
+
+		i = vector.erase(vector.begin() + 4, vector.begin() + 6);
+		// 0, 1, 3, 4, 7, 8, 9
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(7));
+		LASS_TEST_CHECK_EQUAL(object::count(), 7);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin() + 4);
+		LASS_TEST_CHECK_EQUAL(i->value(), 7);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 0);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 4);
+		LASS_TEST_CHECK_EQUAL(vector.at(4).value(), 7);
+		LASS_TEST_CHECK_EQUAL(vector.at(5).value(), 8);
+		LASS_TEST_CHECK_EQUAL(vector.at(6).value(), 9);
+
+		i = vector.erase(vector.begin() + 4, vector.end());
+		// 0, 1, 3, 4
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK_EQUAL(object::count(), 4);
+		LASS_TEST_CHECK_EQUAL(i, vector.end());
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 0);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 1);
+		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(3).value(), 4);
+
+		i = vector.erase(vector.begin(), vector.begin() + 2);
+		// 3, 4
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(object::count(), 2);
+		LASS_TEST_CHECK_EQUAL(i, vector.begin());
+		LASS_TEST_CHECK_EQUAL(i->value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(0).value(), 3);
+		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 4);
+
+		i = vector.erase(vector.begin(), vector.end());
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
+		LASS_TEST_CHECK_EQUAL(object::count(), 0);
+		LASS_TEST_CHECK_EQUAL(i, vector.end());
+	}
+
+	{
+		// clear
+
+		vector_type vector{ { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(10));
+		LASS_TEST_CHECK_EQUAL(object::count(), 10);
+		vector.clear();
+		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
+		LASS_TEST_CHECK_EQUAL(object::count(), 0);
+	}
+
+	{
+		// swap & std::swap
+		object_ptr a(new object{ 1 });
+		object_ptr b(new object{ 2 });
+		object_ptr c(new object{ 3 });
+		object* aa = a.get();
+		object* bb = b.get();
+		object* cc = c.get();
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+
+		ptr_vector_type left;
+		left.push_back(std::move(a));
+		left.push_back(std::move(b));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(left.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(left.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(left.at(1).get(), bb);
+
+		ptr_vector_type right;
+		right.push_back(std::move(c));
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(right.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(right.at(0).get(), cc);
+
+		left.swap(right);
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(left.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(left.at(0).get(), cc);
+		LASS_TEST_CHECK_EQUAL(right.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(right.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(right.at(1).get(), bb);
+
+		left.swap(right);
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(left.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(left.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(left.at(1).get(), bb);
+		LASS_TEST_CHECK_EQUAL(right.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(right.at(0).get(), cc);
+
+		std::swap(left, right);
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(left.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(left.at(0).get(), cc);
+		LASS_TEST_CHECK_EQUAL(right.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(right.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(right.at(1).get(), bb);
+
+		std::swap(left, right);
+		LASS_TEST_CHECK_EQUAL(object::count(), 3);
+		LASS_TEST_CHECK_EQUAL(left.size(), static_cast<size_t>(2));
+		LASS_TEST_CHECK_EQUAL(left.at(0).get(), aa);
+		LASS_TEST_CHECK_EQUAL(left.at(1).get(), bb);
+		LASS_TEST_CHECK_EQUAL(right.size(), static_cast<size_t>(1));
+		LASS_TEST_CHECK_EQUAL(right.at(0).get(), cc);
+	}
 }
 
 TUnitTest test_stde_static_vector()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testStdeStaticVector));
+	return TUnitTest({
+		LASS_TEST_CASE(testStdeStaticVector),
+		});
 }
 
 }
