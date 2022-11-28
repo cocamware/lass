@@ -162,7 +162,7 @@ void testPythonExportTraitsString()
 		TEST_PYTHON_STRING_ROUNDTRIP(u32s, s, PyUnicode_1BYTE_KIND)
 
 #if LASS_HAVE_STD_U8STRING
-		const std::u8string u8s = u8"h\xe8ll\xf4\xa0w\xf5\xaeld\xa1";
+		const std::u8string u8s = u8"h\u00e8ll\u00f4\u00a0w\u00f5\u00aeld\u00a1";
 		TEST_PYTHON_STRING_ROUNDTRIP(s, u8s, PyUnicode_1BYTE_KIND)
 		TEST_PYTHON_STRING_ROUNDTRIP(u8s, s, PyUnicode_1BYTE_KIND)
 #endif
@@ -185,7 +185,7 @@ void testPythonExportTraitsString()
 		TEST_PYTHON_STRING_ROUNDTRIP(u32s, u16s, PyUnicode_2BYTE_KIND)
 
 #if LASS_HAVE_STD_U8STRING
-		const std::u8string u8s = u8"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
+		const std::u8string u8s = u8"\u2653\u212e\u0142\u029f\u263a \u0428\u263a\u0491\u2113\u1e13\u203c";
 		TEST_PYTHON_STRING_ROUNDTRIP(s, u8s, PyUnicode_2BYTE_KIND)
 		TEST_PYTHON_STRING_ROUNDTRIP(u8s, u16s, PyUnicode_2BYTE_KIND)
 #endif
@@ -212,7 +212,7 @@ void testPythonExportTraitsString()
 		TEST_PYTHON_STRING_ROUNDTRIP(u16s, u32s, PyUnicode_4BYTE_KIND)
 
 #if LASS_HAVE_STD_U8STRING
-		const std::u8string u8s = u8"\x10337\x10334\x1033b\x1033b\x10349 \x10345\x10349\x10342\x1033b\x10333!";
+		const std::u8string u8s = u8"\U00010337\U00010334\U0001033b\U0001033b\U00010349 \U00010345\U00010349\U00010342\U0001033b\U00010333!";
 		TEST_PYTHON_STRING_ROUNDTRIP(u32s, u8s, PyUnicode_4BYTE_KIND)
 		TEST_PYTHON_STRING_ROUNDTRIP(u8s, u32s, PyUnicode_4BYTE_KIND)
 #endif
