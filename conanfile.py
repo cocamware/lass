@@ -119,8 +119,8 @@ class LassConan(ConanFile):
         self.validate()
 
     def validate(self):
-        if self.settings.compiler.value in {"gcc", "clang"}:
-            if self.settings.compiler.libcxx in {"libstdc++"}:
+        if self.settings.compiler.value in ["gcc", "clang"]:
+            if self.settings.compiler.libcxx in ["libstdc++"]:
                 raise errors.ConanInvalidConfiguration(
                     "gcc and clang require C++11 compatible libcxx"
                 )
