@@ -175,6 +175,7 @@ void testPrimSimplePolygon2D()
     LASS_TEST_CHECK_EQUAL(box.min().y, static_cast<T>(0));
     LASS_TEST_CHECK_EQUAL(box.max().x, static_cast<T>(10));
     LASS_TEST_CHECK_EQUAL(box.max().y, static_cast<T>(10));
+	LASS_TEST_CHECK_EQUAL(polygon.area(), static_cast<T>(53.5));
 
 	// non-simple polygons
 	{

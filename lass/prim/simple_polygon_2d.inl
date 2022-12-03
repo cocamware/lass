@@ -231,6 +231,8 @@ size_t SimplePolygon2D<T, DP>::size() const
  *  comp.graphics.algorithms Frequently Asked Questions: 
  *	Subject 2.01: "How do I find the area of a polygon?"
  *  http://www.faqs.org/faqs/graphics/algorithms-faq/
+ * 
+ *  https://www.johndcook.com/blog/2018/09/26/polygon-area/
  *
  *  @warning polygon must be simple accoring degenerate policy.
  */
@@ -247,9 +249,12 @@ SimplePolygon2D<T, DP>::signedArea() const
 
 	TValue result = TNumTraits::zero;
 	const size_t n = size();
-	for (size_t prevI = n - 1, i = 0; i < n; prevI = i++)
+	TVector v1 = vertices_[1] - vertices_[0];
+	for (size_t i2 = 2; i2 < n; ++i2)
 	{
-		result += perpDot(vertices_[prevI].position(), vertices_[i].position());
+		const TVector v2 = vertices_[i2] - vertices_[0];
+		result += perpDot(v1, v2);
+		v1 = v2;
 	}
 	return result / T(2);
 }
