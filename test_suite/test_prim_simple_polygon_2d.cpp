@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -169,11 +169,24 @@ void testPrimSimplePolygon2D()
 	{
 		LASS_TEST_CHECK_EQUAL(polygon[i], points[i]);
 	}
+	LASS_TEST_CHECK(polygon.isSimple());
 	prim::Aabb2D<T> box = prim::aabb(polygon);
-    LASS_TEST_CHECK_EQUAL(box.min().x, static_cast<T>(0)); 
-    LASS_TEST_CHECK_EQUAL(box.min().y, static_cast<T>(0)); 
-    LASS_TEST_CHECK_EQUAL(box.max().x, static_cast<T>(10)); 
-    LASS_TEST_CHECK_EQUAL(box.max().y, static_cast<T>(10)); 
+    LASS_TEST_CHECK_EQUAL(box.min().x, static_cast<T>(0));
+    LASS_TEST_CHECK_EQUAL(box.min().y, static_cast<T>(0));
+    LASS_TEST_CHECK_EQUAL(box.max().x, static_cast<T>(10));
+    LASS_TEST_CHECK_EQUAL(box.max().y, static_cast<T>(10));
+
+	// non-simple polygons
+	{
+		polygon = TPolygon({ TPoint(0,0), TPoint(10, 10), TPoint(10, 0), TPoint(0, 10) });
+		LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(4));
+		LASS_TEST_CHECK(!polygon.isSimple());
+	}
+	{
+		polygon = TPolygon({ TPoint(-6,-8), TPoint(0, 10), TPoint(6, -8), TPoint(-10, 3), TPoint(10, 3)});
+		LASS_TEST_CHECK_EQUAL(polygon.size(), static_cast<size_t>(5));
+		LASS_TEST_CHECK(!polygon.isSimple());
+	}
 }
 
 

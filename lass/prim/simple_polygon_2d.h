@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -98,6 +98,7 @@ public:
 	SimplePolygon2D();
 	template <typename InputIterator> 
 	SimplePolygon2D(InputIterator iFirstVertex, InputIterator iLastVertex);
+	SimplePolygon2D(std::initializer_list<TPoint> init);
 
 	const TPoint& operator[](size_t iIndexOfVertex) const;
 	TPoint& operator[](size_t iIndexOfVertex);

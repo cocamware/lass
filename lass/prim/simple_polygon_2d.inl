@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -67,6 +67,14 @@ template <typename T, class DP>
 template <typename InputIterator>
 SimplePolygon2D<T, DP>::SimplePolygon2D(InputIterator iFirstVertex, InputIterator iLastVertex):
 	vertices_(iFirstVertex, iLastVertex)
+{
+}
+
+
+
+template <typename T, class DP>
+SimplePolygon2D<T, DP>::SimplePolygon2D(std::initializer_list<TPoint> init) :
+	vertices_(init)
 {
 }
 
@@ -382,16 +390,13 @@ bool SimplePolygon2D<T, DP>::isSimple() const
 		{
 			return false;
 		}
-		for (int j = i + 2; j < n - 1; ++j)
+		const int m = i == 0 ? n - 1 : n;
+		for (int j = i + 2; j < m; ++j)
 		{
 			if (intersect(e, edge(j), t1, t2) != rNone)
 			{
 				return false;
 			}
-		}
-		if (i != 0 && intersect(e, edge(n - 1), t1, t2) != rOne)
-		{
-			return false;
 		}
 	}
 
