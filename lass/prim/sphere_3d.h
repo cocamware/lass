@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -130,7 +130,10 @@ template <typename T> const T squaredDistance(const Sphere3D<T>& sphere, const P
 template <typename T> const T distance(const Sphere3D<T>& sphere, const Point3D<T>& point);
 template <typename T> bool intersects(const Sphere3D<T>& a, const Sphere3D<T>& b);
 
-template<typename T> std::ostream& operator<<(std::ostream& oOStream, const Sphere3D<T>& iB);
+template <typename T> Sphere3D<T> boundingSphere(const std::vector<Point3D<T>>& points);
+template <typename T, typename ForwardIterator> Sphere3D<T> boundingSphere(ForwardIterator first, ForwardIterator last);
+
+template <typename T> std::ostream& operator<<(std::ostream& oOStream, const Sphere3D<T>& iB);
 template <typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, const Sphere3D<T>& iB);
 
 }
@@ -143,8 +146,16 @@ template <typename T> io::XmlOStream& operator<<(io::XmlOStream& ioOStream, cons
 #	include "aabb_3d_sphere_3d.h"
 #endif
 
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_DISK_3D_H
+#	include "disk_3d_sphere_3d.h"
+#endif
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
 #include "ray_3d_sphere_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_TRIANGLE_MESH_3D_H
+#	include "sphere_3d_triangle_mesh_3d.h"
 #endif
 
 #endif

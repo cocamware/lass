@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -43,6 +43,33 @@
 #include "test_common.h"
 
 #include "../lass/prim/sphere_3d.h"
+#include "../lass/prim/aabb_3d.h"
+#include "../lass/num/distribution_transformations.h"
+
+#include <random>
+#include <chrono>
+
+
+#if !LASS_HAVE_DURATION_OPERATOR_OSTREAM
+
+namespace std
+{
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const std::chrono::duration<double, std::milli>& msecs)
+{
+	std::basic_ostringstream<CharT, Traits> s;
+	s.flags(os.flags());
+	s.imbue(os.getloc());
+	s.precision(os.precision());
+	s << msecs.count() << "ms";
+	return os << s.str();
+}
+
+}
+
+#endif
+
 
 namespace lass
 {
@@ -58,6 +85,10 @@ void testPrimSphere3D()
 	typedef prim::Sphere3D<T> TSphere;
 	typedef prim::Point3D<T> TPoint;
 	typedef num::NumTraits<T> TNumTraits;
+	typedef prim::Aabb3D<T> TAabb;
+	typedef prim::Point2D<T> TSample;
+
+	using TMillies = std::chrono::duration<double, std::milli>;
 
 	const TPoint origin;
 
@@ -83,16 +114,130 @@ void testPrimSphere3D()
 	LASS_TEST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
 	LASS_TEST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
 	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
-}
 
+	{
+		// testing boundingSphere
+		std::mt19937_64 rng;
+		constexpr size_t numTrials = 10000;
+		constexpr size_t numPoints = 100;
+		constexpr T tolerance = 1e-5f;
+		const TAabb box(TPoint(100, 100, 100), TPoint(110, 110, 110));
+		std::vector<TPoint> points(numPoints);
+
+		std::chrono::high_resolution_clock clock;
+		const auto start = clock.now();
+		for (size_t trial = 0; trial < numTrials; ++trial)
+		{
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				points[k] = box.random(rng);
+			}
+
+			TSphere bounds = prim::boundingSphere(points);
+
+			// these are not strictly true, but the are given the amount of points we create.
+			LASS_TEST_CHECK(box.contains(bounds.center()));
+			LASS_TEST_CHECK(bounds.radius() < box.size().norm() * 0.5);
+
+			T maxDistance = 0;
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				maxDistance = std::max(maxDistance, distance(bounds.center(), points[k]));
+			}
+			LASS_TEST_CHECK_CLOSE(maxDistance, bounds.radius(), tolerance);
+		}
+		const auto duration = std::chrono::duration_cast<TMillies>(clock.now() - start);
+		LASS_COUT << "points in a box: " << duration << std::endl;
+	}
+
+	{
+		// testing boundingSphere with points all on a sphere
+		std::mt19937_64 rng;
+		std::uniform_real_distribution<T> uniform;
+
+		constexpr size_t numTrials = 1000;
+		constexpr size_t numPoints = 100;
+		constexpr T tolerance = 1e-4f;
+		const TAabb box(TPoint(-1, -1, 1), TPoint(1, 1, 1));
+		std::vector<TPoint> points(numPoints);
+
+		std::chrono::high_resolution_clock clock;
+		const auto start = clock.now();
+		for (size_t trial = 0; trial < numTrials; ++trial)
+		{
+			TPoint center = box.random(rng);
+			T radius = uniform(rng);
+
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				const TSample sample(uniform(rng), uniform(rng));
+				T pdf;
+				points[k] = center + radius * num::uniformSphere(sample, pdf).position();
+			}
+
+			TSphere bounds = prim::boundingSphere(points);
+
+			T maxDistance = 0;
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				maxDistance = std::max(maxDistance, distance(bounds.center(), points[k]));
+			}
+			LASS_TEST_CHECK_CLOSE(maxDistance, bounds.radius(), tolerance);
+
+			// should be close to original sphere, but error is higher due to sampling
+			LASS_TEST_CHECK_CLOSE(bounds.center().x, center.x, T(1e-2));
+			LASS_TEST_CHECK_CLOSE(bounds.center().y, center.y, T(1e-2));
+			LASS_TEST_CHECK_CLOSE(bounds.center().z, center.z, T(1e-2));
+			LASS_TEST_CHECK_CLOSE(bounds.radius(), radius, T(1e-2));
+		}
+		const auto duration = std::chrono::duration_cast<TMillies>(clock.now() - start);
+		LASS_COUT << "points on a sphere: " << duration << std::endl;
+	}
+
+	{
+		// testing boundingSphere with points all on a plane
+		std::mt19937_64 rng;
+		std::uniform_real_distribution<T> uniform;
+
+		constexpr size_t numTrials = 10000;
+		constexpr size_t numPoints = 100;
+		constexpr T tolerance = 1e-5f;
+		const TAabb box(TPoint(-1, -1, 0), TPoint(1, 1, 0));
+		std::vector<TPoint> points(numPoints);
+
+		std::chrono::high_resolution_clock clock;
+		const auto start = clock.now();
+		for (size_t trial = 0; trial < numTrials; ++trial)
+		{
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				points[k] = box.random(rng);
+				LASS_TEST_CHECK_EQUAL(points[k].z, T(0));
+			}
+
+			TSphere bounds = prim::boundingSphere(points);
+			LASS_TEST_CHECK_EQUAL(bounds.center().z, T(0));
+
+			T maxDistance = 0;
+			for (size_t k = 0; k < numPoints; ++k)
+			{
+				maxDistance = std::max(maxDistance, distance(bounds.center(), points[k]));
+			}
+			LASS_TEST_CHECK_CLOSE(maxDistance, bounds.radius(), tolerance);
+		}
+		const auto duration = std::chrono::duration_cast<TMillies>(clock.now() - start);
+		LASS_COUT << "points on a plane: " << duration << std::endl;
+	}
+}
 
 
 TUnitTest test_prim_sphere_3d()
 {
-	TUnitTest result;
-	result.push_back(LASS_TEST_CASE((testPrimSphere3D<float>)));
-	result.push_back(LASS_TEST_CASE((testPrimSphere3D<double>)));
-	return result;
+	return TUnitTest
+	{
+		LASS_TEST_CASE((testPrimSphere3D<float>)),
+		LASS_TEST_CASE((testPrimSphere3D<double>)),
+	};
 }
 
 }

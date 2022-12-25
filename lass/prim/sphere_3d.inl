@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -146,7 +146,7 @@ Side Sphere3D<T>::classify(const TPoint& iPoint) const
 
 
 /**
- * (P - C)² - r²
+ * (P - C)Â² - rÂ²
  */
 template<typename T>
 const typename Sphere3D<T>::TValue
@@ -207,7 +207,7 @@ Side Sphere3D<T>::classify(const TPoint& iPoint, TParam iRelativeTolerance) cons
 
 
 /**
- * (P - C)² - r²
+ * (P - C)Â² - rÂ²
  */
 template<typename T>
 const typename Sphere3D<T>::TValue
@@ -303,6 +303,143 @@ template <typename T>
 bool intersects(const Sphere3D<T>& a, const Sphere3D<T>& b)
 {
 	return (a.center() - b.center()).squaredNorm() <= num::sqr(a.radius() + b.radius());
+}
+
+
+namespace impl
+{
+	template <typename T>
+	Sphere3D<T> circumSphere2(const Point3D<T>& a, const Point3D<T>& b)
+	{
+		const auto center = (a + b).affine();
+		const auto radius = distance(a, b) / 2;
+		return Sphere3D<T>(center, radius);
+	}
+
+	template <typename T>
+	Sphere3D<T> circumSphere3(const Point3D<T>& a, const Point3D<T>& b, const Point3D<T>& c)
+	{
+		const auto v1 = b - a;
+		const auto v2 = c - a;
+		const auto n = cross(v1, v2);
+		const auto center = a + cross(v1.squaredNorm() * v2 - v2.squaredNorm() * v1, n) / (2 * n.squaredNorm());
+		const auto radius = distance(center, a);
+		return Sphere3D<T>(center, radius);
+	}
+
+	template <typename T>
+	Sphere3D<T> circumSphere4(const Point3D<T>& a, const Point3D<T>& b, const Point3D<T>& c, const Point3D<T>& d)
+	{
+		// alternative II from https://math.stackexchange.com/a/2414870
+		const auto v1 = b - a;
+		const auto v2 = c - a;
+		const auto v3 = d - a;
+		const auto d1 = v1.squaredNorm();
+		const auto d2 = v2.squaredNorm();
+		const auto d3 = v3.squaredNorm();
+		const auto center = a + (d1 * cross(v2, v3) + d2 * cross(v3, v1) + d3 * cross(v1, v2)) / (2 * dot(v1, cross(v2, v3)));
+		const auto radius = distance(center, a);
+		return Sphere3D<T>(center, radius);
+	}
+
+	template <typename T, typename ForwardIterator>
+	Sphere3D<T> boundingSphere(std::vector<ForwardIterator>& points, size_t size, size_t bounds)
+	{
+		// Welzl, E. (1991). Smallest enclosing disks (balls and ellipsoids). In: Maurer, H. (eds) New Results and New Trends
+		// in Computer Science. Lecture Notes in Computer Science, vol 555. Springer, Berlin, Heidelberg. https://doi.org/10.1007/BFb0038202
+
+		// Gartner, B. (1999).Fast and Robust Smallest Enclosing Balls.In: Nesetril, J. (eds) Algorithms - ESA' 99. ESA 1999. 
+		// Lecture Notes in Computer Science, vol 1643. Springer, Berlin, Heidelberg.https://doi.org/10.1007/3-540-48481-7_29
+
+		Sphere3D<T> sphere;
+		size_t i;
+		switch (bounds)
+		{
+		case 0:
+		case 1:
+		case 2:
+			sphere = circumSphere2(*points[0], *points[1]);
+			i = 2;
+			break;
+		case 3:
+			sphere = circumSphere3(*points[0], *points[1], *points[2]);
+			i = 3;
+			break;
+		case 4:
+			return circumSphere4(*points[0], *points[1], *points[2], *points[3]);
+		default:
+			throw std::logic_error("invalid bounds");
+		}
+
+		for (; i < size; ++i)
+		{
+			T bestE = sphere.equation(*points[i]);
+			size_t best = i;
+			for (size_t k = i + 1; k < size; ++k)
+			{
+				const T e = sphere.equation(*points[k]);
+				if (e > bestE)
+				{
+					bestE = e;
+					best = k;
+				}
+			}
+			if (bestE <= 0)
+			{
+				return sphere;
+			}
+			ForwardIterator p = points[best];
+			for (size_t k = best; k > bounds; --k)
+			{
+				points[k] = points[k - 1];
+			}
+			points[bounds] = p;
+			sphere = boundingSphere<T>(points, i + 1, bounds + 1);
+		}
+
+		return sphere;
+	}
+}
+
+
+
+/** @relates lass::prim::Sphere3D
+ */
+template <typename T, typename ForwardIterator>
+Sphere3D<T> boundingSphere(ForwardIterator first, ForwardIterator last)
+{
+	using TSphere = Sphere3D<T>;
+	using TNumTraits = typename TSphere::TNumTraits;
+	using TPoint = typename TSphere::TPoint;
+
+	std::vector<ForwardIterator> points;
+	for (ForwardIterator p = first; p != last; ++p)
+	{
+		points.push_back(p);
+	}
+
+	const size_t size = points.size();
+	switch (size)
+	{
+	case 0:
+	{
+		const auto nan = TNumTraits::qNaN;
+		return TSphere(TPoint(nan, nan, nan), nan);
+	}
+	case 1:
+		return TSphere(*points[0], TNumTraits::zero);
+	}
+
+	return impl::boundingSphere<T>(points, size, 0);
+}
+
+
+/** @relates lass::prim::Sphere3D
+ */
+template <typename T>
+Sphere3D<T> boundingSphere(const std::vector<Point3D<T>>& points)
+{
+	return boundingSphere<T>(points.begin(), points.end());
 }
 
 

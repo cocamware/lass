@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -43,6 +43,7 @@
 #include "test_common.h"
 
 #include "../lass/prim/triangle_mesh_3d.h"
+#include "../lass/prim/sphere_3d.h"
 #include "../lass/spat/aabb_tree.h"
 #include "../lass/stde/iterator_range.h"
 #include "../lass/stde/extended_cstring.h"
@@ -206,6 +207,16 @@ void testPrimTriangleMesh3D()
 	{
 		adaptiveMesh.subdivisionWithLimitSurface(1, perfectSphere, selected);
 		writeObj(adaptiveMesh, io::fileJoinPath(test::outputDir(), stde::safe_format("triangle_mesh_snap_adaptive_%d.obj", level)));
+	}
+
+	{
+		const auto bounds = prim::boundingSphere(loopMesh);
+		TValue maxDistance = 0;
+		for (const auto &vertex: loopMesh.vertices())
+		{
+			maxDistance = std::max(maxDistance, distance(bounds.center(), vertex));
+		}
+		LASS_TEST_CHECK_CLOSE(maxDistance, bounds.radius(), 1e-6);
 	}
 }
 

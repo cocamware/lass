@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -124,6 +124,10 @@ template <typename T> io::XmlOStream& operator<<(io::XmlOStream& stream, const D
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_H
 #	include "aabb_3d_disk_3d.h"
+#endif
+
+#ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_SPHERE_3D_H
+#	include "disk_3d_sphere_3d.h"
 #endif
 
 #ifdef LASS_GUARDIAN_OF_INCLUSION_PRIM_RAY_3D_H
