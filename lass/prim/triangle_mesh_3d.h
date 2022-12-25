@@ -169,9 +169,23 @@ public:
 		const VertexInputRange& vertices, const NormalInputRange& normals, const UvInputRange& uvs, const IndexTriangleInputRange& triangles, 
 		const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth));
 
+	template <typename IndexTriangleInputRange>
+	TriangleMesh3D(
+		TVertices&& vertices, const IndexTriangleInputRange& triangles,
+		const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth)
+	);
+
+	template <typename IndexTriangleInputRange>
+	TriangleMesh3D(
+		TVertices&& vertices, TNormals&& normals, TUvs&& uvs, const IndexTriangleInputRange& triangles,
+		const SplitHeuristics& heuristics = SplitHeuristics(defaultMaxObjectsPerLeaf, defaultMaxDepth)
+	);
+
 	TriangleMesh3D(const TriangleMesh3D& other);
+	TriangleMesh3D(TriangleMesh3D&& other);
 
 	TriangleMesh3D& operator=(const TriangleMesh3D& other);
+	TriangleMesh3D& operator=(TriangleMesh3D&& other);
 
 	const TTriangles& triangles() const;
 	const TVertices& vertices() const;

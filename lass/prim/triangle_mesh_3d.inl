@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -107,6 +107,32 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
+template <typename IndexTriangleInputRange>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
+	TVertices&& vertices, const IndexTriangleInputRange& triangles, const SH& heuristics):
+	tree_(heuristics),
+	vertices_(std::move(vertices))
+{
+	buildMesh(triangles.begin(), triangles.end());
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+template <typename IndexTriangleInputRange>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(
+	TVertices&& vertices, TNormals&& normals,TUvs&& uvs, const IndexTriangleInputRange& triangles, const SH& heuristics):
+	tree_(heuristics),
+	vertices_(std::move(vertices)),
+	normals_(std::move(normals)),
+	uvs_(std::move(uvs))
+{
+	buildMesh(triangles.begin(), triangles.end());
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(const TriangleMesh3D& other):
 	tree_(static_cast<const SH&>(other.tree_)),
 	vertices_(other.vertices_),
@@ -121,12 +147,35 @@ TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(const TriangleMesh3D& other):
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
+TriangleMesh3D<T, BHV, SH>::TriangleMesh3D(TriangleMesh3D&& other):
+	tree_(std::move(static_cast<SH&&>(other.tree_))),
+	triangles_(std::move(other.triangles_)),
+	vertices_(std::move(other.vertices_)),
+	normals_(std::move(other.normals_)),
+	uvs_(std::move(other.uvs_)),
+	numBoundaryEdges_(other.numBoundaryEdges_)
+{
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
 TriangleMesh3D<T, BHV, SH>& TriangleMesh3D<T, BHV, SH>::operator=(const TriangleMesh3D& other)
 {
 	TriangleMesh3D temp(other);
 	swap(temp);
 	return *this;
 }
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+TriangleMesh3D<T, BHV, SH>& TriangleMesh3D<T, BHV, SH>::operator=(TriangleMesh3D&& other)
+{
+	swap(other);
+	return *this;
+}
+
 
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
