@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -57,6 +57,12 @@
 #	endif
 #else
 #	define LASS_SPIN_PAUSE
+#endif
+
+#ifdef __cpp_lib_hardware_interference_size
+#define LASS_LOCK_FREE_ALIGNMENT std::hardware_destructive_interference_size
+#else
+#define LASS_LOCK_FREE_ALIGNMENT 64
 #endif
 
 /** @defgroup atomic
@@ -241,71 +247,86 @@ void atomicUnlock(std::atomic<T>& semaphore)
 }
 
 
-
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(push)
-#	pragma warning(disable: 4521) // multiple copy constructors specified
-#	pragma warning(disable: 4522) // multiple assignment operators specified
-#endif
-
 #if LASS_ADDRESS_SIZE == 64
-	// lock cmpxchg16b (or _InterlockedCompareExchange128) require the address to be 16-byte aligned
-	// as this one is going to be used to atomicly compare-and-swap two TaggedPtrs, we need to use a bit of dynamic stack-alignment.
-#	if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#		define LASS_TAGGED_PTR_ALIGN __declspec(align(16))
+#	if LASS_HAVE_STD_ATOMIC_DWCAS_LOCK_FREE
+		// std::atomic is lock free for 16 byte PODs, and will use lock cmpxchg16b
+		// (or _InterlockedCompareExchange128) for it's compare_exchange (DWCAS).
+		// This requires TaggedPtr to be 16-byte aligned
+#		define LASS_TAGGED_PTR_ALIGN alignas(16)
+#	elif defined(LASS_PROCESSOR_ARCHITECTURE_x86)
+		// std::atomic is *not* lock free for 16 byte PODs, because it will not use
+		// lock cmpxchg16b, even though it may commonly exists for this architecture.
+		// This is to remain ABI compatible with early 64-bit AMD processors that
+		// lacked this instruction.
+		// Therefore, we need to use the good old pointers-are-actually-only-48-bits
+		// trick to pack a pointer and a 16-bit tag in the space of one 8 byte pointer,
+		// for which std::atomic will be lock free.
+#		define LASS_TAGGED_PTR_64_PACKED 1
+#		define LASS_TAGGED_PTR_ALIGN alignas(8)
 #	else
-#		define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (16)))
+#		error not implemented yet
 #	endif
-#elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
-#	define LASS_TAGGED_PTR_ALIGN __attribute__ ((__aligned__ (8)))
 #else
-	// Not for 32-bit. 
-	// Technically, we don't need it. lock cmpxchg8b should be ok without. Though you may get a performance hit.
-	// If we would use it though, msvc starts complaining about ebx being used in assembly blocks 
-	// (it needs that to do the dynamic stack-alignment)
-	// That's still okay, as we push and pop ebx, but msvc doesn't realize, so it keeps complaining.
-	// And there's no easy way to silence it either. It's not enough to pragma warning disable it around the assembly code.
-	// Let's avoid tons of warnings by simply not doing dynamic stack-alignment.
-#	define LASS_TAGGED_PTR_ALIGN
+#	define LASS_TAGGED_PTR_ALIGN alignas(8)
 #endif
 
 /** Pointer with a tag for ABA salvation
  *  @ingroup atomic
  *  Some lock-free algorithms suffer from the ABA problem when acting on pointers.
- *  This can be solved (read: be make very unlikely) by adding a tag to the pointer.
+ *  This can be solved (read: be made very unlikely) by adding a tag to the pointer.
  */
 template <typename T>
 class LASS_TAGGED_PTR_ALIGN TaggedPtr
 {
+#if LASS_TAGGED_PTR_64_PACKED
+
+public:
+	typedef num::Tuint16 TTag;
+	TaggedPtr() = default;
+	TaggedPtr(T * ptr, TTag tag): bits_((reinterpret_cast<num::Tint64>(ptr) << 16) | (tag & 0xffff)) {}
+	T* get() const
+	{
+#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+		T* ptr;
+		__asm__ ("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
+		return ptr;
+#	elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+		return reinterpret_cast<T*>(__ll_rshift(bits_, 16));
+#	else
+		return ((bits_ & 0xa000000000000000) == 0) ?
+			reinterpret_cast<T*>(bits_ >> 16) :
+			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
+#	endif
+	}
+	TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
+	TTag nextTag() const { return static_cast<TTag>(static_cast<size_t>(tag() + 1) & 0xffff); }
+	bool operator==(const TaggedPtr& other) const { return bits_ == other.bits_; }
+private:
+	num::Tint64 bits_ = 0;
+
+#else
+
 public:
 	typedef num::TuintPtr TTag;
-	TaggedPtr(): ptr_(0), tag_(0) {}
-	TaggedPtr(T* ptr, TTag tag): ptr_(ptr), tag_(tag) {}
-	TaggedPtr(const TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
-	TaggedPtr(const volatile TaggedPtr& other): ptr_(other.ptr_), tag_(other.tag_) {}
-	TaggedPtr& operator=(const TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
-	TaggedPtr& operator=(const volatile TaggedPtr& other) { ptr_ = other.ptr_; tag_ = other.tag_; return *this; }
+	TaggedPtr() = default;
+	TaggedPtr(T* ptr, TTag tag) : ptr_(ptr), tag_(tag) {}
 	T* get() const { return ptr_; }
 	TTag tag() const { return tag_; }
+	TTag nextTag() const { return tag_ + 1; }
 	bool operator==(const TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
-	bool operator==(const volatile TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
-	bool atomicCompareAndSwap(const TaggedPtr& expected, const TaggedPtr& fresh) volatile
-	{
-		return util::atomicCompareAndSwap(
-			ptr_, expected.ptr_, expected.tag_, fresh.ptr_, fresh.tag_);
-	}
 private:
-	T* ptr_;
-	TTag tag_;
+	T* ptr_ = nullptr;
+	TTag tag_ = 0;
+
+#endif
+
 public:
 	T* operator->() const { LASS_ASSERT(get()); return get(); }
-	bool operator!() const { return get() == 0; }
-	explicit operator bool() const { return get() != 0; }
+	bool operator!() const { return get() == nullptr; }
+	explicit operator bool() const { return get() != nullptr; }
+	bool operator!=(const TaggedPtr& other) const { return !(&this == other); }
 };
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	pragma warning(pop)
-#endif
 
 }
 }

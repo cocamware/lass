@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -866,18 +866,22 @@ template
 class AllocatorConcurrentFreeList: public FixedAllocator
 {
 public:
-	AllocatorConcurrentFreeList(size_t iSize):
-		FixedAllocator(std::max<size_t>(sizeof(AllocationNode),iSize)),
+	AllocatorConcurrentFreeList(size_t size):
+		FixedAllocator(std::max<size_t>(sizeof(AllocationNode), size)),
 		top_()
 	{
+#if defined(__cpp_lib_atomic_is_always_lock_free)
+		static_assert(std::atomic<TTaggedPtr>::is_always_lock_free);
+#else
+		LASS_ENFORCE(top_.is_lock_free());
+#endif
 	}
 	~AllocatorConcurrentFreeList()
 	{
-		TTaggedPtr top = top_;
-		AllocationNode* node = top.get();
+		AllocationNode* node = top_.load(std::memory_order_acquire).get();
 		while (node)
 		{
-			AllocationNode* next = node->next;
+			AllocationNode* next = node->next.load(std::memory_order_relaxed);
 			FixedAllocator::deallocate(node);
 			node = next;
 		}
@@ -889,46 +893,44 @@ public:
 	}
 	void* allocate()
 	{
-		TTaggedPtr topNode;
+		TTaggedPtr topNode = top_.load(std::memory_order_acquire);
 		TTaggedPtr next;
 		do
 		{
-			topNode = top_;
 			if (!topNode)
 			{
 				return FixedAllocator::allocate();
 			}
-			next = TTaggedPtr(topNode->next, topNode.tag() + 1);
+			next = TTaggedPtr(topNode->next.load(std::memory_order_relaxed), topNode.nextTag());
 		}
-		while (!top_.atomicCompareAndSwap(topNode, next));
+		while (!top_.compare_exchange_weak(topNode, next));
 		return topNode.get();
 	}
-	void deallocate(void* iPointer)
+	void deallocate(void* pointer)
 	{
-		if (!iPointer)
+		if (!pointer)
 			return;
-		AllocationNode* temp = static_cast<AllocationNode*>(iPointer);
-		TTaggedPtr topNode;
+		AllocationNode* node = static_cast<AllocationNode*>(pointer);
+		TTaggedPtr topNode = top_.load(std::memory_order_acquire);
 		TTaggedPtr newTop;
 		do
 		{
-			topNode = top_;
-			temp->next = topNode.get();
-			newTop = TTaggedPtr(temp, topNode.tag() + 1);
+			node->next.store(topNode.get(), std::memory_order_relaxed);
+			newTop = TTaggedPtr(node, topNode.nextTag());
 		}
-		while (!top_.atomicCompareAndSwap(topNode, newTop));
+		while (!top_.compare_exchange_weak(topNode, newTop));
 	}
 private:
 	struct AllocationNode
 	{
-		AllocationNode* next;
+		std::atomic<AllocationNode*> next;
 	};
-	
-	typedef TaggedPtr<AllocationNode> TTaggedPtr;
 
-	AllocatorConcurrentFreeList& operator=(const AllocatorConcurrentFreeList&);
+	typedef util::TaggedPtr<AllocationNode> TTaggedPtr;
 
-	volatile TTaggedPtr top_;
+	AllocatorConcurrentFreeList& operator=(const AllocatorConcurrentFreeList&) = delete;
+
+	std::atomic<TTaggedPtr> top_;
 };
 
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -52,19 +52,16 @@ lock_free_queue<T, A>::lock_free_queue():
 	node_allocator_(sizeof(node_t)),
 	value_allocator_(sizeof(value_type))
 {
-	pointer_t tail(make_node(0), 0);
-	
-	// Mentally equivalent to: head_ = tail_ = tail;
-	//
-	// the funny way to assign head_ and tail_ is because we don't support
-	// operator= on volatile TaggedPtrs 
-	// [Bramz]
-	//
-	pointer_t expected = head_;
-	head_.atomicCompareAndSwap(expected, tail);
-	expected = tail_;
-	tail_.atomicCompareAndSwap(expected, tail);
-	LASS_ASSERT(tail == head_ && tail == tail_);	
+	pointer_t tail(make_node(nullptr), 0);
+	head_ = tail;
+	tail_ = tail;
+
+#if defined(__cpp_lib_atomic_is_always_lock_free)
+	static_assert(std::atomic<pointer_t>::is_always_lock_free);
+#else
+	LASS_ENFORCE(head_.is_lock_free());
+	LASS_ENFORCE(tail_.is_lock_free());
+#endif
 }
 
 
@@ -72,13 +69,17 @@ lock_free_queue<T, A>::lock_free_queue():
 template <typename T, typename A>
 lock_free_queue<T, A>::~lock_free_queue()
 {
-	pointer_t head = head_;
-	while (head)
+	// head node has no value, but it always exists.
+	pointer_t head = head_.load(std::memory_order_acquire);
+	pointer_t node = head->next.load(std::memory_order_relaxed);
+	while (node)
 	{
-		pointer_t next = head->next;
-		free_node(head.get());
-		head = next;
+		pointer_t next = node->next.load(std::memory_order_relaxed);
+		free_value(node->value.load(std::memory_order_relaxed));
+		free_node(node.get());
+		node = next;
 	}
+	free_node(head.get());
 }
 
 
@@ -104,46 +105,43 @@ void lock_free_queue<T, A>::push(const value_type& x)
 	pointer_t tail;
 	while (true)
 	{
-		tail = tail_;
-		pointer_t next = tail->next;
-		if (tail == tail_)
+		tail = tail_.load(std::memory_order_acquire);
+		pointer_t next = tail->next.load(std::memory_order_acquire);
+		if (tail == tail_.load(std::memory_order_acquire))
 		{
 			if (!next)
 			{
-				pointer_t new_next(node, next.tag() + 1);
-				if (tail->next.atomicCompareAndSwap(next, new_next))
+				pointer_t new_next(node, next.nextTag());
+				if (tail->next.compare_exchange_weak(next, new_next))
 				{
 					break;
 				}
 			}
 			else
 			{
-				pointer_t new_tail(next.get(), tail.tag() + 1);
-				tail_.atomicCompareAndSwap(tail, new_tail);
+				pointer_t new_tail(next.get(), tail.nextTag());
+				tail_.compare_exchange_weak(tail, new_tail);
 			}
 		}
 	}
-	pointer_t new_tail(node, tail.tag() + 1);
-	tail_.atomicCompareAndSwap(tail, new_tail);
+	pointer_t new_tail(node, tail.nextTag());
+	tail_.compare_exchange_strong(tail, new_tail);
 }
 
 
 
 /** Try to pop a value from the front and store it in x.
  *  @return false if no element could be popped.
- *  @arg EXCEPTION UNSAFE: if the copy constructor of x can throw, things can go miserably wrong!
  */
 template <typename T, typename A>
 bool lock_free_queue<T, A>::pop(value_type& x)
 {
-	pointer_t head;
-	value_type* value;
 	while (true)
 	{
-		head = head_;
-		pointer_t tail = tail_;
-		pointer_t next = head->next;
-		if (head == head_)
+		pointer_t head = head_.load(std::memory_order_acquire);
+		pointer_t tail = tail_.load(std::memory_order_acquire);
+		pointer_t next = head->next.load(std::memory_order_acquire);
+		if (head == head_.load(std::memory_order_acquire))
 		{
 			if (head.get() == tail.get())
 			{
@@ -151,8 +149,8 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 				{
 					return false;
 				}
-				pointer_t new_tail(next.get(), tail.tag() + 1);
-				tail_.atomicCompareAndSwap(tail, new_tail);
+				pointer_t new_tail(next.get(), tail.nextTag());
+				tail_.compare_exchange_weak(tail, new_tail);
 			}
 			else
 			{
@@ -164,12 +162,21 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 				// SEE ALSO: lock_free_stack::pop_node, and why the above is not entirely true ...				
 				// [Bramz]
 				//
-				value = next->value; 
+				value_type* value = next->value.load(std::memory_order_acquire);
 
-				pointer_t new_head(next.get(), head.tag() + 1);
-				if (head_.atomicCompareAndSwap(head, new_head))
+				pointer_t new_head(next.get(), head.nextTag());
+				if (head_.compare_exchange_strong(head, new_head))
 				{
-					x = *value;
+					try
+					{
+						x = std::move(*value);
+					}
+					catch (...)
+					{
+						free_value(value);
+						free_node(head.get());
+						throw;
+					}
 					free_value(value);
 					free_node(head.get());
 					return true;
@@ -185,17 +192,16 @@ template <typename T, typename A>
 typename lock_free_queue<T, A>::value_type*
 lock_free_queue<T, A>::make_value(const value_type& x)
 {
-	value_type* value = static_cast<value_type*>(value_allocator_.allocate());
+	void* p = value_allocator_.allocate();
 	try
 	{
-		new (value) value_type(x);
+		return new (p) value_type(x);
 	}
 	catch (...)
 	{
-		value_allocator_.deallocate(value);
+		value_allocator_.deallocate(p);
 		throw;
 	}
-	return value;
 }
 
 
@@ -213,18 +219,16 @@ template <typename T, typename A>
 typename lock_free_queue<T, A>::node_t*
 lock_free_queue<T, A>::make_node(value_type* value)
 {
-	node_t* node = static_cast<node_t*>(node_allocator_.allocate());
+	void* p = node_allocator_.allocate();
 	try
 	{
-		new (&node->next) pointer_t();
+		return new (p) node_t(value);
 	}
 	catch (...)
 	{
-		node_allocator_.deallocate(node);
+		node_allocator_.deallocate(p);
 		throw;
 	}
-	node->value = value;
-	return node;
 }
 	
 
@@ -232,9 +236,11 @@ lock_free_queue<T, A>::make_node(value_type* value)
 template <typename T, typename A>
 void lock_free_queue<T, A>::free_node(node_t* node)
 {
-	node->next.~pointer_t();
+	node->~node_t();
 	node_allocator_.deallocate(node);
 }
+
+
 
 }
 

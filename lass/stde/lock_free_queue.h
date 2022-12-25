@@ -59,6 +59,7 @@ namespace lass
 namespace stde
 {
 
+
 template 
 <
 	typename T, 
@@ -73,17 +74,20 @@ public:
 	lock_free_queue();
 	~lock_free_queue();
 	void push(const value_type& x);
+	void push(value_type&& x);
 	bool pop(value_type& x);
 
 private:
 	
 	struct node_t;
-	typedef util::TaggedPtr<node_t> pointer_t;	
+	typedef util::TaggedPtr<node_t> pointer_t;
 	
 	struct node_t
 	{
-		pointer_t next;
-		value_type* value;
+		node_t() = default;
+		explicit node_t(value_type* value): next(pointer_t(nullptr, 0)), value(value) {}
+		std::atomic<pointer_t> next;
+		std::atomic<value_type*> value = nullptr;
 	};
 
 	typedef util::AllocatorThrow< util::AllocatorConcurrentFreeList<FixedAllocator> > allocator_t;
@@ -96,8 +100,8 @@ private:
 	node_t* make_node(value_type* x);
 	void free_node(node_t* node);
 
-	volatile pointer_t head_;
-	volatile pointer_t tail_;
+	alignas(LASS_LOCK_FREE_ALIGNMENT) std::atomic<pointer_t> head_;
+	alignas(LASS_LOCK_FREE_ALIGNMENT) std::atomic<pointer_t> tail_;
 	allocator_t node_allocator_;
 	allocator_t value_allocator_;
 };

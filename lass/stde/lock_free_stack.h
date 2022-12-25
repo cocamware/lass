@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2021 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -48,15 +48,13 @@
 
 namespace lass
 {
-namespace util
+namespace stde
 {
-
-// NOT TESTED YET!!!!
 
 template 
 <
 	typename T, 
-	typename FixedAllocator = AllocatorFixed<AllocatorMalloc>
+	typename FixedAllocator = util::AllocatorFixed<util::AllocatorMalloc>
 >
 class lock_free_stack: private util::AllocatorConcurrentFreeList<FixedAllocator>
 {
@@ -80,7 +78,7 @@ private:
 	};
 	
 	typedef util::TaggedPtr<node_t> pointer_t;
-	
+
 	lock_free_stack(const lock_free_stack&);
 	lock_free_stack& operator=(const lock_free_stack&);
 
@@ -89,7 +87,7 @@ private:
 	void push_node(node_t* node);
 	node_t* pop_node();
 
-	volatile pointer_t top_;
+	std::atomic<pointer_t> top_;
 };
 
 }

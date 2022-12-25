@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -42,7 +42,7 @@
 
 namespace lass
 {
-namespace util
+namespace stde
 {
 
 // --- public --------------------------------------------------------------------------------------
@@ -52,6 +52,11 @@ lock_free_stack<T, A>::lock_free_stack():
 	util::AllocatorConcurrentFreeList<A>(sizeof(node_t)),
 	top_() 
 {
+#if defined(__cpp_lib_atomic_is_always_lock_free)
+	static_assert(std::atomic<pointer_t>::is_always_lock_free);
+#else
+	LASS_ENFORCE(top_.is_lock_free());
+#endif
 }
 
 
@@ -59,7 +64,7 @@ lock_free_stack<T, A>::lock_free_stack():
 template <typename T, typename A>
 lock_free_stack<T, A>::~lock_free_stack()
 {
-	node_t top = top_.get();
+	node_t* top = top_.load(std::memory_order_acquire).get();
 	while (top)
 	{
 		node_t* const next = top->next;
@@ -166,13 +171,14 @@ void lock_free_stack<T, A>::free_node(node_t* node)
 template <typename T, typename A>
 void lock_free_stack<T, A>::push_node(node_t* node)
 {
+	pointer_t top = top_.load(std::memory_order_acquire);
+	pointer_t new_top;
 	do
 	{
-		pointer_t top = top_;
 		node->next = top.get();
-		pointer_t new_top(node, top.tag() + 1);
+		new_top = pointer_t(node, top.nextTag());
 	}
-	while (!top_.atomicCompareAndSwap(top, new_top));
+	while (!top_.compare_exchange_weak(top, new_top));
 }
 
 
@@ -181,10 +187,10 @@ template <typename T, typename A>
 typename lock_free_stack<T, A>::node_t* 
 lock_free_stack<T, A>::pop_node()
 {
-	pointer_t top;
+	pointer_t top = top_.load(std::memory_order_acquire);
+	pointer_t next;
 	do
 	{
-		pointer_t top = top_;
 		if (!top)
 		{
 			return 0;
@@ -204,9 +210,9 @@ lock_free_stack<T, A>::pop_node()
 		// means that the behaviour is pretty much undefined.  The machine can do whatever it wants:
 		// halt, reboot, make funny noises or make some coffee ... [Bramz]
 		//
-		pointer_t next(top->next, top.tag() + 1);
+		next = pointer_t(top->next, top.nextTag());
 	}
-	while (!top_.atomicCompareAndSwap(top, next));
+	while (!top_.compare_exchange_weak(top, next));
 	return top.get();
 }
 

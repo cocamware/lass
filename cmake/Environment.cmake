@@ -32,7 +32,36 @@ endfunction()
 
 function(_try_compile_checking RESULT_VAR fname what)
 	_try_compile(${RESULT_VAR} "${fname}" "Checking whether ${what}" "yes" "no")
-endfunction() 
+endfunction()
+
+function(_try_run VARIABLE fname msg ok fail)
+	if (NOT DEFINED ${VARIABLE})
+		message(STATUS "${msg}")
+		try_run(
+			_run_result
+			_compile_result
+			"${Lass_BINARY_DIR}/cmake"
+			"${Lass_SOURCE_DIR}/cmake/${fname}"
+			COMPILE_OUTPUT_VARIABLE _try_run_compile_output
+			CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+			CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
+			${ARGN}
+		)
+		if(NOT _compile_result)
+			message(STATUS "${msg} - failed\n${_try_run_compile_output}")
+		elseif(_run_result EQUAL 0)
+			message(STATUS "${msg} - ${ok}")
+			set(${VARIABLE} 1 CACHE INTERNAL "${msg}")
+		else()
+			message(STATUS "${msg} - ${fail}")
+			set(${VARIABLE} "" CACHE INTERNAL "${msg}")
+		endif()
+	endif()
+endfunction()
+
+function(_try_run_checking RESULT_VAR fname what)
+	_try_run("${RESULT_VAR}" "${fname}" "Checking whether ${what}" "yes" "no" ${ARGN})
+endfunction()
 
 # --- about Python ---
 
@@ -302,6 +331,26 @@ _try_compile_checking(LASS_HAVE_STD_FILESYSTEM "check_std_filesystem.cpp" "std::
 _try_compile_checking(LASS_HAVE_STD_OPTIONAL "check_std_optional.cpp" "std::optional is supported")
 _try_compile_checking(LASS_HAVE_STD_CHRONO_CPP20 "check_std_chrono_cpp20.cpp" "std::chrono C++20 is supported")
 _try_compile_checking(LASS_HAVE_STD_VARIANT "check_std_variant.cpp" "std::variant is supported")
+
+set(_lass_have_std_atomic_dwcas_lock_free_options)
+if (NOT MSVC)
+    _try_compile_checking(LASS_HAVE_STD_ATOMIC_DWCAS_WITHOUT_LIBATOMIC
+        "check_std_atomic_dwcas_lock_free.cpp"
+        "double width std::atomic works without libatomic"
+        )
+    if (NOT LASS_HAVE_STD_ATOMIC_DWCAS_WITHOUT_LIBATOMIC)
+        list(APPEND _lass_have_std_atomic_dwcas_lock_free_options
+            LINK_LIBRARIES atomic
+        )
+        list(APPEND lass_LIBS "atomic")
+    endif()
+endif()
+_try_run_checking(LASS_HAVE_STD_ATOMIC_DWCAS_LOCK_FREE
+    "check_std_atomic_dwcas_lock_free.cpp"
+    "double width std::atomic is lock-free"
+    ${_lass_have_std_atomic_dwcas_lock_free_options}
+    )
+unset(_lass_have_std_atomic_dwcas_lock_free_options)
 
 
 # --- checking some properties of numbers and available functions ---
