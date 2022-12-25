@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,12 +40,12 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_SPHERE_3D_H
-#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_SPHERE_3D_H
+#ifndef LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_DISK_3D_H
+#define LASS_GUARDIAN_OF_INCLUSION_PRIM_AABB_3D_DISK_3D_H
 
 #include "prim_common.h"
 #include "aabb_3d.h"
-#include "sphere_3d.h"
+#include "disk_3d.h"
 
 namespace lass
 {
