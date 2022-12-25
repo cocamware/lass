@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2004-2015 the Initial Developer.
+*	Copyright (C) 2004-2022 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -224,21 +224,21 @@ void testIoIPCNoSleep()
 
 void testIoIPCParentSleep()
 {
-    runScenario(500, 0);
+    runScenario(100, 0);
 }
 
 void testIoIPCChildSleep()
 {
-    runScenario(0, 500);
+    runScenario(0, 100);
 }
 
 TUnitTest test_io_ipc()
 {
-    TUnitTest result;
-    result.push_back(LASS_TEST_CASE(testIoIPCNoSleep));
-    result.push_back(LASS_TEST_CASE(testIoIPCParentSleep));
-    result.push_back(LASS_TEST_CASE(testIoIPCChildSleep));
-    return result;
+    return TUnitTest{
+        LASS_TEST_CASE(testIoIPCNoSleep),
+        LASS_TEST_CASE(testIoIPCParentSleep),
+        LASS_TEST_CASE(testIoIPCChildSleep),
+    };
 }
 
 }
