@@ -82,7 +82,37 @@ lock_free_stack<T, A>::~lock_free_stack()
 template <typename T, typename A>
 void lock_free_stack<T, A>::push(const value_type& x)
 {
-	node_t* node = make_node(x);
+	emplace(x);
+}
+
+
+
+/** push value on stack.
+ */
+template <typename T, typename A>
+void lock_free_stack<T, A>::push(value_type&& x)
+{
+	emplace(std::move(x));
+}
+
+
+
+/** push value on stack.
+ */
+template <typename T, typename A>
+template <class... Args>
+void lock_free_stack<T, A>::emplace(Args&&... args)
+{
+	node_t* node = make_node();
+	try
+	{
+		new (&node->value) value_type(std::forward<Args>(args)...);
+	}
+	catch (...)
+	{
+		this->deallocate(node);
+		throw;
+	}
 	push_node(node);
 }
 
@@ -103,7 +133,7 @@ bool lock_free_stack<T, A>::pop(value_type& x)
 	}
 	try
 	{
-		x = node->value;
+		x = std::move(node->value);
 	}
 	catch (...)
 	{
@@ -141,19 +171,10 @@ bool lock_free_stack<T, A>::pop_swap(value_type& x)
 
 template <typename T, typename A>
 typename lock_free_stack<T, A>::node_t* 
-lock_free_stack<T, A>::make_node(const value_type& x)
+lock_free_stack<T, A>::make_node()
 {
 	node_t* node = static_cast<node_t*>(this->allocate());
-	try
-	{
-		new (&node->value) value_type(x);
-	}
-	catch (...)
-	{
-		this->deallocate(node);
-		throw;
-	}
-	node->next = 0;
+	node->next = nullptr;
 	return node;
 }
 

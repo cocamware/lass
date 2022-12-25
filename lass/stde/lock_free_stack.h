@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2021 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -66,6 +66,9 @@ public:
 	~lock_free_stack();
 
 	void push(const value_type& x);
+	void push(value_type&& x);
+	template <class... Args> void emplace(Args&&... args);
+
 	bool pop(value_type& x);
 	bool pop_swap(value_type& x);
 
@@ -82,7 +85,7 @@ private:
 	lock_free_stack(const lock_free_stack&);
 	lock_free_stack& operator=(const lock_free_stack&);
 
-	node_t* make_node(const value_type& x);
+	node_t* make_node();
 	void free_node(node_t* node);
 	void push_node(node_t* node);
 	node_t* pop_node();
