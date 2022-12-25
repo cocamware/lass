@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -73,8 +73,11 @@ public:
 
 	lock_free_queue();
 	~lock_free_queue();
+
 	void push(const value_type& x);
 	void push(value_type&& x);
+	template <class... Args> void emplace(Args&&... args);
+
 	bool pop(value_type& x);
 
 private:
@@ -95,8 +98,9 @@ private:
 	lock_free_queue(const lock_free_queue&);
 	lock_free_queue& operator=(const lock_free_queue&);
 
-	value_type* make_value(const value_type& x);
+	template <class... Args> value_type* make_value(Args&&... args);
 	void free_value(value_type* value);
+	void push_value(value_type* value);
 	node_t* make_node(value_type* x);
 	void free_node(node_t* node);
 

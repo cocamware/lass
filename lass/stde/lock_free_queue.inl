@@ -92,40 +92,30 @@ template <typename T, typename A>
 void lock_free_queue<T, A>::push(const value_type& x)
 {
 	value_type* const value = make_value(x);
-	node_t* node = 0;
-	try
-	{
-		node = make_node(value);
-	}
-	catch (...)
-	{
-		free_value(value);
-		throw;
-	}
-	pointer_t tail;
-	while (true)
-	{
-		tail = tail_.load(std::memory_order_acquire);
-		pointer_t next = tail->next.load(std::memory_order_acquire);
-		if (tail == tail_.load(std::memory_order_acquire))
-		{
-			if (!next)
-			{
-				pointer_t new_next(node, next.nextTag());
-				if (tail->next.compare_exchange_weak(next, new_next))
-				{
-					break;
-				}
-			}
-			else
-			{
-				pointer_t new_tail(next.get(), tail.nextTag());
-				tail_.compare_exchange_weak(tail, new_tail);
-			}
-		}
-	}
-	pointer_t new_tail(node, tail.nextTag());
-	tail_.compare_exchange_strong(tail, new_tail);
+	push_value(value);
+}
+
+
+
+/**	push a value in the back
+ */
+template <typename T, typename A>
+void lock_free_queue<T, A>::push(value_type&& x)
+{
+	value_type* const value = make_value(std::move(x));
+	push_value(value);
+}
+
+
+
+/**	emplace a value in the back
+ */
+template <typename T, typename A>
+template <class... Args>
+void lock_free_queue<T, A>::emplace(Args&&... args)
+{
+	value_type* const value = make_value(std::forward<Args>(args)...);
+	push_value(value);
 }
 
 
@@ -191,13 +181,14 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 // --- private -------------------------------------------------------------------------------------
 
 template <typename T, typename A>
+template <class... Args>
 typename lock_free_queue<T, A>::value_type*
-lock_free_queue<T, A>::make_value(const value_type& x)
+lock_free_queue<T, A>::make_value(Args&&... args)
 {
 	void* p = value_allocator_.allocate();
 	try
 	{
-		return new (p) value_type(x);
+		return new (p) value_type{ std::forward<Args>(args)... };
 	}
 	catch (...)
 	{
@@ -213,6 +204,47 @@ void lock_free_queue<T, A>::free_value(value_type* value)
 {
 	value->~value_type();
 	value_allocator_.deallocate(value);
+}
+
+
+
+template <typename T, typename A>
+void lock_free_queue<T, A>::push_value(value_type* value)
+{
+	node_t* node = 0;
+	try
+	{
+		node = make_node(value);
+	}
+	catch (...)
+	{
+		free_value(value);
+		throw;
+	}
+	pointer_t tail;
+	while (true)
+	{
+		tail = tail_.load(std::memory_order_acquire);
+		pointer_t next = tail->next.load(std::memory_order_acquire);
+		if (tail == tail_.load(std::memory_order_acquire))
+		{
+			if (!next)
+			{
+				pointer_t new_next(node, next.nextTag());
+				if (tail->next.compare_exchange_weak(next, new_next))
+				{
+					break;
+				}
+			}
+			else
+			{
+				pointer_t new_tail(next.get(), tail.nextTag());
+				tail_.compare_exchange_weak(tail, new_tail);
+			}
+		}
+	}
+	pointer_t new_tail(node, tail.nextTag());
+	tail_.compare_exchange_strong(tail, new_tail);
 }
 
 
