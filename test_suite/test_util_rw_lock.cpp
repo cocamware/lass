@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -42,62 +42,64 @@
 
 #include "test_common.h"
 
-#include "../lass/util/thread_fun.h"
 #include "../lass/util/rw_lock.h"
+#include <thread>
 
 namespace lass
 {
 namespace test
 {
-namespace rwlock_test
-{	
-	class Bar
-	{
-	public:
-		Bar() : lock_(10) {}
-		void doReads() 
-		{
-			for (int i=0;i<1000;++i)
-			{
-				util::Thread::sleep(1);
-				lock_.lockr();
-				std::cout << "R";
-				lock_.unlockr();
-			}
-		}
-		void doWrites() const 
-		{ 
-			for (int j=0;j<4;++j)
-			{
-				util::Thread::sleep(150);
-				for (int i=0;i<16;++i)
-				{
-					lock_.lockw();
-					util::Thread::sleep(5);
-					std::cout << "(W)";
-					lock_.unlockw();
-				}
-			}
-		}
-	private:
-		mutable util::RWLock lock_;
-	};
-
-}
 
 void testUtilRWLock()
 {
-	rwlock_test::Bar bar;
+	const int numProducers = std::max<int>(static_cast<int>(std::thread::hardware_concurrency()) / 8, 2);
+	const int numConsumers = std::max<int>(static_cast<int>(std::thread::hardware_concurrency()) - numProducers, 2);
+	LASS_COUT << "#producers = " << numProducers << ", #consumers = " << numConsumers << std::endl;
+
+	util::RWLock lock(std::max(numConsumers / 2, 1));
+
+	auto producer = [&lock]()
+	{
+		using namespace std::chrono_literals;
+		for (int j = 0; j < 4; ++j)
+		{
+			std::this_thread::sleep_for(150ms);
+			for (int i = 0; i < 16; ++i)
+			{
+				std::this_thread::sleep_for(5ms);
+				lock.lockw();
+				std::cout << "(W)";
+				lock.unlockw();
+			}
+		}
+	};
+
+	auto consumer = [&lock]()
+	{
+		using namespace std::chrono_literals;
+		for (int i = 0; i < 1000; ++i)
+		{
+			std::this_thread::sleep_for(1ms);
+			lock.lockr();
+			std::cout << "R";
+			lock.unlockr();
+		}
+	};
 
 	LASS_COUT << "thread spam ...\n";
-	std::unique_ptr<util::Thread> readThread(util::threadMemFun(&bar, &rwlock_test::Bar::doReads, util::threadJoinable));
-	std::unique_ptr<util::Thread> writeThread(util::threadMemFun(&bar, &rwlock_test::Bar::doWrites, util::threadJoinable));
-	readThread->run();
-	writeThread->run();
+	std::vector<std::thread> workers;
+	for (int i = 0; i < numConsumers; ++i)
+	{
+		workers.emplace_back(consumer);
+		if (i < numProducers)
+			workers.emplace_back(producer);
+	}
 	LASS_COUT << "joining\n";
-	readThread->join();
-	writeThread->join();
-	LASS_COUT << "joined\n";
+	for (auto& worker : workers)
+	{
+		worker.join();
+	}
+	LASS_COUT << "\njoined\n";
 
 }
 

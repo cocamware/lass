@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -86,9 +86,9 @@ public:
 	LockResult tryLockw();
 
 private:
-	int maxReaders_;		/**< the maximum of simultaneous readers allowed */
-	volatile int spinLock_;
-	volatile int writersTrying_;		/**< the number of writers trying to enter */
+	const int maxReaders_;		/**< the maximum of simultaneous readers allowed */
+	std::atomic<int> spinLock_;
+	std::atomic<int> writersTrying_;		/**< the number of writers trying to enter */
 };
 
 } //namespace util

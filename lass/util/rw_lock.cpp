@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2009 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -48,87 +48,102 @@ namespace lass
 namespace util
 {
 
-RWLock::RWLock(int iMaxReaders)
+RWLock::RWLock(int iMaxReaders):
+	maxReaders_(iMaxReaders),
+	spinLock_(iMaxReaders),
+	writersTrying_(0)
 {
-	maxReaders_ = iMaxReaders;
-	spinLock_ = maxReaders_;
-	writersTrying_ = 0;
 }
 
 RWLock::~RWLock()
 {
-	LASS_ASSERT(spinLock_==maxReaders_);
+	LASS_ASSERT(spinLock_.load(std::memory_order_relaxed) == maxReaders_);
+	LASS_ASSERT(writersTrying_.load(std::memory_order_relaxed) == 0);
 }
 
 void RWLock::lockr()
 {
-	int newSpinLock;
 	int oldSpinLock;
 	do
 	{
-		oldSpinLock = spinLock_;
+		while (writersTrying_.load() != 0)
+		{
+			LASS_SPIN_PAUSE;
+		}
+		oldSpinLock = spinLock_.load();
 		LASS_ASSERT(oldSpinLock>=0);
-		newSpinLock = oldSpinLock-1;
-	} while (writersTrying_!=0 || oldSpinLock==0 || !lass::util::atomicCompareAndSwap(spinLock_,oldSpinLock,newSpinLock));
+		while (oldSpinLock <= 0)
+		{
+			oldSpinLock = spinLock_.load();
+			LASS_SPIN_PAUSE;
+		}
+	}
+	while (!spinLock_.compare_exchange_weak(oldSpinLock, oldSpinLock - 1));
 }
 
 void RWLock::lockw()
 {
-	lass::util::atomicIncrement(writersTrying_);
+	writersTrying_.fetch_add(1);
+	int expected;
 	do
 	{
-	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,maxReaders_,0));
+		expected = maxReaders_;
+		while (spinLock_.load() != expected)
+		{
+			LASS_SPIN_PAUSE;
+		}
+	}
+	while (!spinLock_.compare_exchange_weak(expected, 0));
 }
 
 void RWLock::unlockw()
 {
-	LASS_ENFORCE(spinLock_==0);
-	do
-	{
-	} while (!lass::util::atomicCompareAndSwap<int>(spinLock_,0,maxReaders_));
-	lass::util::atomicDecrement(writersTrying_);
+	int expected = 0;
+	LASS_ENFORCE(spinLock_.compare_exchange_strong(expected, maxReaders_));
+	writersTrying_.fetch_sub(1);
 }
 
 void RWLock::unlockr()
 {
-	lass::util::atomicIncrement(spinLock_);
-	LASS_ASSERT(spinLock_<=maxReaders_);
+	const int LASS_UNUSED(oldSpinLock) = spinLock_.fetch_add(1);
+	LASS_ASSERT(oldSpinLock <= maxReaders_);
 }
 
 
 LockResult RWLock::tryLockr()
 {
 	int oldSpinLock;
-	int newSpinLock;
 	do
 	{
-		oldSpinLock = spinLock_;
-		LASS_ASSERT(spinLock_ >= 0);
-		if (spinLock_ == 0)
+		if (writersTrying_.load() != 0)
 		{
 			return lockBusy;
 		}
-		newSpinLock = oldSpinLock - 1;
+		oldSpinLock = spinLock_.load();
+		LASS_ASSERT(oldSpinLock >= 0);
+		if (oldSpinLock <= 0)
+		{
+			return lockBusy;
+		}
 	}
-	while (!atomicCompareAndSwap(spinLock_, oldSpinLock, newSpinLock));
+	while (!spinLock_.compare_exchange_weak(oldSpinLock, oldSpinLock - 1));
 	return lockSuccess;
 }
 
 
 LockResult RWLock::tryLockw()
 {
-	lass::util::atomicIncrement(writersTrying_);
-	do
+	int expected = maxReaders_;
+	writersTrying_.fetch_add(1);
+	if (spinLock_.compare_exchange_strong(expected, 0))
 	{
-		LASS_ASSERT(spinLock_ >= 0);
-		if (spinLock_ != maxReaders_)
-		{
-			lass::util::atomicDecrement(writersTrying_);
-			return lockBusy;
-		}
+		return lockSuccess;
 	}
-	while (!atomicCompareAndSwap<int>(spinLock_, maxReaders_, 0));
-	return lockSuccess;
+	else
+	{
+		writersTrying_.fetch_sub(1);
+		return lockBusy;
+	}
 }
 
 } //namespace util
