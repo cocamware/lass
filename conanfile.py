@@ -1,7 +1,7 @@
-import errno
 import os
 import re
 import subprocess
+from importlib.util import module_from_spec, spec_from_file_location
 
 from conans import CMake, ConanFile, errors, tools
 
@@ -9,10 +9,8 @@ from conans import CMake, ConanFile, errors, tools
 def _get_version():
     try:
         content = tools.load("CMakeLists.txt")
-    except EnvironmentError as err:
-        if err.errno == errno.ENOENT:
-            return None  # Assume conan metadata already knows
-        raise
+    except FileNotFoundError:
+        return None  # Assume conan metadata already knows
     match = re.search(r"project\(Lass VERSION (\d+\.\d+\.\d+)\)", content)
     assert match
     version = match.group(1)
@@ -21,18 +19,16 @@ def _get_version():
 
     # if this version has been tagged in Git, it's either this very commit (and a
     # release version), or a post-release (which is not allowed).
-    version_tag = "lass-{}".format(version)
+    version_tag = f"lass-{version}"
     try:
-        describe = git.run(
-            "describe --abbrev=8 --dirty --tags --match {}".format(version_tag)
-        )
+        describe = git.run(f"describe --abbrev=8 --dirty --tags --match {version_tag}")
     except (errors.ConanException, errors.CalledProcessErrorWithStderr):
         pass  # release tag doesn't exist yet, it's a pre-release.
     else:
         assert describe == version_tag, (
-            "Post-release builds are not allowed. Set base_tag to {!r} and "
+            f"Post-release builds are not allowed. Set base_tag to {version_tag!r} and "
             + "increment project(Lass VERSION X.Y.Z) in CMakeLists.txt."
-        ).format(version_tag)
+        )
         return version
 
     git = tools.Git()
@@ -44,10 +40,10 @@ def _get_version():
     assert match, "unexpected describe format: {!r}".format(describe)
     prev_version, pre_release, rev = match.group(1), match.group(2), match.group(3)
     assert _int_version(prev_version) < _int_version(version)
-    return "{}-{}+{}".format(version, pre_release, rev)
+    return f"{version}-{pre_release}+{rev}"
 
 
-def _int_version(str_version):
+def _int_version(str_version: str):
     return [int(x) for x in str_version.split(".")]
 
 
@@ -177,21 +173,10 @@ class LassConan(ConanFile):
         file_path = os.path.join(
             self.cpp_info.rootpath, "share", "Lass", "LassConfig.py"
         )
-        try:
-            from importlib.util import spec_from_file_location, module_from_spec
-        except ImportError:
-            import imp
-
-            imp.acquire_lock()
-            try:
-                return imp.load_source(module_name, file_path)
-            finally:
-                imp.release_lock()
-        else:
-            spec = spec_from_file_location(module_name, file_path)
-            module = module_from_spec(spec)
-            spec.loader.exec_module(module)
-            return module
+        spec = spec_from_file_location(module_name, file_path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
 
 class Python(object):
@@ -203,16 +188,16 @@ class Python(object):
 
         if not self._executable:
             raise errors.ConanInvalidConfiguration(
-                "Python executable cannot be found: {!s}".format(self._executable)
+                f"Python executable cannot be found: {self._executable!s}"
             )
 
     @property
-    def executable(self):
+    def executable(self) -> str:
         """Full path to Python executable"""
         return self._executable
 
     @property
-    def version(self):
+    def version(self) -> str:
         """Short version like 3.7"""
         # pylint: disable=attribute-defined-outside-init
         try:
@@ -222,7 +207,7 @@ class Python(object):
             return self._version
 
     @property
-    def debug(self):
+    def debug(self) -> bool:
         """True if python library is built with Py_DEBUG"""
         # pylint: disable=attribute-defined-outside-init
         try:
@@ -235,7 +220,7 @@ class Python(object):
             return self._debug
 
     @property
-    def library(self):
+    def library(self) -> str:
         """Full path to python library you should link to"""
         # pylint: disable=attribute-defined-outside-init
         try:
@@ -248,7 +233,7 @@ class Python(object):
                 self._library = os.path.join(
                     os.path.dirname(stdlib),
                     "libs",
-                    "python{}{}.lib".format(version_nodot, postfix),
+                    f"python{version_nodot}{postfix}.lib",
                 )
             else:
                 fname = self._get_config_var("LDLIBRARY")
@@ -266,20 +251,18 @@ class Python(object):
                         self._library = candidate
                         break
                 else:
-                    raise RuntimeError("Unable to find {}".format(fname))
+                    raise RuntimeError(f"Unable to find {fname}")
             return self._library
 
-    def _get_python_path(self, key):
+    def _get_python_path(self, key: str) -> str:
+        return self._query(f"import sysconfig; print(sysconfig.get_path({key!r}))")
+
+    def _get_config_var(self, key: str) -> str:
         return self._query(
-            "import sysconfig; print(sysconfig.get_path({!r}))".format(key)
+            f"import sysconfig; print(sysconfig.get_config_var({key!r}))"
         )
 
-    def _get_config_var(self, key):
-        return self._query(
-            "import sysconfig; print(sysconfig.get_config_var({!r}))".format(key)
-        )
-
-    def _query(self, script):
+    def _query(self, script: str) -> str:
         return subprocess.check_output(
             [self.executable, "-c", script], universal_newlines=True
         ).strip()
