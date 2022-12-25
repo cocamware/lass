@@ -196,19 +196,12 @@ lock_free_stack<T, A>::pop_node()
 			return 0;
 		}
 
-		// This is the tricky part ... does top still exist? In theory, it can be freed by now.
-		// But here's the cunning part: the use of AllocatorLockFreeFreeList ensures that at least
-		// the memory is not reclaimed (it merely is in purgatory instead).  
-		// So, it's somehow safe to access its next member (it may give a totally wacked up 
-		// result, but that doesn't really matter). 
-		// It comes at a sacrifice though: memory will only be reclaimed at the end of the 
-		// stack's lifecycle. [Bramz]
-		//
-		// Update: This is not entirely true ... if top is currently "in use", then top->next may
-		// correspond with a bit pattern that isn't a valid pointer at all (and most likely,
-		// if it is a valid bit pattern, it won't point to allocated memory).  Anyway, this
-		// means that the behaviour is pretty much undefined.  The machine can do whatever it wants:
-		// halt, reboot, make funny noises or make some coffee ... [Bramz]
+		// This is the tricky part ... does top still exist?
+		// In theory, it can be freed by now. But by using AllocatorConcurrentFreeList,
+		// it's guaranteed that at least its memory is not reclaimed by the OS. It's
+		// either sitting unallocated in the free-list and has its memory preserved, or
+		// it's already being reallocated for a new node.
+		// In both cases, it should be safe to read top->next.
 		//
 		next = pointer_t(top->next, top.nextTag());
 	}

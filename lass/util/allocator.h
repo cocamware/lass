@@ -91,6 +91,8 @@
 #include "thread.h"
 #include "../meta/bool.h"
 
+#include <cstddef>
+
 namespace lass
 {
 namespace util
@@ -232,13 +234,14 @@ private:
 };
 
 
-
 /** @ingroup Allocator
  *	@arg concept: VariableAllocator
  */
 class AllocatorMalloc
 {
 public:
+	static constexpr size_t alignment = alignof(std::max_align_t);
+
 	void* allocate(size_t size)
 	{
 		return ::malloc(size);
@@ -394,6 +397,8 @@ template
 class AllocatorFixed: private VariableAllocator
 {
 public:
+	static constexpr size_t alignment = VariableAllocator::alignment;
+
 	AllocatorFixed(size_t size): 
 		size_(size)
 	{
@@ -866,8 +871,10 @@ template
 class AllocatorConcurrentFreeList: public FixedAllocator
 {
 public:
+	static constexpr size_t alignment = FixedAllocator::alignment;
+
 	AllocatorConcurrentFreeList(size_t size):
-		FixedAllocator(std::max<size_t>(sizeof(AllocationNode), size)),
+		FixedAllocator(size + alignment),
 		top_()
 	{
 #if defined(__cpp_lib_atomic_is_always_lock_free)
@@ -882,6 +889,7 @@ public:
 		while (node)
 		{
 			AllocationNode* next = node->next.load(std::memory_order_relaxed);
+			node->~AllocationNode();
 			FixedAllocator::deallocate(node);
 			node = next;
 		}
@@ -899,18 +907,20 @@ public:
 		{
 			if (!topNode)
 			{
-				return FixedAllocator::allocate();
+				void* p = FixedAllocator::allocate();
+				AllocationNode* node = new(p) AllocationNode();
+				return shift(node);
 			}
 			next = TTaggedPtr(topNode->next.load(std::memory_order_relaxed), topNode.nextTag());
 		}
 		while (!top_.compare_exchange_weak(topNode, next));
-		return topNode.get();
+		return shift(topNode.get());
 	}
 	void deallocate(void* pointer)
 	{
 		if (!pointer)
 			return;
-		AllocationNode* node = static_cast<AllocationNode*>(pointer);
+		AllocationNode* node = unshift(pointer);
 		TTaggedPtr topNode = top_.load(std::memory_order_acquire);
 		TTaggedPtr newTop;
 		do
@@ -925,10 +935,25 @@ private:
 	{
 		std::atomic<AllocationNode*> next;
 	};
-
 	typedef util::TaggedPtr<AllocationNode> TTaggedPtr;
 
+	static_assert(alignof(AllocationNode) == sizeof(AllocationNode),
+		"alignof(AllocationNode) == sizeof(AllocationNode)");
+	static_assert(sizeof(AllocationNode) <= alignment,
+		"FixedAllocator for AllocatorConcurrentFreeList must have minimum alignment of sizeof(AllocationNode)");
+
 	AllocatorConcurrentFreeList& operator=(const AllocatorConcurrentFreeList&) = delete;
+
+	static void* shift(AllocationNode* node)
+	{
+		char* p = reinterpret_cast<char*>(node);
+		return p + alignment;
+	}
+	static AllocationNode* unshift(void* pointer)
+	{
+		char* p = static_cast<char*>(pointer) - alignment;
+		return reinterpret_cast<AllocationNode*>(p);
+	}
 
 	std::atomic<TTaggedPtr> top_;
 };
@@ -1052,17 +1077,19 @@ private:
 /** @ingroup Allocator
  *	@arg concept: VariableAllocator
  *
- *	AllocatorAligned adds @a alignment bytes to the requested block size to be able to shift
+ *	AllocatorAligned adds @a Alignment bytes to the requested block size to be able to shift
  *	the pointer to a alignment boundary.
  */
 template
 <
-	unsigned char alignment,
+	unsigned char Alignment,
 	typename VariableAllocator = AllocatorMalloc
 >
 class AllocatorAligned: public VariableAllocator
 {
 public:
+	static constexpr size_t alignment = Alignment;
+
 	void* allocate(size_t size)
 	{
 		return align(VariableAllocator::allocate(size + alignment));
@@ -1094,16 +1121,18 @@ private:
 /** @ingroup Allocator
 *	@arg concept: VariableAllocator
 *
-*	AllocatorAligned adds @a alignment bytes to the requested block size to be able to shift
+*	AllocatorAligned adds @a align bytes to the requested block size to be able to shift
 *	the pointer to a alignment boundary.
 */
 template
 <
-	size_t alignment
+	size_t Alignment
 >
 class AllocatorAlignedAlloc
 {
 public:
+	static constexpr size_t alignment = Alignment;
+
 	void* allocate(size_t size)
 	{
 #if LASS_HAVE_ALIGNED_ALLOC

@@ -154,13 +154,15 @@ bool lock_free_queue<T, A>::pop(value_type& x)
 			}
 			else
 			{
-				// 'next' might be reclaimed here, but that's not really a problem:
-				// a) its memory will still exist, so at most value will contain rubbish but that's
-				//		ok to copy because it's just used as a pointer
-				// b) if it is reclaimed, the following CAS will fail so that value will never be
-				//		used so we don't care if it contains rubbish.
-				// SEE ALSO: lock_free_stack::pop_node, and why the above is not entirely true ...				
-				// [Bramz]
+				// This is the tricky part ... does 'next' still exist?
+				// In theory, it can be freed by now. But by using
+				// AllocatorConcurrentFreeList, it's guaranteed that at least its memory
+				// is not reclaimed by the OS.  It's either sitting unallocated in the
+				// free-list and has its memory preserved, or it's already being
+				// reallocated for a new node.
+				// In both cases, it should be safe to read next->value.
+				// And in both cases, the compare_exchange_strong that follows will
+				// return false before we try to dereference value.
 				//
 				value_type* value = next->value.load(std::memory_order_acquire);
 
