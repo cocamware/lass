@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -82,10 +82,19 @@
 #elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_SUNPRO
 #   define LASS_BREAK_HERE
 #else
-#   ifdef LASS_PROCESSOR_ARCHITECTURE_x86
+#   if defined(LASS_PROCESSOR_ARCHITECTURE_x86)
 #       define LASS_BREAK_HERE	__asm__("int $3");
+#   elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
+#       if LASS_ADDRESS_SIZE != 32
+#           error "Need to verify for 64 bit ..."
+#       endif
+#       ifdef __thumb__
+#           define LASS_BREAK_HERE __asm__(".inst.w 0xe7f001f0");
+#       else
+#           define LASS_BREAK_HERE __asm__(".inst 0xe7f001f0");
+#       endif
 #   else
-#       define LASS_BREAK_HERE   { };
+#       define LASS_BREAK_HERE
 #   endif
 #endif
 
