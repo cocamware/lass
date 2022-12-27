@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -65,7 +65,7 @@
 #endif
 
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
 #	if defined(__ARM_EABI__)
 #		define LASS_PROCESSOR_ARCHITECTURE_ARM
 #	else
