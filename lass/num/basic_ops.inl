@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -570,16 +570,16 @@ void inpfractional(char& x)	{ x = 0; }					/**< @ingroup BasicOps */
 // --- signed char ----------------------------------------------------------------------------------
 
 signed char abs(signed char x)						{ return static_cast<signed char>(::abs(x)); }	/**< @ingroup BasicOps */
-signed char pow(signed char x, signed char p)		{ return impl::IntPow<char>::eval(x, p); }		/**< @ingroup BasicOps */
-signed char pow(signed char x, unsigned char p)		{ return impl::IntPow<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char pow(signed char x, signed char p)		{ return impl::IntPow<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
+signed char pow(signed char x, unsigned char p)		{ return impl::IntPow<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
 signed char floor(signed char x)					{ return x; }									/**< @ingroup BasicOps */
 signed char ceil(signed char x)						{ return x; }									/**< @ingroup BasicOps */
 signed char round(signed char x)					{ return x; }									/**< @ingroup BasicOps */
 signed char fractional(signed char /*x*/)			{ return 0; }									/**< @ingroup BasicOps */
-signed char div(signed char x, signed char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
-signed char div(signed char x, unsigned char p)		{ return impl::IntDiv<char>::eval(x, p); }		/**< @ingroup BasicOps */
-signed char mod(signed char x, signed char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
-unsigned char mod(signed char x, unsigned char p)		{ return impl::IntMod<char>::eval(x, p); }		/**< @ingroup BasicOps */
+signed char div(signed char x, signed char p)		{ return impl::IntDiv<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
+signed char div(signed char x, unsigned char p)		{ return impl::IntDiv<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
+signed char mod(signed char x, signed char p)		{ return impl::IntMod<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
+unsigned char mod(signed char x, unsigned char p)	{ return impl::IntMod<signed char>::eval(x, p); }	/**< @ingroup BasicOps */
 
 void inpfloor(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
 void inpceil(signed char& /*x*/)	{}				/**< @ingroup BasicOps */
