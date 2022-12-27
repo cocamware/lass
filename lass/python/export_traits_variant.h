@@ -114,7 +114,7 @@ struct PyExportTraitsVariantImpl<Variant, bool, Tail...>
 	{
 		if (PyBool_Check(obj))
 		{
-			v = Py_IsTrue(obj)
+			v = obj == Py_True
 				? true
 				: false;
 			return 0;

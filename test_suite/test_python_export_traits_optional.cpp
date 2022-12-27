@@ -64,14 +64,14 @@ void testPythonExportTraitsOptional()
 		// build empty optional
 		std::optional<std::string> val;
 		TPyObjPtr obj{ pyBuildSimpleObject(val) };
-		LASS_TEST_CHECK(Py_IsNone(obj.get()));
+		LASS_TEST_CHECK(obj.get() == Py_None);
 	}
 
 	{
 		// build optional with value
 		std::optional<std::string> val{ "a string" };
 		TPyObjPtr obj{ pyBuildSimpleObject(val) };
-		LASS_TEST_CHECK(!Py_IsNone(obj.get()));
+		LASS_TEST_CHECK(obj.get() != Py_None);
 		LASS_TEST_CHECK(PyUnicode_Check(obj.get()));
 		std::string str;
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), str), 0);
