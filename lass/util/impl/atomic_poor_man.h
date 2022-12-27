@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -62,7 +62,7 @@ struct AtomicOperations
 	LASS_META_ASSERT(byteSize == 1 || byteSize == 2 || byteSize == 4 || byteSize == 8, bytesize_should_be_1_2_4_or_8);
 	
 	template <typename T>
-	static T compareAndSwap(volatile T& dest, T expectedValue, T newValue)
+	static bool compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
 		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
 		const T old = dest;
