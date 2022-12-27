@@ -205,7 +205,7 @@ void testNumVector()
 	d = a;
 	d *= b;
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
-	for (i = 0; i < n; ++i) LASS_TEST_CHECK_EQUAL(d[i], a[i] * b[i]);
+	for (i = 0; i < n; ++i) LASS_TEST_CHECK_CLOSE(d[i], a[i] * b[i], tolerance);
 
 	d /= c;
 	LASS_TEST_CHECK_EQUAL(d.size(), n);
