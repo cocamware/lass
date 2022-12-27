@@ -67,12 +67,17 @@ Lass is build and tested on following combinations of platforms and tools.
 Where possible, we rely on stock versions of the tools as provided by the
 platform's package manager. Windows being the exception.
 
-| OS               | Arch     | CMake  | Python                                      | Compiler                  |
-|------------------|----------|--------|---------------------------------------------|---------------------------|
-| Debian Buster    | x64      | 3.12.1 | 3.6.6                                       | gcc 8.2.0, clang 6.0.1    |
-| Debian Bullseye  | x64      | 3.18.4 | 3.9.2                                       | gcc 10.2.1, clang 11.0.1  |
-| Ubuntu Bionic    | x64      | 3.10.2 | 3.6.5                                       | gcc 7.3.0, clang 6.0.0    |
-| Ubuntu Focal     | x64      | 3.16.3 | 3.8.2                                       | gcc 9.3.0, clang 10.0.0   |
-| Ubuntu Yammy     | x64      | 3.22.1 | 3.10.4                                      | gcc 11.2.0, clang 14.0.0  |
-| Ubuntu Kinetic   | x64      | 3.24.2 | 3.10.7                                      | gcc 12.2.0, clang 15.0.2  |
-| Windows 10       | x86, x64 | 3.23.2 | 3.6.8, 3.7.9, 3.8.10, 3.9.8, 3.10.8, 3.11.0 | vs 2017, vs 2019, vs 2022 |
+| OS               | Arch           | CMake  | Python                                      | Compiler                  |
+|------------------|----------------|--------|---------------------------------------------|---------------------------|
+| Debian Buster    | x64            | 3.12.1 | 3.6.6                                       | gcc 8.2.0, clang 6.0.1    |
+| Debian Bullseye  | x64, armv7l[1] | 3.18.4 | 3.9.2                                       | gcc 10.2.1, clang 11.0.1  |
+| Ubuntu Bionic    | x64            | 3.10.2 | 3.6.5                                       | gcc 7.3.0, clang 6.0.0    |
+| Ubuntu Focal     | x64            | 3.16.3 | 3.8.2                                       | gcc 9.3.0, clang 10.0.0   |
+| Ubuntu Yammy     | x64            | 3.22.1 | 3.10.4                                      | gcc 11.2.0, clang 14.0.0  |
+| Ubuntu Kinetic   | x64            | 3.24.2 | 3.10.7                                      | gcc 12.2.0, clang 15.0.2  |
+| Windows 10       | x86, x64       | 3.23.2 | 3.6.8, 3.7.9, 3.8.10, 3.9.8, 3.10.8, 3.11.0 | vs 2017, vs 2019, vs 2022 |
+
+[1] armv7l support tested on Raspberry Pi 4 (ARM Cortex-A72, 32-bit Raspbian Bullseye,
+CXXFLAGS=-mcpu=cortex-a72 -mfpu=neon-fp-armv8) and BeagleBoneBlack (ARM Cortex-A8,
+Debian Bullseye, CXXFLAGS=-mcpu=cortex-a8 -mfpu=neon). On RPi4, the Clang build requires
+C++17 or newer.
