@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -119,6 +119,8 @@ void testUtilAtomicAdjacentCas()
 
 #if LASS_ADDRESS_SIZE == 64
 	volatile T LASS_ALIGNED(a[2], 16) = { old1, old2 };
+#elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
+	volatile T LASS_ALIGNED(a[2], 8) = { old1, old2 };
 #else
 	volatile T a[2] = { old1, old2 };
 #endif
