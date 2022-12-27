@@ -120,7 +120,9 @@ void testLockFreeStack()
 {
 	const size_t numWorkers = std::max<size_t>(std::thread::hardware_concurrency() / 2, 2);
 	LASS_COUT << "#producers = " << numWorkers << ", #consumers = " << numWorkers << std::endl;
-	const size_t n = 1'000'00;
+	constexpr size_t n = sizeof(size_t) == 4
+		? 10'000 // numWorkers * (n - 1) * (n / 2) must fit in a 32 bit unsigned int
+		: 1'000'000;
 	static_assert(n % 2 == 0, "n must be even");
 
 	stde::lock_free_stack<size_t> stack;
@@ -188,7 +190,9 @@ void testLockFreeStackObject()
 {
 	const size_t numWorkers = std::max<size_t>(std::thread::hardware_concurrency() / 2, 2);
 	LASS_COUT << "#producers = " << numWorkers << ", #consumers = " << numWorkers << std::endl;
-	const size_t n = 1'000'000;
+	constexpr size_t n = sizeof(size_t) == 4
+		? 10'000 // numWorkers * (n - 1) * (n / 2) must fit in a 32 bit unsigned int
+		: 1'000'000;
 	static_assert(n % 2 == 0, "n must be even");
 
 	{
