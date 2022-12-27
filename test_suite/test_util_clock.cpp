@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2022 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -45,10 +45,7 @@
 #include "../lass/util/stop_watch.h"
 
 #include <ctime>
-//#ifndef CLK_TCK
-//#	include <unistd.h>
-//#	define CLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
-//#endif
+#include <chrono>
 
 namespace lass
 {
@@ -57,6 +54,7 @@ namespace test
 
 void testUtilClock()
 {
+	using reference_clock = std::chrono::high_resolution_clock;
 	typedef util::Clock::TTime TTime;
 	
 	util::Clock deviceUnderTest;
@@ -68,35 +66,26 @@ void testUtilClock()
 		deviceUnderTest.time();
 	}
 
-	int i = 0;
+	const int testSeconds = 1;
 
-	double testSeconds = 1;
-
-
-	const std::clock_t stdBegin = std::clock();
-	while (std::clock() <= stdBegin)
+	const auto refBegin = reference_clock::now();
+	while (reference_clock::now() <= refBegin)
 	{
-		++i;
 	}
 	const util::Clock::TTime dutBegin = deviceUnderTest.time();
-	LASS_EVAL(i);
-	LASS_EVAL(std::clock());
-	const std::clock_t stdEnd = stdBegin + static_cast< std::clock_t >(testSeconds * CLOCKS_PER_SEC);
-	while (std::clock() <= stdEnd)
+	const auto refEnd = refBegin + std::chrono::seconds(1);
+	while (reference_clock::now() <= refEnd)
 	{
-		++i;
 	}
 	const util::Clock::TTime dutEnd = deviceUnderTest.time();
-	LASS_EVAL(i);
-	LASS_EVAL(std::clock());
 
-	LASS_EVAL(stdBegin);
-	LASS_EVAL(stdEnd);
+	//LASS_EVAL(refBegin);
+	//LASS_EVAL(refEnd);
 	LASS_EVAL(dutBegin);
 	LASS_EVAL(dutEnd);
+	LASS_EVAL(dutEnd - dutBegin);
 
-	LASS_TEST_CHECK_CLOSE(dutEnd - dutBegin, testSeconds, 0.10);
-
+	LASS_TEST_CHECK_CLOSE(dutEnd - dutBegin, static_cast<util::Clock::TTime>(testSeconds), 1e-2);
 
 	const util::Clock::TTick tick1 = deviceUnderTest.tick();
 	const util::Clock::TTick tick2 = deviceUnderTest.tick();
