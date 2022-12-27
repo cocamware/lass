@@ -179,6 +179,8 @@ endfunction()
 
 _try_compile_checking(LASS_HAVE_ARM "check_arm.cpp" "targeting ARM")
 if (LASS_HAVE_ARM)
+    add_compile_options("-Wno-psabi")
+
     # INCOMPLETE DETECTION OF HARDWARE ...
 
     set(_mcpu)
