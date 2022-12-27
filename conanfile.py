@@ -101,9 +101,15 @@ class LassConan(ConanFile):
             self.options.python_debug = Python(
                 self.options.python_executable, self.settings
             ).debug
+        # We default to C++17
+        if self.settings.get_safe("compiler.cppstd") is None:
+            self.settings.compiler.cppstd = "17"
         self.validate()
 
     def validate(self):
+        unsupported_cppstd = ["98", "gnu98", "11", "gnu11", "14", "gnu14"]
+        if str(self.settings.compiler.cppstd) in unsupported_cppstd:
+            raise errors.ConanInvalidConfiguration("Lass requires at least C++17")
         if self.settings.compiler.value in ["gcc", "clang"]:
             if self.settings.compiler.libcxx in ["libstdc++"]:
                 raise errors.ConanInvalidConfiguration(
