@@ -353,6 +353,16 @@ CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
 _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 _try_compile_checking(LASS_HAVE_DURATION_OPERATOR_OSTREAM "check_duration_operator_ostream.cpp" "std::chrono::duration has operator<<")
 _try_compile_checking(LASS_HAVE_STD_FILESYSTEM "check_std_filesystem.cpp" "std::filesystem is supported")
+if(NOT LASS_HAVE_STD_FILESYSTEM)
+    _try_compile_checking(LASS_HAVE_STD_FILESYSTEM_LIBSTDCPPFS
+        "check_std_filesystem.cpp"
+        "std::filesystem with libstdc++fs is supported"
+        LINK_LIBRARIES "stdc++fs")
+    if (LASS_HAVE_STD_FILESYSTEM_LIBSTDCPPFS)
+        set(LASS_HAVE_STD_FILESYSTEM TRUE)
+        list(APPEND lass_LIBS "stdc++fs")
+    endif()
+endif()
 _try_compile_checking(LASS_HAVE_STD_OPTIONAL "check_std_optional.cpp" "std::optional is supported")
 _try_compile_checking(LASS_HAVE_STD_CHRONO_CPP20 "check_std_chrono_cpp20.cpp" "std::chrono C++20 is supported")
 _try_compile_checking(LASS_HAVE_STD_VARIANT "check_std_variant.cpp" "std::variant is supported")
