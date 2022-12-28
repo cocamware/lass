@@ -252,7 +252,7 @@ PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::c
 	PyObject* tz = PyDateTime_TimeZone_UTC;
 #else
 	static TPyObjPtr timezoneUTC;
-	if (!tz)
+	if (!timezoneUTC)
 	{
 		TPyObjPtr datetimeMod(PyImport_ImportModule("datetime"));
 		TPyObjPtr timezoneClass(PyObject_GetAttrString(datetimeMod.get(), "timezone"));
