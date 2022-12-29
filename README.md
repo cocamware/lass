@@ -21,8 +21,8 @@ Lass is dual licensed under CPAL-1.0 and GPL-2.0-or-later, see
 Requirements
 ------------
 
--   [Python](https://www.python.org/) >= 2.7
--   [CMake](https://cmake.org/) >= 3.0
+-   [Python](https://www.python.org/) >= 3.6
+-   [CMake](https://cmake.org/) >= 3.10
 
 
 Building
@@ -35,8 +35,7 @@ Lass uses the CMake build system.
 -   **`Lass_PYTHON_VERSION`** (`STRING`): If you want a specific version of
     Python, set this variable *before* running CMake for the first time
     in an empty build directory. It accepts both `<major>.<minor>` and exact
-    `<major>.<minor>.<patch>` versions (except CMake 3.0 which only accepts the
-    exact version).
+    `<major>.<minor>.<patch>` versions.
 -   **`Python_EXECUTABLE`** (`FILEPATH`): If CMake cannot find the Python
     requested, you need to help it by specifying the full path to Python
     executable. Set this variable *before* running CMake for the first time
