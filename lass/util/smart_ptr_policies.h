@@ -453,11 +453,22 @@ template
 	typename CounterType,
 	CounterType T::* referenceCounter
 >
-class IntrusiveCounter
+class IntrusiveCounter;
+
+
+template
+<
+	typename T,
+	typename CounterType,
+	volatile CounterType T::* referenceCounter
+>
+class 
+[[deprecated("IntrusiveCounter with volatile count is deprecated, use it with std::atomic instead")]]
+IntrusiveCounter<T, volatile CounterType, referenceCounter>
 {
 public:
 
-	typedef IntrusiveCounter<T, CounterType, referenceCounter> TSelf;
+	typedef IntrusiveCounter<T, volatile CounterType, referenceCounter> TSelf;
 	typedef CounterType TCount;
 
 protected:
