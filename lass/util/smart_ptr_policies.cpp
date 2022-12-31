@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -48,7 +48,8 @@ namespace lass
 {
 namespace util
 {
-namespace impl
+
+namespace
 {
 
 // We used to utilize util::Singleton to implement the heap counter allocator,
@@ -57,11 +58,9 @@ namespace impl
 // but never deallocated ...
 // [Bramz]
 
-
-
 typedef AllocatorThrow<
 		AllocatorStaticFixed<
-			AllocatorConcurrentFreeList<>, sizeof(size_t)
+			AllocatorConcurrentFreeList<>, sizeof(DefaultCounter::TCount)
 		>
 	>
 	THeapCounterAllocator;
@@ -71,22 +70,23 @@ THeapCounterAllocator& heapCounterAllocator()
 	return *util::Singleton<THeapCounterAllocator, destructionPriorityNever>::instance();
 }
 
-void initHeapCounter(volatile size_t*& ioCounter, size_t iInitialValue)
+}
+
+DefaultCounter::TAtomicCount* DefaultCounter::initHeapCounter(TCount initialValue)
 {
-	ioCounter = static_cast<volatile size_t*>(heapCounterAllocator().allocate());
-	*ioCounter = iInitialValue;
+	void* p = heapCounterAllocator().allocate();
+	return new (p) TAtomicCount(initialValue);
 }
 
-void disposeHeapCounter(volatile size_t*& ioCounter)
+void DefaultCounter::disposeHeapCounter(TAtomicCount* counter)
 {
-	heapCounterAllocator().deallocate(const_cast<size_t*>(ioCounter));
-	ioCounter = 0;
+	counter->~TAtomicCount();
+	heapCounterAllocator().deallocate(counter);
 }
 
 }
 
 }
 
-}
 
 // EOF

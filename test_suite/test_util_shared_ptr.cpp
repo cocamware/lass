@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2021 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -43,6 +43,38 @@
 #include "test_common.h"
 
 #include "../lass/util/shared_ptr.h"
+#include "../lass/stde/lock_free_spmc_ring_buffer.h"
+
+#include <thread>
+
+namespace
+{
+
+class Gizmo: lass::util::NonCopyable
+{
+public:
+    explicit Gizmo(size_t value): value_(value)
+    {
+        constructed_.fetch_add(1, std::memory_order_relaxed);
+    }
+    ~Gizmo()
+    {
+        value_ = 0;
+        deconstructed_.fetch_add(1, std::memory_order_relaxed);
+    }
+    operator size_t() const { return value_; }
+    static size_t constructed() { return constructed_.load(std::memory_order_relaxed); }
+    static size_t deconstructed() { return deconstructed_.load(std::memory_order_relaxed); }
+private:
+    size_t value_;
+    static std::atomic<size_t> constructed_;
+    static std::atomic<size_t> deconstructed_;
+};
+
+alignas(LASS_LOCK_FREE_ALIGNMENT) std::atomic<size_t> Gizmo::constructed_{ 0 };
+alignas(LASS_LOCK_FREE_ALIGNMENT) std::atomic<size_t> Gizmo::deconstructed_{ 0 };
+
+}
 
 namespace lass
 {
@@ -87,9 +119,86 @@ void testUtilSharedPtr()
     LASS_TEST_CHECK_EQUAL(c.count(), static_cast<TSharedFloat::TCount>(0));
 }
 
+
+void testUtilSharedPtrConcurent()
+{
+    using namespace lass;
+
+    const size_t c = std::max<size_t>(std::thread::hardware_concurrency() - 1, 2);
+    LASS_COUT << "#producers = 1, #consumers = " << c << std::endl;
+
+    constexpr size_t n = sizeof(size_t) == 4
+        ? 10'000 // numWorkers * (n - 1) * (n / 2) must fit in a 32 bit unsigned int
+        : 100'000;
+    static_assert(n % 2 == 0, "n must be even");
+
+    using Task = util::SharedPtr<Gizmo>;
+    using Ring = stde::lock_free_spmc_ring_buffer<Task>;
+
+    Ring ring(32);
+    std::atomic<bool> done { false };
+    std::atomic<size_t> total { 0 };
+
+    auto consumer = [&ring, &done, &total]()
+    {
+        size_t subTotal = 0;
+        while (true)
+        {
+            Task task;
+            if (!ring.try_pop(task))
+            {
+                if (!done)
+                {
+                    LASS_SPIN_PAUSE;
+                    continue;
+                }
+                // try again. the ring could temporarily have been empty, but between
+                // try_pop and done-check more tasks could have been pushed into the ring ...
+                if (!ring.try_pop(task))
+                {
+                    // ok, it's really empty ... we're done.
+                    total += subTotal;
+                    return;
+                }
+            }
+            subTotal += *task;
+        }
+    };
+    std::vector<std::thread> consumers;
+    for (size_t i = 0; i < c; ++i)
+    {
+        consumers.emplace_back(consumer);
+    }
+
+    for (size_t value = 1; value < n; ++value)
+    {
+        Task task(new Gizmo(value));
+        for (size_t i = 0; i < c; ++i)
+        {
+            while (!ring.try_push(task))
+            {
+                LASS_SPIN_PAUSE;
+            }
+        }
+    }
+    done = true;
+    for (size_t i = 0; i < c; ++i)
+    {
+        consumers[i].join();
+    }
+
+    LASS_TEST_CHECK_EQUAL(Gizmo::constructed(), n - 1);
+    LASS_TEST_CHECK_EQUAL(Gizmo::deconstructed(), n - 1);
+    LASS_TEST_CHECK_EQUAL(total, c * (n - 1) * (n / 2));
+}
+
 TUnitTest test_util_shared_ptr()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testUtilSharedPtr));
+    return TUnitTest
+    {
+        LASS_TEST_CASE(testUtilSharedPtr),
+        LASS_TEST_CASE(testUtilSharedPtrConcurent),
+    };
 }
 
 }

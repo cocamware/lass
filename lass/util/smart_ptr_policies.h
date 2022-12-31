@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -328,12 +328,6 @@ private:
 
 // --- counter policies ----------------------------------------------------------------------------
 
-namespace impl
-{
-	LASS_DLL void initHeapCounter(volatile size_t*& ioCounter, size_t iInitialValue);
-	LASS_DLL void disposeHeapCounter(volatile size_t*& ioCounter);
-}
-
 /** @class DefaultCounter
  *  @ingroup SmartPtr
  *  @brief The default counter for the shared pointers, implementation of CounterPolicy concept.
@@ -361,47 +355,56 @@ protected:
 
 	template <typename TStorage> void init(TStorage& /*pointee*/)
 	{
-		impl::initHeapCounter(count_, 1);
-		LASS_ASSERT(count_ && *count_ == 1);
+		count_ = initHeapCounter(1);
+		LASS_ASSERT(count_ && count_->load(std::memory_order_relaxed) == 1);
 	}
 
 	template <typename TStorage> void dispose(TStorage& /*pointee*/)
 	{
-		LASS_ASSERT(count_ && *count_ == 0);
-		impl::disposeHeapCounter(count_);
+		LASS_ASSERT(count_ && count_->load(std::memory_order_relaxed) == 0);
+		disposeHeapCounter(count_);
+		count_ = nullptr;
 	}
 
 	template <typename TStorage> void increment(TStorage& /*pointee*/)
 	{
-		LASS_ASSERT(count_ && *count_ > 0);
-		atomicIncrement(*count_);
+		LASS_ASSERT(count_);
+		const TCount LASS_UNUSED(oldCount) = count_->fetch_add(1, std::memory_order_relaxed);
+		LASS_ASSERT(oldCount >= 1); // otherwise the object would not exist
 	}
 
 	template <typename TStorage> bool decrement(TStorage& /*pointee*/)
 	{
 		LASS_ASSERT(count_);
-		TCount oldCount = 0, newCount = 0;
-		do
+		const TCount oldCount = count_->fetch_sub(1, std::memory_order_release);
+		LASS_ASSERT(oldCount > 0); // otherwise the object would have been dead already
+		if (oldCount == 1)
 		{
-			oldCount = *count_;
-			LASS_ASSERT(oldCount > 0);
-			newCount = oldCount - 1;
+			// we just decremented the last one, so current must be 0.
+			std::atomic_thread_fence(std::memory_order_acquire);
+			return true;
 		}
-		while (!atomicCompareAndSwap(*count_, oldCount, newCount));
-		return newCount == 0;
+		return false;
 	}
 
 	template <typename TStorage> TCount count(TStorage& /*pointee*/) const
 	{
-		LASS_ASSERT(count_ && *count_ > 0);
-		return *count_;
+		LASS_ASSERT(count_);
+		const TCount count = count_->load(std::memory_order_relaxed);
+		LASS_ASSERT(count > 0);
+		return count;
 	}
 
 	void swap(DefaultCounter& other) { std::swap(count_, other.count_); }
 
 private:
 
-	volatile TCount* count_;
+	typedef std::atomic<TCount> TAtomicCount;
+
+	LASS_DLL TAtomicCount* initHeapCounter(TCount initialValue);
+	LASS_DLL void disposeHeapCounter(TAtomicCount* counter);
+
+	TAtomicCount* count_;
 };
 
 
