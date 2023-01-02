@@ -54,7 +54,7 @@ namespace thread_pool
 {
 	const size_t numberOfTasks = 40;
 	bool taskIsDone[numberOfTasks];
-	size_t counter = 0;
+	std::atomic<size_t> counter { 0 };
 	util::CriticalSection lock;
 
 	void task(size_t i)
@@ -63,9 +63,9 @@ namespace thread_pool
 		LASS_LOCK(lock)
 		{
 			LASS_TEST_CHECK(!taskIsDone[i]);
+			taskIsDone[i] = true;
 		}
-		taskIsDone[i] = true;
-		util::atomicIncrement(counter);
+		++counter;
 	}
 
 	template <typename IdlePolicy, template <typename, typename, typename> class ParticipatingPolicy>

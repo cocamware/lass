@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -104,16 +104,13 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 {
 	while (true)
 	{
-		size_t numWaitingTasks = numWaitingTasks_;
-		if (maxWaitingTasks_ == unlimitedNumberOfTasks || numWaitingTasks < maxWaitingTasks_)
+		if (maxWaitingTasks_ == unlimitedNumberOfTasks || numWaitingTasks_ < maxWaitingTasks_)
 		{
-			if (util::atomicCompareAndSwap(
-				numWaitingTasks_, numWaitingTasks, numWaitingTasks + 1))
-			{
-				waitingTasks_.push(task);
-				this->wakeConsumer();
-				return;
-			}
+			// because a single producer is assumed, we're certain we can push the task now
+			++numWaitingTasks_;
+			waitingTasks_.push(task);
+			this->wakeConsumer();
+			return;
 		}
 		this->sleepProducer();
 		if (error_.get())
@@ -136,7 +133,7 @@ void ThreadPool<T, C, IP, PP>::completeAllTasks()
 	{
 		if (this->participate(waitingTasks_))
 		{
-			atomicDecrement(numWaitingTasks_);
+			--numWaitingTasks_;
 		}
 		this->sleepProducer();
 		if (error_.get())
@@ -158,7 +155,7 @@ void ThreadPool<T, C, IP, PP>::clearQueue()
 	TTask dummy;
 	while (waitingTasks_.pop(dummy))
 	{
-		util::atomicDecrement(numWaitingTasks_);
+		--numWaitingTasks_;
 	}
 }
 
@@ -296,7 +293,7 @@ size_t ThreadPool<T, C, IP, PP>::ConsumerThread::bindToNextAvailable(size_t next
 		try
 		{
 			this->bind(nextProcessor++ % n);
-			return nextProcessor % n;; 
+			return nextProcessor % n;
 		}
 		catch (...)
 		{
@@ -326,8 +323,8 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 	{
 		if (pool_.waitingTasks_.pop(task))
 		{
-			util::atomicIncrement(pool_.numRunningTasks_);
-			util::atomicDecrement(pool_.numWaitingTasks_);
+			++pool_.numRunningTasks_;
+			--pool_.numWaitingTasks_;
 			pool_.wakeProducer();
 			try
 			{
@@ -348,7 +345,7 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::runtime_error)
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::logic_error)
 			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::exception)
-			util::atomicDecrement(pool_.numRunningTasks_);
+			--pool_.numRunningTasks_;
 		}
 		else if (pool_.shutDown_)
 		{

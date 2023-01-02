@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -302,10 +302,10 @@ private:
 	unsigned long mSecsToSleep_;
 	size_t numThreads_;
 	size_t maxWaitingTasks_;
-	volatile size_t numWaitingTasks_;
-	volatile size_t numRunningTasks_;
-	volatile bool shutDown_;
-	volatile bool abort_;
+	std::atomic<size_t> numWaitingTasks_;
+	std::atomic<size_t> numRunningTasks_;
+	std::atomic<bool> shutDown_;
+	std::atomic<bool> abort_;
 };
 
 
