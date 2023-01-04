@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -91,8 +91,8 @@ private:
 	util::Condition flushCondition_;
 	std::unique_ptr<util::Thread> flushThread_;
 	unsigned long flushPeriod_;
-	volatile bool stopFlushThread_;
-	volatile bool skipABeat_;
+	std::atomic<bool> stopFlushThread_;
+	std::atomic<bool> skipABeat_;
 };
 
 }
