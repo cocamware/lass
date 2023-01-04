@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -379,8 +379,8 @@ public:
 	DWORD threadId_;
 	LONG handlerResult_;
 
-	volatile bool isExiting_;
-	volatile bool isHandlingException_;
+	std::atomic<bool> isExiting_;
+	std::atomic<bool> isHandlingException_;
 
 	static CrashDumpImpl* instance_;
 	static unsigned char patchBytes_[numPatchBytes_];
