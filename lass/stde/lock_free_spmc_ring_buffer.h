@@ -148,13 +148,11 @@ private:
 }
 
 template<typename T>
-class lock_free_spmc_ring_buffer: public std::conditional <
+using lock_free_spmc_ring_buffer = typename std::conditional<
 		std::is_trivially_copy_constructible<T>::value,
 		impl::lock_free_spmc_value_ring_buffer<T>,
-		impl::lock_free_spmc_object_ring_buffer<T> 
-	>::type
-{
-};
+		impl::lock_free_spmc_object_ring_buffer<T>
+	>::type;
 
 }
 

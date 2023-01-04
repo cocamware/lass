@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -51,7 +51,7 @@ namespace impl
 
 // --- lock_free_spmc_ring_buffer_base -------------------------------------------------------------
 
-lock_free_spmc_ring_buffer_base::lock_free_spmc_ring_buffer_base(size_t capacity):
+inline lock_free_spmc_ring_buffer_base::lock_free_spmc_ring_buffer_base(size_t capacity):
 	head_(tagged_index_t(0, 0)),
 	tail_(tagged_index_t(0, 0)),
 	ring_size_(static_cast<index_type>(enforce_valid_size(capacity)))
@@ -67,7 +67,7 @@ lock_free_spmc_ring_buffer_base::lock_free_spmc_ring_buffer_base(size_t capacity
 
 /** Return true if ring buffer is empty
  */
-bool lock_free_spmc_ring_buffer_base::empty() const
+inline bool lock_free_spmc_ring_buffer_base::empty() const
 {
 	return tagged_index_t::empty(head_.load(std::memory_order_acquire), tail_.load(std::memory_order_acquire));
 }
@@ -76,7 +76,7 @@ bool lock_free_spmc_ring_buffer_base::empty() const
 
 /** Return true if ring buffer is empty
  */
-bool lock_free_spmc_ring_buffer_base::full() const
+inline bool lock_free_spmc_ring_buffer_base::full() const
 {
 	return tagged_index_t::full(head_.load(std::memory_order_acquire), tail_.load(std::memory_order_acquire));
 }
@@ -84,7 +84,7 @@ bool lock_free_spmc_ring_buffer_base::full() const
 
 
 lock_free_spmc_ring_buffer_base::tagged_index_t
-lock_free_spmc_ring_buffer_base::next_index(tagged_index_t index) const
+inline lock_free_spmc_ring_buffer_base::next_index(tagged_index_t index) const
 {
 	const index_type i = ++index.index;
 	return i < ring_size_
@@ -94,7 +94,7 @@ lock_free_spmc_ring_buffer_base::next_index(tagged_index_t index) const
 
 
 
-size_t lock_free_spmc_ring_buffer_base::enforce_valid_size(size_t size)
+inline size_t lock_free_spmc_ring_buffer_base::enforce_valid_size(size_t size)
 {
 	if (size == 0)
 	{
