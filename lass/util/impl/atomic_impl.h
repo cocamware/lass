@@ -67,6 +67,8 @@ template <size_t byteSize> struct AtomicOperations;
 #		include "atomic_gcc_x86.h"
 #	elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
 #		include "atomic_gcc_arm.h"
+#	elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM64)
+#		include "atomic_poor_man.h"
 #	endif
 #else
 #	include "atomic_poor_man.h"

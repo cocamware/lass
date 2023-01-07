@@ -66,10 +66,12 @@
 
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC || LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
-#	if defined(__ARM_EABI__)
-#		define LASS_PROCESSOR_ARCHITECTURE_ARM
-#	else
-#		define LASS_PROCESSOR_ARCHITECTURE_x86
+#	if defined(__arm__)
+#		define LASS_PROCESSOR_ARCHITECTURE_ARM 1
+#	elif defined(__aarch64__)
+#		define LASS_PROCESSOR_ARCHITECTURE_ARM64 1
+#else
+#		define LASS_PROCESSOR_ARCHITECTURE_x86 1
 #	endif
 #else
     // for now assume that non-gcc compilers will be used to generate i386 compatible code
@@ -80,6 +82,8 @@
 #	define LASS_PROCESSOR_ARCHITECTURE "x86"
 #elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
 #	define LASS_PROCESSOR_ARCHITECTURE "arm"
+#elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM64)
+#	define LASS_PROCESSOR_ARCHITECTURE "arm64"
 #else
 #	define LASS_PROCESSOR_ARCHITECTURE "unknown"
 #endif

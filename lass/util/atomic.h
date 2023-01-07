@@ -44,7 +44,9 @@
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_ATOMIC_H
 
 #include "util_common.h"
-#include "impl/atomic_impl.h"
+#if !defined(LASS_PROCESSOR_ARCHITECTURE_ARM64)
+#	include "impl/atomic_impl.h"
+#endif
 
 #include <atomic>
 
@@ -73,6 +75,8 @@ namespace lass
 {
 namespace util
 {
+
+#if !defined(LASS_PROCESSOR_ARCHITECTURE_ARM64)
 
 /** @ingroup atomic
  *  
@@ -174,6 +178,43 @@ void atomicLock(volatile T& semaphore)
 
 
 /** @ingroup atomic
+ *
+ *  @deprecated Use std::atomic
+ */
+template <typename T>
+[[deprecated("Use std::atomic")]]
+bool atomicTryLock(volatile T& semaphore)
+{
+	T current;
+	do
+	{
+		current = semaphore;
+		if (current <= 0)
+		{
+			return false;
+		}
+	}
+	while (!atomicCompareAndSwap(semaphore, current, current - 1));
+	return true;
+}
+
+
+
+/** @ingroup atomic
+ *
+ *  @deprecated Use std::atomic
+ */
+template <typename T>
+[[deprecated("Use std::atomic")]]
+void atomicUnlock(volatile T& semaphore)
+{
+	atomicIncrement(semaphore);
+}
+
+#endif
+
+
+/** @ingroup atomic
  */
 template <typename T>
 void atomicLock(std::atomic<T>& semaphore)
@@ -194,29 +235,6 @@ void atomicLock(std::atomic<T>& semaphore)
 	}
 	while (!semaphore.compare_exchange_weak(current, current - 1,
 		std::memory_order_release, std::memory_order_relaxed));
-}
-
-
-
-/** @ingroup atomic
- *
- *  @deprecated Use std::atomic
- */
-template <typename T>
-[[deprecated("Use std::atomic")]]
-bool atomicTryLock(volatile T& semaphore)
-{
-	T current;
-	do
-	{
-		current = semaphore;
-		if (current <= 0)
-		{
-			return false;
-		}
-	}
-	while (!atomicCompareAndSwap(semaphore, current, current - 1));
-	return true;
 }
 
 
@@ -247,19 +265,6 @@ bool atomicTryLock(std::atomic<T>& semaphore)
 
 
 /** @ingroup atomic
- *
- *  @deprecated Use std::atomic
- */
-template <typename T>
-[[deprecated("Use std::atomic")]]
-void atomicUnlock(volatile T& semaphore)
-{
-	atomicIncrement(semaphore);
-}
-
-
-
-/** @ingroup atomic
  */
 template <typename T>
 void atomicUnlock(std::atomic<T>& semaphore)
@@ -274,7 +279,7 @@ void atomicUnlock(std::atomic<T>& semaphore)
 		// (or _InterlockedCompareExchange128) for it's compare_exchange (DWCAS).
 		// This requires TaggedPtr to be 16-byte aligned
 #		define LASS_TAGGED_PTR_ALIGN alignas(16)
-#	elif defined(LASS_PROCESSOR_ARCHITECTURE_x86)
+#	elif LASS_ACTUAL_ADDRESS_SIZE == 48
 		// std::atomic is *not* lock free for 16 byte PODs, because it will not use
 		// lock cmpxchg16b, even though it may commonly exists for this architecture.
 		// This is to remain ABI compatible with early 64-bit AMD processors that
@@ -307,7 +312,7 @@ public:
 	TaggedPtr(T * ptr, TTag tag): bits_((reinterpret_cast<num::Tint64>(ptr) << 16) | (tag & 0xffff)) {}
 	T* get() const
 	{
-#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC)
+#	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && defined(LASS_PROCESSOR_ARCHITECTURE_x86)
 		T* ptr;
 		__asm__ ("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
 		return ptr;

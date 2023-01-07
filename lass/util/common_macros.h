@@ -85,14 +85,13 @@
 #   if defined(LASS_PROCESSOR_ARCHITECTURE_x86)
 #       define LASS_BREAK_HERE	__asm__("int $3");
 #   elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM)
-#       if LASS_ADDRESS_SIZE != 32
-#           error "Need to verify for 64 bit ..."
-#       endif
 #       ifdef __thumb__
 #           define LASS_BREAK_HERE __asm__(".inst.w 0xe7f001f0");
 #       else
 #           define LASS_BREAK_HERE __asm__(".inst 0xe7f001f0");
 #       endif
+#   elif defined(LASS_PROCESSOR_ARCHITECTURE_ARM64)
+#        define LASS_BREAK_HERE __asm__(".inst 0xd4200000");
 #   else
 #       define LASS_BREAK_HERE
 #   endif
