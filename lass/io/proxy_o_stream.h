@@ -79,6 +79,7 @@
 
 #include "io_common.h"
 #include "../util/bit_manip.h"
+#include <mutex>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -101,18 +102,19 @@ public:
 	typedef unsigned TMask;
 
 	ProxyOStreamLock(ProxyOStream* proxy, TMask messageMask);
-	ProxyOStreamLock(ProxyOStreamLock& other);
+	ProxyOStreamLock(const ProxyOStreamLock&) = delete;
+	ProxyOStreamLock(ProxyOStreamLock&& other);
 	~ProxyOStreamLock();
+
+	ProxyOStreamLock & operator=(const ProxyOStreamLock&) = delete;
+	ProxyOStreamLock & operator=(ProxyOStreamLock&&) = delete;
 
 	template <typename T> ProxyOStreamLock& operator<< (const T& x);
 	ProxyOStreamLock& operator<<(std::ostream& (*x) (std::ostream&));
 
 private:
-	ProxyOStreamLock & operator=(const ProxyOStreamLock& /*other*/);
-
 	ProxyOStream* proxy_;
 	TMask messageMask_;
-	static volatile int semaphore_;
 };
 
 }
@@ -167,6 +169,7 @@ private:
 	TDestinations::iterator findStream(std::ostream* stream);
 
 	TDestinations destinations_;
+	std::mutex lock_;
 };
 
 

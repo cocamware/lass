@@ -190,26 +190,21 @@ ProxyOStream::TDestinations::iterator ProxyOStream::findStream(std::ostream* str
 namespace impl
 {
 
-volatile int ProxyOStreamLock::semaphore_ = 1;
-
 /** Lock (or don't lock if proxy == 0) a proxy.
  */
 ProxyOStreamLock::ProxyOStreamLock(ProxyOStream* proxy, ProxyOStream::TMask messageMask):
-	proxy_(proxy), 
+	proxy_(proxy),
 	messageMask_(messageMask) 
 {
-	util::atomicLock(semaphore_);
+	if (proxy_)
+	{
+		proxy_->lock_.lock();
+	}
 }
 
 
-/** The copy constructor passes the lock on the proxy to the copy.
- *  The pointer is passed to the copy, so that this copy can continue the job of the
- *  original.  Since the original looses it's proxy pointer, it won't flush it on
- *  destruction.
- *  @warning DO NOT COPY LOCKS YOURSELF.  It's no good, well, unless you know what you're
- *           doing.  But be warned: it might not do what you expect.
- */
-ProxyOStreamLock::ProxyOStreamLock(ProxyOStreamLock& other):
+
+ProxyOStreamLock::ProxyOStreamLock(ProxyOStreamLock&& other):
 	proxy_(other.proxy_), 
 	messageMask_(other.messageMask_)
 {
@@ -221,6 +216,7 @@ ProxyOStreamLock::ProxyOStreamLock(ProxyOStreamLock& other):
 }
 
 
+
 /** On the end of the lock, flush the proxy.
  */
 ProxyOStreamLock::~ProxyOStreamLock()
@@ -228,7 +224,7 @@ ProxyOStreamLock::~ProxyOStreamLock()
 	if (proxy_)
 	{
 		proxy_->flush();
-		util::atomicUnlock(semaphore_);
+		proxy_->lock_.unlock();
 	}
 }
 
