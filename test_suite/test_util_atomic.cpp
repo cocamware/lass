@@ -45,6 +45,12 @@
 #include "../lass/util/thread_fun.h"
 #include "../lass/num/basic_types.h"
 
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(disable: 4996) // 'deprecated-declaration': deprecation-message (or "was declared deprecated")
+#else
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace lass
 {
 namespace test

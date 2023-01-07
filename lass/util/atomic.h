@@ -82,8 +82,11 @@ namespace util
  *      dest = newValue;
  *      return true;
  *  @endcode
+ *
+ *  @deprecated Use std::atomic
  */
-template <typename T> inline 
+template <typename T>
+[[deprecated("Use std::atomic")]]
 bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
 {
 	return impl::AtomicOperations< sizeof(T) >::compareAndSwap(dest, expectedValue, newValue);
@@ -102,8 +105,11 @@ bool atomicCompareAndSwap(volatile T& dest, T expectedValue, T newValue)
  *  @endcode
  *
  *  Does not exist for 64-bit types (there's no 128-bit CAS).
+ *
+ *  @deprecated Use std::atomic
  */
-template <typename T1, typename T2> inline 
+template <typename T1, typename T2>
+[[deprecated("Use std::atomic")]]
 bool atomicCompareAndSwap(volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 {
 	LASS_META_ASSERT(sizeof(T1) == sizeof(T2), T1_and_T2_must_be_of_same_size);
@@ -119,8 +125,11 @@ bool atomicCompareAndSwap(volatile T1& dest1, T1 expected1, T2 expected2, T1 new
  *  @code
  *      ++value;
  *  @endcode
+ *
+ *  @deprecated Use std::atomic
  */
-template <typename T> inline
+template <typename T>
+[[deprecated("Use std::atomic")]]
 void atomicIncrement(volatile T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::increment(value);
@@ -134,8 +143,11 @@ void atomicIncrement(volatile T& value)
  *  @code
  *      --value;
  *  @endcode
+ *
+ *  @deprecated Use std::atomic
  */
-template <typename T> inline
+template <typename T>
+[[deprecated("Use std::atomic")]]
 void atomicDecrement(volatile T& value)
 {
 	impl::AtomicOperations< sizeof(T) >::decrement(value);
@@ -144,8 +156,11 @@ void atomicDecrement(volatile T& value)
 
 
 /** @ingroup atomic
+ *
+ *  @deprecated Use std::atomic
  */
 template <typename T>
+[[deprecated("Use std::atomic")]]
 void atomicLock(volatile T& semaphore)
 {
 	T current;
@@ -184,8 +199,11 @@ void atomicLock(std::atomic<T>& semaphore)
 
 
 /** @ingroup atomic
+ *
+ *  @deprecated Use std::atomic
  */
 template <typename T>
+[[deprecated("Use std::atomic")]]
 bool atomicTryLock(volatile T& semaphore)
 {
 	T current;
@@ -229,8 +247,11 @@ bool atomicTryLock(std::atomic<T>& semaphore)
 
 
 /** @ingroup atomic
+ *
+ *  @deprecated Use std::atomic
  */
 template <typename T>
+[[deprecated("Use std::atomic")]]
 void atomicUnlock(volatile T& semaphore)
 {
 	atomicIncrement(semaphore);

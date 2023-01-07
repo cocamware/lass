@@ -204,7 +204,7 @@ void testUtilThreadReentrantLock()
 template <typename LockType>
 void testUtilThreadIntegralLock()
 {
-	volatile LockType lock = 1;
+	std::atomic<LockType> lock { 1 };
 
 	bool beenHere = false;
 	LASS_LOCK_INTEGRAL(lock)
@@ -222,7 +222,7 @@ void testUtilThreadIntegralLock()
 	done = false;
 	starting = true;
 	beenHere = false;
-	std::unique_ptr<util::Thread> other(util::threadFun(blockerIntegral<volatile LockType>, &lock, util::threadJoinable));
+	std::unique_ptr<util::Thread> other(util::threadFun(blockerIntegral<std::atomic<LockType>>, &lock, util::threadJoinable));
 	other->run();
 	while (starting)
 	{
