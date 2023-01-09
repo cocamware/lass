@@ -162,9 +162,9 @@ class Spinning
 protected:
 	Spinning() {}
 	~Spinning() {}
-	void sleepProducer() {}
+	void sleepProducer() { LASS_SPIN_PAUSE; }
 	void wakeProducer() {}
-	void sleepConsumer() {}
+	void sleepConsumer() { LASS_SPIN_PAUSE; }
 	void wakeConsumer() {}
 	void wakeAllConsumers() {}
 };
