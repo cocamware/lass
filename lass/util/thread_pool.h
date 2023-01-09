@@ -131,6 +131,7 @@
 #include "../stde/lock_free_queue.h"
 #include "future.h"
 #include <cstring>
+#include <mutex>
 
 namespace lass
 {
@@ -295,9 +296,11 @@ private:
 
 	void startThreads(const TConsumer& consumerPrototype, const char* name);
 	void stopThreads(size_t numAllocatedThreads);
+	void rethrowError();
 
 	TTaskQueue waitingTasks_;
-	TRemoteExceptionBasePtr error_;
+	std::exception_ptr error_;
+	std::mutex errorMutex_;
 	ConsumerThread* threads_;
 	unsigned long mSecsToSleep_;
 	size_t numThreads_;

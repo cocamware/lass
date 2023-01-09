@@ -68,6 +68,7 @@ ThreadPool<T, C, IP, PP>::ThreadPool(
 		const TConsumer& consumerPrototype,
 		const char* name):
 	TParticipationPolicy(consumerPrototype),
+	error_(nullptr),
 	threads_(0),
 	numThreads_(numberOfThreads == autoNumberOfThreads ? numberOfProcessors() : numberOfThreads),
 	maxWaitingTasks_(maximumNumberOfTasksInQueue),
@@ -113,11 +114,7 @@ void ThreadPool<T, C, IP, PP>::addTask(typename util::CallTraits<TTask>::TParam 
 			return;
 		}
 		this->sleepProducer();
-		if (error_.get())
-		{
-			abort_ = true;
-			error_->throwSelf();
-		}
+		this->rethrowError();
 	}
 }
 
@@ -136,11 +133,7 @@ void ThreadPool<T, C, IP, PP>::completeAllTasks()
 			--numWaitingTasks_;
 		}
 		this->sleepProducer();
-		if (error_.get())
-		{
-			abort_ = true;
-			error_->throwSelf();
-		}
+		this->rethrowError();
 	}
 }
 
@@ -270,6 +263,21 @@ void ThreadPool<T, C, IP, PP>::stopThreads(size_t numAllocatedThreads)
 
 
 
+template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
+void ThreadPool<T, C, IP, PP>::rethrowError()
+{
+	std::lock_guard<std::mutex> lock(errorMutex_);
+	if (error_)
+	{
+		auto error = error_;
+		error_ = nullptr;
+		abort_ = true;
+		std::rethrow_exception(error);
+	}
+}
+
+
+
 // --- ConsumerThread ------------------------------------------------------------------------------
 
 template <typename T, typename C, typename IP, template <typename, typename, typename> class PP>
@@ -330,21 +338,15 @@ void ThreadPool<T, C, IP, PP>::ConsumerThread::doRun()
 			{
 				consumer_(task);
 			}
-			catch (const RemoteExceptionBase& error)
+			catch (...)
 			{
-				pool_.error_ = error.clone();
+				std::lock_guard<std::mutex> lock(pool_.errorMutex_);
+				if (!pool_.error_)
+				{
+					pool_.error_ = std::current_exception();
+				}
 				return;
 			}
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::domain_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::invalid_argument)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::length_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::out_of_range)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::range_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::overflow_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::underflow_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::runtime_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::logic_error)
-			LASS_UTIL_THREAD_POOL_CATCH_AND_WRAP(::std::exception)
 			--pool_.numRunningTasks_;
 		}
 		else if (pool_.shutDown_)
