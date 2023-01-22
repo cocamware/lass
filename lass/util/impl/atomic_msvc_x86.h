@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -289,7 +289,7 @@ struct AtomicOperations<8>
 			old = value;
 			fresh = old + 1;
 		}
-		while (!atomicCompareAndSwap(value, old, fresh));		
+		while (!AtomicOperations<8>::compareAndSwap(value, old, fresh));
 	}
 
 	template <typename T> inline
@@ -302,7 +302,7 @@ struct AtomicOperations<8>
 			old = value;
 			fresh = old - 1;
 		}
-		while (!atomicCompareAndSwap(value, old, fresh));
+		while (!AtomicOperations<8>::compareAndSwap(value, old, fresh));
 	}
 };
 
