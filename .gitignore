@@ -42,3 +42,5 @@ __pycache__/
 
 # ignore intellisense in vscode
 /.vscode/ipch
+
+/CMakeUserPresets.json
