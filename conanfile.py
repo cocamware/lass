@@ -111,7 +111,7 @@ class LassConan(ConanFile):
         "fPIC": [True, False],
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
-        "python_executable": "ANY",
+        "python_executable": [None, "ANY"],
         "python_version": [None, "ANY"],
         "python_debug": [None, True, False],
     }
@@ -120,7 +120,7 @@ class LassConan(ConanFile):
         "fPIC": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
-        "python_executable": "python",
+        "python_executable": None,
         "python_version": None,
         "python_debug": None,
     }
@@ -148,11 +148,23 @@ class LassConan(ConanFile):
         # This means, if you rely on python to be found on a build requirement's
         # PATH, you must be explicit about python_version and python_debug.
         #
+        if not self.options.python_executable:
+            if self.settings.os == "Windows":
+                if str(self.options.python_debug) == "True":
+                    self.options.python_executable = "python_d.exe"
+                else:
+                    # if we don't don't explicitly use a debug build of Python, assume
+                    # we build against a release build of it, even if our build_type is
+                    # Debug. This is the most common use case.
+                    self.options.python_executable = "python.exe"
+                    self.options.python_debug = False
+            else:
+                self.options.python_executable = "python3"
         if not self.options.python_version:
             self.options.python_version = Python(
                 self.options.python_executable, self.settings
             ).version
-        if self.options.python_debug.value in (None, "None"):
+        if self.options.python_debug.value in [None, "None"]:
             self.options.python_debug = Python(
                 self.options.python_executable, self.settings
             ).debug
