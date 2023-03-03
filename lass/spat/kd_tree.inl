@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -47,6 +47,7 @@
 
 #include "spat_common.h"
 #include "kd_tree.h"
+#include "../num/basic_ops.h"
 
 #ifdef LASS_SPAT_KD_TREE_DIAGNOSTICS
 #	include "../io/xml_o_file.h"
