@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2020 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -67,7 +67,8 @@
 #include "shared_ptr.h"
 #include "callback_common.h"
 #include "impl/dispatcher_r_0.h"
-
+#include "../meta/is_derived.h"
+#include "../meta/wrap.h"
 
 
 
