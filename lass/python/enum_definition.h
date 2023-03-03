@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -64,6 +64,8 @@ namespace lass
 		class LASS_PYTHON_DLL EnumDefinitionBase
 		{
 		public:
+			virtual ~EnumDefinitionBase();
+
 			const std::string& name() const;
 			PyObject* type() const;
 
