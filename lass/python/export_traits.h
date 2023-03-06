@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -650,6 +650,7 @@ struct PyExportTraits<std::wstring>
 
 
 #if LASS_HAVE_STD_U8STRING
+#if __cpp_lib_char8_t
 
 /** @ingroup Python
  */
@@ -660,6 +661,7 @@ struct PyExportTraits<std::u8string>
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u8string& v);
 };
 
+#endif
 #endif
 
 
