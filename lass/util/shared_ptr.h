@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -251,6 +251,30 @@ template <typename T1, template <typename, typename> class S1, typename C1, type
 bool operator!=(const SharedPtr<T1, S1, C1>& a, const SharedPtr<T2, S2, C2>& b)
 {
 	return !(a == b);
+}
+
+template <typename T, template <typename, typename> class S, typename C>
+bool operator==(const SharedPtr<T, S, C>& a, std::nullptr_t)
+{
+	return !a;
+}
+
+template <typename T, template <typename, typename> class S, typename C>
+bool operator!=(const SharedPtr<T, S, C>& a, std::nullptr_t)
+{
+	return static_cast<bool>(a);
+}
+
+template <typename T, template <typename, typename> class S, typename C>
+bool operator==(std::nullptr_t, const SharedPtr<T, S, C>& b)
+{
+	return !b;
+}
+
+template <typename T, template <typename, typename> class S, typename C>
+bool operator!=(std::nullptr_t, const SharedPtr<T, S, C>& b)
+{
+	return static_cast<bool>(b);
 }
 
 }

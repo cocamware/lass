@@ -121,6 +121,7 @@ void testUtilSharedPtr()
     LASS_TEST_CHECK_EQUAL(a.count(), static_cast<TSharedFloat::TCount>(2));
     LASS_TEST_CHECK_EQUAL(b.get(), p);
     LASS_TEST_CHECK_EQUAL(b.count(), static_cast<TSharedFloat::TCount>(2));
+    LASS_TEST_CHECK(a == b);
     TSharedFloat c = std::move(a);
     LASS_TEST_CHECK_EQUAL(a.get(), static_cast<float*>(nullptr));
     LASS_TEST_CHECK_EQUAL(a.count(), static_cast<TSharedFloat::TCount>(0));
@@ -128,6 +129,8 @@ void testUtilSharedPtr()
     LASS_TEST_CHECK_EQUAL(b.count(), static_cast<TSharedFloat::TCount>(2));
     LASS_TEST_CHECK_EQUAL(c.get(), p);
     LASS_TEST_CHECK_EQUAL(c.count(), static_cast<TSharedFloat::TCount>(2));
+    LASS_TEST_CHECK(a != b);
+    LASS_TEST_CHECK(b == c);
     a = c;
     LASS_TEST_CHECK_EQUAL(a.get(), p);
     LASS_TEST_CHECK_EQUAL(a.count(), static_cast<TSharedFloat::TCount>(3));
@@ -142,6 +145,13 @@ void testUtilSharedPtr()
     LASS_TEST_CHECK_EQUAL(b.count(), static_cast<TSharedFloat::TCount>(2));
     LASS_TEST_CHECK_EQUAL(c.get(), static_cast<float*>(nullptr));
     LASS_TEST_CHECK_EQUAL(c.count(), static_cast<TSharedFloat::TCount>(0));
+
+    LASS_TEST_CHECK(a);
+    LASS_TEST_CHECK(a != nullptr);
+    LASS_TEST_CHECK(nullptr != a);
+    LASS_TEST_CHECK(!c);
+    LASS_TEST_CHECK(c == nullptr);
+    LASS_TEST_CHECK(nullptr == c);
 }
 
 
@@ -215,6 +225,12 @@ void testUtilSharedPtrConcurent()
     LASS_TEST_CHECK_EQUAL(Gizmo::constructed(), n - 1);
     LASS_TEST_CHECK_EQUAL(Gizmo::deconstructed(), n - 1);
     LASS_TEST_CHECK_EQUAL(total, c * (n - 1) * (n / 2));
+
+    {
+        Task t;
+        //LASS_TEST_CHECK((t == nullptr));
+        //LASS_TEST_CHECK(!(t != nullptr));
+    }
 }
 
 
