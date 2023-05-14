@@ -73,7 +73,7 @@ platform's package manager. Windows being the exception.
 | Ubuntu Bionic    | x64                        | 3.10.2 | 3.6.5                                       | gcc 7.3.0, clang 6.0.0    |
 | Ubuntu Focal     | x64                        | 3.16.3 | 3.8.2                                       | gcc 9.3.0, clang 10.0.0   |
 | Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                      | gcc 11.2.0, clang 14.0.0  |
-| Ubuntu Kinetic   | x64                        | 3.24.2 | 3.10.7                                      | gcc 12.2.0, clang 15.0.2  |
+| Ubuntu Lunar     | x64                        | 3.25.1 | 3.11.2                                      | gcc 12.2.0, clang 15.0.7  |
 | Windows 10       | x86, x64                   | 3.23.2 | 3.6.8, 3.7.9, 3.8.10, 3.9.8, 3.10.8, 3.11.0 | vs 2017, vs 2019, vs 2022 |
 
 [1] armv7l support tested on Raspberry Pi 4 (ARM Cortex-A72, 32-bit Raspbian Bullseye,
