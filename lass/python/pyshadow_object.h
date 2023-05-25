@@ -2,6 +2,48 @@
  *  @author Bram de Greve (bram@cocamware.com)
  *  @author Tom De Muer (tom@cocamware.com)
  *
+ *  *** BEGIN LICENSE INFORMATION ***
+ *
+ *  The contents of this file are subject to the Common Public Attribution License
+ *  Version 1.0 (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *  https://lass.cocamware.com/cpal-license. The License is based on the
+ *  Mozilla Public License Version 1.1 but Sections 14 and 15 have been added to cover
+ *  use of software over a computer network and provide for limited attribution for
+ *  the Original Developer. In addition, Exhibit A has been modified to be consistent
+ *  with Exhibit B.
+ *
+ *  Software distributed under the License is distributed on an "AS IS" basis, WITHOUT
+ *  WARRANTY OF ANY KIND, either express or implied. See the License for the specific
+ *  language governing rights and limitations under the License.
+ *
+ *  The Original Code is LASS - Library of Assembled Shared Sources.
+ *
+ *  The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
+ *  The Original Developer is the Initial Developer.
+ *
+ *  All portions of the code written by the Initial Developer are:
+ *  Copyright (C) 2023-2025 the Initial Developer.
+ *  All Rights Reserved.
+ *
+ *  Contributor(s):
+ *
+ *  Alternatively, the contents of this file may be used under the terms of the
+ *  GNU General Public License Version 2 or later (the GPL), in which case the
+ *  provisions of GPL are applicable instead of those above.  If you wish to allow use
+ *  of your version of this file only under the terms of the GPL and not to allow
+ *  others to use your version of this file under the CPAL, indicate your decision by
+ *  deleting the provisions above and replace them with the notice and other
+ *  provisions required by the GPL License. If you do not delete the provisions above,
+ *  a recipient may use your version of this file under either the CPAL or the GPL.
+ *
+ *  *** END LICENSE INFORMATION ***
+ */
+
+/** @file
+ *  @author Bram de Greve (bram@cocamware.com)
+ *  @author Tom De Muer (tom@cocamware.com)
+ *
  *  Distributed under the terms of the GPL (GNU Public License)
  *
  *  The LASS License:
@@ -41,9 +83,14 @@ namespace lass
 namespace python
 {
 
+using TShadoweeID = num::TuintPtr;
+
 namespace impl
 {
 
+/** @ingroup Python
+ *  @internal
+ */
 enum ShadoweeConstness
 {
 	scConst,
@@ -55,12 +102,33 @@ enum ShadoweeConstness
  */
 class LASS_PYTHON_DLL ShadowBaseCommon: public PyObjectPlus
 {
+public:
+	static TPyObjPtr findShadowObject(TShadoweeID shadoweeID, ShadoweeConstness constness);
+
 protected:
 	ShadowBaseCommon();
-	~ShadowBaseCommon();
+	~ShadowBaseCommon() override;
+
+	void registerShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness);
+	void unregisterShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness);
 private:
+	typedef std::pair<TShadoweeID, ShadoweeConstness> TCacheKey;
+
+	struct CacheKeyHash
+	{
+		std::size_t operator()(const TCacheKey& key) const
+		{
+			std::size_t h1 = std::hash<TShadoweeID>()(key.first);
+			std::size_t h2 = std::hash<ShadoweeConstness>()(key.second);
+			return h1 ^ h2;
+		}
+	};
+
+	typedef std::unordered_map<TCacheKey, ShadowBaseCommon*, CacheKeyHash> TCache;
 	ShadowBaseCommon(const ShadowBaseCommon&);
-	ShadowBaseCommon& operator=(const ShadowBaseCommon&);	
+	ShadowBaseCommon& operator=(const ShadowBaseCommon&);
+
+	static TCache& cache();
 };
 
 /** @ingroup Python
@@ -273,9 +341,14 @@ typename ShadowType::TShadowPtr makeShadow(
 		impl::ShadoweeConstness constness)
 {
 	typedef typename ShadowType::TShadowPtr TShadowPtr;
-	typedef typename ShadowType::TConstPointerTraits LASS_UNUSED(TConstPointerTraits);
+	typedef typename ShadowType::TConstPointerTraits TConstPointerTraits;
 
 	LASS_ASSERT(!TConstPointerTraits::isEmpty(shadowee));
+	if (const auto p = impl::ShadowBaseCommon::findShadowObject(TConstPointerTraits::id(shadowee), constness))
+	{
+		LASS_ASSERT(PyObject_IsInstance(p.get(), reinterpret_cast<PyObject*>(ShadowType::_lassPyClassDef.type())));
+		return p.template staticCast<ShadowType>();
+	}
 	if (derivedMakers)
 	{
 		for (typename DerivedMakers::const_iterator i = derivedMakers->begin(); i != derivedMakers->end(); ++i)
@@ -333,6 +406,10 @@ struct SharedPointerTraits
 	{ 
 		return p.get(); 
 	}
+	static TShadoweeID id(const TPtr& p)
+	{
+		return reinterpret_cast<TShadoweeID>(p.get());
+	}
 	template <typename U> static TPtr staticCast(const util::SharedPtr<U, S, C>& p)
 	{
 		return p.template staticCast<T>();
@@ -366,6 +443,10 @@ struct NakedPointerTraits
 	{ 
 		return p; 
 	}
+	static TShadoweeID id(TPtr p)
+	{
+		return reinterpret_cast<TShadoweeID>(p);
+	}
 	template <typename U> static TPtr staticCast(U* p)
 	{
 		return static_cast<TPtr>(p);
@@ -398,6 +479,10 @@ struct StdSharedPointerTraits
 	static T* get(const TPtr& p)
 	{
 		return p.get();
+	}
+	static TShadoweeID id(TPtr p)
+	{
+		return reinterpret_cast<TShadoweeID>(p.get());
 	}
 	template <typename U> static TPtr staticCast(const std::shared_ptr<U>& p)
 	{
@@ -513,7 +598,6 @@ public:
 	{
 		return shadowee_;
 	}
-
 	static TShadowPtr make(const TShadoweePtr& shadowee)
 	{
 		return impl::makeShadow<ShadowType>(shadowee, derivedMakers_, impl::scNonConst);
@@ -532,9 +616,11 @@ protected:
 		constness_(constness)
 	{
 		TConstPointerTraits::acquire(shadowee_);
+		impl::ShadowBaseCommon::registerShadowee(TConstPointerTraits::id(shadowee_), constness_);
 	}
 	~ShadowClass()
 	{
+		impl::ShadowBaseCommon::unregisterShadowee(TConstPointerTraits::id(shadowee_), constness_);
 		TConstPointerTraits::release(shadowee_);
 	}
 	static void registerDerivedMaker(TDerivedMaker derivedMaker)
@@ -543,6 +629,7 @@ protected:
 	}
 private:
 	typedef std::vector<TDerivedMaker> TDerivedMakers;
+
 	static TDerivedMakers* derivedMakers_;
 	TConstShadoweePtr shadowee_;
 	impl::ShadoweeConstness constness_;
@@ -669,5 +756,3 @@ namespace python \
 #endif
 
 // EOF
-
-
