@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -56,6 +56,42 @@ ShadowBaseCommon::ShadowBaseCommon()
 
 ShadowBaseCommon::~ShadowBaseCommon()
 {
+}
+
+
+TPyObjPtr ShadowBaseCommon::findShadowObject(const void* shadowee, ShadoweeConstness constness)
+{
+	TCache& c = cache();
+	auto i = c.find(key(shadowee, constness));
+	if (i == c.end())
+	{
+		return TPyObjPtr();
+	}
+	return fromNakedToSharedPtrCast<PyObject>(i->second);
+}
+
+
+void ShadowBaseCommon::registerShadowee(const void* shadowee, ShadoweeConstness constness)
+{
+	cache().emplace(key(shadowee, constness), this);
+}
+
+
+void ShadowBaseCommon::unregisterShadowee(const void* shadowee, ShadoweeConstness constness)
+{
+	cache().erase(key(shadowee, constness));
+}
+
+
+num::TuintPtr ShadowBaseCommon::key(const void* shadowee, ShadoweeConstness constness)
+{
+	return reinterpret_cast<num::TuintPtr>(shadowee) | static_cast<num::TuintPtr>(constness);
+}
+
+ShadowBaseCommon::TCache& ShadowBaseCommon::cache()
+{
+	static TCache cache_;
+	return cache_;
 }
 
 }
