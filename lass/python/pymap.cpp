@@ -66,12 +66,6 @@ namespace impl
 
 	bool Map::isInitialized = false;
 
-	PyMappingMethods Map::pyMappingMethods = {
-		&Map::length,
-		&Map::subscript,
-		&Map::assSubscript,
-	};
-
 	Map::~Map()
 	{
 	}
@@ -83,13 +77,16 @@ namespace impl
 
 	void Map::initializeType()
 	{
-		LockGIL LASS_UNUSED(lock);
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+		_lassPyClassDef.setSlot(Py_mp_length, &Map::length);
+		_lassPyClassDef.setSlot(Py_mp_subscript, &Map::subscript);
+		_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Map::assSubscript);
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	void Map::init(TPimpl&& pimpl)
