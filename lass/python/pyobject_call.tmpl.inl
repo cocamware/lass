@@ -498,16 +498,6 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		// actually the iSubType should be used but appearently the tp_dict does not get properly initialized
 		// so for now, old-style, consequence: no inheritance from extension classes
 		forceObjectType(result, subType);
-		// do not track the object using GC
-//#pragma LASS_TODO("Check if we have created memory leak... yes we have :-/, read the comments here.")
-		/* The reason why we can't use the GC mechanism of Python is that objects needs extra members for this and we don't 
-		   want to add them to PyObjectPlus.  So we do our own GC... tricky but one needs to live on the edge >:-D 
-		   In the future this should happen:
-		   - PyObjectPlus objects should be final... so no derivation and no GC problems.
-		   - PyObjectPlusSuperDeluxe will support everything.
-		   The shadowclasses can then be the 'deluxe' version 
-		*/
-		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
 		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_PYTHON_CATCH_AND_RETURN
@@ -539,7 +529,6 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);
 		forceObjectType(result, subType);
 		result->ob_type = subType;
-		result->ob_type->tp_flags &= (~Py_TPFLAGS_HAVE_GC);
 		return fromSharedPtrToNakedCast(result);
 	}
 	LASS_PYTHON_CATCH_AND_RETURN

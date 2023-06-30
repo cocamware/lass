@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,14 +55,15 @@ namespace python
 
 	void PyIteratorRange::initialize()
 	{
-		LockGIL LASS_UNUSED(lock);
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_iter = &PyIteratorRange::iter;
-			_lassPyClassDef.type()->tp_iternext = &PyIteratorRange::iterNext;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+		_lassPyClassDef.setSlot(Py_tp_iter, &PyIteratorRange::iter);
+		_lassPyClassDef.setSlot(Py_tp_iternext, &PyIteratorRange::iterNext);
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	PyObject* PyIteratorRange::iter( PyObject* iPo) 

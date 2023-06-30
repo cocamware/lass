@@ -568,6 +568,10 @@ def expectedFailureIf(condition: bool) -> CallableAnyAny:
 class TestStaticMembers(unittest.TestCase):
     def testClassConstants(self) -> None:
         self.assertEqual(embedding.Bar.CONST, 5)
+
+    # In Python 3.9 and earlier, constants on heap-allocated classes are mutable :-(
+    @expectedFailureIf(sys.version_info < (3, 10))
+    def testClassConstantsImmutability(self) -> None:
         with self.assertRaises(TypeError):
             embedding.Bar.CONST = 6  # type: ignore[misc]
 

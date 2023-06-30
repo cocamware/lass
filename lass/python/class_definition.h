@@ -151,11 +151,12 @@ namespace lass
 				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
 				~ClassDefinition();
-				PyTypeObject* type() { return &type_; }
-				const PyTypeObject* type() const { return &type_; }
-				const char* name() const { return type_.tp_name; }
-				const char* doc() const { return type_.tp_doc; }
-				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
+
+				PyTypeObject* type();
+				const PyTypeObject* type() const;
+				const char* name() const;
+				const char* doc() const;
+				void setDoc(const char* doc); ///< @a doc must be valid until another one is set
 				void setDocIfNotNull(const char* doc); ///< @a set doc string, but never unset existing doc string if @a doc == nullptr
 
 				void addConstructor(newfunc dispatcher, newfunc& overloadChain);
@@ -182,12 +183,21 @@ namespace lass
 				}
 				void addInnerClass(ClassDefinition& innerClass);
 				void addInnerEnum(EnumDefinitionBase* enumDefinition);
-				
+
+				void* getSlot(int slotId);
+				void* setSlot(int slotId, void* value);
+				template <typename Ptr> Ptr setSlot(int slotId, Ptr value)
+				{
+					return reinterpret_cast<Ptr>(setSlot(slotId, reinterpret_cast<void*>(value)));
+				}
+
 				void freezeDefinition(const char* scopeName = 0);
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
 			private:
+
+				friend LASS_PYTHON_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
 
 				template <typename T> friend struct ShadowTraits; // to have acces to implicitConvertersSlot_, see below.
 
@@ -197,8 +207,12 @@ namespace lass
 				typedef std::vector<StaticMember> TStaticMembers;
 				typedef std::vector<ClassDefinition*> TClassDefs;
 				typedef std::vector<EnumDefinitionBase*> TEnumDefs;
+				typedef std::vector<PyType_Slot> TSlots;
 
-				PyTypeObject type_;
+				TSlots slots_;
+				PyType_Spec spec_;
+				TPyObjPtr type_;
+				const char* doc_;
 				TMethods methods_;
 				TGetSetters getSetters_;
 				TCompareFuncs compareFuncs_;

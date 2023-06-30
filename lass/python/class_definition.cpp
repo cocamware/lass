@@ -94,6 +94,15 @@ void dealloc(PyObject* obj)
 };
 
 
+#if PY_VERSION_HEX >= 0x03090000
+int traverse(PyObject* self, visitproc visit, void* arg)
+{
+	Py_VISIT(Py_TYPE(self));
+	return 0;
+}
+#endif
+
+
 #if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
 #	if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
 #		pragma GCC diagnostic push
@@ -104,72 +113,28 @@ void dealloc(PyObject* obj)
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
+	doc_(doc),
 	parent_(parent),
 	classRegisterHook_(registerHook),
 	implicitConvertersSlot_(0),
 	isFrozen_(false)
 {
-	PyTypeObject type = { 
-		PyVarObject_HEAD_INIT(&PyType_Type, 0)
-		(char*)name,	/*tp_name*/
-		typeSize,	/*tp_basicsize*/
-		0,	/*tp_itemsize*/
-		dealloc,	/*tp_dealloc*/
-		0,	/*tp_vectorcall_offset (was tp_print in 3.7 and earlier, for Python 2.x print formatting) */
-		0,	/*tp_getattr*/
-		0,	/*tp_setattr*/
-		0,	/*tp_compare*/
-		0,	/*tp_repr*/
-		0,	/*tp_as_number*/
-		0,	/*tp_as_sequence*/
-		0,	/*tp_as_mapping*/
-		0,	/*tp_hash*/
-		0,	/*tp_call */
-		0,	/*tp_str */
-		0,/*PyObject_GenericGetAttr ,*/	/*tp_getattro */
-		0,/*PyObject_GenericSetAttr,*/	/*tp_setattro */
-		0,	/*tp_as_buffer*/
-		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE  , /*| Py_TPFLAGS_HAVE_CLASS ,*/	/*tp_flags*/
-		(char*)doc,	/*tp_doc*/
-		0,	/*tp_traverse*/
-		0,	/*tp_clear*/
-		richcmp,	/*tp_richcompare*/
-		0,	/*tp_weaklistoffset*/
-		0,	/*tp_iter*/
-		0,	/*tp_iternext*/
-		0,	/*tp_methods*/
-		0,	/*tp_members*/
-		0,	/*tp_getset*/
-		0,	/*tp_base*/
-		0,	/*tp_dict*/
-		0,	/*tp_descr_get*/
-		0,	/*tp_descr_set*/
-		0,	/*tp_dictoffset*/
-		0,	/*tp_init*/
-		0,	/*tp_alloc*/
-		0,	/*tp_new*/
-		0,	/*tp_free*/
-		0,	/*tp_is_gc*/
-		0,	/*tp_bases*/
-		0,	/*tp_mro*/
-		0,	/*tp_cache*/
-		0,	/*tp_subclasses*/
-		0,	/*tp_weaklist*/
-		0,	/*tp_del*/
-		0,	/*tp_version_tag*/
-		0,	/*tp_finalize*/
-		0,	/*tp_vectorcall, exists in 3.8 but only used since 3.9 */
-#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
-        0,	/*tp_print, only exists in 3.8 for backwards compatibility, bpo-37250 */
-#endif
-#if PY_VERSION_HEX >= 0x030C0000 // >= 3.12
-		0,	/*tp_watched, internal only */
-#endif
-#if PY_VERSION_HEX >= 0x030D0000 // >= 3.13
-		0,	/*tp_versions_used */
-#endif
+	PyType_Spec spec = {
+		name, /* name */
+		static_cast<int>(typeSize), /* basicsize */
+		0, /* itemsize */
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /* flags */
+		0, /* slots */
 	};
-	type_ = type;
+	spec_ = spec;
+	setSlot(Py_tp_dealloc, &dealloc);
+#if PY_VERSION_HEX >= 0x03090000
+	setSlot(Py_tp_traverse, &traverse);
+#endif
+	if (richcmp)
+	{
+		setSlot(Py_tp_richcompare, richcmp);
+	}
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
@@ -187,6 +152,41 @@ ClassDefinition::~ClassDefinition()
 
 
 
+const PyTypeObject* ClassDefinition::type() const
+{
+	return reinterpret_cast<PyTypeObject*>(type_.get());
+}
+
+
+
+PyTypeObject* ClassDefinition::type()
+{
+	LASS_ENFORCE(isFrozen_)(name())("is not frozen yet");
+	return reinterpret_cast<PyTypeObject*>(type_.get());
+}
+
+
+
+const char* ClassDefinition::name() const
+{
+	return spec_.name;
+}
+
+
+
+const char* ClassDefinition::doc() const
+{
+	return doc_;
+}
+
+
+
+void ClassDefinition::setDoc(const char* doc)
+{
+	doc_ = doc;
+}
+
+
 void ClassDefinition::setDocIfNotNull(const char* doc)
 {
 	if (doc)
@@ -196,47 +196,42 @@ void ClassDefinition::setDocIfNotNull(const char* doc)
 }
 
 
+void* ClassDefinition::getSlot(int slotId)
+{
+	PyType_Slot slot = { slotId, nullptr };
+	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end(), slot, [](const PyType_Slot& a, const PyType_Slot& b) { return a.slot < b.slot; });
+	if (i != slots_.end() && i->slot == slotId)
+	{
+		return i->pfunc;
+	}
+	return nullptr;
+}
 
-#define LASS_PY_OPERATOR_(s_name, i_protocol, t_protocol, i_hook, i_nary)\
-	if (strcmp(slot.name, s_name) == 0)\
-	{\
-		if (type_.i_protocol == 0)\
-		{\
-			type_.i_protocol = new t_protocol;\
-			::memset(type_.i_protocol, 0, sizeof(t_protocol));\
-		}\
-		overloadChain.LASS_CONCATENATE_3(set, i_nary, func)(type_.i_protocol->i_hook);\
-		type_.i_protocol->i_hook = dispatcher;\
-		return;\
-	}\
-	/**/
 
-#define LASS_PY_OPERATOR_NO_OVERLOAD(s_name, i_protocol, t_protocol, i_hook)\
-	if (strcmp(slot.name, s_name) == 0)\
-	{\
-		if (type_.i_protocol == 0)\
-		{\
-			type_.i_protocol = new t_protocol;\
-			::memset(type_.i_protocol, 0, sizeof(t_protocol));\
-		}\
-		type_.i_protocol->i_hook = dispatcher;\
-		return;\
-	}\
-	/**/
-
-#define LASS_PY_COMPARATOR_(s_name, v_op)\
-	if (strcmp(slot.name, s_name) == 0)\
-	{\
-		compareFuncs_.push_back(CompareFunc(dispatcher, v_op));\
-		return; \
-	}\
-	/**/	
+void* ClassDefinition::setSlot(int slotId, void* value)
+{
+	LASS_ASSERT(slotId > 0);
+	LASS_ASSERT(!isFrozen_);
+	LASS_ASSERT(value);
+	PyType_Slot slot = { slotId, value };
+	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end(), slot, [](const PyType_Slot& a, const PyType_Slot& b) { return a.slot < b.slot; });
+	if (i != slots_.end() && i->slot == slotId)
+	{
+		void* old = i->pfunc;
+		i->pfunc = value;
+		return old;
+	}
+	else
+	{
+		slots_.insert(i, slot);
+		return nullptr;
+	}
+}
 
 
 void ClassDefinition::addConstructor(newfunc dispatcher, newfunc& overloadChain)
 {
-	overloadChain = type_.tp_new;
-	type_.tp_new = dispatcher;
+	overloadChain = setSlot(Py_tp_new, dispatcher);
 }
 
 
@@ -262,145 +257,67 @@ void ClassDefinition::addMethod(const char* name, const char* doc, PyCFunction d
 
 void ClassDefinition::addMethod(const ComparatorSlot& slot, const char*, PyCFunction dispatcher, OverloadLink&) 
 {
-	LASS_PY_COMPARATOR_("__lt__", Py_LT)
-	LASS_PY_COMPARATOR_("__le__", Py_LE)
-	LASS_PY_COMPARATOR_("__eq__", Py_EQ)
-	LASS_PY_COMPARATOR_("__ne__", Py_NE)
-	LASS_PY_COMPARATOR_("__gt__", Py_GT)
-	LASS_PY_COMPARATOR_("__ge__", Py_GE)
-	LASS_ASSERT_UNREACHABLE;
+	compareFuncs_.push_back(CompareFunc(dispatcher, slot.slot));
 }
 
 void ClassDefinition::addMethod(const LenSlot& slot, const char*, lenfunc dispatcher, OverloadLink&) 
 {
-	LASS_PY_OPERATOR_NO_OVERLOAD("__len__", tp_as_sequence, PySequenceMethods, sq_length) 
-	LASS_PY_OPERATOR_NO_OVERLOAD("__seq_len__", tp_as_sequence, PySequenceMethods, sq_length) 
-	LASS_PY_OPERATOR_NO_OVERLOAD("__map_len__", tp_as_mapping, PyMappingMethods, mp_length) 
-	LASS_ASSERT_UNREACHABLE;
+	setSlot(slot.slot, dispatcher);
 }
 
 void ClassDefinition::addMethod(const UnarySlot& slot, const char*, unaryfunc dispatcher, OverloadLink&) 
 {
-	if (strcmp(slot.name, "__str__") == 0)
-	{
-		type_.tp_str = dispatcher;
-		return;
-	}
-	if (strcmp(slot.name, "__repr__") == 0)
-	{
-		type_.tp_repr = dispatcher;
-		return;
-	}
-	LASS_PY_OPERATOR_NO_OVERLOAD("__neg__", tp_as_number, PyNumberMethods, nb_negative)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__pos__", tp_as_number, PyNumberMethods, nb_positive)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__abs__", tp_as_number, PyNumberMethods, nb_absolute)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__invert__", tp_as_number, PyNumberMethods, nb_invert)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__int__", tp_as_number, PyNumberMethods, nb_int)
-	LASS_PY_OPERATOR_NO_OVERLOAD("__float__", tp_as_number, PyNumberMethods, nb_float)
-	LASS_ASSERT_UNREACHABLE;
+	setSlot(slot.slot, dispatcher);
 }
 
 void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__add__", tp_as_number, PyNumberMethods, nb_add, Binary)// r?
-	LASS_PY_OPERATOR_("__sub__", tp_as_number, PyNumberMethods, nb_subtract,Binary)// r?
-	LASS_PY_OPERATOR_("__mul__", tp_as_number, PyNumberMethods, nb_multiply, Binary)// r?
-	LASS_PY_OPERATOR_("__mod__", tp_as_number, PyNumberMethods, nb_remainder, Binary)// r?
-	LASS_PY_OPERATOR_("__lshift__", tp_as_number, PyNumberMethods, nb_lshift, Binary)// r?
-	LASS_PY_OPERATOR_("__rshift__", tp_as_number, PyNumberMethods, nb_rshift, Binary)// r?
-	LASS_PY_OPERATOR_("__and__", tp_as_number, PyNumberMethods, nb_and, Binary)// r?
-	LASS_PY_OPERATOR_("__xor__", tp_as_number, PyNumberMethods, nb_xor, Binary)// r?
-	LASS_PY_OPERATOR_("__or__", tp_as_number, PyNumberMethods, nb_or, Binary)// r?
-	LASS_PY_OPERATOR_("__truediv__", tp_as_number, PyNumberMethods, nb_true_divide, Binary)// r?
-	LASS_PY_OPERATOR_("__floordiv__", tp_as_number, PyNumberMethods, nb_floor_divide, Binary)// r?
-	LASS_PY_OPERATOR_("__iadd__", tp_as_number, PyNumberMethods, nb_inplace_add, Binary)
-	LASS_PY_OPERATOR_("__isub__", tp_as_number, PyNumberMethods, nb_inplace_subtract, Binary)
-	LASS_PY_OPERATOR_("__imul__", tp_as_number, PyNumberMethods, nb_inplace_multiply, Binary)
-	LASS_PY_OPERATOR_("__imod__", tp_as_number, PyNumberMethods, nb_inplace_remainder, Binary)
-	LASS_PY_OPERATOR_("__ilshift__", tp_as_number, PyNumberMethods, nb_inplace_lshift, Binary)
-	LASS_PY_OPERATOR_("__irshift__", tp_as_number, PyNumberMethods, nb_inplace_rshift, Binary)
-	LASS_PY_OPERATOR_("__iand__", tp_as_number, PyNumberMethods, nb_inplace_and, Binary)
-	LASS_PY_OPERATOR_("__ixor__", tp_as_number, PyNumberMethods, nb_inplace_xor, Binary)
-	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
-	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
-	LASS_PY_OPERATOR_("__ifloordiv__", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
-	LASS_PY_OPERATOR_("__matmul__", tp_as_number, PyNumberMethods, nb_matrix_multiply, Binary)
-	LASS_PY_OPERATOR_("__imatmul__", tp_as_number, PyNumberMethods, nb_inplace_matrix_multiply, Binary)
-	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary)
-	LASS_PY_OPERATOR_("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
-	LASS_PY_OPERATOR_("__map_getitem__", tp_as_mapping, PyMappingMethods, mp_subscript, Binary) 
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setBinaryfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const TernarySlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__pow__", tp_as_number, PyNumberMethods, nb_power, Ternary)// r?
-	LASS_PY_OPERATOR_("__ipow__", tp_as_number, PyNumberMethods, nb_inplace_power, Ternary)
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setTernaryfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const SsizeArgSlot& slot, const char*, ssizeargfunc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__seq_getitem__", tp_as_sequence, PySequenceMethods, sq_item, SsizeArg) 
-	LASS_PY_OPERATOR_("__repeat__", tp_as_sequence, PySequenceMethods, sq_repeat, SsizeArg) 
-	LASS_PY_OPERATOR_("__irepeat__", tp_as_sequence, PySequenceMethods, sq_inplace_repeat, SsizeArg) 
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setSsizeArgfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const SsizeObjArgSlot& slot, const char*, ssizeobjargproc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__seq_setitem__", tp_as_sequence, PySequenceMethods, sq_ass_item, SsizeObjArgProc) 
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setSsizeObjArgProcfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc dispatcher, OverloadLink& overloadChain) 
 {
-	LASS_PY_OPERATOR_("__contains__", tp_as_sequence, PySequenceMethods, sq_contains, ObjObjProc) 
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setObjObjProcfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*,	objobjargproc dispatcher, OverloadLink& overloadChain) 
 {
-	// objobjargproc slots return 0 on success and -1 on failure
-	LASS_PY_OPERATOR_("__map_setitem__", tp_as_mapping, PyMappingMethods, mp_ass_subscript, ObjObjArgProc) 
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setObjObjArgProcfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc dispatcher, OverloadLink&) 
 {
-	if (strcmp(slot.name, "__iter__") == 0)
-	{
-		type_.tp_iter = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
+	setSlot(slot.slot, dispatcher);
 }
 
 void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextfunc dispatcher, OverloadLink&) 
 {
-	if (strcmp(slot.name, "next") == 0)
-	{
-		type_.tp_iternext = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
+	setSlot(slot.slot, dispatcher);
 }
 
 void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 
 {
-	if (strcmp(slot.name, "__call__") == 0)
-	{
-		overloadChain.setArgKwfunc(type_.tp_call);
-		type_.tp_call = dispatcher;
-		return;
-	}
-	LASS_ASSERT_UNREACHABLE;
+	overloadChain.setArgKwfunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const InquirySlot& slot, const char*, inquiry dispatcher, OverloadLink&) 
 {
-	LASS_PY_OPERATOR_NO_OVERLOAD("__bool__", tp_as_number, PyNumberMethods, nb_bool);
-	LASS_ASSERT_UNREACHABLE;
+	setSlot(slot.slot, dispatcher);
 }
 
 void ClassDefinition::addGetSetter(const char* name, const char* doc, getter get, setter set)
@@ -446,7 +363,10 @@ void ClassDefinition::addInnerEnum(EnumDefinitionBase* enumDefinition)
 void ClassDefinition::freezeDefinition(const char* scopeName)
 {
 	LASS_ASSERT(!isFrozen_);
-	isFrozen_ = true;
+	if (isFrozen_)
+	{
+		return;
+	}
 
 	if (parent_)
 	{
@@ -457,52 +377,72 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 			PyObjectPlus::_lassPyClassDef.freezeDefinition();
 		}
 		LASS_ASSERT(parent_->isFrozen_);
-		type_.tp_base = parent_->type();
-
 		parent_->subClasses_.push_back(this);
 	}
-	else
-	{
-		type_.tp_base = &PyBaseObject_Type;
-	}
-	Py_INCREF( type_.tp_base );
 
-	std::string fullName = type_.tp_name;
+	const char* fullName = name();
 	if (scopeName)
 	{
-		fullName = std::string(scopeName) + "." + fullName;
+		const size_t n = std::strlen(scopeName) + std::strlen(name()) + 2; // one extra for dot, and one extra for null
+		char* buf = static_cast<char*>(std::malloc(n));
+		const int r = ::snprintf(buf, n, "%s.%s", scopeName, name());
+		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
+		fullName = buf;
 	}
-	char* fullNameCharPtr = new char[fullName.size()+1];
-	strcpy(fullNameCharPtr,fullName.c_str());
-	type_.tp_name = fullNameCharPtr;
 
-	type_.tp_methods = &methods_[0];
-	type_.tp_getset = &getSetters_[0];
-	type_.tp_flags &= (~Py_TPFLAGS_HAVE_GC); // we take care of collecting garbage ourselves
+	spec_.name = fullName;
 
-	PY_ENFORCE_ZERO( PyType_Ready( &type_ ) );
-	
+	LASS_ASSERT(slots_.empty() || slots_.back().slot != 0);
+	setSlot(Py_tp_base, parent_ ? parent_->type() : &PyBaseObject_Type); // INCREF???
+	setSlot(Py_tp_methods, &methods_[0]);
+	setSlot(Py_tp_getset, &getSetters_[0]);
+	if (doc_) // a nullptr as Py_tp_doc causes access violation in PyType_FromSpec 
+	{
+		setSlot(Py_tp_doc, const_cast<char*>(doc_));
+	}
+
+	PyType_Slot nullSlot = { 0, 0 };
+	slots_.push_back(nullSlot);
+	LASS_ASSERT(!spec_.slots);
+	spec_.slots = &slots_[0];
+
+#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
+	if (getSlot(Py_tp_new) == nullptr)
+	{
+		// We don't have a constructor, so we disallow instantiation.
+		spec_.flags |= Py_TPFLAGS_DISALLOW_INSTANTIATION;
+	}
+#endif
+
+	type_.reset(PY_ENFORCE_POINTER(PyType_FromSpec(&spec_)));
+	isFrozen_ = true;
+
+	PyObject* typ = type_.get();
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
 	{
-		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name()), i->member()->build().get());
+		PY_ENFORCE_ZERO(PyObject_SetAttrString(typ, i->name(), i->member()->build().get()));
 	}
 	for (TClassDefs::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
 	{
 		ClassDefinition* innerClass = *i;
 		const char* shortName = innerClass->name();
-		innerClass->freezeDefinition(type_.tp_name);
-		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(innerClass->type()));
+		innerClass->freezeDefinition(name());
+		PyObject_SetAttrString(typ, shortName, reinterpret_cast<PyObject*>(innerClass->type()));
 	}
 	for (auto def : innerEnums_)
 	{
 		def->freezeDefinition(nullptr, nullptr); // TODO: figure out modulename and qualname ...
-		PyDict_SetItemString(type_.tp_dict, def->name(), def->type());
+		PyObject_SetAttrString(typ, def->name(), def->type());
 	}
 
 	if (classRegisterHook_)
 	{
 		classRegisterHook_();
 	}
+
+#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
+	type()->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+#endif
 }
 
 PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int op)

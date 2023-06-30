@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -70,8 +70,9 @@ namespace impl
 	template <typename PyObjectPtr>
 	void forceObjectType(PyObjectPtr object, PyTypeObject* type)
 	{
-		if (object && object->ob_type != type)
+		if (object && object->ob_type != LASS_ENFORCE_POINTER(type))
 		{
+			LockGIL LASS_UNUSED(lock);
 			Py_XINCREF(type);
 			std::swap(object->ob_type, type);
 			Py_XDECREF(type);
@@ -189,17 +190,30 @@ protected:
 	template <typename T> bool decrement(T* pointee)
 	{
 		LASS_ASSERT(pointee);
-		bool r;
+		bool r = false;
 		if (Py_IsInitialized())
 		{
 			LockGIL LASS_UNUSED(lock);
 			r = pointee->ob_refcnt <=1;
 			Py_DECREF(pointee);
 		}
-		else
+		else 
 		{
 			r = pointee->ob_refcnt <=1;
-			Py_DECREF(pointee);
+			if (--pointee->ob_refcnt == 0)
+			{
+				if constexpr (std::is_convertible_v<T*, PyObjectPlus*>)
+				{
+					delete pointee;
+				}
+				else
+				{
+					// fingers crossed!
+					PyTypeObject* type = Py_TYPE(pointee);
+					destructor dealloc = type->tp_dealloc;
+					(*dealloc)(pointee);
+				}
+			}
 		}
 		return r;
 	}

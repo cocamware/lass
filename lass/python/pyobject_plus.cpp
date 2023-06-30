@@ -70,6 +70,7 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;
+	LockGIL LASS_UNUSED(lock);
 	_Py_NewReference( this );
 };
 
@@ -93,9 +94,10 @@ PyObjectPlus::~PyObjectPlus()
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 {
-	this->ob_type = NULL;
+	LockGIL LASS_UNUSED(lock);
+	this->ob_type = other.ob_type;
+	Py_XINCREF(this->ob_type);
 	_Py_NewReference( this );
-	impl::forceObjectType(this, other.ob_type);
 }
 
 PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOther)
@@ -193,7 +195,7 @@ PyObject* establishMagicalBackLinks(PyObject* result, PyObject* self)
 	{
 		return 0;
 	}
-	if (result->ob_type == PyIteratorRange::_lassPyClassDef.type())
+	if (PyIteratorRange::_lassPyClassDef.isFrozen_ && result->ob_type == PyIteratorRange::_lassPyClassDef.type())
 	{
 		LockGIL LASS_UNUSED(lock);
 		PyIteratorRange* iter = static_cast<PyIteratorRange*>(result);
