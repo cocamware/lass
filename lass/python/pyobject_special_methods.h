@@ -54,25 +54,26 @@ namespace impl
 {
 	struct SpecialSlot
 	{ 
-		SpecialSlot( const char* iName ) : name(iName) {}
+		SpecialSlot( const char* name, int slot ) : name(name), slot(slot) {}
 		const char* name;
+		int slot;
 	};
 
-	struct UnarySlot : public SpecialSlot { UnarySlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct BinarySlot : public SpecialSlot { BinarySlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct TernarySlot : public SpecialSlot { TernarySlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct LenSlot : public SpecialSlot { LenSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct ComparatorSlot : public SpecialSlot { ComparatorSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct SsizeArgSlot : public SpecialSlot { SsizeArgSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct SsizeSsizeArgSlot : public SpecialSlot { SsizeSsizeArgSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct SsizeObjArgSlot : public SpecialSlot { SsizeObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct SsizeSsizeObjArgSlot : public SpecialSlot { SsizeSsizeObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct ObjObjSlot : public SpecialSlot { ObjObjSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct IterSlot : public SpecialSlot { IterSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct IterNextSlot : public SpecialSlot { IterNextSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct ArgKwSlot : public SpecialSlot { ArgKwSlot( const char* iName ) : SpecialSlot(iName) {} };
-	struct InquirySlot: public SpecialSlot { InquirySlot( const char* iName ) : SpecialSlot(iName) {} };
+	struct UnarySlot : public SpecialSlot { UnarySlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct BinarySlot : public SpecialSlot { BinarySlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct TernarySlot : public SpecialSlot { TernarySlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct LenSlot : public SpecialSlot { LenSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct ComparatorSlot : public SpecialSlot { ComparatorSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct SsizeArgSlot : public SpecialSlot { SsizeArgSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct SsizeSsizeArgSlot : public SpecialSlot { SsizeSsizeArgSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct SsizeObjArgSlot : public SpecialSlot { SsizeObjArgSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct SsizeSsizeObjArgSlot : public SpecialSlot { SsizeSsizeObjArgSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct ObjObjSlot : public SpecialSlot { ObjObjSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct ObjObjArgSlot : public SpecialSlot { ObjObjArgSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct IterSlot : public SpecialSlot { IterSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct IterNextSlot : public SpecialSlot { IterNextSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct ArgKwSlot : public SpecialSlot { ArgKwSlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
+	struct InquirySlot: public SpecialSlot { InquirySlot( const char* name, int slot ) : SpecialSlot(name, slot) {} };
 
 	const int charPtrSlot = 1;
 	const int unarySlot = 2;
@@ -143,85 +144,86 @@ namespace impl
 namespace methods
 {
 	// special methods
-	const lass::python::impl::ArgKwSlot _call_("__call__");
-	const lass::python::impl::UnarySlot _repr_("__repr__");
-	const lass::python::impl::UnarySlot _str_("__str__");
+	const lass::python::impl::ArgKwSlot _call_("__call__", Py_tp_call);
+	const lass::python::impl::UnarySlot _repr_("__repr__", Py_tp_repr);
+	const lass::python::impl::UnarySlot _str_("__str__", Py_tp_str);
 
 	// PyNumberMethods
 	// unary
-	const lass::python::impl::UnarySlot _neg_("__neg__");
-	const lass::python::impl::UnarySlot _pos_("__pos__");
-	const lass::python::impl::UnarySlot _abs_("__abs__");
-	const lass::python::impl::UnarySlot _invert_("__invert__");
-	const lass::python::impl::UnarySlot _int_("__int__");
-	const lass::python::impl::UnarySlot _long_("__long__");
-	const lass::python::impl::UnarySlot _float_("__float__");
+	const lass::python::impl::UnarySlot _neg_("__neg__", Py_nb_negative);
+	const lass::python::impl::UnarySlot _pos_("__pos__", Py_nb_positive);
+	const lass::python::impl::UnarySlot _abs_("__abs__", Py_nb_absolute);
+	const lass::python::impl::UnarySlot _invert_("__invert__", Py_nb_invert);
+	const lass::python::impl::UnarySlot _int_("__int__", Py_nb_int);
+	const lass::python::impl::UnarySlot _long_("__long__", Py_nb_int); // deprecated
+	const lass::python::impl::UnarySlot _float_("__float__", Py_nb_float);
 
 	// binary
-	const lass::python::impl::BinarySlot _add_("__add__");
-	const lass::python::impl::BinarySlot _sub_("__sub__");
-	const lass::python::impl::BinarySlot _mul_("__mul__");
-	const lass::python::impl::BinarySlot _mod_("__mod__");
-	const lass::python::impl::BinarySlot _lshift_("__lshift__");
-	const lass::python::impl::BinarySlot _rshift_("__rshift__");
-	const lass::python::impl::BinarySlot _and_("__and__");
-	const lass::python::impl::BinarySlot _xor_("__xor__");
-	const lass::python::impl::BinarySlot _or_("__or__");
-	const lass::python::impl::BinarySlot _iadd_("__iadd__");
-	const lass::python::impl::BinarySlot _isub_("__isub__");
-	const lass::python::impl::BinarySlot _imul_("__imul__");
-	const lass::python::impl::BinarySlot _imod_("__imod__");
-	const lass::python::impl::BinarySlot _ilshift_("__ilshift__");
-	const lass::python::impl::BinarySlot _irshift_("__irshift__");
-	const lass::python::impl::BinarySlot _iand_("__iand__");
-	const lass::python::impl::BinarySlot _ixor_("__ixor__");
-	const lass::python::impl::BinarySlot _ior_("__ior__");
-	const lass::python::impl::BinarySlot _truediv_("__truediv__");
-	const lass::python::impl::BinarySlot _itruediv_("__itruediv__");
-	const lass::python::impl::BinarySlot _floordiv_("__floordiv__");
-	const lass::python::impl::BinarySlot _ifloordiv_("__ifloordiv__");
-	const lass::python::impl::BinarySlot _matmul_("__matmul__");
-	const lass::python::impl::BinarySlot _imatmul_("__imatmul__");
-	const lass::python::impl::InquirySlot _bool_("__bool__");
+	const lass::python::impl::BinarySlot _add_("__add__", Py_nb_add);
+	const lass::python::impl::BinarySlot _sub_("__sub__", Py_nb_subtract);
+	const lass::python::impl::BinarySlot _mul_("__mul__", Py_nb_multiply);
+	const lass::python::impl::BinarySlot _mod_("__mod__", Py_nb_remainder);
+	const lass::python::impl::BinarySlot _lshift_("__lshift__", Py_nb_lshift);
+	const lass::python::impl::BinarySlot _rshift_("__rshift__", Py_nb_rshift);
+	const lass::python::impl::BinarySlot _and_("__and__", Py_nb_and);
+	const lass::python::impl::BinarySlot _xor_("__xor__", Py_nb_xor);
+	const lass::python::impl::BinarySlot _or_("__or__", Py_nb_or);
+	const lass::python::impl::BinarySlot _iadd_("__iadd__", Py_nb_inplace_add);
+	const lass::python::impl::BinarySlot _isub_("__isub__", Py_nb_inplace_subtract);
+	const lass::python::impl::BinarySlot _imul_("__imul__", Py_nb_inplace_multiply);
+	const lass::python::impl::BinarySlot _imod_("__imod__", Py_nb_inplace_remainder);
+	const lass::python::impl::BinarySlot _ilshift_("__ilshift__", Py_nb_inplace_lshift);
+	const lass::python::impl::BinarySlot _irshift_("__irshift__", Py_nb_inplace_rshift);
+	const lass::python::impl::BinarySlot _iand_("__iand__", Py_nb_inplace_and);
+	const lass::python::impl::BinarySlot _ixor_("__ixor__", Py_nb_inplace_xor);
+	const lass::python::impl::BinarySlot _ior_("__ior__", Py_nb_inplace_or);
+	const lass::python::impl::BinarySlot _truediv_("__truediv__", Py_nb_true_divide);
+	const lass::python::impl::BinarySlot _itruediv_("__itruediv__", Py_nb_inplace_true_divide);
+	const lass::python::impl::BinarySlot _floordiv_("__floordiv__", Py_nb_floor_divide);
+	const lass::python::impl::BinarySlot _ifloordiv_("__ifloordiv__", Py_nb_inplace_floor_divide);
+	const lass::python::impl::BinarySlot _matmul_("__matmul__", Py_nb_matrix_multiply);
+	const lass::python::impl::BinarySlot _imatmul_("__imatmul__", Py_nb_inplace_matrix_multiply);
+	const lass::python::impl::InquirySlot _bool_("__bool__", Py_nb_bool);
 	const lass::python::impl::InquirySlot _nonzero_ = _bool_; // the 2.x version of __bool__
 
-	const lass::python::impl::TernarySlot _pow_("__pow__");
+	const lass::python::impl::TernarySlot _pow_("__pow__", Py_nb_power);
+	const lass::python::impl::TernarySlot _ipow_("__ipow__", Py_nb_inplace_power);
 
 	// Comparators
-	const lass::python::impl::ComparatorSlot _lt_("__lt__");
-	const lass::python::impl::ComparatorSlot _le_("__le__");
-	const lass::python::impl::ComparatorSlot _eq_("__eq__");
-	const lass::python::impl::ComparatorSlot _ne_("__ne__");
-	const lass::python::impl::ComparatorSlot _gt_("__gt__");
-	const lass::python::impl::ComparatorSlot _ge_("__ge__");
+	const lass::python::impl::ComparatorSlot _lt_("__lt__", Py_LT);
+	const lass::python::impl::ComparatorSlot _le_("__le__", Py_LE);
+	const lass::python::impl::ComparatorSlot _eq_("__eq__", Py_EQ);
+	const lass::python::impl::ComparatorSlot _ne_("__ne__", Py_NE);
+	const lass::python::impl::ComparatorSlot _gt_("__gt__", Py_GT);
+	const lass::python::impl::ComparatorSlot _ge_("__ge__", Py_GE);
 
 
 	// shared between PySequenceMethods and PyMappingMethods
 	// the PySequenceMethods gets priority in this case
-	const lass::python::impl::LenSlot _len_("__seq_len__");
-	const lass::python::impl::SsizeArgSlot _getitem_("__seq_getitem__");
-	const lass::python::impl::SsizeObjArgSlot _setitem_("__seq_setitem__");
+	const lass::python::impl::LenSlot _len_("__seq_len__", Py_sq_length);
+	const lass::python::impl::SsizeArgSlot _getitem_("__seq_getitem__", Py_sq_item);
+	const lass::python::impl::SsizeObjArgSlot _setitem_("__seq_setitem__", Py_sq_ass_item);
 
 
 	// PySequenceMethods
-	const lass::python::impl::LenSlot seq_len_("__seq_len__");
-	const lass::python::impl::BinarySlot _concat_("__concat__");
-	const lass::python::impl::SsizeArgSlot _repeat_("__repeat__");
-	const lass::python::impl::SsizeArgSlot seq_getitem_("__seq_getitem__");		/**< to disambiguate with the PyMapping protocol */
-	const lass::python::impl::SsizeObjArgSlot seq_setitem_("__seq_setitem__");
-	const lass::python::impl::ObjObjSlot _contains_("__contains__");
-	const lass::python::impl::BinarySlot _iconcat_("__iconcat__");
-	const lass::python::impl::SsizeArgSlot _irepeat_("__irepeat__");
+	const lass::python::impl::LenSlot seq_len_("__seq_len__", Py_sq_length);
+	const lass::python::impl::BinarySlot _concat_("__concat__", Py_sq_concat);
+	const lass::python::impl::SsizeArgSlot _repeat_("__repeat__", Py_sq_repeat);
+	const lass::python::impl::SsizeArgSlot seq_getitem_("__seq_getitem__", Py_sq_item);	/**< to disambiguate with the PyMapping protocol */
+	const lass::python::impl::SsizeObjArgSlot seq_setitem_("__seq_setitem__", Py_sq_ass_item);
+	const lass::python::impl::ObjObjSlot _contains_("__contains__", Py_sq_contains);
+	const lass::python::impl::BinarySlot _iconcat_("__iconcat__", Py_sq_inplace_concat);
+	const lass::python::impl::SsizeArgSlot _irepeat_("__irepeat__", Py_sq_inplace_repeat);
 
 	// PyMappingMethods
-	const lass::python::impl::LenSlot map_len_("__map_len__");
-	const lass::python::impl::BinarySlot map_getitem_("__map_getitem__");
-	const lass::python::impl::ObjObjArgSlot map_setitem_("__map_setitem__");
+	const lass::python::impl::LenSlot map_len_("__map_len__", Py_mp_length);
+	const lass::python::impl::BinarySlot map_getitem_("__map_getitem__", Py_mp_subscript);
+	const lass::python::impl::ObjObjArgSlot map_setitem_("__map_setitem__", Py_mp_ass_subscript);
 	const lass::python::impl::ObjObjArgSlot map_delitem_ = map_setitem_; // they share the same slot
 
 	// Iterator Protocol
-	const lass::python::impl::IterSlot _iter_("__iter__");
-	const lass::python::impl::IterNextSlot next("next");
+	const lass::python::impl::IterSlot _iter_("__iter__", Py_tp_iter);
+	const lass::python::impl::IterNextSlot next("next", Py_tp_iternext);
 }
 
 }

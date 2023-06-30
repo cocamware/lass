@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -105,12 +105,14 @@ const std::string MultiCallbackImplBase::repr() const
 
 	void MultiCallback::initializeType()
 	{
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_call = &MultiCallback::_tp_call;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+		_lassPyClassDef.setSlot(Py_tp_call, &MultiCallback::_tp_call);
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	void MultiCallback::init(TPimpl&& pimpl)
