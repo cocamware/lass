@@ -66,25 +66,6 @@ namespace impl
 	PY_CLASS_METHOD_NAME( Sequence, iter, methods::_iter_ );
 	PY_CLASS_METHOD_NAME( Sequence, repr, methods::_repr_ );
 
-	PySequenceMethods Sequence::pySequenceMethods = {
-		&Sequence::length,
-		&Sequence::concat,
-		&Sequence::repeat,
-		&Sequence::item,
-		0, // was slice
-		&Sequence::assItem,
-		0, // was assSlice
-		&Sequence::contains,
-		&Sequence::inplaceConcat,
-		&Sequence::inplaceRepeat,
-	};
-
-	PyMappingMethods Sequence::pyMappingMethods = {
-		&Sequence::length,
-		&Sequence::subscript,
-		&Sequence::assSubscript,
-	};
-
 	bool Sequence::isInitialized = false;
 
 	Sequence::Sequence(TPimpl&& pimpl)
@@ -102,14 +83,24 @@ namespace impl
 
 	void Sequence::initializeType()
 	{
-		LockGIL LASS_UNUSED(lock);
-		if (!isInitialized)
+		if (isInitialized)
 		{
-			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
-			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
-			_lassPyClassDef.freezeDefinition();
-			isInitialized = true;
+			return;
 		}
+		LockGIL LASS_UNUSED(lock);
+		_lassPyClassDef.setSlot(Py_sq_length, &Sequence::length);
+		_lassPyClassDef.setSlot(Py_sq_concat, &Sequence::concat);
+		_lassPyClassDef.setSlot(Py_sq_repeat, &Sequence::repeat);
+		_lassPyClassDef.setSlot(Py_sq_item, &Sequence::item);
+		_lassPyClassDef.setSlot(Py_sq_ass_item, &Sequence::assItem);
+		_lassPyClassDef.setSlot(Py_sq_contains, &Sequence::contains);
+		_lassPyClassDef.setSlot(Py_sq_inplace_concat, &Sequence::inplaceConcat);
+		_lassPyClassDef.setSlot(Py_sq_inplace_repeat, &Sequence::inplaceRepeat);
+		_lassPyClassDef.setSlot(Py_mp_length, &Sequence::length);
+		_lassPyClassDef.setSlot(Py_mp_subscript, &Sequence::subscript);
+		_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Sequence::assSubscript);
+		_lassPyClassDef.freezeDefinition();
+		isInitialized = true;
 	}
 
 	const TSequencePtr Sequence::copy() const
