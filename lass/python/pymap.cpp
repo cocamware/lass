@@ -45,6 +45,7 @@
 #include "python_common.h"
 #include "pymap.h"
 #include "pyobject_macros.h"
+#include "_lass_module.h"
 
 namespace lass
 {
@@ -63,8 +64,11 @@ namespace impl
 	PY_CLASS_METHOD( Map, clear )
 	PY_CLASS_METHOD( Map, copy )
 	PY_CLASS_METHOD( Map, asDict )
-
-	bool Map::isInitialized = false;
+	LASS_EXECUTE_BEFORE_MAIN_EX( Map_executeBeforeMain,
+		Map::_lassPyClassDef.setSlot(Py_mp_length, &Map::length);
+		Map::_lassPyClassDef.setSlot(Py_mp_subscript, &Map::subscript);
+		Map::_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Map::assSubscript);
+	)
 
 	Map::~Map()
 	{
@@ -75,24 +79,10 @@ namespace impl
 		init(std::move(pimpl));
 	}
 
-	void Map::initializeType()
-	{
-		if (isInitialized)
-		{
-			return;
-		}
-		LockGIL LASS_UNUSED(lock);
-		_lassPyClassDef.setSlot(Py_mp_length, &Map::length);
-		_lassPyClassDef.setSlot(Py_mp_subscript, &Map::subscript);
-		_lassPyClassDef.setSlot(Py_mp_ass_subscript, &Map::assSubscript);
-		_lassPyClassDef.freezeDefinition();
-		isInitialized = true;
-	}
-
 	void Map::init(TPimpl&& pimpl)
 	{
 		LockGIL LASS_UNUSED(lock);
-		initializeType();
+		impl::initLassModule();
 		impl::fixObjectType(this);
 		pimpl_ = std::move(pimpl);
 	}
