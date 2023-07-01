@@ -357,10 +357,12 @@ void ClassDefinition::addInnerEnum(EnumDefinitionBase* enumDefinition)
 	innerEnums_.push_back(enumDefinition);
 }
 
-/** @internal
-*	The iFinal sets the flags for final classes from which no new types can be derived.  
-*/
-void ClassDefinition::freezeDefinition(const char* scopeName)
+void ClassDefinition::freezeDefinition(PyObject* module)
+{
+	freezeDefinition(module, nullptr);
+}
+
+void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 {
 	LASS_ASSERT(!isFrozen_);
 	if (isFrozen_)
@@ -380,17 +382,16 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 		parent_->subClasses_.push_back(this);
 	}
 
-	const char* fullName = name();
-	if (scopeName)
+	const char* moduleName = module ? PyModule_GetName(module) : nullptr;
+	const char* className = name();
+	if (moduleName)
 	{
-		const size_t n = std::strlen(scopeName) + std::strlen(name()) + 2; // one extra for dot, and one extra for null
+		const size_t n = std::strlen(moduleName) + std::strlen(className) + 2; // one extra for dot, and one extra for null
 		char* buf = static_cast<char*>(std::malloc(n));
-		const int r = ::snprintf(buf, n, "%s.%s", scopeName, name());
+		const int r = ::snprintf(buf, n, "%s.%s", moduleName, className);
 		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
-		fullName = buf;
+		spec_.name = buf;
 	}
-
-	spec_.name = fullName;
 
 	LASS_ASSERT(slots_.empty() || slots_.back().slot != 0);
 	setSlot(Py_tp_base, parent_ ? parent_->type() : &PyBaseObject_Type); // INCREF???
@@ -414,10 +415,26 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	}
 #endif
 
+#if PY_VERSION_HEX >= 0x03090000 // >= 3.9
+	type_.reset(PY_ENFORCE_POINTER(PyType_FromModuleAndSpec(module, &spec_, nullptr)));
+#else
 	type_.reset(PY_ENFORCE_POINTER(PyType_FromSpec(&spec_)));
+#endif
 	isFrozen_ = true;
 
 	PyObject* typ = type_.get();
+
+	const char* qualname = className;
+	if (scopeName)
+	{
+		const size_t n = std::strlen(scopeName) + std::strlen(className) + 2; // one extra for dot, and one extra for null
+		char* buf = static_cast<char*>(std::malloc(n));
+		const int r = ::snprintf(buf, n, "%s.%s", scopeName, className);
+		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
+		qualname = buf;
+		TPyObjPtr objQualname(PY_ENFORCE_POINTER(pyBuildSimpleObject(qualname)));
+		PY_ENFORCE_ZERO(PyObject_SetAttrString(typ, "__qualname__", objQualname.get()));
+	}
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
 	{
 		PY_ENFORCE_ZERO(PyObject_SetAttrString(typ, i->name(), i->member()->build().get()));
@@ -426,12 +443,12 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	{
 		ClassDefinition* innerClass = *i;
 		const char* shortName = innerClass->name();
-		innerClass->freezeDefinition(name());
+		innerClass->freezeDefinition(module, qualname);
 		PyObject_SetAttrString(typ, shortName, reinterpret_cast<PyObject*>(innerClass->type()));
 	}
 	for (auto def : innerEnums_)
 	{
-		def->freezeDefinition(nullptr, nullptr); // TODO: figure out modulename and qualname ...
+		def->freezeDefinition(moduleName, qualname);
 		PyObject_SetAttrString(typ, def->name(), def->type());
 	}
 

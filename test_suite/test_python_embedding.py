@@ -424,8 +424,8 @@ class TestClassName(unittest.TestCase):
         self.assertEqual(innerClass.__class__, embedding.Bar.InnerClass)
         self.assertEqual(embedding.Bar.InnerClass.__class__, type)
         self.assertEqual(embedding.Bar.InnerClass.__name__, "InnerClass")
-        # self.assertEqual(embedding.Bar.InnerClass.__module__, "embedding")  FIXME
-        # self.assertEqual(embedding.Bar.InnerClass.__qualname__, "Bar.InnerClass")  FIXME
+        self.assertEqual(embedding.Bar.InnerClass.__module__, "embedding")
+        self.assertEqual(embedding.Bar.InnerClass.__qualname__, "Bar.InnerClass")
 
     def testEnumClassName(self) -> None:
         color = embedding.Color.BLUE
@@ -438,8 +438,8 @@ class TestClassName(unittest.TestCase):
         shape = embedding.Bar.Shape.CIRCLE
         self.assertEqual(shape.__class__, embedding.Bar.Shape)
         self.assertEqual(embedding.Bar.Shape.__name__, "Shape")
-        # self.assertEqual(embedding.Bar.Shape.__module__, "embedding")  FIXME
-        # self.assertEqual(embedding.Bar.Shape.__qualname__, "Bar.Shape")  FIXME
+        self.assertEqual(embedding.Bar.Shape.__module__, "embedding")
+        self.assertEqual(embedding.Bar.Shape.__qualname__, "Bar.Shape")
 
 
 class TestTypeSafety(unittest.TestCase):

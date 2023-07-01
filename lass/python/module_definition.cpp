@@ -197,7 +197,7 @@ void ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
 {
 	LASS_ASSERT(isInjected_);
 	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
-	classDef.freezeDefinition(name_.get());
+	classDef.freezeDefinition(module_);
 #if PY_VERSION_HEX < 0x030a0000 // < 3.10
 	PyObject* type = reinterpret_cast<PyObject*>(classDef.type());
 	Py_INCREF(type);
