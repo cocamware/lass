@@ -47,6 +47,7 @@
 #include "enum_definition.h"
 #include "overload_link.h"
 #include "pyobject_plus.h"
+#include "_lass_module.h"
 #include <iostream>
 #include <cstring>
 
@@ -372,11 +373,11 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 
 	if (parent_)
 	{
-		// In the general case, we can't freeze the parent's definition, as we can't be sure of its scopeName.
-		// However, in case of PyObjectPlus, nobody else will do it.  Luckily, we know its scopeName's empty.
-		if (parent_ == &PyObjectPlus::_lassPyClassDef && !PyObjectPlus::_lassPyClassDef.isFrozen_)
+		// In the general case, we can't freeze the parent's definition, as we can't be sure of its module or scopeName.
+		// However, in case of PyObjectPlus, nobody else will do it.
+		if (parent_ == &PyObjectPlus::_lassPyClassDef)
 		{
-			PyObjectPlus::_lassPyClassDef.freezeDefinition();
+			impl::initLassModule();
 		}
 		LASS_ASSERT(parent_->isFrozen_);
 		parent_->subClasses_.push_back(this);
