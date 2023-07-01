@@ -209,20 +209,17 @@ namespace impl
 		const std::type_info& type() const;
 		void* raw(bool writable) const;
 
+		static Py_ssize_t length(PyObject* self);
+		static PyObject* subscript(PyObject* self, PyObject* key);
+		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
+
 	private:
 		typedef PyMapImplBase::TPimpl TPimpl;
 
 		Map(TPimpl&& pimpl);
 		void init(TPimpl&& pimpl);
 
-		static void initializeType();
-
-		static Py_ssize_t length(PyObject* self);
-		static PyObject* subscript(PyObject* self, PyObject* key);
-		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
-
 		TPimpl pimpl_;
-		static bool isInitialized;
 	};
 
 	template <>
