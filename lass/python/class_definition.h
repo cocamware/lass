@@ -191,7 +191,7 @@ namespace lass
 					return reinterpret_cast<Ptr>(setSlot(slotId, reinterpret_cast<void*>(value)));
 				}
 
-				void freezeDefinition(const char* scopeName = 0);
+				void freezeDefinition(PyObject* module = nullptr);
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
@@ -208,6 +208,8 @@ namespace lass
 				typedef std::vector<ClassDefinition*> TClassDefs;
 				typedef std::vector<EnumDefinitionBase*> TEnumDefs;
 				typedef std::vector<PyType_Slot> TSlots;
+
+				void freezeDefinition(PyObject* module, const char* scopeName);
 
 				TSlots slots_;
 				PyType_Spec spec_;
