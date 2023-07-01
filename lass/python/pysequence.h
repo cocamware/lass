@@ -334,7 +334,6 @@ namespace impl
 	class LASS_PYTHON_DLL Sequence : public PyObjectPlus, util::NonCopyable
 	{
 		PY_HEADER(PyObjectPlus)
-		static bool isInitialized;
 
 	public:
 		template<typename Container> Sequence( const util::SharedPtr<Container>& container )
@@ -369,15 +368,7 @@ namespace impl
 		const std::type_info& type() const;
 		void* raw(bool writable) const;
 
-	private:
-		typedef PySequenceImplBase::TPimpl TPimpl;
-
-		Sequence(TPimpl&& pimpl);
-		void init(TPimpl&& pimpl);
-
-		static void initializeType();
-
-		static Py_ssize_t length( PyObject* self);
+		static Py_ssize_t length(PyObject* self);
 		static PyObject* concat(PyObject* self, PyObject* other);
 		static PyObject* repeat(PyObject* self, Py_ssize_t n);
 		static PyObject* item(PyObject* self, Py_ssize_t i);
@@ -387,6 +378,12 @@ namespace impl
 		static PyObject* inplaceRepeat(PyObject* self, Py_ssize_t n);
 		static PyObject* subscript(PyObject* self, PyObject* key);
 		static int assSubscript(PyObject* self, PyObject* key, PyObject* value);
+
+	private:
+		typedef PySequenceImplBase::TPimpl TPimpl;
+
+		Sequence(TPimpl&& pimpl);
+		void init(TPimpl&& pimpl);
 
 		TPimpl pimpl_;
 	};
