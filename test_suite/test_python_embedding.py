@@ -49,7 +49,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import embedding
 
+import _lass  # type: ignore[import-not-found] # isort: skip
+
 print(sys.version)
+
 
 POINTER_SIZE = struct.calcsize("P")  # size of a pointer in bytes
 
@@ -65,6 +68,18 @@ else:
     MutableSequenceFloat = MutableSequence[float]
     MutableMappingStrStr = MutableMapping[str, str]
     CallableAnyAny = Callable[[Any], Any]
+
+
+class TestInternalLassModule(unittest.TestCase):
+    def testInternalLassModule(self) -> None:
+        self.assertEqual(_lass.__name__, "_lass")
+        self.assertIn("_lass", sys.modules)
+        self.assertIs(_lass, sys.modules["_lass"])
+        self.assertEqual(_lass.PyObjectPlus.__module__, "_lass")
+        self.assertEqual(_lass.Map.__module__, "_lass")
+        self.assertEqual(_lass.Sequence.__module__, "_lass")
+        self.assertEqual(_lass.PyIteratorRange.__module__, "_lass")
+        self.assertEqual(_lass.MultiCallback.__module__, "_lass")
 
 
 class TestDerived(unittest.TestCase):
@@ -92,6 +107,7 @@ class TestPyCObject(unittest.TestCase):
 
 class TestConstMap(unittest.TestCase):
     def _testConstMap(self, mapping: MappingStrStr) -> None:
+        self.assertIsInstance(mapping, _lass.Map)
         self.assertEqual(len(mapping), 1)
         self.assertIn("spam", mapping)
         self.assertNotIn("foo", mapping)
@@ -123,6 +139,7 @@ class TestMap(unittest.TestCase):
     def _testMap(
         self, mapping: MutableMappingStrStr, refmap: MutableMappingStrStr
     ) -> None:
+        self.assertIsInstance(mapping, _lass.Map)
         mapping["test"] = "ok"
         with self.assertRaises(TypeError):
             mapping["test"] = 123  # type: ignore[assignment]
@@ -172,6 +189,7 @@ class TestMap(unittest.TestCase):
 
 class TestConstSequence(unittest.TestCase):
     def _testConstSequence(self, seq: SequenceFloat) -> None:
+        self.assertIsInstance(seq, _lass.Sequence)
         # Test that none of these operations are allowed on a const sequence
         with self.assertRaises(TypeError):
             seq[0:-1] = range(10)  # type: ignore[index]
@@ -314,6 +332,7 @@ class TestWriteableSequence(unittest.TestCase):
         self.assertEqual(len(b), 4 * n)
 
     def _testSequence(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+        self.assertIsInstance(seq, _lass.Sequence)
         self._testClear(seq, refseq)
         self._testReserve(seq)
         self._testAppend(seq, refseq)

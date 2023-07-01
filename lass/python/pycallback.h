@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -186,17 +186,16 @@ public:
 	const std::type_info& type() const;
 	void* raw(bool writable) const;
 
+	static PyObject* _tp_call(PyObject*, PyObject*, PyObject*);
+
 private:
 
 	typedef std::unique_ptr<impl::MultiCallbackImplBase> TPimpl; 
 
 	MultiCallback(TPimpl&& pimpl);
 	void init(TPimpl&& pimpl);
-	static void initializeType();
-	static PyObject * _tp_call(PyObject *, PyObject *, PyObject *); 
 
 	TPimpl pimpl_;
-	static bool isInitialized;
 };
 
 namespace impl

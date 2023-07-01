@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -49,6 +49,7 @@
 
 #include "python_common.h"
 #include "pyobject_plus.h"
+#include "_lass_module.h"
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(push)
@@ -109,7 +110,7 @@ class LASS_PYTHON_DLL PyIteratorRange : public lass::python::PyObjectPlus
 public:
 	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last) 
 	{
-		initialize();
+		impl::initLassModule();
 		impl::fixObjectType(this);
 		pimpl_ = new impl::PyIteratorRangeImpl<Iterator>(first, last);
 	}
@@ -121,11 +122,8 @@ public:
 	void setOwner(const TPyObjPtr& owner);
 	
 private:
-	static void initialize();
-
 	impl::PyIteratorRangeImplBase* pimpl_;
 	TPyObjPtr owner_;
-	static bool isInitialized;
 };
 
 template<>

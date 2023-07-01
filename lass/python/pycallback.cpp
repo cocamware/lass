@@ -45,6 +45,7 @@
 #include "python_common.h"
 #include "pycallback.h"
 #include "pyobject_macros.h"
+#include "_lass_module.h"
 
 namespace lass
 {
@@ -65,8 +66,9 @@ const std::string MultiCallbackImplBase::repr() const
 	PY_CLASS_PY_METHOD_EX( MultiCallback, callVar, "call", "" )
 	PY_CLASS_PY_METHOD_EX( MultiCallback, addVar, "add", "" )
 	PY_CLASS_METHOD_NAME( MultiCallback, repr, methods::_repr_ )
-
-	bool MultiCallback::isInitialized = false;
+	LASS_EXECUTE_BEFORE_MAIN_EX( MultiCallback_executeBeforeMain,
+		MultiCallback::_lassPyClassDef.setSlot(Py_tp_call, &MultiCallback::_tp_call);
+	)
 
 	MultiCallback::~MultiCallback()
 	{
@@ -103,21 +105,9 @@ const std::string MultiCallbackImplBase::repr() const
 		return static_cast<MultiCallback*>(self)->callVar(args);
 	}
 
-	void MultiCallback::initializeType()
-	{
-		if (isInitialized)
-		{
-			return;
-		}
-		LockGIL LASS_UNUSED(lock);
-		_lassPyClassDef.setSlot(Py_tp_call, &MultiCallback::_tp_call);
-		_lassPyClassDef.freezeDefinition();
-		isInitialized = true;
-	}
-
 	void MultiCallback::init(TPimpl&& pimpl)
 	{
-		initializeType();
+		impl::initLassModule();
 		impl::fixObjectType(this);
 		pimpl_ = std::move(pimpl);
 	}
