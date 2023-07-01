@@ -43,7 +43,14 @@ import os
 import struct
 import sys
 import unittest
-from collections.abc import Callable, Mapping, MutableMapping, MutableSequence, Sequence
+from collections.abc import (
+    Callable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Sequence,
+)
 from contextlib import redirect_stdout
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -77,9 +84,13 @@ class TestInternalLassModule(unittest.TestCase):
         self.assertIs(_lass, sys.modules["_lass"])
         self.assertEqual(_lass.PyObjectPlus.__module__, "_lass")
         self.assertEqual(_lass.Map.__module__, "_lass")
+        self.assertTrue(issubclass(_lass.Map, MutableMapping))
         self.assertEqual(_lass.Sequence.__module__, "_lass")
+        self.assertTrue(issubclass(_lass.Sequence, MutableSequence))
         self.assertEqual(_lass.PyIteratorRange.__module__, "_lass")
+        self.assertTrue(issubclass(_lass.PyIteratorRange, Iterator))
         self.assertEqual(_lass.MultiCallback.__module__, "_lass")
+        self.assertTrue(issubclass(_lass.MultiCallback, Callable))  # type: ignore[arg-type]
 
 
 class TestDerived(unittest.TestCase):
@@ -167,8 +178,8 @@ class TestMap(unittest.TestCase):
 
     def testMap(self) -> None:
         bar = embedding.Bar()
-        # self.assertIsInstance(bar.writeableMap, Mapping)  FIXME
-        # self.assertIsInstance(bar.writeableMap, MutableMapping)  FIXME
+        self.assertIsInstance(bar.writeableMap, Mapping)
+        self.assertIsInstance(bar.writeableMap, MutableMapping)
         assert bar.writeableMap is not None
         self._testMap(bar.writeableMap, bar.writeableMap)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
@@ -181,8 +192,8 @@ class TestMap(unittest.TestCase):
 
     def testVectorMap(self) -> None:
         bar = embedding.Bar()
-        # self.assertIsInstance(bar.writeableVectorMap, Mapping)  FIXME
-        # self.assertIsInstance(bar.writeableVectorMap, MutableMapping)  FIXME
+        self.assertIsInstance(bar.writeableVectorMap, Mapping)
+        self.assertIsInstance(bar.writeableVectorMap, MutableMapping)
         assert bar.writeableVectorMap is not None
         self._testMap(bar.writeableVectorMap, bar.writeableVectorMap)  # type: ignore[arg-type]
 
@@ -348,8 +359,8 @@ class TestWriteableSequence(unittest.TestCase):
 
     def testWriteableVector(self) -> None:
         bar = embedding.Bar()
-        # self.assertIsInstance(bar.writeableVector, Sequence)  FIXME
-        # self.assertIsInstance(bar.writeableVector, MutableSequence)  FIXME
+        self.assertIsInstance(bar.writeableVector, Sequence)
+        self.assertIsInstance(bar.writeableVector, MutableSequence)
         assert bar.writeableVector is not None
         self._testSequence(bar.writeableVector, bar.writeableVector)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
@@ -1300,7 +1311,7 @@ class TestModuleConstants(unittest.TestCase):
         self.assertEqual(embedding.INTEGER_CONSTANT, 42)
         self.assertEqual(embedding.INJECTED_INTEGER_CONSTANT, 99)
         self.assertEqual(embedding.INJECTED_STRING_CONSTANT, "spam and eggs")
-        # self.assertIsInstance(embedding.aVectorObject, Sequence)  FIXME
+        self.assertIsInstance(embedding.aVectorObject, Sequence)
         self.assertEqual(embedding.FUNCIONAL_CASTED_RED, int(embedding.Color.RED))
         self.assertEqual(embedding.INJECTED_ENUM_VALUE, 42)
         self.assertEqual(embedding.INJECTED_INT_ENUM_VALUE, 42)
