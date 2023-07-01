@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2023 the Initial Developer.
+ *	Copyright (C) 2022-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -71,7 +71,7 @@ namespace lass
 			const char* doc() const;
 			PyObject* type() const;
 
-			void freezeDefinition(const char* moduleName, const char* qualName);
+			void freezeDefinition(const char* moduleName, const char* scopeName);
 
 		protected:
 			EnumDefinitionBase(const char* name);
