@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -87,13 +87,6 @@ namespace impl
 		if (!isInitialized)
 		{
 			_lassPyClassDef.type()->tp_as_mapping = &pyMappingMethods;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-			// [TDM] for some reason the dict member is not getting properly initialized on Map?!
-			// switch off inheritance
-			//&reinterpret_cast<const volatile char&>((((s *)0)->m))
-			Map::_lassPyType.tp_dictoffset = 0;
-			Map::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
-#endif
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}

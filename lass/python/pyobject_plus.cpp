@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -70,9 +70,6 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-	dict_ = PyDict_New();
-#endif
 	_Py_NewReference( this );
 };
 
@@ -91,20 +88,12 @@ PyObjectPlus::~PyObjectPlus()
 #endif
 
 	}
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-	//if (dict_)
-	//	Py_XDECREF(dict_);
-#endif
 	LASS_ASSERT(this->ob_refcnt==0);
 };
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 {
 	this->ob_type = NULL;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-	// [TDM] or just copy the reference? 
-	dict_ = PyDict_Copy(iOther.dict_);
-#endif
 	_Py_NewReference( this );
 	impl::forceObjectType(this, other.ob_type);
 }
@@ -112,10 +101,6 @@ PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOther)
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-	// [TDM] or just copy the reference? 
-	dict_ = PyDict_Copy(iOther.dict_);
-#endif
 	return *this;
 }
 
