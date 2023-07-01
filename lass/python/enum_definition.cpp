@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2023 the Initial Developer.
+ *	Copyright (C) 2022-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -43,6 +43,7 @@
 #include "enum_definition.h"
 #include "pyobject_ptr.h"
 #include "py_tuple.h"
+#include "../stde/extended_cstring.h"
 
 namespace lass
 {
@@ -96,8 +97,8 @@ namespace lass
 
 				return type;
 #else
-				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
-				TPyObjPtr strEnumType(PyObject_GetAttrString(enumMod.get(), "StrEnum"));
+				TPyObjPtr enumMod(PY_ENFORCE_POINTER(PyImport_ImportModule("enum")));
+				TPyObjPtr strEnumType(PY_ENFORCE_POINTER(PyObject_GetAttrString(enumMod.get(), "StrEnum")));
 
 				TPyObjPtr args = makeTuple(name, std::move(enumerators));
 				TPyObjPtr type{ PyObject_Call(strEnumType.get(), args.get(), kwargs.get()) };
@@ -152,7 +153,7 @@ namespace lass
 			return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
 		}
 
-		void EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* qualName)
+		void EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* scopeName)
 		{
 			TPyObjPtr kwargs(PyDict_New());
 			if (moduleName)
@@ -160,9 +161,10 @@ namespace lass
 				TPyObjPtr moduleNameObj(pyBuildSimpleObject(moduleName));
 				PyDict_SetItemString(kwargs.get(), "module", moduleNameObj.get());
 			}
-			if (qualName)
+			if (scopeName)
 			{
-				TPyObjPtr qualNameObj(pyBuildSimpleObject(qualName));
+				std::string qualName = stde::safe_format("%s.%s", scopeName, name_);
+				TPyObjPtr qualNameObj(pyBuildSimpleObject(std::move(qualName)));
 				PyDict_SetItemString(kwargs.get(), "qualname", qualNameObj.get());
 			}
 
