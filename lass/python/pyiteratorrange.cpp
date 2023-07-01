@@ -45,26 +45,17 @@
 #include "python_common.h"
 #include "pyiteratorrange.h"
 #include "pyobject_macros.h"
+#include "_lass_module.h"
 
 namespace lass
 {
 namespace python
 {
 	PY_DECLARE_CLASS( PyIteratorRange )
-	bool PyIteratorRange::isInitialized = false;
-
-	void PyIteratorRange::initialize()
-	{
-		if (isInitialized)
-		{
-			return;
-		}
-		LockGIL LASS_UNUSED(lock);
-		_lassPyClassDef.setSlot(Py_tp_iter, &PyIteratorRange::iter);
-		_lassPyClassDef.setSlot(Py_tp_iternext, &PyIteratorRange::iterNext);
-		_lassPyClassDef.freezeDefinition();
-		isInitialized = true;
-	}
+	LASS_EXECUTE_BEFORE_MAIN_EX( PyIteratorRange_executeBeforeMain,
+		PyIteratorRange::_lassPyClassDef.setSlot(Py_tp_iter, &PyIteratorRange::iter);
+		PyIteratorRange::_lassPyClassDef.setSlot(Py_tp_iternext, &PyIteratorRange::iterNext);
+	)
 
 	PyObject* PyIteratorRange::iter( PyObject* iPo) 
 	{ 
