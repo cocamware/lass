@@ -482,7 +482,7 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
 	{
-		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name()), i->member()->build());
+		PyDict_SetItemString(type_.tp_dict, const_cast<char*>(i->name()), i->member()->build().get());
 	}
 	for (TClassDefs::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
 	{

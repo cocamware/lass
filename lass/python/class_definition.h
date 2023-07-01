@@ -83,7 +83,7 @@ namespace lass
 			{
 			public:
 				virtual ~StaticMemberHelper() {}
-				virtual PyObject* build() const = 0;
+				virtual TPyObjPtr build() const = 0;
 			};
 			typedef util::SharedPtr<StaticMemberHelper> TStaticMemberHelperPtr;
 
@@ -92,7 +92,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T& obj): obj_(obj) {}
-				PyObject* build() const override { return PyExportTraits<const T>::build(obj_); }
+				TPyObjPtr build() const override { return TPyObjPtr(PyExportTraits<const T>::build(obj_)); }
 			private:
 				const T obj_;
 			};
@@ -101,7 +101,7 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(const T obj[N]): obj_(obj) {}
-				PyObject* build() const override { return PyExportTraits<const T*>::build(obj_); }
+				TPyObjPtr build() const override { return TPyObjPtr(PyExportTraits<const T*>::build(obj_)); }
 			private:
 				const T* obj_;
 			};
@@ -110,9 +110,9 @@ namespace lass
 			{
 			public:
 				StaticMemberHelperObject(PyObject* obj): obj_(obj) {}
- 				PyObject* build() const override { return obj_; }
+				TPyObjPtr build() const override { return obj_; }
 			private:
-				PyObject* obj_;
+				TPyObjPtr obj_;
 			};
 			template <typename T>
 			inline TStaticMemberHelperPtr staticMemberHelperObject(const T& obj)
