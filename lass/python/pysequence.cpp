@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -107,12 +107,6 @@ namespace impl
 		{
 			_lassPyClassDef.type()->tp_as_sequence= &Sequence::pySequenceMethods;
 			_lassPyClassDef.type()->tp_as_mapping= &Sequence::pyMappingMethods;
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-			// [TDM] for some reason the dict member is not getting properly initialized on Sequence?!
-			// switch off inheritance
-			Sequence::_lassPyType.tp_dictoffset = 0;
-			Sequence::_lassPyType.tp_flags &= ~Py_TPFLAGS_BASETYPE;
-#endif
 			_lassPyClassDef.freezeDefinition();
 			isInitialized = true;
 		}
@@ -285,4 +279,3 @@ namespace impl
 }
 
 }
-

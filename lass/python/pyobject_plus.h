@@ -170,10 +170,6 @@ namespace lass
 		protected:
 			PyObjectPlus(const PyObjectPlus& other);
 			PyObjectPlus& operator=(const PyObjectPlus& other);
-#ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
-		public:
-			PyObject* dict_;
-#endif
 		private:
 		};
 
