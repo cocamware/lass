@@ -91,6 +91,8 @@ class TestInternalLassModule(unittest.TestCase):
         self.assertTrue(issubclass(_lass.PyIteratorRange, Iterator))
         self.assertEqual(_lass.MultiCallback.__module__, "_lass")
         self.assertTrue(issubclass(_lass.MultiCallback, Callable))  # type: ignore[arg-type]
+        self.assertEqual(_lass.Function.__module__, "_lass")
+        self.assertTrue(issubclass(_lass.Function, Callable))  # type: ignore[arg-type]
 
 
 class TestDerived(unittest.TestCase):
@@ -1283,6 +1285,40 @@ class TestModuleConstants(unittest.TestCase):
         self.assertEqual(embedding.FUNCIONAL_CASTED_RED, int(embedding.Color.RED))
         self.assertEqual(embedding.INJECTED_ENUM_VALUE, 42)
         self.assertEqual(embedding.INJECTED_INT_ENUM_VALUE, 42)
+
+
+class TestFunction(unittest.TestCase):
+    def testFunctionFromPython(self) -> None:
+        def func1(a: int, b: int) -> int:
+            return a + b
+
+        def func2(a: int, b: int) -> int:
+            return a * b
+
+        def func3(a: int, b: int) -> int:
+            raise RuntimeError("blah")
+
+        self.assertEqual(embedding.testFunctionFromPython(func1), 7)
+        self.assertEqual(embedding.testFunctionFromPython(func2), 12)
+        with self.assertRaises(RuntimeError) as cm:
+            embedding.testFunctionFromPython(func3)
+        self.assertEqual(str(cm.exception), "blah")
+
+    def testFunctionFromPythonPasstrough(self) -> None:
+        def func1(a: int, b: int) -> int:
+            return a + b
+
+        self.assertIs(embedding.testFunctionFromPythonPasstrough(func1), func1)
+
+    def testFunctionFromCpp(self) -> None:
+        func1 = embedding.testFunctionFromCpp(2)
+        self.assertIsInstance(func1, Callable)  # type: ignore[arg-type]
+        self.assertEqual(func1(3, 4), 14)
+        self.assertEqual(embedding.testFunctionFromPython(func1), 14)
+        # when passing a callable originating from C++ through C++, it Python
+        # wrapper around it will be deconstructed, and a new one will be made
+        # when we come back to Python, so we'll get a different object
+        self.assertIsNot(embedding.testFunctionFromPythonPasstrough(func1), func1)
 
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
