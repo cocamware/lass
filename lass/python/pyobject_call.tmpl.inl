@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -214,6 +214,36 @@ template <typename R, $(typename P$x)$>
 PyObject* callFunction( PyObject* args, R (*function)($(P$x)$) )
 {
 	typedef R (*TFunction)($(P$x)$);
+	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
+	)$
+	if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )
+	{
+		return 0;
+	}
+	return Caller<R>::template callFunction<TFunction>(
+		function, $(TArg$x::arg(p$x))$ );
+}
+]$
+
+/** calls std::function without arguments
+ */
+template <typename R>
+PyObject* callFunction( PyObject* args, std::function<R()> function )
+{
+	typedef std::function<R()> TFunction;
+	if( decodeTuple(args) != 0 )
+	{
+		return 0;
+	}
+	return Caller<R>::template callFunction<TFunction>( function );
+}
+$[
+/** calls std::function with $x arguments, translated from python arguments
+ */
+template <typename R, $(typename P$x)$>
+PyObject* callFunction( PyObject* args, std::function<R($(P$x)$)> function )
+{
+	typedef std::function<R($(P$x)$)> TFunction;
 	$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
 	)$
 	if( decodeTuple<$(S$x)$>( args, $(p$x)$ ) != 0 )

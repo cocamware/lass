@@ -42,10 +42,10 @@ import json
 import os
 import re
 import sys
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, TypeAlias, overload
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -708,6 +708,27 @@ class GetSetterDefinition:
 class TypeInfo:
     name: str
     args: TypeArgs = None
+    result: TypeInfo | None = None
+
+    @overload
+    def __init__(self, name: str, args: Sequence[TypeInfo] | None = None) -> None: ...
+    @overload
+    def __init__(
+        self, name: Literal[""], args: Sequence[TypeInfo], result: TypeInfo
+    ) -> None: ...
+    def __init__(
+        self,
+        name: str,
+        args: Sequence[TypeInfo] | None = None,
+        result: TypeInfo | None = None,
+    ) -> None:
+        if name and result is not None:
+            raise TypeError("name and result cannot be provided at the same time")
+        if result is not None and args is None:
+            raise TypeError("result requires args to be provided")
+        object.__setattr__(self, "name", name)
+        object.__setattr__(self, "args", None if args is None else tuple(args))
+        object.__setattr__(self, "result", result)
 
     @property
     def is_pointer(self) -> bool:
@@ -722,33 +743,57 @@ class TypeInfo:
     @property
     def base_type(self) -> TypeInfo:
         if self.is_pointer:
+            assert self.result is None, self
             return TypeInfo(self.base_name, self.args)
         return self
 
     def __str__(self) -> str:
+        if self.result is not None:
+            # this is a function type
+            assert not self.name and self.args is not None
+            return f"{self.result}({', '.join(str(arg) for arg in self.args)})"
         if self.args is None:
             return self.name
         return f"{self.name}<{', '.join(str(arg) for arg in self.args)}>"
 
     def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+        dct: dict[str, Any] = {}
+        if self.name:
+            dct["name"] = self.name
+        if self.args is not None:
+            dct["args"] = [arg.asdict() for arg in self.args]
+        if self.result is not None:
+            dct["result"] = self.result.asdict()
+        return dct
 
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> Self:
+        name = data.get("name") or ""
         args = data.get("args")
         if args is not None:
             args = tuple(cls.fromdict(arg) for arg in args)
+        result = data.get("result")
+        if result:
+            result = cls.fromdict(result)
         return cls(
-            name=data["name"],
+            name=name,  # type: ignore[arg-type]
             args=args,
+            result=result,
         )
 
     def substitute(self, template_args: Mapping[str, str | TypeInfo]) -> TypeInfo:
         """
         Substitute template parameters in the type.
         """
+        if self.result:
+            # function type
+            assert self.args and not self.name
+            result = self.result.substitute(template_args)
+            args = tuple(arg.substitute(template_args) for arg in self.args)
+            return TypeInfo("", args, result)
         if tmpl_arg := template_args.get(self.name):
-            assert not self.args
+            # template argument
+            assert not self.args and not self.result
             return TypeInfo(tmpl_arg) if isinstance(tmpl_arg, str) else tmpl_arg
         if self.is_pointer and (tmpl_arg := template_args.get(self.base_name)):
             assert not self.args
@@ -927,6 +972,20 @@ class ExportTraits:
                     less_specific = True
                 elif r > 0:
                     more_specific = True
+
+        assert (self_type.result is None) == (other_type.result is None)
+        if self_type.result is not None:
+            assert other_type.result is not None
+            if (
+                r := self._cmp_specialization(
+                    other, self_type.result, other_type.result
+                )
+            ) is None:
+                return None  # incomparable types
+            if r < 0:
+                less_specific = True
+            elif r > 0:
+                more_specific = True
 
         if less_specific:
             return -1

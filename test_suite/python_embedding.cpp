@@ -49,6 +49,7 @@
 #include "../lass/python/enum_definition.h"
 #include "../lass/python/export_traits_chrono.h"
 #include "../lass/python/export_traits_variant.h"
+#include "../lass/python/export_traits_function.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -853,6 +854,27 @@ PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, deleted)
 PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
 PY_MODULE_CLASS( embedding, PyStdSharedObject )
+
+
+int testFunctionFromPython(std::function<int(int, int)> func)
+{
+	return func(3, 4);
+}
+
+std::function<int(int, int)> testFunctionFromPythonPasstrough(std::function<int(int, int)> func)
+{
+	return func;
+}
+
+std::function<int(int, int)> testFunctionFromCpp(int factor)
+{
+	auto func = [factor](int a, int b) { return factor * (a + b); };
+	return func;
+}
+
+PY_MODULE_FUNCTION(embedding, testFunctionFromPython)
+PY_MODULE_FUNCTION(embedding, testFunctionFromPythonPasstrough)
+PY_MODULE_FUNCTION(embedding, testFunctionFromCpp)
 
 
 // Test old way of injecting class into module

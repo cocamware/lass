@@ -46,6 +46,7 @@
 #include "pysequence.h"
 #include "pycallback.h"
 #include "pyiteratorrange.h"
+#include "export_traits_function.h"
 #include "pyobject_macros.h"
 
 PY_DECLARE_MODULE_NAME( lassMod, "_lass")
@@ -54,6 +55,7 @@ PY_MODULE_CLASS( lassMod, lass::python::impl::Map )
 PY_MODULE_CLASS( lassMod, lass::python::impl::Sequence )
 PY_MODULE_CLASS( lassMod, lass::python::MultiCallback )
 PY_MODULE_CLASS( lassMod, lass::python::PyIteratorRange )
+PY_MODULE_CLASS( lassMod, lass::python::impl::Function )
 
 namespace lass::python::impl
 {
