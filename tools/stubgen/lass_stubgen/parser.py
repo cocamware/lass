@@ -1211,7 +1211,6 @@ reference to a class defined in another file.
             canonical_type(dispatcher_ref).spelling == "_object *(_object *, _object *)"
         )
         dispatcher = dispatcher_ref.referenced
-        # cls.debug(dispatcher)
 
         compound = ensure_last_child(dispatcher, CursorKind.COMPOUND_STMT)
         return_stmt = ensure_last_child(compound, CursorKind.RETURN_STMT)
@@ -1233,7 +1232,11 @@ reference to a class defined in another file.
         cpp_return_type = type_info(func.type.get_result())
 
         params = list(iter_children(func, CursorKind.PARM_DECL))
-        cpp_params = [ParamInfo(p.spelling, type_info(p)) for p in params]
+        cpp_params = [
+            ParamInfo(p.spelling, type_info(p))
+            for p in params
+            if p.semantic_parent == func
+        ]
 
         is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
@@ -1511,10 +1514,16 @@ def type_info(node_or_type: cindex.Cursor | cindex.Type) -> TypeInfo:
     type_ = node_or_type if isinstance(node_or_type, cindex.Type) else node_or_type.type
     type_ = type_.get_canonical()
 
+    if type_.kind == TypeKind.FUNCTIONPROTO:
+        return_type = type_info(type_.get_result())
+        param_types = [type_info(arg) for arg in type_.argument_types()]
+        return TypeInfo("", param_types, return_type)
+
     pointee = type_.get_pointee()
     if pointee.kind != TypeKind.INVALID:
         pointee_type = type_info(pointee)
         if type_.kind == TypeKind.POINTER:
+            assert pointee_type.result is None, pointee_type
             return TypeInfo(f"{pointee_type.name} *", pointee_type.args)
         return pointee_type
 
