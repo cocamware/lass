@@ -469,6 +469,7 @@ class StubGenerator:
 
         if cpp_name.endswith("*"):
             # pointer to a type, strip the pointer
+            assert cpp_type.result is None, cpp_type
             cpp_type_ = TypeInfo(cpp_name[:-1].rstrip(), cpp_type.args)
             return f"{self.python_type(cpp_type_, scope=scope)} | None"
 
@@ -568,7 +569,7 @@ def _match_template(
         return False  # one is None, the other is not
     if tmpl.name in matched_params:
         # it's a template parameter
-        assert tmpl.args is None
+        assert tmpl.args is None and tmpl.result is None
         if matched_params[tmpl.name] is None:
             matched_params[tmpl.name] = type_
         elif matched_params[tmpl.name] != type_:
@@ -577,6 +578,8 @@ def _match_template(
 
     # it's not a template parameter, so it need to match exactly
     if type_.name != tmpl.name:
+        return False
+    if not _match_template(type_.result, tmpl.result, matched_params):
         return False
     return _match_template_args(type_.args, tmpl.args, matched_params)
 
