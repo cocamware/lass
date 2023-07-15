@@ -36,6 +36,7 @@
 # *** END LICENSE INFORMATION ***
 
 import datetime
+import errno
 import inspect
 import io
 import math
@@ -1387,6 +1388,46 @@ class TestFunction(unittest.TestCase):
         # wrapper around it will be deconstructed, and a new one will be made
         # when we come back to Python, so we'll get a different object
         self.assertIsNot(embedding.testFunctionFromPythonPasstrough(func1), func1)
+
+
+class TestException(unittest.TestCase):
+    def testExceptionFromCpp(self) -> None:
+        RaisedExceptionType = embedding.RaisedExceptionType
+        with self.assertRaises(ValueError):
+            embedding.throwException(RaisedExceptionType.InvalidArgument)
+        with self.assertRaises(ValueError):
+            embedding.throwException(RaisedExceptionType.DomainError)
+        with self.assertRaises(ValueError):
+            embedding.throwException(RaisedExceptionType.LengthError)
+        with self.assertRaises(IndexError):
+            embedding.throwException(RaisedExceptionType.OutOfRange)
+        with self.assertRaises(ValueError):
+            embedding.throwException(RaisedExceptionType.RangeError)
+        with self.assertRaises(OverflowError):
+            embedding.throwException(RaisedExceptionType.OverflowError)
+        with self.assertRaises(ValueError):
+            embedding.throwException(RaisedExceptionType.UnderflowError)
+        with self.assertRaises(TypeError):
+            embedding.throwException(RaisedExceptionType.BadCast)
+        with self.assertRaises(MemoryError):
+            embedding.throwException(RaisedExceptionType.BadAlloc)
+        with self.assertRaises(FileNotFoundError) as cm:
+            embedding.throwException(RaisedExceptionType.FileNotFound)
+        self.assertEqual(cm.exception.errno, errno.ENOENT)
+        if os.name == "nt":
+            self.assertEqual(
+                getattr(cm.exception, "winerror"), 3
+            )  # ERROR_PATH_NOT_FOUND
+        self.assertEqual(cm.exception.filename, "/none1/a")
+        self.assertEqual(cm.exception.filename2, "/none2/b")
+        with self.assertRaises(OSError) as cm2:
+            embedding.throwException(RaisedExceptionType.SystemError)
+        self.assertEqual(cm2.exception.errno, errno.ENOTSUP)
+        if sys.platform == "win32":
+            with self.assertRaises(OSError) as cm3:
+                embedding.throwException(RaisedExceptionType.WindowsError)
+            self.assertEqual(cm3.exception.winerror, 6)
+            self.assertEqual(cm3.exception.errno, errno.EBADF)
 
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])

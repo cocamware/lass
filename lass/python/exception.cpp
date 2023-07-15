@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -43,11 +43,80 @@
 #include "python_common.h"
 #include "exception.h"
 #include "pyobject_plus.h"
+#include "py_tuple.h"
+#include <system_error>
+#include <filesystem>
+
+namespace
+{
+
+using namespace lass::python;
+namespace fs = std::filesystem;
+
+using TChar = fs::path::value_type;
+
+void setOSErrorFromErrno(int errno_, const std::string& message, const TChar* path1 = nullptr, const int* winerr = nullptr, const TChar* path2 = nullptr)
+{
+	TPyObjPtr args;
+	if (path2)
+	{
+		if (winerr)
+		{
+			args = makeTuple(errno_, message, path1, *winerr, path2);
+		}
+		else
+		{
+			args = makeTuple(errno_, message, path1, nullptr, path2);
+		}
+	}
+	else if (winerr)
+	{
+		args = makeTuple(errno_, message, path1, *winerr);
+	}
+	else if (path1)
+	{
+		args = makeTuple(errno_, message, path1);
+	}
+	else
+	{
+		args = makeTuple(errno_, message);
+	}
+	// OSError_new will determine the correct subtype based on errno (or winerror)
+	// So we need to retrieve the exception type from the result.
+	TPyObjPtr value(PyObject_CallObject(PyExc_OSError, args.get()));
+	PyObject* v = value.get();
+	PyErr_SetObject((PyObject*) Py_TYPE(v), v);
+}
+
+void setOSErrorFromCode(const std::error_code& code, const TChar* path1 = nullptr, const TChar* path2 = nullptr)
+{
+	if (code.category() == std::generic_category())
+	{
+		setOSErrorFromErrno(code.value(), code.message(), path1, nullptr, path2);
+	}
+	else if (code.category() == std::system_category())
+	{
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
+		const int winerror = code.value(); // OSError will determine errno from winerror
+		setOSErrorFromErrno(0, code.message(), path1, &winerror, path2);
+#else
+		setOSErrorFromErrno(code.value(), code.message(), path1, nullptr, path2);
+#endif
+	}
+	else
+	{
+		LASS_ASSERT(!path1 && !path2);
+		PyErr_SetString(PyExc_Exception, code.message().c_str());
+	}
+}
+
+}
 
 namespace lass
 {
 namespace python
 {
+
 namespace impl
 {
 
@@ -79,7 +148,7 @@ void addMessageHeader(const char* header)
 
 
 
-void fetchAndThrowPythonException(const std::string& loc)
+void fetchAndThrowPythonException(std::string loc)
 {
 	LockGIL LASS_UNUSED(lock);
 	if (!PyErr_Occurred())
@@ -94,30 +163,81 @@ void fetchAndThrowPythonException(const std::string& loc)
 	const TPyObjPtr value(tempValue);
 	const TPyObjPtr traceback(tempTraceback);
 
-	throw PythonException(type, value, traceback, loc);
+	throw PythonException(type, value, traceback, std::move(loc));
 }
 
-void catchPythonException(const PythonException& error)
-{
-	LockGIL LASS_UNUSED(lock);
-	PyErr_Restore(
-		fromSharedPtrToNakedCast(error.type()),
-		fromSharedPtrToNakedCast(error.value()),
-		fromSharedPtrToNakedCast(error.traceback()));
-}
 
-void catchLassException(const util::Exception& error)
-{
-	LockGIL LASS_UNUSED(lock);
-	::std::ostringstream buffer;
-	buffer << error.message() << "\n\n(" << error.location() << ")";
-	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
-}
 
-void catchStdException(const std::exception& error)
+void handleException(std::exception_ptr ptr)
 {
 	LockGIL LASS_UNUSED(lock);
-	PyErr_SetString(PyExc_Exception, error.what());
+	try
+	{
+		std::rethrow_exception(ptr);
+	}
+	catch (const PythonException& error)
+	{
+		PyErr_Restore(
+			fromSharedPtrToNakedCast(error.type()),
+			fromSharedPtrToNakedCast(error.value()),
+			fromSharedPtrToNakedCast(error.traceback()));
+	}
+	catch (const util::Exception& error)
+	{
+		::std::ostringstream buffer;
+		buffer << error.message() << "\n\n(" << error.location() << ")";
+		PyErr_SetString(PyExc_Exception, buffer.str().c_str());
+	}
+	catch (const std::invalid_argument& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::domain_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::length_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::out_of_range& error)
+	{
+		PyErr_SetString(PyExc_IndexError, error.what());
+	}
+	catch (const std::range_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::overflow_error& error)
+	{
+		PyErr_SetString(PyExc_OverflowError, error.what());
+	}
+	catch (const std::underflow_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::bad_cast& error)
+	{
+		PyErr_SetString(PyExc_TypeError, error.what());
+	}
+	catch (const std::bad_alloc& error)
+	{
+		PyErr_SetString(PyExc_MemoryError, error.what());
+	}
+	catch (const std::filesystem::filesystem_error& error)
+	{
+		const TChar* path1 = error.path1().empty() ? nullptr : error.path1().c_str();
+		const TChar* path2 = error.path2().empty() ? nullptr : error.path2().c_str();
+		setOSErrorFromCode(error.code(), path1, path2);
+	}
+	catch (const std::system_error& error)
+	{
+		setOSErrorFromCode(error.code());
+	}
+	catch (const std::exception& error)
+	{
+		PyErr_SetString(PyExc_Exception, error.what());
+	}
 }
 
 }
