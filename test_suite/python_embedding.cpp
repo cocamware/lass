@@ -54,6 +54,7 @@
 #include "bar.h"
 #include "python_shadow.h"
 #include <iostream>
+#include <filesystem>
 
 #include "../lass/util/callback_0.h"
 #include "../lass/util/callback_1.h"
@@ -831,6 +832,69 @@ LASS_EXECUTE_BEFORE_MAIN(
 	embedding.setPostInject(embeddingPostInject);
 )
 
+
+// Test C++ exception handling
+enum class RaisedExceptionType
+{
+	InvalidArgument,
+	DomainError,
+	LengthError,
+	OutOfRange,
+	RangeError,
+	OverflowError,
+	UnderflowError,
+	BadCast,
+	BadAlloc,
+	FileNotFound,
+};
+
+void throwException(RaisedExceptionType type)
+{
+	switch (type)
+	{
+	case RaisedExceptionType::InvalidArgument:
+		throw std::invalid_argument("std::invalid_argument exception thrown from C++ code");
+	case RaisedExceptionType::DomainError:
+		throw std::domain_error("std::domain_error thrown from C++ code");
+	case RaisedExceptionType::LengthError:
+		throw std::length_error("std::length_error thrown from C++ code");
+	case RaisedExceptionType::OutOfRange:
+		throw std::out_of_range("std::out_of_range thrown from C++ code");
+	case RaisedExceptionType::RangeError:
+		throw std::range_error("std::range_error thrown from C++ code");
+	case RaisedExceptionType::OverflowError:
+		throw std::overflow_error("std::overflow_error thrown from C++ code");
+	case RaisedExceptionType::UnderflowError:
+		throw std::underflow_error("std::underflow_error thrown from C++ code");
+	case RaisedExceptionType::BadCast:
+		throw std::bad_cast();
+	case RaisedExceptionType::BadAlloc:
+		throw std::bad_alloc();
+	case RaisedExceptionType::FileNotFound:
+	{
+		const std::filesystem::path from{ "/none1/a" }, to{ "/none2/b" };
+		std::filesystem::copy_file(from, to);
+	}
+	default:
+		break;
+	};
+}
+
+PY_SHADOW_INT_ENUM(LASS_DLL_EXPORT, RaisedExceptionType)
+PY_DECLARE_INT_ENUM_EX(RaisedExceptionType)("RaisedExceptionType", {
+	{ "InvalidArgument", RaisedExceptionType::InvalidArgument },
+	{ "DomainError", RaisedExceptionType::DomainError },
+	{ "LengthError", RaisedExceptionType::LengthError },
+	{ "OutOfRange", RaisedExceptionType::OutOfRange },
+	{ "RangeError", RaisedExceptionType::RangeError },
+	{ "OverflowError", RaisedExceptionType::OverflowError },
+	{ "UnderflowError", RaisedExceptionType::UnderflowError },
+	{ "BadCast", RaisedExceptionType::BadCast },
+	{ "BadAlloc", RaisedExceptionType::BadAlloc },
+	{ "FileNotFound", RaisedExceptionType::FileNotFound },
+	});
+PY_MODULE_ENUM( embedding, RaisedExceptionType )
+PY_MODULE_FUNCTION(embedding, throwException)
 
 namespace lass
 {
