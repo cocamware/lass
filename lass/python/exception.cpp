@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -97,27 +97,66 @@ void fetchAndThrowPythonException(const std::string& loc)
 	throw PythonException(type, value, traceback, loc);
 }
 
-void catchPythonException(const PythonException& error)
+void handleException(std::exception_ptr ptr)
 {
 	LockGIL LASS_UNUSED(lock);
-	PyErr_Restore(
-		fromSharedPtrToNakedCast(error.type()),
-		fromSharedPtrToNakedCast(error.value()),
-		fromSharedPtrToNakedCast(error.traceback()));
-}
-
-void catchLassException(const util::Exception& error)
-{
-	LockGIL LASS_UNUSED(lock);
-	::std::ostringstream buffer;
-	buffer << error.message() << "\n\n(" << error.location() << ")";
-	PyErr_SetString(PyExc_Exception, buffer.str().c_str());
-}
-
-void catchStdException(const std::exception& error)
-{
-	LockGIL LASS_UNUSED(lock);
-	PyErr_SetString(PyExc_Exception, error.what());
+	try
+	{
+		std::rethrow_exception(ptr);
+	}
+	catch (const PythonException& error)
+	{
+		PyErr_Restore(
+			fromSharedPtrToNakedCast(error.type()),
+			fromSharedPtrToNakedCast(error.value()),
+			fromSharedPtrToNakedCast(error.traceback()));
+	}
+	catch (const util::Exception& error)
+	{
+		::std::ostringstream buffer;
+		buffer << error.message() << "\n\n(" << error.location() << ")";
+		PyErr_SetString(PyExc_RuntimeError, buffer.str().c_str());
+	}
+	catch (const std::invalid_argument& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::domain_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::length_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::out_of_range& error)
+	{
+		PyErr_SetString(PyExc_IndexError, error.what());
+	}
+	catch (const std::range_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::overflow_error& error)
+	{
+		PyErr_SetString(PyExc_OverflowError, error.what());
+	}
+	catch (const std::underflow_error& error)
+	{
+		PyErr_SetString(PyExc_ValueError, error.what());
+	}
+	catch (const std::bad_cast& error)
+	{
+		PyErr_SetString(PyExc_TypeError, error.what());
+	}
+	catch (const std::bad_alloc& error)
+	{
+		PyErr_SetString(PyExc_MemoryError, error.what());
+	}
+	catch (const std::exception& error)
+	{
+		PyErr_SetString(PyExc_RuntimeError, error.what());
+	}
 }
 
 }
