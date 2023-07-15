@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,12 +55,11 @@ namespace util
 class LASS_DLL NonCopyable
 {
 protected:
-	NonCopyable() {}
-	~NonCopyable() {}
-	void swap(NonCopyable&) {}
+	NonCopyable() = default;
+	~NonCopyable() = default;
 private:
-	NonCopyable(const NonCopyable&);
-	NonCopyable& operator=(const NonCopyable&);
+	NonCopyable(const NonCopyable&) = delete;
+	NonCopyable& operator=(const NonCopyable&) = delete;
 };
 
 }
