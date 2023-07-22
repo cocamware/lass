@@ -234,6 +234,9 @@ class LassConan(ConanFile):
         self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
+        self.cpp_info.set_property("cmake_find_mode", "none")
+        self.cpp_info.builddirs.append(os.path.join("share", "Lass"))
+
     def _lass_config(self):
         module_name = "LassConfig"
         file_path = Path(self.package_folder) / "share/Lass/LassConfig.py"
