@@ -127,6 +127,28 @@ class LassConan(ConanFile):
 
     def export_sources(self):
         git = Git(self)
+
+        regex = re.compile(r"i/(?P<eol_index>\S+)\s+w/(?P<eol_worktree>\S+)")
+        for line in git.run("ls-files --eol").splitlines():
+            match = regex.match(line)
+            assert match, f"Failed to parse line {line}"
+            if match["eol_worktree"] != match["eol_index"]:
+                raise AssertionError(
+                    "Some files are checked out in the worktree with "
+                    f"{match['eol_worktree'].upper()} line endings while they have "
+                    f"{match['eol_index'].upper()} line endings in the index. This "
+                    "would result in the wrong Conan recipe revision ID.\n"
+                    "Fix this with following commands (backup local changes first!):\n"
+                    "\n"
+                    "  git rm --cached -r .\n"
+                    "  git reset --hard\n"
+                    "\n"
+                    "You can verify that all files have the expected line endings with "
+                    "the following command:\n"
+                    "\n"
+                    "  git ls-files --eol\n"
+                )
+
         for src in git.included_files():
             dest = os.path.join(self.export_sources_folder, src)
             os.makedirs(os.path.dirname(dest), exist_ok=True)
