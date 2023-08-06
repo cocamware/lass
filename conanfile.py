@@ -53,6 +53,7 @@ from conan.tools.scm import Git
 
 required_conan_version = ">=1.54.0"
 
+
 def _get_version(conanfile: ConanFile) -> Optional[str]:
     try:
         content = (Path(conanfile.recipe_folder) / "CMakeLists.txt").read_text()
@@ -193,14 +194,18 @@ class LassConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.settings.get_safe('compiler') in ["gcc", "clang"]:
-            if self.settings.get_safe('compiler.libcxx') in ["libstdc++"]:
+        if self.settings.get_safe("compiler") in ["gcc", "clang"]:
+            if self.settings.get_safe("compiler.libcxx") in ["libstdc++"]:
                 raise ConanInvalidConfiguration(
                     "gcc and clang require C++11 compatible libcxx"
                 )
 
     def layout(self):
         cmake_layout(self)
+
+        self.cpp.source.includedirs = ["."]
+        self.cpp.build.includedirs = ["local"]
+        self.cpp.build.builddirs = ["."]
 
     def generate(self):
         python = Python(self.options.python_executable, self.settings)
@@ -242,7 +247,19 @@ class LassConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        lass_config = self._lass_config()
+        # We need to know if we're in editable mode, as some cpp_info depends on it,
+        # And we can't fix everything in layout(). However, there's no way to tell
+        # if we're in editable mode, so we'll have to figure it out by simply trying
+        # to read LassConfig.py from different locations: from the package dir
+        # (non-editable) or build dir (editable)
+        try:
+            lass_config = self._load_module_from_file("share/Lass/LassConfig.py")
+        except FileNotFoundError:
+            lass_config = self._load_module_from_file("build/LassConfig.py")
+            is_editable_mode = True
+        else:
+            is_editable_mode = False
+
         if self.settings.build_type == "Debug":
             libs = [
                 lass_config.LASS_OUTPUT_NAME_DEBUG,
@@ -256,12 +273,17 @@ class LassConan(ConanFile):
         self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
+        # We generate our own LassConfig.cmake, but we have to tell conan
+        # were it can be found ...
         self.cpp_info.set_property("cmake_find_mode", "none")
-        self.cpp_info.builddirs.append(os.path.join("share", "Lass"))
+        if is_editable_mode:
+            self.cpp_info.builddirs.append("build")
+        else:
+            self.cpp_info.builddirs.append(os.path.join("share", "Lass"))
 
-    def _lass_config(self):
-        module_name = "LassConfig"
-        file_path = Path(self.package_folder) / "share/Lass/LassConfig.py"
+    def _load_module_from_file(self, filename):
+        file_path = Path(self.package_folder) / filename
+        module_name = file_path.stem
         spec = spec_from_file_location(module_name, file_path)
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
