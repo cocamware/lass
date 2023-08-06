@@ -1,0 +1,18 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=no]
+#      - id: trailing-whitespace
+  - repo: https://github.com/bdegreve/bramz-pre-commit-hooks.git
+    rev: 5901e6066d996d2ef70f592dafcffc97e8f152df
+    hooks:
+      - id: bramz-fix-copyright
+        args: [--author=the Initial Developer]
