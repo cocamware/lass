@@ -22,7 +22,7 @@ Requirements
 ------------
 
 -   [Python](https://www.python.org/) >= 3.6
--   [CMake](https://cmake.org/) >= 3.10
+-   [CMake](https://cmake.org/) >= 3.16
 
 
 Building

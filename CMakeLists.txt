@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(Lass VERSION 1.11.0)
 
 if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -46,11 +46,7 @@ else()
 	set(LASS_SHARED_LIBRARY 0)
 endif()
 
-if (MSVC OR NOT CMAKE_VERSION VERSION_LESS 3.16)
-	option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
-else()
-	set(BUILD_USING_PRECOMPILED_HEADERS OFF)
-endif()
+option(BUILD_USING_PRECOMPILED_HEADERS "Build using precompiled headers" ON)
 
 if (MSVC)
 	option(BUILD_WITHOUT_ITERATOR_DEBUGGING "Build with _HAS_ITERATOR_DEBUGGING=0, otherwise as MSVC's default" OFF)
