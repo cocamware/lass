@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -56,11 +56,6 @@
 #include <stdarg.h>
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-#	if LASS_COMPILER_VERSION < 1900 // pre-VS2015
-	// vsnprintf was fixed to standard behaviour in VS2015
-	// va_copy was introduced in VS2013
-#		define LASS_STDE_VSNPRINTF_MSVC_OLD 1
-#	endif
 #	pragma warning(push)
 #	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
 #endif
@@ -89,12 +84,7 @@ int safe_vsprintf(char (&buffer)[N], const char* format, va_list args)
 	const int numWritten = ::vsnprintf(buffer, N, format, args);
 	if (numWritten < 0)
 	{
-#if LASS_STDE_VSNPRINTF_MSVC_OLD
-		// returns -1 on buffer overrun.
-		throw std::length_error("safe_vsprintf: buffer overflow.");
-#else
 		throw std::runtime_error("safe_vformat: encoding error");
-#endif
 	}
 	if (numWritten >= N)
 	{

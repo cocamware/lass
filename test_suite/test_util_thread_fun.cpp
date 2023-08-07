@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -113,9 +113,6 @@ void testUtilThreadFun()
 	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC && LASS_COMPILER_VERSION == 1400
-#	pragma LASS_FIXME("vc8 hates this overload [Bramz]")
-#else
 	LASS_COUT << "thread ham via makeCallback ...\n";
 	thread_test::functionIsCalled = false;
 	thread.reset(util::threadFun(util::makeCallback(&bar, &thread_test::Bar::ham), 3, util::threadJoinable));
@@ -124,7 +121,6 @@ void testUtilThreadFun()
 	thread->join();
 	LASS_COUT << "joined\n";
 	LASS_TEST_CHECK(thread_test::functionIsCalled);
-#endif
 
 	LASS_COUT << "thread eggs ...\n";
 	thread_test::functionIsCalled = false;

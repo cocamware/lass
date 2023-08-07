@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -49,45 +49,16 @@
 //
 #define LASS_COMPILER_VERSION _MSC_VER
 
-#if LASS_COMPILER_VERSION == 1200
-#	define LASS_COMPILER "Microsoft Visual C++ version 6.0"
-#	define LASS_LIB_COMPILER "vc6"
+#if LASS_COMPILER_VERSION < 1920
+#	error This Microsoft Visual C++ version is no longer supported
 
-#elif LASS_COMPILER_VERSION == 1300
-#	define LASS_COMPILER "Microsoft Visual C++ 2002"
-#	define LASS_LIB_COMPILER "vc7"
+#elif LASS_COMPILER_VERSION < 1930
+#	define LASS_COMPILER "Microsoft Visual C++ 2019"
+#	define LASS_LIB_COMPILER "vc142"
 
-#elif LASS_COMPILER_VERSION == 1310
-#	define LASS_COMPILER "Microsoft Visual C++ 2003"
-#	define LASS_LIB_COMPILER "vc71"
-
-#elif LASS_COMPILER_VERSION == 1400
-#	define LASS_COMPILER "Microsoft Visual C++ 2005"
-#	define LASS_LIB_COMPILER "vc8"
-
-#elif LASS_COMPILER_VERSION == 1500
-#	define LASS_COMPILER "Microsoft Visual C++ 2008"
-#	define LASS_LIB_COMPILER "vc9"
-
-#elif LASS_COMPILER_VERSION == 1600
-#	define LASS_COMPILER "Microsoft Visual C++ 2010"
-#	define LASS_LIB_COMPILER "vc10"
-
-#elif LASS_COMPILER_VERSION == 1700
-#	define LASS_COMPILER "Microsoft Visual C++ 2012"
-#	define LASS_LIB_COMPILER "vc11"
-
-#elif LASS_COMPILER_VERSION == 1800
-#	define LASS_COMPILER "Microsoft Visual C++ 2013"
-#	define LASS_LIB_COMPILER "vc12"
-
-#elif LASS_COMPILER_VERSION == 1900
-#	define LASS_COMPILER "Microsoft Visual C++ 2015"
-#	define LASS_LIB_COMPILER "vc14"
-
-#elif LASS_COMPILER_VERSION == 1910
-#	define LASS_COMPILER "Microsoft Visual C++ 2017"
-#	define LASS_LIB_COMPILER "vc141"
+#elif LASS_COMPILER_VERSION < 1940
+#	define LASS_COMPILER "Microsoft Visual C++ 2022"
+#	define LASS_LIB_COMPILER "vc143"
 
 #else
 #	define LASS_COMPILER "Microsoft Visual C++"

@@ -50,6 +50,7 @@ from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.scm import Git
+from conan.tools.microsoft import check_min_vs
 
 required_conan_version = ">=1.54.0"
 
@@ -194,11 +195,14 @@ class LassConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.settings.get_safe("compiler") in ["gcc", "clang"]:
+        compiler = self.settings.get_safe("compiler")
+        if compiler in ["gcc", "clang"]:
             if self.settings.get_safe("compiler.libcxx") in ["libstdc++"]:
                 raise ConanInvalidConfiguration(
                     "gcc and clang require C++11 compatible libcxx"
                 )
+        elif compiler in ["msvc", "Visual Studio"]:
+            check_min_vs(self, "193")  # require VS 2019 as minimum
 
     def layout(self):
         cmake_layout(self)

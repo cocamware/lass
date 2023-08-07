@@ -23,7 +23,7 @@
  *      The Original Developer is the Initial Developer.
  *      
  *      All portions of the code written by the Initial Developer are:
- *      Copyright (C) 2004-2011 the Initial Developer.
+ *      Copyright (C) 2004-2023 the Initial Developer.
  *      All Rights Reserved.
  *      
  *      Contributor(s):
@@ -108,14 +108,10 @@ const std::string lass_strerror(int errnum)
         
 #elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
-#       if LASS_COMPILER_VERSION >= 1400
         const size_t bufferLength = 256;
         char buffer[bufferLength + 1];
         const errno_t rc = strerror_s(buffer, bufferLength, errnum);
 	msg = (rc == 0) ? buffer : "[no error message due to strerror_s failure]";
-#       else
-        msg = strerror(errnum);
-#       endif
 
 #endif
 

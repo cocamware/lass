@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -64,10 +64,8 @@ void testStdeSafeSprintf()
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "12345678901234567890"), std::length_error);
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%s", "123456789012345678901"), std::length_error);
 
-#if !LASS_STDE_VSNPRINTF_MSVC_OLD
 	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
 	LASS_TEST_CHECK_THROW(safe_sprintf(buffer, "%ls", wide), std::runtime_error);
-#endif
 }
 
 void testStdeSafeFormat()
@@ -87,10 +85,8 @@ void testStdeSafeFormat()
 	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s1234567", a, a, a, a, a).length(), size_t(257));
 	LASS_TEST_CHECK_EQUAL(safe_format("%s%s%s%s%s%s%s%s%s%s", a, a, a, a, a, a, a, a, a, a).length(), size_t(500));
 
-#if !LASS_STDE_VSNPRINTF_MSVC_OLD
 	const wchar_t* wide = L"\x2653\x212e\x0142\x029f\x263a \x0428\x263a\x0491\x2113\x1e13\x203c";
 	LASS_TEST_CHECK_THROW(safe_format("%ls", wide), std::runtime_error);
-#endif
 }
 
 TUnitTest test_stde_extended_cstring()
