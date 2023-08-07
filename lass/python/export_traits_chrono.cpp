@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2022 the Initial Developer.
+*	Copyright (C) 2022-2023 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -248,18 +248,7 @@ PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::c
 		return nullptr;
 	}
 
-#if PY_VERSION_HEX >= 0x03070000 // >= 3.7
 	PyObject* tz = PyDateTime_TimeZone_UTC;
-#else
-	static TPyObjPtr timezoneUTC;
-	if (!timezoneUTC)
-	{
-		TPyObjPtr datetimeMod(PyImport_ImportModule("datetime"));
-		TPyObjPtr timezoneClass(PyObject_GetAttrString(datetimeMod.get(), "timezone"));
-		timezoneUTC.reset(PyObject_GetAttrString(timezoneClass.get(), "utc"));
-	}
-	PyObject* tz = timezoneUTC.get();
-#endif
 
 	return PyDateTimeAPI->DateTime_FromDateAndTime(
 		1900 + local.tm_year,

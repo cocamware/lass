@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -671,7 +671,6 @@ void initPythonEmbedding()
 	}
 	PyImport_AppendInittab("embedding", PyInit_embedding);
 
-#if PY_VERSION_HEX >= 0x03080000 // >= 3.8
 	PyStatus status;
 	PyPreConfig preconfig;
 	PyPreConfig_InitPythonConfig(&preconfig);
@@ -682,7 +681,6 @@ void initPythonEmbedding()
 	if (PyStatus_Exception(status)) {
 		Py_ExitStatusException(status);
 	}
-#endif
 
 	Py_Initialize();
 }

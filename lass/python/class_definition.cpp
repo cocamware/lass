@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -158,9 +158,7 @@ ClassDefinition::ClassDefinition(
 		0,	/*tp_del*/
 		0,	/*tp_version_tag*/
 		0,	/*tp_finalize*/
-#if PY_VERSION_HEX >= 0x03080000 // >= 3.8
-        0,	/*tp_vectorcall, exists in 3.8 but only used since 3.9 */
-#endif
+		0,	/*tp_vectorcall, exists in 3.8 but only used since 3.9 */
 #if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
         0,	/*tp_print, only exists in 3.8 for backwards compatibility, bpo-37250 */
 #endif

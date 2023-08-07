@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2023 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -89,18 +89,7 @@ using TPyObjPtr = python::TPyObjPtr;
 
 PyObject* timezoneUTC()
 {
-#if PY_VERSION_HEX >= 0x03070000 // >= 3.7
 	return PyDateTime_TimeZone_UTC;
-#else
-	static TPyObjPtr tz;
-	if (!tz)
-	{
-		TPyObjPtr datetimeMod(PyImport_ImportModule("datetime"));
-		TPyObjPtr timezoneClass(PyObject_GetAttrString(datetimeMod.get(), "timezone"));
-		tz.reset(PyObject_GetAttrString(timezoneClass.get(), "utc"));
-	}
-	return tz.get();
-#endif
 }
 
 TPyObjPtr astimezoneUTC(const TPyObjPtr& obj)

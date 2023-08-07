@@ -2,4 +2,4 @@
 requires = ["setuptools", "wheel"]
 
 [tool.black]
-target-version = ["py27"]
+target-version = ["py38"]
