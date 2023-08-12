@@ -66,14 +66,14 @@ Lass is build and tested on following combinations of platforms and tools.
 Where possible, we rely on stock versions of the tools as provided by the
 platform's package manager. Windows being the exception.
 
-| OS               | Arch                       | CMake  | Python                        | Compiler                  |
-|------------------|----------------------------|--------|-------------------------------|---------------------------|
-| Debian Bullseye  | x64, armv7l[1], aarch64[2] | 3.18.4 | 3.9.2                         | gcc 10.2.1, clang 11.0.1  |
-| Debian Bookworm  | x64                        | 3.25.1 | 3.11.2                        | gcc 12.2.0, clang 14.0.6  |
-| Ubuntu Focal     | x64                        | 3.16.3 | 3.8.2                         | gcc 9.3.0, clang 10.0.0   |
-| Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                        | gcc 11.2.0, clang 14.0.0  |
-| Ubuntu Lunar     | x64                        | 3.25.1 | 3.11.2                        | gcc 12.2.0, clang 15.0.7  |
-| Windows 10       | x86, x64                   | 3.23.2 | 3.8.10, 3.9.8, 3.10.8, 3.11.0 | vs 2019, vs 2022          |
+| OS               | Arch                       | CMake  | Python                        | Compiler                     |
+|------------------|----------------------------|--------|-------------------------------|------------------------------|
+| Debian Bullseye  | x64, armv7l[1], aarch64[2] | 3.18.4 | 3.9.2                         | gcc 10.2.1, clang 11.0.1     |
+| Debian Bookworm  | x64                        | 3.25.1 | 3.11.2                        | gcc 12.2.0, clang 14.0.6     |
+| Ubuntu Focal     | x64                        | 3.16.3 | 3.8.2                         | gcc 9.3.0, clang 10.0.0      |
+| Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                        | gcc 11.2.0, clang 14.0.0     |
+| Ubuntu Lunar     | x64                        | 3.25.1 | 3.11.4                        | gcc 13.1.0 [3], clang 15.0.7 |
+| Windows 10       | x86, x64                   | 3.23.2 | 3.8.10, 3.9.8, 3.10.8, 3.11.0 | vs 2019, vs 2022             |
 
 [1] armv7l support tested on Raspberry Pi 4 (ARM Cortex-A72, 32-bit Raspbian Bullseye,
 CXXFLAGS=-mcpu=cortex-a72 -mfpu=neon-fp-armv8) and BeagleBoneBlack (ARM Cortex-A8,
@@ -83,3 +83,5 @@ C++17 or newer.
 [2] aarch64 support tested on Raspberry Pi 4 (ARM Cortex-A72, 64-bit Raspbian Bullseye,
 CXXFLAGS=-mcpu=cortex-a72). Just like x64, aarch64 will assume 48-bit pointer addresses
 in TaggedPtr. volatile atomics are not supported anymore, use std::atomic.
+
+[3] with `g++-13` package installed, and with `CC=gcc-13`, `CXX=g++-13`.

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2023 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -119,8 +119,6 @@ struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
 
 
 #ifdef LASS_HAVE_STD_CHRONO_CPP20
-#if __cpp_lib_chrono >= 201907L
-
 
 
 /** @ingroup Python
@@ -216,7 +214,6 @@ struct PyExportTraits<std::chrono::year_month_day>
 };
 
 
-#endif
 #endif
 
 

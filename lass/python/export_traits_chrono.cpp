@@ -272,7 +272,7 @@ int PyExportTraits<std::chrono::utc_clock::time_point>::get(PyObject* obj, std::
 	{
 		return 1;
 	}
-	v = std::chrono::utc_clock::from_sys(sysTime);
+	v = std::chrono::clock_cast<std::chrono::utc_clock>(sysTime);
 	return 0;
 }
 
@@ -280,7 +280,7 @@ int PyExportTraits<std::chrono::utc_clock::time_point>::get(PyObject* obj, std::
 
 PyObject* PyExportTraits<std::chrono::gps_clock::time_point>::build(const std::chrono::gps_clock::time_point& v)
 {
-	auto utcTime = std::chrono::gps_clock::to_utc(v);
+	auto utcTime = std::chrono::clock_cast<std::chrono::utc_clock>(v);
 	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
 }
 
@@ -288,12 +288,12 @@ PyObject* PyExportTraits<std::chrono::gps_clock::time_point>::build(const std::c
 
 int PyExportTraits<std::chrono::gps_clock::time_point>::get(PyObject* obj, std::chrono::gps_clock::time_point& v)
 {
-	std::chrono::utc_clock::time_point utcTime;
-	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	std::chrono::system_clock::time_point sysTime;
+	if (PyExportTraits<std::chrono::system_clock::time_point>::get(obj, sysTime) != 0)
 	{
 		return 1;
 	}
-	v = std::chrono::gps_clock::from_utc(utcTime);
+	v = std::chrono::clock_cast<std::chrono::gps_clock>(sysTime);
 	return 0;
 }
 
@@ -301,7 +301,7 @@ int PyExportTraits<std::chrono::gps_clock::time_point>::get(PyObject* obj, std::
 
 PyObject* PyExportTraits<std::chrono::tai_clock::time_point>::build(const std::chrono::tai_clock::time_point& v)
 {
-	auto utcTime = std::chrono::tai_clock::to_utc(v);
+	auto utcTime = std::chrono::clock_cast<std::chrono::utc_clock>(v);
 	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
 }
 
@@ -309,12 +309,12 @@ PyObject* PyExportTraits<std::chrono::tai_clock::time_point>::build(const std::c
 
 int PyExportTraits<std::chrono::tai_clock::time_point>::get(PyObject* obj, std::chrono::tai_clock::time_point& v)
 {
-	std::chrono::utc_clock::time_point utcTime;
-	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	std::chrono::system_clock::time_point sysTime;
+	if (PyExportTraits<std::chrono::system_clock::time_point>::get(obj, sysTime) != 0)
 	{
 		return 1;
 	}
-	v = std::chrono::tai_clock::from_utc(utcTime);
+	v = std::chrono::clock_cast<std::chrono::tai_clock>(sysTime);
 	return 0;
 }
 
@@ -322,7 +322,7 @@ int PyExportTraits<std::chrono::tai_clock::time_point>::get(PyObject* obj, std::
 
 PyObject* PyExportTraits<std::chrono::file_clock::time_point>::build(const std::chrono::file_clock::time_point& v)
 {
-	auto utcTime = std::chrono::file_clock::to_utc(v);
+	auto utcTime = std::chrono::clock_cast<std::chrono::utc_clock>(v);
 	return PyExportTraits<std::chrono::utc_clock::time_point>::build(utcTime);
 }
 
@@ -330,12 +330,12 @@ PyObject* PyExportTraits<std::chrono::file_clock::time_point>::build(const std::
 
 int PyExportTraits<std::chrono::file_clock::time_point>::get(PyObject* obj, std::chrono::file_clock::time_point& v)
 {
-	std::chrono::utc_clock::time_point utcTime;
-	if (PyExportTraits<std::chrono::utc_clock::time_point>::get(obj, utcTime) != 0)
+	std::chrono::system_clock::time_point sysTime;
+	if (PyExportTraits<std::chrono::system_clock::time_point>::get(obj, sysTime) != 0)
 	{
 		return 1;
 	}
-	v = std::chrono::file_clock::from_utc(utcTime);
+	v = std::chrono::clock_cast<std::chrono::file_clock>(sysTime);
 	return 0;
 }
 
