@@ -113,19 +113,14 @@ class LassConan(ConanFile):
         "fPIC": [True, False],
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
-        "python_executable": [None, "ANY"],
-        "python_version": [None, "ANY"],
-        "python_debug": [None, True, False],
     }
     default_options = {
         "shared": True,
         "fPIC": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
-        "python_executable": None,
-        "python_version": None,
-        "python_debug": None,
     }
+    requires = "syspython/1.0.0@cocamware/stable"
 
     def export_sources(self):
         git = Git(self)
@@ -160,39 +155,6 @@ class LassConan(ConanFile):
         if str(self.settings.compiler) in ["msvc", "Visual Studio"]:
             del self.options.fPIC
 
-    def configure(self):
-        # Do *not* rely on any checks or queries involving
-        # options.python_executable in configure. Potential build requirements
-        # can influence PATH, and that's no in effect in configure nor in
-        # package_id.
-        #
-        # Exception is when python_version and python_debug are not explicitly
-        # configured, because this is your last change to do so.
-        #
-        # This means, if you rely on python to be found on a build requirement's
-        # PATH, you must be explicit about python_version and python_debug.
-        #
-        if not self.options.python_executable:
-            if self.settings.os == "Windows":
-                if str(self.options.python_debug) == "True":
-                    self.options.python_executable = "python_d.exe"
-                else:
-                    # if we don't don't explicitly use a debug build of Python, assume
-                    # we build against a release build of it, even if our build_type is
-                    # Debug. This is the most common use case.
-                    self.options.python_executable = "python.exe"
-                    self.options.python_debug = False
-            else:
-                self.options.python_executable = "python3"
-        if not self.options.python_version:
-            self.options.python_version = Python(
-                self.options.python_executable, self.settings
-            ).version
-        if self.options.python_debug.value in [None, "None"]:
-            self.options.python_debug = Python(
-                self.options.python_executable, self.settings
-            ).debug
-
     def validate(self):
         check_min_cppstd(self, 17)
         compiler = self.settings.get_safe("compiler")
@@ -212,32 +174,15 @@ class LassConan(ConanFile):
         self.cpp.build.builddirs = ["."]
 
     def generate(self):
-        python = Python(self.options.python_executable, self.settings)
-        if str(self.options.python_version) != python.version:
-            raise ConanInvalidConfiguration(
-                "python_version option not compatible with python_executable:"
-                "{} != {}".format(str(self.options.python_version), python.version)
-            )
-        if self.options.python_debug != python.debug:
-            raise ConanInvalidConfiguration(
-                "python_debug option not compatible with python_executable."
-            )
-        if self.settings.os == "Windows":
-            if python.debug and self.settings.build_type != "Debug":
-                raise ConanInvalidConfiguration(
-                    "Can't build non-debug Lass with debug Python on Windows."
-                )
-
+        python = self.dependencies["syspython"]
+ 
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_CONFIGURATION_TYPES"] = self.settings.build_type
         tc.variables["BUILD_SIMD_ALIGNED"] = bool(self.options.simd_aligned)
         tc.variables["BUILD_WITHOUT_ITERATOR_DEBUGGING"] = bool(
             self.options.without_iterator_debugging
         )
-        tc.variables["Lass_PYTHON_VERSION"] = python.version
-        tc.variables["Python_EXECUTABLE"] = python.executable.as_posix()
-        tc.variables["Python_LIBRARY_RELEASE"] = python.library.as_posix()
-        tc.variables["Python_LIBRARY_DEBUG"] = python.library.as_posix()
+        tc.variables["Lass_PYTHON_VERSION"] = python.options.python_version
         tc.generate()
 
     def build(self):
@@ -292,92 +237,3 @@ class LassConan(ConanFile):
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
-
-
-class Python(object):
-    """Build and config info of a Python"""
-
-    def __init__(self, executable, settings):
-        found_executable = shutil.which(str(executable))
-        if not found_executable:
-            raise ConanInvalidConfiguration(
-                f"Python executable cannot be found: {executable!s}"
-            )
-        self._executable = Path(found_executable)
-        self._os = settings.os
-
-    @property
-    def executable(self) -> Path:
-        """Full path to Python executable"""
-        return self._executable
-
-    @property
-    def version(self) -> str:
-        """Short version like 3.7"""
-        # pylint: disable=attribute-defined-outside-init
-        try:
-            return self._version
-        except AttributeError:
-            self._version = self._get_config_var("py_version_short")
-            return self._version
-
-    @property
-    def debug(self) -> bool:
-        """True if python library is built with Py_DEBUG"""
-        # pylint: disable=attribute-defined-outside-init
-        try:
-            return self._debug
-        except AttributeError:
-            output = self._query(
-                "import sys; print(int(hasattr(sys, 'gettotalrefcount')))"
-            )
-            self._debug = bool(int(output))
-            return self._debug
-
-    @property
-    def library(self) -> Path:
-        """Full path to python library you should link to"""
-        # pylint: disable=attribute-defined-outside-init
-        try:
-            return self._library
-        except AttributeError:
-            if self._os == "Windows":
-                stdlib = self._get_python_path("stdlib")
-                version = self._get_config_var("py_version_nodot")
-                postfix = "_d" if self.debug else ""
-                self._library = stdlib.parent / f"libs/python{version}{postfix}.lib"
-            else:
-                fname = self._get_config_var("LDLIBRARY")
-                hints: List[Path] = []
-                ld_library_path = os.getenv("LD_LIBRARY_PATH")
-                if ld_library_path:
-                    hints.extend(
-                        Path(dirname) for dirname in ld_library_path.split(os.pathsep)
-                    )
-                hints += [
-                    Path(self._get_config_var("LIBDIR")),
-                    Path(self._get_config_var("LIBPL")),
-                ]
-                for dirname in hints:
-                    candidate = dirname / fname
-                    if candidate.is_file():
-                        self._library = candidate
-                        break
-                else:
-                    raise RuntimeError(f"Unable to find {fname}")
-            return self._library
-
-    def _get_python_path(self, key: str) -> Path:
-        return Path(
-            self._query(f"import sysconfig; print(sysconfig.get_path({key!r}))")
-        )
-
-    def _get_config_var(self, key: str) -> str:
-        return self._query(
-            f"import sysconfig; print(sysconfig.get_config_var({key!r}))"
-        )
-
-    def _query(self, script: str) -> str:
-        return subprocess.check_output(
-            [str(self.executable), "-c", script], text=True
-        ).strip()
