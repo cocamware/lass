@@ -90,4 +90,4 @@ find_package(Python ${_PythonCompat_ARGS}
     COMPONENTS ${_PythonCompat_COMPONENTS}
     OPTIONAL_COMPONENTS ${_PythonCompat_OPTIONAL_COMPONENTS})
 
-set(PythonCompat_FOUND ${Python_FOUND})
+set(PythonCompat_FOUND "${Python_FOUND}")

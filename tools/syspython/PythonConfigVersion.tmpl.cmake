@@ -1,0 +1,61 @@
+set(PACKAGE_VERSION @{version})
+
+set(_MAJOR @{major})
+set(_MINOR @{minor})
+set(_PATCH @{patch})
+
+if(PACKAGE_FIND_VERSION VERSION_GREATER PACKAGE_VERSION)
+
+    # Requested (minimum) version is newer than what we provide. It's never compatible
+    set(PACKAGE_VERSION_COMPATIBLE FALSE)
+
+elseif(PACKAGE_FIND_VERSION_RANGE)
+
+    # Requested minimum version is less or equal than what we provide
+    # assert(PACKAGE_FIND_VERSION_MIN VERSION_LESS_EQUAL PACKAGE_VERSION)
+    # Now just check requested maximum version
+
+    if((PACKAGE_FIND_VERSION_RANGE_MAX STREQUAL "EXCLUDE")
+       AND (PACKAGE_FIND_VERSION_MAX VERSION_GREATER_EQUAL PACKAGE_VERSION))
+
+       set(PACKAGE_VERSION_COMPATIBLE TRUE)
+    
+    elseif((PACKAGE_FIND_VERSION_RANGE_MAX STREQUAL "INCLUDE")
+           AND (PACKAGE_FIND_VERSION_MAX VERSION_GREATER PACKAGE_VERSION))
+
+        set(PACKAGE_VERSION_COMPATIBLE TRUE)
+
+    else()
+
+        set(PACKAGE_VERSION_COMPATIBLE FALSE)
+
+    endif()
+
+elseif(PACKAGE_FIND_VERSION_MAJOR VERSION_EQUAL _MAJOR)
+
+    # At least major version must match
+    set(PACKAGE_VERSION_COMPATIBLE TRUE)
+
+    # But is it an exact mach?
+    set(_EXACT TRUE)
+    if(PACKAGE_FIND_VERSION_COUNT EQUAL 4 AND NOT PACKAGE_FIND_VERSION_TWEAK VERSION_EQUAL 0)
+        set(_EXACT FALSE)
+    endif()
+    if(PACKAGE_FIND_VERSION_COUNT GREATER_EQUAL 3 AND NOT PACKAGE_FIND_VERSION_PATCH VERSION_EQUAL _PATCH)
+        set(_EXACT FALSE)
+    endif()
+    if(PACKAGE_FIND_VERSION_COUNT GREATER_EQUAL 2 AND NOT PACKAGE_FIND_VERSION_MINOR VERSION_EQUAL _MINOR)
+        set(_EXACT FALSE)
+    endif()
+    set(PACKAGE_VERSION_EXACT "${_EXACT}")
+
+else()
+
+    set(PACKAGE_VERSION_COMPATIBLE FALSE)
+
+endif()
+
+if(NOT CMAKE_SIZEOF_VOID_P STREQUAL @{sizeof_void_p})
+    set(PACKAGE_VERSION "${PACKAGE_VERSION} (@{bitness}bit)")
+    set(PACKAGE_VERSION_UNSUITABLE TRUE)
+endif()
