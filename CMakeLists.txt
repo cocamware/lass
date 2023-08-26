@@ -100,6 +100,15 @@ else()
 endif()
 
 
+# Always build Release with debug symbols as well
+if(MSVC)
+	add_compile_options("$<$<CONFIG:Release>:/Zi>")
+	add_link_options("$<$<CONFIG:Release>:/DEBUG>")
+else()
+	add_compile_options("$<$<CONFIG:Release>:-g>")
+endif()
+
+
 add_subdirectory(lass)
 if(TARGET Lass::lass_python)
 	add_subdirectory(pylass)
