@@ -1,3 +1,28 @@
+function(_lass_install_library target)
+	install(
+		TARGETS "${target}"
+		EXPORT LassExports
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		)
+	if(MSVC)
+		if (BUILD_SHARED_LIBS)
+			install(
+				FILES "$<TARGET_PDB_FILE:${target}>"
+				DESTINATION bin
+				OPTIONAL
+				)
+		else()
+			install(
+				FILES "$<PATH:REPLACE_EXTENSION,$<TARGET_FILE:${target}>,.pdb>"
+				DESTINATION lib
+				OPTIONAL
+				)
+		endif()
+	endif()
+endfunction()
+
 # --- LASS ---
 
 set(lass_subdirectories config io num prim spat stde util meta)
@@ -119,21 +144,8 @@ lass_add_precompiled_header(lass
 	"${Lass_SOURCE_DIR}/lass/lass_common.cpp"
 	)
 	
-install(
-	TARGETS lass
-	EXPORT LassExports
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	)
+_lass_install_library(lass)
 
-if(MSVC AND BUILD_SHARED_LIBS)
-	install(
-		FILES $<TARGET_PDB_FILE:lass>
-		DESTINATION bin
-		OPTIONAL
-		)
-endif()
 
 # --- LASS_PYTHON ---
 
@@ -168,18 +180,5 @@ if(Python_Development_FOUND)
 		python/python_common.h
 		"${Lass_SOURCE_DIR}/lass/python/python_common.cpp"
 		)
-	install(
-		TARGETS lass_python
-		EXPORT LassExports
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		)
-	if(MSVC AND BUILD_SHARED_LIBS)
-		install(
-			FILES $<TARGET_PDB_FILE:lass_python>
-			DESTINATION bin
-			OPTIONAL
-			)
-	endif()
+	_lass_install_library(lass_python)
 endif()
