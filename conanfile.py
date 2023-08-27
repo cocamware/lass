@@ -177,7 +177,6 @@ class LassConan(ConanFile):
         python = self.dependencies["syspython"]
  
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_CONFIGURATION_TYPES"] = self.settings.build_type
         tc.variables["BUILD_SIMD_ALIGNED"] = bool(self.options.simd_aligned)
         tc.variables["BUILD_WITHOUT_ITERATOR_DEBUGGING"] = bool(
             self.options.without_iterator_debugging
