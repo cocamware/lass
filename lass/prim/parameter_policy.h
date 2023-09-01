@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -76,7 +76,7 @@ namespace prim
 class ParameterError: public util::ExceptionMixin<ParameterError>
 {
 public:
-	ParameterError(const std::string& msg, const std::string& loc): util::ExceptionMixin<ParameterError>(msg, loc) {}
+	ParameterError(std::string msg, std::string loc): util::ExceptionMixin<ParameterError>(std::move(msg), std::move(loc)) {}
 	~ParameterError() noexcept {}
 };
 
@@ -148,4 +148,3 @@ struct Unbounded
 #endif
 
 // EOF
-

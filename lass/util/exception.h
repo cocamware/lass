@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -82,9 +82,17 @@ private:
 class Exception: public std::exception, public RemoteExceptionBase
 {
 public:
-	explicit Exception(const std::string& message = "no message", const std::string& location = "no location"):
-		message_(message),
-		location_(location)
+	Exception(std::string message, std::string location):
+		message_(std::move(message)),
+		location_(std::move(location))
+	{
+	}
+	explicit Exception(std::string message):
+		Exception(std::move(message), std::string())
+	{
+	}
+	Exception():
+		Exception(std::string(), std::string())
 	{
 	}
 	~Exception() noexcept {}
@@ -104,8 +112,14 @@ template <typename ExceptionType, typename ParentType = Exception>
 class ExceptionMixin: public ParentType
 {
 public:
-	ExceptionMixin(const std::string& msg, const std::string& loc): ParentType(msg, loc) {}
-	explicit ExceptionMixin(const std::string& msg): ParentType(msg) {}
+	ExceptionMixin(std::string message, std::string location):
+		ParentType(std::move(message), std::move(location))
+	{
+	}
+	explicit ExceptionMixin(std::string message):
+		ParentType(std::move(message))
+	{
+	}
 	~ExceptionMixin() noexcept {}
 private:
 	virtual void doThrowSelf() const override
@@ -145,7 +159,7 @@ private:
 class KeyError: public ExceptionMixin<KeyError>
 {
 public:
-	KeyError(const std::string& msg, const std::string& loc): ExceptionMixin<KeyError>(msg, loc) {}
+	KeyError(std::string msg, std::string loc): ExceptionMixin<KeyError>(std::move(msg), std::move(loc)) {}
 	~KeyError() noexcept {}
 };
 
@@ -153,14 +167,14 @@ public:
 class ValueError: public ExceptionMixin<ValueError>
 {
 public:
-	ValueError(const std::string& msg, const std::string& loc): ExceptionMixin<ValueError>(msg, loc) {}
+	ValueError(std::string msg, std::string loc) : ExceptionMixin<ValueError>(std::move(msg), std::move(loc)) {}
 	~ValueError() noexcept {}
 };
 
 class SingularityError: public ExceptionMixin<SingularityError>
 {
 public:
-	SingularityError(const std::string& msg, const std::string& loc): ExceptionMixin<SingularityError>(msg, loc) {}
+	SingularityError(std::string msg, std::string loc) : ExceptionMixin<SingularityError>(std::move(msg), std::move(loc)) {}
 	~SingularityError() noexcept {}
 };
 

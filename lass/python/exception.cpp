@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -123,16 +123,16 @@ void catchStdException(const std::exception& error)
 }
 
 PythonException::PythonException(
-		const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc):
-	util::ExceptionMixin<PythonException>(extractMessage(type.get(), value.get()), loc),
+		const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, std::string loc):
+	util::ExceptionMixin<PythonException>(extractMessage(type.get(), value.get()), std::move(loc)),
 	type_(type),
 	value_(value),
 	traceback_(traceback)
 {
 }
 
-PythonException::PythonException(PyObject* type, const std::string& msg, const std::string& loc):
-	util::ExceptionMixin<PythonException>(extractMessage(type) + ": " + msg, loc),
+PythonException::PythonException(PyObject* type, const std::string& msg, std::string loc):
+	util::ExceptionMixin<PythonException>(extractMessage(type) + ": " + msg, std::move(loc)),
 	type_(fromNakedToSharedPtrCast<PyObject>(type)),
 	value_(pyBuildSimpleObject(msg)),
 	traceback_(0)

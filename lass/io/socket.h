@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -66,7 +66,7 @@ namespace impl
 class SocketError: public util::ExceptionMixin<SocketError>
 {
 public:
-	SocketError(const std::string& msg, const std::string& loc): util::ExceptionMixin<SocketError>(msg, loc) {}
+	SocketError(std::string msg, std::string loc): util::ExceptionMixin<SocketError>(std::move(msg), std::move(loc)) {}
 	~SocketError() noexcept {}
 };
 

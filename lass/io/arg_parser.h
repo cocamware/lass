@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -251,7 +251,7 @@ private:
 class ArgBadArgument: public util::ExceptionMixin<ArgBadArgument>
 {
 public:
-	ArgBadArgument(const std::string& msg, const std::string& loc): util::ExceptionMixin<ArgBadArgument>(msg, loc) {}
+	ArgBadArgument(std::string msg, std::string loc): util::ExceptionMixin<ArgBadArgument>(std::move(msg), std::move(loc)) {}
 	~ArgBadArgument() noexcept {}
 };
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,7 +55,7 @@ namespace util
 class BadStringCast: public ExceptionMixin<BadStringCast>
 {
 public:
-	BadStringCast(const std::string& msg, const std::string& loc): ExceptionMixin<BadStringCast>(msg, loc) {}
+	BadStringCast(std::string msg, std::string loc): ExceptionMixin<BadStringCast>(std::move(msg), std::move(loc)) {}
 	~BadStringCast() noexcept {}
 };
 

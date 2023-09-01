@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -66,7 +66,7 @@ namespace util
 class EnforceFailure: public ExceptionMixin<EnforceFailure>
 {
 public:
-	EnforceFailure(const std::string& msg, const std::string& loc): ExceptionMixin<EnforceFailure>(msg, loc) {}
+	EnforceFailure(std::string msg, std::string loc): ExceptionMixin<EnforceFailure>(std::move(msg), std::move(loc)) {}
 	~EnforceFailure() noexcept {}
 };
 

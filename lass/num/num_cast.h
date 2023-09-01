@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -53,7 +53,7 @@ namespace num
 class BadNumCast: public util::ExceptionMixin<BadNumCast>
 {
 public:
-	BadNumCast(const std::string& msg, const std::string& loc): util::ExceptionMixin<BadNumCast>(msg, loc) {}
+	BadNumCast(std::string msg, std::string loc): util::ExceptionMixin<BadNumCast>(std::move(msg), std::move(loc)) {}
 	~BadNumCast() noexcept {}
 };
 

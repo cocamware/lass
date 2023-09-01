@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -54,8 +54,8 @@ namespace python
 class PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
-	LASS_PYTHON_DLL PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, const std::string& loc);
-	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg, const std::string& loc);
+	LASS_PYTHON_DLL PythonException(const TPyObjPtr& type, const TPyObjPtr& value, const TPyObjPtr& traceback, std::string loc);
+	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg, std::string loc);
 	LASS_PYTHON_DLL PythonException(PyObject* type, const std::string& msg);
 
 	~PythonException() noexcept {}

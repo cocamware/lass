@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -81,7 +81,7 @@ namespace prim
 class MinMaxError: public util::ExceptionMixin<MinMaxError>
 {
 public:
-	MinMaxError(const std::string& msg, const std::string& loc): util::ExceptionMixin<MinMaxError>(msg, loc) {}
+	MinMaxError(std::string msg, std::string loc): util::ExceptionMixin<MinMaxError>(std::move(msg), std::move(loc)) {}
 	~MinMaxError() noexcept {}
 };
 

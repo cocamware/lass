@@ -23,7 +23,7 @@
  *  The Original Developer is the Initial Developer.
  *  
  *  All portions of the code written by the Initial Developer are:
- *  Copyright (C) 2004-2011 the Initial Developer.
+ *  Copyright (C) 2004-2023 the Initial Developer.
  *  All Rights Reserved.
  *  
  *  Contributor(s):
@@ -110,8 +110,8 @@ private:
 class DynamicLibraryError: public ExceptionMixin<DynamicLibraryError>
 {
 public:
-    DynamicLibraryError(const std::string& msg, const std::string& loc): 
-        ExceptionMixin<DynamicLibraryError>(msg, loc)
+    DynamicLibraryError(std::string msg, std::string loc):
+        ExceptionMixin<DynamicLibraryError>(std::move(msg), std::move(loc))
     {
     }
     ~DynamicLibraryError() noexcept {}
