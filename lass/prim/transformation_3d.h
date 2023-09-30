@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -131,6 +131,7 @@ public:
 	Transformation3D(const TPoint& origin, const TVector& baseX, const TVector& baseY, 
 		const TVector& baseZ);
 	template <typename InputIterator> Transformation3D(InputIterator first, InputIterator last);
+	Transformation3D(std::initializer_list<TValue> list);
 
 	const TSelf inverse() const;
 

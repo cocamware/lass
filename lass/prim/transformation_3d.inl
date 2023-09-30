@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -105,6 +105,21 @@ Transformation3D<T>::Transformation3D(InputIterator first, InputIterator last):
 {
 	LASS_ENFORCE(std::distance(first, last) == matrixSize_);
 	std::copy(first, last, pimpl_->forward);
+}
+
+
+
+/* construct a transformation fromo a 4x4 transformation matrix
+   The elements of the 4x4 matrix will be represented in a row major way by an
+   initializer_list of 16 elements
+ */
+template <typename T>
+Transformation3D<T>::Transformation3D(std::initializer_list<TValue> list):
+	pimpl_(TImplPtr::allocate()),
+	isInversed_(false)
+{
+	LASS_ENFORCE(list.size() == matrixSize_);
+	std::copy(list.begin(), list.end(), pimpl_->forward);
 }
 
 
