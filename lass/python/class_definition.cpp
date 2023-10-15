@@ -454,7 +454,7 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	type_.tp_getset = &getSetters_[0];
 	type_.tp_flags &= (~Py_TPFLAGS_HAVE_GC); // we take care of collecting garbage ourselves
 
-	LASS_ENFORCE( PyType_Ready( &type_ ) >= 0 );
+	PY_ENFORCE_ZERO( PyType_Ready( &type_ ) );
 	Py_INCREF( &type_ ); 
 	
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
