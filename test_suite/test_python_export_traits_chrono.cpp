@@ -148,7 +148,7 @@ void testPythonExportTraitsChronoDuration()
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 0);
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 0);
 
-		duration d2;
+		duration d2{};
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
 		LASS_TEST_CHECK_EQUAL(d, d2);
 	}
@@ -161,7 +161,7 @@ void testPythonExportTraitsChronoDuration()
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 0);
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 0);
 
-		microfortnights d2;
+		microfortnights d2{};
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
 		LASS_TEST_CHECK_EQUAL(d, d2);
 	}
@@ -175,7 +175,7 @@ void testPythonExportTraitsChronoDuration()
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 15634); // (100%24)*3600 + 20*60 + 30 + 4567/1000
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()), 567089); // (4567%1000)*1000 + 89
 
-		duration d2;
+		duration d2{};
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
 		LASS_TEST_CHECK_EQUAL(d, d2);
 	}
@@ -188,7 +188,7 @@ void testPythonExportTraitsChronoDuration()
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DELTA_GET_SECONDS(obj.get()), 62933);
 		LASS_TEST_CHECK(num::abs(PyDateTime_DELTA_GET_MICROSECONDS(obj.get()) - 321088) <= 1);
 
-		microfortnights d2;
+		microfortnights d2{};
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), d2), 0);
 		LASS_TEST_CHECK(absDur(d - d2) <= 1us);
 	}
