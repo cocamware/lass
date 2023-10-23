@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -51,6 +51,9 @@ namespace lass
 {
 namespace test
 {
+namespace
+{
+
 
 class object
 {
@@ -75,15 +78,17 @@ private:
 
 int object::count_ = 0;
 
-void testStdeStaticVector()
-{
-	constexpr size_t max_size = 10;
-	using vector_type = stde::static_vector<object, max_size>;
-	using string_vector_type = stde::static_vector<std::string, max_size>;
-	using object_ptr = std::unique_ptr<object>;
-	using ptr_vector_type = stde::static_vector<object_ptr, max_size>;
-	object* const null = nullptr;
+constexpr size_t max_size = 10;
+using vector_type = stde::static_vector<object, max_size>;
+using string_vector_type = stde::static_vector<std::string, max_size>;
+using object_ptr = std::unique_ptr<object>;
+using ptr_vector_type = stde::static_vector<object_ptr, max_size>;
+object* const null = nullptr;
 
+}
+
+void testStdeStaticVectorConstructors()
+{
 	{
 		// default constructor
 		vector_type vector;
@@ -211,7 +216,10 @@ void testStdeStaticVector()
 
 		LASS_TEST_CHECK_EQUAL(object::count(), 0);
 	}
+}
 
+void testStdeStaticVectorAssignment()
+{
 	{
 		// copy assignment
 		vector_type vector({ 4, 3, 6, 1, 0, 2, 5 });
@@ -462,7 +470,10 @@ void testStdeStaticVector()
 		std::list<int> list3{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } };
 		LASS_TEST_CHECK_THROW(vector.assign(list3.begin(), list3.end()), std::length_error);
 	}
+}
 
+void testStdeStaticVectorIterators()
+{
 	{
 		// iterators empty vector
 		vector_type vector;
@@ -520,7 +531,10 @@ void testStdeStaticVector()
 			LASS_TEST_CHECK(it == vector.crend());
 		}
 	}
+}
 
+void testStdeStaticVectorSize()
+{
 	{
 		// size etc ...
 		vector_type vector;
@@ -558,7 +572,10 @@ void testStdeStaticVector()
 		LASS_TEST_CHECK_THROW(vector.reserve(666), std::length_error);
 		LASS_TEST_CHECK_THROW(vector.resize(666, 69), std::length_error);
 	}
+}
 
+void testStdeStaticVectorAccess()
+{
 	{
 		// operator[], at(), front() and back()
 		vector_type vector({ 1, 2, 3});
@@ -585,7 +602,10 @@ void testStdeStaticVector()
 		LASS_TEST_CHECK_EQUAL(vector.at(1).value(), 5);
 		LASS_TEST_CHECK_EQUAL(vector.at(2).value(), 3);
 	}
+}
 
+void testStdeStaticVectorPushPop()
+{
 	{
 		// push_back
 		vector_type vector;
@@ -659,7 +679,10 @@ void testStdeStaticVector()
 
 		// calling pop_back on empty container is considered UB
 	}
+}
 
+void testStdeStaticVectorInsertEmplace()
+{
 	{
 		// insert
 		vector_type vector;
@@ -844,7 +867,10 @@ void testStdeStaticVector()
 		LASS_TEST_CHECK_EQUAL(vector.at(4), std::string{ "ddd" });
 		LASS_TEST_CHECK_EQUAL(e, vector.begin() + 2);
 	}
+}
 
+void testStdeStaticVectorEraseClear()
+{
 	{
 		// erase
 
@@ -911,7 +937,10 @@ void testStdeStaticVector()
 		LASS_TEST_CHECK_EQUAL(vector.size(), static_cast<size_t>(0));
 		LASS_TEST_CHECK_EQUAL(object::count(), 0);
 	}
+}
 
+void testStdeStaticVectorSwap()
+{
 	{
 		// swap & std::swap
 		object_ptr a(new object{ 1 });
@@ -973,7 +1002,15 @@ void testStdeStaticVector()
 TUnitTest test_stde_static_vector()
 {
 	return TUnitTest({
-		LASS_TEST_CASE(testStdeStaticVector),
+		LASS_TEST_CASE(testStdeStaticVectorConstructors),
+		LASS_TEST_CASE(testStdeStaticVectorAssignment),
+		LASS_TEST_CASE(testStdeStaticVectorIterators),
+		LASS_TEST_CASE(testStdeStaticVectorSize),
+		LASS_TEST_CASE(testStdeStaticVectorAccess),
+		LASS_TEST_CASE(testStdeStaticVectorPushPop),
+		LASS_TEST_CASE(testStdeStaticVectorInsertEmplace),
+		LASS_TEST_CASE(testStdeStaticVectorEraseClear),
+		LASS_TEST_CASE(testStdeStaticVectorSwap),
 		});
 }
 
