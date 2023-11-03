@@ -59,12 +59,12 @@ class object
 {
 public:
 	object(int value = 0): value_(value) { ++count_; }
-#if LASS_HAVE_ARM && LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	object(const object& other): value_(other.value_) { ++count_; }
-#if LASS_HAVE_ARM && LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC
 #	pragma GCC diagnostic pop
 #endif
 	~object() { --count_; }
