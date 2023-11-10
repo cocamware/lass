@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -77,9 +77,19 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const
 	nodes_(),
 	end_(new TObjectIterator(last))
 {
+	const std::ptrdiff_t size = last - first;
+	if (size < 0)
+	{
+		LASS_THROW("AabpTree: invalid range");
+	}
+	if (static_cast<size_t>(size) >= maxSize)
+	{
+		LASS_THROW("AabpTree: too many objects");
+	}
 	if (first != last)
 	{
 		TInputs inputs;
+		inputs.reserve(static_cast<size_t>(size));
 		for (TObjectIterator i = first; i != last; ++i)
 		{
 			TAabb aabb = TObjectTraits::objectAabb(i);
@@ -251,13 +261,13 @@ bool AabpTree<O, OT, SH>::intersects(
 #if 1
 	struct Visit
 	{
-		size_t index;
+		TIndex index;
 		TValue tNear;
 		TValue tFar;
-		Visit(size_t index = 0, TValue tNear = 0, TValue tFar = 0) : index(index), tNear(tNear), tFar(tFar) {}
+		Visit(TIndex index = 0, TValue tNear = 0, TValue tFar = 0) : index(index), tNear(tNear), tFar(tFar) {}
 	};
 	Visit stack[32];
-	size_t stackSize = 0;
+	TIndex stackSize = 0;
 	stack[stackSize++] = Visit(0, tNear, tFar);
 	while (stackSize > 0)
 	{
@@ -268,7 +278,7 @@ bool AabpTree<O, OT, SH>::intersects(
 
 		if (node.isLeaf())
 		{
-			for (size_t i = node.first(); i != node.last(); ++i)
+			for (TIndex i = node.first(); i != node.last(); ++i)
 			{
 				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 				if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
@@ -279,8 +289,8 @@ bool AabpTree<O, OT, SH>::intersects(
 			continue;
 		}
 
-		const size_t leftIndex = visit.index + 1;
-		const size_t rightIndex = node.right();
+		const TIndex leftIndex = visit.index + 1;
+		const TIndex rightIndex = node.right();
 		const TValue s = TObjectTraits::coord(support, node.axis());
 		const TValue d = TObjectTraits::coord(direction, node.axis());
 		const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
@@ -414,7 +424,7 @@ AabpTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	}
 	LASS_ASSERT(middle != first && middle != last);
 
-	const size_t index = addInternalNode(split.axis);
+	const TIndex index = addInternalNode(split.axis);
 	const BalanceResult left = balance(first, middle);
 	const BalanceResult right = balance(middle, last);
 	
@@ -430,32 +440,40 @@ AabpTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 
 
 template <typename O, typename OT, typename SH>
-size_t AabpTree<O, OT, SH>::addLeafNode(TInputIterator first, TInputIterator last)
+typename AabpTree<O, OT, SH>::TIndex
+AabpTree<O, OT, SH>::addLeafNode(TInputIterator first, TInputIterator last)
 {
-	const size_t begin = objects_.size();
+	LASS_ASSERT(objects_.size() <= maxSize);
+	const TIndex begin = static_cast<TIndex>(objects_.size());
 	while (first != last)
 	{
 		objects_.push_back((first++)->object);
 	}
-	const size_t end = objects_.size();
+
+	LASS_ASSERT(objects_.size() <= maxSize);
+	const TIndex end = static_cast<TIndex>(objects_.size());
+
 	nodes_.push_back(Node(begin, end));
 
-	return nodes_.size() - 1;
+	LASS_ASSERT(nodes_.size() > 0);
+	return static_cast<TIndex>(nodes_.size() - 1);
 }
 
 
 
 template <typename O, typename OT, typename SH>
-size_t AabpTree<O, OT, SH>::addInternalNode(size_t axis)
+typename AabpTree<O, OT, SH>::TIndex
+AabpTree<O, OT, SH>::addInternalNode(size_t axis)
 {
 	nodes_.push_back(Node(axis));
-	return nodes_.size() - 1;
+	LASS_ASSERT(nodes_.size() > 0);
+	return static_cast<TIndex>(nodes_.size() - 1);
 }
 
 
 
 template <typename O, typename OT, typename SH>
-bool AabpTree<O, OT, SH>::doContains(size_t index, const TPoint& point, const TInfo* info) const
+bool AabpTree<O, OT, SH>::doContains(TIndex index, const TPoint& point, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
@@ -463,7 +481,7 @@ bool AabpTree<O, OT, SH>::doContains(size_t index, const TPoint& point, const TI
 	
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectContains(objects_[i], point, info))
@@ -491,7 +509,7 @@ bool AabpTree<O, OT, SH>::doContains(size_t index, const TPoint& point, const TI
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::doFind(
-		size_t index, const TPoint& point, OutputIterator result, const TInfo* info) const
+		TIndex index, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
@@ -499,7 +517,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectContains(objects_[i], point, info))
@@ -527,7 +545,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::doFind(
-		size_t index, const TAabb& box, OutputIterator result, const TInfo* info) const
+		TIndex index, const TAabb& box, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
@@ -535,7 +553,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectIntersects(objects_[i], box, info))
@@ -562,7 +580,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
 OutputIterator AabpTree<O, OT, SH>::doFind(
-		size_t index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info,
+		TIndex index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
@@ -572,7 +590,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
@@ -584,8 +602,8 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 	}
 
 	// check children
-	const size_t leftIndex = index + 1;
-	const size_t rightIndex = node.right();
+	const TIndex leftIndex = index + 1;
+	const TIndex rightIndex = node.right();
 	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
 	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
 	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
@@ -633,7 +651,7 @@ OutputIterator AabpTree<O, OT, SH>::doFind(
 template <typename O, typename OT, typename SH>
 const typename AabpTree<O, OT, SH>::TObjectIterator
 AabpTree<O, OT, SH>::doIntersect(
-		size_t index, const TRay& ray, TReference t, TParam tMin, const TInfo* info,
+		TIndex index, const TRay& ray, TReference t, TParam tMin, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
@@ -645,7 +663,7 @@ AabpTree<O, OT, SH>::doIntersect(
 	{
 		TValue tBest = 0;
 		TObjectIterator best = *end_;
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			TValue tCandidate = 0;
@@ -668,8 +686,8 @@ AabpTree<O, OT, SH>::doIntersect(
 	}
 
 	// check children
-	const size_t leftIndex = index + 1;
-	const size_t rightIndex = node.right();
+	const TIndex leftIndex = index + 1;
+	const TIndex rightIndex = node.right();
 	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
 	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
 	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
@@ -741,7 +759,7 @@ AabpTree<O, OT, SH>::doIntersect(
 
 template <typename O, typename OT, typename SH>
 bool AabpTree<O, OT, SH>::doIntersects(
-		size_t index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
+		TIndex index, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
 		const TVector& reciprocalDirection, TParam tNear, TParam tFar) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
@@ -751,7 +769,7 @@ bool AabpTree<O, OT, SH>::doIntersects(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
@@ -763,8 +781,8 @@ bool AabpTree<O, OT, SH>::doIntersects(
 	}
 
 	// check children
-	const size_t leftIndex = index + 1;
-	const size_t rightIndex = node.right();
+	const TIndex leftIndex = index + 1;
+	const TIndex rightIndex = node.right();
 	const TValue s = TObjectTraits::coord(TObjectTraits::raySupport(ray), node.axis());
 	const TValue d = TObjectTraits::coord(TObjectTraits::rayDirection(ray), node.axis());
 	const TValue invD = TObjectTraits::coord(reciprocalDirection, node.axis());
@@ -817,7 +835,7 @@ bool AabpTree<O, OT, SH>::doIntersects(
 
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::doNearestNeighbour(
-		size_t index, const TPoint& target, const TInfo* info, Neighbour& best) const
+		TIndex index, const TPoint& target, const TInfo* info, Neighbour& best) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
@@ -827,7 +845,7 @@ void AabpTree<O, OT, SH>::doNearestNeighbour(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			const TValue squaredDistance = 
@@ -840,7 +858,7 @@ void AabpTree<O, OT, SH>::doNearestNeighbour(
 	}
 	else
 	{
-		size_t children[2];
+		TIndex children[2];
 		TValue signedDist[2];
 		getChildren(index, target, children, signedDist);
 		if (signedDist[0] <= 0 || (signedDist[0] * signedDist[0]) < best.squaredDistance())
@@ -859,7 +877,7 @@ void AabpTree<O, OT, SH>::doNearestNeighbour(
 template <typename O, typename OT, typename SH>
 template <typename RandomIterator>
 RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
-	size_t index, const TPoint& target, TReference squaredRadius, size_t maxCount,
+	TIndex index, const TPoint& target, TReference squaredRadius, size_t maxCount,
 	RandomIterator first, RandomIterator last, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
@@ -870,7 +888,7 @@ RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
 
 	if (node.isLeaf())
 	{
-		for (size_t i = node.first(); i != node.last(); ++i)
+		for (TIndex i = node.first(); i != node.last(); ++i)
 		{
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			const TValue sqrDist = TObjectTraits::objectSquaredDistance(objects_[i], target, info);
@@ -890,7 +908,7 @@ RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
 		return last;
 	}
 	
-	size_t children[2];
+	TIndex children[2];
 	TValue signedDist[2];
 	getChildren(index, target, children, signedDist);
 	if (signedDist[0] <= 0 || (signedDist[0] * signedDist[0]) < squaredRadius)
@@ -908,7 +926,7 @@ RandomIterator AabpTree<O, OT, SH>::doRangeSearch(
 
 template <typename O, typename OT, typename SH>
 void AabpTree<O, OT, SH>::getChildren(
-		size_t index, const TPoint& target, size_t indices[2], TValue signedDistances[2]) const
+		TIndex index, const TPoint& target, TIndex indices[2], TValue signedDistances[2]) const
 {
 	LASS_ASSERT(index < nodes_.size());
 	const Node& node = nodes_[index];
