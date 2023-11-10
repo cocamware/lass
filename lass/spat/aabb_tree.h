@@ -151,6 +151,7 @@ public:
 
 private:
 
+	typedef unsigned TIndex;
 	struct Input
 	{
 		TAabb aabb;
@@ -163,61 +164,61 @@ private:
 	class Node
 	{
 	public:
-		explicit Node(const TAabb& aabb): 
+		static constexpr TIndex sentinelInternal = std::numeric_limits<TIndex>::max();
+
+		explicit Node(const TAabb& aabb):
 			aabb_(aabb), 
 			first_(sentinelInternal) 
 		{
 		}
-		Node(const TAabb& aabb, size_t first, size_t last): 
+		Node(const TAabb& aabb, TIndex first, TIndex last):
 			aabb_(aabb), 
-			first_(static_cast<unsigned>(first))
+			first_(first)
 		{
 			LASS_ASSERT(first < sentinelInternal && last < sentinelInternal && last > first);
-			last_ = static_cast<unsigned>(last); // do union stuff here
+			last_ = last; // do union stuff here
 		}
 
 		bool isInternal() const { return first_ == sentinelInternal; }
 		const TAabb& aabb() const { return aabb_; }
-		size_t right() const { LASS_ASSERT(isInternal()); return right_; }
-		void setRight(size_t right) { LASS_ASSERT(isInternal()); right_ = static_cast<unsigned>(right); }
+		TIndex right() const { LASS_ASSERT(isInternal()); return right_; }
+		void setRight(TIndex right) { LASS_ASSERT(isInternal()); right_ = right; }
 
 		bool isLeaf() const { return !isInternal(); }
-		size_t first() const { LASS_ASSERT(isLeaf()); return first_; }
-		size_t last() const { LASS_ASSERT(isLeaf()); return last_; }
+		TIndex first() const { LASS_ASSERT(isLeaf()); return first_; }
+		TIndex last() const { LASS_ASSERT(isLeaf()); return last_; }
 	private:
 		TAabb aabb_; // both
-		unsigned first_; // ==sentinelInternal:internal, else:leaf
+		TIndex first_; // ==sentinelInternal:internal, else:leaf
 		union 
 		{
-			unsigned right_; // internal
-			unsigned last_; // leaf
+			TIndex right_; // internal
+			TIndex last_; // leaf
 		};
-
-		constexpr static unsigned sentinelInternal = unsigned(-1);
 	};
 	typedef std::vector<Node> TNodes;
 
-	size_t balance(TInputIterator first, TInputIterator last);
-	size_t addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
-	size_t addInternalNode(const TAabb& aabb);
+	TIndex balance(TInputIterator first, TInputIterator last);
+	TIndex addLeafNode(const TAabb& aabb, TInputIterator first, TInputIterator last);
+	TIndex addInternalNode(const TAabb& aabb);
 
-	bool doContains(size_t index, const TPoint& point, const TInfo* info) const;
+	bool doContains(TIndex index, const TPoint& point, const TInfo* info) const;
 
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t index, const TPoint& point, OutputIterator first, const TInfo* info) const;
+	OutputIterator doFind(TIndex index, const TPoint& point, OutputIterator first, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t index, const TAabb& aabb, OutputIterator first, const TInfo* info) const;
+	OutputIterator doFind(TIndex index, const TAabb& aabb, OutputIterator first, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(size_t index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
+	OutputIterator doFind(TIndex index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
 
-	TObjectIterator doIntersect(size_t index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const;
-	bool doIntersects(size_t iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
-	void doNearestNeighbour(size_t index, const TPoint& point, const TInfo* info, Neighbour& best) const;
+	TObjectIterator doIntersect(TIndex index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const;
+	bool doIntersects(TIndex iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
+	void doNearestNeighbour(TIndex index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(size_t index, const TPoint& point, TReference squaredRadius, 
+	RandomIterator doRangeSearch(TIndex index, const TPoint& point, TReference squaredRadius,
 		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
-	void getChildren(size_t index, const TPoint& target, size_t indices[2], TValue squaredDistances[2]) const;
+	void getChildren(TIndex index, const TPoint& target, TIndex indices[2], TValue squaredDistances[2]) const;
 	bool volumeIntersect(const TAabb& box, const TRay& ray, const TVector& invDir, TReference t, TParam tMin) const;
 	bool volumeIntersects(const TAabb& box, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax) const;
 
