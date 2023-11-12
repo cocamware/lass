@@ -196,38 +196,8 @@ OutputIterator AabbTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tM
 	}
 	const TVector& dir = ray.direction();
 	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
-	return doFind(0, ray, invDir, tMin, tMax, result, info);
-}
-
-
-
-template <typename O, typename OT, typename SH>
-typename AabbTree<O, OT, SH>::TObjectIterator inline
-AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
-{
-	const TVector& dir = ray.direction();
-	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
-	TValue tDummy;
-	if (isEmpty() || !volumeIntersect(nodes_.front().aabb(), ray, invDir, tDummy, tMin))
-	{
-		return *end_;
-	}
-	return doIntersect(0, ray, invDir, t, tMin, info);
-}
-
-
-
-template <typename O, typename OT, typename SH>
-bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
-{
-	if (isEmpty())
-	{
-		return false;
-	}
-	const TVector& dir = ray.direction();
-	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
-#if 1
-	TIndex stack[32];
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
 	TIndex stackSize = 0;
 	stack[stackSize++] = 0;
 	while (stackSize > 0)
@@ -243,6 +213,14 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 		}
 		if (node.isInternal())
 		{
+			if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+			{
+				// fall back to recursive implementation
+				result = doFind(index + 1, ray, invDir, tMin, tMax, result, info);
+				result = doFind(node.right(), ray, invDir, tMin, tMax, result, info);
+				continue;
+			}
+			LASS_ASSERT(stackSize + 2 < LASS_SPAT_AABB_TREE_STACK_SIZE);
 			stack[stackSize++] = node.right();
 			stack[stackSize++] = index + 1;
 			continue;
@@ -252,9 +230,179 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
 			if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
 			{
-				return true;
+				*result++ = objects_[i];
 			}
 		}
+	}
+	return result;
+#else
+	return doFind(0, ray, invDir, tMin, tMax, result, info);
+#endif
+}
+
+
+
+template <typename O, typename OT, typename SH>
+typename AabbTree<O, OT, SH>::TObjectIterator inline
+AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
+{
+	const TVector& dir = ray.direction();
+	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
+	TValue tRoot;
+	if (isEmpty() || !volumeIntersect(nodes_.front().aabb(), ray, invDir, tRoot, tMin))
+	{
+		return *end_;
+	}
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	struct Visit
+	{
+		TIndex index;
+		TValue tNear;
+		Visit(TIndex index = 0, TValue tNear = 0) : index(index), tNear(tNear) {}
+	};
+	Visit stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = Visit(0, tRoot);
+	TValue tBest = 0;
+	TObjectIterator best = *end_;
+	while (stackSize > 0)
+	{
+		const Visit visit = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(visit.index < nodes_.size());
+		const Node& node = nodes_[visit.index];
+
+		if (best != *end_ && tBest < visit.tNear)
+		{
+			continue; // we already have a closer hit than what this node can offer
+		}
+
+		if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+		{
+			// fall back to recursive implementation
+			TValue tb = 0;
+			TObjectIterator b = doIntersect(0, ray, invDir, tb, tMin, info);
+			if (best == *end_ || tb < tBest)
+			{
+				tBest = tb;
+				best = b;
+			}
+			continue;
+		}
+		
+		if (node.isLeaf())
+		{
+			for (TIndex i = node.first(); i != node.last(); ++i)
+			{
+				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+				TValue tCandidate = 0;
+				if (TObjectTraits::objectIntersect(objects_[i], ray, tCandidate, tMin, info))
+				{
+					if (best == *end_ || tCandidate < tBest)
+					{
+						tBest = tCandidate;
+						best = objects_[i];
+					}
+				}
+			}
+			continue;
+		}
+
+		TIndex left = visit.index + 1;
+		TIndex right = node.right();
+		TValue tLeftBox = 0, tRightBox = 0;
+		const bool hitsLeft = volumeIntersect(nodes_[left].aabb(), ray, invDir, tLeftBox, tMin);
+		const bool hitsRight = volumeIntersect(nodes_[right].aabb(), ray, invDir, tRightBox, tMin);
+
+		if (hitsLeft)
+		{
+			if (hitsRight)
+			{
+				// ok, we intersect both childs. Visit the box that is nearest first.
+				if (tRightBox < tLeftBox)
+				{
+					std::swap(tLeftBox, tRightBox);
+					std::swap(left, right);
+				}
+				// left is nearest, so push right first (it'll be visited as last)
+				stack[stackSize++] = Visit(right, tRightBox);
+				stack[stackSize++] = Visit(left, tLeftBox);
+			}
+			else
+			{
+				stack[stackSize++] = Visit(left, tLeftBox);
+				continue;
+			}
+		}
+		else if (hitsRight)
+		{
+			stack[stackSize++] = Visit(right, tRightBox);
+		}
+	}
+	if (best != *end_)
+	{
+		t = tBest;
+	}
+	return best;
+#else
+	return doIntersect(0, ray, invDir, t, tMin, info);
+#endif
+}
+
+
+
+template <typename O, typename OT, typename SH>
+bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
+{
+	if (isEmpty())
+	{
+		return false;
+	}
+	const TVector& dir = ray.direction();
+	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = 0;
+	while (stackSize > 0)
+	{
+		const TIndex index = stack[--stackSize];
+
+		if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+		{
+			// fall back to recursive implementation
+			if (doIntersects(index, ray, invDir, tMin, tMax, info))
+			{
+				return true;
+			}
+			continue;
+		}
+
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(index < nodes_.size());
+		const Node& node = nodes_[index];
+
+		if (!volumeIntersects(node.aabb(), ray, invDir, tMin, tMax))
+		{
+			continue;
+		}
+
+		if (node.isLeaf())
+		{
+			for (TIndex i = node.first(); i != node.last(); ++i)
+			{
+				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+				if (TObjectTraits::objectIntersects(objects_[i], ray, tMin, tMax, info))
+				{
+					return true;
+				}
+			}
+			continue;
+		}
+
+		LASS_ASSERT(stackSize + 2 < LASS_SPAT_AABB_TREE_STACK_SIZE);
+		stack[stackSize++] = node.right();
+		stack[stackSize++] = index + 1;
 	}
 	return false;
 #else
@@ -269,10 +417,64 @@ const typename AabbTree<O, OT, SH>::Neighbour
 AabbTree<O, OT, SH>::nearestNeighbour(const TPoint& point, const TInfo* info) const
 {
 	Neighbour nearest(*end_, std::numeric_limits<TValue>::infinity());
-	if (!isEmpty())
+	if (isEmpty())
 	{
-		doNearestNeighbour(0, point, info, nearest);
+		return nearest;
 	}
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	struct Visit
+	{
+		TIndex index;
+		TValue squaredDistance;
+		Visit(TIndex index = 0, TValue squaredDistance = 0) : index(index), squaredDistance(squaredDistance) {}
+	};
+	Visit stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = Visit(0, 0);
+	while (stackSize > 0)
+	{
+		const Visit visit = stack[--stackSize];
+		if (visit.squaredDistance >= nearest.squaredDistance())
+		{
+			continue; // we already have a closer hit than what this node can offer
+		}
+
+		if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+		{
+			// fall back to recursive implementation
+			doNearestNeighbour(visit.index, point, info, nearest);
+			continue;
+		}
+
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(nearest.squaredDistance() >= 0);
+		LASS_ASSERT(visit.index < nodes_.size());
+		const Node& node = nodes_[visit.index];
+
+		if (node.isLeaf())
+		{
+			for (TIndex i = node.first(); i != node.last(); ++i)
+			{
+				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+				const TValue squaredDistance = TObjectTraits::objectSquaredDistance(objects_[i], point, info);
+				if (squaredDistance < nearest.squaredDistance())
+				{
+					nearest = Neighbour(objects_[i], squaredDistance);
+				}
+			}
+			continue;
+		}
+
+		TIndex children[2];
+		TValue squaredDistances[2];
+		getChildren(visit.index, point, children, squaredDistances);
+		// children[0] is the nearest child, so push it as last (it'll be visited first)
+		stack[stackSize++] = Visit(children[1], squaredDistances[1]);
+		stack[stackSize++] = Visit(children[0], squaredDistances[0]);
+	}
+#else
+	doNearestNeighbour(0, point, info, nearest);
+#endif
 	return nearest;
 }
 
@@ -290,7 +492,69 @@ AabbTree<O, OT, SH>::rangeSearch(
 		return first;
 	}
 	TValue squaredRadius = maxRadius * maxRadius;
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	RandomAccessIterator last = first;
+	struct Visit
+	{
+		TIndex index;
+		TValue squaredDistance;
+		Visit(TIndex index = 0, TValue squaredDistance = 0) : index(index), squaredDistance(squaredDistance) {}
+	};
+	Visit stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = Visit(0, 0);
+	while (stackSize > 0)
+	{
+		const Visit visit = stack[--stackSize];
+		if (visit.squaredDistance >= squaredRadius)
+		{
+			continue; // node is too far away
+		}
+
+		if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+		{
+			// fall back to recursive implementation
+			last = doRangeSearch(visit.index, target, squaredRadius, maxCount, first, last, info);
+			continue;
+		}
+
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(visit.index < nodes_.size());
+		const Node& node = nodes_[visit.index];
+
+		if (node.isLeaf())
+		{
+			for (TIndex i = node.first(); i != node.last(); ++i)
+			{
+				LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+				const TValue sqrDist = TObjectTraits::objectSquaredDistance(objects_[i], target, info);
+				if (sqrDist < squaredRadius)
+				{
+					*last++ = Neighbour(objects_[i], sqrDist);
+					std::push_heap(first, last);
+					LASS_ASSERT(last >= first);
+					if (static_cast<size_t>(last - first) > maxCount)
+					{
+						std::pop_heap(first, last);
+						--last;
+						squaredRadius = first->squaredDistance();
+					}
+				}
+			}
+			continue;
+		}
+
+		TIndex children[2];
+		TValue squaredDistances[2];
+		getChildren(visit.index, target, children, squaredDistances);
+		// children[0] is the nearest child, so push it as last (it'll be visited first)
+		stack[stackSize++] = Visit(children[1], squaredDistances[1]);
+		stack[stackSize++] = Visit(children[0], squaredDistances[0]);
+	}
+	return last;
+#else
 	return doRangeSearch(0, target, squaredRadius, maxCount, first, first, info);
+#endif
 }
 
 
@@ -401,11 +665,52 @@ AabbTree<O, OT, SH>::addInternalNode(const TAabb& aabb)
 
 
 template <typename O, typename OT, typename SH>
-bool AabbTree<O, OT, SH>::doContains(TIndex index, const TPoint& point, const TInfo* info) const
+bool AabbTree<O, OT, SH>::doContains(TIndex rootIndex, const TPoint& point, const TInfo* info) const
 {
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = rootIndex;
+	while (stackSize > 0)
+	{
+		const TIndex index = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(index < nodes_.size());
+		const Node& node = nodes_[index];
+
+		if (!TObjectTraits::aabbContains(node.aabb(), point))
+		{
+			continue;
+		}
+		if (node.isInternal())
+		{
+			if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+			{
+				// fall back to recursive implementation
+				if (doContains(index + 1, point, info) || doContains(node.right(), point, info))
+				{
+					return true;
+				}
+				continue;
+			}
+			LASS_ASSERT(stackSize + 2 < LASS_SPAT_AABB_TREE_STACK_SIZE);
+			stack[stackSize++] = node.right();
+			stack[stackSize++] = index + 1;
+			continue;
+		}
+		for (TIndex i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectContains(objects_[i], point, info))
+			{
+				return true;
+			}
+		}
+	}
+#else
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	LASS_ASSERT(index < nodes_.size());
-	const Node& node = nodes_[index];
+	LASS_ASSERT(rootIndex < nodes_.size());
+	const Node& node = nodes_[rootIndex];
 
 	if (!TObjectTraits::aabbContains(node.aabb(), point))
 	{
@@ -413,7 +718,7 @@ bool AabbTree<O, OT, SH>::doContains(TIndex index, const TPoint& point, const TI
 	}
 	if (node.isInternal())
 	{
-		return doContains(index + 1, point, info) || doContains(node.right(), point, info);
+		return doContains(rootIndex + 1, point, info) || doContains(node.right(), point, info);
 	}
 	for (TIndex i = node.first(); i != node.last(); ++i)
 	{
@@ -423,6 +728,7 @@ bool AabbTree<O, OT, SH>::doContains(TIndex index, const TPoint& point, const TI
 			return true;
 		}
 	}
+#endif
 	return false;
 }
 
@@ -430,11 +736,51 @@ bool AabbTree<O, OT, SH>::doContains(TIndex index, const TPoint& point, const TI
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TPoint& point, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::doFind(TIndex rootIndex, const TPoint& point, OutputIterator result, const TInfo* info) const
 {
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = rootIndex;
+	while (stackSize > 0)
+	{
+		const TIndex index = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(index < nodes_.size());
+		const Node& node = nodes_[index];
+
+		if (!TObjectTraits::aabbContains(node.aabb(), point))
+		{
+			continue;
+		}
+		if (node.isInternal())
+		{
+			if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+			{
+				// fall back to recursive implementation
+				result = doFind(index + 1, point, result, info);
+				result = doFind(node.right(), point, result, info);
+				continue;
+			}
+			LASS_ASSERT(stackSize + 2 < LASS_SPAT_AABB_TREE_STACK_SIZE);
+			stack[stackSize++] = node.right();
+			stack[stackSize++] = index + 1;
+			continue;
+		}
+		for (TIndex i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectContains(objects_[i], point, info))
+			{
+				*result++ = objects_[i];
+			}
+		}
+	}
+	return result;
+#else
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	LASS_ASSERT(index < nodes_.size());
-	const Node& node = nodes_[index];
+	LASS_ASSERT(rootIndex < nodes_.size());
+	const Node& node = nodes_[rootIndex];
 
 	if (!TObjectTraits::aabbContains(node.aabb(), point))
 	{
@@ -442,7 +788,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TPoint& point, Ou
 	}
 	if (node.isInternal())
 	{
-		result = doFind(index + 1, point, result, info);
+		result = doFind(rootIndex + 1, point, result, info);
 		return doFind(node.right(), point, result, info);
 	}
 	for (TIndex i = node.first(); i != node.last(); ++i)
@@ -454,17 +800,58 @@ OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TPoint& point, Ou
 		}
 	}
 	return result;
+#endif
 }
 
 
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TAabb& box, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::doFind(TIndex rootIndex, const TAabb& box, OutputIterator result, const TInfo* info) const
 {
+#if LASS_SPAT_AABB_TREE_STACK_SIZE
+	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
+	TIndex stackSize = 0;
+	stack[stackSize++] = rootIndex;
+	while (stackSize > 0)
+	{
+		const TIndex index = stack[--stackSize];
+		LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+		LASS_ASSERT(index < nodes_.size());
+		const Node& node = nodes_[index];
+
+		if (!TObjectTraits::aabbIntersects(node.aabb(), box))
+		{
+			continue;
+		}
+		if (node.isInternal())
+		{
+			if (stackSize + 2 >= LASS_SPAT_AABB_TREE_STACK_SIZE)
+			{
+				// fall back to recursive implementation
+				result = doFind(index + 1, box, result, info);
+				result = doFind(node.right(), box, result, info);
+				continue;
+			}
+			LASS_ASSERT(stackSize + 2 < LASS_SPAT_AABB_TREE_STACK_SIZE);
+			stack[stackSize++] = node.right();
+			stack[stackSize++] = index + 1;
+			continue;
+		}
+		for (TIndex i = node.first(); i != node.last(); ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectIntersects(objects_[i], box, info))
+			{
+				*result++ = objects_[i];
+			}
+		}
+	}
+	return result;
+#else
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	LASS_ASSERT(index < nodes_.size());
-	const Node& node = nodes_[index];
+	LASS_ASSERT(rootIndex < nodes_.size());
+	const Node& node = nodes_[rootIndex];
 
 	if (!TObjectTraits::aabbIntersects(node.aabb(), box))
 	{
@@ -472,7 +859,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TAabb& box, Outpu
 	}
 	if (node.isInternal())
 	{
-		result = doFind(index + 1, box, result, info);
+		result = doFind(rootIndex + 1, box, result, info);
 		return doFind(node.right(), box, result, info);
 	}
 	for (TIndex i = node.first(); i != node.last(); ++i)
@@ -484,6 +871,7 @@ OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TAabb& box, Outpu
 		}
 	}
 	return result;
+#endif
 }
 
 
@@ -599,20 +987,20 @@ AabbTree<O, OT, SH>::doIntersect(TIndex index, const TRay& ray, const TVector& i
 
 template <typename O, typename OT, typename SH>
 bool AabbTree<O, OT, SH>::doIntersects(
-		TIndex index, const TRay& ray, TParam tMin, const TParam tMax, const TInfo* info) const
+		TIndex index, const TRay& ray, const TVector& invDir, TParam tMin, const TParam tMax, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
 	const Node& node = nodes_[index];
 
-	if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
+	if (!volumeIntersects(node.aabb(), ray, invDir, tMin, tMax))
 	{
 		return false;
 	}
 	if (node.isInternal())
 	{
-		return doIntersects(index + 1, ray, tMin, tMax, info)
-			|| doIntersects(node.right(), ray, tMin, tMax, info);
+		return doIntersects(index + 1, ray, invDir, tMin, tMax, info)
+			|| doIntersects(node.right(), ray, invDir, tMin, tMax, info);
 	}
 	for (TIndex i = node.first(); i != node.last(); ++i)
 	{

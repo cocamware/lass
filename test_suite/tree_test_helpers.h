@@ -474,7 +474,7 @@ public:
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
-		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << hits << ")" << std::endl;
 	}
 private:
 	const Targets& targets_;
@@ -485,10 +485,10 @@ private:
 
 
 template <typename Targets>
-class AabbFindSpeedTest
+class FindSpeedTest
 {
 public:
-	AabbFindSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+	FindSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
 		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
 	{
 	}
@@ -508,7 +508,41 @@ public:
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
-		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << hits << ")" << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+
+
+template <typename Targets>
+class RayFindSpeedTest
+{
+public:
+	RayFindSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		size_t hits = 0;
+		stopWatch_.restart();
+		std::set<typename Tree::TObjectIterator> loot;
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator end = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != end; ++i)
+			{
+				loot.clear();
+				tree.find(i->first, 0, i->second, std::inserter(loot, loot.begin()));
+				hits += loot.size();
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << hits << ")" << std::endl;
 	}
 private:
 	const Targets& targets_;
@@ -538,14 +572,45 @@ public:
 			for (typename Targets::const_iterator i = targets_.begin(); i != targetEnd; ++i)
 			{
 				TValue t = TNumTraits::infinity;
-				if (tree.intersect(*i, t) != tree.end())
+				if (tree.intersect(i->first, t) != tree.end())
 				{
 					total += t;
 				}
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
-		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << total << ")" << std::endl;
+	}
+private:
+	const Targets& targets_;
+	util::StopWatch& stopWatch_;
+	size_t numberOfRuns_;
+};
+
+
+
+template <typename Targets>
+class IntersectionsSpeedTest
+{
+public:
+	IntersectionsSpeedTest(const Targets& targets, util::StopWatch& stopWatch, size_t numberOfRuns):
+		targets_(targets), stopWatch_(stopWatch), numberOfRuns_(numberOfRuns)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		size_t hits = 0;
+		stopWatch_.restart();
+		for (size_t k = 0; k < numberOfRuns_; ++k)
+		{
+			const typename Targets::const_iterator targetEnd = targets_.end();
+			for (typename Targets::const_iterator i = targets_.begin(); i != targetEnd; ++i)
+			{
+				hits += tree.intersects(i->first) ? 1 : 0;
+			}
+		}
+		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << hits << ")" << std::endl;
 	}
 private:
 	const Targets& targets_;
@@ -581,7 +646,7 @@ public:
 			}
 		}
 		const util::Clock::TTime time = stopWatch_.stop() / static_cast<util::Clock::TTime>(numberOfRuns_ * targets_.size());
-		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << std::endl;
+		LASS_COUT << std::string(typeid(tree).name()).substr(0, 60) << ": " << time << " (" << total << ")" << std::endl;
 	}
 private:
 	const Targets& targets_;

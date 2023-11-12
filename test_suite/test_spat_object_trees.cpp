@@ -96,13 +96,14 @@ void testSpatObjectTreesSpeed(
 		boxTargets.push_back(AabbType(center - extents, center + extents));
 	}
 
-	typedef std::vector<TRay> TRayTargets;
+	// bounds to generate starting and ending point of rays, 10% larger on each side.
+	AabbType rayBounds = bounds;
+	rayBounds.scale(TValue(1.2));
+	typedef std::vector< std::pair<TRay, TValue> > TRayTargets;
 	TRayTargets rayTargets;
 	for (size_t i = 0; i < numberOfRayTestTargets; ++i)
 	{
-		const TPoint support = bounds.random(generator);
-		const TVector direction = TVector::random(generator);
-		rayTargets.push_back(TRay(support, direction));
+		rayTargets.push_back(tree_test_helpers::generateTestRay(rayBounds, generator));
 	}
 
 	LASS_COUT << "contain tests:\n";
@@ -110,15 +111,30 @@ void testSpatObjectTreesSpeed(
 		pointTargets, stopWatch, numberOfContainSpeedTestRuns);
 	meta::tuple::forEach(trees, containSpeedTest);
 
+	LASS_COUT << "point find tests:\n";
+	tree_test_helpers::FindSpeedTest<TPointTargets> pointFindSpeedTest(
+		pointTargets, stopWatch, numberOfBoxFindSpeedTestRuns);
+	meta::tuple::forEach(trees, pointFindSpeedTest);
+
 	LASS_COUT << "aabb find tests:\n";
-	tree_test_helpers::AabbFindSpeedTest<TBoxTargets> aabbFindSpeedTest(
+	tree_test_helpers::FindSpeedTest<TBoxTargets> aabbFindSpeedTest(
 		boxTargets, stopWatch, numberOfBoxFindSpeedTestRuns);
 	meta::tuple::forEach(trees, aabbFindSpeedTest);
+
+	LASS_COUT << "ray find tests:\n";
+	tree_test_helpers::RayFindSpeedTest<TRayTargets> rayFindSpeedTest(
+		rayTargets, stopWatch, numberOfBoxFindSpeedTestRuns);
+	meta::tuple::forEach(trees, rayFindSpeedTest);
 
 	LASS_COUT << "intersection tests:\n";
 	tree_test_helpers::IntersectionSpeedTest<TRayTargets> intersectionSpeedTest(
 		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
 	meta::tuple::forEach(trees, intersectionSpeedTest);
+
+	LASS_COUT << "intersections tests:\n";
+	tree_test_helpers::IntersectionsSpeedTest<TRayTargets> intersectionsSpeedTest(
+		rayTargets, stopWatch, numberOfIntersectionSpeedTestRuns);
+	meta::tuple::forEach(trees, intersectionsSpeedTest);
 
 	LASS_COUT << "nearest neighbour tests:\n";
 	tree_test_helpers::NearestNeighbourSpeedTest<TPointTargets> nearestNeighbourSpeedTest(

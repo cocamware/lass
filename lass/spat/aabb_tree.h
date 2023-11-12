@@ -54,6 +54,10 @@
 
 //#define LASS_SPAT_AABB_TREE_DIAGNOSTICS
 
+#ifndef LASS_SPAT_AABB_TREE_STACK_SIZE
+#	define LASS_SPAT_AABB_TREE_STACK_SIZE 32
+#endif
+
 #include "spat_common.h"
 #include "default_object_traits.h"
 #include "split_heuristics.h"
@@ -212,7 +216,7 @@ private:
 	OutputIterator doFind(TIndex index, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
 
 	TObjectIterator doIntersect(TIndex index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const;
-	bool doIntersects(TIndex iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
+	bool doIntersects(TIndex iIndex, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax, const TInfo* info) const;
 	void doNearestNeighbour(TIndex index, const TPoint& point, const TInfo* info, Neighbour& best) const;
 	template <typename RandomIterator>
 	RandomIterator doRangeSearch(TIndex index, const TPoint& point, TReference squaredRadius,
