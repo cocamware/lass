@@ -256,7 +256,7 @@ void testSpatObjectTrees()
 		meta::tuple::forEach(trees, test);
 	}
 
-	// intersection test
+	// intersection and intersects test
 	//
 	for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 	{
@@ -276,8 +276,8 @@ void testSpatObjectTrees()
 				bruteT = t;
 			}
 		}
-
-		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT);
+		const bool intersects = bruteHit != objectEnd;
+		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT, intersects);
 		meta::tuple::forEach(trees, test);
 	}
 
